@@ -1,0 +1,4 @@
+{
+  "summary": "A compiled leaf description and source references could change while its graph and SCXML round-trip remained valid. Compare protected authored metadata using an explicit enrichment policy so a compiler cannot replace product explanations or drop their source addresses.",
+  "regressionTest": "libs/tools/scripts/statechart-integrity.test.ts"
+}

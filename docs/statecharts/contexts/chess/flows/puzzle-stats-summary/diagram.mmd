@@ -1,9 +1,0 @@
-stateDiagram-v2
-  state "Viewing Rating, puzzles solved, and accuracy" as s0
-  state "Alice's stats show a rating of '1500?' — 1" as s1
-  state "Alice's stats show 3 played, 2 solved, and 67% accuracy — 2" as s2
-  [*] --> s0
-  s0 --> s1: Alice opens their stats when Alice is signed in and Alice is playing puzzles in their space
-  s0 --> s2: Alice opens their stats when Alice is signed in and Alice is playing puzzles in their space and Alice has solved 2 puzzles and failed 1
-  s1 --> [*]
-  s2 --> [*]

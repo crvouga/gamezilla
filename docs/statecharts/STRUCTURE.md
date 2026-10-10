@@ -1,335 +1,96 @@
-# Atlas structure
+# Product map
 
-Retain the context map’s 14 nodes. Identity, Billing, Spaces, Chess, Auth, Matchmaking, App and Journeys are critical because privacy, money or the platform’s core promise can fail there. Friends, Room, Sync engine, Developer tools and Product feedback are standard; Database indexing remains a separate operator context. Individual privacy-sensitive downstream scenarios should execute with the critical account-deletion journey even when their context is otherwise standard.
+The source is one hierarchical machine:
+[`specs/product.machine.json`](../../specs/product.machine.json). There are no
+separate capability charts to select in Atlas. State names and ids are
+globally unique, and transitions can cross region boundaries by targeting
+those names. The compiler attaches the exact business catalog without
+changing the authored topology.
 
-Review critical continuous flows and their lifecycle projections before the standard example branches. Example charts are scoped observable branches, not a claim that a person chooses a scenario from a screen. Their Given facts seed the same initial surface and explicit condition events distinguish outcomes. Final states end an example’s scope; they do not close an account or stop navigation. Charts over the working size budget are split into referenced sibling charts.
+The root keeps identity and this device's navigation active in parallel.
+Access belongs beneath the signed-in account. A capability region is active
+while its owning navigation branch is active; its opening states observe
+existing records when revisited. A visit does not create a new puzzle, game,
+search or relationship.
 
+```mermaid
+flowchart TD
+  product[Whole product] --> identity[Current person]
+  identity --> access[The signed-in account’s access]
+  product --> app[This device]
+  app --> profile[Profile]
+  app --> sign_in[Signing in]
+  app --> sign_in_methods[Sign-in methods]
+  app --> settings[Settings]
+  app --> privacy[Privacy]
+  app --> billing[Billing]
+  app --> spaces[Spaces]
+  app --> friends[Friends]
+  app --> inbox[Notifications]
+  app --> games[Games]
+  app --> puzzles[Puzzles]
+  app --> puzzle_feed[Puzzle feed]
+  app --> puzzle_links[Puzzle links]
+  app --> puzzle_history[Puzzle history]
+  app --> multiplayer[Multiplayer]
+  app --> custom_game[Custom game]
+  app --> puzzle_ingest[Puzzle import]
+  app --> feedback[Feedback]
+  app --> tools[Tools]
+  app --> connection[Opening without connection]
+  tools --> test_worlds[Test worlds]
+  tools --> notebook[Data notebook]
+  tools --> reports[Automated reports]
+  tools --> release[Release check]
+  tools --> environment[Environment]
+  tools --> notes[Notes example]
+  tools --> room[Room example]
+  tools --> matchmaking[Matchmaking example]
+  tools --> chess_board[Chessboard example]
+  tools --> database_maintenance[Maintenance contract]
+  tools --> inspectors[Inspection scope and contract gaps]
+```
 
-## Review scope and order
-
-This is a review draft, not an approved replacement for the existing product specs. It contains 279 charts (233 flows and 46 lifecycles) across the context map’s 14 boundaries: 2,209 states and 3,930 transitions. Of those states, 2,200 are assumed and nine confirmed. All 1,520 Gherkin declarations are classified; 1,470 are mapped, 49 below the UI, one conflicting and none declared stale. All 72 Quint files are inventoried, with lifecycle projections for 42 context-local mutable models and two whole-product interpretations; two additional Feedback lifecycles come from code.
-
-Review and later execute Billing first, because an incorrect charge or loss of purchased access has a direct financial consequence. Identity follows for deletion, export and privacy obligations. Then review Chess and Spaces together for the core promise of solving puzzles and playing with other people. Named owners are absent from the supplied context map and must be assigned before approval.
-
-The most consequential unresolved questions are Billing’s limited grace/refund model; Chess and Journeys’ additional Next action inside an outcome helper; Friends’ missing end-of-wait action; and the inconsistent Chessboard/Whole product partition. The only issue established by static evidence is the next-puzzle acceptance-proof mismatch; this does not prove a runtime defect.
-
-The [interaction table](INTERACTIONS.md) highlights deletion during checkout, paid access ending during a choice, space ending while someone is offline, and blocking during invitations or opponent search. Rename, block and avatar changes also lack consistently documented boundary contracts. Critical transitions without a directly mapped Gherkin journey include checkout/portal failures and retry, grace expiry, offline paid-access expiry, and interruptions by published events; the [complete transition list](GHERKIN_MAPPING.md#transitions-without-a-directly-mapped-gherkin-journey) distinguishes these from examples mapped in sibling charts.
-
-The greatest remaining completeness risks are dynamic or unnamed UI surfaces, candidate code/configuration findings without state-specific bindings, parameter classes omitted from sampled lifecycles, and whole-product composite guards. A valid graph path alone does not establish that its discarded entity data can satisfy every model condition. [Execution notes](EXECUTION_NOTES.md) state the evidence and limits of each validation.
-
-| Context | Tier | Lifecycles | Flow charts | Owner |
-| --- | --- | --- | --- | --- |
-| Identity | critical | [account-privacy](contexts/profile/lifecycles/account-privacy/machine.yaml), [account-sign-in](contexts/profile/lifecycles/account-sign-in/machine.yaml), [username-changes](contexts/profile/lifecycles/username-changes/machine.yaml) | [account-privacy](contexts/profile/flows/account-privacy/machine.yaml), [account-deletion](contexts/profile/flows/account-deletion/machine.yaml), [apple-sign-in](contexts/profile/flows/apple-sign-in/machine.yaml), [devices](contexts/profile/flows/devices/machine.yaml), [finding-a-person](contexts/profile/flows/finding-a-person/machine.yaml), [finish-signing-in](contexts/profile/flows/finish-signing-in/machine.yaml), [offline-sign-in](contexts/profile/flows/offline-sign-in/machine.yaml), [personal-data-export](contexts/profile/flows/personal-data-export/machine.yaml), [personal-data-retention](contexts/profile/flows/personal-data-retention/machine.yaml), [profile-defaults](contexts/profile/flows/profile-defaults/machine.yaml), [profile-edit](contexts/profile/flows/profile-edit/machine.yaml), [sessions](contexts/profile/flows/sessions/machine.yaml), [sign-in-abandoned](contexts/profile/flows/sign-in-abandoned/machine.yaml), [sign-in-methods](contexts/profile/flows/sign-in-methods/machine.yaml), [sign-in](contexts/profile/flows/sign-in/machine.yaml), [username-rules](contexts/profile/flows/username-rules/machine.yaml) | Identity owner (not named in specs) |
-| Billing | critical | [payment-provider-switch](contexts/billing/lifecycles/payment-provider-switch/machine.yaml), [membership-lifecycle](contexts/billing/lifecycles/membership-lifecycle/machine.yaml), [paid-access](contexts/billing/lifecycles/paid-access/machine.yaml) | [membership-and-checkout](contexts/billing/flows/membership-and-checkout/machine.yaml), [billing-access-per-person](contexts/billing/flows/billing-access-per-person/machine.yaml), [billing-offline-grace](contexts/billing/flows/billing-offline-grace/machine.yaml), [billing-plans-details](contexts/billing/flows/billing-plans-details/machine.yaml), [billing-plans](contexts/billing/flows/billing-plans/machine.yaml), [billing-portal](contexts/billing/flows/billing-portal/machine.yaml), [deleted-account-payments](contexts/billing/flows/deleted-account-payments/machine.yaml), [expired-card](contexts/billing/flows/expired-card/machine.yaml), [grace-ends](contexts/billing/flows/grace-ends/machine.yaml), [membership-cancellation](contexts/billing/flows/membership-cancellation/machine.yaml), [membership-interval-switch](contexts/billing/flows/membership-interval-switch/machine.yaml), [membership-renewal](contexts/billing/flows/membership-renewal/machine.yaml), [payment-failures](contexts/billing/flows/payment-failures/machine.yaml), [payment-provider-switch](contexts/billing/flows/payment-provider-switch/machine.yaml), [payments](contexts/billing/flows/payments/machine.yaml), [plus-credit](contexts/billing/flows/plus-credit/machine.yaml), [refunds](contexts/billing/flows/refunds/machine.yaml), [subscribe](contexts/billing/flows/subscribe/machine.yaml), [published-event-reactions](contexts/billing/flows/published-event-reactions/machine.yaml) | Billing owner (not named in specs) |
-| Spaces | critical | [space-recovery](contexts/spaces/lifecycles/space-recovery/machine.yaml), [space-names](contexts/spaces/lifecycles/space-names/machine.yaml), [space-hosting](contexts/spaces/lifecycles/space-hosting/machine.yaml) | [deleted-account-spaces](contexts/spaces/flows/deleted-account-spaces/machine.yaml), [live-updates](contexts/spaces/flows/live-updates/machine.yaml), [space-create](contexts/spaces/flows/space-create/machine.yaml), [space-disconnect-reconnect](contexts/spaces/flows/space-disconnect-reconnect/machine.yaml), [space-end](contexts/spaces/flows/space-end/machine.yaml), [space-friend-join](contexts/spaces/flows/space-friend-join/machine.yaml), [space-guest-host](contexts/spaces/flows/space-guest-host/machine.yaml), [space-guest-link-join](contexts/spaces/flows/space-guest-link-join/machine.yaml), [space-host-leaves](contexts/spaces/flows/space-host-leaves/machine.yaml), [space-host-limit](contexts/spaces/flows/space-host-limit/machine.yaml), [space-lifecycle](contexts/spaces/flows/space-lifecycle/machine.yaml), [space-links](contexts/spaces/flows/space-links/machine.yaml), [space-live-presence](contexts/spaces/flows/space-live-presence/machine.yaml), [space-needs-connection](contexts/spaces/flows/space-needs-connection/machine.yaml), [space-rename](contexts/spaces/flows/space-rename/machine.yaml), [spaces](contexts/spaces/flows/spaces/machine.yaml), [hosting-and-joining](contexts/spaces/flows/hosting-and-joining/machine.yaml), [published-event-reactions](contexts/spaces/flows/published-event-reactions/machine.yaml) | Spaces owner (not named in specs) |
-| Friends | standard | [friendship](contexts/friends/lifecycles/friendship/machine.yaml), [inbox-notice](contexts/friends/lifecycles/inbox-notice/machine.yaml) | [deleted-account-friendships](contexts/friends/flows/deleted-account-friendships/machine.yaml), [friend-block](contexts/friends/flows/friend-block/machine.yaml), [friend-profile](contexts/friends/flows/friend-profile/machine.yaml), [friend-remove](contexts/friends/flows/friend-remove/machine.yaml), [friend-request-accept](contexts/friends/flows/friend-request-accept/machine.yaml), [friend-request-decline-cancel](contexts/friends/flows/friend-request-decline-cancel/machine.yaml), [friend-request-inbox](contexts/friends/flows/friend-request-inbox/machine.yaml), [friends-gates](contexts/friends/flows/friends-gates/machine.yaml), [friends-live-space](contexts/friends/flows/friends-live-space/machine.yaml), [friends-profile-changes](contexts/friends/flows/friends-profile-changes/machine.yaml), [people-search](contexts/friends/flows/people-search/machine.yaml), [relationships-after-time-away](contexts/friends/flows/relationships-after-time-away/machine.yaml), [social-needs-connection](contexts/friends/flows/social-needs-connection/machine.yaml), [published-event-reactions](contexts/friends/flows/published-event-reactions/machine.yaml) | Friends owner (not named in specs) |
-| Chess | critical | [multiplayer](contexts/chess/lifecycles/multiplayer/machine.yaml), [multiplayer-spaces](contexts/chess/lifecycles/multiplayer-spaces/machine.yaml), [custom-game-control](contexts/chess/lifecycles/custom-game-control/machine.yaml), [custom-game-play](contexts/chess/lifecycles/custom-game-play/machine.yaml), [puzzle-attempt](contexts/chess/lifecycles/puzzle-attempt/machine.yaml), [puzzle-loading](contexts/chess/lifecycles/puzzle-loading/machine.yaml), [custom-game](contexts/chess/lifecycles/custom-game/machine.yaml), [puzzle-feed](contexts/chess/lifecycles/puzzle-feed/machine.yaml), [puzzle-sound](contexts/chess/lifecycles/puzzle-sound/machine.yaml), [puzzle-result-recovery](contexts/chess/lifecycles/puzzle-result-recovery/machine.yaml), [puzzle-link](contexts/chess/lifecycles/puzzle-link/machine.yaml), [board-board-premoves](contexts/chess/lifecycles/board-board-premoves/machine.yaml), [board-board-annotations](contexts/chess/lifecycles/board-board-annotations/machine.yaml), [board-board-lifecycle](contexts/chess/lifecycles/board-board-lifecycle/machine.yaml), [board-board-promotion](contexts/chess/lifecycles/board-board-promotion/machine.yaml), [board-board-independence](contexts/chess/lifecycles/board-board-independence/machine.yaml), [board-board-keyboard](contexts/chess/lifecycles/board-board-keyboard/machine.yaml), [board-board-options](contexts/chess/lifecycles/board-board-options/machine.yaml) | [board-board-accessibility](contexts/chess/flows/board-board-accessibility/machine.yaml), [board-board-annotations](contexts/chess/flows/board-board-annotations/machine.yaml), [board-board-authority](contexts/chess/flows/board-board-authority/machine.yaml), [board-board-black-promotion](contexts/chess/flows/board-board-black-promotion/machine.yaml), [board-board-feedback](contexts/chess/flows/board-board-feedback/machine.yaml), [board-board-independence](contexts/chess/flows/board-board-independence/machine.yaml), [board-board-interaction-part-1](contexts/chess/flows/board-board-interaction-part-1/machine.yaml), [board-board-interaction-part-2](contexts/chess/flows/board-board-interaction-part-2/machine.yaml), [board-board-motion](contexts/chess/flows/board-board-motion/machine.yaml), [board-board-opening](contexts/chess/flows/board-board-opening/machine.yaml), [board-board-options-part-1](contexts/chess/flows/board-board-options-part-1/machine.yaml), [board-board-options-part-2](contexts/chess/flows/board-board-options-part-2/machine.yaml), [board-board-premoves](contexts/chess/flows/board-board-premoves/machine.yaml), [board-board-promotion](contexts/chess/flows/board-board-promotion/machine.yaml), [board-board-sound](contexts/chess/flows/board-board-sound/machine.yaml), [board-board-special-moves](contexts/chess/flows/board-board-special-moves/machine.yaml), [chess-opponent-policies](contexts/chess/flows/chess-opponent-policies/machine.yaml), [custom-game-access](contexts/chess/flows/custom-game-access/machine.yaml), [custom-game-accessibility](contexts/chess/flows/custom-game-accessibility/machine.yaml), [custom-game-away](contexts/chess/flows/custom-game-away/machine.yaml), [custom-game-blocking](contexts/chess/flows/custom-game-blocking/machine.yaml), [custom-game-board](contexts/chess/flows/custom-game-board/machine.yaml), [custom-game-clock](contexts/chess/flows/custom-game-clock/machine.yaml), [custom-game-completion](contexts/chess/flows/custom-game-completion/machine.yaml), [custom-game-connection](contexts/chess/flows/custom-game-connection/machine.yaml), [custom-game-creation](contexts/chess/flows/custom-game-creation/machine.yaml), [custom-game-devices](contexts/chess/flows/custom-game-devices/machine.yaml), [custom-game-draws](contexts/chess/flows/custom-game-draws/machine.yaml), [custom-game-history](contexts/chess/flows/custom-game-history/machine.yaml), [custom-game-identity](contexts/chess/flows/custom-game-identity/machine.yaml), [custom-game-invitations](contexts/chess/flows/custom-game-invitations/machine.yaml), [custom-game-open-places](contexts/chess/flows/custom-game-open-places/machine.yaml), [custom-game-open-side](contexts/chess/flows/custom-game-open-side/machine.yaml), [custom-game-play](contexts/chess/flows/custom-game-play/machine.yaml), [custom-game-privacy](contexts/chess/flows/custom-game-privacy/machine.yaml), [custom-game-readiness](contexts/chess/flows/custom-game-readiness/machine.yaml), [custom-game-sides](contexts/chess/flows/custom-game-sides/machine.yaml), [custom-game-withdraw-readiness](contexts/chess/flows/custom-game-withdraw-readiness/machine.yaml), [deleted-account-progress](contexts/chess/flows/deleted-account-progress/machine.yaml), [find-an-opponent](contexts/chess/flows/find-an-opponent/machine.yaml), [multiplayer-abort](contexts/chess/flows/multiplayer-abort/machine.yaml), [multiplayer-accessibility](contexts/chess/flows/multiplayer-accessibility/machine.yaml), [multiplayer-account-and-space](contexts/chess/flows/multiplayer-account-and-space/machine.yaml), [multiplayer-being-matched](contexts/chess/flows/multiplayer-being-matched/machine.yaml), [multiplayer-clock](contexts/chess/flows/multiplayer-clock/machine.yaml), [multiplayer-colours](contexts/chess/flows/multiplayer-colours/machine.yaml), [multiplayer-draw-offers](contexts/chess/flows/multiplayer-draw-offers/machine.yaml), [multiplayer-game-over](contexts/chess/flows/multiplayer-game-over/machine.yaml), [multiplayer-in-spaces](contexts/chess/flows/multiplayer-in-spaces/machine.yaml), [multiplayer-offline](contexts/chess/flows/multiplayer-offline/machine.yaml), [multiplayer-recovery-and-privacy](contexts/chess/flows/multiplayer-recovery-and-privacy/machine.yaml), [multiplayer-rematch](contexts/chess/flows/multiplayer-rematch/machine.yaml), [multiplayer-time-controls](contexts/chess/flows/multiplayer-time-controls/machine.yaml), [play-multiplayer-chess](contexts/chess/flows/play-multiplayer-chess/machine.yaml), [puzzle-accessibility](contexts/chess/flows/puzzle-accessibility/machine.yaml), [puzzle-assistant-accessibility](contexts/chess/flows/puzzle-assistant-accessibility/machine.yaml), [puzzle-assistant-context](contexts/chess/flows/puzzle-assistant-context/machine.yaml), [puzzle-assistant](contexts/chess/flows/puzzle-assistant/machine.yaml), [puzzle-attempt-resume](contexts/chess/flows/puzzle-attempt-resume/machine.yaml), [puzzle-controls](contexts/chess/flows/puzzle-controls/machine.yaml), [puzzle-exhaust](contexts/chess/flows/puzzle-exhaust/machine.yaml), [puzzle-feed-gates](contexts/chess/flows/puzzle-feed-gates/machine.yaml), [puzzle-feed-sticks](contexts/chess/flows/puzzle-feed-sticks/machine.yaml), [puzzle-feed](contexts/chess/flows/puzzle-feed/machine.yaml), [puzzle-guest-carryover](contexts/chess/flows/puzzle-guest-carryover/machine.yaml), [puzzle-guest-play](contexts/chess/flows/puzzle-guest-play/machine.yaml), [puzzle-ingest](contexts/chess/flows/puzzle-ingest/machine.yaml), [puzzle-late-watcher](contexts/chess/flows/puzzle-late-watcher/machine.yaml), [puzzle-limit-upgrade](contexts/chess/flows/puzzle-limit-upgrade/machine.yaml), [puzzle-limits-by-kind](contexts/chess/flows/puzzle-limits-by-kind/machine.yaml), [puzzle-link](contexts/chess/flows/puzzle-link/machine.yaml), [puzzle-objective](contexts/chess/flows/puzzle-objective/machine.yaml), [puzzle-offline-days](contexts/chess/flows/puzzle-offline-days/machine.yaml), [puzzle-offline](contexts/chess/flows/puzzle-offline/machine.yaml), [puzzle-outcome-sync](contexts/chess/flows/puzzle-outcome-sync/machine.yaml), [puzzle-play](contexts/chess/flows/puzzle-play/machine.yaml), [puzzle-quota](contexts/chess/flows/puzzle-quota/machine.yaml), [puzzle-refusals](contexts/chess/flows/puzzle-refusals/machine.yaml), [puzzle-review](contexts/chess/flows/puzzle-review/machine.yaml), [puzzle-selection](contexts/chess/flows/puzzle-selection/machine.yaml), [puzzle-skip-clock](contexts/chess/flows/puzzle-skip-clock/machine.yaml), [puzzle-sound](contexts/chess/flows/puzzle-sound/machine.yaml), [puzzle-spectator](contexts/chess/flows/puzzle-spectator/machine.yaml), [puzzle-stats-summary](contexts/chess/flows/puzzle-stats-summary/machine.yaml), [puzzle-stats](contexts/chess/flows/puzzle-stats/machine.yaml), [solve-flow](contexts/chess/flows/solve-flow/machine.yaml), [solve-move-rules](contexts/chess/flows/solve-move-rules/machine.yaml), [solve-show-solution](contexts/chess/flows/solve-show-solution/machine.yaml), [space-host-select-game](contexts/chess/flows/space-host-select-game/machine.yaml), [puzzle-solving-and-recovery](contexts/chess/flows/puzzle-solving-and-recovery/machine.yaml), [published-event-reactions](contexts/chess/flows/published-event-reactions/machine.yaml), [custom-game-chess-rules](contexts/chess/flows/custom-game-chess-rules/machine.yaml), [custom-game-material](contexts/chess/flows/custom-game-material/machine.yaml), [custom-game-position-draws](contexts/chess/flows/custom-game-position-draws/machine.yaml), [multiplayer-ratings](contexts/chess/flows/multiplayer-ratings/machine.yaml), [puzzle-rating](contexts/chess/flows/puzzle-rating/machine.yaml), [solve-chess-rules](contexts/chess/flows/solve-chess-rules/machine.yaml) | Chess owner (not named in specs) |
-| Auth | critical | [private-apple-email](contexts/auth/lifecycles/private-apple-email/machine.yaml), [outside-accounts](contexts/auth/lifecycles/outside-accounts/machine.yaml) | [at-google-and-apple](contexts/auth/flows/at-google-and-apple/machine.yaml), [matching-accounts](contexts/auth/flows/matching-accounts/machine.yaml), [provider-trouble](contexts/auth/flows/provider-trouble/machine.yaml), [sign-in-ends](contexts/auth/flows/sign-in-ends/machine.yaml), [sign-in-methods](contexts/auth/flows/sign-in-methods/machine.yaml), [sign-in](contexts/auth/flows/sign-in/machine.yaml), [stolen-sign-ins](contexts/auth/flows/stolen-sign-ins/machine.yaml), [outside-account-sign-in](contexts/auth/flows/outside-account-sign-in/machine.yaml), [published-event-reactions](contexts/auth/flows/published-event-reactions/machine.yaml) | Auth owner (not named in specs) |
-| Room | standard | [tally](contexts/room/lifecycles/tally/machine.yaml), [match-recovery](contexts/room/lifecycles/match-recovery/machine.yaml), [tally-recovery](contexts/room/lifecycles/tally-recovery/machine.yaml), [ownership](contexts/room/lifecycles/ownership/machine.yaml), [match-clock](contexts/room/lifecycles/match-clock/machine.yaml) | [match-clock](contexts/room/flows/match-clock/machine.yaml), [match-recovery](contexts/room/flows/match-recovery/machine.yaml), [ownership](contexts/room/flows/ownership/machine.yaml), [presence](contexts/room/flows/presence/machine.yaml), [tally](contexts/room/flows/tally/machine.yaml) | Room owner (not named in specs) |
-| Matchmaking | critical | [matching](contexts/matchmaking/lifecycles/matching/machine.yaml) | [availability-and-details](contexts/matchmaking/flows/availability-and-details/machine.yaml), [being-matched](contexts/matchmaking/flows/being-matched/machine.yaml), [changing-ranges](contexts/matchmaking/flows/changing-ranges/machine.yaml), [competing-waits](contexts/matchmaking/flows/competing-waits/machine.yaml), [complete-groups](contexts/matchmaking/flows/complete-groups/machine.yaml), [lasting-outcomes](contexts/matchmaking/flows/lasting-outcomes/machine.yaml), [pair-restrictions](contexts/matchmaking/flows/pair-restrictions/machine.yaml), [rating-ranges](contexts/matchmaking/flows/rating-ranges/machine.yaml), [search-identity](contexts/matchmaking/flows/search-identity/machine.yaml), [waiting-for-a-match](contexts/matchmaking/flows/waiting-for-a-match/machine.yaml), [waits-after-time-away](contexts/matchmaking/flows/waits-after-time-away/machine.yaml) | Matchmaking owner (not named in specs) |
-| Sync engine | standard | [note-conflicts](contexts/sync-engine/lifecycles/note-conflicts/machine.yaml), [note-refusal-recovery](contexts/sync-engine/lifecycles/note-refusal-recovery/machine.yaml), [note-recovery](contexts/sync-engine/lifecycles/note-recovery/machine.yaml), [note-replication](contexts/sync-engine/lifecycles/note-replication/machine.yaml) | [a-long-time-offline](contexts/sync-engine/flows/a-long-time-offline/machine.yaml), [checked-notes](contexts/sync-engine/flows/checked-notes/machine.yaml), [note-conflicts](contexts/sync-engine/flows/note-conflicts/machine.yaml), [note-deleting](contexts/sync-engine/flows/note-deleting/machine.yaml), [note-refused-edits](contexts/sync-engine/flows/note-refused-edits/machine.yaml), [note-writing](contexts/sync-engine/flows/note-writing/machine.yaml), [notes-across-app-updates](contexts/sync-engine/flows/notes-across-app-updates/machine.yaml), [notes-across-devices](contexts/sync-engine/flows/notes-across-devices/machine.yaml), [notes-after-a-crash](contexts/sync-engine/flows/notes-after-a-crash/machine.yaml), [notes-arrive-quickly](contexts/sync-engine/flows/notes-arrive-quickly/machine.yaml), [notes-offline](contexts/sync-engine/flows/notes-offline/machine.yaml), [notes-saved-once](contexts/sync-engine/flows/notes-saved-once/machine.yaml), [online-only-actions](contexts/sync-engine/flows/online-only-actions/machine.yaml), [shared-space-membership](contexts/sync-engine/flows/shared-space-membership/machine.yaml) | Sync engine owner (not named in specs) |
-| Database indexing | standard | [index-retirement](contexts/db-indexes/lifecycles/index-retirement/machine.yaml), [index-interruption](contexts/db-indexes/lifecycles/index-interruption/machine.yaml) |  | Database indexing owner (not named in specs) |
-| App | critical | [app-platform](contexts/runtime/lifecycles/app-platform/machine.yaml) | [accessibility](contexts/runtime/flows/accessibility/machine.yaml), [app-addresses](contexts/runtime/flows/app-addresses/machine.yaml), [app-shell](contexts/runtime/flows/app-shell/machine.yaml), [app-updates](contexts/runtime/flows/app-updates/machine.yaml), [connection-restore](contexts/runtime/flows/connection-restore/machine.yaml), [device-layouts](contexts/runtime/flows/device-layouts/machine.yaml), [offline-open](contexts/runtime/flows/offline-open/machine.yaml), [settings](contexts/runtime/flows/settings/machine.yaml), [published-event-reactions](contexts/runtime/flows/published-event-reactions/machine.yaml) | App owner (not named in specs) |
-| Developer tools | standard | None | [checkpoints](contexts/developer-tools/flows/checkpoints/machine.yaml), [data-notebook](contexts/developer-tools/flows/data-notebook/machine.yaml), [recorded-moments](contexts/developer-tools/flows/recorded-moments/machine.yaml), [release-check](contexts/developer-tools/flows/release-check/machine.yaml), [report-catalog](contexts/developer-tools/flows/report-catalog/machine.yaml), [report-explorer](contexts/developer-tools/flows/report-explorer/machine.yaml), [report-navigation](contexts/developer-tools/flows/report-navigation/machine.yaml), [report-performance](contexts/developer-tools/flows/report-performance/machine.yaml), [test-world-views](contexts/developer-tools/flows/test-world-views/machine.yaml), [published-event-reactions](contexts/developer-tools/flows/published-event-reactions/machine.yaml) | Developer tools owner (not named in specs) |
-| Product feedback | standard | [feedback-draft](contexts/feedback/lifecycles/feedback-draft/machine.yaml), [reproduction-recording](contexts/feedback/lifecycles/reproduction-recording/machine.yaml) | [availability](contexts/feedback/flows/availability/machine.yaml), [drafts](contexts/feedback/flows/drafts/machine.yaml), [feedback-wizard](contexts/feedback/flows/feedback-wizard/machine.yaml), [giving-feedback](contexts/feedback/flows/giving-feedback/machine.yaml), [managing-feedback](contexts/feedback/flows/managing-feedback/machine.yaml), [recording](contexts/feedback/flows/recording/machine.yaml) | Product feedback owner (not named in specs) |
-| Journeys | critical | None | [critical-journeys](contexts/journeys/flows/critical-journeys/machine.yaml), [custom-game](contexts/journeys/flows/custom-game/machine.yaml), [join-and-offline](contexts/journeys/flows/join-and-offline/machine.yaml), [multiplayer-game](contexts/journeys/flows/multiplayer-game/machine.yaml), [published-event-reactions](contexts/journeys/flows/published-event-reactions/machine.yaml) | Journeys owner (not named in specs) |
-
-## Cross-context outcome ownership
-
-| Flow | Outcome owner | Reason / upstream facts |
+| Region | Context contract | Purpose |
 | --- | --- | --- |
-| Subscribe, renewal, refund and portal | Billing | Billing decides membership/access; Identity supplies SignedIn, SignedOut and AccountDeletionConfirmed. Downstream access reacts to PaidAccessStarted / PaidAccessEnded. |
-| Delete account / export personal data | Identity | Identity withdraws the account and its data; Billing, Spaces, Friends and Chess react to AccountDeletionConfirmed without inspecting Identity internals. |
-| Provider proof / connect external sign-in method | Auth | Auth owns provider proof and matching mechanics; Identity owns the resulting account fact. There is no Auth-published domain event to invent. |
-| Join a friend’s space | Spaces | Joining owns space membership. Friends publishes BecameFriends / FriendshipEnded; Spaces never models a friend-request lifecycle internally. |
-| Private multiplayer after pairing | Chess | Chess owns board, turns, clocks and result. Matchmaking publishes MatchFormed; Chess never models the pairing algorithm as its own state. |
-| App navigation / test evidence | App and Developer tools respectively | The map includes bidirectional vocabulary hand-offs but publishes no named domain event. Missing contract names remain open questions. |
-| Shared notes | Sync engine | Its shared-space example is distinct from a Spaces space; no cross-context events are assumed. |
+| access | billing | Paid access follows the current person across every place in the app and is decided by permission policy. |
+| app | runtime | This device starts at Spaces and keeps its own place while the person visits the product’s capabilities. |
+| billing | billing | Plus checkout, renewals, cancellation, grace and refunds determine the person’s paid access. |
+| chess-board | chess-board | Board controls support selecting, dragging, keyboard play, promotion, marks, sounds and independent boards. |
+| connection | runtime | Opening offline distinguishes a device with saved app data from a fresh device, and recovery preserves the person’s place. |
+| custom-game | chess | A host configures people or bots, gets readiness for the current choices, then plays and reviews an unrated Custom Game. |
+| database-maintenance | db-indexes | The maintenance contract tracks planned, interrupted and retired work without creating a player-facing feature. |
+| environment | runtime | The team keeps each declared environment reachable, isolated, observable and recoverable without exposing personal data. |
+| feedback | feedback | The person keeps a draft, optionally records reproduction, and sees submission and management outcomes. |
+| friends | friends | Searching, asking, accepting, declining, cancelling, removing and blocking keep relationships explicit. |
+| games | chess | The host chooses puzzles, private multiplayer chess or a Custom Game; participants watch as permitted. |
+| identity | profile | The device keeps its own current person while the person explores the app. |
+| inspectors | developer-tools | Diagnostic and component-reference surfaces remain visible with their addresses and incomplete contracts. |
+| inbox | friends | Inbox notices preserve an explicit choice and show when the underlying request has ended. |
+| matchmaking | matchmaking | A person maintains one wait, compatible rating ranges and a durable complete-group outcome. |
+| multiplayer | chess | A private multiplayer game joins opponent search, timed play, results and rematch into one continuous flow. |
+| notebook | developer-tools | Each selected device keeps its notebook questions and their answers. |
+| notes | sync-engine | The framework example keeps owned and shared notes across offline work, conflicts, deletion and refused edits. |
+| privacy | profile | A person proves their account before exporting personal data or confirming permanent deletion. |
+| product | system | Explore the whole product from one chart: the current person and this device’s place change together. |
+| profile | profile | The person edits their public profile while refused edits leave the saved profile intact. |
+| puzzle-feed | chess | Feed edits preview eligible choices; saving applies them and cancelling keeps the saved feed. |
+| puzzle-history | chess | Puzzle history and statistics show the person’s recorded attempts and skill without changing earlier outcomes. |
+| puzzle-ingest | chess | An allowed person adds puzzle material and sees accepted and broken items or a retryable failure. |
+| puzzle-links | chess | A shared puzzle link opens that puzzle with the permitted rated or practice behavior. |
+| puzzles | chess | The current puzzle stays connected to moves, hints, review, results, limits and offline watching. |
+| release | developer-tools | Release decisions require a current automated pass for every obligation of the same edition. |
+| reports | developer-tools | The team explores every spec and its current automated evidence, including missing or unavailable reports. |
+| room | room | The framework example joins room ownership, presence, a shared tally and a timed match. |
+| settings | runtime | Device preferences survive closing the app; account and product choices remain reachable from Settings. |
+| sign-in | auth | Google and Apple identify the person; account matching always preserves the person’s choice. |
+| sign-in-methods | profile | A person connects and removes sign-in methods without losing the last way into the account. |
+| spaces | spaces | People create, join, share, rename, leave and end spaces, with clear limits and recovery. |
+| test-worlds | developer-tools | The team selects independent devices, changes their arrangement and saves or restores compatible checkpoints. |
+| tools | developer-tools | The testing tool reaches test worlds, notebooks, reports, release evidence and the framework example apps. |
 
-## Exclusions
-
-Static About/version information and transport/storage/index implementation details are listed in the inventory and not given fabricated user screens. Whole-product helper models constrain owning projections and are not invented as new contexts. Service-only assertions are Below the UI. Chess-law and rating outcomes that people see are mapped; the underlying calculations are not fabricated as screens. UI explorer, authoring and maintenance gaps remain explicit owner questions.
-
-## Chart catalog
-
-| Chart | Kind | Tier | States | Assumed | Conflicts / questions |
-| --- | --- | --- | --- | --- | --- |
-| [membership-and-checkout](contexts/billing/flows/membership-and-checkout/machine.yaml) | flow | critical | 17 | 17 | [review](OPEN_QUESTIONS.md#billing) |
-| [account-privacy](contexts/profile/flows/account-privacy/machine.yaml) | flow | critical | 14 | 9 | [review](OPEN_QUESTIONS.md#profile) |
-| [at-google-and-apple](contexts/auth/flows/at-google-and-apple/machine.yaml) | flow | critical | 12 | 12 | [review](OPEN_QUESTIONS.md#auth) |
-| [matching-accounts](contexts/auth/flows/matching-accounts/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#auth) |
-| [provider-trouble](contexts/auth/flows/provider-trouble/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#auth) |
-| [sign-in-ends](contexts/auth/flows/sign-in-ends/machine.yaml) | flow | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#auth) |
-| [sign-in-methods](contexts/auth/flows/sign-in-methods/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#auth) |
-| [sign-in](contexts/auth/flows/sign-in/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#auth) |
-| [stolen-sign-ins](contexts/auth/flows/stolen-sign-ins/machine.yaml) | flow | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#auth) |
-| [billing-access-per-person](contexts/billing/flows/billing-access-per-person/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#billing) |
-| [billing-offline-grace](contexts/billing/flows/billing-offline-grace/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#billing) |
-| [billing-plans-details](contexts/billing/flows/billing-plans-details/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#billing) |
-| [billing-plans](contexts/billing/flows/billing-plans/machine.yaml) | flow | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#billing) |
-| [billing-portal](contexts/billing/flows/billing-portal/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#billing) |
-| [deleted-account-payments](contexts/billing/flows/deleted-account-payments/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#billing) |
-| [expired-card](contexts/billing/flows/expired-card/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#billing) |
-| [grace-ends](contexts/billing/flows/grace-ends/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#billing) |
-| [membership-cancellation](contexts/billing/flows/membership-cancellation/machine.yaml) | flow | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#billing) |
-| [membership-interval-switch](contexts/billing/flows/membership-interval-switch/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#billing) |
-| [membership-renewal](contexts/billing/flows/membership-renewal/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#billing) |
-| [payment-failures](contexts/billing/flows/payment-failures/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#billing) |
-| [payment-provider-switch](contexts/billing/flows/payment-provider-switch/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#billing) |
-| [payments](contexts/billing/flows/payments/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#billing) |
-| [plus-credit](contexts/billing/flows/plus-credit/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#billing) |
-| [refunds](contexts/billing/flows/refunds/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#billing) |
-| [subscribe](contexts/billing/flows/subscribe/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#billing) |
-| [board-board-accessibility](contexts/chess/flows/board-board-accessibility/machine.yaml) | flow | critical | 31 | 31 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-annotations](contexts/chess/flows/board-board-annotations/machine.yaml) | flow | critical | 27 | 27 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-authority](contexts/chess/flows/board-board-authority/machine.yaml) | flow | critical | 25 | 25 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-black-promotion](contexts/chess/flows/board-board-black-promotion/machine.yaml) | flow | critical | 22 | 22 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-feedback](contexts/chess/flows/board-board-feedback/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-independence](contexts/chess/flows/board-board-independence/machine.yaml) | flow | critical | 15 | 15 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-interaction-part-1](contexts/chess/flows/board-board-interaction-part-1/machine.yaml) | flow | critical | 35 | 35 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-interaction-part-2](contexts/chess/flows/board-board-interaction-part-2/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-motion](contexts/chess/flows/board-board-motion/machine.yaml) | flow | critical | 15 | 15 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-opening](contexts/chess/flows/board-board-opening/machine.yaml) | flow | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-options-part-1](contexts/chess/flows/board-board-options-part-1/machine.yaml) | flow | critical | 35 | 35 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-options-part-2](contexts/chess/flows/board-board-options-part-2/machine.yaml) | flow | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-premoves](contexts/chess/flows/board-board-premoves/machine.yaml) | flow | critical | 22 | 22 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-promotion](contexts/chess/flows/board-board-promotion/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-sound](contexts/chess/flows/board-board-sound/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-special-moves](contexts/chess/flows/board-board-special-moves/machine.yaml) | flow | critical | 26 | 26 | [review](OPEN_QUESTIONS.md#chess) |
-| [chess-opponent-policies](contexts/chess/flows/chess-opponent-policies/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-access](contexts/chess/flows/custom-game-access/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-accessibility](contexts/chess/flows/custom-game-accessibility/machine.yaml) | flow | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-away](contexts/chess/flows/custom-game-away/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-blocking](contexts/chess/flows/custom-game-blocking/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-board](contexts/chess/flows/custom-game-board/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-clock](contexts/chess/flows/custom-game-clock/machine.yaml) | flow | critical | 12 | 12 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-completion](contexts/chess/flows/custom-game-completion/machine.yaml) | flow | critical | 17 | 17 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-connection](contexts/chess/flows/custom-game-connection/machine.yaml) | flow | critical | 8 | 8 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-creation](contexts/chess/flows/custom-game-creation/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-devices](contexts/chess/flows/custom-game-devices/machine.yaml) | flow | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-draws](contexts/chess/flows/custom-game-draws/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-history](contexts/chess/flows/custom-game-history/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-identity](contexts/chess/flows/custom-game-identity/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-invitations](contexts/chess/flows/custom-game-invitations/machine.yaml) | flow | critical | 12 | 12 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-open-places](contexts/chess/flows/custom-game-open-places/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-open-side](contexts/chess/flows/custom-game-open-side/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-play](contexts/chess/flows/custom-game-play/machine.yaml) | flow | critical | 15 | 15 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-privacy](contexts/chess/flows/custom-game-privacy/machine.yaml) | flow | critical | 8 | 8 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-readiness](contexts/chess/flows/custom-game-readiness/machine.yaml) | flow | critical | 14 | 14 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-sides](contexts/chess/flows/custom-game-sides/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-withdraw-readiness](contexts/chess/flows/custom-game-withdraw-readiness/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#chess) |
-| [deleted-account-progress](contexts/chess/flows/deleted-account-progress/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [find-an-opponent](contexts/chess/flows/find-an-opponent/machine.yaml) | flow | critical | 14 | 14 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-abort](contexts/chess/flows/multiplayer-abort/machine.yaml) | flow | critical | 16 | 16 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-accessibility](contexts/chess/flows/multiplayer-accessibility/machine.yaml) | flow | critical | 13 | 13 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-account-and-space](contexts/chess/flows/multiplayer-account-and-space/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-being-matched](contexts/chess/flows/multiplayer-being-matched/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-clock](contexts/chess/flows/multiplayer-clock/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-colours](contexts/chess/flows/multiplayer-colours/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-draw-offers](contexts/chess/flows/multiplayer-draw-offers/machine.yaml) | flow | critical | 13 | 13 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-game-over](contexts/chess/flows/multiplayer-game-over/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-in-spaces](contexts/chess/flows/multiplayer-in-spaces/machine.yaml) | flow | critical | 10 | 10 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-offline](contexts/chess/flows/multiplayer-offline/machine.yaml) | flow | critical | 13 | 13 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-recovery-and-privacy](contexts/chess/flows/multiplayer-recovery-and-privacy/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-rematch](contexts/chess/flows/multiplayer-rematch/machine.yaml) | flow | critical | 14 | 14 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-time-controls](contexts/chess/flows/multiplayer-time-controls/machine.yaml) | flow | critical | 10 | 10 | [review](OPEN_QUESTIONS.md#chess) |
-| [play-multiplayer-chess](contexts/chess/flows/play-multiplayer-chess/machine.yaml) | flow | critical | 18 | 18 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-accessibility](contexts/chess/flows/puzzle-accessibility/machine.yaml) | flow | critical | 13 | 13 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-assistant-accessibility](contexts/chess/flows/puzzle-assistant-accessibility/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-assistant-context](contexts/chess/flows/puzzle-assistant-context/machine.yaml) | flow | critical | 13 | 13 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-assistant](contexts/chess/flows/puzzle-assistant/machine.yaml) | flow | critical | 12 | 12 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-attempt-resume](contexts/chess/flows/puzzle-attempt-resume/machine.yaml) | flow | critical | 12 | 12 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-controls](contexts/chess/flows/puzzle-controls/machine.yaml) | flow | critical | 14 | 14 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-exhaust](contexts/chess/flows/puzzle-exhaust/machine.yaml) | flow | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-feed-gates](contexts/chess/flows/puzzle-feed-gates/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-feed-sticks](contexts/chess/flows/puzzle-feed-sticks/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-feed](contexts/chess/flows/puzzle-feed/machine.yaml) | flow | critical | 21 | 21 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-guest-carryover](contexts/chess/flows/puzzle-guest-carryover/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-guest-play](contexts/chess/flows/puzzle-guest-play/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-ingest](contexts/chess/flows/puzzle-ingest/machine.yaml) | flow | critical | 13 | 13 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-late-watcher](contexts/chess/flows/puzzle-late-watcher/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-limit-upgrade](contexts/chess/flows/puzzle-limit-upgrade/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-limits-by-kind](contexts/chess/flows/puzzle-limits-by-kind/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-link](contexts/chess/flows/puzzle-link/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-objective](contexts/chess/flows/puzzle-objective/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-offline-days](contexts/chess/flows/puzzle-offline-days/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-offline](contexts/chess/flows/puzzle-offline/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-outcome-sync](contexts/chess/flows/puzzle-outcome-sync/machine.yaml) | flow | critical | 17 | 17 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-play](contexts/chess/flows/puzzle-play/machine.yaml) | flow | critical | 13 | 13 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-quota](contexts/chess/flows/puzzle-quota/machine.yaml) | flow | critical | 10 | 10 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-refusals](contexts/chess/flows/puzzle-refusals/machine.yaml) | flow | critical | 28 | 28 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-review](contexts/chess/flows/puzzle-review/machine.yaml) | flow | critical | 13 | 13 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-selection](contexts/chess/flows/puzzle-selection/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-skip-clock](contexts/chess/flows/puzzle-skip-clock/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-sound](contexts/chess/flows/puzzle-sound/machine.yaml) | flow | critical | 15 | 15 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-spectator](contexts/chess/flows/puzzle-spectator/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-stats-summary](contexts/chess/flows/puzzle-stats-summary/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-stats](contexts/chess/flows/puzzle-stats/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#chess) |
-| [solve-flow](contexts/chess/flows/solve-flow/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#chess) |
-| [solve-move-rules](contexts/chess/flows/solve-move-rules/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [solve-show-solution](contexts/chess/flows/solve-show-solution/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#chess) |
-| [space-host-select-game](contexts/chess/flows/space-host-select-game/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#chess) |
-| [checkpoints](contexts/developer-tools/flows/checkpoints/machine.yaml) | flow | standard | 8 | 8 | [review](OPEN_QUESTIONS.md#developer-tools) |
-| [data-notebook](contexts/developer-tools/flows/data-notebook/machine.yaml) | flow | standard | 9 | 9 | [review](OPEN_QUESTIONS.md#developer-tools) |
-| [recorded-moments](contexts/developer-tools/flows/recorded-moments/machine.yaml) | flow | standard | 9 | 9 | [review](OPEN_QUESTIONS.md#developer-tools) |
-| [release-check](contexts/developer-tools/flows/release-check/machine.yaml) | flow | standard | 10 | 10 | [review](OPEN_QUESTIONS.md#developer-tools) |
-| [report-catalog](contexts/developer-tools/flows/report-catalog/machine.yaml) | flow | standard | 7 | 7 | [review](OPEN_QUESTIONS.md#developer-tools) |
-| [report-explorer](contexts/developer-tools/flows/report-explorer/machine.yaml) | flow | standard | 9 | 9 | [review](OPEN_QUESTIONS.md#developer-tools) |
-| [report-navigation](contexts/developer-tools/flows/report-navigation/machine.yaml) | flow | standard | 9 | 9 | [review](OPEN_QUESTIONS.md#developer-tools) |
-| [report-performance](contexts/developer-tools/flows/report-performance/machine.yaml) | flow | standard | 5 | 5 | [review](OPEN_QUESTIONS.md#developer-tools) |
-| [test-world-views](contexts/developer-tools/flows/test-world-views/machine.yaml) | flow | standard | 5 | 5 | [review](OPEN_QUESTIONS.md#developer-tools) |
-| [availability](contexts/feedback/flows/availability/machine.yaml) | flow | standard | 11 | 11 | [review](OPEN_QUESTIONS.md#feedback) |
-| [drafts](contexts/feedback/flows/drafts/machine.yaml) | flow | standard | 6 | 6 | [review](OPEN_QUESTIONS.md#feedback) |
-| [feedback-wizard](contexts/feedback/flows/feedback-wizard/machine.yaml) | flow | standard | 6 | 6 | [review](OPEN_QUESTIONS.md#feedback) |
-| [giving-feedback](contexts/feedback/flows/giving-feedback/machine.yaml) | flow | standard | 9 | 9 | [review](OPEN_QUESTIONS.md#feedback) |
-| [managing-feedback](contexts/feedback/flows/managing-feedback/machine.yaml) | flow | standard | 7 | 7 | [review](OPEN_QUESTIONS.md#feedback) |
-| [recording](contexts/feedback/flows/recording/machine.yaml) | flow | standard | 8 | 8 | [review](OPEN_QUESTIONS.md#feedback) |
-| [deleted-account-friendships](contexts/friends/flows/deleted-account-friendships/machine.yaml) | flow | standard | 5 | 5 | [review](OPEN_QUESTIONS.md#friends) |
-| [friend-block](contexts/friends/flows/friend-block/machine.yaml) | flow | standard | 11 | 11 | [review](OPEN_QUESTIONS.md#friends) |
-| [friend-profile](contexts/friends/flows/friend-profile/machine.yaml) | flow | standard | 7 | 7 | [review](OPEN_QUESTIONS.md#friends) |
-| [friend-remove](contexts/friends/flows/friend-remove/machine.yaml) | flow | standard | 3 | 3 | [review](OPEN_QUESTIONS.md#friends) |
-| [friend-request-accept](contexts/friends/flows/friend-request-accept/machine.yaml) | flow | standard | 3 | 3 | [review](OPEN_QUESTIONS.md#friends) |
-| [friend-request-decline-cancel](contexts/friends/flows/friend-request-decline-cancel/machine.yaml) | flow | standard | 5 | 5 | [review](OPEN_QUESTIONS.md#friends) |
-| [friend-request-inbox](contexts/friends/flows/friend-request-inbox/machine.yaml) | flow | standard | 4 | 4 | [review](OPEN_QUESTIONS.md#friends) |
-| [friends-gates](contexts/friends/flows/friends-gates/machine.yaml) | flow | standard | 6 | 6 | [review](OPEN_QUESTIONS.md#friends) |
-| [friends-live-space](contexts/friends/flows/friends-live-space/machine.yaml) | flow | standard | 4 | 4 | [review](OPEN_QUESTIONS.md#friends) |
-| [friends-profile-changes](contexts/friends/flows/friends-profile-changes/machine.yaml) | flow | standard | 6 | 6 | [review](OPEN_QUESTIONS.md#friends) |
-| [people-search](contexts/friends/flows/people-search/machine.yaml) | flow | standard | 6 | 6 | [review](OPEN_QUESTIONS.md#friends) |
-| [relationships-after-time-away](contexts/friends/flows/relationships-after-time-away/machine.yaml) | flow | standard | 4 | 4 | [review](OPEN_QUESTIONS.md#friends) |
-| [social-needs-connection](contexts/friends/flows/social-needs-connection/machine.yaml) | flow | standard | 3 | 3 | [review](OPEN_QUESTIONS.md#friends) |
-| [critical-journeys](contexts/journeys/flows/critical-journeys/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#journeys) |
-| [custom-game](contexts/journeys/flows/custom-game/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#journeys) |
-| [join-and-offline](contexts/journeys/flows/join-and-offline/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#journeys) |
-| [multiplayer-game](contexts/journeys/flows/multiplayer-game/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#journeys) |
-| [availability-and-details](contexts/matchmaking/flows/availability-and-details/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#matchmaking) |
-| [being-matched](contexts/matchmaking/flows/being-matched/machine.yaml) | flow | critical | 8 | 8 | [review](OPEN_QUESTIONS.md#matchmaking) |
-| [changing-ranges](contexts/matchmaking/flows/changing-ranges/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#matchmaking) |
-| [competing-waits](contexts/matchmaking/flows/competing-waits/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#matchmaking) |
-| [complete-groups](contexts/matchmaking/flows/complete-groups/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#matchmaking) |
-| [lasting-outcomes](contexts/matchmaking/flows/lasting-outcomes/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#matchmaking) |
-| [pair-restrictions](contexts/matchmaking/flows/pair-restrictions/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#matchmaking) |
-| [rating-ranges](contexts/matchmaking/flows/rating-ranges/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#matchmaking) |
-| [search-identity](contexts/matchmaking/flows/search-identity/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#matchmaking) |
-| [waiting-for-a-match](contexts/matchmaking/flows/waiting-for-a-match/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#matchmaking) |
-| [waits-after-time-away](contexts/matchmaking/flows/waits-after-time-away/machine.yaml) | flow | critical | 12 | 12 | [review](OPEN_QUESTIONS.md#matchmaking) |
-| [account-deletion](contexts/profile/flows/account-deletion/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#profile) |
-| [apple-sign-in](contexts/profile/flows/apple-sign-in/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#profile) |
-| [devices](contexts/profile/flows/devices/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#profile) |
-| [finding-a-person](contexts/profile/flows/finding-a-person/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#profile) |
-| [finish-signing-in](contexts/profile/flows/finish-signing-in/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#profile) |
-| [offline-sign-in](contexts/profile/flows/offline-sign-in/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#profile) |
-| [personal-data-export](contexts/profile/flows/personal-data-export/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#profile) |
-| [personal-data-retention](contexts/profile/flows/personal-data-retention/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#profile) |
-| [profile-defaults](contexts/profile/flows/profile-defaults/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#profile) |
-| [profile-edit](contexts/profile/flows/profile-edit/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#profile) |
-| [sessions](contexts/profile/flows/sessions/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#profile) |
-| [sign-in-abandoned](contexts/profile/flows/sign-in-abandoned/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#profile) |
-| [sign-in-methods](contexts/profile/flows/sign-in-methods/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#profile) |
-| [sign-in](contexts/profile/flows/sign-in/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#profile) |
-| [username-rules](contexts/profile/flows/username-rules/machine.yaml) | flow | critical | 17 | 17 | [review](OPEN_QUESTIONS.md#profile) |
-| [match-clock](contexts/room/flows/match-clock/machine.yaml) | flow | standard | 15 | 15 | [review](OPEN_QUESTIONS.md#room) |
-| [match-recovery](contexts/room/flows/match-recovery/machine.yaml) | flow | standard | 4 | 4 | [review](OPEN_QUESTIONS.md#room) |
-| [ownership](contexts/room/flows/ownership/machine.yaml) | flow | standard | 8 | 8 | [review](OPEN_QUESTIONS.md#room) |
-| [presence](contexts/room/flows/presence/machine.yaml) | flow | standard | 3 | 3 | [review](OPEN_QUESTIONS.md#room) |
-| [tally](contexts/room/flows/tally/machine.yaml) | flow | standard | 9 | 9 | [review](OPEN_QUESTIONS.md#room) |
-| [accessibility](contexts/runtime/flows/accessibility/machine.yaml) | flow | critical | 8 | 8 | [review](OPEN_QUESTIONS.md#runtime) |
-| [app-addresses](contexts/runtime/flows/app-addresses/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#runtime) |
-| [app-shell](contexts/runtime/flows/app-shell/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#runtime) |
-| [app-updates](contexts/runtime/flows/app-updates/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#runtime) |
-| [connection-restore](contexts/runtime/flows/connection-restore/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#runtime) |
-| [device-layouts](contexts/runtime/flows/device-layouts/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#runtime) |
-| [offline-open](contexts/runtime/flows/offline-open/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#runtime) |
-| [settings](contexts/runtime/flows/settings/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#runtime) |
-| [deleted-account-spaces](contexts/spaces/flows/deleted-account-spaces/machine.yaml) | flow | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#spaces) |
-| [live-updates](contexts/spaces/flows/live-updates/machine.yaml) | flow | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-create](contexts/spaces/flows/space-create/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-disconnect-reconnect](contexts/spaces/flows/space-disconnect-reconnect/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-end](contexts/spaces/flows/space-end/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-friend-join](contexts/spaces/flows/space-friend-join/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-guest-host](contexts/spaces/flows/space-guest-host/machine.yaml) | flow | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-guest-link-join](contexts/spaces/flows/space-guest-link-join/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-host-leaves](contexts/spaces/flows/space-host-leaves/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-host-limit](contexts/spaces/flows/space-host-limit/machine.yaml) | flow | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-lifecycle](contexts/spaces/flows/space-lifecycle/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-links](contexts/spaces/flows/space-links/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-live-presence](contexts/spaces/flows/space-live-presence/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-needs-connection](contexts/spaces/flows/space-needs-connection/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-rename](contexts/spaces/flows/space-rename/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#spaces) |
-| [spaces](contexts/spaces/flows/spaces/machine.yaml) | flow | critical | 2 | 2 | [review](OPEN_QUESTIONS.md#spaces) |
-| [a-long-time-offline](contexts/sync-engine/flows/a-long-time-offline/machine.yaml) | flow | standard | 2 | 2 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [checked-notes](contexts/sync-engine/flows/checked-notes/machine.yaml) | flow | standard | 6 | 6 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [note-conflicts](contexts/sync-engine/flows/note-conflicts/machine.yaml) | flow | standard | 6 | 6 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [note-deleting](contexts/sync-engine/flows/note-deleting/machine.yaml) | flow | standard | 4 | 4 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [note-refused-edits](contexts/sync-engine/flows/note-refused-edits/machine.yaml) | flow | standard | 5 | 5 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [note-writing](contexts/sync-engine/flows/note-writing/machine.yaml) | flow | standard | 9 | 9 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [notes-across-app-updates](contexts/sync-engine/flows/notes-across-app-updates/machine.yaml) | flow | standard | 11 | 11 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [notes-across-devices](contexts/sync-engine/flows/notes-across-devices/machine.yaml) | flow | standard | 3 | 3 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [notes-after-a-crash](contexts/sync-engine/flows/notes-after-a-crash/machine.yaml) | flow | standard | 4 | 4 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [notes-arrive-quickly](contexts/sync-engine/flows/notes-arrive-quickly/machine.yaml) | flow | standard | 3 | 3 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [notes-offline](contexts/sync-engine/flows/notes-offline/machine.yaml) | flow | standard | 5 | 5 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [notes-saved-once](contexts/sync-engine/flows/notes-saved-once/machine.yaml) | flow | standard | 3 | 3 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [online-only-actions](contexts/sync-engine/flows/online-only-actions/machine.yaml) | flow | standard | 4 | 4 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [shared-space-membership](contexts/sync-engine/flows/shared-space-membership/machine.yaml) | flow | standard | 9 | 9 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [tally](contexts/room/lifecycles/tally/machine.yaml) | lifecycle | standard | 3 | 3 | [review](OPEN_QUESTIONS.md#room) |
-| [match-recovery](contexts/room/lifecycles/match-recovery/machine.yaml) | lifecycle | standard | 5 | 5 | [review](OPEN_QUESTIONS.md#room) |
-| [tally-recovery](contexts/room/lifecycles/tally-recovery/machine.yaml) | lifecycle | standard | 3 | 3 | [review](OPEN_QUESTIONS.md#room) |
-| [ownership](contexts/room/lifecycles/ownership/machine.yaml) | lifecycle | standard | 5 | 5 | [review](OPEN_QUESTIONS.md#room) |
-| [match-clock](contexts/room/lifecycles/match-clock/machine.yaml) | lifecycle | standard | 5 | 5 | [review](OPEN_QUESTIONS.md#room) |
-| [private-apple-email](contexts/auth/lifecycles/private-apple-email/machine.yaml) | lifecycle | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#auth) |
-| [outside-accounts](contexts/auth/lifecycles/outside-accounts/machine.yaml) | lifecycle | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#auth) |
-| [app-platform](contexts/runtime/lifecycles/app-platform/machine.yaml) | lifecycle | critical | 8 | 8 | [review](OPEN_QUESTIONS.md#runtime) |
-| [space-recovery](contexts/spaces/lifecycles/space-recovery/machine.yaml) | lifecycle | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-names](contexts/spaces/lifecycles/space-names/machine.yaml) | lifecycle | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#spaces) |
-| [space-hosting](contexts/spaces/lifecycles/space-hosting/machine.yaml) | lifecycle | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#spaces) |
-| [note-conflicts](contexts/sync-engine/lifecycles/note-conflicts/machine.yaml) | lifecycle | standard | 4 | 4 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [note-refusal-recovery](contexts/sync-engine/lifecycles/note-refusal-recovery/machine.yaml) | lifecycle | standard | 3 | 3 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [note-recovery](contexts/sync-engine/lifecycles/note-recovery/machine.yaml) | lifecycle | standard | 3 | 3 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [note-replication](contexts/sync-engine/lifecycles/note-replication/machine.yaml) | lifecycle | standard | 3 | 3 | [review](OPEN_QUESTIONS.md#sync-engine) |
-| [matching](contexts/matchmaking/lifecycles/matching/machine.yaml) | lifecycle | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#matchmaking) |
-| [index-retirement](contexts/db-indexes/lifecycles/index-retirement/machine.yaml) | lifecycle | standard | 4 | 4 | [review](OPEN_QUESTIONS.md#db-indexes) |
-| [index-interruption](contexts/db-indexes/lifecycles/index-interruption/machine.yaml) | lifecycle | standard | 8 | 8 | [review](OPEN_QUESTIONS.md#db-indexes) |
-| [account-privacy](contexts/profile/lifecycles/account-privacy/machine.yaml) | lifecycle | critical | 8 | 8 | [review](OPEN_QUESTIONS.md#profile) |
-| [account-sign-in](contexts/profile/lifecycles/account-sign-in/machine.yaml) | lifecycle | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#profile) |
-| [username-changes](contexts/profile/lifecycles/username-changes/machine.yaml) | lifecycle | critical | 12 | 12 | [review](OPEN_QUESTIONS.md#profile) |
-| [multiplayer](contexts/chess/lifecycles/multiplayer/machine.yaml) | lifecycle | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-spaces](contexts/chess/lifecycles/multiplayer-spaces/machine.yaml) | lifecycle | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-control](contexts/chess/lifecycles/custom-game-control/machine.yaml) | lifecycle | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-play](contexts/chess/lifecycles/custom-game-play/machine.yaml) | lifecycle | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-attempt](contexts/chess/lifecycles/puzzle-attempt/machine.yaml) | lifecycle | critical | 14 | 10 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-loading](contexts/chess/lifecycles/puzzle-loading/machine.yaml) | lifecycle | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game](contexts/chess/lifecycles/custom-game/machine.yaml) | lifecycle | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-feed](contexts/chess/lifecycles/puzzle-feed/machine.yaml) | lifecycle | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-sound](contexts/chess/lifecycles/puzzle-sound/machine.yaml) | lifecycle | critical | 3 | 3 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-result-recovery](contexts/chess/lifecycles/puzzle-result-recovery/machine.yaml) | lifecycle | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-link](contexts/chess/lifecycles/puzzle-link/machine.yaml) | lifecycle | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-premoves](contexts/chess/lifecycles/board-board-premoves/machine.yaml) | lifecycle | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-annotations](contexts/chess/lifecycles/board-board-annotations/machine.yaml) | lifecycle | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-lifecycle](contexts/chess/lifecycles/board-board-lifecycle/machine.yaml) | lifecycle | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-promotion](contexts/chess/lifecycles/board-board-promotion/machine.yaml) | lifecycle | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-independence](contexts/chess/lifecycles/board-board-independence/machine.yaml) | lifecycle | critical | 5 | 5 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-keyboard](contexts/chess/lifecycles/board-board-keyboard/machine.yaml) | lifecycle | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#chess) |
-| [board-board-options](contexts/chess/lifecycles/board-board-options/machine.yaml) | lifecycle | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [friendship](contexts/friends/lifecycles/friendship/machine.yaml) | lifecycle | standard | 12 | 12 | [review](OPEN_QUESTIONS.md#friends) |
-| [payment-provider-switch](contexts/billing/lifecycles/payment-provider-switch/machine.yaml) | lifecycle | critical | 8 | 8 | [review](OPEN_QUESTIONS.md#billing) |
-| [membership-lifecycle](contexts/billing/lifecycles/membership-lifecycle/machine.yaml) | lifecycle | critical | 14 | 14 | [review](OPEN_QUESTIONS.md#billing) |
-| [feedback-draft](contexts/feedback/lifecycles/feedback-draft/machine.yaml) | lifecycle | standard | 4 | 4 | [review](OPEN_QUESTIONS.md#feedback) |
-| [reproduction-recording](contexts/feedback/lifecycles/reproduction-recording/machine.yaml) | lifecycle | standard | 5 | 5 | [review](OPEN_QUESTIONS.md#feedback) |
-| [hosting-and-joining](contexts/spaces/flows/hosting-and-joining/machine.yaml) | flow | critical | 18 | 18 | [review](OPEN_QUESTIONS.md#spaces) |
-| [puzzle-solving-and-recovery](contexts/chess/flows/puzzle-solving-and-recovery/machine.yaml) | flow | critical | 15 | 15 | [review](OPEN_QUESTIONS.md#chess) |
-| [outside-account-sign-in](contexts/auth/flows/outside-account-sign-in/machine.yaml) | flow | critical | 13 | 13 | [review](OPEN_QUESTIONS.md#auth) |
-| [published-event-reactions](contexts/billing/flows/published-event-reactions/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#billing) |
-| [published-event-reactions](contexts/spaces/flows/published-event-reactions/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#spaces) |
-| [published-event-reactions](contexts/friends/flows/published-event-reactions/machine.yaml) | flow | standard | 9 | 9 | [review](OPEN_QUESTIONS.md#friends) |
-| [published-event-reactions](contexts/chess/flows/published-event-reactions/machine.yaml) | flow | critical | 14 | 14 | [review](OPEN_QUESTIONS.md#chess) |
-| [published-event-reactions](contexts/auth/flows/published-event-reactions/machine.yaml) | flow | critical | 4 | 4 | [review](OPEN_QUESTIONS.md#auth) |
-| [published-event-reactions](contexts/runtime/flows/published-event-reactions/machine.yaml) | flow | critical | 11 | 11 | [review](OPEN_QUESTIONS.md#runtime) |
-| [published-event-reactions](contexts/developer-tools/flows/published-event-reactions/machine.yaml) | flow | standard | 7 | 7 | [review](OPEN_QUESTIONS.md#developer-tools) |
-| [published-event-reactions](contexts/journeys/flows/published-event-reactions/machine.yaml) | flow | critical | 12 | 12 | [review](OPEN_QUESTIONS.md#journeys) |
-| [inbox-notice](contexts/friends/lifecycles/inbox-notice/machine.yaml) | lifecycle | standard | 10 | 10 | [review](OPEN_QUESTIONS.md#friends) |
-| [paid-access](contexts/billing/lifecycles/paid-access/machine.yaml) | lifecycle | critical | 19 | 19 | [review](OPEN_QUESTIONS.md#billing) |
-| [custom-game-chess-rules](contexts/chess/flows/custom-game-chess-rules/machine.yaml) | flow | critical | 6 | 6 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-material](contexts/chess/flows/custom-game-material/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#chess) |
-| [custom-game-position-draws](contexts/chess/flows/custom-game-position-draws/machine.yaml) | flow | critical | 7 | 7 | [review](OPEN_QUESTIONS.md#chess) |
-| [multiplayer-ratings](contexts/chess/flows/multiplayer-ratings/machine.yaml) | flow | critical | 9 | 9 | [review](OPEN_QUESTIONS.md#chess) |
-| [puzzle-rating](contexts/chess/flows/puzzle-rating/machine.yaml) | flow | critical | 15 | 15 | [review](OPEN_QUESTIONS.md#chess) |
-| [solve-chess-rules](contexts/chess/flows/solve-chess-rules/machine.yaml) | flow | critical | 14 | 14 | [review](OPEN_QUESTIONS.md#chess) |
+The current machine has 350 states and 906 transitions.
+[EXECUTION_NOTES.md](EXECUTION_NOTES.md) records complete graph traversal and
+serialization checks; [SOURCES.md](SOURCES.md) explains the source catalog.
+Framework contracts and inspection-scope choices retain their declared
+boundaries and do not imply new player tabs.

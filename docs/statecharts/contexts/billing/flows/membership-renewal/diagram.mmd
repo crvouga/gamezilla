@@ -1,9 +1,0 @@
-stateDiagram-v2
-  state "Viewing Trial and renewal" as s0
-  state "Alice's membership is active on the monthly plan — 1" as s1
-  state "Alice's renewal date moves later — 2" as s2
-  [*] --> s0
-  s0 --> s1: Alice's billing period ends when Alice has subscribed to Plus
-  s0 --> s2: Alice's billing period ends when Alice has subscribed to Plus and Alice's free trial has ended
-  s1 --> [*]
-  s2 --> [*]

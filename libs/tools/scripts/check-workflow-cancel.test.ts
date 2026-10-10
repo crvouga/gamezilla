@@ -18,33 +18,28 @@ function alwaysConditions(workflow: string): readonly string[] {
 describe('Check workflow cancellation', () => {
   test('every configurable shard count has exactly its complete matrix of owners', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
-      on: { workflow_dispatch: { inputs: { shards: { options: number[] } } } };
+      on: { workflow_call: { inputs: { shards: { default: number } } } };
       jobs: { 'check-shards': { strategy: { matrix: { shard: string } } } };
     };
     const expression = workflow.jobs['check-shards'].strategy.matrix.shard;
     const presets = JSON.parse(
       /fromJSON\('([^']+)'\)/.exec(expression)![1]!
     ) as Record<string, number[]>;
-    for (const count of workflow.on.workflow_dispatch.inputs.shards.options)
+    const shardCounts = [8, 12, 16, 24, 32];
+    for (const count of shardCounts)
       expect(presets[String(count)]).toEqual(
         Array.from({ length: count }, (_, index) => index)
       );
-    expect(Object.keys(presets).map(Number)).toEqual(
-      workflow.on.workflow_dispatch.inputs.shards.options
-    );
+    expect(Object.keys(presets).map(Number)).toEqual(shardCounts);
+    expect(workflow.on.workflow_call.inputs.shards.default).toBe(32);
   });
-  // regression: check-duplicate-trigger-runners
   // regression: concurrent-check-run-isolation
-  test('a newer push supersedes its PR run; dispatched and release runs never cancel one another', () => {
+  test('release verification runs never cancel one another', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
-      concurrency: { group: string; 'cancel-in-progress': string };
+      concurrency: { group: string; 'cancel-in-progress': boolean };
     };
-    expect(workflow.concurrency.group).toBe(
-      "${{ github.event_name == 'pull_request' && format('check-pr-{0}', github.event.pull_request.number) || format('check-run-{0}', github.run_id) }}"
-    );
-    expect(workflow.concurrency['cancel-in-progress']).toBe(
-      "${{ github.event_name == 'pull_request' }}"
-    );
+    expect(workflow.concurrency.group).toBe('check-run-${{ github.run_id }}');
+    expect(workflow.concurrency['cancel-in-progress']).toBe(false);
   });
   // regression: check-cancel-holds-concurrency
   test('publish and the verdict skip a cancelled run', () => {
@@ -60,7 +55,7 @@ describe('Check workflow cancellation', () => {
   });
 
   // regression: check-evidence-masks-required-verdict (invalid/name artifact)
-  test('the required gate is the PR gate or the full verdict, never publication', () => {
+  test('the deploy gate is the full verdict, never publication', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
       jobs: Record<
         string,
@@ -85,12 +80,9 @@ describe('Check workflow cancellation', () => {
     const require = gate.steps.find(
       (step) => step.name === 'Require release verification'
     )!;
-    expect(require.if).toBe("env.CHECK_SCOPE == 'full'");
+    expect(require.if).toBeUndefined();
     expect(require.run).toBe('test "$VERIFY_RESULT" = success');
-    const fast = gate.steps.find((step) => step.name === 'check')!;
-    expect(fast.if).toBe("env.CHECK_SCOPE != 'full'");
-    expect(fast.run).toContain('turbo-ci-run.ts //#check:pr');
-    expect(fast['continue-on-error']).toBeUndefined();
+    expect(gate.steps.find((step) => step.name === 'check')).toBeUndefined();
 
     const verify = workflow.jobs['check-verify']!;
     expect(verify.needs).toEqual([
@@ -98,13 +90,11 @@ describe('Check workflow cancellation', () => {
       'check-shards',
       'check-consumers',
     ]);
-    expect(verify.if).toBe(
-      "always() && !cancelled() && inputs.scope == 'full'"
-    );
+    expect(verify.if).toBe('always() && !cancelled()');
     expect(
       verify.steps.some((step) => step.run?.includes('check-verdict.ts'))
     ).toBe(true);
-    expect(workflow.jobs['check-plan']!.if).toBe("inputs.scope == 'full'");
+    expect(workflow.jobs['check-plan']!.if).toBeUndefined();
     expect(workflow.jobs['check-shards']!.strategy?.['fail-fast']).toBe(false);
     expect(workflow.jobs['check-shards']!.needs).toEqual(['check-plan']);
     // Fan-in suites still report when a shard is red.
@@ -122,10 +112,7 @@ describe('Check workflow cancellation', () => {
     ]);
     expect(gate.needs).not.toContain('check-reports');
     expect(verify.needs).not.toContain('check-reports');
-    // Reports are too slow for every push; full runs publish them.
-    expect(workflow.jobs['check-reports']!.if).toBe(
-      "always() && !cancelled() && inputs.scope == 'full'"
-    );
+    expect(workflow.jobs['check-reports']!.if).toBe('always() && !cancelled()');
     // regression: check-repeated-mise-cache-stall (1jzx5994v8)
     expect(
       workflow.jobs['check-shards']!.steps.filter(

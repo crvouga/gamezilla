@@ -1,9 +1,0 @@
-stateDiagram-v2
-  state "Viewing Payments" as s0
-  state "people can pay for Plus — 1" as s1
-  state "payments in this environment are real exactly when it is a production environment — 2" as s2
-  [*] --> s0
-  s0 --> s1: Opens the described view when People can pay for Plus in production
-  s0 --> s2: Opens the described view when Payments are real only in production
-  s1 --> [*]
-  s2 --> [*]

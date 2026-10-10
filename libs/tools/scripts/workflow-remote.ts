@@ -1,73 +1,43 @@
 #!/usr/bin/env bun
 // @io-wall-ok — GitHub Actions CLI and git composition root.
-/**
- * `bun check`, `bun verify`, `bun health`, `bun deploy`: sync, run on GitHub
- * Actions and await the verdict. `check` is the fast PR gate, `verify` the
- * full release verification (any branch, `main` included), `deploy` the
- * release: full verification of `origin/main`, then every environment.
- */
+/** `bun health` and `bun deploy`: sync, run on GitHub Actions, await verdict. */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { GitSyncOptions } from './git-sync';
 import { gitSync, parseGitSyncArgs } from './git-sync';
 import type { GitHubTarget, GitHubWorkflow } from './workflow-github';
 import {
-  hasAutomaticCheck,
   listWorkflows,
   selectWorkflow,
   startWorkflow,
   watchWorkflow,
 } from './workflow-github';
 
-const DEV_ENV_FILE = join(
-  import.meta.dirname,
-  '../../infra-shared/tofu/envs/dev.tfvars.json'
-);
 const GLOBAL_FILE = join(
   import.meta.dirname,
   '../../infra-shared/tofu/global.tfvars.json'
 );
 const TRUNK = 'main';
 
-export type RemoteCommand = 'check' | 'verify' | 'health' | 'deploy';
+export type RemoteCommand = 'health' | 'deploy';
 
 /** How one laptop command maps onto its workflow. */
 export type WorkflowDispatch = {
   readonly workflow: string;
   /** `branch` git-syncs the checkout; `trunk` only fast-forwards main. */
   readonly sync: 'branch' | 'trunk';
-  readonly refuseOnMain: boolean;
-  readonly printsReport: boolean;
   readonly inputs: Readonly<Record<string, string>>;
 };
 
 export const WORKFLOW_DISPATCH: Record<RemoteCommand, WorkflowDispatch> = {
-  check: {
-    workflow: 'check.yml',
-    sync: 'branch',
-    refuseOnMain: true,
-    printsReport: false,
-    inputs: { scope: 'pr' },
-  },
-  verify: {
-    workflow: 'check.yml',
-    sync: 'branch',
-    refuseOnMain: false,
-    printsReport: true,
-    inputs: { scope: 'full' },
-  },
   health: {
     workflow: 'health.yml',
     sync: 'branch',
-    refuseOnMain: false,
-    printsReport: false,
     inputs: {},
   },
   deploy: {
     workflow: 'deploy.yml',
     sync: 'trunk',
-    refuseOnMain: false,
-    printsReport: false,
     inputs: {},
   },
 };
@@ -185,19 +155,10 @@ function prepareTrunk(options: GitSyncOptions): PreparedRun {
   };
 }
 
-/** Check and health run on the synced checkout. */
-function prepareBranch(
-  target: WorkflowDispatch,
-  options: GitSyncOptions
-): PreparedRun {
+/** Health runs on the synced checkout. */
+function prepareBranch(options: GitSyncOptions): PreparedRun {
   if (options.trunkOnly) {
     throw new WorkflowRemoteError('--trunk-only is not a workflow run.');
-  }
-  const current = must(['git', 'branch', '--show-current']);
-  if (target.refuseOnMain && current === TRUNK) {
-    throw new WorkflowRemoteError(
-      'refusing to run on main: use a feature branch.'
-    );
   }
   const branch = gitSync(options);
   return { branch, sha: must(['git', 'rev-parse', 'HEAD']) };
@@ -210,22 +171,14 @@ function prepareRun(
   const options = parseGitSyncArgs(argv);
   return target.sync === 'trunk'
     ? prepareTrunk(options)
-    : prepareBranch(target, options);
-}
-
-/** Where the commit's spec report is read: the dev deployment's reports screen. */
-function reportUrl(sha: string): string {
-  const env = JSON.parse(readFileSync(DEV_ENV_FILE, 'utf8')) as {
-    readonly hosts: { readonly apex: string };
-  };
-  return `https://${env.hosts.apex}/reports/${sha}`;
+    : prepareBranch(options);
 }
 
 async function runCommand(argv: readonly string[]): Promise<number> {
   const command = argv[0] ?? '';
   if (!isRemoteCommand(command))
     throw new WorkflowRemoteError(
-      'usage: workflow-remote.ts <check|verify|health|deploy> [--message "type(scope): summary"]'
+      'usage: workflow-remote.ts <health|deploy> [--message "type(scope): summary"]'
     );
   const policy = WORKFLOW_DISPATCH[command];
   const { branch, sha } = prepareRun(policy, argv.slice(1));
@@ -238,14 +191,8 @@ async function runCommand(argv: readonly string[]): Promise<number> {
     workflow: policy.workflow,
     branch,
     sha,
-    automatic:
-      command === 'check' &&
-      hasAutomaticCheck({ repository, branch, sha }, { run: must }),
     inputs: policy.inputs,
   };
-  // Only a full Check publishes a report (check.yml `check-reports`).
-  if (policy.printsReport)
-    console.log(`${command}: spec report ${reportUrl(sha)}`);
   const hold = holdTTY();
   let current: GitHubWorkflow | undefined;
   const ports = {

@@ -1,0 +1,4 @@
+{
+  "summary": "An upstream package linked as a workspace was incorrectly required to use the product repository's category suffix, rejecting the Atlas tooling dependency.",
+  "regressionTest": "libs/tools/scripts/package-boundaries.test.ts"
+}

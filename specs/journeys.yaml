@@ -1,0 +1,992 @@
+# Journeys start at the whole-product root and replay through its regions.
+journeys:
+  A multiplayer draw offer does not freeze play:
+    description: The sender's move keeps the offer; the recipient's move declines it while the game continues.
+    events:
+    - SignedIn
+    - Returns to a hosted open space
+    - Opens chess choices
+    - Opens multiplayer chess
+    - Returns to a multiplayer game with a waiting draw offer
+    - The offering participant plays a legal multiplayer move
+    - The offered participant plays a legal multiplayer move
+    endsIn:
+    - 'Multiplayer: Playing multiplayer'
+    gherkin:
+    - specs/chess/multiplayer-draw-offers.feature
+  Offering the multiplayer draw back accepts it:
+    description: The recipient's reciprocal draw offer ends the game as an agreed draw.
+    events:
+    - SignedIn
+    - Returns to a hosted open space
+    - Opens chess choices
+    - Opens multiplayer chess
+    - Returns to a multiplayer game with a waiting draw offer
+    - Offers the multiplayer draw back
+    endsIn:
+    - 'Multiplayer: Drawn result'
+    gherkin:
+    - specs/chess/multiplayer-draw-offers.feature
+  A Custom Game draw refusal needs the sender's next move:
+    description: A declined offer cannot be repeated until its sender makes the next legal move.
+    events:
+    - Returns to a hosted open space
+    - Opens chess choices
+    - Opens a Custom Game
+    - Returns to an active Custom Game
+    - Offers a Custom Game draw
+    - The other participant declines the Custom Game draw
+    - Offers the declined Custom Game draw again before moving
+    - The offering participant plays their next legal Custom Game move
+    - Offers a Custom Game draw
+    endsIn:
+    - 'Custom Game: Draw offered'
+    gherkin:
+    - specs/chess/custom-game-draws.feature
+  A Custom Game clock needs mating material for a win:
+    description: A waiting draw offer does not stop the clock; expiration against a side unable to mate produces a draw.
+    events:
+    - Returns to a hosted open space
+    - Opens chess choices
+    - Opens a Custom Game
+    - Returns to an active Custom Game
+    - Offers a Custom Game draw
+    - A Custom Game clock expires against a side unable to mate
+    endsIn:
+    - 'Custom Game: Drawn result'
+    gherkin:
+    - specs/chess/custom-game-material.feature
+  Returning to a puzzle observes the saved wrong-move result:
+    description: Leaving for Profile and returning opens the saved attempt; retry remains an explicit choice.
+    events:
+    - Returns to a hosted open space
+    - Opens chess choices
+    - Opens chess puzzles
+    - The puzzle becomes ready
+    - Plays a legal wrong move
+    - Opens Profile
+    - Opens Spaces
+    - Returns to a hosted open space
+    - Opens chess choices
+    - Opens chess puzzles
+    - The saved attempt has a wrong-move result
+    endsIn:
+    - 'Puzzles: Wrong move'
+    gherkin:
+    - specs/chess/puzzle-attempt-resume.feature
+  Plus credit pays before an expired card:
+    description: Unused yearly value becomes Plus credit on the monthly plan and a covered renewal remains active.
+    events:
+    - SignedIn
+    - PaidAccessStarted
+    - Opens Settings
+    - Opens billing plans
+    - Current billing information shows an active membership
+    - Switches from yearly to monthly and keeps unused Plus credit
+    - Plus credit covers renewal despite an expired card
+    endsIn:
+    - 'Billing: Active membership'
+    - 'Access: Paid access'
+    gherkin:
+    - specs/billing/plus-credit.feature
+  Signing out everywhere clears this device's current identity:
+    description: The owned device list explains other signed-in devices; signing out everywhere ends the current session too.
+    events:
+    - SignedIn
+    - Opens Profile
+    - Opens account devices while signed in
+    - Signs out everywhere
+    - SignedOut
+    endsIn:
+    - 'Identity: Guest'
+    - 'Profile: Viewing the profile'
+    gherkin:
+    - specs/profile/devices.feature
+    - specs/profile/sessions.feature
+  A left space can be joined again while open:
+    description: Leaving succeeds in place and offers rejoining the same open space.
+    events:
+    - Opens an open space link
+    - PersonJoined
+    - Chooses to leave the space
+    - Confirms leaving the space
+    - PersonLeft
+    - Joins the open space again
+    - PersonJoined
+    endsIn:
+    - 'Spaces: Joined a space'
+    gherkin:
+    - specs/spaces/space-live-presence.feature
+  Opening the app lands on Spaces:
+    description: A fresh app starts on its Spaces tab; opening is the root initial state.
+    events: []
+    endsIn:
+    - 'Identity: Guest'
+    - 'Spaces: Lobby'
+    gherkin:
+    - specs/journeys/critical-journeys.feature
+    - specs/runtime/app-shell.feature
+    tour: true
+  Google sign-in preserves the profile:
+    description: Prove an account, finish signing in, and return to the current profile.
+    events:
+    - Starts signing in
+    - Chooses Google online
+    - Provider proves an existing account
+    - SignedIn
+    - Returns to their profile after signing in
+    endsIn:
+    - 'Identity: Account signed in'
+    - 'Profile: Viewing the profile'
+    gherkin:
+    - specs/profile/sign-in.feature
+    - specs/auth/matching-accounts.feature
+    tour: true
+  Signing out affects this device:
+    description: Confirmation and success sign this device out while keeping a visible profile.
+    events:
+    - Starts signing in
+    - Chooses Google online
+    - Provider proves an existing account
+    - SignedIn
+    - Returns to their profile after signing in
+    - Chooses to sign out
+    - Confirms signing out
+    - SignedOut
+    endsIn:
+    - 'Identity: Guest'
+    - 'Profile: Viewing the profile'
+    gherkin:
+    - specs/journeys/critical-journeys.feature
+    - specs/profile/sign-in.feature
+    tour: true
+  A refused profile edit can be corrected:
+    description: A taken name keeps the current profile; a corrected edit then succeeds.
+    events:
+    - Opens Profile
+    - Starts editing the profile
+    - Saves a taken username
+    - Changes the refused username
+    - Saves an allowed profile
+    - Returns to their profile
+    endsIn:
+    - 'Profile: Viewing the profile'
+    gherkin:
+    - specs/profile/profile-edit.feature
+    - specs/profile/username-rules.feature
+    tour: true
+  Host, share, rename and end a space:
+    description: Create a space, share its link, recover from a refused name, end it, then return to Spaces.
+    events:
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Shares the space link
+    - Closes space sharing
+    - Renames the space
+    - Saves a refused space name
+    - Edits the space name again
+    - Saves an allowed space name
+    - Chooses to end the space
+    - Confirms ending the space
+    - SpaceEnded
+    - Returns to Spaces
+    endsIn:
+    - 'Spaces: Lobby'
+    gherkin:
+    - specs/journeys/critical-journeys.feature
+    - specs/spaces/space-create.feature
+    - specs/spaces/space-end.feature
+    tour: true
+  Joining an open space keeps leaving available:
+    description: A guest joins from a link, confirms leaving, and sees the left space with rejoining available.
+    events:
+    - Opens an open space link
+    - PersonJoined
+    - Chooses to leave the space
+    - Confirms leaving the space
+    - PersonLeft
+    endsIn:
+    - 'Spaces: Left space'
+    gherkin:
+    - specs/journeys/join-and-offline.feature
+    tour: true
+  An ended space link cannot restart its game:
+    description: A link to an ended space explains the outcome and returns to Spaces.
+    events:
+    - Opens an ended space link
+    - Returns to Spaces
+    endsIn:
+    - 'Spaces: Lobby'
+    gherkin:
+    - specs/journeys/join-and-offline.feature
+    - specs/spaces/space-links.feature
+    tour: true
+  Solve a first puzzle and deliberately move on:
+    description: The first puzzle is solved; moving on is a separate choice unless auto-advance is configured.
+    events:
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens chess puzzles
+    - The puzzle becomes ready
+    - Solves the puzzle
+    - Moves to another puzzle within the allowance
+    - The puzzle becomes ready
+    endsIn:
+    - 'Puzzles: Solving'
+    gherkin:
+    - specs/journeys/critical-journeys.feature
+    - specs/chess/puzzle-attempt-resume.feature
+    tour: true
+  Hints, wrong moves and review keep one attempt:
+    description: A wrong move needs retry; hints and review stay attached to the same puzzle.
+    events:
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens chess puzzles
+    - The puzzle becomes ready
+    - Plays a legal wrong move
+    - Tries the same puzzle again
+    - Asks for the first hint
+    - Asks for the second hint
+    - Plays a correct continuation
+    - Reviews an earlier reached position
+    - Returns to the current puzzle position
+    - Solves the puzzle
+    endsIn:
+    - 'Puzzles: Solved'
+    gherkin:
+    - specs/chess/puzzle-refusals.feature
+    - specs/chess/puzzle-review.feature
+    tour: true
+  Signing in lifts the guest puzzle limit:
+    description: At the allowance, the published sign-in result both changes identity and enables a fresh start.
+    events:
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens chess puzzles
+    - The puzzle becomes ready
+    - Solves the puzzle
+    - Requests another rated puzzle past the guest allowance
+    - SignedIn
+    - The puzzle becomes ready
+    endsIn:
+    - 'Identity: Account signed in'
+    - 'Puzzles: Solving'
+    gherkin:
+    - specs/chess/puzzle-quota.feature
+    - specs/chess/puzzle-limit-upgrade.feature
+    tour: true
+  A watched board catches up then its space ends:
+    description: An offline watcher keeps their board, reconnects, then sees the space end.
+    events:
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens chess puzzles
+    - Joins to watch the host’s puzzle
+    - The watcher loses connection
+    - Connection returns to the open space
+    - SpaceEnded
+    - Returns to Spaces
+    endsIn:
+    - 'Spaces: Lobby'
+    gherkin:
+    - specs/chess/puzzle-offline.feature
+    - specs/chess/puzzle-late-watcher.feature
+    - specs/spaces/space-end.feature
+    tour: true
+  Preview and save a puzzle feed then keep playing:
+    description: The feed preview reaches its boundary, saves permitted choices, and returns to a fresh puzzle.
+    events:
+    - Starts signing in
+    - Chooses Google online
+    - Provider proves an existing account
+    - SignedIn
+    - Returns to their profile after signing in
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens chess puzzles
+    - The puzzle becomes ready
+    - Opens puzzle feed choices
+    - Edits the feed with permission
+    - Raises or lowers a feed target beyond its bounds
+    - Changes the feed target within its bounds
+    - Saves permitted feed choices online
+    - Returns to puzzles after saving the feed
+    - The puzzle becomes ready
+    endsIn:
+    - 'Puzzles: Solving'
+    gherkin:
+    - specs/chess/puzzle-feed.feature
+    - specs/chess/puzzle-feed-sticks.feature
+    tour: true
+  A shared puzzle opens in practice without another rated start:
+    description: An already played linked puzzle opens for practice and reaches that puzzle’s board.
+    events:
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens a shared puzzle link
+    - The linked puzzle opens for practice
+    - Practices the linked puzzle
+    endsIn:
+    - 'Puzzles: Solving'
+    gherkin:
+    - specs/chess/puzzle-link.feature
+    tour: true
+  Puzzle results remain reviewable:
+    description: A finished puzzle leads to the owned history, a recorded attempt and its unchanged result.
+    events:
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens chess puzzles
+    - The puzzle becomes ready
+    - Solves the puzzle
+    - Opens the puzzle’s history
+    - Opens a recorded puzzle attempt
+    - Moves through the recorded attempt
+    - Returns to puzzle results
+    endsIn:
+    - 'Puzzle History: Puzzle results'
+    gherkin:
+    - specs/chess/puzzle-stats.feature
+    - specs/chess/puzzle-review.feature
+    tour: true
+  Plus unlocks another hosted space:
+    description: An account sees the hosting denial, completes checkout, then uses the current permission to create
+      another space.
+    events:
+    - Starts signing in
+    - Chooses Google online
+    - Provider proves an existing account
+    - SignedIn
+    - Returns to their profile after signing in
+    - Opens Spaces
+    - Creates at the hosting limit
+    - Opens Plus from the hosting limit
+    - Chooses Plus with an account and an available provider
+    - Provider opens checkout
+    - Provider confirms the seven-day trial
+    - PaidAccessStarted
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    endsIn:
+    - 'Identity: Account signed in'
+    - 'Spaces: Hosting a space'
+    gherkin:
+    - specs/spaces/space-host-limit.feature
+    - specs/billing/subscribe.feature
+    tour: true
+  Cancellation keeps access through the period and grace:
+    description: A trial becomes paid, cancellation is scheduled, the period and grace end, and free limits apply.
+    events:
+    - Starts signing in
+    - Chooses Google online
+    - Provider proves an existing account
+    - SignedIn
+    - Returns to their profile after signing in
+    - Opens Settings
+    - Opens billing plans
+    - Chooses Plus with an account and an available provider
+    - Provider opens checkout
+    - Provider confirms the seven-day trial
+    - Trial ends with successful payment
+    - Opens membership management
+    - Provider opens the portal
+    - Provider schedules cancellation at period end
+    - The paid period ends
+    - Grace expires after the deadline
+    endsIn:
+    - 'Billing: Free access'
+    gherkin:
+    - specs/billing/membership-cancellation.feature
+    - specs/billing/grace-ends.feature
+    tour: true
+  Export, expiry and permanent account deletion:
+    description: The owner downloads an export, confirms deletion, waits for provider cancellation and starts as
+      a new guest.
+    events:
+    - Starts signing in
+    - Chooses Google online
+    - Provider proves an existing account
+    - SignedIn
+    - Returns to their profile after signing in
+    - Opens Settings
+    - Opens account privacy
+    - Requests an export with recent proof online
+    - The complete export becomes ready within twenty-four hours
+    - Downloads the owned export with recent proof online
+    - Returns to account privacy
+    - Requests deletion with recent proof online
+    - Confirms permanent account deletion
+    - AccountDeletionConfirmed
+    - Membership cancellation remains pending
+    - Membership cancellation completes
+    - Opens the app as a new guest
+    endsIn:
+    - 'Identity: Guest'
+    - 'Spaces: Lobby'
+    gherkin:
+    - specs/profile/personal-data-export.feature
+    - specs/profile/account-deletion.feature
+    - specs/billing/deleted-account-payments.feature
+    tour: true
+  An incoming friendship becomes discoverable and can be removed:
+    description: An accepted request becomes a friendship; removing it returns to the people choices.
+    events:
+    - Starts signing in
+    - Chooses Google online
+    - Provider proves an existing account
+    - SignedIn
+    - Returns to their profile after signing in
+    - Opens people search
+    - Receives a friend request
+    - Accepts the friend request
+    - BecameFriends
+    - Chooses to remove this friend
+    - FriendshipEnded
+    - Returns to the people list
+    endsIn:
+    - 'Friends: People and friends'
+    gherkin:
+    - specs/friends/friend-request-accept.feature
+    - specs/friends/friend-remove.feature
+    tour: true
+  Inbox outcomes do not revive ended requests:
+    description: An inbox action fails, retries successfully, then an ended request is archived.
+    events:
+    - Starts signing in
+    - Chooses Google online
+    - Provider proves an existing account
+    - SignedIn
+    - Returns to their profile after signing in
+    - Opens Notifications
+    - Opens an unread notice
+    - Accepts the notice’s current request
+    - The inbox action fails
+    - Tries the inbox action again
+    - BecameFriends
+    - The notice’s request ends
+    - Archives the ended notice
+    - Returns to the inbox
+    endsIn:
+    - 'Inbox: Inbox'
+    gherkin:
+    - specs/friends/friend-request-inbox.feature
+    - specs/system/notifications.qnt
+    tour: true
+  A guest cannot start multiplayer search:
+    description: A guest reaches the account requirement before a wait exists.
+    events:
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens multiplayer chess
+    - Finds an opponent as a guest
+    endsIn:
+    - 'Identity: Guest'
+    - 'Multiplayer: Multiplayer account required'
+    gherkin:
+    - specs/journeys/multiplayer-game.feature
+    - specs/chess/find-an-opponent.feature
+    tour: true
+  Multiplayer search, game and rematch form one journey:
+    description: Two accounts are matched, play, finish, agree on a rematch and play with swapped colours.
+    events:
+    - Starts signing in
+    - Chooses Google online
+    - Provider proves an existing account
+    - SignedIn
+    - Returns to their profile after signing in
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens multiplayer chess
+    - Finds an opponent with an account online
+    - MatchFormed
+    - Plays a legal multiplayer move on their turn
+    - A multiplayer player resigns
+    - Offers a permitted multiplayer rematch
+    - The other participant accepts the multiplayer rematch
+    - Plays a legal multiplayer move on their turn
+    endsIn:
+    - 'Multiplayer: Playing multiplayer'
+    gherkin:
+    - specs/journeys/multiplayer-game.feature
+    - specs/chess/multiplayer-rematch.feature
+    tour: true
+  Returning to multiplayer sees the completed outcome:
+    description: Connection loss keeps the old board; returning shows the durable finished game.
+    events:
+    - Starts signing in
+    - Chooses Google online
+    - Provider proves an existing account
+    - SignedIn
+    - Returns to their profile after signing in
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens multiplayer chess
+    - Finds an opponent with an account online
+    - MatchFormed
+    - A multiplayer participant loses connection
+    - Connection returns to a finished multiplayer game
+    - Reviews the multiplayer moves
+    - Returns to the multiplayer result
+    endsIn:
+    - 'Multiplayer: Finished multiplayer'
+    gherkin:
+    - specs/journeys/multiplayer-game.feature
+    - specs/chess/multiplayer-offline.feature
+    tour: true
+  A Custom Game with a bot uses the same readiness and play flow:
+    description: A guest configures the sides, becomes ready, starts, plays and resigns.
+    events:
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens a Custom Game
+    - The host creates a Custom Game
+    - Assigns a permitted person or bot to a side
+    - A participant confirms readiness
+    - Both sides are filled and every person is ready for the current choices
+    - The creator starts the agreed game
+    - Plays a legal Custom Game move on their turn
+    - A participant resigns the Custom Game
+    - Reviews the Custom Game’s moves
+    - Returns to the Custom Game result
+    endsIn:
+    - 'Identity: Guest'
+    - 'Custom Game: Finished'
+    gherkin:
+    - specs/journeys/custom-game.feature
+    - specs/chess/custom-game-creation.feature
+    tour: true
+  An invited participant agrees to the current Custom Game:
+    description: An invited person accepts their reserved side; readiness permits the creator to start.
+    events:
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens a Custom Game
+    - The host creates a Custom Game
+    - Invites a permitted person to an open side
+    - The invited person accepts a current invitation
+    - A participant confirms readiness
+    - Both sides are filled and every person is ready for the current choices
+    - The creator starts the agreed game
+    endsIn:
+    - 'Custom Game: Playing'
+    gherkin:
+    - specs/journeys/custom-game.feature
+    - specs/chess/custom-game-invitations.feature
+    - specs/chess/custom-game-readiness.feature
+    tour: true
+  An early away claim cannot steal a Custom Game:
+    description: The active game survives an early claim, and a later permitted claim finishes it.
+    events:
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens a Custom Game
+    - The host creates a Custom Game
+    - Assigns a permitted person or bot to a side
+    - A participant confirms readiness
+    - Both sides are filled and every person is ready for the current choices
+    - The creator starts the agreed game
+    - Claims a win after the opponent was away for only fifty-nine seconds
+    - Returns to the Custom Game board
+    - Claims a win after the opponent was away for sixty seconds
+    endsIn:
+    - 'Custom Game: Finished'
+    gherkin:
+    - specs/chess/custom-game-away.feature
+    tour: true
+  Feedback retry preserves writing and the recording:
+    description: A failed send keeps its writing and recording, then succeeds on another attempt.
+    events:
+    - Opens product feedback
+    - Requests a reproduction recording
+    - Stops recording the reproduction
+    - Attaches the reproduction recording
+    - Sends nonblank feedback
+    - Feedback submission fails
+    - Sends the preserved feedback again
+    - Feedback submission succeeds
+    - Opens saved feedback
+    endsIn:
+    - 'Feedback: Saved feedback'
+    gherkin:
+    - specs/feedback/drafts.feature
+    - specs/feedback/recording.feature
+    - specs/feedback/giving-feedback.feature
+    tour: true
+  Opening offline and updating keep an app to return to:
+    description: A fresh device needs a connection; an old app preserves data until it updates.
+    events:
+    - Opens a fresh device offline
+    - Connection returns
+    - Opens an app update notice
+    - An unsupported old app is refused
+    - Applies the required app update
+    - Opens Settings
+    endsIn:
+    - 'Settings: Settings home'
+    gherkin:
+    - specs/runtime/offline-open.feature
+    - specs/runtime/app-updates.feature
+    tour: true
+  Device preferences survive closing the app:
+    description: Sound and appearance choices can be revisited after reopening without changing identity.
+    events:
+    - Starts signing in
+    - Chooses Google online
+    - Provider proves an existing account
+    - SignedIn
+    - Returns to their profile after signing in
+    - Opens Settings
+    - Opens sound preferences
+    - Changes the sound preference
+    - Returns to Settings
+    - Opens appearance preferences
+    - Chooses a permitted theme
+    - Closes the app
+    - Reopens the app
+    - Opens Settings
+    - Opens About
+    endsIn:
+    - 'Identity: Account signed in'
+    - 'Settings: About'
+    gherkin:
+    - specs/runtime/settings.feature
+    tour: true
+  Report exploration keeps missing evidence visible:
+    description: The team reaches reports, reads missing evidence, then explores a completed report’s moments.
+    events:
+    - Opens the testing tool
+    - Opens automated reports
+    - Explores specs and report parts
+    - Opens a spec with no completed evidence
+    - Returns to the spec evidence
+    - Opens this spec’s completed report
+    - Moves to the next recorded moment within the report
+    - Moves to the next failed moment and wraps if needed
+    endsIn:
+    - 'Reports: Recorded moment'
+    gherkin:
+    - specs/developer-tools/report-explorer.feature
+    - specs/developer-tools/report-navigation.feature
+    tour: true
+  Test worlds and checkpoints keep independent devices:
+    description: Changing the arrangement does not act in the apps; a compatible checkpoint restores the world.
+    events:
+    - Opens the testing tool
+    - Opens test worlds
+    - Shows several test devices
+    - Shows one test device
+    - Opens test checkpoints
+    - Saves the current test world as a checkpoint
+    - Selects an incompatible checkpoint
+    - Returns to test checkpoints
+    - Restores a compatible checkpoint
+    - Returns to the selected test device
+    endsIn:
+    - 'Test Worlds: Selected device'
+    gherkin:
+    - specs/developer-tools/test-world-views.feature
+    - specs/developer-tools/checkpoints.feature
+    tour: true
+  A notebook copy waits for its own answer:
+    description: Duplicating a question does not start it; asking it shows its answer or failure.
+    events:
+    - Opens the testing tool
+    - Opens data notebooks
+    - Duplicates a notebook question
+    - Runs the copied notebook question
+    - The notebook answer fails
+    - Runs the failed notebook question again
+    - The notebook answer succeeds
+    - Returns to the notebook
+    endsIn:
+    - 'Notebook: Notebook'
+    gherkin:
+    - specs/developer-tools/data-notebook.feature
+    tour: true
+  A release refusal cannot be cleared by old evidence:
+    description: Unproven evidence refuses release; current automated passes permit the same edition.
+    events:
+    - Opens the testing tool
+    - Opens release evidence
+    - Runs the release check
+    - Any evidence is missing, unknown, skipped, stale, manual or for another edition
+    - Supplies new automated evidence and checks again
+    - Runs the release check
+    - Every required obligation has a current automated pass
+    endsIn:
+    - 'Release: Release permitted'
+    gherkin:
+    - specs/developer-tools/release-check.feature
+    tour: true
+  Independent notes preserve offline writing and deletion:
+    description: The notes example returns from offline writing and refuses resurrection of a removed note.
+    events:
+    - Opens the testing tool
+    - Opens the notes example
+    - Writes an allowed note offline
+    - Connection returns and accepts the note
+    - Removes the note
+    - An earlier copy arrives
+    endsIn:
+    - 'Notes: Removed note'
+    gherkin:
+    - specs/sync-engine/notes-offline.feature
+    - specs/sync-engine/note-deleting.feature
+    tour: true
+  Independent room ownership connects to its timed match:
+    description: The room example claims ownership, updates its tally and reaches a timed outcome.
+    events:
+    - Opens the testing tool
+    - Opens the room example
+    - Claims the unowned example room
+    - Changes the shared tally
+    - Starts the example timed match
+    - The example match clock expires
+    - Returns to the example room
+    endsIn:
+    - 'Room: Owned room'
+    gherkin:
+    - specs/room/ownership.feature
+    - specs/room/tally.feature
+    - specs/room/match-clock.feature
+    tour: true
+  A complete general match hands into chess play:
+    description: A general matchmaking wait produces a complete lasting match before the chess board opens.
+    events:
+    - Opens the testing tool
+    - Opens the matchmaking example
+    - Starts an allowed matchmaking wait
+    - Changes a valid matchmaking range
+    - Only an incomplete group is available
+    - MatchFormed
+    - Opens the matched chess game
+    endsIn:
+    - 'Multiplayer: Playing multiplayer'
+    gherkin:
+    - specs/matchmaking/complete-groups.feature
+    - specs/chess/multiplayer-being-matched.feature
+    tour: true
+  Board gestures, promotion and personal marks stay on their board:
+    description: The board example rejects an illegal drag, offers promotion and preserves personal marks separately.
+    events:
+    - Opens the testing tool
+    - Opens the chessboard example
+    - Holds a movable chess piece
+    - Drops on an illegal destination
+    - Selects a movable chess piece
+    - Moves a pawn to promotion
+    - Chooses Knight
+    - The board settles after the move
+    - Draws a board arrow
+    - Finishes a personal board mark
+    - Clears personal board marks
+    endsIn:
+    - 'Chess Board: Settled board'
+    gherkin:
+    - specs/chess-board/board-promotion.feature
+    - specs/chess-board/board-annotations.feature
+    - specs/chess-board/board-independence.feature
+    tour: true
+  Puzzle import refuses a silent failure:
+    description: The team sees an import failure, retries, and sees the accepted and broken item outcome.
+    events:
+    - Opens Settings
+    - Opens puzzle import
+    - Adds puzzle material with permission online
+    - Puzzle import fails
+    - Tries adding the puzzle material again
+    - Puzzle import completes
+    endsIn:
+    - 'Puzzle Ingest: Import outcome'
+    gherkin:
+    - specs/chess/puzzle-ingest.feature
+    tour: true
+  Maintenance interruption, recovery and retirement stay explicit:
+    description: The maintenance contract resumes interrupted work and distinguishes completion from retirement.
+    events:
+    - Opens the testing tool
+    - Opens environment information
+    - Opens maintenance evidence
+    - Eligible index work is planned
+    - Index work begins
+    - Index work is interrupted
+    - Maintenance resumes from its persisted outcome
+    - Index work begins
+    - Index work completes
+    - Another maintenance cycle begins
+    - Unused owned indexes are selected for retirement
+    - Owned unused indexes finish retiring
+    endsIn:
+    - 'Database Maintenance: Maintenance evidence'
+    gherkin:
+    - specs/db-indexes/persisted-interruption.feature
+    - specs/db-indexes/retirement.feature
+    tour: true
+  Explore the whole product:
+    description: One continuous guided route visits every composed module, including the team tools and the separately
+      scoped framework contracts.
+    events:
+    - Starts signing in
+    - Chooses Google online
+    - Provider proves an existing account
+    - SignedIn
+    - Returns to their profile after signing in
+    - Opens Settings
+    - Opens connected sign-in methods
+    - Connects a different provider with recent account proof
+    - Provider confirms the connected method
+    - Opens Settings
+    - Opens account privacy
+    - Requests an export with recent proof online
+    - The complete export becomes ready within twenty-four hours
+    - Downloads the owned export with recent proof online
+    - Returns to account privacy
+    - Opens Settings
+    - Opens billing plans
+    - Chooses Plus with an account and an available provider
+    - Provider opens checkout
+    - Provider confirms the seven-day trial
+    - PaidAccessStarted
+    - Opens people search
+    - Searches people with an account online
+    - Opens a matching person
+    - Sends an allowed friend request
+    - BecameFriends
+    - Opens Notifications
+    - Opens an unread notice
+    - Reads the notice
+    - Opens Spaces
+    - Creates below the hosting limit online
+    - SpaceOpened
+    - Opens chess choices
+    - Opens chess puzzles
+    - The puzzle becomes ready
+    - Solves the puzzle
+    - Opens the puzzle’s history
+    - Opens a recorded puzzle attempt
+    - Returns to puzzle results
+    - Opens Spaces
+    - Returns to a hosted open space
+    - Opens chess choices
+    - Opens chess puzzles
+    - The puzzle becomes ready
+    - Opens puzzle feed choices
+    - Edits the feed with permission
+    - Saves permitted feed choices online
+    - Returns to puzzles after saving the feed
+    - The puzzle becomes ready
+    - Opens Spaces
+    - Returns to a hosted open space
+    - Opens chess choices
+    - Opens a shared puzzle link
+    - The linked puzzle opens for practice
+    - Practices the linked puzzle
+    - Opens Spaces
+    - Returns to a hosted open space
+    - Opens chess choices
+    - Opens a Custom Game
+    - The host creates a Custom Game
+    - Assigns a permitted person or bot to a side
+    - A participant confirms readiness
+    - Both sides are filled and every person is ready for the current choices
+    - The creator starts the agreed game
+    - A participant resigns the Custom Game
+    - Opens Spaces
+    - Returns to a hosted open space
+    - Opens chess choices
+    - Opens multiplayer chess
+    - Finds an opponent with an account online
+    - MatchFormed
+    - A multiplayer player resigns
+    - Opens product feedback
+    - Adds a nonblank feedback summary
+    - Sends nonblank feedback
+    - Feedback submission succeeds
+    - Opens a returning device offline
+    - Connection returns
+    - Opens Settings
+    - Opens puzzle import
+    - Adds puzzle material with permission online
+    - Puzzle import completes
+    - Opens the testing tool
+    - Opens test worlds
+    - Opens test checkpoints
+    - Saves the current test world as a checkpoint
+    - Returns to the testing tool
+    - Opens data notebooks
+    - Runs a notebook question
+    - The notebook answer succeeds
+    - Returns to the testing tool
+    - Opens automated reports
+    - Explores specs and report parts
+    - Opens this spec’s completed report
+    - Returns to the testing tool
+    - Opens release evidence
+    - Runs the release check
+    - Every required obligation has a current automated pass
+    - Returns to the testing tool
+    - Opens environment information
+    - Investigates app trouble
+    - Returns to environment information
+    - Returns to the testing tool
+    - Opens the notes example
+    - Writes an allowed note offline
+    - Connection returns and accepts the note
+    - Returns to the testing tool
+    - Opens the room example
+    - Claims the unowned example room
+    - Returns to the testing tool
+    - Opens the matchmaking example
+    - Starts an allowed matchmaking wait
+    - MatchFormed
+    - Opens the testing tool
+    - Opens the chessboard example
+    - Selects a movable chess piece
+    - Plays a legal destination
+    - The board settles after the move
+    - Returns to the testing tool
+    - Opens database maintenance evidence
+    - Eligible index work is planned
+    - Index work begins
+    - Index work completes
+    - Returns to the testing tool
+    - Reads device and component inspection scope
+    - Reads component exploration scope
+    - Returns to the inspection inventory
+    - Reads sync inspection scope
+    - Opens Spaces
+    endsIn:
+    - 'Identity: Account signed in'
+    - 'Spaces: Lobby'
+    gherkin:
+    - specs/README.md#context-map
+    tour: true
