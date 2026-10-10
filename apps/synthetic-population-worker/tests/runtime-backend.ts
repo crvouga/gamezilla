@@ -73,6 +73,14 @@ export async function runtimeBackend(desired: number) {
     administration,
     requests,
     acknowledgement,
+    async acceptedGameMoves() {
+      return harness.serverSql.sqlClient.query(sql<{
+        owner_id: string;
+        game_id: string;
+      }>`
+        SELECT owner_id, game_id FROM chess_multiplayer_commands
+        WHERE kind = ${'move'} AND deleted_at IS NULL`);
+    },
     async moveEffects(requestId: string) {
       return harness.serverSql.sqlClient.query(
         sql<{

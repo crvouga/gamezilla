@@ -32,15 +32,29 @@ export async function runtimeSession(
     });
     realm.onError((error) => reject(new Error(error)));
   });
+  let renewal: ReturnType<typeof backend.wall.timers.setInterval>;
+  const stopRenewing = () => backend.wall.timers.clearInterval(renewal);
   const session = new ManagedSession(assignment, version, {
     ...backend.wall,
     rpc: backend.rpc,
     thread: realm,
     log: createNoopLogger(),
-    onClose: () => undefined,
+    onClose: stopRenewing,
   });
+  // Native fixtures renew leases just as the real Worker does, including auth.
+  let renewing = false;
+  renewal = backend.wall.timers.setInterval(() => {
+    if (renewing) return;
+    renewing = true;
+    void session
+      .renew(false)
+      .catch(() => session.abort())
+      .finally(() => {
+        renewing = false;
+      });
+  }, 5_000);
   session.start(backend.origin);
-  return { session, authenticated, assignment, realm };
+  return { session, authenticated, assignment, realm, stopRenewing };
 }
 
 export async function runtimeHeartbeat(

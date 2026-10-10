@@ -13,6 +13,7 @@ test.each([1, 99])(
   async (schemaVersion) => {
     // regression: synthetic-population-recovery-waits-outside-game
     // regression: synthetic-population-incompatible-snapshot-loses-match
+    // regression: synthetic-population-native-fixture-expiry
     const backend = await runtimeBackend(2);
     const sessions: ManagedSession[] = [];
     try {
@@ -39,18 +40,15 @@ test.each([1, 99])(
           )
         )
           return false;
-        // Honor ordinary chess's first-move deadline before simulating a lease interval.
-        const timelines = await Promise.all(
-          users.map((user) => backend.repository.events(user.id))
-        );
-        return timelines.every((events) =>
-          events.some(
-            (event) =>
-              event.event === 'StateTransition' &&
-              typeof event.context === 'object' &&
-              event.context !== null &&
-              'action' in event.context &&
-              event.context.action === 'ACKNOWLEDGED'
+        // regression: synthetic-population-handoff-observes-recent-telemetry
+        // First moves must be accepted by the game server before advancing time.
+        // Recent telemetry is bounded and is not the authority for this condition.
+        const moves = await backend.acceptedGameMoves();
+        return users.every((user) =>
+          moves.some(
+            (move) =>
+              move.owner_id === user.account_id &&
+              move.game_id === checkpointSchema.parse(user.checkpoint).matchId
           )
         );
       });
@@ -64,6 +62,7 @@ test.each([1, 99])(
         ])
       );
       // Abrupt termination cannot publish a final checkpoint or release ownership.
+      for (const realm of first) realm.stopRenewing();
       first[0]!.session.abort();
       backend.advanceServerTime(first[0]!.assignment.config.leaseMs + 1);
       // A partitioned old realm is still alive here. Backend ownership rejects it.
