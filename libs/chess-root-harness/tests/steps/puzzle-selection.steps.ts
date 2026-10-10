@@ -4,6 +4,7 @@
  */
 
 import { expect } from 'bun:test';
+import { openPuzzleFromSpace } from '@libs/chess-puzzle-harness/chess-actions';
 import { readServerPuzzles } from '@libs/chess-puzzle-harness/chess-puzzle-data';
 import {
   readActivePuzzleId,
@@ -124,6 +125,7 @@ When('{actor} opens puzzles on their other device', async (w, actor: Actor) => {
   const link = required(await w.s.read(readSpaceLink, actor), 'a space');
   takeUpDevice(w, actor, device);
   await w.s.apply(reopenSpaceLink, device, link);
+  await w.s.apply(openPuzzleFromSpace, device);
 });
 
 Then(

@@ -32,6 +32,12 @@ async function secondDevice(w: HarnessWorld, actor: Actor): Promise<string> {
   await w.s.apply(returnToTabs, device);
   await w.s.apply(joinViaLink, device, String(w.memo.get('custom-link')));
   await w.s.apply(openCustomGame, device);
+  const current = await customGame(w, actor);
+  await w.s.until(
+    async (s) =>
+      (await readCustomGameProbe(s, device))?.current?.id === current.id,
+    { maxMs: 5000 }
+  );
   const person = await w.s.read(readCustomGameIdentity, device);
   expect(person).toBe(customPerson(w, actor));
   customPeople(w).set(device, person);

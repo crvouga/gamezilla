@@ -2,7 +2,6 @@ import {
   establishCustomGame,
   openCustomGame,
 } from '@libs/chess-custom-game-harness/custom-game-actions';
-import { readStoredCustomGames } from '@libs/chess-custom-game-harness/custom-game-stored';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
 import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
 import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
@@ -106,15 +105,9 @@ export async function customGame(
   w: CustomWorld,
   actor?: string
 ): Promise<CustomGame> {
-  const game =
-    actor === undefined
-      ? (
-          await w.s.read(
-            readStoredCustomGames,
-            String(w.memo.get('custom-link')).split('/space/')[1] ?? ''
-          )
-        ).current
-      : (await w.s.read(readCustomGameProbe, actor))?.current;
+  const person = actor ?? customHost(w);
+  await customScreen(w, person);
+  const game = (await w.s.read(readCustomGameProbe, person))?.current;
   if (game === null || game === undefined)
     throw new Error(`${actor} sees no game`);
   return game;

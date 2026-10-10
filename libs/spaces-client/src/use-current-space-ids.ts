@@ -35,6 +35,11 @@ function currentSpacesSql(
       ON o.space_id = s.id
       AND o.deleted_at IS NULL
       AND o.device_id = ${deviceId}
+      AND o.participation_revision = (
+        SELECT u.participation_revision FROM spaces_users AS u
+        WHERE u.space_id = s.id AND u.user_id = ${memberId}
+          AND u.deleted_at IS NULL AND u.joined = ${true}
+      )
     WHERE s.ended_at IS NULL
       AND (
         s.host_member_id = ${memberId}
@@ -44,6 +49,7 @@ function currentSpacesSql(
           WHERE u.space_id = s.id
             AND u.user_id = ${memberId}
             AND u.deleted_at IS NULL
+            AND u.joined = ${true}
         )
       )
     ORDER BY o.opened_at DESC

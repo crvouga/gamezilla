@@ -171,6 +171,7 @@ describe('postgres-connect (DATABASE_URL contract)', () => {
     REMOTE_DB_TIMEOUT_MS
   );
 
+  // regression: postgres-bun-startup-option-ignored
   // regression: postgres-bun-contract-shared-session-state
   test(
     'SqlClientImplBunPostgres pins every query to its schema',

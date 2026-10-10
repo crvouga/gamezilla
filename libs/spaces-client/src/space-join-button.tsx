@@ -29,7 +29,7 @@ export function SpaceJoinButton(props: SpaceJoinButtonProps): JSX.Element {
     operation: async () => {
       if (!(await checkConnection())) {
         props.onOffline();
-        return;
+        throw new Error(t`Joining someone else's space needs a connection.`);
       }
       await joinSpace(props.spaceId);
     },

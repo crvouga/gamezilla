@@ -2,8 +2,12 @@ import {
   installBrowserObservabilityBoundaries,
   setBrowserTraceFlush,
 } from '@libs/app-root-client/browser-boundaries';
+import { createOfflineHttp } from '@libs/app-root-client/offline-network-http';
+import { installBrowserPerformanceTelemetry } from '@libs/app-root-client/wall';
 import { APP } from '@libs/runtime-shared/app-features';
 import { createBrowserTelemetry } from '@pkgs/observability-root-client/browser';
+import { createHttpSpanExporter } from '@pkgs/observability-root-client/http-span-exporter';
+import { AcknowledgedLogExporter } from '@pkgs/observability-runtime-shared/acknowledged-log-exporter';
 /** @jsxImportSource solid-js */
 // @io-wall-ok — browser composition root
 /**
@@ -24,6 +28,7 @@ import {
 } from '@libs/app-root-client/browser-identity';
 import { createClient } from '@libs/app-root-client/create-client';
 import { wallClientEnv } from '@libs/app-root-client/wall-client-env';
+import { wallOfflineNetworkController } from '@libs/app-root-client/wall-offline-network';
 import {
   APP_VERSION,
   getCommitHash,
@@ -37,13 +42,18 @@ const telemetryEnv = import.meta.env as {
   readonly DEV?: boolean;
 };
 const buildSha = hasCommitProvenance() ? getCommitHash() : 'development';
-const clientEnv = wallClientEnv({ room: wallSpaceRoomTransport });
+const offline = wallOfflineNetworkController();
+const clientEnv = wallClientEnv({ room: wallSpaceRoomTransport, offline });
 const sessionId = crypto.randomUUID();
 setBrowserSessionId(sessionId);
 setMutationCorrelationIdentity(sessionId, buildSha);
 installBrowserObsHelper();
 
 function initializeObservability() {
+  const otlpUrl = new URL(
+    '/api/observability/v1/traces',
+    clientEnv.serverUrl
+  ).toString();
   const telemetry = Promise.resolve(
     createBrowserTelemetry({
       serviceName: 'gamezilla-client',
@@ -54,15 +64,32 @@ function initializeObservability() {
       document,
       // The API ingress forwards to the configured Collector. The browser
       // never receives backend credentials; vendor changes remain server config.
+      exporter: createHttpSpanExporter({
+        url: otlpUrl,
+        http: { fetch: createOfflineHttp(offline, clientEnv.server) },
+      }),
       otlpUrl: new URL(
         '/api/observability/v1/traces',
         clientEnv.serverUrl
       ).toString(),
+      logExporter: new AcknowledgedLogExporter(
+        new URL('/api/observability/v1/logs', clientEnv.serverUrl).toString(),
+        {},
+        { fetch: createOfflineHttp(offline, clientEnv.server) },
+        clientEnv.timers
+      ),
     })
   );
   const boundaries = telemetry.then((runtime) => {
+    const removePerformance = installBrowserPerformanceTelemetry(
+      clientEnv.clock.now
+    );
     setBrowserTraceFlush(() => runtime.forceFlush());
-    return installBrowserObservabilityBoundaries();
+    const removeBoundaries = installBrowserObservabilityBoundaries();
+    return () => {
+      removePerformance();
+      removeBoundaries();
+    };
   });
   return { boundaries, telemetry };
 }
@@ -78,6 +105,7 @@ const client = createClient(clientEnv, {
   features: APP_FEATURE_CLIENTS,
   loadApp: () => Promise.resolve(APP),
   poolGlobalKey: '__gamezilla_sync_engine_pool__',
+  offlineController: offline,
 });
 
 window.addEventListener('pagehide', () => {

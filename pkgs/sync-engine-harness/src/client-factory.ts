@@ -154,7 +154,6 @@ async function connectEngine(
     },
   });
   const mutationClient = createMutationSide({
-    db,
     mutations: args.mutationRegistry,
     getEnv,
     deviceId: args.deviceId,

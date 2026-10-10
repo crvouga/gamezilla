@@ -126,7 +126,7 @@ export const runPrivacyJobs = scenarioAction({
       if (partitioned(s).some((pair) => pair.split('|').includes(actor)))
         continue;
       const env = await s.harness.client(actor);
-      await env.createAuthClient().session.refresh();
+      await env.createAuthClient(env.server).session.refresh();
     }
   },
 });

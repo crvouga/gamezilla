@@ -20,6 +20,7 @@
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/message-shared": "workspace:*",
+    "@pkgs/observability-root-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
     "@pkgs/pubsub-root-shared": "workspace:*",
     "@pkgs/room-root-shared": "workspace:*",

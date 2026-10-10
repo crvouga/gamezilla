@@ -1,0 +1,4 @@
+{
+  "summary": "Alice with username alice_one goes offline and saves alice_two. The username mutation required a connection, refused the choice, and left alice_one on the profile instead of accepting the local choice for sharing later.",
+  "regressionTest": "specs/profile/offline-username.feature"
+}

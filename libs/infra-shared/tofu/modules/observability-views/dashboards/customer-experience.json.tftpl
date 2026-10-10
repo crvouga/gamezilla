@@ -1,0 +1,146 @@
+{
+  "uid": "business-customer-experience-${environment}",
+  "title": "Customer Experience \u2014 ${environment}",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": [
+    "observability",
+    "business",
+    "${environment}"
+  ],
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "refresh": "1m",
+  "panels": [
+    {
+      "id": 1,
+      "title": "LCP p75",
+      "type": "timeseries",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.75, {service_name=\"gamezilla-client\",deployment_environment_name=\"${environment}\"} |= \"browser.performance.measured\" | web_vital_name=\"lcp\" | unwrap web_vital_value | __error__=\"\" [5m])",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 2,
+      "title": "INP p75",
+      "type": "timeseries",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.75, {service_name=\"gamezilla-client\",deployment_environment_name=\"${environment}\"} |= \"browser.performance.measured\" | web_vital_name=\"inp\" | unwrap web_vital_value | __error__=\"\" [5m])",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 3,
+      "title": "CLS p75",
+      "type": "timeseries",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "quantile_over_time(0.75, {service_name=\"gamezilla-client\",deployment_environment_name=\"${environment}\"} |= \"browser.performance.measured\" | web_vital_name=\"cls\" | unwrap web_vital_value | __error__=\"\" [5m])",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 4,
+      "title": "Correlated client errors",
+      "type": "logs",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 9,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"gamezilla-client\",deployment_environment_name=\"${environment}\"} | severity_text=\"ERROR\"",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    }
+  ]
+}

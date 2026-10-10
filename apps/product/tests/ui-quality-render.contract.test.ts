@@ -4,8 +4,10 @@ import { resolve } from 'node:path';
 import { compileFrameCss } from '@libs/harness/wall-frame-css';
 import { compileCssModule } from '@pkgs/bun-test-solid-client/css-module';
 import { createUIQualityChecker } from '@pkgs/ui-quality-check-server/api';
-import { snapshotFingerprint } from '../scripts/fingerprint';
+import { createSnapshotFingerprint } from '../scripts/fingerprint';
 import { openSnapshotRenderer } from '../scripts/render';
+
+const snapshotFingerprint = createSnapshotFingerprint('');
 
 afterAll(() => Bun.WebView.closeAll());
 
@@ -62,8 +64,8 @@ test('concurrent reused pages preserve every frame and metadata deduplication pr
   try {
     const redA = html('a', 'red');
     const redB = html('b', 'red');
-    expect(await snapshotFingerprint(redA, '')).toBe(
-      await snapshotFingerprint(redB, '')
+    expect(await snapshotFingerprint(redA)).toBe(
+      await snapshotFingerprint(redB)
     );
     const frames = await Promise.all(
       [redA, html('c', 'blue'), redB, html('d', 'blue'), redA, redB].map(

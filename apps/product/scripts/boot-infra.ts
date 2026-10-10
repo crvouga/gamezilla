@@ -59,7 +59,9 @@ async function bootS3(): Promise<{
   readonly endpoint: string;
   stop(): Promise<void>;
 }> {
-  const s3 = await startS3Server();
+  const reservation = reservePort();
+  await reservation.release();
+  const s3 = await startS3Server({ port: reservation.port });
   return { endpoint: s3.endpoint, stop: s3.stop };
 }
 
@@ -68,12 +70,24 @@ async function bootMqtt(): Promise<{
   readonly mqttUrl: string;
   stop(): Promise<void>;
 }> {
-  const mqtt = await startAedesServer();
+  const mqttPort = reservePort();
+  const wsPort = reservePort();
+  await Promise.all([mqttPort.release(), wsPort.release()]);
+  const mqtt = await startAedesServer({
+    mqttPort: mqttPort.port,
+    wsPort: wsPort.port,
+  });
   return {
     wssUrl: mqtt.wsUrl,
     mqttUrl: mqtt.mqttUrl,
     stop: mqtt.stop,
   };
+}
+
+async function bootOpenAi() {
+  const port = reservePort();
+  await port.release();
+  return createOpenAiServer({ port: port.port });
 }
 
 export async function bootInfra(args: {
@@ -88,7 +102,7 @@ export async function bootInfra(args: {
     ReturnType<typeof startObservabilityStack>
   > | null = null;
   try {
-    openai = await createOpenAiServer();
+    openai = await bootOpenAi();
     s3 = args.options.withS3 ? await bootS3() : null;
     mqtt = args.options.withMqtt ? await bootMqtt() : null;
     observability =

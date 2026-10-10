@@ -13,6 +13,7 @@ import type { JSX } from 'solid-js';
 import { EndSpaceModalProvider } from './end-space-modal-provider';
 import { LeaveSpaceModalProvider } from './leave-space-modal-provider';
 import { ReconcileEndedOpenSessions } from './reconcile-ended-open-sessions';
+import { SpaceGameSessionEffects } from './space-game-session-effects';
 import { AppSpaceRoomsProvider } from './space-rooms-provider';
 
 export default function SpacesSession(props: {
@@ -22,6 +23,7 @@ export default function SpacesSession(props: {
     <>
       <ReconcileEndedOpenSessions />
       <AppSpaceRoomsProvider>
+        <SpaceGameSessionEffects />
         <EndSpaceModalProvider>
           <LeaveSpaceModalProvider>{props.children}</LeaveSpaceModalProvider>
         </EndSpaceModalProvider>

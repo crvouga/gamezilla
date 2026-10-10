@@ -24,7 +24,9 @@
     "@pkgs/uuid-shared": "workspace:*",
     "chess.js": "catalog:",
     "xstate": "5.33.2",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/property-shared": "workspace:*",

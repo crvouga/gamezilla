@@ -69,7 +69,11 @@ function worldSql(world: World): SqlClient {
       } else if (text.startsWith('INSERT INTO billing_subscriptions')) {
         world.runs.push(`project:${String(query.values[8])}`);
       } else {
-        world.runs.push('other');
+        world.runs.push(
+          query.sql.includes('INSERT INTO outbox_events')
+            ? 'telemetry:subscription'
+            : 'other'
+        );
       }
       return Promise.resolve({ changes: 1 });
     },
@@ -256,7 +260,7 @@ function expectedCallback(caller: Caller, callback: CallbackAnswer): Outcome {
   return {
     status: 200,
     providerCalls,
-    runs: projects ? ['project:active'] : [],
+    runs: projects ? ['project:active', 'telemetry:subscription'] : [],
     notified: projects ? ['acc_1:billing_subscriptions'] : [],
   };
 }

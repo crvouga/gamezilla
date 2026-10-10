@@ -14,6 +14,7 @@ import type {
   MutateResult,
   Mutation,
   MutationEnv,
+  MutationError,
   MutationRegistry,
 } from '@pkgs/sync-engine-shared/mutations-types';
 import {
@@ -28,6 +29,10 @@ import { assertUuid } from '@pkgs/uuid-shared/uuid';
 import { createUuidV7 } from '@pkgs/uuid-shared/uuid-v7';
 import type { MutationVerdict } from './mutation-status';
 import { recordOptimisticOwnRows } from './optimistic-own-rows';
+import {
+  storeLocalRefusal,
+  storeMutationChoice,
+} from './store-mutation-choice';
 
 export type MutationClientIds = {
   readonly clientId: string;
@@ -165,7 +170,7 @@ function assertNoInternalTableError(
   });
 }
 
-async function queueMutation<A>(args: {
+type QueueMutationArgs<A> = {
   readonly db: SqlClient;
   readonly mutation: Mutation<A>;
   readonly value: A;
@@ -175,7 +180,40 @@ async function queueMutation<A>(args: {
   readonly originTraceparent: string | null;
   readonly originSessionId: string | null;
   readonly originBuildSha: string | null;
-}): Promise<{
+};
+
+async function recordLocalMutationRefusal<A>(
+  args: QueueMutationArgs<A>,
+  error: MutationError
+): Promise<void> {
+  await args.db.transaction(async (tx) => {
+    const createdAt = args.env.now().toISOString();
+    const id = await nextUniqueMutationId(
+      tx,
+      args.createId,
+      args.env.now().getTime()
+    );
+    const seq = await nextMutationSeq(tx);
+    await storeLocalRefusal(
+      tx,
+      {
+        id,
+        name: args.mutation.name,
+        args: args.value,
+        clientId: args.clientId,
+        seq,
+        originTraceparent: args.originTraceparent,
+        originSessionId: args.originSessionId,
+        originBuildSha: args.originBuildSha,
+        createdAt,
+        deletedAt: createdAt,
+      },
+      error
+    );
+  });
+}
+
+async function queueMutation<A>(args: QueueMutationArgs<A>): Promise<{
   readonly mutationId: string;
   readonly capture: WriteCaptureSnapshot;
 }> {
@@ -195,30 +233,26 @@ async function queueMutation<A>(args: {
         const wrapped = wrapMutationDb(txc, args.env);
         await args.mutation.run({ tx: wrapped.tx, env: args.env }, args.value);
         capture = wrapped.getCapture();
-        await txc.run(sql`
-          INSERT INTO sync_engine_mutations (
-            id, name, args, client_id, seq, origin_traceparent,
-            origin_session_id, origin_build_sha,
-            created_at, updated_at, deleted_at
-          )
-          VALUES (
-            ${mutationId},
-            ${args.mutation.name},
-            ${JSON.stringify(args.value)},
-            ${args.clientId},
-            ${seq},
-            ${args.originTraceparent},
-            ${args.originSessionId},
-            ${args.originBuildSha},
-            ${createdAt},
-            ${createdAt},
-            ${null}
-          )
-        `);
+        await storeMutationChoice(txc, {
+          id: mutationId,
+          name: args.mutation.name,
+          args: args.value,
+          clientId: args.clientId,
+          seq,
+          originTraceparent: args.originTraceparent,
+          originSessionId: args.originSessionId,
+          originBuildSha: args.originBuildSha,
+          createdAt,
+          deletedAt: null,
+        });
         await recordOptimisticOwnRows(txc, mutationId, capture, createdAt);
       });
       queued = true;
     } catch (e) {
+      if (args.mutation.pendingUx === 'local' && isMutationError(e)) {
+        await recordLocalMutationRefusal(args, e);
+        throw e;
+      }
       if (!isMutationQueueUniqueError(e) || attempt === 7) throw e;
     }
   }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="custom-game-decisions" name="Custom Game access" namespace="https://gamezilla.dev/decisions">
   <decision id="custom-game-access" name="May this person do this in the Custom Game?">
-    <description>Guests, free accounts and Plus members have the same Custom Games. The host creates and manages them; everybody already in the space may join a side, watch, play and cancel subject to the game rules (a participant may cancel only a game between two people until each side has moved). Outsiders have no access. Every change needs a connection.</description>
+    <description>Guests, free accounts and Plus members have the same Custom Games. The host creates and manages them; everybody already in the space may join a side, watch, play and cancel subject to the game rules (a participant may cancel only a game between two people until each side has moved). Outsiders have no access. Choices involving another person need a connection. A host can create, manage and play their own game without another person while offline.</description>
     <decisionTable id="custom-game-access-table" hitPolicy="UNIQUE">
       <input id="who-is-asking" label="who is asking">
         <inputExpression id="who-is-asking-expression" typeRef="string"><text>who is asking</text></inputExpression>

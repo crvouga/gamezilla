@@ -38,6 +38,53 @@ describe('verifyTimeoutOf', () => {
 });
 
 describe('modelChecks', () => {
+  test('username solver mode retains the original bound and deadline', () => {
+    // regression: username-proof-solver-timeout
+    const [check] = modelChecksFromBindings(
+      ['specs/profile/username-changes.qnt'],
+      new Map([
+        [
+          'username-changes',
+          "model: 'username-changes', invariantMode: 'before', encoding: 'fun-arrays', inferPolymorphicTypes: false, boundedInvariantGroupSize: 6",
+        ],
+      ])
+    );
+    expect(check).toEqual({
+      specUri: 'specs/profile/username-changes.qnt',
+      steps: 4,
+      timeoutMs: 240_000,
+      inductiveInvariant: null,
+      invariantMode: 'before',
+      encoding: 'fun-arrays',
+      inferPolymorphicTypes: false,
+      boundedInvariantGroupSize: 6,
+    });
+  });
+  test('only an opted-in binding groups bounded targets without changing its bound or deadline', () => {
+    const checks = modelChecksFromBindings(
+      ['specs/example/first.qnt', 'specs/example/second.qnt'],
+      new Map([
+        [
+          'first',
+          "model: 'first', verifySteps: 2, verifyTimeoutMs: 480_000, boundedInvariantGroupSize: 6",
+        ],
+        ['second', "model: 'second', verifySteps: 2, verifyTimeoutMs: 480_000"],
+      ])
+    );
+    expect(checks[0]).toEqual({
+      specUri: 'specs/example/first.qnt',
+      steps: 2,
+      timeoutMs: 480_000,
+      inductiveInvariant: null,
+      boundedInvariantGroupSize: 6,
+    });
+    expect(checks[1]).toEqual({
+      specUri: 'specs/example/second.qnt',
+      steps: 2,
+      timeoutMs: 480_000,
+      inductiveInvariant: null,
+    });
+  });
   test('only the matching binding opts into separate induction', () => {
     // regression: tools-test-unhashed-model-bindings
     const checks = modelChecksFromBindings(
@@ -132,6 +179,9 @@ test('custom-game default encoding retains the full induction and original deadl
     specUri: 'specs/chess/custom-game.qnt',
     steps: 4,
     inductiveInvariant: '_inductive',
+    separateInduction: true,
+    inductionCaseGroupSize: 8,
+    inferPolymorphicTypes: false,
     timeoutMs: 240_000,
   });
 });

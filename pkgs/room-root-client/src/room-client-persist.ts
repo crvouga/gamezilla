@@ -37,6 +37,7 @@ export function createRoomClientPersist(args: {
   let resetPending = false;
   let appendPending: LogEntry[] = [];
   let queueDirty = false;
+  let failure: Error | null = null;
 
   const run = async (): Promise<void> => {
     scheduled = false;
@@ -49,13 +50,15 @@ export function createRoomClientPersist(args: {
     if (doReset) await storage.resetCommitted();
     if (batch.length > 0) await storage.appendCommitted(batch);
     if (doQueue) await storage.saveQueued(args.readQueue().slice());
+    failure = null;
   };
 
   const schedule = (): void => {
     if (scheduled) return;
     scheduled = true;
     chain = chain.then(run).catch((err: unknown) => {
-      args.onError(toError(err));
+      failure = toError(err);
+      args.onError(failure);
     });
   };
 
@@ -73,6 +76,9 @@ export function createRoomClientPersist(args: {
       queueDirty = true;
       schedule();
     },
-    flush: () => chain,
+    flush: async () => {
+      await chain;
+      if (failure !== null) throw failure;
+    },
   };
 }

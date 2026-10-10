@@ -11,6 +11,7 @@ terms:
     definition: >-
       Finding each person who is waiting someone to be paired with: someone
       close enough to their rating whom they accept and who accepts them.
+    model: [Matchmaking]
 
   - term: wait for a match
     definition: >-

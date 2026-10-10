@@ -29,6 +29,7 @@ import {
   configurationPerson,
   prepareConfiguration,
 } from './custom-game-configuration-world';
+import cachedHostAuthority from './fixtures/custom-game-cached-offline-host-authority.itf.json';
 import heldSuccess from './fixtures/custom-game-held-success.itf.json';
 import hostRefusal from './fixtures/custom-game-host-refusal-vocabulary.itf.json';
 import idempotentReadiness from './fixtures/custom-game-idempotent-readiness.itf.json';
@@ -36,6 +37,8 @@ import offlineBoundary from './fixtures/custom-game-offline-boundary.itf.json';
 import staleCancellation from './fixtures/custom-game-stale-cancellation.itf.json';
 import hostJoinStaleFanout from './fixtures/space-host-join-stale-fanout.itf.json';
 import hostLeaveRemount from './fixtures/space-host-leave-remount.itf.json';
+import joinBeforeHostAvailability from './fixtures/space-join-before-host-availability.itf.json';
+import hostOfflineLeave from './fixtures/space-offline-host-hides-account-leave.itf.json';
 
 function choose(command: string) {
   return (w: QuintHarnessWorld, picks: Picks): Promise<void> =>
@@ -51,8 +54,33 @@ bindQuintModel<QuintHarnessWorld>({
   traces: 256,
   maxSteps: 24,
   inductiveInvariant: '_inductive',
+  separateInduction: true,
+  inductionCaseGroupSize: 8,
+  inferPolymorphicTypes: false,
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: space-join-before-host-availability
+      id: 'space-join-before-host-availability',
+      title: 'Joining waits for the host availability outcome',
+      seed: '0x67932',
+      itf: joinBeforeHostAvailability,
+    },
+    {
+      // regression: custom-game-cached-offline-host-authority
+      id: 'custom-game-cached-offline-host-authority',
+      title: 'A disconnected host keeps authority over their local space',
+      seed: '0x67932',
+      itf: cachedHostAuthority,
+    },
+    {
+      // regression: space-offline-host-hides-account-leave
+      id: 'space-offline-host-hides-account-leave',
+      title:
+        'An account member can leave on another device while the host is offline',
+      seed: '0x67932',
+      itf: hostOfflineLeave,
+    },
     {
       // regression: space-host-join-stale-fanout
       id: 'space-host-join-stale-fanout',

@@ -14,19 +14,17 @@ const MAX_SYNCED_PROFILES = 200;
 export function useSyncedProfiles(ids: Accessor<readonly string[]>): void {
   const engine = useSyncEngine();
   const wanted = createMemo(
-    () =>
-      [...new Set(ids().filter((id) => id.length > 0))]
-        .sort()
-        .slice(0, MAX_SYNCED_PROFILES),
+    () => [...new Set(ids().filter((id) => id.length > 0))].sort(),
     [],
     { equals: (a, b) => a.join('\n') === b.join('\n') }
   );
   createEffect(() => {
     const list = wanted();
-    if (list.length === 0) return;
-    const subscription = engine.subscribeQuery(profilesByIds.name, {
-      ids: list,
-    });
-    onCleanup(() => subscription.unsubscribe());
+    for (let offset = 0; offset < list.length; offset += MAX_SYNCED_PROFILES) {
+      const subscription = engine.subscribeQuery(profilesByIds.name, {
+        ids: list.slice(offset, offset + MAX_SYNCED_PROFILES),
+      });
+      onCleanup(() => subscription.unsubscribe());
+    }
   });
 }

@@ -155,6 +155,7 @@ function buildTrailingItems(args: {
       onClick: callbacks.onPressShare,
       overflow: 'always',
       priority: 70,
+      dataSet: { testid: Handles.spaceShare },
     },
   ];
 

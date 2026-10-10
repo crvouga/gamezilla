@@ -101,10 +101,21 @@ export async function openSession(
 ): Promise<void> {
   const id = spaceOpenSessionEntityId(env.deviceId, spaceId);
   const now = env.now().toISOString();
-  // Single upsert — skip pre-SELECT (saves a remote Postgres RTT).
+  const access = await tx.query(sql<{
+    readonly participation_revision: number;
+  }>`
+    SELECT participation_revision FROM spaces_users
+    WHERE space_id = ${spaceId} AND user_id = ${memberId(env)} AND deleted_at IS NULL
+  `);
+  const revision = access[0]?.participation_revision;
+  if (revision === undefined)
+    throw new MutationError(
+      'SPACE_MEMBERSHIP_MISSING',
+      'Choose Join to enter this space.'
+    );
   await tx.run(sql`
     INSERT INTO spaces_open_sessions (
-      id, space_id, device_id, opened_at, join_announced, deleted_at
+      id, space_id, device_id, opened_at, join_announced, participation_revision, deleted_at
     )
     VALUES (
       ${id},
@@ -112,12 +123,14 @@ export async function openSession(
       ${env.deviceId},
       ${now},
       ${joinAnnounced},
+      ${revision},
       ${null}
     )
     ON CONFLICT (id) DO UPDATE SET
       deleted_at = NULL,
       opened_at = excluded.opened_at,
       join_announced = excluded.join_announced,
+      participation_revision = excluded.participation_revision,
       space_id = excluded.space_id,
       device_id = excluded.device_id
   `);
@@ -148,7 +161,7 @@ export async function endSpace(
   env: MutationEnv,
   spaceId: string
 ): Promise<void> {
-  await changeSpaceRoomMembership({ tx, env }, spaceId, 'ended');
+  await changeSpaceRoomMembership({ tx, env }, spaceId, 'ended', memberId(env));
   const now = env.now().toISOString();
   await tx.run(sql`
     UPDATE spaces

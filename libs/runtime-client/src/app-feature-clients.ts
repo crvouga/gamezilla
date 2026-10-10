@@ -1,3 +1,4 @@
+import { PERSONAL_CHESS_STATS_CLIENT } from '@libs/chess-puzzle-client/personal-chess-stats-client';
 import { PUZZLE_LINK_CLIENT } from '@libs/chess-puzzle-client/puzzle-link-client';
 import { PuzzleManagementScreen } from '@libs/chess-puzzle-client/puzzle-management-screen';
 import { PuzzleManagementSettings } from '@libs/chess-puzzle-client/puzzle-management-settings';
@@ -56,6 +57,7 @@ export const APP_FEATURE_CLIENTS: readonly FeatureClient[] = [
   ACCOUNT_PRIVACY_CLIENT,
   SPACES_CLIENT,
   PUZZLE_LINK_CLIENT,
+  PERSONAL_CHESS_STATS_CLIENT,
   // Friends registers a notification source, so it mounts above the inbox
   // that reads it.
   FRIENDS_CLIENT,

@@ -32,8 +32,16 @@ import {
   ROOM_WIRE_KIND,
   WIRE_VERSION,
 } from '@pkgs/room-root-shared/wire';
-import { broadcastToConnections, sendWelcomeFrame } from './room-server-fanout';
-import { sessionGrantValid } from './session-grant';
+import {
+  hasAuthority,
+  participates,
+  refuseConnectionCommand,
+} from './room-server-connections';
+import {
+  broadcastToConnections,
+  sendConnectionWelcome,
+} from './room-server-fanout';
+import { sessionDenial } from './session-grant';
 
 const crash: Assert = Assert.crash();
 
@@ -72,6 +80,7 @@ export class RoomServer<
   private readonly clock: Clock;
   private readonly effectHandlers: readonly RoomEffectHandler[];
   private readonly connections = new Map<string, RoomConnection>();
+  private authorityAvailable = false;
   private chain: Promise<void> = Promise.resolve();
   private committedState: S;
   private lastSeq = 0;
@@ -172,6 +181,9 @@ export class RoomServer<
       send,
       actor,
       grants: options?.grants ?? NO_GRANTS,
+      view: this.module.connectionView?.(options?.grants ?? NO_GRANTS) ?? {
+        mode: 'full',
+      },
     });
     if (options?.silent !== true) this.broadcastRoster();
   }
@@ -203,19 +215,30 @@ export class RoomServer<
   }
 
   getRoster(): readonly RoomActor[] {
-    const out = new Array<RoomActor>(this.connections.size);
-    let i = 0;
-    for (const conn of this.connections.values()) out[i++] = conn.actor;
+    const out: RoomActor[] = [];
+    const authority = hasAuthority(this.connections);
+    for (const conn of this.connections.values())
+      if (participates(conn, authority)) out.push(conn.actor);
     return out;
   }
 
   broadcastRoster(): void {
+    const authority = hasAuthority(this.connections);
+    const returned = authority && !this.authorityAvailable;
+    this.authorityAvailable = authority;
     this.broadcast({
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.roster,
       clients: this.getRoster(),
     });
     this.notePresence();
+    if (returned) this.enqueue(() => this.resumeDependents()).catch(noop);
+  }
+
+  private async resumeDependents(): Promise<void> {
+    for (const conn of this.connections.values())
+      if (conn.view.mode === 'dependent')
+        await this.sendWelcomeSerial(conn.id, 0);
   }
 
   /**
@@ -243,7 +266,14 @@ export class RoomServer<
   }
 
   private broadcast(frame: unknown): void {
-    broadcastToConnections(this.connections, frame);
+    const authority = hasAuthority(this.connections);
+    broadcastToConnections(
+      this.connections,
+      frame,
+      (conn) =>
+        participates(conn, authority) ||
+        (frame as { kind: string }).kind === ROOM_WIRE_KIND.roster
+    );
   }
 
   /** Serialize storage-touching work; the returned promise carries the work's outcome. */
@@ -267,11 +297,12 @@ export class RoomServer<
   ): Promise<void> {
     const conn = this.connections.get(connectionId);
     if (conn === undefined) return;
-    await sendWelcomeFrame({
+    await sendConnectionWelcome({
+      connection: conn,
       storage: this.storage,
       topic: this.topic,
       fromSeq,
-      send: conn.send,
+      available: () => participates(conn, hasAuthority(this.connections)),
       roster: this.getRoster(),
       tip: () => this.tip(),
     });
@@ -449,6 +480,7 @@ export class RoomServer<
     if (conn === undefined) return;
     const send = conn.send;
     const commandId = parsed.id;
+    if (refuseConnectionCommand(conn, this.connections, commandId)) return;
     const prior = await this.storage.getDedupOutcome(this.topic, commandId);
     if (prior !== null) {
       this.sendDedupReplay(send, commandId, prior);
@@ -471,15 +503,10 @@ export class RoomServer<
       payload: parsed.payload as C,
     };
     const denied = await this.authorizeOrNull(identity, command, conn.grants);
-    if (denied !== null || !sessionGrantValid(conn.grants, this.clock.now())) {
-      await this.reject(
-        commandId,
-        denied ?? {
-          type: ROOM_ERROR_TYPE.unauthorized,
-          reason: 'session expired',
-        },
-        send
-      );
+    if (refuseConnectionCommand(conn, this.connections, commandId)) return;
+    const refusal = sessionDenial(denied, conn.grants, this.clock.now());
+    if (refusal !== null) {
+      await this.reject(commandId, refusal, send);
       return;
     }
     const result = this.module.handle(this.committedState, command, identity);

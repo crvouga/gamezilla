@@ -72,18 +72,6 @@ Then(
 );
 
 Then(
-  'the note {string} is kept for everyone saying {string}',
-  async (w, title: string, body: string) => {
-    const row = await w.s.read(liveNote, 'server', title);
-    expect(row).toMatchObject({ title, body, deletedAt: null });
-  }
-);
-
-Then('the note {string} is not kept for everyone', async (w, title: string) => {
-  expect(await w.s.read(liveNote, 'server', title)).toBeNull();
-});
-
-Then(
   '{actor} never sees the note {string} saying {string}',
   async (w, actor: string, title: string, body: string) => {
     await w.s.never((s) => liveNote(s, actor, title), {

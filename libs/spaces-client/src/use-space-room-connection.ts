@@ -27,9 +27,10 @@ import type { CreateSpaceRoomResult } from './create-space-room';
 import { SpaceRoomFactory } from './create-space-room';
 import { useCreateRoomTransport } from './room-transport-factory';
 import {
-  hostingLanded,
-  useSpaceHostingsInFlight,
-} from './space-hostings-in-flight';
+  admissionLanded,
+  type SpaceAdmissionsInFlight,
+  useSpaceAdmissionsInFlight,
+} from './space-admissions-in-flight';
 import { useSpaceModule } from './space-module-context';
 
 type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
@@ -146,6 +147,7 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
         module: args.module,
         kv: args.kv,
         myId: args.bootstrap.myId,
+        hostsSpace: args.bootstrap.hostsSpace,
         installId: args.bootstrap.installId,
         clientId: args.bootstrap.clientId,
         getSessionToken: args.getSessionToken,
@@ -222,6 +224,22 @@ export type UseSpaceRoomConnectionArgs = {
   getFreshToken: () => Promise<string | null>;
 };
 
+async function waitForSpaceAdmission(
+  engine: ReturnType<typeof useSyncEngineInstance>,
+  admissions: SpaceAdmissionsInFlight | null,
+  spaceId: string,
+  timers: Timers
+): Promise<void> {
+  const mutationId = admissions?.get(spaceId) ?? null;
+  if (mutationId === null) return;
+  const outcome = await admissionLanded(engine, { mutationId, timers });
+  if (outcome === 'pending')
+    throw new Error('Space participation is waiting to sync');
+  admissions?.forget(spaceId);
+  if (outcome === 'rejected')
+    throw new Error('Space participation was refused');
+}
+
 export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   room: Accessor<SpaceRoom | null>;
   transport: Accessor<ClientTransport | null>;
@@ -243,7 +261,7 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   const createId = useCreateId();
   const random = useRandom();
   const engine = useSyncEngineInstance();
-  const hostings = useSpaceHostingsInFlight();
+  const admissions = useSpaceAdmissionsInFlight();
   const connectedKeyRef = { current: null as string | null };
   const openingKeyRef = { current: null as string | null };
 
@@ -256,7 +274,7 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   const bootstrapKey = createMemo((): string | null => {
     const current = bootstrap();
     if (current === null) return null;
-    return `${current.spaceId}:${current.myId}:${current.installId}:${current.clientId}`;
+    return `${current.spaceId}:${current.myId}:${current.installId}:${current.clientId}:${String(current.hostsSpace)}`;
   });
   const hasBearerOrAnon = createMemo(() => {
     const hasBearer = normalizeSessionToken(sessionToken()) !== null;
@@ -265,16 +283,11 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   });
 
   // Fresh bearer on every socket open; falls back to the ambient token when
-  // refresh is unavailable (offline) or times out. A space this device just
-  // created opens only once its creation reached the server: the gateway
-  // admits the socket with the grants the server's rows give.
+  // refresh is unavailable (offline) or times out. New participation must
+  // reach the server before the gateway decides the connection's grants.
   const getSessionToken = async (): Promise<string | null> => {
     const spaceId = untrack(() => bootstrap())?.spaceId ?? '';
-    const creation = hostings?.get(spaceId) ?? null;
-    if (creation !== null) {
-      await hostingLanded(engine, { mutationId: creation, timers });
-      hostings?.forget(spaceId);
-    }
+    await waitForSpaceAdmission(engine, admissions, spaceId, timers);
     let fresh: string | null = null;
     try {
       fresh = await raceFreshToken(timers, getFreshToken);

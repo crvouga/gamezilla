@@ -73,6 +73,7 @@ async function hasPendingRequest(
     WHERE from_user_id = ${fromUserId}
       AND to_user_id = ${toUserId}
       AND status = 'pending'
+      AND deleted_at IS NULL
     LIMIT 1
   `);
   return rows.length > 0;
@@ -132,6 +133,7 @@ async function validateSendFriendRequest(
 
 export const sendFriendRequestMutation = defineMutation({
   name: 'sendFriendRequest',
+  pendingUx: 'local',
   args: z.object({
     requestId: z.string().min(1),
     toUserId: z.string().min(1),

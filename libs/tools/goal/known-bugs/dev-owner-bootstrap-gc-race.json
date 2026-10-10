@@ -1,0 +1,4 @@
+{
+  "summary": "Concurrent GC could collect a stamped bootstrap between its launch gate and supervisor boot registration. Preserve an unregistered launcher boot only while the exact original launcher birth identity is alive.",
+  "regressionTest": "pkgs/os-server/tests/dev-owner.contract.test.ts"
+}

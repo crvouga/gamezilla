@@ -163,6 +163,9 @@ export const pendingNote = defineMutation({
         deleted_at = NULL
     `);
     // A later check must undo all earlier work, including in a mixed batch.
+    if (body === 'locally-refused') {
+      throw new MutationError('LOCAL_REFUSAL', 'This body is not allowed.');
+    }
     if (env.serverNow !== undefined && body === 'refused') {
       throw new MutationError('REFUSED', 'The server refuses this body.');
     }

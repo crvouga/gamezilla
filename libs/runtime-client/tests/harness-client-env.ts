@@ -84,12 +84,12 @@ export async function harnessClientEnv(
     },
     ...createInMemoryClientPorts(),
     serverUrl,
-    createAuthClient: () =>
+    createAuthClient: (http) =>
       createInhouseAuthClient({
         baseURL: serverUrl,
         clock,
         timers,
-        fetch: server.fetch,
+        fetch: http,
         storage: createSecureStoreAuthClientStorage(secureStorage),
         openAuthSession: () => Promise.resolve({ type: 'cancel' }),
         callbackUrl: `${serverUrl}/sso-callback`,

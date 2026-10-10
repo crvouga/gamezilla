@@ -5,6 +5,8 @@
 export type SpaceRoomConnectionBootstrap = {
   spaceId: string;
   myId: string;
+  /** Policy allows this device to host the local space. */
+  hostsSpace: boolean;
   /** Install UUID for `anonId` query param when using bearer JWT on `/room`. */
   installId: string;
   /** Per-tab client id; stable for the open-space session (survives detail remounts). */

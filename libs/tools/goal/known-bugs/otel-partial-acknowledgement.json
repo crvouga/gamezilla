@@ -1,0 +1,4 @@
+{
+  "summary": "The standard best-effort OTLP exporter accepts HTTP 200 partial success even when records were rejected, incorrectly completing a critical event delivery. The literal rejection acknowledgement is pinned in its regression test.",
+  "regressionTest": "pkgs/observability-root-server/tests/acknowledged-export.test.ts"
+}

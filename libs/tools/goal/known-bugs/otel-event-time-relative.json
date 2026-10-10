@@ -1,0 +1,4 @@
+{
+  "summary": "Numeric timestamps near the Unix epoch are interpreted as performance-relative time by the OTel SDK; domain event time must use an explicit seconds/nanoseconds tuple.",
+  "regressionTest": "pkgs/observability-root-harness/tests/business-signals.test.ts"
+}

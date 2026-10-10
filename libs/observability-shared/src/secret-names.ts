@@ -4,6 +4,8 @@ export const ObservabilitySecretName = {
   grafanaCloudApiToken: 'GRAFANA_CLOUD_API_TOKEN',
   /** Exact OTLP/HTTP traces endpoint (Grafana OTLP gateway `/otlp/v1/traces`). */
   collectorUrl: 'OBSERVABILITY_COLLECTOR_URL',
+  logsUrl: 'OBSERVABILITY_LOGS_URL',
+  metricsUrl: 'OBSERVABILITY_METRICS_URL',
   /** Basic-auth user for ingest (Grafana Cloud stack id). */
   collectorUser: 'OBSERVABILITY_COLLECTOR_USER',
   /** Write-only `traces:write` token. */

@@ -50,6 +50,7 @@ export function reactCustomGameToSpaceEvent(
   ctx: GameCommandContext,
   event: Message
 ): HandleResult | null {
+  if (!SpaceEnded.is(event) && !SpaceSeatLeft.is(event)) return null;
   const games = CustomGamesAttr.from(state);
   const game = games.current;
   if (game === null || customGameTerminal(game)) return null;

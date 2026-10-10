@@ -28,3 +28,22 @@ Feature: Rating, puzzles solved, and accuracy
     And Alice has solved 2 puzzles and failed 1
     When Alice opens their stats
     Then Alice's stats show their rating after each of those 3 puzzles
+
+  Rule: A person's stats remain available independently of the host's connection
+    No counter-example: stats belong to the person reading them and remain available while their space is disconnected.
+
+    @regression:puzzle-stats-depend-on-host
+    Scenario: A watcher can read their own stats when the host is offline
+      Given Bob is watching Alice's puzzle
+      And Alice is offline
+      When Bob opens their stats
+      Then Bob's stats show a rating of "1500?"
+      And Bob's stats show 0 played, 0 solved, and 0% accuracy
+
+    Scenario: A solver can read their finished puzzle while offline
+      Given Alice is signed in
+      And Alice is playing puzzles in their space
+      And Alice has solved a puzzle while offline
+      When Alice opens their stats
+      Then Alice's stats show 1 played, 1 solved, and 100% accuracy
+      And Alice's game log records that puzzle as solved

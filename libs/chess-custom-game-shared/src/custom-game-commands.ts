@@ -10,6 +10,18 @@ export const ChangeCustomGame = customGameCmdNs(
   (p): p is CustomGameChoice => customGameChoiceSchema.safeParse(p).success
 );
 
+export const ChangeLocalCustomGame = customGameCmdNs(
+  'local-change',
+  (p): p is { choice: CustomGameChoice; at: number } =>
+    z
+      .object({
+        choice: customGameChoiceSchema,
+        at: z.number().int().nonnegative(),
+      })
+      .strict()
+      .safeParse(p).success
+);
+
 const wakeSchema = z
   .object({
     gameId: z.string().min(1),
@@ -18,9 +30,22 @@ const wakeSchema = z
   })
   .strict();
 export type CustomGameWake = z.infer<typeof wakeSchema>;
+const localWakeSchema = wakeSchema.extend({
+  at: z.number().int().nonnegative(),
+});
+const botMoveSchema = localWakeSchema.extend({
+  move: z.string().regex(/^[a-h][1-8][a-h][1-8][qrbn]?$/),
+});
+export type CustomGameBotWake = CustomGameWake | z.infer<typeof botMoveSchema>;
 export const PlayCustomGameBot = customGameCmdNs(
   'bot-turn',
-  (p): p is CustomGameWake => wakeSchema.safeParse(p).success
+  (p): p is CustomGameBotWake =>
+    z.union([wakeSchema, botMoveSchema]).safeParse(p).success
+);
+export const EndLocalCustomGameOnTime = customGameCmdNs(
+  'local-time-up',
+  (p): p is z.infer<typeof localWakeSchema> =>
+    localWakeSchema.safeParse(p).success
 );
 export const EndCustomGameOnTime = customGameCmdNs(
   'time-up',

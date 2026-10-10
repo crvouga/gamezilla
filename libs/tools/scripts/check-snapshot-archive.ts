@@ -16,6 +16,7 @@ export async function archiveCheckSnapshot(root: string): Promise<string> {
     '--exclude=node_modules',
     '--exclude=.git',
     '--exclude=.turbo/cache',
+    '--exclude=.cache/ui-quality-model',
     '-C',
     root,
     '.',

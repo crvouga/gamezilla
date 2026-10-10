@@ -5,11 +5,11 @@
  */
 
 import { friendRequestCardText } from '@libs/friends-harness/friends-ui-reads';
-import { rememberedUsername } from '@libs/friends-harness/remembered-username';
 import { Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { recall } from '@libs/harness/spec-world';
 import { standInNameOf } from '@libs/profile-harness/profile-ui-reads';
+import { rememberedUsername } from '@libs/profile-harness/remembered-username';
 
 const SECOND_MS = 1_000;
 const ASKER = 'moderation:asker';

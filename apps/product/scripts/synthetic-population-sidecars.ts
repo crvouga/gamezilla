@@ -1,8 +1,8 @@
 // @io-wall-ok — local development stack process composition.
-
-import { type ChildProcess, spawn } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { spawnOwned as spawn } from '@pkgs/os-server/dev-owner-spawn';
 import { reservePort, waitForHttp } from './free-port';
 import { localProcessEnv } from './local-process-env';
 

@@ -42,7 +42,8 @@ run-name: "Deploy · ${{ github.event_name == 'workflow_dispatch' && 'manual' }}
 #   deploy:release tags the shipped commit `release-<run number>` and
 #                  publishes a GitHub release once production is live.
 #
-# This never runs on a pull request or any ref other than `main`: each environment is a shared singleton,
+# The optional rehearsal verifies a branch and plans dev foundation without applying.
+# Release jobs never run on a pull request or any ref other than `main`: each environment is a shared singleton,
 # so concurrent PRs would clobber each other's infrastructure, migrations and
 # secrets. Pull requests run no GitHub Actions; Check is called only below as
 # the release gate.
@@ -57,6 +58,12 @@ permissions:
 
 on:
   workflow_dispatch:
+    inputs:
+      rehearsal:
+        description: Verify a branch and plan dev foundation without applying or deploying
+        type: boolean
+        required: false
+        default: false
 
 env:
   TURBO_UI: stream
@@ -66,6 +73,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  deploy-rehearsal:
+    if: ${{ inputs.rehearsal }}
+    name: deploy:rehearsal
+    uses: ./.github/workflows/check.yml
+
+  deploy-plan:
+    if: ${{ inputs.rehearsal }}
+    name: deploy:plan
+    needs: deploy-rehearsal
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      - name: Plan foundation without changing infrastructure
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:foundation
+
   deploy-cleanup:
     name: deploy:cleanup
     needs: deploy-matrix
@@ -101,6 +134,7 @@ jobs:
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply --branches
 
   deploy-matrix:
+    if: ${{ !inputs.rehearsal }}
     name: deploy:matrix
     runs-on: ubuntu-24.04
     timeout-minutes: 10

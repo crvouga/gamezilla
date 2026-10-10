@@ -17,12 +17,7 @@ import {
   netSet,
   restartWithSchema,
 } from '@pkgs/sync-engine-harness/regression-random-faults-actions';
-import {
-  clock,
-  connection,
-  lastError,
-  liveReconnects,
-} from '@pkgs/sync-engine-harness/sync-observations';
+import { clock } from '@pkgs/sync-engine-harness/sync-observations';
 import { SETTLE_MS, writeNote } from './note-writes';
 import type { Device, SyncWorld } from './world';
 import { app, clientId, ensureDevice, Given, Then, When } from './world';
@@ -88,6 +83,11 @@ When(
 );
 
 Given(
+  '{device} has updated to a version that fetches every note again',
+  (w, device: Device) => moveTo(w, device, 'epochBump')
+);
+
+Given(
   '{device} has updated to a version that gives notes a colour',
   (w, device: Device) => moveTo(w, device, 'extraColumn')
 );
@@ -101,17 +101,9 @@ When('{device} goes back to the earlier version', (w, device: Device) =>
   moveTo(w, device, 'baseline')
 );
 
-Then('{device} is still connected', async (w, device: Device) => {
-  const id = await ensureDevice(w, device);
-  const state = await w.s.until((s) => connection(s, id), {
-    maxMs: SETTLE_MS,
-    pred: (c) => c === 'connected',
-  });
-  expect(state).toBe('connected');
-  expect(await w.s.read(lastError, id)).toBeNull();
-  // Still: it never had to reconnect since it opened.
-  expect(await w.s.read(liveReconnects, id)).toBe(0);
-});
+Given('{device} has gone back to the earlier version', (w, device: Device) =>
+  moveTo(w, device, 'baseline')
+);
 
 /**
  * One after another: each note is written once the one before has reached

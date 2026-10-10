@@ -6,6 +6,7 @@ import {
 import { Outbox } from '@pkgs/outbox-shared/outbox';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
+import { recordPaymentTelemetry } from './telemetry';
 
 export const paymentRetentionEnded = createMessageNamespace(
   'billing',
@@ -47,6 +48,7 @@ export async function recordPaymentEvidence(
     await tx.run(
       sql`UPDATE outbox_events SET available_at = ${paymentEraseBy(payment.paidAtMs)} WHERE id = ${eventId}`
     );
+    await recordPaymentTelemetry(tx, provider, payment, nowMs);
   }
 }
 

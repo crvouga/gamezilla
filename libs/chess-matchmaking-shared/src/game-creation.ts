@@ -1,3 +1,4 @@
+import { telemetrySubjectId } from '@libs/observability-shared/domain-event';
 import { changeAvailability } from '@pkgs/matchmaking-sql-shared/owner-repository';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
@@ -7,6 +8,7 @@ import { scheduleMultiplayerDeadline } from './multiplayer-deadline';
 import { formatMultiplayerRating } from './multiplayer-rating';
 import { publishMatchGame } from './publish-match-game';
 import { MultiplayerRatingRepository } from './rating-repository';
+import { gameCreatedEvent } from './telemetry';
 import { startingMs, timeControlOf } from './time-control';
 
 export type NewMultiplayerGame = {
@@ -84,6 +86,28 @@ export async function createMultiplayerGame(
     });
   }
   await scheduleMultiplayerDeadline(tx, game, input.nowMs);
+  await gameCreatedEvent.outbox.enqueue(
+    {
+      tx,
+      env: {
+        now: () => new Date(input.nowMs),
+        createId: () => input.id,
+      },
+    },
+    {
+      attributes: {
+        'game.id': game.id,
+        'game.mode': 'multiplayer',
+        'participant.white.id': telemetrySubjectId(
+          `subject.id:${game.white_id}`
+        ),
+        'participant.black.id': telemetrySubjectId(
+          `subject.id:${game.black_id}`
+        ),
+      },
+      envelope: { id: game.id, occurredAtMs: input.nowMs },
+    }
+  );
   if (input.createId !== undefined)
     await publishMatchGame(
       {

@@ -28,6 +28,8 @@ import {
 
 export type MenuListProps = {
   children: JSX.Element;
+  /** Mixed links and form controls are a group, not an ARIA command menu. */
+  role?: 'menu' | 'group' | undefined;
   /** Extra classes on the menu host (e.g. `flex-1`). */
   class?: string | undefined;
   /** Inline styles on the menu host. */
@@ -53,7 +55,7 @@ export function MenuList(props: MenuListProps): JSX.Element {
         [String(props.class)]: props.class !== undefined,
       }}
       {...dataAttrs({ component: 'MenuList', ...props.dataSet })}
-      role="menu"
+      role={props.role ?? 'menu'}
       style={props.style}
     >
       <For each={rows()}>{(child) => <div class="panelItem">{child}</div>}</For>

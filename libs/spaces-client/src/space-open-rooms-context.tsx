@@ -1,4 +1,4 @@
-import { useMyDeviceId } from '@libs/auth-client/use-current-user';
+import { useMyDeviceId, useMyId } from '@libs/auth-client/use-current-user';
 import {
   createEffect,
   createMemo,
@@ -15,6 +15,8 @@ import {
   useSpaceOpenRoomsRegistry,
 } from './space-open-rooms-store';
 import { useOpenSpaceSessionIds } from './use-open-space-session-ids';
+import { SpaceField, useSpaceColumn } from './use-space-column';
+import { useSpaceJoinSnapshot } from './use-space-join-snapshot';
 import type { SpaceRoomUiState } from './use-space-room';
 import { useSpaceRoom } from './use-space-room';
 
@@ -40,9 +42,9 @@ function SpaceOpenRoomSlot(props: { readonly spaceId: string }): null {
 }
 
 /**
- * A person is present in the space they are viewing. Stepping out suspends
- * its connection but keeps membership, saved commands and the open-session
- * identity, so returning catches up without joining twice.
+ * A person is present in the space they are viewing. A host stays available
+ * while their app is online, including in the lobby. Guests stepping out
+ * suspend their connection while keeping membership and saved commands.
  */
 export function SpaceOpenRoomsProvider(props: {
   readonly children: JSX.Element;
@@ -78,6 +80,9 @@ function SpaceOpenRoomSlots(props: {
   const clearPending = useSpaceOpenRoomsPendingClear();
   const deviceId = useMyDeviceId();
   let previousIds = new Set<string>();
+  const viewedIds = createMemo(() =>
+    Array.from(new Set([...props.spaceIds, ...rooms.viewingIds()]))
+  );
   createEffect(() => {
     const currentIds = new Set(props.spaceIds);
     for (const spaceId of previousIds) {
@@ -88,12 +93,43 @@ function SpaceOpenRoomSlots(props: {
     previousIds = currentIds;
   });
   return (
-    <For each={props.spaceIds}>
+    <For each={viewedIds()}>
       {(spaceId) => (
-        <Show when={rooms.viewingIds().has(spaceId)}>
-          <SpaceOpenRoomSlot spaceId={spaceId} />
-        </Show>
+        <SpaceRoomCandidate
+          spaceId={spaceId}
+          isOpen={props.spaceIds.includes(spaceId)}
+        />
       )}
     </For>
+  );
+}
+
+/** A public link can observe availability before joining, without taking a seat. */
+function SpaceRoomCandidate(props: {
+  readonly spaceId: string;
+  readonly isOpen: boolean;
+}): JSX.Element {
+  const rooms = useSpaceOpenRooms();
+  const myId = useMyId();
+  const host = useSpaceColumn(() => props.spaceId, SpaceField.hostMemberId);
+  const preview = useSpaceJoinSnapshot(
+    () => props.spaceId,
+    () => true
+  );
+  return (
+    <Show
+      when={
+        (props.isOpen && host() === myId()) ||
+        (rooms.viewingIds().has(props.spaceId) &&
+          (props.isOpen || (preview().status === 'live' && preview().joinable)))
+      }
+    >
+      <Show
+        when={props.isOpen}
+        fallback={<SpaceOpenRoomSlot spaceId={props.spaceId} />}
+      >
+        <SpaceOpenRoomSlot spaceId={props.spaceId} />
+      </Show>
+    </Show>
   );
 }

@@ -8,6 +8,7 @@ Feature: Losing the connection in a space
     Given Alice is hosting a space that Bob joined from the link
 
   Rule: Nobody lingers after they have gone
+    No counter-example: leaving or losing the connection always stops showing the person as present.
 
     Scenario: Someone stops showing as there after losing the connection
       When Bob loses the connection
@@ -19,6 +20,7 @@ Feature: Losing the connection in a space
       Then Alice sees 1 person in the space within 20 seconds
 
   Rule: Nobody appears twice
+    No counter-example: presence counts each person once; returning does not create another person.
 
     Scenario: Someone whose connection comes back is there once
       Given Bob has lost the connection long enough to drop out of the space
@@ -33,6 +35,7 @@ Feature: Losing the connection in a space
       And Alice sees 2 people in the space within 20 seconds
 
   Rule: Someone away when the space ends finds out when they are back
+    No counter-example: coming back cannot reopen an ended space.
 
     Scenario: Someone offline when the space ends learns it ended once back online
       Given Bob has lost the connection long enough to drop out of the space
@@ -41,8 +44,8 @@ Feature: Losing the connection in a space
       Then Bob sees the space has ended within 20 seconds
       And Bob is not offered to join
 
-  Rule: Presence is unavailable to someone without a connection
-    No counter-example: the return scenarios cover presence becoming available again.
+  Rule: Presence in someone else's space is unavailable without a connection
+    No counter-example: someone in another person's space never sees old presence described as current.
 
     @regression:space-offline-presence-stale
     Scenario: Someone away does not see old presence as current

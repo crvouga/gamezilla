@@ -1,9 +1,13 @@
 import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
 import {
   ChangeCustomGame,
+  ChangeLocalCustomGame,
   CustomGamesChanged,
 } from '@libs/chess-custom-game-shared/custom-game-commands';
-import type { Timers } from '@pkgs/clock-shared/types';
+import { localCustomGameChoiceAllowed } from '@libs/chess-custom-game-shared/custom-game-local';
+import { CustomGameNoticeAttr } from '@libs/chess-custom-game-shared/custom-game-router';
+import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
+import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type {
   RoomClient,
   RoomCommandResult,
@@ -22,16 +26,56 @@ type CustomGameRoom = RoomClient<
   string
 >;
 
-/** Only a committed event acknowledges a choice; an optimistic event cannot. */
+type ConfirmationArgs = {
+  room: CustomGameRoom | undefined;
+  timers: Timers;
+  clock: Clock;
+  canHost: boolean;
+  pending: Set<() => void>;
+};
+
+function confirmLocalChoice(
+  args: ConfirmationArgs,
+  choice: CustomGameChoice
+): Promise<void> | null {
+  const room = args.room;
+  if (
+    room !== undefined &&
+    args.canHost &&
+    localCustomGameChoiceAllowed(
+      CustomGamesAttr.from(room.getSnapshot()).current,
+      choice
+    )
+  ) {
+    const id = room.dispatch(
+      ChangeLocalCustomGame({ choice, at: args.clock.now() })
+    );
+    if (id === null)
+      return Promise.reject(
+        new Error(
+          String(
+            RoomMetaAttr.lastError.from(room.getSnapshot())?.['reason'] ??
+              'choice failed'
+          )
+        )
+      );
+    const notice = CustomGameNoticeAttr.from(room.getSnapshot());
+    return room.flushIo().then(() => {
+      if (notice.commandId === id && notice.reason !== '')
+        throw new Error(notice.reason);
+    });
+  }
+  return null;
+}
+
+/** Solo choices are durable locally; choices with others await agreement. */
 export function confirmCustomGameChoice(
-  args: {
-    room: CustomGameRoom | undefined;
-    timers: Timers;
-    pending: Set<() => void>;
-  },
+  args: ConfirmationArgs,
   choice: CustomGameChoice
 ): Promise<void> {
   const room = args.room;
+  const local = confirmLocalChoice(args, choice);
+  if (local !== null) return local;
   if (
     room === undefined ||
     !RoomMetaAttr.isConnected.from(room.getSnapshot()) ||

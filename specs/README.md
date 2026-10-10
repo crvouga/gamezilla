@@ -33,6 +33,11 @@ outcomes; their implementation belongs in the repository and package
 briefings. An entry without a complete executable contract remains a
 release gap under Goal 1. Listing an entry does not prove it.
 
+The launch covers the capabilities currently offered in the app. Planned
+capabilities become release obligations when they are offered; they are not
+required additions for this launch. In particular, Streak, Storm, Rush and
+additional team authoring tools are planned capabilities.
+
 | Surface | Contract home | Completeness work still required |
 | --- | --- | --- |
 | Accounts, profiles and sign-in methods | [`profile/`](profile/), [`auth/`](auth/) | Bind deletion, export, retention and their reactions across contexts; verify production sign-in methods match their promise |
@@ -40,7 +45,7 @@ release gap under Goal 1. Listing an entry does not prove it.
 | Spaces and their people | [`spaces/`](spaces/) | Define and model adding and removing people, including self-removal, removal while offline, and whether someone removed may rejoin |
 | Friendships, requests and blocking | [`friends/`](friends/) | Model the end of a declined request's waiting period and deletion; verify every friendship-status transition |
 | Inbox choices and outcomes | [`friends/`](friends/) | Define reading, marking all read, archiving, dismissing, filtering, expiry and failed actions |
-| Chess puzzles, progress and watching | [`chess/`](chess/) | Bind the skill-matching, rating, game log, puzzle link, accessibility, progress-erasure and next-puzzle readiness contracts; complete assistant encouragement and speech; define the puzzle of the day, timed modes (Streak, Storm, Rush), voting on and reporting puzzles, results by puzzle theme, free exploration after a puzzle, the game a puzzle came from, and turning the board or choosing coordinates |
+| Chess puzzles, progress and watching | [`chess/`](chess/) | Verify the offered skill-matching, rating, game log, puzzle link, accessibility, progress-erasure, next-puzzle readiness, assistant encouragement and speech contracts |
 | App navigation, preferences and accessibility | [`runtime/`](runtime/) | Prove every capability across the supported device and input matrix, including interrupted forms and failure recovery |
 | Shared notes, rooms and matchmaking examples | [`sync-engine/`](sync-engine/), [`room/`](room/), [`matchmaking/`](matchmaking/) | Demote implementation-only examples without losing their guards; complete observable model coverage |
 | Test-world views and checkpoints | [`developer-tools/test-world-views.feature`](developer-tools/test-world-views.feature), [`developer-tools/checkpoints.feature`](developer-tools/checkpoints.feature) | Add model and runner coverage; define incomplete saves, failed restores, automatic recovery and isolation |
@@ -49,7 +54,6 @@ release gap under Goal 1. Listing an entry does not prove it.
 | Release checks | [`developer-tools/release-check.feature`](developer-tools/release-check.feature), [`conformance.yaml`](conformance.yaml) | Bind every obligation to current evidence; define a quantitative capacity target and prove it |
 | Investigation trails and recovery | [`runtime/request-records.feature`](runtime/request-records.feature), [`profile/finding-a-person.feature`](profile/finding-a-person.feature), [`runtime/privacy-retention.feature`](runtime/privacy-retention.feature) | Define all investigation choices, failures and privacy boundaries; prove recovery cannot revive deleted data |
 | Building, changing and releasing an environment | [`runtime/declared-environment.feature`](runtime/declared-environment.feature), [`runtime/connected-services.feature`](runtime/connected-services.feature) | Define development preparation, automated check and release workflows, cancellation and their failures |
-| Component exploration and team authoring tools | No complete contract yet | Define their observable workflows and connect automated evidence |
 
 The outstanding column records incomplete coverage; it is not permission
 to treat a missing obligation as passing. The audit must replace each gap

@@ -234,6 +234,7 @@ terms:
       comes: then it is saved, or it is refused and the note goes back to what
       it said before.
     forms: [checked notes]
+    model: [writeUnheard]
 
   - term: saving
     definition: >-

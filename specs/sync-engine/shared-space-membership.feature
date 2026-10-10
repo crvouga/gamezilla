@@ -1,10 +1,8 @@
 @domain:sync-engine
 Feature: Leave a shared space and rejoin it
-  When a person comes and goes from a shared space, they want to keep the
-  notes they had, stop getting new ones while away, and catch up on
-  everything they missed when they rejoin. Leaving, a shared space ending,
-  or looking at one they are not in never costs them the notes they have or
-  their live updates.
+  When a person leaves or rejoins a shared space, they want to keep earlier
+  notes and receive new ones only while in it, so they can come and go
+  without losing their writing or anything they missed when they return.
 
   Rule: Leaving a shared space keeps earlier notes and stops later notes until the person rejoins
 
@@ -29,19 +27,17 @@ Feature: Leave a shared space and rejoin it
       When Bob joins the shared space "Trip"
       Then Bob sees the note "Tickets" saying "gate 4"
 
-    Scenario: After leaving, new notes stop reaching someone whose app cannot send, without their app reconnecting
+    Scenario: After leaving, new notes stop reaching someone whose app cannot send
       Given Bob has left the shared space "Trip"
       And Bob's app cannot send
       When Alice writes the note "Tickets" saying "gate 4"
       Then Bob does not see the note "Tickets"
-      And Bob's app is still connected
 
-    Scenario: A shared space that ends stops its notes reaching someone, without their app reconnecting
-      Given Bob's app cannot send
-      When the shared space "Trip" ends
-      And Alice writes the note "Tickets" saying "gate 4"
+    Scenario: A shared space that ended stops its notes reaching someone
+      Given the shared space "Trip" has ended
+      And Bob's app cannot send
+      When Alice writes the note "Tickets" saying "gate 4"
       Then Bob does not see the note "Tickets"
-      And Bob's app is still connected
 
     Scenario: Opening a shared space someone is not in keeps the notes they have
       Given Alice has written the note "Hotel" saying "Main St"

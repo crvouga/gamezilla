@@ -5,6 +5,8 @@ import type { StandardSchemaV1 } from '@standard-schema/spec';
 export type MutationDb = Pick<SqlClient, 'query' | 'run'>;
 
 export type MutationEnv = {
+  /** Host-verified provenance; absent means unknown. Never read from mutation args. */
+  readonly synthetic?: boolean;
   readonly actorId: string;
   readonly deviceId: string;
   readonly accountId: string | null;
@@ -20,7 +22,7 @@ export type MutationEnv = {
   /**
    * The app's content rules as this write meets them, supplied by the host
    * that runs product mutations: the device's rules on the optimistic apply,
-   * and on replay the rules as they stood when the write was made. A body
+   * and on replay the rules at the mutation's chosen contentRulesTime. A body
    * that judges text (a name, a title) reads them through its app's helper,
    * which fails loudly when a host left them out.
    */
@@ -81,8 +83,12 @@ export type Mutation<A> = {
    * `'instant'` (default): `mutate()` resolves on the local apply.
    * `'pending'`: it resolves on the server's verdict, so a rule only the
    * server can check (uniqueness across users) fails the call itself.
+   * `'local'`: it resolves on local acceptance, but keeps the choice private
+   * until the server decides it. Observe durable mutation feedback for refusal.
    */
-  readonly pendingUx?: 'instant' | 'pending';
+  readonly pendingUx?: 'instant' | 'local' | 'pending';
+  /** Replay uses the write's rules by default; 'replayed' uses current rules. */
+  readonly contentRulesTime?: 'created' | 'replayed';
   /** If true, client runner refuses to initiate while offline. */
   readonly requiresOnline?: boolean;
   readonly run: MutationRun<A>;

@@ -1,0 +1,4 @@
+{
+  "summary": "Repeated development starts could stack watchers and servers in one checkout. Hold checkout admission with an OS-released SQLite lock and preserve live boots during orphan GC.",
+  "regressionTest": "pkgs/os-server/tests/dev-owner.contract.test.ts"
+}

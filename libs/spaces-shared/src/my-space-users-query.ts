@@ -13,6 +13,8 @@ export const mySpaceUsers = defineQuery({
         user_id,
         created_at,
         created_by_account_id,
+        joined,
+        participation_revision,
         deleted_at
       FROM spaces_users
       WHERE user_id = ${actor}

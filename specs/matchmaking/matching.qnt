@@ -35,7 +35,7 @@ module matching {
   pure val MATCH_NUMBERS = Set(1, 2, 3, 4)
   pure val TIMES = Set(1, 5, 35, 60)
 
-  type _World = {
+  type Matchmaking = {
     requests: Person -> int, current: Person -> int,
     accepted: Set[Wait], waiting: Set[Wait], stopped: Set[Wait],
     assignments: Wait -> int, formIds: Set[int], approved: Wait -> bool,
@@ -69,7 +69,7 @@ module matching {
   var _count: int
   def _world = { requests: _requests, current: _current, accepted: _accepted, waiting: _waiting, stopped: _stopped, assignments: _assignments, formIds: _formIds, approved: _approved, changes: _changes, ranges: _ranges, sizes: _sizes, pools: _pools, age: _age, order: _order, available: _available, restricted: _restricted, count: _count }
   def _assigned = WAITS.filter(a => _formIds.contains(_assignments.get(a)))
-  pure def _group(w, n) = WAITS.filter(a => w.assignments.get(a) == n)
+  pure def _group(w: Matchmaking, n: int): Set[Wait] = WAITS.filter(a => w.assignments.get(a) == n)
   var _offline: Set[Device]
   var _awayStanding: Device -> Standing
   var _awayNumber: Device -> int
@@ -77,8 +77,8 @@ module matching {
 
   pure def _min(a: int, b: int): int = if (a < b) a else b
   pure def _abs(a: int): int = if (a < 0) -a else a
-  pure def _wait(w, p) = { person: p, number: w.current.get(p) }
-  pure def _range(w, a) =
+  pure def _wait(w: Matchmaking, p: Person): Wait = { person: p, number: w.current.get(p) }
+  pure def _range(w: Matchmaking, a: Wait): int =
     if (w.ranges.get(a) == -1) _min(50 + 10 * w.age.get(a), 400)
     else w.ranges.get(a)
   pure def _standing(current: Person -> int, waiting: Set[Wait], assignments: Wait -> int, p: Person): Standing = {
@@ -89,12 +89,12 @@ module matching {
         (q != p or m != a.number) and assignments.get({ person: q, number: m }) == n)))
     else if (waiting.contains(a)) Waiting else NotWaiting
   }
-  pure def _standingsFor(w) = PEOPLE.mapBy(p => _standing(w.current, w.waiting, w.assignments, p))
-  pure def _rangesFor(w) = PEOPLE.mapBy(p => _shownRange(w, p))
-  pure def _shownRange(w, p) =
+  pure def _standingsFor(w: Matchmaking): Person -> Standing = PEOPLE.mapBy(p => _standing(w.current, w.waiting, w.assignments, p))
+  pure def _rangesFor(w: Matchmaking): Person -> int = PEOPLE.mapBy(p => _shownRange(w, p))
+  pure def _shownRange(w: Matchmaking, p: Person): int =
     if (w.current.get(p) == 0) 5 else _range(w, _wait(w, p))
 
-  action _put(w) = all {
+  action _put(w: Matchmaking): bool = all {
     _requests' = w.requests,
     _current' = w.current,
     _accepted' = w.accepted,
@@ -115,12 +115,12 @@ module matching {
   }
 
   /// Online devices show the accepted standing; offline devices keep what they showed.
-  def _shownStandings(w) = {
+  def _shownStandings(w: Matchmaking): Device -> Standing = {
     val standings = _standingsFor(w)
     DEVICES.mapBy(d => if (_offline.contains(d)) standing.get(d) else standings.get(d.person))
   }
-  def _shownNumbers(w) = DEVICES.mapBy(d => if (_offline.contains(d)) waitNumber.get(d) else w.current.get(d.person))
-  def _shownRanges(w) = {
+  def _shownNumbers(w: Matchmaking): Device -> int = DEVICES.mapBy(d => if (_offline.contains(d)) waitNumber.get(d) else w.current.get(d.person))
+  def _shownRanges(w: Matchmaking): Device -> int = {
     val ranges = _rangesFor(w)
     DEVICES.mapBy(d => if (_offline.contains(d)) ratingRange.get(d) else ranges.get(d.person))
   }
@@ -133,22 +133,22 @@ module matching {
     _awayRange' = _awayRange,
   }
   /// The accepted state changes; every online device shows it.
-  action _show(w) = all {
+  action _show(w: Matchmaking): bool = all {
     _put(w), _sameConnections,
     standing' = _shownStandings(w), waitNumber' = _shownNumbers(w), ratingRange' = _shownRanges(w),
   }
   /// Only standings change; online devices show them.
-  action _showStandings(w) = all {
+  action _showStandings(w: Matchmaking): bool = all {
     _put(w), _sameConnections,
     standing' = _shownStandings(w), waitNumber' = waitNumber, ratingRange' = ratingRange,
   }
   /// Only ranges change; online devices show them.
-  action _showRanges(w) = all {
+  action _showRanges(w: Matchmaking): bool = all {
     _put(w), _sameConnections,
     standing' = standing, waitNumber' = waitNumber, ratingRange' = _shownRanges(w),
   }
   /// Nothing any device shows changes.
-  action _keepShown(w) = all {
+  action _keepShown(w: Matchmaking): bool = all {
     _put(w), _sameConnections,
     standing' = standing, waitNumber' = waitNumber, ratingRange' = ratingRange,
   }
@@ -234,7 +234,7 @@ module matching {
     _keepShown(_world),
   }
 
-  pure def _accept(w, a, b) = and {
+  pure def _accept(w: Matchmaking, a: Wait, b: Wait): bool = and {
     a.person != b.person,
     not(w.restricted.contains(Set(a.person, b.person))),
     w.available.contains(a.person), w.available.contains(b.person),

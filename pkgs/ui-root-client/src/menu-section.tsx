@@ -28,6 +28,8 @@ export type MenuSectionProps = {
   /** Explanatory note under the rows. */
   footer?: JSX.Element | undefined;
   children: JSX.Element;
+  /** Use a group when rows contain links or form controls. */
+  role?: 'menu' | 'group' | undefined;
   /** Hairline separators between rows. Defaults to `true`. */
   separator?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -43,7 +45,9 @@ export function MenuSection(props: MenuSectionProps): JSX.Element {
       <Show when={props.title !== undefined && props.title !== null}>
         <h3 class="text textNavigationTitle line-clamp-1">{props.title}</h3>
       </Show>
-      <MenuList separator={props.separator}>{props.children}</MenuList>
+      <MenuList separator={props.separator} role={props.role}>
+        {props.children}
+      </MenuList>
       <Show when={props.footer !== undefined && props.footer !== null}>
         <p class="text textCaption">{props.footer}</p>
       </Show>

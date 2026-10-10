@@ -1,0 +1,4 @@
+{
+  "summary": "Disconnected simulated apps immediately learned new naming rules, masking known usernames and space names without receiving a release. Devices must retain installed rules until they reconnect.",
+  "regressionTest": "specs/spaces/space-rename.feature"
+}

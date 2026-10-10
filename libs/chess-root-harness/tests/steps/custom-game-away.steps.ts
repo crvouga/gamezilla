@@ -8,7 +8,12 @@ import { readCustomGameAwaySince } from '@libs/chess-custom-game-harness/custom-
 import { partition } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import { customGame, customPeople, customPerson } from './custom-game-world';
+import {
+  customGame,
+  customHost,
+  customPeople,
+  customPerson,
+} from './custom-game-world';
 
 const SECOND_MS = 1_000;
 /** How long the other participant may take to be told someone went away. */
@@ -38,6 +43,10 @@ async function stayAway(
 ): Promise<void> {
   const other = await otherParticipant(w, actor);
   await w.s.apply(partition, actor);
+  if (actor === customHost(w)) {
+    await w.s.advanceTime(ms);
+    return;
+  }
   const since = await w.s.until(
     (s) => readCustomGameAwaySince(s, other, customPerson(w, actor)),
     { pred: (value) => value !== null, maxMs: AWAY_NOTICED_MS }

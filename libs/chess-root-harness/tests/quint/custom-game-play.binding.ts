@@ -4,7 +4,6 @@ import { partition, restoreActorConnection } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import {
-  CUSTOM_MODEL_OBSERVER,
   CUSTOM_MODEL_PEOPLE,
   customModelGame,
   playCustomModelMove,
@@ -92,17 +91,11 @@ bindQuintModel<QuintHarnessWorld>({
         // An untimed game shows no clock and never spends its starting time.
         game.minutes === 0
           ? UNTIMED_QUARTERS
-          : (await w.quiet.read(
-              readCustomGameSeconds,
-              CUSTOM_MODEL_OBSERVER,
-              side
-            )) / 15
+          : (await w.quiet.read(readCustomGameSeconds, 'alice', side)) / 15
       );
     return {
-      playStatus: game.status,
       ply: game.moves.length,
       sideToMove: game.turn,
-      result: game.outcome,
       clockLeft,
       playShown: await readCustomModelShown(w, [
         ...CUSTOM_MODEL_PEOPLE,

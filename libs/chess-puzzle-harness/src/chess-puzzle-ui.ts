@@ -137,6 +137,7 @@ async function openPuzzleChoice(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
+  if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) return;
   if (!(await ui.get(Handles.chessMenuPuzzle).isVisible())) {
     await ui.get(Handles.gameMenuChess).expect.visible({ timeoutMs: WAIT_MS });
     await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });

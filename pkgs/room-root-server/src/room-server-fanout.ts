@@ -1,10 +1,51 @@
 import { MAX_WELCOME_ENTRIES_PER_FRAME } from '@pkgs/room-root-shared/bounds';
+import type { RoomConnection } from '@pkgs/room-root-shared/room-server-types';
 import type { RoomStorage } from '@pkgs/room-root-shared/server-core-storage';
 import type { RoomActor } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-root-shared/wire';
 
 type Sender = (payload: unknown) => void;
+
+/** Waiting connections receive availability without replacing retained history. */
+export async function sendConnectionWelcome(args: {
+  readonly connection: RoomConnection;
+  readonly storage: RoomStorage;
+  readonly topic: string;
+  readonly fromSeq: number;
+  readonly roster: readonly RoomActor[];
+  readonly available: () => boolean;
+  readonly tip: () => Promise<number>;
+}): Promise<void> {
+  const connection = args.connection;
+  if (connection.view.mode === 'presence' || !args.available()) {
+    if (connection.view.mode === 'presence') {
+      connection.send({
+        v: WIRE_VERSION,
+        kind: ROOM_WIRE_KIND.welcome,
+        fromSeq: 0,
+        lastSeq: 0,
+        entries: [],
+      });
+    }
+    connection.send({
+      v: WIRE_VERSION,
+      kind: ROOM_WIRE_KIND.roster,
+      clients: args.roster,
+    });
+    return;
+  }
+  await sendWelcomeFrame({
+    storage: args.storage,
+    topic: args.topic,
+    fromSeq: args.fromSeq,
+    send: (frame) => {
+      if (args.available()) connection.send(frame);
+    },
+    roster: args.roster,
+    tip: args.tip,
+  });
+}
 
 /**
  * Single-snapshot welcome: load events once, tip from batch (or the server's
@@ -54,12 +95,16 @@ export async function sendWelcomeFrame(args: {
  * Fan-out of ONE frame object to every connection (adapters may memoize its
  * serialization per object); drop sockets whose `send` throws (never swallow).
  */
-export function broadcastToConnections(
-  connections: Map<string, { readonly id: string; readonly send: Sender }>,
-  payload: unknown
+export function broadcastToConnections<
+  T extends { readonly id: string; readonly send: Sender },
+>(
+  connections: Map<string, T>,
+  payload: unknown,
+  accepts: (connection: T) => boolean
 ): void {
   let dead: string[] | null = null;
   for (const conn of connections.values()) {
+    if (!accepts(conn)) continue;
     try {
       conn.send(payload);
     } catch {

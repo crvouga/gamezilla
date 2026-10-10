@@ -1,8 +1,30 @@
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import { actorLocalSql } from '@libs/harness/identity';
+import { actorLocalSql, deviceMemberIdOf } from '@libs/harness/identity';
+import { bringToFront } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
 import sql from '@pkgs/sql-root-shared/sql';
+
+/** Each person's own retained space, including changes made offline. */
+export async function openSpaceHosts(
+  s: ProductHarness,
+  people: readonly string[]
+): Promise<Set<string>> {
+  const hosts = new Set<string>();
+  for (const person of people) {
+    if (!s.actors.has(person)) continue;
+    const db = actorLocalSql(s, person);
+    const member = await deviceMemberIdOf(s, person);
+    if (db === null || member === null) continue;
+    const rows = await db.query(sql<{ readonly id: string }>`
+      SELECT id FROM spaces
+      WHERE COALESCE(host_account_id, host_member_id) = ${member}
+        AND ended_at IS NULL AND deleted_at IS NULL
+    `);
+    if (rows.length > 0) hosts.add(person);
+  }
+  return hosts;
+}
 
 export async function lobbyCardVisible(
   s: ProductHarness,
@@ -17,11 +39,37 @@ export async function lobbyCardVisible(
   }
 }
 
+/** The actual lobby card for the shared link, independent of cached names. */
+export async function lobbySpaceCardVisible(
+  s: ProductHarness,
+  actorId: string,
+  spaceLink: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  return ui.get(lobbySpaceCardHandle(spaceLink)).isVisible();
+}
+
+export async function lobbySpaceCardText(
+  s: ProductHarness,
+  actorId: string,
+  spaceLink: string
+): Promise<string | null> {
+  const ui = await actorUi(s, actorId);
+  return ui.get(lobbySpaceCardHandle(spaceLink)).text();
+}
+
+function lobbySpaceCardHandle(spaceLink: string): string {
+  const spaceId = /^\/space\/([^/?#]+)/.exec(spaceLink)?.[1];
+  if (spaceId === undefined) throw new Error(`Not a space link: ${spaceLink}`);
+  return Handles.spaceLobbyCard(spaceId);
+}
+
 export async function activeSpaceVisible(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
   try {
+    await bringToFront(s, actorId);
     const ui = await actorUi(s, actorId);
     return await ui.get(Handles.spaceClose).isVisible();
   } catch {
@@ -40,6 +88,15 @@ export async function spaceMemberVisible(
   } catch {
     return false;
   }
+}
+
+/** The name a connected person's row shows in the space's presence. */
+export function spaceMemberName(
+  s: ProductHarness,
+  actorId: string,
+  memberId: string
+): Promise<string | null> {
+  return textOf(s, actorId, Handles.spaceMemberName(memberId));
 }
 
 export async function spacePresenceCount(
@@ -108,6 +165,7 @@ export async function joinOffered(
   actorId: string
 ): Promise<boolean> {
   try {
+    await bringToFront(s, actorId);
     const ui = await actorUi(s, actorId);
     return await ui.get(Handles.spaceJoin).isVisible();
   } catch {
@@ -150,12 +208,39 @@ export function hostingLimitShown(
   return shows(s, actorId, Handles.spacesHostingLimit);
 }
 
-/** The actor's app says spaces need a connection. */
+/** The actor's app explains why joining needs a connection. */
 export function spacesNeedConnectionShown(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
   return shows(s, actorId, Handles.spacesNeedConnection);
+}
+
+/** The space explicitly says its host is offline. */
+export function spaceHostOfflineShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  return shows(s, actorId, Handles.spaceHostOffline);
+}
+
+/** A joined person can remove their own account's membership. */
+export function leaveOffered(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  return shows(s, actorId, Handles.spaceLeave);
+}
+
+/** A refused join stays available as an explicit retry. */
+export async function joinRetryOffered(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  return (
+    (await textOf(s, actorId, Handles.spaceJoin))?.includes("Couldn't join") ??
+    false
+  );
 }
 
 /** How many live spaces the actor's Spaces screen says they host. */
@@ -238,22 +323,4 @@ export async function localSpaceHostUsername(
     WHERE s.id = ${spaceId}
     LIMIT 1`);
   return rows[0]?.username ?? null;
-}
-
-/**
- * The name the space at `link` was given, as the actor's device has it
- * (`''` for none): kept even while it is no longer allowed.
- */
-export async function localSpaceGivenName(
-  s: ProductHarness,
-  actorId: string,
-  link: string
-): Promise<string | null> {
-  const local = actorLocalSql(s, actorId);
-  const spaceId = /^\/space\/([^/?#]+)/.exec(link)?.[1];
-  if (local === null || spaceId === undefined) return null;
-  const rows = await local.query(sql<{ readonly title: string | null }>`
-    SELECT title FROM spaces WHERE id = ${spaceId} LIMIT 1`);
-  const row = rows[0];
-  return row === undefined ? null : (row.title ?? '');
 }

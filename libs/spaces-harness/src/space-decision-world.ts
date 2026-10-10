@@ -71,11 +71,11 @@ async function insertSpaceUser(
 ): Promise<void> {
   await c.db.run(sql`
     INSERT INTO spaces_users (
-      id, space_id, user_id, created_by_account_id,
+      id, space_id, user_id, created_by_account_id, joined, participation_revision,
       created_at, updated_at, deleted_at
     ) VALUES (
       ${spaceUserEntityId(row.spaceId, row.userId)}, ${row.spaceId},
-      ${row.userId}, ${null}, ${SEEDED_AT}, ${SEEDED_AT}, ${null}
+      ${row.userId}, ${null}, ${true}, ${0}, ${SEEDED_AT}, ${SEEDED_AT}, ${null}
     )
   `);
 }
@@ -110,11 +110,11 @@ export async function seedPlaceInSpaceOnDevice(c: ServerCase): Promise<void> {
   await seedPlaceInSpace(c);
   await c.db.run(sql`
     INSERT INTO spaces_open_sessions (
-      id, space_id, device_id, opened_at, join_announced,
+      id, space_id, device_id, opened_at, join_announced, participation_revision,
       created_at, updated_at, deleted_at
     ) VALUES (
       ${spaceOpenSessionEntityId(c.env.deviceId, SPACE_ID)}, ${SPACE_ID},
-      ${c.env.deviceId}, ${SEEDED_AT}, ${true}, ${SEEDED_AT}, ${SEEDED_AT},
+      ${c.env.deviceId}, ${SEEDED_AT}, ${true}, ${0}, ${SEEDED_AT}, ${SEEDED_AT},
       ${null}
     )
   `);

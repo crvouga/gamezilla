@@ -40,7 +40,7 @@ Feature: Range changes affect only their intended wait
 
     Scenario: A delayed change for a stopped wait cannot widen a later wait
       Given Alice stopped her earlier wait
-      And Alice is waiting again with a range of 5 points
+      And Alice is waiting with a range of 5 points
       When Alice widens the range of her earlier wait to 200 points
       Then Alice is told her earlier wait has ended
       And Alice accepts nobody more than 5 points away

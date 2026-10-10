@@ -74,6 +74,12 @@ export function puzzleFinish(text: string): PuzzleFinishName {
 
 export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
   {
+    name: 'usernameRefusal',
+    regexp:
+      /it is too short|it is too long|it contains characters other than letters, numbers and _|the name is not allowed|their username was changed recently|their device is offline|another person already has that name/,
+    transformer: (text: string) => text,
+  },
+  {
     name: 'competingFinish',
     regexp: /clean solve|wrong then solve/,
     transformer: (text: string) =>

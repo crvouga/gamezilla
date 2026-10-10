@@ -16,13 +16,13 @@ Feature: A multiplayer game stays as it ended
       Given Alice's 5+0 multiplayer game with Bob was drawn by agreement after e4 and e5
       When Alice plays g1 to f3 as a multiplayer move
       Then Alice is told the multiplayer game is over
-      And both people still see the multiplayer move list "1. e4 e5"
+      And both people see the multiplayer move list "1. e4 e5"
 
     Scenario: No move is accepted in an aborted game
       Given Alice's 5+0 multiplayer game with Bob was aborted
       When Alice plays e2 to e4 as a multiplayer move
       Then Alice is told the multiplayer game is over
-      And both people still see the multiplayer game was aborted
+      And both people see the multiplayer game was aborted
 
   Rule: Once a multiplayer game is over or aborted, its people cannot resign, abort or offer a multiplayer draw, but can find a new opponent
 

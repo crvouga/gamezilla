@@ -41,10 +41,10 @@ async function seedSpace(db: SqlClient, joined: string | null): Promise<void> {
     await db.run(sql`
       INSERT INTO spaces_users (
         id, space_id, user_id, created_by_account_id,
-        created_at, updated_at, deleted_at
+        created_at, updated_at, joined, participation_revision, deleted_at
       ) VALUES (
         ${spaceUserEntityId(SPACE_ID, userId)}, ${SPACE_ID}, ${userId},
-        ${null}, ${NOW}, ${NOW}, ${null}
+        ${null}, ${NOW}, ${NOW}, ${true}, ${0}, ${null}
       )
     `);
   }

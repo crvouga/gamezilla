@@ -1,0 +1,4 @@
+{
+  "summary": "Auth captured HTTP outside the offline boundary, so switching offline could not abort a request already underway. Inject the gated HTTP port into the auth factory.",
+  "regressionTest": "libs/app-root-client/tests/offline-client-env.test.ts"
+}

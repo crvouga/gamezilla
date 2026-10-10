@@ -1,10 +1,31 @@
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { bringToFront } from '@libs/harness/observations';
 import { standInName, usernameText } from '@libs/moderation-shared/display';
 import { Handles } from '@libs/test-ids-shared/handles';
 import sql from '@pkgs/sql-root-shared/sql';
-import { backToProfileTab, NAV_WAIT_MS } from './profile-actions';
+import {
+  backToProfileTab,
+  leaveUsernameEditor,
+  NAV_WAIT_MS,
+  openProfileEdit,
+} from './profile-actions';
+
+/** The saved username exposed in its owner's editable field, without saving. */
+export async function readSavedProfileUsername(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  await Promise.resolve(openProfileEdit.act(s, actorId));
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.profileEditUsername).tap();
+  const input = ui.get(Handles.profileUsernameInput);
+  await input.expect.visible();
+  const name = await input.text();
+  await Promise.resolve(leaveUsernameEditor.act(s, actorId));
+  return name;
+}
 
 export async function readUsername(
   s: ProductHarness,
@@ -62,12 +83,49 @@ export async function readUsernameSaveFace(
   actorId: string
 ): Promise<string | null> {
   try {
+    await bringToFront(s, actorId);
     const ui = await actorUi(s, actorId);
-    const face = await ui.get(Handles.profileUsernameSave).text();
-    return face === null ? null : face.trim();
+    const save = ui.get(Handles.profileUsernameSave);
+    const face = (await save.isVisible())
+      ? (await save.text())?.trim()
+      : undefined;
+    if (face !== undefined && !['Save', 'Saving…', 'Saved'].includes(face))
+      return face;
+    return (await readUsernameSharedRefusalFace(s, actorId)) ?? face ?? null;
   } catch {
     return null;
   }
+}
+
+/** The durable refusal shown after this device's accepted choice is shared. */
+export async function readUsernameSharedRefusalFace(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  const refusal = (await actorUi(s, actorId)).get(
+    Handles.profileUsernameRefusal
+  );
+  if (!(await refusal.isVisible())) return null;
+  const text = await refusal.text();
+  return (
+    [
+      'Username is taken',
+      'That username is not allowed',
+      'Username was changed recently',
+    ].find((label) => text?.includes(label)) ?? null
+  );
+}
+
+/** The profile explains that this device's accepted choice will be shared later. */
+export async function usernameWaitingToShareShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  await bringToFront(s, actorId);
+  const ui = await actorUi(s, actorId);
+  if (!(await ui.get(Handles.profileDisplayUsername).isVisible()))
+    await backToProfileTab(ui);
+  return ui.get(Handles.profileUsernamePending).isVisible();
 }
 
 /** The Profile tab's username, read from the tab itself (opens it). */
@@ -93,7 +151,10 @@ export async function readProfileUsernameShown(
   actorId: string
 ): Promise<string | null> {
   try {
-    await backToProfileTab(await actorUi(s, actorId));
+    await bringToFront(s, actorId);
+    const ui = await actorUi(s, actorId);
+    if (!(await ui.get(Handles.profileDisplayUsername).isVisible()))
+      await backToProfileTab(ui);
     return await readUsername(s, actorId);
   } catch {
     return null;

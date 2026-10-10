@@ -55,27 +55,21 @@ export class WebSocketRoomTransportFactory {
   }
 }
 
-function defaultCreateTransport(
-  args: CreateRoomTransportArgs
-): ClientTransport {
-  return new WebSocketRoomTransportFactory(args.timers, args.random).create(
-    args
-  );
-}
-
 const Ctx = createContext<CreateRoomTransport | null>(null);
 
 export function RoomTransportFactoryProvider(props: {
   readonly children: JSX.Element;
-  readonly createTransport?: CreateRoomTransport | undefined;
+  readonly createTransport: CreateRoomTransport;
 }): JSX.Element {
   return (
-    <Ctx.Provider value={props.createTransport ?? defaultCreateTransport}>
-      {props.children}
-    </Ctx.Provider>
+    <Ctx.Provider value={props.createTransport}>{props.children}</Ctx.Provider>
   );
 }
 
 export function useCreateRoomTransport(): CreateRoomTransport {
-  return useContext(Ctx) ?? defaultCreateTransport;
+  const createTransport = useContext(Ctx);
+  if (createTransport === null) {
+    throw new Error('RoomTransportFactoryProvider is required');
+  }
+  return createTransport;
 }

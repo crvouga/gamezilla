@@ -16,11 +16,7 @@ Given(
   async (w, person: string, range: number) =>
     waitsForMatch(w, person, { range })
 );
-Given(
-  '{actor} is waiting again with a range of {int} points',
-  async (w, person: string, range: number) =>
-    waitsForMatch(w, person, { range })
-);
+
 Given(
   '{actor} is waiting with a range of {int} points and has waited {int} seconds',
   async (w, person: string, range: number, seconds: number) => {

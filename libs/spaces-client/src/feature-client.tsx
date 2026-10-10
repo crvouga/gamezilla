@@ -19,9 +19,9 @@ import type { JSX } from 'solid-js';
 import type { GameRegistry } from './games-provider';
 import { AppGamesProvider } from './games-provider';
 import {
-  createSpaceHostingsInFlight,
-  SpaceHostingsInFlightContext,
-} from './space-hostings-in-flight';
+  createSpaceAdmissionsInFlight,
+  SpaceAdmissionsInFlightContext,
+} from './space-admissions-in-flight';
 
 /** Read inside the tab memo, so the label follows the active locale. */
 function spacesTabLabel(): string {
@@ -41,13 +41,13 @@ export function createSpacesClient(options: {
   }): JSX.Element {
     // Once per client, above the session remounts: a space created just
     // before a remount is still waited on by the room that opens after it.
-    const hostings = createSpaceHostingsInFlight();
+    const admissions = createSpaceAdmissionsInFlight();
     return (
-      <SpaceHostingsInFlightContext.Provider value={hostings}>
+      <SpaceAdmissionsInFlightContext.Provider value={admissions}>
         <AppGamesProvider registry={options.registry}>
           {props.children}
         </AppGamesProvider>
-      </SpaceHostingsInFlightContext.Provider>
+      </SpaceAdmissionsInFlightContext.Provider>
     );
   }
   return defineFeatureClient({

@@ -46,6 +46,8 @@ export type CommandPaletteProps = {
   footerLegend?: JSX.Element | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
+  /** DOM identifiers for the search input. */
+  inputDataSet?: ComponentDataSet | undefined;
 };
 
 type PaletteModel = {
@@ -106,6 +108,7 @@ function PaletteCard(props: {
   model: PaletteModel;
   listboxId: string;
   footerLegend: JSX.Element | undefined;
+  inputDataSet: ComponentDataSet | undefined;
 }): JSX.Element {
   // Static per palette instance: the registry context and its derived model.
   const reg = untrack(() => props.reg);
@@ -127,6 +130,7 @@ function PaletteCard(props: {
           editable={!running()}
           listboxId={props.listboxId}
           activeDescendantId={model.activeId()}
+          dataSet={props.inputDataSet}
         />
       </div>
       <Show
@@ -185,6 +189,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
               model={createPaletteModel(reg, listboxId)}
               listboxId={listboxId}
               footerLegend={props.footerLegend}
+              inputDataSet={props.inputDataSet}
             />
           </ModalContent>
         </div>

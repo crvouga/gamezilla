@@ -11,6 +11,7 @@ import {
   spaceIdArgs,
 } from './space-mutation-helpers';
 import { changeSpaceRoomMembership } from './space-withdrawal';
+import { playerJoinedEvent } from './telemetry';
 export const joinSpaceMutation = defineMutation({
   name: 'joinSpace',
   args: spaceIdArgs,
@@ -46,17 +47,21 @@ export const joinSpaceMutation = defineMutation({
       const now = env.now().toISOString();
       await tx.run(sql`
         INSERT INTO spaces_users (
-          id, space_id, user_id, created_at, created_by_account_id, deleted_at
+          id, space_id, user_id, created_at, created_by_account_id, joined, participation_revision, deleted_at
         )
         VALUES (
-          ${id}, ${spaceId}, ${actorMemberId}, ${now}, ${actorAccountId}, ${null}
+          ${id}, ${spaceId}, ${actorMemberId}, ${now}, ${actorAccountId}, ${true}, ${0}, ${null}
         )
         ON CONFLICT (id) DO UPDATE SET
           deleted_at = NULL,
+          joined = ${true},
           created_at = excluded.created_at,
           created_by_account_id = excluded.created_by_account_id
       `);
     }
+    await tx.run(
+      sql`UPDATE spaces_users SET joined = ${true} WHERE id = ${id} AND deleted_at IS NULL`
+    );
     if (
       isHost(env, row) &&
       (row.host_member_id !== actorMemberId ||
@@ -68,7 +73,20 @@ export const joinSpaceMutation = defineMutation({
         WHERE id = ${spaceId}
       `);
     }
-    await changeSpaceRoomMembership({ tx, env }, spaceId, 'joined');
+    const membershipEventId = await changeSpaceRoomMembership(
+      { tx, env },
+      spaceId,
+      'joined',
+      actorMemberId
+    );
     await openSession(tx, env, spaceId);
+    if (present.length === 0)
+      await playerJoinedEvent.record(
+        { tx, env },
+        {
+          id: membershipEventId,
+          attributes: { 'space.id': spaceId, 'subject.id': env.actorId },
+        }
+      );
   },
 });

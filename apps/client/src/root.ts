@@ -4,10 +4,14 @@ import {
   showBrowserStartupFailure,
   startBrowserApplication,
 } from '@libs/app-root-client/start-browser-application';
+import { createWallOfflineHttp } from '@libs/app-root-client/wall-client-env';
+import { wallOfflineNetworkController } from '@libs/app-root-client/wall-offline-network';
 import { feedbackEndpoint } from '@pkgs/feedback-client/endpoint';
 import { bootBrowserFeedback } from '@pkgs/feedback-client/wall';
 
 const STARTUP_RECOVERY_KEY = 'gamezilla:dev-startup-recovery';
+const offline = wallOfflineNetworkController();
+const startupHttp = createWallOfflineHttp(offline);
 
 function startApplication(): Promise<void> {
   return startBrowserApplication({
@@ -35,5 +39,6 @@ bootBrowserFeedback({
     ? '/api/feedback'
     : feedbackEndpoint(import.meta.env.VITE_API_URL || location.origin),
   applicationErrorEvent: 'product-crash',
+  http: startupHttp,
   startApplication,
 });

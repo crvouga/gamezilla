@@ -17,6 +17,13 @@ Feature: A friend joins from the lobby
       When Bob joins Alice's space from the lobby
       Then Bob is in the space
 
+    Scenario: A space someone left is not listed when its host is no longer a friend
+      Given Alice is hosting a space that Bob joined from the lobby
+      And Bob has left the space
+      And Alice and Bob are no longer friends
+      When Bob goes back to the lobby
+      Then Bob's lobby stops listing Alice's space within 15 seconds
+
     @regression:space-lobby-ended-refusal
     Scenario: A friend is not offered a space that has ended
       Given Alice has hosted a space and ended it

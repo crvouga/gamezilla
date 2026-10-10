@@ -12,7 +12,7 @@ import sql from '@pkgs/sql-root-shared/sql';
 import {
   playUntilSolved,
   retryPuzzle,
-  showChessStatsScreen,
+  showPersonalChessStatsScreen,
 } from './chess-actions';
 import { readRecoveryStats } from './puzzle-recovery-stats';
 
@@ -46,8 +46,7 @@ export const viewPuzzleStatsAfterReturn = scenarioAction({
   name: 'viewPuzzleStatsAfterReturn',
   act: async (s, device: string) => {
     await ensureActor(s, device);
-    await Promise.resolve(returnToOwnSpace.act(s, device));
-    await Promise.resolve(showChessStatsScreen.act(s, device));
+    await Promise.resolve(showPersonalChessStatsScreen.act(s, device));
   },
 });
 
@@ -115,8 +114,7 @@ export const viewRecoveryStats = scenarioAction({
       : ['alice', 'bob']) {
       if (!s.actors.has(device)) continue;
       await bringToFront(s, device);
-      await Promise.resolve(returnToOwnSpace.act(s, device));
-      await Promise.resolve(showChessStatsScreen.act(s, device));
+      await Promise.resolve(showPersonalChessStatsScreen.act(s, device));
     }
   },
 });

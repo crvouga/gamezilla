@@ -10,9 +10,10 @@ import { type JSX, Match, Show, Switch } from 'solid-js';
 import { useHostedSpaceCount } from './use-hosted-space-count';
 
 /** What the last attempt to start a space came to, when it did not open one. */
-export type SpacesNotice =
-  | { readonly kind: 'offline' }
-  | { readonly kind: 'limited'; readonly decision: Decision };
+export type SpacesNotice = {
+  readonly kind: 'limited';
+  readonly decision: Decision;
+};
 
 /** "Spaces need a connection" — said plainly, never a silent failure. */
 export function SpacesNeedConnectionNotice(): JSX.Element {
@@ -23,7 +24,8 @@ export function SpacesNeedConnectionNotice(): JSX.Element {
       dataSet={{ testid: Handles.spacesNeedConnection }}
     >
       <Trans>
-        Spaces need a connection. Connect to the internet and try again.
+        Joining someone else's space needs a connection. Your own spaces work
+        offline.
       </Trans>
     </Notice>
   );
@@ -35,9 +37,6 @@ export function SpacesAttemptNotice(props: {
 }): JSX.Element {
   return (
     <Switch>
-      <Match when={props.notice?.kind === 'offline'}>
-        <SpacesNeedConnectionNotice />
-      </Match>
       <Match
         when={(() => {
           const n = props.notice;

@@ -25,7 +25,7 @@ Feature: Abort a multiplayer game before it begins
       Given Bob resigned multiplayer chess and Alice won
       When Alice aborts the multiplayer game
       Then Alice is told the multiplayer game is over
-      And both people still see Alice won the multiplayer game
+      And both people see Alice won the multiplayer game
 
   Rule: Resigning is refused until both people have made their first move, and the person is told to abort instead
 
@@ -84,10 +84,10 @@ Feature: Abort a multiplayer game before it begins
     Scenario: Aborting an aborted game again changes nothing
       Given Alice's 5+0 multiplayer game with Bob was aborted
       When Alice aborts the multiplayer game
-      Then both people still see the multiplayer game was aborted
+      Then both people see the multiplayer game was aborted
 
     Scenario: An aborted game cannot be resigned
       Given Alice's 5+0 multiplayer game with Bob was aborted
       When Bob resigns multiplayer chess
       Then Bob is told the multiplayer game is over
-      And both people still see the multiplayer game was aborted
+      And both people see the multiplayer game was aborted

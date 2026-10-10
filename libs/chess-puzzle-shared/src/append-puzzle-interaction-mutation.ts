@@ -4,6 +4,7 @@ import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 
 import { CHESS_PUZZLE_INTERACTION_KIND } from './chess-puzzle-interaction-entities';
+import { puzzleAttemptedEvent, puzzleCompletedEvent } from './telemetry';
 
 const interactionArgs = z.object({
   interactionId: z.string().min(1),
@@ -46,5 +47,19 @@ export const appendPuzzleInteractionMutation = defineMutation({
       )
       ON CONFLICT (id) DO NOTHING
     `);
+    const event =
+      args.kind === CHESS_PUZZLE_INTERACTION_KIND.started
+        ? puzzleAttemptedEvent
+        : args.kind === CHESS_PUZZLE_INTERACTION_KIND.solved
+          ? puzzleCompletedEvent
+          : undefined;
+    if (event !== undefined)
+      await event.record(
+        { tx, env },
+        {
+          id: `${args.ownerId}:${args.puzzleId}:${args.solveIdx}:${args.kind}`,
+          attributes: { 'puzzle.id': args.puzzleId, 'subject.id': env.actorId },
+        }
+      );
   },
 });

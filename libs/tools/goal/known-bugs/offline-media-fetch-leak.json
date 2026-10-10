@@ -1,0 +1,4 @@
+{
+  "summary": "HTML audio elements fetch their sources outside the injected HTTP port. The offline audio adapter detaches network sources immediately and only permits local blob/data sources while offline.",
+  "regressionTest": "libs/app-root-client/tests/offline-network-audio.test.ts"
+}

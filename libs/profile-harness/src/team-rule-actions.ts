@@ -1,9 +1,8 @@
 import { scenarioAction } from '@libs/harness/actor-ui';
 
 /**
- * The team stops allowing `username`. The rules ship with the app, so every
- * device and API instance has them at once, connected or not; whoever holds
- * the name keeps it.
+ * The team stops allowing `username`. Connected devices receive the rules;
+ * disconnected devices retain their installed rules. The name stays saved.
  */
 export const stopAllowingUsername = scenarioAction({
   name: 'stopAllowingUsername',
@@ -13,7 +12,7 @@ export const stopAllowingUsername = scenarioAction({
   },
 });
 
-/** The team starts allowing `username` again, everywhere at once. */
+/** A release starts allowing `username` again. */
 export const startAllowingUsername = scenarioAction({
   name: 'startAllowingUsername',
   act: async (s, username: string) => {
