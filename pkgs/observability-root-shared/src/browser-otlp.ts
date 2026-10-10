@@ -120,7 +120,10 @@ function sanitizeVital(input: RecordValue): unknown {
     const key = item['key'];
     if (!Object.hasOwn(WEB_VITAL_EVENT.attributes, key)) continue;
     const value = item['value'];
-    attributes[key] = value['stringValue'] ?? value['doubleValue'];
+    attributes[key] =
+      value['stringValue'] ??
+      value['doubleValue'] ??
+      otlpInteger(value['intValue']);
   }
   if (!validateEvent(WEB_VITAL_EVENT, attributes))
     throw new Error('Invalid Web Vital observation');
@@ -136,6 +139,16 @@ function sanitizeVital(input: RecordValue): unknown {
           : { stringValue: value },
     })),
   };
+}
+
+function otlpInteger(input: unknown): number | undefined {
+  if (
+    typeof input !== 'number' &&
+    !(typeof input === 'string' && /^\d{1,16}$/.test(input))
+  )
+    return undefined;
+  const value = Number(input);
+  return Number.isSafeInteger(value) ? value : undefined;
 }
 
 function safeLogContext(input: RecordValue): RecordValue {

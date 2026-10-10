@@ -1,9 +1,9 @@
 import { expect, test } from 'bun:test';
 import type { Timers } from '@pkgs/clock-shared/types';
-import { AcknowledgedLogExporter } from '@pkgs/observability-root-server/acknowledged-log-exporter';
 import { createEventDelivery } from '@pkgs/observability-root-server/event-delivery';
 import { defineEvent } from '@pkgs/observability-root-shared/event-contract';
 import { createEventOutbox } from '@pkgs/observability-root-shared/event-outbox';
+import { AcknowledgedLogExporter } from '@pkgs/observability-runtime-shared/acknowledged-log-exporter';
 
 const contract = defineEvent({
   name: 'example.work.completed',

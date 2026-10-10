@@ -14,19 +14,17 @@ export function useSyntheticPopulationUpdates(refresh: () => unknown): void {
   createEffect(() => {
     const url = config.config().emqx_wss_url;
     if (!url) return;
-    const pubsub =
-      env.createPubSub?.() ??
-      createObservationPubSub({
-        url,
-        clientIdPrefix: 'synthetic-population-observation',
-        timers: env.timers,
-        random: env.random,
-        logger: createLogger({
-          name: 'synthetic-population-observation',
-          now: env.clock.now,
-        }),
-        auth: () => api.subscriptionCredentials(),
-      });
+    const pubsub = createObservationPubSub({
+      url,
+      clientIdPrefix: 'synthetic-population-observation',
+      timers: env.timers,
+      random: env.random,
+      logger: createLogger({
+        name: 'synthetic-population-observation',
+        now: env.clock.now,
+      }),
+      auth: () => api.subscriptionCredentials(),
+    });
     let timer: unknown;
     const invalidate = () => {
       if (timer !== undefined) return;

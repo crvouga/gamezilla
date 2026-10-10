@@ -3,6 +3,37 @@ import { sanitizeBrowserOtlp } from '@pkgs/observability-root-shared/browser-otl
 
 const identity = { serviceName: 'example-client', environment: 'test' };
 
+// regression: otel-browser-integer-observation
+test('OTLP integer observations survive numeric and protobuf JSON string encodings', () => {
+  for (const intValue of [321, '321']) {
+    const result = sanitizeBrowserOtlp(
+      {
+        resourceLogs: [
+          {
+            scopeLogs: [
+              {
+                logRecords: [
+                  {
+                    eventName: 'browser.performance.measured',
+                    attributes: [
+                      { key: 'web_vital.name', value: { stringValue: 'lcp' } },
+                      { key: 'web_vital.value', value: { intValue } },
+                      { key: 'web_vital.unit', value: { stringValue: 'ms' } },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      'logs',
+      identity
+    );
+    expect(JSON.stringify(result)).toContain('"doubleValue":321');
+  }
+});
+
 test('named Web Vital observations retain numeric values and discard private attribution', () => {
   const result = sanitizeBrowserOtlp(
     {

@@ -9,6 +9,7 @@ import type { AppAuthContext } from './auth-context';
 import { buildAppAuthContext } from './auth-context';
 import { assertDeviceId } from './device-id';
 import { EnsureInternalAccountUseCase } from './ensure-internal-account-use-case';
+import { sessionTelemetryPopulation } from './session-telemetry-population';
 
 const ACCOUNT_CACHE_TTL_MS = 60_000;
 const ACCOUNT_CACHE_MAX = 128;
@@ -102,15 +103,14 @@ export class BearerAuthResolver {
       this.time
     ).findUserIdByDeviceId(deviceId);
 
+    const synthetic = await sessionTelemetryPopulation(this.sql, session);
     const accountId = await new EnsureInternalAccountUseCase(
       this.sql,
       this.time,
       this.authServer
     ).execute({
       externalUserId: session.externalUserId,
-      ...(session.synthetic === undefined
-        ? {}
-        : { synthetic: session.synthetic }),
+      ...(synthetic === undefined ? {} : { synthetic }),
       upgradeUserId,
     });
     if (accountId !== null) {
@@ -136,14 +136,13 @@ export class BearerAuthResolver {
     );
     if (session === null) return null;
     assertDeviceId(deviceId);
+    const synthetic = await sessionTelemetryPopulation(this.sql, session);
     return buildAppAuthContext({
       deviceId,
       accountId,
       myId: accountId,
       isAnon: false,
-      ...(session.synthetic === undefined
-        ? {}
-        : { synthetic: session.synthetic }),
+      ...(synthetic === undefined ? {} : { synthetic }),
       ...(session.authenticatedAt === null
         ? {}
         : { authenticatedAtMs: session.authenticatedAt.getTime() }),

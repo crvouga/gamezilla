@@ -28,7 +28,6 @@
     "@pkgs/observability-root-shared": "workspace:*",
     "@pkgs/observability-runtime-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
-    "@opentelemetry/otlp-transformer": "catalog:",
     "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*"
   },

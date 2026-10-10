@@ -7,6 +7,7 @@ import { installBrowserPerformanceTelemetry } from '@libs/app-root-client/wall';
 import { APP } from '@libs/runtime-shared/app-features';
 import { createBrowserTelemetry } from '@pkgs/observability-root-client/browser';
 import { createHttpSpanExporter } from '@pkgs/observability-root-client/http-span-exporter';
+import { AcknowledgedLogExporter } from '@pkgs/observability-runtime-shared/acknowledged-log-exporter';
 /** @jsxImportSource solid-js */
 // @io-wall-ok — browser composition root
 /**
@@ -71,10 +72,12 @@ function initializeObservability() {
         '/api/observability/v1/traces',
         clientEnv.serverUrl
       ).toString(),
-      logsUrl: new URL(
-        '/api/observability/v1/logs',
-        clientEnv.serverUrl
-      ).toString(),
+      logExporter: new AcknowledgedLogExporter(
+        new URL('/api/observability/v1/logs', clientEnv.serverUrl).toString(),
+        {},
+        { fetch: createOfflineHttp(offline, clientEnv.server) },
+        clientEnv.timers
+      ),
     })
   );
   const boundaries = telemetry.then((runtime) => {

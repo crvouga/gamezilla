@@ -16,9 +16,9 @@ import { validateEvent } from '@pkgs/observability-root-shared/event-contract';
 import type { PendingTelemetryEvent } from '@pkgs/observability-root-shared/event-outbox';
 import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
 import { allowlistedAttributes } from '@pkgs/observability-root-shared/redaction';
+import { AcknowledgedLogExporter } from '@pkgs/observability-runtime-shared/acknowledged-log-exporter';
 import type { TelemetryOptions } from '@pkgs/observability-runtime-shared/options';
 import { defineOutboxConsumer } from '@pkgs/outbox-shared/define-consumer';
-import { AcknowledgedLogExporter } from './acknowledged-log-exporter';
 
 export function createBusinessEventDelivery(
   options: TelemetryOptions,

@@ -47,7 +47,8 @@ has no established synthetic provenance; it is not a GAAP revenue report.
 space creation/join, puzzle attempts and chess game starts. Active use is distinct
 pseudonymous subjects participating in these events; both chess participants count.
 DAU/WAU/MAU use explicit half-open UTC windows of 1/7/30 days. Page views do not count.
-Only explicitly real provenance is included; synthetic and unknown populations are
+Provisioned population addresses are classified before account binding, including
+tombstoned bot records. Only explicitly real provenance is included; synthetic and unknown populations are
 excluded. Logical duplicates and deleted subjects are excluded. Late arrivals use
 event time. Game completion rates follow the started cohort as of the window end.
 
@@ -74,7 +75,7 @@ inherit the stack's existing notification policy; no new contact channel is crea
 Additional business SLOs require owned objectives and compatible existing bindings.
 
 OpenTofu foundation manages per-environment writer/read policies, dashboard folders,
-service accounts and alerts. Workers receive ingestion credentials only. Browser logs
+service accounts and alerts. Workers receive ingestion credentials only. Browser exports use the injected offline-aware HTTP and timers. Browser logs
 are proxied with server credentials; resource identity is forced, business claims and
 private bodies are stripped, and only diagnostic attributes or scalar Web Vitals pass.
 Browser cumulative metrics are not exported into a shared series. Server metric
