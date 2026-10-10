@@ -1,6 +1,7 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
@@ -55,13 +56,19 @@ export function SyntheticPopulationUsers(props: {
         </Show>
       </MenuSection>
       <Show when={page.error}>
-        <p class="text text-destructive" role="alert">
-          <Trans>Synthetic User directory could not be loaded.</Trans>
-        </p>
+        <ErrorState
+          variant="compact"
+          title={<Trans>Synthetic User directory could not be loaded.</Trans>}
+        />
       </Show>
       <div class="box flex-row gap-3">
         <Show when={cursor() !== null}>
-          <Button title={t`First page`} onClick={() => setCursor(null)} />
+          <Button
+            title={t`First page`}
+            intent="neutral"
+            variant="outline"
+            onClick={() => setCursor(null)}
+          />
         </Show>
         <Show when={page()?.nextCursor}>
           {(next) => (

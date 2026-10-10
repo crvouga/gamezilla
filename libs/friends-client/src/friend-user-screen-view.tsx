@@ -99,7 +99,7 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
           <Show
             when={!userProfile.unavailable()}
             fallback={
-              <p class="text" data-testid="friend-profile-unavailable">
+              <p class="text textBody" data-testid="friend-profile-unavailable">
                 <Trans>
                   This profile is no longer available because the account was
                   deleted.

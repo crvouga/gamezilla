@@ -9,6 +9,7 @@ import {
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { MutationError } from '@pkgs/ui-root-client/mutation-modal-parts';
 import { ProgressBar } from '@pkgs/ui-root-client/progress-bar';
 import { Skeleton } from '@pkgs/ui-root-client/skeleton';
 import { Spinner } from '@pkgs/ui-root-client/spinner';
@@ -24,6 +25,127 @@ import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, Show } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
+
+function wrappingErrorMessage(): string {
+  return 'The write did not land because the room locked the row and the detail keeps wrapping. '.repeat(
+    12
+  );
+}
+
+function readPx(value: string): number {
+  if (value === '' || value === '0') return 0;
+  if (!value.endsWith('px')) {
+    throw new Error(`expected a px length, got ${value}`);
+  }
+  return Number.parseFloat(value);
+}
+
+/** The fixed state band MutationError already mounts around the error. */
+function stateBand(retry: HTMLElement): HTMLElement {
+  let node = retry.parentElement;
+  while (node !== null) {
+    if (
+      node.style.height.endsWith('px') &&
+      node.classList.contains('overflow-hidden')
+    ) {
+      return node;
+    }
+    node = node.parentElement;
+  }
+  throw new Error('mutation state band not found');
+}
+
+type RetryEdges = {
+  retryTop: number;
+  retryBottom: number;
+  bandHeight: number;
+  contentTop: number;
+};
+
+function bandColumn(band: HTMLElement): HTMLElement {
+  const column = band.firstElementChild;
+  if (!(column instanceof HTMLElement)) throw new Error('band has no error');
+  if (column.getAttribute('role') !== 'alert') {
+    throw new Error('band child is not the error alert');
+  }
+  if (column.style.height !== '100%' || column.style.overflow !== 'hidden') {
+    throw new Error('error does not fill the band');
+  }
+  if (column.style.boxSizing !== 'border-box') {
+    throw new Error('band padding is outside the fixed height');
+  }
+  if (column.style.display !== 'flex') throw new Error('error is not a column');
+  if (column.style.flexDirection !== 'column') {
+    throw new Error('error is not a column');
+  }
+  return column;
+}
+
+function pinnedHeight(node: HTMLElement, message: string): number {
+  if (node.style.flexShrink !== '0') {
+    throw new Error('retry slot can shrink out of the band');
+  }
+  if (node.textContent?.includes(message.trim()) === true) {
+    throw new Error('wrapping message sits in the retry slot');
+  }
+  return readPx(node.style.minHeight);
+}
+
+function assertShrinkRegion(node: HTMLElement): void {
+  if (node.style.minHeight !== '0' || node.style.overflow !== 'hidden') {
+    throw new Error('message region cannot shrink inside the band');
+  }
+  if (!node.style.flex.startsWith('1')) {
+    throw new Error('message region cannot shrink inside the band');
+  }
+  if (!node.textContent?.includes('room locked the row')) {
+    throw new Error('wrapping message is not in the shrinking region');
+  }
+}
+
+/**
+ * Bottom edge of the retry inside the band, from the layout the component
+ * shipped (fixed band, shrinking message, non-shrinking retry slot).
+ */
+function retryEdges(
+  band: HTMLElement,
+  retry: HTMLElement,
+  message: string
+): RetryEdges {
+  const column = bandColumn(band);
+  const last = column.lastElementChild;
+  if (!(last instanceof HTMLElement) || !last.contains(retry)) {
+    throw new Error('retry is not the last row in the band');
+  }
+  const bandHeight = readPx(band.style.height);
+  const contentTop = readPx(column.style.paddingTop);
+  const contentHeight =
+    bandHeight - contentTop - readPx(column.style.paddingBottom);
+  let pinned = 0;
+  let shrinks = 0;
+  for (const node of column.children) {
+    if (!(node instanceof HTMLElement)) continue;
+    if (node.contains(retry)) pinned += pinnedHeight(node, message);
+    else {
+      assertShrinkRegion(node);
+      shrinks += 1;
+    }
+  }
+  if (shrinks !== 1 || pinned <= 0) {
+    throw new Error('retry is not pinned under a shrinking message');
+  }
+  const gap = readPx(column.style.gap) * (column.children.length - 1);
+  if (pinned + gap > contentHeight) {
+    throw new Error('pinned retry is taller than the band');
+  }
+  const retryBottom = bandHeight - readPx(column.style.paddingBottom);
+  return {
+    retryTop: retryBottom - pinned,
+    retryBottom,
+    bandHeight,
+    contentTop,
+  };
+}
 
 function mustParent(el: Element): HTMLElement {
   const parent = el.parentElement;
@@ -129,7 +251,12 @@ describe('State blocks', () => {
       />
     ));
     expect(screen.getByText('No spaces yet')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Create space' }));
+    expect(screen.getByText('Create one to get started.').className).toContain(
+      'textBody'
+    );
+    const action = screen.getByRole('button', { name: 'Create space' });
+    expect(action).toHaveAttribute('data-face', 'primary');
+    fireEvent.click(action);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
@@ -165,6 +292,72 @@ describe('State blocks', () => {
     ).toBeInTheDocument();
     clock.advance(2000);
     expect(screen.getByRole('button', { name: 'Copy error' })).toBeVisible();
+  });
+
+  test('retry is the primary face and a second recovery stays outline', () => {
+    renderUi(() => (
+      <ErrorState
+        title="Could not save"
+        body="The write did not land."
+        retry={{ label: 'Try again', onClick: () => undefined }}
+        secondary={{ label: 'Reload', onClick: () => undefined }}
+      />
+    ));
+    const primary = screen.getByRole('button', { name: 'Try again' });
+    const secondary = screen.getByRole('button', { name: 'Reload' });
+    expect(primary).toHaveAttribute('data-face', 'primary');
+    expect(primary).toHaveAttribute('data-intent', 'primary');
+    expect(secondary).toHaveAttribute('data-face', 'neutral-outline');
+    expect(secondary).toHaveAttribute('data-intent', 'neutral');
+    expect(screen.getByRole('heading', { name: 'Could not save' })).toHaveClass(
+      'textHeading'
+    );
+  });
+
+  test('loading, empty, error, and success each render their state', () => {
+    renderUi(() => (
+      <>
+        <LoadingState caption="Loading spaces…" />
+        <EmptyState title="No spaces yet" />
+        <ErrorState title="Could not load spaces" />
+        <SuccessState title="Space saved" />
+      </>
+    ));
+    expect(screen.getAllByRole('status').length).toBeGreaterThan(0);
+    expect(screen.getByText('Loading spaces…')).toBeInTheDocument();
+    expect(screen.getByText('No spaces yet')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Could not load spaces'
+    );
+    expect(screen.getByText('Space saved')).toBeInTheDocument();
+  });
+
+  test('MutationError keeps a wrapping message from pushing the retry out of the band', () => {
+    const message = wrappingErrorMessage();
+    renderUi(() => (
+      <MutationError
+        labels={{
+          submitLabel: 'Save',
+          cancelLabel: 'Cancel',
+          loadingLabel: 'Working',
+          successTitle: 'Saved',
+          successBody: 'Done',
+          errorTitle: 'Could not save',
+          dismissLabel: 'Done',
+          retryLabel: 'Try again',
+        }}
+        error={new Error(message)}
+        onRetry={() => undefined}
+        onClose={() => undefined}
+      />
+    ));
+    const retry = screen.getByRole('button', { name: 'Try again' });
+    expect(retry).toHaveAttribute('data-face', 'primary');
+    const band = stateBand(retry);
+    const edges = retryEdges(band, retry, message);
+    expect(edges.retryTop).toBeGreaterThanOrEqual(edges.contentTop);
+    expect(edges.retryBottom).toBeLessThanOrEqual(edges.bandHeight);
+    expect(edges.retryBottom - edges.retryTop).toBeGreaterThan(0);
   });
 });
 

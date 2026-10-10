@@ -25,7 +25,7 @@ export function SpaceGuestMembershipUsernamesJoined(
   return (
     <Show when={membershipIds().length > 0}>
       <p
-        class="text"
+        class="text textBody"
         classList={{
           textBodyBold: String(props.variant) === 'bodyBold',
           textCaption: String(props.variant) === 'caption',

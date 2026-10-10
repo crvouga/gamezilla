@@ -159,7 +159,7 @@ function InteractionRowText(props: {
   return (
     <div class="box flex-1 min-w-0 gap-1">
       <p
-        class="text line-clamp-3"
+        class="text textBody line-clamp-3"
         classList={{
           textBodyBold:
             String(props.interaction.isUnread ? 'bodyBold' : 'body') ===

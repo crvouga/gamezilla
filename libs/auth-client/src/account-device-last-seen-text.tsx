@@ -13,5 +13,5 @@ export function AccountDeviceLastSeenText(
 ): JSX.Element {
   const lastSeenAt = useDeviceColumn(() => props.deviceId, 'lastSeenAt');
   const label = createMemo(() => formatTimestamp(lastSeenAt()));
-  return <p class="text line-clamp-4">{label()}</p>;
+  return <p class="text textBody line-clamp-4">{label()}</p>;
 }

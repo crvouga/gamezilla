@@ -42,6 +42,8 @@ export type EmptyStateProps = {
   action?: EmptyStateAction | undefined;
   /** Layout density. Defaults to `'fill'`. */
   variant?: StateBlockVariant | undefined;
+  /** Live-region role when the empty block replaces a loading status. */
+  role?: 'status' | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -85,6 +87,7 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
   return (
     <StateBlock
       variant={variant()}
+      role={props.role}
       dataSet={{ component: 'EmptyState', ...props.dataSet }}
     >
       <Show when={props.icon}>
@@ -103,7 +106,7 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
         <p
           class={
             isFill()
-              ? 'text text-text-secondary text-center w-full'
+              ? 'text textBody text-text-secondary text-center w-full'
               : 'text textCaption text-center w-full'
           }
           style={{ 'max-width': cssPx(BODY_MAX_WIDTH) }}

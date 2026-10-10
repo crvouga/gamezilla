@@ -9,6 +9,7 @@ import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { GameHeader } from '@pkgs/ui-root-client/game-header';
 import { GameLayout, GameScreen } from '@pkgs/ui-root-client/game-screen';
 import { type JSX, Show } from 'solid-js';
@@ -98,9 +99,12 @@ function MultiplayerContent(props: {
               !props.data.loading()
             }
           >
-            <p role="status" data-testid="multiplayer-unavailable">
-              <Trans>No multiplayer game is available to you.</Trans>
-            </p>
+            <EmptyState
+              variant="compact"
+              role="status"
+              title={<Trans>No multiplayer game is available to you.</Trans>}
+              dataSet={{ testid: 'multiplayer-unavailable' }}
+            />
           </Show>
         </GameLayout>
       </Show>
@@ -131,7 +135,7 @@ export default function MultiplayerScreen(): JSX.Element {
         ]}
       >
         <GameHeader
-          eyebrow={<Trans>Chess · Matchmaking</Trans>}
+          context={<Trans>Chess · Matchmaking</Trans>}
           title={<Trans>Your next great game</Trans>}
           description={
             <Trans>A new rival. A fresh board. Pick your pace and play.</Trans>

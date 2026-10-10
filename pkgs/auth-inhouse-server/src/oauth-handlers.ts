@@ -204,10 +204,15 @@ export async function handleOauthCallback(
     return c.json({ error: provider.error }, provider.status);
   const params = await callbackParams(c);
   const r = repo(ctx.deps);
-  const oauthState = await r.findOauthStateByState(params['state'] ?? '');
+  const state = params['state'] ?? '';
+  const oauthState = await r.findOauthStateByState(state);
   if (oauthState === null || oauthState.provider !== provider.id) {
     return c.json({ error: 'invalid_state' }, 400);
   }
+  // Apple's page posts the form itself and still shows Continue. The second
+  // post must reach the app; the provider code was already exchanged.
+  if (oauthState.user_id !== null)
+    return await resumeExchange(c, ctx, oauthState);
   const back = (extra: Record<string, string>): Response =>
     callbackRedirect(c, oauthState.callback_url, extra);
   const code = params['code'] ?? '';
@@ -217,6 +222,9 @@ export async function handleOauthCallback(
     return back({
       [AUTH_CALLBACK_PARAM.error]: providerErrorCode(providerError),
     });
+  }
+  if (!(await r.claimOauthState(oauthState.id))) {
+    return await resumeOrReject(c, ctx, provider.id, state);
   }
   const outcome = await resolveIdentity({
     ctx,
@@ -234,4 +242,35 @@ export async function handleOauthCallback(
     userId: outcome.userId,
   });
   return back({ [AUTH_CALLBACK_PARAM.code]: exchangeCode });
+}
+
+/** A finished provider callback, sent back to the app with a fresh code. */
+async function resumeExchange(
+  c: Context,
+  ctx: AuthAppCtx,
+  oauthState: OauthStateRow
+): Promise<Response> {
+  const userId = oauthState.user_id;
+  if (userId === null) return c.json({ error: 'invalid_state' }, 400);
+  const exchangeCode = await repo(ctx.deps).attachExchangeCode({
+    stateId: oauthState.id,
+    userId,
+  });
+  return callbackRedirect(c, oauthState.callback_url, {
+    [AUTH_CALLBACK_PARAM.code]: exchangeCode,
+  });
+}
+
+/** The other in-flight post: resume once the winner has stored the user. */
+async function resumeOrReject(
+  c: Context,
+  ctx: AuthAppCtx,
+  providerId: string,
+  state: string
+): Promise<Response> {
+  const again = await repo(ctx.deps).findOauthStateByState(state);
+  if (again === null || again.provider !== providerId) {
+    return c.json({ error: 'invalid_state' }, 400);
+  }
+  return await resumeExchange(c, ctx, again);
 }

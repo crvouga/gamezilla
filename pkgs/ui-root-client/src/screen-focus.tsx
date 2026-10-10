@@ -54,10 +54,14 @@ function keyboardLost(document: Document): boolean {
   return active === null || active === document.body || !active.isConnected;
 }
 
-/** The screen's title (else the screen), made focusable by script only. */
+/**
+ * The screen's title (else the screen), made focusable by script only. It is
+ * a place to read from, not a control, so `screenFocusTarget` draws no ring.
+ */
 function titleOf(root: HTMLElement): HTMLElement {
   const title = root.querySelector<HTMLElement>('h1') ?? root;
   if (!title.hasAttribute('tabindex')) title.setAttribute('tabindex', '-1');
+  title.classList.add('screenFocusTarget');
   return title;
 }
 

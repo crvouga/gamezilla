@@ -13,16 +13,16 @@ export function GameSection(props: {
   const id = createUniqueId();
   return (
     <section
-      class={styles['section']}
+      class={`${styles['section']} rounded-card border border-border bg-surface`}
       aria-labelledby={id}
       {...dataAttrs({ component: 'GameSection', ...props.dataSet })}
     >
       <div class="box gap-1">
-        <h2 id={id} class={styles['sectionTitle']}>
+        <h2 id={id} class="text textNavigationTitle">
           {props.title}
         </h2>
         <Show when={props.description}>
-          <p class={styles['description']}>{props.description}</p>
+          <p class="text textBody text-text-secondary">{props.description}</p>
         </Show>
       </div>
       {props.children}

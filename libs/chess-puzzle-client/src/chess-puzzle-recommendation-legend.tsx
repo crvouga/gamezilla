@@ -37,13 +37,13 @@ export function ChessPuzzleRecommendationLegend(props: {
                 variant="caption"
                 numberOfLines={1}
               />
-              <p class="text textMono textCaption text-text">
+              <p class="text textCaption">
                 {formatRecommendedMove(entry.from, entry.to)}
               </p>
               <Show when={entry.by === props.myId}>
                 <button
                   type="button"
-                  class="box items-center justify-center"
+                  class="clickable box items-center justify-center"
                   aria-label="Clear my suggestion"
                   data-testid="chess-puzzle-recommendation-clear"
                   onClick={props.onClearMine}

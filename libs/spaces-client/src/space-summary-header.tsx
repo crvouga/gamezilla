@@ -26,13 +26,12 @@ export function SpaceSummaryHeader(
           <SpaceTitleText
             spaceId={props.spaceId}
             variant="bodyBold"
-            class="text-on-primary"
             numberOfLines={1}
           />
           <SpaceHostNameText
             spaceId={props.spaceId}
             variant="caption"
-            class="text-on-primary"
+            class="text-text-secondary"
             numberOfLines={1}
           />
         </div>

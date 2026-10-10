@@ -37,7 +37,7 @@ export function SignInLinkRequiredContent(props: {
           <h2 class="text textBodyBold">
             <Trans>Connect your accounts?</Trans>
           </h2>
-          <p class="text text-text-secondary">
+          <p class="text textBody text-text-secondary">
             {t`An account already uses ${props.link.email}. Sign in to it to add ${newProvider()} as another way to sign in, or keep a separate account.`}
           </p>
           <Show when={props.link.providers.includes('password')}>

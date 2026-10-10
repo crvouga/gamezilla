@@ -39,6 +39,8 @@ export type OauthStateRow = {
   readonly nonce: string;
   readonly link_user_id: string | null;
   readonly pending_link_id: string | null;
+  /** Set once the provider callback has minted an exchange code. */
+  readonly user_id: string | null;
 };
 
 export function isoFromMs(ms: number): string {
@@ -208,7 +210,7 @@ export class IdpRepository {
   async findOauthStateByState(state: string): Promise<OauthStateRow | null> {
     const rows = await this.db.query(sql<OauthStateRow>`
       SELECT id, provider, code_verifier, callback_url, expires_at,
-             intent, nonce, link_user_id, pending_link_id
+             intent, nonce, link_user_id, pending_link_id, user_id
       FROM idp_oauth_states
       WHERE state = ${state} AND deleted_at IS NULL
       LIMIT 1
@@ -225,6 +227,27 @@ export class IdpRepository {
     await this.db.run(sql`DELETE FROM idp_oauth_states WHERE id = ${id}`);
   }
 
+  /**
+   * One provider token exchange per state. The loser of a double form post
+   * resumes the row instead of exchanging Apple's code again.
+   */
+  async claimOauthState(id: string): Promise<boolean> {
+    const pending = `pending:${this.createId()}`;
+    const rows = await this.db.query(sql<{ id: string }>`
+      UPDATE idp_oauth_states
+      SET exchange_code_hash = ${pending}, updated_at = ${this.nowIso()}
+      WHERE id = ${id} AND exchange_code_hash IS NULL AND deleted_at IS NULL
+      RETURNING id
+    `);
+    return rows.length === 1;
+  }
+
+  /**
+   * Mint the code the app exchanges for a session. The provider `state`
+   * stays so a second form post can find this row. Consuming the code
+   * deletes the row, and a resume replaces the hash so only the latest
+   * code works.
+   */
   async attachExchangeCode(args: {
     readonly stateId: string;
     readonly userId: string;
@@ -237,8 +260,7 @@ export class IdpRepository {
       SET exchange_code_hash = ${codeHash},
           user_id = ${args.userId},
           expires_at = ${expiresAt},
-          updated_at = ${this.nowIso()},
-          state = ${`${args.stateId}:used:${this.createId()}`}
+          updated_at = ${this.nowIso()}
       WHERE id = ${args.stateId}
     `);
     return code;

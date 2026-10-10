@@ -13,6 +13,7 @@ import { ReportsScreen } from './reports-screen';
  * site root still lands in the harness.
  */
 
+import { bootBrowserObservability } from '@libs/app-root-client/boot-browser-observability';
 import { createClient } from '@libs/app-root-client/create-client';
 import { wallClientEnv } from '@libs/app-root-client/wall-client-env';
 import { wallOfflineNetworkController } from '@libs/app-root-client/wall-offline-network';
@@ -49,15 +50,19 @@ function redirectedToHarness(): boolean {
 
 function AppBoot(): JSX.Element {
   const offline = wallOfflineNetworkController();
-  const client = createClient(
-    wallClientEnv({ room: wallSpaceRoomTransport, offline }),
-    {
-      features: APP_FEATURE_CLIENTS,
-      loadApp: async () => APP,
-      poolGlobalKey: '__gamezilla_sync_engine_pool__',
-      offlineController: offline,
-    }
-  );
+  const env = wallClientEnv({ room: wallSpaceRoomTransport, offline });
+  bootBrowserObservability({
+    env,
+    offline,
+    dev: import.meta.env.DEV === true,
+    timeOriginMs: performance.timeOrigin,
+  });
+  const client = createClient(env, {
+    features: APP_FEATURE_CLIENTS,
+    loadApp: async () => APP,
+    poolGlobalKey: '__gamezilla_sync_engine_pool__',
+    offlineController: offline,
+  });
   const onPageHide = (): void => {
     void client.close();
   };

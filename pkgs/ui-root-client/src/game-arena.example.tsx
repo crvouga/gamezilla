@@ -31,7 +31,7 @@ export default function GameArenaExample(): JSX.Element {
   return (
     <ExampleRoot>
       <GameHeader
-        eyebrow="Orbit Rally · Play together"
+        context="Orbit Rally · Play together"
         title="A little friendly rivalry"
         description="Your next round starts here."
       />

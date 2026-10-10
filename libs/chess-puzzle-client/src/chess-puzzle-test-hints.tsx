@@ -66,25 +66,25 @@ export function ChessPuzzleTestHints(
   return (
     <>
       <p
-        class="text"
+        class="text textBody"
         style={hintStyle}
         data-testid="chess-puzzle-board-orientation"
       >
         {props.orientation()}
       </p>
-      <p class="text" style={hintStyle} data-testid="chess-puzzle-expected-uci">
+      <p class="text textBody" style={hintStyle} data-testid="chess-puzzle-expected-uci">
         {uci() ?? ''}
       </p>
       <p
-        class="text"
+        class="text textBody"
         style={hintStyle}
         data-testid="chess-puzzle-test-debug"
       >{`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}|${props.hintStage()}|${props.puzzleRating()}|${props.themes().join(',')}`}</p>
-      <p class="text" style={hintStyle} data-testid="chess-puzzle-test-fen">
+      <p class="text textBody" style={hintStyle} data-testid="chess-puzzle-test-fen">
         {props.displayFen() ?? ''}
       </p>
       <p
-        class="text"
+        class="text textBody"
         style={hintStyle}
         data-testid="chess-puzzle-test-spectator"
       >

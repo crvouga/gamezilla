@@ -58,10 +58,11 @@ test.each(['light', 'dark'] as const)(
     const view = mountCrash();
     view.setTheme(scheme);
     const alert = screen.getByRole('alert');
-    expect(alert.closest('[data-theme]')?.getAttribute('data-theme')).toBe(
+    const root = alert.closest('[data-component="RootErrorBoundary"]');
+    expect(root?.closest('[data-theme]')?.getAttribute('data-theme')).toBe(
       scheme
     );
-    expect(alert.classList.contains('bg-background')).toBe(true);
+    expect(root?.classList.contains('bg-background')).toBe(true);
     expect(
       screen.getByRole('heading', { name: 'Something went wrong' })
     ).toBeTruthy();

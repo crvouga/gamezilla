@@ -63,13 +63,12 @@ function SpacesList(props: {
       when={orderedIds().length > 0}
       fallback={<SpacesEmptyState onCreateSpace={props.onCreateSpace} />}
     >
-      <ScreenBodyScrollView
-        contentClass="grid items-start gap-3 pb-6"
-        contentStyle={{ 'grid-template-columns': 'minmax(0, 1fr)' }}
-      >
-        <For each={orderedIds()}>
-          {(spaceId) => <SpaceCard spaceId={spaceId} />}
-        </For>
+      <ScreenBodyScrollView contentClass="pb-6">
+        <div class="panel">
+          <For each={orderedIds()}>
+            {(spaceId) => <SpaceCard spaceId={spaceId} />}
+          </For>
+        </div>
       </ScreenBodyScrollView>
     </Show>
   );
@@ -129,7 +128,7 @@ export function SpacesScreen(): JSX.Element {
       breadcrumbs={[{ name: <Trans>Spaces</Trans> }]}
       primaryAction={primaryAction()}
       content={({ bodyClass }) => (
-        // Lobby cards are cards already — never nest them inside an Island.
+        // The lobby is one panel — never nest it inside an Island.
         <Show
           when={listReady()}
           fallback={

@@ -16,6 +16,10 @@ const MAX_OTLP_BODY_BYTES = 5 * 1024 * 1024;
 export type ObservabilityStack = {
   /** Exact OTLP/HTTP trace endpoint consumed by every application runtime. */
   readonly collectorUrl: string;
+  /** Exact OTLP/HTTP logs endpoint. Same collector, logs signal. */
+  readonly logsUrl: string;
+  /** Exact OTLP/HTTP metrics endpoint. Same collector, metrics signal. */
+  readonly metricsUrl: string;
   /** Native NDJSON source consumed directly by `bun obs`. */
   readonly traceDir: string | null;
   /** Optional Tempo query origin when the LGTM backend was requested. */
@@ -23,6 +27,24 @@ export type ObservabilityStack = {
   readonly grafanaUrl: string | null;
   stop(): Promise<void>;
 };
+
+const SIGNAL_FILES = {
+  '/v1/traces': { file: 'spans.ndjson', field: 'resourceSpans' },
+  '/v1/logs': { file: 'logs.ndjson', field: 'resourceLogs' },
+  '/v1/metrics': { file: 'metrics.ndjson', field: 'resourceMetrics' },
+} as const;
+
+function signalUrls(origin: string): {
+  readonly collectorUrl: string;
+  readonly logsUrl: string;
+  readonly metricsUrl: string;
+} {
+  return {
+    collectorUrl: `${origin}/v1/traces`,
+    logsUrl: `${origin}/v1/logs`,
+    metricsUrl: `${origin}/v1/metrics`,
+  };
+}
 
 function safeContainerName(instanceId: string): string {
   const suffix = instanceId.toLowerCase().replace(/[^a-z0-9_.-]/g, '-');
@@ -48,9 +70,20 @@ function corsHeaders(): HeadersInit {
   };
 }
 
-function isOtlpDocument(value: unknown): boolean {
+function signalFor(pathname: string): {
+  readonly file: string;
+  readonly field: string;
+} | null {
+  if (!Object.hasOwn(SIGNAL_FILES, pathname)) return null;
+  return SIGNAL_FILES[pathname as keyof typeof SIGNAL_FILES];
+}
+
+function isSignalDocument(
+  value: unknown,
+  field: string
+): value is Record<string, unknown> {
   if (value === null || typeof value !== 'object') return false;
-  return Array.isArray((value as Record<string, unknown>)['resourceSpans']);
+  return Array.isArray((value as Record<string, unknown>)[field]);
 }
 
 /** Fast, dependency-free OTLP/HTTP JSON receiver for normal local development. */
@@ -58,7 +91,6 @@ async function startNativeCollector(
   dataDir: string
 ): Promise<ObservabilityStack> {
   mkdirSync(dataDir, { recursive: true });
-  const tracePath = join(dataDir, 'spans.ndjson');
   const reservation = reservePort();
   await reservation.release();
   const server = Bun.serve({
@@ -70,7 +102,8 @@ async function startNativeCollector(
       if (request.method === 'OPTIONS') {
         return new Response(null, { status: 204, headers: corsHeaders() });
       }
-      if (request.method !== 'POST' || url.pathname !== '/v1/traces') {
+      const signal = signalFor(url.pathname);
+      if (request.method !== 'POST' || signal === null) {
         return new Response('not found', { status: 404 });
       }
       const contentType = request.headers.get('content-type') ?? '';
@@ -84,15 +117,19 @@ async function startNativeCollector(
       } catch {
         return new Response('invalid OTLP JSON', { status: 400 });
       }
-      if (!isOtlpDocument(document)) {
-        return new Response('resourceSpans required', { status: 400 });
+      if (!isSignalDocument(document, signal.field)) {
+        return new Response(`${signal.field} required`, { status: 400 });
       }
-      appendFileSync(tracePath, `${JSON.stringify(document)}\n`, 'utf8');
+      appendFileSync(
+        join(dataDir, signal.file),
+        `${JSON.stringify(document)}\n`,
+        'utf8'
+      );
       return new Response(null, { status: 200, headers: corsHeaders() });
     },
   });
   return {
-    collectorUrl: `${server.url.origin}/v1/traces`,
+    ...signalUrls(server.url.origin),
     traceDir: dataDir,
     tempoUrl: null,
     grafanaUrl: null,
@@ -175,7 +212,7 @@ async function startLgtmCollector(args: {
     throw error;
   }
   return {
-    collectorUrl: `http://127.0.0.1:${String(collectorPort.port)}/v1/traces`,
+    ...signalUrls(`http://127.0.0.1:${String(collectorPort.port)}`),
     traceDir: null,
     tempoUrl,
     grafanaUrl: `http://127.0.0.1:${String(grafanaPort.port)}`,

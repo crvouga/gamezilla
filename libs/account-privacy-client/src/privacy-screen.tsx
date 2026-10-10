@@ -30,7 +30,7 @@ export function PrivacyScreen(): JSX.Element {
         <div class="box gap-4">
           <PrivacyExplanation />
           <Show when={row()?.legal_purpose}>
-            <p class="text" data-testid="privacy-legal-obligation">
+            <p class="text textBody" data-testid="privacy-legal-obligation">
               {row()?.legal_purpose}: {row()?.legal_end_condition}
             </p>
           </Show>
@@ -51,7 +51,7 @@ export function PrivacyScreen(): JSX.Element {
             )}
           </Show>
           <Show when={deletion.receipt()}>
-            <p class="text" data-testid="privacy-deletion-outcome">
+            <p class="text textBody" data-testid="privacy-deletion-outcome">
               <Trans>
                 Your account deletion is confirmed. You are signed out. Ordinary
                 personal-data erasure will complete by
@@ -60,7 +60,7 @@ export function PrivacyScreen(): JSX.Element {
             </p>
           </Show>
           <Show when={deletion.receipt()}>
-            <p class="text" data-testid="privacy-cancellation-outcome">
+            <p class="text textBody" data-testid="privacy-cancellation-outcome">
               <Show
                 when={deletion.cancellationStatus() === 'complete'}
                 fallback={
