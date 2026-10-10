@@ -46,7 +46,11 @@ has no established synthetic provenance; it is not a GAAP revenue report.
 `@libs/runtime-shared/business-usage` provides versioned meaningful-action definitions:
 space creation/join, puzzle attempts and chess game starts. Active use is distinct
 pseudonymous subjects participating in these events; both chess participants count.
-DAU/WAU/MAU use explicit half-open UTC windows of 1/7/30 days. Page views do not count.
+Reports must provide both erasure and trusted synthetic subject sets; actor provenance
+alone cannot classify the other participant in a mixed-player game. Population
+accounts come from `syntheticPopulationAccountIds`, pseudonymized using
+`telemetrySubjectId("subject.id:" + accountId)`; include other trusted synthetic
+identities, such as the monitor, in that exclusion set. DAU/WAU/MAU use explicit half-open UTC windows of 1/7/30 days. Page views do not count.
 Provisioned population addresses are classified before account binding, including
 tombstoned bot records. Only explicitly real provenance is included; synthetic and unknown populations are
 excluded. Logical duplicates and deleted subjects are excluded. Late arrivals use

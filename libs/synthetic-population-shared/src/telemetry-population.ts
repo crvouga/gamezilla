@@ -14,3 +14,13 @@ export async function isSyntheticPopulationAddress(
   `);
   return rows.length > 0;
 }
+
+/** Reporting includes tombstones so deleting a bot cannot reclassify history. */
+export async function syntheticPopulationAccountIds(
+  tx: SqlTx
+): Promise<readonly string[]> {
+  const rows = await tx.query(sql<{ account_id: string }>`
+    SELECT account_id FROM population_users WHERE account_id IS NOT NULL
+  `);
+  return rows.map((row) => row.account_id);
+}

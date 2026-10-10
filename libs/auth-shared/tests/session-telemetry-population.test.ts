@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { sessionTelemetryPopulation } from '@libs/auth-shared/session-telemetry-population';
 import { syntheticPopulationUsers } from '@libs/synthetic-population-shared/tables';
+import { syntheticPopulationAccountIds } from '@libs/synthetic-population-shared/telemetry-population';
 import type { VerifiedSession } from '@pkgs/auth-root-shared/verified-session';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
@@ -22,9 +23,12 @@ test('ordinary IdP sign-in cannot classify a provisioned population bot as genui
   await db.connect();
   try {
     await reconcileSqliteSchema(db, registerTables([syntheticPopulationUsers]));
-    await db.run(sql`INSERT INTO population_users (id, email, deleted_at)
-      VALUES (${'population-bot'}, ${'bot@example.test'}, ${'2026-01-01T00:00:00.000Z'})`);
+    await db.run(sql`INSERT INTO population_users (id, email, account_id, deleted_at)
+      VALUES (${'population-bot'}, ${'bot@example.test'}, ${'population-account'}, ${'2026-01-01T00:00:00.000Z'})`);
     expect(await sessionTelemetryPopulation(db, session)).toBe(true);
+    expect(await syntheticPopulationAccountIds(db)).toEqual([
+      'population-account',
+    ]);
     expect(
       await sessionTelemetryPopulation(db, {
         ...session,

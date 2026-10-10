@@ -38,6 +38,8 @@ export function businessUsage(
   input: {
     readonly reportingDayMs: number;
     readonly erasedSubjectIds: ReadonlySet<string>;
+    /** Trusted account classification, including bots in mixed-player games. */
+    readonly syntheticSubjectIds: ReadonlySet<string>;
   }
 ) {
   const dayStart = Math.floor(input.reportingDayMs / DAY_MS) * DAY_MS;
@@ -50,7 +52,10 @@ export function businessUsage(
       window: { fromMs: Math.max(0, untilMs - days * DAY_MS), untilMs },
       meaningfulEventNames: BUSINESS_USAGE_V1.meaningfulEventNames,
       subjectAttributes: BUSINESS_USAGE_V1.subjectAttributes,
-      erasedSubjectIds: input.erasedSubjectIds,
+      erasedSubjectIds: new Set([
+        ...input.erasedSubjectIds,
+        ...input.syntheticSubjectIds,
+      ]),
     });
   return { definitionVersion: 1, dau: count(1), wau: count(7), mau: count(30) };
 }

@@ -35,9 +35,21 @@ test('versioned active-use windows include both players, exclude synthetic use a
     {
       reportingDayMs: 10 * day + 123,
       erasedSubjectIds: new Set(['person-2']),
+      syntheticSubjectIds: new Set(),
     }
   );
   expect(result).toEqual({ definitionVersion: 1, dau: 1, wau: 3, mau: 3 });
+});
+
+// regression: otel-mixed-game-population
+test('a genuine actor starting a mixed-player game does not make its bot participant an active customer', () => {
+  expect(
+    businessUsage([start], {
+      reportingDayMs: 10 * day,
+      erasedSubjectIds: new Set(),
+      syntheticSubjectIds: new Set(['person-2']),
+    })
+  ).toEqual({ definitionVersion: 1, dau: 1, wau: 1, mau: 1 });
 });
 
 test('completion rate uses the started cohort and excludes unrelated games and physical duplicates', () => {
