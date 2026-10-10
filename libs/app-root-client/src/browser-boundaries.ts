@@ -1,4 +1,5 @@
 import { context, SpanStatusCode, trace } from '@opentelemetry/api';
+import { installInteractionTiming } from '@pkgs/observability-root-client/interaction-timing';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import {
   currentCorrelation,
@@ -139,8 +140,15 @@ function recordRouteChange(): void {
   span.end();
 }
 
-/** Install the three browser-global error sinks and delegated breadcrumbs. */
-export function installBrowserObservabilityBoundaries(): () => void {
+function interactionTargetName(target: EventTarget | null): string | null {
+  if (!(target instanceof Element)) return null;
+  return stableTarget(target);
+}
+
+/** Install the browser error sinks, click breadcrumbs, and input timing. */
+export function installBrowserObservabilityBoundaries(args: {
+  readonly timeOriginMs: number;
+}): () => void {
   const onError = (event: ErrorEvent) => {
     reportError(event.error ?? event.message, 'window.onerror');
   };
@@ -152,12 +160,17 @@ export function installBrowserObservabilityBoundaries(): () => void {
   window.addEventListener('popstate', recordRouteChange);
   window.addEventListener('error', onError);
   window.addEventListener('unhandledrejection', onUnhandledRejection);
+  const removeTiming = installInteractionTiming({
+    timeOriginMs: args.timeOriginMs,
+    targetName: interactionTargetName,
+  });
   setInteractionRequestRunner((traceparent, run) => {
     const parent = deserializeTraceContext(traceparent);
     return parent === undefined ? run() : context.with(parent, run);
   });
   return () => {
     setInteractionRequestRunner(null);
+    removeTiming();
     document.removeEventListener('click', startInteraction, true);
     document.removeEventListener('submit', startInteraction, true);
     window.removeEventListener('popstate', recordRouteChange);
