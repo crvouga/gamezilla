@@ -16,6 +16,8 @@
  *                              boot failures and full-screen errors.
  *   - `'compact'` -- destructive-tinted card with a left-aligned icon row,
  *                    sized to inline content (replaces ad-hoc ErrorCards).
+ *   - `'band'`    -- fills a fixed-height parent. The message shrinks and
+ *                    clips; the retry stays fully inside the band.
  *
  * @example
  * ```tsx
@@ -28,6 +30,7 @@ import { useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client/solid';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
+import { cssGap, cssPx } from '@pkgs/ui-root-shared/css-px';
 import {
   createEffect,
   createSignal,
@@ -37,7 +40,7 @@ import {
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { Button } from './button';
-import type { ButtonSize } from './button-parts';
+import { BUTTON_SIZES, type ButtonSize } from './button-parts';
 import type { IconComponent } from './create-icon';
 import { XIcon } from './icons';
 import type { StateBlockVariant } from './state-block';
@@ -71,13 +74,17 @@ export type ErrorStateProps = {
   /** Clipboard sink; when provided (and body is text) a "Copy error" button shows. */
   copy?: ErrorStateCopy | undefined;
   /** Layout density. Defaults to `'fill'`. */
-  variant?: StateBlockVariant | undefined;
+  variant?: ErrorStateLayout | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
 
 const ICON_SIZE_FILL = 32;
 const ICON_SIZE_COMPACT = 20;
+const BAND_ICON_SIZE = 20;
+const BAND_PAD = 12;
+
+export type ErrorStateLayout = StateBlockVariant | 'band';
 export const ERROR_COPIED_RESET_MS = 1500;
 
 const noopCopy: ErrorStateCopy = () => Promise.resolve();
@@ -143,14 +150,17 @@ function needsErrorCatalog(props: {
 
 function ErrorActionRow(props: {
   align: 'center' | 'start';
+  /** Drop the extra top margin when the parent already gaps its rows. */
+  flush?: boolean | undefined;
   children: JSX.Element;
 }): JSX.Element {
   return (
     <div
-      class="box flex-row flex-wrap items-center gap-2 mt-1"
+      class="box flex-row flex-wrap items-center gap-2"
       classList={{
         'justify-center': props.align === 'center',
         'justify-start': props.align === 'start',
+        'mt-1': props.flush !== true,
       }}
     >
       {props.children}
@@ -195,6 +205,7 @@ type ErrorActionProps = {
   secondary: ErrorStateSecondary | undefined;
   align: 'center' | 'start';
   size: ButtonSize;
+  flush?: boolean | undefined;
 };
 
 function SpecifiedErrorActions(props: ErrorActionProps): JSX.Element {
@@ -203,7 +214,7 @@ function SpecifiedErrorActions(props: ErrorActionProps): JSX.Element {
     props.secondary !== undefined;
   return (
     <Show when={show()}>
-      <ErrorActionRow align={props.align}>
+      <ErrorActionRow align={props.align} flush={props.flush}>
         <Show when={props.retry?.label !== undefined}>
           <PrimaryRecovery
             label={props.retry?.label ?? ''}
@@ -227,7 +238,7 @@ function CatalogErrorActions(props: ErrorActionProps): JSX.Element {
     props.copyText !== null && props.copy !== undefined;
   return (
     <Show when={showCopy() || props.retry !== undefined || props.secondary}>
-      <ErrorActionRow align={props.align}>
+      <ErrorActionRow align={props.align} flush={props.flush}>
         <Show when={showCopy()}>
           <ErrorCopyButton
             copyText={props.copyText ?? ''}
@@ -340,13 +351,94 @@ function ErrorStateCompact(props: ErrorStateProps): JSX.Element {
   );
 }
 
+/** Fills a fixed-height parent. The copy clips; the retry stays in the band. */
+function ErrorStateBand(props: ErrorStateProps): JSX.Element {
+  return (
+    <div
+      class="box h-full w-full items-center overflow-hidden"
+      {...dataAttrs({ component: 'ErrorState', ...props.dataSet })}
+      role="alert"
+      style={{
+        display: 'flex',
+        'flex-direction': 'column',
+        height: '100%',
+        'min-height': cssPx(0),
+        overflow: 'hidden',
+        'box-sizing': 'border-box',
+        'padding-top': cssPx(BAND_PAD),
+        'padding-bottom': cssPx(BAND_PAD),
+        'padding-left': cssPx(BAND_PAD),
+        'padding-right': cssPx(BAND_PAD),
+        gap: cssGap(2),
+      }}
+    >
+      <BandMessage {...props} />
+      <div
+        class="box w-full shrink-0 items-center"
+        style={{
+          'flex-shrink': '0',
+          'min-height': cssPx(BUTTON_SIZES.sm.minHeight),
+          margin: '0',
+        }}
+      >
+        <ErrorActions
+          copyText={errorCopyText(props.title, props.body)}
+          copy={props.copy}
+          retry={props.retry}
+          secondary={props.secondary}
+          align="center"
+          size="sm"
+          flush
+        />
+      </div>
+    </div>
+  );
+}
+
+function BandMessage(props: ErrorStateProps): JSX.Element {
+  return (
+    <div
+      class="box w-full min-h-0 items-center gap-2 overflow-hidden"
+      style={{
+        display: 'flex',
+        'flex-direction': 'column',
+        flex: '1 1 0%',
+        'min-height': cssPx(0),
+        overflow: 'hidden',
+      }}
+    >
+      <Dynamic
+        component={props.icon ?? XIcon}
+        size={BAND_ICON_SIZE}
+        color="destructive"
+      />
+      <p class="text textBodyBold text-destructive text-center line-clamp-2 w-full">
+        {props.title}
+      </p>
+      <Show when={props.body !== undefined && props.body !== null}>
+        <p class="text textCaption text-text-secondary text-center w-full">
+          {props.body}
+        </p>
+      </Show>
+      <ErrorDetails details={props.details} />
+    </div>
+  );
+}
+
 export function ErrorState(props: ErrorStateProps): JSX.Element {
   return (
     <Show
-      when={(props.variant ?? 'fill') === 'compact'}
-      fallback={<ErrorStateFill {...props} />}
+      when={props.variant === 'band'}
+      fallback={
+        <Show
+          when={(props.variant ?? 'fill') === 'compact'}
+          fallback={<ErrorStateFill {...props} />}
+        >
+          <ErrorStateCompact {...props} />
+        </Show>
+      }
     >
-      <ErrorStateCompact {...props} />
+      <ErrorStateBand {...props} />
     </Show>
   );
 }

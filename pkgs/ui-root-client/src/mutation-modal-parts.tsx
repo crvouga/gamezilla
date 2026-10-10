@@ -120,6 +120,7 @@ export function MutationError(props: {
     <>
       <StateArea>
         <ErrorState
+          variant="band"
           title={props.labels.errorTitle ?? t`Something went wrong`}
           body={props.error?.message}
           retry={{
