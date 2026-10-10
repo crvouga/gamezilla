@@ -1,0 +1,4 @@
+{
+  "summary": "An offline Alice removes Bob, but the row disappears with its inline success state so no removal receipt remains visible. The confirmation and success dialog must belong to the list, surviving the removed row.",
+  "regressionTest": "specs/spaces/space-remove-person.feature"
+}

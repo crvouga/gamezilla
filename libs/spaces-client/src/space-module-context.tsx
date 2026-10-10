@@ -1,9 +1,8 @@
-import type { Message } from '@pkgs/message-shared/message';
-import type { RoomModule, RoomState } from '@pkgs/room-root-shared/types';
+import type { SpaceModule } from '@libs/spaces-shared/space-module';
 import { defineContext } from '@pkgs/solid-context-client/define-context';
 import type { JSX } from 'solid-js';
 
-export type SpaceRoomModule = RoomModule<RoomState, Message, Message, string>;
+export type SpaceRoomModule = SpaceModule;
 
 const SpaceModuleContext = defineContext<SpaceRoomModule>('SpaceModule');
 

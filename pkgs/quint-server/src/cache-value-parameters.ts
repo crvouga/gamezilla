@@ -2,8 +2,11 @@ import {
   newIdGenerator,
   parsePhase1fromText,
   type QuintEx,
+  type QuintLambdaParameter,
   type QuintOpDef,
 } from '@informalsystems/quint';
+import { cacheRecordFields, type SourceEdit } from './cache-record-fields';
+import { cacheStateFields } from './cache-state-fields';
 
 /**
  * Preserve value arguments as nullary LET bindings instead of duplicating
@@ -19,8 +22,33 @@ export function cacheValueParameters(source: string): string {
   const names = new Set(source.match(/[a-zA-Z_][a-zA-Z0-9_]*/g));
   const edits: SourceEdit[] = [];
   for (const module of parsed.modules) {
+    const variables = module.declarations.filter(
+      (declaration) => declaration.kind === 'var'
+    );
+    const lastVariable = variables.at(-1);
+    const insertion =
+      lastVariable === undefined
+        ? undefined
+        : parsed.sourceMap.get(lastVariable.id)?.end?.index;
+    if (insertion !== undefined)
+      cacheStateFields({
+        definitions: module.declarations.filter(
+          (declaration): declaration is QuintOpDef => declaration.kind === 'def'
+        ),
+        insertion: insertion + 1,
+        variables: variables.map((variable) => variable.name),
+        source,
+        sourceMap: parsed.sourceMap,
+        edits,
+        freshName: () => {
+          let name = `cached_state_${ids.nextId()}`;
+          while (names.has(name)) name = `cached_state_${ids.nextId()}`;
+          names.add(name);
+          return name;
+        },
+      });
     for (const declaration of module.declarations) {
-      if (declaration.kind === 'def')
+      if (declaration.kind === 'def') {
         cacheDefinition(declaration, {
           ids,
           names,
@@ -28,6 +56,7 @@ export function cacheValueParameters(source: string): string {
           sourceMap: parsed.sourceMap,
           edits,
         });
+      }
     }
   }
   for (const edit of edits.sort((a, b) => b.start - a.start)) {
@@ -36,11 +65,6 @@ export function cacheValueParameters(source: string): string {
   return source;
 }
 
-type SourceEdit = {
-  readonly start: number;
-  readonly end: number;
-  readonly text: string;
-};
 type CacheInput = {
   readonly ids: ReturnType<typeof newIdGenerator>;
   readonly names: Set<string>;
@@ -58,23 +82,7 @@ function cacheDefinition(definition: QuintOpDef, args: CacheInput): void {
   for (const parameter of lambda.params) {
     if (/^cached_input_\d+$/.test(parameter.name)) continue;
     if (valueReferences(lambda.expr, parameter.name) < 2) continue;
-    const kind = parameter.typeAnnotation?.kind;
-    if (
-      kind === undefined ||
-      ![
-        'const',
-        'rec',
-        'fun',
-        'list',
-        'int',
-        'str',
-        'bool',
-        'set',
-        'tup',
-        'sum',
-      ].includes(kind)
-    )
-      continue;
+    if (!valueParameter(lambda.expr, parameter)) continue;
     const original = parameter.name;
     const location = args.sourceMap.get(parameter.id);
     if (location === undefined) continue;
@@ -95,6 +103,17 @@ function cacheDefinition(definition: QuintOpDef, args: CacheInput): void {
             location.end.index + 1
           );
     bindings.push(`${qualifier} ${original}${annotation} = ${cached};`);
+    bindings.push(
+      ...cacheRecordFields({
+        body: lambda.expr,
+        parameter: original,
+        source: args.source,
+        sourceMap: args.sourceMap,
+        qualifier,
+        freshName: () => freshFieldName(args),
+        edits: args.edits,
+      })
+    );
   }
   if (bindings.length === 0) return;
   args.edits.push({
@@ -107,6 +126,57 @@ function cacheDefinition(definition: QuintOpDef, args: CacheInput): void {
     end: body.end.index + 1,
     text: ' }',
   });
+}
+
+function freshFieldName(args: CacheInput): string {
+  let name = `cached_field_${args.ids.nextId()}`;
+  while (args.names.has(name)) name = `cached_field_${args.ids.nextId()}`;
+  args.names.add(name);
+  return name;
+}
+
+function valueParameter(
+  body: QuintEx,
+  parameter: QuintLambdaParameter
+): boolean {
+  const kind = parameter.typeAnnotation?.kind;
+  return kind === undefined
+    ? readsRecordField(body, parameter.name)
+    : [
+        'const',
+        'rec',
+        'fun',
+        'list',
+        'int',
+        'str',
+        'bool',
+        'set',
+        'tup',
+        'sum',
+      ].includes(kind);
+}
+
+/** A field read proves an unannotated parameter is a record, never an operator. */
+function readsRecordField(expression: QuintEx, name: string): boolean {
+  if (expression.kind === 'app')
+    return (
+      (expression.opcode === 'field' &&
+        expression.args[0]?.kind === 'name' &&
+        expression.args[0].name === name) ||
+      expression.args.some((argument) => readsRecordField(argument, name))
+    );
+  if (expression.kind === 'lambda')
+    return (
+      !expression.params.some((parameter) => parameter.name === name) &&
+      readsRecordField(expression.expr, name)
+    );
+  if (expression.kind === 'let')
+    return (
+      readsRecordField(expression.opdef.expr, name) ||
+      (expression.opdef.name !== name &&
+        readsRecordField(expression.expr, name))
+    );
+  return false;
 }
 
 function valueReferences(expression: QuintEx, name: string): number {

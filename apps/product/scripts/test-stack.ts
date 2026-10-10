@@ -17,27 +17,31 @@ import { bootLocalhostStack } from './boot-stack';
 import { removeManifest } from './manifest';
 import { runSpecSuites } from './spec-suites';
 import { parseStackOptions } from './stack-options';
+import { stackSuiteArgs } from './stack-suite-args';
 
 const REPO_ROOT = join(import.meta.dir, '../../..');
-const argv = process.argv.slice(2);
-const testPaths = argv.filter((arg) => /\.test\.[cm]?[jt]sx?$/.test(arg));
+const args = stackSuiteArgs(process.argv.slice(2));
 
 // Tests drive live browsers: the web app must not hot-reload under them, and
 // the scenarios read the app's test-only probes.
-const options = parseStackOptions([...argv, '--frozen-web', '--test-hooks']);
+const options = parseStackOptions([
+  ...args.stack,
+  '--frozen-web',
+  '--test-hooks',
+]);
 const stack = await bootLocalhostStack(options);
 process.stdout.write(`[stack] ${stack.manifestPath}\n`);
 
 let code = 1;
 try {
-  code = runSpecSuites(
+  code = await runSpecSuites(
     {
       ...process.env,
       HARNESS_MODE: 'stack',
       HARNESS_WITH_DOM: '0',
       LOCALHOST_STACK_MANIFEST: stack.manifestPath,
     },
-    testPaths
+    args.suite
   );
 } finally {
   await stack.stop();

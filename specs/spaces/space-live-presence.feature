@@ -4,12 +4,24 @@ Feature: Presence in a space
   as it changes, so they know who they are with.
 
   Rule: Presence shows everyone in the space and stops showing someone who leaves
+    No counter-example: people choose to join or leave, but never choose to keep showing as present after leaving.
 
     Scenario: Everyone in a space sees who is there
       Given Alice is hosting a space
       When Bob joins the space from the link
       Then Alice sees 2 people in the space within 20 seconds
       And Bob sees 2 people in the space within 20 seconds
+
+    @regression:space-link-member-profile-missing
+    Scenario: The host can identify someone who joined from the link
+      Given Alice is hosting a space that Bob joined from the link
+      When Alice views the space's presence
+      Then Alice sees Bob in the space's presence within 20 seconds
+
+    Scenario: Someone who joined from the link can identify the host
+      Given Alice is hosting a space that Bob joined from the link
+      When Bob views the space's presence
+      Then Bob sees Alice in the space's presence within 20 seconds
 
     Scenario: Someone stops showing as there after leaving
       Given Alice is hosting a space that Bob joined from the link
@@ -22,8 +34,17 @@ Feature: Presence in a space
     Scenario: Someone who leaves can choose to rejoin the open space
       Given Alice is hosting a space that Bob joined from the link
       When Bob leaves the space
-      Then Bob is offered to join
+      Then Bob sees they have left the space
+      And Bob is offered to join
+      And Bob is not offered to leave the space
       And Alice sees 1 person in the space within 20 seconds
+
+    Scenario: Someone who left joins the open space again once
+      Given Alice is hosting a space that Bob joined from the link
+      And Bob has left the space
+      When Bob joins the space from the link
+      Then Bob is in the space
+      And Alice sees 2 people in the space within 20 seconds
 
     Scenario: Someone who left stops being offered to join when the space ends
       Given Alice is hosting a space that Bob joined from the link

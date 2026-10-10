@@ -1,3 +1,9 @@
+import {
+  businessEventDeliveryOptions,
+  ensureWorkerTelemetry,
+  telemetryEndpointOptions,
+  type WorkerTelemetryRuntime,
+} from './worker-telemetry';
 // @io-wall-ok
 // @api-wall-ok
 
@@ -55,13 +61,12 @@ import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import { InMemoryLlmProvider } from '@pkgs/llm-root-server/in-memory-llm-provider';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import {
-  createWorkerTelemetry,
   extractRequestContext,
   injectRequestHeaders,
 } from '@pkgs/observability-root-server/worker-worker';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { deploymentTelemetryEnvironment } from '@pkgs/observability-root-shared/deployment-environment';
-import { otlpAuthorization } from '@pkgs/observability-root-shared/otlp-auth';
+import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
 import { withSpan } from '@pkgs/observability-root-shared/span';
 import { isSecretStoreError } from '@pkgs/secret-store-shared/is-secret-store-error';
 import { InMemoryTtsProvider } from '@pkgs/tts-root-server/in-memory-tts-provider';
@@ -96,54 +101,6 @@ type BootState =
 
 let bootState: BootState = { kind: 'pending' };
 let fatalLogged = false;
-type WorkerTelemetryRuntime = {
-  readonly flushWith: (waitUntil: (promise: Promise<unknown>) => void) => void;
-};
-let workerTelemetry: WorkerTelemetryRuntime | null = null;
-
-function ensureWorkerTelemetry(env: ApiWorkerEnv): WorkerTelemetryRuntime {
-  if (workerTelemetry !== null) return workerTelemetry;
-  if (env.OBSERVABILITY_ENABLED?.trim() === '0') {
-    workerTelemetry = { flushWith: () => undefined };
-    return workerTelemetry;
-  }
-  const production = readDeploymentProtection(env) === 'production';
-  const collectorUrl = env.OBSERVABILITY_COLLECTOR_URL?.trim();
-  if (collectorUrl === undefined || collectorUrl.length === 0) {
-    if (production) {
-      throw new ConfigurationError(
-        'OBSERVABILITY_COLLECTOR_URL is required in production unless OBSERVABILITY_ENABLED=0'
-      );
-    }
-    workerTelemetry = { flushWith: () => undefined };
-    return workerTelemetry;
-  }
-  const buildSha = env.BUILD_SHA?.trim() || 'development';
-  const collectorToken = env.OBSERVABILITY_COLLECTOR_TOKEN?.trim();
-  if (
-    production &&
-    (collectorToken === undefined || collectorToken.length === 0)
-  ) {
-    throw new ConfigurationError(
-      'OBSERVABILITY_COLLECTOR_TOKEN is required in production'
-    );
-  }
-  const authorization = otlpAuthorization({
-    user: env.OBSERVABILITY_COLLECTOR_USER,
-    token: collectorToken,
-  });
-  workerTelemetry = createWorkerTelemetry({
-    serviceName: 'gamezilla-server',
-    serviceVersion: buildSha,
-    environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
-    buildSha,
-    otlpUrl: collectorUrl,
-    ...(authorization === undefined
-      ? {}
-      : { otlpHeaders: { Authorization: authorization } }),
-  });
-  return workerTelemetry;
-}
 
 /**
  * Whether a 500 hides its trace id, as production does. Never throws — the
@@ -309,7 +266,12 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     syntheticPopulationOperatorAccountIds:
       readSyntheticPopulationOperatorAccountIds(env),
     serverUrl,
-    observabilityCollectorUrl: env.OBSERVABILITY_COLLECTOR_URL?.trim() || null,
+    ...telemetryEndpointOptions(env),
+    ...businessEventDeliveryOptions(
+      env,
+      { fetch: (input, init) => globalThis.fetch(input, init) },
+      wallTimers
+    ),
     observabilityCollectorToken:
       env.OBSERVABILITY_COLLECTOR_TOKEN?.trim() || null,
     observabilityCollectorUser:
@@ -473,7 +435,7 @@ const workerHandler = {
     let telemetry: WorkerTelemetryRuntime = { flushWith: () => undefined };
     let traceId: string | undefined;
     try {
-      telemetry = ensureWorkerTelemetry(env);
+      telemetry = ensureWorkerTelemetry(env, () => crypto.randomUUID());
       const parent = extractRequestContext(request.headers);
       return await context.with(parent, () =>
         withSpan(
@@ -533,7 +495,17 @@ const workerHandler = {
     env: ApiWorkerEnv,
     ctx: ExecutionContext
   ): Promise<void> {
-    const telemetry = ensureWorkerTelemetry(env);
+    const telemetry = ensureWorkerTelemetry(env, () => crypto.randomUUID());
+    const environment = deploymentTelemetryEnvironment(
+      env.DEPLOYMENT_ENVIRONMENT
+    );
+    createMetric({
+      name: 'telemetry.pipeline.heartbeat',
+      description: 'Scheduled server telemetry heartbeat',
+      type: 'counter',
+      unit: '{beat}',
+      dimensions: { [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: [environment] },
+    })(1, { [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: environment });
     try {
       await withSpan('outbox.drain', () => drainOutboxOnCron(env), {
         [ATTR.CODE_FILE_PATH]: 'apps/server/src/product-server.ts',

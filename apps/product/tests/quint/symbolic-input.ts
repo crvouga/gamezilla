@@ -48,7 +48,7 @@ export async function withSymbolicInput<T>(
     const clients = REDUCED.has(name)
       ? 'Three symbolic clients: two for actor zero, one for actor one; any can sign into actor two.'
       : 'Original actor/client bounds.';
-    const bound = `${clients} All three actors, two spaces, three puzzles and all transitions remain. Value parameters use equivalent cached LET bindings. Symbolic source-set SHA256: ${sha}.`;
+    const bound = `${clients} All three actors, two spaces, three puzzles and all transitions remain. Value parameters and repeated record fields use equivalent cached LET bindings. Symbolic source-set SHA256: ${sha}.`;
     mkdirSync(reportDir, { recursive: true });
     writeFileSync(
       join(reportDir, `${name}.symbolic-bound.json`),

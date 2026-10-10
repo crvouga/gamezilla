@@ -11,6 +11,7 @@ import {
   ATTR_HTTP_REQUEST_METHOD,
   ATTR_HTTP_RESPONSE_STATUS_CODE,
   ATTR_HTTP_ROUTE,
+  ATTR_SERVICE_INSTANCE_ID,
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
 } from '@opentelemetry/semantic-conventions';
@@ -23,6 +24,7 @@ export const ATTR = {
   USER_ID: ATTR_USER_ID,
   SESSION_ID: ATTR_SESSION_ID,
   SERVICE_NAME: ATTR_SERVICE_NAME,
+  SERVICE_INSTANCE_ID: ATTR_SERVICE_INSTANCE_ID,
   SERVICE_VERSION: ATTR_SERVICE_VERSION,
   DEPLOYMENT_ENVIRONMENT_NAME: ATTR_DEPLOYMENT_ENVIRONMENT_NAME,
   DB_SYSTEM_NAME: ATTR_DB_SYSTEM_NAME,
@@ -55,6 +57,11 @@ export const ATTR = {
   APP_INTERACTION_OUTCOME: 'app.interaction.outcome',
   APP_INTERACTION_TYPE: 'app.interaction.type',
   APP_INTERACTION_TARGET: 'app.interaction.target',
+  APP_INTERACTION_INPUT_DELAY_MS: 'app.interaction.input_delay_ms',
+  APP_INTERACTION_PROCESSING_MS: 'app.interaction.processing_ms',
+  APP_INTERACTION_PRESENTATION_MS: 'app.interaction.presentation_ms',
+  APP_INTERACTION_FRAME_MS: 'app.interaction.frame_ms',
+  APP_INTERACTION_SCRIPT_MS: 'app.interaction.script_ms',
   APP_LOG_SEVERITY: 'app.log.severity',
   APP_LOG_MESSAGE: 'app.log.message',
   APP_LOG_NAME: 'app.log.name',
@@ -70,6 +77,7 @@ export type AttrValue = {
   'user.id': string;
   'session.id': string;
   'service.name': string;
+  'service.instance.id': string;
   'service.version': string;
   'deployment.environment.name': string;
   'db.system.name': string;
@@ -100,8 +108,19 @@ export type AttrValue = {
   'app.ci.run_id': string;
   'app.clock_skew_ms': number;
   'app.interaction.outcome': 'navigation' | 'mutation' | 'request' | 'no_op';
-  'app.interaction.type': 'click' | 'submit' | 'route';
+  'app.interaction.type':
+    | 'click'
+    | 'submit'
+    | 'route'
+    | 'pointerdown'
+    | 'pointerup'
+    | 'keydown';
   'app.interaction.target': string;
+  'app.interaction.input_delay_ms': number;
+  'app.interaction.processing_ms': number;
+  'app.interaction.presentation_ms': number;
+  'app.interaction.frame_ms': number;
+  'app.interaction.script_ms': number;
   'app.log.severity': 'debug' | 'info' | 'warn' | 'error';
   'app.log.message': string;
   'app.log.name': string;

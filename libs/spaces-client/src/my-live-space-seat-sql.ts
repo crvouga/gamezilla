@@ -32,6 +32,7 @@ export function sharedLiveSpaceIdsSql(args: {
           SELECT space_id
           FROM spaces_users
           WHERE deleted_at IS NULL
+            AND joined = ${true}
             AND user_id IN (SELECT friend_id FROM (${friendIds}))
         )
       )

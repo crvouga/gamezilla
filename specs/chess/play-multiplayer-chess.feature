@@ -23,7 +23,7 @@ Feature: Play the same multiplayer board together
       When Alice plays e2 to e5 as a multiplayer move
       Then Alice is told that multiplayer move is illegal
       And both multiplayer boards keep their starting position
-      And Alice still has the multiplayer turn
+      And Alice has the multiplayer turn
 
   Rule: A move sent twice or for an earlier position never moves the board twice
 
@@ -49,8 +49,8 @@ Feature: Play the same multiplayer board together
 
     Scenario: Resigning again keeps the accepted multiplayer result
       Given Bob resigned multiplayer chess and Alice won
-      When Bob resigns multiplayer chess again
-      Then both people still see Alice won the multiplayer game
+      When Bob resigns multiplayer chess
+      Then both people see Alice won the multiplayer game
 
   Rule: A multiplayer game that is over never accepts another move
 
@@ -77,7 +77,7 @@ Feature: Play the same multiplayer board together
       Given Alice's multiplayer move e2 to e4 was accepted
       When Bob plays e7 to e4 as a multiplayer move
       Then Bob is told that multiplayer move is illegal
-      And both people still see the multiplayer move list "1. e4"
+      And both people see the multiplayer move list "1. e4"
 
     Scenario: The multiplayer move list is kept with the multiplayer result
       Given Bob resigned multiplayer chess after the multiplayer moves e4 and e5

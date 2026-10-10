@@ -20,13 +20,11 @@ import { closeSync, existsSync, openSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { killOrphanEsbuildServices } from '@pkgs/os-server/kill-orphan-esbuild';
-import { killListenersOnPorts } from '@pkgs/os-server/kill-port';
 
 /** Loopback origin for `wrangler dev` in this repo (`apps/server` uses port 8788). */
 const DEFAULT_LOCAL_PREVIEW_API_ORIGIN = 'http://localhost:8788';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
-const API_PORT = Number(new URL(DEFAULT_LOCAL_PREVIEW_API_ORIGIN).port);
 const HEALTH_URL = `${DEFAULT_LOCAL_PREVIEW_API_ORIGIN}/api/health`;
 const PREVIEW_LOG_PATH = join(REPO_ROOT, '.check-api-preview.log');
 const DEFAULT_WAIT_MS = 240_000;
@@ -135,7 +133,6 @@ function startApiPreview(): {
         killProcessGroup(pid, 'SIGKILL');
       }
       // Fallback if the group leader already exited but listeners remain.
-      killListenersOnPorts([API_PORT, 9231, 9229]);
       killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
     },
     exited,
@@ -161,7 +158,6 @@ async function main(): Promise<void> {
   }
 
   // Reclaim stale wrangler listeners from prior local / CI check runs.
-  killListenersOnPorts([API_PORT, 9231, 9229]);
 
   process.stdout.write('[check-api] API preview not running — starting…\n');
   const preview = startApiPreview();

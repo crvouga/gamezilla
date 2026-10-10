@@ -52,6 +52,72 @@ export const turnSoundsOff = scenarioAction({
   },
 });
 
+async function openSettingsFromAnywhere(
+  s: ProductHarness,
+  actorId: string
+): Promise<void> {
+  const handle = s.actors.get(actorId);
+  if (
+    handle !== undefined &&
+    (await handle.currentPath()).startsWith('/more')
+  ) {
+    await Promise.resolve(backToTabs.act(s, actorId));
+  }
+  await Promise.resolve(openSettings.act(s, actorId));
+}
+
+/** Settings → Work offline switch. */
+export const setWorkOfflineInSettings = scenarioAction({
+  name: 'setWorkOfflineInSettings',
+  act: async (s, actorId: string, offline: boolean) => {
+    await openSettingsFromAnywhere(s, actorId);
+    const ui = await actorUi(s, actorId);
+    const shown = await nodeText(s, actorId, [Handles.settingsWorkOffline]);
+    const isOffline = shown?.includes('Offline') === true;
+    if (isOffline !== offline) {
+      await ui
+        .get(Handles.settingsWorkOfflineSwitch)
+        .tap({ timeoutMs: WAIT_MS });
+      await s.session.waitForIdle();
+    }
+  },
+});
+
+/** Settings → command palette → Work offline / Work online. */
+export const setWorkOfflineInCommandPalette = scenarioAction({
+  name: 'setWorkOfflineInCommandPalette',
+  act: async (s, actorId: string, offline: boolean) => {
+    await openSettingsFromAnywhere(s, actorId);
+    await chooseOfflineCommand(s, actorId, offline);
+  },
+});
+
+/** Command palette toggle without moving away from the person's current place. */
+export const setWorkOfflineFromCurrentPlace = scenarioAction({
+  name: 'setWorkOfflineFromCurrentPlace',
+  act: async (s, actorId: string, offline: boolean) => {
+    await chooseOfflineCommand(s, actorId, offline);
+  },
+});
+
+async function chooseOfflineCommand(
+  s: ProductHarness,
+  actorId: string,
+  offline: boolean
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  const account = ui.get(Handles.statusCurrentUser);
+  await account.expect.visible({ timeoutMs: WAIT_MS });
+  // A parked client's focused element must not receive this client's shortcut.
+  await account.key('commandPalette');
+  const input = ui.get(Handles.commandPaletteInput);
+  await input.expect.visible({ timeoutMs: WAIT_MS });
+  await input.clear();
+  await input.input(offline ? 'Work offline' : 'Work online');
+  await input.key('enter');
+  await s.session.waitForIdle();
+}
+
 /** Settings → About. */
 export const openAbout = scenarioAction({
   name: 'openAbout',
@@ -87,6 +153,31 @@ export async function soundShownInSettings(
   actorId: string
 ): Promise<string | null> {
   return nodeText(s, actorId, [Handles.settingsSound]);
+}
+
+/** What the Work offline row says (`Offline` / `Online`). */
+export async function workOfflineShownInSettings(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  return nodeText(s, actorId, [Handles.settingsWorkOffline]);
+}
+
+/** The sign-in error shown after an online-only attempt. */
+export async function signInFailureShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  return nodeText(s, actorId, [Handles.authSignInFailed]);
+}
+
+/** The visible offline badge, available from every place in the app. */
+export async function workingOfflineChoice(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  return ui.get(Handles.statusWorkOffline).isVisible();
 }
 
 /** The version the About screen shows, or `null` off About. */

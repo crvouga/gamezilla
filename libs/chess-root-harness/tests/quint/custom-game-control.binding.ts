@@ -1,4 +1,3 @@
-import { changeCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { chooseCustomGameBotMove } from '@libs/chess-custom-game-harness/custom-game-bot-choice';
 import { redeliverCustomGameBotWake } from '@libs/chess-custom-game-harness/custom-game-bot-wakes';
 import { CUSTOM_GAME_FOOLS_MATE } from '@libs/chess-custom-game-harness/custom-game-histories';
@@ -7,7 +6,7 @@ import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import { customPeople } from '../steps/custom-game-world';
 import {
-  CUSTOM_MODEL_OBSERVER,
+  changeCustomModelChoice,
   customModelGame,
   playCustomModelMove,
   prepareCustomGameModel,
@@ -43,21 +42,19 @@ bindQuintModel<QuintHarnessWorld>({
       const uci = CUSTOM_GAME_FOOLS_MATE[game.moves.length];
       if (uci === undefined)
         throw new Error('No allowed continuation in the completed game');
-      await w.s.apply(chooseCustomGameBotMove, CUSTOM_MODEL_OBSERVER, uci);
+      await w.s.apply(chooseCustomGameBotMove, 'alice', uci);
       await w.s.advanceTime(1_000);
     },
     resignControlledGame: (w, picks) =>
-      w.s.apply(changeCustomGame, String(picks['actor']), {
+      changeCustomModelChoice(w, String(picks['actor']), {
         operation: 'resign',
       }),
     cancelControlledGame: (w, picks) =>
-      w.s.apply(changeCustomGame, String(picks['actor']), {
+      changeCustomModelChoice(w, String(picks['actor']), {
         operation: 'cancel',
       }),
-    _wrongBot: (w) =>
-      w.s.apply(redeliverCustomGameBotWake, CUSTOM_MODEL_OBSERVER, 'wrong'),
-    _staleBot: (w) =>
-      w.s.apply(redeliverCustomGameBotWake, CUSTOM_MODEL_OBSERVER, 'stale'),
+    _wrongBot: (w) => w.s.apply(redeliverCustomGameBotWake, 'alice', 'wrong'),
+    _staleBot: (w) => w.s.apply(redeliverCustomGameBotWake, 'alice', 'stale'),
     _loseConnection: (w, picks) => w.s.apply(partition, String(picks['actor'])),
     _connectionReturns: (w, picks) =>
       w.s.apply(restoreActorConnection, String(picks['actor'])),

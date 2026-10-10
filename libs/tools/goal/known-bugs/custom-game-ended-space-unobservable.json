@@ -1,0 +1,4 @@
+{
+  "summary": "Two behavior scenarios tried to inspect a game after its space ended, although people see the ended space instead. Literal domain regressions retain cancellation and completed-result preservation when those hidden-state claims are demoted.",
+  "regressionTest": "libs/chess-root-harness/tests/custom-game-space-ending.test.ts"
+}

@@ -13,6 +13,37 @@ import {
   restoreCheckArtifacts,
 } from './check-artifact-store';
 
+test('a zero exit after the task budget is not reusable passing evidence', () => {
+  // regression: check-over-budget-artifact
+  const root = mkdtempSync(join(tmpdir(), 'check-over-budget-artifacts-'));
+  try {
+    const cache = join(root, 'cache');
+    const store = join(root, 'store');
+    const restored = join(root, 'restored');
+    mkdirSync(cache);
+    const hash = 'c54b47920c7edc79';
+    writeFileSync(join(cache, `${hash}.tar.zst`), 'over-budget artifact');
+    writeFileSync(join(cache, `${hash}-meta.json`), '{}');
+    publishCheckArtifacts(cache, store, {
+      tasks: [
+        {
+          taskId: '@pkgs/matchmaking-root-harness#test:spec:4',
+          hash,
+          execution: {
+            startTime: 1791601508533,
+            endTime: 1791602004890,
+            exitCode: 0,
+          },
+        },
+      ],
+    });
+    restoreCheckArtifacts(store, restored);
+    expect(() => readFileSync(join(restored, `${hash}.tar.zst`))).toThrow();
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 // regression: check-private-cache-cold-start
 test('completed artifacts warm independent runs without sharing writable cache files', () => {
   const root = mkdtempSync(join(tmpdir(), 'check-artifacts-'));

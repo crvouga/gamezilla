@@ -1,4 +1,7 @@
-import { rememberCustomGameAcknowledgement } from '@libs/chess-custom-game-harness/custom-game-acknowledgement';
+import {
+  customGameAcknowledgementTip,
+  rememberCustomGameAcknowledgement,
+} from '@libs/chess-custom-game-harness/custom-game-acknowledgement';
 import {
   attemptCustomGameChoice,
   changeCustomGame,
@@ -84,6 +87,8 @@ export async function configurationChoice(
   reference?: { gameId: string | null; revision: number }
 ): Promise<void> {
   const probe = await w.quiet.read(readCustomGameProbe, actor);
+  const spaceId = configurationLink(w).split('/space/')[1] ?? '';
+  const before = await w.quiet.read(customGameAcknowledgementTip, spaceId);
   let reason: string;
   const choice: CustomGameChoice = {
     ...input,
@@ -112,11 +117,7 @@ export async function configurationChoice(
       : reason
   );
   if (reason === '')
-    await w.s.read(
-      rememberCustomGameAcknowledgement,
-      configurationLink(w).split('/space/')[1] ?? '',
-      choice
-    );
+    await w.s.read(rememberCustomGameAcknowledgement, spaceId, choice, before);
   w.memo.set('configuration-last-choice', { actor, choice });
 }
 

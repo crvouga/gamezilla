@@ -12,8 +12,10 @@ import { HarnessBoot } from './harness-boot';
  * site root still lands in the harness.
  */
 
+import { bootBrowserObservability } from '@libs/app-root-client/boot-browser-observability';
 import { createClient } from '@libs/app-root-client/create-client';
 import { wallClientEnv } from '@libs/app-root-client/wall-client-env';
+import { wallOfflineNetworkController } from '@libs/app-root-client/wall-offline-network';
 import { APP_SUB_CLIENTS } from '@libs/runtime-client/app-sub-clients';
 import { wallSpaceRoomTransport } from '@libs/spaces-client/wall-room-transport';
 import { assert } from '@pkgs/assert-root-shared/singleton';
@@ -45,10 +47,19 @@ function redirectedToHarness(): boolean {
 }
 
 function AppBoot(): JSX.Element {
-  const client = createClient(wallClientEnv({ room: wallSpaceRoomTransport }), {
+  const offline = wallOfflineNetworkController();
+  const env = wallClientEnv({ room: wallSpaceRoomTransport, offline });
+  bootBrowserObservability({
+    env,
+    offline,
+    dev: import.meta.env.DEV === true,
+    timeOriginMs: performance.timeOrigin,
+  });
+  const client = createClient(env, {
     subs: APP_SUB_CLIENTS,
     loadApp: async () => APP,
     poolGlobalKey: '__gamezilla_sync_engine_pool__',
+    offlineController: offline,
   });
   const onPageHide = (): void => {
     void client.close();

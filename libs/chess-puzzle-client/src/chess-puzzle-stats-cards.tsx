@@ -16,7 +16,7 @@ function StatTile(props: StatTileProps): JSX.Element {
         {props.label}
       </p>
       <p
-        class="text textBodyBold line-clamp-1 text-text"
+        class="text textBodyBold textNumeral line-clamp-1 text-text"
         data-testid={props.testId}
       >
         {props.value}
@@ -33,13 +33,7 @@ export function ChessPuzzleStatsCards(
   props: ChessPuzzleStatsCardsProps
 ): JSX.Element {
   return (
-    <div
-      class="box gap-2"
-      style={{
-        display: 'grid',
-        'grid-template-columns': 'repeat(2, minmax(0, 1fr))',
-      }}
-    >
+    <div class="box grid grid-cols-2 gap-2">
       <StatTile
         label={<Trans>Played</Trans>}
         value={String(props.stats.totalPlayed)}

@@ -6,6 +6,7 @@ import { createBrowserWorkspace } from './browser-workspace';
 import '@pkgs/tailwind-shared/tailwind.css';
 import '@pkgs/ui-root-client/tokens.css';
 import '@pkgs/ui-root-client/hosts.css';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { startFeedbackRuntime } from './feedback-runtime';
 import { HttpIssueReporter } from './http-issue-reporter';
 import { mountFeedback } from './mount-feedback';
@@ -20,8 +21,9 @@ export function bootBrowserFeedback(options: {
   readonly standalonePath?: string;
   readonly applicationErrorEvent?: string;
   readonly storageNamespace?: string;
+  readonly http?: HttpClient;
 }) {
-  const http = { fetch: globalThis.fetch.bind(globalThis) };
+  const http = options.http ?? { fetch: globalThis.fetch.bind(globalThis) };
   const storageNamespace = options.storageNamespace ?? 'feedback';
   const host = document.createElement('aside');
   host.setAttribute('data-component', 'FeedbackHost');

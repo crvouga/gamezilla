@@ -47,6 +47,8 @@ export type ApiWorkerEnv = {
   REPORTS_ACCESS_KEY_ID?: string;
   REPORTS_SECRET_ACCESS_KEY?: string;
   OBSERVABILITY_COLLECTOR_URL?: string;
+  OBSERVABILITY_LOGS_URL?: string;
+  OBSERVABILITY_METRICS_URL?: string;
   OBSERVABILITY_COLLECTOR_TOKEN?: string;
   OBSERVABILITY_COLLECTOR_USER?: string;
   /** Explicit emergency kill switch. Production otherwise fails closed. */

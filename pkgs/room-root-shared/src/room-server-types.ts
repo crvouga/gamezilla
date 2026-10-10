@@ -46,6 +46,7 @@ export type RoomConnection = {
   readonly id: string;
   readonly send: Sender;
   readonly actor: RoomActor;
+  readonly view: import('./types').RoomConnectionView;
   /** Opaque grants the connection was admitted with (never broadcast). */
   readonly grants: readonly string[];
 };

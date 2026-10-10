@@ -18,7 +18,7 @@ function passing(w: HarnessWorld, seconds: number) {
 }
 
 When('{int} seconds pass in multiplayer chess', passing);
-When('{int} second passes in multiplayer chess', passing);
+
 Given('{int} seconds have passed in multiplayer chess', passing);
 
 When('{actor} aborts the multiplayer game', async (w, actor: Actor) => {
@@ -34,11 +34,7 @@ Then('both people see the multiplayer game was aborted', async (w) => {
     'aborted'
   );
 });
-Then('both people still see the multiplayer game was aborted', async (w) => {
-  expect((await bothBoards(w, (g) => g.outcome === 'aborted')).outcome).toBe(
-    'aborted'
-  );
-});
+
 Then(
   '{actor} sees the multiplayer game was aborted',
   async (w, actor: Actor) => {

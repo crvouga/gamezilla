@@ -21,6 +21,7 @@ import type { OverflowMenuRenderProps } from '@pkgs/ui-root-client/overflow-menu
 import { OverflowMenuButton } from '@pkgs/ui-root-client/overflow-menu-button';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import userEvent from '@testing-library/user-event';
 import type { JSX } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
 
@@ -99,7 +100,29 @@ describe('Button', () => {
     expect(busy).toHaveAttribute('aria-busy', 'true');
     expect(busy).toHaveAttribute('data-phase', 'loading');
     fireEvent.click(busy);
+    fireEvent.click(busy);
     expect(onClick).not.toHaveBeenCalled();
+    expect(busy).toBeDisabled();
+  });
+
+  test('keyboard focus reaches the primary button without hovering', async () => {
+    const user = userEvent.setup();
+    renderUi(() => (
+      <div data-reduced-motion="true">
+        <Button title="Save" />
+        <Button title="Cancel" intent="neutral" variant="outline" />
+      </div>
+    ));
+    const save = screen.getByRole('button', { name: 'Save' });
+    const cancel = screen.getByRole('button', { name: 'Cancel' });
+    expect(save).toHaveAttribute('data-face', 'primary');
+    expect(cancel).toHaveAttribute('data-face', 'neutral-outline');
+    expect(save.className).toContain('clickable');
+    expect(save.className).toContain('btn');
+    await user.tab();
+    expect(document.activeElement).toBe(save);
+    await user.tab();
+    expect(document.activeElement).toBe(cancel);
   });
 
   test('fullWidth stretches and icon renders inline', () => {

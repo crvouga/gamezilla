@@ -63,7 +63,7 @@ function startRoomHeartbeat(
   };
 }
 
-export function partitionAwareRoomTransport(args: {
+type PartitionAwareRoomArgs = {
   /** A fresh connection to the room host. */
   readonly open: () => ClientTransport;
   /** The actor can reach the server right now. */
@@ -71,7 +71,11 @@ export function partitionAwareRoomTransport(args: {
   readonly timers: Timers;
   /** A simulated socket hears network changes without spending game time. */
   readonly subscribeReachability?: (listener: () => void) => () => void;
-}): ClientTransport {
+};
+
+export function partitionAwareRoomTransport(
+  args: PartitionAwareRoomArgs
+): ClientTransport {
   const frameHandlers = new Set<(raw: unknown) => void>();
   const handlerSets: ClientTransportHandlers[] = [];
   let inner: ClientTransport | null = null;
@@ -86,7 +90,12 @@ export function partitionAwareRoomTransport(args: {
     next.subscribe((raw) => {
       for (const h of [...frameHandlers]) h(raw);
     });
-    next.onHandlers(relay);
+    next.onHandlers({
+      ...relay,
+      onClose: () => {
+        if (inner === next) drop();
+      },
+    });
     inner = next;
     return next;
   };

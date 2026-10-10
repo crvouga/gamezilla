@@ -15,6 +15,7 @@ export type ProductUi =
       readonly kind: 'solid-dom';
       /** Present in bun:test (happy-dom); omitted in the product-harness. */
       readonly session?: MultiAppSolidDomSession;
+      readonly focusedActor: () => string | undefined;
       readonly runFor: (durationMs: number) => Promise<void>;
     }
   | {

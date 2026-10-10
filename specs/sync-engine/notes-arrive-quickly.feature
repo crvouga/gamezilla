@@ -1,8 +1,8 @@
 @domain:sync-engine
 Feature: Notes arrive quickly
   When a person writes a note, the people it is shared with want it on their
-  devices so quickly that they never notice any wait, even over slow
-  connections.
+  devices within moments, so they can work together without a noticeable
+  wait even over slow connections.
 
   Rule: A shared note reaches the other people within moments
 

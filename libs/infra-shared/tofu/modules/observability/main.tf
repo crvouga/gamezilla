@@ -46,7 +46,7 @@ data "grafana_cloud_stack" "this" {
 resource "grafana_cloud_access_policy" "write" {
   region = var.region
   name   = var.write_policy_name
-  scopes = ["traces:write", "metrics:write"]
+  scopes = ["traces:write", "logs:write", "metrics:write"]
 
   realm {
     type       = "stack"
@@ -57,7 +57,7 @@ resource "grafana_cloud_access_policy" "write" {
 resource "grafana_cloud_access_policy" "read" {
   region = var.region
   name   = var.read_policy_name
-  scopes = ["traces:read"]
+  scopes = ["traces:read", "logs:read", "metrics:read"]
 
   realm {
     type       = "stack"
@@ -86,6 +86,10 @@ output "collector_url" {
   value = "${local.otlp_base}/otlp/v1/traces"
 }
 
+output "logs_url" {
+  value = "${local.otlp_base}/otlp/v1/logs"
+}
+
 output "metrics_collector_url" {
   value = "${local.otlp_base}/otlp/v1/metrics"
 }
@@ -110,4 +114,31 @@ output "tempo_user" {
 output "tempo_token" {
   value     = grafana_cloud_access_policy_token.read.token
   sensitive = true
+}
+
+# A stack-scoped management credential is kept in encrypted OpenTofu state.
+# It is never published to application Workers or browsers.
+resource "grafana_cloud_access_policy" "management" {
+  region = var.region
+  name   = "${var.write_policy_name}-management"
+  scopes = ["stacks:read", "stack-service-accounts:write"]
+  realm {
+    type       = "stack"
+    identifier = data.grafana_cloud_stack.this.id
+  }
+}
+
+resource "grafana_cloud_access_policy_token" "management" {
+  region           = var.region
+  access_policy_id = grafana_cloud_access_policy.management.policy_id
+  name             = "${var.write_policy_name}-management-token"
+}
+
+output "management_token" {
+  value     = grafana_cloud_access_policy_token.management.token
+  sensitive = true
+}
+
+output "grafana_url" {
+  value = data.grafana_cloud_stack.this.url
 }

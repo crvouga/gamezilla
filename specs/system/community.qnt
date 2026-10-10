@@ -5,12 +5,12 @@
 module community {
   import universe.* from "./universe"
   export universe.*
-  type CommunitySpace = { owner: int, open: bool, members: Set[int], game: int }
+  type CommunitySpace = { owner: int, open: bool, access: Set[int], members: Set[int], game: int }
   type CommunityState = {
     spaces: int -> CommunitySpace, friends: Set[(int, int)], blocked: Set[(int, int)],
     cooldown: Set[(int,int)], requests: Set[(int, int)], events: Set[(int, int)], inbox: Set[(int, int)],
   }
-  pure val socialEmptySpace: CommunitySpace = { owner: -1, open: false, members: Set(), game: -1 }
+  pure val socialEmptySpace: CommunitySpace = { owner: -1, open: false, access: Set(), members: Set(), game: -1 }
   pure val socialInitial: CommunityState = {
     spaces: SPACES.mapBy(_ => socialEmptySpace), friends: Set(), blocked: Set(),
     cooldown: Set(), requests: Set(), events: Set(), inbox: Set(),
@@ -21,15 +21,19 @@ module community {
   pure def socialCreate(s: CommunityState, p: int, id: int): CommunityState = {
     val old = s.spaces.get(id)
     if (old.owner != -1) s else
-      { ...s, spaces: s.spaces.set(id, { owner: p, open: true, members: Set(p), game: -1 }) }
+      { ...s, spaces: s.spaces.set(id, { owner: p, open: true, access: Set(p), members: Set(p), game: -1 }) }
   }
   pure def socialJoin(s: CommunityState, p: int, id: int): CommunityState = {
     val r = s.spaces.get(id)
-    if (not(r.open)) s else { ...s, spaces: s.spaces.set(id, { ...r, members: r.members.union(Set(p)) }) }
+    if (not(r.open)) s else { ...s, spaces: s.spaces.set(id, { ...r, access: r.access.union(Set(p)), members: r.members.union(Set(p)) }) }
+  }
+  pure def socialAddPerson(s: CommunityState, p: int, id: int): CommunityState = {
+    val r = s.spaces.get(id)
+    if (not(r.open)) s else { ...s, spaces: s.spaces.set(id, { ...r, access: r.access.union(Set(p)) }) }
   }
   pure def socialRemoveMember(s: CommunityState, p: int, id: int): CommunityState = {
     val r = s.spaces.get(id)
-    { ...s, spaces: s.spaces.set(id,{ ...r, members: r.members.exclude(Set(p)) }) }
+    { ...s, spaces: s.spaces.set(id,{ ...r, access: r.access.exclude(Set(p)), members: r.members.exclude(Set(p)) }) }
   }
   pure def socialEnd(s: CommunityState, id: int): CommunityState = {
     val r = s.spaces.get(id)
@@ -38,7 +42,7 @@ module community {
   pure def socialLeave(s: CommunityState, p: int, id: int): CommunityState = {
     val r = s.spaces.get(id)
     if (p == r.owner) socialEnd(s, id)
-    else { ...s, spaces: s.spaces.set(id, { ...r, members: r.members.exclude(Set(p)) }) }
+    else socialRemoveMember(s,p,id)
   }
   pure def socialSelectGame(s: CommunityState, id: int, game: int): CommunityState = {
     val r = s.spaces.get(id)
@@ -68,8 +72,8 @@ module community {
     ...s,
     spaces: s.spaces.keys().mapBy(id => {
       val r = s.spaces.get(id)
-      if (r.owner == p) { ...r, open: false, members: Set(), game: -1 }
-      else { ...r, members: r.members.exclude(Set(p)) }
+      if (r.owner == p) { ...r, open: false, access: Set(), members: Set(), game: -1 }
+      else { ...r, access: r.access.exclude(Set(p)), members: r.members.exclude(Set(p)) }
     }),
     friends: s.friends.filter(ab => ab._1 != p and ab._2 != p),
     requests: s.requests.filter(ab => ab._1 != p and ab._2 != p),
@@ -78,7 +82,8 @@ module community {
   pure def socialValid(s: CommunityState): bool = and {
     SPACES.forall(id => {
       val r = s.spaces.get(id)
-      and { r.members.subseteq(PEOPLE), r.open implies PEOPLE.contains(r.owner),
+      and { r.access.subseteq(PEOPLE), r.members.subseteq(r.access),
+        r.open implies (PEOPLE.contains(r.owner) and r.members.contains(r.owner)),
         r.game == -1 or (r.open and PUZZLES.contains(r.game)) }
     }),
     s.friends.forall(ab => not(socialBlocked(s,ab._1,ab._2))),

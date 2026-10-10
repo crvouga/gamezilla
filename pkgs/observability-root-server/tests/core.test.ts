@@ -36,6 +36,27 @@ afterEach(() => {
 });
 
 describe('OTel core', () => {
+  test('span status descriptions cannot bypass exception redaction', async () => {
+    // regression: otel-status-message-privacy
+    const exporter = new InMemorySpanExporter();
+    const runtime = createNodeTelemetry({
+      serviceName: 'status-test',
+      serviceVersion: '1',
+      environment: 'test',
+      buildSha: 'abc',
+      exporter,
+    });
+    await expect(
+      withSpan('test.status', () => {
+        throw new Error('failed Bearer status-token person@example.com');
+      })
+    ).rejects.toThrow('failed');
+    await runtime.forceFlush();
+    expect(exporter.getFinishedSpans()[0]?.status.message).toBe(
+      'failed Bearer [redacted] [email-redacted]'
+    );
+    await runtime.shutdown();
+  });
   test('keeps active parentage, stamps identity, and redacts before export', async () => {
     const exporter = new InMemorySpanExporter();
     const runtime = createNodeTelemetry({

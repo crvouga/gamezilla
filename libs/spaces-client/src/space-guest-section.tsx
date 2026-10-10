@@ -26,7 +26,7 @@ export function SpaceGuestSection(props: SpaceGuestSectionProps): JSX.Element {
         <SpaceGuestCountText
           spaceId={props.spaceId}
           variant="caption"
-          class="text-on-primary"
+          class="text-text-secondary"
         />
         <SpaceGuestAvatarGroup
           spaceId={props.spaceId}
@@ -37,7 +37,7 @@ export function SpaceGuestSection(props: SpaceGuestSectionProps): JSX.Element {
         <SpaceGuestNamesLine
           spaceId={props.spaceId}
           variant="caption"
-          class="text-on-primary"
+          class="text-text-secondary"
           numberOfLines={1}
         />
       </div>

@@ -1,6 +1,5 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { Gamepad2Icon, PlusIcon } from '@pkgs/ui-root-client/icons';
@@ -14,7 +13,6 @@ import { SpaceCard } from './space-card';
 import { openSpaceDetail } from './space-routes';
 import type { SpacesNotice } from './spaces-notices';
 import { SpacesAttemptNotice, SpacesLobbyContent } from './spaces-notices';
-import { useCheckConnection } from './use-check-connection';
 import { useCreateSpace } from './use-create-space';
 import { useJoinableLiveSpaceIds } from './use-joinable-live-space-ids';
 import { useOpenSpaceSessionIds } from './use-open-space-session-ids';
@@ -65,21 +63,19 @@ function SpacesList(props: {
       when={orderedIds().length > 0}
       fallback={<SpacesEmptyState onCreateSpace={props.onCreateSpace} />}
     >
-      <ScreenBodyScrollView
-        contentClass="grid items-start gap-3 pb-6"
-        contentStyle={{ 'grid-template-columns': 'minmax(0, 1fr)' }}
-      >
-        <For each={orderedIds()}>
-          {(spaceId) => <SpaceCard spaceId={spaceId} />}
-        </For>
+      <ScreenBodyScrollView contentClass="pb-6">
+        <div class="panel">
+          <For each={orderedIds()}>
+            {(spaceId) => <SpaceCard spaceId={spaceId} />}
+          </For>
+        </div>
       </ScreenBodyScrollView>
     </Show>
   );
 }
 
 /**
- * Start a space, or say why not: offline (spaces need the server) or at the
- * hosting limit (an invitation to Plus). Neither is an error.
+ * Start locally, or show the hosting limit's invitation to Plus.
  */
 function useStartSpace(): {
   readonly start: () => Promise<void>;
@@ -87,18 +83,9 @@ function useStartSpace(): {
 } {
   const router = useRouter();
   const createSpace = useCreateSpace();
-  const checkConnection = useCheckConnection();
-  const engine = useSyncEngineInstance();
   const [notice, setNotice] = createSignal<SpacesNotice | null>(null);
   const start = async (): Promise<void> => {
     setNotice(null);
-    // The hosting limit counts the server's live spaces. Wait until this
-    // device has them, or a create the server will refuse opens anyway.
-    await engine.waitForFirstSync();
-    if (!(await checkConnection())) {
-      setNotice({ kind: 'offline' });
-      return;
-    }
     const result = await createSpace();
     if (result.kind === 'limited') {
       setNotice({ kind: 'limited', decision: result.decision });
@@ -141,7 +128,7 @@ export function SpacesScreen(): JSX.Element {
       breadcrumbs={[{ name: <Trans>Spaces</Trans> }]}
       primaryAction={primaryAction()}
       content={({ bodyClass }) => (
-        // Lobby cards are cards already — never nest them inside an Island.
+        // The lobby is one panel — never nest it inside an Island.
         <Show
           when={listReady()}
           fallback={

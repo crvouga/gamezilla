@@ -59,6 +59,7 @@ export type RoomClientConfig<
   storage: ClientRoomStorage;
   transport: ClientTransport;
   identity: Identity;
+  onDestroy?: () => void;
   onError?: (err: RoomError | Error) => void;
   clock: Clock;
   timers: Timers;
@@ -132,7 +133,9 @@ export class RoomClient<
     }
     r.attachTransport();
     try {
-      await Promise.resolve(config.transport.connect());
+      void Promise.resolve(config.transport.connect()).catch(() => {
+        // Admission never holds local state or optimistic commands hostage.
+      });
     } catch {
       // Stay offline; offline-first UI depends on returning the client.
     }
@@ -175,12 +178,15 @@ export class RoomClient<
   >();
 
   private roster: readonly RoomActor[] = EMPTY_ROSTER;
+  private hasRoster = false;
   private lastError: RoomError | Error | null = null;
+  private readonly onDestroy: (() => void) | undefined;
   private destroyed = false;
   private unsubTransport: (() => void) | null = null;
   private unsubHandlers: (() => void) | null = null;
 
   private constructor(config: RoomClientConfig<S, C, E, Identity>) {
+    this.onDestroy = config.onDestroy;
     this.storage = config.storage;
     this.transport = config.transport;
     this.onError = config.onError;
@@ -247,6 +253,7 @@ export class RoomClient<
     s.display = this.core.display;
     s.synced = this.core.synced;
     s.connected = this.transport.isConnected;
+    s.hasRoster = this.hasRoster;
     s.lastError = this.lastError;
   }
 
@@ -298,10 +305,12 @@ export class RoomClient<
     });
     this.unsubHandlers = this.transport.onHandlers({
       onOpen: () => {
+        this.hasRoster = false;
         this.sendSync();
         this.notify();
       },
       onClose: () => {
+        this.hasRoster = false;
         this.core.synced = false;
         this.notify();
       },
@@ -338,6 +347,7 @@ export class RoomClient<
         return;
       case ROOM_WIRE_KIND.roster:
         this.roster = msg.clients;
+        this.hasRoster = true;
         this.notify();
         return;
       case ROOM_WIRE_KIND.welcome:
@@ -431,6 +441,7 @@ export class RoomClient<
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
+    this.onDestroy?.();
     this.unsubTransport?.();
     this.unsubTransport = null;
     this.unsubHandlers?.();

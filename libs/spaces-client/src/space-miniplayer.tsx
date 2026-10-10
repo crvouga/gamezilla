@@ -11,8 +11,8 @@ import { useRequestLeaveSpace } from './leave-space-modal-provider';
 import { MiniplayerLiveBadge } from './miniplayer-live-badge';
 import {
   SPACE_CARD_BORDER_RADIUS,
-  SpaceCardGradientBox,
-} from './space-card-gradient';
+  SpaceCardSurface,
+} from './space-card-surface';
 import { SpaceHostAvatar } from './space-host-avatar';
 import { SpaceMiniplayerCard } from './space-miniplayer-card';
 import type { MiniplayerFrame } from './space-miniplayer-layout';
@@ -48,7 +48,7 @@ function MiniplayerFrameBox(props: {
   );
 }
 
-/** Multi-space: one full-bleed tint bar (no deck stack). Opens the picker. */
+/** Multi-space: one full-bleed surface bar (no deck stack). Opens the picker. */
 function MultiSpaceDock(props: {
   spaceIds: readonly string[];
   borderRadius: number;
@@ -59,12 +59,9 @@ function MultiSpaceDock(props: {
   const visible = createMemo(() => props.spaceIds.slice(0, AVATAR_MAX));
 
   return (
-    <SpaceCardGradientBox
+    <SpaceCardSurface
       class="overflow-hidden flex-row items-center"
       style={{
-        width: '100%',
-        'min-width': '100%',
-        'align-self': 'stretch',
         'border-radius': `${props.borderRadius}px`,
       }}
     >
@@ -86,13 +83,13 @@ function MultiSpaceDock(props: {
           </For>
         </AvatarGroup>
         <div class="box flex-1 min-w-0">
-          <p class="text textBodyBold line-clamp-1 text-on-primary">
+          <p class="text textBodyBold line-clamp-1">
             {t`${count()} live spaces`}
           </p>
         </div>
         <MiniplayerLiveBadge />
       </button>
-    </SpaceCardGradientBox>
+    </SpaceCardSurface>
   );
 }
 

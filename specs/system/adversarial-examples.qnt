@@ -185,7 +185,7 @@ module adversarial_examples {
   run delayedMembershipReferenceCannotRestoreDeletedAccountTest = init
     .then(register(2)).then(emit(0,"add-member",0,2)).then(eraseAccount(2)).then(upload(0))
     .then(emit(3,"write",0,2))
-    .expect(server.social.spaces.get(0).members.contains(2) and not(productPresent(server,0).contains(2)) and
+    .expect(server.social.spaces.get(0).access.contains(2) and not(server.social.spaces.get(0).members.contains(2)) and not(productPresent(server,0).contains(2)) and
       not(productCanSeeNotes(server,2)) and server.notes.get(0).deleted and invSubsystems)
 
   run provisionalPeerImageCannotBecomeAuthorityTest = init
@@ -230,6 +230,52 @@ module adversarial_examples {
   run duplicateAcceptedCommandCannotChangeCanonicalStateTest = init
     .then(emit(0,"profile",0,2)).then(upload(0)).then(upload(0))
     .expect(server.revision == 1 and invNoTransitionViolation)
+
+  run offlineHostCreatesAndSharesTheSameSpaceTest = init
+    .then(providerChange(0,0,"active",0)).then(requestSnapshot(0)).then(receiveSnapshot(0))
+    .then(disconnect(0)).then(emit(0,"create",1,0))
+    .expect(syncView(clients,0).social.spaces.get(1).open and not(server.social.spaces.get(1).open))
+    .then(crash(0)).then(restart(0))
+    .expect(syncView(clients,0).social.spaces.get(1).open and clients.queue.get(0).length() == 1)
+    .then(reconnect(0)).then(upload(0)).then(acknowledge(0))
+    .expect(server.social.spaces.get(1).open and server.social.spaces.get(1).owner == 0 and invSubsystems)
+
+  run offlineUsernameIsKeptAndSharedLaterTest = init
+    .then(disconnect(0)).then(emit(0,"rename",0,3)).then(crash(0)).then(restart(0))
+    .expect(syncView(clients,0).publicProfile.names.get(0) == 3 and server.publicProfile.names.get(0) == 0)
+    .then(reconnect(0)).then(upload(0)).then(acknowledge(0))
+    .expect(server.publicProfile.names.get(0) == 3 and invSubsystems)
+
+  run offlineFriendRequestWaitsForSharingTest = init
+    .then(disconnect(0)).then(emit(0,"request",0,1)).then(crash(0)).then(restart(0))
+    .expect(syncView(clients,0).social.requests.contains((0,1)) and server.social.requests == Set())
+    .then(reconnect(0)).then(upload(0)).then(acknowledge(0)).then(deliverInbox(0,1))
+    .expect(server.social.requests.contains((0,1)) and server.social.inbox.contains((0,1)) and invSubsystems)
+
+  run addingAccessWaitsForExplicitJoinTest = init
+    .then(emit(0,"remove-member",0,1)).then(upload(0)).then(acknowledge(0))
+    .then(disconnect(0)).then(emit(0,"add-member",0,1))
+    .expect(syncView(clients,0).social.spaces.get(0).access.contains(1) and not(syncView(clients,0).social.spaces.get(0).members.contains(1)))
+    .then(reconnect(0)).then(upload(0)).then(acknowledge(0))
+    .expect(server.social.spaces.get(0).access.contains(1) and not(server.social.spaces.get(0).members.contains(1)))
+    .then(emit(2,"join",0,0)).then(upload(2)).then(acknowledge(2))
+    .expect(server.social.spaces.get(0).members.contains(1) and invSubsystems)
+
+  run joiningWaitsForTheHostToReturnTest = init
+    .then(emit(0,"remove-member",0,1)).then(upload(0)).then(acknowledge(0))
+    .then(disconnect(0)).then(disconnect(1))
+    .then(emit(2,"join",0,0)).then(upload(2)).then(acknowledge(2))
+    .expect(clients.decision.get(1) == "rejected" and not(server.social.spaces.get(0).members.contains(1)))
+    .then(reconnect(0)).then(emit(2,"join",0,0)).then(upload(2)).then(acknowledge(2))
+    .expect(server.social.spaces.get(0).members.contains(1) and invSubsystems)
+
+  run hostLeavesInsteadOfRemovingThemselvesTest = init
+    .then(emit(0,"remove-member",0,0)).then(upload(0)).then(acknowledge(0))
+    .expect(server.social.spaces.get(0).open and server.social.spaces.get(0).members.contains(0) and clients.decision.get(0) == "rejected")
+    .then(disconnect(0)).then(emit(0,"leave",0,0))
+    .expect(not(syncView(clients,0).social.spaces.get(0).open) and server.social.spaces.get(0).open)
+    .then(reconnect(0)).then(upload(0)).then(acknowledge(0))
+    .expect(not(server.social.spaces.get(0).open) and invSubsystems)
 
   run offlineMembershipConfirmationExpiresOnDeviceClockTest = init
     .then(providerChange(0,0,"active",30)).then(requestSnapshot(1)).then(receiveSnapshot(1))

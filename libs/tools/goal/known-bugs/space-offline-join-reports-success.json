@@ -1,0 +1,4 @@
+{
+  "summary": "A refused offline join resolved as a successful operation, showing Joined and playing the join sound. It must remain a retryable refusal.",
+  "regressionTest": "specs/spaces/space-needs-connection.feature"
+}

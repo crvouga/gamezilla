@@ -91,12 +91,7 @@ Then('{actor} is offered a multiplayer rematch', async (w, actor: Actor) => {
   await bothBoards(w, (g) => g.rematch_offer_by === by);
   expect(await rematchOfferBy(w)).toBe(by);
 });
-Then(
-  '{actor} is still offered a multiplayer rematch',
-  async (w, actor: Actor) => {
-    expect(await rematchOfferBy(w)).toBe(await ownerOf(w, otherOf(w, actor)));
-  }
-);
+
 Then(
   '{actor} is not offered a multiplayer rematch',
   async (w, actor: Actor) => {

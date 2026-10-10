@@ -40,10 +40,6 @@ Then(
   "both people see {int} seconds on White's multiplayer clock and {int} seconds on Black's",
   clocksSeen
 );
-Then(
-  "both people still see {int} seconds on White's multiplayer clock and {int} seconds on Black's",
-  clocksSeen
-);
 
 Given("White's multiplayer clock has run out", async (w) => {
   const [white] = pairOf(w);

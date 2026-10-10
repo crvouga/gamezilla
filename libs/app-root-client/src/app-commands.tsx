@@ -12,10 +12,13 @@
 import { useLingui } from '@lingui/solid/macro';
 import { feedbackCommand } from '@pkgs/feedback-client/feedback-command';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { useOpenExternalUrl } from '@pkgs/ui-root-client/external-url';
 import {
   GaugeIcon,
   MonitorPlayIcon,
   PaintbrushIcon,
+  WifiIcon,
+  WifiOffIcon,
 } from '@pkgs/ui-root-client/icons';
 import { useRegisterCommands } from '@pkgs/ui-root-client/register-command';
 import { useThemePreference } from '@pkgs/ui-root-client/theme-preference';
@@ -23,6 +26,7 @@ import type { Command } from '@pkgs/ui-root-client/types';
 import type { JSX } from 'solid-js';
 
 import { useEmbeddedApp } from './embedded-app-context';
+import { useOfflinePreference } from './offline-preference';
 import { usePerfHudPreference } from './perf-hud-preference';
 
 const NAV_TARGETS: readonly {
@@ -51,6 +55,7 @@ const HARNESS_PATH = '/harness';
 function NavigationCommands(): JSX.Element {
   const { t } = useLingui();
   const router = useRouter();
+  const openExternalUrl = useOpenExternalUrl();
   const embedded = useEmbeddedApp();
   useRegisterCommands(() => [
     ...NAV_TARGETS.map(
@@ -71,9 +76,7 @@ function NavigationCommands(): JSX.Element {
       keywords: [t`harness`, t`harness`, t`dev`, t`debug`],
       // Embedded actors already live inside the harness.
       visible: !embedded,
-      run: () => {
-        window.location.assign(HARNESS_PATH);
-      },
+      run: () => openExternalUrl(HARNESS_PATH),
     },
   ]);
   return null;
@@ -148,12 +151,39 @@ function FeedbackCommands(): JSX.Element {
   return null;
 }
 
+function NetworkCommands(): JSX.Element {
+  const { t } = useLingui();
+  const { offline, setOffline } = useOfflinePreference();
+  useRegisterCommands(() => [
+    {
+      id: 'network-work-offline',
+      title: t`Work offline`,
+      category: t`Connectivity`,
+      icon: WifiOffIcon,
+      keywords: [t`offline`, t`disconnect`, t`network`],
+      visible: !offline(),
+      run: () => setOffline(true),
+    },
+    {
+      id: 'network-work-online',
+      title: t`Work online`,
+      category: t`Connectivity`,
+      icon: WifiIcon,
+      keywords: [t`online`, t`connect`, t`network`],
+      visible: offline(),
+      run: () => setOffline(false),
+    },
+  ]);
+  return null;
+}
+
 export function AppCommands(): JSX.Element {
   return (
     <>
       <NavigationCommands />
       <AppearanceCommands />
       <PerformanceCommands />
+      <NetworkCommands />
       <FeedbackCommands />
     </>
   );

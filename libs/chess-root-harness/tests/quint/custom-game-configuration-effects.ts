@@ -6,7 +6,10 @@ import {
 } from '@libs/chess-custom-game-harness/custom-game-histories';
 import { playCustomGameHistory } from '@libs/chess-custom-game-harness/custom-game-history';
 import { readStoredCustomGames } from '@libs/chess-custom-game-harness/custom-game-stored';
-import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
+import {
+  readCustomGameProbe,
+  waitCustomGameAvailability,
+} from '@libs/chess-custom-game-harness/custom-game-ui';
 import { customGameTimeLeft } from '@libs/chess-custom-game-shared/custom-game-state';
 import { restartApp } from '@libs/harness/actions';
 import {
@@ -21,6 +24,7 @@ import {
   submitUsername,
 } from '@libs/profile-harness/profile-actions';
 import { joinViaLink, leaveSpace } from '@libs/spaces-harness/space-actions';
+import { spaceHostOfflineShown } from '@libs/spaces-harness/spaces-ui-reads';
 import { configurationTurn } from './custom-game-configuration-play';
 import {
   configurationLink,
@@ -39,7 +43,8 @@ export async function configurationLeaves(
     : actor;
   if (device !== actor) {
     await w.s.apply(joinViaLink, device, configurationLink(w));
-    await w.s.apply(openCustomGame, device);
+    if (!(await w.s.read(spaceHostOfflineShown, device)))
+      await w.s.apply(openCustomGame, device);
   } else await reopenConfiguration(w, device);
   await w.s.apply(leaveSpace, device);
   const person = actor === 'alice-other' ? 'alice' : actor;
@@ -58,6 +63,11 @@ export async function configurationJoins(
     ? await remoteAccountDevice(w, actor)
     : actor;
   await w.s.apply(joinViaLink, device, configurationLink(w));
+  const refusals = w.memo.get('configuration-refusals') as Map<string, string>;
+  if ((await w.s.read(waitCustomGameAvailability, device)) === 'host offline') {
+    refusals.set(actor, 'the host is offline');
+    return;
+  }
   await w.s.apply(openCustomGame, device);
   await w.s.until(
     async (s) => (await readCustomGameProbe(s, device))?.connected === true,
@@ -66,6 +76,7 @@ export async function configurationJoins(
   (w.memo.get('configuration-members') as Set<string>).add(
     actor === 'alice-other' ? 'alice' : actor
   );
+  refusals.set(actor, '');
 }
 
 export async function configurationSignsOut(

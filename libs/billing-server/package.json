@@ -21,6 +21,7 @@
     "@libs/app-root-shared": "workspace:*",
     "@libs/auth-shared": "workspace:*",
     "@libs/billing-shared": "workspace:*",
+    "@libs/observability-shared": "workspace:*",
     "@libs/sub-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@pkgs/assert-root-shared": "workspace:*",

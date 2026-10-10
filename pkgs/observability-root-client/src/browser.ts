@@ -7,11 +7,13 @@ import {
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { withSpan } from '@pkgs/observability-root-shared/span';
+import { WEB_VITAL_EVENT } from '@pkgs/observability-root-shared/web-vital';
 import type {
   TelemetryOptions,
   TelemetryRuntime,
 } from '@pkgs/observability-runtime-shared/options';
 import { createProviderConfig } from '@pkgs/observability-runtime-shared/provider-options';
+import { createSignals } from '@pkgs/observability-runtime-shared/signals';
 
 export const CONTEXT_CAPABILITY = 'callback' as const;
 
@@ -69,6 +71,18 @@ export function createBrowserTelemetry(
         : { contextManager: options.contextManager }
     );
   }
+  const signals = createSignals(
+    {
+      ...options,
+      eventContracts: [
+        WEB_VITAL_EVENT,
+        ...(options.eventContracts ?? []).filter(
+          (event) => event.name !== WEB_VITAL_EVENT.name
+        ),
+      ],
+    },
+    false
+  );
   const unregisterFetch =
     options.instrumentFetch === false
       ? undefined
@@ -87,16 +101,18 @@ export function createBrowserTelemetry(
         });
   const documentRef = options.document;
   const flushOnHidden = () => {
-    void provider.forceFlush();
+    void Promise.allSettled([provider.forceFlush(), signals.forceFlush()]);
   };
   documentRef?.addEventListener('visibilitychange', flushOnHidden);
   return {
     provider,
-    forceFlush: () => provider.forceFlush(),
+    forceFlush: async () => {
+      await Promise.all([provider.forceFlush(), signals.forceFlush()]);
+    },
     async shutdown() {
       documentRef?.removeEventListener('visibilitychange', flushOnHidden);
       unregisterFetch?.();
-      await provider.shutdown();
+      await Promise.all([provider.shutdown(), signals.shutdown()]);
     },
   };
 }

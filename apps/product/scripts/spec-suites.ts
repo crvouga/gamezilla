@@ -7,9 +7,10 @@
  * way here as in `bun check`, only on the `bun-webview` host.
  */
 
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { specProcessExit } from './spec-process';
 
 export const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -36,10 +37,10 @@ export function specPackageDirs(): string[] {
  * only in the packages that own them, each given its own paths. Flags pass to
  * every run. The first failure's code, else 0.
  */
-export function runSpecSuites(
+export async function runSpecSuites(
   env: NodeJS.ProcessEnv,
   args: readonly string[]
-): number {
+): Promise<number> {
   const dirs = specPackageDirs();
   const paths = args.filter((arg) =>
     /(?:\.test\.[cm]?[jt]sx?|\.feature)$/.test(arg)
@@ -59,12 +60,8 @@ export function runSpecSuites(
   let code = 0;
   for (const [dir, own] of runs) {
     process.stdout.write(`\n[spec] ${dir}\n`);
-    const result = spawnSync('bun', ['run', 'test:spec', ...flags, ...own], {
-      cwd: join(REPO_ROOT, dir),
-      stdio: 'inherit',
-      env,
-    });
-    if (result.status !== 0 && code === 0) code = result.status ?? 1;
+    const status = await runSpecProcess(dir, env, [...flags, ...own]);
+    if (status !== 0 && code === 0) code = status;
   }
   return code;
 }
@@ -86,4 +83,19 @@ function owningPackage(
     return domain !== undefined && manifest.specDomains?.includes(domain);
   });
   return owners.length === 1 ? owners[0] : undefined;
+}
+
+/** Await the child without starving the stack's in-process service listeners. */
+export function runSpecProcess(
+  dir: string,
+  env: NodeJS.ProcessEnv,
+  args: readonly string[]
+): Promise<number> {
+  return specProcessExit(
+    spawn('bun', ['run', 'test:spec', ...args], {
+      cwd: join(REPO_ROOT, dir),
+      stdio: 'inherit',
+      env,
+    })
+  );
 }

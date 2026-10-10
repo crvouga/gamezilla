@@ -11,6 +11,7 @@ file($body) where {
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
     $src <: r"^['\"]@pkgs/observability-root-(?:client|server|shared)/[^'\"]+['\"]$",
+    not $src <: r"^['\"]@pkgs/observability-root-shared/(?:metric-contract|event-contract|business-event|event-outbox|event-analytics|web-vital)['\"]$",
     register_diagnostic(span=$src, message="Manual observability imports are confined to the ADR boundary-file inventory; instrument a shared boundary instead of sub code.", severity="error")
   }
 }

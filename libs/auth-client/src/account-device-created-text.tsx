@@ -13,5 +13,5 @@ export function AccountDeviceCreatedText(
 ): JSX.Element {
   const createdAt = useDeviceColumn(() => props.deviceId, 'createdAt');
   const label = createMemo(() => formatTimestamp(createdAt()));
-  return <p class="text line-clamp-4">{label()}</p>;
+  return <p class="text textBody line-clamp-4">{label()}</p>;
 }

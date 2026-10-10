@@ -35,7 +35,7 @@ Feature: Multiplayer ratings for each speed
 
     Scenario: Resigning again counts the rated multiplayer game only once
       Given Bob resigned multiplayer chess and Alice won
-      When Bob resigns multiplayer chess again
+      When Bob resigns multiplayer chess
       Then Alice still has 1 rated multiplayer game at blitz
 
   Rule: A multiplayer result never moves the multiplayer rating of another speed

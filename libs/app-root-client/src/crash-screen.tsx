@@ -2,12 +2,8 @@ import { reportSolidBoundaryError } from './browser-boundaries';
 /** @jsxImportSource solid-js */
 
 import { reloadApp } from '@libs/app-root-shared/reload-app';
-import { Button } from '@pkgs/ui-root-client/button';
-import {
-  CircleAlertIcon,
-  RefreshCwIcon,
-  RotateCcwIcon,
-} from '@pkgs/ui-root-client/icons';
+import { ErrorState } from '@pkgs/ui-root-client/error-state';
+import { CircleAlertIcon } from '@pkgs/ui-root-client/icons';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import {
   createSignal,
@@ -93,41 +89,22 @@ export function CrashScreen(props: CrashScreenProps): JSX.Element {
       .join('\n\n');
   return (
     <main
-      class="box flex-1 min-h-0 overflow-auto bg-background text-text p-6 sm:p-10"
-      role="alert"
+      class="box flex-1 min-h-0 overflow-auto bg-background"
       data-component="RootErrorBoundary"
     >
-      <section
-        class="box w-full max-w-lg m-auto shrink-0 gap-6 p-6 sm:p-8 rounded-2xl border border-border bg-surface-elevated"
-        aria-label="App recovery"
-      >
-        <div class="box w-14 h-14 items-center justify-center rounded-2xl bg-warning-surface">
-          <CircleAlertIcon size={28} color="warning" />
-        </div>
-        <div class="box gap-3">
-          <h1 class="text textHeading">{CRASH_TITLE}</h1>
-          <p class="text text-text-secondary">
-            We couldn’t load this screen. Try again, or reload the app if the
-            problem continues.
-          </p>
-        </div>
-        <div class="box flex-row flex-wrap gap-3">
-          <Button
-            title="Try again"
-            icon={RotateCcwIcon}
-            onClick={() => props.reset()}
-          />
-          <Button
-            title="Reload app"
-            icon={RefreshCwIcon}
-            intent="neutral"
-            variant="outline"
-            onClick={reloadApp}
-          />
-        </div>
-        <CrashDetails message={message()} traceId={traceId()} />
-        <CrashCopyButton text={copyText()} copy={props.copyError} />
-      </section>
+      <ErrorState
+        icon={CircleAlertIcon}
+        title={CRASH_TITLE}
+        body="We couldn’t load this screen. Try again, or reload the app if the problem continues."
+        retry={{ label: 'Try again', onClick: () => props.reset() }}
+        secondary={{ label: 'Reload app', onClick: reloadApp }}
+        details={
+          <>
+            <CrashDetails message={message()} traceId={traceId()} />
+            <CrashCopyButton text={copyText()} copy={props.copyError} />
+          </>
+        }
+      />
     </main>
   );
 }

@@ -50,6 +50,7 @@ export type MutationRow = {
 };
 
 export type ReplayAuth = {
+  readonly synthetic?: boolean;
   readonly actorId: string;
   readonly deviceId: string;
   readonly accountId: string | null;
@@ -66,8 +67,8 @@ export type ReplayMutationDeps = {
   /** Host guard run before every mutation body (server replay only). */
   readonly authorize?: MutationAuthorize;
   /**
-   * The app's content rules as they stood at a write's time (its
-   * `created_at`), handed to the mutation body as `env.contentRules`.
+   * The app's content rules at the time selected by the mutation,
+   * handed to its body as `env.contentRules`.
    */
   readonly contentRulesAt?: (atMs: number) => ContentRules;
 };
@@ -147,6 +148,9 @@ async function applyReplayMutationInTxn(args: {
 }): Promise<ReplayOutcome> {
   const { txc, deps, m, mutation, parsedValue } = args;
   const env: MutationEnv = {
+    ...(deps.auth.synthetic === undefined
+      ? {}
+      : { synthetic: deps.auth.synthetic }),
     actorId: deps.auth.actorId,
     deviceId: deps.auth.deviceId,
     accountId: deps.auth.accountId,
@@ -159,7 +163,13 @@ async function applyReplayMutationInTxn(args: {
       : { authenticatedAtMs: deps.auth.authenticatedAtMs }),
     ...(deps.contentRulesAt === undefined
       ? {}
-      : { contentRules: deps.contentRulesAt(Date.parse(m.createdAt)) }),
+      : {
+          contentRules: deps.contentRulesAt(
+            mutation.contentRulesTime === 'replayed'
+              ? deps.now()
+              : Date.parse(m.createdAt)
+          ),
+        }),
   };
 
   const wrapped = wrapMutationDb(txc, env);

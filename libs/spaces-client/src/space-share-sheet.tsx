@@ -1,4 +1,5 @@
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
@@ -30,6 +31,7 @@ export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
       title={<Trans>Share space</Trans>}
       size="medium"
       scroll={false}
+      closeDataSet={{ testid: Handles.spaceShareClose }}
     >
       <ScrollView class="max-h-120" contentClass="px-0 gap-3">
         <SpaceShareLinkSection spaceId={props.spaceId} />

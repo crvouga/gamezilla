@@ -16,13 +16,18 @@
   },
   "dependencies": {
     "@opentelemetry/api": "catalog:",
+    "@opentelemetry/api-logs": "catalog:",
     "@opentelemetry/semantic-conventions": "catalog:",
-    "@pkgs/object-store-root-shared": "workspace:*"
+    "@pkgs/message-shared": "workspace:*",
+    "@pkgs/object-store-root-shared": "workspace:*",
+    "@pkgs/outbox-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@pkgs/property-shared": "workspace:*",
+    "fast-check": "catalog:"
   },
   "category": "isomorphic"
 }

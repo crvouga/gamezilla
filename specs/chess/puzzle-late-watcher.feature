@@ -12,6 +12,7 @@ Feature: Arriving while a puzzle is under way
       And Alice is hosting a space
       And Alice is playing puzzles in their space
 
+    @regression:puzzle-watcher-position-snapshot-stale
     Scenario: Someone who arrives mid-puzzle sees the host's current position
       Given Alice has played the next move of the solution
       When Bob joins the space from the link

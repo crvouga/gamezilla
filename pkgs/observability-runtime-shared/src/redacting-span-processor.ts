@@ -4,7 +4,7 @@ import type {
   Span as SdkSpan,
   SpanProcessor,
 } from '@opentelemetry/sdk-trace-base';
-
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import type { AttributeRedactor } from '@pkgs/observability-root-shared/redaction';
 
 export class RedactingSpanProcessor implements SpanProcessor {
@@ -17,6 +17,13 @@ export class RedactingSpanProcessor implements SpanProcessor {
   onStart(_span: SdkSpan, _parentContext: Context): void {}
 
   onEnding(span: SdkSpan): void {
+    if (span.status.message !== undefined) {
+      const message = this.#redact(ATTR.EXCEPTION_MESSAGE, span.status.message);
+      span.setStatus({
+        code: span.status.code,
+        ...(typeof message === 'string' ? { message } : { message: '' }),
+      });
+    }
     redactRecord(span.attributes, this.#redact);
     for (const event of span.events)
       redactRecord(event.attributes, this.#redact);

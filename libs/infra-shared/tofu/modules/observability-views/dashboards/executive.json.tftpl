@@ -1,0 +1,146 @@
+{
+  "uid": "business-executive-${environment}",
+  "title": "Executive \u2014 ${environment}",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": [
+    "observability",
+    "business",
+    "${environment}"
+  ],
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "refresh": "1m",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Verified accounts provisioned",
+      "type": "stat",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"identity.account.provisioned\" | event_synthetic=\"false\" [$__range])))",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 2,
+      "title": "Spaces created",
+      "type": "stat",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"multiplayer.space.created\" | event_synthetic=\"false\" [$__range])))",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 3,
+      "title": "Puzzles attempted",
+      "type": "stat",
+      "datasource": {
+        "type": "loki",
+        "uid": "${logs_uid}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"chess.puzzle.attempted\" | event_synthetic=\"false\" [$__range])))",
+          "datasource": {
+            "type": "loki",
+            "uid": "${logs_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 4,
+      "title": "HTTP failure fraction",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${metrics_uid}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 9,
+        "w": 12,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "(sum(rate(http_server_requests_total{job=\"gamezilla-server\",app_http_status_class=\"5xx\"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"${environment}\"}) or vector(0)) / sum(rate(http_server_requests_total{job=\"gamezilla-server\"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"${environment}\"})",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${metrics_uid}"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "options": {}
+    }
+  ]
+}

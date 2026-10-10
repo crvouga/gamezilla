@@ -84,7 +84,8 @@ export function createRoomApp(roomGrants: ComposedSubServers['roomGrants']) {
     const grants = await decideRoomGrants(roomGrants, { topic, actor });
     if (
       topic.startsWith('space:') &&
-      !grants.includes(PERMISSION.spacesLeave)
+      !grants.includes(PERMISSION.spacesLeave) &&
+      !grants.includes(PERMISSION.spacesJoin)
     ) {
       return c.json({ error: 'not in the space' }, 403);
     }

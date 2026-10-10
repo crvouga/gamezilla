@@ -41,7 +41,7 @@
     "deploy:prd": "SECRETS_ENV=prd TURBO_UI=tui bun run deploy:local",
     "deps:graph": "bun run libs/tools/scripts/render-package-deps-graph.ts",
     "dev": "bun run apps/product/scripts/dev-run.ts",
-    "dev:client": "SECRETS_ENV=dev bun run libs/secrets-server/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/client",
+    "dev:client": "SECRETS_ENV=dev bun run own -- bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --cwd apps/client dev",
     "fc": "clear && bun run fmt && bun run check",
     "feedback": "bun run pkgs/feedback-harness/scripts/report.ts",
     "fmt": "biome format --write . & sort-package-json \"**/package.json\" -i \"**/node_modules/**\" -i \"vendor/atlas/**\" & bun run libs/tools/scripts/remove-empty-dirs.ts & wait",
@@ -86,7 +86,10 @@
     "test:pbt:random": "bun run apps/product/scripts/test-pbt-random.ts",
     "verify": "bun run check:local",
     "wipe": "git clean -xfd",
-    "workspace:sync": "bun run libs/tools/scripts/sync-workspace-lifecycle.ts"
+    "workspace:sync": "bun run libs/tools/scripts/sync-workspace-lifecycle.ts",
+    "gc": "bun run libs/tools/scripts/kill-dev-stack.ts --gc",
+    "stop": "bun run kill",
+    "own": "bun run libs/tools/scripts/owned-command.ts"
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
@@ -174,10 +177,12 @@
     "@noble/hashes": "^2.4.0",
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/context-async-hooks": "^2.11.0",
+    "@opentelemetry/core": "^2.11.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.222.0",
     "@opentelemetry/exporter-metrics-otlp-http": "^0.222.0",
     "@opentelemetry/instrumentation": "^0.222.0",
     "@opentelemetry/instrumentation-fetch": "^0.222.0",
+    "@opentelemetry/otlp-transformer": "0.222.0",
     "@opentelemetry/resources": "^2.11.0",
     "@opentelemetry/sdk-trace-base": "^2.11.0",
     "@opentelemetry/sdk-metrics": "^2.11.0",
@@ -253,7 +258,10 @@
     "workbox-build": "^7.4.1",
     "workbox-window": "^7.4.1",
     "wrangler": "^4.147.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "@opentelemetry/api-logs": "^0.222.0",
+    "@opentelemetry/sdk-logs": "^0.222.0",
+    "@opentelemetry/exporter-logs-otlp-http": "^0.222.0"
   },
   "trustedDependencies": [
     "ffmpeg-static",

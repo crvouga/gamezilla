@@ -36,7 +36,7 @@ const web = Bun.spawn(['bun', './scripts/serve-max-web.ts'], {
 let code = 1;
 try {
   await waitForHttp(origin);
-  code = runSpecSuites(
+  code = await runSpecSuites(
     {
       ...process.env,
       HARNESS_PRELOAD: `${pkgRoot}/src/real-stack-preload.ts`,

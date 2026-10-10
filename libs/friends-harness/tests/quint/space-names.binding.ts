@@ -3,8 +3,8 @@
  * hosts a space Bob is in; each rename goes through the space's rename
  * dialog, the team's rules through the deployment's rules, the connection
  * through the network. Read back: what each person's space screen calls the
- * space, the name Alice's device keeps, which model names the rules refuse,
- * and what Alice's last rename showed.
+ * space, the name shown in Alice's rename dialog, and what her last rename
+ * showed.
  */
 
 import { setupFriendsPair } from '@libs/friends-harness/setup-friends-pair';
@@ -23,8 +23,8 @@ import {
   startAllowingSpaceName,
   stopAllowingSpaceName,
 } from '@libs/spaces-harness/space-name-rule-actions';
+import { readSavedSpaceName } from '@libs/spaces-harness/space-name-ui-reads';
 import {
-  localSpaceGivenName,
   localSpaceHostUsername,
   readSpaceLink,
   spaceNameRefusalShown,
@@ -38,20 +38,12 @@ const HOST = 'alice';
 const GUEST = 'bob';
 const PEOPLE = [HOST, GUEST] as const;
 
-/** Space names the model types or rules on (other than no name). */
-const MODEL_NAMES = [
-  'Friday puzzles',
-  'Cheater corner',
-  'free coins at spam.gg',
-] as const;
-
 /** What a space with no allowed name of its own is called, in the model. */
 const NAMED_AFTER_HOST = 'named after Alice';
 
 /** Long enough for a device to notice its connection went or came back. */
 const NOTICE_MS = 2_000;
 
-const LINK = 'space-link';
 const HOST_NAME = 'host-username';
 const LAST_RENAME = 'last-rename';
 
@@ -59,13 +51,6 @@ function memoString(w: QuintHarnessWorld, key: string): string {
   const value = w.memo.get(key);
   if (typeof value !== 'string') throw new Error(`no ${key} recorded`);
   return value;
-}
-
-/** The deployment's rules refuse `name` as a space name right now. */
-function refusedNow(s: ProductHarness, name: string): boolean {
-  return !s.harness.teamRules.moderation
-    .current()
-    .checkWrite('spaceTitle', name).allowed;
 }
 
 /** A space screen's title, in the model's terms. */
@@ -89,7 +74,6 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(createSpace, HOST);
       const link = await w.s.read(readSpaceLink, HOST);
       if (link === null) throw new Error('alice opened no space');
-      w.memo.set(LINK, link);
       const host = await w.s.until(
         (s: ProductHarness) => localSpaceHostUsername(s, HOST, link),
         { pred: (name) => name !== null && name.length > 0 }
@@ -112,17 +96,18 @@ bindQuintModel<QuintHarnessWorld>({
     startAllowing: async (w, picks) => {
       await w.s.apply(startAllowingSpaceName, String(picks['name']));
     },
-    _loseConnection: async (w, picks) => {
+    loseConnection: async (w, picks) => {
       await w.s.apply(partition, String(picks['person']));
       await w.s.advanceTime(NOTICE_MS);
     },
-    _connectionReturns: async (w, picks) => {
+    connectionReturns: async (w, picks) => {
       await w.s.apply(restoreActorConnection, String(picks['person']));
       await w.s.advanceTime(NOTICE_MS);
     },
   },
   observe: async (w) => {
-    const link = memoString(w, LINK);
+    await w.s.apply(focusActor, HOST);
+    const givenName = await w.quiet.read(readSavedSpaceName, HOST);
     const spaceName = new Map<QuintValue, QuintValue>();
     for (const actor of PEOPLE) {
       await w.s.apply(focusActor, actor);
@@ -133,14 +118,8 @@ bindQuintModel<QuintHarnessWorld>({
     }
     const lastRename = w.memo.get(LAST_RENAME);
     return {
-      givenName:
-        (await w.quiet.read(localSpaceGivenName, HOST, link)) ?? '(no space)',
+      givenName: givenName ?? '(no space)',
       spaceName,
-      notAllowed: new Set(
-        await w.quiet.read((s: ProductHarness) =>
-          MODEL_NAMES.filter((name) => refusedNow(s, name))
-        )
-      ),
       lastRename: variant(
         typeof lastRename === 'string' ? lastRename : 'NoRename'
       ),

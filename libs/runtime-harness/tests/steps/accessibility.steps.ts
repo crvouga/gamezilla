@@ -51,6 +51,7 @@ Then(
 Then(
   '{actor} hears what every control in Settings does',
   async (w, actor: Actor) => {
+    // regression: offline-settings-menu-semantics
     await w.s.until((harness) => onScreen(harness, actor, SETTINGS));
     const heard = await w.s.read(pageHeard, actor);
     expect(heard.controls).not.toEqual([]);

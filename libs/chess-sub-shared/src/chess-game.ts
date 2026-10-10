@@ -2,7 +2,11 @@ import {
   customGameCmdNs,
   customGameEvtNs,
 } from '@libs/chess-custom-game-shared/custom-game-commands';
-import { customGameEffects } from '@libs/chess-custom-game-shared/custom-game-effects';
+import {
+  customGameEffects,
+  localCustomGameEffects,
+} from '@libs/chess-custom-game-shared/custom-game-effects';
+import { prepareLocalCustomGameCommand } from '@libs/chess-custom-game-shared/custom-game-local';
 import { customGameCommandPermission } from '@libs/chess-custom-game-shared/custom-game-permissions';
 import {
   customGameCommandRouter,
@@ -19,6 +23,9 @@ import type { GameDefinition } from '@libs/spaces-shared/game';
 export const chessGameShared: GameDefinition = {
   ...chessPuzzleGame,
   matchRooms: [matchRoomModule],
+  prepareLocalCommand: prepareLocalCustomGameCommand,
+  recoverLocalEffects: (state) =>
+    localCustomGameEffects(CustomGamesAttr.from(state).current),
   recoverEffects: (state) =>
     customGameEffects(CustomGamesAttr.from(state).current),
   reactToSpaceEvent: reactCustomGameToSpaceEvent,

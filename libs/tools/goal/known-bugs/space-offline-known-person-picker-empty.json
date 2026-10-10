@@ -1,0 +1,4 @@
+{
+  "summary": "Alice views Bob's profile, hosts a space, goes offline and opens Add people. The picker hides Bob's already-known local option while a debounced search says it is loading.",
+  "regressionTest": "specs/spaces/space-add-person.feature"
+}

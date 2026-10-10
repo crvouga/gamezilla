@@ -12,13 +12,9 @@ import { accountIdOf, signedInAccountOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
 import { backToTabs, focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import { remember } from '@libs/harness/spec-world';
 import { openInbox } from '@libs/notifications-harness/notifications-actions';
-import {
-  openProfileEdit,
-  setUsername,
-} from '@libs/profile-harness/profile-actions';
 import { standInNameOf } from '@libs/profile-harness/profile-ui-reads';
+import { rememberedUsername } from '@libs/profile-harness/remembered-username';
 import { searchUsername } from '@libs/search-harness/search-actions';
 import {
   peopleSearchOpen,
@@ -40,17 +36,16 @@ import {
   unblockFriend,
 } from './friends-actions';
 import {
-  addFriendLabel,
   askOffered,
   confirmOffered,
   friendLiveBadgeVisible,
   friendRequestCardVisible,
-  friendRequestNeedsConnection,
   friendRowVisible,
   friendStatusShown,
   friendsEmptyShown,
   personProfileShown,
   readFriendsCount,
+  recentDeclineRefusalShown,
   unblockOffered,
   withdrawOffered,
 } from './friends-ui-reads';
@@ -67,7 +62,6 @@ import {
   sendRequestFromProfile,
   viewProfileFromRequest,
 } from './person-actions';
-import { rememberedUsername, usernameKey } from './remembered-username';
 import { setupBlock } from './setup-block';
 import { prepareNamedFriend, setupFriendRequest } from './setup-friend-request';
 import { setupFriendsPair } from './setup-friends-pair';
@@ -174,32 +168,16 @@ When('{actor} asks {actor} again', async (w, actor: Actor, other: Actor) => {
 });
 
 Then(
-  '{actor} is told friend requests need a connection within {int} seconds',
-  async (w, actor: Actor, seconds: number) => {
-    await w.s.until((surf) => friendRequestNeedsConnection(surf, actor), {
-      maxMs: seconds * SECOND_MS,
-    });
-  }
-);
-
-Then(
-  "{actor}'s request to {actor} is refused with {string}",
-  async (w, actor: Actor, other: Actor, reason: string) => {
-    expect(await w.s.read(addFriendLabel, actor, other)).toBe(reason);
+  "{actor}'s request to {actor} is refused because {actor} declined it within the last day",
+  async (w, actor: Actor, other: Actor, personAsked: Actor) => {
+    sameActor(other, personAsked, 'request refused because … declined it');
+    expect(await w.s.read(recentDeclineRefusalShown, actor, other)).toBe(true);
   }
 );
 
 // ------------------------------------------------------------ friends list
 
 // A rename other people then look for (profile owns the act of renaming).
-Given(
-  '{actor} has renamed themselves to {username}',
-  async (w, actor: Actor, username: string) => {
-    await w.s.apply(openProfileEdit, actor);
-    await w.s.apply(setUsername, actor, username);
-    remember(w, usernameKey(actor), username);
-  }
-);
 
 When('{actor} opens their friends list', async (w, actor: Actor) => {
   await w.s.apply(openFriendsList, actor);

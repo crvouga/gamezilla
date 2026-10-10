@@ -31,6 +31,7 @@ import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 import type { RoomActor, RoomState } from '@pkgs/room-root-shared/types';
 import type { Pool } from '@pkgs/sql-client-postgres-shared/pg-types';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { Random } from '@pkgs/uuid-shared/create-id';
 
 import type { ProductHarness } from './harness';
 
@@ -66,6 +67,8 @@ export type HarnessRoomGateway = {
 };
 
 export type HarnessRoomNode = {
+  /** A composition may control legal client choices through the injected port. */
+  readonly clientRandom?: Random;
   readonly services: RoomServicePort;
   readonly createTransport: NonNullable<ClientEnv['room']>;
   listTopics(): readonly string[];

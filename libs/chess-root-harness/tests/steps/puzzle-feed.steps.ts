@@ -13,6 +13,7 @@ import {
   includePlayedPuzzles,
   leaveChessStatsScreen,
   openPuzzleFeedSettings,
+  openPuzzleFromSpace,
   pressPuzzleNext,
   returnToPuzzleScreen,
   setPuzzleFeedHistory,
@@ -323,6 +324,7 @@ Then(
     const link = required(await w.s.read(readSpaceLink, actor), 'a space');
     await w.s.apply(openSpaceLink, device, link);
     await w.s.apply(joinFromPrompt, device);
+    await w.s.apply(openPuzzleFromSpace, device);
     await w.s.until(async (surf) => readFeedTargetLabel(surf, device), {
       maxMs: seconds * SECOND_MS,
       pred: (label) => label?.mode === 'custom' && label.rating === rating,

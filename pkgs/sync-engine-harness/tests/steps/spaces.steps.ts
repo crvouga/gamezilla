@@ -80,7 +80,7 @@ When(
 );
 
 /** Only the person who started a shared space can end it. */
-When('the shared space {string} ends', async (w, space: string) => {
+Given('the shared space {string} has ended', async (w, space: string) => {
   const host = w.hostOf.get(space);
   if (host === undefined) throw new Error(`nobody started "${space}"`);
   await w.s.apply(mutate, host, endSpace, { spaceId: space });

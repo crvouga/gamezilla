@@ -1,7 +1,11 @@
 // @io-wall-ok — keep the admission lease alive while a cancelled check is cleaned up.
-import { type ChildProcess, spawn } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 import type { EventEmitter } from 'node:events';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { enterDevOwner } from '@pkgs/os-server/dev-owner-entry';
+import { openOwnerRun } from '@pkgs/os-server/dev-owner-run';
+import { spawnOwned as spawn } from '@pkgs/os-server/dev-owner-spawn';
 
 /** A launcher crash closes IPC; the worker cancels before releasing its lease. */
 export function watchLocalCheckCancellation(
@@ -21,13 +25,24 @@ export function watchLocalCheckCancellation(
 }
 
 /** The lightweight launcher remains responsive while its worker holds the lock. */
-export function launchLocalCheck(args: readonly string[]): Promise<number> {
+export async function launchLocalCheck(
+  args: readonly string[]
+): Promise<number> {
+  const root =
+    process.env['DEV_OWNER_ROOT'] ?? join(import.meta.dirname, '../../..');
+  const script = fileURLToPath(new URL('./check-local.ts', import.meta.url));
+  await enterDevOwner(root, script, args);
+  const run = await openOwnerRun(root);
   const child = spawn(
     process.execPath,
     [fileURLToPath(new URL('./check-local.ts', import.meta.url)), ...args],
-    { stdio: ['inherit', 'inherit', 'inherit', 'ipc'], detached: true }
+    { stdio: ['inherit', 'inherit', 'inherit', 'ipc'], env: run.env }
   );
-  return superviseLocalCheck(child, process);
+  try {
+    return await superviseLocalCheck(child, process);
+  } finally {
+    await run.close();
+  }
 }
 
 export function superviseLocalCheck(

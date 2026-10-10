@@ -1,6 +1,6 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
 import { readDomInventory } from '@pkgs/ui-testing-root-shared/dom-inventory';
+import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
 import type { Inventory } from '@pkgs/ui-testing-root-shared/inventory';
 import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
 import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared/keys';

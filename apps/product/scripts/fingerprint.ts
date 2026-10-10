@@ -45,36 +45,55 @@ function svgFingerprint(encoded: string): string {
   return encodeURIComponent(normalized);
 }
 
-export async function snapshotFingerprint(
-  html: string,
-  stylesheet: string
-): Promise<string> {
-  const css = `${stylesheet}\n${[...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join('\n')}`;
-  const ignored = METADATA.filter((name) => !referencesAttribute(css, name));
-  return new HTMLRewriter()
-    .on('*', {
-      element(element) {
-        for (const name of ignored) element.removeAttribute(name);
-        const id = element.getAttribute('id');
-        // Keep IDs referenced by CSS, fragment links, SVG paint or form labels.
-        if (
-          id &&
-          /^[\w-]+$/.test(id) &&
-          !css.includes(`#${id}`) &&
-          !referencesAttribute(css, 'id') &&
-          !html.includes(`#${id}`) &&
-          !html.includes(`for="${id}"`)
-        )
-          element.removeAttribute('id');
-        const src = element.getAttribute('src');
-        const prefix = 'data:image/svg+xml;utf8,';
-        if (src?.startsWith(prefix) && !referencesAttribute(css, 'src'))
-          element.setAttribute(
-            'src',
-            `${prefix}${svgFingerprint(src.slice(prefix.length))}`
-          );
-      },
-    })
-    .transform(new Response(html))
-    .text();
+export function createSnapshotFingerprint(stylesheet: string) {
+  const metadata = METADATA.filter(
+    (name) => !referencesAttribute(stylesheet, name)
+  );
+  const idSelector = referencesAttribute(stylesheet, 'id');
+  const sourceSelector = referencesAttribute(stylesheet, 'src');
+  const ids = new Map<string, boolean>();
+  const referencesId = (id: string) => {
+    if (!ids.has(id)) {
+      if (ids.size >= 512) ids.clear();
+      ids.set(id, stylesheet.includes(`#${id}`));
+    }
+    return ids.get(id)!;
+  };
+  return async (html: string): Promise<string> => {
+    const css = [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)]
+      .map((m) => m[1])
+      .join('\n');
+    const ignored = css
+      ? metadata.filter((name) => !referencesAttribute(css, name))
+      : metadata;
+    const preserveIds = idSelector || referencesAttribute(css, 'id');
+    const preserveSources = sourceSelector || referencesAttribute(css, 'src');
+    return new HTMLRewriter()
+      .on('*', {
+        element(element) {
+          for (const name of ignored) element.removeAttribute(name);
+          const id = element.getAttribute('id');
+          // Keep IDs referenced by CSS, fragment links, SVG paint or form labels.
+          if (
+            id &&
+            /^[\w-]+$/.test(id) &&
+            !referencesId(id) &&
+            !css.includes(`#${id}`) &&
+            !preserveIds &&
+            !html.includes(`#${id}`) &&
+            !html.includes(`for="${id}"`)
+          )
+            element.removeAttribute('id');
+          const src = element.getAttribute('src');
+          const prefix = 'data:image/svg+xml;utf8,';
+          if (src?.startsWith(prefix) && !preserveSources)
+            element.setAttribute(
+              'src',
+              `${prefix}${svgFingerprint(src.slice(prefix.length))}`
+            );
+        },
+      })
+      .transform(new Response(html))
+      .text();
+  };
 }

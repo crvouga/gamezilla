@@ -1,3 +1,5 @@
+import { subscriptionProjectedEvent } from '@libs/billing-shared/telemetry';
+import { telemetrySubjectId } from '@libs/observability-shared/domain-event';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
@@ -67,6 +69,40 @@ export class BillingSubscriptionRepository {
         credit_cents = COALESCE(EXCLUDED.credit_cents, billing_subscriptions.credit_cents)
       WHERE billing_subscriptions.deleted_at IS NULL
     `);
+    if (result.changes > 0)
+      await subscriptionProjectedEvent.outbox.enqueue(
+        {
+          tx: this.tx,
+          env: {
+            now: () => new Date(nowIso),
+            createId: () => projection.subscriptionId,
+          },
+        },
+        {
+          envelope: {
+            id: telemetrySubjectId(
+              JSON.stringify([
+                projection.provider,
+                projection.accountId,
+                projection.subscriptionId,
+                projection.offerPriceKey,
+                projection.status,
+                projection.periodEndMs,
+                projection.endsAtPeriodEnd,
+                projection.creditCents,
+              ])
+            ),
+            occurredAtMs: Date.parse(nowIso),
+          },
+          attributes: {
+            'subscription.id': telemetrySubjectId(
+              `${projection.provider}:${projection.subscriptionId}`
+            ),
+            'subscription.status': projection.status,
+            'subscription.cancel_at_period_end': projection.endsAtPeriodEnd,
+          },
+        }
+      );
     return result.changes > 0;
   }
 }

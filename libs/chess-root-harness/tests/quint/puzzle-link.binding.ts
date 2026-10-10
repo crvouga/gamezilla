@@ -35,6 +35,7 @@ import { focusActor } from '@libs/harness/shell-actions';
 import { createSpace } from '@libs/spaces-harness/space-actions';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import lostRequest from './fixtures/puzzle-link-request-cleared-before-placement.itf.json';
 
 const SHARER = 'alice';
 const OPENER = 'bob';
@@ -96,6 +97,15 @@ bindQuintModel<QuintHarnessWorld>({
   traces: 16,
   maxSteps: 8,
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: puzzle-link-request-cleared-before-placement
+      id: 'puzzle-link-request-cleared-before-placement',
+      title: 'A puzzle link replaces a puzzle already on the board',
+      seed: '0x67932',
+      itf: lostRequest,
+    },
+  ],
   actions: {
     init: async (w, picks) => {
       if (PUZZLE.csv !== null)

@@ -1,6 +1,9 @@
 // @io-wall-ok
 
 import { execFileSync } from 'node:child_process';
+import { realpathSync } from 'node:fs';
+import { join } from 'node:path';
+import { registerDevSimulator } from '@pkgs/os-server/dev-owner-resources';
 import type { SimSpecId } from './sim-spec';
 import { simSpecById } from './sim-spec';
 import {
@@ -43,6 +46,10 @@ export function bootSimIfNeeded(
       `Simulator "${simName}" data is missing on disk. Run \`bun run sims:setup\` to recreate it.`
     );
   }
+  registerDevSimulator(
+    realpathSync(join(import.meta.dirname, '../../..')),
+    udid
+  );
   log(`Booting simulator "${simName}"…`);
   try {
     execFileSync('xcrun', ['simctl', 'boot', udid], { stdio: 'inherit' });

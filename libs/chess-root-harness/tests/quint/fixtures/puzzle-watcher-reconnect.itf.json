@@ -328,7 +328,7 @@
         "#map": [["alice", false], ["bob", false]]
       },
       "commentary": {
-        "#map": [["alice", "ready"], ["bob", "ready"]]
+        "#map": [["alice", "ready"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -341,7 +341,7 @@
           [
             "bob",
             {
-              "#bigint": "0"
+              "#bigint": "-1"
             }
           ]
         ]
@@ -367,7 +367,7 @@
           [
             "bob",
             {
-              "#bigint": "0"
+              "#bigint": "-1"
             }
           ]
         ]
@@ -389,7 +389,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "solving"], ["bob", "solving"]]
+        "#map": [["alice", "solving"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -405,7 +405,7 @@
           [
             "bob",
             {
-              "tag": "Board",
+              "tag": "Elsewhere",
               "value": {
                 "#tup": []
               }
@@ -590,7 +590,7 @@
         "#map": [["alice", false], ["bob", false]]
       },
       "commentary": {
-        "#map": [["alice", "ready"], ["bob", "ready"]]
+        "#map": [["alice", "ready"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -603,7 +603,7 @@
           [
             "bob",
             {
-              "#bigint": "0"
+              "#bigint": "-1"
             }
           ]
         ]
@@ -629,7 +629,7 @@
           [
             "bob",
             {
-              "#bigint": "0"
+              "#bigint": "-1"
             }
           ]
         ]
@@ -651,7 +651,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "solving"], ["bob", "solving"]]
+        "#map": [["alice", "solving"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -667,7 +667,7 @@
           [
             "bob",
             {
-              "tag": "Board",
+              "tag": "Elsewhere",
               "value": {
                 "#tup": []
               }
@@ -2763,7 +2763,7 @@
           [
             "bob",
             {
-              "tag": "ChessChoices",
+              "tag": "Elsewhere",
               "value": {
                 "#tup": []
               }
@@ -2894,7 +2894,7 @@
           [
             "bob",
             {
-              "tag": "ChessChoices",
+              "tag": "Elsewhere",
               "value": {
                 "#tup": []
               }
@@ -3025,7 +3025,7 @@
           [
             "bob",
             {
-              "tag": "ChessChoices",
+              "tag": "Elsewhere",
               "value": {
                 "#tup": []
               }
@@ -3156,7 +3156,7 @@
           [
             "bob",
             {
-              "tag": "ChessChoices",
+              "tag": "Elsewhere",
               "value": {
                 "#tup": []
               }
@@ -3287,7 +3287,7 @@
           [
             "bob",
             {
-              "tag": "ChessChoices",
+              "tag": "Elsewhere",
               "value": {
                 "#tup": []
               }
@@ -3418,7 +3418,7 @@
           [
             "bob",
             {
-              "tag": "ChessChoices",
+              "tag": "Elsewhere",
               "value": {
                 "#tup": []
               }

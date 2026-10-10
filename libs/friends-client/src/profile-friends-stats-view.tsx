@@ -26,12 +26,12 @@ export function ProfileFriendsStats(): JSX.Element {
       >
         <div class="box flex-row items-baseline gap-2">
           <h3
-            class="text textHeading textNumeral"
+            class="text textBodyBold textNumeral"
             data-testid={Handles.profileFriendsCount}
           >
             {String(friendsState.friends().length)}
           </h3>
-          <p class="text text-text-secondary">
+          <p class="text textBody text-text-secondary">
             {
               <Plural
                 value={friendsState.friends().length}

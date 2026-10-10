@@ -6,7 +6,7 @@ export const openSpaceSessions = defineQuery({
   limit: 20,
   async run(ctx) {
     const rows = await ctx.db.query(sql`
-      SELECT id, space_id, device_id, opened_at, join_announced, deleted_at
+      SELECT id, space_id, device_id, opened_at, join_announced, participation_revision, deleted_at
       FROM spaces_open_sessions
       WHERE device_id = ${ctx.env.deviceId}
 `);

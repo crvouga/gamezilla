@@ -7,10 +7,8 @@ import {
   expectBlackNamed,
   expectBoardFacing,
   expectCustomGameBotReply,
-  expectCustomGameOffline,
   expectCustomGameReady,
   expectCustomGameResigned,
-  expectCustomGameUnstarted,
   expectInvitationToBlack,
   expectMoveListed,
   expectOutcome,
@@ -58,12 +56,6 @@ Given('they have a ready Custom Game against a bot', async (w) => {
 });
 When('they start the Custom Game', async (w) => {
   await w.journey.act('startCustomGame', startCustomGame);
-});
-Then('they are told Custom Games need a connection', async (w) => {
-  await w.journey.act('expectCustomGameOffline', expectCustomGameOffline);
-});
-Then('their Custom Game has not started', async (w) => {
-  await w.journey.act('expectCustomGameUnstarted', expectCustomGameUnstarted);
 });
 
 /** This journey seats its host on White and invites the other person to Black. */

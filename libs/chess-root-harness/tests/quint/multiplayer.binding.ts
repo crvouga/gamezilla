@@ -1,4 +1,5 @@
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import reconnectionTrace from './fixtures/multiplayer-reconnection-before-auth-refresh.itf.json';
 import deletionTrace from './fixtures/multiplayer-third-device-deletion.itf.json';
 import {
   abortPlay,
@@ -33,11 +34,20 @@ bindQuintModel<PlayTrace>({
   // Twenty actions over three people's six devices: Apalache explores two
   // steps from every reachable start within the models check's deadline.
   verifySteps: 2,
+  boundedInvariantGroupSize: 6,
   verifyTimeoutMs: 480_000,
   // The model counts seconds (searching, clocks, the first-move wait):
   // settling in 100 ms steps would let the product's time run past it.
   settleStepMs: 1,
   regressions: [
+    {
+      // regression: multiplayer-reconnection-before-auth-refresh
+      id: 'multiplayer-reconnection-before-auth-refresh',
+      title:
+        'A returning player can make the legal move on their current board',
+      seed: '0x67932',
+      itf: reconnectionTrace,
+    },
     // regression: chess-deletion-refreshes-connected-devices
     {
       id: 'multiplayer-third-device-deletion',
@@ -56,15 +66,15 @@ bindQuintModel<PlayTrace>({
     matchFormed: receivePlay,
     playMove: moveInPlay,
     playCurrentMove: moveCurrentPlay,
-    resignPlay,
-    abortPlay,
-    offerPlayDraw,
-    acceptPlayDraw,
-    declinePlayDraw,
-    offerRematch,
-    acceptRematch,
-    declineRematch,
-    deletePlayAccount,
+    resignPlay: resignPlay,
+    abortPlay: abortPlay,
+    offerPlayDraw: offerPlayDraw,
+    acceptPlayDraw: acceptPlayDraw,
+    declinePlayDraw: declinePlayDraw,
+    offerRematch: offerRematch,
+    acceptRematch: acceptRematch,
+    declineRematch: declineRematch,
+    deletePlayAccount: deletePlayAccount,
     multiplayerTimePasses: passPlayTime,
     loseConnection: (w, picks) => connectPlay(w, picks, false),
     comeBackOnline: (w, picks) => connectPlay(w, picks, true),

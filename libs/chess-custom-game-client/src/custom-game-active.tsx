@@ -21,13 +21,14 @@ function CustomGameAway(props: { model: CustomGameScreenModel }): JSX.Element {
     <Show when={awayOpponent(props.model)}>
       {(person) => (
         <div class="box gap-2" data-testid="chess-custom-away">
-          <p role="status">
+          <p class="text textBody" role="status">
             <UserUsername profileId={person()} withAt={false} />{' '}
             <Trans>is away. After a minute away you may claim the win.</Trans>
           </p>
           <Show when={props.model.canPlay()}>
             <GameActionButton
               title={<Trans>Claim the win</Trans>}
+              variant="solid"
               dataSet={{ testid: 'chess-custom-claim-win' }}
               operation={() => props.model.choose({ operation: 'claimWin' })}
             />
@@ -50,7 +51,7 @@ export function CustomGameActive(props: {
   return (
     <div class="box gap-3">
       <Show when={offer() !== ''}>
-        <p role="status">
+        <p class="text textBody" role="status">
           <Trans>A draw has been offered.</Trans>
         </p>
       </Show>
@@ -58,7 +59,7 @@ export function CustomGameActive(props: {
       <Show when={props.model.mySide() !== null && props.model.canPlay()}>
         <div class="box flex-row gap-2 flex-wrap">
           <Show when={twoPeople() && offer() === '' && declined()}>
-            <p>
+            <p class="text textBody">
               <Trans>You may offer a draw again after your next move.</Trans>
             </p>
           </Show>
@@ -72,6 +73,7 @@ export function CustomGameActive(props: {
           <Show when={offer() !== '' && offer() !== props.model.myId()}>
             <GameActionButton
               title={<Trans>Agree draw</Trans>}
+              variant="solid"
               dataSet={{ testid: 'chess-custom-agree' }}
               operation={() => props.model.choose({ operation: 'agree' })}
             />

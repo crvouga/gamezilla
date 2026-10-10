@@ -1,0 +1,4 @@
+{
+  "summary": "The real-browser driver treated a transparent native radio input inside its visible label as hidden, so the 5+0 matchmaking time-control action timed out although the control was usable.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-harness/tests/button-text.test.ts"
+}

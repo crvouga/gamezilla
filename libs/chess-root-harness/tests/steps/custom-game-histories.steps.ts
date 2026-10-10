@@ -132,6 +132,13 @@ Given(
   }
 );
 Given(
+  "{actor} hosts an active Custom Game with {actor}'s queen against {actor}'s bare king",
+  async (w, host: string, white: string, black: string) => {
+    await customHumans(w, { host, white, black, active: true });
+    await history(w, CUSTOM_GAME_MATERIAL.slice(0, 52));
+  }
+);
+Given(
   "{actor} has a timed Custom Game with a queen against {actor}'s bare king",
   async (w, host: string, black: string) => {
     await customHumans(w, { host, white: host, black });

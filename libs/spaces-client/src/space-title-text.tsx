@@ -39,7 +39,7 @@ export function SpaceTitleText(props: SpaceTitleTextProps): JSX.Element {
       }
     >
       <p
-        class="text min-w-0"
+        class="text textBody min-w-0"
         classList={{
           textBodyBold: String(props.variant) === 'bodyBold',
           textCaption: String(props.variant) === 'caption',

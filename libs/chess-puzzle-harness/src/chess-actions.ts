@@ -1,6 +1,7 @@
 import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
-import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
+import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { openSettings } from '@libs/harness/shell-actions';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import type {
   FeedAutoAdvance,
@@ -250,6 +251,18 @@ export const openChessStatsScreen = scenarioAction({
 export const showChessStatsScreen = scenarioAction({
   name: 'showChessStatsScreen',
   act: showChessStats,
+});
+
+/** Personal progress is reachable from the shell even without a live space. */
+export const showPersonalChessStatsScreen = scenarioAction({
+  name: 'showPersonalChessStatsScreen',
+  act: async (s, actor: string) => {
+    const ui = await actorUi(s, actor);
+    if (await ui.get('chess-stats-elo').isVisible()) return;
+    await Promise.resolve(openSettings.act(s, actor));
+    await ui.get('settings-chess-stats').tap();
+    await ui.get('chess-stats-elo').expect.visible();
+  },
 });
 
 /** Back out of the stats screen to the chess main menu. */
@@ -644,6 +657,7 @@ export const CHESS_HARNESS_ACTIONS = [
   playPuzzleResults,
   finishPuzzleBy,
   showChessStatsScreen,
+  showPersonalChessStatsScreen,
   sleepUntilNextUtcDay,
   solvePuzzlesDaily,
 ];

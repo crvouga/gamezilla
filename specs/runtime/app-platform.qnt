@@ -8,10 +8,11 @@
 // People search finds people with an account by username, never the searcher
 // themselves, and asks a guest to sign in instead.
 //
-// Meanwhile a device can be cut off until the connection comes back. Being cut
-// off never throws anyone out of their place in the app; what needs a
-// connection (signing in, searching, hosting and ending a space) waits until
-// they are back online.
+// Meanwhile a device can be cut off until the connection comes back, or a
+// person can choose to work offline until they choose to work online. Either
+// way, being offline never throws anyone out of their place in the app; what
+// needs a connection (signing in and searching) waits until they are back
+// online. Hosting and ending one's own space remain available while offline.
 module app_platform {
   type Person = str
 
@@ -60,6 +61,8 @@ module app_platform {
   var hosting: Set[Person]
   /// Whose device is cut off.
   var offline: Set[Person]
+  /// Who has chosen to work offline, even while their device has a connection.
+  var workingOffline: Set[Person]
 
   pure def _looking(
     place: Person -> Place,
@@ -81,6 +84,7 @@ module app_platform {
     newSearchedFor: Person -> Person,
     newHosting: Set[Person],
     newOffline: Set[Person],
+    newWorkingOffline: Set[Person],
   ): bool = all {
     opened' = newOpened,
     place' = newPlace,
@@ -91,11 +95,12 @@ module app_platform {
     _searchedFor' = newSearchedFor,
     hosting' = newHosting,
     offline' = newOffline,
+    workingOffline' = newWorkingOffline,
   }
 
   /// A person's place in the app changes; nothing else does.
   action _show(person: Person, s: Place): bool =
-    _moveTo(opened, place.set(person, s), signedIn, _capacity, _lastTab, _searchedFor, hosting, offline)
+    _moveTo(opened, place.set(person, s), signedIn, _capacity, _lastTab, _searchedFor, hosting, offline, workingOffline)
 
   /// Alice has signed in on her device and Bob is using the app as a guest;
   /// the team runs the app on one machine.
@@ -106,6 +111,7 @@ module app_platform {
     1,
     Map(),
     Map(),
+    Set(),
     Set(),
     Set(),
   )
@@ -120,8 +126,11 @@ module app_platform {
     | _ => ""
   }
 
-  def _online(person: Person): bool =
+  def _hasConnection(person: Person): bool =
     opened.contains(person) and not(offline.contains(person))
+
+  def _online(person: Person): bool =
+    _hasConnection(person) and not(workingOffline.contains(person))
 
   /// Opening the app lands a guest on the Spaces tab.
   action open(person: Person): bool = all {
@@ -129,7 +138,7 @@ module app_platform {
     _moveTo(
       opened.union(Set(person)),
       place.put(person, OnTab("spaces")),
-      signedIn, _capacity, _lastTab, _searchedFor, hosting, offline,
+      signedIn, _capacity, _lastTab, _searchedFor, hosting, offline, workingOffline,
     ),
   }
 
@@ -145,7 +154,7 @@ module app_platform {
     _onTab(place.get(person)),
     _moveTo(
       opened, place.set(person, Settings), signedIn, _capacity,
-      _lastTab.put(person, _tabOf(place.get(person))), _searchedFor, hosting, offline,
+      _lastTab.put(person, _tabOf(place.get(person))), _searchedFor, hosting, offline, workingOffline,
     ),
   }
 
@@ -165,7 +174,7 @@ module app_platform {
     place.keys().forall(p => place.get(p) == Search implies _searchedFor.get(p) != person),
     _moveTo(
       opened, place, signedIn.union(Set(person)), _capacity, _lastTab, _searchedFor,
-      hosting, offline,
+      hosting, offline, workingOffline,
     ),
   }
 
@@ -175,37 +184,67 @@ module app_platform {
     _onTab(place.get(person)) or place.get(person) == Search,
     _moveTo(
       opened, place.set(person, Search), signedIn, _capacity, _lastTab,
-      _searchedFor.put(person, other), hosting, offline,
+      _searchedFor.put(person, other), hosting, offline, workingOffline,
     ),
   }
 
   /// Host a space: the person is in it.
   action host(person: Person): bool = all {
-    _online(person),
+    opened.contains(person),
     not(hosting.contains(person)),
     place.get(person) != InSpace,
     _moveTo(
       opened, place.set(person, InSpace), signedIn, _capacity, _lastTab, _searchedFor,
-      hosting.union(Set(person)), offline,
+      hosting.union(Set(person)), offline, workingOffline,
     ),
   }
 
   /// The host ends their space and sees that it has ended.
   action end(person: Person): bool = all {
-    _online(person),
+    opened.contains(person),
     place.get(person) == InSpace,
     _moveTo(
       opened, place.set(person, Ended), signedIn, _capacity, _lastTab, _searchedFor,
-      hosting.exclude(Set(person)), offline,
+      hosting.exclude(Set(person)), offline, workingOffline,
+    ),
+  }
+
+  /// A person chooses to work offline, regardless of whether their device has a connection.
+  action workOffline(person: Person): bool = all {
+    opened.contains(person),
+    not(workingOffline.contains(person)),
+    _moveTo(
+      opened, place, signedIn, _capacity, _lastTab, _searchedFor, hosting, offline,
+      workingOffline.union(Set(person)),
+    ),
+  }
+
+  /// A person chooses to work online again. A cut-off device still has no connection.
+  action workOnline(person: Person): bool = all {
+    opened.contains(person),
+    workingOffline.contains(person),
+    _moveTo(
+      opened, place, signedIn, _capacity, _lastTab, _searchedFor, hosting, offline,
+      workingOffline.exclude(Set(person)),
+    ),
+  }
+
+  /// Closing and reopening Settings keeps the person's offline choice.
+  action reopen(person: Person): bool = all {
+    opened.contains(person),
+    place.get(person) == Settings,
+    _moveTo(
+      opened, place, signedIn, _capacity, _lastTab, _searchedFor, hosting, offline,
+      workingOffline,
     ),
   }
 
   /// The person's device is cut off at their end.
   action cutOff(person: Person): bool = all {
-    _online(person),
+    _hasConnection(person),
     _moveTo(
       opened, place, signedIn, _capacity, _lastTab, _searchedFor, hosting,
-      offline.union(Set(person)),
+      offline.union(Set(person)), workingOffline,
     ),
   }
 
@@ -213,24 +252,24 @@ module app_platform {
   /// their device and the machines the app runs on, rather than at their end.
   /// To the person it is the same as being cut off.
   action _cutOffOnTheWay(person: Person): bool = all {
-    _online(person),
+    _hasConnection(person),
     _moveTo(
       opened, place, signedIn, _capacity, _lastTab, _searchedFor, hosting,
-      offline.union(Set(person)),
+      offline.union(Set(person)), workingOffline,
     ),
   }
 
   /// Every connection comes back.
   action reconnect: bool = all {
     offline != Set(),
-    _moveTo(opened, place, signedIn, _capacity, _lastTab, _searchedFor, hosting, Set()),
+    _moveTo(opened, place, signedIn, _capacity, _lastTab, _searchedFor, hosting, Set(), workingOffline),
   }
 
   /// Checking machinery: the team starts the app on one more machine. Nobody
   /// using the app notices.
   action _gainCapacity: bool = all {
     _capacity < MAX_CAPACITY,
-    _moveTo(opened, place, signedIn, _capacity + 1, _lastTab, _searchedFor, hosting, offline),
+    _moveTo(opened, place, signedIn, _capacity + 1, _lastTab, _searchedFor, hosting, offline, workingOffline),
   }
 
   /// Checking machinery: the `part`-th machine the app runs on stops; never
@@ -238,7 +277,7 @@ module app_platform {
   action _loseCapacity(part: int): bool = all {
     _capacity > 1,
     part < _capacity,
-    _moveTo(opened, place, signedIn, _capacity - 1, _lastTab, _searchedFor, hosting, offline),
+    _moveTo(opened, place, signedIn, _capacity - 1, _lastTab, _searchedFor, hosting, offline, workingOffline),
   }
 
   /// What a person does on their device.
@@ -251,6 +290,9 @@ module app_platform {
     lookUp(person, other),
     host(person),
     end(person),
+    workOffline(person),
+    workOnline(person),
+    reopen(person),
   }
 
   /// What happens to people's connections, and to the machines the app runs
@@ -286,6 +328,7 @@ module app_platform {
     place.keys() == opened,
     signedIn.subseteq(opened),
     offline.subseteq(opened),
+    workingOffline.subseteq(opened),
     hosting.subseteq(opened),
   }
 
@@ -313,5 +356,10 @@ module app_platform {
   /// A device is cut off only after the person has opened the app.
   val invCutOffOnlyAfterOpening = PEOPLE.forall(p =>
     offline.contains(p) implies opened.contains(p)
+  )
+
+  /// Working offline always prevents the device from being online.
+  val invWorkingOfflinePreventsOnline = PEOPLE.forall(p =>
+    workingOffline.contains(p) implies not(_online(p))
   )
 }

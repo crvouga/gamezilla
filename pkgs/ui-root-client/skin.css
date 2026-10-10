@@ -20,6 +20,7 @@
     overflow-anchor: none;
     font-family: var(--ui-font-sans);
     color: var(--ui-color-text);
+    caret-color: var(--ui-color-text);
     background-color: var(--ui-color-background);
     -webkit-font-smoothing: antialiased;
   }
@@ -373,6 +374,11 @@
       transform: none;
     }
   }
+}
+
+[data-reduced-motion="true"] .btn:active,
+[data-reduced-motion="true"] .fab:active {
+  transform: none;
 }
 
 [data-reduced-motion="true"] *,

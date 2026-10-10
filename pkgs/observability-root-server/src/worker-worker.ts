@@ -1,11 +1,11 @@
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
-
 import type {
   TelemetryOptions,
   TelemetryRuntime,
 } from '@pkgs/observability-runtime-shared/options';
 import { createProviderConfig } from '@pkgs/observability-runtime-shared/provider-options';
+import { createSignals } from '@pkgs/observability-runtime-shared/signals';
 
 export const CONTEXT_CAPABILITY = 'async-context' as const;
 
@@ -45,12 +45,19 @@ export function createWorkerTelemetry(
         new AsyncLocalStorageContextManager().enable(),
     });
   }
+  const signals = createSignals(options, true);
   return {
     provider,
-    forceFlush: () => provider.forceFlush(),
-    shutdown: () => provider.shutdown(),
+    forceFlush: async () => {
+      await Promise.all([provider.forceFlush(), signals.forceFlush()]);
+    },
+    shutdown: async () => {
+      await Promise.all([provider.shutdown(), signals.shutdown()]);
+    },
     flushWith(waitUntil) {
-      waitUntil(provider.forceFlush());
+      waitUntil(
+        Promise.allSettled([provider.forceFlush(), signals.forceFlush()])
+      );
     },
   };
 }

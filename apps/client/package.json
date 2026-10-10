@@ -27,8 +27,6 @@
     "@libs/runtime-shared": "workspace:*",
     "@libs/spaces-client": "workspace:*",
     "@pkgs/feedback-client": "workspace:*",
-    "@pkgs/observability-root-client": "workspace:*",
-    "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/tailwind-shared": "workspace:*",
     "@pkgs/ui-root-client": "workspace:*",
     "solid-js": "catalog:"

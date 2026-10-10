@@ -2,6 +2,7 @@ import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-pu
 import {
   CHESS_SCREEN,
   ChessMainMenuScreenAttr,
+  SeekChessPuzzleReview,
   SetChessMainMenuScreen,
   SetChessSelectedReviewPuzzle,
 } from '@libs/chess-root-shared/chess-main-menu';
@@ -19,6 +20,7 @@ import { createMemo, type JSX, Show } from 'solid-js';
 import { useReviewPuzzleEntity } from './chess-puzzle-play-queries';
 import { ChessPuzzleReviewBoard } from './chess-puzzle-review-board';
 import { useChessPuzzleHistory } from './use-chess-puzzle-history';
+import type { PuzzleReviewCursor } from './use-puzzle-review-board';
 
 function ReviewTitle(props: {
   entry: ChessPuzzleGameLogEntry | null;
@@ -55,7 +57,10 @@ function findLogEntry(
   return gameLog.find((e) => e.puzzleId === puzzleId) ?? null;
 }
 
-function ChessPuzzleReviewBody(props: { puzzleId: string }): JSX.Element {
+export function ChessPuzzleReviewBody(props: {
+  puzzleId: string;
+  cursor: PuzzleReviewCursor;
+}): JSX.Element {
   const entity = useReviewPuzzleEntity(() => props.puzzleId);
   const history = useChessPuzzleHistory();
   const entry = createMemo(() =>
@@ -92,7 +97,11 @@ function ChessPuzzleReviewBody(props: { puzzleId: string }): JSX.Element {
             />
           }
         >
-          <ChessPuzzleReviewBoard fen={entity.fen} moves={entity.movesStr} />
+          <ChessPuzzleReviewBoard
+            fen={entity.fen}
+            moves={entity.movesStr}
+            cursor={props.cursor}
+          />
         </Show>
       </div>
     </ScrollView>
@@ -104,6 +113,12 @@ export function ChessPuzzleReviewScreen(): JSX.Element {
   const puzzleId = useSpaceRoomSelector(
     ChessMainMenuScreenAttr.selectedReviewPuzzleId.from
   );
+  const cursor: PuzzleReviewCursor = {
+    solveIdx: useSpaceRoomSelector(
+      ChessMainMenuScreenAttr.selectedReviewSolveIdx.from
+    ),
+    seek: (solveIdx) => dispatch(SeekChessPuzzleReview({ solveIdx })),
+  };
 
   const backToStats = (): void => {
     dispatch(SetChessSelectedReviewPuzzle({ puzzleId: null, solveIdx: 0 }));
@@ -122,7 +137,7 @@ export function ChessPuzzleReviewScreen(): JSX.Element {
           />
         }
       >
-        <ChessPuzzleReviewBody puzzleId={puzzleId()!} />
+        <ChessPuzzleReviewBody puzzleId={puzzleId()!} cursor={cursor} />
       </Show>
     </div>
   );

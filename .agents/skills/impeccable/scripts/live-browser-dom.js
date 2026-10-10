@@ -21,10 +21,7 @@
     const tagsToSkip = skipTags || new Set();
 
     function own(el) {
-      return (
-        el &&
-        (el.id?.startsWith(prefix) || el.closest?.('[id^="' + prefix + '"]'))
-      );
+      return el && (el.id?.startsWith(prefix) || el.closest?.('[id^="' + prefix + '"]'));
     }
 
     function pickable(el) {
@@ -39,8 +36,7 @@
       if (!el) return '';
       let s = el.tagName.toLowerCase();
       if (el.id) s += '#' + el.id;
-      else if (el.classList.length)
-        s += '.' + [...el.classList].slice(0, 2).join('.');
+      else if (el.classList.length) s += '.' + [...el.classList].slice(0, 2).join('.');
       return s;
     }
 
@@ -53,14 +49,10 @@
       const r = el.getBoundingClientRect();
       if (!rectIsUsableAnchor(r)) return null;
       const rect = {
-        x: r.x,
-        y: r.y,
-        top: r.top,
-        left: r.left,
-        right: r.right,
-        bottom: r.bottom,
-        width: r.width,
-        height: r.height,
+        x: r.x, y: r.y,
+        top: r.top, left: r.left,
+        right: r.right, bottom: r.bottom,
+        width: r.width, height: r.height,
       };
       return {
         __impeccableFrozenAnchor: true,
@@ -75,22 +67,17 @@
     function hasFrameworkHmrOwnership(el) {
       for (let node = el; node; node = node.parentElement) {
         let keys = [];
-        try {
-          keys = Object.getOwnPropertyNames(node);
-        } catch {}
-        if (
-          keys.some(
-            (key) =>
-              key.startsWith('__reactFiber$') ||
-              key.startsWith('__reactProps$') ||
-              key.startsWith('__reactContainer$') ||
-              key === '_reactRootContainer' ||
-              key === '__vueParentComponent' ||
-              key === '__vue_app__' ||
-              key === '__vnode' ||
-              key === '__svelte_meta'
-          )
-        ) {
+        try { keys = Object.getOwnPropertyNames(node); } catch {}
+        if (keys.some((key) => (
+          key.startsWith('__reactFiber$')
+          || key.startsWith('__reactProps$')
+          || key.startsWith('__reactContainer$')
+          || key === '_reactRootContainer'
+          || key === '__vueParentComponent'
+          || key === '__vue_app__'
+          || key === '__vnode'
+          || key === '__svelte_meta'
+        ))) {
           return true;
         }
       }
@@ -98,19 +85,13 @@
     }
 
     function id8() {
-      if (crypto?.randomUUID)
-        return crypto.randomUUID().replace(/-/g, '').slice(0, 8);
-      return (
-        Math.random().toString(16).slice(2) + Date.now().toString(16)
-      ).slice(0, 8);
+      if (crypto?.randomUUID) return crypto.randomUUID().replace(/-/g, '').slice(0, 8);
+      return (Math.random().toString(16).slice(2) + Date.now().toString(16)).slice(0, 8);
     }
 
     function cssId(id) {
       if (css?.escape) return css.escape(id);
-      return String(id).replace(
-        /([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g,
-        '\\$1'
-      );
+      return String(id).replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, '\\$1');
     }
 
     function liveUiRoot() {
@@ -135,36 +116,22 @@
     // Same box as the SvelteKit shadow host: 0x0, fixed, chrome overflows it.
     // `all: initial` also clears the popover UA box.
     for (const [name, value] of Object.entries({
-      all: 'initial',
-      position: 'fixed',
-      top: '0',
-      left: '0',
-      width: '0',
-      height: '0',
-      overflow: 'visible',
-    }))
-      topLayerHost.style.setProperty(name, value, 'important');
+      all: 'initial', position: 'fixed', top: '0', left: '0', width: '0', height: '0', overflow: 'visible',
+    })) topLayerHost.style.setProperty(name, value, 'important');
     const pageRoots = new WeakSet(); // chrome nodes mounted on the page itself
-    const openModals = []; // in the order they opened; last is topmost
+    const openModals = [];           // in the order they opened; last is topmost
 
     // Modals that were open before watching began have no readable top-layer
     // order, but the topmost one's backdrop covers the viewport, so a hit
     // test lands in it. Raise that one to the top of the stack.
     function raiseHitModal() {
-      const i = openModals.indexOf(
-        doc.elementFromPoint(0, 0)?.closest('dialog:modal')
-      );
+      const i = openModals.indexOf(doc.elementFromPoint(0, 0)?.closest('dialog:modal'));
       if (i !== -1) openModals.push(...openModals.splice(i, 1));
     }
 
     function syncTopLayerHost(records = []) {
       for (const { type, target, oldValue } of records) {
-        if (
-          type !== 'attributes' ||
-          oldValue !== null ||
-          !target.matches('dialog:modal')
-        )
-          continue;
+        if (type !== 'attributes' || oldValue !== null || !target.matches('dialog:modal')) continue;
         // Opened, or closed and reopened in one task (the observer sees only
         // the end state): either way it is back on top of the top layer, so
         // a host shown inside it earlier has to be shown again. A write to an
@@ -185,8 +152,7 @@
       if (topLayerHost.parentNode === modal) return;
       if (modal) {
         modal.appendChild(topLayerHost);
-        for (const el of [...doc.body.children])
-          if (pageRoots.has(el)) topLayerHost.appendChild(el);
+        for (const el of [...doc.body.children]) if (pageRoots.has(el)) topLayerHost.appendChild(el);
         topLayerHost.showPopover();
       } else {
         doc.body.append(...topLayerHost.childNodes);
@@ -205,13 +171,7 @@
       openModals.push(...doc.querySelectorAll('dialog:modal'));
       raiseHitModal();
       const observer = new MutationObserver(syncTopLayerHost);
-      observer.observe(doc, {
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeOldValue: true,
-        attributeFilter: ['open'],
-      });
+      observer.observe(doc, { subtree: true, childList: true, attributes: true, attributeOldValue: true, attributeFilter: ['open'] });
       syncTopLayerHost();
       return () => {
         observer.disconnect();
@@ -224,8 +184,7 @@
     // picked modal dialog contains.
     function cloneWithoutChrome(el) {
       const clone = el.cloneNode(true);
-      if (el.contains(topLayerHost))
-        clone.querySelector('#' + cssId(topLayerHost.id)).remove();
+      if (el.contains(topLayerHost)) clone.querySelector('#' + cssId(topLayerHost.id)).remove();
       return clone;
     }
 
@@ -268,8 +227,7 @@
 
     function activeElementDeep() {
       let active = doc.activeElement;
-      while (active?.shadowRoot?.activeElement)
-        active = active.shadowRoot.activeElement;
+      while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
       return active;
     }
 

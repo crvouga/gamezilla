@@ -14,7 +14,8 @@ export type DriverKey =
   | 'home'
   | 'end'
   | 'space'
-  | 'delete';
+  | 'delete'
+  | 'commandPalette';
 
 /** DOM `KeyboardEvent.key` identifiers for each {@link DriverKey}. */
 export const DRIVER_KEY_TO_DOM: Record<DriverKey, string> = {
@@ -30,4 +31,5 @@ export const DRIVER_KEY_TO_DOM: Record<DriverKey, string> = {
   end: 'End',
   space: ' ',
   delete: 'Delete',
+  commandPalette: 'Control+k',
 };

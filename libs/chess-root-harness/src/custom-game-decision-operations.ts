@@ -12,6 +12,7 @@ import type {
 import { OperationRefused } from '@libs/permissions-shared/server';
 import { createInProcessRoomNode } from '@libs/spaces-harness/in-process-room-node';
 import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
+import { roomHistoryDisclosed } from '@libs/spaces-harness/room-history-observation';
 import {
   memberIdOf,
   SPACE_ID,
@@ -155,7 +156,7 @@ export async function seedCustomGameDecision(c: ServerCase): Promise<void> {
   await seedPlaceInSpace(c);
   const at = new Date(c.nowMs).toISOString();
   await c.db.run(
-    sql`INSERT INTO spaces_users (id, space_id, user_id, created_at, updated_at) VALUES (${spaceUserEntityId(SPACE_ID, PEER)}, ${SPACE_ID}, ${PEER}, ${at}, ${at})`
+    sql`INSERT INTO spaces_users (id, space_id, user_id, created_at, updated_at, joined, participation_revision) VALUES (${spaceUserEntityId(SPACE_ID, PEER)}, ${SPACE_ID}, ${PEER}, ${at}, ${at}, ${true}, ${0})`
   );
 }
 export const performCustomGameDecision: ServerOperation = async (c) => {
@@ -180,7 +181,19 @@ export const performCustomGameDecision: ServerOperation = async (c) => {
   );
   const host = spacePresenceOf(c.input) === 'host' ? memberIdOf(c) : OTHER_HOST;
   const w = { node, timers, c, nextId, host };
+  const hosting = node.createTransport({
+    topic: `space:${SPACE_ID}`,
+    module: 'space',
+    identity: host,
+    installId: host === memberIdOf(c) ? c.env.deviceId : `${host}-device`,
+    clientId: nextId(),
+    apiUrl: '',
+    timers,
+    random: () => 0.5,
+    getSessionToken: () => null,
+  });
   try {
+    await hosting.connect();
     const capability = capabilityOf(c.input);
     await prepare(w, capability);
     const input = inputFor(capability);
@@ -198,7 +211,8 @@ export const performCustomGameDecision: ServerOperation = async (c) => {
         getSessionToken: () => null,
       });
       try {
-        await transport.connect();
+        const disclosed = await roomHistoryDisclosed(transport, timers);
+        if (!disclosed) throw new OperationRefused('not in the space');
       } catch (cause) {
         if (cause instanceof Error && cause.message === 'not in the space')
           throw new OperationRefused(cause.message);
@@ -208,6 +222,7 @@ export const performCustomGameDecision: ServerOperation = async (c) => {
       }
     }
   } finally {
+    hosting.destroy();
     node.dispose();
   }
 };

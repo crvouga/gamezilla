@@ -1,0 +1,4 @@
+{
+  "summary": "Bob opens Alice's space link while connected, then loses the connection. The known preview keeps its Join screen without explaining that joining needs a connection until Bob presses Join.",
+  "regressionTest": "specs/spaces/space-needs-connection.feature"
+}

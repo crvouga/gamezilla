@@ -2,7 +2,14 @@ import type { AppGrantKey } from '@libs/permissions-shared/permission-catalog';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import type { Message } from '@pkgs/message-shared/message';
 import { isMessageEnvelope } from '@pkgs/message-shared/message';
-import { ROOM_SERVICE_GRANT } from '@pkgs/room-root-shared/service-identity';
+import {
+  ROOM_PRESENCE_IDENTITY,
+  ROOM_SCHEDULER_IDENTITY,
+} from '@pkgs/room-root-shared/builtin';
+import {
+  ROOM_SERVICE_GRANT,
+  ROOM_SERVICE_IDENTITY,
+} from '@pkgs/room-root-shared/service-identity';
 import type { RoomCommand } from '@pkgs/room-root-shared/types';
 import type { GameDefinition } from './game';
 import { SelectGame } from './games';
@@ -45,7 +52,18 @@ export function createSpaceRoomAuthorizer(
   command: RoomCommand,
   grants: readonly string[]
 ) => Promise<Verdict> {
-  return (_identity, _topic, command, grants) => {
+  return (identity, _topic, command, grants) => {
+    if (
+      identity !== ROOM_SERVICE_IDENTITY &&
+      identity !== ROOM_PRESENCE_IDENTITY &&
+      identity !== ROOM_SCHEDULER_IDENTITY &&
+      !grants.includes(PERMISSION.spacesLeave)
+    ) {
+      return Promise.resolve({
+        ok: false,
+        reason: 'join the space before sending commands',
+      });
+    }
     const msg = isMessageEnvelope(command.payload) ? command.payload : null;
     if (msg === null) return Promise.resolve({ ok: true });
     if (

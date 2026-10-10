@@ -23,6 +23,7 @@ import type {
 } from './server';
 
 export type ComposedSubServers = {
+  readonly telemetryEvents?: NonNullable<SubServer['telemetryEvents']>;
   readonly subNames: readonly string[];
   /** Sub-apps to mount at the API root, in walk order. */
   readonly routers: (ctx: SubServerCtx) => readonly SubRouter[];
@@ -63,6 +64,7 @@ export function composeSubServers(
   const outboxConsumers = new OutboxConsumerRegistry();
   for (const server of subs) server.registerOutbox?.(outboxConsumers);
   return {
+    telemetryEvents: subs.flatMap((server) => server.telemetryEvents ?? []),
     subNames: subs.map((s) => s.name),
     routers: (ctx) => subs.flatMap((s) => (s.routes ? [s.routes(ctx)] : [])),
     outboxConsumers,

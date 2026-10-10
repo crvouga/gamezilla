@@ -39,7 +39,7 @@ export function ExportDownload(props: {
     <Show
       when={decision().reason !== 'restricted'}
       fallback={
-        <p class="text" data-testid="privacy-export-owner-denial">
+        <p class="text textBody" data-testid="privacy-export-owner-denial">
           <Trans>
             This export belongs to another account and cannot be downloaded.
           </Trans>
@@ -55,7 +55,7 @@ export function ExportDownload(props: {
         <Show
           when={fresh()}
           fallback={
-            <p class="text" data-testid="privacy-export-expired">
+            <p class="text textBody" data-testid="privacy-export-expired">
               <Trans>The export has expired. Ask for a new one.</Trans>
             </p>
           }
@@ -71,14 +71,14 @@ export function ExportDownload(props: {
           >
             <Show when={props.row?.export_detail && props.row?.export_summary}>
               <div class="box gap-3" data-testid="privacy-export-ready">
-                <p class="text">
+                <p class="text textBody">
                   <Trans>
                     Your export is ready. Downloads are private to your recently
                     proven account and expire 7 days after becoming ready.
                   </Trans>
                 </p>
                 <a
-                  class="text"
+                  class="text textBody"
                   data-testid="privacy-export-summary"
                   download="personal-data-summary.txt"
                   href={`data:text/plain;charset=utf-8,${encodeURIComponent(props.row?.export_summary ?? '')}`}
@@ -86,7 +86,7 @@ export function ExportDownload(props: {
                   <Trans>Download readable summary</Trans>
                 </a>
                 <a
-                  class="text"
+                  class="text textBody"
                   data-testid="privacy-export-detail"
                   download="personal-data.json"
                   href={`data:application/json;charset=utf-8,${encodeURIComponent(props.row?.export_detail ?? '')}`}

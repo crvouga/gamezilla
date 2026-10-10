@@ -8,6 +8,7 @@
  */
 
 import { roomTopic } from '@libs/spaces-shared/space-room-topic';
+import { SPACE_TELEMETRY } from '@libs/spaces-shared/telemetry';
 import { defineSubServer } from '@libs/sub-shared/server';
 import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 import { MySpaceIdsLoader } from './load-my-space-ids-sql';
@@ -25,6 +26,7 @@ export function createSpacesServer(
   blocks: SpaceBlockRelation | null = null
 ) {
   return defineSubServer({
+    telemetryEvents: SPACE_TELEMETRY,
     name: 'spaces',
     pubsubTopics: async (ctx) => {
       const spaceIds = await new MySpaceIdsLoader(ctx.db).load(ctx.actorId);

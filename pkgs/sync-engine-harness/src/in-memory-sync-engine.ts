@@ -10,6 +10,7 @@ import type { Sql } from '@pkgs/sql-root-shared/sql';
 import sql, { raw } from '@pkgs/sql-root-shared/sql';
 
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
+import type { MutationFeedback } from '@pkgs/sync-engine-client/mutation-status';
 import type { WatchSqlHandle } from '@pkgs/sync-engine-client/shared-watch-registry';
 import { createSharedWatchRegistry } from '@pkgs/sync-engine-client/shared-watch-registry';
 import { createSubscribeQueries } from '@pkgs/sync-engine-client/subscribe-queries';
@@ -225,6 +226,11 @@ export async function createInMemorySyncEngine(
     ),
     status,
     mutationOutcome: async () => 'confirmed',
+    // This engine applies writes immediately and has no upload queue.
+    mutationFeedback: () =>
+      watchRegistry.watch(
+        sql<MutationFeedback>`SELECT NULL AS "mutationId" WHERE false`
+      ),
     listRejections: async () => [],
     pendingMutationCount: async () => 0,
     wakeUploads: () => undefined,

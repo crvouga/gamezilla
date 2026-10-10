@@ -2,7 +2,7 @@ import { createSpaceMutation } from '@libs/spaces-shared/create-space-mutation';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { useCreateId } from '@pkgs/uuid-client/solid';
-import { useSpaceHostingsInFlight } from './space-hostings-in-flight';
+import { useSpaceAdmissionsInFlight } from './space-admissions-in-flight';
 
 /** A new space, or the hosting limit's decision (an invitation, not an error). */
 export type CreateSpaceResult =
@@ -19,7 +19,7 @@ function denialOf(meta: unknown): Decision | null {
 export function useCreateSpace(): () => Promise<CreateSpaceResult> {
   const mutationClient = useMutationClient();
   const createId = useCreateId();
-  const hostings = useSpaceHostingsInFlight();
+  const admissions = useSpaceAdmissionsInFlight();
 
   return async () => {
     const spaceId = createId();
@@ -28,7 +28,7 @@ export function useCreateSpace(): () => Promise<CreateSpaceResult> {
     });
     if (result.ok) {
       // The room opens once this reaches the server (host grants).
-      hostings?.record(spaceId, result.mutationId);
+      admissions?.record(spaceId, result.mutationId);
       return { kind: 'created', spaceId };
     }
     const decision = denialOf(result.failures[0]?.meta);

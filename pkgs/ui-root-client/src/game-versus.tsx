@@ -18,7 +18,10 @@ export function GameVersus(props: {
       {...dataAttrs({ component: 'GameVersus', ...props.dataSet })}
     >
       {props.first}
-      <span class={styles['versusMark']} aria-label={t`Versus`}>
+      <span
+        class={`${styles['versusMark']} text textFootnote`}
+        aria-label={t`Versus`}
+      >
         VS
       </span>
       {props.second}

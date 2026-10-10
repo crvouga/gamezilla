@@ -1,4 +1,5 @@
 import { expect } from 'bun:test';
+import { returnToTabs } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import {
@@ -6,17 +7,13 @@ import {
   passwordErrorShown,
   setupPasswordAccount,
 } from '@libs/harness/password-actions';
-import { returnToTabs } from '@libs/harness/auth-actions';
 import { openProfileEdit, setUsername } from './profile-actions';
 
 Given(
   '{actor} has a password account at {string} with password {string} and username {username}',
   async (
     w,
-    actor: Actor,
-    email: string,
-    password: string,
-    username: string
+    ...[actor, email, password, username]: [Actor, string, string, string]
   ) => {
     await w.s.apply(setupPasswordAccount, actor, email, password);
     await w.s.apply(openProfileEdit, actor);

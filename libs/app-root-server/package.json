@@ -52,6 +52,8 @@
     "hono": "catalog:"
   },
   "devDependencies": {
+    "@opentelemetry/sdk-metrics": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:",
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",

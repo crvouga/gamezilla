@@ -1,0 +1,4 @@
+{
+  "summary": "An inferred record parameter was expanded at every field read instead of being cached as a value. Induction also bypassed the equivalent parameter caching pass, leaving large matching proofs exposed to repeated record expansion.",
+  "regressionTest": "pkgs/quint-server/tests/cache-value-parameters.test.ts"
+}

@@ -93,15 +93,15 @@ export const SPACES_TOPIC_MAP = {
       if (db === undefined) {
         return [...new Set(base)];
       }
-      if (row['ended_at'] != null) {
-        const party = await partyUserTopics(db, id);
-        return [...new Set([...base, ...party])];
-      }
       const friendTopics = await hostFriendTopics(
         db,
         String(row['host_account_id'] ?? ''),
         String(row['host_member_id'] ?? '')
       );
+      if (row['ended_at'] != null) {
+        const party = await partyUserTopics(db, id);
+        return [...new Set([...base, ...party, ...friendTopics])];
+      }
       return [...new Set([...base, ...friendTopics])];
     },
   },

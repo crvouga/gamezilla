@@ -11,7 +11,6 @@ import {
 } from '@libs/app-root-shared/request-scope';
 import { ApiSecretName } from '@libs/app-root-shared/secret-names';
 import type { ServerEnv } from '@libs/app-root-shared/server-env';
-import { resolveWebClientOrigin } from '@libs/app-root-shared/web-client-origin';
 import { AuthApiRoutes } from '@libs/auth-server/auth-routes';
 import { ChangedAuthUserResync } from '@libs/auth-server/changed-auth-user-resync';
 import { registerAccountDeletionConsumers } from '@libs/auth-shared/account-deletion-consumers';
@@ -33,16 +32,17 @@ import type { AuthProvider } from '@pkgs/auth-root-shared/auth-provider-module';
 import { createLlmAppFromBindings } from '@pkgs/llm-openai-server/create-llm-app-from-bindings';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { currentCorrelation } from '@pkgs/observability-root-shared/correlation';
-import { otlpAuthorization } from '@pkgs/observability-root-shared/otlp-auth';
 import { activeSpan } from '@pkgs/observability-root-shared/span';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 import { createTtsAppFromBindings } from '@pkgs/tts-elevenlabs-server/create-tts-app-from-bindings';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { mountBrowserTelemetryIngress } from './browser-telemetry-ingress';
 import { createHealthApp } from './health-route';
 import { notifyUserChannels } from './notify-user-channels';
 import {
   drainAndNotifyOutbox,
+  requestOutboxRegistry,
   setOutboxConsumerRegistry,
 } from './outbox-drain';
 import { createPubSubTokenRoutes } from './pubsub-token-routes';
@@ -53,6 +53,7 @@ import {
 } from './request-telemetry';
 import { createRoomApp } from './room-route';
 import { createSyncApp } from './sync-app';
+import { registerTelemetryConsumers } from './telemetry-consumers';
 
 function createAppLogger(env: ServerEnv) {
   return createLogger({ name: 'server:app', now: env.clock.now });
@@ -271,91 +272,6 @@ function mountAuthHandler(
   shell.all(`${handler.pathPrefix}/*`, (c) => handler.fetch(c.req.raw));
 }
 
-function mountBrowserTelemetryIngress(
-  shell: Hono<ApiHonoEnv<AuthContext>>,
-  env: ServerEnv
-): void {
-  shell.post('/observability/v1/traces', async (c) => {
-    const endpoint = env.observabilityCollectorUrl?.trim();
-    if (endpoint === undefined || endpoint.length === 0) {
-      return c.json({ error: 'observability_unavailable' }, 503);
-    }
-    const expectedOrigin =
-      env.serverUrl === null ? null : resolveWebClientOrigin(env.serverUrl);
-    const requestOrigin = c.req.header('origin')?.replace(/\/$/, '');
-    if (
-      env.protection === 'production' &&
-      (expectedOrigin === null || requestOrigin !== expectedOrigin)
-    ) {
-      return c.json({ error: 'observability_origin_denied' }, 403);
-    }
-    const contentType = c.req.header('content-type')?.toLowerCase() ?? '';
-    if (
-      !contentType.startsWith('application/x-protobuf') &&
-      !contentType.startsWith('application/json')
-    ) {
-      return c.json({ error: 'observability_content_type_denied' }, 415);
-    }
-    const body = await readBoundedBody(c.req.raw, 5 * 1024 * 1024);
-    if (body === null) {
-      return c.json({ error: 'observability_payload_too_large' }, 413);
-    }
-    const headers = new Headers({
-      'content-type': contentType,
-    });
-    const contentEncoding = c.req.header('content-encoding');
-    if (contentEncoding !== undefined) {
-      headers.set('content-encoding', contentEncoding);
-    }
-    const authorization = otlpAuthorization({
-      user: env.observabilityCollectorUser,
-      token: env.observabilityCollectorToken,
-    });
-    if (authorization !== undefined) {
-      headers.set('authorization', authorization);
-    }
-    const response = await env.fetch(endpoint, {
-      method: 'POST',
-      headers,
-      body,
-    });
-    return new Response(null, { status: response.status });
-  });
-}
-
-async function readBoundedBody(
-  request: Request,
-  maxBytes: number
-): Promise<ArrayBuffer | null> {
-  const declared = Number(request.headers.get('content-length'));
-  if (Number.isFinite(declared) && declared > maxBytes) return null;
-  if (request.body === null) return new ArrayBuffer(0);
-  const reader = request.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let total = 0;
-  try {
-    while (true) {
-      const next = await reader.read();
-      if (next.done) break;
-      total += next.value.byteLength;
-      if (total > maxBytes) {
-        await reader.cancel('observability payload too large');
-        return null;
-      }
-      chunks.push(next.value);
-    }
-  } finally {
-    reader.releaseLock();
-  }
-  const body = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    body.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return body.buffer as ArrayBuffer;
-}
-
 function createServerRouter(args: {
   readonly env: ServerEnv;
   readonly auth: AuthProvider;
@@ -370,7 +286,7 @@ function createServerRouter(args: {
   const { secrets, protection } = env;
 
   const shell = new Hono<ApiHonoEnv<AuthContext>>()
-    .use('*', createRequestTelemetryMiddleware())
+    .use('*', createRequestTelemetryMiddleware(env.clock.now))
     .use(
       '*',
       createRequestDbMiddleware(secrets, {
@@ -406,7 +322,7 @@ function createServerRouter(args: {
       const store = apiRequestAsyncLocalStorage.getStore();
       if (store === undefined) return;
       await drainAndNotifyOutbox({
-        consumerRegistry: servers.outboxConsumers,
+        consumerRegistry: requestOutboxRegistry(servers.outboxConsumers),
         objectStore: env.blob,
         db: store.sqlClient,
         clock: store.clock,
@@ -471,6 +387,7 @@ async function pushChangedAuthUser(
  */
 export async function createServer(env: ServerEnv, args: CreateServerArgs) {
   const log = createAppLogger(env);
+  registerTelemetryConsumers(args.servers, env);
   setOutboxConsumerRegistry(args.servers.outboxConsumers);
 
   if (env.events !== null) {

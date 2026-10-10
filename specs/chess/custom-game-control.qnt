@@ -4,7 +4,8 @@
 // A bot's choice among legal moves is intentionally not promised; the game
 // here is one allowed choice. Other chess laws belong to chess itself.
 // People lose their connection independently. Bots keep playing their own
-// turns, and a returning person sees the current board and outcome. Only the
+// turns on the host device, including offline. Other people disconnect when
+// the host is offline and see the current board on return. Only the
 // creator cancels a game with a bot; in a game between two people the other
 // participant may also cancel until each side has moved.
 module custom_game_control {
@@ -30,11 +31,14 @@ module custom_game_control {
   var _previousTurn: str
   var _movingController: str
 
+  def _solo = controllers.get("black") == "bot"
+  def _visible(actor: str): bool = controlledShown.get(actor)._1 != "unavailable"
+  def _mayChoose(actor: str): bool = not(_offline.contains(actor)) and not(_offline.contains("alice")) or actor == "alice" and _solo
   action _update(status: str, moves: int, turn: str, outcome: str, offline: Set[str], controller: str): bool = all {
     controllers' = controllers,
     controlledStatus' = status, controlledPly' = moves,
     controlledTurn' = turn, controlledOutcome' = outcome, _offline' = offline,
-    controlledShown' = PEOPLE.mapBy(p => if(offline.contains(p)) controlledShown.get(p) else (status,moves,outcome)),
+    controlledShown' = PEOPLE.mapBy(p => if (p == "alice") (status,moves,outcome) else if(offline.contains(p)) controlledShown.get(p) else if (offline.contains("alice")) ("unavailable",0,"") else (status,moves,outcome)),
     _cutOff' = PEOPLE.mapBy(p => if(offline.contains(p) and not(_offline.contains(p))) controlledShown.get(p) else _cutOff.get(p)),
     _sealed' = (_sealed or status != "active"),
     _finished' = if(not(_sealed) and status != "active") (status,moves,outcome) else _finished,
@@ -56,25 +60,29 @@ module custom_game_control {
     }
   }
   /// The person assigned to the turn may play; a watcher cannot move for a bot.
-  action playControlledMove(actor: str): bool =
-    if(controlledStatus == "active" and not(_offline.contains(actor)) and controllers.get(controlledTurn) == actor) _move(actor) else _hold
+  action playControlledMove(actor: str): bool = all {
+    _visible(actor),
+    if(controlledStatus == "active" and _mayChoose(actor) and controllers.get(controlledTurn) == actor) _move(actor) else _hold
+  }
   /// A bot plays only its own turn while the game remains active.
   action botPlays(side: str): bool = all {
     controlledStatus == "active", controlledTurn == side, controllers.get(side) == "bot",
     _move("bot"),
   }
   /// An assigned person resigns; watching bots never grants resignation.
-  action resignControlledGame(actor: str): bool =
-    if(controlledStatus == "active" and not(_offline.contains(actor)) and COLORS.exists(c => controllers.get(c) == actor))
+  action resignControlledGame(actor: str): bool = all {
+    if(controlledStatus == "active" and _mayChoose(actor) and COLORS.exists(c => controllers.get(c) == actor))
       _update("completed",controlledPly,controlledTurn,if(controllers.get("white") == actor) "black wins by resignation" else "white wins by resignation",_offline,"")
     else _hold
+  }
   /// The creator can cancel while watching or playing, before completion. In a
   /// game between two people, the other participant may cancel until each side has moved.
-  action cancelControlledGame(actor: str): bool =
-    if(controlledStatus == "active" and not(_offline.contains(actor)) and (actor == "alice" or
+  action cancelControlledGame(actor: str): bool = all {
+    if(controlledStatus == "active" and _mayChoose(actor) and (actor == "alice" or
         (controlledPly < 2 and COLORS.forall(c => controllers.get(c) != "bot") and COLORS.exists(c => controllers.get(c) == actor))))
       _update("cancelled",controlledPly,controlledTurn,"cancelled",_offline,"")
     else _hold
+  }
   /// A bot asked to play the wrong turn changes nothing.
   action _wrongBot = _hold
   /// An earlier bot turn cannot play again or revive a terminal game.
@@ -101,9 +109,10 @@ module custom_game_control {
   /// Terminal games have a result, and that board and result never change.
   val invControlledTerminal = ((controlledStatus != "active") == (controlledOutcome != "")) and (_sealed implies (controlledStatus,controlledPly,controlledOutcome) == _finished)
   /// People with a connection see the same game, whether playing or watching.
-  val invControlledAgreement = PEOPLE.forall(p => not(_offline.contains(p)) implies controlledShown.get(p) == (controlledStatus,controlledPly,controlledOutcome))
-  /// Offline people retain their last board while bots and other people play.
-  val invControlledOffline = PEOPLE.forall(p => _offline.contains(p) implies controlledShown.get(p) == _cutOff.get(p))
+  val invControlledAgreement = PEOPLE.forall(p => (p == "alice" or not(_offline.contains(p))) implies controlledShown.get(p) == (if (p != "alice" and _offline.contains("alice")) ("unavailable",0,"") else (controlledStatus,controlledPly,controlledOutcome)))
+  /// An offline guest retains the picture they had before losing their connection.
+  /// The host continues to see their own local bot moves.
+  val invControlledOffline = _offline.contains("bob") implies controlledShown.get("bob") == _cutOff.get("bob")
   val _state = (controllers,controlledStatus,controlledPly,controlledTurn,controlledOutcome,controlledShown,_offline,_cutOff,_sealed,_finished,_previousPly,_previousTurn,_movingController)
   temporal _botsKeepPlaying = botPlays("white").weakFair(_state) and botPlays("black").weakFair(_state)
   /// A game between two bots eventually ends while their turns continue to be played.

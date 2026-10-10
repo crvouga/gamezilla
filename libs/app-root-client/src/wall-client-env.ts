@@ -20,6 +20,7 @@ import {
 } from '@pkgs/device-client/wall-web-device';
 import { gateFetchUntilAvailable } from '@pkgs/http-client-shared/gate-fetch-until-available';
 import { createHealthOriginAvailability } from '@pkgs/http-client-shared/origin-availability';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { KvImplWeb } from '@pkgs/kv-web-client/impl-kv-web';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { createBrowserObjectStore } from '@pkgs/object-store-opfs-client/wall-browser-fs';
@@ -33,6 +34,9 @@ import {
 } from '@pkgs/sync-engine-shared/interaction-correlation';
 import type { ClientEnv, CreateRoomTransport } from './client-env';
 import { createNoopDevMenuPort } from './client-env';
+import { createClientPubSub } from './create-client-pubsub';
+import type { OfflineNetworkController } from './offline-network-controller';
+import { createOfflineHttp, offlineNetworkError } from './offline-network-http';
 import { setOriginAvailability } from './origin-availability-for-env';
 import { webDevicePorts } from './test-device-ports';
 import { createWallOpenAuthSession } from './wall-open-auth-session';
@@ -63,6 +67,7 @@ function readBrowserOrigin(): string | undefined {
 
 export type WallClientEnvArgs = {
   readonly serverUrl?: string | undefined;
+  readonly offline: OfflineNetworkController;
   /** Hosts without browser persistence provide their own object-store port. */
   readonly objectStore?: ClientEnv['objectStore'];
   /**
@@ -72,21 +77,30 @@ export type WallClientEnvArgs = {
   readonly room: CreateRoomTransport;
 };
 
+function wallFetch(input: RequestInfo | URL, init?: RequestInit) {
+  const traceparent = pendingInteractionRequestTraceparent();
+  if (traceparent === undefined) return globalThis.fetch(input, init);
+  const headers = new Headers(
+    input instanceof Request ? input.headers : undefined
+  );
+  for (const [key, value] of new Headers(init?.headers)) {
+    headers.set(key, value);
+  }
+  if (!headers.has('traceparent')) headers.set('traceparent', traceparent);
+  const run = () => globalThis.fetch(input, { ...init, headers });
+  return runInInteractionRequestContext(traceparent, run);
+}
+
+/** Browser HTTP adapter governed by the tab's shared kill switch. */
+export function createWallOfflineHttp(
+  offline: OfflineNetworkController
+): HttpClient {
+  return { fetch: createOfflineHttp(offline, wallFetch) };
+}
+
 export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
   const serverUrl = args.serverUrl ?? getServerBaseUrl();
-  const innerFetch = (input: RequestInfo | URL, init?: RequestInit) => {
-    const traceparent = pendingInteractionRequestTraceparent();
-    if (traceparent === undefined) return globalThis.fetch(input, init);
-    const headers = new Headers(
-      input instanceof Request ? input.headers : undefined
-    );
-    for (const [key, value] of new Headers(init?.headers)) {
-      headers.set(key, value);
-    }
-    if (!headers.has('traceparent')) headers.set('traceparent', traceparent);
-    const run = () => globalThis.fetch(input, { ...init, headers });
-    return runInInteractionRequestContext(traceparent, run);
-  };
+  const innerFetch = createOfflineHttp(args.offline, wallFetch);
   const availability = createHealthOriginAvailability({
     healthUrl: apiHealthUrl(serverUrl),
     fetch: innerFetch,
@@ -106,6 +120,8 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     seed: mintWallSeed(),
     server,
     events: createInMemoryPubSub({ logger: pubsubLogger }),
+    createPubSub: (options) =>
+      options.url.length === 0 ? null : createClientPubSub(options),
     openSqlClient: async (openArgs) => {
       return openMainSqlClient(
         openArgs?.userId ?? 'pending',
@@ -125,14 +141,18 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
       createBrowserObjectStore({ baseDir: OBJECT_STORE_BASE_DIR }),
     serverUrl,
     // The in-house IdP, reached on the API origin through same-tab navigation.
-    createAuthClient: () =>
+    createAuthClient: (http) =>
       createInhouseAuthClient({
         baseURL: serverUrl,
         clock: wallClock,
         timers: wallTimers,
-        fetch: server,
+        fetch: http,
         storage: createSecureStoreAuthClientStorage(secureStorage),
-        openAuthSession: createWallOpenAuthSession(),
+        openAuthSession: (authorizationUrl, callbackUrl) => {
+          if (args.offline.isOffline())
+            return Promise.reject(offlineNetworkError());
+          return createWallOpenAuthSession()(authorizationUrl, callbackUrl);
+        },
         callbackUrl: oauthClientCallbackUrl(readBrowserOrigin()),
       }),
     openExternalUrl: (url) => {

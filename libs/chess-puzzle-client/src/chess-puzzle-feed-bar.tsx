@@ -80,7 +80,7 @@ function ratingSlot(rating: number): string {
 /** Each fact is its own quiet tag, so the strip needs no separators. */
 const LABEL =
   'text textFootnote line-clamp-1 shrink-0 whitespace-nowrap rounded-full bg-surface-muted px-2.5 py-1';
-const NUMERIC_LABEL = `${LABEL} tabular-nums`;
+const NUMERIC_LABEL = `${LABEL} textNumeral`;
 
 function formatSignedDelta(delta: number): string {
   return delta > 0 ? `+${delta}` : String(delta);
@@ -230,7 +230,7 @@ export function ChessPuzzleFeedBar(
         dataSet={{ testid: 'chess-puzzle-board-elo-bar' }}
       >
         {/* Lichess puzzle ids are 5 characters; a fixed slot keeps every id the same width. */}
-        <p class="text textFootnote shrink-0 w-12 overflow-hidden whitespace-nowrap tabular-nums">
+        <p class="text textMono shrink-0 w-12 overflow-hidden whitespace-nowrap">
           {idLabel()}
         </p>
         <FeedBarPuzzleFacts

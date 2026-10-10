@@ -9,6 +9,7 @@ import {
   finishPuzzleBy,
   playPuzzleResults,
   playUntilSolved,
+  showPersonalChessStatsScreen,
 } from '@libs/chess-puzzle-harness/chess-actions';
 import {
   isGameLogEmpty,
@@ -283,7 +284,7 @@ Given(
 );
 
 When('{actor} opens their stats', async (w, actor: Actor) => {
-  await ensureStatsOpen(w, actor);
+  await w.s.apply(showPersonalChessStatsScreen, actor);
 });
 
 Then(

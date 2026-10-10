@@ -5,6 +5,7 @@ import { openConformanceDb } from '@libs/permissions-shared/world';
 import { createInProcessRoomNode } from '@libs/spaces-harness/in-process-room-node';
 import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
 import { spaceRoomGrants } from '@libs/spaces-server/space-room-grants';
+import { Increment } from '@libs/spaces-shared/counter';
 import { SelectGame } from '@libs/spaces-shared/games';
 import { spaceUserEntityId } from '@libs/spaces-shared/participation-ids';
 import { SPACES_TABLES } from '@libs/spaces-shared/tables';
@@ -34,17 +35,17 @@ async function seedSpace(db: SqlClient): Promise<void> {
     await db.run(sql`
       INSERT INTO spaces_users (
         id, space_id, user_id, created_by_account_id,
-        created_at, updated_at, deleted_at
+        created_at, updated_at, joined, participation_revision, deleted_at
       ) VALUES (
         ${spaceUserEntityId(SPACE_ID, userId)}, ${SPACE_ID}, ${userId},
-        ${null}, ${NOW}, ${NOW}, ${null}
+        ${null}, ${NOW}, ${NOW}, ${true}, ${0}, ${null}
       )
     `);
   }
 }
 
 /** `person`, on their own install, sends `payload` to the space's room. */
-function send(db: SqlClient, person: string, payload: Message) {
+async function send(db: SqlClient, person: string, payload: Message) {
   const { clock, timers } = createHarnessClock({ startMs: Date.parse(NOW) });
   let ids = 0;
   const gateway: HarnessRoomGateway = {
@@ -60,15 +61,33 @@ function send(db: SqlClient, person: string, payload: Message) {
     seed: 1n,
   };
   const node = createInProcessRoomNode(env, { games: [], gateway });
-  return answerOfRoomCommand(node, {
-    spaceId: SPACE_ID,
-    identity: person,
-    installId: person,
-    payload,
-    commandId: `choice-${person}`,
-    nowMs: clock.now(),
+  // Participant admission is meaningful only while the host is online.
+  const host = node.createTransport({
+    topic: `space:${SPACE_ID}`,
+    module: 'space',
+    apiUrl: '',
+    identity: HOST,
+    installId: HOST,
+    clientId: 'host-presence',
+    getSessionToken: () => null,
     timers,
+    random: env.random,
   });
+  try {
+    await host.connect();
+    return await answerOfRoomCommand(node, {
+      spaceId: SPACE_ID,
+      identity: person,
+      installId: person,
+      payload,
+      commandId: `choice-${person}`,
+      nowMs: clock.now(),
+      timers,
+    });
+  } finally {
+    host.destroy();
+    node.dispose();
+  }
 }
 
 async function withSpace(run: (db: SqlClient) => Promise<void>) {
@@ -108,6 +127,19 @@ describe('the game choice in a space room', () => {
       expect(await send(db, OUTSIDER, chooseNoGame)).toMatchObject({
         kind: 'rejected',
         error: { type: ROOM_ERROR_TYPE.unauthorized },
+      });
+    });
+  });
+
+  // regression: space-preview-command-unguarded
+  test('a public-link observer cannot issue a participant command', async () => {
+    await withSpace(async (db) => {
+      expect(await send(db, OUTSIDER, Increment({}))).toMatchObject({
+        kind: 'rejected',
+        error: { type: ROOM_ERROR_TYPE.unauthorized },
+      });
+      expect(await send(db, MEMBER, Increment({}))).toEqual({
+        kind: 'committed',
       });
     });
   });

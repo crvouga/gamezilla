@@ -14,14 +14,13 @@ import type {
   Client,
   ClientAppProps,
 } from '@libs/app-root-client/create-client';
+import { KeyboardShortcutScope } from '@pkgs/ui-root-client/keyboard-shortcut-scope';
 import { TestViewportProvider } from '@pkgs/ui-root-client/test-viewport';
 import type { MemoryHistory } from '@solidjs/router';
 import type { Component, JSX } from 'solid-js';
 import type { HarnessBrowser } from './browser';
 
 import { HarnessBrowserSheet } from './browser-sheet';
-
-const ACTOR_VIEWPORT = { width: 390, height: 844 } as const;
 
 /** The app plus the actor's browser sheet, as one `App` component. */
 export function harnessActorApp(args: {
@@ -42,16 +41,19 @@ export function harnessActorApp(args: {
   );
 }
 
-export function solidActorRoot(
-  live: Client,
-  browser: HarnessBrowser,
-  history: MemoryHistory,
-  viewport = ACTOR_VIEWPORT as { width: number; height: number }
-): () => JSX.Element {
-  const App = harnessActorApp({ live, browser, isolateStyles: false });
+export function solidActorRoot(args: {
+  readonly live: Client;
+  readonly browser: HarnessBrowser;
+  readonly history: MemoryHistory;
+  readonly viewport: { width: number; height: number };
+  readonly shortcutsActive: () => boolean;
+}): () => JSX.Element {
+  const App = harnessActorApp({ ...args, isolateStyles: false });
   return () => (
-    <TestViewportProvider value={viewport}>
-      <App embedded history={history} />
+    <TestViewportProvider value={args.viewport}>
+      <KeyboardShortcutScope active={args.shortcutsActive()}>
+        <App embedded history={args.history} />
+      </KeyboardShortcutScope>
     </TestViewportProvider>
   );
 }

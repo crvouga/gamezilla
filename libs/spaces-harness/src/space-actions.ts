@@ -1,10 +1,20 @@
 import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import { Handles } from '@libs/test-ids-shared/handles';
 import {
+  addPersonToSpace,
+  openSpacePersonPicker,
+} from './space-addition-actions';
+import {
   cancelRenameSpace,
   startAllowingSpaceName,
   stopAllowingSpaceName,
 } from './space-name-rule-actions';
+import {
+  closeSpaceShare,
+  openSpaceShare,
+  removePersonFromSpace,
+} from './space-removal-actions';
+import { returnToRetainedSpace } from './space-retained-actions';
 import {
   confirmSpaceMutation,
   leaveToLobby,
@@ -168,6 +178,9 @@ export const selectChessGame = scenarioAction({
 export const openSpaceMembers = scenarioAction({
   name: 'openSpaceMembers',
   act: async (s, actorId: string) => {
+    const ui = await actorUi(s, actorId);
+    if (await ui.get(Handles.spaceShareClose).isVisible())
+      await Promise.resolve(closeSpaceShare.act(s, actorId));
     await tapChromeAction(s, actorId, Handles.spaceMembersButton);
     await s.session.waitForIdle();
   },
@@ -312,6 +325,12 @@ export const reopenSpaceLink = scenarioAction({
 
 /** Registered on every system that composes this sub. */
 export const SPACES_HARNESS_ACTIONS = [
+  addPersonToSpace,
+  openSpacePersonPicker,
+  returnToRetainedSpace,
+  closeSpaceShare,
+  openSpaceShare,
+  removePersonFromSpace,
   stopAllowingSpaceName,
   startAllowingSpaceName,
   cancelRenameSpace,

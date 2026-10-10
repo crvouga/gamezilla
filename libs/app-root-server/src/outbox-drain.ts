@@ -5,7 +5,7 @@ import { userTopic } from '@libs/sub-shared/sync';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
-import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
+import { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import { type DrainOutboxDeps, drainOutbox } from '@pkgs/outbox-shared/drain';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
@@ -14,6 +14,17 @@ import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 let registry: OutboxConsumerRegistry | null = null;
+
+/** Telemetry delivery belongs to the background drain, never gameplay latency. */
+export function requestOutboxRegistry(
+  all: OutboxConsumerRegistry
+): OutboxConsumerRegistry {
+  const requests = new OutboxConsumerRegistry();
+  requests.registerAll(
+    all.all().filter((consumer) => !consumer.id.startsWith('telemetry:'))
+  );
+  return requests;
+}
 
 /**
  * The consumers the composed subs registered. Set once while the server

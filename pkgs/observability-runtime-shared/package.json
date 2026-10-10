@@ -15,11 +15,19 @@
   },
   "dependencies": {
     "@opentelemetry/api": "catalog:",
+    "@opentelemetry/api-logs": "catalog:",
+    "@opentelemetry/exporter-logs-otlp-http": "catalog:",
+    "@opentelemetry/exporter-metrics-otlp-http": "catalog:",
     "@opentelemetry/exporter-trace-otlp-http": "catalog:",
     "@opentelemetry/resources": "catalog:",
+    "@opentelemetry/sdk-logs": "catalog:",
+    "@opentelemetry/sdk-metrics": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@pkgs/object-store-root-shared": "workspace:*",
-    "@pkgs/observability-root-shared": "workspace:*"
+    "@pkgs/observability-root-shared": "workspace:*",
+    "@opentelemetry/otlp-transformer": "catalog:",
+    "@pkgs/http-client-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

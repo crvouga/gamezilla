@@ -25,6 +25,9 @@ import type { AppComposition, LoadComposedSubs } from './app-subs-context';
 import { AppCompositionProvider } from './app-subs-context';
 import type { ClientEnv } from './client-env';
 import { ClientEnvProvider } from './client-env-context';
+import { createOfflineClientEnv } from './offline-client-env';
+import type { OfflineNetworkController } from './offline-network-controller';
+import { OfflinePreferenceProvider } from './offline-preference';
 import { ProductApp } from './product-app';
 import { buildRouteTable } from './route-table';
 import { buildAppRoutes } from './routes';
@@ -48,6 +51,8 @@ export type Client = {
 export type CreateClientOptions = {
   /** Stable key so the engine pool survives HMR (production only). */
   readonly poolGlobalKey?: string | undefined;
+  /** Browser entry services share this kill switch with the product env. */
+  readonly offlineController?: OfflineNetworkController | undefined;
 };
 
 export type CreateClientArgs = CreateClientOptions & {
@@ -73,6 +78,7 @@ function makeRoot(embedded: boolean): Component<RouteSectionProps> {
 }
 
 export function createClient(env: ClientEnv, args: CreateClientArgs): Client {
+  const network = createOfflineClientEnv(env, args.offlineController);
   const syncEnginePool = createAppSyncEnginePool({
     loadMutations: async () => await (await args.loadApp()).mutations(),
     ...(args.poolGlobalKey === undefined
@@ -91,25 +97,27 @@ export function createClient(env: ClientEnv, args: CreateClientArgs): Client {
       history: props.history,
     }));
     return (
-      <ClientEnvProvider env={env} syncEnginePool={syncEnginePool}>
-        <AppCompositionProvider value={composition}>
-          <Show
-            when={embedded}
-            fallback={<Router root={makeRoot(false)}>{routes}</Router>}
-          >
-            <MemoryRouter
-              root={makeRoot(true)}
-              {...(history === undefined ? {} : { history })}
+      <OfflinePreferenceProvider controller={network.offline}>
+        <ClientEnvProvider env={network.env} syncEnginePool={syncEnginePool}>
+          <AppCompositionProvider value={composition}>
+            <Show
+              when={embedded}
+              fallback={<Router root={makeRoot(false)}>{routes}</Router>}
             >
-              {routes}
-            </MemoryRouter>
-          </Show>
-        </AppCompositionProvider>
-      </ClientEnvProvider>
+              <MemoryRouter
+                root={makeRoot(true)}
+                {...(history === undefined ? {} : { history })}
+              >
+                {routes}
+              </MemoryRouter>
+            </Show>
+          </AppCompositionProvider>
+        </ClientEnvProvider>
+      </OfflinePreferenceProvider>
     );
   };
   return {
-    env,
+    env: network.env,
     syncEnginePool,
     App,
     close: () => syncEnginePool.releaseAll(),

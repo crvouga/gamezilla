@@ -41,6 +41,7 @@ const readRoomErrorOrNullJson = (v: unknown): RoomErrorJson | null =>
 export const RoomMetaAttr = {
   isSynced: roomAttrNamespace.boolean('is-synced', readBoolean),
   isConnected: roomAttrNamespace.boolean('is-connected', readBoolean),
+  hasRoster: roomAttrNamespace.boolean('has-roster', readBoolean),
   lastError: roomAttrNamespace.jsonOrNull(
     'last-error',
     readRoomErrorOrNullJson

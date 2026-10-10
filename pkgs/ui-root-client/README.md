@@ -57,6 +57,32 @@ that loses contrast fails.
 9. **Motion answers a person.** Press is a tone shift and a 0.97 scale.
    Nothing bounces, and `prefers-reduced-motion` turns transitions off.
 
+## Composition
+
+Atomic Design is the composition law, from [Brad Frost's
+hierarchy](https://atomicdesign.bradfrost.com/chapter-2/). The modules stay
+flat. `pkgs/` cannot grow `atoms/` or `molecules/` folders, and a page that
+knows a route or a query stays in the feature that owns that fact.
+
+| Level | What it is | Where it lives |
+| --- | --- | --- |
+| Atom | A role, an icon, a button, a field, a switch, the panel surface | this package |
+| Molecule | A row, a chip, a clock, a choice, a menu row | this package |
+| Organism | A menu section, a screen header, a game section, a dialog | this package |
+| Template | `ScreenBase`, `GameScreen`, `MainMenuScreen` | this package |
+| Page | A feature screen that passes data into a template | `libs/*-client` |
+
+A page does not paint. It composes a template and hands it data. A second
+type scale, a second card, or a one-off color is a missing atom, not a
+screen decision.
+
+Patterns follow the open spec for that control: the HTML button, the
+fieldset and radio group, the WAI-ARIA switch, checkbox, dialog and
+disclosure, and CSS custom properties for every token. Contrast is WCAG 2.2
+AA (`palette-contrast.test.ts`). Pointer targets stay at least 24px, and a
+primary control is 48px. Color never carries a state alone: a chosen control
+is also `aria-current`, `aria-pressed`, or a checked radio.
+
 ## Guard rails
 
 The rules are enforced, so the easy path is the right one:

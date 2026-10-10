@@ -8,6 +8,7 @@ export const Handles = {
   /** Full-bleed boot canvas while identity binds or local SQLite opens. */
   bootLoading: 'boot-loading',
   statusCurrentUser: 'status-current-user',
+  statusWorkOffline: 'status-work-offline',
   /** "Account" row inside the current-user avatar menu. */
   globalMenuAccount: 'global-menu-account',
   /** "Settings" row inside the global menu (→ `/more`). */
@@ -21,6 +22,10 @@ export const Handles = {
   // settings
   settingsTheme: 'settings-theme',
   settingsSound: 'settings-sound',
+  settingsWorkOffline: 'settings-work-offline',
+  settingsWorkOfflineSwitch: 'settings-work-offline-switch',
+  commandPalette: 'command-palette',
+  commandPaletteInput: 'command-palette-input',
   settingsAbout: 'settings-about',
   /** Appearance picker option (`light` / `dark` / `system`). */
   themeOption: (key: 'light' | 'dark' | 'system') => `theme-option-${key}`,
@@ -39,8 +44,12 @@ export const Handles = {
   spaceCreate: 'space-create',
   /** Lobby card for a host's live space (scoped by host username). */
   spaceCard: (hostUsername: string) => `space-card-${hostUsername}`,
+  /** One retained lobby card, even before its host's profile is available. */
+  spaceLobbyCard: (spaceId: string) => `space-lobby-card-${spaceId}`,
   spaceJoin: 'space-join',
+  spaceJoinPrompt: 'space-join-prompt',
   spaceEnded: 'space-ended',
+  spaceHostOffline: 'space-host-offline',
   spaceClose: 'space-close',
   /** Space chrome overflow trigger — actions that do not fit collapse here. */
   spaceChromeOverflow: 'space-chrome-overflow-menu',
@@ -48,6 +57,15 @@ export const Handles = {
   spaceEnd: 'space-end',
   spaceLeaveConfirm: 'space-leave-confirm',
   spaceEndConfirm: 'space-end-confirm',
+  spaceShare: 'space-share',
+  spaceShareClose: 'space-share-close',
+  spaceAddTrigger: 'space-add-trigger',
+  spaceAddQuery: 'space-add-query',
+  spaceAddPerson: (memberId: string) => `space-add-person-${memberId}`,
+  spaceAddSuccess: 'space-add-success',
+  spaceRemovePerson: (memberId: string) => `space-remove-person-${memberId}`,
+  spaceRemoveConfirm: 'space-remove-confirm',
+  spaceRemoveSuccess: 'space-remove-success',
   /** Bottom miniplayer bar while a space is open locally. */
   spaceMiniplayer: 'space-miniplayer',
   spaceMiniplayerOpen: (spaceId: string) => `space-miniplayer-open-${spaceId}`,
@@ -59,6 +77,7 @@ export const Handles = {
   spacePresenceStrip: 'space-presence-strip',
   /** One row in the space members list modal, scoped by member id. */
   spaceMemberRow: (memberId: string) => `space-member-row-${memberId}`,
+  spaceMemberName: (memberId: string) => `space-member-name-${memberId}`,
   /** Hidden count probe in the space members modal. */
   spacePresenceCount: 'space-presence-count',
   /** Close control of the space members modal. */
@@ -66,8 +85,8 @@ export const Handles = {
   /** How many live spaces the viewer hosts, on the Spaces screen. */
   spacesHostingCount: 'spaces-hosting-count',
   /**
-   * The Spaces list has heard from the server, including when it hosts none.
-   * Absent while that answer is still on its way.
+   * The Spaces list has read its local hosting count, including zero.
+   * Absent while local data is loading.
    */
   spacesListReady: 'spaces-list-ready',
   /** Spaces screen / link: this needs a connection. */
@@ -179,6 +198,8 @@ export const Handles = {
   profileUsernameInput: 'profile-username-input',
   profileUsernameSave: 'profile-username-save',
   profileUsernameCancel: 'profile-username-cancel',
+  profileUsernamePending: 'profile-username-pending',
+  profileUsernameRefusal: 'profile-username-refusal',
   profileDisplayUsername: 'profile-display-username',
   /** The profile tells its person which stand-in name others see them by. */
   profileStandInNotice: 'profile-stand-in-notice',
@@ -222,7 +243,8 @@ export const Handles = {
   /** Add Friend pill scoped by peer username (search / friend-user). */
   friendAdd: (username: string) => `friend-add-${username}`,
   /** Why an Add did nothing offline: friend requests need a connection. */
-  friendRequestNeedsConnection: 'friend-request-needs-connection',
+  friendRequestPending: 'friend-request-pending',
+  friendRequestRefusal: 'friend-request-refusal',
   /** Confirm (accept incoming request) pill scoped by peer username. */
   friendConfirm: (username: string) => `friend-confirm-${username}`,
   /** Disabled Friends status pill scoped by peer username. */

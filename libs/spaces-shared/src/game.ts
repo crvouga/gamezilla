@@ -57,6 +57,15 @@ export type GameDefinition = {
   /** Event sub-routers this game contributes (one per namespace). */
   readonly eventRouters: readonly GameRouterEntry<void, RoomState>[];
   /** Recover idempotent effects from committed game state after a room restart. */
+  /** Host-device schedules recovered from its current local game. */
+  readonly recoverLocalEffects?: (state: RoomState) => readonly RoomEffect[];
+  /** Fix a locally chosen move in the durable command before delivery. */
+  readonly prepareLocalCommand?: (
+    state: RoomState,
+    payload: Message,
+    now: number,
+    random: Random
+  ) => Message;
   readonly recoverEffects: (state: RoomState) => readonly RoomEffect[];
   /** Domain reactions committed in the same room transaction as a space event. */
   readonly reactToSpaceEvent?: (
@@ -101,6 +110,8 @@ export type GameClientDefinition = {
   readonly caption?: JSX.Element | string;
   /** Mounted when this game is the currently selected game in the space. */
   readonly MainMenu: (props: GameClientMenuProps) => JSX.Element;
+  /** Account-owned effects observe open rooms even while another screen is shown. */
+  readonly SessionEffects?: () => JSX.Element;
   /**
    * Optional: warm heavy, lazily-loaded assets (WASM, dynamic chunks) before
    * the user selects this game. Fired by the games picker while the list is

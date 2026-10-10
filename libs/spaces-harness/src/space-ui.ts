@@ -81,11 +81,7 @@ export async function leaveToLobby(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  await ui.get(Handles.spaceClose).tap({ timeoutMs: SPACE_WAIT_MS });
-  await ui
-    .get(Handles.spaceCreate)
-    .expect.visible({ timeoutMs: SPACE_WAIT_MS });
+  await showSpacesTab(s, actorId);
 }
 
 /** Coming back after the app reopened can take longer than a tap. */
@@ -181,6 +177,7 @@ const SPACE_OUTCOMES = [
   Handles.spaceJoin,
   Handles.spaceClose,
   Handles.spaceEnded,
+  Handles.spaceHostOffline,
   Handles.spaceNotFound,
   Handles.spacesNeedConnection,
   Handles.spacesHostingLimit,
@@ -225,6 +222,10 @@ export async function tapChromeOrOverflow(
   handle: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
+  if (await ui.get(handle).isVisible()) {
+    await ui.get(handle).tap({ timeoutMs: SPACE_WAIT_MS });
+    return;
+  }
   await ui
     .get(Handles.spaceClose)
     .expect.visible({ timeoutMs: SPACE_WAIT_MS })

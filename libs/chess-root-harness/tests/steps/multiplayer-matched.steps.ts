@@ -35,19 +35,13 @@ async function matchedAs(
 }
 
 Then(
-  '{actor} sees {actor} as her multiplayer opponent at {word}, with his blitz rating {string} and her colour',
+  '{actor} sees {actor} as their multiplayer opponent at {word}, with a blitz rating of {string} and their colour',
   (
     w,
     ...[viewer, opponent, timeControl, rating]: [Actor, Actor, string, string]
   ) => matchedAs(w, viewer, opponent, { timeControl, rating })
 );
-Then(
-  '{actor} sees {actor} as his multiplayer opponent at {word}, with her blitz rating {string} and his colour',
-  (
-    w,
-    ...[viewer, opponent, timeControl, rating]: [Actor, Actor, string, string]
-  ) => matchedAs(w, viewer, opponent, { timeControl, rating })
-);
+
 Then('{actor} is not shown a multiplayer opponent', async (w, actor: Actor) => {
   await w.s.apply(openMultiplayerChess, actor);
   expect(

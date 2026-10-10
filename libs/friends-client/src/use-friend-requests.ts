@@ -51,6 +51,7 @@ function pendingIncomingSql(
       responded_at
     FROM friends_requests
     WHERE to_user_id = ${myId} AND status = 'pending'
+      AND deleted_at IS NULL
     ORDER BY created_at DESC
   `;
 }
@@ -72,6 +73,7 @@ function pendingOutgoingSql(
       responded_at
     FROM friends_requests
     WHERE from_user_id = ${myId} AND status = 'pending'
+      AND deleted_at IS NULL
     ORDER BY created_at DESC
   `;
 }

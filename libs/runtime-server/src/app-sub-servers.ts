@@ -9,6 +9,7 @@
  */
 
 import { createAccountPrivacyServer } from '@libs/account-privacy-server/sub-server';
+import { AUTH_SERVER } from '@libs/auth-server/sub-server';
 import { createBillingServer } from '@libs/billing-server/sub-server';
 import { createChessServer } from '@libs/chess-root-server/sub-server';
 import { FRIENDS_SERVER } from '@libs/friends-server/sub-server';
@@ -28,6 +29,7 @@ export type AppSubServerDeps = {
 
 export function appSubServers(deps: AppSubServerDeps): readonly SubServer[] {
   return [
+    AUTH_SERVER,
     createAccountPrivacyServer(APP.accountPrivacy, deps.rooms),
     createSpacesServer(deps.rooms, FRIENDS_BLOCK_RELATION),
     createChessServer(deps.rooms),

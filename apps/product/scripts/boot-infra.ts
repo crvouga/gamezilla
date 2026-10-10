@@ -59,7 +59,9 @@ async function bootS3(): Promise<{
   readonly endpoint: string;
   stop(): Promise<void>;
 }> {
-  const s3 = await startS3Server();
+  const reservation = reservePort();
+  await reservation.release();
+  const s3 = await startS3Server({ port: reservation.port });
   return { endpoint: s3.endpoint, stop: s3.stop };
 }
 
@@ -68,12 +70,24 @@ async function bootMqtt(): Promise<{
   readonly mqttUrl: string;
   stop(): Promise<void>;
 }> {
-  const mqtt = await startAedesServer();
+  const mqttPort = reservePort();
+  const wsPort = reservePort();
+  await Promise.all([mqttPort.release(), wsPort.release()]);
+  const mqtt = await startAedesServer({
+    mqttPort: mqttPort.port,
+    wsPort: wsPort.port,
+  });
   return {
     wssUrl: mqtt.wsUrl,
     mqttUrl: mqtt.mqttUrl,
     stop: mqtt.stop,
   };
+}
+
+async function bootOpenAi() {
+  const port = reservePort();
+  await port.release();
+  return createOpenAiServer({ port: port.port });
 }
 
 export async function bootInfra(args: {
@@ -88,7 +102,7 @@ export async function bootInfra(args: {
     ReturnType<typeof startObservabilityStack>
   > | null = null;
   try {
-    openai = await createOpenAiServer();
+    openai = await bootOpenAi();
     s3 = args.options.withS3 ? await bootS3() : null;
     mqtt = args.options.withMqtt ? await bootMqtt() : null;
     observability =
@@ -123,15 +137,7 @@ export async function bootInfra(args: {
       DATABASE_URL: postgres.url,
       OPENAI_API_KEY: DEFAULT_TOKEN,
       OPENAI_BASE_URL: openai.url,
-      ...(s3 === null
-        ? {}
-        : {
-            S3_ACCESS_KEY_ID,
-            S3_SECRET_ACCESS_KEY,
-            S3_BUCKET,
-            S3_ENDPOINT: s3.endpoint,
-            S3_REGION,
-          }),
+      ...objectStoreEnv(s3?.endpoint ?? null),
       ...(mqtt === null
         ? {}
         : {
@@ -150,6 +156,8 @@ export async function bootInfra(args: {
         ? {}
         : {
             OBSERVABILITY_COLLECTOR_URL: observability.collectorUrl,
+            OBSERVABILITY_LOGS_URL: observability.logsUrl,
+            OBSERVABILITY_METRICS_URL: observability.metricsUrl,
           }),
     },
     async stop() {
@@ -159,5 +167,20 @@ export async function bootInfra(args: {
       await openai?.close();
       await postgres.stop();
     },
+  };
+}
+
+function objectStoreEnv(endpoint: string | null): Record<string, string> {
+  if (endpoint === null) return {};
+  return {
+    S3_ACCESS_KEY_ID,
+    S3_SECRET_ACCESS_KEY,
+    S3_BUCKET,
+    S3_REGION,
+    S3_ENDPOINT: endpoint,
+    REPORTS_BUCKET: S3_BUCKET,
+    REPORTS_ENDPOINT: endpoint,
+    REPORTS_ACCESS_KEY_ID: S3_ACCESS_KEY_ID,
+    REPORTS_SECRET_ACCESS_KEY: S3_SECRET_ACCESS_KEY,
   };
 }

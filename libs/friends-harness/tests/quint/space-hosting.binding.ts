@@ -10,19 +10,25 @@ import { setupFriendsPair } from '@libs/friends-harness/setup-friends-pair';
 import { partition, restoreNetwork } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { focusActor } from '@libs/harness/shell-actions';
+import { profileIdOf } from '@libs/profile-harness/profile-ui-reads';
 import {
   closeSpaceMembers,
   createSpace,
   endSpace,
   joinFromLobby,
+  joinFromPrompt,
   leaveSpace,
   openSpaceMembers,
   openSpacesTab,
   reenterActiveSpace,
   returnToLobby,
 } from '@libs/spaces-harness/space-actions';
+import {
+  closeSpaceShare,
+  removePersonFromSpace,
+} from '@libs/spaces-harness/space-removal-actions';
+import type { SpaceScreen } from '@libs/spaces-harness/space-screen-read';
 import { spaceScreenOf } from '@libs/spaces-harness/space-screen-read';
-import { openSpaceHosts } from '@libs/spaces-harness/space-state-reads';
 import {
   lobbyCardVisible,
   readSpaceLink,
@@ -32,6 +38,8 @@ import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import leftPreview from './fixtures/space-left-preview-misclassified-as-participant.itf.json';
+import orphanedPreview from './fixtures/space-link-preview-orphaned-after-leave.itf.json';
 
 const PEOPLE = ['alice', 'bob'] as const;
 
@@ -53,12 +61,47 @@ async function hostHere(
   return typeof host === 'string' ? host : `unknown space ${String(link)}`;
 }
 
+async function whereaboutsHere(
+  w: QuintHarnessWorld,
+  actor: string,
+  screen: SpaceScreen
+): Promise<QuintValue> {
+  if (screen === 'lobby') return variant('Lobby');
+  if (screen === 'ended') return variant('Ended');
+  const names = {
+    space: 'InSpace',
+    viewingPresence: 'ViewingPresence',
+    left: 'Left',
+    droppedOut: 'DroppedOut',
+    elsewhere: 'Elsewhere',
+  } as const;
+  if (screen === 'elsewhere') return variant(names[screen]);
+  return variant(names[screen], await hostHere(w, actor));
+}
+
 bindQuintModel<QuintHarnessWorld>({
   model: 'space-hosting',
   traces: 64,
   maxSteps: 32,
   inductiveInvariant: '_inductive',
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: space-left-preview-misclassified-as-participant
+      id: 'space-left-preview-misclassified-as-participant',
+      title:
+        'An offline-host notice does not turn a person who left into a participant',
+      seed: '0x67932',
+      itf: leftPreview,
+    },
+    {
+      // regression: space-link-preview-orphaned-after-leave
+      id: 'space-link-preview-orphaned-after-leave',
+      title: 'A person can rejoin after leaving while the host was offline',
+      seed: '0x67932',
+      itf: orphanedPreview,
+    },
+  ],
   actions: {
     init: async (w) => {
       await setupFriendsPair(w.s, 'alice', 'bob');
@@ -80,13 +123,24 @@ bindQuintModel<QuintHarnessWorld>({
     join: async (w, picks) => {
       const actor = person(picks);
       await w.s.apply(focusActor, actor);
-      await w.s.apply(joinFromLobby, actor, person(picks, 'host'));
+      if ((await w.s.read(spaceScreenOf, actor)) === 'left') {
+        await w.s.apply(joinFromPrompt, actor);
+      } else {
+        await w.s.apply(joinFromLobby, actor, person(picks, 'host'));
+      }
     },
     stepOut: async (w, picks) => {
       await w.s.apply(returnToLobby, person(picks));
     },
     leave: async (w, picks) => {
       await w.s.apply(leaveSpace, person(picks));
+    },
+    removePerson: async (w, picks) => {
+      const host = person(picks);
+      const other = await w.s.read(profileIdOf, person(picks, 'host'));
+      if (other === null) throw new Error('The other person has no profile');
+      await w.s.apply(removePersonFromSpace, host, other);
+      await w.s.apply(closeSpaceShare, host);
     },
     viewPresence: async (w, picks) => {
       await w.s.apply(openSpaceMembers, person(picks));
@@ -102,11 +156,11 @@ bindQuintModel<QuintHarnessWorld>({
     goBackToLobby: async (w, picks) => {
       await w.s.apply(openSpacesTab, person(picks));
     },
-    _loseConnection: async (w, picks) => {
+    loseConnection: async (w, picks) => {
       await w.s.apply(partition, person(picks));
       await w.s.advanceTime(2_000);
     },
-    _connectionReturns: async (w) => {
+    connectionReturns: async (w) => {
       await w.s.apply(restoreNetwork);
       await w.s.advanceTime(2_000);
     },
@@ -119,34 +173,21 @@ bindQuintModel<QuintHarnessWorld>({
       lobby.set(actor, new Set());
       presence.set(actor, 0);
       const screen = await w.quiet.read(spaceScreenOf, actor);
+      whereabouts.set(actor, await whereaboutsHere(w, actor, screen));
       if (screen === 'lobby') {
-        whereabouts.set(actor, variant('Lobby'));
         const hosts = new Set<QuintValue>();
         for (const host of PEOPLE) {
           if (await w.quiet.read(lobbyCardVisible, actor, host))
             hosts.add(host);
         }
         lobby.set(actor, hosts);
-      } else if (screen === 'space') {
-        whereabouts.set(actor, variant('InSpace', await hostHere(w, actor)));
       } else if (screen === 'viewingPresence') {
-        whereabouts.set(
-          actor,
-          variant('ViewingPresence', await hostHere(w, actor))
-        );
         presence.set(
           actor,
           (await w.quiet.read(readSpacePresenceCount, actor)) ?? -1
         );
-      } else if (screen === 'left') {
-        whereabouts.set(actor, variant('Left', await hostHere(w, actor)));
-      } else if (screen === 'ended') {
-        whereabouts.set(actor, variant('Ended'));
-      } else {
-        whereabouts.set(actor, variant('Elsewhere'));
       }
     }
-    const openSpaces = await w.quiet.read(openSpaceHosts, PEOPLE);
-    return { whereabouts, openSpaces, lobby, presence };
+    return { whereabouts, lobby, presence };
   },
 });
