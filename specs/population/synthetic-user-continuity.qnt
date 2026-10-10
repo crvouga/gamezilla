@@ -43,7 +43,7 @@ module synthetic_user_continuity {
   }
 
   /// Bookkeeping: take one Synthetic User's device offline.
-  action _loseConnection(who: SyntheticUser) = all {
+  action _loseConnection(who: SyntheticUser): bool = all {
     not(_offline.contains(who)),
     identity' = identity,
     activity' = activity,
@@ -54,7 +54,7 @@ module synthetic_user_continuity {
   }
 
   /// Bookkeeping: bring that device's connection back.
-  action _comeBackOnline(who: SyntheticUser) = all {
+  action _comeBackOnline(who: SyntheticUser): bool = all {
     _offline.contains(who),
     identity' = identity,
     activity' = activity,
