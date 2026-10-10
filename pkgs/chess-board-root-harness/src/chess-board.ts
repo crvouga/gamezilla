@@ -1,4 +1,5 @@
 import { auditTree } from '@pkgs/a11y-shared/audit';
+import { eventConstructor } from '@pkgs/bun-test-solid-client/native-event';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { defineAction } from '@pkgs/harness-root-shared/define-action';
 import { defineProperty } from '@pkgs/harness-root-shared/define-property';
@@ -85,10 +86,19 @@ export const setVisibility = defineAction({
   name: 'setVisibility',
   act: (w: BoardWorld, visible: boolean) => w.app.motion.setHidden(!visible),
 });
+/**
+ * Blur the board's view. A test worker's dispatchEvent rejects happy-dom's
+ * Event, so the blur uses the constructor that dispatch accepts.
+ */
+export function dispatchViewBlur(view: Window): void {
+  const EventCtor = eventConstructor(view);
+  view.dispatchEvent(new EventCtor('blur'));
+}
+
 export const leaveActivity = defineAction({
   name: 'leaveActivity',
-  act: (_w: BoardWorld) => {
-    window.dispatchEvent(new Event('blur'));
+  act: (w: BoardWorld) => {
+    dispatchViewBlur(w.app.host.ownerDocument.defaultView ?? window);
   },
 });
 export const replacePosition = defineAction({
