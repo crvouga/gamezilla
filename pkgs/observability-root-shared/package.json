@@ -25,7 +25,9 @@
   "devDependencies": {
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@pkgs/property-shared": "workspace:*",
+    "fast-check": "catalog:"
   },
   "category": "isomorphic"
 }
