@@ -245,6 +245,13 @@
     outline-offset: 2px;
   }
 
+  /* The title a screen hands the keyboard to when it replaces another
+     (`screen-focus.tsx`). Focus is there for reading order, not operation,
+     so the browser's ring around the heading is suppressed. */
+  .screenFocusTarget:focus {
+    outline: none;
+  }
+
   /* Tint feedback: overlay layered above children. */
   .clickableTint::after {
     content: "";
