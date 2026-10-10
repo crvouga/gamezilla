@@ -14,7 +14,10 @@ import {
   forgetMultiplayerReply,
   sendMultiplayerCommand,
 } from './multiplayer-commands';
-import { reachMultiplayerChoices } from './multiplayer-navigation';
+import {
+  multiplayerArrivalIsTerminal,
+  reachMultiplayerChoices,
+} from './multiplayer-navigation';
 import { multiplayerView } from './multiplayer-reads';
 import { multiplayerSpaceId } from './multiplayer-spaces';
 import { multiplayerWatcherBoard } from './multiplayer-watchers';
@@ -63,6 +66,7 @@ export const openMultiplayerChess = scenarioAction({
       await s.actors.get(actor)!.openLink(`/space/${spaceId}`);
     await s.session.waitForIdle();
     const surface = await reachMultiplayerChoices(s, actor);
+    if (multiplayerArrivalIsTerminal(surface)) return;
     if (surface === 'game-menu-chess') {
       await ui.get('game-menu-chess').tap();
       await ui.get('chess-menu-multiplayer').expect.visible();
