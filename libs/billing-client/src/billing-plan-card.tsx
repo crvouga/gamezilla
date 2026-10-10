@@ -1,8 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
- * The billing screen's hero: the plan the person is on, its tier chip, where
- * the membership stands, any notice about it, and the one action that moves
- * it forward.
+ * The plan the person is on: tier, status, any notice, and the one action
+ * that moves the membership forward. A settings panel, not a marketing hero.
  */
 
 import { Handles } from '@libs/test-ids-shared/handles';
