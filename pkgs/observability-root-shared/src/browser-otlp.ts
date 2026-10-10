@@ -81,7 +81,7 @@ function sanitizeScope(input: unknown, signal: 'logs' | 'metrics'): unknown {
 
 function sanitizeLog(input: RecordValue): unknown {
   if (input['eventName'] === WEB_VITAL_EVENT.name) return sanitizeVital(input);
-  const attributes: RecordValue = {};
+  const attributes: Record<string, string> = {};
   for (const item of Array.isArray(input['attributes'])
     ? input['attributes'].slice(0, 32)
     : []) {
@@ -95,7 +95,7 @@ function sanitizeLog(input: RecordValue): unknown {
     if (typeof item['value']['stringValue'] === 'string')
       attributes[item['key']] = item['value']['stringValue'];
   }
-  const safe = allowlistedAttributes(attributes as never);
+  const safe = allowlistedAttributes(attributes);
   return {
     body: { stringValue: 'diagnostic' },
     ...safeLogContext(input),
