@@ -2555,6 +2555,7 @@
       },
       "devDependencies": {
         "@pkgs/property-shared": "workspace:*",
+        "@pkgs/sql-client-sqlite-root-server": "workspace:*",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
         "typescript": "catalog:",

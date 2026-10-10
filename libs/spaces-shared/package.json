@@ -37,7 +37,8 @@
     "@pkgs/property-shared": "workspace:*",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@pkgs/sql-client-sqlite-root-server": "workspace:*"
   },
   "category": "isomorphic"
 }

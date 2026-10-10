@@ -73,7 +73,7 @@ export const joinSpaceMutation = defineMutation({
         WHERE id = ${spaceId}
       `);
     }
-    await changeSpaceRoomMembership(
+    const membershipEventId = await changeSpaceRoomMembership(
       { tx, env },
       spaceId,
       'joined',
@@ -84,7 +84,7 @@ export const joinSpaceMutation = defineMutation({
       await playerJoinedEvent.record(
         { tx, env },
         {
-          id: `${id}:${env.now().toISOString()}`,
+          id: membershipEventId,
           attributes: { 'space.id': spaceId, 'subject.id': env.actorId },
         }
       );

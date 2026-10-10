@@ -38,7 +38,7 @@ export const leaveSpaceMutation = defineMutation({
     }
     const now = env.now().toISOString();
     const actorMemberId = memberId(env);
-    await changeSpaceRoomMembership(
+    const membershipEventId = await changeSpaceRoomMembership(
       { tx, env },
       spaceId,
       'left',
@@ -55,7 +55,7 @@ export const leaveSpaceMutation = defineMutation({
     await playerLeftEvent.record(
       { tx, env },
       {
-        id: `${spaceId}:${actorMemberId}:${now}`,
+        id: membershipEventId,
         attributes: { 'space.id': spaceId, 'subject.id': env.actorId },
       }
     );
