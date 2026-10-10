@@ -4,11 +4,11 @@
  */
 
 import type { Timers } from '@pkgs/clock-shared/types';
+import { readDomInventory } from '@pkgs/ui-testing-root-shared/dom-inventory';
 import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
+import type { Inventory } from '@pkgs/ui-testing-root-shared/inventory';
 import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
 import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared/keys';
-import { readDomInventory } from '@pkgs/ui-testing-root-shared/dom-inventory';
-import type { Inventory } from '@pkgs/ui-testing-root-shared/inventory';
 import { BunWebviewDriverNode } from './bun-webview-driver-node';
 import type { BunWebView, BunWebviewHost } from './bun-webview-host';
 import type { PopupViewOptions } from './bun-webview-popups';

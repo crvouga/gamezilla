@@ -12,8 +12,8 @@
  * and in a simulation without knowing which.
  */
 
-import type { Clock } from '@pkgs/clock-shared/types';
 import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
+import type { Clock } from '@pkgs/clock-shared/types';
 import type { EventContract } from '@pkgs/observability-root-shared/event-contract';
 import type { createEventOutbox } from '@pkgs/observability-root-shared/event-outbox';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';

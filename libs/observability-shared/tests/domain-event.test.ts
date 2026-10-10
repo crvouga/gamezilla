@@ -40,7 +40,9 @@ test('authoritative domain events are durable, pseudonymous and logically dedupl
       },
     };
     await event.record({ tx: db, env }, input);
-    expect(await db.query(sql<{ id: string }>`SELECT id FROM outbox_events`)).toHaveLength(0);
+    expect(
+      await db.query(sql<{ id: string }>`SELECT id FROM outbox_events`)
+    ).toHaveLength(0);
     await db.transaction(async (tx) => {
       await event.record({ tx, env: { ...env, serverNow: env.now } }, input);
       await event.record({ tx, env: { ...env, serverNow: env.now } }, input);
@@ -50,7 +52,8 @@ test('authoritative domain events are durable, pseudonymous and logically dedupl
     );
     expect(rows).toHaveLength(1);
     const payload = JSON.parse(rows[0]!.payload);
-    if (!event.outbox.message.validatePayload(payload)) throw new Error("Invalid stored telemetry");
+    if (!event.outbox.message.validatePayload(payload))
+      throw new Error('Invalid stored telemetry');
     expect(payload.envelope.synthetic).toBe(true);
     expect(payload.envelope.occurredAtMs).toBe(1000);
     expect(payload.attributes['subject.id']).toHaveLength(64);

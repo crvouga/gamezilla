@@ -24,8 +24,11 @@ test('roster readiness accepts an empty answer and resets for each connection', 
     expect(RoomMetaAttr.isConnected.from(room.getSnapshot())).toBe(true);
     expect(RoomMetaAttr.hasRoster.from(room.getSnapshot())).toBe(false);
     transport.deliver({
-      v: WIRE_VERSION, kind: ROOM_WIRE_KIND.welcome, fromSeq: 0,
-      lastSeq: 0, entries: [],
+      v: WIRE_VERSION,
+      kind: ROOM_WIRE_KIND.welcome,
+      fromSeq: 0,
+      lastSeq: 0,
+      entries: [],
     });
     expect(RoomMetaAttr.isSynced.from(room.getSnapshot())).toBe(true);
     expect(RoomMetaAttr.hasRoster.from(room.getSnapshot())).toBe(false);
