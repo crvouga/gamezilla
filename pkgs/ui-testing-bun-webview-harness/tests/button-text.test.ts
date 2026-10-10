@@ -67,3 +67,16 @@ describe('BunWebviewDriver text of non-field nodes', () => {
     expect(await driver().get('close').text()).toBe('Close');
   });
 });
+
+test('transparent native radio controls remain actionable through their visible label', async () => {
+  // regression: webview-transparent-radio-hidden
+  document.body.innerHTML =
+    '<label>5+0<input type="radio" data-testid="pace" style="opacity:0"></label>';
+  expect(await driver().get('pace').isVisible()).toBe(true);
+  document.body.innerHTML =
+    '<label style="visibility:hidden">5+0<input type="radio" data-testid="pace" style="opacity:0"></label>';
+  expect(await driver().get('pace').isVisible()).toBe(false);
+  document.body.innerHTML =
+    '<button data-testid="pace" style="opacity:0">Hidden</button>';
+  expect(await driver().get('pace').isVisible()).toBe(false);
+});

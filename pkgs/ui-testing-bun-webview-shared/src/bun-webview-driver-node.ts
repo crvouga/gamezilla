@@ -351,7 +351,7 @@ export class BunWebviewDriverNode implements DriverNode {
 
   async isVisible(): Promise<boolean> {
     const result = await (await this.view()).evaluate(
-      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); if (!el) return false; const s = getComputedStyle(el); return s.display !== 'none' && s.visibility !== 'hidden' && s.opacity !== '0'; })()`
+      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); if (!el) return false; const s = getComputedStyle(el); if (s.display === 'none' || s.visibility === 'hidden') return false; if (s.opacity !== '0') return true; return el instanceof HTMLInputElement && (el.type === 'radio' || el.type === 'checkbox') && Array.from(el.labels ?? []).some(label => { const style = getComputedStyle(label); return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0'; }); })()`
     );
     return result === true;
   }
