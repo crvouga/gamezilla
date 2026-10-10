@@ -10,7 +10,7 @@ import {
   rmSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import type { RunSummary } from './check-budget';
+import { findBudgetOverruns, type RunSummary } from './check-budget';
 
 function artifacts(directory: string): string[] {
   if (!existsSync(directory)) return [];
@@ -40,13 +40,17 @@ export function publishCheckArtifacts(
   store: string,
   summary: RunSummary | null
 ): void {
+  const overBudget = new Set(
+    findBudgetOverruns(summary ?? {}, false).map((task) => task.taskId)
+  );
   const passed = new Set(
     (summary?.tasks ?? [])
       .filter(
         (task) =>
-          task.execution?.exitCode === 0 ||
-          (task.execution?.exitCode === undefined &&
-            task.cache?.status === 'HIT')
+          !(typeof task.taskId === 'string' && overBudget.has(task.taskId)) &&
+          (task.execution?.exitCode === 0 ||
+            (task.execution?.exitCode === undefined &&
+              task.cache?.status === 'HIT'))
       )
       .map((task) => task.hash)
   );

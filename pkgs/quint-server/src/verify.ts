@@ -56,6 +56,8 @@ export type VerifyOptions = {
   readonly timeoutMs: number;
   /** Opt into array-encoded maps for models supported by that encoding. */
   readonly encoding?: 'fun-arrays';
+  /** Solver scheduling only; both modes check every reachable successor. */
+  readonly invariantMode?: 'before' | 'after';
   /** Use concrete inference for models that have no polymorphic operators. */
   readonly inferPolymorphicTypes?: boolean;
 };
@@ -204,10 +206,11 @@ function verifyConfig(options: VerifyOptions, phase: VerifyPhase): string {
       : { 'smt-encoding': { type: options.encoding } }),
     tuning: {
       'search.invariant.mode':
-        options.inductiveInvariant === undefined ||
+        options.invariantMode ??
+        (options.inductiveInvariant === undefined ||
         phase.name === 'preservation'
           ? 'after'
-          : 'before',
+          : 'before'),
       // Initialization already proved the candidate. Its reflexive check
       // under that same assumption adds no obligation to preservation.
       ...(phase.name === 'preservation'

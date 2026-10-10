@@ -1,11 +1,39 @@
 import { expect, test } from 'bun:test';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { verify } from '@pkgs/quint-server/verify';
 
 const FIXTURE = join(import.meta.dir, 'fixtures/door-induction.qnt');
 const OUT = join(import.meta.dir, '../.cache/test-verify-bounded-groups');
 const TIMEOUT_MS = 120_000;
+
+test.concurrent(
+  'before mode rejects a violation in a later bounded group',
+  async () => {
+    // regression: username-proof-solver-timeout
+    const outDir = join(OUT, 'before-later-violation');
+    const result = await verify({
+      specPath: FIXTURE,
+      invariants: ['invKnownState', 'invNeverOpen'],
+      maxSteps: 2,
+      boundedInvariantGroupSize: 1,
+      invariantMode: 'before',
+      outDir,
+      timeoutMs: TIMEOUT_MS,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.output).toContain('found a counterexample');
+    expect(result.output).toContain('[State 1] { state: "open" }');
+    const config = JSON.parse(
+      readFileSync(join(outDir, 'case-1/apalache-config.json'), 'utf8')
+    );
+    expect(config).toMatchObject({
+      checker: { tuning: { 'search.invariant.mode': 'before' } },
+    });
+  },
+  TIMEOUT_MS
+);
 
 test.concurrent(
   'a violation in the later bounded group rejects the complete proof',

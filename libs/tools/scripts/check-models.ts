@@ -59,6 +59,7 @@ const VERIFY_STEPS = /\bverifySteps:\s*(\d+)/;
 const MODEL_BINDING = /\bmodel:\s*['"]([a-z0-9-]+)['"]/;
 const INDUCTIVE_INVARIANT = /\binductiveInvariant:\s*['"]([A-Za-z_]\w*)['"]/;
 const ENCODING = /\bencoding:\s*['"](fun-arrays)['"]/;
+const INVARIANT_MODE = /\binvariantMode:\s*['"](before|after)['"]/;
 const SEPARATE_INDUCTION = /\bseparateInduction:\s*true\b/;
 const INDUCTION_CASE_GROUP_SIZE = /\binductionCaseGroupSize:\s*(\d+)/;
 const BOUNDED_INVARIANT_GROUP_SIZE = /\bboundedInvariantGroupSize:\s*(\d+)/;
@@ -71,6 +72,7 @@ export type ModelCheck = {
   readonly steps: number;
   readonly inductiveInvariant: string | null;
   readonly encoding?: 'fun-arrays';
+  readonly invariantMode?: 'before' | 'after';
   readonly separateInduction?: true;
   readonly inductionCaseGroupSize?: number;
   readonly boundedInvariantGroupSize?: number;
@@ -127,10 +129,12 @@ export function modelChecksFromBindings(
   texts: ReadonlyMap<string, string>
 ): readonly ModelCheck[] {
   return models
-    .map((specUri) => {
+    .map((specUri): ModelCheck => {
       const stem = specUri.replace(/^.*\//, '').replace(/\.qnt$/, '');
       const binding = texts.get(stem) ?? null;
       const encoding = modelEncodingOf(binding);
+      const invariantMode =
+        binding === null ? undefined : INVARIANT_MODE.exec(binding)?.[1];
       const groupSize =
         binding === null
           ? undefined
@@ -148,6 +152,9 @@ export function modelChecksFromBindings(
             ? null
             : (INDUCTIVE_INVARIANT.exec(binding)?.[1] ?? null),
         ...(encoding === undefined ? {} : { encoding }),
+        ...(invariantMode === 'before' || invariantMode === 'after'
+          ? { invariantMode }
+          : {}),
         ...(groupSize === undefined
           ? {}
           : { inductionCaseGroupSize: Number(groupSize) }),
@@ -236,6 +243,9 @@ async function checkModel(
           invariants,
           maxSteps: check.steps,
           ...(check.encoding === undefined ? {} : { encoding: check.encoding }),
+          ...(check.invariantMode === undefined
+            ? {}
+            : { invariantMode: check.invariantMode }),
           ...(check.separateInduction === true
             ? { separateInduction: true }
             : {}),

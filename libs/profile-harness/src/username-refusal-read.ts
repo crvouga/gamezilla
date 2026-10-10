@@ -1,5 +1,8 @@
 import type { ProductHarness } from '@libs/harness/harness';
-import { readProfileUsernameShown, readUsernameSaveFace } from './profile-ui-reads';
+import {
+  readProfileUsernameShown,
+  readUsernameSaveFace,
+} from './profile-ui-reads';
 
 const REFUSAL_FACES: Readonly<Record<string, string>> = {
   'it is too short': 'Username is too short',

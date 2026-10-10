@@ -92,6 +92,8 @@ export type QuintBinding<W> = {
   readonly verifyTimeoutMs?: number;
   /** Opt into Apalache's array encoding without changing proof obligations. */
   readonly encoding?: 'fun-arrays';
+  /** Check each enabled transition separately, or their combined successor. */
+  readonly invariantMode?: 'before' | 'after';
   /**
    * How far the world's clock moves between re-checks while it settles.
    * Default: the world's. A model whose state is a count of seconds keeps it

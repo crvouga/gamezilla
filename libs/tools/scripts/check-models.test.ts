@@ -38,6 +38,28 @@ describe('verifyTimeoutOf', () => {
 });
 
 describe('modelChecks', () => {
+  test('username solver mode retains the original bound and deadline', () => {
+    // regression: username-proof-solver-timeout
+    const [check] = modelChecksFromBindings(
+      ['specs/profile/username-changes.qnt'],
+      new Map([
+        [
+          'username-changes',
+          "model: 'username-changes', invariantMode: 'before', encoding: 'fun-arrays', inferPolymorphicTypes: false, boundedInvariantGroupSize: 6",
+        ],
+      ])
+    );
+    expect(check).toEqual({
+      specUri: 'specs/profile/username-changes.qnt',
+      steps: 4,
+      timeoutMs: 240_000,
+      inductiveInvariant: null,
+      invariantMode: 'before',
+      encoding: 'fun-arrays',
+      inferPolymorphicTypes: false,
+      boundedInvariantGroupSize: 6,
+    });
+  });
   test('only an opted-in binding groups bounded targets without changing its bound or deadline', () => {
     const checks = modelChecksFromBindings(
       ['specs/example/first.qnt', 'specs/example/second.qnt'],

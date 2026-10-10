@@ -1,0 +1,4 @@
+{
+  "summary": "The username model's eleven invariants exceeded their unchanged four-step, 240-second proof deadline. Independent invariant groups, array-encoded maps and checking each enabled transition before combining successors preserve every target and the original bound and deadline.",
+  "regressionTest": "libs/profile-harness/tests/username-proof-strategy.test.ts"
+}
