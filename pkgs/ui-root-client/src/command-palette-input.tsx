@@ -7,6 +7,7 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
+import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { type JSX, onMount } from 'solid-js';
 import { SearchIcon } from './icons';
 import { TextInput } from './text-input';
@@ -21,6 +22,7 @@ export type CommandPaletteInputProps = {
   placeholder?: LocalizedString | undefined;
   /** Focus the field on mount. Default `true`. */
   focusOnMount?: boolean | undefined;
+  dataSet?: ComponentDataSet | undefined;
 };
 
 export function CommandPaletteInput(
@@ -51,7 +53,7 @@ export function CommandPaletteInput(
       autocapitalize="none"
       spellcheck={false}
       startAdornment={<SearchIcon size={18} color="textSecondary" />}
-      dataSet={{ component: 'CommandPaletteInput' }}
+      dataSet={{ component: 'CommandPaletteInput', ...props.dataSet }}
     />
   );
 }

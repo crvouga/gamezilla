@@ -838,6 +838,10 @@ msgstr "Confirmed"
 msgid "Confirming…"
 msgstr "Confirming…"
 
+#: libs/app-root-client/src/app-commands.tsx
+msgid "connect"
+msgstr "connect"
+
 #: libs/auth-client/src/sign-in-method-row.tsx
 msgid "Connect"
 msgstr "Connect"
@@ -868,6 +872,7 @@ msgstr "Connection"
 msgid "Connection needed to change or play this game."
 msgstr "Connection needed to change or play this game."
 
+#: libs/app-root-client/src/app-commands.tsx
 #: libs/app-root-client/src/app-header-global-menu.tsx
 msgid "Connectivity"
 msgstr "Connectivity"
@@ -1211,6 +1216,10 @@ msgstr "Discard"
 #: libs/profile-client/src/avatar-editor-screen.tsx
 msgid "Discard changes?"
 msgstr "Discard changes?"
+
+#: libs/app-root-client/src/app-commands.tsx
+msgid "disconnect"
+msgstr "disconnect"
 
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "Disconnected"
@@ -2127,6 +2136,10 @@ msgstr "Navigation"
 msgid "Needs a connection"
 msgstr "Needs a connection"
 
+#: libs/app-root-client/src/app-commands.tsx
+msgid "network"
+msgstr "network"
+
 #: libs/app-root-client/src/settings-screen.tsx
 msgid "Network reachability and server health"
 msgstr "Network reachability and server health"
@@ -2402,7 +2415,12 @@ msgstr "Offer a multiplayer rematch"
 msgid "Offer draw"
 msgstr "Offer draw"
 
+#: libs/app-root-client/src/app-commands.tsx
+msgid "offline"
+msgstr "offline"
+
 #: libs/app-root-client/src/app-header-global-menu.tsx
+#: libs/app-root-client/src/settings-screen.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
 msgid "Offline"
 msgstr "Offline"
@@ -2415,7 +2433,12 @@ msgstr "Offline"
 msgid "On"
 msgstr "On"
 
+#: libs/app-root-client/src/app-commands.tsx
+msgid "online"
+msgstr "online"
+
 #: libs/app-root-client/src/app-header-global-menu.tsx
+#: libs/app-root-client/src/settings-screen.tsx
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "Online"
 msgstr "Online"
@@ -3629,6 +3652,10 @@ msgstr "Status"
 msgid "Status: {0}"
 msgstr "Status: {0}"
 
+#: libs/app-root-client/src/settings-screen.tsx
+msgid "Stop every network connection until you work online"
+msgstr "Stop every network connection until you work online"
+
 #: libs/chess-matchmaking-client/src/multiplayer-waiting.tsx
 msgid "Stop finding an opponent"
 msgstr "Stop finding an opponent"
@@ -4313,6 +4340,16 @@ msgstr "Withdraw readiness"
 #: pkgs/harness-report-client/src/performance-overview.tsx
 msgid "Work"
 msgstr "Work"
+
+#: libs/app-root-client/src/app-commands.tsx
+#: libs/app-root-client/src/settings-screen.tsx
+#: libs/app-root-client/src/work-offline-status.tsx
+msgid "Work offline"
+msgstr "Work offline"
+
+#: libs/app-root-client/src/app-commands.tsx
+msgid "Work online"
+msgstr "Work online"
 
 #: libs/notifications-client/src/notification-card-default.tsx
 #: pkgs/ui-root-client/src/game-action-button.tsx

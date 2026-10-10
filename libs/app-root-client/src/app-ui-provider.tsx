@@ -22,6 +22,7 @@
  * always-active scope.
  */
 
+import { Handles } from '@libs/test-ids-shared/handles';
 import { CommandPalette } from '@pkgs/ui-root-client/command-palette';
 import { CommandRegistryProvider } from '@pkgs/ui-root-client/command-registry-context';
 import { KeyboardShortcutScope } from '@pkgs/ui-root-client/keyboard-shortcut-scope';
@@ -47,7 +48,10 @@ function AppCommandRegistry(props: {
         <KeyboardShortcutScope active>
           <CommandRegistryProvider enableDefaultShortcuts>
             <AppCommands />
-            <CommandPalette />
+            <CommandPalette
+              dataSet={{ testid: Handles.commandPalette }}
+              inputDataSet={{ testid: Handles.commandPaletteInput }}
+            />
             {props.children}
             <PwaUpdatePromptBanner />
           </CommandRegistryProvider>
@@ -56,7 +60,10 @@ function AppCommandRegistry(props: {
     >
       <CommandRegistryProvider enableDefaultShortcuts>
         <AppCommands />
-        <CommandPalette />
+        <CommandPalette
+          dataSet={{ testid: Handles.commandPalette }}
+          inputDataSet={{ testid: Handles.commandPaletteInput }}
+        />
         {props.children}
       </CommandRegistryProvider>
     </Show>

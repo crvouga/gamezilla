@@ -28,6 +28,7 @@ import { SyncApiAuthError } from '@pkgs/sync-engine-client/sync-http-client';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
 import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
 import {
+  type ClientPubSubArgs,
   createClientPubSub,
   readEmqxWssUrlFromLocalDb,
 } from './create-client-pubsub';
@@ -65,7 +66,9 @@ export type CreateAppLocalSyncEngineArgs = {
   /** Harness override; defaults to the OPFS broker client. */
   readonly openSqlClient?: OpenSqlClient | undefined;
   /** Harness override; defaults to EMQX from client_config URL. */
-  readonly createPubSub?: (() => PubSub) | undefined;
+  readonly createPubSub?:
+    | ((args: ClientPubSubArgs) => PubSub | null)
+    | undefined;
   readonly waitUntilAvailable?:
     | ((signal?: AbortSignal | null) => Promise<void>)
     | undefined;
@@ -123,15 +126,12 @@ function pushOptions(
     push: {
       queryRegistry: app.queries,
       createPubSub: () => {
-        if (args.createPubSub !== undefined) {
-          return args.createPubSub();
-        }
         const url = emqxUrlHolder.url?.trim() ?? '';
         // Cold start / missing broker: poll-only until client_config hydrates.
-        if (url.length === 0) {
+        if (url.length === 0 && args.createPubSub === undefined) {
           return null;
         }
-        return createClientPubSub({
+        return (args.createPubSub ?? createClientPubSub)({
           url,
           config: args.config,
           fetchFn: args.fetchFn,

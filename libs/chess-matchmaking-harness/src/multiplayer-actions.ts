@@ -50,7 +50,7 @@ export const setMultiplayerConnection = scenarioAction({
       const { env } = await multiplayerClient(s, actor);
       let refreshed = false;
       void env
-        .createAuthClient()
+        .createAuthClient(env.server)
         .session.refresh()
         .finally(() => {
           refreshed = true;

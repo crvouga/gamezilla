@@ -24,15 +24,18 @@ import {
   Volume2Icon,
   VolumeXIcon,
   WifiIcon,
+  WifiOffIcon,
 } from '@pkgs/ui-root-client/icons';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { Switch } from '@pkgs/ui-root-client/switch';
 import { useThemePreference } from '@pkgs/ui-root-client/theme-preference';
 import type { Href } from '@pkgs/ui-root-shared/href';
 import { type Accessor, For, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { useAppFeatures } from './app-features-context';
+import { useOfflinePreference } from './offline-preference';
 import { usePerfHudPreference } from './perf-hud-preference';
 
 const ROW_ICON_SIZE = 20;
@@ -42,7 +45,12 @@ type SettingsRow = {
   readonly caption?: string | undefined;
   readonly value?: string | undefined;
   readonly icon: IconComponent;
-  readonly href: Href;
+  readonly href?: Href | undefined;
+  readonly toggle?: {
+    readonly value: Accessor<boolean>;
+    readonly onChange: (next: boolean) => void;
+    readonly label: string;
+  };
   readonly testid?: string | undefined;
 };
 
@@ -97,10 +105,23 @@ function usePreferencesGroup(): Accessor<SettingsGroup> {
   const themeValue = useThemeValue();
   const { muted } = useSoundsPreference();
   const { enabled: perfEnabled } = usePerfHudPreference();
+  const { offline, setOffline } = useOfflinePreference();
   return () => ({
     key: 'preferences',
     title: t`Preferences`,
     rows: [
+      {
+        title: t`Work offline`,
+        caption: t`Stop every network connection until you work online`,
+        value: offline() ? t`Offline` : t`Online`,
+        icon: offline() ? WifiOffIcon : WifiIcon,
+        toggle: {
+          value: offline,
+          onChange: setOffline,
+          label: t`Work offline`,
+        },
+        testid: Handles.settingsWorkOffline,
+      },
       {
         title: t`Appearance`,
         value: themeValue(),
@@ -191,6 +212,10 @@ function useSettingsGroups(): Accessor<readonly SettingsGroup[]> {
 
 function SettingsRowItem(props: { readonly row: SettingsRow }): JSX.Element {
   const router = useRouter();
+  const onClick = (): (() => void) | undefined => {
+    const href = props.row.href;
+    return href === undefined ? undefined : () => router.push(href);
+  };
   return (
     <MenuRow
       title={props.row.title}
@@ -203,7 +228,18 @@ function SettingsRowItem(props: { readonly row: SettingsRow }): JSX.Element {
       leading={
         <Dynamic component={props.row.icon} size={ROW_ICON_SIZE} color="icon" />
       }
-      onClick={() => router.push(props.row.href)}
+      trailing={
+        props.row.toggle === undefined ? undefined : (
+          <Switch
+            value={props.row.toggle.value()}
+            onValueChange={props.row.toggle.onChange}
+            aria-label={props.row.toggle.label}
+            dataSet={{ testid: Handles.settingsWorkOfflineSwitch }}
+          />
+        )
+      }
+      onClick={onClick()}
+      href={props.row.href}
       dataSet={
         props.row.testid === undefined ? {} : { testid: props.row.testid }
       }
@@ -226,7 +262,7 @@ export function SettingsScreen(): JSX.Element {
         <div class={`box ${bodyClass} gap-5`}>
           <For each={groups()}>
             {(group) => (
-              <MenuSection title={group.title}>
+              <MenuSection title={group.title} role="group">
                 <For each={group.rows}>
                   {(row) => <SettingsRowItem row={row} />}
                 </For>

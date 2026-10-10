@@ -27,7 +27,12 @@ export function SpaceSharePeopleList(props: {
           {<Trans>People with access</Trans>}
         </label>
         <p class="text textCaption text-text-secondary">
-          {<Trans>Added people find this space in their lobby and choose Join. Anyone with the space link can also join.</Trans>}
+          {
+            <Trans>
+              Added people find this space in their lobby and choose Join.
+              Anyone with the space link can also join.
+            </Trans>
+          }
         </p>
         <Show when={isLoading()}>
           <LoadingState size="small" />

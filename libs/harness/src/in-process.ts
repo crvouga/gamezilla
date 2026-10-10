@@ -3,6 +3,7 @@ import { wallClock } from '@pkgs/clock-shared/wall';
 import type { Ports, Runtime } from '@pkgs/harness-root-shared/runtime-types';
 import { virtualTimeRuntime } from '@pkgs/harness-root-shared/virtual-time-runtime';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client/multi-app-solid-dom-session';
+import { createSignal } from 'solid-js';
 import type { HarnessComposition } from './composition';
 import { loadSolidDomSessionFactory } from './in-process-dom';
 import { compositionMigratePostgres } from './migrate-composition';
@@ -114,18 +115,22 @@ export function inProcessRuntime(
     runFor = createSerializedRunFor(session.scheduler.underlying, {
       after: () => drainServerHttp.current(),
     });
+    const [focusedActor, setFocusedActor] = createSignal<string>();
     const domSession: MultiAppSolidDomSession | undefined = withDom
       ? (await loadSolidDomSessionFactory())({
-          onActorFocus: () => {
+          onActorFocus: (actorId) => {
+            setFocusedActor(actorId);
             // Reading another person's screen leaves game time unchanged.
             void runFor?.(0).catch(() => undefined);
           },
+          onActorBlur: () => setFocusedActor(undefined),
         })
       : undefined;
     return {
       sql,
       ui: {
         kind: 'solid-dom' as const,
+        focusedActor,
         ...(domSession !== undefined ? { session: domSession } : {}),
         runFor,
       },

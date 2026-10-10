@@ -16,7 +16,6 @@ import type {
 } from '@pkgs/room-root-shared/types';
 import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
 import type { CreateRoomTransport } from './room-transport-factory';
-import { WebSocketRoomTransportFactory } from './room-transport-factory';
 import { startSpaceHostSchedules } from './space-host-schedules';
 import type { SpaceRoomModule } from './space-module-context';
 
@@ -49,8 +48,8 @@ export type CreateSpaceRoomParams = {
    * refresh a rotated JWT before the socket upgrade.
    */
   getSessionToken: () => string | null | Promise<string | null>;
-  /** Defaults to WebSocket when omitted (production). */
-  createTransport?: CreateRoomTransport;
+  /** Injected by the client composition, including its offline boundary. */
+  createTransport: CreateRoomTransport;
 };
 
 export type CreateSpaceRoomResult = {
@@ -84,11 +83,7 @@ export class SpaceRoomFactory {
       createTransport,
     } = params;
     const topic = `space:${spaceId}`;
-    const wsFactory = new WebSocketRoomTransportFactory(
-      this.timers,
-      this.random
-    );
-    const transport = (createTransport ?? ((args) => wsFactory.create(args)))({
+    const transport = createTransport({
       topic,
       module: module.name,
       apiUrl,

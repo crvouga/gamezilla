@@ -41,7 +41,7 @@ export async function multiplayerView(
 }> {
   const db = actorLocalSql(s, actor);
   const env = await s.harness.client(actor);
-  const auth = env.createAuthClient().session.getSnapshot();
+  const auth = env.createAuthClient(env.server).session.getSnapshot();
   if (auth.isHydrated && auth.session === null && auth.error === null)
     return NOTHING;
   const owner = env.secureStorage.getValue(SESSION_TOKEN_KEY)

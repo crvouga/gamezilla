@@ -145,7 +145,8 @@ export function makeHarnessClientEnv(
     appOrigin: () =>
       'location' in globalThis ? globalThis.location.origin : null,
     // The actor id doubles as the harness username (client-a / client-b).
-    onAuthSuccess: () => setPendingSignupUsername(env.createAuthClient(), id),
+    onAuthSuccess: () =>
+      setPendingSignupUsername(env.createAuthClient(env.server), id),
   });
   const events = clientEvents(deps, id);
   let authClient: ReturnType<typeof createInhouseAuthClient> | undefined;
@@ -182,12 +183,12 @@ export function makeHarnessClientEnv(
     ...createInMemoryClientPorts(),
     serverUrl: HARNESS_SERVER_URL,
     // The in-house IdP on the API origin, its window in the actor's browser.
-    createAuthClient: () =>
+    createAuthClient: (http) =>
       (authClient ??= createInhouseAuthClient({
         baseURL: HARNESS_SERVER_URL,
         clock: session.ports.clock,
         timers,
-        fetch: serverFetch,
+        fetch: http,
         storage: createNamespacedAuthClientStorage(ns),
         openAuthSession: browser.openAuthSession,
         callbackUrl: `${HARNESS_SERVER_URL}/sso-callback`,

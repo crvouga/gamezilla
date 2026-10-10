@@ -15,6 +15,7 @@ import { ReportsScreen } from './reports-screen';
 
 import { createClient } from '@libs/app-root-client/create-client';
 import { wallClientEnv } from '@libs/app-root-client/wall-client-env';
+import { wallOfflineNetworkController } from '@libs/app-root-client/wall-offline-network';
 import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
 import { wallSpaceRoomTransport } from '@libs/spaces-client/wall-room-transport';
 import { assert } from '@pkgs/assert-root-shared/singleton';
@@ -47,11 +48,16 @@ function redirectedToHarness(): boolean {
 }
 
 function AppBoot(): JSX.Element {
-  const client = createClient(wallClientEnv({ room: wallSpaceRoomTransport }), {
-    features: APP_FEATURE_CLIENTS,
-    loadApp: async () => APP,
-    poolGlobalKey: '__gamezilla_sync_engine_pool__',
-  });
+  const offline = wallOfflineNetworkController();
+  const client = createClient(
+    wallClientEnv({ room: wallSpaceRoomTransport, offline }),
+    {
+      features: APP_FEATURE_CLIENTS,
+      loadApp: async () => APP,
+      poolGlobalKey: '__gamezilla_sync_engine_pool__',
+      offlineController: offline,
+    }
+  );
   const onPageHide = (): void => {
     void client.close();
   };

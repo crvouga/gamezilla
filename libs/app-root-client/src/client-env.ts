@@ -23,6 +23,7 @@ import type { SecureStorageStore } from '@pkgs/secure-storage-root-shared/secure
 import type { AudioPlaybackPort } from '@pkgs/sounds-shared/ports';
 import type { OpenExternalUrl } from '@pkgs/ui-root-client/external-url';
 import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
+import type { ClientPubSubArgs } from './create-client-pubsub';
 
 /**
  * Room WebSocket transport factory. Mirrors
@@ -63,10 +64,10 @@ export type ClientEnv = {
   /**
    * Mint a fresh PubSub for sync push. Remake closes the previous instance —
    * must not return a closed singleton (see attachPush remake contract).
-   * Harness injects its shared in-memory bus. Wall omits it: push then uses the
-   * EMQX broker from synced `client_config`.
+   * Harness injects its shared in-memory bus. The wall composition injects the
+   * broker factory, using the URL from synced `client_config`.
    */
-  readonly createPubSub?: () => PubSub;
+  readonly createPubSub: (args: ClientPubSubArgs) => PubSub | null;
   readonly openSqlClient: OpenSqlClient;
   /** Harness may shorten the sync safety-net interval. Wall uses the engine default. */
   readonly reconcileIntervalMs?: number;
@@ -93,7 +94,7 @@ export type ClientEnv = {
    * token storage, its sign-in window, its callback URL); the app only ever
    * holds the `@pkgs/auth` port.
    */
-  readonly createAuthClient: () => AuthClientPort;
+  readonly createAuthClient: (http: ServerHttp) => AuthClientPort;
   /**
    * Leaves the app for a provider-hosted page (the payment provider's
    * checkout or portal). Browser: `location.assign`; harness: the provider's real screens,

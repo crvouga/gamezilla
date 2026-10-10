@@ -9,7 +9,12 @@
  * each person's place in the app, their account and the app's capacity.
  */
 
-import { partition, restoreNetwork, spawnActor } from '@libs/harness/actions';
+import {
+  partition,
+  restartApp,
+  restoreNetwork,
+  spawnActor,
+} from '@libs/harness/actions';
 import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
 import { signedInAccountOf } from '@libs/harness/identity';
@@ -33,6 +38,10 @@ import {
   openTab,
 } from '@libs/harness/shell-actions';
 import { onScreen } from '@libs/harness/ui-reads';
+import {
+  setWorkOfflineFromCurrentPlace,
+  workingOfflineChoice,
+} from '@libs/runtime-harness/app-settings';
 import { searchUsername } from '@libs/search-harness/search-actions';
 import { createSpace, endSpace } from '@libs/spaces-harness/space-actions';
 import { openSpaceHosts } from '@libs/spaces-harness/spaces-ui-reads';
@@ -41,6 +50,7 @@ import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import offlinePaletteActorFocus from './fixtures/offline-palette-actor-focus.itf.json';
 
 const PEOPLE = ['alice', 'bob', 'carol'] as const;
 
@@ -104,6 +114,16 @@ bindQuintModel<QuintHarnessWorld>({
   traces: 10,
   maxSteps: 14,
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: offline-palette-actor-focus
+      id: 'offline-palette-actor-focus',
+      title:
+        'A person can choose to work offline after another person ends a space',
+      seed: '0x67932',
+      itf: offlinePaletteActorFocus,
+    },
+  ],
   actions: {
     init: async (w) => {
       await w.s.apply(spawnActor, 'alice');
@@ -153,6 +173,23 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(focusActor, actor);
       await w.s.apply(endSpace, actor);
     },
+    workOffline: async (w, picks) => {
+      await w.s.apply(
+        setWorkOfflineFromCurrentPlace,
+        pick(picks, 'person'),
+        true
+      );
+    },
+    workOnline: async (w, picks) => {
+      await w.s.apply(
+        setWorkOfflineFromCurrentPlace,
+        pick(picks, 'person'),
+        false
+      );
+    },
+    reopen: async (w, picks) => {
+      await w.s.apply(restartApp, pick(picks, 'person'));
+    },
     cutOff: async (w, picks) => {
       await w.s.apply(partition, pick(picks, 'person'));
     },
@@ -178,6 +215,7 @@ bindQuintModel<QuintHarnessWorld>({
     const place = new Map<QuintValue, QuintValue>();
     const lookup = new Map<QuintValue, QuintValue>();
     const signedIn = new Set<QuintValue>();
+    const workingOffline = new Set<QuintValue>();
     for (const actor of PEOPLE) {
       if (!opened.has(actor)) continue;
       const at = await w.quiet.read(placeOf, actor);
@@ -187,6 +225,9 @@ bindQuintModel<QuintHarnessWorld>({
       }
       if ((await w.quiet.read(signedInAccountOf, actor)) !== null) {
         signedIn.add(actor);
+      }
+      if (await w.quiet.read(workingOfflineChoice, actor)) {
+        workingOffline.add(actor);
       }
     }
     const _capacity = (await w.quiet.read(capacityParts)).length;
@@ -202,6 +243,7 @@ bindQuintModel<QuintHarnessWorld>({
           .flatMap((pair) => pair.split('|'))
           .filter((actor) => PEOPLE.some((person) => person === actor))
       ),
+      workingOffline,
     };
   },
 });

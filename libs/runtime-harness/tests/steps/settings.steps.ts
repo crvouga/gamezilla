@@ -1,18 +1,89 @@
 /** Settings that stick: the appearance, sounds, and which version this is. */
 
 import { expect } from 'bun:test';
+import { partition } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
-import { openSettings } from '@libs/harness/shell-actions';
+import { focusActor, openSettings } from '@libs/harness/shell-actions';
 import {
   APP_VERSION_INSTALLED,
   appearanceShown,
   chooseTheme,
   openAbout,
+  setWorkOfflineInCommandPalette,
+  setWorkOfflineInSettings,
+  signInFailureShown,
   soundShownInSettings,
   turnSoundsOff,
   versionShownInAbout,
+  workOfflineShownInSettings,
 } from '@libs/runtime-harness/app-settings';
+
+Given('{actor} has chosen to work offline', async (w, actor: Actor) => {
+  await w.s.apply(setWorkOfflineInSettings, actor, true);
+});
+
+Given(
+  '{actor} is a guest who has chosen to work offline while their device has a connection',
+  async (w, actor: Actor) => {
+    await w.s.apply(setWorkOfflineInSettings, actor, true);
+  }
+);
+
+Given(
+  '{actor} has chosen to work offline while their device had no connection',
+  async (w, actor: Actor) => {
+    await w.s.apply(focusActor, actor);
+    await w.s.apply(partition, actor);
+    await w.s.apply(setWorkOfflineInSettings, actor, true);
+  }
+);
+
+When('{actor} chooses to work offline in Settings', async (w, actor: Actor) => {
+  await w.s.apply(setWorkOfflineInSettings, actor, true);
+});
+
+When(
+  '{actor} chooses to work offline in the command palette',
+  async (w, actor: Actor) => {
+    await w.s.apply(setWorkOfflineInCommandPalette, actor, true);
+  }
+);
+
+When('{actor} stops working offline in Settings', async (w, actor: Actor) => {
+  await w.s.apply(setWorkOfflineInSettings, actor, false);
+});
+
+When(
+  '{actor} stops working offline in the command palette',
+  async (w, actor: Actor) => {
+    await w.s.apply(setWorkOfflineInCommandPalette, actor, false);
+  }
+);
+
+Then(
+  '{actor} is (still )shown they are working offline',
+  async (w, actor: Actor) => {
+    await w.s.until((harness) => workOfflineShownInSettings(harness, actor), {
+      pred: (shown) => shown?.includes('Offline') === true,
+    });
+  }
+);
+
+Then('{actor} is shown they are online', async (w, actor: Actor) => {
+  await w.s.until((harness) => workOfflineShownInSettings(harness, actor), {
+    pred: (shown) => shown?.includes('Online') === true,
+  });
+});
+
+Then(
+  '{actor} is told signing in needs a connection',
+  async (w, actor: Actor) => {
+    await w.s.until((harness) => signInFailureShown(harness, actor), {
+      pred: (shown) => shown?.toLowerCase().includes('work online') === true,
+    });
+  }
+);
 
 Given('{actor} has chosen the dark theme', async (w, actor: Actor) => {
   await w.s.apply(chooseTheme, actor, 'dark');

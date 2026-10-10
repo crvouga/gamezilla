@@ -29,6 +29,7 @@ import { GlobalMenuIdentityRoot } from './global-menu-identity-context';
 import { originAvailabilityFor } from './origin-availability-for-env';
 import { RootErrorBoundary } from './root-error-boundary';
 import { SyncStatusRoot } from './sync-status-context';
+import { WorkOfflineStatus } from './work-offline-status';
 
 export type ProductAppProps = {
   /** Multi-App product-harness: in-memory router, no document-level shortcuts. */
@@ -58,7 +59,12 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                 <GlobalMenuIdentityRoot>
                   <features.Chrome>
                     <AppFrameChromeProvider
-                      globalTrailing={<AppHeaderGlobalMenu />}
+                      globalTrailing={
+                        <div class="flex items-center gap-2">
+                          <WorkOfflineStatus />
+                          <AppHeaderGlobalMenu />
+                        </div>
+                      }
                     >
                       <BootPaintGate>
                         <AppFrame header={<AppHeaderIslandHost />}>

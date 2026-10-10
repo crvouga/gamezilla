@@ -8,6 +8,7 @@ export const Handles = {
   /** Full-bleed boot canvas while identity binds or local SQLite opens. */
   bootLoading: 'boot-loading',
   statusCurrentUser: 'status-current-user',
+  statusWorkOffline: 'status-work-offline',
   /** "Account" row inside the current-user avatar menu. */
   globalMenuAccount: 'global-menu-account',
   /** "Settings" row inside the global menu (→ `/more`). */
@@ -21,6 +22,10 @@ export const Handles = {
   // settings
   settingsTheme: 'settings-theme',
   settingsSound: 'settings-sound',
+  settingsWorkOffline: 'settings-work-offline',
+  settingsWorkOfflineSwitch: 'settings-work-offline-switch',
+  commandPalette: 'command-palette',
+  commandPaletteInput: 'command-palette-input',
   settingsAbout: 'settings-about',
   /** Appearance picker option (`light` / `dark` / `system`). */
   themeOption: (key: 'light' | 'dark' | 'system') => `theme-option-${key}`,

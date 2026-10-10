@@ -29,7 +29,9 @@ export const controlledMultiplayerCommand = scenarioAction({
       await Promise.resolve(sendMultiplayerCommand.act(s, actor, command));
       return;
     }
-    const session = env.createAuthClient().session.getSnapshot().session;
+    const session = env
+      .createAuthClient(env.server)
+      .session.getSnapshot().session;
     if (session === null) return;
     const app = s.harness.composition.app;
     const mutation = (await app.mutations())[command.name];
