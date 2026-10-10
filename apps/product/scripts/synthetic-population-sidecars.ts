@@ -4,6 +4,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnOwned as spawn } from '@pkgs/os-server/dev-owner-spawn';
 import { reservePort, waitForHttp } from './free-port';
+import { localProcessEnv } from './local-process-env';
 
 /** Persist local keys with local data; a stack never inherits deployed credentials. */
 export function syntheticPopulationStackSecrets(
@@ -33,6 +34,7 @@ export async function startSyntheticPopulationSidecars(input: {
     const child = spawn(
       'bun',
       [
+        '--no-env-file',
         '--conditions=browser',
         '--conditions=development',
         'apps/synthetic-population-worker/src/main.ts',
@@ -41,7 +43,7 @@ export async function startSyntheticPopulationSidecars(input: {
         cwd: input.repoRoot,
         stdio: 'inherit',
         env: {
-          ...process.env,
+          ...localProcessEnv(process.env),
           SECRETS_ENV: 'local',
           DEPLOYMENT_ENVIRONMENT: '',
           DEPLOYMENT_VERSION: 'local',

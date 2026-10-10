@@ -13,7 +13,7 @@
 
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { pollUntil } from './actor-ui';
-import type { ProductHarness } from './harness';
+import { type ProductHarness, productExtra } from './harness';
 import type { HarnessIdpProvider } from './idp';
 import { harnessIdpAccountId } from './idp';
 
@@ -148,7 +148,9 @@ export async function completeProviderSignIn(args: {
   for (let step = 0; step < MAX_PROVIDER_STEPS; step += 1) {
     const screen = await currentScreen(s, ui, args.done);
     if (screen === 'done') return;
-    await answer(ui, screen, args.answers);
+    // Live browsers execute Apple's form-post script; clicking again replays state.
+    if (screen !== 'handoff' || productExtra(s).ui.kind !== 'bun-webview')
+      await answer(ui, screen, args.answers);
     // The step is a round trip to the provider: the next screen (or the
     // hand-off back to the app) replaces this one when it lands.
     await ui.get(SCREEN_TEST_IDS[screen]).expect.hidden({ timeoutMs: WAIT_MS });

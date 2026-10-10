@@ -35,7 +35,11 @@ function hashTopic(topic: string): number {
 
 type Frame = string | ArrayBuffer;
 
-type SocketPair = { upstream: WebSocket | null; queue: Frame[] };
+type SocketPair = {
+  readonly target: string;
+  upstream: WebSocket | null;
+  queue: Frame[];
+};
 
 function forwardUrl(backend: Backend, request: Request): string {
   const url = new URL(request.url);
@@ -91,8 +95,6 @@ export function startLoadBalancer(args: {
     return backend;
   };
 
-  const pendingTargets = new Map<SocketPair, string>();
-
   const server = Bun.serve<SocketPair, string>({
     port: args.port,
     hostname: '127.0.0.1',
@@ -104,14 +106,17 @@ export function startLoadBalancer(args: {
       if (isUpgrade) {
         const topic = url.searchParams.get('topic') ?? '';
         const backend = backendForTopic(topic);
-        const pair: SocketPair = { upstream: null, queue: [] };
+        const pair: SocketPair = {
+          target: forwardUrl(backend, request),
+          upstream: null,
+          queue: [],
+        };
         if (
           server.upgrade(request, {
             data: pair,
             headers: { 'x-lb-backend': backend.id },
           })
         ) {
-          pendingTargets.set(pair, forwardUrl(backend, request));
           return undefined as never;
         }
         return new Response('upgrade failed', { status: 400 });
@@ -126,13 +131,12 @@ export function startLoadBalancer(args: {
     },
     websocket: {
       open(ws) {
-        const target = pendingTargets.get(ws.data);
-        pendingTargets.delete(ws.data);
-        if (target === undefined) {
-          ws.close();
-          return;
-        }
-        pipeUpstream({ ws, pair: ws.data, target, protocol: null });
+        pipeUpstream({
+          ws,
+          pair: ws.data,
+          target: ws.data.target,
+          protocol: null,
+        });
       },
       message(ws, message) {
         const payload: Frame =

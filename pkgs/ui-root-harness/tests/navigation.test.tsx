@@ -88,6 +88,8 @@ describe('AppRouterProvider over @solidjs/router', () => {
     expect(await screen.findByText('path:/space/7')).toBeInTheDocument();
     expect(screen.getByText('id:7 q:z')).toBeInTheDocument();
     expect(screen.getByText('back:yes')).toBeInTheDocument();
+    // regression: duplicate-route-push-escapes-app
+    await user.click(screen.getByText('go'));
     await user.click(screen.getByText('back'));
     expect(await screen.findByText('path:/')).toBeInTheDocument();
     expect(screen.getByText('back:no')).toBeInTheDocument();

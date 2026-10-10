@@ -7,9 +7,8 @@
  *
  * Every port is OS-assigned and every piece of state lives under one
  * instance directory, so several stacks run side by side with no
- * coordination beyond the manifest each one writes. With a reports credential,
- * every API instance reads the one reports bucket OpenTofu provisions
- * (`gamezilla-reports`), the same store every deployment reads.
+ * coordination beyond the manifest each one writes. Reports use the local
+ * Mockingbird object store; no deployed credentials enter the stack.
  */
 
 import type { ChildProcess } from 'node:child_process';
@@ -20,7 +19,6 @@ import {
   type StripeServer,
 } from '@crvouga/mockingbird-service-stripe/server';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
-import { GLOBAL } from '@libs/infra-shared/global';
 import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers-server/billing-providers';
 import { membershipCallbackPath } from '@pkgs/billing-root-shared/providers';
 import { STRIPE_MEMBERSHIP_PROVIDER } from '@pkgs/billing-stripe-server/provider-module';
@@ -36,13 +34,12 @@ import { bootInfra } from './boot-infra';
 import type { PortReservation } from './free-port';
 import { reservePort, waitForApiBooted, waitForHttp } from './free-port';
 import { startLoadBalancer } from './load-balancer';
+import { localApiEnv } from './local-api-env';
+import { configureLocalPopulation } from './local-population';
+import { localProcessEnv } from './local-process-env';
 import type { StackManifest } from './manifest';
 import { writeManifest } from './manifest';
 import { mockingbirdSqliteFile } from './mockingbird-sqlite';
-import {
-  loadReportsDevSecrets,
-  reportsDevEnv,
-} from './reports-dev-credentials';
 import type { StackOptions } from './stack-options';
 import type { IdpState, StackIdps } from './start-idps';
 import { startStackIdps } from './start-idps';
@@ -52,7 +49,6 @@ import {
 } from './synthetic-population-sidecars';
 
 const REPO_ROOT = join(import.meta.dir, '../../..');
-const AUTH_SECRET = 'localhost-stack-auth-secret-0123456789';
 const BILLING_SECRET_KEY = 'sk_test_localhost_stack';
 /**
  * The product web app (`/` and `/harness`). This is Vite itself: the package
@@ -153,14 +149,6 @@ async function stopChild(child: ChildProcess): Promise<void> {
   await exited;
 }
 
-/**
- * Read credential for the shared reports bucket. Loaded once per stack and
- * handed to every API instance, so they list the same commits.
- */
-function reportsEnvForStack(): Readonly<Record<string, string>> {
-  return reportsDevEnv(loadReportsDevSecrets(REPO_ROOT), GLOBAL.reports.bucket);
-}
-
 function startApiNode(args: {
   readonly id: string;
   readonly port: number;
@@ -169,37 +157,37 @@ function startApiNode(args: {
   readonly billing: BillingProvider;
   readonly webOrigin: string | null;
   readonly infraEnv: Readonly<Record<string, string>>;
-  readonly reportsEnv: Readonly<Record<string, string>>;
   readonly roomServiceToken: string;
 }): ChildProcess {
-  return spawn('bun', ['run', 'apps/server/scripts/serve-api-node.ts'], {
-    cwd: REPO_ROOT,
-    stdio: 'inherit',
-    env: {
-      ...process.env,
-      ...args.infraEnv,
-      ...args.reportsEnv,
-      ...args.idpEnv,
-      API_NODE_ID: args.id,
-      API_NODE_PORT: String(args.port),
-      LOCAL_ROOM_SERVICE_TOKEN: args.roomServiceToken,
-      SECRETS_ENV: 'dev',
-      API_URL: args.apiOrigin,
-      AUTH_SECRET,
-      // The stack bills through the simulated Stripe alone: no real
-      // provider's credentials from the parent environment reach it.
-      ...Object.fromEntries(
-        MEMBERSHIP_PROVIDER_MODULES.flatMap((module) =>
-          module.secrets.map((secret) => [secret.name, ''])
-        )
-      ),
-      BILLING_PROVIDER: STRIPE_PROVIDER,
-      [StripeSecretKeys.secretKey]: BILLING_SECRET_KEY,
-      [StripeSecretKeys.webhookSecret]: args.billing.webhookSecret,
-      [StripeBindingKeys.apiOrigin]: args.billing.server.url,
-      WEB_CLIENT_ORIGIN: args.webOrigin ?? '',
-    },
-  });
+  return spawn(
+    'bun',
+    ['--no-env-file', 'run', 'apps/server/scripts/serve-api-node.ts'],
+    {
+      cwd: REPO_ROOT,
+      stdio: 'inherit',
+      env: {
+        ...localApiEnv(process.env),
+        ...args.infraEnv,
+        ...args.idpEnv,
+        API_NODE_ID: args.id,
+        API_NODE_PORT: String(args.port),
+        LOCAL_ROOM_SERVICE_TOKEN: args.roomServiceToken,
+        API_URL: args.apiOrigin,
+        // The stack bills through the simulated Stripe alone: no real
+        // provider's credentials from the parent environment reach it.
+        ...Object.fromEntries(
+          MEMBERSHIP_PROVIDER_MODULES.flatMap((module) =>
+            module.secrets.map((secret) => [secret.name, ''])
+          )
+        ),
+        BILLING_PROVIDER: STRIPE_PROVIDER,
+        [StripeSecretKeys.secretKey]: BILLING_SECRET_KEY,
+        [StripeSecretKeys.webhookSecret]: args.billing.webhookSecret,
+        [StripeBindingKeys.apiOrigin]: args.billing.server.url,
+        WEB_CLIENT_ORIGIN: args.webOrigin ?? '',
+      },
+    }
+  );
 }
 
 async function startWeb(args: {
@@ -212,7 +200,8 @@ async function startWeb(args: {
     cwd: REPO_ROOT,
     stdio: 'inherit',
     env: {
-      ...process.env,
+      ...localProcessEnv(process.env),
+      LOCALHOST_STACK: '1',
       VITE_PORT: new URL(args.origin).port,
       VITE_API_URL: args.apiOrigin,
       VITE_LOCAL_PREVIEW_API_ORIGIN: args.apiOrigin,
@@ -261,13 +250,7 @@ async function startApiTier(args: {
   readonly infra: InfraHandles;
   readonly syntheticPopulationSecrets: Readonly<Record<string, string>>;
 }): Promise<ApiTier> {
-  const reportsEnv = reportsEnvForStack();
   const roomServiceToken = crypto.randomUUID();
-  process.stdout.write(
-    reportsEnv['REPORTS_BUCKET']
-      ? `[stack] spec reports: ${GLOBAL.reports.bucket} (every API instance)\n`
-      : '[stack] spec reports unavailable: shared read credentials are missing or invalid; continuing startup.\n'
-  );
   const children: ChildProcess[] = [];
   const backends: { readonly id: string; readonly origin: string }[] = [];
   for (let index = 0; index < args.options.apiNodes; index += 1) {
@@ -283,7 +266,6 @@ async function startApiTier(args: {
         billing: args.billing,
         webOrigin: args.webOrigin,
         infraEnv: { ...args.infra.env, ...args.syntheticPopulationSecrets },
-        reportsEnv,
         roomServiceToken,
       })
     );
@@ -330,6 +312,10 @@ async function bootInfraAndIdps(args: {
   });
   try {
     const [infra, idps] = await Promise.all([infraPromise, idpPromise]);
+    await configureLocalPopulation(
+      infra.databaseUrl,
+      args.options.syntheticPopulationWorkers
+    );
     return { infra, idps };
   } catch (error) {
     const [infraResult, idpResult] = await Promise.allSettled([

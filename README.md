@@ -402,6 +402,20 @@ deploy:<env>   foundation -> migrate -> product (assets + API + rooms)
 
 `bun run gc` collects abandoned boots for this checkout, preserving live supervisors. `bun run stop` (also `bun run kill`) intentionally stops all its boots. Ownership records live in `.cache/dev-owner/`: boot identities, per-PID ledgers, listen-port claims, resource records, and the admission lock. Launch gates stamp `DEV_OWNER_ROOT` and `DEV_OWNER_BOOT` and record service and Node/Bun worker leaders before execution. An independent watchdog and GC collect stamped descendants, including separate sessions after supervisor death. Cleanup compares process birth identities and refuses foreign checkout stamps; it never kills by a machine-wide name or port.
 
+Run initializes the local population controller with one synthetic opponent per worker
+(default one), then starts workers that sign in and use the normal space and chess
+matchmaking controls. `--synthetic-population-workers 3` starts three; `0` disables
+them for isolated scenarios. The committed puzzle pool supplies 2,000 puzzles.
+Child processes inherit only process plumbing, with service bindings supplied by
+the stack. API reports use local Mockingbird S3; the development reports page shows
+workspace reports without fetching shared cloud credentials. Local data is fresh
+unless a named instance is reused with `--keep-data`.
+
+`bun run --filter @apps/product test:stack specs/profile/apple-sign-in.feature`
+boots the same services for automated browser scenarios. Feature paths select their
+owning suite. The suite runs asynchronously so emulator listeners continue serving
+requests while its child process runs.
+
 Migration status and outstanding Mockingbird service/compatibility gaps are tracked in [`libs/tools/MOCKINGBIRD_MIGRATION.md`](libs/tools/MOCKINGBIRD_MIGRATION.md).
 
 ```bash

@@ -137,15 +137,7 @@ export async function bootInfra(args: {
       DATABASE_URL: postgres.url,
       OPENAI_API_KEY: DEFAULT_TOKEN,
       OPENAI_BASE_URL: openai.url,
-      ...(s3 === null
-        ? {}
-        : {
-            S3_ACCESS_KEY_ID,
-            S3_SECRET_ACCESS_KEY,
-            S3_BUCKET,
-            S3_ENDPOINT: s3.endpoint,
-            S3_REGION,
-          }),
+      ...objectStoreEnv(s3?.endpoint ?? null),
       ...(mqtt === null
         ? {}
         : {
@@ -173,5 +165,20 @@ export async function bootInfra(args: {
       await openai?.close();
       await postgres.stop();
     },
+  };
+}
+
+function objectStoreEnv(endpoint: string | null): Record<string, string> {
+  if (endpoint === null) return {};
+  return {
+    S3_ACCESS_KEY_ID,
+    S3_SECRET_ACCESS_KEY,
+    S3_BUCKET,
+    S3_REGION,
+    S3_ENDPOINT: endpoint,
+    REPORTS_BUCKET: S3_BUCKET,
+    REPORTS_ENDPOINT: endpoint,
+    REPORTS_ACCESS_KEY_ID: S3_ACCESS_KEY_ID,
+    REPORTS_SECRET_ACCESS_KEY: S3_SECRET_ACCESS_KEY,
   };
 }

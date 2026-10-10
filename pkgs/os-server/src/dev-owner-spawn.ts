@@ -24,7 +24,11 @@ export function spawnOwned(
   args: readonly string[],
   options: SpawnOptions = {}
 ): ChildProcess {
-  const env = { ...process.env, ...options.env };
+  const env: NodeJS.ProcessEnv = {
+    DEV_OWNER_ROOT: process.env['DEV_OWNER_ROOT'],
+    DEV_OWNER_BOOT: process.env['DEV_OWNER_BOOT'],
+    ...(options.env ?? process.env),
+  };
   const root = env['DEV_OWNER_ROOT'];
   if (!root) return spawn(command, [...args], options);
   const hook = join(import.meta.dirname, 'dev-owner-hook.cjs');

@@ -1,0 +1,4 @@
+{
+  "summary": "The stack runner spawned spec suites synchronously, starving its in-process Mockingbird services and load balancer until requests timed out.",
+  "regressionTest": "apps/product/scripts/spec-process.test.ts"
+}

@@ -6,6 +6,7 @@ import { resolveDevRepoRoot } from './dev-repo-root';
 describe('development repository root', () => {
   test('survives moving the launcher within the product scripts', () => {
     // regression: bun-dev-repo-root-after-script-move
+    // regression: dev-prepare-stale-manifest
     const repoRoot = '/Users/chrisvouga/gamezilla';
     const markerFiles = new Set([
       join(repoRoot, 'package.json'),

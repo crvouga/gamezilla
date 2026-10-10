@@ -155,6 +155,8 @@
         "@libs/pubsub-shared": "workspace:*",
         "@libs/secrets-server": "workspace:*",
         "@libs/secrets-shared": "workspace:*",
+        "@libs/synthetic-population-server": "workspace:*",
+        "@libs/synthetic-population-shared": "workspace:*",
         "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@lingui/conf": "catalog:",
         "@pkgs/auth-inhouse-server": "workspace:*",
