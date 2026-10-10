@@ -1,4 +1,4 @@
 {
-  "summary": "The reports store retained superseded commits and reports of merged or deleted branches for thirty days. Keep only one report per existing branch and garbage collect orphan uploads.",
+  "summary": "Branch-based pruning erased evidence needed by the combined report. Preserve reports from superseded commits and removed branches.",
   "regressionTest": "pkgs/atlas-reports-harness/tests/retention.test.ts"
 }

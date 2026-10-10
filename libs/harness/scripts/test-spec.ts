@@ -395,7 +395,7 @@ function finishReport(status: number): void {
   );
   writeFileSync(
     join(REPORT_DIR, REPORT_COMPLETION),
-    JSON.stringify({ status })
+    JSON.stringify({ status, completedAtMs: wallClock.now() })
   );
   console.log(REPORT_READY);
 }

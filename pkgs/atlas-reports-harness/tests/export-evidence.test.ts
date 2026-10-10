@@ -46,30 +46,53 @@ test('static Atlas export preserves revision specs, outcomes, timeline and snaps
     startedAtMs: 0,
     frameCss: 'body { color: black }',
   });
-  const source = await publishSource(store, {
+  await publishSource(store, {
     sha,
     packageDir: 'example',
     bucket: 'behavior',
     local: bucket,
   });
   await closeCommit(store, { sha, endedAtMs: 1 });
-  const app = createReportsApp({ store, ...createHarnessClock() });
+  const app = createReportsApp({
+    store,
+    ...createHarnessClock(),
+    outline: async () => ({
+      sha,
+      changedFiles: [],
+      specs: [
+        {
+          path: 'specs/lists/add.feature',
+          title: 'Add an item',
+          domain: 'lists',
+          kind: 'feature',
+        },
+      ],
+      readSpec: async () => 'Feature: Add an item\n',
+    }),
+  });
   const exported = await exportEvidence({
     fetch: (path) =>
       Promise.resolve(app.request(`http://atlas/${path.replace(/^\//, '')}`)),
     target: output,
   });
-  expect(exported).toEqual({ revisions: 1, missing: [] });
-  const base = `/${sha}/tests/${source!.source}/adds-tea`;
+  expect(exported.revisions).toBe(1);
+  expect(exported.layers).toBeGreaterThan(0);
+  // regression: atlas-layer-snapshot-path
+  expect(exported.missing).toEqual([]);
+  const page = JSON.parse((await readUtf8(output, 'layers.json'))!) as {
+    layers: { id: string }[];
+  };
+  expect(page.layers).toHaveLength(1);
+  const base = `/layers/${page.layers[0]!.id}/tests/adds-tea/report.json`;
   expect(await readUtf8(output, evidenceFile(base))).toContain('adds-tea');
   expect(
     await readUtf8(
       output,
-      evidenceFile(`/${sha}/spec?path=specs%2Flists%2Fadd.feature`)
+      evidenceFile('/outline/spec?path=specs%2Flists%2Fadd.feature')
     )
   ).toBe('Feature: Add an item\n');
   expect((await output.listKeys()).some((key) => key.includes('/files/'))).toBe(
     true
   );
-  expect(await readUtf8(output, 'index.json')).toContain(sha);
+  expect(await readUtf8(output, 'layers.json')).toContain(sha);
 });

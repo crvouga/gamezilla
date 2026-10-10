@@ -1,0 +1,4 @@
+{
+  "summary": "Attempt-scoped publication must read the shared commit spec inventory so its layers retain freshness fingerprints.",
+  "regressionTest": "pkgs/atlas-reports-harness/tests/layer-store.test.ts"
+}

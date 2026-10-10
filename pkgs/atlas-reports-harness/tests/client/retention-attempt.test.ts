@@ -27,7 +27,7 @@ const identity = { taskHash: '0123456789abcdef', generation: 12 };
 const bucket = { packageDir: 'libs/example', bucket: 'part-0', identity };
 
 // regression: reports-cleanup-attempt-shared-content
-test('cleanup removes old attempts and orphan content while reused snapshots remain readable', async () => {
+test('cleanup retains earlier attempts and shared content for report layers', async () => {
   const store = new ObjectStoreImplInMemory();
   const local = new ObjectStoreImplInMemory();
   {
@@ -66,11 +66,11 @@ test('cleanup removes old attempts and orphan content while reused snapshots rem
     source
   );
   await writeUtf8(store, `${orphan}complete.json`, '{}', 'application/json');
-  await pruneReports(store, new Map([['counter', HEAD]]));
-  expect(await store.listKeys('attempts/run:1/')).toEqual([]);
-  expect(await store.listKeys('attempts/run:2/')).toEqual([]);
+  await pruneReports(store);
+  expect(await store.listKeys('attempts/run:1/')).not.toEqual([]);
+  expect(await store.listKeys('attempts/run:2/')).not.toEqual([]);
   expect(await store.listKeys('attempts/run:3/')).not.toEqual([]);
-  expect(await store.listKeys(orphan)).toEqual([]);
+  expect(await store.listKeys(orphan)).not.toEqual([]);
   expect((await readCommit(store, HEAD))?.state).toBe('complete');
   const ref = { sha: HEAD, source, testId: 'put' };
   expect((await readTestReport(store, ref))?.meta.title).toBe('puts a value');
@@ -78,9 +78,7 @@ test('cleanup removes old attempts and orphan content while reused snapshots rem
   for await (const event of testEvents(store, ref))
     if (event.type === 'blob' && event.blob.text) html.push(event.blob.text);
   expect(html.join('')).toContain('retained snapshot');
-  expect(
-    (await pruneReports(store, new Map([['counter', HEAD]]))).deleteKeys
-  ).toEqual([]);
+  expect((await pruneReports(store)).deleteKeys).toEqual([]);
 });
 
 test('cleanup preserves uploads until a running report can attach their content', async () => {
@@ -95,9 +93,9 @@ test('cleanup preserves uploads until a running report can attach their content'
   });
   const key = `${sourceContentPrefix(identity, source)}put/snapshots-0.json.gz`;
   await writeUtf8(store, key, 'upload in progress', 'application/gzip');
-  await pruneReports(store, new Map([['counter', HEAD]]));
+  await pruneReports(store);
   expect(await store.head(key)).toBe(true);
   await closeCommit(store, { sha: HEAD, publicationId: 'run:3', endedAtMs: 5 });
-  await pruneReports(store, new Map([['counter', HEAD]]));
-  expect(await store.head(key)).toBe(false);
+  await pruneReports(store);
+  expect(await store.head(key)).toBe(true);
 });

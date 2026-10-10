@@ -8,12 +8,10 @@ import type { SourceIdentity } from '@crvouga/atlas-reports/source-content';
 import { reuseSource } from '@crvouga/atlas-reports/source-content';
 import type { ReportTask } from '@libs/harness/report-ready';
 import { REPORT_COMPLETION, reportTask } from '@libs/harness/report-ready';
-import { wallClock } from '@pkgs/clock-shared/wall';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
-import { publishPartOutput } from './report-part-output';
 
 function receiptKey(sha: string, runId: string, task: ReportTask): string {
   return `commits/${sha}/publications/${encodeURIComponent(runId)}/${sourceId(task.packageDir, task.bucket)}.json`;
@@ -63,13 +61,6 @@ export async function publishReportTask(args: {
         status: completion.status === 0 ? 'passed' : 'failed',
       })
     : null;
-  if (record !== null)
-    await publishPartOutput({
-      store: args.store,
-      sha: args.sha,
-      source: record,
-      recordedAtMs: wallClock.now(),
-    });
   // Empty parts and suites without timelines still acknowledge completion.
   // The run id prevents an earlier attempt's receipt satisfying this run.
   await writeUtf8(
@@ -104,12 +95,6 @@ export async function reuseReportTask(args: {
     identity: args.identity,
   });
   if (record === null) return false;
-  await publishPartOutput({
-    store: args.store,
-    sha: args.sha,
-    source: record,
-    recordedAtMs: wallClock.now(),
-  });
   await writeUtf8(
     store,
     receiptKey(args.sha, args.runId, task),

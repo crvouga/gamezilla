@@ -9,8 +9,8 @@ import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { RecordSecretStore } from '@pkgs/secret-store-shared/record-secret-store';
 import { Hono } from 'hono';
+import { workspaceOutline } from './atlas-outline';
 import { createReportsObjectStore } from './atlas-report-store';
-
 import { loadReportsDevSecrets } from './atlas-reports-credentials';
 import { workspaceReports } from './atlas-workspace-reports';
 
@@ -33,7 +33,8 @@ export function reportsDevFetch(
 
 export async function openReportsDevApp(
   repoRoot: string,
-  workspace: () => Promise<WorkspaceReports> = () => workspaceReports(repoRoot)
+  workspace: () => Promise<WorkspaceReports> = () => workspaceReports(repoRoot),
+  outline = () => workspaceOutline(repoRoot)
 ): Promise<FetchApp> {
   const store = await createReportsObjectStore(
     new RecordSecretStore(loadReportsDevSecrets(repoRoot)),
@@ -51,6 +52,7 @@ export async function openReportsDevApp(
       clock: wallClock,
       timers: wallTimers,
       workspace,
+      outline,
     })
   );
 }

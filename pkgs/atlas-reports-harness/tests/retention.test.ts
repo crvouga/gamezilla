@@ -5,7 +5,7 @@ import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 
 // regression: reports-retain-merged-and-superseded-commits
-test('keeps only the latest report per live branch, removing merged reports, rerun indexes and orphan uploads', async () => {
+test('keeps earlier and merged reports so report layers survive branch changes', async () => {
   const store = new ObjectStoreImplInMemory();
   const old = 'a'.repeat(40),
     head = 'b'.repeat(40),
@@ -38,10 +38,14 @@ test('keeps only the latest report per live branch, removing merged reports, rer
     'text/plain'
   );
   await writeUtf8(store, 'unrelated', 'keep', 'text/plain');
-  const plan = await pruneReports(store, new Map([['counter', head]]));
-  expect(plan.retained.map((record) => record.sha)).toEqual([head]);
+  const plan = await pruneReports(store);
+  expect(plan.retained.map((record) => record.sha).sort()).toEqual([
+    old,
+    head,
+    merged,
+  ]);
   const keys = await store.listKeys();
-  expect(keys.filter((key) => key.startsWith('index/'))).toHaveLength(1);
+  expect(keys.filter((key) => key.startsWith('index/'))).toHaveLength(4);
   expect(
     keys.filter(
       (key) =>
@@ -49,10 +53,8 @@ test('keeps only the latest report per live branch, removing merged reports, rer
         key.startsWith(`commits/${merged}/`) ||
         key.startsWith(`commits/${orphan}/`)
     )
-  ).toEqual([]);
+  ).not.toEqual([]);
   expect(await store.head(`commits/${head}/blobs/snapshot.gz`)).toBe(true);
   expect(await store.head('unrelated')).toBe(true);
-  expect(
-    (await pruneReports(store, new Map([['counter', head]]))).deleteKeys
-  ).toEqual([]);
+  expect((await pruneReports(store)).deleteKeys).toEqual([]);
 });

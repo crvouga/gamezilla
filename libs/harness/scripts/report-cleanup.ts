@@ -87,21 +87,15 @@ function githubPort(repo: string): BranchCleanupPort {
 
 async function main(): Promise<void> {
   const apply = process.argv.includes('--apply');
-  const repo =
-    process.env['GITHUB_REPOSITORY'] ??
-    gh<{ nameWithOwner: string }>(['repo', 'view', '--json', 'nameWithOwner'])
-      .nameWithOwner;
-  const github = githubPort(repo);
   if (process.argv.includes('--branches')) {
+    const repo =
+      process.env['GITHUB_REPOSITORY'] ??
+      gh<{ nameWithOwner: string }>(['repo', 'view', '--json', 'nameWithOwner'])
+        .nameWithOwner;
     console.log(
-      `Branches ${apply ? 'deleted' : 'eligible'}: ${JSON.stringify(await cleanupBranches(github, apply))}`
+      `Branches ${apply ? 'deleted' : 'eligible'}: ${JSON.stringify(await cleanupBranches(githubPort(repo), apply))}`
     );
   }
-  const branches = new Map(
-    (await github.branches()).map((branch) => [branch.name, branch.sha])
-  );
-  if (branches.size === 0)
-    throw new Error('Refusing report cleanup with an empty branch inventory');
   const store = reportsStore();
   const plan = apply
     ? await pruneReports(store)
