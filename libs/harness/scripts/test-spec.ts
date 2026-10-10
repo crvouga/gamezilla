@@ -55,7 +55,7 @@ import { wallClock } from '@pkgs/clock-shared/wall';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared/stubs';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
-import { testConcurrency } from '@pkgs/os-server/test-concurrency';
+import { specParallelism } from '@pkgs/os-server/test-concurrency';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint-shared/stubs';
 import { completedOrigin, reportOrigin } from './report-origin';
 import { CHECK_KINDS, isSpecPath, SPEC_GLOBS } from './spec-check-kinds';
@@ -361,9 +361,9 @@ const result = spawnSync(
       : ['--preload', process.env['HARNESS_PRELOAD']]),
     '--timeout',
     String(TIMEOUT_MS),
-    // Full product worlds own DOMs, databases and recorded frames. Two
-    // workers keep those worlds moving instead of competing for memory.
-    `--parallel=${String(testConcurrency(process.env, 2))}`,
+    // One product world per worker (~2GB). The ceiling follows CPUs and RAM;
+    // CHECK_TEST_CONCURRENCY can only lower it. Frames still go to the report.
+    `--parallel=${String(specParallelism(process.env))}`,
     '--no-isolate',
     '--reporter=junit',
     `--reporter-outfile=${JUNIT_PATH}`,
