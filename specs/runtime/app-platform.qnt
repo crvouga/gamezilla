@@ -229,9 +229,10 @@ module app_platform {
     ),
   }
 
-  /// Closing and reopening the app keeps the person's place and offline choice.
+  /// Closing and reopening Settings keeps the person's offline choice.
   action reopen(person: Person): bool = all {
     opened.contains(person),
+    place.get(person) == Settings,
     _moveTo(
       opened, place, signedIn, _capacity, _lastTab, _searchedFor, hosting, offline,
       workingOffline,
