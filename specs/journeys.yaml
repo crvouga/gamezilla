@@ -680,23 +680,6 @@ journeys:
     gherkin:
     - specs/runtime/settings.feature
     tour: true
-  Report exploration keeps missing evidence visible:
-    description: The team reaches reports, reads missing evidence, then explores a completed report’s moments.
-    events:
-    - Opens the testing tool
-    - Opens automated reports
-    - Explores specs and report parts
-    - Opens a spec with no completed evidence
-    - Returns to the spec evidence
-    - Opens this spec’s completed report
-    - Moves to the next recorded moment within the report
-    - Moves to the next failed moment and wraps if needed
-    endsIn:
-    - 'Reports: Recorded moment'
-    gherkin:
-    - specs/developer-tools/report-explorer.feature
-    - specs/developer-tools/report-navigation.feature
-    tour: true
   Test worlds and checkpoints keep independent devices:
     description: Changing the arrangement does not act in the apps; a compatible checkpoint restores the world.
     events:
@@ -945,10 +928,6 @@ journeys:
     - Opens data notebooks
     - Runs a notebook question
     - The notebook answer succeeds
-    - Returns to the testing tool
-    - Opens automated reports
-    - Explores specs and report parts
-    - Opens this spec’s completed report
     - Returns to the testing tool
     - Opens release evidence
     - Runs the release check
