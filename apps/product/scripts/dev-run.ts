@@ -1,7 +1,9 @@
 // @io-wall-ok — development process entry.
+
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { resolveDevRepoRoot } from './dev-repo-root';
+import { localProcessEnv } from './local-process-env';
 import { parseStackOptions } from './stack-options';
 
 const args = process.argv.slice(2).filter((arg) => arg !== '--');
@@ -14,7 +16,7 @@ const child = spawn(
     cwd: repoRoot,
     stdio: 'inherit',
     env: {
-      ...process.env,
+      ...localProcessEnv(process.env),
       LOCALHOST_STACK_ARGS: JSON.stringify([
         ...args,
         '--instance',

@@ -1,8 +1,10 @@
 // @io-wall-ok — development process entry.
+
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { devStackOptions } from './dev-options';
+import { localProcessEnv } from './local-process-env';
 import { manifestPath, readManifest } from './manifest';
 
 const root = join(import.meta.dir, '../../..');
@@ -23,7 +25,8 @@ const child = spawn(
     cwd: join(root, 'apps/product'),
     stdio: 'inherit',
     env: {
-      ...process.env,
+      ...localProcessEnv(process.env),
+      LOCALHOST_STACK: '1',
       VITE_PORT: new URL(manifest.webOrigin).port,
       VITE_API_URL: manifest.apiOrigin,
       VITE_LOCAL_PREVIEW_API_ORIGIN: manifest.apiOrigin,

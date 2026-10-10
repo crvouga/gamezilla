@@ -398,6 +398,20 @@ deploy:<env>   foundation -> migrate -> product (assets + API + rooms)
 
 `bun run dev` (alias `bun run stack`) runs through Turborepo’s terminal UI. Turbo owns environment setup, message catalog compilation, stack preparation, backend services, and Vite; Vite waits for the backend readiness manifest. The stack boots Mockingbird Postgres, Mockingbird S3, Aedes, simulated Google, Apple, and Stripe, N API nodes, and the product web app (`/`, `/harness`, `/simulator`). Ports are OS-assigned and published to `.cache/localhost-stack/<instance>.json`. `source libs/tools/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
 
+Run initializes the local population controller with one synthetic opponent per worker
+(default one), then starts workers that sign in and use the normal space and chess
+matchmaking controls. `--synthetic-population-workers 3` starts three; `0` disables
+them for isolated scenarios. The committed puzzle pool supplies 2,000 puzzles.
+Child processes inherit only process plumbing, with service bindings supplied by
+the stack. API reports use local Mockingbird S3; the development reports page shows
+workspace reports without fetching shared cloud credentials. Local data is fresh
+unless a named instance is reused with `--keep-data`.
+
+`bun run --filter @apps/product test:stack specs/profile/apple-sign-in.feature`
+boots the same services for automated browser scenarios. Feature paths select their
+owning suite. The suite runs asynchronously so emulator listeners continue serving
+requests while its child process runs.
+
 Migration status and outstanding Mockingbird service/compatibility gaps are tracked in [`libs/tools/MOCKINGBIRD_MIGRATION.md`](libs/tools/MOCKINGBIRD_MIGRATION.md).
 
 ```bash
