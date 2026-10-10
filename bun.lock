@@ -4801,7 +4801,6 @@
       "name": "@pkgs/os-server",
       "version": "0.0.0",
       "dependencies": {
-        "@pkgs/assert-root-shared": "workspace:*",
         "@pkgs/os-shared": "workspace:*",
       },
       "devDependencies": {

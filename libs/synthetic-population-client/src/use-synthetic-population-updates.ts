@@ -1,6 +1,5 @@
 import { useClientConfig } from '@libs/app-config-client/use-client-config';
 import { useClientEnv } from '@libs/app-root-client/client-env-context';
-import { createObservationPubSub } from '@libs/app-root-client/create-client-pubsub';
 import { SYNTHETIC_POPULATION_TOPIC } from '@libs/synthetic-population-shared/synthetic-population-topic';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { createEffect, onCleanup } from 'solid-js';
@@ -14,7 +13,7 @@ export function useSyntheticPopulationUpdates(refresh: () => unknown): void {
   createEffect(() => {
     const url = config.config().emqx_wss_url;
     if (!url) return;
-    const pubsub = createObservationPubSub({
+    const pubsub = env.createPubSub({
       url,
       clientIdPrefix: 'synthetic-population-observation',
       timers: env.timers,
@@ -25,6 +24,7 @@ export function useSyntheticPopulationUpdates(refresh: () => unknown): void {
       }),
       auth: () => api.subscriptionCredentials(),
     });
+    if (pubsub === null) return;
     let timer: unknown;
     const invalidate = () => {
       if (timer !== undefined) return;

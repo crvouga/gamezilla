@@ -99,3 +99,40 @@ test('auth receives gated HTTP so going offline aborts requests already underway
   });
   expect(requests).toBe(1);
 });
+
+// regression: population-observation-factory-arguments
+test('observation subscriptions preserve injected credentials and the offline broker factory', async () => {
+  const offline = createOfflineNetworkController(new KvImplInMemory());
+  await offline.ready();
+  offline.setOffline(true);
+  const calls: ClientPubSubArgs[] = [];
+  const source = networkEnv({
+    createPubSub: (args) => {
+      calls.push(args);
+      return createInMemoryPubSub({ logger: createNoopLogger() });
+    },
+  });
+  const args: ClientPubSubArgs = {
+    url: 'wss://broker.example.test',
+    clientIdPrefix: 'population-observation',
+    timers: source.timers,
+    random: source.random,
+    logger: createNoopLogger(),
+    auth: async () => ({
+      username: 'observation',
+      password: 'test-credential',
+    }),
+  };
+  const push = createOfflineClientEnv(source, offline).env.createPubSub(args);
+  const detach = push?.subscribe(
+    'synthetic-population:administration',
+    () => undefined
+  );
+  expect(calls).toEqual([]);
+  offline.setOffline(false);
+  expect(calls).toEqual([args]);
+  offline.setOffline(true);
+  expect(push?.status()).toBe('down');
+  detach?.();
+  push?.close();
+});
