@@ -41,10 +41,14 @@ export type AppRouterProviderProps = {
 /** Mount once inside `<Router>`; provides the facade to the subtree. */
 export function AppRouterProvider(props: AppRouterProviderProps): JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
   const [depth, setDepth] = createSignal(0);
   const router: AppRouter = {
     push(href) {
-      navigate(normalizePath(hrefToPath(href)));
+      const path = normalizePath(hrefToPath(href));
+      if (path === `${location.pathname}${location.search}${location.hash}`)
+        return;
+      navigate(path);
       setDepth((d) => d + 1);
     },
     replace(href) {
