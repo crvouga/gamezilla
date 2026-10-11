@@ -3,6 +3,7 @@ import { UserUsername } from '@libs/profile-client/user-username';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
+import { GameActions } from '@pkgs/ui-root-client/game-section';
 import { Select } from '@pkgs/ui-root-client/select';
 import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
@@ -13,16 +14,17 @@ export function CustomGameInvitation(props: SideProps): JSX.Element {
   const mine = (): boolean =>
     props.model.current()?.[props.side].person === props.model.myId();
   return (
-    <div class="box flex-row gap-2 flex-wrap">
+    <div class="box gap-3">
       <Show when={mine()}>
         <p
-          class="text textBody"
+          class="text textBody flex flex-row flex-wrap gap-x-1"
           role="status"
           data-testid={`chess-custom-${props.side}-invitation`}
         >
           <UserUsername
             profileId={props.model.current()?.creator ?? ''}
             withAt={false}
+            variant="bodyBold"
           />{' '}
           <Show
             when={props.side === 'white'}
@@ -32,32 +34,34 @@ export function CustomGameInvitation(props: SideProps): JSX.Element {
           </Show>
         </p>
       </Show>
-      <Show when={mine() && props.model.canJoin()}>
-        <GameActionButton
-          title={<Trans>Accept</Trans>}
-          variant="solid"
-          dataSet={{ testid: `chess-custom-${props.side}-accept` }}
-          operation={() =>
-            props.model.choose({ operation: 'accept', side: props.side })
-          }
-        />
-        <GameActionButton
-          title={<Trans>Decline</Trans>}
-          dataSet={{ testid: `chess-custom-${props.side}-decline` }}
-          operation={() =>
-            props.model.choose({ operation: 'decline', side: props.side })
-          }
-        />
-      </Show>
-      <Show when={props.model.canInvite()}>
-        <GameActionButton
-          title={<Trans>Revoke invitation</Trans>}
-          dataSet={{ testid: `chess-custom-${props.side}-revoke` }}
-          operation={() =>
-            props.model.choose({ operation: 'revoke', side: props.side })
-          }
-        />
-      </Show>
+      <GameActions>
+        <Show when={mine() && props.model.canJoin()}>
+          <GameActionButton
+            title={<Trans>Accept</Trans>}
+            variant="solid"
+            dataSet={{ testid: `chess-custom-${props.side}-accept` }}
+            operation={() =>
+              props.model.choose({ operation: 'accept', side: props.side })
+            }
+          />
+          <GameActionButton
+            title={<Trans>Decline</Trans>}
+            dataSet={{ testid: `chess-custom-${props.side}-decline` }}
+            operation={() =>
+              props.model.choose({ operation: 'decline', side: props.side })
+            }
+          />
+        </Show>
+        <Show when={props.model.canInvite()}>
+          <GameActionButton
+            title={<Trans>Revoke invitation</Trans>}
+            dataSet={{ testid: `chess-custom-${props.side}-revoke` }}
+            operation={() =>
+              props.model.choose({ operation: 'revoke', side: props.side })
+            }
+          />
+        </Show>
+      </GameActions>
     </div>
   );
 }
@@ -81,8 +85,8 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
     })
   );
   return (
-    <div class="box gap-2">
-      <div class="box flex-row gap-2 flex-wrap">
+    <div class="box gap-3">
+      <GameActions>
         <GameActionButton
           title={<Trans>Take this side</Trans>}
           dataSet={{ testid: `chess-custom-${props.side}-take` }}
@@ -113,7 +117,7 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
             props.model.choose({ operation: 'close', side: props.side })
           }
         />
-      </div>
+      </GameActions>
       <Show when={props.model.canInvite()}>
         <Select
           label={<Trans>Invite a space member</Trans>}

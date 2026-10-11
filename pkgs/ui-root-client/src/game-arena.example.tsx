@@ -1,5 +1,6 @@
 import { useClock } from '@pkgs/clock-client/solid';
 import { createSignal, type JSX, Show } from 'solid-js';
+import { Badge } from './badge';
 import { Button } from './button';
 import { ExampleRoot } from './example-root';
 import { GameActionButton } from './game-action-button';
@@ -8,13 +9,13 @@ import { GameChoiceGrid } from './game-choice-grid';
 import { GameClock } from './game-clock';
 import { GameCountdown } from './game-countdown';
 import { GameDisclosure } from './game-disclosure';
-import { GameHeader } from './game-header';
-import { GamePlayerCard } from './game-player-card';
+import { GamePlayerBar } from './game-player-bar';
 import { GameLayout } from './game-screen';
 import { GameSearchState } from './game-search-state';
 import { GameActions, GameSection } from './game-section';
 import { GameStat } from './game-stat';
-import { GameVersus } from './game-versus';
+import { GameStatus } from './game-status';
+import { ScreenIntro } from './screen-intro';
 
 const PACES = [
   { value: 'short', title: '2 min', detail: 'Quick round' },
@@ -30,11 +31,7 @@ export default function GameArenaExample(): JSX.Element {
   const [deadline, setDeadline] = createSignal<number | null>(null);
   return (
     <ExampleRoot>
-      <GameHeader
-        context="Orbit Rally · Play together"
-        title="A little friendly rivalry"
-        description="Your next round starts here."
-      />
+      <ScreenIntro title="Orbit Rally" subtitle="Play a round together." />
       <GameLayout
         aside={
           <GameSection title="Your progress">
@@ -42,29 +39,39 @@ export default function GameArenaExample(): JSX.Element {
           </GameSection>
         }
       >
-        <GameVersus
-          first={
-            <GamePlayerCard label="You" name="Nova" ready status="Ready" />
-          }
-          second={
-            <GamePlayerCard
-              label="Rival"
+        <GameBoardStage
+          top={
+            <GamePlayerBar
               name="Atlas"
-              active
-              status="Getting ready"
+              tags={<Badge intent="neutral" label="Rival" />}
+              trailing={<GameClock label="Atlas" value="5:00" />}
             />
           }
-        />
-        <div class="box flex-row gap-2">
-          <GameClock label="Nova" value="5:00" active />
-          <GameClock label="Atlas" value="5:00" />
-        </div>
-        <GameCountdown label="Make your first move" deadline={deadline()} />
-        <GameBoardStage>
-          <div class="box items-center justify-center min-h-32 rounded-lg bg-surface-sunken text-text-secondary">
+          bottom={
+            <GamePlayerBar
+              name="Nova"
+              active
+              tags={
+                <>
+                  <Badge intent="neutral" label="You" />
+                  <Badge intent="success" label="Ready" />
+                </>
+              }
+              trailing={<GameClock label="Nova" value="5:00" active />}
+            />
+          }
+        >
+          <div class="box items-center justify-center min-h-32 bg-surface-sunken text-text-secondary">
             Interactive play surface
           </div>
         </GameBoardStage>
+        <GameStatus
+          tone="active"
+          title="Your turn."
+          trailing={
+            <GameCountdown label="Make your first move" deadline={deadline()} />
+          }
+        />
         <Show
           when={searching()}
           fallback={
@@ -102,9 +109,9 @@ export default function GameArenaExample(): JSX.Element {
           }
         >
           <GameSearchState
-            title="Finding your rival"
+            title="Finding a rival"
             description="Looking for a round at your chosen pace."
-            elapsed="0"
+            elapsed="0 seconds"
             actions={
               <Button
                 title="Stop searching"

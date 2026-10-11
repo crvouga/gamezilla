@@ -100,6 +100,29 @@ describe('Avatar', () => {
   });
 });
 
+describe('Avatar placeholder', () => {
+  test('nobody yet is a filled head and shoulders on the quiet plate', () => {
+    renderUi(() => (
+      <>
+        <Avatar size={48} dataSet={{ component: 'AvNobody' }} />
+        <Avatar initials="AB" dataSet={{ component: 'AvSomebody' }} />
+      </>
+    ));
+    const nobody = byComponent('AvNobody');
+    expect(nobody).toHaveAttribute('data-placeholder', 'true');
+    expect(cssOf(nobody)).toContain(
+      'background-color:var(--ui-color-surface-muted)'
+    );
+    const glyph = nobody.querySelector('svg');
+    expect(glyph?.getAttribute('aria-hidden')).toBe('true');
+    // Drawn to the plate edge: no stroked icon floating in the middle.
+    expect(glyph?.getAttribute('viewBox')).toBe('0 0 40 40');
+    expect(glyph?.getAttribute('stroke')).toBeNull();
+    expect(glyph?.querySelector('circle')).not.toBeNull();
+    expect(byComponent('AvSomebody')).not.toHaveAttribute('data-placeholder');
+  });
+});
+
 describe('AvatarGroup', () => {
   test('caps visible avatars and renders the overflow pill', () => {
     renderUi(() => (

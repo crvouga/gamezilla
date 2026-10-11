@@ -1,6 +1,5 @@
 import type { AvatarConfig } from '@libs/profile-shared/avatar-config';
 import { Avatar } from '@pkgs/ui-root-client/avatar';
-import { UserIcon } from '@pkgs/ui-root-client/icons';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import { ProfileDiceBearAvatar } from './public-profile-dicebear-avatar';
@@ -19,7 +18,7 @@ export type DeviceAvatarProps = {
 };
 
 /**
- * Renders a profile avatar: generic user silhouette when there is no persisted
+ * Renders a profile avatar: the person placeholder when there is no persisted
  * config (e.g. not synced); otherwise the persisted DiceBear avatar. Uses
  * `seedFallback` only when persisted config has an empty legacy seed.
  */
@@ -29,12 +28,16 @@ export function DeviceAvatar(props: DeviceAvatarProps): JSX.Element {
       when={props.avatarConfig}
       keyed
       fallback={
-        <Avatar
-          size={props.size}
-          icon={UserIcon}
-          background={props.vividBackdrop ? 'onTintScrim' : 'outline'}
-          foreground={props.vividBackdrop ? 'onPrimary' : 'tabIconDefault'}
-        />
+        <Show
+          when={props.vividBackdrop}
+          fallback={<Avatar size={props.size} />}
+        >
+          <Avatar
+            size={props.size}
+            background="onTintScrim"
+            foreground="onPrimary"
+          />
+        </Show>
       }
     >
       {(config) => (

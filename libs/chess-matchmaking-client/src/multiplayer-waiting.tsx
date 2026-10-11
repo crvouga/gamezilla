@@ -2,6 +2,7 @@ import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client/solid';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
 import { GameSearchState } from '@pkgs/ui-root-client/game-search-state';
+import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import type { JSX } from 'solid-js';
 import type { MultiplayerSearchRow } from './use-multiplayer-data';
 import { useOfflineSince } from './use-offline-since';
@@ -27,7 +28,7 @@ export function MultiplayerWaiting(props: {
   );
   return (
     <GameSearchState
-      title={<Trans>Finding your rival</Trans>}
+      title={<Trans>Finding an opponent</Trans>}
       description={
         <p data-testid="multiplayer-waiting">
           <Trans>
@@ -36,11 +37,18 @@ export function MultiplayerWaiting(props: {
         </p>
       }
       elapsed={
-        <span data-testid="multiplayer-waiting-seconds">{seconds()}</span>
+        <>
+          <span data-testid="multiplayer-waiting-seconds">{seconds()}</span>{' '}
+          <Trans>seconds</Trans>
+        </>
       }
       actions={
         <GameActionButton
-          title={<Trans>Stop finding an opponent</Trans>}
+          title={
+            <Trans>
+              Stop<VisuallyHidden> finding an opponent</VisuallyHidden>
+            </Trans>
+          }
           operation={() => props.onStop()}
           dataSet={{ testid: 'multiplayer-stop' }}
         />

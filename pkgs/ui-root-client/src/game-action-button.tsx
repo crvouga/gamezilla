@@ -5,7 +5,11 @@ import { Button } from './button';
 import type { ButtonVariant } from './button-face';
 import { useMutationButton } from './use-mutation-button';
 
-/** Consistent inline progress, acknowledgement and retry for game commands. */
+/**
+ * Consistent inline progress, acknowledgement and retry for game commands.
+ * `solid` is the one thing to do next, in blue; every other command is a
+ * neutral outline, so a row of them never competes with it.
+ */
 export function GameActionButton(props: {
   title: JSX.Element;
   operation: () => Promise<void>;
@@ -39,6 +43,7 @@ export function GameActionButton(props: {
     <Button
       {...action.buttonProps}
       variant={props.variant ?? 'outline'}
+      intent={props.variant === 'solid' ? 'primary' : 'neutral'}
       fullWidth={props.fullWidth}
       dataSet={props.dataSet}
     />

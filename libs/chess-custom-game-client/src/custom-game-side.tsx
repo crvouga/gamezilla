@@ -1,100 +1,139 @@
 import type { CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
 import { UserProfileAvatar } from '@libs/profile-client/user-profile-avatar';
 import { Trans } from '@lingui/solid/macro';
+import { Avatar } from '@pkgs/ui-root-client/avatar';
+import { Badge } from '@pkgs/ui-root-client/badge';
+import { Divider } from '@pkgs/ui-root-client/divider';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
 import { GameDisclosure } from '@pkgs/ui-root-client/game-disclosure';
-import { GamePlayerCard } from '@pkgs/ui-root-client/game-player-card';
-import { GameVersus } from '@pkgs/ui-root-client/game-versus';
-import { type JSX, Show } from 'solid-js';
+import {
+  GAME_PLAYER_AVATAR_SIZE,
+  GamePlayerBar,
+} from '@pkgs/ui-root-client/game-player-bar';
+import { GameSection } from '@pkgs/ui-root-client/game-section';
+import { BotIcon } from '@pkgs/ui-root-client/icons';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 import { CustomGamePerson } from './custom-game-person';
 import {
   CustomGameInvitation,
   CustomGameSideChoices,
 } from './custom-game-side-choices';
+import { CustomGameClock } from './custom-game-status';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 type SideProps = { model: CustomGameScreenModel; side: CustomGameSide };
 
-export function CustomGameSideCard(props: SideProps): JSX.Element {
+/** A person's picture, the bot's plate, or the placeholder of an empty seat. */
+function SeatAvatar(props: SideProps): JSX.Element {
   const participant = () => props.model.current()![props.side];
-  const configuring = (): boolean =>
-    props.model.current()?.status === 'configuring';
   return (
-    <GamePlayerCard
-      dataSet={{ testid: `chess-custom-${props.side}` }}
-      label={
-        <Show when={props.side === 'white'} fallback={<Trans>Black</Trans>}>
-          <Trans>White</Trans>
-        </Show>
-      }
-      name={
-        <span data-testid={`chess-custom-${props.side}-person`}>
-          <CustomGamePerson participant={participant()} />
-        </span>
-      }
-      avatar={
+    <Switch fallback={<Avatar size={GAME_PLAYER_AVATAR_SIZE} />}>
+      <Match
+        when={
+          participant().kind === 'person' || participant().kind === 'invitation'
+        }
+      >
+        <UserProfileAvatar
+          profileId={participant().person}
+          size={GAME_PLAYER_AVATAR_SIZE}
+        />
+      </Match>
+      <Match when={participant().kind === 'bot'}>
+        <Avatar
+          size={GAME_PLAYER_AVATAR_SIZE}
+          icon={BotIcon}
+          background="surfaceMuted"
+          foreground="icon"
+        />
+      </Match>
+    </Switch>
+  );
+}
+
+/** The seat's colour, then whether its holder is ready while a game is set up. */
+function SeatTags(props: SideProps): JSX.Element {
+  const ready = () =>
+    props.model.current()?.ready.includes(props.side) === true;
+  return (
+    <>
+      <Badge
+        intent="neutral"
+        label={
+          <Show when={props.side === 'white'} fallback={<Trans>Black</Trans>}>
+            <Trans>White</Trans>
+          </Show>
+        }
+      />
+      <Show when={props.model.current()?.status === 'configuring'}>
         <Show
-          when={
-            participant().kind === 'person' ||
-            participant().kind === 'invitation'
+          when={ready()}
+          fallback={
+            <Badge intent="neutral" label={<Trans>Getting ready</Trans>} />
           }
         >
-          <UserProfileAvatar profileId={participant().person} size={48} />
+          <Badge intent="success" label={<Trans>Ready</Trans>} />
         </Show>
+      </Show>
+    </>
+  );
+}
+
+/**
+ * One side of the game: who holds it, its colour and its clock. While the
+ * game is set up it also carries the choices for that side.
+ */
+export function CustomGameSeat(props: SideProps): JSX.Element {
+  return (
+    <GamePlayerBar
+      dataSet={{ testid: `chess-custom-${props.side}` }}
+      name={
+        <span data-testid={`chess-custom-${props.side}-person`}>
+          <CustomGamePerson participant={props.model.current()![props.side]} />
+        </span>
+      }
+      avatar={<SeatAvatar {...props} />}
+      tags={<SeatTags {...props} />}
+      trailing={
+        props.model.current()!.minutes > 0 ? (
+          <CustomGameClock game={props.model.current()!} side={props.side} />
+        ) : undefined
       }
       active={
         props.model.current()?.status === 'active' &&
         props.model.current()?.turn === props.side
       }
-      ready={props.model.current()?.ready.includes(props.side) === true}
-      status={
-        <Show
-          when={props.model.current()?.ready.includes(props.side)}
-          fallback={
-            <Show when={configuring()}>
-              <Trans>Getting ready</Trans>
-            </Show>
-          }
-        >
-          <Trans>Ready</Trans>
-        </Show>
-      }
     >
-      <CustomGameSideActions {...props} />
-    </GamePlayerCard>
+      {props.model.current()?.status === 'configuring' ? (
+        <CustomGameSideActions {...props} />
+      ) : undefined}
+    </GamePlayerBar>
   );
 }
 
-export function CustomGameSides(props: {
+/** Both seats while the game is set up, each with its own choices. */
+export function CustomGameSeats(props: {
   model: CustomGameScreenModel;
 }): JSX.Element {
   return (
-    <GameVersus
-      stackOnSmall={props.model.current()?.status === 'configuring'}
-      first={<CustomGameSideCard model={props.model} side="white" />}
-      second={<CustomGameSideCard model={props.model} side="black" />}
-    />
+    <GameSection title={<Trans>Players</Trans>}>
+      <CustomGameSeat model={props.model} side="white" />
+      <Divider />
+      <CustomGameSeat model={props.model} side="black" />
+    </GameSection>
   );
 }
 
 function CustomGameSideActions(props: SideProps): JSX.Element {
   const participant = () => props.model.current()![props.side];
-  const configuring = () => props.model.current()?.status === 'configuring';
-  const controls = () => configuring() && props.model.canConfigure();
   return (
     <>
-      <Show when={configuring() && participant().kind === 'invitation'}>
+      <Show when={participant().kind === 'invitation'}>
         <CustomGameInvitation {...props} />
       </Show>
-      <Show
-        when={
-          configuring() &&
-          participant().kind === 'open' &&
-          props.model.canJoin()
-        }
-      >
+      <Show when={participant().kind === 'open' && props.model.canJoin()}>
         <GameActionButton
           title={<Trans>Claim this side</Trans>}
+          variant="solid"
           dataSet={{ testid: `chess-custom-${props.side}-claim` }}
           operation={() =>
             props.model.choose({ operation: 'claim', side: props.side })
@@ -103,7 +142,6 @@ function CustomGameSideActions(props: SideProps): JSX.Element {
       </Show>
       <Show
         when={
-          configuring() &&
           participant().kind === 'person' &&
           participant().person === props.model.myId() &&
           props.model.canJoin()
@@ -117,7 +155,7 @@ function CustomGameSideActions(props: SideProps): JSX.Element {
           }
         />
       </Show>
-      <Show when={controls()}>
+      <Show when={props.model.canConfigure()}>
         <GameDisclosure
           title={<Trans>Change participant</Trans>}
           dataSet={{ testid: `chess-custom-${props.side}-choices` }}

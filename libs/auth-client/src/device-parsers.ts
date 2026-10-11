@@ -16,7 +16,11 @@ export function formatTimestamp(value: string | null): string {
   if (value === null) return EM_DASH;
   const ms = Date.parse(value);
   if (Number.isNaN(ms)) return value;
-  return new Date(ms).toLocaleString();
+  // Day and minute: a device list has no use for the seconds.
+  return new Date(ms).toLocaleString(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
 }
 
 export function formatOsLine(
@@ -78,7 +82,8 @@ export function formatDeviceListCaption(args: {
   createdAt: string | null;
 }): string {
   const { osName, osVersion, lastSeenAt, createdAt } = args;
-  const os = formatOsLine(osName, osVersion);
   const last = formatTimestamp(lastSeenAt ?? createdAt);
-  return `${os} · Last seen ${last}`;
+  // An unknown system says nothing; the row leads with what is known.
+  if (osName === null) return `Last seen ${last}`;
+  return `${formatOsLine(osName, osVersion)}, last seen ${last}`;
 }

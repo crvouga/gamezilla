@@ -1,30 +1,29 @@
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
+import { EmbeddedScreen } from './embedded-screen';
 import styles from './game-ui.module.css';
-import { ScreenBase } from './screen-base';
-import type { ScreenBaseBreadcrumb } from './screen-base-types';
 
-/** Shared screen shell; games supply their own content and navigation. */
+/**
+ * A game inside its host's chrome. The host's one top bar carries the back
+ * control and the space; the game names itself once in the body and then
+ * gets out of the way of the board. Never a second bar.
+ */
 export function GameScreen(props: {
   screenId: string;
-  breadcrumbs: readonly ScreenBaseBreadcrumb[];
+  title: JSX.Element;
+  subtitle?: JSX.Element | undefined;
   children: JSX.Element;
 }): JSX.Element {
   return (
-    <ScreenBase
+    <EmbeddedScreen
       screenId={props.screenId}
-      breadcrumbs={props.breadcrumbs}
-      scroll
-      surface="canvas"
-      content={() => (
-        <div
-          class={styles['screen']}
-          {...dataAttrs({ component: 'GameScreen' })}
-        >
-          {props.children}
-        </div>
-      )}
-    />
+      title={props.title}
+      subtitle={props.subtitle}
+      width="stage"
+      dataSet={{ component: 'GameScreen' }}
+    >
+      {props.children}
+    </EmbeddedScreen>
   );
 }
 

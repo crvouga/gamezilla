@@ -2,7 +2,7 @@
 import type { JSX } from 'solid-js';
 import { Avatar } from './avatar';
 import { ExampleRoot } from './example-root';
-import { UserIcon } from './icons';
+import { Gamepad2Icon } from './icons';
 
 const SAMPLE_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -43,33 +43,20 @@ export default function AvatarExample(): JSX.Element {
         <Avatar svg={SAMPLE_SVG} size={72} />
       </div>
 
-      <p class="text textCaption">{'Icon placeholder'}</p>
+      <p class="text textCaption">{'Icon plate (not a person)'}</p>
       <div class="box flex-row gap-3 items-center">
-        <Avatar
-          icon={UserIcon}
-          size={40}
-          background="outline"
-          foreground="tabIconDefault"
-        />
-        <Avatar
-          icon={UserIcon}
-          size={56}
-          background="outline"
-          foreground="tabIconDefault"
-        />
-        <Avatar
-          icon={UserIcon}
-          size={56}
-          background="rgba(255,255,255,0.22)"
-          foreground="rgba(255,255,255,0.92)"
-        />
+        <Avatar icon={Gamepad2Icon} size={40} background="surfaceMuted" />
+        <Avatar icon={Gamepad2Icon} size={56} background="surfaceMuted" />
       </div>
 
-      <p class="text textCaption">{'Empty plate (loading)'}</p>
+      <p class="text textCaption">{'Nobody yet (person placeholder)'}</p>
       <div class="box flex-row gap-3 items-center">
-        <Avatar size={40} background="surface" />
-        <Avatar size={56} background="surface" />
-        <Avatar size={72} background="surface" />
+        <Avatar size={24} />
+        <Avatar size={32} />
+        <Avatar size={40} />
+        <Avatar size={56} />
+        <Avatar size={96} />
+        <Avatar size={56} background="onTintScrim" foreground="onPrimary" />
       </div>
     </ExampleRoot>
   );

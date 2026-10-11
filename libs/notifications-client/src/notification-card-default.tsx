@@ -16,7 +16,6 @@ import {
   ChevronRightIcon,
   CircleCheckIcon,
   Trash2Icon,
-  UserIcon,
 } from '@pkgs/ui-root-client/icons';
 import type { MutationStateTransition } from '@pkgs/ui-root-client/mutation-lifecycle';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client/relative-time';
@@ -136,9 +135,7 @@ function DefaultLeading(props: {
     <Show
       when={props.interaction.avatar?.fallbackLabel}
       keyed
-      fallback={
-        <Avatar size={LEADING_SIZE} icon={UserIcon} background="surfaceMuted" />
-      }
+      fallback={<Avatar size={LEADING_SIZE} />}
     >
       {(label) => (
         <Avatar size={LEADING_SIZE} initials={avatarInitials(label)} />
@@ -190,12 +187,10 @@ function InteractionRowText(props: {
       >
         {props.interaction.title}
       </p>
-      <p class="text textCaption text-text-secondary">{relative()}</p>
-      <Show when={detailParts().length > 0}>
-        <p class="text textCaption line-clamp-2 text-text-secondary">
-          {detailParts().join(' · ')}
-        </p>
-      </Show>
+      <p class="text textCaption">{relative()}</p>
+      <For each={detailParts()}>
+        {(part) => <p class="text textCaption line-clamp-2">{part}</p>}
+      </For>
     </div>
   );
 }

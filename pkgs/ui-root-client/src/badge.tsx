@@ -67,7 +67,9 @@ export function Badge(props: BadgeProps): JSX.Element {
 
   return (
     <span
-      class="badge box inline-flex self-start items-center justify-center"
+      // Not a `.box`: that host reset (`padding: 0`, later in the same layer)
+      // would strip the pill's own padding.
+      class="badge inline-flex shrink-0 self-start items-center justify-center"
       {...dataAttrs({
         component: 'Badge',
         intent: props.intent ?? 'brand',

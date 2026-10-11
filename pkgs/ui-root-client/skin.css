@@ -243,8 +243,11 @@
     --ui-on-icon: var(--ui-color-on-destructive);
   }
 
-  /* Chips are choices. Chosen is the blue fill, like every other "this one". */
-  .chip {
+  /* Chips are choices. Chosen is the blue fill, like every other "this one".
+     Doubled with `.clickable` for the same reason as `.btn`: the host reset
+     (`padding: 0`, `border: 0`, `font: inherit`, later in this layer) must
+     not win over the chip's own pill. */
+  .clickable.chip {
     height: 36px;
     min-width: 48px;
     padding-left: 14px;
@@ -259,8 +262,8 @@
     line-height: var(--ui-leading-sm);
   }
 
-  .chip[aria-pressed="true"],
-  .chip[aria-checked="true"] {
+  .clickable.chip[aria-pressed="true"],
+  .clickable.chip[aria-checked="true"] {
     border-color: var(--ui-color-tint-active);
     background: var(--ui-color-tint-active);
     color: var(--ui-color-on-primary);

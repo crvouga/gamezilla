@@ -12,6 +12,7 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { Avatar } from '@pkgs/ui-root-client/avatar';
 import {
   PaintbrushIcon,
   ServerIcon,
@@ -138,9 +139,9 @@ function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
   ]);
 }
 
-/** Shell default face when no sub published one. */
+/** Shell default face when no sub published one: the person placeholder. */
 function DefaultAccountFace(props: { readonly size: number }): JSX.Element {
-  return <UserIcon size={props.size} />;
+  return <Avatar size={props.size} />;
 }
 
 function accountFace(identity: GlobalMenuIdentity, size: number): JSX.Element {

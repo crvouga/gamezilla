@@ -104,9 +104,9 @@ function MenuRowTrailing(props: {
         class="box flex-row items-center gap-2"
         style={{ 'max-width': MENU_ROW_VALUE_MAX_WIDTH }}
       >
-        <p class="text line-clamp-1 text-text-secondary text-right shrink">
+        <div class="text line-clamp-1 text-text-secondary text-right shrink">
           {props.value}
-        </p>
+        </div>
         {end()}
       </div>
     </Show>
@@ -128,14 +128,16 @@ function MenuRowBody(
         </div>
       </Show>
       <div class="box flex-1 min-w-0 gap-0.5 items-start">
-        <p
+        {/* `div`, not `p`: callers pass their own text blocks, and a `p`
+            may not contain one. */}
+        <div
           class="text textLabel text-text"
           classList={{ 'text-tint': selected() }}
         >
           {props.title}
-        </p>
+        </div>
         <Show when={props.caption}>
-          <p class="text textCaption">{props.caption}</p>
+          <div class="text textCaption">{props.caption}</div>
         </Show>
       </div>
       <MenuRowTrailing

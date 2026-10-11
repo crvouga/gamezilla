@@ -1,30 +1,75 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, test } from 'bun:test';
+import { GameBoardStage } from '@pkgs/ui-root-client/game-board-stage';
 import { GameChoiceGrid } from '@pkgs/ui-root-client/game-choice-grid';
 import { GameClock } from '@pkgs/ui-root-client/game-clock';
-import { GameHeader } from '@pkgs/ui-root-client/game-header';
+import { GamePlayerBar } from '@pkgs/ui-root-client/game-player-bar';
+import { GameScreen } from '@pkgs/ui-root-client/game-screen';
+import { GameStatus } from '@pkgs/ui-root-client/game-status';
 import { screen } from '@solidjs/testing-library';
 import { mustQuery, renderUi } from './render';
 
 describe('Game chrome', () => {
-  test('the header leads with the title and keeps context as a caption', () => {
+  test('a game inside a host names itself once and draws no second top bar', () => {
     renderUi(() => (
-      <GameHeader
-        context="Chess · Matchmaking"
-        title="Your next great game"
-        description="Pick a pace and play."
+      <GameScreen screenId="orbit-rally" title="Orbit Rally">
+        <p class="text">{'board'}</p>
+      </GameScreen>
+    ));
+    const root = mustQuery('[data-component="GameScreen"]');
+    expect(root.getAttribute('data-screen')).toBe('orbit-rally');
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole('heading', { name: 'Orbit Rally' })).toBeTruthy();
+    expect(document.querySelector('[data-component="TopBar"]')).toBeNull();
+    expect(
+      document.querySelector('[data-component="ScreenBaseHeader"]')
+    ).toBeNull();
+    expect(document.querySelector('[data-testid="nav-back"]')).toBeNull();
+  });
+
+  test('the seats sit around the board, the far seat first', () => {
+    renderUi(() => (
+      <GameBoardStage
+        top={<GamePlayerBar name="Atlas" dataSet={{ testid: 'far' }} />}
+        bottom={<GamePlayerBar name="Nova" dataSet={{ testid: 'near' }} />}
+      >
+        <div data-testid="board" />
+      </GameBoardStage>
+    ));
+    const order = [...mustQuery('[data-component="GameBoardStage"]').children];
+    expect(order[0]).toBe(screen.getByTestId('far'));
+    expect(order[1]?.contains(screen.getByTestId('board'))).toBe(true);
+    expect(order[2]).toBe(screen.getByTestId('near'));
+  });
+
+  test('an empty seat draws the person placeholder, not an icon', () => {
+    renderUi(() => <GamePlayerBar name="Open place" />);
+    const avatar = mustQuery('[data-component="Avatar"]');
+    expect(avatar.getAttribute('data-placeholder')).toBe('true');
+    expect(avatar.querySelector('svg[viewBox="0 0 40 40"]')).not.toBeNull();
+  });
+
+  test('the status line announces its words but not its trailing facts', () => {
+    renderUi(() => (
+      <GameStatus
+        live
+        tone="active"
+        title="Your turn."
+        detail="Make your first move"
+        trailing={<span data-testid="fact">{'5+0'}</span>}
+        dataSet={{ testid: 'words' }}
       />
     ));
-    const header = mustQuery('[data-component="GameHeader"]');
-    const title = screen.getByRole('heading', { name: 'Your next great game' });
-    const context = screen.getByText('Chess · Matchmaking');
-    expect(header.querySelector('svg')).toBeNull();
-    expect(
-      title.compareDocumentPosition(context) & Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy();
-    expect(context.className).not.toMatch(/uppercase/);
-    expect(screen.getByText('Pick a pace and play.')).toBeInTheDocument();
+    const words = screen.getByRole('status');
+    expect(words).toBe(screen.getByTestId('words'));
+    expect(words).toHaveAttribute('aria-live', 'polite');
+    expect(words).toHaveTextContent('Your turn.Make your first move');
+    expect(words.contains(screen.getByTestId('fact'))).toBe(false);
+    expect(mustQuery('[data-component="GameStatus"]')).toHaveAttribute(
+      'data-tone',
+      'active'
+    );
   });
 
   test('the active clock is chosen and the time stays in the control', () => {
