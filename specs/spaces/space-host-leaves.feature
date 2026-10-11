@@ -23,6 +23,7 @@ Feature: The host leaving ends the space
       Then Alice is in the space
       And Alice sees 2 people in the space within 20 seconds
 
+    @regression:space-lobby-card-not-pressable
     Scenario: A host who closes the app still hosts the space on return
       Given Alice has closed and reopened the app
       When Alice returns to their space

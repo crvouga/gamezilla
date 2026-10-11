@@ -1009,6 +1009,7 @@
                         "confidence": "assumed",
                         "source": [
                           "specs/spaces/space-friend-join.feature:9",
+                          "specs/spaces/space-presence-navigation.feature",
                           "specs/spaces/spaces.feature:6"
                         ],
                         "events": [],
@@ -1130,10 +1131,10 @@
                         "snapshot": "The current permission decision explains the hosting limit and its available unlocks.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/spaces/hosting-limit.dmn",
-                          "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/deleted-account-spaces.feature",
+                          "specs/spaces/events.qnt",
+                          "specs/spaces/hosting-limit.dmn",
+                          "specs/spaces/hosting-limits.qnt",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
                           "specs/spaces/space-disconnect-reconnect.feature",
@@ -1143,16 +1144,17 @@
                           "specs/spaces/space-guest-link-join.feature",
                           "specs/spaces/space-host-leaves.feature",
                           "specs/spaces/space-host-limit.feature",
+                          "specs/spaces/space-hosting.qnt",
                           "specs/spaces/space-lifecycle.feature",
                           "specs/spaces/space-links.feature",
                           "specs/spaces/space-live-presence.feature",
-                          "specs/spaces/space-needs-connection.feature",
-                          "specs/spaces/space-rename.feature",
-                          "specs/spaces/spaces.feature",
-                          "specs/spaces/events.qnt",
-                          "specs/spaces/space-hosting.qnt",
                           "specs/spaces/space-names.qnt",
-                          "specs/spaces/space-recovery.qnt"
+                          "specs/spaces/space-needs-connection.feature",
+                          "specs/spaces/space-recovery.qnt",
+                          "specs/spaces/space-rename.feature",
+                          "specs/spaces/space-roles.dmn",
+                          "specs/spaces/spaces.als",
+                          "specs/spaces/spaces.feature"
                         ],
                         "events": []
                       },
@@ -1269,13 +1271,16 @@
                         "snapshot": "The host sees the space’s people and choices and can play.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/spaces/deleted-account-spaces.feature:6",
+                          "specs/spaces/adding-people.qnt",
                           "specs/spaces/deleted-account-spaces.feature:19",
+                          "specs/spaces/deleted-account-spaces.feature:6",
                           "specs/spaces/live-updates.feature:7",
+                          "specs/spaces/space-add-person.feature",
                           "specs/spaces/space-guest-host.feature:6",
                           "specs/spaces/space-host-leaves.feature:8",
+                          "specs/spaces/space-host-limit.feature:31",
                           "specs/spaces/space-host-limit.feature:8",
-                          "specs/spaces/space-host-limit.feature:31"
+                          "specs/spaces/space-remove-person.feature"
                         ],
                         "events": [],
                         "hints": ["App address: /space/:id"]
@@ -1371,10 +1376,9 @@
                         "snapshot": "The space link can be shared without changing who hosts it.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/spaces/hosting-limit.dmn",
-                          "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/deleted-account-spaces.feature",
+                          "specs/spaces/events.qnt",
+                          "specs/spaces/hosting-limit.dmn",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
                           "specs/spaces/space-disconnect-reconnect.feature",
@@ -1384,16 +1388,18 @@
                           "specs/spaces/space-guest-link-join.feature",
                           "specs/spaces/space-host-leaves.feature",
                           "specs/spaces/space-host-limit.feature",
+                          "specs/spaces/space-hosting.qnt",
                           "specs/spaces/space-lifecycle.feature",
                           "specs/spaces/space-links.feature",
+                          "specs/spaces/space-links.qnt",
                           "specs/spaces/space-live-presence.feature",
-                          "specs/spaces/space-needs-connection.feature",
-                          "specs/spaces/space-rename.feature",
-                          "specs/spaces/spaces.feature",
-                          "specs/spaces/events.qnt",
-                          "specs/spaces/space-hosting.qnt",
                           "specs/spaces/space-names.qnt",
-                          "specs/spaces/space-recovery.qnt"
+                          "specs/spaces/space-needs-connection.feature",
+                          "specs/spaces/space-recovery.qnt",
+                          "specs/spaces/space-rename.feature",
+                          "specs/spaces/space-roles.dmn",
+                          "specs/spaces/spaces.als",
+                          "specs/spaces/spaces.feature"
                         ],
                         "events": []
                       },
@@ -1640,6 +1646,8 @@
                         "snapshot": "Leaving is in progress; this person's departure does not end another person's open space.",
                         "confidence": "assumed",
                         "source": [
+                          "specs/spaces/space-guest-leave.feature",
+                          "specs/spaces/space-leave-without-host.feature",
                           "specs/spaces/space-live-presence.feature:22"
                         ],
                         "events": []
@@ -1966,12 +1974,13 @@
                         "snapshot": "The person previews an avatar and supplies a username.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/finding-a-person.feature",
-                          "specs/profile/profile-edit.feature",
-                          "specs/profile/username-rules.feature",
                           "specs/profile/devices.feature",
+                          "specs/profile/finding-a-person.feature",
+                          "specs/profile/offline-username.feature",
+                          "specs/profile/profile-edit.feature",
                           "specs/profile/sessions.feature",
-                          "specs/profile/username-changes.qnt"
+                          "specs/profile/username-changes.qnt",
+                          "specs/profile/username-rules.feature"
                         ],
                         "events": [],
                         "hints": [
@@ -2128,6 +2137,8 @@
                       "specs/auth/private-apple-email.qnt",
                       "specs/auth/provider-trouble.feature",
                       "specs/auth/sign-in-ends.feature",
+                      "specs/auth/sign-in-link.feature",
+                      "specs/auth/sign-in-links.qnt",
                       "specs/auth/sign-in-methods.feature",
                       "specs/auth/sign-in.feature",
                       "specs/auth/stolen-sign-ins.feature",
@@ -2150,11 +2161,12 @@
                         "snapshot": "Available sign-in methods are offered with the current profile preserved.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/auth/sign-in-ends.feature:8",
                           "specs/auth/sign-in-ends.feature:21",
-                          "specs/auth/sign-in-methods.feature:7",
+                          "specs/auth/sign-in-ends.feature:8",
+                          "specs/auth/sign-in-link.feature",
                           "specs/auth/sign-in-methods.feature:28",
                           "specs/auth/sign-in-methods.feature:44",
+                          "specs/auth/sign-in-methods.feature:7",
                           "specs/profile/offline-sign-in.feature:7"
                         ],
                         "events": []
@@ -3936,7 +3948,11 @@
                         "description": "The friends list and people search show only people the person may find.",
                         "snapshot": "The friends list and people search show only people the person may find.",
                         "confidence": "assumed",
-                        "source": ["specs/friends/people-search.feature:7"],
+                        "source": [
+                          "specs/friends/offline-friend-request.feature",
+                          "specs/friends/offline-friend-requests.qnt",
+                          "specs/friends/people-search.feature:7"
+                        ],
                         "events": [],
                         "hints": [
                           "App address: /search",
@@ -6008,7 +6024,8 @@
                           "specs/chess/puzzle-stats-summary.feature:8",
                           "specs/chess/puzzle-stats.feature:11"
                         ],
-                        "events": []
+                        "events": [],
+                        "routes": ["/more/chess-stats"]
                       },
                       "on": {
                         "Opens a recorded puzzle attempt": {
@@ -7069,9 +7086,10 @@
                         "snapshot": "Custom Game changes need a connection and cannot be queued to happen later on their own.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/custom-game-connection.feature:5",
                           "specs/chess/custom-game-connection.feature:30",
-                          "specs/chess/custom-game-connection.feature:48"
+                          "specs/chess/custom-game-connection.feature:48",
+                          "specs/chess/custom-game-connection.feature:5",
+                          "specs/chess/custom-game-local.qnt"
                         ],
                         "events": []
                       },
@@ -8860,9 +8878,21 @@
                           "specs/developer-tools/checkpoints.feature",
                           "specs/developer-tools/test-world-views.feature",
                           "specs/developer-tools/ubiquitous-language.yml",
+                          "specs/synthetic-population/observatory.feature",
+                          "specs/synthetic-population/recognizing-synthetic-users.feature",
+                          "specs/synthetic-population/synthetic-population-access.dmn",
+                          "specs/synthetic-population/synthetic-user-continuity.feature",
+                          "specs/synthetic-population/synthetic-user-continuity.qnt",
+                          "specs/synthetic-population/synthetic-user-sign-in.feature",
+                          "specs/synthetic-population/ubiquitous-language.yml",
                           "specs/ubiquitous-language.yml"
                         ],
-                        "events": []
+                        "events": [],
+                        "routes": [
+                          "/admin/synthetic-population",
+                          "/admin/synthetic-population/config",
+                          "/admin/synthetic-population/users/:id"
+                        ]
                       },
                       "initial": "Test Worlds: Selected device",
                       "states": {
@@ -10861,6 +10891,7 @@
                       "specs/runtime/connection-restore.feature",
                       "specs/runtime/offline-open.feature",
                       "specs/runtime/ubiquitous-language.yml",
+                      "specs/runtime/voluntary-offline.feature",
                       "specs/ubiquitous-language.yml"
                     ],
                     "events": []
