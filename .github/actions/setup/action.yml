@@ -25,7 +25,11 @@ runs:
       uses: jdx/mise-action@v4
       with:
         version: 2026.9.13
-        install_args: ${{ inputs.tools }}
+        # jdx/mise-action defaults to `bun opentofu` when this is blank. The
+        # full Check jobs need every tool pinned in mise.toml, including the
+        # lazy tools used by model and security checks. Callers that need a
+        # smaller toolchain pass an explicit list (for example `bun gh`).
+        install_args: ${{ inputs.tools || '--include-lazy' }}
 
     - name: Initialize workspace submodules
       shell: bash
