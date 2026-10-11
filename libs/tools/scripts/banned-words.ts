@@ -36,9 +36,12 @@ export type TextFile = { readonly path: string; readonly text: string };
 /** Text worth reading for words; binaries and data dumps are skipped. */
 const TEXT_FILE =
   /\.(ts|tsx|js|mjs|cjs|mts|cts|json|jsonc|md|yml|yaml|feature|qnt|html|css|sh|toml|grit)$/;
-/** This rule's own source and test name the words they ban. */
+/**
+ * This rule's own source and test name the words they ban; third-party skill
+ * sources keep their published wording.
+ */
 const EXEMPT =
-  /(^|\/)libs\/tools\/scripts\/banned-words(\.test)?\.ts$|^scripts\/banned-words(\.test)?\.ts$/;
+  /(^|\/)libs\/tools\/scripts\/banned-words(\.test)?\.ts$|^scripts\/banned-words(\.test)?\.ts$|(^|\/)\.agents\/skills\/(impeccable|ui-ux-pro-max)\//;
 
 /** Whether `path` is text this rule reads. */
 export function isWordedFile(path: string): boolean {
