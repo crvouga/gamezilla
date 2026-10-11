@@ -100,11 +100,11 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 316 |
-| Check scripts | 1108 |
+| Check scripts | 1106 |
 | Measured scripts | 191 |
-| Estimated scripts | 917 |
+| Estimated scripts | 915 |
 | Stale cost keys | 536 |
-| Cold CPU | 5296 s |
+| Cold CPU | 5176 s |
 | Spec parts | 3632 s across 215 tasks |
 | Longest task | @apps/product#test:contract 86 s |
 
@@ -119,7 +119,7 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | check:board-contract | 4 | 240 s |
 | check:models | 12 | 192 s |
 | test:contract | 10 | 95 s |
-| check:synthetic-population | 1 | 60 s |
+| ci:statecharts | 1 | 60 s |
 
 ### Leaves
 
@@ -128,7 +128,7 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Leaf CPU, median | 3 s |
-| Leaf CPU, 90th percentile | 45 s |
+| Leaf CPU, 90th percentile | 35 s |
 | Longest leaf task, 90th percentile | 17 s |
 | Longest leaf task | 86 s |
 
@@ -137,8 +137,8 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | @pkgs/chess-board-root-harness | 156 s | @pkgs/chess-board-root-harness#test:spec:0 17 s |
 | @apps/product | 149 s | @apps/product#test:contract 86 s |
 | @pkgs/matchmaking-root-harness | 138 s | @pkgs/matchmaking-root-harness#test:spec:1 17 s |
-| @apps/synthetic-population-worker | 123 s | @apps/synthetic-population-worker#check:synthetic-population 60 s |
 | @libs/tools | 88 s | @libs/tools#ci:statecharts 60 s |
+| @pkgs/auth-root-harness | 45 s | @pkgs/auth-root-harness#check:models 21 s |
 
 ### Widest dependency cones
 
@@ -146,9 +146,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 222 | 5051 s | @apps/product#test:contract 86 s |
-| @pkgs/clock-shared | 220 | 5042 s | @apps/product#test:contract 86 s |
-| @pkgs/assert-root-shared | 215 | 5024 s | @apps/product#test:contract 86 s |
+| @pkgs/property-shared | 222 | 4931 s | @apps/product#test:contract 86 s |
+| @pkgs/clock-shared | 220 | 4922 s | @apps/product#test:contract 86 s |
+| @pkgs/assert-root-shared | 215 | 4904 s | @apps/product#test:contract 86 s |
 
 ### Runner
 
@@ -160,7 +160,7 @@ Work budget 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers stay at or 
 | Other slots | 7 |
 | Cores required | 25 |
 | Memory required | 40 GiB |
-| Estimated makespan | 238 s |
+| Estimated makespan | 227 s |
 | Provision | 2 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->

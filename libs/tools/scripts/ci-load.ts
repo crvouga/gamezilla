@@ -49,8 +49,6 @@ const EXACT_TASKS = new Set([
   'check:secrets',
   'check:board-contract',
   'check:root-lint',
-  'check:synthetic-population',
-  'check:synthetic-population-foundation',
   'ci:syncpack',
   'ci:audit',
   'ci:i18n',
