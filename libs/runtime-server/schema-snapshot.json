@@ -1,5 +1,5 @@
 {
-  "release": 12,
+  "release": 13,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -238,12 +238,16 @@
         "user_id": "text",
         "worker_id": "text"
       },
+      "population_sign_in_mail": {
+        "email": "text",
+        "expires_at": "timestamp",
+        "link": "text"
+      },
       "population_users": {
         "account_id": "text",
         "activity": "text",
         "application_version": "text",
         "checkpoint": "json",
-        "credential": "text",
         "device_id": "text",
         "email": "text",
         "generation": "integer",
@@ -351,6 +355,12 @@
           "type": "text",
           "note": "unused column — value lives in row id=google_web_client_id"
         }
+      },
+      "population_users": {
+        "credential": {
+          "type": "text",
+          "note": "Synthetic Users sign in with emailed links; nothing is sealed for them"
+        }
       }
     },
     "retiredTables": [],
@@ -366,6 +376,7 @@
       ["permissions_quota_ledger", "owner_id", "quota", "consumed_at"],
       ["population_commands", "user_id"],
       ["population_events", "user_id", "created_at"],
+      ["population_sign_in_mail", "email", "created_at"],
       ["population_users", "lease_until"],
       ["population_users", "worker_id"]
     ],

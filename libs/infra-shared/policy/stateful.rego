@@ -32,10 +32,6 @@ deletable := {
 	# Only managed definitions/credentials; telemetry storage is not deleted.
 	"grafana_cloud_stack_service_account",
 	"grafana_cloud_stack_service_account_token",
-	# Dashboards and alert rules are declared definitions; the stack keeps the telemetry.
-	"grafana_dashboard",
-	"grafana_folder",
-	"grafana_rule_group",
 	"infisical_secret",
 	"infisical_secret_import",
 	"terraform_data",

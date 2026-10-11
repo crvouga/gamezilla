@@ -33,7 +33,6 @@
     "@libs/synthetic-population-shared": "workspace:*",
     "@libs/moderation-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
-    "@libs/synthetic-population-shared": "workspace:*",
     "@libs/test-ids-shared": "workspace:*",
     "@pkgs/a11y-shared": "workspace:*",
     "@pkgs/alloy-shared": "workspace:*",
