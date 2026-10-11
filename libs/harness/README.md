@@ -50,8 +50,8 @@ export const openHarness = (testId: string, options?: OpenHarnessOptions) =>
 
 Each feature exports its slice (manifest, client, server, actions, reads,
 properties, seeds, room host, browser pages) from `@libs/<feature>/harness/*`.
-`composeHarnessSlices` adds the platform (auth, client-config, permissions) and
-folds in production's order. Run one package's suite with
+`composeHarnessSlices` adds the platform (auth, client-config, permissions, and
+the population tables identity reads) and folds in production's order. Run one package's suite with
 `bun run --filter @libs/chess-root-harness test:spec`, one spec with
 `bun run spec specs/chess/puzzle-play.feature`.
 

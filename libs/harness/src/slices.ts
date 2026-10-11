@@ -16,6 +16,7 @@ import type { FeatureManifest } from '@libs/feature-shared/manifest';
 import type { FeatureServer } from '@libs/feature-shared/server';
 import type { EnvTime } from '@libs/feature-shared/sync';
 import { PERMISSIONS_FEATURE } from '@libs/permissions-shared/feature';
+import { SYNTHETIC_POPULATION_FEATURE } from '@libs/synthetic-population-shared/feature';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type {
@@ -92,11 +93,22 @@ export const PERMISSIONS_HARNESS_SLICE: HarnessSlice = {
   feature: PERMISSIONS_FEATURE,
 };
 
+/**
+ * Provenance: identity classifies every session against the provisioned
+ * population addresses, so its tables exist wherever auth does. A suite that
+ * runs the population adds its client and server with its own slice.
+ */
+export const POPULATION_PROVENANCE_HARNESS_SLICE: HarnessSlice = {
+  name: 'synthetic-population',
+  feature: SYNTHETIC_POPULATION_FEATURE,
+};
+
 /** The platform slices every composition includes. */
 export const PLATFORM_HARNESS_SLICES: readonly HarnessSlice[] = [
   AUTH_HARNESS_SLICE,
   CLIENT_CONFIG_HARNESS_SLICE,
   PERMISSIONS_HARNESS_SLICE,
+  POPULATION_PROVENANCE_HARNESS_SLICE,
 ];
 
 function only<T>(
@@ -120,11 +132,20 @@ export function composeHarnessSlices(
   name: string,
   slices: readonly HarnessSlice[]
 ): HarnessComposition {
-  const byName = new Map<SliceName, HarnessSlice>();
-  for (const slice of [...PLATFORM_HARNESS_SLICES, ...slices]) {
-    if (byName.has(slice.name) && !PLATFORM_HARNESS_SLICES.includes(slice)) {
+  const byName = new Map<SliceName, HarnessSlice>(
+    PLATFORM_HARNESS_SLICES.map((slice) => [slice.name, slice])
+  );
+  const listed = new Set<SliceName>();
+  for (const slice of slices) {
+    if (PLATFORM_HARNESS_SLICES.includes(slice)) continue;
+    // A suite's slice may complete a platform slice of the same feature.
+    const platform = byName.get(slice.name);
+    const clashes =
+      platform !== undefined && platform.feature !== slice.feature;
+    if (listed.has(slice.name) || clashes) {
       throw new Error(`composeHarnessSlices: duplicate slice '${slice.name}'`);
     }
+    listed.add(slice.name);
     byName.set(slice.name, slice);
   }
   const ordered = SLICE_ORDER.flatMap((key) => {

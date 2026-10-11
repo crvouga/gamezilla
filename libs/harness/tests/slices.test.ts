@@ -5,6 +5,7 @@ import type { HarnessSlice } from '@libs/harness/slices';
 import {
   composeHarnessSlices,
   PLATFORM_HARNESS_SLICES,
+  POPULATION_PROVENANCE_HARNESS_SLICE,
 } from '@libs/harness/slices';
 
 function client(name: string): FeatureClient {
@@ -63,6 +64,32 @@ describe('composeHarnessSlices', () => {
     expect([...composition.app.featureNames].sort()).toEqual(
       PLATFORM_HARNESS_SLICES.map((s) => s.feature?.name ?? '').sort()
     );
+  });
+
+  // regression: harness-identity-population-table-missing
+  test('identity finds the population table in a composition that lists no slices', () => {
+    // Literal failing input: `composeHarnessSlices('profile', [...])` without
+    // the population slice; every session then failed on
+    // `SELECT id FROM population_users WHERE email = ?`.
+    expect(composeHarnessSlices('probe', []).app.tableNames).toContain(
+      'population_users'
+    );
+  });
+
+  test('a suite slice completes the platform slice of the same feature', () => {
+    const population: HarnessSlice = {
+      ...POPULATION_PROVENANCE_HARNESS_SLICE,
+      client: client('synthetic-population'),
+    };
+    const composition = composeHarnessSlices('probe', [population]);
+    expect(composition.clients.map((c) => c.name)).toContain(
+      'synthetic-population'
+    );
+    expect(() =>
+      composeHarnessSlices('probe', [
+        { name: 'auth', client: client('impostor') },
+      ])
+    ).toThrow(/duplicate slice 'auth'/);
   });
 
   test('rejects a slice listed twice', () => {
