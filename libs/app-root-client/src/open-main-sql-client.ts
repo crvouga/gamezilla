@@ -23,9 +23,15 @@ export async function openMainSqlClient(
     });
     await client.connect();
     return client;
-  } catch {
+  } catch (error) {
     // Local SQLite is an optimistic cache. A stale worker, broken OPFS
-    // handle, or corrupt snapshot must never block application boot.
+    // handle, or corrupt snapshot must never block application boot. The
+    // disposable database runs on the main thread and keeps nothing, so say
+    // so: a slow, forgetful app is otherwise the only sign.
+    logger.warn(
+      'local SQLite unavailable: using a disposable in-memory database on the main thread',
+      { error: error instanceof Error ? error.message : String(error) }
+    );
     return openDisposableSqlClient();
   }
 }
