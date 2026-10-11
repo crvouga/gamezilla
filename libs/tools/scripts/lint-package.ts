@@ -14,7 +14,7 @@
  * `tc` in turbo.json). Each tool runs from the repo root so it resolves the
  * one root config exactly as a whole-repo run would.
  *
- * Run from the repo root itself (`//#lint:root`) it covers the paths that
+ * Run from the repo root itself (`@libs/tools#check:root-lint`) it covers the paths that
  * belong to no package: root config files, editor and agent settings.
  */
 import { spawn, spawnSync } from 'node:child_process';
@@ -377,6 +377,8 @@ function lintRoot(): Promise<boolean> {
   ).then((biome) => biome && ok);
 }
 
-const pkg = relative(REPO_ROOT, process.cwd());
+const pkg = process.argv.includes('--root')
+  ? ''
+  : relative(REPO_ROOT, process.cwd());
 const ok = await (pkg === '' ? lintRoot() : lintPackage(pkg));
 process.exit(ok ? 0 : 1);

@@ -33,7 +33,9 @@ function loadRootScripts(): Readonly<Record<string, string>> {
 
 test('spec ownership caches the exact commit range it checks', () => {
   // regression: spec-rulebook-commit-subject
-  expect(loadTasks()['//#ci:spec-ownership']?.env).toContain(SECRETS_RANGE_ENV);
+  expect(loadTasks()['@libs/tools#ci:spec-ownership']?.env).toContain(
+    SECRETS_RANGE_ENV
+  );
 });
 
 function turboCiRunTaskArgs(script: string): string[] {
@@ -75,7 +77,7 @@ function expectSpecParts(dir: string, count: number, domains: string[]): void {
   ).tasks;
   for (let part = 0; part < count; part++) {
     const task = `test:spec:${String(part)}`;
-    expect(tasks['//#check']?.dependsOn).toContain(task);
+    expect(CHECK_LEAVES).toContain(task);
     expect(tasks[task]?.outputs).toEqual([
       `.cache/harness-report/part-${String(part)}/**`,
     ]);
@@ -88,23 +90,21 @@ function expectSpecParts(dir: string, count: number, domains: string[]): void {
 }
 
 /**
- * `//#check` is the whole check surface. Everything a package can check about
- * itself rides in its own `tc` / `lint` / `test` / `test:contract` /
- * `test:spec:<k>`, so it caches per package; root leaves are only the checks whose
- * subject belongs to no package.
+ * The command's Turbo task list covers package checks and explicitly scoped
+ * repository checks; there are no root check tasks.
  */
 const CHECK_LEAVES = [
-  '//#lint:root',
-  '//#ci:syncpack',
-  '//#ci:audit',
-  '//#ci:i18n',
-  '//#ci:agent-commands',
-  '//#ci:workspace-lifecycle',
-  '//#ci:goals',
-  '//#ci:specs',
-  '//#ci:statecharts',
-  '//#ci:conformance',
-  '//#ci:spec-ownership',
+  '@libs/tools#check:root-lint',
+  '@libs/tools#ci:syncpack',
+  '@libs/tools#ci:audit',
+  '@libs/tools#ci:i18n',
+  '@libs/tools#ci:agent-commands',
+  '@libs/tools#ci:workspace-lifecycle',
+  '@libs/tools#ci:goals',
+  '@libs/tools#ci:specs',
+  '@libs/tools#ci:statecharts',
+  '@libs/tools#ci:conformance',
+  '@libs/tools#ci:spec-ownership',
   'tc',
   'lint',
   'test',
@@ -118,6 +118,8 @@ const CHECK_LEAVES = [
   '@libs/tools#check:actionlint',
   '@libs/tools#check:secrets',
   'check:board-contract',
+  '@apps/synthetic-population-worker#check:synthetic-population-foundation',
+  'check:synthetic-population',
 ];
 
 /** Deploy runs the whole check surface, then the leaves that need a live env. */
@@ -135,7 +137,7 @@ function configFor(tasks: Tasks, task: string): TaskConfig | undefined {
   return hash > 0 ? tasks[bare.slice(hash + 1)] : undefined;
 }
 
-/** Every task `//#check` can schedule, through `dependsOn` and `^deps`. */
+/** Every task `sharded Check task list` can schedule, through `dependsOn` and `^deps`. */
 function reachableFromCheck(tasks: Tasks): ReadonlySet<string> {
   const seen = new Set<string>();
   const queue = [...CHECK_LEAVES];
@@ -194,10 +196,20 @@ describe('turbo check/deploy graph invariants', () => {
     ).toEqual([['//#a', '//#b', '//#a']]);
   });
 
-  test('//#check is exactly the check surface', () => {
+  test('sharded Check task list is exactly the check surface', () => {
     // regression: chessboard-consumer-gate-graph
     // regression: check-spec-part-order
-    expect(loadTasks()['//#check']?.dependsOn).toEqual(CHECK_LEAVES);
+    expect(flattenCheckAggregators(['check'], loadTasks())).toEqual(
+      CHECK_LEAVES
+    );
+    expect(
+      Object.keys(loadTasks()).some(
+        (task) =>
+          task.startsWith('//#check') ||
+          task.startsWith('//#ci:') ||
+          task.startsWith('//#lint:root')
+      )
+    ).toBe(false);
   });
 
   test('each spec part caches only its own report bucket', () => {
@@ -217,8 +229,8 @@ describe('turbo check/deploy graph invariants', () => {
       (task) => configFor(tasks, task)?.cache === false
     );
     expect(uncached).toEqual([]);
-    expect(tasks['//#ci:audit']?.inputs).toContain(
-      '.cache/check-ci/audit.json'
+    expect(tasks['@libs/tools#ci:audit']?.inputs).toContain(
+      '$TURBO_ROOT$/.cache/check-ci/audit.json'
     );
     expect(
       readFileSync(join(REPO_ROOT, 'libs/tools/scripts/check-plan.ts'), 'utf8')
@@ -286,13 +298,10 @@ describe('turbo check/deploy graph invariants', () => {
   });
 
   // every check that gates a release also gates a PR merge.
-  test('//#deploy is //#check plus the live-env leaves', () => {
+  test('deploy depends only on live-environment tasks after the Check workflow', () => {
     const tasks = loadTasks();
-    expect(tasks['//#deploy']?.dependsOn).toEqual(['//#check', ...DEPLOY_ONLY]);
-    expect(flattenCheckAggregators(['deploy'], tasks)).toEqual([
-      ...CHECK_LEAVES,
-      ...DEPLOY_ONLY,
-    ]);
+    expect(tasks['//#deploy']?.dependsOn).toEqual([...DEPLOY_ONLY]);
+    expect(flattenCheckAggregators(['deploy'], tasks)).toEqual(DEPLOY_ONLY);
   });
 
   test('local runners go through turbo-ci-run', () => {
@@ -354,9 +363,8 @@ describe('turbo check/deploy graph invariants', () => {
     expect(deps).toContain('@libs/tools#install:cli');
   });
 
-  // regression: consolidated-deploy-check-aggregator — a package dependency
-  // on //#check bypassed the runner's flattening and scheduled missing root
-  // lint/test tasks, so even the deployment dry run failed.
+  // regression: consolidated-deploy-check-aggregator — package tasks must not
+  // depend on a root check task outside the Turbo task list.
   // regression: worker-retirement-health-dependency — bare health resolved
   // to a nonexistent infra health task and allowed retirement before health.
   // regression: tooling-check-subprocess-timeouts

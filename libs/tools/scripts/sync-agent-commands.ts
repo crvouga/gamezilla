@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // @io-wall-ok — composition root
 /**
- * Agent-command fan-out (`bun run agents:sync`, gate `//#ci:agent-commands`).
+ * Agent-command fan-out (`bun run agents:sync`, gate `@libs/tools#ci:agent-commands`).
  *
  * `.agents/commands/<name>.md` is the single source of truth for every slash
  * command. Each AI coding harness discovers commands in its own directory and

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "check:synthetic-population": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.dockerignore",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/**",
+        "!$TURBO_ROOT$/.git/**",
+        "!$TURBO_ROOT$/.turbo/**",
+        "!$TURBO_ROOT$/node_modules/**",
+        "!$TURBO_ROOT$/**/.cache/**",
+        "!$TURBO_ROOT$/**/node_modules/**",
+        "!$TURBO_ROOT$/.observability/**",
+        "!$TURBO_ROOT$/.feedback/**",
+        "!$TURBO_ROOT$/**/.env*",
+        "!$TURBO_ROOT$/.secrets.json",
+        "!$TURBO_ROOT$/.super.engineering/**",
+        "!$TURBO_ROOT$/.superconductor/**",
+        "!$TURBO_ROOT$/.superset/**",
+        "!$TURBO_ROOT$/**/.terraform/**",
+        "!$TURBO_ROOT$/**/*.tfstate*",
+        "!$TURBO_ROOT$/**/dist/**"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "check:synthetic-population-foundation": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/libs/infra-shared/tofu/**",
+        "$TURBO_ROOT$/mise.toml"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    }
+  }
+}

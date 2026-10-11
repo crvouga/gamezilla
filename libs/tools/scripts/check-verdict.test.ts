@@ -28,15 +28,20 @@ const JOBS = [
 describe('check verdict', () => {
   test('groups task identities into suites', () => {
     expect(suiteOf('@apps/product#tc')).toBe('Typecheck');
-    expect(suiteOf('//#lint:root')).toBe('Lint and boundaries');
+    expect(suiteOf('@libs/tools#check:root-lint')).toBe('Lint and boundaries');
     expect(suiteOf('@apps/product#test:spec:12')).toBe('Gherkin specs');
     expect(suiteOf('@apps/product#check:models')).toBe('Quint models');
+    expect(
+      suiteOf(
+        '@apps/synthetic-population-worker#check:synthetic-population-foundation'
+      )
+    ).toBe('Synthetic Population');
     expect(suiteOf('@libs/tools#check:secrets')).toBe('Security');
-    expect(suiteOf('//#ci:audit')).toBe('Security');
+    expect(suiteOf('@libs/tools#ci:audit')).toBe('Security');
     expect(suiteOf('@libs/runtime-server#check:schema-evolution')).toBe(
       'Database schema'
     );
-    expect(suiteOf('//#ci:syncpack')).toBe('Repository gates');
+    expect(suiteOf('@libs/tools#ci:syncpack')).toBe('Repository gates');
   });
 
   test('reports every failure across shards, not only the first', () => {

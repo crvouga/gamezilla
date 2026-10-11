@@ -51,7 +51,7 @@ const SPEC_RUNNER = 'bun run ../../libs/harness/scripts/test-spec.ts';
 export const MODELS_RUNNER = 'bun run ../../libs/tools/scripts/check-models.ts';
 /**
  * Most parts one suite may split into: root `turbo.json` defines
- * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and `//#check` runs them.
+ * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and the sharded Check runs them.
  */
 export const MAX_SPEC_PARTS = 64;
 
@@ -93,7 +93,7 @@ type Manifest = {
 /**
  * What is wrong with how a package splits its spec suite for `bun check`:
  * `test:spec:<k>` for every k below `specParts`, each exactly the runner with
- * `--part k/n`, and no other part — `//#check` runs the parts, never
+ * `--part k/n`, and no other part — the sharded Check runs the parts, never
  * `test:spec`, so a suite without them would not gate at all.
  */
 export function specPartProblems(

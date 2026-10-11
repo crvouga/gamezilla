@@ -61,3 +61,26 @@ export function reachableTasks(
   }
   return seen;
 }
+
+/** Every task the sharded Check schedules from its package-owned task list. */
+export function reachableCheckTasks(
+  tasks: TurboTasks,
+  scripts: PackageScripts,
+  roots: readonly string[]
+): ReadonlySet<string> {
+  const reached = new Set<string>();
+  for (const root of roots) {
+    if (root.includes('#')) {
+      for (const task of reachableTasks(tasks, scripts, root))
+        reached.add(task);
+      continue;
+    }
+    reached.add(root);
+    for (const [pkg, names] of scripts) {
+      if (!names.has(root)) continue;
+      for (const task of reachableTasks(tasks, scripts, `${pkg}#${root}`))
+        reached.add(task);
+    }
+  }
+  return reached;
+}

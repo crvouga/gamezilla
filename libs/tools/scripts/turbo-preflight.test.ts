@@ -20,7 +20,7 @@ describe('planFromDryRun', () => {
     const plan = planFromDryRun(
       dryRun([
         {
-          taskId: '//#ci:audit',
+          taskId: '@libs/tools#ci:audit',
           hash: 'old-pass',
           command: 'bun audit',
           resolvedTaskDefinition: { cache: false },
@@ -38,7 +38,7 @@ describe('planFromDryRun', () => {
       2
     );
     expect(remote.toExecute.map((task) => task.taskId)).toEqual([
-      '//#ci:audit',
+      '@libs/tools#ci:audit',
     ]);
     expect(lookedUp).toEqual([]);
     expect(remote.tasks[0]?.hit).toBe(false);

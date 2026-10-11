@@ -181,6 +181,13 @@ const KEEP_BUN_GLOBALS = [
   'btoa',
 ] as const;
 
+let workerEventRuntime:
+  | {
+      readonly dispatchEvent: (...args: unknown[]) => unknown;
+      readonly Event: new (type: string) => Event;
+    }
+  | undefined;
+
 /** Desktop viewport; {@link setDomWindow} narrows it (e.g. a phone). */
 const DEFAULT_WINDOW = { width: 1024, height: 768 };
 
@@ -222,9 +229,17 @@ if (typeof document === 'undefined') {
           'onmessageerror',
         ]
       : [];
+  const workerEvent = Object.getOwnPropertyDescriptor(globalThis, 'Event');
   for (const key of [...KEEP_BUN_GLOBALS, ...workerGlobals]) {
     const descriptor = Object.getOwnPropertyDescriptor(globalThis, key);
     if (descriptor !== undefined) saved.set(key, descriptor);
+  }
+  const workerDispatch = saved.get('dispatchEvent')?.value;
+  if (typeof workerDispatch === 'function' && workerEvent?.value) {
+    workerEventRuntime = {
+      dispatchEvent: workerDispatch,
+      Event: workerEvent.value,
+    };
   }
   GlobalRegistrator.register({
     ...DEFAULT_WINDOW,
@@ -233,6 +248,17 @@ if (typeof document === 'undefined') {
   for (const [key, descriptor] of saved) {
     Object.defineProperty(globalThis, key, descriptor);
   }
+}
+
+/** Dispatch on Bun's worker host when its native event channel was retained. */
+export function dispatchWindowEvent(type: string): void {
+  if (workerEventRuntime) {
+    Reflect.apply(workerEventRuntime.dispatchEvent, globalThis, [
+      new workerEventRuntime.Event(type),
+    ]);
+    return;
+  }
+  window.dispatchEvent(new window.Event(type));
 }
 
 if (typeof Symbol.dispose !== 'symbol') {

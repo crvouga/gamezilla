@@ -29,16 +29,20 @@ describe('lingui catalog scope', () => {
     ).toEqual(['apps/server/src/untranslated.tsx']);
   });
 
-  test('turbo hashes exactly the catalog sources for //#ci:i18n', () => {
+  test('turbo hashes exactly the catalog sources for @libs/tools#ci:i18n', () => {
     const turbo = JSON.parse(
       readFileSync(join(REPO_ROOT, 'turbo.json'), 'utf8')
     ) as {
       readonly tasks: Record<string, { readonly inputs?: readonly string[] }>;
     };
-    const inputs = turbo.tasks['//#ci:i18n']?.inputs ?? [];
+    const inputs = turbo.tasks['@libs/tools#ci:i18n']?.inputs ?? [];
     const sources = inputs
       .filter((input) => input.endsWith('/**/*.{ts,tsx}'))
-      .map((input) => input.slice(0, -'/**/*.{ts,tsx}'.length))
+      .map((input) =>
+        input
+          .slice(0, -'/**/*.{ts,tsx}'.length)
+          .replace(/^\$TURBO_ROOT\$\//, '')
+      )
       .sort();
     expect(sources).toEqual([...LINGUI_CATALOG_SOURCES].sort());
   });

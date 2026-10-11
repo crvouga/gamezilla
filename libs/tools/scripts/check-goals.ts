@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Known-bug gate (`//#ci:goals`): every
+ * Known-bug gate (`@libs/tools#ci:goals`): every
  * `libs/tools/goal/known-bugs/<id>.json` is guarded by an example regression
  * test. Proof files inside a package are checked by that package's `lint`;
  * this gate checks the bookkeeping and any proof outside the package tiers.

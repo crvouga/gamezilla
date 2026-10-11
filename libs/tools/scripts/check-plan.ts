@@ -41,7 +41,6 @@ export async function createCheckPlan(): Promise<void> {
       '--filter=./apps/*',
       '--filter=./libs/*',
       '--filter=./pkgs/*',
-      '--filter=//',
       '--framework-inference=false',
       '--cache=local:rw',
       '--dry=json',

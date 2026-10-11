@@ -2,7 +2,7 @@
 // @io-wall-ok — composition root
 /**
  * Workspace lifecycle fan-out (`bun run workspace:sync`, gate
- * `//#ci:workspace-lifecycle`).
+ * `@libs/tools#ci:workspace-lifecycle`).
  *
  * `libs/tools/workspace/<hook>.sh` is the single source of truth for every
  * workspace lifecycle hook. Each agent orchestrator discovers those hooks in

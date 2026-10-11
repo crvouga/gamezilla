@@ -21,7 +21,9 @@ export async function createApplicationInstance(
   try {
     await host.driver.launch();
     await authenticateThroughUi(host.driver, input);
-    const token = await host.env.createAuthClient().getFreshToken();
+    const token = await host.env
+      .createAuthClient(host.env.server)
+      .getFreshToken();
     if (token === null)
       throw new Error('Normal authentication did not establish a session');
     let activation: Promise<void> | null = null;

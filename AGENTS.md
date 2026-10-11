@@ -127,16 +127,21 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 
 ## Checks and CI
 
-Every pull request runs every gate (`//#check`) in the Check workflow; its
-`check` job is the one required status, so a green pull request is releasable.
+Every pull request runs one sharded Check workflow; its `check` job is the one
+required status, so a green pull request is releasable. The task list in
+`libs/tools/scripts/turbo-ci-run.ts` runs every gate through Turbo. There are
+no root `//#check`, `//#ci:*`, or root lint checks: every Check workflow gate
+is a package-owned Turbo task with explicit inputs and caching. Bespoke gates such
+as the Synthetic Population Worker container rehearsal live in their owning
+package and join the same sharded task list. These rules have no exceptions.
 Merging to `main` is the release: Deploy runs on every push to `main`, verifies
 that exact commit again, then ships every environment. `bun check`,
 `bun verify`, and `bun check:local` run the same gate locally. `bun health` and
 `bun deploy` dispatch the Health and Deploy workflows and block on the verdict
 ([`README.md`](README.md#correctness-machinery)). `bun health:local` and
 `bun deploy:local` run that work on this machine. Every
-check is a cached, per-package task that reads only its own package; a new
-check goes into the package it is about. A gate leaf verifies and never
+check is a cached, per-package task; a new check goes into the package it is
+about. A gate leaf verifies and never
 touches the outside world, and its verdict never depends on the machine
 (never branch on `CI`). Make a slow task faster before raising its budget.
 Exactly three workflows: Check, Deploy, Health. Rehearse anything touching

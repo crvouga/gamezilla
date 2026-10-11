@@ -91,20 +91,17 @@ describe('turbo-ci-run child env', () => {
 
 describe('turbo-ci-run aggregator flatten', () => {
   const tasks = {
-    '//#check': { dependsOn: ['lint', 'tc', 'test'] },
+    '//#deploy': { dependsOn: ['health'] },
   };
 
   test('check expands to its leaves', () => {
-    expect(flattenCheckAggregators(['check'], tasks)).toEqual([
-      'lint',
-      'tc',
-      'test',
-    ]);
-    expect(flattenCheckAggregators(['//#check'], tasks)).toEqual([
-      'lint',
-      'tc',
-      'test',
-    ]);
+    const leaves = flattenCheckAggregators(['check'], tasks);
+    expect(leaves).toContain('@libs/tools#check:root-lint');
+    expect(leaves).toContain(
+      '@apps/synthetic-population-worker#check:synthetic-population-foundation'
+    );
+    expect(leaves).toContain('check:synthetic-population');
+    expect(leaves).not.toContain('//#check');
   });
 
   test('non-aggregator args pass through', () => {
@@ -117,19 +114,14 @@ describe('turbo-ci-run aggregator flatten', () => {
   test('deploy expands to //#deploy leaves', () => {
     const withDeploy = {
       ...tasks,
-      '//#deploy': {
-        dependsOn: ['tc', '//#check', 'health'],
-      },
-      '//#check': { dependsOn: ['lint'] },
+      '//#deploy': { dependsOn: ['tc', 'health'] },
     };
     expect(flattenCheckAggregators(['deploy'], withDeploy)).toEqual([
       'tc',
-      'lint',
       'health',
     ]);
     expect(flattenCheckAggregators(['//#deploy'], withDeploy)).toEqual([
       'tc',
-      'lint',
       'health',
     ]);
   });

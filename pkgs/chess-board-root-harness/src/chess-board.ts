@@ -5,6 +5,7 @@ import { defineProperty } from '@pkgs/harness-root-shared/define-property';
 import { defineRuntime } from '@pkgs/harness-root-shared/define-runtime';
 import { defineSystem } from '@pkgs/harness-root-shared/define-system';
 import { virtualTimeRuntime } from '@pkgs/harness-root-shared/virtual-time-runtime';
+import { dispatchWindowEvent } from '@pkgs/bun-test-solid-client/register';
 import { annotationActions } from './annotation-actions';
 import { appearanceActions } from './annotation-appearance';
 import { beginArrowObservation } from './annotation-model';
@@ -88,7 +89,7 @@ export const setVisibility = defineAction({
 export const leaveActivity = defineAction({
   name: 'leaveActivity',
   act: (_w: BoardWorld) => {
-    window.dispatchEvent(new Event('blur'));
+    dispatchWindowEvent('blur');
   },
 });
 export const replacePosition = defineAction({

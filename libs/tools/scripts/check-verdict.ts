@@ -53,11 +53,12 @@ export type Verdict = {
 /** Suite order is the report order; the first matching rule wins. */
 const SUITES: readonly (readonly [string, RegExp])[] = [
   ['Typecheck', /^tc$/],
-  ['Lint and boundaries', /^(lint|lint:root)$/],
+  ['Lint and boundaries', /^(lint|check:root-lint)$/],
   ['Unit tests', /^test$/],
   ['Contract tests', /^test:contract$/],
   ['Gherkin specs', /^test:spec(:\d+)?$/],
   ['Quint models', /^check:models$/],
+  ['Synthetic Population', /^check:synthetic-population(?:-foundation)?$/],
   ['Spec and conformance', /^ci:(specs|conformance|spec-ownership|goals)$/],
   ['Database schema', /^check:schema-evolution$/],
   ['Security', /^(check:secrets|ci:audit)$/],

@@ -2,14 +2,14 @@
  * What proves each entry of `specs/conformance.yaml` — binding-side
  * knowledge the manifest may not name (specs/README.md D1). The manifest says
  * *what* must be proven; this says *which* spec files, checks and report lines
- * prove it. `//#ci:conformance` (`check-conformance.ts`) requires the two to
+ * prove it. `@libs/tools#ci:conformance` (`check-conformance.ts`) requires the two to
  * name exactly the same ids and every proof here to be automated: a spec that
- * exists and is bound, a task `//#check` runs, a live spec `health` runs, a
+ * exists and is bound, a package task in the Check task list runs, a live spec `health` runs, a
  * report line that is fed.
  *
  *   { spec }  a spec file a package runs against its harness in `bun check`
  *   { live }  a spec file `@apps/product`'s `health` runs against a deployment
- *   { task }  a turbo task `//#check` reaches (a bare name: every package's)
+ *   { task }  a package-scoped Turbo task in the Check task list
  *   { kind }  every spec of a kind — at least one, each bound
  *   { line }  a line of `bun run conformance`'s pipeline (`lines.ts`)
  */
@@ -67,7 +67,7 @@ const ENVIRONMENTS: ProofTable = {
     { spec: 'specs/sync-engine/notes-across-app-updates.feature' },
   ],
   // Every message the app shows is in its one catalog (the i18n gate).
-  English: [{ task: '//#ci:i18n' }],
+  English: [{ task: '@libs/tools#ci:i18n' }],
   UTC: [
     { spec: 'specs/chess/daily-puzzle-limit.dmn' },
     { spec: 'specs/chess/puzzle-limits-by-kind.feature' },
@@ -161,8 +161,8 @@ const PUBLIC_CONTRACTS: ProofTable = {
 
 /** Evidence about how the product is built: each an existing, gating check. */
 const RELEASE_GATES: ProofTable = {
-  'dependency vulnerabilities': [{ task: '//#ci:audit' }],
-  'dependency consistency': [{ task: '//#ci:syncpack' }],
+  'dependency vulnerabilities': [{ task: '@libs/tools#ci:audit' }],
+  'dependency consistency': [{ task: '@libs/tools#ci:syncpack' }],
   'leaked secrets': [{ task: '@libs/tools#check:secrets' }],
   // The secrets registry agrees with what the infrastructure writes, and a
   // live environment has what it needs to use every outside service.
@@ -182,7 +182,7 @@ const RELEASE_GATES: ProofTable = {
   'infrastructure policy': [{ task: '@libs/infra-shared#lint' }],
   'workflow validity': [{ task: '@libs/tools#check:actionlint' }],
   'type safety': [{ task: 'tc' }],
-  lint: [{ task: 'lint' }, { task: '//#lint:root' }],
+  lint: [{ task: 'lint' }, { task: '@libs/tools#check:root-lint' }],
 };
 
 const line = (id: keyof typeof LINES): Proof => ({ line: id });

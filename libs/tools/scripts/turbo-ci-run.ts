@@ -30,9 +30,8 @@
  * - Log order: `auto` locally; `grouped` in CI, which turbo renders as one
  *   collapsible `::group::` per failing task on GitHub Actions. Grouped holds
  *   a task's output until it finishes, so a heartbeat prints every 2 min.
- *   Override with `TURBO_LOG_ORDER`. `check` / `deploy` (and `//#…` forms)
- *   are expanded recursively to leaf `dependsOn` tasks so turbo never nests
- *   under a root aggregator script (would recurse).
+ *   Override with `TURBO_LOG_ORDER`. `check` expands to package-owned task
+ *   names; deploy expands its dependencies so Turbo runs leaf tasks.
  * - Output logs: `errors-only` — a task's output is printed only when that
  *   task fails, so a green gate prints the plan, the heartbeat and the
  *   summary and nothing a passing test wrote. Override with
@@ -94,8 +93,36 @@ import {
 } from './turbo-preflight';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
-const CHECK_AGGREGATOR = '//#check';
 const DEPLOY_AGGREGATOR = '//#deploy';
+export const MAIN_CHECK_TASKS = [
+  '@libs/tools#check:root-lint',
+  '@libs/tools#ci:syncpack',
+  '@libs/tools#ci:audit',
+  '@libs/tools#ci:i18n',
+  '@libs/tools#ci:agent-commands',
+  '@libs/tools#ci:workspace-lifecycle',
+  '@libs/tools#ci:goals',
+  '@libs/tools#ci:specs',
+  '@libs/tools#ci:statecharts',
+  '@libs/tools#ci:conformance',
+  '@libs/tools#ci:spec-ownership',
+  'tc',
+  'lint',
+  'test',
+  'test:contract',
+  ...Array.from({ length: 64 }, (_, index) => `test:spec:${String(index)}`),
+  'check:models',
+  '@apps/product#check:offline-shell',
+  '@apps/auth-relay#check:worker-bundle',
+  '@apps/product#check:worker-bundle',
+  '@libs/runtime-server#check:schema-evolution',
+  '@libs/tools#check:actionlint',
+  '@libs/tools#check:secrets',
+  'check:board-contract',
+  '@apps/synthetic-population-worker#check:synthetic-population-foundation',
+  'check:synthetic-population',
+] as const;
+
 /**
  * The live health checks and critical journeys (`@apps/product#health`,
  * `@synthetic` features + `specs/journeys/`). Deliberately no `//#health` root
@@ -143,9 +170,6 @@ function visualBrowserVersion(): string | null {
 
 /** Root-package script names and turbo root-task aliases that are aggregators. */
 const AGGREGATOR_ALIASES: Readonly<Record<string, string>> = {
-  check: CHECK_AGGREGATOR,
-  '//#check': CHECK_AGGREGATOR,
-  '//:check': CHECK_AGGREGATOR,
   deploy: DEPLOY_AGGREGATOR,
   '//#deploy': DEPLOY_AGGREGATOR,
   '//:deploy': DEPLOY_AGGREGATOR,
@@ -301,7 +325,8 @@ function taskDependsOn(tasks: TurboTasks, taskName: string): string[] {
 }
 
 /**
- * Recursively expand `check` / `deploy` aggregators to leaf turbo tasks.
+ * Expand the check command to package tasks; recursively expand deploy's
+ * package dependencies to leaf turbo tasks.
  * Dedupes while preserving first-seen order.
  */
 export function flattenCheckAggregators(
@@ -317,10 +342,13 @@ export function flattenCheckAggregators(
     out.push(leaf);
   }
 
-  // Bare script names (`check`, `deploy`) are aliases only on the command
-  // line; inside `dependsOn` a bare name is a package task, so nested deps
-  // expand only when they name a root aggregator.
+  // Bare script names are command aliases only here. In Turbo's graph they
+  // remain package tasks with their package-scoped meaning.
   function expand(arg: string, commandLine: boolean): void {
+    if (commandLine && (arg === 'check' || arg === 'check:local')) {
+      for (const task of MAIN_CHECK_TASKS) pushLeaf(task);
+      return;
+    }
     const isAlias = Object.hasOwn(AGGREGATOR_ALIASES, arg);
     const canonical =
       isAlias && (commandLine || arg.startsWith('//'))
@@ -546,8 +574,7 @@ function runDeadlineSeconds(mode: RunMode, slowRunner: boolean): number {
 
 function prepareTaskArgs(raw: readonly string[]): string[] {
   const args = flattenCheckAggregators(raw);
-  if (args.includes('//#ci:audit') || args.includes('ci:audit'))
-    captureAudit(REPO_ROOT);
+  if (args.includes('@libs/tools#ci:audit')) captureAudit(REPO_ROOT);
   return args;
 }
 

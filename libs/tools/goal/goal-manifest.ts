@@ -1,5 +1,5 @@
 /**
- * Known-bug gate (`//#ci:goals`).
+ * Known-bug gate (`@libs/tools#ci:goals`).
  *
  * Every bug that was found stays guarded by an example regression test: the
  * concrete input that broke, pinned forever. Properties and models explore;

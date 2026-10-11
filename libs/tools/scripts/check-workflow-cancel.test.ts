@@ -90,10 +90,7 @@ describe('Check workflow cancellation', () => {
       types: ['opened', 'reopened', 'synchronize'],
     });
     const gate = workflow.jobs['check']!;
-    expect(gate.needs).toEqual([
-      'check-verify',
-      'check-synthetic-population-package',
-    ]);
+    expect(gate.needs).toEqual(['check-verify']);
     expect(gate.if).toBe('always() && !cancelled()');
     const require = gate.steps.find(
       (step) => step.name === 'Require release verification'
