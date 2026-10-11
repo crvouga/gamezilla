@@ -1,4 +1,4 @@
 {
-  "summary": "Live-browser scenarios reused seeded IDs against a process-wide database, causing diagnostic primary-key collisions and password/profile account contamination between scenarios.",
+  "summary": "Live-browser scenarios reused seeded IDs against a process-wide database, causing diagnostic primary-key collisions and sign-in and profile account contamination between scenarios.",
   "regressionTest": "libs/harness/tests/isolated-postgres.test.ts"
 }

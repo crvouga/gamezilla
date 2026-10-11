@@ -65,6 +65,23 @@ describe('composeHarnessSlices', () => {
     );
   });
 
+  // regression: harness-composition-missing-population-directory
+  test('keeps the tables auth classifies sessions against in every composition', () => {
+    const composition = composeHarnessSlices('probe', [PROFILE]);
+    expect([...composition.app.subNames]).toContain('synthetic-population');
+  });
+
+  test("a suite's slice replaces the platform's slice for the same sub", () => {
+    const population: HarnessSlice = {
+      name: 'synthetic-population',
+      server: () => server('synthetic-population'),
+    };
+    const composition = composeHarnessSlices('probe', [population]);
+    expect(
+      composition.servers({ billing: null, rooms }).map((s) => s.name as string)
+    ).toEqual(['synthetic-population']);
+  });
+
   test('rejects a slice listed twice', () => {
     expect(() => composeHarnessSlices('probe', [FRIENDS, FRIENDS])).toThrow(
       /duplicate slice 'friends'/
