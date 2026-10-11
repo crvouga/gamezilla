@@ -1122,7 +1122,7 @@ terms:
 | Spaces | `spaces` | live spaces: hosting, joining, leaving, ending, links, the lobby, presence, the hosting limit | core |
 | Friends | `friends` | friendships: friend requests, the inbox, blocking, people search, the friends list | supporting |
 | Chess | `chess` | chess puzzles played in a space and private multiplayer chess: the puzzle feed, attempts, puzzle ratings, game logs, review, watching, multiplayer boards, turns and results | core |
-| Auth | `auth` | how outside accounts at Google and Apple get people into accounts: matching and confirming accounts, connecting and removing sign-in methods, stolen sign-ins, how long a sign-in lasts, Google or Apple having trouble | generic (Google and Apple say who is signing in) |
+| Auth | `auth` | how outside accounts at Google and Apple, and sign-in links sent to an email address, get people into accounts: matching and confirming accounts, connecting and removing sign-in methods, asking for and opening a sign-in link, stolen sign-ins, how long a sign-in lasts, Google or Apple having trouble | generic (Google, Apple and the mailbox say who is signing in) |
 | Room | `room` | the room framework's example game room: a tally friends keep together, owning the room and turning someone away, a timed match, who is present | supporting |
 | Matchmaking | `matchmaking` | waiting for a match, one wait at a time, rating ranges, pairing people up, being matched, stopping a wait | supporting |
 | Sync engine | `sync-engine` | notes people write and share across devices and shared spaces, even offline | supporting |
@@ -1164,7 +1164,8 @@ Published language:
 | App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
 | Developer tools (`developer-tools`) | the testing tool | — |
 | Matchmaking (`matchmaking`) | matchmaking match, pair people up | `MatchmakingEvent`: `MatchFormed` |
-| Auth, Room, Sync engine, Journeys | — | — |
+| Auth (`auth`) | email address, mailbox, sign-in link, ask for a sign-in link | — |
+| Room, Sync engine, Journeys | — | — |
 
 - Publish product concepts, not common words: "open space", never "open".
 - The same word may mean different things in different contexts ("notice",
