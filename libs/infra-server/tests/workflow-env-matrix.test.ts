@@ -57,11 +57,19 @@ describe.each(['deploy.yml', 'health.yml'])('%s', (file) => {
 
   // Adding tofu/envs/<env>.tfvars.json must need no workflow edit.
   test('every secrets env comes from the env matrix, never a literal', () => {
-    const secretsEnvs = Object.values(workflow.jobs).flatMap((job) =>
-      job.env?.['SECRETS_ENV'] === undefined ? [] : [job.env['SECRETS_ENV']]
+    const secretsEnvs = Object.entries(workflow.jobs).flatMap(([id, job]) =>
+      job.env?.['SECRETS_ENV'] === undefined
+        ? []
+        : [[id, job.env['SECRETS_ENV']] as const]
     );
     expect(secretsEnvs.length).toBeGreaterThan(0);
-    for (const value of secretsEnvs) {
+    const pinnedDev = secretsEnvs.filter(([, value]) => value === 'dev');
+    expect(pinnedDev.map(([id]) => id)).toEqual(
+      file === 'deploy.yml' ? ['deploy-plan'] : []
+    );
+    for (const [, value] of secretsEnvs.filter(
+      ([, value]) => value !== 'dev'
+    )) {
       expect([
         '${{ matrix.env }}',
         '${{ needs.deploy-matrix.outputs.shared }}',

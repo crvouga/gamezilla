@@ -24,6 +24,7 @@ import type { HarnessComposition } from '@libs/harness/composition';
 import { defineProductSystem } from '@libs/harness/define-product-system';
 import { PROFILE_HARNESS_ACTIONS } from '@libs/profile-harness/profile-actions';
 import { APP_SUB_CLIENTS } from '@libs/runtime-client/app-sub-clients';
+import { APP_AUTH_PROVIDER } from '@libs/runtime-server/app-auth-provider';
 import { appSubServers } from '@libs/runtime-server/app-sub-servers';
 import { APP } from '@libs/runtime-shared/app-subs';
 import { SEARCH_HARNESS_ACTIONS } from '@libs/search-harness/search-actions';
@@ -33,6 +34,8 @@ import { SPACES_HARNESS_ACTIONS } from '@libs/spaces-harness/space-actions';
 
 export const APP_COMPOSITION: HarnessComposition = {
   name: 'app',
+  // The auth service exactly as the API Worker builds it.
+  authProvider: APP_AUTH_PROVIDER,
   app: APP,
   clients: APP_SUB_CLIENTS,
   servers: (deps) => appSubServers(deps),

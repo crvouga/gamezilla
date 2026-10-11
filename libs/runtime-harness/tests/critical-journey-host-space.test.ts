@@ -114,6 +114,7 @@ function node(world: World, id: string): DriverNode {
   };
   const self: DriverNode = {
     get: (child) => node(world, child),
+    attribute: () => Promise.resolve(null),
     tap: async () => {
       assertState('visible');
       applyTap(world, id);
