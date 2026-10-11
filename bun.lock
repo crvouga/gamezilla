@@ -96,7 +96,6 @@
         "@crvouga/mockingbird-service-stripe": "catalog:",
         "@libs/app-config-shared": "workspace:*",
         "@libs/app-root-client": "workspace:*",
-        "@libs/app-root-server": "workspace:*",
         "@libs/app-root-shared": "workspace:*",
         "@libs/chess-puzzle-harness": "workspace:*",
         "@libs/harness": "workspace:*",
@@ -668,6 +667,7 @@
       "devDependencies": {
         "@pkgs/db-schema-root-shared": "workspace:*",
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
+        "@pkgs/outbox-shared": "workspace:*",
         "@pkgs/sql-client-sqlite-root-server": "workspace:*",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -772,6 +772,7 @@
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
         "@pkgs/dmn-shared": "workspace:*",
         "@pkgs/logger-shared": "workspace:*",
+        "@pkgs/outbox-shared": "workspace:*",
         "@pkgs/quint-shared": "workspace:*",
         "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
         "@types/bun": "catalog:",
