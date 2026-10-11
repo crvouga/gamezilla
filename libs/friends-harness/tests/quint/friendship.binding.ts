@@ -26,7 +26,11 @@ import {
   declineFromProfile,
   openPersonFromSearch,
 } from '@libs/friends-harness/person-actions';
-import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
+import {
+  claimActorUsername,
+  returnToTabs,
+  signInWithGoogle,
+} from '@libs/harness/auth-actions';
 import { accountIdOf } from '@libs/harness/identity';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { backToTabs, focusActor } from '@libs/harness/shell-actions';
@@ -72,6 +76,7 @@ bindQuintModel<QuintHarnessWorld>({
     init: async (w) => {
       for (const actor of PEOPLE) {
         await w.s.apply(signInWithGoogle, actor);
+        await w.s.apply(claimActorUsername, actor);
         await w.s.apply(returnToTabs, actor);
         const id = await w.s.read(accountIdOf, actor);
         if (id === null) throw new Error(`${actor} has no account`);

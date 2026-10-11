@@ -10,6 +10,7 @@ import { hostLimit } from '@pkgs/gherkin-shared/registry';
 import { ActionNotEnabled } from '@pkgs/harness-root-shared/probe';
 import { partition, restartApp, restoreNetwork } from './actions';
 import {
+  claimActorUsername,
   returnToTabs,
   signInAsked,
   signInWithGoogle,
@@ -56,6 +57,7 @@ export async function cutConnection(
 
 async function signIn(w: HarnessWorld, actor: Actor): Promise<void> {
   await w.s.apply(signInWithGoogle, actor);
+  await w.s.apply(claimActorUsername, actor);
   await w.s.apply(returnToTabs, actor);
 }
 

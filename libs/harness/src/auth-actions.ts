@@ -91,6 +91,55 @@ export const signInWithGoogle = scenarioAction({
 });
 
 /**
+ * A signed-in actor's username is their id (`Alice` is `@alice`). Fresh
+ * sign-in assigns a generated name; this replaces that name. A name the
+ * person already chose is left as it is.
+ */
+export const claimActorUsername = scenarioAction({
+  name: 'claimActorUsername',
+  act: async (s, actorId: string) => {
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.statusCurrentUser).expect.visible({
+      timeoutMs: WAIT_MS,
+    });
+    for (let step = 0; step < 4; step += 1) {
+      if (await ui.get(Handles.profileEdit).isVisible()) break;
+      if (await ui.get(Handles.tabProfile).isVisible()) {
+        await ui.get(Handles.tabProfile).tap({ timeoutMs: WAIT_MS });
+        continue;
+      }
+      if (await ui.get(Handles.authSignedInDone).isVisible()) {
+        await ui.get(Handles.authSignedInDone).tap({ timeoutMs: WAIT_MS });
+        continue;
+      }
+      if (await ui.get(Handles.navBack).isVisible()) {
+        await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+        continue;
+      }
+      break;
+    }
+    const username = ui.get(Handles.friendUserUsername);
+    if (
+      (await username.isVisible()) &&
+      (await username.text()) === `@${actorId}`
+    ) {
+      return;
+    }
+    if (!(await ui.get(Handles.profileEditUsername).isVisible())) {
+      await ui.get(Handles.profileEdit).tap({ timeoutMs: WAIT_MS });
+    }
+    await ui.get(Handles.profileEditUsername).tap({ timeoutMs: WAIT_MS });
+    const input = ui.get(Handles.profileUsernameInput);
+    await input.expect.visible({ timeoutMs: WAIT_MS });
+    await input.clear();
+    await input.input(actorId);
+    await ui.get(Handles.profileUsernameSave).tap({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.profileUsernameSave).expect.text('Saved');
+    await ui.get(Handles.profileUsernameCancel).tap({ timeoutMs: WAIT_MS });
+  },
+});
+
+/**
  * The same person on a second device: `actorId` signs in with the Google
  * address that belongs to `accountActorId` (§34 "same account on two
  * devices").
