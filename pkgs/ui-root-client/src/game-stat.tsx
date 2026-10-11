@@ -3,6 +3,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
 import styles from './game-ui.module.css';
 
+/** One number a person tracks: what it is, the number, and its footnote. */
 export function GameStat(props: {
   label: JSX.Element;
   value: JSX.Element;
@@ -14,9 +15,9 @@ export function GameStat(props: {
       class={styles['stat']}
       {...dataAttrs({ component: 'GameStat', ...props.dataSet })}
     >
-      <span class={`${styles['meta']} text textFootnote`}>{props.label}</span>
-      <strong class="text textLabel textNumeral">{props.value}</strong>
-      <span class="text textBody text-text-secondary">{props.detail}</span>
+      <span class={`${styles['meta']} text textCaption`}>{props.label}</span>
+      <strong class="text textSubtitle textNumeral">{props.value}</strong>
+      <span class="text textFootnote">{props.detail}</span>
     </div>
   );
 }

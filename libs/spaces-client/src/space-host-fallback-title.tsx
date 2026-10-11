@@ -31,14 +31,20 @@ export function SpaceHostFallbackTitle(
         textNavigationTitle: String(props.variant) === 'navigationTitle',
         textLink: String(props.variant) === 'link',
         textMono: String(props.variant) === 'mono',
+        // One line clamps by class, like the custom title in `SpaceTitleText`.
+        'line-clamp-1 min-w-0': props.numberOfLines === 1,
         [String(props.class)]: true,
       }}
-      style={{
-        display: '-webkit-box',
-        '-webkit-box-orient': 'vertical',
-        '-webkit-line-clamp': props.numberOfLines,
-        overflow: 'hidden',
-      }}
+      style={
+        props.numberOfLines !== undefined && props.numberOfLines > 1
+          ? {
+              display: '-webkit-box',
+              '-webkit-box-orient': 'vertical',
+              '-webkit-line-clamp': props.numberOfLines,
+              overflow: 'hidden',
+            }
+          : undefined
+      }
     >
       {label()}
     </p>

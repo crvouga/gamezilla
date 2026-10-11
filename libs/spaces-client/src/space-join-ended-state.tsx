@@ -36,7 +36,7 @@ export function SpaceJoinEndedState(
         : usernameText(moderation(), hostRow.row()?.username, id);
     const label = spaceLabel();
     if (username.length > 0) {
-      return t`${label} · hosted by ${username}`;
+      return t`${label}, hosted by ${username}`;
     }
     return label;
   });

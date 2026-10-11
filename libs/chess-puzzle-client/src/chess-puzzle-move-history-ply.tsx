@@ -73,10 +73,7 @@ function SelectedPlyProbe(props: {
   if (!CHESS_PUZZLE_TEST_ENABLED) return <></>;
   return (
     <Show when={props.selected}>
-      <span
-        style={{ position: 'absolute', width: '1px', height: '1px' }}
-        data-testid="chess-puzzle-move-ply-selected"
-      >
+      <span class="sr-only" data-testid="chess-puzzle-move-ply-selected">
         {`${props.ply.plyIndex}|${props.ply.san}`}
       </span>
     </Show>

@@ -12,42 +12,40 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
+import { EmbeddedScreen } from '@pkgs/ui-root-client/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
-import { MAIN_MENU_SCREEN_MAX_WIDTH } from '@pkgs/ui-root-client/main-menu-screen';
-import { MainMenuScreenHeader } from '@pkgs/ui-root-client/main-menu-screen-header';
-import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
-import { createMemo, type JSX, Show } from 'solid-js';
+import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import { useReviewPuzzleEntity } from './chess-puzzle-play-queries';
 import { ChessPuzzleReviewBoard } from './chess-puzzle-review-board';
 import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 import type { PuzzleReviewCursor } from './use-puzzle-review-board';
 
+/** How the reviewed attempt went; "Puzzle review" before the log has it. */
 function ReviewTitle(props: {
   entry: ChessPuzzleGameLogEntry | null;
 }): JSX.Element {
-  if (props.entry === null) return <Trans>Puzzle review</Trans>;
-  const puzzleRating = props.entry.puzzleRating;
-  if (props.entry.outcome === 'solved') {
-    return <Trans>Solved · {puzzleRating}</Trans>;
-  }
-  if (props.entry.outcome === 'failed') {
-    return <Trans>Failed · {puzzleRating}</Trans>;
-  }
-  return <Trans>Abandoned · {puzzleRating}</Trans>;
+  return (
+    <Switch fallback={<Trans>Puzzle review</Trans>}>
+      <Match when={props.entry?.outcome === 'solved'}>
+        <Trans>Solved</Trans>
+      </Match>
+      <Match when={props.entry?.outcome === 'failed'}>
+        <Trans>Failed</Trans>
+      </Match>
+      <Match when={props.entry?.outcome === 'abandoned'}>
+        <Trans>Abandoned</Trans>
+      </Match>
+    </Switch>
+  );
 }
 
-function ReviewSubtitle(props: {
-  puzzleId: string;
-  rating: number;
-}): JSX.Element {
-  if (props.rating > 0) {
-    return (
-      <Trans>
-        {props.puzzleId} · {props.rating}
-      </Trans>
-    );
-  }
-  return <>{props.puzzleId}</>;
+/** The puzzle's own rating, once the puzzle is known. */
+function ReviewSubtitle(props: { rating: number }): JSX.Element {
+  return (
+    <Show when={props.rating > 0}>
+      <Trans>Puzzle rated {props.rating}</Trans>
+    </Show>
+  );
 }
 
 function findLogEntry(
@@ -69,42 +67,35 @@ export function ChessPuzzleReviewBody(props: {
   const hasPuzzle = () => entity.fen.length > 0 && entity.movesStr.length > 0;
 
   return (
-    <ScrollView
-      contentClass="box flex-1 self-stretch"
-      dataSet={{ screen: 'chess-stats-review' }}
+    <EmbeddedScreen
+      screenId="chess-stats-review"
+      title={<ReviewTitle entry={entry()} />}
+      subtitle={
+        entity.rating > 0 ? (
+          <ReviewSubtitle rating={entity.rating} />
+        ) : undefined
+      }
     >
-      <div
-        class="box gap-4 p-4 pb-8 self-center w-full min-w-0"
-        style={{ 'max-width': `${MAIN_MENU_SCREEN_MAX_WIDTH}px` }}
-      >
-        <MainMenuScreenHeader
-          title={<ReviewTitle entry={entry()} />}
-          subtitle={
-            <ReviewSubtitle puzzleId={props.puzzleId} rating={entity.rating} />
-          }
-        />
-        <Show
-          when={hasPuzzle()}
-          fallback={
-            <EmptyState
-              title={<Trans>Puzzle unavailable</Trans>}
-              body={
-                <Trans>
-                  This puzzle is not in your local feed yet. Try again after
-                  sync.
-                </Trans>
-              }
-            />
-          }
-        >
-          <ChessPuzzleReviewBoard
-            fen={entity.fen}
-            moves={entity.movesStr}
-            cursor={props.cursor}
+      <Show
+        when={hasPuzzle()}
+        fallback={
+          <EmptyState
+            title={<Trans>Puzzle unavailable</Trans>}
+            body={
+              <Trans>
+                This puzzle is not in your local feed yet. Try again after sync.
+              </Trans>
+            }
           />
-        </Show>
-      </div>
-    </ScrollView>
+        }
+      >
+        <ChessPuzzleReviewBoard
+          fen={entity.fen}
+          moves={entity.movesStr}
+          cursor={props.cursor}
+        />
+      </Show>
+    </EmbeddedScreen>
   );
 }
 

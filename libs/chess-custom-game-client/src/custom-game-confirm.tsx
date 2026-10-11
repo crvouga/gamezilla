@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
 import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
+import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import { createSignal, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
@@ -18,13 +19,26 @@ export function CustomGameConfirm(props: {
       <Trans>Cancel game</Trans>
     </Show>
   );
+  // The row sits under the board, so the button need not repeat "game".
+  const action = (): JSX.Element => (
+    <Show
+      when={props.operation === 'cancel'}
+      fallback={
+        <Trans>
+          Resign<VisuallyHidden> game</VisuallyHidden>
+        </Trans>
+      }
+    >
+      <Trans>Cancel game</Trans>
+    </Show>
+  );
   return (
     <>
       <Show when={props.available}>
         <Button
-          title={title()}
+          title={action()}
           intent="danger"
-          variant="outline"
+          variant="ghost"
           onClick={() => setVisible(true)}
           dataSet={{ testid: `chess-custom-${props.operation}` }}
         />

@@ -41,7 +41,7 @@ export function MultiplayerControls(props: {
     return props.controls.resign();
   };
   return (
-    <div class="box gap-4" data-component="MultiplayerControls">
+    <>
       <Show when={props.data.game()}>
         {(game) => (
           <MultiplayerGameActions
@@ -84,6 +84,6 @@ export function MultiplayerControls(props: {
         submitDataSet={{ testid: 'multiplayer-confirm' }}
         dismissDataSet={{ testid: 'multiplayer-dismiss' }}
       />
-    </div>
+    </>
   );
 }

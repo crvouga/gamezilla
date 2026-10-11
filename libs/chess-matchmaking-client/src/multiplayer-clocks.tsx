@@ -13,7 +13,8 @@ import { type JSX, Show } from 'solid-js';
 import { clockLabel } from './multiplayer-format';
 import { useOfflineSince } from './use-offline-since';
 
-function MultiplayerClock(props: {
+/** One side's multiplayer clock, shown to both people and to watchers. */
+export function MultiplayerClock(props: {
   readonly game: MultiplayerGame;
   readonly side: MultiplayerSide;
 }): JSX.Element {
@@ -48,21 +49,5 @@ function MultiplayerClock(props: {
           : t`Black has ${label()} left`
       }
     />
-  );
-}
-
-/** Both multiplayer clocks, shown to both people. */
-export function MultiplayerClocks(props: {
-  readonly game: MultiplayerGame;
-}): JSX.Element {
-  return (
-    <div
-      class="box flex-row gap-4"
-      data-component="MultiplayerClocks"
-      data-testid="multiplayer-clocks"
-    >
-      <MultiplayerClock game={props.game} side="white" />
-      <MultiplayerClock game={props.game} side="black" />
-    </div>
   );
 }

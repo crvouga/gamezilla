@@ -3,7 +3,6 @@ import type { JSX } from 'solid-js';
 import { Avatar } from './avatar';
 import { AvatarGroup } from './avatar-group';
 import { ExampleRoot } from './example-root';
-import { UserIcon } from './icons';
 
 const SAMPLE_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -35,7 +34,7 @@ export default function AvatarGroupExample(): JSX.Element {
       <p class="text textCaption">{'Tighter overlap (10px), size 48'}</p>
       <div class="box flex-row gap-4 items-center">
         <AvatarGroup size={48} overlap={10}>
-          <Avatar icon={UserIcon} size={48} background="outline" />
+          <Avatar size={48} />
           <Avatar initials="M" size={48} background="tint" />
           <Avatar initials="K" size={48} background="info" />
         </AvatarGroup>

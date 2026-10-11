@@ -2,7 +2,7 @@ import { customGameStartable } from '@libs/chess-custom-game-shared/custom-game-
 import { Trans } from '@lingui/solid/macro';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
 import { GameDisclosure } from '@pkgs/ui-root-client/game-disclosure';
-import { GameSection } from '@pkgs/ui-root-client/game-section';
+import { GameActions, GameSection } from '@pkgs/ui-root-client/game-section';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createSignal, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
@@ -32,7 +32,7 @@ function CustomGameTimeChoices(props: {
         onChangeText={setIncrement}
         dataSet={{ testid: 'chess-custom-increment' }}
       />
-      <div class="box flex-row flex-wrap gap-2">
+      <GameActions>
         <GameActionButton
           title={<Trans>Use this clock</Trans>}
           dataSet={{ testid: 'chess-custom-clock' }}
@@ -54,7 +54,7 @@ function CustomGameTimeChoices(props: {
           dataSet={{ testid: 'chess-custom-swap' }}
           operation={() => props.model.choose({ operation: 'swap' })}
         />
-      </div>
+      </GameActions>
     </div>
   );
 }
@@ -72,13 +72,13 @@ export function CustomGameConfiguration(props: {
   };
   return (
     <GameSection
-      title={<Trans>Ready, set, play</Trans>}
+      title={<Trans>Start</Trans>}
       description={
         <Trans>Agree on the lineup and clock, then get ready.</Trans>
       }
     >
       <p
-        class="text textBody"
+        class="text textBodyBold"
         role="status"
         data-testid="chess-custom-startable"
       >
@@ -91,7 +91,7 @@ export function CustomGameConfiguration(props: {
           <Trans>Ready to start.</Trans>
         </Show>
       </p>
-      <div class="box flex-row gap-2 flex-wrap">
+      <GameActions>
         <Show when={props.model.mySide() !== null && props.model.canJoin()}>
           <GameActionButton
             title={
@@ -115,7 +115,7 @@ export function CustomGameConfiguration(props: {
             disabled={!startable()}
           />
         </Show>
-      </div>
+      </GameActions>
       <Show when={props.model.canConfigure()}>
         <GameDisclosure
           title={<Trans>Game options</Trans>}

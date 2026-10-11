@@ -3,6 +3,11 @@ import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
 import styles from './game-ui.module.css';
 
+/**
+ * A seat's time, sized to sit at the far edge of a `GamePlayerBar`. The seat
+ * already says whose clock it is, so the label is for a listener only; the
+ * running clock takes the blue fill.
+ */
 export function GameClock(props: {
   label: JSX.Element;
   value: JSX.Element;
@@ -18,9 +23,9 @@ export function GameClock(props: {
       aria-live="off"
       {...dataAttrs({ component: 'GameClock' })}
     >
-      <span class={`${styles['meta']} text textFootnote`}>{props.label}</span>
+      <span class="sr-only">{props.label}</span>
       <span
-        class={`${styles['clockValue']} text textSubtitle textNumeral`}
+        class={`${styles['clockValue']} text textLabel textNumeral`}
         aria-label={props.ariaLabel}
         {...dataAttrs({ component: 'GameClockValue', ...props.dataSet })}
       >

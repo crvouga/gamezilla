@@ -1,10 +1,8 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
-import {
-  MAIN_MENU_SCREEN_MAX_WIDTH,
-  MainMenuScreen,
-} from '@pkgs/ui-root-client/main-menu-screen';
+import { EMBEDDED_SCREEN_MAX_WIDTH } from '@pkgs/ui-root-client/embedded-screen';
+import { MainMenuScreen } from '@pkgs/ui-root-client/main-menu-screen';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { cssOf, mustQuery, renderUi } from './render';
@@ -28,7 +26,7 @@ describe('MainMenuScreen', () => {
     expect(root.getAttribute('data-screen')).toBe('games');
     const content = mustQuery('[data-component="ScrollViewContent"]');
     expect(cssOf(content)).toContain(
-      `max-width:${MAIN_MENU_SCREEN_MAX_WIDTH}px`
+      `max-width:${EMBEDDED_SCREEN_MAX_WIDTH.reading}px`
     );
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Games');
     expect(screen.getByText('Pick one')).toBeTruthy();
@@ -47,6 +45,7 @@ describe('MainMenuScreen', () => {
     const onLocked = mock();
     renderUi(() => (
       <MainMenuScreen
+        screenId="games"
         items={[
           { key: 'chess', title: 'Chess', onClick: onChess },
           { key: 'locked', title: 'Locked', onClick: onLocked, disabled: true },
@@ -67,6 +66,7 @@ describe('MainMenuScreen', () => {
   test('renders custom trailing slot', () => {
     renderUi(() => (
       <MainMenuScreen
+        screenId="games"
         items={[
           { key: 'a', title: 'A', trailing: <p class="text">{'NEW'}</p> },
         ]}

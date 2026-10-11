@@ -6,11 +6,18 @@ import { useUnlock } from '@libs/permissions-client/unlock';
 import { useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client/button';
-import { BellIcon, CheckIcon } from '@pkgs/ui-root-client/icons';
+import { BellIcon, CheckCheckIcon } from '@pkgs/ui-root-client/icons';
 import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
-import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
-import { type JSX, onMount, Show } from 'solid-js';
+import type { ScreenBaseAction } from '@pkgs/ui-root-client/screen-base-types';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+  onCleanup,
+  onMount,
+  Show,
+} from 'solid-js';
 import { NotificationsFilterBar } from './notifications-filter-bar';
 import { NotificationsList } from './notifications-list';
 import { useNotifications } from './use-notifications';
@@ -45,8 +52,13 @@ function NotificationsPermissionGate(props: {
   );
 }
 
+/**
+ * The inbox. Marking everything read is a screen action, so it is handed to
+ * the header rather than squeezed beside the filters.
+ */
 function NotificationsScreenBody(props: {
   readonly initialFilter?: NotificationFilter | undefined;
+  readonly onHeaderAction: (action: ScreenBaseAction | null) => void;
 }): JSX.Element {
   const { t } = useLingui();
   const inbox = useNotifications({
@@ -55,47 +67,43 @@ function NotificationsScreenBody(props: {
     },
   });
   const inboxActions = useNotificationsActions();
-  const markAllRead = useMutationButton({
-    operation: () => inboxActions.markAllRead(),
-    labels: {
-      get idle() {
-        return t`Mark all read`;
-      },
-      get loading() {
-        return t`Marking…`;
-      },
-      get success() {
-        return t`Marked read`;
-      },
-      get error() {
-        return t`Failed`;
-      },
-    },
-    successHoldMs: 0,
-  });
-
+  const [marking, setMarking] = createSignal(false);
+  const markAllRead = async (): Promise<void> => {
+    setMarking(true);
+    try {
+      await inboxActions.markAllRead();
+    } finally {
+      setMarking(false);
+    }
+  };
   const hasUnread = (): boolean =>
     inbox.interactions().some((item) => item.isUnread);
 
+  createEffect(() => {
+    props.onHeaderAction(
+      hasUnread()
+        ? {
+            type: 'default',
+            label: t`Mark all read`,
+            icon: CheckCheckIcon,
+            loading: marking(),
+            onClick: () => {
+              void markAllRead();
+            },
+            overflow: 'never',
+            dataSet: { testid: 'notifications-mark-all-read' },
+          }
+        : null
+    );
+  });
+  onCleanup(() => props.onHeaderAction(null));
+
   return (
     <div class="box flex-1 min-h-0 gap-2">
-      <div class="box flex-row items-center justify-between gap-3">
-        <div class="box flex-1 min-w-0">
-          <NotificationsFilterBar
-            filter={inbox.filter()}
-            onFilterChange={inbox.setFilter}
-          />
-        </div>
-        <Show when={hasUnread()}>
-          <Button
-            variant="ghost"
-            intent="neutral"
-            size="sm"
-            startIcon={<CheckIcon size={16} />}
-            {...markAllRead.buttonProps}
-          />
-        </Show>
-      </div>
+      <NotificationsFilterBar
+        filter={inbox.filter()}
+        onFilterChange={inbox.setFilter}
+      />
       <NotificationsList
         sections={inbox.sections()}
         isLoading={inbox.isLoading()}
@@ -110,15 +118,26 @@ export function NotificationsScreen(
   props: NotificationsScreenProps
 ): JSX.Element {
   const { t } = useLingui();
+  const [headerAction, setHeaderAction] = createSignal<ScreenBaseAction | null>(
+    null
+  );
+  const actions = createMemo((): readonly ScreenBaseAction[] => {
+    const action = headerAction();
+    return action === null ? [] : [action];
+  });
 
   return (
     <ScreenBase
       screenId="notifications"
       breadcrumbs={[{ name: t`Notifications` }]}
+      actions={actions()}
       content={(body) => (
         <div class={`box ${body.bodyClass}`}>
           <NotificationsPermissionGate>
-            <NotificationsScreenBody initialFilter={props.initialFilter} />
+            <NotificationsScreenBody
+              initialFilter={props.initialFilter}
+              onHeaderAction={setHeaderAction}
+            />
           </NotificationsPermissionGate>
         </div>
       )}
