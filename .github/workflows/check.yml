@@ -1,16 +1,41 @@
 name: Check
-run-name: "Check · deploy"
+run-name: "Check · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
 
-# Release verification only. Pull requests run no GitHub Actions; `bun check`
-# and `bun verify` run the full `//#check` gate locally. Deploy calls this
-# workflow on the exact commit it ships so a release still has an independent,
-# durable verdict and report.
+# Check is the release gate (README "Checks and CI"): `//#check`, every gate —
+# lint, architecture boundaries, typecheck, unit tests, Gherkin specs, contract
+# suites, Quint models, schema evolution, bundles, security scans.
+# Duration-balanced shards, fail-fast off, then `check:verify` aggregates every
+# failure into one summary.
+#
+# It runs on every pull request, where the `check` job is the required status:
+# a green pull request is releasable, and merging it deploys. It also runs from
+# a manual dispatch and from Deploy (`workflow_call`) on the exact commit it
+# ships. `bun check` and `bun verify` run the same gate locally.
 
 permissions:
   contents: read
   actions: write
   id-token: write
 on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+    inputs:
+      shards:
+        description: Duration-balanced shard count
+        type: choice
+        options: [8, 12, 16, 24, 32]
+        default: 32
+      concurrency:
+        description: Turbo slots per shard
+        type: number
+        default: 1
+      cache-mode:
+        description: normal or cold (cold forces execution without deleting remote caches)
+        type: choice
+        options: [normal, cold]
+        default: normal
   workflow_call:
     inputs:
       shards:
@@ -26,9 +51,11 @@ on:
         type: string
         default: normal
 
+# A newer push supersedes a pull request's run; dispatched and release runs
+# each own a group and never cancel one another.
 concurrency:
-  group: check-run-${{ github.run_id }}
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && format('check-pr-{0}', github.event.pull_request.number) || format('check-run-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -45,12 +72,14 @@ env:
   SECRETS_ENV: dev
   SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
   GH_EVENT: ${{ github.event_name }}
+  PR_BASE: ${{ github.event.pull_request.base.sha }}
+  PR_HEAD: ${{ github.event.pull_request.head.sha }}
   CHECK_SHARDS: ${{ inputs.shards || vars.CHECK_SHARDS || '32' }}
   CHECK_CONCURRENCY: ${{ inputs.concurrency || vars.CHECK_CONCURRENCY || '1' }}
   CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
 
 jobs:
-  synthetic-population-package:
+  check-synthetic-population-package:
     name: check:synthetic-population-package
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -146,8 +175,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Add a count here before passing it through the reusable input; the
-        # immutable plan uses the same count.
+        # Add a count here and in the dispatch input; the immutable plan uses
+        # the same count.
         shard: ${{ fromJSON('{"8":[0,1,2,3,4,5,6,7],"12":[0,1,2,3,4,5,6,7,8,9,10,11],"16":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"24":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],"32":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]}')[format('{0}', inputs.shards || vars.CHECK_SHARDS || '32')] }}
     steps:
       - uses: actions/checkout@v6
@@ -339,17 +368,19 @@ jobs:
           include-hidden-files: true
           retention-days: 14
 
-  # Deploy consumes this aggregate release verdict. It is not a PR status.
+  # The only required status on a pull request, and the release verdict
+  # Deploy consumes: green only when `check:verify` and the packaging
+  # rehearsal are.
   check:
     name: check
-    needs: [check-verify, synthetic-population-package]
+    needs: [check-verify, check-synthetic-population-package]
     if: always() && !cancelled()
     runs-on: ubuntu-24.04
     timeout-minutes: 8
     steps:
       - name: Require Synthetic Population Worker packaging rehearsal
         env:
-          PACKAGE_RESULT: ${{ needs.synthetic-population-package.result }}
+          PACKAGE_RESULT: ${{ needs.check-synthetic-population-package.result }}
         run: test "$PACKAGE_RESULT" = success
       - name: Require release verification
         env:

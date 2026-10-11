@@ -18,14 +18,17 @@ function alwaysConditions(workflow: string): readonly string[] {
 describe('Check workflow cancellation', () => {
   test('every configurable shard count has exactly its complete matrix of owners', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
-      on: { workflow_call: { inputs: { shards: { default: number } } } };
+      on: {
+        workflow_dispatch: { inputs: { shards: { options: number[] } } };
+        workflow_call: { inputs: { shards: { default: number } } };
+      };
       jobs: { 'check-shards': { strategy: { matrix: { shard: string } } } };
     };
     const expression = workflow.jobs['check-shards'].strategy.matrix.shard;
     const presets = JSON.parse(
       /fromJSON\('([^']+)'\)/.exec(expression)![1]!
     ) as Record<string, number[]>;
-    const shardCounts = [8, 12, 16, 24, 32];
+    const shardCounts = workflow.on.workflow_dispatch.inputs.shards.options;
     for (const count of shardCounts)
       expect(presets[String(count)]).toEqual(
         Array.from({ length: count }, (_, index) => index)
@@ -34,12 +37,16 @@ describe('Check workflow cancellation', () => {
     expect(workflow.on.workflow_call.inputs.shards.default).toBe(32);
   });
   // regression: concurrent-check-run-isolation
-  test('release verification runs never cancel one another', () => {
+  test('a newer push supersedes its PR run; dispatched and release runs never cancel one another', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
-      concurrency: { group: string; 'cancel-in-progress': boolean };
+      concurrency: { group: string; 'cancel-in-progress': string };
     };
-    expect(workflow.concurrency.group).toBe('check-run-${{ github.run_id }}');
-    expect(workflow.concurrency['cancel-in-progress']).toBe(false);
+    expect(workflow.concurrency.group).toBe(
+      "${{ github.event_name == 'pull_request' && format('check-pr-{0}', github.event.pull_request.number) || format('check-run-{0}', github.run_id) }}"
+    );
+    expect(workflow.concurrency['cancel-in-progress']).toBe(
+      "${{ github.event_name == 'pull_request' }}"
+    );
   });
   // regression: check-cancel-holds-concurrency
   test('publish and the verdict skip a cancelled run', () => {
@@ -55,8 +62,11 @@ describe('Check workflow cancellation', () => {
   });
 
   // regression: check-evidence-masks-required-verdict (invalid/name artifact)
-  test('the deploy gate is the full verdict, never publication', () => {
+  test('the required gate is the full verdict on every trigger, never publication', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
+      on: {
+        pull_request: { branches: string[]; types: string[] };
+      };
       jobs: Record<
         string,
         {
@@ -74,8 +84,16 @@ describe('Check workflow cancellation', () => {
         }
       >;
     };
+    // Every push to a pull request on main runs the whole gate.
+    expect(workflow.on.pull_request).toEqual({
+      branches: ['main'],
+      types: ['opened', 'reopened', 'synchronize'],
+    });
     const gate = workflow.jobs['check']!;
-    expect(gate.needs).toEqual(['check-verify']);
+    expect(gate.needs).toEqual([
+      'check-verify',
+      'check-synthetic-population-package',
+    ]);
     expect(gate.if).toBe('always() && !cancelled()');
     const require = gate.steps.find(
       (step) => step.name === 'Require release verification'

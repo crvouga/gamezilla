@@ -10,17 +10,25 @@ const REPO_ROOT = join(import.meta.dirname, '../../..');
 const WRITTEN = new Set([...secretNames.generated, ...secretNames.derived]);
 
 describe('tofu/global.tfvars.json', () => {
-  test('no workflow runs on a pull request', () => {
+  test('main requires exactly the gate job of every workflow that reports on PRs', () => {
+    const gates: string[] = [];
     for (const file of new Bun.Glob('*.yml').scanSync(
       join(REPO_ROOT, '.github/workflows')
     )) {
       const workflow = Bun.YAML.parse(
         readFileSync(join(REPO_ROOT, '.github/workflows', file), 'utf8')
       ) as {
+        name?: string;
         on?: Record<string, unknown>;
+        jobs?: Record<string, unknown>;
       };
-      expect(workflow.on).not.toHaveProperty('pull_request');
+      const onPullRequest =
+        workflow.on !== undefined && 'pull_request' in workflow.on;
+      const gate = workflow.name?.toLowerCase() ?? '';
+      if (onPullRequest && workflow.jobs !== undefined && gate in workflow.jobs)
+        gates.push(gate);
     }
+    expect([...GLOBAL.github.required_checks].sort()).toEqual(gates.sort());
   });
 
   // regression: transferred-repo-protection-import

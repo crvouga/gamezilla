@@ -37,10 +37,12 @@ variable "aws" {
 
 variable "github" {
   type = object({
-    owner    = string
-    owner_id = string
-    repo     = string
-    repo_id  = string
+    owner                = string
+    owner_id             = string
+    repo                 = string
+    repo_id              = string
+    required_checks      = list(string)
+    check_integration_id = number
     settings = object({
       visibility      = string
       homepage_url    = string

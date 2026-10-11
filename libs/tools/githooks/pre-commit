@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Repo-wide lint + typecheck before a commit. Opt-in because pull requests run
-# no checks, `bun check` is the local full gate, and `--affected` spans every
+# Repo-wide lint + typecheck before a commit. Opt-in, because the repo's checks
+# belong to the Check workflow (`.github/workflows/check.yml`, on every pull
+# request; `bun check` is the same gate locally), and `--affected` spans every
 # package whenever a global dependency (turbo.json, tsconfig.base.json) is in
 # the working tree — a commit-blocking, multi-minute run with no CI signal
 # gained. Turn it on per commit with `GIT_LINT_PRECOMMIT=1 git commit …`.

@@ -75,7 +75,7 @@ describe('WORKFLOW_DISPATCH', () => {
     expect(deploy).toContain('refs/heads/main');
   });
 
-  test('Deploy is manual and ships only what the full Check verified', () => {
+  test('Deploy runs on every merge to main and ships only what the full Check verified', () => {
     const deploy = Bun.YAML.parse(
       readFileSync(join(WORKFLOWS, 'deploy.yml'), 'utf8')
     ) as {
@@ -85,7 +85,8 @@ describe('WORKFLOW_DISPATCH', () => {
         { uses?: string; with?: Record<string, string>; needs?: string[] }
       >;
     };
-    expect(Object.keys(deploy.on)).toEqual(['workflow_dispatch']);
+    expect(Object.keys(deploy.on)).toEqual(['push', 'workflow_dispatch']);
+    expect(deploy.on['push']).toEqual({ branches: ['main'] });
     expect(deploy.jobs['deploy-verify']).toMatchObject({
       uses: './.github/workflows/check.yml',
     });

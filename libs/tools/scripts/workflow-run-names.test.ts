@@ -6,7 +6,7 @@ import { join } from 'node:path';
  * Every workflow run title has one shape — `<Workflow> · <trigger>`, never a
  * branch or ref (too dynamic to scan) — and every job is named `<workflow>` or `<workflow>:<stage>` after its id
  * (`<workflow>:<env>` for a job with an env matrix), so
- * the Actions run list reads the same everywhere.
+ * the Actions run list and the PR checks box read the same everywhere.
  */
 const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.github/workflows');
 const SEPARATOR = ' · ';

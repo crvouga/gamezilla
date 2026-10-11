@@ -7,7 +7,7 @@ than restating it.
 
 ## Hard Rules
 
-- **We never test manually. Ever.** A green full verification (`bun verify`, which every `bun deploy` runs first) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared` only; `fc.commands` models; `@pkgs/harness-root-shared` systems; Quint models for product features — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
+- **We never test manually. Ever.** A green full verification (the `check` on every pull request, which Deploy runs again on the commit it ships) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared` only; `fc.commands` models; `@pkgs/harness-root-shared` systems; Quint models for product features — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
 
 - **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; [`README.md`](README.md) is the implementation briefing and never a second product definition. Step catalogs (`<package>/STEPS_CATALOG.md`, index `docs/STEPS_CATALOG.md`) are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
 
@@ -25,7 +25,7 @@ than restating it.
 
 - **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the compiled Lingui catalog `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed.
 
-- **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR. `main` moves only through a merged PR ([`README.md`](README.md#correctness-machinery)).
+- **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges, and the merge deploys — never `--admin`, never a red, pending or draft PR. `main` moves only through a merged PR ([`README.md`](README.md#correctness-machinery)).
 
 - **Never patch dependencies.** No `bun patch`, `patch-package`, `pnpm patch`, `patches/` directory, or `patchedDependencies` / `resolutions` field. Work around a third-party bug in our code or accept it.
 
@@ -127,12 +127,14 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 
 ## Checks and CI
 
-Pull requests run no automated checks. `bun check`, `bun verify`, and
-`bun check:local` run every gate (`//#check`) locally. `bun health` and `bun deploy`
-dispatch the Health and Deploy workflows and block on the verdict
-([`README.md`](README.md#correctness-machinery)); Deploy independently runs
-full verification of `main` before every environment. Merging never deploys.
-`bun health:local` and `bun deploy:local` run that work on this machine. Every
+Every pull request runs every gate (`//#check`) in the Check workflow; its
+`check` job is the one required status, so a green pull request is releasable.
+Merging to `main` is the release: Deploy runs on every push to `main`, verifies
+that exact commit again, then ships every environment. `bun check`,
+`bun verify`, and `bun check:local` run the same gate locally. `bun health` and
+`bun deploy` dispatch the Health and Deploy workflows and block on the verdict
+([`README.md`](README.md#correctness-machinery)). `bun health:local` and
+`bun deploy:local` run that work on this machine. Every
 check is a cached, per-package task that reads only its own package; a new
 check goes into the package it is about. A gate leaf verifies and never
 touches the outside world, and its verdict never depends on the machine
