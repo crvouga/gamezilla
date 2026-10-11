@@ -272,6 +272,44 @@ describe('turbo check/deploy graph invariants', () => {
     }
   });
 
+  test('tools type check builds and hashes Atlas declaration boundaries', () => {
+    const tasks = loadTasks();
+    expect(tasks['@libs/tools#tc']?.dependsOn).toContain(
+      '@crvouga/atlas#build'
+    );
+    expect(tasks['@libs/tools#tc']?.dependsOn).toContain(
+      '@crvouga/atlas-schema#build'
+    );
+    for (const task of [
+      '@crvouga/atlas#build',
+      '@crvouga/atlas-schema#build',
+    ]) {
+      expect(tasks[task]?.inputs?.[0], task).toBe('$TURBO_DEFAULT$');
+      expect(tasks[task]?.outputs, task).toContain('dist/**');
+    }
+  });
+
+  test('every package lint task hashes the shared design-system rules and presets', () => {
+    const sharedInputs = [
+      '$TURBO_ROOT$/libs/tools/scripts/design-vocabulary.ts',
+      '$TURBO_ROOT$/pkgs/tailwind-shared/src/lint.css',
+      '$TURBO_ROOT$/pkgs/tailwind-shared/src/tailwind.css',
+      '$TURBO_ROOT$/pkgs/ui-root-client/codemod/theme.css',
+      '$TURBO_ROOT$/pkgs/ui-root-client/src/hosts.css',
+    ];
+    const tasks = loadTasks();
+    const lintTasks = Object.entries(tasks).filter(
+      ([name]) => name === 'lint' || name.endsWith('#lint')
+    );
+
+    expect(lintTasks.length).toBeGreaterThan(0);
+    for (const [name, task] of lintTasks) {
+      for (const input of sharedInputs) {
+        expect(task.inputs, `${name} misses ${input}`).toContain(input);
+      }
+    }
+  });
+
   test('check:models hashes only the models and their checker', () => {
     // Hash the verifier and evidence implementations, never product runtime
     // or unrelated tooling tasks such as @libs/tools#tc.
@@ -316,10 +354,14 @@ describe('turbo check/deploy graph invariants', () => {
     const dispatch = 'libs/tools/scripts/workflow-remote.ts';
     expect(scripts['check']).toBe('bun run check:local');
     expect(scripts['verify']).toBe('bun run check:local');
-    expect(scripts['health']).toBe(`bun run ${dispatch} health`);
-    expect(scripts['deploy']).toBe(`bun run ${dispatch} deploy`);
-    expect(scripts['health']).not.toContain('turbo-ci-run');
-    expect(scripts['deploy']).not.toContain('turbo-ci-run');
+    for (const workflow of ['health', 'deploy']) {
+      // The command is a Turborepo run of the one task that dispatches.
+      expect(scripts[workflow]).toBe(`turbo run //#task:${workflow} --`);
+      expect(scripts[`task:${workflow}`]).toBe(
+        `bun run ${dispatch} ${workflow}`
+      );
+      expect(loadTasks()[`//#task:${workflow}`]?.dependsOn).toBeUndefined();
+    }
     expect(scripts).not.toHaveProperty('check:remote');
   });
 

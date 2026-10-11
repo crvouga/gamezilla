@@ -40,6 +40,14 @@ export function reservePort(port = 0): PortReservation {
   };
 }
 
+/**
+ * A port the stack plan chose before this process started. The plan released
+ * its placeholder already, so there is nothing left to hold or release.
+ */
+export function plannedPort(port: number): PortReservation {
+  return { port, release: () => Promise.resolve() };
+}
+
 async function waitForResponse(args: {
   readonly url: string;
   readonly init?: RequestInit;

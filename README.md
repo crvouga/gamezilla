@@ -8,8 +8,9 @@ The one [product statechart](specs/product.machine.json) maps the entire
 product, while its [exploration guide](docs/statecharts/README.md) explains
 the choices, outcomes, source-derived business examples and definitions.
 `bun atlas:viz` opens its lightweight viewer without the app stack;
-`bun atlas:run` validates and builds the standalone explorer; `bun
-atlas:lint` checks complete traversal, journeys, source ownership and
+`bun atlas:run` runs every spec suite and records its reports for that
+viewer; `bun atlas:build` validates and builds the standalone explorer;
+`bun atlas:lint` checks complete traversal, journeys, source ownership and
 portable serialization.
 
 The step catalogs — [`docs/STEPS_CATALOG.md`](docs/STEPS_CATALOG.md) and each spec package's `STEPS_CATALOG.md` — are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Package READMEs describe that package's API (`pkgs/room`, `pkgs/harness`, `pkgs/sync-engine`, and a package's own `docs/` when it has one). They are not a second copy of this file.
@@ -375,7 +376,7 @@ OpenTofu looks them up. It does not create them.
 
 ### Data stays
 
-An environment rebuilds from its env file. `prevent_destroy` covers the state bucket, the Grafana stack, the repository, the shared secrets environment, and production's Neki branch. `libs/infra-shared/policy/stateful.rego` allow-lists what an ordinary apply may delete: credentials, DNS, routing, connection config, and derived secrets. Neki branches and roles stay protected. A plan that deletes most of a type in production is refused. To stop managing a stateful resource, use `removed { lifecycle { destroy = false } }`. Neon is forgotten that way and still exists at Neon. The Railway EMQX project is deleted; those addresses stay forgotten so an apply does not recreate the broker. Production MQTT is AWS IoT Core. Before every apply, encrypted state is copied to `backups/<stack>/<env>/<timestamp>.tfstate`.
+An environment rebuilds from its env file. `prevent_destroy` covers the state bucket, the Grafana stack, the repository, the shared secrets environment, and production's Neki branch. `libs/infra-shared/policy/stateful.rego` allow-lists what an ordinary apply may delete: credentials, DNS, routing, connection config, and derived secrets. Neki branches and roles stay protected. A plan that deletes most of a type in production is refused. To stop managing a stateful resource, use `removed { lifecycle { destroy = false } }`. Neon is forgotten that way and still exists at Neon. The Railway EMQX project is deleted; those addresses stay forgotten so an apply does not recreate the broker. A `removed` block cannot name one instance of a `for_each`, so a generated secret retired on purpose is listed in the policy's `retired` set, the one instance of a protected type an apply may delete; drop the entry once every environment has applied without it. Production MQTT is AWS IoT Core. Before every apply, encrypted state is copied to `backups/<stack>/<env>/<timestamp>.tfstate`.
 
 ```sh
 bun run infra:destroy -- --env <env> --confirm <env>
@@ -395,7 +396,7 @@ deploy:<env>   foundation -> migrate -> product (assets + API + rooms)
 
 ## Laptop
 
-`bun run dev` (alias `bun run stack`) runs one supervised boot per checkout. Repeating the command reuses the live boot. The launcher starts the backend services and one Vite watcher directly. The stack boots Mockingbird Postgres, Mockingbird S3, Aedes, simulated Google, Apple, and Stripe, N API nodes, and the product web app (`/`, `/harness`, `/simulator`). Ports are OS-assigned on the first boot, reused on later boots, and published to `.cache/localhost-stack/<instance>.json`. `source libs/tools/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
+`bun run dev` (alias `bun run stack`) runs one supervised boot per checkout. Repeating the command reuses the live boot. The boot is one Turborepo run, `@apps/product#dev`, with a persistent task per process and a pane for each in the terminal UI: `dev:postgres` (Mockingbird Postgres, migrated and seeded), `dev:s3`, `dev:mqtt` (Aedes), `dev:openai`, `dev:observability`, `dev:idp` (simulated Google and Apple), `dev:billing` (simulated Stripe), `dev:server` (N API nodes behind the balancer), `dev:population` (Synthetic Population Workers) and `dev:web` (the product web app: `/`, `/harness`, `/simulator`). `dev:prepare` plans every port first; each service publishes itself under `.cache/localhost-stack/<instance>/services/` when it can serve, and its dependents wait for that. Ports are OS-assigned on the first boot, reused on later boots, and published to `.cache/localhost-stack/<instance>.json` once the whole stack is up. Processes that run side by side are Turborepo tasks: add a task, not a process runner. `source libs/tools/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
 
 `bun run own -- <command> [arguments]` runs other long-lived tools through the same supervisor, including Node, Expo, JVM, browser, and media workers. Agent-launched long-lived commands use `bun dev`, `bun dev:client`, or this entry point.
 
@@ -403,7 +404,10 @@ deploy:<env>   foundation -> migrate -> product (assets + API + rooms)
 
 Run initializes the local population controller with one synthetic opponent per worker
 (default one), then starts workers that sign in and use the normal space and chess
-matchmaking controls. `--synthetic-population-workers 3` starts three; `0` disables
+matchmaking controls. Synthetic users sign in with an emailed link that is never
+sent: the API keeps it in an internal inbox only their worker can read, in every
+environment ([worker](apps/synthetic-population-worker/README.md)). People only
+ever see Google and Apple. `--synthetic-population-workers 3` starts three; `0` disables
 them for isolated scenarios. The committed puzzle pool supplies 2,000 puzzles.
 Child processes inherit only process plumbing, with service bindings supplied by
 the stack. API reports use local Mockingbird S3; the development reports page shows
@@ -496,7 +500,7 @@ Leave a check untagged until it can run on a dedicated synthetic identity, clean
 
 `specs/journeys/` runs in `bun check` against the full composition and, on Health, in a real browser against the deployment, one fresh device per scenario. Signed-in journeys trade `SYNTHETIC_MONITOR_TOKEN` at `POST /api/auth/synthetic-monitor/code`. A live failure saves a screenshot under `apps/product/.cache/critical-journeys/<scenario>/`. Liveness is `GET /api/health`. Readiness is `GET /api/health/ready` (`503` when `SELECT 1` fails within 3 s). UI tests in Check use happy-dom. `HARNESS_MODE=real` and `stack` use the same `Driver` on `Bun.WebView`.
 
-While iterating, prefer `bun run --filter <pkg> tc` and `bun run --filter <pkg> test` before a full check.
+While iterating, prefer `bunx turbo run tc test --filter=<pkg>` before a full check; an unchanged package is a cache hit.
 
 Live Health scenarios run serially: the synthetic-monitor account and Chrome storage are shared, so each scenario must finish its cleanup before the next opens a device.
 
@@ -576,6 +580,6 @@ Feature titles, one line each, so a session can route without listing the tree. 
 
 ### Atlas specification explorer
 
-`bun atlas:viz` opens the standalone Atlas development server. Its **Specs and evidence** view reads every supported document under `specs/`, including Gherkin, Quint, DMN, Alloy, OpenSLO and supporting documents. Gherkin scenarios and examples and DMN decisions have structured views; Quint recordings expose captured states and traces. **Specs and report layers** uses current specs as its outline and combines completed checks across branches, commits and parameter sets. Newer evidence replaces only matching check/parameter slots; absent or unfinished runs preserve older outcomes. Every result retains its origin, measurements and recording. Spec fingerprints and related working-tree changes qualify potentially outdated results without discarding them. A cross-commit result whose related code has not been compared is also qualified. This fast accumulated view is not a fresh verification verdict.
+`bun atlas:viz` opens the standalone Atlas development server. Its header is the product's name and one tab per kind of spec: the statechart map, then Gherkin, Quint, DMN, Alloy and OpenSLO. Each tab's index lists every spec under `specs/` with what was recorded for it (and filters to those with results, failing, or with none), so a spec without evidence is visibly different from a passing one. A spec page shows each scenario, trace or check with its outcome, recorded steps, error, timings, recording and every other run of that check. Results combine across backends (this machine's `.cache/local-reports` and the shared reports store), branches and runs: for each check and parameter set the newest completed result is shown, an absent or unfinished run preserves older outcomes, and **Sources** switches any backend, branch or run off to read what earlier runs recorded. Every result keeps its origin. Spec fingerprints and related working-tree changes qualify potentially outdated results without discarding them. This fast accumulated view is not a fresh verification verdict.
 
-`bun atlas:run` builds a standalone static Atlas site and exports available report layers into it. Export reads existing results; it never executes tests or turns missing evidence into a pass. `bun reports:collect` retains completed local results from earlier commits and modified checkouts with provenance warnings; completion time is kept separately from virtual timeline time. `bun reports:part` and `bun reports:performance` remain producer adapters. Report models, publication, retention, readers, API and visualization belong to Atlas.
+`bun atlas:run` runs the spec suite of every package (`bun run spec --keep-going`: features, models, decision tables, structures, objectives and each package's `tests/harness`). While a suite runs, `bun atlas:viz` reads the tests it has finished straight from its report bucket, so each result appears within a couple of seconds of its test ending; when the package finishes, its collected report layer (recorded under the current branch) takes over. A red package does not stop the others; the command still exits with the first failure. It takes the same arguments as `bun run spec`. `bun atlas:build` builds a standalone static Atlas site and exports available report layers into it. Export reads existing results; it never executes tests or turns missing evidence into a pass. `bun reports:collect` retains completed local results from earlier commits and modified checkouts with provenance warnings; completion time is kept separately from virtual timeline time. `bun reports:part` and `bun reports:performance` remain producer adapters. Report models, publication, retention, readers, API and visualization belong to Atlas.

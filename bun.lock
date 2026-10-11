@@ -1609,6 +1609,7 @@
         "@libs/permissions-shared": "workspace:*",
         "@libs/sub-client": "workspace:*",
         "@libs/sub-shared": "workspace:*",
+        "@libs/synthetic-population-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
         "@pkgs/a11y-shared": "workspace:*",
         "@pkgs/alloy-shared": "workspace:*",
@@ -3423,6 +3424,18 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+      },
+    },
+    "pkgs/config-check-server": {
+      "name": "@pkgs/config-check-server",
+      "version": "0.0.0",
+      "dependencies": {
+        "typescript": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+        "@typescript/native": "catalog:",
       },
     },
     "pkgs/conformance-server": {
@@ -7614,6 +7627,8 @@
     "@pkgs/collab-ui-client": ["@pkgs/collab-ui-client@workspace:pkgs/collab-ui-client"],
 
     "@pkgs/colors-shared": ["@pkgs/colors-shared@workspace:pkgs/colors-shared"],
+
+    "@pkgs/config-check-server": ["@pkgs/config-check-server@workspace:pkgs/config-check-server"],
 
     "@pkgs/conformance-server": ["@pkgs/conformance-server@workspace:pkgs/conformance-server"],
 

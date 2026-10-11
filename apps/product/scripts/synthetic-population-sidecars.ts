@@ -3,7 +3,7 @@ import type { ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnOwned as spawn } from '@pkgs/os-server/dev-owner-spawn';
-import { reservePort, waitForHttp } from './free-port';
+import { plannedPort, reservePort, waitForHttp } from './free-port';
 import { localProcessEnv } from './local-process-env';
 
 /** Persist local keys with local data; a stack never inherits deployed credentials. */
@@ -11,11 +11,17 @@ export function syntheticPopulationStackSecrets(
   dataDir: string
 ): Record<string, string> {
   const file = join(dataDir, 'synthetic-population-secrets.json');
-  if (existsSync(file))
-    return JSON.parse(readFileSync(file, 'utf8')) as Record<string, string>;
+  if (existsSync(file)) {
+    const stored = JSON.parse(readFileSync(file, 'utf8')) as Record<
+      string,
+      string
+    >;
+    // Only the control-plane bearer is still a secret; older files hold more.
+    const token = stored['POPULATION_WORKER_TOKEN'];
+    if (token !== undefined) return { POPULATION_WORKER_TOKEN: token };
+  }
   const values = {
     POPULATION_WORKER_TOKEN: `${crypto.randomUUID()}${crypto.randomUUID()}`,
-    POPULATION_CREDENTIAL_SECRET: `${crypto.randomUUID()}${crypto.randomUUID()}`,
   };
   writeFileSync(file, JSON.stringify(values), { mode: 0o600 });
   return values;
@@ -26,10 +32,14 @@ export async function startSyntheticPopulationSidecars(input: {
   origin: string;
   count: number;
   token: string;
+  /** Planned ports, one per worker; without them each asks the OS for its own. */
+  ports?: readonly number[] | undefined;
   track: (child: ChildProcess) => void;
 }): Promise<void> {
   for (let index = 0; index < input.count; index += 1) {
-    const reservation = reservePort();
+    const planned = input.ports?.[index];
+    const reservation =
+      planned === undefined ? reservePort() : plannedPort(planned);
     await reservation.release();
     const child = spawn(
       'bun',

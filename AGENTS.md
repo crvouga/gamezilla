@@ -21,6 +21,8 @@ than restating it.
 
 - **Own every long-lived command.** Use the launch and cleanup entry points in [`README.md`](README.md#laptop). Never start an unmanaged background server, watcher, compiler, database, browser, simulator, or media worker.
 
+- **Turborepo is the only task runner.** Every root script is `turbo run <tasks>` (its own body is the root task `task:<command>`), an alias of one, or a task body declared in `turbo.json`. No script runs another script (`bun run <script>`, `--filter`, `--cwd`, `pre`/`post` hooks) or backgrounds a process (`&`): order is `dependsOn`, side by side is `with`. Every task is `cache: false` or declares `inputs` and `outputs`. `lint` fails on anything else; the rule and its few named exceptions are [`libs/tools/scripts/task-runner-policy.ts`](libs/tools/scripts/task-runner-policy.ts).
+
 - **Agents never create branches or worktrees.** Commit to the branch and worktree you started in: no `EnterWorktree`, no `isolation: "worktree"` subagents, no `git worktree add`, no `git checkout -b` / `git switch -c`. Parallel agents split work by files and commit only their own paths (never `git add -A` over another agent's edits), then `git pull --rebase` before pushing. Enforced by `.claude/hooks/no-agent-worktrees.sh`.
 
 - **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the compiled Lingui catalog `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed.
@@ -147,8 +149,9 @@ on the developer machine. Details: [`README.md`](README.md#correctness-machinery
 Each workspace is a git worktree created by an agent orchestrator (Superset,
 super.engineering, …). All of them run the same lifecycle hooks from
 `libs/tools/workspace/`: `setup.sh` (`bun install`, `.cache/secrets`,
-`apps/*/.env.local`), `teardown.sh` and `run.sh`. The hooks derive paths from
-git, never from a tool's env vars. `bun run workspace:sync` projects them into
+`apps/*/.env.local`), `teardown.sh` and `run.sh`. Their steps are Turborepo
+tasks (`//#workspace:*`, `step.sh`) that print only when they fail. The hooks
+derive paths from git, never from a tool's env vars. `bun run workspace:sync` projects them into
 every orchestrator's config (`.superset/config.json`,
 `.super.engineering/config.json`); never edit those, and
 `//#ci:workspace-lifecycle` fails on drift. A new orchestrator is one entry in
@@ -160,8 +163,8 @@ super.engineering's app project settings.
   (`@pkgs/postgres-mockingbird-server`); the Run pane does it. EMQX
   (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are
   machine-wide: one workspace at a time may bind them.
-- **Iterating.** `bun fmt`, `bun run --filter <pkg> tc`, `bun run --filter
-  <pkg> test`, then `bun check` for the local full gate.
+- **Iterating.** `bun fmt`, `bunx turbo run tc test --filter=<pkg>` (cached),
+  then `bun check` for the local full gate.
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.
   PR bodies follow `.github/PULL_REQUEST_TEMPLATE.md`. `/pr-ready` drives a PR
   to Ready to merge; `/ci-green` drives Check, Deploy and Health green.
@@ -178,8 +181,8 @@ super.engineering's app project settings.
   MQTT, simulated Google, Apple and Stripe, and N Bun API instances running
   the production Worker handler behind a load balancer, with the product web
   app in front (`/`, `/harness`, `/simulator`). `bun run stack` is the same
-  command. Ports and flags:
-  [`README.md`](README.md#laptop).
+  command. Each process is its own Turborepo task (`@apps/product#dev:*`).
+  Tasks, ports and flags: [`README.md`](README.md#laptop).
 - **`bun run dev:client`** — `@apps/client` alone.
 - **`bun run sims:open`** — pick project simulators and open Simulator.app.
 - **`bun db:migrate`** reconciles `DATABASE_URL` to the declared schemas;

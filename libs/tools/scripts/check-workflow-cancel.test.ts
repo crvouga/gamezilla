@@ -75,7 +75,10 @@ describe('Check workflow cancellation', () => {
       >;
     };
     const gate = workflow.jobs['check']!;
-    expect(gate.needs).toEqual(['check-verify']);
+    expect(gate.needs).toEqual([
+      'check-verify',
+      'check-synthetic-population-package',
+    ]);
     expect(gate.if).toBe('always() && !cancelled()');
     const require = gate.steps.find(
       (step) => step.name === 'Require release verification'
