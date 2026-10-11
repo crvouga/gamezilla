@@ -10,7 +10,7 @@ import type { LogLineContext, LogLineDraft } from './log-line';
  * Handlers return `null` to omit an event from the log.
  *
  * Built on the same {@link createMessageRouter} / {@link createComposedMessageRouter}
- * machinery features already use for command/event routing — register handlers
+ * machinery subs already use for command/event routing — register handlers
  * against the same event namespaces.
  */
 export type EventLogRouter =

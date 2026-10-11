@@ -215,7 +215,7 @@ export const leaveUsernameEditor = scenarioAction({
   },
 });
 
-/** Registered on every system that composes this feature. */
+/** Registered on every system that composes this sub. */
 export const PROFILE_HARNESS_ACTIONS = [
   openProfileEdit,
   setUsername,

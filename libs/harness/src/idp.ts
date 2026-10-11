@@ -30,8 +30,8 @@ import {
   HARNESS_GOOGLE_CLIENT_SECRET,
   HARNESS_IDP_URL,
   HARNESS_SERVER_URL,
-} from '@libs/feature-shared/harness-constants';
-import type { ServerHttp } from '@libs/feature-shared/sync';
+} from '@libs/sub-shared/harness-constants';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse-server/inhouse-auth-config';
 import type { Clock } from '@pkgs/clock-shared/types';
 
@@ -288,6 +288,8 @@ export function harnessIdpFetchFrom(args: {
   readonly idps: HarnessIdps;
   readonly net: HarnessNet;
   readonly from: string;
+  /** Told each request no provider serves, before it is answered `404`. */
+  readonly onUnanswered?: (href: string) => void;
 }): ServerHttp {
   const hops = {
     google: args.net.wrapHop(
@@ -298,8 +300,12 @@ export function harnessIdpFetchFrom(args: {
     apple: args.net.wrapHop(args.from, NODE_IDS.apple, args.idps.apple.fetch),
   };
   return async (input, init) => {
-    const provider = harnessIdpOf(requestHref(input));
-    if (provider === null) return new Response('not found', { status: 404 });
+    const href = requestHref(input);
+    const provider = harnessIdpOf(href);
+    if (provider === null) {
+      args.onUnanswered?.(href);
+      return new Response('not found', { status: 404 });
+    }
     return await hops[provider](input, init);
   };
 }

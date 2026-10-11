@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 /**
- * Routing seam for the design system and feature libs: a small `AppRouter`
+ * Routing seam for the design system and sub libs: a small `AppRouter`
  * facade over `@solidjs/router` so screens never import the router directly.
  *
  * `canGoBack` is tracked by this facade (SPA history depth since the app

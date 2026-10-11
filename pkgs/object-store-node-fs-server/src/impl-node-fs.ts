@@ -19,6 +19,16 @@ const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
  */
 let tmpSeq = 0;
 
+/** A vanished parent between `mkdir` and `open` (parallel report writers). */
+function isEnoent(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { readonly code?: unknown }).code === 'ENOENT'
+  );
+}
+
 function nextTmpPath(dest: string): string {
   tmpSeq += 1;
   return `${dest}.${String(process.pid)}.${String(tmpSeq)}.tmp`;
@@ -100,7 +110,28 @@ export class ObjectStoreImplNodeFs implements ObjectStore {
     return dataPath;
   }
 
+  /**
+   * Recreate the parent on each attempt. A parallel run can remove a report
+   * directory after `mkdir` returns and before `open` of the temp file; one
+   * ENOENT then used to fail a trace that had already written hundreds of frames.
+   */
   private async writeFileAtomic(
+    dest: string,
+    contents: Uint8Array | string
+  ): Promise<void> {
+    const dir = dirname(dest);
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        await this.fs.mkdir(dir, { recursive: true });
+        await this.writeNewFile(dest, contents);
+        return;
+      } catch (error) {
+        if (!isEnoent(error) || attempt === 2) throw error;
+      }
+    }
+  }
+
+  private async writeNewFile(
     dest: string,
     contents: Uint8Array | string
   ): Promise<void> {
@@ -156,7 +187,6 @@ export class ObjectStoreImplNodeFs implements ObjectStore {
     contentType: string
   ): Promise<void> {
     const dataPath = this.resolveDataPath(key);
-    await this.fs.mkdir(dirname(dataPath), { recursive: true });
     await this.writeFileAtomic(dataPath, bytes);
     if (this.layout === 'sidecar') {
       const meta: Meta = { contentType };

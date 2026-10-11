@@ -102,3 +102,59 @@ test.each([null, 'previous-bearer'])(
     }
   }
 );
+
+test.each([null, 'previous-bearer'])(
+  'an opened email link replaces %s with the session it yields',
+  async (previous) => {
+    setCallback('?email_link=one-time-token');
+    const requests: { url: string; init: RequestInit | undefined }[] = [];
+    const bearerStore = createBearerTokenStore();
+    if (previous !== null) await bearerStore.write(previous);
+    const port = createInhouseAuthClient({
+      baseURL: 'https://api.test',
+      callbackUrl: CALLBACK,
+      ...createHarnessClock(),
+      bearerStore,
+      fetch: async (input, init) => {
+        requests.push({ url: String(input), init });
+        return Response.json({
+          token: 'new-bearer',
+          user: { id: 'person', email: 'person@example.com' },
+          expiresAt: '2030-01-01T00:00:00.000Z',
+        });
+      },
+    });
+    await port.completeHostedAuthRedirect?.();
+    expect(requests[0]?.url).toBe('https://api.test/api/auth/email/confirm');
+    expect(JSON.parse(String(requests[0]?.init?.body))).toEqual({
+      token: 'one-time-token',
+    });
+    expect(await port.getFreshToken()).toBe('new-bearer');
+    expect(port.session.getSnapshot().session?.externalUserId).toBe('person');
+    if (previous === null) expect(requests).toHaveLength(2);
+    else {
+      expect(requests).toHaveLength(3);
+      expect(requests[2]?.url).toBe('https://api.test/api/auth/sign-out');
+      expect(requests[2]?.init?.headers).toEqual({
+        'content-type': 'application/json',
+        authorization: 'Bearer previous-bearer',
+      });
+    }
+  }
+);
+
+test('an email link that no longer works is published to the sign-in modal', async () => {
+  setCallback('?email_link=spent-token');
+  const port = createInhouseAuthClient({
+    baseURL: 'https://api.test',
+    callbackUrl: CALLBACK,
+    ...createHarnessClock(),
+    fetch: async () => Response.json({ error: 'expired' }, { status: 401 }),
+    storage: createInMemoryAuthClientStorage(),
+  });
+  await expect(port.completeHostedAuthRedirect?.()).rejects.toMatchObject({
+    code: 'expired',
+  });
+  expect(port.session.getSnapshot().error).toBeInstanceOf(AuthFlowError);
+  expect(port.session.getSnapshot().session).toBeNull();
+});

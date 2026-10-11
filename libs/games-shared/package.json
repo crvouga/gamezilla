@@ -15,7 +15,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@libs/chess-feature-shared": "workspace:*",
+    "@libs/chess-sub-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*"
   },
   "devDependencies": {

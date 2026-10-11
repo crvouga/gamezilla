@@ -1,0 +1,170 @@
+#!/usr/bin/env bun
+
+// @io-wall-ok — tools composition root.
+
+/**
+ * One process of the `bun dev` stack, in the foreground.
+ *
+ * `dev-service.ts <service>` is the Turborepo task `dev:<service>`: it starts
+ * that service on its planned port, publishes it for the services that depend
+ * on it, and holds until the task is stopped. `dev-service.ts ready` is the
+ * `dev` task, the stack's front door: it waits for every service and
+ * publishes the manifest, the address book every consumer (tests, a browser,
+ * another agent) reads rather than assuming a port.
+ */
+
+import { existsSync } from 'node:fs';
+import { devStackOptions } from './dev-options';
+import { resolveDevRepoRoot } from './dev-repo-root';
+import {
+  type RunningService,
+  type ServiceContext,
+  startService,
+} from './dev-services';
+import type { StackManifest } from './manifest';
+import { removeManifest, writeManifest } from './manifest';
+import { readPlan, type StackPlan } from './stack-plan';
+import {
+  awaitService,
+  publishFailed,
+  publishOff,
+  publishReady,
+  SERVICE_NAMES,
+  type ServiceName,
+  type StackServices,
+  withdrawService,
+} from './stack-services';
+
+const REPO_ROOT = resolveDevRepoRoot(import.meta.dir, existsSync);
+const STOP_GRACE_MS = 5_000;
+
+function say(name: string, message: string): void {
+  process.stdout.write(`[${name}] ${message}\n`);
+}
+
+/** Hold the process open until Turborepo (or a terminal) stops the task. */
+function holdUntilStopped(stop: () => Promise<void>): Promise<never> {
+  let stopping = false;
+  const onSignal = (): void => {
+    if (stopping) return;
+    stopping = true;
+    void stop().finally(() => process.exit(0));
+  };
+  for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const)
+    process.on(signal, onSignal);
+  return new Promise<never>(() => {
+    // held open by the signal handlers above
+  });
+}
+
+async function runService<K extends ServiceName>(
+  plan: StackPlan,
+  name: K
+): Promise<never> {
+  const context: ServiceContext = {
+    plan,
+    repoRoot: REPO_ROOT,
+    need: (other) => awaitService(plan, other),
+  };
+  let running: RunningService<StackServices[K]> | null;
+  try {
+    running = await startService(name, context);
+  } catch (error) {
+    publishFailed(
+      plan,
+      name,
+      error instanceof Error ? error.message : String(error)
+    );
+    throw error;
+  }
+  if (running === null) {
+    publishOff(plan, name);
+    say(name, 'off for this stack');
+    process.exit(0);
+  }
+  const service = running;
+  publishReady(plan, name, service.value);
+  say(name, 'ready');
+
+  let stopped = false;
+  const stop = async (): Promise<void> => {
+    stopped = true;
+    withdrawService(plan, name);
+    // Turborepo gives a stopping task only so long before it kills the task
+    // and leaves its processes behind: end one that is still draining.
+    await Promise.race([service.stop(), Bun.sleep(STOP_GRACE_MS)]);
+    for (const child of service.children ?? []) {
+      if (child.exitCode === null && child.signalCode === null)
+        child.kill('SIGKILL');
+    }
+  };
+  // A service whose process died is no longer serving, whatever it published.
+  for (const child of service.children ?? []) {
+    child.once('exit', (code, signal) => {
+      if (stopped) return;
+      say(name, `a process exited (${signal ?? `code ${String(code)}`})`);
+      void stop().finally(() => process.exit(1));
+    });
+  }
+  return holdUntilStopped(stop);
+}
+
+async function runFrontDoor(plan: StackPlan): Promise<never> {
+  const need = <K extends ServiceName>(name: K) => awaitService(plan, name);
+  const [postgres, s3, mqtt, observability, idp, billing, server, web] =
+    await Promise.all([
+      need('postgres'),
+      need('s3'),
+      need('mqtt'),
+      need('observability'),
+      need('idp'),
+      need('billing'),
+      need('server'),
+      need('web'),
+      need('openai'),
+      need('population'),
+    ]);
+  if (postgres === null || idp === null || billing === null || server === null)
+    throw new Error(
+      'the stack came up without a service it cannot run without'
+    );
+  const manifest: StackManifest = {
+    instanceId: plan.options.instanceId,
+    startedAtMs: Date.now(),
+    apiOrigin: server.apiOrigin,
+    apiNodes: server.nodes,
+    webOrigin: web?.origin ?? '',
+    idpOrigins: { google: idp.google, apple: idp.apple },
+    billingOrigin: billing.origin,
+    databaseUrl: postgres.databaseUrl,
+    s3Endpoint: s3?.endpoint ?? null,
+    mqttWssUrl: mqtt?.wssUrl ?? null,
+    mqttUrl: mqtt?.mqttUrl ?? null,
+    observabilityCollectorUrl: observability?.collectorUrl ?? null,
+    observabilityTraceDir: observability?.traceDir ?? null,
+    observabilityTempoUrl: observability?.tempoUrl ?? null,
+    observabilityGrafanaUrl: observability?.grafanaUrl ?? null,
+    dataDir: plan.dataDir,
+  };
+  const manifestPath = writeManifest(REPO_ROOT, manifest);
+  say('stack', `ready — ${manifestPath}`);
+  if (web !== null) say('stack', `simulator: ${web.origin}/?simulator`);
+  say('stack', 'Ctrl-C to stop');
+  // A manifest must not point at processes that are gone.
+  process.on('exit', () => {
+    removeManifest(REPO_ROOT, plan.options.instanceId);
+  });
+  return holdUntilStopped(() => Promise.resolve());
+}
+
+const target = process.argv[2];
+const plan = readPlan(REPO_ROOT, devStackOptions().instanceId);
+if (target === 'ready') {
+  await runFrontDoor(plan);
+} else if ((SERVICE_NAMES as readonly string[]).includes(target ?? '')) {
+  await runService(plan, target as ServiceName);
+} else {
+  throw new Error(
+    `usage: dev-service.ts <ready|${SERVICE_NAMES.join('|')}> (got '${String(target)}')`
+  );
+}

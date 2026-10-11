@@ -26,7 +26,7 @@ test('directory pages are bounded, searchable and independent of worker accounti
     expect(first.users).toHaveLength(1);
     expect(second.users).toHaveLength(1);
     expect(second.users[0]!.id).not.toBe(first.users[0]!.id);
-    expect(first.users[0]).not.toHaveProperty('credential');
+    expect(first.users[0]).not.toHaveProperty('email');
     expect(first.users[0]).not.toHaveProperty('inspection');
     const user = second.users[0]!;
     await f.db.run(

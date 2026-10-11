@@ -7,9 +7,9 @@ import {
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { multiplayerWatcherBoard } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
+import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
 import { signedInAccountOf } from '@libs/harness/identity';
-import { setupPasswordAccount } from '@libs/harness/password-actions';
 import { SyntheticPopulationController } from '@libs/synthetic-population-server/synthetic-population-controller';
 import { SyntheticPopulationRepository } from '@libs/synthetic-population-server/synthetic-population-repository';
 import { configureUsername } from '@libs/synthetic-population-shared/application-actions';
@@ -17,6 +17,12 @@ import sql from '@pkgs/sql-root-shared/sql';
 import { bindFixtureAccount } from './fixture-account-binding';
 import { maintainFixtureLease } from './fixture-lease-lifecycle';
 import { givenDesiredSyntheticPopulation } from './observatory-actions';
+import {
+  givenSyntheticUserDevice,
+  signInSyntheticUser,
+  syntheticUserActor,
+  syntheticUserSignIn,
+} from './synthetic-sign-in-actions';
 
 export function syntheticPopulationPorts(s: ProductHarness) {
   return {
@@ -34,18 +40,19 @@ export async function cedarUser(s: ProductHarness) {
   if (cedar === undefined) throw new Error('Cedar was not provided');
   return cedar;
 }
-export const givenSyntheticUser = scenarioAction({
-  name: 'givenSyntheticUser',
-  act: async (s, name: string, playing: boolean) => {
+/**
+ * A Synthetic User a worker holds the lease for, on its own application
+ * host, that has not signed in: what a deployed worker has right after it
+ * claims a user.
+ */
+export const givenLeasedSyntheticUser = scenarioAction({
+  name: 'givenLeasedSyntheticUser',
+  act: async (s, name: string) => {
     if (name !== 'Cedar') throw new Error(`Unknown Synthetic User ${name}`);
     await Promise.resolve(givenDesiredSyntheticPopulation.act(s, 1));
     const db = s.harness.serverSql.sqlClient;
     const ports = syntheticPopulationPorts(s);
-    const controller = new SyntheticPopulationController(
-      db,
-      ports,
-      'synthetic-population-spec-secret-0123456789abcdef'
-    );
+    const controller = new SyntheticPopulationController(db, ports);
     const workerId = ports.createId();
     await controller.heartbeat({
       workerId,
@@ -57,36 +64,45 @@ export const givenSyntheticUser = scenarioAction({
       leaseFailures: 0,
     });
     const assignment = await controller.claim(workerId);
-    if (assignment === null) throw new Error('Cedar could not be assigned');
+    if (assignment === null) throw new Error(`${name} could not be assigned`);
     maintainFixtureLease(s, assignment.lease);
-    await Promise.resolve(
-      setupPasswordAccount.act(
-        s,
-        'cedar',
-        assignment.email,
-        assignment.password
-      )
+    await db.run(
+      sql`UPDATE population_users SET username = ${name} WHERE id = ${assignment.lease.userId}`
     );
+    await Promise.resolve(
+      givenSyntheticUserDevice.act(s, syntheticUserActor(name))
+    );
+  },
+});
+export const givenSyntheticUser = scenarioAction({
+  name: 'givenSyntheticUser',
+  act: async (s, name: string, playing: boolean) => {
+    await Promise.resolve(givenLeasedSyntheticUser.act(s, name));
+    const db = s.harness.serverSql.sqlClient;
+    const user = await syntheticUserSignIn(s, name);
+    // Cedar signs in as a deployed Synthetic User does: on its own host, by
+    // the link in its internal inbox.
+    await Promise.resolve(signInSyntheticUser.act(s, 'cedar', user));
     const accountId = await signedInAccountOf(s, 'cedar');
     const deviceId = await s.actors.get('cedar')!.deviceId();
     const token = await s.actors.get('cedar')!.sessionToken();
     if (deviceId === null || token === null)
       throw new Error('Cedar did not authenticate');
-    await bindFixtureAccount(s, { lease: assignment.lease, deviceId, token });
+    await bindFixtureAccount(s, { lease: user.lease, deviceId, token });
     await db.run(
-      sql`UPDATE population_users SET username = ${name}, account_id = ${accountId}, device_id = ${deviceId}, activity = ${playing ? 'playing' : 'browsing'} WHERE id = ${assignment.lease.userId}`
+      sql`UPDATE population_users SET account_id = ${accountId}, device_id = ${deviceId}, activity = ${playing ? 'playing' : 'browsing'} WHERE id = ${user.lease.userId}`
     );
     await configureUsername(await actorUi(s, 'cedar'), 'cedar');
     if (!playing) return;
-    // Both participants use the ordinary password flow; OAuth is covered by
-    // the authentication specifications rather than this recovery fixture.
-    await Promise.resolve(
-      setupPasswordAccount.act(
-        s,
-        'bob',
-        `${ports.createId()}@example.test`,
-        `${ports.createId()}${ports.createId()}`
-      )
+    // Bob is a person: people sign in with a provider, never by email.
+    await Promise.resolve(signInWithGoogle.act(s, 'bob'));
+    await pollUntil(
+      s,
+      async () => (await signedInAccountOf(s, 'bob')) ?? null,
+      {
+        maxMs: 20_000,
+        description: "Bob's account is ready",
+      }
     );
     await configureUsername(await actorUi(s, 'bob'), 'bob');
     for (const actor of ['cedar', 'bob']) {

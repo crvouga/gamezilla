@@ -12,7 +12,7 @@
  */
 
 import type { ChildProcess } from 'node:child_process';
-import { mkdirSync, rmSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import {
   createServer as createStripeServer,
@@ -32,13 +32,18 @@ import { spawnOwned as spawn } from '@pkgs/os-server/dev-owner-spawn';
 import type { InfraHandles } from './boot-infra';
 import { bootInfra } from './boot-infra';
 import type { PortReservation } from './free-port';
-import { reservePort, waitForApiBooted, waitForHttp } from './free-port';
+import {
+  plannedPort,
+  reservePort,
+  waitForApiBooted,
+  waitForHttp,
+} from './free-port';
 import { startLoadBalancer } from './load-balancer';
 import { localApiEnv } from './local-api-env';
 import { configureLocalPopulation } from './local-population';
 import { localProcessEnv } from './local-process-env';
 import type { StackManifest } from './manifest';
-import { writeManifest } from './manifest';
+import { instanceDataDir, writeManifest } from './manifest';
 import { mockingbirdSqliteFile } from './mockingbird-sqlite';
 import type { StackOptions } from './stack-options';
 import type { IdpState, StackIdps } from './start-idps';
@@ -75,7 +80,7 @@ function nodeId(index: number): string {
 }
 
 /** Stripe, simulated, with its webhook endpoint's signing secret. */
-type BillingProvider = {
+export type BillingProvider = {
   readonly server: StripeServer;
   readonly webhookSecret: string;
 };
@@ -87,7 +92,7 @@ type BillingProvider = {
  * Stripe — the same module, over the same adapter — so the API nodes reach it
  * and hear from it (signed webhooks, through the balancer) as they do Stripe.
  */
-async function startBillingProvider(args: {
+export async function startBillingProvider(args: {
   readonly apiOrigin: string;
   readonly port: number;
   readonly dataDir: string;
@@ -138,7 +143,7 @@ function waitForChildExit(child: ChildProcess): Promise<void> {
 }
 
 /** SIGTERM, then wait for the exit so teardown leaves no orphan listener. */
-async function stopChild(child: ChildProcess): Promise<void> {
+export async function stopChild(child: ChildProcess): Promise<void> {
   if (child.exitCode !== null || child.signalCode !== null) return;
   const exited = waitForChildExit(child).catch(() => undefined);
   try {
@@ -154,7 +159,7 @@ function startApiNode(args: {
   readonly port: number;
   readonly apiOrigin: string;
   readonly idpEnv: Readonly<Record<string, string>>;
-  readonly billing: BillingProvider;
+  readonly billing: BillingBinding;
   readonly webOrigin: string | null;
   readonly infraEnv: Readonly<Record<string, string>>;
   readonly roomServiceToken: string;
@@ -183,14 +188,14 @@ function startApiNode(args: {
         BILLING_PROVIDER: STRIPE_PROVIDER,
         [StripeSecretKeys.secretKey]: BILLING_SECRET_KEY,
         [StripeSecretKeys.webhookSecret]: args.billing.webhookSecret,
-        [StripeBindingKeys.apiOrigin]: args.billing.server.url,
+        [StripeBindingKeys.apiOrigin]: args.billing.origin,
         WEB_CLIENT_ORIGIN: args.webOrigin ?? '',
       },
     }
   );
 }
 
-async function startWeb(args: {
+export async function startWeb(args: {
   readonly origin: string;
   readonly apiOrigin: string;
   readonly frozen: boolean;
@@ -218,7 +223,10 @@ async function startWeb(args: {
  * data directory (so `--keep-data` makes it survive, and a wipe takes it with
  * the rest); `path` uses exactly the caller's file and is never removed here.
  */
-function resolveIdpState(options: StackOptions, dataDir: string): IdpState {
+export function resolveIdpState(
+  options: StackOptions,
+  dataDir: string
+): IdpState {
   if (options.idpStateMode === 'memory') return { mode: 'memory', path: null };
   if (options.idpStateMode === 'instance') {
     return { mode: 'instance', path: join(dataDir, 'idp.sqlite') };
@@ -229,32 +237,36 @@ function resolveIdpState(options: StackOptions, dataDir: string): IdpState {
   return { mode: 'path', path };
 }
 
-function instanceDataDir(options: StackOptions): string {
-  const dir = join(REPO_ROOT, '.cache', 'localhost-stack', options.instanceId);
-  if (!options.keepData) rmSync(dir, { recursive: true, force: true });
-  mkdirSync(dir, { recursive: true });
-  return dir;
-}
-
-type ApiTier = {
+export type ApiTier = {
   readonly children: ChildProcess[];
   readonly backends: { readonly id: string; readonly origin: string }[];
 };
 
-async function startApiTier(args: {
+/** The webhook secret is all an API node needs to know of the provider. */
+export type BillingBinding = {
+  readonly origin: string;
+  readonly webhookSecret: string;
+};
+
+export async function startApiTier(args: {
   readonly options: StackOptions;
   readonly apiOrigin: string;
   readonly idpEnv: Readonly<Record<string, string>>;
-  readonly billing: BillingProvider;
+  readonly billing: BillingBinding;
   readonly webOrigin: string | null;
-  readonly infra: InfraHandles;
+  /** How the nodes reach the backing services (`infraEnv`). */
+  readonly infraEnv: Readonly<Record<string, string>>;
   readonly syntheticPopulationSecrets: Readonly<Record<string, string>>;
+  /** Planned ports, one per node; without them each asks the OS for its own. */
+  readonly ports?: readonly number[] | undefined;
 }): Promise<ApiTier> {
   const roomServiceToken = crypto.randomUUID();
   const children: ChildProcess[] = [];
   const backends: { readonly id: string; readonly origin: string }[] = [];
   for (let index = 0; index < args.options.apiNodes; index += 1) {
-    const reservation = reservePort();
+    const planned = args.ports?.[index];
+    const reservation =
+      planned === undefined ? reservePort() : plannedPort(planned);
     await reservation.release();
     const id = nodeId(index);
     children.push(
@@ -265,7 +277,7 @@ async function startApiTier(args: {
         idpEnv: args.idpEnv,
         billing: args.billing,
         webOrigin: args.webOrigin,
-        infraEnv: { ...args.infra.env, ...args.syntheticPopulationSecrets },
+        infraEnv: { ...args.infraEnv, ...args.syntheticPopulationSecrets },
         roomServiceToken,
       })
     );
@@ -363,9 +375,12 @@ async function startBillingAndApi(args: {
       options: args.options,
       apiOrigin: args.apiOrigin,
       idpEnv: args.idpEnv,
-      billing,
+      billing: {
+        origin: billing.server.url,
+        webhookSecret: billing.webhookSecret,
+      },
       webOrigin: args.webOrigin,
-      infra: args.infra,
+      infraEnv: args.infra.env,
       syntheticPopulationSecrets: args.syntheticPopulationSecrets,
     });
     return { billing, api };
@@ -448,7 +463,7 @@ export async function bootLocalhostStack(
   options: StackOptions,
   externalWeb = false
 ): Promise<LocalhostStack> {
-  const dataDir = instanceDataDir(options);
+  const dataDir = instanceDataDir(REPO_ROOT, options);
   const syntheticPopulationSecrets = syntheticPopulationStackSecrets(dataDir);
   const idpState = resolveIdpState(options, dataDir);
   const { lbReservation, idpReservations, billingReservation, webReservation } =

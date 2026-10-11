@@ -1,0 +1,812 @@
+{
+  "$description": "Design tokens, the single source of every visual value (W3C Design Tokens format). Edit here, then run `bun run --filter @pkgs/ui-root-client tokens:generate`.",
+  "color": {
+    "$type": "color",
+    "$description": "Neutral surfaces and one blue. Each scheme defines every role; `[data-theme]` picks the scheme at runtime.",
+    "light": {
+      "background": {
+        "$description": "The canvas: white / true black.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 100],
+          "alpha": 1
+        }
+      },
+      "surface": {
+        "$description": "Panels and cards, one step off the canvas.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [180, 14, 97],
+          "alpha": 1
+        }
+      },
+      "surfaceSunken": {
+        "$description": "Deeper than background: the page-level recessed canvas.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [195, 15, 94],
+          "alpha": 1
+        }
+      },
+      "surfaceMuted": {
+        "$description": "Inline recessed fill: inputs, tags, segmented tracks.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [195, 15, 94],
+          "alpha": 1
+        }
+      },
+      "surfaceElevated": {
+        "$description": "Raised above surface: modals, raised cards.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 100],
+          "alpha": 1
+        }
+      },
+      "surfaceOverlay": {
+        "$description": "Floating above content: popovers, menus.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 100],
+          "alpha": 1
+        }
+      },
+      "text": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 25, 7],
+          "alpha": 1
+        }
+      },
+      "textSecondary": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [206, 13, 37],
+          "alpha": 1
+        }
+      },
+      "icon": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [206, 13, 37],
+          "alpha": 1
+        }
+      },
+      "tint": {
+        "$description": "Blue as text, links, focus and selection. Never a solid fill.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 37],
+          "alpha": 1
+        }
+      },
+      "tintHover": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 31],
+          "alpha": 1
+        }
+      },
+      "tintActive": {
+        "$description": "The blue fill of every primary action, under an onPrimary label.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 39],
+          "alpha": 1
+        }
+      },
+      "tintSubtle": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 53],
+          "alpha": 0.1
+        }
+      },
+      "tintMuted": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 53],
+          "alpha": 0.24
+        }
+      },
+      "tintHighlight": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 53],
+          "alpha": 0.14
+        }
+      },
+      "onPrimary": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 100],
+          "alpha": 1
+        }
+      },
+      "onDestructive": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 100],
+          "alpha": 1
+        }
+      },
+      "onSuccess": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 100],
+          "alpha": 1
+        }
+      },
+      "onWarning": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 100],
+          "alpha": 1
+        }
+      },
+      "onInfo": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 100],
+          "alpha": 1
+        }
+      },
+      "onTintScrim": {
+        "$description": "Translucent overlay that keeps onPrimary legible on a tint fill.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 25, 7],
+          "alpha": 0.32
+        }
+      },
+      "interactiveHover": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 25, 7],
+          "alpha": 0.04
+        }
+      },
+      "interactivePress": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 25, 7],
+          "alpha": 0.08
+        }
+      },
+      "border": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [200, 17, 91],
+          "alpha": 1
+        }
+      },
+      "outline": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 16, 82],
+          "alpha": 1
+        }
+      },
+      "focusRing": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 53],
+          "alpha": 0.6
+        }
+      },
+      "tabIconDefault": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [206, 13, 37],
+          "alpha": 1
+        }
+      },
+      "tabIconSelected": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 25, 7],
+          "alpha": 1
+        }
+      },
+      "destructive": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [356, 78, 44],
+          "alpha": 1
+        }
+      },
+      "destructiveActive": {
+        "$description": "Solid destructive fill, deep enough for a white label.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [356, 78, 44],
+          "alpha": 1
+        }
+      },
+      "destructiveSurface": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [356, 91, 54],
+          "alpha": 0.1
+        }
+      },
+      "success": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [160, 100, 23],
+          "alpha": 1
+        }
+      },
+      "successSurface": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [160, 100, 36],
+          "alpha": 0.12
+        }
+      },
+      "warning": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [30, 100, 30],
+          "alpha": 1
+        }
+      },
+      "warningSurface": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [50, 100, 50],
+          "alpha": 0.18
+        }
+      },
+      "info": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 37],
+          "alpha": 1
+        }
+      },
+      "infoSurface": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 53],
+          "alpha": 0.1
+        }
+      },
+      "disabled": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [195, 15, 92],
+          "alpha": 1
+        }
+      },
+      "scrim": {
+        "$description": "Modal and floating-menu backdrop.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 25, 7],
+          "alpha": 0.4
+        }
+      },
+      "shadowColor": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 25, 7],
+          "alpha": 0.12
+        }
+      }
+    },
+    "dark": {
+      "background": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 0],
+          "alpha": 1
+        }
+      },
+      "surface": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [220, 12, 10],
+          "alpha": 1
+        }
+      },
+      "surfaceSunken": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 0],
+          "alpha": 1
+        }
+      },
+      "surfaceMuted": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 10, 14],
+          "alpha": 1
+        }
+      },
+      "surfaceElevated": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [220, 12, 10],
+          "alpha": 1
+        }
+      },
+      "surfaceOverlay": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 10, 14],
+          "alpha": 1
+        }
+      },
+      "text": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [200, 7, 91],
+          "alpha": 1
+        }
+      },
+      "textSecondary": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 11, 60],
+          "alpha": 1
+        }
+      },
+      "icon": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 11, 71],
+          "alpha": 1
+        }
+      },
+      "tint": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 53],
+          "alpha": 1
+        }
+      },
+      "tintHover": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 62],
+          "alpha": 1
+        }
+      },
+      "tintActive": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 39],
+          "alpha": 1
+        }
+      },
+      "tintSubtle": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 53],
+          "alpha": 0.14
+        }
+      },
+      "tintMuted": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 53],
+          "alpha": 0.28
+        }
+      },
+      "tintHighlight": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 53],
+          "alpha": 0.2
+        }
+      },
+      "onPrimary": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 100],
+          "alpha": 1
+        }
+      },
+      "onDestructive": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 100],
+          "alpha": 1
+        }
+      },
+      "onSuccess": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 0],
+          "alpha": 1
+        }
+      },
+      "onWarning": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 0],
+          "alpha": 1
+        }
+      },
+      "onInfo": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 0],
+          "alpha": 1
+        }
+      },
+      "onTintScrim": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 0],
+          "alpha": 0.4
+        }
+      },
+      "interactiveHover": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [200, 7, 91],
+          "alpha": 0.06
+        }
+      },
+      "interactivePress": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [200, 7, 91],
+          "alpha": 0.12
+        }
+      },
+      "border": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 7, 18],
+          "alpha": 1
+        }
+      },
+      "outline": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 8, 28],
+          "alpha": 1
+        }
+      },
+      "focusRing": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 53],
+          "alpha": 0.7
+        }
+      },
+      "tabIconDefault": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 11, 60],
+          "alpha": 1
+        }
+      },
+      "tabIconSelected": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [200, 7, 91],
+          "alpha": 1
+        }
+      },
+      "destructive": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [356, 91, 66],
+          "alpha": 1
+        }
+      },
+      "destructiveActive": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [356, 78, 46],
+          "alpha": 1
+        }
+      },
+      "destructiveSurface": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [356, 91, 54],
+          "alpha": 0.16
+        }
+      },
+      "success": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [160, 100, 36],
+          "alpha": 1
+        }
+      },
+      "successSurface": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [160, 100, 36],
+          "alpha": 0.16
+        }
+      },
+      "warning": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [50, 100, 50],
+          "alpha": 1
+        }
+      },
+      "warningSurface": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [50, 100, 50],
+          "alpha": 0.16
+        }
+      },
+      "info": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 53],
+          "alpha": 1
+        }
+      },
+      "infoSurface": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [204, 88, 53],
+          "alpha": 0.14
+        }
+      },
+      "disabled": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [210, 10, 16],
+          "alpha": 1
+        }
+      },
+      "scrim": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 0],
+          "alpha": 0.72
+        }
+      },
+      "shadowColor": {
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 0, 0],
+          "alpha": 0.5
+        }
+      }
+    }
+  },
+  "tone": {
+    "$type": "color",
+    "$description": "Color roles a component prop may name. An alias points at the light entry of the role it names; the rendered color is that role in the active scheme.",
+    "text": {
+      "default": { "$value": "{color.light.text}" },
+      "secondary": { "$value": "{color.light.textSecondary}" },
+      "tint": { "$value": "{color.light.tint}" },
+      "destructive": { "$value": "{color.light.destructive}" },
+      "success": { "$value": "{color.light.success}" },
+      "warning": { "$value": "{color.light.warning}" },
+      "info": { "$value": "{color.light.info}" },
+      "on-primary": { "$value": "{color.light.onPrimary}" }
+    },
+    "surface": {
+      "background": { "$value": "{color.light.background}" },
+      "surface": { "$value": "{color.light.surface}" },
+      "muted": { "$value": "{color.light.surfaceMuted}" },
+      "sunken": { "$value": "{color.light.surfaceSunken}" },
+      "elevated": { "$value": "{color.light.surfaceElevated}" },
+      "overlay": { "$value": "{color.light.surfaceOverlay}" },
+      "tint-subtle": { "$value": "{color.light.tintSubtle}" },
+      "destructive": { "$value": "{color.light.destructiveSurface}" },
+      "success": { "$value": "{color.light.successSurface}" },
+      "warning": { "$value": "{color.light.warningSurface}" },
+      "info": { "$value": "{color.light.infoSurface}" }
+    }
+  },
+  "space": {
+    "$type": "dimension",
+    "scale": {
+      "$description": "The 4px grid. Step n is n x 4px; `0-5` is the 2px half step.",
+      "0": { "$value": { "value": 0, "unit": "px" } },
+      "1": { "$value": { "value": 4, "unit": "px" } },
+      "2": { "$value": { "value": 8, "unit": "px" } },
+      "3": { "$value": { "value": 12, "unit": "px" } },
+      "4": { "$value": { "value": 16, "unit": "px" } },
+      "5": { "$value": { "value": 20, "unit": "px" } },
+      "6": { "$value": { "value": 24, "unit": "px" } },
+      "8": { "$value": { "value": 32, "unit": "px" } },
+      "10": { "$value": { "value": 40, "unit": "px" } },
+      "12": { "$value": { "value": 48, "unit": "px" } },
+      "16": { "$value": { "value": 64, "unit": "px" } },
+      "0-5": { "$value": { "value": 2, "unit": "px" } }
+    },
+    "role": {
+      "$description": "Named distances for page insets and stacks, so density is one edit.",
+      "hairline": { "$value": { "value": 1, "unit": "px" } },
+      "inline": { "$value": "{space.scale.2}" },
+      "stack": { "$value": "{space.scale.3}" },
+      "section": { "$value": "{space.scale.6}" },
+      "page": { "$value": "{space.scale.5}" }
+    },
+    "size": {
+      "$description": "The t-shirt scale every `gap` and `padding` prop takes.",
+      "none": { "$value": "{space.scale.0}" },
+      "2xs": { "$value": "{space.scale.0-5}" },
+      "xs": { "$value": "{space.scale.1}" },
+      "sm": { "$value": "{space.scale.2}" },
+      "md": { "$value": "{space.scale.3}" },
+      "lg": { "$value": "{space.scale.4}" },
+      "xl": { "$value": "{space.scale.6}" },
+      "2xl": { "$value": "{space.scale.8}" },
+      "3xl": { "$value": "{space.scale.12}" }
+    }
+  },
+  "font": {
+    "family": {
+      "$type": "fontFamily",
+      "$description": "Two faces, two jobs: `display` for titles, buttons and numerals, `sans` (the platform face) for body copy. `mono` is for code and identifiers only.",
+      "sans": {
+        "$value": [
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ]
+      },
+      "display": {
+        "$value": [
+          "Bricolage Grotesque",
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ]
+      },
+      "mono": {
+        "$value": [
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Consolas",
+          "Liberation Mono",
+          "monospace"
+        ]
+      }
+    },
+    "size": {
+      "$type": "dimension",
+      "$description": "The classic typographic scale. Nothing renders below 12px.",
+      "xs": { "$value": { "value": 12, "unit": "px" } },
+      "sm": { "$value": { "value": 14, "unit": "px" } },
+      "base": { "$value": { "value": 16, "unit": "px" } },
+      "lg": { "$value": { "value": 18, "unit": "px" } },
+      "xl": { "$value": { "value": 21, "unit": "px" } },
+      "2xl": { "$value": { "value": 24, "unit": "px" } },
+      "3xl": { "$value": { "value": 36, "unit": "px" } },
+      "4xl": { "$value": { "value": 48, "unit": "px" } }
+    },
+    "leading": {
+      "$type": "dimension",
+      "$description": "Line height per size step, on the 4px grid.",
+      "xs": { "$value": { "value": 16, "unit": "px" } },
+      "sm": { "$value": { "value": 20, "unit": "px" } },
+      "base": { "$value": { "value": 24, "unit": "px" } },
+      "lg": { "$value": { "value": 24, "unit": "px" } },
+      "xl": { "$value": { "value": 28, "unit": "px" } },
+      "2xl": { "$value": { "value": 28, "unit": "px" } },
+      "3xl": { "$value": { "value": 40, "unit": "px" } },
+      "4xl": { "$value": { "value": 52, "unit": "px" } }
+    },
+    "lineHeight": {
+      "$type": "number",
+      "$description": "Unitless line-height ratios.",
+      "tight": { "$value": 1.25 },
+      "normal": { "$value": 1.5 },
+      "relaxed": { "$value": 1.75 }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "regular": { "$value": 400 },
+      "medium": { "$value": 500 },
+      "semibold": { "$value": 600 },
+      "bold": { "$value": 700 },
+      "heavy": { "$value": 750 },
+      "black": { "$value": 800 }
+    }
+  },
+  "radius": {
+    "$type": "dimension",
+    "scale": {
+      "none": { "$value": { "value": 0, "unit": "px" } },
+      "xs": { "$value": { "value": 6, "unit": "px" } },
+      "sm": { "$value": { "value": 8, "unit": "px" } },
+      "md": { "$value": { "value": 12, "unit": "px" } },
+      "lg": { "$value": { "value": 20, "unit": "px" } },
+      "xl": { "$value": { "value": 28, "unit": "px" } },
+      "2xl": { "$value": { "value": 36, "unit": "px" } },
+      "full": { "$value": { "value": 9999, "unit": "px" } }
+    },
+    "role": {
+      "$description": "Radius encodes hierarchy: `sm` marks and inline chips, `control` buttons, inputs and rows, `card` panels, `sheet` sheets and dialogs, `full` only for round things.",
+      "none": { "$value": "{radius.scale.none}" },
+      "sm": { "$value": "{radius.scale.sm}" },
+      "control": { "$value": "{radius.scale.md}" },
+      "card": { "$value": "{radius.scale.lg}" },
+      "sheet": { "$value": "{radius.scale.xl}" },
+      "full": { "$value": "{radius.scale.full}" }
+    }
+  },
+  "motion": {
+    "duration": {
+      "$type": "duration",
+      "instant": { "$value": { "value": 0, "unit": "ms" } },
+      "fast": { "$value": { "value": 120, "unit": "ms" } },
+      "normal": { "$value": { "value": 200, "unit": "ms" } },
+      "slow": { "$value": { "value": 280, "unit": "ms" } },
+      "slower": { "$value": { "value": 600, "unit": "ms" } }
+    },
+    "easing": {
+      "$type": "cubicBezier",
+      "standard": { "$value": [0.2, 0, 0, 1] },
+      "decelerate": { "$value": [0, 0, 0, 1] },
+      "accelerate": { "$value": [0.3, 0, 1, 1] },
+      "inOut": { "$value": [0.4, 0, 0.2, 1] },
+      "playful": { "$value": [0.34, 1.4, 0.64, 1] }
+    }
+  },
+  "size": {
+    "$type": "dimension",
+    "icon": {
+      "xs": { "$value": { "value": 12, "unit": "px" } },
+      "sm": { "$value": { "value": 16, "unit": "px" } },
+      "md": { "$value": { "value": 20, "unit": "px" } },
+      "lg": { "$value": { "value": 24, "unit": "px" } },
+      "xl": { "$value": { "value": 32, "unit": "px" } },
+      "2xl": { "$value": { "value": 48, "unit": "px" } }
+    },
+    "control": {
+      "$description": "Minimum height of a control. A primary control is `md`.",
+      "sm": { "$value": { "value": 36, "unit": "px" } },
+      "md": { "$value": { "value": 48, "unit": "px" } },
+      "lg": { "$value": { "value": 56, "unit": "px" } }
+    },
+    "maxWidth": {
+      "$description": "Reading and layout measures. `full` (100%) is a keyword, not a token.",
+      "prose": { "$value": { "value": 640, "unit": "px" } },
+      "form": { "$value": { "value": 360, "unit": "px" } },
+      "content": { "$value": { "value": 768, "unit": "px" } },
+      "wide": { "$value": { "value": 1200, "unit": "px" } }
+    }
+  },
+  "breakpoint": {
+    "$type": "dimension",
+    "$description": "Minimum viewport widths. The only widths a responsive prop may branch on.",
+    "sm": { "$value": { "value": 640, "unit": "px" } },
+    "md": { "$value": { "value": 768, "unit": "px" } },
+    "lg": { "$value": { "value": 1024, "unit": "px" } },
+    "xl": { "$value": { "value": 1280, "unit": "px" } }
+  },
+  "layer": {
+    "$type": "number",
+    "$description": "Stacking order of app-level hosts, lowest first.",
+    "surface": { "$value": 10000 },
+    "overlay": { "$value": 1000000 },
+    "tooltip": { "$value": 1000001 },
+    "harness-browser": { "$value": 2147483000 }
+  },
+  "opacity": {
+    "$type": "number",
+    "muted": { "$value": 0.55 },
+    "disabled": { "$value": 0.5 },
+    "pressed": { "$value": 0.7 }
+  }
+}

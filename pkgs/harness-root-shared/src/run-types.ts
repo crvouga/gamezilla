@@ -1,8 +1,11 @@
+import type {
+  RecordStepMeta,
+  RunReport,
+} from '@crvouga/atlas-reports/report-types';
 import type { MonitorState, Transition } from './checkpoint';
 import type { Action, Property, Read } from './effect';
 import type { Step } from './recording';
 import type { ActionSlice, SystemCore as System } from './registry';
-import type { RecordStepMeta, RunReport } from './report-types';
 import type { RunReporter } from './reporter';
 import type { Rng } from './rng';
 import type { Session } from './runtime-types';

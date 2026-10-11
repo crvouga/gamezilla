@@ -5,7 +5,7 @@
  *
  * This is composition-root work — it reconciles *this product's* schema — so it
  * lives with the fold rather than in `@libs/db`. An infra package that
- * depended on the composition root made a cycle the moment features started
+ * depended on the composition root made a cycle the moment subs started
  * depending on the server shell.
  *
  * Root `db:migrate` / infra run `libs/runtime-server/scripts/migrate-cli.ts`. Tests

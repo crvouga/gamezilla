@@ -72,6 +72,7 @@ export function startActor(args: {
     bearerStore,
     pendingLink: null,
     last: null,
+    offered: null,
     ticket: null,
     bearer: null,
   });

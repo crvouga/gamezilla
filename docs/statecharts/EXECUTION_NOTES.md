@@ -27,11 +27,11 @@ The repository's Check workflow includes the `ci:statecharts` gate in both its P
 
 ```sh
 bun atlas:lint
-bun atlas:run
+bun atlas:build
 bun atlas:viz
 ```
 
-`atlas:run` runs the same validation and builds the standalone viewer at
+`atlas:build` runs the same validation and builds the standalone viewer at
 `.cache/product-statechart-explorer`. `atlas:viz` runs validation and
 serves the enriched chart from `.cache/product-statechart/specs`; it needs no
 app server, database, provider simulator or product driver. The authored

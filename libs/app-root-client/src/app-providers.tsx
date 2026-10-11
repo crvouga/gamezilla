@@ -11,9 +11,9 @@
  *   overlay/surface portals (so `AppFrame` chrome can open menus before SQLite)
  * - {@link AppProvidersSession}: local database
  *
- * Feature *chrome* mounts higher still, in `ProductApp`, above the frame —
+ * Sub *chrome* mounts higher still, in `ProductApp`, above the frame —
  * the header badge and the global menu read it, and they paint before SQLite.
- * Feature *session* providers mount inside `sync-engine-ready-tree.tsx`, so
+ * Sub *session* providers mount inside `sync-engine-ready-tree.tsx`, so
  * mutation / avatar graphs stay off the initial entry chunk
  * (see README.md).
  */

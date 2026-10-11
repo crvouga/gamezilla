@@ -77,7 +77,12 @@ export class ManagedSession {
     if (this.closed) return;
     const json = ownership(this.assignment);
     const rpc = this.ports.rpc;
-    if (message.type === 'authenticated') {
+    if (message.type === 'sign-in-link-requested') {
+      const response = await rpc['take-sign-in-link'].$post({ json });
+      const link =
+        response.status === 200 ? (await response.json()).link : null;
+      if (!this.closed) this.ports.thread.post({ type: 'sign-in-link', link });
+    } else if (message.type === 'authenticated') {
       const response = await rpc['bind-account'].$post({
         json: { ...json, token: message.token },
       });

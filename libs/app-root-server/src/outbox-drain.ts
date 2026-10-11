@@ -1,7 +1,7 @@
 import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
 import { accountMutationEnv } from '@libs/auth-shared/account-mutation-env';
-import { userTopic } from '@libs/feature-shared/sync';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
+import { userTopic } from '@libs/sub-shared/sync';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
@@ -27,9 +27,9 @@ export function requestOutboxRegistry(
 }
 
 /**
- * The consumers the composed features registered. Set once while the server
+ * The consumers the composed subs registered. Set once while the server
  * is built, because a delivery can be drained from any request and the
- * request has no idea which features this app runs.
+ * request has no idea which subs this app runs.
  */
 export function setOutboxConsumerRegistry(next: OutboxConsumerRegistry): void {
   registry = next;
@@ -38,7 +38,7 @@ export function setOutboxConsumerRegistry(next: OutboxConsumerRegistry): void {
 export function getOutboxConsumerRegistry(): OutboxConsumerRegistry {
   assert.defined(
     registry,
-    'outbox registry: not composed — createServer sets it from the feature fold'
+    'outbox registry: not composed — createServer sets it from the sub fold'
   );
   return registry;
 }

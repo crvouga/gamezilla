@@ -52,7 +52,7 @@ export const LIMIT = defineCatalog({
 export type AppLimit = (typeof LIMIT)[keyof typeof LIMIT];
 
 /**
- * Catalogued `domain.verb` actions (§22.7). Feature code gates only through
+ * Catalogued `domain.verb` actions (§22.7). Sub code gates only through
  * these constants, so a typo'd action fails type-checking. (Pre-existing
  * colon-form `PERMISSION` ids stay as they are; both are policy keys.)
  */

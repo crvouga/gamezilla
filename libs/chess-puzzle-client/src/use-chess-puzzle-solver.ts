@@ -3,6 +3,7 @@ import { SubmitChessPuzzleMove } from '@libs/chess-puzzle-shared/chess-puzzle-pl
 import {
   countMoveTokens,
   nextSolutionUci,
+  projectBoardFen,
   projectSolveStatus,
 } from '@libs/chess-puzzle-shared/solve-projection';
 import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
@@ -29,9 +30,6 @@ function useChessPuzzlePlayRoomSelectors() {
     ChessPuzzlePlayAttr.furthestSolveIdx.from
   );
   const roomMoves = useSpaceRoomSelector(ChessPuzzlePlayAttr.moves.from);
-  const wrongFromSquare = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.wrongFromSquare.from
-  );
   const wrongToSquare = useSpaceRoomSelector(
     ChessPuzzlePlayAttr.wrongToSquare.from
   );
@@ -55,7 +53,6 @@ function useChessPuzzlePlayRoomSelectors() {
     furthestSolveIdx,
     roomMoves,
     wrongUci: useSpaceRoomSelector(ChessPuzzlePlayAttr.wrongUci.from),
-    wrongFromSquare,
     wrongToSquare,
     expectedFromSquare,
     expectedToSquare,
@@ -65,6 +62,8 @@ function useChessPuzzlePlayRoomSelectors() {
 
 export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
   displayFen: Accessor<string | null>;
+  /** What the board paints: `displayFen`, plus a wrong move awaiting retry. */
+  boardFen: Accessor<string | null>;
   layoutKey: Accessor<number>;
   status: Accessor<SolveStatus>;
   orientation: Accessor<'white' | 'black'>;
@@ -73,7 +72,6 @@ export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
   furthestSolveIdx: Accessor<number>;
   totalTokens: Accessor<number>;
   wrongUci: Accessor<string | null>;
-  wrongFromSquare: Accessor<string | null>;
   wrongToSquare: Accessor<string | null>;
   expectedFromSquare: Accessor<string | null>;
   expectedToSquare: Accessor<string | null>;
@@ -110,8 +108,17 @@ export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
   }));
   const opponent = usePuzzleOpponentMoveStage(opponentInput);
 
+  const displayFen = (): string | null => opponent().boardFen;
+
   return {
-    displayFen: () => opponent().boardFen,
+    displayFen,
+    boardFen: createMemo(() =>
+      projectBoardFen({
+        status: status(),
+        fen: displayFen(),
+        wrongUci: room.wrongUci(),
+      })
+    ),
     layoutKey: room.layoutKey,
     status,
     orientation: room.orientation,
@@ -120,7 +127,6 @@ export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
     furthestSolveIdx: room.furthestSolveIdx,
     totalTokens,
     wrongUci: room.wrongUci,
-    wrongFromSquare: room.wrongFromSquare,
     wrongToSquare: room.wrongToSquare,
     expectedFromSquare: room.expectedFromSquare,
     expectedToSquare: room.expectedToSquare,

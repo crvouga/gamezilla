@@ -33,13 +33,18 @@ export interface AuthClientPort {
   readonly session: AuthSessionStore;
   /** Sign in with a social provider. */
   signIn(provider: OauthProviderId, options?: SignInOptions): Promise<void>;
-  /** Normal password authentication, available to people and automated users alike. */
-  signInWithPassword(
-    email: string,
-    password: string,
-    options?: SignInOptions
-  ): Promise<void>;
-  registerWithPassword(email: string, password: string): Promise<void>;
+  /**
+   * Ask the service to email a sign-in link. Resolves the same whether or not
+   * a link was sent: it never reveals whether an account exists or whether
+   * the address is one the service mails. Throws for a malformed address,
+   * for too many requests, or when the service has no email sign-in.
+   */
+  requestEmailLink(email: string, options?: SignInOptions): Promise<void>;
+  /**
+   * Finish signing in from an emailed link: the whole link, or its bare
+   * token. A link works once and only for a short while (`expired` after).
+   */
+  signInWithEmailLink(link: string): Promise<void>;
   /** Ends this device's session with the service. */
   signOut(): Promise<void>;
   /** Revoke every session the user holds, on every device, then sign out. */

@@ -17,6 +17,7 @@ module.exports = {
         '@crvouga/atlas-detox',
         '@crvouga/atlas-playwright',
         '@crvouga/atlas-schema',
+        '@crvouga/atlas-reports',
         '@crvouga/atlas-visualizer',
         '@crvouga/atlas-vitest',
         '@crvouga/atlas-webdriver',

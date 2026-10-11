@@ -2,7 +2,7 @@ import { actorUi } from './actor-ui';
 import type { ProductHarness } from './harness';
 import { actorHtml } from './observations';
 
-/** True when every tab the composed features contribute is visible. */
+/** True when every tab the composed subs contribute is visible. */
 export async function tabsVisible(
   s: ProductHarness,
   actorId: string

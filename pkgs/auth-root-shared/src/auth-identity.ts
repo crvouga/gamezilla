@@ -3,7 +3,7 @@ import type { SignInMethodId } from './sign-in-method';
 /** One sign-in method on an account. */
 export type AuthIdentity = {
   readonly provider: SignInMethodId;
-  /** The subject at that provider (Google `sub`, Apple `sub`, …). */
+  /** The subject at that provider (Google `sub`, Apple `sub`, the address for `email`). */
   readonly providerUserId: string;
   readonly email: string | null;
   readonly emailVerified: boolean;

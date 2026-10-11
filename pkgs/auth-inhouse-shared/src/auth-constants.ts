@@ -6,6 +6,11 @@ export const AUTH_OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
 export const AUTH_LINK_TICKET_TTL_MS = 10 * 60 * 1000;
 /** A pending link waits this long for the person to prove the other account. */
 export const AUTH_PENDING_LINK_TTL_MS = 10 * 60 * 1000;
+/** An emailed sign-in link works once, within this window. */
+export const AUTH_EMAIL_LINK_TTL_MS = 10 * 60 * 1000;
+/** An address may ask for this many links per {@link AUTH_EMAIL_LINK_WINDOW_MS}. */
+export const AUTH_EMAIL_LINK_REQUEST_LIMIT = 10;
+export const AUTH_EMAIL_LINK_WINDOW_MS = 10 * 60 * 1000;
 export const AUTH_SET_TOKEN_HEADER = 'set-auth-token';
 
 export const IDP_PROVIDER_GOOGLE = 'google' satisfies OauthProviderId;
@@ -54,6 +59,8 @@ export const AUTH_CALLBACK_PARAM = {
   linkProviders: 'link_providers',
   /** The existing account's address, masked (`a•••@gmail.com`). */
   linkEmail: 'link_email',
-  /** The provider whose identity is waiting to be linked. */
+  /** The sign-in method whose identity is waiting to be linked. */
   linkProvider: 'link_provider',
+  /** An emailed sign-in link's one-time token (`POST /auth/email/confirm`). */
+  emailLink: 'email_link',
 } as const;

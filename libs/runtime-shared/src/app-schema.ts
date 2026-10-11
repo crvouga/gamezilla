@@ -1,6 +1,6 @@
 import { assertProductSchema } from '@pkgs/db-schema-root-shared/product-schema';
 
-import { APP } from './app-features';
+import { APP } from './app-subs';
 
 /** Registered domain ids for composed app schema tables. */
 export const APP_SCHEMA_DOMAINS = APP.domains;

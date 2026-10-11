@@ -18,7 +18,7 @@
     "@libs/app-root-server": "workspace:*",
     "@libs/app-root-shared": "workspace:*",
     "@libs/auth-shared": "workspace:*",
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@libs/friends-shared": "workspace:*",
     "@libs/notifications-server": "workspace:*",
     "@libs/notifications-shared": "workspace:*",

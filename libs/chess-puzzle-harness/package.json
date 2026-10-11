@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@libs/billing-shared": "workspace:*",
-    "@libs/chess-feature-shared": "workspace:*",
+    "@libs/chess-sub-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",

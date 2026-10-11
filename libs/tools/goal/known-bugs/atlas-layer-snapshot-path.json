@@ -1,0 +1,4 @@
+{
+  "summary": "Layer export must preserve files/ in immutable recording snapshot addresses.",
+  "regressionTest": "pkgs/atlas-reports-harness/tests/export-evidence.test.ts"
+}

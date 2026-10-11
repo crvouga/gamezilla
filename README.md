@@ -8,8 +8,9 @@ The one [product statechart](specs/product.machine.json) maps the entire
 product, while its [exploration guide](docs/statecharts/README.md) explains
 the choices, outcomes, source-derived business examples and definitions.
 `bun atlas:viz` opens its lightweight viewer without the app stack;
-`bun atlas:run` validates and builds the standalone explorer; `bun
-atlas:lint` checks complete traversal, journeys, source ownership and
+`bun atlas:run` runs every spec suite and records its reports for that
+viewer; `bun atlas:build` validates and builds the standalone explorer;
+`bun atlas:lint` checks complete traversal, journeys, source ownership and
 portable serialization.
 
 The step catalogs — [`docs/STEPS_CATALOG.md`](docs/STEPS_CATALOG.md) and each spec package's `STEPS_CATALOG.md` — are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Package READMEs describe that package's API (`pkgs/room`, `pkgs/harness`, `pkgs/sync-engine`, and a package's own `docs/` when it has one). They are not a second copy of this file.
@@ -62,7 +63,7 @@ Bounded contexts in `specs/`. Each folder is one context. The file extension say
 | Billing | `@libs/billing`, providers `@pkgs/billing-stripe` and `@pkgs/billing-paddle` via `@pkgs/billing-providers-server` | See the plans, subscribe, trial, renew, switch monthly/yearly, switch provider, portal, cancel, resubscribe, failed card, expired card, refund, Plus credit when switching plans. Membership is managed by the person. |
 | Sync | `@pkgs/sync-engine` (`specs/sync-engine/`) | Shared rows (spec'd as notes) show at once, survive crash, offline, and app update, and count once. Leave a shared place and rejoin to catch up. Some actions are online-only and do not fire later. Server arrival order wins. |
 | Room | `@pkgs/room` (`specs/room/`) | One live topic. Shared tally, who is in the room, who owns it, timed match. Same picture after offline time or a crash. This is the session engine spaces and games sit on. It is separate from sync. |
-| Matchmaking | `specs/matchmaking/`, engine `@pkgs/matchmaking` | People waiting are paired with someone they accept who accepts them. A match already made is kept. Specified. Not in the shipped feature fold (`APP_FEATURES`). |
+| Matchmaking | `specs/matchmaking/`, engine `@pkgs/matchmaking` | People waiting are paired with someone they accept who accepts them. A match already made is kept. Specified. Not in the shipped sub fold (`APP_SUBS`). |
 | Live checks | `@synthetic` on the owning feature | Promises a live environment keeps right now, seen by the team from outside: reach the app, sign in, serve people, spaces, live updates, uploads, payments real only in production, outside services, request trail, find a person's trouble, environment matches the plan. |
 | Journeys | `specs/journeys/` | Flows that must not break where people use the app: open past the opening screen, Google sign-in and the way back, sign out, host a space and end it, start a puzzle, keep an avatar edit, people search, see what Plus offers. Plus [`specs/journeys/join-and-offline.feature`](specs/journeys/join-and-offline.feature). |
 
@@ -107,9 +108,7 @@ Two data planes.
 
 **Auth on the wire.** Token only. The API does not read or set cookies. Requests carry `Authorization: Bearer <session-token>` and the install id in `x-anon-id`. One current person per install. Several sign-in methods can sit on one account. Local SQLite on the web client is not encrypted at rest. Each account has its own file (`user_<shortId>`), so one account's queries do not read another's rows. Do not put secrets, or data that must not be lost with the device, only on the device.
 
-**Composition.** `@libs/runtime` is the only package that lists features. `APP_FEATURES` in `libs/runtime-shared/src/app-features.ts` folds schema, queries, topics, and mutations. `APP_FEATURE_CLIENTS` folds routes and chrome. Order matters: profile is outermost, friends mounts above notifications. A feature never imports another feature. Cross-feature needs are ports the composition root fills (`readsForeign` is the checked exception). Shells (`@libs/client-app`, `@libs/server-app`) take the feature list as an argument, so a test boots one feature or all of them with the same code.
-
-Shipped feature manifests, in fold order: auth, profile, client-config, spaces, friends, notifications, chess, billing, permissions. Client fold also mounts search.
+**Composition.** A sub can contain subs of the same kind. Folding a node walks that node, then the subs it contains, in listed order, and leaves out anything outside that subtree. A repeated name, a repeated owned table, or a walk that re-enters a node fails. `@libs/runtime` is the only package that lists the shipped product, and that list stays flat: auth, account-privacy, profile, client-config, spaces, friends, notifications, chess, billing, permissions, synthetic-population. `APP_SUBS` in `libs/runtime-shared/src/app-subs.ts` folds schema, queries, topics, and mutations. `APP_SUB_CLIENTS` folds routes and chrome, and also mounts search between notifications and billing. Order matters: profile is outermost, friends mounts above notifications. Sibling product subs do not import each other. Cross-sub needs are ports the composition root fills (`readsForeign` is the checked exception). Shells (`@libs/client-app`, `@libs/server-app`) take the sub list as an argument, so a test boots one sub or the whole flat list with the same code. Call `defineSub`, `defineSubClient`, and `defineSubServer` from `@libs/sub-shared` and `@libs/sub-client`.
 
 ```text
 device UI (Solid)
@@ -133,7 +132,7 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 | Tier | Path | May import | Holds |
 | --- | --- | --- | --- |
 | Apps `@apps/` | `apps/` | apps, libs, pkgs | deployed surfaces |
-| Libs `@libs/` | `libs/` | pkgs, other libs' `public/` | product features, shells, runtime |
+| Libs `@libs/` | `libs/` | pkgs, other libs' `public/` | product subs, shells, runtime |
 | Pkgs `@pkgs/` | `pkgs/` | pkgs only | frameworks. No `gamezilla`, `@libs/*`, or product names anywhere in these packages |
 
 | App | Role |
@@ -146,7 +145,7 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 | Platform lib | Role |
 | --- | --- |
 | `@libs/runtime` | Composition root, migrations, schema snapshot. |
-| `@libs/feature` | Manifest algebra. Imports no feature. |
+| `@libs/sub` | Manifest algebra. Imports no product sub. |
 | `@libs/client-app` | Providers, router, chrome, sync boot. |
 | `@libs/server-app` | Request scope, auth, sync, rooms. |
 | `@libs/client-config` | Synced runtime config (EMQX/MQTT URL, observability). Not `VITE_*`. |
@@ -194,20 +193,21 @@ production `src/` imports still obey their category, regardless of which
 manifest field declares the dependency. `package-boundaries.ts` enforces these
 rules in each package's cached lint, including source imports and flatness.
 
-A feature exports manifests from the corresponding packages: `FeatureManifest`
-(tables, topics, queries, mutations), `FeatureClient` (routes, chrome), and
-`FeatureServer` (HTTP, outbox, pubsub). The `runtime` family composes these;
-`app` and `feature` packages stay independent of individual features.
+A sub exports manifests from the corresponding packages: `SubManifest`
+(tables, topics, queries, mutations), `SubClient` (routes, chrome), and
+`SubServer` (HTTP, outbox, pubsub). A sub may list nested subs of the same
+kind. The `runtime` family composes the shipped flat list; `app` and `sub`
+packages stay independent of individual product subs.
 
 Tests live in the package that owns their runtime. Pure tests accompany shared
 modules, browser tests accompany client modules, and server tests accompany
 server modules. Tests that compose runtimes live in the slice's harness
-package; tests spanning product features live in `@libs/runtime-harness`.
+package; tests spanning product subs live in `@libs/runtime-harness`.
 Framework behavior is tested through one kitchen-sink example app in the
 framework's harness package, with flat example modules. Test consumers import
 package exports, never another package's source paths.
 
-Known cross-feature table reads, still debt: `permissions` reads `billing_subscriptions` (so billing reruns every feature spec); `spaces` reads `friends_friendships` (spaces specs live in `@libs/friends`); `search` reads friends' search query and `friends_blocks` (people search lives in `@libs/friends`). Prefer a port the composition root fills.
+Known cross-sub table reads, still debt: `permissions` reads `billing_subscriptions` (so billing reruns every sub spec); `spaces` reads `friends_friendships` (spaces specs live in `@libs/friends`); `search` reads friends' search query and `friends_blocks` (people search lives in `@libs/friends`). Prefer a port the composition root fills.
 
 ### Framework packages that matter
 
@@ -230,7 +230,7 @@ Known cross-feature table reads, still debt: `permissions` reads `billing_subscr
 | Key-value | `@pkgs/kv` |
 | Spec languages | `@pkgs/gherkin`, `@pkgs/quint`, `@pkgs/dmn`, `@pkgs/alloy`, `@pkgs/openslo` |
 | Property tests | `@pkgs/property-shared` (`assertProperty` only) |
-| Harness report UI | [Reports explorer](pkgs/harness-report-client/README.md), `@pkgs/harness-report-client` at `/reports` |
+| Specification visualization | Atlas owns spec browsing and test evidence. Run `bun atlas:viz`; see [Atlas reporting](vendor/atlas/packages/reports/README.md). |
 | Chess rules and board | `@pkgs/chess-rules-shared`, `@pkgs/chess-board-core-shared`, `@pkgs/chess-board` |
 | Rating math | `@pkgs/glicko2-shared` |
 | i18n | Lingui (`@pkgs/i18n-shared`). Catalogs compile to `libs/client-app`. |
@@ -330,7 +330,7 @@ existing OpenTofu backend encrypts both state and saved plans.
 | --- | --- |
 | Infisical environment per env file, plus a live import of `shared` | That environment's secrets, with the shared ones visible through the import. A local copy of a shared name would shadow the import. |
 | Custom domain `auth.gamezilla.app` on Worker `gamezilla-auth-relay` | One OAuth callback for every environment. The relay reads the OAuth state tag and forwards the callback home. |
-| R2 bucket `gamezilla-reports`, latest report per existing branch | Check publishes `commits/<sha>/`. Every environment's API streams `/reports/<sha>`. Reports are build output. |
+| R2 bucket `gamezilla-reports`, retained report layers | Check publishes immutable report layers. Atlas combines evidence across commits and branches. Reports are build output. |
 
 ### Each environment (foundation, then edge)
 
@@ -338,8 +338,8 @@ Production is `gamezilla-production`. Dev is `gamezilla-development`.
 
 | Resource | Why |
 | --- | --- |
-| R2 bucket `gamezilla-<suffix>` and a bucket-scoped S3 token | Blobs: uploads, the TTS audio cache. Endpoint `https://<account>.r2.cloudflarestorage.com`, region `auto`. The Worker prefixes every key with `gamezilla/` before any feature prefix. |
-| Read token and write token on `gamezilla-reports` | The API reads. Check writes. Each token is scoped to that bucket. |
+| R2 bucket `gamezilla-<suffix>` and a bucket-scoped S3 token | Blobs: uploads, the TTS audio cache. Endpoint `https://<account>.r2.cloudflarestorage.com`, region `auto`. The Worker prefixes every key with `gamezilla/` before any sub prefix. |
+| Read token and write token on `gamezilla-reports` | Atlas reads. Check writes. Each token is scoped to that bucket. |
 | Grafana write policy and token; read policy and token | Workers ingest three signals on the write token. `bun obs` queries traces on the read token. A separate scoped service account manages dashboards and alerts. One environment rotates without touching the other. Deploy requires active hosted traces; an archived Grafana instance may still have active Tempo. Deleted or unknown stack states fail closed. |
 | Generated secrets `AUTH_SECRET`, `EMQX_JWT_SECRET`, `SYNTHETIC_MONITOR_TOKEN` | Session signing, the HMAC the API mints and the IoT authorizer checks, and signed-in health journeys. A value already in the store wins, so an apply does not rotate them. A committed placeholder is replaced. |
 | Derived secrets | Connection facts of the resources in this table: `DATABASE_URL`, `HYPERDRIVE_ID`, `API_URL`, `VITE_API_URL`, `S3_*`, `REPORTS_*`, `EMQX_WSS_URL`, `IOT_DATA_ENDPOINT`, `IOT_ACCESS_KEY_ID`, `IOT_SECRET_ACCESS_KEY`, `IOT_REGION`, `OBSERVABILITY_COLLECTOR_*`, `OBS_TEMPO_*`, `OBS_READONLY_DATABASE_URL`. Rewritten when the producer changes. The name lists are `stacks/foundation/secrets.json`. The names the app requires are `libs/secrets-server/src/registry.ts`. `bun health` checks each required secret live. |
@@ -376,7 +376,7 @@ OpenTofu looks them up. It does not create them.
 
 ### Data stays
 
-An environment rebuilds from its env file. `prevent_destroy` covers the state bucket, the Grafana stack, the repository, the shared secrets environment, and production's Neki branch. `libs/infra-shared/policy/stateful.rego` allow-lists what an ordinary apply may delete: credentials, DNS, routing, connection config, and derived secrets. Neki branches and roles stay protected. A plan that deletes most of a type in production is refused. To stop managing a stateful resource, use `removed { lifecycle { destroy = false } }`. Neon is forgotten that way and still exists at Neon. The Railway EMQX project is deleted; those addresses stay forgotten so an apply does not recreate the broker. Production MQTT is AWS IoT Core. Before every apply, encrypted state is copied to `backups/<stack>/<env>/<timestamp>.tfstate`.
+An environment rebuilds from its env file. `prevent_destroy` covers the state bucket, the Grafana stack, the repository, the shared secrets environment, and production's Neki branch. `libs/infra-shared/policy/stateful.rego` allow-lists what an ordinary apply may delete: credentials, DNS, routing, connection config, and derived secrets. Neki branches and roles stay protected. A plan that deletes most of a type in production is refused. To stop managing a stateful resource, use `removed { lifecycle { destroy = false } }`. Neon is forgotten that way and still exists at Neon. The Railway EMQX project is deleted; those addresses stay forgotten so an apply does not recreate the broker. A `removed` block cannot name one instance of a `for_each`, so a generated secret retired on purpose is listed in the policy's `retired` set, the one instance of a protected type an apply may delete; drop the entry once every environment has applied without it. Production MQTT is AWS IoT Core. Before every apply, encrypted state is copied to `backups/<stack>/<env>/<timestamp>.tfstate`.
 
 ```sh
 bun run infra:destroy -- --env <env> --confirm <env>
@@ -396,7 +396,7 @@ deploy:<env>   foundation -> migrate -> product (assets + API + rooms)
 
 ## Laptop
 
-`bun run dev` (alias `bun run stack`) runs one supervised boot per checkout. Repeating the command reuses the live boot. The launcher starts the backend services and one Vite watcher directly. The stack boots Mockingbird Postgres, Mockingbird S3, Aedes, simulated Google, Apple, and Stripe, N API nodes, and the product web app (`/`, `/harness`, `/simulator`). Ports are OS-assigned on the first boot, reused on later boots, and published to `.cache/localhost-stack/<instance>.json`. `source libs/tools/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
+`bun run dev` (alias `bun run stack`) runs one supervised boot per checkout. Repeating the command reuses the live boot. The boot is one Turborepo run, `@apps/product#dev`, with a persistent task per process and a pane for each in the terminal UI: `dev:postgres` (Mockingbird Postgres, migrated and seeded), `dev:s3`, `dev:mqtt` (Aedes), `dev:openai`, `dev:observability`, `dev:idp` (simulated Google and Apple), `dev:billing` (simulated Stripe), `dev:server` (N API nodes behind the balancer), `dev:population` (Synthetic Population Workers) and `dev:web` (the product web app: `/`, `/harness`, `/simulator`). `dev:prepare` plans every port first; each service publishes itself under `.cache/localhost-stack/<instance>/services/` when it can serve, and its dependents wait for that. Ports are OS-assigned on the first boot, reused on later boots, and published to `.cache/localhost-stack/<instance>.json` once the whole stack is up. Processes that run side by side are Turborepo tasks: add a task, not a process runner. `source libs/tools/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
 
 `bun run own -- <command> [arguments]` runs other long-lived tools through the same supervisor, including Node, Expo, JVM, browser, and media workers. Agent-launched long-lived commands use `bun dev`, `bun dev:client`, or this entry point.
 
@@ -404,7 +404,10 @@ deploy:<env>   foundation -> migrate -> product (assets + API + rooms)
 
 Run initializes the local population controller with one synthetic opponent per worker
 (default one), then starts workers that sign in and use the normal space and chess
-matchmaking controls. `--synthetic-population-workers 3` starts three; `0` disables
+matchmaking controls. Synthetic users sign in with an emailed link that is never
+sent: the API keeps it in an internal inbox only their worker can read, in every
+environment ([worker](apps/synthetic-population-worker/README.md)). People only
+ever see Google and Apple. `--synthetic-population-workers 3` starts three; `0` disables
 them for isolated scenarios. The committed puzzle pool supplies 2,000 puzzles.
 Child processes inherit only process plumbing, with service bindings supplied by
 the stack. API reports use local Mockingbird S3; the development reports page shows
@@ -461,6 +464,8 @@ Continuous integration and continuous delivery: every pull request runs every ga
 | `bun health` | Dispatch Health. Local forms are `bun health:local` and `bun health:prd`. |
 | `bun deploy` | Release `main` by hand, as every merge does: verify the exact commit, then ship it. Local environment forms are `bun deploy:local`, `bun deploy:dev`, and `bun deploy:prd`. |
 
+The capacity contract for a self-hosted pull-request check (under five minutes, and under three minutes for a leaf package) is [docs/CI_REQUIREMENTS.md](docs/CI_REQUIREMENTS.md).
+
 Local Checks share one admission slot per user on the machine, held from before snapshot preparation through diagnostics archival. A waiting invocation prints its queue status and sleeps without preparing files or running checks; queue time does not consume the check deadline. Admission uses an OS-backed SQLite lock at `~/.cache/gamezilla/local-check.sqlite`, independent of worktree paths and `TMPDIR`; closed connections and dead workers release it without stale PID files. A lightweight launcher supervises the worker over IPC, so a launcher exit cancels active check processes before the worker releases admission. Local defaults are one task, one model solver, one concurrent product/Quint test case and one cache transfer/decompression worker. `TURBO_CONCURRENCY`, `MODEL_CHECK_CONCURRENCY`, `CHECK_SOLVER_SLOTS`, `CHECK_TEST_CONCURRENCY` and `CHECK_CACHE_CONCURRENCY` explicitly tune those limits; raising them increases peak memory. A cold serial run may reach the existing deadline, retaining passing task artifacts for its next invocation.
 
 `bun check`, `bun verify`, and `bun check:local` run the same package-owned Turbo tasks on this machine in a private temporary snapshot of the current files (including uncommitted edits) and private copies of installed dependencies, including native library links created during installation. Each invocation owns its Git metadata, generated files, task outputs, caches, logs and evidence; after exit, inputs, logs and reports remain in the printed compressed diagnostics archive while disposable working files are released. Runs atomically publish complete task artifacts with summary-confirmed passing verdicts to `.cache/check-artifacts`; later invocations copy them into their private cache, so warm checks reuse results without sharing writable cache files. They publish nothing and never restore outputs into the working checkout. Turbo hashes each package task against its declared package files and external inputs; contract fixtures use private local sidecars. The Synthetic Population Worker task hashes its Docker build context and hosting configuration. The planner fetches current registry advisory evidence on every run; the pure vulnerability gate caches against that normalized snapshot and the lockfile. Advisory changes invalidate the security result even when repository inputs stay the same. `lint` is naming, Biome (import boundaries and size caps), oxlint for Solid, package boundaries, known-bug regressions. Typecheck is `tsc --noEmit -p tsconfig.tc.json` per package. Format with `bun fmt`.
@@ -471,7 +476,7 @@ A pull request merges only when its `check` is green on current `main`, so `main
 
 If Check terminates before Turbo returns a task verdict, the shard retains that task's exact planned hash as a failure. Report-producing tasks also retain a termination report alongside any partial timelines, so failed evidence can still be published without a successful cache artifact. Missing verdicts never supply a passing result or a measured duration.
 
-The required `check` status is green only when every sharded Turbo task passes. Report publication has its own visible job result and does not delay the required verdict. One private R2 bucket (`reports` in `global.tfvars.json`) holds per-attempt commit manifests and shared report content keyed by task hash and cache generation. Each environment's API streams it (`/api/reports`). Snapshots are recorded on every harness step and published as compressed chunks, rather than one R2 write per snapshot. Identical chunks in a commit are reused on reruns; successful sources are reused across commits with identical task inputs. Check keeps only the latest report per branch and preserves its referenced shared content; Deploy and hourly Health remove unused branches and their reports. `bun reports:cleanup` previews maintenance; `--apply --branches` performs it. A red suite still publishes. Local checks do not.
+The required `check` status is green only when every sharded Turbo task passes. Report publication has its own visible job result and does not delay the required verdict. One private R2 bucket (`reports` in `global.tfvars.json`) holds per-attempt commit manifests and shared report content keyed by task hash and cache generation. The standalone Atlas server reads it through the storage adapter in `libs/harness/scripts/atlas-reports-app.ts`; the product app exposes no reports screen or API. Snapshots are recorded on every harness step and published as compressed chunks, rather than one R2 write per snapshot. Identical chunks are reused across report layers; successful sources are reused across commits with identical task inputs. Report maintenance preserves earlier evidence and referenced content regardless of branch or commit changes. Deploy and hourly Health can remove unused branches without erasing report layers. `bun reports:cleanup` previews maintenance; `--apply --branches` performs it. A red suite still publishes. Local checks do not.
 
 `@apps/product#check:ui-quality` is an on-demand visual gate. It is not in the sharded Check task list or Deploy: the full corpus takes minutes on a 16-core runner, too slow for the standard release gate. Its artifact producer waits for every product spec part listed in [sources.json](apps/product/scripts/ui-quality/sources.json), copies unique recorded states into the product's own cache, and compiles the same local stylesheet used by the reports viewer. Before replay, the producer deduplicates unreferenced DOM metadata and generated SVG identifiers while retaining visible text, styles, classes, image geometry, and every scenario reference. On the first complete CI corpus, that reduces 30,355 HTML documents to 10,565 inputs from 101,035 references across 789 reports. The gate replays existing HTML snapshots through four reusable headless Chrome pages at their recorded 390×844 phone viewport, reuses scores for identical rendered PNGs, scores remaining screenshots in batches with one local [ui-quality-check](pkgs/ui-quality-check-server/README.md) instance, and checks any existing WebM/MP4 recordings directly. Matching document heads reuse their stylesheet and font context; one bounded replay batch is prefetched while the single model scores the current batch. Native inference waits for the existing product model contracts so it does not compete with symbolic verification. No scenario instrumentation or second UI exploration run is needed. Missing, failed, corrupt, or entirely absent evidence fails closed.
 
@@ -497,7 +502,7 @@ Leave a check untagged until it can run on a dedicated synthetic identity, clean
 
 `specs/journeys/` runs in `bun check` against the full composition and, on Health, in a real browser against the deployment, one fresh device per scenario. Signed-in journeys trade `SYNTHETIC_MONITOR_TOKEN` at `POST /api/auth/synthetic-monitor/code`. A live failure saves a screenshot under `apps/product/.cache/critical-journeys/<scenario>/`. Liveness is `GET /api/health`. Readiness is `GET /api/health/ready` (`503` when `SELECT 1` fails within 3 s). UI tests in Check use happy-dom. `HARNESS_MODE=real` and `stack` use the same `Driver` on `Bun.WebView`.
 
-While iterating, prefer `bun run --filter <pkg> tc` and `bun run --filter <pkg> test` before a full check.
+While iterating, prefer `bunx turbo run tc test --filter=<pkg>` before a full check; an unchanged package is a cache hit.
 
 Live Health scenarios run serially: the synthetic-monitor account and Chrome storage are shared, so each scenario must finish its cleanup before the next opens a device.
 
@@ -535,10 +540,10 @@ Repo file names: markdown docs are `SCREAMING_SNAKE_CASE.md` (`README.md` matche
 ## Invariants that make a patch wrong
 
 - Specs describe what a person observes. This file is a briefing. It is not a second product definition.
-- One write path: `mutate()` / `defineMutation`. Domain SQL runs inside the mutation. No feature REST for synced data. Billing and external webhooks are the exception list; do not grow it.
+- One write path: `mutate()` / `defineMutation`. Domain SQL runs inside the mutation. No sub REST for synced data. Billing and external webhooks are the exception list; do not grow it.
 - No `DELETE FROM` on a domain table. Framework `sync_engine_*` tables may hard-delete.
 - No bare I/O. No `Io` bag, no silent wall-clock fallback.
-- No access checks by reading `is_anon`, subscription rows, role names, or plan names from feature code.
+- No access checks by reading `is_anon`, subscription rows, role names, or plan names from sub code.
 - No new dependency patches (`bun patch`, `patches/`, `resolutions`).
 - No `@deprecated` aliases or shim re-exports. Delete the old API and update call sites in the same change.
 - No new `'off'` or `biome-ignore` for the Tiger-Style size caps in `biome.json` (lines per file, lines per function, params, nested callbacks, cognitive complexity, classes per file). Extract a function or a component.
@@ -574,3 +579,9 @@ Feature titles, one line each, so a session can route without listing the tree. 
 **Live checks** (`@synthetic`, in the owning context): reaching the app; serving people; the environment as planned; outside services; uploads; the request trail; signing in; payments; spaces; live updates; finding a person's trouble. Availability: `specs/runtime/availability.openslo.yaml`.
 
 **Journeys** (`specs/journeys/`): critical journeys; joining from a link, and opening with no connection.
+
+### Atlas specification explorer
+
+`bun atlas:viz` opens the standalone Atlas development server. Its header is the product's name and one tab per kind of spec: the statechart map, then Gherkin, Quint, DMN, Alloy and OpenSLO. Each tab's index lists every spec under `specs/` with what was recorded for it (and filters to those with results, failing, or with none), so a spec without evidence is visibly different from a passing one. A spec page shows each scenario, trace or check with its outcome, recorded steps, error, timings, recording and every other run of that check. Results combine across backends (this machine's `.cache/local-reports` and the shared reports store), branches and runs: for each check and parameter set the newest completed result is shown, an absent or unfinished run preserves older outcomes, and **Sources** switches any backend, branch or run off to read what earlier runs recorded. Every result keeps its origin. Spec fingerprints and related working-tree changes qualify potentially outdated results without discarding them. This fast accumulated view is not a fresh verification verdict.
+
+`bun atlas:run` runs the spec suite of every package (`bun run spec --keep-going`: features, models, decision tables, structures, objectives and each package's `tests/harness`). While a suite runs, `bun atlas:viz` reads the tests it has finished straight from its report bucket, so each result appears within a couple of seconds of its test ending; when the package finishes, its collected report layer (recorded under the current branch) takes over. A red package does not stop the others; the command still exits with the first failure. It takes the same arguments as `bun run spec`. `bun atlas:build` builds a standalone static Atlas site and exports available report layers into it. Export reads existing results; it never executes tests or turns missing evidence into a pass. `bun reports:collect` retains completed local results from earlier commits and modified checkouts with provenance warnings; completion time is kept separately from virtual timeline time. `bun reports:part` and `bun reports:performance` remain producer adapters. Report models, publication, retention, readers, API and visualization belong to Atlas.

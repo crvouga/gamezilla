@@ -1,6 +1,6 @@
 /**
- * Steps every product feature may use: who is in the scenario, how they sign
- * in, and what the network does. Feature packages import this from their
+ * Steps every product sub may use: who is in the scenario, how they sign
+ * in, and what the network does. Sub packages import this from their
  * steps entry.
  */
 

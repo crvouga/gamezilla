@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   categoryOfName,
   categoryViolations,
+  familyMayDependOn,
   familyOf,
 } from './package-boundaries';
 
@@ -125,12 +126,35 @@ describe('package categories', () => {
     ]);
   });
 
-  test('families group a feature across its slices', () => {
+  test('families group a sub across its slices', () => {
     expect(familyOf('@libs/chess-puzzle-client')).toBe('chess');
     expect(familyOf('@libs/app-config-shared')).toBe('app-config');
     expect(familyOf('@libs/app-root-client')).toBe('app');
     expect(familyOf('@libs/user-search-client')).toBe('user-search');
     expect(familyOf('@pkgs/ui-root-client')).toBeUndefined();
+  });
+
+  test('sub is the algebra family and chess-sub-shared stays chess', () => {
+    expect(familyOf('@libs/sub-shared')).toBe('sub');
+    expect(familyOf('@libs/sub-client')).toBe('sub');
+    expect(familyOf('@libs/chess-sub-shared')).toBe('chess');
+    for (const dependency of [
+      'billing',
+      'chess',
+      'friends',
+      'games',
+      'notifications',
+      'profile',
+      'search',
+      'spaces',
+      'user-search',
+      'runtime',
+      'app',
+      'harness',
+    ]) {
+      expect(familyMayDependOn('sub', dependency)).toBe(false);
+    }
+    expect(familyMayDependOn('chess', 'sub')).toBe(true);
   });
 });
 

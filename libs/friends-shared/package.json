@@ -15,7 +15,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/user-search-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",

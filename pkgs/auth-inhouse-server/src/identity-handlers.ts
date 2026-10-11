@@ -8,7 +8,10 @@
 import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
 import type { AuthIdentity } from '@pkgs/auth-root-shared/auth-identity';
 import type { SignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
-import { isSignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
+import {
+  isOauthProviderId,
+  isSignInMethodId,
+} from '@pkgs/auth-root-shared/sign-in-method';
 import type { Context } from 'hono';
 import {
   bearerUserId,
@@ -82,8 +85,8 @@ async function unlinkIn(
 
 /**
  * Remove one sign-in method. The last one cannot go — the account would be
- * unreachable. The provider is told the app gave the grant up (Apple
- * requires it), best effort: a provider outage must not block the unlink.
+ * unreachable. A provider is told the app gave the grant up (Apple requires
+ * it), best effort: a provider outage must not block the unlink.
  */
 export async function handleUnlink(
   c: Context,
@@ -100,9 +103,10 @@ export async function handleUnlink(
   if (result === 'last') {
     return c.json({ error: AUTH_ERROR.lastIdentity }, 409);
   }
+  // Only a provider holds a grant to give up.
   const token = result.removed?.refreshToken ?? null;
   const revoked =
-    token === null || provider === 'password'
+    token === null || !isOauthProviderId(provider)
       ? false
       : ((await ctx.oauth.get(provider)?.revoke(token)) ?? false);
   return c.json(

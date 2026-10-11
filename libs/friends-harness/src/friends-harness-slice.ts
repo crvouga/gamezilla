@@ -1,6 +1,6 @@
-import { FRIENDS_CLIENT } from '@libs/friends-client/feature-client';
-import { FRIENDS_SERVER } from '@libs/friends-server/feature-server';
-import { FRIENDS_FEATURE } from '@libs/friends-shared/feature';
+import { FRIENDS_CLIENT } from '@libs/friends-client/sub-client';
+import { FRIENDS_SERVER } from '@libs/friends-server/sub-server';
+import { FRIENDS_SUB } from '@libs/friends-shared/sub';
 import type { HarnessSlice } from '@libs/harness/slices';
 import {
   openDeletedProfile,
@@ -15,7 +15,7 @@ import { setupBlock } from './setup-block';
 /** Friends in a harness: requests, the list, block / remove, search's pills. */
 export const FRIENDS_HARNESS_SLICE: HarnessSlice = {
   name: 'friends',
-  feature: FRIENDS_FEATURE,
+  sub: FRIENDS_SUB,
   client: FRIENDS_CLIENT,
   server: () => FRIENDS_SERVER,
   actions: [

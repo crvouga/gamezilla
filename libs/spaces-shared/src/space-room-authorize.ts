@@ -43,7 +43,7 @@ function spaceCommandGrant(msg: Message): RequiredGrant | null {
   return null;
 }
 
-/** Every feature supplies the capability associated with its commands. */
+/** Every sub supplies the capability associated with its commands. */
 export function createSpaceRoomAuthorizer(
   games: readonly GameDefinition[]
 ): (

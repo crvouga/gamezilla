@@ -23,8 +23,8 @@ function connectingDevice(available = true): {
     key: unused,
     snapshotHtml: unused,
     get: (id: string): DriverNode => ({
-      attribute: unused,
       get: unused,
+      attribute: unused,
       tapAt: unused,
       drag: unused,
       layout: unused,

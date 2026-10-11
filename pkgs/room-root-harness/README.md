@@ -2,7 +2,7 @@
 
 Server-authoritative multiplayer for a **single topic** (e.g. `space:<uuid>`).
 
-This package is the realtime session engine used by product features (primarily
+This package is the realtime session engine used by product subs (primarily
 `@libs/spaces` + game `RoomModule`s). It is **not** the app sync engine
 (`@pkgs/sync-engine`): room is a lower-level `pkgs` leaf with its own wire
 protocol, optimistic client queue, Durable Object host, and effect/schedule

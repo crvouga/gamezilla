@@ -55,6 +55,13 @@ const PROTECTED: ReadonlySet<string> = new Set([
   'github_repository_dependabot_security_updates',
   'github_repository',
   'grafana_cloud_stack',
+  // These Grafana resources hold views that cannot be reconstructed from telemetry.
+  'grafana_folder',
+  'grafana_dashboard',
+  'grafana_rule_group',
+  'grafana_folder',
+  'grafana_dashboard',
+  'grafana_rule_group',
   'infisical_identity',
   'infisical_identity_oidc_auth',
   // Replacing the GitHub OIDC provider would strand every deploy.
@@ -66,6 +73,14 @@ const PROTECTED: ReadonlySet<string> = new Set([
   'planetscale_neki_role',
   'postgresql_extension',
   'random_password',
+]);
+
+/**
+ * Generated secrets retired on purpose (policy `retired`): the one instance a
+ * plan may delete although its type is protected.
+ */
+const RETIRED: ReadonlySet<string> = new Set([
+  'module.secrets.random_password.generated_value["POPULATION_CREDENTIAL_SECRET"]',
 ]);
 
 const ACTIONS = [
@@ -82,7 +97,10 @@ const ACTIONS = [
 type Change = NonNullable<PlanJson['resource_changes']>[number];
 
 const arbChange: fc.Arbitrary<Change> = fc.record({
-  address: fc.uuid().map((id) => `module.m.r.x["${id}"]`),
+  address: fc.oneof(
+    fc.uuid().map((id) => `module.m.r.x["${id}"]`),
+    fc.constantFrom(...RETIRED)
+  ),
   mode: fc.constantFrom('managed' as const, 'data' as const),
   type: fc.constantFrom(
     ...DELETABLE,
@@ -111,7 +129,9 @@ function modelDenies(
   const managed = changes.filter((c) => c.mode === 'managed');
   if (
     teardown !== 'standard' &&
-    managed.some((c) => deletes(c) && !DELETABLE.has(c.type))
+    managed.some(
+      (c) => deletes(c) && !DELETABLE.has(c.type) && !RETIRED.has(c.address)
+    )
   )
     return true;
   if (protection !== 'production') return false;
@@ -178,6 +198,36 @@ describe('policy/stateful.rego', () => {
       )
     );
   }, 120_000);
+
+  test('only the retired generated secret may be deleted; every other one is kept', () => {
+    const verdictFor = (name: string, protection: string) =>
+      evaluatePlanPolicy(
+        {
+          resource_changes: [
+            {
+              address: `module.secrets.random_password.generated_value["${name}"]`,
+              mode: 'managed',
+              type: 'random_password',
+              change: { actions: ['delete'] },
+            },
+          ],
+          variables: { protection: { value: protection } },
+        },
+        POLICY,
+        conftest
+      );
+    for (const protection of ['production', 'standard']) {
+      expect(
+        verdictFor('POPULATION_CREDENTIAL_SECRET', protection).allowed
+      ).toBe(true);
+      for (const name of [
+        'AUTH_SECRET',
+        'POPULATION_WORKER_TOKEN',
+        'EMQX_JWT_SECRET',
+      ])
+        expect(verdictFor(name, protection).allowed).toBe(false);
+    }
+  });
 
   test('every managed resource type in tofu/ is classified', () => {
     const declared = new Set<string>();

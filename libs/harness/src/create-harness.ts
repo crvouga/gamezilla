@@ -2,9 +2,8 @@ import type { ClientEnv } from '@libs/app-root-client/client-env';
 import type { Client } from '@libs/app-root-client/create-client';
 import { createClient } from '@libs/app-root-client/create-client';
 import type { ServerEnv } from '@libs/app-root-shared/server-env';
-import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
+import { HARNESS_SERVER_URL } from '@libs/sub-shared/harness-constants';
 import { assert } from '@pkgs/assert-root-shared/singleton';
-import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Session } from '@pkgs/harness-root-shared/runtime-types';
@@ -29,6 +28,7 @@ import { browserLookup } from './browser';
 import { makeHarnessClientEnv } from './client-env';
 import { createHarnessClientNamespaces } from './client-namespace';
 import type { HarnessComposition, HarnessRoomNode } from './composition';
+import { harnessAuthProvider } from './harness-auth-provider';
 import type { HarnessIdps } from './idp';
 import {
   addHarnessIdpAccounts,
@@ -42,6 +42,8 @@ import { createHarnessLoadBalancer } from './load-balancer';
 import { compositionMigratePostgres } from './migrate-composition';
 import { createHarnessNet } from './net';
 import { createHarnessRooms } from './room-services';
+import type { HarnessServerEgress } from './server-egress';
+import { createHarnessServerEgress } from './server-egress';
 import type {
   HarnessServerNode,
   HarnessServerNodes,
@@ -61,13 +63,15 @@ import {
   openHarnessServerSqlFromSeedBytes,
 } from './sql';
 import type { HarnessSql } from './sql-types';
+import type { HarnessSyntheticUserDevices } from './synthetic-user-devices';
+import { createHarnessSyntheticUserDevices } from './synthetic-user-devices';
 import type { HarnessTeamRules } from './team-rules';
 import { createHarnessTeamRules } from './team-rules';
 
 export type CreateHarnessOptions = {
   /** Deployment credentials injected by integration hosts, scoped to this harness. */
   readonly secretValues?: Readonly<Record<string, string>>;
-  /** The features this harness boots. */
+  /** The subs this harness boots. */
   readonly composition: HarnessComposition;
   /** Override virtual timers (hosts that need wall timers for a live UI). */
   readonly timers?: Timers;
@@ -125,6 +129,13 @@ export type Harness = {
    * for `delayMs` of harness time, as production's takes seconds. `0` clears.
    */
   setAccountReadyDelay(id: string, delayMs: number): void;
+  /**
+   * Make a device a Synthetic User's application host: its app offers email
+   * sign-in. Only before the device's app first launches; never undone.
+   */
+  hostSyntheticUser(id: string): void;
+  /** URLs the API fleet requested that no simulated provider serves. */
+  unansweredServerRequests(): readonly string[];
   /** `'lb'`, a server instance id, or a client id. */
   crash(id: string): void;
   restart(id: string): void;
@@ -176,7 +187,6 @@ function buildServerEnv(args: ServerEnvDeps): ServerEnv {
     }),
     kv: shared.kv,
     blob: shared.blob,
-    reports: null,
     billing: args.billing,
     tts: shared.tts,
     llm: shared.llm,
@@ -207,6 +217,8 @@ type HarnessKernel = {
   readonly primaryEnv: ServerEnv;
   readonly appBuilds: HarnessAppBuilds;
   readonly accountReadyDelays: HarnessAccountReadyDelays;
+  readonly syntheticUserDevices: HarnessSyntheticUserDevices;
+  readonly serverEgress: HarnessServerEgress;
   readonly disposed: { value: boolean };
 };
 
@@ -249,6 +261,7 @@ function serverEnvBuilder(deps: {
   readonly idps: HarnessIdps;
   readonly net: ReturnType<typeof createHarnessNet>;
   readonly billing: HarnessBillingProviders | null;
+  readonly egress: HarnessServerEgress;
 }): (id: string) => Promise<ServerEnv> {
   const { session, idps, net, billing } = deps;
   return (id) =>
@@ -260,7 +273,12 @@ function serverEnvBuilder(deps: {
         timers: deps.timers,
         shared: deps.shared,
         pubSubBus: deps.pubSubBus,
-        vendorFetch: harnessIdpFetchFrom({ idps, net, from: id }),
+        vendorFetch: harnessIdpFetchFrom({
+          idps,
+          net,
+          from: id,
+          onUnanswered: deps.egress.record,
+        }),
         billing: harnessMembershipBilling({
           billing,
           net,
@@ -269,6 +287,23 @@ function serverEnvBuilder(deps: {
         }),
       })
     );
+}
+
+/** The fleet's shared services, with the auth service the composition runs. */
+function sharedServerServices(
+  opts: CreateHarnessOptions,
+  deps: Omit<
+    Parameters<typeof buildSharedServerServices>[0],
+    'secretValues' | 'auth'
+  >
+): SharedServerServices {
+  return buildSharedServerServices({
+    ...(opts.secretValues === undefined
+      ? {}
+      : { secretValues: opts.secretValues }),
+    auth: harnessAuthProvider(opts.composition),
+    ...deps,
+  });
 }
 
 async function bootHarnessKernel(
@@ -290,13 +325,9 @@ async function bootHarnessKernel(
   });
   const serverSql = await openServerSql(session, opts);
   const teamRules = createHarnessTeamRules(session.ports.clock);
-  const shared = buildSharedServerServices({
-    ...(opts.secretValues === undefined
-      ? {}
-      : { secretValues: opts.secretValues }),
+  const shared = sharedServerServices(opts, {
     serverSql,
     appleKeys,
-    auth: composition.authProvider ?? INHOUSE_AUTH_PROVIDER,
     clock: session.ports.clock,
     moderation: teamRules.moderation,
   });
@@ -315,6 +346,7 @@ async function bootHarnessKernel(
     serverSql,
   });
   const disposed = { value: false };
+  const serverEgress = createHarnessServerEgress();
   const servers = createHarnessServerNodes({
     composition,
     rooms,
@@ -327,6 +359,7 @@ async function bootHarnessKernel(
       idps,
       net,
       billing,
+      egress: serverEgress,
     }),
     disposed: () => disposed.value,
   });
@@ -352,6 +385,8 @@ async function bootHarnessKernel(
     primaryEnv: await servers.ensureEnv(HARNESS_PRIMARY_SERVER_ID),
     appBuilds: createHarnessAppBuilds(),
     accountReadyDelays: createHarnessAccountReadyDelays(),
+    syntheticUserDevices: createHarnessSyntheticUserDevices(),
+    serverEgress,
     disposed,
   };
 }
@@ -471,7 +506,7 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
       const existing = liveClients.get(id);
       if (existing !== undefined) return existing;
       const live = createClient(env ?? (await client(id)), {
-        features: kernel.composition.clients,
+        subs: kernel.composition.clients,
         loadApp: () => Promise.resolve(kernel.composition.app),
       });
       liveClients.set(id, live);
@@ -493,6 +528,12 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     setAccountReadyDelay: (id, delayMs) => {
       kernel.accountReadyDelays.set(id, delayMs);
     },
+    hostSyntheticUser: (id) => {
+      if (liveClients.has(id))
+        throw new Error(`${id}'s app is already running as a person's device`);
+      kernel.syntheticUserDevices.add(id);
+    },
+    unansweredServerRequests: () => kernel.serverEgress.unanswered(),
     crash: (id) => {
       net.crash(id);
     },

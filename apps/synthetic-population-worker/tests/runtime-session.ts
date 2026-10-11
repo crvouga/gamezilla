@@ -1,6 +1,10 @@
 import { ManagedSession } from '@apps/synthetic-population-worker/managed-session';
+import type { SessionInput } from '@apps/synthetic-population-worker/session-messages';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
-import { createIsolatedWorker } from '@pkgs/os-server/wall-isolated-worker';
+import {
+  createIsolatedWorker,
+  type IsolatedWorker,
+} from '@pkgs/os-server/wall-isolated-worker';
 import type { runtimeBackend } from './runtime-backend';
 
 type Backend = Awaited<ReturnType<typeof runtimeBackend>>;
@@ -34,10 +38,21 @@ export async function runtimeSession(
   });
   let renewal: ReturnType<typeof backend.wall.timers.setInterval>;
   const stopRenewing = () => backend.wall.timers.clearInterval(renewal);
+  // What the lease holder hands its realm from the user's internal inbox.
+  const signInLinks: string[] = [];
+  const thread: IsolatedWorker = {
+    ...realm,
+    post: (value) => {
+      const message = value as SessionInput;
+      if (message.type === 'sign-in-link' && message.link !== null)
+        signInLinks.push(message.link);
+      realm.post(value);
+    },
+  };
   const session = new ManagedSession(assignment, version, {
     ...backend.wall,
     rpc: backend.rpc,
-    thread: realm,
+    thread,
     log: createNoopLogger(),
     onClose: stopRenewing,
   });
@@ -54,7 +69,14 @@ export async function runtimeSession(
       });
   }, 5_000);
   session.start(backend.origin);
-  return { session, authenticated, assignment, realm, stopRenewing };
+  return {
+    session,
+    authenticated,
+    assignment,
+    realm,
+    stopRenewing,
+    signInLinks,
+  };
 }
 
 export async function runtimeHeartbeat(

@@ -261,9 +261,9 @@ describe('seeded faults are caught', () => {
     );
   });
 
-  test('client gating broken: the device shows every feature', async () => {
+  test('client gating broken: the device shows every sub', async () => {
     // Mounted in the same device world as the real gate, but reading no
-    // decision: the feature is always there.
+    // decision: the sub is always there.
     const alwaysShown = clientGatingLayer({
       tables: TABLES,
       probe: () => () => ({ answer: 'yes' }),

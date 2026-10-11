@@ -74,9 +74,13 @@ export function createAuthServerAdapter(
     getUser: (externalUserId) => getUser(deps, externalUserId),
     deleteUser: async (externalUserId) => {
       const tx = deps.getSql();
-      await tx.run(
-        sql`DELETE FROM idp_passwords WHERE user_id = ${externalUserId}`
-      );
+      // Links still in the mail for the user's address go with the user.
+      await tx.run(sql`
+        DELETE FROM idp_email_links WHERE email IN (
+          SELECT provider_user_id FROM idp_accounts
+          WHERE user_id = ${externalUserId} AND provider = ${'email'}
+        )
+      `);
       await tx.run(
         sql`DELETE FROM idp_sessions WHERE user_id = ${externalUserId}`
       );

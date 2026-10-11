@@ -4,7 +4,7 @@
  * install's user id (and a session token when signed in), a sync engine over
  * a local SQLite database holding the synced rows the case needs (the
  * account's anonymity, memberships, the billing switch, the policy row when a
- * test changes it, feature rows), a virtual clock, seeded ids and the
+ * test changes it, sub rows), a virtual clock, seeded ids and the
  * device's mutation client. The probe reads what the app would show or do
  * once every local query has loaded.
  *
@@ -62,9 +62,9 @@ import { createComponent, createRoot, type JSX } from 'solid-js';
 export type ClientProbe = () => DecisionOutput | Promise<DecisionOutput>;
 
 export type ClientLayerOptions = {
-  /** Feature tables the hooks read (billing's included). */
+  /** Sub tables the hooks read (billing's included). */
   readonly tables: readonly TableDef[];
-  /** Feature rows the case needs, written as synced rows. */
+  /** Sub rows the case needs, written as synced rows. */
   readonly seed?: (c: ServerCase) => Promise<void>;
   /** Mutations the device may apply (for a gate that is a local apply). */
   readonly mutations?: MutationRegistry;
@@ -280,8 +280,8 @@ function caseAuthClient(c: ServerCase): AuthClientPort {
       refresh: outsideFixture,
     },
     signIn: outsideFixture,
-    signInWithPassword: outsideFixture,
-    registerWithPassword: outsideFixture,
+    requestEmailLink: outsideFixture,
+    signInWithEmailLink: outsideFixture,
     signOut: outsideFixture,
     signOutEverywhere: outsideFixture,
     listIdentities: outsideFixture,

@@ -151,13 +151,9 @@ export function createOfflineRoomTransport(
     if (destroyed) throw new Error('room transport destroyed');
     wanted = true;
     if (offline.isOffline()) throw offlineNetworkError();
-    const live = inner ?? attach();
-    try {
-      await Promise.resolve(live.connect());
-    } catch (error) {
-      if (inner === live) disconnect();
-      throw error;
-    }
+    // An attempt that fails leaves the adapter in place: it owns the retries
+    // that bring the room back when the connection does.
+    await Promise.resolve((inner ?? attach()).connect());
   };
   const stopOffline = offline.subscribe((isOffline) => {
     if (isOffline) disconnect();

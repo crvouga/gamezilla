@@ -4,6 +4,7 @@
  */
 
 import type { BoardArrow, Square } from '@pkgs/chess-board-core-shared/types';
+import { applyUci } from '@pkgs/chess-rules-shared/moves';
 
 import { tokenize } from './chess-puzzle-fsm';
 import type { ChessPuzzlePlayStatus } from './chess-puzzle-play-attr';
@@ -41,6 +42,24 @@ export function nextSolutionUci(args: {
   if (args.status !== 'solving') return null;
   const token = tokenize(args.moves)[args.solveIdx];
   return token !== undefined && token.length >= 4 ? token : null;
+}
+
+/**
+ * Position the board paints. A wrong move is never applied to the room's
+ * reached position, so while the attempt is `wrong` the board shows that
+ * position with the wrong move played: the piece stays where it was dropped
+ * until a retry puts it back.
+ */
+export function projectBoardFen(args: {
+  status: SolveStatus;
+  fen: string | null;
+  wrongUci: string | null;
+}): string | null {
+  if (args.status !== 'wrong' || args.fen === null || args.wrongUci === null) {
+    return args.fen;
+  }
+  const played = applyUci(args.fen, args.wrongUci);
+  return played.ok ? played.fen : args.fen;
 }
 
 const EMPTY_ARROWS: readonly BoardArrow[] = Object.freeze([]);

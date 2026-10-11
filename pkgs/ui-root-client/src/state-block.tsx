@@ -10,7 +10,7 @@
  *   - `'compact'` -> intrinsic height with generous padding. Used inline as
  *                    a card or inside a scrolled section.
  *
- * Exported so feature teams can compose custom statuses with the same layout
+ * Exported so sub teams can compose custom statuses with the same layout
  * contract (e.g. a payment-failed card with a custom icon set).
  */
 

@@ -11,6 +11,7 @@ import {
   hasRemoteCreds,
   resolveCacheFlag,
   resolveRunMode,
+  resolveUi,
   runModeFlags,
   turboChildEnv,
 } from './turbo-ci-run';
@@ -196,4 +197,17 @@ test('task slots reserve CPU capacity for nested native workers', () => {
   expect(defaultCheckConcurrency(12, 4)).toBe(8);
   expect(defaultCheckConcurrency(2, 1)).toBe(1);
   expect(defaultCheckConcurrency(64, 4)).toBe(60);
+});
+
+describe('turbo UI', () => {
+  test('turbo.json chooses the UI unless the caller names one', () => {
+    expect(resolveUi({})).toBeUndefined();
+    expect(resolveUi({ TURBO_UI: 'stream' })).toBe('stream');
+    expect(resolveUi({ TURBO_UI: ' tui ' })).toBe('tui');
+    expect(resolveUi({ TURBO_UI: 'fancy' })).toBeUndefined();
+  });
+
+  test("a run inside a task streams into that task's pane", () => {
+    expect(resolveUi({ TURBO_HASH: 'abc', TURBO_UI: 'tui' })).toBe('stream');
+  });
 });

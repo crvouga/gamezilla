@@ -1,5 +1,5 @@
 /**
- * Two faces, two jobs.
+ * Two faces, two jobs. The stacks are read from `design-tokens.json`.
  *
  * - `display` is Bricolage Grotesque: titles, headings, row titles, buttons,
  *   numerals (ratings, clocks, prices), and the brand. Self-hosted
@@ -13,8 +13,8 @@
  * Emitted as `--ui-font-*` in `tokens.css`.
  */
 
-const SYSTEM =
-  'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+import { readFontStack, readGroup } from './design-tokens';
+import { font } from './design-tokens.json';
 
 export type FontStacks = {
   sans: string;
@@ -22,8 +22,4 @@ export type FontStacks = {
   mono: string;
 };
 
-export const fonts: FontStacks = {
-  sans: SYSTEM,
-  display: `"Bricolage Grotesque", ${SYSTEM}`,
-  mono: 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
-};
+export const fonts: FontStacks = readGroup({}, font.family, readFontStack);

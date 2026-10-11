@@ -19,14 +19,14 @@ import {
 import { SocialSignInButton } from '@pkgs/ui-root-client/social-sign-in-button';
 import { For, type JSX, Show } from 'solid-js';
 import { providerName } from './auth-flow-messages';
-import { PasswordSignInForm } from './password-sign-in-form';
+import { ContinueWithEmailButton } from './continue-with-email-button';
 
 export function SignInLinkRequiredContent(props: {
   readonly link: AuthLinkRequiredError;
   readonly onProve: (provider: OauthProviderId) => void;
   readonly onSeparate: () => void;
   readonly onClose: () => void;
-  readonly startPassword: (runner: () => Promise<void>) => Promise<void>;
+  readonly onContinueWithEmail: () => void;
 }): JSX.Element {
   const { i18n, t } = useLingui();
   const newProvider = () => providerName(i18n(), props.link.provider);
@@ -40,11 +40,8 @@ export function SignInLinkRequiredContent(props: {
           <p class="text textBody text-text-secondary">
             {t`An account already uses ${props.link.email}. Sign in to it to add ${newProvider()} as another way to sign in, or keep a separate account.`}
           </p>
-          <Show when={props.link.providers.includes('password')}>
-            <PasswordSignInForm
-              start={props.startPassword}
-              pendingLink={props.link.token}
-            />
+          <Show when={props.link.providers.includes('email')}>
+            <ContinueWithEmailButton onClick={props.onContinueWithEmail} />
           </Show>
           <For each={props.link.providers.filter(isOauthProviderId)}>
             {(provider) => (

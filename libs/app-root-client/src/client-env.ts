@@ -7,8 +7,8 @@
  */
 
 import type { DevMenuPort } from '@libs/app-root-shared/ports';
-import type { OpenSqlClient, ServerHttp } from '@libs/feature-shared/sync';
 import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
+import type { OpenSqlClient, ServerHttp } from '@libs/sub-shared/sync';
 import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { ClipboardPort } from '@pkgs/device-shared/clipboard';
@@ -95,6 +95,14 @@ export type ClientEnv = {
    * holds the `@pkgs/auth` port.
    */
   readonly createAuthClient: (http: ServerHttp) => AuthClientPort;
+  /**
+   * This device offers emailed sign-in links. Email sign-in exists for
+   * Synthetic Users alone, so only their application host (the Synthetic
+   * Population Worker, and a harness device acting as one) sets it. Absent
+   * everywhere a person runs the app: the browser and native entry points
+   * never set it, and no server configuration can.
+   */
+  readonly emailSignIn?: boolean;
   /**
    * Leaves the app for a provider-hosted page (the payment provider's
    * checkout or portal). Browser: `location.assign`; harness: the provider's real screens,

@@ -8,7 +8,6 @@ import { type Accessor, createMemo } from 'solid-js';
 
 export function usePuzzlePlayerCellFeedback(args: {
   status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
-  wrongFromSquare: Accessor<string | null>;
   wrongToSquare: Accessor<string | null>;
   expectedFromSquare: Accessor<string | null>;
 }): {
@@ -18,7 +17,6 @@ export function usePuzzlePlayerCellFeedback(args: {
   const cellFeedback = createMemo(() =>
     deriveChessPuzzleCellFeedback({
       status: args.status(),
-      wrongFromSquare: args.wrongFromSquare(),
       wrongToSquare: args.wrongToSquare(),
       expectedFromSquare: args.expectedFromSquare(),
     })

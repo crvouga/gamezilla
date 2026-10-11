@@ -136,27 +136,35 @@ export const idpProviderEvents = defineTable({
   uniqueIndexes: [['provider', 'jti']],
 });
 
-export const idpPasswords = defineTable({
+/**
+ * One emailed sign-in link. The token is a bearer secret (hashed at rest)
+ * that works once: `consumed_at` is set by the confirm that spends it.
+ * `pending_link_id` is the pending link this sign-in was asked to prove.
+ */
+export const idpEmailLinks = defineTable({
   domain: 'idp',
-  name: 'idp_passwords',
+  name: 'idp_email_links',
   columns: {
-    user_id: 'text',
+    token_hash: 'text',
     email: 'text',
-    salt: 'text',
-    password_hash: 'text',
+    pending_link_id: 'text',
+    expires_at: 'timestamp',
+    consumed_at: 'timestamp',
   },
-  uniqueIndexes: ['email', 'user_id'],
+  indexes: ['email'],
+  uniqueIndexes: ['token_hash'],
 });
 
-export const idpPasswordAttempts = defineTable({
+/** How often one address asked for a link lately; the row id is its hash. */
+export const idpEmailLinkAttempts = defineTable({
   domain: 'idp',
-  name: 'idp_password_attempts',
+  name: 'idp_email_link_attempts',
   columns: { window_started_at: 'timestamp', attempts: 'integer' },
 });
 
 export const IDP_TABLES = [
-  idpPasswords,
-  idpPasswordAttempts,
+  idpEmailLinks,
+  idpEmailLinkAttempts,
   idpUsers,
   idpAccounts,
   idpSessions,

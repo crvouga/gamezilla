@@ -1,10 +1,9 @@
-import { APP } from '@libs/runtime-shared/app-features';
+import { APP } from '@libs/runtime-shared/app-subs';
 import { HarnessBoot } from './harness-boot';
-import { ReportsScreen } from './reports-screen';
-// @io-wall-ok — browser composition root (super-app: App at `/`, Harness at `/harness`, spec reports at `/reports`)
+// @io-wall-ok — browser composition root (super-app: App at `/`, Harness at `/harness`)
 /**
- * Path-gated boot: `/harness` mounts the Harness screen, `/reports` the spec
- * reports screen; every other path mounts the real wall
+ * Path-gated boot: `/harness` mounts the Harness screen; every other path
+ * mounts the real wall
  * client (`wallClientEnv` + production/synced config). They are flat
  * siblings — the app and the harness reach each other through their command
  * palettes (`Open Harness` / `Exit harness`). Popstate remounts when
@@ -17,7 +16,7 @@ import { bootBrowserObservability } from '@libs/app-root-client/boot-browser-obs
 import { createClient } from '@libs/app-root-client/create-client';
 import { wallClientEnv } from '@libs/app-root-client/wall-client-env';
 import { wallOfflineNetworkController } from '@libs/app-root-client/wall-offline-network';
-import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
+import { APP_SUB_CLIENTS } from '@libs/runtime-client/app-sub-clients';
 import { wallSpaceRoomTransport } from '@libs/spaces-client/wall-room-transport';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import '@pkgs/tailwind-shared/tailwind.css';
@@ -27,7 +26,6 @@ import { createSignal, type JSX, Match, onCleanup, Switch } from 'solid-js';
 import { render } from 'solid-js/web';
 import { HARNESS_PATH } from './console-nav-real';
 import './polyfill-entry';
-import { isReportsPath } from './reports-path';
 import './styles.css';
 
 const root = document.getElementById('root');
@@ -58,7 +56,7 @@ function AppBoot(): JSX.Element {
     timeOriginMs: performance.timeOrigin,
   });
   const client = createClient(env, {
-    features: APP_FEATURE_CLIENTS,
+    subs: APP_SUB_CLIENTS,
     loadApp: async () => APP,
     poolGlobalKey: '__gamezilla_sync_engine_pool__',
     offlineController: offline,
@@ -74,11 +72,10 @@ function AppBoot(): JSX.Element {
   return <client.App />;
 }
 
-type Surface = 'app' | 'harness' | 'reports';
+type Surface = 'app' | 'harness';
 
 function surfaceAt(pathname: string): Surface {
   if (isHarnessPath(pathname)) return 'harness';
-  if (isReportsPath(pathname)) return 'reports';
   return 'app';
 }
 
@@ -95,9 +92,6 @@ function Boot(): JSX.Element {
     <Switch fallback={<AppBoot />}>
       <Match when={surface() === 'harness'}>
         <HarnessBoot />
-      </Match>
-      <Match when={surface() === 'reports'}>
-        <ReportsScreen />
       </Match>
     </Switch>
   );

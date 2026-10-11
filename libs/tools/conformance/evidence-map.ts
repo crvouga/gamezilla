@@ -135,11 +135,6 @@ const PUBLIC_CONTRACTS: ProofTable = {
     { spec: 'specs/developer-tools/checkpoints.feature' },
   ],
   'data notebooks': [{ spec: 'specs/developer-tools/data-notebook.feature' }],
-  'automated test reports': [
-    { spec: 'specs/developer-tools/report-catalog.feature' },
-    { spec: 'specs/developer-tools/report-navigation.feature' },
-    { spec: 'specs/developer-tools/recorded-moments.feature' },
-  ],
   'release checks': [{ spec: 'specs/developer-tools/release-check.feature' }],
   'space links': [
     { spec: 'specs/spaces/space-links.feature' },

@@ -1,9 +1,10 @@
 /**
- * What an OAuth return can mean, as errors the UI can switch on.
+ * What a sign-in's answer can mean, as errors the UI can switch on.
  *
- * The callback URL carries exactly one of `?code=`, `?error=` or
- * `?link_required=`; {@link readCallbackOutcome} turns it into data, and the
- * adapter throws these for everything that is not a code.
+ * An OAuth return's callback URL carries exactly one of `?code=`, `?error=`
+ * or `?link_required=`, and a refused email link answers with the same keys;
+ * {@link readOutcomeParams} turns them into data, and the adapter throws
+ * these for everything that is not a code.
  */
 
 import { AUTH_CALLBACK_PARAM } from '@pkgs/auth-inhouse-shared/auth-constants';
@@ -11,10 +12,7 @@ import { AuthFlowError } from '@pkgs/auth-root-client/auth-flow-error';
 import { AuthLinkRequiredError } from '@pkgs/auth-root-client/auth-link-required-error';
 import { isAuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
 import type { SignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
-import {
-  isOauthProviderId,
-  isSignInMethodId,
-} from '@pkgs/auth-root-shared/sign-in-method';
+import { isSignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
 
 export type CallbackOutcome =
   | { readonly kind: 'code'; readonly code: string }
@@ -27,17 +25,19 @@ function providers(raw: string | null): SignInMethodId[] {
 }
 
 export function readCallbackOutcome(url: string): CallbackOutcome {
-  let params: URLSearchParams;
   try {
-    params = new URL(url).searchParams;
+    return readOutcomeParams(new URL(url).searchParams);
   } catch {
     return { kind: 'none' };
   }
+}
+
+export function readOutcomeParams(params: URLSearchParams): CallbackOutcome {
   const code = params.get(AUTH_CALLBACK_PARAM.code) ?? '';
   if (code.length > 0) return { kind: 'code', code };
   const token = params.get(AUTH_CALLBACK_PARAM.linkRequired) ?? '';
   const provider = params.get(AUTH_CALLBACK_PARAM.linkProvider) ?? '';
-  if (token.length > 0 && isOauthProviderId(provider)) {
+  if (token.length > 0 && isSignInMethodId(provider)) {
     return {
       kind: 'link_required',
       error: new AuthLinkRequiredError({

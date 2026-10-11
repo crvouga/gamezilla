@@ -48,14 +48,14 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { parseJunit } from '@crvouga/atlas-reports/junit';
 import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness/report-ready';
 import { testFailureSpans } from '@libs/harness/test-failure-spans';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared/stubs';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
-import { parseJunit } from '@pkgs/harness-root-shared/junit';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
-import { testConcurrency } from '@pkgs/os-server/test-concurrency';
+import { specParallelism } from '@pkgs/os-server/test-concurrency';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint-shared/stubs';
 import { completedOrigin, reportOrigin } from './report-origin';
 import { CHECK_KINDS, isSpecPath, SPEC_GLOBS } from './spec-check-kinds';
@@ -310,7 +310,7 @@ function writeCheckStubs(units: readonly SpecUnit[]): readonly string[] {
 /**
  * The preloads belong to this package (it declares them), not to whichever
  * package is running its suite — resolve them here, so a suite runs under an
- * isolated install without every feature re-declaring the harness's deps.
+ * isolated install without every sub re-declaring the harness's deps.
  */
 const SOLID_PRELOAD = Bun.resolveSync(
   '@pkgs/bun-test-solid-client/preload',
@@ -324,6 +324,11 @@ const REPORT_DIR = join(PACKAGE_DIR, '.cache/harness-report', BUCKET);
 const SPEC_STUB_DIR = join(PACKAGE_DIR, '.cache/spec', BUCKET);
 const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
 const ORIGIN = reportOrigin(REPO_ROOT);
+const ACTIVE_REPORT = join(
+  REPO_ROOT,
+  '.cache/local-reports/active',
+  `${relative(REPO_ROOT, PACKAGE_DIR).replaceAll('/', '--')}-${BUCKET}.json`
+);
 rmSync(REPORT_DIR, { recursive: true, force: true });
 mkdirSync(REPORT_DIR, { recursive: true });
 
@@ -346,6 +351,17 @@ if (scope.length === 0) {
   process.exit(1);
 }
 
+mkdirSync(join(REPO_ROOT, '.cache/local-reports/active'), { recursive: true });
+writeFileSync(
+  ACTIVE_REPORT,
+  JSON.stringify({
+    packageDir: relative(REPO_ROOT, PACKAGE_DIR),
+    bucket: BUCKET,
+    startedAtMs: wallClock.now(),
+    plannedChecks: stubs.length,
+  })
+);
+
 const result = spawnSync(
   'bun',
   [
@@ -361,12 +377,13 @@ const result = spawnSync(
       : ['--preload', process.env['HARNESS_PRELOAD']]),
     '--timeout',
     String(TIMEOUT_MS),
-    // Full product worlds own DOMs, databases and recorded frames. Two
-    // workers keep those worlds moving instead of competing for memory.
-    `--parallel=${String(testConcurrency(process.env, 2))}`,
+    // One product world per worker (~2GB). The ceiling follows CPUs and RAM;
+    // CHECK_TEST_CONCURRENCY can only lower it. Frames still go to the report.
+    `--parallel=${String(specParallelism(process.env))}`,
     '--no-isolate',
     '--reporter=junit',
     `--reporter-outfile=${JUNIT_PATH}`,
+    '--bail=1',
     ...cli.bunArgs,
     ...scope,
   ],
@@ -383,7 +400,11 @@ const result = spawnSync(
   }
 );
 
-appendFailureTraces();
+try {
+  appendFailureTraces();
+} catch (cause) {
+  console.error(`test-spec: could not append failure traces: ${String(cause)}`);
+}
 finishReport(result.status ?? 1);
 
 process.exit(result.status ?? 1);
@@ -395,8 +416,15 @@ function finishReport(status: number): void {
   );
   writeFileSync(
     join(REPORT_DIR, REPORT_COMPLETION),
-    JSON.stringify({ status })
+    JSON.stringify({
+      status,
+      completedAtMs: wallClock.now(),
+      ...(process.env['ATLAS_REPORT_ATTEMPT_ID'] === undefined
+        ? {}
+        : { attemptId: process.env['ATLAS_REPORT_ATTEMPT_ID'] }),
+    })
   );
+  rmSync(ACTIVE_REPORT, { force: true });
   console.log(REPORT_READY);
 }
 

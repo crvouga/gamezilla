@@ -14,7 +14,7 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/message-shared": "workspace:*",

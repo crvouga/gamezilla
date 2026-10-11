@@ -1,4 +1,4 @@
 {
   "summary": "A producer that failed after recording passing checks was displayed as a passing report part. Preserve its failed completion without overwriting the individual measurements.",
-  "regressionTest": "pkgs/harness-report-shared/tests/explorer-storage.test.ts"
+  "regressionTest": "pkgs/atlas-reports-harness/tests/explorer-storage.test.ts"
 }

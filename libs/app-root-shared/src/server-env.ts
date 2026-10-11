@@ -1,5 +1,5 @@
-import type { OpenSqlClient } from '@libs/feature-shared/sync';
 import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
+import type { OpenSqlClient } from '@libs/sub-shared/sync';
 import type { AuthProviderModule } from '@pkgs/auth-root-shared/auth-provider-module';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
@@ -29,11 +29,6 @@ export type ServerEnv = {
   readonly events: PubSub | null;
   readonly kv: Kv | null;
   readonly blob: ObjectStore;
-  /**
-   * The shared spec reports store every environment reads (`/api/reports`);
-   * null when this deployment holds no credential for it.
-   */
-  readonly reports: ObjectStore | null;
   readonly billing: MembershipProviders | null;
   readonly tts: TtsProvider | null;
   readonly llm: LlmProvider | null;

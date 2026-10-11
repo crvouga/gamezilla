@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@libs/billing-shared": "workspace:*",
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-client": "workspace:*",

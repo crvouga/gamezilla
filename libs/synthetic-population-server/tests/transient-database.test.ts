@@ -20,11 +20,7 @@ test('a transient database failure rolls back identity provisioning and lease ac
         return result;
       }),
   };
-  const controller = new SyntheticPopulationController(
-    db,
-    f.ports,
-    'synthetic-population-fixture-secret-0123456789abcdef'
-  );
+  const controller = new SyntheticPopulationController(db, f.ports);
   try {
     const notified = f.notifications();
     await expect(controller.claim(f.workers[0]!)).rejects.toThrow(

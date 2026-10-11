@@ -9,7 +9,7 @@ export function SignInIdleBody(props: {
   providers: readonly OauthProviderId[];
   signInUnavailableReason: string | null;
   onPress: (provider: OauthProviderId) => void;
-  startPassword: (runner: () => Promise<void>) => Promise<void>;
+  onContinueWithEmail: () => void;
 }): JSX.Element {
   return (
     <SignInModalBody
@@ -17,7 +17,7 @@ export function SignInIdleBody(props: {
       providers={props.providers}
       signInUnavailableReason={props.signInUnavailableReason}
       onPress={props.onPress}
-      startPassword={props.startPassword}
+      onContinueWithEmail={props.onContinueWithEmail}
     />
   );
 }

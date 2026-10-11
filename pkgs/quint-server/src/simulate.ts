@@ -18,11 +18,18 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import {
+  copyFileSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+} from 'node:fs';
 import { basename, join } from 'node:path';
 import type { ItfTrace } from '@pkgs/quint-shared/itf';
 import { decodeItfTrace, renderQuint } from '@pkgs/quint-shared/itf';
 import { quintSeed } from '@pkgs/quint-shared/wall';
+import { cachedQuintDir } from './draw-cache';
 
 /** The Quint CLI that ships in the npm package, run under Bun. */
 export const QUINT_CLI = Bun.resolveSync(
@@ -74,9 +81,34 @@ function traceKey(trace: ItfTrace): string {
 
 export function simulate(options: SimulateOptions): SimulateResult {
   const seed = options.seed ?? quintSeed();
-  const invariants = modelInvariants(readFileSync(options.specPath, 'utf8'));
+  const source = readFileSync(options.specPath, 'utf8');
+  const invariants = modelInvariants(source);
+  const itfDir = cachedQuintDir({
+    source,
+    seed,
+    traces: options.traces,
+    maxSteps: options.maxSteps,
+    produce: (dir) => {
+      runQuint(options, seed, invariants, dir);
+      loadTraces(dir, options.specPath);
+    },
+  });
   rmSync(options.outDir, { recursive: true, force: true });
   mkdirSync(options.outDir, { recursive: true });
+  copyItf(itfDir, options.outDir);
+  return {
+    seed,
+    invariants,
+    traces: loadTraces(options.outDir, options.specPath),
+  };
+}
+
+function runQuint(
+  options: SimulateOptions,
+  seed: string,
+  invariants: readonly string[],
+  outDir: string
+): void {
   const result = spawnSync(
     process.execPath,
     [
@@ -97,7 +129,7 @@ export function simulate(options: SimulateOptions): SimulateResult {
       '--max-steps',
       String(options.maxSteps),
       '--out-itf',
-      join(options.outDir, 'trace-{seq}.itf.json'),
+      join(outDir, 'trace-{seq}.itf.json'),
       // Trace evidence is written to ITF files. Rendering a full trace
       // on stdout can exhaust the child-process buffer on deep histories.
       '--verbosity',
@@ -106,50 +138,58 @@ export function simulate(options: SimulateOptions): SimulateResult {
     ],
     { encoding: 'utf8' }
   );
-  if (result.status !== 0) {
-    throw new Error(
-      [
-        `quint run ${options.specPath} failed (seed ${seed}):`,
-        ...(invariants.length === 0
-          ? []
-          : [`invariants checked: ${invariants.join(', ')}`]),
-        result.error?.message ?? '',
-        result.stdout.trim(),
-        result.stderr.trim(),
-      ]
-        .filter((part) => part.length > 0)
-        .join('\n')
-    );
+  if (result.status === 0) return;
+  throw new Error(
+    [
+      `quint run ${options.specPath} failed (seed ${seed}):`,
+      ...(invariants.length === 0
+        ? []
+        : [`invariants checked: ${invariants.join(', ')}`]),
+      result.error?.message ?? '',
+      result.stdout.trim(),
+      result.stderr.trim(),
+    ]
+      .filter((part) => part.length > 0)
+      .join('\n')
+  );
+}
+
+function copyItf(from: string, to: string): void {
+  for (const file of readdirSync(from)) {
+    if (!file.endsWith('.itf.json')) continue;
+    copyFileSync(join(from, file), join(to, file));
   }
-  const files = readdirSync(options.outDir)
+}
+
+function loadTraces(dir: string, specPath: string): ItfTrace[] {
+  const files = readdirSync(dir)
     .filter((file) => file.endsWith('.itf.json'))
     .sort((a, b) => traceSeq(a) - traceSeq(b));
   const seen = new Set<string>();
   const traces: ItfTrace[] = [];
   for (const file of files) {
     const trace = decodeItfTrace(
-      JSON.parse(readFileSync(join(options.outDir, file), 'utf8'))
+      JSON.parse(readFileSync(join(dir, file), 'utf8'))
     );
     const key = traceKey(trace);
     if (seen.has(key)) {
-      rmSync(join(options.outDir, file));
+      rmSync(join(dir, file));
       continue;
     }
     seen.add(key);
     traces.push(trace);
   }
-  if (traces.length === 0) {
-    throw new Error(`quint run ${options.specPath} wrote no traces`);
-  }
+  if (traces.length === 0)
+    throw new Error(`quint run ${specPath} wrote no traces`);
   // A false `init` draws empty traces without an error (e.g.
   // `x' = a and b` parses as `(x' = a) and b`); replaying one would pass
   // having checked nothing.
   if (traces.some((trace) => trace.states.length === 0)) {
     throw new Error(
-      `quint run ${options.specPath} drew an empty trace: its init is never true (note \`x' = a and b\` reads as \`(x' = a) and b\`)`
+      `quint run ${specPath} drew an empty trace: its init is never true (note \`x' = a and b\` reads as \`(x' = a) and b\`)`
     );
   }
-  return { seed, invariants, traces };
+  return traces;
 }
 
 function traceSeq(file: string): number {

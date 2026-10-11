@@ -8,6 +8,7 @@ import {
   handleSignOutAll,
 } from './auth-route-handlers';
 import type { AuthAppCtx, CreateAuthAppDeps } from './create-auth-app-types';
+import { createEmailLinkAuthApp } from './email-link-auth';
 import {
   handleCreateSeparate,
   handleLinkTicket,
@@ -15,7 +16,6 @@ import {
   handleUnlink,
 } from './identity-handlers';
 import { handleOauthCallback, handleOauthLaunch } from './oauth-handlers';
-import { createPasswordAuthApp } from './password-auth';
 import { createOauthProviders } from './registry';
 import { handleSyntheticMonitorCode } from './synthetic-monitor';
 
@@ -33,9 +33,14 @@ export function createAuthApp(deps: CreateAuthAppDeps): Hono {
     }),
   };
   const app = new Hono();
-  app.route('/auth/password', createPasswordAuthApp(deps));
+  app.route('/auth/email', createEmailLinkAuthApp(deps));
 
-  app.get('/auth/providers', (c) => c.json({ providers: ctx.oauth.enabled }));
+  app.get('/auth/providers', (c) =>
+    c.json({
+      providers: ctx.oauth.enabled,
+      emailLinks: deps.emailLinks !== undefined,
+    })
+  );
   app.get('/auth/oauth/launch', (c) => handleOauthLaunch(c, ctx));
   // Google returns with a redirect; Apple POSTs a form (`form_post`).
   app.get('/auth/callback/:provider', (c) => handleOauthCallback(c, ctx));

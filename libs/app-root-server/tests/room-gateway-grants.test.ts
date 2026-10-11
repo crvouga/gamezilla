@@ -7,7 +7,7 @@ import {
 import type { ApiRequestAsyncStore } from '@libs/app-root-shared/request-scope';
 import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
 import { SessionAuth } from '@libs/auth-shared/session-middleware';
-import type { RoomGrantsCtx } from '@libs/feature-shared/server';
+import type { RoomGrantsCtx } from '@libs/sub-shared/server';
 import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
 
 const INSTALL_ID = '0b6f6a52-5f0e-4a39-9d1c-2f7f3f1f7a10';
@@ -112,7 +112,7 @@ describe('room gateway: the grants a connection is admitted with', () => {
     expect(result.forwarded).toEqual([]);
   });
 
-  test('forwards what the features decided for the resolved actor', async () => {
+  test('forwards what the subs decided for the resolved actor', async () => {
     const seen: RoomGrantsCtx[] = [];
     const result = await upgrade((ctx) => {
       seen.push(ctx);

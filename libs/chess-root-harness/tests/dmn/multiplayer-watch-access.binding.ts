@@ -1,5 +1,5 @@
-import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
 import { multiplayerRoomGrants } from '@libs/chess-root-server/multiplayer-room-server';
+import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
 import { clientGatingLayer } from '@libs/permissions-harness/client';
 import { spaceRolesApplicationLayer } from '@libs/permissions-shared/application';
 import { DMN_INPUT } from '@libs/permissions-shared/people';

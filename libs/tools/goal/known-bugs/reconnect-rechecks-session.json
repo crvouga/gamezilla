@@ -1,0 +1,4 @@
+{
+  "summary": "A device that was offline kept a deleted account until the minute session recheck. The spec that waits for that recheck then timed out when many workers shared the machine. Coming back online rechecks the session immediately.",
+  "regressionTest": "libs/auth-client/tests/session-revalidate-on-origin.test.ts"
+}

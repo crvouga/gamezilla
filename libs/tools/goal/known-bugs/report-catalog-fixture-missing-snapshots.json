@@ -1,4 +1,4 @@
 {
   "summary": "Report catalog setup published metadata referencing frames/alice-2.html without writing the recorded snapshot blobs. Write every report and its snapshots together for completed, passing and later-edition catalog sources.",
-  "regressionTest": "apps/product/tests/developer-catalog-source.test.ts"
+  "regressionTest": "pkgs/atlas-reports-harness/tests/client/reusable-source.test.ts"
 }

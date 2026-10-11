@@ -1,37 +1,28 @@
-# The ubiquitous language of Auth: how the outside accounts people already
-# have at Google and Apple get them into accounts, whatever those companies
-# do. It is the capability any app built on this product's sign-in has;
-# Identity is this product's use of it. Auth borrows Identity's published
-# terms (account, sign in, sign out, sign-in method, Google, Apple) and
-# publishes none of its own; see the context map.
+# The ubiquitous language of Auth: how people get into accounts without ever
+# choosing a secret of their own. The outside accounts they already have at
+# Google and Apple get them in, whatever those companies do, and so does a
+# sign-in link sent to their email address. It is the capability any app built
+# on this product's sign-in has; Identity is this product's use of it. Auth
+# borrows Identity's published terms (account, sign in, sign out, sign-in
+# method, Google, Apple) and publishes the terms of signing in with a sign-in
+# link (email address, mailbox, sign-in link, ask for a sign-in link); see the
+# context map.
 context: Auth
 purpose: >-
   People get into their accounts with the outside accounts they already have
-  at Google and Apple: each outside account gets into exactly one account, a
-  matching account is confirmed before a new outside account is added to it, a
-  sign-in lasts until it is signed out or lapses, and nothing Google or
-  Apple does lets anyone into the wrong account.
+  at Google and Apple, or with a sign-in link sent to their email address:
+  each outside account and each email address gets into exactly one account,
+  a matching account is confirmed before a new outside account is added to
+  it, a sign-in link gets in only someone who can read the mailbox it was
+  sent to, a sign-in lasts until it is signed out or lapses, and nothing
+  Google or Apple does lets anyone into the wrong account.
 
 terms:
-  - term: password
-    definition: A secret phrase a person chooses to get into their password account.
-    forms: [passwords, correct password, wrong password]
-    published: true
-
-  - term: password account
-    definition: An account reached with an email address and a password rather than an outside account.
-    forms: [password accounts, registered account]
-    published: true
-
-  - term: register
-    definition: Start a new password account with an email address and a password.
-    forms: [registers, registered, registration, registering]
-    published: true
   # --- Borrowed -----------------------------------------------------------------
 
   - term: account
     from: profile
-    model: [accountCount]
+    model: [accountCount, accountAt]
 
   - term: sign in
     from: profile
@@ -76,13 +67,15 @@ terms:
 
   - term: email address
     definition: >-
-      The email address of an outside account, as its provider gives it to
-      the app. The sign-in method shows it; when the person changes it at
-      the provider, the sign-in method shows the new one from their next
-      sign-in.
-    forms: [email addresses, same email address, new email address]
+      Where a person's mail reaches them. An outside account has one, as its
+      provider gives it to the app: the sign-in method shows it, and when the
+      person changes it at the provider, the sign-in method shows the new one
+      from their next sign-in. A sign-in link is sent to the one a person
+      gives when they ask for it, and exactly one account belongs to it.
+    forms: [email addresses, same email address, new email address, own email address]
     avoid: [email, mail address]
-    model: [sameEmailAddress]
+    model: [sameEmailAddress, EmailAddress]
+    published: true
 
   - term: verified email address
     definition: >-
@@ -135,11 +128,70 @@ terms:
     definition: >-
       Run out of time. The chance to confirm a matching account lapses 10
       minutes after the person is asked, and they are told so when they
-      next answer; a sign-in lapses 30 days after it starts, and the device
-      is signed out.
+      next answer; a sign-in link lapses 10 minutes after it was asked for,
+      and no longer works; a sign-in lapses 30 days after it starts, and the
+      device is signed out.
     forms: [lapses, lapsed, has lapsed]
     avoid: [expire, expires, expired]
-    model: [chanceToConfirmLapses, signInsLapse]
+    model: [chanceToConfirmLapses, signInsLapse, signInLinksLapse]
+
+  # --- Sign-in links -------------------------------------------------------------------
+
+  - term: sign-in link
+    definition: >-
+      What is sent to an email address when someone asks for one there. It
+      arrives in that email address's mailbox, and opening it signs the
+      person in to the account that belongs to that email address: the first
+      one opened for an email address starts its account, and every later
+      one gets into that same account. It works once, and it lapses 10
+      minutes after it was asked for; opened after either, it tells the
+      person it no longer works and signs nobody in.
+    forms: [sign-in links, no longer works]
+    avoid: [magic link, login link, email link, one-time link]
+    model: [SignInLink]
+    published: true
+
+  - term: ask for a sign-in link
+    definition: >-
+      Give an email address and have a sign-in link sent to it. Whoever asks
+      is told only that a sign-in link is on its way, whether or not an
+      account belongs to that email address, so asking never shows which
+      email addresses have accounts. Asking needs a connection.
+    forms:
+      - asks for a sign-in link
+      - asked for a sign-in link
+      - has asked for a sign-in link
+      - asking for a sign-in link
+      - tries to ask for a sign-in link
+    model: [askForSignInLink]
+    published: true
+
+  - term: open a sign-in link
+    definition: >-
+      Follow a sign-in link from the mailbox it arrived in. The device it is
+      opened on is the one signed in. Only someone who can read that mailbox
+      can open it, and opening needs a connection.
+    forms:
+      - opens the sign-in link
+      - opens the same sign-in link again
+      - opened the sign-in link
+      - cannot open the sign-in link
+    model: [openSignInLink]
+
+  - term: mailbox
+    definition: >-
+      Where mail sent to an email address arrives. Only whoever the email
+      address belongs to can read it.
+    forms: [mailboxes]
+    avoid: [inbox, email inbox]
+    model: [mailbox, readsMailbox]
+    published: true
+
+  - term: way to send mail
+    definition: >-
+      What an environment needs before anything it sends can arrive in a
+      mailbox. An environment that has none offers no sign-in links at all.
+    forms: [a way to send mail, no way to send mail]
 
   # --- Managing sign-in methods ----------------------------------------------------
 
@@ -151,7 +203,7 @@ terms:
       already has, and connecting needs a connection. Connecting starts a new
       sign-in on that device in place of the old one.
     forms: [connects Apple, connected Apple, connect Apple, connects, tries to connect, connecting]
-    avoid: [link, links, linked, linking]
+    avoid: [link an account, link a sign-in method, linked, linking]
     model: [connectSignInMethod]
 
   - term: remove a sign-in method

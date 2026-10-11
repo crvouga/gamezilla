@@ -1,10 +1,10 @@
 import { expect, test } from 'bun:test';
-import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
 import {
   PuzzleLoadAlreadyRunningError,
   PuzzleLoadJobService,
 } from '@libs/chess-puzzle-server/puzzle-load-job';
 import { CHESS_PUZZLE_OBJECT_KEY } from '@libs/chess-puzzle-shared/puzzle-load-job';
+import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';

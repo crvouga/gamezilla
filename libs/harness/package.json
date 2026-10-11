@@ -17,6 +17,7 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload"
   },
   "dependencies": {
+    "@crvouga/atlas-reports": "workspace:*",
     "@crvouga/mockingbird-service-oauth": "catalog:",
     "@crvouga/mockingbird-service-openai": "catalog:",
     "@crvouga/mockingbird-service-s3": "catalog:",
@@ -27,8 +28,9 @@
     "@libs/app-root-shared": "workspace:*",
     "@libs/auth-shared": "workspace:*",
     "@libs/db-shared": "workspace:*",
-    "@libs/feature-client": "workspace:*",
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-client": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
+    "@libs/synthetic-population-shared": "workspace:*",
     "@libs/moderation-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/synthetic-population-shared": "workspace:*",
@@ -92,6 +94,7 @@
     "@pkgs/ui-testing-solid-dom-client": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "@solidjs/router": "catalog:",
+    "hono": "catalog:",
     "solid-js": "catalog:",
     "stripe": "catalog:"
   },
@@ -103,7 +106,6 @@
     "@pkgs/dmn-server": "workspace:*",
     "@pkgs/dmn-shared": "workspace:*",
     "@pkgs/gherkin-server": "workspace:*",
-    "@pkgs/harness-report-shared": "workspace:*",
     "@pkgs/openslo-server": "workspace:*",
     "@pkgs/openslo-shared": "workspace:*",
     "@types/bun": "catalog:",

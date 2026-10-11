@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { HARNESS_AUTH_SECRET } from '@libs/feature-shared/harness-constants';
+import { HARNESS_AUTH_SECRET } from '@libs/sub-shared/harness-constants';
 import { DEFAULT_SYNTHETIC_POPULATION_CONFIG } from '@libs/synthetic-population-shared/config';
 import { localApiEnv } from './local-api-env';
 import { localPopulationConfig } from './local-population-config';
@@ -41,6 +41,19 @@ test('local processes inherit plumbing but no deployed service credentials', () 
       BUN_ENV_FILE: '/tmp/secrets',
     })
   ).toEqual({ PATH: '/bin', HOME: '/home/developer', TERM: 'xterm' });
+});
+
+test('missing cloud reports credentials cannot block local startup', () => {
+  // regression: local-stack-missing-reports-credentials
+  const empty = localApiEnv({});
+  const cloud = localApiEnv({
+    REPORTS_BUCKET: 'shared-cloud',
+    REPORTS_ENDPOINT: 'https://outside.example',
+    REPORTS_ACCESS_KEY_ID: 'key',
+    REPORTS_SECRET_ACCESS_KEY: 'secret',
+  });
+  expect(empty).toEqual(cloud);
+  expect(empty).not.toHaveProperty('REPORTS_ENDPOINT');
 });
 
 test('a feature path selects a suite and trailing flags select its scenarios', () => {

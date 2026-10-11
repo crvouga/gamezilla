@@ -2,6 +2,7 @@ import type { Clock } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
+import type { EmailLinkDelivery } from './email-link-delivery';
 import type { OauthCallbackRelay } from './oauth-callback-relay';
 import type { OauthProviders, OauthProvidersConfig } from './registry';
 import type { SyntheticMonitorConfig } from './synthetic-monitor';
@@ -28,6 +29,8 @@ export type CreateAuthAppDeps = {
   readonly callbackRelay?: OauthCallbackRelay;
   /** Hidden synthetic-monitor sign-in; absent → its route answers 404. */
   readonly syntheticMonitor?: SyntheticMonitorConfig;
+  /** Where emailed sign-in links go; absent → the email routes answer 404. */
+  readonly emailLinks?: EmailLinkDelivery;
   /**
    * Called after the IdP changed a user's identities without the user asking
    * (a provider notification); absent → nobody is told.

@@ -46,7 +46,7 @@
     "fzstd": "catalog:"
   },
   "devDependencies": {
-    "@libs/chess-feature-shared": "workspace:*",
+    "@libs/chess-sub-shared": "workspace:*",
     "@pkgs/chess-rules-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",

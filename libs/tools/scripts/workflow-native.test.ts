@@ -1,7 +1,10 @@
 import { expect, test } from 'bun:test';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { testConcurrency } from '@pkgs/os-server/test-concurrency';
+import {
+  specParallelism,
+  testConcurrency,
+} from '@pkgs/os-server/test-concurrency';
 
 const ROOT = join(import.meta.dirname, '../../..');
 
@@ -20,9 +23,10 @@ test('a two-core Check runner never starts twenty concurrent test processes', ()
   };
   expect(testConcurrency(env, 20)).toBe(1);
   expect(testConcurrency(env, 2)).toBe(1);
+  expect(specParallelism(env)).toBe(1);
   expect(
     readFileSync(join(ROOT, 'libs/harness/scripts/test-spec.ts'), 'utf8')
-  ).toContain('testConcurrency(process.env, 2)');
+  ).toContain('specParallelism(process.env)');
   expect(workflow.env['CHECK_CONCURRENCY']).toEndWith("|| '1' }}");
   expect(workflow.on.workflow_call.inputs.concurrency.default).toBe(1);
   expect(workflow.env['MODEL_CHECK_CONCURRENCY']).toBe(2);

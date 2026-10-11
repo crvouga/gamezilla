@@ -4,7 +4,7 @@
  * {@link LoopbackRoomTransport} — no browser WebSocket / Durable Object.
  *
  * The games a space can host are an argument: the product passes its whole
- * registry, a feature's spec passes the games it composes (or none).
+ * registry, a sub's spec passes the games it composes (or none).
  *
  * No API gateway stands in front of it, so it asks the harness's stand-in
  * for one ({@link HarnessRoomGateway}) on every connect — the grants the
@@ -14,7 +14,6 @@
  * command, as in the Durable Object.
  */
 
-import type { EnvTime } from '@libs/feature-shared/sync';
 import type {
   HarnessRoomGateway,
   HarnessRoomNode,
@@ -24,6 +23,7 @@ import type { CreateRoomTransport } from '@libs/spaces-client/room-transport-fac
 import type { GameDefinition } from '@libs/spaces-shared/game';
 import { composeRoomModules } from '@libs/spaces-shared/load-game-plugins';
 import { createSpaceRoomAuthorizer } from '@libs/spaces-shared/space-room-authorize';
+import type { EnvTime } from '@libs/sub-shared/sync';
 import type { Message } from '@pkgs/message-shared/message';
 import { LoopbackRoomTransport } from '@pkgs/room-adapter-memory-shared/loopback-transport';
 import { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';

@@ -1,6 +1,6 @@
 language js
 
-// §22.11: `plan:*` role ids are policy data, never literals in feature code.
+// §22.11: `plan:*` role ids are policy data, never literals in sub code.
 // Perf: a whole-file substring test gates the tree walk. Every match must
 // contain one of these tokens, so files without them are skipped for ~free.
 file($body) where {

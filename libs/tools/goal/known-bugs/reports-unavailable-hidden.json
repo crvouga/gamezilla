@@ -1,4 +1,4 @@
 {
   "summary": "A reports API 503 was hidden behind automatic query retries and an empty catalog without a recovery action.",
-  "regressionTest": "pkgs/harness-report-client/tests/reliability.test.ts"
+  "regressionTest": "pkgs/atlas-reports-harness/tests/client/reliability.test.ts"
 }

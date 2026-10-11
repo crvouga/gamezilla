@@ -1,6 +1,6 @@
 /**
  * The client gating layers this package can build whole: the access table's
- * (the decision the app renders a feature, its lock or its unlock from —
+ * (the decision the app renders a sub, its lock or its unlock from —
  * `useDecision`) and the daily puzzle limit's (what the app answers when a
  * rated puzzle is about to start — `usePermissions().can`, counting the
  * device's synced ledger).

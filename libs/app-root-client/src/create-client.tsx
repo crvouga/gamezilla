@@ -1,19 +1,19 @@
 /** @jsxImportSource solid-js */
 /**
  * The only client constructor — wall (`main.tsx`) and harnesses pass different
- * `ClientEnv` implementations and different feature sets. `App` owns the
+ * `ClientEnv` implementations and different sub sets. `App` owns the
  * router: the browser `Router` (URL is the source of truth) or, when
  * `embedded`, a `MemoryRouter` so several product Apps can share one page (or
  * a test can drive `history`).
  *
- * The shell names no feature. Routes, tabs, docks and providers all come from
- * the `features` fold, so booting one bounded context and booting all of them
+ * The shell names no sub. Routes, tabs, docks and providers all come from
+ * the `subs` fold, so booting one bounded context and booting all of them
  * is the same code path with a different argument — which is what lets a
- * feature's own spec run the real shell.
+ * sub's own spec run the real shell.
  */
 
-import type { FeatureClient } from '@libs/feature-client/client';
-import { composeFeatureClients } from '@libs/feature-client/compose-client';
+import type { SubClient } from '@libs/sub-client/client';
+import { composeSubClients } from '@libs/sub-client/compose-client';
 import {
   type MemoryHistory,
   MemoryRouter,
@@ -21,11 +21,8 @@ import {
   type RouteSectionProps,
 } from '@solidjs/router';
 import { type Component, type JSX, Show, untrack } from 'solid-js';
-import type {
-  AppComposition,
-  LoadComposedFeatures,
-} from './app-features-context';
-import { AppCompositionProvider } from './app-features-context';
+import type { AppComposition, LoadComposedSubs } from './app-subs-context';
+import { AppCompositionProvider } from './app-subs-context';
 import type { ClientEnv } from './client-env';
 import { ClientEnvProvider } from './client-env-context';
 import { createOfflineClientEnv } from './offline-client-env';
@@ -60,18 +57,18 @@ export type CreateClientOptions = {
 
 export type CreateClientArgs = CreateClientOptions & {
   /**
-   * The bounded contexts this client runs. Production passes every feature;
+   * The bounded contexts this client runs. Production passes every sub;
    * a subsystem harness passes the platform plus the one under test. The
    * shell itself names none of them.
    */
-  readonly features: readonly FeatureClient[];
+  readonly subs: readonly SubClient[];
   /**
-   * The same features' data halves — schema, queries, wake topics, writes —
+   * The same subs' data halves — schema, queries, wake topics, writes —
    * behind a thunk. The shell holds no product registry of its own, and the
    * fold must not reach the entry chunk: it is first needed when the local
    * database opens, well after first paint.
    */
-  readonly loadApp: LoadComposedFeatures;
+  readonly loadApp: LoadComposedSubs;
 };
 
 function makeRoot(embedded: boolean): Component<RouteSectionProps> {
@@ -89,7 +86,7 @@ export function createClient(env: ClientEnv, args: CreateClientArgs): Client {
       : { globalKey: args.poolGlobalKey }),
   });
   const composition: AppComposition = {
-    clients: composeFeatureClients(args.features),
+    clients: composeSubClients(args.subs),
     loadApp: args.loadApp,
   };
   const routes = buildAppRoutes(buildRouteTable(composition.clients.routes));

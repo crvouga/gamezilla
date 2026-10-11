@@ -7,8 +7,9 @@ import { parseRecommendations } from './recommendations';
  *
  * - `idle`: no puzzle in play (default; also after `ClearChessPuzzlePlay`).
  * - `solving`: puzzle started, awaiting host's next move.
- * - `wrong`: host's last move did not match the solution; the piece went
- *   back (the board still shows the position before it); awaiting retry.
+ * - `wrong`: host's last move did not match the solution; the piece stays
+ *   on its wrong square (`displayFen` is still the position before it);
+ *   awaiting retry.
  * - `solved`: solution complete.
  * - `revealed`: the host asked to see the solution; the rest of the line was
  *   played out and the attempt is in review (terminal, step back / forward).
@@ -131,10 +132,6 @@ export const ChessPuzzlePlayAttr = {
   /** Bumps on every wrong-move / reset so the chess board can force a remount when FEN string is unchanged. */
   layoutKey: playNs.integer('layout-key', readNonNegativeInteger),
   wrongUci: playNs.textOrNull('wrong-uci', readNullableNonEmptyString),
-  wrongFromSquare: playNs.textOrNull(
-    'wrong-from-square',
-    readNullableNonEmptyString
-  ),
   wrongToSquare: playNs.textOrNull(
     'wrong-to-square',
     readNullableNonEmptyString

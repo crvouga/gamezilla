@@ -59,7 +59,7 @@ const CASES = [
   },
 ];
 
-test.each(CASES)(
+test.each([...CASES])(
   'paid access starts again after hosting trace $trace',
   async (example) => {
     // regression: hosting-cancellation-waits-past-sign-in

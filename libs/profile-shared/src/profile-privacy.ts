@@ -1,4 +1,4 @@
-import type { AccountPrivacyContribution } from '@libs/feature-shared/account-privacy';
+import type { AccountPrivacyContribution } from '@libs/sub-shared/account-privacy';
 import sql from '@pkgs/sql-root-shared/sql';
 
 export const PROFILE_PRIVACY: AccountPrivacyContribution = {

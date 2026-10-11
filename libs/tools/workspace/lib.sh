@@ -26,3 +26,19 @@ export WORKSPACE_ROOT_PATH
 unset git_common_dir
 
 cd "$WORKSPACE_PATH" || exit 1
+
+# Runs one command, printing its output only when it fails: a step that worked
+# is one line. Steps that run as Turborepo tasks get the same from
+# `outputLogs: errors-only`; this covers what has to run before turbo can.
+workspace_quiet() {
+  local label="$1" log status=0
+  shift
+  log="$(mktemp "${TMPDIR:-/tmp}/workspace-step.XXXXXX")"
+  echo "==> $label"
+  "$@" >"$log" 2>&1 || status=$?
+  if [ "$status" -ne 0 ]; then
+    cat "$log"
+  fi
+  rm -f "$log"
+  return "$status"
+}

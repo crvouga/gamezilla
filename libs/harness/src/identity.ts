@@ -8,7 +8,7 @@ import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
 } from '@libs/auth-shared/auth-storage-keys';
-import { HARNESS_AUTH_SECRET } from '@libs/feature-shared/harness-constants';
+import { HARNESS_AUTH_SECRET } from '@libs/sub-shared/harness-constants';
 import { hashAuthSecret } from '@pkgs/auth-inhouse-shared/token-hash';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';

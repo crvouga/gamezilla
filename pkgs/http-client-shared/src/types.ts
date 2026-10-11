@@ -6,5 +6,5 @@ export type HttpClient = {
   fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
 };
 
-/** Narrow fetch signature shared with sync-engine / feature deps. */
+/** Narrow fetch signature shared with sync-engine / sub deps. */
 export type HttpFetch = HttpClient['fetch'];

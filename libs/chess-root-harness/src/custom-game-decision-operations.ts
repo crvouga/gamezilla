@@ -1,8 +1,8 @@
 import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
 import { ChangeCustomGame } from '@libs/chess-custom-game-shared/custom-game-commands';
 import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
-import { chessGameShared } from '@libs/chess-feature-shared/chess-game';
-import { createChessServer } from '@libs/chess-root-server/feature-server';
+import { createChessServer } from '@libs/chess-root-server/sub-server';
+import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
 import type { HarnessRoomNode } from '@libs/harness/composition';
 import { capabilityOf, spacePresenceOf } from '@libs/permissions-shared/people';
 import type {

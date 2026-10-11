@@ -9,6 +9,7 @@
  */
 
 import { describe, test } from 'bun:test';
+import type { RunReportOptions } from '@crvouga/atlas-reports/report-types';
 import type { Layer } from '@pkgs/conformance-shared/evidence';
 import type { StepOutcome } from '@pkgs/gherkin-shared/failure';
 import {
@@ -24,7 +25,6 @@ import {
   worldLifecycle,
 } from '@pkgs/gherkin-shared/registry';
 import { tagFilter } from '@pkgs/gherkin-shared/tags';
-import type { RunReportOptions } from '@pkgs/harness-root-shared/report-types';
 import { recordScenario } from './evidence';
 import { createFeatureReporter } from './feature-report';
 
@@ -193,7 +193,7 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
             cause,
             reportHint:
               options.reportHint ??
-              'report: /reports/<commit sha>, published by bun check',
+              'report: open Specs and evidence in Atlas (bun atlas:viz)',
           }),
           { cause }
         );

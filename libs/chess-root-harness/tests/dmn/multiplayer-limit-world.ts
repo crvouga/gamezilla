@@ -4,7 +4,7 @@ import {
   CustomGamesAttr,
   newCustomGame,
 } from '@libs/chess-custom-game-shared/custom-game-state';
-import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
+import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
 import { countInput } from '@libs/permissions-shared/people';
 import type { ServerCase } from '@libs/permissions-shared/server';
 import { SPACES_TABLES } from '@libs/spaces-shared/tables';

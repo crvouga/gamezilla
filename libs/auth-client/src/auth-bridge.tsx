@@ -40,6 +40,7 @@ import { AuthBridgeRefresh } from './auth-bridge-refresh';
 import { useAuthClientPort } from './auth-client-provider';
 import { useConfigService } from './config-service-context';
 import { SessionBearerTokenResolver } from './resolve-session-bearer-token';
+import { originRevalidate } from './session-revalidate-on-origin';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
 import { useFreshAuthToken } from './use-fresh-auth-token';
@@ -258,6 +259,28 @@ function useRevalidateSession(args: {
   });
 }
 
+/** The minute interval is the backstop. A returning connection asks at once. */
+function useRevalidateSessionWhenOriginReturns(args: {
+  enabled: Accessor<boolean>;
+  port: AuthClientPort;
+  origin: ReturnType<typeof useOptionalOriginAvailability>;
+}): void {
+  createEffect(() => {
+    const origin = args.origin;
+    if (!args.enabled() || origin === undefined || origin.kind !== 'health') {
+      return;
+    }
+    let sawUnavailable = false;
+    const unsubscribe = origin.subscribe(() => {
+      const next = originRevalidate(sawUnavailable, origin.getSnapshot().phase);
+      sawUnavailable = next.sawUnavailable;
+      if (!next.revalidate) return;
+      void args.port.session.refresh();
+    });
+    onCleanup(unsubscribe);
+  });
+}
+
 /**
  * Reconciles local session capability (`sessionToken` + meta) with identity
  * refresh. IdP `useSession` is a ceremony/reconcile trigger only —
@@ -332,6 +355,11 @@ export function AuthBridge(props: ParentProps): JSX.Element {
     deps,
   });
   useRevalidateSession({ enabled: refreshEnabled, port });
+  useRevalidateSessionWhenOriginReturns({
+    enabled: refreshEnabled,
+    port,
+    origin: originAvailability,
+  });
 
   return <>{props.children}</>;
 }

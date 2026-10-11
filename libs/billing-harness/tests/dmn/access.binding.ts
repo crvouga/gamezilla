@@ -11,7 +11,7 @@
  *   capability mutations perform, the replay's authorize hook for each of
  *   those mutations. "See the billing plans" has no server boundary (the
  *   plans ship with the app), so this layer does not govern it;
- * - client gating — the live decision the app renders each feature, its lock
+ * - client gating — the live decision the app renders each sub, its lock
  *   or its unlock from (`useDecision`), on the person's device with the
  *   synced rows behind the case; answer and reason.
  */

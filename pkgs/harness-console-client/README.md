@@ -11,4 +11,4 @@ the SQL notebook.
 
 Test reports are **not** browsed here. `@pkgs/harness-root-shared` captures run timelines
 (`defineSnapshot` / `run({ report })`); `@pkgs/harness-report` streams them
-into the host's reports screen (`/reports`); see `libs/harness/README.md`.
+into the standalone Atlas explorer; see `libs/harness/README.md`.

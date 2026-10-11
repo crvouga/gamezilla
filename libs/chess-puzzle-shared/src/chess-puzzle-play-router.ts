@@ -174,9 +174,9 @@ function handleSubmitMove(
 }
 
 /**
- * A legal but wrong move is never applied: the display keeps the position
- * the solver moved from, so the piece returns; the from / to squares are
- * flagged red and the attempt turns `wrong` (§5).
+ * A legal but wrong move is never applied to the reached position: the
+ * display FEN keeps the position the solver moved from, the board shows the
+ * piece on its wrong square, flagged red, and the attempt turns `wrong` (§5).
  */
 function handleWrongMove(
   state: RoomState,
@@ -197,7 +197,6 @@ function handleWrongMove(
         uci,
         san,
         layoutKey: ChessPuzzlePlayAttr.layoutKey.from(state) + 1,
-        wrongFromSquare: squares.from,
         wrongToSquare: squares.to,
       }),
     ],

@@ -1,28 +1,30 @@
 /**
- * Spacing, typography, radius, and elevation scales.
- * Tailwind-like: 1 = 4px base unit.
+ * Spacing, typography, radius, and elevation scales, read from
+ * `design-tokens.json`. Tailwind-like: 1 = 4px base unit.
  */
 
 import type { ColorTokens } from './colors-types';
+import { readGroup, readNumber, readPx } from './design-tokens';
+import {
+  font,
+  opacity as opacityTokens,
+  radius,
+  space,
+} from './design-tokens.json';
 
-export const spacingScale = (n: number): number => n * 4;
+/** The 4px grid, keyed by step. The 2px half step is `'0-5'`. */
+export const spacing = readGroup({ space }, space.scale, readPx);
 
-export const spacing = {
-  0: 0,
-  0.5: 2,
-  1: 4,
-  2: 8,
-  3: 12,
-  4: 16,
-  5: 20,
-  6: 24,
-  8: 32,
-  10: 40,
-  12: 48,
-  16: 64,
-} as const;
+/** Px of grid step `n`: the base unit is the scale's step 1. */
+export const spacingScale = (n: number): number => n * spacing[1];
 
 export type SpacingKey = keyof typeof spacing;
+
+/**
+ * The t-shirt scale every `gap` / `padding` prop takes (`SpaceToken`), as
+ * `--ui-space-<name>`.
+ */
+export const spaceSize = readGroup({ space }, space.size, readPx);
 
 /**
  * The classic typographic scale (12, 14, 16, 18, 21, 24, 36, 48), not a
@@ -30,41 +32,22 @@ export type SpacingKey = keyof typeof spacing;
  * a size: they pick a role class (`textTitle`, `textCaption`, …) in
  * `hosts.css`, and the role picks the step.
  */
-export const fontSize = {
-  xs: 12,
-  sm: 14,
-  base: 16,
-  lg: 18,
-  xl: 21,
-  '2xl': 24,
-  '3xl': 36,
-  '4xl': 48,
-} as const;
+export const fontSize = readGroup({ font }, font.size, readPx);
 
 /**
  * Unitless ratios. `tokens.css` emits them unitless. The sx codemod still
  * appends `px` (`leading-[1.25px]`) — that quirk stays so old snapshots match.
  */
-export const lineHeight = {
-  tight: 1.25,
-  normal: 1.5,
-  relaxed: 1.75,
-} as const;
+export const lineHeight = readGroup({ font }, font.lineHeight, readNumber);
 
 /**
  * Per-step leading in px, on the 4px grid. Body steps breathe (1.5); display
  * steps tighten as they grow. Paired with `fontSize` as `--ui-leading-*`.
  */
-export const fontLeading = {
-  xs: 16,
-  sm: 20,
-  base: 24,
-  lg: 24,
-  xl: 28,
-  '2xl': 28,
-  '3xl': 40,
-  '4xl': 52,
-} as const;
+export const fontLeading = readGroup({ font }, font.leading, readPx);
+
+/** Named weights, as `--ui-font-weight-*`. */
+export const fontWeight = readGroup({ font }, font.weight, readNumber);
 
 /**
  * Radius encodes hierarchy, so it is never one value everywhere:
@@ -72,28 +55,22 @@ export const fontLeading = {
  * `lg` panels that group controls, `xl` sheets and dialogs. `full` is only
  * for things that are round by nature: avatars, pills, the FAB, dots.
  */
-export const borderRadius = {
-  none: 0,
-  xs: 6,
-  sm: 8,
-  md: 12,
-  lg: 20,
-  xl: 28,
-  '2xl': 36,
-  full: 9999,
-} as const;
+export const borderRadius = readGroup({ radius }, radius.scale, readPx);
+
+/**
+ * The hierarchy by name (`RadiusToken`): `control`, `card` and `sheet` are
+ * the `md`, `lg` and `xl` steps.
+ */
+export const radiusRole = readGroup({ radius }, radius.role, readPx);
 
 /**
  * Named distances on top of the 4px grid. Page insets and stacks should
  * use these (`--ui-space-page`, …) so density is one edit.
  */
-export const spaceRole = {
-  hairline: 1,
-  inline: spacing[2],
-  stack: spacing[3],
-  section: spacing[6],
-  page: spacing[5],
-} as const;
+export const spaceRole = readGroup({ space }, space.role, readPx);
+
+/** Named opacities as fractions (`muted` is 0.55), `--ui-opacity-*`. */
+export const opacity = readGroup({}, opacityTokens, readNumber);
 
 export type BorderRadiusKey = keyof typeof borderRadius;
 

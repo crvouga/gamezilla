@@ -20,16 +20,16 @@ function sources(): Map<string, string> {
     [
       PRODUCT_ROUTE_ROOTS[1],
       `
-      import { CLIENT as ACTIVE } from '@libs/example-client/feature-client';
-      import { UNUSED } from '@libs/uncomposed-client/feature-client';
+      import { CLIENT as ACTIVE } from '@libs/example-client/sub-client';
+      import { UNUSED } from '@libs/uncomposed-client/sub-client';
       const ACTIVE_CLIENTS = [ACTIVE];
-      export const APP_FEATURE_CLIENTS = [...ACTIVE_CLIENTS];
+      export const APP_SUB_CLIENTS = [...ACTIVE_CLIENTS];
     `,
     ],
     [
-      'libs/example-client/src/feature-client.tsx',
+      'libs/example-client/src/sub-client.tsx',
       `
-      import { defineFeatureClient as define } from '@libs/feature-client/client';
+      import { defineSubClient as define } from '@libs/sub-client/client';
       import { DETAIL } from '@libs/example-shared/paths';
       const ROUTES = [{ path: DETAIL, component: Detail }];
       export const CLIENT = define({ name: 'example', routes: ROUTES });
@@ -43,30 +43,16 @@ function sources(): Map<string, string> {
       PRODUCT_ROUTE_ROOTS[2],
       `
       import { HARNESS_PATH } from './console-nav-real';
-      import { isReportsPath } from './reports-path';
       function isHarnessPath(pathname: string) {
         return pathname === HARNESS_PATH || pathname.startsWith(HARNESS_PATH + '/');
       }
       function surfaceAt(pathname: string) {
         if (isHarnessPath(pathname)) return 'harness';
-        if (isReportsPath(pathname)) return 'reports';
         return 'app';
       }
     `,
     ],
     [PRODUCT_ROUTE_ROOTS[3], "export const HARNESS_PATH = '/harness';"],
-    [
-      PRODUCT_ROUTE_ROOTS[4],
-      `
-      export const REPORTS_PATH = '/reports';
-      export function isReportsPath(pathname: string) {
-        return pathname === REPORTS_PATH || pathname.startsWith(REPORTS_PATH + '/');
-      }
-      export function reportsPathFor(sha: string | null) {
-        return sha === null ? REPORTS_PATH : REPORT_PATTERN;
-      }
-    `.replace('REPORT_PATTERN', '`/reports/${sha}`'),
-    ],
   ]);
 }
 
@@ -78,13 +64,7 @@ function chart(): MachineConfig {
       Home: { meta: { route: '/' } },
       Detail: {
         meta: {
-          routes: [
-            '/example/:id',
-            '/*all',
-            '/harness',
-            '/reports',
-            '/reports/:sha',
-          ],
+          routes: ['/example/:id', '/*all', '/harness'],
         },
       },
     },
@@ -92,39 +72,37 @@ function chart(): MachineConfig {
 }
 
 describe('declared product route closure', () => {
-  test('resolves the actual composition, aliases, shared constants and report patterns without loading product code', () => {
+  test('resolves the actual composition, aliases, shared constants and surface patterns without loading product code', () => {
     const routes = declaredProductRoutes(sources());
     expect(routes.map((route) => route.path)).toEqual([
       '/',
       '/*all',
       '/example/:id',
       '/harness',
-      '/reports',
-      '/reports/:sha',
     ]);
     expect(routes.find((route) => route.path === '/example/:id')?.source).toBe(
-      'libs/example-client/src/feature-client.tsx'
+      'libs/example-client/src/sub-client.tsx'
     );
     expect(routeCoverageProblems(chart(), routes)).toEqual([]);
   });
 
-  test('finds routes returned by a composed feature factory', () => {
+  test('finds routes returned by a composed sub factory', () => {
     const files = sources();
     files.set(
       PRODUCT_ROUTE_ROOTS[1],
       `
-      import { createClient } from '@libs/example-client/feature-client';
+      import { createClient } from '@libs/example-client/sub-client';
       const ACTIVE = createClient({ ports: injectedPorts });
-      export const APP_FEATURE_CLIENTS = [ACTIVE];
+      export const APP_SUB_CLIENTS = [ACTIVE];
     `
     );
     files.set(
-      'libs/example-client/src/feature-client.tsx',
+      'libs/example-client/src/sub-client.tsx',
       `
-      import { defineFeatureClient } from '@libs/feature-client/client';
+      import { defineSubClient } from '@libs/sub-client/client';
       export function createClient(options) {
         function Provider() { return options.children; }
-        return defineFeatureClient({ name: 'example', routes: [{ path: '/factory/:id' }] });
+        return defineSubClient({ name: 'example', routes: [{ path: '/factory/:id' }] });
       }
     `
     );
@@ -203,7 +181,7 @@ describe('declared product route closure', () => {
     ).toBe(true);
     expect(
       problems.some((problem) =>
-        problem.message.includes('/reports/:sha: no chart state')
+        problem.message.includes('/harness: no chart state')
       )
     ).toBe(true);
   });

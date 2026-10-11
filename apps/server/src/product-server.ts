@@ -17,10 +17,7 @@ import { shippedModerationRules } from '@libs/moderation-shared/moderation-rules
 import './install-native-als';
 
 import { createServer } from '@libs/app-root-server/create-server';
-import {
-  createApiObjectStore,
-  createReportsObjectStore,
-} from '@libs/app-root-server/object-store';
+import { createApiObjectStore } from '@libs/app-root-server/object-store';
 import { openRequestDb } from '@libs/app-root-server/open-request-db-postgres';
 import { drainAndNotifyOutbox } from '@libs/app-root-server/outbox-drain';
 import type { ApiWorkerEnv } from '@libs/app-root-shared/env';
@@ -45,11 +42,11 @@ import { wrapSqlClientForObservability } from '@libs/app-root-shared/wrap-sql-cl
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { assertNonProdDatabaseUrl } from '@libs/db-shared/database-url-policy';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
-import { composeFeatureServers } from '@libs/feature-shared/compose-server';
 import { createRoomService } from '@libs/room-app-shared/create-room-service';
 import { APP_AUTH_PROVIDER } from '@libs/runtime-server/app-auth-provider';
-import { appFeatureServers } from '@libs/runtime-server/app-feature-servers';
-import { APP } from '@libs/runtime-shared/app-features';
+import { appSubServers } from '@libs/runtime-server/app-sub-servers';
+import { APP } from '@libs/runtime-shared/app-subs';
+import { composeSubServers } from '@libs/sub-shared/compose-server';
 import { context, SpanKind, SpanStatusCode } from '@opentelemetry/api';
 import { ThrowingCrashHandler } from '@pkgs/assert-root-shared/crash-handler-throwing';
 import { assert } from '@pkgs/assert-root-shared/singleton';
@@ -226,9 +223,6 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     now: wallClock.now,
     http: { fetch: (input, init) => globalThis.fetch(input, init) },
   });
-  const reports = await createReportsObjectStore(secretStore, {
-    http: { fetch: (input, init) => globalThis.fetch(input, init) },
-  });
   const dbScope = appPostgresDbScope();
   const serverUrl = readOptionalApiUrlOverride(env);
   const databaseUrlOverride = readOptionalDatabaseUrlOverride(env);
@@ -261,7 +255,6 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     events: null,
     kv: null,
     blob: objectStore,
-    reports,
     billing,
     tts: localStack ? new InMemoryTtsProvider() : null,
     llm: localStack ? new InMemoryLlmProvider() : null,
@@ -289,8 +282,8 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
 
   return await createServer(serverEnv, {
     app: APP,
-    servers: composeFeatureServers(
-      appFeatureServers({ billing, rooms: createRoomService(env.ROOM) })
+    servers: composeSubServers(
+      appSubServers({ billing, rooms: createRoomService(env.ROOM) })
     ),
   });
 }

@@ -36,8 +36,11 @@
  *   task fails, so a green gate prints the plan, the heartbeat and the
  *   summary and nothing a passing test wrote. Override with
  *   `TURBO_OUTPUT_LOGS` (`full` / `new-only`) to watch a run locally.
- * - UI: turbo ignores a `TURBO_UI` env var — pass `--ui=tui|stream` via
- *   `TURBO_UI` here (CI sets `stream`; local `deploy:*` sets `tui`).
+ * - UI: `turbo.json` selects the terminal UI (`tui`), one pane per task;
+ *   turbo falls back to `stream` by itself when stdout is not a terminal.
+ *   `TURBO_UI=tui|stream` overrides it here (CI sets `stream`), and a run
+ *   started from inside a task always streams: its terminal is that task's
+ *   pane.
  * - Time limits: the run is killed at a hard wall-clock deadline, and every
  *   task that executed is checked against its per-task budget once the run
  *   finishes. Both live in `check-budget.ts`.
@@ -269,8 +272,11 @@ function resolveConcurrency(): string {
   return String(defaultCheckConcurrency(availableParallelism()));
 }
 
-function resolveUi(): string | undefined {
-  const fromEnv = process.env['TURBO_UI']?.trim();
+/** The `--ui` to force; undefined leaves the choice to `turbo.json`. */
+export function resolveUi(env: NodeJS.ProcessEnv): string | undefined {
+  // Turbo sets TURBO_HASH for every task it runs.
+  if (env['TURBO_HASH'] !== undefined) return 'stream';
+  const fromEnv = env['TURBO_UI']?.trim();
   if (
     fromEnv !== undefined &&
     fromEnv.length > 0 &&
@@ -491,7 +497,7 @@ async function main(): Promise<void> {
   const cache = resolveCacheFlag(env, remote);
   const TURBO_LOG_ORDER =
     process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
-  const ui = resolveUi();
+  const ui = resolveUi(process.env);
 
   const restoreOutputs = process.argv.includes(RESTORE_OUTPUTS_FLAG);
   const publishReports = process.argv.includes(PUBLISH_REPORTS_FLAG);

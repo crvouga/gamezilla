@@ -101,7 +101,7 @@ const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
  * start again at once. While a membership is live (it still renews) a second
  * checkout is not offered — a restriction, so the grace case keeps the grant.
  *
- * Restrictions carry what used to be feature code: account-only actions deny
+ * Restrictions carry what used to be sub code: account-only actions deny
  * anonymous subjects with `requires_account`, the membership offer and portal
  * are off everywhere while the deployment has no provider (`billing: 'off'`),
  * and a live membership is not offered another (`subscription: 'live'`).

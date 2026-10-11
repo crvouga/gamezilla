@@ -1,5 +1,5 @@
 import { accountMutationEnv } from '@libs/auth-shared/account-mutation-env';
-import type { AccountPrivacyContribution } from '@libs/feature-shared/account-privacy';
+import type { AccountPrivacyContribution } from '@libs/sub-shared/account-privacy';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client-root-shared/interface';

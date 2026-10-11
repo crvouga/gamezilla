@@ -9,7 +9,7 @@ import { appAuth } from '@libs/auth-shared/auth-context';
 import { SessionAuth } from '@libs/auth-shared/session-middleware';
 import type { AuthContext } from '@libs/auth-shared/types';
 import { assertNonProdDatabaseUrl } from '@libs/db-shared/database-url-policy';
-import type { OpenSqlClient } from '@libs/feature-shared/sync';
+import type { OpenSqlClient } from '@libs/sub-shared/sync';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';

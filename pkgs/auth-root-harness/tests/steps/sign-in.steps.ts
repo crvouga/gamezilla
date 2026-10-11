@@ -331,7 +331,7 @@ Given(
   }
 );
 
-Given('{actor} has signed out on that device', async (w, actor: string) => {
+Given('{actor} has signed out( on that device)', async (w, actor: string) => {
   await w.s.apply(signOut, device(w, actor));
 });
 

@@ -1,13 +1,13 @@
 import { expect, test } from 'bun:test';
 import { sanitizeDomSnapshot } from '@libs/synthetic-population-shared/inspection';
 
-test('on-demand DOM inspection excludes credentials, private controls and hidden interactions', () => {
+test('on-demand DOM inspection excludes sign-in links, tokens, private controls and hidden interactions', () => {
   // regression: synthetic-population-inspection-private-controls
   const dom = document.implementation.createHTMLDocument('Synthetic User');
   dom.documentElement.setAttribute('data-token', 'root-session-token');
   dom.body.innerHTML = `
     <script>root-session-token</script>
-    <input type="password" value="cedar-secret-15-characters" data-testid="password" aria-label="Password">
+    <input value="https://app.example.test/sso-callback?email_link=cedar-secret-15-characters" data-testid="auth-email-link" aria-label="Sign-in link">
     <input type="hidden" value="root-session-token">
     <textarea>cedar-secret-15-characters</textarea>
     <div data-sensitive><button data-testid="private-copy">Private account data</button></div>
@@ -25,13 +25,15 @@ test('on-demand DOM inspection excludes credentials, private controls and hidden
     'cedar-secret-15-characters',
     'alice@example.com',
     'Private account data',
+    // The link pasted into the sign-in form is an input value: never inspected.
+    'email_link',
   ])
     expect(serialized).not.toContain(secret);
   expect(result.html).not.toContain('<script');
   expect(result.html).not.toContain('type="hidden"');
   expect(result.controls.map((item) => item.testId).sort()).toEqual([
+    'auth-email-link',
     'join-space',
-    'password',
   ]);
   expect(
     result.controls.find((item) => item.testId === 'join-space')?.name

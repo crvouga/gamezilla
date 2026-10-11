@@ -20,7 +20,7 @@
     "@libs/auth-shared": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-root-shared": "workspace:*",
-    "@libs/feature-client": "workspace:*",
+    "@libs/sub-client": "workspace:*",
     "@libs/permissions-client": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/profile-client": "workspace:*",
@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "@libs/billing-shared": "workspace:*",
-    "@libs/chess-feature-shared": "workspace:*",
+    "@libs/chess-sub-shared": "workspace:*",
     "@pkgs/a11y-shared": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",

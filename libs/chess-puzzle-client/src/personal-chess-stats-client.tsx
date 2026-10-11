@@ -1,4 +1,4 @@
-import { defineFeatureClient } from '@libs/feature-client/client';
+import { defineSubClient } from '@libs/sub-client/client';
 import { Trans } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
@@ -20,7 +20,7 @@ function PersonalChessStatsSettings(): JSX.Element {
   );
 }
 
-export const PERSONAL_CHESS_STATS_CLIENT = defineFeatureClient({
+export const PERSONAL_CHESS_STATS_CLIENT = defineSubClient({
   name: 'personal-chess-stats',
   routes: [{ path: '/more/chess-stats', component: PersonalChessStatsScreen }],
   settings: PersonalChessStatsSettings,

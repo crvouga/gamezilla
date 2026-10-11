@@ -32,6 +32,7 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { cssGap, cssPx } from '@pkgs/ui-root-shared/css-px';
 import {
+  type Accessor,
   createEffect,
   createSignal,
   type JSX,
@@ -141,11 +142,14 @@ function ErrorCopyButton(props: {
 }
 
 function needsErrorCatalog(
-  copy: ErrorStateCopy | undefined,
-  retry: ErrorStateRetry | undefined
-): boolean {
-  if (copy !== undefined) return true;
-  return retry !== undefined && retry.label === undefined;
+  copy: Accessor<ErrorStateCopy | undefined>,
+  retry: Accessor<ErrorStateRetry | undefined>
+): Accessor<boolean> {
+  return () => {
+    if (copy() !== undefined) return true;
+    const retryAction = retry();
+    return retryAction !== undefined && retryAction.label === undefined;
+  };
 }
 
 function ErrorActionRow(props: {
@@ -267,7 +271,10 @@ function CatalogErrorActions(props: ErrorActionProps): JSX.Element {
 function ErrorActions(props: ErrorActionProps): JSX.Element {
   return (
     <Show
-      when={() => needsErrorCatalog(props.copy, props.retry)}
+      when={needsErrorCatalog(
+        () => props.copy,
+        () => props.retry
+      )}
       fallback={<SpecifiedErrorActions {...props} />}
     >
       <CatalogErrorActions {...props} />

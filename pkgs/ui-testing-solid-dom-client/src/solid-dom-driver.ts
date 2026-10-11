@@ -127,12 +127,15 @@ export class SolidDomDriver<TContext = void> implements Driver {
     await this.requireApp().pressKey(DRIVER_KEY_TO_DOM[key]);
   }
 
-  snapshotHtml(options?: {
+  async snapshotHtml(options?: {
     readonly stylesheetHref?: string;
   }): Promise<string | null> {
     const app = this.app;
-    if (!app?.snapshotHtml) return Promise.resolve(null);
-    return Promise.resolve(
+    // A parked actor's container is detached. Focusing first captures that
+    // screen; a report of every actor uses the session cache instead.
+    if (!app?.snapshotHtml) return null;
+    await this.activate();
+    return (
       app.snapshotHtml(
         options?.stylesheetHref !== undefined
           ? { stylesheetHref: options.stylesheetHref }

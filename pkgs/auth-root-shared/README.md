@@ -14,8 +14,8 @@ through this port and never learns which service is behind it.
 
 | Import | What |
 | --- | --- |
-| `@pkgs/auth/shared` | Vocabulary: `OauthProviderId` (`google` / `apple`), `AuthIdentity`, `AuthUser`, `VerifiedSession`, `AUTH_ERROR` codes. |
-| `@pkgs/auth/client` | `AuthClientPort` (sign in / out, link / unlink, bearer tokens, reactive `session`), `AuthFlowError`, `AuthLinkRequiredError`. |
+| `@pkgs/auth/shared` | Vocabulary: `OauthProviderId` (`google` / `apple`), `SignInMethodId` (a provider, or `email` for an emailed sign-in link), `AuthIdentity`, `AuthUser`, `VerifiedSession`, `AUTH_ERROR` codes. |
+| `@pkgs/auth/client` | `AuthClientPort` (sign in with a provider or an emailed link, sign out, link / unlink, bearer tokens, reactive `session`), `AuthFlowError`, `AuthLinkRequiredError`. |
 | `@pkgs/auth/server` | `AuthServerPort` (`verifySessionToken`, `getUser`), and `AuthProviderModule` — what a composition root builds. |
 | `@pkgs/auth/contract` | `describeAuthServerContract`: the suite every server adapter passes. |
 
@@ -55,8 +55,10 @@ harnesses, scripts and tests may.
      unless the vendor posts webhooks to the API origin. Omit
      `reconcilePostgres`.
    - a client factory returning `AuthClientPort`. `signIn(provider)` starts
-     the vendor's OAuth flow for that `OauthProviderId`. `getFreshToken`
-     returns a token the server adapter verifies. `session` wraps the SDK's
+     the vendor's OAuth flow for that `OauthProviderId`;
+     `requestEmailLink` / `signInWithEmailLink` drive its emailed-link
+     sign-in (throw when it has none). `getFreshToken` returns a token the
+     server adapter verifies. `session` wraps the SDK's
      session listener. Map the vendor's errors onto `AuthFlowError` codes,
      and throw `AuthLinkRequiredError` if the vendor surfaces an
      account-transfer step (otherwise never).

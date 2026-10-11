@@ -1,4 +1,4 @@
-import type { ServerHttp } from '@libs/feature-shared/sync';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 
 type RnResponse = Response & { _bodyInit?: BodyInit | null };
 

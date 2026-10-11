@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@libs/auth-shared": "workspace:*",
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/object-store-root-shared": "workspace:*",

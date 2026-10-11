@@ -14,6 +14,7 @@ import {
 import type { HarnessComposition } from './composition';
 import { compositionMigratePostgres } from './migrate-composition';
 import { harnessPostgresSeedFingerprintSource } from './postgres-seed-fingerprint';
+import { withSeedRebuildLock } from './seed-rebuild-lock';
 
 const REPO_ROOT = join(__dirname, '../../..');
 
@@ -52,18 +53,21 @@ export async function ensureHarnessMockingbirdPostgresSeed(
   readonly seedBytes: Uint8Array;
   readonly didMigrate: boolean;
 }> {
+  const root = cacheDir();
+  const key = seedKey(composition);
   return ensureHarnessMockingbirdPostgresSeedBuffer({
     store: createNodeFsObjectStore({
-      rootDir: cacheDir(),
+      rootDir: root,
       fs: wallNodeFs(),
       layout: 'tree',
     }),
-    seedKey: seedKey(composition),
+    seedKey: key,
     fingerprintSource: await harnessPostgresSeedFingerprintSource(
       REPO_ROOT,
       composition
     ),
     now: wallClock.now,
+    exclusive: (fn) => withSeedRebuildLock(root, key, fn),
     migrate: async ({ sqlClient, pool }) => {
       await compositionMigratePostgres(composition)({
         sqlClient,

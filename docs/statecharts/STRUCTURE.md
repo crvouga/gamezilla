@@ -40,7 +40,6 @@ flowchart TD
   app --> connection[Opening without connection]
   tools --> test_worlds[Test worlds]
   tools --> notebook[Data notebook]
-  tools --> reports[Automated reports]
   tools --> release[Release check]
   tools --> environment[Environment]
   tools --> notes[Notes example]
@@ -80,14 +79,13 @@ flowchart TD
 | puzzle-links | chess | A shared puzzle link opens that puzzle with the permitted rated or practice behavior. |
 | puzzles | chess | The current puzzle stays connected to moves, hints, review, results, limits and offline watching. |
 | release | developer-tools | Release decisions require a current automated pass for every obligation of the same edition. |
-| reports | developer-tools | The team explores every spec and its current automated evidence, including missing or unavailable reports. |
 | room | room | The framework example joins room ownership, presence, a shared tally and a timed match. |
 | settings | runtime | Device preferences survive closing the app; account and product choices remain reachable from Settings. |
 | sign-in | auth | Google and Apple identify the person; account matching always preserves the person’s choice. |
 | sign-in-methods | profile | A person connects and removes sign-in methods without losing the last way into the account. |
 | spaces | spaces | People create, join, share, rename, leave and end spaces, with clear limits and recovery. |
 | test-worlds | developer-tools | The team selects independent devices, changes their arrangement and saves or restores compatible checkpoints. |
-| tools | developer-tools | The testing tool reaches test worlds, notebooks, reports, release evidence and the framework example apps. |
+| tools | developer-tools | The testing tool reaches test worlds, notebooks, release evidence and the framework example apps. |
 
 The current machine has 350 states and 906 transitions.
 [EXECUTION_NOTES.md](EXECUTION_NOTES.md) records complete graph traversal and

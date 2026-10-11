@@ -7,10 +7,10 @@ import {
   recoverApp,
 } from './privacy-retention';
 /**
- * The full composition: every feature the product ships, folded exactly as
+ * The full composition: every sub the product ships, folded exactly as
  * production folds them. The product harness and the full-composition
  * suites (`libs/runtime`: shell boot, the platform model, critical journeys)
- * run this; a feature's own spec runs its slice from its own package.
+ * run this; a sub's own spec runs its slice from its own package.
  */
 
 import { BILLING_HARNESS_ACTIONS } from '@libs/billing-harness/billing-actions';
@@ -23,9 +23,10 @@ import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
 import type { HarnessComposition } from '@libs/harness/composition';
 import { defineProductSystem } from '@libs/harness/define-product-system';
 import { PROFILE_HARNESS_ACTIONS } from '@libs/profile-harness/profile-actions';
-import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
-import { appFeatureServers } from '@libs/runtime-server/app-feature-servers';
-import { APP } from '@libs/runtime-shared/app-features';
+import { APP_SUB_CLIENTS } from '@libs/runtime-client/app-sub-clients';
+import { APP_AUTH_PROVIDER } from '@libs/runtime-server/app-auth-provider';
+import { appSubServers } from '@libs/runtime-server/app-sub-servers';
+import { APP } from '@libs/runtime-shared/app-subs';
 import { SEARCH_HARNESS_ACTIONS } from '@libs/search-harness/search-actions';
 import { searchDoesNotHang } from '@libs/search-harness/search-properties';
 import { createInProcessRoomNode } from '@libs/spaces-harness/in-process-room-node';
@@ -33,9 +34,11 @@ import { SPACES_HARNESS_ACTIONS } from '@libs/spaces-harness/space-actions';
 
 export const APP_COMPOSITION: HarnessComposition = {
   name: 'app',
+  // The auth service exactly as the API Worker builds it.
+  authProvider: APP_AUTH_PROVIDER,
   app: APP,
-  clients: APP_FEATURE_CLIENTS,
-  servers: (deps) => appFeatureServers(deps),
+  clients: APP_SUB_CLIENTS,
+  servers: (deps) => appSubServers(deps),
   // The production reconciler: the full composition is the one place a
   // harness proves reconcile still lands the real schema.
   migratePostgres: async (args) => {

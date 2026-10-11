@@ -41,6 +41,12 @@ import { designVocabularyViolations } from './design-vocabulary';
 import { macrosOutsideCatalog } from './lingui-scope';
 import { packageBoundaryViolations } from './package-boundaries';
 import { spawnedCliViolations } from './spawned-clis';
+import {
+  packageScriptViolations,
+  rootScriptViolations,
+  type TurboTasks,
+  taskCachingViolations,
+} from './task-runner-policy';
 import { tcProject, tcScopeViolations } from './tc-scope';
 import { testScriptViolations } from './test-scripts';
 import { unusedWorkspaceDependencies } from './unused-dependencies';
@@ -354,6 +360,7 @@ async function lintPackage(pkg: string): Promise<boolean> {
       '`bun run` puts only declared bins on PATH — declare every npm CLI the package spawns',
       spawnedCliViolations({ manifest, sources })
     ),
+    clean(pkg, TASK_RUNNER_RULE, packageScriptViolations({ pkg, scripts })),
     clean(
       pkg,
       'package boundaries violated — turbo builds its graph from package.json, so this is a cache invalidation everywhere downstream',
@@ -363,12 +370,28 @@ async function lintPackage(pkg: string): Promise<boolean> {
   return (await Promise.all(tools)).every(Boolean) && results.every(Boolean);
 }
 
+const TASK_RUNNER_RULE =
+  'Turborepo is the only task runner (libs/tools/scripts/task-runner-policy.ts)';
+
 /** Paths outside apps/ libs/ pkgs/ — root config, editor and agent settings. */
 function lintRoot(): Promise<boolean> {
   const all = listFiles([]);
   if (all === null) return Promise.resolve(false);
   const files = all.filter((path) => !PACKAGE_TIER.test(path));
-  const ok = namingOk(files) && wordsOk('(root)', files);
+  const scripts = readJson<{ scripts: Record<string, string> }>(
+    'package.json'
+  ).scripts;
+  const { tasks } = readJson<{ tasks: TurboTasks }>('turbo.json');
+  // Each rule reports on its own: one failing does not hide the next.
+  const rules = [
+    namingOk(files),
+    wordsOk('(root)', files),
+    clean('(root)', TASK_RUNNER_RULE, [
+      ...rootScriptViolations({ scripts, tasks }),
+      ...taskCachingViolations(tasks),
+    ]),
+  ];
+  const ok = rules.every(Boolean);
   // Root config imports only `libs/tools` (`lingui.config.ts`).
   return biomeOk(
     'root',

@@ -15,6 +15,8 @@ import {
 import { spacingScale } from '@pkgs/ui-root-shared/scale';
 import { createUniqueId, type JSX, Show, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
+import { bindElementTargets } from './element-targets';
+import type { FocusTarget } from './focus';
 
 export type TextInputProps = Omit<
   JSX.InputHTMLAttributes<HTMLInputElement>,
@@ -61,6 +63,8 @@ export type TextInputProps = Omit<
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
   ref?: ((el: HTMLInputElement | HTMLTextAreaElement) => void) | undefined;
+  /** From `createFocusTarget()`: lets the screen move focus to the field. */
+  focusTarget?: FocusTarget | undefined;
 };
 
 /** Horizontal inset of the field text (`px: 4` → 16px). */
@@ -108,6 +112,7 @@ type FieldLocal = Pick<
   | 'fieldClass'
   | 'fieldStyle'
   | 'ref'
+  | 'focusTarget'
   | 'type'
   | 'onKeyDown'
 > & { hasError: boolean; hasAdornment: boolean };
@@ -144,7 +149,10 @@ function Field(
   return (
     <Dynamic
       component={props.multiline ? 'textarea' : 'input'}
-      ref={props.ref}
+      ref={(element: HTMLInputElement | HTMLTextAreaElement) => {
+        bindElementTargets(element, props);
+        props.ref?.(element);
+      }}
       class={[
         'input',
         props.hasError ? 'inputError' : undefined,
@@ -208,6 +216,7 @@ export function TextInput(props: TextInputProps): JSX.Element {
       'fieldClass',
       'fieldStyle',
       'ref',
+      'focusTarget',
       'type',
       'onKeyDown',
     ]

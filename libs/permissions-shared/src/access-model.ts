@@ -1,6 +1,6 @@
 /**
  * The access model's internals, for this package's tests and for composition
- * roots that materialize the shipped policy. Feature code never imports this:
+ * roots that materialize the shipped policy. Sub code never imports this:
  * it gates through `public/` (`useCan`, `usePermissions`, `requireInMutation`).
  */
 import { resolveSubject } from '@pkgs/permissions-shared/resolve';

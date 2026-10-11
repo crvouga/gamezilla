@@ -3,11 +3,11 @@ import {
   MultiplayerGameChanged,
   matchRoomTopic,
 } from '@libs/chess-matchmaking-shared/match-room';
-import type { RoomGrantsCtx } from '@libs/feature-shared/server';
 import { decideOnServer } from '@libs/permissions-server/decide-on-server';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { spaceRoomMembershipChanged } from '@libs/spaces-shared/space-withdrawal';
 import { storedSpacePresence } from '@libs/spaces-shared/stored-space-presence';
+import type { RoomGrantsCtx } from '@libs/sub-shared/server';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 import sql from '@pkgs/sql-root-shared/sql';

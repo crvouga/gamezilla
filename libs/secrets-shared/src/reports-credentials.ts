@@ -1,7 +1,7 @@
 /**
  * Credentials for the one spec reports bucket every environment shares
- * (`libs/infra-shared/tofu/modules/report-access`). The read pair goes to the API
- * Worker, which serves `/api/reports`; the write pair stays in the secrets
+ * (`libs/infra-shared/tofu/modules/report-access`). The read pair stays available to standalone
+ * Atlas tooling; the write pair stays in the secrets
  * store for the Check workflow's `report-publish.ts`.
  */
 
@@ -10,7 +10,6 @@ import { requireHttpsUrl, requireNonEmpty, Secret } from './secret';
 export const REPORTS_BUCKET = new Secret({
   name: 'REPORTS_BUCKET',
   hint: 'The shared spec reports bucket (global.tfvars.json `reports.bucket`)',
-  pushToApiWorker: true,
   validate: async (input) => {
     requireNonEmpty(input.secretValue, 'REPORTS_BUCKET');
   },
@@ -20,7 +19,6 @@ export const REPORTS_BUCKET = new Secret({
 export const REPORTS_ENDPOINT = new Secret({
   name: 'REPORTS_ENDPOINT',
   hint: 'S3 API endpoint of the reports bucket, e.g. https://<accountid>.r2.cloudflarestorage.com',
-  pushToApiWorker: true,
   validate: async (input) => {
     requireHttpsUrl(input.secretValue, 'REPORTS_ENDPOINT');
   },
@@ -30,7 +28,6 @@ export const REPORTS_ENDPOINT = new Secret({
 export const REPORTS_ACCESS_KEY_ID = new Secret({
   name: 'REPORTS_ACCESS_KEY_ID',
   hint: 'Read-only S3 access key id (R2 API token id) for the reports bucket',
-  pushToApiWorker: true,
   validate: async (input) => {
     requireNonEmpty(input.secretValue, 'REPORTS_ACCESS_KEY_ID');
   },
@@ -40,7 +37,6 @@ export const REPORTS_ACCESS_KEY_ID = new Secret({
 export const REPORTS_SECRET_ACCESS_KEY = new Secret({
   name: 'REPORTS_SECRET_ACCESS_KEY',
   hint: 'Read-only S3 secret key (SHA-256 of the R2 API token value)',
-  pushToApiWorker: true,
   validate: async (input) => {
     requireNonEmpty(input.secretValue, 'REPORTS_SECRET_ACCESS_KEY');
   },

@@ -26,6 +26,16 @@ export const COMPONENT_IDS_ENABLED: boolean =
   env.DEV === true || env.VITE_TEST_HOOKS === '1';
 
 /**
+ * Value of a host's explicit `data-component` attribute: the name while
+ * component ids are on, `undefined` (no attribute) in a production bundle.
+ * For hosts that write each attribute by name instead of spreading
+ * {@link componentDataAttrs}.
+ */
+export function componentId(name: string): string | undefined {
+  return COMPONENT_IDS_ENABLED ? name : undefined;
+}
+
+/**
  * `data-*` attribute fragment with `component: name` merged under any
  * incoming keys. When component ids are disabled (production) only the
  * incoming keys remain, so callers can always spread the result.

@@ -47,7 +47,7 @@ export function isoFromMs(ms: number): string {
   return new Date(ms).toISOString();
 }
 
-function isLive(expiresAt: string, nowMs: number): boolean {
+export function isLive(expiresAt: string, nowMs: number): boolean {
   const expiresMs = Date.parse(expiresAt);
   return Number.isFinite(expiresMs) && expiresMs > nowMs;
 }

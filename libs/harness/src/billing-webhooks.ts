@@ -15,7 +15,7 @@
  */
 
 import type { StripeWebhookEvent } from '@crvouga/mockingbird-service-stripe';
-import type { ServerHttp } from '@libs/feature-shared/sync';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import Stripe from 'stripe';
 

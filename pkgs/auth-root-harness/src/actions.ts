@@ -6,7 +6,10 @@
  */
 
 import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type {
+  OauthProviderId,
+  SignInMethodId,
+} from '@pkgs/auth-root-shared/sign-in-method';
 import { OAUTH_PROVIDER_IDS } from '@pkgs/auth-root-shared/sign-in-method';
 import { defineAction } from '@pkgs/harness-root-shared/define-action';
 import { gen } from '@pkgs/harness-root-shared/fast-check';
@@ -25,6 +28,15 @@ import {
   declinePendingFlow,
   signInFlow,
 } from './client-flows';
+import {
+  openEmailLink,
+  openEmailLinkNumber,
+  requestEmailLink,
+  requestEmailLinkAsProof,
+  setMailAvailable,
+  setupEmailAccount,
+  startSigningIn,
+} from './email-link-actions';
 import { migrateAuthSchema } from './nodes';
 import type { ProviderFaults } from './providers';
 import type { AuthSurface, ProviderAnswers } from './types';
@@ -294,7 +306,7 @@ export const unlinkProvider = defineAction({
     gen(fc.record({ clientId: arbAccountClient(s), provider: arbProvider() })),
   act: async (
     s: AuthSurface,
-    args: { readonly clientId: string; readonly provider: OauthProviderId }
+    args: { readonly clientId: string; readonly provider: SignInMethodId }
   ) => {
     await unlinkFlow(s, requireActor(s.clients, args.clientId), args.provider);
   },
@@ -482,4 +494,11 @@ export const AUTH_ACTIONS = [
   advanceClock,
   migrateSchema,
   fetchAuth,
+  requestEmailLink,
+  requestEmailLinkAsProof,
+  openEmailLink,
+  openEmailLinkNumber,
+  setupEmailAccount,
+  setMailAvailable,
+  startSigningIn,
 ] as const;

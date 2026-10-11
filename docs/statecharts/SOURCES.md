@@ -12,7 +12,7 @@ The product explorer derives its business catalog from [specs/](../../specs/). T
 | OpenSLO and conformance | Quantitative objectives and the required classes of release evidence |
 | Product inventory and source conflicts | Scope notes, missing contracts and unresolved product decisions |
 
-The compiler reads these sources when `atlas:lint`, `atlas:run`,
+The compiler reads these sources when `atlas:lint`, `atlas:build`,
 `atlas:viz` or `atlas:export` runs. It attaches matching cards to the one
 product machine and includes the complete catalog at the root. Search and
 state details read those cards from the portable chart; no second written

@@ -17,7 +17,7 @@
   "dependencies": {
     "@libs/app-config-shared": "workspace:*",
     "@libs/auth-shared": "workspace:*",
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@libs/moderation-shared": "workspace:*",
     "@lingui/core": "catalog:",
     "@opentelemetry/api": "catalog:",

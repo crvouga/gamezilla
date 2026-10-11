@@ -54,5 +54,5 @@ export function openQuintHarness(
   return openSystemHarness(PROFILE_QUINT_SYSTEM, testId, options);
 }
 
-import { createAccountPrivacyServer } from '@libs/account-privacy-server/feature-server';
+import { createAccountPrivacyServer } from '@libs/account-privacy-server/sub-server';
 import { inhouseAuthProvider } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';

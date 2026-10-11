@@ -1,5 +1,5 @@
 /**
- * Parameter types every feature may use. Pure data: the spec check builds its
+ * Parameter types every sub may use. Pure data: the spec check builds its
  * expression registry from this without booting anything.
  *
  * - `{actor}` — a person in the scenario (`Alice`, `Bob`, …), transformed to
