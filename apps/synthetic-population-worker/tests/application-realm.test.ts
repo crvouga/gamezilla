@@ -64,7 +64,15 @@ test('native realms authenticate, mutate profiles and inspect their own complete
       )!;
       const snapshot = inspectionSchema.parse(user.inspection);
       expect(snapshot.generation).toBe(realm.assignment.lease.generation);
-      expect(snapshot.html).not.toContain(realm.assignment.password);
+      // Each realm signed in with a link from its own inbox, and no trace of
+      // the link, or of any value it carried, is left to inspect.
+      expect(realm.signInLinks).toHaveLength(1);
+      const inspected = JSON.stringify(snapshot);
+      for (const link of realm.signInLinks) {
+        expect(inspected).not.toContain(link);
+        for (const value of new URL(link).searchParams.values())
+          expect(inspected).not.toContain(value);
+      }
       expect(snapshot.html).not.toContain(realm.assignment.email);
       expect(
         snapshot.actions.some((action) =>
@@ -104,15 +112,13 @@ test('native realms authenticate, mutate profiles and inspect their own complete
       ).toBeNull();
       const board = doc.querySelector('[data-testid="multiplayer-game"]');
       return {
-        interactive: board?.getAttribute('data-can-move') === 'true',
-        fen: board?.getAttribute('data-fen'),
+        visible: board !== null,
         offline:
           doc.querySelector('[data-testid="multiplayer-offline"]') !== null,
       };
     });
-    expect(boards).toContainEqual(
-      expect.objectContaining({ interactive: true, offline: false })
-    );
+    expect(boards).toHaveLength(2);
+    expect(boards.every((board) => board.visible && !board.offline)).toBe(true);
     await awaitRuntimeUsers(backend, async (users) => {
       const events = await Promise.all(
         users.map((user) => backend.repository.events(user.id))
@@ -130,6 +136,14 @@ test('native realms authenticate, mutate profiles and inspect their own complete
           )
       );
     });
+    const accepted = await backend.acceptedGameMoves();
+    const acceptedOwners = accepted.flatMap((move) =>
+      move.owner_id === null ? [] : [move.owner_id]
+    );
+    const expectedOwners = playing.flatMap((user) =>
+      user.account_id === null ? [] : [user.account_id]
+    );
+    expect(new Set(acceptedOwners)).toEqual(new Set(expectedOwners));
   } finally {
     for (const session of sessions) session.abort();
     await backend.close();

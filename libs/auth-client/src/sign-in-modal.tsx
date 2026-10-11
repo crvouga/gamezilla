@@ -2,9 +2,15 @@
  * Hosted sign-in surface. Shown from the user menu / commands when the user
  * chooses Sign in.
  *
- * Password authentication and enabled OAuth providers share the session
- * lifecycle. OAuth keeps its durable pending marker across redirects. An
- * address match asks the person to prove their existing account before linking.
+ * Idle flow is a method picker (Google, and Apple where enabled). Every
+ * method shares the session lifecycle; OAuth keeps its durable pending marker
+ * across redirects. An address match asks the person to prove their existing
+ * account before linking.
+ *
+ * This surface only lists the methods. Emailed sign-in links exist for
+ * Synthetic Users alone: their form is a child surface
+ * ({@link EmailSignInSurface}) that is mounted, and offered, only where the
+ * device's own capability turns email on.
  */
 
 import { Handles } from '@libs/test-ids-shared/handles';
@@ -21,6 +27,7 @@ import { SuccessState } from '@pkgs/ui-root-client/success-state';
 import {
   type Accessor,
   createEffect,
+  createSignal,
   type JSX,
   Match,
   on,
@@ -28,6 +35,8 @@ import {
   Switch,
 } from 'solid-js';
 import { authFlowErrorMessage } from './auth-flow-messages';
+import { EmailSignInSurface } from './email-sign-in-surface';
+import { useSignInCapabilities } from './sign-in-capabilities-context';
 import { SignInIdleBody, SignInIdleFooter } from './sign-in-idle-content';
 import { SignInLinkRequiredContent } from './sign-in-link-required';
 import type { SignInPhase } from './use-sign-in-modal-lifecycle';
@@ -79,8 +88,32 @@ function useResetOnClose(args: {
   );
 }
 
+/**
+ * Open state of the email form's child surface. Starting an attempt closes
+ * it, so the sign-in surface underneath shows the progress and the outcome.
+ */
+function useEmailSurface(args: {
+  visible: () => boolean;
+  start: (runner: () => Promise<void>) => Promise<void>;
+}) {
+  const [open, setOpen] = createSignal(false);
+  createEffect(() => {
+    if (!args.visible()) setOpen(false);
+  });
+  return {
+    visible: () => args.visible() && open(),
+    open: () => setOpen(true),
+    close: () => setOpen(false),
+    start: (runner: () => Promise<void>): Promise<void> => {
+      setOpen(false);
+      return args.start(runner);
+    },
+  };
+}
+
 export function SignInModal(props: SignInModalProps): JSX.Element {
   const { t } = useLingui();
+  const capabilities = useSignInCapabilities();
   const lifecycle = useSignInModalLifecycle({
     resumePending: () => props.resumePending,
     onError: (error) => props.onError?.(error),
@@ -89,6 +122,10 @@ export function SignInModal(props: SignInModalProps): JSX.Element {
     visible: () => props.visible,
     phase: lifecycle.phase,
     reset: lifecycle.reset,
+  });
+  const email = useEmailSurface({
+    visible: () => props.visible,
+    start: lifecycle.start,
   });
 
   const anyMethod = () => props.providers.length > 0;
@@ -111,42 +148,52 @@ export function SignInModal(props: SignInModalProps): JSX.Element {
   };
 
   return (
-    <ResponsiveSurface
-      visible={props.visible}
-      onClose={surfaceClose}
-      title={t`Sign in`}
-      presentation="modal"
-      closeDataSet={{ testid: Handles.authModalClose }}
-    >
-      <FadeSwitch stateKey={lifecycle.phase()}>
-        <SignInPhaseContent
-          phase={lifecycle.phase}
-          error={lifecycle.error}
-          onClose={props.onClose}
-          onDismiss={dismissModal}
-          onRetry={lifecycle.reset}
-          onProveLink={(provider, token) => {
-            trigger(props.onSignIn, provider, { pendingLink: token });
-          }}
-          onSeparate={(token) => {
-            trigger(props.onCreateSeparate, token);
-          }}
-          startPassword={lifecycle.start}
-          idleBody={
-            <SignInIdleBody
-              methodsLoading={props.methodsLoading}
-              providers={props.providers}
-              signInUnavailableReason={props.signInUnavailableReason}
-              startPassword={lifecycle.start}
-              onPress={(provider) => {
-                trigger(props.onSignIn, provider);
-              }}
-            />
-          }
-          idleFooter={<SignInIdleFooter onClose={props.onClose} />}
+    <>
+      <ResponsiveSurface
+        visible={props.visible}
+        onClose={surfaceClose}
+        title={t`Sign in`}
+        presentation="modal"
+        closeDataSet={{ testid: Handles.authModalClose }}
+      >
+        <FadeSwitch stateKey={lifecycle.phase()}>
+          <SignInPhaseContent
+            phase={lifecycle.phase}
+            error={lifecycle.error}
+            onClose={props.onClose}
+            onDismiss={dismissModal}
+            onRetry={lifecycle.reset}
+            onProveLink={(provider, token) => {
+              trigger(props.onSignIn, provider, { pendingLink: token });
+            }}
+            onSeparate={(token) => {
+              trigger(props.onCreateSeparate, token);
+            }}
+            onContinueWithEmail={email.open}
+            idleBody={
+              <SignInIdleBody
+                methodsLoading={props.methodsLoading}
+                providers={props.providers}
+                signInUnavailableReason={props.signInUnavailableReason}
+                onContinueWithEmail={email.open}
+                onPress={(provider) => {
+                  trigger(props.onSignIn, provider);
+                }}
+              />
+            }
+            idleFooter={<SignInIdleFooter onClose={props.onClose} />}
+          />
+        </FadeSwitch>
+      </ResponsiveSurface>
+      <Show when={capabilities.email}>
+        <EmailSignInSurface
+          visible={email.visible()}
+          onClose={email.close}
+          start={email.start}
+          pendingLink={linkRequiredOf(lifecycle.error())?.token ?? null}
         />
-      </FadeSwitch>
-    </ResponsiveSurface>
+      </Show>
+    </>
   );
 }
 
@@ -158,7 +205,7 @@ function SignInPhaseContent(props: {
   onRetry: () => void;
   onProveLink: (provider: OauthProviderId, token: string) => void;
   onSeparate: (token: string) => void;
-  startPassword: (runner: () => Promise<void>) => Promise<void>;
+  onContinueWithEmail: () => void;
   idleBody: JSX.Element;
   idleFooter: JSX.Element;
 }): JSX.Element {
@@ -211,7 +258,7 @@ function SignInPhaseContent(props: {
               onProve={(provider) => props.onProveLink(provider, link().token)}
               onSeparate={() => props.onSeparate(link().token)}
               onClose={props.onClose}
-              startPassword={props.startPassword}
+              onContinueWithEmail={props.onContinueWithEmail}
             />
           )}
         </Show>
@@ -261,7 +308,7 @@ function StateArea(props: {
   return (
     <div
       class="box justify-center"
-      data-testid={props.outcome ? 'auth-sign-in-outcome' : undefined}
+      data-testid={props.outcome ? Handles.authSignInOutcome : undefined}
       style={{ 'min-height': `${STATE_AREA_MIN_HEIGHT}px` }}
     >
       {props.children}

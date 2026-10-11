@@ -1,5 +1,6 @@
 /**
- * Provider identities (`idp_accounts`): who can sign in as which user.
+ * Identities (`idp_accounts`): who can sign in as which user — one row per
+ * provider account or emailed-link address.
  *
  * Addresses are stored lowercased so matching is plain equality, and the
  * provider's verification is stored with them — a verified Google address and
@@ -59,7 +60,7 @@ function iso(value: unknown): string | null {
 }
 
 function mapRow(row: RawIdentityRow): IdentityRow {
-  // Only the linker writes this column, and only with a provider id.
+  // Only the linker writes this column, and only with a sign-in method id.
   if (!isSignInMethodId(row.provider)) {
     throw new Error(`idp_accounts: unknown provider ${row.provider}`);
   }
@@ -184,10 +185,6 @@ export class IdentityRepository {
       DELETE FROM idp_accounts
       WHERE user_id = ${userId} AND provider = ${provider}
     `);
-    if (provider === 'password')
-      await this.db.run(
-        sql`DELETE FROM idp_passwords WHERE user_id = ${userId}`
-      );
   }
 
   async removeIdentity(

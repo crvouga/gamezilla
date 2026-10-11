@@ -1,14 +1,15 @@
 /**
  * The one example app every auth test, model and spec drives: a relying
  * party that mounts the in-house auth app under `/api` (as the product's API
- * worker does), signs people in with Google and with Apple, and is
- * registered at each provider as its one client. A test that needs a
- * variation configures this app (its providers' faults, directories, keys);
- * it never declares another client.
+ * worker does), signs people in with Google, with Apple and with links it
+ * mails, and is registered at each provider as its one client. A test that
+ * needs a variation configures this app (its providers' faults, directories,
+ * keys, whether it has a way to send mail); it never declares another client.
  */
 
 import type { AppleProviderConfig } from '@pkgs/auth-inhouse-server/apple-oauth';
 import { createAuthApp } from '@pkgs/auth-inhouse-server/create-auth-app';
+import type { EmailLinkDelivery } from '@pkgs/auth-inhouse-server/email-link-delivery';
 import {
   appleEndpointsFor,
   googleEndpointsFor,
@@ -33,6 +34,13 @@ export const AUTH_SYSTEM_TRUSTED_ORIGINS: readonly string[] = [
   'http://callback.test',
 ];
 export const EXAMPLE_APP_API = `${AUTH_SYSTEM_BASE_URL}${AUTH_SYSTEM_PATH_PREFIX}`;
+
+/** The example app mails sign-in links to every address but this domain's. */
+export const UNSERVED_EMAIL_DOMAIN = 'unserved.test';
+
+export function exampleAppServes(email: string): boolean {
+  return !email.endsWith(`@${UNSERVED_EMAIL_DOMAIN}`);
+}
 
 export const GOOGLE_ORIGIN = 'http://google.idp.test';
 export const APPLE_ORIGIN = 'http://apple.idp.test';
@@ -86,11 +94,15 @@ export async function appleRelyingPartyConfig(): Promise<AppleProviderConfig> {
   };
 }
 
-/** The example app: the auth app mounted under `/api`. */
+/**
+ * The example app: the auth app mounted under `/api`. `emailLinks` is where
+ * its sign-in links go; `null` builds it with no way to send mail.
+ */
 export async function buildExampleApp(
   sql: SqlClient,
   ports: Ports,
-  egress: HttpClient
+  egress: HttpClient,
+  emailLinks: EmailLinkDelivery | null
 ): Promise<Hono> {
   const authApp = createAuthApp({
     getSql: () => sql,
@@ -109,6 +121,7 @@ export async function buildExampleApp(
       },
       apple: await appleRelyingPartyConfig(),
     },
+    ...(emailLinks === null ? {} : { emailLinks }),
   });
   return new Hono().route(AUTH_SYSTEM_PATH_PREFIX, authApp);
 }

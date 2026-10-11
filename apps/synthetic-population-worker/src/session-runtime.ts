@@ -14,6 +14,7 @@ import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import { createHarnessIds } from '@pkgs/uuid-shared/seeded-create-id';
 import { createApplicationInstance } from './application-instance';
 import type { SessionInput, SessionOutput } from './session-messages';
+import { SignInLinkMailbox } from './sign-in-link-mailbox';
 import type { WorkerAssignment, WorkerRenewal } from './worker-rpc';
 
 type Instance = Awaited<ReturnType<typeof createApplicationInstance>>;
@@ -33,6 +34,7 @@ export class SessionRuntime {
   private actions: Inspection['actions'] = [];
   private readonly uiStarted = new Map<string, number>();
   private restorationPending = false;
+  private readonly signInLinks = new SignInLinkMailbox();
   constructor(
     private readonly assignment: WorkerAssignment,
     private readonly origin: string,
@@ -60,7 +62,7 @@ export class SessionRuntime {
         action: null,
         error: redactDiagnostic(
           error instanceof Error ? error.message : String(error),
-          [this.assignment.password]
+          this.secrets()
         ).slice(0, 512),
       });
       await this.close();
@@ -83,15 +85,26 @@ export class SessionRuntime {
       this.activated = true;
       return;
     }
+    if (value.type === 'sign-in-link') {
+      this.signInLinks.deliver(value.link);
+      return;
+    }
     this.renewal = value.renewal;
     this.draining = value.draining;
   }
   private async restore(): Promise<void> {
     this.activated = false;
     const instance = await createApplicationInstance({
-      ...this.assignment,
+      email: this.assignment.email,
+      username: this.assignment.username,
+      deviceId: this.assignment.deviceId,
       origin: this.origin,
       route: this.checkpoint.route,
+      secrets: () => this.secrets(),
+      takeSignInLink: () =>
+        this.signInLinks.take(() =>
+          this.ports.send({ type: 'sign-in-link-requested' })
+        ),
       onError: (error) =>
         this.ports.send({
           type: 'checkpoint',
@@ -215,10 +228,7 @@ export class SessionRuntime {
         type: 'inspection',
         requestedAt,
         snapshot: {
-          ...sanitizeDomSnapshot(document, [
-            this.assignment.password,
-            this.instance?.token ?? '',
-          ]),
+          ...sanitizeDomSnapshot(document, this.secrets()),
           capturedAtMs: this.ports.clock.now(),
           generation: this.assignment.lease.generation,
           route: instance.route(),
@@ -246,7 +256,7 @@ export class SessionRuntime {
       action: null,
       error: redactDiagnostic(
         error instanceof Error ? error.message : String(error),
-        [this.assignment.password, this.instance?.token ?? '']
+        this.secrets()
       ).slice(0, 512),
     });
     try {
@@ -278,10 +288,15 @@ export class SessionRuntime {
       },
     });
   }
+  /** Everything this session must never record, report or let be inspected. */
+  private secrets(): readonly string[] {
+    return [...this.signInLinks.secrets(), this.instance?.token ?? ''];
+  }
   async close(): Promise<void> {
     if (this.stopped) return;
     this.stopped = true;
     this.ports.timers.clearTimeout(this.timer);
+    this.signInLinks.deliver(null);
     await this.restoring?.catch(() => undefined);
     this.behavior?.close();
     await this.instance?.close();

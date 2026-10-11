@@ -67,7 +67,7 @@ test.each([...phases])(
       expect(recovered[0]!.id).toBe(first.assignment.lease.userId);
       expect(recovered[0]!.worker_id).toBe(nextWorker);
       expect(recovered[0]!.generation).toBe(2);
-      expect(second.assignment.password).toBe(first.assignment.password);
+      expect(second.assignment.email).toBe(first.assignment.email);
     } finally {
       for (const session of sessions) session.abort();
       await backend.close();

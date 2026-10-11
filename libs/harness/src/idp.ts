@@ -288,6 +288,8 @@ export function harnessIdpFetchFrom(args: {
   readonly idps: HarnessIdps;
   readonly net: HarnessNet;
   readonly from: string;
+  /** Told each request no provider serves, before it is answered `404`. */
+  readonly onUnanswered?: (href: string) => void;
 }): ServerHttp {
   const hops = {
     google: args.net.wrapHop(
@@ -298,8 +300,12 @@ export function harnessIdpFetchFrom(args: {
     apple: args.net.wrapHop(args.from, NODE_IDS.apple, args.idps.apple.fetch),
   };
   return async (input, init) => {
-    const provider = harnessIdpOf(requestHref(input));
-    if (provider === null) return new Response('not found', { status: 404 });
+    const href = requestHref(input);
+    const provider = harnessIdpOf(href);
+    if (provider === null) {
+      args.onUnanswered?.(href);
+      return new Response('not found', { status: 404 });
+    }
     return await hops[provider](input, init);
   };
 }

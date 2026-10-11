@@ -16,7 +16,7 @@ export const AUTH_ERROR = {
   lastIdentity: 'last_identity',
   /** A pending link was confirmed by signing in as someone else. */
   linkMismatch: 'link_mismatch',
-  /** The link ticket / pending link / state is unknown or expired. */
+  /** The emailed link / link ticket / pending link / state is unknown, used or expired. */
   expired: 'expired',
 } as const;
 

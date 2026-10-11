@@ -22,13 +22,10 @@ const MESSAGES = {
   expired: msg`That took too long. Start again.`,
 } as const satisfies Record<AuthErrorCode, unknown>;
 
-// A translated display label, not a credential value.
-const EMAIL_SIGN_IN_LABEL = msg`Email and password`;
-
 const PROVIDER_NAMES = {
   google: msg`Google`,
   apple: msg`Apple`,
-  password: EMAIL_SIGN_IN_LABEL,
+  email: msg`Email`,
 } as const satisfies Record<SignInMethodId, unknown>;
 
 export function providerName(i18n: I18n, provider: SignInMethodId): string {

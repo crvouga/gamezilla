@@ -25,13 +25,14 @@ import {
 } from 'solid-js';
 
 import { useAuthClientPort } from './auth-client-provider';
+import { providerName } from './auth-flow-messages';
 import { useSignInCapabilities } from './sign-in-capabilities-context';
 import { SignInMethodRow } from './sign-in-method-row';
 import { UnlinkMethodModal } from './unlink-method-modal';
 import { useLinkedIdentities } from './use-linked-identities';
 
 export function SignInMethodsSection(): JSX.Element {
-  const { t } = useLingui();
+  const { i18n, t } = useLingui();
   const capabilities = useSignInCapabilities();
   const port = useAuthClientPort();
   const linked = useLinkedIdentities();
@@ -56,10 +57,11 @@ export function SignInMethodsSection(): JSX.Element {
   return (
     <div class="box" data-testid={Handles.accountSignInMethods}>
       <MenuSection title={<Trans>Sign-in methods</Trans>}>
-        <Show when={linked().find((row) => row.provider === 'password')}>
+        {/* Only a Synthetic User's account ever holds an email method. */}
+        <Show when={linked().find((row) => row.provider === 'email')}>
           {(identity) => (
             <MenuRow
-              title={<Trans>Email and password</Trans>}
+              title={providerName(i18n(), 'email')}
               caption={identity().email ?? ''}
               hideChevron
               trailing={
@@ -69,13 +71,13 @@ export function SignInMethodsSection(): JSX.Element {
                   intent="danger"
                   size="sm"
                   disabled={linked().length <= 1}
-                  onClick={() => setRemoving('password')}
+                  onClick={() => setRemoving('email')}
                   dataSet={{
-                    testid: Handles.accountUnlinkProvider('password'),
+                    testid: Handles.accountUnlinkProvider('email'),
                   }}
                 />
               }
-              dataSet={{ testid: Handles.accountSignInMethod('password') }}
+              dataSet={{ testid: Handles.accountSignInMethod('email') }}
             />
           )}
         </Show>

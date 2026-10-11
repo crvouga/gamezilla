@@ -5,7 +5,10 @@
 
 import { AUTH_LINK_TICKET_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type {
+  OauthProviderId,
+  SignInMethodId,
+} from '@pkgs/auth-root-shared/sign-in-method';
 
 import { runClient } from './actor';
 import { expectOutcome, sessionUserOf, violate } from './checks';
@@ -154,7 +157,7 @@ export async function linkFlow(
 export async function unlinkFlow(
   s: AuthSurface,
   actor: ActorState,
-  provider: OauthProviderId
+  provider: SignInMethodId
 ): Promise<void> {
   const context = `${actor.id} unlink ${provider}`;
   const userId = expectedUserOf(s, actor);

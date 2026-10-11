@@ -33,8 +33,6 @@ const SYNTHETIC_POPULATION_SYSTEM = defineProductSystem(
     secretValues: {
       POPULATION_WORKER_TOKEN:
         'synthetic-population-spec-worker-token-0123456789abcdef',
-      POPULATION_CREDENTIAL_SECRET:
-        'synthetic-population-spec-secret-0123456789abcdef',
     },
   }
 );

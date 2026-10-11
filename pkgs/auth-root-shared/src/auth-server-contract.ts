@@ -11,7 +11,7 @@ import { describe, expect, test } from 'bun:test';
 
 import type { AuthProvider, AuthProviderModule } from './auth-provider-module';
 import type { OauthProviderId } from './sign-in-method';
-import { isOauthProviderId } from './sign-in-method';
+import { isSignInMethodId } from './sign-in-method';
 
 /** A person the harness signs in, as the provider would vouch for them. */
 export type ContractPerson = {
@@ -69,7 +69,7 @@ function reportsModuleIdAndMethods({
   expect(provider.server.provider).toBe(module.provider);
   expect(module.provider.length).toBeGreaterThan(0);
   for (const method of provider.signInMethods) {
-    expect(isOauthProviderId(method)).toBe(true);
+    expect(isSignInMethodId(method)).toBe(true);
   }
   expect(new Set(provider.signInMethods).size).toBe(
     provider.signInMethods.length
@@ -129,7 +129,7 @@ async function readsUserWithIdentity(
   expect(identity?.providerUserId).toBe(ALICE.subject);
   expect(Number.isNaN(Date.parse(identity?.linkedAt ?? ''))).toBe(false);
   for (const row of user?.identities ?? []) {
-    expect(isOauthProviderId(row.provider)).toBe(true);
+    expect(isSignInMethodId(row.provider)).toBe(true);
   }
 }
 

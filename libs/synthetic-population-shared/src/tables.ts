@@ -13,7 +13,6 @@ export const syntheticPopulationUsers = defineTable({
     account_id: 'text',
     username: 'text',
     email: 'text',
-    credential: 'text',
     region: 'text',
     personality: 'json',
     paused: 'boolean',
@@ -31,6 +30,28 @@ export const syntheticPopulationUsers = defineTable({
   },
   uniqueIndexes: ['account_id', 'email'],
   indexes: ['worker_id', 'lease_until'],
+  retiredColumns: [
+    {
+      name: 'credential',
+      type: 'text',
+      note: 'Synthetic Users sign in with emailed links; nothing is sealed for them',
+    },
+  ],
+});
+/**
+ * The internal inbox: sign-in mail addressed to Synthetic Users is kept here
+ * and is never sent anywhere. Only a user's leased worker takes its link,
+ * once; a taken or superseded row is soft-deleted with its link erased.
+ */
+export const syntheticPopulationSignInMail = defineTable({
+  domain: 'population',
+  name: 'population_sign_in_mail',
+  columns: {
+    email: 'text',
+    link: 'text',
+    expires_at: 'timestamp',
+  },
+  indexes: [['email', 'created_at']],
 });
 export const syntheticPopulationWorkers = defineTable({
   domain: 'population',
@@ -76,4 +97,5 @@ export const SYNTHETIC_POPULATION_TABLES = [
   syntheticPopulationWorkers,
   syntheticPopulationEvents,
   syntheticPopulationCommands,
+  syntheticPopulationSignInMail,
 ] as const;

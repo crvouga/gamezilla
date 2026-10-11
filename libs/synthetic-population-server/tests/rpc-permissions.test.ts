@@ -1,14 +1,25 @@
 import { expect, test } from 'bun:test';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { SignInInbox } from '@libs/synthetic-population-server/sign-in-inbox';
 import { createSyntheticPopulationRoutes } from '@libs/synthetic-population-server/synthetic-population-routes';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { syntheticPopulationFixture } from './synthetic-population-fixture';
 
+const SIGN_IN_LINK = 'https://app.example.test/sso-callback?email_link=one';
+
+function mailFor(
+  f: Awaited<ReturnType<typeof syntheticPopulationFixture>>,
+  email: string
+) {
+  return { email, link: SIGN_IN_LINK, expiresAt: f.clock.now() + 600_000 };
+}
+
 test('each administrative RPC rejects denied actors before reading or changing population data', async () => {
   const f = await syntheticPopulationFixture();
   try {
     const assignment = (await f.controller.claim(f.workers[0]!))!;
+    await new SignInInbox(f.db, f.ports).deliver(mailFor(f, assignment.email));
     const base = `/users/${assignment.lease.userId}`;
     const checked: string[] = [];
     const app = new Hono().route(
@@ -68,7 +79,7 @@ test('each administrative RPC rejects denied actors before reading or changing p
       });
       expect(response.status).toBe(403);
       expect(checked.at(-1)).toBe(input.permission);
-      expect(await response.text()).not.toContain(assignment.password);
+      expect(await response.text()).not.toContain(SIGN_IN_LINK);
     }
     expect(checked).toHaveLength(requests.length);
   } finally {
@@ -76,10 +87,11 @@ test('each administrative RPC rejects denied actors before reading or changing p
   }
 });
 
-test('view RPC never exposes credentials or an inspect-only DOM snapshot', async () => {
+test('view RPC never exposes sign-in mail or an inspect-only DOM snapshot', async () => {
   const f = await syntheticPopulationFixture();
   try {
     const assignment = (await f.controller.claim(f.workers[0]!))!;
+    await new SignInInbox(f.db, f.ports).deliver(mailFor(f, assignment.email));
     const app = createSyntheticPopulationRoutes({
       getDb: () => f.db,
       ports: f.ports,
@@ -98,8 +110,8 @@ test('view RPC never exposes credentials or an inspect-only DOM snapshot', async
       const response = await app.request(path);
       expect(response.status).toBe(200);
       const text = await response.text();
-      expect(text).not.toContain(assignment.password);
-      expect(text).not.toContain('credential');
+      expect(text).not.toContain(SIGN_IN_LINK);
+      expect(text).not.toContain(assignment.email);
       expect(text).not.toContain('inspection":');
     }
     expect(

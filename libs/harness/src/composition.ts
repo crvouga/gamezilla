@@ -17,6 +17,7 @@ import type { SubClient } from '@libs/sub-client/client';
 import type { ComposedSubs } from '@libs/sub-shared/compose';
 import type { RoomGrantsCtx, SubServer } from '@libs/sub-shared/server';
 import type { EnvTime } from '@libs/sub-shared/sync';
+import type { InhouseAuthProviderOptions } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type {
@@ -80,8 +81,22 @@ export type HarnessRoomNode = {
   dispose(): void;
 };
 
+/**
+ * Where the harness's auth service sends emailed sign-in links, built from
+ * the service's own environment (its database, clock and ids).
+ */
+export type HarnessEmailLinks = NonNullable<
+  InhouseAuthProviderOptions['emailLinks']
+>;
+
 export type HarnessComposition = {
+  /** The whole auth service, when a composition configures its own. */
   readonly authProvider?: AuthProviderModule;
+  /**
+   * Emailed sign-in links for the default auth service. Absent → the service
+   * has no email sign-in. Ignored when `authProvider` is set.
+   */
+  readonly emailLinks?: HarnessEmailLinks;
   /** Names the seed cache and the report; distinct per sub set. */
   readonly name: string;
   /** The folded subs: schema, queries, topic map, mutations. */

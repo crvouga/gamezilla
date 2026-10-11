@@ -1,6 +1,7 @@
 /**
- * Who a freshly authenticated provider identity signs in as — the account
- * linking policy, in one place.
+ * Who a freshly authenticated identity signs in as — the account linking
+ * policy, in one place. An identity comes from a provider callback or from
+ * an opened email link (the address itself, verified by opening it).
  *
  * Sign-in:
  * 1. A known identity signs in as its user (its address and name refresh).
@@ -23,10 +24,7 @@
 
 import type { AuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
 import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
-import type {
-  OauthProviderId,
-  SignInMethodId,
-} from '@pkgs/auth-root-shared/sign-in-method';
+import type { SignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
@@ -52,9 +50,10 @@ export type LinkOutcome =
       readonly token: string;
       /** The existing account's address, masked for display. */
       readonly email: string;
-      /** Providers that can prove the existing account. */
+      /** Sign-in methods that can prove the existing account. */
       readonly providers: readonly SignInMethodId[];
-      readonly provider: OauthProviderId;
+      /** The sign-in method whose identity is parked. */
+      readonly provider: SignInMethodId;
     };
 
 export type LinkerDeps = {
@@ -254,15 +253,6 @@ export class IdentityLinker {
       providers,
       provider: identity.provider,
     };
-  }
-
-  /** The person declined to link: the parked identity becomes its own user. */
-  async confirmPassword(userId: string, token: string): Promise<LinkOutcome> {
-    const pending = await this.pending.findByToken(token);
-    if (pending === null) return error(AUTH_ERROR.expired);
-    await this.pending.consume(pending.id);
-    if (pending.targetUserId !== userId) return error(AUTH_ERROR.linkMismatch);
-    return this.attach(userId, pending.identity);
   }
 
   /** The person declined to link: the parked identity becomes its own user. */

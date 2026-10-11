@@ -96,6 +96,14 @@ export type ClientEnv = {
    */
   readonly createAuthClient: (http: ServerHttp) => AuthClientPort;
   /**
+   * This device offers emailed sign-in links. Email sign-in exists for
+   * Synthetic Users alone, so only their application host (the Synthetic
+   * Population Worker, and a harness device acting as one) sets it. Absent
+   * everywhere a person runs the app: the browser and native entry points
+   * never set it, and no server configuration can.
+   */
+  readonly emailSignIn?: boolean;
+  /**
    * Leaves the app for a provider-hosted page (the payment provider's
    * checkout or portal). Browser: `location.assign`; harness: the provider's real screens,
    * walked headlessly.

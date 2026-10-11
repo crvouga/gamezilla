@@ -1,3 +1,4 @@
+import { sharePendingSignupUsername } from '@libs/auth-shared/pending-signup-username';
 import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
 import type { AuthSessionStore } from '@pkgs/auth-root-shared/auth-session-state';
 import type { OfflineNetworkController } from './offline-network-controller';
@@ -26,15 +27,15 @@ export function createOfflineAuthClient(
     if (offline.isOffline()) throw offlineNetworkError();
     return await work();
   };
-  return {
+  const client: AuthClientPort = {
     provider: inner.provider,
     session: offlineSession(offline, inner.session),
     signIn: (provider, options) =>
       requireOnline(() => inner.signIn(provider, options)),
-    signInWithPassword: (email, password, options) =>
-      requireOnline(() => inner.signInWithPassword(email, password, options)),
-    registerWithPassword: (email, password) =>
-      requireOnline(() => inner.registerWithPassword(email, password)),
+    requestEmailLink: (email, options) =>
+      requireOnline(() => inner.requestEmailLink(email, options)),
+    signInWithEmailLink: (link) =>
+      requireOnline(() => inner.signInWithEmailLink(link)),
     signOut: () => requireOnline(() => inner.signOut()),
     signOutEverywhere: () => requireOnline(() => inner.signOutEverywhere()),
     listIdentities: () => requireOnline(() => inner.listIdentities()),
@@ -58,4 +59,7 @@ export function createOfflineAuthClient(
             requireOnline(() => inner.completeHostedAuthRedirect!()),
         }),
   };
+  // A signup handle left with the wrapped client is this client's to take.
+  sharePendingSignupUsername(client, inner);
+  return client;
 }

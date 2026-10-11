@@ -1,6 +1,7 @@
 import {
   authenticateThroughUi,
   configureUsername,
+  type SyntheticSignIn,
 } from '@libs/synthetic-population-shared/application-actions';
 import { redactDiagnostic } from '@libs/synthetic-population-shared/inspection';
 import { createApplicationHost } from './application-host';
@@ -8,20 +9,21 @@ import type { RecordingInput } from './recorded-ui';
 
 /** Called inside one isolated realm, never on a shared DOM or module graph. */
 export async function createApplicationInstance(
-  input: RecordingInput & {
-    origin: string;
-    deviceId: string;
-    email: string;
-    registered: boolean;
-    username: string;
-    route: string;
-  }
+  input: RecordingInput &
+    SyntheticSignIn & {
+      origin: string;
+      deviceId: string;
+      username: string;
+      route: string;
+    }
 ) {
   const host = await createApplicationHost(input);
   try {
     await host.driver.launch();
     await authenticateThroughUi(host.driver, input);
-    const token = await host.env.createAuthClient().getFreshToken();
+    const token = await host.env
+      .createAuthClient(host.env.server)
+      .getFreshToken();
     if (token === null)
       throw new Error('Normal authentication did not establish a session');
     let activation: Promise<void> | null = null;
@@ -40,9 +42,10 @@ export async function createApplicationInstance(
     };
   } catch (error) {
     input.onError(
-      redactDiagnostic(error instanceof Error ? error.message : String(error), [
-        input.password,
-      ]).slice(0, 512)
+      redactDiagnostic(
+        error instanceof Error ? error.message : String(error),
+        input.secrets()
+      ).slice(0, 512)
     );
     await host.close();
     throw error;

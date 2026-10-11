@@ -5,7 +5,8 @@ import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { recordingDriver } from '@pkgs/ui-testing-root-shared/recording-driver';
 
 export type RecordingInput = {
-  password: string;
+  /** Sign-in links and session tokens seen so far; never recorded or reported. */
+  secrets: () => readonly string[];
   onAction: (action: Inspection['actions'][number]) => void;
   onError: (message: string) => void;
 };
@@ -18,7 +19,7 @@ export function recordedUi(
   return recordingDriver(driver, {
     recorder: {
       async record(meta, run) {
-        // Input text and full report snapshots may contain credentials.
+        // Input text and full report snapshots may contain a sign-in link.
         const action =
           `${meta.selector ?? ''}: ${meta.title.split(' ')[0] ?? 'action'}`.slice(
             0,
@@ -35,7 +36,7 @@ export function recordedUi(
           input.onError(
             redactDiagnostic(
               error instanceof Error ? error.message : String(error),
-              [input.password]
+              input.secrets()
             ).slice(0, 512)
           );
           report('failed');

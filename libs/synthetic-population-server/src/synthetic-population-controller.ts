@@ -4,9 +4,9 @@ import {
   personalitySchema,
   provisionPersonality,
 } from '@libs/synthetic-population-shared/personality';
+import { syntheticAddress } from '@libs/synthetic-population-shared/synthetic-address';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
-import { openCredential, sealCredential } from './credential-vault';
 import { LeaseRepository } from './lease-repository';
 import type {
   Lease,
@@ -20,7 +20,6 @@ type AssignmentRow = {
   id: string;
   username: string;
   email: string;
-  credential: string;
   checkpoint: unknown;
   account_id: string | null;
   paused: boolean;
@@ -31,7 +30,7 @@ export type Assignment = {
   deviceId: string;
   username: string;
   email: string;
-  password: string;
+  /** The user already has an account: this session restores it. */
   registered: boolean;
   checkpoint: unknown;
   config: SyntheticPopulationConfig;
@@ -41,8 +40,7 @@ export type Assignment = {
 export class SyntheticPopulationController {
   constructor(
     private readonly db: SqlClient,
-    private readonly ports: SyntheticPopulationPorts,
-    private readonly credentialSecret: string
+    private readonly ports: SyntheticPopulationPorts
   ) {}
 
   async heartbeat(value: WorkerHeartbeat) {
@@ -57,23 +55,16 @@ export class SyntheticPopulationController {
   private async provision(tx: SqlTx): Promise<AssignmentRow> {
     const id = this.ports.createId();
     const username = `cedar${id.replaceAll('-', '').slice(0, 8)}`;
-    const email = `${id}@synthetic.gamezilla.invalid`;
-    const credential = await sealCredential(
-      this.credentialSecret,
-      id,
-      `${this.ports.createId()}-${this.ports.createId()}`,
-      this.ports.createId
-    );
+    const email = syntheticAddress(id);
     const now = isoAt(this.ports.clock.now());
     const personality = provisionPersonality(id);
     await tx.run(
-      sql`INSERT INTO population_users (id, created_at, updated_at, username, email, credential, region, personality, paused, generation, activity) VALUES (${id}, ${now}, ${now}, ${username}, ${email}, ${credential}, ${'global'}, ${JSON.stringify(personality)}, ${false}, 0, ${'offline'})`
+      sql`INSERT INTO population_users (id, created_at, updated_at, username, email, region, personality, paused, generation, activity) VALUES (${id}, ${now}, ${now}, ${username}, ${email}, ${'global'}, ${JSON.stringify(personality)}, ${false}, 0, ${'offline'})`
     );
     return {
       id,
       username,
       email,
-      credential,
       checkpoint: null,
       account_id: null,
       paused: false,
@@ -119,7 +110,7 @@ export class SyntheticPopulationController {
       )
         return null;
       const candidates = await tx.query(
-        sql<AssignmentRow>`SELECT id, username, email, credential, checkpoint, account_id, paused, personality FROM population_users WHERE paused = ${false} AND deleted_at IS NULL AND (worker_id IS NULL OR lease_until <= ${now}) ORDER BY created_at, id LIMIT 1`
+        sql<AssignmentRow>`SELECT id, username, email, checkpoint, account_id, paused, personality FROM population_users WHERE paused = ${false} AND deleted_at IS NULL AND (worker_id IS NULL OR lease_until <= ${now}) ORDER BY created_at, id LIMIT 1`
       );
       const user = candidates[0] ?? (await this.provision(tx));
       const lease = await new LeaseRepository(tx, this.ports).acquire(
@@ -144,11 +135,6 @@ export class SyntheticPopulationController {
       deviceId: assigned.lease.deviceId,
       username: assigned.user.username,
       email: assigned.user.email,
-      password: await openCredential(
-        this.credentialSecret,
-        assigned.user.id,
-        assigned.user.credential
-      ),
       registered: assigned.user.account_id !== null,
       checkpoint: assigned.user.checkpoint,
       config: assigned.config,

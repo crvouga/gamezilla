@@ -40,6 +40,7 @@ import { partitionAwarePubSub } from './partition-aware-pubsub';
 import { partitionAwareRoomTransport } from './partition-aware-room-transport';
 import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
 import type { HarnessSql } from './sql-types';
+import type { HarnessSyntheticUserDevices } from './synthetic-user-devices';
 import type { HarnessTeamRules } from './team-rules';
 
 export type HarnessClientEnvDeps = {
@@ -56,6 +57,7 @@ export type HarnessClientEnvDeps = {
   readonly teamRules: HarnessTeamRules;
   readonly appBuilds: HarnessAppBuilds;
   readonly accountReadyDelays: HarnessAccountReadyDelays;
+  readonly syntheticUserDevices: HarnessSyntheticUserDevices;
 };
 
 function hasWebLocalStorage(): boolean {
@@ -193,6 +195,10 @@ export function makeHarnessClientEnv(
         openAuthSession: browser.openAuthSession,
         callbackUrl: `${HARNESS_SERVER_URL}/sso-callback`,
       })),
+    // Read when the app starts: only a Synthetic User's host offers email.
+    get emailSignIn() {
+      return deps.syntheticUserDevices.has(id);
+    },
     openExternalUrl: browser.openExternalUrl,
     resolveDatabaseName: ({ userId }) => `${ns}_${userId}`,
     mutationSuccessHoldMs: 900,

@@ -16,6 +16,7 @@ import { composeSubs } from '@libs/sub-shared/compose';
 import type { SubManifest } from '@libs/sub-shared/manifest';
 import type { SubServer } from '@libs/sub-shared/server';
 import type { EnvTime } from '@libs/sub-shared/sync';
+import { SYNTHETIC_POPULATION_SUB } from '@libs/synthetic-population-shared/sub';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type {
@@ -27,6 +28,7 @@ import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { withHome } from './bare-home-client';
 import type {
   HarnessComposition,
+  HarnessEmailLinks,
   HarnessRoomGateway,
   HarnessRoomNode,
 } from './composition';
@@ -48,6 +50,8 @@ export type HarnessSlice = {
   readonly seedServer?: (sqlClient: SqlClient) => Promise<void>;
   /** What this sub sells; boots the harness's payment provider. */
   readonly billingOffer?: PlusMembershipOffer;
+  /** Where this sub keeps the auth service's emailed sign-in links. */
+  readonly emailLinks?: HarnessEmailLinks;
   readonly properties?: readonly CatalogProperty<ProductHarness>[];
   readonly actions?: readonly CatalogAction<ProductHarness>[];
 };
@@ -92,11 +96,22 @@ export const PERMISSIONS_HARNESS_SLICE: HarnessSlice = {
   sub: PERMISSIONS_SUB,
 };
 
+/**
+ * The Synthetic Population's tables: auth classifies every signed-in session
+ * against its directory, so they exist wherever a person signs in. A suite
+ * that runs the population lists the sub's own slice, which replaces this.
+ */
+export const SYNTHETIC_POPULATION_DIRECTORY_HARNESS_SLICE: HarnessSlice = {
+  name: 'synthetic-population',
+  sub: SYNTHETIC_POPULATION_SUB,
+};
+
 /** The platform slices every composition includes. */
 export const PLATFORM_HARNESS_SLICES: readonly HarnessSlice[] = [
   AUTH_HARNESS_SLICE,
   CLIENT_CONFIG_HARNESS_SLICE,
   PERMISSIONS_HARNESS_SLICE,
+  SYNTHETIC_POPULATION_DIRECTORY_HARNESS_SLICE,
 ];
 
 function only<T>(
@@ -120,11 +135,16 @@ export function composeHarnessSlices(
   name: string,
   slices: readonly HarnessSlice[]
 ): HarnessComposition {
-  const byName = new Map<SliceName, HarnessSlice>();
-  for (const slice of [...PLATFORM_HARNESS_SLICES, ...slices]) {
-    if (byName.has(slice.name) && !PLATFORM_HARNESS_SLICES.includes(slice)) {
+  const byName = new Map<SliceName, HarnessSlice>(
+    PLATFORM_HARNESS_SLICES.map((slice) => [slice.name, slice])
+  );
+  const listed = new Set<SliceName>();
+  for (const slice of slices) {
+    if (listed.has(slice.name)) {
       throw new Error(`composeHarnessSlices: duplicate slice '${slice.name}'`);
     }
+    listed.add(slice.name);
+    // A suite's slice for a platform sub replaces the platform's bare one.
     byName.set(slice.name, slice);
   }
   const ordered = SLICE_ORDER.flatMap((key) => {
@@ -133,6 +153,11 @@ export function composeHarnessSlices(
   });
   const roomNode = only(ordered, (s) => s.roomNode, 'a room node');
   const billingOffer = only(ordered, (s) => s.billingOffer, 'a billing offer');
+  const emailLinks = only(
+    ordered,
+    (s) => s.emailLinks,
+    'emailed sign-in links'
+  );
   const seeds = ordered.flatMap((s) =>
     s.seedServer === undefined ? [] : [s.seedServer]
   );
@@ -151,6 +176,7 @@ export function composeHarnessSlices(
       ),
     ...(roomNode === undefined ? {} : { roomNode }),
     ...(billingOffer === undefined ? {} : { billingOffer }),
+    ...(emailLinks === undefined ? {} : { emailLinks }),
     seedServer: async (sqlClient) => {
       for (const seed of seeds) await seed(sqlClient);
     },

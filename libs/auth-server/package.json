@@ -28,6 +28,7 @@
   "devDependencies": {
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/outbox-shared": "workspace:*",
     "@pkgs/sql-client-sqlite-root-server": "workspace:*",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

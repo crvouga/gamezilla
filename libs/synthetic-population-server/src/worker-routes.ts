@@ -11,13 +11,13 @@ import {
   type SyntheticPopulationPorts,
   workerHeartbeatSchema,
 } from './records';
+import { SignInInbox } from './sign-in-inbox';
 import { SyntheticPopulationController } from './synthetic-population-controller';
 import { SyntheticPopulationSession } from './synthetic-population-session';
 
 export type WorkerRouteDeps = {
   getDb: () => SqlClient;
   ports: SyntheticPopulationPorts;
-  credentialSecret: () => Promise<string>;
   authorize: (request: Request) => Promise<void>;
   bindAccount: (
     lease: z.infer<typeof leaseSchema>,
@@ -44,8 +44,7 @@ export function createSyntheticPopulationWorkerRoutes(deps: WorkerRouteDeps) {
       c.json({
         config: await new SyntheticPopulationController(
           deps.getDb(),
-          deps.ports,
-          await deps.credentialSecret()
+          deps.ports
         ).heartbeat(c.req.valid('json')),
       })
     )
@@ -56,8 +55,7 @@ export function createSyntheticPopulationWorkerRoutes(deps: WorkerRouteDeps) {
         c.json({
           assignment: await new SyntheticPopulationController(
             deps.getDb(),
-            deps.ports,
-            await deps.credentialSecret()
+            deps.ports
           ).claim(c.req.valid('json').workerId),
         })
     )
@@ -88,7 +86,24 @@ export function createSyntheticPopulationWorkerRoutes(deps: WorkerRouteDeps) {
         ? c.json({ accepted: true as const })
         : c.json({ error: 'Worker Lease expired or replaced' }, 409);
     })
+    .route('/', createSignInRoutes(deps))
     .route('/', createSessionRecordingRoutes(deps));
+}
+/** The internal inbox has exactly one reader: the addressee's leased worker. */
+function createSignInRoutes(deps: WorkerRouteDeps) {
+  return new Hono().post(
+    '/take-sign-in-link',
+    zValidator('json', leaseSchema),
+    async (c) => {
+      const taken = await new SignInInbox(deps.getDb(), deps.ports).take(
+        c.req.valid('json')
+      );
+      c.header('cache-control', 'no-store');
+      return taken.owned
+        ? c.json({ link: taken.link })
+        : c.json({ error: 'Worker Lease expired or replaced' }, 409);
+    }
+  );
 }
 function createSessionRecordingRoutes(deps: WorkerRouteDeps) {
   const sessions = () =>

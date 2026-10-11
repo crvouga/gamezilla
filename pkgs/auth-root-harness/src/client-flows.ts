@@ -88,7 +88,7 @@ async function settleLinkRequired(
   };
 }
 
-async function settlePrediction(args: {
+export async function settlePrediction(args: {
   readonly s: AuthSurface;
   readonly actor: ActorState;
   readonly context: string;

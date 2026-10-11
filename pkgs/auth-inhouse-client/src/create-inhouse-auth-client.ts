@@ -20,7 +20,12 @@ import { createLinkingOps } from './auth-client-linking';
 import type { AuthClientAdapterConfig, SignInCtx } from './auth-client-oauth';
 import { codeOrThrow, exchangeCode, signInOauth } from './auth-client-oauth';
 import { readCallbackOutcome } from './auth-errors';
-import { passwordAuthentication } from './password-auth-client';
+import {
+  emailLinkTokenIn,
+  requestEmailLink,
+  retireReplacedSession,
+  signInWithEmailLink,
+} from './email-link-auth-client';
 
 /** Verify the stored bearer against `/auth/session`; null when absent / dead. */
 async function loadSessionState(args: {
@@ -164,10 +169,8 @@ export function createInhouseAuthClient(
   return {
     provider: IDP_PROVIDER_LABEL,
     session,
-    signInWithPassword: (email, password, options) =>
-      passwordAuthentication(ctx, 'sign-in', { email, password, options }),
-    registerWithPassword: (email, password) =>
-      passwordAuthentication(ctx, 'register', { email, password }),
+    requestEmailLink: (email, options) => requestEmailLink(ctx, email, options),
+    signInWithEmailLink: (link) => signInWithEmailLink(ctx, link),
     async signIn(provider, options) {
       await signInOauth(ctx, provider, options);
     },
@@ -190,21 +193,19 @@ export function createInhouseAuthClient(
     },
     async completeHostedAuthRedirect() {
       if (typeof globalThis.location === 'undefined') return;
-      const outcome = readCallbackOutcome(globalThis.location.href);
+      const href = globalThis.location.href;
       try {
-        const code = codeOrThrow(outcome);
+        // An emailed link opens this route carrying its token, not a code.
+        if (emailLinkTokenIn(href) !== null) {
+          await signInWithEmailLink(ctx, href);
+          return;
+        }
+        const code = codeOrThrow(readCallbackOutcome(href));
         const previous = await bearerStore.read();
         await exchangeCode(ctx, code);
         // Linking preserves the bearer across navigation; retire the session
         // the callback replaced, just as the in-process linking flow does.
-        if (previous !== null && previous !== (await bearerStore.read())) {
-          await postJson(
-            config.fetch,
-            apiUrl(config.baseURL, '/auth/sign-out'),
-            {},
-            previous
-          );
-        }
+        await retireReplacedSession(ctx, previous);
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
         session.fail(error);

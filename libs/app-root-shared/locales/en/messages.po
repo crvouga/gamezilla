@@ -688,6 +688,10 @@ msgstr "Change the search or increase the desired synthetic population."
 msgid "Check the spelling or try a different username."
 msgstr "Check the spelling or try a different username."
 
+#: libs/auth-client/src/email-sign-in-form.tsx
+msgid "Check your email"
+msgstr "Check your email"
+
 #: libs/chess-custom-game-client/src/custom-game-screen.tsx
 #: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
 #: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
@@ -895,6 +899,11 @@ msgstr "Continue with Apple"
 msgid "Continue with dev IDP"
 msgstr "Continue with dev IDP"
 
+#: libs/auth-client/src/continue-with-email-button.tsx
+#: libs/auth-client/src/email-sign-in-surface.tsx
+msgid "Continue with email"
+msgstr "Continue with email"
+
 #: pkgs/ui-root-client/src/social-provider-config.tsx
 msgid "Continue with Google"
 msgstr "Continue with Google"
@@ -1035,22 +1044,13 @@ msgstr "Couldn't sign out everywhere"
 msgid "Couldn't unblock"
 msgstr "Couldn't unblock"
 
-#: libs/auth-client/src/use-password-sign-in.tsx
-msgid "Create account"
-msgstr "Create account"
-
 #: libs/chess-custom-game-client/src/custom-game-screen.tsx
 msgid "Create game"
 msgstr "Create game"
 
 #: libs/auth-client/src/account-device-meta-grid.tsx
-#: libs/auth-client/src/use-password-sign-in.tsx
 msgid "Created"
 msgstr "Created"
-
-#: libs/auth-client/src/use-password-sign-in.tsx
-msgid "Creating…"
-msgstr "Creating…"
 
 #: libs/spaces-client/src/space-live-badge.tsx
 #: libs/synthetic-population-client/src/synthetic-user-statechart.tsx
@@ -1297,22 +1297,18 @@ msgstr "Earlier game {0}"
 msgid "Edit profile"
 msgstr "Edit profile"
 
+#: libs/auth-client/src/auth-flow-messages.tsx
 #: pkgs/ui-root-client/src/text-input.example.tsx
 msgid "Email"
 msgstr "Email"
 
-#: libs/auth-client/src/password-sign-in-form.tsx
+#: libs/auth-client/src/email-sign-in-form.tsx
 msgid "Email address"
 msgstr "Email address"
 
-#: libs/auth-client/src/password-sign-in-form.tsx
-msgid "Email address and password"
-msgstr "Email address and password"
-
-#: libs/auth-client/src/auth-flow-messages.tsx
-#: libs/auth-client/src/sign-in-methods-section.tsx
-msgid "Email and password"
-msgstr "Email and password"
+#: libs/auth-client/src/use-email-sign-in.tsx
+msgid "Email me a link"
+msgstr "Email me a link"
 
 #: libs/profile-client/src/avatar-editor-seed-field.tsx
 msgid "Empty: your default look"
@@ -1692,6 +1688,10 @@ msgstr "I can't fetch puzzles without a connection. Come back online and we'll p
 #: libs/chess-custom-game-client/src/custom-game-configuration.tsx
 msgid "I'm ready"
 msgstr "I'm ready"
+
+#: libs/auth-client/src/email-sign-in-form.tsx
+msgid "If {address} can sign in here, a sign-in link is on its way. Paste it below."
+msgstr "If {address} can sign in here, a sign-in link is on its way. Paste it below."
 
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 msgid "Immediately"
@@ -2464,10 +2464,6 @@ msgstr "Page not found"
 msgid "Pagination"
 msgstr "Pagination"
 
-#: libs/auth-client/src/password-sign-in-form.tsx
-msgid "Password"
-msgstr "Password"
-
 #: libs/synthetic-population-client/src/synthetic-user-controls.tsx
 msgid "Pause"
 msgstr "Pause"
@@ -3120,10 +3116,12 @@ msgstr "Select style…"
 msgid "Select…"
 msgstr "Select…"
 
+#: libs/auth-client/src/use-email-sign-in.tsx
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "Sending…"
 msgstr "Sending…"
 
+#: libs/auth-client/src/use-email-sign-in.tsx
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "Sent"
 msgstr "Sent"
@@ -3212,8 +3210,8 @@ msgstr "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end
 
 #: libs/auth-client/src/account-actions-row.tsx
 #: libs/auth-client/src/account-devices-card.tsx
+#: libs/auth-client/src/email-sign-in-form.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
-#: libs/auth-client/src/use-password-sign-in.tsx
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "Sign in"
 msgstr "Sign in"
@@ -3299,6 +3297,14 @@ msgstr "Sign-in"
 msgid "Sign-in failed"
 msgstr "Sign-in failed"
 
+#: libs/auth-client/src/sign-in-modal-body.tsx
+msgid "Sign-in is not available."
+msgstr "Sign-in is not available."
+
+#: libs/auth-client/src/email-sign-in-form.tsx
+msgid "Sign-in link"
+msgstr "Sign-in link"
+
 #: libs/auth-client/src/sign-in-methods-section.tsx
 msgid "Sign-in methods"
 msgstr "Sign-in methods"
@@ -3321,7 +3327,6 @@ msgid "Sign-out failed"
 msgstr "Sign-out failed"
 
 #: libs/auth-client/src/sign-in-modal.tsx
-#: libs/auth-client/src/use-password-sign-in.tsx
 msgid "Signed in"
 msgstr "Signed in"
 
@@ -3335,7 +3340,6 @@ msgstr "Signed out everywhere"
 
 #: libs/app-root-client/src/sso-callback.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
-#: libs/auth-client/src/use-password-sign-in.tsx
 #: pkgs/ui-root-client/src/social-provider-config.tsx
 msgid "Signing in…"
 msgstr "Signing in…"
@@ -3360,10 +3364,6 @@ msgstr "Slowest script"
 #: libs/app-config-client/src/client-config-entity-card.tsx
 msgid "Snapshot (JSON)"
 msgstr "Snapshot (JSON)"
-
-#: libs/auth-client/src/sign-in-modal-body.tsx
-msgid "Social sign-in is not available."
-msgstr "Social sign-in is not available."
 
 #: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
 msgid "Solution"
@@ -3551,7 +3551,6 @@ msgid "Sync"
 msgstr "Sync"
 
 #: libs/app-root-client/src/app-header-global-menu.tsx
-#: libs/app-root-client/src/offline-indicator.tsx
 msgid "Sync issue"
 msgstr "Sync issue"
 
@@ -3934,7 +3933,7 @@ msgstr "Try a different search term."
 
 #: libs/account-privacy-client/src/export-choice.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
-#: libs/auth-client/src/use-password-sign-in.tsx
+#: libs/auth-client/src/use-email-sign-in.tsx
 #: libs/synthetic-population-client/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client/src/synthetic-user-dom.tsx
 #: libs/synthetic-population-client/src/synthetic-user-replay.tsx
@@ -4044,9 +4043,9 @@ msgstr "Update payment method"
 msgid "Update the app"
 msgstr "Update the app"
 
-#: libs/auth-client/src/password-sign-in-form.tsx
-msgid "Use 15 to 128 characters."
-msgstr "Use 15 to 128 characters."
+#: libs/auth-client/src/email-sign-in-form.tsx
+msgid "Use a different email address"
+msgstr "Use a different email address"
 
 #: libs/app-root-client/src/app-commands.tsx
 msgid "Use dark theme"
@@ -4371,10 +4370,6 @@ msgstr "Your account deletion is confirmed. You are signed out. Ordinary persona
 #: libs/profile-client/src/profile-avatar-figure.tsx
 msgid "Your avatar"
 msgstr "Your avatar"
-
-#: libs/app-root-client/src/offline-indicator.tsx
-msgid "Your changes are saved locally and will sync when the connection is healthy again."
-msgstr "Your changes are saved locally and will sync when the connection is healthy again."
 
 #: libs/billing-client/src/billing-plan-card.tsx
 msgid "Your checkout hasn't finished. Complete it to start your membership."

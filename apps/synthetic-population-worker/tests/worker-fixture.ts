@@ -49,8 +49,7 @@ export function workerFixture() {
       expiresAt: new Date(clock.now() + 60_000).toISOString(),
     },
     username: 'Cedar',
-    email: 'cedar@synthetic.invalid',
-    password: createId(),
+    email: 'cedar@synthetic.gamezilla.invalid',
     registered: true,
     personality: { hostingWeight: 0.3, skill: 'beginner' },
     deviceId: createId(),
@@ -62,6 +61,8 @@ export function workerFixture() {
   let release: (() => void) | undefined;
   let holdRelease = false;
   let renewStatus = 200;
+  let inboxLink: string | null = null;
+  let inboxStatus = 200;
   const server = new Hono().post(
     '/api/synthetic-population-worker/:action',
     async (c) => {
@@ -86,6 +87,13 @@ export function workerFixture() {
               },
             })
           : c.json({ error: 'expired' }, 409);
+      if (action === 'take-sign-in-link') {
+        if (inboxStatus !== 200)
+          return c.json({ error: 'Worker Lease expired or replaced' }, 409);
+        const link = inboxLink;
+        inboxLink = null;
+        return c.json({ link });
+      }
       if (action === 'release' && holdRelease)
         await new Promise<void>((resolve) => {
           release = resolve;
@@ -108,6 +116,13 @@ export function workerFixture() {
     release: () => release?.(),
     refuseRenewal: () => {
       renewStatus = 409;
+    },
+    /** Mail waiting in the leased user's internal inbox. */
+    mail: (link: string) => {
+      inboxLink = link;
+    },
+    refuseInbox: () => {
+      inboxStatus = 409;
     },
   };
 }

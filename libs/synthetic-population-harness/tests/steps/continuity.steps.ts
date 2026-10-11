@@ -8,8 +8,8 @@ import {
   syntheticGameShown,
   syntheticUsername,
 } from '@libs/synthetic-population-harness/continuity-actions';
+import { recallContinuity, rememberContinuity } from './continuity-memo';
 
-type Continuity = Awaited<ReturnType<typeof syntheticContinuity>>;
 Given(
   'the Synthetic User {string} has a finished multiplayer game',
   async (w, name: string) => {
@@ -22,8 +22,7 @@ Given(
 When(
   'the Synthetic User {string} closes and reopens the app',
   async (w, _name: string) => {
-    const before = await w.s.read(syntheticContinuity);
-    w.memo.set('synthetic-population:continuity', before);
+    const before = await rememberContinuity(w);
     await w.s.apply(reopenSyntheticApp, before.board.gameId);
   }
 );
@@ -32,7 +31,7 @@ Then(
   async (w, _name: string) => {
     // regression: synthetic-population-browser-device-fencing
     // regression: browser-reopening-deletes-device-storage
-    const before = w.memo.get('synthetic-population:continuity') as Continuity;
+    const before = recallContinuity(w);
     const after = await w.s.read(syntheticContinuity);
     expect(after.account).toBe(before.account);
     expect(after.account).not.toBeNull();
@@ -48,7 +47,7 @@ Then(
 Then(
   'the Synthetic User {string} continues its same multiplayer game',
   async (w, _name: string) => {
-    const before = w.memo.get('synthetic-population:continuity') as Continuity;
+    const before = recallContinuity(w);
     const after = await w.s.read(syntheticGameShown);
     expect(after.board.gameId).toBe(before.board.gameId);
     expect(after.board.gameId).not.toBeNull();
@@ -58,7 +57,7 @@ Then(
 Then(
   'the Synthetic User {string} keeps its finished multiplayer result',
   async (w, _name: string) => {
-    const before = w.memo.get('synthetic-population:continuity') as Continuity;
+    const before = recallContinuity(w);
     const after = await w.s.read(syntheticGameShown);
     expect(after.board.gameId).toBe(before.board.gameId);
     expect(after.board.announcement).toBe(before.board.announcement);

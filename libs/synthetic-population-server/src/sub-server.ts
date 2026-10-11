@@ -82,7 +82,6 @@ function routes(ctx: SubServerCtx) {
   const workers = createSyntheticPopulationWorkerRoutes({
     getDb: ctx.getSqlClient,
     ports,
-    credentialSecret: () => readSecret('POPULATION_CREDENTIAL_SECRET'),
     bindAccount: (lease, token) =>
       bindSyntheticPopulationAccount(
         {
