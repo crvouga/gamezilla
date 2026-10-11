@@ -2,7 +2,7 @@ import { UnauthorizedError } from '@libs/auth-shared/unauthorized-error';
 import type {
   RoomGrantsCtx,
   SessionAdmissionCtx,
-} from '@libs/feature-shared/server';
+} from '@libs/sub-shared/server';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
 import {

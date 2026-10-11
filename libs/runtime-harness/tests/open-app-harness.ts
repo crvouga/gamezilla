@@ -4,9 +4,9 @@ import { openHarness as openSystemHarness } from '@libs/harness/open-harness';
 import { APP_SYSTEM } from '@libs/runtime-harness/app-composition';
 
 /**
- * Open a reported harness of the full composition: every feature, folded exactly
+ * Open a reported harness of the full composition: every sub, folded exactly
  * as production folds them, migrated by the production runner. Only the
- * whole-app suite runs this — it reruns for every feature change, by design.
+ * whole-app suite runs this — it reruns for every sub change, by design.
  */
 export function openHarness(
   testId: string,

@@ -1,13 +1,13 @@
 import { matchmakingSchema } from '@pkgs/matchmaking-sql-shared/tables';
 /**
- * Reconcile a fresh harness database for exactly the features a composition runs.
+ * Reconcile a fresh harness database for exactly the subs a composition runs.
  *
  * A subsystem harness starts from an empty mockingbird-postgres. What every
  * composition needs is the framework tables, its own domain schema, and the IdP.
  */
 
 import { appPostgresDbScope } from '@libs/db-shared/scope';
-import type { ComposedFeatures } from '@libs/feature-shared/compose';
+import type { ComposedSubs } from '@libs/sub-shared/compose';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
@@ -32,7 +32,7 @@ const HARNESS_RECONCILE = {
 
 async function reconcileHarnessSchemas(
   sqlClient: SqlClient,
-  app: ComposedFeatures,
+  app: ComposedSubs,
   now: () => number
 ): Promise<void> {
   const dbScope: PostgresDbScope = appPostgresDbScope();
@@ -65,7 +65,7 @@ async function reconcileHarnessSchemas(
 
 /** Server Postgres: framework + the composition's domain schema + kv/entity + IdP. */
 export function migrateCompositionPostgres(
-  app: ComposedFeatures
+  app: ComposedSubs
 ): MigrateHarnessPostgres {
   return async (args) => {
     await reconcileHarnessSchemas(args.sqlClient, app, args.now);
@@ -83,7 +83,7 @@ export function compositionMigratePostgres(
 
 /** Client local SQLite: framework local tables + domain cache + kv/entity. */
 export async function migrateCompositionClientSqlite(
-  app: ComposedFeatures,
+  app: ComposedSubs,
   args: { readonly sqlClient: SqlClient; readonly now: () => number }
 ): Promise<void> {
   await migrateLocalSchema(args.sqlClient, {

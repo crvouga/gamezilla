@@ -45,7 +45,7 @@ export class SyntheticPopulationRepository {
   }
 
   async users(): Promise<UserRecord[]> {
-    // Deliberately enumerate fields: credentials never enter an administrative response.
+    // Deliberately enumerate fields: an address and its mail never enter an administrative response.
     const rows = await this.tx.query(
       sql<UserRecord>`SELECT id, account_id, username, region, paused, worker_id, generation, lease_until, activity, checkpoint, application_version, last_action, last_error, inspection_requested_at, inspection, created_at, updated_at FROM population_users WHERE deleted_at IS NULL ORDER BY username LIMIT 1000`
     );

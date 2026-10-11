@@ -13,16 +13,24 @@
  *   declined — never linked silently;
  * - one identity per provider per user; identities never change owner while
  *   linked; the last identity cannot be unlinked;
+ * - an emailed sign-in link is an identity like any other — its address,
+ *   verified by opening it — that works once, within ten minutes, and can be
+ *   asked for only so often per address;
  * - sessions end by sign-out, sign-out-everywhere, Apple consent revocation,
  *   Apple account deletion (when nothing else can sign in), or expiry.
  */
 
-import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
+import {
+  AUTH_EMAIL_LINK_REQUEST_LIMIT,
+  AUTH_EMAIL_LINK_TTL_MS,
+  AUTH_EMAIL_LINK_WINDOW_MS,
+  AUTH_SESSION_TTL_MS,
+} from '@pkgs/auth-inhouse-shared/auth-constants';
 import type { AuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
 import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
 import type { SignInMethodId } from '@pkgs/auth-root-shared/sign-in-method';
 
-/** What the relying party learns about one provider identity. */
+/** What the relying party learns about one identity (a provider's, or a mailbox). */
 export type SeenIdentity = {
   readonly provider: SignInMethodId;
   readonly sub: string;
@@ -48,8 +56,22 @@ export type Prediction =
     }
   | { readonly kind: 'error'; readonly code: AuthErrorCode };
 
+/** One emailed sign-in link, by its token. */
+export type ModelEmailLink = {
+  readonly email: string;
+  readonly expiresAtMs: number;
+  /** The pending link it was asked to prove, if any. */
+  readonly pendingToken: string | null;
+  spent: boolean;
+};
+
 export type AuthModel = {
-  readonly passwords: Map<string, { userId: string; password: string }>;
+  readonly emailLinks: Map<string, ModelEmailLink>;
+  /** Address → the window its requests for a link are counted in. */
+  readonly emailLinkRequests: Map<
+    string,
+    { windowStartedAtMs: number; count: number }
+  >;
   readonly identities: Map<string, ModelIdentity>;
   readonly users: Set<string>;
   /**
@@ -69,7 +91,8 @@ export type AuthModel = {
 
 export function createAuthModel(): AuthModel {
   return {
-    passwords: new Map(),
+    emailLinks: new Map(),
+    emailLinkRequests: new Map(),
     identities: new Map(),
     users: new Set(),
     sessions: new Map(),
@@ -169,6 +192,73 @@ export function predictConfirm(
     return { kind: 'error', code: AUTH_ERROR.providerAlreadyLinked };
   }
   return { kind: 'linked', userIds: [known.userId] };
+}
+
+const ADDRESS_MAX_LENGTH = 254;
+const ADDRESS_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** The mailbox an address names, however it was typed; `null` when it names none. */
+export function mailboxAddress(typed: string): string | null {
+  const address = typed.trim().toLowerCase();
+  return address.length <= ADDRESS_MAX_LENGTH && ADDRESS_SHAPE.test(address)
+    ? address
+    : null;
+}
+
+/** What opening a link mailed to `email` proves: that mailbox, verified. */
+export function mailboxIdentity(email: string): SeenIdentity {
+  return {
+    provider: 'email',
+    sub: email,
+    email,
+    verified: true,
+    isPrivate: false,
+  };
+}
+
+/** Count one request for a link at `email`; `false` once it asked too often. */
+export function admitEmailLinkRequest(
+  model: AuthModel,
+  email: string,
+  nowMs: number
+): boolean {
+  const known = model.emailLinkRequests.get(email);
+  const lapsed =
+    known === undefined ||
+    known.windowStartedAtMs <= nowMs - AUTH_EMAIL_LINK_WINDOW_MS;
+  const next = lapsed
+    ? { windowStartedAtMs: nowMs, count: 1 }
+    : { ...known, count: known.count + 1 };
+  model.emailLinkRequests.set(email, next);
+  return next.count <= AUTH_EMAIL_LINK_REQUEST_LIMIT;
+}
+
+export function issueEmailLink(
+  model: AuthModel,
+  token: string,
+  link: Omit<ModelEmailLink, 'expiresAtMs' | 'spent'> & {
+    readonly nowMs: number;
+  }
+): void {
+  model.emailLinks.set(token, {
+    email: link.email,
+    pendingToken: link.pendingToken,
+    expiresAtMs: link.nowMs + AUTH_EMAIL_LINK_TTL_MS,
+    spent: false,
+  });
+}
+
+/** Open a link: it is spent whatever comes of it; `null` when it no longer works. */
+export function spendEmailLink(
+  model: AuthModel,
+  token: string,
+  nowMs: number
+): ModelEmailLink | null {
+  const link = model.emailLinks.get(token);
+  if (link === undefined) return null;
+  const works = !link.spent && link.expiresAtMs > nowMs;
+  link.spent = true;
+  return works ? link : null;
 }
 
 export function attachIdentity(

@@ -1,18 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-import type { FeatureClient } from '@libs/feature-client/client';
-import type { FeatureServer } from '@libs/feature-shared/server';
 import type { HarnessSlice } from '@libs/harness/slices';
 import {
   composeHarnessSlices,
   PLATFORM_HARNESS_SLICES,
 } from '@libs/harness/slices';
+import type { SubClient } from '@libs/sub-client/client';
+import type { SubServer } from '@libs/sub-shared/server';
 
-function client(name: string): FeatureClient {
+function client(name: string): SubClient {
   return { name, routes: [] };
 }
 
-function server(name: string): FeatureServer {
-  return { name } as unknown as FeatureServer;
+function server(name: string): SubServer {
+  return { name } as unknown as SubServer;
 }
 
 const PROFILE: HarnessSlice = { name: 'profile', client: client('profile') };
@@ -58,11 +58,28 @@ describe('composeHarnessSlices', () => {
     ).toEqual(['friends', 'notifications']);
   });
 
-  test('always includes the platform features', () => {
+  test('always includes the platform subs', () => {
     const composition = composeHarnessSlices('probe', []);
-    expect([...composition.app.featureNames].sort()).toEqual(
-      PLATFORM_HARNESS_SLICES.map((s) => s.feature?.name ?? '').sort()
+    expect([...composition.app.subNames].sort()).toEqual(
+      PLATFORM_HARNESS_SLICES.map((s) => s.sub?.name ?? '').sort()
     );
+  });
+
+  // regression: harness-composition-missing-population-directory
+  test('keeps the tables auth classifies sessions against in every composition', () => {
+    const composition = composeHarnessSlices('probe', [PROFILE]);
+    expect([...composition.app.subNames]).toContain('synthetic-population');
+  });
+
+  test("a suite's slice replaces the platform's slice for the same sub", () => {
+    const population: HarnessSlice = {
+      name: 'synthetic-population',
+      server: () => server('synthetic-population'),
+    };
+    const composition = composeHarnessSlices('probe', [population]);
+    expect(
+      composition.servers({ billing: null, rooms }).map((s) => s.name as string)
+    ).toEqual(['synthetic-population']);
   });
 
   test('rejects a slice listed twice', () => {

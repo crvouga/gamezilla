@@ -6,6 +6,7 @@ import { AUTH_TABLES } from '@libs/auth-shared/tables';
 import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
+import { outboxDeliveries, outboxEvents } from '@pkgs/outbox-shared/tables';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
 import sql from '@pkgs/sql-root-shared/sql';
@@ -17,7 +18,10 @@ const DEVICE_ID = '11111111-1111-4111-8111-111111111111';
 const DEVICE_B = '22222222-2222-4222-8222-222222222222';
 
 async function migrate(db: SqlClient): Promise<void> {
-  await reconcileSqliteSchema(db, registerTables([...AUTH_TABLES]));
+  await reconcileSqliteSchema(
+    db,
+    registerTables([...AUTH_TABLES, outboxEvents, outboxDeliveries])
+  );
 }
 
 describe('AnonUserService', () => {

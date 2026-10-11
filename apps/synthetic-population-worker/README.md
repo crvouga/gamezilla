@@ -3,8 +3,24 @@
 The product contract is in [the Synthetic Population specifications](../../specs/synthetic-population/).
 The Worker mounts Gamezilla's full SolidJS client and reuses the existing UI Driver.
 Each Synthetic User runs in its own Bun realm, signs in through the ordinary
-email/password auth port, and uses normal space, matchmaking and chess controls.
+sign-in surface, and uses normal space, matchmaking and chess controls.
 The browser Driver remains available in the same executable specifications.
+
+Synthetic Users sign in with an emailed link, and they are the only accounts
+that can. Their addresses live under `synthetic.gamezilla.invalid`, a domain no
+mail server can exist for, and the auth service is given one place to send
+links: the population's internal inbox (`population_sign_in_mail`). It accepts
+those addresses only, for a user a worker is running right now, and nothing is
+ever sent anywhere, in every environment including production. A person can
+never be mailed a link, and "Continue with email" is rendered only by this
+Worker's application host (`ClientEnv.emailSignIn`), never by the apps people
+use. The Driver can only tap and type, so a user asks for a link, the process
+holding its Worker Lease takes the newest unexpired link over the control plane
+(`POST /api/synthetic-population-worker/take-sign-in-link`), and the user
+pastes it into the form. A link is handed out once: taking it soft-deletes the
+mail and erases the link from the row. No administrative RPC, sync scope or
+DOM inspection reads the inbox, and links are redacted from every recorded
+action, diagnostic and inspection.
 
 PostgreSQL owns persistent identities, configuration, Worker Leases and recovery
 references. Lease generations fence sessions and mutations; the existing room
@@ -23,7 +39,7 @@ and composed into the existing foundation stack. The Observatory uses the main
 frontend and backend deployments. SQL names, environment bindings and OpenTofu
 state addresses stay stable across the source-file rename.
 
-Automated verification is `bun check`. The feature's focused gates are the
+Automated verification is `bun check`. The sub's focused gates are the
 `test`, `tc` and `lint` scripts in its shared/server packages, `test:spec` in
 `@libs/synthetic-population-harness`, and `test` in
 `@apps/synthetic-population-worker`. Native realm tests cover session replacement,

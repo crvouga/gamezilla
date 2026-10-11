@@ -10,42 +10,50 @@ export async function openAccount(driver: Driver): Promise<void> {
   await driver.get(Handles.statusCurrentUser).tap();
   await driver.get(Handles.globalMenuAccount).tap({ timeoutMs: 15_000 });
 }
+export type SyntheticSignIn = {
+  /** The Synthetic User's provisioned address. */
+  readonly email: string;
+  /**
+   * Takes the newest sign-in link from the user's internal inbox over the
+   * worker control plane. A link is handed out once; `null` when none waits.
+   */
+  readonly takeSignInLink: () => Promise<string | null>;
+};
+
+const SIGN_IN_WAIT = { timeoutMs: 30_000 };
+
+/**
+ * One attempt, as a person would make it: ask for a link, read the mail,
+ * paste the link. The Driver can only tap and type, so the link is typed
+ * into the form rather than opened.
+ */
+async function signInByEmailedLink(
+  driver: Driver,
+  input: SyntheticSignIn
+): Promise<boolean> {
+  await driver.get(Handles.accountSignIn).tap();
+  await driver.get(Handles.authMethodEmail).tap();
+  await driver.get(Handles.authEmailAddress).input(input.email);
+  await driver.get(Handles.authEmailRequestLink).tap();
+  await driver.get(Handles.authEmailLink).wait('visible', SIGN_IN_WAIT);
+  const link = await input.takeSignInLink();
+  if (link === null)
+    throw new Error('No sign-in link reached the internal inbox');
+  await driver.get(Handles.authEmailLink).input(link);
+  await driver.get(Handles.authEmailSignIn).tap();
+  await driver.get(Handles.authSignInOutcome).wait('visible', SIGN_IN_WAIT);
+  return !(await driver.get(Handles.authSignInFailed).isVisible());
+}
 export async function authenticateThroughUi(
   driver: Driver,
-  credentials: { email: string; password: string; registered: boolean }
+  input: SyntheticSignIn
 ): Promise<void> {
   await openAccount(driver);
-  await driver.get(Handles.accountSignIn).tap();
-  await driver.get('auth-password-email').input(credentials.email);
-  await driver.get('auth-password-secret').input(credentials.password);
-  await driver
-    .get(
-      credentials.registered
-        ? 'auth-password-sign-in'
-        : 'auth-password-register'
-    )
-    .tap();
-  try {
-    await driver
-      .get('auth-sign-in-outcome')
-      .wait('visible', { timeoutMs: 30_000 });
-    if (await driver.get(Handles.authSignInFailed).isVisible())
-      throw new Error('Normal authentication was refused');
-  } catch (error) {
-    // A committed registration can lose its acknowledgement. Prove the identity normally.
-    if (
-      credentials.registered ||
-      !(await driver.get(Handles.authSignInFailed).isVisible())
-    )
-      throw error;
+  if (!(await signInByEmailedLink(driver, input))) {
+    // A spent link can lose its acknowledgement. A fresh link proves the identity again.
     await driver.get(Handles.authModalClose).tap();
-    await driver.get(Handles.accountSignIn).tap();
-    await driver.get('auth-password-email').input(credentials.email);
-    await driver.get('auth-password-secret').input(credentials.password);
-    await driver.get('auth-password-sign-in').tap();
-    await driver
-      .get(Handles.authSignedInDone)
-      .wait('visible', { timeoutMs: 30_000 });
+    if (!(await signInByEmailedLink(driver, input)))
+      throw new Error('Normal authentication was refused');
   }
   await driver.get(Handles.authSignedInDone).tap();
 }

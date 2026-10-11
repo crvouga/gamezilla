@@ -6,7 +6,7 @@ import {
   CustomGamesAttr,
   newCustomGame,
 } from '@libs/chess-custom-game-shared/custom-game-state';
-import { chessGameShared } from '@libs/chess-feature-shared/chess-game';
+import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
 import { SpaceEnded } from '@libs/spaces-shared/space-log-messages';
 import {
   CancelScheduleEffect,

@@ -1,5 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@crvouga/atlas": ["../../vendor/atlas/packages/core/dist/index.d.ts"],
+      "@crvouga/atlas/spec": [
+        "../../vendor/atlas/packages/core/dist/spec/index.d.ts"
+      ],
+      "@crvouga/atlas-schema": [
+        "../../vendor/atlas/packages/schema/dist/index.d.ts"
+      ]
+    }
+  },
   "include": [
     "../../pkgs/ts-reset-shared/src/ts-reset.ts",
     "../../pkgs/ui-root-client/src/css-modules.d.ts",

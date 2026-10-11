@@ -1,17 +1,17 @@
 /** @jsxImportSource solid-js */
 /**
- * The screen a composition lands on when none of its features owns `/`.
+ * The screen a composition lands on when none of its subs owns `/`.
  *
- * Production's `/` belongs to spaces. A feature below spaces in the package
+ * Production's `/` belongs to spaces. A sub below spaces in the package
  * graph (profile, search, billing) cannot compose it, and without a tab at `/`
  * the shell boots onto an empty tabs layout (no tabs at all) or the not-found
- * screen (no tab bar) — either way the actor cannot reach the feature. This
+ * screen (no tab bar) — either way the actor cannot reach the sub. This
  * fills the gap with a bare screen: the shell header (global menu) and the
- * tab bar, nothing of any feature.
+ * tab bar, nothing of any sub.
  */
 
-import type { FeatureClient } from '@libs/feature-client/client';
-import { defineFeatureClient } from '@libs/feature-client/client';
+import type { SubClient } from '@libs/sub-client/client';
+import { defineSubClient } from '@libs/sub-client/client';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { HouseIcon } from '@pkgs/ui-root-client/icons';
 import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
@@ -27,7 +27,7 @@ function BareHomeScreen(): JSX.Element {
   );
 }
 
-export const BARE_HOME_CLIENT = defineFeatureClient({
+export const BARE_HOME_CLIENT = defineSubClient({
   name: 'harness-home',
   routes: [
     {
@@ -49,9 +49,7 @@ export const BARE_HOME_CLIENT = defineFeatureClient({
 });
 
 /** `clients`, plus {@link BARE_HOME_CLIENT} when none of them owns `/`. */
-export function withHome(
-  clients: readonly FeatureClient[]
-): readonly FeatureClient[] {
+export function withHome(clients: readonly SubClient[]): readonly SubClient[] {
   const ownsRoot = clients.some((client) =>
     client.routes.some((route) => route.path === '/')
   );

@@ -41,13 +41,6 @@ export type SolidDomNodeHost = {
 
 const DEFAULT_SCROLL_AMOUNT = 100;
 
-/** Run a sync read as a promise so failures reject instead of throwing. */
-function settle<T>(read: () => T): Promise<T> {
-  return new Promise((resolve) => {
-    resolve(read());
-  });
-}
-
 /** Locator node for the solid-dom driver — resolves a testId path at action time. */
 export class SolidDomDriverNode implements DriverNode {
   readonly expect: DriverNode['expect'] = {
@@ -136,18 +129,23 @@ export class SolidDomDriverNode implements DriverNode {
     );
   }
 
-  isVisible(): Promise<boolean> {
-    return settle(() => this.visibleNow());
+  /**
+   * A parked actor's tree is detached, so a read focuses that screen first.
+   * A checkpoint may have parked it since the last action on it.
+   */
+  async isVisible(): Promise<boolean> {
+    await this.host.activate();
+    return this.visibleNow();
   }
 
-  text(): Promise<string | null> {
-    return settle(() => this.host.requireApp().getText(this.requireElement()));
+  async text(): Promise<string | null> {
+    await this.host.activate();
+    return this.host.requireApp().getText(this.requireElement());
   }
 
-  attribute(name: string): Promise<string | null> {
-    return settle(() =>
-      this.host.requireApp().getAttribute(this.requireElement(), name)
-    );
+  async attribute(name: string): Promise<string | null> {
+    await this.host.activate();
+    return this.host.requireApp().getAttribute(this.requireElement(), name);
   }
 
   private visibleNow(): boolean {

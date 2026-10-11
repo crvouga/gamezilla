@@ -27,7 +27,7 @@ import {
 import type { AppPolicy } from './world';
 
 export type AccessServerOptions = {
-  /** Feature tables (billing's, and whatever the routes touch). */
+  /** Sub tables (billing's, and whatever the routes touch). */
   readonly tables: readonly TableDef[];
   /**
    * Capabilities performed through a route rather than a mutation, with the
@@ -40,7 +40,7 @@ export type AccessServerOptions = {
    * without a route or a mutation is an error: it would go unchecked.
    */
   readonly ungoverned?: Readonly<Record<string, string>>;
-  /** Feature rows the routes need. */
+  /** Sub rows the routes need. */
   readonly seed?: (c: ServerCase) => Promise<void>;
   readonly policy?: AppPolicy;
   readonly guard?: MutationAuthorize;

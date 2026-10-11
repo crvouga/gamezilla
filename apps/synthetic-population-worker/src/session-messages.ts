@@ -12,8 +12,12 @@ export type SessionInput =
     }
   | { type: 'control'; renewal: WorkerRenewal; draining: boolean }
   | { type: 'activate' }
+  /** The newest link from the user's internal inbox; `null` when none waits. */
+  | { type: 'sign-in-link'; link: string | null }
   | { type: 'stop' };
 export type SessionOutput =
+  /** Only the process holding the lease can read the user's internal inbox. */
+  | { type: 'sign-in-link-requested' }
   | { type: 'authenticated'; token: string }
   | {
       type: 'checkpoint';

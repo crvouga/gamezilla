@@ -23,6 +23,7 @@ test('an empty configured part fails instead of publishing a passing report', as
           ...process.env,
           npm_package_name: '@libs/empty',
           HARNESS_MODE: 'mem',
+          ATLAS_REPORT_ATTEMPT_ID: 'empty-part-attempt',
         },
       }
     );
@@ -42,6 +43,16 @@ test('an empty configured part fails instead of publishing a passing report', as
         ) as { status: number }
       ).status
     ).toBe(1);
+    expect(
+      (
+        JSON.parse(
+          readFileSync(
+            join(root, '.cache/harness-report/part-0/complete.json'),
+            'utf8'
+          )
+        ) as { attemptId: string }
+      ).attemptId
+    ).toBe('empty-part-attempt');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -1,8 +1,8 @@
 import type { ServerEnv } from '@libs/app-root-shared/server-env';
-import type { ComposedFeatureServers } from '@libs/feature-shared/compose-server';
+import type { ComposedSubServers } from '@libs/sub-shared/compose-server';
 
 export function registerTelemetryConsumers(
-  servers: ComposedFeatureServers,
+  servers: ComposedSubServers,
   env: ServerEnv
 ): void {
   const deliver = env.deliverBusinessEvent;

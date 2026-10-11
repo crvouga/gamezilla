@@ -2,9 +2,9 @@
 /** The tab bar as a listener hears it. */
 
 import { describe, expect, test } from 'bun:test';
-import { AppCompositionProvider } from '@libs/app-root-client/app-features-context';
+import { AppCompositionProvider } from '@libs/app-root-client/app-subs-context';
 import { AppTabBar } from '@libs/app-root-client/app-tab-bar';
-import type { ComposedFeatureClients } from '@libs/feature-client/compose-client';
+import type { ComposedSubClients } from '@libs/sub-client/compose-client';
 import { requiredContext, requiredOwned } from '@pkgs/a11y-shared/aria-rules';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
 import { SettingsIcon, UserIcon } from '@pkgs/ui-root-client/icons';
@@ -36,14 +36,14 @@ function Passthrough(props: { readonly children: JSX.Element }): JSX.Element {
 }
 
 const CLIENTS = {
-  featureNames: [],
+  subNames: [],
   routes: [],
   tabs: TABS,
   Chrome: Passthrough,
   Session: Passthrough,
   tabsDocks: [],
   settings: [],
-} satisfies ComposedFeatureClients;
+} satisfies ComposedSubClients;
 
 function renderTabBar(): void {
   renderChrome(() => (

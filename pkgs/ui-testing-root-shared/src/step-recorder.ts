@@ -1,4 +1,4 @@
-import type { RecordStepMeta } from '@pkgs/harness-root-shared/report-types';
+import type { RecordStepMeta } from '@crvouga/atlas-reports/report-types';
 
 /**
  * Where UI steps land. `Run.record` from `@pkgs/harness-root-shared` satisfies this; a

@@ -5,7 +5,7 @@
  * `.cache/harness-report/<part>/runs/latest/…` — `test:spec` caches that bucket, so the
  * report of the last run of this exact code is always there to render.
  * Every step also captures its UI frames. `bun check` publishes every
- * package's bucket to the reports screen (`/reports/<sha>`).
+ * package's bucket to the Atlas explorer.
  */
 
 import { join, relative, resolve } from 'node:path';

@@ -1,0 +1,4 @@
+{
+  "summary": "Switching away from a chessboard built the blur with happy-dom's Event. A test worker keeps Bun's dispatchEvent, which rejected that event. The blur uses the constructor from before happy-dom registration.",
+  "regressionTest": "pkgs/chess-board-root-harness/tests/board-blur-event.test.ts"
+}

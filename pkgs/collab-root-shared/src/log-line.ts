@@ -27,7 +27,7 @@ export type LogLineDraft = {
 };
 
 /**
- * Context handed to describe routers. Feature packages can extend via
+ * Context handed to describe routers. Sub packages can extend via
  * intersection when they need profile lookups etc.
  */
 export type LogLineContext = {

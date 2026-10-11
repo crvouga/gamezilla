@@ -1,4 +1,4 @@
-import type { RunReport } from '@pkgs/harness-root-shared/report-types';
+import type { RunReport } from '@crvouga/atlas-reports/report-types';
 import {
   readObjectBytes,
   writeUtf8,

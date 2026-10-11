@@ -11,10 +11,10 @@
  *   report-publish.ts close [failed]    verify every expected part and close
  *
  * Each source lands the moment its part is published, so the reports screen
- * (`/reports/<sha>` on any deployment) shows the run filling in. A package
+ * (in the standalone Atlas explorer) shows the run filling in. A package
  * whose suite records no harness timeline publishes nothing and is named.
  * The commit is the pull request's head, not the merge commit Actions checks
- * out, so `/reports/<sha>` is the sha `bun check` printed.
+ * out, so the Atlas revision is the sha `bun check` printed.
  *
  * Needs `REPORTS_BUCKET`, `REPORTS_ENDPOINT`, `REPORTS_WRITE_ACCESS_KEY_ID`
  * and `REPORTS_WRITE_SECRET_ACCESS_KEY` (written by OpenTofu; `secrets-run`
@@ -24,9 +24,9 @@
 
 import { writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { openCommit } from '@crvouga/atlas-reports/publish';
 import { compileFrameCss } from '@libs/harness/wall-frame-css';
 import { wallClock } from '@pkgs/clock-shared/wall';
-import { openCommit } from '@pkgs/harness-report-shared/publish';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { publishCheckoutInventory } from './report-inventory';
 import {

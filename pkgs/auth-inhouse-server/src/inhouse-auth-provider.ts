@@ -17,17 +17,33 @@ import { OAUTH_PROVIDER_IDS } from '@pkgs/auth-root-shared/sign-in-method';
 import { Hono } from 'hono';
 import { createAuthApp } from './create-auth-app';
 import { createAuthServerAdapter } from './create-auth-server-adapter';
+import type { EmailLinkDelivery } from './email-link-delivery';
 import { readInhouseAuthConfig } from './inhouse-auth-config';
 import { reconcileIdpPostgres } from './reconcile-idp-postgres';
 
 /** Where the IdP's endpoints sit under the API path. */
 const AUTH_PATH_PREFIX = '/auth';
 
+/** What a deployment chooses about the in-house IdP beyond its secrets. */
+export type InhouseAuthProviderOptions = {
+  /** How long a session lasts, independently of proof freshness. */
+  readonly sessionLifetimeMs?: number;
+  /**
+   * Where emailed sign-in links go, built from the same env as the service
+   * (its HTTP egress and secrets). Absent → the service has no email sign-in.
+   */
+  readonly emailLinks?: (
+    env: AuthProviderEnv
+  ) => EmailLinkDelivery | Promise<EmailLinkDelivery>;
+};
+
 async function createInhouseAuthProvider(
   env: AuthProviderEnv,
-  sessionLifetimeMs?: number
+  options: InhouseAuthProviderOptions
 ): Promise<AuthProvider> {
   const config = await readInhouseAuthConfig(env);
+  const { sessionLifetimeMs } = options;
+  const emailLinks = await options.emailLinks?.(env);
   const app = createAuthApp({
     getSql: env.getSql,
     clock: env.clock,
@@ -49,6 +65,7 @@ async function createInhouseAuthProvider(
     ...(config.syntheticMonitor === undefined
       ? {}
       : { syntheticMonitor: config.syntheticMonitor }),
+    ...(emailLinks === undefined ? {} : { emailLinks }),
   });
   // The handler receives the request's full URL, prefix included.
   const hosted =
@@ -60,9 +77,10 @@ async function createInhouseAuthProvider(
       createId: env.createId,
       secret: config.secret,
     }),
-    signInMethods: OAUTH_PROVIDER_IDS.filter(
-      (id) => config.providers[id] !== undefined
-    ),
+    signInMethods: [
+      ...OAUTH_PROVIDER_IDS.filter((id) => config.providers[id] !== undefined),
+      ...(emailLinks === undefined ? [] : (['email'] as const)),
+    ],
     handler: {
       pathPrefix: AUTH_PATH_PREFIX,
       fetch: async (request) => await hosted.fetch(request),
@@ -70,23 +88,29 @@ async function createInhouseAuthProvider(
   };
 }
 
-export const INHOUSE_AUTH_PROVIDER: AuthProviderModule = {
-  provider: IDP_PROVIDER_LABEL,
-  create: (env) => createInhouseAuthProvider(env),
-  reconcilePostgres: ({ sqlClient, dbScope }) =>
-    reconcileIdpPostgres(sqlClient, {
-      dbScope,
-      skipAdvisoryLock: true,
-      alreadyInTransaction: false,
-    }),
-};
+/** The in-house IdP as a deployment configures it. */
+export function inhouseAuthProviderWith(
+  options: InhouseAuthProviderOptions
+): AuthProviderModule {
+  return {
+    provider: IDP_PROVIDER_LABEL,
+    create: (env) => createInhouseAuthProvider(env, options),
+    reconcilePostgres: ({ sqlClient, dbScope }) =>
+      reconcileIdpPostgres(sqlClient, {
+        dbScope,
+        skipAdvisoryLock: true,
+        alreadyInTransaction: false,
+      }),
+  };
+}
+
+/** The in-house IdP with its defaults: social providers only, no email sign-in. */
+export const INHOUSE_AUTH_PROVIDER: AuthProviderModule =
+  inhouseAuthProviderWith({});
 
 /** Deployments can choose a session lifetime independently of proof freshness. */
 export function inhouseAuthProvider(
   sessionLifetimeMs: number
 ): AuthProviderModule {
-  return {
-    ...INHOUSE_AUTH_PROVIDER,
-    create: (env) => createInhouseAuthProvider(env, sessionLifetimeMs),
-  };
+  return inhouseAuthProviderWith({ sessionLifetimeMs });
 }

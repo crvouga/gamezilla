@@ -1,4 +1,4 @@
 {
-  "summary": "Branch cleanup only listed commit-local files after reports gained attempt isolation and shared content. Preserve the selected attempt and its referenced snapshots, remove superseded attempts and orphan content, and defer shared-content cleanup while a publisher is still running.",
-  "regressionTest": "pkgs/harness-report-client/tests/retention-attempt.test.ts"
+  "summary": "Attempt cleanup must preserve previous recordings and shared content because every run may contribute to report layers.",
+  "regressionTest": "pkgs/atlas-reports-harness/tests/client/retention-attempt.test.ts"
 }

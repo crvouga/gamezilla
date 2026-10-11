@@ -65,7 +65,7 @@ export function useLinkedIdentities(): Accessor<readonly LinkedIdentity[]> {
     SELECT provider, metadata
     FROM auth_external_accounts
     WHERE user_id = ${watchId()}
-      AND provider IN ('google', 'apple', 'password')
+      AND provider IN ('google', 'apple', 'email')
       AND deleted_at IS NULL
     ORDER BY provider
   `

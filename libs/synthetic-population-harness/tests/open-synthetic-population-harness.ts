@@ -1,8 +1,8 @@
 import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy-harness/account-privacy-harness-slice';
 import { BILLING_HARNESS_SLICE } from '@libs/billing-harness/billing-harness-slice';
-import { chessGameShared } from '@libs/chess-feature-shared/chess-game';
 import { chessGameClient } from '@libs/chess-root-client/chess-game-def';
 import { CHESS_HARNESS_SLICE } from '@libs/chess-root-harness/chess-harness-slice';
+import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
 import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-slice';
 import { defineProductSystem } from '@libs/harness/define-product-system';
 import type { OpenHarnessOptions } from '@libs/harness/mode';
@@ -33,8 +33,6 @@ const SYNTHETIC_POPULATION_SYSTEM = defineProductSystem(
     secretValues: {
       POPULATION_WORKER_TOKEN:
         'synthetic-population-spec-worker-token-0123456789abcdef',
-      POPULATION_CREDENTIAL_SECRET:
-        'synthetic-population-spec-secret-0123456789abcdef',
     },
   }
 );

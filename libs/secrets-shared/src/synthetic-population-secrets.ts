@@ -17,7 +17,3 @@ export const POPULATION_WORKER_TOKEN = syntheticPopulationSecret(
   'POPULATION_WORKER_TOKEN',
   'Synthetic Population Worker control-plane bearer'
 );
-export const POPULATION_CREDENTIAL_SECRET = syntheticPopulationSecret(
-  'POPULATION_CREDENTIAL_SECRET',
-  'Persistent Synthetic User credential encryption key'
-);

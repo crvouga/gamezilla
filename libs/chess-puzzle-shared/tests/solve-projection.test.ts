@@ -5,6 +5,7 @@ import {
   countMoveTokens,
   nextSolutionUci,
   PUZZLE_SOLUTION_ARROW_ID,
+  projectBoardFen,
   projectSolveStatus,
   solutionArrows,
 } from '@libs/chess-puzzle-shared/solve-projection';
@@ -38,6 +39,47 @@ describe('projectSolveStatus', () => {
         puzzleId: 'p1',
       })
     ).toBe('wrong');
+  });
+});
+
+describe('projectBoardFen', () => {
+  const reached = '6k1/8/8/8/8/8/8/R6K w - - 0 1';
+
+  test('a wrong move stays on the square it was played to', () => {
+    expect(
+      projectBoardFen({ status: 'wrong', fen: reached, wrongUci: 'a1a5' })
+    ).toBe('6k1/8/8/R7/8/8/8/7K b - - 1 1');
+  });
+
+  test('a wrong promotion shows the piece that was chosen', () => {
+    expect(
+      projectBoardFen({
+        status: 'wrong',
+        fen: '6k1/P7/8/8/8/8/8/7K w - - 0 1',
+        wrongUci: 'a7a8n',
+      })
+    ).toBe('N5k1/8/8/8/8/8/8/7K b - - 0 1');
+  });
+
+  test('the reached position shows once the wrong move is retried', () => {
+    expect(
+      projectBoardFen({ status: 'solving', fen: reached, wrongUci: null })
+    ).toBe(reached);
+    expect(
+      projectBoardFen({ status: 'solving', fen: reached, wrongUci: 'a1a5' })
+    ).toBe(reached);
+  });
+
+  test('a board with nothing to paint stays empty', () => {
+    expect(
+      projectBoardFen({ status: 'wrong', fen: null, wrongUci: 'a1a5' })
+    ).toBeNull();
+  });
+
+  test('a wrong move that does not fit the position leaves it as reached', () => {
+    expect(
+      projectBoardFen({ status: 'wrong', fen: reached, wrongUci: 'b1b5' })
+    ).toBe(reached);
   });
 });
 

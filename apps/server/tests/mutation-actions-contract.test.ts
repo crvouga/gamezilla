@@ -4,7 +4,7 @@ import {
   ACTION,
   PERMISSION,
 } from '@libs/permissions-shared/permission-catalog';
-import { APP } from '@libs/runtime-shared/app-features';
+import { APP } from '@libs/runtime-shared/app-subs';
 
 const KNOWN_KEYS = new Set<string>([
   ...Object.values(PERMISSION),

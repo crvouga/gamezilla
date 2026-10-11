@@ -16,7 +16,7 @@ export type Unlock = {
 /**
  * Turns a denial into its configured way forward. Callers hand over the
  * decision and never learn what the CTA is — signing in, seeing plans or
- * anything config adds later — so no feature branches on why it was denied.
+ * anything config adds later — so no sub branches on why it was denied.
  */
 export function useUnlock(): Unlock {
   const permissions = usePermissions();

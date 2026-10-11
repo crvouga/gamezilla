@@ -1,11 +1,10 @@
 /** @jsxImportSource solid-js */
 /**
- * Command palette, sync/offline banners, and in-session chrome. Overlay /
+ * Command palette, banners, and in-session chrome. Overlay /
  * surface-stack hosts live in `AppUiPortals` (outer shell) so `AppFrame`
  * menus work before SQLite. Banner *portal hosts* live on `AppFrame` (full
  * bleed outside the wide max-width column); this provider only mounts the
- * banner sources (`OfflineIndicator`, the outdated-app prompt, perf HUD, PWA
- * update).
+ * banner sources (the outdated-app prompt, perf HUD, PWA update).
  *
  * Mounts inside the identity-scoped sync tree (`sync-engine-ready-tree.tsx`),
  * after `AppLocalDatabaseProvider` (commands read the sync engine) and above
@@ -30,7 +29,6 @@ import { type JSX, Show } from 'solid-js';
 import { AppCommands } from './app-commands';
 import { AppUpdateRequiredBanner } from './app-update-required';
 import { useEmbeddedApp } from './embedded-app-context';
-import { OfflineIndicator } from './offline-indicator';
 import { PerfHudOverlay } from './perf-hud-overlay';
 import { PwaUpdatePromptBanner } from './update-prompt';
 
@@ -75,7 +73,6 @@ export function AppUiProvider(props: {
 }): JSX.Element {
   return (
     <>
-      <OfflineIndicator />
       <AppUpdateRequiredBanner />
       <PerfHudOverlay />
       <AppCommandRegistry>{props.children}</AppCommandRegistry>

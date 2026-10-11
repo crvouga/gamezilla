@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-
-import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
 import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzle-load-file-seeder';
 import { PuzzleValidationReport } from '@libs/chess-puzzle-server/puzzle-validation-report';
 import { validatePuzzleTable } from '@libs/chess-puzzle-server/puzzle-validation-sources';
+import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { createLogger } from '@pkgs/logger-shared/logger';

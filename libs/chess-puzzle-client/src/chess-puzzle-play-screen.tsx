@@ -45,7 +45,7 @@ function usePuzzleAvatarSize(): () => number {
 
 function PuzzleBoardSlot(props: {
   size: number;
-  displayFen: Accessor<string | null>;
+  boardFen: Accessor<string | null>;
   layoutKey: Accessor<number>;
   recommendBump: Accessor<number>;
   orientation: Accessor<'white' | 'black'>;
@@ -62,7 +62,7 @@ function PuzzleBoardSlot(props: {
   const sounds = useSoundsPreference();
   return (
     <Show
-      when={props.displayFen() !== null && props.displayFen()!.length > 0}
+      when={props.boardFen() !== null && props.boardFen()!.length > 0}
       fallback={<ChessPuzzleBoardLoadingState size={props.size} />}
     >
       <ChessBoard
@@ -70,7 +70,7 @@ function PuzzleBoardSlot(props: {
         sound={!sounds.muted()}
         dataSet={{ testid: 'chess-puzzle-board' }}
         size={props.size}
-        fen={props.displayFen() ?? ''}
+        fen={props.boardFen() ?? ''}
         fenSyncKey={props.layoutKey() + props.recommendBump()}
         orientation={props.orientation()}
         animationDurationMs={PUZZLE_PIECE_MOVE_MS}
@@ -101,7 +101,7 @@ function PuzzlePlayerBoardSlot(props: {
   return (
     <PuzzleBoardSlot
       size={props.size}
-      displayFen={p.displayFen}
+      boardFen={p.boardFen}
       layoutKey={p.layoutKey}
       recommendBump={p.recommendBump}
       orientation={p.orientation}

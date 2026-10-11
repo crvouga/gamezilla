@@ -6,10 +6,9 @@ export type ProductRoute = { path: string; source: string };
 
 export const PRODUCT_ROUTE_ROOTS = [
   'libs/app-root-client/src/route-table.ts',
-  'libs/runtime-client/src/app-feature-clients.ts',
+  'libs/runtime-client/src/app-sub-clients.ts',
   'apps/product/src/main.tsx',
   'apps/product/src/console-nav-real.ts',
-  'apps/product/src/reports-path.ts',
 ] as const;
 
 type Location = { file: ts.SourceFile; node: ts.Node };
@@ -202,19 +201,19 @@ function routeText(
   fail(value, 'Route path must resolve to a static pattern');
 }
 
-function featureObject(location: Location, sources: RouteSources): Location {
+function subObject(location: Location, sources: RouteSources): Location {
   const value = resolved(location, sources);
   if (
     !ts.isCallExpression(value.node) ||
     !ts.isIdentifier(value.node.expression)
   )
-    fail(value, 'Unresolved feature-client composition');
+    fail(value, 'Unresolved sub-client composition');
   const callName = value.node.expression.text;
   const importedDefinition = value.file.statements.some((statement) => {
     if (
       !ts.isImportDeclaration(statement) ||
       !ts.isStringLiteral(statement.moduleSpecifier) ||
-      statement.moduleSpecifier.text !== '@libs/feature-client/client'
+      statement.moduleSpecifier.text !== '@libs/sub-client/client'
     )
       return false;
     const imports = statement.importClause?.namedBindings;
@@ -224,23 +223,22 @@ function featureObject(location: Location, sources: RouteSources): Location {
       imports.elements.some(
         (entry) =>
           entry.name.text === callName &&
-          (entry.propertyName?.text ?? entry.name.text) ===
-            'defineFeatureClient'
+          (entry.propertyName?.text ?? entry.name.text) === 'defineSubClient'
       )
     );
   });
   if (importedDefinition) {
     if (value.node.arguments.length !== 1)
-      fail(value, 'Feature definition must have one static object');
+      fail(value, 'Sub definition must have one static object');
     return resolved({ ...value, node: value.node.arguments[0]! }, sources);
   }
   const factory = binding(value.file, callName, sources);
   if (!ts.isFunctionDeclaration(factory.node) || !factory.node.body)
-    fail(factory, 'Feature factory must have a static declaration');
+    fail(factory, 'Sub factory must have a static declaration');
   const returns = factory.node.body.statements.filter(ts.isReturnStatement);
   if (returns.length !== 1 || !returns[0]!.expression)
-    fail(factory, 'Feature factory must return one static definition');
-  return featureObject({ ...factory, node: returns[0]!.expression! }, sources);
+    fail(factory, 'Sub factory must return one static definition');
+  return subObject({ ...factory, node: returns[0]!.expression! }, sources);
 }
 
 function routesInArray(
@@ -323,56 +321,15 @@ function productSurfaceRoutes(sources: RouteSources): ProductRoute[] {
         );
       return statement.expression.expression.text;
     });
-  if (
-    predicates.length !== 2 ||
-    !predicates.includes('isHarnessPath') ||
-    !predicates.includes('isReportsPath')
-  )
+  if (predicates.length !== 1 || !predicates.includes('isHarnessPath'))
     fail(
       surface,
       'Product surface routing changed; declare every public surface'
     );
   const harness = parsed(PRODUCT_ROUTE_ROOTS[3], sources);
-  const reports = parsed(PRODUCT_ROUTE_ROOTS[4], sources);
-  const harnessPaths = predicatePaths(
-    binding(file, 'isHarnessPath', sources),
-    sources
+  return predicatePaths(binding(file, 'isHarnessPath', sources), sources).map(
+    (path) => ({ path, source: harness.fileName })
   );
-  const reportsPaths = predicatePaths(
-    binding(reports, 'isReportsPath', sources),
-    sources
-  );
-  const builder = binding(reports, 'reportsPathFor', sources);
-  if (!ts.isFunctionDeclaration(builder.node) || !builder.node.body)
-    fail(builder, 'Reports route builder is missing');
-  const parameters = new Set(
-    builder.node.parameters.map((parameter) => {
-      if (!ts.isIdentifier(parameter.name))
-        fail(builder, 'Reports route parameter must be named');
-      return parameter.name.text;
-    })
-  );
-  const returns = builder.node.body.statements.filter(ts.isReturnStatement);
-  const expression = returns[0]?.expression;
-  if (
-    returns.length !== 1 ||
-    !expression ||
-    !ts.isConditionalExpression(expression)
-  )
-    fail(builder, 'Reports route builder must declare both public patterns');
-  const reportRoutes = [expression.whenTrue, expression.whenFalse].map(
-    (node) => ({
-      path: routeText({ file: reports, node }, sources, parameters),
-      source: reports.fileName,
-    })
-  );
-  return [
-    ...harnessPaths.map((path) => ({ path, source: harness.fileName })),
-    ...reportRoutes,
-    ...reportsPaths
-      .filter((path) => !reportRoutes.some((route) => route.path === path))
-      .map((path) => ({ path, source: reports.fileName })),
-  ];
 }
 
 /** Resolve declared public routes from injected TypeScript; never import the app. */
@@ -384,14 +341,14 @@ export function declaredProductRoutes(sources: RouteSources): ProductRoute[] {
     sources
   );
   for (const entry of arrayEntries(
-    binding(composition, 'APP_FEATURE_CLIENTS', sources),
+    binding(composition, 'APP_SUB_CLIENTS', sources),
     sources
   )) {
-    const feature = featureObject(entry, sources);
-    const contributions = namedProperty(feature, 'routes');
+    const subClient = subObject(entry, sources);
+    const contributions = namedProperty(subClient, 'routes');
     if (contributions)
       routes.push(
-        ...routesInArray({ ...feature, node: contributions }, sources)
+        ...routesInArray({ ...subClient, node: contributions }, sources)
       );
   }
   routes.push(

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 // @io-wall-ok — statechart compiler entry; file and process ports meet here.
-import { mkdirSync, readFileSync, watch, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, watch, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { loadSpecDirectory, machineToScxml } from '@crvouga/atlas';
 import { StateNodeSchema } from '@crvouga/atlas-schema';
@@ -57,7 +57,7 @@ function sourceFiles(): Map<string, string> {
   }
   const routes = new Set([
     ...PRODUCT_ROUTE_ROOTS,
-    ...new Bun.Glob('libs/*-client/src/feature-client.{ts,tsx}').scanSync({
+    ...new Bun.Glob('libs/*-client/src/sub-client.{ts,tsx}').scanSync({
       cwd: ROOT,
     }),
     'libs/chess-puzzle-client/src/puzzle-link-client.ts',
@@ -72,7 +72,16 @@ function writeGuide(
   machine: ReturnType<typeof productGuide>,
   artifacts: Record<string, unknown>
 ): void {
+  rmSync(SPECS, { recursive: true, force: true });
   mkdirSync(SPECS, { recursive: true });
+  for (const path of new Bun.Glob('**/*').scanSync({
+    cwd: CHARTS,
+    onlyFiles: true,
+  })) {
+    const target = join(SPECS, path);
+    mkdirSync(join(target, '..'), { recursive: true });
+    writeFileSync(target, readFileSync(join(CHARTS, path)));
+  }
   writeJson(join(SPECS, 'product.machine.json'), machine);
   for (const name of ['atlas.yaml', 'journeys.yaml']) {
     writeFileSync(join(SPECS, name), readFileSync(join(CHARTS, name)));
@@ -140,7 +149,7 @@ async function explore(flags: string[]): Promise<void> {
       )
         return;
       try {
-        compileGuide();
+        console.log(`Spec changed: ${String(name)}`);
       } catch (cause) {
         console.error(
           `Chart update rejected; keeping the last valid model. ${String(cause)}`
@@ -148,13 +157,18 @@ async function explore(flags: string[]): Promise<void> {
       }
     })
   );
+  process.env['ATLAS_REPORTS_MODULE'] = join(
+    ROOT,
+    'libs/harness/scripts/atlas-reports-app.ts'
+  );
+  process.env['INIT_CWD'] = ROOT;
   const child = startProcess({
     command: process.execPath,
     args: [
       join(ROOT, 'vendor/atlas/packages/visualizer/bin/atlas-visualizer.mjs'),
       'dev',
       '--specs',
-      SPECS,
+      CHARTS,
       '--runs',
       join(ROOT, 'atlas-runs'),
       ...viewerFlags,
@@ -178,7 +192,7 @@ async function main(): Promise<void> {
   const [command = 'check', ...flags] = process.argv.slice(2);
   if (flags.includes('--help') || flags.includes('-h')) {
     console.log(
-      'bun atlas:lint — validate composition, source closure, complete traversal and serialization.\nbun atlas:run — validate and build the static product explorer.\nbun atlas:export — export the validated product model as SCXML.\nbun atlas:viz [--port N] [--host HOST] — explore without the application server.'
+      'bun atlas:lint — validate composition, source closure, complete traversal and serialization.\nbun atlas:build — build the standalone Atlas site with all specs and recorded evidence.\nbun atlas:export — export the validated product model as SCXML.\nbun atlas:viz [--port N] [--host HOST] — explore specs and reports without the application server.\nbun atlas:run runs every spec suite and records its reports for Atlas (libs/tools/scripts/spec-run.ts).'
     );
     return;
   }
@@ -186,7 +200,7 @@ async function main(): Promise<void> {
     throw new Error(`Unknown statechart command: ${command}`);
   if (command !== 'explore' && flags.length)
     throw new Error(`Unexpected flags: ${flags.join(' ')}`);
-  compileGuide();
+  if (command === 'check' || command === 'export') compileGuide();
   if (command === 'check') return;
   if (command === 'export') {
     console.log(`Product SCXML exported: ${join(CACHE, 'product.scxml')}`);
@@ -203,11 +217,19 @@ async function main(): Promise<void> {
       'atlas-visualizer',
       'build',
       '--specs',
-      SPECS,
+      CHARTS,
       '--runs',
       join(ROOT, 'atlas-runs'),
       '--out',
       SITE,
+    ],
+    { cwd: ROOT }
+  );
+  run(
+    'bun',
+    [
+      join(ROOT, 'libs/harness/scripts/atlas-evidence-export.ts'),
+      join(SITE, 'data/evidence'),
     ],
     { cwd: ROOT }
   );

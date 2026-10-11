@@ -294,8 +294,8 @@ class ObjectStoreImplS3 implements ObjectStore {
 
 /**
  * Returns an S3-backed {@link ObjectStore} with the configured root prefix
- * applied. Feature code receives logical keys; the wrapper maps them to
- * `<rootPrefix><feature>/…` in the bucket.
+ * applied. Sub code receives logical keys; the wrapper maps them to
+ * `<rootPrefix><sub>/…` in the bucket.
  */
 export function createS3ObjectStore(config: S3ObjectStoreConfig): ObjectStore {
   const rootPrefix = normalizeObjectStoreRootPrefix(config.rootPrefix);

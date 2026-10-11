@@ -8,12 +8,12 @@ import { afterAll, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import type { RunReport } from '@crvouga/atlas-reports/report-types';
 import { readEvidence } from '@pkgs/conformance-server/evidence-store';
 import { sha256 } from '@pkgs/conformance-shared/evidence';
 import { runFeature } from '@pkgs/gherkin-server/bun-test';
 import { recordScenario } from '@pkgs/gherkin-server/evidence';
 import { hostLimit, setWorld, stepsFor } from '@pkgs/gherkin-shared/registry';
-import type { RunReport } from '@pkgs/harness-root-shared/report-types';
 import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 

@@ -21,7 +21,7 @@
     "@libs/chess-matchmaking-shared": "workspace:*",
     "@libs/chess-puzzle-server": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@libs/permissions-server": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@libs/billing-shared": "workspace:*",
-    "@libs/chess-feature-shared": "workspace:*",
+    "@libs/chess-sub-shared": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@pkgs/db-schema-postgres-shared": "workspace:*",

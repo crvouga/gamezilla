@@ -7,18 +7,9 @@ context: Identity
 purpose: >-
   Who a person is to the product: a guest with a username and avatar from
   the moment they arrive, and an account they can sign in to on any device
-  with Google, Apple, or an email address and password, and never lose their way back into.
+  with Google or Apple, and never lose their way back into.
 
 terms:
-  - term: password
-    from: auth
-
-  - term: password account
-    from: auth
-
-  - term: register
-    from: auth
-
   - term: personal data
     definition: >-
       Information about an identifiable person that the app keeps: their
@@ -112,8 +103,8 @@ terms:
 
   - term: sign-in method
     definition: >-
-      A way a person gets into their account: Google, Apple, or an email
-      address and password. An account has at most one of each, and always
+      A way a person gets into their account: Google or Apple, each through
+      one outside account. An account has at most one of each, and always
       keeps at least one.
     forms: [sign-in methods]
     avoid: [way in, ways in, way to sign in, login method, auth method]

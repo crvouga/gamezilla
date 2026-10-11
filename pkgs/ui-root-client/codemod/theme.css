@@ -34,6 +34,32 @@
   --radius-control: var(--ui-radius-md);
   --radius-card: var(--ui-radius-lg);
   --radius-sheet: var(--ui-radius-xl);
+  /* Token-named layout steps for the closed primitives (`gap-ui-sm`,
+     `px-ui-lg`, `max-w-ui-prose`, `min-h-ui-control-md`): each utility reads
+     the token variable, so a retune in design-tokens.json reaches every
+     `gap` / `padding` / `maxWidth` / `minHeight` prop. */
+  --spacing-ui-none: var(--ui-space-none);
+  --spacing-ui-2xs: var(--ui-space-2xs);
+  --spacing-ui-xs: var(--ui-space-xs);
+  --spacing-ui-sm: var(--ui-space-sm);
+  --spacing-ui-md: var(--ui-space-md);
+  --spacing-ui-lg: var(--ui-space-lg);
+  --spacing-ui-xl: var(--ui-space-xl);
+  --spacing-ui-2xl: var(--ui-space-2xl);
+  --spacing-ui-3xl: var(--ui-space-3xl);
+  --spacing-ui-control-sm: var(--ui-control-size-sm);
+  --spacing-ui-control-md: var(--ui-control-size-md);
+  --spacing-ui-control-lg: var(--ui-control-size-lg);
+  --spacing-ui-icon-xs: var(--ui-icon-size-xs);
+  --spacing-ui-icon-sm: var(--ui-icon-size-sm);
+  --spacing-ui-icon-md: var(--ui-icon-size-md);
+  --spacing-ui-icon-lg: var(--ui-icon-size-lg);
+  --spacing-ui-icon-xl: var(--ui-icon-size-xl);
+  --spacing-ui-icon-2xl: var(--ui-icon-size-2xl);
+  --container-ui-prose: var(--ui-max-width-prose);
+  --container-ui-form: var(--ui-max-width-form);
+  --container-ui-content: var(--ui-max-width-content);
+  --container-ui-wide: var(--ui-max-width-wide);
   --text-xs: var(--ui-font-size-xs);
   --text-xs--line-height: var(--ui-leading-xs);
   --text-sm: var(--ui-font-size-sm);
@@ -50,12 +76,13 @@
   --text-3xl--line-height: var(--ui-leading-3xl);
   --text-4xl: var(--ui-font-size-4xl);
   --text-4xl--line-height: var(--ui-leading-4xl);
-  --opacity-muted: 55%;
+  --opacity-muted: var(--ui-opacity-muted);
+  --opacity-disabled: var(--ui-opacity-disabled);
   --color-transparent: transparent;
   --color-current: currentColor;
   --color-system-canvas: Canvas;
   --color-system-text: CanvasText;
-  --z-index-harness-browser: 2147483000;
+  --z-index-harness-browser: var(--ui-layer-harness-browser);
   --color-background: var(--ui-color-background);
   --color-surface: var(--ui-color-surface);
   --color-surface-sunken: var(--ui-color-surface-sunken);

@@ -50,7 +50,7 @@ env:
   CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
 
 jobs:
-  synthetic-population-package:
+  check-synthetic-population-package:
     name: check:synthetic-population-package
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -342,14 +342,14 @@ jobs:
   # Deploy consumes this aggregate release verdict. It is not a PR status.
   check:
     name: check
-    needs: [check-verify, synthetic-population-package]
+    needs: [check-verify, check-synthetic-population-package]
     if: always() && !cancelled()
     runs-on: ubuntu-24.04
     timeout-minutes: 8
     steps:
       - name: Require Synthetic Population Worker packaging rehearsal
         env:
-          PACKAGE_RESULT: ${{ needs.synthetic-population-package.result }}
+          PACKAGE_RESULT: ${{ needs.check-synthetic-population-package.result }}
         run: test "$PACKAGE_RESULT" = success
       - name: Require release verification
         env:

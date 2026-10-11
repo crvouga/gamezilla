@@ -6,7 +6,6 @@ import {
   type PlannedPath,
   pathKey,
   type SpecBundle,
-  type StateMeta,
   targetOf,
   walkStates,
 } from '@crvouga/atlas';
@@ -14,7 +13,7 @@ import {
   type AnalysisIssue,
   compositionProblems,
 } from './statechart-composition';
-import { sourcePath } from './statechart-contracts';
+import { type ProductContract, sourcePath } from './statechart-contracts';
 import { chartSources } from './statechart-guide';
 import { guideMetadataProblems } from './statechart-guide-metadata';
 import { sameChartData } from './statechart-metadata';
@@ -22,7 +21,7 @@ import { replayModel } from './statechart-replay';
 import { roundTripProblems } from './statechart-roundtrip';
 
 export type GuideIntegrityOptions = {
-  contracts: readonly NonNullable<StateMeta['contracts']>[number][];
+  contracts: readonly ProductContract[];
   tour: string;
   gapSources?: readonly string[];
   paths?: readonly PlannedPath[];
@@ -119,7 +118,7 @@ function contractProblems(
       });
     ids.add(contract.id);
   }
-  if (!sameChartData(guide.meta?.contracts, options.contracts)) {
+  if (!sameChartData(guide.meta?.['contracts'], options.contracts)) {
     issues.push({
       rule: 'contract',
       message: 'The product guide changed or dropped source-derived rule cards',
@@ -135,7 +134,7 @@ function contractProblems(
     const expected = options.contracts.filter((contract) =>
       sources.has(sourcePath(contract.source))
     );
-    if (!sameChartData(nodes.get(host)?.meta?.contracts, expected)) {
+    if (!sameChartData(nodes.get(host)?.meta?.['contracts'], expected)) {
       issues.push({
         rule: 'contract',
         message: `${chart.machine.id}: the owning capability lost or changed its rule cards`,
@@ -143,10 +142,9 @@ function contractProblems(
     }
   }
   for (const path of options.gapSources ?? []) {
-    const notes =
-      guide.meta?.contracts?.filter(
-        (contract) => sourcePath(contract.source) === path
-      ) ?? [];
+    const notes = options.contracts.filter(
+      (contract) => sourcePath(contract.source) === path
+    );
     const visible = notes.some((contract) =>
       contract.steps.some((step) => step.docString?.trim())
     );
@@ -210,8 +208,7 @@ function replayProblems(
     }
     if (
       sequence.planned &&
-      (sequence.planned.seed !== undefined ||
-        !sameChartData(sequence.planned.start, initial.active) ||
+      (!sameChartData(sequence.planned.start, initial.active) ||
         !sameChartData(sequence.planned.steps, before.steps) ||
         before.problem)
     ) {

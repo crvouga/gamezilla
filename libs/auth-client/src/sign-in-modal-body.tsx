@@ -6,7 +6,8 @@ import { ModalBody } from '@pkgs/ui-root-client/modal-parts';
 import { SocialSignInButton } from '@pkgs/ui-root-client/social-sign-in-button';
 import type { JSX } from 'solid-js';
 import { For, Show } from 'solid-js';
-import { PasswordSignInForm } from './password-sign-in-form';
+import { ContinueWithEmailButton } from './continue-with-email-button';
+import { useSignInCapabilities } from './sign-in-capabilities-context';
 
 /** The sign-in button test id for a provider. */
 export function signInMethodTestId(provider: OauthProviderId): string {
@@ -21,24 +22,28 @@ export function SignInModalBody(props: {
   providers: readonly OauthProviderId[];
   signInUnavailableReason: string | null;
   onPress: (provider: OauthProviderId) => void;
-  startPassword: (runner: () => Promise<void>) => Promise<void>;
+  onContinueWithEmail: () => void;
 }): JSX.Element {
+  const capabilities = useSignInCapabilities();
   const methodsLoading = () => props.methodsLoading === true;
-  const anyMethod = () => props.providers.length > 0;
+  const anyProvider = () => !methodsLoading() && props.providers.length > 0;
+  // Email is the device's own capability: it never waits on synced config.
+  const anyMethod = () => capabilities.email || anyProvider();
 
   return (
     <ModalBody>
       <div class="box mt-0.75 self-stretch gap-2">
-        <PasswordSignInForm start={props.startPassword} pendingLink={null} />
         <Show when={methodsLoading()}>
           <LoadingState caption={<Trans>Loading sign-in methods…</Trans>} />
         </Show>
 
-        <Show when={!methodsLoading() && anyMethod()}>
+        <Show when={anyMethod()}>
           <p class="text textCaption text-text-secondary">
-            {<Trans>Choose a sign-in method</Trans>}
+            <Trans>Choose a sign-in method</Trans>
           </p>
         </Show>
+
+        <ContinueWithEmailButton onClick={props.onContinueWithEmail} />
 
         <Show when={!methodsLoading()}>
           <For each={props.providers}>
@@ -57,7 +62,7 @@ export function SignInModalBody(props: {
         <Show when={!methodsLoading() && !anyMethod()}>
           <p class="text textCaption text-text-secondary">
             {props.signInUnavailableReason ?? (
-              <Trans>Social sign-in is not available.</Trans>
+              <Trans>Sign-in is not available.</Trans>
             )}
           </p>
         </Show>

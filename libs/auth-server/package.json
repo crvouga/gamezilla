@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@libs/auth-shared": "workspace:*",
-    "@libs/feature-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@pkgs/auth-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
@@ -28,6 +28,7 @@
   "devDependencies": {
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/outbox-shared": "workspace:*",
     "@pkgs/sql-client-sqlite-root-server": "workspace:*",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

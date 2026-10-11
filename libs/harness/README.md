@@ -3,27 +3,28 @@
 The simulation fabric and product System, generic over what it boots. It is a
 shell, like `@libs/client-app` and `@libs/server-app`: it knows virtual time,
 the network, the load balancer, the simulated IdP and the SQL engines, and no
-feature. A **composition** says which features a harness runs; the harness folds
-it with the same `composeFeatures` / `createClient` / `createServer` production
-uses.
+product sub. A **composition** says which subs a harness runs; the harness folds
+it with the same `composeSubs` / `createClient` / `createServer` production
+uses. Folding a sub includes that sub and the subs it contains. The shipped
+product stays a flat list.
 
 ## Where a spec goes
 
-A feature's spec lives in that feature: the specs of the package's
+A sub's spec lives with that sub: the specs of the package's
 `specDomains` (`specs/<domain>/*.feature`, `*.qnt`) and
-`libs/<feature>/tests/harness/`, run by the package's `test:spec`, against a
-composition of only the slices it needs. A change to a feature the suite does
+`libs/<sub>/tests/harness/`, run by the package's `test:spec`, against a
+composition of only the slices it needs. A change to a sub the suite does
 not compose leaves it cached.
 
 | Suite | Composes | Why it is where it is |
 | --- | --- | --- |
 | `libs/chess-root-harness/tests` | profile, spaces (chess only), chess, friends, notifications, search, billing | chess puzzles, a host picking the game, friends watching a puzzle live |
 | `libs/friends-harness/tests` | profile, spaces (no games), friends, notifications, search, billing | friend flows, spaces flows and people search (both read friends' tables) |
-| `libs/profile-harness/tests` | profile, billing | profile editing, and auth (platform, so it runs in the lowest feature) |
+| `libs/profile-harness/tests` | profile, billing | profile editing, and auth (platform, so it runs in the lowest sub) |
 | `libs/billing-harness/tests` | billing | the membership lifecycle through the payment provider node |
 | `libs/runtime-harness/tests` | everything (`APP_COMPOSITION`) | shell boot, the platform model, critical journeys — small on purpose |
 
-There are no product random walks. A feature's state machine is a Quint model
+There are no product random walks. A sub's state machine is a Quint model
 (`specs/<domain>/<model>.qnt`) and its binding (`tests/quint/<model>.binding.ts`,
 registered with `useQuintHarness(openHarness)` from `@libs/harness/quint/world` in
 `tests/quint/index.ts`): Quint draws the walks, each drawn step runs through
@@ -33,14 +34,14 @@ standing property checked, since each action is an `s.apply`. See
 [`specs/README.md`](../../specs/README.md).
 
 The package graph decides a suite's home: turbo rejects dependency cycles, so a
-suite lives in a package that may depend on every feature it composes. Two
-features read another's tables directly today — permissions reads
+suite lives in a package that may depend on every sub it composes. Two
+subs read another's tables directly today — permissions reads
 `billing_subscriptions`; spaces and people search read friends' — so billing
 is in every composition and spaces' and search's flows run in friends. Each is a port waiting to
 be declared ([`README.md`](../../README.md#repository)).
 
 ```ts
-// libs/<feature>/tests/harness/open-<feature>-harness.ts
+// libs/<sub>/tests/harness/open-<sub>-harness.ts
 const SYSTEM = defineProductSystem(
   composeHarnessSlices('friends', [PROFILE_HARNESS_SLICE, FRIENDS_HARNESS_SLICE, BILLING_HARNESS_SLICE])
 );
@@ -48,8 +49,8 @@ export const openHarness = (testId: string, options?: OpenHarnessOptions) =>
   openSystemHarness(SYSTEM, testId, options);
 ```
 
-Each feature exports its slice (manifest, client, server, actions, reads,
-properties, seeds, room host, browser pages) from `@libs/<feature>/harness/*`.
+Each sub exports its slice (manifest, client, server, actions, reads,
+properties, seeds, room host, browser pages) from `@libs/<sub>/harness/*`.
 `composeHarnessSlices` adds the platform (auth, client-config, permissions) and
 folds in production's order. Run one package's suite with
 `bun run --filter @libs/chess-root-harness test:spec`, one spec with
@@ -93,7 +94,7 @@ Auth actions: `signInWithGoogle` / `signInWithApple` / `signInWithProviderAs`,
 **Authoring** — scenarios are Gherkin steps and Quint bindings over the
 package's `openHarness(testId)`; code tests import `describe` / `test` from
 `bun:test` and call it directly. Drive UI with named `defineAction`s from the
-harness and the features' `harness/*` (`s.apply(signInWithGoogle, 'alice')`).
+harness and the subs' `harness/*` (`s.apply(signInWithGoogle, 'alice')`).
 Standing properties (`noErrorBoundary`, …) run after every checkpoint. Do not
 use UI-inventory tap/fill helpers in product tests.
 
@@ -176,7 +177,7 @@ committed fixture from the running package's `fixtures/snapshots/<id>.json`
 steps, the harness calls and UI ops under them, outcomes, drawn traces) into
 `<pkg>/.cache/harness-report`, the `test:spec` turbo `outputs`; every
 `bun check` publishes every bucket to the shared reports store, per
-commit, where `/reports/<sha>` streams it
+commit, where the standalone Atlas explorer reads it
 ([`specs/README.md`](../../specs/README.md#workflow)). Failed JUnit
 testcases also become `test.failure` spans under
 `.cache/harness-report/traces/` for `bun obs test`

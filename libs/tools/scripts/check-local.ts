@@ -72,6 +72,8 @@ async function runSnapshot(
     PWD: root,
     INIT_CWD: root,
     TURBO_CACHE_DIR: join(root, '.turbo/cache'),
+    // Started from a task (`bun fc`), this check's own runs stream into its pane.
+    ...(process.env['TURBO_HASH'] === undefined ? {} : { TURBO_UI: 'false' }),
     MISE_TRUSTED_CONFIG_PATHS: [root, process.env['MISE_TRUSTED_CONFIG_PATHS']]
       .filter(Boolean)
       .join(':'),

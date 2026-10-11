@@ -1,7 +1,11 @@
 import type { createAuthServerAdapter } from '@pkgs/auth-inhouse-server/create-auth-server-adapter';
+import type { EmailInboxEmulator } from '@pkgs/auth-inhouse-server/email-inbox-emulator';
 import type { BearerTokenStore } from '@pkgs/auth-inhouse-shared/bearer-token-store';
 import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type {
+  OauthProviderId,
+  SignInMethodId,
+} from '@pkgs/auth-root-shared/sign-in-method';
 import type { Session } from '@pkgs/harness-root-shared/runtime-types';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { AuthModel } from './model';
@@ -53,6 +57,11 @@ export type ActorState = {
   } | null;
   last: ActorOutcome | null;
   /**
+   * The ways to sign in the device was shown when the person last started
+   * signing in, or `null` when they have not started.
+   */
+  offered: readonly SignInMethodId[] | null;
+  /**
    * The model's copy of the port's cached link ticket: minted under
    * `bearer`, reusable until a minute before `expiresAtMs`.
    */
@@ -64,6 +73,10 @@ export type ActorState = {
 export type AuthStore = {
   readonly fabric: AuthFabric;
   readonly sql: SqlClient;
+  /** Every sign-in link the example app mailed: the world's mailboxes. */
+  readonly inbox: EmailInboxEmulator;
+  /** Whether the example app's environment has a way to send mail right now. */
+  readonly mail: { available: boolean };
   readonly server: ReturnType<typeof createAuthServerAdapter>;
   /** One provider node per flavor, each with its own accounts and faults. */
   readonly idps: AuthIdps;

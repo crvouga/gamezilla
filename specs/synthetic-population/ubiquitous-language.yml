@@ -6,7 +6,10 @@ terms:
   - term: Synthetic Population
     definition: The complete synthetic population of autonomous automated opponents.
   - term: Synthetic User
-    definition: A persistent account operated autonomously and identified as automated.
+    definition: >-
+      A persistent account operated autonomously and identified as automated.
+      Each has an email address of its own, and signs in through the same app
+      as people with a sign-in link sent to it.
     forms: [Synthetic Users, Synthetic User's]
     model: [SyntheticUser, identity, invPersistentIdentity]
   - term: Bot Observatory
@@ -27,12 +30,37 @@ terms:
     definition: Restoring an interrupted Synthetic User to its current activity safely.
     forms: [recovers, recovered, recovering]
     model: [reopenApp, invOngoingGamePreserved]
+  - term: Synthetic Population's mailbox
+    definition: >-
+      The one mailbox where every sign-in link sent to a Synthetic User's
+      email address arrives. Only the Synthetic Population can read it, and
+      nothing that arrives in it is sent as real mail. It is the only place
+      the product sends a sign-in link: one asked for at any other email
+      address is never sent.
+  - term: real mail
+    definition: >-
+      Mail that leaves the product for a mailbox outside it. The product
+      sends none for a sign-in link.
   - term: account
     from: profile
   - term: sign in
     from: profile
   - term: sign out
     from: profile
+  - term: guest
+    from: profile
+  - term: Google
+    from: profile
+  - term: Apple
+    from: profile
+  - term: email address
+    from: auth
+  - term: mailbox
+    from: auth
+  - term: sign-in link
+    from: auth
+  - term: ask for a sign-in link
+    from: auth
   - term: space
     from: spaces
   - term: create a space

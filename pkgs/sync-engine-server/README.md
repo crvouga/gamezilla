@@ -84,7 +84,7 @@ use `hotAssert()` when per-call validation would dominate.
 
 **Anti-goals:** sub-50ms multi-device domain edits via MQTT (use Room DO);
 perfect GC of every row the moment it leaves a query; zero stale locals;
-custom per-feature REST sync; peer mutation replay.
+custom per-sub REST sync; peer mutation replay.
 
 ---
 
@@ -93,7 +93,7 @@ custom per-feature REST sync; peer mutation replay.
 | Owned by `@pkgs/sync-engine` | Owned by product (`@libs/*`, `apps/*`) |
 |------------------------------|----------------------------------------|
 | Merge / rebase / upload queue | Domain schema (`@libs/runtime` `appSchema`) |
-| Query/mutation registries API | Query + mutation **defs** per feature |
+| Query/mutation registries API | Query + mutation **defs** per sub |
 | Framework tables + DDL | Topic naming (`user:`, `room:`, …) |
 | `createSyncApp` Hono routes | Auth resolution, Postgres client |
 | Client engine + Solid hooks | Session query list, paint gate wiring |
@@ -299,7 +299,7 @@ Rules:
   `useSyncEngine().paintReady` reads that context (identity-match gate
   during account switch).
 
-Product session lists and dynamic feature subscriptions are owned by the
+Product session lists and dynamic sub subscriptions are owned by the
 host — see app wiring docs. The package only receives `sessionQueries` /
 `subscribeQueries` by name.
 
@@ -584,7 +584,7 @@ soft-ack + generation fence); see
 - MQTT as a mutation log / CRDT
 - Optimistic-only overlays that never write domain tables (would break local
   SQL watches unless rebuilt)
-- Per-feature sync engines
+- Per-sub sync engines
 
 ---
 
@@ -779,7 +779,7 @@ Live traffic is unreliable by design: assert convergence, not push order.
    flicker is prevented by sync generation fence on ack.
 7. No delta / resync / gone **query** wire shapes (`POST /query` stays
    `ok` / `not_modified` / `denied`).
-8. No feature REST for sync-scoped data (tiny exception list in `AGENTS.md`).
+8. No sub REST for sync-scoped data (tiny exception list in `AGENTS.md`).
 9. No deep public imports — five entrypoints only.
 10. No pkgs → libs/apps imports.
 11. Actor identity comes from session auth only (never trust client-supplied
@@ -866,5 +866,5 @@ Three distinct monotonic sequences — do not conflate them:
 
 - Client host wiring: `libs/app-root-client/src/create-local-sync-engine.ts`
 - API host wiring: `libs/app-root-server/src/sync-app.ts`
-- Topic helpers: `libs/feature-shared/src/sync.ts`
+- Topic helpers: `libs/sub-shared/src/sync.ts`
 - Domain schema: `libs/runtime-shared/src/app-schema.ts`

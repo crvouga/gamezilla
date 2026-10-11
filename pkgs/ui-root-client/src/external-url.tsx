@@ -5,7 +5,7 @@
  *
  * The app never owns that page, so the port is a plain function: production
  * assigns the browser location, harnesses walk the provider's real screens
- * headlessly. Feature libs call `useOpenExternalUrl()` and stay host-agnostic.
+ * headlessly. Sub libs call `useOpenExternalUrl()` and stay host-agnostic.
  */
 
 import { createContext, type JSX, untrack, useContext } from 'solid-js';

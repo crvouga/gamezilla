@@ -13,7 +13,6 @@ export function usePuzzlePlayerVisual(args: {
   layoutKey: Accessor<number>;
   displayFen: Accessor<string | null>;
   wrongUci: Accessor<string | null>;
-  wrongFromSquare: Accessor<string | null>;
   wrongToSquare: Accessor<string | null>;
   expectedFromSquare: Accessor<string | null>;
   expectedToSquare: Accessor<string | null>;
@@ -43,7 +42,6 @@ export function usePuzzlePlayerVisual(args: {
   });
   const { cellFeedback, cellHighlights } = usePuzzlePlayerCellFeedback({
     status: args.status,
-    wrongFromSquare: args.wrongFromSquare,
     wrongToSquare: args.wrongToSquare,
     expectedFromSquare: args.expectedFromSquare,
   });

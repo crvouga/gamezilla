@@ -1,6 +1,6 @@
 {
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
-  "ui": "stream",
+  "ui": "tui",
   "concurrency": "100%",
   "globalDependencies": ["tsconfig.base.json", "mise.toml"],
   "globalPassThroughEnv": [
@@ -49,6 +49,7 @@
     "TURBO_*",
     "TOFU_*",
     "SYNTHETIC_MONITOR_TOKEN",
+    "POPULATION_WORKER_TOKEN",
     "TMPDIR",
     "RAYON_NUM_THREADS",
     "MODEL_CHECK_CONCURRENCY",
@@ -76,22 +77,97 @@
       "persistent": true,
       "cache": false
     },
-    "//#i18n:compile": {
-      "cache": false
-    },
     "@apps/product#dev:prepare": {
-      "cache": false
-    },
-    "@apps/product#dev:services": {
-      "dependsOn": ["setup", "dev:prepare", "//#i18n:compile"],
-      "persistent": true,
+      "dependsOn": ["//#workspace:install", "//#workspace:merge"],
       "cache": false
     },
     "@apps/product#dev": {
-      "dependsOn": ["setup", "dev:prepare", "//#i18n:compile"],
+      "dependsOn": ["dev:prepare"],
+      "with": [
+        "dev:postgres",
+        "dev:openai",
+        "dev:s3",
+        "dev:mqtt",
+        "dev:observability",
+        "dev:idp",
+        "dev:billing",
+        "dev:server",
+        "dev:population",
+        "dev:web"
+      ],
       "persistent": true,
-      "cache": false,
-      "passThroughEnv": ["WORKSPACE_*", "PRODUCT_DEV_*", "VITE_*"]
+      "cache": false
+    },
+    "@apps/product#dev:postgres": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "@apps/product#dev:openai": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "@apps/product#dev:s3": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "@apps/product#dev:mqtt": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "@apps/product#dev:observability": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "@apps/product#dev:idp": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "@apps/product#dev:billing": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "@apps/product#dev:server": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "@apps/product#dev:population": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "@apps/product#dev:web": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "//#workspace:install": {
+      "cache": false
+    },
+    "//#workspace:merge": {
+      "cache": false
+    },
+    "//#workspace:hooks": {
+      "cache": false
+    },
+    "//#workspace:local-files": {
+      "cache": false
+    },
+    "//#fmt:biome": {
+      "cache": false
+    },
+    "//#fmt:empty-dirs": {
+      "cache": false
+    },
+    "//#fmt:package-json": {
+      "cache": false
     },
     "kill": {
       "cache": false
@@ -118,6 +194,32 @@
       "outputLogs": "errors-only",
       "outputs": [".cache/tc.tsbuildinfo"]
     },
+    "@libs/tools#tc": {
+      "dependsOn": [
+        "^src",
+        "@crvouga/atlas#build",
+        "@crvouga/atlas-schema#build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/pkgs/ts-reset-shared/src/**"
+      ],
+      "outputs": [".cache/tc.tsbuildinfo"],
+      "outputLogs": "errors-only"
+    },
+    "@crvouga/atlas#build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "outputs": ["dist/**"],
+      "outputLogs": "errors-only"
+    },
+    "@crvouga/atlas-schema#build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "outputs": ["dist/**"],
+      "outputLogs": "errors-only"
+    },
     "lint": {
       "dependsOn": ["^src"],
       "inputs": [
@@ -132,9 +234,11 @@
         "$TURBO_ROOT$/pkgs/ui-root-client/src/hosts.css",
         "$TURBO_ROOT$/libs/tools/port/*.json",
         "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/design-vocabulary.ts",
         "$TURBO_ROOT$/libs/tools/scripts/banned-words.ts",
         "$TURBO_ROOT$/libs/tools/scripts/biome-scope.ts",
         "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/task-runner-policy.ts",
         "$TURBO_ROOT$/libs/tools/scripts/tc-scope.ts",
         "$TURBO_ROOT$/libs/tools/scripts/test-scripts.ts",
         "$TURBO_ROOT$/libs/tools/scripts/unused-dependencies.ts",
@@ -400,7 +504,6 @@
         "libs/search-client/src/**/*.{ts,tsx}",
         "libs/spaces-client/src/**/*.{ts,tsx}",
         "pkgs/chess-board-root-client/src/**/*.{ts,tsx}",
-        "pkgs/harness-report-client/src/**/*.{ts,tsx}",
         "pkgs/ui-root-client/src/**/*.{ts,tsx}",
         "pkgs/ui-devtools-client/src/**/*.{ts,tsx}",
         "lingui.config.ts",
@@ -778,6 +881,7 @@
         "$TURBO_ROOT$/pkgs/ui-root-client/src/hosts.css",
         "$TURBO_ROOT$/libs/tools/port/*.json",
         "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/design-vocabulary.ts",
         "$TURBO_ROOT$/libs/tools/scripts/biome-scope.ts",
         "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
         "$TURBO_ROOT$/libs/tools/scripts/tc-scope.ts",
@@ -806,6 +910,7 @@
         "$TURBO_ROOT$/pkgs/ui-root-client/src/hosts.css",
         "$TURBO_ROOT$/libs/tools/port/*.json",
         "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/design-vocabulary.ts",
         "$TURBO_ROOT$/libs/tools/scripts/biome-scope.ts",
         "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
         "$TURBO_ROOT$/libs/tools/scripts/tc-scope.ts",
@@ -1933,16 +2038,279 @@
         "vendor/atlas/packages/core/src/**",
         "vendor/atlas/packages/schema/src/**",
         "libs/app-root-client/src/route-table.ts",
-        "libs/runtime-client/src/app-feature-clients.ts",
-        "libs/*-client/src/feature-client.{ts,tsx}",
+        "libs/runtime-client/src/app-sub-clients.ts",
+        "libs/*-client/src/sub-client.{ts,tsx}",
         "libs/chess-puzzle-client/src/puzzle-link-client.ts",
         "libs/chess-puzzle-shared/src/puzzle-link.ts",
         "apps/product/src/main.tsx",
         "apps/product/src/console-nav-real.ts",
-        "apps/product/src/reports-path.ts"
+        "vendor/atlas/packages/reports/src/**/*.ts"
       ],
       "outputs": [".cache/product-statechart/**"],
       "outputLogs": "errors-only"
+    },
+    "//#task:agents:sync": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:atlas:build": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:atlas:export": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:atlas:run": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:conformance": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:deps:graph": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:feedback": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:gc": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:git-sync": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:infra:destroy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:install-system": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:kill": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:lint:naming": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:naming:fix": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:reports:collect": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:reports:part": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:reports:performance": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:secrets:pull": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:spec": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:test:pbt:random": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:wipe": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:workspace:sync": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:gh": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:i18n:extract": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:deploy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:health": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:atlas:sync": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:atlas:viz": {
+      "persistent": true,
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:check:coverage": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:check:heal": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:reports:cleanup": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:inspect": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:hooks:uninstall": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:fc": {
+      "dependsOn": ["//#fmt:biome", "//#fmt:empty-dirs", "//#fmt:package-json"],
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:i18n:compile": {
+      "inputs": [
+        "libs/app-root-shared/locales/**/*.po",
+        "lingui.config.ts",
+        "libs/tools/scripts/lingui-scope.ts",
+        "libs/tools/scripts/ensure-trailing-newline.ts",
+        "package.json"
+      ],
+      "outputs": ["libs/app-root-shared/locales/*/messages.ts"]
+    },
+    "//#task:spec:catalog": {
+      "dependsOn": [
+        "@libs/tools#src",
+        "@pkgs/gherkin-server#src",
+        "@pkgs/gherkin-shared#src",
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!apps/**",
+        "!libs/**",
+        "!pkgs/**",
+        "specs/**",
+        "apps/**/*.feature",
+        "apps/**/*.qnt",
+        "libs/**/*.feature",
+        "libs/**/*.qnt",
+        "pkgs/**/*.feature",
+        "pkgs/**/*.qnt",
+        "libs/*/package.json",
+        "libs/*/turbo.json",
+        "libs/*/tests/steps/**",
+        "libs/*/tests/quint/**",
+        "libs/*/tests/dmn/**",
+        "libs/*/tests/alloy/**",
+        "libs/*/tests/openslo/**",
+        "pkgs/*/package.json",
+        "pkgs/*/turbo.json",
+        "pkgs/*/tests/steps/**",
+        "pkgs/*/tests/quint/**",
+        "pkgs/*/tests/dmn/**",
+        "pkgs/*/tests/alloy/**",
+        "pkgs/*/tests/openslo/**",
+        "apps/*/package.json",
+        "apps/*/turbo.json",
+        "apps/*/tests/steps/**",
+        "apps/*/tests/quint/**",
+        "apps/*/tests/dmn/**",
+        "apps/*/tests/alloy/**",
+        "apps/*/tests/openslo/**",
+        "libs/harness/src/spec/**",
+        "pkgs/gherkin/src/**",
+        "pkgs/quint-shared/src/names.ts",
+        "libs/tools/scripts/check-specs.ts",
+        "libs/tools/scripts/spec-alloy-names.ts",
+        "libs/tools/scripts/spec-decoupling.ts",
+        "libs/tools/scripts/spec-glossary.ts",
+        "libs/tools/scripts/spec-kinds.ts",
+        "libs/tools/scripts/spec-location.ts",
+        "libs/tools/scripts/spec-packages.ts",
+        "libs/tools/goal/**",
+        "libs/tools/scripts/spec-catalog.ts",
+        "pkgs/gherkin-shared/src/**"
+      ],
+      "outputs": [
+        "docs/STEPS_CATALOG.md",
+        "apps/*/STEPS_CATALOG.md",
+        "libs/*/STEPS_CATALOG.md",
+        "pkgs/*/STEPS_CATALOG.md"
+      ]
+    },
+    "@pkgs/object-store-s3-server#generate:browser": {
+      "inputs": [
+        "src/**",
+        "scripts/generate-browser.ts",
+        "package.json",
+        "$TURBO_ROOT$/bun.lock"
+      ],
+      "outputs": [".cache/browser/**"]
+    },
+    "@libs/chess-puzzle-server#export:puzzles-load": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/chess-puzzle-server#seed:puzzles": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/runtime-server#db:wipe:dev": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server#apply:bootstrap": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@pkgs/ui-root-client#codemod": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@apps/product#synthetic": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@apps/auth-relay#deploy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server#apply:fleet": {
+      "dependsOn": ["@apps/auth-relay#deploy"],
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@apps/client#dev": {
+      "dependsOn": ["setup"],
+      "persistent": true,
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@apps/client#setup": {
+      "dependsOn": ["//#task:i18n:compile"],
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

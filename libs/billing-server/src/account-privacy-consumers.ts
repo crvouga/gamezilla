@@ -3,7 +3,7 @@ import {
   eraseExpiredPaymentEvidence,
   paymentRetentionEnded,
 } from '@libs/billing-shared/payment-evidence';
-import { accountWithdrawalChanged } from '@libs/feature-shared/account-privacy';
+import { accountWithdrawalChanged } from '@libs/sub-shared/account-privacy';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import { Outbox } from '@pkgs/outbox-shared/outbox';

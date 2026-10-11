@@ -133,9 +133,10 @@ describe('portable statechart guide integrity', () => {
 
   test('requires all catalogue cards and their exact owning-capability copies', () => {
     const input = fixture();
-    input.guide.meta!.contracts = input.contracts.slice(1);
-    input.guide.states!['Shell']!.states!['Alpha host']!.meta!.contracts![0]!
-      .steps[0]!.docString = 'Shortened text';
+    input.guide.meta!['contracts'] = input.contracts.slice(1);
+    const hostContracts = input.guide.states!['Shell']!.states!['Alpha host']!
+      .meta!['contracts'] as typeof input.contracts;
+    hostContracts[0]!.steps[0]!.docString = 'Shortened text';
     const result = problems(input);
     expect(result.filter((issue) => issue.rule === 'contract')).toHaveLength(2);
   });

@@ -1,10 +1,7 @@
 import { expect, test } from 'bun:test';
-import { sourceId } from '@pkgs/harness-report-shared/keys';
-import { publishSource } from '@pkgs/harness-report-shared/publish';
-import {
-  readFrameBody,
-  readTestReport,
-} from '@pkgs/harness-report-shared/read';
+import { sourceId } from '@crvouga/atlas-reports/keys';
+import { publishSource } from '@crvouga/atlas-reports/publish';
+import { readFrameBody, readTestReport } from '@crvouga/atlas-reports/read';
 import {
   readObjectBytes,
   readUtf8,

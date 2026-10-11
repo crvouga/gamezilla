@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { modelInvariants, simulate } from '@pkgs/quint-server/simulate';
 import { renderQuint } from '@pkgs/quint-shared/itf';
@@ -33,6 +34,12 @@ describe('simulate', () => {
     () => {
       const door = join(FIXTURES, 'door.qnt');
       expect(steps(door, '0x2a', 'a')).toEqual(steps(door, '0x2a', 'b'));
+      const itf = (name: string) =>
+        readdirSync(join(OUT, name))
+          .filter((file) => file.endsWith('.itf.json'))
+          .sort();
+      expect(itf('a').length).toBeGreaterThan(0);
+      expect(itf('b')).toEqual(itf('a'));
     },
     DRAW_TIMEOUT_MS
   );

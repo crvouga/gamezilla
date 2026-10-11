@@ -35,8 +35,8 @@ import {
   HARNESS_FIRST_BILLING_PROVIDER,
   HARNESS_SERVER_URL,
   harnessBillingOrigin,
-} from '@libs/feature-shared/harness-constants';
-import type { ServerHttp } from '@libs/feature-shared/sync';
+} from '@libs/sub-shared/harness-constants';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import {

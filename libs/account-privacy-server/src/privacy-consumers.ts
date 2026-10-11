@@ -5,8 +5,8 @@ import {
   withdrawAccount,
 } from '@libs/account-privacy-shared/messages';
 import { accountMutationEnv } from '@libs/auth-shared/account-mutation-env';
-import type { AccountPrivacyContribution } from '@libs/feature-shared/account-privacy';
-import { accountWithdrawalChanged } from '@libs/feature-shared/account-privacy';
+import type { AccountPrivacyContribution } from '@libs/sub-shared/account-privacy';
+import { accountWithdrawalChanged } from '@libs/sub-shared/account-privacy';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import { Outbox } from '@pkgs/outbox-shared/outbox';
 import type { OutboxConsumerCtx } from '@pkgs/outbox-shared/types';

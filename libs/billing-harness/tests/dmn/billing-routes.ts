@@ -20,7 +20,7 @@ import { ExternalAccountRepository } from '@libs/auth-shared/external-account-re
 import type { SessionAuth } from '@libs/auth-shared/session-middleware';
 import { AUTH_TABLES } from '@libs/auth-shared/tables';
 import { UnauthorizedError } from '@libs/auth-shared/unauthorized-error';
-import { createBillingSubApp } from '@libs/billing-server/feature-server';
+import { createBillingSubApp } from '@libs/billing-server/sub-server';
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
 import { paymentsOfferedOf } from '@libs/permissions-shared/people';
 import type {

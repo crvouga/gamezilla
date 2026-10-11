@@ -30,11 +30,7 @@ export async function syntheticPopulationFixture(desired = 1) {
     },
   };
   const admin = new SyntheticPopulationAdministration(db, ports);
-  const controller = new SyntheticPopulationController(
-    db,
-    ports,
-    'synthetic-population-fixture-secret-0123456789abcdef'
-  );
+  const controller = new SyntheticPopulationController(db, ports);
   const repo = new SyntheticPopulationRepository(db, ports);
   const leases = new LeaseRepository(db, ports);
   const sessions = new SyntheticPopulationSession(db, ports);

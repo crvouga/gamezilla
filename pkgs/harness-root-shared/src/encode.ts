@@ -1,4 +1,4 @@
-import type { SnapshotMedia } from './report-types';
+import type { SnapshotMedia } from '@crvouga/atlas-reports/report-types';
 
 const TEXT_ENCODER = new TextEncoder();
 

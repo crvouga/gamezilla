@@ -1,4 +1,4 @@
-import { HARNESS_AUTH_SECRET } from '@libs/feature-shared/harness-constants';
+import { HARNESS_AUTH_SECRET } from '@libs/sub-shared/harness-constants';
 import { localProcessEnv } from './local-process-env';
 
 /** API identity is shared with the harness that verifies stack sessions. */

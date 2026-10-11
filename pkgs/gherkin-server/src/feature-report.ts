@@ -1,5 +1,5 @@
+import type { RunReportOptions } from '@crvouga/atlas-reports/report-types';
 import type { ScenarioContext } from '@pkgs/gherkin-shared/registry';
-import type { RunReportOptions } from '@pkgs/harness-root-shared/report-types';
 import { RunReporter } from '@pkgs/harness-root-shared/reporter';
 
 /** Worlds with their own recorder retain their UI frames and nested measurements. */

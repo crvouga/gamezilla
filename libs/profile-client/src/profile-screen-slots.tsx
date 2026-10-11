@@ -8,7 +8,7 @@
  * the composition root — or, in a subsystem harness, nobody — fills them.
  *
  * Unfilled is a real state, not a degraded one: a profile with no friends
- * feature composed in simply has no friends row.
+ * sub composed in simply has no friends row.
  */
 
 import { defineContext } from '@pkgs/solid-context-client/define-context';
@@ -26,7 +26,7 @@ const ProfileScreenSlotsContext =
 
 export const ProfileScreenSlotsProvider = ProfileScreenSlotsContext.Provider;
 
-/** Slots filled by other features, or an empty set when none are composed. */
+/** Slots filled by other subs, or an empty set when none are composed. */
 export function useProfileScreenSlots(): ProfileScreenSlots {
   return ProfileScreenSlotsContext.useOptional() ?? {};
 }

@@ -2,6 +2,9 @@
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
   "extends": ["//"],
   "tasks": {
+    "build": {
+      "dependsOn": ["$TURBO_EXTENDS$", "//#task:i18n:compile"]
+    },
     "test": {
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -256,6 +259,7 @@
         "@libs/runtime-harness#test:spec:7",
         "@libs/runtime-harness#test:spec:8",
         "@libs/runtime-harness#test:spec:9",
+        "@libs/synthetic-population-harness#test:spec:0",
         "@libs/runtime-harness#test:spec:10",
         "@libs/runtime-harness#test:spec:11",
         "@libs/runtime-harness#test:spec:12",

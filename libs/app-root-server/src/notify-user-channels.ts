@@ -1,6 +1,6 @@
 import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
-import { userTopic } from '@libs/feature-shared/sync';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
+import { userTopic } from '@libs/sub-shared/sync';
 import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
 
 export type NotifyUserChannelsOptions = {

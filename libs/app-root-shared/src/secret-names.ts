@@ -22,9 +22,4 @@ export const ApiSecretName = {
   s3Bucket: 'S3_BUCKET',
   s3Endpoint: 'S3_ENDPOINT',
   s3Region: 'S3_REGION',
-  /** The shared spec reports bucket (read-only credential; `/api/reports`). */
-  reportsBucket: 'REPORTS_BUCKET',
-  reportsEndpoint: 'REPORTS_ENDPOINT',
-  reportsAccessKeyId: 'REPORTS_ACCESS_KEY_ID',
-  reportsSecretAccessKey: 'REPORTS_SECRET_ACCESS_KEY',
 } as const;

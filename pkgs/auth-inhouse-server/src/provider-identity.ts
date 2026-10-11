@@ -1,14 +1,18 @@
 /**
- * What every provider adapter hands the auth app: one authenticated identity,
+ * What every sign-in hands the auth app: one authenticated identity,
  * normalized. Providers disagree on shapes (Google's userinfo booleans,
  * Apple's `"true"` strings, Apple's name that arrives exactly once in a form
- * field); this is the one shape linking and sign-in reason about.
+ * field), and an opened email link has only its address; this is the one
+ * shape linking and sign-in reason about.
  */
 
-import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type {
+  OauthProviderId,
+  SignInMethodId,
+} from '@pkgs/auth-root-shared/sign-in-method';
 
 export type ProviderIdentity = {
-  readonly provider: OauthProviderId;
+  readonly provider: SignInMethodId;
   readonly providerUserId: string;
   readonly email: string | null;
   /** The provider vouches that the person controls `email`. */

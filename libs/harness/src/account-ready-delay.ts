@@ -6,7 +6,7 @@
  * The delay belongs to the device, so it outlives an app restart.
  */
 
-import type { ServerHttp } from '@libs/feature-shared/sync';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 import type { Timers } from '@pkgs/clock-shared/types';
 
 import { requestPath } from './http-request';

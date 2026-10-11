@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-/** Minimal theme root stays mounted when the feature/provider tree crashes. */
+/** Minimal theme root stays mounted when the sub/provider tree crashes. */
 
 import type { MotionPreferencePort } from '@pkgs/device-shared/motion-preference';
 import { KvProvider } from '@pkgs/kv-root-client/solid';

@@ -8,12 +8,14 @@ guided journeys for a refusal, recovery or particular outcome.
 ```sh
 bun atlas:viz
 bun atlas:run
+bun atlas:build
 bun atlas:lint
 ```
 
 `atlas:viz` compiles the chart and starts the lightweight Atlas viewer. It
 watches `specs/`, recompiling valid changes while preserving the last valid
-model after a rejected update. `atlas:run` validates the same model and
+model after a rejected update. `atlas:run` runs every spec suite and records
+its reports for the viewer. `atlas:build` validates the same model and
 builds a standalone explorer in `.cache/product-statechart-explorer`.
 `atlas:lint` runs the structural checks without starting a viewer.
 

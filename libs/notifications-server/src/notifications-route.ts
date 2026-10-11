@@ -14,7 +14,7 @@ export type NotificationsActor = {
 };
 
 /**
- * The signed-in actor for the current inbox request. Published so a feature
+ * The signed-in actor for the current inbox request. Published so a sub
  * that answers an inbox action can read who is answering without the inbox
  * knowing what the action means.
  */

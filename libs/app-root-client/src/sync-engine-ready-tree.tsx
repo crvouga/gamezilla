@@ -5,7 +5,7 @@
  * `@pkgs/sync-engine/solid` pulls the mutation client and its SQL AST parser,
  * which must stay out of the initial chunk.
  *
- * Feature session providers (space rooms, leave/end modals, notifications,
+ * Sub session providers (space rooms, leave/end modals, notifications,
  * profile) live here rather than in the outer shell, so the entry graph does
  * not static-import mutation hubs / dicebear.
  */
@@ -21,8 +21,8 @@ import {
 } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type JSX, untrack } from 'solid-js';
 import { AppClientConfig } from './app-client-config';
-import { useAppFeatures } from './app-features-context';
 import { AppSignInCapabilities } from './app-sign-in-capabilities';
+import { useAppSubs } from './app-subs-context';
 import { AppUiProvider } from './app-ui-provider';
 import type { ReadySyncEngine } from './create-sync-engine-boot-state';
 import { DeviceEntityBootstrap } from './device-bootstrap';
@@ -41,18 +41,18 @@ function SyncStatusBridge(props: {
 }
 
 /**
- * Shell session scaffolding, then whatever the composed features contribute.
- * Feature providers nest in feature order, so a later feature may read an
+ * Shell session scaffolding, then whatever the composed subs contribute.
+ * Sub providers nest in sub order, so a later sub may read an
  * earlier one's context and the order is the composition root's to choose.
  */
-function SessionFeatureProviders(props: {
+function SessionSubProviders(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
-  const features = useAppFeatures();
+  const subs = useAppSubs();
   return (
     <SyncLocalDataActions>
       <DeviceEntityBootstrap>
-        <features.Session>{props.children}</features.Session>
+        <subs.Session>{props.children}</subs.Session>
       </DeviceEntityBootstrap>
     </SyncLocalDataActions>
   );
@@ -84,9 +84,9 @@ export default function ReadyEngineTree(
                   <AppUiProvider>
                     <AuthModalsProvider>
                       <AppClientConfig>
-                        <SessionFeatureProviders>
+                        <SessionSubProviders>
                           {props.children}
-                        </SessionFeatureProviders>
+                        </SessionSubProviders>
                       </AppClientConfig>
                     </AuthModalsProvider>
                   </AppUiProvider>

@@ -17,11 +17,20 @@ export async function runtimeBackend(desired: number) {
     .open(7221);
   const wall = workerWallPorts();
   const token = `${wall.createId()}-${wall.createId()}`;
+  // As deployed, a Synthetic User's application runs on an origin the API
+  // trusts: sign-in links are only ever minted for a trusted callback.
+  let serve: (request: Request) => Promise<Response> = async () =>
+    new Response('The backend is starting', { status: 503 });
+  const server = Bun.serve({
+    port: 0,
+    hostname: '127.0.0.1',
+    fetch: (request) => serve(request),
+  });
   const harness = await createHarness(session, {
     composition: APP_COMPOSITION,
     secretValues: {
       POPULATION_WORKER_TOKEN: token,
-      POPULATION_CREDENTIAL_SECRET: `${wall.createId()}-${wall.createId()}`,
+      WEB_CLIENT_ORIGIN: server.url.origin,
     },
   });
   await harness.spawnServer();
@@ -46,23 +55,19 @@ export async function runtimeBackend(desired: number) {
   );
   const requests: { path: string; status: number | null }[] = [];
   const acknowledgement = lostMoveAcknowledgement();
-  const server = Bun.serve({
-    port: 0,
-    hostname: '127.0.0.1',
-    fetch: async (request) => {
-      const move = await acknowledgement.observe(request);
-      const entry = {
-        path: new URL(request.url).pathname,
-        status: null as number | null,
-      };
-      requests.push(entry);
-      const response = await harness.loadBalancer.fetchFrom(
-        'synthetic-population-worker'
-      )(request);
-      entry.status = response.status;
-      return acknowledgement.disrupt(move, response);
-    },
-  });
+  serve = async (request) => {
+    const move = await acknowledgement.observe(request);
+    const entry = {
+      path: new URL(request.url).pathname,
+      status: null as number | null,
+    };
+    requests.push(entry);
+    const response = await harness.loadBalancer.fetchFrom(
+      'synthetic-population-worker'
+    )(request);
+    entry.status = response.status;
+    return acknowledgement.disrupt(move, response);
+  };
   const rpc = createWorkerRpc(server.url.origin, token, wall.http);
   return {
     origin: server.url.origin,

@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { registerDevContainer } from '@pkgs/os-server/dev-owner-resources';
 import { spawnOwned as spawn } from '@pkgs/os-server/dev-owner-spawn';
 
-import { reservePort, waitForHttp } from './free-port';
+import { plannedPort, reservePort, waitForHttp } from './free-port';
 import type { ObservabilityBackend } from './stack-options';
 
 const LGTM_IMAGE = 'grafana/otel-lgtm:0.30.0';
@@ -27,6 +27,17 @@ export type ObservabilityStack = {
   readonly grafanaUrl: string | null;
   stop(): Promise<void>;
 };
+
+/** The native collector binds only `collector`; LGTM publishes all three. */
+export type ObservabilityPorts = {
+  readonly collector: number;
+  readonly tempo: number;
+  readonly grafana: number;
+};
+
+function portFor(planned: number | undefined) {
+  return planned === undefined ? reservePort() : plannedPort(planned);
+}
 
 const SIGNAL_FILES = {
   '/v1/traces': { file: 'spans.ndjson', field: 'resourceSpans' },
@@ -88,10 +99,11 @@ function isSignalDocument(
 
 /** Fast, dependency-free OTLP/HTTP JSON receiver for normal local development. */
 async function startNativeCollector(
-  dataDir: string
+  dataDir: string,
+  ports: ObservabilityPorts | undefined
 ): Promise<ObservabilityStack> {
   mkdirSync(dataDir, { recursive: true });
-  const reservation = reservePort();
+  const reservation = portFor(ports?.collector);
   await reservation.release();
   const server = Bun.serve({
     hostname: '127.0.0.1',
@@ -176,10 +188,11 @@ function lgtmArgs(args: {
 async function startLgtmCollector(args: {
   readonly instanceId: string;
   readonly dataDir: string;
+  readonly ports?: ObservabilityPorts | undefined;
 }): Promise<ObservabilityStack> {
-  const collectorPort = reservePort();
-  const tempoPort = reservePort();
-  const grafanaPort = reservePort();
+  const collectorPort = portFor(args.ports?.collector);
+  const tempoPort = portFor(args.ports?.tempo);
+  const grafanaPort = portFor(args.ports?.grafana);
   await Promise.all([
     collectorPort.release(),
     tempoPort.release(),
@@ -229,8 +242,10 @@ export function startObservabilityStack(args: {
   readonly backend: Exclude<ObservabilityBackend, 'off'>;
   readonly instanceId: string;
   readonly dataDir: string;
+  /** Planned ports; without them each listener asks the OS for its own. */
+  readonly ports?: ObservabilityPorts | undefined;
 }): Promise<ObservabilityStack> {
   return args.backend === 'native'
-    ? startNativeCollector(args.dataDir)
+    ? startNativeCollector(args.dataDir, args.ports)
     : startLgtmCollector(args);
 }

@@ -2,6 +2,8 @@
 import { afterEach, expect, spyOn, test } from 'bun:test';
 import { AppThemeProvider } from '@libs/app-root-client/app-theme-provider';
 import { RootErrorBoundary } from '@libs/app-root-client/root-error-boundary';
+import { i18n } from '@lingui/core';
+import { I18nProvider } from '@lingui/solid';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
@@ -37,16 +39,18 @@ function mountCrash(copy?: (text: string) => Promise<void>) {
     );
   }
   const view = render(() => (
-    <ClockProvider clock={harness.clock} timers={harness.timers}>
-      <TestViewportProvider value={{ width: 320, height: 480 }}>
-        <AppThemeProvider
-          kv={new KvImplInMemory()}
-          motion={createMotionPreference()}
-        >
-          <Contents />
-        </AppThemeProvider>
-      </TestViewportProvider>
-    </ClockProvider>
+    <I18nProvider i18n={i18n}>
+      <ClockProvider clock={harness.clock} timers={harness.timers}>
+        <TestViewportProvider value={{ width: 320, height: 480 }}>
+          <AppThemeProvider
+            kv={new KvImplInMemory()}
+            motion={createMotionPreference()}
+          >
+            <Contents />
+          </AppThemeProvider>
+        </TestViewportProvider>
+      </ClockProvider>
+    </I18nProvider>
   ));
   return { ...view, harness, clipboard, setBroken, setTheme };
 }

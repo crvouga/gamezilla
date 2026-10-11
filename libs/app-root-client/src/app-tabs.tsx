@@ -1,18 +1,18 @@
 /**
- * The tab bar's spec comes from whichever features contributed a tab, in the
+ * The tab bar's spec comes from whichever subs contributed a tab, in the
  * order they declared. The shell owns no tabs of its own.
  */
 
-import type { FeatureTab } from '@libs/feature-client/client';
+import type { SubTab } from '@libs/sub-client/client';
 import { type Accessor, createMemo } from 'solid-js';
 
-import { useAppFeatures } from './app-features-context';
+import { useAppSubs } from './app-subs-context';
 
 export type AppTabSpec = {
   readonly name: string;
   readonly href: string;
   readonly label: string;
-  readonly Icon: FeatureTab['Icon'];
+  readonly Icon: SubTab['Icon'];
   readonly testID: string;
 };
 
@@ -21,9 +21,9 @@ export type AppTabSpec = {
  * memo owned by the calling component rather than in a bare thunk.
  */
 export function useAppTabs(): Accessor<readonly AppTabSpec[]> {
-  const features = useAppFeatures();
+  const subs = useAppSubs();
   return createMemo(() =>
-    features.tabs.map((tab) => ({
+    subs.tabs.map((tab) => ({
       name: tab.name,
       href: tab.href,
       label: tab.label(),

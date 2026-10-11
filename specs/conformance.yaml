@@ -127,11 +127,6 @@ product:
       promise: >-
         The team can keep questions for a selected test world's device and
         see their answers or the reason a question failed.
-    - id: automated test reports
-      context: developer-tools
-      promise: >-
-        Every test report belongs to the edition its test run checked;
-        recorded moments show captured evidence without inventing missing pictures.
     - id: release checks
       context: developer-tools
       promise: >-

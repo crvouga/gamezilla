@@ -55,7 +55,7 @@
       "@libs/chess-custom-game-shared/*": [
         "../../libs/chess-custom-game-shared/src/*"
       ],
-      "@libs/chess-feature-shared/*": ["../../libs/chess-feature-shared/src/*"],
+      "@libs/chess-sub-shared/*": ["../../libs/chess-sub-shared/src/*"],
       "@libs/chess-root-harness/*": ["../../libs/chess-root-harness/src/*"],
       "@libs/chess-matchmaking-client/*": [
         "../../libs/chess-matchmaking-client/src/*"
@@ -75,8 +75,8 @@
       "@libs/chess-root-shared/*": ["../../libs/chess-root-shared/src/*"],
       "@libs/db-server/*": ["../../libs/db-server/src/*"],
       "@libs/db-shared/*": ["../../libs/db-shared/src/*"],
-      "@libs/feature-client/*": ["../../libs/feature-client/src/*"],
-      "@libs/feature-shared/*": ["../../libs/feature-shared/src/*"],
+      "@libs/sub-client/*": ["../../libs/sub-client/src/*"],
+      "@libs/sub-shared/*": ["../../libs/sub-shared/src/*"],
       "@libs/friends-client/*": ["../../libs/friends-client/src/*"],
       "@libs/friends-harness/*": ["../../libs/friends-harness/src/*"],
       "@libs/friends-server/*": ["../../libs/friends-server/src/*"],
@@ -248,12 +248,6 @@
       ],
       "@pkgs/harness-console-shared/*": [
         "../../pkgs/harness-console-shared/src/*"
-      ],
-      "@pkgs/harness-report-client/*": [
-        "../../pkgs/harness-report-client/src/*"
-      ],
-      "@pkgs/harness-report-shared/*": [
-        "../../pkgs/harness-report-shared/src/*"
       ],
       "@pkgs/harness-root-shared/*": ["../../pkgs/harness-root-shared/src/*"],
       "@pkgs/http-client-client/*": ["../../pkgs/http-client-client/src/*"],

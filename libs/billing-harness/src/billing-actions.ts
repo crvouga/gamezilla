@@ -6,14 +6,14 @@
  */
 
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
-import {
-  HARNESS_FIRST_BILLING_PROVIDER,
-  HARNESS_SERVER_URL,
-} from '@libs/feature-shared/harness-constants';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
 import { nodeText } from '@libs/harness/observations';
+import {
+  HARNESS_FIRST_BILLING_PROVIDER,
+  HARNESS_SERVER_URL,
+} from '@libs/sub-shared/harness-constants';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type {
   BillingObserveKind,
@@ -413,7 +413,7 @@ export const advanceBillingClock = scenarioAction({
   },
 });
 
-/** Registered on every system that composes this feature. */
+/** Registered on every system that composes this sub. */
 export const BILLING_HARNESS_ACTIONS = [
   openBilling,
   subscribeToPlus,

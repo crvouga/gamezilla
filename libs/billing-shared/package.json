@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "@libs/auth-shared": "workspace:*",
-    "@libs/feature-shared": "workspace:*",
     "@libs/observability-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@pkgs/billing-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",

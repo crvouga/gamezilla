@@ -36,7 +36,7 @@ function once<T>(load: () => Promise<T>): () => Promise<T> {
  */
 export function createAppSyncEnginePool(options: {
   readonly globalKey?: string | undefined;
-  /** The composed features' writes, loaded with the first engine. */
+  /** The composed subs' writes, loaded with the first engine. */
   readonly loadMutations: () => Promise<MutationRegistry>;
 }): AppSyncEnginePool {
   const pool = createSyncEnginePool(

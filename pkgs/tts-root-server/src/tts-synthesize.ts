@@ -10,7 +10,7 @@ import { ttsContentTypeFor } from '@pkgs/tts-root-shared/tts-types';
 /**
  * Object key under which an audio blob is cached in the {@link ObjectStore}.
  * Namespacing by provider id keeps multiple providers' caches from colliding
- * on the same hash. The feature prefix (`tts-audio/`) is applied via
+ * on the same hash. The sub prefix (`tts-audio/`) is applied via
  * {@link ObjectStore.withPrefix} at the API binding layer.
  */
 export function ttsObjectKey(

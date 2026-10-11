@@ -7,7 +7,7 @@
  * app restart.
  */
 
-import type { ServerHttp } from '@libs/feature-shared/sync';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 import {
   SYNC_PROTOCOL_HEADER,
   SYNC_PROTOCOL_VERSION,

@@ -13,7 +13,7 @@ import { showKnownPerson } from './known-person-view';
 
 const WAIT_MS = 10_000;
 const HIDDEN_MS = 5_000;
-/** `ScreenBase`'s ⋯ button (design-system chrome, not a feature handle). */
+/** `ScreenBase`'s ⋯ button (design-system chrome, not a sub handle). */
 const OVERFLOW_MENU = 'header-overflow-menu';
 
 type Surface = Parameters<typeof actorUi>[0];

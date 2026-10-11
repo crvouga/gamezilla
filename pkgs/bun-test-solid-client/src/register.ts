@@ -28,6 +28,7 @@ import type * as Babel from '@babel/core';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import { plugin } from 'bun';
 import { compileCssModule } from './css-module';
+import { rememberNativeEvent } from './native-event';
 
 process.env.NODE_ENV = process.env.NODE_ENV ?? 'test';
 
@@ -211,17 +212,18 @@ if (typeof document === 'undefined') {
   const saved = new Map<string, PropertyDescriptor>();
   // In a Bun Worker these globals belong to its parent channel. Replacing
   // them with Window methods would silently disconnect the application realm.
-  const workerGlobals =
-    typeof globalThis.postMessage === 'function'
-      ? [
-          'postMessage',
-          'addEventListener',
-          'removeEventListener',
-          'dispatchEvent',
-          'onmessage',
-          'onmessageerror',
-        ]
-      : [];
+  const preserveDispatch = typeof globalThis.postMessage === 'function';
+  const nativeEvent = globalThis.Event;
+  const workerGlobals = preserveDispatch
+    ? [
+        'postMessage',
+        'addEventListener',
+        'removeEventListener',
+        'dispatchEvent',
+        'onmessage',
+        'onmessageerror',
+      ]
+    : [];
   for (const key of [...KEEP_BUN_GLOBALS, ...workerGlobals]) {
     const descriptor = Object.getOwnPropertyDescriptor(globalThis, key);
     if (descriptor !== undefined) saved.set(key, descriptor);
@@ -233,6 +235,9 @@ if (typeof document === 'undefined') {
   for (const [key, descriptor] of saved) {
     Object.defineProperty(globalThis, key, descriptor);
   }
+  // `Event` stays happy-dom's so element dispatch still works. The preserved
+  // worker dispatchEvent only accepts the constructor from before registration.
+  if (preserveDispatch) rememberNativeEvent(nativeEvent);
 }
 
 if (typeof Symbol.dispose !== 'symbol') {

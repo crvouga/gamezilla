@@ -2,8 +2,8 @@ import { requireRequestStore } from '@libs/app-root-shared/request-scope';
 import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
 import { appAuth } from '@libs/auth-shared/auth-context';
 import { ANON_ID_HEADER } from '@libs/auth-shared/session-middleware';
-import type { ComposedFeatureServers } from '@libs/feature-shared/compose-server';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import type { ComposedSubServers } from '@libs/sub-shared/compose-server';
 import { injectRequestHeaders } from '@pkgs/observability-root-server/worker-worker';
 import { isUuid } from '@pkgs/uuid-shared/uuid';
 import type { Context } from 'hono';
@@ -53,7 +53,7 @@ type RoomActor = {
  *
  * Fallback: a fresh per-connection UUID when no anonId is available.
  *
- * Grants: the composed features decide, from the stored rows, what the actor
+ * Grants: the composed subs decide, from the stored rows, what the actor
  * may do in the topic's room (for a space: the game choice, host only —
  * `roomGrants`), and the gateway forwards them in
  * {@link ROOM_ACTOR_GRANTS_HEADER}, replacing anything the client sent under
@@ -66,9 +66,7 @@ type RoomActor = {
  * - Query `token` / `anonId` and `Authorization` / `x-anon-id` headers:
  *   consumed by actor-id resolution; passed through otherwise.
  */
-export function createRoomApp(
-  roomGrants: ComposedFeatureServers['roomGrants']
-) {
+export function createRoomApp(roomGrants: ComposedSubServers['roomGrants']) {
   return new Hono<ApiHonoEnv>().get('/room', async (c) => {
     const topic =
       new URL(c.req.raw.url).searchParams.get('topic')?.trim() ?? '';
@@ -136,7 +134,7 @@ async function resolveRoomActor(c: Context<ApiHonoEnv>): Promise<RoomActor> {
  * rows. Never blocks the upgrade: a failed decision is no grants.
  */
 async function decideRoomGrants(
-  roomGrants: ComposedFeatureServers['roomGrants'],
+  roomGrants: ComposedSubServers['roomGrants'],
   args: { readonly topic: string; readonly actor: RoomActor }
 ): Promise<readonly string[]> {
   const { sqlClient, clock } = requireRequestStore();

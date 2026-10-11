@@ -1,8 +1,8 @@
 import { resolveSessionReplayAuth } from '@libs/app-root-shared/query-auth';
 import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
-import type { ComposedFeatureServers } from '@libs/feature-shared/compose-server';
 import { mintPubSubToken } from '@libs/pubsub-server/mint-pubsub-token';
 import { PubsubSecretName } from '@libs/pubsub-shared/secret-names';
+import type { ComposedSubServers } from '@libs/sub-shared/compose-server';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { isAuthErrorBody } from '@pkgs/sync-engine-server/auth-error';
@@ -19,7 +19,7 @@ function openRequestSqlClient(): SqlClient {
  * (username `jwt`, password = token). ACL allows subscribe + publish on the
  * actor's user/room/system topics (mutation fanout + push subscribe).
  */
-export function createPubSubTokenRoutes(servers: ComposedFeatureServers) {
+export function createPubSubTokenRoutes(servers: ComposedSubServers) {
   return new Hono().post('/pubsub/token', async (c) => {
     const auth = await resolveSessionReplayAuth(c.req.raw);
     if (isAuthErrorBody(auth)) {

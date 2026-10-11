@@ -27,6 +27,7 @@ import { createStripeMembershipBilling } from '@pkgs/billing-stripe-server/strip
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
+import { outboxDeliveries, outboxEvents } from '@pkgs/outbox-shared/tables';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
 import sql from '@pkgs/sql-root-shared/sql';
@@ -239,7 +240,12 @@ async function openTwoProviders(): Promise<TwoProviders> {
   await db.connect();
   await reconcileSqliteSchema(
     db,
-    registerTables([...AUTH_TABLES, ...BILLING_TABLES]),
+    registerTables([
+      ...AUTH_TABLES,
+      ...BILLING_TABLES,
+      outboxEvents,
+      outboxDeliveries,
+    ]),
     { ownership: 'declared-only' }
   );
   const two = new TwoProviders(db);

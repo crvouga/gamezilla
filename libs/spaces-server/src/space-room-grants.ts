@@ -9,11 +9,11 @@
  * domain membership, so leaving revokes an already admitted participant.
  */
 
-import type { RoomGrantsCtx } from '@libs/feature-shared/server';
 import { decideOnServer } from '@libs/permissions-server/decide-on-server';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { SPACE_ROOM_GRANT_KEYS } from '@libs/spaces-shared/space-room-authorize';
 import { storedSpacePresence } from '@libs/spaces-shared/stored-space-presence';
+import type { RoomGrantsCtx } from '@libs/sub-shared/server';
 import sql from '@pkgs/sql-root-shared/sql';
 
 const SPACE_ROOM_TOPIC_PREFIX = 'space:';

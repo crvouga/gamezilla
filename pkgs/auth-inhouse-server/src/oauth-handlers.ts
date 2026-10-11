@@ -153,7 +153,10 @@ function providerErrorCode(raw: string): AuthErrorCode {
     : AUTH_ERROR.providerFailed;
 }
 
-function outcomeParams(outcome: LinkOutcome): Record<string, string> | null {
+/** A sign-in that did not sign anyone in, as the params the app reads; `null` when it did. */
+export function outcomeParams(
+  outcome: LinkOutcome
+): Record<string, string> | null {
   if (outcome.kind === 'error') {
     return { [AUTH_CALLBACK_PARAM.error]: outcome.error };
   }

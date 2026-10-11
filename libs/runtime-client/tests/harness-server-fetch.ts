@@ -4,7 +4,7 @@
  * tests can assert what the shell touched during boot.
  */
 
-import type { ServerHttp } from '@libs/feature-shared/sync';
+import type { ServerHttp } from '@libs/sub-shared/sync';
 
 const JSON_HEADERS = { 'content-type': 'application/json' };
 

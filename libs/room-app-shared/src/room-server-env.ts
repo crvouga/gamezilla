@@ -1,4 +1,4 @@
-import type { EnvTime } from '@libs/feature-shared/sync';
+import type { EnvTime } from '@libs/sub-shared/sync';
 
 /**
  * Layer A bag for `@apps/server` — wall DO and harness in-process inject

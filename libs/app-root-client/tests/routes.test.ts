@@ -6,9 +6,9 @@ import {
   SHELL_ROUTE_TABLE,
 } from '@libs/app-root-client/route-table';
 import { buildAppRoutes } from '@libs/app-root-client/routes';
-import type { FeatureRoute } from '@libs/feature-client/client';
+import type { SubRoute } from '@libs/sub-client/client';
 
-/** Paths the shell owns regardless of which features are composed in. */
+/** Paths the shell owns regardless of which subs are composed in. */
 const SHELL_PATHS: readonly string[] = [
   '/more',
   '/more/theme',
@@ -29,13 +29,13 @@ const SHELL_PATHS: readonly string[] = [
   '/sso-callback',
 ];
 
-const FAKE_TAB: FeatureRoute = {
+const FAKE_TAB: SubRoute = {
   path: '/fake',
   tab: true,
   component: NotFoundScreen,
 };
 
-const FAKE_STACK: FeatureRoute = {
+const FAKE_STACK: SubRoute = {
   path: '/fake/:id',
   component: NotFoundScreen,
 };
@@ -54,12 +54,12 @@ describe('route table', () => {
     expect(matchAppRoute(table, '/more/unknown/deep')).toBeNull();
   });
 
-  it('mounts what the composed features contributed, and nothing more', () => {
+  it('mounts what the composed subs contributed, and nothing more', () => {
     const empty = buildRouteTable([]);
     expect(matchAppRoute(empty, '/fake')).toBeNull();
-    const withFeature = buildRouteTable([FAKE_TAB, FAKE_STACK]);
-    expect(matchAppRoute(withFeature, '/fake')).not.toBeNull();
-    expect(matchAppRoute(withFeature, '/fake/7')).not.toBeNull();
+    const withSub = buildRouteTable([FAKE_TAB, FAKE_STACK]);
+    expect(matchAppRoute(withSub, '/fake')).not.toBeNull();
+    expect(matchAppRoute(withSub, '/fake/7')).not.toBeNull();
   });
 
   it('nests tab routes under the layout and ends with the catch-all', () => {
@@ -67,7 +67,7 @@ describe('route table', () => {
     const tabs = routes[0];
     expect(tabs?.path).toBe('/');
     expect(Array.isArray(tabs?.children) ? tabs.children.length : 0).toBe(1);
-    // tabs layout + shell stack routes + the feature stack route + catch-all
+    // tabs layout + shell stack routes + the sub stack route + catch-all
     expect(routes.length).toBe(SHELL_ROUTE_TABLE.length + 3);
     expect(routes.at(-1)?.path).toBe('/*all');
   });

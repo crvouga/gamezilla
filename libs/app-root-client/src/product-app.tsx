@@ -8,7 +8,7 @@
  * Paint order (low-end Android): fonts gate → AppFrame chrome → session/SQLite.
  * Sync boot may still show {@link BootLoadingShell} inside the frame; it must
  * not block the frame itself (see README.md). Anything a
- * feature needs painted above the SQLite gate — an unread-count root, a game
+ * sub needs painted above the SQLite gate — an unread-count root, a game
  * registry — is its `chrome` contribution, mounted by `AppProvidersSession`.
  */
 
@@ -17,10 +17,10 @@ import { AppFrame } from '@pkgs/ui-root-client/app-frame';
 import { AppFrameChromeProvider } from '@pkgs/ui-root-client/app-frame-chrome';
 import { AppRouterProvider } from '@pkgs/ui-root-client/app-router';
 import { type JSX, onCleanup, onMount, Show } from 'solid-js';
-import { useAppFeatures } from './app-features-context';
 import { AppHeaderGlobalMenu } from './app-header-global-menu';
 import { AppHeaderIslandHost } from './app-header-island';
 import { AppProvidersOuter, AppProvidersSession } from './app-providers';
+import { useAppSubs } from './app-subs-context';
 import { AppThemeProvider } from './app-theme-provider';
 import { BootPaintGate } from './boot-paint-gate';
 import { useClientEnv } from './client-env-context';
@@ -40,7 +40,7 @@ export type ProductAppProps = {
 
 export function ProductApp(props: ProductAppProps): JSX.Element {
   const env = useClientEnv();
-  const features = useAppFeatures();
+  const subs = useAppSubs();
   const availability = originAvailabilityFor(env);
   onMount(() => {
     availability.start();
@@ -57,7 +57,7 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
               </Show>
               <SyncStatusRoot>
                 <GlobalMenuIdentityRoot>
-                  <features.Chrome>
+                  <subs.Chrome>
                     <AppFrameChromeProvider
                       globalTrailing={
                         <div class="flex items-center gap-2">
@@ -74,7 +74,7 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                         </AppFrame>
                       </BootPaintGate>
                     </AppFrameChromeProvider>
-                  </features.Chrome>
+                  </subs.Chrome>
                 </GlobalMenuIdentityRoot>
               </SyncStatusRoot>
             </AppProvidersOuter>

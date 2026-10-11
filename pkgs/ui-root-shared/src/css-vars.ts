@@ -11,20 +11,27 @@
  * tree.
  */
 
+import { breakpoint } from './breakpoints';
 import { COLOR_PALETTE } from './color-palette';
 import type { ColorScheme, ColorTokenName, ColorTokens } from './colors-types';
 import { fonts } from './fonts';
+import { layer } from './layers';
 import { duration, easing } from './motion';
 import type { ElevationLevel, ElevationStyle } from './scale';
 import {
   borderRadius,
   fontLeading,
   fontSize,
+  fontWeight,
   lineHeight,
   makeElevation,
+  opacity,
+  radiusRole,
   spaceRole,
+  spaceSize,
   spacing,
 } from './scale';
+import { controlSize, iconSize, maxWidth } from './sizes';
 
 const COLOR_TOKEN_NAMES = Object.keys(COLOR_PALETTE.light) as ColorTokenName[];
 
@@ -114,7 +121,46 @@ function scaleBlock(): string {
   for (const [key, value] of Object.entries(easing)) {
     lines.push(`  --ui-easing-${key}: ${value};`);
   }
+  lines.push(...semanticScaleLines());
   return `:root {\n${lines.join('\n')}\n}`;
+}
+
+/** `55%` for the fraction `0.55`, without binary-float noise. */
+function percent(fraction: number): string {
+  return `${Math.round(fraction * 1000) / 10}%`;
+}
+
+/**
+ * The scales `token-names.ts` names (`SpaceToken`, `RadiusToken`, …), after
+ * the raw scales so every older variable keeps its line.
+ */
+function semanticScaleLines(): string[] {
+  const px = (prefix: string, scale: Readonly<Record<string, number>>) =>
+    Object.entries(scale).map(
+      ([key, value]) => `  --ui-${prefix}-${key}: ${value}px;`
+    );
+  // `none`, `sm` and `full` are already the raw steps of the same name.
+  const rawRadii = new Set(Object.keys(borderRadius));
+  const namedRadii = Object.fromEntries(
+    Object.entries(radiusRole).filter(([key]) => !rawRadii.has(key))
+  );
+  return [
+    ...px('space', spaceSize),
+    ...px('radius', namedRadii),
+    ...Object.entries(fontWeight).map(
+      ([key, value]) => `  --ui-font-weight-${key}: ${value};`
+    ),
+    ...px('icon-size', iconSize),
+    ...px('control-size', controlSize),
+    ...px('max-width', maxWidth),
+    ...px('breakpoint', breakpoint),
+    ...Object.entries(layer).map(
+      ([key, value]) => `  --ui-layer-${key}: ${value};`
+    ),
+    ...Object.entries(opacity).map(
+      ([key, value]) => `  --ui-opacity-${key}: ${percent(value)};`
+    ),
+  ];
 }
 
 /** Full contents of `tokens.css`. Pure; the generator script writes it. */

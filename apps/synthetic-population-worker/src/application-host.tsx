@@ -2,9 +2,10 @@
 import { createClient } from '@libs/app-root-client/create-client';
 import { createInMemoryClientPorts } from '@libs/app-root-client/in-memory-client-ports';
 import { wallClientEnv } from '@libs/app-root-client/wall-client-env';
+import { wallOfflineNetworkController } from '@libs/app-root-client/wall-offline-network';
 import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
-import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
-import { APP } from '@libs/runtime-shared/app-features';
+import { APP_SUB_CLIENTS } from '@libs/runtime-client/app-sub-clients';
+import { APP } from '@libs/runtime-shared/app-subs';
 import { wallSpaceRoomTransport } from '@libs/spaces-client/wall-room-transport';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client/solid-dom-driver';
@@ -20,10 +21,13 @@ export async function createApplicationHost(
   localStorage.clear();
   sessionStorage.clear();
   const devicePorts = createInMemoryClientPorts();
+  const offline = wallOfflineNetworkController();
+  await offline.ready();
   const wall = wallClientEnv({
     serverUrl: input.origin,
     room: wallSpaceRoomTransport,
     objectStore: devicePorts.objectStore,
+    offline,
   });
   // The ordinary HTTP health gate is registered against this environment identity.
   const env = Object.assign(wall, devicePorts, {
@@ -32,11 +36,14 @@ export async function createApplicationHost(
       await db.connect();
       return db;
     },
+    // A Synthetic User's host is the one place the app offers email sign-in.
+    emailSignIn: true,
   });
   await env.secureStorage.write(DEVICE_ID_KEY, input.deviceId);
   const client = createClient(env, {
-    features: APP_FEATURE_CLIENTS,
+    subs: APP_SUB_CLIENTS,
     loadApp: async () => APP,
+    offlineController: offline,
   });
   const history = createMemoryHistory();
   const raw = createSolidDomDriver({

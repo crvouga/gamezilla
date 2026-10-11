@@ -1,7 +1,7 @@
 /**
  * Shell-level scenario actions: tab bar, global menu → Settings.
  * These drive only ported chrome (no screen bodies), so they stay green while
- * feature screens are still `RouteStub`s.
+ * sub screens are still `RouteStub`s.
  */
 
 import { Handles } from '@libs/test-ids-shared/handles';

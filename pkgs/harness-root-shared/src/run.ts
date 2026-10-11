@@ -1,3 +1,5 @@
+import type { RunReportOptions } from '@crvouga/atlas-reports/report-types';
+import { resolveReportOptions } from '@crvouga/atlas-reports/report-types';
 import type { MonitorState, Transition } from './checkpoint';
 import {
   assertProperty,
@@ -14,8 +16,6 @@ import { ActionNotEnabled } from './probe';
 import type { Step } from './recording';
 import type { RuntimeOption, SystemCore as System } from './registry';
 import { getSystemRegistry, resolveRuntime } from './registry';
-import type { RunReportOptions } from './report-types';
-import { resolveReportOptions } from './report-types';
 import { RunReporter } from './reporter';
 import type { Rng } from './rng';
 import type { Run, RunInternal } from './run-types';

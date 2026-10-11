@@ -43,6 +43,12 @@ export type EnsureHarnessMockingbirdPostgresSeedArgs = {
   ) => Promise<void>;
   /** Clock for migrate logging / DB `now`. */
   readonly now?: () => number;
+  /**
+   * Cross-process single flight for a rebuild. The fast path (a seed already
+   * in memory or on disk) does not call it. Inside it, the disk is read again
+   * so a waiter reuses the winner's dump.
+   */
+  readonly exclusive?: <T>(fn: () => Promise<T>) => Promise<T>;
 };
 
 type ProcessSeedCache = {
@@ -80,34 +86,32 @@ export function computeHarnessMockingbirdPostgresSeedFingerprint(args: {
  * Ensure stored seed matches fingerprint. Rebuilds via `migrate` when missing
  * or stale. Returns the seed bytes and whether migrate ran.
  */
-export async function ensureHarnessMockingbirdPostgresSeedBuffer(
-  args: EnsureHarnessMockingbirdPostgresSeedArgs
+async function readMatchingSeed(
+  args: EnsureHarnessMockingbirdPostgresSeedArgs,
+  seedKey: string,
+  fingerprint: string
+): Promise<Uint8Array | null> {
+  const cached =
+    (await readUtf8(args.store, fingerprintKeyFor(seedKey)))?.trim() ?? null;
+  if (cached !== fingerprint) return null;
+  const bytes = await readObjectBytes(args.store, seedKey);
+  return bytes === null ? null : new Uint8Array(bytes);
+}
+
+function rememberSeed(
+  seedKey: string,
+  fingerprint: string,
+  seedBytes: Uint8Array
+): { readonly seedBytes: Uint8Array; readonly didMigrate: boolean } {
+  processCaches.set(cacheKey(seedKey, fingerprint), { seedBytes, fingerprint });
+  return { seedBytes, didMigrate: false };
+}
+
+async function migrateSeed(
+  args: EnsureHarnessMockingbirdPostgresSeedArgs,
+  seedKey: string,
+  fingerprint: string
 ): Promise<{ readonly seedBytes: Uint8Array; readonly didMigrate: boolean }> {
-  const seedKey = args.seedKey ?? 'harness-backend-seed.pgmm.json';
-  const fingerprintKey = fingerprintKeyFor(seedKey);
-  const fingerprint = computeHarnessMockingbirdPostgresSeedFingerprint({
-    fingerprintSource: args.fingerprintSource,
-    ...(args.seedVersion !== undefined
-      ? { seedVersion: args.seedVersion }
-      : {}),
-  });
-
-  const processKey = cacheKey(seedKey, fingerprint);
-  const inProcess = processCaches.get(processKey);
-  if (inProcess !== undefined) {
-    return { seedBytes: inProcess.seedBytes, didMigrate: false };
-  }
-
-  const cached = (await readUtf8(args.store, fingerprintKey))?.trim() ?? null;
-  if (cached === fingerprint) {
-    const bytes = await readObjectBytes(args.store, seedKey);
-    if (bytes !== null) {
-      const seedBytes = new Uint8Array(bytes);
-      processCaches.set(processKey, { seedBytes, fingerprint });
-      return { seedBytes, didMigrate: false };
-    }
-  }
-
   const nowMs = args.now ?? (() => 0);
   const client = SqlClientImplMockingbirdPostgres.open({
     seed: 1,
@@ -120,12 +124,41 @@ export async function ensureHarnessMockingbirdPostgresSeedBuffer(
     await args.migrate({ sqlClient: client, pool });
     const seedBytes = client.exportDatabaseBytes();
     await args.store.put(seedKey, seedBytes, 'application/json');
-    await writeUtf8(args.store, fingerprintKey, `${fingerprint}\n`);
-    processCaches.set(processKey, { seedBytes, fingerprint });
+    await writeUtf8(args.store, fingerprintKeyFor(seedKey), `${fingerprint}\n`);
+    processCaches.set(cacheKey(seedKey, fingerprint), {
+      seedBytes,
+      fingerprint,
+    });
     return { seedBytes, didMigrate: true };
   } finally {
     await client.disconnect();
   }
+}
+
+export async function ensureHarnessMockingbirdPostgresSeedBuffer(
+  args: EnsureHarnessMockingbirdPostgresSeedArgs
+): Promise<{ readonly seedBytes: Uint8Array; readonly didMigrate: boolean }> {
+  const seedKey = args.seedKey ?? 'harness-backend-seed.pgmm.json';
+  const fingerprint = computeHarnessMockingbirdPostgresSeedFingerprint({
+    fingerprintSource: args.fingerprintSource,
+    ...(args.seedVersion !== undefined
+      ? { seedVersion: args.seedVersion }
+      : {}),
+  });
+  const inProcess = processCaches.get(cacheKey(seedKey, fingerprint));
+  if (inProcess !== undefined) {
+    return { seedBytes: inProcess.seedBytes, didMigrate: false };
+  }
+  const ready = await readMatchingSeed(args, seedKey, fingerprint);
+  if (ready !== null) return rememberSeed(seedKey, fingerprint, ready);
+  const rebuild = () => migrateSeed(args, seedKey, fingerprint);
+  const exclusive = args.exclusive;
+  if (exclusive === undefined) return rebuild();
+  return exclusive(async () => {
+    const again = await readMatchingSeed(args, seedKey, fingerprint);
+    if (again !== null) return rememberSeed(seedKey, fingerprint, again);
+    return rebuild();
+  });
 }
 
 /** Clear process seed cache (tests). */

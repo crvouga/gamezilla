@@ -1,5 +1,5 @@
 import { RecoverAccountData } from '@libs/account-privacy-server/recover-account-data';
-import { APP } from '@libs/runtime-shared/app-features';
+import { APP } from '@libs/runtime-shared/app-subs';
 import type { Clock } from '@pkgs/clock-shared/types';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';

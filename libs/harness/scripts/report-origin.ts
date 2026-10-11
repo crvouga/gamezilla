@@ -17,6 +17,26 @@ export function reportOrigin(repoRoot: string): ReportOrigin {
   return { sha: sha.stdout.trim(), clean: state.stdout.trim().length === 0 };
 }
 
+/** The checked-out revision, without the cost of comparing the working tree. */
+export function reportRevision(repoRoot: string): string | null {
+  const sha = spawnSync('git', ['rev-parse', 'HEAD'], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  return sha.status === 0 ? sha.stdout.trim() : null;
+}
+
+/** The branch a local run executes; a detached checkout has none. */
+export function reportBranch(repoRoot: string): string | null {
+  const branch = spawnSync('git', ['branch', '--show-current'], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  return branch.status === 0 && branch.stdout.trim().length > 0
+    ? branch.stdout.trim()
+    : null;
+}
+
 export function completedOrigin(
   started: ReportOrigin,
   ended: ReportOrigin

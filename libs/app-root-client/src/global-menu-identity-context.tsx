@@ -2,11 +2,11 @@
 /**
  * Chrome mounts above the SQLite gate, so the global menu cannot call
  * `createQuery` directly. A boot stub publishes a guest identity outside the
- * gate; whichever feature owns identity display mounts a live bridge inside
+ * gate; whichever sub owns identity display mounts a live bridge inside
  * the sync tree and publishes into the same signal.
  *
  * The face is a render thunk rather than an avatar config: the shell knows
- * there is a face, not what a face is made of. With no feature to fill it,
+ * there is a face, not what a face is made of. With no sub to fill it,
  * the menu falls back to a plain person glyph.
  */
 

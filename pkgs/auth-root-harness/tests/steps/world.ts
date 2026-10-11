@@ -1,13 +1,16 @@
 /**
  * The world a `specs/auth/` scenario runs in: one auth harness with four
  * devices, handed out to people the first time a step names them, plus the
- * account each person was last seen signed into.
+ * account each person was last seen signed into, and the sign-in links
+ * people asked for.
  *
  * Each person's outside accounts are fixed entries of the example app's
  * provider directories: Alice has a Google and an Apple account at different
  * addresses, Bob a Google account, Carol a Google account and an Apple
  * account at one unverified address, Dave an Apple account, and Eve a Google
- * and an Apple account at one verified address.
+ * and an Apple account at one verified address. Each person reads the
+ * mailbox of their own email address (`alice@example.com` for Alice), and
+ * nobody else's.
  */
 
 import type { ProviderStepArgs } from '@pkgs/auth-root-harness/actions';
@@ -52,6 +55,13 @@ export type SignInWorld = {
   readonly accounts: Map<string, string>;
   /** Outside accounts whose address changed (`bob:google` → address). */
   readonly moved: Map<string, string>;
+  /** The email address each sign-in link was asked for at, oldest first. */
+  readonly asked: string[];
+  /**
+   * The sign-in link each person last asked for: its number among every
+   * link asked for, counting from 1.
+   */
+  readonly links: Map<string, number>;
 };
 
 export const { Given, When, Then } = stepsFor<SignInWorld>();
@@ -127,6 +137,20 @@ export function onDevice(
   };
 }
 
+/** The email address whose mailbox a person reads: their own. */
+export function ownEmailAddress(actor: string): string {
+  return `${actor}@example.com`;
+}
+
+/** The number of the sign-in link the person last asked for. */
+export function linkOf(w: SignInWorld, actor: string): number {
+  const link = w.links.get(actor);
+  if (link === undefined) {
+    throw new Error(`no earlier step had ${actor} ask for a sign-in link`);
+  }
+  return link;
+}
+
 export function accountOf(w: SignInWorld, actor: string): string {
   const account = w.accounts.get(actor);
   if (account === undefined) {
@@ -146,6 +170,8 @@ export function useSignInWorld(): void {
       devices: new Map(),
       accounts: new Map(),
       moved: new Map(),
+      asked: [],
+      links: new Map(),
     }),
     dispose: async (w) => {
       await w.s[Symbol.asyncDispose]();

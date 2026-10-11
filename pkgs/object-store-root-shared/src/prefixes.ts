@@ -1,4 +1,4 @@
-/** Feature-relative prefixes composed under the injected root namespace. */
+/** Sub-relative prefixes composed under the injected root namespace. */
 export const ObjectStorePrefix = {
   ttsAudio: 'tts-audio/',
   productHarnessSnapshots: 'product-harness-snapshots/',

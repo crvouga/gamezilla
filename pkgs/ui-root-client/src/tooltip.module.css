@@ -10,7 +10,7 @@
 
 .bubble {
   position: absolute;
-  z-index: 1000001;
+  z-index: var(--ui-layer-tooltip);
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
@@ -23,7 +23,7 @@
 }
 
 .floating-layer {
-  z-index: 1000001;
+  z-index: var(--ui-layer-tooltip);
 }
 
 .bottom {

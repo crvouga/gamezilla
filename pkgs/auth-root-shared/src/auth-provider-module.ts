@@ -12,7 +12,7 @@ import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { AuthServerPort } from './auth-server-port';
-import type { OauthProviderId } from './sign-in-method';
+import type { SignInMethodId } from './sign-in-method';
 
 /** What a service is built from. */
 export type AuthProviderEnv = {
@@ -59,8 +59,11 @@ export type AuthProviderHandler = {
 /** A built service. */
 export type AuthProvider = {
   readonly server: AuthServerPort;
-  /** The social sign-in methods configured on the service — what the UI offers. */
-  readonly signInMethods: readonly OauthProviderId[];
+  /**
+   * The sign-in methods configured on the service — what the UI offers:
+   * each social provider, and `email` when it can mail sign-in links.
+   */
+  readonly signInMethods: readonly SignInMethodId[];
   /** Absent when every endpoint lives on the service's own domain. */
   readonly handler?: AuthProviderHandler;
 };

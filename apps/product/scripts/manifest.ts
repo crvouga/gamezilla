@@ -50,6 +50,20 @@ export function stackRootDir(repoRoot: string): string {
   return join(repoRoot, '.cache', 'localhost-stack');
 }
 
+/**
+ * One instance's data directory, emptied unless the stack was asked to keep
+ * its data (`--keep-data`).
+ */
+export function instanceDataDir(
+  repoRoot: string,
+  instance: { readonly instanceId: string; readonly keepData: boolean }
+): string {
+  const dir = join(stackRootDir(repoRoot), instance.instanceId);
+  if (!instance.keepData) rmSync(dir, { recursive: true, force: true });
+  mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
 export function manifestPath(repoRoot: string, instanceId: string): string {
   return join(stackRootDir(repoRoot), `${instanceId}.json`);
 }
