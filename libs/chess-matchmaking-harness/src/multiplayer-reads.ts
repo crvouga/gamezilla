@@ -99,6 +99,21 @@ export async function shownMultiplayerClock(
   return Number(parts[1]) * 60 + Number(parts[2]);
 }
 
+/** Whole days shown on one rendered daily multiplayer clock (`3d`). */
+export async function shownMultiplayerClockDays(
+  s: ProductHarness,
+  actor: string,
+  side: 'white' | 'black'
+): Promise<number | null> {
+  const text = await shownMultiplayerText(
+    s,
+    actor,
+    `multiplayer-${side}-clock`
+  );
+  const parts = /^(\d+)d$/.exec(text?.trim() ?? '');
+  return parts === null ? null : Number(parts[1]);
+}
+
 export async function storedMultiplayerSnapshot(s: ProductHarness) {
   return s.harness.serverSql.sqlClient.transaction(async (tx) => ({
     games: await tx.query(sql<

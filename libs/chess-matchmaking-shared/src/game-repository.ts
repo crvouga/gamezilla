@@ -7,7 +7,9 @@ import sql, { join, raw } from '@pkgs/sql-root-shared/sql';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import type { MultiplayerGame } from './game-state';
 import { MULTIPLAYER_GAME_COLUMNS } from './game-state';
+import { stopMultiplayerClock } from './multiplayer-clock';
 import { scheduleMultiplayerDeadline } from './multiplayer-deadline';
+import { scheduleMultiplayerNotices } from './multiplayer-notices';
 import { publishMatchGame } from './publish-match-game';
 import { rateFinishedGame } from './rate-finished-game';
 import { recordGameTransition } from './telemetry';
@@ -96,8 +98,11 @@ export class MultiplayerGameRepository {
   ): Promise<MultiplayerGame> {
     const { server, publish } = write;
     const ended = before.outcome === 'ongoing' && after.outcome !== 'ongoing';
+    const stopped = ended ? stopMultiplayerClock(before, after, nowMs) : after;
     const game =
-      server && ended ? await rateFinishedGame(this.tx, after, nowMs) : after;
+      server && ended
+        ? await rateFinishedGame(this.tx, stopped, nowMs)
+        : stopped;
     await this.tx.run(sql`UPDATE chess_multiplayer_games SET fen = ${game.fen}, pgn = ${game.pgn},
       revision = ${game.revision}, turn = ${game.turn}, outcome = ${game.outcome}, reason = ${game.reason},
       white_ms = ${game.white_ms}, black_ms = ${game.black_ms}, clock_at_ms = ${game.clock_at_ms},
@@ -125,6 +130,7 @@ export class MultiplayerGameRepository {
       for (const ownerId of [game.white_id, game.black_id])
         await changeAvailability(this.tx, { ownerId, available: true, nowMs });
     await scheduleMultiplayerDeadline(this.tx, game, nowMs);
+    await scheduleMultiplayerNotices(this.tx, { before, after: game }, nowMs);
     return game;
   }
 

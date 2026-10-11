@@ -49,7 +49,7 @@ Given("White's multiplayer clock has run out", async (w) => {
 });
 
 /** White to move with a rook; Black down to the pieces the scenario names. */
-async function lastPieces(
+export async function lastPieces(
   w: HarnessWorld,
   people: { readonly white: string; readonly black: string },
   timeControl: string,

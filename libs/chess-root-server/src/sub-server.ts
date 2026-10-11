@@ -13,6 +13,10 @@ import { defineSubServer } from '@libs/sub-shared/server';
 import { defineOutboxConsumer } from '@pkgs/outbox-shared/define-consumer';
 import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 import {
+  multiplayerNoticesConsumer,
+  registerMultiplayerNoticeActions,
+} from './multiplayer-notices-consumer';
+import {
   multiplayerRoomGrants,
   registerMatchRoomConsumers,
 } from './multiplayer-room-server';
@@ -51,8 +55,10 @@ export function createChessServer(rooms: RoomServicePort) {
       ...(await multiplayerRoomGrants(ctx)),
     ],
     authorizeMutation: opponentSearchGuard(rooms),
+    register: registerMultiplayerNoticeActions,
     registerOutbox(registry) {
       registerMatchRoomConsumers(registry, rooms);
+      registry.register(multiplayerNoticesConsumer);
       registry.register(
         defineOutboxConsumer({
           id: 'chess.form-opponent-match',

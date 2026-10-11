@@ -14,6 +14,7 @@ import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import {
   findById,
   findBySource,
+  resurfaceNotificationSql,
   upsertNotificationSql,
 } from './publish-helpers';
 
@@ -23,12 +24,11 @@ export async function publishNotification(
   now: () => number,
   createId: CreateId
 ): Promise<Notification> {
+  const id = buildNotificationId(input.source, input.userId);
   await db.run(upsertNotificationSql(input, now, createId));
+  if (input.resurface === true) await db.run(resurfaceNotificationSql(id));
 
-  const row = await findById(
-    db,
-    buildNotificationId(input.source, input.userId)
-  );
+  const row = await findById(db, id);
   if (row === null) {
     throw new NotificationsError(
       'NOTIFICATIONS_NOT_FOUND',

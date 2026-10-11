@@ -5,6 +5,7 @@ import { MultiplayerGameRepository } from '@libs/chess-matchmaking-shared/game-r
 import { formChessMatches } from '@libs/chess-matchmaking-shared/match-handoff';
 import { MultiplayerGameChanged } from '@libs/chess-matchmaking-shared/match-room';
 import { scheduleMultiplayerDeadline } from '@libs/chess-matchmaking-shared/multiplayer-deadline';
+import { MultiplayerNoticesDue } from '@libs/chess-matchmaking-shared/multiplayer-notices';
 import { MultiplayerRatingRepository } from '@libs/chess-matchmaking-shared/rating-repository';
 import { CHESS_SEARCH_RADIUS } from '@libs/chess-matchmaking-shared/search-config';
 import type { MultiplayerSpeed } from '@libs/chess-matchmaking-shared/time-control';
@@ -12,7 +13,7 @@ import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { signedInAccountOf } from '@libs/harness/identity';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
-import sql from '@pkgs/sql-root-shared/sql';
+import sql, { join } from '@pkgs/sql-root-shared/sql';
 import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
 import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
@@ -40,6 +41,15 @@ function gamePlayers(
   );
 }
 
+/**
+ * What a game write sets off at once in production, where the request that
+ * wrote it drains them: the room's board and a daily game's notices.
+ */
+const DELIVERED_AT_ONCE = [
+  MultiplayerGameChanged.type,
+  MultiplayerNoticesDue.type,
+] as const;
+
 /** A server event's trusted subject; independent of a device session. */
 export async function multiplayerTransaction(
   s: ProductHarness,
@@ -62,7 +72,7 @@ export async function multiplayerTransaction(
   const matchEvents = await s.harness.serverSql.sqlClient.query(
     sql<{
       id: string;
-    }>`SELECT id FROM outbox_events WHERE type = ${MultiplayerGameChanged.type} AND deleted_at IS NULL`
+    }>`SELECT id FROM outbox_events WHERE type IN (${join([...DELIVERED_AT_ONCE])}) AND deleted_at IS NULL`
   );
   if (matchEvents.length > 0)
     await drainAndNotifyOutbox({

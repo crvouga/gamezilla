@@ -4,6 +4,7 @@ import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
 import { GameSearchState } from '@pkgs/ui-root-client/game-search-state';
 import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import type { JSX } from 'solid-js';
+import { timeControlText } from './time-control-name';
 import type { MultiplayerSearchRow } from './use-multiplayer-data';
 import { useOfflineSince } from './use-offline-since';
 
@@ -32,7 +33,8 @@ export function MultiplayerWaiting(props: {
       description={
         <p data-testid="multiplayer-waiting">
           <Trans>
-            Looking for a {props.search.time_control ?? ''} chess opponent.
+            Looking for a {timeControlText(props.search.time_control)} chess
+            opponent.
           </Trans>
         </p>
       }

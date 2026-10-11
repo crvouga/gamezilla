@@ -14,7 +14,7 @@ import { multiplayerPeople } from './multiplayer-people';
 import { givenBegunGame, pairOf } from './multiplayer-world';
 
 /** A settled rating: enough rated games at its speed to have lost the "?". */
-async function settledRating(
+export async function settledRating(
   w: HarnessWorld,
   actor: string,
   speed: MultiplayerSpeed,
@@ -140,7 +140,7 @@ Then(
     );
   }
 );
-async function stillRated(
+export async function stillRated(
   w: HarnessWorld,
   actor: string,
   speed: string,

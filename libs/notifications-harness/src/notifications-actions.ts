@@ -1,4 +1,5 @@
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
+import { backToTabs } from '@libs/harness/shell-actions';
 import { Handles } from '@libs/test-ids-shared/handles';
 
 const WAIT_MS = 10_000;
@@ -11,6 +12,16 @@ export const openInbox = scenarioAction({
     await ui.get(Handles.statusCurrentUser).expect.visible({
       timeoutMs: WAIT_MS,
     });
+    // From inside a space, or a screen stacked over the tabs, as a person
+    // would: out of it first, to where the inbox tab is.
+    if (!(await ui.get(Handles.tabNotifications).isVisible())) {
+      if (await ui.get(Handles.spaceClose).isVisible()) {
+        await ui.get(Handles.spaceClose).tap({ timeoutMs: WAIT_MS });
+        await s.session.waitForIdle();
+      }
+      if (!(await ui.get(Handles.tabNotifications).isVisible()))
+        await Promise.resolve(backToTabs.act(s, actorId));
+    }
     await ui.get(Handles.tabNotifications).tap({ timeoutMs: WAIT_MS });
     await s.session.waitForIdle();
   },

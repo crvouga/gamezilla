@@ -163,4 +163,17 @@ function upsertNotificationSql(
       updated_at = excluded.updated_at`;
 }
 
-export { findById, findBySource, upsertNotificationSql };
+/** Clears what the person did with a notification; see `resurface`. */
+function resurfaceNotificationSql(id: string): Sql {
+  return sql<void>`
+    UPDATE notifications
+       SET read_at = NULL, archived_at = NULL, dismissed_at = NULL
+     WHERE id = ${id}`;
+}
+
+export {
+  findById,
+  findBySource,
+  resurfaceNotificationSql,
+  upsertNotificationSql,
+};

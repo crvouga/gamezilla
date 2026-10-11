@@ -1,4 +1,5 @@
 import { dispatchNotificationAction } from '@libs/notifications-shared/action-registry';
+import { dismissOwnNotification } from '@libs/notifications-shared/dismiss-notification';
 import type { Notification } from '@libs/notifications-shared/notification';
 import { NotificationsError } from '@libs/notifications-shared/notifications-errors';
 import type { NotificationListQuery } from '@libs/notifications-shared/publish-types';
@@ -158,14 +159,10 @@ export async function dismissInteraction(
       'Notification not found'
     );
   }
-  const nowIso = new Date(now()).toISOString();
-  await db.run(
-    sql<void>`
-      UPDATE notifications
-         SET dismissed_at = ${nowIso},
-             read_at = COALESCE(read_at, ${nowIso}),
-             updated_at = ${nowIso}
-       WHERE id = ${interactionId} AND user_id = ${actorId}`
+  await dismissOwnNotification(
+    db,
+    { id: interactionId, userId: actorId },
+    new Date(now()).toISOString()
   );
   const updated = await findNotificationById(db, actorId, interactionId);
   if (updated === null) {

@@ -5,9 +5,12 @@ import {
   endMultiplayerGame,
   multiplayerBoard,
 } from './game-state';
-import { incrementMs } from './time-control';
+import { incrementMs, isDailyTimeControl, startingMs } from './time-control';
 
-/** White has this long from the start, Black this long from White's first move. */
+/**
+ * White has this long from the start, Black this long from White's first
+ * move. A daily game gives each the time control's days instead.
+ */
 export const FIRST_MOVE_MS = 30_000;
 
 export type MultiplayerSide = 'white' | 'black';
@@ -38,9 +41,25 @@ function timed(game: ClockFields): boolean {
   );
 }
 
-/** Whether the side to move is spending time right now. */
+function daily(game: Pick<MultiplayerGame, 'time_control'>): boolean {
+  return isDailyTimeControl(game.time_control);
+}
+
+/** How long the side to move has for a first move. */
+function firstMoveMs(game: Pick<MultiplayerGame, 'time_control'>): number {
+  return daily(game) ? startingMs(game.time_control) : FIRST_MOVE_MS;
+}
+
+/**
+ * Whether the side to move is spending time right now. A daily game's clock
+ * runs from the start; any other waits until both people have moved.
+ */
 export function clockRunning(game: ClockFields): boolean {
-  return game.outcome === 'ongoing' && timed(game) && bothHaveMoved(game);
+  return (
+    game.outcome === 'ongoing' &&
+    timed(game) &&
+    (bothHaveMoved(game) || daily(game))
+  );
 }
 
 /** Time left on one side's multiplayer clock at `nowMs`, never below zero. */
@@ -61,7 +80,7 @@ export function clockLeftMs(
 export function multiplayerDeadlineMs(game: ClockFields): number | null {
   if (game.outcome !== 'ongoing' || !timed(game)) return null;
   const startedAt = game.clock_at_ms ?? 0;
-  if (!bothHaveMoved(game)) return startedAt + FIRST_MOVE_MS;
+  if (!bothHaveMoved(game)) return startedAt + firstMoveMs(game);
   const side = sideToMove(game);
   return startedAt + ((side === 'white' ? game.white_ms : game.black_ms) ?? 0);
 }
@@ -94,12 +113,42 @@ export function settleMultiplayerClock(
   );
 }
 
-/** The mover's clock after a legal move at `nowMs`, with the increment once both have moved. */
+/**
+ * A game that ended while a clock was running keeps what that clock had
+ * left at `nowMs`: resigning, aborting or agreeing a draw stops the clock
+ * where it stood, and a missed first move in a daily game leaves it at
+ * zero. A move that ended the game has already settled its own clock.
+ */
+export function stopMultiplayerClock(
+  before: MultiplayerGame,
+  after: MultiplayerGame,
+  nowMs: number
+): MultiplayerGame {
+  if (after.outcome === 'ongoing' || !clockRunning(before)) return after;
+  if (after.revision !== before.revision) return after;
+  const side = sideToMove(before);
+  const stored = (side === 'white' ? after.white_ms : after.black_ms) ?? 0;
+  const left = Math.min(stored, clockLeftMs(before, side, nowMs));
+  return {
+    ...after,
+    ...(side === 'white' ? { white_ms: left } : { black_ms: left }),
+  };
+}
+
+/**
+ * The clocks after a legal move at `nowMs`: the mover's time spent, with the
+ * increment once both have moved. A daily game instead hands the full days
+ * to the other person and saves up none of the mover's.
+ */
 export function spendMultiplayerClock(
   game: MultiplayerGame,
   nowMs: number
 ): MultiplayerGame {
   if (!timed(game)) return game;
+  if (daily(game)) {
+    const full = startingMs(game.time_control);
+    return { ...game, white_ms: full, black_ms: full, clock_at_ms: nowMs };
+  }
   if (!bothHaveMoved(game)) return { ...game, clock_at_ms: nowMs };
   const side = sideToMove(game);
   const left = clockLeftMs(game, side, nowMs) + incrementMs(game.time_control);

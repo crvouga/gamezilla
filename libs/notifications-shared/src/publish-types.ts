@@ -27,6 +27,12 @@ export type PublishNotificationInput = {
   readonly priority?: number;
   readonly groupKey?: string;
   readonly expiresAt?: string;
+  /**
+   * Bring a notification the person already has back as new: unread, and
+   * back in the inbox when they archived or dismissed it. Without it a
+   * republished notification keeps the read state the person gave it.
+   */
+  readonly resurface?: boolean;
 };
 
 export type UpdateNotificationInput = PublishNotificationInput;

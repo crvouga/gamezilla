@@ -133,6 +133,23 @@ msgstr "{0} won the multiplayer game."
 msgid "{0}'s space"
 msgstr "{0}'s space"
 
+#. placeholder {0}: parts.days
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "{0}d"
+msgstr "{0}d"
+
+#. placeholder {0}: parts.days
+#. placeholder {1}: parts.hours
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "{0}d {1}h"
+msgstr "{0}d {1}h"
+
+#. placeholder {0}: parts.hours
+#. placeholder {1}: parts.minutes
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "{0}h {1}m"
+msgstr "{0}h {1}m"
+
 #: libs/spaces-client/src/space-guest-count-text.tsx
 msgid "{count} guests"
 msgstr "{count} guests"
@@ -141,9 +158,22 @@ msgstr "{count} guests"
 msgid "{current} of {total}"
 msgstr "{current} of {total}"
 
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+#: libs/chess-matchmaking-client/src/time-control-name.tsx
+msgid "{days} days"
+msgstr "{days} days"
+
+#: libs/chess-matchmaking-client/src/time-control-name.tsx
+msgid "{days} days per move"
+msgstr "{days} days per move"
+
 #: pkgs/ui-root-client/src/relative-time.tsx
 msgid "{days}d ago"
 msgstr "{days}d ago"
+
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "{hours} hours"
+msgstr "{hours} hours"
 
 #: pkgs/ui-root-client/src/relative-time.tsx
 msgid "{hours}h ago"
@@ -156,6 +186,10 @@ msgstr "{label}, hosted by {username}"
 #: pkgs/ui-root-client/src/relative-time.tsx
 msgid "{mins}m ago"
 msgstr "{mins}m ago"
+
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "{minutes} minutes"
+msgstr "{minutes} minutes"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
 msgid "{side} to move. Find the best move."
@@ -187,9 +221,26 @@ msgstr "✕"
 msgid "chess.puzzleStatus.failedMark"
 msgstr "✕"
 
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+#: libs/chess-matchmaking-client/src/time-control-name.tsx
+msgid "1 day"
+msgstr "1 day"
+
+#: libs/chess-matchmaking-client/src/time-control-name.tsx
+msgid "1 day per move"
+msgstr "1 day per move"
+
 #: libs/spaces-client/src/space-guest-count-text.tsx
 msgid "1 guest"
 msgstr "1 guest"
+
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "1 hour"
+msgstr "1 hour"
+
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "1 minute"
+msgstr "1 minute"
 
 #: libs/chess-custom-game-client/src/custom-game-active.tsx
 msgid "A draw has been offered."
@@ -531,7 +582,7 @@ msgstr "Bishop"
 msgid "Black"
 msgstr "Black"
 
-#. placeholder {0}: label()
+#. placeholder {0}: time().spoken
 #: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
 msgid "Black has {0} left"
 msgstr "Black has {0} left"
@@ -1089,6 +1140,10 @@ msgstr "Custom Games"
 #: pkgs/ui-root-client/src/multi-select-swatch-grid.tsx
 msgid "Custom hex color"
 msgstr "Custom hex color"
+
+#: libs/chess-matchmaking-client/src/speed-name.tsx
+msgid "Daily"
+msgstr "Daily"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
 msgid "Daily limit reached"
@@ -1921,7 +1976,7 @@ msgstr "Local database did not become ready. Reload the app. If this keeps happe
 msgid "Long tasks"
 msgstr "Long tasks"
 
-#. placeholder {0}: props.search.time_control ?? ''
+#. placeholder {0}: timeControlText(props.search.time_control)
 #: libs/chess-matchmaking-client/src/multiplayer-waiting.tsx
 msgid "Looking for a {0} chess opponent."
 msgstr "Looking for a {0} chess opponent."
@@ -1952,7 +2007,7 @@ msgstr "Match puzzles to your profile rating ({profileCaption}), plus an optiona
 
 #. placeholder {0}: props.viewer.opponentName
 #. placeholder {1}: props.viewer.opponentRating
-#. placeholder {2}: props.game.time_control ?? ''
+#. placeholder {2}: timeControlText(props.game.time_control)
 #: libs/chess-matchmaking-client/src/multiplayer-status.tsx
 msgid "Matched with {0}, rated {1}, at {2}."
 msgstr "Matched with {0}, rated {1}, at {2}."
@@ -1979,8 +2034,8 @@ msgid "Memberships aren't available right now."
 msgstr "Memberships aren't available right now."
 
 #: libs/chess-matchmaking-client/src/multiplayer-find-panel.tsx
-msgid "Minutes per player + seconds added after each move."
-msgstr "Minutes per player + seconds added after each move."
+msgid "Minutes per player + seconds added after each move, or days for every move in a daily game."
+msgstr "Minutes per player + seconds added after each move, or days for every move in a daily game."
 
 #: libs/chess-custom-game-client/src/custom-game-configuration.tsx
 msgid "Minutes per side"
@@ -2014,6 +2069,7 @@ msgstr "Moves"
 msgid "Moves played"
 msgstr "Moves played"
 
+#: libs/chess-matchmaking-client/src/multiplayer-link-screen.tsx
 #: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Multiplayer chess"
@@ -4136,7 +4192,7 @@ msgstr "What Plus includes"
 msgid "White"
 msgstr "White"
 
-#. placeholder {0}: label()
+#. placeholder {0}: time().spoken
 #: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
 msgid "White has {0} left"
 msgstr "White has {0} left"

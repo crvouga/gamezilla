@@ -17,6 +17,9 @@ export function SpeedName(props: { readonly speed: string }): JSX.Element {
       <Match when={props.speed === ('classical' satisfies MultiplayerSpeed)}>
         <Trans>Classical</Trans>
       </Match>
+      <Match when={props.speed === ('daily' satisfies MultiplayerSpeed)}>
+        <Trans>Daily</Trans>
+      </Match>
     </Switch>
   );
 }
