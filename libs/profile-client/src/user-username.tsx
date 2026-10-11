@@ -62,7 +62,7 @@ function UserUsernameInner(props: {
   return (
     <div class="inline-flex min-w-0 items-center gap-1">
       <p
-        class="text min-w-0"
+        class="text textBody min-w-0"
         classList={{
           textBodyBold: String(props.variant) === 'bodyBold',
           textCaption: String(props.variant) === 'caption',

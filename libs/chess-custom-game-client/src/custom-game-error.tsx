@@ -1,4 +1,5 @@
 import { t } from '@lingui/core/macro';
+import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { type JSX, Show } from 'solid-js';
 
 function errorText(reason: string): string {
@@ -41,9 +42,11 @@ function errorText(reason: string): string {
 export function CustomGameError(props: { reason: string }): JSX.Element {
   return (
     <Show when={props.reason !== ''}>
-      <p role="alert" class="text" data-testid="chess-custom-error">
-        {errorText(props.reason)}
-      </p>
+      <ErrorState
+        variant="compact"
+        title={errorText(props.reason)}
+        dataSet={{ testid: 'chess-custom-error' }}
+      />
     </Show>
   );
 }

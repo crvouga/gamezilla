@@ -42,7 +42,6 @@ export function ActiveSpaceSheetRow(
             <MiniplayerSpaceTitle spaceId={props.spaceId} />
             <div class="box flex-row items-center gap-1.5 min-w-0">
               <MiniplayerHostNameLine spaceId={props.spaceId} />
-              <p class="text textCaption">{'·'}</p>
               <MiniplayerMemberCountText spaceId={props.spaceId} />
             </div>
           </div>

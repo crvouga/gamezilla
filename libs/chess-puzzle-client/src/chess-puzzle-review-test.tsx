@@ -29,12 +29,12 @@ export function ChessPuzzleReviewTest(
   return (
     <>
       <p
-        class="text"
+        class="text textBody"
         style={hintStyle}
         data-testid="chess-puzzle-review-test"
       >{`${props.solveIdx()}|${props.lastSolveIdx()}|${props.animated() ? '1' : '0'}|${props.notation()}`}</p>
       <p
-        class="text"
+        class="text textBody"
         style={hintStyle}
         data-testid="chess-puzzle-review-test-fen"
       >

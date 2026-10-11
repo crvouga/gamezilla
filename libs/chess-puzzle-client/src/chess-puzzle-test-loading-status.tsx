@@ -41,7 +41,7 @@ export function ChessPuzzleTestLoadingStatus(
   if (!CHESS_PUZZLE_TEST_ENABLED) return <></>;
   return (
     <p
-      class="text absolute w-0.25 h-0.25 opacity-0"
+      class="text textBody absolute w-0.25 h-0.25 opacity-0"
       data-testid="chess-puzzle-pick-status"
     >
       {pickStatusLabel(props)}

@@ -13,5 +13,5 @@ export function AccountDeviceNameText(
 ): JSX.Element {
   const name = useDeviceColumn(() => props.deviceId, 'deviceName');
   const label = createMemo(() => name() ?? EM_DASH);
-  return <p class="text line-clamp-4">{label()}</p>;
+  return <p class="text textBody line-clamp-4">{label()}</p>;
 }

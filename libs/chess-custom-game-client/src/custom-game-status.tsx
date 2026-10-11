@@ -169,7 +169,11 @@ export function CustomGameStatus(props: {
         )}
       </Show>
       <Show when={!props.model.connected()}>
-        <p role="status" data-testid="chess-custom-connection-needed">
+        <p
+          class="text textBody"
+          role="status"
+          data-testid="chess-custom-connection-needed"
+        >
           <Trans>Connection needed to change or play this game.</Trans>
         </p>
       </Show>

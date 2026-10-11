@@ -37,7 +37,7 @@ export function SpaceCardOpenLink(props: SpaceCardOpenLinkProps): JSX.Element {
   });
   return (
     <button
-      class="clickable clickableTint"
+      class="clickable clickableTint w-full text-left"
       {...dataAttrs(testId() !== null ? { testid: testId() ?? '' } : undefined)}
       type="button"
       onClick={() => openSpaceDetail(router, props.spaceId)}

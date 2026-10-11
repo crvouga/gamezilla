@@ -15,11 +15,25 @@ function SpaceStatusPill(props: {
   readonly showDot: boolean;
 }): JSX.Element {
   return (
-    <div class="box flex-row items-center gap-1 bg-on-tint-scrim rounded-full px-2 py-1 self-start">
+    <div
+      class="box flex-row items-center gap-1 rounded-full px-2 py-1 self-start"
+      classList={{
+        'bg-tint-active': !props.showDot,
+        'bg-surface-muted': props.showDot,
+      }}
+    >
       <Show when={props.showDot}>
         <StatusDot status="online" size={8} />
       </Show>
-      <p class="text textCaption text-on-primary">{props.label}</p>
+      <p
+        class="text textCaption"
+        classList={{
+          'text-on-primary': !props.showDot,
+          'text-text-secondary': props.showDot,
+        }}
+      >
+        {props.label}
+      </p>
     </div>
   );
 }

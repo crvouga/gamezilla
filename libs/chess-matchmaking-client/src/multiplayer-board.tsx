@@ -31,7 +31,7 @@ function WatcherAnnouncement(props: {
     );
   };
   return (
-    <p class="text text-text" data-testid="multiplayer-announcement">
+    <p class="text textBody text-text" data-testid="multiplayer-announcement">
       <Trans>Watching multiplayer chess.</Trans>
       <Show
         when={props.game.outcome === 'white' || props.game.outcome === 'black'}

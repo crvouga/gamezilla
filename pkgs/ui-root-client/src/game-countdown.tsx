@@ -28,8 +28,8 @@ export function GameCountdown(props: {
         class={styles['countdown']}
         {...dataAttrs({ component: 'GameCountdown', ...props.dataSet })}
       >
-        <span>{props.label}</span>
-        <span class={styles['countdownValue']} role="timer" aria-live="off">
+        <span class="text textCaption">{props.label}</span>
+        <span class="text textLabel textNumeral" role="timer" aria-live="off">
           {seconds()}
         </span>
       </div>

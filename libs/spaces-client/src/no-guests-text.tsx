@@ -12,7 +12,7 @@ export type NoGuestsTextProps = {
 export function NoGuestsText(props: NoGuestsTextProps): JSX.Element {
   return (
     <p
-      class="text"
+      class="text textBody"
       classList={{
         textBodyBold: String(props.variant) === 'bodyBold',
         textCaption: String(props.variant) === 'caption',

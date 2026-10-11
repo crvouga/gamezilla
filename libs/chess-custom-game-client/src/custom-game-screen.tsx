@@ -171,7 +171,7 @@ export function CustomGameScreen(): JSX.Element {
         ]}
       >
         <GameHeader
-          eyebrow={<Trans>Chess · Custom game</Trans>}
+          context={<Trans>Chess · Custom game</Trans>}
           title={<Trans>Your friends. Your rules.</Trans>}
           description={
             <Trans>

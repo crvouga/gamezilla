@@ -3,7 +3,9 @@ import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { Button } from '@pkgs/ui-root-client/button';
+import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { FormActionsFooter } from '@pkgs/ui-root-client/form-actions-footer';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { createResource, type JSX, Show } from 'solid-js';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
@@ -66,14 +68,16 @@ function SyntheticPopulationContent(): JSX.Element {
       content={() => (
         <div class="box gap-6">
           <Show when={overview.loading}>
-            <p class="text" role="status">
-              <Trans>Reading Synthetic Population…</Trans>
-            </p>
+            <LoadingState
+              variant="compact"
+              caption={<Trans>Reading Synthetic Population…</Trans>}
+            />
           </Show>
           <Show when={overview.error}>
-            <p class="text text-destructive" role="alert">
-              <Trans>Bot Observatory could not be loaded.</Trans>
-            </p>
+            <ErrorState
+              variant="compact"
+              title={<Trans>Bot Observatory could not be loaded.</Trans>}
+            />
           </Show>
           <Button
             title={t`Refresh`}

@@ -29,7 +29,7 @@ export function AccountDeviceListCaptionText(
   );
   return (
     <p
-      class="text"
+      class="text textBody"
       classList={{
         textBodyBold: String(props.variant) === 'bodyBold',
         textCaption: String(props.variant) === 'caption',

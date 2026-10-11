@@ -18,9 +18,9 @@ export function GameClock(props: {
       aria-live="off"
       {...dataAttrs({ component: 'GameClock' })}
     >
-      <span class={styles['eyebrow']}>{props.label}</span>
+      <span class={`${styles['meta']} text textFootnote`}>{props.label}</span>
       <span
-        class={styles['clockValue']}
+        class={`${styles['clockValue']} text textSubtitle textNumeral`}
         aria-label={props.ariaLabel}
         {...dataAttrs({ component: 'GameClockValue', ...props.dataSet })}
       >

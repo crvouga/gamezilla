@@ -6,6 +6,8 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { AppFrame } from '@pkgs/ui-root-client/app-frame';
 import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { screen } from '@solidjs/testing-library';
@@ -13,6 +15,10 @@ import { createSignal, For, type JSX, Show } from 'solid-js';
 import { renderUi } from './render';
 
 const COMPACT = { width: 390, height: 800 };
+const HOSTS_CSS = join(
+  import.meta.dirname,
+  '../../ui-root-client/src/hosts.css'
+);
 
 type At = 'a' | 'b';
 
@@ -77,6 +83,16 @@ describe('screen focus', () => {
     focus('A2');
     await go('b');
     expect(keyboardOn()).toBe('h1 Screen b');
+  });
+
+  test('the title that takes the keyboard draws no focus ring', async () => {
+    const go = mount();
+    focus('A2');
+    await go('b');
+    const title = document.activeElement;
+    expect(title?.classList.contains('screenFocusTarget')).toBe(true);
+    const css = readFileSync(HOSTS_CSS, 'utf8');
+    expect(css).toMatch(/\.screenFocusTarget:focus\s*\{\s*outline: none;/);
   });
 
   test('coming back puts the keyboard on the control it left from', async () => {

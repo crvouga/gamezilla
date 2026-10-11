@@ -156,6 +156,8 @@ export async function bootInfra(args: {
         ? {}
         : {
             OBSERVABILITY_COLLECTOR_URL: observability.collectorUrl,
+            OBSERVABILITY_LOGS_URL: observability.logsUrl,
+            OBSERVABILITY_METRICS_URL: observability.metricsUrl,
           }),
     },
     async stop() {

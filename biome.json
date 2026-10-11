@@ -1665,6 +1665,7 @@
         "!**/pkgs/observability-mcp-shared/src/**",
         "!**/pkgs/observability-mcp-server/tests/**",
         "!**/apps/client/src/main.tsx",
+        "!**/libs/app-root-client/src/boot-browser-observability.ts",
         "!**/apps/server/src/room.ts",
         "!**/apps/synthetic-population-worker/src/wall-telemetry.ts",
         "!**/apps/synthetic-population-worker/src/wall-metrics.ts",
@@ -1713,6 +1714,7 @@
         "!**/pkgs/observability-root-shared/configs/collector-ci.yaml",
         "!**/pkgs/observability-root-shared/configs/production-error-alert.txt",
         "!**/apps/client/src/main.tsx",
+        "!**/libs/app-root-client/src/boot-browser-observability.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
       ]

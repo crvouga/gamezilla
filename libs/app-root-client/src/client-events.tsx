@@ -14,7 +14,7 @@ export default function ClientEventsRoute(): JSX.Element {
         { name: <Trans>Client events</Trans> },
       ]}
       content={() => (
-        <p class="text">
+        <p class="text textBody">
           {
             <Trans>
               Client events are available in the embedded product-harness.

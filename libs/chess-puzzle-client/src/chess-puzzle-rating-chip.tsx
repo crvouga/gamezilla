@@ -43,7 +43,7 @@ export function ChessPuzzleRatingChip(
       )}
     >
       <p
-        class="text min-w-8 tabular-nums text-center whitespace-nowrap"
+        class="text textBody textNumeral min-w-8 text-center whitespace-nowrap"
         classList={{
           'textNumeral text-tint': isPrimary(),
           textFootnote: !isPrimary(),

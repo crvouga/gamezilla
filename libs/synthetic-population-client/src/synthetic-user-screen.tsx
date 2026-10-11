@@ -2,6 +2,8 @@ import { useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
+import { ErrorState } from '@pkgs/ui-root-client/error-state';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { useParams } from '@solidjs/router';
 import { type JSX, Show } from 'solid-js';
@@ -32,14 +34,16 @@ function SyntheticUserContent(): JSX.Element {
       content={() => (
         <div class="box gap-6">
           <Show when={inspector.record.error}>
-            <p class="text text-destructive" role="alert">
-              <Trans>Synthetic User could not be loaded.</Trans>
-            </p>
+            <ErrorState
+              variant="compact"
+              title={<Trans>Synthetic User could not be loaded.</Trans>}
+            />
           </Show>
           <Show when={inspector.record.loading}>
-            <p class="text" role="status">
-              <Trans>Reading activity…</Trans>
-            </p>
+            <LoadingState
+              variant="compact"
+              caption={<Trans>Reading activity…</Trans>}
+            />
           </Show>
           <Button
             title={t`Refresh`}
