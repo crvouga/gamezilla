@@ -46,6 +46,8 @@ terms:
     from: profile
   - term: friends list
     from: friends
+  - term: inbox
+    from: friends
   - term: leave
     from: spaces
     model: [leaveSpace]
@@ -77,6 +79,8 @@ terms:
   - term: lobby
     from: spaces
   - term: return to a space
+    from: spaces
+  - term: create a space
     from: spaces
   - term: friend
     from: friends
@@ -682,22 +686,31 @@ terms:
 
   - term: time control
     definition: >-
-      How fast a multiplayer game is played, written as the minutes each side
-      starts with plus the seconds of increment each move earns: 1+0 and 2+1
-      (bullet); 3+0, 3+2, 5+0 and 5+3 (blitz); 10+0, 10+5 and 15+10 (rapid);
-      30+0 and 30+20 (classical). Finding a chess opponent needs exactly one
+      How fast a multiplayer game is played. Most are written as the minutes
+      each side starts with plus the seconds of increment each move earns:
+      1+0 and 2+1 (bullet); 3+0, 3+2, 5+0 and 5+3 (blitz); 10+0, 10+5 and
+      15+10 (rapid); 30+0 and 30+20 (classical). A daily time control is
+      written as the days each person has for every move: 1 day, 3 days or
+      7 days per move (daily). Finding a chess opponent needs exactly one
       of these, and people are paired only with someone who chose the same
       one. No multiplayer game is untimed.
-    forms: [time controls, increment, offered time control]
+    forms:
+      - time controls
+      - increment
+      - offered time control
+      - daily time control
+      - daily time controls
+      - day per move
+      - days per move
     avoid: [time format, game mode, pace]
     model: [TimeControl, timeControl]
 
   - term: speed
     definition: >-
-      The family a time control belongs to: bullet, blitz, rapid or
-      classical, as the time control lists them. Each speed has its own
+      The family a time control belongs to: bullet, blitz, rapid, classical
+      or daily, as the time control lists them. Each speed has its own
       multiplayer rating.
-    forms: [speeds, bullet, blitz, rapid, classical]
+    forms: [speeds, bullet, blitz, rapid, classical, daily]
 
   - term: find a chess opponent
     definition: >-
@@ -781,16 +794,26 @@ terms:
   - term: multiplayer clock
     definition: >-
       The time each side has left in a multiplayer game, shown to both
-      people. Each side starts with the time control's minutes. Neither
-      clock runs until both people have made their first move; then only
-      the side to move spends time, even while they are disconnected, and
-      each legal move adds the time control's increment to the person who
-      made it.
+      people. Outside a daily game each side starts with the time control's
+      minutes, and neither clock runs until both people have made their
+      first move; then only the side to move spends time, even while they
+      are disconnected, and each legal move adds the time control's
+      increment to the person who made it. In a daily game the side to move
+      has the time control's days for every move, counted from the moment it
+      became their turn; White's days for the first move run from the start
+      of the game. Making a move hands the full days to the other person:
+      unused time is never saved up, and no move earns an increment. The
+      side that is not to move shows the full days.
     forms:
       - multiplayer clocks
       - seconds pass in multiplayer chess
       - second passes in multiplayer chess
       - seconds have passed in multiplayer chess
+      - hours pass in multiplayer chess
+      - day passes in multiplayer chess
+      - days pass in multiplayer chess
+      - day has passed in multiplayer chess
+      - days have passed in multiplayer chess
     avoid: [timer]
     model: [whiteClock, blackClock, multiplayerTimePasses]
 
@@ -800,14 +823,17 @@ terms:
       loses at once, even if their move arrives at that moment, unless their
       multiplayer opponent cannot checkmate by any series of legal moves,
       which makes it a multiplayer draw (FIDE Laws of Chess, Article 6.9).
+      In a daily game this holds once both people have made their first
+      move; before that, the time running out is missing the first move.
     forms: [runs out of time, ran out of time, running out of time, has run out]
 
   - term: miss the first move
     definition: >-
       Not make one's first move in time: White within 30 seconds of the
       multiplayer game's start, and Black within 30 seconds of White's first
-      move. It aborts the game, so nobody loses a game they never began, even
-      when they were matched while away.
+      move. In a daily game each has the time control's days instead of 30
+      seconds. It aborts the game, so nobody loses a game they never began,
+      even when they were matched while away.
     forms: [misses the first move, missed the first move, missing the first move]
 
   - term: abort the multiplayer game
@@ -919,9 +945,9 @@ terms:
   - term: multiplayer rating
     definition: >-
       A person's strength at one speed of multiplayer chess. Every account
-      has a separate bullet, blitz, rapid and classical rating, each starting
-      at 1500 and provisional until it settles; puzzle ratings never supply
-      or receive it. Finding a chess opponent uses the rating for the chosen
+      has a separate bullet, blitz, rapid, classical and daily rating, each
+      starting at 1500 and provisional until it settles; puzzle ratings never
+      supply or receive it. Finding a chess opponent uses the rating for the chosen
       time control's speed. Every finished multiplayer game moves both
       people's rating for its speed once, as Mark Glickman's Glicko-2 rating
       system works it out; an aborted game moves none. Each person sees
@@ -938,6 +964,8 @@ terms:
       - blitz ratings
       - rapid ratings
       - classical ratings
+      - daily rating
+      - daily ratings
     avoid: [elo, ladder points]
 
   - term: rated multiplayer game
@@ -963,6 +991,50 @@ terms:
       active Custom Game they are a participant of. A game that is over or
       aborted no longer counts. Free accounts and Plus members have the same
       allowance.
+
+  - term: daily game
+    definition: >-
+      A multiplayer game played at a daily time control, so each person has
+      1, 3 or 7 days for every move. It lasts across days: leaving or ending
+      a space, closing the app or using another device never ends or pauses
+      it, the time of the person whose turn it is keeps running, and the
+      game is there when they come back. Everything else about it is
+      ordinary multiplayer chess, and it counts as the person's one
+      unfinished multiplayer game.
+    forms: [daily games, daily game's]
+    avoid: [correspondence, turn-based game, slow game]
+    model: [DailyGame]
+
+  - term: turn notice
+    definition: >-
+      An inbox item telling a person it is their turn in their daily game
+      and naming their multiplayer opponent. White has one when the daily
+      game starts; after that a person gets one each time their multiplayer
+      opponent's move is accepted and the game is still unfinished. It is
+      unread until the person opens it, and it leaves the inbox as soon as
+      the person's own move is accepted, or the daily game is over or
+      aborted. A person has one turn notice for a daily game, never more:
+      their next turn brings it back unread. Opening it takes the person to
+      multiplayer chess in their own space, creating a space when they host
+      none; with no connection it shows the last known multiplayer board
+      and stays as it was. Only the two people of a daily game get one: a
+      watcher never does, and no other multiplayer game brings one.
+    forms: [turn notices, unread turn notice, unread]
+    avoid: [notification, alert, reminder, ping]
+    model: [turnNotice, openTurnNotice]
+
+  - term: result notice
+    definition: >-
+      An inbox item telling one of a daily game's two people how it ended
+      for them: won, lost or drawn, with the reason the multiplayer result
+      gives, or aborted. Both people get one when their daily game is over
+      or aborted, and each keeps theirs until they dismiss it, which needs
+      a connection. Opening it never dismisses it and takes the person to
+      multiplayer chess in their own space, creating a space when they host
+      none; with no connection it shows the last known multiplayer board. A
+      watcher never gets one, and no other multiplayer game brings one.
+    forms: [result notices, dismiss, dismisses, dismissed, dismissing]
+    model: [resultNotice, openResultNotice, dismissResultNotice]
 
   # --- Custom Games --------------------------------------------------------
 

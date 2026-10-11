@@ -6,7 +6,9 @@
 // cannot look for an opponent while their game is unfinished. Being told
 // the same match again keeps the same game.
 //
-// Neither multiplayer clock runs until both people have made their first
+// Every game here is played in minutes and seconds; a daily game, which
+// gives each person days for every move, is described on its own. Neither
+// multiplayer clock runs until both people have made their first
 // move. White has 30 seconds from the start for it, and Black 30 seconds from
 // White's first move; missing it aborts the game. Either person may abort
 // until both have moved, and resigning waits until then; confirming account
@@ -20,7 +22,8 @@
 //
 // Three people each have two devices. Two matchmaking matches, and a rematch
 // of each, show competing devices, moves for an earlier board, old
-// resignations and a match told twice. Four of the eleven time controls stand
+// resignations and a match told twice. Four of the eleven time controls
+// written in minutes stand
 // for the speeds bullet, blitz and rapid, and "4+0" for a time control that
 // is not offered. The move histories are an ordinary opening, Fool's Mate and
 // two repetitions of both knights returning home; each leaves both sides able
