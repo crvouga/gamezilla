@@ -95,7 +95,7 @@
     "task:atlas:export": "bun run libs/tools/scripts/statechart-cli.ts export",
     "task:atlas:run": "bun run libs/tools/scripts/spec-run.ts --keep-going",
     "task:atlas:sync": "git submodule update --init --remote vendor/atlas && TURBO_UI=false bun install",
-    "task:atlas:viz": "bun run libs/tools/scripts/statechart-cli.ts explore",
+    "task:atlas:viz": "./libs/tools/workspace/step.sh submodules && bun run libs/tools/scripts/statechart-cli.ts explore",
     "task:check:coverage": "bun run libs/tools/scripts/check-coverage.ts",
     "task:check:heal": "bun run libs/tools/scripts/check-heal.ts",
     "task:conformance": "bun run libs/tools/scripts/conformance-report.ts",

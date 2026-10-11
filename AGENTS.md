@@ -27,6 +27,8 @@ than restating it.
 
 - **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the compiled Lingui catalog `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed.
 
+- **`vendor/atlas` is Atlas's own repository, not a copy.** Change it by its rules ([`vendor/atlas/AGENTS.md`](vendor/atlas/AGENTS.md)): work on Atlas `main`, resolve conflicts hunk by hunk, push there first, then record that commit here. A pointer to a commit off Atlas `main` is refused on push (`libs/tools/githooks/pre-push`). Run and `bun atlas:viz` bring a checkout that only fell behind the recorded commit forward; one holding local work is left alone.
+
 - **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges, and the merge deploys — never `--admin`, never a red, pending or draft PR. `main` moves only through a merged PR ([`README.md`](README.md#correctness-machinery)).
 
 - **Never patch dependencies.** No `bun patch`, `patch-package`, `pnpm patch`, `patches/` directory, or `patchedDependencies` / `resolutions` field. Work around a third-party bug in our code or accept it.

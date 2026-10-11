@@ -23,6 +23,15 @@ step_merge() {
   workspace_warn_unmerged
 }
 
+# A tool served from a submodule is the version this checkout records. Its
+# dependencies follow when the move changed a manifest.
+step_submodules() {
+  workspace_sync_submodules
+  if ! workspace_install_is_current; then
+    workspace_install
+  fi
+}
+
 # `main` only moves through a merged PR: enable the repo hooks (pre-commit,
 # pre-push) for this clone. `core.hooksPath` lives in the shared git config, so
 # it covers every worktree and the root checkout, not just this one.
@@ -82,11 +91,12 @@ step_local_files() {
 case "${1:-}" in
   install) step_install ;;
   merge) step_merge ;;
+  submodules) step_submodules ;;
   hooks) step_hooks ;;
   unhook) step_unhook ;;
   local-files) step_local_files ;;
   *)
-    echo "usage: step.sh install|merge|hooks|unhook|local-files" >&2
+    echo "usage: step.sh install|merge|submodules|hooks|unhook|local-files" >&2
     exit 2
     ;;
 esac

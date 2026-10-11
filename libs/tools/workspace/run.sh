@@ -20,7 +20,7 @@ set -euo pipefail
 
 # Turbo reads the package graph before it runs a task, and arrives with the
 # install: both have to be there before `bun dev` can start.
-workspace_init_missing_submodules
+workspace_sync_submodules
 if [ ! -x node_modules/.bin/turbo ]; then
   workspace_quiet "bun install" workspace_install ||
     echo "!!! launching dev on an incomplete install"

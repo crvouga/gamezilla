@@ -61,6 +61,14 @@ function checkout() {
       '  "diff --name-only --diff-filter=U -z")\n' +
       '    printf "%s" "${WORKSPACE_RUN_TEST_UNMERGED:-}" | tr "\\n" "\\0" ;;\n' +
       '  submodule\\ update*) printf "git %s\\n" "$*" >> "$WORKSPACE_RUN_TEST_CALLS" ;;\n' +
+      // `vendor/held` against the commit the checkout records for it.
+      '  "rev-parse -q --verify HEAD:vendor/held")\n' +
+      '    [ -z "${WORKSPACE_RUN_TEST_HELD:-}" ] || echo recorded ;;\n' +
+      '  "-C vendor/held rev-parse -q --verify HEAD") echo earlier ;;\n' +
+      '  "-C vendor/held status --porcelain")\n' +
+      '    [ "${WORKSPACE_RUN_TEST_HELD:-}" != "edited" ] || echo " M file" ;;\n' +
+      '  "-C vendor/held merge-base --is-ancestor earlier recorded")\n' +
+      '    [ "${WORKSPACE_RUN_TEST_HELD:-}" != "diverged" ] || exit 1 ;;\n' +
       'esac\n',
     { mode: 0o755 }
   );
@@ -145,6 +153,35 @@ test('Run checks out a submodule workspace that was never initialized', () => {
     'git submodule update --init --recursive -- vendor/atlas',
     DEV,
   ]);
+});
+
+// regression: workspace-submodule-behind-recorded-commit
+test('Run brings forward a submodule that only fell behind the recorded commit', () => {
+  const { dir, run, step } = checkout();
+  run();
+  writeFileSync(join(dir, '.gitmodules'), '');
+  mkdirSync(join(dir, 'vendor/held'), { recursive: true });
+  writeFileSync(join(dir, 'vendor/held/.git'), 'gitdir: elsewhere\n');
+  const forward = [
+    'git submodule update --init --recursive -- vendor/atlas',
+    'git submodule update --init --recursive -- vendor/held',
+  ];
+  expect(run({ WORKSPACE_RUN_TEST_HELD: 'behind' }).calls).toEqual([
+    ...forward,
+    DEV,
+  ]);
+  // The tools a submodule serves take the same step before they start.
+  const launch = step('submodules')({ WORKSPACE_RUN_TEST_HELD: 'behind' });
+  expect(launch.status).toBe(0);
+  expect(launch.calls).toEqual(forward);
+
+  // Local work on another commit is never moved.
+  for (const held of ['edited', 'diverged']) {
+    expect(run({ WORKSPACE_RUN_TEST_HELD: held }).calls).toEqual([
+      forward[0]!,
+      DEV,
+    ]);
+  }
 });
 
 // regression: workspace-run-stale-install

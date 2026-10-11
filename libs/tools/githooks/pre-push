@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Refuse updates to `main`: it only moves through a merged pull request.
+# Refuse updates to `main`: it only moves through a merged pull request. Refuse a
+# submodule pointer that names a commit off that repository's trunk.
 #
 # Installed by `.superset/setup.sh` (or `bun run hooks:install`), which sets
 # `core.hooksPath=tools/githooks` for the whole clone — worktrees included.
@@ -11,12 +12,58 @@
 # associated with a pull request.
 set -euo pipefail
 
+# Git runs a hook with its own repository in the environment; a submodule is
+# another one.
+submodule_git() {
+  env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE git "$@"
+}
+
+# The submodule pointers a pushed commit moves that name a commit off that
+# repository's trunk. Work recorded from a side branch drifts from the trunk
+# unseen, until a merge keeps one side of an interface and drops the other.
+pointers_off_trunk() {
+  local commit="$1" path pointer trunk
+  if [ ! -f .gitmodules ]; then
+    return 0
+  fi
+  git config -f .gitmodules --get-regexp '\.path$' 2>/dev/null | cut -d' ' -f2- |
+    while IFS= read -r path; do
+      pointer="$(git rev-parse -q --verify "$commit:$path" 2>/dev/null || true)"
+      if [ -z "$pointer" ] || [ ! -e "$path/.git" ] ||
+        [ "$pointer" = "$(git rev-parse -q --verify "origin/main:$path" 2>/dev/null || true)" ]; then
+        continue
+      fi
+      submodule_git -C "$path" fetch --quiet origin 2>/dev/null || true
+      trunk="$(submodule_git -C "$path" symbolic-ref -q refs/remotes/origin/HEAD || echo refs/remotes/origin/main)"
+      if ! submodule_git -C "$path" merge-base --is-ancestor "$pointer" "$trunk" 2>/dev/null; then
+        echo "$path is recorded at ${pointer:0:9}, which is not on ${trunk#refs/remotes/}"
+      fi
+    done
+}
+
 refused=0
-while read -r _local_ref _local_sha remote_ref _remote_sha; do
+off_trunk=''
+while read -r _local_ref local_sha remote_ref _remote_sha; do
   if [ "$remote_ref" = 'refs/heads/main' ]; then
     refused=1
   fi
+  if [ -n "${local_sha//0/}" ]; then
+    off_trunk+="$(pointers_off_trunk "$local_sha")"
+  fi
 done
+
+if [ -n "$off_trunk" ]; then
+  cat >&2 <<MSG
+pre-push: a submodule pointer names a commit that is not on its trunk.
+
+$off_trunk
+
+Push that work to the submodule repository's default branch first, then record
+the commit that is on it (vendor/atlas/AGENTS.md). A pointer to a side branch
+lets the two lines of work drift apart until a merge drops one of them.
+MSG
+  exit 1
+fi
 
 if [ "$refused" -eq 1 ]; then
   cat >&2 <<'MSG'
