@@ -1,9 +1,6 @@
+import { canCheckmate } from '@pkgs/chess-rules-shared/mating-material';
 import type { CustomGameChoice } from './custom-game-choice';
-import {
-  customGameCanMate,
-  customGameChess,
-  customGameMoveInput,
-} from './custom-game-position';
+import { customGameChess, customGameMoveInput } from './custom-game-position';
 import type { CustomGame, CustomGameSide } from './custom-game-state';
 import {
   customGamePersonSide,
@@ -44,7 +41,8 @@ export function customGameWinOrDraw(
   winner: CustomGameSide,
   reason: 'resignation' | 'time' | 'away'
 ): CustomGame['outcome'] {
-  if (!customGameCanMate(customGameChess(game), winner)) return 'draw';
+  if (!canCheckmate(customGameChess(game), winner === 'white' ? 'w' : 'b'))
+    return 'draw';
   if (reason === 'away')
     return winner === 'white'
       ? 'white wins because black stayed away'

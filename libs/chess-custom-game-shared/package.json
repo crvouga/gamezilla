@@ -14,10 +14,11 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@libs/sub-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@pkgs/attribute-shared": "workspace:*",
+    "@pkgs/chess-rules-shared": "workspace:*",
     "@pkgs/message-shared": "workspace:*",
     "@pkgs/room-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",

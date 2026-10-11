@@ -1,9 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { parseFen } from '@pkgs/chess-rules-shared/fen';
 import {
   applyUci,
   castlingFromRookInput,
   castlingRookTargets,
   legalMoves,
+  playUci,
   positionStatus,
   sanFromUci,
   uciFromSan,
@@ -18,6 +20,16 @@ function played(fen: string, uci: string): string {
   const result = applyUci(fen, uci);
   if (!result.ok) throw new Error(`${uci} rejected: ${result.reason}`);
   return result.fen;
+}
+
+function playedAll(fen: string, ucis: readonly string[]): string {
+  return ucis.reduce(played, fen);
+}
+
+function castlingRights(fen: string): string {
+  const parsed = parseFen(fen);
+  if (!parsed.ok) throw new Error(parsed.error.message);
+  return parsed.fields.castling;
 }
 
 describe('castling', () => {
@@ -76,6 +88,162 @@ describe('castling', () => {
     expect(legal('4k1r1/8/8/8/8/8/8/R3K2R w KQ - 0 1', 'e1g1')).toBe(false);
     expect(legal('4k2r/8/8/8/8/8/8/R3K2R w KQ - 0 1', 'e1g1')).toBe(true);
     expect(legal('1r2k3/8/8/8/8/8/8/R3K2R w KQ - 0 1', 'e1c1')).toBe(true);
+  });
+});
+
+describe('castling: attacked squares, both wings and both colours', () => {
+  test('queenside: not through d1 nor into c1; the rook may cross b1 or stand attacked', () => {
+    expect(legal('3rk3/8/8/8/8/8/8/R3K2R w KQ - 0 1', 'e1c1')).toBe(false);
+    expect(legal('3rk3/8/8/8/8/8/8/R3K2R w KQ - 0 1', 'e1g1')).toBe(true);
+    expect(legal('2r1k3/8/8/8/8/8/8/R3K2R w KQ - 0 1', 'e1c1')).toBe(false);
+    expect(legal('1r2k3/8/8/8/8/8/8/R3K2R w KQ - 0 1', 'e1a1')).toBe(true);
+    expect(legal('r3k3/8/8/8/8/8/8/R3K2R w KQ - 0 1', 'e1c1')).toBe(true);
+  });
+
+  test('black: not out of, through, or into check; the rook may cross b8', () => {
+    expect(legal('r3k2r/8/8/8/8/8/8/4R1K1 b kq - 0 1', 'e8g8')).toBe(false);
+    expect(legal('r3k2r/8/8/8/8/8/8/4R1K1 b kq - 0 1', 'e8c8')).toBe(false);
+    expect(legal('r3k2r/8/8/8/8/8/8/5RK1 b kq - 0 1', 'e8g8')).toBe(false);
+    expect(legal('r3k2r/8/8/8/8/8/8/3R2K1 b kq - 0 1', 'e8c8')).toBe(false);
+    expect(legal('r3k2r/8/8/8/8/8/8/2R3K1 b kq - 0 1', 'e8c8')).toBe(false);
+    expect(legal('r3k2r/8/8/8/8/8/8/1R4K1 b kq - 0 1', 'e8c8')).toBe(true);
+  });
+
+  test('a knight or pawn guarding the crossing square refuses it too', () => {
+    expect(legal('4k3/8/8/8/8/4n3/8/R3K2R w KQ - 0 1', 'e1g1')).toBe(false);
+    expect(legal('4k3/8/8/8/8/4n3/8/R3K2R w KQ - 0 1', 'e1c1')).toBe(false);
+    expect(legal('4k3/8/8/8/8/8/6p1/R3K2R w KQ - 0 1', 'e1g1')).toBe(false);
+    expect(legal('4k3/8/8/8/8/8/6p1/R3K2R w KQ - 0 1', 'e1c1')).toBe(true);
+  });
+});
+
+describe('castling rights are lost for good', () => {
+  const bothSides = 'r3k2r/p6p/8/8/8/8/P6P/R3K2R w KQkq - 0 1';
+
+  test('after the king moved and came back', () => {
+    const back = playedAll(bothSides, ['e1e2', 'e8d8', 'e2e1', 'd8e8']);
+    expect(back.startsWith('r3k2r/p6p/8/8/8/8/P6P/R3K2R w')).toBe(true);
+    expect(castlingRights(back)).toBe('-');
+    expect(legal(back, 'e1g1')).toBe(false);
+    expect(legal(back, 'e1c1')).toBe(false);
+    expect(legal(played(back, 'a2a3'), 'e8g8')).toBe(false);
+    expect(legal(played(back, 'a2a3'), 'e8c8')).toBe(false);
+  });
+
+  test('after the rook moved and came back: only that wing', () => {
+    const back = playedAll(bothSides, ['h1g1', 'a8b8', 'g1h1', 'b8a8']);
+    expect(back.startsWith('r3k2r/p6p/8/8/8/8/P6P/R3K2R w')).toBe(true);
+    expect(castlingRights(back)).toBe('Qk');
+    expect(legal(back, 'e1g1')).toBe(false);
+    expect(legal(back, 'e1h1')).toBe(false);
+    expect(legal(back, 'e1c1')).toBe(true);
+    expect(legal(played(back, 'a2a3'), 'e8c8')).toBe(false);
+    expect(legal(played(back, 'a2a3'), 'e8g8')).toBe(true);
+  });
+
+  test('after the rook was captured at home, even with another rook there', () => {
+    const fen = 'r3k2r/8/8/8/8/7R/6b1/R3K2R b KQkq - 0 1';
+    const captured = played(fen, 'g2h1');
+    expect(castlingRights(captured)).toBe('Qkq');
+    const replaced = playedAll(captured, ['h3h1', 'a8b8']);
+    expect(replaced.startsWith('1r2k2r/8/8/8/8/8/8/R3K2R w')).toBe(true);
+    expect(castlingRights(replaced)).toBe('Qk');
+    expect(legal(replaced, 'e1g1')).toBe(false);
+    expect(legal(replaced, 'e1c1')).toBe(true);
+  });
+});
+
+describe('en passant and the king', () => {
+  test('refused when both pawns leave the rank and bare the king to a queen', () => {
+    const pinned = '8/8/8/8/k2Pp2Q/8/8/3K4 b - d3 0 1';
+    expect(legal(pinned, 'e4d3')).toBe(false);
+    expect(legalMoves(pinned).some((m) => m.isEnPassant)).toBe(false);
+    expect(legal(pinned, 'e4e3')).toBe(true);
+  });
+
+  test('allowed when it gives discovered check', () => {
+    const capture = applyUci('4k3/8/8/3pP3/8/8/8/4RK2 w - d6 0 1', 'e5d6');
+    expect(capture.ok && capture.san).toBe('exd6+');
+    expect(capture.ok && capture.isCheck).toBe(true);
+    expect(capture.ok && capture.fen.startsWith('4k3/8/3P4/8/')).toBe(true);
+  });
+
+  test('can be the only way out of check', () => {
+    const checked = played('2B5/8/8/k1K5/p7/8/1P6/8 w - - 0 1', 'b2b4');
+    expect(positionStatus(checked)).toEqual({
+      isCheck: true,
+      isCheckmate: false,
+      isStalemate: false,
+    });
+    expect(legalMoves(checked).map((m) => [m.uci, m.isEnPassant])).toEqual([
+      ['a4b3', true],
+    ]);
+    expect(played(checked, 'a4b3').startsWith('2B5/8/8/k1K5/8/1p6/8/8 w')).toBe(
+      true
+    );
+  });
+});
+
+describe('promotion outcomes', () => {
+  const backRank = '6k1/3P1ppp/8/8/8/8/8/6K1 w - - 0 1';
+
+  test('the chosen piece stands on the last rank; queen and rook mate', () => {
+    const outcomes = ['q', 'r', 'b', 'n'].map((piece) => {
+      const result = applyUci(backRank, `d7d8${piece}`);
+      if (!result.ok) throw new Error(result.reason);
+      return [result.fen.split('/')[0], result.san, result.isCheckmate];
+    });
+    expect(outcomes).toEqual([
+      ['3Q2k1', 'd8=Q#', true],
+      ['3R2k1', 'd8=R#', true],
+      ['3B2k1', 'd8=B', false],
+      ['3N2k1', 'd8=N', false],
+    ]);
+  });
+
+  test('black promotes on the first rank, with check, and by capture', () => {
+    const fen = '6k1/8/8/8/8/8/p7/1N4K1 b - - 0 1';
+    const push = applyUci(fen, 'a2a1q');
+    expect(push.ok && push.san).toBe('a1=Q');
+    expect(push.ok && push.fen.startsWith('6k1/8/8/8/8/8/8/qN4K1 w')).toBe(
+      true
+    );
+    const capture = applyUci(fen, 'a2b1r');
+    expect(capture.ok && capture.san).toBe('axb1=R+');
+    expect(capture.ok && capture.isCheck).toBe(true);
+    expect(
+      capture.ok && capture.fen.startsWith('6k1/8/8/8/8/8/8/1r4K1 w')
+    ).toBe(true);
+  });
+
+  test('a last-rank pawn move without a suffix is refused, capture or not', () => {
+    const fen = '1n4k1/P7/8/8/8/8/p7/1N4K1 w - - 0 1';
+    expect(legal(fen, 'a7a8')).toBe(false);
+    expect(legal(fen, 'a7b8')).toBe(false);
+    expect(legal(fen, 'a7b8k')).toBe(false);
+    expect(legal(played(fen, 'g1g2'), 'a2a1')).toBe(false);
+    expect(legal(played(fen, 'g1g2'), 'a2b1')).toBe(false);
+    const chess = new Chess(fen);
+    expect(playUci(chess, 'a7a8')).toBeNull();
+    expect(chess.fen()).toBe(fen);
+    expect(playUci(chess, 'a7a8n')).toBe('a8=N');
+  });
+});
+
+describe('a move that ends the game', () => {
+  const fen = '7k/8/6K1/8/8/8/8/5Q2 w - - 0 1';
+
+  test('stalemate and checkmate are told apart', () => {
+    const stalemate = applyUci(fen, 'f1f7');
+    expect(stalemate.ok && stalemate.san).toBe('Qf7');
+    expect(
+      stalemate.ok && [stalemate.isCheckmate, stalemate.isStalemate]
+    ).toEqual([false, true]);
+    const checkmate = applyUci(fen, 'f1f8');
+    expect(checkmate.ok && checkmate.san).toBe('Qf8#');
+    expect(
+      checkmate.ok && [checkmate.isCheckmate, checkmate.isStalemate]
+    ).toEqual([true, false]);
   });
 });
 

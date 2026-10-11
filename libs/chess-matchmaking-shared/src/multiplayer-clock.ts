@@ -1,10 +1,10 @@
+import { canCheckmate } from '@pkgs/chess-rules-shared/mating-material';
 import type { MultiplayerGame } from './game-state';
 import {
   bothHaveMoved,
   endMultiplayerGame,
   multiplayerBoard,
 } from './game-state';
-import { canCheckmate } from './mating-material';
 import { incrementMs } from './time-control';
 
 /** White has this long from the start, Black this long from White's first move. */
