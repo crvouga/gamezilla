@@ -63,6 +63,7 @@ function shown(
     whiteClock: shownDays(game, 'white', nowMs),
     blackClock: shownDays(game, 'black', nowMs),
     turnNotice: turn === undefined ? 'none' : turn.unread ? 'unread' : 'opened',
+    turnReminder: turn?.reminder === true,
     resultNotice: result?.result ?? 'none',
   };
 }

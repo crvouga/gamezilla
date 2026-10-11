@@ -45,18 +45,61 @@ export function dailyClockStepMs(ms: number): number {
   return ((Math.max(1, ms) - 1) % unit) + 1;
 }
 
+/** One accepted move, and the position it led to. */
+export type MultiplayerMove = {
+  /** Moves played to reach the position after it: 1 for the first move. */
+  readonly ply: number;
+  /** The move in algebraic notation: `Nf3`. */
+  readonly san: string;
+  /** What the move list writes before it: `1.`, `1...`, or nothing. */
+  readonly numbering: string;
+  /** The move named by itself: `1. e4`, `1... e5`. */
+  readonly name: string;
+  /** The position before it and the position after it. */
+  readonly before: string;
+  readonly after: string;
+};
+
+/** The accepted moves of a game, in the order they were played. */
+export function multiplayerMoves(
+  game: Pick<MultiplayerGame, 'fen' | 'pgn'>
+): readonly MultiplayerMove[] {
+  if (game.pgn.length === 0) return [];
+  return multiplayerBoard(game)
+    .history({ verbose: true })
+    .map((move, index) => {
+      const number = move.before.split(' ')[5] ?? '1';
+      const white = move.color === 'w';
+      return {
+        ply: index + 1,
+        san: move.san,
+        numbering: white ? `${number}.` : index === 0 ? `${number}...` : '',
+        name: `${number}${white ? '.' : '...'} ${move.san}`,
+        before: move.before,
+        after: move.after,
+      };
+    });
+}
+
+/**
+ * The position after `ply` moves: the start of the game for none. Null when
+ * the game never reached such a position.
+ */
+export function positionAfter(
+  moves: readonly MultiplayerMove[],
+  ply: number
+): string | null {
+  if (ply === 0) return moves[0]?.before ?? null;
+  return moves[ply - 1]?.after ?? null;
+}
+
 /** The accepted moves in algebraic notation: `1. e4 e5 2. Nf3`. */
 export function moveListText(
   game: Pick<MultiplayerGame, 'fen' | 'pgn'>
 ): string {
-  if (game.pgn.length === 0) return '';
-  const moves = multiplayerBoard(game).history({ verbose: true });
-  const parts: string[] = [];
-  moves.forEach((move, index) => {
-    const number = move.before.split(' ')[5] ?? '1';
-    if (move.color === 'w') parts.push(`${number}. ${move.san}`);
-    else if (index === 0) parts.push(`${number}... ${move.san}`);
-    else parts.push(move.san);
-  });
-  return parts.join(' ');
+  return multiplayerMoves(game)
+    .map((move) =>
+      move.numbering === '' ? move.san : `${move.numbering} ${move.san}`
+    )
+    .join(' ');
 }

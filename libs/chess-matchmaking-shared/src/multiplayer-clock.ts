@@ -5,7 +5,13 @@ import {
   endMultiplayerGame,
   multiplayerBoard,
 } from './game-state';
-import { incrementMs, isDailyTimeControl, startingMs } from './time-control';
+import type { MultiplayerSpeed } from './time-control';
+import {
+  incrementMs,
+  isDailyTimeControl,
+  startingMs,
+  timeControlOf,
+} from './time-control';
 
 /**
  * White has this long from the start, Black this long from White's first
@@ -83,6 +89,59 @@ export function multiplayerDeadlineMs(game: ClockFields): number | null {
   if (!bothHaveMoved(game)) return startedAt + firstMoveMs(game);
   const side = sideToMove(game);
   return startedAt + ((side === 'white' ? game.white_ms : game.black_ms) ?? 0);
+}
+
+const HOUR_MS = 3_600_000;
+const DAY_MS = 24 * HOUR_MS;
+
+const LOW_ON_TIME_MS: Readonly<
+  Record<Exclude<MultiplayerSpeed, 'daily'>, number>
+> = {
+  bullet: 10_000,
+  blitz: 20_000,
+  rapid: 30_000,
+  classical: 60_000,
+};
+
+/**
+ * The time left at or below which a running clock is low on time: seconds by
+ * speed, and in a daily game six hours at one day per move, else one day.
+ * Zero for a time control nobody offers.
+ */
+export function lowOnTimeLimitMs(
+  timeControl: string | null | undefined
+): number {
+  const control = timeControlOf(timeControl);
+  if (control === null) return 0;
+  if (control.speed !== 'daily') return LOW_ON_TIME_MS[control.speed];
+  return control.daysPerMove === 1 ? 6 * HOUR_MS : DAY_MS;
+}
+
+/**
+ * Whether one side's clock is low on time at `nowMs`: it is running, that
+ * side is to move, and no more than the time control's limit is left.
+ */
+export function clockLowOnTime(
+  game: ClockFields,
+  side: MultiplayerSide,
+  nowMs: number
+): boolean {
+  return (
+    clockRunning(game) &&
+    sideToMove(game) === side &&
+    clockLeftMs(game, side, nowMs) <= lowOnTimeLimitMs(game.time_control)
+  );
+}
+
+/**
+ * When the running clock becomes low on time unless its side moves first;
+ * null while no clock is running.
+ */
+export function lowOnTimeAtMs(game: ClockFields): number | null {
+  const deadline = clockRunning(game) ? multiplayerDeadlineMs(game) : null;
+  return deadline === null
+    ? null
+    : deadline - lowOnTimeLimitMs(game.time_control);
 }
 
 /**

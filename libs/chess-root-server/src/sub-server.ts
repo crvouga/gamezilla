@@ -20,6 +20,7 @@ import {
   multiplayerRoomGrants,
   registerMatchRoomConsumers,
 } from './multiplayer-room-server';
+import { multiplayerTurnReminderConsumer } from './multiplayer-turn-reminder-consumer';
 import { opponentSearchGuard } from './opponent-search-guard';
 import { createPuzzleManagementApp } from './puzzle-management-route';
 
@@ -59,6 +60,7 @@ export function createChessServer(rooms: RoomServicePort) {
     registerOutbox(registry) {
       registerMatchRoomConsumers(registry, rooms);
       registry.register(multiplayerNoticesConsumer);
+      registry.register(multiplayerTurnReminderConsumer);
       registry.register(
         defineOutboxConsumer({
           id: 'chess.form-opponent-match',

@@ -31,6 +31,10 @@ export type NoticeWanted = {
   /** The multiplayer opponent it names; any when left out. */
   readonly opponent?: string;
   readonly unread?: boolean;
+  /** A turn notice that is, or is not, a turn reminder. */
+  readonly reminder?: boolean;
+  /** Words the notice has to say, such as the time left. */
+  readonly says?: string;
   readonly result?: string;
   readonly reason?: string;
   readonly flaggedSide?: string;
@@ -51,6 +55,9 @@ async function matching(
         notice.kind === wanted.kind &&
         (opponentId === undefined || notice.opponentUserId === opponentId) &&
         (wanted.unread === undefined || notice.unread === wanted.unread) &&
+        (wanted.reminder === undefined ||
+          notice.reminder === wanted.reminder) &&
+        (wanted.says === undefined || notice.text.includes(wanted.says)) &&
         (wanted.result === undefined || notice.result === wanted.result) &&
         (wanted.reason === undefined || notice.reason === wanted.reason) &&
         (wanted.flaggedSide === undefined ||

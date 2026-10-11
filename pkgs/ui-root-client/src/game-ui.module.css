@@ -189,6 +189,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--ui-space-1);
   min-width: 76px;
   padding: var(--ui-space-2) var(--ui-space-3);
   border-radius: var(--ui-radius-md);
@@ -199,6 +200,14 @@
 }
 .clock[data-active="true"] .clockValue {
   color: var(--ui-color-on-primary);
+}
+/* Nearly used up: the destructive fill, and a mark beside the time. */
+.clock[data-low="true"] {
+  background: var(--ui-color-destructive);
+  --ui-on-icon: var(--ui-color-on-destructive);
+}
+.clock[data-low="true"] .clockValue {
+  color: var(--ui-color-on-destructive);
 }
 .status {
   display: flex;

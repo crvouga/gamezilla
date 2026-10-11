@@ -158,7 +158,7 @@ msgstr "{count} guests"
 msgid "{current} of {total}"
 msgstr "{current} of {total}"
 
-#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-time-left.tsx
 #: libs/chess-matchmaking-client/src/time-control-name.tsx
 msgid "{days} days"
 msgstr "{days} days"
@@ -171,7 +171,7 @@ msgstr "{days} days per move"
 msgid "{days}d ago"
 msgstr "{days}d ago"
 
-#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-time-left.tsx
 msgid "{hours} hours"
 msgstr "{hours} hours"
 
@@ -187,9 +187,13 @@ msgstr "{label}, hosted by {username}"
 msgid "{mins}m ago"
 msgstr "{mins}m ago"
 
-#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-time-left.tsx
 msgid "{minutes} minutes"
 msgstr "{minutes} minutes"
+
+#: libs/chess-matchmaking-client/src/multiplayer-time-left.tsx
+msgid "{seconds} seconds"
+msgstr "{seconds} seconds"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
 msgid "{side} to move. Find the best move."
@@ -203,9 +207,17 @@ msgstr "↑ ↓ navigate · ↵ run · Esc close · Tab next"
 msgid "<0>Find a </0>New opponent"
 msgstr "<0>Find a </0>New opponent"
 
+#: libs/chess-matchmaking-client/src/multiplayer-moves.tsx
+msgid "<0>Go to the </0>Start"
+msgstr "<0>Go to the </0>Start"
+
 #: libs/chess-matchmaking-client/src/multiplayer-game-actions.tsx
 msgid "<0>Offer a multiplayer </0>Rematch"
 msgstr "<0>Offer a multiplayer </0>Rematch"
+
+#: libs/chess-matchmaking-client/src/multiplayer-moves.tsx
+msgid "<0>Return to the </0>Current<1> position</1>"
+msgstr "<0>Return to the </0>Current<1> position</1>"
 
 #. js-lingui-explicit-id
 #: libs/chess-puzzle-client/src/chess-puzzle-status-icons.tsx
@@ -221,7 +233,7 @@ msgstr "✕"
 msgid "chess.puzzleStatus.failedMark"
 msgstr "✕"
 
-#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-time-left.tsx
 #: libs/chess-matchmaking-client/src/time-control-name.tsx
 msgid "1 day"
 msgstr "1 day"
@@ -234,13 +246,17 @@ msgstr "1 day per move"
 msgid "1 guest"
 msgstr "1 guest"
 
-#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-time-left.tsx
 msgid "1 hour"
 msgstr "1 hour"
 
-#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-time-left.tsx
 msgid "1 minute"
 msgstr "1 minute"
+
+#: libs/chess-matchmaking-client/src/multiplayer-time-left.tsx
+msgid "1 second"
+msgstr "1 second"
 
 #: libs/chess-custom-game-client/src/custom-game-active.tsx
 msgid "A draw has been offered."
@@ -555,6 +571,10 @@ msgstr "Back to spaces"
 msgid "Back to Spaces"
 msgstr "Back to Spaces"
 
+#: libs/chess-matchmaking-client/src/multiplayer-moves.tsx
+msgid "Back<0> one move</0>"
+msgstr "Back<0> one move</0>"
+
 #: libs/synthetic-population-client/src/synthetic-user-statechart.tsx
 msgid "Behavior Statechart"
 msgstr "Behavior Statechart"
@@ -582,10 +602,18 @@ msgstr "Bishop"
 msgid "Black"
 msgstr "Black"
 
-#. placeholder {0}: time().spoken
 #: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
-msgid "Black has {0} left"
-msgstr "Black has {0} left"
+msgid "Black has {left} left"
+msgstr "Black has {left} left"
+
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "Black has {left} left and is low on time"
+msgstr "Black has {left} left and is low on time"
+
+#. placeholder {0}: timeLeftWords(low().leftMs)
+#: libs/chess-matchmaking-client/src/multiplayer-status.tsx
+msgid "Black is low on time, with {0} left."
+msgstr "Black is low on time, with {0} left."
 
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
 msgid "Black time remaining"
@@ -983,6 +1011,10 @@ msgstr "Copy"
 msgid "Copy error"
 msgstr "Copy error"
 
+#: libs/chess-matchmaking-client/src/multiplayer-game-record.tsx
+msgid "Copy it to open this game in another chess program."
+msgstr "Copy it to open this game in another chess program."
+
 #: libs/spaces-client/src/space-share-link-section.tsx
 msgid "Copy link"
 msgstr "Copy link"
@@ -1213,7 +1245,7 @@ msgstr "Delete account"
 msgid "Deleted"
 msgstr "Deleted"
 
-#: libs/chess-matchmaking-client/src/multiplayer-board.tsx
+#: libs/chess-matchmaking-client/src/use-shown-name.tsx
 msgid "Deleted account"
 msgstr "Deleted account"
 
@@ -1483,6 +1515,14 @@ msgstr "Filter by puzzles you have never seen, already seen, or failed."
 msgid "Filter fruits…"
 msgstr "Filter fruits…"
 
+#: libs/chess-matchmaking-client/src/multiplayer-game-record.tsx
+msgid "Final position"
+msgstr "Final position"
+
+#: libs/chess-matchmaking-client/src/multiplayer-game-record.tsx
+msgid "Final position copied"
+msgstr "Final position copied"
+
 #: libs/chess-matchmaking-client/src/multiplayer-find-panel.tsx
 msgid "Find a chess opponent"
 msgstr "Find a chess opponent"
@@ -1544,6 +1584,10 @@ msgstr "First page"
 msgid "First seen"
 msgstr "First seen"
 
+#: libs/chess-matchmaking-client/src/multiplayer-moves.tsx
+msgid "Flip board"
+msgstr "Flip board"
+
 #: libs/app-root-client/src/theme-screen.tsx
 msgid "Follows your device appearance"
 msgstr "Follows your device appearance"
@@ -1551,6 +1595,10 @@ msgstr "Follows your device appearance"
 #: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
 msgid "Forward"
 msgstr "Forward"
+
+#: libs/chess-matchmaking-client/src/multiplayer-moves.tsx
+msgid "Forward<0> one move</0>"
+msgstr "Forward<0> one move</0>"
 
 #: libs/app-root-client/src/app-commands.tsx
 msgid "fps"
@@ -1618,8 +1666,13 @@ msgid "Game options"
 msgstr "Game options"
 
 #: libs/chess-custom-game-client/src/custom-game-board.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-game-record.tsx
 msgid "Game record"
 msgstr "Game record"
+
+#: libs/chess-matchmaking-client/src/multiplayer-game-record.tsx
+msgid "Game record copied"
+msgstr "Game record copied"
 
 #: libs/spaces-client/src/games-main-menu.tsx
 msgid "Games"
@@ -2061,13 +2114,18 @@ msgstr "Move number to review"
 msgid "Move on to the next puzzle by itself after a solve."
 msgstr "Move on to the next puzzle by itself after a solve."
 
-#: libs/chess-matchmaking-client/src/multiplayer-ratings.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-moves.tsx
 msgid "Moves"
 msgstr "Moves"
 
 #: libs/chess-custom-game-client/src/custom-game-board.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-moves.tsx
 msgid "Moves played"
 msgstr "Moves played"
+
+#: libs/chess-matchmaking-client/src/multiplayer-moves.tsx
+msgid "Moves. The left and right arrow keys step through them."
+msgstr "Moves. The left and right arrow keys step through them."
 
 #: libs/chess-matchmaking-client/src/multiplayer-link-screen.tsx
 #: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
@@ -2244,7 +2302,7 @@ msgid "No membership yet."
 msgstr "No membership yet."
 
 #: libs/chess-custom-game-client/src/custom-game-board.tsx
-#: libs/chess-matchmaking-client/src/multiplayer-ratings.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-moves.tsx
 msgid "No moves yet."
 msgstr "No moves yet."
 
@@ -3007,6 +3065,7 @@ msgid "Retry sync"
 msgstr "Retry sync"
 
 #: libs/chess-custom-game-client/src/custom-game-board.tsx
+#: libs/chess-matchmaking-client/src/multiplayer-reviewing.tsx
 msgid "Return to current position"
 msgstr "Return to current position"
 
@@ -3240,6 +3299,11 @@ msgstr "Sharing your username change…"
 #: libs/app-root-client/src/app-commands.tsx
 msgid "Show performance monitor"
 msgstr "Show performance monitor"
+
+#. placeholder {0}: props.move.name
+#: libs/chess-matchmaking-client/src/multiplayer-moves.tsx
+msgid "Show the position after {0}"
+msgstr "Show the position after {0}"
 
 #: libs/spaces-client/src/space-miniplayer.tsx
 msgid "Show your live spaces"
@@ -4192,10 +4256,18 @@ msgstr "What Plus includes"
 msgid "White"
 msgstr "White"
 
-#. placeholder {0}: time().spoken
 #: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
-msgid "White has {0} left"
-msgstr "White has {0} left"
+msgid "White has {left} left"
+msgstr "White has {left} left"
+
+#: libs/chess-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "White has {left} left and is low on time"
+msgstr "White has {left} left and is low on time"
+
+#. placeholder {0}: timeLeftWords(low().leftMs)
+#: libs/chess-matchmaking-client/src/multiplayer-status.tsx
+msgid "White is low on time, with {0} left."
+msgstr "White is low on time, with {0} left."
 
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
 msgid "White time remaining"
@@ -4282,6 +4354,15 @@ msgstr "You are already friends with this person."
 #: libs/chess-matchmaking-client/src/multiplayer-status.tsx
 msgid "You are Black."
 msgstr "You are Black."
+
+#. placeholder {0}: move().name
+#: libs/chess-matchmaking-client/src/multiplayer-reviewing.tsx
+msgid "You are reviewing an earlier position, after {0}. No piece can be moved on it."
+msgstr "You are reviewing an earlier position, after {0}. No piece can be moved on it."
+
+#: libs/chess-matchmaking-client/src/multiplayer-reviewing.tsx
+msgid "You are reviewing an earlier position, at the start of the game. No piece can be moved on it."
+msgstr "You are reviewing an earlier position, at the start of the game. No piece can be moved on it."
 
 #: libs/chess-matchmaking-client/src/multiplayer-status.tsx
 msgid "You are White."

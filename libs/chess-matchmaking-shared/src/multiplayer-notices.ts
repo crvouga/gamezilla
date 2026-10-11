@@ -6,6 +6,7 @@ import {
 import { insertOutboxEvent } from '@pkgs/outbox-shared/outbox';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import type { MultiplayerGame } from './game-state';
+import { lowOnTimeAtMs } from './multiplayer-clock';
 import { isDailyTimeControl } from './time-control';
 
 const messages = createMessageNamespace('chess', 'outbox');
@@ -17,6 +18,22 @@ export const MultiplayerNoticesDue = messages(
     isPlainRecord(value) &&
     typeof value['gameId'] === 'string' &&
     value['gameId'].length > 0
+);
+
+/**
+ * The clock of the person to move in a daily game becomes low on time at
+ * this event's time, unless they move first: `revision` names that turn.
+ */
+export const MultiplayerTurnReminderDue = messages(
+  'multiplayer-turn-reminder',
+  (
+    value: unknown
+  ): value is { readonly gameId: string; readonly revision: number } =>
+    isPlainRecord(value) &&
+    typeof value['gameId'] === 'string' &&
+    value['gameId'].length > 0 &&
+    typeof value['revision'] === 'number' &&
+    Number.isInteger(value['revision'])
 );
 
 export const MULTIPLAYER_NOTICE_NAMESPACE = 'chess';
@@ -99,8 +116,32 @@ export function multiplayerNotices(
 }
 
 /**
+ * A turn of an unfinished daily game gets one turn reminder, due when the
+ * clock of the person to move becomes low on time. The event is named after
+ * the turn, so a replay never brings a second one.
+ */
+async function scheduleTurnReminder(
+  tx: SqlTx,
+  game: MultiplayerGame,
+  nowMs: number
+): Promise<void> {
+  const dueAt = lowOnTimeAtMs(game);
+  if (dueAt === null) return;
+  await insertOutboxEvent(tx, {
+    id: `chess.multiplayer-turn-reminder:${JSON.stringify([game.id, game.revision])}`,
+    message: MultiplayerTurnReminderDue({
+      gameId: game.id,
+      revision: game.revision,
+    }),
+    nowIso: new Date(nowMs).toISOString(),
+    availableAt: new Date(dueAt),
+  });
+}
+
+/**
  * Has the server bring both inboxes in line whenever a daily game starts or
- * its turn or result changes. One delivery per state, so a replay is
+ * its turn or result changes, and remind the person to move when their
+ * clock becomes low on time. One delivery per state, so a replay is
  * harmless.
  */
 export async function scheduleMultiplayerNotices(
@@ -124,4 +165,5 @@ export async function scheduleMultiplayerNotices(
     message: MultiplayerNoticesDue({ gameId: after.id }),
     nowIso: new Date(nowMs).toISOString(),
   });
+  await scheduleTurnReminder(tx, after, nowMs);
 }

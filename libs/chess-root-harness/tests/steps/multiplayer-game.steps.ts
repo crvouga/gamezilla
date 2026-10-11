@@ -18,6 +18,7 @@ import {
   givenOverGame,
   move,
   pairOf,
+  playOnOwnBoard,
   refusal,
   resignation,
   sameBoards,
@@ -85,7 +86,7 @@ Given(
 When(
   '{actor} plays {word} to {word} as a multiplayer move',
   async (w, actor: Actor, from: string, to: string) => {
-    await move(w, actor, from + to);
+    await playOnOwnBoard(w, actor, from + to);
   }
 );
 When('{actor} repeats that multiplayer move', async (w, actor: Actor) => {
@@ -116,10 +117,13 @@ Then('{actor} has the multiplayer turn', async (w, actor: Actor) => {
   expect((await bothBoards(w)).turn).toBe(owner!);
 });
 
-// The position the boards had when the refused move was tried.
+const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+// The position the boards had when the refused move was tried, or the
+// position every game starts from when nobody tried one.
 Then('both multiplayer boards keep their starting position', async (w) => {
   expect((await bothBoards(w)).fen).toBe(
-    String(w.memo.get('multiplayer:board-before-move'))
+    String(w.memo.get('multiplayer:board-before-move') ?? START)
   );
 });
 Then('both multiplayer boards show one move', async (w) => {

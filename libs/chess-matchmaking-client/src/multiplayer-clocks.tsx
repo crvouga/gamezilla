@@ -2,6 +2,7 @@ import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state'
 import type { MultiplayerSide } from '@libs/chess-matchmaking-shared/multiplayer-clock';
 import {
   clockLeftMs,
+  clockLowOnTime,
   clockRunning,
   sideToMove,
 } from '@libs/chess-matchmaking-shared/multiplayer-clock';
@@ -16,6 +17,7 @@ import {
   dailyClockParts,
   dailyClockStepMs,
 } from './multiplayer-format';
+import { daysText, hoursText, minutesText } from './multiplayer-time-left';
 import { useOfflineSince } from './use-offline-since';
 
 /** A daily game's time left, short enough for the seat: `2d 5h`, `5h 12m`. */
@@ -28,13 +30,6 @@ function dailyClockLabel(ms: number): string {
     : t`${parts.days}d ${parts.hours}h`;
 }
 
-const daysText = (days: number): string =>
-  days === 1 ? t`1 day` : t`${days} days`;
-const hoursText = (hours: number): string =>
-  hours === 1 ? t`1 hour` : t`${hours} hours`;
-const minutesText = (minutes: number): string =>
-  minutes === 1 ? t`1 minute` : t`${minutes} minutes`;
-
 /** The same time left as a listener hears it: `2 days 5 hours`. */
 function dailyClockSpoken(ms: number): string {
   const parts = dailyClockParts(ms);
@@ -46,6 +41,21 @@ function dailyClockSpoken(ms: number): string {
     : `${daysText(parts.days)} ${hoursText(parts.hours)}`;
 }
 
+/** What a listener hears for one clock: whose, how long, and if it is low. */
+function clockSpoken(
+  side: MultiplayerSide,
+  time: { readonly spoken: string; readonly low: boolean }
+): string {
+  const left = time.spoken;
+  if (side === 'white')
+    return time.low
+      ? t`White has ${left} left and is low on time`
+      : t`White has ${left} left`;
+  return time.low
+    ? t`Black has ${left} left and is low on time`
+    : t`Black has ${left} left`;
+}
+
 /** One side's multiplayer clock, shown to both people and to watchers. */
 export function MultiplayerClock(props: {
   readonly game: MultiplayerGame;
@@ -55,10 +65,12 @@ export function MultiplayerClock(props: {
   const daily = () => isDailyTimeControl(props.game.time_control);
   const time = createTimedValue(
     (now) => {
-      const left = clockLeftMs(props.game, props.side, offlineSince() ?? now);
+      const at = offlineSince() ?? now;
+      const left = clockLeftMs(props.game, props.side, at);
+      const low = clockLowOnTime(props.game, props.side, at);
       return daily()
-        ? { shown: dailyClockLabel(left), spoken: dailyClockSpoken(left) }
-        : { shown: clockLabel(left), spoken: clockLabel(left) };
+        ? { shown: dailyClockLabel(left), spoken: dailyClockSpoken(left), low }
+        : { shown: clockLabel(left), spoken: clockLabel(left), low };
     },
     (_value, now) => {
       if (
@@ -80,13 +92,10 @@ export function MultiplayerClock(props: {
           <Trans>White</Trans>
         </Show>
       }
+      low={time().low}
       value={time().shown}
       dataSet={{ testid: `multiplayer-${props.side}-clock` }}
-      ariaLabel={
-        props.side === 'white'
-          ? t`White has ${time().spoken} left`
-          : t`Black has ${time().spoken} left`
-      }
+      ariaLabel={clockSpoken(props.side, time())}
     />
   );
 }

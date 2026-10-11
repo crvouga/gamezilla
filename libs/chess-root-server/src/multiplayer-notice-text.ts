@@ -51,3 +51,36 @@ export function resultNoticeTitle(
 export function turnNoticeTitle(opponent: string): string {
   return `It's your turn in your daily game against ${opponent}`;
 }
+
+/** What a turn reminder says first: the person's clock is low on time. */
+export function turnReminderTitle(opponent: string): string {
+  return `You're low on time in your daily game against ${opponent}`;
+}
+
+export function turnReminderBody(left: string): string {
+  return `It's your turn. You have ${left} left to move.`;
+}
+
+const MINUTE_MS = 60_000;
+const DAY_MINUTES = 24 * 60;
+
+const count = (n: number, unit: string): string =>
+  n === 1 ? `1 ${unit}` : `${String(n)} ${unit}s`;
+
+/**
+ * Time left on a daily game's clock in the units people plan by: `1 day`,
+ * `6 hours`, `1 day 2 hours`, `40 minutes`. Rounded up to the smaller unit
+ * named, so it never says less than is left.
+ */
+export function timeLeftText(ms: number): string {
+  const minutes = Math.ceil(Math.max(0, ms) / MINUTE_MS);
+  if (minutes < 60) return count(minutes, 'minute');
+  if (minutes < DAY_MINUTES) {
+    const rest = minutes % 60;
+    const hours = count(Math.floor(minutes / 60), 'hour');
+    return rest === 0 ? hours : `${hours} ${count(rest, 'minute')}`;
+  }
+  const hours = Math.ceil(minutes / 60);
+  const days = count(Math.floor(hours / 24), 'day');
+  return hours % 24 === 0 ? days : `${days} ${count(hours % 24, 'hour')}`;
+}

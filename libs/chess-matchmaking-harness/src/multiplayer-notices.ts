@@ -28,6 +28,8 @@ export type ShownMultiplayerNotice = {
   /** The multiplayer opponent it names. */
   readonly opponentUserId: string;
   readonly unread: boolean;
+  /** The turn notice is a turn reminder: the person is low on time. */
+  readonly reminder: boolean;
   /** A result notice's `won`, `lost`, `drawn` or `aborted`. */
   readonly result: string | null;
   readonly reason: string | null;
@@ -86,6 +88,7 @@ function shownAs(notice: Notification, text: string): ShownMultiplayerNotice {
     gameId: notice.sourceId,
     opponentUserId: field(notice, 'opponentUserId') ?? '',
     unread: notice.isUnread,
+    reminder: notice.payload['reminder'] === true,
     result: field(notice, 'result'),
     reason: field(notice, 'reason'),
     flaggedSide: field(notice, 'flaggedSide'),

@@ -1,11 +1,9 @@
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
 import { isProvisional } from '@libs/chess-matchmaking-shared/multiplayer-rating';
 import { MULTIPLAYER_SPEEDS } from '@libs/chess-matchmaking-shared/time-control';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { GameSection } from '@pkgs/ui-root-client/game-section';
 import { GameStat } from '@pkgs/ui-root-client/game-stat';
-import { For, type JSX, Show } from 'solid-js';
-import { moveListText } from './multiplayer-format';
+import { For, type JSX } from 'solid-js';
 import { SpeedName } from './speed-name';
 import type { MultiplayerRatingRow } from './use-multiplayer-data';
 
@@ -44,28 +42,6 @@ export function MultiplayerRatings(props: {
           )}
         </For>
       </div>
-    </GameSection>
-  );
-}
-
-/** The accepted moves of the game, in algebraic notation. */
-export function MultiplayerMoves(props: {
-  readonly game: MultiplayerGame;
-}): JSX.Element {
-  const moves = () => moveListText(props.game);
-  return (
-    <GameSection title={<Trans>Moves</Trans>}>
-      <p
-        class="text textBody textNumeral break-words"
-        data-testid="multiplayer-move-list"
-      >
-        {moves()}
-      </p>
-      <Show when={moves() === ''}>
-        <p class="text textCaption">
-          <Trans>No moves yet.</Trans>
-        </p>
-      </Show>
     </GameSection>
   );
 }

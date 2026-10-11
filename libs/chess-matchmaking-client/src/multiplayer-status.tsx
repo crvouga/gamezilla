@@ -14,7 +14,9 @@ import { GameStatus } from '@pkgs/ui-root-client/game-status';
 import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import type { MultiplayerViewer } from './multiplayer-seat';
+import { timeLeftWords } from './multiplayer-time-left';
 import { timeControlText } from './time-control-name';
+import type { LowOnTime } from './use-low-on-time';
 import { useOfflineSince } from './use-offline-since';
 
 type StatusProps = {
@@ -22,6 +24,8 @@ type StatusProps = {
   readonly viewer: MultiplayerViewer;
   /** The winner's name, for a watcher. */
   readonly winnerName: string;
+  /** The clock that is low on time, if one is. */
+  readonly lowOnTime: LowOnTime | null;
 };
 
 const white = (props: StatusProps): boolean =>
@@ -93,6 +97,34 @@ function WatcherHeadline(props: StatusProps): JSX.Element {
         <Trans>The multiplayer game is drawn.</Trans>
       </Show>
     </>
+  );
+}
+
+/**
+ * For a listener, who cannot see the clocks: whose clock is low on time and
+ * what it had left when it became so. Said once, not as the clock ticks.
+ */
+function LowOnTimeWords(props: StatusProps): JSX.Element {
+  return (
+    <Show when={props.lowOnTime}>
+      {(low) => (
+        <VisuallyHidden>
+          {' '}
+          <Show
+            when={low().side === 'white'}
+            fallback={
+              <Trans>
+                Black is low on time, with {timeLeftWords(low().leftMs)} left.
+              </Trans>
+            }
+          >
+            <Trans>
+              White is low on time, with {timeLeftWords(low().leftMs)} left.
+            </Trans>
+          </Show>
+        </VisuallyHidden>
+      )}
+    </Show>
   );
 }
 
@@ -210,8 +242,15 @@ function hasDetail(props: StatusProps): boolean {
   );
 }
 
+/** The person's own clock is the one that is low on time. */
+const ownClockLow = (props: StatusProps): boolean =>
+  props.lowOnTime !== null &&
+  props.viewer.participant &&
+  (props.lowOnTime.side === 'white') === white(props);
+
 function tone(props: StatusProps): GameStatusTone {
   const game = props.game;
+  if (ownClockLow(props)) return 'warning';
   if (game.outcome === 'ongoing')
     return game.turn === props.viewer.myId ? 'active' : 'neutral';
   const won =
@@ -259,12 +298,15 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
       tone={tone(props)}
       dataSet={{ testid: 'multiplayer-announcement' }}
       title={
-        <Show
-          when={props.viewer.participant}
-          fallback={<WatcherHeadline {...props} />}
-        >
-          <PlayerHeadline {...props} />
-        </Show>
+        <>
+          <Show
+            when={props.viewer.participant}
+            fallback={<WatcherHeadline {...props} />}
+          >
+            <PlayerHeadline {...props} />
+          </Show>
+          <LowOnTimeWords {...props} />
+        </>
       }
       detail={hasDetail(props) ? <StatusDetail {...props} /> : undefined}
       note={

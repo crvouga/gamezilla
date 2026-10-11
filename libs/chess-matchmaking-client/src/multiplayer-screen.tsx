@@ -14,15 +14,19 @@ import { Notice } from '@pkgs/ui-root-client/notice';
 import { type JSX, Show } from 'solid-js';
 import { MultiplayerBoard } from './multiplayer-board';
 import { MultiplayerControls } from './multiplayer-controls';
+import { MultiplayerMoves } from './multiplayer-moves';
 import { MultiplayerNotices } from './multiplayer-notices';
-import { MultiplayerMoves, MultiplayerRatings } from './multiplayer-ratings';
+import { MultiplayerRatings } from './multiplayer-ratings';
 import { useDeadlineSettle } from './use-deadline-settle';
 import { useMultiplayerControls } from './use-multiplayer-controls';
 import { useMultiplayerData } from './use-multiplayer-data';
+import type { OwnBoard } from './use-own-board';
+import { useOwnBoard } from './use-own-board';
 
 type ScreenProps = {
   readonly data: ReturnType<typeof useMultiplayerData>;
   readonly controls: ReturnType<typeof useMultiplayerControls>;
+  readonly view: OwnBoard;
 };
 
 /** The board when there is a game, then what the person can do next. */
@@ -38,6 +42,7 @@ function MultiplayerStage(props: ScreenProps): JSX.Element {
             connected={sync.status().online}
             moving={props.controls.moving()}
             syncKey={props.controls.boardSync()}
+            view={props.view}
             onMove={props.controls.play}
           />
         )}
@@ -95,13 +100,17 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
         aside={
           <>
             <Show when={props.data.game()}>
-              {(game) => <MultiplayerMoves game={game()} />}
+              {(game) => <MultiplayerMoves game={game()} view={props.view} />}
             </Show>
             <MultiplayerRatings ratings={props.data.ratings()} />
           </>
         }
       >
-        <MultiplayerStage data={props.data} controls={props.controls} />
+        <MultiplayerStage
+          data={props.data}
+          controls={props.controls}
+          view={props.view}
+        />
       </GameLayout>
     </Show>
   );
@@ -110,6 +119,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
 export default function MultiplayerScreen(): JSX.Element {
   const data = useMultiplayerData();
   const controls = useMultiplayerControls(data);
+  const view = useOwnBoard(data.game);
   const dispatch = useSpaceRoomDispatch();
   return (
     <>
@@ -122,7 +132,7 @@ export default function MultiplayerScreen(): JSX.Element {
         screenId="chess-multiplayer"
         title={<Trans>Multiplayer chess</Trans>}
       >
-        <MultiplayerContent data={data} controls={controls} />
+        <MultiplayerContent data={data} controls={controls} view={view} />
       </GameScreen>
     </>
   );
