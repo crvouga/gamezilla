@@ -5,7 +5,6 @@ import { deriveChessPuzzleCellFeedback } from '@libs/chess-puzzle-shared/cell-fe
 describe('deriveChessPuzzleCellFeedback', () => {
   const none = {
     status: 'solving' as const,
-    wrongFromSquare: null,
     wrongToSquare: null,
     expectedFromSquare: null,
   };
@@ -14,16 +13,14 @@ describe('deriveChessPuzzleCellFeedback', () => {
     expect(deriveChessPuzzleCellFeedback(none)).toEqual({});
   });
 
-  test('wrong move: cross on origin and target', () => {
+  test('wrong move: cross only on the square the move ended on', () => {
     expect(
       deriveChessPuzzleCellFeedback({
         ...none,
         status: 'wrong',
-        wrongFromSquare: 'e2',
         wrongToSquare: 'e5',
       })
     ).toEqual({
-      e2: { kind: 'cross' },
       e5: { kind: 'cross' },
     });
   });

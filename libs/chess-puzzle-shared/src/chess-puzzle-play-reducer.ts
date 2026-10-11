@@ -48,7 +48,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.furthestSolveIdx(p.solveIdx),
       ...ChessPuzzlePlayAttr.layoutKey(0),
       ...ChessPuzzlePlayAttr.wrongUci(null),
-      ...ChessPuzzlePlayAttr.wrongFromSquare(null),
       ...ChessPuzzlePlayAttr.wrongToSquare(null),
       ...ChessPuzzlePlayAttr.expectedFromSquare(null),
       ...ChessPuzzlePlayAttr.expectedToSquare(null),
@@ -76,7 +75,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.furthestSolveIdx(nextFurthest),
       ...ChessPuzzlePlayAttr.status(ev.payload.status),
       ...ChessPuzzlePlayAttr.wrongUci(null),
-      ...ChessPuzzlePlayAttr.wrongFromSquare(null),
       ...ChessPuzzlePlayAttr.wrongToSquare(null),
       ...ChessPuzzlePlayAttr.expectedFromSquare(null),
       ...ChessPuzzlePlayAttr.expectedToSquare(null),
@@ -86,15 +84,15 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.recommendations({}),
     };
   })
-  // The wrong move is never applied: the display stays put, so the dragged
-  // piece snaps back (layoutKey remounts the board on the same FEN).
+  // The wrong move is never applied to the reached position: `displayFen`
+  // stays put and the board shows the piece on its wrong square from
+  // `wrongUci` until a retry (layoutKey resyncs the board).
   .on(ChessPuzzlePlayMoveRejected, (state, _ctx, ev) => ({
     ...state,
     ...decidePuzzleResult(state, 'failed', 500),
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.wrong),
     ...ChessPuzzlePlayAttr.wrongUci(ev.payload.uci),
-    ...ChessPuzzlePlayAttr.wrongFromSquare(ev.payload.wrongFromSquare),
     ...ChessPuzzlePlayAttr.wrongToSquare(ev.payload.wrongToSquare),
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
@@ -108,7 +106,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.status(ev.payload.status),
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
     ...ChessPuzzlePlayAttr.wrongUci(null),
-    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
     ...ChessPuzzlePlayAttr.wrongToSquare(null),
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
@@ -121,7 +118,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.status(ev.payload.status),
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
     ...ChessPuzzlePlayAttr.wrongUci(null),
-    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
     ...ChessPuzzlePlayAttr.wrongToSquare(null),
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
@@ -136,7 +132,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.revealed),
     ...ChessPuzzlePlayAttr.endedAtMs(ev.payload.endedAtMs),
     ...ChessPuzzlePlayAttr.wrongUci(null),
-    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
     ...ChessPuzzlePlayAttr.wrongToSquare(null),
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
@@ -149,7 +144,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.skipped),
     ...ChessPuzzlePlayAttr.endedAtMs(ev.payload.endedAtMs),
     ...ChessPuzzlePlayAttr.wrongUci(null),
-    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
     ...ChessPuzzlePlayAttr.wrongToSquare(null),
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
@@ -207,7 +201,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.furthestSolveIdx(0),
     ...ChessPuzzlePlayAttr.layoutKey(0),
     ...ChessPuzzlePlayAttr.wrongUci(null),
-    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
     ...ChessPuzzlePlayAttr.wrongToSquare(null),
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
@@ -232,7 +225,6 @@ export function chessPuzzlePlayInitialAttrs(): RoomState {
     ...ChessPuzzlePlayAttr.furthestSolveIdx(0),
     ...ChessPuzzlePlayAttr.layoutKey(0),
     ...ChessPuzzlePlayAttr.wrongUci(null),
-    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
     ...ChessPuzzlePlayAttr.wrongToSquare(null),
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),

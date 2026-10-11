@@ -20,6 +20,7 @@ import {
   SubmitChessPuzzleMove,
 } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import { CHESS_PUZZLE_MAX_RECOMMENDATIONS } from '@libs/chess-puzzle-shared/recommendations';
+import { projectBoardFen } from '@libs/chess-puzzle-shared/solve-projection';
 import type { RoomCommand, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 
@@ -216,7 +217,7 @@ describe('chess puzzle play FSM — Submit', () => {
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(4);
   });
 
-  test('wrong move is not applied (the piece returns) and flips to wrong', () => {
+  test('wrong move is not applied to the reached position and flips to wrong', () => {
     let state = startValid(ChessModule.initialState());
     const before = ChessPuzzlePlayAttr.layoutKey.from(state);
     const beforeFen = ChessPuzzlePlayAttr.displayFen.from(state);
@@ -237,10 +238,11 @@ describe('chess puzzle play FSM — Submit', () => {
       CHESS_PUZZLE_PLAY_STATUS.wrong
     );
     expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(before + 1);
-    // §5: the piece returns — the board keeps the position it moved from.
+    // §5: the reached position is kept; the board paints the wrong move
+    // over it from `wrongUci` (`projectBoardFen`).
     expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(beforeFen);
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
-    expect(ChessPuzzlePlayAttr.wrongFromSquare.from(state)).toBe('h1');
+    expect(ChessPuzzlePlayAttr.wrongUci.from(state)).toBe('h1h2');
     expect(ChessPuzzlePlayAttr.wrongToSquare.from(state)).toBe('h2');
   });
 
@@ -276,6 +278,35 @@ describe('chess puzzle play FSM — Submit', () => {
     if (res.ok) return;
     expect(res.error.type).toBe(ROOM_ERROR_TYPE.invalidCommand);
     expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(beforeFen);
+  });
+
+  test('the board keeps a wrong move on its square until the retry', () => {
+    const boardOf = (state: RoomState): string | null =>
+      projectBoardFen({
+        status: ChessPuzzlePlayAttr.status.from(state),
+        fen: ChessPuzzlePlayAttr.displayFen.from(state),
+        wrongUci: ChessPuzzlePlayAttr.wrongUci.from(state),
+      });
+    let state = startValid(ChessModule.initialState());
+    const reached = ChessPuzzlePlayAttr.displayFen.from(state);
+    expect(boardOf(state)).toBe(reached);
+    const wrong = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'h1h2' })),
+      HOST
+    );
+    if (!wrong.ok) throw new Error('wrong submit failed');
+    state = reduceAll(state, wrong.events);
+    // The rook stands on h2, where it was dropped; h1 is empty.
+    expect(boardOf(state)).toBe('8/3k4/8/8/8/8/4P2R/4K3 b - - 2 2');
+    const reset = ChessModule.handle(
+      state,
+      cmd(ResetChessPuzzlePlay({})),
+      HOST
+    );
+    if (!reset.ok) throw new Error('retry failed');
+    state = reduceAll(state, reset.events);
+    expect(boardOf(state)).toBe(reached);
   });
 
   test('wrong then retry then correct returns to solving and advances', () => {
@@ -419,7 +450,7 @@ describe('chess puzzle play FSM — Hint', () => {
     expect(reset.ok).toBe(true);
     if (!reset.ok) return;
     state = reduceAll(state, reset.events);
-    expect(ChessPuzzlePlayAttr.wrongFromSquare.from(state)).toBeNull();
+    expect(ChessPuzzlePlayAttr.wrongUci.from(state)).toBeNull();
     expect(ChessPuzzlePlayAttr.wrongToSquare.from(state)).toBeNull();
     expect(ChessPuzzlePlayAttr.expectedFromSquare.from(state)).toBeNull();
     expect(ChessPuzzlePlayAttr.expectedToSquare.from(state)).toBeNull();

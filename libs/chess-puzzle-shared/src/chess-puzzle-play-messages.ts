@@ -95,7 +95,6 @@ function validateMoveRejectedPayload(payload: unknown): payload is {
   uci: string;
   san: string;
   layoutKey: number;
-  wrongFromSquare: string;
   wrongToSquare: string;
 } {
   if (!isPlainRecord(payload)) return false;
@@ -103,7 +102,6 @@ function validateMoveRejectedPayload(payload: unknown): payload is {
     isNonEmptyString(payload['uci']) &&
     isNonEmptyString(payload['san']) &&
     isNonNegativeInteger(payload['layoutKey']) &&
-    isNonEmptyString(payload['wrongFromSquare']) &&
     isNonEmptyString(payload['wrongToSquare'])
   );
 }
