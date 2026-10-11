@@ -5,6 +5,7 @@ import { SessionAuth } from '@libs/auth-shared/session-middleware';
 import { AUTH_TABLES } from '@libs/auth-shared/tables';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
+import { reconcileOutbox } from '@pkgs/outbox-shared/reconcile';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
 import sql from '@pkgs/sql-root-shared/sql';
 import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
@@ -15,6 +16,7 @@ test('stale deletion proof is rejected after the install gains a new anonymous o
   await db.connect();
   try {
     await reconcileSqliteSchema(db, registerTables(AUTH_TABLES));
+    await reconcileOutbox(db);
     const ports = createHarnessAdapters({ seed: 47 });
     const users = new AnonUserService(db, ports);
     const device = '11111111-1111-4111-8111-111111111147';

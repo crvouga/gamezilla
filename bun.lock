@@ -278,6 +278,7 @@
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/http-client-shared": "workspace:*",
+        "@pkgs/kv-root-shared": "workspace:*",
         "@pkgs/logger-shared": "workspace:*",
         "@pkgs/observability-root-server": "workspace:*",
         "@pkgs/observability-root-shared": "workspace:*",
@@ -670,6 +671,7 @@
       "devDependencies": {
         "@pkgs/db-schema-root-shared": "workspace:*",
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
+        "@pkgs/outbox-shared": "workspace:*",
         "@pkgs/sql-client-sqlite-root-server": "workspace:*",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",

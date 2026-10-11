@@ -1,11 +1,11 @@
 import { auditTree } from '@pkgs/a11y-shared/audit';
+import { dispatchWindowEvent } from '@pkgs/bun-test-solid-client/register';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { defineAction } from '@pkgs/harness-root-shared/define-action';
 import { defineProperty } from '@pkgs/harness-root-shared/define-property';
 import { defineRuntime } from '@pkgs/harness-root-shared/define-runtime';
 import { defineSystem } from '@pkgs/harness-root-shared/define-system';
 import { virtualTimeRuntime } from '@pkgs/harness-root-shared/virtual-time-runtime';
-import { dispatchWindowEvent } from '@pkgs/bun-test-solid-client/register';
 import { annotationActions } from './annotation-actions';
 import { appearanceActions } from './annotation-appearance';
 import { beginArrowObservation } from './annotation-model';

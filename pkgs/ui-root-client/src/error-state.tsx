@@ -140,12 +140,12 @@ function ErrorCopyButton(props: {
   );
 }
 
-function needsErrorCatalog(props: {
-  copy: ErrorStateCopy | undefined;
-  retry: ErrorStateRetry | undefined;
-}): boolean {
-  if (props.copy !== undefined) return true;
-  return props.retry !== undefined && props.retry.label === undefined;
+function needsErrorCatalog(
+  copy: ErrorStateCopy | undefined,
+  retry: ErrorStateRetry | undefined
+): boolean {
+  if (copy !== undefined) return true;
+  return retry !== undefined && retry.label === undefined;
 }
 
 function ErrorActionRow(props: {
@@ -267,7 +267,7 @@ function CatalogErrorActions(props: ErrorActionProps): JSX.Element {
 function ErrorActions(props: ErrorActionProps): JSX.Element {
   return (
     <Show
-      when={needsErrorCatalog({ copy: props.copy, retry: props.retry })}
+      when={() => needsErrorCatalog(props.copy, props.retry)}
       fallback={<SpecifiedErrorActions {...props} />}
     >
       <CatalogErrorActions {...props} />

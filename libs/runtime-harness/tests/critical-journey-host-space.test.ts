@@ -113,6 +113,7 @@ function node(world: World, id: string): DriverNode {
     if (state === 'hidden' && shown()) throw new Error(`${id} is visible`);
   };
   const self: DriverNode = {
+    attribute: () => Promise.resolve(null),
     get: (child) => node(world, child),
     tap: async () => {
       assertState('visible');

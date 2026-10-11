@@ -25,11 +25,11 @@ import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
 import { parseOpenSlo } from '@pkgs/openslo-shared/parse';
 import type { SpecPackage } from '../scripts/spec-packages';
 import { REPO_ROOT, SPECS_DIR, specPackages } from '../scripts/spec-packages';
+import { MAIN_CHECK_TASKS } from '../scripts/turbo-ci-run';
 import { campaignBindings } from './campaigns';
 import { EVIDENCE_MAP } from './evidence-map';
 import type { PackageScripts, TurboTasks } from './gating-tasks';
 import { reachableCheckTasks } from './gating-tasks';
-import { MAIN_CHECK_TASKS } from '../scripts/turbo-ci-run';
 
 export const MANIFEST_PATH = `${SPECS_DIR}/conformance.yaml`;
 /** The task that runs a package's live domains against a deployment. */

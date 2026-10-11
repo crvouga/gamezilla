@@ -331,6 +331,7 @@ When('{actor} looks up {actor}', async (w, actor: Actor, other: Actor) => {
 Given(
   "{actor} is viewing {actor}'s profile",
   async (w, actor: Actor, other: Actor) => {
+    await prepareNamedFriend(w.s, other);
     await w.s.apply(openPersonFromSearch, actor, other);
   }
 );

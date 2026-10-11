@@ -32,13 +32,18 @@ export async function createApplicationHost(
     offline,
   });
   // The ordinary HTTP health gate is registered against this environment identity.
-  const env = Object.assign(wall, devicePorts, { kv }, {
-    openSqlClient: async () => {
-      const db = SqlClientImplBunSqlite.openMemory();
-      await db.connect();
-      return db;
-    },
-  });
+  const env = Object.assign(
+    wall,
+    devicePorts,
+    { kv },
+    {
+      openSqlClient: async () => {
+        const db = SqlClientImplBunSqlite.openMemory();
+        await db.connect();
+        return db;
+      },
+    }
+  );
   await env.secureStorage.write(DEVICE_ID_KEY, input.deviceId);
   const client = createClient(env, {
     features: APP_FEATURE_CLIENTS,

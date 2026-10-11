@@ -301,7 +301,9 @@ describe('turbo check/deploy graph invariants', () => {
   test('deploy depends only on live-environment tasks after the Check workflow', () => {
     const tasks = loadTasks();
     expect(tasks['//#deploy']?.dependsOn).toEqual([...DEPLOY_ONLY]);
-    expect(flattenCheckAggregators(['deploy'], tasks)).toEqual(DEPLOY_ONLY);
+    expect(flattenCheckAggregators(['deploy'], tasks)).toEqual([
+      ...DEPLOY_ONLY,
+    ]);
   });
 
   test('local runners go through turbo-ci-run', () => {

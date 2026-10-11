@@ -72,7 +72,11 @@ export function ChessPuzzleTestHints(
       >
         {props.orientation()}
       </p>
-      <p class="text textBody" style={hintStyle} data-testid="chess-puzzle-expected-uci">
+      <p
+        class="text textBody"
+        style={hintStyle}
+        data-testid="chess-puzzle-expected-uci"
+      >
         {uci() ?? ''}
       </p>
       <p
@@ -80,7 +84,11 @@ export function ChessPuzzleTestHints(
         style={hintStyle}
         data-testid="chess-puzzle-test-debug"
       >{`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}|${props.hintStage()}|${props.puzzleRating()}|${props.themes().join(',')}`}</p>
-      <p class="text textBody" style={hintStyle} data-testid="chess-puzzle-test-fen">
+      <p
+        class="text textBody"
+        style={hintStyle}
+        data-testid="chess-puzzle-test-fen"
+      >
         {props.displayFen() ?? ''}
       </p>
       <p

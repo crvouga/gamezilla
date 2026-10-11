@@ -92,6 +92,11 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.chessCustomJoin, 'deny', 'deny', 'deny'],
   [PERMISSION.chessCustomPlay, 'deny', 'deny', 'deny'],
   [PERMISSION.chessCustomWatch, 'deny', 'deny', 'deny'],
+  [PERMISSION.syntheticPopulationView, 'deny', 'deny', 'deny'],
+  [PERMISSION.syntheticPopulationInspect, 'deny', 'deny', 'deny'],
+  [PERMISSION.syntheticPopulationConfigure, 'deny', 'deny', 'deny'],
+  [PERMISSION.syntheticPopulationControl, 'deny', 'deny', 'deny'],
+  [PERMISSION.syntheticPopulationReplay, 'deny', 'deny', 'deny'],
   [ACTION.puzzleRatedSolve, '20/day', 'unlimited/day', 'unlimited/day'],
 ];
 

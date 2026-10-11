@@ -5,6 +5,7 @@ import { AUTH_TABLES } from '@libs/auth-shared/tables';
 import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
+import { reconcileOutbox } from '@pkgs/outbox-shared/reconcile';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
 import sql from '@pkgs/sql-root-shared/sql';
@@ -24,6 +25,7 @@ function makeFakeAuthServer(): AuthServerPort {
 
 async function migrateAuthTables(db: SqlClient): Promise<void> {
   await reconcileSqliteSchema(db, registerTables([...AUTH_TABLES]));
+  await reconcileOutbox(db);
 }
 
 const EXTERNAL_USER_ID = 'user_external_2';

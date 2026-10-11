@@ -7,10 +7,7 @@ const root = resolve(import.meta.dirname, '../../..');
 const foundation = resolve(root, 'libs/infra-shared/tofu/stacks/foundation');
 process.env['TF_VAR_state_passphrase'] ??= 'ci-provider-validation-only';
 
-for (const args of [
-  ['init', '-backend=false', '-input=false'],
-  ['validate'],
-]) {
+for (const args of [['init', '-backend=false', '-input=false'], ['validate']]) {
   const result = spawnSync('tofu', args, {
     cwd: foundation,
     stdio: 'inherit',
