@@ -6,7 +6,8 @@
 # the Grafana stack, generated secrets, and any type added in the future —
 # is protected by default, so forgetting to classify a new stateful resource
 # cannot lose data. Retire such a resource with a
-# `removed { lifecycle { destroy = false } }` block (a "forget", not a delete).
+# `removed { lifecycle { destroy = false } }` block (a "forget", not a delete),
+# or, for one instance of a `for_each`, by naming it in `retired`.
 #
 # The one exception is tearing a whole environment down on purpose
 # (`bun run infra:destroy`): ../infra-server/scripts/tofu.ts adds `input.teardown` with the
@@ -55,6 +56,17 @@ deletable := {
 	# matchmaking and games remain in the existing durable services.
 }
 
+# Generated secrets retired on purpose. Each value protected something that no
+# longer exists, so deleting it loses no data. A `removed` block cannot forget
+# one `for_each` instance (OpenTofu refuses an address with a key), so the
+# instance is named here instead. Delete an entry once every environment has
+# applied without it.
+retired := {
+	# Sealed the Synthetic Users' sign-in secrets. They sign in with emailed
+	# links now, and nothing is sealed for them.
+	"module.secrets.random_password.generated_value[\"POPULATION_CREDENTIAL_SECRET\"]",
+}
+
 # An array, not a set: two identical change objects are still two changes.
 managed_changes := [rc | some rc in input.resource_changes; rc.mode == "managed"]
 
@@ -72,6 +84,7 @@ deny contains msg if {
 	some rc in managed_changes
 	deletes(rc)
 	not rc.type in deletable
+	not rc.address in retired
 	not teardown
 	msg := sprintf(
 		"%s: refusing to %s a %s — it may hold data. Use a `removed { lifecycle { destroy = false } }` block to stop managing it.",
