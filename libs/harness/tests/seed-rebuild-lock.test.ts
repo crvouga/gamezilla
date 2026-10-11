@@ -50,3 +50,23 @@ test('a lock left by a dead process is taken over', async () => {
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+// regression: harness-seed-lock-missing-cache-dir
+test('a checkout with no cache directory still rebuilds its seed', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'seed-lock-'));
+  // Literal failing input: `<package>/.cache` absent, as in a fresh checkout.
+  const cache = join(dir, '.cache');
+  try {
+    let ran = false;
+    await withSeedRebuildLock(
+      cache,
+      'harness-seed-wire-isolation',
+      async () => {
+        ran = true;
+      }
+    );
+    expect(ran).toBe(true);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
