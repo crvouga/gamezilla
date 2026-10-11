@@ -212,6 +212,7 @@ test('an empty successful part has a reusable completion record', async () => {
 });
 
 // regression: report-missing-snapshot-published-complete
+// regression: report-catalog-fixture-missing-snapshots
 test('a missing snapshot cannot leave a reusable complete marker', async () => {
   const remote = new TrackingStore();
   const local = await localBucket();

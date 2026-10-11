@@ -7,6 +7,11 @@
  * `specs/spaces/space-hosting.qnt`, `specs/billing/access.dmn`) goes
  * only to the package whose `specDomains` lists its domain. Live domains
  * (`liveDomains`) run through `bun run health`, never here.
+ *
+ * A failed package stops the run, so the first red is the last thing printed.
+ * `--keep-going` (`bun atlas:run`) runs every selected package regardless, so
+ * Atlas receives evidence from all of them, and still exits with the first
+ * failure's status.
  */
 
 import { spawn, spawnSync } from 'node:child_process';
@@ -16,6 +21,7 @@ import { wallClock } from '@pkgs/clock-shared/wall';
 import { REPO_ROOT, specPackages } from './spec-packages';
 
 type Cli = {
+  readonly keepGoing: boolean;
   readonly packages: ReadonlySet<string>;
   readonly runnerArgs: readonly string[];
 };
@@ -23,9 +29,12 @@ type Cli = {
 function parseCli(argv: readonly string[]): Cli {
   const packages = new Set<string>();
   const runnerArgs: string[] = [];
+  let keepGoing = false;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i] ?? '';
-    if (arg === '--package') {
+    if (arg === '--keep-going') {
+      keepGoing = true;
+    } else if (arg === '--package') {
       const name = argv[++i];
       if (name === undefined)
         throw new Error('--package needs a workspace name');
@@ -36,7 +45,7 @@ function parseCli(argv: readonly string[]): Cli {
       runnerArgs.push(arg);
     }
   }
-  return { packages, runnerArgs };
+  return { keepGoing, packages, runnerArgs };
 }
 
 function hasSpecScript(dir: string): boolean {
@@ -132,8 +141,8 @@ for (const pkg of selected) {
   );
   collectors.push(collectionTail);
   if (result.status !== 0) {
-    failure = result.status ?? 1;
-    break;
+    failure ??= result.status ?? 1;
+    if (!cli.keepGoing) break;
   }
 }
 const collectionStatuses = await Promise.all(collectors);

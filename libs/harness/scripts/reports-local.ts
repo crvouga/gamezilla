@@ -25,7 +25,7 @@ import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { publishCheckoutInventory } from './report-inventory';
-import { type ReportOrigin, reportOrigin } from './report-origin';
+import { type ReportOrigin, reportBranch, reportOrigin } from './report-origin';
 import { reportsStore } from './report-store';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
@@ -49,6 +49,8 @@ async function collect(): Promise<void> {
   if (attemptIdArg >= 0 && !attemptId)
     throw new Error('--attempt-id needs a completed-run identifier');
   const origin = reportOrigin(ROOT);
+  // Atlas combines and filters layers by branch; a detached checkout is `local`.
+  const branch = reportBranch(ROOT) ?? 'local';
   const target = store(join(ROOT, '.cache/local-reports'));
   const opened = new Set<string>();
   const frameCss = compileFrameCss(ROOT);
@@ -75,7 +77,7 @@ async function collect(): Promise<void> {
       if (produced?.clean) await publishCheckoutInventory(target, ROOT, sha);
       await openCommit(target, {
         sha,
-        branch: 'local',
+        branch,
         runUrl: null,
         startedAtMs: 0,
         frameCss,

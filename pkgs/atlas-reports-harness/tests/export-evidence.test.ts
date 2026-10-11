@@ -79,12 +79,19 @@ test('static Atlas export preserves revision specs, outcomes, timeline and snaps
   expect(exported.layers).toBeGreaterThan(0);
   // regression: atlas-layer-snapshot-path
   expect(exported.missing).toEqual([]);
-  const page = JSON.parse((await readUtf8(output, 'layers.json'))!) as {
-    layers: { id: string }[];
-  };
+  const page = JSON.parse(
+    (await readUtf8(output, evidenceFile('/evidence')))!
+  ) as { layers: { id: string; backend: string }[] };
   expect(page.layers).toHaveLength(1);
-  const base = `/layers/${page.layers[0]!.id}/tests/adds-tea/report.json`;
+  const layer = page.layers[0]!;
+  const base = `/layers/${layer.id}/tests/adds-tea/report.json`;
   expect(await readUtf8(output, evidenceFile(base))).toContain('adds-tea');
+  expect(
+    await readUtf8(
+      output,
+      evidenceFile(`/evidence/rows/${layer.backend}/${layer.id}`)
+    )
+  ).toContain('specs/lists/add.feature');
   expect(
     await readUtf8(
       output,
@@ -94,5 +101,5 @@ test('static Atlas export preserves revision specs, outcomes, timeline and snaps
   expect((await output.listKeys()).some((key) => key.includes('/files/'))).toBe(
     true
   );
-  expect(await readUtf8(output, 'layers.json')).toContain(sha);
+  expect(await readUtf8(output, evidenceFile('/evidence'))).toContain(sha);
 });

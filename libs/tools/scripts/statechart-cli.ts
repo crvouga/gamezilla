@@ -192,7 +192,7 @@ async function main(): Promise<void> {
   const [command = 'check', ...flags] = process.argv.slice(2);
   if (flags.includes('--help') || flags.includes('-h')) {
     console.log(
-      'bun atlas:lint — validate composition, source closure, complete traversal and serialization.\nbun atlas:run — build Atlas with all specs and recorded evidence.\nbun atlas:export — export the validated product model as SCXML.\nbun atlas:viz [--port N] [--host HOST] — explore without the application server.'
+      'bun atlas:lint — validate composition, source closure, complete traversal and serialization.\nbun atlas:build — build the standalone Atlas site with all specs and recorded evidence.\nbun atlas:export — export the validated product model as SCXML.\nbun atlas:viz [--port N] [--host HOST] — explore specs and reports without the application server.\nbun atlas:run runs every spec suite and records its reports for Atlas (libs/tools/scripts/spec-run.ts).'
     );
     return;
   }

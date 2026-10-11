@@ -1,6 +1,10 @@
 import { expect, test } from 'bun:test';
-import { combineLayers } from '@crvouga/atlas-reports/layer-merge';
-import type { LayerPage } from '@crvouga/atlas-reports/layer-types';
+import type {
+  EvidencePage,
+  LayerEvidence,
+  LayerRows,
+} from '@crvouga/atlas-reports/evidence-types';
+import { combineEvidence } from '@crvouga/atlas-reports/layer-merge';
 import type { ObjectStore } from '@crvouga/atlas-reports/object-store';
 import { publicationStore } from '@crvouga/atlas-reports/publication';
 import { openCommit, publishSource } from '@crvouga/atlas-reports/publish';
@@ -19,6 +23,30 @@ import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-
 
 const sha = 'a'.repeat(40);
 const path = 'specs/list.feature';
+
+type App = { request: (path: string) => Response | Promise<Response> };
+
+async function page(app: App, cursor?: string): Promise<EvidencePage> {
+  const query = cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
+  return (await (
+    await app.request(`/evidence${query}`)
+  ).json()) as EvidencePage;
+}
+
+/** Each layer of a page with its checks, as the explorer reads them. */
+async function evidence(
+  app: App,
+  layers: EvidencePage['layers']
+): Promise<LayerEvidence[]> {
+  return Promise.all(
+    layers.map(async (layer) => {
+      const response = await app.request(
+        `/evidence/rows/${layer.backend}/${encodeURIComponent(layer.id)}`
+      );
+      return { ...((await response.json()) as LayerRows), layer };
+    })
+  );
+}
 async function publish(
   store: ObjectStore,
   at: number,
@@ -75,8 +103,7 @@ test('same-commit reruns keep independent immutable layers and lazy recordings a
   await publish(store, 2, 'failed');
   await pruneReports(store);
   const app = createReportsApp({ store, ...createHarnessClock() });
-  const page = (await (await app.request('/layers')).json()) as LayerPage;
-  const layers = page.layers.filter(
+  const layers = (await page(app)).layers.filter(
     (layer) => layer.recording?.type === 'layer'
   );
   expect(layers).toHaveLength(2);
@@ -92,13 +119,13 @@ test('same-commit reruns keep independent immutable layers and lazy recordings a
       layer.recordedAtMs === 1 ? 'passed' : 'failed'
     );
   }
-  const result = combineLayers(
+  const result = combineEvidence(
     { specs: [specEntry(path, 'Feature: List')], sha, changedFiles: [] },
-    layers
+    await evidence(app, layers)
   );
   expect(
-    result.specs[0]?.results.find((result) => result.kind === 'behavior')?.check
-      .status
+    result.specs[0]?.results.find((result) => result.row.kind === 'behavior')
+      ?.row.status
   ).toBe('failed');
 });
 
@@ -113,15 +140,16 @@ test('warm layer pages avoid repeated object-store reads and discover new public
     return original(key);
   };
   const app = createReportsApp({ store, ...time });
-  expect((await app.request('/layers')).status).toBe(200);
+  expect((await app.request('/evidence')).status).toBe(200);
   const cold = reads;
-  expect((await app.request('/layers')).status).toBe(200);
+  expect((await app.request('/evidence')).status).toBe(200);
   expect(reads).toBe(cold);
   await publish(store, 2, 'failed');
   time.clock.advance(30_001);
-  const page = (await (await app.request('/layers')).json()) as LayerPage;
   expect(
-    page.layers.filter((layer) => layer.recording?.type === 'layer')
+    (await page(app)).layers.filter(
+      (layer) => layer.recording?.type === 'layer'
+    )
   ).toHaveLength(2);
 });
 
@@ -162,7 +190,7 @@ test('bounded pages preserve independent producer parameters and origins', async
     startedAtMs: 0,
     frameCss: '',
   });
-  for (let i = 0; i < 22; i++)
+  for (let i = 0; i < 45; i++)
     await publishPart(store, {
       sha,
       id: 'quality',
@@ -182,17 +210,15 @@ test('bounded pages preserve independent producer parameters and origins', async
       ],
     });
   const app = createReportsApp({ store, ...createHarnessClock() });
-  const first = (await (await app.request('/layers')).json()) as LayerPage;
-  expect(first.layers).toHaveLength(20);
+  const first = await page(app);
+  expect(first.layers).toHaveLength(40);
   expect(first.cursor).not.toBeNull();
-  const next = (await (
-    await app.request(`/layers?cursor=${encodeURIComponent(first.cursor!)}`)
-  ).json()) as LayerPage;
-  const result = combineLayers(
+  const next = await page(app, first.cursor!);
+  const result = combineEvidence(
     { specs: [specEntry(path, 'Feature: List')], sha, changedFiles: [] },
-    [...first.layers, ...next.layers]
+    await evidence(app, [...first.layers, ...next.layers])
   );
-  expect(result.specs[0]!.results).toHaveLength(22);
+  expect(result.specs[0]!.results).toHaveLength(45);
   expect(
     result.specs[0]!.results.every(
       (result) => result.layer.branch === 'experiment'
@@ -207,16 +233,15 @@ test('execution completion time orders layers independently of virtual timeline 
   await publish(store, 1, 'failed', 10);
   await publish(store, 1, 'passed', 20);
   const app = createReportsApp({ store, ...createHarnessClock() });
-  const page = (await (await app.request('/layers')).json()) as LayerPage;
-  const combined = combineLayers(
+  const combined = combineEvidence(
     { specs: [specEntry(path, 'Feature: List')], sha, changedFiles: [] },
-    page.layers
+    await evidence(app, (await page(app)).layers)
   );
   const behavior = combined.specs[0]!.results.filter(
-    (result) => result.kind === 'behavior'
+    (result) => result.row.kind === 'behavior'
   );
   expect(behavior).toHaveLength(1);
-  expect(behavior[0]!.check.status).toBe('passed');
+  expect(behavior[0]!.row.status).toBe('passed');
   expect(behavior[0]!.layer.recordedAtMs).toBe(20);
 });
 
@@ -225,9 +250,13 @@ test('attempt-isolated publication retains shared spec fingerprints in its layer
   const store = new ObjectStoreImplInMemory();
   await publish(publicationStore(store, 'attempt'), 1, 'passed');
   const app = createReportsApp({ store, ...createHarnessClock() });
-  const page = (await (await app.request('/layers')).json()) as LayerPage;
-  const layer = page.layers.find((layer) => layer.recording?.type === 'layer')!;
-  expect(layer.specs).toEqual([specEntry(path, 'Feature: List')]);
+  const layer = (await page(app)).layers.find(
+    (layer) => layer.recording?.type === 'layer'
+  )!;
+  const [recorded] = await evidence(app, [layer]);
+  expect(recorded!.fingerprints).toEqual({
+    [path]: specEntry(path, 'Feature: List').fingerprint!,
+  });
   expect(await store.head(`commits/${sha}/inventory.json`)).toBe(true);
   expect(
     (await app.request(`/layers/${layer.id}/tests/join/report.json`)).status

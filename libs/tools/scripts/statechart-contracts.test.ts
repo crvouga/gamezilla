@@ -184,7 +184,7 @@ describe('source-derived statechart guide', () => {
     const guide = productGuide(bundle, contracts);
     expect(unmappedContracts(bundle, contracts)).toEqual([]);
     expect(walkStates(guide).every(({ node }) => !node.invoke)).toBe(true);
-    expect(guide.states?.['Home']?.meta?.contracts).toEqual(contracts);
+    expect(guide.states?.['Home']?.meta?.['contracts']).toEqual(contracts);
     expect(
       guide.states?.['Home']?.states?.['Saved']?.meta?.checks
     ).toBeUndefined();

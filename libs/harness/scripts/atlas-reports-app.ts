@@ -3,6 +3,7 @@
 import { join } from 'node:path';
 import type { WorkspaceReports } from '@crvouga/atlas-reports/explorer-types';
 import { createReportsApp } from '@crvouga/atlas-reports/reports-route';
+import { compileFrameCss } from '@libs/harness/wall-frame-css';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
@@ -14,6 +15,7 @@ import { workspaceOutline } from './atlas-outline';
 import { createReportsObjectStore } from './atlas-report-store';
 import { loadReportsDevSecrets } from './atlas-reports-credentials';
 import { workspaceReports } from './atlas-workspace-reports';
+import { reportBranch, reportRevision } from './report-origin';
 
 type FetchApp = {
   fetch: (request: Request) => Promise<Response> | Response;
@@ -68,6 +70,28 @@ export async function openReportsDevApp(
       timers: wallTimers,
       workspace,
       outline,
+      // A running suite's finished tests, read from the bucket it writes.
+      live: {
+        bucket: (run) =>
+          /^(apps|libs|pkgs)\/[a-z0-9-]+$/.test(run.packageDir) &&
+          /^[a-z0-9-]+$/.test(run.bucket)
+            ? createNodeFsObjectStore({
+                rootDir: join(
+                  repoRoot,
+                  run.packageDir,
+                  '.cache/harness-report',
+                  run.bucket
+                ),
+                fs: wallNodeFs(),
+                layout: 'tree',
+              })
+            : null,
+        origin: async () => ({
+          sha: reportRevision(repoRoot),
+          branch: reportBranch(repoRoot),
+        }),
+        frameCss: async () => compileFrameCss(repoRoot),
+      },
     })
   );
 }
