@@ -57,7 +57,7 @@ const CASES = [
       'connectionReturns',
     ],
   },
-] as const;
+];
 
 test.each(CASES)(
   'paid access starts again after hosting trace $trace',
