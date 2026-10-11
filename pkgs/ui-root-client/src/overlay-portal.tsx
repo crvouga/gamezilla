@@ -11,6 +11,7 @@
  * stack host) still resolves this context.
  */
 
+import { layer } from '@pkgs/ui-root-shared/layers';
 import {
   type Accessor,
   createContext,
@@ -37,7 +38,7 @@ const OverlayPortalContext = createContext<OverlayPortalApi | null>(null);
  * nested roots (product-harness panels). Banners are in-flow layout slots, not
  * stacked above this host.
  */
-export const OVERLAY_PORTAL_Z_INDEX = 1_000_000;
+export const OVERLAY_PORTAL_Z_INDEX = layer.overlay;
 
 export type OverlayPortalProviderProps = {
   children: JSX.Element;

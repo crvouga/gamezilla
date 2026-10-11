@@ -5,8 +5,10 @@
  * existing edge padding. Wide mode uses them for the centered AppFrame column.
  */
 
-/** Max content width for the desktop AppFrame column (CSS px / dp). */
-export const APP_MAX_WIDTH = 1200;
+import { maxWidth } from './sizes';
+
+/** Max content width for the desktop AppFrame column: the `wide` measure. */
+export const APP_MAX_WIDTH = maxWidth.wide;
 
 /** Spacing-scale step for AppFrame gutters (1 = 4px → 16px). */
 export const APP_FRAME_GUTTER_STEP = 4;

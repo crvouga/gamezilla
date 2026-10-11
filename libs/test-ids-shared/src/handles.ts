@@ -178,6 +178,21 @@ export const Handles = {
   // sign-in modal
   authMethodGoogle: 'auth-method-google',
   authMethodApple: 'auth-method-apple',
+  /**
+   * "Continue with email": opens the emailed-link form in its own surface.
+   * Rendered only on a Synthetic User's application host.
+   */
+  authMethodEmail: 'auth-method-email',
+  /** Emailed-link form, first step: the address and "Email me a link". */
+  authEmailAddress: 'auth-email-address',
+  authEmailRequestLink: 'auth-email-request-link',
+  /** Second step ("Check your email"): the pasted link and "Sign in". */
+  authEmailLink: 'auth-email-link',
+  authEmailSignIn: 'auth-email-sign-in',
+  /** Second step → back to the first, to use a different address. */
+  authEmailChangeAddress: 'auth-email-change-address',
+  /** The modal's settled face after an attempt: signed in, or failed. */
+  authSignInOutcome: 'auth-sign-in-outcome',
   /** The modal's "Sign-in failed" face (cancelled, provider error, …). */
   authSignInFailed: 'auth-sign-in-failed',
   /** "Connect your accounts": prove the matched account, or keep apart. */

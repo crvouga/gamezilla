@@ -18,15 +18,12 @@ export function createHtmlSnapshotCache(
   const observer = new MutationObserver(() => {
     dirty = true;
   });
-  const body = document.body;
-  if (body !== null) {
-    observer.observe(body, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      characterData: true,
-    });
-  }
+  observer.observe(document.body, {
+    subtree: true,
+    childList: true,
+    attributes: true,
+    characterData: true,
+  });
   return {
     snapshot(options) {
       if (observer.takeRecords().length > 0) dirty = true;

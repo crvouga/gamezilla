@@ -1,36 +1,27 @@
 /**
- * Motion design tokens. Durations are short and CSS-driven (compositor
- * transitions only — no JS-thread animation), exposed as
- * `--ui-duration-*` / `--ui-easing-*` in `tokens.css`.
+ * Motion design tokens, read from `design-tokens.json`. Durations are short
+ * and CSS-driven (compositor transitions only — no JS-thread animation),
+ * exposed as `--ui-duration-*` / `--ui-easing-*` in `tokens.css`.
+ *
+ * - `instant` immediate ack (focus rings, pressed tints); `fast` most
+ *   micro-interactions (hover, press, switch thumb); `normal` layout-affecting
+ *   transitions (menu open, tab change); `slow` modal / overlay entrance and
+ *   dismissal; `slower` splash and large-area shimmer cycles.
+ * - `standard` decelerates into rest; `decelerate` for elements entering the
+ *   screen; `accelerate` for elements leaving; `inOut` for shimmer / pulse
+ *   loops; `playful` a slight overshoot for compositor-only presses.
  */
 
-export const duration = {
-  /** Immediate ack (focus rings, pressed tints). */
-  instant: 0,
-  /** Most micro-interactions (hover, press, switch thumb). */
-  fast: 120,
-  /** Default for layout-affecting transitions (menu open, tab change). */
-  normal: 200,
-  /** Modal / overlay entrance + dismissive transitions. */
-  slow: 280,
-  /** Splash / large-area shimmer cycles. */
-  slower: 600,
-} as const;
+import { readCubicBezier, readGroup, readMs } from './design-tokens';
+import { motion as motionTokens } from './design-tokens.json';
+
+/** Milliseconds per named duration. */
+export const duration = readGroup({}, motionTokens.duration, readMs);
 
 export type DurationKey = keyof typeof duration;
 
-export const easing = {
-  /** Standard for most transitions -- decelerates into rest. */
-  standard: 'cubic-bezier(0.2, 0, 0, 1)',
-  /** Use for elements entering the screen. */
-  decelerate: 'cubic-bezier(0, 0, 0, 1)',
-  /** Use for elements leaving the screen. */
-  accelerate: 'cubic-bezier(0.3, 0, 1, 1)',
-  /** Symmetric ease-in-out, useful for shimmer / pulse loops. */
-  inOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  /** Slight overshoot for compositor-only presses (transform, not layout). */
-  playful: 'cubic-bezier(0.34, 1.4, 0.64, 1)',
-} as const;
+/** CSS `cubic-bezier(…)` per named curve. */
+export const easing = readGroup({}, motionTokens.easing, readCubicBezier);
 
 export type EasingKey = keyof typeof easing;
 

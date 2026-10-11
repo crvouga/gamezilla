@@ -2,7 +2,7 @@
  * Registry of UI explorer examples.
  *
  * A plain typed module: every `<name>.example.tsx` default export is listed
- * once (in `registry-entries-core.ts` / `registry-entries-display.ts`) under a
+ * once (in a `registry-entries-*.ts` module) under a
  * stable kebab-case `id`. `ExplorerList` / `ExplorerDetail` read the registry
  * (or a caller-owned `entries` subset); there is no runtime registration —
  * apps that need extra entries pass their own `entries`.
@@ -12,11 +12,13 @@ import type { CatalogItem } from '@pkgs/ui-root-shared/catalog-item';
 import type { ComponentEntry } from '@pkgs/ui-root-shared/component-entry';
 import { CORE_ENTRIES } from './registry-entries-core';
 import { DISPLAY_ENTRIES } from './registry-entries-display';
+import { PRIMITIVE_ENTRIES } from './registry-entries-primitives';
 
 export type ComponentRegistry = Readonly<Record<string, ComponentEntry>>;
 
 const ENTRIES: readonly ComponentEntry[] = [
   ...CORE_ENTRIES,
+  ...PRIMITIVE_ENTRIES,
   ...DISPLAY_ENTRIES,
 ];
 

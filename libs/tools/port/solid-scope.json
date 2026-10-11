@@ -103,7 +103,6 @@
     "libs/app-root-client/src/more.tsx",
     "libs/app-root-client/src/multiplayer-chess-client.tsx",
     "libs/app-root-client/src/not-found.tsx",
-    "libs/app-root-client/src/offline-indicator.tsx",
     "libs/app-root-client/src/open-main-sql-client.ts",
     "libs/app-root-client/src/origin-availability-for-env.ts",
     "libs/app-root-client/src/perf-hud-overlay.tsx",

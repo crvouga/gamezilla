@@ -85,7 +85,7 @@ function pinnedHeight(node: HTMLElement, message: string): number {
   if (node.style.flexShrink !== '0') {
     throw new Error('retry slot can shrink out of the band');
   }
-  if (node.textContent?.includes(message.trim()) === true) {
+  if (node.textContent.includes(message.trim())) {
     throw new Error('wrapping message sits in the retry slot');
   }
   return readPx(node.style.minHeight);
@@ -98,7 +98,7 @@ function assertShrinkRegion(node: HTMLElement): void {
   if (!node.style.flex.startsWith('1')) {
     throw new Error('message region cannot shrink inside the band');
   }
-  if (!node.textContent?.includes('room locked the row')) {
+  if (!node.textContent.includes('room locked the row')) {
     throw new Error('wrapping message is not in the shrinking region');
   }
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "The lobby card's handle moved from inside the card's button to the panel row around it, so pressing the card by its handle no longer opened the space. Returning to a retained space from the lobby timed out. The handle is back on the pressable content.",
+  "regressionTest": "specs/spaces/space-host-leaves.feature"
+}

@@ -16,7 +16,7 @@
     "build": "bun run scripts/build.ts",
     "evaluate": "bun run scripts/evaluate.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "prepack": "bun run build",
+    "prepack": "bun run scripts/build.ts",
     "setup": "bun run src/cli.ts setup",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests"

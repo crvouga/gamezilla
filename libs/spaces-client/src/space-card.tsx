@@ -15,12 +15,12 @@ export function SpaceCard(props: SpaceCardProps): JSX.Element {
   const endedAt = useSpaceColumn(() => props.spaceId, SpaceField.endedAt);
   return (
     <Show when={endedAt() === null}>
-      <div
-        class="panelItem"
-        data-testid={Handles.spaceLobbyCard(props.spaceId)}
-      >
+      <div class="panelItem">
         <SpaceCardOpenLink spaceId={props.spaceId}>
-          <div class="box p-4">
+          <div
+            class="box p-4"
+            data-testid={Handles.spaceLobbyCard(props.spaceId)}
+          >
             <SpaceSummaryHeader spaceId={props.spaceId} />
             <SpaceGuestSection spaceId={props.spaceId} />
           </div>

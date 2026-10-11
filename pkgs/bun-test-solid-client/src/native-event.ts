@@ -15,6 +15,8 @@ export function rememberNativeEvent(
 }
 
 /** The constructor `view.dispatchEvent` will accept. */
-export function eventConstructor(view: Pick<Window, 'Event'>): typeof Event {
-  return saved ?? view.Event;
+export function eventConstructor(
+  view: Window | { readonly Event: typeof Event }
+): typeof Event {
+  return saved ?? (view as { readonly Event: typeof Event }).Event;
 }
