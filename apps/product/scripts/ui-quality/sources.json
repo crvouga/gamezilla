@@ -28,5 +28,10 @@
     "package": "@libs/runtime-harness",
     "directory": "libs/runtime-harness",
     "parts": 15
+  },
+  {
+    "package": "@libs/synthetic-population-harness",
+    "directory": "libs/synthetic-population-harness",
+    "parts": 1
   }
 ]
