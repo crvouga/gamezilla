@@ -496,7 +496,9 @@ terms:
       In a Custom Game they have no accepted side and cannot move pieces. Their board agrees with
       the host's, even after arriving mid-puzzle or losing the connection. A
       watcher may make a suggestion but never drives the puzzle and is never
-      rated for it.
+      rated for it. In a multiplayer game a watcher may flip the board or
+      review an earlier position on their own device, which changes nobody
+      else's board.
     forms: [watch, watches, watched, watching]
     model: [shownMoves, shownWinner, canMove]
     avoid: [spectator, viewer, observer]
@@ -589,7 +591,9 @@ terms:
       Stepping through a played puzzle's whole line from the game log. It
       opens on the final position; stepping one move animates and jumping
       snaps straight to a position. The current move is highlighted in the
-      review's move list, in algebraic notation.
+      review's move list, in algebraic notation. In a multiplayer game,
+      reviewing is looking at an earlier position of that game on one's own
+      device.
     forms: [reviews, reviewing, reviewed]
     avoid: [replay, analysis]
     model: [stepBackPosition, stepForwardPosition, position, chooseReviewPosition, tryReviewBeforeRetry, stepPuzzleSoundReview]
@@ -654,6 +658,11 @@ terms:
 
   - term: keyboard
     from: runtime
+    forms: [left arrow, right arrow]
+  - term: stand-in name
+    from: profile
+  - term: stop allowing
+    from: profile
 
   # --- Multiplayer chess -------------------------------------------------------
 
@@ -667,7 +676,9 @@ terms:
       multiplayer game, across all devices. White starts; both people see
       their colour, their multiplayer opponent, both multiplayer clocks and
       the same board. Colours follow the colour balance and stay fixed for
-      the game.
+      the game. Each person and every watcher may flip the board or review
+      an earlier position on their own device, which changes nothing for
+      anyone else.
     forms: [multiplayer game, multiplayer games, multiplayer board, multiplayer boards]
     model: [PlayGame, PlayWorld, playNumber, playSide, whiteSide, blackSide, playBoard, PlayBoard]
     published: true
@@ -788,8 +799,10 @@ terms:
   - term: multiplayer move list
     definition: >-
       The moves of one multiplayer game in algebraic notation, shown to both
-      people and kept with its result.
+      people and every watcher and kept with its result. Choosing a move in
+      it shows the earlier position after that move.
     forms: [multiplayer move lists]
+    model: [chooseEarlierPosition, stepBackOneMove, stepForwardOneMove, goToStart]
 
   - term: multiplayer clock
     definition: >-
@@ -803,7 +816,8 @@ terms:
       became their turn; White's days for the first move run from the start
       of the game. Making a move hands the full days to the other person:
       unused time is never saved up, and no move earns an increment. The
-      side that is not to move shows the full days.
+      side that is not to move shows the full days. A running clock that is
+      nearly used up is shown as low on time.
     forms:
       - multiplayer clocks
       - seconds pass in multiplayer chess
@@ -1014,13 +1028,15 @@ terms:
       unread until the person opens it, and it leaves the inbox as soon as
       the person's own move is accepted, or the daily game is over or
       aborted. A person has one turn notice for a daily game, never more:
-      their next turn brings it back unread. Opening it takes the person to
+      their next turn brings it back unread, and so does becoming low on
+      time before they have moved, which makes it a turn reminder. Opening
+      it takes the person to
       multiplayer chess in their own space, creating a space when they host
       none; with no connection it shows the last known multiplayer board
       and stays as it was. Only the two people of a daily game get one: a
       watcher never does, and no other multiplayer game brings one.
     forms: [turn notices, unread turn notice, unread]
-    avoid: [notification, alert, reminder, ping]
+    avoid: [notification, alert, ping]
     model: [turnNotice, openTurnNotice]
 
   - term: result notice
@@ -1035,6 +1051,102 @@ terms:
       watcher never gets one, and no other multiplayer game brings one.
     forms: [result notices, dismiss, dismisses, dismissed, dismissing]
     model: [resultNotice, openResultNotice, dismissResultNotice]
+
+  - term: low on time
+    definition: >-
+      Said of a running multiplayer clock that is nearly used up: it has no
+      more than 10 seconds left at bullet, 20 seconds at blitz, 30 seconds
+      at rapid or 60 seconds at classical; in a daily game, 6 hours or less
+      at 1 day per move, and 1 day or less at 3 or 7 days per move. Both
+      people and every watcher see that clock shown as low on time, and a
+      person listening to the app is told so with the time left. The person
+      whose clock it is hears the low on time warning, a sound, once per
+      game, when their clock first becomes low on time. Nobody else hears
+      it, nobody hears it with sounds turned off, and a daily game gives
+      none. A clock that is not running is never low on time: before both
+      people have moved outside a daily game, and once the game is over or
+      aborted. An increment that lifts a clock back above that time shows
+      it as not low on time again, and the warning is not repeated.
+    forms: [low on time warning, not low on time]
+    avoid: [time trouble, time pressure, flagging soon]
+
+  - term: turn reminder
+    definition: >-
+      What a person's turn notice becomes when their multiplayer clock is
+      low on time in a daily game and they have not moved: it comes back
+      unread and tells them they are low on time and how long they have
+      left. A person gets one turn reminder per turn, for their first move
+      too. It is still their one turn notice, never a second inbox item, so
+      it leaves the inbox as a turn notice does, and a person who was not
+      using the app finds it when they are back. A person who moved in time
+      gets none, a daily game that is over or aborted gives none, and no
+      other multiplayer game gives one.
+    forms: [turn reminders, unread turn reminder]
+    avoid: [nudge, ping, alert]
+    model: [turnReminder]
+
+  - term: earlier position
+    definition: >-
+      A position a game was in before its latest move. In a multiplayer
+      game, whether unfinished, over or aborted, each of its people and
+      every watcher can review any earlier position on their own device:
+      choose a move in the multiplayer move list, step back or forward one
+      move, which the keyboard's left and right arrows do too, or go to the
+      start. Their board then shows that position, marked as an earlier
+      position, and no piece can be moved on it; their multiplayer clocks,
+      turn, offers and result keep showing the game as it really stands.
+      Reviewing one is private to the device, never moves a piece and needs
+      no connection: with none it uses the last known multiplayer board. A
+      move accepted meanwhile joins the multiplayer move list and leaves
+      the board on the position the person chose. A person listening to
+      the app is told which earlier position they are reviewing.
+    forms: [earlier positions]
+    avoid: [past position, old position]
+    model: [earlierPosition]
+
+  - term: current position
+    definition: >-
+      The position after a game's latest accepted move: the game as it
+      really stands. A multiplayer board shows it unless its person is
+      reviewing an earlier position, and one step returns them to it. Once
+      the game is over it is the final position.
+    forms:
+      - return to the current position
+      - returns to the current position
+      - returning to the current position
+      - final position
+    avoid: [live position, latest position]
+    model: [returnToCurrentPosition]
+
+  - term: game record
+    definition: >-
+      A finished multiplayer game written out the way other chess programs
+      read one: White's and Black's usernames as everyone sees them now, or
+      a stand-in name where one is shown; the multiplayer result, written
+      1-0 when White won, 0-1 when Black won and 1/2-1/2 for a draw; the
+      time control; and every move in algebraic notation. Once a multiplayer game is over
+      with a multiplayer result, each of its people and anyone watching can
+      copy its game record, or copy just its final position. An unfinished
+      game offers neither, so nobody is handed an easy way to ask a chess
+      program for help during the game, and an aborted game offers neither.
+    source: Portable Game Notation for the game record and Forsyth-Edwards Notation for the final position
+    forms: [game records, copy the game record, copies the game record, copy the final position, copies the final position, copied]
+    avoid: [PGN, download]
+    model: [gameRecordOffered, copyGameRecord, copyFinalPosition]
+
+  - term: flip the board
+    definition: >-
+      Turn one's own multiplayer board around to see it from the other
+      side, and flip it back the same way. The two people's names,
+      multiplayer ratings and multiplayer clocks change places with it, so
+      each stays beside its own pieces. A multiplayer board starts from the
+      person's own side, and a watcher's from White's side; every new
+      multiplayer game, a multiplayer rematch too, starts that way again.
+      Flipping is private to the device, never moves a piece or changes
+      whose turn it is, and needs no connection.
+    forms: [flips the board, flipped the board, flipping the board, flipping, flipped]
+    avoid: [rotate, switch sides]
+    model: [flipBoard]
 
   # --- Custom Games --------------------------------------------------------
 

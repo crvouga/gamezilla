@@ -1138,7 +1138,7 @@ terms and import only their `events.qnt`:
 ```text
 Identity ──► Billing, Spaces, Friends, Chess, App, Journeys, Auth (account, sign in, sign out, sign-in method, Google, Apple)
 Identity ──► Billing, Spaces, Friends, Chess, App (account deletion, personal data, retention, recently proven account)
-Identity ──► Friends (no longer allowed, stand-in name, stop allowing), Spaces (username, rename themselves, stand-in name, stop allowing, start allowing)
+Identity ──► Friends (no longer allowed, stand-in name, stop allowing), Spaces (username, rename themselves, stand-in name, stop allowing, start allowing), Chess (username, rename themselves, stand-in name, stop allowing)
 Billing  ──► Spaces (the hosting limit), Chess (the daily puzzle limit), Journeys
 Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzle), App, Journeys
 Friends  ──► Spaces (a friend's space in the lobby), Chess (friends watch, turn notices and result notices in the inbox), App (people search), Journeys

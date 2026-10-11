@@ -13,11 +13,14 @@
 //
 // The person whose turn it is has one turn notice in their inbox, unread
 // until they open it. It leaves when their own move is accepted or the game
-// is over or aborted, and their next turn brings it back unread. When the
-// game is over or aborted, both people get a result notice saying how it
-// ended for them: won, lost, drawn or aborted. Each keeps theirs until they
-// dismiss it. Opening a turn notice or a result notice shows the person
-// their daily game; it never moves a piece and never ends anything.
+// is over or aborted, and their next turn brings it back unread. When that
+// person's multiplayer clock becomes low on time, with one day left, and
+// they have not moved, the same turn notice comes back unread as a turn
+// reminder, once per turn. When the game is over or aborted, both people
+// get a result notice saying how it ended for them: won, lost, drawn or
+// aborted. Each keeps theirs until they dismiss it. Opening a turn notice
+// or a result notice shows the person their daily game; it never moves a
+// piece and never ends anything.
 //
 // With no connection a person keeps the board, the multiplayer clocks and
 // the inbox their device last showed. They cannot move, resign, abort or
@@ -38,13 +41,15 @@ module daily_game {
   }
   type LastKnownPlay = {
     moveCount: int, turn: str, playOutcome: PlayOutcome,
-    whiteClock: int, blackClock: int, turnNotice: str, resultNotice: str
+    whiteClock: int, blackClock: int, turnNotice: str, turnReminder: bool,
+    resultNotice: str
   }
 
   pure val PEOPLE = Set("alice", "bob")
   pure val WHITE = "alice"
   pure val BLACK = "bob"
   pure val DAYS_PER_MOVE = 3
+  pure val REMINDER_DAYS = 1
   pure val PASSING_DAYS = Set(1, 2, 3)
   pure val HISTORIES = Set(0, 1, 2)
   pure val MOST_MOVES = 8
@@ -54,7 +59,8 @@ module daily_game {
   }
   pure val FIRST_VIEW: LastKnownPlay = {
     moveCount: 0, turn: NOBODY, playOutcome: NoPlay,
-    whiteClock: 0, blackClock: 0, turnNotice: "none", resultNotice: "none"
+    whiteClock: 0, blackClock: 0, turnNotice: "none", turnReminder: false,
+    resultNotice: "none"
   }
 
   /// How many accepted moves each person's device shows on the daily game's board.
@@ -68,6 +74,9 @@ module daily_game {
   var blackClock: str -> int
   /// The turn notice in each person's inbox: "none", "unread" or "opened".
   var turnNotice: str -> str
+  /// Whether each person's turn notice is a turn reminder: it tells them
+  /// their multiplayer clock is low on time, with one day or less left.
+  var turnReminder: str -> bool
   /// The result notice in each person's inbox: "none", "won", "lost", "drawn" or "aborted".
   var resultNotice: str -> str
 
@@ -87,6 +96,7 @@ module daily_game {
     whiteClock: if (g.outcome == NoPlay) 0 else if (g.moves % 2 == 0) g.daysLeft else DAYS_PER_MOVE,
     blackClock: if (g.outcome == NoPlay) 0 else if (g.moves % 2 == 1) g.daysLeft else DAYS_PER_MOVE,
     turnNotice: if (_turnOf(g) != p) "none" else if (g.opened.contains(p)) "opened" else "unread",
+    turnReminder: _turnOf(g) == p and g.daysLeft <= REMINDER_DAYS,
     resultNotice: if (g.dismissed.contains(p)) "none"
       else if (g.outcome == WonPlay(p)) "won"
       else if (g.outcome == WonPlay(_other(p))) "lost"
@@ -96,10 +106,14 @@ module daily_game {
   }
 
   /// Days passing in the game: a missed first move aborts it, and once both
-  /// people have moved the side to move loses when its days run out.
+  /// people have moved the side to move loses when its days run out. When
+  /// the side to move becomes low on time, its turn notice comes back unread
+  /// as a turn reminder; that happens once per turn.
   pure def _tick(g: DailyGame, days: int): DailyGame =
     if (g.outcome != OngoingPlay) g
-    else if (g.daysLeft > days) { ...g, daysLeft: g.daysLeft - days }
+    else if (g.daysLeft > days) { ...g, daysLeft: g.daysLeft - days,
+      opened: if (g.daysLeft > REMINDER_DAYS and g.daysLeft - days <= REMINDER_DAYS)
+        g.opened.exclude(Set(_turnOf(g))) else g.opened }
     else if (g.moves < 2) { ...g, daysLeft: 0, outcome: AbortedPlay }
     else { ...g, daysLeft: 0, outcome: WonPlay(_other(_turnOf(g))) }
 
@@ -115,6 +129,7 @@ module daily_game {
       whiteClock' = PEOPLE.mapBy(p => shown.get(p).whiteClock),
       blackClock' = PEOPLE.mapBy(p => shown.get(p).blackClock),
       turnNotice' = PEOPLE.mapBy(p => shown.get(p).turnNotice),
+      turnReminder' = PEOPLE.mapBy(p => shown.get(p).turnReminder),
       resultNotice' = PEOPLE.mapBy(p => shown.get(p).resultNotice),
     }
   }
@@ -124,7 +139,8 @@ module daily_game {
     moveCount' = PEOPLE.mapBy(_ => 0), turn' = PEOPLE.mapBy(_ => NOBODY),
     playOutcome' = PEOPLE.mapBy(_ => NoPlay),
     whiteClock' = PEOPLE.mapBy(_ => 0), blackClock' = PEOPLE.mapBy(_ => 0),
-    turnNotice' = PEOPLE.mapBy(_ => "none"), resultNotice' = PEOPLE.mapBy(_ => "none"),
+    turnNotice' = PEOPLE.mapBy(_ => "none"), turnReminder' = PEOPLE.mapBy(_ => false),
+    resultNotice' = PEOPLE.mapBy(_ => "none"),
   }
 
   /// Matchmaking has already chosen Alice and Bob, who both asked for three
@@ -169,7 +185,8 @@ module daily_game {
     _show(if (aborts) { ..._game, outcome: AbortedPlay } else _game, _offline)
   }
 
-  /// Days pass for the game, whoever is connected.
+  /// Days pass for the game, whoever is connected. With one day left, the
+  /// turn notice of the person to move comes back unread as a turn reminder.
   action multiplayerTimePasses(days: int): bool = _show(_tick(_game, days), _offline)
 
   /// Opening one's turn notice shows the daily game. The turn notice is no
@@ -232,7 +249,8 @@ module daily_game {
     and {
       moveCount.get(p) == v.moveCount, turn.get(p) == v.turn, playOutcome.get(p) == v.playOutcome,
       whiteClock.get(p) == v.whiteClock, blackClock.get(p) == v.blackClock,
-      turnNotice.get(p) == v.turnNotice, resultNotice.get(p) == v.resultNotice,
+      turnNotice.get(p) == v.turnNotice, turnReminder.get(p) == v.turnReminder,
+      resultNotice.get(p) == v.resultNotice,
     }
   })
   /// With no connection a person keeps the board, clocks and inbox their
@@ -243,7 +261,8 @@ module daily_game {
       moveCount.get(p) <= _game.moves,
       moveCount.get(p) == v.moveCount, turn.get(p) == v.turn, playOutcome.get(p) == v.playOutcome,
       whiteClock.get(p) == v.whiteClock, blackClock.get(p) == v.blackClock,
-      turnNotice.get(p) == v.turnNotice, resultNotice.get(p) == v.resultNotice,
+      turnNotice.get(p) == v.turnNotice, turnReminder.get(p) == v.turnReminder,
+      resultNotice.get(p) == v.resultNotice,
     }
   })
   /// A connected person has a turn notice exactly while it is their turn in
@@ -254,6 +273,14 @@ module daily_game {
   /// turn notice each.
   val invOneTurnNotice =
     PEOPLE.filter(p => not(_offline.contains(p)) and turnNotice.get(p) != "none").size() <= 1
+  /// A connected person's turn notice is a turn reminder exactly while it is
+  /// their turn and their multiplayer clock is low on time, with one day or
+  /// less left. It is never a second item: without a turn notice there is no
+  /// turn reminder.
+  val invTurnReminderWhenLowOnTime = PEOPLE.forall(p => not(_offline.contains(p)) implies {
+    val sideLeft = if (moveCount.get(p) % 2 == 0) whiteClock.get(p) else blackClock.get(p)
+    turnReminder.get(p) iff (turnNotice.get(p) != "none" and sideLeft <= REMINDER_DAYS)
+  })
   /// A result notice tells a connected person how the daily game ended for
   /// them; there is none while the game is unfinished, and one stays until
   /// its person dismisses it.
