@@ -65,11 +65,11 @@ resource "github_repository" "this" {
   allow_auto_merge            = false
   allow_update_branch         = true
   delete_branch_on_merge      = true
-  allow_merge_commit          = false
-  allow_squash_merge          = true
+  allow_merge_commit          = true
+  allow_squash_merge          = false
   allow_rebase_merge          = false
-  squash_merge_commit_title   = "PR_TITLE"
-  squash_merge_commit_message = "PR_BODY"
+  merge_commit_title          = "PR_TITLE"
+  merge_commit_message        = "PR_BODY"
   web_commit_signoff_required = false
 
   # Preserve current secret-scanning settings. Version 6.13 advertises
@@ -113,12 +113,11 @@ resource "github_repository_ruleset" "main" {
   }
 
   rules {
-    deletion                = true
-    non_fast_forward        = true
-    required_linear_history = true
+    deletion         = true
+    non_fast_forward = true
 
     pull_request {
-      allowed_merge_methods             = ["squash"]
+      allowed_merge_methods             = ["merge"]
       required_approving_review_count   = 0
       require_code_owner_review         = false
       require_last_push_approval        = false

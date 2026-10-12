@@ -21,7 +21,6 @@ test('main policy requires verified current-main CI with no bypass or approval c
   for (const rule of [
     'deletion',
     'non_fast_forward',
-    'required_linear_history',
     'required_review_thread_resolution',
     'strict_required_status_checks_policy',
   ]) {
@@ -35,11 +34,12 @@ test('main policy requires verified current-main CI with no bypass or approval c
   expect(repository).not.toMatch(/resource "github_branch_protection"/);
 });
 
-test('squash-only history and disposable heads remain compatible with main protection', () => {
-  expect(repository).toMatch(/allow_squash_merge\s*=\s*true/);
-  expect(repository).toMatch(/allow_merge_commit\s*=\s*false/);
+test('merge-commit-only history and disposable heads remain compatible with main protection', () => {
+  expect(repository).toMatch(/allow_merge_commit\s*=\s*true/);
+  expect(repository).toMatch(/allow_squash_merge\s*=\s*false/);
   expect(repository).toMatch(/allow_rebase_merge\s*=\s*false/);
-  expect(repository).toMatch(/allowed_merge_methods\s*=\s*\["squash"\]/);
+  expect(repository).toMatch(/allowed_merge_methods\s*=\s*\["merge"\]/);
+  expect(repository).not.toMatch(/required_linear_history/);
   expect(repository).toMatch(/delete_branch_on_merge\s*=\s*true/);
   expect(repository).toMatch(/branch\s*=\s*"main"/);
 });
