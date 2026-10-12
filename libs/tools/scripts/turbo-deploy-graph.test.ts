@@ -3,7 +3,11 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SECRETS_RANGE_ENV } from './secrets-scan-range';
-import { MAX_SPEC_PARTS, specPartProblems } from './spec-packages';
+import {
+  MAX_MODEL_PARTS,
+  MAX_SPEC_PARTS,
+  specPartProblems,
+} from './spec-packages';
 import { flattenCheckAggregators } from './turbo-ci-run';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -52,6 +56,12 @@ function turboCiRunTaskArgs(script: string): string[] {
 const SPEC_PART_TASKS = Array.from(
   { length: MAX_SPEC_PARTS },
   (_, index) => `test:spec:${String(index)}`
+);
+
+/** A split models check's parts (`check-models.ts --part k/n`). */
+const MODEL_PART_TASKS = Array.from(
+  { length: MAX_MODEL_PARTS },
+  (_, index) => `check:models:${String(index)}`
 );
 
 // regression: friends-spec-task-budget — part 7 took 627s against its 600s cap.
@@ -111,6 +121,7 @@ const CHECK_LEAVES = [
   'test:contract',
   ...SPEC_PART_TASKS,
   'check:models',
+  ...MODEL_PART_TASKS,
   '@apps/product#check:offline-shell',
   '@apps/auth-relay#check:worker-bundle',
   '@apps/product#check:worker-bundle',
@@ -333,6 +344,9 @@ describe('turbo check/deploy graph invariants', () => {
       '@pkgs/conformance-shared#src',
     ]);
     expect(task?.inputs).not.toContain('$TURBO_DEFAULT$');
+    // A part is the same check over a share of the models.
+    for (const part of MODEL_PART_TASKS)
+      expect(loadTasks()[part], part).toEqual(task);
   });
 
   // every check that gates a release also gates a PR merge.

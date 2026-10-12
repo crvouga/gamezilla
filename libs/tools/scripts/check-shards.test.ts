@@ -373,7 +373,8 @@ test('a narrowed plan leaves each uncached solver group alone on its runner', ()
   const plan = balanceShards(
     [
       task('@libs/chess-root-harness#check:models', 5),
-      task('@pkgs/chess-board-root-harness#check:models', 5),
+      // A part of a split models check is a solver task like the whole.
+      task('@libs/chess-root-harness#check:models:7', 5),
       // Check run 38195467632: its thirteen proofs outran the task budget
       // and 39 tasks queued on shard 25 ended unrun.
       task('@apps/product#test:contract', 5),
@@ -391,7 +392,7 @@ test('a narrowed plan leaves each uncached solver group alone on its runner', ()
   const solverShards = started.filter((shard) =>
     shard.tasks.some(
       (item) =>
-        item.taskId.endsWith('#check:models') ||
+        /#check:models(:\d+)?$/.test(item.taskId) ||
         item.taskId === '@apps/product#test:contract'
     )
   );

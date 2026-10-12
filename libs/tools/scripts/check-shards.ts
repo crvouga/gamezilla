@@ -48,12 +48,14 @@ function groups(tasks: readonly CheckTask[]): CheckTask[][] {
 }
 
 /**
- * A task that is solver proofs from start to end: a package's model check,
- * or the whole-product proofs in the product app's contract suite.
+ * A task that is solver proofs from start to end: a package's model check
+ * or a part of one, or the whole-product proofs in the product app's
+ * contract suite.
  */
 function solverTask(taskId: string): boolean {
   return (
-    taskId.endsWith('#check:models') || taskId === '@apps/product#test:contract'
+    /#check:models(:\d+)?$/.test(taskId) ||
+    taskId === '@apps/product#test:contract'
   );
 }
 

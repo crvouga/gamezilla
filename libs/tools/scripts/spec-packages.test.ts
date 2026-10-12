@@ -90,6 +90,51 @@ describe('modelTaskProblems', () => {
     );
   });
 
+  test('a split models check has every part, each hashing the models, and no whole check', () => {
+    const part = (index: number) =>
+      `${MODELS_RUNNER} --part ${String(index)}/2`;
+    const split = { 'check:models:0': part(0), 'check:models:1': part(1) };
+    const parts = { count: 2, inputsOf: () => inputs };
+    expect(modelTaskProblems(pkg, split, undefined, parts)).toEqual([]);
+    expect(
+      modelTaskProblems(
+        pkg,
+        { ...split, 'check:models': MODELS_RUNNER, 'check:models:2': part(2) },
+        undefined,
+        parts
+      )
+    ).toEqual([
+      'libs/a/package.json: "check:models" would check every model again — the 2 parts replace it; delete it',
+      'libs/a/package.json: "check:models:2" is past modelParts (2) — delete it',
+    ]);
+    expect(
+      modelTaskProblems(pkg, { 'check:models:0': part(0) }, undefined, {
+        count: 2,
+        inputsOf: (task) =>
+          task === 'check:models:0' ? inputs : inputs.slice(0, 2),
+      })
+    ).toEqual([
+      `libs/a/package.json: "check:models:1" must be "${part(1)}"`,
+      'libs/a/turbo.json: check:models:1 inputs must include "$TURBO_ROOT$/specs/b/*.qnt" so a model change re-checks @libs/a',
+    ]);
+    // A part holds at least one model, and a part needs a declared split.
+    expect(
+      modelTaskProblems(pkg, split, undefined, { ...parts, count: 3 })
+    ).toEqual([
+      "libs/a/package.json: modelParts must be an integer from 2 to 2 — a part holds at least one of the package's 2 models",
+    ]);
+    expect(
+      modelTaskProblems(
+        pkg,
+        { ...scripts, 'check:models:0': part(0) },
+        inputs,
+        { count: undefined, inputsOf: () => inputs }
+      )
+    ).toEqual([
+      'libs/a/package.json: "check:models:0" is a part of no split — declare modelParts or delete it',
+    ]);
+  });
+
   test("the task must hash every domain's models, or an edit is served stale", () => {
     expect(modelTaskProblems(pkg, scripts, inputs.slice(0, 2))).toEqual([
       'libs/a/turbo.json: check:models inputs must include "$TURBO_ROOT$/specs/b/*.qnt" so a model change re-checks @libs/a',

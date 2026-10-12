@@ -28,6 +28,9 @@ const JOBS = [
 describe('check verdict', () => {
   test('groups task identities into suites', () => {
     expect(suiteOf('@apps/product#tc')).toBe('Typecheck');
+    expect(suiteOf('@libs/chess-root-harness#check:models:7')).toBe(
+      'Quint models'
+    );
     expect(suiteOf('@libs/tools#check:root-lint')).toBe('Lint and boundaries');
     expect(suiteOf('@apps/product#test:spec:12')).toBe('Gherkin specs');
     expect(suiteOf('@apps/product#check:models')).toBe('Quint models');

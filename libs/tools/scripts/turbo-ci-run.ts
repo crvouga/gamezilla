@@ -115,6 +115,8 @@ export const MAIN_CHECK_TASKS = [
   'test:contract',
   ...Array.from({ length: 64 }, (_, index) => `test:spec:${String(index)}`),
   'check:models',
+  // The parts of a split models check (`MAX_MODEL_PARTS` in spec-packages).
+  ...Array.from({ length: 16 }, (_, index) => `check:models:${String(index)}`),
   '@apps/product#check:offline-shell',
   '@apps/auth-relay#check:worker-bundle',
   '@apps/product#check:worker-bundle',

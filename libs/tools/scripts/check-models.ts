@@ -17,6 +17,11 @@
  * {@link DEFAULT_VERIFY_STEPS}. At most {@link CONCURRENCY} checks run at
  * once.
  *
+ * `--part k/n` checks the k-th (0-based) of n shares of the package's models,
+ * by their position in path order, so a package whose proofs outlast one
+ * runner spreads them over several (`check:models:<k>`, `modelParts`). The
+ * parts write one report between them, and every model is in exactly one.
+ *
  * The model's shape is recorded as its `shape` obligation first. A model
  * that fails that check is not sent to a checker. A passing shape and the
  * checker verdict are the model's `shape` and `verify` obligations in the
@@ -170,6 +175,32 @@ export function modelChecksFromBindings(
       };
     })
     .sort((a, b) => a.specUri.localeCompare(b.specUri));
+}
+
+export type ModelPart = { readonly index: number; readonly count: number };
+
+/** `--part k/n` among the arguments, or `null` for the whole package. */
+export function modelPartOf(argv: readonly string[]): ModelPart | null {
+  const at = argv.indexOf('--part');
+  if (at < 0) return null;
+  const match = /^(\d+)\/(\d+)$/.exec(argv[at + 1] ?? '');
+  const index = Number(match?.[1]);
+  const count = Number(match?.[2]);
+  if (match === null || count < 1 || index >= count)
+    throw new Error(
+      `check-models: --part wants k/n with 0 <= k < n, got ${String(argv[at + 1])}`
+    );
+  return { index, count };
+}
+
+/** The checks of one part: every `count`-th from `index`, in path order. */
+export function modelPartChecks(
+  checks: readonly ModelCheck[],
+  part: ModelPart | null
+): readonly ModelCheck[] {
+  return part === null
+    ? checks
+    : checks.filter((_, position) => position % part.count === part.index);
 }
 
 type Verdict = {
@@ -326,9 +357,19 @@ if (import.meta.main) {
     );
     process.exit(1);
   }
-  const checks = modelChecks(pkg);
-  const verdicts = await withModelWorkspace(join(REPO_ROOT, dir), (reportDir) =>
-    runAll({ reportDir, packageName: `${pkg.name}#check:models` }, checks)
+  const part = modelPartOf(process.argv.slice(2));
+  const checks = modelPartChecks(modelChecks(pkg), part);
+  if (checks.length === 0) {
+    console.error(
+      `check-models: ${dir} has no model in part ${String(part?.index)}/${String(part?.count)} — lower modelParts`
+    );
+    process.exit(1);
+  }
+  const verdicts = await withModelWorkspace(
+    join(REPO_ROOT, dir),
+    (reportDir) =>
+      runAll({ reportDir, packageName: `${pkg.name}#check:models` }, checks),
+    part === null ? undefined : checks.map((check) => check.specUri)
   );
   const failed = verdicts.filter((verdict) => !verdict.ok);
   if (failed.length > 0) {

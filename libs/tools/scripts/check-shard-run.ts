@@ -123,7 +123,7 @@ function packEvidence(index: number, failed: boolean): void {
 function preserveFailedReports(results: readonly Result[]): void {
   for (const result of results.filter((task) => !task.passed)) {
     if (
-      result.taskId.endsWith('#check:models') ||
+      /#check:models(:\d+)?$/.test(result.taskId) ||
       result.taskId === '@apps/product#test:contract'
     ) {
       const task = result.taskId.slice(0, result.taskId.indexOf('#'));
