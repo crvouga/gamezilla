@@ -2,15 +2,17 @@
 /**
  * Known-bug gate (`@libs/tools#ci:goals`): every
  * `libs/tools/goal/known-bugs/<id>.json` is guarded by an example regression
- * test. Proof files inside a package are checked by that package's `lint`;
- * this gate checks the bookkeeping and any proof outside the package tiers.
+ * test. This one task checks the bookkeeping and every proof file, each
+ * against the package that owns it. The register changes in a third of all
+ * commits; were the proofs part of each package's `lint`, every such commit
+ * would rerun every package's lint.
  *
  * `--json` prints the machine report.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { validateGoalGate } from '../goal/goal-manifest';
+import { validateRegister } from '../goal/goal-manifest';
 import { readKnownBugs } from '../goal/known-bugs';
 
 const ROOT = join(import.meta.dirname, '../../..');
@@ -25,13 +27,7 @@ function readRepoFile(path: string): string | null {
 
 const args = new Set(process.argv.slice(2));
 const knownBugs = readKnownBugs(ROOT);
-const errors = validateGoalGate({
-  knownBugs,
-  proofFiles: {
-    owns: (path) => !/^(apps|libs|pkgs)\//.test(path),
-    read: readRepoFile,
-  },
-});
+const errors = validateRegister({ knownBugs, read: readRepoFile });
 
 if (args.has('--json')) {
   console.log(JSON.stringify({ knownBugs: knownBugs.length, errors }, null, 2));

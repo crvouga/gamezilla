@@ -243,8 +243,7 @@
         "$TURBO_ROOT$/libs/tools/scripts/test-scripts.ts",
         "$TURBO_ROOT$/libs/tools/scripts/unused-dependencies.ts",
         "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts",
-        "$TURBO_ROOT$/libs/tools/naming/**",
-        "$TURBO_ROOT$/libs/tools/goal/**"
+        "$TURBO_ROOT$/libs/tools/naming/**"
       ],
       "outputLogs": "errors-only",
       "outputs": []
@@ -545,7 +544,13 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/libs/tools/goal/**",
-        "$TURBO_ROOT$/libs/tools/scripts/check-goals.ts"
+        "$TURBO_ROOT$/libs/tools/scripts/check-goals.ts",
+        "$TURBO_ROOT$/{apps,libs,pkgs,vendor}/**/*.test.{ts,tsx}",
+        "$TURBO_ROOT$/{apps,libs,pkgs}/*/tests/quint/**",
+        "$TURBO_ROOT$/{apps,libs,pkgs}/**/*.itf.json",
+        "$TURBO_ROOT$/specs/**/*.feature",
+        "!$TURBO_ROOT$/**/node_modules/**",
+        "!$TURBO_ROOT$/**/.cache/**"
       ],
       "outputs": [],
       "outputLogs": "errors-only"

@@ -3,10 +3,10 @@
 /**
  * Lint one package: path naming, banned words (`banned-words.ts`), Biome (which also carries the import-boundary
  * rules), the Solid oxlint scope, the package-boundary rules, the `tc` scope
- * (`tc-scope.ts`), the test-script rules (`test-scripts.ts`), the spawned-CLI
- * rule (`spawned-clis.ts`) and the known-bug regressions that live in it, over that
- * package's files and nothing else. The external tools run concurrently: a
- * package's lint costs its slowest tool, not the sum.
+ * (`tc-scope.ts`), the test-script rules (`test-scripts.ts`) and the
+ * spawned-CLI rule (`spawned-clis.ts`), over that package's files and nothing
+ * else. The external tools run concurrently: a package's lint costs its
+ * slowest tool, not the sum.
  *
  * Every package's `lint` script runs this from its own directory, so turbo
  * caches lint per package and a PR re-lints only what it touched (plus its
@@ -26,8 +26,6 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { validateProofFiles } from '../goal/goal-manifest';
-import { readKnownBugs } from '../goal/known-bugs';
 import { findNamingViolations } from '../naming/naming-rules';
 import { bannedWordViolations, isWordedFile } from './banned-words';
 import { behaviorTestViolations } from './behavior-tests';
@@ -132,25 +130,6 @@ function readText(path: string): string | null {
 
 function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(join(REPO_ROOT, path), 'utf8')) as T;
-}
-
-/** Known-bug regression tests that live in `pkg` still carry their marker. */
-function knownBugsOk(pkg: string): boolean {
-  const errors = validateProofFiles({
-    knownBugs: readKnownBugs(REPO_ROOT),
-    files: {
-      owns: (path) => path.startsWith(`${pkg}/`),
-      read: (path) => {
-        try {
-          return readFileSync(join(REPO_ROOT, path), 'utf8');
-        } catch {
-          return null;
-        }
-      },
-    },
-  });
-  for (const error of errors) console.error(error);
-  return errors.length === 0;
 }
 
 /** Print one rule's violations under its reason; true when there are none. */
@@ -315,7 +294,6 @@ async function lintPackage(pkg: string): Promise<boolean> {
   const results = [
     files !== null && namingOk(files),
     wordsOk(pkg, files ?? []),
-    knownBugsOk(pkg),
     clean(
       pkg,
       "Lingui macros outside the catalog sources render hashed ids in production — add the package's src dir to libs/tools/scripts/lingui-scope.ts",
