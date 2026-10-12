@@ -141,7 +141,7 @@ const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
 /**
  * The most traces of one Quint model a run replays through the product
  * (`@pkgs/quint-shared/wall`). The gate leaves it unset, which is the
- * smallest bounded selection; the Nightly workflow sets `all` to explore.
+ * smallest bounded selection; a developer sets `all` to explore.
  */
 export const REPLAY_BUDGET_ENV = 'QUINT_REPLAY_TRACES';
 

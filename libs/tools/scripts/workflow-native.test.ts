@@ -35,12 +35,11 @@ test('a two-core Check runner never starts twenty concurrent test processes', ()
 });
 
 // regression: ci-provider-native-ci-runner-routing
-test('only GitHub Actions owns Check, Deploy, Health and Nightly triggers', () => {
+test('only GitHub Actions owns Check, Deploy and Health triggers', () => {
   expect(readdirSync(join(ROOT, '.github/workflows')).sort()).toEqual([
     'check.yml',
     'deploy.yml',
     'health.yml',
-    'nightly.yml',
   ]);
   for (const file of readdirSync(join(ROOT, '.github/workflows'))) {
     const workflow = Bun.YAML.parse(

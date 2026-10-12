@@ -250,11 +250,11 @@ test('a bounded spec verdict never satisfies an exploring run, nor one budget an
     const hash = (env: NodeJS.ProcessEnv) =>
       dry(root, ['test:spec:0'], env)[0]!.hash;
     const gate = hash({});
-    const nightly = hash({ QUINT_REPLAY_TRACES: 'all' });
-    expect(nightly).not.toBe(gate);
-    expect(hash({ QUINT_REPLAY_TRACES: '8' })).not.toBe(nightly);
+    const explore = hash({ QUINT_REPLAY_TRACES: 'all' });
+    expect(explore).not.toBe(gate);
+    expect(hash({ QUINT_REPLAY_TRACES: '8' })).not.toBe(explore);
     expect(hash({ QUINT_REPLAY_TRACES: '8' })).not.toBe(gate);
-    expect(hash({ QUINT_REPLAY_TRACES: 'all' })).toBe(nightly);
+    expect(hash({ QUINT_REPLAY_TRACES: 'all' })).toBe(explore);
     // Every numbered spec part declares it.
     const parts = Object.entries(config.tasks).filter(([id]) =>
       /^test:spec:\d+$/.test(id)

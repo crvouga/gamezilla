@@ -19,8 +19,7 @@ run-name: "Check · ${{ github.event_name == 'pull_request' && format('pr #{0}',
 # ships. `bun check` and `bun verify` run the same gate locally.
 #
 # The gate is bounded and never explores: each Quint model replays the fewest
-# drawn traces that take every bound action, the same ones every run. The
-# Nightly workflow calls this one with `explore` to replay every trace.
+# drawn traces that take every bound action, the same ones every run.
 
 permissions:
   contents: read
@@ -60,10 +59,6 @@ on:
         description: normal or cold
         type: string
         default: normal
-      explore:
-        description: Replay every drawn trace of every Quint model
-        type: boolean
-        default: false
 
 # A newer push supersedes a pull request's run; dispatched and release runs
 # each own a group and never cancel one another.
@@ -91,9 +86,6 @@ env:
   CHECK_SHARDS: ${{ inputs.shards || vars.CHECK_SHARDS || '40' }}
   CHECK_CONCURRENCY: ${{ inputs.concurrency || vars.CHECK_CONCURRENCY || '1' }}
   CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
-  # Empty is the gate's bounded default (`@pkgs/quint-shared/wall`); only a
-  # caller that asks to explore replays every trace.
-  QUINT_REPLAY_TRACES: ${{ inputs.explore && 'all' || '' }}
 
 jobs:
   check-plan:
@@ -119,14 +111,13 @@ jobs:
           environment: dev
       # Shards are packed by the durations the newest Check measured on these
       # runners (`check:verify` saves them); the key never matches, so the
-      # prefix restores the newest from this pull request, else from main. An
-      # exploring run takes far longer per spec part, so it keeps its own.
+      # prefix restores the newest from this pull request, else from main.
       - name: Restore measured task durations
         uses: actions/cache/restore@v5
         with:
           path: .cache/check-ci/measured-costs.json
-          key: check-task-costs-v1-${{ inputs.explore && 'explore' || 'gate' }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: check-task-costs-v1-${{ inputs.explore && 'explore' || 'gate' }}-
+          key: check-task-costs-v1-gate-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: check-task-costs-v1-gate-
       - name: Plan all owners once
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-plan.ts
       - name: Export immutable plan
@@ -424,7 +415,7 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: .cache/check-ci/measured-costs.json
-          key: check-task-costs-v1-${{ inputs.explore && 'explore' || 'gate' }}-${{ github.run_id }}-${{ github.run_attempt }}
+          key: check-task-costs-v1-gate-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Retain the verdict
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6

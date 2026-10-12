@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const WORKFLOW = join(
@@ -58,44 +58,12 @@ describe('Check workflow cancellation', () => {
     expect(workflow.on.workflow_call.inputs.shards.default).toBe(40);
     expect(shardCounts).toContain(40);
   });
-  test('the gate never explores; only a caller that asks replays every trace', () => {
-    const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
-      env: Record<string, string>;
-      on: {
-        workflow_dispatch: { inputs: Record<string, unknown> };
-        workflow_call: {
-          inputs: { explore: { type: string; default: boolean } };
-        };
-      };
-    };
-    // A pull request, a dispatch and Deploy leave it empty, which
-    // `turboChildEnv` drops: the bounded default.
-    expect(workflow.env['QUINT_REPLAY_TRACES']).toBe(
-      "${{ inputs.explore && 'all' || '' }}"
-    );
-    expect(workflow.on.workflow_call.inputs.explore).toMatchObject({
-      type: 'boolean',
-      default: false,
-    });
-    expect(workflow.on.workflow_dispatch.inputs['explore']).toBeUndefined();
-    const nightly = Bun.YAML.parse(
-      readFileSync(join(WORKFLOW, '../nightly.yml'), 'utf8')
-    ) as {
-      on: Record<string, unknown>;
-      jobs: Record<string, { uses: string; with: Record<string, unknown> }>;
-    };
-    // Exploration has one home, and it gates nothing.
-    expect(Object.keys(nightly.on).sort()).toEqual([
-      'schedule',
-      'workflow_dispatch',
-    ]);
-    expect(nightly.jobs['nightly-explore']).toMatchObject({
-      uses: './.github/workflows/check.yml',
-      with: { explore: true },
-    });
-    for (const file of ['deploy.yml', 'health.yml'])
+  test('no workflow explores: the gate replays its bounded traces on every trigger', () => {
+    // `QUINT_REPLAY_TRACES` unset is the bounded default; exploring is asked
+    // for by name on a developer machine.
+    for (const file of readdirSync(join(WORKFLOW, '..')))
       expect(readFileSync(join(WORKFLOW, '..', file), 'utf8')).not.toContain(
-        'explore'
+        'QUINT_REPLAY_TRACES'
       );
   });
   // regression: concurrent-check-run-isolation
