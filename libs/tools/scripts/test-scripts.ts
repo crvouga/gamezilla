@@ -1,9 +1,10 @@
 /**
  * The rules a package's test scripts obey, run by lint-package.ts.
  *
- * `bun check-pr` runs a package's `test`, `test:contract` and `test:spec` scripts
- * (the last as its `test:spec:<k>` parts, which spec-packages.ts holds to
- * exactly `test:spec` split; deploy's `check:api` runs `test:integration`). A green check is only
+ * `bun check-pr` runs a package's `test`, `test:contract`,
+ * `test:contract:render` and `test:spec` scripts (the last as its
+ * `test:spec:<k>` parts, which spec-packages.ts holds to exactly `test:spec`
+ * split; deploy's `check:api` runs `test:integration`). A green check is only
  * worth something if those scripts ran every test the package owns, every
  * time, the same way:
  *
@@ -22,10 +23,15 @@
  * runs inside the package's cached `lint`.
  */
 
-/** Scripts the gate runs. `test:integration` is deploy's live API probe. */
+/**
+ * Scripts the gate runs. `test:contract:render` is the browser half of a
+ * package's contract, its own task so model proofs do not rerun the browser.
+ * `test:integration` is deploy's live API probe.
+ */
 export const GATE_TEST_SCRIPTS = [
   'test',
   'test:contract',
+  'test:contract:render',
   'test:spec',
   'test:integration',
 ] as const;
