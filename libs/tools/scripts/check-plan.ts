@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { captureAudit } from './audit-snapshot';
 import { cacheDiagnostics } from './check-cache-diagnostics';
 import { startedFirst, writeSchedule } from './check-plan-schedule';
+import { profileManifest } from './check-profile';
 import type { CheckTask } from './check-shards';
 import { balanceShards, planWarnings } from './check-shards';
 import { readScheduleCosts } from './check-task-costs';
@@ -123,6 +124,10 @@ export async function createCheckPlan(): Promise<void> {
 
 /** The scan range and platform key every shard must run under. */
 function writeContext(env: NodeJS.ProcessEnv): void {
+  // The depth every shard of this run shares, and how to run it again.
+  const manifest = profileManifest(env);
+  writeFileSync(join(DIRECTORY, 'profile.json'), JSON.stringify(manifest));
+  console.log(`profile: ${JSON.stringify(manifest)}`);
   writeFileSync(
     join(DIRECTORY, 'context.json'),
     JSON.stringify({

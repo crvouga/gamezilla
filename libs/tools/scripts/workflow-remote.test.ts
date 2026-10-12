@@ -88,7 +88,7 @@ describe('WORKFLOW_DISPATCH', () => {
     expect(Object.keys(deploy.on)).toEqual(['push', 'workflow_dispatch']);
     expect(deploy.on['push']).toEqual({ branches: ['main'] });
     expect(deploy.jobs['deploy-verify']).toMatchObject({
-      uses: './.github/workflows/check.yml',
+      uses: './.github/workflows/check-pr.yml',
     });
     expect(deploy.jobs['deploy-verify']).not.toHaveProperty('with');
     expect(deploy.jobs['deploy-fleet']!.needs).toContain('deploy-verify');

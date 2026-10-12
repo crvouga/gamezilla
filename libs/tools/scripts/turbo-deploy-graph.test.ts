@@ -344,9 +344,11 @@ describe('turbo check/deploy graph invariants', () => {
 
   test('local runners go through turbo-ci-run', () => {
     const scripts = loadRootScripts();
-    expect(scripts['check:local']).toBe(
-      'bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-local.ts'
-    );
+    // One entry program; the profile is the only thing that differs.
+    for (const profile of ['pr', 'nightly'])
+      expect(scripts[`check-${profile}`]).toBe(
+        `CHECK_PROFILE=${profile} bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-local.ts`
+      );
     expect(turboCiRunTaskArgs(scripts['deploy:local'] ?? '')).toEqual([
       '//#deploy',
     ]);
@@ -361,8 +363,8 @@ describe('turbo check/deploy graph invariants', () => {
   test('checks run locally while health and deploy dispatch their workflows', () => {
     const scripts = loadRootScripts();
     const dispatch = 'libs/tools/scripts/workflow-remote.ts';
-    expect(scripts['check']).toBe('bun run check:local');
-    expect(scripts['verify']).toBe('bun run check:local');
+    for (const retired of ['check', 'verify', 'check:local'])
+      expect(scripts[retired]).toBeUndefined();
     for (const workflow of ['health', 'deploy']) {
       // The command is a Turborepo run of the one task that dispatches.
       expect(scripts[workflow]).toBe(`turbo run //#task:${workflow} --`);

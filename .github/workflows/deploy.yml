@@ -16,7 +16,7 @@ run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 #
 #   deploy:matrix  reads the env files (libs/infra-shared/scripts/workflow-env-matrix.ts)
 #                  from a job with no secrets and publishes the env lists.
-#   deploy:verify  the full Check (check.yml) on that commit:
+#   deploy:verify  the full Check PR gate (check-pr.yml) on that commit:
 #                  every suite runs, fail-fast off, one aggregated verdict.
 #                  Nothing below starts unless it is green. Its cached
 #                  verdicts and build outputs are the ones `//#deploy`
@@ -46,8 +46,8 @@ run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 # The optional rehearsal verifies a branch and plans dev foundation without applying.
 # Release jobs never run on a pull request or any ref other than `main`: each environment is a shared singleton,
 # so concurrent PRs would clobber each other's infrastructure, migrations and
-# secrets. Pull requests get the same Check (.github/workflows/check.yml) as
-# their required status instead.
+# secrets. Pull requests get the same gate (.github/workflows/check-pr.yml) as
+# their required status instead. Check Nightly never gates a deploy.
 
 permissions:
   contents: read
@@ -79,7 +79,7 @@ jobs:
   deploy-rehearsal:
     if: ${{ inputs.rehearsal }}
     name: deploy:rehearsal
-    uses: ./.github/workflows/check.yml
+    uses: ./.github/workflows/check-pr.yml
 
   deploy-plan:
     if: ${{ inputs.rehearsal }}
@@ -186,7 +186,7 @@ jobs:
   deploy-verify:
     name: deploy:verify
     needs: deploy-matrix
-    uses: ./.github/workflows/check.yml
+    uses: ./.github/workflows/check-pr.yml
 
   # Every env file's secrets environment and its import of the shared
   # credentials (libs/infra-shared/tofu/stacks/fleet), then no env may keep a local

@@ -7,7 +7,7 @@
  *   Local disk under `.turbo` is ephemeral in CI. `TURBO_CACHE` may tighten local/remote modes but cannot
  *   drop `remote:` when creds are present.
  * - CI requires `TURBO_TOKEN`. Locally, a missing token (Infisical
- *   login/network fallback) use `local:rw` so `bun check` still runs.
+ *   login/network fallback) use `local:rw` so `bun check-pr` still runs.
  * - Disables framework inference so only explicit `turbo.json` `env` /
  *   `globalEnv` enter the hash. Builds explicitly hash public `VITE_*` inputs.
  * - Ensures `TURBO_API` points at the self-hosted cache origin (defaults when
@@ -71,12 +71,20 @@ import {
   DEADLINE_FLUSH_MS,
   findBudgetOverruns,
   formatBudgetOverruns,
+  gateExitCode,
+  RUN_DEADLINE_ENV,
   readLatestRunSummary,
   resolveRunDeadlineSeconds,
+  slowCiRunner,
   slowestExecuted,
 } from './check-budget';
-  slowCiRunner,
 import { checkCacheConcurrency } from './check-cache-concurrency';
+import {
+  activeProfile,
+  applyProfileEnv,
+  checkAggregatorTasks,
+  suiteDeadlineSeconds,
+} from './check-profile';
 import { completeReports, prepareReports } from './check-report-lifecycle';
 import { observeReportOutput } from './check-report-run';
 import type { ReportTaskIdentity } from './check-report-stream';
@@ -115,6 +123,7 @@ export const MAIN_CHECK_TASKS = [
   'lint',
   'test',
   'test:contract',
+  'test:contract:render',
   ...Array.from({ length: 64 }, (_, index) => `test:spec:${String(index)}`),
   'check:models',
   // The parts of a split models check (`MAX_MODEL_PARTS` in spec-packages).
@@ -123,7 +132,6 @@ export const MAIN_CHECK_TASKS = [
   '@apps/auth-relay#check:worker-bundle',
   '@apps/product#check:worker-bundle',
   '@libs/runtime-server#check:schema-evolution',
-  'test:contract:render',
   '@libs/tools#check:actionlint',
   '@libs/tools#check:secrets',
   'check:board-contract',
@@ -142,8 +150,9 @@ const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
 
 /**
  * The most traces of one Quint model a run replays through the product
- * (`@pkgs/quint-shared/wall`). The gate leaves it unset, which is the
- * smallest bounded selection; a developer sets `all` to explore.
+ * (`@pkgs/quint-shared/wall`). The `pr` profile leaves it unset, which is
+ * the smallest bounded selection; the `nightly` profile sets `all`
+ * (`check-profile.ts`).
  */
 export const REPLAY_BUDGET_ENV = 'QUINT_REPLAY_TRACES';
 
@@ -320,6 +329,7 @@ export function turboChildEnv(
   // the same verdict as none.
   if ((env[REPLAY_BUDGET_ENV]?.trim() ?? '') === '')
     delete env[REPLAY_BUDGET_ENV];
+  applyProfileEnv(env);
   if (!hasRemoteCreds(env)) return env;
   if ((env['TURBO_TEAM']?.trim() ?? '') === '') env['TURBO_TEAM'] = TURBO_TEAM;
   const api = env['TURBO_API']?.trim() ?? '';
@@ -367,8 +377,11 @@ export function flattenCheckAggregators(
   // Bare script names are command aliases only here. In Turbo's graph they
   // remain package tasks with their package-scoped meaning.
   function expand(arg: string, commandLine: boolean): void {
-    if (commandLine && (arg === 'check' || arg === 'check:local')) {
-      for (const task of MAIN_CHECK_TASKS) pushLeaf(task);
+    const checks = commandLine
+      ? checkAggregatorTasks(arg, MAIN_CHECK_TASKS)
+      : null;
+    if (checks !== null) {
+      for (const task of checks) pushLeaf(task);
       return;
     }
     const isAlias = Object.hasOwn(AGGREGATOR_ALIASES, arg);
@@ -486,7 +499,18 @@ function turboCiFlags(
         '--output-logs=full',
         '--continue=dependencies-successful',
       ]
-    : [...TURBO_CI_FLAGS];
+    : [...TURBO_CI_FLAGS, ...keepGoingFlags()];
+}
+
+/**
+ * The nightly profile lets every independent task report. A run restoring
+ * outputs already continues past a failure.
+ */
+function keepGoingFlags(): readonly string[] {
+  return activeProfile().continueAfterFailure &&
+    !process.argv.includes(RESTORE_OUTPUTS_FLAG)
+    ? ['--continue=dependencies-successful']
+    : [];
 }
 
 function cliTaskArgs(): string[] {
@@ -524,8 +548,9 @@ async function main(): Promise<void> {
   const taskArgs = prepareTaskArgs(rawTaskArgs);
   env[SECRETS_RANGE_ENV] = secretsScanRange(env);
 
-  const slowRunner = inCi();
-  const deadlineSeconds = runDeadlineSeconds(mode, slowRunner);
+  const ci = inCi();
+  const slowRunner = slowCiRunner(ci, availableParallelism());
+  const deadlineSeconds = deadlineFor(rawTaskArgs, mode, slowRunner, ci);
 
   console.log(
     `turbo-ci-run: cache=${cache} concurrency=${resolveConcurrency()} log-order=${TURBO_LOG_ORDER} deadline=${String(deadlineSeconds)}s` +
@@ -595,7 +620,29 @@ function runDeadlineSeconds(
   return resolveRunDeadlineSeconds(process.env, {
     isDeploy: mode === 'deploy',
     slowRunner,
+    warmRunner: ci && !slowRunner,
   });
+}
+
+/**
+ * A run of nightly suites has their deadline; `CHECK_DEADLINE_SECONDS` still
+ * outranks it, as it does every default.
+ */
+function deadlineFor(
+  rawTaskArgs: readonly string[],
+  mode: RunMode,
+  slowRunner: boolean,
+  ci: boolean
+): number {
+  const override = Number.parseInt(
+    process.env[RUN_DEADLINE_ENV]?.trim() ?? '',
+    10
+  );
+  const suite =
+    Number.isInteger(override) && override > 0
+      ? null
+      : suiteDeadlineSeconds(rawTaskArgs);
+  return suite ?? runDeadlineSeconds(mode, slowRunner, ci);
 }
 
 function prepareTaskArgs(raw: readonly string[]): string[] {
@@ -620,7 +667,6 @@ async function prepareRunPlan(args: {
       plan: restoreSelectedReports(args.planned, missingReports),
       missingReports,
     };
-    warmRunner: ci && !slowRunner,
   }
   return {
     plan:

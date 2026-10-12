@@ -7,7 +7,7 @@ const root = join(import.meta.dirname, '../../..');
 // regression: check-cache-write-only-override
 test('Check enforces read/write after secrets injection', () => {
   const workflow = readFileSync(
-    join(root, '.github/workflows/check.yml'),
+    join(root, '.github/workflows/check-pr.yml'),
     'utf8'
   );
   expect(workflow).toContain(

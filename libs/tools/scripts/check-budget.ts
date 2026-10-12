@@ -1,8 +1,8 @@
 /**
- * Hard time limits for the `bun check:local` / `bun deploy:local` gate.
+ * Hard time limits for the `bun check-pr` / `bun deploy:local` gate.
  *
  * Two limits, both enforced by `turbo-ci-run.ts` so every surface that runs
- * the gate (`bun check:local`, the Check workflow, the Deploy workflow) gets them:
+ * the gate (`bun check-pr`, the Check workflow, the Deploy workflow) gets them:
  *
  * 1. A wall-clock **deadline** on the whole turbo run. Before it, one wedged
  *    task took the run with it — `@apps/product#test` once ran 2104s as a
@@ -19,6 +19,11 @@
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import {
+  profileBudgetSeconds,
+  profileDeadlineSeconds,
+  suiteTaskBudgetSeconds,
+} from './check-profile';
 
 /** Ceiling for any task without an entry in {@link TASK_BUDGET_SECONDS}. */
 export const DEFAULT_TASK_BUDGET_SECONDS = 300;
@@ -51,7 +56,7 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   // Every @synthetic feature and specs/journeys/ scenario, one feature file per
   // process in parallel; the journeys feature dominates — seven journeys in
   // a real browser on production latency, one fresh device each, the
-  // signed-in ones first signing in (health only — never part of `bun check`).
+  // signed-in ones first signing in (health only — never part of `bun check-pr`).
   '@apps/product#health': 480,
 };
 
@@ -75,17 +80,12 @@ export const DEFAULT_RUN_DEADLINE_SECONDS = 600;
 
 /**
  * The same ceiling for a full Check shard on CI's 2-core runner. It must stay
- * **below** that shard step's `timeout-minutes` in `.github/workflows/check.yml`,
+ * **below** that shard step's `timeout-minutes` in `.github/workflows/check-pr.yml`,
  * so this process kills the run and names the task still running before GitHub
  * kills the job and says nothing. Contract tasks are budgeted up to this.
  */
 export const CI_RUN_DEADLINE_SECONDS = 1200;
 
-/** `deploy` adds provision → migrate → three worker deploys → health. */
-export const DEPLOY_RUN_DEADLINE_SECONDS = 2700;
-
-/** Overrides the wall-clock deadline (seconds); `0` is rejected, not "off". */
-export const RUN_DEADLINE_ENV = 'CHECK_DEADLINE_SECONDS';
 /**
  * Wall-clock ceiling on a warm CI runner (16 cores or more): 30 s warm
  * start, 240 s of work, 15 s to post the verdict. A 2-core hosted runner
@@ -102,18 +102,35 @@ export const WARM_RUNNER_MIN_CPUS = 16;
  */
 export const DEADLINE_FLUSH_MS = 15_000;
 
+/** `deploy` adds provision → migrate → three worker deploys → health. */
+export const DEPLOY_RUN_DEADLINE_SECONDS = 2700;
+
+/** Overrides the wall-clock deadline (seconds); `0` is rejected, not "off". */
+export const RUN_DEADLINE_ENV = 'CHECK_DEADLINE_SECONDS';
 
 export function taskBudgetSeconds(taskId: string, slowRunner: boolean): number {
+  const suite = suiteTaskBudgetSeconds(taskId);
+  if (suite !== null) return suite;
   const base = Object.hasOwn(TASK_BUDGET_SECONDS, taskId)
     ? (TASK_BUDGET_SECONDS[taskId] ?? DEFAULT_TASK_BUDGET_SECONDS)
     : DEFAULT_TASK_BUDGET_SECONDS;
-  return slowRunner ? base * SLOW_RUNNER_MULTIPLIER : base;
+  // The nightly profile runs the same task deeper (`check-profile.ts`).
+  return profileBudgetSeconds(
+    slowRunner ? base * SLOW_RUNNER_MULTIPLIER : base
+  );
 }
 
 export type RunDeadlineOptions = {
   readonly isDeploy: boolean;
   readonly slowRunner: boolean;
+  /** CI with {@link WARM_RUNNER_MIN_CPUS} or more. Wins over `slowRunner`. */
+  readonly warmRunner?: boolean;
 };
+
+/** Hosted 2-core CI. A warm runner and a laptop are not slow. */
+export function slowCiRunner(ci: boolean, cpus: number): boolean {
+  return ci && cpus < WARM_RUNNER_MIN_CPUS;
+}
 
 export function resolveRunDeadlineSeconds(
   env: NodeJS.ProcessEnv,
@@ -122,16 +139,26 @@ export function resolveRunDeadlineSeconds(
   const override = Number.parseInt(env[RUN_DEADLINE_ENV]?.trim() ?? '', 10);
   if (Number.isInteger(override) && override > 0) return override;
   if (options.isDeploy) return DEPLOY_RUN_DEADLINE_SECONDS;
+  const profile = profileDeadlineSeconds(
+    env,
+    options.slowRunner || options.warmRunner === true
+  );
+  if (profile !== null) return profile;
+  if (options.warmRunner === true) return WARM_RUN_DEADLINE_SECONDS;
   return options.slowRunner
-  /** CI with {@link WARM_RUNNER_MIN_CPUS} or more. Wins over `slowRunner`. */
-  readonly warmRunner?: boolean;
     ? CI_RUN_DEADLINE_SECONDS
     : DEFAULT_RUN_DEADLINE_SECONDS;
-/** Hosted 2-core CI. A warm runner and a laptop are not slow. */
-export function slowCiRunner(ci: boolean, cpus: number): boolean {
-  return ci && cpus < WARM_RUNNER_MIN_CPUS;
 }
 
+/** A deadline or an external signal fails the gate even if turbo exits 0. */
+export function gateExitCode(input: {
+  readonly deadlineHit: boolean;
+  readonly signal: NodeJS.Signals | null;
+  readonly code: number | null;
+  readonly published: boolean;
+}): number {
+  if (input.deadlineHit || input.signal !== null) return 124;
+  return input.published ? (input.code ?? 1) : 1;
 }
 
 type SummaryTask = {
@@ -150,17 +177,6 @@ export type RunSummary = { readonly tasks?: readonly SummaryTask[] };
 export type TaskOverrun = {
   readonly taskId: string;
   readonly seconds: number;
-/** A deadline or an external signal fails the gate even if turbo exits 0. */
-export function gateExitCode(input: {
-  readonly deadlineHit: boolean;
-  readonly signal: NodeJS.Signals | null;
-  readonly code: number | null;
-  readonly published: boolean;
-}): number {
-  if (input.deadlineHit || input.signal !== null) return 124;
-  return input.published ? (input.code ?? 1) : 1;
-}
-
   readonly budgetSeconds: number;
 };
 

@@ -2,10 +2,11 @@ import { describe, expect, test } from 'bun:test';
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { activeProfile } from './check-profile';
 
 const WORKFLOW = join(
   import.meta.dirname,
-  '../../../.github/workflows/check.yml'
+  '../../../.github/workflows/check-pr.yml'
 );
 
 /** Cleanup steps must not hold a cancelled run's concurrency group. */
@@ -61,13 +62,81 @@ describe('Check workflow cancellation', () => {
     expect(workflow.on.workflow_call.inputs.shards.default).toBe(40);
     expect(shardCounts).toContain(40);
   });
-  test('no workflow explores: the gate replays its bounded traces on every trigger', () => {
-    // `QUINT_REPLAY_TRACES` unset is the bounded default; exploring is asked
-    // for by name on a developer machine.
+  test('no workflow names a depth: the profile decides, and only a caller can ask for nightly', () => {
+    // `QUINT_REPLAY_TRACES` unset is the bounded default. A workflow names a
+    // profile and `check-profile.ts` holds its budgets, so a pull request and
+    // Deploy's verification share one verdict and one cache key.
     for (const file of readdirSync(join(WORKFLOW, '..')))
-      expect(readFileSync(join(WORKFLOW, '..', file), 'utf8')).not.toContain(
-        'QUINT_REPLAY_TRACES'
+      expect(readFileSync(join(WORKFLOW, '..', file), 'utf8')).not.toMatch(
+        /QUINT_REPLAY_TRACES|PBT_NUM_RUNS|FC_SEED/
       );
+    const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
+      env: Record<string, string>;
+      on: {
+        workflow_dispatch: { inputs: Record<string, unknown> };
+        workflow_call: { inputs: { profile: { default: string } } };
+      };
+    };
+    // A pull request has no inputs, and a dispatch cannot name a profile.
+    expect(workflow.env['CHECK_PROFILE']).toBe("${{ inputs.profile || 'pr' }}");
+    expect(workflow.on.workflow_call.inputs.profile.default).toBe('pr');
+    expect(workflow.on.workflow_dispatch.inputs).not.toHaveProperty('profile');
+    expect(activeProfile({}).env).toEqual({});
+  });
+  // The merge gate keeps no test report; the job log is the evidence.
+  test('the pr profile uploads only transfer artifacts and deletes them', () => {
+    const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
+      jobs: Record<
+        string,
+        {
+          steps: {
+            name?: string;
+            if?: string;
+            run?: string;
+            uses?: string;
+            with?: Record<string, string>;
+          }[];
+        }
+      >;
+    };
+    const nightlyOnly = (step: { if?: string }) =>
+      step.if === "always() && !cancelled() && env.CHECK_PROFILE == 'nightly'";
+    const steps = Object.values(workflow.jobs).flatMap((job) => job.steps);
+    const uploads = steps.filter((step) =>
+      step.uses?.startsWith('actions/upload-artifact@')
+    );
+    expect(uploads.length).toBeGreaterThan(0);
+    for (const upload of uploads) {
+      if (nightlyOnly(upload)) continue;
+      // What remains carries state between jobs, for a day at most.
+      expect(upload.with?.['name']).toMatch(/^check-(plan|results|evidence)/);
+      expect(upload.with?.['retention-days']).toBe(
+        "${{ inputs.profile == 'nightly' && 14 || 1 }}"
+      );
+    }
+    // Reports, traces, summaries and publication are the nightly profile's.
+    for (const name of [
+      'observability-traces-',
+      'turbo-summary-',
+      'check-verdict',
+      'check-ci-details',
+    ])
+      expect(
+        uploads
+          .filter((upload) => upload.with?.['name']?.startsWith(name))
+          .every(nightlyOnly)
+      ).toBe(true);
+    expect(
+      steps.filter((step) => step.run?.includes('check-reports.ts'))
+    ).toSatisfy((publish: { if?: string }[]) => publish.every(nightlyOnly));
+    const end = workflow.jobs['check-end']!.steps;
+    const cleanup = end.at(-1)!;
+    expect(cleanup.name).toBe('Delete transfer artifacts');
+    expect(cleanup.if).toBe(
+      "always() && !cancelled() && env.CHECK_PROFILE != 'nightly'"
+    );
+    expect(cleanup.run).toContain('startswith("check-")');
+    expect(cleanup.run).toContain('--method DELETE');
   });
   // regression: concurrent-check-run-isolation
   test('a newer push supersedes its PR run; dispatched and release runs never cancel one another', () => {
@@ -157,7 +226,7 @@ describe('Check workflow cancellation', () => {
     // Publication comes after the verdict and cannot change the job's result.
     expect(reports).toBeGreaterThan(verdict);
     expect(end.steps[reports]).toMatchObject({
-      if: 'always() && !cancelled()',
+      if: "always() && !cancelled() && env.CHECK_PROFILE == 'nightly'",
       'continue-on-error': true,
     });
     expect(

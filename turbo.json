@@ -2727,6 +2727,26 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "@apps/product#test:fuzz": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@apps/product#test:stack": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@pkgs/db-indexes-root-shared#mutants": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@pkgs/room-root-harness#bench": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@pkgs/sql-root-shared#perf": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "@apps/auth-relay#deploy": {
       "cache": false,
       "passThroughEnv": ["*"]

@@ -24,7 +24,7 @@ describe('naming rules', () => {
     ['src/assets.d.ts', true],
     ['src/foo.harness.test.ts', true],
     ['img/icon@2x.png', true],
-    ['.github/workflows/check.yml', true],
+    ['.github/workflows/check-pr.yml', true],
     ['.gitignore', true],
     ['.env.local', true],
     ['docs/GOAL.md', true],
@@ -80,7 +80,7 @@ describe('naming rules', () => {
   });
 
   // ~0.1 s alone, but its wall time is the machine's: under a saturated
-  // `bun check` it measured 5.2 s and tripped bun's default 5 s timeout. The
+  // `bun check-pr` it measured 5.2 s and tripped bun's default 5 s timeout. The
   // verdict is the CPU-time ratio below; the timeout only bounds a hang.
   const LOADED_MACHINE_TIMEOUT_MS = 60_000;
 
@@ -88,12 +88,12 @@ describe('naming rules', () => {
     'classifier cost stays linear in the number of paths',
     () => {
       // A wall-clock ceiling here measured the machine, not the classifier, and
-      // went red whenever `bun check` had the CPU saturated. What this guards is
+      // went red whenever `bun check-pr` had the CPU saturated. What this guards is
       // that nothing turns the per-path work quadratic (a per-path scan of every
       // other path), so compare the per-path cost at two sizes: linear holds it
       // flat, quadratic multiplies it by the size ratio.
       //
-      // The comparison has to survive a loaded machine — `bun check` runs this
+      // The comparison has to survive a loaded machine — `bun check-pr` runs this
       // beside a dozen other tasks. Wall-clock time counts every moment the OS
       // gave the CPU to someone else, and even the fastest of seven interleaved
       // rounds read 11x under load. So measure this process's own CPU time, which

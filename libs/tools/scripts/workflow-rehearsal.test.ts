@@ -23,7 +23,7 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
   expect(workflow.jobs['deploy-matrix']?.if).toBe('${{ !inputs.rehearsal }}');
   expect(workflow.jobs['deploy-rehearsal']).toMatchObject({
     if: '${{ inputs.rehearsal }}',
-    uses: './.github/workflows/check.yml',
+    uses: './.github/workflows/check-pr.yml',
   });
   expect(workflow.jobs['deploy-plan']).toMatchObject({
     if: '${{ inputs.rehearsal }}',

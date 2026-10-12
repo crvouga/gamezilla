@@ -3,6 +3,7 @@
 import { spawnSync } from 'node:child_process';
 import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { recordSeeds } from './seed-record';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -46,11 +47,17 @@ function collectHarnessTests(): string[] {
   return files.toSorted();
 }
 
+// `--seed-count=` wins; `HARNESS_FUZZ_SEEDS` is the budget a check profile
+// sets (`libs/tools/scripts/check-profile.ts`).
 const seedCount = Number(
   process.argv
     .find((a) => a.startsWith('--seed-count='))
-    ?.slice('--seed-count='.length) ?? '32'
+    ?.slice('--seed-count='.length) ??
+    process.env['HARNESS_FUZZ_SEEDS'] ??
+    '32'
 );
+// `HARNESS_SEED=<seed>` replays the one seed a failed run printed.
+const replaySeed = process.env['HARNESS_SEED'];
 
 const files = collectHarnessTests();
 if (files.length === 0) {
@@ -58,9 +65,19 @@ if (files.length === 0) {
   process.exit(1);
 }
 
-for (let i = 1; i <= seedCount; i++) {
-  const seed = ((Math.random() * 0xffffffff) >>> 0) ^ i;
-  process.stdout.write(`::group::seed=${seed} (${i}/${seedCount})\n`);
+const seeds =
+  replaySeed === undefined
+    ? Array.from(
+        { length: seedCount },
+        (_, index) => ((Math.random() * 0xffffffff) >>> 0) ^ (index + 1)
+      )
+    : [Number(replaySeed)];
+
+recordSeeds('fuzz', { seeds, files: files.length, failed: null });
+
+for (const [index, seed] of seeds.entries()) {
+  const i = index + 1;
+  process.stdout.write(`::group::seed=${seed} (${i}/${seeds.length})\n`);
   for (const file of files) {
     const result = spawnSync('bun', ['test', file], {
       cwd: REPO_ROOT,
@@ -71,6 +88,12 @@ for (let i = 1; i <= seedCount; i++) {
       console.error(
         `::error::determinism fuzz failed seed=${seed} file=${file}`
       );
+      console.error(`Replay: HARNESS_SEED=${seed} bun test ${file}`);
+      recordSeeds('fuzz', {
+        seeds,
+        files: files.length,
+        failed: { seed, file, replay: `HARNESS_SEED=${seed} bun test ${file}` },
+      });
       process.exit(1);
     }
   }
@@ -78,5 +101,5 @@ for (let i = 1; i <= seedCount; i++) {
 }
 
 process.stdout.write(
-  `determinism fuzz OK (${seedCount} seeds × ${files.length} files)\n`
+  `determinism fuzz OK (${seeds.length} seeds × ${files.length} files)\n`
 );

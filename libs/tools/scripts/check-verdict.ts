@@ -10,9 +10,10 @@
  * left nothing to execute is skipped by design; its tasks' cached verdicts
  * were recorded by `check:start`.
  *
- * Writes `.cache/check-ci/verdict.{json,md,junit.xml}`, appends the
- * Markdown to `GITHUB_STEP_SUMMARY`, prints the table and exits 1 on any
- * failure. It also writes the durations this run measured
+ * Appends the Markdown to `GITHUB_STEP_SUMMARY`, prints the table and exits 1
+ * on any failure. The nightly profile also writes
+ * `.cache/check-ci/verdict.{json,md,junit.xml}`; the `pr` profile keeps no
+ * report file (`check-profile.ts`). It also writes the durations this run measured
  * (`measured-costs.json`), which the next plan packs its shards by.
  */
 import {
@@ -27,6 +28,7 @@ import { join } from 'node:path';
 import type { CheckSchedule } from './check-plan-schedule';
 import { checkSchedule } from './check-plan-schedule';
 import { restorePlan } from './check-plan-transfer';
+import { activeProfile } from './check-profile';
 import type { Result } from './check-shard-results';
 import type { CheckPlan } from './check-shards';
 import { MEASURED_COSTS_PATH, measuredCosts } from './check-task-costs';
@@ -186,12 +188,19 @@ function verdictLine(verdict: Verdict, red: number, badJobs: number): string {
   return `${verdict.failures} total failures across ${red} suites`;
 }
 
-function evidenceOf(task: FailedTask): string {
+/** Where a failure is read: retained artifacts, or the job log alone. */
+function evidenceOf(task: FailedTask, reports: boolean): string {
   if (task.shard === null) return 'no verdict (shard crashed or cancelled)';
-  return `\`check-evidence-${task.shard}\`, \`observability-traces-*-${task.shard}\``;
+  return reports
+    ? `\`check-evidence-${task.shard}\`, \`observability-traces-*-${task.shard}\``
+    : `the log of \`check:shards (${task.shard})\``;
 }
 
-export function formatMarkdown(verdict: Verdict, runUrl: string): string {
+export function formatMarkdown(
+  verdict: Verdict,
+  runUrl: string,
+  reports = true
+): string {
   const lines = [
     `## ${verdict.passed ? '✅' : '❌'} Release verification`,
     '',
@@ -209,10 +218,10 @@ export function formatMarkdown(verdict: Verdict, runUrl: string): string {
     lines.push('', `### ${suite.name}`, '');
     for (const task of suite.failed)
       lines.push(
-        `- \`${task.taskId}\` — ${task.reason} (exit ${task.exitCode}); evidence ${evidenceOf(task)}`
+        `- \`${task.taskId}\` — ${task.reason} (exit ${task.exitCode}); evidence ${evidenceOf(task, reports)}`
       );
   }
-  lines.push('', `Logs and artifacts: ${runUrl}`, '');
+  lines.push('', `${reports ? 'Logs and artifacts' : 'Logs'}: ${runUrl}`, '');
   return lines.join('\n');
 }
 
@@ -229,7 +238,7 @@ export function formatJunit(verdict: Verdict): string {
   const suites = verdict.suites.map((suite) => {
     const cases = suite.failed.map(
       (task) =>
-        `    <testcase classname="${escapeXml(suite.name)}" name="${escapeXml(task.taskId)}"><failure message="${task.reason} (exit ${task.exitCode})">${escapeXml(evidenceOf(task))}</failure></testcase>`
+        `    <testcase classname="${escapeXml(suite.name)}" name="${escapeXml(task.taskId)}"><failure message="${task.reason} (exit ${task.exitCode})">${escapeXml(evidenceOf(task, true))}</failure></testcase>`
     );
     return [
       `  <testsuite name="${escapeXml(suite.name)}" tests="${suite.tasks}" failures="${suite.failed.length}">`,
@@ -276,11 +285,16 @@ function main(env: NodeJS.ProcessEnv): number {
     ),
   });
   const runUrl = `${env['GITHUB_SERVER_URL'] ?? 'https://github.com'}/${env['GITHUB_REPOSITORY'] ?? ''}/actions/runs/${env['GITHUB_RUN_ID'] ?? ''}`;
-  const markdown = formatMarkdown(verdict, runUrl);
+  const reports = activeProfile(env).reports;
+  const markdown = formatMarkdown(verdict, runUrl, reports);
   mkdirSync(DIRECTORY, { recursive: true });
-  writeFileSync(join(DIRECTORY, 'verdict.json'), JSON.stringify(verdict));
-  writeFileSync(join(DIRECTORY, 'verdict.md'), markdown);
-  writeFileSync(join(DIRECTORY, 'verdict.junit.xml'), formatJunit(verdict));
+  // Report files are the nightly profile's; the `pr` profile's verdict is
+  // the job log and the run summary.
+  if (reports) {
+    writeFileSync(join(DIRECTORY, 'verdict.json'), JSON.stringify(verdict));
+    writeFileSync(join(DIRECTORY, 'verdict.md'), markdown);
+    writeFileSync(join(DIRECTORY, 'verdict.junit.xml'), formatJunit(verdict));
+  }
   if (plan)
     writeFileSync(
       MEASURED_COSTS_PATH,
