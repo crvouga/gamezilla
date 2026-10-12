@@ -68,12 +68,14 @@ import { capture } from '@pkgs/os-server/command';
 import { killOrphanEsbuildServices } from '@pkgs/os-server/kill-orphan-esbuild';
 import { captureAudit } from './audit-snapshot';
 import {
+  DEADLINE_FLUSH_MS,
   findBudgetOverruns,
   formatBudgetOverruns,
   readLatestRunSummary,
   resolveRunDeadlineSeconds,
   slowestExecuted,
 } from './check-budget';
+  slowCiRunner,
 import { checkCacheConcurrency } from './check-cache-concurrency';
 import { completeReports, prepareReports } from './check-report-lifecycle';
 import { observeReportOutput } from './check-report-run';
@@ -121,9 +123,9 @@ export const MAIN_CHECK_TASKS = [
   '@apps/auth-relay#check:worker-bundle',
   '@apps/product#check:worker-bundle',
   '@libs/runtime-server#check:schema-evolution',
+  'test:contract:render',
   '@libs/tools#check:actionlint',
   '@libs/tools#check:secrets',
-  'test:contract:render',
   'check:board-contract',
   '@apps/synthetic-population-worker#check:synthetic-population-foundation',
 ] as const;
@@ -585,7 +587,11 @@ async function main(): Promise<void> {
   );
 }
 
-function runDeadlineSeconds(mode: RunMode, slowRunner: boolean): number {
+function runDeadlineSeconds(
+  mode: RunMode,
+  slowRunner: boolean,
+  ci: boolean
+): number {
   return resolveRunDeadlineSeconds(process.env, {
     isDeploy: mode === 'deploy',
     slowRunner,
@@ -614,6 +620,7 @@ async function prepareRunPlan(args: {
       plan: restoreSelectedReports(args.planned, missingReports),
       missingReports,
     };
+    warmRunner: ci && !slowRunner,
   }
   return {
     plan:
@@ -832,7 +839,8 @@ function armDeadline(
   child: ChildProcess,
   deadlineSeconds: number,
   stopReports: () => void
-): () => void {
+): { readonly disarm: () => void; readonly deadlineHit: () => boolean } {
+  let deadlineHit = false;
   const forward = (signal: NodeJS.Signals) => () => {
     stopReports();
     killTree(child, signal);
@@ -841,28 +849,40 @@ function armDeadline(
   const onTerm = forward('SIGTERM');
   process.on('SIGINT', onInt);
   process.on('SIGTERM', onTerm);
-  const timer = setTimeout(() => {
+  const termAt = setTimeout(() => {
+    deadlineHit = true;
     console.error(
-      `turbo-ci-run: hard deadline of ${String(deadlineSeconds)}s reached; killing the run.`
+      `turbo-ci-run: hard deadline of ${String(deadlineSeconds)}s reached; asking turbo to flush finished cache uploads.`
     );
-    // SIGKILL leaves turbo no chance to report, so name the running tasks
-    // first: one long-running task is a wedge to fix; many short ones mean the
-    // run had more work than the deadline allows (a wide cache miss).
     if (child.pid !== undefined) {
       console.error(describeRunningTasks(child.pid, REPO_ROOT));
     }
-    console.error(
-      'turbo-ci-run: tasks that finished before the kill are cached, so a ' +
-        'rerun resumes from here. Fix a wedged task, or raise the deadline in ' +
-        'libs/tools/scripts/check-budget.ts with the measurement.'
-    );
-    killTree(child, 'SIGKILL');
-    stopReports();
+    killTree(child, 'SIGTERM');
   }, deadlineSeconds * 1000);
-  return () => {
-    clearTimeout(timer);
-    process.off('SIGINT', onInt);
-    process.off('SIGTERM', onTerm);
+  const killAt = setTimeout(
+    () => {
+      deadlineHit = true;
+      console.error(
+        `turbo-ci-run: cache flush window of ${String(DEADLINE_FLUSH_MS)}ms elapsed; killing the run.`
+      );
+      console.error(
+        'turbo-ci-run: tasks that finished before the kill are cached, so a ' +
+          'rerun resumes from here. Fix a wedged task, or raise the deadline in ' +
+          'libs/tools/scripts/check-budget.ts with the measurement.'
+      );
+      killTree(child, 'SIGKILL');
+      stopReports();
+    },
+    deadlineSeconds * 1000 + DEADLINE_FLUSH_MS
+  );
+  return {
+    deadlineHit: () => deadlineHit,
+    disarm: () => {
+      clearTimeout(termAt);
+      clearTimeout(killAt);
+      process.off('SIGINT', onInt);
+      process.off('SIGTERM', onTerm);
+    },
   };
 }
 
@@ -880,7 +900,7 @@ function runTurbo(
     detached: true,
   });
   const uploads = new AbortController();
-  const disarm = armDeadline(child, options.deadlineSeconds, () =>
+  const deadline = armDeadline(child, options.deadlineSeconds, () =>
     uploads.abort()
   );
   const reports =
@@ -897,18 +917,19 @@ function runTurbo(
   );
   return new Promise<number>((resolve) => {
     child.on('error', () => {
-      disarm();
+      deadline.disarm();
       resolve(1);
     });
     child.on('close', async (code, signal) => {
       const published = await publication;
-      disarm();
+      deadline.disarm();
       resolve(
-        uploads.signal.aborted || signal !== null
-          ? 124
-          : published
-            ? (code ?? 1)
-            : 1
+        gateExitCode({
+          deadlineHit: deadline.deadlineHit(),
+          signal,
+          code,
+          published,
+        })
       );
     });
   });

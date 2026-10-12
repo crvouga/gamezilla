@@ -86,6 +86,22 @@ export const DEPLOY_RUN_DEADLINE_SECONDS = 2700;
 
 /** Overrides the wall-clock deadline (seconds); `0` is rejected, not "off". */
 export const RUN_DEADLINE_ENV = 'CHECK_DEADLINE_SECONDS';
+/**
+ * Wall-clock ceiling on a warm CI runner (16 cores or more): 30 s warm
+ * start, 240 s of work, 15 s to post the verdict. A 2-core hosted runner
+ * stays on {@link CI_RUN_DEADLINE_SECONDS}.
+ */
+export const WARM_RUN_DEADLINE_SECONDS = 270;
+
+/** Cores at which a CI machine is the warm runner, not the hosted 2-core. */
+export const WARM_RUNNER_MIN_CPUS = 16;
+
+/**
+ * After the deadline, SIGTERM and wait this long so turbo can finish
+ * uploading tasks that already completed, then SIGKILL.
+ */
+export const DEADLINE_FLUSH_MS = 15_000;
+
 
 export function taskBudgetSeconds(taskId: string, slowRunner: boolean): number {
   const base = Object.hasOwn(TASK_BUDGET_SECONDS, taskId)
@@ -107,8 +123,15 @@ export function resolveRunDeadlineSeconds(
   if (Number.isInteger(override) && override > 0) return override;
   if (options.isDeploy) return DEPLOY_RUN_DEADLINE_SECONDS;
   return options.slowRunner
+  /** CI with {@link WARM_RUNNER_MIN_CPUS} or more. Wins over `slowRunner`. */
+  readonly warmRunner?: boolean;
     ? CI_RUN_DEADLINE_SECONDS
     : DEFAULT_RUN_DEADLINE_SECONDS;
+/** Hosted 2-core CI. A warm runner and a laptop are not slow. */
+export function slowCiRunner(ci: boolean, cpus: number): boolean {
+  return ci && cpus < WARM_RUNNER_MIN_CPUS;
+}
+
 }
 
 type SummaryTask = {
@@ -127,6 +150,17 @@ export type RunSummary = { readonly tasks?: readonly SummaryTask[] };
 export type TaskOverrun = {
   readonly taskId: string;
   readonly seconds: number;
+/** A deadline or an external signal fails the gate even if turbo exits 0. */
+export function gateExitCode(input: {
+  readonly deadlineHit: boolean;
+  readonly signal: NodeJS.Signals | null;
+  readonly code: number | null;
+  readonly published: boolean;
+}): number {
+  if (input.deadlineHit || input.signal !== null) return 124;
+  return input.published ? (input.code ?? 1) : 1;
+}
+
   readonly budgetSeconds: number;
 };
 
