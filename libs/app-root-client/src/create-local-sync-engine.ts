@@ -174,11 +174,11 @@ async function openAppLocalDb(
       args.timers,
       createLogger({ name: 'sqlite-web', now: args.clock.now })
     );
-  } catch {
+  } catch (error) {
     // SQLite is only an optimistic local cache. A stale worker, broken OPFS
     // handle, or corrupt snapshot must never prevent the product shell from
     // booting; discard this cache and use a disposable in-memory SQLite DB.
-    return openDisposableSqlClient();
+    return openDisposableSqlClient(error);
   }
 }
 
@@ -269,12 +269,12 @@ export async function createAppLocalSyncEngine(
       engine = await buildEngine(args, app, db, syncLease.isOwner);
       emqxUrlHolderFor(args.databaseName).url =
         await readEmqxWssUrlFromLocalDb(db);
-    } catch {
+    } catch (error) {
       // A worker can open successfully while the cached schema/snapshot is
       // unusable. Rebuild once against a clean disposable cache; SQLite must
       // never turn into an application boot gate.
       await db.disconnect().catch(() => undefined);
-      db = await openDisposableSqlClient();
+      db = await openDisposableSqlClient(error);
       engine = await buildEngine(args, app, db, syncLease.isOwner);
       emqxUrlHolderFor(args.databaseName).url =
         await readEmqxWssUrlFromLocalDb(db);

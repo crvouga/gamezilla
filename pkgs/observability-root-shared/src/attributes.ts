@@ -62,6 +62,7 @@ export const ATTR = {
   APP_INTERACTION_PRESENTATION_MS: 'app.interaction.presentation_ms',
   APP_INTERACTION_FRAME_MS: 'app.interaction.frame_ms',
   APP_INTERACTION_SCRIPT_MS: 'app.interaction.script_ms',
+  APP_MAIN_THREAD_STALL_MS: 'app.main_thread.stall_ms',
   APP_LOG_SEVERITY: 'app.log.severity',
   APP_LOG_MESSAGE: 'app.log.message',
   APP_LOG_NAME: 'app.log.name',
@@ -121,6 +122,7 @@ export type AttrValue = {
   'app.interaction.presentation_ms': number;
   'app.interaction.frame_ms': number;
   'app.interaction.script_ms': number;
+  'app.main_thread.stall_ms': number;
   'app.log.severity': 'debug' | 'info' | 'warn' | 'error';
   'app.log.message': string;
   'app.log.name': string;
