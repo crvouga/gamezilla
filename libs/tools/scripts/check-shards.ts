@@ -47,10 +47,18 @@ function groups(tasks: readonly CheckTask[]): CheckTask[][] {
   return [...result.values()];
 }
 
+/**
+ * A task that is solver proofs from start to end: a package's model check,
+ * or the whole-product proofs in the product app's contract suite.
+ */
+function solverTask(taskId: string): boolean {
+  return (
+    taskId.endsWith('#check:models') || taskId === '@apps/product#test:contract'
+  );
+}
+
 function modelCount(tasks: readonly CheckTask[]): number {
-  return tasks.filter(
-    (task) => !task.hit && task.taskId.endsWith('#check:models')
-  ).length;
+  return tasks.filter((task) => !task.hit && solverTask(task.taskId)).length;
 }
 
 function lighter(a: CheckShard, b: CheckShard): boolean {

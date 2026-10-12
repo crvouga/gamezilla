@@ -374,7 +374,9 @@ test('a narrowed plan leaves each uncached solver group alone on its runner', ()
     [
       task('@libs/chess-root-harness#check:models', 5),
       task('@pkgs/chess-board-root-harness#check:models', 5),
-      task('@pkgs/room-root-harness#check:models', 5),
+      // Check run 38195467632: its thirteen proofs outran the task budget
+      // and 39 tasks queued on shard 25 ended unrun.
+      task('@apps/product#test:contract', 5),
       ...Array.from({ length: 6 }, (_, i) =>
         task(`@libs/chess-root-harness#test:spec:${i}`, 50)
       ),
@@ -387,7 +389,11 @@ test('a narrowed plan leaves each uncached solver group alone on its runner', ()
   // Three solver runners, and 300 s of spec work at 120 s a shard.
   expect(started).toHaveLength(6);
   const solverShards = started.filter((shard) =>
-    shard.tasks.some((item) => item.taskId.endsWith('#check:models'))
+    shard.tasks.some(
+      (item) =>
+        item.taskId.endsWith('#check:models') ||
+        item.taskId === '@apps/product#test:contract'
+    )
   );
   expect(solverShards).toHaveLength(3);
   expect(solverShards.every((shard) => shard.tasks.length === 1)).toBe(true);
