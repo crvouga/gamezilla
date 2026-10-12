@@ -350,6 +350,45 @@ test('a shard target starts only the runners the uncached work needs', () => {
   validatePlan(plan);
 });
 
+// regression: check-shard-width-counts-oversized-group
+test('a task longer than the shard target starts no runner for a few seconds of work', () => {
+  // Check run 38198242466: 133 s and 97 s tasks counted as four runners at
+  // 60 s a shard, so 15 s, 9 s and 2 s of work each paid a runner's setup.
+  const plan = balanceShards(
+    [
+      task('@apps/product#test:contract', 86),
+      task('@libs/chess-root-harness#check:models', 35),
+      task('@apps/synthetic-population-worker#check:synthetic-population', 133),
+      task('@libs/chess-root-harness#test:spec:33', 97),
+      task('@libs/tools#test', 15),
+      task('@libs/tools#check:root-lint', 9),
+      task('@libs/tools#check:secrets', 1),
+      task('@libs/tools#ci:spec-ownership', 1),
+    ],
+    40,
+    60
+  );
+  const started = plan.shards.filter(
+    (shard) => shard.stage === 'checks' && executes(shard)
+  );
+  expect(
+    started.map((shard) => shard.tasks.map((item) => item.taskId))
+  ).toEqual([
+    ['@apps/product#test:contract'],
+    ['@libs/chess-root-harness#check:models'],
+    ['@apps/synthetic-population-worker#check:synthetic-population'],
+    ['@libs/chess-root-harness#test:spec:33'],
+    [
+      '@libs/tools#test',
+      '@libs/tools#check:root-lint',
+      '@libs/tools#check:secrets',
+      '@libs/tools#ci:spec-ownership',
+    ],
+  ]);
+  expect(started.map((shard) => shard.seconds)).toEqual([86, 35, 133, 97, 26]);
+  validatePlan(plan);
+});
+
 test('a fully cached plan starts no shard, and a cold corpus uses every one', () => {
   const tasks = Array.from({ length: 200 }, (_, i) =>
     task(`pkg-${i}#test`, 90)

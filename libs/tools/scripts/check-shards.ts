@@ -81,7 +81,9 @@ function cost(group: readonly CheckTask[]): number {
  * Check shards worth starting. Every shard pays a runner's checkout and
  * install before its first task, so uncached work is packed into shards of
  * about `targetSeconds` instead of spread over all `count`. Each uncached
- * solver group owns a runner of its own, beside the ones the rest needs.
+ * solver group owns a runner of its own, and so does any other group of a
+ * target or more: its seconds fill its own runner, never a share of the
+ * runners the smaller groups are packed into.
  */
 export function shardWidth(
   ordered: readonly (readonly CheckTask[])[],
@@ -92,12 +94,14 @@ export function shardWidth(
   if (!Number.isFinite(targetSeconds) || targetSeconds <= 0)
     throw new Error('Shard target must be a positive number of seconds');
   const solvers = ordered.filter((group) => modelCount(group) > 0).length;
-  const rest = ordered
-    .filter((group) => modelCount(group) === 0)
+  const rest = ordered.filter((group) => modelCount(group) === 0);
+  const own = rest.filter((group) => cost(group) >= targetSeconds).length;
+  const packed = rest
+    .filter((group) => cost(group) < targetSeconds)
     .reduce((sum, group) => sum + cost(group), 0);
   return Math.min(
     count,
-    Math.max(1, solvers + Math.ceil(rest / targetSeconds))
+    Math.max(1, solvers + own + Math.ceil(packed / targetSeconds))
   );
 }
 
