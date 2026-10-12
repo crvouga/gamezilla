@@ -45,7 +45,7 @@ test('shell transfers use the workflow token for both listing and downloading', 
   expect(downloaded).toEqual([11]);
   const workflow = Bun.YAML.parse(
     readFileSync(
-      join(import.meta.dirname, '../../../.github/workflows/check.yml'),
+      join(import.meta.dirname, '../../../.github/workflows/check-pr.yml'),
       'utf8'
     )
   ) as { env: Record<string, string> };

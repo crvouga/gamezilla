@@ -1,4 +1,0 @@
-{
-  "summary": "Pulling a branch never moved an initialized submodule, so a checkout kept serving the Atlas explorer of whichever commit it was first cloned at. A submodule that only fell behind the recorded commit, with no local work, is brought forward before the workspace or the explorer starts.",
-  "regressionTest": "libs/tools/scripts/workspace-run.test.ts"
-}

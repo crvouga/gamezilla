@@ -1,19 +1,19 @@
 import { expect, test } from 'bun:test';
-import type { ReportPart } from '@crvouga/atlas-reports/explorer-types';
-import { listExplorerVersions } from '@crvouga/atlas-reports/explorer-versions';
-import { closeCommit, openCommit } from '@crvouga/atlas-reports/publish';
+import type { ReportPart } from '@crvouga/atlas/reports/explorer-types';
+import { listExplorerVersions } from '@crvouga/atlas/reports/explorer-versions';
+import { closeCommit, openCommit } from '@crvouga/atlas/reports/publish';
 import {
   latestParts,
   partStatus,
   publishPart,
   readParts,
-} from '@crvouga/atlas-reports/report-parts';
-import { sourcePart } from '@crvouga/atlas-reports/source-part';
+} from '@crvouga/atlas/reports/report-parts';
+import { sourcePart } from '@crvouga/atlas/reports/source-part';
 import {
   publishInventory,
   readInventory,
   readSpecDocument,
-} from '@crvouga/atlas-reports/spec-inventory';
+} from '@crvouga/atlas/reports/spec-inventory';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';

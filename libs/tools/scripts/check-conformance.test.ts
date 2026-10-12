@@ -117,7 +117,7 @@ describe('verdictsFromPlan', () => {
     });
     expect(verdicts.get('@libs/infra-server#lint')).toEqual({
       status: 'fail',
-      detail: 'not run — bun check does not plan it',
+      detail: 'not run — bun check-pr does not plan it',
     });
   });
 });

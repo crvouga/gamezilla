@@ -7,7 +7,7 @@ export function needsBrowser(tasks: CheckPlan['tasks']): boolean {
   return tasks.some(
     (task) =>
       !task.hit &&
-      (task.taskId === '@apps/product#test:contract' ||
+      (task.taskId === '@apps/product#test:contract:render' ||
         task.taskId === '@pkgs/ui-testing-bun-webview#test')
   );
 }

@@ -7,7 +7,7 @@
  *   Local disk under `.turbo` is ephemeral in CI. `TURBO_CACHE` may tighten local/remote modes but cannot
  *   drop `remote:` when creds are present.
  * - CI requires `TURBO_TOKEN`. Locally, a missing token (Infisical
- *   login/network fallback) use `local:rw` so `bun check` still runs.
+ *   login/network fallback) use `local:rw` so `bun check-pr` still runs.
  * - Disables framework inference so only explicit `turbo.json` `env` /
  *   `globalEnv` enter the hash. Builds explicitly hash public `VITE_*` inputs.
  * - Ensures `TURBO_API` points at the self-hosted cache origin (defaults when
@@ -68,13 +68,23 @@ import { capture } from '@pkgs/os-server/command';
 import { killOrphanEsbuildServices } from '@pkgs/os-server/kill-orphan-esbuild';
 import { captureAudit } from './audit-snapshot';
 import {
+  DEADLINE_FLUSH_MS,
   findBudgetOverruns,
   formatBudgetOverruns,
+  gateExitCode,
+  RUN_DEADLINE_ENV,
   readLatestRunSummary,
   resolveRunDeadlineSeconds,
+  slowCiRunner,
   slowestExecuted,
 } from './check-budget';
 import { checkCacheConcurrency } from './check-cache-concurrency';
+import {
+  activeProfile,
+  applyProfileEnv,
+  checkAggregatorTasks,
+  suiteDeadlineSeconds,
+} from './check-profile';
 import { completeReports, prepareReports } from './check-report-lifecycle';
 import { observeReportOutput } from './check-report-run';
 import type { ReportTaskIdentity } from './check-report-stream';
@@ -113,6 +123,7 @@ export const MAIN_CHECK_TASKS = [
   'lint',
   'test',
   'test:contract',
+  'test:contract:render',
   ...Array.from({ length: 64 }, (_, index) => `test:spec:${String(index)}`),
   'check:models',
   // The parts of a split models check (`MAX_MODEL_PARTS` in spec-packages).
@@ -125,7 +136,6 @@ export const MAIN_CHECK_TASKS = [
   '@libs/tools#check:secrets',
   'check:board-contract',
   '@apps/synthetic-population-worker#check:synthetic-population-foundation',
-  'check:synthetic-population',
 ] as const;
 
 /**
@@ -140,8 +150,9 @@ const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
 
 /**
  * The most traces of one Quint model a run replays through the product
- * (`@pkgs/quint-shared/wall`). The gate leaves it unset, which is the
- * smallest bounded selection; a developer sets `all` to explore.
+ * (`@pkgs/quint-shared/wall`). The `pr` profile leaves it unset, which is
+ * the smallest bounded selection; the `nightly` profile sets `all`
+ * (`check-profile.ts`).
  */
 export const REPLAY_BUDGET_ENV = 'QUINT_REPLAY_TRACES';
 
@@ -318,6 +329,7 @@ export function turboChildEnv(
   // the same verdict as none.
   if ((env[REPLAY_BUDGET_ENV]?.trim() ?? '') === '')
     delete env[REPLAY_BUDGET_ENV];
+  applyProfileEnv(env);
   if (!hasRemoteCreds(env)) return env;
   if ((env['TURBO_TEAM']?.trim() ?? '') === '') env['TURBO_TEAM'] = TURBO_TEAM;
   const api = env['TURBO_API']?.trim() ?? '';
@@ -365,8 +377,11 @@ export function flattenCheckAggregators(
   // Bare script names are command aliases only here. In Turbo's graph they
   // remain package tasks with their package-scoped meaning.
   function expand(arg: string, commandLine: boolean): void {
-    if (commandLine && (arg === 'check' || arg === 'check:local')) {
-      for (const task of MAIN_CHECK_TASKS) pushLeaf(task);
+    const checks = commandLine
+      ? checkAggregatorTasks(arg, MAIN_CHECK_TASKS)
+      : null;
+    if (checks !== null) {
+      for (const task of checks) pushLeaf(task);
       return;
     }
     const isAlias = Object.hasOwn(AGGREGATOR_ALIASES, arg);
@@ -484,7 +499,18 @@ function turboCiFlags(
         '--output-logs=full',
         '--continue=dependencies-successful',
       ]
-    : [...TURBO_CI_FLAGS];
+    : [...TURBO_CI_FLAGS, ...keepGoingFlags()];
+}
+
+/**
+ * The nightly profile lets every independent task report. A run restoring
+ * outputs already continues past a failure.
+ */
+function keepGoingFlags(): readonly string[] {
+  return activeProfile().continueAfterFailure &&
+    !process.argv.includes(RESTORE_OUTPUTS_FLAG)
+    ? ['--continue=dependencies-successful']
+    : [];
 }
 
 function cliTaskArgs(): string[] {
@@ -522,8 +548,9 @@ async function main(): Promise<void> {
   const taskArgs = prepareTaskArgs(rawTaskArgs);
   env[SECRETS_RANGE_ENV] = secretsScanRange(env);
 
-  const slowRunner = inCi();
-  const deadlineSeconds = runDeadlineSeconds(mode, slowRunner);
+  const ci = inCi();
+  const slowRunner = slowCiRunner(ci, availableParallelism());
+  const deadlineSeconds = deadlineFor(rawTaskArgs, mode, slowRunner, ci);
 
   console.log(
     `turbo-ci-run: cache=${cache} concurrency=${resolveConcurrency()} log-order=${TURBO_LOG_ORDER} deadline=${String(deadlineSeconds)}s` +
@@ -585,11 +612,37 @@ async function main(): Promise<void> {
   );
 }
 
-function runDeadlineSeconds(mode: RunMode, slowRunner: boolean): number {
+function runDeadlineSeconds(
+  mode: RunMode,
+  slowRunner: boolean,
+  ci: boolean
+): number {
   return resolveRunDeadlineSeconds(process.env, {
     isDeploy: mode === 'deploy',
     slowRunner,
+    warmRunner: ci && !slowRunner,
   });
+}
+
+/**
+ * A run of nightly suites has their deadline; `CHECK_DEADLINE_SECONDS` still
+ * outranks it, as it does every default.
+ */
+function deadlineFor(
+  rawTaskArgs: readonly string[],
+  mode: RunMode,
+  slowRunner: boolean,
+  ci: boolean
+): number {
+  const override = Number.parseInt(
+    process.env[RUN_DEADLINE_ENV]?.trim() ?? '',
+    10
+  );
+  const suite =
+    Number.isInteger(override) && override > 0
+      ? null
+      : suiteDeadlineSeconds(rawTaskArgs);
+  return suite ?? runDeadlineSeconds(mode, slowRunner, ci);
 }
 
 function prepareTaskArgs(raw: readonly string[]): string[] {
@@ -832,7 +885,8 @@ function armDeadline(
   child: ChildProcess,
   deadlineSeconds: number,
   stopReports: () => void
-): () => void {
+): { readonly disarm: () => void; readonly deadlineHit: () => boolean } {
+  let deadlineHit = false;
   const forward = (signal: NodeJS.Signals) => () => {
     stopReports();
     killTree(child, signal);
@@ -841,28 +895,40 @@ function armDeadline(
   const onTerm = forward('SIGTERM');
   process.on('SIGINT', onInt);
   process.on('SIGTERM', onTerm);
-  const timer = setTimeout(() => {
+  const termAt = setTimeout(() => {
+    deadlineHit = true;
     console.error(
-      `turbo-ci-run: hard deadline of ${String(deadlineSeconds)}s reached; killing the run.`
+      `turbo-ci-run: hard deadline of ${String(deadlineSeconds)}s reached; asking turbo to flush finished cache uploads.`
     );
-    // SIGKILL leaves turbo no chance to report, so name the running tasks
-    // first: one long-running task is a wedge to fix; many short ones mean the
-    // run had more work than the deadline allows (a wide cache miss).
     if (child.pid !== undefined) {
       console.error(describeRunningTasks(child.pid, REPO_ROOT));
     }
-    console.error(
-      'turbo-ci-run: tasks that finished before the kill are cached, so a ' +
-        'rerun resumes from here. Fix a wedged task, or raise the deadline in ' +
-        'libs/tools/scripts/check-budget.ts with the measurement.'
-    );
-    killTree(child, 'SIGKILL');
-    stopReports();
+    killTree(child, 'SIGTERM');
   }, deadlineSeconds * 1000);
-  return () => {
-    clearTimeout(timer);
-    process.off('SIGINT', onInt);
-    process.off('SIGTERM', onTerm);
+  const killAt = setTimeout(
+    () => {
+      deadlineHit = true;
+      console.error(
+        `turbo-ci-run: cache flush window of ${String(DEADLINE_FLUSH_MS)}ms elapsed; killing the run.`
+      );
+      console.error(
+        'turbo-ci-run: tasks that finished before the kill are cached, so a ' +
+          'rerun resumes from here. Fix a wedged task, or raise the deadline in ' +
+          'libs/tools/scripts/check-budget.ts with the measurement.'
+      );
+      killTree(child, 'SIGKILL');
+      stopReports();
+    },
+    deadlineSeconds * 1000 + DEADLINE_FLUSH_MS
+  );
+  return {
+    deadlineHit: () => deadlineHit,
+    disarm: () => {
+      clearTimeout(termAt);
+      clearTimeout(killAt);
+      process.off('SIGINT', onInt);
+      process.off('SIGTERM', onTerm);
+    },
   };
 }
 
@@ -880,7 +946,7 @@ function runTurbo(
     detached: true,
   });
   const uploads = new AbortController();
-  const disarm = armDeadline(child, options.deadlineSeconds, () =>
+  const deadline = armDeadline(child, options.deadlineSeconds, () =>
     uploads.abort()
   );
   const reports =
@@ -897,18 +963,19 @@ function runTurbo(
   );
   return new Promise<number>((resolve) => {
     child.on('error', () => {
-      disarm();
+      deadline.disarm();
       resolve(1);
     });
     child.on('close', async (code, signal) => {
       const published = await publication;
-      disarm();
+      deadline.disarm();
       resolve(
-        uploads.signal.aborted || signal !== null
-          ? 124
-          : published
-            ? (code ?? 1)
-            : 1
+        gateExitCode({
+          deadlineHit: deadline.deadlineHit(),
+          signal,
+          code,
+          published,
+        })
       );
     });
   });

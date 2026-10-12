@@ -1,4 +1,4 @@
-import type { RunReportOptions } from '@crvouga/atlas-reports/report-types';
+import type { RunReportOptions } from '@crvouga/atlas/reports/report-types';
 import type { ScenarioContext } from '@pkgs/gherkin-shared/registry';
 import { RunReporter } from '@pkgs/harness-root-shared/reporter';
 

@@ -13,7 +13,7 @@ const ROOT = join(import.meta.dirname, '../../..');
 // regression: github-model-phase-concurrency-starvation
 test('a two-core Check runner never starts twenty concurrent test processes', () => {
   const workflow = Bun.YAML.parse(
-    readFileSync(join(ROOT, '.github/workflows/check.yml'), 'utf8')
+    readFileSync(join(ROOT, '.github/workflows/check-pr.yml'), 'utf8')
   ) as {
     env: Record<string, string | number>;
     on: { workflow_call: { inputs: { concurrency: { default: number } } } };
@@ -35,9 +35,10 @@ test('a two-core Check runner never starts twenty concurrent test processes', ()
 });
 
 // regression: ci-provider-native-ci-runner-routing
-test('only GitHub Actions owns Check, Deploy and Health triggers', () => {
+test('only GitHub Actions owns the Check, Deploy and Health triggers', () => {
   expect(readdirSync(join(ROOT, '.github/workflows')).sort()).toEqual([
-    'check.yml',
+    'check-nightly.yml',
+    'check-pr.yml',
     'deploy.yml',
     'health.yml',
   ]);
@@ -50,7 +51,7 @@ test('only GitHub Actions owns Check, Deploy and Health triggers', () => {
     for (const job of Object.values(workflow.jobs)) {
       // A reusable-workflow call runs on its callee's runners.
       if (job.uses !== undefined) {
-        expect(job.uses).toBe('./.github/workflows/check.yml');
+        expect(job.uses).toBe('./.github/workflows/check-pr.yml');
         continue;
       }
       expect(job['runs-on']).toBe('ubuntu-24.04');

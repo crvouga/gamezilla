@@ -20,6 +20,7 @@ import {
   runPbtSuite,
 } from './run-suite';
 import { randomAttemptSeed } from './seed';
+import { recordSeeds } from './seed-record';
 import { PbtSessionUi } from './ui';
 
 type Cli = {
@@ -110,6 +111,7 @@ async function main(): Promise<void> {
   });
   ui.startSession();
 
+  const attempts: { seed: number; failedFiles: readonly string[] }[] = [];
   for (let attempt = 1; attempt <= cli.attempts; attempt += 1) {
     const seed = randomAttemptSeed();
     ui.beginAttempt(attempt, seed);
@@ -122,6 +124,14 @@ async function main(): Promise<void> {
       sampleInterruptMs: DEFAULT_SAMPLE_INTERRUPT_MS,
       ui,
     });
+    attempts.push({
+      seed,
+      failedFiles: result.results
+        .filter((r) => r.code !== 0)
+        .map((r) => r.file),
+    });
+    // Replay a failure with `FC_SEED=<seed> PBT_NUM_RUNS=<numRuns> bun test <file>`.
+    recordSeeds('pbt-random', { numRuns: DEFAULT_NUM_RUNS, attempts });
     if (!result.ok) {
       ui.stopSession();
       notifyPbtFailure({

@@ -1,6 +1,6 @@
 // @io-wall-ok — Atlas static-site evidence composition.
 import { resolve } from 'node:path';
-import { exportEvidence } from '@crvouga/atlas-reports/export-evidence';
+import { exportEvidence } from '@crvouga/atlas/reports/export-evidence';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { workspaceOutline } from './atlas-outline';

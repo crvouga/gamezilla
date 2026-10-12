@@ -403,7 +403,7 @@ model-check depth; - property-based geometry/coordinate tests; -
 automated visual regressions; - accessibility conformance; - performance
 gates; - representative consumer integration specs; - conformance
 manifest; - `bun run spec:ownership`; - `bun run spec:catalog`; - full
-`bun check`; - every affected release/conformance gate.
+`bun check-pr`; - every affected release/conformance gate.
 
 No skipped, unknown, stale, unbound, unsupported, or manually verified
 required obligation is acceptable.

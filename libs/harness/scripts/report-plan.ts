@@ -1,8 +1,8 @@
 // @io-wall-ok — the CI entry reads the exact plan produced before Turbo executes.
 import { readFileSync } from 'node:fs';
-import { closeCommit } from '@crvouga/atlas-reports/publish';
-import type { SourceIdentity } from '@crvouga/atlas-reports/source-content';
-import { reportGeneration } from '@crvouga/atlas-reports/source-content';
+import { closeCommit } from '@crvouga/atlas/reports/publish';
+import type { SourceIdentity } from '@crvouga/atlas/reports/source-content';
+import { reportGeneration } from '@crvouga/atlas/reports/source-content';
 import { reportTask } from '@libs/harness/report-ready';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { reuseReportTask, verifyPublications } from './report-task-publish';

@@ -1,4 +1,0 @@
-{
-  "summary": "Initializing a fresh snapshot shell during an Atlas iframe load erased the recorded picture and its security policy before highlighting the action. Highlight the loaded document in place.",
-  "regressionTest": "vendor/atlas/packages/visualizer/tests/reports.test.tsx"
-}

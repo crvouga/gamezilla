@@ -35,11 +35,13 @@ Run the complete local stack with `bun run dev --synthetic-population-workers 2`
 The stack creates local coordination secrets and connects workers to its local
 API. `--synthetic-population-workers 0` disables the sidecars. Production hosting
 is declared in [the Railway module](../../libs/infra-shared/tofu/modules/synthetic-population-service/)
-and composed into the existing foundation stack. The Observatory uses the main
+and composed into the existing foundation stack. Railway runs the worker with
+Bun. Check runs the package `test` script on the host and validates the
+OpenTofu module. It does not build an image. The Observatory uses the main
 frontend and backend deployments. SQL names, environment bindings and OpenTofu
 state addresses stay stable across the source-file rename.
 
-Automated verification is `bun check`. The sub's focused gates are the
+Automated verification is `bun check-pr`. The sub's focused gates are the
 `test`, `tc` and `lint` scripts in its shared/server packages, `test:spec` in
 `@libs/synthetic-population-harness`, and `test` in
 `@apps/synthetic-population-worker`. Native realm tests cover session replacement,

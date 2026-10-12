@@ -9,6 +9,7 @@ import {
   restoreCheckArtifacts,
 } from './check-artifact-store';
 import { readLatestRunSummary } from './check-budget';
+import { localCheckArgs } from './check-profile';
 import { createCheckSnapshot } from './check-snapshot';
 import { archiveCheckSnapshot } from './check-snapshot-archive';
 import { killProcessTree } from './kill-process-tree';
@@ -28,7 +29,7 @@ export async function runLocalCheck(
     openLease: () => openLocalCheckLease(localCheckLeasePath()),
     sleep: (signal) => sleep(1000, undefined, { signal }),
     signal,
-    queued: () => console.log('check:local: queued behind another local check'),
+    queued: () => console.log('check: queued behind another local check'),
   });
 }
 
@@ -37,18 +38,18 @@ async function runIsolatedCheck(
   args: string[],
   signal: AbortSignal
 ): Promise<number> {
-  console.log('check:local: acquired machine-wide slot');
+  console.log('check: acquired machine-wide slot');
   const started = process.hrtime.bigint();
   const root = await createCheckSnapshot(source);
   console.log(
-    `check:local: prepared snapshot in ${(Number(process.hrtime.bigint() - started) / 1e9).toFixed(1)}s`
+    `check: prepared snapshot in ${(Number(process.hrtime.bigint() - started) / 1e9).toFixed(1)}s`
   );
-  console.log(`check:local: private run directory ${root}`);
+  console.log(`check: private run directory ${root}`);
   try {
     return await runSnapshot(root, source, args, signal);
   } finally {
     const archive = await archiveCheckSnapshot(root);
-    console.log(`check:local: diagnostics archived at ${archive}`);
+    console.log(`check: diagnostics archived at ${archive}`);
   }
 }
 
@@ -82,7 +83,7 @@ async function runSnapshot(
   if (generated !== 0) return generated;
   const verdict = await runCheckChild(
     root,
-    ['run', 'libs/tools/scripts/turbo-ci-run.ts', 'check', ...args],
+    ['run', 'libs/tools/scripts/turbo-ci-run.ts', ...localCheckArgs(args)],
     env,
     signal
   );

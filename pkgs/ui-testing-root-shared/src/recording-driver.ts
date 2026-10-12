@@ -5,7 +5,7 @@
  * with the gesture target encoded for the HTML viewer.
  */
 
-import type { ReportStepHit } from '@crvouga/atlas-reports/report-types';
+import type { ReportStepHit } from '@crvouga/atlas/reports/report-types';
 import type {
   AssertionOptions,
   Driver,

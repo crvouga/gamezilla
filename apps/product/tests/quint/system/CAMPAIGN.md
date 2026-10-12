@@ -250,6 +250,6 @@ implementation bindings conform, or that the production application is correct.
 The broader spec audit already has unbound privacy/deletion/retention/layout
 behaviors and an unowned developer-tools domain. Those failures predate this
 campaign and still prevent treating a model pass as a release decision. No remote
-Check verdict for these uncommitted changes is claimed: `bun check` invokes the
+Check verdict for these uncommitted changes is claimed: `bun check-pr` invokes the
 repository's commit/push/trunk-sync flow, and this shared checkout contains other
 in-progress work. The full local Check result is recorded with the measurements. The source-backed privacy audit gaps are reported separately from the local Check failure, which stopped in the existing room tally model on a timeout and a task-budget overrun.

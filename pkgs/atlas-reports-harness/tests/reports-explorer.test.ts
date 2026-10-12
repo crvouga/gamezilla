@@ -1,17 +1,17 @@
 import { expect, test } from 'bun:test';
-import type { ExplorerData } from '@crvouga/atlas-reports/explorer-types';
-import { remoteTestReportKey, sourceKey } from '@crvouga/atlas-reports/keys';
+import type { ExplorerData } from '@crvouga/atlas/reports/explorer-types';
+import { remoteTestReportKey, sourceKey } from '@crvouga/atlas/reports/keys';
 import type {
   CommitEvent,
   CommitPage,
   SourceRecord,
-} from '@crvouga/atlas-reports/protocol';
-import { SseDecoder } from '@crvouga/atlas-reports/protocol';
-import { closeCommit, openCommit } from '@crvouga/atlas-reports/publish';
-import { publishPart } from '@crvouga/atlas-reports/report-parts';
-import type { RunReport } from '@crvouga/atlas-reports/report-types';
-import { createReportsApp } from '@crvouga/atlas-reports/reports-route';
-import { publishInventory } from '@crvouga/atlas-reports/spec-inventory';
+} from '@crvouga/atlas/reports/protocol';
+import { SseDecoder } from '@crvouga/atlas/reports/protocol';
+import { closeCommit, openCommit } from '@crvouga/atlas/reports/publish';
+import { publishPart } from '@crvouga/atlas/reports/report-parts';
+import type { RunReport } from '@crvouga/atlas/reports/report-types';
+import { createReportsApp } from '@crvouga/atlas/reports/reports-route';
+import { publishInventory } from '@crvouga/atlas/reports/spec-inventory';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';

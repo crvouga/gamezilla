@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import type {
   ReportStep,
   RunReport,
-} from '@crvouga/atlas-reports/report-types';
+} from '@crvouga/atlas/reports/report-types';
 import {
   readObjectBytes,
   readUtf8,

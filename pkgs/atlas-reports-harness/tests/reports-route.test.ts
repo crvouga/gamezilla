@@ -6,22 +6,22 @@ import {
   remoteTestFileKey,
   remoteTestReportKey,
   sourceKey,
-} from '@crvouga/atlas-reports/keys';
+} from '@crvouga/atlas/reports/keys';
 import type {
   CommitEvent,
   CommitRecord,
   SourceRecord,
-} from '@crvouga/atlas-reports/protocol';
-import { SseDecoder } from '@crvouga/atlas-reports/protocol';
-import { publicationStore } from '@crvouga/atlas-reports/publication';
+} from '@crvouga/atlas/reports/protocol';
+import { SseDecoder } from '@crvouga/atlas/reports/protocol';
+import { publicationStore } from '@crvouga/atlas/reports/publication';
 import {
   closeCommit,
   openCommit,
   publishSource,
-} from '@crvouga/atlas-reports/publish';
-import type { RunReport } from '@crvouga/atlas-reports/report-types';
-import { createReportsApp } from '@crvouga/atlas-reports/reports-route';
-import { reuseSource } from '@crvouga/atlas-reports/source-content';
+} from '@crvouga/atlas/reports/publish';
+import type { RunReport } from '@crvouga/atlas/reports/report-types';
+import { createReportsApp } from '@crvouga/atlas/reports/reports-route';
+import { reuseSource } from '@crvouga/atlas/reports/source-content';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';

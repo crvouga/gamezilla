@@ -37,12 +37,13 @@ variable "aws" {
 
 variable "github" {
   type = object({
-    owner                = string
-    owner_id             = string
-    repo                 = string
-    repo_id              = string
-    required_checks      = list(string)
-    check_integration_id = number
+    owner                 = string
+    owner_id              = string
+    owner_is_organization = bool
+    repo                  = string
+    repo_id               = string
+    required_checks       = list(string)
+    check_integration_id  = number
     settings = object({
       visibility      = string
       homepage_url    = string
@@ -61,7 +62,10 @@ variable "auth_relay" {
   description = "Read by the fleet stack and TypeScript (apps/auth-relay)."
 }
 
-
+variable "reports" {
+  type        = any
+  description = "Read by the fleet and foundation stacks (global.tfvars.json `reports`)."
+}
 
 variable "global_imports" {
   type = object({

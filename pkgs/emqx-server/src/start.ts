@@ -47,7 +47,7 @@ const APP_DIR = join(import.meta.dirname, '..');
 const OUTPUT_TAIL_BYTES = 64 * 1024;
 const DEFAULT_DATA_DIR = join(APP_DIR, 'data');
 /**
- * A cold broker boots in ~3 s idle; under a full `bun check` on a loaded
+ * A cold broker boots in ~3 s idle; under a full `bun check-pr` on a loaded
  * host it measured 26–60 s. Three times that, so load cannot fail a boot;
  * a broker that exits fails at once.
  */

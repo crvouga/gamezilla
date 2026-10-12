@@ -8,18 +8,34 @@
  * 1. mise itself (`mise self-update`, or `brew upgrade mise` for a Homebrew
  *    install).
  * 2. Every `mise.toml` tool bumped to its latest release (`mise upgrade
- *    --bump`), except the ones in `HELD` below.
+ *    --bump --yes`), except the ones in `HELD` below. Confirmation is
+ *    answered yes: this runs inside Turborepo's terminal UI, which keeps
+ *    the keyboard, so a prompt in the task cannot be accepted.
  * 3. `package.json` `packageManager` set to the Bun mise now pins (Turborepo
  *    reads it; the two must stay equal).
- * 4. npm tooling (turbo, wrangler, biome, …) updated across every workspace
- *    to the newest release its range allows (`bun update --recursive`).
- * 5. `mise install` + `bun install`.
+ * 4. `mise install`.
+ * 5. The Infisical CLI refreshed to that pin. `mise upgrade` only replaces
+ *    mise's copy; a Homebrew formula or a binary earlier on `PATH`
+ *    (`~/.local/bin/infisical`) keeps nagging "A new release of infisical is
+ *    available". Homebrew is upgraded, and any plain binary on `PATH` is
+ *    replaced with the pin. Symlinks (the mise shim, Homebrew's keg) are left
+ *    alone.
+ * 6. npm tooling (turbo, wrangler, biome, …) updated across every workspace
+ *    to the newest release its range allows (`bun update --recursive`), then
+ *    `bun install`.
  *
  * The bumps land in `mise.toml`, `package.json` files and `bun.lock` — commit
  * them so CI (`jdx/mise-action`, `bun install`) runs the same versions.
  * `@libs/tools#install:cli` stays a plain `mise install` of those pins.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  lstatSync,
+  readFileSync,
+  realpathSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -30,11 +46,40 @@ const HELD: Record<string, string> = {
     'kept in step with the version pin (libs/pubsub-shared/emqx-deploy/Dockerfile)',
 };
 
-function run(cmd: readonly string[]): void {
+/**
+ * Homebrew's upgrade ask is on by default and ignores `NONINTERACTIVE`.
+ * `HOMEBREW_NO_ASK` is what turns that prompt off. The Turborepo UI keeps
+ * the keyboard, so the task cannot answer `[y/n]`.
+ */
+export const BREW_ENV: Readonly<Record<string, string>> = {
+  NONINTERACTIVE: '1',
+  HOMEBREW_NO_ASK: '1',
+  HOMEBREW_NO_ENV_HINTS: '1',
+};
+
+export function brewUpgradeCommand(formula: string): readonly string[] {
+  return ['brew', 'upgrade', '--yes', formula];
+}
+
+export function miseUpgradeCommand(
+  tools: readonly string[]
+): readonly string[] {
+  return ['mise', 'upgrade', '--bump', '--yes', ...tools];
+}
+
+export function miseInstallCommand(): readonly string[] {
+  return ['mise', 'install', '--yes'];
+}
+
+function run(
+  cmd: readonly string[],
+  extraEnv?: Readonly<Record<string, string>>
+): void {
   console.log(`install-system: $ ${cmd.join(' ')}`);
   const result = Bun.spawnSync([...cmd], {
     cwd: REPO_ROOT,
     stdio: ['inherit', 'inherit', 'inherit'],
+    ...(extraEnv === undefined ? {} : { env: { ...process.env, ...extraEnv } }),
   });
   if (result.exitCode !== 0) {
     console.error(`install-system: ERROR: \`${cmd.join(' ')}\` failed`);
@@ -51,7 +96,8 @@ function updateMise(): void {
   const viaBrew =
     output(['brew', '--prefix']) !== undefined &&
     output(['brew', 'list', '--formula', 'mise']) !== undefined;
-  run(viaBrew ? ['brew', 'upgrade', 'mise'] : ['mise', 'self-update', '--yes']);
+  if (viaBrew) run(brewUpgradeCommand('mise'), BREW_ENV);
+  else run(['mise', 'self-update', '--yes']);
 }
 
 function bumpMiseTools(): void {
@@ -66,7 +112,36 @@ function bumpMiseTools(): void {
       console.log(`install-system: holding ${tool} — ${reason}`);
   }
   const bump = tools.filter((tool) => !(tool in HELD));
-  if (bump.length > 0) run(['mise', 'upgrade', '--bump', ...bump]);
+  if (bump.length > 0) run(miseUpgradeCommand(bump));
+}
+
+/**
+ * Point every Infisical the laptop actually runs at the mise pin. A symlink
+ * is a shim or a Homebrew keg link; overwriting it would break the manager
+ * that owns it.
+ */
+function updateInfisicalCli(): void {
+  const pinned = output(['mise', 'which', 'infisical']);
+  if (pinned === undefined) {
+    console.error('install-system: ERROR: mise installed no infisical');
+    process.exit(1);
+  }
+  const pinnedReal = realpathSync(pinned);
+  const pinnedVersion = output([pinned, '--version']);
+  const seen = new Set<string>();
+  for (const path of (output(['bash', '-c', 'which -a infisical']) ?? '').split(
+    '\n'
+  )) {
+    if (path.length === 0 || seen.has(path)) continue;
+    seen.add(path);
+    if (!existsSync(path) || !lstatSync(path).isFile()) continue;
+    if (realpathSync(path) === pinnedReal) continue;
+    if (output([path, '--version']) === pinnedVersion) continue;
+    copyFileSync(pinned, path);
+    console.log(`install-system: ${path} → ${pinnedVersion ?? pinned}`);
+  }
+  if (output(['brew', 'list', '--formula', 'infisical']) !== undefined)
+    run(brewUpgradeCommand('infisical'), BREW_ENV);
 }
 
 function syncPackageManager(): void {
@@ -87,12 +162,15 @@ function syncPackageManager(): void {
   }
 }
 
-updateMise();
-bumpMiseTools();
-syncPackageManager();
-run(['mise', 'install']);
-run(['mise', 'exec', '--', 'bun', 'update', '--recursive']);
-run(['mise', 'exec', '--', 'bun', 'install']);
-console.log(
-  'install-system: done — commit mise.toml, package.json files and bun.lock'
-);
+if (import.meta.main) {
+  updateMise();
+  bumpMiseTools();
+  syncPackageManager();
+  run(miseInstallCommand());
+  updateInfisicalCli();
+  run(['mise', 'exec', '--', 'bun', 'update', '--recursive']);
+  run(['mise', 'exec', '--', 'bun', 'install']);
+  console.log(
+    'install-system: done — commit mise.toml, package.json files and bun.lock'
+  );
+}

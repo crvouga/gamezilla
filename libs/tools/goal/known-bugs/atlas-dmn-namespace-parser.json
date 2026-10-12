@@ -1,4 +1,0 @@
-{
-  "summary": "Decision table visualization lost namespaced DMN elements when the host DOM parser did not preserve XML namespaces.",
-  "regressionTest": "vendor/atlas/packages/visualizer/tests/reports.test.tsx"
-}

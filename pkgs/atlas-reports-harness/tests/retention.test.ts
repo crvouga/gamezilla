@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { openCommit } from '@crvouga/atlas-reports/publish';
-import { pruneReports } from '@crvouga/atlas-reports/retention';
+import { openCommit } from '@crvouga/atlas/reports/publish';
+import { pruneReports } from '@crvouga/atlas/reports/retention';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 

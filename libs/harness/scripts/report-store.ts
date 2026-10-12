@@ -1,5 +1,5 @@
 // @io-wall-ok — reports CLI composition root.
-import { REPORTS_ROOT_PREFIX } from '@crvouga/atlas-reports/keys';
+import { REPORTS_ROOT_PREFIX } from '@crvouga/atlas/reports/keys';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';

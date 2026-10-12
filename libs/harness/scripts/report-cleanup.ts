@@ -3,7 +3,7 @@
 import {
   planReportRetention,
   pruneReports,
-} from '@crvouga/atlas-reports/retention';
+} from '@crvouga/atlas/reports/retention';
 import { capture } from '@pkgs/os-server/command';
 import type {
   BranchCleanupPort,

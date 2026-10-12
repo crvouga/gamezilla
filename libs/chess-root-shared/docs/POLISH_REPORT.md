@@ -246,5 +246,5 @@ Also red before this work, and left alone:
   `space-lobby-card-not-pressable`.
 - `bun run lint:naming` fails on `.agents/skills/ui-ux-pro-max/**`.
 
-`bun check`, the full local gate across the whole repo, was not run. With
+`bun check-pr`, the full local gate across the whole repo, was not run. With
 the reds above it cannot be green on this branch or on `main`.

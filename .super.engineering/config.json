@@ -1,7 +1,4 @@
 {
-  "setup": [
-    "./libs/tools/workspace/setup.sh"
-  ],
   "teardown": [
     "./libs/tools/workspace/teardown.sh"
   ],

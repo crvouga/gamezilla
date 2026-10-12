@@ -114,7 +114,7 @@ describe('turbo-ci-run aggregator flatten', () => {
     expect(leaves).toContain(
       '@apps/synthetic-population-worker#check:synthetic-population-foundation'
     );
-    expect(leaves).toContain('check:synthetic-population');
+    expect(leaves).not.toContain('check:synthetic-population');
     expect(leaves).not.toContain('//#check');
   });
 

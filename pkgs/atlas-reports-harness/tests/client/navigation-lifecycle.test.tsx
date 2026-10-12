@@ -1,9 +1,9 @@
 import { expect, test } from 'bun:test';
-import type { ReportNavigation } from '@crvouga/atlas-reports/navigation';
+import type { ReportNavigation } from '@crvouga/atlas/reports/navigation';
 import {
   type ReportNav,
   useReportNav,
-} from '@crvouga/atlas-reports/use-report-nav';
+} from '@crvouga/atlas/reports/use-report-nav';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { render } from 'solid-js/web';

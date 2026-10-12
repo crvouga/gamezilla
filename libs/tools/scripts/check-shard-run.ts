@@ -15,6 +15,7 @@ import { preserveInterruptedModels } from './check-interrupted-models';
 import { preserveInterruptedReports } from './check-interrupted-reports';
 import { copyModelEvidence } from './check-model-evidence';
 import { packPlan } from './check-plan-transfer';
+import { activeProfile } from './check-profile';
 import { executeShard } from './check-shard-process';
 import type { Result } from './check-shard-results';
 import { collectResults } from './check-shard-results';
@@ -94,8 +95,11 @@ function transferEvidence(
   failed: boolean
 ): void {
   try {
-    preserveInterruptedReports(ROOT, results);
-    preserveFailedReports(results);
+    // The `pr` profile keeps no report: a failure is read from the job log.
+    if (activeProfile(env).reports) {
+      preserveInterruptedReports(ROOT, results);
+      preserveFailedReports(results);
+    }
     packEvidence(index, failed);
   } catch (error) {
     console.error(

@@ -3,20 +3,20 @@ import type {
   EvidencePage,
   LayerEvidence,
   LayerRows,
-} from '@crvouga/atlas-reports/evidence-types';
-import { combineEvidence } from '@crvouga/atlas-reports/layer-merge';
-import type { ObjectStore } from '@crvouga/atlas-reports/object-store';
-import { publicationStore } from '@crvouga/atlas-reports/publication';
-import { openCommit, publishSource } from '@crvouga/atlas-reports/publish';
-import { testReportKey } from '@crvouga/atlas-reports/recording-keys';
-import { publishPart } from '@crvouga/atlas-reports/report-parts';
-import type { RunReport } from '@crvouga/atlas-reports/report-types';
-import { createReportsApp } from '@crvouga/atlas-reports/reports-route';
-import { pruneReports } from '@crvouga/atlas-reports/retention';
+} from '@crvouga/atlas/reports/evidence-types';
+import { combineEvidence } from '@crvouga/atlas/reports/layer-merge';
+import type { ObjectStore } from '@crvouga/atlas/reports/object-store';
+import { publicationStore } from '@crvouga/atlas/reports/publication';
+import { openCommit, publishSource } from '@crvouga/atlas/reports/publish';
+import { testReportKey } from '@crvouga/atlas/reports/recording-keys';
+import { publishPart } from '@crvouga/atlas/reports/report-parts';
+import type { RunReport } from '@crvouga/atlas/reports/report-types';
+import { createReportsApp } from '@crvouga/atlas/reports/reports-route';
+import { pruneReports } from '@crvouga/atlas/reports/retention';
 import {
   publishInventory,
   specEntry,
-} from '@crvouga/atlas-reports/spec-inventory';
+} from '@crvouga/atlas/reports/spec-inventory';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';

@@ -9,7 +9,7 @@
  */
 
 import { describe, test } from 'bun:test';
-import type { RunReportOptions } from '@crvouga/atlas-reports/report-types';
+import type { RunReportOptions } from '@crvouga/atlas/reports/report-types';
 import type { Layer } from '@pkgs/conformance-shared/evidence';
 import type { StepOutcome } from '@pkgs/gherkin-shared/failure';
 import {

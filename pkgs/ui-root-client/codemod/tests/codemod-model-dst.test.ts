@@ -92,7 +92,7 @@ const sourceArb = fc
  * they take seconds even on an idle machine and considerably longer on a
  * saturated one. The run count is the budget; the wall clock is not allowed to
  * be, or the verdict would depend on how busy the machine was — they timed out
- * under a full `bun check` while passing in 9s on their own. Explicit
+ * under a full `bun check-pr` while passing in 9s on their own. Explicit
  * timeouts keep the coverage and take the scheduler out of the decision.
  */
 const PROPERTY_TIMEOUT_MS = 120_000;

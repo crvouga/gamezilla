@@ -4,7 +4,7 @@ import { createServer } from 'node:net';
 /**
  * A TCP port nothing on this host listens on, for a throwaway cluster. The
  * contract suites each boot their own cluster, concurrently within one
- * `bun check` and across worktrees; on the shared default port they bound
+ * `bun check-pr` and across worktrees; on the shared default port they bound
  * each other's cluster and hung when it stopped.
  */
 export function freePostgresPort(): Promise<number> {

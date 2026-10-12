@@ -34,7 +34,7 @@ describe('specPartProblems', () => {
     expect(
       specPartProblems('libs/a', { scripts: { 'test:spec': RUNNER } })
     ).toEqual([
-      `libs/a/package.json: specParts must be an integer from 1 to ${String(MAX_SPEC_PARTS)} — bun check runs the suite as test:spec:0 … test:spec:<specParts - 1>`,
+      `libs/a/package.json: specParts must be an integer from 1 to ${String(MAX_SPEC_PARTS)} — bun check-pr runs the suite as test:spec:0 … test:spec:<specParts - 1>`,
     ]);
   });
 
@@ -132,6 +132,51 @@ describe('modelTaskProblems', () => {
       )
     ).toEqual([
       'libs/a/package.json: "check:models:0" is a part of no split — declare modelParts or delete it',
+    ]);
+  });
+
+  test('proof groups partition one model and a stray phase names its part', () => {
+    const one = { ...pkg, models: ['specs/a/door.qnt'] };
+    const inputsOf = () => ['$TURBO_ROOT$/specs/a/*.qnt'];
+    const grouped = {
+      'check:models:0': `${MODELS_RUNNER} --phase 1/3`,
+      'check:models:1': `${MODELS_RUNNER} --phase 0,2/3`,
+    };
+    expect(
+      modelTaskProblems(one, grouped, undefined, {
+        count: undefined,
+        proofParts: 3,
+        proofGroups: ['1', '0,2'],
+        inputsOf,
+      })
+    ).toEqual([]);
+    expect(
+      modelTaskProblems(
+        one,
+        { ...grouped, 'check:models:2': `${MODELS_RUNNER} --phase 0/3` },
+        undefined,
+        {
+          count: undefined,
+          proofParts: 3,
+          proofGroups: ['1', '0,2'],
+          inputsOf,
+        }
+      )[0]
+    ).toContain('past 2 proof groups');
+    expect(
+      modelTaskProblems(
+        pkg,
+        { 'check:models:1:0': `${MODELS_RUNNER}` },
+        undefined,
+        {
+          count: 2,
+          inputsOf: () => inputs,
+        }
+      )
+    ).toEqual([
+      'libs/a/package.json: "check:models:1:0" is a phase of no split — declare phaseParts or delete it',
+      `libs/a/package.json: "check:models:0" must be "${MODELS_RUNNER} --part 0/2"`,
+      `libs/a/package.json: "check:models:1" must be "${MODELS_RUNNER} --part 1/2"`,
     ]);
   });
 

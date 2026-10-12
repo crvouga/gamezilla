@@ -24,8 +24,12 @@ describe('tofu/global.tfvars.json', () => {
       };
       const onPullRequest =
         workflow.on !== undefined && 'pull_request' in workflow.on;
-      // The gate is the workflow's ending word: `<workflow>:end`.
-      const gate = workflow.jobs?.[`${workflow.name?.toLowerCase()}-end`];
+      // The gate is the workflow's ending word, the job whose id ends
+      // `-end`. Only Check PR reports on pull requests, and its `check:end`
+      // keeps that name wherever the gate runs.
+      const gate = Object.entries(workflow.jobs ?? {}).find(([id]) =>
+        id.endsWith('-end')
+      )?.[1];
       if (onPullRequest && gate?.name !== undefined) gates.push(gate.name);
     }
     expect([...GLOBAL.github.required_checks].sort()).toEqual(gates.sort());

@@ -1,12 +1,12 @@
 import {
   mediaExtension,
   testFrameKey,
-} from '@crvouga/atlas-reports/recording-keys';
+} from '@crvouga/atlas/reports/recording-keys';
 import type {
   ReportSnapshotBlob,
   SnapshotMedia,
-} from '@crvouga/atlas-reports/report-types';
-import { sanitizeTestId } from '@crvouga/atlas-reports/report-types';
+} from '@crvouga/atlas/reports/report-types';
+import { sanitizeTestId } from '@crvouga/atlas/reports/report-types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { CatalogSnapshot } from './define-snapshot';
 import type { EncodedSnapshot } from './encode';

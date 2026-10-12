@@ -461,7 +461,7 @@ Run all applicable repository checks, including at minimum:
 -   conformance manifest checks;
 -   `bun run spec:ownership`;
 -   `bun run spec:catalog`;
--   full `bun check`;
+-   full `bun check-pr`;
 -   every other required release/conformance gate affected by the
     change.
 

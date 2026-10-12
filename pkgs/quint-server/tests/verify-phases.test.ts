@@ -1,5 +1,8 @@
 import { expect, test } from 'bun:test';
-import { verifyPhases } from '@pkgs/quint-server/verify-phases';
+import {
+  selectVerifyPhase,
+  verifyPhases,
+} from '@pkgs/quint-server/verify-phases';
 
 const INPUT = {
   source: 'module proof {}',
@@ -20,6 +23,25 @@ const INPUT = {
   ],
   maxSteps: 2,
 };
+
+test('a phase task runs only its indexes and refuses a drifted count', () => {
+  const phases = verifyPhases({ ...INPUT, boundedInvariantGroupSize: 6 });
+  expect(selectVerifyPhase(phases, undefined)).toEqual({ phases });
+  const second = phases[1];
+  if (second === undefined) throw new Error('missing phase');
+  expect(selectVerifyPhase(phases, { indexes: [1], count: 2 })).toEqual({
+    phases: [second],
+  });
+  expect(selectVerifyPhase(phases, { indexes: [0], count: 3 })).toEqual({
+    error: expect.stringContaining('3') as string,
+  });
+  expect(selectVerifyPhase(phases, { indexes: [2], count: 2 })).toEqual({
+    error: expect.stringContaining('not among') as string,
+  });
+  expect(selectVerifyPhase(phases, { indexes: [], count: 2 })).toEqual({
+    error: expect.stringContaining('no proof phase') as string,
+  });
+});
 
 test('bounded groups retain every target and the original search bound', () => {
   // regression: quint-bounded-invariant-solver-contention

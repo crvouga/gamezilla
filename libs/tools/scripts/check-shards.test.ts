@@ -268,11 +268,41 @@ test('imbalance validation warns about load and unknown concentration', () => {
   );
 });
 
+// regression: check-dedicated-solver-balance-warning
+test('dedicated solver runners are not a pack imbalance', () => {
+  // Check run 38239315522: proof runners of 9–86s sat beside an even pack,
+  // and the unknown-duration tasks lived on that pack. Comparing the proofs
+  // with the pack warned about max/min, the heaviest shard, and concentration.
+  const solvers = [
+    task('@apps/product#test:contract', 86),
+    task('@pkgs/matchmaking-root-harness#check:models', 9),
+    ...Array.from({ length: 10 }, (_, index) => ({
+      ...task(`@libs/chess-root-harness#check:models:${index}`, 16),
+      durationSource: 'family' as const,
+    })),
+  ];
+  const packed = Array.from({ length: 144 }, (_, index) => ({
+    ...task(`pkg-${index}#test`, 5),
+    durationSource: 'fallback' as const,
+  }));
+  const plan = balanceShards([...solvers, ...packed], 40, 60);
+  const pack = plan.shards.filter(
+    (shard) =>
+      shard.stage === 'checks' &&
+      executes(shard) &&
+      shard.tasks.some((item) => item.taskId.startsWith('pkg-'))
+  );
+  expect(pack.map((shard) => shard.seconds)).toEqual(Array(12).fill(60));
+  expect(planWarnings(plan)).toEqual([]);
+  validatePlan(plan);
+});
+
 test('renderer setup only serves uncached native browser tasks', () => {
-  expect(needsBrowser([task('@apps/product#test:contract')])).toBe(true);
+  expect(needsBrowser([task('@apps/product#test:contract:render')])).toBe(true);
+  expect(needsBrowser([task('@apps/product#test:contract')])).toBe(false);
   expect(needsBrowser([task('@pkgs/ui-testing-bun-webview#test')])).toBe(true);
   expect(
-    needsBrowser([{ ...task('@apps/product#test:contract'), hit: true }])
+    needsBrowser([{ ...task('@apps/product#test:contract:render'), hit: true }])
   ).toBe(false);
   expect(needsBrowser([task('@apps/product#tc')])).toBe(false);
 });
@@ -352,8 +382,10 @@ test('a shard target starts only the runners the uncached work needs', () => {
 
 // regression: check-shard-width-counts-oversized-group
 test('a task longer than the shard target starts no runner for a few seconds of work', () => {
-  // Check run 38198242466: 133 s and 97 s tasks counted as four runners at
-  // 60 s a shard, so 15 s, 9 s and 2 s of work each paid a runner's setup.
+  // Check run 38198242466: a 133 s task and a 97 s task counted as four
+  // runners at 60 s a shard, so 15 s, 9 s and 2 s of work each paid a
+  // runner's setup. The 133 s task was the population image build, which
+  // the gate no longer runs; the duration stays as the oversized fixture.
   const plan = balanceShards(
     [
       task('@apps/product#test:contract', 86),

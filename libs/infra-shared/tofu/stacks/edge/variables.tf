@@ -1,6 +1,6 @@
 # The subset of the environment file the edge stack reads. The env file is
 # shared with the foundation stack, so every other key is declared too
-# (OpenTofu rejects undeclared variables in a -var-file) but unused here.
+# (OpenTofu warns on an undeclared variable in a -var-file) but unused here.
 
 # ---- global.tfvars.json (same for every environment) ----------------------
 
@@ -36,7 +36,10 @@ variable "auth_relay" {
   description = "Read by the fleet stack and TypeScript (apps/auth-relay)."
 }
 
-
+variable "reports" {
+  type        = any
+  description = "Read by the fleet and foundation stacks (global.tfvars.json `reports`)."
+}
 
 variable "global_imports" {
   type    = any

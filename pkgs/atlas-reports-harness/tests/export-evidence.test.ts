@@ -2,15 +2,15 @@ import { expect, test } from 'bun:test';
 import {
   evidenceFile,
   exportEvidence,
-} from '@crvouga/atlas-reports/export-evidence';
+} from '@crvouga/atlas/reports/export-evidence';
 import {
   closeCommit,
   openCommit,
   publishSource,
   SPEC_RUN_ID,
-} from '@crvouga/atlas-reports/publish';
-import { createReportsApp } from '@crvouga/atlas-reports/reports-route';
-import { publishInventory } from '@crvouga/atlas-reports/spec-inventory';
+} from '@crvouga/atlas/reports/publish';
+import { createReportsApp } from '@crvouga/atlas/reports/reports-route';
+import { publishInventory } from '@crvouga/atlas/reports/spec-inventory';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';

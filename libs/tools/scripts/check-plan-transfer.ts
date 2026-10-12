@@ -9,6 +9,8 @@ const FILES = [
   'plan.json',
   'planning.json',
   'context.json',
+  // The profile and its depth, kept with the nightly run's details.
+  'profile.json',
   'audit.json',
 ] as const;
 

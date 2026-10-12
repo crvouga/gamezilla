@@ -7,7 +7,7 @@ const root = join(import.meta.dirname, '../../..');
 // regression: check-cache-write-only-override
 test('Check enforces read/write after secrets injection', () => {
   const workflow = readFileSync(
-    join(root, '.github/workflows/check.yml'),
+    join(root, '.github/workflows/check-pr.yml'),
     'utf8'
   );
   expect(workflow).toContain(
@@ -61,20 +61,6 @@ test('setup installs frozen dependencies whether or not the dependency cache ans
   expect(steps.indexOf(restore)).toBeLessThan(install);
   expect(steps.indexOf(save)).toBeGreaterThan(install);
   expect(save.if).toBe("steps.dependencies.outputs.cache-hit != 'true'");
-});
-
-// regression: ci-submodule-workspace-not-initialized
-test('setup initializes workspace submodules before installing dependencies', () => {
-  const setup = readFileSync(
-    join(root, '.github/actions/setup/action.yml'),
-    'utf8'
-  );
-  const initializeSubmodules = setup.indexOf(
-    'git submodule update --init --recursive'
-  );
-  const installDependencies = setup.indexOf('bun install --frozen-lockfile');
-  expect(initializeSubmodules).toBeGreaterThan(-1);
-  expect(initializeSubmodules).toBeLessThan(installDependencies);
 });
 
 // regression: turbo-build-unhashed-inputs

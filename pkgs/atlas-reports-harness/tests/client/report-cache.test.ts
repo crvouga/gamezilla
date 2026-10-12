@@ -3,8 +3,8 @@ import {
   createHttpReportFetcher,
   memoryReportCache,
   reportQueryClient,
-} from '@crvouga/atlas-reports/fetcher';
-import { attachReportCache } from '@crvouga/atlas-reports/persist';
+} from '@crvouga/atlas/reports/fetcher';
+import { attachReportCache } from '@crvouga/atlas/reports/persist';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 
 const API = 'https://api.test/api/reports';

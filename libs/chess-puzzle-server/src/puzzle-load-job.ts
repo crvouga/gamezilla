@@ -78,7 +78,7 @@ async function startJob(args: {
 }): Promise<void> {
   await args.db.transaction(async (tx) => {
     await tx.query(sql<{ readonly locked: unknown }>`
-      SELECT public.pg_advisory_xact_lock(${LOAD_LOCK}::bigint) AS locked
+      SELECT pg_catalog.pg_advisory_xact_lock(${LOAD_LOCK}::bigint) AS locked
     `);
     const active = await tx.query(sql<{ readonly id: string }>`
       SELECT id FROM chess_puzzle_load

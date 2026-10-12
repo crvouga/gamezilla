@@ -18,7 +18,7 @@
  *
  * Not a gate task: its evidence exists only once the suites ran. Use it
  *
- *   - after `bun check:local` (turbo runs or restores every `test:spec:<k>`
+ *   - after `bun check-pr` (turbo runs or restores every `test:spec:<k>`
  *     part, and each part's outputs are its `.cache/harness-report/part-<k>/`
  *     bucket), or after the restore step the Check workflow's `check:publish`
  *     jobs run on GitHub (`turbo-ci-run.ts --restore-outputs`), which leaves

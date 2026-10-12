@@ -1,4 +1,0 @@
-{
-  "summary": "Atlas paired statechart-only responses with the full spec index, falsely marking Gherkin, Quint, DMN and supporting files unreadable and misassigning chart content.",
-  "regressionTest": "vendor/atlas/packages/visualizer/tests/spec-loading.test.tsx"
-}

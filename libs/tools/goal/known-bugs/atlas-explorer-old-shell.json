@@ -1,4 +1,0 @@
-{
-  "summary": "Merging Atlas main into the explorer rebuild took main's side of every interface file, so Atlas opened on the earlier sidebar shell and the redesigned explorer was unreachable. The explorer is one header, the open index of places and one plate.",
-  "regressionTest": "vendor/atlas/packages/visualizer/tests/shell.test.tsx"
-}

@@ -17,7 +17,7 @@ type Job = { outputs?: Record<string, unknown>; steps: Step[] };
 test('Check transfers the immutable plan as an artifact rather than a masked job output', () => {
   // Run 37511860563 suppressed the plan output and supplied an empty payload.
   const text = readFileSync(
-    join(import.meta.dirname, '../../../.github/workflows/check.yml'),
+    join(import.meta.dirname, '../../../.github/workflows/check-pr.yml'),
     'utf8'
   );
   const { jobs } = Bun.YAML.parse(text) as { jobs: Record<string, Job> };

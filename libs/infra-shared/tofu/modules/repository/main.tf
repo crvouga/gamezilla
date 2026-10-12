@@ -9,6 +9,11 @@ variable "name" {
   type = string
 }
 
+variable "owner_is_organization" {
+  type        = bool
+  description = "True when GitHub will accept a change to allow_forking. A user-owned private repository returns HTTP 422 for that field."
+}
+
 variable "settings" {
   type = object({
     visibility      = string
@@ -41,14 +46,19 @@ variable "environments" {
 }
 
 resource "github_repository" "this" {
-  name                        = var.name
-  visibility                  = var.settings.visibility
-  homepage_url                = var.settings.homepage_url
-  has_issues                  = var.settings.has_issues
-  has_projects                = var.settings.has_projects
-  has_wiki                    = var.settings.has_wiki
-  has_discussions             = var.settings.has_discussions
-  allow_forking               = var.settings.allow_forking
+  name            = var.name
+  visibility      = var.settings.visibility
+  homepage_url    = var.settings.homepage_url
+  has_issues      = var.settings.has_issues
+  has_projects    = var.settings.has_projects
+  has_wiki        = var.settings.has_wiki
+  has_discussions = var.settings.has_discussions
+  # integrations/github 6.13 sends allow_forking only when the argument
+  # changes. GitHub rejects that change on a user-owned private repository
+  # (422 Allow forks setting can only be changed on org-owned private
+  # repositories). Leave it unset so the refresh value stays put; an
+  # organization still applies var.settings.allow_forking.
+  allow_forking               = var.owner_is_organization ? var.settings.allow_forking : null
   archive_on_destroy          = true
   archived                    = false
   is_template                 = false

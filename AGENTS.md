@@ -27,7 +27,7 @@ than restating it.
 
 - **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the compiled Lingui catalog `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed.
 
-- **`vendor/atlas` is Atlas's own repository, not a copy.** Change it by its rules ([`vendor/atlas/AGENTS.md`](vendor/atlas/AGENTS.md)): work on Atlas `main`, resolve conflicts hunk by hunk, push there first, then record that commit here. A pointer to a commit off Atlas `main` is refused on push (`libs/tools/githooks/pre-push`). Run and `bun atlas:viz` bring a checkout that only fell behind the recorded commit forward; one holding local work is left alone.
+- **Atlas is an npm dependency, never a copy.** `@crvouga/atlas` installs from npm through the root `catalog`: no submodule, vendored copy, `git` / `file:` dependency or patch. Import only its documented paths (`@crvouga/atlas`, `/spec`, `/schema`, `/reports/<module>`, …) and run its `atlas` / `atlas-visualizer` commands. A bug or gap in Atlas is an issue at [crvouga/atlas](https://github.com/crvouga/atlas/blob/main/docs/reporting-issues.md), never a fix made from here; a workaround in our code is named in that issue and removed when the release that fixes it lands. Upgrade by raising the catalog entry in a commit of its own. Guide: [dogfooding](https://github.com/crvouga/atlas/blob/main/docs/dogfooding.md).
 
 - **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges, and the merge deploys — never `--admin`, never a red, pending or draft PR. `main` moves only through a merged PR ([`README.md`](README.md#correctness-machinery)).
 
@@ -131,40 +131,65 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 
 ## Checks and CI
 
-Every pull request runs one sharded Check workflow of three jobs (`check:start`,
-`check:shards (N)`, `check:end`); `check:end` is the one required status, so a
-green pull request is releasable. The gate is bounded
-and never explores: each Quint model replays only the fewest drawn traces that
-take every bound action. Exploration (`QUINT_REPLAY_TRACES=all`, every drawn
-trace) is asked for by name on a developer machine and no workflow runs it; a
-trace it fails is pinned in the model binding's `regressions`. The task list in
-`libs/tools/scripts/turbo-ci-run.ts` runs every gate through Turbo. There are
-no root `//#check`, `//#ci:*`, or root lint checks: every Check workflow gate
-is a package-owned Turbo task with explicit inputs and caching. Bespoke gates such
-as the Synthetic Population Worker container rehearsal live in their owning
-package and join the same sharded task list. These rules have no exceptions.
-Merging to `main` is the release: Deploy runs on every push to `main`, verifies
-that exact commit again, then ships every environment. `bun check`,
-`bun verify`, and `bun check:local` run the same gate locally. `bun health` and
-`bun deploy` dispatch the Health and Deploy workflows and block on the verdict
-([`README.md`](README.md#correctness-machinery)). `bun health:local` and
-`bun deploy:local` run that work on this machine. Every
-check is a cached, per-package task; a new check goes into the package it is
-about. A gate leaf verifies and never
-touches the outside world, and its verdict never depends on the machine
-(never branch on `CI`). Make a slow task faster before raising its budget.
-Exactly three workflows: Check, Deploy, Health. Rehearse anything touching
-deploy, infra, secrets, Workers or `health` in GitHub Actions before merging,
-triggered and managed locally with the GitHub CLI. Never execute a rehearsal
-on the developer machine. Details: [`README.md`](README.md#correctness-machinery).
+Four workflows, one contract each. Details:
+[`README.md`](README.md#correctness-machinery).
+
+| Workflow | Command | Contract |
+| --- | --- | --- |
+| Check PR (`check-pr.yml`) | `bun check-pr` | Fast, deterministic, merge-blocking validation. Keeps no test report or artifact: a failure is read from the job log. |
+| Check Nightly (`check-nightly.yml`) | `bun check-nightly` | Comprehensive verification and exploration on `main`, every night. Owns test reports, diagnostics and reproducibility. Never gates a merge or a deploy. |
+| Deploy (`deploy.yml`) | `bun deploy` | Continuous production deployment: every merge to `main` verifies that exact commit with the Check PR gate, then ships it. |
+| Health (`health.yml`) | `bun health` | Scheduled verification that production is available and correct. Deploys nothing. |
+
+- **Run `bun check-pr` before you call development work done.** It is the same
+  gate the pull request runs. Run `bun check-nightly` (or one group:
+  `bun check-nightly random`) when a change deserves deeper verification, such
+  as a new Quint model, a property, or sync and recovery code. An ordinary
+  pull request never waits for a green nightly run.
+- **One set of tests, two profiles.** `libs/tools/scripts/check-profile.ts` is
+  the only place the two differ: the task list, the depth (`pr` replays the
+  fewest drawn traces of each Quint model that take every bound action, at the
+  pinned property budget; `nightly` replays every trace at five times the
+  budget), the time budgets, and whether reports are kept. The nightly-only
+  suites are existing tasks (fresh-seed property runs, determinism fuzz,
+  mutants, real-browser stack runs, UI quality, coverage, benchmarks). Never
+  write a test that exists only for one profile.
+- **A nightly finding is promoted.** Pin the failing trace in the model
+  binding's `regressions`, or the shrunk input as a `// regression: <bug-id>`
+  example, so the `pr` profile replays it from then on.
+- **The required status is `check:end`.** Check PR is three jobs
+  (`check:start`, `check:shards (N)`, `check:end`). They keep the `check:`
+  prefix wherever the gate runs (a pull request, Deploy's verification, the
+  nightly run), so the ruleset's required check never moves with a file name.
+- **Every gate is a package-owned Turbo task.** The task list in
+  `libs/tools/scripts/turbo-ci-run.ts` runs every gate through Turbo. There
+  are no root `//#check`, `//#ci:*`, or root lint checks: each gate has
+  explicit inputs and caching, and a new check goes into the package it is
+  about. Bespoke gates such as the Synthetic Population Worker hosting check
+  live in their owning package and join the same sharded task list. A gate
+  leaf verifies and never touches the outside world, and its verdict never
+  depends on the machine (never branch on `CI`). Make a slow task faster
+  before raising its budget.
+- **Merging to `main` is the release.** Deploy runs on every push to `main`
+  and never waits for the nightly run. `bun health` and `bun deploy` dispatch
+  their workflows and block on the verdict; `bun health:local` and
+  `bun deploy:local` run that work on this machine.
+- **Exactly four workflows.** Rehearse anything touching deploy, infra,
+  secrets, Workers or `health` in GitHub Actions before merging, triggered and
+  managed locally with the GitHub CLI. Never execute a rehearsal on the
+  developer machine.
 
 ## Workspaces
 
 Each workspace is a git worktree created by an agent orchestrator (Superset,
 super.engineering, …). All of them run the same lifecycle hooks from
-`libs/tools/workspace/`: `setup.sh` (`bun install`, `.cache/secrets`,
-`apps/*/.env.local`), `teardown.sh` and `run.sh`. Their steps are Turborepo
-tasks (`//#workspace:*`, `step.sh`) that print only when they fail. The hooks
+`libs/tools/workspace/`: `run.sh` is the only start script. A cold workspace
+prepares itself once (`mise install`, `bun install`, repo hooks,
+`.cache/secrets`, `apps/*/.env.local`) and writes `.cache/workspace-warm`;
+later runs skip that and start the stack. Preparation never fails the launch.
+`teardown.sh` releases the workspace's listeners. Install and merge stay
+Turborepo tasks (`//#workspace:*`, `step.sh`) that print only when they fail.
+The hooks
 derive paths from git, never from a tool's env vars. `bun run workspace:sync` projects them into
 every orchestrator's config (`.superset/config.json`,
 `.super.engineering/config.json`); never edit those, and
@@ -178,7 +203,7 @@ super.engineering's app project settings.
   (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are
   machine-wide: one workspace at a time may bind them.
 - **Iterating.** `bun fmt`, `bunx turbo run tc test --filter=<pkg>` (cached),
-  then `bun check` for the local full gate.
+  then `bun check-pr` for the local full gate.
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.
   PR bodies follow `.github/PULL_REQUEST_TEMPLATE.md`. `/pr-ready` drives a PR
   to Ready to merge; `/ci-green` drives Check, Deploy and Health green.

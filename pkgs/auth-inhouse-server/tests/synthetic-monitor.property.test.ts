@@ -22,7 +22,7 @@ const TOKEN = 'synthetic-monitor-token-0123456789abcdef';
 const CALLBACK = `${WEB}/sso-callback`;
 /**
  * The round-trip property boots a fresh migrated SQLite IdP per run (40
- * runs, ~0.4 s idle in total); a loaded `bun check` runner needs headroom.
+ * runs, ~0.4 s idle in total); a loaded `bun check-pr` runner needs headroom.
  */
 const ROUND_TRIP_TIMEOUT_MS = 30_000;
 /** 2026-01-01T00:00:00Z */

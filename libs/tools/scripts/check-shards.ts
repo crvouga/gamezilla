@@ -241,10 +241,22 @@ export function executes(shard: CheckShard): boolean {
   return shard.tasks.some((task) => !task.hit);
 }
 
+/**
+ * A runner kept for proofs alone. A proof that outruns its budget ends the
+ * shard, so unrelated work is never queued behind one. Its duration is the
+ * proof's estimate, not a packing choice.
+ */
+function dedicatedSolver(shard: CheckShard): boolean {
+  const running = shard.tasks.filter((task) => !task.hit);
+  return running.length > 0 && running.every((task) => solverTask(task.taskId));
+}
+
 export function planWarnings(plan: CheckPlan): string[] {
-  // Only shards that start are compared; a fully cached plan has none.
+  // Only shards the packer can balance. Dedicated proof runners and a fully
+  // cached plan are not packing defects.
   const checks = plan.shards.filter(
-    (shard) => shard.stage === 'checks' && executes(shard)
+    (shard) =>
+      shard.stage === 'checks' && executes(shard) && !dedicatedSolver(shard)
   );
   if (checks.length === 0) return [];
   const values = checks.map((shard) => shard.seconds);

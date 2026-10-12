@@ -1,13 +1,12 @@
+#!/usr/bin/env bun
 // @io-wall-ok — publishes verified code to an already OpenTofu-managed service.
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import {
+  populationRailwayConfig,
+  populationReleaseArgs,
+} from '@libs/infra-server/population-release';
 import { tofuLayout } from '@libs/infra-server/tofu-layout';
 import { envFile } from '@libs/infra-shared/envs';
 import { redactInfraOutput } from '@libs/infra-shared/redact-output';
@@ -28,12 +27,26 @@ function artifactCommand(cmd: readonly string[], cwd: string): string {
   const stderr = redactInfraOutput(result.stderr.toString(), process.env);
   if (stderr) process.stderr.write(stderr);
   if (result.exitCode !== 0)
-    throw new Error(`Synthetic Population Worker artifact ${cmd[0]} failed`);
+    throw new Error(`Synthetic Population Worker release ${cmd[0]} failed`);
   return result.stdout.toString();
 }
 
+/** Railway builds with a Dockerfile when the archive contains one. */
+function removeDockerfiles(root: string): void {
+  const pending = [root];
+  while (pending.length > 0) {
+    const dir = pending.pop();
+    if (dir === undefined) break;
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) pending.push(path);
+      else if (entry.name === 'Dockerfile') rmSync(path);
+    }
+  }
+}
+
 if (process.env['GITHUB_ACTIONS'] !== 'true')
-  throw new Error('Container publication runs only in GitHub Actions');
+  throw new Error('Worker publication runs only in GitHub Actions');
 const environment = process.env['SECRETS_ENV'] ?? '';
 envFile(environment);
 const version = process.env['GITHUB_SHA'] ?? '';
@@ -78,50 +91,20 @@ try {
     root
   );
   artifactCommand(['tar', '-xf', archive, '-C', stage], root);
-  const atlas = artifactCommand(
-    ['git', 'ls-tree', version, 'vendor/atlas'],
-    root
-  ).match(/^160000 commit ([0-9a-f]{40})/m)?.[1];
-  if (!atlas) throw new Error('The verified Atlas dependency is unavailable');
-  artifactCommand(
-    ['git', 'archive', '--format=tar', `--output=${archive}`, atlas],
-    join(root, 'vendor/atlas')
+  removeDockerfiles(stage);
+  writeFileSync(join(stage, 'railway.json'), populationRailwayConfig());
+  const release = populationReleaseArgs(
+    pinnedTool('railway'),
+    version,
+    {
+      projectId: deployment.project_id,
+      environmentId: deployment.environment_id,
+      serviceId: deployment.service_id,
+    },
+    stage
   );
-  mkdirSync(join(stage, 'vendor/atlas'), { recursive: true });
-  artifactCommand(
-    ['tar', '-xf', archive, '-C', join(stage, 'vendor/atlas')],
-    root
-  );
-  const dockerfile = readFileSync(
-    join(stage, 'apps/synthetic-population-worker/Dockerfile'),
-    'utf8'
-  );
-  writeFileSync(
-    join(stage, 'Dockerfile'),
-    dockerfile.replace(
-      'USER bun',
-      `ENV DEPLOYMENT_VERSION=${version}\nUSER bun`
-    )
-  );
-  const result = artifactCommand(
-    [
-      ...pinnedTool('railway'),
-      'up',
-      stage,
-      '--path-as-root',
-      '--project',
-      deployment.project_id,
-      '--environment',
-      deployment.environment_id,
-      '--service',
-      deployment.service_id,
-      '--ci',
-      '--json',
-      '--message',
-      `Synthetic Population Worker ${version}`,
-    ],
-    root
-  );
+  artifactCommand(release.versionArgs, root);
+  const result = artifactCommand(release.upArgs, root);
   process.stdout.write(redactInfraOutput(result, process.env));
 } finally {
   rmSync(stage, { recursive: true, force: true });

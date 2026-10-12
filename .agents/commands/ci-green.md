@@ -1,14 +1,15 @@
 ---
-description: Drive every CI workflow — Check, Deploy, Health — to green from one PR, in a loop; survey what is red, fix root causes, push, re-verify, repeat
+description: Drive every CI workflow — Check PR, Check Nightly, Deploy, Health — to green from one PR, in a loop; survey what is red, fix root causes, push, re-verify, repeat
 ---
 
 # /ci-green
 
-Get all three workflows green, and do it in **one pull request** on the current branch:
+Get all four workflows green, and do it in **one pull request** on the current branch:
 
 | Workflow | What red means | Where it runs |
 | --- | --- | --- |
-| **Check** (`.github/workflows/check.yml`) | the code is bad | every gate on every PR; `bun check` runs the same gate on this machine |
+| **Check PR** (`.github/workflows/check-pr.yml`) | the code is bad | every gate on every PR; `bun check-pr` runs the same gate on this machine |
+| **Check Nightly** (`.github/workflows/check-nightly.yml`) | deeper verification of `main` found something | every night on `main`; `bun check-nightly <group>` runs a group on this machine. Never a merge requirement |
 | **Deploy** (`.github/workflows/deploy.yml`) | releasing `main` fails | every merge to `main`, and `bun deploy` by hand (full verification, then every env) |
 | **Health** (`.github/workflows/health.yml`) | the live deployment is bad | hourly, and `bun health` dispatches it |
 
@@ -26,6 +27,7 @@ gh pr view --json number,url,headRefName,mergeStateStatus 2>/dev/null   # this b
 gh pr checks 2>/dev/null                                                 # Check on the PR
 gh run list --repo crvouga/gamezilla --workflow deploy.yml --limit 3 --json databaseId,headSha,status,conclusion,url
 gh run list --repo crvouga/gamezilla --workflow health.yml --limit 3 --json databaseId,headSha,status,conclusion,url
+gh run list --repo crvouga/gamezilla --workflow check-nightly.yml --limit 3 --json databaseId,headSha,status,conclusion,url
 ```
 
 For every red run, read the failure itself. Do not guess from the job name.
@@ -51,14 +53,15 @@ shows it fixed afterwards:
 
 | Failure in | Reproduce with |
 | --- | --- |
-| Check (any shard) | `bun run --filter <pkg> <task>` for the failing task, then `bun check:local` |
+| Check PR (any shard) | `bun run --filter <pkg> <task>` for the failing task, then `bun check-pr` |
+| Check Nightly (a group) | `bun check-nightly <group>` at the commit the run names, with the seed its log printed; pin what it found as a regression so `bun check-pr` replays it |
 | Deploy, a gate leaf | the same leaf. `//#deploy` runs every `//#check` leaf first |
 | Deploy, infrastructure or deployment | a GitHub Actions rehearsal on the branch, reusing the dev job and deployment lock; AWS trust may block a branch infrastructure apply |
 | Health | `bun health` dispatches the branch workflow and its read-only probes |
 
 Fix the root cause the repo's way (see `AGENTS.md`):
 
-- **Every bug gets a check.** A failure that `bun check` did not catch means a check is
+- **Every bug gets a check.** A failure that `bun check-pr` did not catch means a check is
   missing. Add the example test (`// regression: <bug-id>`), add
   `libs/tools/goal/known-bugs/<bug-id>.json`, or add a lint rule, so that the next occurrence fails
   Check instead of Deploy or Health.
@@ -77,7 +80,7 @@ All fixes go on the **current branch** and its single PR. Never open a second PR
 "the deploy part".
 
 ```bash
-bun check                               # every gate on this machine
+bun check-pr                               # every gate on this machine
 bun run git-sync --message "fix(scope): …"   # commit and push; the PR's Check runs every gate
 ```
 

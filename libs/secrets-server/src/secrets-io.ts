@@ -81,7 +81,7 @@ export async function exportSecretsMapLive(
 
 /**
  * Export secrets for an env. Prefers `.cache/secrets/<env>.json` when present
- * so `bun check` stays offline-first after `secrets:pull`.
+ * so `bun check-pr` stays offline-first after `secrets:pull`.
  * Use {@link exportSecretsMapLive} for provision/seed writes.
  */
 export async function exportSecretsMap(
