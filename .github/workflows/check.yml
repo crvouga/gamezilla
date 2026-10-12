@@ -4,16 +4,17 @@ run-name: "Check · ${{ github.event_name == 'pull_request' && format('pr #{0}',
 # Check is the release gate (README "Checks and CI"): every package gate —
 # lint, architecture boundaries, typecheck, unit tests, Gherkin specs, contract
 # suites, Quint models, schema evolution, bundles, security scans.
-# Duration-balanced shards, fail-fast off, then `check:verify` aggregates every
-# failure into one summary.
 #
-# Only uncached work starts a runner. `check:plan` asks the remote cache about
+# Three jobs. `check:start` plans the shards, `check:shards (N)` run them with
+# fail-fast off, and `check:end` has the ending word: one verdict that names
+# every failure.
+#
+# Only uncached work starts a runner. `check:start` asks the remote cache about
 # every task, packs the misses into as many shards as their measured durations
-# need, and records the cached verdicts itself; `check:schedule` hands the
-# workflow the shards that have work. A fully cached run is the plan and the
-# verdict, with no shard at all.
+# need, and records the cached verdicts itself. A fully cached run is the start
+# and the end, with no shard at all.
 #
-# It runs on every pull request, where the `check` job is the required status:
+# It runs on every pull request, where `check:end` is the required status:
 # a green pull request is releasable, and merging it deploys. It also runs from
 # a manual dispatch and from Deploy (`workflow_call`) on the exact commit it
 # ships. `bun check` and `bun verify` run the same gate locally.
@@ -88,10 +89,14 @@ env:
   CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
 
 jobs:
-  check-plan:
-    name: check:plan
+  check-start:
+    name: check:start
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    # One entry per shard with work, naming none of them: GitHub drops a job
+    # output that contains a masked secret, and one dev secret is the digit 1.
+    outputs:
+      shards: ${{ steps.plan.outputs.shards }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -110,7 +115,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
       # Shards are packed by the durations the newest Check measured on these
-      # runners (`check:verify` saves them); the key never matches, so the
+      # runners (`check:end` saves them); the key never matches, so the
       # prefix restores the newest from this pull request, else from main.
       - name: Restore measured task durations
         uses: actions/cache/restore@v5
@@ -119,6 +124,7 @@ jobs:
           key: check-task-costs-v1-gate-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: check-task-costs-v1-gate-
       - name: Plan all owners once
+        id: plan
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-plan.ts
       - name: Export immutable plan
         run: bun run libs/tools/scripts/check-plan-transfer.ts --export
@@ -131,19 +137,8 @@ jobs:
           overwrite: true
           compression-level: 0
           retention-days: 7
-      # Shard indexes only. It is an artifact, not a job output: this job
-      # holds masked secrets, and GitHub suppresses an output beside them.
-      - name: Upload the shard schedule
-        uses: actions/upload-artifact@v6
-        with:
-          name: check-schedule
-          path: .cache/check-ci/schedule.json
-          include-hidden-files: true
-          overwrite: true
-          compression-level: 0
-          retention-days: 7
       # A shard with nothing to execute starts no runner; its cached verdicts
-      # travel from here to `check:verify` and `check:reports`.
+      # travel from here to `check:end`.
       - name: Transfer cached shard verdicts
         uses: actions/upload-artifact@v6
         with:
@@ -164,9 +159,9 @@ jobs:
           overwrite: true
           compression-level: 0
           retention-days: 7
-      # A failed build is recorded in this shard's verdict, which
-      # `check:verify` reports; the shards still run so one red build does
-      # not hide every other failure.
+      # A failed build is recorded in this shard's verdict, which `check:end`
+      # reports; the shards still run so one red build does not hide every
+      # other failure.
       - name: Build shared prerequisites and warm their cache
         continue-on-error: true
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARDS"
@@ -192,42 +187,20 @@ jobs:
           compression-level: 0
           retention-days: 7
 
-  # The shards with uncached work, read from the plan's schedule. This job
-  # loads no secrets, so its outputs reach the matrix unsuppressed.
-  check-schedule:
-    name: check:schedule
-    needs: [check-plan]
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    outputs:
-      shards: ${{ steps.schedule.outputs.shards }}
-      consumers: ${{ steps.schedule.outputs.consumers }}
-    steps:
-      - name: Download the shard schedule
-        uses: actions/download-artifact@v6
-        with:
-          name: check-schedule
-          path: .cache/check-ci
-      - name: Publish the shard schedule
-        id: schedule
-        run: |
-          jq -e '(.shards | type == "array" and all(.[]; type == "number")) and (.consumers | type == "boolean")' .cache/check-ci/schedule.json > /dev/null
-          {
-            echo "shards=$(jq -c '.shards' .cache/check-ci/schedule.json)"
-            echo "consumers=$(jq -r '.consumers' .cache/check-ci/schedule.json)"
-          } >> "$GITHUB_OUTPUT"
-
+  # Shard N is the Nth entry of the matrix `check:start` planned.
   check-shards:
-    name: check:shards
-    needs: [check-schedule]
+    name: check:shards (${{ strategy.job-index }})
+    needs: [check-start]
     # An empty matrix is an error, so a fully cached plan skips the job.
-    if: needs.check-schedule.outputs.shards != '[]'
+    if: needs.check-start.outputs.shards != '[]'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        shard: ${{ fromJSON(needs.check-schedule.outputs.shards) }}
+        shard: ${{ fromJSON(needs.check-start.outputs.shards) }}
+    env:
+      CHECK_SHARD: ${{ strategy.job-index }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -246,13 +219,9 @@ jobs:
           name: check-plan
           path: .cache/check-ci
       - name: Restore immutable plan and required prerequisites
-        env:
-          CHECK_SHARD: ${{ matrix.shard }}
-        run: bun run libs/tools/scripts/check-stage-transfer.ts --prerequisites
+        run: bun run libs/tools/scripts/check-stage-transfer.ts
       - name: Select browser tasks
         id: browser
-        env:
-          CHECK_SHARD: ${{ matrix.shard }}
         run: bun run libs/tools/scripts/check-browser-tasks.ts
       - name: Install renderer for browser tasks
         if: steps.browser.outputs.needed == 'true'
@@ -260,14 +229,12 @@ jobs:
         uses: ./.github/actions/visual-renderer
       - name: check
         timeout-minutes: 25
-        env:
-          CHECK_SHARD: ${{ matrix.shard }}
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARD"
       - name: Upload queryable trace artifacts
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
         with:
-          name: observability-traces-${{ github.run_id }}-${{ matrix.shard }}
+          name: observability-traces-${{ github.run_id }}-${{ strategy.job-index }}
           path: |
             apps/*/.cache/harness-report/*/traces/*.ndjson
             libs/*/.cache/harness-report/*/traces/*.ndjson
@@ -279,7 +246,7 @@ jobs:
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
         with:
-          name: turbo-summary-${{ github.run_id }}-${{ matrix.shard }}
+          name: turbo-summary-${{ github.run_id }}-${{ strategy.job-index }}
           path: .turbo/runs/*.json
           if-no-files-found: ignore
           include-hidden-files: true
@@ -289,8 +256,8 @@ jobs:
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
         with:
-          name: check-evidence-${{ matrix.shard }}
-          path: .cache/check-ci/evidence-${{ matrix.shard }}.tar.gz
+          name: check-evidence-${{ strategy.job-index }}
+          path: .cache/check-ci/evidence-${{ strategy.job-index }}.tar.gz
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
@@ -301,23 +268,29 @@ jobs:
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
         with:
-          name: check-results-${{ matrix.shard }}
-          path: .cache/check-ci/results-${{ matrix.shard }}.tar.gz
+          name: check-results-${{ strategy.job-index }}
+          path: .cache/check-ci/results-${{ strategy.job-index }}.tar.gz
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
           compression-level: 0
           retention-days: 7
 
-  # Runs after red shards too: fan-in suites report their own failures in
-  # the same run instead of waiting for the next one.
-  check-consumers:
-    name: check:consumers
-    needs: [check-plan, check-schedule, check-shards]
-    if: always() && !cancelled() && needs.check-plan.result == 'success' && needs.check-schedule.outputs.consumers == 'true'
+  # The ending word, and the only required status on a pull request; Deploy
+  # consumes this verdict. It runs after red shards too: the fan-in suites
+  # report their own failures, then one verdict names every suite, every
+  # failing task and the artifact holding its evidence. A missing, failed or
+  # cancelled job fails it; skipped shards pass only when the plan scheduled
+  # none. Reports are published last and never decide it.
+  check-end:
+    name: check:end
+    needs: [check-start, check-shards]
+    if: always() && !cancelled()
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 50
     steps:
+      # The reports are filed under the pull request's head, whose specs are
+      # read from Git; the default checkout holds only the merge commit.
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
@@ -332,18 +305,15 @@ jobs:
         with:
           name: check-plan
           path: .cache/check-ci
-      - name: Restore immutable plan and producers
-        run: bun run libs/tools/scripts/check-stage-transfer.ts
-      - name: Consume producer evidence and required cache artifacts
-        run: bun run libs/tools/scripts/check-artifact-download.ts check-evidence- .cache/check-ci/transfers consumers
-      - name: check
+      # Does nothing when the plan left the fan-in stage nothing to execute.
+      - name: Run fan-in consumers
         timeout-minutes: 25
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$((CHECK_SHARDS + 1))"
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-consumers.ts
       - name: Upload queryable trace artifacts
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
         with:
-          name: observability-traces-${{ github.run_id }}-final
+          name: observability-traces-${{ github.run_id }}-consumers
           path: |
             apps/*/.cache/harness-report/*/traces/*.ndjson
             libs/*/.cache/harness-report/*/traces/*.ndjson
@@ -355,59 +325,31 @@ jobs:
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
         with:
-          name: turbo-summary-${{ github.run_id }}-final
+          name: turbo-summary-${{ github.run_id }}-consumers
           path: .turbo/runs/*.json
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 7
-      # Transfer verdicts, failed reports, and exact artifacts needed by consumers.
       - name: Transfer raw evidence
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
         with:
-          name: check-evidence-${{ env.CHECK_SHARDS }}-consumer
+          name: check-evidence-consumers
           path: .cache/check-ci/evidence-*.tar.gz
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
           compression-level: 0
           retention-days: 7
-
-      - name: Transfer consumer verdict
+      # Only the small verdicts: the evidence is gigabytes of snapshots.
+      - name: Transfer shard verdicts
         if: always() && !cancelled()
-        uses: actions/upload-artifact@v6
-        with:
-          name: check-results-${{ env.CHECK_SHARDS }}-consumer
-          path: .cache/check-ci/results-*.tar.gz
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-          compression-level: 0
-          retention-days: 7
-
-  # One verdict for the whole full run: every suite, every failing task, the
-  # artifact holding its evidence. Missing, failed, skipped and cancelled
-  # jobs fail; a stage is allowed to be skipped only when the plan scheduled
-  # nothing for it. Reports never enter this job's dependency graph.
-  check-verify:
-    name: check:verify
-    needs: [check-plan, check-schedule, check-shards, check-consumers]
-    if: always() && !cancelled()
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-        with:
-          tools: bun gh
-      - name: Transfer raw evidence
         run: bun run libs/tools/scripts/check-artifact-download.ts check-results- .cache/check-ci/transfers verdict || echo "::warning::No shard verdicts to aggregate"
       - name: Summarize every suite
+        if: always() && !cancelled()
         env:
-          PLAN_RESULT: ${{ needs.check-plan.result }}
-          SCHEDULE_RESULT: ${{ needs.check-schedule.result }}
+          START_RESULT: ${{ needs.check-start.result }}
           SHARD_RESULT: ${{ needs.check-shards.result }}
-          CONSUMER_RESULT: ${{ needs.check-consumers.result }}
         run: bun run libs/tools/scripts/check-verdict.ts
       # A red run still measured every task that passed.
       - name: Save measured task durations
@@ -428,47 +370,12 @@ jobs:
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 14
-
-  # The only required status on a pull request; Deploy consumes this verdict.
-  check:
-    name: check
-    needs: [check-verify]
-    if: always() && !cancelled()
-    runs-on: ubuntu-24.04
-    timeout-minutes: 8
-    steps:
-      - name: Require release verification
-        env:
-          VERIFY_RESULT: ${{ needs.check-verify.result }}
-        run: test "$VERIFY_RESULT" = success
-
-  # Deploy's `deploy:cleanup` prunes stale reports.
-  check-reports:
-    name: check:reports
-    needs: [check-plan, check-shards, check-consumers]
-    if: always() && !cancelled()
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    steps:
-      # The reports are filed under the pull request's head, whose specs are
-      # read from Git; the default checkout holds only the merge commit.
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - uses: ./.github/actions/setup
-        with:
-          tools: bun gh
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
-      - name: Download immutable plan
-        uses: actions/download-artifact@v6
-        with:
-          name: check-plan
-          path: .cache/check-ci
+      # Publication never changes the verdict above. Deploy's `deploy:cleanup`
+      # prunes stale reports.
       - name: Aggregate and publish bounded evidence
+        if: always() && !cancelled()
+        continue-on-error: true
+        timeout-minutes: 20
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-reports.ts
       - name: Retain sanitized planning and timing details
         if: always() && !cancelled()

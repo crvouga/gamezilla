@@ -4,7 +4,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { captureAudit } from './audit-snapshot';
 import { cacheDiagnostics } from './check-cache-diagnostics';
-import { writeSchedule } from './check-plan-schedule';
+import { startedFirst, writeSchedule } from './check-plan-schedule';
 import type { CheckTask } from './check-shards';
 import { balanceShards, planWarnings } from './check-shards';
 import { readScheduleCosts } from './check-task-costs';
@@ -88,10 +88,12 @@ export async function createCheckPlan(): Promise<void> {
   }));
   if (env['CHECK_CACHE_MODE'] === 'cold')
     for (const task of tasks) Object.assign(task, { hit: false, source: null });
-  const plan = balanceShards(
-    tasks,
-    Number(env['CHECK_SHARDS'] ?? '16'),
-    shardTargetSeconds(env)
+  const plan = startedFirst(
+    balanceShards(
+      tasks,
+      Number(env['CHECK_SHARDS'] ?? '16'),
+      shardTargetSeconds(env)
+    )
   );
   mkdirSync(DIRECTORY, { recursive: true });
   writeFileSync(join(DIRECTORY, 'plan.json'), JSON.stringify(plan));
@@ -177,7 +179,7 @@ export function repoWideInputs(global: GlobalCacheInputs | undefined) {
   };
 }
 
-/** Record the cached shards and tell the workflow which ones have work. */
+/** Record the cached shards and hand the workflow the matrix of the rest. */
 function schedulePlan(plan: ReturnType<typeof balanceShards>): void {
   const schedule = writeSchedule(plan);
   console.log(

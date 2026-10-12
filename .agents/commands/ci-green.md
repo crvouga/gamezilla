@@ -102,7 +102,7 @@ Stop and report instead of looping when either of these happens:
 The merge is the release: the push to `main` starts Deploy, which runs full verification
 first, then every environment. Watch that run; `bun deploy` re-dispatches it on
 `origin/main` only when asked to release again. Do not start a second Deploy while one is
-still going. If `deploy:verify` is red, fix every failure its `check:verify` summary lists
+still going. If `deploy:verify` is red, fix every failure its `check:end` summary lists
 in one batch on a new PR. Then `bun health` runs Health without waiting for
 the hourly schedule:
 

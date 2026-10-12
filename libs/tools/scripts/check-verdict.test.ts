@@ -20,9 +20,8 @@ function result(taskId: string, passed: boolean): Result {
 }
 
 const JOBS = [
-  { name: 'check:plan', result: 'success' },
+  { name: 'check:start', result: 'success' },
   { name: 'check:shards', result: 'success' },
-  { name: 'check:consumers', result: 'success' },
 ];
 
 describe('check verdict', () => {
@@ -77,20 +76,20 @@ describe('check verdict', () => {
     const verdict = summarize({
       planned: ['@a/x#tc'],
       shards: [{ index: 0, verdict: 0, tasks: [result('@a/x#tc', true)] }],
-      jobs: [...JOBS.slice(1), { name: 'check:plan', result: 'failure' }],
+      jobs: [...JOBS.slice(1), { name: 'check:start', result: 'failure' }],
     });
     expect(verdict.passed).toBe(false);
-    expect(formatTable(verdict)).toContain('job check:plan');
+    expect(formatTable(verdict)).toContain('job check:start');
   });
 
   test('a run with no evidence never passes', () => {
     const verdict = summarize({
       planned: [],
       shards: [],
-      jobs: [{ name: 'check:plan', result: 'failure' }],
+      jobs: [{ name: 'check:start', result: 'failure' }],
     });
     expect(verdict.passed).toBe(false);
-    expect(formatTable(verdict)).toMatch(/job check:plan\s+FAILURE/);
+    expect(formatTable(verdict)).toMatch(/job check:start\s+FAILURE/);
     expect(formatTable(verdict)).toContain(
       'No task verdicts: 1 jobs did not succeed'
     );

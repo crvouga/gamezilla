@@ -7,7 +7,7 @@ than restating it.
 
 ## Hard Rules
 
-- **We never test manually. Ever.** A green full verification (the `check` on every pull request, which Deploy runs again on the commit it ships) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared` only; `fc.commands` models; `@pkgs/harness-root-shared` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
+- **We never test manually. Ever.** A green full verification (the `check:end` on every pull request, which Deploy runs again on the commit it ships) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared` only; `fc.commands` models; `@pkgs/harness-root-shared` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
 
 - **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; [`README.md`](README.md) is the implementation briefing and never a second product definition. Step catalogs (`<package>/STEPS_CATALOG.md`, index `docs/STEPS_CATALOG.md`) are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
 
@@ -131,8 +131,9 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 
 ## Checks and CI
 
-Every pull request runs one sharded Check workflow; its `check` job is the one
-required status, so a green pull request is releasable. The gate is bounded
+Every pull request runs one sharded Check workflow of three jobs (`check:start`,
+`check:shards (N)`, `check:end`); `check:end` is the one required status, so a
+green pull request is releasable. The gate is bounded
 and never explores: each Quint model replays only the fewest drawn traces that
 take every bound action. Exploration (`QUINT_REPLAY_TRACES=all`, every drawn
 trace) is asked for by name on a developer machine and no workflow runs it; a

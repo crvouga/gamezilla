@@ -7,6 +7,8 @@ import { evidencePaths } from './check-evidence-selection';
 import {
   cachedShardResult,
   checkSchedule,
+  shardMatrix,
+  startedFirst,
   writeSchedule,
 } from './check-plan-schedule';
 import type { CheckTask } from './check-shards';
@@ -68,18 +70,65 @@ test('a fan-in stage with uncached work is scheduled after its producers', () =>
   });
 });
 
+test('shards with work are numbered first, whatever shard the balance gave them', () => {
+  const plan = balanceShards(
+    [...CACHED, ...[0, 1, 2, 3].map((i) => task(`leaf-${i}#test`, false))],
+    32,
+    120
+  );
+  // The balance's own order, reversed: the two shards with work come last.
+  const checks = plan.shards.filter((shard) => shard.stage === 'checks');
+  const reversed = {
+    ...plan,
+    shards: [
+      ...[...checks].reverse(),
+      ...plan.shards.filter((shard) => shard.stage !== 'checks'),
+    ].map((shard, index) => ({ ...shard, index })),
+  };
+  expect(checkSchedule(reversed).shards).toEqual([30, 31]);
+  const started = startedFirst(reversed);
+  expect(checkSchedule(started).shards).toEqual([0, 1]);
+  expect(started.shards.map((shard) => shard.index)).toEqual(
+    plan.shards.map((shard) => shard.index)
+  );
+  expect(started.shards.map((shard) => shard.stage)).toEqual(
+    plan.shards.map((shard) => shard.stage)
+  );
+  expect(
+    started.shards.flatMap((shard) => shard.tasks.map((item) => item.taskId))
+  ).toHaveLength(plan.tasks.length);
+  expect(() => shardMatrix(checkSchedule(reversed))).toThrow(
+    'Shards with work must be numbered first'
+  );
+});
+
+// regression: github-check-plan-output-secret-masking
+test('the matrix has one entry per shard with work and nothing a secret could match', () => {
+  // Check run 38209389895 masked the digit 1: `[0,1]` would have been
+  // dropped, and every shard skipped.
+  expect(shardMatrix({ shards: [] })).toBe('[]');
+  expect(shardMatrix({ shards: [0, 1, 2] })).toBe('["-","--","---"]');
+  for (const count of [1, 40, 64]) {
+    const matrix = shardMatrix({
+      shards: Array.from({ length: count }, (_, shard) => shard),
+    });
+    const entries = JSON.parse(matrix) as string[];
+    expect(entries).toHaveLength(count);
+    expect(new Set(entries).size).toBe(count);
+    expect(matrix).not.toMatch(/[0-9a-z]/i);
+  }
+});
+
 test('a fully cached plan schedules nothing and still accounts for every task', () => {
   const fixture = mkdtempSync(join(tmpdir(), 'check-schedule-'));
   try {
     const plan = balanceShards(CACHED, 8, 120);
-    const schedule = writeSchedule(plan, fixture);
+    const output = join(fixture, 'github-output');
+    const schedule = writeSchedule(plan, fixture, output);
     expect(schedule.shards).toEqual([]);
     expect(schedule.consumers).toBe(false);
-    expect(
-      JSON.parse(
-        readFileSync(join(fixture, '.cache/check-ci/schedule.json'), 'utf8')
-      )
-    ).toEqual({ shards: [], consumers: false });
+    // The job output the workflow builds the shard matrix from.
+    expect(readFileSync(output, 'utf8')).toBe('shards=[]\n');
     const recorded = schedule.cached.map((index) => {
       const entries = archiveEntries(
         join(fixture, `.cache/check-ci/cached/results-${index}.tar.gz`)
@@ -105,22 +154,12 @@ test('a fully cached plan schedules nothing and still accounts for every task', 
     const verdict = summarize({
       planned: plan.tasks.map((item) => item.taskId),
       shards: recorded,
-      jobs: jobResults(
-        {
-          plan: 'success',
-          schedule: 'success',
-          shards: 'skipped',
-          consumers: 'skipped',
-        },
-        schedule
-      ),
+      jobs: jobResults({ start: 'success', shards: 'skipped' }, schedule),
     });
     expect(verdict.passed).toBe(true);
     expect(verdict.jobs).toEqual([
-      { name: 'check:plan', result: 'success' },
-      { name: 'check:schedule', result: 'success' },
+      { name: 'check:start', result: 'success' },
       { name: 'check:shards', result: 'cached' },
-      { name: 'check:consumers', result: 'cached' },
     ]);
   } finally {
     rmSync(fixture, { recursive: true, force: true });
@@ -144,15 +183,7 @@ test('a scheduled stage that was skipped fails the verdict', () => {
   const verdict = summarize({
     planned: plan.tasks.map((item) => item.taskId),
     shards: cached,
-    jobs: jobResults(
-      {
-        plan: 'success',
-        schedule: 'success',
-        shards: 'skipped',
-        consumers: 'skipped',
-      },
-      schedule
-    ),
+    jobs: jobResults({ start: 'success', shards: 'skipped' }, schedule),
   });
   expect(verdict.passed).toBe(false);
   expect(verdict.jobs.find((job) => job.name === 'check:shards')).toEqual({
@@ -165,37 +196,24 @@ test('a scheduled stage that was skipped fails the verdict', () => {
 
 test('skipped never passes without a plan, and no job can claim to be cached', () => {
   expect(
-    jobResults(
-      {
-        plan: 'skipped',
-        schedule: 'skipped',
-        shards: 'skipped',
-        consumers: 'skipped',
-      },
-      null
-    ).map((job) => job.result)
-  ).toEqual(['skipped', 'skipped', 'skipped', 'skipped']);
+    jobResults({ start: 'skipped', shards: 'skipped' }, null).map(
+      (job) => job.result
+    )
+  ).toEqual(['skipped', 'skipped']);
   expect(
-    jobResults(
-      {
-        plan: 'cached',
-        schedule: 'cached',
-        shards: 'cached',
-        consumers: undefined,
-      },
-      { shards: [], consumers: false }
-    ).map((job) => job.result)
-  ).toEqual(['unknown', 'unknown', 'unknown', 'unknown']);
-  // The plan and the schedule always run.
+    jobResults({ start: 'cached', shards: 'cached' }, { shards: [] }).map(
+      (job) => job.result
+    )
+  ).toEqual(['unknown', 'unknown']);
   expect(
-    jobResults(
-      {
-        plan: 'skipped',
-        schedule: 'skipped',
-        shards: 'skipped',
-        consumers: 'skipped',
-      },
-      { shards: [], consumers: false }
-    ).map((job) => job.result)
-  ).toEqual(['skipped', 'skipped', 'cached', 'cached']);
+    jobResults({ start: undefined, shards: undefined }, { shards: [] }).map(
+      (job) => job.result
+    )
+  ).toEqual(['unknown', 'unknown']);
+  // The start always runs.
+  expect(
+    jobResults({ start: 'skipped', shards: 'skipped' }, { shards: [] }).map(
+      (job) => job.result
+    )
+  ).toEqual(['skipped', 'cached']);
 });

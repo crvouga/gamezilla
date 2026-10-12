@@ -5,7 +5,8 @@ import { join } from 'node:path';
 /**
  * Every workflow run title has one shape — `<Workflow> · <trigger>`, never a
  * branch or ref (too dynamic to scan) — and every job is named `<workflow>` or `<workflow>:<stage>` after its id
- * (`<workflow>:<env>` for a job with an env matrix), so
+ * (`<workflow>:<env>` for a job with an env matrix, the shard appended for a
+ * job with a shard matrix), so
  * the Actions run list and the PR checks box read the same everywhere.
  */
 const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.github/workflows');
@@ -25,12 +26,17 @@ type Workflow = {
   on: Record<string, unknown>;
   jobs: Record<
     string,
-    { name?: string; strategy?: { matrix?: { env?: unknown } } }
+    {
+      name?: string;
+      strategy?: { matrix?: { env?: unknown; shard?: unknown } };
+    }
   >;
 };
 
 /** A job fanned out over the env files renders as `<workflow>:<env>`. */
 const MATRIX_ENV = '${{ matrix.env }}';
+/** A job fanned out over shards renders as `<workflow>:<stage> (<shard>)`. */
+const SHARD = ' (${{ strategy.job-index }})';
 
 const workflows = readdirSync(WORKFLOWS_DIR)
   .filter((file) => file.endsWith('.yml'))
@@ -76,12 +82,15 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
     }
   });
 
-  test('jobs are named `<workflow>[:<stage>]` after their id, or `<workflow>:<env>` per env', () => {
+  test('jobs are named `<workflow>[:<stage>]` after their id, `<workflow>:<env>` per env, or with their shard', () => {
     const prefix = workflow.name.toLowerCase();
     for (const [id, job] of Object.entries(workflow.jobs)) {
       const perEnv = job.strategy?.matrix?.env !== undefined;
+      const perShard = job.strategy?.matrix?.shard !== undefined;
       expect(job.name).toBe(
-        perEnv ? `${prefix}:${MATRIX_ENV}` : id.replace('-', ':')
+        perEnv
+          ? `${prefix}:${MATRIX_ENV}`
+          : `${id.replace('-', ':')}${perShard ? SHARD : ''}`
       );
       expect(id === prefix || id.startsWith(`${prefix}-`)).toBe(true);
     }

@@ -23,8 +23,8 @@ export function readTaskCosts(): TaskCosts {
 }
 
 /**
- * What the newest Check measured on the runners that execute it. `check:plan`
- * restores it from the Actions cache and `check:verify` saves the next one,
+ * What the newest Check measured on the runners that execute it. `check:start`
+ * restores it from the Actions cache and `check:end` saves the next one,
  * so shard packing follows the corpus without a commit per harvest.
  */
 export const MEASURED_COSTS_PATH = join(

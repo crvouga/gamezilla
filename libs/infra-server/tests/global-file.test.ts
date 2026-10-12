@@ -20,13 +20,13 @@ describe('tofu/global.tfvars.json', () => {
       ) as {
         name?: string;
         on?: Record<string, unknown>;
-        jobs?: Record<string, unknown>;
+        jobs?: Record<string, { name?: string }>;
       };
       const onPullRequest =
         workflow.on !== undefined && 'pull_request' in workflow.on;
-      const gate = workflow.name?.toLowerCase() ?? '';
-      if (onPullRequest && workflow.jobs !== undefined && gate in workflow.jobs)
-        gates.push(gate);
+      // The gate is the workflow's ending word: `<workflow>:end`.
+      const gate = workflow.jobs?.[`${workflow.name?.toLowerCase()}-end`];
+      if (onPullRequest && gate?.name !== undefined) gates.push(gate.name);
     }
     expect([...GLOBAL.github.required_checks].sort()).toEqual(gates.sort());
   });

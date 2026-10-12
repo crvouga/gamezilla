@@ -1,14 +1,14 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CI aggregation entry; reads shard evidence, writes the verdict.
 /**
- * `check:verify`: one verdict for a full Check run. Every shard's
+ * The verdict `check:end` gives a full Check run. Every shard's
  * `results/shard-<n>.json` (inside its evidence tar) is grouped into
  * suites — typecheck, unit tests, Gherkin specs, Quint models, … — so a red
  * run names every failing task at once, with the artifact that holds its
  * evidence. A planned task with no verdict (a crashed or cancelled shard)
  * fails, as does any upstream job that did not succeed. A stage the plan
  * left nothing to execute is skipped by design; its tasks' cached verdicts
- * were recorded by `check:plan`.
+ * were recorded by `check:start`.
  *
  * Writes `.cache/check-ci/verdict.{json,md,junit.xml}`, appends the
  * Markdown to `GITHUB_STEP_SUMMARY`, prints the table and exits 1 on any
@@ -78,7 +78,7 @@ export function suiteOf(taskId: string): string {
   return SUITES.find(([, pattern]) => pattern.test(task))![0];
 }
 
-/** `cached`: the plan left that stage nothing to execute, so it never ran. */
+/** `cached`: the plan left the shards nothing to execute, so none ran. */
 const PASSING_JOB_RESULTS = new Set(['success', 'cached']);
 
 function failedJobs(jobs: Verdict['jobs']): Verdict['jobs'] {
@@ -86,23 +86,19 @@ function failedJobs(jobs: Verdict['jobs']): Verdict['jobs'] {
 }
 
 /**
- * Upstream job results as the verdict reads them. A skipped stage reads
- * `cached` only when the plan scheduled nothing for it; skipped for any other
- * reason, or without a plan to say so, stays a failure.
+ * Upstream job results as the verdict reads them. Skipped shards read
+ * `cached` only when the plan scheduled none; skipped for any other reason,
+ * or without a plan to say so, stays a failure.
  */
 export function jobResults(
-  results: Readonly<
-    Record<'plan' | 'schedule' | 'shards' | 'consumers', string | undefined>
-  >,
-  schedule: Pick<CheckSchedule, 'shards' | 'consumers'> | null
+  results: Readonly<Record<'start' | 'shards', string | undefined>>,
+  schedule: Pick<CheckSchedule, 'shards'> | null
 ): Verdict['jobs'] {
   const scheduled = {
-    plan: true,
-    schedule: true,
+    start: true,
     shards: schedule === null || schedule.shards.length > 0,
-    consumers: schedule === null || schedule.consumers,
   };
-  return (['plan', 'schedule', 'shards', 'consumers'] as const).map((job) => {
+  return (['start', 'shards'] as const).map((job) => {
     // Only this mapping may call a stage cached.
     const raw = results[job] ?? 'unknown';
     const result = raw === 'cached' ? 'unknown' : raw;
@@ -275,12 +271,7 @@ function main(env: NodeJS.ProcessEnv): number {
     planned: plan?.tasks.map((task) => task.taskId) ?? [],
     shards,
     jobs: jobResults(
-      {
-        plan: env['PLAN_RESULT'],
-        schedule: env['SCHEDULE_RESULT'],
-        shards: env['SHARD_RESULT'],
-        consumers: env['CONSUMER_RESULT'],
-      },
+      { start: env['START_RESULT'], shards: env['SHARD_RESULT'] },
       plan && checkSchedule(plan)
     ),
   });

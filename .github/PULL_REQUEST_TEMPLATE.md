@@ -19,7 +19,7 @@ Check a box only when it is true.
 ## Verification
 
 <!--
-One line: the automated checks exercised and their result (`check` →
+One line: the automated checks exercised and their result (`check:end` →
 green). Never a manual step — we do not test by hand.
 One line — required: what this PR does NOT prove.
 -->
@@ -40,7 +40,7 @@ must decide before merging.
 
 ## Checklist
 
-- [ ] CI (`check`) is green on this PR.
+- [ ] CI (`check:end`) is green on this PR.
 - [ ] No check was weakened: no deleted or skipped tests, no loosened assertion, no `@ts-ignore`, no disabled lint rule.
 - [ ] Changed behavior is covered by a property- or model-based test; every bug fixed has an example regression test (`// regression: <id>`) registered as `libs/tools/goal/known-bugs/<id>.json`. Nothing was verified by hand.
 - [ ] No deprecated code left behind: replaced APIs are deleted and every call site migrated here.
