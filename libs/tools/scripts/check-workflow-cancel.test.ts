@@ -58,6 +58,46 @@ describe('Check workflow cancellation', () => {
     expect(workflow.on.workflow_call.inputs.shards.default).toBe(40);
     expect(shardCounts).toContain(40);
   });
+  test('the gate never explores; only a caller that asks replays every trace', () => {
+    const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
+      env: Record<string, string>;
+      on: {
+        workflow_dispatch: { inputs: Record<string, unknown> };
+        workflow_call: {
+          inputs: { explore: { type: string; default: boolean } };
+        };
+      };
+    };
+    // A pull request, a dispatch and Deploy leave it empty, which
+    // `turboChildEnv` drops: the bounded default.
+    expect(workflow.env['QUINT_REPLAY_TRACES']).toBe(
+      "${{ inputs.explore && 'all' || '' }}"
+    );
+    expect(workflow.on.workflow_call.inputs.explore).toMatchObject({
+      type: 'boolean',
+      default: false,
+    });
+    expect(workflow.on.workflow_dispatch.inputs['explore']).toBeUndefined();
+    const nightly = Bun.YAML.parse(
+      readFileSync(join(WORKFLOW, '../nightly.yml'), 'utf8')
+    ) as {
+      on: Record<string, unknown>;
+      jobs: Record<string, { uses: string; with: Record<string, unknown> }>;
+    };
+    // Exploration has one home, and it gates nothing.
+    expect(Object.keys(nightly.on).sort()).toEqual([
+      'schedule',
+      'workflow_dispatch',
+    ]);
+    expect(nightly.jobs['nightly-explore']).toMatchObject({
+      uses: './.github/workflows/check.yml',
+      with: { explore: true },
+    });
+    for (const file of ['deploy.yml', 'health.yml'])
+      expect(readFileSync(join(WORKFLOW, '..', file), 'utf8')).not.toContain(
+        'explore'
+      );
+  });
   // regression: concurrent-check-run-isolation
   test('a newer push supersedes its PR run; dispatched and release runs never cancel one another', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {

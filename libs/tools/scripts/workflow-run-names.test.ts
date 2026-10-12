@@ -43,7 +43,7 @@ const workflows = readdirSync(WORKFLOWS_DIR)
 
 // regression: ci-provider-native-workflows-missing-auth
 // regression: ci-provider-migration-workflow-on-feature-branch
-test('Check, Deploy and Health have one native workflow source', () => {
+test('Check, Deploy, Health and Nightly have one native workflow source', () => {
   expect(workflows.map(({ file }) => file)).not.toContain(
     'temporary-ci-migration.yml'
   );
@@ -51,6 +51,7 @@ test('Check, Deploy and Health have one native workflow source', () => {
     'check.yml',
     'deploy.yml',
     'health.yml',
+    'nightly.yml',
   ]);
 });
 

@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server/evidence-store';
 import { runQuintModel } from '@pkgs/quint-server/bun-test';
@@ -16,6 +16,8 @@ import {
   replayTraceTwice,
   untakenActions,
 } from '@pkgs/quint-shared/replay';
+import { replaySelection } from '@pkgs/quint-shared/replay-budget';
+import { DEFAULT_REPLAY_TRACES } from '@pkgs/quint-shared/wall';
 import lockedDoorTrace from './fixtures/door-locked.itf.json';
 
 type Door = { state: string; lastBy: string; steps: string[] };
@@ -76,11 +78,13 @@ const SPEC_URI = 'pkgs/quint-server/tests/fixtures/door.qnt';
 // Evidence merges across runs of the same model text; start from none.
 rmSync(join(OUT, 'evidence'), { recursive: true, force: true });
 
+// An exploring run: every drawn trace is replayed.
 runQuintModel({
   packageName: '@pkgs/quint',
   specPath: FIXTURE,
   specUri: SPEC_URI,
   reportDir: OUT,
+  replayTraces: Number.POSITIVE_INFINITY,
 });
 
 // Registered after the model's tests, so it runs once they have decided.
@@ -109,6 +113,63 @@ describe('evidence of the model run', () => {
     });
     expect(byId.has('trace:1')).toBe(true);
     expect([...byId.values()].filter((o) => o.status !== 'pass')).toEqual([]);
+  });
+});
+
+const BUDGETED = join(import.meta.dir, '../.cache/test-traces-budgeted');
+rmSync(join(BUDGETED, 'evidence'), { recursive: true, force: true });
+
+// The same model as the gate runs it: no budget named.
+runQuintModel({
+  packageName: '@pkgs/quint',
+  specPath: FIXTURE,
+  specUri: SPEC_URI,
+  reportDir: BUDGETED,
+});
+
+describe('evidence of a model run that does not explore', () => {
+  test('judges the whole draw and replays only the traces that take every bound action', () => {
+    const summary = JSON.parse(
+      readFileSync(join(BUDGETED, 'quint/door/model.json'), 'utf8')
+    ) as { traces: unknown[]; replayed: number[] };
+    const drawn = simulate({
+      specPath: FIXTURE,
+      traces: 6,
+      maxSteps: 8,
+      outDir: join(BUDGETED, 'redraw'),
+    });
+    const selected = [
+      ...replaySelection(
+        drawn.traces,
+        Object.keys(binding.actions),
+        DEFAULT_REPLAY_TRACES
+      ),
+    ]
+      .sort((a, b) => a - b)
+      .map((index) => index + 1);
+    // Fewer than were drawn, or the run was not bounded.
+    expect(selected.length).toBeLessThan(drawn.traces.length);
+    expect(summary.traces).toHaveLength(drawn.traces.length);
+    expect(summary.replayed).toEqual(selected);
+    const door = readEvidence(BUDGETED).records.find(
+      (r) => r.specUri === SPEC_URI
+    );
+    const byId = new Map(door?.obligations.map((o) => [o.id, o]));
+    expect(
+      [...byId.keys()]
+        .filter((id) => id.startsWith('trace:'))
+        .map((id) => Number(id.slice('trace:'.length)))
+        .sort((a, b) => a - b)
+    ).toEqual(selected);
+    // The model-wide obligations and the pinned history are not budgeted.
+    for (const id of [
+      'simulate',
+      'bound-actions',
+      'determinism',
+      'regression:locked-door',
+    ])
+      expect(byId.get(id)?.status).toBe('pass');
+    expect(byId.get('bound-actions')?.detail).toContain('_loseConnection');
   });
 });
 

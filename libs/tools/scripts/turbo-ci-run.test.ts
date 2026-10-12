@@ -80,6 +80,19 @@ describe('turbo-ci-run child env', () => {
     expect(env['TURBO_TEAM']).toBeUndefined();
   });
 
+  test('an empty replay budget is no budget, and a set one is kept', () => {
+    // The Check workflow sets the variable to empty unless it explores; turbo
+    // would hash that apart from a run that never set it.
+    expect('QUINT_REPLAY_TRACES' in turboChildEnv({})).toBe(false);
+    for (const empty of ['', '  '])
+      expect(
+        'QUINT_REPLAY_TRACES' in turboChildEnv({ QUINT_REPLAY_TRACES: empty })
+      ).toBe(false);
+    expect(
+      turboChildEnv({ QUINT_REPLAY_TRACES: 'all' })['QUINT_REPLAY_TRACES']
+    ).toBe('all');
+  });
+
   test('disables telemetry unless the caller set it', () => {
     expect(turboChildEnv({})['TURBO_TELEMETRY_DISABLED']).toBe('1');
     expect(

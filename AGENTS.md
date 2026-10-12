@@ -132,7 +132,11 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 ## Checks and CI
 
 Every pull request runs one sharded Check workflow; its `check` job is the one
-required status, so a green pull request is releasable. The task list in
+required status, so a green pull request is releasable. The gate is bounded
+and never explores: each Quint model replays only the fewest drawn traces that
+take every bound action. Exploration (`QUINT_REPLAY_TRACES=all`, every drawn
+trace) runs in the Nightly workflow, which gates nothing; a trace it fails is
+pinned in the model binding's `regressions`. The task list in
 `libs/tools/scripts/turbo-ci-run.ts` runs every gate through Turbo. There are
 no root `//#check`, `//#ci:*`, or root lint checks: every Check workflow gate
 is a package-owned Turbo task with explicit inputs and caching. Bespoke gates such
@@ -148,7 +152,7 @@ check is a cached, per-package task; a new check goes into the package it is
 about. A gate leaf verifies and never
 touches the outside world, and its verdict never depends on the machine
 (never branch on `CI`). Make a slow task faster before raising its budget.
-Exactly three workflows: Check, Deploy, Health. Rehearse anything touching
+Exactly four workflows: Check, Deploy, Health, Nightly. Rehearse anything touching
 deploy, infra, secrets, Workers or `health` in GitHub Actions before merging,
 triggered and managed locally with the GitHub CLI. Never execute a rehearsal
 on the developer machine. Details: [`README.md`](README.md#correctness-machinery).

@@ -137,6 +137,13 @@ const HEALTH_TASK = 'health';
 const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
 
 /**
+ * The most traces of one Quint model a run replays through the product
+ * (`@pkgs/quint-shared/wall`). The gate leaves it unset, which is the
+ * smallest bounded selection; the Nightly workflow sets `all` to explore.
+ */
+export const REPLAY_BUDGET_ENV = 'QUINT_REPLAY_TRACES';
+
+/**
  * Turborepo's hash knows nothing about the platform
  * (https://turborepo.dev/docs/guides/handling-platforms), so a macOS result
  * could satisfy a Linux run. Tests, contracts and browser builds declare
@@ -304,6 +311,11 @@ export function turboChildEnv(
     JVM_GC_ARGS: '-XX:+UseParallelGC -Xmx4096m -Xms128m',
     ...source,
   };
+  // A workflow can only set a variable to empty, never leave it unset, and
+  // turbo hashes the two apart: an empty replay budget is the default one,
+  // the same verdict as none.
+  if ((env[REPLAY_BUDGET_ENV]?.trim() ?? '') === '')
+    delete env[REPLAY_BUDGET_ENV];
   if (!hasRemoteCreds(env)) return env;
   if ((env['TURBO_TEAM']?.trim() ?? '') === '') env['TURBO_TEAM'] = TURBO_TEAM;
   const api = env['TURBO_API']?.trim() ?? '';

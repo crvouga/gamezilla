@@ -76,7 +76,9 @@ export async function createCheckPlan(): Promise<void> {
   const lookupMs = Number(process.hrtime.bigint() - lookupStarted) / 1e6;
   const raw = JSON.parse(json) as {
     tasks: { taskId: string; command: string; directory: string }[];
+    globalCacheInputs?: GlobalCacheInputs;
   };
+  const repoWide = repoWideInputs(raw.globalCacheInputs);
   const definitions = new Map(raw.tasks.map((task) => [task.taskId, task]));
   const tasks: CheckTask[] = resolved.tasks.map((task) => ({
     ...task,
@@ -103,14 +105,22 @@ export async function createCheckPlan(): Promise<void> {
       tasks: tasks.length,
       hits: tasks.filter((task) => task.hit).length,
       remoteResponses,
+      repoWide,
       cacheMisses: cacheDiagnostics(tasks, responsesByHash),
     })
   );
   printPlan(plan, discoveryMs, lookupMs);
+  // One of these differing from the previous run's line is a miss of every
+  // task at once, whatever the pull request changed.
+  console.log(`repo-wide hash inputs: ${JSON.stringify(repoWide)}`);
   schedulePlan(plan);
   for (const miss of cacheDiagnostics(tasks, responsesByHash).slice(0, 5))
     console.log(`cache miss ${miss.taskId} ${miss.hash}: ${miss.reason}`);
-  // Capture the same historical scan context alongside this shard's plan.
+  writeContext(env);
+}
+
+/** The scan range and platform key every shard must run under. */
+function writeContext(env: NodeJS.ProcessEnv): void {
   writeFileSync(
     join(DIRECTORY, 'context.json'),
     JSON.stringify({
@@ -142,6 +152,29 @@ async function resolveCache(local: RunPlan, env: NodeJS.ProcessEnv) {
       `cache: ${new URL(env['TURBO_API']!).origin}; scope ${env['TURBO_TEAM']}; responses ${JSON.stringify(remoteResponses)}`
     );
   return { resolved, remoteResponses, responsesByHash };
+}
+
+type GlobalCacheInputs = {
+  readonly files?: Readonly<Record<string, string>>;
+  readonly hashOfExternalDependencies?: string;
+  readonly hashOfInternalDependencies?: string;
+};
+
+/**
+ * What turbo hashes into every task: the global dependency files, the root
+ * manifest's external dependencies, and the workspace packages the root
+ * manifest depends on (none, by `check-cache-keys.test.ts`).
+ */
+export function repoWideInputs(global: GlobalCacheInputs | undefined) {
+  return {
+    files: Object.fromEntries(
+      Object.entries(global?.files ?? {})
+        .sort(([a], [b]) => (a < b ? -1 : 1))
+        .map(([path, hash]) => [path, hash.slice(0, 12)])
+    ),
+    rootExternalDependencies: global?.hashOfExternalDependencies ?? '',
+    rootWorkspaceDependencies: global?.hashOfInternalDependencies ?? '',
+  };
 }
 
 /** Record the cached shards and tell the workflow which ones have work. */
