@@ -5,6 +5,7 @@ import {
 } from '@libs/app-root-shared/app-metadata';
 import { createBrowserTelemetry } from '@pkgs/observability-root-client/browser';
 import { createHttpSpanExporter } from '@pkgs/observability-root-client/http-span-exporter';
+import { installMainThreadStallWatch } from '@pkgs/observability-root-client/main-thread-stall';
 import { AcknowledgedLogExporter } from '@pkgs/observability-runtime-shared/acknowledged-log-exporter';
 import { setMutationCorrelationIdentity } from '@pkgs/sync-engine-shared/interaction-correlation';
 import {
@@ -52,9 +53,15 @@ export function bootBrowserObservability(
   const removeBoundaries = installBrowserObservabilityBoundaries({
     timeOriginMs: args.timeOriginMs,
   });
+  const removeStallWatch = installMainThreadStallWatch({
+    now: args.env.clock.now,
+    timers: args.env.timers,
+    document,
+  });
   window.addEventListener('pagehide', () => {
     removePerformance();
     removeBoundaries();
+    removeStallWatch();
     void runtime.forceFlush();
   });
   started = {

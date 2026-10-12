@@ -8,7 +8,13 @@
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import { createKvState } from '@pkgs/kv-root-client/solid';
 import { enumKvCodec } from '@pkgs/kv-root-shared/kv-state-codec';
-import { type Accessor, createContext, type JSX, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createSignal,
+  type JSX,
+  useContext,
+} from 'solid-js';
 import type { ThemeProviderProps } from './theme-context';
 
 const COLOR_SCHEME_ROW_KEY = asKeyword('ui.prefs/color-scheme');
@@ -24,6 +30,8 @@ export type ThemePreference = ThemeProviderProps['colorScheme'];
 export type ThemePreferenceContextValue = {
   preference: Accessor<ThemePreference>;
   setPreference: (p: ThemePreference) => void;
+  /** False until the stored preference has been read or a choice is made. */
+  settled: Accessor<boolean>;
 };
 
 const ThemePreferenceContext = createContext<ThemePreferenceContextValue>();
@@ -31,13 +39,21 @@ const ThemePreferenceContext = createContext<ThemePreferenceContextValue>();
 export function ThemePreferenceProvider(props: {
   children: JSX.Element;
 }): JSX.Element {
-  const [preference, setPreference] = createKvState<ThemePreference>({
+  const [settled, setSettled] = createSignal(false);
+  const [preference, setStored] = createKvState<ThemePreference>({
     key: COLOR_SCHEME_ROW_KEY,
     default: 'system',
     codec: COLOR_SCHEME_CODEC,
+    onHydrated: () => setSettled(true),
   });
+  const setPreference = (next: ThemePreference): void => {
+    setSettled(true);
+    setStored(next);
+  };
   return (
-    <ThemePreferenceContext.Provider value={{ preference, setPreference }}>
+    <ThemePreferenceContext.Provider
+      value={{ preference, setPreference, settled }}
+    >
       {props.children}
     </ThemePreferenceContext.Provider>
   );

@@ -68,6 +68,10 @@ export type ButtonProps = {
   name?: string | undefined;
   value?: string | undefined;
   'aria-label'?: string | undefined;
+  /** A toggle: whether it is on. Colour never carries that alone. */
+  'aria-pressed'?: boolean | undefined;
+  /** The one of a set that is chosen now (the move being looked at). */
+  'aria-current'?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -124,6 +128,8 @@ export function Button(props: ButtonProps): JSX.Element {
       disabled={state().nonInteractive}
       aria-busy={state().phase === 'loading' ? true : undefined}
       aria-label={props['aria-label']}
+      aria-pressed={props['aria-pressed']}
+      aria-current={props['aria-current']}
       style={flexStyle()}
     >
       <ButtonContent

@@ -298,6 +298,11 @@ export function NotificationCardDefault(
             class="clickable clickableTint flex-1 min-w-0"
             type="button"
             onClick={press}
+            {...dataAttrs(
+              props.testID !== undefined
+                ? { testid: `${props.testID}-open` }
+                : undefined
+            )}
           >
             <InteractionRowText interaction={shown()} />
           </button>

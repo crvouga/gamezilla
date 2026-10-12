@@ -1,4 +1,5 @@
 import { abortMultiplayerMutation } from './abort-multiplayer-mutation';
+import { dismissMultiplayerResultNoticeMutation } from './dismiss-result-notice-mutation';
 import { findNewChessOpponentMutation } from './find-new-opponent-mutation';
 import { findChessOpponentMutation } from './find-opponent-mutation';
 import {
@@ -30,4 +31,5 @@ export const MULTIPLAYER_MUTATIONS = [
   acceptMultiplayerRematchMutation,
   declineMultiplayerRematchMutation,
   settleMultiplayerClockMutation,
+  dismissMultiplayerResultNoticeMutation,
 ] as const;

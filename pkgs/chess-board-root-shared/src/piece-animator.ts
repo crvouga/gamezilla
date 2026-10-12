@@ -22,10 +22,24 @@ export type PieceAnimatorArgs = {
   readonly paintedTransform: (element: HTMLElement) => string;
 };
 
+/**
+ * One change of position, shared by every piece it re-places. A move slides
+ * its pieces. A replacement position (a reset, a jump) slides them when the
+ * board is at rest; one that interrupts an arrival settles every piece at
+ * once, so no piece is sent somewhere new in mid-flight.
+ */
+export type Arrival = {
+  /** Identity of the change: the same rows are the same arrival. */
+  readonly rows: unknown;
+  readonly replacement: boolean;
+};
+
 export type PlaceOptions = {
   /** Slide there (else snap). */
   readonly slide: boolean;
   readonly durationMs: number;
+  /** The position change this placement belongs to, when it is one. */
+  readonly arrival?: Arrival;
 };
 
 export type PieceAnimator = {
@@ -50,6 +64,17 @@ export type PieceAnimator = {
   readonly restingOf: (element: HTMLElement) => string | undefined;
   /** Forget a removed piece, cancelling any old completion. */
   readonly remove: (element: HTMLElement) => void;
+  /**
+   * A new position is being placed. Decides once per {@link Arrival} whether
+   * its pieces slide; {@link place} calls it too, whichever comes first.
+   */
+  readonly arrive: (arrival: Arrival) => void;
+  /**
+   * A gesture begins. A replacement position still arriving is placed at
+   * once, so nobody takes hold of a piece in mid-flight; a move's arrival
+   * carries on.
+   */
+  readonly interrupt: () => void;
   /** Cancel every running slide (unmount). */
   readonly dispose: () => void;
 };
@@ -69,34 +94,73 @@ export function translateOfMatrix(painted: string): string {
   return `translate(${e ?? 0}px, ${f ?? 0}px)`;
 }
 
+type Running = Map<HTMLElement, MotionHandle>;
+
+function stopSlide(running: Running, element: HTMLElement): boolean {
+  const handle = running.get(element);
+  if (handle === undefined) return false;
+  running.delete(element);
+  handle.cancel();
+  return true;
+}
+
+function startSlide(
+  running: Running,
+  animate: AnimateTransform | null,
+  slide: {
+    readonly element: HTMLElement;
+    readonly from: string;
+    readonly to: string;
+    readonly durationMs: number;
+  }
+): void {
+  if (animate === null) return;
+  const { element } = slide;
+  const handle = animate(element, slide.from, slide.to, slide.durationMs);
+  running.set(element, handle);
+  handle.onFinish(() => {
+    if (running.get(element) === handle) running.delete(element);
+  });
+}
+
+/**
+ * Decides, once per {@link Arrival}, whether its pieces slide, and remembers
+ * whether a replacement position is the one arriving.
+ */
+function createArrivalGate(busy: () => boolean, settle: () => void) {
+  let rows: unknown;
+  let slides = true;
+  let replacementArriving = false;
+  return {
+    arrive(arrival: Arrival): void {
+      if (arrival.rows === rows) return;
+      rows = arrival.rows;
+      slides = !arrival.replacement || !busy();
+      replacementArriving = arrival.replacement && slides;
+      if (!slides) settle();
+    },
+    interrupt(): void {
+      if (replacementArriving) settle();
+      replacementArriving = false;
+    },
+    slides: () => slides,
+  };
+}
+
 export function createPieceAnimator(args: PieceAnimatorArgs): PieceAnimator {
   const resting = new WeakMap<HTMLElement, string>();
-  const running = new Map<HTMLElement, MotionHandle>();
+  const running: Running = new Map();
   const grabbed = new WeakSet<HTMLElement>();
 
-  const stop = (element: HTMLElement): boolean => {
-    const handle = running.get(element);
-    if (handle === undefined) return false;
-    running.delete(element);
-    handle.cancel();
-    return true;
-  };
-
+  const stop = (element: HTMLElement): boolean => stopSlide(running, element);
   const slide = (
     element: HTMLElement,
     from: string,
     to: string,
     durationMs: number
   ): void => {
-    const animate = args.animate();
-    if (animate === null || from === '' || from === to || durationMs <= 0) {
-      return;
-    }
-    const handle = animate(element, from, to, durationMs);
-    running.set(element, handle);
-    handle.onFinish(() => {
-      if (running.get(element) === handle) running.delete(element);
-    });
+    if (from === '' || from === to || durationMs <= 0) return;
+    startSlide(running, args.animate(), { element, from, to, durationMs });
   };
 
   const moveTo = (
@@ -116,8 +180,16 @@ export function createPieceAnimator(args: PieceAnimatorArgs): PieceAnimator {
     if (options.slide) slide(element, from, target, options.durationMs);
   };
 
+  const settle = (): void => {
+    for (const handle of running.values()) handle.cancel();
+    running.clear();
+  };
+
+  const gate = createArrivalGate(() => running.size > 0, settle);
+
   return {
     place(element, target, options) {
+      if (options.arrival !== undefined) gate.arrive(options.arrival);
       if (grabbed.has(element)) {
         resting.set(element, target);
         return;
@@ -129,7 +201,9 @@ export function createPieceAnimator(args: PieceAnimatorArgs): PieceAnimator {
       ) {
         return;
       }
-      moveTo(element, target, options);
+      const slides =
+        options.slide && (options.arrival === undefined || gate.slides());
+      moveTo(element, target, { ...options, slide: slides });
     },
     grab(element) {
       grabbed.add(element);
@@ -150,9 +224,8 @@ export function createPieceAnimator(args: PieceAnimatorArgs): PieceAnimator {
       grabbed.delete(element);
       resting.delete(element);
     },
-    dispose() {
-      for (const handle of running.values()) handle.cancel();
-      running.clear();
-    },
+    arrive: gate.arrive,
+    interrupt: gate.interrupt,
+    dispose: settle,
   };
 }

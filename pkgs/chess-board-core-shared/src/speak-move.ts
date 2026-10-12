@@ -18,7 +18,19 @@ export function pieceName(type: PieceType): string {
   return PIECE_NAMES[type] ?? 'Piece';
 }
 
-/** e.g. "Knight takes e5, check" / "Pawn e4". */
+/**
+ * Name of the piece that made `move`. `piece` is what stands on `move.to`
+ * afterwards — after a promotion that is the new piece, but the pawn moved.
+ */
+function moverName(move: Move, piece: Piece | null): string {
+  if (move.promotion !== undefined) return pieceName('p');
+  return piece !== null ? pieceName(piece.type) : 'Piece';
+}
+
+/**
+ * e.g. "Knight takes e5, check" / "Pawn to e8, promotes to Queen". `piece` is
+ * the piece on `move.to` once the move is made.
+ */
 export function speakMove(args: {
   readonly move: Move;
   readonly piece: Piece | null;
@@ -27,7 +39,7 @@ export function speakMove(args: {
   readonly isStalemate: boolean;
   readonly isGameOver: boolean;
 }): string {
-  const name = args.piece !== null ? pieceName(args.piece.type) : 'Piece';
+  const name = moverName(args.move, args.piece);
   const capture =
     args.move.captured !== undefined
       ? ` takes ${args.move.to}`

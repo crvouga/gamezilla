@@ -11,7 +11,8 @@
  * Exposed as a Vite plugin so `vite` is the only thing an app has to run: no
  * pre-dev shell chain, no cross-package `bun run --filter`, and each app emits
  * into its own `publicDir` instead of this package writing into `apps/*`.
- * Both `vite` and `vite build` run `buildStart`, so dev and prod stay in sync.
+ * Both `vite` and `vite build` resolve their config first, which is when the
+ * assets are emitted, so dev and prod stay in sync.
  */
 import {
   copyFileSync,
@@ -201,44 +202,46 @@ export function sqliteWebAssets(options: SqliteWebAssetsOptions): Plugin {
   const generatedDirs = [sqlWorkersDir, sqliteWasmDir].filter(
     (dir): dir is string => dir !== undefined
   );
-  let info: (message: string) => void = () => {};
+
+  /** What was written, as `count → directory`; empty once assets are fresh. */
+  const emit = async (): Promise<readonly string[]> => {
+    const emitted: string[] = [];
+    const workers = await buildSqlWorkers({ repoRoot, outDir: sqlWorkersDir });
+    if (workers > 0) {
+      emitted.push(`${workers} → ${relative(repoRoot, sqlWorkersDir)}`);
+    }
+    if (sqliteWasmDir !== undefined) {
+      const wasm = copySqliteWasmDist({ repoRoot, outDir: sqliteWasmDir });
+      if (wasm > 0) {
+        emitted.push(`${wasm} → ${relative(repoRoot, sqliteWasmDir)}`);
+      }
+    }
+    return emitted;
+  };
 
   return {
     name: 'sqlite-web-assets',
 
     config() {
-      // These live under `publicDir`, so writing them on `buildStart` would
-      // otherwise make the dev server full-reload the page it just served.
+      // These live under `publicDir`, so writing them would otherwise make
+      // the dev server full-reload the page it just served.
       return {
         server: { watch: { ignored: generatedDirs.map((dir) => `${dir}/**`) } },
       };
     },
 
-    configResolved(config) {
-      info = (message) => config.logger.info(message, { timestamp: true });
-    },
-
-    async buildStart() {
-      const emitted: string[] = [];
-
-      const workers = await buildSqlWorkers({
-        repoRoot,
-        outDir: sqlWorkersDir,
-      });
-      if (workers > 0) {
-        emitted.push(`${workers} → ${relative(repoRoot, sqlWorkersDir)}`);
-      }
-
-      if (sqliteWasmDir !== undefined) {
-        const wasm = copySqliteWasmDist({ repoRoot, outDir: sqliteWasmDir });
-        if (wasm > 0) {
-          emitted.push(`${wasm} → ${relative(repoRoot, sqliteWasmDir)}`);
-        }
-      }
-
+    // Not `buildStart`: the dev server lists `publicDir` once, as it starts,
+    // and serves only what it listed (the watcher above never tells it about
+    // these). Assets written any later answer with `index.html`, the SQLite
+    // worker never starts, and the app falls back to an in-memory database
+    // on the main thread. Vite awaits this hook before it lists anything.
+    async configResolved(config) {
+      const emitted = await emit();
       // Silence is the steady state: nothing is logged once assets are fresh.
       if (emitted.length > 0) {
-        info(`sqlite-web assets: ${emitted.join(', ')}`);
+        config.logger.info(`sqlite-web assets: ${emitted.join(', ')}`, {
+          timestamp: true,
+        });
       }
     },
   };

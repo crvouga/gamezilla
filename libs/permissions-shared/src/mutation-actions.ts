@@ -43,6 +43,8 @@ export const MUTATION_ACTIONS: Readonly<
   acceptMultiplayerRematch: PERMISSION.chessMultiplayerPlay,
   declineMultiplayerRematch: PERMISSION.chessMultiplayerPlay,
   settleMultiplayerClock: PERMISSION.chessMultiplayerPlay,
+  // The inbox's own gate: a result notice is dismissed from the inbox.
+  dismissMultiplayerResultNotice: PERMISSION.notificationsReceive,
   appendPuzzleInteraction: PERMISSION.puzzlesPlay,
   ratePuzzleAttempt: PERMISSION.puzzlesPlay,
   savePuzzleFeedSettings: PERMISSION.puzzlesCustomizeFeed,

@@ -1,0 +1,4 @@
+{
+  "summary": "Multiplayer chess scored running out of time against a king and one knight as a loss whenever the flagged side had any piece at all, so White with king and queen (4k3/8/8/8/8/2n5/8/Q3K3 w) lost on time to a knight that can never checkmate: queens hemming in their own king always take the checking knight (FIDE 6.9). The matchmaking rule also disagreed with the Custom Game rule. Fixed: both use the one canCheckmate in @pkgs/chess-rules-shared, where a lone knight can mate only when the other side has something other than queens.",
+  "regressionTest": "libs/chess-matchmaking-shared/tests/multiplayer-clock.test.ts"
+}

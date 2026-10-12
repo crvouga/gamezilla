@@ -1,5 +1,10 @@
 import { CUSTOM_GAME_HARNESS_ACTIONS } from '@libs/chess-custom-game-harness/custom-game-actions';
+import { MULTIPLAYER_LINK_CLIENT } from '@libs/chess-matchmaking-client/multiplayer-link-client';
 import { MULTIPLAYER_HARNESS_ACTIONS } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import {
+  closeMultiplayerApp,
+  reopenMultiplayerApp,
+} from '@libs/chess-matchmaking-harness/multiplayer-app';
 import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import {
   awaitChessMatch,
@@ -9,8 +14,15 @@ import {
   givenOpponentSearch,
   pairChessOpponents,
 } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import {
+  givenOpenedTurnNotice,
+  openMultiplayerNotice,
+} from '@libs/chess-matchmaking-harness/multiplayer-notices';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
-import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
+import {
+  passMultiplayerDays,
+  passMultiplayerTime,
+} from '@libs/chess-matchmaking-harness/multiplayer-time';
 import { joinMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
 import { PERSONAL_CHESS_STATS_CLIENT } from '@libs/chess-puzzle-client/personal-chess-stats-client';
 import { PUZZLE_LINK_CLIENT } from '@libs/chess-puzzle-client/puzzle-link-client';
@@ -38,6 +50,7 @@ export const CHESS_HARNESS_SLICE: HarnessSlice = {
     name: 'chess',
     routes: [
       ...PUZZLE_LINK_CLIENT.routes,
+      ...MULTIPLAYER_LINK_CLIENT.routes,
       ...PERSONAL_CHESS_STATS_CLIENT.routes,
     ],
     ...(PERSONAL_CHESS_STATS_CLIENT.settings === undefined
@@ -60,6 +73,11 @@ export const CHESS_HARNESS_SLICE: HarnessSlice = {
     givenMultiplayerClock,
     givenMultiplayerRating,
     passMultiplayerTime,
+    passMultiplayerDays,
+    closeMultiplayerApp,
+    reopenMultiplayerApp,
+    openMultiplayerNotice,
+    givenOpenedTurnNotice,
     controlledMultiplayerCommand,
     receiveMultiplayerMatch,
     focusChessScreen,

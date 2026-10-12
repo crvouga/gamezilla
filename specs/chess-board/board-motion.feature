@@ -59,7 +59,6 @@ Feature: Keep moving pieces coherent
       When Alice's earlier interrupted arrival finishes
       Then Alice sees the replacement position
       And Alice sees no capture remnant
-      And Alice sees no unfinished animation
 
     Scenario: An earlier capture cannot finish a newer capture at the same destination
       Given Alice's earlier capture from e4 to d5 was interrupted by a replacement
@@ -82,6 +81,25 @@ Feature: Keep moving pieces coherent
       Then Alice still sees the position before White's first move
       And Alice sees no capture remnant
       And Alice sees no unfinished animation
+
+  Rule: A replacement position slides each piece to where it now stands, unless it interrupts an arrival
+
+    Scenario: A replacement position slides a moved piece back to its earlier square
+      Given Alice has a chessboard after White's move from e2 to e4
+      When Alice's activity replaces that position with the position before White's first move
+      Then Alice sees the pawn slide from e4 to e2
+
+    Scenario: A replacement position that interrupts an arrival places its pieces at once
+      Given Alice's capture from e4 to d5 is animating
+      When Alice's activity replaces the position
+      Then Alice sees no unfinished animation
+      And Alice sees the replacement position
+
+    Scenario: Reduced motion places a replacement position immediately
+      Given Alice has a chessboard after White's move from e2 to e4 with reduced motion enabled
+      When Alice's activity replaces that position with the position before White's first move
+      Then Alice sees no unfinished animation
+      And Alice sees the position before White's first move
 
   Rule: Reduced motion places pieces immediately
 

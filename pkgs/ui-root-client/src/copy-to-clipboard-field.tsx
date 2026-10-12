@@ -46,6 +46,8 @@ export type CopyToClipboardFieldProps = Omit<DivBoxProps, 'children'> & {
   selectable?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
+  /** `data-*` for the button that copies. */
+  triggerDataSet?: ComponentDataSet | undefined;
 };
 
 export function CopyToClipboardField(
@@ -63,6 +65,7 @@ export function CopyToClipboardField(
     'selectable',
     'class',
     'dataSet',
+    'triggerDataSet',
   ]);
   const [copied, setCopied] = createSignal(false);
   const copiedLabel = (): LocalizedString =>
@@ -98,7 +101,10 @@ export function CopyToClipboardField(
       </Show>
       <button
         class="clickable clickableOpacity flex-row items-center gap-2 border border-outline rounded-control bg-surface-muted py-2.5 px-3 text-left"
-        data-component="CopyToClipboardTrigger"
+        {...dataAttrs({
+          component: 'CopyToClipboardTrigger',
+          ...local.triggerDataSet,
+        })}
         data-copied={String(copied())}
         type="button"
         aria-label={copied() ? copiedLabel() : t`Copy to clipboard`}

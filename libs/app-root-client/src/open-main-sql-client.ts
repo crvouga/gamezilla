@@ -10,6 +10,7 @@ import type { Timers } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { createWebSqlClient } from '@pkgs/sql-client-sqlite-web-client/web-sql-client';
+import { LOCAL_DATABASE, recordLocalDatabaseOpen } from './browser-boundaries';
 
 export async function openMainSqlClient(
   userId: string,
@@ -22,16 +23,29 @@ export async function openMainSqlClient(
       logger,
     });
     await client.connect();
+    recordLocalDatabaseOpen(LOCAL_DATABASE.worker);
     return client;
-  } catch {
+  } catch (error) {
     // Local SQLite is an optimistic cache. A stale worker, broken OPFS
-    // handle, or corrupt snapshot must never block application boot.
-    return openDisposableSqlClient();
+    // handle, or corrupt snapshot must never block application boot. The
+    // disposable database runs on the main thread and keeps nothing, so say
+    // so: a slow, forgetful app is otherwise the only sign.
+    logger.warn(
+      'local SQLite unavailable: using a disposable in-memory database on the main thread',
+      { error: error instanceof Error ? error.message : String(error) }
+    );
+    return openDisposableSqlClient(error);
   }
 }
 
-/** A connected disposable cache when OPFS is unavailable. */
-export async function openDisposableSqlClient(): Promise<SqlClient> {
+/**
+ * A connected disposable cache for when the real local database cannot be
+ * used. `reason` is why, and is reported as a failed `db.open`.
+ */
+export async function openDisposableSqlClient(
+  reason: unknown
+): Promise<SqlClient> {
+  recordLocalDatabaseOpen(LOCAL_DATABASE.memory, reason);
   const client = SqlClientImplMockingbirdSqlite.open();
   await client.connect();
   return client;

@@ -1,0 +1,4 @@
+{
+  "summary": "A multiplayer game that ended while a clock was running (a resignation, an abort, a draw by agreement, or a daily game's missed first move) kept that clock's value from the start of the turn, so both people saw the time jump back up when the game was over: White resigning 10 seconds into a 5+0 turn showed 5:00 again, a daily game resigned a day into a 3-day turn showed 3 days, and a daily game aborted for a missed first move still showed the full days. Fixed: saving a game that just ended stops the running clock where it stood (stopMultiplayerClock); a move that ends the game still settles its own clock.",
+  "regressionTest": "libs/chess-matchmaking-shared/tests/daily-clock.test.ts"
+}

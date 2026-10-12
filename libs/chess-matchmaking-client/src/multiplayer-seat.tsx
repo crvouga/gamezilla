@@ -83,12 +83,15 @@ function SeatTags(props: {
 
 /**
  * One side's seat beside the board: who plays it, which colour, and its
- * clock. `own` is the seat nearest the person holding the device.
+ * clock. `own` is the person's own seat, or White's for a watcher; `near` is
+ * the seat below the board, nearest the person holding the device. They are
+ * the same seat until the person flips the board.
  */
 export function MultiplayerSeat(props: {
   readonly game: MultiplayerGame;
   readonly side: MultiplayerSide;
   readonly own: boolean;
+  readonly near: boolean;
   readonly viewer: MultiplayerViewer;
 }): JSX.Element {
   const profileId = () =>
@@ -120,6 +123,9 @@ export function MultiplayerSeat(props: {
         />
       }
       trailing={<MultiplayerClock game={props.game} side={props.side} />}
+      dataSet={{
+        testid: props.near ? 'multiplayer-seat-near' : 'multiplayer-seat-far',
+      }}
     />
   );
 }

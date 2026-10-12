@@ -2,12 +2,18 @@
 import { realpathSync } from 'node:fs';
 import { stopDevResources } from './dev-owner-resources';
 import {
+  bootAttended,
   type OwnedProcess,
   type OwnerBoot,
   ownerRecords,
   processSnapshot,
   sameProcess,
 } from './dev-owner-state';
+
+type Report = (line: string) => void;
+const toStdout: Report = (line) => {
+  process.stdout.write(line);
+};
 
 type Selection = {
   root: string;
@@ -70,10 +76,9 @@ function selectOwned(
   onlyBoot?: string
 ): OwnedProcess[] {
   const boots = ownerRecords<OwnerBoot>(root, 'boot-');
+  // A boot whose launcher is gone is abandoned, its supervisor included.
   const live = new Set(
-    boots
-      .filter((boot) => rows.some((row) => sameProcess(row, boot.supervisor)))
-      .map((boot) => boot.id)
+    boots.filter((boot) => bootAttended(boot, rows)).map((boot) => boot.id)
   );
   for (const boot of pendingBoots(root, rows, boots)) live.add(boot);
   const ledger = ownerRecords<OwnedProcess>(root, 'pid-');
@@ -125,7 +130,8 @@ function childrenFirst(rows: OwnedProcess[]): OwnedProcess[] {
 function signalRows(
   rows: OwnedProcess[],
   signal: NodeJS.Signals,
-  current: OwnedProcess[]
+  current: OwnedProcess[],
+  report: Report
 ): void {
   const targets = new Map(rows.map((row) => [row.pid, row]));
   const groups = new Set(
@@ -151,7 +157,7 @@ function signalRows(
   for (const row of rows) {
     const now = current.find((entry) => sameProcess(entry, row));
     if (!now || (now.root !== null && now.root !== row.root)) continue;
-    process.stdout.write(
+    report(
       `[gc] ${signal} pid=${row.pid} boot=${row.boot ?? 'legacy'} ${row.command}\n`
     );
     try {
@@ -165,13 +171,14 @@ function signalRows(
 export async function gcDevOwner(
   checkout: string,
   intentional = false,
-  onlyBoot?: string
+  onlyBoot?: string,
+  report: Report = toStdout
 ): Promise<void> {
   const root = realpathSync(checkout);
   const snapshot = processSnapshot();
   const rows = selectOwned(root, snapshot, intentional, onlyBoot);
   const liveBoots = ownerRecords<OwnerBoot>(root, 'boot-')
-    .filter((boot) => snapshot.some((row) => sameProcess(row, boot.supervisor)))
+    .filter((boot) => bootAttended(boot, snapshot))
     .map((boot) => boot.id);
   const eligible = (id: string) =>
     (onlyBoot === undefined || id === onlyBoot) &&
@@ -180,7 +187,7 @@ export async function gcDevOwner(
     stopDevResources(root, eligible);
     return;
   }
-  signalRows(rows, 'SIGTERM', snapshot);
+  signalRows(rows, 'SIGTERM', snapshot, report);
   await Bun.sleep(2000);
   // Include processes born during shutdown as well as the original snapshot.
   const remaining = processSnapshot();
@@ -191,6 +198,6 @@ export async function gcDevOwner(
       )
     ).values(),
   ];
-  signalRows(targets, 'SIGKILL', remaining);
+  signalRows(targets, 'SIGKILL', remaining, report);
   stopDevResources(root, eligible);
 }

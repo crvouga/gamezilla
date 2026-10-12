@@ -61,7 +61,7 @@ terms:
     forms: [interactive]
     model: [configurePromotionInput, configureOptionsInput, configureSeparateInput]
   - term: animation
-    definition: A piece sliding to its new square, with a captured piece remaining underneath until it arrives.
+    definition: A piece sliding to its new square, with a captured piece remaining underneath until it arrives. A replacement position slides each piece to where it now stands and leaves no captured piece behind; one that interrupts an arrival places its pieces at once.
     forms: [animations, animating, animated, capture remnant, arrival, arrivals, interrupted arrival]
     model: [finishAnimation, finishEarlierAnimation, liveAnimationFinishes]
   - term: reduced motion

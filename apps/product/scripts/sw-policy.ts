@@ -8,7 +8,7 @@
  * online, and a lazy chunk never opened online is simply absent offline. So
  * the policy is one rule: **precache every file the wall client can load**
  * (`index.html`, its whole module graph, the URL-loaded SQL
- * workers). `build-sw.ts` applies it
+ * workers) and nothing the harness alone reaches. `build-sw.ts` applies it
  * to Workbox's manifest; `check-offline-shell.ts` re-derives it from the
  * emitted `dist/sw.js` and fails on any gap or on {@link PRECACHE_BUDGET_BYTES}.
  *
@@ -25,8 +25,19 @@
  * - the entry: `index.html` `<script src>`, `modulepreload` and stylesheet
  *   links.
  *
- * Every surface is imported eagerly, so its shared entry graph is precached.
+ * The application is imported eagerly, so its whole entry graph is precached.
+ * The harness (`/harness`) is booted by one lazy chunk, identified by its
+ * *source* path through Vite's manifest (not by a chunk-name glob). That
+ * chunk is never entered, so what only the harness reaches (in-browser
+ * Postgres, harness seeds, the console) stays out of first-install precache,
+ * while anything the wall client also reaches is still required.
  */
+
+/** Vite's build manifest (source module → emitted chunk), `build.manifest`. */
+export const VITE_MANIFEST = '.vite/manifest.json';
+
+/** The harness boot; its exclusive subgraph is not part of the wall client. */
+export const HARNESS_BOOT_SOURCE = 'src/harness-boot.tsx';
 
 /** Public dirs the wall client loads by URL (`new Worker('/sql-workers/…')`). */
 export const URL_LOADED_DIRS: readonly string[] = ['sql-workers/'];
@@ -47,8 +58,8 @@ export const PRECACHE_GLOB_IGNORES: readonly string[] = [
 ];
 
 /**
- * The eager super-app graph measures about 12.4 MB raw, including a 9.94 MB
- * entry file. Allow 16 MiB for the complete graph and each individual file,
+ * The eager application graph measures about 6.7 MiB raw (5.4 MB of it
+ * JavaScript). Allow 16 MiB for the complete graph and each individual file,
  * so Workbox never silently omits the app while installing its offline cache.
  */
 export const PRECACHE_BUDGET_BYTES = 16 * 1024 * 1024;

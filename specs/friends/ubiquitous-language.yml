@@ -181,10 +181,12 @@ terms:
   - term: inbox
     definition: >-
       Where a signed-in person finds the friend requests waiting for them
-      and notices about their own requests. A guest who opens it is asked to
+      and notices about their own requests, alongside the items other parts
+      of the app leave there for them. A guest who opens it is asked to
       sign in instead.
     forms: [inboxes]
     avoid: [notifications, notification center, activity feed]
+    published: true
 
   - term: notice
     definition: >-

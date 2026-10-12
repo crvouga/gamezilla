@@ -62,6 +62,8 @@ function sourceFiles(): Map<string, string> {
     }),
     'libs/chess-puzzle-client/src/puzzle-link-client.ts',
     'libs/chess-puzzle-shared/src/puzzle-link.ts',
+    'libs/chess-matchmaking-client/src/multiplayer-link-client.ts',
+    'libs/chess-matchmaking-shared/src/multiplayer-link.ts',
   ]);
   for (const path of routes)
     sources.set(path, readFileSync(join(ROOT, path), 'utf8'));

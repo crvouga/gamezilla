@@ -1,6 +1,8 @@
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { Sql } from '@pkgs/sql-root-shared/sql';
-import { Parser } from 'node-sql-parser';
+// The PostgreSQL grammar alone: the package root bundles every dialect's
+// parser (~8x the size) and this module sits on the client boot path.
+import { Parser } from 'node-sql-parser/build/postgresql';
 
 /** Dialects the capture layer must classify identically for the mutation corpus. */
 export type SqlAstDialect = 'postgresql' | 'sqlite';

@@ -1,0 +1,4 @@
+{
+  "summary": "The first dev start in a fresh checkout or worktree served index.html for /sql-workers/*.js and /generated/sqlite-wasm/*: the Vite plugin emitted those assets in buildStart, after the dev server had listed publicDir, and kept the watcher off them, so the server never learned they existed. The SQLite worker could not start and the app silently ran on its in-memory fallback database on the main thread, where every local query after a chess move blocked the page for about 650 ms (piece slides skipped, frames dropped, sounds late). Fixed: the assets are emitted while the config resolves, before the server lists publicDir.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-server/tests/sqlite-web-assets.test.ts"
+}

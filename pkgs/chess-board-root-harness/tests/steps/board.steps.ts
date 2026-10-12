@@ -21,7 +21,11 @@ import {
   setVisibility,
 } from '@pkgs/chess-board-root-harness/chess-board';
 import { readEarlierCompletion } from '@pkgs/chess-board-root-harness/lifecycle-actions';
-import { CAPTURE, REPLACEMENT } from '@pkgs/chess-board-root-harness/positions';
+import {
+  CAPTURE,
+  INITIAL,
+  REPLACEMENT,
+} from '@pkgs/chess-board-root-harness/positions';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-root-shared/run-types';
 
@@ -49,7 +53,10 @@ Given('Alice has selected the piece on e2', async (w) => {
 });
 Given("Alice's capture from e4 to d5 is animating( again)", async (w) => {
   const retained = await w.read(readEarlierCompletion);
+  // The capture starts from a settled position: a replacement position
+  // slides its own pieces, and they have arrived before Alice moves.
   await w.apply(replacePosition, CAPTURE);
+  await w.apply(finishAnimation);
   await w.apply(movePiece, 'e4', 'd5');
   expect((await w.read(readBoard)).active).toBeGreaterThan(0);
   expect(await w.read(readEarlierCompletion)).toBe(retained);
@@ -91,6 +98,10 @@ When("Alice's board settings enable reduced motion", (w) =>
 );
 When("Alice's activity replaces the position", (w) =>
   w.apply(configureBoard, { fen: REPLACEMENT })
+);
+When(
+  "Alice's activity replaces that position with the position before White's first move",
+  (w) => w.apply(replacePosition, INITIAL)
 );
 When("Alice's activity supplies the same position again", (w) =>
   w.apply(confirmOfferedPosition)
@@ -152,6 +163,14 @@ Then('Alice sees no unfinished animation', async (w) =>
 Then('Alice sees the knight slide from g1 to f3', async (w) =>
   expect(await w.read(readSlides)).toEqual(['wn:g1>f3@150'])
 );
+Then('Alice sees the pawn slide from e4 to e2', async (w) => {
+  // The one slide the replacement asked for: no other piece changed square.
+  const slides = await w.read(readSlides);
+  expect(slides.filter((slide) => slide.includes('>e2@'))).toEqual([
+    'wp:e4>e2@150',
+  ]);
+  expect(slides.at(-1)).toBe('wp:e4>e2@150');
+});
 Then('Alice can identify the White pawn on e2 without sound', async (w) =>
   expect((await w.read(readSquare, 'e2')).label).toContain('White pawn')
 );

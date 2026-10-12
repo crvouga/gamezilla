@@ -11,6 +11,16 @@ export function buildNotificationId(
   return `${source.namespace}:${source.type}:${source.id}:${userId}`;
 }
 
+/** The test id of the inbox's default card for one source. */
+export function notificationCardTestId(source: NotificationSource): string {
+  return `notification-card-${source.namespace}-${source.type}-${source.id}`;
+}
+
+/** Its part that opens the notification when the card also carries actions. */
+export function notificationCardOpenTestId(source: NotificationSource): string {
+  return `${notificationCardTestId(source)}-open`;
+}
+
 export function parseNotificationId(id: string): {
   namespace: string;
   type: string;

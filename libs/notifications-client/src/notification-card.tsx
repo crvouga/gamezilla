@@ -2,6 +2,7 @@
 
 import type { Notification } from '@libs/notifications-shared/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared/notification-action';
+import { notificationCardTestId } from '@libs/notifications-shared/notification-id';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { createMemo, type JSX, Match, Switch } from 'solid-js';
 import { NotificationCardDefault } from './notification-card-default';
@@ -18,8 +19,14 @@ export function NotificationCard(props: NotificationCardProps): JSX.Element {
     () => props.interaction.sourceNamespace
   );
 
+  // Marking read needs a connection. Without one the notification stays
+  // unread and still opens.
+  const markRead = (): void => {
+    props.actions.markRead(props.interaction.id).catch(() => undefined);
+  };
+
   const onOpen = (): void => {
-    void props.actions.markRead(props.interaction.id);
+    markRead();
     const deepLink = props.interaction.deepLink;
     if (deepLink === undefined) return;
     router.push({
@@ -31,9 +38,17 @@ export function NotificationCard(props: NotificationCardProps): JSX.Element {
   };
 
   const onCardPress = (): void => {
-    void props.actions.markRead(props.interaction.id);
+    markRead();
     provider()?.onCardPress?.(props.interaction, props.actions);
   };
+
+  // A card no sub draws is still addressable: by what it is about.
+  const sourceTestId = (): string =>
+    notificationCardTestId({
+      namespace: props.interaction.sourceNamespace,
+      type: props.interaction.sourceType,
+      id: props.interaction.sourceId,
+    });
 
   const customCard = createMemo<JSX.Element | null>(() => {
     const rendered = provider()?.renderCard?.(props.interaction, props.actions);
@@ -58,6 +73,8 @@ export function NotificationCard(props: NotificationCardProps): JSX.Element {
           interaction={props.interaction}
           actions={props.actions}
           onOpen={onOpen}
+          testID={sourceTestId()}
+          actionTestID={(action) => `${sourceTestId()}-${action.id}`}
         />
       </Match>
     </Switch>
