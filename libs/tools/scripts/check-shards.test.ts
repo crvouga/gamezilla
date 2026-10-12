@@ -366,26 +366,43 @@ test('a fully cached plan starts no shard, and a cold corpus uses every one', ()
   expect(cold.shards.slice(0, 32).every(executes)).toBe(true);
 });
 
-test('a shard target still gives every uncached solver group its own runner', () => {
+// regression: solver-timeout-ends-unrelated-tasks
+test('a narrowed plan leaves each uncached solver group alone on its runner', () => {
+  // Check run 38190147513: the chess model check outran its 600 s budget
+  // and the five spec parts queued behind it on shard 6 ended unrun.
   const plan = balanceShards(
     [
       task('@libs/chess-root-harness#check:models', 5),
       task('@pkgs/chess-board-root-harness#check:models', 5),
       task('@pkgs/room-root-harness#check:models', 5),
-      task('pkg#test', 5),
+      ...Array.from({ length: 6 }, (_, i) =>
+        task(`@libs/chess-root-harness#test:spec:${i}`, 50)
+      ),
+      { ...task('cached#tc', 30), hit: true },
     ],
     16,
     120
   );
   const started = plan.shards.filter(executes);
-  expect(started).toHaveLength(3);
-  expect(
-    started.every(
-      (shard) =>
-        shard.tasks.filter((item) => item.taskId.endsWith('#check:models'))
-          .length === 1
-    )
-  ).toBe(true);
+  // Three solver runners, and 300 s of spec work at 120 s a shard.
+  expect(started).toHaveLength(6);
+  const solverShards = started.filter((shard) =>
+    shard.tasks.some((item) => item.taskId.endsWith('#check:models'))
+  );
+  expect(solverShards).toHaveLength(3);
+  expect(solverShards.every((shard) => shard.tasks.length === 1)).toBe(true);
+  expect(plan.shards).toEqual(
+    balanceShards([...plan.tasks].reverse(), 16, 120).shards
+  );
+  validatePlan(plan);
+  // With a runner for every shard already taken by a solver, the rest share.
+  const crowded = balanceShards(
+    [task('a#check:models', 5), task('b#check:models', 5), task('pkg#test', 5)],
+    2,
+    120
+  );
+  expect(crowded.shards.filter(executes)).toHaveLength(2);
+  validatePlan(crowded);
 });
 
 test('a narrowed plan keeps every task exactly once in any discovery order', () => {

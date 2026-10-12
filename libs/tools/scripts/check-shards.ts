@@ -71,7 +71,7 @@ function cost(group: readonly CheckTask[]): number {
  * Check shards worth starting. Every shard pays a runner's checkout and
  * install before its first task, so uncached work is packed into shards of
  * about `targetSeconds` instead of spread over all `count`. Each uncached
- * solver group still gets its own runner.
+ * solver group owns a runner of its own, beside the ones the rest needs.
  */
 export function shardWidth(
   ordered: readonly (readonly CheckTask[])[],
@@ -81,15 +81,21 @@ export function shardWidth(
   if (targetSeconds === undefined) return count;
   if (!Number.isFinite(targetSeconds) || targetSeconds <= 0)
     throw new Error('Shard target must be a positive number of seconds');
-  const work = ordered.reduce((sum, group) => sum + cost(group), 0);
   const solvers = ordered.filter((group) => modelCount(group) > 0).length;
-  return Math.min(count, Math.max(1, solvers, Math.ceil(work / targetSeconds)));
+  const rest = ordered
+    .filter((group) => modelCount(group) === 0)
+    .reduce((sum, group) => sum + cost(group), 0);
+  return Math.min(
+    count,
+    Math.max(1, solvers + Math.ceil(rest / targetSeconds))
+  );
 }
 
 /**
  * Spread uncached solver groups, then LPT; ties use stable discovery order.
  * `targetSeconds` narrows the plan to the shards its uncached work needs
- * ({@link shardWidth}); the rest stay empty and never start.
+ * ({@link shardWidth}), each solver group alone on its runner; the rest stay
+ * empty and never start.
  */
 export function balanceShards(
   tasks: readonly CheckTask[],
@@ -110,11 +116,24 @@ export function balanceShards(
     [...stages.checks].sort((a, b) => compare(a.taskId, b.taskId))
   ).sort((a, b) => cost(b) - cost(a) || compare(a[0]!.taskId, b[0]!.taskId));
   const bins = every.slice(0, shardWidth(ordered, count, targetSeconds));
-  for (const group of ordered) {
+  // A narrowed plan places solver groups first and keeps everything else off
+  // their runners: a proof that outruns its budget ends its shard, and the
+  // tasks queued behind it would end unrun with it.
+  const isolate = targetSeconds !== undefined;
+  const placement = isolate
+    ? [
+        ...ordered.filter((group) => modelCount(group) > 0),
+        ...ordered.filter((group) => modelCount(group) === 0),
+      ]
+    : ordered;
+  for (const group of placement) {
     const leastModels = Math.min(...bins.map((bin) => modelCount(bin.tasks)));
+    const free = bins.filter((bin) => modelCount(bin.tasks) === 0);
     const candidates = modelCount(group)
       ? bins.filter((bin) => modelCount(bin.tasks) === leastModels)
-      : bins;
+      : isolate && free.length > 0
+        ? free
+        : bins;
     const bin = candidates.reduce((best, candidate) =>
       lighter(candidate, best) ? candidate : best
     );

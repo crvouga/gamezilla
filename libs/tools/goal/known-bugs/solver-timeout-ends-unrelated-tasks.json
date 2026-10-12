@@ -1,0 +1,4 @@
+{
+  "summary": "Check run 38190147513 packed the chess model check with five spec parts on shard 6. The model check outran its 600 s budget, the shard was stopped, and the five parts queued behind it were reported as failures without having run. A narrowed plan now gives each uncached solver group a runner of its own.",
+  "regressionTest": "libs/tools/scripts/check-shards.test.ts"
+}
