@@ -63,26 +63,53 @@ function lighter(a: CheckShard, b: CheckShard): boolean {
   );
 }
 
-/** Spread uncached solver groups, then LPT; ties use stable discovery order. */
+function cost(group: readonly CheckTask[]): number {
+  return group.reduce((sum, task) => sum + taskWeight(task), 0);
+}
+
+/**
+ * Check shards worth starting. Every shard pays a runner's checkout and
+ * install before its first task, so uncached work is packed into shards of
+ * about `targetSeconds` instead of spread over all `count`. Each uncached
+ * solver group still gets its own runner.
+ */
+export function shardWidth(
+  ordered: readonly (readonly CheckTask[])[],
+  count: number,
+  targetSeconds: number | undefined
+): number {
+  if (targetSeconds === undefined) return count;
+  if (!Number.isFinite(targetSeconds) || targetSeconds <= 0)
+    throw new Error('Shard target must be a positive number of seconds');
+  const work = ordered.reduce((sum, group) => sum + cost(group), 0);
+  const solvers = ordered.filter((group) => modelCount(group) > 0).length;
+  return Math.min(count, Math.max(1, solvers, Math.ceil(work / targetSeconds)));
+}
+
+/**
+ * Spread uncached solver groups, then LPT; ties use stable discovery order.
+ * `targetSeconds` narrows the plan to the shards its uncached work needs
+ * ({@link shardWidth}); the rest stay empty and never start.
+ */
 export function balanceShards(
   tasks: readonly CheckTask[],
-  count: number
+  count: number,
+  targetSeconds?: number
 ): CheckPlan {
   if (!Number.isSafeInteger(count) || count < 1 || count > 64)
     throw new Error('CHECK_SHARDS must be an integer in 1..64');
-  const bins = Array.from({ length: count }, (_, index) => ({
+  const every = Array.from({ length: count }, (_, index) => ({
     index,
     stage: 'checks' as const,
     seconds: 0,
     tasks: [] as CheckTask[],
   }));
-  const cost = (group: readonly CheckTask[]) =>
-    group.reduce((sum, task) => sum + taskWeight(task), 0);
   const canonical = [...tasks].sort((a, b) => compare(a.taskId, b.taskId));
   const stages = checkStages(canonical);
   const ordered = groups(
     [...stages.checks].sort((a, b) => compare(a.taskId, b.taskId))
   ).sort((a, b) => cost(b) - cost(a) || compare(a[0]!.taskId, b[0]!.taskId));
+  const bins = every.slice(0, shardWidth(ordered, count, targetSeconds));
   for (const group of ordered) {
     const leastModels = Math.min(...bins.map((bin) => modelCount(bin.tasks)));
     const candidates = modelCount(group)
@@ -94,7 +121,7 @@ export function balanceShards(
     bin.tasks.push(...group);
     bin.seconds += cost(group);
   }
-  const shards: CheckShard[] = [...bins];
+  const shards: CheckShard[] = [...every];
   for (const stage of ['prerequisites', 'consumers'] as const)
     shards.push({
       index: shards.length,
@@ -176,8 +203,17 @@ function unknown(task: CheckTask): boolean {
   return !task.hit && task.durationSource !== 'history';
 }
 
+/** A shard with nothing to execute never starts a runner. */
+export function executes(shard: CheckShard): boolean {
+  return shard.tasks.some((task) => !task.hit);
+}
+
 export function planWarnings(plan: CheckPlan): string[] {
-  const checks = plan.shards.filter((shard) => shard.stage === 'checks');
+  // Only shards that start are compared; a fully cached plan has none.
+  const checks = plan.shards.filter(
+    (shard) => shard.stage === 'checks' && executes(shard)
+  );
+  if (checks.length === 0) return [];
   const values = checks.map((shard) => shard.seconds);
   const average = values.reduce((sum, value) => sum + value, 0) / values.length;
   const max = Math.max(...values);

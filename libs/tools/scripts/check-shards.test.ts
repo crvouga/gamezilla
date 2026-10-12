@@ -6,12 +6,13 @@ import { redactSecrets, taskStream } from './check-shard-stream';
 import type { CheckTask } from './check-shards';
 import {
   balanceShards,
+  executes,
   planWarnings,
   validatePlan,
   validateShardResult,
 } from './check-shards';
 import { publishedTasks, requiredTasks } from './check-stage-cache';
-import { estimateTask } from './check-task-estimates';
+import { estimateScheduledTask, estimateTask } from './check-task-estimates';
 
 function task(id: string, seconds = 1, dependencies: string[] = []): CheckTask {
   return {
@@ -323,4 +324,135 @@ test('shared generated artifacts get a prerequisite owner instead of binding eve
     'generate',
   ]);
   expect(plan.shards).toEqual(balanceShards([...tasks].reverse(), 16).shards);
+});
+
+test('a shard target starts only the runners the uncached work needs', () => {
+  const cached = Array.from({ length: 500 }, (_, i) => ({
+    ...task(`cached-${i}#tc`, 30),
+    hit: true,
+    source: 'REMOTE' as const,
+  }));
+  const misses = Array.from({ length: 6 }, (_, i) =>
+    task(`leaf-${i}#test`, 50)
+  );
+  const plan = balanceShards([...cached, ...misses], 32, 120);
+  const started = plan.shards.filter(
+    (shard) => shard.stage === 'checks' && executes(shard)
+  );
+  // 300 s of work at 120 s a shard, not thirty-two runners of ten seconds.
+  expect(started.map((shard) => shard.index)).toEqual([0, 1, 2]);
+  expect(started.map((shard) => shard.seconds)).toEqual([100, 100, 100]);
+  expect(plan.shards).toHaveLength(34);
+  expect(
+    plan.shards.slice(3, 32).every((shard) => shard.tasks.length === 0)
+  ).toBe(true);
+  expect(planWarnings(plan)).toEqual([]);
+  validatePlan(plan);
+});
+
+test('a fully cached plan starts no shard, and a cold corpus uses every one', () => {
+  const tasks = Array.from({ length: 200 }, (_, i) =>
+    task(`pkg-${i}#test`, 90)
+  );
+  const cached = balanceShards(
+    tasks.map((item) => ({ ...item, hit: true, source: 'REMOTE' as const })),
+    32,
+    120
+  );
+  expect(cached.shards.filter(executes)).toEqual([]);
+  expect(cached.shards[0]!.tasks).toHaveLength(200);
+  expect(planWarnings(cached)).toEqual([]);
+  const cold = balanceShards(tasks, 32, 120);
+  expect(cold.shards.slice(0, 32).every(executes)).toBe(true);
+});
+
+test('a shard target still gives every uncached solver group its own runner', () => {
+  const plan = balanceShards(
+    [
+      task('@libs/chess-root-harness#check:models', 5),
+      task('@pkgs/chess-board-root-harness#check:models', 5),
+      task('@pkgs/room-root-harness#check:models', 5),
+      task('pkg#test', 5),
+    ],
+    16,
+    120
+  );
+  const started = plan.shards.filter(executes);
+  expect(started).toHaveLength(3);
+  expect(
+    started.every(
+      (shard) =>
+        shard.tasks.filter((item) => item.taskId.endsWith('#check:models'))
+          .length === 1
+    )
+  ).toBe(true);
+});
+
+test('a narrowed plan keeps every task exactly once in any discovery order', () => {
+  assertProperty(
+    'check-narrowed-partition',
+    fc.property(
+      fc.array(
+        fc.record({
+          seconds: fc.integer({ min: 1, max: 600 }),
+          hit: fc.boolean(),
+        }),
+        { minLength: 1, maxLength: 300 }
+      ),
+      fc.integer({ min: 1, max: 64 }),
+      fc.integer({ min: 1, max: 900 }),
+      (specs, count, target) => {
+        const tasks = specs.map(({ seconds, hit }, index) => ({
+          ...task(`package-${index}#test`, seconds),
+          hit,
+        }));
+        const plan = balanceShards(tasks, count, target);
+        expect(plan.shards).toEqual(
+          balanceShards([...tasks].reverse(), count, target).shards
+        );
+        expect(
+          plan.shards
+            .flatMap((shard) => shard.tasks.map((item) => item.taskId))
+            .sort()
+        ).toEqual(tasks.map((item) => item.taskId).sort());
+        validatePlan(plan);
+        const work = tasks.reduce(
+          (sum, item) => sum + (item.hit ? 0 : item.seconds),
+          0
+        );
+        expect(plan.shards.filter(executes).length).toBeLessThanOrEqual(
+          Math.min(count, Math.max(1, Math.ceil(work / target)))
+        );
+      }
+    )
+  );
+});
+
+test('an unmeasured spec part is estimated from its own suite before the family', () => {
+  const costs = {
+    '@libs/chess-root-harness#test:spec:0': 300,
+    '@libs/chess-root-harness#test:spec:1': 200,
+    '@libs/chess-root-harness#test:spec:2': 250,
+    '@libs/runtime-harness#test:spec:0': 8,
+    '@libs/runtime-harness#test:spec:1': 10,
+    '@libs/runtime-harness#test:spec:2': 12,
+    '@libs/runtime-harness#test:spec:3': 9,
+  };
+  expect(
+    estimateScheduledTask('@libs/chess-root-harness#test:spec:9', costs)
+  ).toEqual({ seconds: 250, durationSource: 'family' });
+  expect(
+    estimateScheduledTask('@libs/runtime-harness#test:spec:9', costs)
+  ).toEqual({ seconds: 10, durationSource: 'family' });
+  // Its own measurement wins; a suite with no sample falls back to the family.
+  expect(
+    estimateScheduledTask('@libs/chess-root-harness#test:spec:0', costs)
+  ).toEqual({ seconds: 300, durationSource: 'history' });
+  expect(estimateScheduledTask('@libs/new-harness#test:spec:0', costs)).toEqual(
+    estimateTask('@libs/new-harness#test:spec:0', costs)
+  );
+  expect(estimateScheduledTask('@libs/new-harness#lint', costs)).toEqual({
+    seconds: 60,
+    durationSource: 'fallback',
+  });
 });

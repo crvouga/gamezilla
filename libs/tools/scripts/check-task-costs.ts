@@ -1,5 +1,6 @@
 // @io-wall-ok — reads CI summaries and writes measured task costs.
 import {
+  existsSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
@@ -19,6 +20,83 @@ export type TaskCosts = Readonly<Record<string, number>>;
 
 export function readTaskCosts(): TaskCosts {
   return JSON.parse(readFileSync(TASK_COSTS_PATH, 'utf8')) as TaskCosts;
+}
+
+/**
+ * What the newest Check measured on the runners that execute it. `check:plan`
+ * restores it from the Actions cache and `check:verify` saves the next one,
+ * so shard packing follows the corpus without a commit per harvest.
+ */
+export const MEASURED_COSTS_PATH = join(
+  import.meta.dirname,
+  '../../../.cache/check-ci/measured-costs.json'
+);
+
+/**
+ * The costs shards are packed by: the committed file, overlaid with the
+ * restored measurements. Packing never decides a verdict, so an absent or
+ * unreadable overlay falls back to the committed file.
+ */
+export function readScheduleCosts(path = MEASURED_COSTS_PATH): TaskCosts {
+  const committed = readTaskCosts();
+  if (!existsSync(path)) return committed;
+  try {
+    const measured = Object.entries(
+      JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>
+    ).filter(
+      (entry): entry is [string, number] =>
+        typeof entry[1] === 'number' &&
+        Number.isFinite(entry[1]) &&
+        entry[1] > 0
+    );
+    return { ...committed, ...Object.fromEntries(measured) };
+  } catch (error) {
+    console.warn(`check-task-costs: ignoring ${path}: ${String(error)}`);
+    return committed;
+  }
+}
+
+/**
+ * What one run teaches the next plan: a task it executed and passed, at the
+ * seconds it took; any other planned task keeps the measured cost its plan
+ * already had. Estimates, failures and tasks outside the plan are dropped, so
+ * the file follows the current graph.
+ */
+export function measuredCosts(
+  planned: readonly {
+    readonly taskId: string;
+    readonly seconds: number;
+    readonly durationSource: string;
+  }[],
+  results: readonly {
+    readonly taskId: string;
+    readonly passed: boolean;
+    readonly cache: string;
+    readonly milliseconds: number;
+  }[]
+): Record<string, number> {
+  const executed = new Map(
+    results
+      .filter(
+        (result) =>
+          result.passed &&
+          result.cache !== 'HIT' &&
+          Number.isFinite(result.milliseconds) &&
+          result.milliseconds > 0
+      )
+      .map((result) => [
+        result.taskId,
+        Math.max(1, Math.round(result.milliseconds / 1000)),
+      ])
+  );
+  const costs: [string, number][] = [];
+  for (const task of planned) {
+    const seconds =
+      executed.get(task.taskId) ??
+      (task.durationSource === 'history' ? task.seconds : undefined);
+    if (seconds !== undefined) costs.push([task.taskId, seconds]);
+  }
+  return Object.fromEntries(costs.sort(([a], [b]) => a.localeCompare(b)));
 }
 
 type SummaryTask = {

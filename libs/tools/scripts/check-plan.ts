@@ -4,10 +4,11 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { captureAudit } from './audit-snapshot';
 import { cacheDiagnostics } from './check-cache-diagnostics';
+import { writeSchedule } from './check-plan-schedule';
 import type { CheckTask } from './check-shards';
 import { balanceShards, planWarnings } from './check-shards';
-import { readTaskCosts } from './check-task-costs';
-import { estimateTask, shardSummary } from './check-task-estimates';
+import { readScheduleCosts } from './check-task-costs';
+import { estimateScheduledTask, shardSummary } from './check-task-estimates';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import {
   flattenCheckAggregators,
@@ -23,6 +24,23 @@ import {
 
 const ROOT = join(import.meta.dirname, '../../..');
 const DIRECTORY = join(ROOT, '.cache/check-ci');
+/**
+ * Estimated seconds of uncached work one shard is started for, per Turbo
+ * slot. A runner spends about a minute on checkout and install before its
+ * first task (Check run 38128423200: 7 s and 40 s medians, plus the plan
+ * restore), so a shard is worth starting once it has that much work of its
+ * own. A smaller target buys little wall clock for a second runner's setup;
+ * a larger one makes a small change wait on a long shard.
+ */
+const SHARD_TARGET_SECONDS = 60;
+
+function shardTargetSeconds(env: NodeJS.ProcessEnv): number {
+  const slots = Number(env['CHECK_CONCURRENCY'] ?? '1');
+  return (
+    SHARD_TARGET_SECONDS *
+    (Number.isSafeInteger(slots) && slots > 0 ? slots : 1)
+  );
+}
 
 export async function createCheckPlan(): Promise<void> {
   const started = process.hrtime.bigint();
@@ -50,7 +68,7 @@ export async function createCheckPlan(): Promise<void> {
   const discoveryMs = Number(process.hrtime.bigint() - discoveryStarted) / 1e6;
   const lookupStarted = process.hrtime.bigint();
   const local = planFromDryRun(json);
-  const costs = readTaskCosts();
+  const costs = readScheduleCosts();
   const { resolved, remoteResponses, responsesByHash } = await resolveCache(
     local,
     env
@@ -64,11 +82,15 @@ export async function createCheckPlan(): Promise<void> {
     ...task,
     command: definitions.get(task.taskId)!.command,
     directory: definitions.get(task.taskId)!.directory,
-    ...estimateTask(task.taskId, costs),
+    ...estimateScheduledTask(task.taskId, costs),
   }));
   if (env['CHECK_CACHE_MODE'] === 'cold')
     for (const task of tasks) Object.assign(task, { hit: false, source: null });
-  const plan = balanceShards(tasks, Number(env['CHECK_SHARDS'] ?? '16'));
+  const plan = balanceShards(
+    tasks,
+    Number(env['CHECK_SHARDS'] ?? '16'),
+    shardTargetSeconds(env)
+  );
   mkdirSync(DIRECTORY, { recursive: true });
   writeFileSync(join(DIRECTORY, 'plan.json'), JSON.stringify(plan));
   writeFileSync(
@@ -85,6 +107,7 @@ export async function createCheckPlan(): Promise<void> {
     })
   );
   printPlan(plan, discoveryMs, lookupMs);
+  schedulePlan(plan);
   for (const miss of cacheDiagnostics(tasks, responsesByHash).slice(0, 5))
     console.log(`cache miss ${miss.taskId} ${miss.hash}: ${miss.reason}`);
   // Capture the same historical scan context alongside this shard's plan.
@@ -121,12 +144,23 @@ async function resolveCache(local: RunPlan, env: NodeJS.ProcessEnv) {
   return { resolved, remoteResponses, responsesByHash };
 }
 
+/** Record the cached shards and tell the workflow which ones have work. */
+function schedulePlan(plan: ReturnType<typeof balanceShards>): void {
+  const schedule = writeSchedule(plan);
+  console.log(
+    `schedule: ${schedule.shards.length} of ${plan.shards.filter((shard) => shard.stage === 'checks').length} shards have uncached work; consumers ${schedule.consumers ? 'scheduled' : 'cached'}; ${schedule.cached.length} shards recorded from the cache`
+  );
+}
+
 function printPlan(
   plan: ReturnType<typeof balanceShards>,
   discoveryMs: number,
   lookupMs: number
 ): void {
-  for (const shard of plan.shards) console.log(shardSummary(shard));
+  // Shards the plan left empty never start; listing them is noise.
+  for (const shard of plan.shards)
+    if (shard.tasks.length > 0 || shard.stage !== 'checks')
+      console.log(shardSummary(shard));
   for (const warning of planWarnings(plan))
     console.warn(`::warning::${warning}`);
   console.log(

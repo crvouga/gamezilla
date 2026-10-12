@@ -16,25 +16,47 @@ function alwaysConditions(workflow: string): readonly string[] {
 }
 
 describe('Check workflow cancellation', () => {
-  test('every configurable shard count has exactly its complete matrix of owners', () => {
+  test('the shard matrix is the plan schedule, published by a job that holds no secrets', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
       on: {
         workflow_dispatch: { inputs: { shards: { options: number[] } } };
         workflow_call: { inputs: { shards: { default: number } } };
       };
-      jobs: { 'check-shards': { strategy: { matrix: { shard: string } } } };
+      jobs: {
+        'check-schedule': {
+          needs: string[];
+          outputs: Record<string, string>;
+          steps: { uses?: string; run?: string }[];
+        };
+        'check-shards': {
+          needs: string[];
+          if: string;
+          strategy: { matrix: { shard: string } };
+        };
+      };
     };
-    const expression = workflow.jobs['check-shards'].strategy.matrix.shard;
-    const presets = JSON.parse(
-      /fromJSON\('([^']+)'\)/.exec(expression)![1]!
-    ) as Record<string, number[]>;
+    const schedule = workflow.jobs['check-schedule'];
+    expect(schedule.needs).toEqual(['check-plan']);
+    expect(Object.keys(schedule.outputs)).toEqual(['shards', 'consumers']);
+    // GitHub suppresses a job output written beside masked secrets.
+    expect(schedule.steps.map((step) => step.uses ?? 'run')).toEqual([
+      'actions/download-artifact@v6',
+      'run',
+    ]);
+    expect(JSON.stringify(schedule)).not.toContain('secrets');
+    const shards = workflow.jobs['check-shards'];
+    expect(shards.needs).toEqual(['check-schedule']);
+    // An empty matrix fails the workflow; a fully cached plan skips the job.
+    expect(shards.if).toBe("needs.check-schedule.outputs.shards != '[]'");
+    expect(shards.strategy.matrix.shard).toBe(
+      '${{ fromJSON(needs.check-schedule.outputs.shards) }}'
+    );
     const shardCounts = workflow.on.workflow_dispatch.inputs.shards.options;
-    for (const count of shardCounts)
-      expect(presets[String(count)]).toEqual(
-        Array.from({ length: count }, (_, index) => index)
-      );
-    expect(Object.keys(presets).map(Number)).toEqual(shardCounts);
-    expect(workflow.on.workflow_call.inputs.shards.default).toBe(32);
+    expect(shardCounts.every((count) => count >= 1 && count <= 64)).toBe(true);
+    // The spec corpus is about six hours of single-slot work; the cap is
+    // the most the planner packs for.
+    expect(workflow.on.workflow_call.inputs.shards.default).toBe(64);
+    expect(shardCounts).toContain(64);
   });
   // regression: concurrent-check-run-isolation
   test('a newer push supersedes its PR run; dispatched and release runs never cancel one another', () => {
@@ -102,6 +124,7 @@ describe('Check workflow cancellation', () => {
     const verify = workflow.jobs['check-verify']!;
     expect(verify.needs).toEqual([
       'check-plan',
+      'check-schedule',
       'check-shards',
       'check-consumers',
     ]);
@@ -111,14 +134,16 @@ describe('Check workflow cancellation', () => {
     ).toBe(true);
     expect(workflow.jobs['check-plan']!.if).toBeUndefined();
     expect(workflow.jobs['check-shards']!.strategy?.['fail-fast']).toBe(false);
-    expect(workflow.jobs['check-shards']!.needs).toEqual(['check-plan']);
-    // Fan-in suites still report when a shard is red.
+    expect(workflow.jobs['check-shards']!.needs).toEqual(['check-schedule']);
+    // Fan-in suites still report when a shard is red, and start no runner
+    // when the plan left them nothing to execute.
     expect(workflow.jobs['check-consumers']!.needs).toEqual([
       'check-plan',
+      'check-schedule',
       'check-shards',
     ]);
     expect(workflow.jobs['check-consumers']!.if).toBe(
-      "always() && !cancelled() && needs.check-plan.result == 'success'"
+      "always() && !cancelled() && needs.check-plan.result == 'success' && needs.check-schedule.outputs.consumers == 'true'"
     );
     expect(workflow.jobs['check-reports']!.needs).toEqual([
       'check-plan',

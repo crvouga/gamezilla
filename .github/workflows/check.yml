@@ -7,6 +7,12 @@ run-name: "Check · ${{ github.event_name == 'pull_request' && format('pr #{0}',
 # Duration-balanced shards, fail-fast off, then `check:verify` aggregates every
 # failure into one summary.
 #
+# Only uncached work starts a runner. `check:plan` asks the remote cache about
+# every task, packs the misses into as many shards as their measured durations
+# need, and records the cached verdicts itself; `check:schedule` hands the
+# workflow the shards that have work. A fully cached run is the plan and the
+# verdict, with no shard at all.
+#
 # It runs on every pull request, where the `check` job is the required status:
 # a green pull request is releasable, and merging it deploys. It also runs from
 # a manual dispatch and from Deploy (`workflow_call`) on the exact commit it
@@ -23,10 +29,10 @@ on:
   workflow_dispatch:
     inputs:
       shards:
-        description: Duration-balanced shard count
+        description: Most shards a run may start
         type: choice
-        options: [8, 12, 16, 24, 32]
-        default: 32
+        options: [8, 12, 16, 24, 32, 40, 48, 64]
+        default: 64
       concurrency:
         description: Turbo slots per shard
         type: number
@@ -39,9 +45,9 @@ on:
   workflow_call:
     inputs:
       shards:
-        description: Duration-balanced shard count
+        description: Most shards a run may start
         type: number
-        default: 32
+        default: 64
       concurrency:
         description: Turbo slots per shard
         type: number
@@ -74,7 +80,7 @@ env:
   GH_EVENT: ${{ github.event_name }}
   PR_BASE: ${{ github.event.pull_request.base.sha }}
   PR_HEAD: ${{ github.event.pull_request.head.sha }}
-  CHECK_SHARDS: ${{ inputs.shards || vars.CHECK_SHARDS || '32' }}
+  CHECK_SHARDS: ${{ inputs.shards || vars.CHECK_SHARDS || '64' }}
   CHECK_CONCURRENCY: ${{ inputs.concurrency || vars.CHECK_CONCURRENCY || '1' }}
   CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
 
@@ -100,6 +106,15 @@ jobs:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
+      # Shards are packed by the durations the newest Check measured on these
+      # runners (`check:verify` saves them); the key never matches, so the
+      # prefix restores the newest from this pull request, else from main.
+      - name: Restore measured task durations
+        uses: actions/cache/restore@v5
+        with:
+          path: .cache/check-ci/measured-costs.json
+          key: check-task-costs-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: check-task-costs-v1-
       - name: Plan all owners once
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-plan.ts
       - name: Export immutable plan
@@ -110,6 +125,39 @@ jobs:
           name: check-plan
           path: .cache/check-ci/plan.payload
           include-hidden-files: true
+          overwrite: true
+          compression-level: 0
+          retention-days: 7
+      # Shard indexes only. It is an artifact, not a job output: this job
+      # holds masked secrets, and GitHub suppresses an output beside them.
+      - name: Upload the shard schedule
+        uses: actions/upload-artifact@v6
+        with:
+          name: check-schedule
+          path: .cache/check-ci/schedule.json
+          include-hidden-files: true
+          overwrite: true
+          compression-level: 0
+          retention-days: 7
+      # A shard with nothing to execute starts no runner; its cached verdicts
+      # travel from here to `check:verify` and `check:reports`.
+      - name: Transfer cached shard verdicts
+        uses: actions/upload-artifact@v6
+        with:
+          name: check-results-cached
+          path: .cache/check-ci/cached/results-*.tar.gz
+          include-hidden-files: true
+          if-no-files-found: ignore
+          overwrite: true
+          compression-level: 0
+          retention-days: 7
+      - name: Transfer cached shard evidence
+        uses: actions/upload-artifact@v6
+        with:
+          name: check-evidence-cached
+          path: .cache/check-ci/cached/evidence-*.tar.gz
+          include-hidden-files: true
+          if-no-files-found: ignore
           overwrite: true
           compression-level: 0
           retention-days: 7
@@ -141,17 +189,42 @@ jobs:
           compression-level: 0
           retention-days: 7
 
+  # The shards with uncached work, read from the plan's schedule. This job
+  # loads no secrets, so its outputs reach the matrix unsuppressed.
+  check-schedule:
+    name: check:schedule
+    needs: [check-plan]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      shards: ${{ steps.schedule.outputs.shards }}
+      consumers: ${{ steps.schedule.outputs.consumers }}
+    steps:
+      - name: Download the shard schedule
+        uses: actions/download-artifact@v6
+        with:
+          name: check-schedule
+          path: .cache/check-ci
+      - name: Publish the shard schedule
+        id: schedule
+        run: |
+          jq -e '(.shards | type == "array" and all(.[]; type == "number")) and (.consumers | type == "boolean")' .cache/check-ci/schedule.json > /dev/null
+          {
+            echo "shards=$(jq -c '.shards' .cache/check-ci/schedule.json)"
+            echo "consumers=$(jq -r '.consumers' .cache/check-ci/schedule.json)"
+          } >> "$GITHUB_OUTPUT"
+
   check-shards:
     name: check:shards
-    needs: [check-plan]
+    needs: [check-schedule]
+    # An empty matrix is an error, so a fully cached plan skips the job.
+    if: needs.check-schedule.outputs.shards != '[]'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        # Add a count here and in the dispatch input; the immutable plan uses
-        # the same count.
-        shard: ${{ fromJSON('{"8":[0,1,2,3,4,5,6,7],"12":[0,1,2,3,4,5,6,7,8,9,10,11],"16":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"24":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],"32":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]}')[format('{0}', inputs.shards || vars.CHECK_SHARDS || '32')] }}
+        shard: ${{ fromJSON(needs.check-schedule.outputs.shards) }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -237,8 +310,8 @@ jobs:
   # the same run instead of waiting for the next one.
   check-consumers:
     name: check:consumers
-    needs: [check-plan, check-shards]
-    if: always() && !cancelled() && needs.check-plan.result == 'success'
+    needs: [check-plan, check-schedule, check-shards]
+    if: always() && !cancelled() && needs.check-plan.result == 'success' && needs.check-schedule.outputs.consumers == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -311,10 +384,11 @@ jobs:
 
   # One verdict for the whole full run: every suite, every failing task, the
   # artifact holding its evidence. Missing, failed, skipped and cancelled
-  # jobs fail; reports never enter this job's dependency graph.
+  # jobs fail; a stage is allowed to be skipped only when the plan scheduled
+  # nothing for it. Reports never enter this job's dependency graph.
   check-verify:
     name: check:verify
-    needs: [check-plan, check-shards, check-consumers]
+    needs: [check-plan, check-schedule, check-shards, check-consumers]
     if: always() && !cancelled()
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -328,9 +402,17 @@ jobs:
       - name: Summarize every suite
         env:
           PLAN_RESULT: ${{ needs.check-plan.result }}
+          SCHEDULE_RESULT: ${{ needs.check-schedule.result }}
           SHARD_RESULT: ${{ needs.check-shards.result }}
           CONSUMER_RESULT: ${{ needs.check-consumers.result }}
         run: bun run libs/tools/scripts/check-verdict.ts
+      # A red run still measured every task that passed.
+      - name: Save measured task durations
+        if: always() && !cancelled() && hashFiles('.cache/check-ci/measured-costs.json') != ''
+        uses: actions/cache/save@v5
+        with:
+          path: .cache/check-ci/measured-costs.json
+          key: check-task-costs-v1-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Retain the verdict
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
