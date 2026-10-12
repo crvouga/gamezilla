@@ -82,12 +82,18 @@ Feature: Keep moving pieces coherent
       And Alice sees no capture remnant
       And Alice sees no unfinished animation
 
-  Rule: A replacement position slides each piece to where it now stands
+  Rule: A replacement position slides each piece to where it now stands, unless it interrupts an arrival
 
     Scenario: A replacement position slides a moved piece back to its earlier square
       Given Alice has a chessboard after White's move from e2 to e4
       When Alice's activity replaces that position with the position before White's first move
       Then Alice sees the pawn slide from e4 to e2
+
+    Scenario: A replacement position that interrupts an arrival places its pieces at once
+      Given Alice's capture from e4 to d5 is animating
+      When Alice's activity replaces the position
+      Then Alice sees no unfinished animation
+      And Alice sees the replacement position
 
     Scenario: Reduced motion places a replacement position immediately
       Given Alice has a chessboard after White's move from e2 to e4 with reduced motion enabled
