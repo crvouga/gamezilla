@@ -112,7 +112,9 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
   const pubsubLogger = createLogger({ name: 'pubsub', now: wallClock.now });
 
   const env: ClientEnv = {
-    ...webDevicePorts(createWebAudioPlaybackPort()),
+    ...webDevicePorts(
+      createWebAudioPlaybackPort({ fetch: innerFetch, now: wallClock.now })
+    ),
     clock: wallClock,
     timers: wallTimers,
     createId: () => crypto.randomUUID(),
