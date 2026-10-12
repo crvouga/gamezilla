@@ -38,8 +38,9 @@ export function useSpaceHostConnection(): Accessor<
     if (!engine.status().online)
       return hostOfflineKnown ? 'host-offline' : 'offline';
     if (!connected() || !hasRoster()) return 'loading';
-    if (absent() && !confirmedAbsent()) return 'loading';
+    // An absence still being confirmed is what this device last saw of the host.
     hostOfflineKnown = absent();
+    if (hostOfflineKnown && !confirmedAbsent()) return 'loading';
     if (hostOfflineKnown) return 'host-offline';
     return synced() ? 'ready' : 'loading';
   });

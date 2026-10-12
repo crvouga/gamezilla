@@ -3,7 +3,7 @@
 Each source defect below was introduced alone, exercised by its named verifier,
 and restored before normal verification. A timeout, setup error or empty test
 filter does not qualify. This ledger records assertion failures, not a release
-verdict; the complete gate is `bun check`.
+verdict; the complete gate is `bun check-pr`.
 
 | Injected defect | Intended verifier | Observed rejection |
 | --- | --- | --- |

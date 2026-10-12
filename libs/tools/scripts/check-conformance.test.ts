@@ -3,16 +3,13 @@ import { REQUIREMENTS } from '@pkgs/conformance-shared/manifest';
 
 import { EVIDENCE_MAP, RELEASE_GATE_TASKS } from '../conformance/evidence-map';
 import { verdictsFromPlan } from '../conformance/gate-verdicts';
-import { reachableTasks } from '../conformance/gating-tasks';
+import { reachableCheckTasks } from '../conformance/gating-tasks';
 import { LINES } from '../conformance/lines';
 import type { RunPlan } from './turbo-preflight';
 
 describe('reachableTasks', () => {
   const tasks = {
-    '//#check': {
-      dependsOn: ['//#ci:specs', 'lint', '@apps/web#check:bundle'],
-    },
-    '//#ci:specs': { dependsOn: ['@libs/tools#tc'] },
+    '@libs/tools#ci:specs': { dependsOn: ['@libs/tools#tc'] },
     lint: { dependsOn: ['tc'] },
     tc: { dependsOn: ['^src'] },
     '//#deploy': { dependsOn: ['health'] },
@@ -24,11 +21,14 @@ describe('reachableTasks', () => {
   ]);
 
   test('expands bare names to every package that has the script, and follows deps', () => {
-    const reached = reachableTasks(tasks, scripts, '//#check');
+    const reached = reachableCheckTasks(tasks, scripts, [
+      'lint',
+      '@apps/web#check:bundle',
+      '@libs/tools#ci:specs',
+    ]);
     expect([...reached].sort()).toEqual(
       [
-        '//#check',
-        '//#ci:specs',
+        '@libs/tools#ci:specs',
         '@libs/tools#tc',
         'lint',
         '@apps/web#lint',
@@ -41,7 +41,7 @@ describe('reachableTasks', () => {
   });
 
   test('never reaches what only another root depends on', () => {
-    expect(reachableTasks(tasks, scripts, '//#check').has('health')).toBe(
+    expect(reachableCheckTasks(tasks, scripts, ['lint']).has('health')).toBe(
       false
     );
   });
@@ -92,7 +92,7 @@ function plan(tasks: readonly (readonly [string, boolean])[]): RunPlan {
 
 describe('verdictsFromPlan', () => {
   const run = plan([
-    ['//#ci:audit', true],
+    ['@libs/tools#ci:audit', true],
     ['@apps/web#tc', true],
     ['@libs/ui#tc', false],
     ['@apps/web#lint', true],
@@ -100,12 +100,12 @@ describe('verdictsFromPlan', () => {
 
   test('a gate passes only when every task it names is a cache hit', () => {
     const verdicts = verdictsFromPlan(run, [
-      '//#ci:audit',
+      '@libs/tools#ci:audit',
       'tc',
       'lint',
       '@libs/infra-server#lint',
     ]);
-    expect(verdicts.get('//#ci:audit')?.status).toBe('pass');
+    expect(verdicts.get('@libs/tools#ci:audit')?.status).toBe('pass');
     expect(verdicts.get('lint')).toEqual({
       status: 'pass',
       detail: 'passed for these inputs (1 task)',
@@ -117,7 +117,7 @@ describe('verdictsFromPlan', () => {
     });
     expect(verdicts.get('@libs/infra-server#lint')).toEqual({
       status: 'fail',
-      detail: 'not run — bun check does not plan it',
+      detail: 'not run — bun check-pr does not plan it',
     });
   });
 });

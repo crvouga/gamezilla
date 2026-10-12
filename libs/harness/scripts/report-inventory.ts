@@ -1,4 +1,4 @@
-import { publishInventory } from '@crvouga/atlas-reports/spec-inventory';
+import { publishInventory } from '@crvouga/atlas/reports/spec-inventory';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { readCommittedSpecs } from './committed-specs';
 

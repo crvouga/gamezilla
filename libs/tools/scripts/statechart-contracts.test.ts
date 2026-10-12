@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { bundleOf, type MachineConfig, walkStates } from '@crvouga/atlas';
-import { type StateNodeConfig, StateNodeSchema } from '@crvouga/atlas-schema';
+import { type StateNodeConfig, StateNodeSchema } from '@crvouga/atlas/schema';
 import { productContracts, sourcePath } from './statechart-contracts';
 import { productGuide, unmappedContracts } from './statechart-guide';
 import { languageContracts } from './statechart-language';

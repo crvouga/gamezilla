@@ -1,4 +1,0 @@
-{
-  "summary": "GitHub Actions checked out the repository without initializing the pinned Atlas submodule, so Bun could not find workspace packages referenced by the frozen lockfile. Initialize submodules before installing dependencies.",
-  "regressionTest": "libs/tools/scripts/workflow-cache.test.ts"
-}

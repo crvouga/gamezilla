@@ -1,21 +1,21 @@
 import { expect, test } from 'bun:test';
-import { publicationStore } from '@crvouga/atlas-reports/publication';
+import { publicationStore } from '@crvouga/atlas/reports/publication';
 import {
   closeCommit,
   openCommit,
   publishSource,
   SPEC_RUN_ID,
-} from '@crvouga/atlas-reports/publish';
+} from '@crvouga/atlas/reports/publish';
 import {
   readCommit,
   readTestReport,
   testEvents,
-} from '@crvouga/atlas-reports/read';
-import { pruneReports } from '@crvouga/atlas-reports/retention';
+} from '@crvouga/atlas/reports/read';
+import { pruneReports } from '@crvouga/atlas/reports/retention';
 import {
   reuseSource,
   sourceContentPrefix,
-} from '@crvouga/atlas-reports/source-content';
+} from '@crvouga/atlas/reports/source-content';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { exampleApp, put } from './example-app';

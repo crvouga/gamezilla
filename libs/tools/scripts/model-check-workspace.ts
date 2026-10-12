@@ -1,12 +1,38 @@
 // @io-wall-ok — each checker owns private scratch until its evidence is published.
-import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { evidenceKey } from '@pkgs/conformance-shared/evidence';
 import { copyModelEvidence } from './check-model-evidence';
 
-/** Reports can be replaced or restored while another check's JVM is running. */
+/** What an earlier check of one model left in the report. */
+function removeModelEvidence(report: string, specUri: string): void {
+  const out = specUri.replace(/\W+/g, '-');
+  for (const checker of ['apalache', 'tlc'])
+    rmSync(join(report, checker, out), { recursive: true, force: true });
+  const evidence = join(report, 'evidence');
+  let names: readonly string[];
+  try {
+    names = readdirSync(evidence);
+  } catch {
+    return;
+  }
+  const prefix = `${evidenceKey(specUri)}.`;
+  for (const name of names)
+    if (name.startsWith(prefix)) rmSync(join(evidence, name), { force: true });
+}
+
+/**
+ * Reports can be replaced or restored while another check's JVM is running.
+ * A run that checks every model of the package replaces the report; a part
+ * (`only`: the models it checks) replaces those models' evidence and leaves
+ * the other parts' in place, so the parts of one package add up to its report.
+ */
 export async function withModelWorkspace<T>(
   packageDir: string,
-  check: (workspace: string) => Promise<T>
+  check: (workspace: string) => Promise<T>,
+  only?: readonly string[],
+  /** A phase task adds its evidence and leaves the model's other phases. */
+  mergeEvidence = false
 ): Promise<T> {
   const cache = join(packageDir, '.cache');
   mkdirSync(cache, { recursive: true });
@@ -16,7 +42,9 @@ export async function withModelWorkspace<T>(
     return await check(workspace);
   } finally {
     try {
-      rmSync(report, { recursive: true, force: true });
+      if (only === undefined) rmSync(report, { recursive: true, force: true });
+      else if (!mergeEvidence)
+        for (const specUri of only) removeModelEvidence(report, specUri);
       copyModelEvidence(workspace, report);
     } finally {
       rmSync(workspace, { recursive: true, force: true });

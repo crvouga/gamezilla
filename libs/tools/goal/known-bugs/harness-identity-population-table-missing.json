@@ -1,0 +1,4 @@
+{
+  "summary": "Identity classifies every session against population_users, but only compositions listing the Synthetic Population slice declared that table. Every other suite's session refresh answered 500 and sign-in never reached the provider screen. The population tables are now part of the harness platform.",
+  "regressionTest": "libs/harness/tests/slices.test.ts"
+}

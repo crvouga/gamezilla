@@ -1,7 +1,7 @@
 import type {
   RecordStepMeta,
   RunReport,
-} from '@crvouga/atlas-reports/report-types';
+} from '@crvouga/atlas/reports/report-types';
 import type { MonitorState, Transition } from './checkpoint';
 import type { Action, Property, Read } from './effect';
 import type { Step } from './recording';

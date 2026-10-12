@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sourced by every workspace lifecycle script (setup, run, teardown).
+# Sourced by every workspace lifecycle script (run, teardown).
 #
 # Orchestrator-agnostic on purpose: Superset exports SUPERSET_*, super.engineering
 # exports SUPER_ENGINEERING_*, the next tool will export something else. Every

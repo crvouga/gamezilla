@@ -5,7 +5,8 @@ import { join } from 'node:path';
 export function packShardEvidence(
   root: string,
   index: number,
-  paths: readonly string[]
+  paths: readonly string[],
+  directory = '.cache/check-ci'
 ): void {
   const metadata = paths.filter(
     (path) =>
@@ -18,7 +19,7 @@ export function packShardEvidence(
   ] as const) {
     const packed = spawnSync('tar', [
       '-czf',
-      join(root, '.cache/check-ci', `${kind}-${index}.tar.gz`),
+      join(root, directory, `${kind}-${index}.tar.gz`),
       '-C',
       root,
       ...entries,

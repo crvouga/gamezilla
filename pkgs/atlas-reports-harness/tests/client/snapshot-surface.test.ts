@@ -4,7 +4,7 @@ import {
   ensureShell,
   paintSnapshot,
   resolveHitTarget,
-} from '@crvouga/atlas-reports/snapshot-surface';
+} from '@crvouga/atlas/reports/snapshot-surface';
 import { Window } from 'happy-dom';
 
 const dom = new Window();

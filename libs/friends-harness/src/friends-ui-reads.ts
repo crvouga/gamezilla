@@ -20,6 +20,7 @@ export async function friendRowVisible(
 ): Promise<boolean> {
   try {
     const ui = await actorUi(s, actorId);
+    await focus(ui);
     return await ui.get(Handles.friendsListRow(username)).isVisible();
   } catch {
     return false;
@@ -62,6 +63,7 @@ export async function addFriendOffered(
 ): Promise<boolean> {
   try {
     const ui = await actorUi(s, actorId);
+    await focus(ui);
     return await ui.get(Handles.friendAdd(username)).isVisible();
   } catch {
     return false;

@@ -1,15 +1,16 @@
 ---
-description: Drive every CI workflow — Check, Deploy, Health — to green from one PR, in a loop; survey what is red, fix root causes, push, re-verify, repeat
+description: Drive every CI workflow — Check PR, Check Nightly, Deploy, Health — to green from one PR, in a loop; survey what is red, fix root causes, push, re-verify, repeat
 ---
 
 # /ci-green
 
-Get all three workflows green, and do it in **one pull request** on the current branch:
+Get all four workflows green, and do it in **one pull request** on the current branch:
 
 | Workflow | What red means | Where it runs |
 | --- | --- | --- |
-| **Check** (`.github/workflows/check.yml`) | the code is bad | fast gate on every PR (`bun check`); every gate via `bun verify` |
-| **Deploy** (`.github/workflows/deploy.yml`) | releasing `main` fails | only by hand: `bun deploy` dispatches it on `main` (full verification, then every env) |
+| **Check PR** (`.github/workflows/check-pr.yml`) | the code is bad | every gate on every PR; `bun check-pr` runs the same gate on this machine |
+| **Check Nightly** (`.github/workflows/check-nightly.yml`) | deeper verification of `main` found something | every night on `main`; `bun check-nightly <group>` runs a group on this machine. Never a merge requirement |
+| **Deploy** (`.github/workflows/deploy.yml`) | releasing `main` fails | every merge to `main`, and `bun deploy` by hand (full verification, then every env) |
 | **Health** (`.github/workflows/health.yml`) | the live deployment is bad | hourly, and `bun health` dispatches it |
 
 Deploy runs only from `main`; Health also accepts branch dispatches. Deploy changes ship from `main`, so a fix for them reaches CI only after a
@@ -26,6 +27,7 @@ gh pr view --json number,url,headRefName,mergeStateStatus 2>/dev/null   # this b
 gh pr checks 2>/dev/null                                                 # Check on the PR
 gh run list --repo crvouga/gamezilla --workflow deploy.yml --limit 3 --json databaseId,headSha,status,conclusion,url
 gh run list --repo crvouga/gamezilla --workflow health.yml --limit 3 --json databaseId,headSha,status,conclusion,url
+gh run list --repo crvouga/gamezilla --workflow check-nightly.yml --limit 3 --json databaseId,headSha,status,conclusion,url
 ```
 
 For every red run, read the failure itself. Do not guess from the job name.
@@ -51,14 +53,15 @@ shows it fixed afterwards:
 
 | Failure in | Reproduce with |
 | --- | --- |
-| Check (any shard) | `bun run --filter <pkg> <task>` for the failing task, then `bun check:local` |
+| Check PR (any shard) | `bun run --filter <pkg> <task>` for the failing task, then `bun check-pr` |
+| Check Nightly (a group) | `bun check-nightly <group>` at the commit the run names, with the seed its log printed; pin what it found as a regression so `bun check-pr` replays it |
 | Deploy, a gate leaf | the same leaf. `//#deploy` runs every `//#check` leaf first |
 | Deploy, infrastructure or deployment | a GitHub Actions rehearsal on the branch, reusing the dev job and deployment lock; AWS trust may block a branch infrastructure apply |
 | Health | `bun health` dispatches the branch workflow and its read-only probes |
 
 Fix the root cause the repo's way (see `AGENTS.md`):
 
-- **Every bug gets a check.** A failure that `bun check` did not catch means a check is
+- **Every bug gets a check.** A failure that `bun check-pr` did not catch means a check is
   missing. Add the example test (`// regression: <bug-id>`), add
   `libs/tools/goal/known-bugs/<bug-id>.json`, or add a lint rule, so that the next occurrence fails
   Check instead of Deploy or Health.
@@ -77,9 +80,8 @@ All fixes go on the **current branch** and its single PR. Never open a second PR
 "the deploy part".
 
 ```bash
-bun check --message "fix(scope): …"   # git-sync, then the fast PR gate on GitHub Actions
-bun verify                            # every gate; read check:verify for the whole failure list
-# bun check:local                    # the same gate on this machine, when you need it
+bun check-pr                               # every gate on this machine
+bun run git-sync --message "fix(scope): …"   # commit and push; the PR's Check runs every gate
 ```
 
 Then run `/pr-ready`. It opens or updates the PR, syncs with `main`, and drives Check green.
@@ -100,11 +102,11 @@ Stop and report instead of looping when either of these happens:
 
 ## 5. After the human merges
 
-A merge deploys nothing; releasing is the human's call. When asked to release,
-`bun deploy` dispatches Deploy on `origin/main`: full verification first, then every
-environment. Do not start a second Deploy while one is still going. If `deploy:verify`
-is red, fix every failure its `check:verify` summary lists in one batch, then rerun
-`bun verify` before the next `bun deploy`. Then `bun health` runs Health without waiting for
+The merge is the release: the push to `main` starts Deploy, which runs full verification
+first, then every environment. Watch that run; `bun deploy` re-dispatches it on
+`origin/main` only when asked to release again. Do not start a second Deploy while one is
+still going. If `deploy:verify` is red, fix every failure its `check:end` summary lists
+in one batch on a new PR. Then `bun health` runs Health without waiting for
 the hourly schedule:
 
 ```bash

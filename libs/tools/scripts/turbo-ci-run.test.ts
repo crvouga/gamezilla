@@ -80,6 +80,19 @@ describe('turbo-ci-run child env', () => {
     expect(env['TURBO_TEAM']).toBeUndefined();
   });
 
+  test('an empty replay budget is no budget, and a set one is kept', () => {
+    // The Check workflow sets the variable to empty unless it explores; turbo
+    // would hash that apart from a run that never set it.
+    expect('QUINT_REPLAY_TRACES' in turboChildEnv({})).toBe(false);
+    for (const empty of ['', '  '])
+      expect(
+        'QUINT_REPLAY_TRACES' in turboChildEnv({ QUINT_REPLAY_TRACES: empty })
+      ).toBe(false);
+    expect(
+      turboChildEnv({ QUINT_REPLAY_TRACES: 'all' })['QUINT_REPLAY_TRACES']
+    ).toBe('all');
+  });
+
   test('disables telemetry unless the caller set it', () => {
     expect(turboChildEnv({})['TURBO_TELEMETRY_DISABLED']).toBe('1');
     expect(
@@ -92,20 +105,17 @@ describe('turbo-ci-run child env', () => {
 
 describe('turbo-ci-run aggregator flatten', () => {
   const tasks = {
-    '//#check': { dependsOn: ['lint', 'tc', 'test'] },
+    '//#deploy': { dependsOn: ['health'] },
   };
 
   test('check expands to its leaves', () => {
-    expect(flattenCheckAggregators(['check'], tasks)).toEqual([
-      'lint',
-      'tc',
-      'test',
-    ]);
-    expect(flattenCheckAggregators(['//#check'], tasks)).toEqual([
-      'lint',
-      'tc',
-      'test',
-    ]);
+    const leaves = flattenCheckAggregators(['check'], tasks);
+    expect(leaves).toContain('@libs/tools#check:root-lint');
+    expect(leaves).toContain(
+      '@apps/synthetic-population-worker#check:synthetic-population-foundation'
+    );
+    expect(leaves).not.toContain('check:synthetic-population');
+    expect(leaves).not.toContain('//#check');
   });
 
   test('non-aggregator args pass through', () => {
@@ -118,19 +128,14 @@ describe('turbo-ci-run aggregator flatten', () => {
   test('deploy expands to //#deploy leaves', () => {
     const withDeploy = {
       ...tasks,
-      '//#deploy': {
-        dependsOn: ['tc', '//#check', 'health'],
-      },
-      '//#check': { dependsOn: ['lint'] },
+      '//#deploy': { dependsOn: ['tc', 'health'] },
     };
     expect(flattenCheckAggregators(['deploy'], withDeploy)).toEqual([
       'tc',
-      'lint',
       'health',
     ]);
     expect(flattenCheckAggregators(['//#deploy'], withDeploy)).toEqual([
       'tc',
-      'lint',
       'health',
     ]);
   });

@@ -1,6 +1,6 @@
 // @io-wall-ok — composition for generated bun:test feature entries.
 
-import type { RunReportOptions } from '@crvouga/atlas-reports/report-types';
+import type { RunReportOptions } from '@crvouga/atlas/reports/report-types';
 import { monotonicClock, wallClock } from '@pkgs/clock-shared/wall';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';

@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-action.json
 name: Setup repo (mise tools + deps)
-description: mise-pinned tools (Bun, Node, CLIs) and frozen dependency install (run actions/checkout first)
+description: mise-pinned tools (Bun, Node, CLIs), cached dependency trees and frozen dependency install (run actions/checkout first)
 
 inputs:
   tools:
@@ -25,16 +25,45 @@ runs:
       uses: jdx/mise-action@v4
       with:
         version: 2026.9.13
-        install_args: ${{ inputs.tools }}
+        # jdx/mise-action defaults to `bun opentofu` when this is blank. The
+        # full Check jobs need every tool pinned in mise.toml, including the
+        # lazy tools used by model and security checks. Callers that need a
+        # smaller toolchain pass an explicit list (for example `bun gh`).
+        install_args: ${{ inputs.tools || '--include-lazy' }}
 
-    - name: Initialize workspace submodules
-      shell: bash
-      run: git submodule update --init --recursive
+    # The installed trees, shared by every job of every workflow. One extract
+    # of them leaves the frozen install below a no-op check: 291 MB restored
+    # in 9 s (Check run 36783674561) against a 15-20 s install from the
+    # registry (Check run 38198242466). The key is content alone — the
+    # lockfile, the pinned tools and this file — and exact, so a tree never
+    # answers for another lockfile. The frozen install runs whether or not
+    # the cache answers.
+    - name: Restore installed dependencies
+      id: dependencies
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          node_modules
+          apps/*/node_modules
+          libs/*/node_modules
+          pkgs/*/node_modules
+        key: dependencies-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock', 'mise.toml', '.github/actions/setup/action.yml') }}
 
-    # Frozen installs avoid restoring platform-dependent dependency trees.
-    # mise caches pinned tools; Turbo caches content-addressed task results.
     - name: Install dependencies
       shell: bash
       env:
         ONNXRUNTIME_NODE_INSTALL: skip
       run: bun install --frozen-lockfile
+
+    # Saved here, not when the job ends: `check:plan` misses first and every
+    # shard behind it restores, whatever the rest of this job does.
+    - name: Save installed dependencies
+      if: steps.dependencies.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v5
+      with:
+        path: |
+          node_modules
+          apps/*/node_modules
+          libs/*/node_modules
+          pkgs/*/node_modules
+        key: ${{ steps.dependencies.outputs.cache-primary-key }}

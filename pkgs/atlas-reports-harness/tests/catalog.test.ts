@@ -2,12 +2,12 @@ import { describe, expect, test } from 'bun:test';
 import type {
   CatalogEntity,
   CatalogQuery,
-} from '@crvouga/atlas-reports/catalog';
+} from '@crvouga/atlas/reports/catalog';
 import {
   arrangeCatalog,
   catalogCounts,
   catalogParams,
-} from '@crvouga/atlas-reports/catalog';
+} from '@crvouga/atlas/reports/catalog';
 
 function entity(
   patch: Partial<CatalogEntity> & Pick<CatalogEntity, 'id' | 'title'>

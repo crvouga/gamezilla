@@ -15,7 +15,6 @@
       "!!**/.wrangler",
       "!!**/.turbo",
       "!!**/.cache",
-      "!!vendor/atlas",
       "!**/*.lock",
       "!libs/app-root-shared/locales/*/messages.ts",
       "!.superset/config.json",
@@ -23,6 +22,8 @@
       "!apps/product/public/sql-workers/**/*.js",
       "!docs/statecharts/index.html",
       "!.agents/skills/**/assets",
+      "!.agents/skills/impeccable",
+      "!.agents/skills/ui-ux-pro-max",
       "!qa",
       "!!pkgs/postgres/.postgres"
     ]

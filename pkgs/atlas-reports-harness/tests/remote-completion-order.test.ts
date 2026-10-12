@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { inCompletionOrder } from '@crvouga/atlas-reports/completion-order';
+import { inCompletionOrder } from '@crvouga/atlas/reports/completion-order';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

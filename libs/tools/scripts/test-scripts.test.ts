@@ -82,6 +82,23 @@ describe('testScriptViolations', () => {
     ).toContain('tests/b.test.tsx');
   });
 
+  test('the render contract script reaches its own test file', () => {
+    expect(
+      testScriptViolations({
+        scripts: {
+          test: "bun test --path-ignore-patterns='**/*.contract.test.ts' tests",
+          'test:contract': 'bun test tests/model.contract.test.ts',
+          'test:contract:render': 'bun test tests/render.contract.test.ts',
+        },
+        files: [
+          'tests/a.test.ts',
+          'tests/model.contract.test.ts',
+          'tests/render.contract.test.ts',
+        ],
+      })
+    ).toEqual([]);
+  });
+
   // `f`-prefixed so a name never collides with a directory filter.
   const segment = fc.stringMatching(/^f[a-z0-9-]{0,6}$/);
   const testFile = fc

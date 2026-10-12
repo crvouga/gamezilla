@@ -1,12 +1,12 @@
 import { expect, test } from 'bun:test';
-import type { BundleEntry } from '@crvouga/atlas-reports/bundle';
+import type { BundleEntry } from '@crvouga/atlas/reports/bundle';
 import {
   BUNDLE_BYTES,
   bundleIndexKey,
   createBundleReader,
   publishBundle,
   readBundleIndex,
-} from '@crvouga/atlas-reports/bundle';
+} from '@crvouga/atlas/reports/bundle';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';

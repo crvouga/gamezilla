@@ -3,7 +3,7 @@
 import { mkdirSync, readFileSync, rmSync, watch, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { loadSpecDirectory, machineToScxml } from '@crvouga/atlas';
-import { StateNodeSchema } from '@crvouga/atlas-schema';
+import { StateNodeSchema } from '@crvouga/atlas/schema';
 import { run } from '@pkgs/os-server/command';
 import { startProcess } from '@pkgs/os-server/streaming-process';
 import { analyzeStatecharts } from './statechart-analysis';
@@ -24,6 +24,10 @@ const CHARTS = join(ROOT, 'specs');
 const CACHE = join(ROOT, '.cache/product-statechart');
 const SPECS = join(CACHE, 'specs');
 const SITE = join(ROOT, '.cache/product-statechart-explorer');
+const VISUALIZER = join(
+  import.meta.dir,
+  '../node_modules/.bin/atlas-visualizer'
+);
 
 function writeJson(path: string, value: unknown): void {
   writeFileSync(path, `${JSON.stringify(value)}\n`);
@@ -60,6 +64,7 @@ function sourceFiles(): Map<string, string> {
     ...new Bun.Glob('libs/*-client/src/sub-client.{ts,tsx}').scanSync({
       cwd: ROOT,
     }),
+    'libs/chess-puzzle-client/src/personal-chess-stats-client.tsx',
     'libs/chess-puzzle-client/src/puzzle-link-client.ts',
     'libs/chess-puzzle-shared/src/puzzle-link.ts',
     'libs/chess-matchmaking-client/src/multiplayer-link-client.ts',
@@ -167,7 +172,7 @@ async function explore(flags: string[]): Promise<void> {
   const child = startProcess({
     command: process.execPath,
     args: [
-      join(ROOT, 'vendor/atlas/packages/visualizer/bin/atlas-visualizer.mjs'),
+      VISUALIZER,
       'dev',
       '--specs',
       CHARTS,
@@ -215,8 +220,7 @@ async function main(): Promise<void> {
   run(
     'bun',
     [
-      'run',
-      'atlas-visualizer',
+      VISUALIZER,
       'build',
       '--specs',
       CHARTS,

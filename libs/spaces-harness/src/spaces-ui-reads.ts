@@ -26,13 +26,19 @@ export async function openSpaceHosts(
   return hosts;
 }
 
+/** A parked phone's screen reads as empty until its tree is in front. */
+async function frontUi(s: ProductHarness, actorId: string) {
+  await bringToFront(s, actorId);
+  return actorUi(s, actorId);
+}
+
 export async function lobbyCardVisible(
   s: ProductHarness,
   actorId: string,
   hostUsername: string
 ): Promise<boolean> {
   try {
-    const ui = await actorUi(s, actorId);
+    const ui = await frontUi(s, actorId);
     return await ui.get(Handles.spaceCard(hostUsername)).isVisible();
   } catch {
     return false;
@@ -45,7 +51,7 @@ export async function lobbySpaceCardVisible(
   actorId: string,
   spaceLink: string
 ): Promise<boolean> {
-  const ui = await actorUi(s, actorId);
+  const ui = await frontUi(s, actorId);
   return ui.get(lobbySpaceCardHandle(spaceLink)).isVisible();
 }
 
@@ -54,7 +60,7 @@ export async function lobbySpaceCardText(
   actorId: string,
   spaceLink: string
 ): Promise<string | null> {
-  const ui = await actorUi(s, actorId);
+  const ui = await frontUi(s, actorId);
   return ui.get(lobbySpaceCardHandle(spaceLink)).text();
 }
 
@@ -69,8 +75,7 @@ export async function activeSpaceVisible(
   actorId: string
 ): Promise<boolean> {
   try {
-    await bringToFront(s, actorId);
-    const ui = await actorUi(s, actorId);
+    const ui = await frontUi(s, actorId);
     return await ui.get(Handles.spaceClose).isVisible();
   } catch {
     return false;
@@ -83,7 +88,7 @@ export async function spaceMemberVisible(
   memberId: string
 ): Promise<boolean> {
   try {
-    const ui = await actorUi(s, actorId);
+    const ui = await frontUi(s, actorId);
     return await ui.get(Handles.spaceMemberRow(memberId)).isVisible();
   } catch {
     return false;
@@ -104,7 +109,7 @@ export async function spacePresenceCount(
   actorId: string
 ): Promise<number> {
   try {
-    const ui = await actorUi(s, actorId);
+    const ui = await frontUi(s, actorId);
     const raw = (await ui.get(Handles.spacePresenceCount).text()) ?? '';
     const n = Number.parseInt(raw, 10);
     return Number.isFinite(n) ? n : 0;
@@ -136,7 +141,7 @@ export async function readSpacePresenceCount(
   actorId: string
 ): Promise<number | null> {
   try {
-    const ui = await actorUi(s, actorId);
+    const ui = await frontUi(s, actorId);
     const raw = await ui.get(Handles.spacePresenceCount).text();
     if (raw === null) return null;
     const n = Number.parseInt(raw, 10);
@@ -152,7 +157,7 @@ export async function spaceEndedShown(
   actorId: string
 ): Promise<boolean> {
   try {
-    const ui = await actorUi(s, actorId);
+    const ui = await frontUi(s, actorId);
     return await ui.get(Handles.spaceEnded).isVisible();
   } catch {
     return false;
@@ -165,8 +170,7 @@ export async function joinOffered(
   actorId: string
 ): Promise<boolean> {
   try {
-    await bringToFront(s, actorId);
-    const ui = await actorUi(s, actorId);
+    const ui = await frontUi(s, actorId);
     return await ui.get(Handles.spaceJoin).isVisible();
   } catch {
     return false;
@@ -179,7 +183,7 @@ async function shows(
   handle: string
 ): Promise<boolean> {
   try {
-    const ui = await actorUi(s, actorId);
+    const ui = await frontUi(s, actorId);
     return await ui.get(handle).isVisible();
   } catch {
     return false;
@@ -192,7 +196,7 @@ async function textOf(
   handle: string
 ): Promise<string | null> {
   try {
-    const ui = await actorUi(s, actorId);
+    const ui = await frontUi(s, actorId);
     if (!(await ui.get(handle).isVisible())) return null;
     return await ui.get(handle).text();
   } catch {

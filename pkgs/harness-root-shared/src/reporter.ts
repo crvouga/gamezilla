@@ -1,4 +1,4 @@
-import { testReportKey } from '@crvouga/atlas-reports/recording-keys';
+import { testReportKey } from '@crvouga/atlas/reports/recording-keys';
 import type {
   RecordStepMeta,
   ReportFrame,
@@ -11,12 +11,12 @@ import type {
   RunReport,
   RunReportMeta,
   RunReportOptions,
-} from '@crvouga/atlas-reports/report-types';
+} from '@crvouga/atlas/reports/report-types';
 import {
   mintRunId,
   sanitizeRunId,
   sanitizeTestId,
-} from '@crvouga/atlas-reports/report-types';
+} from '@crvouga/atlas/reports/report-types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { captureSnapshotParts, persistSnapshotParts } from './capture';
 import type { CatalogSnapshot } from './define-snapshot';

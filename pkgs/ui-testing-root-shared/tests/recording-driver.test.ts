@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { RecordStepMeta } from '@crvouga/atlas-reports/report-types';
+import type { RecordStepMeta } from '@crvouga/atlas/reports/report-types';
 import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
 import { recordingDriver } from '@pkgs/ui-testing-root-shared/recording-driver';
 import type { StepRecorder } from '@pkgs/ui-testing-root-shared/step-recorder';

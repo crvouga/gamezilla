@@ -1,4 +1,4 @@
-import type { SnapshotMedia } from '@crvouga/atlas-reports/report-types';
+import type { SnapshotMedia } from '@crvouga/atlas/reports/report-types';
 import type { Awaitable } from './awaitable';
 
 export const SNAPSHOT_TAG = Symbol.for('dst.Snapshot');

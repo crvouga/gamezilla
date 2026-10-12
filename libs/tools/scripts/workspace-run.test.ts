@@ -15,9 +15,6 @@ import { join } from 'node:path';
 const hooks = join(import.meta.dirname, '../workspace');
 const DEV = 'bun run --silent dev -- --web-port 5800';
 const INSTALL = 'bun install';
-const SETUP_TASKS =
-  'turbo run //#workspace:install //#workspace:hooks //#workspace:local-files' +
-  ' --continue --env-mode=loose --output-logs=errors-only';
 
 const checkouts: string[] = [];
 afterEach(() => {
@@ -25,52 +22,65 @@ afterEach(() => {
     rmSync(dir, { recursive: true, force: true });
 });
 
+function writeExecutable(path: string, body: string): void {
+  writeFileSync(path, body, { mode: 0o755 });
+}
+
+/** Recorders stand in for bun, git, mise and infisical. A successful install
+ * brings turbo with it, the way a real install does. */
+function writeFakeTools(dir: string): void {
+  mkdirSync(join(dir, '.bin'));
+  writeExecutable(
+    join(dir, '.bin/bun'),
+    '#!/usr/bin/env bash\n' +
+      'if [ -n "${WORKSPACE_RUN_TEST_RECORD_UI:-}" ]; then\n' +
+      '  printf "bun %s TURBO_UI=%s\\n" "$*" "${TURBO_UI-}" >> "$WORKSPACE_RUN_TEST_CALLS"\n' +
+      'else\n' +
+      '  printf "bun %s\\n" "$*" >> "$WORKSPACE_RUN_TEST_CALLS"\n' +
+      'fi\n' +
+      'if [ "$1" = "run" ] && [ "$2" = "secrets:pull" ]; then exit 1; fi\n' +
+      'if [ "$1" = "install" ]; then\n' +
+      '  [ "${WORKSPACE_RUN_TEST_INSTALL:-ok}" = "ok" ] || exit 1\n' +
+      '  mkdir -p node_modules/.bin\n' +
+      '  printf "#!/usr/bin/env bash\\nprintf \\"turbo %%s\\\\n\\" \\"\\$*\\" >> \\"\\$WORKSPACE_RUN_TEST_CALLS\\"\\n" > node_modules/.bin/turbo\n' +
+      '  chmod +x node_modules/.bin/turbo\n' +
+      'fi\n'
+  );
+  writeExecutable(
+    join(dir, '.bin/git'),
+    '#!/usr/bin/env bash\n' +
+      'case "$*" in\n' +
+      '  "diff --name-only --diff-filter=U -z")\n' +
+      '    printf "%s" "${WORKSPACE_RUN_TEST_UNMERGED:-}" | tr "\\n" "\\0" ;;\n' +
+      '  *"rev-parse --path-format=absolute --git-common-dir"*)\n' +
+      '    if [ -n "${WORKSPACE_RUN_TEST_ROOT:-}" ]; then\n' +
+      '      printf "%s\\n" "$WORKSPACE_RUN_TEST_ROOT/.git"\n' +
+      '    fi ;;\n' +
+      'esac\n'
+  );
+  writeExecutable(
+    join(dir, '.bin/mise'),
+    '#!/usr/bin/env bash\n' +
+      '[ "$1" = "install" ] && echo "mise: installing every tool"\n' +
+      'exit 0\n'
+  );
+  writeExecutable(join(dir, '.bin/infisical'), '#!/usr/bin/env bash\nexit 0\n');
+}
+
 /**
- * A throwaway checkout holding the real hooks, with `bun`, `git`, `mise` and
- * `turbo` replaced by recorders so a hook can be observed without installing
- * or booting. As a real install does, the recorded one brings turbo with it.
+ * A throwaway checkout holding the real hooks, with the tools above replaced
+ * so a hook can be observed without installing or booting.
  */
 function checkout() {
   const dir = mkdtempSync(join(tmpdir(), 'workspace-run-'));
   checkouts.push(dir);
   const calls = join(dir, '.calls');
   cpSync(hooks, join(dir, 'libs/tools/workspace'), { recursive: true });
-  mkdirSync(join(dir, '.bin'));
+  writeFakeTools(dir);
   mkdirSync(join(dir, 'apps/product'), { recursive: true });
   writeFileSync(join(dir, 'bun.lock'), '{}\n');
   writeFileSync(join(dir, 'package.json'), '{"name":"root"}\n');
   writeFileSync(join(dir, 'apps/product/package.json'), '{"name":"app"}\n');
-  writeFileSync(
-    join(dir, '.bin/bun'),
-    '#!/usr/bin/env bash\n' +
-      'printf "bun %s\\n" "$*" >> "$WORKSPACE_RUN_TEST_CALLS"\n' +
-      'if [ "$1" = "install" ]; then\n' +
-      '  [ "${WORKSPACE_RUN_TEST_INSTALL:-ok}" = "ok" ] || exit 1\n' +
-      '  mkdir -p node_modules/.bin\n' +
-      '  printf "#!/usr/bin/env bash\\nprintf \\"turbo %%s\\\\n\\" \\"\\$*\\" >> \\"\\$WORKSPACE_RUN_TEST_CALLS\\"\\n" > node_modules/.bin/turbo\n' +
-      '  chmod +x node_modules/.bin/turbo\n' +
-      'fi\n',
-    { mode: 0o755 }
-  );
-  writeFileSync(
-    join(dir, '.bin/git'),
-    '#!/usr/bin/env bash\n' +
-      'case "$*" in\n' +
-      '  config\\ -f\\ .gitmodules*)\n' +
-      '    printf "submodule.%s.path %s\\n" vendor/atlas vendor/atlas vendor/held vendor/held ;;\n' +
-      '  "diff --name-only --diff-filter=U -z")\n' +
-      '    printf "%s" "${WORKSPACE_RUN_TEST_UNMERGED:-}" | tr "\\n" "\\0" ;;\n' +
-      '  submodule\\ update*) printf "git %s\\n" "$*" >> "$WORKSPACE_RUN_TEST_CALLS" ;;\n' +
-      'esac\n',
-    { mode: 0o755 }
-  );
-  writeFileSync(
-    join(dir, '.bin/mise'),
-    '#!/usr/bin/env bash\n' +
-      '[ "$1" = "install" ] && echo "mise: installing every tool"\n' +
-      'exit 0\n',
-    { mode: 0o755 }
-  );
   const script = (name: string, args: readonly string[] = []) => {
     return (env: Record<string, string> = {}) => {
       rmSync(calls, { force: true });
@@ -98,10 +108,22 @@ function checkout() {
   return {
     dir,
     run: script('run.sh'),
-    setup: script('setup.sh'),
     step: (name: string) => script('step.sh', [name]),
   };
 }
+
+// regression: workspace-run-turbo-ui-stream
+test('Run starts dev in the terminal UI even when the parent asked for stream', () => {
+  const { run } = checkout();
+  const env = { TURBO_UI: 'stream', WORKSPACE_RUN_TEST_RECORD_UI: '1' };
+  const cold = run(env);
+  expect(cold.status).toBe(0);
+  expect(cold.calls).toEqual([
+    'bun install TURBO_UI=false',
+    `${DEV} TURBO_UI=true`,
+  ]);
+  expect(run(env).calls).toEqual([`${DEV} TURBO_UI=true`]);
+});
 
 // regression: workspace-run-preflight-dependency-failure
 test('Run launches dev directly on the workspace port', () => {
@@ -116,8 +138,14 @@ test('Run installs first in a checkout that has no turbo to run dev with', () =>
   const { dir, run } = checkout();
   const first = run();
   expect(first.calls).toEqual([INSTALL, DEV]);
-  // A step that worked is its one line.
-  expect(first.stdout).toBe('==> bun install\n');
+  expect(first.stdout).toBe(
+    [
+      '==> mise install',
+      '==> bun install',
+      '==> enabling libs/tools/githooks (pre-commit, pre-push)',
+      '',
+    ].join('\n')
+  );
   expect(run().calls).toEqual([DEV]);
 
   rmSync(join(dir, 'node_modules'), { recursive: true });
@@ -133,18 +161,6 @@ test('Run launches dev on an incomplete install and retries it next time', () =>
   expect(first.calls).toEqual(failing);
   expect(run({ WORKSPACE_RUN_TEST_INSTALL: 'fail' }).calls).toEqual(failing);
   expect(run().calls).toEqual([INSTALL, DEV]);
-});
-
-test('Run checks out a submodule workspace that was never initialized', () => {
-  const { dir, run } = checkout();
-  run();
-  writeFileSync(join(dir, '.gitmodules'), '');
-  mkdirSync(join(dir, 'vendor/held'), { recursive: true });
-  writeFileSync(join(dir, 'vendor/held/.git'), 'gitdir: elsewhere\n');
-  expect(run().calls).toEqual([
-    'git submodule update --init --recursive -- vendor/atlas',
-    DEV,
-  ]);
 });
 
 // regression: workspace-run-stale-install
@@ -202,38 +218,23 @@ test('the merge task names an unfinished merge before dev fails on it', () => {
   expect(concluded.stdout + concluded.stderr).toBe('');
 });
 
-test('Setup runs its steps as Turborepo tasks that print only on failure', () => {
-  const { run, setup } = checkout();
-  run();
-  const result = setup();
-  expect(result.status).toBe(0);
-  expect(result.calls).toEqual([
-    'git submodule update --init --recursive',
-    SETUP_TASKS,
-  ]);
-  // The tools that ran before turbo could are one line each.
-  expect(result.stdout).toBe(
-    '==> mise install\n==> git submodule update --init --recursive\n'
+// regression: workspace-cold-secrets-pull
+test('a cold run still launches when the secrets pull fails, and a warm run skips it', () => {
+  const { dir, run } = checkout();
+  const root = join(dir, 'main-checkout');
+  mkdirSync(join(root, '.git'), { recursive: true });
+  const cold = run({ WORKSPACE_RUN_TEST_ROOT: root });
+  expect(cold.status).toBe(0);
+  expect(cold.calls).toContain('bun run secrets:pull');
+  expect(cold.calls.at(-1)).toBe(DEV);
+  expect(cold.stdout).toContain(
+    'secrets:pull failed; continuing without the offline secrets cache'
   );
-});
+  expect(cold.stdout).toContain('no .cache/secrets in root checkout');
+  expect(existsSync(join(dir, '.cache/workspace-warm'))).toBe(true);
 
-test('Setup runs the same steps itself before any install brought turbo', () => {
-  const { setup } = checkout();
-  const result = setup();
-  expect(result.status).toBe(0);
-  expect(result.calls).toEqual([
-    'git submodule update --init --recursive',
-    INSTALL,
-  ]);
-  expect(result.stdout).toBe(
-    [
-      '==> mise install',
-      '==> git submodule update --init --recursive',
-      '==> workspace:install',
-      '==> workspace:hooks',
-      '==> workspace:local-files',
-      '',
-    ].join('\n')
-  );
-  expect(setup().calls.at(-1)).toBe(SETUP_TASKS);
+  const warm = run({ WORKSPACE_RUN_TEST_ROOT: root });
+  expect(warm.status).toBe(0);
+  expect(warm.calls).toEqual([DEV]);
+  expect(warm.stdout).toBe('');
 });

@@ -7,7 +7,7 @@
  * solver takes a slot here and Turbo keeps the remaining cores.
  *
  * A slot is an exclusive lock file (`slot-<n>`) holding its owner's pid under
- * `$TMPDIR/check-solver-slots` (private per `bun check:local` run; Turbo
+ * `$TMPDIR/check-solver-slots` (private per `bun check-pr` run; Turbo
  * passes `TMPDIR` through); a slot whose owner died is reclaimed.
  */
 import {

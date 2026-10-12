@@ -17,6 +17,11 @@
  * {@link DEFAULT_VERIFY_STEPS}. At most {@link CONCURRENCY} checks run at
  * once.
  *
+ * `--part k/n` checks the k-th (0-based) of n shares of the package's models,
+ * by their position in path order, so a package whose proofs outlast one
+ * runner spreads them over several (`check:models:<k>`, `modelParts`). The
+ * parts write one report between them, and every model is in exactly one.
+ *
  * The model's shape is recorded as its `shape` obligation first. A model
  * that fails that check is not sent to a checker. A passing shape and the
  * checker verdict are the model's `shape` and `verify` obligations in the
@@ -31,8 +36,10 @@ import { sha256 } from '@pkgs/conformance-shared/evidence';
 import { modelInvariants } from '@pkgs/quint-server/simulate';
 import {
   modelTemporalProperties,
+  type TemporalResult,
   verifyTemporal,
 } from '@pkgs/quint-server/temporal';
+import type { VerifyResult } from '@pkgs/quint-server/verify';
 import { verify } from '@pkgs/quint-server/verify';
 import {
   DEFAULT_VERIFY_STEPS,
@@ -41,6 +48,8 @@ import {
 import { modelShapeIssues } from '@pkgs/quint-shared/shape';
 import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
 import { withModelWorkspace } from './model-check-workspace';
+import type { PhaseArg } from './model-phase';
+import { parsePhaseArg } from './model-phase';
 import { withSolverSlot } from './solver-slots';
 import type { SpecPackage } from './spec-packages';
 import { REPO_ROOT, specPackages } from './spec-packages';
@@ -172,6 +181,47 @@ export function modelChecksFromBindings(
     .sort((a, b) => a.specUri.localeCompare(b.specUri));
 }
 
+export type ModelPart = { readonly index: number; readonly count: number };
+
+/** `--part k/n`, or `null` when the flag is absent. */
+export function modelPartOf(argv: readonly string[]): ModelPart | null {
+  const at = argv.indexOf('--part');
+  if (at < 0) return null;
+  const match = /^(\d+)\/(\d+)$/.exec(argv[at + 1] ?? '');
+  const index = Number(match?.[1]);
+  const count = Number(match?.[2]);
+  if (match === null || count < 1 || index >= count)
+    throw new Error(
+      `check-models: --part wants k/n with 0 <= k < n, got ${String(argv[at + 1])}`
+    );
+  return { index, count };
+}
+
+/**
+ * `--phase k/n` or `--phase a,b-c/n`, or `null` for every proof phase.
+ * The count is the model's phase count, so a new case cannot be skipped.
+ */
+export function modelPhaseOf(argv: readonly string[]): PhaseArg | null {
+  const at = argv.indexOf('--phase');
+  if (at < 0) return null;
+  const parsed = parsePhaseArg(argv[at + 1] ?? '');
+  if (parsed === null)
+    throw new Error(
+      `check-models: --phase wants k/n or a,b-c/n with every index in range, got ${String(argv[at + 1])}`
+    );
+  return parsed;
+}
+
+/** The checks of one part: every `count`-th from `index`, in path order. */
+export function modelPartChecks(
+  checks: readonly ModelCheck[],
+  part: ModelPart | null
+): readonly ModelCheck[] {
+  return part === null
+    ? checks
+    : checks.filter((_, position) => position % part.count === part.index);
+}
+
 type Verdict = {
   readonly check: ModelCheck;
   readonly ok: boolean;
@@ -179,7 +229,12 @@ type Verdict = {
 };
 
 /** Where one package's run writes, and the name its evidence carries. */
-type Run = { readonly reportDir: string; readonly packageName: string };
+type Run = {
+  readonly reportDir: string;
+  readonly packageName: string;
+  /** Set when this task proves a share of the phases and must not erase the others. */
+  readonly phase: PhaseArg | null;
+};
 
 function record(
   run: Run,
@@ -229,53 +284,61 @@ async function checkModel(
   const invariants = modelInvariants(text);
   const properties = modelTemporalProperties(text);
   const outName = check.specUri.replace(/\W+/g, '-');
-  const result = await withSolverSlot(() =>
-    properties.length > 0
-      ? verifyTemporal({
-          specPath,
-          properties,
-          invariants,
-          outDir: join(run.reportDir, 'tlc', outName),
-          timeoutMs: check.timeoutMs,
-        })
-      : verify({
-          specPath,
-          invariants,
-          maxSteps: check.steps,
-          ...(check.encoding === undefined ? {} : { encoding: check.encoding }),
-          ...(check.invariantMode === undefined
-            ? {}
-            : { invariantMode: check.invariantMode }),
-          ...(check.separateInduction === true
-            ? { separateInduction: true }
-            : {}),
-          ...(check.inductionCaseGroupSize === undefined
-            ? {}
-            : { inductionCaseGroupSize: check.inductionCaseGroupSize }),
-          ...(check.boundedInvariantGroupSize === undefined
-            ? {}
-            : { boundedInvariantGroupSize: check.boundedInvariantGroupSize }),
-          ...(check.inferPolymorphicTypes === undefined
-            ? {}
-            : { inferPolymorphicTypes: check.inferPolymorphicTypes }),
-          ...(check.inductiveInvariant === null
-            ? {}
-            : { inductiveInvariant: check.inductiveInvariant }),
-          outDir: join(run.reportDir, 'apalache', outName),
-          timeoutMs: check.timeoutMs,
-        })
+  const result = await withSolverSlot(
+    (): Promise<TemporalResult | VerifyResult> =>
+      properties.length > 0
+        ? verifyTemporal({
+            specPath,
+            properties,
+            invariants,
+            outDir: join(run.reportDir, 'tlc', outName),
+            timeoutMs: check.timeoutMs,
+          })
+        : verify({
+            specPath,
+            invariants,
+            maxSteps: check.steps,
+            ...(check.encoding === undefined
+              ? {}
+              : { encoding: check.encoding }),
+            ...(check.invariantMode === undefined
+              ? {}
+              : { invariantMode: check.invariantMode }),
+            ...(check.separateInduction === true
+              ? { separateInduction: true }
+              : {}),
+            ...(check.inductionCaseGroupSize === undefined
+              ? {}
+              : { inductionCaseGroupSize: check.inductionCaseGroupSize }),
+            ...(check.boundedInvariantGroupSize === undefined
+              ? {}
+              : { boundedInvariantGroupSize: check.boundedInvariantGroupSize }),
+            ...(check.inferPolymorphicTypes === undefined
+              ? {}
+              : { inferPolymorphicTypes: check.inferPolymorphicTypes }),
+            ...(check.inductiveInvariant === null
+              ? {}
+              : { inductiveInvariant: check.inductiveInvariant }),
+            ...(run.phase === null ? {} : { phase: run.phase }),
+            outDir: join(run.reportDir, 'apalache', outName),
+            timeoutMs: check.timeoutMs,
+          })
   );
   const strategy = modelStrategy(check, properties);
   const states =
     result.ok && 'statesExplored' in result && 'searchDepth' in result
       ? ` (${result.statesExplored} distinct states; graph search depth ${result.searchDepth})`
       : '';
+  const proved =
+    result.ok && 'invariants' in result ? result.invariants : invariants;
   const detail = result.ok
-    ? `${invariants.join(', ')} hold by ${strategy}${states}`
+    ? `${proved.join(', ')} hold by ${strategy}${states}`
     : result.output;
+  const verifyId =
+    run.phase === null ? 'verify' : `verify:${run.phase.indexes.join('.')}`;
   record(run, check, text, [
     { id: 'shape', status: 'pass', detail: 'valid aggregate shape' },
-    { id: 'verify', status: result.ok ? 'pass' : 'fail', detail },
+    { id: verifyId, status: result.ok ? 'pass' : 'fail', detail },
     ...properties.map((property) => ({
       id: `temporal:${property}`,
       status: result.ok ? ('pass' as const) : ('fail' as const),
@@ -326,9 +389,27 @@ if (import.meta.main) {
     );
     process.exit(1);
   }
-  const checks = modelChecks(pkg);
-  const verdicts = await withModelWorkspace(join(REPO_ROOT, dir), (reportDir) =>
-    runAll({ reportDir, packageName: `${pkg.name}#check:models` }, checks)
+  const args = process.argv.slice(2);
+  const part = modelPartOf(args);
+  const phase = modelPhaseOf(args);
+  const checks = modelPartChecks(modelChecks(pkg), part);
+  if (checks.length === 0) {
+    console.error(
+      `check-models: ${dir} has no model in part ${String(part?.index)}/${String(part?.count)} — lower modelParts`
+    );
+    process.exit(1);
+  }
+  const verdicts = await withModelWorkspace(
+    join(REPO_ROOT, dir),
+    (reportDir) =>
+      runAll(
+        { reportDir, packageName: `${pkg.name}#check:models`, phase },
+        checks
+      ),
+    part === null && phase === null
+      ? undefined
+      : checks.map((check) => check.specUri),
+    phase !== null
   );
   const failed = verdicts.filter((verdict) => !verdict.ok);
   if (failed.length > 0) {

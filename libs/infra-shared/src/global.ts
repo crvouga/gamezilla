@@ -53,8 +53,11 @@ export const globalFileSchema = z
       .object({
         owner: id,
         owner_id: z.string().regex(/^[1-9][0-9]*$/),
+        owner_is_organization: z.boolean(),
         repo: id,
         repo_id: z.string().regex(/^[1-9][0-9]*$/),
+        required_checks: z.array(id).min(1),
+        check_integration_id: z.number().int().positive(),
         settings: z
           .object({
             visibility: z.enum(['private', 'public', 'internal']),
@@ -85,7 +88,7 @@ export const globalFileSchema = z
       .strict(),
     /**
      * The one private bucket holding every commit's spec reports (fleet
-     * stack; `bun check`): CI writes with, and each environment's
+     * stack; `bun check-pr`): CI writes with, and each environment's
      * API reads with, that environment's own credential (foundation stack).
      * CI retains the latest report per existing branch.
      */

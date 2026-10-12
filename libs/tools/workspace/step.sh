@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# One workspace step. Each is the Turborepo task `//#workspace:<step>`
-# (turbo.json), so setup and `bun dev` show a step per pane in the terminal UI
-# and print a step's output only when it fails. A step therefore exits non-zero
-# whenever it leaves work for the person at the keyboard.
+# One workspace step. `bun dev` runs install and merge as Turborepo tasks
+# (`//#workspace:<step>`), so the terminal shows a step per pane and prints a
+# step's output only when it fails. Those two exit non-zero while they leave
+# work. hooks and local-files are cold-start work inside run.sh: they name
+# what they could not finish and still return success, so a missing Infisical
+# login cannot fail the launch.
 set -euo pipefail
 # shellcheck source=libs/tools/workspace/lib.sh
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
@@ -33,7 +35,7 @@ step_hooks() {
   echo "==> enabling libs/tools/githooks (pre-commit, pre-push)"
   if ! git config core.hooksPath libs/tools/githooks; then
     echo "!!! could not set core.hooksPath; run 'bun run hooks:install' manually"
-    return 1
+    return 0
   fi
 }
 
@@ -52,7 +54,7 @@ step_local_files() {
   fi
 
   # Offline secrets cache written by `bun run secrets:pull` (read by
-  # libs/secrets-server/scripts/secrets-run.ts, i.e. `bun check:local`, `bun run dev`, deploys).
+  # libs/secrets-server/scripts/secrets-run.ts, i.e. `bun check-pr`, `bun run dev`, deploys).
   # Bootstrap it from the root checkout when possible so a fresh workspace does
   # not need a second Infisical login; setup stays fast because the cache lives
   # next to the checkout rather than per-worktree.
@@ -72,7 +74,7 @@ step_local_files() {
 
   if [ ! -d "$root/.cache/secrets" ]; then
     echo "!!! no .cache/secrets in root checkout; run 'bun run secrets:pull' (needs the Infisical CLI logged in)"
-    return 1
+    return 0
   fi
   mkdir -p .cache/secrets
   cp -R "$root/.cache/secrets/." .cache/secrets/

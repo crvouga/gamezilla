@@ -1,0 +1,15 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "check:synthetic-population-foundation": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/libs/infra-shared/tofu/**",
+        "$TURBO_ROOT$/mise.toml"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    }
+  }
+}

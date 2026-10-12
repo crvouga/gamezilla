@@ -1,5 +1,5 @@
-import type { RunReportOptions } from '@crvouga/atlas-reports/report-types';
-import { resolveReportOptions } from '@crvouga/atlas-reports/report-types';
+import type { RunReportOptions } from '@crvouga/atlas/reports/report-types';
+import { resolveReportOptions } from '@crvouga/atlas/reports/report-types';
 import type { MonitorState, Transition } from './checkpoint';
 import {
   assertProperty,

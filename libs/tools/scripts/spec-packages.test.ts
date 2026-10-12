@@ -34,7 +34,7 @@ describe('specPartProblems', () => {
     expect(
       specPartProblems('libs/a', { scripts: { 'test:spec': RUNNER } })
     ).toEqual([
-      `libs/a/package.json: specParts must be an integer from 1 to ${String(MAX_SPEC_PARTS)} — bun check runs the suite as test:spec:0 … test:spec:<specParts - 1>`,
+      `libs/a/package.json: specParts must be an integer from 1 to ${String(MAX_SPEC_PARTS)} — bun check-pr runs the suite as test:spec:0 … test:spec:<specParts - 1>`,
     ]);
   });
 
@@ -88,6 +88,96 @@ describe('modelTaskProblems', () => {
     expect(modelTaskProblems({ ...pkg, models: [] }, {}, undefined)).toEqual(
       []
     );
+  });
+
+  test('a split models check has every part, each hashing the models, and no whole check', () => {
+    const part = (index: number) =>
+      `${MODELS_RUNNER} --part ${String(index)}/2`;
+    const split = { 'check:models:0': part(0), 'check:models:1': part(1) };
+    const parts = { count: 2, inputsOf: () => inputs };
+    expect(modelTaskProblems(pkg, split, undefined, parts)).toEqual([]);
+    expect(
+      modelTaskProblems(
+        pkg,
+        { ...split, 'check:models': MODELS_RUNNER, 'check:models:2': part(2) },
+        undefined,
+        parts
+      )
+    ).toEqual([
+      'libs/a/package.json: "check:models" would check every model again — the 2 parts replace it; delete it',
+      'libs/a/package.json: "check:models:2" is past modelParts (2) — delete it',
+    ]);
+    expect(
+      modelTaskProblems(pkg, { 'check:models:0': part(0) }, undefined, {
+        count: 2,
+        inputsOf: (task) =>
+          task === 'check:models:0' ? inputs : inputs.slice(0, 2),
+      })
+    ).toEqual([
+      `libs/a/package.json: "check:models:1" must be "${part(1)}"`,
+      'libs/a/turbo.json: check:models:1 inputs must include "$TURBO_ROOT$/specs/b/*.qnt" so a model change re-checks @libs/a',
+    ]);
+    // A part holds at least one model, and a part needs a declared split.
+    expect(
+      modelTaskProblems(pkg, split, undefined, { ...parts, count: 3 })
+    ).toEqual([
+      "libs/a/package.json: modelParts must be an integer from 2 to 2 — a part holds at least one of the package's 2 models",
+    ]);
+    expect(
+      modelTaskProblems(
+        pkg,
+        { ...scripts, 'check:models:0': part(0) },
+        inputs,
+        { count: undefined, inputsOf: () => inputs }
+      )
+    ).toEqual([
+      'libs/a/package.json: "check:models:0" is a part of no split — declare modelParts or delete it',
+    ]);
+  });
+
+  test('proof groups partition one model and a stray phase names its part', () => {
+    const one = { ...pkg, models: ['specs/a/door.qnt'] };
+    const inputsOf = () => ['$TURBO_ROOT$/specs/a/*.qnt'];
+    const grouped = {
+      'check:models:0': `${MODELS_RUNNER} --phase 1/3`,
+      'check:models:1': `${MODELS_RUNNER} --phase 0,2/3`,
+    };
+    expect(
+      modelTaskProblems(one, grouped, undefined, {
+        count: undefined,
+        proofParts: 3,
+        proofGroups: ['1', '0,2'],
+        inputsOf,
+      })
+    ).toEqual([]);
+    expect(
+      modelTaskProblems(
+        one,
+        { ...grouped, 'check:models:2': `${MODELS_RUNNER} --phase 0/3` },
+        undefined,
+        {
+          count: undefined,
+          proofParts: 3,
+          proofGroups: ['1', '0,2'],
+          inputsOf,
+        }
+      )[0]
+    ).toContain('past 2 proof groups');
+    expect(
+      modelTaskProblems(
+        pkg,
+        { 'check:models:1:0': `${MODELS_RUNNER}` },
+        undefined,
+        {
+          count: 2,
+          inputsOf: () => inputs,
+        }
+      )
+    ).toEqual([
+      'libs/a/package.json: "check:models:1:0" is a phase of no split — declare phaseParts or delete it',
+      `libs/a/package.json: "check:models:0" must be "${MODELS_RUNNER} --part 0/2"`,
+      `libs/a/package.json: "check:models:1" must be "${MODELS_RUNNER} --part 1/2"`,
+    ]);
   });
 
   test("the task must hash every domain's models, or an edit is served stale", () => {

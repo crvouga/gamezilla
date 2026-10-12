@@ -1,18 +1,18 @@
 import { expect, test } from 'bun:test';
-import { publishSource, SPEC_RUN_ID } from '@crvouga/atlas-reports/publish';
+import { publishSource, SPEC_RUN_ID } from '@crvouga/atlas/reports/publish';
 import {
   listSourceRecords,
   readFrameBody,
   readTestReport,
   testEvents,
-} from '@crvouga/atlas-reports/read';
-import type { HtmlReportBlob } from '@crvouga/atlas-reports/recording-bundle';
+} from '@crvouga/atlas/reports/read';
+import type { HtmlReportBlob } from '@crvouga/atlas/reports/recording-bundle';
 import {
   reportGeneration,
   reuseSource,
   sourceContentPrefix,
-} from '@crvouga/atlas-reports/source-content';
-import { sourcePart } from '@crvouga/atlas-reports/source-part';
+} from '@crvouga/atlas/reports/source-content';
+import { sourcePart } from '@crvouga/atlas/reports/source-part';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';

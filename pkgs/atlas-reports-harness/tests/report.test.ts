@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { fileLabel, fmtMs } from '@crvouga/atlas-reports/format';
-import { orderedUiBlobs, testFrames } from '@crvouga/atlas-reports/frames';
-import { buildHash, parseHash } from '@crvouga/atlas-reports/hash';
-import type { HtmlReportTest } from '@crvouga/atlas-reports/recording-bundle';
+import { fileLabel, fmtMs } from '@crvouga/atlas/reports/format';
+import { orderedUiBlobs, testFrames } from '@crvouga/atlas/reports/frames';
+import { buildHash, parseHash } from '@crvouga/atlas/reports/hash';
+import type { HtmlReportTest } from '@crvouga/atlas/reports/recording-bundle';
 
 describe('hash', () => {
   test('round-trips list and test routes', () => {

@@ -1,4 +1,0 @@
-{
-  "summary": "The e14700dd1 report tests view permanently reserved a wide revision rail, crowding tests and replay instead of opening revisions on demand.",
-  "regressionTest": "vendor/atlas/packages/visualizer/tests/reports.test.tsx"
-}

@@ -94,7 +94,7 @@ function assertCatalogsFresh(): void {
   writeScratchConfig();
   const config = ['--config', SCRATCH_CONFIG_REL];
   // One process, no worker pool: the pool costs ~2.5x the CPU for a few
-  // hundred ms of wall, and under a loaded `bun check` its workers failed to
+  // hundred ms of wall, and under a loaded `bun check-pr` its workers failed to
   // init ("Did not receive an init message from worker").
   run('bunx', [
     '--bun',

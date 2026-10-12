@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { actionLabel, formatArgs } from '@crvouga/atlas-reports/format';
-import type { ReportStep } from '@crvouga/atlas-reports/report-types';
-import { gherkinText, scenarioScript } from '@crvouga/atlas-reports/scenario';
+import { actionLabel, formatArgs } from '@crvouga/atlas/reports/format';
+import type { ReportStep } from '@crvouga/atlas/reports/report-types';
+import { gherkinText, scenarioScript } from '@crvouga/atlas/reports/scenario';
 
 function step(
   patch: Partial<ReportStep> & Pick<ReportStep, 'kind' | 'title'>

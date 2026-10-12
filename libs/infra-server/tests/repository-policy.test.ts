@@ -14,21 +14,23 @@ const actions = readFileSync(
 );
 const imports = readFileSync(join(TOFU, 'stacks/bootstrap/imports.tf'), 'utf8');
 
-test('main policy requires a PR with no status checks, bypass, or approval ceremony', () => {
+test('main policy requires verified current-main CI with no bypass or approval ceremony', () => {
+  // GitHub Actions owns the check status.
+  expect(GLOBAL.github.check_integration_id).toBe(15368);
   expect(repository).toMatch(/resource "github_repository_ruleset" "main"/);
   for (const rule of [
     'deletion',
     'non_fast_forward',
     'required_linear_history',
     'required_review_thread_resolution',
+    'strict_required_status_checks_policy',
   ]) {
     expect(repository).toMatch(new RegExp(`${rule}\\s*=\\s*true`));
   }
   expect(repository).toMatch(/include\s*=\s*\["refs\/heads\/main"\]/);
   expect(repository).toMatch(/enforcement\s*=\s*"active"/);
   expect(repository).toMatch(/required_approving_review_count\s*=\s*0/);
-  expect(repository).not.toMatch(/required_status_checks/);
-  expect(repository).not.toMatch(/required_check/);
+  expect(repository).toMatch(/integration_id\s*=\s*var.check_integration_id/);
   expect(repository).not.toMatch(/\bbypass_actors\s*\{/);
   expect(repository).not.toMatch(/resource "github_branch_protection"/);
 });
@@ -45,12 +47,33 @@ test('squash-only history and disposable heads remain compatible with main prote
 test('only descriptive metadata may drift without a plan', () => {
   expect(repository).toMatch(/ignore_changes\s*=\s*\[description, topics\]/);
   for (const name of Object.keys(GLOBAL.github.settings)) {
+    if (name === 'allow_forking') continue;
     expect(repository).toMatch(
       new RegExp(`${name}\\s*=\\s*var.settings.${name}`)
     );
   }
   expect(repository).toMatch(/prevent_destroy\s*=\s*true/);
   expect(GLOBAL.global_imports?.github_repository).toBe(GLOBAL.github.repo);
+});
+
+// regression: bootstrap-user-owned-forking
+test('a user-owned repository does not send allow_forking', () => {
+  // Literal failing input: plan `allow_forking = true -> false` on
+  // crvouga/gamezilla, then PATCH /repos/crvouga/gamezilla 422
+  // "Allow forks setting can only be changed on org-owned private repositories".
+  expect(GLOBAL.github.owner).toBe('crvouga');
+  expect(GLOBAL.github.owner_is_organization).toBe(false);
+  expect(GLOBAL.github.settings.allow_forking).toBe(false);
+  expect(repository).toMatch(
+    /allow_forking\s*=\s*var\.owner_is_organization \? var\.settings\.allow_forking : null/
+  );
+  const bootstrap = readFileSync(
+    join(TOFU, 'stacks/bootstrap/main.tf'),
+    'utf8'
+  );
+  expect(bootstrap).toMatch(
+    /owner_is_organization\s*=\s*var\.github\.owner_is_organization/
+  );
 });
 
 // regression: github-security-unsupported-fields

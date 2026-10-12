@@ -59,7 +59,7 @@ describe('tcScopeViolations', () => {
   test('tcProject reads the -p argument', () => {
     expect(tcProject(TC)).toBe('tsconfig.tc.json');
     expect(tcProject('tsc --noEmit -p tsconfig.json')).toBe('tsconfig.json');
-    expect(tcProject('bun run check')).toBeNull();
+    expect(tcProject('bun check-pr')).toBeNull();
   });
 
   test('property: JSONC comments and trailing commas never change the parse', () => {

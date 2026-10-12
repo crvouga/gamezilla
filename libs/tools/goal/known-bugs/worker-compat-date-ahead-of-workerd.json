@@ -1,4 +1,4 @@
 {
-  "summary": "The Workers' compatibility_date (2026-09-22) ran ahead of the pinned wrangler 4.87's workerd (supports up to 2026-05-07), so check:api's local preview refused to boot and every deploy failed while bun check stayed green. Fixed by bumping wrangler and holding the date at or below workerd's in check:worker-bundle.",
+  "summary": "The Workers' compatibility_date (2026-09-22) ran ahead of the pinned wrangler 4.87's workerd (supports up to 2026-05-07), so check:api's local preview refused to boot and every deploy failed while bun check-pr stayed green. Fixed by bumping wrangler and holding the date at or below workerd's in check:worker-bundle.",
   "regressionTest": "libs/tools/scripts/worker-compat-date.test.ts"
 }

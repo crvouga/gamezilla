@@ -51,8 +51,8 @@ export const openHarness = (testId: string, options?: OpenHarnessOptions) =>
 
 Each sub exports its slice (manifest, client, server, actions, reads,
 properties, seeds, room host, browser pages) from `@libs/<sub>/harness/*`.
-`composeHarnessSlices` adds the platform (auth, client-config, permissions) and
-folds in production's order. Run one package's suite with
+`composeHarnessSlices` adds the platform (auth, client-config, permissions, and
+the population tables identity reads) and folds in production's order. Run one package's suite with
 `bun run --filter @libs/chess-root-harness test:spec`, one spec with
 `bun run spec specs/chess/puzzle-play.feature`.
 
@@ -176,7 +176,7 @@ committed fixture from the running package's `fixtures/snapshots/<id>.json`
 **Reports** — every harness writes its `report.json` (Gherkin and Quint
 steps, the harness calls and UI ops under them, outcomes, drawn traces) into
 `<pkg>/.cache/harness-report`, the `test:spec` turbo `outputs`; every
-`bun check` publishes every bucket to the shared reports store, per
+`bun check-pr` publishes every bucket to the shared reports store, per
 commit, where the standalone Atlas explorer reads it
 ([`specs/README.md`](../../specs/README.md#workflow)). Failed JUnit
 testcases also become `test.failure` spans under

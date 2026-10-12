@@ -10,6 +10,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { resolveCacheFlag } from './turbo-ci-run';
+import { wallRemoteHas } from './turbo-preflight';
 
 const turbo = join(import.meta.dirname, '../../../node_modules/.bin/turbo');
 const sentinel = 'fixture-secret-must-never-enter-a-cache-artifact';
@@ -124,14 +125,15 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
   const server = Bun.serve({
     port: 0,
     async fetch(request) {
-      const path = new URL(request.url).pathname;
-      if (path === '/v8/artifacts/status')
+      const url = new URL(request.url);
+      const key = `${url.pathname}${url.search}`;
+      if (url.pathname === '/v8/artifacts/status')
         return Response.json({ status: 'enabled' });
       if (request.method === 'PUT') {
-        artifacts.set(path, new Uint8Array(await request.arrayBuffer()));
+        artifacts.set(key, new Uint8Array(await request.arrayBuffer()));
         return new Response(null, { status: 200 });
       }
-      const bytes = artifacts.get(path);
+      const bytes = artifacts.get(key);
       if (!bytes) return new Response(null, { status: 404 });
       return new Response(
         request.method === 'HEAD' ? null : new Uint8Array(bytes)
@@ -155,12 +157,18 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
       REPORTS_TOKEN: sentinel,
       GITHUB_RUN_ID: 'first',
       TURBO_TELEMETRY_DISABLED: '1',
+      NO_COLOR: '1',
+      FORCE_COLOR: '0',
       BUILD_FLAVOR: 'plain',
     };
     const mode = resolveCacheFlag({}, true);
     const args = [`--cache=${mode}`, '--output-logs=full'];
     expect(await invoke(root, env, args)).toContain('0 cached, 3 total');
     expect(artifacts.size).toBe(3);
+    // regression: turbo-remote-artifact-url — HEAD must use the query the CLI PUT.
+    const stored = await hashes(root, env);
+    expect(await wallRemoteHas(env)(stored['a#build']!)).toBe(true);
+    for (const key of artifacts.keys()) expect(key).toContain('?slug=fixture');
     const before = await hashes(root, env);
     for (const name of ['a', 'b', 'c']) {
       rmSync(join(root, 'packages', name, 'dist'), { recursive: true });
@@ -214,9 +222,11 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
     await invoke(root, failedEnv, args, 7);
     expect(artifacts.size).toBe(successfulArtifacts);
     for (const hash of Object.values(await hashes(root, failedEnv)))
-      expect([...artifacts.keys()].some((path) => path.endsWith(hash))).toBe(
-        false
-      );
+      expect(
+        [...artifacts.keys()].some((path) =>
+          path.includes(`/v8/artifacts/${hash}`)
+        )
+      ).toBe(false);
     for (const bytes of artifacts.values()) {
       expect(
         Buffer.from(Bun.zstdDecompressSync(bytes)).includes(

@@ -15,7 +15,7 @@ product; a repository supplies the facts and its own evidence map.
 | `proofs` | `Proof` (`{ spec }`, `{ live }`, `{ task }`, `{ kind }`, `{ line }`) and `EvidenceMap` — what a repository says proves each environment, public contract, release gate and readiness requirement — and `proofProblem`: a named spec exists and is bound (and runs where it is claimed to), a task is reached by the release gate, a kind has a spec, a report line exists. |
 | `closure` | `closureProblems(world)`: contexts are exactly the spec directories; capabilities and decision tables name each other exactly; every required kind has a spec and every spec is bound; every objective measures a context; the evidence map covers exactly the manifest's ids and every proof is automated; each public contract is proven in its own context. Pure over plain facts (`ClosureWorld`). |
 
-The repository's gate (`//#ci:conformance`,
+The repository's gate (`@libs/tools#ci:conformance`,
 `libs/tools/scripts/check-conformance.ts`) reads the facts and runs
 `closureProblems`; its report (`bun run conformance`) turns recorded evidence
 into the pipeline's PASS/FAIL per line.

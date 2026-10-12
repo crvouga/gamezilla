@@ -7,7 +7,7 @@ platform it drives:
 
 | Driver | Package | Host |
 | --- | --- | --- |
-| `createSolidDomDriver` | [`@pkgs/ui-testing-solid-dom`](../ui-testing-solid-dom/README.md) | Solid in happy-dom (every `bun check` UI suite) |
+| `createSolidDomDriver` | [`@pkgs/ui-testing-solid-dom`](../ui-testing-solid-dom/README.md) | Solid in happy-dom (every `bun check-pr` UI suite) |
 | `BunWebviewDriver` | `@pkgs/ui-testing-bun-webview` | `Bun.WebView` (opt-in live-browser harnesses) |
 
 A suite is written once against `Driver`; swapping hosts is a driver choice,

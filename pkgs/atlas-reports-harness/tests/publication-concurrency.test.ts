@@ -5,8 +5,8 @@ import {
   createBundleReader,
   publishBundle,
   readBundleIndex,
-} from '@crvouga/atlas-reports/bundle';
-import { publishInventory } from '@crvouga/atlas-reports/spec-inventory';
+} from '@crvouga/atlas/reports/bundle';
+import { publishInventory } from '@crvouga/atlas/reports/spec-inventory';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 
 function deferred() {

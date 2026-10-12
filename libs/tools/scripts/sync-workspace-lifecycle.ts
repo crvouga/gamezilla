@@ -2,7 +2,7 @@
 // @io-wall-ok — composition root
 /**
  * Workspace lifecycle fan-out (`bun run workspace:sync`, gate
- * `//#ci:workspace-lifecycle`).
+ * `@libs/tools#ci:workspace-lifecycle`).
  *
  * `libs/tools/workspace/<hook>.sh` is the single source of truth for every
  * workspace lifecycle hook. Each agent orchestrator discovers those hooks in
@@ -27,8 +27,9 @@ const ROOT = join(import.meta.dirname, '../../..');
 const SOURCE_DIR = 'libs/tools/workspace';
 const SYNC_COMMAND = 'bun run workspace:sync';
 
-/** Lifecycle hooks every orchestrator gets, in config order. */
-export const HOOKS = ['setup', 'teardown', 'run'] as const;
+/** Lifecycle hooks every orchestrator gets, in config order. Start is only
+ * `run` (it prepares a cold workspace itself). There is no setup hook. */
+export const HOOKS = ['teardown', 'run'] as const;
 export type Hook = (typeof HOOKS)[number];
 
 /** Command an orchestrator runs (from the worktree root) for one hook. */
@@ -44,10 +45,9 @@ export interface Orchestrator {
   render: (commands: Record<Hook, string>) => unknown;
 }
 
-/** `{ "setup": [...], "teardown": [...], "run": [...] }`, one command each. */
+/** `{ "teardown": [...], "run": [...] }`, one command each. */
 function commandArrays(commands: Record<Hook, string>): Record<Hook, string[]> {
   return {
-    setup: [commands.setup],
     teardown: [commands.teardown],
     run: [commands.run],
   };

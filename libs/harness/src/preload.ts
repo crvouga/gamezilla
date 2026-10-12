@@ -64,7 +64,12 @@ function createArtifactTelemetry(): NodeTelemetry | undefined {
             [ATTR.APP_TEST_ID]: process.env['OBS_TEST_ID'],
           },
         }),
-    exporter: new NdjsonSpanExporter({ store, key: 'spans.ndjson' }),
+    // One artifact per process: parallel workers share this directory, and
+    // each exporter owns the segments it writes.
+    exporter: new NdjsonSpanExporter({
+      store,
+      key: `spans.${String(process.pid)}.ndjson`,
+    }),
   });
 }
 

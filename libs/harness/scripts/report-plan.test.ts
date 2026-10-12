@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { openCommit, publishSource } from '@crvouga/atlas-reports/publish';
-import { readCommit } from '@crvouga/atlas-reports/read';
+import { openCommit, publishSource } from '@crvouga/atlas/reports/publish';
+import { readCommit } from '@crvouga/atlas/reports/read';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import {
   createReportPlan,

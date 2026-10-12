@@ -41,6 +41,7 @@ const EXACT_TASKS = new Set([
   'lint',
   'test',
   'test:contract',
+  'test:contract:render',
   'check:models',
   'check:worker-bundle',
   'check:offline-shell',
@@ -48,9 +49,7 @@ const EXACT_TASKS = new Set([
   'check:actionlint',
   'check:secrets',
   'check:board-contract',
-]);
-const ROOT_TASKS = [
-  'lint:root',
+  'check:root-lint',
   'ci:syncpack',
   'ci:audit',
   'ci:i18n',
@@ -61,7 +60,7 @@ const ROOT_TASKS = [
   'ci:statecharts',
   'ci:conformance',
   'ci:spec-ownership',
-];
+]);
 
 export type PackageWork = {
   readonly name: string;
@@ -126,9 +125,9 @@ export type LoadReport = {
   readonly fit: RunnerFit;
 };
 
-/** A package script that `//#check` schedules. */
+/** A package script that the Check gate schedules. */
 export function isCheckTask(name: string): boolean {
-  return EXACT_TASKS.has(name) || /^test:spec:\d+$/.test(name);
+  return EXACT_TASKS.has(name) || /^(test:spec|check:models):\d+$/.test(name);
 }
 
 export function percentile(values: readonly number[], p: number): number {
@@ -194,17 +193,16 @@ export function loadReport(input: LoadInput): LoadReport {
     own.set(pkg.name, packageLoad(pkg, input.costs, acc));
   const counts = dependentCounts(input.packages);
   const leaves = [...own.values()]
-    .filter((load) => load.name !== '//' && (counts.get(load.name) ?? 0) === 0)
+    .filter((load) => (counts.get(load.name) ?? 0) === 0)
     .filter((load) => load.tasks > 0)
     .sort(bySeconds);
   const cones = input.packages
-    .filter((pkg) => pkg.name !== '//')
     .map((pkg) => coneLoad(pkg.name, input.packages, own))
     .sort(bySeconds)
     .slice(0, 3);
   const leafPoles = leaves.map((load) => load.poleSeconds);
   const report = {
-    packages: input.packages.filter((pkg) => pkg.name !== '//').length,
+    packages: input.packages.length,
     tasks: acc.totals.tasks,
     measuredTasks: acc.totals.measured,
     estimatedTasks: acc.totals.estimated,
@@ -518,7 +516,6 @@ export function replaceMeasuredLoad(doc: string, section: string): string {
 
 export function readLoadInput(root: string): LoadInput {
   const packages = TIERS.flatMap((tier) => readTier(join(root, tier)));
-  packages.push({ name: '//', dependencies: [], tasks: ROOT_TASKS });
   const costs = JSON.parse(
     readFileSync(join(root, 'libs/tools/scripts/check-task-costs.json'), 'utf8')
   ) as Record<string, number>;

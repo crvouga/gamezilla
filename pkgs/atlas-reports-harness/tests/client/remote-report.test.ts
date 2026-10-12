@@ -3,25 +3,25 @@ import {
   createHttpReportFetcher,
   memoryReportCache,
   reportQueryClient,
-} from '@crvouga/atlas-reports/fetcher';
-import { frameCssKey, isKeySegment } from '@crvouga/atlas-reports/keys';
-import type { CommitEvent, TestEvent } from '@crvouga/atlas-reports/protocol';
-import { encodeSseEvent } from '@crvouga/atlas-reports/protocol';
+} from '@crvouga/atlas/reports/fetcher';
+import { frameCssKey, isKeySegment } from '@crvouga/atlas/reports/keys';
+import type { CommitEvent, TestEvent } from '@crvouga/atlas/reports/protocol';
+import { encodeSseEvent } from '@crvouga/atlas/reports/protocol';
 import {
   closeCommit,
   openCommit,
   publishSource,
   SPEC_RUN_ID,
-} from '@crvouga/atlas-reports/publish';
+} from '@crvouga/atlas/reports/publish';
 import {
   commitEvents,
   listSourceRecords,
   readFrameBody,
   readTestReport,
   testEvents,
-} from '@crvouga/atlas-reports/read';
-import type { RemoteReport } from '@crvouga/atlas-reports/remote-report';
-import { createRemoteReport } from '@crvouga/atlas-reports/remote-report';
+} from '@crvouga/atlas/reports/read';
+import type { RemoteReport } from '@crvouga/atlas/reports/remote-report';
+import { createRemoteReport } from '@crvouga/atlas/reports/remote-report';
 import type { HarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import type { Timers } from '@pkgs/clock-shared/types';

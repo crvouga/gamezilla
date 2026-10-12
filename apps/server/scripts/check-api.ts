@@ -11,7 +11,7 @@
  * graph no longer has a separate "Start API preview" workflow step.
  *
  * Deploy only (`@apps/server#check:api` in the deploy graph; not part of
- * `bun check`).
+ * `bun check-pr`).
  *
  * Invoked via `bun run --filter @apps/server check:api` under `secrets-run`.
  */

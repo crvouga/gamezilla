@@ -7,7 +7,7 @@ const root = join(import.meta.dirname, '../../..');
 // regression: check-cache-write-only-override
 test('Check enforces read/write after secrets injection', () => {
   const workflow = readFileSync(
-    join(root, '.github/workflows/check.yml'),
+    join(root, '.github/workflows/check-pr.yml'),
     'utf8'
   );
   expect(workflow).toContain(
@@ -16,28 +16,51 @@ test('Check enforces read/write after secrets injection', () => {
 });
 
 // regression: ci-provider-api-dependency-cache-ref
-test('setup does not use ref-dependent dependency cache actions', () => {
-  const setup = readFileSync(
+test('setup installs frozen dependencies whether or not the dependency cache answers', () => {
+  const source = readFileSync(
     join(root, '.github/actions/setup/action.yml'),
     'utf8'
   );
-  expect(setup).not.toMatch(/uses: actions\/cache/);
-  expect(setup).toContain('bun install --frozen-lockfile');
-  expect(setup).toContain('uses: jdx/mise-action@v4');
-});
-
-// regression: ci-submodule-workspace-not-initialized
-test('setup initializes workspace submodules before installing dependencies', () => {
-  const setup = readFileSync(
-    join(root, '.github/actions/setup/action.yml'),
-    'utf8'
+  const setup = Bun.YAML.parse(source) as {
+    runs: {
+      steps: {
+        name?: string;
+        if?: string;
+        uses?: string;
+        run?: string;
+        with?: Record<string, string>;
+      }[];
+    };
+  };
+  const steps = setup.runs.steps;
+  const install = steps.findIndex(
+    (step) => step.run === 'bun install --frozen-lockfile'
   );
-  const initializeSubmodules = setup.indexOf(
-    'git submodule update --init --recursive'
+  expect(install).toBeGreaterThan(-1);
+  expect(steps[install]!.if).toBeUndefined();
+  expect(source).toContain('uses: jdx/mise-action@v4');
+  // The cache is an exact, content-only key: no ref, no fallback to the
+  // trees of another lockfile.
+  expect(source).not.toMatch(/github\.(ref|head_ref|base_ref)|GITHUB_REF/);
+  const caches = steps.filter((step) => step.uses?.startsWith('actions/cache'));
+  expect(caches.map((step) => step.uses)).toEqual([
+    'actions/cache/restore@v5',
+    'actions/cache/save@v5',
+  ]);
+  const [restore, save] = caches as [
+    (typeof steps)[number],
+    (typeof steps)[number],
+  ];
+  expect(restore.with!['restore-keys']).toBeUndefined();
+  expect(restore.with!['fail-on-cache-miss']).toBeUndefined();
+  expect(restore.with!['key']).toContain(
+    "hashFiles('bun.lock', 'mise.toml', '.github/actions/setup/action.yml')"
   );
-  const installDependencies = setup.indexOf('bun install --frozen-lockfile');
-  expect(initializeSubmodules).toBeGreaterThan(-1);
-  expect(initializeSubmodules).toBeLessThan(installDependencies);
+  expect(save.with!['path']).toBe(restore.with!['path']!);
+  // Restored before the install checks the trees, saved after it built them.
+  expect(steps.indexOf(restore)).toBeLessThan(install);
+  expect(steps.indexOf(save)).toBeGreaterThan(install);
+  expect(save.if).toBe("steps.dependencies.outputs.cache-hit != 'true'");
 });
 
 // regression: turbo-build-unhashed-inputs

@@ -1,7 +1,10 @@
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import { bigintToJsonSafe } from '@pkgs/sql-client-postgres-shared/normalize-pg-int8';
 import { sanitizePostgresUrlForBunSql } from '@pkgs/sql-client-postgres-shared/sanitize-url-for-bun-sql';
-import { sqlBundledWithSearchPath } from '@pkgs/sql-client-postgres-shared/session-schema';
+import {
+  postgresRejectsStartupSearchPathOption,
+  sqlBundledWithSearchPath,
+} from '@pkgs/sql-client-postgres-shared/session-schema';
 import type {
   PostgresSqlClient,
   PreparedStatement,
@@ -30,9 +33,15 @@ export class SqlClientImplBunPostgres implements PostgresSqlClient {
   ) {
     const sql =
       typeof connection === 'string' || connection instanceof URL
-        ? new SQL(sanitizePostgresUrlForBunSql(connection))
+        ? new SQL(
+            sanitizePostgresUrlForBunSql(connection),
+            startupOptions(connection, dbScope)
+          )
         : connection;
-    // Bun does not apply every libpq startup option. A transaction pins the
+    // Bun does not apply every libpq startup option, and a server that resolves
+    // names while a transaction block is still setting its path can describe a
+    // query's rows against the old path. The startup parameter below gives each
+    // connection the schema before its first query; a transaction still pins the
     // same backend that executes the query, including behind poolers.
     this.client = createClient(sql, { pinSearchPathEachQuery: true, dbScope });
   }
@@ -69,6 +78,19 @@ export class SqlClientImplBunPostgres implements PostgresSqlClient {
   transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
     return this.client.transaction(fn);
   }
+}
+
+/**
+ * Sends `search_path` as a startup parameter by name, which Bun applies where
+ * it ignores the URL's `options`. Pooler endpoints reject startup parameters,
+ * so they rely on the per-query pin alone.
+ */
+function startupOptions(
+  connection: string | URL,
+  dbScope: PostgresDbScope
+): { readonly connection?: Record<string, string> } {
+  if (postgresRejectsStartupSearchPathOption(String(connection))) return {};
+  return { connection: { search_path: dbScope.schema } };
 }
 
 type BunPinnedQueryArgs = {

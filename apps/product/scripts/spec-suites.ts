@@ -4,7 +4,7 @@
  * and the whole-app one with the composition root. The live-browser runners
  * (`test:max`, `test:stack`) drive all of them, one package at a time: each
  * package's `test:spec` is the same harness runner, so a suite runs the same
- * way here as in `bun check`, only on the `bun-webview` host.
+ * way here as in `bun check-pr`, only on the `bun-webview` host.
  */
 
 import { spawn } from 'node:child_process';

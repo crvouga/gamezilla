@@ -17,12 +17,13 @@ type Job = { outputs?: Record<string, unknown>; steps: Step[] };
 test('Check transfers the immutable plan as an artifact rather than a masked job output', () => {
   // Run 37511860563 suppressed the plan output and supplied an empty payload.
   const text = readFileSync(
-    join(import.meta.dirname, '../../../.github/workflows/check.yml'),
+    join(import.meta.dirname, '../../../.github/workflows/check-pr.yml'),
     'utf8'
   );
   const { jobs } = Bun.YAML.parse(text) as { jobs: Record<string, Job> };
-  expect(jobs['check-plan']!.outputs).toBeUndefined();
-  const upload = jobs['check-plan']!.steps.find(
+  // The one output is the shard matrix, which holds no plan data.
+  expect(Object.keys(jobs['check-start']!.outputs ?? {})).toEqual(['shards']);
+  const upload = jobs['check-start']!.steps.find(
     (step) =>
       step.uses === 'actions/upload-artifact@v6' &&
       step.with?.['name'] === 'check-plan'
@@ -30,16 +31,17 @@ test('Check transfers the immutable plan as an artifact rather than a masked job
   expect(upload?.with?.['path']).toBe('.cache/check-ci/plan.payload');
   expect(upload?.with?.['overwrite']).toBe(true);
   expect(text).not.toContain('CHECK_PLAN_PAYLOAD');
-  for (const name of ['check-shards', 'check-consumers']) {
+  for (const [name, script] of [
+    ['check-shards', 'check-stage-transfer.ts'],
+    ['check-end', 'check-consumers.ts'],
+  ] as const) {
     const steps = jobs[name]!.steps;
     const download = steps.findIndex(
       (step) =>
         step.uses === 'actions/download-artifact@v6' &&
         step.with?.['name'] === 'check-plan'
     );
-    const restore = steps.findIndex((step) =>
-      step.run?.includes('check-stage-transfer.ts')
-    );
+    const restore = steps.findIndex((step) => step.run?.includes(script));
     expect(download).toBeGreaterThan(-1);
     expect(download).toBeLessThan(restore);
     expect(steps[download]?.with?.['path']).toBe('.cache/check-ci');

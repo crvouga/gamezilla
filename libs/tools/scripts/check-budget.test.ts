@@ -10,11 +10,15 @@ import {
   DEPLOY_RUN_DEADLINE_SECONDS,
   findBudgetOverruns,
   formatBudgetOverruns,
+  gateExitCode,
   RUN_DEADLINE_ENV,
   resolveRunDeadlineSeconds,
   SLOW_RUNNER_MULTIPLIER,
+  slowCiRunner,
   TASK_BUDGET_SECONDS,
   taskBudgetSeconds,
+  WARM_RUN_DEADLINE_SECONDS,
+  WARM_RUNNER_MIN_CPUS,
 } from './check-budget';
 
 function task(taskId: string, seconds: number, cacheStatus = 'MISS') {
@@ -82,7 +86,7 @@ describe('resolveRunDeadlineSeconds', () => {
 
   // regression: health-timeout-hides-hung-probe
   test.each([
-    ['check.yml', 'check'],
+    ['check-pr.yml', 'check'],
     ['health.yml', 'health:${{ matrix.env }}'],
   ])('the CI deadline fires before the %s step timeout', (file, name) => {
     // Otherwise GitHub kills the job first and nobody learns which task hung.
@@ -90,9 +94,11 @@ describe('resolveRunDeadlineSeconds', () => {
       join(import.meta.dirname, '../../../.github/workflows', file),
       'utf8'
     );
-    // Only the step's own keys: stop at the next step (`- …`).
+    // Only the step's own keys: stop at the next step (`- …`). The gate's
+    // step names both profiles' timeouts; the `pr` one is the default read
+    // here, and `check-profile.test.ts` holds the nightly one.
     const step = new RegExp(
-      `- name: ${RegExp.escape(name)}\\n(?:(?!\\s*- ).*\\n)*?\\s+timeout-minutes:\\s*(\\d+)`
+      `- name: ${RegExp.escape(name)}\\n(?:(?!\\s*- ).*\\n)*?\\s+timeout-minutes:\\s*(?:\\$\\{\\{ inputs\\.profile == 'nightly' && \\d+ \\|\\| )?(\\d+)`
     ).exec(workflow);
     expect(step, `${file} ${name} step has a timeout-minutes`).not.toBeNull();
     expect(Number(step?.[1]) * 60).toBeGreaterThan(CI_RUN_DEADLINE_SECONDS);
@@ -101,7 +107,7 @@ describe('resolveRunDeadlineSeconds', () => {
   test('release verification installs Chrome without apt dependency upgrades', () => {
     const workflow = Bun.YAML.parse(
       readFileSync(
-        join(import.meta.dirname, '../../../.github/workflows/check.yml'),
+        join(import.meta.dirname, '../../../.github/workflows/check-pr.yml'),
         'utf8'
       )
     ) as {
@@ -132,6 +138,59 @@ describe('resolveRunDeadlineSeconds', () => {
     // regression: check-chrome-apt-stalls-pr-gate
     expect(renderer).toContain('install-dependencies: false');
     expect(renderer).not.toContain('install-dependencies: true');
+  });
+
+  test('only a small CI runner is slow; a warm one keeps the five-minute ceiling', () => {
+    expect(slowCiRunner(false, 32)).toBe(false);
+    expect(slowCiRunner(true, WARM_RUNNER_MIN_CPUS - 1)).toBe(true);
+    expect(slowCiRunner(true, WARM_RUNNER_MIN_CPUS)).toBe(false);
+    expect(
+      resolveRunDeadlineSeconds(
+        {},
+        { isDeploy: false, slowRunner: false, warmRunner: true }
+      )
+    ).toBe(WARM_RUN_DEADLINE_SECONDS);
+    expect(
+      resolveRunDeadlineSeconds(
+        {},
+        { isDeploy: true, slowRunner: false, warmRunner: true }
+      )
+    ).toBe(DEPLOY_RUN_DEADLINE_SECONDS);
+  });
+
+  test('a deadline still fails the gate when turbo exits after the flush', () => {
+    expect(
+      gateExitCode({
+        deadlineHit: true,
+        signal: null,
+        code: 0,
+        published: true,
+      })
+    ).toBe(124);
+    expect(
+      gateExitCode({
+        deadlineHit: false,
+        signal: 'SIGTERM',
+        code: 0,
+        published: true,
+      })
+    ).toBe(124);
+    expect(
+      gateExitCode({
+        deadlineHit: false,
+        signal: null,
+        code: 0,
+        published: true,
+      })
+    ).toBe(0);
+    expect(
+      gateExitCode({
+        deadlineHit: false,
+        signal: null,
+        code: null,
+        published: false,
+      })
+    ).toBe(1);
   });
 
   test('a positive env override wins', () => {

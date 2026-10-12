@@ -3,7 +3,7 @@
 /**
  * Whole-repo naming sweep: Markdown docs are `SCREAMING_SNAKE_CASE.md`, every
  * other file and directory is `lower-kebab-case` (rules + exemptions:
- * `libs/tools/naming/naming-rules.ts`). `bun check` applies the same rules per
+ * `libs/tools/naming/naming-rules.ts`). `bun check-pr` applies the same rules per
  * package inside `lint`; this sweep backs `bun run lint:naming`, the
  * `naming:fix` post-write gate and the pre-commit hook.
  *

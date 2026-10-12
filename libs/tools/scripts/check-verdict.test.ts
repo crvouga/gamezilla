@@ -20,23 +20,36 @@ function result(taskId: string, passed: boolean): Result {
 }
 
 const JOBS = [
-  { name: 'check:plan', result: 'success' },
+  { name: 'check:start', result: 'success' },
   { name: 'check:shards', result: 'success' },
-  { name: 'check:consumers', result: 'success' },
 ];
 
 describe('check verdict', () => {
   test('groups task identities into suites', () => {
     expect(suiteOf('@apps/product#tc')).toBe('Typecheck');
-    expect(suiteOf('//#lint:root')).toBe('Lint and boundaries');
+    expect(suiteOf('@apps/product#test:contract:render')).toBe(
+      'Contract tests'
+    );
+    expect(suiteOf('@pkgs/matchmaking-root-harness#check:models:0')).toBe(
+      'Quint models'
+    );
+    expect(suiteOf('@libs/chess-root-harness#check:models:7')).toBe(
+      'Quint models'
+    );
+    expect(suiteOf('@libs/tools#check:root-lint')).toBe('Lint and boundaries');
     expect(suiteOf('@apps/product#test:spec:12')).toBe('Gherkin specs');
     expect(suiteOf('@apps/product#check:models')).toBe('Quint models');
+    expect(
+      suiteOf(
+        '@apps/synthetic-population-worker#check:synthetic-population-foundation'
+      )
+    ).toBe('Synthetic Population');
     expect(suiteOf('@libs/tools#check:secrets')).toBe('Security');
-    expect(suiteOf('//#ci:audit')).toBe('Security');
+    expect(suiteOf('@libs/tools#ci:audit')).toBe('Security');
     expect(suiteOf('@libs/runtime-server#check:schema-evolution')).toBe(
       'Database schema'
     );
-    expect(suiteOf('//#ci:syncpack')).toBe('Repository gates');
+    expect(suiteOf('@libs/tools#ci:syncpack')).toBe('Repository gates');
   });
 
   test('reports every failure across shards, not only the first', () => {
@@ -69,20 +82,20 @@ describe('check verdict', () => {
     const verdict = summarize({
       planned: ['@a/x#tc'],
       shards: [{ index: 0, verdict: 0, tasks: [result('@a/x#tc', true)] }],
-      jobs: [...JOBS.slice(1), { name: 'check:plan', result: 'failure' }],
+      jobs: [...JOBS.slice(1), { name: 'check:start', result: 'failure' }],
     });
     expect(verdict.passed).toBe(false);
-    expect(formatTable(verdict)).toContain('job check:plan');
+    expect(formatTable(verdict)).toContain('job check:start');
   });
 
   test('a run with no evidence never passes', () => {
     const verdict = summarize({
       planned: [],
       shards: [],
-      jobs: [{ name: 'check:plan', result: 'failure' }],
+      jobs: [{ name: 'check:start', result: 'failure' }],
     });
     expect(verdict.passed).toBe(false);
-    expect(formatTable(verdict)).toMatch(/job check:plan\s+FAILURE/);
+    expect(formatTable(verdict)).toMatch(/job check:start\s+FAILURE/);
     expect(formatTable(verdict)).toContain(
       'No task verdicts: 1 jobs did not succeed'
     );

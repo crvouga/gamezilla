@@ -1,16 +1,20 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CI aggregation entry; reads shard evidence, writes the verdict.
 /**
- * `check:verify`: one verdict for a full Check run. Every shard's
+ * The verdict `check:end` gives a full Check run. Every shard's
  * `results/shard-<n>.json` (inside its evidence tar) is grouped into
  * suites — typecheck, unit tests, Gherkin specs, Quint models, … — so a red
  * run names every failing task at once, with the artifact that holds its
  * evidence. A planned task with no verdict (a crashed or cancelled shard)
- * fails, as does any upstream job that did not succeed.
+ * fails, as does any upstream job that did not succeed. A stage the plan
+ * left nothing to execute is skipped by design; its tasks' cached verdicts
+ * were recorded by `check:start`.
  *
- * Writes `.cache/check-ci/verdict.{json,md,junit.xml}`, appends the
- * Markdown to `GITHUB_STEP_SUMMARY`, prints the table and exits 1 on any
- * failure.
+ * Appends the Markdown to `GITHUB_STEP_SUMMARY`, prints the table and exits 1
+ * on any failure. The nightly profile also writes
+ * `.cache/check-ci/verdict.{json,md,junit.xml}`; the `pr` profile keeps no
+ * report file (`check-profile.ts`). It also writes the durations this run measured
+ * (`measured-costs.json`), which the next plan packs its shards by.
  */
 import {
   appendFileSync,
@@ -21,8 +25,13 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import type { CheckSchedule } from './check-plan-schedule';
+import { checkSchedule } from './check-plan-schedule';
 import { restorePlan } from './check-plan-transfer';
+import { activeProfile } from './check-profile';
 import type { Result } from './check-shard-results';
+import type { CheckPlan } from './check-shards';
+import { MEASURED_COSTS_PATH, measuredCosts } from './check-task-costs';
 
 export type ShardResult = {
   readonly index: number;
@@ -53,11 +62,12 @@ export type Verdict = {
 /** Suite order is the report order; the first matching rule wins. */
 const SUITES: readonly (readonly [string, RegExp])[] = [
   ['Typecheck', /^tc$/],
-  ['Lint and boundaries', /^(lint|lint:root)$/],
+  ['Lint and boundaries', /^(lint|check:root-lint)$/],
   ['Unit tests', /^test$/],
-  ['Contract tests', /^test:contract$/],
+  ['Contract tests', /^test:contract(:render)?$/],
   ['Gherkin specs', /^test:spec(:\d+)?$/],
-  ['Quint models', /^check:models$/],
+  ['Quint models', /^check:models(:\d+)?$/],
+  ['Synthetic Population', /^check:synthetic-population-foundation$/],
   ['Spec and conformance', /^ci:(specs|conformance|spec-ownership|goals)$/],
   ['Database schema', /^check:schema-evolution$/],
   ['Security', /^(check:secrets|ci:audit)$/],
@@ -68,6 +78,37 @@ const SUITES: readonly (readonly [string, RegExp])[] = [
 export function suiteOf(taskId: string): string {
   const task = taskId.slice(taskId.indexOf('#') + 1);
   return SUITES.find(([, pattern]) => pattern.test(task))![0];
+}
+
+/** `cached`: the plan left the shards nothing to execute, so none ran. */
+const PASSING_JOB_RESULTS = new Set(['success', 'cached']);
+
+function failedJobs(jobs: Verdict['jobs']): Verdict['jobs'] {
+  return jobs.filter((job) => !PASSING_JOB_RESULTS.has(job.result));
+}
+
+/**
+ * Upstream job results as the verdict reads them. Skipped shards read
+ * `cached` only when the plan scheduled none; skipped for any other reason,
+ * or without a plan to say so, stays a failure.
+ */
+export function jobResults(
+  results: Readonly<Record<'start' | 'shards', string | undefined>>,
+  schedule: Pick<CheckSchedule, 'shards'> | null
+): Verdict['jobs'] {
+  const scheduled = {
+    start: true,
+    shards: schedule === null || schedule.shards.length > 0,
+  };
+  return (['start', 'shards'] as const).map((job) => {
+    // Only this mapping may call a stage cached.
+    const raw = results[job] ?? 'unknown';
+    const result = raw === 'cached' ? 'unknown' : raw;
+    return {
+      name: `check:${job}`,
+      result: result === 'skipped' && !scheduled[job] ? 'cached' : result,
+    };
+  });
 }
 
 function failure(result: Result, shard: number): FailedTask {
@@ -109,9 +150,9 @@ export function summarize(args: {
       .filter((task) => suiteOf(task.taskId) === name)
       .sort((a, b) => (a.taskId < b.taskId ? -1 : 1)),
   })).filter((suite) => suite.tasks > 0);
-  const badJobs = args.jobs.filter((job) => job.result !== 'success');
   return {
-    passed: failed.size === 0 && badJobs.length === 0 && ids.size > 0,
+    passed:
+      failed.size === 0 && failedJobs(args.jobs).length === 0 && ids.size > 0,
     suites,
     jobs: args.jobs,
     failures: failed.size,
@@ -120,7 +161,7 @@ export function summarize(args: {
 
 /** The table a person or an agent reads first. */
 export function formatTable(verdict: Verdict): string {
-  const badJobs = verdict.jobs.filter((job) => job.result !== 'success');
+  const badJobs = failedJobs(verdict.jobs);
   const width = Math.max(
     20,
     ...verdict.suites.map((suite) => suite.name.length),
@@ -147,12 +188,19 @@ function verdictLine(verdict: Verdict, red: number, badJobs: number): string {
   return `${verdict.failures} total failures across ${red} suites`;
 }
 
-function evidenceOf(task: FailedTask): string {
+/** Where a failure is read: retained artifacts, or the job log alone. */
+function evidenceOf(task: FailedTask, reports: boolean): string {
   if (task.shard === null) return 'no verdict (shard crashed or cancelled)';
-  return `\`check-evidence-${task.shard}\`, \`observability-traces-*-${task.shard}\``;
+  return reports
+    ? `\`check-evidence-${task.shard}\`, \`observability-traces-*-${task.shard}\``
+    : `the log of \`check:shards (${task.shard})\``;
 }
 
-export function formatMarkdown(verdict: Verdict, runUrl: string): string {
+export function formatMarkdown(
+  verdict: Verdict,
+  runUrl: string,
+  reports = true
+): string {
   const lines = [
     `## ${verdict.passed ? '✅' : '❌'} Release verification`,
     '',
@@ -164,16 +212,16 @@ export function formatMarkdown(verdict: Verdict, runUrl: string): string {
     ),
     '',
   ];
-  for (const job of verdict.jobs.filter((job) => job.result !== 'success'))
+  for (const job of failedJobs(verdict.jobs))
     lines.push(`- job \`${job.name}\`: **${job.result}**`);
   for (const suite of verdict.suites.filter((suite) => suite.failed.length)) {
     lines.push('', `### ${suite.name}`, '');
     for (const task of suite.failed)
       lines.push(
-        `- \`${task.taskId}\` — ${task.reason} (exit ${task.exitCode}); evidence ${evidenceOf(task)}`
+        `- \`${task.taskId}\` — ${task.reason} (exit ${task.exitCode}); evidence ${evidenceOf(task, reports)}`
       );
   }
-  lines.push('', `Logs and artifacts: ${runUrl}`, '');
+  lines.push('', `${reports ? 'Logs and artifacts' : 'Logs'}: ${runUrl}`, '');
   return lines.join('\n');
 }
 
@@ -190,7 +238,7 @@ export function formatJunit(verdict: Verdict): string {
   const suites = verdict.suites.map((suite) => {
     const cases = suite.failed.map(
       (task) =>
-        `    <testcase classname="${escapeXml(suite.name)}" name="${escapeXml(task.taskId)}"><failure message="${task.reason} (exit ${task.exitCode})">${escapeXml(evidenceOf(task))}</failure></testcase>`
+        `    <testcase classname="${escapeXml(suite.name)}" name="${escapeXml(task.taskId)}"><failure message="${task.reason} (exit ${task.exitCode})">${escapeXml(evidenceOf(task, true))}</failure></testcase>`
     );
     return [
       `  <testsuite name="${escapeXml(suite.name)}" tests="${suite.tasks}" failures="${suite.failed.length}">`,
@@ -205,19 +253,15 @@ const ROOT = join(import.meta.dirname, '../../..');
 const DIRECTORY = join(ROOT, '.cache/check-ci');
 
 function readEvidence(): {
-  planned: string[];
+  plan: CheckPlan | null;
   shards: ShardResult[];
 } {
   const payload = join(DIRECTORY, 'plan.payload');
   if (existsSync(payload)) restorePlan(readFileSync(payload, 'utf8'));
   const planPath = join(DIRECTORY, 'plan.json');
-  const planned = existsSync(planPath)
-    ? (
-        JSON.parse(readFileSync(planPath, 'utf8')) as {
-          tasks: { taskId: string }[];
-        }
-      ).tasks.map((task) => task.taskId)
-    : [];
+  const plan = existsSync(planPath)
+    ? (JSON.parse(readFileSync(planPath, 'utf8')) as CheckPlan)
+    : null;
   const results = join(DIRECTORY, 'results');
   const shards = existsSync(results)
     ? readdirSync(results)
@@ -227,24 +271,42 @@ function readEvidence(): {
             JSON.parse(readFileSync(join(results, file), 'utf8')) as ShardResult
         )
     : [];
-  return { planned, shards };
+  return { plan, shards };
 }
 
 function main(env: NodeJS.ProcessEnv): number {
+  const { plan, shards } = readEvidence();
   const verdict = summarize({
-    ...readEvidence(),
-    jobs: [
-      ['check:plan', env['PLAN_RESULT']],
-      ['check:shards', env['SHARD_RESULT']],
-      ['check:consumers', env['CONSUMER_RESULT']],
-    ].map(([name, result]) => ({ name: name!, result: result ?? 'unknown' })),
+    planned: plan?.tasks.map((task) => task.taskId) ?? [],
+    shards,
+    jobs: jobResults(
+      { start: env['START_RESULT'], shards: env['SHARD_RESULT'] },
+      plan && checkSchedule(plan)
+    ),
   });
   const runUrl = `${env['GITHUB_SERVER_URL'] ?? 'https://github.com'}/${env['GITHUB_REPOSITORY'] ?? ''}/actions/runs/${env['GITHUB_RUN_ID'] ?? ''}`;
-  const markdown = formatMarkdown(verdict, runUrl);
+  const reports = activeProfile(env).reports;
+  const markdown = formatMarkdown(verdict, runUrl, reports);
   mkdirSync(DIRECTORY, { recursive: true });
-  writeFileSync(join(DIRECTORY, 'verdict.json'), JSON.stringify(verdict));
-  writeFileSync(join(DIRECTORY, 'verdict.md'), markdown);
-  writeFileSync(join(DIRECTORY, 'verdict.junit.xml'), formatJunit(verdict));
+  // Report files are the nightly profile's; the `pr` profile's verdict is
+  // the job log and the run summary.
+  if (reports) {
+    writeFileSync(join(DIRECTORY, 'verdict.json'), JSON.stringify(verdict));
+    writeFileSync(join(DIRECTORY, 'verdict.md'), markdown);
+    writeFileSync(join(DIRECTORY, 'verdict.junit.xml'), formatJunit(verdict));
+  }
+  if (plan)
+    writeFileSync(
+      MEASURED_COSTS_PATH,
+      `${JSON.stringify(
+        measuredCosts(
+          plan.tasks,
+          shards.flatMap((shard) => shard.tasks)
+        ),
+        null,
+        2
+      )}\n`
+    );
   if (env['GITHUB_STEP_SUMMARY'])
     appendFileSync(env['GITHUB_STEP_SUMMARY'], markdown);
   console.log(formatTable(verdict));

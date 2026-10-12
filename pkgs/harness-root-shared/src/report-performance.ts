@@ -3,7 +3,7 @@ import type {
   ReportPerformanceSummary,
   ReportStep,
   ReportStepPerformance,
-} from '@crvouga/atlas-reports/report-types';
+} from '@crvouga/atlas/reports/report-types';
 
 export type OpenStepPerformance = {
   readonly options: ReportPerformanceOptions;

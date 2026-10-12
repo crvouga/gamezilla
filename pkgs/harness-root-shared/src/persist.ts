@@ -1,7 +1,7 @@
 import {
   RUNS_INDEX_KEY,
   runManifestKey,
-} from '@crvouga/atlas-reports/recording-keys';
+} from '@crvouga/atlas/reports/recording-keys';
 import type {
   ReportStep,
   RunReport,
@@ -9,8 +9,8 @@ import type {
   RunsIndex,
   SuiteManifest,
   SuiteTestSummary,
-} from '@crvouga/atlas-reports/report-types';
-import { suiteStatus } from '@crvouga/atlas-reports/status';
+} from '@crvouga/atlas/reports/report-types';
+import { suiteStatus } from '@crvouga/atlas/reports/status';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 

@@ -4,9 +4,10 @@ import { join } from 'node:path';
 
 /**
  * Every workflow run title has one shape — `<Workflow> · <trigger>`, never a
- * branch or ref (too dynamic to scan) — and every job is named `<workflow>` or `<workflow>:<stage>` after its id
- * (`<workflow>:<env>` for a job with an env matrix), so
- * the Actions run list reads the same everywhere.
+ * branch or ref (too dynamic to scan) — and every job is named `<prefix>` or `<prefix>:<stage>` after its id
+ * (`<prefix>:<env>` for a job with an env matrix, the shard appended for a
+ * job with a shard matrix), so
+ * the Actions run list and the PR checks box read the same everywhere.
  */
 const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.github/workflows');
 const SEPARATOR = ' · ';
@@ -25,12 +26,30 @@ type Workflow = {
   on: Record<string, unknown>;
   jobs: Record<
     string,
-    { name?: string; strategy?: { matrix?: { env?: unknown } } }
+    {
+      name?: string;
+      strategy?: { matrix?: { env?: unknown; shard?: unknown } };
+    }
   >;
 };
 
-/** A job fanned out over the env files renders as `<workflow>:<env>`. */
+/**
+ * Each workflow's display name and the prefix its jobs share. The merge
+ * gate's jobs are `check:*` wherever it runs — a pull request, Deploy's
+ * verification, the nightly run — so the required status `check:end` never
+ * moves with a file name.
+ */
+const WORKFLOWS: Record<string, { name: string; jobs: string }> = {
+  'check-nightly.yml': { name: 'Check Nightly', jobs: 'check-nightly' },
+  'check-pr.yml': { name: 'Check PR', jobs: 'check' },
+  'deploy.yml': { name: 'Deploy', jobs: 'deploy' },
+  'health.yml': { name: 'Health', jobs: 'health' },
+};
+
+/** A job fanned out over the env files renders as `<prefix>:<env>`. */
 const MATRIX_ENV = '${{ matrix.env }}';
+/** A job fanned out over shards renders as `<prefix>:<stage> (<shard>)`. */
+const SHARD = ' (${{ strategy.job-index }})';
 
 const workflows = readdirSync(WORKFLOWS_DIR)
   .filter((file) => file.endsWith('.yml'))
@@ -43,21 +62,21 @@ const workflows = readdirSync(WORKFLOWS_DIR)
 
 // regression: ci-provider-native-workflows-missing-auth
 // regression: ci-provider-migration-workflow-on-feature-branch
-test('Check, Deploy and Health have one native workflow source', () => {
+test('Check PR, Check Nightly, Deploy and Health have one native workflow source', () => {
   expect(workflows.map(({ file }) => file)).not.toContain(
     'temporary-ci-migration.yml'
   );
-  expect(workflows.map(({ file }) => file).sort()).toEqual([
-    'check.yml',
-    'deploy.yml',
-    'health.yml',
-  ]);
+  expect(workflows.map(({ file }) => file).sort()).toEqual(
+    Object.keys(WORKFLOWS)
+  );
 });
 
 describe.each(workflows)('$file', ({ file, workflow }) => {
-  test('workflow name is the capitalized file stem', () => {
-    const stem = file.replace(/\.yml$/u, '');
-    expect(workflow.name).toBe(stem.charAt(0).toUpperCase() + stem.slice(1));
+  test('workflow name is the file stem in title case', () => {
+    expect(workflow.name).toBe(WORKFLOWS[file]!.name);
+    expect(workflow.name.toLowerCase().replaceAll(' ', '-')).toBe(
+      file.replace(/\.yml$/u, '')
+    );
   });
 
   test('run-name is `<Workflow> · <trigger>`', () => {
@@ -76,14 +95,18 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
     }
   });
 
-  test('jobs are named `<workflow>[:<stage>]` after their id, or `<workflow>:<env>` per env', () => {
-    const prefix = workflow.name.toLowerCase();
+  test('jobs are named `<prefix>[:<stage>]` after their id, `<prefix>:<env>` per env, or with their shard', () => {
+    const prefix = WORKFLOWS[file]!.jobs;
     for (const [id, job] of Object.entries(workflow.jobs)) {
       const perEnv = job.strategy?.matrix?.env !== undefined;
-      expect(job.name).toBe(
-        perEnv ? `${prefix}:${MATRIX_ENV}` : id.replace('-', ':')
-      );
+      const perShard = job.strategy?.matrix?.shard !== undefined;
       expect(id === prefix || id.startsWith(`${prefix}-`)).toBe(true);
+      const stage = id === prefix ? '' : `:${id.slice(prefix.length + 1)}`;
+      expect(job.name).toBe(
+        perEnv
+          ? `${prefix}:${MATRIX_ENV}`
+          : `${prefix}${stage}${perShard ? SHARD : ''}`
+      );
     }
   });
 });

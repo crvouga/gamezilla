@@ -1,4 +1,4 @@
-import { REPORTS_ROOT_PREFIX } from '@crvouga/atlas-reports/keys';
+import { REPORTS_ROOT_PREFIX } from '@crvouga/atlas/reports/keys';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';

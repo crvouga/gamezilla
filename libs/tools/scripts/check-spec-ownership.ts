@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-// @io-wall-ok — CI gate entry (`//#ci:spec-ownership`) and pre-commit check.
+// @io-wall-ok — CI gate entry (`@libs/tools#ci:spec-ownership`) and pre-commit check.
 /**
  * Every spec — any file under `specs/` (features, Quint models, DMN decision
  * tables, Alloy structures, OpenSLO objectives, the ubiquitous languages, the
@@ -16,6 +16,9 @@
  *   check-spec-ownership.ts --staged    the index, for the pre-commit hook
  */
 import { spawnSync } from 'node:child_process';
+import { join } from 'node:path';
+
+const REPO_ROOT = join(import.meta.dirname, '../../..');
 
 export type Commit = {
   readonly sha: string;
@@ -115,7 +118,7 @@ function automaticMergeChanges(): readonly string[] | undefined {
   const result = spawnSync(
     'git',
     ['rev-parse', '--verify', '--quiet', 'AUTO_MERGE^{tree}'],
-    { encoding: 'utf8' }
+    { cwd: REPO_ROOT, encoding: 'utf8' }
   );
   if (result.status === 1) return undefined;
   if (result.status !== 0)
@@ -130,7 +133,7 @@ function checkStagedOwnership(): readonly string[] {
   const merge = spawnSync(
     'git',
     ['rev-parse', '--verify', '--quiet', 'MERGE_HEAD'],
-    { encoding: 'utf8' }
+    { cwd: REPO_ROOT, encoding: 'utf8' }
   );
   if (merge.status === 1) return stagedViolations(staged);
   if (merge.status !== 0)
@@ -143,7 +146,10 @@ function checkStagedOwnership(): readonly string[] {
 }
 
 function git(args: readonly string[]): string {
-  const result = spawnSync('git', [...args], { encoding: 'utf8' });
+  const result = spawnSync('git', [...args], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+  });
   if (result.status !== 0) {
     throw new Error(`git ${args.join(' ')} failed: ${result.stderr}`);
   }

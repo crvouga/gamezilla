@@ -45,7 +45,7 @@ export type ReportInput = {
   readonly records: readonly EvidenceRecord[];
   /** Evidence files that did not parse. */
   readonly malformed: readonly string[];
-  /** What `//#ci:conformance` finds wrong (empty: the world is closed). */
+  /** What `@libs/tools#ci:conformance` finds wrong (empty: the world is closed). */
   readonly closure: readonly string[];
   readonly capabilities: readonly {
     readonly id: string;

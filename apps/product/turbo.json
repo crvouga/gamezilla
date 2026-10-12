@@ -46,13 +46,7 @@
         "$TURBO_ROOT$/specs/room/**",
         "$TURBO_ROOT$/specs/spaces/**",
         "$TURBO_ROOT$/specs/sync-engine/**",
-        "$TURBO_ROOT$/specs/system/**",
-        "tests/ui-quality-render.contract.test.ts",
-        "scripts/render.ts",
-        "$TURBO_ROOT$/pkgs/ui-root-client/src/**/*.css",
-        "$TURBO_ROOT$/pkgs/*/src/**/*.module.css",
-        "$TURBO_ROOT$/pkgs/tailwind-shared/src/**",
-        "$TURBO_ROOT$/turbo-platform-key.json"
+        "$TURBO_ROOT$/specs/system/**"
       ],
       "outputs": [
         ".cache/harness-report/models/evidence/**",
@@ -60,6 +54,21 @@
         ".cache/harness-report/models/**/tlc-output.txt",
         ".cache/harness-report/models/**/*.itf.json"
       ],
+      "outputLogs": "errors-only"
+    },
+    "test:contract:render": {
+      "dependsOn": ["test:contract"],
+      "inputs": [
+        "tests/ui-quality-render.contract.test.ts",
+        "scripts/render.ts",
+        "package.json",
+        "$TURBO_ROOT$/pkgs/os-server/src/test-concurrency.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/pkgs/ui-root-client/src/**/*.css",
+        "$TURBO_ROOT$/pkgs/*/src/**/*.module.css",
+        "$TURBO_ROOT$/pkgs/tailwind-shared/src/**"
+      ],
+      "outputs": [],
       "outputLogs": "errors-only"
     },
     "test:spec:0": {
@@ -281,6 +290,7 @@
       "dependsOn": [
         "tc",
         "test:contract",
+        "test:contract:render",
         "prepare:ui-quality",
         "@pkgs/ui-quality-check-server#build"
       ],

@@ -7,7 +7,7 @@ than restating it.
 
 ## Hard Rules
 
-- **We never test manually. Ever.** A green full verification (`bun verify`, which every `bun deploy` runs first) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared` only; `fc.commands` models; `@pkgs/harness-root-shared` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
+- **We never test manually. Ever.** A green full verification (the `check:end` on every pull request, which Deploy runs again on the commit it ships) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared` only; `fc.commands` models; `@pkgs/harness-root-shared` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
 
 - **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; [`README.md`](README.md) is the implementation briefing and never a second product definition. Step catalogs (`<package>/STEPS_CATALOG.md`, index `docs/STEPS_CATALOG.md`) are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
 
@@ -27,7 +27,9 @@ than restating it.
 
 - **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the compiled Lingui catalog `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed.
 
-- **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR. `main` moves only through a merged PR ([`README.md`](README.md#correctness-machinery)).
+- **Atlas is an npm dependency, never a copy.** `@crvouga/atlas` installs from npm through the root `catalog`: no submodule, vendored copy, `git` / `file:` dependency or patch. Import only its documented paths (`@crvouga/atlas`, `/spec`, `/schema`, `/reports/<module>`, …) and run its `atlas` / `atlas-visualizer` commands. A bug or gap in Atlas is an issue at [crvouga/atlas](https://github.com/crvouga/atlas/blob/main/docs/reporting-issues.md), never a fix made from here; a workaround in our code is named in that issue and removed when the release that fixes it lands. Upgrade by raising the catalog entry in a commit of its own. Guide: [dogfooding](https://github.com/crvouga/atlas/blob/main/docs/dogfooding.md).
+
+- **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges, and the merge deploys — never `--admin`, never a red, pending or draft PR. `main` moves only through a merged PR ([`README.md`](README.md#correctness-machinery)).
 
 - **Never patch dependencies.** No `bun patch`, `patch-package`, `pnpm patch`, `patches/` directory, or `patchedDependencies` / `resolutions` field. Work around a third-party bug in our code or accept it.
 
@@ -129,32 +131,69 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 
 ## Checks and CI
 
-Pull requests run no automated checks. `bun check`, `bun verify`, and
-`bun check:local` run every gate (`//#check`) locally. `bun health` and `bun deploy`
-dispatch the Health and Deploy workflows and block on the verdict
-([`README.md`](README.md#correctness-machinery)); Deploy independently runs
-full verification of `main` before every environment. Merging never deploys.
-`bun health:local` and `bun deploy:local` run that work on this machine. Every
-check is a cached, per-package task that reads only its own package; a new
-check goes into the package it is about. A gate leaf verifies and never
-touches the outside world, and its verdict never depends on the machine
-(never branch on `CI`). Make a slow task faster before raising its budget.
-Exactly three workflows: Check, Deploy, Health. Rehearse anything touching
-deploy, infra, secrets, Workers or `health` in GitHub Actions before merging,
-triggered and managed locally with the GitHub CLI. Never execute a rehearsal
-on the developer machine. Details: [`README.md`](README.md#correctness-machinery).
+Four workflows, one contract each. Details:
+[`README.md`](README.md#correctness-machinery).
+
+| Workflow | Command | Contract |
+| --- | --- | --- |
+| Check PR (`check-pr.yml`) | `bun check-pr` | Fast, deterministic, merge-blocking validation. Keeps no test report or artifact: a failure is read from the job log. |
+| Check Nightly (`check-nightly.yml`) | `bun check-nightly` | Comprehensive verification and exploration on `main`, every night. Owns test reports, diagnostics and reproducibility. Never gates a merge or a deploy. |
+| Deploy (`deploy.yml`) | `bun deploy` | Continuous production deployment: every merge to `main` verifies that exact commit with the Check PR gate, then ships it. |
+| Health (`health.yml`) | `bun health` | Scheduled verification that production is available and correct. Deploys nothing. |
+
+- **Run `bun check-pr` before you call development work done.** It is the same
+  gate the pull request runs. Run `bun check-nightly` (or one group:
+  `bun check-nightly random`) when a change deserves deeper verification, such
+  as a new Quint model, a property, or sync and recovery code. An ordinary
+  pull request never waits for a green nightly run.
+- **One set of tests, two profiles.** `libs/tools/scripts/check-profile.ts` is
+  the only place the two differ: the task list, the depth (`pr` replays the
+  fewest drawn traces of each Quint model that take every bound action, at the
+  pinned property budget; `nightly` replays every trace at five times the
+  budget), the time budgets, and whether reports are kept. The nightly-only
+  suites are existing tasks (fresh-seed property runs, determinism fuzz,
+  mutants, real-browser stack runs, UI quality, coverage, benchmarks). Never
+  write a test that exists only for one profile.
+- **A nightly finding is promoted.** Pin the failing trace in the model
+  binding's `regressions`, or the shrunk input as a `// regression: <bug-id>`
+  example, so the `pr` profile replays it from then on.
+- **The required status is `check:end`.** Check PR is three jobs
+  (`check:start`, `check:shards (N)`, `check:end`). They keep the `check:`
+  prefix wherever the gate runs (a pull request, Deploy's verification, the
+  nightly run), so the ruleset's required check never moves with a file name.
+- **Every gate is a package-owned Turbo task.** The task list in
+  `libs/tools/scripts/turbo-ci-run.ts` runs every gate through Turbo. There
+  are no root `//#check`, `//#ci:*`, or root lint checks: each gate has
+  explicit inputs and caching, and a new check goes into the package it is
+  about. Bespoke gates such as the Synthetic Population Worker hosting check
+  live in their owning package and join the same sharded task list. A gate
+  leaf verifies and never touches the outside world, and its verdict never
+  depends on the machine (never branch on `CI`). Make a slow task faster
+  before raising its budget.
+- **Merging to `main` is the release.** Deploy runs on every push to `main`
+  and never waits for the nightly run. `bun health` and `bun deploy` dispatch
+  their workflows and block on the verdict; `bun health:local` and
+  `bun deploy:local` run that work on this machine.
+- **Exactly four workflows.** Rehearse anything touching deploy, infra,
+  secrets, Workers or `health` in GitHub Actions before merging, triggered and
+  managed locally with the GitHub CLI. Never execute a rehearsal on the
+  developer machine.
 
 ## Workspaces
 
 Each workspace is a git worktree created by an agent orchestrator (Superset,
 super.engineering, …). All of them run the same lifecycle hooks from
-`libs/tools/workspace/`: `setup.sh` (`bun install`, `.cache/secrets`,
-`apps/*/.env.local`), `teardown.sh` and `run.sh`. Their steps are Turborepo
-tasks (`//#workspace:*`, `step.sh`) that print only when they fail. The hooks
+`libs/tools/workspace/`: `run.sh` is the only start script. A cold workspace
+prepares itself once (`mise install`, `bun install`, repo hooks,
+`.cache/secrets`, `apps/*/.env.local`) and writes `.cache/workspace-warm`;
+later runs skip that and start the stack. Preparation never fails the launch.
+`teardown.sh` releases the workspace's listeners. Install and merge stay
+Turborepo tasks (`//#workspace:*`, `step.sh`) that print only when they fail.
+The hooks
 derive paths from git, never from a tool's env vars. `bun run workspace:sync` projects them into
 every orchestrator's config (`.superset/config.json`,
 `.super.engineering/config.json`); never edit those, and
-`//#ci:workspace-lifecycle` fails on drift. A new orchestrator is one entry in
+`@libs/tools#ci:workspace-lifecycle` fails on drift. A new orchestrator is one entry in
 `ORCHESTRATORS` in `libs/tools/scripts/sync-workspace-lifecycle.ts`.
 Per-machine extras go in the gitignored `.superset/config.local.json` or
 super.engineering's app project settings.
@@ -164,7 +203,7 @@ super.engineering's app project settings.
   (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are
   machine-wide: one workspace at a time may bind them.
 - **Iterating.** `bun fmt`, `bunx turbo run tc test --filter=<pkg>` (cached),
-  then `bun check` for the local full gate.
+  then `bun check-pr` for the local full gate.
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.
   PR bodies follow `.github/PULL_REQUEST_TEMPLATE.md`. `/pr-ready` drives a PR
   to Ready to merge; `/ci-green` drives Check, Deploy and Health green.
@@ -173,7 +212,7 @@ super.engineering's app project settings.
   projects it into every harness (`.claude/commands`, `.cursor/commands`,
   `.opencode/commands`, `.gemini/commands`, `.github/prompts`,
   `.windsurf/workflows`, `.agents/skills`). Never edit the outputs;
-  `//#ci:agent-commands` fails on drift.
+  `@libs/tools#ci:agent-commands` fails on drift.
 
 ## Local development
 

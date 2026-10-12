@@ -12,7 +12,7 @@
 #               their producer changes.
 #
 # The name lists live in JSON beside the stacks so `@libs/secrets`'s registry
-# can be checked against them in `bun check` (libs/infra/tests).
+# can be checked against them in `bun check-pr` (libs/infra/tests).
 
 terraform {
   required_providers {

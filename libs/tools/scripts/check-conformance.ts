@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-// @io-wall-ok — CI gate entry (`bun run ci:conformance`, `//#ci:conformance`).
+// @io-wall-ok — CI gate entry (`bun run ci:conformance`, `@libs/tools#ci:conformance`).
 /**
  * The conformance gate: the world `specs/conformance.yaml` describes is
  * closed and every entry of it is proven automatically (specs/README.md
@@ -14,7 +14,7 @@
  * - The evidence map (`libs/tools/conformance/evidence-map.ts`) names exactly
  *   the manifest's environments, public contracts, release gates and
  *   readiness requirements, and every proof in it is automated: a spec that
- *   exists and is bound, a task `//#check` reaches, a live spec `health` runs.
+ *   exists and is bound, a package task in the Check task list runs, a live spec `health` runs.
  *
  * Static and fast: it reads files and parses specs, runs no suite. Whether the
  * suites *passed* is `bun run conformance` (`conformance-report.ts`), from the

@@ -14,7 +14,7 @@
  * (in the standalone Atlas explorer) shows the run filling in. A package
  * whose suite records no harness timeline publishes nothing and is named.
  * The commit is the pull request's head, not the merge commit Actions checks
- * out, so the Atlas revision is the sha `bun check` printed.
+ * out, so the Atlas revision is the sha `bun check-pr` printed.
  *
  * Needs `REPORTS_BUCKET`, `REPORTS_ENDPOINT`, `REPORTS_WRITE_ACCESS_KEY_ID`
  * and `REPORTS_WRITE_SECRET_ACCESS_KEY` (written by OpenTofu; `secrets-run`
@@ -24,7 +24,7 @@
 
 import { writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { openCommit } from '@crvouga/atlas-reports/publish';
+import { openCommit } from '@crvouga/atlas/reports/publish';
 import { compileFrameCss } from '@libs/harness/wall-frame-css';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';

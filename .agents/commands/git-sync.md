@@ -11,7 +11,7 @@ Afterwards the branch, `origin/<branch>` and local `main` are all current with t
 Your only job is the commit message.
 
 It is the one way this repo commits, pushes and syncs with trunk. Use it to checkpoint and
-stay current with `main` between units of work. `bun check` and `bun health` run it before they dispatch their workflows. `bun deploy` runs it with `--trunk-only` and then dispatches Deploy on `main`.
+stay current with `main` between units of work. `bun health` runs it before it dispatches its workflow. `bun deploy` runs it with `--trunk-only` and then dispatches Deploy on `main`.
 
 ## Run
 
@@ -24,7 +24,7 @@ bun run git-sync --message "type(scope): description"
 Read the diff, write one Conventional Commit message that describes it, and pass it with
 `--message`. Without `--message`, git-sync generates a header from the changed paths
 (`chore(pkg): update 3 files`; a tree that mixes specs with other files becomes a `spec:` commit
-plus a second commit for the rest). `bun check` relies on that. If the tree
+plus a second commit for the rest). `bun check-pr` relies on that. If the tree
 is already clean, run `bun run git-sync` with no arguments.
 
 | Mode | Command |

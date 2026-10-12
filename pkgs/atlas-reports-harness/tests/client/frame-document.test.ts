@@ -4,7 +4,7 @@ import {
   createSnapshotHost,
   paintSnapshotHost,
   scopeSnapshotCss,
-} from '@crvouga/atlas-reports/snapshot-surface';
+} from '@crvouga/atlas/reports/snapshot-surface';
 
 describe('in-page snapshot surface', () => {
   test('rewrites document selectors onto the shadow viewport', () => {

@@ -1,8 +1,8 @@
 // @io-wall-ok — current spec outline and advisory Git provenance for standalone Atlas.
 import { spawnSync } from 'node:child_process';
-import { eachLimited } from '@crvouga/atlas-reports/completion-order';
-import type { SpecEntry } from '@crvouga/atlas-reports/explorer-types';
-import { specEntry } from '@crvouga/atlas-reports/spec-inventory';
+import { eachLimited } from '@crvouga/atlas/reports/completion-order';
+import type { SpecEntry } from '@crvouga/atlas/reports/explorer-types';
+import { specEntry } from '@crvouga/atlas/reports/spec-inventory';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';

@@ -85,7 +85,7 @@ known-bug entry under [the regression policy](./TESTING.md#adding-a-regression).
 
 This ledger is an implementation handoff, not a machine-enforced gate for S1–S10.
 A green core suite does not close these rows. The release verdict remains
-`bun check`; neither this document nor a local package run claims that verdict.
+`bun check-pr`; neither this document nor a local package run claims that verdict.
 
 ## Audit and commit boundary
 

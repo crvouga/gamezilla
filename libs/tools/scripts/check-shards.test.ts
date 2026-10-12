@@ -6,12 +6,13 @@ import { redactSecrets, taskStream } from './check-shard-stream';
 import type { CheckTask } from './check-shards';
 import {
   balanceShards,
+  executes,
   planWarnings,
   validatePlan,
   validateShardResult,
 } from './check-shards';
 import { publishedTasks, requiredTasks } from './check-stage-cache';
-import { estimateTask } from './check-task-estimates';
+import { estimateScheduledTask, estimateTask } from './check-task-estimates';
 
 function task(id: string, seconds = 1, dependencies: string[] = []): CheckTask {
   return {
@@ -267,11 +268,41 @@ test('imbalance validation warns about load and unknown concentration', () => {
   );
 });
 
+// regression: check-dedicated-solver-balance-warning
+test('dedicated solver runners are not a pack imbalance', () => {
+  // Check run 38239315522: proof runners of 9–86s sat beside an even pack,
+  // and the unknown-duration tasks lived on that pack. Comparing the proofs
+  // with the pack warned about max/min, the heaviest shard, and concentration.
+  const solvers = [
+    task('@apps/product#test:contract', 86),
+    task('@pkgs/matchmaking-root-harness#check:models', 9),
+    ...Array.from({ length: 10 }, (_, index) => ({
+      ...task(`@libs/chess-root-harness#check:models:${index}`, 16),
+      durationSource: 'family' as const,
+    })),
+  ];
+  const packed = Array.from({ length: 144 }, (_, index) => ({
+    ...task(`pkg-${index}#test`, 5),
+    durationSource: 'fallback' as const,
+  }));
+  const plan = balanceShards([...solvers, ...packed], 40, 60);
+  const pack = plan.shards.filter(
+    (shard) =>
+      shard.stage === 'checks' &&
+      executes(shard) &&
+      shard.tasks.some((item) => item.taskId.startsWith('pkg-'))
+  );
+  expect(pack.map((shard) => shard.seconds)).toEqual(Array(12).fill(60));
+  expect(planWarnings(plan)).toEqual([]);
+  validatePlan(plan);
+});
+
 test('renderer setup only serves uncached native browser tasks', () => {
-  expect(needsBrowser([task('@apps/product#test:contract')])).toBe(true);
+  expect(needsBrowser([task('@apps/product#test:contract:render')])).toBe(true);
+  expect(needsBrowser([task('@apps/product#test:contract')])).toBe(false);
   expect(needsBrowser([task('@pkgs/ui-testing-bun-webview#test')])).toBe(true);
   expect(
-    needsBrowser([{ ...task('@apps/product#test:contract'), hit: true }])
+    needsBrowser([{ ...task('@apps/product#test:contract:render'), hit: true }])
   ).toBe(false);
   expect(needsBrowser([task('@apps/product#tc')])).toBe(false);
 });
@@ -323,4 +354,200 @@ test('shared generated artifacts get a prerequisite owner instead of binding eve
     'generate',
   ]);
   expect(plan.shards).toEqual(balanceShards([...tasks].reverse(), 16).shards);
+});
+
+test('a shard target starts only the runners the uncached work needs', () => {
+  const cached = Array.from({ length: 500 }, (_, i) => ({
+    ...task(`cached-${i}#tc`, 30),
+    hit: true,
+    source: 'REMOTE' as const,
+  }));
+  const misses = Array.from({ length: 6 }, (_, i) =>
+    task(`leaf-${i}#test`, 50)
+  );
+  const plan = balanceShards([...cached, ...misses], 32, 120);
+  const started = plan.shards.filter(
+    (shard) => shard.stage === 'checks' && executes(shard)
+  );
+  // 300 s of work at 120 s a shard, not thirty-two runners of ten seconds.
+  expect(started.map((shard) => shard.index)).toEqual([0, 1, 2]);
+  expect(started.map((shard) => shard.seconds)).toEqual([100, 100, 100]);
+  expect(plan.shards).toHaveLength(34);
+  expect(
+    plan.shards.slice(3, 32).every((shard) => shard.tasks.length === 0)
+  ).toBe(true);
+  expect(planWarnings(plan)).toEqual([]);
+  validatePlan(plan);
+});
+
+// regression: check-shard-width-counts-oversized-group
+test('a task longer than the shard target starts no runner for a few seconds of work', () => {
+  // Check run 38198242466: a 133 s task and a 97 s task counted as four
+  // runners at 60 s a shard, so 15 s, 9 s and 2 s of work each paid a
+  // runner's setup. The 133 s task was the population image build, which
+  // the gate no longer runs; the duration stays as the oversized fixture.
+  const plan = balanceShards(
+    [
+      task('@apps/product#test:contract', 86),
+      task('@libs/chess-root-harness#check:models', 35),
+      task('@apps/synthetic-population-worker#check:synthetic-population', 133),
+      task('@libs/chess-root-harness#test:spec:33', 97),
+      task('@libs/tools#test', 15),
+      task('@libs/tools#check:root-lint', 9),
+      task('@libs/tools#check:secrets', 1),
+      task('@libs/tools#ci:spec-ownership', 1),
+    ],
+    40,
+    60
+  );
+  const started = plan.shards.filter(
+    (shard) => shard.stage === 'checks' && executes(shard)
+  );
+  expect(
+    started.map((shard) => shard.tasks.map((item) => item.taskId))
+  ).toEqual([
+    ['@apps/product#test:contract'],
+    ['@libs/chess-root-harness#check:models'],
+    ['@apps/synthetic-population-worker#check:synthetic-population'],
+    ['@libs/chess-root-harness#test:spec:33'],
+    [
+      '@libs/tools#test',
+      '@libs/tools#check:root-lint',
+      '@libs/tools#check:secrets',
+      '@libs/tools#ci:spec-ownership',
+    ],
+  ]);
+  expect(started.map((shard) => shard.seconds)).toEqual([86, 35, 133, 97, 26]);
+  validatePlan(plan);
+});
+
+test('a fully cached plan starts no shard, and a cold corpus uses every one', () => {
+  const tasks = Array.from({ length: 200 }, (_, i) =>
+    task(`pkg-${i}#test`, 90)
+  );
+  const cached = balanceShards(
+    tasks.map((item) => ({ ...item, hit: true, source: 'REMOTE' as const })),
+    32,
+    120
+  );
+  expect(cached.shards.filter(executes)).toEqual([]);
+  expect(cached.shards[0]!.tasks).toHaveLength(200);
+  expect(planWarnings(cached)).toEqual([]);
+  const cold = balanceShards(tasks, 32, 120);
+  expect(cold.shards.slice(0, 32).every(executes)).toBe(true);
+});
+
+// regression: solver-timeout-ends-unrelated-tasks
+test('a narrowed plan leaves each uncached solver group alone on its runner', () => {
+  // Check run 38190147513: the chess model check outran its 600 s budget
+  // and the five spec parts queued behind it on shard 6 ended unrun.
+  const plan = balanceShards(
+    [
+      task('@libs/chess-root-harness#check:models', 5),
+      // A part of a split models check is a solver task like the whole.
+      task('@libs/chess-root-harness#check:models:7', 5),
+      // Check run 38195467632: its thirteen proofs outran the task budget
+      // and 39 tasks queued on shard 25 ended unrun.
+      task('@apps/product#test:contract', 5),
+      ...Array.from({ length: 6 }, (_, i) =>
+        task(`@libs/chess-root-harness#test:spec:${i}`, 50)
+      ),
+      { ...task('cached#tc', 30), hit: true },
+    ],
+    16,
+    120
+  );
+  const started = plan.shards.filter(executes);
+  // Three solver runners, and 300 s of spec work at 120 s a shard.
+  expect(started).toHaveLength(6);
+  const solverShards = started.filter((shard) =>
+    shard.tasks.some(
+      (item) =>
+        /#check:models(:\d+)?$/.test(item.taskId) ||
+        item.taskId === '@apps/product#test:contract'
+    )
+  );
+  expect(solverShards).toHaveLength(3);
+  expect(solverShards.every((shard) => shard.tasks.length === 1)).toBe(true);
+  expect(plan.shards).toEqual(
+    balanceShards([...plan.tasks].reverse(), 16, 120).shards
+  );
+  validatePlan(plan);
+  // With a runner for every shard already taken by a solver, the rest share.
+  const crowded = balanceShards(
+    [task('a#check:models', 5), task('b#check:models', 5), task('pkg#test', 5)],
+    2,
+    120
+  );
+  expect(crowded.shards.filter(executes)).toHaveLength(2);
+  validatePlan(crowded);
+});
+
+test('a narrowed plan keeps every task exactly once in any discovery order', () => {
+  assertProperty(
+    'check-narrowed-partition',
+    fc.property(
+      fc.array(
+        fc.record({
+          seconds: fc.integer({ min: 1, max: 600 }),
+          hit: fc.boolean(),
+        }),
+        { minLength: 1, maxLength: 300 }
+      ),
+      fc.integer({ min: 1, max: 64 }),
+      fc.integer({ min: 1, max: 900 }),
+      (specs, count, target) => {
+        const tasks = specs.map(({ seconds, hit }, index) => ({
+          ...task(`package-${index}#test`, seconds),
+          hit,
+        }));
+        const plan = balanceShards(tasks, count, target);
+        expect(plan.shards).toEqual(
+          balanceShards([...tasks].reverse(), count, target).shards
+        );
+        expect(
+          plan.shards
+            .flatMap((shard) => shard.tasks.map((item) => item.taskId))
+            .sort()
+        ).toEqual(tasks.map((item) => item.taskId).sort());
+        validatePlan(plan);
+        const work = tasks.reduce(
+          (sum, item) => sum + (item.hit ? 0 : item.seconds),
+          0
+        );
+        expect(plan.shards.filter(executes).length).toBeLessThanOrEqual(
+          Math.min(count, Math.max(1, Math.ceil(work / target)))
+        );
+      }
+    )
+  );
+});
+
+test('an unmeasured spec part is estimated from its own suite before the family', () => {
+  const costs = {
+    '@libs/chess-root-harness#test:spec:0': 300,
+    '@libs/chess-root-harness#test:spec:1': 200,
+    '@libs/chess-root-harness#test:spec:2': 250,
+    '@libs/runtime-harness#test:spec:0': 8,
+    '@libs/runtime-harness#test:spec:1': 10,
+    '@libs/runtime-harness#test:spec:2': 12,
+    '@libs/runtime-harness#test:spec:3': 9,
+  };
+  expect(
+    estimateScheduledTask('@libs/chess-root-harness#test:spec:9', costs)
+  ).toEqual({ seconds: 250, durationSource: 'family' });
+  expect(
+    estimateScheduledTask('@libs/runtime-harness#test:spec:9', costs)
+  ).toEqual({ seconds: 10, durationSource: 'family' });
+  // Its own measurement wins; a suite with no sample falls back to the family.
+  expect(
+    estimateScheduledTask('@libs/chess-root-harness#test:spec:0', costs)
+  ).toEqual({ seconds: 300, durationSource: 'history' });
+  expect(estimateScheduledTask('@libs/new-harness#test:spec:0', costs)).toEqual(
+    estimateTask('@libs/new-harness#test:spec:0', costs)
+  );
+  expect(estimateScheduledTask('@libs/new-harness#lint', costs)).toEqual({
+    seconds: 60,
+    durationSource: 'fallback',
+  });
 });
