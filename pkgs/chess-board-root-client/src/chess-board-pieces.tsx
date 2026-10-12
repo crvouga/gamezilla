@@ -29,6 +29,7 @@ import {
   on,
   onCleanup,
   Show,
+  untrack,
 } from 'solid-js';
 import styles from './chess-board.module.css';
 import { HtmlPaintToken } from './paint-token';
@@ -46,7 +47,10 @@ export type ChessBoardPiecesProps = {
   readonly premoveGhosts: Accessor<readonly PremoveGhost[]>;
   readonly animator: PieceAnimator;
   readonly motion: Accessor<MotionPolicy>;
-  readonly canSlide: Accessor<boolean>;
+  /** The position now shown replaced the last one instead of following a move. */
+  readonly replacement: () => boolean;
+  /** A piece is chosen or held: a gesture is under way. */
+  readonly engaged: () => boolean;
 };
 
 const PIECE_CLASS = `${styles['cell']} ${styles['piece']}`;
@@ -57,7 +61,7 @@ function Piece(props: {
   readonly orientation: Accessor<BoardOrientation>;
   readonly animator: PieceAnimator;
   readonly motion: Accessor<MotionPolicy>;
-  readonly canSlide: Accessor<boolean>;
+  readonly replacement: () => boolean;
 }): JSX.Element {
   let el: HTMLDivElement | undefined;
   // The tracker reuses (mutates) a surviving row so `<For>` keeps its node;
@@ -78,10 +82,14 @@ function Piece(props: {
       if (node === undefined) return;
       const policy = props.motion();
       // Flipping the board re-seats every piece at once: no slide.
-      const slide = prev?.[1] === o && policy.slides && props.canSlide();
+      const slide = prev?.[1] === o && policy.slides;
       props.animator.place(node, cellTransform(sq, o), {
         slide,
         durationMs: policy.durationMs,
+        arrival: {
+          rows: untrack(props.rows),
+          replacement: props.replacement(),
+        },
       });
     })
   );
@@ -124,6 +132,18 @@ function StaticPiece(props: {
 
 export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
   bumpChessBoardRender('pieces');
+  // A position that re-places no piece (one only appears or leaves) is still
+  // an arrival: it too must settle the slides it interrupts.
+  createEffect(
+    on(
+      () => props.rows(),
+      (rows) =>
+        props.animator.arrive({ rows, replacement: props.replacement() })
+    )
+  );
+  createEffect(() => {
+    if (props.engaged()) props.animator.interrupt();
+  });
   return (
     <div
       class={styles['contents']}
@@ -160,7 +180,7 @@ export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
             orientation={props.orientation}
             animator={props.animator}
             motion={props.motion}
-            canSlide={props.canSlide}
+            replacement={props.replacement}
           />
         )}
       </For>

@@ -140,7 +140,8 @@ function BoardBody(args: {
         premoveGhosts={usePremoveGhosts(args.ctrl)}
         animator={args.ctrl.animator}
         motion={args.ctrl.motion}
-        canSlide={() => game().lastMove !== null}
+        replacement={() => game().lastMove === null}
+        engaged={() => ix().selected !== null || ix().dragFrom !== null}
       />
       <ChessBoardShapes
         boardTestId={args.boardTestId()}

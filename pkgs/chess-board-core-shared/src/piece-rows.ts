@@ -148,6 +148,36 @@ function claimSquareMatches(
   return { matched, unmatched };
 }
 
+/** Squared distance between two squares, in cells. */
+function squareDistance(a: Square, b: Square): number {
+  const files = a.charCodeAt(0) - b.charCodeAt(0);
+  const ranks = a.charCodeAt(1) - b.charCodeAt(1);
+  return files * files + ranks * ranks;
+}
+
+/**
+ * The closest piece of the same kind that has not been claimed: it is the
+ * one that slides there, so a replacement position moves each piece the
+ * shortest way instead of sending pieces across each other.
+ */
+function nearestUnused(
+  square: Square,
+  candidates: readonly ChessPieceRow[] | undefined,
+  usedIds: ReadonlySet<string>
+): ChessPieceRow | undefined {
+  let best: ChessPieceRow | undefined;
+  for (const candidate of candidates ?? []) {
+    if (usedIds.has(candidate.id)) continue;
+    if (
+      best === undefined ||
+      squareDistance(candidate.square, square) <
+        squareDistance(best.square, square)
+    )
+      best = candidate;
+  }
+  return best;
+}
+
 function claimCodeFallback(
   unmatched: readonly Unmatched[],
   ctx: {
@@ -159,7 +189,11 @@ function claimCodeFallback(
 ): ChessPieceRow[] {
   const out: ChessPieceRow[] = [];
   for (const row of unmatched) {
-    const hit = ctx.byCode.get(row.code)?.find((r) => !ctx.usedIds.has(r.id));
+    const hit = nearestUnused(
+      row.square,
+      ctx.byCode.get(row.code),
+      ctx.usedIds
+    );
     if (hit) {
       ctx.usedIds.add(hit.id);
       out.push(adoptRow(ctx.prevById, hit.id, row.square, row.code));

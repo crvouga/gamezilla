@@ -2,7 +2,10 @@ import { expect } from 'bun:test';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { setupOfferedWhiteMove } from '@pkgs/chess-board-root-harness/authority-actions';
 import type { BoardWorld } from '@pkgs/chess-board-root-harness/board-world';
-import { setupBoard } from '@pkgs/chess-board-root-harness/chess-board';
+import {
+  reduceMotion,
+  setupBoard,
+} from '@pkgs/chess-board-root-harness/chess-board';
 import type { PieceName } from '@pkgs/chess-board-root-harness/interaction-fixtures';
 import {
   CHECK_IN_ONE,
@@ -29,6 +32,13 @@ Given(
 );
 Given("Alice has a chessboard after White's move from e2 to e4", (w) =>
   w.apply(setupOfferedWhiteMove)
+);
+Given(
+  "Alice has a chessboard after White's move from e2 to e4 with reduced motion enabled",
+  async (w) => {
+    await w.apply(setupOfferedWhiteMove);
+    await w.apply(reduceMotion, true);
+  }
 );
 Given(
   'Alice has a chessboard with the White knight on e2 pinned to its king on e1 by the Black rook on e8',
