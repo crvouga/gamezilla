@@ -6318,8 +6318,8 @@
     "@crvouga/atlas": "^0.1.0",
     "@crvouga/mockingbird-service-oauth": "^1.11.0",
     "@crvouga/mockingbird-service-openai": "^0.1.0",
-    "@crvouga/mockingbird-service-paddle": "^2.3.0",
-    "@crvouga/mockingbird-service-postgres": "^3.3.0",
+    "@crvouga/mockingbird-service-paddle": "^2.4.0",
+    "@crvouga/mockingbird-service-postgres": "^3.4.0",
     "@crvouga/mockingbird-service-s3": "^1.8.0",
     "@crvouga/mockingbird-service-sqlite": "^0.3.0",
     "@crvouga/mockingbird-service-stripe": "^1.13.0",
@@ -6365,7 +6365,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/query-persist-client-core": "5.104.0",
     "@tanstack/solid-query": "5.104.0",
-    "@tanstack/solid-virtual": "^3.13.42",
+    "@tanstack/solid-virtual": "^3.13.43",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/user-event": "^14.6.7",
@@ -6765,9 +6765,9 @@
 
     "@crvouga/mockingbird-service-openai": ["@crvouga/mockingbird-service-openai@0.1.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "2.1.1", "@noble/ciphers": "2.4.0", "@noble/hashes": "2.4.0", "hono": "4.11.9" }, "bin": { "mockingbird-openai": "dist/cli.js" } }, "sha512-LVsNTOqXALJDj5ywRPSQ1zsHeDWmL5TX+HVKzaxt6GvidoHICMgimgs9UDj5BXzVmxvA+tFzWmZ8jaJaVpH0uQ=="],
 
-    "@crvouga/mockingbird-service-paddle": ["@crvouga/mockingbird-service-paddle@2.3.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "3.2.0", "hono": "4.11.9" }, "bin": { "mockingbird-paddle": "dist/cli.js" } }, "sha512-eFFhMmNyMxoMscd42/W/Fw7/CAYo4mA+sEuj2AYwC2Y7YyI73VKNF7ygcNyRZE/Ud1CVrluKzYJxUZVMZn8mSA=="],
+    "@crvouga/mockingbird-service-paddle": ["@crvouga/mockingbird-service-paddle@2.4.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "3.3.0", "hono": "4.11.9" }, "bin": { "mockingbird-paddle": "dist/cli.js" } }, "sha512-vm9+v5344oPYpFYA+thrHxfuFUOsDR5Y21bhX33mtxU8lsyHpEIMw0B+gawckwghopORohuPRERjXGLuOh+e+g=="],
 
-    "@crvouga/mockingbird-service-postgres": ["@crvouga/mockingbird-service-postgres@3.3.0", "", { "bin": { "mockingbird-postgres": "dist/wire/cli.js" } }, "sha512-1TNsmtiEYs+fup+illkZrBouUXFiTQmOyv3mzH0tltAL8RCctF+Iw6dyS6BqGWgVIZQl0tX1FxhR2lNx7705cw=="],
+    "@crvouga/mockingbird-service-postgres": ["@crvouga/mockingbird-service-postgres@3.4.0", "", { "bin": { "mockingbird-postgres": "dist/wire/cli.js" } }, "sha512-G6dWHNWSSk95KSJ8FJ3alTMIUC5KoFy6S/2qxENP3VD7dJ7Apd55fW7zjmUjyITgNBElx9rt8Elkncc06qkaUw=="],
 
     "@crvouga/mockingbird-service-s3": ["@crvouga/mockingbird-service-s3@1.8.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.3.0" }, "bin": { "mockingbird-s3": "dist/cli.js" } }, "sha512-x7gwYCVbsD33afAWaQmV7/nSgwDFhJxnaGehqwPIUe8xd/21Er3qvpjHiiIqxroBpKLJBGITlX+jaxq8C/F10g=="],
 
@@ -8135,11 +8135,11 @@
 
     "@tanstack/solid-query": ["@tanstack/solid-query@5.104.0", "", { "dependencies": { "@tanstack/query-core": "5.104.0" }, "peerDependencies": { "solid-js": "^1.6.0" } }, "sha512-kQ+SFieGCve1up0Z4wHPXT2q2cu7AKFLtzRzViBoFwUQ8PMFd2DSjE38LnsbV0+3+O4N8RiS3xYkXM2hvJI49Q=="],
 
-    "@tanstack/solid-virtual": ["@tanstack/solid-virtual@3.13.42", "", { "dependencies": { "@tanstack/virtual-core": "3.19.0" }, "peerDependencies": { "solid-js": "^1.3.0" } }, "sha512-LAQC5ZtJ1+N1lsdY7WOMJ01boPt4bF/M6TPyIgwjDZMiKZifw7tnng8jp//t8/uhunU2vlwHQvEepBN8y+TfWg=="],
+    "@tanstack/solid-virtual": ["@tanstack/solid-virtual@3.13.43", "", { "dependencies": { "@tanstack/virtual-core": "3.19.1" }, "peerDependencies": { "solid-js": "^1.3.0" } }, "sha512-MwgplM3Xh9UMaPXzLN9DPhm46T2l/C7x8VsFcRRuJQjqUvuwlbI4+ZJxkAmnDZnpr9LLpINVcsJRDRZx0ji3kA=="],
 
     "@tanstack/store": ["@tanstack/store@0.11.2", "", {}, "sha512-sJ4mjol8uQsHV0gOJzzjwXfh2Fwm+Sz0+8deqiTm4jGbMdjzNSW+xZCFm0kUa870uhd8yi+DpKnZb5Kc4apa0Q=="],
 
-    "@tanstack/virtual-core": ["@tanstack/virtual-core@3.19.0", "", {}, "sha512-6k6+BXoM01iJTfqH5hvih0Kj49x130wRzty1muE1hBJJm5/P8h3aEYEtQPa4iYE239nF4i6UL/KIIuQI3zG4sw=="],
+    "@tanstack/virtual-core": ["@tanstack/virtual-core@3.19.1", "", {}, "sha512-l2WWYlRblIesvv/iEs/5OIVQvr8EML3Wh4pxmdROlDrd5L9/J8Vk26MfTCOp2kA6CM5Ve0SDkPX5uupyrfA2AA=="],
 
     "@testing-library/dom": ["@testing-library/dom@10.4.2", "", { "dependencies": { "@babel/code-frame": "^7.10.4", "@babel/runtime": "^7.12.5", "@types/aria-query": "^5.0.1", "aria-query": "5.3.0", "dom-accessibility-api": "^0.5.9", "lz-string": "^1.5.0", "picocolors": "1.1.1", "pretty-format": "^27.0.2" } }, "sha512-yzr2S9HyAIdhz2/6qHgbs665Q7PKVcDF05vsOlHPxG1mo36gKVesdYVeDLnXgfjJ03CrKRk08knc6+E/9m8v2Q=="],
 
@@ -9585,7 +9585,7 @@
 
     "@crvouga/mockingbird-service-openai/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@2.1.1", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-P/bKYKdm4PxVAEcffzqHI+eZzS8NAPdjeBHjXDPBuazFwyaSPjAhkCHs7ytKfwX1tln1l5ZZbgUrslJFg9Obdw=="],
 
-    "@crvouga/mockingbird-service-paddle/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.2.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-5US+6uW+CX4Er/VriILjfgxV4+nBi5BSm+J0yb//PwoZGNt4bgbMNO+4THVHHI9WOkOxe126OUhhf0Hwpicdeg=="],
+    "@crvouga/mockingbird-service-paddle/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-SoNjnHvnliuDOxeB20dxu8EL/UiH5jC9LbqMAeONpoOoN/VE+AhhtUCFRf4DqGiGgunKKUv96+MtY07V2bkmLw=="],
 
     "@crvouga/mockingbird-service-s3/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@1.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-Jc80x8AxWdKZHsBZHsipmdRfcv/AhRlPn/zeZSohC7LJtXJ1pWMX0lmSlpiX0EQtRUTsYVteWGJ7J0H7hWiGvQ=="],
 
