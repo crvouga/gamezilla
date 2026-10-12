@@ -20,7 +20,11 @@ import type { HarnessWorld } from '@libs/harness/spec-world';
 import { multiplayerPeople } from './multiplayer-people';
 import { command, gameCommand, refusal, searchFor } from './multiplayer-world';
 
-async function looking(w: HarnessWorld, actor: string, timeControl?: string) {
+export async function looking(
+  w: HarnessWorld,
+  actor: string,
+  timeControl?: string
+) {
   const matches = (
     search: { standing: string; time_control: string | null } | null
   ) =>
@@ -33,7 +37,7 @@ async function looking(w: HarnessWorld, actor: string, timeControl?: string) {
 }
 
 /** Before anything happened in the scenario this builds the search; afterwards it checks it. */
-async function searchStep(
+export async function searchStep(
   w: HarnessWorld,
   actor: string,
   timeControl?: string
@@ -44,7 +48,7 @@ async function searchStep(
   } else await looking(w, actor, timeControl);
 }
 
-function acted(w: HarnessWorld) {
+export function acted(w: HarnessWorld) {
   w.memo.set('multiplayer:acted', true);
 }
 

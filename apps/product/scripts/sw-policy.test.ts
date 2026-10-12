@@ -328,3 +328,38 @@ test('precaches the eager entry graph without requiring separate surface chunks'
     'sql-workers/sqlite3.wasm',
   ]);
 });
+
+test('keeps what only the harness reaches out of the wall shell', async () => {
+  const store = new ObjectStoreImplInMemory();
+  await writeUtf8(
+    store,
+    'index.html',
+    '<script type="module" src="/assets/index.js"></script>'
+  );
+  await writeUtf8(
+    store,
+    'assets/index.js',
+    'import"./shared.js";const h=()=>import(`./harness-boot.js`);export{h};'
+  );
+  await writeUtf8(
+    store,
+    'assets/harness-boot.js',
+    'import"./shared.js";import"./postgres.js";export{};'
+  );
+  await writeUtf8(store, 'assets/shared.js', 'export{};');
+  await writeUtf8(store, 'assets/postgres.js', 'export{};');
+  await writeUtf8(
+    store,
+    '.vite/manifest.json',
+    JSON.stringify({
+      'src/harness-boot.tsx': { file: 'assets/harness-boot.js' },
+    })
+  );
+  const graph = await readDistGraph(store);
+  expect(graph.excludedRoots).toEqual(['assets/harness-boot.js']);
+  expect(wallReachable(graph)).toEqual([
+    'assets/index.js',
+    'assets/shared.js',
+    'index.html',
+  ]);
+});

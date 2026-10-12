@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { getConfig } from '@lingui/conf';
 import { feedbackDevPlugin } from '@pkgs/feedback-server/vite';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server/sqlite-web-assets';
+import { preloadDynamicEntry } from '@pkgs/vite-workspace-resolver-server/preload-dynamic-entry';
 import {
   DEFAULT_WORKSPACE_SCOPES,
   workspaceExportsResolver,
@@ -32,6 +33,9 @@ export default defineConfig(({ mode }) => {
   const plugins: PluginOption[] = [
     feedbackDevPlugin({ repoRoot }),
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
+    // `root.ts` imports the application dynamically (startup error boundary);
+    // the page still fetches both at once.
+    preloadDynamicEntry('/src/main.tsx'),
     sqliteWebAssets({
       repoRoot,
       sqlWorkersDir: resolve(consoleDir, 'public/sql-workers'),

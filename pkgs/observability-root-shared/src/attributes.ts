@@ -15,14 +15,13 @@ import {
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
 } from '@opentelemetry/semantic-conventions';
-import {
-  ATTR_SESSION_ID,
-  ATTR_USER_ID,
-} from '@opentelemetry/semantic-conventions/incubating';
 
+// Incubating conventions are copied, as OpenTelemetry advises: their entry
+// point is one module of every experimental attribute, and this file is on
+// the client boot path.
 export const ATTR = {
-  USER_ID: ATTR_USER_ID,
-  SESSION_ID: ATTR_SESSION_ID,
+  USER_ID: 'user.id',
+  SESSION_ID: 'session.id',
   SERVICE_NAME: ATTR_SERVICE_NAME,
   SERVICE_INSTANCE_ID: ATTR_SERVICE_INSTANCE_ID,
   SERVICE_VERSION: ATTR_SERVICE_VERSION,
@@ -62,6 +61,7 @@ export const ATTR = {
   APP_INTERACTION_PRESENTATION_MS: 'app.interaction.presentation_ms',
   APP_INTERACTION_FRAME_MS: 'app.interaction.frame_ms',
   APP_INTERACTION_SCRIPT_MS: 'app.interaction.script_ms',
+  APP_MAIN_THREAD_STALL_MS: 'app.main_thread.stall_ms',
   APP_LOG_SEVERITY: 'app.log.severity',
   APP_LOG_MESSAGE: 'app.log.message',
   APP_LOG_NAME: 'app.log.name',
@@ -121,6 +121,7 @@ export type AttrValue = {
   'app.interaction.presentation_ms': number;
   'app.interaction.frame_ms': number;
   'app.interaction.script_ms': number;
+  'app.main_thread.stall_ms': number;
   'app.log.severity': 'debug' | 'info' | 'warn' | 'error';
   'app.log.message': string;
   'app.log.name': string;

@@ -1,0 +1,4 @@
+{
+  "summary": "A start that found the admission lock held always reported a live boot and exited, including when the holder's launcher was gone and nothing would ever stop it. A boot is live only while its supervisor and its launchers are alive; a start collects an abandoned holder and takes its place.",
+  "regressionTest": "pkgs/os-server/tests/dev-owner-stop.contract.test.ts"
+}

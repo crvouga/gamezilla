@@ -16,6 +16,7 @@
   "dependencies": {
     "@libs/chess-custom-game-client": "workspace:*",
     "@libs/chess-matchmaking-client": "workspace:*",
+    "@libs/chess-matchmaking-shared": "workspace:*",
     "@libs/chess-puzzle-client": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-root-shared": "workspace:*",

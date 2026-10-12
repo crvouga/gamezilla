@@ -1,0 +1,4 @@
+{
+  "summary": "In WebKit a page that replaced another (a reload, a navigation) could not open its local database while the earlier page's worker still held the file: the browser reports that as InvalidStateError, 'The object is in an invalid state.', and the open retry only recognised Chromium's NoModificationAllowedError. The open failed at once, the app fell back to an empty in-memory database, and the space and its puzzles sat loading with nothing local to show. Fixed: WebKit's wording counts as a held handle and is waited for like any other.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-shared/tests/open-retry.test.ts"
+}

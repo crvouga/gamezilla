@@ -7,6 +7,7 @@ import {
   awaitChessMatch,
   givenOpponentSearch,
 } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import { playMultiplayerMove } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
 import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
 import { accountIdOf } from '@libs/harness/identity';
@@ -147,6 +148,30 @@ export async function move(
   });
   w.memo.set(`multiplayer:last:${actor}`, reply.command);
   return reply;
+}
+
+/**
+ * The person plays a move on the board their device shows: while they
+ * review an earlier position that board is all their hand can reach.
+ */
+export async function playOnOwnBoard(
+  w: HarnessWorld,
+  actor: string,
+  uci: string
+) {
+  const game = await gameOf(w, actor);
+  w.memo.set('multiplayer:board-before-move', game.fen);
+  const command = {
+    name: 'playMultiplayerMove',
+    args: {
+      gameId: game.id,
+      revision: game.revision,
+      uci,
+      requestId: `move-${game.id}-${actor}-${String(game.revision)}-${uci}`,
+    },
+  };
+  await w.s.apply(playMultiplayerMove, actor, command);
+  w.memo.set(`multiplayer:last:${actor}`, command);
 }
 
 /** Accepted moves, White and Black in turn, both boards agreeing after each. */

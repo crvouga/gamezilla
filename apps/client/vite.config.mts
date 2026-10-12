@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { getConfig } from '@lingui/conf';
 import { feedbackDevPlugin } from '@pkgs/feedback-server/vite';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server/sqlite-web-assets';
+import { preloadDynamicEntry } from '@pkgs/vite-workspace-resolver-server/preload-dynamic-entry';
 import {
   DEFAULT_WORKSPACE_SCOPES,
   workspaceExportsResolver,
@@ -36,6 +37,9 @@ export default defineConfig(({ mode }) => {
   const plugins: PluginOption[] = [
     feedbackDevPlugin({ repoRoot }),
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
+    // `root.ts` imports the application dynamically (startup error boundary);
+    // the page still fetches both at once.
+    preloadDynamicEntry('/src/main.tsx'),
     sqliteWebAssets({
       repoRoot,
       sqlWorkersDir: resolve(clientDir, 'public/sql-workers'),
@@ -97,18 +101,9 @@ export default defineConfig(({ mode }) => {
       sourcemap: false,
       cssCodeSplit: true,
       assetsInlineLimit: 0,
-      // node-sql-parser is one atomic browser module (~2.4 MB raw / ~428 KB
-      // gzip); it cannot be split further, so keep Vite's raw-size warning
-      // above it.
+      // The application is one eager chunk by design (README.md), so Vite's
+      // raw-size warning is expected for it.
       chunkSizeWarningLimit: 2600,
-      // Do not inject <link rel="modulepreload"> for dynamic-import targets into
-      // index.html. Vite's default preloads the sync-engine / mutations /
-      // dicebear / games graphs on every cold load and blew Slow-4G LCP (~35s).
-      // Chunks still load when actually imported; JS hosts may still preload.
-      modulePreload: {
-        resolveDependencies: (_filename, deps, { hostType }) =>
-          hostType === 'html' ? [] : deps,
-      },
     },
   };
 });

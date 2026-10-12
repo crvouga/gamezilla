@@ -24,8 +24,12 @@ export function setBrowserTraceFlush(flush: () => Promise<void>): void {
   flushTraces = flush;
 }
 
+function asError(value: unknown): Error {
+  return value instanceof Error ? value : new Error(String(value));
+}
+
 function reportError(error: unknown, source: string): string | undefined {
-  const exception = error instanceof Error ? error : new Error(String(error));
+  const exception = asError(error);
   const span = startSpan('client.error', {
     [ATTR.CODE_FILE_PATH]: 'libs/app-root-shared/src/browser-boundaries.ts',
     [ATTR.CODE_FUNCTION_NAME]: source,
@@ -48,6 +52,40 @@ function reportError(error: unknown, source: string): string | undefined {
       () => undefined
     );
   return traceId;
+}
+
+/** `db.system.name` of the two local databases a browser can end up on. */
+export const LOCAL_DATABASE = {
+  /** SQLite in a worker, kept in the origin private file system. */
+  worker: 'sqlite.opfs',
+  /** The in-memory stand-in, on the main thread; nothing is kept. */
+  memory: 'sqlite.memory',
+} as const;
+
+/**
+ * One `db.open` span saying which local database this page runs on. Landing
+ * on the stand-in is an error carrying its cause: every local query then runs
+ * on the main thread, which shows up as slow interactions everywhere.
+ */
+export function recordLocalDatabaseOpen(
+  system: (typeof LOCAL_DATABASE)[keyof typeof LOCAL_DATABASE],
+  failure?: unknown
+): void {
+  const span = startSpan('db.open', {
+    [ATTR.DB_SYSTEM_NAME]: system,
+    [ATTR.DB_OPERATION_NAME]: 'open',
+    [ATTR.CODE_FILE_PATH]: 'libs/app-root-client/src/open-main-sql-client.ts',
+    [ATTR.CODE_FUNCTION_NAME]: 'openMainSqlClient',
+  });
+  if (failure !== undefined) {
+    const cause = asError(failure);
+    span.recordException(cause);
+    span.setStatus({
+      code: SpanStatusCode.ERROR,
+      message: `local SQLite unavailable, running on an in-memory database on the main thread: ${cause.message}`,
+    });
+  }
+  span.end();
 }
 
 export function reportSolidBoundaryError(error: unknown): string | undefined {

@@ -1,4 +1,5 @@
 import { drainAndNotifyOutbox } from '@libs/app-root-server/outbox-drain';
+import { letTimePass } from '@libs/harness/actions';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 
@@ -27,6 +28,20 @@ export const passMultiplayerTime = scenarioAction({
   name: 'passMultiplayerTime',
   act: async (s, ms: number) => {
     await s.session.advanceTime(ms);
+    await s.session.waitForIdle();
+    await runScheduledSweep(s);
+  },
+});
+
+/**
+ * Hours or days pass for everyone, whoever is online, the way a daily game
+ * is lived: in hour-long jumps, each waking every device and the server
+ * once. The scheduled sweep then applies whatever fell due meanwhile.
+ */
+export const passMultiplayerDays = scenarioAction({
+  name: 'passMultiplayerDays',
+  act: async (s, ms: number) => {
+    await Promise.resolve(letTimePass.act(s, ms));
     await s.session.waitForIdle();
     await runScheduledSweep(s);
   },

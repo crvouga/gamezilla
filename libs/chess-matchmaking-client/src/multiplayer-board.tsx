@@ -1,35 +1,93 @@
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
+import type { MultiplayerSide } from '@libs/chess-matchmaking-shared/multiplayer-clock';
 import { BOARD_THEME } from '@libs/chess-root-shared/board-theme';
-import { useModeration } from '@libs/moderation-client/moderation-context';
-import { usernameText } from '@libs/moderation-shared/display';
-import { useProfileRow } from '@libs/profile-client/public-use-profile-row';
-import { t } from '@lingui/core/macro';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { GameBoardStage } from '@pkgs/ui-root-client/game-board-stage';
 import type { JSX } from 'solid-js';
+import { MultiplayerReviewing } from './multiplayer-reviewing';
 import type { MultiplayerViewer } from './multiplayer-seat';
 import { MultiplayerSeat } from './multiplayer-seat';
 import { MultiplayerStatus } from './multiplayer-status';
+import { useLowOnTime, useLowOnTimeWarning } from './use-low-on-time';
+import type { OwnBoard } from './use-own-board';
+import { useShownName } from './use-shown-name';
 
-/** A person's name as others may see it, by profile id. */
-function useShownName(profileId: () => string): () => string {
-  const moderation = useModeration();
-  const profile = useProfileRow(profileId);
-  return () =>
-    usernameText(moderation(), profile.row()?.username, profileId()) ||
-    t`Deleted account`;
-}
+const otherSide = (side: MultiplayerSide): MultiplayerSide =>
+  side === 'white' ? 'black' : 'white';
 
-export function MultiplayerBoard(props: {
+type BoardProps = {
   readonly game: MultiplayerGame;
   readonly myId: string;
   readonly connected: boolean;
   readonly moving: boolean;
   readonly syncKey: number;
+  readonly view: OwnBoard;
   readonly onMove: (uci: string) => Promise<void>;
-}): JSX.Element {
+};
+
+/**
+ * The board and the two seats around it, as this device shows them: seen
+ * from the person's own side until they flip it, and on the current
+ * position until they review an earlier one, which no piece can be moved on.
+ */
+function BoardStage(
+  props: BoardProps & {
+    readonly viewer: MultiplayerViewer;
+    /** The person's own side; White's for a watcher. */
+    readonly ownSide: MultiplayerSide;
+    readonly canMove: boolean;
+  }
+): JSX.Element {
   const sounds = useSoundsPreference();
+  // The side nearest the person: their own, until they flip the board.
+  const nearSide = (): MultiplayerSide =>
+    props.view.flipped() ? otherSide(props.ownSide) : props.ownSide;
+  return (
+    <GameBoardStage
+      top={
+        <MultiplayerSeat
+          game={props.game}
+          side={otherSide(nearSide())}
+          own={nearSide() !== props.ownSide}
+          near={false}
+          viewer={props.viewer}
+        />
+      }
+      bottom={
+        <MultiplayerSeat
+          game={props.game}
+          side={nearSide()}
+          own={nearSide() === props.ownSide}
+          near
+          viewer={props.viewer}
+        />
+      }
+    >
+      <ChessBoard
+        theme={BOARD_THEME}
+        fen={props.view.earlier()?.fen ?? props.game.fen}
+        fenSyncKey={props.syncKey}
+        orientation={nearSide()}
+        interactive={props.canMove && props.view.earlier() === null}
+        premoves={false}
+        sound={!sounds.muted()}
+        onMove={(move) => {
+          void props.onMove(`${move.from}${move.to}${move.promotion ?? ''}`);
+        }}
+        dataSet={{ testid: 'multiplayer-board' }}
+      />
+    </GameBoardStage>
+  );
+}
+
+export function MultiplayerBoard(props: BoardProps): JSX.Element {
+  const lowOnTime = useLowOnTime(() => props.game);
+  useLowOnTimeWarning({
+    game: () => props.game,
+    myId: () => props.myId,
+    low: lowOnTime,
+  });
   const participant = () =>
     props.game.white_id === props.myId || props.game.black_id === props.myId;
   const canMove = () =>
@@ -65,42 +123,18 @@ export function MultiplayerBoard(props: {
       data-outcome={props.game.outcome}
       data-reason={props.game.reason ?? ''}
     >
-      <GameBoardStage
-        top={
-          <MultiplayerSeat
-            game={props.game}
-            side={white() ? 'black' : 'white'}
-            own={false}
-            viewer={viewer()}
-          />
-        }
-        bottom={
-          <MultiplayerSeat
-            game={props.game}
-            side={white() ? 'white' : 'black'}
-            own
-            viewer={viewer()}
-          />
-        }
-      >
-        <ChessBoard
-          theme={BOARD_THEME}
-          fen={props.game.fen}
-          fenSyncKey={props.syncKey}
-          orientation={white() ? 'white' : 'black'}
-          interactive={canMove()}
-          premoves={false}
-          sound={!sounds.muted()}
-          onMove={(move) => {
-            void props.onMove(`${move.from}${move.to}${move.promotion ?? ''}`);
-          }}
-          dataSet={{ testid: 'multiplayer-board' }}
-        />
-      </GameBoardStage>
+      <BoardStage
+        {...props}
+        viewer={viewer()}
+        ownSide={white() ? 'white' : 'black'}
+        canMove={canMove()}
+      />
+      <MultiplayerReviewing view={props.view} />
       <MultiplayerStatus
         game={props.game}
         viewer={viewer()}
         winnerName={winnerName()}
+        lowOnTime={lowOnTime()}
       />
     </div>
   );

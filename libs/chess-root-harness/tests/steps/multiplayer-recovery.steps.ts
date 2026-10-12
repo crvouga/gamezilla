@@ -126,6 +126,8 @@ Then(
 Then(
   "{actor} sees her multiplayer board and {actor}'s name",
   async (w, actor: Actor, opponent: Actor) => {
+    // Her multiplayer chess, wherever in the app a step before left her.
+    await w.s.apply(openMultiplayerChess, actor);
     expect(
       await w.s.read(multiplayerText, actor, 'multiplayer-game')
     ).not.toBeNull();

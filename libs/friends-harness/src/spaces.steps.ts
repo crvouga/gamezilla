@@ -172,8 +172,17 @@ Given('{actor} is a Plus member', async (w, actor: Actor) => {
   await w.s.apply(subscribeToPlus, actor);
 });
 
+// A state, not an event: someone the scenario already gave a space is
+// hosting it, and is taken back into it rather than refused a second one.
 Given('{actor} is hosting a space', async (w, actor: Actor) => {
-  await hostSpace(w, actor);
+  await w.s.apply(focusActor, actor);
+  await w.s.apply(openSpacesTab, actor);
+  if ((await w.s.read(hostedSpaceCount, actor)) === 0) {
+    await hostSpace(w, actor);
+    return;
+  }
+  await w.s.apply(returnToOwnSpace, actor);
+  await shareLink(w, actor);
 });
 
 Given(

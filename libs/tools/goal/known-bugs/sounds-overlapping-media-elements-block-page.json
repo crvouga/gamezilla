@@ -1,0 +1,4 @@
+{
+  "summary": "Every sound played on its own HTMLAudioElement. In WebKit, starting a second media element while another is starting blocks the main thread: 60 to 520 ms measured in the page for two effects played back to back, against 0 ms for two Web Audio buffer sources. A wrong puzzle move plays a move sound and a refusal sound together, so every such drop froze the board for about half a second (no piece slide, dropped frames, late sound). Fixed: effects are decoded once and played through Web Audio; only speech clips stay on a media element.",
+  "regressionTest": "pkgs/sounds-shared/tests/web-audio-playback-port.test.ts"
+}

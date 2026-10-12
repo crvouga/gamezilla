@@ -4,6 +4,9 @@
 // Positions stand for a capture opportunity, its capture result, an unrelated
 // replacement, Black's legal reply to that capture, and the normal opening.
 // Their chess legality is already decided. This behavior is identical offline.
+// A replacement position slides each piece to where it now stands, as a move
+// does, but leaves no captured piece behind; one that interrupts an arrival
+// places its pieces at once.
 // The capture and its immediate knight reply may arrive together while both
 // pieces still belong to the current position. These requests precede any
 // completed arrival; finishing current motion settles both prepared pieces.
@@ -32,16 +35,20 @@ module board_lifecycle {
   action init = all {board' = _open(0), _earlierCompletion' = false}
 
   /// Alice chooses the prepared movable piece, or puts down her selection.
+  /// Choosing a piece while a replacement position is still arriving places
+  /// its pieces at once: nobody takes hold of a piece in mid-flight.
   action selectPiece = all {
     board.present, board.visible, board.position == 0, not(board.dragging),
-    board' = { ...board, selected: board.interactive and not(board.selected) },
-    _earlierCompletion' = _earlierCompletion,
+    board' = { ...(if (board.interactive) _settled(board) else board),
+      selected: board.interactive and not(board.selected) },
+    _earlierCompletion' = (_earlierCompletion or (board.interactive and board.transition)),
   }
-  /// Alice holds the prepared piece before deciding where to put it.
+  /// Alice holds the prepared piece before deciding where to put it. Like
+  /// choosing it, this places a replacement position still arriving at once.
   action beginDrag = all {
     board.present, board.interactive, board.visible, board.position == 0, not(board.dragging),
-    board' = { ...board, selected: false, dragging: true },
-    _earlierCompletion' = _earlierCompletion,
+    board' = { ..._settled(board), selected: false, dragging: true },
+    _earlierCompletion' = (_earlierCompletion or board.transition),
   }
   /// Alice abandons the held piece without making a move.
   action cancelDrag = all {
@@ -58,7 +65,7 @@ module board_lifecycle {
     board.present, board.visible, board.interactive, board.position == 0,
     board' = { ...board, position: 1, displayedPosition: 1, selected: false,
       dragging: false, transition: _canArrive(board), captureRemnant: _canArrive(board) },
-    _earlierCompletion' = _earlierCompletion,
+    _earlierCompletion' = (_earlierCompletion or board.transition),
   }
   /// Black's prepared reply owns the displayed position even during the capture.
   action receiveReply = all {
@@ -69,11 +76,14 @@ module board_lifecycle {
   }
   /// Equivalent supplied positions preserve the current arrival and remnant.
   /// A different activity position abandons that arrival and every old gesture.
+  /// Its pieces slide to where they now stand, leaving no capture remnant;
+  /// when it interrupts an arrival they are placed at once instead.
   action replacePosition(target: int): bool = all {
     board.present, Set(0, 2, 4).contains(target) or target == board.position,
     board' = if (target == board.position) board
       else { ..._settled(board), position: target, displayedPosition: target,
-        selected: false, dragging: false },
+        selected: false, dragging: false,
+        transition: _canArrive(board) and not(board.transition) },
     _earlierCompletion' = (_earlierCompletion or (target != board.position and board.transition)),
   }
   /// An unusable supplied position preserves the last good displayed position.

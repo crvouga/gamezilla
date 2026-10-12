@@ -9,6 +9,7 @@ import { GameChoiceGrid } from '@pkgs/ui-root-client/game-choice-grid';
 import { GameSection } from '@pkgs/ui-root-client/game-section';
 import { createSignal, type JSX } from 'solid-js';
 import { SpeedName } from './speed-name';
+import { timeControlChoiceText } from './time-control-name';
 import type { MultiplayerControlsModel } from './use-multiplayer-controls';
 
 /** Choose one of the offered time controls, then find an opponent at it. */
@@ -20,7 +21,10 @@ export function MultiplayerFindPanel(props: {
     <GameSection
       title={<Trans>New game</Trans>}
       description={
-        <Trans>Minutes per player + seconds added after each move.</Trans>
+        <Trans>
+          Minutes per player + seconds added after each move, or days for every
+          move in a daily game.
+        </Trans>
       }
     >
       <GameChoiceGrid
@@ -29,7 +33,7 @@ export function MultiplayerFindPanel(props: {
         onChange={setTimeControl}
         choices={TIME_CONTROLS.map((control) => ({
           value: control.id,
-          title: control.id,
+          title: timeControlChoiceText(control.id),
           detail: <SpeedName speed={control.speed} />,
           dataSet: {
             testid: `multiplayer-time-control-${timeControlKey(control.id)}`,

@@ -14,11 +14,12 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
+    "@libs/app-root-server": "workspace:*",
     "@libs/app-root-shared": "workspace:*",
     "@libs/auth-shared": "workspace:*",
-    "@libs/sub-shared": "workspace:*",
     "@libs/notifications-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/async-local-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",

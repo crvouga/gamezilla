@@ -2048,6 +2048,8 @@
         "$TURBO_ROOT$/libs/*-client/src/sub-client.{ts,tsx}",
         "$TURBO_ROOT$/libs/chess-puzzle-client/src/puzzle-link-client.ts",
         "$TURBO_ROOT$/libs/chess-puzzle-shared/src/puzzle-link.ts",
+        "$TURBO_ROOT$/libs/chess-matchmaking-client/src/multiplayer-link-client.ts",
+        "$TURBO_ROOT$/libs/chess-matchmaking-shared/src/multiplayer-link.ts",
         "$TURBO_ROOT$/apps/product/src/main.tsx",
         "$TURBO_ROOT$/apps/product/src/console-nav-real.ts",
         "$TURBO_ROOT$/vendor/atlas/packages/reports/src/**/*.ts"

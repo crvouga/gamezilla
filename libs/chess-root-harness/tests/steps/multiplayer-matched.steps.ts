@@ -14,7 +14,7 @@ import type { HarnessWorld } from '@libs/harness/spec-world';
 import { multiplayerPeople } from './multiplayer-people';
 import { givenOverGame, ownerOf, searchFor } from './multiplayer-world';
 
-async function matchedAs(
+export async function matchedAs(
   w: HarnessWorld,
   viewer: string,
   opponent: string,

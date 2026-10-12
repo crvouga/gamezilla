@@ -70,16 +70,19 @@ function playOnChess(chess: Chess, m: MoveInput): ChessJsMove {
  * Game status reuses the cached legal destinations. Checkmate and stalemate
  * come from that emptiness plus canonical check status; the other draw rules
  * read canonical material and counters without generating moves again.
+ * Checkmate ends the game first: a mating move that is also the hundredth
+ * half-move without a capture or pawn move is a win, not a draw (FIDE 9.6.2).
  */
 function statusOf(chess: Chess, hasLegalMoves: boolean) {
   const inCheck = chess.inCheck();
   const isCheckmate = inCheck && !hasLegalMoves;
   const isStalemate = !inCheck && !hasLegalMoves;
   const isDraw =
-    isStalemate ||
-    chess.isInsufficientMaterial() ||
-    chess.isDrawByFiftyMoves() ||
-    chess.isThreefoldRepetition();
+    !isCheckmate &&
+    (isStalemate ||
+      chess.isInsufficientMaterial() ||
+      chess.isDrawByFiftyMoves() ||
+      chess.isThreefoldRepetition());
   return {
     inCheck,
     isCheckmate,

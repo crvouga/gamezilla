@@ -1,3 +1,4 @@
+import { notifyUserChannels } from '@libs/app-root-server/notify-user-channels';
 import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
 import { appAuth } from '@libs/auth-shared/auth-context';
 import { UnauthorizedError } from '@libs/auth-shared/unauthorized-error';
@@ -55,7 +56,15 @@ function lazyRequestContext() {
   const actor = notificationsActorStorage.getStore();
   assert.defined(store, 'notifications: request store missing');
   assert.defined(actor, 'notifications: actor id missing');
-  return { sql: store.sqlClient, actorId: actor.accountId };
+  return {
+    sql: store.sqlClient,
+    actorId: actor.accountId,
+    inboxChanged: () =>
+      notifyUserChannels([actor.accountId], 'notifications-inbox', {
+        tables: ['notifications'],
+        deferPublish: false,
+      }),
+  };
 }
 
 let notificationsApp: NotificationsApp | null = null;

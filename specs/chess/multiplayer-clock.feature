@@ -4,7 +4,7 @@ Feature: The multiplayer clock
   fairly and shown to both of them, so a game ends when someone runs out of
   time.
 
-  Rule: Each side starts with the time control's minutes, and neither multiplayer clock runs until both people have made their first move
+  Rule: Outside a daily game, each side starts with the time control's minutes, and neither multiplayer clock runs until both people have made their first move
 
     Scenario: Waiting for White's first move costs nobody any time
       Given Alice is White and Bob is Black in a new 1+0 multiplayer game

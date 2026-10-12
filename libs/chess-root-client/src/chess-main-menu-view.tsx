@@ -1,5 +1,6 @@
 import { CustomGameScreen } from '@libs/chess-custom-game-client/custom-game-screen';
 import MultiplayerScreen from '@libs/chess-matchmaking-client/multiplayer-screen';
+import { LINKED_MULTIPLAYER_PARAM } from '@libs/chess-matchmaking-shared/multiplayer-link';
 import { ChessPuzzleFeedProvider } from '@libs/chess-puzzle-client/chess-puzzle-feed-provider';
 import { PuzzlePlayScreen } from '@libs/chess-puzzle-client/chess-puzzle-play-screen';
 import { ChessPuzzleReviewScreen } from '@libs/chess-puzzle-client/chess-puzzle-review-screen';
@@ -85,9 +86,30 @@ function useOpenLinkedPuzzleScreen(screen: () => ChessMainMenuScreen): void {
   });
 }
 
+/**
+ * A space its host opened from the multiplayer link goes straight to
+ * multiplayer chess — once, so Back still leads to the chess choices.
+ */
+function useOpenLinkedMultiplayerScreen(
+  screen: () => ChessMainMenuScreen
+): void {
+  const params = useLocalSearchParams<{ multiplayer?: string | undefined }>();
+  const isHost = useIsPuzzleDriver();
+  const dispatch = useSpaceRoomDispatch();
+  let opened = false;
+  createEffect(() => {
+    if (params()[LINKED_MULTIPLAYER_PARAM] === undefined || !isHost()) return;
+    if (opened) return;
+    opened = true;
+    if (untrack(screen) === CHESS_SCREEN.multiplayer) return;
+    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.multiplayer }));
+  });
+}
+
 function ChessScreenSwitch(props: ChessMainMenuProps): JSX.Element {
   const screen = useSpaceRoomSelector(ChessMainMenuScreenAttr.screen.from);
   useOpenLinkedPuzzleScreen(screen);
+  useOpenLinkedMultiplayerScreen(screen);
 
   return (
     <FadeSwitch stateKey={screen()}>

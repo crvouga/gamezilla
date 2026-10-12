@@ -15,7 +15,6 @@ import { useClientEnv, useSyncEnginePool } from './client-env-context';
 import type { ReadySyncEngine } from './create-sync-engine-boot-state';
 import { createSyncEngineBootState } from './create-sync-engine-boot-state';
 import { useLocalIdentity } from './identity-context';
-import { useLocalPaintLatch } from './local-paint-latch';
 import { originAvailabilityFor } from './origin-availability-for-env';
 import type { SyncApiFetch } from './sync-api';
 
@@ -25,19 +24,9 @@ import type { SyncApiFetch } from './sync-api';
  */
 const BOOT_STUCK_MS = 15_000;
 
-/**
- * Open SQLite once fonts have released the paint latch. No extra delay: with
- * the shell entry kept free of mutation/WASM graphs, first paint settles
- * before worker fetches without waiting here (harnesses + LHCI).
- */
-function useMayOpenDbAfterPaint(): Accessor<boolean> {
-  const latch = useLocalPaintLatch();
-  return () => latch.bootReady();
-}
-
+/** Opens SQLite as soon as an identity is bound: nothing else gates it. */
 function useSyncBootPromise(args: {
   readonly userId: Accessor<string>;
-  readonly mayOpenDb: Accessor<boolean>;
 }): Accessor<Promise<ReadySyncEngine>> {
   const env = useClientEnv();
   const loadApp = useAppData();
@@ -55,11 +44,6 @@ function useSyncBootPromise(args: {
   );
 
   return createMemo<Promise<ReadySyncEngine>>(() => {
-    if (!args.mayOpenDb()) {
-      return new Promise<ReadySyncEngine>(() => {
-        /* pending until post-paint unlock */
-      });
-    }
     const engine = pool.getOrCreate({
       loadApp,
       openSqlClient: (openArgs) => env.openSqlClient(openArgs),
@@ -110,12 +94,7 @@ export function useSyncEngineBootViews(args: {
 }): SyncEngineBootViews {
   const timers = useTimers();
   const log = useLogger('sync-engine-boot');
-  const latch = useLocalPaintLatch();
-  const mayOpenDb = useMayOpenDbAfterPaint();
-  const bootPromise = useSyncBootPromise({
-    userId: args.userId,
-    mayOpenDb,
-  });
+  const bootPromise = useSyncBootPromise({ userId: args.userId });
 
   const boot = createSyncEngineBootState({
     boot: bootPromise,
@@ -133,10 +112,6 @@ export function useSyncEngineBootViews(args: {
     setStuck(false);
     const id = timers.setTimeout(() => setStuck(true), BOOT_STUCK_MS);
     onCleanup(() => timers.clearTimeout(id));
-  });
-
-  createEffect(() => {
-    if (boot().phase !== 'loading' || stuck()) latch.markEngineReady();
   });
 
   return {

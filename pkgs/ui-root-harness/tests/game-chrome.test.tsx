@@ -86,6 +86,22 @@ describe('Game chrome', () => {
     expect(screen.getByLabelText('Black 4:12')).toHaveTextContent('4:12');
   });
 
+  test('a clock that is nearly used up says so with more than its colour', () => {
+    renderUi(() => (
+      <>
+        <GameClock label="White" value="0:09" active low ariaLabel="low" />
+        <GameClock label="Black" value="4:12" ariaLabel="plenty" />
+      </>
+    ));
+    const clocks = document.querySelectorAll('[data-component="GameClock"]');
+    expect(clocks[0]).toHaveAttribute('data-low', 'true');
+    expect(clocks[1]).toHaveAttribute('data-low', 'false');
+    expect(clocks[0]?.querySelector('[data-component="Icon"]')).not.toBeNull();
+    expect(clocks[1]?.querySelector('[data-component="Icon"]')).toBeNull();
+    expect(screen.getByLabelText('low')).toHaveAttribute('data-low', 'true');
+    expect(screen.getByLabelText('low')).toHaveTextContent('0:09');
+  });
+
   test('the selected pace is a chosen control with a visible name', () => {
     renderUi(() => (
       <GameChoiceGrid

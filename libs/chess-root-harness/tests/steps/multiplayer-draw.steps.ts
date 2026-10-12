@@ -97,7 +97,15 @@ const DRAW_REASONS: Record<string, string> = {
     'timeout vs insufficient material',
 };
 
-const REPETITION = ['g1f3', 'g8f6', 'f3g1', 'f6g8', 'g1f3', 'g8f6', 'f3g1'];
+export const REPETITION = [
+  'g1f3',
+  'g8f6',
+  'f3g1',
+  'f6g8',
+  'g1f3',
+  'g8f6',
+  'f3g1',
+];
 const POSITIONS: Record<string, readonly [string, string]> = {
   stalemate: ['k7/8/1QK5/8/8/8/8/8 w - - 0 1', 'b6c7'],
   'insufficient mating material': ['7k/8/8/8/8/8/1n6/K1B5 w - - 0 1', 'c1b2'],

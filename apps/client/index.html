@@ -6,6 +6,21 @@
   <link rel="manifest" href="/pwa/manifest.webmanifest" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <meta name="theme-color" content="#000000" />
+  <script>
+    // The theme the app mounts with (`ThemePreferenceProvider`), set before
+    // first paint so boot never flashes from one scheme to the other.
+    (function () {
+      var scheme;
+      try {
+        var stored = JSON.parse(localStorage.getItem('ui.prefs/color-scheme'));
+        scheme = stored && stored['ui.prefs/value'];
+      } catch (_) {}
+      if (scheme !== 'light' && scheme !== 'dark') {
+        scheme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-theme', scheme);
+    })();
+  </script>
   <style>
     html,
     body,
@@ -21,8 +36,17 @@
       color-scheme: dark;
     }
 
-    /* Mirrors the in-app BootLoadingShell (LoadingState size="large" +
-       caption) so boot shows one loading state from first paint to ready. */
+    /* The script above sets `data-theme` before first paint; the tokens take
+       over once their stylesheet loads. */
+    html[data-theme="light"],
+    html[data-theme="light"] body {
+      background: var(--ui-color-background, #FFFFFF);
+      color: var(--ui-color-text, #0D1216);
+      color-scheme: light;
+    }
+
+    /* Mirrors the in-app BootLoadingShell (LoadingState size="large") so
+       boot shows one loading state from first paint to ready. */
     .startup-shell {
       align-items: center;
       display: flex;
@@ -41,12 +65,6 @@
       width: 48px;
     }
 
-    .startup-shell-caption {
-      color: #8B98A5;
-      font-size: 12px;
-      letter-spacing: 0.01em;
-      line-height: 18px;
-    }
 
     .startup-shell-failed {
       gap: 0.75rem;
@@ -85,6 +103,25 @@
       font: inherit;
       margin-top: 0.25rem;
       padding: 0.625rem 1rem;
+    }
+
+    html[data-theme="light"] .startup-shell-mark {
+      background: #F6F8F8;
+      border-color: #C81924;
+      color: #C81924;
+    }
+
+    html[data-theme="light"] .startup-shell-guidance {
+      color: #52606B;
+    }
+
+    html[data-theme="light"] .startup-shell-detail {
+      color: #C81924;
+    }
+
+    html[data-theme="light"] .startup-shell-reload {
+      background: #0D1216;
+      color: #FFFFFF;
     }
 
     @keyframes startup-spin {
@@ -199,13 +236,12 @@
   <noscript> You need to enable JavaScript to run this app. </noscript>
 
   <div id="root">
-    <div class="startup-shell" role="status" aria-label="Starting Gamezilla" data-startup-shell>
+    <div class="startup-shell" role="status" aria-label="Loading Gamezilla" data-startup-shell>
       <svg class="startup-shell-spinner" viewBox="0 0 48 48" aria-hidden="true">
         <circle cx="24" cy="24" r="21.5" stroke="currentColor" stroke-width="5" fill="none" opacity="0.25" />
         <circle cx="24" cy="24" r="21.5" stroke="currentColor" stroke-width="5" fill="none"
           stroke-linecap="round" stroke-dasharray="33.77 101.32" />
       </svg>
-      <span class="startup-shell-caption">Starting…</span>
     </div>
   </div>
   <script type="module" src="/src/root.ts"></script>

@@ -39,41 +39,45 @@ export function registerInboxRoutes(
   });
 
   app.post('/notifications/read-all', async (c) => {
-    const { sql, actorId } = requestContext();
+    const { sql, actorId, inboxChanged } = requestContext();
     await markAllInteractionsRead(sql, actorId, now);
+    await inboxChanged();
     return c.json({ ok: true });
   });
 
   app.post('/notifications/:id/read', async (c) => {
-    const { sql, actorId } = requestContext();
+    const { sql, actorId, inboxChanged } = requestContext();
     const interaction = await markInteractionRead(
       sql,
       actorId,
       c.req.param('id'),
       now
     );
+    await inboxChanged();
     return c.json({ interaction });
   });
 
   app.post('/notifications/:id/archive', async (c) => {
-    const { sql, actorId } = requestContext();
+    const { sql, actorId, inboxChanged } = requestContext();
     const interaction = await archiveInteraction(
       sql,
       actorId,
       c.req.param('id'),
       now
     );
+    await inboxChanged();
     return c.json({ interaction });
   });
 
   app.post('/notifications/:id/dismiss', async (c) => {
-    const { sql, actorId } = requestContext();
+    const { sql, actorId, inboxChanged } = requestContext();
     const interaction = await dismissInteraction(
       sql,
       actorId,
       c.req.param('id'),
       now
     );
+    await inboxChanged();
     return c.json({ interaction });
   });
 
