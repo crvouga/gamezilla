@@ -459,7 +459,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
+      # The reports are filed under the pull request's head, whose specs are
+      # read from Git; the default checkout holds only the merge commit.
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
           tools: bun gh
