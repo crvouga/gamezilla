@@ -125,7 +125,7 @@ steps never call other steps.
    `bun run spec --package <workspace>` (it runs all its `specDomains`).
 2. `bun run spec:catalog`, then `bun run spec:check --strict-duplicates`.
    Delete definitions nothing uses.
-3. `bun run spec:ownership`, then `bun check`.
+3. `bun run spec:ownership`, then `bun check-pr`.
 4. Commit separately from the `spec:` commit (P1).
 
 ## Demote a scenario (when `spec-audit` says B17)
@@ -163,4 +163,4 @@ skips the scenario.
       builds / When acts / Then asserts, virtual time only (D5).
 - [ ] No duplicate or unused definitions; catalogs regenerated.
 - [ ] The whole context's specs, `spec:check --strict-duplicates`,
-      `spec:ownership` and `bun check` are green.
+      `spec:ownership` and `bun check-pr` are green.

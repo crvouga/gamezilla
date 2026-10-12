@@ -7,7 +7,7 @@
  * exists and is bound, a package task in the Check task list runs, a live spec `health` runs, a
  * report line that is fed.
  *
- *   { spec }  a spec file a package runs against its harness in `bun check`
+ *   { spec }  a spec file a package runs against its harness in `bun check-pr`
  *   { live }  a spec file `@apps/product`'s `health` runs against a deployment
  *   { task }  a package-scoped Turbo task in the Check task list
  *   { kind }  every spec of a kind — at least one, each bound
@@ -26,7 +26,7 @@ import { LINES } from './lines';
 const ENVIRONMENTS: ProofTable = {
   "a phone's web browser": [
     // The critical journeys in a real browser against the deployment, and
-    // every behavior spec against the assembled app in `bun check`.
+    // every behavior spec against the assembled app in `bun check-pr`.
     { live: 'specs/journeys/critical-journeys.feature' },
     { spec: 'specs/journeys/critical-journeys.feature' },
     { kind: 'behavior' },

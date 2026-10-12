@@ -1,6 +1,6 @@
 language js
 
-// A gate leaf must reach the same verdict on every machine: a green `bun check`
+// A gate leaf must reach the same verdict on every machine: a green `bun check-pr`
 // has to mean a green Check workflow. Wired to `scripts/check-*.ts` (`biome.json`
 // plugin `includes`); a script that reads CI only to change how it reports is
 // exempted there by path, with the reason in a comment beside the read.

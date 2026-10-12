@@ -17,7 +17,7 @@
  * paths given) with a JUnit report written into the bucket, and exits with
  * the runner's status. Every harness writes its step timeline into the bucket and
  * every model its traces, and turbo caches the bucket with the verdict, so
- * `bun check` publishes the last run of this exact code; every step also
+ * `bun check-pr` publishes the last run of this exact code; every step also
  * records its UI frames.
  *
  *   test:spec                                        everything
@@ -29,7 +29,7 @@
  *   test:spec tests/harness/critical-journeys.test.tsx   one code test
  *   test:spec --part 2/5                             one of five parts
  *
- * `bun check` runs a suite in parts (`test:spec:<k>` = `--part k/n`, n the
+ * `bun check-pr` runs a suite in parts (`test:spec:<k>` = `--part k/n`, n the
  * package's `specParts`), so one package's suite spreads over several CI
  * shards instead of setting the whole run's wall time. {@link partOf} splits
  * by weight read from the specs alone, so every part — on any machine —
@@ -71,7 +71,7 @@ const TEST_PACKAGE_NAME = process.env['npm_package_name'] ?? 'unknown';
 const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-spec`;
 /**
  * Per test, a wall clock. A scenario costs 2–5 s idle, but under a full
- * `bun check` (every package's spec plus the Quint models at once) chess
+ * `bun check-pr` (every package's spec plus the Quint models at once) chess
  * scenarios measured 60–95 s, past the old 90 s. 240 s is over twice that
  * loaded cost, so load cannot flip a verdict; the per-task budget still
  * bounds a hang. A live browser (`HARNESS_MODE=real|stack`) gets the same.

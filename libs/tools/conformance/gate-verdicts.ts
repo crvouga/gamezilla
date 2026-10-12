@@ -1,9 +1,9 @@
-// @io-wall-ok — asks turbo (a dry run, as `bun check` plans itself) whether each release gate passed for the current inputs.
+// @io-wall-ok — asks turbo (a dry run, as `bun check-pr` plans itself) whether each release gate passed for the current inputs.
 /**
  * Machine evidence for the release gates: turbo caches a task only when it
  * succeeded, so a cache HIT for a task's current hash is that task's green
  * verdict for exactly these inputs (`turbo-preflight.ts`). The plan is the
- * one `bun check:local` makes — the same leaf tasks, filters and env — so the
+ * one `bun check-pr` makes — the same leaf tasks, filters and env — so the
  * hashes are the ones the gate itself records. A MISS is "not run for these
  * inputs", which is a failure like any other missing evidence.
  */
@@ -51,7 +51,7 @@ export function verdictsFromPlan(
     if (ids.length === 0) {
       out.set(task, {
         status: 'fail',
-        detail: 'not run — bun check does not plan it',
+        detail: 'not run — bun check-pr does not plan it',
       });
     } else if (missed.length > 0) {
       out.set(task, {
@@ -83,7 +83,7 @@ function rootExcludeFilters(taskArgs: readonly string[]): readonly string[] {
   return filters;
 }
 
-/** Plan `bun check` as `turbo-ci-run` does and read each gate's verdict. */
+/** Plan `bun check-pr` as `turbo-ci-run` does and read each gate's verdict. */
 export async function gateVerdicts(
   tasks: readonly string[]
 ): Promise<ReadonlyMap<string, TaskVerdict>> {
@@ -113,7 +113,7 @@ export async function gateVerdicts(
       );
     }
   } catch (cause) {
-    const detail = `no verdict — planning bun check failed: ${cause instanceof Error ? cause.message.split('\n')[0] : String(cause)}`;
+    const detail = `no verdict — planning bun check-pr failed: ${cause instanceof Error ? cause.message.split('\n')[0] : String(cause)}`;
     return new Map(tasks.map((task) => [task, { status: 'fail', detail }]));
   }
   return verdictsFromPlan(plan, tasks);

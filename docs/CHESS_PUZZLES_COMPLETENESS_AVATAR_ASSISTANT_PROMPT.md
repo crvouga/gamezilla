@@ -418,7 +418,7 @@ completeness/consistency/enforcement; - Alloy checks/snapshot
 conformance; - property-based chess/assistant analyzers; - Gherkin
 acceptance; - accessibility conformance; - relevant journeys; -
 conformance manifest; - `bun run spec:ownership`; -
-`bun run spec:catalog`; - full `bun check`; - every affected
+`bun run spec:catalog`; - full `bun check-pr`; - every affected
 release/conformance gate.
 
 No skipped, unknown, stale, unbound, unsupported, or manually verified

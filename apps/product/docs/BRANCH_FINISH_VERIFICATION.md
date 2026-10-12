@@ -36,7 +36,7 @@ still rejects a counterexample in a later invariant group.
 | Profile and both Quint package type checks | Pass |
 | Profile and both Quint package lint checks | Pass |
 | `@libs/tools tc` | Fails in the existing Atlas integration and pinned dependency |
-| Last full `bun check` | Fails; 267 successful tasks out of 316 reported tasks, not a passing aggregate |
+| Last full `bun check-pr` | Fails; 267 successful tasks out of 316 reported tasks, not a passing aggregate |
 
 The last full run used a 1,094-task plan. It stopped at the chess model-check
 task: `custom-game-play` temporal checking, multiplayer bounded checking and

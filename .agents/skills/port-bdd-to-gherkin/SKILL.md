@@ -126,7 +126,7 @@ pass.**
    old files.
 4. Load `spec-audit` and audit the new features and steps. Then run
    `bun run spec:catalog`, `bun run spec:check`, the package's `tc` / `test`,
-   and `bun check`. Show the output, and never claim green without it.
+   and `bun check-pr`. Show the output, and never claim green without it.
 
 ## Fan-out for a whole wave
 
@@ -146,4 +146,4 @@ legacy tests, before starting the next.
       every bound action.
 - [ ] A sabotage check failed each new feature and model.
 - [ ] Spec changes are in `spec:` commits, separate from the implementation.
-- [ ] `spec:check` and `bun check` are green (output shown).
+- [ ] `spec:check` and `bun check-pr` are green (output shown).

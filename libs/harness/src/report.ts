@@ -4,7 +4,7 @@
  * its outcome and error) under the running package's
  * `.cache/harness-report/<part>/runs/latest/…` — `test:spec` caches that bucket, so the
  * report of the last run of this exact code is always there to render.
- * Every step also captures its UI frames. `bun check` publishes every
+ * Every step also captures its UI frames. `bun check-pr` publishes every
  * package's bucket to the Atlas explorer.
  */
 

@@ -7,7 +7,7 @@ consumer-side simulations of missing vendor behavior. Report gaps using the
 [Mockingbird issue guide](https://github.com/crvouga/mockingbird/blob/main/docs/REPORTING_ISSUES.md).
 
 This migration is **not ready for release**. Some checks below remain red on the
-published package versions; a green `bun check` remains the release decision.
+published package versions; a green `bun check-pr` remains the release decision.
 
 | Integration | Current migration state | Evidence or blocker |
 | --- | --- | --- |
@@ -72,7 +72,7 @@ This source fix has limited parity: table statistics use exact live row counts,
 index usage counts the mock's actual unique lookups, constraint-backed catalog
 indexes and complete index deparsing need more work, and late concurrent build
 interruptions are not simulated. Those gaps remain upstream work, not claims of
-full PostgreSQL fidelity or a green workspace `bun check`.
+full PostgreSQL fidelity or a green workspace `bun check-pr`.
 
 The local adapter stores an atomic `database.pgmm` snapshot through an object
 store when stopped normally. An abrupt process exit can lose writes after the
@@ -103,7 +103,7 @@ not automatically imported; the first Mockingbird database starts fresh.
   server, runtime, harness, SQL client, schema, index, sync harness and Paddle
   harness packages. Package lint, naming and whitespace checks passed.
 
-No green full `bun check` verdict is claimed. The migration cannot complete
+No green full `bun check-pr` verdict is claimed. The migration cannot complete
 until the missing services and wire behavior are available.
 
 ## Recheck after upstream releases

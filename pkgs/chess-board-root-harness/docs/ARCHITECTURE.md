@@ -120,7 +120,7 @@ environment that logs every slide.
 
 ## How it is proven
 
-`bun check` is the proof; nothing here is verified by hand.
+`bun check-pr` is the proof; nothing here is verified by hand.
 
 - `tests/steps` and `tests/quint` bind the business scenarios and temporal
   models in `specs/chess-board` through the public example app. Canonical

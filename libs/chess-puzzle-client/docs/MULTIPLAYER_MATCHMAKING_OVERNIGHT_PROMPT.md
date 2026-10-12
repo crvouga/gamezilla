@@ -404,7 +404,7 @@ Apalache/model checking with sufficient depth; - DMN
 completeness/consistency/enforcement; - Alloy checks/snapshot
 conformance; - Gherkin acceptance; - relevant journeys; -
 accessibility; - conformance manifest; - `bun run spec:ownership`; -
-`bun run spec:catalog`; - full `bun check`; - every affected
+`bun run spec:catalog`; - full `bun check-pr`; - every affected
 release/conformance gate.
 
 No skipped, unknown, stale, unbound, unsupported, or manually verified

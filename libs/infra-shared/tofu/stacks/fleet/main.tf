@@ -53,7 +53,7 @@ module "auth_relay_edge" {
   }
 }
 
-# The spec reports of every commit (`bun check` publishes; layout in
+# The spec reports of every commit (`bun check-pr` publishes; layout in
 # `@crvouga/atlas/reports`): CI writes `spec-reports/commits/<sha>/…`, and every
 # Atlas host reads it with its configured credential (the foundation stack's
 # `report_access`). Private: no public

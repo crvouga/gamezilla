@@ -6,7 +6,7 @@
  * libs/infra only renames it per environment) and hold the
  * result under the platform's size limit.
  *
- * Without it `bun check` never bundles a Worker — `build` is a no-op for the
+ * Without it `bun check-pr` never bundles a Worker — `build` is a no-op for the
  * Worker apps and only deploy runs wrangler — so an import the Workers runtime
  * cannot resolve, or a bundle past the upload limit, passed the gate and
  * failed the release. Offline (no Cloudflare credentials), ~3 s, and cached

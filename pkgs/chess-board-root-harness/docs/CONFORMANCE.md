@@ -31,4 +31,4 @@ The reusable benchmark is explicitly silent. Consumer imports are checked by
 Local proof commands are `@pkgs/chess-board`'s `test`, `test:spec`, `check:models`
 and `test:contract`, alongside `@pkgs/chess-board-core-shared`'s geometry and mechanical
 tests. The consumer package runs its own specs and import gate. The release
-verdict remains the repository's `bun check`; this map does not substitute for it.
+verdict remains the repository's `bun check-pr`; this map does not substitute for it.

@@ -75,7 +75,7 @@ entry.
 ## Finish
 
 Run focused format, lint, type-check, tests, and specs while iterating. Then run
-`bun check` and stay with it until the authoritative verdict is green. Commit and
+`bun check-pr` and stay with it until the authoritative verdict is green. Commit and
 push through the repository's normal workflow, but never merge.
 
 Report the matched feedback id/title, the implemented behavior, regression/spec

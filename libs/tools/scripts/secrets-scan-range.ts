@@ -14,7 +14,7 @@ type Git = (args: readonly string[]) => string | undefined;
  * `<merge-base>..<head>`, i.e. exactly the commits the branch adds.
  *
  * Both ends are content addresses, so the range is a pure cache key: a local
- * `bun check` on a branch and the Check run on its pull request resolve the
+ * `bun check-pr` on a branch and the Check run on its pull request resolve the
  * same range and share the turbo cache entry, and main moving under an open
  * PR does not invalidate it. A head with nothing of its own (main after a
  * merge) scans just its tip commit.

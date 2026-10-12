@@ -1,7 +1,7 @@
 /**
  * The host a critical journey (`specs/journeys/`) runs on. The same step
  * definitions (`libs/runtime-harness/src/journeys.steps.ts`) drive the
- * simulated app in `bun check` and a real browser against production
+ * simulated app in `bun check-pr` and a real browser against production
  * (`@apps/product#health`); each runner supplies a {@link JourneyHost}.
  */
 

@@ -1,7 +1,7 @@
 /**
  * The rules a package's test scripts obey, run by lint-package.ts.
  *
- * `bun check` runs a package's `test`, `test:contract` and `test:spec` scripts
+ * `bun check-pr` runs a package's `test`, `test:contract` and `test:spec` scripts
  * (the last as its `test:spec:<k>` parts, which spec-packages.ts holds to
  * exactly `test:spec` split; deploy's `check:api` runs `test:integration`). A green check is only
  * worth something if those scripts ran every test the package owns, every
