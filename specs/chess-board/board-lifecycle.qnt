@@ -4,6 +4,8 @@
 // Positions stand for a capture opportunity, its capture result, an unrelated
 // replacement, Black's legal reply to that capture, and the normal opening.
 // Their chess legality is already decided. This behavior is identical offline.
+// A replacement position slides each piece to where it now stands, as a move
+// does, but leaves no captured piece behind.
 // The capture and its immediate knight reply may arrive together while both
 // pieces still belong to the current position. These requests precede any
 // completed arrival; finishing current motion settles both prepared pieces.
@@ -68,12 +70,13 @@ module board_lifecycle {
     _earlierCompletion' = _earlierCompletion,
   }
   /// Equivalent supplied positions preserve the current arrival and remnant.
-  /// A different activity position abandons that arrival and every old gesture.
+  /// A different activity position abandons that arrival and every old gesture;
+  /// its pieces slide to where they now stand, leaving no capture remnant.
   action replacePosition(target: int): bool = all {
     board.present, Set(0, 2, 4).contains(target) or target == board.position,
     board' = if (target == board.position) board
       else { ..._settled(board), position: target, displayedPosition: target,
-        selected: false, dragging: false },
+        selected: false, dragging: false, transition: _canArrive(board) },
     _earlierCompletion' = (_earlierCompletion or (target != board.position and board.transition)),
   }
   /// An unusable supplied position preserves the last good displayed position.
