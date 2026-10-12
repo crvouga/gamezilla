@@ -57,7 +57,6 @@ describe('browser application startup', () => {
   test('replaces the spinner with a reloadable failure', () => {
     const shell = document.createElement('div');
     shell.dataset['startupShell'] = '';
-    shell.textContent = 'Starting…';
     document.body.append(shell);
     let reloads = 0;
 

@@ -3,8 +3,8 @@
  * App-wide provider stack (outermost → innermost). Must sit under
  * `ClientEnvProvider` (`createClient(env)`).
  *
- * Split so `ProductApp` can paint `AppFrame` + `BootPaintGate` **outside**
- * the SQLite boot gate: shell chrome and first paint must not wait on WASM.
+ * Split so `ProductApp` can paint `AppFrame` **outside** the SQLite boot
+ * gate: shell chrome and first paint must not wait on WASM.
  *
  * `AppThemeProvider` stays above root crash recovery in `ProductApp`.
  * - {@link AppProvidersOuter}: shell → infrastructure → auth → services →

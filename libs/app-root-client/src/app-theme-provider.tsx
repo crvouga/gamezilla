@@ -10,20 +10,30 @@ import {
   ThemePreferenceProvider,
   useThemePreference,
 } from '@pkgs/ui-root-client/theme-preference';
+import type { ColorScheme } from '@pkgs/ui-root-shared/colors-types';
 import { createSignal, type JSX, onCleanup, untrack } from 'solid-js';
+
+/** The scheme `index.html` painted before the app loaded, when it set one. */
+function paintedScheme(): ColorScheme | undefined {
+  const scheme = document.documentElement.getAttribute('data-theme');
+  return scheme === 'light' || scheme === 'dark' ? scheme : undefined;
+}
 
 function AppTheme(props: {
   readonly motion: MotionPreferencePort;
   readonly children: JSX.Element;
 }): JSX.Element {
-  const { preference } = useThemePreference();
+  const { preference, settled } = useThemePreference();
+  // Hold the painted scheme until the stored preference is read, so the first
+  // frame never shows the system scheme over a pinned one.
+  const painted = paintedScheme();
   const testViewport = useTestViewport();
   const motion = untrack(() => props.motion);
   const [reduced, setReduced] = createSignal(motion.reduced());
   onCleanup(motion.subscribe(setReduced));
   return (
     <ThemeProvider
-      colorScheme={preference()}
+      colorScheme={settled() ? preference() : (painted ?? preference())}
       reducedMotion={reduced()}
       {...(testViewport != null ? { fixedLayout: testViewport } : {})}
     >

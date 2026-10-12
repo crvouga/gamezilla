@@ -3595,10 +3595,6 @@ msgstr "Start the game before playing."
 msgid "Started"
 msgstr "Started"
 
-#: libs/app-root-client/src/boot-loading-shell.tsx
-msgid "Starting…"
-msgstr "Starting…"
-
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "State"
 msgstr "State"

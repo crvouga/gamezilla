@@ -1,5 +1,3 @@
-import { APP } from '@libs/runtime-shared/app-subs';
-import { HarnessBoot } from './harness-boot';
 // @io-wall-ok — browser composition root (super-app: App at `/`, Harness at `/harness`)
 /**
  * Path-gated boot: `/harness` mounts the Harness screen; every other path
@@ -10,6 +8,10 @@ import { HarnessBoot } from './harness-boot';
  * crossing a boundary (no nested routers). `?harness` on any other path
  * hands off to `/harness` before boot, so a launcher that can only open the
  * site root still lands in the harness.
+ *
+ * The application graph is imported eagerly. The harness is not application
+ * code: its graph (in-browser servers, Postgres, the console) loads only when
+ * the page opens on `/harness`, so opening the app never pays for it.
  */
 
 import { bootBrowserObservability } from '@libs/app-root-client/boot-browser-observability';
@@ -17,6 +19,7 @@ import { createClient } from '@libs/app-root-client/create-client';
 import { wallClientEnv } from '@libs/app-root-client/wall-client-env';
 import { wallOfflineNetworkController } from '@libs/app-root-client/wall-offline-network';
 import { APP_SUB_CLIENTS } from '@libs/runtime-client/app-sub-clients';
+import { APP } from '@libs/runtime-shared/app-subs';
 import { wallSpaceRoomTransport } from '@libs/spaces-client/wall-room-transport';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import '@pkgs/tailwind-shared/tailwind.css';
@@ -79,19 +82,41 @@ function surfaceAt(pathname: string): Surface {
   return 'app';
 }
 
+/**
+ * The harness graph, when the page opened on it. Awaited before first render
+ * so `root.ts`'s startup boundary owns the load: the `index.html` spinner
+ * holds, and a failed import recovers or reports like the application's.
+ */
+const HarnessBoot = isHarnessPath(window.location.pathname)
+  ? (await import('./harness-boot')).HarnessBoot
+  : null;
+
+function HarnessSurface(): JSX.Element {
+  const Harness = HarnessBoot;
+  assert.ok(Harness !== null, 'the harness graph is not loaded');
+  return <Harness />;
+}
+
 function Boot(): JSX.Element {
   const [surface, setSurface] = createSignal(
     surfaceAt(window.location.pathname)
   );
   const onPopState = (): void => {
-    setSurface(surfaceAt(window.location.pathname));
+    const next = surfaceAt(window.location.pathname);
+    // History crossed into the harness from an application boot: its graph
+    // is not loaded, so open it as the document it is.
+    if (next === 'harness' && HarnessBoot === null) {
+      window.location.reload();
+      return;
+    }
+    setSurface(next);
   };
   window.addEventListener('popstate', onPopState);
   onCleanup(() => window.removeEventListener('popstate', onPopState));
   return (
     <Switch fallback={<AppBoot />}>
       <Match when={surface() === 'harness'}>
-        <HarnessBoot />
+        <HarnessSurface />
       </Match>
     </Switch>
   );

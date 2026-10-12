@@ -15,14 +15,13 @@ import {
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
 } from '@opentelemetry/semantic-conventions';
-import {
-  ATTR_SESSION_ID,
-  ATTR_USER_ID,
-} from '@opentelemetry/semantic-conventions/incubating';
 
+// Incubating conventions are copied, as OpenTelemetry advises: their entry
+// point is one module of every experimental attribute, and this file is on
+// the client boot path.
 export const ATTR = {
-  USER_ID: ATTR_USER_ID,
-  SESSION_ID: ATTR_SESSION_ID,
+  USER_ID: 'user.id',
+  SESSION_ID: 'session.id',
   SERVICE_NAME: ATTR_SERVICE_NAME,
   SERVICE_INSTANCE_ID: ATTR_SERVICE_INSTANCE_ID,
   SERVICE_VERSION: ATTR_SERVICE_VERSION,

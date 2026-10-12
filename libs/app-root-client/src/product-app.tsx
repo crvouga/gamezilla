@@ -5,9 +5,9 @@
  * Production and harnesses mount the same component; embedded hosts (multi-App
  * product-harness) get a `MemoryRouter` from `createClient` instead of the URL.
  *
- * Paint order (low-end Android): fonts gate → AppFrame chrome → session/SQLite.
- * Sync boot may still show {@link BootLoadingShell} inside the frame; it must
- * not block the frame itself (see README.md). Anything a
+ * Paint order (low-end Android): AppFrame chrome → session/SQLite. Nothing
+ * gates the frame: fonts swap in (`font-display: swap`) and sync boot shows
+ * {@link BootLoadingShell} inside it (see README.md). Anything a
  * sub needs painted above the SQLite gate — an unread-count root, a game
  * registry — is its `chrome` contribution, mounted by `AppProvidersSession`.
  */
@@ -22,7 +22,6 @@ import { AppHeaderIslandHost } from './app-header-island';
 import { AppProvidersOuter, AppProvidersSession } from './app-providers';
 import { useAppSubs } from './app-subs-context';
 import { AppThemeProvider } from './app-theme-provider';
-import { BootPaintGate } from './boot-paint-gate';
 import { useClientEnv } from './client-env-context';
 import { EmbeddedHrefPersistence } from './embedded-href-persistence';
 import { GlobalMenuIdentityRoot } from './global-menu-identity-context';
@@ -66,13 +65,11 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                         </div>
                       }
                     >
-                      <BootPaintGate>
-                        <AppFrame header={<AppHeaderIslandHost />}>
-                          <AppProvidersSession>
-                            {props.children}
-                          </AppProvidersSession>
-                        </AppFrame>
-                      </BootPaintGate>
+                      <AppFrame header={<AppHeaderIslandHost />}>
+                        <AppProvidersSession>
+                          {props.children}
+                        </AppProvidersSession>
+                      </AppFrame>
                     </AppFrameChromeProvider>
                   </subs.Chrome>
                 </GlobalMenuIdentityRoot>
