@@ -43,6 +43,10 @@ that loses contrast fails.
    `MainMenuScreen` for destinations): one `surface` panel, the panel radius,
    hairlines inset to the text column. A row never paints its own radius or
    border. Never stack separate cards to make a list.
+4a. **Nobody is an icon.** A person without a picture is the `Avatar`
+   placeholder (a filled head and shoulders on a quiet plate), never an
+   outlined glyph in a ring. `icon` on an `Avatar` is for things that are not
+   people: a bot, a game, a device.
 5. **Radius encodes hierarchy.** `rounded-sm` marks and inline chips,
    `rounded-control` (12) buttons, inputs and rows, `rounded-card` (20)
    panels, `rounded-sheet` (28) sheets and dialogs. `rounded-full` only for
@@ -69,8 +73,21 @@ knows a route or a query stays in the feature that owns that fact.
 | Atom | A role, an icon, a button, a field, a switch, the panel surface | this package |
 | Molecule | A row, a chip, a clock, a choice, a menu row | this package |
 | Organism | A menu section, a screen header, a game section, a dialog | this package |
-| Template | `ScreenBase`, `GameScreen`, `MainMenuScreen` | this package |
+| Template | `ScreenBase`, `EmbeddedScreen`, `GameScreen`, `MainMenuScreen` | this package |
 | Page | A feature screen that passes data into a template | `libs/*-client` |
+
+Every page is one of two archetypes, and never both:
+
+| Archetype | When | Top bar |
+| --- | --- | --- |
+| `ScreenBase` | A routed screen that owns the viewport: a tab, a settings page, a profile | Its own: back, title, actions |
+| `EmbeddedScreen` | A screen shown inside a host's chrome: anything in a space | The host's. It never draws a second one |
+
+`MainMenuScreen` (a menu of destinations) and `GameScreen` (a game) are
+`EmbeddedScreen`s, so they share its width, edge padding and `ScreenIntro`
+title block. A screen that needs a body title uses `ScreenIntro`; nothing
+else draws an `h1`. Two bars stacked on one screen is always a bug: the inner
+screen is the wrong archetype.
 
 A page does not paint. It composes a template and hands it data. A second
 type scale, a second card, or a one-off color is a missing atom, not a

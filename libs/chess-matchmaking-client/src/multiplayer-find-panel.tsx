@@ -18,9 +18,9 @@ export function MultiplayerFindPanel(props: {
   const [timeControl, setTimeControl] = createSignal(DEFAULT_TIME_CONTROL);
   return (
     <GameSection
-      title={<Trans>Find your next rival</Trans>}
+      title={<Trans>New game</Trans>}
       description={
-        <Trans>Pick your pace. We'll find an opponent for you.</Trans>
+        <Trans>Minutes per player + seconds added after each move.</Trans>
       }
     >
       <GameChoiceGrid
@@ -36,9 +36,6 @@ export function MultiplayerFindPanel(props: {
           },
         }))}
       />
-      <p class="text textCaption text-text-secondary">
-        <Trans>Minutes per player + seconds added after each move.</Trans>
-      </p>
       <GameActionButton
         title={<Trans>Find a chess opponent</Trans>}
         successLabel={<Trans>Opponent search accepted</Trans>}

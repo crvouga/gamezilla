@@ -4,61 +4,21 @@ import { useModeration } from '@libs/moderation-client/moderation-context';
 import { usernameText } from '@libs/moderation-shared/display';
 import { useProfileRow } from '@libs/profile-client/public-use-profile-row';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { GameBoardStage } from '@pkgs/ui-root-client/game-board-stage';
-import { GameSection } from '@pkgs/ui-root-client/game-section';
-import { type JSX, Show } from 'solid-js';
-import { MultiplayerAnnouncement } from './multiplayer-announcement';
-import { MultiplayerClocks } from './multiplayer-clocks';
-import { moveListText } from './multiplayer-format';
-import { MultiplayerLineup } from './multiplayer-lineup';
+import type { JSX } from 'solid-js';
+import type { MultiplayerViewer } from './multiplayer-seat';
+import { MultiplayerSeat } from './multiplayer-seat';
+import { MultiplayerStatus } from './multiplayer-status';
 
-function WatcherAnnouncement(props: {
-  readonly game: MultiplayerGame;
-}): JSX.Element {
+/** A person's name as others may see it, by profile id. */
+function useShownName(profileId: () => string): () => string {
   const moderation = useModeration();
-  const whiteProfile = useProfileRow(() => props.game.white_id);
-  const blackProfile = useProfileRow(() => props.game.black_id);
-  const winnerName = () => {
-    const whiteWon = props.game.outcome === 'white';
-    const profile = whiteWon ? whiteProfile : blackProfile;
-    const id = whiteWon ? props.game.white_id : props.game.black_id;
-    return (
-      usernameText(moderation(), profile.row()?.username, id) ||
-      'Deleted account'
-    );
-  };
-  return (
-    <p class="text textBody text-text" data-testid="multiplayer-announcement">
-      <Trans>Watching multiplayer chess.</Trans>
-      <Show
-        when={props.game.outcome === 'white' || props.game.outcome === 'black'}
-      >
-        {' '}
-        <Trans>{winnerName()} won the multiplayer game.</Trans>
-      </Show>
-      <Show when={props.game.outcome === 'draw'}>
-        {' '}
-        <Trans>The multiplayer game is drawn.</Trans>
-      </Show>
-    </p>
-  );
-}
-
-function RatingChange(props: { readonly diff: number | null }) {
-  return (
-    <Show when={props.diff !== null}>
-      <span data-testid="multiplayer-rating-change">
-        {' '}
-        <Trans>
-          Your rating changed by {(props.diff ?? 0) > 0 ? '+' : ''}
-          {props.diff ?? 0}.
-        </Trans>
-      </span>
-    </Show>
-  );
+  const profile = useProfileRow(profileId);
+  return () =>
+    usernameText(moderation(), profile.row()?.username, profileId()) ||
+    t`Deleted account`;
 }
 
 export function MultiplayerBoard(props: {
@@ -70,7 +30,6 @@ export function MultiplayerBoard(props: {
   readonly onMove: (uci: string) => Promise<void>;
 }): JSX.Element {
   const sounds = useSoundsPreference();
-  const moderation = useModeration();
   const participant = () =>
     props.game.white_id === props.myId || props.game.black_id === props.myId;
   const canMove = () =>
@@ -79,18 +38,24 @@ export function MultiplayerBoard(props: {
     !props.moving &&
     props.game.outcome === 'ongoing' &&
     props.game.turn === props.myId;
+  // A watcher sees the board from White's side.
   const white = () => props.game.white_id === props.myId || !participant();
-  const opponentId = () =>
-    white() ? props.game.black_id : props.game.white_id;
-  const opponent = useProfileRow(opponentId);
-  const opponentName = () =>
-    usernameText(moderation(), opponent.row()?.username, opponentId()) ||
-    'Deleted account';
-  const opponentRating = () =>
-    (white() ? props.game.black_rating : props.game.white_rating) ?? '';
+  const opponentName = useShownName(() =>
+    white() ? props.game.black_id : props.game.white_id
+  );
+  const winnerName = useShownName(() =>
+    props.game.outcome === 'black' ? props.game.black_id : props.game.white_id
+  );
+  const viewer = (): MultiplayerViewer => ({
+    myId: props.myId,
+    participant: participant(),
+    opponentName: opponentName(),
+    opponentRating:
+      (white() ? props.game.black_rating : props.game.white_rating) ?? '',
+  });
   return (
     <div
-      class="box gap-4"
+      class="box gap-3"
       data-component="MultiplayerBoard"
       data-testid="multiplayer-game"
       data-game-id={props.game.id}
@@ -100,36 +65,24 @@ export function MultiplayerBoard(props: {
       data-outcome={props.game.outcome}
       data-reason={props.game.reason ?? ''}
     >
-      <MultiplayerLineup
-        game={props.game}
-        myId={props.myId}
-        opponentName={opponentName()}
-        opponentRating={opponentRating()}
-        white={white()}
-        participant={participant()}
-      />
-      <MultiplayerClocks game={props.game} />
-      <Show
-        when={participant()}
-        fallback={<WatcherAnnouncement game={props.game} />}
+      <GameBoardStage
+        top={
+          <MultiplayerSeat
+            game={props.game}
+            side={white() ? 'black' : 'white'}
+            own={false}
+            viewer={viewer()}
+          />
+        }
+        bottom={
+          <MultiplayerSeat
+            game={props.game}
+            side={white() ? 'white' : 'black'}
+            own
+            viewer={viewer()}
+          />
+        }
       >
-        <MultiplayerAnnouncement
-          game={props.game}
-          myId={props.myId}
-          opponentName={opponentName()}
-          opponentRating={opponentRating()}
-        />
-      </Show>
-      <Show when={participant()}>
-        <RatingChange
-          diff={
-            white()
-              ? props.game.white_rating_diff
-              : props.game.black_rating_diff
-          }
-        />
-      </Show>
-      <GameBoardStage>
         <ChessBoard
           theme={BOARD_THEME}
           fen={props.game.fen}
@@ -144,14 +97,11 @@ export function MultiplayerBoard(props: {
           dataSet={{ testid: 'multiplayer-board' }}
         />
       </GameBoardStage>
-      <GameSection title={t`Multiplayer move list`}>
-        <p
-          class="text textCaption textMono break-words text-text-secondary"
-          data-testid="multiplayer-move-list"
-        >
-          {moveListText(props.game)}
-        </p>
-      </GameSection>
+      <MultiplayerStatus
+        game={props.game}
+        viewer={viewer()}
+        winnerName={winnerName()}
+      />
     </div>
   );
 }

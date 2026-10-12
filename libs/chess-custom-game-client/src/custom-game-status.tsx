@@ -13,7 +13,13 @@ import { useProfileColumn } from '@libs/profile-client/use-profile-column';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client/solid';
+import { Badge } from '@pkgs/ui-root-client/badge';
 import { GameClock } from '@pkgs/ui-root-client/game-clock';
+import type { GameStatusTone } from '@pkgs/ui-root-client/game-status';
+import { GameStatus } from '@pkgs/ui-root-client/game-status';
+import { WifiOffIcon } from '@pkgs/ui-root-client/icons';
+import { Notice } from '@pkgs/ui-root-client/notice';
+import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import { createMemo, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
@@ -84,6 +90,7 @@ function clockLabel(seconds: number): string {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
+/** One side's clock. An untimed game has none: its status line says so. */
 export function CustomGameClock(props: {
   game: CustomGame;
   side: CustomGameSide;
@@ -104,39 +111,63 @@ export function CustomGameClock(props: {
         : null
   );
   return (
-    <GameClock
-      active={props.game.status === 'active' && props.game.turn === props.side}
+    <Show when={props.game.minutes > 0}>
+      <GameClock
+        active={
+          props.game.status === 'active' && props.game.turn === props.side
+        }
+        label={
+          <Show when={props.side === 'white'} fallback={<Trans>Black</Trans>}>
+            <Trans>White</Trans>
+          </Show>
+        }
+        value={clockLabel(seconds())}
+        dataSet={{ testid: `chess-custom-${props.side}-clock` }}
+        ariaLabel={
+          props.side === 'white'
+            ? t`White time remaining`
+            : t`Black time remaining`
+        }
+      />
+    </Show>
+  );
+}
+
+/** The agreed clock as chess players write it: minutes + added seconds. */
+function TimeControlBadge(props: { game: CustomGame }): JSX.Element {
+  return (
+    <Badge
+      intent="neutral"
       label={
-        <Show when={props.side === 'white'} fallback={<Trans>Black</Trans>}>
-          <Trans>White</Trans>
-        </Show>
-      }
-      value={
         <Show when={props.game.minutes > 0} fallback={<Trans>Untimed</Trans>}>
-          {clockLabel(seconds())}
+          {props.game.minutes}+{props.game.increment}
         </Show>
-      }
-      dataSet={{ testid: `chess-custom-${props.side}-clock` }}
-      ariaLabel={
-        props.side === 'white'
-          ? t`White time remaining`
-          : t`Black time remaining`
       }
     />
   );
 }
 
-export function CustomGameStatus(props: {
-  model: CustomGameScreenModel;
-}): JSX.Element {
-  const whiteId = () => props.model.current()?.white.person ?? '';
-  const blackId = () => props.model.current()?.black.person ?? '';
+function statusTone(
+  game: CustomGame,
+  mySide: CustomGameSide | null
+): GameStatusTone {
+  if (game.status === 'active' && mySide !== null && game.turn === mySide)
+    return 'active';
+  if (game.status === 'configuring' && customGameStartable(game))
+    return 'success';
+  return 'neutral';
+}
+
+/** Who holds each side, as a listener hears it before the game's state. */
+function useLineupDescription(model: CustomGameScreenModel): () => string {
+  const whiteId = () => model.current()?.white.person ?? '';
+  const blackId = () => model.current()?.black.person ?? '';
   const whiteName = useProfileColumn(whiteId, 'username');
   const blackName = useProfileColumn(blackId, 'username');
   const moderation = useModeration();
-  const description = createMemo(() => {
-    const game = props.model.current();
-    if (game === null) return t`No Custom Game.`;
+  return createMemo(() => {
+    const game = model.current();
+    if (game === null) return '';
     const white = participantName(
       game,
       'white',
@@ -147,36 +178,62 @@ export function CustomGameStatus(props: {
       'black',
       shownName(moderation(), blackName(), blackId())
     );
-    const state = gameStateDescription(game);
-    return t`White: ${white}. Black: ${black}. ${state}`;
+    return t`White: ${white}. Black: ${black}.`;
   });
+}
+
+/**
+ * Where the game stands, in one line: the eye reads the state beside the
+ * seats; a listener, who cannot see the seats, first hears who holds them.
+ */
+export function CustomGameStatus(props: {
+  model: CustomGameScreenModel;
+}): JSX.Element {
+  const lineup = useLineupDescription(props.model);
   return (
-    <div class="box gap-2" data-component="CustomGameStatus">
-      <p
-        class="text textCaption text-text-secondary"
-        role="status"
-        aria-live="polite"
-        data-testid="chess-custom-status"
-      >
-        {description()}
-      </p>
-      <Show when={props.model.current()} keyed>
-        {(game) => (
-          <div class="box flex-row gap-2">
-            <CustomGameClock game={game} side="white" />
-            <CustomGameClock game={game} side="black" />
-          </div>
-        )}
-      </Show>
-      <Show when={!props.model.connected()}>
-        <p
-          class="text textBody"
+    <Show
+      when={props.model.current()}
+      fallback={
+        <VisuallyHidden
           role="status"
-          data-testid="chess-custom-connection-needed"
+          aria-live="polite"
+          testId="chess-custom-status"
         >
+          <Trans>No Custom Game.</Trans>
+        </VisuallyHidden>
+      }
+    >
+      {(game) => (
+        <GameStatus
+          live
+          tone={statusTone(game(), props.model.mySide())}
+          dataSet={{ testid: 'chess-custom-status' }}
+          title={
+            <>
+              <VisuallyHidden>{lineup()} </VisuallyHidden>
+              {gameStateDescription(game())}
+            </>
+          }
+          trailing={<TimeControlBadge game={game()} />}
+        />
+      )}
+    </Show>
+  );
+}
+
+export function CustomGameConnectionNotice(props: {
+  model: CustomGameScreenModel;
+}): JSX.Element {
+  return (
+    <Show when={!props.model.connected()}>
+      <Notice
+        icon={WifiOffIcon}
+        dataSet={{ testid: 'chess-custom-connection-needed' }}
+      >
+        <span role="status">
           <Trans>Connection needed to change or play this game.</Trans>
-        </p>
-      </Show>
-    </div>
+        </span>
+      </Notice>
+    </Show>
   );
 }

@@ -21,7 +21,10 @@ export const SNAPSHOT_SHELL_CSS = [
   '*{box-sizing:border-box;-webkit-user-select:none;user-select:none;}',
   "input,textarea,[contenteditable='true']{-webkit-user-select:text;user-select:text;}",
   `.dom-root{width:${FRAME_W}px;height:${FRAME_H}px;display:flex;flex-direction:column;flex:1;min-height:100%;box-sizing:border-box;overflow:hidden;position:relative;}`,
-  'input,textarea,button,span{font:inherit;color:inherit;}',
+  // Form controls only, as an app shell resets them. A `span` keeps the
+  // font its classes give it: an unlayered `span{font:inherit}` here would
+  // beat every layered type role and misdraw each span-based label.
+  'input,textarea,button,select{font:inherit;color:inherit;}',
 ].join('');
 
 /** Launch / nav shells are ~3KB of empty flex chrome with no visible copy. */

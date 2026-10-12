@@ -1,40 +1,46 @@
 import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import { Trans } from '@lingui/solid/macro';
-import {
-  ChevronRightIcon,
-  CircleCheckIcon,
-  XIcon,
-} from '@pkgs/ui-root-client/icons';
+import { CircleCheckIcon, XIcon } from '@pkgs/ui-root-client/icons';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client/relative-time';
-import { useTheme } from '@pkgs/ui-root-client/theme-context';
-import type { JSX } from 'solid-js';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 
 function formatSignedDelta(delta: number): string {
   if (delta > 0) return `+${delta}`;
   return String(delta);
 }
 
-function GameLogTitle(props: {
+function GameLogOutcome(props: {
   outcome: ChessPuzzleGameLogEntry['outcome'];
-  puzzleRating: number;
-}): JSX.Element {
-  if (props.outcome === 'solved') {
-    return <Trans>Solved · {props.puzzleRating}</Trans>;
-  }
-  if (props.outcome === 'failed') {
-    return <Trans>Failed · {props.puzzleRating}</Trans>;
-  }
-  return <Trans>Abandoned · {props.puzzleRating}</Trans>;
-}
-
-function GameLogCaption(props: {
-  puzzleId: string;
-  timeLabel: string;
 }): JSX.Element {
   return (
-    <Trans>
-      {props.puzzleId} · {props.timeLabel}
-    </Trans>
+    <Switch fallback={<Trans>Abandoned</Trans>}>
+      <Match when={props.outcome === 'solved'}>
+        <Trans>Solved</Trans>
+      </Match>
+      <Match when={props.outcome === 'failed'}>
+        <Trans>Failed</Trans>
+      </Match>
+    </Switch>
+  );
+}
+
+/** The rating change the puzzle made, in the colour of its direction. */
+function GameLogChange(props: { entry: ChessPuzzleGameLogEntry }): JSX.Element {
+  return (
+    <span
+      class="text textLabel textNumeral shrink-0"
+      classList={{
+        'text-success': props.entry.rated && props.entry.delta > 0,
+        'text-destructive': props.entry.rated && props.entry.delta < 0,
+        'text-text-secondary': !props.entry.rated || props.entry.delta === 0,
+      }}
+      data-testid={`chess-game-log-row-${props.entry.puzzleId}-change`}
+    >
+      <Show when={props.entry.rated} fallback={<Trans>Unrated</Trans>}>
+        {formatSignedDelta(props.entry.delta)}
+      </Show>
+    </span>
   );
 }
 
@@ -43,63 +49,36 @@ export type ChessGameLogRowProps = {
   onClick: () => void;
 };
 
+/**
+ * One played puzzle: how it went and the puzzle's rating, when, and what it
+ * did to the player's rating. A row of the game log panel.
+ */
 export function ChessGameLogRow(props: ChessGameLogRowProps): JSX.Element {
-  const theme = useTheme();
-  const solved = props.entry.outcome === 'solved';
-  const puzzleRating = props.entry.puzzleRating;
   const timeLabel = useRelativeTimeLabel(() => props.entry.at);
-  const deltaColor =
-    props.entry.rated && props.entry.delta > 0
-      ? theme.colors.success
-      : props.entry.rated && props.entry.delta < 0
-        ? theme.colors.destructive
-        : theme.colors.textSecondary;
-  const Icon = solved ? CircleCheckIcon : XIcon;
-
+  const solved = () => props.entry.outcome === 'solved';
   return (
-    <button
-      class="clickable clickableTint"
-      data-testid={`chess-game-log-row-${props.entry.puzzleId}`}
-      type="button"
+    <MenuRow
+      dataSet={{ testid: `chess-game-log-row-${props.entry.puzzleId}` }}
       onClick={props.onClick}
-      role="button"
-    >
-      <div class="box flex-row items-center gap-2 p-3 rounded-sm bg-surface-muted">
-        <Icon size={18} color={solved ? 'success' : 'destructive'} />
-        <div class="box flex-1 min-w-0 gap-1">
-          <p
-            class="text textBodyBold line-clamp-1 text-text"
-            data-testid={`chess-game-log-row-${props.entry.puzzleId}-title`}
-          >
-            {
-              <GameLogTitle
-                outcome={props.entry.outcome}
-                puzzleRating={puzzleRating}
-              />
-            }
-          </p>
-          <p class="text textCaption line-clamp-1 text-text-secondary">
-            {
-              <GameLogCaption
-                puzzleId={props.entry.puzzleId}
-                timeLabel={timeLabel()}
-              />
-            }
-          </p>
-        </div>
-        <p
-          class="text textBodyBold shrink-0"
-          style={{ color: deltaColor }}
-          data-testid={`chess-game-log-row-${props.entry.puzzleId}-change`}
+      leading={
+        <Show
+          when={solved()}
+          fallback={<XIcon size={20} color="destructive" />}
         >
-          {props.entry.rated ? (
-            formatSignedDelta(props.entry.delta)
-          ) : (
-            <Trans>Unrated</Trans>
-          )}
-        </p>
-        <ChevronRightIcon size={20} color="icon" />
-      </div>
-    </button>
+          <CircleCheckIcon size={20} color="success" />
+        </Show>
+      }
+      title={
+        // The puzzle's own rating follows the outcome, a tone quieter.
+        <span data-testid={`chess-game-log-row-${props.entry.puzzleId}-title`}>
+          <GameLogOutcome outcome={props.entry.outcome} />{' '}
+          <span class="textNumeral text-text-secondary">
+            {props.entry.puzzleRating}
+          </span>
+        </span>
+      }
+      caption={timeLabel()}
+      value={<GameLogChange entry={props.entry} />}
+    />
   );
 }

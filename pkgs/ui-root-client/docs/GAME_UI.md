@@ -8,17 +8,29 @@ permissions, state, persistence and navigation.
 | Layer | Modules | Purpose |
 | --- | --- | --- |
 | Atoms | `game-clock`, `game-stat`, `game-action-button` | Time, progress and inline asynchronous feedback |
-| Sections | `game-header`, `game-section`, `game-player-card`, `game-versus` | Introductions, grouped content and player lineups |
+| Sections | `game-section`, `game-player-bar`, `game-status` | Grouped content, a seat at the table, and where the game stands |
 | Controls | `game-choice-grid`, `game-disclosure` | Native radio choices and optional inline settings |
 | States | `game-search-state`, `game-countdown` | Search feedback and a supplied deadline |
-| Layouts | `game-screen`, `game-board-stage` | Responsive stage and information rail, with a framed play surface |
+| Layouts | `game-screen`, `game-board-stage` | The game inside its host's chrome, and the play surface with its two seats |
 
-`GameScreen` requires a `screenId` and uses the shared screen shell.
-`GameLayout` places its children in the stage and its `aside` content in the
-rail; narrow screens use one column. `GameVersus` accepts two player slots.
-Use `stackOnSmall` when either slot contains additional controls.
+`GameScreen` is an `EmbeddedScreen`: the host (a space) owns the one top bar,
+so a game never draws a second one. It requires a `screenId` and a `title`,
+shown once in the body. `GameLayout` places its children in the stage and its
+`aside` content in the rail; narrow screens use one column.
 
-`GameActionButton` accepts a promise-returning `operation`. Pending commands
+The board is the largest thing on a game screen. `GameBoardStage` puts the far
+seat above it and the near seat below, each a `GamePlayerBar`: avatar, name, a
+row of `Badge` facts (side, rating, readiness) and the seat's `GameClock` at
+the far edge. An empty seat draws the `Avatar` person placeholder. While a
+game is set up, a seat's controls go in the bar's `children`.
+
+`GameStatus` is the one line under the board that says whose turn it is or how
+the game ended. With `live` it is the screen's polite status region; text a
+listener needs but the eye already has from the seats goes in a
+`VisuallyHidden` inside its title.
+
+`GameActionButton` accepts a promise-returning `operation`. `variant="solid"`
+is the one next step, in blue; every other command is a neutral outline. Pending commands
 cannot be submitted twice; success appears on the button and errors remain
 retryable. Reserve confirmation dialogs for actions whose consequences need
 confirmation. Settings and routine status belong inline.

@@ -20,7 +20,7 @@ export function AccountDeviceSessionCaptionText(
     const latestExpires = formatTimestamp(latest());
     return active() === 0
       ? t`No active session`
-      : t`${active()} active — expires ${latestExpires}`;
+      : t`${active()} active, expires ${latestExpires}`;
   });
   return <p class="text textCaption text-text-secondary">{label()}</p>;
 }

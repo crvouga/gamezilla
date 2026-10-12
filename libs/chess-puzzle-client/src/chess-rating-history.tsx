@@ -1,7 +1,6 @@
 import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
-import { useTheme } from '@pkgs/ui-root-client/theme-context';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 
 /** How many of the latest rated puzzles the history lists. */
@@ -15,22 +14,21 @@ function HistoryPoint(props: {
   readonly entry: ChessPuzzleGameLogEntry;
   readonly index: number;
 }): JSX.Element {
-  const theme = useTheme();
-  const color = (): string =>
-    props.entry.delta > 0
-      ? theme.colors.success
-      : props.entry.delta < 0
-        ? theme.colors.destructive
-        : theme.colors.textSecondary;
   return (
     <div class="box items-center gap-0.5 px-2 py-1 rounded-sm bg-surface-muted">
       <p
-        class="text textBodyBold text-text"
+        class="text textLabel textNumeral"
         data-testid={Handles.chessStatsRatingHistoryPoint(props.index)}
       >
         {props.entry.ratingAfter}
       </p>
-      <p class="text textCaption" style={{ color: color() }}>
+      <p
+        class="text textFootnote textNumeral"
+        classList={{
+          'text-success': props.entry.delta > 0,
+          'text-destructive': props.entry.delta < 0,
+        }}
+      >
         {signedDelta(props.entry.delta)}
       </p>
     </div>
@@ -59,7 +57,7 @@ export function ChessRatingHistory(
   return (
     <Show when={latest().length > 0}>
       <div class="box gap-2 self-stretch">
-        <p class="text textCaption text-text-secondary">
+        <p class="text textCaption">
           <Trans>Rating after each puzzle</Trans>
         </p>
         <div class="box flex-row flex-wrap gap-2">

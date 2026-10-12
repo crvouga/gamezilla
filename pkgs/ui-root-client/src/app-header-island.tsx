@@ -94,7 +94,9 @@ export function AppHeaderIsland(props: AppHeaderIslandProps): JSX.Element {
           'min-height': cssPx(contentHeight()),
         }}
       >
-        <div class="box flex-1 min-w-0 flex-row items-center justify-start">
+        {/* Clips rather than spills: in a narrow window the brand yields to
+            the tabs instead of sliding under them. */}
+        <div class="box flex-1 min-w-0 overflow-hidden flex-row items-center justify-start">
           {props.leading}
         </div>
         <Show when={(props.items?.length ?? 0) > 0}>

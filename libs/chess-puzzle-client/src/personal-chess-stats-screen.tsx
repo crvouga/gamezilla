@@ -35,6 +35,7 @@ export function PersonalChessStatsScreen(): JSX.Element {
               keyed
               fallback={
                 <ChessStatsBody
+                  titled={false}
                   onSelectEntry={(entry) => review(entry.puzzleId)}
                 />
               }

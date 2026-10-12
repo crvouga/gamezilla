@@ -59,11 +59,7 @@ export function NotificationsList(props: NotificationsListProps): JSX.Element {
 
   const renderItem = (row: ListRow): JSX.Element => {
     if (row.kind === 'header') {
-      return (
-        <label class="text textLabel text-text-secondary pb-1 pt-3">
-          {row.title}
-        </label>
-      );
+      return <h2 class="text textCaption pb-1 pt-3">{row.title}</h2>;
     }
     if (row.kind === 'loading') {
       return <LoadingState variant="compact" size="small" />;

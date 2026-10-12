@@ -11,12 +11,10 @@ type StatTileProps = {
 
 function StatTile(props: StatTileProps): JSX.Element {
   return (
-    <div class="box min-w-0 gap-1 p-3">
-      <p class="text textCaption line-clamp-1 text-text-secondary">
-        {props.label}
-      </p>
+    <div class="box min-w-0 gap-1">
+      <p class="text textCaption line-clamp-1">{props.label}</p>
       <p
-        class="text textBodyBold textNumeral line-clamp-1 text-text"
+        class="text textSubtitle textNumeral line-clamp-1"
         data-testid={props.testId}
       >
         {props.value}
@@ -29,11 +27,12 @@ export type ChessPuzzleStatsCardsProps = {
   stats: ChessPuzzleStats;
 };
 
+/** The player's totals, in one panel like every other group on the screen. */
 export function ChessPuzzleStatsCards(
   props: ChessPuzzleStatsCardsProps
 ): JSX.Element {
   return (
-    <div class="box grid grid-cols-2 gap-2">
+    <div class="card grid grid-cols-3 gap-x-4 gap-y-5 p-4">
       <StatTile
         label={<Trans>Played</Trans>}
         value={String(props.stats.totalPlayed)}
@@ -54,7 +53,7 @@ export function ChessPuzzleStatsCards(
         value={String(props.stats.bestStreak)}
       />
       <StatTile
-        label={<Trans>Current streak</Trans>}
+        label={<Trans>Streak</Trans>}
         value={String(props.stats.currentStreak)}
       />
     </div>
