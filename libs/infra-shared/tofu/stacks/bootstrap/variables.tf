@@ -62,7 +62,10 @@ variable "auth_relay" {
   description = "Read by the fleet stack and TypeScript (apps/auth-relay)."
 }
 
-
+variable "reports" {
+  type        = any
+  description = "Read by the fleet and foundation stacks (global.tfvars.json `reports`)."
+}
 
 variable "global_imports" {
   type = object({
