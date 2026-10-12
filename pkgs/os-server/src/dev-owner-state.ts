@@ -1,11 +1,13 @@
 // @io-wall-ok — checkout process ownership adapter; environment values never leave this module.
 import { execFileSync } from 'node:child_process';
 import {
+  appendFileSync,
   mkdirSync,
   readdirSync,
   readFileSync,
   realpathSync,
   renameSync,
+  statSync,
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
@@ -42,18 +44,21 @@ function readPs(args: string[]): string {
     throw new Error('Ownership process snapshot failed; refusing cleanup');
   }
 }
-const psFields = 'pid=,ppid=,pgid=,lstart=,command=';
+const psFields = 'pid=,ppid=,pgid=,stat=,lstart=,command=';
 function parseRows(output: string): OwnedProcess[] {
   return output.split('\n').flatMap((line) => {
-    const match = /^\s*(\d+)\s+(\d+)\s+(\d+)\s+(.{24})\s+(.*)$/.exec(line);
-    if (!match) return [];
-    const raw = match[5] ?? '';
+    const match = /^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\S+)\s+(.{24})\s+(.*)$/.exec(
+      line
+    );
+    // A zombie has exited: it is a table entry its parent has not read yet.
+    if (!match || match[4]?.startsWith('Z')) return [];
+    const raw = match[6] ?? '';
     return [
       {
         pid: Number(match[1]),
         ppid: Number(match[2]),
         pgid: Number(match[3]),
-        identity: match[4] ?? '',
+        identity: match[5] ?? '',
         command: raw,
         root: null,
         boot: null,
@@ -135,3 +140,38 @@ export function recordOwned(root: string, rows = processSnapshot()): void {
 }
 export const sameProcess = (a: OwnedProcess, b: OwnedProcess) =>
   a.pid === b.pid && a.identity === b.identity;
+
+/** Attended while its supervisor and every process that launched it are alive. */
+export function bootAttended(boot: OwnerBoot, rows: OwnedProcess[]): boolean {
+  const alive = (owner: OwnedProcess) =>
+    rows.some((row) => sameProcess(row, owner));
+  return (
+    alive(boot.supervisor) &&
+    (!boot.launcher || alive(boot.launcher)) &&
+    (boot.launchers ?? []).every(alive)
+  );
+}
+
+const OWNER_LOG_BYTES = 1_000_000;
+/**
+ * The checkout's own cleanup record. A boot that is stopping writes here and
+ * never to its launch terminal: nobody may be reading that terminal any more,
+ * and a write to it would then wait forever.
+ */
+export function ownerLog(root: string): (line: string) => void {
+  const path = join(ownerDir(root), 'gc.log');
+  return (line) => {
+    try {
+      mkdirSync(ownerDir(root), { recursive: true });
+      try {
+        if (statSync(path).size > OWNER_LOG_BYTES)
+          renameSync(path, `${path}.1`);
+      } catch {
+        /* first record */
+      }
+      appendFileSync(path, line);
+    } catch {
+      /* the record is best effort; cleanup goes on without it */
+    }
+  };
+}

@@ -1,11 +1,12 @@
 // @io-wall-ok — independent boot watchdog survives supervisor SIGKILL.
 import { gcDevOwner } from './dev-owner-gc';
 import {
+  bootAttended,
   type OwnerBoot,
+  ownerLog,
   ownerRecords,
   processSnapshot,
   recordOwned,
-  sameProcess,
 } from './dev-owner-state';
 
 const root = process.env['DEV_OWNER_ROOT'];
@@ -15,18 +16,12 @@ const boot = ownerRecords<OwnerBoot>(root, 'boot-').find(
   (entry) => entry.id === id
 );
 if (!boot) throw new Error('Watchdog requires a registered boot');
+const report = ownerLog(root);
 while (true) {
   const rows = processSnapshot();
   recordOwned(root, rows);
-  if (!rows.some((row) => sameProcess(row, boot.supervisor))) break;
-  if (boot.launcher && !rows.some((row) => sameProcess(row, boot.launcher!)))
-    break;
-  if (
-    boot.launchers?.some(
-      (parent) => !rows.some((row) => sameProcess(row, parent))
-    )
-  )
-    break;
+  if (!bootAttended(boot, rows)) break;
   await Bun.sleep(2000);
 }
-await gcDevOwner(root, true, id);
+report(`[watch] boot=${id} lost its supervisor or launcher; collecting it\n`);
+await gcDevOwner(root, true, id, report);

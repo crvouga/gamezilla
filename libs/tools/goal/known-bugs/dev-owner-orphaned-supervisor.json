@@ -1,0 +1,4 @@
+{
+  "summary": "A supervisor whose launcher was killed outright received no signal and kept its boot and the checkout's admission lock for as long as its watchdog was gone, so every later start reported a live boot and exited. The supervisor now stops its boot when its launcher is no longer its parent.",
+  "regressionTest": "pkgs/os-server/tests/dev-owner-stop.contract.test.ts"
+}
