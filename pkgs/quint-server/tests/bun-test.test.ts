@@ -170,6 +170,13 @@ describe('evidence of a model run that does not explore', () => {
     ])
       expect(byId.get(id)?.status).toBe('pass');
     expect(byId.get('bound-actions')?.detail).toContain('_loseConnection');
+    // regression: replay-budget-moves-determinism-trace
+    // The budget does not choose the trace determinism is decided on.
+    const explored = readEvidence(OUT)
+      .records.find((r) => r.specUri === SPEC_URI)
+      ?.obligations.find((o) => o.id === 'determinism');
+    expect(explored?.detail).toMatch(/^trace \d+ replayed twice/);
+    expect(byId.get('determinism')?.detail).toBe(explored?.detail);
   });
 });
 

@@ -169,12 +169,15 @@ type Registration = {
   readonly replayed: ReadonlySet<number>;
 };
 
-/** The longest trace this run replays; the first drawn on a tie. */
+/**
+ * The longest drawn trace; the first drawn on a tie. A replay budget does not
+ * move it: the determinism obligation is decided on the trace an exploring
+ * run decides it on, so a run's budget never changes that verdict.
+ */
 function longestTrace(input: Registration) {
   const traces = input.drawn.traces;
-  let at = Math.min(...input.replayed);
+  let at = 0;
   for (const [i, trace] of traces.entries()) {
-    if (!input.replayed.has(i)) continue;
     if (trace.states.length > traces[at]!.states.length) at = i;
   }
   return {
