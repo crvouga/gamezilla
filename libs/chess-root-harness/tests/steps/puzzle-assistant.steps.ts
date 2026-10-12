@@ -219,6 +219,12 @@ Given("{actor}'s speech is unavailable", async (w, actor: Actor) => {
 Then(
   "{actor}'s assistant stays readable when speech cannot play",
   async (w, actor: Actor) => {
+    // The assistant speaks once its observation arrives; the failure is
+    // counted when that attempt ends, not when the puzzle opens.
+    await w.s.until((s) => readAssistantAudioFailures(s, actor), {
+      maxMs: SETTLE_MS,
+      pred: (failures) => failures > 0,
+    });
     expect(await w.s.read(readAssistantAudioFailures, actor)).toBeGreaterThan(
       0
     );
