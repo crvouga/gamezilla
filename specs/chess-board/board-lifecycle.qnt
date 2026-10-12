@@ -35,16 +35,20 @@ module board_lifecycle {
   action init = all {board' = _open(0), _earlierCompletion' = false}
 
   /// Alice chooses the prepared movable piece, or puts down her selection.
+  /// Choosing a piece while a replacement position is still arriving places
+  /// its pieces at once: nobody takes hold of a piece in mid-flight.
   action selectPiece = all {
     board.present, board.visible, board.position == 0, not(board.dragging),
-    board' = { ...board, selected: board.interactive and not(board.selected) },
-    _earlierCompletion' = _earlierCompletion,
+    board' = { ...(if (board.interactive) _settled(board) else board),
+      selected: board.interactive and not(board.selected) },
+    _earlierCompletion' = (_earlierCompletion or (board.interactive and board.transition)),
   }
-  /// Alice holds the prepared piece before deciding where to put it.
+  /// Alice holds the prepared piece before deciding where to put it. Like
+  /// choosing it, this places a replacement position still arriving at once.
   action beginDrag = all {
     board.present, board.interactive, board.visible, board.position == 0, not(board.dragging),
-    board' = { ...board, selected: false, dragging: true },
-    _earlierCompletion' = _earlierCompletion,
+    board' = { ..._settled(board), selected: false, dragging: true },
+    _earlierCompletion' = (_earlierCompletion or board.transition),
   }
   /// Alice abandons the held piece without making a move.
   action cancelDrag = all {
@@ -61,7 +65,7 @@ module board_lifecycle {
     board.present, board.visible, board.interactive, board.position == 0,
     board' = { ...board, position: 1, displayedPosition: 1, selected: false,
       dragging: false, transition: _canArrive(board), captureRemnant: _canArrive(board) },
-    _earlierCompletion' = _earlierCompletion,
+    _earlierCompletion' = (_earlierCompletion or board.transition),
   }
   /// Black's prepared reply owns the displayed position even during the capture.
   action receiveReply = all {
