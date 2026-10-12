@@ -49,10 +49,11 @@
     "TURBO_*",
     "TOFU_*",
     "SYNTHETIC_MONITOR_TOKEN",
-    "POPULATION_WORKER_TOKEN",
+    "POPULATION_*",
     "TMPDIR",
     "RAYON_NUM_THREADS",
     "MODEL_CHECK_CONCURRENCY",
+    "QUINT_VERIFY_TIME_SCALE",
     "CHECK_SOLVER_SLOTS",
     "CHECK_TEST_CONCURRENCY",
     "CHECK_LINT_THREADS",
@@ -243,8 +244,7 @@
         "$TURBO_ROOT$/libs/tools/scripts/test-scripts.ts",
         "$TURBO_ROOT$/libs/tools/scripts/unused-dependencies.ts",
         "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts",
-        "$TURBO_ROOT$/libs/tools/naming/**",
-        "$TURBO_ROOT$/libs/tools/goal/**"
+        "$TURBO_ROOT$/libs/tools/naming/**"
       ],
       "outputLogs": "errors-only",
       "outputs": []
@@ -285,7 +285,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-0/**"]
@@ -304,7 +305,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-1/**"]
@@ -323,7 +325,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-2/**"]
@@ -342,7 +345,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-3/**"]
@@ -361,7 +365,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-4/**"]
@@ -380,12 +385,461 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-5/**"]
     },
     "check:models": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:0": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:1": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:2": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:3": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:4": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:5": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:6": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:7": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:8": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:9": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:10": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:11": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:12": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:13": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:14": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:15": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -455,99 +909,108 @@
       "persistent": true,
       "cache": false
     },
-    "//#lint:root": {
+    "@libs/tools#ci:syncpack": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/package.json",
+        "$TURBO_ROOT$/libs/tools/package.json",
+        "$TURBO_ROOT$/.syncpackrc.cjs"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools#ci:audit": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/bun.lock",
+        "$TURBO_ROOT$/libs/tools/scripts/ci-audit.ts",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/libs/tools/scripts/audit-snapshot.ts",
+        "$TURBO_ROOT$/.cache/check-ci/audit.json"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools#ci:i18n": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/libs/account-privacy-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/app-root-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/app-config-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/auth-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/billing-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/chess-root-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/chess-custom-game-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/chess-matchmaking-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/chess-puzzle-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/chess-shared-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/friends-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/notifications-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/permissions-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/profile-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/synthetic-population-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/search-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/spaces-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/pkgs/chess-board-root-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/pkgs/ui-root-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/pkgs/ui-devtools-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/lingui.config.ts",
+        "$TURBO_ROOT$/lingui.solid.config.ts",
+        "$TURBO_ROOT$/libs/app-root-shared/locales/**",
+        "$TURBO_ROOT$/apps/client/babel.config.js",
+        "$TURBO_ROOT$/pkgs/bun-test-solid-client/src/babel.config.cjs",
+        "$TURBO_ROOT$/libs/tools/scripts/ci-i18n.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools#ci:agent-commands": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.agents/**",
+        "$TURBO_ROOT$/.claude/commands",
+        "$TURBO_ROOT$/.cursor/commands",
+        "$TURBO_ROOT$/.opencode/commands",
+        "$TURBO_ROOT$/.gemini/commands/**",
+        "$TURBO_ROOT$/.github/prompts/**",
+        "$TURBO_ROOT$/.windsurf/workflows/**",
+        "$TURBO_ROOT$/libs/tools/scripts/sync-agent-commands.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools#ci:workspace-lifecycle": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.superset/config.json",
+        "$TURBO_ROOT$/.super.engineering/config.json",
+        "$TURBO_ROOT$/libs/tools/workspace/*.sh",
+        "$TURBO_ROOT$/libs/tools/scripts/sync-workspace-lifecycle.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools#ci:goals": {
       "dependsOn": ["@libs/tools#src"],
-      "inputs": ["$TURBO_DEFAULT$", "!apps/**", "!libs/**", "!pkgs/**"],
-      "outputs": [],
-      "outputLogs": "errors-only"
-    },
-    "//#ci:syncpack": {
       "inputs": [
-        "package.json",
-        "apps/*/package.json",
-        "libs/*/package.json",
-        "pkgs/*/package.json",
-        "libs/tools/package.json",
-        ".syncpackrc.cjs"
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/libs/tools/goal/**",
+        "$TURBO_ROOT$/libs/tools/scripts/check-goals.ts",
+        "$TURBO_ROOT$/{apps,libs,pkgs,vendor}/**/*.test.{ts,tsx}",
+        "$TURBO_ROOT$/{apps,libs,pkgs}/*/tests/quint/**",
+        "$TURBO_ROOT$/{apps,libs,pkgs}/**/*.itf.json",
+        "$TURBO_ROOT$/specs/**/*.feature",
+        "!$TURBO_ROOT$/**/node_modules/**",
+        "!$TURBO_ROOT$/**/.cache/**"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "//#ci:audit": {
-      "inputs": [
-        "bun.lock",
-        "libs/tools/scripts/ci-audit.ts",
-        "package.json",
-        "libs/tools/scripts/audit-snapshot.ts",
-        ".cache/check-ci/audit.json"
-      ],
-      "outputs": [],
-      "outputLogs": "errors-only"
-    },
-    "//#ci:i18n": {
-      "inputs": [
-        "libs/account-privacy-client/src/**/*.{ts,tsx}",
-        "libs/app-root-client/src/**/*.{ts,tsx}",
-        "libs/app-config-client/src/**/*.{ts,tsx}",
-        "libs/auth-client/src/**/*.{ts,tsx}",
-        "libs/billing-client/src/**/*.{ts,tsx}",
-        "libs/chess-root-client/src/**/*.{ts,tsx}",
-        "libs/chess-custom-game-client/src/**/*.{ts,tsx}",
-        "libs/chess-matchmaking-client/src/**/*.{ts,tsx}",
-        "libs/chess-puzzle-client/src/**/*.{ts,tsx}",
-        "libs/chess-shared-client/src/**/*.{ts,tsx}",
-        "libs/friends-client/src/**/*.{ts,tsx}",
-        "libs/notifications-client/src/**/*.{ts,tsx}",
-        "libs/permissions-client/src/**/*.{ts,tsx}",
-        "libs/profile-client/src/**/*.{ts,tsx}",
-        "libs/synthetic-population-client/src/**/*.{ts,tsx}",
-        "libs/search-client/src/**/*.{ts,tsx}",
-        "libs/spaces-client/src/**/*.{ts,tsx}",
-        "pkgs/chess-board-root-client/src/**/*.{ts,tsx}",
-        "pkgs/ui-root-client/src/**/*.{ts,tsx}",
-        "pkgs/ui-devtools-client/src/**/*.{ts,tsx}",
-        "lingui.config.ts",
-        "lingui.solid.config.ts",
-        "libs/app-root-shared/locales/**",
-        "apps/client/babel.config.js",
-        "pkgs/bun-test-solid-client/src/babel.config.cjs",
-        "libs/tools/scripts/ci-i18n.ts",
-        "libs/tools/scripts/lingui-scope.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "errors-only"
-    },
-    "//#ci:agent-commands": {
-      "inputs": [
-        ".agents/**",
-        ".claude/commands",
-        ".cursor/commands",
-        ".opencode/commands",
-        ".gemini/commands/**",
-        ".github/prompts/**",
-        ".windsurf/workflows/**",
-        "libs/tools/scripts/sync-agent-commands.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "errors-only"
-    },
-    "//#ci:workspace-lifecycle": {
-      "inputs": [
-        ".superset/config.json",
-        ".super.engineering/config.json",
-        "libs/tools/workspace/*.sh",
-        "libs/tools/scripts/sync-workspace-lifecycle.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "errors-only"
-    },
-    "//#ci:goals": {
-      "dependsOn": ["@libs/tools#src"],
-      "inputs": ["$TURBO_DEFAULT$", "!apps/**", "!libs/**", "!pkgs/**"],
-      "outputs": [],
-      "outputLogs": "errors-only"
-    },
-    "//#ci:specs": {
+    "@libs/tools#ci:specs": {
       "dependsOn": [
         "@libs/tools#src",
         "@pkgs/gherkin-server#src",
@@ -557,99 +1020,106 @@
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
-        "!apps/**",
-        "!libs/**",
-        "!pkgs/**",
-        "specs/**",
-        "apps/**/*.feature",
-        "apps/**/*.qnt",
-        "libs/**/*.feature",
-        "libs/**/*.qnt",
-        "pkgs/**/*.feature",
-        "pkgs/**/*.qnt",
-        "libs/*/package.json",
-        "libs/*/turbo.json",
-        "libs/*/tests/steps/**",
-        "libs/*/tests/quint/**",
-        "libs/*/tests/dmn/**",
-        "libs/*/tests/alloy/**",
-        "libs/*/tests/openslo/**",
-        "pkgs/*/package.json",
-        "pkgs/*/turbo.json",
-        "pkgs/*/tests/steps/**",
-        "pkgs/*/tests/quint/**",
-        "pkgs/*/tests/dmn/**",
-        "pkgs/*/tests/alloy/**",
-        "pkgs/*/tests/openslo/**",
-        "apps/*/package.json",
-        "apps/*/turbo.json",
-        "apps/*/tests/steps/**",
-        "apps/*/tests/quint/**",
-        "apps/*/tests/dmn/**",
-        "apps/*/tests/alloy/**",
-        "apps/*/tests/openslo/**",
-        "libs/harness/src/spec/**",
-        "pkgs/gherkin/src/**",
-        "pkgs/quint-shared/src/names.ts",
-        "libs/tools/scripts/check-specs.ts",
-        "libs/tools/scripts/spec-alloy-names.ts",
-        "libs/tools/scripts/spec-decoupling.ts",
-        "libs/tools/scripts/spec-glossary.ts",
-        "libs/tools/scripts/spec-kinds.ts",
-        "libs/tools/scripts/spec-location.ts",
-        "libs/tools/scripts/spec-packages.ts",
-        "libs/tools/goal/**"
+        "!$TURBO_ROOT$/apps/**",
+        "!$TURBO_ROOT$/libs/**",
+        "!$TURBO_ROOT$/pkgs/**",
+        "$TURBO_ROOT$/specs/**",
+        "$TURBO_ROOT$/apps/**/*.feature",
+        "$TURBO_ROOT$/apps/**/*.qnt",
+        "$TURBO_ROOT$/libs/**/*.feature",
+        "$TURBO_ROOT$/libs/**/*.qnt",
+        "$TURBO_ROOT$/pkgs/**/*.feature",
+        "$TURBO_ROOT$/pkgs/**/*.qnt",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/libs/*/turbo.json",
+        "$TURBO_ROOT$/libs/*/tests/steps/**",
+        "$TURBO_ROOT$/libs/*/tests/quint/**",
+        "$TURBO_ROOT$/libs/*/tests/dmn/**",
+        "$TURBO_ROOT$/libs/*/tests/alloy/**",
+        "$TURBO_ROOT$/libs/*/tests/openslo/**",
+        "$TURBO_ROOT$/pkgs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/turbo.json",
+        "$TURBO_ROOT$/pkgs/*/tests/steps/**",
+        "$TURBO_ROOT$/pkgs/*/tests/quint/**",
+        "$TURBO_ROOT$/pkgs/*/tests/dmn/**",
+        "$TURBO_ROOT$/pkgs/*/tests/alloy/**",
+        "$TURBO_ROOT$/pkgs/*/tests/openslo/**",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/apps/*/turbo.json",
+        "$TURBO_ROOT$/apps/*/tests/steps/**",
+        "$TURBO_ROOT$/apps/*/tests/quint/**",
+        "$TURBO_ROOT$/apps/*/tests/dmn/**",
+        "$TURBO_ROOT$/apps/*/tests/alloy/**",
+        "$TURBO_ROOT$/apps/*/tests/openslo/**",
+        "$TURBO_ROOT$/libs/harness/src/spec/**",
+        "$TURBO_ROOT$/pkgs/gherkin-server/src/**",
+        "$TURBO_ROOT$/pkgs/gherkin-shared/src/**",
+        "$TURBO_ROOT$/pkgs/quint-shared/src/names.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-specs.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-alloy-names.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-decoupling.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-glossary.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-location.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/goal/**"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "//#ci:conformance": {
+    "@libs/tools#ci:conformance": {
       "dependsOn": [
         "@libs/tools#src",
         "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/conformance-shared#src",
+        "@pkgs/dmn-shared#src",
+        "@pkgs/openslo-shared#src"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
-        "!apps/**",
-        "!libs/**",
-        "!pkgs/**",
-        "specs/**",
-        "turbo.json",
-        "package.json",
-        "apps/*/package.json",
-        "libs/*/package.json",
-        "pkgs/*/package.json",
-        "apps/*/tests/steps/**",
-        "libs/*/tests/steps/**",
-        "pkgs/*/tests/steps/**",
-        "apps/*/tests/quint/**",
-        "libs/*/tests/quint/**",
-        "pkgs/*/tests/quint/**",
-        "apps/*/tests/dmn/**",
-        "libs/*/tests/dmn/**",
-        "pkgs/*/tests/dmn/**",
-        "apps/*/tests/alloy/**",
-        "libs/*/tests/alloy/**",
-        "pkgs/*/tests/alloy/**",
-        "apps/*/tests/openslo/**",
-        "libs/*/tests/openslo/**",
-        "pkgs/*/tests/openslo/**",
-        "pkgs/conformance/src/**",
-        "pkgs/dmn/src/**",
-        "pkgs/openslo/src/**",
-        "pkgs/gherkin/src/**",
-        "libs/tools/conformance/**",
-        "libs/tools/scripts/check-conformance.ts",
-        "libs/tools/scripts/spec-kinds.ts",
-        "libs/tools/scripts/spec-packages.ts"
+        "!$TURBO_ROOT$/apps/**",
+        "!$TURBO_ROOT$/libs/**",
+        "!$TURBO_ROOT$/pkgs/**",
+        "$TURBO_ROOT$/specs/**",
+        "$TURBO_ROOT$/turbo.json",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/package.json",
+        "$TURBO_ROOT$/apps/*/tests/steps/**",
+        "$TURBO_ROOT$/libs/*/tests/steps/**",
+        "$TURBO_ROOT$/pkgs/*/tests/steps/**",
+        "$TURBO_ROOT$/apps/*/tests/quint/**",
+        "$TURBO_ROOT$/libs/*/tests/quint/**",
+        "$TURBO_ROOT$/pkgs/*/tests/quint/**",
+        "$TURBO_ROOT$/apps/*/tests/dmn/**",
+        "$TURBO_ROOT$/libs/*/tests/dmn/**",
+        "$TURBO_ROOT$/pkgs/*/tests/dmn/**",
+        "$TURBO_ROOT$/apps/*/tests/alloy/**",
+        "$TURBO_ROOT$/libs/*/tests/alloy/**",
+        "$TURBO_ROOT$/pkgs/*/tests/alloy/**",
+        "$TURBO_ROOT$/apps/*/tests/openslo/**",
+        "$TURBO_ROOT$/libs/*/tests/openslo/**",
+        "$TURBO_ROOT$/pkgs/*/tests/openslo/**",
+        "$TURBO_ROOT$/pkgs/conformance-server/src/**",
+        "$TURBO_ROOT$/pkgs/conformance-shared/src/**",
+        "$TURBO_ROOT$/pkgs/dmn-shared/src/**",
+        "$TURBO_ROOT$/pkgs/openslo-shared/src/**",
+        "$TURBO_ROOT$/pkgs/gherkin-shared/src/**",
+        "$TURBO_ROOT$/libs/tools/conformance/**",
+        "$TURBO_ROOT$/libs/tools/scripts/check-conformance.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "//#ci:spec-ownership": {
+    "@libs/tools#ci:spec-ownership": {
       "env": ["PR_BASE", "PR_HEAD", "CHECK_SECRETS_RANGE"],
-      "inputs": ["libs/tools/scripts/check-spec-ownership.ts"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/libs/tools/scripts/check-spec-ownership.ts"
+      ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
@@ -683,6 +1153,7 @@
     },
     "@libs/tools#check:actionlint": {
       "inputs": [
+        "$TURBO_DEFAULT$",
         "scripts/check-actionlint.ts",
         "$TURBO_ROOT$/mise.toml",
         "$TURBO_ROOT$/.github/workflows/**",
@@ -694,6 +1165,7 @@
     "@libs/tools#check:secrets": {
       "env": ["CHECK_SECRETS_RANGE"],
       "inputs": [
+        "$TURBO_DEFAULT$",
         "scripts/check-secrets.ts",
         "scripts/secrets-scan-range.ts",
         "$TURBO_ROOT$/mise.toml",
@@ -702,101 +1174,26 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#install:cli": {
-      "cache": false,
-      "outputLogs": "errors-only"
-    },
-    "//#check": {
-      "dependsOn": [
-        "//#lint:root",
-        "//#ci:syncpack",
-        "//#ci:audit",
-        "//#ci:i18n",
-        "//#ci:agent-commands",
-        "//#ci:workspace-lifecycle",
-        "//#ci:goals",
-        "//#ci:specs",
-        "//#ci:statecharts",
-        "//#ci:conformance",
-        "//#ci:spec-ownership",
-        "tc",
-        "lint",
-        "test",
-        "test:contract",
-        "test:spec:0",
-        "test:spec:1",
-        "test:spec:2",
-        "test:spec:3",
-        "test:spec:4",
-        "test:spec:5",
-        "test:spec:6",
-        "test:spec:7",
-        "test:spec:8",
-        "test:spec:9",
-        "test:spec:10",
-        "test:spec:11",
-        "test:spec:12",
-        "test:spec:13",
-        "test:spec:14",
-        "test:spec:15",
-        "test:spec:16",
-        "test:spec:17",
-        "test:spec:18",
-        "test:spec:19",
-        "test:spec:20",
-        "test:spec:21",
-        "test:spec:22",
-        "test:spec:23",
-        "test:spec:24",
-        "test:spec:25",
-        "test:spec:26",
-        "test:spec:27",
-        "test:spec:28",
-        "test:spec:29",
-        "test:spec:30",
-        "test:spec:31",
-        "test:spec:32",
-        "test:spec:33",
-        "test:spec:34",
-        "test:spec:35",
-        "test:spec:36",
-        "test:spec:37",
-        "test:spec:38",
-        "test:spec:39",
-        "test:spec:40",
-        "test:spec:41",
-        "test:spec:42",
-        "test:spec:43",
-        "test:spec:44",
-        "test:spec:45",
-        "test:spec:46",
-        "test:spec:47",
-        "test:spec:48",
-        "test:spec:49",
-        "test:spec:50",
-        "test:spec:51",
-        "test:spec:52",
-        "test:spec:53",
-        "test:spec:54",
-        "test:spec:55",
-        "test:spec:56",
-        "test:spec:57",
-        "test:spec:58",
-        "test:spec:59",
-        "test:spec:60",
-        "test:spec:61",
-        "test:spec:62",
-        "test:spec:63",
-        "check:models",
-        "@apps/product#check:offline-shell",
-        "@apps/auth-relay#check:worker-bundle",
-        "@apps/product#check:worker-bundle",
-        "@libs/runtime-server#check:schema-evolution",
-        "@libs/tools#check:actionlint",
-        "@libs/tools#check:secrets",
-        "check:board-contract"
+    "@libs/tools#check:root-lint": {
+      "dependsOn": ["@libs/tools#src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/**",
+        "!$TURBO_ROOT$/.git/**",
+        "!$TURBO_ROOT$/node_modules/**",
+        "!$TURBO_ROOT$/.cache/**",
+        "!$TURBO_ROOT$/.turbo/**",
+        "!$TURBO_ROOT$/**/.env*",
+        "!$TURBO_ROOT$/.secrets.json",
+        "!$TURBO_ROOT$/apps/**",
+        "!$TURBO_ROOT$/libs/**",
+        "!$TURBO_ROOT$/pkgs/**"
       ],
       "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools#install:cli": {
+      "cache": false,
       "outputLogs": "errors-only"
     },
     "@apps/server#check:api": {
@@ -845,7 +1242,6 @@
     "//#deploy": {
       "cache": false,
       "dependsOn": [
-        "//#check",
         "@apps/server#check:api",
         "health",
         "@libs/infra-shared#retire:workers"
@@ -957,7 +1353,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-6/**"]
@@ -971,7 +1368,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-7/**"]
@@ -985,7 +1383,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-8/**"]
@@ -999,7 +1398,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-9/**"]
@@ -1013,7 +1413,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-10/**"]
@@ -1027,7 +1428,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-11/**"]
@@ -1041,7 +1443,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-12/**"]
@@ -1055,7 +1458,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-13/**"]
@@ -1069,7 +1473,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-14/**"]
@@ -1083,7 +1488,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-15/**"]
@@ -1102,7 +1508,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-16/**"]
@@ -1121,7 +1528,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-17/**"]
@@ -1140,7 +1548,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-18/**"]
@@ -1159,7 +1568,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-19/**"]
@@ -1178,7 +1588,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-20/**"]
@@ -1197,7 +1608,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-21/**"]
@@ -1216,7 +1628,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-22/**"]
@@ -1235,7 +1648,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-23/**"]
@@ -1254,7 +1668,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-24/**"]
@@ -1273,7 +1688,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-25/**"]
@@ -1292,7 +1708,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-26/**"]
@@ -1311,7 +1728,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-27/**"]
@@ -1330,7 +1748,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-28/**"]
@@ -1349,7 +1768,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-29/**"]
@@ -1368,7 +1788,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-30/**"]
@@ -1387,7 +1808,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-31/**"]
@@ -1406,7 +1828,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-32/**"]
@@ -1425,7 +1848,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-33/**"]
@@ -1444,7 +1868,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-34/**"]
@@ -1463,7 +1888,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-35/**"]
@@ -1482,7 +1908,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-36/**"]
@@ -1501,7 +1928,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-37/**"]
@@ -1520,7 +1948,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-38/**"]
@@ -1539,7 +1968,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-39/**"]
@@ -1558,7 +1988,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-40/**"]
@@ -1577,7 +2008,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-41/**"]
@@ -1596,7 +2028,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-42/**"]
@@ -1615,7 +2048,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-43/**"]
@@ -1634,7 +2068,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-44/**"]
@@ -1653,7 +2088,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-45/**"]
@@ -1672,7 +2108,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-46/**"]
@@ -1691,7 +2128,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-47/**"]
@@ -1710,7 +2148,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-48/**"]
@@ -1729,7 +2168,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-49/**"]
@@ -1748,7 +2188,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-50/**"]
@@ -1767,7 +2208,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-51/**"]
@@ -1786,7 +2228,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-52/**"]
@@ -1805,7 +2248,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-53/**"]
@@ -1824,7 +2268,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-54/**"]
@@ -1843,7 +2288,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-55/**"]
@@ -1862,7 +2308,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-56/**"]
@@ -1881,7 +2328,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-57/**"]
@@ -1900,7 +2348,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-58/**"]
@@ -1919,7 +2368,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-59/**"]
@@ -1938,7 +2388,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-60/**"]
@@ -1957,7 +2408,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-61/**"]
@@ -1976,7 +2428,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-62/**"]
@@ -1995,7 +2448,8 @@
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
-        "FC_SEED"
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-63/**"]
@@ -2029,24 +2483,25 @@
       "cache": false,
       "dependsOn": ["@libs/infra-server#apply:edge"]
     },
-    "//#ci:statecharts": {
+    "@libs/tools#ci:statecharts": {
       "dependsOn": ["@libs/tools#src"],
       "inputs": [
-        "docs/statecharts/**",
-        "specs/**",
-        "package.json",
-        "vendor/atlas/packages/core/src/**",
-        "vendor/atlas/packages/schema/src/**",
-        "libs/app-root-client/src/route-table.ts",
-        "libs/runtime-client/src/app-sub-clients.ts",
-        "libs/*-client/src/sub-client.{ts,tsx}",
-        "libs/chess-puzzle-client/src/puzzle-link-client.ts",
-        "libs/chess-puzzle-shared/src/puzzle-link.ts",
-        "libs/chess-matchmaking-client/src/multiplayer-link-client.ts",
-        "libs/chess-matchmaking-shared/src/multiplayer-link.ts",
-        "apps/product/src/main.tsx",
-        "apps/product/src/console-nav-real.ts",
-        "vendor/atlas/packages/reports/src/**/*.ts"
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/docs/statecharts/**",
+        "$TURBO_ROOT$/specs/**",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/vendor/atlas/packages/core/src/**",
+        "$TURBO_ROOT$/vendor/atlas/packages/schema/src/**",
+        "$TURBO_ROOT$/libs/app-root-client/src/route-table.ts",
+        "$TURBO_ROOT$/libs/runtime-client/src/app-sub-clients.ts",
+        "$TURBO_ROOT$/libs/*-client/src/sub-client.{ts,tsx}",
+        "$TURBO_ROOT$/libs/chess-puzzle-client/src/puzzle-link-client.ts",
+        "$TURBO_ROOT$/libs/chess-puzzle-shared/src/puzzle-link.ts",
+        "$TURBO_ROOT$/libs/chess-matchmaking-client/src/multiplayer-link-client.ts",
+        "$TURBO_ROOT$/libs/chess-matchmaking-shared/src/multiplayer-link.ts",
+        "$TURBO_ROOT$/apps/product/src/main.tsx",
+        "$TURBO_ROOT$/apps/product/src/console-nav-real.ts",
+        "$TURBO_ROOT$/vendor/atlas/packages/reports/src/**/*.ts"
       ],
       "outputs": [".cache/product-statechart/**"],
       "outputLogs": "errors-only"

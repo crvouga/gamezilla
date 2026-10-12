@@ -17,7 +17,11 @@ import {
   sendRequestFromProfile,
 } from '@libs/friends-harness/person-actions';
 import { partition, restartApp, restoreNetwork } from '@libs/harness/actions';
-import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
+import {
+  claimActorUsername,
+  returnToTabs,
+  signInWithGoogle,
+} from '@libs/harness/auth-actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { backToTabs } from '@libs/harness/shell-actions';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
@@ -59,6 +63,7 @@ bindQuintModel<QuintHarnessWorld>({
     init: async (w) => {
       for (const actor of ['alice', 'bob']) {
         await w.s.apply(signInWithGoogle, actor);
+        await w.s.apply(claimActorUsername, actor);
         await w.s.apply(returnToTabs, actor);
       }
       await w.s.apply(openPersonFromSearch, 'bob', 'alice');

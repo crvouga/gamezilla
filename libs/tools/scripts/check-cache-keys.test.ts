@@ -226,6 +226,137 @@ test.each([
   }
 });
 
+test('a bounded spec verdict never satisfies an exploring run, nor one budget another', () => {
+  const root = fixture();
+  try {
+    const packagePath = join(root, 'package.json');
+    const manifest = JSON.parse(readFileSync(packagePath, 'utf8')) as {
+      scripts: Record<string, string>;
+    };
+    manifest.scripts['test:spec:0'] = 'echo spec';
+    writeFileSync(packagePath, JSON.stringify(manifest));
+    writeFileSync(
+      join(root, 'turbo.json'),
+      JSON.stringify({
+        tasks: {
+          'test:spec:0': {
+            inputs: ['$TURBO_DEFAULT$'],
+            env: config.tasks['test:spec:0']!.env,
+            outputs: [],
+          },
+        },
+      })
+    );
+    const hash = (env: NodeJS.ProcessEnv) =>
+      dry(root, ['test:spec:0'], env)[0]!.hash;
+    const gate = hash({});
+    const explore = hash({ QUINT_REPLAY_TRACES: 'all' });
+    expect(explore).not.toBe(gate);
+    expect(hash({ QUINT_REPLAY_TRACES: '8' })).not.toBe(explore);
+    expect(hash({ QUINT_REPLAY_TRACES: '8' })).not.toBe(gate);
+    expect(hash({ QUINT_REPLAY_TRACES: 'all' })).toBe(explore);
+    // Every numbered spec part declares it.
+    const parts = Object.entries(config.tasks).filter(([id]) =>
+      /^test:spec:\d+$/.test(id)
+    );
+    expect(parts.length).toBeGreaterThan(0);
+    for (const [id, task] of parts)
+      expect(task.env, id).toContain('QUINT_REPLAY_TRACES');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+/** Two packages that share nothing; the root may depend on one of them. */
+function twoPackages(rootDependsOnB: boolean): string {
+  const root = mkdtempSync(join(tmpdir(), 'check-cache-keys-'));
+  writeFileSync(join(root, '.gitignore'), 'node_modules/\n.turbo/\n');
+  writeFileSync(join(root, 'bun.lock'), '');
+  writeFileSync(
+    join(root, 'package.json'),
+    JSON.stringify({
+      name: 'fixture',
+      packageManager: `bun@${Bun.version}`,
+      workspaces: ['pkgs/*'],
+      devDependencies: rootDependsOnB ? { '@p/b': 'workspace:*' } : {},
+    })
+  );
+  for (const name of ['a', 'b']) {
+    mkdirSync(join(root, 'pkgs', name), { recursive: true });
+    writeFileSync(
+      join(root, 'pkgs', name, 'package.json'),
+      JSON.stringify({ name: `@p/${name}`, scripts: { build: 'echo built' } })
+    );
+    writeFileSync(join(root, 'pkgs', name, 'source.ts'), 'export {};\n');
+  }
+  writeFileSync(
+    join(root, 'turbo.json'),
+    JSON.stringify({
+      tasks: { build: { inputs: ['$TURBO_DEFAULT$'], outputs: [] } },
+    })
+  );
+  return root;
+}
+
+// regression: root-workspace-dependency-invalidates-every-task
+test('a package the root manifest depends on is hashed into every task', () => {
+  // Turbo folds the root workspace's internal dependencies into the global
+  // hash: with `@p/b` a root dependency, editing it reruns `@p/a` too.
+  const hashOfA = (root: string) =>
+    dry(root, ['build']).find((task) => task.taskId === '@p/a#build')!.hash;
+  for (const rootDependsOnB of [true, false]) {
+    const root = twoPackages(rootDependsOnB);
+    try {
+      const before = hashOfA(root);
+      writeFileSync(join(root, 'pkgs/b/source.ts'), 'export const b = 1;\n');
+      if (rootDependsOnB) expect(hashOfA(root)).not.toBe(before);
+      else expect(hashOfA(root)).toBe(before);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+// regression: root-workspace-dependency-invalidates-every-task
+test('the root manifest depends on no workspace package', () => {
+  // The Atlas packages and the glob matcher were root dependencies; every
+  // Atlas bump changed all 1,114 task hashes (Check run 38187450396: 0 hits).
+  const root = join(import.meta.dirname, '../../..');
+  const manifest = JSON.parse(
+    readFileSync(join(root, 'package.json'), 'utf8')
+  ) as Record<string, Record<string, string> | undefined> & {
+    workspaces: string[];
+  };
+  const packages = new Set(
+    manifest.workspaces.flatMap((pattern) =>
+      [...new Bun.Glob(`${pattern}/package.json`).scanSync({ cwd: root })].map(
+        (path) =>
+          (
+            JSON.parse(readFileSync(join(root, path), 'utf8')) as {
+              name: string;
+            }
+          ).name
+      )
+    )
+  );
+  expect(packages.size).toBeGreaterThan(100);
+  const internal = [
+    'dependencies',
+    'devDependencies',
+    'optionalDependencies',
+    'peerDependencies',
+  ].flatMap((field) =>
+    Object.entries(manifest[field] ?? {})
+      .filter(
+        ([name, version]) =>
+          packages.has(name) || version.startsWith('workspace:')
+      )
+      .map(([name]) => `${field}.${name}`)
+  );
+  // Declare it in the package that imports it instead.
+  expect(internal).toEqual([]);
+});
+
 // regression: tools-test-unhashed-model-bindings
 test.each([
   'libs/chess-root-harness/tests/quint/multiplayer.binding.ts',

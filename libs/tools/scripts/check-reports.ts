@@ -7,7 +7,7 @@ import { reportCommand } from './check-report-command';
 import { missingReports } from './check-report-evidence';
 import { restoreReportOutputs } from './check-report-restore';
 import type { CheckPlan } from './check-shards';
-import { imbalance } from './check-shards';
+import { executes, imbalance } from './check-shards';
 import { turboChildEnv } from './turbo-ci-run';
 
 const ROOT = join(import.meta.dirname, '../../..');
@@ -22,7 +22,12 @@ function shardResults(plan: CheckPlan) {
             join(DIRECTORY, 'results', `shard-${shard.index}.json`),
             'utf8'
           )
-        ) as { actualMs: number; verdict: number; hits: number },
+        ) as {
+          index: number;
+          actualMs: number;
+          verdict: number;
+          hits: number;
+        },
       ];
     } catch {
       return [];
@@ -56,13 +61,18 @@ async function publish(): Promise<void> {
     { cwd: ROOT, env, stdio: 'inherit' }
   );
   const results = shardResults(plan);
-  const skew = imbalance(results.map((result) => result.actualMs));
+  // Balance is a property of the check shards that ran, not of cached ones.
+  const ran = results.filter((result) => {
+    const shard = plan.shards[result.index];
+    return shard?.stage === 'checks' && executes(shard);
+  });
+  const skew = ran.length ? imbalance(ran.map((result) => result.actualMs)) : 0;
   console.log(
     `actual shard imbalance ${(skew * 100).toFixed(1)}%; ${results.reduce((sum, result) => sum + result.hits, 0)}/${plan.tasks.length} hits`
   );
   if (skew > 0.1)
     console.warn(
-      '::warning::Actual shard imbalance exceeds 10%; harvest these timings before the next run'
+      '::warning::Actual shard imbalance exceeds 10%; the next plan packs by the durations this run measured'
     );
   let failed =
     transferred.status !== 0 ||

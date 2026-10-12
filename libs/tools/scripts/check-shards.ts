@@ -47,10 +47,20 @@ function groups(tasks: readonly CheckTask[]): CheckTask[][] {
   return [...result.values()];
 }
 
+/**
+ * A task that is solver proofs from start to end: a package's model check
+ * or a part of one, or the whole-product proofs in the product app's
+ * contract suite.
+ */
+function solverTask(taskId: string): boolean {
+  return (
+    /#check:models(:\d+)?$/.test(taskId) ||
+    taskId === '@apps/product#test:contract'
+  );
+}
+
 function modelCount(tasks: readonly CheckTask[]): number {
-  return tasks.filter(
-    (task) => !task.hit && task.taskId.endsWith('#check:models')
-  ).length;
+  return tasks.filter((task) => !task.hit && solverTask(task.taskId)).length;
 }
 
 function lighter(a: CheckShard, b: CheckShard): boolean {
@@ -63,38 +73,88 @@ function lighter(a: CheckShard, b: CheckShard): boolean {
   );
 }
 
-/** Spread uncached solver groups, then LPT; ties use stable discovery order. */
+function cost(group: readonly CheckTask[]): number {
+  return group.reduce((sum, task) => sum + taskWeight(task), 0);
+}
+
+/**
+ * Check shards worth starting. Every shard pays a runner's checkout and
+ * install before its first task, so uncached work is packed into shards of
+ * about `targetSeconds` instead of spread over all `count`. Each uncached
+ * solver group owns a runner of its own, and so does any other group of a
+ * target or more: its seconds fill its own runner, never a share of the
+ * runners the smaller groups are packed into.
+ */
+export function shardWidth(
+  ordered: readonly (readonly CheckTask[])[],
+  count: number,
+  targetSeconds: number | undefined
+): number {
+  if (targetSeconds === undefined) return count;
+  if (!Number.isFinite(targetSeconds) || targetSeconds <= 0)
+    throw new Error('Shard target must be a positive number of seconds');
+  const solvers = ordered.filter((group) => modelCount(group) > 0).length;
+  const rest = ordered.filter((group) => modelCount(group) === 0);
+  const own = rest.filter((group) => cost(group) >= targetSeconds).length;
+  const packed = rest
+    .filter((group) => cost(group) < targetSeconds)
+    .reduce((sum, group) => sum + cost(group), 0);
+  return Math.min(
+    count,
+    Math.max(1, solvers + own + Math.ceil(packed / targetSeconds))
+  );
+}
+
+/**
+ * Spread uncached solver groups, then LPT; ties use stable discovery order.
+ * `targetSeconds` narrows the plan to the shards its uncached work needs
+ * ({@link shardWidth}), each solver group alone on its runner; the rest stay
+ * empty and never start.
+ */
 export function balanceShards(
   tasks: readonly CheckTask[],
-  count: number
+  count: number,
+  targetSeconds?: number
 ): CheckPlan {
   if (!Number.isSafeInteger(count) || count < 1 || count > 64)
     throw new Error('CHECK_SHARDS must be an integer in 1..64');
-  const bins = Array.from({ length: count }, (_, index) => ({
+  const every = Array.from({ length: count }, (_, index) => ({
     index,
     stage: 'checks' as const,
     seconds: 0,
     tasks: [] as CheckTask[],
   }));
-  const cost = (group: readonly CheckTask[]) =>
-    group.reduce((sum, task) => sum + taskWeight(task), 0);
   const canonical = [...tasks].sort((a, b) => compare(a.taskId, b.taskId));
   const stages = checkStages(canonical);
   const ordered = groups(
     [...stages.checks].sort((a, b) => compare(a.taskId, b.taskId))
   ).sort((a, b) => cost(b) - cost(a) || compare(a[0]!.taskId, b[0]!.taskId));
-  for (const group of ordered) {
+  const bins = every.slice(0, shardWidth(ordered, count, targetSeconds));
+  // A narrowed plan places solver groups first and keeps everything else off
+  // their runners: a proof that outruns its budget ends its shard, and the
+  // tasks queued behind it would end unrun with it.
+  const isolate = targetSeconds !== undefined;
+  const placement = isolate
+    ? [
+        ...ordered.filter((group) => modelCount(group) > 0),
+        ...ordered.filter((group) => modelCount(group) === 0),
+      ]
+    : ordered;
+  for (const group of placement) {
     const leastModels = Math.min(...bins.map((bin) => modelCount(bin.tasks)));
+    const free = bins.filter((bin) => modelCount(bin.tasks) === 0);
     const candidates = modelCount(group)
       ? bins.filter((bin) => modelCount(bin.tasks) === leastModels)
-      : bins;
+      : isolate && free.length > 0
+        ? free
+        : bins;
     const bin = candidates.reduce((best, candidate) =>
       lighter(candidate, best) ? candidate : best
     );
     bin.tasks.push(...group);
     bin.seconds += cost(group);
   }
-  const shards: CheckShard[] = [...bins];
+  const shards: CheckShard[] = [...every];
   for (const stage of ['prerequisites', 'consumers'] as const)
     shards.push({
       index: shards.length,
@@ -176,8 +236,17 @@ function unknown(task: CheckTask): boolean {
   return !task.hit && task.durationSource !== 'history';
 }
 
+/** A shard with nothing to execute never starts a runner. */
+export function executes(shard: CheckShard): boolean {
+  return shard.tasks.some((task) => !task.hit);
+}
+
 export function planWarnings(plan: CheckPlan): string[] {
-  const checks = plan.shards.filter((shard) => shard.stage === 'checks');
+  // Only shards that start are compared; a fully cached plan has none.
+  const checks = plan.shards.filter(
+    (shard) => shard.stage === 'checks' && executes(shard)
+  );
+  if (checks.length === 0) return [];
   const values = checks.map((shard) => shard.seconds);
   const average = values.reduce((sum, value) => sum + value, 0) / values.length;
   const max = Math.max(...values);

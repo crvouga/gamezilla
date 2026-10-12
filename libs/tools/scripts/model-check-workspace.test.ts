@@ -3,6 +3,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -60,6 +61,55 @@ test('a failed checker still publishes its diagnostics and releases scratch', as
       )
     ).toBe('failed');
     expect(existsSync(workspace)).toBe(false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// regression: chess-model-check-outlasts-one-runner
+test("a part replaces its own models' evidence and leaves the other parts'", async () => {
+  const root = mkdtempSync(join(tmpdir(), 'model-part-workspace-'));
+  const report = join(root, '.cache/harness-report/models');
+  const write = (dir: string, path: string, text: string) => {
+    mkdirSync(join(dir, path, '..'), { recursive: true });
+    writeFileSync(join(dir, path), text);
+  };
+  try {
+    await withModelWorkspace(
+      root,
+      async (workspace) => {
+        write(workspace, 'evidence/chess-door-qnt.aaaa.json', 'door, first');
+        write(workspace, 'tlc/specs-chess-door-qnt/tlc-output.txt', 'door');
+      },
+      ['specs/chess/door.qnt']
+    );
+    await withModelWorkspace(
+      root,
+      async (workspace) => {
+        write(workspace, 'evidence/chess-door-lock-qnt.cccc.json', 'lock');
+      },
+      ['specs/chess/door-lock.qnt']
+    );
+    // A model whose obligations changed is recorded under another name.
+    await withModelWorkspace(
+      root,
+      async (workspace) => {
+        write(workspace, 'evidence/chess-door-qnt.bbbb.json', 'door, second');
+      },
+      ['specs/chess/door.qnt']
+    );
+    expect(readdirSync(join(report, 'evidence')).sort()).toEqual([
+      'chess-door-lock-qnt.cccc.json',
+      'chess-door-qnt.bbbb.json',
+    ]);
+    expect(existsSync(join(report, 'tlc/specs-chess-door-qnt'))).toBe(false);
+    // The unsplit check still replaces the whole report.
+    await withModelWorkspace(root, async (workspace) => {
+      write(workspace, 'evidence/chess-key-qnt.dddd.json', 'key');
+    });
+    expect(readdirSync(join(report, 'evidence'))).toEqual([
+      'chess-key-qnt.dddd.json',
+    ]);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

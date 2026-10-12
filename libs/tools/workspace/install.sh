@@ -54,22 +54,42 @@ workspace_install() {
   return 1
 }
 
+# Whether an initialized submodule sits on an earlier commit than the one this
+# checkout records, with nothing of its own: no edits, and no commit the
+# recorded one lacks. Local work on another commit answers no.
+workspace_submodule_is_behind() {
+  local path="$1" recorded current
+  recorded="$(git rev-parse -q --verify "HEAD:$path" 2>/dev/null || true)"
+  current="$(git -C "$path" rev-parse -q --verify HEAD 2>/dev/null || true)"
+  if [ -z "$recorded" ] || [ -z "$current" ] || [ "$recorded" = "$current" ]; then
+    return 1
+  fi
+  if [ -n "$(git -C "$path" status --porcelain 2>/dev/null || true)" ]; then
+    return 1
+  fi
+  git -C "$path" cat-file -e "$recorded^{commit}" 2>/dev/null ||
+    git -C "$path" fetch --quiet origin 2>/dev/null || true
+  git -C "$path" merge-base --is-ancestor "$current" "$recorded" 2>/dev/null
+}
+
 # Bun resolves every declared workspace before it installs any package, so a
-# submodule that was never checked out fails the whole install. Initialized
-# submodules are left alone: they may hold local work on another commit.
-workspace_init_missing_submodules() {
+# submodule that was never checked out fails the whole install. An initialized
+# one that only fell behind the recorded commit is brought forward: pulling the
+# branch does not move it, so the tools inside it would stay an earlier
+# version. One holding local work on another commit is left alone.
+workspace_sync_submodules() {
   local path
   if [ ! -f .gitmodules ]; then
     return 0
   fi
   git config -f .gitmodules --get-regexp '\.path$' 2>/dev/null | cut -d' ' -f2- |
     while IFS= read -r path; do
-      if [ -e "$path/.git" ]; then
+      if [ -e "$path/.git" ] && ! workspace_submodule_is_behind "$path"; then
         continue
       fi
       echo "==> git submodule update --init --recursive -- $path"
       git submodule update --init --recursive -- "$path" ||
-        echo "!!! submodule initialization failed; continuing with the available checkout"
+        echo "!!! submodule update failed; continuing with the available checkout"
     done || true
 }
 

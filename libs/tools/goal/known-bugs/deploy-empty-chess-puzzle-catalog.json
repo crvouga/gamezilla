@@ -1,4 +1,4 @@
 {
   "summary": "Production schema reconciliation created chess_puzzles but never loaded its required reference catalog. A rebuilt environment therefore reached 'No puzzles left'. An authorized environment manager can now load the environment's puzzle catalog from object storage, with PostgreSQL performing normalization, rejection, and deduplication.",
-  "regressionTest": "libs/chess-server/tests/puzzle-load-job.test.ts"
+  "regressionTest": "libs/chess-root-server/tests/puzzle-load-job.test.ts"
 }

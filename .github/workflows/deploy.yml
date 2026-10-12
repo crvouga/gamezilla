@@ -3,11 +3,12 @@ name: Deploy
 # Run title, identical shape in every workflow (enforced by
 # libs/tools/scripts/workflow-run-names.test.ts):
 #   <Workflow> · <trigger>
-run-name: "Deploy · ${{ github.event_name == 'workflow_dispatch' && 'manual' }}"
+run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 
-# Deploy is the release: the only path to production, run by hand.
-# `bun deploy` (or "Run workflow" on `main`) dispatches it; merging to `main`
-# never does, so `main` may hold unverified work between releases. Each
+# Deploy is the release: the only path to production. Every merge to `main`
+# runs it — a pull request merges only when its `check:end` is green, so `main` is
+# always releasable and every merge ships. `bun deploy` (or "Run workflow" on
+# `main`) dispatches the same release by hand. Each
 # environment job runs `bun run deploy:local`. One commit — `github.sha` — is
 # verified and shipped, to every environment in
 # libs/infra-shared/tofu/envs/<env>.tfvars.json — adding an env file needs no edit
@@ -45,8 +46,8 @@ run-name: "Deploy · ${{ github.event_name == 'workflow_dispatch' && 'manual' }}
 # The optional rehearsal verifies a branch and plans dev foundation without applying.
 # Release jobs never run on a pull request or any ref other than `main`: each environment is a shared singleton,
 # so concurrent PRs would clobber each other's infrastructure, migrations and
-# secrets. Pull requests run no GitHub Actions; Check is called only below as
-# the release gate.
+# secrets. Pull requests get the same Check (.github/workflows/check.yml) as
+# their required status instead.
 
 permissions:
   contents: read
@@ -57,6 +58,8 @@ permissions:
   pull-requests: read
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       rehearsal:
@@ -85,17 +88,24 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
-      SECRETS_ENV: dev
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
+      # The first standard env file is the one rehearsed; no env is named here.
+      - name: envs
+        id: envs
+        run: bun run libs/infra-shared/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
+      - name: Select the rehearsed environment
+        env:
+          REHEARSED: ${{ fromJSON(steps.envs.outputs.standard)[0] }}
+        run: echo "SECRETS_ENV=$REHEARSED" >> "$GITHUB_ENV"
       - uses: ./.github/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
+          environment: ${{ fromJSON(steps.envs.outputs.standard)[0] }}
       - name: Plan foundation without changing infrastructure
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:foundation
 

@@ -27,7 +27,7 @@ Release verification, deploy, and health have their own deadlines. They are not 
 
 ## What a pull-request check runs
 
-The affected `//#check` tasks. A cache hit is not scheduled.
+The affected Check gate tasks. A cache hit is not scheduled.
 
 A source change reruns that package and every transitive workspace dependent, because those tasks depend on `^src`. A test-only change stays on the package that holds the test: `src` inputs exclude `*.test.ts`. `mise.toml` and `tsconfig.base.json` are global dependencies, and `bun.lock` is the audit input, so each of those misses the whole corpus. That full miss is still the five-minute promise.
 
@@ -100,11 +100,11 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 316 |
-| Check scripts | 1106 |
+| Check scripts | 1119 |
 | Measured scripts | 191 |
-| Estimated scripts | 915 |
+| Estimated scripts | 928 |
 | Stale cost keys | 536 |
-| Cold CPU | 5176 s |
+| Cold CPU | 5384 s |
 | Spec parts | 3632 s across 215 tasks |
 | Longest task | @apps/product#test:contract 86 s |
 
@@ -113,11 +113,11 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | Family | Tasks | CPU |
 | --- | --- | --- |
 | test:spec | 215 | 3632 s |
+| check:models | 25 | 400 s |
 | lint | 315 | 340 s |
 | tc | 315 | 329 s |
 | test | 218 | 265 s |
 | check:board-contract | 4 | 240 s |
-| check:models | 12 | 192 s |
 | test:contract | 10 | 95 s |
 | ci:statecharts | 1 | 60 s |
 
@@ -128,7 +128,7 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Leaf CPU, median | 3 s |
-| Leaf CPU, 90th percentile | 20 s |
+| Leaf CPU, 90th percentile | 35 s |
 | Longest leaf task, 90th percentile | 17 s |
 | Longest leaf task | 86 s |
 
@@ -137,8 +137,8 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | @pkgs/chess-board-root-harness | 156 s | @pkgs/chess-board-root-harness#test:spec:0 17 s |
 | @apps/product | 149 s | @apps/product#test:contract 86 s |
 | @pkgs/matchmaking-root-harness | 138 s | @pkgs/matchmaking-root-harness#test:spec:1 17 s |
+| @libs/tools | 88 s | @libs/tools#ci:statecharts 60 s |
 | @pkgs/auth-root-harness | 45 s | @pkgs/auth-root-harness#check:models 21 s |
-| @libs/synthetic-population-harness | 35 s | @libs/synthetic-population-harness#test:spec:0 17 s |
 
 ### Widest dependency cones
 
@@ -146,9 +146,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 222 | 4856 s | @apps/product#test:contract 86 s |
-| @pkgs/clock-shared | 220 | 4847 s | @apps/product#test:contract 86 s |
-| @pkgs/assert-root-shared | 215 | 4829 s | @apps/product#test:contract 86 s |
+| @pkgs/property-shared | 222 | 5139 s | @apps/product#test:contract 86 s |
+| @pkgs/clock-shared | 220 | 5130 s | @apps/product#test:contract 86 s |
+| @pkgs/assert-root-shared | 215 | 5112 s | @apps/product#test:contract 86 s |
 
 ### Runner
 
@@ -157,8 +157,8 @@ Work budget 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers stay at or 
 | | |
 | --- | --- |
 | Spec slots | 16 |
-| Other slots | 7 |
-| Cores required | 25 |
+| Other slots | 8 |
+| Cores required | 26 |
 | Memory required | 40 GiB |
 | Estimated makespan | 227 s |
 | Provision | 2 × 32 vCPU, 64 GB, Linux x64 |

@@ -2,9 +2,9 @@
 /**
  * The facts the closed-world check decides over, read from the repository:
  * the manifest, every spec file with where it runs and whether it is bound
- * (`spec-packages.ts`, the same discovery as `//#ci:specs`), every decision
+ * (`spec-packages.ts`, the same discovery as `@libs/tools#ci:specs`), every decision
  * table's capability values (`@pkgs/dmn`), every objective's service
- * (`@pkgs/openslo`) and the tasks `//#check` reaches. What cannot be read
+ * (`@pkgs/openslo`) and the package tasks in `MAIN_CHECK_TASKS`. What cannot be read
  * (a manifest, decision table or objective file that does not parse) is a
  * problem, never skipped.
  */
@@ -25,14 +25,13 @@ import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
 import { parseOpenSlo } from '@pkgs/openslo-shared/parse';
 import type { SpecPackage } from '../scripts/spec-packages';
 import { REPO_ROOT, SPECS_DIR, specPackages } from '../scripts/spec-packages';
+import { MAIN_CHECK_TASKS } from '../scripts/turbo-ci-run';
 import { campaignBindings } from './campaigns';
 import { EVIDENCE_MAP } from './evidence-map';
 import type { PackageScripts, TurboTasks } from './gating-tasks';
-import { reachableTasks } from './gating-tasks';
+import { reachableCheckTasks } from './gating-tasks';
 
 export const MANIFEST_PATH = `${SPECS_DIR}/conformance.yaml`;
-/** The release gate every gating proof must be reachable from. */
-export const GATE_ROOT = '//#check';
 /** The task that runs a package's live domains against a deployment. */
 const LIVE_TASK = 'health';
 /** A decision table's capability input: its id, or its name. */
@@ -148,7 +147,7 @@ export function specFiles(
 ): readonly SpecFile[] {
   const liveTask = Object.hasOwn(tasks, LIVE_TASK);
   const campaigns = campaignBindings(
-    reachableTasks(tasks, packageScripts(), GATE_ROOT)
+    reachableCheckTasks(tasks, packageScripts(), MAIN_CHECK_TASKS)
   );
   return [
     ...campaigns.specs,
@@ -275,7 +274,11 @@ export function readConformanceWorld(): ConformanceWorld {
     );
   const packages = specPackages();
   const tasks = turboTasks();
-  const gatingTasks = reachableTasks(tasks, packageScripts(), GATE_ROOT);
+  const gatingTasks = reachableCheckTasks(
+    tasks,
+    packageScripts(),
+    MAIN_CHECK_TASKS
+  );
   const campaigns = campaignBindings(gatingTasks);
   problems.push(...campaigns.problems);
   const specs = specFiles(packages, tasks);

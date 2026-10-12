@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { testConcurrency } from '@pkgs/os-server/test-concurrency';
 import { specPackages } from './spec-packages';
+import { MAIN_CHECK_TASKS } from './turbo-ci-run';
 
 const ROOT = join(import.meta.dir, '../../..');
 const readJson = <T>(file: string): T =>
@@ -103,10 +104,10 @@ test('release Check and Deploy never run the visual gate or prepare its model', 
   const turbo = readJson<{ tasks: Record<string, { dependsOn?: string[] }> }>(
     'turbo.json'
   );
-  for (const task of ['//#check', '@apps/product#deploy'])
-    expect(turbo.tasks[task]!.dependsOn).not.toContain(
-      '@apps/product#check:ui-quality'
-    );
+  expect(MAIN_CHECK_TASKS).not.toContain('@apps/product#check:ui-quality');
+  expect(turbo.tasks['@apps/product#deploy']!.dependsOn).not.toContain(
+    '@apps/product#check:ui-quality'
+  );
   for (const name of ['check', 'deploy'])
     expect(
       readFileSync(join(ROOT, '.github/workflows', `${name}.yml`), 'utf8')

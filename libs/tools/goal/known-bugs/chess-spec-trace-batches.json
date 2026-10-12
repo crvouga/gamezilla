@@ -1,4 +1,4 @@
 {
-  "summary": "Thirty-two chess spec parts packed five four-trace model slices into one task, which reached the 600-second cap. Sixty-four parts keep two traces in each model file and at most twelve traces in a part, and every trace of every chess model still runs once.",
+  "summary": "Thirty-two chess spec parts packed five four-trace model slices into one task, which reached the 600-second cap. Sixty-four parts keep two traces in each model file and an even share of them in a part (fourteen traces for fourteen models), and every trace of every chess model still runs once.",
   "regressionTest": "libs/harness/scripts/spec-parts.test.ts"
 }

@@ -21,6 +21,16 @@ variable "settings" {
   })
 }
 
+variable "required_checks" {
+  type        = list(string)
+  description = "Aggregate gate jobs reported on PRs, not post-merge Deploy or Health."
+}
+
+variable "check_integration_id" {
+  type        = number
+  description = "GitHub App ID observed on the required check runs; prevents another actor spoofing the gate."
+}
+
 variable "variables" {
   type = map(string)
 }
@@ -106,6 +116,19 @@ resource "github_repository_ruleset" "main" {
       required_review_thread_resolution = true
     }
 
+    required_status_checks {
+      # Current main + the green aggregate gate is the simplest guarantee
+      # supported by this private Team repository (no merge queue).
+      strict_required_status_checks_policy = true
+      do_not_enforce_on_create             = false
+      dynamic "required_check" {
+        for_each = toset(var.required_checks)
+        content {
+          context        = required_check.value
+          integration_id = var.check_integration_id
+        }
+      }
+    }
   }
 
   lifecycle {

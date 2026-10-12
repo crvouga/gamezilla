@@ -1,17 +1,23 @@
 import { describe, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
 import {
   DEFAULT_VERIFY_STEPS,
   DEFAULT_VERIFY_TIMEOUT_MS,
 } from '@pkgs/quint-shared/registry';
-
+import fc from 'fast-check';
+import { taskBudgetSeconds } from './check-budget';
 import {
   modelChecks,
   modelChecksFromBindings,
   modelEncodingOf,
+  modelPartChecks,
+  modelPartOf,
   verifyStepsOf,
   verifyTimeoutOf,
 } from './check-models';
-import { specPackages } from './spec-packages';
+import { REPO_ROOT, specPackages } from './spec-packages';
 
 describe('verifyStepsOf', () => {
   test('reads the bound a binding declares', () => {
@@ -183,5 +189,72 @@ test('custom-game default encoding retains the full induction and original deadl
     inductionCaseGroupSize: 8,
     inferPolymorphicTypes: false,
     timeoutMs: 240_000,
+  });
+});
+
+describe('model parts', () => {
+  test('--part names one share, and anything else is refused', () => {
+    expect(modelPartOf([])).toBeNull();
+    expect(modelPartOf(['--part', '3/14'])).toEqual({ index: 3, count: 14 });
+    for (const value of ['14/14', '1', 'a/b', '-1/2', '0/0'])
+      expect(() => modelPartOf(['--part', value])).toThrow('--part wants k/n');
+    expect(() => modelPartOf(['--part'])).toThrow('--part wants k/n');
+  });
+
+  test('the parts of a package hold every model exactly once', () => {
+    assertProperty(
+      'model-check-parts',
+      fc.property(
+        fc.integer({ min: 1, max: 40 }),
+        fc.integer({ min: 1, max: 16 }),
+        (models, count) => {
+          const checks = modelChecksFromBindings(
+            Array.from(
+              { length: models },
+              (_, index) => `specs/a/model-${String(index)}.qnt`
+            ),
+            new Map()
+          );
+          const parts = Array.from({ length: count }, (_, index) =>
+            modelPartChecks(checks, { index, count })
+          );
+          expect(
+            parts
+              .flat()
+              .map((check) => check.specUri)
+              .sort()
+          ).toEqual(checks.map((check) => check.specUri).sort());
+          expect(modelPartChecks(checks, null)).toEqual(checks);
+        }
+      )
+    );
+  });
+
+  // regression: chess-model-check-outlasts-one-runner
+  test('the chess models check one to a part, the slowest proof under its own budget', () => {
+    const chess = specPackages().find(
+      (candidate) => candidate.name === '@libs/chess-root-harness'
+    )!;
+    const checks = modelChecks(chess);
+    const manifest = JSON.parse(
+      readFileSync(join(REPO_ROOT, chess.dir, 'package.json'), 'utf8')
+    ) as { modelParts: number; scripts: Record<string, string> };
+    expect(manifest.scripts['check:models']).toBeUndefined();
+    // Fourteen models took 788 s of proof time on a laptop; one runner
+    // checks them one at a time, about twice as slowly, against 600 s.
+    expect(manifest.modelParts).toBe(checks.length);
+    const parts = Array.from({ length: manifest.modelParts }, (_, index) =>
+      modelPartChecks(checks, { index, count: manifest.modelParts })
+    );
+    expect(parts.every((part) => part.length === 1)).toBe(true);
+    const slowest = parts.findIndex(
+      (part) => part[0]?.specUri === 'specs/chess/multiplayer.qnt'
+    );
+    expect(
+      taskBudgetSeconds(
+        `@libs/chess-root-harness#check:models:${String(slowest)}`,
+        false
+      )
+    ).toBe(420);
   });
 });

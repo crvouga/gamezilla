@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-// @io-wall-ok — CI gate entry (`bun run spec:check`, `//#ci:specs`).
+// @io-wall-ok — CI gate entry (`bun run spec:check`, `@libs/tools#ci:specs`).
 /**
  * The spec gate: `specs/` holds only spec kinds that run (`spec-kinds.ts`),
  * every `specs/<domain>/*.qnt` Quint model, `*.dmn` decision table, `*.als`

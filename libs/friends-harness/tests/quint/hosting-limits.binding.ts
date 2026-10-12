@@ -6,6 +6,7 @@ import {
 import { billingTier } from '@libs/billing-harness/billing-reads';
 import { letTimePass, partition, restoreNetwork } from '@libs/harness/actions';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
+import { signedInAccountOf } from '@libs/harness/identity';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { backToTabs } from '@libs/harness/shell-actions';
 import {
@@ -27,23 +28,53 @@ import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
 const ACTOR = 'alice';
 const LINKS = 'hosting-limit-links';
+const OFFLINE = 'hosting-limit-offline';
 const DAY_MS = 24 * 60 * 60 * 1_000;
 
 function links(w: QuintHarnessWorld): readonly string[] {
   return (w.memo.get(LINKS) as readonly string[] | undefined) ?? [];
 }
 
+type Place = {
+  readonly screen: string;
+  readonly link: string | null;
+};
+
+async function placeOf(w: QuintHarnessWorld): Promise<Place> {
+  return {
+    screen: await w.s.read(spaceScreenOf, ACTOR),
+    link: await w.s.read(readSpaceLink, ACTOR),
+  };
+}
+
+async function returnTo(w: QuintHarnessWorld, place: Place): Promise<void> {
+  await w.s.apply(backToTabs, ACTOR);
+  if (place.screen === 'lobby') await w.s.apply(openSpacesTab, ACTOR);
+  else if (place.link !== null)
+    await w.s.apply(openSpaceLink, ACTOR, place.link);
+  else throw new Error(`No space to return to from ${place.screen}`);
+}
+
+/**
+ * Hosting outlasts a sign-in. Each ending of paid access spends its access
+ * grace, so a long trace crosses the sign-in lifetime; a connected Alice
+ * whose sign-in has ended signs in again.
+ */
+async function staySignedIn(w: QuintHarnessWorld): Promise<void> {
+  if (w.memo.get(OFFLINE) === true) return;
+  if ((await w.s.read(signedInAccountOf, ACTOR)) !== null) return;
+  await w.s.apply(signInWithGoogle, ACTOR);
+}
+
 async function changeAccess(
   w: QuintHarnessWorld,
   operation: () => Promise<void>
 ): Promise<void> {
-  const screen = await w.s.read(spaceScreenOf, ACTOR);
-  const link = await w.s.read(readSpaceLink, ACTOR);
+  const place = await placeOf(w);
+  await staySignedIn(w);
   await operation();
-  await w.s.apply(backToTabs, ACTOR);
-  if (screen === 'lobby') await w.s.apply(openSpacesTab, ACTOR);
-  else if (link !== null) await w.s.apply(openSpaceLink, ACTOR, link);
-  else throw new Error(`No space to return to from ${screen}`);
+  await staySignedIn(w);
+  await returnTo(w, place);
 }
 
 bindQuintModel<QuintHarnessWorld>({
@@ -102,10 +133,16 @@ bindQuintModel<QuintHarnessWorld>({
     loseConnection: async (w) => {
       await w.s.apply(partition, ACTOR);
       await w.s.advanceTime(2_000);
+      w.memo.set(OFFLINE, true);
     },
     connectionReturns: async (w) => {
+      const place = await placeOf(w);
       await w.s.apply(restoreNetwork);
       await w.s.advanceTime(2_000);
+      w.memo.set(OFFLINE, false);
+      if ((await w.s.read(signedInAccountOf, ACTOR)) !== null) return;
+      await staySignedIn(w);
+      await returnTo(w, place);
     },
   },
   observe: async (w) => {

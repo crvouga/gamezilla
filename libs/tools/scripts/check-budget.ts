@@ -37,6 +37,10 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   // One induction proof (`matching.qnt`, declared `verifyTimeoutMs` 480 s)
   // measured 330 s alone and 358 s as a task on a 12-core laptop.
   '@pkgs/matchmaking-root-harness#check:models': 480,
+  // `multiplayer.qnt`, alone in its part: twenty actions over three people's
+  // six devices, explored two steps from every reachable start. 309 s on a
+  // 12-core laptop.
+  '@libs/chess-root-harness#check:models:7': 420,
   // Thirteen Apalache proofs held to two at a time (2-core CI runners time
   // out above that): 303 s alone, 362 s as a task on a 12-core laptop.
   '@apps/product#test:contract': 420,

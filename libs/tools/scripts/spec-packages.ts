@@ -51,9 +51,15 @@ const SPEC_RUNNER = 'bun run ../../libs/harness/scripts/test-spec.ts';
 export const MODELS_RUNNER = 'bun run ../../libs/tools/scripts/check-models.ts';
 /**
  * Most parts one suite may split into: root `turbo.json` defines
- * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and `//#check` runs them.
+ * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and the sharded Check runs them.
  */
 export const MAX_SPEC_PARTS = 64;
+/**
+ * The most parts a package's models check splits into (`check:models:<k>`).
+ * `turbo.json` declares that many; one part is one runner in the sharded
+ * Check, and a model's proof is the least a part can hold.
+ */
+export const MAX_MODEL_PARTS = 16;
 
 export type SpecPackage = PackageSpecs & {
   /** Repo-relative package directory. */
@@ -87,13 +93,15 @@ type Manifest = {
   readonly liveDomains?: readonly string[];
   /** How many `test:spec:<k>` parts `bun check` splits the suite into. */
   readonly specParts?: number;
+  /** How many `check:models:<k>` parts the models check splits into. */
+  readonly modelParts?: number;
   readonly scripts?: Readonly<Record<string, string>>;
 };
 
 /**
  * What is wrong with how a package splits its spec suite for `bun check`:
  * `test:spec:<k>` for every k below `specParts`, each exactly the runner with
- * `--part k/n`, and no other part — `//#check` runs the parts, never
+ * `--part k/n`, and no other part — the sharded Check runs the parts, never
  * `test:spec`, so a suite without them would not gate at all.
  */
 export function specPartProblems(
@@ -544,7 +552,11 @@ export function specsLayoutProblems(
       ...modelTaskProblems(
         pkg,
         readManifest(pkg.dir).scripts ?? {},
-        turboTasks(pkg.dir)['check:models']?.inputs
+        turboTasks(pkg.dir)['check:models']?.inputs,
+        {
+          count: readManifest(pkg.dir).modelParts,
+          inputsOf: (task) => turboTasks(pkg.dir)[task]?.inputs,
+        }
       )
     );
   }
@@ -615,36 +627,87 @@ function specPartInputProblems(pkg: SpecPackage): readonly string[] {
  * exactly {@link MODELS_RUNNER} when the package has models and absent when it
  * has none, and the task hashes the `.qnt` files of every domain holding one,
  * so editing a model re-checks that package's models and nothing else does.
+ *
+ * A package whose proofs outlast one runner declares `modelParts` instead:
+ * `check:models:<k>` for every k below it, each the runner with `--part k/n`,
+ * and no unsplit `check:models`.
  */
 export function modelTaskProblems(
   pkg: Pick<SpecPackage, 'dir' | 'name' | 'models'>,
   scripts: Readonly<Record<string, string>>,
-  inputs: readonly string[] | undefined
+  inputs: readonly string[] | undefined,
+  parts?: {
+    readonly count: number | undefined;
+    readonly inputsOf: (task: string) => readonly string[] | undefined;
+  }
 ): readonly string[] {
   const script = scripts['check:models'];
+  const partNames = Object.keys(scripts).filter((name) =>
+    /^check:models:\d+$/.test(name)
+  );
   if (pkg.models.length === 0) {
-    return script === undefined
-      ? []
-      : [
-          `${pkg.dir}/package.json: "check:models" checks no Quint models — delete it`,
-        ];
-  }
-  if (script !== MODELS_RUNNER) {
-    return [
-      `${pkg.dir}/package.json: "check:models" must be "${MODELS_RUNNER}" — it has Quint models to check`,
-    ];
+    return [script === undefined ? [] : ['check:models'], partNames]
+      .flat()
+      .map(
+        (name) =>
+          `${pkg.dir}/package.json: "${name}" checks no Quint models — delete it`
+      );
   }
   const domains = [
     ...new Set(pkg.models.map((uri) => uri.split('/')[1] ?? '')),
   ].sort();
-  return domains.flatMap((domain) => {
-    const input = `$TURBO_ROOT$/${SPECS_DIR}/${domain}/*.qnt`;
-    return (inputs ?? []).includes(input)
-      ? []
-      : [
-          `${pkg.dir}/turbo.json: check:models inputs must include "${input}" so a model change re-checks ${pkg.name}`,
-        ];
-  });
+  const unhashed = (task: string, taskInputs: readonly string[] | undefined) =>
+    domains.flatMap((domain) => {
+      const input = `$TURBO_ROOT$/${SPECS_DIR}/${domain}/*.qnt`;
+      return (taskInputs ?? []).includes(input)
+        ? []
+        : [
+            `${pkg.dir}/turbo.json: ${task} inputs must include "${input}" so a model change re-checks ${pkg.name}`,
+          ];
+    });
+  const count = parts?.count;
+  if (count === undefined) {
+    if (script !== MODELS_RUNNER) {
+      return [
+        `${pkg.dir}/package.json: "check:models" must be "${MODELS_RUNNER}" — it has Quint models to check`,
+      ];
+    }
+    return [
+      ...partNames.map(
+        (name) =>
+          `${pkg.dir}/package.json: "${name}" is a part of no split — declare modelParts or delete it`
+      ),
+      ...unhashed('check:models', inputs),
+    ];
+  }
+  const most = Math.min(MAX_MODEL_PARTS, pkg.models.length);
+  if (!Number.isInteger(count) || count < 2 || count > most) {
+    return [
+      `${pkg.dir}/package.json: modelParts must be an integer from 2 to ${String(most)} — a part holds at least one of the package's ${String(pkg.models.length)} models`,
+    ];
+  }
+  const out: string[] = [];
+  if (script !== undefined) {
+    out.push(
+      `${pkg.dir}/package.json: "check:models" would check every model again — the ${String(count)} parts replace it; delete it`
+    );
+  }
+  for (const name of partNames) {
+    if (Number(name.slice('check:models:'.length)) >= count) {
+      out.push(
+        `${pkg.dir}/package.json: "${name}" is past modelParts (${String(count)}) — delete it`
+      );
+    }
+  }
+  for (let index = 0; index < count; index++) {
+    const name = `check:models:${String(index)}`;
+    const want = `${MODELS_RUNNER} --part ${String(index)}/${String(count)}`;
+    if (scripts[name] !== want) {
+      out.push(`${pkg.dir}/package.json: "${name}" must be "${want}"`);
+    }
+    out.push(...unhashed(name, parts?.inputsOf(name)));
+  }
+  return out;
 }
 
 /** Definitions of the files a package imports, grouped by owner package name. */

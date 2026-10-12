@@ -1,5 +1,5 @@
 /**
- * Known-bug gate (`//#ci:goals`).
+ * Known-bug gate (`@libs/tools#ci:goals`).
  *
  * Every bug that was found stays guarded by an example regression test: the
  * concrete input that broke, pinned forever. Properties and models explore;
@@ -26,9 +26,9 @@ export type KnownBug = {
 };
 
 /**
- * Which proof files a run reads. The root gate owns paths outside the package
- * tiers; each package's `lint` owns its own, so a proof file's edit reruns only
- * its package, and the bookkeeping reruns only when the manifest changes.
+ * Which proof files one pass reads. The gate makes one pass for the paths
+ * outside the package tiers and one per package, so a proof and the history
+ * it pins are held to the package that owns them.
  */
 export type ProofFiles = {
   readonly owns: (path: string) => boolean;
@@ -115,10 +115,10 @@ export function validateGoalGate(input: {
 }
 
 /**
- * Missing or unmarked regression files among those `files` owns — the half of
- * the gate a package's `lint` runs for the bugs whose tests live in it.
+ * Missing or unmarked regression files among those `files` owns — the gate's
+ * pass over one package, for the bugs whose tests live in it.
  */
-export function validateProofFiles(input: {
+function validateProofFiles(input: {
   readonly knownBugs: readonly KnownBug[];
   readonly files: ProofFiles;
 }): readonly string[] {
@@ -127,4 +127,35 @@ export function validateProofFiles(input: {
     validateRegressionTest(bug, input.files, errors);
   }
   return errors;
+}
+
+const PACKAGE = /^(?:apps|libs|pkgs)\/[^/]+(?=\/)/;
+
+/**
+ * The whole register: the bookkeeping and the proofs outside the package
+ * tiers, then every package a proof names — whether or not that package
+ * still exists, so a proof left behind by a rename is reported as missing.
+ */
+export function validateRegister(input: {
+  readonly knownBugs: readonly KnownBug[];
+  readonly read: ProofFiles['read'];
+}): readonly string[] {
+  const { knownBugs, read } = input;
+  const packages = [
+    ...new Set(
+      knownBugs.flatMap((bug) => PACKAGE.exec(bug.regressionTest)?.[0] ?? [])
+    ),
+  ].sort();
+  return [
+    ...validateGoalGate({
+      knownBugs,
+      proofFiles: { owns: (path) => !PACKAGE.test(path), read },
+    }),
+    ...packages.flatMap((pkg) =>
+      validateProofFiles({
+        knownBugs,
+        files: { owns: (path) => path.startsWith(`${pkg}/`), read },
+      })
+    ),
+  ];
 }

@@ -7,7 +7,7 @@ than restating it.
 
 ## Hard Rules
 
-- **We never test manually. Ever.** A green full verification (`bun verify`, which every `bun deploy` runs first) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared` only; `fc.commands` models; `@pkgs/harness-root-shared` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
+- **We never test manually. Ever.** A green full verification (the `check:end` on every pull request, which Deploy runs again on the commit it ships) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared` only; `fc.commands` models; `@pkgs/harness-root-shared` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
 
 - **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; [`README.md`](README.md) is the implementation briefing and never a second product definition. Step catalogs (`<package>/STEPS_CATALOG.md`, index `docs/STEPS_CATALOG.md`) are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
 
@@ -27,7 +27,9 @@ than restating it.
 
 - **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the compiled Lingui catalog `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed.
 
-- **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR. `main` moves only through a merged PR ([`README.md`](README.md#correctness-machinery)).
+- **`vendor/atlas` is Atlas's own repository, not a copy.** Change it by its rules ([`vendor/atlas/AGENTS.md`](vendor/atlas/AGENTS.md)): work on Atlas `main`, resolve conflicts hunk by hunk, push there first, then record that commit here. A pointer to a commit off Atlas `main` is refused on push (`libs/tools/githooks/pre-push`). Run and `bun atlas:viz` bring a checkout that only fell behind the recorded commit forward; one holding local work is left alone.
+
+- **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges, and the merge deploys — never `--admin`, never a red, pending or draft PR. `main` moves only through a merged PR ([`README.md`](README.md#correctness-machinery)).
 
 - **Never patch dependencies.** No `bun patch`, `patch-package`, `pnpm patch`, `patches/` directory, or `patchedDependencies` / `resolutions` field. Work around a third-party bug in our code or accept it.
 
@@ -129,14 +131,26 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 
 ## Checks and CI
 
-Pull requests run no automated checks. `bun check`, `bun verify`, and
-`bun check:local` run every gate (`//#check`) locally. `bun health` and `bun deploy`
-dispatch the Health and Deploy workflows and block on the verdict
-([`README.md`](README.md#correctness-machinery)); Deploy independently runs
-full verification of `main` before every environment. Merging never deploys.
-`bun health:local` and `bun deploy:local` run that work on this machine. Every
-check is a cached, per-package task that reads only its own package; a new
-check goes into the package it is about. A gate leaf verifies and never
+Every pull request runs one sharded Check workflow of three jobs (`check:start`,
+`check:shards (N)`, `check:end`); `check:end` is the one required status, so a
+green pull request is releasable. The gate is bounded
+and never explores: each Quint model replays only the fewest drawn traces that
+take every bound action. Exploration (`QUINT_REPLAY_TRACES=all`, every drawn
+trace) is asked for by name on a developer machine and no workflow runs it; a
+trace it fails is pinned in the model binding's `regressions`. The task list in
+`libs/tools/scripts/turbo-ci-run.ts` runs every gate through Turbo. There are
+no root `//#check`, `//#ci:*`, or root lint checks: every Check workflow gate
+is a package-owned Turbo task with explicit inputs and caching. Bespoke gates such
+as the Synthetic Population Worker container rehearsal live in their owning
+package and join the same sharded task list. These rules have no exceptions.
+Merging to `main` is the release: Deploy runs on every push to `main`, verifies
+that exact commit again, then ships every environment. `bun check`,
+`bun verify`, and `bun check:local` run the same gate locally. `bun health` and
+`bun deploy` dispatch the Health and Deploy workflows and block on the verdict
+([`README.md`](README.md#correctness-machinery)). `bun health:local` and
+`bun deploy:local` run that work on this machine. Every
+check is a cached, per-package task; a new check goes into the package it is
+about. A gate leaf verifies and never
 touches the outside world, and its verdict never depends on the machine
 (never branch on `CI`). Make a slow task faster before raising its budget.
 Exactly three workflows: Check, Deploy, Health. Rehearse anything touching
@@ -154,7 +168,7 @@ tasks (`//#workspace:*`, `step.sh`) that print only when they fail. The hooks
 derive paths from git, never from a tool's env vars. `bun run workspace:sync` projects them into
 every orchestrator's config (`.superset/config.json`,
 `.super.engineering/config.json`); never edit those, and
-`//#ci:workspace-lifecycle` fails on drift. A new orchestrator is one entry in
+`@libs/tools#ci:workspace-lifecycle` fails on drift. A new orchestrator is one entry in
 `ORCHESTRATORS` in `libs/tools/scripts/sync-workspace-lifecycle.ts`.
 Per-machine extras go in the gitignored `.superset/config.local.json` or
 super.engineering's app project settings.
@@ -173,7 +187,7 @@ super.engineering's app project settings.
   projects it into every harness (`.claude/commands`, `.cursor/commands`,
   `.opencode/commands`, `.gemini/commands`, `.github/prompts`,
   `.windsurf/workflows`, `.agents/skills`). Never edit the outputs;
-  `//#ci:agent-commands` fails on drift.
+  `@libs/tools#ci:agent-commands` fails on drift.
 
 ## Local development
 

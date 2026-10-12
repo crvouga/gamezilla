@@ -65,6 +65,16 @@ describe('composeHarnessSlices', () => {
     );
   });
 
+  // regression: harness-identity-population-table-missing
+  test('identity finds the population table in a composition that lists no slices', () => {
+    // Literal failing input: `composeHarnessSlices('profile', [...])` without
+    // the population slice; every session then failed on
+    // `SELECT id FROM population_users WHERE email = ?`.
+    expect(composeHarnessSlices('probe', []).app.tableNames).toContain(
+      'population_users'
+    );
+  });
+
   // regression: harness-composition-missing-population-directory
   test('keeps the tables auth classifies sessions against in every composition', () => {
     const composition = composeHarnessSlices('probe', [PROFILE]);

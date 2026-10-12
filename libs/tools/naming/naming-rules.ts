@@ -18,6 +18,7 @@ export const NAMING_EXEMPT = {
     'Caddyfile',
     'Makefile',
     'LICENSE',
+    'LICENSE.txt',
     'CODEOWNERS',
     'components.json',
     '__snapshots__',
@@ -25,7 +26,12 @@ export const NAMING_EXEMPT = {
     '.super.engineering',
   ]),
   /** Path prefixes skipped entirely (tool-managed content). */
-  prefixes: ['.superset/attachments/'],
+  prefixes: [
+    '.superset/attachments/',
+    // Third-party skill sources, kept as published.
+    '.agents/skills/impeccable/',
+    '.agents/skills/ui-ux-pro-max/',
+  ],
   /** Markdown under these prefixes is a command id, so it stays kebab-case. */
   kebabMarkdownPrefixes: [
     '.agents/commands/',

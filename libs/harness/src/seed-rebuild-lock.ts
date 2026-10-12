@@ -75,6 +75,8 @@ export async function withSeedRebuildLock<T>(
 ): Promise<T> {
   const fs = wallNodeFs();
   const lock = join(cacheDir, `${seedKey}.lock`);
+  // A fresh checkout has no cache directory until the first seed is written.
+  await fs.mkdir(cacheDir, { recursive: true });
   await acquire(fs, lock);
   try {
     return await fn();

@@ -1,7 +1,7 @@
 /**
  * The lines of the conformance pipeline (strategy § 13): what each line
  * reads from the recorded evidence, and what feeds it (the proofs
- * `//#ci:conformance` requires to exist). Evaluation lives in `evaluate.ts`.
+ * `@libs/tools#ci:conformance` requires to exist). Evaluation lives in `evaluate.ts`.
  *
  * An evidence line selects specs (by kind, where they run, and a subset) and
  * the obligations of one layer. It passes only when every selected spec has
@@ -68,7 +68,7 @@ export const LINES = {
   manifest: {
     section: 'specification',
     label: 'vocabulary / manifest',
-    feeds: [{ task: '//#ci:conformance' }],
+    feeds: [{ task: '@libs/tools#ci:conformance' }],
     rule: { type: 'closure' },
   },
   'decision-analysis': {
@@ -237,13 +237,13 @@ export const LINES = {
   adapters: {
     section: 'completeness',
     label: 'required adapters',
-    feeds: [{ task: '//#ci:specs' }],
+    feeds: [{ task: '@libs/tools#ci:specs' }],
     rule: { type: 'adapters' },
   },
   'conformance-checks': {
     section: 'completeness',
     label: 'required conformance checks',
-    feeds: [{ task: '//#ci:conformance' }],
+    feeds: [{ task: '@libs/tools#ci:conformance' }],
     rule: { type: 'conformance-checks' },
   },
 } as const satisfies Readonly<Record<string, LineDefinition>>;

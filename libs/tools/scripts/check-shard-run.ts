@@ -9,7 +9,7 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import { reportTask } from '@libs/harness/report-ready';
-import { readLatestRunSummary } from './check-budget';
+import { readLatestRunSummary, SLOW_RUNNER_MULTIPLIER } from './check-budget';
 import { packShardEvidence } from './check-evidence-pack';
 import { preserveInterruptedModels } from './check-interrupted-models';
 import { preserveInterruptedReports } from './check-interrupted-reports';
@@ -27,6 +27,8 @@ import { turboChildEnv, writePlatformCacheKey } from './turbo-ci-run';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const DIRECTORY = join(ROOT, '.cache/check-ci');
+/** `@pkgs/quint-shared/wall` scales a proof's declared deadline by it. */
+const VERIFY_TIME_SCALE_ENV = 'QUINT_VERIFY_TIME_SCALE';
 
 export async function runShard(index: number): Promise<number> {
   const start = process.hrtime.bigint();
@@ -38,6 +40,9 @@ export async function runShard(index: number): Promise<number> {
   if (!shard) throw new Error(`Unknown shard ${index}`);
   const env = turboChildEnv();
   applyPlanContext(env);
+  // A shard runs on the 2-core runner: a proof gets the same correction to
+  // its deadline that every task gets to its budget.
+  env[VERIFY_TIME_SCALE_ENV] ??= String(SLOW_RUNNER_MULTIPLIER);
   const misses = shard.tasks.filter((task) => !task.hit);
   const prefetchStart = process.hrtime.bigint();
   const { dependencies } = await prepareStage(plan, shard, env, ROOT);
@@ -118,7 +123,7 @@ function packEvidence(index: number, failed: boolean): void {
 function preserveFailedReports(results: readonly Result[]): void {
   for (const result of results.filter((task) => !task.passed)) {
     if (
-      result.taskId.endsWith('#check:models') ||
+      /#check:models(:\d+)?$/.test(result.taskId) ||
       result.taskId === '@apps/product#test:contract'
     ) {
       const task = result.taskId.slice(0, result.taskId.indexOf('#'));

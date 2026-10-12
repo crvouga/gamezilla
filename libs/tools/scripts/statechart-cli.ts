@@ -60,6 +60,7 @@ function sourceFiles(): Map<string, string> {
     ...new Bun.Glob('libs/*-client/src/sub-client.{ts,tsx}').scanSync({
       cwd: ROOT,
     }),
+    'libs/chess-puzzle-client/src/personal-chess-stats-client.tsx',
     'libs/chess-puzzle-client/src/puzzle-link-client.ts',
     'libs/chess-puzzle-shared/src/puzzle-link.ts',
     'libs/chess-matchmaking-client/src/multiplayer-link-client.ts',

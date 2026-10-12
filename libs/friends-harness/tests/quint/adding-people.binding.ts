@@ -1,6 +1,9 @@
 import { openPersonFromSearch } from '@libs/friends-harness/person-actions';
 import { partition, restoreNetwork } from '@libs/harness/actions';
-import { signInWithGoogle } from '@libs/harness/auth-actions';
+import {
+  claimActorUsername,
+  signInWithGoogle,
+} from '@libs/harness/auth-actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import {
   nameEveryoneSeesOf,
@@ -42,7 +45,9 @@ bindQuintModel<QuintHarnessWorld>({
   actions: {
     init: async (w) => {
       await w.s.apply(signInWithGoogle, 'alice');
+      await w.s.apply(claimActorUsername, 'alice');
       await w.s.apply(signInWithGoogle, 'bob');
+      await w.s.apply(claimActorUsername, 'bob');
       await w.s.apply(openPersonFromSearch, 'alice', 'bob');
       await w.s.apply(openSpacesTab, 'alice');
       await w.s.apply(startSpace, 'alice');

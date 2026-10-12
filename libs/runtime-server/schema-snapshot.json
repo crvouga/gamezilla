@@ -1,5 +1,5 @@
 {
-  "release": 11,
+  "release": 13,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -219,7 +219,60 @@
         "policy_version": "text",
         "quota": "text"
       },
+      "population_commands": {
+        "actor_id": "text",
+        "command": "text",
+        "completed_at": "timestamp",
+        "user_id": "text"
+      },
+      "population_config": {
+        "revision": "integer",
+        "value": "json"
+      },
+      "population_events": {
+        "application_version": "text",
+        "context": "json",
+        "correlation_id": "text",
+        "event": "text",
+        "generation": "integer",
+        "user_id": "text",
+        "worker_id": "text"
+      },
+      "population_sign_in_mail": {
+        "email": "text",
+        "expires_at": "timestamp",
+        "link": "text"
+      },
+      "population_users": {
+        "account_id": "text",
+        "activity": "text",
+        "application_version": "text",
+        "checkpoint": "json",
+        "device_id": "text",
+        "email": "text",
+        "generation": "integer",
+        "inspection": "json",
+        "inspection_requested_at": "timestamp",
+        "last_action": "text",
+        "last_error": "text",
+        "lease_until": "timestamp",
+        "paused": "boolean",
+        "personality": "json",
+        "region": "text",
+        "username": "text",
+        "worker_id": "text"
+      },
+      "population_workers": {
+        "application_version": "text",
+        "capacity": "integer",
+        "cpu_milliseconds": "integer",
+        "draining": "boolean",
+        "heartbeat_at": "timestamp",
+        "lease_failures": "integer",
+        "memory_bytes": "integer"
+      },
       "profile": {
+        "account_kind": "text",
         "avatar_config": "json",
         "username": "text",
         "username_changed_at": "timestamp",
@@ -264,10 +317,13 @@
         "device_id": "text",
         "join_announced": "boolean",
         "opened_at": "timestamp",
+        "participation_revision": "integer",
         "space_id": "text"
       },
       "spaces_users": {
         "created_by_account_id": "text",
+        "joined": "boolean",
+        "participation_revision": "integer",
         "space_id": "text",
         "user_id": "text"
       }
@@ -299,6 +355,12 @@
           "type": "text",
           "note": "unused column — value lives in row id=google_web_client_id"
         }
+      },
+      "population_users": {
+        "credential": {
+          "type": "text",
+          "note": "Synthetic Users sign in with emailed links; nothing is sealed for them"
+        }
       }
     },
     "retiredTables": [],
@@ -311,7 +373,12 @@
       ["chess_puzzle_rating_events", "owner_id"],
       ["chess_puzzles", "popularity"],
       ["chess_puzzles", "rating"],
-      ["permissions_quota_ledger", "owner_id", "quota", "consumed_at"]
+      ["permissions_quota_ledger", "owner_id", "quota", "consumed_at"],
+      ["population_commands", "user_id"],
+      ["population_events", "user_id", "created_at"],
+      ["population_sign_in_mail", "email", "created_at"],
+      ["population_users", "lease_until"],
+      ["population_users", "worker_id"]
     ],
     "uniqueIndexes": [
       ["auth_account_devices", "user_id", "device_id"],
@@ -336,6 +403,8 @@
         "source_id"
       ],
       ["permissions_quota_ledger", "owner_id", "idempotency_key"],
+      ["population_users", "account_id"],
+      ["population_users", "email"],
       ["profile", "username_norm"],
       ["profile_account_privacy", "owner_id"],
       ["profile_deletion_receipts", "owner_id"],

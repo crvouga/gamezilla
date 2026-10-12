@@ -2,27 +2,31 @@ import type { Inventory, InventoryItem } from './inventory';
 
 /** Self-contained so browser adapters can evaluate the same observation function. */
 export function readDomInventory(document: Document): Inventory {
+  // Every candidate shares most of its ancestors, and a computed style is the
+  // expensive read: decide each node once per inventory, not once per
+  // descendant.
+  const decided = new Map<Element, boolean>();
+  const hides = (node: Element): boolean => {
+    if (
+      node.hasAttribute('hidden') ||
+      node.hasAttribute('inert') ||
+      node.getAttribute('aria-hidden') === 'true'
+    )
+      return true;
+    const style = document.defaultView?.getComputedStyle(node);
+    return (
+      style?.display === 'none' ||
+      style?.visibility === 'hidden' ||
+      style?.opacity === '0'
+    );
+  };
   const visible = (element: Element): boolean => {
-    for (
-      let node: Element | null = element;
-      node !== null;
-      node = node.parentElement
-    ) {
-      if (
-        node.hasAttribute('hidden') ||
-        node.hasAttribute('inert') ||
-        node.getAttribute('aria-hidden') === 'true'
-      )
-        return false;
-      const style = document.defaultView?.getComputedStyle(node);
-      if (
-        style?.display === 'none' ||
-        style?.visibility === 'hidden' ||
-        style?.opacity === '0'
-      )
-        return false;
-    }
-    return true;
+    const known = decided.get(element);
+    if (known !== undefined) return known;
+    const parent = element.parentElement;
+    const result = !hides(element) && (parent === null || visible(parent));
+    decided.set(element, result);
+    return result;
   };
   const pressables: InventoryItem[] = [];
   const inputs: InventoryItem[] = [];
