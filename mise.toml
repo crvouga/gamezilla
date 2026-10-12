@@ -14,7 +14,6 @@ node = "26.11.1"
 gh = "2.102.0"
 gitleaks = "8.30.1"
 actionlint = "1.7.12"
-infisical = { version = "0.43.141", asset_pattern = "cli_{{ version }}_darwin_arm64.tar.gz" }
 duckdb = "1.5.6"
 # Infrastructure as code (libs/infra): plans, policy gate over plan JSON.
 opentofu = "1.13.1"
@@ -40,6 +39,21 @@ checksum = "sha256:6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb
 version = "0.56.1"
 url = "https://github.com/apalache-mc/apalache/releases/download/v{{version}}/apalache-{{version}}.tgz"
 checksum = "sha256:a61c07569d7195ddc589f01037fa10fafef4fb0796af2f1c9cb45226375dfbfc"
+
+# Infisical CLI (secrets backend). Its release assets are named
+# `cli_<version>_<os>_<arch>.tar.gz`, which mise's default match does not pick
+# reliably, so each platform names its own asset. Never collapse this to one
+# `asset_pattern` on `infisical = {...}`: `mise upgrade --bump` (install-system)
+# resolves a templated pattern on the laptop and writes that laptop's platform
+# back, and Linux CI then installs a macOS binary (ENOEXEC).
+[tools.infisical]
+version = "0.43.141"
+
+[tools.infisical.platforms]
+macos-arm64 = { asset_pattern = "cli_{{ version }}_darwin_arm64.tar.gz" }
+macos-x64 = { asset_pattern = "cli_{{ version }}_darwin_amd64.tar.gz" }
+linux-arm64 = { asset_pattern = "cli_{{ version }}_linux_arm64.tar.gz" }
+linux-x64 = { asset_pattern = "cli_{{ version }}_linux_amd64.tar.gz" }
 
 # Local MQTT broker for `@pkgs/emqx-server` (fidelity-max harnesses, test:contract).
 # Keep in step with the version pin in libs/pubsub-shared/emqx-deploy/Dockerfile.
