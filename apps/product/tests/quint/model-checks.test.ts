@@ -2,6 +2,7 @@ import { test } from 'bun:test';
 import { join } from 'node:path';
 import { verifyTemporal } from '@pkgs/quint-server/temporal';
 import { verify } from '@pkgs/quint-server/verify';
+import { verifyDeadlineMs } from '@pkgs/quint-shared/wall';
 import {
   CLI_TIMEOUT_MS,
   MODELS,
@@ -10,6 +11,9 @@ import {
 } from './campaign-config';
 import { obligation } from './campaign-tools';
 import { withSymbolicInput } from './symbolic-input';
+
+/** The proof's own allowance on this runner, and room to report it. */
+const TEST_TIMEOUT_MS = verifyDeadlineMs(CLI_TIMEOUT_MS) + 5_000;
 
 // regression: product-symbolic-model-compilation-timeout
 for (const model of MODELS) {
@@ -31,7 +35,7 @@ for (const model of MODELS) {
         })
       );
     },
-    CLI_TIMEOUT_MS + 5_000
+    TEST_TIMEOUT_MS
   );
 }
 
@@ -54,7 +58,7 @@ test.concurrent(
       }
     );
   },
-  CLI_TIMEOUT_MS + 5_000
+  TEST_TIMEOUT_MS
 );
 
 // @io-wall-ok — temporary verifier inputs exercise the temporal checker itself.
@@ -99,5 +103,5 @@ test.concurrent(
       rmSync(dir, { recursive: true, force: true });
     }
   },
-  CLI_TIMEOUT_MS + 5_000
+  TEST_TIMEOUT_MS
 );

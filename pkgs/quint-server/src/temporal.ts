@@ -5,7 +5,7 @@ import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { quintNames } from '@pkgs/quint-shared/names';
 import { tlcStateSpace } from '@pkgs/quint-shared/tlc-state-space';
-import { wallStopwatch } from '@pkgs/quint-shared/wall';
+import { verifyDeadlineMs, wallStopwatch } from '@pkgs/quint-shared/wall';
 import {
   APALACHE_VERSION,
   freePort,
@@ -65,6 +65,7 @@ export async function verifyTemporal(
     JSON.stringify({ maxHeap: '-Xmx512m', stackSize: '-Xss8m', workers: 1 })
   );
   const elapsed = wallStopwatch();
+  const deadlineMs = verifyDeadlineMs(options.timeoutMs);
   const port = await freePort();
   const run = await runQuint({
     args: temporalArgs(options, config, port),
@@ -73,13 +74,13 @@ export async function verifyTemporal(
       env: process.env,
       quintHome: linkQuintHome(options.outDir, pinned.home),
     }),
-    timeoutMs: options.timeoutMs,
+    timeoutMs: deadlineMs,
   });
   writeFileSync(join(options.outDir, 'tlc-output.txt'), run.output);
   if (run.timedOut)
     return {
       ok: false,
-      output: `${header}: no complete verdict within ${options.timeoutMs} ms\n${run.output}`,
+      output: `${header}: no complete verdict within ${deadlineMs} ms\n${run.output}`,
     };
   if (run.code !== 0)
     return { ok: false, output: `${header} failed:\n${run.output}` };

@@ -53,6 +53,25 @@ export function quintReplayBudget(): number {
   return budget;
 }
 
+/**
+ * A proof's wall-clock allowance on this machine. A deadline is declared for
+ * a developer laptop; a runner slower by a known factor names that factor in
+ * `QUINT_VERIFY_TIME_SCALE`, as the Check shards do for their 2-core runners.
+ * It bounds how long a proof may take, never what it proves: a proof that
+ * ends inside the allowance is the same verdict on every machine.
+ */
+export function verifyDeadlineMs(declaredMs: number): number {
+  const raw = process.env['QUINT_VERIFY_TIME_SCALE']?.trim() ?? '';
+  if (raw.length === 0) return declaredMs;
+  const scale = Number(raw);
+  if (!Number.isFinite(scale) || scale < 1) {
+    throw new Error(
+      `quint: QUINT_VERIFY_TIME_SCALE=${raw} is not a factor of one or more`
+    );
+  }
+  return Math.round(declaredMs * scale);
+}
+
 /** Milliseconds since the call, read on each call. Reported, never decided on. */
 export function wallStopwatch(): () => number {
   const start = performance.now();

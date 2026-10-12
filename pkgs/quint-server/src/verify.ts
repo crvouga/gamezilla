@@ -20,7 +20,7 @@
 
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { wallStopwatch } from '@pkgs/quint-shared/wall';
+import { verifyDeadlineMs, wallStopwatch } from '@pkgs/quint-shared/wall';
 import {
   APALACHE_VERSION,
   freePort,
@@ -89,6 +89,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
     quintHome: linkQuintHome(options.outDir, apalache.home),
   });
   const elapsed = wallStopwatch();
+  const deadlineMs = verifyDeadlineMs(options.timeoutMs);
   const prepared = {
     ...options,
     specPath: cachedVerifyInput(options.specPath, options.outDir),
@@ -110,9 +111,9 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
       args: verifyArgs(phaseOptions, phase, port, configPath),
       cwd: phaseOptions.outDir,
       env,
-      timeoutMs: Math.max(0, options.timeoutMs - elapsed()),
+      timeoutMs: Math.max(0, deadlineMs - elapsed()),
     });
-    return runFailure(options, phase, run);
+    return runFailure({ ...options, timeoutMs: deadlineMs }, phase, run);
   };
   for (const name of [
     'bounded',
