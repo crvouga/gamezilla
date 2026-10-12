@@ -24,8 +24,7 @@
   "dependencies": {},
   "devDependencies": {
     "@actions/artifact": "catalog:",
-    "@crvouga/atlas": "workspace:*",
-    "@crvouga/atlas-schema": "workspace:*",
+    "@crvouga/atlas": "catalog:",
     "@libs/harness": "workspace:*",
     "@libs/secrets-server": "workspace:*",
     "@libs/secrets-shared": "workspace:*",

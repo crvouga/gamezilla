@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import type { FlatFrame } from '@crvouga/atlas-reports/frames';
-import { stateFrameHtml } from '@crvouga/atlas-reports/html-frame';
+import type { FlatFrame } from '@crvouga/atlas/reports/frames';
+import { stateFrameHtml } from '@crvouga/atlas/reports/html-frame';
 import type {
   ReportFrame,
   ReportStep,
-} from '@crvouga/atlas-reports/report-types';
+} from '@crvouga/atlas/reports/report-types';
 
 function frame(detail: string, kind = 'quint'): FlatFrame {
   const step: ReportStep = {

@@ -48,7 +48,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { parseJunit } from '@crvouga/atlas-reports/junit';
+import { parseJunit } from '@crvouga/atlas/reports/junit';
 import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness/report-ready';
 import { testFailureSpans } from '@libs/harness/test-failure-spans';
 import { wallClock } from '@pkgs/clock-shared/wall';

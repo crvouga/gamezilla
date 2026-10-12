@@ -195,32 +195,6 @@
       "outputLogs": "errors-only",
       "outputs": [".cache/tc.tsbuildinfo"]
     },
-    "@libs/tools#tc": {
-      "dependsOn": [
-        "^src",
-        "@crvouga/atlas#build",
-        "@crvouga/atlas-schema#build"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!**/*.md",
-        "$TURBO_ROOT$/pkgs/ts-reset-shared/src/**"
-      ],
-      "outputs": [".cache/tc.tsbuildinfo"],
-      "outputLogs": "errors-only"
-    },
-    "@crvouga/atlas#build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
-      "outputs": ["dist/**"],
-      "outputLogs": "errors-only"
-    },
-    "@crvouga/atlas-schema#build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
-      "outputs": ["dist/**"],
-      "outputLogs": "errors-only"
-    },
     "lint": {
       "dependsOn": ["^src"],
       "inputs": [
@@ -1000,7 +974,7 @@
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/libs/tools/goal/**",
         "$TURBO_ROOT$/libs/tools/scripts/check-goals.ts",
-        "$TURBO_ROOT$/{apps,libs,pkgs,vendor}/**/*.test.{ts,tsx}",
+        "$TURBO_ROOT$/{apps,libs,pkgs}/**/*.test.{ts,tsx}",
         "$TURBO_ROOT$/{apps,libs,pkgs}/*/tests/quint/**",
         "$TURBO_ROOT$/{apps,libs,pkgs}/**/*.itf.json",
         "$TURBO_ROOT$/specs/**/*.feature",
@@ -2490,8 +2464,6 @@
         "$TURBO_ROOT$/docs/statecharts/**",
         "$TURBO_ROOT$/specs/**",
         "$TURBO_ROOT$/package.json",
-        "$TURBO_ROOT$/vendor/atlas/packages/core/src/**",
-        "$TURBO_ROOT$/vendor/atlas/packages/schema/src/**",
         "$TURBO_ROOT$/libs/app-root-client/src/route-table.ts",
         "$TURBO_ROOT$/libs/runtime-client/src/app-sub-clients.ts",
         "$TURBO_ROOT$/libs/*-client/src/sub-client.{ts,tsx}",
@@ -2500,8 +2472,7 @@
         "$TURBO_ROOT$/libs/chess-matchmaking-client/src/multiplayer-link-client.ts",
         "$TURBO_ROOT$/libs/chess-matchmaking-shared/src/multiplayer-link.ts",
         "$TURBO_ROOT$/apps/product/src/main.tsx",
-        "$TURBO_ROOT$/apps/product/src/console-nav-real.ts",
-        "$TURBO_ROOT$/vendor/atlas/packages/reports/src/**/*.ts"
+        "$TURBO_ROOT$/apps/product/src/console-nav-real.ts"
       ],
       "outputs": [".cache/product-statechart/**"],
       "outputLogs": "errors-only"
@@ -2607,10 +2578,6 @@
       "passThroughEnv": ["*"]
     },
     "//#task:health": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:atlas:sync": {
       "cache": false,
       "passThroughEnv": ["*"]
     },

@@ -1,24 +1,24 @@
 // @io-wall-ok — local evidence assembly, never a remote publication or a gate.
 import { join, resolve } from 'node:path';
-import { eachLimited } from '@crvouga/atlas-reports/completion-order';
-import type { ReportPart } from '@crvouga/atlas-reports/explorer-types';
-import { viewerTestId } from '@crvouga/atlas-reports/keys';
+import { eachLimited } from '@crvouga/atlas/reports/completion-order';
+import type { ReportPart } from '@crvouga/atlas/reports/explorer-types';
+import { viewerTestId } from '@crvouga/atlas/reports/keys';
 import {
   catalogEntries,
   catalogLayers,
-} from '@crvouga/atlas-reports/layer-catalog';
-import { distinctLayers } from '@crvouga/atlas-reports/layer-merge';
-import { readLayerFile } from '@crvouga/atlas-reports/layer-store';
-import type { LayerSummary } from '@crvouga/atlas-reports/layer-types';
-import { performancePart } from '@crvouga/atlas-reports/performance-part';
+} from '@crvouga/atlas/reports/layer-catalog';
+import { distinctLayers } from '@crvouga/atlas/reports/layer-merge';
+import { readLayerFile } from '@crvouga/atlas/reports/layer-store';
+import type { LayerSummary } from '@crvouga/atlas/reports/layer-types';
+import { performancePart } from '@crvouga/atlas/reports/performance-part';
 import {
   closeCommit,
   openCommit,
   publishSource,
-} from '@crvouga/atlas-reports/publish';
-import { readTestReport } from '@crvouga/atlas-reports/read';
-import { publishPart } from '@crvouga/atlas-reports/report-parts';
-import type { RunReport } from '@crvouga/atlas-reports/report-types';
+} from '@crvouga/atlas/reports/publish';
+import { readTestReport } from '@crvouga/atlas/reports/read';
+import { publishPart } from '@crvouga/atlas/reports/report-parts';
+import type { RunReport } from '@crvouga/atlas/reports/report-types';
 import { compileFrameCss } from '@libs/harness/wall-frame-css';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';

@@ -1,9 +1,9 @@
 // @io-wall-ok — local reports composition reads committed Git content, never secrets in the browser.
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-import type { WorkspaceReports } from '@crvouga/atlas-reports/explorer-types';
-import { readParts } from '@crvouga/atlas-reports/report-parts';
-import { specEntry } from '@crvouga/atlas-reports/spec-inventory';
+import type { WorkspaceReports } from '@crvouga/atlas/reports/explorer-types';
+import { readParts } from '@crvouga/atlas/reports/report-parts';
+import { specEntry } from '@crvouga/atlas/reports/spec-inventory';
 import { readCommittedSpecs } from '@libs/harness/committed-specs';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';

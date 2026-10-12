@@ -53,6 +53,7 @@ export const globalFileSchema = z
       .object({
         owner: id,
         owner_id: z.string().regex(/^[1-9][0-9]*$/),
+        owner_is_organization: z.boolean(),
         repo: id,
         repo_id: z.string().regex(/^[1-9][0-9]*$/),
         required_checks: z.array(id).min(1),

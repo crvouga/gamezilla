@@ -16,6 +16,15 @@ removed {
   }
 }
 
+# The previous CI provider's AWS issuer is still in state. No role trusts it
+# once the roles above are updated: forget it, never delete it.
+removed {
+  from = module.aws_ci.aws_iam_openid_connect_provider.depot
+  lifecycle {
+    destroy = false
+  }
+}
+
 # These settings already exist. Import blocks are idempotent once adopted.
 import {
   to = module.repository.github_branch_default.main

@@ -1,4 +1,0 @@
-{
-  "summary": "Paginating each producer independently still rendered an unbounded number of checks across many report parts.",
-  "regressionTest": "vendor/atlas/packages/visualizer/tests/reports.test.tsx"
-}

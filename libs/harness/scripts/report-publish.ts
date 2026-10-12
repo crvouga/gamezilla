@@ -24,7 +24,7 @@
 
 import { writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { openCommit } from '@crvouga/atlas-reports/publish';
+import { openCommit } from '@crvouga/atlas/reports/publish';
 import { compileFrameCss } from '@libs/harness/wall-frame-css';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';

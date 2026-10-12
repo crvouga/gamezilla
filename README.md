@@ -230,7 +230,7 @@ Known cross-sub table reads, still debt: `permissions` reads `billing_subscripti
 | Key-value | `@pkgs/kv` |
 | Spec languages | `@pkgs/gherkin`, `@pkgs/quint`, `@pkgs/dmn`, `@pkgs/alloy`, `@pkgs/openslo` |
 | Property tests | `@pkgs/property-shared` (`assertProperty` only) |
-| Specification visualization | Atlas owns spec browsing and test evidence. Run `bun atlas:viz`; see [Atlas reporting](vendor/atlas/packages/reports/README.md). |
+| Specification visualization | Atlas owns spec browsing and test evidence. Run `bun atlas:viz`; see [Atlas reporting](https://github.com/crvouga/atlas/blob/main/packages/reports/README.md). |
 | Chess rules and board | `@pkgs/chess-rules-shared`, `@pkgs/chess-board-core-shared`, `@pkgs/chess-board` |
 | Rating math | `@pkgs/glicko2-shared` |
 | i18n | Lingui (`@pkgs/i18n-shared`). Catalogs compile to `libs/client-app`. |

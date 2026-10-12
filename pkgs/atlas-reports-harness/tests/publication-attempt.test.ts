@@ -1,15 +1,15 @@
 import { expect, test } from 'bun:test';
-import { publicationStore } from '@crvouga/atlas-reports/publication';
+import { publicationStore } from '@crvouga/atlas/reports/publication';
 import {
   closeCommit,
   openCommit,
   publishSource,
-} from '@crvouga/atlas-reports/publish';
+} from '@crvouga/atlas/reports/publish';
 import {
   listSourceRecords,
   readCommit,
   readFrameCss,
-} from '@crvouga/atlas-reports/read';
+} from '@crvouga/atlas/reports/read';
 import { readBytes } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 

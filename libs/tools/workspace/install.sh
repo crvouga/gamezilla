@@ -7,6 +7,9 @@
 # expects. The fingerprint covers every input `bun install` resolves from: the
 # lockfile and each package manifest. It is stamped inside node_modules after a
 # complete install, so removing node_modules invalidates it too.
+#
+# better-sqlite3@13 ships its N-API prebuild and is not a trustedDependency:
+# `bun install` must not run node-gyp. Do not add it back to trustedDependencies.
 WORKSPACE_INSTALL_STAMP="node_modules/.workspace-install-fingerprint"
 
 workspace_install_fingerprint() {
@@ -31,10 +34,10 @@ workspace_install_is_current() {
 # stamped, so the next launch tries again instead of trusting a partial one.
 workspace_install() {
   echo "==> bun install"
-  # The install's own `postinstall` is a Turborepo run; inside a task's pane it
-  # streams rather than opening a second terminal UI.
-  export TURBO_UI=false
-  if bun install; then
+  # The install's own `postinstall` is a Turborepo run. Stream that one so it
+  # does not open a second terminal UI. The prefix stays on this command:
+  # exporting it would make the later dev run stream too.
+  if TURBO_UI=false bun install; then
     # Stamp after installing: `bun install` may rewrite the lockfile.
     mkdir -p "$(dirname "$WORKSPACE_INSTALL_STAMP")"
     workspace_install_fingerprint >"$WORKSPACE_INSTALL_STAMP"
@@ -45,52 +48,13 @@ workspace_install() {
   # would have written. better-sqlite3 does not need that script;
   # ffmpeg-static and onnxruntime-node download their binaries in one.
   echo "!!! bun install failed; retrying with --ignore-scripts"
-  if bun install --ignore-scripts; then
-    bun run generate || echo "!!! bun run generate failed; run it in this workspace"
+  if TURBO_UI=false bun install --ignore-scripts; then
+    TURBO_UI=false bun run generate || echo "!!! bun run generate failed; run it in this workspace"
     echo "!!! install scripts did not run. ffmpeg-static and onnxruntime-node may be missing their binaries."
   else
     echo "!!! dependency install is still incomplete; Run retries it once package sources are available"
   fi
   return 1
-}
-
-# Whether an initialized submodule sits on an earlier commit than the one this
-# checkout records, with nothing of its own: no edits, and no commit the
-# recorded one lacks. Local work on another commit answers no.
-workspace_submodule_is_behind() {
-  local path="$1" recorded current
-  recorded="$(git rev-parse -q --verify "HEAD:$path" 2>/dev/null || true)"
-  current="$(git -C "$path" rev-parse -q --verify HEAD 2>/dev/null || true)"
-  if [ -z "$recorded" ] || [ -z "$current" ] || [ "$recorded" = "$current" ]; then
-    return 1
-  fi
-  if [ -n "$(git -C "$path" status --porcelain 2>/dev/null || true)" ]; then
-    return 1
-  fi
-  git -C "$path" cat-file -e "$recorded^{commit}" 2>/dev/null ||
-    git -C "$path" fetch --quiet origin 2>/dev/null || true
-  git -C "$path" merge-base --is-ancestor "$current" "$recorded" 2>/dev/null
-}
-
-# Bun resolves every declared workspace before it installs any package, so a
-# submodule that was never checked out fails the whole install. An initialized
-# one that only fell behind the recorded commit is brought forward: pulling the
-# branch does not move it, so the tools inside it would stay an earlier
-# version. One holding local work on another commit is left alone.
-workspace_sync_submodules() {
-  local path
-  if [ ! -f .gitmodules ]; then
-    return 0
-  fi
-  git config -f .gitmodules --get-regexp '\.path$' 2>/dev/null | cut -d' ' -f2- |
-    while IFS= read -r path; do
-      if [ -e "$path/.git" ] && ! workspace_submodule_is_behind "$path"; then
-        continue
-      fi
-      echo "==> git submodule update --init --recursive -- $path"
-      git submodule update --init --recursive -- "$path" ||
-        echo "!!! submodule update failed; continuing with the available checkout"
-    done || true
 }
 
 # A boot from a half-merged tree fails on a module or syntax error that says

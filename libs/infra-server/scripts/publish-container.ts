@@ -1,11 +1,5 @@
 // @io-wall-ok — publishes verified code to an already OpenTofu-managed service.
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { tofuLayout } from '@libs/infra-server/tofu-layout';
@@ -78,20 +72,6 @@ try {
     root
   );
   artifactCommand(['tar', '-xf', archive, '-C', stage], root);
-  const atlas = artifactCommand(
-    ['git', 'ls-tree', version, 'vendor/atlas'],
-    root
-  ).match(/^160000 commit ([0-9a-f]{40})/m)?.[1];
-  if (!atlas) throw new Error('The verified Atlas dependency is unavailable');
-  artifactCommand(
-    ['git', 'archive', '--format=tar', `--output=${archive}`, atlas],
-    join(root, 'vendor/atlas')
-  );
-  mkdirSync(join(stage, 'vendor/atlas'), { recursive: true });
-  artifactCommand(
-    ['tar', '-xf', archive, '-C', join(stage, 'vendor/atlas')],
-    root
-  );
   const dockerfile = readFileSync(
     join(stage, 'apps/synthetic-population-worker/Dockerfile'),
     'utf8'

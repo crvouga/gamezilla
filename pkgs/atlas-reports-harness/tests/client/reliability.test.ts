@@ -4,14 +4,14 @@ import {
   memoryReportCache,
   ReportsUnavailable,
   reportQueryClient,
-} from '@crvouga/atlas-reports/fetcher';
+} from '@crvouga/atlas/reports/fetcher';
 import type {
   CommitEvent,
   SourceRecord,
-} from '@crvouga/atlas-reports/protocol';
-import { encodeSseEvent } from '@crvouga/atlas-reports/protocol';
-import { createRemoteReport } from '@crvouga/atlas-reports/remote-report';
-import { resilientReportCache } from '@crvouga/atlas-reports/resilient-cache';
+} from '@crvouga/atlas/reports/protocol';
+import { encodeSseEvent } from '@crvouga/atlas/reports/protocol';
+import { createRemoteReport } from '@crvouga/atlas/reports/remote-report';
+import { resilientReportCache } from '@crvouga/atlas/reports/resilient-cache';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { createRoot } from 'solid-js';
 

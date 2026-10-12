@@ -295,23 +295,6 @@ describe('turbo check/deploy graph invariants', () => {
     }
   });
 
-  test('tools type check builds and hashes Atlas declaration boundaries', () => {
-    const tasks = loadTasks();
-    expect(tasks['@libs/tools#tc']?.dependsOn).toContain(
-      '@crvouga/atlas#build'
-    );
-    expect(tasks['@libs/tools#tc']?.dependsOn).toContain(
-      '@crvouga/atlas-schema#build'
-    );
-    for (const task of [
-      '@crvouga/atlas#build',
-      '@crvouga/atlas-schema#build',
-    ]) {
-      expect(tasks[task]?.inputs?.[0], task).toBe('$TURBO_DEFAULT$');
-      expect(tasks[task]?.outputs, task).toContain('dist/**');
-    }
-  });
-
   test('every package lint task hashes the shared design-system rules and presets', () => {
     const sharedInputs = [
       '$TURBO_ROOT$/libs/tools/scripts/design-vocabulary.ts',

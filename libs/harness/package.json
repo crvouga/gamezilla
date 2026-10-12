@@ -17,7 +17,7 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload"
   },
   "dependencies": {
-    "@crvouga/atlas-reports": "workspace:*",
+    "@crvouga/atlas": "catalog:",
     "@crvouga/mockingbird-service-oauth": "catalog:",
     "@crvouga/mockingbird-service-openai": "catalog:",
     "@crvouga/mockingbird-service-s3": "catalog:",

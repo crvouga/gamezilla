@@ -1,4 +1,4 @@
-import type { JunitCase } from '@crvouga/atlas-reports/junit';
+import type { JunitCase } from '@crvouga/atlas/reports/junit';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import type { NarrateSpan } from '@pkgs/observability-root-shared/narrate';
 

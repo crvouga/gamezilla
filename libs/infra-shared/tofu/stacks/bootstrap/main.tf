@@ -95,12 +95,13 @@ module "aws_ci" {
 }
 
 module "repository" {
-  source               = "../../modules/repository"
-  name                 = var.github.repo
-  required_checks      = var.github.required_checks
-  check_integration_id = var.github.check_integration_id
-  settings             = var.github.settings
-  environments         = var.github.environments
+  source                = "../../modules/repository"
+  name                  = var.github.repo
+  owner_is_organization = var.github.owner_is_organization
+  required_checks       = var.github.required_checks
+  check_integration_id  = var.github.check_integration_id
+  settings              = var.github.settings
+  environments          = var.github.environments
   variables = {
     SECRETS_IDENTITY_ID = module.ci_identity.identity_id
     SECRETS_PROJECT_ID  = var.infisical.project_slug

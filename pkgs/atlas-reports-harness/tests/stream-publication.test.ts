@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { eachLimitedStream } from '@crvouga/atlas-reports/completion-order';
+import { eachLimitedStream } from '@crvouga/atlas/reports/completion-order';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

@@ -1,18 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-import { matchJunitCase, parseJunit } from '@crvouga/atlas-reports/junit';
-import type { CommitEvent, TestEvent } from '@crvouga/atlas-reports/protocol';
+import { matchJunitCase, parseJunit } from '@crvouga/atlas/reports/junit';
+import type { CommitEvent, TestEvent } from '@crvouga/atlas/reports/protocol';
 import {
   closeCommit,
   openCommit,
   publishSource,
   SPEC_RUN_ID,
-} from '@crvouga/atlas-reports/publish';
+} from '@crvouga/atlas/reports/publish';
 import {
   commitEvents,
   listCommits,
   testEvents,
-} from '@crvouga/atlas-reports/read';
-import { runManifestKey } from '@crvouga/atlas-reports/recording-keys';
+} from '@crvouga/atlas/reports/read';
+import { runManifestKey } from '@crvouga/atlas/reports/recording-keys';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';

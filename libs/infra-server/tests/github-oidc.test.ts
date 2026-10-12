@@ -62,3 +62,12 @@ test('AWS roles trust only the GitHub issuer', () => {
   );
   expect(aws).not.toContain('spiffe://');
 });
+
+// regression: bootstrap-retired-ci-issuer-delete
+test('bootstrap forgets the retired CI issuer instead of deleting it', () => {
+  // The address is still in remote state; without this block the plan
+  // deletes it and policy/stateful.rego refuses the whole apply.
+  expect(read('stacks/bootstrap/imports.tf')).toMatch(
+    /removed \{\s*from = module\.aws_ci\.aws_iam_openid_connect_provider\.depot\s*lifecycle \{\s*destroy = false\s*\}\s*\}/
+  );
+});

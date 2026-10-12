@@ -5,10 +5,10 @@ import {
   shaOfIndexKey,
   splitViewerTestId,
   viewerTestId,
-} from '@crvouga/atlas-reports/keys';
-import type { CommitEvent } from '@crvouga/atlas-reports/protocol';
-import { encodeSseEvent } from '@crvouga/atlas-reports/protocol';
-import { readEventStream } from '@crvouga/atlas-reports/remote-report';
+} from '@crvouga/atlas/reports/keys';
+import type { CommitEvent } from '@crvouga/atlas/reports/protocol';
+import { encodeSseEvent } from '@crvouga/atlas/reports/protocol';
+import { readEventStream } from '@crvouga/atlas/reports/remote-report';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

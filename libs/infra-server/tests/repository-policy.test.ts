@@ -47,12 +47,33 @@ test('squash-only history and disposable heads remain compatible with main prote
 test('only descriptive metadata may drift without a plan', () => {
   expect(repository).toMatch(/ignore_changes\s*=\s*\[description, topics\]/);
   for (const name of Object.keys(GLOBAL.github.settings)) {
+    if (name === 'allow_forking') continue;
     expect(repository).toMatch(
       new RegExp(`${name}\\s*=\\s*var.settings.${name}`)
     );
   }
   expect(repository).toMatch(/prevent_destroy\s*=\s*true/);
   expect(GLOBAL.global_imports?.github_repository).toBe(GLOBAL.github.repo);
+});
+
+// regression: bootstrap-user-owned-forking
+test('a user-owned repository does not send allow_forking', () => {
+  // Literal failing input: plan `allow_forking = true -> false` on
+  // crvouga/gamezilla, then PATCH /repos/crvouga/gamezilla 422
+  // "Allow forks setting can only be changed on org-owned private repositories".
+  expect(GLOBAL.github.owner).toBe('crvouga');
+  expect(GLOBAL.github.owner_is_organization).toBe(false);
+  expect(GLOBAL.github.settings.allow_forking).toBe(false);
+  expect(repository).toMatch(
+    /allow_forking\s*=\s*var\.owner_is_organization \? var\.settings\.allow_forking : null/
+  );
+  const bootstrap = readFileSync(
+    join(TOFU, 'stacks/bootstrap/main.tf'),
+    'utf8'
+  );
+  expect(bootstrap).toMatch(
+    /owner_is_organization\s*=\s*var\.github\.owner_is_organization/
+  );
 });
 
 // regression: github-security-unsupported-fields

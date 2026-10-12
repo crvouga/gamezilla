@@ -15,7 +15,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@crvouga/atlas-reports": "workspace:*",
+    "@crvouga/atlas": "catalog:",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/conformance-server": "workspace:*",
     "@pkgs/conformance-shared": "workspace:*",

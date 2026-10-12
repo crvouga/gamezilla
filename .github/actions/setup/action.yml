@@ -31,10 +31,6 @@ runs:
         # smaller toolchain pass an explicit list (for example `bun gh`).
         install_args: ${{ inputs.tools || '--include-lazy' }}
 
-    - name: Initialize workspace submodules
-      shell: bash
-      run: git submodule update --init --recursive
-
     # The installed trees, shared by every job of every workflow. One extract
     # of them leaves the frozen install below a no-op check: 291 MB restored
     # in 9 s (Check run 36783674561) against a 15-20 s install from the
@@ -51,7 +47,6 @@ runs:
           apps/*/node_modules
           libs/*/node_modules
           pkgs/*/node_modules
-          vendor/atlas/packages/*/node_modules
         key: dependencies-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock', 'mise.toml', '.github/actions/setup/action.yml') }}
 
     - name: Install dependencies
@@ -71,5 +66,4 @@ runs:
           apps/*/node_modules
           libs/*/node_modules
           pkgs/*/node_modules
-          vendor/atlas/packages/*/node_modules
         key: ${{ steps.dependencies.outputs.cache-primary-key }}

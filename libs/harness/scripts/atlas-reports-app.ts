@@ -1,8 +1,8 @@
 // @io-wall-ok — Vite dev middleware composition root for `/api/reports`
 
 import { join } from 'node:path';
-import type { WorkspaceReports } from '@crvouga/atlas-reports/explorer-types';
-import { createReportsApp } from '@crvouga/atlas-reports/reports-route';
+import type { WorkspaceReports } from '@crvouga/atlas/reports/explorer-types';
+import { createReportsApp } from '@crvouga/atlas/reports/reports-route';
 import { compileFrameCss } from '@libs/harness/wall-frame-css';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';

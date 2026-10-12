@@ -27,7 +27,7 @@ than restating it.
 
 - **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the compiled Lingui catalog `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed.
 
-- **`vendor/atlas` is Atlas's own repository, not a copy.** Change it by its rules ([`vendor/atlas/AGENTS.md`](vendor/atlas/AGENTS.md)): work on Atlas `main`, resolve conflicts hunk by hunk, push there first, then record that commit here. A pointer to a commit off Atlas `main` is refused on push (`libs/tools/githooks/pre-push`). Run and `bun atlas:viz` bring a checkout that only fell behind the recorded commit forward; one holding local work is left alone.
+- **Atlas is an npm dependency, never a copy.** `@crvouga/atlas` installs from npm through the root `catalog`: no submodule, vendored copy, `git` / `file:` dependency or patch. Import only its documented paths (`@crvouga/atlas`, `/spec`, `/schema`, `/reports/<module>`, …) and run its `atlas` / `atlas-visualizer` commands. A bug or gap in Atlas is an issue at [crvouga/atlas](https://github.com/crvouga/atlas/blob/main/docs/reporting-issues.md), never a fix made from here; a workaround in our code is named in that issue and removed when the release that fixes it lands. Upgrade by raising the catalog entry in a commit of its own. Guide: [dogfooding](https://github.com/crvouga/atlas/blob/main/docs/dogfooding.md).
 
 - **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges, and the merge deploys — never `--admin`, never a red, pending or draft PR. `main` moves only through a merged PR ([`README.md`](README.md#correctness-machinery)).
 
@@ -162,9 +162,13 @@ on the developer machine. Details: [`README.md`](README.md#correctness-machinery
 
 Each workspace is a git worktree created by an agent orchestrator (Superset,
 super.engineering, …). All of them run the same lifecycle hooks from
-`libs/tools/workspace/`: `setup.sh` (`bun install`, `.cache/secrets`,
-`apps/*/.env.local`), `teardown.sh` and `run.sh`. Their steps are Turborepo
-tasks (`//#workspace:*`, `step.sh`) that print only when they fail. The hooks
+`libs/tools/workspace/`: `run.sh` is the only start script. A cold workspace
+prepares itself once (`mise install`, `bun install`, repo hooks,
+`.cache/secrets`, `apps/*/.env.local`) and writes `.cache/workspace-warm`;
+later runs skip that and start the stack. Preparation never fails the launch.
+`teardown.sh` releases the workspace's listeners. Install and merge stay
+Turborepo tasks (`//#workspace:*`, `step.sh`) that print only when they fail.
+The hooks
 derive paths from git, never from a tool's env vars. `bun run workspace:sync` projects them into
 every orchestrator's config (`.superset/config.json`,
 `.super.engineering/config.json`); never edit those, and
