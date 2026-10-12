@@ -17,6 +17,7 @@
     "declineFriendRequest",
     "declineMultiplayerDraw",
     "declineMultiplayerRematch",
+    "dismissMultiplayerResultNotice",
     "endSpace",
     "ensureDevice",
     "ensureProfile",
