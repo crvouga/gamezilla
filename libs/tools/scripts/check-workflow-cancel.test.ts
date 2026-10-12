@@ -53,10 +53,10 @@ describe('Check workflow cancellation', () => {
     );
     const shardCounts = workflow.on.workflow_dispatch.inputs.shards.options;
     expect(shardCounts.every((count) => count >= 1 && count <= 64)).toBe(true);
-    // The spec corpus is about six hours of single-slot work; the cap is
-    // the most the planner packs for.
-    expect(workflow.on.workflow_call.inputs.shards.default).toBe(64);
-    expect(shardCounts).toContain(64);
+    // The account runs 40 jobs at once (Check run 38187450396 started 40 of
+    // 64 shards and queued the rest), so a higher cap only adds runner setups.
+    expect(workflow.on.workflow_call.inputs.shards.default).toBe(40);
+    expect(shardCounts).toContain(40);
   });
   // regression: concurrent-check-run-isolation
   test('a newer push supersedes its PR run; dispatched and release runs never cancel one another', () => {
