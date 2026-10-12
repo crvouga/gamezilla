@@ -245,6 +245,17 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
+    "test:contract:render": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
     "test:spec:0": {
       "dependsOn": ["^src"],
       "inputs": [

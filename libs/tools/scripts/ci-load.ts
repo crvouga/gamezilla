@@ -41,6 +41,7 @@ const EXACT_TASKS = new Set([
   'lint',
   'test',
   'test:contract',
+  'test:contract:render',
   'check:models',
   'check:worker-bundle',
   'check:offline-shell',

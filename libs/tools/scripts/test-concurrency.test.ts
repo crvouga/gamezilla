@@ -17,16 +17,18 @@ test('product model and rendering contracts respect local test concurrency', asy
   ) as {
     scripts: Record<string, string>;
   };
-  const script = manifest.scripts['test:contract']!;
-  const commands = script.split(' && ');
-  expect(commands).toHaveLength(2);
+  const commands = [
+    manifest.scripts['test:contract']!,
+    manifest.scripts['test:contract:render']!,
+  ];
+  expect(commands[0]).toContain('tests/quint/model-checks.test.ts');
+  expect(commands[0]).not.toContain('ui-quality-render');
+  expect(commands[1]).toContain('tests/ui-quality-render.contract.test.ts');
   for (const command of commands) {
     expect(command).toContain(
       '--max-concurrency=$(bun ../../pkgs/os-server/src/test-concurrency.ts 2)'
     );
   }
-  expect(commands[0]).toContain('tests/quint/model-checks.test.ts');
-  expect(commands[1]).toContain('tests/ui-quality-render.contract.test.ts');
   const cli = join(
     import.meta.dirname,
     '../../../pkgs/os-server/src/test-concurrency.ts'

@@ -123,9 +123,9 @@ export const MAIN_CHECK_TASKS = [
   '@libs/runtime-server#check:schema-evolution',
   '@libs/tools#check:actionlint',
   '@libs/tools#check:secrets',
+  'test:contract:render',
   'check:board-contract',
   '@apps/synthetic-population-worker#check:synthetic-population-foundation',
-  'check:synthetic-population',
 ] as const;
 
 /**

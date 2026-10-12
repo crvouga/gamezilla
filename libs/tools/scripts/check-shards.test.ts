@@ -298,10 +298,11 @@ test('dedicated solver runners are not a pack imbalance', () => {
 });
 
 test('renderer setup only serves uncached native browser tasks', () => {
-  expect(needsBrowser([task('@apps/product#test:contract')])).toBe(true);
+  expect(needsBrowser([task('@apps/product#test:contract:render')])).toBe(true);
+  expect(needsBrowser([task('@apps/product#test:contract')])).toBe(false);
   expect(needsBrowser([task('@pkgs/ui-testing-bun-webview#test')])).toBe(true);
   expect(
-    needsBrowser([{ ...task('@apps/product#test:contract'), hit: true }])
+    needsBrowser([{ ...task('@apps/product#test:contract:render'), hit: true }])
   ).toBe(false);
   expect(needsBrowser([task('@apps/product#tc')])).toBe(false);
 });
@@ -381,8 +382,10 @@ test('a shard target starts only the runners the uncached work needs', () => {
 
 // regression: check-shard-width-counts-oversized-group
 test('a task longer than the shard target starts no runner for a few seconds of work', () => {
-  // Check run 38198242466: 133 s and 97 s tasks counted as four runners at
-  // 60 s a shard, so 15 s, 9 s and 2 s of work each paid a runner's setup.
+  // Check run 38198242466: a 133 s task and a 97 s task counted as four
+  // runners at 60 s a shard, so 15 s, 9 s and 2 s of work each paid a
+  // runner's setup. The 133 s task was the population image build, which
+  // the gate no longer runs; the duration stays as the oversized fixture.
   const plan = balanceShards(
     [
       task('@apps/product#test:contract', 86),

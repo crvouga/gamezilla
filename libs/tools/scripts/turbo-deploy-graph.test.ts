@@ -119,6 +119,7 @@ const CHECK_LEAVES = [
   'lint',
   'test',
   'test:contract',
+  'test:contract:render',
   ...SPEC_PART_TASKS,
   'check:models',
   ...MODEL_PART_TASKS,
@@ -130,7 +131,6 @@ const CHECK_LEAVES = [
   '@libs/tools#check:secrets',
   'check:board-contract',
   '@apps/synthetic-population-worker#check:synthetic-population-foundation',
-  'check:synthetic-population',
 ];
 
 /** Deploy runs the whole check surface, then the leaves that need a live env. */
@@ -288,6 +288,7 @@ describe('turbo check/deploy graph invariants', () => {
       'lint',
       'test',
       'test:contract',
+      'test:contract:render',
       ...SPEC_PART_TASKS,
       'check:worker-bundle',
     ]) {

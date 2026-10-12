@@ -27,6 +27,12 @@ const JOBS = [
 describe('check verdict', () => {
   test('groups task identities into suites', () => {
     expect(suiteOf('@apps/product#tc')).toBe('Typecheck');
+    expect(suiteOf('@apps/product#test:contract:render')).toBe(
+      'Contract tests'
+    );
+    expect(suiteOf('@pkgs/matchmaking-root-harness#check:models:0')).toBe(
+      'Quint models'
+    );
     expect(suiteOf('@libs/chess-root-harness#check:models:7')).toBe(
       'Quint models'
     );

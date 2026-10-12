@@ -14,11 +14,18 @@ test('the product proof starts bounded solver workers before native replay', () 
   const pkg = readJson<{ scripts: Record<string, string> }>(
     'apps/product/package.json'
   );
-  const stages = pkg.scripts['test:contract']!.split(' && ');
-  expect(stages).toHaveLength(2);
-  expect(stages[0]).toContain('tests/quint/model-checks.test.ts');
-  expect(stages[1]).toContain('tests/ui-quality-render.contract.test.ts');
-  for (const stage of stages) {
+  const models = pkg.scripts['test:contract']!;
+  const render = pkg.scripts['test:contract:render']!;
+  expect(models).toContain('tests/quint/model-checks.test.ts');
+  expect(models).not.toContain('ui-quality-render');
+  expect(render).toContain('tests/ui-quality-render.contract.test.ts');
+  const turboFile = readJson<{
+    tasks: Record<string, { dependsOn?: readonly string[] }>;
+  }>('apps/product/turbo.json');
+  expect(turboFile.tasks['test:contract:render']!.dependsOn).toContain(
+    'test:contract'
+  );
+  for (const stage of [models, render]) {
     const ceiling = stage.match(/--max-concurrency=\$\(bun [^ ]+ (\d+)\)/)?.[1];
     expect(ceiling).toBeDefined();
     for (const limit of [undefined, '1', '2', '8']) {
@@ -98,6 +105,9 @@ test('native inference waits for the existing product symbolic and renderer cont
     'apps/product/turbo.json'
   );
   expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain('test:contract');
+  expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain(
+    'test:contract:render'
+  );
 });
 
 test('release Check and Deploy never run the visual gate or prepare its model', () => {
@@ -108,7 +118,7 @@ test('release Check and Deploy never run the visual gate or prepare its model', 
   expect(turbo.tasks['@apps/product#deploy']!.dependsOn).not.toContain(
     '@apps/product#check:ui-quality'
   );
-  for (const name of ['check', 'deploy'])
+  for (const name of ['check-pr', 'deploy'])
     expect(
       readFileSync(join(ROOT, '.github/workflows', `${name}.yml`), 'utf8')
     ).not.toContain('ui-quality');
