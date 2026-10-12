@@ -16,3 +16,21 @@ runs:
       env:
         CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
       run: echo "BUN_CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
+    # Chrome's sandbox needs unprivileged user namespaces. Ubuntu's AppArmor
+    # profile grants them to the system Chrome's path only, so the pinned
+    # Chrome for Testing exits as it starts ("Chrome process closed the pipe",
+    # Check run 38197118122).
+    - name: Allow the pinned Chrome its sandbox
+      shell: bash
+      run: |
+        knob=/proc/sys/kernel/apparmor_restrict_unprivileged_userns
+        if [ -e "$knob" ]; then echo 0 | sudo tee "$knob" > /dev/null; fi
+    # Chrome's own reason, if it cannot start, in seconds: the tests that use
+    # it print only that the process went away.
+    - name: Start the renderer once
+      shell: bash
+      env:
+        CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+      run: |
+        timeout 30 "$CHROME_PATH" --headless=new --dump-dom about:blank > /dev/null \
+          || echo "::warning::The pinned Chrome did not start"
