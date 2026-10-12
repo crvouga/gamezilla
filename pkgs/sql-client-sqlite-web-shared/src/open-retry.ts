@@ -31,12 +31,19 @@ export const WEB_OPEN_RETRY_DELAYS_MS = [
   250, 500, 1000, 2000, 4000, 4000, 3250,
 ] as const;
 
-/** True lock contention on an existing OPFS sync access handle. */
+/**
+ * True lock contention on an existing OPFS sync access handle: another
+ * context, usually the worker of the page this one replaced, still holds the
+ * file. Chromium says `NoModificationAllowedError`; WebKit says
+ * `InvalidStateError`, "The object is in an invalid state." The error may
+ * have crossed a worker boundary and kept only its message.
+ */
 export function isLikelyOpfsLockError(error: unknown): boolean {
   const message =
     error instanceof Error ? `${error.name} ${error.message}` : String(error);
   return (
     /NoModificationAllowedError/i.test(message) ||
+    /InvalidStateError|object is in an invalid state/i.test(message) ||
     /Access Handles|createSyncAccessHandle|locking/i.test(message)
   );
 }
