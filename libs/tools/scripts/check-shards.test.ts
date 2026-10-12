@@ -268,6 +268,35 @@ test('imbalance validation warns about load and unknown concentration', () => {
   );
 });
 
+// regression: check-dedicated-solver-balance-warning
+test('dedicated solver runners are not a pack imbalance', () => {
+  // Check run 38239315522: proof runners of 9–86s sat beside an even pack,
+  // and the unknown-duration tasks lived on that pack. Comparing the proofs
+  // with the pack warned about max/min, the heaviest shard, and concentration.
+  const solvers = [
+    task('@apps/product#test:contract', 86),
+    task('@pkgs/matchmaking-root-harness#check:models', 9),
+    ...Array.from({ length: 10 }, (_, index) => ({
+      ...task(`@libs/chess-root-harness#check:models:${index}`, 16),
+      durationSource: 'family' as const,
+    })),
+  ];
+  const packed = Array.from({ length: 144 }, (_, index) => ({
+    ...task(`pkg-${index}#test`, 5),
+    durationSource: 'fallback' as const,
+  }));
+  const plan = balanceShards([...solvers, ...packed], 40, 60);
+  const pack = plan.shards.filter(
+    (shard) =>
+      shard.stage === 'checks' &&
+      executes(shard) &&
+      shard.tasks.some((item) => item.taskId.startsWith('pkg-'))
+  );
+  expect(pack.map((shard) => shard.seconds)).toEqual(Array(12).fill(60));
+  expect(planWarnings(plan)).toEqual([]);
+  validatePlan(plan);
+});
+
 test('renderer setup only serves uncached native browser tasks', () => {
   expect(needsBrowser([task('@apps/product#test:contract')])).toBe(true);
   expect(needsBrowser([task('@pkgs/ui-testing-bun-webview#test')])).toBe(true);
