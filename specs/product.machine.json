@@ -6168,6 +6168,7 @@
                     "Multiplayer: Opening own multiplayer": {
                       "id": "Multiplayer: Opening own multiplayer",
                       "meta": {
+                        "routes": ["/chess/multiplayer"],
                         "description": "Opening observes the account's accepted search, current game or lasting result. These records belong to the account across devices and are not restarted by navigation.",
                         "snapshot": "Opening observes the account's accepted search, current game or lasting result. These records belong to the account across devices and are not restarted by navigation.",
                         "confidence": "assumed",
@@ -6176,7 +6177,8 @@
                           "specs/chess/multiplayer-game-over.feature:9",
                           "specs/chess/multiplayer-account-and-space.feature:6"
                         ],
-                        "events": []
+                        "events": [],
+                        "hints": ["App address: /chess/multiplayer"]
                       },
                       "on": {
                         "No accepted opponent search or multiplayer game exists": {
