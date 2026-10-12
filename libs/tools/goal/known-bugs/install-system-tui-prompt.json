@@ -1,0 +1,4 @@
+{
+  "summary": "bun install-system stopped on a confirmation prompt inside Turborepo's terminal UI. The UI keeps the keyboard, so y never reached the task. mise upgrade takes --yes. Homebrew's upgrade ask is on by default and ignores NONINTERACTIVE; brew upgrade now passes --yes and HOMEBREW_NO_ASK=1.",
+  "regressionTest": "libs/tools/scripts/install-system.test.ts"
+}
