@@ -34,9 +34,13 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   '@pkgs/db-indexes-postgres#test:contract': 600,
   '@pkgs/kv-postgres#test:contract': 600,
   '@pkgs/object-store-s3#test:contract': 600,
-  // One induction proof (`matching.qnt`, declared `verifyTimeoutMs` 480 s)
-  // measured 330 s alone and 358 s as a task on a 12-core laptop.
-  '@pkgs/matchmaking-root-harness#check:models': 480,
+  // `matching.qnt` pairUp (phase 4) measured about 200 s; the overlapped
+  // proof measured 358 s as one task on a 12-core laptop. The two tasks
+  // keep that budget until a cold run on the warm runner remeasures them.
+  // Twelve serial phase tasks would add up past the run deadline, because
+  // one solver slot runs them one at a time.
+  '@pkgs/matchmaking-root-harness#check:models:0': 480,
+  '@pkgs/matchmaking-root-harness#check:models:1': 480,
   // `multiplayer.qnt`, alone in its part: twenty actions over three people's
   // six devices, explored two steps from every reachable start. 309 s on a
   // 12-core laptop.

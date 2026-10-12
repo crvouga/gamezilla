@@ -10,7 +10,8 @@
     ]
   },
   "scripts": {
-    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
+    "check:models:0": "bun run ../../libs/tools/scripts/check-models.ts --phase 4/12",
+    "check:models:1": "bun run ../../libs/tools/scripts/check-models.ts --phase 0-3,5-11/12",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --parallel=1 --timeout 120000 tests",
@@ -53,5 +54,10 @@
   "specDomains": [
     "matchmaking"
   ],
-  "specParts": 8
+  "specParts": 8,
+  "proofParts": 12,
+  "proofGroups": [
+    "4",
+    "0-3,5-11"
+  ]
 }

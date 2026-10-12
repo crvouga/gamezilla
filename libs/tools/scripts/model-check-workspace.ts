@@ -30,7 +30,9 @@ function removeModelEvidence(report: string, specUri: string): void {
 export async function withModelWorkspace<T>(
   packageDir: string,
   check: (workspace: string) => Promise<T>,
-  only?: readonly string[]
+  only?: readonly string[],
+  /** A phase task adds its evidence and leaves the model's other phases. */
+  mergeEvidence = false
 ): Promise<T> {
   const cache = join(packageDir, '.cache');
   mkdirSync(cache, { recursive: true });
@@ -41,7 +43,8 @@ export async function withModelWorkspace<T>(
   } finally {
     try {
       if (only === undefined) rmSync(report, { recursive: true, force: true });
-      else for (const specUri of only) removeModelEvidence(report, specUri);
+      else if (!mergeEvidence)
+        for (const specUri of only) removeModelEvidence(report, specUri);
       copyModelEvidence(workspace, report);
     } finally {
       rmSync(workspace, { recursive: true, force: true });

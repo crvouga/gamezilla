@@ -32,8 +32,8 @@ import { cachedVerifyInput } from './cached-verify-input';
 import { runQuint } from './run-quint';
 import { QUINT_CLI, quintModuleName } from './simulate';
 import { runVerifyPhaseGroup } from './verify-phase-pool';
-import type { VerifyPhase } from './verify-phases';
-import { verifyPhases } from './verify-phases';
+import type { PhaseSelection, VerifyPhase } from './verify-phases';
+import { selectVerifyPhase, verifyPhases } from './verify-phases';
 
 export type VerifyOptions = {
   /** Absolute path of the `.qnt` model. */
@@ -60,10 +60,17 @@ export type VerifyOptions = {
   readonly invariantMode?: 'before' | 'after';
   /** Use concrete inference for models that have no polymorphic operators. */
   readonly inferPolymorphicTypes?: boolean;
+  /** Run these phases of a split proof. The count must match the model. */
+  readonly phase?: PhaseSelection;
 };
 
 export type VerifyResult =
-  | { readonly ok: true; readonly durationMs: number }
+  | {
+      readonly ok: true;
+      readonly durationMs: number;
+      /** Invariants this run proved. A phase proves its own share. */
+      readonly invariants: readonly string[];
+    }
   | { readonly ok: false; readonly output: string };
 
 const DOWNLOADING = 'Downloading Apalache';
@@ -79,20 +86,58 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   if ('error' in apalache) return { ok: false, output: apalache.error };
   rmSync(options.outDir, { recursive: true, force: true });
   mkdirSync(options.outDir, { recursive: true });
-  const phases = verifyPhases({
-    ...options,
-    source: readFileSync(options.specPath, 'utf8'),
-    module: quintModuleName(options.specPath),
-  });
+  const phases = phasesOf(options);
+  if ('ok' in phases) return phases;
   const env = verifyEnv({
     env: process.env,
     quintHome: linkQuintHome(options.outDir, apalache.home),
   });
   const elapsed = wallStopwatch();
-  const deadlineMs = verifyDeadlineMs(options.timeoutMs);
+  const failure = await runSelectedPhases({
+    options,
+    phases,
+    env,
+    deadlineMs: verifyDeadlineMs(options.timeoutMs),
+    elapsed,
+  });
+  if (failure !== undefined) return failure;
+  return {
+    ok: true,
+    durationMs: elapsed(),
+    invariants: phases.flatMap((phase) => phase.invariants),
+  };
+}
+
+function phasesOf(
+  options: VerifyOptions
+): readonly VerifyPhase[] | VerifyResult {
+  const selected = selectVerifyPhase(
+    verifyPhases({
+      ...options,
+      source: readFileSync(options.specPath, 'utf8'),
+      module: quintModuleName(options.specPath),
+    }),
+    options.phase
+  );
+  if ('error' in selected) {
+    return {
+      ok: false,
+      output: `quint verify ${options.specPath}: ${selected.error}`,
+    };
+  }
+  return selected.phases;
+}
+
+async function runSelectedPhases(input: {
+  readonly options: VerifyOptions;
+  readonly phases: readonly VerifyPhase[];
+  readonly env: Record<string, string>;
+  readonly deadlineMs: number;
+  readonly elapsed: () => number;
+}): Promise<VerifyResult | undefined> {
   const prepared = {
-    ...options,
-    specPath: cachedVerifyInput(options.specPath, options.outDir),
+    ...input.options,
+    specPath: cachedVerifyInput(input.options.specPath, input.options.outDir),
   };
   const runPhase = async (
     phase: VerifyPhase
@@ -102,7 +147,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
         ? prepared
         : {
             ...prepared,
-            outDir: join(options.outDir, `case-${String(phase.case)}`),
+            outDir: join(input.options.outDir, `case-${String(phase.case)}`),
           };
     mkdirSync(phaseOptions.outDir, { recursive: true });
     const configPath = verifyConfig(phaseOptions, phase);
@@ -110,10 +155,14 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
     const run = await runQuint({
       args: verifyArgs(phaseOptions, phase, port, configPath),
       cwd: phaseOptions.outDir,
-      env,
-      timeoutMs: Math.max(0, deadlineMs - elapsed()),
+      env: input.env,
+      timeoutMs: Math.max(0, input.deadlineMs - input.elapsed()),
     });
-    return runFailure({ ...options, timeoutMs: deadlineMs }, phase, run);
+    return runFailure(
+      { ...input.options, timeoutMs: input.deadlineMs },
+      phase,
+      run
+    );
   };
   for (const name of [
     'bounded',
@@ -123,13 +172,13 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
     'implication',
   ] as const) {
     const failure = await runVerifyPhaseGroup(
-      phases.filter((phase) => phase.name === name),
+      input.phases.filter((phase) => phase.name === name),
       runPhase,
       process.env['MODEL_CHECK_CONCURRENCY']
     );
     if (failure !== undefined) return failure;
   }
-  return { ok: true, durationMs: elapsed() };
+  return undefined;
 }
 
 function runFailure(
@@ -141,7 +190,7 @@ function runFailure(
     options.inductiveInvariant === undefined
       ? `max steps ${String(options.maxSteps)}`
       : `induction: ${options.inductiveInvariant}`;
-  const header = `quint verify ${options.specPath} (invariants: ${options.invariants.join(', ')}; ${strategy}; ${phase.name})`;
+  const header = `quint verify ${options.specPath} (invariants: ${phase.invariants.join(', ')}; ${strategy}; ${phase.name})`;
   if (run.output.includes(DOWNLOADING)) {
     return {
       ok: false,

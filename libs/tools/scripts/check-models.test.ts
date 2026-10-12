@@ -2,6 +2,8 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
+import { modelInvariants, quintModuleName } from '@pkgs/quint-server/simulate';
+import { verifyPhases } from '@pkgs/quint-server/verify-phases';
 import {
   DEFAULT_VERIFY_STEPS,
   DEFAULT_VERIFY_TIMEOUT_MS,
@@ -14,6 +16,7 @@ import {
   modelEncodingOf,
   modelPartChecks,
   modelPartOf,
+  modelPhaseOf,
   verifyStepsOf,
   verifyTimeoutOf,
 } from './check-models';
@@ -199,6 +202,52 @@ describe('model parts', () => {
     for (const value of ['14/14', '1', 'a/b', '-1/2', '0/0'])
       expect(() => modelPartOf(['--part', value])).toThrow('--part wants k/n');
     expect(() => modelPartOf(['--part'])).toThrow('--part wants k/n');
+  });
+
+  test('--phase names a share of one model and refuses a hole', () => {
+    expect(modelPhaseOf([])).toBeNull();
+    expect(modelPhaseOf(['--phase', '4/12'])).toEqual({
+      indexes: [4],
+      count: 12,
+    });
+    expect(modelPhaseOf(['--phase', '0-3,5-11/12'])?.indexes).toHaveLength(11);
+    expect(() => modelPhaseOf(['--phase', '12/12'])).toThrow('--phase wants');
+  });
+
+  test('matching isolates pairUp and overlaps the other phases in one task', () => {
+    const matching = specPackages().find(
+      (candidate) => candidate.name === '@pkgs/matchmaking-root-harness'
+    )!;
+    const manifest = JSON.parse(
+      readFileSync(join(REPO_ROOT, matching.dir, 'package.json'), 'utf8')
+    ) as {
+      proofParts: number;
+      proofGroups: readonly string[];
+      scripts: Record<string, string>;
+    };
+    const specUri = 'specs/matchmaking/matching.qnt';
+    const source = readFileSync(join(REPO_ROOT, specUri), 'utf8');
+    const phases = verifyPhases({
+      source,
+      module: quintModuleName(specUri),
+      invariants: modelInvariants(source),
+      maxSteps: 4,
+      inductiveInvariant: '_proof',
+      separateInduction: true,
+    });
+    expect(phases).toHaveLength(manifest.proofParts);
+    expect(manifest.proofGroups).toEqual(['4', '0-3,5-11']);
+    expect(manifest.scripts['check:models']).toBeUndefined();
+    expect(phases[4]?.step).toContain('pairUp');
+    for (const [index, phase] of phases.entries()) {
+      if (index !== 4) expect(phase.step ?? '').not.toContain('pairUp');
+    }
+    expect(
+      taskBudgetSeconds('@pkgs/matchmaking-root-harness#check:models:0', false)
+    ).toBe(480);
+    expect(
+      taskBudgetSeconds('@pkgs/matchmaking-root-harness#check:models:1', false)
+    ).toBe(480);
   });
 
   test('the parts of a package hold every model exactly once', () => {
