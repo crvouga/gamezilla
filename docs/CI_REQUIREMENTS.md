@@ -23,7 +23,7 @@ Wall clock is from the push to a posted verdict, on a warm runner that is free w
 
 The pool has two runners, so one in-flight check does not spend the other's budget. A third concurrent check waits, and that wait sits outside the promise. A newer push to the same pull request cancels the older run.
 
-Release verification, deploy, and health have their own deadlines. They are not these promises.
+Release verification, deploy, health, and the nightly run have their own deadlines. They are not these promises. The nightly run is the `nightly` profile in [`libs/tools/scripts/check-profile.ts`](../libs/tools/scripts/check-profile.ts); it never gates a merge.
 
 ## What a pull-request check runs
 
@@ -31,7 +31,7 @@ The affected Check gate tasks. A cache hit is not scheduled.
 
 A source change reruns that package and every transitive workspace dependent, because those tasks depend on `^src`. A test-only change stays on the package that holds the test: `src` inputs exclude `*.test.ts`. `mise.toml` and `tsconfig.base.json` are global dependencies, and `bun.lock` is the audit input, so each of those misses the whole corpus. That full miss is still the five-minute promise.
 
-Health, deploy, the synthetic-population image build, and `@apps/product#check:ui-quality` stay on the release path.
+Health, deploy, and `@apps/product#check:ui-quality` stay on the release path. The population worker's tests run on Bun inside this check.
 
 ## Hosted load this replaces
 
@@ -88,23 +88,23 @@ A foundational package such as `@pkgs/property-shared` misses almost the whole c
 
 - `//#deploy`, the environment apply, migrations, and worker publish
 - Health and the `@synthetic` probes
-- The synthetic-population image build
-- `@apps/product#check:ui-quality`
-- A laptop `bun check`, which keeps the 10 minute deadline and admits one check at a time
+- `@apps/product#check:ui-quality` and the other nightly suites (Check Nightly)
+- Test reports, traces and coverage: the pull-request check keeps none (Check Nightly owns them)
+- A laptop `bun check-pr`, which keeps the 10 minute deadline and admits one check at a time
 
 ## Measured load
 
 <!-- ci-load:start -->
-Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 536 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `check:board-contract`, reserves 60 seconds until a cold Check is harvested.
+Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 537 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `check:board-contract`, reserves 60 seconds until a cold Check is harvested.
 
 | | |
 | --- | --- |
 | Packages | 316 |
-| Check scripts | 1119 |
-| Measured scripts | 191 |
-| Estimated scripts | 928 |
-| Stale cost keys | 536 |
-| Cold CPU | 5384 s |
+| Check scripts | 1121 |
+| Measured scripts | 190 |
+| Estimated scripts | 931 |
+| Stale cost keys | 537 |
+| Cold CPU | 5467 s |
 | Spec parts | 3632 s across 215 tasks |
 | Longest task | @apps/product#test:contract 86 s |
 
@@ -113,13 +113,13 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | Family | Tasks | CPU |
 | --- | --- | --- |
 | test:spec | 215 | 3632 s |
-| check:models | 25 | 400 s |
+| check:models | 26 | 423 s |
 | lint | 315 | 340 s |
 | tc | 315 | 329 s |
 | test | 218 | 265 s |
 | check:board-contract | 4 | 240 s |
 | test:contract | 10 | 95 s |
-| ci:statecharts | 1 | 60 s |
+| test:contract:render | 1 | 60 s |
 
 ### Leaves
 
@@ -134,9 +134,9 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 | Package | CPU | Longest task |
 | --- | --- | --- |
+| @apps/product | 209 s | @apps/product#test:contract 86 s |
+| @pkgs/matchmaking-root-harness | 161 s | @pkgs/matchmaking-root-harness#test:spec:1 17 s |
 | @pkgs/chess-board-root-harness | 156 s | @pkgs/chess-board-root-harness#test:spec:0 17 s |
-| @apps/product | 149 s | @apps/product#test:contract 86 s |
-| @pkgs/matchmaking-root-harness | 138 s | @pkgs/matchmaking-root-harness#test:spec:1 17 s |
 | @libs/tools | 88 s | @libs/tools#ci:statecharts 60 s |
 | @pkgs/auth-root-harness | 45 s | @pkgs/auth-root-harness#check:models 21 s |
 
@@ -146,9 +146,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 222 | 5139 s | @apps/product#test:contract 86 s |
-| @pkgs/clock-shared | 220 | 5130 s | @apps/product#test:contract 86 s |
-| @pkgs/assert-root-shared | 215 | 5112 s | @apps/product#test:contract 86 s |
+| @pkgs/property-shared | 222 | 5222 s | @apps/product#test:contract 86 s |
+| @pkgs/clock-shared | 220 | 5213 s | @apps/product#test:contract 86 s |
+| @pkgs/assert-root-shared | 215 | 5195 s | @apps/product#test:contract 86 s |
 
 ### Runner
 
@@ -160,7 +160,7 @@ Work budget 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers stay at or 
 | Other slots | 8 |
 | Cores required | 26 |
 | Memory required | 40 GiB |
-| Estimated makespan | 227 s |
+| Estimated makespan | 230 s |
 | Provision | 2 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->
