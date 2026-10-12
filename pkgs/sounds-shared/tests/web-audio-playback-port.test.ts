@@ -18,7 +18,13 @@ type FakeSource = AudioSourceNodeLike & {
 function fakeEngine(seconds = 0.3) {
   const sources: FakeSource[] = [];
   const pending: (() => void)[] = [];
-  const state = { context: 'running', time: 0, nowMs: 0, loadsHeld: false };
+  const state = {
+    context: 'running',
+    time: 0,
+    nowMs: 0,
+    loadsHeld: false,
+    undecodable: false,
+  };
   const urlOf = new WeakMap<AudioBufferLike, string>();
   const context: AudioContextLike = {
     get state() {
@@ -59,10 +65,18 @@ function fakeEngine(seconds = 0.3) {
       };
       return source;
     },
-    decodeAudioData(data, onDecoded) {
+    decodeAudioData(data, onDecoded, onError) {
+      if (state.undecodable) {
+        // What a browser does with bytes that are not audio: the callback
+        // and the returned promise both carry the error.
+        const error = new Error('Decoding failed');
+        onError(error);
+        return Promise.reject(error);
+      }
       const buffer = { duration: seconds };
       urlOf.set(buffer, new TextDecoder().decode(data));
       onDecoded(buffer);
+      return undefined;
     },
   };
   return {
@@ -251,4 +265,31 @@ test('replacing an effect loads the new sound and stops the old one', async () =
 
   expect(fake.sources[0]?.stopped).toBe(true);
   expect(fake.started()).toEqual(['/sounds/one.mp3@0', '/sounds/two.mp3@0']);
+});
+
+// regression: sounds-undecodable-effect-unhandled-rejection
+test('an effect whose bytes are not audio stays silent without an unhandled rejection', async () => {
+  const fake = fakeEngine();
+  fake.state.undecodable = true;
+  const port = createWebAudioPlaybackPort(fake.options);
+  const player = port.createPlayer('/sounds/not-audio.mp3');
+  const rejections: unknown[] = [];
+  const onRejection = (reason: unknown): void => {
+    rejections.push(reason);
+  };
+  process.on('unhandledRejection', onRejection);
+  try {
+    void player.play();
+    await settle();
+    await settle();
+  } finally {
+    process.off('unhandledRejection', onRejection);
+  }
+
+  expect(rejections).toEqual([]);
+  expect(fake.started()).toEqual([]);
+  expect(port.getStatus(player)).toMatchObject({
+    isLoaded: false,
+    playing: false,
+  });
 });

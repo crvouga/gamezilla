@@ -80,9 +80,12 @@ function decode(
   context: AudioContextLike,
   data: ArrayBuffer
 ): Promise<AudioBufferLike> {
-  // The callback form: older WebKit has no promise-returning decode.
+  // The callback form: older WebKit has no promise-returning decode. Newer
+  // engines return a promise as well, which rejects with the same error the
+  // callback already delivered; left alone it is an unhandled rejection.
   return new Promise((resolve, reject) => {
-    context.decodeAudioData(data, resolve, reject);
+    const alsoReturned = context.decodeAudioData(data, resolve, reject);
+    if (alsoReturned instanceof Promise) alsoReturned.catch(() => undefined);
   });
 }
 
