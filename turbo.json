@@ -2703,6 +2703,16 @@
       ],
       "outputs": [".cache/browser/**"]
     },
+    "@libs/infra-shared#generate:infra-map": {
+      "inputs": [
+        "src/**",
+        "scripts/render-infra-map.ts",
+        "tofu/**",
+        "policy/**",
+        "package.json"
+      ],
+      "outputs": [".cache/infra-map.html"]
+    },
     "@libs/chess-puzzle-server#export:puzzles-load": {
       "cache": false,
       "passThroughEnv": ["*"]

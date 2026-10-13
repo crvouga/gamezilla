@@ -251,6 +251,10 @@ Three rules cover every deployed resource.
 
 MQTT carries invalidation. Postgres is the record. A missed message is recovered by refetching. PlanetScale and AWS IoT have no local mode, so `bun run dev` uses Mockingbird Postgres and a local MQTT broker. The Laptop section is the rest of that substitute.
 
+### Map
+
+`bun run infra:map` writes `libs/infra-shared/.cache/infra-map.html`: every stack, module and resource, the topology between them, and a logo and console link for each, per environment. It is evaluated from `libs/infra-shared/tofu` and `policy/stateful.rego` alone (no credentials, state or network), so it cannot drift: `bun install` regenerates it, and `libs/infra-shared/tests/infra-map.test.ts` fails when a declared resource is missing from it or a resource type has no title, logo or console link (add the type to `src/infra-kinds-<provider>.ts`).
+
 ### Global, once (bootstrap)
 
 A person applies this. CI does not.
