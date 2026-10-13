@@ -8,16 +8,14 @@ variable "environment" {
   type = string
 }
 
-variable "stack_slug" {
-  type = string
-}
-
-data "grafana_data_source" "metrics" {
-  name = "grafanacloud-${var.stack_slug}-prom"
-}
-
-data "grafana_data_source" "logs" {
-  name = "grafanacloud-${var.stack_slug}-logs"
+# Grafana Cloud provisions these ids on every stack. The slug-qualified names
+# (grafanacloud-<slug>-prom, grafanacloud-<slug>-logs) are a different field.
+# Reading them with data.grafana_data_source needs the views provider, whose
+# auth is the service account token this same apply creates. The Grafana
+# provider then has no client and the first plan fails.
+locals {
+  metrics_uid = "grafanacloud-prom"
+  logs_uid    = "grafanacloud-logs"
 }
 
 resource "grafana_folder" "this" {
@@ -30,7 +28,7 @@ resource "grafana_dashboard" "this" {
   folder   = grafana_folder.this.uid
   config_json = templatefile("${path.module}/${each.value}", {
     environment = var.environment
-    metrics_uid = data.grafana_data_source.metrics.uid
-    logs_uid    = data.grafana_data_source.logs.uid
+    metrics_uid = local.metrics_uid
+    logs_uid    = local.logs_uid
   })
 }

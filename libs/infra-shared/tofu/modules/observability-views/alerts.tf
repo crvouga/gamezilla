@@ -57,14 +57,14 @@ resource "grafana_rule_group" "this" {
       }
       data {
         ref_id         = "A"
-        datasource_uid = data.grafana_data_source.metrics.uid
+        datasource_uid = local.metrics_uid
         relative_time_range {
           from = 3600
           to   = 0
         }
         model = jsonencode({
           refId      = "A", expr = rule.value.expr, instant = true, range = false,
-          datasource = { type = "prometheus", uid = data.grafana_data_source.metrics.uid }
+          datasource = { type = "prometheus", uid = local.metrics_uid }
         })
       }
       data {

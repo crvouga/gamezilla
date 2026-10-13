@@ -30,6 +30,18 @@ const HEALTH_WORKFLOW = join(
   import.meta.dirname,
   '../../../.github/workflows/health.yml'
 );
+const OBSERVABILITY_VIEWS = join(
+  import.meta.dirname,
+  '../../infra-shared/tofu/modules/observability-views/main.tf'
+);
+const OBSERVABILITY_ALERTS = join(
+  import.meta.dirname,
+  '../../infra-shared/tofu/modules/observability-views/alerts.tf'
+);
+const OBSERVABILITY_WIRING = join(
+  import.meta.dirname,
+  '../../infra-shared/tofu/stacks/foundation/observability-views.tf'
+);
 
 describe('foundation bootstrap', () => {
   // regression: foundation-provider-bootstrap-cycle
@@ -54,6 +66,21 @@ describe('foundation bootstrap', () => {
       'from = module.secrets.random_password.generated'
     );
     expect(imports.match(/destroy = false/g)?.length).toBe(12);
+  });
+
+  // regression: grafana-views-read-before-token
+  test('the first foundation plan does not read Grafana with the token it is creating', () => {
+    const views = readFileSync(OBSERVABILITY_VIEWS, 'utf8');
+    const alerts = readFileSync(OBSERVABILITY_ALERTS, 'utf8');
+    const wiring = readFileSync(OBSERVABILITY_WIRING, 'utf8');
+
+    expect(views).not.toContain('data "grafana_data_source"');
+    expect(alerts).not.toContain('data.grafana_data_source');
+    expect(views).toContain('metrics_uid = "grafanacloud-prom"');
+    expect(views).toContain('logs_uid    = "grafanacloud-logs"');
+    expect(wiring).toContain(
+      'auth  = grafana_cloud_stack_service_account_token.observability.key'
+    );
   });
 
   // regression: neki-aws-region-name-is-not-region-slug

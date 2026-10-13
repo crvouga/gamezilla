@@ -26,7 +26,6 @@ provider "grafana" {
 module "observability_views" {
   source      = "../../modules/observability-views"
   environment = var.env
-  stack_slug  = var.grafana.stack_slug
   providers = {
     grafana = grafana.views
   }
