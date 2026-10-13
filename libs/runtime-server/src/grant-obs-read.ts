@@ -3,8 +3,8 @@ import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
 
 /**
- * `obs_read` is created by `planetscale_neki_role.obs_read` in
- * libs/infra-shared/tofu/modules/database. The login name Neki issues may carry a
+ * `obs_read` is created by `planetscale_postgres_branch_role.obs_read` in
+ * libs/infra-shared/tofu/modules/database. The login name PlanetScale issues may carry a
  * suffix, in which case this grant is skipped and `pg_read_all_data` still
  * covers SELECT. Foundation apply runs before reconcile, so the role exists
  * here on a deployed environment and is absent on a local database. Tables

@@ -13,7 +13,7 @@
  *   1. edge       custom domains              tofu destroy (edge)
  *   2. Workers    application              wrangler delete
  *   3. objects    the env's bucket, emptied   scripts/empty-bucket.ts
- *   4. foundation Neki database, Hyperdrive, bucket, IoT broker,
+ *   4. foundation Postgres database, Hyperdrive, bucket, IoT broker,
  *                 trace tokens, secrets       tofu destroy (foundation)
  *   5. fleet      the env's secrets environment + shared import
  *                                             tofu destroy --stack fleet --env

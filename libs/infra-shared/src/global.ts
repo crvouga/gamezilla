@@ -29,7 +29,7 @@ export const globalFileSchema = z
       })
       .strict(),
     /**
-     * PlanetScale organization slug and the Neki region. `organization` is
+     * PlanetScale organization slug and the Postgres region. `organization` is
      * the slug PlanetScale shows for the account; `gamezilla` matches the
      * project name and has not been confirmed against the account. A wrong
      * slug fails the foundation apply with the organization's name.

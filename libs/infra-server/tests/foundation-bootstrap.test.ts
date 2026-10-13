@@ -33,7 +33,7 @@ const HEALTH_WORKFLOW = join(
 
 describe('foundation bootstrap', () => {
   // regression: foundation-provider-bootstrap-cycle
-  test('a first plan never connects through the Neki role it is creating', () => {
+  test('a first plan never connects through the Postgres role it is creating', () => {
     const foundation = readFileSync(FOUNDATION, 'utf8');
     const database = readFileSync(DATABASE, 'utf8');
 
@@ -57,7 +57,7 @@ describe('foundation bootstrap', () => {
   });
 
   // regression: neki-aws-region-name-is-not-region-slug
-  test('uses the PlanetScale Neki slug for AWS us-east-1', () => {
+  test('uses the PlanetScale region slug for AWS us-east-1', () => {
     const variables = JSON.parse(readFileSync(GLOBAL_VARIABLES, 'utf8')) as {
       planetscale: { region: string };
     };
