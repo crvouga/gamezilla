@@ -1,0 +1,4 @@
+{
+  "summary": "Deploy 38453758590 could not create the Synthetic Population Railway project because gamezilla-development-synthetic-population is 42 characters and Railway allows 1 to 32. The project had never been created. Each environment now uses <project>-<env>-population (gamezilla-dev-population, gamezilla-prd-population), and the module rejects a name outside that length.",
+  "regressionTest": "libs/infra-server/tests/foundation-bootstrap.test.ts"
+}

@@ -4,7 +4,14 @@ terraform {
     railway = { source = "jamesprnich/railway" }
   }
 }
-variable "name" { type = string }
+variable "name" {
+  type        = string
+  description = "Railway project name. Railway allows 1 to 32 characters, and the project is created once."
+  validation {
+    condition     = length(var.name) >= 1 && length(var.name) <= 32
+    error_message = "Railway project names must be between 1 and 32 characters."
+  }
+}
 variable "workspace_id" { type = string }
 variable "environment" { type = string }
 variable "api_origin" { type = string }

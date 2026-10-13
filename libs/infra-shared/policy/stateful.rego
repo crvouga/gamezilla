@@ -64,9 +64,11 @@ retired := {
 	# Sealed the Synthetic Users' sign-in secrets. They sign in with emailed
 	# links now, and nothing is sealed for them. Deleting it loses no data.
 	"module.secrets.random_password.generated_value[\"POPULATION_CREDENTIAL_SECRET\"]",
-	# Replaced by single-node vanilla Postgres (planetscale_postgres_branch).
-	# Deleting these drops the Neki rows; migrate rebuilds an empty schema.
-	# Drop the entries once both environments have applied without them.
+	# The Neki databases stay at PlanetScale. Foundation forgets these addresses
+	# (`destroy = false`): a role drop returns 422 while the branch still
+	# references the role, and Postgres cannot be created on the Neki database.
+	# The indexed form stays here so a plan that still deletes one instance is
+	# allowed. Drop the entries once both environments have applied without them.
 	"module.database.planetscale_neki_branch.production[0]",
 	"module.database.planetscale_neki_branch.standard[0]",
 	"module.database.planetscale_neki_role.migrate",

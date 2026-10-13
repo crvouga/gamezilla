@@ -142,3 +142,10 @@ output "management_token" {
 output "grafana_url" {
   value = data.grafana_cloud_stack.this.url
 }
+
+# Creating a stack service account waits on `{url}/api/health`. An archived
+# instance answers that URL with 404 for the whole provider timeout, so
+# callers create dashboards only while the instance itself is active.
+output "grafana_instance_ready" {
+  value = data.grafana_cloud_stack.this.status == "active"
+}
