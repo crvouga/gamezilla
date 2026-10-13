@@ -1,23 +1,22 @@
 #!/usr/bin/env bun
 /**
- * The environments the Deploy and Health workflows fan out over, read from
- * the env files (`tofu/envs/<env>.tfvars.json`) so a new environment needs no
- * workflow edit. Printed as `GITHUB_OUTPUT` lines by a job that loads no
- * secrets (the runner drops any job output containing a masked value):
+ * The environments the Health workflow fans out over, read from the env files
+ * (`tofu/envs/<env>.tfvars.json`) so a new environment needs no workflow edit.
+ * Printed as `GITHUB_OUTPUT` lines by a job that loads no secrets (the runner
+ * drops any job output containing a masked value):
  *
  *   bun run libs/infra-shared/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
  *
- *   standard=["dev"]        deployed first, in parallel
- *   production=["prd"]      deployed only once every standard env is green
+ *   production=["prd"]      runs in the GitHub `production` environment
  *   all=["dev","prd"]       probed by the Health workflow
- *   shared=shared           the secrets env the fleet stack applies with
  *
- * Every list is a JSON array; an empty one is `[]` (the workflows skip the
- * matrix job instead of handing GitHub an empty matrix).
+ * Every list is a JSON array; an empty one is `[]` (the workflow skips the
+ * matrix job instead of handing GitHub an empty matrix). The Deploy workflow
+ * names its environments in its own jobs; a test keeps those in step with the
+ * env files.
  */
 import type { EnvFile } from '@libs/infra-shared/env-file';
 import { ENV_FILES } from '@libs/infra-shared/envs';
-import { GLOBAL } from '@libs/infra-shared/global';
 
 export type WorkflowEnvMatrix = {
   readonly standard: readonly string[];
@@ -39,28 +38,15 @@ export function workflowEnvMatrix(envs: readonly EnvFile[]): WorkflowEnvMatrix {
   return { standard: names('standard'), production: names('production') };
 }
 
-/**
- * `GITHUB_OUTPUT` lines: `standard`, `production` and `all` (standard first),
- * plus `shared`, the secrets env holding the account-wide credentials.
- */
-export function workflowEnvOutputs(
-  matrix: WorkflowEnvMatrix,
-  sharedEnv: string
-): string {
+/** `GITHUB_OUTPUT` lines: `production` and `all` (standard first). */
+export function workflowEnvOutputs(matrix: WorkflowEnvMatrix): string {
   const all = [...matrix.standard, ...matrix.production];
   return [
-    `standard=${JSON.stringify(matrix.standard)}`,
     `production=${JSON.stringify(matrix.production)}`,
     `all=${JSON.stringify(all)}`,
-    `shared=${sharedEnv}`,
   ].join('\n');
 }
 
 if (import.meta.main) {
-  console.log(
-    workflowEnvOutputs(
-      workflowEnvMatrix(Object.values(ENV_FILES)),
-      GLOBAL.infisical.shared_env
-    )
-  );
+  console.log(workflowEnvOutputs(workflowEnvMatrix(Object.values(ENV_FILES))));
 }
