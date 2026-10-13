@@ -40,3 +40,23 @@ Feature: When paid access runs out
       And Alice has been offline for 8 days
       When the connection comes back
       Then Alice has paid access within 30 seconds
+
+  Rule: Signing in again during grace keeps the paid access, and after grace it is free
+
+    Scenario: Signing in again during grace keeps paid access
+      Given Alice has subscribed to Plus
+      And Alice's free trial has ended
+      And Alice has canceled the membership in the billing portal
+      When Alice's billing period has run out
+      And Alice signs in with Google
+      And Alice views the billing plans
+      Then Alice has paid access
+
+    Scenario: Signing in again after grace has free access
+      Given Alice has subscribed to Plus
+      And Alice's free trial has ended
+      And Alice has canceled the membership in the billing portal
+      When Alice's billing period has run out
+      And Alice signs in with Google
+      And 8 days pass
+      Then Alice has free access

@@ -52,7 +52,7 @@ Feature: One game record for both spaces
     Scenario: The phone cannot record that same move a second time
       Given Alice's multiplayer move e2 to e4 was accepted from her other device
       When Alice plays e2 to e4 as a multiplayer move on her phone
-      Then Alice is told it is not her multiplayer turn
+      Then Alice is told it is not their multiplayer turn
       And Bob sees the multiplayer move list "1. e4"
 
   Rule: Being idle adds nothing to the game record

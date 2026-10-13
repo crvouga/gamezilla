@@ -104,10 +104,11 @@ terms:
     definition: >-
       Say no to a friend request, from the inbox or from the asker's
       profile. The request goes away and nobody becomes friends; asking the
-      same person again within a day is refused.
-    forms: [declines a friend request, declined a friend request, declining a friend request]
+      same person again within a day is refused. A day passing ends that
+      waiting period, and the asker can ask again.
+    forms: [declines a friend request, declined a friend request, declining a friend request, a day passes]
     avoid: [turn down, turns down, turned down, turning down, reject, rejects, rejected]
-    model: [decline, declineFromProfile, declined]
+    model: [decline, declineFromProfile, declined, dayPasses]
 
   - term: cancel
     definition: >-
@@ -195,6 +196,57 @@ terms:
       person's profile. Not a friend request itself.
     forms: [notices]
     avoid: [notification, alert]
+
+  - term: inbox item
+    definition: >-
+      One thing waiting in a person's inbox, such as a friend request.
+      Opening it while they have a connection marks it opened. Opening it
+      with no connection keeps it still waiting, and they are told the
+      connection is missing.
+    forms: [inbox items, marked opened, still waiting, opens the friend request]
+    avoid: [notification, unread, dismiss]
+    model: [openItem, unopened, opened]
+
+  - term: mark the inbox read
+    definition: >-
+      Mark every still-waiting inbox item as marked opened. It needs a
+      connection. With no connection nothing is marked opened and the person
+      is told the connection is missing.
+    forms: [marks the inbox read, marked the inbox read]
+    avoid: [notification, unread]
+    model: [markAllRead]
+
+  - term: archive an inbox item
+    definition: >-
+      Move an inbox item out of the ordinary inbox into the archived inbox.
+      It stays there. The clock never removes an inbox item. Archiving needs
+      a connection. With no connection the item stays in the ordinary inbox
+      and the person is told the connection is missing.
+    forms: [archives, archived, archiving, archived inbox]
+    avoid: [dismiss, notification]
+    model: [archiveItem, archived]
+
+  - term: inbox list
+    definition: >-
+      Which inbox items a person is looking at: the ordinary inbox, the
+      waiting inbox of items that still need a choice, or the archived inbox.
+      Changing the inbox list does not change the items.
+    forms:
+      [waiting inbox, looks at the waiting inbox, looks at the archived inbox]
+    avoid: [notification, filter]
+    model: [chooseList, list]
+
+  - term: connection is missing
+    definition: >-
+      What a person is told when an inbox choice needs a connection and their
+      device does not have one. The inbox item stays as it was.
+    forms: [told the connection is missing]
+    avoid: [notification, network error]
+    model: [told]
+
+  - term: connection
+    from: kernel
+    model: [loseConnection, connectionReturns]
 
   # --- Borrowed -------------------------------------------------------------
   - term: account deletion

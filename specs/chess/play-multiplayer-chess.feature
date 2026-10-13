@@ -15,7 +15,7 @@ Feature: Play the same multiplayer board together
     Scenario: Black cannot make the first multiplayer move
       Given Alice is White and Bob is Black in a new multiplayer game
       When Bob plays e7 to e5 as a multiplayer move
-      Then Bob is told it is not his multiplayer turn
+      Then Bob is told it is not their multiplayer turn
       And both multiplayer boards keep their starting position
 
     Scenario: An illegal move keeps the turn and board

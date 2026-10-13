@@ -28,3 +28,21 @@ Feature: Keep recovery and investigation private
       And no specific legal preservation obligation applies to it
       When the team follows that trail
       Then the team cannot read that trail because its retention period has expired
+
+    Scenario: A trail that was never written cannot be read
+      Given Alice has no trail
+      When the team follows that trail
+      Then the team cannot read that trail because nothing was written down
+
+  Rule: People never see a trail
+    No counter-example: the team can still read a trail that has not expired.
+
+    Scenario: A person cannot read their own trail
+      Given Alice's trail was recorded 1 days ago
+      When Alice looks for Alice's trail
+      Then Alice cannot read that trail because people never see a trail
+
+    Scenario: A person cannot read someone else's trail
+      Given Bob's trail was recorded 1 days ago
+      When Alice looks for Bob's trail
+      Then Alice cannot read that trail because people never see a trail

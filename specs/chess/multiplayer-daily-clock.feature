@@ -20,7 +20,7 @@ Feature: The multiplayer clock in a daily game
     Scenario: A move out of turn hands nobody the full days
       Given 1 day has passed in multiplayer chess
       When Bob plays d7 to d5 as a multiplayer move
-      Then Bob is told it is not his multiplayer turn
+      Then Bob is told it is not their multiplayer turn
       And both people see 2 days on White's multiplayer clock and 3 days on Black's
 
   Rule: A daily game's multiplayer clock runs from the start, and missing the first move aborts the daily game

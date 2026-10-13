@@ -28,7 +28,7 @@ Feature: The multiplayer clock
 
     Scenario: A move out of turn earns no increment
       When Bob plays d7 to d5 as a multiplayer move
-      Then Bob is told it is not his multiplayer turn
+      Then Bob is told it is not their multiplayer turn
       And both people see 120 seconds on White's multiplayer clock and 120 seconds on Black's
 
   Rule: Running out of time loses, even if a move arrives at that moment

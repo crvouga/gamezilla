@@ -28,6 +28,7 @@ terms:
       The existing place beside the app where the team builds and
       investigates test worlds.
     forms: [testing tool]
+    model: [reopenTool]
     published: true
 
   - term: test world
@@ -35,10 +36,12 @@ terms:
       A separate copy of the app with named people and devices used for
       investigation.
     forms: [test worlds, test world's, test worlds']
+    model: [world, changeWorld]
 
   - term: checkpoint
     definition: A saved test world the team can restore later.
     forms: [checkpoints, checkpoint's]
+    model: [saveCheckpoint, interruptSave, failRestore, deleteCheckpoint, available, failure]
 
   - term: test run
     definition: >-
@@ -65,12 +68,26 @@ terms:
     definition: >-
       The team's saved questions about a selected test world's data and their answers.
     forms: [data notebooks, data notebook's]
+    model:
+      [
+        shown,
+        answered,
+        cutOff,
+        editQuestion,
+        addSecond,
+        moveLaterAhead,
+        moveFirstAhead,
+        openAutomatic,
+        runWithinLimit,
+        runPastLimit,
+      ]
 
   - term: release check
     definition: >-
       The automated verdict that decides whether an edition of the app
       satisfies its required obligations.
     forms: [release checks, release check's]
+    published: true
 
   - term: address
     from: runtime
