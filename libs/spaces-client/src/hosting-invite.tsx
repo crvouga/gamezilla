@@ -25,7 +25,22 @@ import {
 import { openSpaceDetail, useSpaceRouteId } from './space-routes';
 import { useHostedSpaceCount } from './use-hosted-space-count';
 
-type HostedRow = { readonly id: string };
+type HostedRow = { readonly id: string; readonly host_id: string | null };
+
+/**
+ * A second space made on another device while the two could not agree.
+ * Spaces one device already hosts, including those kept after paid access
+ * ends, stay open.
+ */
+function spacesFromAnotherDevice(
+  rows: readonly HostedRow[]
+): readonly string[] {
+  const keep = rows[0];
+  if (keep === undefined) return [];
+  return rows
+    .filter((row) => row.id !== keep.id && row.host_id !== keep.host_id)
+    .map((row) => row.id);
+}
 
 type HostingInviteApi = {
   readonly decision: Accessor<Decision | null>;
@@ -42,13 +57,14 @@ export function useHostingInvite(): HostingInviteApi {
 
 function useHostedSpaceIds(): {
   readonly ids: Accessor<readonly string[]>;
+  readonly rows: Accessor<readonly HostedRow[]>;
   readonly isLoading: Accessor<boolean>;
 } {
   const myId = useMyId();
   const query = createQuery(
     () =>
       sql<HostedRow>`
-      SELECT id FROM spaces
+      SELECT id, host_id FROM spaces
       WHERE ended_at IS NULL
         AND deleted_at IS NULL
         AND (host_member_id = ${myId()} OR host_account_id = ${myId()})
@@ -57,6 +73,7 @@ function useHostedSpaceIds(): {
   );
   return {
     ids: () => query.rows().map((row) => row.id),
+    rows: query.rows,
     isLoading: query.isLoading,
   };
 }
@@ -103,8 +120,8 @@ function HostingCollapse(props: {
     )
       return;
     const keep = ids[0];
-    if (keep === undefined) return;
-    const drop = ids.slice(1);
+    const drop = spacesFromAnotherDevice(spaces.rows());
+    if (keep === undefined || drop.length === 0) return;
     collapsing.current = true;
     void collapseExtraSpaces({
       drop,
@@ -122,7 +139,7 @@ function HostingCollapse(props: {
   return null;
 }
 
-/** Hosting count, the Plus invitation, and collapsing a free account's extra space. */
+/** Hosting count, the Plus invitation, and ending a second space another device made. */
 export function HostingAccount(props: {
   readonly children: JSX.Element;
 }): JSX.Element {

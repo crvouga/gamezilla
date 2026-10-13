@@ -1779,6 +1779,10 @@ msgstr "I can't fetch puzzles without a connection. Come back online and we'll p
 msgid "I'm ready"
 msgstr "I'm ready"
 
+#: libs/spaces-client/src/space-members-list-modal.tsx
+msgid "Idle"
+msgstr "Idle"
+
 #: libs/auth-client/src/email-sign-in-form.tsx
 msgid "If {address} can sign in here, a sign-in link is on its way. Paste it below."
 msgstr "If {address} can sign in here, a sign-in link is on its way. Paste it below."
@@ -2468,6 +2472,10 @@ msgstr "Only a participant can make this choice."
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Only the creator can make this choice."
 msgstr "Only the creator can make this choice."
+
+#: libs/spaces-client/src/game-choice-refused-notice.tsx
+msgid "Only the host chooses the game."
+msgstr "Only the host chooses the game."
 
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Only the other participant can answer a draw offer."
@@ -3794,6 +3802,10 @@ msgstr "The board changed. Review the current turn."
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "The choice could not be confirmed. Try again."
 msgstr "The choice could not be confirmed. Try again."
+
+#: libs/spaces-client/src/connection-missing-notice.tsx
+msgid "The connection is missing."
+msgstr "The connection is missing."
 
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 msgid "The current environment's object is processed into its puzzle pool. Existing puzzles are kept."
