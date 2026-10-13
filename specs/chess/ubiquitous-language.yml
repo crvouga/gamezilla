@@ -82,6 +82,9 @@ terms:
     from: spaces
   - term: create a space
     from: spaces
+  - term: idle
+    from: spaces
+    model: [goQuiet]
   - term: friend
     from: friends
   - term: Google
@@ -101,20 +104,27 @@ terms:
   - term: game
     definition: >-
       Something a space plays together, chosen by its host; everyone in the
-      space is taken to it without doing anything. Chess is one.
+      space is taken to it without doing anything, on every device they
+      have in the space. A guest cannot choose a different one. A later
+      choice by the host replaces the earlier one everywhere in the space.
+      Chess is one.
+    model: [pickChess]
     published: true
 
   - term: chess
     definition: >-
       The game whose puzzles this context is about. In a space, chess offers
-      its chess choices; playing puzzles is one of them.
+      its chess choices; playing puzzles is one of them. The host picks chess
+      for the space; a guest cannot.
+    model: [pickChess]
     published: true
 
   - term: space view
     definition: >-
       What a person in a space is looking at: the space's game choice, the
       chess choices, or the board. What a space plays belongs to the space,
-      so everyone in it has the host's view.
+      so everyone in it has the host's view, on every device they have in
+      the space. Going idle does not change what the space is showing.
     avoid: [screen, menu, page]
     model: [View, view, Elsewhere]
 

@@ -88,7 +88,7 @@ Feature: Change chessboard settings safely
       And Alice sees the White pawn remaining on e2
       And Alice's chessboard faces Black
 
-  Rule: Resizing preserves idle selection and cancels a drag
+  Rule: Resizing preserves the selected piece and cancels a drag
     No counter-example: resizing never makes a move.
 
     Scenario: A resized chessboard keeps its selected piece
