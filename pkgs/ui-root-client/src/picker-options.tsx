@@ -19,7 +19,7 @@ import type {
   PickerRenderOption,
   PickerValue,
 } from '@pkgs/ui-root-shared/picker-types';
-import { createSignal, For, type JSX, onMount, Show } from 'solid-js';
+import { createSignal, Index, type JSX, onMount, Show } from 'solid-js';
 import { CheckIcon } from './icons';
 import { ScrollView } from './scroll-view';
 
@@ -161,6 +161,41 @@ function CustomOptionRow<T extends PickerValue>(props: {
   );
 }
 
+function PickerOptionEntry<T extends PickerValue>(props: {
+  option: PickerOption<T>;
+  selected: boolean;
+  last: boolean;
+  renderOption: PickerRenderOption<T> | undefined;
+  onPick: () => void;
+}): JSX.Element {
+  return (
+    <>
+      <Show
+        when={props.renderOption}
+        fallback={
+          <DefaultOptionRow
+            option={props.option}
+            selected={props.selected}
+            onPick={() => props.onPick()}
+          />
+        }
+      >
+        {(render) => (
+          <CustomOptionRow
+            option={props.option}
+            selected={props.selected}
+            onPick={() => props.onPick()}
+            render={render()}
+          />
+        )}
+      </Show>
+      <Show when={!props.last}>
+        <OptionSeparator />
+      </Show>
+    </>
+  );
+}
+
 function focusInitial<T extends PickerValue>(
   host: HTMLElement,
   options: readonly PickerOption<T>[],
@@ -201,34 +236,19 @@ export function PickerOptions<T extends PickerValue>(
         aria-label={props.label}
         onKeyDown={(ev) => onKeyDown(ev.currentTarget, ev)}
       >
-        <For each={props.options}>
+        {/* Rows stay by position. A press refreshes option objects before the
+            click, and a new node would drop the choice. */}
+        <Index each={props.options}>
           {(option, index) => (
-            <>
-              <Show
-                when={props.renderOption}
-                fallback={
-                  <DefaultOptionRow
-                    option={option}
-                    selected={option.value === props.value}
-                    onPick={() => pickIfEnabled(option)}
-                  />
-                }
-              >
-                {(render) => (
-                  <CustomOptionRow
-                    option={option}
-                    selected={option.value === props.value}
-                    onPick={() => pickIfEnabled(option)}
-                    render={render()}
-                  />
-                )}
-              </Show>
-              <Show when={index() < props.options.length - 1}>
-                <OptionSeparator />
-              </Show>
-            </>
+            <PickerOptionEntry
+              option={option()}
+              selected={option().value === props.value}
+              last={index === props.options.length - 1}
+              renderOption={props.renderOption}
+              onPick={() => pickIfEnabled(option())}
+            />
           )}
-        </For>
+        </Index>
       </div>
     </ScrollView>
   );
