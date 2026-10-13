@@ -13,12 +13,20 @@ import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offe
 import { useUnlock } from '@libs/permissions-client/unlock';
 import { useCan, useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { useHostingInvite } from '@libs/spaces-client/hosting-invite';
+import { useHostingLimitInvite } from '@libs/spaces-client/hosting-limit-invite';
 import { useLingui as useLinguiRuntime } from '@lingui/solid';
 import { createTimedValue } from '@pkgs/clock-client/solid';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useOpenExternalUrl } from '@pkgs/ui-root-client/external-url';
-import { type Accessor, createMemo, type JSX } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+} from 'solid-js';
 import { BillingScreenLayout } from './billing-screen-view';
 import type { BillingView, BillingViewInput } from './billing-view-model';
 import { billingViewChangesAtMs, buildBillingView } from './billing-view-model';
@@ -60,6 +68,17 @@ export function BillingScreen(): JSX.Element {
   const manage = useManageSubscription();
   const unlock = useUnlock();
   const openExternalUrl = useOpenExternalUrl();
+  const invite = useHostingInvite();
+  const limitInvite = useHostingLimitInvite();
+  const [awaitingPlus, setAwaitingPlus] = createSignal(false);
+  // Checkout answers a hosting invitation. Confirming an existing membership
+  // after a connection returns does not.
+  createEffect(() => {
+    if (!awaitingPlus() || view().tier !== 'paid') return;
+    invite.clear();
+    limitInvite.clear();
+    setAwaitingPlus(false);
+  });
   const formatDate = (ms: number): string =>
     new Intl.DateTimeFormat(i18n().locale, {
       year: 'numeric',
@@ -68,6 +87,7 @@ export function BillingScreen(): JSX.Element {
     }).format(new Date(ms));
 
   const openCheckout = async (): Promise<void> => {
+    setAwaitingPlus(true);
     const url = await subscribe({
       returnUrl: `${window.location.origin}${PLUS_MEMBERSHIP_OFFER.portal.defaultReturnUrlPath}`,
     });

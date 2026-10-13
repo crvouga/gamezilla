@@ -45,6 +45,7 @@ function spacesFromAnotherDevice(
 type HostingInviteApi = {
   readonly decision: Accessor<Decision | null>;
   readonly note: (decision: Decision) => void;
+  readonly clear: () => void;
 };
 
 const HostingInviteContext = createContext<HostingInviteApi | null>(null);
@@ -52,7 +53,11 @@ const HostingInviteContext = createContext<HostingInviteApi | null>(null);
 export function useHostingInvite(): HostingInviteApi {
   const ctx = useContext(HostingInviteContext);
   if (ctx !== null) return ctx;
-  return { decision: () => null, note: () => undefined };
+  return {
+    decision: () => null,
+    note: () => undefined,
+    clear: () => undefined,
+  };
 }
 
 function useHostedSpaceIds(): {
@@ -148,7 +153,10 @@ export function HostingAccount(props: {
   const note = (next: Decision): void => {
     setDecision(next);
   };
-  const api: HostingInviteApi = { decision, note };
+  const clear = (): void => {
+    setDecision(null);
+  };
+  const api: HostingInviteApi = { decision, note, clear };
 
   return (
     <HostingInviteContext.Provider value={api}>

@@ -10,6 +10,7 @@ import {
 type HostingLimitInvite = {
   readonly decision: Accessor<Decision | null>;
   readonly refuse: (decision: Decision) => void;
+  readonly clear: () => void;
 };
 
 const Ctx = createContext<HostingLimitInvite | null>(null);
@@ -17,6 +18,7 @@ const Ctx = createContext<HostingLimitInvite | null>(null);
 /**
  * A refused second space keeps its invitation to Plus after the person
  * leaves the lobby. The refusal belongs to this device's session.
+ * Finishing checkout, or ending a space, answers it.
  */
 export function HostingLimitInviteProvider(props: {
   readonly children: JSX.Element;
@@ -25,6 +27,7 @@ export function HostingLimitInviteProvider(props: {
   const invite: HostingLimitInvite = {
     decision,
     refuse: (next) => setDecision(next),
+    clear: () => setDecision(null),
   };
   return <Ctx.Provider value={invite}>{props.children}</Ctx.Provider>;
 }
