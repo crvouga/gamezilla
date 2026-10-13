@@ -185,10 +185,11 @@ describe('this repository', () => {
 
   test('files generated at install are cached by what they are made from', () => {
     expect(scripts['generate']).toBe(
-      'turbo run @pkgs/object-store-s3-server#generate:browser //#task:i18n:compile //#task:spec:catalog'
+      'turbo run @pkgs/object-store-s3-server#generate:browser @libs/infra-shared#generate:infra-map //#task:i18n:compile //#task:spec:catalog'
     );
     for (const id of [
       '@pkgs/object-store-s3-server#generate:browser',
+      '@libs/infra-shared#generate:infra-map',
       '//#task:i18n:compile',
       '//#task:spec:catalog',
     ]) {
