@@ -84,7 +84,7 @@ terms:
     from: spaces
   - term: idle
     from: spaces
-    model: [goQuiet]
+    model: [goQuiet, idle]
   - term: friend
     from: friends
   - term: Google
@@ -688,7 +688,10 @@ terms:
       the same board. Colours follow the colour balance and stay fixed for
       the game. Each person and every watcher may flip the board or review
       an earlier position on their own device, which changes nothing for
-      anyone else.
+      anyone else. Guests in either space see that same multiplayer move
+      list, those same multiplayer clocks and the same multiplayer result.
+      Copying the game record from either space, or from another device,
+      copies that one game.
     forms: [multiplayer game, multiplayer games, multiplayer board, multiplayer boards]
     model: [PlayGame, PlayWorld, playNumber, playSide, whiteSide, blackSide, playBoard, PlayBoard]
     published: true
@@ -799,8 +802,10 @@ terms:
     definition: >-
       The person whose side may move next. A legal move changes the board,
       joins the multiplayer move list and passes the turn exactly once. A
-      move attempted for a different board position, from another device or
-      after the game is over never moves a piece. An offline person sees the
+      move for a position the device is not showing never moves a piece,
+      nor does a move after the game is over. The person's other device
+      can play the move for the position it is showing, and that move
+      joins the multiplayer move list once. An offline person sees the
       last accepted board and cannot send a move, resignation, abort or offer
       for later.
     forms: [turn, turns, plays a multiplayer move, repeats a multiplayer move, plays, repeats that multiplayer move]
@@ -817,7 +822,7 @@ terms:
   - term: multiplayer clock
     definition: >-
       The time each side has left in a multiplayer game, shown to both
-      people. Outside a daily game each side starts with the time control's
+      people and every watcher. Outside a daily game each side starts with the time control's
       minutes, and neither clock runs until both people have made their
       first move; then only the side to move spends time, even while they
       are disconnected, and each legal move adds the time control's
@@ -1136,7 +1141,9 @@ terms:
       1-0 when White won, 0-1 when Black won and 1/2-1/2 for a draw; the
       time control; and every move in algebraic notation. Once a multiplayer game is over
       with a multiplayer result, each of its people and anyone watching can
-      copy its game record, or copy just its final position. An unfinished
+      copy its game record, or copy just its final position. A guest in
+      either space, and either person on another device, copies that same
+      one. Being idle or losing the connection adds nothing to it. An unfinished
       game offers neither, so nobody is handed an easy way to ask a chess
       program for help during the game, and an aborted game offers neither.
     source: Portable Game Notation for the game record and Forsyth-Edwards Notation for the final position
