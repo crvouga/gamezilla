@@ -155,6 +155,16 @@ describe('Picker', () => {
     );
   });
 
+  test('user-event click picks a portaled option', async () => {
+    const user = userEvent.setup({ delay: null });
+    const onChange = mock();
+    renderUi(() => <Harness onChange={onChange} />, { width: 1200 });
+    await user.click(screen.getByRole('button', { name: 'Fruit' }));
+    await user.click(screen.getByRole('option', { name: 'Date' }));
+    expect(onChange).toHaveBeenCalledWith('date');
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
   test('arrow keys rove over enabled options, Enter picks, Escape closes', async () => {
     const user = userEvent.setup();
     const onChange = mock();

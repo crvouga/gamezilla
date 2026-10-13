@@ -113,6 +113,10 @@ export async function configurationRenames(
   w: QuintHarnessWorld,
   actor: string
 ): Promise<void> {
+  // A signed-out device keeps its last picture. Renaming needs a signed-in
+  // device, and signing one in would show the game again.
+  if ((w.memo.get('configuration-signed-out') as Set<string>).has(actor))
+    return;
   const device = await remoteAccountDevice(w, actor);
   await w.s.apply(openProfileEdit, device);
   await w.s.apply(

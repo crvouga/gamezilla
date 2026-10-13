@@ -3,7 +3,6 @@ import type { GameClientDefinition } from '@libs/spaces-shared/game';
 import type { SelectedGameId } from '@libs/spaces-shared/games';
 import { GamesRoomAttr, SelectGame } from '@libs/spaces-shared/games';
 import { Trans } from '@lingui/solid/macro';
-import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useLocalSearchParams } from '@pkgs/ui-root-client/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client/main-menu-item-row';
@@ -67,11 +66,11 @@ function GameListMenu(props: {
   const { spaceId } = useSpaceSessionUi();
   const canSelectGame = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
   const selectedGame = useSpaceRoomSelector(GamesRoomAttr.selected.from);
-  const engine = useSyncEngine();
 
   const dispatch = useSpaceRoomDispatch();
+  // A disconnected host still opens a game here. The room sends that choice
+  // only while the socket is up, so other people stay on the previous one.
   const onSelectGame = (game: SelectedGameId): void => {
-    if (!engine.status().online) return;
     if (!canSelectGame()) {
       props.onRefused();
       return;
@@ -125,10 +124,8 @@ export function GamesMainMenu(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
   const { spaceId } = useSpaceSessionUi();
   const canSelectGame = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
-  const engine = useSyncEngine();
   const [refused, setRefused] = createSignal(false);
   const onBackToGames = (): void => {
-    if (!engine.status().online) return;
     if (!canSelectGame()) {
       setRefused(true);
       return;

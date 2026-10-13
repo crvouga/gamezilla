@@ -10,7 +10,8 @@ export function CustomGameConfirm(props: {
   operation: 'cancel' | 'resign';
   available: boolean;
 }): JSX.Element {
-  const [visible, setVisible] = createSignal(false);
+  // A new press replaces a dialog left on its error step.
+  const [dialogSession, setDialogSession] = createSignal(0);
   const title = (): JSX.Element => (
     <Show
       when={props.operation === 'cancel'}
@@ -39,26 +40,32 @@ export function CustomGameConfirm(props: {
           title={action()}
           intent="danger"
           variant="ghost"
-          onClick={() => setVisible(true)}
+          onClick={() => setDialogSession((current) => current + 1)}
           dataSet={{ testid: `chess-custom-${props.operation}` }}
         />
       </Show>
-      <MutationModal
-        visible={visible()}
-        onClose={() => setVisible(false)}
-        title={title()}
-        message={
-          <Trans>
-            This finishes the current game. Its record remains available.
-          </Trans>
-        }
-        operation={() => props.model.choose({ operation: props.operation })}
-        submitLabel={title()}
-        variant="destructive"
-        successTitle={<Trans>Game finished</Trans>}
-        submitDataSet={{ testid: `chess-custom-${props.operation}-confirm` }}
-        dismissDataSet={{ testid: `chess-custom-${props.operation}-done` }}
-      />
+      <Show when={dialogSession()} keyed>
+        {(session) => (
+          <MutationModal
+            visible={session > 0}
+            onClose={() => setDialogSession(0)}
+            title={title()}
+            message={
+              <Trans>
+                This finishes the current game. Its record remains available.
+              </Trans>
+            }
+            operation={() => props.model.choose({ operation: props.operation })}
+            submitLabel={title()}
+            variant="destructive"
+            successTitle={<Trans>Game finished</Trans>}
+            submitDataSet={{
+              testid: `chess-custom-${props.operation}-confirm`,
+            }}
+            dismissDataSet={{ testid: `chess-custom-${props.operation}-done` }}
+          />
+        )}
+      </Show>
     </>
   );
 }

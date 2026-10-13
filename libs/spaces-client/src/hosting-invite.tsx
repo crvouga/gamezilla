@@ -45,6 +45,7 @@ function spacesFromAnotherDevice(
 type HostingInviteApi = {
   readonly decision: Accessor<Decision | null>;
   readonly note: (decision: Decision) => void;
+  readonly clear: () => void;
 };
 
 const HostingInviteContext = createContext<HostingInviteApi | null>(null);
@@ -52,7 +53,11 @@ const HostingInviteContext = createContext<HostingInviteApi | null>(null);
 export function useHostingInvite(): HostingInviteApi {
   const ctx = useContext(HostingInviteContext);
   if (ctx !== null) return ctx;
-  return { decision: () => null, note: () => undefined };
+  return {
+    decision: () => null,
+    note: () => undefined,
+    clear: () => undefined,
+  };
 }
 
 function useHostedSpaceIds(): {
@@ -144,11 +149,21 @@ export function HostingAccount(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   const spaces = useHostedSpaceIds();
+  const hosted = useHostedSpaceCount();
+  const limit = useLimitDecision(LIMIT.hostedSpaces, hosted.count);
   const [decision, setDecision] = createSignal<Decision | null>(null);
   const note = (next: Decision): void => {
     setDecision(next);
   };
-  const api: HostingInviteApi = { decision, note };
+  const clear = (): void => {
+    setDecision(null);
+  };
+  // Paid access, or dropping back under the free limit, ends the invitation.
+  // Opening a space clears it too; a refused create stays on the lobby.
+  createEffect(() => {
+    if (limit().allowed) setDecision(null);
+  });
+  const api: HostingInviteApi = { decision, note, clear };
 
   return (
     <HostingInviteContext.Provider value={api}>

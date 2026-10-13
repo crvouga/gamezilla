@@ -33,9 +33,13 @@ test('an ordinary failing spec is queryable by its exact test name', () => {
       `});\n`,
     'utf8'
   );
+  // The artifact query reads only the trace files this test wrote.
+  const env = { ...process.env, npm_package_name: '@fixtures/failing-spec' };
+  delete env['OBS_READONLY_DATABASE_URL'];
+  delete env['OBS_DATABASE_SCHEMA'];
   const run = spawnSync('bun', ['run', runner, fixture], {
     cwd: ROOT,
-    env: { ...process.env, npm_package_name: '@fixtures/failing-spec' },
+    env,
     encoding: 'utf8',
   });
   expect(run.status).not.toBe(0);
@@ -54,9 +58,9 @@ test('an ordinary failing spec is queryable by its exact test name', () => {
       artifactDir,
       '--last-failure',
     ],
-    { cwd: ROOT, encoding: 'utf8' }
+    { cwd: ROOT, encoding: 'utf8', env }
   );
-  expect(query.status).toBe(0);
+  expect(query.status, query.stderr || query.stdout).toBe(0);
   expect(query.stdout).toContain('test.failure [ERROR]');
   expect(query.stdout).toContain('app.test.id=deliberate failure');
   expect(query.stdout).toContain('next: bun obs span');

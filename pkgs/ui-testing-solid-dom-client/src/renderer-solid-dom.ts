@@ -172,11 +172,12 @@ export function createSolidDomRenderedApp(
   const htmlCache = createHtmlSnapshotCache(scope.document, (options) =>
     snapshotActorHtml(scope.document, scope.container(), options)
   );
+  const queryTestId = (testId: string): Element | null => {
+    syncLayout();
+    return queryActorTestId(scope.document, scope.container(), testId);
+  };
   return {
-    query: (testId) => {
-      syncLayout();
-      return queryActorTestId(scope.document, scope.container(), testId);
-    },
+    query: queryTestId,
     queryWithin: (parent, testId) =>
       queryWithinTestId(asElement(parent), testId),
     isVisible: (element) => isDomVisible(asElement(element)),
@@ -184,8 +185,20 @@ export function createSolidDomRenderedApp(
     getAttribute: (element, name) => asElement(element).getAttribute(name),
     tap: async (element) => {
       syncLayout();
-      ensureElementLayout(asElement(element), provider);
-      await user.click(asElement(element));
+      const resolved = asElement(element);
+      const testId = resolved.getAttribute('data-testid');
+      // Layout can remount a portaled row. Click the node that is on screen
+      // now, not the one resolved before that pass.
+      const live =
+        testId !== null && testId !== ''
+          ? (queryTestId(testId) ?? resolved)
+          : resolved;
+      const node = asElement(live);
+      ensureElementLayout(node, provider);
+      // user-event's PointerEvent click does not reach a portaled option.
+      if (node.getAttribute('role') === 'option' && node instanceof HTMLElement)
+        node.click();
+      else await user.click(node);
       // Menus measure the trigger on open; re-layout so remounted anchors and
       // FloatingMenu listeners pick up trailing-edge boxes.
       syncLayout();

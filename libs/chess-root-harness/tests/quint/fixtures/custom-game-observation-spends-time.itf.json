@@ -299,7 +299,9 @@
       },
       "_ended": false,
       "_offline": {
-        "#set": ["alice"]
+        "#set": [
+          "alice"
+        ]
       },
       "_playStatus": "active",
       "_result": "",
@@ -363,7 +365,7 @@
             "bob",
             {
               "#tup": [
-                "unavailable",
+                "active",
                 {
                   "#bigint": "0"
                 },
@@ -375,7 +377,7 @@
             "carol",
             {
               "#tup": [
-                "unavailable",
+                "active",
                 {
                   "#bigint": "0"
                 },
