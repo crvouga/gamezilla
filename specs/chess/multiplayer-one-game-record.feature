@@ -27,6 +27,12 @@ Feature: One game record for both spaces
       When Alice copies the game record on another device
       Then the game record Alice copied gives the multiplayer result as 1-0, the time control as 5+0 and the moves as "1. e4 e5"
 
+    Scenario: An offline phone copies the same game record
+      Given Bob has resigned multiplayer chess
+      And Alice's phone is offline
+      When Alice copies the game record
+      Then the game record Alice copied gives the multiplayer result as 1-0, the time control as 5+0 and the moves as "1. e4 e5"
+
     Scenario: An unfinished multiplayer game offers the other space's guest neither
       Given Dave is a guest watching Bob's multiplayer game
       When Alice plays g1 to f3 as a multiplayer move
