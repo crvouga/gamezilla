@@ -19,6 +19,7 @@ function alwaysConditions(workflow: string): readonly string[] {
 describe('Check workflow cancellation', () => {
   test('the shard matrix is the plan schedule, and a shard is numbered by its place in it', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
+      env: Record<string, string>;
       on: {
         workflow_dispatch: { inputs: { shards: { options: number[] } } };
         workflow_call: { inputs: { shards: { default: number } } };
@@ -57,10 +58,14 @@ describe('Check workflow cancellation', () => {
     expect(readFileSync(WORKFLOW, 'utf8')).not.toContain('matrix.shard');
     const shardCounts = workflow.on.workflow_dispatch.inputs.shards.options;
     expect(shardCounts.every((count) => count >= 1 && count <= 64)).toBe(true);
-    // The account runs 40 jobs at once (Check run 38187450396 started 40 of
-    // 64 shards and queued the rest), so a higher cap only adds runner setups.
-    expect(workflow.on.workflow_call.inputs.shards.default).toBe(40);
-    expect(shardCounts).toContain(40);
+    // Check run 38328597240 missed every cache. Twenty-seven solver runners
+    // inside a cap of 40 packed the rest to 376s, and those shards were still
+    // running at the 1200s deadline. The account runs about 40 jobs at once
+    // (Check run 38187450396); the extra runners queue, and each one is small
+    // enough to finish once it starts.
+    expect(workflow.on.workflow_call.inputs.shards.default).toBe(64);
+    expect(workflow.env['CHECK_SHARDS']).toContain("'64'");
+    expect(shardCounts).toContain(64);
   });
   test('no workflow names a depth: the profile decides, and only a caller can ask for nightly', () => {
     // `QUINT_REPLAY_TRACES` unset is the bounded default. A workflow names a

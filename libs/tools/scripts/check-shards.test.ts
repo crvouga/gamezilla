@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 import { needsBrowser } from './check-browser-tasks';
+import { CI_RUN_DEADLINE_SECONDS } from './check-budget';
 import { redactSecrets, taskStream } from './check-shard-stream';
 import type { CheckTask } from './check-shards';
 import {
@@ -295,6 +296,38 @@ test('dedicated solver runners are not a pack imbalance', () => {
   expect(pack.map((shard) => shard.seconds)).toEqual(Array(12).fill(60));
   expect(planWarnings(plan)).toEqual([]);
   validatePlan(plan);
+});
+
+// regression: check-cold-corpus-overfills-forty-shards
+test('a cold corpus still finishes after every solver takes a runner', () => {
+  // Check run 38328597240: 27 solver runners inside a cap of 40 packed the
+  // other 5034 estimated seconds into shards of 376s, which were still
+  // running at the 1200s deadline. The same corpus at 64 stays under a
+  // quarter of that deadline, so a four-times slip still finishes.
+  const solvers = [
+    task('@apps/product#test:contract', 86),
+    ...Array.from({ length: 26 }, (_, index) =>
+      task(`@libs/pkg-${index}#check:models`, 12)
+    ),
+  ];
+  const packed = Array.from({ length: 839 }, (_, index) =>
+    task(`pkg-${index}#test`, 6)
+  );
+  const heaviest = (count: number) => {
+    const bins = balanceShards(
+      [...solvers, ...packed],
+      count,
+      60
+    ).shards.filter(
+      (shard) =>
+        shard.stage === 'checks' &&
+        executes(shard) &&
+        shard.tasks.some((item) => item.taskId.startsWith('pkg-'))
+    );
+    return Math.max(...bins.map((shard) => shard.seconds));
+  };
+  expect(heaviest(40)).toBeGreaterThan(CI_RUN_DEADLINE_SECONDS / 4);
+  expect(heaviest(64) * 4).toBeLessThanOrEqual(CI_RUN_DEADLINE_SECONDS);
 });
 
 test('renderer setup only serves uncached native browser tasks', () => {
