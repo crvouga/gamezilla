@@ -3,8 +3,11 @@
 // People choose whether to accept and become ready. The creator may watch.
 // A start fixes the participants and choices. A finished or cancelled game
 // stays that way; a new game or rematch is a separate Custom Game.
-// Choices with other people need the host to be online. Offline guests keep
-// their last picture and see the current game when the host is available again.
+// Choices with other people need the host to be online. People who still
+// have a connection keep seeing the game while the host is offline or
+// signed out. Offline guests keep their last picture.
+// A person's own missing connection is named before any other reason.
+// A choice only the creator may make keeps that reason while the host is offline.
 // The host can make their own solo choices offline and keep playing alone.
 // Here shared choices are made online; refused solo choices are also checked.
 // The host's accepted offline choices and play have their own local game rules.
@@ -131,9 +134,8 @@ module custom_game {
 
   def _hostAvailable(offline: Set[Person], signedOut: Set[Person]): bool =
     DEVICES.exists(d => _personOf(d) == "alice" and not(offline.contains(d)) and not(signedOut.contains(d)))
-  def _visible(p: Person, members: Set[Person], offline: Set[Person], signedOut: Set[Person]): bool =
-    members.contains(_personOf(p)) and not(signedOut.contains(p)) and
-      (_personOf(p) == "alice" or _hostAvailable(offline, signedOut))
+  def _visible(p: Person, members: Set[Person], _offline: Set[Person], signedOut: Set[Person]): bool =
+    members.contains(_personOf(p)) and not(signedOut.contains(p))
   pure def _solo(g: CustomGame): bool = SIDES.forall(s =>
     _side(g,s).person == "" or _side(g,s).person == "alice")
   def _choicePicture(actor: Person): CustomGame = if (_offline.contains(actor)) gameShown.get(actor) else customGame
@@ -450,15 +452,24 @@ module custom_game {
   action _reopenApp(actor: Person): bool = _update(customGame,_offline,_members,_signedOut,refusal,false)
   /// Hearing an acknowledged action again has no second product effect.
   action _repeatAcknowledged: bool = _update(customGame,_offline,_members,_signedOut,refusal,false)
+  /// A person's own missing connection is named before any other reason.
+  /// The creator's own authority is named even while the host is offline.
+  /// Any other missing connection is named before the remaining reasons.
+  def _refusal(creatorOnly: bool, connection: str, priority: str, earlier: bool, otherwise: str): str =
+    if (connection == "connection needed") connection
+    else if (creatorOnly) "only the creator"
+    else if (connection != "") connection
+    else if (priority != "") priority
+    else if (earlier) "choices changed"
+    else otherwise
+
   /// Earlier choices never replace the agreed game. A person first hears
   /// why they cannot make that choice, or otherwise that the choices changed.
   action _staleChoice(actor: Person, command: str): bool = {
     val picture = _choicePicture(actor)
     val priority = _priorityReason(picture,actor,command)
     val connection = _connectionReason(picture,actor,command)
-    val reason = if (connection != "") connection
-      else if (priority != "") priority
-      else "choices changed"
+    val reason = _refusal(priority == "only the creator", connection, priority, false, "choices changed")
     all {
       customGame.status != "none",
       _update(customGame,_offline,_members,_signedOut,refusal.set(actor,reason),false),
@@ -478,7 +489,8 @@ module custom_game {
     val connection = _connectionReason(picture,actor,command)
     val firstEarlier = pictureId != referenceId or
       ((_settingCommand(command) or Set("start","cancel").contains(command)) and _config(picture) != _config(reference))
-    val firstReason = if (connection != "") connection else if (firstPriority != "") firstPriority else if (firstEarlier) "choices changed" else _reason(picture,actor,command,side,person,1,0)
+    val firstSpecific = _reason(picture,actor,command,side,person,1,0)
+    val firstReason = _refusal(firstPriority == "only the creator" or firstSpecific == "only the creator", connection, firstPriority, firstEarlier, firstSpecific)
     val first = if (firstReason != "") customGame else _next(customGame,actor,command,side,person,1,0)
     val firstFresh = first != customGame and Set("create","rematch").contains(command)
     val firstDeclined = if (firstReason != "") _declinedOffers else _declinedAfter(customGame,command,_declinedOffers)
@@ -488,7 +500,8 @@ module custom_game {
     val choicesChanged = otherPictureId != referenceId or
       ((_settingCommand(otherCommand) or Set("start","cancel").contains(otherCommand)) and _config(otherPicture) != _config(reference))
     val otherConnection = _connectionReason(otherPicture,other,otherCommand)
-    val secondReason = if (otherConnection != "") otherConnection else if(priority != "") priority else if (choicesChanged) "choices changed" else _reasonWith(otherPicture,firstDeclined,other,otherCommand,otherSide,person,1,0)
+    val secondSpecific = _reasonWith(otherPicture,firstDeclined,other,otherCommand,otherSide,person,1,0)
+    val secondReason = _refusal(priority == "only the creator" or secondSpecific == "only the creator", otherConnection, priority, choicesChanged, secondSpecific)
     val second = if (secondReason != "") first else _next(first,other,otherCommand,otherSide,person,1,0)
     val secondDeclined = if (secondReason != "") firstDeclined else _declinedAfter(first,otherCommand,firstDeclined)
     val crossed = (firstReason == "" and _crossesBlock(command,actor,person)) or (secondReason == "" and _crossesBlock(otherCommand,other,person))
@@ -507,7 +520,8 @@ module custom_game {
   action _attemptChoice(actor: Person, command: str, side: Side, person: Person): bool = {
     val picture = _choicePicture(actor)
     val connection = _connectionReason(picture,actor,command)
-    val reason = if (connection != "") connection else _reason(picture,actor,command,side,person,1,0)
+    val specific = _reason(picture,actor,command,side,person,1,0)
+    val reason = _refusal(specific == "only the creator", connection, "", false, specific)
     all {
       reason != "",
       _update(customGame,_offline,_members,_signedOut,refusal.set(actor,reason),false),
@@ -617,7 +631,7 @@ module custom_game {
   val invCreatorAuthority = customGame.status == "none" or customGame.creator == "alice"
   /// Draw offers belong to a participating person in an active game.
   val invDrawOffer = customGame.drawOfferedBy != "" implies customGame.status == "active" and _personSide(customGame,customGame.drawOfferedBy) != ""
-  /// Guests see the agreed game only while a signed-in host device is online.
+  /// A signed-in member who has a connection sees the agreed game.
   /// An offline guest retains the picture they last knew.
   val invConnectedAgree = DEVICES.forall(p => _offline.contains(p) or gameShown.get(p) == (if (_visible(p,_members,_offline,_signedOut)) customGame else _INITIAL))
   /// Every refusal names one defined reason, including loss of connection.

@@ -21,8 +21,8 @@
 // only the host may move on, and only the host's puzzles are counted.
 //
 // While a device has no connection, Alice still plays a puzzle already on it,
-// and her own board changes at once. Bob is disconnected from her space
-// while Alice is offline. Once both are online he sees Alice's position. Opening
+// and her own board changes at once. Bob keeps the view he already had while
+// Alice is offline. Once both are online he sees Alice's position. Opening
 // puzzles before any have reached the device needs a connection.
 //
 // The puzzle pool holds three puzzles, each with two solver moves. They are served in turn, never the one
@@ -144,14 +144,12 @@ module puzzle_attempt {
       else if (newAttempt == "solved") "checkmate" else newAttempt,
     assistantMuted' = muted,
     commentary' = PEOPLE.mapBy(p => {
-      val at = if (p == HOST) newAt
-        else if (newOffline.contains(HOST) and not(newOffline.contains(WATCHER))) Elsewhere else watcherView
+      val at = if (p == HOST) newAt else watcherView
       val result = if (p == HOST) newAttempt else watcherState
       if (at != Board) "none" else if (result == "solving") "ready" else result
     }),
     commentaryPuzzle' = PEOPLE.mapBy(p =>
-      if (p == HOST) _hostPuzzle(newAt, newServed)
-        else if (newOffline.contains(HOST) and not(newOffline.contains(WATCHER))) -1 else watcherPuzzle
+      if (p == HOST) _hostPuzzle(newAt, newServed) else watcherPuzzle
     ),
     _at' = newAt,
     _attempt' = newAttempt,
@@ -160,18 +158,15 @@ module puzzle_attempt {
     _watcherViewAtCutOff' = cutOffView,
     _watcherStateAtCutOff' = cutOffState,
     _watcherPuzzleAtCutOff' = cutOffPuzzle,
-    view' = PEOPLE.mapBy(p => if (p == HOST) newAt
-      else if (newOffline.contains(HOST) and not(newOffline.contains(WATCHER))) Elsewhere else watcherView),
+    view' = PEOPLE.mapBy(p => if (p == HOST) newAt else watcherView),
     puzzleState' = PEOPLE.mapBy(p =>
-      if (p == HOST) _hostState(newAt, newAttempt)
-      else if (newOffline.contains(HOST) and not(newOffline.contains(WATCHER))) "none" else watcherState
+      if (p == HOST) _hostState(newAt, newAttempt) else watcherState
     ),
     moveOnOffered' = PEOPLE.mapBy(p =>
       p == HOST and newAt == Board and isOver(newAttempt)
     ),
     puzzle' = PEOPLE.mapBy(p =>
-      if (p == HOST) _hostPuzzle(newAt, newServed)
-      else if (newOffline.contains(HOST) and not(newOffline.contains(WATCHER))) -1 else watcherPuzzle
+      if (p == HOST) _hostPuzzle(newAt, newServed) else watcherPuzzle
     ),
     puzzleStarts' = PEOPLE.mapBy(p => if (p != HOST) 0 else _hostStarts(newServed)),
   }
@@ -563,11 +558,12 @@ module puzzle_attempt {
       puzzle.get(WATCHER) == _watcherPuzzleAtCutOff
     )
 
-  /// An online watcher cannot stay in an offline host's space.
+  /// An online watcher keeps the view they had when the host went offline.
   val invWatcherFollowsHostAvailability =
     (_offline.contains(HOST) and not(_offline.contains(WATCHER))) implies (
-      view.get(WATCHER) == Elsewhere and puzzle.get(WATCHER) == -1
-      and puzzleState.get(WATCHER) == "none"
+      view.get(WATCHER) == _watcherViewAtCutOff and
+      puzzleState.get(WATCHER) == _watcherStateAtCutOff and
+      puzzle.get(WATCHER) == _watcherPuzzleAtCutOff
     )
   /// Examining a position cannot go beyond the moves reached on that puzzle.
   val invOnlyReachedPositions = position == (if (_at == Board) _shown else 0) and

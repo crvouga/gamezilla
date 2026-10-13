@@ -1,7 +1,9 @@
 // One host creates an untimed Custom Game with White as themselves and Black
-// as a bot. Connection changes never stop their own choices or play. A guest
-// can watch only while the host and guest both have a connection. This small
-// game follows two legal turns; the full chess endings belong to the play models.
+// as a bot. Connection changes never stop their own choices or play. The host
+// keeps seeing their own moves, including offline. A guest sees those moves
+// while both have a connection, and keeps the move count they already had
+// while the host is offline. This small game follows two legal turns; the
+// full chess endings belong to the play models.
 module custom_game_local {
   pure val PEOPLE = Set("alice", "bob")
   /// The host's current game, including when their device is offline.
@@ -11,7 +13,7 @@ module custom_game_local {
   /// Black's chosen participant, and the host's readiness before starting.
   var black: str
   var ready: bool
-  /// The host sees every own move; a connected guest cannot watch an offline host.
+  /// The host sees every own move. A guest sees them while both are connected.
   var shownMoves: str -> int
   var _offline: Set[str]
   var _sealedPly: int
@@ -19,7 +21,7 @@ module custom_game_local {
   action _update(status: str, ply: int, turn: str, participant: str, agreed: bool, offline: Set[str]): bool = all {
     controlledStatus' = status, controlledPly' = ply, controlledTurn' = turn,
     black' = participant, ready' = agreed, _offline' = offline,
-    shownMoves' = PEOPLE.mapBy(p => if (p == "alice") ply else if (offline.contains(p)) shownMoves.get(p) else if (offline.contains("alice")) -1 else ply),
+    shownMoves' = PEOPLE.mapBy(p => if (p == "alice" or (not(offline.contains("alice")) and not(offline.contains(p)))) ply else shownMoves.get(p)),
     _sealedPly' = if (status == "cancelled" or status == "completed") ply else -1,
   }
   action _hold = _update(controlledStatus, controlledPly, controlledTurn, black, ready, _offline)
@@ -92,6 +94,6 @@ module custom_game_local {
     (Set("completed", "cancelled").contains(controlledStatus) implies controlledPly == _sealedPly)
   /// The host's board remains available and current through every disconnection.
   val invLocalHost = shownMoves.get("alice") == controlledPly
-  /// A guest who has a connection follows the host's availability.
-  val invLocalGuest = not(_offline.contains("bob")) implies shownMoves.get("bob") == (if (_offline.contains("alice")) -1 else controlledPly)
+  /// A guest sees the host's move count while both have a connection.
+  val invLocalGuest = (not(_offline.contains("alice")) and not(_offline.contains("bob"))) implies shownMoves.get("bob") == controlledPly
 }
