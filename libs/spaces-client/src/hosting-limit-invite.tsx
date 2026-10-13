@@ -15,6 +15,13 @@ type HostingLimitInvite = {
 
 const Ctx = createContext<HostingLimitInvite | null>(null);
 
+/** Membership can render outside a spaces session, where no invitation exists. */
+const absentInvite: HostingLimitInvite = {
+  decision: () => null,
+  refuse: () => undefined,
+  clear: () => undefined,
+};
+
 /**
  * A refused second space keeps its invitation to Plus after the person
  * leaves the lobby. The refusal belongs to this device's session.
@@ -33,9 +40,5 @@ export function HostingLimitInviteProvider(props: {
 }
 
 export function useHostingLimitInvite(): HostingLimitInvite {
-  const invite = useContext(Ctx);
-  if (invite === null) {
-    throw new Error('HostingLimitInviteProvider is not mounted');
-  }
-  return invite;
+  return useContext(Ctx) ?? absentInvite;
 }
