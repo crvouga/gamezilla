@@ -27,9 +27,12 @@ async function signOtherDevice(
   actor: string,
   device: string
 ): Promise<void> {
-  const account = await w.s.read(signedInAccountOf, actor);
-  const there = await w.s.read(signedInAccountOf, device);
-  if (account !== null && account === there) return;
+  const present = await w.s.read((s) => s.actors.has(device));
+  if (present) {
+    const account = await w.s.read(signedInAccountOf, actor);
+    const there = await w.s.read(signedInAccountOf, device);
+    if (account !== null && account === there) return;
+  }
   await w.s.apply(signInWithGoogleAsAccount, device, actor);
 }
 

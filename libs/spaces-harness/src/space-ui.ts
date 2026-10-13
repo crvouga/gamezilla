@@ -130,6 +130,28 @@ export async function reenterOwnSpace(
   await waitActiveSpace(s, actorId);
 }
 
+const TRY_RETURN_MS = 2_000;
+
+/**
+ * Back into the one space this device knows, when its lobby card is there.
+ * A device that has not met the space stays on the lobby.
+ */
+export async function tryReenterOwnSpace(
+  s: ProductHarness,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  if (await ui.get(Handles.spaceClose).isVisible()) return;
+  const card = await pollUntil(s, () => ownSpaceCard(s, actorId), {
+    maxMs: TRY_RETURN_MS,
+    stepMs: OWN_SPACE_POLL_MS,
+    description: `${actorId}'s own space card`,
+  }).catch(() => null);
+  if (card === null) return;
+  await ui.get(card).tap({ timeoutMs: SPACE_WAIT_MS });
+  await waitActiveSpace(s, actorId);
+}
+
 export async function reenterSpace(
   s: ProductHarness,
   actorId: string,

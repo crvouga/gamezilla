@@ -4,6 +4,7 @@ import { createSpaceMutation } from '@libs/spaces-shared/create-space-mutation';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { useCreateId } from '@pkgs/uuid-client/solid';
+import { useHostingInvite } from './hosting-invite';
 import { useSpaceAdmissionsInFlight } from './space-admissions-in-flight';
 import { useHostedSpaceCount } from './use-hosted-space-count';
 
@@ -24,13 +25,17 @@ export function useCreateSpace(): () => Promise<CreateSpaceResult> {
   const createId = useCreateId();
   const admissions = useSpaceAdmissionsInFlight();
   const hosted = useHostedSpaceCount();
+  const invite = useHostingInvite();
   // What this device knows now. A membership it could not confirm past grace
   // no longer lifts the limit, although its synced row still reads as paid.
   const limit = useLimitDecision(LIMIT.hostedSpaces, hosted.count);
 
   return async () => {
     const known = limit();
-    if (!known.allowed) return { kind: 'limited', decision: known };
+    if (!known.allowed) {
+      invite.note(known);
+      return { kind: 'limited', decision: known };
+    }
     const spaceId = createId();
     const result = await mutationClient.mutate(createSpaceMutation, {
       spaceId,
@@ -42,6 +47,7 @@ export function useCreateSpace(): () => Promise<CreateSpaceResult> {
     }
     const decision = denialOf(result.failures[0]?.meta);
     if (decision !== null && !decision.allowed) {
+      invite.note(decision);
       return { kind: 'limited', decision };
     }
     throw new Error(result.failures[0]?.message);

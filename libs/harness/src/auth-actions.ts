@@ -5,7 +5,7 @@ import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { actorUi, pollUntil, scenarioAction } from './actor-ui';
 import type { ProductHarness } from './harness';
 import type { AppleAccountKind } from './identity';
-import { actorAppleEmail, actorEmail } from './identity';
+import { actorAppleEmail, actorEmail, signedInAccountOf } from './identity';
 import type { ProviderAnswers } from './provider-walk';
 import { completeProviderSignIn } from './provider-walk';
 
@@ -140,17 +140,65 @@ export const claimActorUsername = scenarioAction({
 });
 
 /**
+ * Back out of Account without closing a space the person still has open.
+ * One pop from Billing lands on Settings, so callers that only need the
+ * tab bar use `backToTabs` instead.
+ */
+async function leaveAccountStack(
+  s: ProductHarness,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  for (let step = 0; step < 4; step += 1) {
+    if (await ui.get(Handles.spaceClose).isVisible()) return;
+    for (const tab of HOME_TABS) {
+      if (await ui.get(tab).isVisible()) return;
+    }
+    if (!(await ui.get(Handles.navBack).isVisible())) return;
+    await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+    await s.session.waitForIdle();
+  }
+}
+
+/**
+ * The Google address is this person's only once their own device has signed
+ * in with it. A second device that goes first would mint a different account.
+ */
+/** Cut off from the API: the Google screen cannot load on this device. */
+function accountIsOffline(s: ProductHarness, actorId: string): boolean {
+  return s.session.network
+    .partitions()
+    .some(([from, to]) => from === actorId || to === actorId);
+}
+
+async function ensureGoogleAccount(
+  s: ProductHarness,
+  accountActorId: string
+): Promise<void> {
+  if ((await signedInAccountOf(s, accountActorId)) !== null) return;
+  if (accountIsOffline(s, accountActorId)) return;
+  await providerSignIn(s, accountActorId, {
+    provider: 'google',
+    email: actorEmail(s, accountActorId),
+  });
+  await leaveAccountStack(s, accountActorId);
+}
+
+/**
  * The same person on a second device: `actorId` signs in with the Google
  * address that belongs to `accountActorId` (§34 "same account on two
  * devices").
  */
 export const signInWithGoogleAsAccount = scenarioAction({
   name: 'signInWithGoogleAsAccount',
-  act: (s, actorId: string, accountActorId: string) =>
-    providerSignIn(s, actorId, {
+  act: async (s, actorId: string, accountActorId: string) => {
+    if (actorId !== accountActorId)
+      await ensureGoogleAccount(s, accountActorId);
+    await providerSignIn(s, actorId, {
       provider: 'google',
       email: actorEmail(s, accountActorId),
-    }),
+    });
+  },
 });
 
 /**

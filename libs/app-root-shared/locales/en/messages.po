@@ -2478,6 +2478,10 @@ msgstr "Only a participant can make this choice."
 msgid "Only the creator can make this choice."
 msgstr "Only the creator can make this choice."
 
+#: libs/spaces-client/src/game-choice-refused-notice.tsx
+msgid "Only the host chooses the game."
+msgstr "Only the host chooses the game."
+
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Only the other participant can answer a draw offer."
 msgstr "Only the other participant can answer a draw offer."
@@ -3806,6 +3810,7 @@ msgstr "The choice could not be confirmed. Try again."
 
 #: libs/notifications-client/src/notifications-screen.tsx
 #: libs/spaces-client/src/space-connection-missing.tsx
+#: libs/spaces-client/src/connection-missing-notice.tsx
 msgid "The connection is missing."
 msgstr "The connection is missing."
 

@@ -27,6 +27,21 @@ import { remember, signedInAccountKey } from './spec-world';
 
 const SECOND_MS = 1_000;
 
+type PhoneOfflineHook = (w: HarnessWorld, actor: Actor) => Promise<void>;
+let phoneOfflineHook: PhoneOfflineHook | null = null;
+
+/** A sub records what this device held before the phone loses the connection. */
+export function setPhoneOfflineHook(hook: PhoneOfflineHook): void {
+  phoneOfflineHook = hook;
+}
+
+export async function notePhoneOffline(
+  w: HarnessWorld,
+  actor: Actor
+): Promise<void> {
+  if (phoneOfflineHook !== null) await phoneOfflineHook(w, actor);
+}
+
 /** The actor id of `actor`'s second device, signed into the same account. */
 export function otherDevice(actor: string): string {
   return `${actor}_phone`;

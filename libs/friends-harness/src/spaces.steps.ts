@@ -14,7 +14,7 @@ import { letTimePass, restartApp } from '@libs/harness/actions';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
-import { cutConnection } from '@libs/harness/platform';
+import { cutConnection, otherDevice } from '@libs/harness/platform';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { recall, remember } from '@libs/harness/spec-world';
@@ -207,10 +207,23 @@ Given('{actor} has hosted a space and ended it', async (w, actor: Actor) => {
   await w.s.apply(endSpace, actor);
 });
 
+/** The invite can land on the device that tried to host, or on the phone. */
+async function hostingInviteVisible(
+  s: Parameters<typeof hostingLimitShown>[0],
+  actor: Actor
+): Promise<boolean> {
+  if (await hostingLimitShown(s, actor)) return true;
+  const device = otherDevice(actor);
+  if (!s.actors.has(device)) return false;
+  return hostingLimitShown(s, device);
+}
+
 Then(
   '{actor} is told their hosting limit is reached and invited to get Plus',
   async (w, actor: Actor) => {
-    await w.s.until((s) => hostingLimitShown(s, actor), { maxMs: 20_000 });
+    await w.s.until((surf) => hostingInviteVisible(surf, actor), {
+      maxMs: PRESENCE_SETTLES_MS,
+    });
   }
 );
 
@@ -221,7 +234,10 @@ Then('{actor} is not invited to get Plus', async (w, actor: Actor) => {
 // The Spaces screen says how many live spaces the host has.
 Then('{actor} hosts {int} space(s)', async (w, actor: Actor, count: number) => {
   await w.s.apply(openSpacesTab, actor);
-  expect(await w.s.read(hostedSpaceCount, actor)).toBe(count);
+  await w.s.until((surf) => hostedSpaceCount(surf, actor), {
+    pred: (hosted) => hosted === count,
+    maxMs: PRESENCE_SETTLES_MS,
+  });
 });
 
 Then(

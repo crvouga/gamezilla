@@ -24,7 +24,9 @@ import {
 
 /** The game record the person copied, as another chess program reads it. */
 async function recordCopied(w: HarnessWorld, actor: string) {
-  const record = await w.s.read(copiedGameRecord, viewerOf(w, actor));
+  const copiedOn = w.memo.get(`multiplayer:copier:${actor}`);
+  const device = typeof copiedOn === 'string' ? copiedOn : viewerOf(w, actor);
+  const record = await w.s.read(copiedGameRecord, device);
   if (record === null) throw new Error(`${actor} copied no game record`);
   return record;
 }

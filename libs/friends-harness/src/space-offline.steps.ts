@@ -22,7 +22,7 @@ import {
   spaceHostOfflineShown,
 } from '@libs/spaces-harness/spaces-ui-reads';
 
-const OFFLINE_SPACE_LINK = 'offlineSpaceLink';
+export const OFFLINE_SPACE_LINK = 'offlineSpaceLink';
 
 Then('{actor} can try joining again', async (w, actor: Actor) => {
   expect(await w.s.read(joinRetryOffered, actor)).toBe(true);

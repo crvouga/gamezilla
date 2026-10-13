@@ -1,6 +1,13 @@
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import {
+  createEffect,
+  createSignal,
+  type JSX,
+  Match,
+  Show,
+  Switch,
+} from 'solid-js';
 
 import { GamesMainMenu } from './games-main-menu';
 import { SpaceActiveLayout } from './space-active-layout';
@@ -10,21 +17,28 @@ import type { SpaceSessionUiValue } from './space-session-ui-context';
 import { SpaceSessionUiProvider } from './space-session-ui-context';
 import { useAnnounceJoinedOnSync } from './use-announce-joined-on-sync';
 import { useNoteSpaceActivity } from './use-note-space-activity';
+import { SpaceQuietHost } from './use-space-device-quiet';
 import { useSpaceHostConnection } from './use-space-host-connection';
 
 type HostConnection = 'ready' | 'loading' | 'offline' | 'host-offline';
 
 /**
- * The game choice stays while the host is offline. The notice beside it
- * says the host is offline; hiding the choice would leave a guest nowhere.
+ * The game choice stays while the host is offline. A first look waits until
+ * the host is known. Once the menu has been shown, a later check does not
+ * hide it.
  */
 function SpaceGames(props: {
   connection: HostConnection;
   online: boolean;
+  keepMenu: boolean;
 }): JSX.Element {
   return (
     <Switch fallback={<GamesMainMenu />}>
-      <Match when={props.connection === 'loading' && props.online}>
+      <Match
+        when={
+          props.connection === 'loading' && props.online && !props.keepMenu
+        }
+      >
         <LoadingState />
       </Match>
     </Switch>
@@ -49,6 +63,10 @@ export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
   useNoteSpaceActivity();
   const connection = useSpaceHostConnection();
   const engine = useSyncEngine();
+  const [keptMenu, setKeptMenu] = createSignal(false);
+  createEffect(() => {
+    if (connection() !== 'loading') setKeptMenu(true);
+  });
   const sessionUi: SpaceSessionUiValue = {
     get spaceId() {
       return props.spaceId;
@@ -69,7 +87,7 @@ export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
 
   return (
     <SpaceSessionUiProvider value={sessionUi}>
-      <div class="box flex-1 min-h-0">
+      <SpaceQuietHost>
         <SpaceActiveLayout>
           <Show when={!engine.status().online}>
             <div class="box p-4">
@@ -86,9 +104,10 @@ export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
           <SpaceGames
             connection={connection()}
             online={engine.status().online}
+            keepMenu={keptMenu()}
           />
         </SpaceActiveLayout>
-      </div>
+      </SpaceQuietHost>
     </SpaceSessionUiProvider>
   );
 }

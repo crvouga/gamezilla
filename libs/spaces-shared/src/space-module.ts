@@ -45,6 +45,13 @@ import {
   spaceMembersEvtNs,
 } from './space-members-messages';
 import {
+  SpaceQuietRoomAttr,
+  spaceQuietCmdNs,
+  spaceQuietCommandRouter,
+  spaceQuietEventReducer,
+  spaceQuietEvtNs,
+} from './space-quiet';
+import {
   spacePresenceCommand,
   spaceServiceCmdNs,
   spaceServiceCommandRouter,
@@ -82,6 +89,7 @@ function buildCommandRouter(games: readonly GameDefinition[]) {
     { namespace: spaceServiceCmdNs, router: spaceServiceCommandRouter },
     { namespace: spaceActivityCmdNs, router: spaceActivityCommandRouter },
     { namespace: spaceLogCmdNs, router: spaceLogCommandRouter },
+    { namespace: spaceQuietCmdNs, router: spaceQuietCommandRouter },
     { namespace: counterCmdNs, router: counterCommandRouter },
     { namespace: gamesCmdNs, router: createGamesCommandRouter(games) },
     ...games.flatMap((game) => [...game.commandRouters]),
@@ -95,6 +103,7 @@ function buildEventReducer(
   return createComposedMessageRouter<RoomState, void, RoomState>([
     { namespace: spaceLogEvtNs, router: spaceLogEventReducer },
     { namespace: spaceActivityEvtNs, router: spaceActivityEventReducer },
+    { namespace: spaceQuietEvtNs, router: spaceQuietEventReducer },
     {
       namespace: spaceMembersEvtNs,
       router: createSpaceMembersEventReducer(now),
@@ -109,6 +118,7 @@ function buildInitialState(games: readonly GameDefinition[]): RoomState {
   let state: RoomState = {
     ...SpaceMembersRoomAttr.seats({}),
     ...SpaceMembersRoomAttr.ended(false),
+    ...SpaceQuietRoomAttr.quiet({}),
   };
   for (const game of games) {
     if (game.initialState !== undefined) {
