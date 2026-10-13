@@ -35,6 +35,7 @@
     "@pkgs/room-root-client": "workspace:*",
     "@pkgs/room-root-shared": "workspace:*",
     "@pkgs/sounds-client": "workspace:*",
+    "@pkgs/sync-engine-client": "workspace:*",
     "@pkgs/ui-root-client": "workspace:*",
     "solid-js": "catalog:"
   },
