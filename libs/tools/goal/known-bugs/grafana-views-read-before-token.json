@@ -1,0 +1,4 @@
+{
+  "summary": "Deploy dev's foundation plan failed while reading Grafana data sources. The views provider's auth is a stack service account token that the same plan creates, so the Grafana client does not exist yet and the plan errors with \"the Grafana client is required\". Dashboards and alerts now use Grafana Cloud's provisioned data source ids, grafanacloud-prom and grafanacloud-logs, and the first plan does not call the Grafana instance API.",
+  "regressionTest": "libs/infra-server/tests/foundation-bootstrap.test.ts"
+}
