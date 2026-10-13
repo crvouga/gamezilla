@@ -2,9 +2,9 @@
 # One workspace step. `bun dev` runs install and merge as Turborepo tasks
 # (`//#workspace:<step>`), so the terminal shows a step per pane and prints a
 # step's output only when it fails. Those two exit non-zero while they leave
-# work. hooks and local-files are cold-start work inside run.sh: they name
-# what they could not finish and still return success, so a missing Infisical
-# login cannot fail the launch.
+# work. local-files is cold-start work inside run.sh: it names what it could
+# not finish and still returns success, so a missing Infisical login cannot
+# fail the launch. There are no git hooks.
 set -euo pipefail
 # shellcheck source=libs/tools/workspace/lib.sh
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
@@ -23,25 +23,6 @@ step_install() {
 
 step_merge() {
   workspace_warn_unmerged
-}
-
-# `main` only moves through a merged PR: enable the repo hooks (pre-commit,
-# pre-push) for this clone. `core.hooksPath` lives in the shared git config, so
-# it covers every worktree and the root checkout, not just this one.
-step_hooks() {
-  if [ "$(git config --get core.hooksPath || true)" = 'libs/tools/githooks' ]; then
-    return 0
-  fi
-  echo "==> enabling libs/tools/githooks (pre-commit, pre-push)"
-  if ! git config core.hooksPath libs/tools/githooks; then
-    echo "!!! could not set core.hooksPath; run 'bun run hooks:install' manually"
-    return 0
-  fi
-}
-
-step_unhook() {
-  # Exit 5 is git saying the key was already unset.
-  git config --unset core.hooksPath || [ "$?" -eq 5 ]
 }
 
 # The gitignored local-only files (offline secrets cache + generated
@@ -84,11 +65,9 @@ step_local_files() {
 case "${1:-}" in
   install) step_install ;;
   merge) step_merge ;;
-  hooks) step_hooks ;;
-  unhook) step_unhook ;;
   local-files) step_local_files ;;
   *)
-    echo "usage: step.sh install|merge|hooks|unhook|local-files" >&2
+    echo "usage: step.sh install|merge|local-files" >&2
     exit 2
     ;;
 esac

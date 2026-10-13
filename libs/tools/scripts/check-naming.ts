@@ -5,7 +5,7 @@
  * other file and directory is `lower-kebab-case` (rules + exemptions:
  * `libs/tools/naming/naming-rules.ts`). `bun check-pr` applies the same rules per
  * package inside `lint`; this sweep backs `bun run lint:naming`, the
- * `naming:fix` post-write gate and the pre-commit hook.
+ * `naming:fix` post-write gate.
  *
  * Built to be as fast as the process can start: one `git ls-files` (index
  * read, honours .gitignore), no fs walk, no stat, each directory judged once.

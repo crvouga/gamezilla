@@ -29,7 +29,9 @@ than restating it.
 
 - **Atlas is an npm dependency, never a copy.** `@crvouga/atlas` installs from npm through the root `catalog`: no submodule, vendored copy, `git` / `file:` dependency or patch. Import only its documented paths (`@crvouga/atlas`, `/spec`, `/schema`, `/reports/<module>`, …) and run its `atlas` / `atlas-visualizer` commands. A bug or gap in Atlas is an issue at [crvouga/atlas](https://github.com/crvouga/atlas/blob/main/docs/reporting-issues.md), never a fix made from here; a workaround in our code is named in that issue and removed when the release that fixes it lands. Upgrade by raising the catalog entry in a commit of its own. Guide: [dogfooding](https://github.com/crvouga/atlas/blob/main/docs/dogfooding.md).
 
-- **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges, and the merge deploys — never `--admin`, never a red, pending or draft PR. `main` moves only through a merged PR ([`README.md`](README.md#correctness-machinery)).
+- **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. A direct push to `main` is allowed. Deploy still runs the Check gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
+
+- **Agents never merge a pull request.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR. A person may also push `main` directly.
 
 - **Never patch dependencies.** No `bun patch`, `patch-package`, `pnpm patch`, `patches/` directory, or `patchedDependencies` / `resolutions` field. Work around a third-party bug in our code or accept it.
 
@@ -160,7 +162,7 @@ Four workflows, one contract each. Details:
 - **The required status is `check:end`.** Check PR is three jobs
   (`check:start`, `check:shards (N)`, `check:end`). They keep the `check:`
   prefix wherever the gate runs (a pull request, Deploy's verification, the
-  nightly run), so the ruleset's required check never moves with a file name.
+  nightly run). The ruleset on `main` does not require that check before a push.
 - **Every gate is a package-owned Turbo task.** The task list in
   `libs/tools/scripts/turbo-ci-run.ts` runs every gate through Turbo. There
   are no root `//#check`, `//#ci:*`, or root lint checks: each gate has
@@ -170,7 +172,7 @@ Four workflows, one contract each. Details:
   leaf verifies and never touches the outside world, and its verdict never
   depends on the machine (never branch on `CI`). Make a slow task faster
   before raising its budget.
-- **Merging to `main` is the release.** Deploy runs on every push to `main`
+- **A push to `main` is the release.** Deploy runs on every push to `main`
   and never waits for the nightly run. `bun health` and `bun deploy` dispatch
   their workflows and block on the verdict; `bun health:local` and
   `bun deploy:local` run that work on this machine.
@@ -184,7 +186,7 @@ Four workflows, one contract each. Details:
 Each workspace is a git worktree created by an agent orchestrator (Superset,
 super.engineering, …). All of them run the same lifecycle hooks from
 `libs/tools/workspace/`: `run.sh` is the only start script. A cold workspace
-prepares itself once (`mise install`, `bun install`, repo hooks,
+prepares itself once (`mise install`, `bun install`,
 `.cache/secrets`, `apps/*/.env.local`) and writes `.cache/workspace-warm`;
 later runs skip that and start the stack. Preparation never fails the launch.
 `teardown.sh` releases the workspace's listeners. Install and merge stay

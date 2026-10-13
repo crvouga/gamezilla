@@ -155,9 +155,6 @@
     "//#workspace:merge": {
       "cache": false
     },
-    "//#workspace:hooks": {
-      "cache": false
-    },
     "//#workspace:local-files": {
       "cache": false
     },
@@ -2610,10 +2607,6 @@
       "passThroughEnv": ["*"]
     },
     "//#task:inspect": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:hooks:uninstall": {
       "cache": false,
       "passThroughEnv": ["*"]
     },

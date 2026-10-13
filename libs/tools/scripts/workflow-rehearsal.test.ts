@@ -37,5 +37,7 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
   expect(commands).toMatch(/\bplan:foundation\b/);
   expect(commands).not.toMatch(/apply|deploy:local|--recover-ci-identity/);
   expect(source).toContain('Deploy ships refs/heads/main only');
+  expect(source).not.toContain('/pulls');
+  expect(source).not.toContain('pull-requests:');
   expect(workflow.jobs['deploy-check']?.needs).toBe('deploy-guard');
 });

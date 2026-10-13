@@ -135,7 +135,6 @@ const CARDS: readonly Facts[] = [
         'Repository',
         `${pick(v, 'github', 'owner')}/${pick(v, 'github', 'repo')}`,
       ],
-      ['Required check', pick(v, 'github', 'required_checks', '0')],
     ],
     links: (v) => {
       const owner = pick(v, 'github', 'owner');

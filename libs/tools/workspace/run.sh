@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The only workspace start script. A cold checkout (no warm mark) prepares
-# itself once: pinned tools, dependencies, repo hooks, and the gitignored
+# itself once: pinned tools, dependencies, and the gitignored
 # local files. Every later run skips that and starts the stack. Preparation
 # is idempotent and never fails the launch — a step that cannot finish says
 # so, the warm mark is still written, and dev starts. Pressing Run again is
@@ -35,7 +35,6 @@ workspace_cold() {
   fi
   workspace_install ||
     echo "!!! launching dev on an incomplete install"
-  "$STEP" hooks || echo "!!! workspace:hooks is unfinished"
   "$STEP" local-files || echo "!!! workspace:local-files is unfinished"
   mkdir -p .cache
   printf 'warm\n' >"$WARM_MARK"

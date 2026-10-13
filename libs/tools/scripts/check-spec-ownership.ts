@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-// @io-wall-ok — CI gate entry (`@libs/tools#ci:spec-ownership`) and pre-commit check.
+// @io-wall-ok — CI gate entry (`@libs/tools#ci:spec-ownership`).
 /**
  * Every spec — any file under `specs/` (features, Quint models, DMN decision
  * tables, Alloy structures, OpenSLO objectives, the ubiquitous languages, the
@@ -13,7 +13,7 @@
  *
  *   check-spec-ownership.ts             commits in PR_BASE..PR_HEAD (CI) or
  *                                       origin/main..HEAD (local)
- *   check-spec-ownership.ts --staged    the index, for the pre-commit hook
+ *   check-spec-ownership.ts --staged    the index
  */
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';

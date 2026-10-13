@@ -14,22 +14,15 @@ const actions = readFileSync(
 );
 const imports = readFileSync(join(TOFU, 'stacks/bootstrap/imports.tf'), 'utf8');
 
-test('main policy requires verified current-main CI with no bypass or approval ceremony', () => {
-  // GitHub Actions owns the check status.
-  expect(GLOBAL.github.check_integration_id).toBe(15368);
+test('main accepts a direct push and still refuses deletion and a force-push', () => {
   expect(repository).toMatch(/resource "github_repository_ruleset" "main"/);
-  for (const rule of [
-    'deletion',
-    'non_fast_forward',
-    'required_review_thread_resolution',
-    'strict_required_status_checks_policy',
-  ]) {
+  for (const rule of ['deletion', 'non_fast_forward']) {
     expect(repository).toMatch(new RegExp(`${rule}\\s*=\\s*true`));
   }
   expect(repository).toMatch(/include\s*=\s*\["refs\/heads\/main"\]/);
   expect(repository).toMatch(/enforcement\s*=\s*"active"/);
-  expect(repository).toMatch(/required_approving_review_count\s*=\s*0/);
-  expect(repository).toMatch(/integration_id\s*=\s*var.check_integration_id/);
+  expect(repository).not.toMatch(/\bpull_request\s*\{/);
+  expect(repository).not.toMatch(/\brequired_status_checks\s*\{/);
   expect(repository).not.toMatch(/\bbypass_actors\s*\{/);
   expect(repository).not.toMatch(/resource "github_branch_protection"/);
 });
@@ -38,7 +31,6 @@ test('merge-commit-only history and disposable heads remain compatible with main
   expect(repository).toMatch(/allow_merge_commit\s*=\s*true/);
   expect(repository).toMatch(/allow_squash_merge\s*=\s*false/);
   expect(repository).toMatch(/allow_rebase_merge\s*=\s*false/);
-  expect(repository).toMatch(/allowed_merge_methods\s*=\s*\["merge"\]/);
   expect(repository).not.toMatch(/required_linear_history/);
   expect(repository).toMatch(/delete_branch_on_merge\s*=\s*true/);
   expect(repository).toMatch(/branch\s*=\s*"main"/);

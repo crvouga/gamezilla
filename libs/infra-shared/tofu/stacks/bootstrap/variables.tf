@@ -42,8 +42,6 @@ variable "github" {
     owner_is_organization = bool
     repo                  = string
     repo_id               = string
-    required_checks       = list(string)
-    check_integration_id  = number
     settings = object({
       visibility      = string
       homepage_url    = string
