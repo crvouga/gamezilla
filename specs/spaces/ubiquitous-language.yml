@@ -1,6 +1,6 @@
 # The ubiquitous language of Spaces: every word its specs use for live spaces.
 # Other contexts borrow the published terms (space, host, join, leave, end a
-# space, open space, lobby, space link, hosting limit) with `from: spaces`;
+# space, open space, lobby, space link, hosting limit, idle) with `from: spaces`;
 # see the context map.
 context: Spaces
 purpose: >-
@@ -16,6 +16,10 @@ terms:
       in it sees who else is there and what happens in it as it happens. It is
       open until its host ends it or leaves it. The host can use it without
       a connection; other people are disconnected while its host is offline.
+      A person may be in it from more than one device and still counts once.
+      The host is offline for everyone else only when every device that host
+      has in the space has no connection. What the space is doing follows
+      the host, on every device in it.
     forms: [spaces, space's]
     avoid: [session, game room, lobby room, party]
     model: [InSpace, SpaceEvent, Space]
@@ -161,19 +165,43 @@ terms:
     definition: >-
       Stop counting among the people in a space after being without a
       connection for a while, or when its host goes offline, without having
-      left it. Once both connections come back, the person is there again,
-      once. The host keeps using their own space while offline.
+      left it. A person who still has another device in the space has not
+      dropped out. Being idle is not dropping out. Once both connections
+      come back, the person is there again, once, even if the connection
+      came and went more than once. The host keeps using their own space
+      while offline.
     forms: [drops out, dropped out]
     model: [DroppedOut]
 
   - term: presence
     definition: >-
       Who is in a space right now, which everyone in it sees live as the
-      people there and how many they are. Someone who leaves, steps out or
-      drops out stops showing; nobody ever shows twice. An offline host sees
-      only themselves; other people see nobody while the host is offline.
+      people there, how many they are, and who among them is idle. Someone
+      who leaves, steps out or drops out stops showing. A person shows once
+      however many of their devices are in the space; nobody ever shows
+      twice. An offline host with no other device in the space sees only
+      themselves; other people see nobody while that host is offline. A
+      host who still has another device with a connection in the space is
+      still there. A missing connection is shown to the person who lost it,
+      and is not the same as being idle.
     avoid: [roster, member list]
     model: [presence, presenceOf, ViewingPresence, viewPresence, stopViewingPresence, _counting]
+
+  - term: idle
+    definition: >-
+      Still in a space, but quiet. A person who has done nothing in that
+      space for 2 minutes is idle; one minute is not enough. Presence shows
+      them as idle, and they still count. Doing anything in the space, such
+      as viewing presence, shows them as not idle at once. Idle is not
+      leaving, stepping out, dropping out, or losing the connection. A
+      person is idle only when every device they still have in the space
+      with a connection is idle. One device still doing something keeps
+      the person not idle. A host who is idle keeps the space open on
+      whatever they last chose, and nobody is told the host is offline.
+    forms: [stays idle, been idle, is idle, not idle]
+    avoid: [inactive, afk, asleep]
+    model: [idle, goQuiet]
+    published: true
 
   - term: whereabouts
     definition: >-
@@ -251,6 +279,9 @@ terms:
   - term: connection
     from: kernel
     model: [loseConnection, connectionReturns]
+  - term: the app
+    from: kernel
+    model: [closeApp]
 
   - term: account deletion
     from: profile
