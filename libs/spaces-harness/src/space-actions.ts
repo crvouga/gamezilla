@@ -1,4 +1,10 @@
 import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
+import type { ProductHarness } from '@libs/harness/harness';
+import {
+  markSpaceQuiet,
+  spaceClientIsQuiet,
+} from '@libs/spaces-client/space-quiet-registry';
+import { SpaceQuietRoomAttr } from '@libs/spaces-shared/space-quiet';
 import { Handles } from '@libs/test-ids-shared/handles';
 import {
   addPersonToSpace,
@@ -25,6 +31,7 @@ import {
   tapChromeAction,
   tapChromeOrOverflow,
   tapLobbyCard,
+  tryReenterOwnSpace,
   waitActiveSpace,
   waitForOneOf,
   waitSpaceOutcome,
@@ -135,6 +142,77 @@ export const returnToOwnSpace = scenarioAction({
   act: reenterOwnSpace,
 });
 
+/** Return when the lobby lists the space. Otherwise stay where the device is. */
+export const tryReturnToOwnSpace = scenarioAction({
+  name: 'tryReturnToOwnSpace',
+  act: tryReenterOwnSpace,
+});
+
+const QUIET_MINUTE_MS = 60_000;
+/** Shorter than the two-minute idle mark, so other devices can stay active. */
+const QUIET_SLICE_MS = 60_000;
+
+async function quietClientId(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  try {
+    const id = await (await actorUi(s, actorId))
+      .get(Handles.spaceQuietClient)
+      .text();
+    return id !== null && id.length > 0 ? id : null;
+  } catch {
+    return null;
+  }
+}
+
+function clientAlreadyQuiet(s: ProductHarness, clientId: string): boolean {
+  for (const topic of s.harness.roomNode.listTopics()) {
+    const room = s.harness.roomNode.inspect(topic);
+    if (room === null) continue;
+    if (SpaceQuietRoomAttr.quiet.from(room.committedState)[clientId] === true)
+      return true;
+  }
+  return false;
+}
+
+/** Time passing idles every open space. Keep the devices that are not the subject awake. */
+async function keepOthersAwake(
+  s: ProductHarness,
+  actorId: string
+): Promise<void> {
+  for (const other of s.actors.keys()) {
+    if (other === actorId) continue;
+    const clientId = await quietClientId(s, other);
+    if (
+      clientId === null ||
+      spaceClientIsQuiet(clientId) ||
+      clientAlreadyQuiet(s, clientId)
+    )
+      continue;
+    markSpaceQuiet(clientId, false);
+  }
+}
+
+/** Nothing done for this many minutes. Two minutes is idle. One minute is not. */
+export const stayQuiet = scenarioAction({
+  name: 'stayQuiet',
+  act: async (s, actorId: string, minutes: number) => {
+    await ensureActor(s, actorId);
+    // One person's quiet minute is not anyone else's. Clear a partial
+    // wait before the clock moves, and leave a device that is already idle.
+    await keepOthersAwake(s, actorId);
+    let left = minutes * QUIET_MINUTE_MS;
+    while (left > 0) {
+      const slice = Math.min(QUIET_SLICE_MS, left);
+      await s.session.advanceTime(slice);
+      left -= slice;
+      if (left > 0) await keepOthersAwake(s, actorId);
+    }
+    await s.session.waitForIdle();
+  },
+});
+
 /**
  * Back into the live space behind `link` from the actor's lobby card. The
  * card carries its host's username, which a guest host never chose, so it is
@@ -165,13 +243,19 @@ export const selectChessGame = scenarioAction({
   name: 'selectChessGame',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.gameMenuChess).expect.visible({
-      timeoutMs: SPACE_WAIT_MS,
-    });
+    if (!(await ui.get(Handles.gameMenuChess).isVisible())) return;
     await ui.get(Handles.gameMenuChess).tap({ timeoutMs: SPACE_WAIT_MS });
-    await ui.get(Handles.chessMenuPuzzle).expect.visible({
-      timeoutMs: SPACE_WAIT_MS,
-    });
+    const outcome = await waitForOneOf(
+      s,
+      actorId,
+      [
+        Handles.chessMenuPuzzle,
+        Handles.gameChoiceRefused,
+        Handles.connectionMissing,
+      ],
+      'chess, or why the choice was refused'
+    );
+    if (outcome !== Handles.chessMenuPuzzle) return;
   },
 });
 
@@ -337,6 +421,8 @@ export const SPACES_HARNESS_ACTIONS = [
   startSpace,
   reopenLiveSpace,
   returnToOwnSpace,
+  tryReturnToOwnSpace,
+  stayQuiet,
   joinViaLink,
   renameSpace,
   openSpaceMenu,

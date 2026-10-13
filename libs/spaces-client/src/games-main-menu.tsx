@@ -3,12 +3,21 @@ import type { GameClientDefinition } from '@libs/spaces-shared/game';
 import type { SelectedGameId } from '@libs/spaces-shared/games';
 import { GamesRoomAttr, SelectGame } from '@libs/spaces-shared/games';
 import { Trans } from '@lingui/solid/macro';
+import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useLocalSearchParams } from '@pkgs/ui-root-client/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client/main-menu-screen';
 import type { JSX } from 'solid-js';
-import { createEffect, createMemo, onMount, Show, untrack } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  onMount,
+  Show,
+  untrack,
+} from 'solid-js';
+import { GameChoiceRefusedNotice } from './game-choice-refused-notice';
 import { useGamesRegistry } from './games-registry-context';
 import { SPACE_GAME_PARAM } from './space-routes';
 import { useSpaceSessionUi } from './space-session-ui-context';
@@ -20,7 +29,6 @@ import {
 
 function buildSpaceGameMenuItems(
   games: readonly GameClientDefinition[],
-  isHost: boolean,
   selectedGame: SelectedGameId,
   onSelectGame: (game: SelectedGameId) => void
 ): MainMenuItem[] {
@@ -30,7 +38,7 @@ function buildSpaceGameMenuItems(
     ...(game.caption !== undefined ? { caption: game.caption } : {}),
     dataSet: { testid: `game-menu-${game.id}` },
     selected: selectedGame === game.id,
-    ...(isHost ? { onClick: () => onSelectGame(game.id) } : {}),
+    onClick: () => onSelectGame(game.id),
   }));
 }
 
@@ -54,13 +62,20 @@ function useOpenLinkedGame(args: {
 
 function GameListMenu(props: {
   games: readonly GameClientDefinition[];
+  onRefused: () => void;
 }): JSX.Element {
   const { spaceId } = useSpaceSessionUi();
   const canSelectGame = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
   const selectedGame = useSpaceRoomSelector(GamesRoomAttr.selected.from);
+  const engine = useSyncEngine();
 
   const dispatch = useSpaceRoomDispatch();
   const onSelectGame = (game: SelectedGameId): void => {
+    if (!engine.status().online) return;
+    if (!canSelectGame()) {
+      props.onRefused();
+      return;
+    }
     dispatch(SelectGame({ game }));
   };
 
@@ -77,12 +92,7 @@ function GameListMenu(props: {
   });
 
   const items = createMemo(() =>
-    buildSpaceGameMenuItems(
-      props.games,
-      canSelectGame(),
-      selectedGame(),
-      onSelectGame
-    )
+    buildSpaceGameMenuItems(props.games, selectedGame(), onSelectGame)
   );
 
   return (
@@ -113,7 +123,16 @@ export function GamesMainMenu(): JSX.Element {
   const games = useGamesRegistry();
   const selectedGame = useSpaceRoomSelector(GamesRoomAttr.selected.from);
   const dispatch = useSpaceRoomDispatch();
+  const { spaceId } = useSpaceSessionUi();
+  const canSelectGame = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
+  const engine = useSyncEngine();
+  const [refused, setRefused] = createSignal(false);
   const onBackToGames = (): void => {
+    if (!engine.status().online) return;
+    if (!canSelectGame()) {
+      setRefused(true);
+      return;
+    }
     dispatch(SelectGame({ game: null }));
   };
   const fadeKey = createMemo(() => selectedGame() ?? GAMES_LIST_FADE_KEY);
@@ -122,14 +141,21 @@ export function GamesMainMenu(): JSX.Element {
   );
 
   return (
-    <FadeSwitch stateKey={fadeKey()}>
-      <Show
-        when={selectedMenu()}
-        keyed
-        fallback={<GameListMenu games={games} />}
-      >
-        {(game) => <game.MainMenu onBackToGames={onBackToGames} />}
+    <div class="box gap-3">
+      <Show when={refused()}>
+        <GameChoiceRefusedNotice />
       </Show>
-    </FadeSwitch>
+      <FadeSwitch stateKey={fadeKey()}>
+        <Show
+          when={selectedMenu()}
+          keyed
+          fallback={
+            <GameListMenu games={games} onRefused={() => setRefused(true)} />
+          }
+        >
+          {(game) => <game.MainMenu onBackToGames={onBackToGames} />}
+        </Show>
+      </FadeSwitch>
+    </div>
   );
 }

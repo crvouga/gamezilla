@@ -70,7 +70,9 @@ When(
 Then(
   '{actor} is looking for her same chess opponent',
   async (w, actor: Actor) => {
-    const device = `${actor}_computer`;
+    const computer = `${actor}_computer`;
+    const hasComputer = await w.s.read((s) => s.actors.has(computer));
+    const device = hasComputer ? computer : actor;
     await w.s.until(
       async (s) =>
         (await multiplayerView(s, device)).search?.standing === 'waiting'

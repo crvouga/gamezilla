@@ -16,8 +16,17 @@ import '@libs/billing-harness/access.steps';
 import '@libs/friends-harness/friends.steps';
 import '@libs/friends-harness/spaces.steps';
 import '@libs/friends-harness/space-offline.steps';
+import '@libs/friends-harness/space-devices.steps';
+import '@libs/friends-harness/space-offline-devices.steps';
+import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { setPhoneOfflineHook } from '@libs/harness/platform';
 import { useHarnessWorld } from '@libs/harness/spec-world';
 import { openSpecHarness } from '../open-chess-harness';
+
+setPhoneOfflineHook(async (w, actor) => {
+  const game = (await w.s.read(multiplayerView, actor)).game;
+  if (game !== null) w.memo.set(`multiplayer:offline-board:${actor}`, game);
+});
 
 // Every `*.steps.ts` under this folder registers itself; a new one
 // needs no edit here.

@@ -11,10 +11,24 @@ import {
   useSpaceRoomSelector,
 } from './use-space-room-selector';
 
+type HostLink = 'ready' | 'loading' | 'offline' | 'host-offline';
+
+/** Guest link while this device or the room socket is down. Null when the room is live. */
+function guestLinkWhileDark(args: {
+  online: boolean;
+  connected: boolean;
+  hasRoster: boolean;
+  hostOfflineKnown: boolean;
+  sawHost: boolean;
+}): HostLink | null {
+  if (!args.online) return args.hostOfflineKnown ? 'host-offline' : 'offline';
+  if (!args.connected || !args.hasRoster)
+    return args.sawHost ? 'host-offline' : 'loading';
+  return null;
+}
+
 /** A host uses their local space; guests wait for a current host connection. */
-export function useSpaceHostConnection(): Accessor<
-  'ready' | 'loading' | 'offline' | 'host-offline'
-> {
+export function useSpaceHostConnection(): Accessor<HostLink> {
   const myId = useMyId();
   const spaceId = useSpaceRoomSessionId();
   const host = useSpaceColumn(() => spaceId() ?? '', SpaceField.hostMemberId);
@@ -31,15 +45,22 @@ export function useSpaceHostConnection(): Accessor<
   );
   const confirmedAbsent = useConfirmedHostAbsence(absent);
   let hostOfflineKnown = false;
+  let sawHost = false;
   return createMemo(() => {
     const hostId = host();
     if (hostId === null) return 'loading';
     if (hostId === myId()) return 'ready';
-    if (!engine.status().online)
-      return hostOfflineKnown ? 'host-offline' : 'offline';
-    if (!connected() || !hasRoster()) return 'loading';
+    const dark = guestLinkWhileDark({
+      online: engine.status().online,
+      connected: connected(),
+      hasRoster: hasRoster(),
+      hostOfflineKnown,
+      sawHost,
+    });
+    if (dark !== null) return dark;
     // An absence still being confirmed is what this device last saw of the host.
     hostOfflineKnown = absent();
+    if (!hostOfflineKnown) sawHost = true;
     if (hostOfflineKnown && !confirmedAbsent()) return 'loading';
     if (hostOfflineKnown) return 'host-offline';
     return synced() ? 'ready' : 'loading';

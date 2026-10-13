@@ -80,6 +80,23 @@ export const Handles = {
   spaceMemberName: (memberId: string) => `space-member-name-${memberId}`,
   /** Hidden count probe in the space members modal. */
   spacePresenceCount: 'space-presence-count',
+  /** Idle badge on one person in the members list. */
+  spaceMemberIdle: (memberId: string) => `space-member-idle-${memberId}`,
+  /** Hidden people the space is counting, one profile id per line. */
+  spacePresencePeople: 'space-presence-people',
+  /** Hidden people shown as idle, one profile id per line. */
+  spacePresenceIdle: 'space-presence-idle',
+  /** Hidden room client id the quiet timer belongs to. */
+  spaceQuietClient: 'space-quiet-client',
+  /** The connection is missing, for someone already in a space. */
+  connectionMissing: 'connection-missing',
+  /** A guest tried to choose the space's game. */
+  gameChoiceRefused: 'game-choice-refused',
+  /**
+   * How many live spaces this device counts, including while a space is open.
+   * The lobby paragraph is {@link spacesHostingCount}.
+   */
+  spacesHostedProbe: 'spaces-hosted-probe',
   /** Close control of the space members modal. */
   spaceMembersClose: 'space-members-close',
   /** How many live spaces the viewer hosts, on the Spaces screen. */

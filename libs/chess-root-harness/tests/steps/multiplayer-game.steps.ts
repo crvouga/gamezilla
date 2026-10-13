@@ -132,7 +132,7 @@ Then('both multiplayer boards show one move', async (w) => {
 Then('both multiplayer boards still show two moves', async (w) => {
   expect((await bothBoards(w)).revision).toBe(2);
 });
-Then('{actor} is told it is not his multiplayer turn', (w, actor: Actor) =>
+Then('{actor} is told it is not his/her multiplayer turn', (w, actor: Actor) =>
   refusal(w, actor, 'CHESS_NOT_YOUR_TURN')
 );
 Then('{actor} is told that multiplayer move is illegal', (w, actor: Actor) =>
