@@ -20,20 +20,22 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
     >;
   };
   expect(workflow.on.workflow_dispatch.inputs.rehearsal.default).toBe(false);
-  expect(workflow.jobs['deploy-matrix']?.if).toBe('${{ !inputs.rehearsal }}');
-  expect(workflow.jobs['deploy-rehearsal']).toMatchObject({
-    if: '${{ inputs.rehearsal }}',
+  // One Check serves both paths; only the release path is switched off.
+  expect(workflow.jobs['deploy-check']).toMatchObject({
     uses: './.github/workflows/check-pr.yml',
   });
-  expect(workflow.jobs['deploy-plan']).toMatchObject({
+  expect(workflow.jobs['deploy-check']?.if).toBeUndefined();
+  expect(workflow.jobs['deploy-rehearsal']).toMatchObject({
     if: '${{ inputs.rehearsal }}',
-    needs: 'deploy-rehearsal',
+    needs: 'deploy-check',
   });
-  const commands = workflow.jobs['deploy-plan']?.steps
+  expect(workflow.jobs['deploy-fleet']?.if).toBe('${{ !inputs.rehearsal }}');
+  expect(workflow.jobs['deploy-dev']?.needs).toBe('deploy-fleet');
+  const commands = workflow.jobs['deploy-rehearsal']?.steps
     ?.flatMap((step) => (step.run ? [step.run] : []))
     .join('\n');
   expect(commands).toMatch(/\bplan:foundation\b/);
   expect(commands).not.toMatch(/apply|deploy:local|--recover-ci-identity/);
   expect(source).toContain('Deploy ships refs/heads/main only');
-  expect(workflow.jobs['deploy-verify']?.needs).toBe('deploy-matrix');
+  expect(workflow.jobs['deploy-check']?.needs).toBe('deploy-guard');
 });

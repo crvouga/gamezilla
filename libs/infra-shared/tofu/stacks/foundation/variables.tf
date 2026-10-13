@@ -29,7 +29,7 @@ variable "planetscale" {
     organization = string
     region       = string
   })
-  description = "PlanetScale organization slug and the Neki region every environment's database lives in."
+  description = "PlanetScale organization slug and the Postgres region every environment's database lives in."
 }
 
 variable "aws" {

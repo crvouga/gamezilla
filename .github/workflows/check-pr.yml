@@ -43,7 +43,7 @@ on:
         description: Most shards a run may start
         type: choice
         options: [8, 12, 16, 24, 32, 40, 48, 64]
-        default: 40
+        default: 64
       concurrency:
         description: Turbo slots per shard
         type: number
@@ -58,7 +58,7 @@ on:
       shards:
         description: Most shards a run may start
         type: number
-        default: 40
+        default: 64
       concurrency:
         description: Turbo slots per shard
         type: number
@@ -95,7 +95,10 @@ env:
   GH_EVENT: ${{ github.event_name }}
   PR_BASE: ${{ github.event.pull_request.base.sha }}
   PR_HEAD: ${{ github.event.pull_request.head.sha }}
-  CHECK_SHARDS: ${{ inputs.shards || vars.CHECK_SHARDS || '40' }}
+  # Forty runners left a cold corpus — every cache missed — packed past the
+  # 1200s shard deadline once each solver had a runner of its own
+  # (Check run 38328597240). Sixty-four keeps that pack inside the deadline.
+  CHECK_SHARDS: ${{ inputs.shards || vars.CHECK_SHARDS || '64' }}
   CHECK_CONCURRENCY: ${{ inputs.concurrency || vars.CHECK_CONCURRENCY || '1' }}
   CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
   CHECK_PROFILE: ${{ inputs.profile || 'pr' }}
@@ -390,7 +393,7 @@ jobs:
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 30
-      # Publication never changes the verdict above. Deploy's `deploy:cleanup`
+      # Publication never changes the verdict above. Health's `health:cleanup`
       # prunes stale reports.
       - name: Aggregate and publish bounded evidence
         if: always() && !cancelled() && env.CHECK_PROFILE == 'nightly'

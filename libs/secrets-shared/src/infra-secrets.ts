@@ -50,7 +50,7 @@ export const TOFU_STATE_SECRET_ACCESS_KEY = new Secret({
 
 export const PLANETSCALE_SERVICE_TOKEN_ID = new Secret({
   name: 'PLANETSCALE_SERVICE_TOKEN_ID',
-  hint: "PlanetScale service token id. OpenTofu creates each environment's Neki database with it. Account-wide, shared.",
+  hint: "PlanetScale service token id. OpenTofu creates each environment's Postgres database with it. Account-wide, shared.",
   validate: (input) =>
     validateMinLength(input, 'PLANETSCALE_SERVICE_TOKEN_ID', 8),
 });

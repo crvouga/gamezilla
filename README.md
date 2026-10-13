@@ -120,7 +120,7 @@ Application Worker (Hono API, client assets and rooms)
   authn -> permission -> replay mutation in one Postgres txn
   notify channels
         |
-        +--> PlanetScale Neki (Postgres) via Hyperdrive
+        +--> PlanetScale Postgres (single node) via Hyperdrive
         +--> Durable Object per topic
         +--> R2 for uploads and the spec-report bucket
 ```
@@ -247,7 +247,7 @@ Three rules cover every deployed resource.
 
 **Zero ops.** Growth adds usage and cost. It adds no servers, clusters, replicas, shards, nodes to patch, or pools to size. A bigger day is a bigger bill.
 
-**Web scale.** This is the architecture at Google, YouTube, Facebook, and GitHub scale. Workers, the CDN, Durable Objects, R2, PlanetScale Neki, and AWS IoT Core already run at that size. Application code owns logical keys (`gameId`, `queryHash`, partition keys, object keys). Providers own placement, routing, and capacity. Neki and IoT are both `us-east-1`. PlanetScale reshardes inside that region.
+**Web scale.** This is the architecture at Google, YouTube, Facebook, and GitHub scale. Workers, the CDN, Durable Objects, R2, and AWS IoT Core already run at that size. Application code owns logical keys (`gameId`, `queryHash`, partition keys, object keys). Providers own placement, routing, and capacity. Postgres and IoT are both `us-east`. Each environment's database is one single-node PlanetScale Postgres branch (`PS-DEV`), not Neki.
 
 MQTT carries invalidation. Postgres is the record. A missed message is recovered by refetching. PlanetScale and AWS IoT have no local mode, so `bun run dev` uses Mockingbird Postgres and a local MQTT broker. The Laptop section is the rest of that substitute.
 
@@ -348,12 +348,12 @@ Production is `gamezilla-production`. Dev is `gamezilla-development`.
 | Grafana write policy and token; read policy and token | Workers ingest three signals on the write token. `bun obs` queries traces on the read token. A separate scoped service account manages dashboards and alerts. One environment rotates without touching the other. Deploy requires active hosted traces; an archived Grafana instance may still have active Tempo. Deleted or unknown stack states fail closed. |
 | Generated secrets `AUTH_SECRET`, `EMQX_JWT_SECRET`, `SYNTHETIC_MONITOR_TOKEN` | Session signing, the HMAC the API mints and the IoT authorizer checks, and signed-in health journeys. A value already in the store wins, so an apply does not rotate them. A committed placeholder is replaced. |
 | Derived secrets | Connection facts of the resources in this table: `DATABASE_URL`, `HYPERDRIVE_ID`, `API_URL`, `VITE_API_URL`, `S3_*`, `REPORTS_*`, `EMQX_WSS_URL`, `IOT_DATA_ENDPOINT`, `IOT_ACCESS_KEY_ID`, `IOT_SECRET_ACCESS_KEY`, `IOT_REGION`, `OBSERVABILITY_COLLECTOR_*`, `OBS_TEMPO_*`, `OBS_READONLY_DATABASE_URL`. Rewritten when the producer changes. The name lists are `stacks/foundation/secrets.json`. The names the app requires are `libs/secrets-server/src/registry.ts`. `bun health` checks each required secret live. |
-| Neki database `gamezilla-<suffix>`, branch `main` | System of record for that environment. Creating the branch creates the database. It starts empty; `@libs/runtime#migrate` reconciles the schema. Environments do not share rows. Production's branch is deletion-protected and `prevent_destroy`. |
+| Postgres database `gamezilla-<suffix>`, branch `main` | System of record for that environment. Creating the branch creates the database. It starts empty; `@libs/runtime#migrate` reconciles the schema. Environments do not share rows. The branch is single-node `PS-DEV` (one node, no replicas). Production's branch is deletion-protected and `prevent_destroy`. |
 | Role `migrate`, inherits `postgres` | DDL. This is `DATABASE_URL`, used by migrate and the Postgres provider. |
 | Role `app`, inherits `pg_read_all_data` and `pg_write_all_data` | The API's rows. Table changes stay on `migrate`. |
-| Role `obs_read`, inherits `pg_read_all_data` and `pg_monitor` | `bun obs`, via `OBS_READONLY_DATABASE_URL`. The login Neki issues may carry a suffix; `pg_read_all_data` still covers `SELECT`. |
-| Hyperdrive `gamezilla-db-<suffix>` | Workers have no connection pool. Hyperdrive pools the app role's router. Query cache is off, so a sync read sees its own write. The Worker opens `env.HYPERDRIVE.connectionString`. |
-| Neki's default `pg_stat_statements` extension | Slow-query statistics for `bun obs`; the branch's PlanetScale-managed default configuration profile enables it. |
+| Role `obs_read`, inherits `pg_read_all_data` and `pg_monitor` | `bun obs`, via `OBS_READONLY_DATABASE_URL`. The login PlanetScale issues may carry a suffix; `pg_read_all_data` still covers `SELECT`. |
+| Hyperdrive `gamezilla-db-<suffix>` | Workers have no connection pool. Hyperdrive pools the app role. Query cache is off, so a sync read sees its own write. The Worker opens `env.HYPERDRIVE.connectionString`. |
+| `pg_stat_statements` | Slow-query statistics for `bun obs`. PlanetScale enables it on the branch. |
 | IoT custom domain, ACM certificate, DNS-only CNAME | Browsers connect at `emqx.gamezilla.app` or `emqx-dev.gamezilla.app` (`wss://<host>/mqtt`, secret `EMQX_WSS_URL`, synced key `emqx_wss_url`). The certificate is the TLS. DNS stays unproxied so the socket reaches IoT. The domain is data-plane, MQTT over WebSocket, custom auth, and this authorizer is the default. |
 | Lambda authorizer (Node 22), its log group (14 days), its execution role | Browsers hold no signing key. The function checks `EMQX_JWT_SECRET` and turns the token's `acl` into a session policy: connect, subscribe, receive, publish. Caching is off. App topics use `:`; the IoT wire uses `/` (`user:actor1` → `user/actor1`) at this boundary only. Loopback brokers on the laptop keep colon topics. |
 | IAM user, `iot:Publish` on `topic/*`, and its access key | The Worker publishes with SigV4 (`IOT_*`). A Worker cannot present a GitHub OIDC token, so this key is separate from `AWS_ROLE_ARN`. |
@@ -381,7 +381,7 @@ OpenTofu looks them up. It does not create them.
 
 ### Data stays
 
-An environment rebuilds from its env file. `prevent_destroy` covers the state bucket, the Grafana stack, the repository, the shared secrets environment, and production's Neki branch. `libs/infra-shared/policy/stateful.rego` allow-lists what an ordinary apply may delete: credentials, DNS, routing, connection config, and derived secrets. Neki branches and roles stay protected. A plan that deletes most of a type in production is refused. To stop managing a stateful resource, use `removed { lifecycle { destroy = false } }`. Neon is forgotten that way and still exists at Neon. The Railway EMQX project is deleted; those addresses stay forgotten so an apply does not recreate the broker. A `removed` block cannot name one instance of a `for_each`, so a generated secret retired on purpose is listed in the policy's `retired` set, the one instance of a protected type an apply may delete; drop the entry once every environment has applied without it. Production MQTT is AWS IoT Core. Before every apply, encrypted state is copied to `backups/<stack>/<env>/<timestamp>.tfstate`.
+An environment rebuilds from its env file. `prevent_destroy` covers the state bucket, the Grafana stack, the repository, the shared secrets environment, and production's Postgres branch. `libs/infra-shared/policy/stateful.rego` allow-lists what an ordinary apply may delete: credentials, DNS, routing, connection config, and derived secrets. Postgres branches and roles stay protected. A plan that deletes most of a type in production is refused. To stop managing a stateful resource, use `removed { lifecycle { destroy = false } }`. Neon is forgotten that way and still exists at Neon. The Railway EMQX project is deleted; those addresses stay forgotten so an apply does not recreate the broker. A `removed` block cannot name one instance of a `for_each`, so a generated secret retired on purpose is listed in the policy's `retired` set. The previous Neki branch and roles are listed there too, so this replacement can delete them. That delete drops their rows, and migrate rebuilds an empty schema. Drop each entry once every environment has applied without it. Production MQTT is AWS IoT Core. Before every apply, encrypted state is copied to `backups/<stack>/<env>/<timestamp>.tfstate`.
 
 ```sh
 bun run infra:destroy -- --env <env> --confirm <env>
@@ -389,12 +389,16 @@ bun run infra:destroy -- --env <env> --confirm <env>
 
 That refuses `protection: "production"`. It runs deploy in reverse: edge domains, delete the application Worker and any superseded scripts, empty the bucket, then foundation (that database, Hyperdrive, bucket, IoT, trace tokens, secrets), then that env's fleet entries. The env file stays. The next deploy builds a new empty database and reconciles the schema. Deleting the env file alone deletes nothing.
 
-A new environment is `envs/<env>.tfvars.json` with `protection: "standard"` and no `imports`, registered in `libs/infra-shared/src/envs.ts`. Deploy creates the rest: standard environments in parallel, then production. Health probes every env hourly. Rehearse before merging a change to deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands. Rehearsals execute in GitHub Actions, dispatched on a named branch with `gh workflow run` and managed locally with `gh run view`, `gh run watch`, and `gh run download`; never run them on the developer machine. Reuse Deploy's dev job, secrets authentication and deployment concurrency lock. A branch rejected by AWS's deployment trust remains an infrastructure-rehearsal blocker; an application deploy and health run must be reported separately, never as a full infrastructure apply.
+A new environment is `envs/<env>.tfvars.json` with `protection: "standard"` and no `imports`, registered in `libs/infra-shared/src/envs.ts`. Deploy creates the rest once `deploy.yml` has a job for it (a test fails until it does): `deploy:dev`, then `deploy:prd`. Health probes every env hourly. Rehearse before merging a change to deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands. Rehearsals execute in GitHub Actions, dispatched on a named branch with `gh workflow run` and managed locally with `gh run view`, `gh run watch`, and `gh run download`; never run them on the developer machine. Reuse Deploy's dev job, secrets authentication and deployment concurrency lock. A branch rejected by AWS's deployment trust remains an infrastructure-rehearsal blocker; an application deploy and health run must be reported separately, never as a full infrastructure apply.
 
 ```text
+deploy:guard   main only, through a merged pull request
+deploy:check   the Check PR gate on that commit
 deploy:fleet   auth-relay Worker, then the fleet stack
-deploy:<env>   foundation -> migrate -> product (assets + API + rooms)
+deploy:dev     foundation -> migrate -> product (assets + API + rooms)
                -> edge -> billing:sync -> health -> retire superseded Workers
+deploy:prd     the same chain, once dev is green
+deploy:release tag and GitHub release
 ```
 
 `bun deploy` ships `main` only. Do not `tofu apply` from a laptop against production. Non-deploy commands cannot reach production Postgres (`@libs/db/public/database-url-policy`). `bun run db:wipe:dev` refuses `ALLOW_PRODUCTION_DATABASE_URL=1`.

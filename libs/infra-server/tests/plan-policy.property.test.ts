@@ -68,9 +68,9 @@ const PROTECTED: ReadonlySet<string> = new Set([
   'aws_iam_openid_connect_provider',
   'infisical_project_environment',
   'infisical_project_identity',
-  // Replacing a Neki role mints a new password. The branch holds the data.
-  'planetscale_neki_branch',
-  'planetscale_neki_role',
+  // Replacing a Postgres role mints a new password. The branch holds the data.
+  'planetscale_postgres_branch',
+  'planetscale_postgres_branch_role',
   'postgresql_extension',
   'random_password',
 ]);
@@ -136,9 +136,11 @@ function modelDenies(
     return true;
   if (protection !== 'production') return false;
   return [...new Set(managed.map((c) => c.type))].some((type) => {
-    const all = managed.filter((c) => c.type === type);
-    const removed = all.filter(drops).length;
-    return removed >= 2 && removed * 2 > all.length;
+    const counted = managed.filter(
+      (c) => c.type === type && !RETIRED.has(c.address)
+    );
+    const removed = counted.filter(drops).length;
+    return removed >= 2 && removed * 2 > counted.length;
   });
 }
 
@@ -198,6 +200,32 @@ describe('policy/stateful.rego', () => {
       )
     );
   }, 120_000);
+
+  test('the retired Neki databases may be deleted together in production', () => {
+    const addresses = [
+      'module.database.planetscale_neki_branch.production[0]',
+      'module.database.planetscale_neki_branch.standard[0]',
+      'module.database.planetscale_neki_role.migrate',
+      'module.database.planetscale_neki_role.app',
+      'module.database.planetscale_neki_role.obs_read',
+    ];
+    const verdict = evaluatePlanPolicy(
+      {
+        resource_changes: addresses.map((address) => ({
+          address,
+          mode: 'managed' as const,
+          type: address.includes('_role.')
+            ? 'planetscale_neki_role'
+            : 'planetscale_neki_branch',
+          change: { actions: ['delete'] },
+        })),
+        variables: { protection: { value: 'production' } },
+      },
+      POLICY,
+      conftest
+    );
+    expect(verdict.allowed).toBe(true);
+  });
 
   test('only the retired generated secret may be deleted; every other one is kept', () => {
     const verdictFor = (name: string, protection: string) =>

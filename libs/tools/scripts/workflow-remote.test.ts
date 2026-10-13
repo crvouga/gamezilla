@@ -82,17 +82,19 @@ describe('WORKFLOW_DISPATCH', () => {
       on: Record<string, unknown>;
       jobs: Record<
         string,
-        { uses?: string; with?: Record<string, string>; needs?: string[] }
+        { uses?: string; with?: Record<string, string>; needs?: string }
       >;
     };
     expect(Object.keys(deploy.on)).toEqual(['push', 'workflow_dispatch']);
     expect(deploy.on['push']).toEqual({ branches: ['main'] });
-    expect(deploy.jobs['deploy-verify']).toMatchObject({
+    expect(deploy.jobs['deploy-check']).toMatchObject({
       uses: './.github/workflows/check-pr.yml',
     });
-    expect(deploy.jobs['deploy-verify']).not.toHaveProperty('with');
-    expect(deploy.jobs['deploy-fleet']!.needs).toContain('deploy-verify');
-    expect(deploy.jobs['deploy-production']!.needs).toContain('deploy-verify');
-    expect(deploy.jobs['deploy-release']!.needs).toEqual(['deploy-production']);
+    expect(deploy.jobs['deploy-check']).not.toHaveProperty('with');
+    // Check, then the fleet, then dev, then production, then the release.
+    expect(deploy.jobs['deploy-fleet']!.needs).toBe('deploy-check');
+    expect(deploy.jobs['deploy-dev']!.needs).toBe('deploy-fleet');
+    expect(deploy.jobs['deploy-prd']!.needs).toBe('deploy-dev');
+    expect(deploy.jobs['deploy-release']!.needs).toBe('deploy-prd');
   });
 });

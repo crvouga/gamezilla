@@ -2,7 +2,7 @@
 # `tofu show -json <plan>` and refuses to apply on any `deny`).
 #
 # Deletion is ALLOW-LISTED: only the resource types in `deletable` may ever be
-# deleted or replaced. Everything else — buckets, Neki branches and roles,
+# deleted or replaced. Everything else — buckets, Postgres branches and roles,
 # the Grafana stack, generated secrets, and any type added in the future —
 # is protected by default, so forgetting to classify a new stateful resource
 # cannot lose data. Retire such a resource with a
@@ -56,15 +56,22 @@ deletable := {
 	# matchmaking and games remain in the existing durable services.
 }
 
-# Generated secrets retired on purpose. Each value protected something that no
-# longer exists, so deleting it loses no data. A `removed` block cannot forget
-# one `for_each` instance (OpenTofu refuses an address with a key), so the
-# instance is named here instead. Delete an entry once every environment has
-# applied without it.
+# Addresses an ordinary apply may delete even though their type is protected.
+# A `removed` block cannot forget one `for_each` instance (OpenTofu refuses
+# an address with a key), so that instance is named here. Drop an entry once
+# every environment has applied without it.
 retired := {
 	# Sealed the Synthetic Users' sign-in secrets. They sign in with emailed
-	# links now, and nothing is sealed for them.
+	# links now, and nothing is sealed for them. Deleting it loses no data.
 	"module.secrets.random_password.generated_value[\"POPULATION_CREDENTIAL_SECRET\"]",
+	# Replaced by single-node vanilla Postgres (planetscale_postgres_branch).
+	# Deleting these drops the Neki rows; migrate rebuilds an empty schema.
+	# Drop the entries once both environments have applied without them.
+	"module.database.planetscale_neki_branch.production[0]",
+	"module.database.planetscale_neki_branch.standard[0]",
+	"module.database.planetscale_neki_role.migrate",
+	"module.database.planetscale_neki_role.app",
+	"module.database.planetscale_neki_role.obs_read",
 }
 
 # An array, not a set: two identical change objects are still two changes.
@@ -112,7 +119,9 @@ drops(rc) if {
 deny contains msg if {
 	protection == "production"
 	some type in {rc.type | some rc in managed_changes}
-	instances := [rc | some rc in managed_changes; rc.type == type]
+
+	# Retired addresses are an intentional one-off delete, not a truncated plan.
+	instances := [rc | some rc in managed_changes; rc.type == type; not rc.address in retired]
 	removed := [rc | some rc in instances; drops(rc)]
 	count(removed) >= 2
 	count(removed) * 2 > count(instances)

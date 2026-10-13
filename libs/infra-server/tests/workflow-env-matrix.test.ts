@@ -42,30 +42,39 @@ describe('workflow env matrix', () => {
   });
 
   test('outputs are JSON arrays; an empty list is `[]`', () => {
-    expect(
-      workflowEnvOutputs({ standard: [], production: ['prd'] }, 'shared')
-    ).toBe('standard=[]\nproduction=["prd"]\nall=["prd"]\nshared=shared');
+    expect(workflowEnvOutputs({ standard: [], production: ['prd'] })).toBe(
+      'production=["prd"]\nall=["prd"]'
+    );
   });
 });
 
 type Job = { env?: Record<string, unknown> };
 
-describe.each(['deploy.yml', 'health.yml'])('%s', (file) => {
+// Adding tofu/envs/<env>.tfvars.json must need no Health workflow edit.
+test('every Health secrets env comes from the env matrix, never a literal', () => {
   const workflow = Bun.YAML.parse(
-    readFileSync(join(WORKFLOWS_DIR, file), 'utf8')
+    readFileSync(join(WORKFLOWS_DIR, 'health.yml'), 'utf8')
   ) as { jobs: Record<string, Job> };
+  const secretsEnvs = Object.values(workflow.jobs).flatMap((job) =>
+    job.env?.['SECRETS_ENV'] === undefined ? [] : [job.env['SECRETS_ENV']]
+  );
+  expect(secretsEnvs.length).toBeGreaterThan(0);
+  for (const value of secretsEnvs) expect(value).toBe('${{ matrix.env }}');
+});
 
-  // Adding tofu/envs/<env>.tfvars.json must need no workflow edit.
-  test('every secrets env comes from the env matrix, never a literal', () => {
-    const secretsEnvs = Object.values(workflow.jobs).flatMap((job) =>
-      job.env?.['SECRETS_ENV'] === undefined ? [] : [job.env['SECRETS_ENV']]
+// Deploy names its environments in its own jobs, so an env file without one
+// would silently never ship.
+test('Deploy has one job per env file, standard before production', () => {
+  const workflow = Bun.YAML.parse(
+    readFileSync(join(WORKFLOWS_DIR, 'deploy.yml'), 'utf8')
+  ) as { jobs: Record<string, Job & { needs?: string }> };
+  const { standard, production } = workflowEnvMatrix(Object.values(ENV_FILES));
+  for (const env of [...standard, ...production]) {
+    expect(workflow.jobs[`deploy-${env}`]?.env?.['SECRETS_ENV']).toBe(env);
+  }
+  for (const env of production) {
+    expect(workflow.jobs[`deploy-${env}`]?.needs).toBe(
+      `deploy-${standard[standard.length - 1]}`
     );
-    expect(secretsEnvs.length).toBeGreaterThan(0);
-    for (const value of secretsEnvs) {
-      expect([
-        '${{ matrix.env }}',
-        '${{ needs.deploy-matrix.outputs.shared }}',
-      ]).toContain(value as string);
-    }
-  });
+  }
 });

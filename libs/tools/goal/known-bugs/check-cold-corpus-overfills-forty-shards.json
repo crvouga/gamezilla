@@ -1,0 +1,4 @@
+{
+  "summary": "Check run 38328597240 changed mise.toml, so every task missed the cache. Twenty-seven solver runners inside a cap of 40 packed the other 5034 estimated seconds into shards of 376s. Those shards ran past the 1200s deadline and check:shards (33) died while @apps/product#test was still going. The cap is 64, so that pack stays inside the deadline.",
+  "regressionTest": "libs/tools/scripts/check-shards.test.ts"
+}

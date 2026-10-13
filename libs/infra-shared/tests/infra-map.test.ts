@@ -150,7 +150,7 @@ describe('infrastructure map model', () => {
     const branch = (e: string, which: 'production' | 'standard') =>
       find(
         stack(env(e), 'foundation'),
-        `module.database.planetscale_neki_branch.${which}`
+        `module.database.planetscale_postgres_branch.${which}`
       ).instances.length;
     expect([branch('prd', 'production'), branch('prd', 'standard')]).toEqual([
       1, 0,
@@ -181,13 +181,13 @@ describe('infrastructure map model', () => {
     ).toBe(true);
     expect(
       has(
-        'module.database.planetscale_neki_role.migrate',
+        'module.database.planetscale_postgres_branch_role.migrate',
         'module.secrets.infisical_secret.managed'
       )
     ).toBe(true);
     expect(
       has(
-        'module.database.planetscale_neki_role.app',
+        'module.database.planetscale_postgres_branch_role.app',
         'module.database.cloudflare_hyperdrive_config.this'
       )
     ).toBe(true);
