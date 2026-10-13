@@ -16,6 +16,7 @@ import '@libs/billing-harness/access.steps';
 import '@libs/friends-harness/friends.steps';
 import '@libs/friends-harness/spaces.steps';
 import '@libs/friends-harness/space-offline.steps';
+import '@libs/friends-harness/space-idle.steps';
 import { useHarnessWorld } from '@libs/harness/spec-world';
 import { openSpecHarness } from '../open-chess-harness';
 
@@ -25,6 +26,7 @@ const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);
 for (const file of [...modules].sort()) await import(`./${file}`);
 
 useHarnessWorld(openSpecHarness, (w) => ({
+  beforePhoneOffline: (actor: Actor) => rememberOfflineBoard(w, actor),
   beforeAccountDeletion: async (actor: Actor) => {
     await w.s.apply(proveAccount, actor);
     await w.s.apply(seedPuzzleRating, actor, {
@@ -103,3 +105,4 @@ import {
 } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { customDefault, customGame } from './custom-game-world';
+import { rememberOfflineBoard } from './multiplayer-connection';

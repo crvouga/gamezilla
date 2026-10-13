@@ -10,6 +10,10 @@ export const spaces = defineTable({
     visibility: 'text',
     host_account_id: 'text',
     host_member_id: 'text',
+    hosting_limit_reached: {
+      type: 'boolean',
+      backfill: { sql: { sql: 'FALSE', sqlite: '0' } },
+    },
   },
 });
 

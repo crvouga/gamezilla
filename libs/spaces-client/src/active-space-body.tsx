@@ -1,14 +1,35 @@
+import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 
 import { GamesMainMenu } from './games-main-menu';
 import { SpaceActiveLayout } from './space-active-layout';
+import { SpaceConnectionMissingNotice } from './space-connection-missing';
 import { SpaceHostOfflineNotice } from './space-connection-notice';
 import type { SpaceSessionUiValue } from './space-session-ui-context';
 import { SpaceSessionUiProvider } from './space-session-ui-context';
-import { SpacesNeedConnectionNotice } from './spaces-notices';
 import { useAnnounceJoinedOnSync } from './use-announce-joined-on-sync';
+import { useNoteSpaceActivity } from './use-note-space-activity';
 import { useSpaceHostConnection } from './use-space-host-connection';
+
+type HostConnection = 'ready' | 'loading' | 'offline' | 'host-offline';
+
+/**
+ * The game choice stays while the host is offline. The notice beside it
+ * says the host is offline; hiding the choice would leave a guest nowhere.
+ */
+function SpaceGames(props: {
+  connection: HostConnection;
+  online: boolean;
+}): JSX.Element {
+  return (
+    <Switch fallback={<GamesMainMenu />}>
+      <Match when={props.connection === 'loading' && props.online}>
+        <LoadingState />
+      </Match>
+    </Switch>
+  );
+}
 
 export type ActiveSpaceBodyProps = {
   spaceId: string;
@@ -25,7 +46,9 @@ export type ActiveSpaceBodyProps = {
  */
 export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
   useAnnounceJoinedOnSync(props.spaceId);
+  useNoteSpaceActivity();
   const connection = useSpaceHostConnection();
+  const engine = useSyncEngine();
   const sessionUi: SpaceSessionUiValue = {
     get spaceId() {
       return props.spaceId;
@@ -48,26 +71,22 @@ export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
     <SpaceSessionUiProvider value={sessionUi}>
       <div class="box flex-1 min-h-0">
         <SpaceActiveLayout>
-          <Switch>
-            <Match
-              when={connection() === 'ready' || connection() === 'offline'}
-            >
-              <Show when={connection() === 'offline'}>
-                <div class="box p-4">
-                  <SpacesNeedConnectionNotice />
-                </div>
-              </Show>
-              <GamesMainMenu />
-            </Match>
-            <Match when={connection() === 'host-offline'}>
-              <div class="box p-4">
-                <SpaceHostOfflineNotice />
-              </div>
-            </Match>
-            <Match when={connection() === 'loading'}>
-              <LoadingState />
-            </Match>
-          </Switch>
+          <Show when={!engine.status().online}>
+            <div class="box p-4">
+              <SpaceConnectionMissingNotice />
+            </div>
+          </Show>
+          <Show
+            when={connection() === 'host-offline' && engine.status().online}
+          >
+            <div class="box p-4">
+              <SpaceHostOfflineNotice />
+            </div>
+          </Show>
+          <SpaceGames
+            connection={connection()}
+            online={engine.status().online}
+          />
         </SpaceActiveLayout>
       </div>
     </SpaceSessionUiProvider>

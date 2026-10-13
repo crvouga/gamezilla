@@ -50,6 +50,12 @@ export const Handles = {
   spaceJoinPrompt: 'space-join-prompt',
   spaceEnded: 'space-ended',
   spaceHostOffline: 'space-host-offline',
+  /** One person presence counts, hidden, scoped by member id. */
+  spacePerson: (memberId: string) => `space-person-${memberId}`,
+  /** Visible when that person is idle. */
+  spaceMemberIdle: (memberId: string) => `space-member-idle-${memberId}`,
+  /** This device's last activity in the space, for the harness clock. */
+  spaceOwnActivity: 'space-own-activity',
   spaceClose: 'space-close',
   /** Space chrome overflow trigger — actions that do not fit collapse here. */
   spaceChromeOverflow: 'space-chrome-overflow-menu',
@@ -84,6 +90,11 @@ export const Handles = {
   spaceMembersClose: 'space-members-close',
   /** How many live spaces the viewer hosts, on the Spaces screen. */
   spacesHostingCount: 'spaces-hosting-count',
+  /**
+   * Live hosted space ids this device is showing, including while it is
+   * inside a space and when it hosts none. Separated by spaces.
+   */
+  spacesHostingLive: 'spaces-hosting-live',
   /**
    * The Spaces list has read its local hosting count, including zero.
    * Absent while local data is loading.
@@ -273,6 +284,16 @@ export const Handles = {
   /** Notifications friend-request summary card (fromUsername). */
   notificationsFriendRequestCard: (fromUsername: string) =>
     `notifications-friend-request-card-${fromUsername}`,
+  /** Set that inbox item aside. The id is the card's test id. */
+  notificationsArchive: (cardTestId: string) => `${cardTestId}-archive`,
+  /** Inbox lists: everything, what still needs a choice, and what was set aside. */
+  notificationsFilterAll: 'notifications-filter-all',
+  notificationsFilterWaiting: 'notifications-filter-waiting',
+  notificationsFilterArchived: 'notifications-filter-archived',
+  /** Mark every waiting inbox item opened. */
+  notificationsMarkAllRead: 'notifications-mark-all-read',
+  /** Said when an inbox choice needed a connection and there was none. */
+  notificationsConnectionMissing: 'notifications-connection-missing',
   /** Notifications Accept for an incoming friend-request modal (fromUsername). */
   notificationsFriendRequestAccept: (fromUsername: string) =>
     `notifications-friend-request-accept-${fromUsername}`,
@@ -288,6 +309,8 @@ export const Handles = {
 
   // chess / spaces games
   gameMenuChess: 'game-menu-chess',
+  /** A person who is not the host is told that the host chooses the game. */
+  spaceHostChoosesGame: 'space-host-chooses-game',
   chessMenuPuzzle: 'chess-menu-puzzle',
   chessMenuStats: 'chess-menu-stats',
   chessPuzzlePlayScreen: 'chess-puzzle-play-screen',

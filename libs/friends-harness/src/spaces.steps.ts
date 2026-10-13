@@ -210,7 +210,7 @@ Given('{actor} has hosted a space and ended it', async (w, actor: Actor) => {
 Then(
   '{actor} is told their hosting limit is reached and invited to get Plus',
   async (w, actor: Actor) => {
-    expect(await w.s.read(hostingLimitShown, actor)).toBe(true);
+    await w.s.until((s) => hostingLimitShown(s, actor), { maxMs: 20_000 });
   }
 );
 

@@ -96,31 +96,50 @@ export const openMultiplayerChess = scenarioAction({
     await s.session.waitForIdle();
     await pollUntil(
       s,
-      async () => {
-        if (await ui.get('multiplayer-access-denial').isVisible()) return true;
-        const rendered = await multiplayerWatcherBoard(s, actor);
-        if (
-          rendered.gameId !== null &&
-          (gameId === undefined || rendered.gameId === gameId)
-        )
-          return true;
-        const view = await multiplayerView(s, actor);
-        const target =
-          gameId !== undefined
-            ? view.game?.id === gameId
-              ? 'multiplayer-game'
-              : 'multiplayer-unavailable'
-            : view.game !== null
-              ? 'multiplayer-game'
-              : view.search?.standing === 'waiting'
-                ? 'multiplayer-waiting'
-                : 'multiplayer-find';
-        return (await ui.get(target).isVisible()) ? true : null;
-      },
+      async () =>
+        (await multiplayerChessOpen(s, actor, ui, gameId)) ? true : null,
       { maxMs: 5000, description: 'multiplayer chess inside the space' }
     );
   },
 });
+
+const OPEN_SURFACES = [
+  'multiplayer-access-denial',
+  'multiplayer-game',
+  'multiplayer-waiting',
+  'multiplayer-find',
+  'multiplayer-unavailable',
+] as const;
+
+/**
+ * The space's multiplayer screen is up. A guest sees the host's search, so
+ * the person's own search does not choose which surface must be visible.
+ */
+async function multiplayerChessOpen(
+  s: Parameters<typeof multiplayerWatcherBoard>[0],
+  actor: string,
+  ui: Awaited<ReturnType<typeof actorUi>>,
+  gameId: string | undefined
+): Promise<boolean> {
+  if (gameId === undefined) {
+    for (const id of OPEN_SURFACES) {
+      if (await ui.get(id).isVisible()) return true;
+    }
+  }
+  if (await ui.get('multiplayer-access-denial').isVisible()) return true;
+  const rendered = await multiplayerWatcherBoard(s, actor);
+  if (
+    rendered.gameId !== null &&
+    (gameId === undefined || rendered.gameId === gameId)
+  )
+    return true;
+  const view = await multiplayerView(s, actor);
+  const target =
+    gameId !== undefined && view.game?.id !== gameId
+      ? 'multiplayer-unavailable'
+      : 'multiplayer-game';
+  return gameId === undefined ? false : ui.get(target).isVisible();
+}
 
 /**
  * Choose a time control on the screen, then find an opponent at it. A screen

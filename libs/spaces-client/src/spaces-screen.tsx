@@ -9,6 +9,7 @@ import type { ScreenBasePrimaryAction } from '@pkgs/ui-root-client/screen-base-t
 import { ScreenBodyScrollView } from '@pkgs/ui-root-client/screen-body-scroll-view';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, For, Show } from 'solid-js';
+import { useHostingLimitInvite } from './hosting-limit-invite';
 import { SpaceCard } from './space-card';
 import { openSpaceDetail } from './space-routes';
 import type { SpacesNotice } from './spaces-notices';
@@ -83,11 +84,13 @@ function useStartSpace(): {
 } {
   const router = useRouter();
   const createSpace = useCreateSpace();
+  const invite = useHostingLimitInvite();
   const [notice, setNotice] = createSignal<SpacesNotice | null>(null);
   const start = async (): Promise<void> => {
     setNotice(null);
     const result = await createSpace();
     if (result.kind === 'limited') {
+      invite.refuse(result.decision);
       setNotice({ kind: 'limited', decision: result.decision });
       return;
     }

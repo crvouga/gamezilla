@@ -20,25 +20,42 @@ import {
   winner,
 } from './multiplayer-world';
 
+async function personClocks(
+  w: HarnessWorld,
+  actor: string,
+  white: number,
+  black: number
+) {
+  await w.s.apply(openMultiplayerChess, actor);
+  await w.s.until(
+    async (s) =>
+      (await shownMultiplayerClock(s, actor, 'white')) === white &&
+      (await shownMultiplayerClock(s, actor, 'black')) === black,
+    { maxMs: 500 }
+  );
+  expect([
+    await w.s.read(shownMultiplayerClock, actor, 'white'),
+    await w.s.read(shownMultiplayerClock, actor, 'black'),
+  ]).toEqual([white, black]);
+}
+
 async function clocksSeen(w: HarnessWorld, white: number, black: number) {
-  for (const actor of pairOf(w)) {
-    await w.s.apply(openMultiplayerChess, actor);
-    await w.s.until(
-      async (s) =>
-        (await shownMultiplayerClock(s, actor, 'white')) === white &&
-        (await shownMultiplayerClock(s, actor, 'black')) === black,
-      { maxMs: 500 }
-    );
-    expect([
-      await w.s.read(shownMultiplayerClock, actor, 'white'),
-      await w.s.read(shownMultiplayerClock, actor, 'black'),
-    ]).toEqual([white, black]);
-  }
+  for (const actor of pairOf(w)) await personClocks(w, actor, white, black);
 }
 
 Then(
   "both people see {int} seconds on White's multiplayer clock and {int} seconds on Black's",
   clocksSeen
+);
+
+Then(
+  "{actor}, {actor} and {actor} see {int} seconds on White's multiplayer clock and {int} seconds on Black's",
+  async (w, ...named: [Actor, Actor, Actor, number, number]) => {
+    const [first, second, third, white, black] = named;
+    await personClocks(w, first, white, black);
+    await personClocks(w, second, white, black);
+    await personClocks(w, third, white, black);
+  }
 );
 
 Given("White's multiplayer clock has run out", async (w) => {

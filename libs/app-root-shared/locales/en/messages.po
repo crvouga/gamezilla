@@ -510,6 +510,10 @@ msgstr "Apple"
 msgid "Application version"
 msgstr "Application version"
 
+#: libs/notifications-client/src/inbox-archive-button.tsx
+msgid "Archive"
+msgstr "Archive"
+
 #: libs/notifications-client/src/notifications-filter-bar.tsx
 msgid "Archived"
 msgstr "Archived"
@@ -1778,6 +1782,11 @@ msgstr "I can't fetch puzzles without a connection. Come back online and we'll p
 #: libs/chess-custom-game-client/src/custom-game-configuration.tsx
 msgid "I'm ready"
 msgstr "I'm ready"
+
+#: libs/spaces-client/src/space-members-list-modal.tsx
+#: libs/spaces-client/src/space-presence-probe.tsx
+msgid "Idle"
+msgstr "Idle"
 
 #: libs/auth-client/src/email-sign-in-form.tsx
 msgid "If {address} can sign in here, a sign-in link is on its way. Paste it below."
@@ -3794,6 +3803,11 @@ msgstr "The board changed. Review the current turn."
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "The choice could not be confirmed. Try again."
 msgstr "The choice could not be confirmed. Try again."
+
+#: libs/notifications-client/src/notifications-screen.tsx
+#: libs/spaces-client/src/space-connection-missing.tsx
+msgid "The connection is missing."
+msgstr "The connection is missing."
 
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 msgid "The current environment's object is processed into its puzzle pool. Existing puzzles are kept."

@@ -42,6 +42,15 @@ function alreadyLooking(): MutationError {
   );
 }
 
+/** The account's search, including one started from another space. */
+async function refuseWhenAlreadyLooking(ctx: MutationCtx): Promise<void> {
+  const waiting = await ctx.tx.query(sql<{
+    id: string;
+  }>`SELECT id FROM chess_opponent_searches
+    WHERE owner_id = ${ctx.env.actorId} AND standing = 'waiting' AND deleted_at IS NULL`);
+  if (waiting.length > 0) throw alreadyLooking();
+}
+
 /** A search ends any multiplayer rematch offer of the person's latest game. */
 async function endRematchOffer(ctx: MutationCtx, iso: string): Promise<void> {
   await ctx.tx.run(sql`UPDATE chess_multiplayer_games SET rematch_offer_by = ${''}, updated_at = ${iso}
@@ -63,6 +72,7 @@ export async function beginChessSearch(
 ): Promise<void> {
   await requireInMutation(ctx, PERMISSION.matchmakingUse);
   const scope = await requireMultiplayerSpace(ctx, input.spaceId);
+  await refuseWhenAlreadyLooking(ctx);
   await requireInMutation(ctx, PERMISSION.spacesSelectGame, scope);
   const control = requireOfferedTimeControl(input.timeControl);
   const checkLimit = async () =>

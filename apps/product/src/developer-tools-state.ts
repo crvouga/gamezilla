@@ -24,6 +24,11 @@ export type ToolsState = {
   > | null;
   disposeChrome: (() => void) | null;
   beforeApps: Map<string, string>;
+  checkpointApps: Map<string, Map<string, string>>;
+  keptApps: Map<string, string>;
+  beforeRestoreApps: Map<string, string>;
+  firstWorldPath: string | null;
+  restoreFailure: 'none' | 'failed';
   consoleNav: ConsoleNavState;
   consoleColumns: boolean;
   releaseEvidence: readonly ReleaseEvidence[];
@@ -41,6 +46,11 @@ export function tools(s: ProductHarness): ToolsState {
       snapshotChrome: null,
       disposeChrome: null,
       beforeApps: new Map(),
+      checkpointApps: new Map(),
+      keptApps: new Map(),
+      beforeRestoreApps: new Map(),
+      firstWorldPath: null,
+      restoreFailure: 'none',
       consoleNav: DEFAULT_CONSOLE_NAV,
       consoleColumns: false,
       releaseEvidence: [],

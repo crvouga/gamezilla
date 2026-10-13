@@ -26,8 +26,13 @@ const TOOLS_SYSTEM = defineProductSystem({
     arrangeWorldDevices,
   ],
 });
+export const openDeveloperHarness = (
+  testId: string,
+  options?: Parameters<typeof openHarness>[2]
+) => openHarness(TOOLS_SYSTEM, testId, options);
+
 useHarnessWorld(
-  (testId, options) => openHarness(TOOLS_SYSTEM, testId, options),
+  openDeveloperHarness,
   undefined,
   (ctx) => ctx.featureUri.startsWith('specs/developer-tools/')
 );

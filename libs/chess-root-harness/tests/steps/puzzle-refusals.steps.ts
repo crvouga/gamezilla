@@ -1,7 +1,6 @@
 import { expect } from 'bun:test';
 import {
   finishPuzzleBy,
-  leaveChessMenuToGameMenu,
   requestPuzzleHint,
   revealPuzzleSolution,
 } from '@libs/chess-puzzle-harness/chess-actions';
@@ -20,6 +19,7 @@ import {
   readPuzzleControlAvailability,
   readPuzzleView,
 } from '@libs/chess-puzzle-harness/puzzle-control-reads';
+import { attemptLeaveChessMenu } from '@libs/chess-root-harness/space-follow-actions';
 import { restartApp } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor, PuzzleFinishName } from '@libs/harness/parameter-types';
@@ -78,11 +78,14 @@ Then('{actor} is not offered to retry', async (w, actor: Actor) => {
 When(
   '{actor} goes back from the chess choices to the game choice',
   async (w, actor: Actor) => {
-    await w.s.apply(leaveChessMenuToGameMenu, actor);
+    await w.s.apply(attemptLeaveChessMenu, actor);
   }
 );
 Then("{actor} sees the space's game choice", async (w, actor: Actor) => {
-  expect(await w.s.read(readPuzzleView, actor)).toBe('GameChoice');
+  await w.s.until((surf) => readPuzzleView(surf, actor), {
+    pred: (view) => view === 'GameChoice',
+    maxMs: 15_000,
+  });
 });
 When('{actor} reopens the app on the puzzle', async (w, actor: Actor) => {
   await w.s.apply(restartApp, actor);

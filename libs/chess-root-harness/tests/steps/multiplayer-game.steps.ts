@@ -132,7 +132,7 @@ Then('both multiplayer boards show one move', async (w) => {
 Then('both multiplayer boards still show two moves', async (w) => {
   expect((await bothBoards(w)).revision).toBe(2);
 });
-Then('{actor} is told it is not his multiplayer turn', (w, actor: Actor) =>
+Then('{actor} is told it is not their multiplayer turn', (w, actor: Actor) =>
   refusal(w, actor, 'CHESS_NOT_YOUR_TURN')
 );
 Then('{actor} is told that multiplayer move is illegal', (w, actor: Actor) =>
@@ -200,6 +200,16 @@ async function bothSeeMoveList(w: HarnessWorld, moves: string) {
 }
 
 Then('both people see the multiplayer move list {string}', bothSeeMoveList);
+
+Then(
+  '{actor}, {actor} and {actor} see the multiplayer move list {string}',
+  async (w, ...named: [Actor, Actor, Actor, string]) => {
+    const [first, second, third, moves] = named;
+    await moveListSeen(w, first, moves);
+    await moveListSeen(w, second, moves);
+    await moveListSeen(w, third, moves);
+  }
+);
 
 Then(
   '{actor} sees the multiplayer move list {string}',

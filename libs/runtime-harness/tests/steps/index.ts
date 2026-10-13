@@ -15,7 +15,9 @@ import './app-shell.steps';
 import '@libs/runtime-harness/journeys.steps';
 import './settings.steps';
 import './device-layout.steps';
+import './interrupted-preference.steps';
 import './privacy-retention.steps';
+import './environment-release.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec-world';
 import { openHarness } from '../open-app-harness';

@@ -26,6 +26,13 @@ export async function spaceScreenOf(
     (await visible(s, actorId, [Handles.spacesNeedConnection]))
   )
     return 'droppedOut';
+  // A guest told the connection is missing has dropped out of participation.
+  // The host is told the same thing and keeps the space.
+  const connectionMissing = await visible(s, actorId, [
+    Handles.notificationsConnectionMissing,
+  ]);
+  const hostKeepsSpace = await visible(s, actorId, [Handles.spaceEnd]);
+  if (connectionMissing && !hostKeepsSpace) return 'droppedOut';
   if (await visible(s, actorId, [Handles.spaceMembersClose]))
     return 'viewingPresence';
   if (await visible(s, actorId, [Handles.spaceClose])) return 'space';

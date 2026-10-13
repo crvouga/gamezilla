@@ -1,5 +1,5 @@
 {
-  "release": 13,
+  "release": 14,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -310,6 +310,7 @@
         "host_account_id": "text",
         "host_id": "text",
         "host_member_id": "text",
+        "hosting_limit_reached": "boolean",
         "title": "text",
         "visibility": "text"
       },

@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import type { NotificationFilter } from '@libs/notifications-shared/notification';
+import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import type { ChipGroupOption } from '@pkgs/ui-root-client/chip-group';
 import { ChipGroup } from '@pkgs/ui-root-client/chip-group';
@@ -21,12 +22,21 @@ export function NotificationsFilterBar(
 ): JSX.Element {
   const { t } = useLingui();
   const options = (): readonly ChipGroupOption<NotificationFilter>[] => [
-    { key: NOTIFICATIONS_FILTER_ALL, label: t`All` },
+    {
+      key: NOTIFICATIONS_FILTER_ALL,
+      label: t`All`,
+      testid: Handles.notificationsFilterAll,
+    },
     {
       key: NOTIFICATIONS_FILTER_ACTION_REQUIRED,
       label: t`Action required`,
+      testid: Handles.notificationsFilterWaiting,
     },
-    { key: NOTIFICATIONS_FILTER_ARCHIVED, label: t`Archived` },
+    {
+      key: NOTIFICATIONS_FILTER_ARCHIVED,
+      label: t`Archived`,
+      testid: Handles.notificationsFilterArchived,
+    },
   ];
   return (
     <ChipGroup

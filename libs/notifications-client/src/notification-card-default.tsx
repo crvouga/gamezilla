@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { useModeration } from '@libs/moderation-client/moderation-context';
+import { Handles } from '@libs/test-ids-shared/handles';
 import type { Notification } from '@libs/notifications-shared/notification';
 import type {
   NotificationAction,
@@ -22,12 +23,26 @@ import { useRelativeTimeLabel } from '@pkgs/ui-root-client/relative-time';
 import { useTheme } from '@pkgs/ui-root-client/theme-context';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
+import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { createMemo, For, type JSX, Match, Show, Switch } from 'solid-js';
 
+import { InboxArchiveButton } from './inbox-archive-button';
 import { displayNotification } from './notification-display';
 
 const ROW_VERTICAL_PADDING = 4;
 const LEADING_SIZE = 48;
+
+/** What a person can see: still waiting to be opened, or already opened. */
+function cardData(
+  testID: string | undefined,
+  unread: boolean
+): ComponentDataSet | undefined {
+  if (testID === undefined) return undefined;
+  return {
+    testid: testID,
+    'inbox-state': unread ? 'waiting' : 'opened',
+  };
+}
 
 type NotificationActionButtonProps = {
   readonly interaction: Notification;
@@ -318,14 +333,33 @@ export function NotificationCardDefault(
     </div>
   );
 
+  const archive = (testID: string): JSX.Element => (
+    <InboxArchiveButton
+      testId={Handles.notificationsArchive(testID)}
+      onArchive={() => {
+        void props.actions.archive(props.interaction.id);
+      }}
+    />
+  );
+
   return (
     <Switch>
+      <Match when={rowPress() !== undefined && props.testID !== undefined}>
+        <div class="box flex-row items-center">
+          <button
+            class="clickable clickableTint flex-1 min-w-0"
+            {...dataAttrs(cardData(props.testID, props.interaction.isUnread))}
+            type="button"
+            onClick={() => rowPress()?.()}
+          >
+            {main()}
+          </button>
+          {archive(props.testID ?? '')}
+        </div>
+      </Match>
       <Match when={rowPress() !== undefined}>
         <button
           class="clickable clickableTint"
-          {...dataAttrs(
-            props.testID !== undefined ? { testid: props.testID } : undefined
-          )}
           type="button"
           onClick={() => rowPress()?.()}
         >
@@ -334,8 +368,12 @@ export function NotificationCardDefault(
       </Match>
       <Match when={props.testID} keyed>
         {(testID) => (
-          <div class="box" data-testid={testID}>
+          <div
+            class="box flex-row items-center"
+            {...dataAttrs(cardData(testID, props.interaction.isUnread))}
+          >
             {main()}
+            {archive(testID)}
           </div>
         )}
       </Match>

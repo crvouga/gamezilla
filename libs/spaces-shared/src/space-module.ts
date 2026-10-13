@@ -14,7 +14,6 @@ import type {
 } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 import type { Random } from '@pkgs/uuid-shared/create-id';
-
 import {
   counterCmdNs,
   counterCommandRouter,
@@ -28,6 +27,12 @@ import {
   gamesCmdNs,
   gamesEvtNs,
 } from './games';
+import {
+  spaceActivityCmdNs,
+  spaceActivityCommandRouter,
+  spaceActivityEventReducer,
+  spaceActivityEvtNs,
+} from './space-activity';
 import {
   spaceLogCmdNs,
   spaceLogCommandRouter,
@@ -75,6 +80,7 @@ function buildCommandRouter(games: readonly GameDefinition[]) {
     HandleResult
   >([
     { namespace: spaceServiceCmdNs, router: spaceServiceCommandRouter },
+    { namespace: spaceActivityCmdNs, router: spaceActivityCommandRouter },
     { namespace: spaceLogCmdNs, router: spaceLogCommandRouter },
     { namespace: counterCmdNs, router: counterCommandRouter },
     { namespace: gamesCmdNs, router: createGamesCommandRouter(games) },
@@ -88,6 +94,7 @@ function buildEventReducer(
 ) {
   return createComposedMessageRouter<RoomState, void, RoomState>([
     { namespace: spaceLogEvtNs, router: spaceLogEventReducer },
+    { namespace: spaceActivityEvtNs, router: spaceActivityEventReducer },
     {
       namespace: spaceMembersEvtNs,
       router: createSpaceMembersEventReducer(now),

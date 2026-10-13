@@ -70,7 +70,8 @@ When(
 Then(
   '{actor} is looking for her same chess opponent',
   async (w, actor: Actor) => {
-    const device = `${actor}_computer`;
+    const pinned = w.memo.get(`multiplayer:same-search-device:${actor}`);
+    const device = typeof pinned === 'string' ? pinned : `${actor}_computer`;
     await w.s.until(
       async (s) =>
         (await multiplayerView(s, device)).search?.standing === 'waiting'

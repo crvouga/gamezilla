@@ -155,3 +155,63 @@ Then('the team is told why the data notebook question failed', async (w) => {
     'nonexistent_investigation_table'
   );
 });
+When(
+  "the team changes that data notebook question to ask about {actor}'s spaces",
+  async (w) => {
+    await w.s.apply(editNotebookQuestion, 'edit-spaces');
+  }
+);
+When(
+  "the team moves the data notebook question about {actor}'s spaces ahead",
+  async (w) => {
+    await w.s.apply(editNotebookQuestion, 'move-spaces-ahead');
+  }
+);
+When(
+  "the team moves the data notebook question about {actor}'s friends ahead",
+  async (w) => {
+    await w.s.apply(editNotebookQuestion, 'move-friends-ahead');
+  }
+);
+Given(
+  "the team's data notebook question would answer with {int} rows",
+  async (w, rows: number) => {
+    await w.s.apply(saveNotebookQuestion, 'alice', 'count', { rows });
+  }
+);
+Then(
+  "the team sees the data notebook question about {actor}'s spaces first",
+  async (w) => {
+    expect((await w.s.read(shownNotebook))?.cells[0]?.sql).toBe(
+      SPACES_QUESTION
+    );
+  }
+);
+Then(
+  "the team sees the data notebook question about {actor}'s friends first",
+  async (w) => {
+    expect((await w.s.read(shownNotebook))?.cells[0]?.sql).toBe(
+      FRIENDS_QUESTION
+    );
+  }
+);
+Then(
+  'the team sees 5000 rows and is not told the answer was cut off',
+  async (w) => {
+    const statement = (await w.s.read(notebookAnswer))?.statements[0];
+    expect(statement?.kind).toBe('rows');
+    if (statement?.kind !== 'rows') return;
+    expect(statement.rows).toHaveLength(5000);
+    expect(statement.truncated).toBe(false);
+  }
+);
+Then(
+  'the team sees 5000 rows and is told the answer was cut off',
+  async (w) => {
+    const statement = (await w.s.read(notebookAnswer))?.statements[0];
+    expect(statement?.kind).toBe('rows');
+    if (statement?.kind !== 'rows') return;
+    expect(statement.rows).toHaveLength(5000);
+    expect(statement.truncated).toBe(true);
+  }
+);

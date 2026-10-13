@@ -1,12 +1,21 @@
 /** @jsxImportSource solid-js */
 
 import type { NotificationFilter } from '@libs/notifications-shared/notification';
+import type { NotificationCardActions } from '@libs/notifications-shared/notification-action';
+import { InboxRefusal } from '@libs/notifications-shared/notifications-actions';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { useUnlock } from '@libs/permissions-client/unlock';
 import { useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
-import { useLingui } from '@lingui/solid/macro';
-import { BellIcon, CheckCheckIcon } from '@pkgs/ui-root-client/icons';
+import { Handles } from '@libs/test-ids-shared/handles';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import {
+  BellIcon,
+  CheckCheckIcon,
+  WifiOffIcon,
+} from '@pkgs/ui-root-client/icons';
+import { Notice } from '@pkgs/ui-root-client/notice';
 import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client/screen-base-types';
 import {
@@ -56,22 +65,61 @@ function NotificationsPermissionGate(props: {
  * The inbox. Marking everything read is a screen action, so it is handed to
  * the header rather than squeezed beside the filters.
  */
+/** A failed inbox choice says the connection is missing; success clears that. */
+function reportingActions(
+  raw: NotificationCardActions,
+  report: (missing: boolean) => void
+): NotificationCardActions {
+  const settle = (run: () => Promise<void>): Promise<void> =>
+    run().then(
+      () => {
+        report(false);
+      },
+      () => {
+        report(true);
+      }
+    );
+  // A refusal the server explained stays on the control. Calling it a
+  // missing connection would close the choice and hide the reason.
+  const performAction = (id: string, actionId: string): Promise<void> =>
+    raw.performAction(id, actionId).then(
+      () => {
+        report(false);
+      },
+      (error: unknown) => {
+        if (error instanceof InboxRefusal) throw error;
+        report(true);
+      }
+    );
+  return {
+    markRead: (id) => settle(() => raw.markRead(id)),
+    archive: (id) => settle(() => raw.archive(id)),
+    performAction,
+  };
+}
+
 function NotificationsScreenBody(props: {
   readonly initialFilter?: NotificationFilter | undefined;
   readonly onHeaderAction: (action: ScreenBaseAction | null) => void;
 }): JSX.Element {
   const { t } = useLingui();
+  const sync = useSyncEngine();
   const inbox = useNotifications({
     get filter() {
       return props.initialFilter;
     },
   });
-  const inboxActions = useNotificationsActions();
+  const rawActions = useNotificationsActions();
+  const [missing, setMissing] = createSignal(false);
   const [marking, setMarking] = createSignal(false);
+  const actions = reportingActions(rawActions, setMissing);
   const markAllRead = async (): Promise<void> => {
     setMarking(true);
     try {
-      await inboxActions.markAllRead();
+      await rawActions.markAllRead();
+      setMissing(false);
+    } catch {
+      setMissing(true);
     } finally {
       setMarking(false);
     }
@@ -79,6 +127,18 @@ function NotificationsScreenBody(props: {
   const hasUnread = (): boolean =>
     inbox.interactions().some((item) => item.isUnread);
 
+  let sawOffline = false;
+  createEffect(() => {
+    const online = sync.status().online;
+    if (!online) {
+      sawOffline = true;
+      return;
+    }
+    if (sawOffline) {
+      sawOffline = false;
+      setMissing(false);
+    }
+  });
   createEffect(() => {
     props.onHeaderAction(
       hasUnread()
@@ -91,7 +151,7 @@ function NotificationsScreenBody(props: {
               void markAllRead();
             },
             overflow: 'never',
-            dataSet: { testid: 'notifications-mark-all-read' },
+            dataSet: { testid: Handles.notificationsMarkAllRead },
           }
         : null
     );
@@ -100,6 +160,15 @@ function NotificationsScreenBody(props: {
 
   return (
     <div class="box flex-1 min-h-0 gap-2">
+      <Show when={missing()}>
+        <Notice
+          tone="error"
+          icon={WifiOffIcon}
+          dataSet={{ testid: Handles.notificationsConnectionMissing }}
+        >
+          <Trans>The connection is missing.</Trans>
+        </Notice>
+      </Show>
       <NotificationsFilterBar
         filter={inbox.filter()}
         onFilterChange={inbox.setFilter}
@@ -108,7 +177,7 @@ function NotificationsScreenBody(props: {
         sections={inbox.sections()}
         isLoading={inbox.isLoading()}
         filter={inbox.filter()}
-        actions={inboxActions}
+        actions={actions}
       />
     </div>
   );

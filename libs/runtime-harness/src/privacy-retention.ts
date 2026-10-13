@@ -12,7 +12,10 @@ import {
 } from '@libs/profile-harness/profile-actions';
 import { profileVisibleToPeople } from '@libs/profile-harness/profile-visibility';
 import { AppRecovery } from '@libs/runtime-server/app-recovery';
-import { InvestigationTrails } from '@libs/runtime-server/investigation-trails';
+import {
+  InvestigationTrails,
+  type TrailReading,
+} from '@libs/runtime-server/investigation-trails';
 import sql from '@pkgs/sql-root-shared/sql';
 
 const recovery = (s: ProductHarness) =>
@@ -64,7 +67,27 @@ export const followTrail = scenarioAction({
     s.probes.investigationTrail = await trails(s).follow(actor);
   },
 });
-export const trailRead = (s: ProductHarness) => s.probes.investigationTrail;
+export const lookForTrail = scenarioAction({
+  name: 'lookForTrail',
+  act: async (s, _who: string, subject: string) => {
+    s.probes.investigationTrail = await trails(s).lookAsPerson(subject);
+  },
+});
+
+function reading(s: ProductHarness): TrailReading | null {
+  const value = s.probes.investigationTrail;
+  if (typeof value !== 'object' || value === null || !('kind' in value))
+    return null;
+  return value as TrailReading;
+}
+
+/** Observations when the team is reading a trail; otherwise nothing. */
+export const trailRead = (s: ProductHarness) => {
+  const value = reading(s);
+  return value?.kind === 'read' ? value.observations : null;
+};
+
+export const trailKind = (s: ProductHarness) => reading(s)?.kind ?? 'nothing';
 export async function recoveredPersonalData(s: ProductHarness, actor: string) {
   const account = await signedInAccountOf(s, actor);
   return account === null ? null : await profileVisibleToPeople(s, account);

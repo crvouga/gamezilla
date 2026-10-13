@@ -15,10 +15,23 @@ import {
 import { multiplayerSpaceId } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
 import { Given, Step, Then, When } from '@libs/harness/define';
+import { signedInAccountOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { multiplayerPeople } from './multiplayer-people';
 import { command, gameCommand, refusal, searchFor } from './multiplayer-world';
+
+/** Sign this device into the person's account unless it already is. */
+async function signOtherDevice(
+  w: HarnessWorld,
+  actor: string,
+  device: string
+): Promise<void> {
+  const account = await w.s.read(signedInAccountOf, actor);
+  const there = await w.s.read(signedInAccountOf, device);
+  if (account !== null && account === there) return;
+  await w.s.apply(signInWithGoogleAsAccount, device, actor);
+}
 
 export async function looking(
   w: HarnessWorld,
@@ -111,7 +124,7 @@ When(
   async (w, actor: Actor, timeControl: string) => {
     acted(w);
     const device = `${actor}_computer`;
-    await w.s.apply(signInWithGoogleAsAccount, device, actor);
+    await signOtherDevice(w, actor, device);
     w.memo.set(`multiplayer:other:${actor}`, device);
     await w.s.apply(findChessOpponent, device, timeControl);
   }
@@ -156,7 +169,7 @@ When(
   '{actor} opens multiplayer chess on another device',
   async (w, actor: Actor) => {
     const device = `${actor}_computer`;
-    await w.s.apply(signInWithGoogleAsAccount, device, actor);
+    await signOtherDevice(w, actor, device);
     await w.s.apply(openMultiplayerChess, device);
     w.memo.set(`multiplayer:other:${actor}`, device);
     acted(w);
@@ -215,7 +228,14 @@ Then(
 );
 Then(
   '{actor} is told she is already looking for a chess opponent',
-  (w, actor: Actor) => refusal(w, actor, 'CHESS_ALREADY_LOOKING')
+  (w, actor: Actor) => {
+    const other = w.memo.get(`multiplayer:other:${actor}`);
+    return refusal(
+      w,
+      typeof other === 'string' ? other : actor,
+      'CHESS_ALREADY_LOOKING'
+    );
+  }
 );
 Then(
   '{actor} is told to finish her multiplayer game first',
