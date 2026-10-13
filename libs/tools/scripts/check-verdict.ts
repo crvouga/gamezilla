@@ -64,7 +64,7 @@ const SUITES: readonly (readonly [string, RegExp])[] = [
   ['Typecheck', /^tc$/],
   ['Lint and boundaries', /^(lint|check:root-lint)$/],
   ['Unit tests', /^test$/],
-  ['Contract tests', /^test:contract(:render)?$/],
+  ['Contract tests', /^test:contract(:render|:\d+)?$/],
   ['Gherkin specs', /^test:spec(:\d+)?$/],
   ['Quint models', /^check:models(:\d+)?$/],
   ['Synthetic Population', /^check:synthetic-population-foundation$/],

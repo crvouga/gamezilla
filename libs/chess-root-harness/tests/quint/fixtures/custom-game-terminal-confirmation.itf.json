@@ -133,16 +133,7 @@
       "controlledStatus": "active",
       "controlledTurn": "white",
       "controllers": {
-        "#map": [
-          [
-            "black",
-            "bot"
-          ],
-          [
-            "white",
-            "alice"
-          ]
-        ]
+        "#map": [["black", "bot"], ["white", "alice"]]
       }
     },
     {
@@ -211,9 +202,7 @@
       },
       "_movingController": "",
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_previousPly": {
         "#bigint": "0"
@@ -255,16 +244,7 @@
       "controlledStatus": "active",
       "controlledTurn": "white",
       "controllers": {
-        "#map": [
-          [
-            "black",
-            "bot"
-          ],
-          [
-            "white",
-            "alice"
-          ]
-        ]
+        "#map": [["black", "bot"], ["white", "alice"]]
       }
     },
     {
@@ -333,9 +313,7 @@
       },
       "_movingController": "",
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_previousPly": {
         "#bigint": "0"
@@ -377,16 +355,7 @@
       "controlledStatus": "active",
       "controlledTurn": "white",
       "controllers": {
-        "#map": [
-          [
-            "black",
-            "bot"
-          ],
-          [
-            "white",
-            "alice"
-          ]
-        ]
+        "#map": [["black", "bot"], ["white", "alice"]]
       }
     },
     {
@@ -455,9 +424,7 @@
       },
       "_movingController": "",
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_previousPly": {
         "#bigint": "0"
@@ -499,16 +466,7 @@
       "controlledStatus": "active",
       "controlledTurn": "white",
       "controllers": {
-        "#map": [
-          [
-            "black",
-            "bot"
-          ],
-          [
-            "white",
-            "alice"
-          ]
-        ]
+        "#map": [["black", "bot"], ["white", "alice"]]
       }
     },
     {
@@ -577,9 +535,7 @@
       },
       "_movingController": "",
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_previousPly": {
         "#bigint": "0"
@@ -621,16 +577,7 @@
       "controlledStatus": "active",
       "controlledTurn": "white",
       "controllers": {
-        "#map": [
-          [
-            "black",
-            "bot"
-          ],
-          [
-            "white",
-            "alice"
-          ]
-        ]
+        "#map": [["black", "bot"], ["white", "alice"]]
       }
     },
     {
@@ -699,9 +646,7 @@
       },
       "_movingController": "",
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_previousPly": {
         "#bigint": "0"
@@ -743,16 +688,7 @@
       "controlledStatus": "completed",
       "controlledTurn": "white",
       "controllers": {
-        "#map": [
-          [
-            "black",
-            "bot"
-          ],
-          [
-            "white",
-            "alice"
-          ]
-        ]
+        "#map": [["black", "bot"], ["white", "alice"]]
       }
     },
     {
@@ -821,9 +757,7 @@
       },
       "_movingController": "",
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_previousPly": {
         "#bigint": "0"
@@ -865,16 +799,7 @@
       "controlledStatus": "completed",
       "controlledTurn": "white",
       "controllers": {
-        "#map": [
-          [
-            "black",
-            "bot"
-          ],
-          [
-            "white",
-            "alice"
-          ]
-        ]
+        "#map": [["black", "bot"], ["white", "alice"]]
       }
     }
   ]

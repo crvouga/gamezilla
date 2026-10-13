@@ -30,6 +30,7 @@ describe('check verdict', () => {
     expect(suiteOf('@apps/product#test:contract:render')).toBe(
       'Contract tests'
     );
+    expect(suiteOf('@apps/product#test:contract:3')).toBe('Contract tests');
     expect(suiteOf('@pkgs/matchmaking-root-harness#check:models:0')).toBe(
       'Quint models'
     );

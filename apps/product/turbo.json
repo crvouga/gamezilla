@@ -25,7 +25,317 @@
       "cache": false,
       "outputs": []
     },
-    "test:contract": {
+    "test:contract:0": {
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/conformance-shared#src",
+        "@libs/harness#src",
+        "@pkgs/ui-quality-check-server#src"
+      ],
+      "inputs": [
+        "tests/quint/**",
+        "package.json",
+        "$TURBO_ROOT$/pkgs/os-server/src/test-concurrency.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only"
+    },
+    "test:contract:1": {
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/conformance-shared#src",
+        "@libs/harness#src",
+        "@pkgs/ui-quality-check-server#src"
+      ],
+      "inputs": [
+        "tests/quint/**",
+        "package.json",
+        "$TURBO_ROOT$/pkgs/os-server/src/test-concurrency.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only"
+    },
+    "test:contract:2": {
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/conformance-shared#src",
+        "@libs/harness#src",
+        "@pkgs/ui-quality-check-server#src"
+      ],
+      "inputs": [
+        "tests/quint/**",
+        "package.json",
+        "$TURBO_ROOT$/pkgs/os-server/src/test-concurrency.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only"
+    },
+    "test:contract:3": {
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/conformance-shared#src",
+        "@libs/harness#src",
+        "@pkgs/ui-quality-check-server#src"
+      ],
+      "inputs": [
+        "tests/quint/**",
+        "package.json",
+        "$TURBO_ROOT$/pkgs/os-server/src/test-concurrency.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only"
+    },
+    "test:contract:4": {
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/conformance-shared#src",
+        "@libs/harness#src",
+        "@pkgs/ui-quality-check-server#src"
+      ],
+      "inputs": [
+        "tests/quint/**",
+        "package.json",
+        "$TURBO_ROOT$/pkgs/os-server/src/test-concurrency.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only"
+    },
+    "test:contract:5": {
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/conformance-shared#src",
+        "@libs/harness#src",
+        "@pkgs/ui-quality-check-server#src"
+      ],
+      "inputs": [
+        "tests/quint/**",
+        "package.json",
+        "$TURBO_ROOT$/pkgs/os-server/src/test-concurrency.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only"
+    },
+    "test:contract:6": {
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/conformance-shared#src",
+        "@libs/harness#src",
+        "@pkgs/ui-quality-check-server#src"
+      ],
+      "inputs": [
+        "tests/quint/**",
+        "package.json",
+        "$TURBO_ROOT$/pkgs/os-server/src/test-concurrency.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only"
+    },
+    "test:contract:7": {
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/conformance-shared#src",
+        "@libs/harness#src",
+        "@pkgs/ui-quality-check-server#src"
+      ],
+      "inputs": [
+        "tests/quint/**",
+        "package.json",
+        "$TURBO_ROOT$/pkgs/os-server/src/test-concurrency.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only"
+    },
+    "test:contract:8": {
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/conformance-shared#src",
+        "@libs/harness#src",
+        "@pkgs/ui-quality-check-server#src"
+      ],
+      "inputs": [
+        "tests/quint/**",
+        "package.json",
+        "$TURBO_ROOT$/pkgs/os-server/src/test-concurrency.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only"
+    },
+    "test:contract:9": {
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/conformance-shared#src",
+        "@libs/harness#src",
+        "@pkgs/ui-quality-check-server#src"
+      ],
+      "inputs": [
+        "tests/quint/**",
+        "package.json",
+        "$TURBO_ROOT$/pkgs/os-server/src/test-concurrency.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only"
+    },
+    "test:contract:10": {
       "dependsOn": [
         "@pkgs/quint-server#src",
         "@pkgs/conformance-shared#src",
@@ -57,7 +367,7 @@
       "outputLogs": "errors-only"
     },
     "test:contract:render": {
-      "dependsOn": ["test:contract"],
+      "dependsOn": ["^src"],
       "inputs": [
         "tests/ui-quality-render.contract.test.ts",
         "scripts/render.ts",
@@ -289,7 +599,17 @@
     "check:ui-quality": {
       "dependsOn": [
         "tc",
-        "test:contract",
+        "test:contract:0",
+        "test:contract:1",
+        "test:contract:2",
+        "test:contract:3",
+        "test:contract:4",
+        "test:contract:5",
+        "test:contract:6",
+        "test:contract:7",
+        "test:contract:8",
+        "test:contract:9",
+        "test:contract:10",
         "test:contract:render",
         "prepare:ui-quality",
         "@pkgs/ui-quality-check-server#build"

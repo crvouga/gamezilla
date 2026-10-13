@@ -2,7 +2,11 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { SpecFile } from '@pkgs/conformance-shared/proofs';
-import { campaignProblems, specCampaigns } from '../scripts/spec-campaigns';
+import {
+  campaignProblems,
+  contractGateCovered,
+  specCampaigns,
+} from '../scripts/spec-campaigns';
 import { REPO_ROOT } from '../scripts/spec-packages';
 
 /** Campaign modules are checked together, without claiming product conformance. */
@@ -25,10 +29,21 @@ export function campaignBindings(gatingTasks: ReadonlySet<string>): {
     for (const owner of owners) {
       const manifest = JSON.parse(
         readFileSync(join(REPO_ROOT, owner.dir, 'package.json'), 'utf8')
-      ) as { readonly name: string };
+      ) as {
+        readonly name: string;
+        readonly scripts?: Readonly<Record<string, string>>;
+      };
       for (const task of ['test', 'test:contract']) {
         const id = `${manifest.name}#${task}`;
-        if (!gatingTasks.has(id))
+        const covered =
+          task === 'test'
+            ? gatingTasks.has(id)
+            : contractGateCovered(
+                manifest.name,
+                manifest.scripts ?? {},
+                gatingTasks
+              );
+        if (!covered)
           problems.push(
             `specs/${domain}/: the release gate does not run ${id}`
           );

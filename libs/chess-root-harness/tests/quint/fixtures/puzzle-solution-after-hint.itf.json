@@ -70,28 +70,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -121,16 +103,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -168,16 +141,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -217,9 +181,7 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_served": {
         "#bigint": "0"
@@ -241,28 +203,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -290,16 +234,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -337,16 +272,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -408,28 +334,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -457,16 +365,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -504,16 +403,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -553,9 +443,7 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_served": {
         "#bigint": "0"
@@ -577,28 +465,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -626,16 +496,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -673,16 +534,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -744,28 +596,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -793,16 +627,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -840,16 +665,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -889,9 +705,7 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_served": {
         "#bigint": "0"
@@ -913,28 +727,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -962,16 +758,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -1009,16 +796,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -1080,28 +858,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -1129,16 +889,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -1176,16 +927,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -1247,28 +989,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "ready"
-          ],
-          [
-            "bob",
-            "ready"
-          ]
-        ]
+        "#map": [["alice", "ready"], ["bob", "ready"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -1296,16 +1020,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -1343,16 +1058,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solving"
-          ],
-          [
-            "bob",
-            "solving"
-          ]
-        ]
+        "#map": [["alice", "solving"], ["bob", "solving"]]
       },
       "view": {
         "#map": [
@@ -1414,28 +1120,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "ready"
-          ],
-          [
-            "bob",
-            "ready"
-          ]
-        ]
+        "#map": [["alice", "ready"], ["bob", "ready"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -1463,16 +1151,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -1510,16 +1189,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solving"
-          ],
-          [
-            "bob",
-            "solving"
-          ]
-        ]
+        "#map": [["alice", "solving"], ["bob", "solving"]]
       },
       "view": {
         "#map": [
@@ -1581,28 +1251,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "ready"
-          ],
-          [
-            "bob",
-            "ready"
-          ]
-        ]
+        "#map": [["alice", "ready"], ["bob", "ready"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -1630,16 +1282,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -1677,16 +1320,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solving"
-          ],
-          [
-            "bob",
-            "solving"
-          ]
-        ]
+        "#map": [["alice", "solving"], ["bob", "solving"]]
       },
       "view": {
         "#map": [
@@ -1748,28 +1382,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "skipped"
-          ],
-          [
-            "bob",
-            "skipped"
-          ]
-        ]
+        "#map": [["alice", "skipped"], ["bob", "skipped"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -1797,16 +1413,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -1844,16 +1451,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "skipped"
-          ],
-          [
-            "bob",
-            "skipped"
-          ]
-        ]
+        "#map": [["alice", "skipped"], ["bob", "skipped"]]
       },
       "view": {
         "#map": [
@@ -1915,28 +1513,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "ready"
-          ],
-          [
-            "bob",
-            "ready"
-          ]
-        ]
+        "#map": [["alice", "ready"], ["bob", "ready"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -1964,16 +1544,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -2011,16 +1582,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solving"
-          ],
-          [
-            "bob",
-            "solving"
-          ]
-        ]
+        "#map": [["alice", "solving"], ["bob", "solving"]]
       },
       "view": {
         "#map": [
@@ -2082,28 +1644,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "ready"
-          ],
-          [
-            "bob",
-            "ready"
-          ]
-        ]
+        "#map": [["alice", "ready"], ["bob", "ready"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -2131,16 +1675,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -2178,16 +1713,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solving"
-          ],
-          [
-            "bob",
-            "solving"
-          ]
-        ]
+        "#map": [["alice", "solving"], ["bob", "solving"]]
       },
       "view": {
         "#map": [
@@ -2249,28 +1775,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "revealed"
-          ],
-          [
-            "bob",
-            "revealed"
-          ]
-        ]
+        "#map": [["alice", "revealed"], ["bob", "revealed"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -2298,16 +1806,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "position": {
         "#bigint": "4"
@@ -2345,16 +1844,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "revealed"
-          ],
-          [
-            "bob",
-            "revealed"
-          ]
-        ]
+        "#map": [["alice", "revealed"], ["bob", "revealed"]]
       },
       "view": {
         "#map": [
@@ -2416,28 +1906,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -2465,16 +1937,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -2512,16 +1975,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -2583,28 +2037,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -2632,16 +2068,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -2679,16 +2106,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -2750,28 +2168,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "ready"
-          ],
-          [
-            "bob",
-            "ready"
-          ]
-        ]
+        "#map": [["alice", "ready"], ["bob", "ready"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -2799,16 +2199,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -2846,16 +2237,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solving"
-          ],
-          [
-            "bob",
-            "solving"
-          ]
-        ]
+        "#map": [["alice", "solving"], ["bob", "solving"]]
       },
       "view": {
         "#map": [
@@ -2917,28 +2299,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "ready"
-          ],
-          [
-            "bob",
-            "ready"
-          ]
-        ]
+        "#map": [["alice", "ready"], ["bob", "ready"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -2966,16 +2330,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -3013,16 +2368,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solving"
-          ],
-          [
-            "bob",
-            "solving"
-          ]
-        ]
+        "#map": [["alice", "solving"], ["bob", "solving"]]
       },
       "view": {
         "#map": [
@@ -3084,28 +2430,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "solved"
-          ],
-          [
-            "bob",
-            "solved"
-          ]
-        ]
+        "#map": [["alice", "solved"], ["bob", "solved"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -3133,16 +2461,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "position": {
         "#bigint": "4"
@@ -3180,16 +2499,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solved"
-          ],
-          [
-            "bob",
-            "solved"
-          ]
-        ]
+        "#map": [["alice", "solved"], ["bob", "solved"]]
       },
       "view": {
         "#map": [
@@ -3251,28 +2561,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -3300,16 +2592,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -3347,16 +2630,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -3418,28 +2692,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -3467,16 +2723,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -3514,16 +2761,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -3563,9 +2801,7 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_served": {
         "#bigint": "2"
@@ -3587,28 +2823,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -3636,16 +2854,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -3683,16 +2892,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -3732,9 +2932,7 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_served": {
         "#bigint": "3"
@@ -3756,28 +2954,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "ready"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "ready"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -3805,16 +2985,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -3852,16 +3023,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solving"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "solving"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -3901,9 +3063,7 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_served": {
         "#bigint": "3"
@@ -3925,28 +3085,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -3974,16 +3116,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -4021,16 +3154,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -4092,28 +3216,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -4141,16 +3247,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -4188,16 +3285,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -4259,28 +3347,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "ready"
-          ],
-          [
-            "bob",
-            "ready"
-          ]
-        ]
+        "#map": [["alice", "ready"], ["bob", "ready"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -4308,16 +3378,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -4355,16 +3416,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solving"
-          ],
-          [
-            "bob",
-            "solving"
-          ]
-        ]
+        "#map": [["alice", "solving"], ["bob", "solving"]]
       },
       "view": {
         "#map": [
@@ -4426,28 +3478,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "ready"
-          ],
-          [
-            "bob",
-            "ready"
-          ]
-        ]
+        "#map": [["alice", "ready"], ["bob", "ready"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -4475,16 +3509,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -4522,16 +3547,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solving"
-          ],
-          [
-            "bob",
-            "solving"
-          ]
-        ]
+        "#map": [["alice", "solving"], ["bob", "solving"]]
       },
       "view": {
         "#map": [
@@ -4593,28 +3609,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "revealed"
-          ],
-          [
-            "bob",
-            "revealed"
-          ]
-        ]
+        "#map": [["alice", "revealed"], ["bob", "revealed"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -4642,16 +3640,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "position": {
         "#bigint": "4"
@@ -4689,16 +3678,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "revealed"
-          ],
-          [
-            "bob",
-            "revealed"
-          ]
-        ]
+        "#map": [["alice", "revealed"], ["bob", "revealed"]]
       },
       "view": {
         "#map": [
@@ -4760,28 +3740,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "revealed"
-          ],
-          [
-            "bob",
-            "revealed"
-          ]
-        ]
+        "#map": [["alice", "revealed"], ["bob", "revealed"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -4809,16 +3771,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "position": {
         "#bigint": "4"
@@ -4856,16 +3809,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "revealed"
-          ],
-          [
-            "bob",
-            "revealed"
-          ]
-        ]
+        "#map": [["alice", "revealed"], ["bob", "revealed"]]
       },
       "view": {
         "#map": [
@@ -4927,28 +3871,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "ready"
-          ],
-          [
-            "bob",
-            "ready"
-          ]
-        ]
+        "#map": [["alice", "ready"], ["bob", "ready"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -4976,16 +3902,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -5023,16 +3940,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solving"
-          ],
-          [
-            "bob",
-            "solving"
-          ]
-        ]
+        "#map": [["alice", "solving"], ["bob", "solving"]]
       },
       "view": {
         "#map": [
@@ -5094,28 +4002,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "revealed"
-          ],
-          [
-            "bob",
-            "revealed"
-          ]
-        ]
+        "#map": [["alice", "revealed"], ["bob", "revealed"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -5143,16 +4033,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", true], ["bob", false]]
       },
       "position": {
         "#bigint": "4"
@@ -5190,16 +4071,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "revealed"
-          ],
-          [
-            "bob",
-            "revealed"
-          ]
-        ]
+        "#map": [["alice", "revealed"], ["bob", "revealed"]]
       },
       "view": {
         "#map": [
@@ -5261,28 +4133,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -5310,16 +4164,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "0"
@@ -5357,16 +4202,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "none"
-          ],
-          [
-            "bob",
-            "none"
-          ]
-        ]
+        "#map": [["alice", "none"], ["bob", "none"]]
       },
       "view": {
         "#map": [
@@ -5428,28 +4264,10 @@
         }
       },
       "assistantMuted": {
-        "#map": [
-          [
-            "alice",
-            true
-          ],
-          [
-            "bob",
-            true
-          ]
-        ]
+        "#map": [["alice", true], ["bob", true]]
       },
       "commentary": {
-        "#map": [
-          [
-            "alice",
-            "ready"
-          ],
-          [
-            "bob",
-            "ready"
-          ]
-        ]
+        "#map": [["alice", "ready"], ["bob", "ready"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -5477,16 +4295,7 @@
         }
       },
       "moveOnOffered": {
-        "#map": [
-          [
-            "alice",
-            false
-          ],
-          [
-            "bob",
-            false
-          ]
-        ]
+        "#map": [["alice", false], ["bob", false]]
       },
       "position": {
         "#bigint": "1"
@@ -5524,16 +4333,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [
-          [
-            "alice",
-            "solving"
-          ],
-          [
-            "bob",
-            "solving"
-          ]
-        ]
+        "#map": [["alice", "solving"], ["bob", "solving"]]
       },
       "view": {
         "#map": [

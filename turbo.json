@@ -242,6 +242,127 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
+    "test:contract:0": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "test:contract:1": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "test:contract:2": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "test:contract:3": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "test:contract:4": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "test:contract:5": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "test:contract:6": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "test:contract:7": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "test:contract:8": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "test:contract:9": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "test:contract:10": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
     "test:contract:render": {
       "dependsOn": ["^src"],
       "inputs": [

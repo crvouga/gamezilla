@@ -34,7 +34,10 @@ test('an ordinary failing spec is queryable by its exact test name', () => {
     'utf8'
   );
   // The artifact query reads only the trace files this test wrote.
-  const env = { ...process.env, npm_package_name: '@fixtures/failing-spec' };
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    npm_package_name: '@fixtures/failing-spec',
+  };
   delete env['OBS_READONLY_DATABASE_URL'];
   delete env['OBS_DATABASE_SCHEMA'];
   const run = spawnSync('bun', ['run', runner, fixture], {

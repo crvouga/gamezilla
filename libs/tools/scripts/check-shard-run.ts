@@ -128,7 +128,8 @@ function preserveFailedReports(results: readonly Result[]): void {
   for (const result of results.filter((task) => !task.passed)) {
     if (
       /#check:models(:\d+)?$/.test(result.taskId) ||
-      result.taskId === '@apps/product#test:contract'
+      result.taskId === '@apps/product#test:contract' ||
+      /@apps\/product#test:contract:\d+$/.test(result.taskId)
     ) {
       const task = result.taskId.slice(0, result.taskId.indexOf('#'));
       const modelPath = join(

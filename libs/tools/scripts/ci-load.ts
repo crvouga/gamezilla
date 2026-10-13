@@ -127,7 +127,10 @@ export type LoadReport = {
 
 /** A package script that the Check gate schedules. */
 export function isCheckTask(name: string): boolean {
-  return EXACT_TASKS.has(name) || /^(test:spec|check:models):\d+$/.test(name);
+  return (
+    EXACT_TASKS.has(name) ||
+    /^(test:spec|check:models|test:contract):\d+$/.test(name)
+  );
 }
 
 export function percentile(values: readonly number[], p: number): number {

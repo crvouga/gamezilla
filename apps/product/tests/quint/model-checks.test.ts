@@ -10,13 +10,20 @@ import {
   REPORT_DIR,
 } from './campaign-config';
 import { obligation } from './campaign-tools';
+import { contractPart, modelsForContractPart } from './contract-part';
 import { withSymbolicInput } from './symbolic-input';
 
 /** The proof's own allowance on this runner, and room to report it. */
 const TEST_TIMEOUT_MS = verifyDeadlineMs(CLI_TIMEOUT_MS) + 5_000;
 
+// One model per `CONTRACT_PART`, so each task finishes inside its budget.
+const models = modelsForContractPart(
+  MODELS,
+  contractPart(process.env['CONTRACT_PART'] ?? '')
+);
+
 // regression: product-symbolic-model-compilation-timeout
-for (const model of MODELS) {
+for (const model of models) {
   test.concurrent(
     `${model.name}: exhaustive symbolic safety through ${model.verifySteps} transitions`,
     async () => {
@@ -39,69 +46,71 @@ for (const model of MODELS) {
   );
 }
 
-test.concurrent(
-  'fair recovery: complete finite temporal verification',
-  async () => {
-    await obligation(
-      'fair-recovery',
-      'temporal:eventualConvergence',
-      async () => {
-        const result = await verifyTemporal({
-          specPath: modelPath('fair-recovery'),
-          properties: ['eventualConvergence'],
-          invariants: ['invSafety'],
-          outDir: join(REPORT_DIR, 'fair-recovery-temporal'),
-          timeoutMs: CLI_TIMEOUT_MS,
-        });
-        if (!result.ok) throw new Error(result.output);
-        return `TLC complete finite graph: ${result.statesExplored} distinct states; weakly fair recovery after quiescence.`;
-      }
-    );
-  },
-  TEST_TIMEOUT_MS
-);
-
-// @io-wall-ok — temporary verifier inputs exercise the temporal checker itself.
-test.concurrent(
-  'temporal verification detects starvation when fairness is removed',
-  async () => {
-    const { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } =
-      await import('node:fs');
-    const { tmpdir } = await import('node:os');
-    const { expect } = await import('bun:test');
-    const { MODEL_DIR } = await import('./campaign-config');
-    const dir = mkdtempSync(join(tmpdir(), 'product-quint-unfair-'));
-    try {
-      cpSync(MODEL_DIR, dir, { recursive: true });
-      const path = join(dir, 'fair-recovery.qnt');
-      const source = readFileSync(path, 'utf8');
-      const fair = '_fair.implies(always(frozen implies eventually(done)))';
-      expect(source.split(fair)).toHaveLength(2);
-      writeFileSync(
-        path,
-        source.replace(fair, 'always(frozen implies eventually(done))')
-      );
+if (models.some((model) => model.name === 'fair-recovery')) {
+  test.concurrent(
+    'fair recovery: complete finite temporal verification',
+    async () => {
       await obligation(
         'fair-recovery',
-        'campaign-progress-sensitivity',
+        'temporal:eventualConvergence',
         async () => {
           const result = await verifyTemporal({
-            specPath: path,
+            specPath: modelPath('fair-recovery'),
             properties: ['eventualConvergence'],
-            outDir: join(dir, 'output'),
+            invariants: ['invSafety'],
+            outDir: join(REPORT_DIR, 'fair-recovery-temporal'),
             timeoutMs: CLI_TIMEOUT_MS,
           });
-          expect(result.ok).toBe(false);
-          if (result.ok) throw new Error('Starvation was not detected.');
-          expect(result.output).toMatch(
-            /temporal.*violated|temporal.*violation/i
-          );
-          return 'Removing weak fairness produces a temporal counterexample; a parser error or timeout is not accepted.';
+          if (!result.ok) throw new Error(result.output);
+          return `TLC complete finite graph: ${result.statesExplored} distinct states; weakly fair recovery after quiescence.`;
         }
       );
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  },
-  TEST_TIMEOUT_MS
-);
+    },
+    TEST_TIMEOUT_MS
+  );
+
+  // @io-wall-ok — temporary verifier inputs exercise the temporal checker itself.
+  test.concurrent(
+    'temporal verification detects starvation when fairness is removed',
+    async () => {
+      const { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } =
+        await import('node:fs');
+      const { tmpdir } = await import('node:os');
+      const { expect } = await import('bun:test');
+      const { MODEL_DIR } = await import('./campaign-config');
+      const dir = mkdtempSync(join(tmpdir(), 'product-quint-unfair-'));
+      try {
+        cpSync(MODEL_DIR, dir, { recursive: true });
+        const path = join(dir, 'fair-recovery.qnt');
+        const source = readFileSync(path, 'utf8');
+        const fair = '_fair.implies(always(frozen implies eventually(done)))';
+        expect(source.split(fair)).toHaveLength(2);
+        writeFileSync(
+          path,
+          source.replace(fair, 'always(frozen implies eventually(done))')
+        );
+        await obligation(
+          'fair-recovery',
+          'campaign-progress-sensitivity',
+          async () => {
+            const result = await verifyTemporal({
+              specPath: path,
+              properties: ['eventualConvergence'],
+              outDir: join(dir, 'output'),
+              timeoutMs: CLI_TIMEOUT_MS,
+            });
+            expect(result.ok).toBe(false);
+            if (result.ok) throw new Error('Starvation was not detected.');
+            expect(result.output).toMatch(
+              /temporal.*violated|temporal.*violation/i
+            );
+            return 'Removing weak fairness produces a temporal counterexample; a parser error or timeout is not accepted.';
+          }
+        );
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    },
+    TEST_TIMEOUT_MS
+  );
+}

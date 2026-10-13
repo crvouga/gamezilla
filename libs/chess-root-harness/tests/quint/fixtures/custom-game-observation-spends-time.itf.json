@@ -299,9 +299,7 @@
       },
       "_ended": false,
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_playStatus": "active",
       "_result": "",
