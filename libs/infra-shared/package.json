@@ -10,6 +10,7 @@
     ]
   },
   "scripts": {
+    "generate:infra-map": "bun run scripts/render-infra-map.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "retire:workers": "bun run scripts/retire-workers.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
