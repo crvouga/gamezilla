@@ -1,5 +1,6 @@
 import { useClock } from '@pkgs/clock-client/solid';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { executeSqlStatements } from '@pkgs/sql-client-root-shared/statements';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
@@ -361,7 +362,7 @@ function useLiveRerun(args: {
     for (const cell of doc().cells) {
       if (!cell.live) continue;
       void runSqlCell({
-        sqlClient,
+        execute: (statements) => executeSqlStatements(sqlClient, statements),
         sql: cell.sql,
         now: () => clock.now(),
       }).then((run) => {
@@ -398,7 +399,7 @@ async function runAllCells(args: {
   const next: Record<string, SqlCellRun> = {};
   for (const cell of args.doc().cells) {
     next[cell.id] = await runSqlCell({
-      sqlClient: args.sqlClient,
+      execute: (statements) => executeSqlStatements(args.sqlClient, statements),
       sql: cell.sql,
       now: () => args.clock.now(),
     });

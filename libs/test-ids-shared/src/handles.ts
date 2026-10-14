@@ -231,6 +231,8 @@ export const Handles = {
   // sign-out mutation modal
   authSignOutConfirm: 'auth-sign-out-confirm',
   authSignedOut: 'auth-signed-out',
+  authSignOutDone: 'auth-sign-out-done',
+  authSignOutModal: 'auth-sign-out-modal',
 
   // profile
   profileEdit: 'profile-edit',

@@ -1,0 +1,184 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/home/runner/work/gamezilla/gamezilla/specs/billing/grace-and-refunds.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Wed Oct 14 2026 09:09:09 GMT+0000 (Coordinated Universal Time)",
+    "timestamp": 1791968949805
+  },
+  "vars": [
+    "accessOn",
+    "_phase",
+    "_day",
+    "_trialOver",
+    "_offline",
+    "mbt::actionTaken",
+    "mbt::nondetPicks",
+    "_trialDays"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_day": {
+        "#bigint": "0"
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_phase": "live",
+      "_trialOver": false,
+      "accessOn": {
+        "#map": [["alice-phone", "paid"], ["alice", "paid"]]
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "n": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "_trialDays": {
+        "#bigint": "0"
+      }
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_day": {
+        "#bigint": "0"
+      },
+      "_offline": {
+        "#set": ["alice-phone"]
+      },
+      "_phase": "live",
+      "_trialOver": false,
+      "accessOn": {
+        "#map": [["alice-phone", "paid"], ["alice", "paid"]]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "alice-phone"
+        },
+        "n": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "_trialDays": {
+        "#bigint": "0"
+      }
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_day": {
+        "#bigint": "3"
+      },
+      "_offline": {
+        "#set": ["alice-phone"]
+      },
+      "_phase": "live",
+      "_trialOver": false,
+      "accessOn": {
+        "#map": [["alice-phone", "paid"], ["alice", "paid"]]
+      },
+      "mbt::actionTaken": "daysPass",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "n": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "3"
+          }
+        }
+      },
+      "_trialDays": {
+        "#bigint": "3"
+      }
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_day": {
+        "#bigint": "8"
+      },
+      "_offline": {
+        "#set": ["alice-phone"]
+      },
+      "_phase": "live",
+      "_trialOver": true,
+      "accessOn": {
+        "#map": [["alice-phone", "free"], ["alice", "paid"]]
+      },
+      "mbt::actionTaken": "daysPass",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "n": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "5"
+          }
+        }
+      },
+      "_trialDays": {
+        "#bigint": "7"
+      }
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_day": {
+        "#bigint": "0"
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_phase": "live",
+      "_trialOver": true,
+      "accessOn": {
+        "#map": [["alice-phone", "paid"], ["alice", "paid"]]
+      },
+      "mbt::actionTaken": "_connectionReturns",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "n": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "5"
+          }
+        }
+      },
+      "_trialDays": {
+        "#bigint": "7"
+      }
+    }
+  ]
+}

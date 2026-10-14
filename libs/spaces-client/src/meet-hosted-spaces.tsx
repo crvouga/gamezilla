@@ -89,7 +89,7 @@ function useEndedHostedIds(): Accessor<ReadonlySet<string>> {
   const query = createQuery(
     () => sql<IdRow>`
     SELECT id FROM spaces
-    WHERE (ended_at IS NOT NULL OR deleted_at IS NOT NULL)
+    WHERE ended_at IS NOT NULL
       AND (host_member_id = ${myId()} OR host_account_id = ${myId()})
   `
   );
@@ -108,7 +108,12 @@ export function MeetHostedSpaces(): JSX.Element {
   const ended = useEndedHostedIds();
   const flagged = useFlaggedHosted();
   const invited = useHostingInvite();
-  const over = createMemo(() => flagged() || rejected().size > 0);
+  const over = createMemo(
+    () =>
+      flagged() ||
+      [...rejected()].some((id) => !ended().has(id)) ||
+      invited.decision() !== null
+  );
   const decision = useLimitDecision(LIMIT.hostedSpaces, () => (over() ? 1 : 0));
   createEffect(() => {
     if (!over()) return;

@@ -67,6 +67,7 @@ Feature: Keep the game through disconnection
 
   Rule: A returning person sees the current choices and outcome
 
+    @regression:custom-game-reconnect-read-before-settlement
     Scenario: A returning watcher sees the game that started while they were away
       Given Alice has a Custom Game between Alice as White and Bob as Black
       And Alice and Bob are ready for the Custom Game
@@ -76,6 +77,7 @@ Feature: Keep the game through disconnection
       Then Bob sees the active Custom Game with White to move
 
     @regression:space-join-preview-grants-stale
+    @regression:custom-game-reconnect-read-before-settlement
     Scenario: A returning participant cannot revive a completed game
       Given Alice has an active Custom Game between Alice as White and Bob as Black
       And Bob is offline

@@ -20,7 +20,17 @@ export function participates(
   return (
     mode === 'full' ||
     mode === 'authority' ||
-    (mode === 'dependent' && authority)
+    ((mode === 'dependent' || mode === 'dependent-read') && authority)
+  );
+}
+
+export function readsHistory(
+  connection: RoomConnection,
+  authority: boolean
+): boolean {
+  return (
+    connection.view.mode === 'dependent-read' ||
+    participates(connection, authority)
   );
 }
 
@@ -29,7 +39,9 @@ function connectionRefusal(
   authority: boolean
 ): string | null {
   const view = connection.view;
-  return view.mode === 'presence' || (view.mode === 'dependent' && !authority)
+  return view.mode === 'presence' ||
+    ((view.mode === 'dependent' || view.mode === 'dependent-read') &&
+      !authority)
     ? view.reason
     : null;
 }

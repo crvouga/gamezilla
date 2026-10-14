@@ -1,0 +1,1033 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/Users/chrisvouga/.super.engineering/worktrees/gamezilla/sc-pinned-cryostat-195a/specs/chess/multiplayer-shared-game.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Wed Oct 14 2026 02:17:45 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1791969465602
+  },
+  "vars": [
+    "gameRecordOffered",
+    "_blackLeft",
+    "shownMoves",
+    "_quiet",
+    "_moves",
+    "idle",
+    "shownWinner",
+    "_winner",
+    "_aborted",
+    "_online",
+    "canMove",
+    "_whiteLeft",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": { "index": 0 },
+      "_aborted": false,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true],
+          ["dave-phone", true]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", false],
+          ["dave", false]
+        ]
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "device": { "tag": "None", "value": { "#tup": [] } },
+        "minutes": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 1 },
+      "_aborted": false,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true],
+          ["dave-phone", true]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", true],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", false],
+          ["dave", false]
+        ]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice-computer" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 2 },
+      "_aborted": false,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true],
+          ["dave-phone", true]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", false],
+          ["dave", false]
+        ]
+      },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice-computer" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "2" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 3 },
+      "_aborted": true,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true],
+          ["dave-phone", true]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "1" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", false],
+          ["dave", false]
+        ]
+      },
+      "mbt::actionTaken": "goQuiet",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "carol-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 4 },
+      "_aborted": true,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true],
+          ["dave-phone", false]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "1" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", false],
+          ["dave", false]
+        ]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "dave-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 5 },
+      "_aborted": true,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", false],
+          ["carol-phone", true],
+          ["dave-phone", false]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "1" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", false],
+          ["dave", false]
+        ]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 6 },
+      "_aborted": true,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", false],
+          ["carol-phone", true],
+          ["dave-phone", false]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "2" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "1" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", false],
+          ["dave", false]
+        ]
+      },
+      "mbt::actionTaken": "goQuiet",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "2" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 7 },
+      "_aborted": true,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", false],
+          ["carol-phone", true],
+          ["dave-phone", true]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "2" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "1" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", false],
+          ["dave", false]
+        ]
+      },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "dave-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "2" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 8 },
+      "_aborted": true,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", false],
+          ["carol-phone", true],
+          ["dave-phone", true]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "4" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "1" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", false],
+          ["dave", false]
+        ]
+      },
+      "mbt::actionTaken": "goQuiet",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "2" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 9 },
+      "_aborted": true,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", false],
+          ["carol-phone", true],
+          ["dave-phone", true]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "4" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "1" }],
+          ["dave-phone", { "#bigint": "2" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", false],
+          ["dave", true]
+        ]
+      },
+      "mbt::actionTaken": "goQuiet",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "dave-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "2" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 10 },
+      "_aborted": true,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", false],
+          ["carol-phone", true],
+          ["dave-phone", true]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "4" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "1" }],
+          ["dave-phone", { "#bigint": "3" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", false],
+          ["dave", true]
+        ]
+      },
+      "mbt::actionTaken": "goQuiet",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "dave-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 11 },
+      "_aborted": true,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true],
+          ["dave-phone", true]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "4" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "1" }],
+          ["dave-phone", { "#bigint": "3" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", false],
+          ["dave", true]
+        ]
+      },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "2" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 12 },
+      "_aborted": true,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true],
+          ["dave-phone", true]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "4" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "3" }],
+          ["dave-phone", { "#bigint": "3" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", true],
+          ["dave", true]
+        ]
+      },
+      "mbt::actionTaken": "goQuiet",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "carol-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "2" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 13 },
+      "_aborted": true,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", false],
+          ["carol-phone", true],
+          ["dave-phone", true]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "4" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "3" }],
+          ["dave-phone", { "#bigint": "3" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", true],
+          ["dave", true]
+        ]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    },
+    {
+      "#meta": { "index": 14 },
+      "_aborted": true,
+      "_blackLeft": { "#bigint": "5" },
+      "_moves": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", true],
+          ["dave-phone", true]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "3" }],
+          ["dave-phone", { "#bigint": "3" }]
+        ]
+      },
+      "_whiteLeft": { "#bigint": "5" },
+      "_winner": "nobody",
+      "canMove": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false],
+          ["dave-phone", false]
+        ]
+      },
+      "gameRecordOffered": false,
+      "idle": {
+        "#map": [
+          ["alice", false],
+          ["bob", false],
+          ["carol", true],
+          ["dave", true]
+        ]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "shownMoves": {
+        "#map": [
+          ["alice-computer", { "#bigint": "0" }],
+          ["alice-phone", { "#bigint": "0" }],
+          ["bob-phone", { "#bigint": "0" }],
+          ["carol-phone", { "#bigint": "0" }],
+          ["dave-phone", { "#bigint": "0" }]
+        ]
+      },
+      "shownWinner": {
+        "#map": [
+          ["alice-computer", "nobody"],
+          ["alice-phone", "nobody"],
+          ["bob-phone", "nobody"],
+          ["carol-phone", "nobody"],
+          ["dave-phone", "nobody"]
+        ]
+      }
+    }
+  ]
+}

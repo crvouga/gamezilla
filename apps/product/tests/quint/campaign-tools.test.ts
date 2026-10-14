@@ -7,6 +7,7 @@ import { sample } from './campaign-tools';
 import { withSymbolicInput } from './symbolic-input';
 
 // regression: check-symbolic-report-directory
+// regression: symbolic-input-transforms-unrelated-models
 test('identity symbolic compilation creates its absent report directory', async () => {
   const root = mkdtempSync(join(tmpdir(), 'product-symbolic-report-'));
   const reportDir = join(root, 'absent/models');

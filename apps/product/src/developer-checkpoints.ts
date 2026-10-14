@@ -1,6 +1,9 @@
+import type { Client } from '@libs/app-root-client/create-client';
 import { readEmbeddedHref } from '@libs/app-root-shared/embedded-href';
 import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
+import { browserClientCheckpoints } from '@libs/harness/browser-client-checkpoints';
 import type { ProductHarness } from '@libs/harness/harness';
+import { productExtra } from '@libs/harness/harness';
 import { openSettings } from '@libs/harness/shell-actions';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { useProductHarnessSnapshots } from '@pkgs/harness-console-client/use-product-harness-snapshots';
@@ -18,15 +21,24 @@ import {
 } from './product-harness-snapshots';
 
 async function snapshotContext(s: ProductHarness): Promise<SnapshotSessionCtx> {
-  const lives = new Map(
-    await Promise.all(
+  const extra = productExtra(s);
+  const lives = new Map<string, Client>();
+  if (extra.ui.kind === 'solid-dom') {
+    const clients = await Promise.all(
       [...s.actors.keys()].map(
         async (id) => [id, await s.harness.spawnClient(id)] as const
       )
-    )
-  );
+    );
+    for (const [id, live] of clients) lives.set(id, live);
+  }
   let paused = false;
   return {
+    ...(extra.checkpointSqlFormat === undefined
+      ? {}
+      : { checkpointSqlFormat: extra.checkpointSqlFormat }),
+    ...(extra.ui.kind === 'bun-webview'
+      ? { clientCheckpoints: browserClientCheckpoints(s) }
+      : {}),
     store: tools(s).snapshotStore,
     harness: s.harness,
     clock: s.harness.clock,
@@ -136,6 +148,7 @@ export const saveCheckpoint = scenarioAction({
   name: 'saveCheckpoint',
   act: async (s, label: string, incompatible = false) => {
     const state = tools(s);
+    state.restoreFailure = 'none';
     for (const [id, actor] of s.actors)
       state.beforeApps.set(id, await actor.currentPath());
     const saved = await saveProductHarnessSnapshot(
@@ -157,7 +170,6 @@ export const saveCheckpoint = scenarioAction({
     }
     await refreshCheckpoints(s);
     state.checkpointApps.set(label, new Map(state.beforeApps));
-    state.restoreFailure = 'none';
     await rememberKept(s);
   },
 });

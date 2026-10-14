@@ -50,6 +50,33 @@ function createFakeView(): BunWebView & {
 }
 
 describe('BunWebviewDriver', () => {
+  it('does not repeat a delivered click after its page navigates', async () => {
+    // regression: browser-tap-repeats-after-navigation
+    const view = createFakeView();
+    const evaluate = view.evaluate.getMockImplementation();
+    let documentId = 1;
+    view.evaluate.mockImplementation((script: string) => {
+      if (script.includes('__uiTestingPointerCounts'))
+        return Promise.resolve([
+          view.pointer.down,
+          view.pointer.up,
+          view.pointer.click,
+          documentId,
+        ]);
+      return evaluate?.(script);
+    });
+    view.click.mockImplementation(() => {
+      documentId += 1;
+      view.pointer.down = 0;
+      view.pointer.up = 0;
+      view.pointer.click = 0;
+      return Promise.resolve();
+    });
+    await new BunWebviewDriver({ view, timers })
+      .get('oauth-mock-account-alice-add25969-gmail-com')
+      .tapAt({ xRatio: 0.5, yRatio: 0.5 });
+    expect(view.click).toHaveBeenCalledTimes(1);
+  });
   it('does not repeat a delivered menu click when pointerup is suppressed', async () => {
     // regression: browser-tap-repeats-delivered-click
     const view = createFakeView();

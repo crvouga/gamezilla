@@ -34,7 +34,9 @@ import heldSuccess from './fixtures/custom-game-held-success.itf.json';
 import hostRefusal from './fixtures/custom-game-host-refusal-vocabulary.itf.json';
 import idempotentReadiness from './fixtures/custom-game-idempotent-readiness.itf.json';
 import offlineBoundary from './fixtures/custom-game-offline-boundary.itf.json';
+import cancelledWhileHostAway from './fixtures/custom-game-returning-guest-after-host-signout.itf.json';
 import staleCancellation from './fixtures/custom-game-stale-cancellation.itf.json';
+import staleOfflineHost from './fixtures/custom-game-stale-offline-host.itf.json';
 import hostJoinStaleFanout from './fixtures/space-host-join-stale-fanout.itf.json';
 import hostLeaveRemount from './fixtures/space-host-leave-remount.itf.json';
 import joinBeforeHostAvailability from './fixtures/space-join-before-host-availability.itf.json';
@@ -56,9 +58,25 @@ bindQuintModel<QuintHarnessWorld>({
   inductiveInvariant: '_inductive',
   separateInduction: true,
   inductionCaseGroupSize: 8,
+  invariantMode: 'before',
   inferPolymorphicTypes: false,
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: custom-game-returning-guest-after-host-signout
+      id: 'custom-game-returning-guest-after-host-signout',
+      title:
+        'A returning guest sees cancellation while all host devices are offline',
+      seed: '0x67932',
+      itf: cancelledWhileHostAway,
+    },
+    {
+      // regression: custom-game-stale-offline-host
+      id: 'custom-game-stale-offline-host',
+      title: 'An offline host is named before a stale invitation is declined',
+      seed: '0x67932',
+      itf: staleOfflineHost,
+    },
     {
       // regression: space-join-before-host-availability
       id: 'space-join-before-host-availability',

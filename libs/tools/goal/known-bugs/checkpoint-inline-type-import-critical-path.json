@@ -1,0 +1,4 @@
+{
+  "summary": "Exposing logical SQL checkpoints to the client made postgresRowValues reachable from the shipped app graph. Its return annotation, readonly import('./types').SqlDumpValue[], triggered the dynamic-import guard. Use a normal import type declaration and preserve the unchanged eager-import guard.",
+  "regressionTest": "apps/client/scripts/client-critical-path-imports.test.ts"
+}

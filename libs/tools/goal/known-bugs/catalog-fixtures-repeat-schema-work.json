@@ -1,0 +1,4 @@
+{
+  "summary": "Rebuilding the puzzle catalog schema for each of 200 nightly property cases exhausted the five-second coverage budget.",
+  "regressionTest": "libs/chess-puzzle-server/tests/initialize-puzzle-catalog-nightly.test.ts"
+}

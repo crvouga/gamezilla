@@ -35,6 +35,7 @@ import {
 import {
   hasAuthority,
   participates,
+  readsHistory,
   refuseConnectionCommand,
 } from './room-server-connections';
 import {
@@ -237,7 +238,7 @@ export class RoomServer<
 
   private async resumeDependents(): Promise<void> {
     for (const conn of this.connections.values())
-      if (conn.view.mode === 'dependent')
+      if (conn.view.mode === 'dependent' || conn.view.mode === 'dependent-read')
         await this.sendWelcomeSerial(conn.id, 0);
   }
 
@@ -271,7 +272,7 @@ export class RoomServer<
       this.connections,
       frame,
       (conn) =>
-        participates(conn, authority) ||
+        readsHistory(conn, authority) ||
         (frame as { kind: string }).kind === ROOM_WIRE_KIND.roster
     );
   }
@@ -302,7 +303,7 @@ export class RoomServer<
       storage: this.storage,
       topic: this.topic,
       fromSeq,
-      available: () => participates(conn, hasAuthority(this.connections)),
+      available: () => readsHistory(conn, hasAuthority(this.connections)),
       roster: this.getRoster(),
       tip: () => this.tip(),
     });

@@ -20,11 +20,13 @@ import type { Accessor } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { type PresencePerson, presencePeople } from './presence-people';
 import { useSpaceOpenRoomEntry } from './space-open-rooms-store';
+import { useOwnSpaceActivity } from './use-own-space-activity';
 
 export type OpenSpacePresence = {
   readonly people: Accessor<readonly PresencePerson[]>;
   readonly idle: Accessor<ReadonlySet<string>>;
   readonly ownActivity: Accessor<string>;
+  readonly ownIdle: Accessor<boolean>;
 };
 
 /** Presence and idle for one open space, from the room this device holds. */
@@ -45,6 +47,18 @@ export function useOpenSpacePresence(spaceId: string): OpenSpacePresence {
   const activity = createMemo(() =>
     SpaceActivityAttr.activity.from(snapshot())
   );
+  const own = useOwnSpaceActivity(
+    () => entry()?.clientId,
+    activity,
+    () => engine.status().online
+  );
+  const observedActivity = createMemo(() => {
+    const id = entry()?.clientId;
+    const at = own.at();
+    return id === undefined || at === undefined
+      ? activity()
+      : { ...activity(), [id]: at };
+  });
   const live = createMemo(
     () =>
       RoomMetaAttr.isConnected.from(snapshot()) &&
@@ -65,23 +79,22 @@ export function useOpenSpacePresence(spaceId: string): OpenSpacePresence {
     (nowMs) =>
       idleMemberIds({
         roster: roster(),
-        activity: activity(),
+        activity: observedActivity(),
         connected: live(),
         nowMs,
       }),
     (_value, nowMs) =>
       nextIdleChangeAt({
         roster: roster(),
-        activity: activity(),
+        activity: observedActivity(),
         connected: live(),
         nowMs,
       })
   );
-  const ownActivity = createMemo(() => {
-    const clientId = entry()?.clientId;
-    if (clientId === undefined) return '';
-    const at = activity()[clientId];
-    return at === undefined ? '' : String(at);
-  });
-  return { people, idle, ownActivity };
+  const ownActivity = () => (own.at() === undefined ? '' : String(own.at()));
+  const ownIdle = () =>
+    roster().some((actor) => actor.id === myId())
+      ? idle().has(myId())
+      : own.idle();
+  return { people, idle, ownActivity, ownIdle };
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "The custom-game induction preservation proof timed out at its unchanged 240-second deadline after combining enabled successors. Checking invariants before combining successors preserves the complete candidate, all cases, and every original bound while finishing the proof.",
+  "regressionTest": "libs/chess-root-harness/tests/custom-game-proof-strategy.test.ts"
+}

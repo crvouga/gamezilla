@@ -1,0 +1,590 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/home/runner/work/gamezilla/gamezilla/specs/chess/custom-game-control.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Wed Oct 14 2026 12:35:38 GMT+0000 (Coordinated Universal Time)",
+    "timestamp": 1791981338971
+  },
+  "vars": [
+    "_finished",
+    "controllers",
+    "_previousPly",
+    "controlledStatus",
+    "_cutOff",
+    "_previousTurn",
+    "controlledPly",
+    "controlledShown",
+    "_sealed",
+    "controlledTurn",
+    "_movingController",
+    "_offline",
+    "controlledOutcome",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": { "index": 0 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingController": "",
+      "_offline": { "#set": [] },
+      "_previousPly": { "#bigint": "0" },
+      "_previousTurn": "white",
+      "_sealed": false,
+      "controlledOutcome": "",
+      "controlledPly": { "#bigint": "0" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "controlledStatus": "active",
+      "controlledTurn": "white",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "None", "value": { "#tup": [] } },
+        "blackBot": { "tag": "Some", "value": true },
+        "side": { "tag": "None", "value": { "#tup": [] } },
+        "whiteBot": { "tag": "Some", "value": true }
+      }
+    },
+    {
+      "#meta": { "index": 1 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingController": "",
+      "_offline": { "#set": [] },
+      "_previousPly": { "#bigint": "0" },
+      "_previousTurn": "white",
+      "_sealed": false,
+      "controlledOutcome": "",
+      "controlledPly": { "#bigint": "0" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "controlledStatus": "active",
+      "controlledTurn": "white",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "resignControlledGame",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "black" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 2 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingController": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousPly": { "#bigint": "0" },
+      "_previousTurn": "white",
+      "_sealed": false,
+      "controlledOutcome": "",
+      "controlledPly": { "#bigint": "0" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "controlledStatus": "active",
+      "controlledTurn": "white",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "white" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 3 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingController": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousPly": { "#bigint": "0" },
+      "_previousTurn": "white",
+      "_sealed": false,
+      "controlledOutcome": "",
+      "controlledPly": { "#bigint": "0" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "controlledStatus": "active",
+      "controlledTurn": "white",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "resignControlledGame",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "white" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 4 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingController": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousPly": { "#bigint": "0" },
+      "_previousTurn": "white",
+      "_sealed": false,
+      "controlledOutcome": "",
+      "controlledPly": { "#bigint": "0" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "controlledStatus": "active",
+      "controlledTurn": "white",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "playControlledMove",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "black" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 5 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingController": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousPly": { "#bigint": "0" },
+      "_previousTurn": "white",
+      "_sealed": false,
+      "controlledOutcome": "",
+      "controlledPly": { "#bigint": "0" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "controlledStatus": "active",
+      "controlledTurn": "white",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "playControlledMove",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "black" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 6 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingController": "bot",
+      "_offline": { "#set": ["alice"] },
+      "_previousPly": { "#bigint": "0" },
+      "_previousTurn": "white",
+      "_sealed": false,
+      "controlledOutcome": "",
+      "controlledPly": { "#bigint": "1" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "1" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "controlledStatus": "active",
+      "controlledTurn": "black",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "botPlays",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "white" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 7 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingController": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousPly": { "#bigint": "1" },
+      "_previousTurn": "black",
+      "_sealed": false,
+      "controlledOutcome": "",
+      "controlledPly": { "#bigint": "1" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "1" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "controlledStatus": "active",
+      "controlledTurn": "black",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "resignControlledGame",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "white" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 8 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingController": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousPly": { "#bigint": "1" },
+      "_previousTurn": "black",
+      "_sealed": false,
+      "controlledOutcome": "",
+      "controlledPly": { "#bigint": "1" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "1" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "controlledStatus": "active",
+      "controlledTurn": "black",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "cancelControlledGame",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "black" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 9 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] },
+      "_movingController": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousPly": { "#bigint": "1" },
+      "_previousTurn": "black",
+      "_sealed": true,
+      "controlledOutcome": "cancelled",
+      "controlledPly": { "#bigint": "1" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "controlledStatus": "cancelled",
+      "controlledTurn": "black",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "cancelControlledGame",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "black" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 10 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] },
+      "_movingController": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousPly": { "#bigint": "1" },
+      "_previousTurn": "black",
+      "_sealed": true,
+      "controlledOutcome": "cancelled",
+      "controlledPly": { "#bigint": "1" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "controlledStatus": "cancelled",
+      "controlledTurn": "black",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "resignControlledGame",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "black" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 11 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] },
+      "_movingController": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousPly": { "#bigint": "1" },
+      "_previousTurn": "black",
+      "_sealed": true,
+      "controlledOutcome": "cancelled",
+      "controlledPly": { "#bigint": "1" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "controlledStatus": "cancelled",
+      "controlledTurn": "black",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "_staleBot",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "white" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 12 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] },
+      "_movingController": "",
+      "_offline": { "#set": [] },
+      "_previousPly": { "#bigint": "1" },
+      "_previousTurn": "black",
+      "_sealed": true,
+      "controlledOutcome": "cancelled",
+      "controlledPly": { "#bigint": "1" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }],
+          ["bob", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }]
+        ]
+      },
+      "controlledStatus": "cancelled",
+      "controlledTurn": "black",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "_connectionReturns",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "white" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 13 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] },
+      "_movingController": "",
+      "_offline": { "#set": [] },
+      "_previousPly": { "#bigint": "1" },
+      "_previousTurn": "black",
+      "_sealed": true,
+      "controlledOutcome": "cancelled",
+      "controlledPly": { "#bigint": "1" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }],
+          ["bob", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }]
+        ]
+      },
+      "controlledStatus": "cancelled",
+      "controlledTurn": "black",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "_wrongBot",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "black" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 14 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] },
+      "_movingController": "",
+      "_offline": { "#set": [] },
+      "_previousPly": { "#bigint": "1" },
+      "_previousTurn": "black",
+      "_sealed": true,
+      "controlledOutcome": "cancelled",
+      "controlledPly": { "#bigint": "1" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }],
+          ["bob", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }]
+        ]
+      },
+      "controlledStatus": "cancelled",
+      "controlledTurn": "black",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "resignControlledGame",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "white" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 15 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] },
+      "_movingController": "",
+      "_offline": { "#set": [] },
+      "_previousPly": { "#bigint": "1" },
+      "_previousTurn": "black",
+      "_sealed": true,
+      "controlledOutcome": "cancelled",
+      "controlledPly": { "#bigint": "1" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }],
+          ["bob", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }]
+        ]
+      },
+      "controlledStatus": "cancelled",
+      "controlledTurn": "black",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "_wrongBot",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "white" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 16 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] },
+      "_movingController": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousPly": { "#bigint": "1" },
+      "_previousTurn": "black",
+      "_sealed": true,
+      "controlledOutcome": "cancelled",
+      "controlledPly": { "#bigint": "1" },
+      "controlledShown": {
+        "#map": [
+          ["alice", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }],
+          ["bob", { "#tup": ["cancelled", { "#bigint": "1" }, "cancelled"] }]
+        ]
+      },
+      "controlledStatus": "cancelled",
+      "controlledTurn": "black",
+      "controllers": { "#map": [["black", "bot"], ["white", "bot"]] },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "blackBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "black" },
+        "whiteBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    }
+  ]
+}

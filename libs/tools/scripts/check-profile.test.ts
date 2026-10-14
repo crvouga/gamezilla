@@ -72,7 +72,7 @@ describe('check profiles', () => {
     expect(activeProfile(env).reports).toBe(false);
     expect(activeProfile(env).continueAfterFailure).toBe(false);
     expect(profileDeadlineSeconds(env, true)).toBeNull();
-    expect(taskBudgetSeconds('@pkgs/clock-shared#test', false)).toBe(300);
+    expect(taskBudgetSeconds('@pkgs/clock-shared#test', false, env)).toBe(300);
   });
 
   test('the nightly profile deepens the same tasks and keeps their reports', () => {
@@ -154,16 +154,9 @@ describe('check profiles', () => {
   });
 
   test('nightly budgets are bounded, and wider than the gate', () => {
-    const before = process.env['CHECK_PROFILE'];
-    process.env['CHECK_PROFILE'] = 'nightly';
-    try {
-      expect(taskBudgetSeconds('@pkgs/clock-shared#test', false)).toBe(
-        300 * activeProfile(NIGHTLY).taskBudgetScale
-      );
-    } finally {
-      if (before === undefined) delete process.env['CHECK_PROFILE'];
-      else process.env['CHECK_PROFILE'] = before;
-    }
+    expect(taskBudgetSeconds('@pkgs/clock-shared#test', false, NIGHTLY)).toBe(
+      300 * activeProfile(NIGHTLY).taskBudgetScale
+    );
     expect(profileDeadlineSeconds(NIGHTLY, true)).toBeGreaterThan(
       CI_RUN_DEADLINE_SECONDS
     );

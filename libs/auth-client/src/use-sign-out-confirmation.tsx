@@ -47,6 +47,8 @@ export function useSignOutConfirmationModal(args: {
       onError={onError}
       submitDataSet={{ testid: Handles.authSignOutConfirm }}
       successDataSet={{ testid: Handles.authSignedOut }}
+      dismissDataSet={{ testid: Handles.authSignOutDone }}
+      dataSet={{ testid: Handles.authSignOutModal }}
     />
   );
 

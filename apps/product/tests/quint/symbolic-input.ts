@@ -3,7 +3,6 @@ import {
   cpSync,
   mkdirSync,
   mkdtempSync,
-  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -12,6 +11,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { cacheValueParameters } from '@pkgs/quint-server/cache-value-parameters';
 import { MODEL_DIR, REPORT_DIR } from './campaign-config';
+import { campaignImports } from './campaign-imports';
 import { sourceDigest } from './source-digest';
 
 const REDUCED = new Set([
@@ -38,10 +38,8 @@ export async function withSymbolicInput<T>(
       throw new Error('Unexpected device universe.');
     if (REDUCED.has(name))
       writeFileSync(path, source.replace(original, 'Set(0, 1, 2)'));
-    for (const file of readdirSync(dir).filter((file) =>
-      file.endsWith('.qnt')
-    )) {
-      const input = join(dir, file);
+    for (const imported of campaignImports(name)) {
+      const input = join(dir, `${imported}.qnt`);
       writeFileSync(input, cacheValueParameters(readFileSync(input, 'utf8')));
     }
     const sha = sourceDigest(dir);

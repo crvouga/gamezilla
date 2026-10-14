@@ -3,7 +3,7 @@ import {
   SpaceActivityAttr,
 } from '@libs/spaces-shared/space-activity';
 import { isViewingSpaceClient } from '@libs/spaces-shared/space-presence-client-id';
-import { useTimers } from '@pkgs/clock-client/solid';
+import { useClock, useTimers } from '@pkgs/clock-client/solid';
 import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { createEffect, createSignal, onCleanup } from 'solid-js';
@@ -26,21 +26,36 @@ export function useNoteSpaceActivity(): () => void {
   const connected = useSpaceRoomSelector(RoomMetaAttr.isConnected.from);
   const engine = useSyncEngine();
   const timers = useTimers();
+  const clock = useClock();
   const [attempt, setAttempt] = createSignal(0);
   const [epoch, setEpoch] = createSignal(0);
   const sawOffline = { current: false };
   const baseline = { current: undefined as number | undefined };
   const baselinedEpoch = { current: -1 };
   const sent = { current: false };
+  const pending = {
+    current: undefined as
+      | { epoch: number; clientId: string; at: number }
+      | undefined,
+  };
+
+  const sendPending = (id: string, current: number): void => {
+    if (sent.current) return;
+    sent.current = true;
+    if (pending.current?.epoch !== current || pending.current.clientId !== id)
+      pending.current = { epoch: current, clientId: id, at: clock.now() };
+    dispatch(NoteActivity({ clientId: id, at: pending.current.at }));
+  };
 
   const note = (): void => {
     const id = clientId();
     if (id === null || !isViewingSpaceClient(id)) return;
-    dispatch(NoteActivity({ clientId: id }));
+    dispatch(NoteActivity({ clientId: id, at: clock.now() }));
   };
 
   createEffect(() => {
-    const online = engine.status().online && connected();
+    // Availability of the host never turns this device's quiet time into activity.
+    const online = engine.status().online;
     if (!online) {
       sawOffline.current = true;
       return;
@@ -72,10 +87,7 @@ export function useNoteSpaceActivity(): () => void {
     }
     // One note until the retry. A rejection rolls the stamp back; noting
     // again in that same moment never lands.
-    if (!sent.current) {
-      sent.current = true;
-      note();
-    }
+    sendPending(id, current);
     const handle = timers.setTimeout(() => {
       sent.current = false;
       setAttempt((value) => value + 1);

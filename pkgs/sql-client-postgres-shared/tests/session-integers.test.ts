@@ -3,6 +3,7 @@ import {
   createPgSessionClient,
   pgQueryRows,
 } from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 import sql from '@pkgs/sql-root-shared/sql';
 
 const result = {
@@ -17,7 +18,10 @@ const result = {
 
 // regression: postgres-session-string-attempts
 test('transaction and prepared rows decode safe bigint strings without changing text or unsafe integers', async () => {
-  const client = createPgSessionClient({ query: async () => result });
+  const client = createPgSessionClient(
+    { query: async () => result },
+    createPostgresDbScope('public')
+  );
   const query = sql<{
     attempts: number;
     large: string;

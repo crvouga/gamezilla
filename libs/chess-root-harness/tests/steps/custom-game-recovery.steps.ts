@@ -121,11 +121,16 @@ When(
     w.s.apply(reviewCustomGame, actor, ply)
 );
 
+// regression: custom-game-reconnect-read-before-settlement
 Then(
   '{actor} (still )sees the active Custom Game with White to move',
   async (w, actor: string) => {
     await customScreen(w, actor);
     await w.s.apply(openCustomGame, actor);
+    await w.s.until((s) => readCustomGameProbe(s, actor), {
+      pred: (probe) => probe?.current?.status === 'active',
+      maxMs: 5000,
+    });
     const game = await customGame(w, actor);
     expect(game.status).toBe('active');
     expect(game.turn).toBe('white');
@@ -137,6 +142,10 @@ Then(
 Then('{actor} sees the completed Custom Game', async (w, actor: string) => {
   await customScreen(w, actor);
   await w.s.apply(openCustomGame, actor);
+  await w.s.until((s) => readCustomGameProbe(s, actor), {
+    pred: (probe) => probe?.current?.status === 'completed',
+    maxMs: 5000,
+  });
   expect((await customGame(w, actor)).status).toBe('completed');
 });
 Then(

@@ -226,6 +226,7 @@ test.each([
   }
 });
 
+// regression: cache-key-example-inherits-nightly-replays
 test('a bounded spec verdict never satisfies an exploring run, nor one budget another', () => {
   const root = fixture();
   try {
@@ -249,7 +250,7 @@ test('a bounded spec verdict never satisfies an exploring run, nor one budget an
     );
     const hash = (env: NodeJS.ProcessEnv) =>
       dry(root, ['test:spec:0'], env)[0]!.hash;
-    const gate = hash({});
+    const gate = hash({ QUINT_REPLAY_TRACES: undefined });
     const explore = hash({ QUINT_REPLAY_TRACES: 'all' });
     expect(explore).not.toBe(gate);
     expect(hash({ QUINT_REPLAY_TRACES: '8' })).not.toBe(explore);

@@ -6,6 +6,17 @@
 
 import { z } from 'zod';
 
+export const productHarnessLogicalSqlDumpSchema = z.object({
+  version: z.literal(1),
+  tables: z.record(
+    z.string(),
+    z.object({
+      columns: z.array(z.string()),
+      rows: z.array(z.array(z.json())),
+    })
+  ),
+});
+
 export const productHarnessSnapshotInfoSchema = z.object({
   id: z.string().min(1),
   label: z.string().min(1),
@@ -28,7 +39,9 @@ const productHarnessSnapshotManifestLegacyShared = {
   downAddresses: z.array(z.string()),
   evictedAddresses: z.array(z.string()),
   /** Optional for legacy sticky snaps; load path defaults by blob magic. */
-  sqlFormat: z.enum(['mixed-pgmm-sqlm', 'sqlm', 'sqlite3-image']).optional(),
+  sqlFormat: z
+    .enum(['mixed-pgmm-sqlm', 'sqlm', 'sqlite3-image', 'logical'])
+    .optional(),
   keys: z.object({
     serverSql: z.string().min(1),
     clientSql: z.record(z.string(), z.string()),

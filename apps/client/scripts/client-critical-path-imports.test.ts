@@ -131,6 +131,8 @@ describe('client-critical-path-imports', () => {
  */
 const CRITICAL_PATH_WALK_TIMEOUT_MS = 30_000;
 
+// regression: checkpoint-inline-type-import-critical-path
+// Failing input: postgresRowValues returned readonly import('./types').SqlDumpValue[].
 test(
   'the shipped client eagerly imports application code and excludes the harness',
   () => {

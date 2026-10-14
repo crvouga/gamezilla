@@ -162,6 +162,9 @@ export function defineProductSystem(
         ...options,
         composition,
         serverSql: extra.sql,
+        ...(extra.serverEvents === undefined
+          ? {}
+          : { serverEvents: extra.serverEvents }),
       });
       // Virtual-time ticks must drain in-process Hono; otherwise UI polls
       // burn their budget while serialized /api/* requests are still queued.

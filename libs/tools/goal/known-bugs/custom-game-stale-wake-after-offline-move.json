@@ -1,0 +1,4 @@
+{
+  "summary": "A stale bot wake was derived from the offline host’s local game, which could be ahead of the server. The supposedly stale wake matched the current committed turn and moved a bot. Derive captured stale turns from committed room state.",
+  "regressionTest": "libs/chess-root-harness/tests/quint/custom-game-control.binding.ts"
+}

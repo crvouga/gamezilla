@@ -15,6 +15,7 @@
 // drop out while they or the host are offline and return once both are online.
 // Joining someone else's space needs both people online. People can leave
 // or step out without a connection; leaving never happens again on return.
+// A connected host still counts in presence while looking at the lobby.
 //
 // An offline lobby keeps the last known list of other spaces together with
 // the person's own local choices.
@@ -73,7 +74,7 @@ module space_hosting {
   }
 
   pure def presenceOf(whereabouts: Person -> Whereabouts, h: Person): Set[Person] =
-    PEOPLE.filter(p => hostOf(whereabouts.get(p)) == h)
+    PEOPLE.filter(p => hostOf(whereabouts.get(p)) == h).union(Set(h))
 
   pure def _listing(whereabouts: Person -> Whereabouts, _openSpaces: Set[Person]): Person -> Set[Person] =
     PEOPLE.mapBy(p => if (whereabouts.get(p) == Lobby) _openSpaces else Set())

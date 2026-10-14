@@ -24,6 +24,7 @@ import {
 } from '@libs/synthetic-population-harness/synthetic-population-control-actions';
 import { givenSyntheticUser } from '@libs/synthetic-population-harness/synthetic-user-fixtures';
 
+// regression: stack-fixtures-publish-to-in-process-broker
 Given(
   '{actor} is authorized to view the Bot Observatory',
   async (w, actor: Actor) => {

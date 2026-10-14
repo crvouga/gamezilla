@@ -10,6 +10,10 @@ import { createSignal } from 'solid-js';
 
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared/system-snapshot';
+import {
+  executeSqlStatements,
+  type SqlStatement,
+} from '@pkgs/sql-client-root-shared/statements';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-driver';
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { recordingDriver } from '@pkgs/ui-testing-root-shared/recording-driver';
@@ -25,7 +29,8 @@ import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import type { ProductUi } from './ports';
 import { solidActorRoot } from './solid-actor-root';
 import { createHarnessWaitPump } from './wait-pump';
-import { webviewLocalSql } from './webview-local-sql';
+import { webviewCheckpoint } from './webview-checkpoint';
+import { webviewLocalSql, webviewSqlStatements } from './webview-local-sql';
 
 export type ActorEntry = {
   readonly handle: HarnessActor;
@@ -173,6 +178,8 @@ async function launchWebview(
   return {
     raw,
     localSql,
+    checkpoint: webviewCheckpoint(view, openLink),
+    executeStatements: webviewSqlStatements(view),
     closeResources,
     openLink,
     currentPath,
@@ -227,6 +234,12 @@ async function launchSolid(
     raw,
     localSql,
     closeResources,
+    executeStatements: async (statements: readonly SqlStatement[]) => {
+      const db = args.harness.clientSql(args.id)?.sqlClient;
+      if (db === undefined)
+        throw new Error(`Device ${args.id} database unavailable`);
+      return executeSqlStatements(db, statements);
+    },
     openLink,
     currentPath,
     setViewport,

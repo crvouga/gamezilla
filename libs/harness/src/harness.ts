@@ -2,7 +2,9 @@ import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared/system-
 import type { Session } from '@pkgs/harness-root-shared/runtime-types';
 import type { AudioPlayerStatus } from '@pkgs/sounds-shared/ports';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import type { ExecuteSqlStatements } from '@pkgs/sql-client-root-shared/statements';
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
+import type { ActorCheckpointPort } from './client-checkpoint';
 import type { Harness } from './create-harness';
 import type { ProductExtra } from './ports';
 
@@ -16,6 +18,7 @@ export type HarnessDevice = {
 };
 
 export type HarnessActor = {
+  readonly checkpoint?: ActorCheckpointPort;
   readonly device: HarnessDevice;
   readonly id: string;
   readonly ui: Driver;
@@ -24,6 +27,7 @@ export type HarnessActor = {
    * or inside a live browser), or `null` before the app has opened one.
    */
   readonly localSql: () => SqlTx | null;
+  readonly executeStatements: ExecuteSqlStatements;
   /** Private session probe for server-verdict reads; never recorded in reports. */
   readonly sessionToken: () => Promise<string | null>;
   readonly deviceId: () => Promise<string | null>;

@@ -12,6 +12,7 @@ Feature: Paid access belongs to one person
       Then Bob has free access
       And Bob is asked to sign in before subscribing
 
+    @regression:browser-sign-out-success-blocks-sign-in
     Scenario: Alice's membership does not carry over to Bob on her device
       Given Alice has subscribed to Plus
       And Alice has signed out

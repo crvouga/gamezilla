@@ -8,8 +8,10 @@ import type { Clock } from '@pkgs/clock-shared/types';
 import type {
   HarnessCheckpoint,
   HarnessCheckpointRoomDump,
+  HarnessCheckpointSqlFormat,
 } from '@pkgs/harness-console-shared/checkpoint';
 import type { Session } from '@pkgs/harness-root-shared/runtime-types';
+import type { ClientCheckpointPort } from './client-checkpoint';
 import {
   dumpProductHarnessClientDurable,
   restoreProductHarnessClientDurable,
@@ -39,6 +41,8 @@ export type CheckpointSessionMaps = {
 type UnderlyingScheduler = Session['scheduler']['underlying'];
 
 export type CheckpointSessionCtx = {
+  readonly checkpointSqlFormat?: HarnessCheckpointSqlFormat;
+  readonly clientCheckpoints?: ClientCheckpointPort;
   readonly harness: Harness;
   readonly clock: Clock;
   readonly scheduler: UnderlyingScheduler;
@@ -88,6 +92,12 @@ export async function collectSqlAndKv(
   const clientSql: Record<string, Uint8Array> = {};
   const clientKv: Record<string, Record<string, string>> = {};
   for (const clientId of clientIds) {
+    if (ctx.clientCheckpoints !== undefined) {
+      const saved = await ctx.clientCheckpoints.capture(clientId);
+      clientSql[clientId] = saved.sql;
+      clientKv[clientId] = { ...saved.kv };
+      continue;
+    }
     const handle =
       ctx.clientSqlByAddress.get(clientId) ?? ctx.harness.clientSql(clientId);
     if (handle !== undefined) {
@@ -159,6 +169,14 @@ export async function importCheckpointSql(
     now: () => ctx.clock.now(),
   });
   for (const id of checkpoint.clientIds) {
+    if (ctx.clientCheckpoints !== undefined) {
+      const bytes = checkpoint.clientSql[id];
+      const kv = checkpoint.clientKv[id];
+      if (bytes === undefined || kv === undefined)
+        throw new Error(`Checkpoint device ${id} is incomplete`);
+      await ctx.clientCheckpoints.restore(id, { sql: bytes, kv });
+      continue;
+    }
     const handle = await ensureClientSqlHandle(ctx, id);
     const bytes = checkpoint.clientSql[id];
     if (bytes !== undefined) await handle.importBytes(bytes);
@@ -167,7 +185,8 @@ export async function importCheckpointSql(
       now: () => ctx.clock.now(),
     });
   }
-  await reconcileServerProfilesFromClients(ctx, checkpoint.clientIds);
+  if (ctx.clientCheckpoints === undefined)
+    await reconcileServerProfilesFromClients(ctx, checkpoint.clientIds);
   for (const id of checkpoint.clientIds) {
     await ctx.spawnClient(id);
   }
@@ -196,6 +215,7 @@ export function restoreCheckpointKv(
   ctx: CheckpointSessionCtx,
   checkpoint: HarnessCheckpoint
 ): void {
+  if (ctx.clientCheckpoints !== undefined) return;
   for (const id of checkpoint.clientIds) {
     const kv = checkpoint.clientKv[id];
     if (kv === undefined) continue;
