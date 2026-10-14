@@ -31,8 +31,13 @@ function artifactCommand(
   });
   const stderr = redactInfraOutput(result.stderr.toString(), process.env);
   if (stderr) process.stderr.write(stderr);
-  if (result.exitCode !== 0)
-    throw new Error(`Synthetic Population Worker release ${cmd[0]} failed`);
+  if (result.exitCode !== 0) {
+    const stdout = redactInfraOutput(result.stdout.toString(), process.env);
+    if (stdout) process.stderr.write(stdout.slice(-6000));
+    throw new Error(
+      `Synthetic Population Worker release ${cmd[0]} ${cmd.slice(1, 3).join(' ')} failed (exit ${result.exitCode})`
+    );
+  }
   return result.stdout.toString();
 }
 
