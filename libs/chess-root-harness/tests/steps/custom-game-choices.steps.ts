@@ -283,7 +283,7 @@ Then('{actor} is not ready for the Custom Game', async (w, actor: string) => {
   ).toBe(false);
 });
 Then(
-  'The Custom Game has {int} minutes with {int} seconds increment',
+  'The/the Custom Game has {int} minutes with {int} seconds increment',
   async (w, minutes: number, increment: number) => {
     const game = await customGame(w);
     expect(game.minutes).toBe(minutes);

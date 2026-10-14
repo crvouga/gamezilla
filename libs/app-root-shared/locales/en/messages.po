@@ -4143,6 +4143,7 @@ msgstr "Unlimited access to Gamezilla servers"
 msgid "Unmute coach"
 msgstr "Unmute coach"
 
+#: libs/chess-custom-game-client/src/custom-game-status.tsx
 #: libs/chess-puzzle-client/src/chess-game-log-row.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
 msgid "Unrated"

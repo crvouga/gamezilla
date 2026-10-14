@@ -898,6 +898,7 @@
         "@pkgs/chess-board-core-shared": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
+        "chess.js": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",

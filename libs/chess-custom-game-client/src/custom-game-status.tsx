@@ -214,7 +214,16 @@ export function CustomGameStatus(props: {
               {gameStateDescription(game())}
             </>
           }
-          trailing={<TimeControlBadge game={game()} />}
+          trailing={
+            <div class="flex items-center gap-2">
+              <Badge
+                intent="neutral"
+                label={<Trans>Unrated</Trans>}
+                dataSet={{ testid: 'chess-custom-unrated' }}
+              />
+              <TimeControlBadge game={game()} />
+            </div>
+          }
         />
       )}
     </Show>
