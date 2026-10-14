@@ -1,8 +1,8 @@
 {
-  "$description": "Design tokens, the single source of every visual value (W3C Design Tokens format). Edit here, then run `bun run --filter @pkgs/ui-root-client tokens:generate`.",
+  "$description": "The look of the product: every color, distance, type size, radius and motion, in the W3C Design Tokens format. This file is the source. Language projections are generated from it.",
   "color": {
     "$type": "color",
-    "$description": "Neutral surfaces and one blue. Each scheme defines every role; `[data-theme]` picks the scheme at runtime.",
+    "$description": "Neutral surfaces and one blue. Each scheme defines every role; the scheme in front is the one showing.",
     "light": {
       "background": {
         "$description": "The canvas: white / true black.",

@@ -16,9 +16,9 @@ import { color } from './design-tokens.json';
  *   Solid fills use `tintActive`, never `tint`.
  * - Surfaces are pure neutrals: no tinted grays, no gradients.
  *
- * Retune in the JSON, then `bun run --filter @pkgs/ui-root-client
- * tokens:generate`. `tests/palette-contrast.test.ts` holds every text/fill
- * pair to WCAG AA.
+ * Retune `design-system/design-tokens.json`, then
+ * `bun run --filter @pkgs/ui-root-client tokens:generate`.
+ * `tests/palette-contrast.test.ts` holds every text/fill pair to WCAG AA.
  */
 export const COLOR_PALETTE: ColorPalette = {
   light: readGroup({}, color.light, readHsla),

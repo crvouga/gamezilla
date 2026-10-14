@@ -19,8 +19,8 @@ nothing decorative.
 | `tint` | blue as text, links, focus and selection |
 | `destructive`, `success`, `warning`, `info` | status, each with a `*-surface` wash |
 
-Values live in `@pkgs/ui-root-shared/color-palette`; `tokens.css` is generated
-from it (`bun run --filter @pkgs/ui-root-client tokens:generate`).
+Values live in `design-system/design-tokens.json`. TypeScript and Swift are
+generated from it (`bun run --filter @pkgs/ui-root-client tokens:generate`).
 `palette-contrast.test.ts` holds every text/fill pair to WCAG AA, so a retune
 that loses contrast fails.
 
