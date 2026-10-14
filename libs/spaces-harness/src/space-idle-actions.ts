@@ -1,4 +1,4 @@
-import { restoreActorConnection } from '@libs/harness/actions';
+import { letTimePass, restoreActorConnection } from '@libs/harness/actions';
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { IDLE_AFTER_MS } from '@libs/spaces-shared/space-activity';
@@ -55,11 +55,11 @@ export const stayIdle = scenarioAction({
     const activities = await otherActivity(s, actorId, end);
     for (const activity of activities) {
       const remaining = activity.at - s.session.ports.clock.now();
-      if (remaining > 0) await s.session.advanceTime(remaining);
+      if (remaining > 0) await Promise.resolve(letTimePass.act(s, remaining));
       await Promise.resolve(openSpaceMembers.act(s, activity.actor));
       await Promise.resolve(closeSpaceMembers.act(s, activity.actor));
     }
     const remaining = end - s.session.ports.clock.now();
-    if (remaining > 0) await s.session.advanceTime(remaining);
+    if (remaining > 0) await Promise.resolve(letTimePass.act(s, remaining));
   },
 });
