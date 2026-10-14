@@ -161,7 +161,13 @@ export function outputArgs(
   paths: TofuPaths,
   target: Target
 ): readonly string[] {
-  return [chdir(paths, target), 'output', '-json'];
+  // The S3 backend reads `var.env` and `var.state`, so even a read needs them.
+  return [
+    chdir(paths, target),
+    'output',
+    '-json',
+    ...varFileArgs(paths, target),
+  ];
 }
 
 /**
