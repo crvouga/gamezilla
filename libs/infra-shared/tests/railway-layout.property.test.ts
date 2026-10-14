@@ -54,14 +54,13 @@ function sourcesFor(
   return sources;
 }
 
-function assertFoundation(
-  foundation: StackModel,
-  project: string,
-  env: string
-): void {
+function assertFoundation(foundation: StackModel, env: string): void {
   const node = (address: string) =>
     foundation.nodes.find((n) => n.address === address);
-  expect(node('data.railway_project.this')?.instances[0]?.label).toBe(project);
+  expect(foundation.edges).toContainEqual({
+    from: 'data.terraform_remote_state.fleet',
+    to: 'data.railway_project.this',
+  });
   expect(node('data.railway_environment.this')?.instances[0]?.label).toBe(env);
   expect(
     node('module.population_service.railway_service.worker')?.instances[0]
@@ -122,8 +121,7 @@ test('any set of application environments shares one protected Railway project w
             (stack) => stack.stack === 'foundation'
           );
           expect(foundation).toBeDefined();
-          if (foundation !== undefined)
-            assertFoundation(foundation, project, env.env);
+          if (foundation !== undefined) assertFoundation(foundation, env.env);
           expect(fleetEnvResources(env.env)).toEqual([
             `infisical_secret_import.shared["${env.env}"]`,
             `infisical_project_environment.this["${env.env}"]`,
