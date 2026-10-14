@@ -102,6 +102,21 @@ test('clones can both be consumed and released', async () => {
   await scope.finish();
 });
 
+test('repeated cloning permits forwarding the remaining branch', async () => {
+  const scope = new HttpResponseScope({
+    fetch: async () => new Response('payload'),
+  });
+  const response = await scope.fetch('https://collector.example/');
+  const first = response.clone();
+  const second = response.clone();
+  expect(await Promise.all([first.text(), second.text()])).toEqual([
+    'payload',
+    'payload',
+  ]);
+  await scope.finish(response);
+  expect(await response.text()).toBe('payload');
+});
+
 test('request guards preserve the original failure when no body leaked', async () => {
   const http = createScopedHttpClient({
     fetch: async () => new Response(null, { status: 204 }),

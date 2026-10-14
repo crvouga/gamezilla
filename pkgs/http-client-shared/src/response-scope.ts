@@ -72,6 +72,8 @@ export class HttpResponseScope implements HttpClient {
           return () => {
             const cloned = consuming.clone();
             this.#bodies.delete(body);
+            if (consuming.body !== null) this.#bodies.delete(consuming.body);
+            if (cloned.body !== null) this.#bodies.delete(cloned.body);
             consuming = this.track(consuming, label);
             return this.track(cloned, label);
           };
