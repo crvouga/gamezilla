@@ -76,14 +76,18 @@ implement an identity-link graph, consent storage, cohorts or an event store.
 
 ## Runtime and privacy limits
 
-Browser and Node signals batch through the official SDK. Workers flush metrics
-at invocation boundaries instead of scheduling an interval; `flushWith` hands
-all signals to `waitUntil` and isolates failures from the response. Every host
-must still arrange shutdown/flush. `TelemetryOutbox` in the runtime package can persist
-serialized browser trace and log batches in injected local object storage before SDK
-acknowledgement, then upload with bounded deadlines and retry after reopening. It
-retains batches on partial rejection and expires pending batches after 30 days.
-Other diagnostic exporters remain best effort outside a durable outbox.
+Browser and Node signals batch through the official SDK. Workers use injected
+HTTP and timers for bounded OTLP acknowledgements and flush metrics at
+invocation boundaries instead of scheduling an interval. `flushWith` hands all
+signals to `waitUntil` and exposes rejected exports. Production keeps that work
+outside the response; standard deployments join it and fail loudly. Every host
+must still arrange shutdown/flush; telemetry is best effort outside the outbox.
+Response ownership checks are described in the repository's
+[correctness machinery](../../README.md#correctness-machinery).
+`TelemetryOutbox` in the runtime package persists serialized browser trace and
+log batches in injected local object storage before SDK acknowledgement. It
+uploads with bounded deadlines, retries after reopening, retains batches on
+partial rejection, and expires pending batches after 30 days.
 
 Generic log bodies are replaced with stable names and instrumentation-scope
 attributes are removed before export. Diagnostic attributes use the existing default-deny redactor. Named

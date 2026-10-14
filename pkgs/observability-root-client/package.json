@@ -11,7 +11,8 @@
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
   },
   "dependencies": {
     "@opentelemetry/api": "catalog:",
@@ -21,9 +22,9 @@
     "@opentelemetry/otlp-transformer": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@opentelemetry/sdk-trace-web": "catalog:",
+    "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/observability-root-shared": "workspace:*",
-    "@pkgs/observability-runtime-shared": "workspace:*",
-    "@pkgs/http-client-shared": "workspace:*"
+    "@pkgs/observability-runtime-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

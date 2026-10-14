@@ -43,6 +43,7 @@ import {
 import { join, relative, resolve } from 'node:path';
 import { isProductionEnv } from '@libs/infra-shared/env-file';
 import { envFile } from '@libs/infra-shared/envs';
+import { exportSecretsMapLive } from '@libs/secrets-server/secrets-io';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared/stubs';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
@@ -399,9 +400,11 @@ export function healthTestEnvironment(input: {
   readonly environment: string;
   readonly tags: string;
   readonly vars: NodeJS.ProcessEnv;
+  readonly secrets: ReadonlyMap<string, string>;
 }): NodeJS.ProcessEnv {
   return {
     ...input.vars,
+    ...Object.fromEntries(input.secrets),
     SPEC_TAGS: input.tags,
     SPEC_WORLD: 'live',
     SECRETS_ENV: input.environment,
@@ -432,7 +435,12 @@ if (import.meta.main) {
   const result = spawnSync('bun', healthTestArguments(cli, stubs), {
     cwd: PACKAGE_DIR,
     stdio: 'inherit',
-    env: healthTestEnvironment({ environment: name, tags, vars: process.env }),
+    env: healthTestEnvironment({
+      environment: name,
+      tags,
+      vars: process.env,
+      secrets: await exportSecretsMapLive(name),
+    }),
   });
   process.exit(result.status ?? 1);
 }

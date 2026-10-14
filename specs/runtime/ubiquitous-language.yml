@@ -103,6 +103,15 @@ terms:
     avoid: [URL, route, hostname, domain name]
     published: true
 
+  - term: unusable device data
+    definition: >-
+      What the app kept on a device can no longer be read or saved: it is
+      damaged, full, in use by another window, or too slow to answer. The app
+      still opens onto the tabs and works as usual; it never shows an error
+      about it.
+    forms: [device data, device data's, device data has become unusable, device data became unusable]
+    avoid: [corrupt database, cache failure, storage error, local storage error]
+
   - term: outdated app
     definition: >-
       A version of the app older than the product still accepts. It asks the

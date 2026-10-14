@@ -35,6 +35,29 @@ const STANDARD: Environment = {
   observability: true,
 };
 
+// regression: deploy-health-stale-foundation-secrets
+test('health uses the post-foundation database and monitor credentials', () => {
+  const liveDatabase = 'postgresql://role:new@aws.connect.psdb.cloud/postgres';
+  const env = healthTestEnvironment({
+    environment: 'prd',
+    tags: '',
+    vars: {
+      DATABASE_URL:
+        'postgresql://owner:old@ep-fancy-dream.us-east-1.aws.neon.tech/neondb',
+      SYNTHETIC_MONITOR_TOKEN: 'before-foundation',
+      BUN_CHROME_PATH: '/chrome',
+    },
+    secrets: new Map([
+      ['DATABASE_URL', liveDatabase],
+      ['SYNTHETIC_MONITOR_TOKEN', 'after-foundation'],
+    ]),
+  });
+  expect(env['DATABASE_URL']).toBe(liveDatabase);
+  expect(env['SYNTHETIC_MONITOR_TOKEN']).toBe('after-foundation');
+  expect(env['BUN_CHROME_PATH']).toBe('/chrome');
+  expect(env['SECRETS_ENV']).toBe('prd');
+});
+
 // regression: health-stale-spec-bridge-paths
 test('health generates feature and objective stubs with resolvable declared bridges', () => {
   const stubDir = mkdtempSync(join(tmpdir(), 'health-spec-bridges-'));
@@ -99,6 +122,7 @@ test('health loads its live entry and constructs the real S3 transport', () => {
           environment: 'dev',
           tags: '',
           vars: { ...process.env, SECRETS_ENV: undefined },
+          secrets: new Map(),
         }),
       }
     );

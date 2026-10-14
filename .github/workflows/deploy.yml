@@ -15,8 +15,8 @@ run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 #   deploy:release  tag the commit and publish a GitHub release
 #
 # `bun deploy` (or "Run workflow" on `main`) does the same by hand. Running it
-# with `rehearsal` on a branch runs deploy:check, then only plans dev's
-# foundation (deploy:rehearsal) and ships nothing. Every environment file
+# with `rehearsal` on a branch runs deploy:check, then only plans fleet and
+# dev's foundation (deploy:rehearsal) and ships nothing. Every environment file
 # (libs/infra-shared/tofu/envs/<env>.tfvars.json) needs its own job below; a
 # test fails until it has one.
 
@@ -31,7 +31,7 @@ on:
   workflow_dispatch:
     inputs:
       rehearsal:
-        description: Check this branch and plan dev's foundation, without applying or deploying
+        description: Check this branch and plan fleet and dev's foundation, without applying or deploying
         type: boolean
         required: false
         default: false
@@ -85,6 +85,8 @@ jobs:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
+      - name: Plan fleet without changing infrastructure
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:fleet
       - name: Plan dev's foundation without changing infrastructure
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:foundation
 

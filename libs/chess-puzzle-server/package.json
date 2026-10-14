@@ -24,6 +24,7 @@
     "@libs/db-shared": "workspace:*",
     "@libs/infra-shared": "workspace:*",
     "@libs/pubsub-server": "workspace:*",
+    "@libs/secrets-server": "workspace:*",
     "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/database-url-policy-server": "workspace:*",

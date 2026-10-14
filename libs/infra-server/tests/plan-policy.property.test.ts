@@ -45,6 +45,8 @@ const DELETABLE: ReadonlySet<string> = new Set(
  * DELETABLE or PROTECTED, so adding a resource forces a decision.
  */
 const PROTECTED: ReadonlySet<string> = new Set([
+  'railway_project',
+  'railway_environment',
   'cloudflare_r2_bucket',
   'github_branch_default',
   'github_repository_ruleset',
@@ -80,6 +82,7 @@ const PROTECTED: ReadonlySet<string> = new Set([
  * plan may delete although its type is protected.
  */
 const RETIRED: ReadonlySet<string> = new Set([
+  'module.population_service.railway_project.worker',
   'module.secrets.random_password.generated_value["POPULATION_CREDENTIAL_SECRET"]',
 ]);
 
@@ -225,6 +228,32 @@ describe('policy/stateful.rego', () => {
       conftest
     );
     expect(verdict.allowed).toBe(true);
+  });
+
+  test('only the old disposable population projects may be deleted during consolidation', () => {
+    for (const address of [
+      'module.population_service.railway_project.worker',
+      'railway_project.this',
+    ]) {
+      const verdict = evaluatePlanPolicy(
+        {
+          resource_changes: [
+            {
+              address,
+              mode: 'managed',
+              type: 'railway_project',
+              change: { actions: ['delete'] },
+            },
+          ],
+          variables: { protection: { value: 'production' } },
+        },
+        POLICY,
+        conftest
+      );
+      expect(verdict.allowed).toBe(
+        address === 'module.population_service.railway_project.worker'
+      );
+    }
   });
 
   test('only the retired generated secret may be deleted; every other one is kept', () => {

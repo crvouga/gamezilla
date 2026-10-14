@@ -23,6 +23,7 @@ const models = modelsForContractPart(
 );
 
 // regression: product-symbolic-model-compilation-timeout
+// regression: product-symbolic-type-inference-timeout
 for (const model of models) {
   test.concurrent(
     `${model.name}: exhaustive symbolic safety through ${model.verifySteps} transitions`,
@@ -33,7 +34,9 @@ for (const model of models) {
             specPath: path,
             invariants: ['invSafety'],
             maxSteps: model.verifySteps,
-            inferPolymorphicTypes: true,
+            // Product operators have concrete declared types. Concrete inference
+            // avoids polymorphic compilation blow-up without changing the proof.
+            inferPolymorphicTypes: false,
             outDir: join(REPORT_DIR, model.name),
             timeoutMs: CLI_TIMEOUT_MS,
           });

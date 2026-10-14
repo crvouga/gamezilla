@@ -233,7 +233,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
       - name: Download immutable plan
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: check-plan
           path: .cache/check-ci
@@ -322,7 +322,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
       - name: Download immutable plan
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: check-plan
           path: .cache/check-ci

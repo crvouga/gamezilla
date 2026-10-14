@@ -36,7 +36,10 @@ async function fetchJwks(
   url: string
 ): Promise<JSONWebKeySet> {
   const res = await http.fetch(url, { method: 'GET' });
-  if (!res.ok) throw new Error(`jwks fetch failed: ${String(res.status)}`);
+  if (!res.ok) {
+    await res.body?.cancel();
+    throw new Error(`jwks fetch failed: ${String(res.status)}`);
+  }
   const body: unknown = await res.json();
   if (body === null || typeof body !== 'object' || !('keys' in body)) {
     throw new Error('jwks response invalid');

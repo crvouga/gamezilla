@@ -35,7 +35,6 @@ deletable := {
 	"infisical_secret",
 	"infisical_secret_import",
 	"terraform_data",
-	"railway_project",
 	"railway_service",
 	"railway_service_instance",
 	"railway_variable_collection",
@@ -61,6 +60,10 @@ deletable := {
 # an address with a key), so that instance is named here. Drop an entry once
 # every environment has applied without it.
 retired := {
+	# The old per-environment projects held only disposable population workers,
+	# with no volumes. Recreate those workers in fleet's shared project, then
+	# remove the old projects. Shared projects and environments stay protected.
+	"module.population_service.railway_project.worker",
 	# Sealed the Synthetic Users' sign-in secrets. They sign in with emailed
 	# links now, and nothing is sealed for them. Deleting it loses no data.
 	"module.secrets.random_password.generated_value[\"POPULATION_CREDENTIAL_SECRET\"]",

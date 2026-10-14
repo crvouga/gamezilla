@@ -23,6 +23,8 @@ import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
 import { composeRoomModules } from '@libs/spaces-shared/load-game-plugins';
 import { createSpaceRoomAuthorizer } from '@libs/spaces-shared/space-room-authorize';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
+import { runHttpInvocation } from '@pkgs/http-client-shared/run-http-invocation';
+import { createScopedHttpClient } from '@pkgs/http-client-shared/scoped-http-client';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import {
   ATTR,
@@ -56,14 +58,18 @@ async function observeRoomCall<T>(
   attributes: Attributes,
   run: () => Promise<T>
 ): Promise<T> {
-  const telemetry = ensureWorkerTelemetry(workerEnv(), () =>
-    crypto.randomUUID()
-  );
-  try {
-    return await withSpan(name, run, attributes);
-  } finally {
-    telemetry.flushWith(executionContext.waitUntil);
-  }
+  return runHttpInvocation(localHttp, async (waitUntil) => {
+    const telemetry = ensureWorkerTelemetry(
+      workerEnv(),
+      () => crypto.randomUUID(),
+      localHttp
+    );
+    try {
+      return await withSpan(name, run, attributes);
+    } finally {
+      telemetry.flushWith(waitUntil);
+    }
+  });
 }
 
 const rooms = createBunRoomHost({
@@ -146,19 +152,23 @@ function workerEnv(): ApiWorkerEnv {
   return { ...process.env, ROOM: roomNamespace };
 }
 
-const executionContext = {
-  waitUntil: (promise: Promise<unknown>) => {
-    void promise.catch(async (error: unknown) => {
-      log.error('background task failed', { error });
-      await Promise.allSettled([
-        ensureWorkerTelemetry(workerEnv(), () =>
-          crypto.randomUUID()
-        ).forceFlush(),
-      ]);
-    });
-  },
-  passThroughOnException: () => undefined,
-} as unknown as ExecutionContext;
+const wallFetch = globalThis.fetch;
+const localHttp = createScopedHttpClient({ fetch: wallFetch });
+// All Worker wall calls, including SDK transports and Room bindings, share
+// the invocation's ownership check. No global patch ships to production.
+globalThis.fetch = Object.assign(localHttp.fetch, {
+  preconnect: wallFetch.preconnect,
+});
+
+async function runWorkerRequest(request: Request): Promise<Response> {
+  return runHttpInvocation(localHttp, (waitUntil) => {
+    const executionContext = {
+      waitUntil,
+      passThroughOnException: () => undefined,
+    } as unknown as ExecutionContext;
+    return workerHandler.fetch(request, workerEnv(), executionContext);
+  });
+}
 
 const server = Bun.serve<BunRoomSocketData>({
   port: PORT,
@@ -188,16 +198,12 @@ const server = Bun.serve<BunRoomSocketData>({
       url.pathname === '/api/room' &&
       (request.headers.get('upgrade') ?? '').toLowerCase() === 'websocket';
     if (!wantsRoom) {
-      return await workerHandler.fetch(request, workerEnv(), executionContext);
+      return await runWorkerRequest(request);
     }
     const ticket = crypto.randomUUID();
     const headers = new Headers(request.headers);
     headers.set(UPGRADE_HEADER, ticket);
-    const routed = await workerHandler.fetch(
-      new Request(request, { headers }),
-      workerEnv(),
-      executionContext
-    );
+    const routed = await runWorkerRequest(new Request(request, { headers }));
     const data = pendingUpgrades.get(ticket);
     pendingUpgrades.delete(ticket);
     if (routed.status !== 101 || data === undefined) return routed;

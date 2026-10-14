@@ -4,6 +4,7 @@ import { chessPackageRootFromLoadFileModule } from '@libs/chess-puzzle-server/lo
 import { resolveToolingDatabaseUrl } from '@libs/chess-puzzle-server/tooling-database-url';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
+import { refreshSecretsIntoEnv } from '@libs/secrets-server/secrets';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createLogger } from '@pkgs/logger-shared/logger';
@@ -15,6 +16,7 @@ import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
 
 const repoRoot = new URL('../../..', import.meta.url).pathname;
 const logger = createLogger({ name: 'puzzle-catalog', now: wallClock.now });
+await refreshSecretsIntoEnv();
 const { databaseUrl } = await resolveToolingDatabaseUrl({
   configStore: createRepoTreeObjectStore({ rootDir: repoRoot }),
   http: createGlobalHttpClient(),

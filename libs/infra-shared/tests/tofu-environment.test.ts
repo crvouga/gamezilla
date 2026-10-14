@@ -104,6 +104,21 @@ describe('tofuEnvironment', () => {
     expect(env['TF_VAR_aws_session_token']).toBe('account-token');
   });
 
+  test('fleet receives Railway credentials without requiring AWS provider credentials', () => {
+    const { env, missing } = tofuEnvironment(baseSecrets(), PATHS, {
+      stack: 'fleet',
+      env: null,
+    });
+    expect(missing).toEqual([]);
+    expect(env['RAILWAY_TOKEN']).toBe('railway');
+    expect(env['TF_VAR_aws_access_key_id']).toBeUndefined();
+    const secrets = baseSecrets();
+    delete secrets['RAILWAY_TOKEN'];
+    expect(
+      tofuEnvironment(secrets, PATHS, { stack: 'fleet', env: null }).missing
+    ).toEqual(['RAILWAY_TOKEN']);
+  });
+
   test('does not ask edge for AWS credentials', () => {
     const { missing } = tofuEnvironment(
       {
