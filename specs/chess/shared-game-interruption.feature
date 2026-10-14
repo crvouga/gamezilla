@@ -89,7 +89,7 @@ Feature: Keep the same shared game while its clocks are paused
 
   Rule: Disconnected devices alone do not pause an available multiplayer game
 
-    Scenario: Both disconnected people find the ordinary time loss on return
+    Scenario: Both disconnected people find White ran out of time on return
       Given Alice is White and Bob is Black in a 1+0 multiplayer game after e4 and e5
       And both people's devices were offline for 60 seconds while their multiplayer clocks kept running
       When the connection comes back
