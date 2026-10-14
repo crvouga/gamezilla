@@ -104,3 +104,20 @@ test('a late response is disposed after the caller has stopped waiting', async (
   expect(cancelled).toBe(true);
   expect(clock.pendingOneShotCount()).toBe(0);
 });
+
+// regression: stalled-response-keeps-choice-working
+test('a stalled body tells the availability owner which request stopped answering', async () => {
+  const { clock, timers } = createHarnessClock();
+  const timedOut: (RequestInfo | URL)[] = [];
+  const fetch = createDeadlineFetch({
+    timers,
+    fetch: async () => new Response(new ReadableStream()),
+    onTimeout: (input) => timedOut.push(input),
+  });
+  const href = 'http://localhost:5428/api/query';
+  const response = await fetch(href);
+  const result = response.text().catch((error: unknown) => error);
+  clock.advance(10_000);
+  expect(await result).toBeInstanceOf(HttpNetworkError);
+  expect(timedOut).toEqual([href]);
+});

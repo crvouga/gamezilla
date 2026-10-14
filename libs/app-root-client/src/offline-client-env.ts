@@ -1,5 +1,6 @@
 import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
 import { createDeadlineFetch } from '@pkgs/http-client-shared/deadline-fetch';
+import { requestHref } from '@pkgs/http-client-shared/origin-href';
 import type { ClientEnv } from './client-env';
 import { createOfflineAuthClient } from './offline-auth-client';
 import { createOfflineAudioPlayback } from './offline-network-audio';
@@ -34,11 +35,16 @@ export function createOfflineClientEnv(
   const offline = controller ?? createOfflineNetworkController(source.kv);
   let auth: AuthClientPort | null = null;
   let events: ClientEnv['events'] | null = null;
+  const availability = originAvailabilityFor(source);
   const server = createOfflineHttp(
     offline,
     createDeadlineFetch({
       fetch: source.server,
       timers: source.timers,
+      onTimeout: (input) => {
+        if (availability.matchesOrigin(requestHref(input)))
+          availability.noteNetworkFailure();
+      },
     })
   );
   const env: ClientEnv = {

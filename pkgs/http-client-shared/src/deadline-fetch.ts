@@ -9,6 +9,7 @@ export function createDeadlineFetch(args: {
   readonly fetch: HttpFetch;
   readonly timers: Timers;
   readonly timeoutMs?: number;
+  readonly onTimeout?: (input: RequestInfo | URL) => void;
 }): HttpFetch {
   const timeoutMs = args.timeoutMs ?? 10_000;
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
@@ -31,6 +32,7 @@ export function createDeadlineFetch(args: {
       controller.abort(
         new HttpNetworkError('The service did not answer in time.')
       );
+      args.onTimeout?.(input);
     }, timeoutMs);
     caller?.addEventListener('abort', abort, { once: true });
     return observeRequest(args.fetch, input, init, {
