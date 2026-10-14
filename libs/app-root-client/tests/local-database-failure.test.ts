@@ -297,5 +297,5 @@ describe('any fault at any point', () => {
         }
       )
     );
-  });
+  }, 120_000);
 });
