@@ -1,4 +1,5 @@
 import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
+import { createDeadlineFetch } from '@pkgs/http-client-shared/deadline-fetch';
 import type { ClientEnv } from './client-env';
 import { createOfflineAuthClient } from './offline-auth-client';
 import { createOfflineAudioPlayback } from './offline-network-audio';
@@ -33,7 +34,13 @@ export function createOfflineClientEnv(
   const offline = controller ?? createOfflineNetworkController(source.kv);
   let auth: AuthClientPort | null = null;
   let events: ClientEnv['events'] | null = null;
-  const server = createOfflineHttp(offline, source.server);
+  const server = createOfflineHttp(
+    offline,
+    createDeadlineFetch({
+      fetch: source.server,
+      timers: source.timers,
+    })
+  );
   const env: ClientEnv = {
     ...source,
     server,

@@ -18,8 +18,8 @@ import {
   wallWebHaptics,
   wallWebNetworkStatePort,
 } from '@pkgs/device-client/wall-web-device';
-import { gateFetchUntilAvailable } from '@pkgs/http-client-shared/gate-fetch-until-available';
 import { createHealthOriginAvailability } from '@pkgs/http-client-shared/origin-availability';
+import { createOriginAwareFetch } from '@pkgs/http-client-shared/origin-aware-fetch';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { KvImplWeb } from '@pkgs/kv-web-client/impl-kv-web';
 import { createLogger } from '@pkgs/logger-shared/logger';
@@ -107,7 +107,7 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     timers: wallTimers,
     clock: wallClock,
   });
-  const server = gateFetchUntilAvailable({ fetch: innerFetch, availability });
+  const server = createOriginAwareFetch({ fetch: innerFetch, availability });
   const secureStorage = createSecureStorageStore(createWebSecureStorage());
   const pubsubLogger = createLogger({ name: 'pubsub', now: wallClock.now });
 

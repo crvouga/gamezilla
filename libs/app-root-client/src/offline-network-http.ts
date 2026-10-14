@@ -1,6 +1,6 @@
+import { trackAbortableResponse } from '@pkgs/http-client-shared/abortable-response';
 import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
-import { trackOfflineHttpResponse } from './offline-http-response';
 import type { OfflineNetworkController } from './offline-network-controller';
 
 export const VOLUNTARY_OFFLINE_MESSAGE =
@@ -46,7 +46,7 @@ export function createOfflineHttp(
         ...init,
         signal: controller.signal,
       });
-      return trackOfflineHttpResponse(response, controller.signal, release);
+      return trackAbortableResponse(response, controller.signal, release);
     } catch (error) {
       release();
       throw error;

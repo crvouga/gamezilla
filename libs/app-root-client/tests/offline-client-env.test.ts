@@ -4,6 +4,7 @@ import type { ClientPubSubArgs } from '@libs/app-root-client/create-client-pubsu
 import { createInMemoryClientPorts } from '@libs/app-root-client/in-memory-client-ports';
 import { createOfflineClientEnv } from '@libs/app-root-client/offline-client-env';
 import { createOfflineNetworkController } from '@libs/app-root-client/offline-network-controller';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { KvImplInMemory } from '@pkgs/kv-root-shared/impl-in-memory';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
 import { createInMemoryPubSub } from '@pkgs/pubsub-root-shared/in-memory';
@@ -12,6 +13,7 @@ function networkEnv(overrides: Partial<ClientEnv> = {}): ClientEnv {
   // These tests exercise the network ports; unrelated composition ports are unused.
   return {
     ...createInMemoryClientPorts(),
+    ...createHarnessClock(),
     kv: new KvImplInMemory(),
     server: async () => new Response('ok'),
     events: createInMemoryPubSub({ logger: createNoopLogger() }),
@@ -88,12 +90,13 @@ test('auth receives gated HTTP so going offline aborts requests already underway
   });
   const client = createOfflineClientEnv(source, offline);
   const auth = client.env.createAuthClient(client.env.server);
-  void auth.session.refresh();
+  const firstRefresh = auth.session.refresh().catch((error: unknown) => error);
   await Promise.resolve();
 
   offline.setOffline(true);
 
   expect(signal?.aborted).toBe(true);
+  expect(await firstRefresh).toBeInstanceOf(Error);
   await expect(auth.session.refresh()).rejects.toMatchObject({
     name: 'HttpNetworkError',
   });
