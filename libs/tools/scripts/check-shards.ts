@@ -253,11 +253,18 @@ function dedicatedSolver(shard: CheckShard): boolean {
 }
 
 export function planWarnings(plan: CheckPlan): string[] {
-  // Only shards the packer can balance. Dedicated proof runners and a fully
-  // cached plan are not packing defects.
-  const checks = plan.shards.filter(
+  const running = plan.shards.filter(
     (shard) =>
       shard.stage === 'checks' && executes(shard) && !dedicatedSolver(shard)
+  );
+  const lightest = Math.min(...running.map((shard) => shard.seconds));
+  // A heavier dedicated group cannot be divided to fill a lighter runner.
+  // Keep the lightest runners, including single groups: an underfilled runner
+  // can reveal poor packing elsewhere. Cache hits add no executable groups.
+  const checks = running.filter(
+    (shard) =>
+      shard.seconds === lightest ||
+      groups(shard.tasks).filter((group) => cost(group) > 0).length > 1
   );
   if (checks.length === 0) return [];
   const values = checks.map((shard) => shard.seconds);

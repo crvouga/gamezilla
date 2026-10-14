@@ -251,7 +251,26 @@ test('cached tasks have zero execution weight and do not collapse into the first
 });
 
 test('imbalance validation warns about load and unknown concentration', () => {
-  const plan = balanceShards([task('huge', 1000), task('tiny', 1)], 2);
+  const tasks = [
+    task('huge-a', 500),
+    task('huge-b', 500),
+    task('tiny-a'),
+    task('tiny-b'),
+  ];
+  const balanced = balanceShards(tasks, 2);
+  const plan = {
+    ...balanced,
+    shards: balanced.shards.map((shard, index) =>
+      index < 2
+        ? {
+            ...shard,
+            tasks: tasks.slice(index * 2, index * 2 + 2),
+            seconds: index === 0 ? 1000 : 2,
+          }
+        : shard
+    ),
+  };
+  validatePlan(plan);
   expect(planWarnings(plan).join(' ')).toContain('max/min exceeds 1.25');
   expect(planWarnings(plan).join(' ')).toContain('more than 20%');
   const unknowns = Array.from({ length: 16 }, (_, i) => ({
