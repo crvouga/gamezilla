@@ -1,9 +1,10 @@
 import { useClock } from '@pkgs/clock-client/solid';
 import type { Decision } from '@pkgs/permissions-shared/decision';
+import { ActionNotice } from '@pkgs/ui-root-client/action-notice';
 import type { IconComponent } from '@pkgs/ui-root-client/create-icon';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { ClockIcon, KeyRoundIcon } from '@pkgs/ui-root-client/icons';
-import { createMemo, type JSX } from 'solid-js';
+import { createMemo, type JSX, Show } from 'solid-js';
 import { useUnlock } from './unlock';
 import { denialReasonTitle, resetsInLabel, unlockCopy } from './unlock-copy';
 import { usePermissions } from './use-permissions';
@@ -48,23 +49,35 @@ export function DenialSurface(props: DenialSurfaceProps): JSX.Element {
       props.icon ??
       (props.decision.reason === 'quota_exhausted' ? ClockIcon : KeyRoundIcon)
   );
+  const title = createMemo(
+    () =>
+      unlockCopy(entry()?.titleKey) ?? denialReasonTitle(props.decision.reason)
+  );
+  const dataSet = () => ({
+    testid: props.testId ?? 'permission-denial',
+    reason: props.decision.reason ?? 'not_granted',
+    policyVersion: props.decision.policyVersion,
+  });
   return (
-    <EmptyState
-      variant={props.variant}
-      icon={icon()}
-      title={
-        <>
-          {unlockCopy(entry()?.titleKey) ??
-            denialReasonTitle(props.decision.reason)}
-        </>
+    <Show
+      when={props.variant === 'compact'}
+      fallback={
+        <EmptyState
+          icon={icon()}
+          title={title()}
+          body={body()}
+          action={action()}
+          dataSet={dataSet()}
+        />
       }
-      body={body() === undefined ? undefined : <>{body()}</>}
-      action={action()}
-      dataSet={{
-        testid: props.testId ?? 'permission-denial',
-        reason: props.decision.reason ?? 'not_granted',
-        policyVersion: props.decision.policyVersion,
-      }}
-    />
+    >
+      <ActionNotice
+        icon={icon()}
+        title={title()}
+        body={body()}
+        action={action()}
+        dataSet={dataSet()}
+      />
+    </Show>
   );
 }
