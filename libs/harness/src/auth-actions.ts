@@ -337,9 +337,8 @@ export const abandonSignIn = scenarioAction({
 /**
  * Confirm sign-out from the account screen.
  *
- * Clearing session capability swaps account chrome to the signed-out "Sign in"
- * row and tears down the MutationModal before its success face can paint, so
- * we assert signed-out chrome instead of `authSignedOut`.
+ * Dismiss the successful outcome before the next account gesture; visible
+ * signed-out chrome can still be covered by the success modal.
  */
 export const signOut = scenarioAction({
   name: 'signOut',
@@ -348,6 +347,8 @@ export const signOut = scenarioAction({
     await ui.get(Handles.accountSignOut).tap();
     await ui.get(Handles.authSignOutConfirm).tap();
     await ui.get(Handles.accountSignIn).expect.visible({ timeoutMs: WAIT_MS });
+    if (await ui.get(Handles.authSignOutModal).isVisible())
+      await ui.get(Handles.authSignOutDone).tap({ timeoutMs: WAIT_MS });
   },
 });
 
