@@ -3,6 +3,7 @@
 import { createRoomServerDurableObject } from '@libs/room-app-server/create-room-server-durable-object';
 import type { RoomServerEnv } from '@libs/room-app-shared/room-server-env';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
+import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import type { WorkerTelemetry } from '@pkgs/observability-root-server/worker-worker';
 import { createWorkerTelemetry } from '@pkgs/observability-root-server/worker-worker';
 import { deploymentTelemetryEnvironment } from '@pkgs/observability-root-shared/deployment-environment';
@@ -68,6 +69,8 @@ function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
     token: collectorToken,
   });
   workerTelemetry = createWorkerTelemetry({
+    http: createGlobalHttpClient(),
+    timers: wallTimers,
     instanceId: crypto.randomUUID(),
     serviceName: 'gamezilla-room-server',
     serviceVersion: buildSha,

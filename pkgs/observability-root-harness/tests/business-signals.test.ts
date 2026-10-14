@@ -166,7 +166,7 @@ test('metrics reject unbounded dimensions and export accurate totals on invocati
   await runtime.shutdown();
 });
 
-test('Worker waitUntil isolates exporter failure from product work', async () => {
+test('Worker waitUntil reports exporter failure after foreground work completes', async () => {
   const runtime = createWorkerTelemetry({
     ...base,
     exporter: new InMemorySpanExporter(),
@@ -189,6 +189,6 @@ test('Worker waitUntil isolates exporter failure from product work', async () =>
   runtime.flushWith((promise) => {
     flush = promise;
   });
-  await expect(flush).resolves.toBeDefined();
+  await expect(flush).rejects.toThrow('Metric export failed');
   await runtime.shutdown();
 });

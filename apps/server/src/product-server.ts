@@ -1,3 +1,4 @@
+import { runWorkerHttp } from './worker-http';
 import {
   businessEventDeliveryOptions,
   ensureWorkerTelemetry,
@@ -58,6 +59,8 @@ import {
 } from '@pkgs/billing-providers-server/billing-providers';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
+import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
+import { createScopedHttpClient } from '@pkgs/http-client-shared/scoped-http-client';
 import { InMemoryLlmProvider } from '@pkgs/llm-root-server/in-memory-llm-provider';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import {
@@ -91,6 +94,7 @@ function getWallSeed(): bigint {
 }
 
 const log = createLogger({ name: 'server', now: wallClock.now });
+const workerHttp = createScopedHttpClient(createGlobalHttpClient());
 
 type App = Awaited<ReturnType<typeof createServer>>;
 
@@ -124,7 +128,7 @@ function observedFetch(
     () => {
       const headers = new Headers(init?.headers);
       injectRequestHeaders(headers);
-      return globalThis.fetch(input, { ...init, headers });
+      return workerHttp.fetch(input, { ...init, headers });
     },
     { [ATTR.HTTP_REQUEST_METHOD]: init?.method ?? 'GET' },
     { kind: SpanKind.CLIENT }
@@ -221,7 +225,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const objectStore = await createApiObjectStore(secretStore, {
     secretsEnv,
     now: wallClock.now,
-    http: { fetch: (input, init) => globalThis.fetch(input, init) },
+    http: workerHttp,
   });
   const dbScope = appPostgresDbScope();
   const serverUrl = readOptionalApiUrlOverride(env);
@@ -267,11 +271,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
       readSyntheticPopulationOperatorAccountIds(env),
     serverUrl,
     ...telemetryEndpointOptions(env),
-    ...businessEventDeliveryOptions(
-      env,
-      { fetch: (input, init) => globalThis.fetch(input, init) },
-      wallTimers
-    ),
+    ...businessEventDeliveryOptions(env, workerHttp, wallTimers),
     observabilityCollectorToken:
       env.OBSERVABILITY_COLLECTOR_TOKEN?.trim() || null,
     observabilityCollectorUser:
@@ -410,7 +410,7 @@ async function drainOutboxOnCron(env: ApiWorkerEnv): Promise<void> {
       objectStore: await createApiObjectStore(secretStore, {
         secretsEnv,
         now: wallClock.now,
-        http: { fetch: (input, init) => globalThis.fetch(input, init) },
+        http: workerHttp,
       }),
       db: wrapSqlClientForObservability(opened.sqlClient),
       clock: wallClock,
@@ -426,7 +426,7 @@ async function drainOutboxOnCron(env: ApiWorkerEnv): Promise<void> {
   }
 }
 
-const workerHandler = {
+const workerImplementation = {
   async fetch(
     request: Request,
     env: ApiWorkerEnv,
@@ -435,7 +435,11 @@ const workerHandler = {
     let telemetry: WorkerTelemetryRuntime = { flushWith: () => undefined };
     let traceId: string | undefined;
     try {
-      telemetry = ensureWorkerTelemetry(env, () => crypto.randomUUID());
+      telemetry = ensureWorkerTelemetry(
+        env,
+        () => crypto.randomUUID(),
+        workerHttp
+      );
       const parent = extractRequestContext(request.headers);
       return await context.with(parent, () =>
         withSpan(
@@ -464,6 +468,7 @@ const workerHandler = {
         return fatalConfigResponse(request, message);
       }
       log.error('top-level handler error', { error: message });
+      if (!hidesErrorDetail(env)) throw err;
 
       if (request.method === 'OPTIONS') {
         return preflightResponse(request);
@@ -495,7 +500,11 @@ const workerHandler = {
     env: ApiWorkerEnv,
     ctx: ExecutionContext
   ): Promise<void> {
-    const telemetry = ensureWorkerTelemetry(env, () => crypto.randomUUID());
+    const telemetry = ensureWorkerTelemetry(
+      env,
+      () => crypto.randomUUID(),
+      workerHttp
+    );
     const environment = deploymentTelemetryEnvironment(
       env.DEPLOYMENT_ENVIRONMENT
     );
@@ -514,10 +523,23 @@ const workerHandler = {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       log.error('outbox cron drain failed', { error: message });
+      if (!hidesErrorDetail(env)) throw err;
     } finally {
       telemetry.flushWith(ctx.waitUntil.bind(ctx));
     }
   },
 } satisfies ExportedHandler<ApiWorkerEnv>;
 
-export default workerHandler;
+export default {
+  ...workerImplementation,
+  fetch(request, env, ctx) {
+    return runWorkerHttp(workerHttp, env, ctx, (context) =>
+      workerImplementation.fetch(request, env, context)
+    );
+  },
+  scheduled(controller, env, ctx) {
+    return runWorkerHttp(workerHttp, env, ctx, (context) =>
+      workerImplementation.scheduled(controller, env, context)
+    );
+  },
+} satisfies ExportedHandler<ApiWorkerEnv>;

@@ -6,6 +6,7 @@ import {
 import { resolveWebClientOrigin } from '@libs/app-root-shared/web-client-origin';
 import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
 import type { AuthContext } from '@libs/auth-shared/types';
+import { HttpResponseScope } from '@pkgs/http-client-shared/response-scope';
 import { Hono } from 'hono';
 
 test('browser diagnostics use only configured endpoints and server-held credentials after privacy filtering', async () => {
@@ -103,3 +104,37 @@ test('browser diagnostics use only configured endpoints and server-held credenti
   ).toBe(422);
   expect(calls).toHaveLength(1);
 });
+
+test.each([200, 503])(
+  'browser telemetry proxy releases HTTP %i acknowledgements',
+  async (status) => {
+    // regression: worker-http-response-body-leak
+    let canceled = false;
+    const http = new HttpResponseScope({
+      fetch: async () =>
+        new Response(
+          new ReadableStream({
+            cancel() {
+              canceled = true;
+            },
+          }),
+          { status }
+        ),
+    });
+    const app = new Hono<ApiHonoEnv<AuthContext>>();
+    mountBrowserTelemetryIngress(app, {
+      protection: 'standard',
+      serverUrl: null,
+      observabilityCollectorUrl: 'https://collector.example/v1/traces',
+      fetch: (input, init) => http.fetch(input, init),
+    });
+    const response = await app.request('/observability/v1/traces', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{}',
+    });
+    expect(response.status).toBe(status);
+    expect(canceled).toBe(true);
+    await http.finish();
+  }
+);
