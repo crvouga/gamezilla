@@ -85,18 +85,28 @@ function expectSpecParts(dir: string, count: number, domains: string[]): void {
       tasks: Tasks;
     }
   ).tasks;
+  const covered = new Set<string>();
   for (let part = 0; part < count; part++) {
     const task = `test:spec:${String(part)}`;
     expect(CHECK_LEAVES).toContain(task);
     expect(tasks[task]?.outputs).toEqual([
       `.cache/harness-report/part-${String(part)}/**`,
     ]);
-    for (const domain of domains) {
-      expect(packageTasks[task]?.inputs).toContain(
-        `$TURBO_ROOT$/specs/${domain}/**`
-      );
-    }
+    expect(packageTasks[task]?.inputs).toContain('$TURBO_EXTENDS$');
+    const input = `.cache/spec-inputs/part-${String(part)}.json`;
+    expect(tasks[task]?.inputs).toContain(input);
+    expect(tasks[task]?.dependsOn).toContain('prepare:spec');
+    const fingerprint = JSON.parse(
+      readFileSync(join(REPO_ROOT, dir, input), 'utf8')
+    ) as {
+      files: Record<string, string>;
+    };
+    for (const path of Object.keys(fingerprint.files)) covered.add(path);
   }
+  for (const domain of domains)
+    expect(
+      [...covered].some((path) => path.startsWith(`specs/${domain}/`))
+    ).toBe(true);
 }
 
 /**

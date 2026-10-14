@@ -49,11 +49,30 @@ runs:
           pkgs/*/node_modules
         key: dependencies-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock', 'mise.toml', '.github/actions/setup/action.yml') }}
 
-    - name: Install dependencies
+    - name: Restore generation artifacts
+      # Reuse only Turbo's immutable generation artifacts. Turbo still hashes
+      # current inputs and restores outputs; frozen install still runs below.
+      # This cache is separate from the verification artifacts and verdicts.
+      uses: actions/cache/restore@v5
+      id: generation
+      with:
+        path: .cache/setup-generation
+        key: setup-generation-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock', 'mise.toml') }}-${{ github.sha }}
+        restore-keys: setup-generation-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock', 'mise.toml') }}-
+
+    - name: Install dependencies and restore generated outputs
       shell: bash
       env:
         ONNXRUNTIME_NODE_INSTALL: skip
+        TURBO_CACHE_DIR: .cache/setup-generation
       run: bun install --frozen-lockfile
+
+    - name: Save generation artifacts
+      if: steps.generation.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v5
+      with:
+        path: .cache/setup-generation
+        key: ${{ steps.generation.outputs.cache-primary-key }}
 
     # Saved here, not when the job ends: `check:plan` misses first and every
     # shard behind it restores, whatever the rest of this job does.

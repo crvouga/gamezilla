@@ -60,6 +60,7 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
+import { writeSpecInputs } from '@libs/harness/spec-inputs';
 import {
   DEFAULT_TURBO_API,
   TURBO_TEAM,
@@ -176,6 +177,7 @@ export function writePlatformCacheKey(): void {
     chrome: visualBrowserVersion(),
   };
   writeFileSync(PLATFORM_KEY_PATH, `${JSON.stringify(key, null, 2)}\n`);
+  writeSpecInputs(REPO_ROOT);
 }
 
 /** Browser pixels must not reuse a verdict from another Chrome version. */

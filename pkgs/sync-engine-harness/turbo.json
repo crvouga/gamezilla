@@ -6,16 +6,16 @@
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sync-engine/*.qnt"]
     },
     "test:spec:0": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sync-engine/**"]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:1": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sync-engine/**"]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:2": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sync-engine/**"]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:3": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sync-engine/**"]
+      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }

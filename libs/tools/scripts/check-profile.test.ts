@@ -6,7 +6,9 @@ import {
   failedGroups,
   formatNightlyMarkdown,
   formatNightlyTable,
+  nightlyGroupNames,
   nightlyGroups,
+  tracksNightlyIssue,
 } from './check-nightly-verdict';
 import {
   activeProfile,
@@ -45,7 +47,7 @@ type Workflow = {
   on: Record<string, unknown>;
   permissions: Record<string, string>;
   env: Record<string, string>;
-  concurrency: { group: string; 'cancel-in-progress': boolean };
+  concurrency: { group: string; 'cancel-in-progress': boolean | string };
   jobs: Record<string, Job>;
 };
 
@@ -182,6 +184,31 @@ describe('Check Nightly workflow', () => {
   const nightly = workflow('check-nightly.yml');
   const gate = workflow('check-pr.yml');
 
+  test('diagnostics check only the requested scope and cannot stand for a full night', () => {
+    expect(nightlyGroupNames()).toEqual([
+      'gate',
+      ...Object.keys(NIGHTLY_SUITES),
+    ]);
+    expect(nightlyGroupNames('visual')).toEqual(['gate', 'visual']);
+    expect(nightlyGroupNames('random')).toEqual(['random']);
+    expect(() => nightlyGroupNames('unknown')).toThrow('Unknown nightly group');
+    const needs = {
+      'check-nightly-gate': { result: 'skipped' },
+      'check-nightly-random': { result: 'success' },
+    };
+    expect(failedGroups(nightlyGroups(needs, 'random'))).toEqual([]);
+    expect(failedGroups(nightlyGroups(needs))).toHaveLength(5);
+    expect(failedGroups(nightlyGroups({}, 'random'))[0]!.result).toBe(
+      'missing'
+    );
+    expect(nightly.jobs['check-nightly-end']!.name).toContain(
+      'check-nightly:diagnostic'
+    );
+    expect(tracksNightlyIssue('random', 'refs/heads/main')).toBe(false);
+    expect(tracksNightlyIssue('all', 'refs/heads/main')).toBe(true);
+    expect(tracksNightlyIssue('all', 'refs/heads/branch')).toBe(false);
+  });
+
   test('runs every night on main and by hand, and never on a pull request', () => {
     expect(Object.keys(nightly.on).sort()).toEqual([
       'schedule',
@@ -190,7 +217,9 @@ describe('Check Nightly workflow', () => {
     expect(nightly.on['schedule']).toEqual([{ cron: '23 8 * * *' }]);
     expect(nightly.env['CHECK_PROFILE']).toBe('nightly');
     // A second night waits; it never discards the one still running.
-    expect(nightly.concurrency['cancel-in-progress']).toBe(false);
+    expect(nightly.concurrency['cancel-in-progress']).toBe(
+      "${{ github.event_name == 'workflow_dispatch' && inputs.group != '' && inputs.group != 'all' }}"
+    );
     // Dev secrets only, and no deploy: production stays out of reach.
     expect(nightly.env['SECRETS_ENV']).toBe('dev');
     const text = readFileSync(

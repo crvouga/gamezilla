@@ -6,28 +6,28 @@
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/specs/chess-board/*.qnt"]
     },
     "test:spec:0": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/specs/chess-board/**"]
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "test:spec:1": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/specs/chess-board/**"]
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "test:spec:2": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/specs/chess-board/**"]
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "test:spec:3": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/specs/chess-board/**"]
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "test:spec:4": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/specs/chess-board/**"]
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "test:spec:5": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/specs/chess-board/**"]
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "test:spec:6": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/specs/chess-board/**"]
+      "inputs": ["$TURBO_DEFAULT$"]
     },
     "test:spec:7": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/specs/chess-board/**"]
+      "inputs": ["$TURBO_DEFAULT$"]
     }
   }
 }

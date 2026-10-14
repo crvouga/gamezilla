@@ -102,6 +102,12 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
       const perShard = job.strategy?.matrix?.shard !== undefined;
       expect(id === prefix || id.startsWith(`${prefix}-`)).toBe(true);
       const stage = id === prefix ? '' : `:${id.slice(prefix.length + 1)}`;
+      if (id === 'check-nightly-end') {
+        expect(job.name).toBe(
+          "${{ inputs.group && inputs.group != 'all' && 'check-nightly:diagnostic' || 'check-nightly:end' }}"
+        );
+        continue;
+      }
       expect(job.name).toBe(
         perEnv
           ? `${prefix}:${MATRIX_ENV}`

@@ -18,6 +18,14 @@ human merges the PR. Agents never merge. The loop therefore ends with a green Ch
 on the PR **and** every Deploy/Health failure reproduced and shown fixed in GitHub Actions.
 After the merge it resumes to confirm Deploy and Health on `main`.
 
+While iterating on Nightly failures, dispatch only the failing group with
+`gh workflow run check-nightly.yml --ref <branch> -f group=<group>`.
+A run titled `Check Nightly · diagnostic <group>` and its
+`check-nightly:diagnostic` status prove only that scope. They never count as a
+complete green Nightly run. Finish with the full run (`-f group=all`);
+inspect its `check-nightly:end` verdict. Batch related fixes before pushing so
+superseded pull-request runs do less work.
+
 ## 1. Survey — what is red, and why
 
 Run all of these every iteration. Never rely on an earlier survey.

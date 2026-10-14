@@ -96,12 +96,9 @@ function unitKey(unit: SpecUnit): string {
 type PartLoad = { load: number; units: SpecUnit[] };
 
 /**
- * The units of part `part.index`. Quint models are placed first, longest
- * processing time among themselves, then every other spec the same way.
- * Ties break by path and slice, so the split is a pure function of the
- * specs. A heavier feature placed first leaves the other parts light, and
- * the equal-weight model slices then stack there past the trace cap.
- * Part 0 also runs `tests/harness`, so it starts one unit heavier.
+ * Quint batches keep their bounded, balanced allocation. Other specs have
+ * stable path ownership: editing one feature never moves another feature or
+ * a model batch. Part 0 also owns `tests/harness`.
  */
 export function partOf(
   units: readonly SpecUnit[],
@@ -118,10 +115,23 @@ export function partOf(
     else rest.push(unit);
   }
   placeOnLightest(loads, models);
-  placeOnLightest(loads, rest);
+  for (const unit of rest) {
+    const index = specOwner(unit.path, part.count, unit.slice?.index ?? 0);
+    loads[index]!.units.push(unit);
+  }
   return (loads[part.index]?.units ?? []).sort((a, b) =>
     unitKey(a).localeCompare(unitKey(b))
   );
+}
+
+/** Feature edits cannot move unrelated features or the bounded model batches. */
+export function specOwner(path: string, count: number, slice = 0): number {
+  const key = path.replaceAll('\\', '/').replace(/^(?:.*\/)?specs\//, '');
+  let hash = 2166136261;
+  for (const character of key) {
+    hash = Math.imul(hash ^ character.charCodeAt(0), 16777619) >>> 0;
+  }
+  return ((hash % count) + slice) % count;
 }
 
 /** Longest processing time onto the lightest part; ties break by unit key. */

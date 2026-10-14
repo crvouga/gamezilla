@@ -39,7 +39,32 @@ function groupSummary(name: string): string {
 }
 
 /** One group per upstream job; a job the workflow did not report is a failure. */
-export function nightlyGroups(needs: NeedsResults): readonly NightlyGroup[] {
+export function nightlyGroupNames(selection = 'all'): readonly string[] {
+  const names = ['gate', ...Object.keys(NIGHTLY_SUITES)];
+  if (selection === 'all') return names;
+  if (!names.includes(selection))
+    throw new Error(`Unknown nightly group: ${selection}`);
+  return selection === 'visual' ? ['gate', 'visual'] : [selection];
+}
+
+export function tracksNightlyIssue(
+  selection: string,
+  ref: string | undefined
+): boolean {
+  return selection === 'all' && ref === 'refs/heads/main';
+}
+
+export function nightlyGroups(
+  needs: NeedsResults,
+  selection = 'all'
+): readonly NightlyGroup[] {
+  if (selection !== 'all')
+    return nightlyGroupNames(selection).map((name) => ({
+      name,
+      summary: groupSummary(name),
+      result: needs[`${JOB_PREFIX}${name}`]?.result ?? 'missing',
+      reproduce: `bun check-nightly ${name}`,
+    }));
   const names = ['gate', ...Object.keys(NIGHTLY_SUITES)];
   const reported = Object.keys(needs).map((job) =>
     job.startsWith(JOB_PREFIX) ? job.slice(JOB_PREFIX.length) : job
@@ -147,15 +172,21 @@ function fileIssue(repository: string, markdown: string, red: boolean): void {
 }
 
 function main(env: NodeJS.ProcessEnv): number {
+  const selection = env['NIGHTLY_GROUP'] || 'all';
   const groups = nightlyGroups(
-    JSON.parse(env['NEEDS'] ?? '{}') as NeedsResults
+    JSON.parse(env['NEEDS'] ?? '{}') as NeedsResults,
+    selection
   );
   const failed = failedGroups(groups);
   const repository = env['GITHUB_REPOSITORY'] ?? '';
-  const markdown = formatNightlyMarkdown(groups, {
+  const report = formatNightlyMarkdown(groups, {
     url: `${env['GITHUB_SERVER_URL'] ?? 'https://github.com'}/${repository}/actions/runs/${env['GITHUB_RUN_ID'] ?? ''}`,
     sha: env['GITHUB_SHA'] ?? '',
   });
+  const markdown =
+    selection === 'all'
+      ? report
+      : `Diagnostic scope: ${selection}. This is not a complete Nightly verdict.\n\n${report}`;
   if (env['GITHUB_STEP_SUMMARY'])
     appendFileSync(env['GITHUB_STEP_SUMMARY'], markdown);
   console.log(formatNightlyTable(groups));
@@ -164,7 +195,7 @@ function main(env: NodeJS.ProcessEnv): number {
       `::error title=check-nightly:${group.name}::${group.result} — ${group.summary}`
     );
   // Only a night on `main` speaks for `main`; a rehearsed branch files nothing.
-  if (env['GITHUB_REF'] === 'refs/heads/main')
+  if (tracksNightlyIssue(selection, env['GITHUB_REF']))
     fileIssue(repository, markdown, failed.length > 0);
   return failed.length === 0 ? 0 : 1;
 }

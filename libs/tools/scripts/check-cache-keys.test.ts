@@ -83,6 +83,51 @@ function dry(
   return (JSON.parse(stdout) as { tasks: DryTask[] }).tasks;
 }
 
+test('explicit spec fingerprints remain hashed even though their cache directory is ignored', () => {
+  const root = fixture();
+  try {
+    writeFileSync(
+      join(root, '.gitignore'),
+      'node_modules/\n.cache/\n.turbo/\n'
+    );
+    mkdirSync(join(root, '.cache/spec-inputs'), { recursive: true });
+    const parts = [0, 1].map(
+      (index) => `.cache/spec-inputs/part-${index}.json`
+    );
+    for (const part of parts)
+      writeFileSync(join(root, part), '{"source":"before"}');
+    const inputs = config.tasks['test:spec:0']!.inputs.filter(
+      (input) => !input.startsWith('$TURBO_ROOT$')
+    );
+    writeFileSync(
+      join(root, 'turbo.json'),
+      JSON.stringify({
+        tasks: {
+          build: { inputs, outputs: [] },
+          independent: {
+            inputs: inputs.map((input) => input.replace('part-0', 'part-1')),
+            outputs: [],
+          },
+        },
+      })
+    );
+    const before = dry(root, ['build', 'independent']);
+    expect(
+      Object.keys(before.find((task) => task.taskId.endsWith('build'))!.inputs)
+    ).toContain(parts[0]!);
+    writeFileSync(join(root, parts[0]!), '{"source":"after"}');
+    const after = dry(root, ['build', 'independent']);
+    for (const task of after) {
+      const previous = before.find((item) => item.taskId === task.taskId)!;
+      expect(task.hash === previous.hash).toBe(
+        task.taskId.endsWith('independent')
+      );
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('exact task selection preserves dependency hashes across shards, secrets, runs and absolute checkout paths', () => {
   const roots = [fixture(), fixture()];
   try {
