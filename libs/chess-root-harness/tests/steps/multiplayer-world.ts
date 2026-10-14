@@ -22,6 +22,8 @@ export async function searchFor(
 ) {
   await w.s.apply(givenOpponentSearch, actor, timeControl);
   w.memo.set(`multiplayer:searching:${actor}`, timeControl);
+  const search = (await w.s.read(multiplayerView, actor)).search;
+  if (search !== null) w.memo.set('multiplayer:original-search', search);
 }
 
 /** A new game with the named colours: both searched at one time control, then paired. */

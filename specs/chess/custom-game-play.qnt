@@ -5,6 +5,8 @@
 // in quarter minutes. Both sides begin with one minute and no increment.
 // Offline people keep their last board and cannot play; the clock runs and
 // the current position and outcome return when their connection returns.
+// Someone who still has a connection keeps seeing that current board while
+// the host is offline.
 // Alice is White and the creator, Bob is Black, and Carol watches. A
 // participant with no connection is away: being away never gives up the game,
 // and a timed game's clock keeps running for them. After a minute away, the
@@ -58,7 +60,7 @@ module custom_game_play {
     _awayFor' = away, _timed' = _timed, _canceller' = canceller, _claimedAfter' = claimedAfter,
     _playStatus' = status, ply' = moves, sideToMove' = turn, _result' = outcome,
     clockLeft' = left, _offline' = offline,
-    playShown' = PEOPLE.mapBy(p => if (offline.contains(p)) playShown.get(p) else if (p != "alice" and offline.contains("alice")) ("unavailable",0,"") else (status,moves,outcome)),
+    playShown' = PEOPLE.mapBy(p => if (offline.contains(p)) playShown.get(p) else (status,moves,outcome)),
     _atCutOff' = PEOPLE.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) playShown.get(p) else _atCutOff.get(p)),
     _ended' = (_ended or status != "active"),
     _terminalPicture' = if (not(_ended) and status != "active") (status,moves,outcome,left) else _terminalPicture,
@@ -156,7 +158,7 @@ module custom_game_play {
   /// An active side still has time; neither clock is negative or gains time.
   val invClocks = COLORS.forall(c => clockLeft.get(c) >= 0 and clockLeft.get(c) <= _INITIAL_TIME) and (_playStatus == "active" implies clockLeft.get(sideToMove) > 0)
   /// Everyone with a connection sees the same board and outcome.
-  val invConnectedBoard = PEOPLE.forall(p => not(_offline.contains(p)) implies playShown.get(p) == (if (p != "alice" and _offline.contains("alice")) ("unavailable",0,"") else (_playStatus,ply,_result)))
+  val invConnectedBoard = PEOPLE.forall(p => not(_offline.contains(p)) implies playShown.get(p) == (_playStatus,ply,_result))
   /// Offline boards stay as they were when the connection went.
   val invOfflineBoard = PEOPLE.forall(p => _offline.contains(p) implies playShown.get(p) == _atCutOff.get(p))
   /// Only the creator cancels once each side has moved.

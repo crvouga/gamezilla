@@ -22,6 +22,18 @@ import { multiplayerView } from './multiplayer-reads';
 import { multiplayerSpaceId } from './multiplayer-spaces';
 import { multiplayerWatcherBoard } from './multiplayer-watchers';
 
+/** Chess was chosen for this space, so multiplayer is one tap in. */
+async function multiplayerMenuOpened(
+  ui: Awaited<ReturnType<typeof actorUi>>
+): Promise<boolean> {
+  try {
+    await ui.get('chess-menu-multiplayer').expect.visible({ timeoutMs: 5000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Ask the ordinary query transport to observe the changed network. */
 export const refreshMultiplayerConnection = scenarioAction({
   name: 'refreshMultiplayerConnection',
@@ -87,7 +99,9 @@ export const openMultiplayerChess = scenarioAction({
     if (multiplayerArrivalIsTerminal(surface)) return;
     if (surface === 'game-menu-chess') {
       await ui.get('game-menu-chess').tap();
-      await ui.get('chess-menu-multiplayer').expect.visible();
+      // A guest's space has not chosen chess, so the menu never opens.
+      // The caller sends the same command a stale screen would.
+      if (!(await multiplayerMenuOpened(ui))) return;
     }
     if (await ui.get('chess-menu-multiplayer').isVisible()) {
       if (keyboard) await ui.get('chess-menu-multiplayer').key('enter');

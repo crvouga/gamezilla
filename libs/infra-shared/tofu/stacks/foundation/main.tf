@@ -102,7 +102,7 @@ module "database" {
   source          = "../../modules/database"
   organization    = var.planetscale.organization
   region          = var.planetscale.region
-  database_name   = "${var.project}-${var.suffix}"
+  database_name   = "${var.project}-${var.suffix}-pg"
   production      = var.protection == "production"
   account_id      = var.cloudflare.account_id
   hyperdrive_name = module.names.hyperdrive

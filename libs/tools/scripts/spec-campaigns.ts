@@ -34,6 +34,55 @@ type CampaignManifest = {
 
 type CampaignTurbo = { readonly tasks?: CampaignTasks['tasks'] };
 
+const CONTRACT_PART = /^test:contract:\d+$/;
+
+/** Numbered product contract tasks, in script-name order. */
+export function contractPartNames(
+  scripts: Readonly<Record<string, string>>
+): readonly string[] {
+  return Object.keys(scripts)
+    .filter((name) => CONTRACT_PART.test(name))
+    .sort();
+}
+
+/** The monolith or every numbered part is in the release gate. */
+export function contractGateCovered(
+  packageName: string,
+  scripts: Readonly<Record<string, string>>,
+  gatingTasks: ReadonlySet<string>
+): boolean {
+  if (gatingTasks.has(`${packageName}#test:contract`)) return true;
+  const parts = contractPartNames(scripts);
+  return (
+    parts.length > 0 &&
+    parts.every((name) => gatingTasks.has(`${packageName}#${name}`))
+  );
+}
+
+function runsCampaignFile(
+  scripts: Readonly<Record<string, string>>,
+  task: string,
+  path: string
+): boolean {
+  if (scripts[task]?.includes(path)) return true;
+  if (task !== 'test:contract') return false;
+  const parts = contractPartNames(scripts);
+  return (
+    parts.length > 0 && parts.every((name) => scripts[name]?.includes(path))
+  );
+}
+
+function campaignInputLists(
+  tasks: CampaignTasks['tasks'],
+  task: string
+): readonly (readonly string[] | undefined)[] {
+  if (tasks[task] !== undefined) return [tasks[task]?.inputs];
+  if (task !== 'test:contract') return [undefined];
+  const parts = Object.keys(tasks).filter((name) => CONTRACT_PART.test(name));
+  if (parts.length === 0) return [undefined];
+  return parts.map((name) => tasks[name]?.inputs);
+}
+
 /** Preserve simulation, fault sensitivity, symbolic checks and cache invalidation. */
 export function campaignTaskProblems(input: CampaignTasks): readonly string[] {
   const problems: string[] = [];
@@ -44,13 +93,16 @@ export function campaignTaskProblems(input: CampaignTasks): readonly string[] {
   for (const [task, files] of Object.entries(checks)) {
     for (const file of files) {
       const path = `tests/quint/${file}`;
-      if (!input.scripts[task]?.includes(path)) {
+      if (!runsCampaignFile(input.scripts, task, path)) {
         problems.push(`${input.dir}/package.json: ${task} must run ${path}`);
       }
     }
     for (const source of new Set([`specs/${input.domain}`, ...input.sources])) {
       const glob = `$TURBO_ROOT$/${source}/**`;
-      if (!input.tasks[task]?.inputs?.includes(glob)) {
+      const missing = campaignInputLists(input.tasks, task).some(
+        (inputs) => !inputs?.includes(glob)
+      );
+      if (missing) {
         problems.push(
           `${input.dir}/turbo.json: ${task} inputs must include "${glob}"`
         );

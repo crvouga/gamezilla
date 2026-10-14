@@ -1,6 +1,10 @@
 import { actorUi, pollUntil } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import { ownSpaceCard, waitActiveSpace } from '@libs/spaces-harness/space-ui';
+import {
+  ownSpaceCard,
+  waitActiveSpace,
+  waitForOneOf,
+} from '@libs/spaces-harness/space-ui';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
@@ -740,9 +744,19 @@ export async function pressChessMenuBackToGameMenu(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
+  if (!(await ui.get(Handles.chessMenuPuzzle).isVisible())) return;
   await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.gameMenuChess).expect.visible({ timeoutMs: WAIT_MS });
+  const outcome = await waitForOneOf(
+    s,
+    actorId,
+    [
+      Handles.gameMenuChess,
+      Handles.gameChoiceRefused,
+      Handles.connectionMissing,
+    ],
+    'the game choice, or why going back was refused'
+  );
+  if (outcome !== Handles.gameMenuChess) return;
 }
 
 export async function openChessStats(

@@ -225,12 +225,12 @@ describe('partOf', () => {
         Array.from({ length: 64 }, (_, index) => index)
       );
     }
-    // Fourteen models spread 448 two-trace files over 64 parts, seven to a
+    // Sixteen models spread 512 two-trace files over 64 parts, eight to a
     // part. A part of twelve traces took at most 332 s replaying every one
-    // on the 2-core runner (Check run 38187450396), so fourteen stay inside
-    // the cap.
+    // on the 2-core runner (Check run 38187450396), so sixteen traces stay
+    // near 443 s, inside the 600 s cap. Twenty traces was the miss.
     for (const part of parts) {
-      expect(part.flatMap(tracesOf).length).toBeLessThanOrEqual(14);
+      expect(part.flatMap(tracesOf).length).toBeLessThanOrEqual(16);
       for (const unit of part)
         expect(tracesOf(unit).length).toBeLessThanOrEqual(2);
     }

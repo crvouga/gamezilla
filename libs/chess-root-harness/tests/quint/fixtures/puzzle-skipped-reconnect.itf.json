@@ -760,7 +760,7 @@
         "#map": [["alice", false], ["bob", true]]
       },
       "commentary": {
-        "#map": [["alice", "solved"], ["bob", "none"]]
+        "#map": [["alice", "solved"], ["bob", "solved"]]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -773,7 +773,7 @@
           [
             "bob",
             {
-              "#bigint": "-1"
+              "#bigint": "0"
             }
           ]
         ]
@@ -810,7 +810,7 @@
           [
             "bob",
             {
-              "#bigint": "-1"
+              "#bigint": "0"
             }
           ]
         ]
@@ -832,7 +832,7 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "solved"], ["bob", "none"]]
+        "#map": [["alice", "solved"], ["bob", "solved"]]
       },
       "view": {
         "#map": [
@@ -848,7 +848,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "Board",
               "value": {
                 "#tup": []
               }
@@ -1670,7 +1670,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -1807,7 +1807,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -1944,7 +1944,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -2081,7 +2081,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -2218,7 +2218,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -2355,7 +2355,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -2492,7 +2492,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -2629,7 +2629,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -2766,7 +2766,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -2903,7 +2903,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -3040,7 +3040,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -3177,7 +3177,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -3314,7 +3314,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -3451,7 +3451,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -3588,7 +3588,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -3725,7 +3725,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }
@@ -3862,7 +3862,7 @@
           [
             "bob",
             {
-              "tag": "Elsewhere",
+              "tag": "ChessChoices",
               "value": {
                 "#tup": []
               }

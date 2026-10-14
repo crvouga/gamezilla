@@ -3,7 +3,11 @@ import { restoreActorConnection } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import { signedInAccountOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
-import { cutConnection, otherDevice } from '@libs/harness/platform';
+import {
+  cutConnection,
+  notePhoneOffline,
+  otherDevice,
+} from '@libs/harness/platform';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { recall, remember, signedInAccountKey } from '@libs/harness/spec-world';
 import {
@@ -260,6 +264,7 @@ Then(
 );
 
 Given("{actor}'s phone is offline", async (w, actor: Actor) => {
+  await notePhoneOffline(w, actor);
   await cutConnection(w, actor);
 });
 When("{actor}'s phone comes back online", async (w, actor: Actor) => {

@@ -80,10 +80,12 @@ function unquote(value: string): string {
 
 function parseBunTest(script: string): ParsedBunTest | null {
   const tokens = script.trim().split(/\s+/);
-  if (tokens[0] !== 'bun' || tokens[1] !== 'test') return null;
+  let start = 0;
+  while (/^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[start] ?? '')) start += 1;
+  if (tokens[start] !== 'bun' || tokens[start + 1] !== 'test') return null;
   const filters: string[] = [];
   const ignores: string[] = [];
-  for (let i = 2; i < tokens.length; i++) {
+  for (let i = start + 2; i < tokens.length; i++) {
     const token = tokens[i] ?? '';
     if (token.startsWith('--path-ignore-patterns=')) {
       ignores.push(unquote(token.slice('--path-ignore-patterns='.length)));
@@ -141,7 +143,13 @@ export function testScriptViolations(input: {
     }
   }
   const reached = new Set<string>();
-  for (const name of GATE_TEST_SCRIPTS) {
+  const gateScripts = [
+    ...GATE_TEST_SCRIPTS,
+    ...Object.keys(input.scripts).filter((name) =>
+      /^test:contract:\d+$/.test(name)
+    ),
+  ];
+  for (const name of gateScripts) {
     const script = input.scripts[name];
     if (script === undefined) continue;
     const files = filesRunBy(script, testFiles);

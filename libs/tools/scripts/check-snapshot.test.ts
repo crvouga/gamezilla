@@ -209,10 +209,16 @@ test('installed native libraries and workspace imports survive private dependenc
       readFileSync(join(run, 'node_modules/native/libicudata.77.dylib'), 'utf8')
     ).toBe('installed library');
     writeFileSync(join(source, 'pkgs/example/index.ts'), 'export default 0;');
+    const env: Record<string, string> = {};
+    for (const [key, value] of Object.entries(process.env)) {
+      if (value !== undefined && key !== 'CLICOLOR_FORCE') env[key] = value;
+    }
+    env['NO_COLOR'] = '1';
+    env['FORCE_COLOR'] = '0';
     const result = execFileSync(
       process.execPath,
       ['-e', "import value from 'example'; console.log(value)"],
-      { cwd: run, encoding: 'utf8' }
+      { cwd: run, encoding: 'utf8', env }
     );
     expect(result.trim()).toBe('42');
     expect(readFileSync(join(run, 'bun.lock'), 'utf8')).toBe(

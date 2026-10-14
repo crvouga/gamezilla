@@ -67,8 +67,17 @@ module multiplayer_shared_game {
     gameRecordOffered' = (winner != "nobody"),
   }
 
-  action init =
-    _show(0, "nobody", DEVICES.mapBy(_ => true), DEVICES.mapBy(_ => false))
+  action init = all {
+    _moves' = 0,
+    _winner' = "nobody",
+    _online' = DEVICES.mapBy(_ => true),
+    _quiet' = DEVICES.mapBy(_ => false),
+    idle' = PEOPLE.mapBy(_ => false),
+    shownMoves' = DEVICES.mapBy(_ => 0),
+    shownWinner' = DEVICES.mapBy(_ => "nobody"),
+    canMove' = DEVICES.mapBy(d => d == ALICE_PHONE or d == ALICE_COMPUTER),
+    gameRecordOffered' = false,
+  }
 
   /// The person to move plays on a device that has a connection. Both spaces show that one move.
   action playMove(device: str): bool = all {

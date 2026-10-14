@@ -17,14 +17,22 @@ module space_follow {
   /// Whether each device is in the space.
   var _in: str -> bool
 
-  action _show(next: str -> str, online: str -> bool, inside: str -> bool): bool = all {
-    view' = next,
+  action _show(views: str -> str, online: str -> bool, inside: str -> bool): bool = all {
+    view' = views,
     _online' = online,
     _in' = inside,
   }
 
+  /// The choice an online device in the space is showing. A device with no
+  /// connection keeps what it was showing until it comes back.
+  pure def _agreed(online: str -> bool, inside: str -> bool, shown: str -> str, device: str): str =
+    if (online.get(ALICE_PHONE) and inside.get(ALICE_PHONE) and not(device == ALICE_PHONE)) shown.get(ALICE_PHONE)
+    else if (online.get(ALICE_COMPUTER) and inside.get(ALICE_COMPUTER) and not(device == ALICE_COMPUTER)) shown.get(ALICE_COMPUTER)
+    else if (online.get(BOB_PHONE) and inside.get(BOB_PHONE) and not(device == BOB_PHONE)) shown.get(BOB_PHONE)
+    else shown.get(device)
+
   action _apply(shown: str): bool =
-    _show(DEVICES.mapBy(d => if (_in.get(d)) shown else view.get(d)), _online, _in)
+    _show(DEVICES.mapBy(d => if (_in.get(d) and _online.get(d)) shown else view.get(d)), _online, _in)
 
   action init =
     _show(
@@ -70,7 +78,7 @@ module space_follow {
   /// This device's connection comes back. It shows the same choice as the other devices in the space.
   action connectionReturns(device: str): bool = all {
     not(_online.get(device)),
-    _show(view, _online.set(device, true), _in),
+    _show(view.set(device, _agreed(_online, _in, view, device)), _online.set(device, true), _in),
   }
 
   action step = {

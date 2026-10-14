@@ -108,3 +108,43 @@ removed {
     destroy = false
   }
 }
+
+# The previous Neki branch and roles stay at PlanetScale. Forget them so an
+# apply does not drop a role the branch still references, and does not delete
+# the branch. OpenTofu refuses a `from` address that contains an instance
+# key, so the counted branches are forgotten as the whole resource. Postgres
+# is a new database (`<project>-<suffix>-pg`), not a replacement of these.
+removed {
+  from = module.database.planetscale_neki_branch.production
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.database.planetscale_neki_branch.standard
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.database.planetscale_neki_role.migrate
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.database.planetscale_neki_role.app
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.database.planetscale_neki_role.obs_read
+  lifecycle {
+    destroy = false
+  }
+}

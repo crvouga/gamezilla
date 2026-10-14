@@ -48,11 +48,19 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   '@pkgs/matchmaking-root-harness#check:models:1': 480,
   // `multiplayer.qnt`, alone in its part: twenty actions over three people's
   // six devices, explored two steps from every reachable start. 309 s on a
-  // 12-core laptop.
-  '@libs/chess-root-harness#check:models:7': 420,
-  // Thirteen Apalache proofs held to two at a time (2-core CI runners time
-  // out above that): 303 s alone, 362 s as a task on a 12-core laptop.
-  '@apps/product#test:contract': 420,
+  // 12-core laptop. Path order puts it in part 8 once space-follow and
+  // multiplayer-shared-game join the sixteen chess models.
+  '@libs/chess-root-harness#check:models:8': 420,
+  // The eleven symbolic models used to share one task. Deploy 38446818279
+  // killed that task at 840 s on a 2-core runner (Check concurrency 1) before
+  // it finished. Each part keeps that same allowance for one model; the
+  // fair-recovery part also runs the two temporal checks.
+  ...Object.fromEntries(
+    Array.from({ length: 11 }, (_, index) => [
+      `@apps/product#test:contract:${String(index)}`,
+      420,
+    ])
+  ),
   // Every @synthetic feature and specs/journeys/ scenario, one feature file per
   // process in parallel; the journeys feature dominates — seven journeys in
   // a real browser on production latency, one fresh device each, the

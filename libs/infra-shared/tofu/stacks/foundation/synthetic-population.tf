@@ -3,7 +3,7 @@ variable "railway" {
 }
 module "population_service" {
   source       = "../../modules/synthetic-population-service"
-  name         = "${var.project}-${var.suffix}-synthetic-population"
+  name         = "${var.project}-${var.env}-population"
   workspace_id = var.railway.workspace_id
   environment  = var.env
   api_origin   = "https://${var.hosts.api}"

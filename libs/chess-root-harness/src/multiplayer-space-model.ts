@@ -11,13 +11,15 @@ import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
 
-export const prepareMultiplayerSpaceModel = scenarioAction({
+export const prepareMultiplayerSpaceModel = scenarioAction<
+  [timeControl?: string]
+>({
   name: 'prepareMultiplayerSpaceModel',
-  act: async (s) => {
+  act: async (s, timeControl = '5+0') => {
     for (const actor of ['alice', 'bob']) {
       await Promise.resolve(signInWithGoogle.act(s, actor));
       await Promise.resolve(givenMultiplayerSpace.act(s, actor));
-      await Promise.resolve(givenOpponentSearch.act(s, actor));
+      await Promise.resolve(givenOpponentSearch.act(s, actor, timeControl));
       await s.session.advanceTime(1);
     }
     await Promise.resolve(pairChessOpponents.act(s, 'alice', true));

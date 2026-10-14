@@ -231,7 +231,7 @@
             "bob",
             {
               "#tup": [
-                "unavailable",
+                "active",
                 {
                   "#bigint": "0"
                 },
@@ -342,7 +342,7 @@
             "bob",
             {
               "#tup": [
-                "unavailable",
+                "active",
                 {
                   "#bigint": "0"
                 },
@@ -453,7 +453,7 @@
             "bob",
             {
               "#tup": [
-                "unavailable",
+                "active",
                 {
                   "#bigint": "0"
                 },
@@ -564,7 +564,7 @@
             "bob",
             {
               "#tup": [
-                "unavailable",
+                "active",
                 {
                   "#bigint": "0"
                 },
@@ -675,7 +675,7 @@
             "bob",
             {
               "#tup": [
-                "unavailable",
+                "active",
                 {
                   "#bigint": "0"
                 },
@@ -786,7 +786,7 @@
             "bob",
             {
               "#tup": [
-                "unavailable",
+                "active",
                 {
                   "#bigint": "0"
                 },

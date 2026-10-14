@@ -516,6 +516,38 @@ test('a narrowed plan leaves each uncached solver group alone on its runner', ()
   validatePlan(crowded);
 });
 
+// regression: product-contract-outlasts-one-runner
+test('each product contract part stays alone on its runner', () => {
+  const parts = Array.from({ length: 11 }, (_, index) =>
+    task(`@apps/product#test:contract:${String(index)}`, 20)
+  );
+  const plan = balanceShards(
+    [
+      ...parts,
+      task('@apps/product#test:contract:render', 10),
+      task('pkg#test', 10),
+    ],
+    64,
+    60
+  );
+  const solvers = plan.shards.filter(
+    (shard) =>
+      executes(shard) &&
+      shard.tasks.some((item) =>
+        /@apps\/product#test:contract:\d+$/.test(item.taskId)
+      )
+  );
+  expect(solvers).toHaveLength(11);
+  expect(solvers.every((shard) => shard.tasks.length === 1)).toBe(true);
+  const packed = plan.shards.find((shard) =>
+    shard.tasks.some((item) => item.taskId === 'pkg#test')
+  );
+  expect(packed?.tasks.map((item) => item.taskId).sort()).toEqual([
+    '@apps/product#test:contract:render',
+    'pkg#test',
+  ]);
+});
+
 test('a narrowed plan keeps every task exactly once in any discovery order', () => {
   assertProperty(
     'check-narrowed-partition',

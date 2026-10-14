@@ -1,5 +1,5 @@
 # Vanilla PlanetScale Postgres. Each environment is its own database
-# (`<project>-<suffix>`, branch `main`), so a standard environment can be
+# (`<project>-<suffix>-pg`, branch `main`), so a standard environment can be
 # created and torn down without touching production, and Deploy can apply
 # standard environments before production. A new database starts empty:
 # `@libs/runtime#migrate` builds the schema. The app only has a connection
@@ -23,8 +23,9 @@
 # environment. Production's branch is deletion-protected and
 # `prevent_destroy`. libs/infra-shared/policy/stateful.rego refuses a production
 # teardown and any ordinary delete of these types. The previous Neki
-# databases are listed in that policy's `retired` set so this replacement
-# can delete them.
+# databases stay at PlanetScale: foundation forgets their addresses with
+# `destroy = false`, and this database is a new `-pg` name, so an apply does
+# not delete the old rows and does not create Postgres on the Neki database.
 
 terraform {
   required_providers {

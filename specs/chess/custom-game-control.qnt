@@ -4,10 +4,11 @@
 // A bot's choice among legal moves is intentionally not promised; the game
 // here is one allowed choice. Other chess laws belong to chess itself.
 // People lose their connection independently. Bots keep playing their own
-// turns on the host device, including offline. Other people disconnect when
-// the host is offline and see the current board on return. Only the
-// creator cancels a game with a bot; in a game between two people the other
-// participant may also cancel until each side has moved.
+// turns on the host device, including offline. The host keeps seeing those
+// moves. A guest sees them while both have a connection, and keeps the board
+// they already had while the host is offline or their own connection is gone.
+// Only the creator cancels a game with a bot; in a game between two people
+// the other participant may also cancel until each side has moved.
 module custom_game_control {
   pure val PEOPLE = Set("alice","bob")
   pure val COLORS = Set("white","black")
@@ -38,7 +39,7 @@ module custom_game_control {
     controllers' = controllers,
     controlledStatus' = status, controlledPly' = moves,
     controlledTurn' = turn, controlledOutcome' = outcome, _offline' = offline,
-    controlledShown' = PEOPLE.mapBy(p => if (p == "alice") (status,moves,outcome) else if(offline.contains(p)) controlledShown.get(p) else if (offline.contains("alice")) ("unavailable",0,"") else (status,moves,outcome)),
+    controlledShown' = PEOPLE.mapBy(p => if (p == "alice" or (not(offline.contains("alice")) and not(offline.contains(p)))) (status,moves,outcome) else controlledShown.get(p)),
     _cutOff' = PEOPLE.mapBy(p => if(offline.contains(p) and not(_offline.contains(p))) controlledShown.get(p) else _cutOff.get(p)),
     _sealed' = (_sealed or status != "active"),
     _finished' = if(not(_sealed) and status != "active") (status,moves,outcome) else _finished,
@@ -108,8 +109,10 @@ module custom_game_control {
   val invControlledHistory = controlledPly >= 0 and controlledPly <= 4 and (controlledStatus == "active" implies controlledTurn == (if(controlledPly % 2 == 0) "white" else "black")) and (controlledPly == 4) == (controlledOutcome == "black wins by checkmate")
   /// Terminal games have a result, and that board and result never change.
   val invControlledTerminal = ((controlledStatus != "active") == (controlledOutcome != "")) and (_sealed implies (controlledStatus,controlledPly,controlledOutcome) == _finished)
-  /// People with a connection see the same game, whether playing or watching.
-  val invControlledAgreement = PEOPLE.forall(p => (p == "alice" or not(_offline.contains(p))) implies controlledShown.get(p) == (if (p != "alice" and _offline.contains("alice")) ("unavailable",0,"") else (controlledStatus,controlledPly,controlledOutcome)))
+  /// The host sees the live game, including while their own device is offline.
+  val invControlledHost = controlledShown.get("alice") == (controlledStatus,controlledPly,controlledOutcome)
+  /// A guest sees that game while they and the host both have a connection.
+  val invControlledAgreement = (not(_offline.contains("alice")) and not(_offline.contains("bob"))) implies controlledShown.get("bob") == (controlledStatus,controlledPly,controlledOutcome)
   /// An offline guest retains the picture they had before losing their connection.
   /// The host continues to see their own local bot moves.
   val invControlledOffline = _offline.contains("bob") implies controlledShown.get("bob") == _cutOff.get("bob")

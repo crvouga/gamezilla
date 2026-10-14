@@ -120,6 +120,7 @@ const CHECK_LEAVES = [
   'test',
   'test:contract',
   'test:contract:render',
+  ...Array.from({ length: 11 }, (_, index) => `test:contract:${String(index)}`),
   ...SPEC_PART_TASKS,
   'check:models',
   ...MODEL_PART_TASKS,
@@ -289,6 +290,10 @@ describe('turbo check/deploy graph invariants', () => {
       'test',
       'test:contract',
       'test:contract:render',
+      ...Array.from(
+        { length: 11 },
+        (_, index) => `test:contract:${String(index)}`
+      ),
       ...SPEC_PART_TASKS,
       'check:worker-bundle',
     ]) {
@@ -331,6 +336,11 @@ describe('turbo check/deploy graph invariants', () => {
     // A part is the same check over a share of the models.
     for (const part of MODEL_PART_TASKS)
       expect(loadTasks()[part], part).toEqual(task);
+    const contract = loadTasks()['test:contract'];
+    for (let index = 0; index < 11; index += 1) {
+      const name = `test:contract:${String(index)}`;
+      expect(loadTasks()[name], name).toEqual(contract);
+    }
   });
 
   // every check that gates a release also gates a PR merge.

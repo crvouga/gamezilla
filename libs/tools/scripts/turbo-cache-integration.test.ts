@@ -147,7 +147,13 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
         'utf8'
       )
     ) as { tasks: Record<string, { outputs: string[] }> };
-    expect(product.tasks['test:contract']!.outputs).toEqual(modelOutputs);
+    const parts = Object.keys(product.tasks).filter((name) =>
+      /^test:contract:\d+$/.test(name)
+    );
+    expect(parts.length).toBeGreaterThan(0);
+    for (const name of parts) {
+      expect(product.tasks[name]!.outputs).toEqual(modelOutputs);
+    }
     fixture(root);
     const env = {
       TURBO_CACHE_DIR: join(root, 'parent-cache'),

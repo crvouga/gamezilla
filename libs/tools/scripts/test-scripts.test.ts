@@ -82,6 +82,18 @@ describe('testScriptViolations', () => {
     ).toContain('tests/b.test.tsx');
   });
 
+  test('an env prefix still reaches the contract part file', () => {
+    expect(
+      testScriptViolations({
+        scripts: {
+          'test:contract:0':
+            'CONTRACT_PART=0/2 bun test tests/quint/model-checks.test.ts',
+        },
+        files: ['tests/quint/model-checks.test.ts'],
+      })
+    ).toEqual([]);
+  });
+
   test('the render contract script reaches its own test file', () => {
     expect(
       testScriptViolations({

@@ -14,18 +14,25 @@ test('the product proof starts bounded solver workers before native replay', () 
   const pkg = readJson<{ scripts: Record<string, string> }>(
     'apps/product/package.json'
   );
-  const models = pkg.scripts['test:contract']!;
+  const parts = Object.keys(pkg.scripts)
+    .filter((name) => /^test:contract:\d+$/.test(name))
+    .sort();
   const render = pkg.scripts['test:contract:render']!;
-  expect(models).toContain('tests/quint/model-checks.test.ts');
-  expect(models).not.toContain('ui-quality-render');
+  expect(parts.length).toBeGreaterThan(0);
+  expect(pkg.scripts['test:contract']).toBeUndefined();
+  for (const name of parts) {
+    expect(pkg.scripts[name]).toContain('tests/quint/model-checks.test.ts');
+    expect(pkg.scripts[name]).not.toContain('ui-quality-render');
+  }
   expect(render).toContain('tests/ui-quality-render.contract.test.ts');
   const turboFile = readJson<{
     tasks: Record<string, { dependsOn?: readonly string[] }>;
   }>('apps/product/turbo.json');
-  expect(turboFile.tasks['test:contract:render']!.dependsOn).toContain(
-    'test:contract'
-  );
-  for (const stage of [models, render]) {
+  // Parts are dedicated solver runners. The renderer must not depend on them,
+  // or the shard grouper would put every proof back on one machine.
+  const renderDeps = turboFile.tasks['test:contract:render']!.dependsOn ?? [];
+  expect(renderDeps.some((dep) => dep.startsWith('test:contract'))).toBe(false);
+  for (const stage of [...parts.map((name) => pkg.scripts[name]!), render]) {
     const ceiling = stage.match(/--max-concurrency=\$\(bun [^ ]+ (\d+)\)/)?.[1];
     expect(ceiling).toBeDefined();
     for (const limit of [undefined, '1', '2', '8']) {
@@ -104,7 +111,13 @@ test('native inference waits for the existing product symbolic and renderer cont
   const turbo = readJson<{ tasks: Record<string, { dependsOn?: string[] }> }>(
     'apps/product/turbo.json'
   );
-  expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain('test:contract');
+  const parts = Object.keys(
+    readJson<{ scripts: Record<string, string> }>('apps/product/package.json')
+      .scripts
+  ).filter((name) => /^test:contract:\d+$/.test(name));
+  for (const name of parts) {
+    expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain(name);
+  }
   expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain(
     'test:contract:render'
   );

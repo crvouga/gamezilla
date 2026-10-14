@@ -1,0 +1,4 @@
+{
+  "summary": "Deploy 38453758590 waited ten minutes in grafana_cloud_stack_service_account.observability on https://shortawning2091.grafana.net/api/health, which returns 404 because the archived instance URL is not recognized. The provider timeout is fixed at ten minutes, so apply:foundation then exceeded its 600s budget. Dashboards, the service account, and its token are created only while data.grafana_cloud_stack.this.status is active.",
+  "regressionTest": "libs/infra-server/tests/foundation-bootstrap.test.ts"
+}

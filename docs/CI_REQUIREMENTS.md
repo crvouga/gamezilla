@@ -95,31 +95,31 @@ A foundational package such as `@pkgs/property-shared` misses almost the whole c
 ## Measured load
 
 <!-- ci-load:start -->
-Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 537 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `check:board-contract`, reserves 60 seconds until a cold Check is harvested.
+Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 538 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `check:board-contract`, reserves 60 seconds until a cold Check is harvested.
 
 | | |
 | --- | --- |
 | Packages | 316 |
-| Check scripts | 1121 |
-| Measured scripts | 190 |
-| Estimated scripts | 931 |
-| Stale cost keys | 537 |
-| Cold CPU | 5467 s |
+| Check scripts | 1133 |
+| Measured scripts | 189 |
+| Estimated scripts | 944 |
+| Stale cost keys | 538 |
+| Cold CPU | 5424 s |
 | Spec parts | 3632 s across 215 tasks |
-| Longest task | @apps/product#test:contract 86 s |
+| Longest task | @apps/product#test:contract:render 60 s |
 
 ### Families
 
 | Family | Tasks | CPU |
 | --- | --- | --- |
 | test:spec | 215 | 3632 s |
-| check:models | 26 | 423 s |
+| check:models | 28 | 455 s |
 | lint | 315 | 340 s |
 | tc | 315 | 329 s |
 | test | 218 | 265 s |
 | check:board-contract | 4 | 240 s |
-| test:contract | 10 | 95 s |
 | test:contract:render | 1 | 60 s |
+| ci:statecharts | 1 | 60 s |
 
 ### Leaves
 
@@ -130,13 +130,13 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | Leaf CPU, median | 3 s |
 | Leaf CPU, 90th percentile | 35 s |
 | Longest leaf task, 90th percentile | 17 s |
-| Longest leaf task | 86 s |
+| Longest leaf task | 60 s |
 
 | Package | CPU | Longest task |
 | --- | --- | --- |
-| @apps/product | 209 s | @apps/product#test:contract 86 s |
 | @pkgs/matchmaking-root-harness | 161 s | @pkgs/matchmaking-root-harness#test:spec:1 17 s |
 | @pkgs/chess-board-root-harness | 156 s | @pkgs/chess-board-root-harness#test:spec:0 17 s |
+| @apps/product | 134 s | @apps/product#test:contract:render 60 s |
 | @libs/tools | 88 s | @libs/tools#ci:statecharts 60 s |
 | @pkgs/auth-root-harness | 45 s | @pkgs/auth-root-harness#check:models 21 s |
 
@@ -146,9 +146,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 222 | 5222 s | @apps/product#test:contract 86 s |
-| @pkgs/clock-shared | 220 | 5213 s | @apps/product#test:contract 86 s |
-| @pkgs/assert-root-shared | 215 | 5195 s | @apps/product#test:contract 86 s |
+| @pkgs/property-shared | 222 | 5179 s | @apps/product#test:contract:render 60 s |
+| @pkgs/clock-shared | 220 | 5170 s | @apps/product#test:contract:render 60 s |
+| @pkgs/assert-root-shared | 215 | 5152 s | @apps/product#test:contract:render 60 s |
 
 ### Runner
 
@@ -160,7 +160,7 @@ Work budget 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers stay at or 
 | Other slots | 8 |
 | Cores required | 26 |
 | Memory required | 40 GiB |
-| Estimated makespan | 230 s |
+| Estimated makespan | 227 s |
 | Provision | 2 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->

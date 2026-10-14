@@ -1,4 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { TASK_BUDGET_SECONDS } from './check-budget';
 import {
   campaignOwnershipProblems,
   campaignProblems,
@@ -6,6 +9,7 @@ import {
   specCampaigns,
 } from './spec-campaigns';
 import { REPO_ROOT } from './spec-packages';
+import { MAIN_CHECK_TASKS } from './turbo-ci-run';
 
 describe('Quint spec campaigns', () => {
   const campaign = { dir: 'apps/product', domain: 'system' };
@@ -74,5 +78,41 @@ describe('Quint spec campaigns', () => {
         new Map([['system', ['apps/product', 'libs/example']]])
       )
     ).toEqual(['specs/system/: a Quint campaign must have exactly one owner']);
+  });
+
+  // regression: product-contract-outlasts-one-runner
+  test('product symbolic proofs are one model per contract part', () => {
+    const manifest = JSON.parse(
+      readFileSync(join(REPO_ROOT, 'apps/product/package.json'), 'utf8')
+    ) as { scripts: Record<string, string> };
+    const config = readFileSync(
+      join(REPO_ROOT, 'apps/product/tests/quint/campaign-config.ts'),
+      'utf8'
+    );
+    const models = [...config.matchAll(/name: '([a-z0-9-]+)'/g)].map(
+      (match) => match[1]
+    );
+    expect(models.length).toBeGreaterThan(1);
+    const parts = models.map((_, index) => `test:contract:${String(index)}`);
+    expect(
+      Object.keys(manifest.scripts)
+        .filter((name) => /^test:contract:\d+$/.test(name))
+        .sort()
+    ).toEqual([...parts].sort());
+    for (const [index, name] of parts.entries()) {
+      const script = manifest.scripts[name];
+      expect(script).toContain(
+        `CONTRACT_PART=${String(index)}/${String(models.length)}`
+      );
+      expect(script).toContain('tests/quint/model-checks.test.ts');
+      expect(MAIN_CHECK_TASKS).toContain(name);
+      expect(TASK_BUDGET_SECONDS[`@apps/product#${name}`]).toBe(420);
+    }
+    expect(manifest.scripts['test:contract']).toBeUndefined();
+    const turbo = JSON.parse(
+      readFileSync(join(REPO_ROOT, 'apps/product/turbo.json'), 'utf8')
+    ) as { tasks: Record<string, { dependsOn?: readonly string[] }> };
+    const render = turbo.tasks['test:contract:render']?.dependsOn ?? [];
+    expect(render.some((dep) => dep.startsWith('test:contract'))).toBe(false);
   });
 });
