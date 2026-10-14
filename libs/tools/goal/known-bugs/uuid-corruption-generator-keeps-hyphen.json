@@ -1,0 +1,4 @@
+{
+  "summary": "The UUID corruption property generated an unchanged hyphen at position 23 of 00000000-0000-1000-8000-000000000000 and wrongly required rejection.",
+  "regressionTest": "pkgs/uuid-shared/tests/uuid-separator-regression.test.ts"
+}

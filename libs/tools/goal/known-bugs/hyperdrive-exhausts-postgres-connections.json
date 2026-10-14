@@ -1,0 +1,4 @@
+{
+  "summary": "Hyperdrive's default pool of 60 origin sessions exhausted PS-DEV's 25-session database and blocked deployment health checks and direct tooling. Declare a pool limit of 10 to retain direct connection capacity.",
+  "regressionTest": "libs/infra-server/tests/database-connection-budget.test.ts"
+}

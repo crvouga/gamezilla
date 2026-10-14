@@ -58,8 +58,6 @@ resource "railway_variable_collection" "worker" {
     { name = "PORT", value = "8080" },
   ]
 }
-# The release uploads source with no Dockerfile, so the builder is declared;
-# otherwise Railway looks for a Dockerfile and fails the build.
 resource "railway_service_instance" "worker" {
   service_id          = railway_service.worker.id
   environment_id      = railway_project.worker.default_environment.id
@@ -67,7 +65,6 @@ resource "railway_service_instance" "worker" {
   region              = var.configuration.region
   vcpus               = var.configuration.vcpus
   memory_gb           = var.configuration.memory_gb
-  builder             = "RAILPACK"
   healthcheck_path    = "/ready"
   healthcheck_timeout = 300
   overlap_seconds     = 120

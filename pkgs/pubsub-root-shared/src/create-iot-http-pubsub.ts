@@ -67,7 +67,7 @@ async function publishIot(args: {
     path,
     query: 'qos=1',
     region: args.options.region,
-    service: 'iotdata',
+    service: 'iotdevicegateway',
     payload,
     nowMs: args.options.now(),
     accessKeyId: args.options.accessKeyId,

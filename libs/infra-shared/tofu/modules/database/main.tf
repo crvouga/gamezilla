@@ -160,6 +160,8 @@ locals {
 resource "cloudflare_hyperdrive_config" "this" {
   account_id = var.account_id
   name       = var.hyperdrive_name
+  # PS-DEV allows 25 sessions; reserve capacity for migrations and live checks.
+  origin_connection_limit = 10
 
   origin = {
     scheme   = "postgres"

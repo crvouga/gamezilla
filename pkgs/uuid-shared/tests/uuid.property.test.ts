@@ -68,6 +68,7 @@ describe('isUuid / assertUuid', () => {
         fc.nat({ max: 35 }),
         fc.constantFrom('g', 'z', '-', ' ', '_'),
         (id, at, bad) => {
+          fc.pre(id[at] !== bad);
           const mutated = `${id.slice(0, at)}${bad}${id.slice(at + 1)}`;
           expect(isUuid(mutated)).toBe(false);
           expect(throws(() => assertUuid(mutated, 'uuid'))).toBe(true);

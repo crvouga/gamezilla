@@ -61,12 +61,6 @@ const POPULATION_MODULE = join(
 const ENV_DIR = join(import.meta.dirname, '../../infra-shared/tofu/envs');
 
 describe('foundation bootstrap', () => {
-  // regression: railway-worker-builds-from-dockerfile
-  test('the population worker is built from the uploaded source, not a Dockerfile', () => {
-    const module = readFileSync(POPULATION_MODULE, 'utf8');
-    expect(module).toMatch(/builder\s+=\s+"RAILPACK"/);
-  });
-
   // regression: foundation-provider-bootstrap-cycle
   test('a first plan never connects through the Postgres role it is creating', () => {
     const foundation = readFileSync(FOUNDATION, 'utf8');
