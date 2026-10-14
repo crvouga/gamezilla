@@ -66,6 +66,7 @@ Feature: Keep a space usable through time without a connection
       Then Bob is not in a space
       And Bob is told the join is not confirmed
 
+    @regression:unconfirmed-join-shows-live-dock
     Scenario: A person can leave a join that has not finished
       Given Alice is hosting a space
       And Bob has asked to join from the space link without hearing whether they joined
