@@ -1,8 +1,12 @@
 import { expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   POPULATION_BUILD_COMMAND,
+  POPULATION_BUN_VERSION,
+  POPULATION_NODE_VERSION,
   POPULATION_START_COMMAND,
-  populationRailwayConfig,
+  populationDockerfile,
   populationReleaseArgs,
   railwayCliEnvironment,
 } from '@libs/infra-server/population-release';
@@ -14,16 +18,22 @@ const DEPLOYMENT = {
   serviceId: '33333333-3333-3333-3333-333333333333',
 };
 
-test('the worker release tells Railway to build and start with Bun', () => {
-  const config = JSON.parse(populationRailwayConfig()) as {
-    build: { builder: string; buildCommand: string };
-    deploy: { startCommand: string };
-  };
-  expect(config.build.builder).toBe('RAILPACK');
-  expect(config.build.buildCommand).toBe(POPULATION_BUILD_COMMAND);
-  expect(config.deploy.startCommand).toBe(POPULATION_START_COMMAND);
-  expect(populationRailwayConfig()).not.toContain('DOCKERFILE');
-  expect(populationRailwayConfig()).not.toContain('docker');
+// regression: railway-worker-builds-from-dockerfile
+test('the worker release carries a Dockerfile that builds and starts with Bun', () => {
+  const dockerfile = populationDockerfile();
+  expect(dockerfile).toContain(`RUN ${POPULATION_BUILD_COMMAND}`);
+  expect(dockerfile).toContain(POPULATION_START_COMMAND);
+  expect(dockerfile).toContain(`FROM oven/bun:${POPULATION_BUN_VERSION}`);
+  expect(dockerfile).toContain(`node:${POPULATION_NODE_VERSION}`);
+});
+
+test('the image uses the Bun and Node versions the repository pins', () => {
+  const mise = readFileSync(
+    join(import.meta.dirname, '../../../mise.toml'),
+    'utf8'
+  );
+  expect(mise).toContain(`bun = "${POPULATION_BUN_VERSION}"`);
+  expect(mise).toContain(`node = "${POPULATION_NODE_VERSION}"`);
 });
 
 test('the release sets the commit version before uploading the archive', () => {

@@ -15,22 +15,26 @@ export type PopulationDeployment = {
   readonly serviceId: string;
 };
 
-/** Config Railway reads from the archive root for this deploy only. */
-export function populationRailwayConfig(): string {
-  return `${JSON.stringify(
-    {
-      $schema: 'https://railway.com/railway.schema.json',
-      build: {
-        builder: 'RAILPACK',
-        buildCommand: POPULATION_BUILD_COMMAND,
-      },
-      deploy: {
-        startCommand: POPULATION_START_COMMAND,
-      },
-    },
-    null,
-    2
-  )}\n`;
+export const POPULATION_BUN_VERSION = '1.4.3';
+export const POPULATION_NODE_VERSION = '26.11.1';
+
+/**
+ * The Dockerfile Railway builds from the uploaded source. Railway resolves
+ * this service to its Dockerfile builder whatever the uploaded config file
+ * says, and builds with one whenever the archive has one, so the archive
+ * carries it. The image is built by Railway; Check builds none.
+ */
+export function populationDockerfile(): string {
+  return `${[
+    `FROM oven/bun:${POPULATION_BUN_VERSION} AS bun`,
+    `FROM node:${POPULATION_NODE_VERSION}-bookworm`,
+    'COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun',
+    'RUN ln -s /usr/local/bin/bun /usr/local/bin/bunx',
+    'WORKDIR /app',
+    'COPY . .',
+    `RUN ${POPULATION_BUILD_COMMAND}`,
+    `CMD ${JSON.stringify(['sh', '-c', `exec ${POPULATION_START_COMMAND}`])}`,
+  ].join('\n')}\n`;
 }
 
 /**

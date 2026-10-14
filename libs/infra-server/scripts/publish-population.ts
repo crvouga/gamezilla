@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
 // @io-wall-ok — publishes verified code to an already OpenTofu-managed service.
-import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import {
-  populationRailwayConfig,
+  populationDockerfile,
   populationReleaseArgs,
   railwayCliEnvironment,
 } from '@libs/infra-server/population-release';
@@ -39,20 +39,6 @@ function artifactCommand(
     );
   }
   return result.stdout.toString();
-}
-
-/** Railway builds with a Dockerfile when the archive contains one. */
-function removeDockerfiles(root: string): void {
-  const pending = [root];
-  while (pending.length > 0) {
-    const dir = pending.pop();
-    if (dir === undefined) break;
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      const path = join(dir, entry.name);
-      if (entry.isDirectory()) pending.push(path);
-      else if (entry.name === 'Dockerfile') rmSync(path);
-    }
-  }
 }
 
 if (process.env['GITHUB_ACTIONS'] !== 'true')
@@ -104,8 +90,7 @@ try {
     root
   );
   artifactCommand(['tar', '-xf', archive, '-C', stage], root);
-  removeDockerfiles(stage);
-  writeFileSync(join(stage, 'railway.json'), populationRailwayConfig());
+  writeFileSync(join(stage, 'Dockerfile'), populationDockerfile());
   const release = populationReleaseArgs(
     pinnedTool('railway'),
     version,
