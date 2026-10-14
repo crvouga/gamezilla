@@ -4,15 +4,8 @@ terraform {
     railway = { source = "jamesprnich/railway" }
   }
 }
-variable "name" {
-  type        = string
-  description = "Railway project name. Railway allows 1 to 32 characters, and the project is created once."
-  validation {
-    condition     = length(var.name) >= 1 && length(var.name) <= 32
-    error_message = "Railway project names must be between 1 and 32 characters."
-  }
-}
-variable "workspace_id" { type = string }
+variable "project_id" { type = string }
+variable "environment_id" { type = string }
 variable "environment" { type = string }
 variable "api_origin" { type = string }
 variable "worker_token" {
@@ -27,23 +20,15 @@ variable "configuration" {
   type = object({ replicas = number, capacity = number, vcpus = number, memory_gb = number, region = string })
 }
 
-# Each application environment owns a separate project with just one Railway
-# environment, so service creation cannot leak into a neighbouring environment.
-resource "railway_project" "worker" {
-  name                = var.name
-  workspace_id        = var.workspace_id
-  private             = true
-  has_pr_deploys      = false
-  default_environment = { name = var.environment }
-}
+# Railway service names are unique across the project, including fork environments.
 resource "railway_service" "worker" {
-  name           = "synthetic-population-worker"
-  project_id     = railway_project.worker.id
-  environment_id = railway_project.worker.default_environment.id
+  name           = "${var.environment}-synthetic-population-worker"
+  project_id     = var.project_id
+  environment_id = var.environment_id
 }
 resource "railway_variable_collection" "worker" {
   service_id     = railway_service.worker.id
-  environment_id = railway_project.worker.default_environment.id
+  environment_id = var.environment_id
   variables = [
     { name = "SECRETS_ENV", value = var.environment },
     { name = "DEPLOYMENT_ENVIRONMENT", value = var.environment },
@@ -60,7 +45,7 @@ resource "railway_variable_collection" "worker" {
 }
 resource "railway_service_instance" "worker" {
   service_id          = railway_service.worker.id
-  environment_id      = railway_project.worker.default_environment.id
+  environment_id      = var.environment_id
   num_replicas        = var.configuration.replicas
   region              = var.configuration.region
   vcpus               = var.configuration.vcpus
@@ -75,8 +60,8 @@ resource "railway_service_instance" "worker" {
 }
 output "deployment" {
   value = {
-    project_id     = railway_project.worker.id
+    project_id     = var.project_id
     service_id     = railway_service.worker.id
-    environment_id = railway_project.worker.default_environment.id
+    environment_id = var.environment_id
   }
 }

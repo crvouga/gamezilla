@@ -15,7 +15,8 @@
  *   3. objects    the env's bucket, emptied   scripts/empty-bucket.ts
  *   4. foundation Postgres database, Hyperdrive, bucket, IoT broker,
  *                 trace tokens, secrets       tofu destroy (foundation)
- *   5. fleet      the env's secrets environment + shared import
+ *   5. fleet      the env's secrets environment + shared import,
+ *                 Railway environment (shared Railway project stays)
  *                                             tofu destroy --stack fleet --env
  *
  * Every tofu step goes through `scripts/tofu.ts destroy`: plan → policy
@@ -117,7 +118,7 @@ step(`objects in ${names.bucket}`, env.env, [
 ]);
 step('foundation', env.env, tofuDestroy('foundation'));
 step(
-  'fleet: secrets environment',
+  'fleet: secrets and Railway environments',
   GLOBAL.infisical.shared_env,
   tofuDestroy('fleet', ['--env', env.env])
 );
