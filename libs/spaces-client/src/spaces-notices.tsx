@@ -1,19 +1,11 @@
-import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Plural, Trans } from '@lingui/solid/macro';
-import type { Decision } from '@pkgs/permissions-shared/decision';
 import { WifiOffIcon } from '@pkgs/ui-root-client/icons';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { Notice } from '@pkgs/ui-root-client/notice';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 
 import { useHostedSpaceCount } from './use-hosted-space-count';
-
-/** What the last attempt to start a space came to, when it did not open one. */
-export type SpacesNotice = {
-  readonly kind: 'limited';
-  readonly decision: Decision;
-};
 
 /** "Spaces need a connection" — said plainly, never a silent failure. */
 export function SpacesNeedConnectionNotice(): JSX.Element {
@@ -28,30 +20,6 @@ export function SpacesNeedConnectionNotice(): JSX.Element {
         offline.
       </Trans>
     </Notice>
-  );
-}
-
-/** The outcome of starting a space that did not open one. */
-export function SpacesAttemptNotice(props: {
-  readonly notice: SpacesNotice | null;
-}): JSX.Element {
-  return (
-    <Switch>
-      <Match
-        when={(() => {
-          const n = props.notice;
-          return n?.kind === 'limited' ? n.decision : undefined;
-        })()}
-      >
-        {(decision) => (
-          <DenialSurface
-            decision={decision()}
-            variant="compact"
-            testId={Handles.spacesHostingLimit}
-          />
-        )}
-      </Match>
-    </Switch>
   );
 }
 

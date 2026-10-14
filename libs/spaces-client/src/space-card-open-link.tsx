@@ -4,7 +4,6 @@ import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
-import { useHostingInvite } from './hosting-invite';
 import { openSpaceDetail } from './space-routes';
 import { useIsSpaceOpenLocally } from './use-open-space-session-ids';
 import { useSpaceDisplayTitle } from './use-space-display-title';
@@ -20,7 +19,6 @@ export type SpaceCardOpenLinkProps = {
 
 export function SpaceCardOpenLink(props: SpaceCardOpenLinkProps): JSX.Element {
   const router = useRouter();
-  const invite = useHostingInvite();
   const { t } = useLingui();
   const isOpen = useIsSpaceOpenLocally(() => props.spaceId);
   const resolvedTitle = useSpaceDisplayTitle(() => props.spaceId);
@@ -43,7 +41,6 @@ export function SpaceCardOpenLink(props: SpaceCardOpenLinkProps): JSX.Element {
       {...dataAttrs(testId() !== null ? { testid: testId() ?? '' } : undefined)}
       type="button"
       onClick={() => {
-        invite.clear();
         openSpaceDetail(router, props.spaceId);
       }}
       aria-label={accessibilityLabel()}
