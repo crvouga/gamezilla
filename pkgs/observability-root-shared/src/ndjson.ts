@@ -26,25 +26,26 @@ function compareCodeUnit(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
-function parseText(text: string): NarrateSpan[] {
+function* parseText(text: string): Generator<NarrateSpan> {
   try {
     const document: unknown = JSON.parse(text);
     const spans = spansFromDocument(document);
-    if (spans.length > 0) return spans;
+    if (spans.length > 0) {
+      yield* spans;
+      return;
+    }
   } catch {
     // NDJSON is expected not to parse as one JSON document.
   }
-  const spans: NarrateSpan[] = [];
   for (const line of text.split('\n')) {
     if (line.trim() === '') continue;
     try {
       const document: unknown = JSON.parse(line);
-      spans.push(...spansFromDocument(document));
+      yield* spansFromDocument(document);
     } catch {
       // Collector files can be appended while queried; ignore an incomplete tail.
     }
   }
-  return spans;
 }
 
 function spanOrder(a: NarrateSpan, b: NarrateSpan): number {
@@ -124,16 +125,15 @@ export class NdjsonTraceStore implements TraceStore {
     const keys = (await this.store.listKeys()).filter(
       (key) => key.endsWith('.ndjson') || key.endsWith('.json')
     );
-    const spans: NarrateSpan[] = [];
+    const spans = new Map<string, NarrateSpan>();
     for (const key of keys) {
       const text = await readUtf8(this.store, key);
-      if (text !== null) spans.push(...parseText(text));
+      if (text === null) continue;
+      for (const span of parseText(text)) {
+        spans.set(`${span.traceId}:${span.spanId}`, span);
+      }
     }
-    return [
-      ...new Map(
-        spans.map((span) => [`${span.traceId}:${span.spanId}`, span])
-      ).values(),
-    ].sort(spanOrder);
+    return [...spans.values()].sort(spanOrder);
   }
 
   async recent(window: TimeRange): Promise<readonly TraceRef[]> {
