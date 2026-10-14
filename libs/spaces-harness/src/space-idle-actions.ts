@@ -14,13 +14,13 @@ type Activity = { readonly actor: string; readonly at: number };
 export const restoreSpaceConnection = scenarioAction({
   name: 'restoreSpaceConnection',
   act: async (s, actorId: string) => {
-    const before = await ownActivityAt(s, actorId);
+    const returnedAt = s.session.ports.clock.now();
     await Promise.resolve(restoreActorConnection.act(s, actorId));
     await pollUntil(
       s,
       async () => {
         const at = await ownActivityAt(s, actorId);
-        return at !== null && (before === null || at > before) ? at : null;
+        return at !== null && at >= returnedAt ? at : null;
       },
       {
         maxMs: 15_000,
