@@ -1,0 +1,4 @@
+{
+  "summary": "Errors outside a request only reached logs, and logger exception context was discarded, so bun obs could not find the failure or its stack.",
+  "regressionTest": "pkgs/observability-root-server/tests/diagnostic-errors.test.ts"
+}

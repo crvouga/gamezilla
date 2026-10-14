@@ -76,6 +76,17 @@ function normalizedSpan(): string {
 }
 
 describe('NDJSON TraceStore', () => {
+  // regression: retried-telemetry-counted-as-new-failures
+  test('repeated delivery of the same span counts one failure', async () => {
+    const line = normalizedSpan();
+    const store = new NdjsonTraceStore(
+      memoryStore({ 'retried.ndjson': `${line}\n${line}\n` })
+    );
+    expect(await store.findByMutation('mutation-1')).toMatchObject([
+      { traceId: TRACE_ID, spanCount: 1, errorCount: 1 },
+    ]);
+  });
+
   test('resolves normalized records by correlation identifiers', async () => {
     const store = new NdjsonTraceStore(
       memoryStore({ 'client/a.ndjson': `${normalizedSpan()}\n{` })

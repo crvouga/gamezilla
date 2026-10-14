@@ -38,6 +38,14 @@ test('the native collector stores traces, logs, and metrics as OTLP JSON', async
     expect(await readFile(join(dataDir, 'metrics.ndjson'), 'utf8')).toContain(
       '"resourceMetrics":[]'
     );
+    // regression: local-traces-undiscoverable-after-stack-exit
+    const archived = JSON.parse(
+      await readFile(join(dataDir, 'trace-source.json'), 'utf8')
+    );
+    expect(archived).toMatchObject({
+      observabilityTraceDir: dataDir,
+      instanceId: 'obs-test',
+    });
   } finally {
     await stack.stop();
     await rm(dataDir, { recursive: true, force: true });

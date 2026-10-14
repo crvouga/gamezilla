@@ -1,3 +1,4 @@
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { PubSub, PubSubStatus } from './interface';
 import { encodePayload } from './payload';
 import { PubSubClosedError } from './pubsub-closed-error';
@@ -8,11 +9,6 @@ import type { Topic } from './topic';
 import { assertValidTopic } from './topic';
 import { iotWireTopic } from './wire-topic';
 
-type FetchImpl = (
-  input: RequestInfo | URL,
-  init?: RequestInit
-) => Promise<Response>;
-
 export type IotHttpPubSubOptions = {
   /** Data-plane hostname, or an https URL whose host is that hostname. */
   endpoint: string;
@@ -20,18 +16,17 @@ export type IotHttpPubSubOptions = {
   secretAccessKey: string;
   region: string;
   now: () => number;
-  fetchImpl?: FetchImpl;
+  http: HttpClient;
 };
 
 export function createIotHttpPubSub(options: IotHttpPubSubOptions): PubSub {
-  const fetchImpl = options.fetchImpl ?? fetch;
   const host = iotEndpointHost(options.endpoint);
   let closed = false;
 
   return {
     publish(topic: Topic, data: unknown): Promise<void> {
       if (closed) throw new PubSubClosedError();
-      return publishIot({ options, fetchImpl, host, topic, data });
+      return publishIot({ options, host, topic, data });
     },
     subscribe(): () => void {
       throw new PubSubNotSupportedError(
@@ -59,7 +54,6 @@ export function iotEndpointHost(endpoint: string): string {
 
 async function publishIot(args: {
   readonly options: IotHttpPubSubOptions;
-  readonly fetchImpl: FetchImpl;
   readonly host: string;
   readonly topic: Topic;
   readonly data: unknown;
@@ -81,11 +75,14 @@ async function publishIot(args: {
     headers: { 'content-type': 'application/octet-stream' },
   });
   const headers = requestHeaders(signed.headers, signed.authorization);
-  const res = await args.fetchImpl(`https://${args.host}${path}?qos=1`, {
-    method: 'POST',
-    headers,
-    body: payload,
-  });
+  const res = await args.options.http.fetch(
+    `https://${args.host}${path}?qos=1`,
+    {
+      method: 'POST',
+      headers,
+      body: payload,
+    }
+  );
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     throw new PubSubPublishError(

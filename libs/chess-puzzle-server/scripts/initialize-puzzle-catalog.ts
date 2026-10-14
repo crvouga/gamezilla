@@ -23,7 +23,8 @@ const { databaseUrl } = await resolveToolingDatabaseUrl({
 });
 const pubsub = await new HttpPubSubFromSecretStore(
   createScriptSecretStore(),
-  wallClock.now
+  wallClock.now,
+  createGlobalHttpClient()
 ).get();
 if (pubsub === undefined)
   throw new Error('Puzzle catalog requires a publisher');

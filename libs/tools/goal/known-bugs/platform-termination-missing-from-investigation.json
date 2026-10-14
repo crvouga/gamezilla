@@ -1,0 +1,4 @@
+{
+  "summary": "Platform-enforced Worker termination could prevent application export and was absent from the investigation CLI.",
+  "regressionTest": "pkgs/observability-cli-shared/tests/cloudflare-errors.test.ts"
+}

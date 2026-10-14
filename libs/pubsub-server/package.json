@@ -16,8 +16,9 @@
   },
   "dependencies": {
     "@libs/app-config-shared": "workspace:*",
-    "@libs/sub-shared": "workspace:*",
     "@libs/pubsub-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
+    "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/pubsub-emqx-shared": "workspace:*",
     "@pkgs/pubsub-root-shared": "workspace:*",
     "@pkgs/secret-store-shared": "workspace:*",

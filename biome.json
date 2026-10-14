@@ -1677,6 +1677,7 @@
         "!**/libs/app-root-client/src/wall-client-env.ts",
         "!**/libs/observability-server/src/person-trouble-document.ts",
         "!**/libs/observability-server/src/person-trouble-probe.ts",
+        "!**/libs/observability-server/src/app-trace-probe.ts",
         "!**/libs/app-root-server/src/create-server.ts",
         "!**/libs/app-root-server/src/browser-telemetry-ingress.ts",
         "!**/libs/app-root-server/src/request-db-middleware.ts",

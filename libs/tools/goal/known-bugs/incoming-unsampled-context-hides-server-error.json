@@ -1,0 +1,4 @@
+{
+  "summary": "An incoming traceparent with its sampled bit off suppressed server exceptions under the SDK default sampler.",
+  "regressionTest": "pkgs/observability-root-server/tests/diagnostic-errors.test.ts"
+}

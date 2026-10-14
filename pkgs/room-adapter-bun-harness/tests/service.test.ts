@@ -12,11 +12,15 @@ import type { RoomState } from '@pkgs/room-root-shared/types';
 test('private service commands use the same authoritative room as sockets and deduplicate delivery', async () => {
   const { clock, timers } = createHarnessClock();
   let id = 0;
+  const wakes: Promise<void>[] = [];
   const host = createBunRoomHost({
     modules: [gameRoomModule],
     clock,
     timers,
     createId: () => `connection-${++id}`,
+    enqueueWake: (_topic, work) => {
+      wakes.push(work());
+    },
   });
   const call = (input: object) =>
     host.service(
@@ -72,6 +76,7 @@ test('private service commands use the same authoritative room as sockets and de
       ).status
     ).toBe(204);
   } finally {
+    await Promise.all(wakes);
     host.dispose();
   }
 });

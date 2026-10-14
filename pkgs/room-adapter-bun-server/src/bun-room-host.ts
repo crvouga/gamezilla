@@ -47,6 +47,8 @@ export type BunRoomHostDeps = {
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: CreateId;
+  /** Own and observe asynchronous timer work at the process boundary. */
+  readonly enqueueWake: (topic: string, work: () => Promise<void>) => void;
   /** Per-command gate for every hosted room (see `RoomServerConfig`). */
   readonly authorize?: RoomServerConfig<
     RoomState,
@@ -102,6 +104,7 @@ function createEntry(
     timers: deps.timers,
     createId: deps.createId,
     topic,
+    enqueueWake: (work) => deps.enqueueWake(topic, work),
   });
   const server: AnyServer = new RoomServer({
     topic,

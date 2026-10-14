@@ -84,7 +84,8 @@ export async function drainAndNotifyOutbox(args: {
       ? undefined
       : await new HttpPubSubFromSecretStore(
           store.secretStore,
-          args.clock.now
+          args.clock.now,
+          store.http
         ).get());
   if (pubsub == null) {
     return result.processed;

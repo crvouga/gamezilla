@@ -21,10 +21,24 @@ import { openPgClient } from '@pkgs/sql-client-postgres-server/connect';
 import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 import sql from '@pkgs/sql-root-shared/sql';
 
+import { platformCommand } from './platform-command';
+
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
+  if (args.command === 'platform') {
+    const result = await platformCommand(args, {
+      http: { fetch: (input, init) => globalThis.fetch(input, init) },
+      nowMs: wallClock.now(),
+      accountId: process.env['CLOUDFLARE_ACCOUNT_ID'],
+      token: process.env['CLOUDFLARE_API_TOKEN'],
+      signal: AbortSignal.timeout(15_000),
+    });
+    process.stdout.write(`${result.text}\n`);
+    process.exitCode = result.code;
+    return;
+  }
   const sourceFlag = args.flags['source'];
   const requested =
     typeof sourceFlag === 'string' ? sourceFlag : '.observability';
@@ -117,18 +131,13 @@ async function createStore(
   }
   if (!explicit && requested === '.observability') {
     const artifacts = nodeStore(resolve(REPO_ROOT, requested));
-    const hasArtifacts = (await artifacts.listKeys()).some((key) =>
-      key.endsWith('.ndjson')
+    const discovered = await discoverLatestLocalTraceSource(
+      nodeStore(resolve(REPO_ROOT, '.cache/localhost-stack'))
     );
-    if (!hasArtifacts) {
-      const discovered = await discoverLatestLocalTraceSource(
-        nodeStore(resolve(REPO_ROOT, '.cache/localhost-stack'))
-      );
-      if (discovered?.kind === 'tempo') return tempoStore(discovered.url);
-      if (discovered?.kind === 'ndjson') {
-        const source = resolve(discovered.path);
-        return new NdjsonTraceStore(nodeStore(source), source);
-      }
+    if (discovered?.kind === 'tempo') return tempoStore(discovered.url);
+    if (discovered?.kind === 'ndjson') {
+      const source = resolve(discovered.path);
+      return new NdjsonTraceStore(nodeStore(source), source);
     }
     return new NdjsonTraceStore(artifacts, resolve(REPO_ROOT, requested));
   }

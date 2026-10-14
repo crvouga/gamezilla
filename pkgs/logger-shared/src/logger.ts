@@ -6,6 +6,7 @@ type CorrelatedLogRecorder = (event: {
   readonly severity: Exclude<LogLevel, 'silent'>;
   readonly message: string;
   readonly loggerName: string;
+  readonly context?: Readonly<Record<string, unknown>>;
 }) => void;
 
 function recordCorrelatedLog(
@@ -88,10 +89,14 @@ function buildLogger(options: BuildLoggerOptions): Logger {
   ): void {
     if (LEVEL_VALUE[lvl] < threshold) return;
 
+    const error = context?.['error'] ?? options.bindings['error'];
     recordCorrelatedLog({
       severity: lvl,
       message: msg,
       loggerName: options.name,
+      ...(error instanceof Error || typeof error === 'string'
+        ? { context: { error } }
+        : {}),
     });
 
     const entry = {

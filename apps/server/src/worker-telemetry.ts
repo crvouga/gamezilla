@@ -10,6 +10,7 @@ import { createWorkerTelemetry } from '@pkgs/observability-root-server/worker-wo
 import { deploymentTelemetryEnvironment } from '@pkgs/observability-root-shared/deployment-environment';
 import { otlpAuthorization } from '@pkgs/observability-root-shared/otlp-auth';
 export type WorkerTelemetryRuntime = {
+  readonly forceFlush: () => Promise<void>;
   readonly flushWith: (waitUntil: (promise: Promise<unknown>) => void) => void;
 };
 let workerTelemetry: WorkerTelemetryRuntime | null = null;
@@ -48,7 +49,10 @@ export function ensureWorkerTelemetry(
 ): WorkerTelemetryRuntime {
   if (workerTelemetry !== null) return workerTelemetry;
   if (env.OBSERVABILITY_ENABLED?.trim() === '0') {
-    workerTelemetry = { flushWith: () => undefined };
+    workerTelemetry = {
+      flushWith: () => undefined,
+      forceFlush: async () => undefined,
+    };
     return workerTelemetry;
   }
   const production = readDeploymentProtection(env) === 'production';
@@ -59,7 +63,10 @@ export function ensureWorkerTelemetry(
         'OBSERVABILITY_COLLECTOR_URL is required in production unless OBSERVABILITY_ENABLED=0'
       );
     }
-    workerTelemetry = { flushWith: () => undefined };
+    workerTelemetry = {
+      flushWith: () => undefined,
+      forceFlush: async () => undefined,
+    };
     return workerTelemetry;
   }
   const buildSha = env.BUILD_SHA?.trim() || 'development';

@@ -71,6 +71,7 @@ function FooterSlot(props: {
 
 export function MutationLoading(props: {
   labels: MutationModalLabels;
+  onClose: () => void;
 }): JSX.Element {
   const { t } = useLingui();
   return (
@@ -78,7 +79,17 @@ export function MutationLoading(props: {
       <StateArea>
         <LoadingState caption={props.labels.loadingLabel ?? t`Working…`} />
       </StateArea>
-      <FooterSlot />
+      <p class="text textCaption text-text-secondary">
+        {t`You can close this while we finish. Closing does not cancel your request.`}
+      </p>
+      <FooterSlot>
+        <ModalButton
+          label={t`Close`}
+          variant="cancel"
+          onClick={() => props.onClose()}
+          dataSet={{ action: 'close-pending' }}
+        />
+      </FooterSlot>
     </>
   );
 }

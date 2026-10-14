@@ -9,7 +9,13 @@
  * several test runs) coexist without negotiating.
  */
 
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 
 export const STACK_MANIFEST_ENV = 'LOCALHOST_STACK_MANIFEST';
@@ -38,7 +44,7 @@ export type StackManifest = {
   readonly mqttUrl: string | null;
   /** Exact OTLP/HTTP traces endpoint, including `/v1/traces`. */
   readonly observabilityCollectorUrl: string | null;
-  /** Native collector artifact directory; null when LGTM or tracing is off. */
+  /** Durable local collector journal (also mirrored to LGTM); null when tracing is off. */
   readonly observabilityTraceDir: string | null;
   /** Read-only Tempo HTTP query origin. */
   readonly observabilityTempoUrl: string | null;
@@ -52,15 +58,20 @@ export function stackRootDir(repoRoot: string): string {
 
 /**
  * One instance's data directory, emptied unless the stack was asked to keep
- * its data (`--keep-data`).
+ * its data (`--keep-data`). Diagnostic evidence survives a fresh start.
  */
 export function instanceDataDir(
   repoRoot: string,
   instance: { readonly instanceId: string; readonly keepData: boolean }
 ): string {
   const dir = join(stackRootDir(repoRoot), instance.instanceId);
-  if (!instance.keepData) rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
+  if (!instance.keepData) {
+    for (const entry of readdirSync(dir)) {
+      if (entry !== 'observability')
+        rmSync(join(dir, entry), { recursive: true, force: true });
+    }
+  }
   return dir;
 }
 

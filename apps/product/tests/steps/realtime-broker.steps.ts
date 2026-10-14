@@ -81,7 +81,7 @@ Then('the app can pass on what happens in a space', async (w) => {
     secretAccessKey: creds.secretAccessKey,
     region: creds.region,
     now: () => wallClock.now(),
-    fetchImpl: (input, init) => w.http.fetch(input, init),
+    http: w.http,
   });
   await pubsub.publish('health-ping', { ok: true });
 });

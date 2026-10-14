@@ -23,6 +23,12 @@ import {
 } from './dev-services';
 import type { StackManifest } from './manifest';
 import { removeManifest, writeManifest } from './manifest';
+import {
+  expectChildExit,
+  installProcessDiagnostics,
+  recordProcessFailure,
+  waitForChildDiagnostics,
+} from './process-observability';
 import { readPlan, type StackPlan } from './stack-plan';
 import {
   awaitService,
@@ -70,6 +76,13 @@ async function runService<K extends ServiceName>(
   try {
     running = await startService(name, context);
   } catch (error) {
+    recordProcessFailure(
+      { instanceId: plan.options.instanceId, dataDir: plan.dataDir },
+      {
+        serviceName: `gamezilla-${name}`,
+        error: error instanceof Error ? error : new Error(String(error)),
+      }
+    );
     publishFailed(
       plan,
       name,
@@ -94,8 +107,10 @@ async function runService<K extends ServiceName>(
     // and leaves its processes behind: end one that is still draining.
     await Promise.race([service.stop(), Bun.sleep(STOP_GRACE_MS)]);
     for (const child of service.children ?? []) {
-      if (child.exitCode === null && child.signalCode === null)
+      if (child.exitCode === null && child.signalCode === null) {
+        expectChildExit(child);
         child.kill('SIGKILL');
+      }
     }
   };
   // A service whose process died is no longer serving, whatever it published.
@@ -103,7 +118,9 @@ async function runService<K extends ServiceName>(
     child.once('exit', (code, signal) => {
       if (stopped) return;
       say(name, `a process exited (${signal ?? `code ${String(code)}`})`);
-      void stop().finally(() => process.exit(1));
+      void waitForChildDiagnostics(child)
+        .then(stop)
+        .finally(() => process.exit(1));
     });
   }
   return holdUntilStopped(stop);
@@ -159,6 +176,10 @@ async function runFrontDoor(plan: StackPlan): Promise<never> {
 
 const target = process.argv[2];
 const plan = readPlan(REPO_ROOT, devStackOptions().instanceId);
+installProcessDiagnostics(
+  { instanceId: plan.options.instanceId, dataDir: plan.dataDir },
+  `gamezilla-${target ?? 'stack'}`
+);
 if (target === 'ready') {
   await runFrontDoor(plan);
 } else if ((SERVICE_NAMES as readonly string[]).includes(target ?? '')) {

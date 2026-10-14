@@ -42,21 +42,24 @@ async function publishUrl(
   values: Readonly<Record<string, string>>
 ): Promise<string | undefined> {
   const calls: string[] = [];
-  const previous = globalThis.fetch;
-  globalThis.fetch = (async (input: RequestInfo | URL) => {
-    calls.push(String(input));
-    return new Response(null, { status: 200 });
-  }) as typeof fetch;
+  const http = {
+    async fetch(this: unknown, input: RequestInfo | URL) {
+      // regression: cloudflare-pubsub-fetch-illegal-invocation
+      if (this !== http) throw new TypeError('Illegal invocation');
+      calls.push(String(input));
+      return new Response(null, { status: 200 });
+    },
+  };
   try {
     const pubsub = await new HttpPubSubFromSecretStore(
       secretStore(values),
-      () => 0
+      () => 0,
+      http
     ).get();
     if (pubsub === undefined) return undefined;
     await pubsub.publish('user:actor1', { ok: true });
     return calls[0];
   } finally {
-    globalThis.fetch = previous;
     resetHttpPubSubForTests();
   }
 }

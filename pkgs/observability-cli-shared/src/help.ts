@@ -13,6 +13,7 @@ usage: bun obs <command> [arguments] [--source directory] [--json]
   slow [--since 1h] [--p 95]           slowest traces
   diff <trace-a> <trace-b>              structural/timing comparison
   tail [--user <identity>] [--window 1m] bounded follow snapshot; rerun to follow
+  platform --service <worker-name>     retained Cloudflare runtime failures [--window 1h]
   schema                               live span/event/attribute vocabulary
 
 exit codes: 0 found, 1 no match, 2 usage, 3 store unreachable`;

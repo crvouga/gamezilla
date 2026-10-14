@@ -1,0 +1,4 @@
+{
+  "summary": "Browser trace uploads lost during a server outage were discarded instead of surviving locally until reopening and recovery.",
+  "regressionTest": "pkgs/observability-root-server/tests/telemetry-outbox.test.ts"
+}

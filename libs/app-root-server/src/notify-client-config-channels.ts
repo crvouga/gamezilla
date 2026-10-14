@@ -7,8 +7,10 @@ import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
 export async function notifyClientConfigChannels(label: string): Promise<void> {
   const store = apiRequestAsyncLocalStorage.getStore();
   if (store === undefined) return;
-  const pubsub = await new HttpPubSubFromSecretStore(store.secretStore, () =>
-    store.clock.now()
+  const pubsub = await new HttpPubSubFromSecretStore(
+    store.secretStore,
+    () => store.clock.now(),
+    store.http
   ).get();
   if (pubsub === undefined) return;
   await notifyChannels({

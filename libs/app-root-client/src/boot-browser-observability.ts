@@ -7,6 +7,7 @@ import { createBrowserTelemetry } from '@pkgs/observability-root-client/browser'
 import { createHttpSpanExporter } from '@pkgs/observability-root-client/http-span-exporter';
 import { installMainThreadStallWatch } from '@pkgs/observability-root-client/main-thread-stall';
 import { AcknowledgedLogExporter } from '@pkgs/observability-runtime-shared/acknowledged-log-exporter';
+import { TelemetryOutbox } from '@pkgs/observability-runtime-shared/telemetry-outbox';
 import { setMutationCorrelationIdentity } from '@pkgs/sync-engine-shared/interaction-correlation';
 import {
   installBrowserObservabilityBoundaries,
@@ -45,7 +46,19 @@ export function bootBrowserObservability(
   setBrowserSessionId(sessionId);
   setMutationCorrelationIdentity(sessionId, buildSha);
   installBrowserObsHelper();
-  const runtime = openTelemetry(args, buildSha);
+  const outbox = new TelemetryOutbox({
+    store: args.env.objectStore.withPrefix('observability/outbox/'),
+    http: { fetch: createOfflineHttp(args.offline, args.env.server) },
+    clock: args.env.clock,
+    timers: args.env.timers,
+    createId: args.env.createId,
+    endpoints: {
+      traces: signalUrl(args.env.serverUrl, 'traces'),
+      logs: signalUrl(args.env.serverUrl, 'logs'),
+    },
+  });
+  const runtime = openTelemetry(args, buildSha, outbox);
+  outbox.start();
   const removePerformance = installBrowserPerformanceTelemetry(
     args.env.clock.now
   );
@@ -62,7 +75,7 @@ export function bootBrowserObservability(
     removePerformance();
     removeBoundaries();
     removeStallWatch();
-    void runtime.forceFlush();
+    void runtime.forceFlush().catch(() => undefined);
   });
   started = {
     flush: () => runtime.forceFlush(),
@@ -70,8 +83,12 @@ export function bootBrowserObservability(
   return started;
 }
 
-function openTelemetry(args: BrowserObservabilityArgs, buildSha: string) {
-  const http = { fetch: createOfflineHttp(args.offline, args.env.server) };
+function openTelemetry(
+  args: BrowserObservabilityArgs,
+  buildSha: string,
+  outbox: TelemetryOutbox
+) {
+  const http = outbox.http;
   const tracesUrl = signalUrl(args.env.serverUrl, 'traces');
   return createBrowserTelemetry({
     serviceName: 'gamezilla-client',

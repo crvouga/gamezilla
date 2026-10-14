@@ -169,6 +169,7 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
         required(context, 'billing'),
       ]);
     const tier = await startApiTier({
+      dataDir: plan.dataDir,
       options: plan.options,
       apiOrigin: plan.apiOrigin,
       idpEnv: idp.apiEnv,
@@ -234,6 +235,8 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
     if (plan.webOrigin === null) return null;
     const server = await required(context, 'server');
     const child = await startWeb({
+      dataDir: plan.dataDir,
+      instanceId: plan.options.instanceId,
       origin: plan.webOrigin,
       apiOrigin: server.apiOrigin,
       frozen: plan.options.frozenWeb,

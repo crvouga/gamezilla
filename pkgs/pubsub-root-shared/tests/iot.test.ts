@@ -48,9 +48,11 @@ describe('createIotHttpPubSub', () => {
       secretAccessKey: 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY',
       region: 'us-east-1',
       now: () => Date.UTC(2013, 4, 24),
-      fetchImpl: (input, init) => {
-        calls.push({ url: String(input), init });
-        return Promise.resolve(new Response(null, { status: 200 }));
+      http: {
+        fetch: (input, init) => {
+          calls.push({ url: String(input), init });
+          return Promise.resolve(new Response(null, { status: 200 }));
+        },
       },
     });
     await pubsub.publish('user:actor1', { ok: true });
@@ -75,7 +77,9 @@ describe('createIotHttpPubSub', () => {
       secretAccessKey: 'secret',
       region: 'us-east-1',
       now: () => 0,
-      fetchImpl: () => Promise.resolve(new Response('no', { status: 403 })),
+      http: {
+        fetch: () => Promise.resolve(new Response('no', { status: 403 })),
+      },
     });
     await expect(
       pubsub.publish('health-ping', { ok: true })

@@ -2,6 +2,7 @@ import type { SessionAuth } from '@libs/auth-shared/session-middleware';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import { AsyncLocalStorage } from '@pkgs/async-local-shared/async-local-storage';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { Kv } from '@pkgs/kv-root-shared/interface';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
@@ -19,6 +20,7 @@ export type ApiRequestAsyncStore = {
   readonly secretStore: SecretStore;
   readonly clock: Clock;
   readonly timers: Timers;
+  readonly http: HttpClient;
   readonly createId: CreateId;
 };
 

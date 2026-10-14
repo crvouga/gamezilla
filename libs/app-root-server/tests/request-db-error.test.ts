@@ -21,6 +21,11 @@ test('a harness request preserves a thrown database route error', async () => {
         '*',
         createRequestDbMiddleware(new RecordSecretStore({}), {
           ...ports,
+          http: {
+            fetch: async () => {
+              throw new Error('unexpected HTTP');
+            },
+          },
           objectStore: new ObjectStoreImplInMemory(),
           authServer: {
             provider: 'idp',

@@ -71,6 +71,9 @@ export const ATTR = {
   APP_ROOM_MODULE: 'app.room.module',
   APP_ROOM_OUTCOME: 'app.room.outcome',
   APP_ROOM_TOPIC: 'app.room.topic',
+  PROCESS_PID: 'process.pid',
+  PROCESS_EXIT_CODE: 'process.exit.code',
+  PROCESS_EXIT_SIGNAL: 'process.exit.signal',
 } as const;
 
 export type AttrValue = {
@@ -136,6 +139,9 @@ export type AttrValue = {
     | 'invalid_frame'
     | 'rejected';
   'app.room.topic': string;
+  'process.pid': number;
+  'process.exit.code': number;
+  'process.exit.signal': string;
 };
 
 export type Attributes = Partial<AttrValue>;

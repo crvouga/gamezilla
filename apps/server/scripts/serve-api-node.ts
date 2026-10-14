@@ -16,12 +16,19 @@
  */
 
 import workerHandler from '@apps/server/server';
+import { ensureWorkerTelemetry } from '@apps/server/worker-telemetry';
 import type { ApiWorkerEnv, RoomNamespace } from '@libs/app-root-shared/env';
 import type { ExecutionContext } from '@libs/app-root-shared/worker-handler';
 import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
 import { composeRoomModules } from '@libs/spaces-shared/load-game-plugins';
 import { createSpaceRoomAuthorizer } from '@libs/spaces-shared/space-room-authorize';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
+import { createLogger } from '@pkgs/logger-shared/logger';
+import {
+  ATTR,
+  type Attributes,
+} from '@pkgs/observability-root-shared/attributes';
+import { withSpan } from '@pkgs/observability-root-shared/span';
 import type { BunRoomSocketData } from '@pkgs/room-adapter-bun-server/bun-room-host';
 import { createBunRoomHost } from '@pkgs/room-adapter-bun-server/bun-room-host';
 import {
@@ -33,6 +40,31 @@ const PORT = Number(process.env['API_NODE_PORT'] ?? 0);
 const NODE_ID = process.env['API_NODE_ID'] ?? 'api-a';
 /** Correlates the DO-shaped stub call back to the request Bun must upgrade. */
 const UPGRADE_HEADER = 'x-bun-room-upgrade';
+const log = createLogger({ name: 'api-node', now: wallClock.now });
+
+function socketAttributes(data: BunRoomSocketData): Attributes {
+  return {
+    [ATTR.USER_ID]: data.actor.id,
+    [ATTR.APP_ROOM_TOPIC]: data.topic,
+    [ATTR.APP_ROOM_MODULE]: data.moduleName,
+    [ATTR.APP_ROOM_CONNECTION_ID]: data.connId,
+  };
+}
+
+async function observeRoomCall<T>(
+  name: string,
+  attributes: Attributes,
+  run: () => Promise<T>
+): Promise<T> {
+  const telemetry = ensureWorkerTelemetry(workerEnv(), () =>
+    crypto.randomUUID()
+  );
+  try {
+    return await withSpan(name, run, attributes);
+  } finally {
+    telemetry.flushWith(executionContext.waitUntil);
+  }
+}
 
 const rooms = createBunRoomHost({
   modules: composeRoomModules(
@@ -44,6 +76,18 @@ const rooms = createBunRoomHost({
   clock: wallClock,
   timers: wallTimers,
   createId: () => crypto.randomUUID(),
+  enqueueWake: (topic, work) => {
+    void observeRoomCall(
+      'room.schedule',
+      { [ATTR.APP_ROOM_TOPIC]: topic },
+      work
+    ).catch((error: unknown) => {
+      log.error('room schedule failed', {
+        error,
+        [ATTR.APP_ROOM_TOPIC]: topic,
+      });
+    });
+  },
 });
 
 const pendingUpgrades = new Map<string, BunRoomSocketData>();
@@ -104,7 +148,14 @@ function workerEnv(): ApiWorkerEnv {
 
 const executionContext = {
   waitUntil: (promise: Promise<unknown>) => {
-    void promise.catch(() => undefined);
+    void promise.catch(async (error: unknown) => {
+      log.error('background task failed', { error });
+      await Promise.allSettled([
+        ensureWorkerTelemetry(workerEnv(), () =>
+          crypto.randomUUID()
+        ).forceFlush(),
+      ]);
+    });
   },
   passThroughOnException: () => undefined,
 } as unknown as ExecutionContext;
@@ -119,10 +170,18 @@ const server = Bun.serve<BunRoomSocketData>({
       const token = process.env['LOCAL_ROOM_SERVICE_TOKEN'];
       if (!token || request.headers.get('x-room-service-token') !== token)
         return new Response(null, { status: 403 });
-      return rooms.service(
-        url.searchParams.get('topic') ?? '',
-        url.searchParams.get('module') ?? '',
-        request
+      return observeRoomCall(
+        'room.service',
+        {
+          [ATTR.APP_ROOM_TOPIC]: url.searchParams.get('topic') ?? '',
+          [ATTR.APP_ROOM_MODULE]: url.searchParams.get('module') ?? '',
+        },
+        () =>
+          rooms.service(
+            url.searchParams.get('topic') ?? '',
+            url.searchParams.get('module') ?? '',
+            request
+          )
       );
     }
     const wantsRoom =
@@ -147,19 +206,40 @@ const server = Bun.serve<BunRoomSocketData>({
   },
   websocket: {
     async open(ws) {
-      await rooms.open(
-        ws.data,
-        (raw) => {
-          ws.send(raw);
-        },
-        () => ws.close()
-      );
+      try {
+        await observeRoomCall(
+          'room.websocket.open',
+          socketAttributes(ws.data),
+          () =>
+            rooms.open(
+              ws.data,
+              (raw) => {
+                ws.send(raw);
+              },
+              () => ws.close()
+            )
+        );
+      } catch {
+        ws.close(1011, 'Room unavailable');
+      }
     },
     async message(ws, message) {
-      await rooms.message(ws.data, String(message));
+      try {
+        await observeRoomCall(
+          'room.websocket.message',
+          socketAttributes(ws.data),
+          () => rooms.message(ws.data, String(message))
+        );
+      } catch {
+        ws.close(1011, 'Room unavailable');
+      }
     },
     close(ws) {
-      rooms.close(ws.data);
+      try {
+        rooms.close(ws.data);
+      } catch (error) {
+        log.error('room close failed', { error, ...socketAttributes(ws.data) });
+      }
     },
   },
 });

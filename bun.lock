@@ -120,6 +120,7 @@
         "@pkgs/object-store-node-fs-server": "workspace:*",
         "@pkgs/object-store-opfs-client": "workspace:*",
         "@pkgs/object-store-root-shared": "workspace:*",
+        "@pkgs/observability-root-shared": "workspace:*",
         "@pkgs/polyfill-shared": "workspace:*",
         "@pkgs/postgres-local-shared": "workspace:*",
         "@pkgs/pubsub-root-shared": "workspace:*",
@@ -167,6 +168,7 @@
         "@pkgs/git-shared": "workspace:*",
         "@pkgs/object-store-s3-server": "workspace:*",
         "@pkgs/object-store-s3-shared": "workspace:*",
+        "@pkgs/observability-cli-shared": "workspace:*",
         "@pkgs/openslo-server": "workspace:*",
         "@pkgs/openslo-shared": "workspace:*",
         "@pkgs/os-server": "workspace:*",
@@ -2094,6 +2096,7 @@
         "@libs/app-config-shared": "workspace:*",
         "@libs/pubsub-shared": "workspace:*",
         "@libs/sub-shared": "workspace:*",
+        "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/pubsub-emqx-shared": "workspace:*",
         "@pkgs/pubsub-root-shared": "workspace:*",
         "@pkgs/secret-store-shared": "workspace:*",
@@ -4620,6 +4623,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/object-store-node-fs-server": "workspace:*",
         "@pkgs/observability-cli-shared": "workspace:*",
         "@pkgs/observability-root-shared": "workspace:*",
@@ -4640,6 +4644,7 @@
       "name": "@pkgs/observability-cli-shared",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/object-store-root-shared": "workspace:*",
         "@pkgs/observability-root-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
@@ -4982,6 +4987,7 @@
       "name": "@pkgs/pubsub-emqx-shared",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/pubsub-mqtt-shared": "workspace:*",
         "@pkgs/pubsub-root-shared": "workspace:*",
       },
@@ -5027,6 +5033,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/logger-shared": "workspace:*",
       },
       "devDependencies": {

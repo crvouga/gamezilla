@@ -129,7 +129,11 @@ export class NdjsonTraceStore implements TraceStore {
       const text = await readUtf8(this.store, key);
       if (text !== null) spans.push(...parseText(text));
     }
-    return spans.sort(spanOrder);
+    return [
+      ...new Map(
+        spans.map((span) => [`${span.traceId}:${span.spanId}`, span])
+      ).values(),
+    ].sort(spanOrder);
   }
 
   async recent(window: TimeRange): Promise<readonly TraceRef[]> {

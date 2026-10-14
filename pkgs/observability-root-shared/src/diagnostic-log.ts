@@ -1,0 +1,65 @@
+import { context, SpanStatusCode, trace } from '@opentelemetry/api';
+import { ATTR } from './attributes';
+import { allowlistedAttributes } from './redaction';
+
+export type DiagnosticLog = {
+  readonly severity: 'debug' | 'info' | 'warn' | 'error';
+  readonly message: string;
+  readonly loggerName: string;
+  readonly context?: Readonly<Record<string, unknown>>;
+};
+
+/** Only approved scalar attributes and the exception reach diagnostic exporters. */
+export function diagnosticAttributes(event: DiagnosticLog) {
+  const values: Record<string, string | number | boolean> = {};
+  for (const [key, value] of Object.entries(event.context ?? {})) {
+    if (
+      typeof value === 'string' ||
+      typeof value === 'boolean' ||
+      (typeof value === 'number' && Number.isFinite(value))
+    )
+      values[key] = value;
+  }
+  const error = event.context?.['error'];
+  return allowlistedAttributes({
+    ...values,
+    [ATTR.APP_LOG_SEVERITY]: event.severity,
+    [ATTR.APP_LOG_MESSAGE]: event.message,
+    [ATTR.APP_LOG_NAME]: event.loggerName,
+    ...(error instanceof Error
+      ? {
+          [ATTR.EXCEPTION_TYPE]: error.name,
+          [ATTR.EXCEPTION_MESSAGE]: error.message,
+          [ATTR.EXCEPTION_STACKTRACE]: error.stack,
+        }
+      : typeof error === 'string'
+        ? { [ATTR.EXCEPTION_MESSAGE]: error }
+        : {}),
+  });
+}
+
+/** A log without a request still needs a finished trace the investigation CLI can find. */
+export function recordDiagnosticFailure(event: DiagnosticLog): void {
+  if (event.severity !== 'error') return;
+  const attributes = diagnosticAttributes(event);
+  const span = trace
+    .getTracer('@pkgs/observability')
+    .startSpan('runtime.error', { attributes }, context.active());
+  span.setStatus({
+    code: SpanStatusCode.ERROR,
+    message: String(
+      attributes[ATTR.EXCEPTION_MESSAGE] ?? attributes[ATTR.APP_LOG_MESSAGE]
+    ),
+  });
+  span.addEvent('exception', {
+    [ATTR.EXCEPTION_TYPE]: attributes[ATTR.EXCEPTION_TYPE] ?? 'Error',
+    [ATTR.EXCEPTION_MESSAGE]:
+      attributes[ATTR.EXCEPTION_MESSAGE] ?? event.message,
+    ...(attributes[ATTR.EXCEPTION_STACKTRACE] === undefined
+      ? {}
+      : {
+          [ATTR.EXCEPTION_STACKTRACE]: attributes[ATTR.EXCEPTION_STACKTRACE],
+        }),
+  });
+  span.end();
+}
