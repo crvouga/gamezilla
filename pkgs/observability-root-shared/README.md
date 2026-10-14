@@ -83,7 +83,7 @@ signals to `waitUntil` and exposes rejected exports. Production keeps that work
 outside the response; standard deployments join it and fail loudly. Every host
 must still arrange shutdown/flush; telemetry is best effort outside the outbox.
 Response ownership checks are described in the repository's
-[correctness machinery](../../../README.md#correctness-machinery).
+[correctness machinery](../../README.md#correctness-machinery).
 
 Generic log bodies are replaced with stable names and instrumentation-scope
 attributes are removed before export. Diagnostic attributes use the existing default-deny redactor. Named
