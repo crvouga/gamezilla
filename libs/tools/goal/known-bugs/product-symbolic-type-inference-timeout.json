@@ -1,0 +1,4 @@
+{
+  "summary": "The unchanged access-sync proof exhausted its 120-second deadline during polymorphic type inference. Product operators declare concrete types; supported concrete inference preserves every model, bound, invariant and fairness check. All 13 formal checks pass within their original deadlines.",
+  "regressionTest": "apps/product/tests/quint/model-checks.test.ts"
+}
