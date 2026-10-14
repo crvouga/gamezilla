@@ -92,7 +92,7 @@ function SearchIdleState(): JSX.Element {
   );
 }
 
-function SearchScreenBody(): JSX.Element {
+export function SearchScreen(): JSX.Element {
   const { t } = useLingui();
   const { queries, touch, clear } = useSearchHistory();
   const [query, setQuery] = createSignal('');
@@ -106,20 +106,25 @@ function SearchScreenBody(): JSX.Element {
   const showResults = () => state.canSearch && trimmed().length > 0;
 
   return (
-    <div class="box flex-1 min-h-0 gap-4">
-      <TextInput
-        value={query()}
-        onChangeText={setQuery}
-        placeholder={t`Search by username or name`}
-        aria-label={t`Search people`}
-        startAdornment={
-          <SearchIcon size={FIELD_ICON_SIZE} color="textSecondary" />
-        }
-        autocapitalize="none"
-        autocorrect="off"
-        autofocus
-        dataSet={{ testid: Handles.searchInput }}
-      />
+    <CollectionScreen
+      screenId="search"
+      breadcrumbs={[{ name: t`Search` }]}
+      controls={
+        <TextInput
+          value={query()}
+          onChangeText={setQuery}
+          placeholder={t`Search by username or name`}
+          aria-label={t`Search people`}
+          startAdornment={
+            <SearchIcon size={FIELD_ICON_SIZE} color="textSecondary" />
+          }
+          autocapitalize="none"
+          autocorrect="off"
+          autofocus
+          dataSet={{ testid: Handles.searchInput }}
+        />
+      }
+    >
       <Show when={showRecent() && queries.length === 0}>
         <SearchIdleState />
       </Show>
@@ -141,16 +146,6 @@ function SearchScreenBody(): JSX.Element {
           results={state.results}
         />
       </Show>
-    </div>
-  );
-}
-
-export function SearchScreen(): JSX.Element {
-  const { t } = useLingui();
-
-  return (
-    <CollectionScreen screenId="search" breadcrumbs={[{ name: t`Search` }]}>
-      <SearchScreenBody />
     </CollectionScreen>
   );
 }

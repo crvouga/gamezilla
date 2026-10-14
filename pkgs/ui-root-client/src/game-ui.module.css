@@ -43,10 +43,6 @@
   align-items: center;
   gap: var(--ui-space-2);
 }
-/* A row with nothing to offer takes no room in its column. */
-.actions:empty {
-  display: none;
-}
 .player {
   display: flex;
   flex-direction: column;

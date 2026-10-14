@@ -1,8 +1,7 @@
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
-import { ScreenBase } from './screen-base';
+import { ContentScreen } from './content-screen';
 import type { ScreenBaseProps } from './screen-base-types';
-import { ScreenColumn } from './screen-column';
 import styles from './screen-layouts.module.css';
 
 export type ProfileScreenLayoutProps = Pick<
@@ -35,22 +34,18 @@ export function ProfileScreenLayout(
   props: ProfileScreenLayoutProps
 ): JSX.Element {
   return (
-    <ScreenBase
+    <ContentScreen
       screenId={props.screenId}
       breadcrumbs={props.breadcrumbs}
       actions={props.actions}
       dataSet={{ component: 'ProfileScreenLayout', ...props.dataSet }}
       surface="canvas"
-      scroll
-      content={() => (
-        <ScreenColumn>
-          <ProfileIdentity
-            identity={props.identity}
-            actions={props.identityActions}
-          />
-          {props.children}
-        </ScreenColumn>
-      )}
-    />
+    >
+      <ProfileIdentity
+        identity={props.identity}
+        actions={props.identityActions}
+      />
+      {props.children}
+    </ContentScreen>
   );
 }

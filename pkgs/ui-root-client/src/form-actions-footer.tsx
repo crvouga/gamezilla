@@ -26,10 +26,13 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { type JSX, Show, untrack } from 'solid-js';
+import { children, createMemo, type JSX, Show } from 'solid-js';
 import { Button } from './button';
 import type { ButtonIntent } from './button-face';
-import { useMutationButton } from './use-mutation-button';
+import {
+  type UseMutationButtonResult,
+  useMutationButton,
+} from './use-mutation-button';
 
 export type FormSubmitAction = {
   /** Resting label (also the success/error fallback). */
@@ -66,43 +69,64 @@ export type FormActionsFooterProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-export function FormActionsFooter(props: FormActionsFooterProps): JSX.Element {
-  const { submit, cancel } = untrack(() => ({
-    submit: props.submit,
-    cancel: props.cancel,
-  }));
-  const mutation = useMutationButton({
-    operation: () => submit.operation(),
+/** Shared controller for both native screen forms and standalone commands. */
+export function useFormActions(
+  props: FormActionsFooterProps
+): UseMutationButtonResult {
+  // Action getters may construct JSX. Resolve them under the component owner,
+  // then read the cached action from asynchronous mutation callbacks.
+  const submit = createMemo(() => props.submit);
+  return useMutationButton({
+    operation: () => submit().operation(),
     labels: {
       get idle() {
-        return submit.label;
+        return submit().label;
       },
       get loading() {
-        return submit.loadingLabel;
+        return submit().loadingLabel;
       },
       get success() {
-        return submit.successLabel;
+        return submit().successLabel;
       },
       get error() {
-        return submit.errorLabel;
+        return submit().errorLabel;
       },
     },
-    onSuccess: () => submit.onSuccess?.(),
-    onError: (error) => submit.onError?.(error),
+    onSuccess: () => submit().onSuccess?.(),
+    onError: (error) => submit().onError?.(error),
     get successHoldMs() {
-      return submit.successHoldMs;
+      return submit().successHoldMs;
     },
     get disabled() {
-      return submit.disabled;
+      return submit().disabled;
     },
   });
+}
 
+export function FormActionsFooter(props: FormActionsFooterProps): JSX.Element {
+  const mutation = useFormActions(props);
+  return (
+    <FormActionsFooterView
+      {...props}
+      mutation={mutation}
+      submitMode="command"
+    />
+  );
+}
+
+/** Controlled footer: native forms submit through their owning form event. */
+export function FormActionsFooterView(
+  props: FormActionsFooterProps & {
+    mutation: UseMutationButtonResult;
+    submitMode: 'form' | 'command';
+  }
+): JSX.Element {
   return (
     <div
       class="box flex-row gap-2"
       {...dataAttrs({ component: 'FormActionsFooter', ...props.dataSet })}
     >
-      <Show when={cancel}>
+      <Show when={props.cancel}>
         {(cancel) => (
           <Button
             title={cancel().label}
@@ -116,12 +140,58 @@ export function FormActionsFooter(props: FormActionsFooterProps): JSX.Element {
         )}
       </Show>
       <Button
-        {...mutation.buttonProps}
+        {...props.mutation.buttonProps}
         type="submit"
-        intent={submit.intent ?? 'primary'}
+        onClick={
+          props.submitMode === 'command'
+            ? props.mutation.buttonProps.onClick
+            : undefined
+        }
+        onRetry={
+          props.submitMode === 'command'
+            ? props.mutation.buttonProps.onRetry
+            : undefined
+        }
+        intent={props.submit.intent ?? 'primary'}
         flex={1}
-        dataSet={{ component: 'FormSubmitButton', ...submit.dataSet }}
+        dataSet={{ component: 'FormSubmitButton', ...props.submit.dataSet }}
       />
+      <FormActionsFeedback submit={props.submit} mutation={props.mutation} />
     </div>
+  );
+}
+
+function feedbackText(value: JSX.Element): string {
+  if (Array.isArray(value)) return value.map(feedbackText).join('');
+  if (value instanceof Node) return value.textContent ?? '';
+  return typeof value === 'string' || typeof value === 'number'
+    ? String(value)
+    : '';
+}
+
+/** Read lazy translated labels without moving their DOM nodes out of the button. */
+function FormActionsFeedback(props: {
+  submit: FormSubmitAction;
+  mutation: UseMutationButtonResult;
+}): JSX.Element {
+  const message = children(() => {
+    const phase = props.mutation.feedback();
+    if (phase === 'idle') return undefined;
+    if (phase === 'loading')
+      return props.submit.loadingLabel ?? props.submit.label;
+    if (phase === 'success')
+      return props.submit.successLabel ?? props.submit.label;
+    return props.submit.errorLabel ?? props.submit.label;
+  });
+  return (
+    <span
+      class="sr-only"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      {...dataAttrs({ component: 'FormActionsFeedback' })}
+    >
+      {feedbackText(message())}
+    </span>
   );
 }

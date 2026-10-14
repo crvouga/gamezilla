@@ -23,6 +23,7 @@ import { For, type JSX, Show } from 'solid-js';
 import { EmbeddedScreen } from './embedded-screen';
 import type { MainMenuItem } from './main-menu-item-row';
 import { MainMenuItemRow } from './main-menu-item-row';
+import { createScreenSlot } from './screen-slot';
 
 export type MainMenuScreenProps = {
   /** Stable screen identifier rendered as `data-screen` (spec / dev tooling). */
@@ -39,6 +40,8 @@ export type MainMenuScreenProps = {
 };
 
 export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
+  const helper = createScreenSlot(() => props.helper);
+  const footer = createScreenSlot(() => props.footer);
   return (
     <EmbeddedScreen
       screenId={props.screenId}
@@ -46,8 +49,8 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
       subtitle={props.subtitle}
       dataSet={{ component: 'MainMenuScreen', ...props.dataSet }}
     >
-      <Show when={props.helper}>
-        <p class="text textCaption">{props.helper}</p>
+      <Show when={helper.present()}>
+        <div class="text textCaption">{helper.content()}</div>
       </Show>
       <div class="panel self-stretch" role="list">
         <For each={props.items}>
@@ -58,8 +61,8 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
           )}
         </For>
       </div>
-      <Show when={props.footer}>
-        <div class="box mt-2">{props.footer}</div>
+      <Show when={footer.present()}>
+        <div class="box mt-2">{footer.content()}</div>
       </Show>
     </EmbeddedScreen>
   );

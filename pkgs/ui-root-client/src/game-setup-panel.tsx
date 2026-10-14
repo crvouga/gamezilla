@@ -1,5 +1,5 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from 'solid-js';
 import { GameActions, GameSection } from './game-section';
 
 export type GameSetupPanelProps = {
@@ -21,9 +21,7 @@ export function GameSetupPanel(props: GameSetupPanelProps): JSX.Element {
       footer={props.details}
     >
       {props.children}
-      <Show when={props.actions}>
-        <GameActions>{props.actions}</GameActions>
-      </Show>
+      <GameActions>{props.actions}</GameActions>
     </GameSection>
   );
 }

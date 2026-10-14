@@ -4,7 +4,12 @@ import type { ScreenBaseProps } from './screen-base-types';
 
 export type MenuScreenProps = Pick<
   ScreenBaseProps,
-  'screenId' | 'breadcrumbs' | 'actions' | 'leading' | 'dataSet'
+  | 'screenId'
+  | 'breadcrumbs'
+  | 'actions'
+  | 'leading'
+  | 'dataSet'
+  | 'renderActionsMenu'
 > & {
   /** Compose MenuSection / MenuList; their rows retain native semantics. */
   children: JSX.Element;
@@ -18,6 +23,7 @@ export function MenuScreen(props: MenuScreenProps): JSX.Element {
       breadcrumbs={props.breadcrumbs}
       actions={props.actions}
       leading={props.leading}
+      renderActionsMenu={props.renderActionsMenu}
       dataSet={{ component: 'MenuScreen', ...props.dataSet }}
     >
       {props.children}

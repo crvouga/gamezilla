@@ -2,6 +2,8 @@ import type { JSX } from 'solid-js';
 import { ScreenBase } from './screen-base';
 import type { ScreenBaseProps } from './screen-base-types';
 import { ScreenColumn } from './screen-column';
+import type { ScreenMeasure } from './screen-measure';
+import { createScreenSlot } from './screen-slot';
 
 export type ContentScreenProps = Pick<
   ScreenBaseProps,
@@ -12,13 +14,15 @@ export type ContentScreenProps = Pick<
   | 'surface'
   | 'dataSet'
   | 'footer'
+  | 'renderActionsMenu'
 > & {
   children: JSX.Element;
-  width?: 'reading' | 'stage' | 'full' | undefined;
+  width?: ScreenMeasure | 'full' | undefined;
 };
 
 /** Readable details, notices, and documents with one whole-body scroller. */
 export function ContentScreen(props: ContentScreenProps): JSX.Element {
+  const footer = createScreenSlot(() => props.footer);
   return (
     <ScreenBase
       screenId={props.screenId}
@@ -26,7 +30,12 @@ export function ContentScreen(props: ContentScreenProps): JSX.Element {
       actions={props.actions}
       leading={props.leading}
       surface={props.surface}
-      footer={props.footer}
+      renderActionsMenu={props.renderActionsMenu}
+      footer={
+        footer.present() ? (
+          <ScreenColumn width={props.width}>{footer.content()}</ScreenColumn>
+        ) : undefined
+      }
       dataSet={{ component: 'ContentScreen', ...props.dataSet }}
       scroll
       content={() => (

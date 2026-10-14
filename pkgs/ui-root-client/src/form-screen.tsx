@@ -1,11 +1,13 @@
-import type { JSX } from 'solid-js';
+import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
+import { createUniqueId, type JSX } from 'solid-js';
+import { ContentScreen } from './content-screen';
 import {
-  FormActionsFooter,
   type FormActionsFooterProps,
+  FormActionsFooterView,
+  useFormActions,
 } from './form-actions-footer';
-import { ScreenBase } from './screen-base';
 import type { ScreenBaseProps } from './screen-base-types';
-import { ScreenColumn } from './screen-column';
+import styles from './screen-layouts.module.css';
 
 export type FormScreenProps = Pick<
   ScreenBaseProps,
@@ -17,18 +19,41 @@ export type FormScreenProps = Pick<
 
 /** Scrollable editor with Save / Cancel in the canonical screen footer. */
 export function FormScreen(props: FormScreenProps): JSX.Element {
+  const formId = createUniqueId();
+  const mutation = useFormActions(props);
+  const submit: JSX.EventHandler<HTMLFormElement, SubmitEvent> = (event) => {
+    event.preventDefault();
+    const phase = mutation.feedback();
+    if (
+      mutation.buttonProps.disabled ||
+      phase === 'loading' ||
+      phase === 'success'
+    )
+      return;
+    if (event.currentTarget.checkValidity()) void mutation.run();
+  };
   return (
-    <ScreenBase
-      screenId={props.screenId}
-      breadcrumbs={props.breadcrumbs}
-      dataSet={{ component: 'FormScreen', ...props.dataSet }}
-      scroll
-      footer={
-        <ScreenColumn>
-          <FormActionsFooter submit={props.submit} cancel={props.cancel} />
-        </ScreenColumn>
-      }
-      content={() => <ScreenColumn>{props.children}</ScreenColumn>}
-    />
+    <form
+      id={formId}
+      class={styles['form']}
+      onSubmit={submit}
+      {...dataAttrs({ component: 'ScreenForm' })}
+    >
+      <ContentScreen
+        screenId={props.screenId}
+        breadcrumbs={props.breadcrumbs}
+        dataSet={{ component: 'FormScreen', ...props.dataSet }}
+        footer={
+          <FormActionsFooterView
+            submit={props.submit}
+            cancel={props.cancel}
+            mutation={mutation}
+            submitMode="form"
+          />
+        }
+      >
+        {props.children}
+      </ContentScreen>
+    </form>
   );
 }

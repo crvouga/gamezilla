@@ -23,6 +23,7 @@ const noopRating = (): void => {};
 type PlayChromeProps = {
   layout: PuzzlePlayLayoutProps;
   openFeedSettings: () => void;
+  overlay?: JSX.Element;
 };
 
 function completionKey(completion: PuzzleCompletion): string {
@@ -176,6 +177,7 @@ function PuzzlePlayStack(props: PlayChromeProps): JSX.Element {
           {props.layout.assistant}
         </>
       }
+      overlay={props.overlay}
       legend={props.layout.recommendationLegend}
       timeline={<ChessPuzzleMoveHistoryBar />}
       actions={
@@ -201,22 +203,29 @@ export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
     setFeedSettingsOpen(false);
   };
   return (
-    <div class="box flex-1 min-h-0 min-w-0 self-stretch overflow-hidden">
+    <>
       <DefineBackButton onPress={props.backToRoot} />
-      {props.announcement}
-      {props.testLoadingStatus}
-      <PuzzlePlayStack layout={props} openFeedSettings={openFeedSettings} />
-      <CelebrationLayer
-        completion={props.completion}
-        status={props.status}
-        onNext={props.onNext}
+      <PuzzlePlayStack
+        layout={props}
+        openFeedSettings={openFeedSettings}
+        overlay={
+          <>
+            {props.announcement}
+            {props.testLoadingStatus}
+            <CelebrationLayer
+              completion={props.completion}
+              status={props.status}
+              onNext={props.onNext}
+            />
+            {props.testHints}
+            <ChessPuzzleFeedSettingsModal
+              visible={feedSettingsOpen()}
+              onClose={closeFeedSettings}
+              onFeedConfigApplied={props.onFeedConfigApplied}
+            />
+          </>
+        }
       />
-      {props.testHints}
-      <ChessPuzzleFeedSettingsModal
-        visible={feedSettingsOpen()}
-        onClose={closeFeedSettings}
-        onFeedConfigApplied={props.onFeedConfigApplied}
-      />
-    </div>
+    </>
   );
 }

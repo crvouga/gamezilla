@@ -121,20 +121,48 @@ the stage before the rail on phones and places the rail beside it on wide
 screens; without a rail, the stage uses the full width. Toggling the rail
 does not remount the play surface.
 
+`ContentScreen` owns the scrolling body and measured footer once; `MenuScreen`,
+`FormScreen` and `ProfileScreenLayout` compose it. Optional slots resolve Solid
+children before deciding whether to allocate space: a false `<Show>`, empty
+fragment, or `null` never reserves a rail, heading, divider, or footer. Zero
+remains valid content. `createScreenSlot` supplies that shared contract.
+
+`FormScreen` owns a native HTML form. Enter and the Save button use one mutation
+controller, respect native field validity and the submit action's disabled state,
+and prevent duplicate submissions during loading or success feedback. The footer
+announces loading, success and error labels without removing them from the button.
+Replacing submit or cancel props updates their labels, callbacks and availability.
+Use `FormActionsFooter` for a standalone action row; a `FormScreen` already owns
+its footer, so it never needs a second one in the body.
+
+`CollectionScreen` puts fixed controls above a shrinking content region. Supply
+search, filters and connection notices through `controls`; put the independently
+scrolling list or state explanation in the body. Features never relay header
+actions through effects just to reach the template.
+
 `PuzzleScreen` reserves room for controls before fitting the board. Its
-`boardAspectRatio` defaults to one, and accepts width / height for rectangular
-boards. The feature supplies the board, choices, commands, waiting state and
+`boardAspectRatio` defaults to one, and accepts a finite positive width / height
+ratio for rectangular boards. Invalid ratios throw rather than emitting invalid
+CSS. The feature supplies the board, choices, commands, waiting state and
 completion feedback. Setup, play and completed states use the same session
 slots for every game mode; a game never defines a second screen scaffold.
+Puzzle completion feedback, announcements and optional dialogs belong in its
+`overlay` slot, inside the same screen boundary as the board and controls.
 
 Explore **UI components → Screen Layouts** (`/ui`). Every family has a
 registered example in `registry-entries-screens.ts`, using only this package.
 Custom and matched examples include setup, play, completion and replay;
 the matched example also exposes waiting and cancellation. The form example
-shows save feedback without leaving the editor, and history opens a review.
+shows native submission and failed-save recovery without leaving the editor,
+and history opens a review.
 Examples run inside a bounded viewport to exercise scrolling and pinned
 chrome. Their composition contracts run in both themes and compact / wide
 layouts in `../ui-root-harness/tests/screen-layout-contract.test.tsx`.
+`screen-layout-regression.test.tsx`, `form-screen.test.tsx` and
+`puzzle-screen.test.tsx` in that harness pin the empty-slot, native-submit,
+reactive-prop and invalid-ratio regressions. These are DOM composition and
+interaction checks; rendering both layout modes alone is not pixel geometry
+or overflow evidence.
 
 Patterns follow the open spec for that control: the HTML button, the
 fieldset and radio group, the WAI-ARIA switch, checkbox, dialog and

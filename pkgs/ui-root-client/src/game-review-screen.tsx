@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js';
 import { EmbeddedScreen, type EmbeddedScreenProps } from './embedded-screen';
 import { GameSessionLayout } from './game-session-layout';
+import { createScreenSlot } from './screen-slot';
 
 export type GameReviewScreenProps = Pick<
   EmbeddedScreenProps,
@@ -14,16 +15,17 @@ export type GameReviewScreenProps = Pick<
 
 /** Review any completed round with the same stage and optional record rail. */
 export function GameReviewScreen(props: GameReviewScreenProps): JSX.Element {
+  const aside = createScreenSlot(() => props.aside);
   return (
     <EmbeddedScreen
       screenId={props.screenId}
       title={props.title}
       subtitle={props.subtitle}
-      width={props.aside ? 'stage' : 'reading'}
+      width={aside.present() ? 'stage' : 'reading'}
       dataSet={{ component: 'GameReviewScreen', ...props.dataSet }}
     >
       <GameSessionLayout
-        aside={props.aside}
+        aside={aside.content()}
         status={props.timeline}
         actions={props.actions}
       >

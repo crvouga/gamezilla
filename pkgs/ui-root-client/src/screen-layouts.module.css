@@ -1,3 +1,11 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
+}
 .column {
   display: flex;
   flex-direction: column;
@@ -5,6 +13,7 @@
   width: 100%;
   min-width: 0;
   gap: var(--ui-space-5);
+  overflow-wrap: anywhere;
 }
 .collection {
   display: flex;
@@ -13,6 +22,7 @@
   min-height: 0;
   min-width: 0;
   gap: var(--ui-space-4);
+  overflow-wrap: anywhere;
 }
 .identity {
   display: flex;

@@ -1,5 +1,6 @@
 import { createSignal, type JSX } from 'solid-js';
 import { Avatar } from './avatar';
+import { Button } from './button';
 import { FormScreen } from './form-screen';
 import { ScreenExampleFrame } from './screen-example-frame';
 import { TextInput } from './text-input';
@@ -7,6 +8,7 @@ import { TextInput } from './text-input';
 export default function FormScreenExample(): JSX.Element {
   const [name, setName] = createSignal('Alex');
   const [saved, setSaved] = createSignal('Alex');
+  const [rejectNext, setRejectNext] = createSignal(false);
   return (
     <ScreenExampleFrame>
       <FormScreen
@@ -19,6 +21,10 @@ export default function FormScreenExample(): JSX.Element {
           successLabel: 'Saved',
           errorLabel: 'Try again',
           operation: () => {
+            if (rejectNext()) {
+              setRejectNext(false);
+              return Promise.reject(new Error('Example save refused'));
+            }
             setSaved(name());
             return Promise.resolve();
           },
@@ -28,9 +34,23 @@ export default function FormScreenExample(): JSX.Element {
         }}
       >
         <Avatar size={96} />
-        <TextInput label="Display name" value={name()} onChangeText={setName} />
+        <TextInput
+          label="Display name"
+          value={name()}
+          onChangeText={setName}
+          required
+        />
+        <Button
+          title={rejectNext() ? 'Next save will fail' : 'Preview a save error'}
+          intent="neutral"
+          variant="outline"
+          onClick={() => setRejectNext(true)}
+          disabled={rejectNext()}
+        />
         <p class="text textCaption">
-          Save keeps you here. Cancel restores the saved name in this example.
+          Press Enter or Save. You stay here after success; errors keep your
+          draft for another attempt. Cancel restores the saved name in this
+          example.
         </p>
       </FormScreen>
     </ScreenExampleFrame>
