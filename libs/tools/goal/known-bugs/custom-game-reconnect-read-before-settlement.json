@@ -1,0 +1,4 @@
+{
+  "summary": "Reconnect observations read the previous game before the returning connection settled, reporting configuring or active instead of the current state.",
+  "regressionTest": "specs/chess/custom-game-connection.feature"
+}
