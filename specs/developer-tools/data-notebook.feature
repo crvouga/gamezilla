@@ -66,6 +66,7 @@ Feature: Keep questions about a test world
   Rule: A question that answers automatically shows its answer when the notebook is opened
     No counter-example: a question that does not answer automatically waits until the team runs it.
 
+    @regression:live-notebook-queries-empty-headless-database
     Scenario: Opening the notebook shows an automatic answer
       Given the team's data notebook question about Alice's friends answers automatically
       When the team opens the data notebook for Alice's phone
