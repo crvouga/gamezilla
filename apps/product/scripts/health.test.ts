@@ -37,13 +37,12 @@ const STANDARD: Environment = {
 
 // regression: deploy-health-stale-foundation-secrets
 test('health uses the post-foundation database and monitor credentials', () => {
-  const liveDatabase = 'postgresql://role:new@aws.connect.psdb.cloud/postgres';
+  const liveDatabase = 'postgresql://after-foundation.example.invalid/postgres';
   const env = healthTestEnvironment({
     environment: 'prd',
     tags: '',
     vars: {
-      DATABASE_URL:
-        'postgresql://owner:old@ep-fancy-dream.us-east-1.aws.neon.tech/neondb',
+      DATABASE_URL: 'postgresql://before-foundation.example.invalid/postgres',
       SYNTHETIC_MONITOR_TOKEN: 'before-foundation',
       BUN_CHROME_PATH: '/chrome',
     },
