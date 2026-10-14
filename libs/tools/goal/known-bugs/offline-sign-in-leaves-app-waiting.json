@@ -1,0 +1,4 @@
+{
+  "summary": "Signing in with Google after losing the device connection navigates into an unavailable provider flow instead of showing a clear refusal. Refuse the external choice when shared availability is known to be missing.",
+  "regressionTest": "specs/runtime/connection-continuity.feature: Signing in offline gives a clear refusal"
+}

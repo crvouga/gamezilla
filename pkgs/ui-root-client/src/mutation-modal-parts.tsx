@@ -12,6 +12,7 @@ import { type JSX, Show } from 'solid-js';
 import { ErrorState } from './error-state';
 import { LoadingState } from './loading-state';
 import { ModalBody, ModalButton, ModalFooter } from './modal-parts';
+import { MutationOutcomeUnknownError } from './mutation-outcome-unknown-error';
 import { SuccessState } from './success-state';
 
 /** Fixed so loading / success / error share one state band (no grow). */
@@ -127,22 +128,34 @@ export function MutationError(props: {
   onClose: () => void;
 }): JSX.Element {
   const { t } = useLingui();
+  const unknown = (): boolean =>
+    props.error instanceof MutationOutcomeUnknownError;
   return (
     <>
       <StateArea>
         <ErrorState
           variant="band"
-          title={props.labels.errorTitle ?? t`Something went wrong`}
-          body={props.error?.message}
+          title={
+            unknown()
+              ? t`Not confirmed yet`
+              : (props.labels.errorTitle ?? t`Something went wrong`)
+          }
+          body={
+            unknown()
+              ? t`You can close this and keep using the app. Check again to learn the outcome of this choice.`
+              : props.error?.message
+          }
           retry={{
-            label: props.labels.retryLabel ?? t`Try again`,
+            label: unknown()
+              ? t`Check again`
+              : (props.labels.retryLabel ?? t`Try again`),
             onClick: () => props.onRetry(),
           }}
         />
       </StateArea>
       <FooterSlot>
         <ModalButton
-          label={props.labels.cancelLabel ?? t`Cancel`}
+          label={unknown() ? t`Close` : (props.labels.cancelLabel ?? t`Cancel`)}
           variant="cancel"
           onClick={() => props.onClose()}
           dataSet={{ action: 'cancel' }}

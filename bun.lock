@@ -6075,8 +6075,6 @@
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/a11y-shared": "workspace:*",
-        "@pkgs/async-root-client": "workspace:*",
-        "@pkgs/async-root-shared": "workspace:*",
         "@pkgs/clock-client": "workspace:*",
         "@pkgs/i18n-shared": "workspace:*",
         "@pkgs/keyword-shared": "workspace:*",

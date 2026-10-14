@@ -56,7 +56,8 @@ export function createOfflineClientEnv(
     createAuthClient: () =>
       (auth ??= createOfflineAuthClient(
         offline,
-        source.createAuthClient(server)
+        source.createAuthClient(server),
+        () => originAvailabilityFor(source).getSnapshot().phase === 'available'
       )),
     openExternalUrl: async (url) => {
       if (offline.isOffline()) throw offlineNetworkError();

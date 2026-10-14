@@ -14,6 +14,7 @@ import './app-lifecycle.steps';
 import './app-shell.steps';
 import '@libs/runtime-harness/journeys.steps';
 import './settings.steps';
+import './connection-continuity.steps';
 import './device-layout.steps';
 import './interrupted-preference.steps';
 import './privacy-retention.steps';

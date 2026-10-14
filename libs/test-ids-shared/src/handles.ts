@@ -9,6 +9,7 @@ export const Handles = {
   bootLoading: 'boot-loading',
   statusCurrentUser: 'status-current-user',
   statusWorkOffline: 'status-work-offline',
+  statusConnectionMissing: 'status-connection-missing',
   /** "Account" row inside the current-user avatar menu. */
   globalMenuAccount: 'global-menu-account',
   /** "Settings" row inside the global menu (→ `/more`). */
