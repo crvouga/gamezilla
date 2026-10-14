@@ -1,4 +1,5 @@
 import { PlayCustomGameBot } from '@libs/chess-custom-game-shared/custom-game-commands';
+import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { RoomServerApp } from '@libs/spaces-harness/in-process-room-node';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
@@ -15,18 +16,25 @@ export const redeliverCustomGameBotWake = scenarioAction({
     const node = s.harness.roomNode as RoomServerApp;
     if (typeof node.dispatchScheduled !== 'function')
       throw new Error('Captured scheduler wakes need the in-process room host');
+    const topic = `space:${link.split('/space/')[1]}`;
+    // A device may have unuploaded moves. A server wake is stale relative
+    // to the committed turn, rather than that device's local board.
+    const committed = CustomGamesAttr.from(
+      await node.services.read(topic)
+    ).current;
+    const wakeGame = committed ?? game;
     await node.dispatchScheduled(
-      `space:${link.split('/space/')[1]}`,
+      topic,
       PlayCustomGameBot({
         gameId:
-          kind === 'stale' && game.moves.length === 0
-            ? `${game.id}:earlier`
-            : game.id,
+          kind === 'stale' && wakeGame.moves.length === 0
+            ? `${wakeGame.id}:earlier`
+            : wakeGame.id,
         ply:
           kind === 'stale'
-            ? Math.max(0, game.moves.length - 1)
-            : game.moves.length,
-        side: game.turn === 'white' ? 'black' : 'white',
+            ? Math.max(0, wakeGame.moves.length - 1)
+            : wakeGame.moves.length,
+        side: wakeGame.turn === 'white' ? 'black' : 'white',
       })
     );
   },

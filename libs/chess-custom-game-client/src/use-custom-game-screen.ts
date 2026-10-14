@@ -24,6 +24,7 @@ import {
 import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import { createMemo } from 'solid-js';
 import { useCustomGameCommand } from './use-custom-game-command';
+import { useVisibleCustomGames } from './use-visible-custom-games';
 
 export type CustomGameScreenModel = ReturnType<typeof useCustomGameScreen>;
 
@@ -32,8 +33,7 @@ export function useCustomGameScreen() {
   const spaceId = useSpaceRoomSessionId();
   const scope = (): string => spaceId() ?? '';
   const roomGames = useSpaceRoomSelector(CustomGamesAttr.from);
-  // Connected guests learn committed outcomes even while the host is offline.
-  const games = roomGames;
+  const games = useVisibleCustomGames(roomGames);
   const current = createMemo(() => games().current);
   const members = useSpaceRoomSelector(spaceSeatMemberIds);
   const away = useSpaceRoomSelector(SpaceMembersRoomAttr.away.from);

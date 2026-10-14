@@ -12,6 +12,9 @@ import {
   prepareCustomGameModel,
   readCustomModelShown,
 } from './custom-game-model-world';
+import retainedBoard from './fixtures/custom-game-reconnect-keeps-host-offline-board.itf.json';
+import offlineCancel from './fixtures/custom-game-stale-wake-after-offline-cancel.itf.json';
+import offlineMove from './fixtures/custom-game-stale-wake-after-offline-move.itf.json';
 import terminalConfirmationTrace from './fixtures/custom-game-terminal-confirmation.itf.json';
 
 bindQuintModel<QuintHarnessWorld>({
@@ -20,6 +23,30 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 16,
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: custom-game-reconnect-keeps-host-offline-board
+      id: 'custom-game-reconnect-keeps-host-offline-board',
+      title:
+        'A returning guest keeps the active board while the host is offline',
+      seed: '0x67932',
+      itf: retainedBoard,
+    },
+
+    {
+      // regression: custom-game-stale-wake-after-offline-cancel
+      id: 'custom-game-stale-wake-after-offline-cancel',
+      title: 'A stale wake stays stale after the offline host cancels',
+      seed: '0x67932',
+      itf: offlineCancel,
+    },
+    {
+      // regression: custom-game-stale-wake-after-offline-move
+      id: 'custom-game-stale-wake-after-offline-move',
+      title: 'A stale wake stays stale when the offline host has another move',
+      seed: '0x67932',
+      itf: offlineMove,
+    },
+
     // regression: custom-game-terminal-confirmation
     {
       id: 'custom-game-terminal-confirmation',
