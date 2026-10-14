@@ -71,7 +71,10 @@ const output = spawnTool('tofu', outputArgs(paths, target), {
   env: { ...env },
   capture: true,
 });
-if (output.status !== 0) throw new Error('Foundation outputs are unavailable');
+if (output.status !== 0)
+  throw new Error(
+    `Foundation outputs are unavailable (tofu output exited ${output.status}): ${output.stderr.trim().slice(0, 2000)}`
+  );
 const outputs = JSON.parse(output.stdout) as {
   population_deployment?: {
     value?: { project_id: string; service_id: string; environment_id: string };
