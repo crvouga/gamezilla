@@ -64,3 +64,30 @@ test('missing square positions cannot satisfy an orientation', async () => {
     expectBoardFacing('black')(productionBoard(null))
   ).rejects.toThrow('board square positions are missing');
 });
+
+// regression: live-board-orientation-overlaps-webview-evaluation
+test('the shipped board read supports a WebView with one evaluation in flight', async () => {
+  const source = productionBoard('black');
+  let evaluating = false;
+  const ui: Driver = {
+    ...source,
+    get: (id) => {
+      const node = source.get(id);
+      return {
+        ...node,
+        attribute: async (name) => {
+          if (evaluating)
+            throw new Error('Invalid state: an evaluate() is already pending');
+          evaluating = true;
+          try {
+            await Promise.resolve();
+            return await node.attribute(name);
+          } finally {
+            evaluating = false;
+          }
+        },
+      };
+    },
+  };
+  await expect(expectBoardFacing('black')(ui)).resolves.toBeUndefined();
+});

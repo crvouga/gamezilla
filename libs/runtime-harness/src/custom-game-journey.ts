@@ -221,10 +221,8 @@ export function expectBoardFacing(
 ): (ui: Driver) => Promise<void> {
   return async (ui) => {
     await expectVisible(ui, 'chess-custom-board');
-    const [a1, h8] = await Promise.all([
-      readCornerPosition(ui, 'a1'),
-      readCornerPosition(ui, 'h8'),
-    ]);
+    const a1 = await readCornerPosition(ui, 'a1');
+    const h8 = await readCornerPosition(ui, 'h8');
     const white = a1.x < h8.x && a1.y > h8.y;
     const black = a1.x > h8.x && a1.y < h8.y;
     check(side === 'white' ? white : black, `the board does not face ${side}`);
