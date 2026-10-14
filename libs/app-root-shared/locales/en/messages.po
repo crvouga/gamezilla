@@ -779,6 +779,10 @@ msgstr "Change participant"
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
 
+#: pkgs/ui-root-client/src/mutation-modal-parts.tsx
+msgid "Check again"
+msgstr "Check again"
+
 #: libs/search-client/src/search-screen-view.tsx
 msgid "Check the spelling or try a different username."
 msgstr "Check the spelling or try a different username."
@@ -971,6 +975,10 @@ msgstr "Connection"
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
 msgid "Connection needed to change or play this game."
 msgstr "Connection needed to change or play this game."
+
+#: libs/app-root-client/src/connection-notice.tsx
+msgid "Connection unavailable. Saved content and local games remain available. Shared changes will reconnect automatically."
+msgstr "Connection unavailable. Saved content and local games remain available. Shared changes will reconnect automatically."
 
 #: libs/app-root-client/src/app-commands.tsx
 #: libs/app-root-client/src/app-header-global-menu.tsx
@@ -2377,6 +2385,15 @@ msgstr "Not available"
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "Not available on this account"
 msgstr "Not available on this account"
+
+#: pkgs/ui-root-client/src/mutation-modal-parts.tsx
+msgid "Not confirmed yet"
+msgstr "Not confirmed yet"
+
+#: libs/spaces-client/src/space-join-button.tsx
+#: pkgs/ui-root-client/src/use-mutation-button.tsx
+msgid "Not confirmed. Check again"
+msgstr "Not confirmed. Check again"
 
 #: libs/auth-client/src/sign-in-method-row.tsx
 msgid "Not connected"
@@ -4383,6 +4400,10 @@ msgstr "You are reviewing an earlier position, at the start of the game. No piec
 #: libs/chess-matchmaking-client/src/multiplayer-status.tsx
 msgid "You are White."
 msgstr "You are White."
+
+#: pkgs/ui-root-client/src/mutation-modal-parts.tsx
+msgid "You can close this and keep using the app. Check again to learn the outcome of this choice."
+msgstr "You can close this and keep using the app. Check again to learn the outcome of this choice."
 
 #: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "You can close this while we finish. Closing does not cancel your request."
