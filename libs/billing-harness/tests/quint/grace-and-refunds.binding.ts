@@ -33,6 +33,7 @@ import { focusActor } from '@libs/harness/shell-actions';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import offlineTrial from './fixtures/billing-trial-ends-while-phone-offline.itf.json';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DEVICES = [BILLING_PAYER, BILLING_SECOND_DEVICE] as const;
@@ -51,6 +52,15 @@ bindQuintModel<QuintHarnessWorld>({
   traces: 64,
   maxSteps: 10,
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: billing-trial-ends-while-phone-offline
+      id: 'billing-trial-ends-while-phone-offline',
+      title: 'Eight offline days end the trial before the phone returns',
+      seed: '0x67932',
+      itf: offlineTrial,
+    },
+  ],
   actions: {
     init: async (w) => {
       await w.s.apply(signInWithGoogle, BILLING_PAYER);

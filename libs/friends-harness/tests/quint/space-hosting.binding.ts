@@ -38,6 +38,8 @@ import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import hostInLobby from './fixtures/space-connected-host-counts-in-lobby.itf.json';
+import guestLeaves from './fixtures/space-host-in-lobby-after-reconnect.itf.json';
 import leftPreview from './fixtures/space-left-preview-misclassified-as-participant.itf.json';
 import orphanedPreview from './fixtures/space-link-preview-orphaned-after-leave.itf.json';
 
@@ -86,6 +88,21 @@ bindQuintModel<QuintHarnessWorld>({
   inductiveInvariant: '_inductive',
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: space-host-in-lobby-after-reconnect
+      id: 'space-host-in-lobby-after-reconnect',
+      title:
+        'A connected host still counts after reconnection and returning to the lobby',
+      seed: '0x67932',
+      itf: guestLeaves,
+    },
+    {
+      // regression: space-connected-host-counts-in-lobby
+      id: 'space-connected-host-counts-in-lobby',
+      title: 'Presence keeps counting the connected host in the lobby',
+      seed: '0x67932',
+      itf: hostInLobby,
+    },
     {
       // regression: space-left-preview-misclassified-as-participant
       id: 'space-left-preview-misclassified-as-participant',
