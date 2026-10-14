@@ -30,30 +30,46 @@ function task(taskId: string, seconds: number, cacheStatus = 'MISS') {
 }
 
 describe('taskBudgetSeconds', () => {
+  // regression: budget-examples-inherit-nightly-profile
   test('unlisted tasks get the default budget', () => {
-    expect(taskBudgetSeconds('@libs/nope#test', false)).toBe(
+    expect(taskBudgetSeconds('@libs/nope#test', false, {})).toBe(
       DEFAULT_TASK_BUDGET_SECONDS
     );
   });
 
+  test('explicit profiles decide overruns at both runner speeds', () => {
+    const summary = { tasks: [task('@libs/nope#test', 601)] };
+    expect(findBudgetOverruns(summary, false, {})).toEqual([
+      { taskId: '@libs/nope#test', seconds: 601, budgetSeconds: 300 },
+    ]);
+    expect(findBudgetOverruns(summary, true, {})).toEqual([
+      { taskId: '@libs/nope#test', seconds: 601, budgetSeconds: 600 },
+    ]);
+    const nightly = { CHECK_PROFILE: 'nightly' };
+    expect(taskBudgetSeconds('@libs/nope#test', false, nightly)).toBe(1200);
+    expect(taskBudgetSeconds('@libs/nope#test', true, nightly)).toBe(2400);
+    expect(findBudgetOverruns(summary, false, nightly)).toEqual([]);
+    expect(findBudgetOverruns(summary, true, nightly)).toEqual([]);
+  });
+
   test('listed tasks get their own budget', () => {
     const listed = '@pkgs/sql-client-postgres#test:contract';
-    expect(taskBudgetSeconds(listed, false)).toBe(
+    expect(taskBudgetSeconds(listed, false, {})).toBe(
       TASK_BUDGET_SECONDS[listed] ?? Number.NaN
     );
   });
 
   test('slow runners scale every budget by the same factor', () => {
-    expect(taskBudgetSeconds('@libs/nope#test', true)).toBe(
+    expect(taskBudgetSeconds('@libs/nope#test', true, {})).toBe(
       DEFAULT_TASK_BUDGET_SECONDS * SLOW_RUNNER_MULTIPLIER
     );
   });
 
   test('a prototype-named task does not inherit Object.prototype', () => {
-    expect(taskBudgetSeconds('constructor', false)).toBe(
+    expect(taskBudgetSeconds('constructor', false, {})).toBe(
       DEFAULT_TASK_BUDGET_SECONDS
     );
-    expect(taskBudgetSeconds('toString', false)).toBe(
+    expect(taskBudgetSeconds('toString', false, {})).toBe(
       DEFAULT_TASK_BUDGET_SECONDS
     );
   });
@@ -224,7 +240,8 @@ describe('findBudgetOverruns', () => {
           task('@a/cached#test', DEFAULT_TASK_BUDGET_SECONDS + 999, 'HIT'),
         ],
       },
-      false
+      false,
+      {}
     );
     expect(overruns).toEqual([
       {
@@ -243,7 +260,8 @@ describe('findBudgetOverruns', () => {
           task('@a/more#test', DEFAULT_TASK_BUDGET_SECONDS + 20),
         ],
       },
-      false
+      false,
+      {}
     );
     expect(overruns.map((o) => o.taskId)).toEqual([
       '@a/more#test',

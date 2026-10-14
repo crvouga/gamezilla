@@ -116,7 +116,11 @@ export const DEPLOY_RUN_DEADLINE_SECONDS = 2700;
 /** Overrides the wall-clock deadline (seconds); `0` is rejected, not "off". */
 export const RUN_DEADLINE_ENV = 'CHECK_DEADLINE_SECONDS';
 
-export function taskBudgetSeconds(taskId: string, slowRunner: boolean): number {
+export function taskBudgetSeconds(
+  taskId: string,
+  slowRunner: boolean,
+  env: NodeJS.ProcessEnv = process.env
+): number {
   const suite = suiteTaskBudgetSeconds(taskId);
   if (suite !== null) return suite;
   const base = Object.hasOwn(TASK_BUDGET_SECONDS, taskId)
@@ -124,7 +128,8 @@ export function taskBudgetSeconds(taskId: string, slowRunner: boolean): number {
     : DEFAULT_TASK_BUDGET_SECONDS;
   // The nightly profile runs the same task deeper (`check-profile.ts`).
   return profileBudgetSeconds(
-    slowRunner ? base * SLOW_RUNNER_MULTIPLIER : base
+    slowRunner ? base * SLOW_RUNNER_MULTIPLIER : base,
+    env
   );
 }
 
@@ -200,7 +205,8 @@ function executedSeconds(task: SummaryTask): number | null {
 /** Tasks that executed and outran their budget, slowest first. */
 export function findBudgetOverruns(
   summary: RunSummary,
-  slowRunner: boolean
+  slowRunner: boolean,
+  env: NodeJS.ProcessEnv = process.env
 ): readonly TaskOverrun[] {
   const overruns: TaskOverrun[] = [];
   for (const task of summary.tasks ?? []) {
@@ -208,7 +214,7 @@ export function findBudgetOverruns(
     if (typeof taskId !== 'string') continue;
     const seconds = executedSeconds(task);
     if (seconds === null) continue;
-    const budgetSeconds = taskBudgetSeconds(taskId, slowRunner);
+    const budgetSeconds = taskBudgetSeconds(taskId, slowRunner, env);
     if (seconds <= budgetSeconds) continue;
     overruns.push({ taskId, seconds, budgetSeconds });
   }
