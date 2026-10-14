@@ -144,8 +144,11 @@ terms:
   - term: match clock
     definition: >-
       The clock of a match. It runs down only the time of the player to move,
-      whatever anyone's phone shows or claims.
+      whatever anyone's phone shows or claims. It pauses while neither
+      player can use the shared match, keeps the time left on return, and
+      never pauses merely because a player's own phone is offline.
     forms: [clock]
+    model: [clocksPaused]
 
   - term: time left
     definition: >-

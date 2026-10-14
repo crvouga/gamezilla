@@ -6,7 +6,8 @@
 // Offline people keep their last board and cannot play; the clock runs and
 // the current position and outcome return when their connection returns.
 // Someone who still has a connection keeps seeing that current board while
-// the host is offline.
+// the host is offline. A shared interruption keeps the same board and
+// pauses time and absence; it never permits a win for staying away.
 // Alice is White and the creator, Bob is Black, and Carol watches. A
 // participant with no connection is away: being away never gives up the game,
 // and a timed game's clock keeps running for them. After a minute away, the
@@ -36,6 +37,12 @@ module custom_game_play {
   var clockLeft: Color -> int
   /// Each person's last board and game state.
   var playShown: Person -> (str, int, str)
+  /// A timed shared game shows paused clocks while neither participant can play.
+  var clocksPaused: bool
+  var _available: bool
+  var _previousAvailable: bool
+  var _previousClocks: Color -> int
+  var _previousStatus: str
   var _offline: Set[Person]
   var _atCutOff: Person -> (str, int, str)
   var _terminalPicture: (str, int, str, Color -> int)
@@ -56,7 +63,11 @@ module custom_game_play {
   def _visible(actor: Person): bool = playShown.get(actor)._1 != "unavailable"
   action _update(status: str, moves: int, turn: Color, outcome: str, left: Color -> int, offline: Set[Person]): bool =
     _updateAll(status,moves,turn,outcome,left,offline,PEOPLE.mapBy(p => if (offline.contains(p)) _awayFor.get(p) else 0),_canceller,_claimedAfter)
-  action _updateAll(status: str, moves: int, turn: Color, outcome: str, left: Color -> int, offline: Set[Person], away: Person -> int, canceller: Person, claimedAfter: int): bool = all {
+  action _updateAll(status: str, moves: int, turn: Color, outcome: str, left: Color -> int, offline: Set[Person], away: Person -> int, canceller: Person, claimedAfter: int): bool =
+    _recordAll(status,moves,turn,outcome,left,offline,away,canceller,claimedAfter,_available)
+  action _recordAll(status: str, moves: int, turn: Color, outcome: str, left: Color -> int, offline: Set[Person], away: Person -> int, canceller: Person, claimedAfter: int, available: bool): bool = all {
+    _available' = available, clocksPaused' = (_timed and status == "active" and not(available)),
+    _previousAvailable' = _available, _previousClocks' = clockLeft, _previousStatus' = _playStatus,
     _awayFor' = away, _timed' = _timed, _canceller' = canceller, _claimedAfter' = claimedAfter,
     _playStatus' = status, ply' = moves, sideToMove' = turn, _result' = outcome,
     clockLeft' = left, _offline' = offline,
@@ -70,6 +81,8 @@ module custom_game_play {
     nondet timed = Set(false, true).oneOf()
     all {
     _timed' = timed,
+    clocksPaused' = false, _available' = true, _previousAvailable' = true,
+    _previousClocks' = COLORS.mapBy(_ => _INITIAL_TIME), _previousStatus' = "active",
     _awayFor' = PEOPLE.mapBy(_ => 0), _canceller' = "", _claimedAfter' = 0,
     _playStatus' = "active", ply' = 0, sideToMove' = "white", _result' = "",
     clockLeft' = COLORS.mapBy(_ => _INITIAL_TIME), _offline' = Set(),
@@ -81,7 +94,7 @@ module custom_game_play {
   /// The assigned person plays the next legal move, or hears a refusal.
   action playCustomMove(actor: Person): bool = all {
     _visible(actor),
-    if (not(_offline.contains(actor)) and not(_offline.contains("alice")) and _playStatus == "active" and _color(actor) == sideToMove)
+    if (_available and not(_offline.contains(actor)) and not(_offline.contains("alice")) and _playStatus == "active" and _color(actor) == sideToMove)
       _update(if (ply == 3) "completed" else "active",ply+1,_other(sideToMove),if (ply == 3) "black wins by checkmate" else "",clockLeft,_offline)
     else _hold
   }
@@ -90,7 +103,7 @@ module custom_game_play {
   /// A participating person resigns, while the game is active; a watcher cannot.
   action resignCustomGame(actor: Person): bool = all {
     _visible(actor),
-    if (not(_offline.contains(actor)) and not(_offline.contains("alice")) and _playStatus == "active" and _color(actor) != "")
+    if (_available and not(_offline.contains(actor)) and not(_offline.contains("alice")) and _playStatus == "active" and _color(actor) != "")
       _update("completed",ply,sideToMove,if (actor == "alice") "black wins by resignation" else "white wins by resignation",clockLeft,_offline)
     else _hold
   }
@@ -98,7 +111,7 @@ module custom_game_play {
   /// other participant may cancel only until each side has moved.
   action cancelCustomGame(actor: Person): bool = all {
     _visible(actor),
-    if (not(_offline.contains(actor)) and not(_offline.contains("alice")) and _playStatus == "active" and (actor == "alice" or (_color(actor) != "" and ply < 2)))
+    if (_available and not(_offline.contains(actor)) and not(_offline.contains("alice")) and _playStatus == "active" and (actor == "alice" or (_color(actor) != "" and ply < 2)))
       _updateAll("cancelled",ply,sideToMove,"cancelled",clockLeft,_offline,_awayFor,actor,_claimedAfter)
     else _hold
   }
@@ -106,7 +119,7 @@ module custom_game_play {
   /// for a minute; earlier, or for a watcher, nothing changes.
   action claimWin(actor: Person): bool = all {
     _visible(actor),
-    if (_playStatus == "active" and _color(actor) != "" and not(_offline.contains(actor)) and not(_offline.contains("alice"))
+    if (_available and _playStatus == "active" and _color(actor) != "" and not(_offline.contains(actor)) and not(_offline.contains("alice"))
         and _offline.contains(_opponent(actor)) and _awayFor.get(_opponent(actor)) >= _AWAY_LIMIT)
       _updateAll("completed",ply,sideToMove,
         if (actor == "alice") "white wins because black stayed away" else "black wins because white stayed away",
@@ -117,7 +130,7 @@ module custom_game_play {
   /// game's side to move spends time.
   action customTimePasses(quarters: int): bool = {
     val away = PEOPLE.mapBy(p => if (_offline.contains(p)) _capped(_awayFor.get(p) + quarters) else 0)
-    if (_playStatus != "active") _hold
+    if (_playStatus != "active" or not(_available)) _hold
     else if (not(_timed))
       _updateAll(_playStatus,ply,sideToMove,_result,clockLeft,_offline,away,_canceller,_claimedAfter)
     else if (quarters >= clockLeft.get(sideToMove))
@@ -138,13 +151,21 @@ module custom_game_play {
     _offline.contains(actor),
     _update(_playStatus,ply,sideToMove,_result,clockLeft,_offline.exclude(Set(actor))),
   }
+  /// Checking machinery: the shared game cannot be played by either participant.
+  action _sharedPlayStops = all {
+    _available, _recordAll(_playStatus,ply,sideToMove,_result,clockLeft,_offline,_awayFor,_canceller,_claimedAfter,false),
+  }
+  /// Checking machinery: the same shared game becomes usable again.
+  action _sharedPlayReturns = all {
+    not(_available), _recordAll(_playStatus,ply,sideToMove,_result,clockLeft,_offline,_awayFor,_canceller,_claimedAfter,true),
+  }
   action step = {
     nondet actor = PEOPLE.oneOf()
     nondet quarters = _WAITS.oneOf()
     any {
       playCustomMove(actor), resignCustomGame(actor), cancelCustomGame(actor), claimWin(actor),
       customTimePasses(quarters), _illegalMove(actor), _repeatMove,
-      _changeStartedGame, _loseConnection(actor), _connectionReturns(actor),
+      _changeStartedGame, _loseConnection(actor), _connectionReturns(actor), _sharedPlayStops, _sharedPlayReturns,
     }
   }
   /// Moves and turn remain those of one legal alternating game.
@@ -167,10 +188,14 @@ module custom_game_play {
   val invClaimNeedsAbsence = _STAYED_AWAY.contains(_result) implies _claimedAfter >= _AWAY_LIMIT
   /// Being away never ends the game by itself: an away _result always comes from a claim.
   val invAwayNeverResigns = (_claimedAfter > 0) == _STAYED_AWAY.contains(_result)
-  val _state = (_playStatus,ply,sideToMove,_result,clockLeft,playShown,_offline,_atCutOff,_terminalPicture,_ended,_awayFor,_timed,_canceller,_claimedAfter)
+  /// A shared pause preserves the remaining time, including when play resumes.
+  val invSharedPauseKeepsTime = (_previousStatus == "active" and not(_previousAvailable)) implies clockLeft == _previousClocks
+  /// Only an active timed shared game can show paused clocks.
+  val invPauseIsHonest = clocksPaused == (_timed and _playStatus == "active" and not(_available))
+  val _state = (clocksPaused,_available,_previousAvailable,_previousClocks,_previousStatus,_playStatus,ply,sideToMove,_result,clockLeft,playShown,_offline,_atCutOff,_terminalPicture,_ended,_awayFor,_timed,_canceller,_claimedAfter)
   temporal _timeKeepsPassing = customTimePasses(1).weakFair(_state)
   /// A timed game eventually ends while time continues to pass.
-  temporal liveTimedGameEnds = (_timed and _timeKeepsPassing).implies((_playStatus == "active").leadsTo(_playStatus != "active"))
+  temporal liveTimedGameEnds = (_timed and _timeKeepsPassing and eventually(always(_available))).implies((_playStatus == "active").leadsTo(_playStatus != "active"))
   /// Once someone stays online, their board eventually agrees with the game.
   temporal liveReturnedBoard = PEOPLE.forall(p => eventually(always(not(_offline.contains(p)) and not(_offline.contains("alice")))).implies(eventually(always(playShown.get(p) == (_playStatus,ply,_result)))))
 }

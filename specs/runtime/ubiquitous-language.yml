@@ -92,7 +92,7 @@ terms:
       anything that needs one, such as signing in, is ready again.
     forms: [cuts off, is cut off]
     avoid: [load balancer, dropped socket]
-    model: [offline, cutOff, reconnect]
+    model: [offline, cutOff, reconnect, connectionMissing]
 
   - term: address
     definition: >-
@@ -155,6 +155,7 @@ terms:
       one of the tabs, opening Settings or turning sounds off. Every control
       says what it does, to someone listening to the app too.
     forms: [controls]
+    model: [choiceOpen, choiceUnfinished, choiceConfirmed, canPutAside, putAsideChoice]
     avoid: [button, widget, element, link text, field]
     published: true
 

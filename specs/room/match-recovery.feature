@@ -1,26 +1,42 @@
 @domain:room
 Feature: Timed matches keep their clocks after interruption
-  When a timed match is interrupted, its players want to keep their time and
-  learn who won, so a match cannot keep playing after time has run out.
+  When a timed match cannot continue for either player, its players want the same match and time kept, so the interruption cannot decide who won.
 
-  Rule: An interruption never gives a player extra time
-    No counter-example: the match clock alone decides whose time runs out.
+  Rule: A match unavailable to both players keeps the time left
+    No counter-example: no player can spend time while the match itself cannot be played.
 
-    Scenario: Returning before time runs out keeps only the time left
+    Scenario: Returning keeps all time left when the match became unavailable
       Given White and Black started a match as the room became unavailable
       And 2 seconds have passed
       When the room is available again
-      Then White has 2 seconds left and Black has 4 seconds left
+      Then White has 4 seconds left and Black has 4 seconds left
 
-    Scenario: A start its maker did not hear back about still runs out of time
+    Scenario: An accepted start remains the same match after a long interruption
       Given White and Black started a match as the room became unavailable
       And 4 seconds have passed
       When the room is available again
-      Then White and Black both see Black win on time
+      Then the match is still playing with White to move
+      And White has 4 seconds left and Black has 4 seconds left
 
-    Scenario: An interrupted move cannot stop the next player's clock
+    Scenario: A move accepted before interruption keeps the next player to move
       Given White and Black have started a match with 4 seconds for White and 4 seconds for Black
       And White has moved as the room became unavailable
       And 4 seconds have passed
       When the room is available again
-      Then White and Black both see White win on time
+      Then Black is to move
+      And White has 4 seconds left and Black has 4 seconds left
+
+  Rule: One player's missing connection does not pause an available match
+
+    Scenario: A disconnected player still runs out of time
+      Given White and Black have started a match with 4 seconds for White and 4 seconds for Black
+      And White's phone is offline
+      When 4 seconds pass
+      Then White and Black both see Black win on time
+
+    Scenario: A disconnected player still has time before the deadline
+      Given White and Black have started a match with 4 seconds for White and 4 seconds for Black
+      And White's phone is offline
+      When 2 seconds pass
+      Then the match is still playing with White to move
+      And White has 2 seconds left and Black has 4 seconds left
