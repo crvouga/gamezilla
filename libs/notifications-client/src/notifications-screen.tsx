@@ -10,13 +10,13 @@ import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import { CollectionScreen } from '@pkgs/ui-root-client/collection-screen';
 import {
   BellIcon,
   CheckCheckIcon,
   WifiOffIcon,
 } from '@pkgs/ui-root-client/icons';
 import { Notice } from '@pkgs/ui-root-client/notice';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client/screen-base-types';
 import {
   createEffect,
@@ -196,20 +196,17 @@ export function NotificationsScreen(
   });
 
   return (
-    <ScreenBase
+    <CollectionScreen
       screenId="notifications"
       breadcrumbs={[{ name: t`Notifications` }]}
       actions={actions()}
-      content={(body) => (
-        <div class={`box ${body.bodyClass}`}>
-          <NotificationsPermissionGate>
-            <NotificationsScreenBody
-              initialFilter={props.initialFilter}
-              onHeaderAction={setHeaderAction}
-            />
-          </NotificationsPermissionGate>
-        </div>
-      )}
-    />
+    >
+      <NotificationsPermissionGate>
+        <NotificationsScreenBody
+          initialFilter={props.initialFilter}
+          onHeaderAction={setHeaderAction}
+        />
+      </NotificationsPermissionGate>
+    </CollectionScreen>
   );
 }

@@ -27,8 +27,8 @@ import {
   WifiOffIcon,
 } from '@pkgs/ui-root-client/icons';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuScreen } from '@pkgs/ui-root-client/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { Switch } from '@pkgs/ui-root-client/switch';
 import { useThemePreference } from '@pkgs/ui-root-client/theme-preference';
 import type { Href } from '@pkgs/ui-root-shared/href';
@@ -251,27 +251,23 @@ export function SettingsScreen(): JSX.Element {
   const groups = useSettingsGroups();
   const subs = useAppSubs();
   return (
-    <ScreenBase
+    <MenuScreen
       screenId="more"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
         { name: <Trans>Settings</Trans> },
       ]}
-      scroll
-      content={({ bodyClass }) => (
-        <div class={`box ${bodyClass} gap-5`}>
-          <For each={groups()}>
-            {(group) => (
-              <MenuSection title={group.title} role="group">
-                <For each={group.rows}>
-                  {(row) => <SettingsRowItem row={row} />}
-                </For>
-              </MenuSection>
-            )}
-          </For>
-          <For each={subs.settings}>{(Settings) => <Settings />}</For>
-        </div>
-      )}
-    />
+    >
+      <For each={groups()}>
+        {(group) => (
+          <MenuSection title={group.title} role="group">
+            <For each={group.rows}>
+              {(row) => <SettingsRowItem row={row} />}
+            </For>
+          </MenuSection>
+        )}
+      </For>
+      <For each={subs.settings}>{(Settings) => <Settings />}</For>
+    </MenuScreen>
   );
 }

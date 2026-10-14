@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { CollectionScreen } from '@pkgs/ui-root-client/collection-screen';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { ChessPuzzleFeedProvider } from './chess-puzzle-feed-provider';
 import { ChessPuzzleReviewBody } from './chess-puzzle-review-screen';
@@ -14,7 +14,7 @@ export function PersonalChessStatsScreen(): JSX.Element {
   };
   return (
     <ChessPuzzleFeedProvider>
-      <ScreenBase
+      <CollectionScreen
         screenId="personal-chess-stats"
         breadcrumbs={[
           { name: <Trans>Settings</Trans>, href: '/more' },
@@ -28,28 +28,25 @@ export function PersonalChessStatsScreen(): JSX.Element {
             ? []
             : [{ name: <Trans>Puzzle review</Trans> }]),
         ]}
-        content={({ bodyClass }) => (
-          <div class={bodyClass}>
-            <Show
-              when={puzzleId()}
-              keyed
-              fallback={
-                <ChessStatsBody
-                  titled={false}
-                  onSelectEntry={(entry) => review(entry.puzzleId)}
-                />
-              }
-            >
-              {(id) => (
-                <ChessPuzzleReviewBody
-                  puzzleId={id}
-                  cursor={{ solveIdx, seek: setSolveIdx }}
-                />
-              )}
-            </Show>
-          </div>
-        )}
-      />
+      >
+        <Show
+          when={puzzleId()}
+          keyed
+          fallback={
+            <ChessStatsBody
+              titled={false}
+              onSelectEntry={(entry) => review(entry.puzzleId)}
+            />
+          }
+        >
+          {(id) => (
+            <ChessPuzzleReviewBody
+              puzzleId={id}
+              cursor={{ solveIdx, seek: setSolveIdx }}
+            />
+          )}
+        </Show>
+      </CollectionScreen>
     </ChessPuzzleFeedProvider>
   );
 }

@@ -25,15 +25,8 @@ import { cssPx } from '@pkgs/ui-root-shared/css-px';
 import type { JSX } from 'solid-js';
 import { useScreenFocus } from './screen-focus';
 import { ScreenIntro } from './screen-intro';
+import { SCREEN_MAX_WIDTH, type ScreenMeasure } from './screen-measure';
 import { ScrollView } from './scroll-view';
-
-/** `reading` holds a column of rows or text; `stage` holds a board and a rail. */
-export type EmbeddedScreenWidth = 'reading' | 'stage';
-
-export const EMBEDDED_SCREEN_MAX_WIDTH: Record<EmbeddedScreenWidth, number> = {
-  reading: 480,
-  stage: 1120,
-};
 
 export type EmbeddedScreenProps = {
   /** Stable screen identifier rendered as `data-screen` (spec / dev tooling). */
@@ -43,7 +36,7 @@ export type EmbeddedScreenProps = {
   /** One quiet line under the title. */
   subtitle?: JSX.Element | undefined;
   /** Content width cap. Defaults to `reading`. */
-  width?: EmbeddedScreenWidth | undefined;
+  width?: ScreenMeasure | undefined;
   children: JSX.Element;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
@@ -68,7 +61,7 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
       }}
       contentClass="box px-4 pt-2 pb-8 gap-4 self-center w-full min-w-0"
       contentStyle={{
-        'max-width': cssPx(EMBEDDED_SCREEN_MAX_WIDTH[props.width ?? 'reading']),
+        'max-width': cssPx(SCREEN_MAX_WIDTH[props.width ?? 'reading']),
       }}
     >
       <ScreenIntro title={props.title} subtitle={props.subtitle} />

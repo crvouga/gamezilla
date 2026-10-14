@@ -6,10 +6,10 @@ import {
 } from '@libs/user-search-client/use-user-search';
 import type { UserSearchResult } from '@libs/user-search-shared/user-search-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { CollectionScreen } from '@pkgs/ui-root-client/collection-screen';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { SearchIcon, UsersIcon } from '@pkgs/ui-root-client/icons';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client/screen-body-virtual-list';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
@@ -149,14 +149,8 @@ export function SearchScreen(): JSX.Element {
   const { t } = useLingui();
 
   return (
-    <ScreenBase
-      screenId="search"
-      breadcrumbs={[{ name: t`Search` }]}
-      content={({ bodyClass }) => (
-        <div class={`box ${bodyClass}`}>
-          <SearchScreenBody />
-        </div>
-      )}
-    />
+    <CollectionScreen screenId="search" breadcrumbs={[{ name: t`Search` }]}>
+      <SearchScreenBody />
+    </CollectionScreen>
   );
 }

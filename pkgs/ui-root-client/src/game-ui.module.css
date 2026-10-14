@@ -259,7 +259,7 @@
   }
 }
 @media (min-width: 960px) {
-  .layout {
+  .layout[data-has-aside="true"] {
     grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
   }
 }

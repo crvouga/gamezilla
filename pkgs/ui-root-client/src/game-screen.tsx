@@ -1,5 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { EmbeddedScreen } from './embedded-screen';
 import styles from './game-ui.module.css';
 
@@ -30,12 +30,18 @@ export function GameScreen(props: {
 /** A fluid stage and a supporting rail, stacked in reading order on phones. */
 export function GameLayout(props: {
   children: JSX.Element;
-  aside: JSX.Element;
+  aside?: JSX.Element | undefined;
 }): JSX.Element {
   return (
-    <div class={styles['layout']} {...dataAttrs({ component: 'GameLayout' })}>
+    <div
+      class={styles['layout']}
+      data-has-aside={!!props.aside}
+      {...dataAttrs({ component: 'GameLayout' })}
+    >
       <div class={styles['stage']}>{props.children}</div>
-      <div class={styles['rail']}>{props.aside}</div>
+      <Show when={props.aside}>
+        <div class={styles['rail']}>{props.aside}</div>
+      </Show>
     </div>
   );
 }

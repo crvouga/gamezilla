@@ -1,0 +1,105 @@
+import { describe, expect, test } from 'bun:test';
+import { renderWithI18n as render } from '@pkgs/bun-test-solid-client/render';
+import { ClockProvider } from '@pkgs/clock-client/solid';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import { GameSessionLayout } from '@pkgs/ui-root-client/game-session-layout';
+import { SCREEN_ENTRIES } from '@pkgs/ui-root-client/registry-entries-screens';
+import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
+import { fireEvent } from '@solidjs/testing-library';
+import { createSignal, type JSX } from 'solid-js';
+
+function mountExample(
+  id: string,
+  width = 390,
+  colorScheme: 'light' | 'dark' = 'light'
+) {
+  const entry = SCREEN_ENTRIES.find((candidate) => candidate.id === id);
+  if (!entry) throw new Error(`Missing screen example: ${id}`);
+  const Example = entry.Example;
+  const { clock, timers } = createHarnessClock({ startMs: 0 });
+  const view = render(() => (
+    <ClockProvider clock={clock} timers={timers}>
+      <ThemeProvider
+        colorScheme={colorScheme}
+        fixedLayout={{ width, height: 844 }}
+      >
+        <Example />
+      </ThemeProvider>
+    </ClockProvider>
+  ));
+  return { ...view, clock };
+}
+
+describe('screen layout composition contracts', () => {
+  test('every screen example renders in compact and wide themes with one screen identity', () => {
+    for (const entry of SCREEN_ENTRIES) {
+      for (const colorScheme of ['light', 'dark'] as const) {
+        for (const width of [390, 1280]) {
+          const view = mountExample(entry.id, width, colorScheme);
+          const count = entry.id === 'game-setup-panel' ? 0 : 1;
+          expect(view.container.querySelectorAll('[data-screen]').length).toBe(
+            count
+          );
+          expect(
+            view.queryAllByRole('heading', { level: 1 }).length
+          ).toBeLessThanOrEqual(1);
+          expect(view.queryByRole('dialog')).toBeNull();
+          view.unmount();
+        }
+      }
+    }
+  });
+
+  test('custom and matched game examples expose setup, play and result compositions', () => {
+    const custom = mountExample('game-screen');
+    fireEvent.click(custom.getByRole('button', { name: 'Start round' }));
+    expect(custom.getByRole('group', { name: 'Example board' })).toBeDefined();
+    fireEvent.click(custom.getByRole('button', { name: 'Finish round' }));
+    expect(custom.getByRole('status').textContent).toBe('Round complete');
+    fireEvent.click(custom.getByRole('button', { name: 'New round' }));
+    expect(custom.getByRole('button', { name: 'Start round' })).toBeDefined();
+    custom.unmount();
+    const matched = mountExample('game-session-layout');
+    fireEvent.click(matched.getByRole('button', { name: 'Find an opponent' }));
+    expect(
+      matched.getByRole('button', { name: 'Stop searching' })
+    ).toBeDefined();
+    fireEvent.click(matched.getByRole('button', { name: 'Preview a match' }));
+    expect(matched.getByRole('group', { name: 'Example board' })).toBeDefined();
+    fireEvent.click(matched.getByRole('button', { name: 'Finish match' }));
+    expect(matched.getByRole('status').textContent).toBe('Round complete');
+    matched.unmount();
+  });
+
+  test('form example keeps feedback in the footer and retains the editor after saving', async () => {
+    const view = mountExample('form-screen');
+    const input = view.getByRole('textbox');
+    fireEvent.input(input, { target: { value: 'Robin' } });
+    fireEvent.click(view.getByRole('button', { name: 'Save' }));
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(view.getByRole('textbox')).toBe(input);
+    expect(view.getByRole('button', { name: 'Saved' })).toBeDefined();
+    expect(
+      view.container
+        .querySelector('[data-component="ScreenFooter"]')
+        ?.contains(view.getByRole('button', { name: 'Saved' }))
+    ).toBe(true);
+    view.unmount();
+  });
+
+  test('a supporting rail can appear without remounting the play surface', () => {
+    const [aside, setAside] = createSignal<JSX.Element>(undefined);
+    const view = render(() => (
+      <GameSessionLayout aside={aside()}>
+        <input aria-label="Play surface" />
+      </GameSessionLayout>
+    ));
+    const input = view.getByRole('textbox');
+    setAside(<p>Round record</p>);
+    expect(view.getByRole('textbox')).toBe(input);
+    setAside(undefined);
+    expect(view.getByRole('textbox')).toBe(input);
+    view.unmount();
+  });
+});

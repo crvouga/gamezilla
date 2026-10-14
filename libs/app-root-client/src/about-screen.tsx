@@ -19,8 +19,8 @@ import { useLingui as useLinguiRuntime } from '@lingui/solid';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { CopyToClipboardField } from '@pkgs/ui-root-client/copy-to-clipboard-field';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuScreen } from '@pkgs/ui-root-client/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 
 type CommitProvenance = {
@@ -76,43 +76,39 @@ export function AboutScreen(): JSX.Element {
     import.meta.env.DEV ? t`Development` : t`Production`;
 
   return (
-    <ScreenBase
+    <MenuScreen
       screenId="about"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>About</Trans> },
       ]}
-      scroll
-      content={({ bodyClass }) => (
-        <div class={`box ${bodyClass} gap-5`}>
-          <MenuSection title={<Trans>App</Trans>}>
-            <MenuRow title={t`Name`} value={APP_NAME} />
-            <MenuRow
-              title={t`Version`}
-              value={APP_VERSION}
-              dataSet={{ testid: Handles.aboutVersion }}
-            />
-            <MenuRow title={t`Platform`} value="web" />
-            <MenuRow title={t`Build mode`} value={buildMode()} />
-          </MenuSection>
+    >
+      <MenuSection title={<Trans>App</Trans>}>
+        <MenuRow title={t`Name`} value={APP_NAME} />
+        <MenuRow
+          title={t`Version`}
+          value={APP_VERSION}
+          dataSet={{ testid: Handles.aboutVersion }}
+        />
+        <MenuRow title={t`Platform`} value="web" />
+        <MenuRow title={t`Build mode`} value={buildMode()} />
+      </MenuSection>
 
-          <BuildSection provenance={provenance()} />
+      <BuildSection provenance={provenance()} />
 
-          <Show when={provenance()}>
-            {(p) => (
-              <CopyToClipboardField
-                label={<Trans>Full commit</Trans>}
-                helperText={t`Tap to copy`}
-                value={p().fullHash}
-                copy={writeClipboardText}
-                selectable
-                dataSet={{ testid: 'about-full-commit' }}
-              />
-            )}
-          </Show>
-        </div>
-      )}
-    />
+      <Show when={provenance()}>
+        {(p) => (
+          <CopyToClipboardField
+            label={<Trans>Full commit</Trans>}
+            helperText={t`Tap to copy`}
+            value={p().fullHash}
+            copy={writeClipboardText}
+            selectable
+            dataSet={{ testid: 'about-full-commit' }}
+          />
+        )}
+      </Show>
+    </MenuScreen>
   );
 }

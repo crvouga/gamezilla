@@ -8,9 +8,9 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { InfoIcon } from '@pkgs/ui-root-client/icons';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { Href } from '@pkgs/ui-root-shared/href';
 import type { JSX } from 'solid-js';
 
@@ -36,36 +36,28 @@ export function RouteStub(props: RouteStubProps): JSX.Element {
     { name: props.title },
   ];
   return (
-    <ScreenBase
-      screenId={props.screenId}
-      breadcrumbs={breadcrumbs()}
-      content={() => (
-        <EmptyState
-          icon={InfoIcon}
-          title={
-            props.notFound === true ? (
-              <Trans>Page not found</Trans>
-            ) : (
-              props.title
-            )
-          }
-          body={
-            props.notFound === true ? (
-              <Trans>There is nothing at this address.</Trans>
-            ) : (
-              <Trans>This screen has not been ported to the web app yet.</Trans>
-            )
-          }
-          action={{
-            label: <Trans>Go to Spaces</Trans>,
-            onClick: () => router.replace('/'),
-          }}
-          dataSet={{
-            testid:
-              props.notFound === true ? Handles.routeNotFound : 'route-stub',
-          }}
-        />
-      )}
-    />
+    <ContentScreen screenId={props.screenId} breadcrumbs={breadcrumbs()}>
+      <EmptyState
+        icon={InfoIcon}
+        title={
+          props.notFound === true ? <Trans>Page not found</Trans> : props.title
+        }
+        body={
+          props.notFound === true ? (
+            <Trans>There is nothing at this address.</Trans>
+          ) : (
+            <Trans>This screen has not been ported to the web app yet.</Trans>
+          )
+        }
+        action={{
+          label: <Trans>Go to Spaces</Trans>,
+          onClick: () => router.replace('/'),
+        }}
+        dataSet={{
+          testid:
+            props.notFound === true ? Handles.routeNotFound : 'route-stub',
+        }}
+      />
+    </ContentScreen>
   );
 }

@@ -2,9 +2,9 @@ import { useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
+import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { useParams } from '@solidjs/router';
 import { type JSX, Show } from 'solid-js';
 import { SyntheticPopulationDenial } from './synthetic-population-denial';
@@ -21,9 +21,8 @@ function SyntheticUserContent(): JSX.Element {
   const params = useParams();
   const inspector = useSyntheticUser(() => params['id'] ?? '');
   return (
-    <ScreenBase
+    <ContentScreen
       screenId="synthetic-user"
-      scroll
       breadcrumbs={[
         {
           name: <Trans>Bot Observatory</Trans>,
@@ -31,47 +30,44 @@ function SyntheticUserContent(): JSX.Element {
         },
         { name: <Trans>Synthetic User</Trans> },
       ]}
-      content={() => (
-        <div class="box gap-6">
-          <Show when={inspector.record.error}>
-            <ErrorState
-              variant="compact"
-              title={<Trans>Synthetic User could not be loaded.</Trans>}
+    >
+      <Show when={inspector.record.error}>
+        <ErrorState
+          variant="compact"
+          title={<Trans>Synthetic User could not be loaded.</Trans>}
+        />
+      </Show>
+      <Show when={inspector.record.loading}>
+        <LoadingState
+          variant="compact"
+          caption={<Trans>Reading activity…</Trans>}
+        />
+      </Show>
+      <Button
+        title={t`Refresh`}
+        onClick={() => {
+          void inspector.refetch();
+        }}
+      />
+      <Show when={inspector.record()}>
+        {(value) => (
+          <>
+            <SyntheticUserDetails user={value().user} />
+            <SyntheticUserControls command={inspector.command} />
+            <SyntheticUserStatechart
+              activity={value().user.activity}
+              snapshot={inspector.snapshot()}
             />
-          </Show>
-          <Show when={inspector.record.loading}>
-            <LoadingState
-              variant="compact"
-              caption={<Trans>Reading activity…</Trans>}
+            <SyntheticPopulationEventTimeline events={value().events} />
+            <SyntheticUserReplay userId={value().user.id} />
+            <SyntheticUserDom
+              snapshot={inspector.snapshot()}
+              inspect={() => inspector.command('inspect')}
             />
-          </Show>
-          <Button
-            title={t`Refresh`}
-            onClick={() => {
-              void inspector.refetch();
-            }}
-          />
-          <Show when={inspector.record()}>
-            {(value) => (
-              <>
-                <SyntheticUserDetails user={value().user} />
-                <SyntheticUserControls command={inspector.command} />
-                <SyntheticUserStatechart
-                  activity={value().user.activity}
-                  snapshot={inspector.snapshot()}
-                />
-                <SyntheticPopulationEventTimeline events={value().events} />
-                <SyntheticUserReplay userId={value().user.id} />
-                <SyntheticUserDom
-                  snapshot={inspector.snapshot()}
-                  inspect={() => inspector.command('inspect')}
-                />
-              </>
-            )}
-          </Show>
-        </div>
-      )}
-    />
+          </>
+        )}
+      </Show>
+    </ContentScreen>
   );
 }
 export function SyntheticUserScreen(): JSX.Element {

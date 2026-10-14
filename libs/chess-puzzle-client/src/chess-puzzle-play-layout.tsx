@@ -2,6 +2,7 @@ import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
 import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
 import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
+import { PuzzleScreen } from '@pkgs/ui-root-client/puzzle-screen';
 import {
   type Accessor,
   createMemo,
@@ -121,34 +122,6 @@ function PuzzlePlayBoard(props: {
   );
 }
 
-/**
- * Largest square that fits the pane, flush with its edges (no inset or
- * island mat). Leftover space stays around the board (app background).
- */
-function PuzzlePlayBoardWell(props: {
-  boardSlot: (size: number, chrome: PuzzlePlayBoardChrome) => JSX.Element;
-  chrome: PuzzlePlayBoardChrome;
-}): JSX.Element {
-  return (
-    <div
-      class="box flex-1 min-h-0 min-w-0 overflow-hidden items-center justify-center self-stretch"
-      style={{ 'container-type': 'size' }}
-    >
-      <div
-        class="box overflow-hidden min-h-0 min-w-0 shrink"
-        style={{
-          width: 'min(100cqw, 100cqh)',
-          height: 'min(100cqw, 100cqh)',
-          'max-width': '100%',
-          'max-height': '100%',
-        }}
-      >
-        <PuzzlePlayBoard boardSlot={props.boardSlot} chrome={props.chrome} />
-      </div>
-    </div>
-  );
-}
-
 function CelebrationLayer(props: {
   completion: Accessor<PuzzleCompletion | null>;
   status: Accessor<SolveStatus>;
@@ -186,35 +159,36 @@ function CelebrationLayer(props: {
 /** Single-column: feed + coach + square board + timeline/actions. */
 function PuzzlePlayStack(props: PlayChromeProps): JSX.Element {
   return (
-    <div class="box flex-1 min-h-0 min-w-0 overflow-hidden">
-      <div class="box shrink-0 min-w-0">
-        <Show when={!props.layout.spectator()}>
-          <PuzzlePlayFeed
-            layout={props.layout}
-            openFeedSettings={props.openFeedSettings}
-          />
-        </Show>
-        <Show when={props.layout.spectator()}>
-          <ChessPuzzleAllowance />
-        </Show>
-        <div class="box shrink-0 min-w-0 overflow-hidden">
+    <PuzzleScreen
+      screenId="chess-puzzle-play"
+      dataSet={{ testid: 'chess-puzzle-play-layout' }}
+      header={
+        <>
+          <Show when={!props.layout.spectator()}>
+            <PuzzlePlayFeed
+              layout={props.layout}
+              openFeedSettings={props.openFeedSettings}
+            />
+          </Show>
+          <Show when={props.layout.spectator()}>
+            <ChessPuzzleAllowance />
+          </Show>
           {props.layout.assistant}
-        </div>
-      </div>
-      <PuzzlePlayBoardWell
-        boardSlot={props.layout.boardSlot}
-        chrome={{ openFeedSettings: props.openFeedSettings }}
-      />
-      {props.layout.recommendationLegend}
-      <div class="box shrink-0">
-        <ChessPuzzleMoveHistoryBar />
-      </div>
-      <div class="box self-stretch shrink-0">
+        </>
+      }
+      legend={props.layout.recommendationLegend}
+      timeline={<ChessPuzzleMoveHistoryBar />}
+      actions={
         <Show when={!props.layout.spectator()}>
           <PuzzlePlayActions layout={props.layout} />
         </Show>
-      </div>
-    </div>
+      }
+    >
+      <PuzzlePlayBoard
+        boardSlot={props.layout.boardSlot}
+        chrome={{ openFeedSettings: props.openFeedSettings }}
+      />
+    </PuzzleScreen>
   );
 }
 
@@ -227,11 +201,7 @@ export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
     setFeedSettingsOpen(false);
   };
   return (
-    <div
-      class="box flex-1 min-h-0 min-w-0 self-stretch overflow-hidden"
-      data-testid="chess-puzzle-play-layout"
-      data-screen="chess-puzzle-play"
-    >
+    <div class="box flex-1 min-h-0 min-w-0 self-stretch overflow-hidden">
       <DefineBackButton onPress={props.backToRoot} />
       {props.announcement}
       {props.testLoadingStatus}

@@ -13,6 +13,7 @@ import type { ComponentEntry } from '@pkgs/ui-root-shared/component-entry';
 import { CORE_ENTRIES } from './registry-entries-core';
 import { DISPLAY_ENTRIES } from './registry-entries-display';
 import { PRIMITIVE_ENTRIES } from './registry-entries-primitives';
+import { SCREEN_ENTRIES } from './registry-entries-screens';
 
 export type ComponentRegistry = Readonly<Record<string, ComponentEntry>>;
 
@@ -20,6 +21,7 @@ const ENTRIES: readonly ComponentEntry[] = [
   ...CORE_ENTRIES,
   ...PRIMITIVE_ENTRIES,
   ...DISPLAY_ENTRIES,
+  ...SCREEN_ENTRIES,
 ];
 
 /** Built-in explorer entries keyed by `id`, in display order. */

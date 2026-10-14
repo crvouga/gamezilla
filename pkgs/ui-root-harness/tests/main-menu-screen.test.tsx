@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { EMBEDDED_SCREEN_MAX_WIDTH } from '@pkgs/ui-root-client/embedded-screen';
 import { MainMenuScreen } from '@pkgs/ui-root-client/main-menu-screen';
+import { SCREEN_MAX_WIDTH } from '@pkgs/ui-root-client/screen-measure';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { cssOf, mustQuery, renderUi } from './render';
@@ -25,9 +25,7 @@ describe('MainMenuScreen', () => {
     const root = mustQuery('[data-component="MainMenuScreen"]');
     expect(root.getAttribute('data-screen')).toBe('games');
     const content = mustQuery('[data-component="ScrollViewContent"]');
-    expect(cssOf(content)).toContain(
-      `max-width:${EMBEDDED_SCREEN_MAX_WIDTH.reading}px`
-    );
+    expect(cssOf(content)).toContain(`max-width:${SCREEN_MAX_WIDTH.reading}px`);
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Games');
     expect(screen.getByText('Pick one')).toBeTruthy();
     expect(screen.getByText('Tap a game to start')).toBeTruthy();

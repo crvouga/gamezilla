@@ -10,8 +10,8 @@ import type { SyncEngineStatus } from '@pkgs/sync-engine-client/sync-status';
 import { Button } from '@pkgs/ui-root-client/button';
 import { RefreshCwIcon } from '@pkgs/ui-root-client/icons';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuScreen } from '@pkgs/ui-root-client/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { StatusDotStatus } from '@pkgs/ui-root-client/status-dot';
 import { StatusDot } from '@pkgs/ui-root-client/status-dot';
 import { type Accessor, type JSX, Show } from 'solid-js';
@@ -104,45 +104,41 @@ export function SyncScreen(): JSX.Element {
   };
 
   return (
-    <ScreenBase
+    <MenuScreen
       screenId="sync"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Sync</Trans> },
       ]}
-      scroll
-      content={({ bodyClass }) => (
-        <div class={`box ${bodyClass} gap-5`}>
-          <MenuSection>
-            <MenuRow
-              title={t`Connection`}
-              value={connectionLabel()}
-              dataSet={{ testid: 'sync-connection' }}
-              trailing={
-                <StatusDot
-                  status={connectionDotStatus(
-                    status().connection,
-                    lastErrorOf(status()) !== null
-                  )}
-                  size={STATUS_DOT_SIZE}
-                />
-              }
+    >
+      <MenuSection>
+        <MenuRow
+          title={t`Connection`}
+          value={connectionLabel()}
+          dataSet={{ testid: 'sync-connection' }}
+          trailing={
+            <StatusDot
+              status={connectionDotStatus(
+                status().connection,
+                lastErrorOf(status()) !== null
+              )}
+              size={STATUS_DOT_SIZE}
             />
-          </MenuSection>
-          <StateSection status={status()} />
-          <div class="box self-stretch">
-            <Button
-              title={t`Retry sync`}
-              intent="neutral"
-              variant="outline"
-              startIcon={<RefreshCwIcon size={BUTTON_ICON_SIZE} />}
-              onClick={onRetry}
-              dataSet={{ testid: 'sync-retry' }}
-            />
-          </div>
-        </div>
-      )}
-    />
+          }
+        />
+      </MenuSection>
+      <StateSection status={status()} />
+      <div class="box self-stretch">
+        <Button
+          title={t`Retry sync`}
+          intent="neutral"
+          variant="outline"
+          startIcon={<RefreshCwIcon size={BUTTON_ICON_SIZE} />}
+          onClick={onRetry}
+          dataSet={{ testid: 'sync-retry' }}
+        />
+      </div>
+    </MenuScreen>
   );
 }
