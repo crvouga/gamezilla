@@ -180,6 +180,7 @@ describe('modelChecks', () => {
 });
 
 // regression: custom-game-array-encoding-timeout
+// regression: model-proof-scheduling-expectation
 test('custom-game default encoding retains the full induction and original deadline', () => {
   const [check] = modelChecks({
     dir: 'libs/chess-root-harness',
@@ -192,6 +193,7 @@ test('custom-game default encoding retains the full induction and original deadl
     separateInduction: true,
     inductionCaseGroupSize: 8,
     inferPolymorphicTypes: false,
+    invariantMode: 'before',
     timeoutMs: 240_000,
   });
 });
