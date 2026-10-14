@@ -12,6 +12,10 @@ resource "railway_project" "this" {
   }
 }
 
+# Foundation reads this ID from encrypted fleet state. The provider's project
+# name listing is not scoped to the workspace that owns this resource.
+output "railway_project_id" { value = railway_project.this.id }
+
 locals {
   # Railway admits one environment creation per 30 seconds per workspace, and
   # OpenTofu would otherwise create every environment at once. Each environment

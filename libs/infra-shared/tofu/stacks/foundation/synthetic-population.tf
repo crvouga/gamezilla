@@ -1,6 +1,24 @@
 # Fleet creates the project and environments before any foundation deploy.
+data "terraform_remote_state" "fleet" {
+  backend = "s3"
+  config = {
+    bucket = var.state.bucket
+    key    = "fleet/global.tfstate"
+    region = "auto"
+    endpoints = {
+      s3 = "https://${var.state.account_id}.r2.cloudflarestorage.com"
+    }
+    use_path_style              = true
+    skip_credentials_validation = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+    skip_metadata_api_check     = true
+    skip_s3_checksum            = true
+  }
+}
+
 data "railway_project" "this" {
-  name = var.project
+  id = data.terraform_remote_state.fleet.outputs.railway_project_id
 }
 data "railway_environment" "this" {
   name       = var.env
