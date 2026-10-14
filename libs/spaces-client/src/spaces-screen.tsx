@@ -8,12 +8,10 @@ import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import type { ScreenBasePrimaryAction } from '@pkgs/ui-root-client/screen-base-types';
 import { ScreenBodyScrollView } from '@pkgs/ui-root-client/screen-body-scroll-view';
 import type { JSX } from 'solid-js';
-import { createMemo, createSignal, For, Show } from 'solid-js';
-import { useHostingLimitInvite } from './hosting-limit-invite';
+import { createMemo, For, Show } from 'solid-js';
 import { SpaceCard } from './space-card';
 import { openSpaceDetail } from './space-routes';
-import type { SpacesNotice } from './spaces-notices';
-import { SpacesAttemptNotice, SpacesLobbyContent } from './spaces-notices';
+import { SpacesLobbyContent } from './spaces-notices';
 import { useCreateSpace } from './use-create-space';
 import { useJoinableLiveSpaceIds } from './use-joinable-live-space-ids';
 import { useOpenSpaceSessionIds } from './use-open-space-session-ids';
@@ -78,31 +76,20 @@ function SpacesList(props: {
 /**
  * Start locally, or show the hosting limit's invitation to Plus.
  */
-function useStartSpace(): {
-  readonly start: () => Promise<void>;
-  readonly notice: () => SpacesNotice | null;
-} {
+function useStartSpace(): () => Promise<void> {
   const router = useRouter();
   const createSpace = useCreateSpace();
-  const invite = useHostingLimitInvite();
-  const [notice, setNotice] = createSignal<SpacesNotice | null>(null);
   const start = async (): Promise<void> => {
-    setNotice(null);
     const result = await createSpace();
-    if (result.kind === 'limited') {
-      invite.refuse(result.decision);
-      setNotice({ kind: 'limited', decision: result.decision });
-      return;
-    }
+    if (result.kind === 'limited') return;
     openSpaceDetail(router, result.spaceId);
   };
-  return { start, notice };
+  return start;
 }
 
 export function SpacesScreen(): JSX.Element {
   const { t } = useLingui();
-  const attempt = useStartSpace();
-  const startSpace = attempt.start;
+  const startSpace = useStartSpace();
   const listReady = useSpacesListReady();
 
   const primaryAction = createMemo((): ScreenBasePrimaryAction => {
@@ -132,7 +119,6 @@ export function SpacesScreen(): JSX.Element {
     >
       <Show when={listReady()} fallback={<LoadingState />}>
         <SpacesLobbyContent class="box flex-1 min-h-0 gap-3">
-          <SpacesAttemptNotice notice={attempt.notice()} />
           <SpacesList onCreateSpace={onCreateSpace} />
         </SpacesLobbyContent>
       </Show>

@@ -25,6 +25,7 @@ import {
 } from '@libs/spaces-harness/spaces-ui-reads';
 import { variant } from '@pkgs/quint-shared/itf';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import reconnectInvitation from './fixtures/hosting-invitation-clears-on-reconnect.itf.json';
 
 const ACTOR = 'alice';
 const LINKS = 'hosting-limit-links';
@@ -83,6 +84,15 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 24,
   inductiveInvariant: '_inductive',
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: hosting-invitation-clears-on-reconnect
+      id: 'hosting-invitation-clears-on-reconnect',
+      title: 'Reconnecting keeps the invitation after a refused creation',
+      seed: '0x67932',
+      itf: reconnectInvitation,
+    },
+  ],
   actions: {
     init: async (w) => {
       await w.s.apply(signInWithGoogle, ACTOR);
