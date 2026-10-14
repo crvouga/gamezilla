@@ -3,6 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { type JSX, Show } from 'solid-js';
+import { createScreenSlot } from './screen-slot';
 
 export type ScreenIntroProps = {
   title?: JSX.Element | undefined;
@@ -17,20 +18,22 @@ export type ScreenIntroProps = {
  * chrome (`EmbeddedScreen`) opens the same way.
  */
 export function ScreenIntro(props: ScreenIntroProps): JSX.Element {
-  const hasTitle = (): boolean => props.title !== undefined;
-  const hasSubtitle = (): boolean => props.subtitle !== undefined;
+  const title = createScreenSlot(() => props.title);
+  const subtitle = createScreenSlot(() => props.subtitle);
   return (
-    <Show when={hasTitle() || hasSubtitle()}>
+    <Show when={title.present() || subtitle.present()}>
       <div
         class="box gap-1 items-start py-2 min-w-0 self-stretch"
         {...dataAttrs({ component: 'ScreenIntro', ...props.dataSet })}
       >
-        <Show when={hasTitle()}>
-          <h1 class="text textHeading min-w-0 max-w-full">{props.title}</h1>
+        <Show when={title.present()}>
+          <h1 class="text textHeading min-w-0 max-w-full break-words">
+            {title.content()}
+          </h1>
         </Show>
-        <Show when={hasSubtitle()}>
+        <Show when={subtitle.present()}>
           <p class="text textCaption line-clamp-2 min-w-0 max-w-full">
-            {props.subtitle}
+            {subtitle.content()}
           </p>
         </Show>
       </div>

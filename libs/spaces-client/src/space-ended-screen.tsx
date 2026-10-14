@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
 import { SpaceJoinEndedState } from './space-join-ended-state';
@@ -15,7 +15,7 @@ export function SpaceEndedScreen(props: SpaceEndedScreenProps): JSX.Element {
   const nav = useBreadcrumbNav();
 
   return (
-    <ScreenBase
+    <ContentScreen
       screenId="space-ended"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onClick: nav('/') },
@@ -25,11 +25,9 @@ export function SpaceEndedScreen(props: SpaceEndedScreenProps): JSX.Element {
           ),
         },
       ]}
-      content={({ bodyClass }) => (
-        <div class={`box ${bodyClass}`} data-testid={Handles.spaceEnded}>
-          <SpaceJoinEndedState spaceId={props.spaceId} />
-        </div>
-      )}
-    />
+      dataSet={{ testid: Handles.spaceEnded }}
+    >
+      <SpaceJoinEndedState spaceId={props.spaceId} />
+    </ContentScreen>
   );
 }

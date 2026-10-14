@@ -12,8 +12,8 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
-import { EmbeddedScreen } from '@pkgs/ui-root-client/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { GameReviewScreen } from '@pkgs/ui-root-client/game-review-screen';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import { useReviewPuzzleEntity } from './chess-puzzle-play-queries';
 import { ChessPuzzleReviewBoard } from './chess-puzzle-review-board';
@@ -67,7 +67,7 @@ export function ChessPuzzleReviewBody(props: {
   const hasPuzzle = () => entity.fen.length > 0 && entity.movesStr.length > 0;
 
   return (
-    <EmbeddedScreen
+    <GameReviewScreen
       screenId="chess-stats-review"
       title={<ReviewTitle entry={entry()} />}
       subtitle={
@@ -95,7 +95,7 @@ export function ChessPuzzleReviewBody(props: {
           cursor={props.cursor}
         />
       </Show>
-    </EmbeddedScreen>
+    </GameReviewScreen>
   );
 }
 

@@ -9,7 +9,8 @@ import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
-import { GameLayout, GameScreen } from '@pkgs/ui-root-client/game-screen';
+import { GameScreen } from '@pkgs/ui-root-client/game-screen';
+import { GameSessionLayout } from '@pkgs/ui-root-client/game-session-layout';
 import { Notice } from '@pkgs/ui-root-client/notice';
 import { type JSX, Show } from 'solid-js';
 import { MultiplayerBoard } from './multiplayer-board';
@@ -96,7 +97,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
         controls={props.controls}
         online={sync.status().online}
       />
-      <GameLayout
+      <GameSessionLayout
         aside={
           <>
             <Show when={props.data.game()}>
@@ -111,7 +112,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
           controls={props.controls}
           view={props.view}
         />
-      </GameLayout>
+      </GameSessionLayout>
     </Show>
   );
 }

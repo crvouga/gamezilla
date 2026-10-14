@@ -3,10 +3,10 @@ import { FriendLiveSpaceBadge } from '@libs/spaces-client/friend-live-space-badg
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { CollectionScreen } from '@pkgs/ui-root-client/collection-screen';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { UserPlusIcon } from '@pkgs/ui-root-client/icons';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client/screen-body-virtual-list';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
@@ -47,37 +47,30 @@ function FriendsListBody(): JSX.Element {
   };
 
   return (
-    <ScreenBase
+    <CollectionScreen
       screenId="friends-list"
       breadcrumbs={[
         { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
         { name: <Trans>Friends</Trans> },
       ]}
-      content={({ bodyClass }) => (
-        <div class={`box ${bodyClass}`}>
-          <ScreenBodyVirtualList
-            items={friendsState.friends()}
-            keyExtractor={(item) => item.userId}
-            estimateSize={72}
-            empty={
-              friendsState.isLoading() ? (
-                <LoadingState />
-              ) : (
-                <FriendsEmptyState />
-              )
-            }
-            renderItem={(item) => (
-              <FriendUserRow
-                profile={item}
-                onPress={() => openUser(item)}
-                friendsListHandle
-                trailing={<FriendLiveSpaceBadge hostAccountId={item.userId} />}
-              />
-            )}
+    >
+      <ScreenBodyVirtualList
+        items={friendsState.friends()}
+        keyExtractor={(item) => item.userId}
+        estimateSize={72}
+        empty={
+          friendsState.isLoading() ? <LoadingState /> : <FriendsEmptyState />
+        }
+        renderItem={(item) => (
+          <FriendUserRow
+            profile={item}
+            onPress={() => openUser(item)}
+            friendsListHandle
+            trailing={<FriendLiveSpaceBadge hostAccountId={item.userId} />}
           />
-        </div>
-      )}
-    />
+        )}
+      />
+    </CollectionScreen>
   );
 }
 

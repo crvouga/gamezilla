@@ -1,6 +1,6 @@
 import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import { Trans } from '@lingui/solid/macro';
-import { EmbeddedScreen } from '@pkgs/ui-root-client/embedded-screen';
+import { GameHistoryScreen } from '@pkgs/ui-root-client/game-history-screen';
 import type { JSX } from 'solid-js';
 import { ChessGameLog } from './chess-game-log';
 import { ChessPuzzleRatingChip } from './chess-puzzle-rating-chip';
@@ -19,28 +19,30 @@ export function ChessStatsBody(props: {
 }): JSX.Element {
   const history = useChessPuzzleHistory();
   return (
-    <EmbeddedScreen
+    <GameHistoryScreen
       screenId="chess-stats"
       title={props.titled === false ? undefined : <Trans>Puzzle stats</Trans>}
+      summary={
+        <div class="box items-center gap-2">
+          <ChessPuzzleRatingChip
+            rating={history.stats().currentRating}
+            provisional={history.stats().provisional}
+            variant="primary"
+            testID="chess-stats-elo"
+          />
+          <ChessRatingSparkline
+            series={history.stats().ratingSeries}
+            testID="chess-stats-sparkline"
+          />
+        </div>
+      }
+      trend={<ChessRatingHistory entries={history.gameLog()} />}
+      statistics={<ChessPuzzleStatsCards stats={history.stats()} />}
     >
-      <div class="box items-center gap-2">
-        <ChessPuzzleRatingChip
-          rating={history.stats().currentRating}
-          provisional={history.stats().provisional}
-          variant="primary"
-          testID="chess-stats-elo"
-        />
-        <ChessRatingSparkline
-          series={history.stats().ratingSeries}
-          testID="chess-stats-sparkline"
-        />
-      </div>
-      <ChessRatingHistory entries={history.gameLog()} />
-      <ChessPuzzleStatsCards stats={history.stats()} />
       <ChessGameLog
         entries={history.gameLog()}
         onSelectEntry={props.onSelectEntry}
       />
-    </EmbeddedScreen>
+    </GameHistoryScreen>
   );
 }

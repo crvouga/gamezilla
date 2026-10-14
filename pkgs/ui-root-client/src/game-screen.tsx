@@ -1,7 +1,8 @@
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { EmbeddedScreen } from './embedded-screen';
 import styles from './game-ui.module.css';
+import { createScreenSlot } from './screen-slot';
 
 /**
  * A game inside its host's chrome. The host's one top bar carries the back
@@ -30,12 +31,22 @@ export function GameScreen(props: {
 /** A fluid stage and a supporting rail, stacked in reading order on phones. */
 export function GameLayout(props: {
   children: JSX.Element;
-  aside: JSX.Element;
+  aside?: JSX.Element | undefined;
 }): JSX.Element {
+  const stage = createScreenSlot(() => props.children);
+  const aside = createScreenSlot(() => props.aside);
   return (
-    <div class={styles['layout']} {...dataAttrs({ component: 'GameLayout' })}>
-      <div class={styles['stage']}>{props.children}</div>
-      <div class={styles['rail']}>{props.aside}</div>
-    </div>
+    <Show when={stage.present() || aside.present()}>
+      <div
+        class={styles['layout']}
+        data-has-aside={aside.present()}
+        {...dataAttrs({ component: 'GameLayout' })}
+      >
+        <div class={styles['stage']}>{stage.content()}</div>
+        <Show when={aside.present()}>
+          <div class={styles['rail']}>{aside.content()}</div>
+        </Show>
+      </div>
+    </Show>
   );
 }

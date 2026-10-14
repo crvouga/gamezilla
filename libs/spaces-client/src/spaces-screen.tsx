@@ -1,10 +1,10 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { CollectionScreen } from '@pkgs/ui-root-client/collection-screen';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { Gamepad2Icon, PlusIcon } from '@pkgs/ui-root-client/icons';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { ScreenBasePrimaryAction } from '@pkgs/ui-root-client/screen-base-types';
 import { ScreenBodyScrollView } from '@pkgs/ui-root-client/screen-body-scroll-view';
 import type { JSX } from 'solid-js';
@@ -112,26 +112,16 @@ export function SpacesScreen(): JSX.Element {
   };
 
   return (
-    <ScreenBase
+    <CollectionScreen
       screenId="spaces"
-      surface="canvas"
       breadcrumbs={[{ name: <Trans>Spaces</Trans> }]}
       primaryAction={primaryAction()}
-      content={({ bodyClass }) => (
-        // The lobby is one panel — never nest it inside an Island.
-        <Show
-          when={listReady()}
-          fallback={
-            <div class={bodyClass}>
-              <LoadingState />
-            </div>
-          }
-        >
-          <SpacesLobbyContent class={`box gap-3 ${bodyClass}`}>
-            <SpacesList onCreateSpace={onCreateSpace} />
-          </SpacesLobbyContent>
-        </Show>
-      )}
-    />
+    >
+      <Show when={listReady()} fallback={<LoadingState />}>
+        <SpacesLobbyContent class="box flex-1 min-h-0 gap-3">
+          <SpacesList onCreateSpace={onCreateSpace} />
+        </SpacesLobbyContent>
+      </Show>
+    </CollectionScreen>
   );
 }

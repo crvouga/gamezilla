@@ -14,8 +14,8 @@ import {
   SunIcon,
 } from '@pkgs/ui-root-client/icons';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuScreen } from '@pkgs/ui-root-client/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { ThemePreference } from '@pkgs/ui-root-client/theme-preference';
 import { useThemePreference } from '@pkgs/ui-root-client/theme-preference';
 import { type Accessor, For, type JSX, Show } from 'solid-js';
@@ -91,28 +91,25 @@ export function ThemeSettingsScreen(): JSX.Element {
   const options = useThemeOptions();
 
   return (
-    <ScreenBase
+    <MenuScreen
       screenId="theme"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Appearance</Trans> },
       ]}
-      content={({ bodyClass }) => (
-        <div class={`box ${bodyClass} gap-5`}>
-          <MenuSection title={<Trans>Theme</Trans>}>
-            <For each={options()}>
-              {(option) => (
-                <ThemeOptionRow
-                  option={option}
-                  selected={preference() === option.key}
-                  onSelect={setPreference}
-                />
-              )}
-            </For>
-          </MenuSection>
-        </div>
-      )}
-    />
+    >
+      <MenuSection title={<Trans>Theme</Trans>}>
+        <For each={options()}>
+          {(option) => (
+            <ThemeOptionRow
+              option={option}
+              selected={preference() === option.key}
+              onSelect={setPreference}
+            />
+          )}
+        </For>
+      </MenuSection>
+    </MenuScreen>
   );
 }

@@ -7,8 +7,8 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { GaugeIcon } from '@pkgs/ui-root-client/icons';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuScreen } from '@pkgs/ui-root-client/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { Switch } from '@pkgs/ui-root-client/switch';
 import { type JSX, Show } from 'solid-js';
 
@@ -46,43 +46,39 @@ export function PerformanceSettingsScreen(): JSX.Element {
   const { enabled, setEnabled } = usePerfHudPreference();
 
   return (
-    <ScreenBase
+    <MenuScreen
       screenId="performance"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Performance</Trans> },
       ]}
-      scroll
-      content={({ bodyClass }) => (
-        <div class={`box ${bodyClass} gap-5`}>
-          <MenuSection
-            footer={
-              <Trans>
-                Shows a live FPS / INP top banner. Useful for diagnosing jank on
-                low-end devices. Off by default.
-              </Trans>
-            }
-          >
-            <MenuRow
-              title={t`Performance monitor`}
-              caption={enabled() ? t`On` : t`Off`}
-              leading={<GaugeIcon size={ROW_ICON_SIZE} color="icon" />}
-              trailing={
-                <Switch
-                  value={enabled()}
-                  onValueChange={setEnabled}
-                  aria-label={t`Performance monitor`}
-                  dataSet={{ testid: 'perf-hud-switch' }}
-                />
-              }
+    >
+      <MenuSection
+        footer={
+          <Trans>
+            Shows a live FPS / INP top banner. Useful for diagnosing jank on
+            low-end devices. Off by default.
+          </Trans>
+        }
+      >
+        <MenuRow
+          title={t`Performance monitor`}
+          caption={enabled() ? t`On` : t`Off`}
+          leading={<GaugeIcon size={ROW_ICON_SIZE} color="icon" />}
+          trailing={
+            <Switch
+              value={enabled()}
+              onValueChange={setEnabled}
+              aria-label={t`Performance monitor`}
+              dataSet={{ testid: 'perf-hud-switch' }}
             />
-          </MenuSection>
-          <Show when={enabled()}>
-            <LiveMetrics />
-          </Show>
-        </div>
-      )}
-    />
+          }
+        />
+      </MenuSection>
+      <Show when={enabled()}>
+        <LiveMetrics />
+      </Show>
+    </MenuScreen>
   );
 }

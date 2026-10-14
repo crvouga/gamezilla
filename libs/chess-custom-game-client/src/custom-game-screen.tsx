@@ -3,8 +3,10 @@ import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { Trans } from '@lingui/solid/macro';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
-import { GameLayout, GameScreen } from '@pkgs/ui-root-client/game-screen';
-import { GameActions, GameSection } from '@pkgs/ui-root-client/game-section';
+import { GameScreen } from '@pkgs/ui-root-client/game-screen';
+import { GameActions } from '@pkgs/ui-root-client/game-section';
+import { GameSessionLayout } from '@pkgs/ui-root-client/game-session-layout';
+import { GameSetupPanel } from '@pkgs/ui-root-client/game-setup-panel';
 import { type JSX, Show } from 'solid-js';
 import {
   CustomGameActiveNotices,
@@ -20,7 +22,6 @@ import {
   CustomGameStatus,
 } from './custom-game-status';
 import { CustomGameTest } from './custom-game-test';
-import type { CustomGameReview } from './use-custom-game-review';
 import { useCustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 import { useCustomGameScreen } from './use-custom-game-screen';
@@ -29,7 +30,7 @@ type ModelProps = { model: CustomGameScreenModel };
 
 function CustomGameStarter(props: ModelProps): JSX.Element {
   return (
-    <GameSection
+    <GameSetupPanel
       title={<Trans>New game</Trans>}
       description={
         <Trans>
@@ -59,7 +60,7 @@ function CustomGameStarter(props: ModelProps): JSX.Element {
           />
         </GameActions>
       </Show>
-    </GameSection>
+    </GameSetupPanel>
   );
 }
 
@@ -116,60 +117,66 @@ function CustomGameExitActions(props: ModelProps): JSX.Element {
   );
 }
 
-/** The board, where the game stands, and the one row of things to do. */
-function CustomGameStage(props: {
-  model: CustomGameScreenModel;
-  review: CustomGameReview;
-}): JSX.Element {
-  return (
-    <>
-      <CustomGameBoard model={props.model} review={props.review} />
-      <CustomGameStatus model={props.model} />
-      <Show when={props.model.current()?.status === 'active'}>
-        <CustomGameActiveNotices model={props.model} />
-      </Show>
-      <GameActions>
-        <Show when={props.model.current()?.status === 'active'}>
-          <CustomGameDrawActions model={props.model} />
-        </Show>
-        <CustomGameNextActions model={props.model} />
-        <CustomGameExitActions model={props.model} />
-      </GameActions>
-    </>
-  );
-}
-
 function CustomGameContent(props: ModelProps): JSX.Element {
   const review = useCustomGameReview(props.model);
   return (
-    <div
-      class="box gap-4"
-      data-component="CustomGameContent"
-      data-testid="chess-custom-content"
-    >
-      <CustomGameConnectionNotice model={props.model} />
-      <CustomGameError reason={props.model.error()} />
-      <Show
-        when={props.model.current() !== null}
-        fallback={
+    <>
+      <GameSessionLayout
+        dataSet={{
+          component: 'CustomGameContent',
+          testid: 'chess-custom-content',
+        }}
+        notices={
           <>
-            <CustomGameStatus model={props.model} />
-            <CustomGameStarter model={props.model} />
+            <CustomGameConnectionNotice model={props.model} />
+            <CustomGameError reason={props.model.error()} />
           </>
         }
+        setup={
+          <Show
+            when={props.model.current() !== null}
+            fallback={
+              <>
+                <CustomGameStatus model={props.model} />
+                <CustomGameStarter model={props.model} />
+              </>
+            }
+          >
+            <Show when={props.model.current()?.status === 'configuring'}>
+              <CustomGameSeats model={props.model} />
+              <CustomGameConfiguration model={props.model} />
+            </Show>
+          </Show>
+        }
+        aside={
+          props.model.current() === null ? undefined : (
+            <CustomGameRecord model={props.model} review={review} />
+          )
+        }
+        status={
+          <Show when={props.model.current() !== null}>
+            <CustomGameStatus model={props.model} />
+            <Show when={props.model.current()?.status === 'active'}>
+              <CustomGameActiveNotices model={props.model} />
+            </Show>
+          </Show>
+        }
+        actions={
+          <Show when={props.model.current() !== null}>
+            <Show when={props.model.current()?.status === 'active'}>
+              <CustomGameDrawActions model={props.model} />
+            </Show>
+            <CustomGameNextActions model={props.model} />
+            <CustomGameExitActions model={props.model} />
+          </Show>
+        }
       >
-        <Show when={props.model.current()?.status === 'configuring'}>
-          <CustomGameSeats model={props.model} />
-          <CustomGameConfiguration model={props.model} />
+        <Show when={props.model.current() !== null}>
+          <CustomGameBoard model={props.model} review={review} />
         </Show>
-        <GameLayout
-          aside={<CustomGameRecord model={props.model} review={review} />}
-        >
-          <CustomGameStage model={props.model} review={review} />
-        </GameLayout>
-      </Show>
+      </GameSessionLayout>
       <CustomGameTest model={props.model} review={review} />
-    </div>
+    </>
   );
 }
 

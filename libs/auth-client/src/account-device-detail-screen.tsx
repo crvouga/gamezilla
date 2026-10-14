@@ -2,7 +2,7 @@ import { Trans } from '@lingui/solid/macro';
 import { useLocalSearchParams } from '@pkgs/ui-root-client/app-router';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { SmartphoneIcon } from '@pkgs/ui-root-client/icons';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { MenuScreen } from '@pkgs/ui-root-client/menu-screen';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 import { AccountDeviceDetailBody } from './account-device-detail-body';
@@ -19,7 +19,7 @@ export function AccountDeviceDetailScreen(): JSX.Element {
   const deviceId = createMemo(() => normalizeDeviceId(params().deviceId));
 
   return (
-    <ScreenBase
+    <MenuScreen
       screenId="account-device-detail"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
@@ -30,28 +30,24 @@ export function AccountDeviceDetailScreen(): JSX.Element {
         },
         { name: <Trans>Device</Trans> },
       ]}
-      scroll
-      content={({ bodyClass }) => (
-        <div class={`box ${bodyClass} gap-5`}>
-          <Show
-            when={deviceId()}
-            fallback={
-              <EmptyState
-                icon={SmartphoneIcon}
-                title={<Trans>Device not found</Trans>}
-                body={<Trans>This link is missing a device id.</Trans>}
-              />
-            }
-          >
-            {(id) => (
-              <>
-                <AccountDeviceDetailHeader deviceId={id()} />
-                <AccountDeviceDetailBody deviceId={id()} />
-              </>
-            )}
-          </Show>
-        </div>
-      )}
-    />
+    >
+      <Show
+        when={deviceId()}
+        fallback={
+          <EmptyState
+            icon={SmartphoneIcon}
+            title={<Trans>Device not found</Trans>}
+            body={<Trans>This link is missing a device id.</Trans>}
+          />
+        }
+      >
+        {(id) => (
+          <>
+            <AccountDeviceDetailHeader deviceId={id()} />
+            <AccountDeviceDetailBody deviceId={id()} />
+          </>
+        )}
+      </Show>
+    </MenuScreen>
   );
 }

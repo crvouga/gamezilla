@@ -7,7 +7,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 import { BillingBenefits, BillingPricing } from './billing-offer-sections';
@@ -74,15 +74,15 @@ export function BillingScreenLayout(
   props: BillingScreenViewProps
 ): JSX.Element {
   return (
-    <ScreenBase
+    <ContentScreen
       screenId="billing"
       surface="canvas"
-      scroll
       breadcrumbs={[
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Billing</Trans> },
       ]}
-      content={() => <BillingScreenView {...props} />}
-    />
+    >
+      <BillingScreenView {...props} />
+    </ContentScreen>
   );
 }

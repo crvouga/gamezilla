@@ -6,8 +6,7 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
-import { FormActionsFooter } from '@pkgs/ui-root-client/form-actions-footer';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { FormScreen } from '@pkgs/ui-root-client/form-screen';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { Accessor, JSX } from 'solid-js';
@@ -69,7 +68,6 @@ function useUsernameModeration(
 }
 
 function ProfileHandleScreenBody(props: {
-  class?: string | undefined;
   value: Accessor<string>;
   setValue: (v: string) => void;
   error: Accessor<LocalizedString | undefined>;
@@ -77,7 +75,7 @@ function ProfileHandleScreenBody(props: {
 }): JSX.Element {
   const { t } = useLingui();
   return (
-    <div class={`box ${props.class ?? ''}`.trim()}>
+    <div class="box gap-4">
       <TextInput
         label={<Trans>Username</Trans>}
         aria-label={t`Username`}
@@ -125,44 +123,38 @@ export function ProfileHandleScreen(): JSX.Element {
   };
 
   return (
-    <ScreenBase
+    <FormScreen
       screenId="profile-handle"
       breadcrumbs={[
         { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
         { name: <Trans>Edit profile</Trans>, onClick: nav('/profile/edit') },
         { name: <Trans>Username</Trans> },
       ]}
-      footer={
-        <FormActionsFooter
-          cancel={{
-            label: <Trans>Cancel</Trans>,
-            onClick: () => router.back(),
-            dataSet: { testid: Handles.profileUsernameCancel },
-          }}
-          submit={{
-            label: <Trans>Save</Trans>,
-            loadingLabel: <Trans>Saving…</Trans>,
-            successLabel: <Trans>Saved</Trans>,
-            get errorLabel() {
-              return usernameErrorLabel(lastError());
-            },
-            operation: save,
-            get disabled() {
-              return profileId() === null;
-            },
-            dataSet: { testid: Handles.profileUsernameSave },
-          }}
-        />
-      }
-      content={({ bodyClass }) => (
-        <ProfileHandleScreenBody
-          class={bodyClass}
-          value={value}
-          setValue={setValue}
-          error={usernameModeration.error}
-          helperText={usernameModeration.helperText}
-        />
-      )}
-    />
+      cancel={{
+        label: <Trans>Cancel</Trans>,
+        onClick: () => router.back(),
+        dataSet: { testid: Handles.profileUsernameCancel },
+      }}
+      submit={{
+        label: <Trans>Save</Trans>,
+        loadingLabel: <Trans>Saving…</Trans>,
+        successLabel: <Trans>Saved</Trans>,
+        get errorLabel() {
+          return usernameErrorLabel(lastError());
+        },
+        operation: save,
+        get disabled() {
+          return profileId() === null;
+        },
+        dataSet: { testid: Handles.profileUsernameSave },
+      }}
+    >
+      <ProfileHandleScreenBody
+        value={value}
+        setValue={setValue}
+        error={usernameModeration.error}
+        helperText={usernameModeration.helperText}
+      />
+    </FormScreen>
   );
 }

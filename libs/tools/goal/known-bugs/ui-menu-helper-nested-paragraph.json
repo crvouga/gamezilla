@@ -1,0 +1,4 @@
+{
+  "summary": "MainMenuScreen wrapped helper slots in a paragraph, nesting the space menu's block notice inside another paragraph.",
+  "regressionTest": "pkgs/ui-root-harness/tests/screen-layout-regression.test.tsx"
+}

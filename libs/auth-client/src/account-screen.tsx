@@ -3,8 +3,8 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { SmartphoneIcon } from '@pkgs/ui-root-client/icons';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuScreen } from '@pkgs/ui-root-client/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { type JSX, Show } from 'solid-js';
 import { useHasAuthSession } from './access-facts';
 import { AccountActionsRow } from './account-actions-row';
@@ -34,35 +34,31 @@ export function AccountScreen(props: AccountScreenProps): JSX.Element {
   };
 
   return (
-    <ScreenBase
+    <MenuScreen
       screenId="account"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Account</Trans> },
       ]}
-      scroll
-      content={({ bodyClass }) => (
-        <div class={`box ${bodyClass} gap-5`}>
-          {props.identity}
-          <Show when={signedIn()}>
-            <SignInMethodsSection />
-          </Show>
-          <MenuSection title={<Trans>Security</Trans>}>
-            <MenuRow
-              title={t`Devices`}
-              caption={t`Installs signed into this account`}
-              leading={<SmartphoneIcon size={ROW_ICON_SIZE} color="icon" />}
-              onClick={openDevices}
-              dataSet={{ testid: Handles.accountDevices }}
-            />
-          </MenuSection>
-          <AccountActionsRow />
-          <Show when={signedIn()}>
-            <SignOutEverywhereButton />
-          </Show>
-        </div>
-      )}
-    />
+    >
+      {props.identity}
+      <Show when={signedIn()}>
+        <SignInMethodsSection />
+      </Show>
+      <MenuSection title={<Trans>Security</Trans>}>
+        <MenuRow
+          title={t`Devices`}
+          caption={t`Installs signed into this account`}
+          leading={<SmartphoneIcon size={ROW_ICON_SIZE} color="icon" />}
+          onClick={openDevices}
+          dataSet={{ testid: Handles.accountDevices }}
+        />
+      </MenuSection>
+      <AccountActionsRow />
+      <Show when={signedIn()}>
+        <SignOutEverywhereButton />
+      </Show>
+    </MenuScreen>
   );
 }
