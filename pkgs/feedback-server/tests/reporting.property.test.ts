@@ -62,7 +62,8 @@ test('optional diagnostics never erase the already-created report', async () => 
       await Promise.resolve();
       clock.advance(500);
       const report = await result.enriched;
-      expect(report.title).toBe(body.trim().split('\n')[0]!);
+      expect(report.title).toBe(result.report.title);
+      expect(report.body.source).toBe(result.report.body.source);
       expect(report.diagnostics[0]?.status).toBe('unavailable');
       expect(reporter.reports.size).toBe(1);
       expect(clock.pendingOneShotCount()).toBe(0);
@@ -99,8 +100,9 @@ test('companion-file or enrichment failure preserves the authoritative report', 
         expect(object).not.toBeNull();
         const saved = JSON.parse(
           new TextDecoder().decode(await readBytes(object!.body))
-        ) as { title: string };
-        expect(saved.title).toBe(title.trim().split('\n')[0]!);
+        ) as { title: string; body: { source: string } };
+        expect(saved.title).toBe(result.report.title);
+        expect(saved.body.source).toBe(result.report.body.source);
         await result.enriched;
       }
     )
@@ -135,4 +137,24 @@ test('broken clock and id ports still produce an emergency report', async () => 
       expect(reporter.reports.size).toBe(1);
     })
   );
+});
+
+// regression: feedback-markdown-title-property-assumes-raw-line
+test('an empty Markdown heading keeps its fallback title when diagnostics fail', async () => {
+  const reporter = new FakeIssueReporter();
+  const { clock, timers } = createHarnessClock();
+  const result = await createFeedbackReporting({
+    reporter,
+    clock,
+    timers,
+    createId: () => 'heading-regression',
+    providers: [provider('throw')],
+  }).submit({ kind: 'problem', title: '', body: '#  ' });
+  expect(result.report.title).toBe('Bug report');
+  expect(result.report.body.source).toBe('#  ');
+  const enriched = await result.enriched;
+  expect(enriched.title).toBe('Bug report');
+  expect(enriched.body.source).toBe('#  ');
+  expect(enriched.diagnostics[0]?.status).toBe('unavailable');
+  expect(reporter.reports.get(result.issue.id)?.title).toBe('Bug report');
 });
