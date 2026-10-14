@@ -264,6 +264,15 @@ function sharedServerServices(
   });
 }
 
+function createHarnessDeviceState() {
+  return {
+    appBuilds: createHarnessAppBuilds(),
+    accountReadyDelays: createHarnessAccountReadyDelays(),
+    syntheticUserDevices: createHarnessSyntheticUserDevices(),
+    unusableDeviceData: new Set<string>(),
+  };
+}
+
 async function bootHarnessKernel(
   session: Session,
   opts: CreateHarnessOptions
@@ -342,10 +351,7 @@ async function bootHarnessKernel(
     servers,
     loadBalancer,
     primaryEnv: await servers.ensureEnv(HARNESS_PRIMARY_SERVER_ID),
-    appBuilds: createHarnessAppBuilds(),
-    accountReadyDelays: createHarnessAccountReadyDelays(),
-    syntheticUserDevices: createHarnessSyntheticUserDevices(),
-    unusableDeviceData: new Set(),
+    ...createHarnessDeviceState(),
     serverEgress,
     disposed,
   };

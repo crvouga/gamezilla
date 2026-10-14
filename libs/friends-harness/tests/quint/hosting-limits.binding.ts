@@ -101,7 +101,6 @@ bindQuintModel<QuintHarnessWorld>({
       title: 'Reconnecting keeps the invitation after a refused creation',
       seed: '0x67932',
       itf: reconnectInvitation,
-
     },
   ],
   actions: {
