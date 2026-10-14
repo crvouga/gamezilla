@@ -42,11 +42,15 @@ export const SpaceActivityAttr = {
 
 export const spaceActivityCmdNs = createMessageNamespace('space-activity-cmd');
 
-/** This device did something in the space. The room stamps the time. */
+/** This device did something in the space at the supplied device time. */
 export const NoteActivity = spaceActivityCmdNs(
   'note-activity',
-  (value): value is { readonly clientId: string } =>
-    isPlainRecord(value) && isClientId(value['clientId'])
+  (value): value is { readonly clientId: string; readonly at: number } =>
+    isPlainRecord(value) &&
+    isClientId(value['clientId']) &&
+    typeof value['at'] === 'number' &&
+    Number.isInteger(value['at']) &&
+    value['at'] >= 0
 );
 
 export const spaceActivityEvtNs = createMessageNamespace('space-activity-evt');
@@ -68,13 +72,14 @@ export const spaceActivityCommandRouter = createMessageRouter<
 >(spaceActivityCmdNs).on(NoteActivity, (state, ctx, command) => {
   const clientId = command.payload.clientId;
   const current = SpaceActivityAttr.activity.from(state)[clientId];
-  if (current === ctx.ts) {
+  const at = Math.min(command.payload.at, ctx.ts);
+  if (current !== undefined && current >= at) {
     return {
       ok: false,
       error: { type: ROOM_ERROR_TYPE.conflict, reason: 'activity unchanged' },
     };
   }
-  return { ok: true, events: [ActivityNoted({ clientId, at: ctx.ts })] };
+  return { ok: true, events: [ActivityNoted({ clientId, at })] };
 });
 
 export const spaceActivityEventReducer = createMessageRouter<

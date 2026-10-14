@@ -1,4 +1,5 @@
-import { scenarioAction } from '@libs/harness/actor-ui';
+import { restoreActorConnection } from '@libs/harness/actions';
+import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { IDLE_AFTER_MS } from '@libs/spaces-shared/space-activity';
 import { closeSpaceMembers, openSpaceMembers } from './space-actions';
@@ -8,6 +9,26 @@ import { activeSpaceVisible } from './spaces-ui-reads';
 const MINUTE_MS = 60_000;
 
 type Activity = { readonly actor: string; readonly at: number };
+
+/** Connection recovery includes this device's visible activity becoming current. */
+export const restoreSpaceConnection = scenarioAction({
+  name: 'restoreSpaceConnection',
+  act: async (s, actorId: string) => {
+    const before = await ownActivityAt(s, actorId);
+    await Promise.resolve(restoreActorConnection.act(s, actorId));
+    await pollUntil(
+      s,
+      async () => {
+        const at = await ownActivityAt(s, actorId);
+        return at !== null && (before === null || at > before) ? at : null;
+      },
+      {
+        maxMs: 15_000,
+        description: 'reconnected device activity',
+      }
+    );
+  },
+});
 
 async function otherActivity(
   s: ProductHarness,

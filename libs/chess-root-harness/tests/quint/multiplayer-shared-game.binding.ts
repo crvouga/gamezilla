@@ -16,7 +16,7 @@ import {
   changeSpaceMatch,
   prepareMultiplayerSpaceModel,
 } from '@libs/chess-root-harness/multiplayer-space-model';
-import { partition, restoreActorConnection } from '@libs/harness/actions';
+import { partition } from '@libs/harness/actions';
 import {
   returnToTabs,
   signInWithGoogleAsAccount,
@@ -24,11 +24,18 @@ import {
 import type { ProductHarness } from '@libs/harness/harness';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { profileIdOf } from '@libs/profile-harness/profile-ui-reads';
-import { stayIdle } from '@libs/spaces-harness/space-idle-actions';
+import {
+  restoreSpaceConnection,
+  stayIdle,
+} from '@libs/spaces-harness/space-idle-actions';
 import { personIdleShown } from '@libs/spaces-harness/space-idle-reads';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import idleCase1 from './fixtures/multiplayer-idle-agrees-across-own-devices.itf.json';
 import idleTrace from './fixtures/multiplayer-idle-read-does-not-wake-person.itf.json';
+
+import idleCase0 from './fixtures/multiplayer-idle-survives-host-return.itf.json';
+import idleCase2 from './fixtures/multiplayer-idle-survives-other-host-return.itf.json';
 import quietMinutes from './fixtures/multiplayer-quiet-minutes-stay-on-one-device.itf.json';
 
 const ACTOR: Record<string, string> = {
@@ -123,6 +130,27 @@ bindQuintModel<QuintHarnessWorld>({
   timeoutMs: 300_000,
   regressions: [
     {
+      // regression: multiplayer-idle-survives-host-return
+      id: 'multiplayer-idle-survives-host-return',
+      title: 'Quiet time survives unrelated device reconnection',
+      seed: '0x67932',
+      itf: idleCase0,
+    },
+    {
+      // regression: multiplayer-idle-agrees-across-own-devices
+      id: 'multiplayer-idle-agrees-across-own-devices',
+      title: 'Quiet time survives unrelated device reconnection',
+      seed: '0x67932',
+      itf: idleCase1,
+    },
+    {
+      // regression: multiplayer-idle-survives-other-host-return
+      id: 'multiplayer-idle-survives-other-host-return',
+      title: 'Quiet time survives unrelated device reconnection',
+      seed: '0x67932',
+      itf: idleCase2,
+    },
+    {
       // regression: multiplayer-quiet-minutes-stay-on-one-device
       id: 'multiplayer-quiet-minutes-stay-on-one-device',
       title: 'One device waiting does not add quiet minutes to other devices',
@@ -150,7 +178,7 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.advanceTime(1_000);
     },
     connectionReturns: (w, picks: Picks) =>
-      w.s.apply(restoreActorConnection, device(picks)),
+      w.s.apply(restoreSpaceConnection, device(picks)),
     copyGameRecord: (w, picks: Picks) =>
       w.s.apply(copyGameRecord, device(picks)),
   },

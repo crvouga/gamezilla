@@ -3,6 +3,7 @@ import { NoteActivity } from '@libs/spaces-shared/space-activity';
 import { isViewingSpaceClient } from '@libs/spaces-shared/space-presence-client-id';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
+import { useClock } from '@pkgs/clock-client/solid';
 import { ActionBar } from '@pkgs/ui-root-client/action-bar';
 import { useActionBarChrome } from '@pkgs/ui-root-client/action-bar-chrome';
 import type { ActionBarItem } from '@pkgs/ui-root-client/action-bar-logic';
@@ -216,6 +217,7 @@ export function SpaceChromeLeadingActionBar(): JSX.Element {
 }
 
 export function SpaceChromeTrailingActionBar(): JSX.Element {
+  const clock = useClock();
   const sessionUi = useSpaceSessionUi();
   const [membersOpen, setMembersOpen] = createSignal(false);
   const dispatch = useSpaceRoomDispatch();
@@ -241,7 +243,7 @@ export function SpaceChromeTrailingActionBar(): JSX.Element {
       onPressMembers: () => {
         const id = clientId();
         if (id !== null && isViewingSpaceClient(id)) {
-          dispatch(NoteActivity({ clientId: id }));
+          dispatch(NoteActivity({ clientId: id, at: clock.now() }));
         }
         setMembersOpen(true);
       },
