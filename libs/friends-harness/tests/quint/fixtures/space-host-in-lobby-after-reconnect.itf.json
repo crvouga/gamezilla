@@ -183,17 +183,13 @@
           [
             "alice",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ]
         ]
@@ -202,14 +198,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_whereabouts": {
         "#map": [
@@ -242,9 +234,7 @@
           [
             "bob",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ]
         ]
@@ -322,35 +312,25 @@
           [
             "alice",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ]
         ]
       },
       "_offline": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_openSpaces": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_whereabouts": {
         "#map": [
@@ -383,9 +363,7 @@
           [
             "bob",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ]
         ]
@@ -463,17 +441,13 @@
           [
             "alice",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ]
         ]
@@ -482,14 +456,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_whereabouts": {
         "#map": [
@@ -522,9 +492,7 @@
           [
             "bob",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ]
         ]
@@ -602,35 +570,25 @@
           [
             "alice",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ]
         ]
       },
       "_offline": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_openSpaces": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_whereabouts": {
         "#map": [
@@ -663,9 +621,7 @@
           [
             "bob",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ]
         ]
@@ -743,17 +699,13 @@
           [
             "alice",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ]
         ]
@@ -762,14 +714,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_whereabouts": {
         "#map": [
@@ -802,9 +750,7 @@
           [
             "bob",
             {
-              "#set": [
-                "alice"
-              ]
+              "#set": ["alice"]
             }
           ]
         ]
@@ -882,19 +828,13 @@
           [
             "alice",
             {
-              "#set": [
-                "alice",
-                "bob"
-              ]
+              "#set": ["alice", "bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "alice",
-                "bob"
-              ]
+              "#set": ["alice", "bob"]
             }
           ]
         ]
@@ -903,16 +843,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "alice",
-          "bob"
-        ]
+        "#set": ["alice", "bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "alice",
-          "bob"
-        ]
+        "#set": ["alice", "bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -1019,17 +953,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -1038,14 +968,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -1156,35 +1082,25 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
       },
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -1295,35 +1211,25 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
       },
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -1434,17 +1340,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -1453,14 +1355,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -1571,17 +1469,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -1590,14 +1484,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -1624,9 +1514,7 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
@@ -1710,17 +1598,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -1729,14 +1613,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -1843,17 +1723,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -1862,14 +1738,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -1976,35 +1848,25 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
       },
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -2111,17 +1973,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -2130,14 +1988,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -2244,35 +2098,25 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
       },
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -2379,17 +2223,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -2398,14 +2238,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -2512,35 +2348,25 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
       },
       "_offline": {
-        "#set": [
-          "alice"
-        ]
+        "#set": ["alice"]
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -2647,17 +2473,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -2666,14 +2488,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -2780,17 +2598,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -2799,14 +2613,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -2913,17 +2723,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -2932,14 +2738,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -2972,9 +2774,7 @@
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -3052,17 +2852,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -3071,14 +2867,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -3185,17 +2977,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -3204,14 +2992,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -3318,17 +3102,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -3337,14 +3117,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -3451,17 +3227,13 @@
           [
             "alice",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ],
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
@@ -3470,14 +3242,10 @@
         "#set": []
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_whereabouts": {
         "#map": [
@@ -3729,9 +3497,7 @@
         ]
       },
       "_offline": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_openSpaces": {
         "#set": []
@@ -3864,9 +3630,7 @@
         ]
       },
       "_offline": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_openSpaces": {
         "#set": []
@@ -3999,9 +3763,7 @@
         ]
       },
       "_offline": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_openSpaces": {
         "#set": []
@@ -4128,22 +3890,16 @@
           [
             "bob",
             {
-              "#set": [
-                "bob"
-              ]
+              "#set": ["bob"]
             }
           ]
         ]
       },
       "_offline": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_openSpaces": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_sharedSpaces": {
         "#set": []
@@ -4269,9 +4025,7 @@
         ]
       },
       "_offline": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_openSpaces": {
         "#set": []
@@ -4404,9 +4158,7 @@
         ]
       },
       "_offline": {
-        "#set": [
-          "bob"
-        ]
+        "#set": ["bob"]
       },
       "_openSpaces": {
         "#set": []
