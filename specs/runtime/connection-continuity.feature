@@ -6,7 +6,7 @@ Feature: Keep using the app while a connection is missing
     No counter-example: a missing connection never chooses another place for the person.
 
     Scenario: Losing a connection on Settings keeps Settings usable
-      Given Alice is on Settings
+      Given Alice has opened Settings
       When Alice loses the connection
       Then Alice is told the connection is missing within 15 seconds
       And Alice is still on Settings
@@ -14,10 +14,10 @@ Feature: Keep using the app while a connection is missing
 
     Scenario: Reopening offline keeps the saved preferences available
       Given Alice has chosen the dark theme
-      And Alice has opened the app before
+      And Alice has a place in the app and saved preferences
       And Alice is offline
       When Alice closes and reopens the app
-      Then Alice sees the tabs
+      Then Alice has the same place in the app and saved preferences
       And Alice's app is dark
 
   Rule: An unfinished choice never prevents another place in the app from being reached
