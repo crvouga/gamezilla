@@ -168,8 +168,12 @@ describe('apple form_post callback', () => {
       body: posted.body,
       redirect: 'manual',
     });
-    expect(second.status).toBe(302);
-    const secondCode = codeOf(second.headers.get('location'));
+    expect(second.status).toBe(200);
+    expect(second.headers.get('location')).toBeNull();
+    expect(second.headers.get('content-type')).toContain('text/html');
+    const refresh = second.headers.get('refresh') ?? '';
+    expect(refresh.startsWith(`0;url=${CALLBACK}?code=`)).toBe(true);
+    const secondCode = codeOf(refresh.slice('0;url='.length));
     expect(secondCode.length).toBeGreaterThan(0);
     expect(secondCode).not.toBe(firstCode);
     expect(await sessionStatus(wire, firstCode)).not.toBe(200);
