@@ -1,4 +1,5 @@
 import type { ServerHttp } from '@libs/sub-shared/sync';
+import { HttpResponseFaults } from './http-response-faults';
 
 export function harnessPartitionedError(from: string, to: string): TypeError {
   const err = new TypeError(`harness partition: ${from} ↛ ${to}`);
@@ -20,6 +21,7 @@ function pairKey(a: string, b: string): string {
 export function createHarnessNet(opts?: {
   readonly isPartitioned?: (a: string, b: string) => boolean;
 }) {
+  const httpFaults = new HttpResponseFaults();
   const crashed = new Set<string>();
   const partitions = new Set<string>();
   const listeners = new Set<() => void>();
@@ -48,6 +50,8 @@ export function createHarnessNet(opts?: {
   }
 
   return {
+    holdHttp: httpFaults.hold,
+    releaseHttp: httpFaults.release,
     crash(id: string): void {
       crashed.add(id);
       changed();
@@ -84,10 +88,11 @@ export function createHarnessNet(opts?: {
     },
     /** Gate one directed hop (`client-a → lb`, `lb → server-b`). */
     wrapHop(fromId: string, toId: string, inner: ServerHttp): ServerHttp {
-      return async (input, init) => {
-        assertReachable(fromId, toId);
-        return inner(input, init);
-      };
+      return httpFaults.wrap(
+        fromId,
+        () => assertReachable(fromId, toId),
+        inner
+      );
     },
     assertReachable,
     isReachable,

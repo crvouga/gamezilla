@@ -19,6 +19,7 @@ import {
 } from './auth-actions';
 import { Given, Then, When } from './define';
 import { accountIdOf, signedInAccountOf } from './identity';
+import { connectionMissing } from './network-notices';
 import { caps } from './observations';
 import type { Actor } from './parameter-types';
 import { focusActor, openAccount } from './shell-actions';
@@ -177,3 +178,12 @@ Given('{actor} has closed and reopened the app', async (w, actor: Actor) => {
 When('{actor} closes and reopens the app', async (w, actor: Actor) => {
   await w.s.apply(restartApp, actor);
 });
+
+Then(
+  '{actor} is told the connection is missing within {int} seconds',
+  async (w, actor: Actor, seconds: number) => {
+    await w.s.until((s) => connectionMissing(s, actor), {
+      maxMs: seconds * 1_000,
+    });
+  }
+);
