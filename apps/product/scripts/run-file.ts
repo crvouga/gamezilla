@@ -1,6 +1,10 @@
+// @io-wall-ok
 import { spawn } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import { withForcedColorEnv } from '@pkgs/os-shared/force-color-env';
+import { testFileCommand } from './test-file-command';
 
 export type FileRunResult = {
   readonly file: string;
@@ -31,13 +35,19 @@ function collectStream(stream: NodeJS.ReadableStream | null): Promise<string> {
 }
 
 export function runPbtFile(args: RunPbtFileArgs): Promise<FileRunResult> {
+  const packagePath = args.file.split('/').slice(0, 2).join('/');
+  const manifest = JSON.parse(
+    readFileSync(join(args.repoRoot, packagePath, 'package.json'), 'utf8')
+  ) as { scripts: { test: string } };
+  const command = testFileCommand(args.file, manifest.scripts.test);
   const started = Date.now();
   return new Promise((resolve) => {
-    const child = spawn('bun', ['test', args.file], {
-      cwd: args.repoRoot,
+    const child = spawn('bun', command.argv, {
+      cwd: join(args.repoRoot, command.packagePath),
       env: withForcedColorEnv({
         ...process.env,
         FC_SEED: String(args.seed),
+        PBT_RANDOM: '0',
         PBT_NUM_RUNS: String(args.numRuns),
         PBT_SAMPLE_INTERRUPT_MS: String(args.sampleInterruptMs),
       }),

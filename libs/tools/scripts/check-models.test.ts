@@ -20,6 +20,7 @@ import {
   verifyStepsOf,
   verifyTimeoutOf,
 } from './check-models';
+import { profileBudgetSeconds } from './check-profile';
 import { REPO_ROOT, specPackages } from './spec-packages';
 
 describe('verifyStepsOf', () => {
@@ -249,18 +250,19 @@ describe('model parts', () => {
       for (const [index, phase] of phases.entries()) {
         if (index !== 4) expect(phase.step ?? '').not.toContain('pairUp');
       }
+      // regression: randomized-budget-tests-inherit-nightly
       expect(
         taskBudgetSeconds(
           '@pkgs/matchmaking-root-harness#check:models:0',
           false
         )
-      ).toBe(480);
+      ).toBe(profileBudgetSeconds(480));
       expect(
         taskBudgetSeconds(
           '@pkgs/matchmaking-root-harness#check:models:1',
           false
         )
-      ).toBe(480);
+      ).toBe(profileBudgetSeconds(480));
     },
     LOADED_MACHINE_TIMEOUT_MS
   );
@@ -319,6 +321,6 @@ describe('model parts', () => {
         `@libs/chess-root-harness#check:models:${String(slowest)}`,
         false
       )
-    ).toBe(420);
+    ).toBe(profileBudgetSeconds(420));
   });
 });

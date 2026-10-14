@@ -68,12 +68,23 @@ describe('isUuid / assertUuid', () => {
         fc.nat({ max: 35 }),
         fc.constantFrom('g', 'z', '-', ' ', '_'),
         (id, at, bad) => {
+          fc.pre(id[at] !== bad);
           const mutated = `${id.slice(0, at)}${bad}${id.slice(at + 1)}`;
           expect(isUuid(mutated)).toBe(false);
           expect(throws(() => assertUuid(mutated, 'uuid'))).toBe(true);
         }
       )
     );
+  });
+
+  // regression: uuid-corruption-generator-keeps-hyphen
+  test('the shrunk unchanged separator remains a valid UUID', () => {
+    const id = '00000000-0000-1000-8000-000000000000';
+    const at = 23;
+    const bad = '-';
+    expect(`${id.slice(0, at)}${bad}${id.slice(at + 1)}`).toBe(id);
+    expect(isUuid(id)).toBe(true);
+    expect(throws(() => assertUuid(id, 'uuid'))).toBe(false);
   });
 
   test('a version outside 1–8 or a variant outside 8–b is refused', () => {

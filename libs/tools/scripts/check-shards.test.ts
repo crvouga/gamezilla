@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 import { needsBrowser } from './check-browser-tasks';
-import { CI_RUN_DEADLINE_SECONDS } from './check-budget';
+import { CI_RUN_DEADLINE_SECONDS, taskBudgetSeconds } from './check-budget';
 import { redactSecrets, taskStream } from './check-shard-stream';
 import type { CheckTask } from './check-shards';
 import {
@@ -360,13 +360,14 @@ test('progress and live timeouts use virtual time and completed artifacts, never
   expect(logs.join(' ')).toContain('START slow');
   expect(logs.join(' ')).toContain('slow 30s');
   expect(stream.tick()).toEqual([]);
-  now = 600001;
+  // regression: randomized-budget-tests-inherit-nightly
+  now = taskBudgetSeconds('slow', true) * 1000 + 1;
   expect(stream.tick()).toEqual(['slow']);
   expect(logs.join(' ')).toContain('TIMEOUT slow');
   completed = true;
   expect(stream.tick()).toEqual([]);
   expect(logs.join(' ')).toContain('COMPLETE slow');
-  now = 1000000;
+  now += 1000000;
   expect(stream.tick()).toEqual([]);
 });
 

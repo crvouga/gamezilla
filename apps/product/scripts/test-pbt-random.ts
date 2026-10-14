@@ -113,7 +113,12 @@ async function main(): Promise<void> {
 
   const attempts: { seed: number; failedFiles: readonly string[] }[] = [];
   for (let attempt = 1; attempt <= cli.attempts; attempt += 1) {
-    const seed = randomAttemptSeed();
+    const seed =
+      process.env['FC_SEED'] === undefined
+        ? randomAttemptSeed()
+        : Number(process.env['FC_SEED']);
+    if (!Number.isInteger(seed) || seed < -(2 ** 31) || seed >= 2 ** 31)
+      throw new Error('FC_SEED must be a signed 32-bit integer');
     ui.beginAttempt(attempt, seed);
     const result = await runPbtSuite({
       repoRoot: REPO_ROOT,

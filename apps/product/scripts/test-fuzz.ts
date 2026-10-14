@@ -1,9 +1,10 @@
 #!/usr/bin/env bun
 // @io-wall-ok
 import { spawnSync } from 'node:child_process';
-import { readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, relative } from 'node:path';
 import { recordSeeds } from './seed-record';
+import { testFileCommand } from './test-file-command';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -65,6 +66,18 @@ if (files.length === 0) {
   process.exit(1);
 }
 
+const commands = files.map((file) => {
+  const selected = relative(REPO_ROOT, file);
+  const packagePath = selected.split('/').slice(0, 2).join('/');
+  const manifest = JSON.parse(
+    readFileSync(join(REPO_ROOT, packagePath, 'package.json'), 'utf8')
+  ) as { scripts: Record<string, string> };
+  const script = manifest.scripts['test'] ?? manifest.scripts['test:contract'];
+  if (script === undefined)
+    throw new Error(`Package has no test task: ${packagePath}`);
+  return { file, ...testFileCommand(selected, script) };
+});
+
 const seeds =
   replaySeed === undefined
     ? Array.from(
@@ -78,9 +91,9 @@ recordSeeds('fuzz', { seeds, files: files.length, failed: null });
 for (const [index, seed] of seeds.entries()) {
   const i = index + 1;
   process.stdout.write(`::group::seed=${seed} (${i}/${seeds.length})\n`);
-  for (const file of files) {
-    const result = spawnSync('bun', ['test', file], {
-      cwd: REPO_ROOT,
+  for (const { file, argv, packagePath } of commands) {
+    const result = spawnSync('bun', argv, {
+      cwd: join(REPO_ROOT, packagePath),
       stdio: 'inherit',
       env: { ...process.env, HARNESS_SEED: String(seed) },
     });

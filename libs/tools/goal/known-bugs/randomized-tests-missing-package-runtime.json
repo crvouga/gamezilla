@@ -1,0 +1,4 @@
+{
+  "summary": "Randomized tests omitted browser conditions and preloads and ran outside their owning package, causing JSX and DOM failures.",
+  "regressionTest": "apps/product/scripts/test-file-command.test.ts"
+}

@@ -3,6 +3,11 @@ import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 import { permits } from './observability-condition';
 
+// regression: observability-property-process-per-sample
+test('the shrunk active stack with an empty trace state blocks deployment', () => {
+  expect(permits({ status: 'active', traces_status: '' })).toBe(false);
+});
+
 test('arbitrary unavailable trace states always block deployment', () => {
   assertProperty(
     'no stack state can authorize an unavailable tracing service',
