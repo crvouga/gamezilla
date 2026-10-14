@@ -29,6 +29,7 @@ import { makeHarnessClientEnv } from './client-env';
 import { createHarnessClientNamespaces } from './client-namespace';
 import type { HarnessComposition, HarnessRoomNode } from './composition';
 import { harnessAuthProvider } from './harness-auth-provider';
+import { serverHandles } from './harness-server-handles';
 import type { HarnessIdps } from './idp';
 import {
   addHarnessIdpAccounts,
@@ -44,11 +45,7 @@ import { createHarnessNet } from './net';
 import { createHarnessRooms } from './room-services';
 import type { HarnessServerEgress } from './server-egress';
 import { createHarnessServerEgress } from './server-egress';
-import type {
-  HarnessServerNode,
-  HarnessServerNodes,
-  Server,
-} from './server-nodes';
+import type { HarnessServerNodes, Server } from './server-nodes';
 import {
   createHarnessServerNodes,
   HARNESS_PRIMARY_SERVER_ID,
@@ -134,6 +131,11 @@ export type Harness = {
    * sign-in. Only before the device's app first launches; never undone.
    */
   hostSyntheticUser(id: string): void;
+  /**
+   * From its next opening, what a device's app kept on it cannot be read or
+   * saved (damaged, full, locked): every call to its local database fails.
+   */
+  damageDeviceData(id: string): void;
   /** URLs the API fleet requested that no simulated provider serves. */
   unansweredServerRequests(): readonly string[];
   /** `'lb'`, a server instance id, or a client id. */
@@ -218,6 +220,7 @@ type HarnessKernel = {
   readonly appBuilds: HarnessAppBuilds;
   readonly accountReadyDelays: HarnessAccountReadyDelays;
   readonly syntheticUserDevices: HarnessSyntheticUserDevices;
+  readonly unusableDeviceData: Set<string>;
   readonly serverEgress: HarnessServerEgress;
   readonly disposed: { value: boolean };
 };
@@ -386,6 +389,7 @@ async function bootHarnessKernel(
     appBuilds: createHarnessAppBuilds(),
     accountReadyDelays: createHarnessAccountReadyDelays(),
     syntheticUserDevices: createHarnessSyntheticUserDevices(),
+    unusableDeviceData: new Set(),
     serverEgress,
     disposed,
   };
@@ -434,42 +438,6 @@ function createClientEnvs(
     browsers.set(id, built.browser);
     clientEnvs.set(namespace, built.env);
     return Promise.resolve(built.env);
-  };
-}
-
-function primaryServer(servers: HarnessServerNodes): HarnessServerNode {
-  const node = servers.get(HARNESS_PRIMARY_SERVER_ID);
-  if (node === undefined) throw new Error('primary server is missing');
-  return node;
-}
-
-/** The API instances: spawn, drop and read them, and the primary's ports. */
-function serverHandles(
-  servers: HarnessServerNodes,
-  net: HarnessKernel['net']
-): Pick<
-  Harness,
-  | 'spawnServer'
-  | 'dropServer'
-  | 'serverIds'
-  | 'serverEnv'
-  | 'drainServerFetch'
-  | 'outboxConsumers'
-  | 'authorizeServerMutation'
-> {
-  return {
-    async spawnServer(id) {
-      const node = await servers.spawn(id);
-      // A respawned instance must not stay marked down from a prior crash.
-      net.restart(node.id);
-      return node.app;
-    },
-    dropServer: (id) => servers.drop(id),
-    serverIds: () => servers.ids(),
-    serverEnv: (id) => servers.get(id)?.env,
-    drainServerFetch: () => servers.drainAll(),
-    outboxConsumers: () => primaryServer(servers).outboxConsumers,
-    authorizeServerMutation: () => primaryServer(servers).authorizeMutation,
   };
 }
 
@@ -532,6 +500,9 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
       if (liveClients.has(id))
         throw new Error(`${id}'s app is already running as a person's device`);
       kernel.syntheticUserDevices.add(id);
+    },
+    damageDeviceData: (id) => {
+      kernel.unusableDeviceData.add(id);
     },
     unansweredServerRequests: () => kernel.serverEgress.unanswered(),
     crash: (id) => {

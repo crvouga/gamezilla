@@ -19,10 +19,12 @@ import { originAvailabilityFor } from './origin-availability-for-env';
 import type { SyncApiFetch } from './sync-api';
 
 /**
- * UI watchdog: shorter than the SQLite open timeout so users see Reload
- * before the lower layer's open timeout alone would surface.
+ * UI watchdog for a boot that never finishes. A slow or broken local
+ * database cannot trip it: the open deadline and the per-call deadline
+ * (`open-main-sql-client`) move the app to a disposable database long before
+ * this, so it is only for what is not SQLite (a module that never loads).
  */
-const BOOT_STUCK_MS = 15_000;
+const BOOT_STUCK_MS = 30_000;
 
 /** Opens SQLite as soon as an identity is bound: nothing else gates it. */
 function useSyncBootPromise(args: {
@@ -32,6 +34,7 @@ function useSyncBootPromise(args: {
   const loadApp = useAppData();
   const pool = useSyncEnginePool();
   const identity = useLocalIdentity();
+  const log = useLogger('sync-engine-boot');
   const fetchFn: SyncApiFetch = env.server;
   const availability = originAvailabilityFor(env);
   const auth: SyncClientAuth = {
@@ -47,6 +50,9 @@ function useSyncBootPromise(args: {
     const engine = pool.getOrCreate({
       loadApp,
       openSqlClient: (openArgs) => env.openSqlClient(openArgs),
+      ...(env.localCallDeadlineMs !== undefined
+        ? { localCallDeadlineMs: env.localCallDeadlineMs }
+        : {}),
       ...(env.reconcileIntervalMs !== undefined
         ? { reconcileIntervalMs: env.reconcileIntervalMs }
         : {}),
@@ -71,7 +77,13 @@ function useSyncBootPromise(args: {
     });
     return Promise.all([engine, pool.mutationRegistry()]).then(
       async ([resolved, registry]) => {
-        await resolved.connect();
+        // Connecting starts background sync. Whatever goes wrong there shows
+        // in the engine's status; it never keeps the app from opening.
+        await resolved.connect().catch((error: unknown) =>
+          log.error('sync engine connect failed', {
+            error: error instanceof Error ? error.message : String(error),
+          })
+        );
         exposeLocalSqlForTests(resolved.db);
         return { engine: resolved, registry };
       }
