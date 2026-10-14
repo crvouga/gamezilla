@@ -58,6 +58,7 @@ bindQuintModel<QuintHarnessWorld>({
   inductiveInvariant: '_inductive',
   separateInduction: true,
   inductionCaseGroupSize: 8,
+  invariantMode: 'before',
   inferPolymorphicTypes: false,
   timeoutMs: 180_000,
   regressions: [
