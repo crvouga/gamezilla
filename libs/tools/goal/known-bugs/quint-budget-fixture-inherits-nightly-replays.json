@@ -1,0 +1,4 @@
+{
+  "summary": "With QUINT_REPLAY_TRACES=all, the budgeted door fixture replayed traces 1 through 6 while its evidence test expected only trace 1. The minimum-budget example must name its budget explicitly alongside the all-traces example.",
+  "regressionTest": "pkgs/quint-server/tests/bun-test.test.ts"
+}

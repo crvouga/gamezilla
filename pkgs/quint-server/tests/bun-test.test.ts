@@ -119,12 +119,14 @@ describe('evidence of the model run', () => {
 const BUDGETED = join(import.meta.dir, '../.cache/test-traces-budgeted');
 rmSync(join(BUDGETED, 'evidence'), { recursive: true, force: true });
 
-// The same model as the gate runs it: no budget named.
+// regression: quint-budget-fixture-inherits-nightly-replays
+// This example checks the minimum budget even when the suite explores all traces.
 runQuintModel({
   packageName: '@pkgs/quint',
   specPath: FIXTURE,
   specUri: SPEC_URI,
   reportDir: BUDGETED,
+  replayTraces: DEFAULT_REPLAY_TRACES,
 });
 
 describe('evidence of a model run that does not explore', () => {
