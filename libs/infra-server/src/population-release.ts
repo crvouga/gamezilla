@@ -77,3 +77,24 @@ export function populationReleaseArgs(
     ],
   };
 }
+
+/**
+ * The Railway CLI reads `RAILWAY_TOKEN` as a project token. Ours is a
+ * workspace token, which it reads as `RAILWAY_API_TOKEN`, and the project
+ * token name wins when both are set.
+ */
+export function railwayCliEnvironment(
+  env: Readonly<Record<string, string | undefined>>
+): Record<string, string> {
+  const { RAILWAY_TOKEN: workspaceToken, RAILWAY_API_TOKEN: _, ...rest } = env;
+  return {
+    ...Object.fromEntries(
+      Object.entries(rest).filter(
+        (entry): entry is [string, string] => entry[1] !== undefined
+      )
+    ),
+    ...(workspaceToken === undefined
+      ? {}
+      : { RAILWAY_API_TOKEN: workspaceToken }),
+  };
+}

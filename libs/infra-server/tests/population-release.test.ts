@@ -4,6 +4,7 @@ import {
   POPULATION_START_COMMAND,
   populationRailwayConfig,
   populationReleaseArgs,
+  railwayCliEnvironment,
 } from '@libs/infra-server/population-release';
 
 const VERSION = 'a'.repeat(40);
@@ -50,4 +51,18 @@ test('the release sets the commit version before uploading the archive', () => {
   expect(args.upArgs).toContain('/tmp/stage');
   expect(args.upArgs).toContain(`Synthetic Population Worker ${VERSION}`);
   expect(args.upArgs.join(' ')).not.toContain('docker');
+});
+
+// regression: railway-workspace-token-read-as-project-token
+test('the Railway CLI gets the workspace token under the name it reads', () => {
+  const env = railwayCliEnvironment({
+    RAILWAY_TOKEN: 'workspace',
+    RAILWAY_API_TOKEN: 'older',
+    PATH: '/bin',
+    UNSET: undefined,
+  });
+  expect(env['RAILWAY_API_TOKEN']).toBe('workspace');
+  expect(env['RAILWAY_TOKEN']).toBeUndefined();
+  expect(env['PATH']).toBe('/bin');
+  expect('UNSET' in env).toBe(false);
 });

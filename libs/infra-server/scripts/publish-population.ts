@@ -6,6 +6,7 @@ import { join, resolve } from 'node:path';
 import {
   populationRailwayConfig,
   populationReleaseArgs,
+  railwayCliEnvironment,
 } from '@libs/infra-server/population-release';
 import { tofuLayout } from '@libs/infra-server/tofu-layout';
 import { envFile } from '@libs/infra-shared/envs';
@@ -15,10 +16,14 @@ import { resolveAwsSession } from './aws-session';
 import { infraOperation } from './infra-operation';
 import { pinnedTool, spawnTool } from './tofu-process';
 
-function artifactCommand(cmd: readonly string[], cwd: string): string {
+function artifactCommand(
+  cmd: readonly string[],
+  cwd: string,
+  env: Record<string, string | undefined> = process.env
+): string {
   const result = Bun.spawnSync([...cmd], {
     cwd,
-    env: process.env,
+    env,
     stdout: 'pipe',
     stderr: 'pipe',
     timeout: 900_000,
@@ -106,8 +111,9 @@ try {
     },
     stage
   );
-  artifactCommand(release.versionArgs, root);
-  const result = artifactCommand(release.upArgs, root);
+  const railwayEnv = railwayCliEnvironment(process.env);
+  artifactCommand(release.versionArgs, root, railwayEnv);
+  const result = artifactCommand(release.upArgs, root, railwayEnv);
   process.stdout.write(redactInfraOutput(result, process.env));
 } finally {
   rmSync(stage, { recursive: true, force: true });
