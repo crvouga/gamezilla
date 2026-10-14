@@ -14,6 +14,7 @@ terms:
       deletion is erased from these copies within 30 days and cannot return
       to use during recovery.
     forms: [recovery copies, recovery copy's]
+    model: [usable, returned, recoverActive, recoverDeleted]
 
   - term: account deletion
     from: profile
@@ -70,7 +71,7 @@ terms:
       just ended. Each device keeps its own place, and being cut off never
       moves anyone.
     avoid: [screen, page, route]
-    model: [Place, place]
+    model: [Place, place, leaveForProfile]
     published: true
 
   - term: close and reopen the app
@@ -129,8 +130,9 @@ terms:
       A choice a person makes in Settings about how the app looks and sounds:
       the theme, and whether sounds are on. It is kept on the device after the
       app closes.
-    forms: [preferences, look and sound choices]
+    forms: [preferences, look and sound choices, theme choices]
     avoid: [config, local storage]
+    model: [theme, choosing, openThemeChoices, closeBeforeChoosing, chooseLight]
 
   - term: dark theme
     definition: >-
@@ -195,11 +197,31 @@ terms:
     definition: >-
       The team putting out a new edition of the app in an environment. An
       unfinished release is one that got only part of the way.
-    forms: [releases, unfinished release]
+    forms: [releases, release's, unfinished release, unfinished, puts out, put out]
     avoid: [deploy, deployment, rollout]
+    model:
+      [
+        releaseState,
+        checkState,
+        releaseAfterPass,
+        releaseAfterFailure,
+        replaceRunningCheck,
+        keepReleaseCheck,
+        keepUnfinishedRelease,
+        stopStartedRelease,
+      ]
 
   - term: the testing tool
     from: developer-tools
+  - term: release check
+    from: developer-tools
+
+  - term: preparation
+    definition: >-
+      The team getting an environment ready to open. When preparation cannot
+      finish, the team is told and can still open the environment.
+    forms: [prepares, preparing]
+    model: [openState, prepareDespiteFailure]
 
   - term: reach the app securely
     definition: >-
@@ -261,6 +283,16 @@ terms:
       follows the trail to find out what happened.
     forms: [trails, leaves a trail, follow the trail, follows the trail]
     avoid: [request record, trace, traces, span, telemetry, logs]
+    model:
+      [
+        shownToTeam,
+        shownToPerson,
+        reason,
+        teamReadsRecent,
+        teamReadsExpired,
+        teamReadsNothing,
+        personLooks,
+      ]
     published: true
 
   - term: run into trouble
@@ -268,6 +300,7 @@ terms:
       Something going wrong for a person in the app, such as an error or
       something not working as it should.
     forms: [runs into trouble, ran into trouble, what went wrong]
+    model: [runIntoTrouble]
     published: true
 
   # Borrowed from Identity.

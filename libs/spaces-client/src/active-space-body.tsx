@@ -1,24 +1,36 @@
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  Match,
-  Show,
-  Switch,
-} from 'solid-js';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 
-import { ConnectionMissingNotice } from './connection-missing-notice';
 import { GamesMainMenu } from './games-main-menu';
 import { SpaceActiveLayout } from './space-active-layout';
+import { SpaceConnectionMissingNotice } from './space-connection-missing';
 import { SpaceHostOfflineNotice } from './space-connection-notice';
 import type { SpaceSessionUiValue } from './space-session-ui-context';
 import { SpaceSessionUiProvider } from './space-session-ui-context';
-import { SpacesNeedConnectionNotice } from './spaces-notices';
 import { useAnnounceJoinedOnSync } from './use-announce-joined-on-sync';
+import { useNoteSpaceActivity } from './use-note-space-activity';
 import { SpaceQuietHost } from './use-space-device-quiet';
 import { useSpaceHostConnection } from './use-space-host-connection';
+
+type HostConnection = 'ready' | 'loading' | 'offline' | 'host-offline';
+
+/**
+ * The game choice stays while the host is offline. The notice beside it
+ * says the host is offline; hiding the choice would leave a guest nowhere.
+ */
+function SpaceGames(props: {
+  connection: HostConnection;
+  online: boolean;
+}): JSX.Element {
+  return (
+    <Switch fallback={<GamesMainMenu />}>
+      <Match when={props.connection === 'loading' && props.online}>
+        <LoadingState />
+      </Match>
+    </Switch>
+  );
+}
 
 export type ActiveSpaceBodyProps = {
   spaceId: string;
@@ -35,13 +47,9 @@ export type ActiveSpaceBodyProps = {
  */
 export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
   useAnnounceJoinedOnSync(props.spaceId);
+  useNoteSpaceActivity();
   const connection = useSpaceHostConnection();
   const engine = useSyncEngine();
-  // Once the menu has been shown, a later host-offline check must not hide it.
-  const [keptMenu, setKeptMenu] = createSignal(false);
-  createEffect(() => {
-    if (connection() !== 'loading') setKeptMenu(true);
-  });
   const sessionUi: SpaceSessionUiValue = {
     get spaceId() {
       return props.spaceId;
@@ -64,29 +72,22 @@ export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
     <SpaceSessionUiProvider value={sessionUi}>
       <SpaceQuietHost>
         <SpaceActiveLayout>
-          <Switch>
-            <Match when={connection() === 'loading' && !keptMenu()}>
-              <LoadingState />
-            </Match>
-            <Match when={connection() !== 'loading' || keptMenu()}>
-              <Show when={!engine.status().online}>
-                <div class="box p-4">
-                  <ConnectionMissingNotice />
-                </div>
-              </Show>
-              <Show when={connection() === 'offline'}>
-                <div class="box p-4">
-                  <SpacesNeedConnectionNotice />
-                </div>
-              </Show>
-              <Show when={connection() === 'host-offline'}>
-                <div class="box p-4">
-                  <SpaceHostOfflineNotice />
-                </div>
-              </Show>
-              <GamesMainMenu />
-            </Match>
-          </Switch>
+          <Show when={!engine.status().online}>
+            <div class="box p-4">
+              <SpaceConnectionMissingNotice />
+            </div>
+          </Show>
+          <Show
+            when={connection() === 'host-offline' && engine.status().online}
+          >
+            <div class="box p-4">
+              <SpaceHostOfflineNotice />
+            </div>
+          </Show>
+          <SpaceGames
+            connection={connection()}
+            online={engine.status().online}
+          />
         </SpaceActiveLayout>
       </SpaceQuietHost>
     </SpaceSessionUiProvider>

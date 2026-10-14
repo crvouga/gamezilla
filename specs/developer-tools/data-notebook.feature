@@ -43,6 +43,46 @@ Feature: Keep questions about a test world
       When the team removes the data notebook question about Alice's friends
       Then the data notebook still has that question because it is the last one
 
+  Rule: The team can change a saved question
+    No counter-example: the notebook shows the changed question, so the previous wording is no longer there.
+
+    Scenario: Changing a question shows what it asks now
+      Given the team's data notebook has a question about Alice's friends
+      When the team changes that data notebook question to ask about Alice's spaces
+      Then the team sees only the data notebook question about Alice's spaces
+
+  Rule: The team can put a later question ahead of an earlier one
+
+    Scenario: Moving a later question ahead changes the order
+      Given the team's data notebook has questions about Alice's friends and Alice's spaces
+      When the team moves the data notebook question about Alice's spaces ahead
+      Then the team sees the data notebook question about Alice's spaces first
+
+    Scenario: A question that is already first stays first
+      Given the team's data notebook has questions about Alice's friends and Alice's spaces
+      When the team moves the data notebook question about Alice's friends ahead
+      Then the team sees the data notebook question about Alice's friends first
+
+  Rule: A question that answers automatically shows its answer when the notebook is opened
+    No counter-example: a question that does not answer automatically waits until the team runs it.
+
+    Scenario: Opening the notebook shows an automatic answer
+      Given the team's data notebook question about Alice's friends answers automatically
+      When the team opens the data notebook for Alice's phone
+      Then the team sees the question's answer
+
+  Rule: An answer shows at most 5000 rows
+
+    Scenario: An answer of 5000 rows is shown whole
+      Given the team's data notebook question would answer with 5000 rows
+      When the team runs that data notebook question
+      Then the team sees 5000 rows and is not told the answer was cut off
+
+    Scenario: An answer past 5000 rows is cut off
+      Given the team's data notebook question would answer with 5001 rows
+      When the team runs that data notebook question
+      Then the team sees 5000 rows and is told the answer was cut off
+
   Rule: Asking a question shows its answer or why it failed
 
     Scenario: A successful question shows an answer

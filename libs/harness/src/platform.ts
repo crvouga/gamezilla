@@ -43,7 +43,7 @@ export async function notePhoneOffline(
 }
 
 /** The actor id of `actor`'s second device, signed into the same account. */
-export function otherDevice(actor: Actor): string {
+export function otherDevice(actor: string): string {
   return `${actor}_phone`;
 }
 
@@ -55,7 +55,7 @@ export function otherDevice(actor: Actor): string {
  */
 export async function cutConnection(
   w: HarnessWorld,
-  actor: Actor
+  actor: string
 ): Promise<void> {
   if (!(await w.s.read(caps)).includes('partition')) {
     const refused = await w.s.apply(partition, actor).then(
@@ -134,6 +134,16 @@ Then(
 Given(
   '{actor} is also signed in on another device',
   async (w, actor: Actor) => {
+    // The other device is this person. Claim the account here first when
+    // this device is still a guest, so both devices are one account.
+    const offline = await w.s.read((s) =>
+      s.session.network
+        .partitions()
+        .some((pair) => pair[0] === actor || pair[1] === actor)
+    );
+    if (!offline && (await w.s.read(signedInAccountOf, actor)) === null) {
+      await w.s.apply(signInWithGoogle, actor);
+    }
     await w.s.apply(signInWithGoogleAsAccount, otherDevice(actor), actor);
     await w.s.apply(returnToTabs, otherDevice(actor));
   }

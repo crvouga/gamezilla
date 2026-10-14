@@ -21,9 +21,13 @@ import type { MembershipShown } from '@libs/billing-harness/billing-reads';
 import {
   currentPlan,
   membershipShown,
+  serverMembershipRow,
 } from '@libs/billing-harness/billing-reads';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
+import { letTimePass } from '@libs/harness/actions';
 import { Given, Step, Then, When } from '@libs/harness/define';
+import type { ProductHarness } from '@libs/harness/harness';
+import { accountIdOf } from '@libs/harness/identity';
 import { nodeText } from '@libs/harness/observations';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -138,6 +142,28 @@ Given(
     await shownWhere(w, actor, (shown) => shown.state === 'ended');
   }
 );
+
+/** How long until the person's own clock reaches the membership's period end. */
+async function untilPeriodEnd(
+  s: ProductHarness,
+  actor: Actor
+): Promise<number> {
+  const accountId = await accountIdOf(s, actor);
+  if (accountId === null) return 0;
+  const row = await serverMembershipRow(s, accountId);
+  if (row?.current_period_end == null) return 0;
+  const end = Date.parse(row.current_period_end);
+  if (Number.isNaN(end)) return 0;
+  return Math.max(0, end - s.session.ports.clock.now());
+}
+
+When("{actor}'s billing period has run out", async (w, actor: Actor) => {
+  await w.s.apply(providerEvent, actor, 'run_out_period');
+  // A provider clock that was already ahead stops short of the person's
+  // own period end. Grace is counted on the person's clock.
+  const gap = await w.s.read(untilPeriodEnd, actor);
+  if (gap > 0) await w.s.apply(letTimePass, gap);
+});
 
 Given("{actor}'s billing period has ended", async (w, actor: Actor) => {
   const before = await shownWhere(w, actor, () => true);

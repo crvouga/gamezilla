@@ -35,6 +35,7 @@ export type PrivacySetupWorld = HarnessWorld & {
     actor: Actor,
     completion: 'confirmed' | 'completed'
   ) => Promise<void>;
+  readonly beforePhoneOffline?: (actor: Actor) => Promise<void>;
 };
 
 async function confirmedAccount(
@@ -264,6 +265,7 @@ Then(
 );
 
 Given("{actor}'s phone is offline", async (w, actor: Actor) => {
+  await (w as PrivacySetupWorld).beforePhoneOffline?.(actor);
   await notePhoneOffline(w, actor);
   await cutConnection(w, actor);
 });

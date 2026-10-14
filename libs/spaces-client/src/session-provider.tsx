@@ -11,9 +11,12 @@
 import type { JSX } from 'solid-js';
 
 import { EndSpaceModalProvider } from './end-space-modal-provider';
+import { HostingLimitInviteProvider } from './hosting-limit-invite';
 import { LeaveSpaceModalProvider } from './leave-space-modal-provider';
+import { MeetHostedSpaces } from './meet-hosted-spaces';
 import { ReconcileEndedOpenSessions } from './reconcile-ended-open-sessions';
 import { SpaceGameSessionEffects } from './space-game-session-effects';
+import { SpacePresenceProbe } from './space-presence-probe';
 import { AppSpaceRoomsProvider } from './space-rooms-provider';
 
 export default function SpacesSession(props: {
@@ -23,10 +26,14 @@ export default function SpacesSession(props: {
     <>
       <ReconcileEndedOpenSessions />
       <AppSpaceRoomsProvider>
-        <SpaceGameSessionEffects />
-        <EndSpaceModalProvider>
-          <LeaveSpaceModalProvider>{props.children}</LeaveSpaceModalProvider>
-        </EndSpaceModalProvider>
+        <HostingLimitInviteProvider>
+          <MeetHostedSpaces />
+          <SpacePresenceProbe />
+          <SpaceGameSessionEffects />
+          <EndSpaceModalProvider>
+            <LeaveSpaceModalProvider>{props.children}</LeaveSpaceModalProvider>
+          </EndSpaceModalProvider>
+        </HostingLimitInviteProvider>
       </AppSpaceRoomsProvider>
     </>
   );

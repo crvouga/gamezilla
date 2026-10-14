@@ -5,7 +5,12 @@ import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { actorUi, pollUntil, scenarioAction } from './actor-ui';
 import type { ProductHarness } from './harness';
 import type { AppleAccountKind } from './identity';
-import { actorAppleEmail, actorEmail, signedInAccountOf } from './identity';
+import {
+  accountIdOf,
+  actorAppleEmail,
+  actorEmail,
+  signedInAccountOf,
+} from './identity';
 import type { ProviderAnswers } from './provider-walk';
 import { completeProviderSignIn } from './provider-walk';
 
@@ -176,6 +181,9 @@ async function ensureGoogleAccount(
   accountActorId: string
 ): Promise<void> {
   if ((await signedInAccountOf(s, accountActorId)) !== null) return;
+  // A signed-out device still owns its address. Signing it back in would
+  // put that device on the current game.
+  if ((await accountIdOf(s, accountActorId)) !== null) return;
   if (accountIsOffline(s, accountActorId)) return;
   await providerSignIn(s, accountActorId, {
     provider: 'google',

@@ -1,7 +1,8 @@
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql, deviceMemberIdOf } from '@libs/harness/identity';
-import { bringToFront } from '@libs/harness/observations';
+import { actorHtml, bringToFront } from '@libs/harness/observations';
+import { otherDevice } from '@libs/harness/platform';
 import { Handles } from '@libs/test-ids-shared/handles';
 import sql from '@pkgs/sql-root-shared/sql';
 
@@ -204,12 +205,42 @@ async function textOf(
   }
 }
 
-/** The actor is invited to Plus after reaching the hosting limit. */
-export function hostingLimitShown(
+/** A lobby card or a saved space offers the way back into a space. */
+export async function returnToSpaceOffered(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
-  return shows(s, actorId, Handles.spacesHostingLimit);
+  await bringToFront(s, actorId);
+  const html = await actorHtml(s, actorId);
+  if (html === null) return false;
+  return (
+    html.includes('data-testid="space-card-') ||
+    html.includes('data-testid="space-miniplayer-open-')
+  );
+}
+
+/** The other device is on the same open space as this one. */
+export async function otherDeviceInSameSpace(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  const here = await readSpaceLink(s, actorId);
+  const there = await readSpaceLink(s, otherDevice(actorId));
+  return here !== null && here === there;
+}
+
+/**
+ * The person is invited to Plus after reaching the hosting limit.
+ * The device that tried to host another space is the one that says so.
+ */
+export async function hostingLimitShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  if (await shows(s, actorId, Handles.spacesHostingLimit)) return true;
+  const phone = otherDevice(actorId);
+  if (!s.actors.has(phone)) return false;
+  return shows(s, phone, Handles.spacesHostingLimit);
 }
 
 /** The actor's app explains why joining needs a connection. */

@@ -3,7 +3,7 @@ import {
   localRows,
 } from '@libs/friends-harness/relationship-reads';
 import { sharedRelationships } from '@libs/friends-harness/shared-relationship-reads';
-import { partition, restoreNetwork } from '@libs/harness/actions';
+import { letTimePass, partition, restoreNetwork } from '@libs/harness/actions';
 /**
  * `specs/friends/friendship.qnt` against the friends composition: each Quint
  * action through the friends harness actions (search, the inbox, another
@@ -132,6 +132,9 @@ bindQuintModel<QuintHarnessWorld>({
       const { actor, other } = pair(picks);
       await toTabs(w, actor);
       await w.s.apply(unblockFriend, actor, other);
+    },
+    dayPasses: async (w) => {
+      await w.s.apply(letTimePass, 24 * 60 * 60 * 1000);
     },
     _loseConnection: async (w, picks) => {
       await w.s.apply(partition, String(picks['person']));

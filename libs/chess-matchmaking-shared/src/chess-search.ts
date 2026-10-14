@@ -43,12 +43,11 @@ function alreadyLooking(): MutationError {
 }
 
 /**
- * The account's search is one search. Another space must hear that before
- * it is asked whether this device may choose a game there.
+ * The account's search is one search, including one started from another
+ * space. The projected row is what every device already has. Matchmaking
+ * tables live only on the server, so a client replay cannot read them.
  */
 async function refuseWhenAlreadyLooking(ctx: MutationCtx): Promise<void> {
-  // The projected search is what every device already has. The matchmaking
-  // tables live only on the server, so a client replay cannot read them.
   const projected = await ctx.tx.query(sql<{ id: string }>`
     SELECT id FROM chess_opponent_searches
     WHERE owner_id = ${ctx.env.actorId} AND standing = ${'waiting'} AND deleted_at IS NULL
@@ -78,6 +77,7 @@ export async function beginChessSearch(
   await requireInMutation(ctx, PERMISSION.matchmakingUse);
   await refuseWhenAlreadyLooking(ctx);
   const scope = await requireMultiplayerSpace(ctx, input.spaceId);
+  await refuseWhenAlreadyLooking(ctx);
   await requireInMutation(ctx, PERMISSION.spacesSelectGame, scope);
   const control = requireOfferedTimeControl(input.timeControl);
   const checkLimit = async () =>

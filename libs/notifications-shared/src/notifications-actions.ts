@@ -8,6 +8,29 @@ export type NotificationsClientDeps = {
   readonly fetchFn: InboxApiFetch;
 };
 
+/** The inbox refused a choice and said why. Not a missing connection. */
+export class InboxRefusal extends Error {
+  readonly status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'InboxRefusal';
+    this.status = status;
+  }
+}
+
+function explainedRefusal(body: string): string {
+  try {
+    const parsed = JSON.parse(body) as { error?: unknown };
+    if (typeof parsed.error === 'string' && parsed.error.length > 0) {
+      return parsed.error;
+    }
+  } catch {
+    // A body that is not the refusal envelope has nothing to show.
+  }
+  return '';
+}
+
 async function inboxApiJson<T>(opts: {
   deps: NotificationsClientDeps;
   path: string;
@@ -23,6 +46,10 @@ async function inboxApiJson<T>(opts: {
   });
   if (!response.ok) {
     const body = await response.text().catch(() => '');
+    const explained = explainedRefusal(body);
+    if (response.status < 500 && explained.length > 0) {
+      throw new InboxRefusal(response.status, explained);
+    }
     throw new Error(
       `Notifications API ${opts.path} failed: ${String(response.status)}${
         body.length > 0 ? ` ${body}` : ''

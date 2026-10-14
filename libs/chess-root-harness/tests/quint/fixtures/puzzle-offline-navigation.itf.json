@@ -70,10 +70,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -93,17 +111,17 @@
       },
       "guidance": "none",
       "help": "none",
-      "mbt::actionTaken": "init",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "0"
@@ -141,7 +159,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -164,6 +191,15 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
       }
     },
     {
@@ -181,7 +217,9 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": ["bob"]
+        "#set": [
+          "bob"
+        ]
       },
       "_served": {
         "#bigint": "0"
@@ -203,10 +241,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -226,15 +282,17 @@
       },
       "guidance": "none",
       "help": "none",
-      "mbt::actionTaken": "_loseConnection",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "Some",
-          "value": "bob"
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "0"
@@ -272,7 +330,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -295,6 +362,13 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
       }
     },
     {
@@ -312,7 +386,9 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": ["bob"]
+        "#set": [
+          "bob"
+        ]
       },
       "_served": {
         "#bigint": "1"
@@ -334,10 +410,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "ready"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "ready"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -357,15 +451,17 @@
       },
       "guidance": "ready",
       "help": "none",
-      "mbt::actionTaken": "openPuzzles",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "Some",
-          "value": "alice"
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "1"
@@ -403,7 +499,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "solving"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "solving"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -426,6 +531,13 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "openPuzzles",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        }
       }
     },
     {
@@ -443,7 +555,9 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": ["bob"]
+        "#set": [
+          "bob"
+        ]
       },
       "_served": {
         "#bigint": "1"
@@ -465,10 +579,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -488,15 +620,17 @@
       },
       "guidance": "none",
       "help": "none",
-      "mbt::actionTaken": "leavePuzzle",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "Some",
-          "value": "bob"
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "0"
@@ -534,7 +668,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -557,6 +700,13 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "leavePuzzle",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
       }
     },
     {
@@ -574,7 +724,9 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": ["bob"]
+        "#set": [
+          "bob"
+        ]
       },
       "_served": {
         "#bigint": "1"
@@ -596,10 +748,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -619,15 +789,17 @@
       },
       "guidance": "none",
       "help": "none",
-      "mbt::actionTaken": "backToGameChoice",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "Some",
-          "value": "alice"
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "0"
@@ -665,7 +837,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -688,6 +869,13 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "backToGameChoice",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        }
       }
     },
     {
@@ -727,10 +915,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -750,15 +956,17 @@
       },
       "guidance": "none",
       "help": "none",
-      "mbt::actionTaken": "connectionReturns",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "Some",
-          "value": "bob"
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "0"
@@ -796,7 +1004,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -819,6 +1036,13 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
       }
     },
     {
@@ -836,7 +1060,9 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": ["bob"]
+        "#set": [
+          "bob"
+        ]
       },
       "_served": {
         "#bigint": "1"
@@ -858,10 +1084,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -881,15 +1125,17 @@
       },
       "guidance": "none",
       "help": "none",
-      "mbt::actionTaken": "_loseConnection",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "Some",
-          "value": "bob"
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "0"
@@ -927,7 +1173,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -950,6 +1205,13 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
       }
     },
     {
@@ -967,7 +1229,10 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": ["alice", "bob"]
+        "#set": [
+          "alice",
+          "bob"
+        ]
       },
       "_served": {
         "#bigint": "1"
@@ -989,10 +1254,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -1012,15 +1295,17 @@
       },
       "guidance": "none",
       "help": "none",
-      "mbt::actionTaken": "_loseConnection",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "Some",
-          "value": "alice"
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "0"
@@ -1058,7 +1343,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -1081,6 +1375,13 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        }
       }
     },
     {
@@ -1098,7 +1399,10 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": ["alice", "bob"]
+        "#set": [
+          "alice",
+          "bob"
+        ]
       },
       "_served": {
         "#bigint": "1"
@@ -1120,10 +1424,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "ready"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "ready"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -1143,15 +1465,17 @@
       },
       "guidance": "ready",
       "help": "none",
-      "mbt::actionTaken": "openPuzzles",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "Some",
-          "value": "bob"
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "1"
@@ -1189,7 +1513,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "solving"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "solving"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -1212,6 +1545,13 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "openPuzzles",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
       }
     },
     {
@@ -1229,7 +1569,10 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": ["alice", "bob"]
+        "#set": [
+          "alice",
+          "bob"
+        ]
       },
       "_served": {
         "#bigint": "1"
@@ -1251,10 +1594,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "wrong"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "wrong"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -1274,15 +1635,17 @@
       },
       "guidance": "wrong",
       "help": "none",
-      "mbt::actionTaken": "playWrongMove",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "Some",
-          "value": "bob"
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "1"
@@ -1320,7 +1683,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "wrong"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "wrong"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -1343,6 +1715,13 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "playWrongMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
       }
     },
     {
@@ -1360,7 +1739,10 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": ["alice", "bob"]
+        "#set": [
+          "alice",
+          "bob"
+        ]
       },
       "_served": {
         "#bigint": "1"
@@ -1382,10 +1764,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "revealed"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "revealed"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -1405,15 +1805,17 @@
       },
       "guidance": "revealed",
       "help": "solution",
-      "mbt::actionTaken": "showSolution",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "Some",
-          "value": "bob"
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", true], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            true
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "4"
@@ -1451,7 +1853,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "revealed"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "revealed"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -1474,6 +1885,13 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "showSolution",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
       }
     },
     {
@@ -1491,7 +1909,10 @@
         "#bigint": "0"
       },
       "_offline": {
-        "#set": ["alice", "bob"]
+        "#set": [
+          "alice",
+          "bob"
+        ]
       },
       "_served": {
         "#bigint": "1"
@@ -1513,10 +1934,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -1536,15 +1975,17 @@
       },
       "guidance": "none",
       "help": "none",
-      "mbt::actionTaken": "leavePuzzle",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "Some",
-          "value": "alice"
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "0"
@@ -1582,7 +2023,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -1605,6 +2055,13 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "leavePuzzle",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        }
       }
     },
     {
@@ -1644,10 +2101,28 @@
         }
       },
       "assistantMuted": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "commentary": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "commentaryPuzzle": {
         "#map": [
@@ -1667,15 +2142,17 @@
       },
       "guidance": "none",
       "help": "none",
-      "mbt::actionTaken": "connectionReturns",
-      "mbt::nondetPicks": {
-        "person": {
-          "tag": "Some",
-          "value": "bob"
-        }
-      },
       "moveOnOffered": {
-        "#map": [["alice", false], ["bob", false]]
+        "#map": [
+          [
+            "alice",
+            false
+          ],
+          [
+            "bob",
+            false
+          ]
+        ]
       },
       "position": {
         "#bigint": "0"
@@ -1713,7 +2190,16 @@
         ]
       },
       "puzzleState": {
-        "#map": [["alice", "none"], ["bob", "none"]]
+        "#map": [
+          [
+            "alice",
+            "none"
+          ],
+          [
+            "bob",
+            "none"
+          ]
+        ]
       },
       "view": {
         "#map": [
@@ -1736,6 +2222,13 @@
             }
           ]
         ]
+      },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        }
       }
     }
   ]

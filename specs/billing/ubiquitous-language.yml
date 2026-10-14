@@ -138,13 +138,14 @@ terms:
       The first billing period of a new membership, which is not charged.
       When it ends the membership becomes active on its first paid renewal.
     forms: [free trials, trial, trials, trial's, trial has ended, free trial has ended, free trial ends, days left in the free trial]
+    model: [trialEnds]
 
   - term: billing period
     definition: >-
       The span a membership has paid (or, in the free trial, not paid) for:
       the free trial, a month, or a year. At its period end the membership
       renews, or ends if it is set to end at the period end.
-    forms: [billing periods, period end, period ends, billing period ends, billing period has ended, period has ended]
+    forms: [billing periods, period end, period ends, billing period ends, billing period has ended, billing period has run out, period has ended]
     model: [periodEnd]
 
   - term: renewal
@@ -200,14 +201,16 @@ terms:
       The 7 days after a delinquent or ended membership's period end during
       which its Plus member keeps paid access. A device without a connection
       also keeps paid access for 7 days. A refund has no grace.
-    forms: [offline grace]
+    forms: [offline grace, days pass]
     avoid: [grace window, buffer]
+    model: [endCanceledPeriod, daysPass]
 
   - term: refund
     definition: >-
       A Plus member's payment given back to them. The membership ends at
       once and paid access goes with it, with no grace.
     forms: [refunds, refunded]
+    model: [refund]
 
   - term: billing portal
     definition: >-

@@ -22,6 +22,12 @@ Feature: Friend request declined or cancelled
       Then Alice's request to Bob is refused because Bob declined it within the last day
       And Bob's inbox does not show a friend request from Alice
 
+    Scenario: A day after a decline, the asker can ask again
+      Given Bob has declined Alice's friend request
+      When a day passes
+      Then Alice's search offers to ask Bob again within 15 seconds
+      And Bob's inbox does not show a friend request from Alice
+
   Rule: Cancelling a friend request lets the asker ask again
     No counter-example: a cancelled request does not impose the declined request's one-day restriction.
 

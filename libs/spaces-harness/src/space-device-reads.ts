@@ -54,11 +54,12 @@ export async function hostedSpaceIds(
   );
 }
 
-export function connectionMissingShown(
+export async function connectionMissingShown(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
-  return visible(s, actorId, [Handles.connectionMissing]);
+  if (await visible(s, actorId, [Handles.connectionMissing])) return true;
+  return visible(s, actorId, [Handles.notificationsConnectionMissing]);
 }
 
 export function gameChoiceRefusedShown(

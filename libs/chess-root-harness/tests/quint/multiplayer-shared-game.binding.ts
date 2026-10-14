@@ -1,5 +1,13 @@
-import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { copyGameRecord } from '@libs/chess-matchmaking-harness/multiplayer-game-record';
+/**
+ * `specs/chess/multiplayer-shared-game.qnt` against one matched game both
+ * spaces show. Guests watch. An offline device keeps the last board it
+ * showed. Quiet minutes add up: one is not idle, and two is.
+ */
+
+import {
+  copyGameRecord,
+  gameRecordOffered,
+} from '@libs/chess-matchmaking-harness/multiplayer-game-record';
 import {
   joinMultiplayerSpace,
   multiplayerWatcherBoard,
@@ -11,44 +19,38 @@ import {
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import {
   returnToTabs,
-  signInWithGoogle,
   signInWithGoogleAsAccount,
 } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
-import { partitioned } from '@libs/harness/observations';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { profileIdOf } from '@libs/profile-harness/profile-ui-reads';
-import {
-  returnToOwnSpace,
-  stayQuiet,
-} from '@libs/spaces-harness/space-actions';
-import { presenceIdle } from '@libs/spaces-harness/space-device-reads';
+import { stayIdle } from '@libs/spaces-harness/space-idle-actions';
+import { personIdleShown } from '@libs/spaces-harness/space-idle-reads';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
-const DEVICE_ACTOR = {
+const ACTOR: Record<string, string> = {
   'alice-phone': 'alice',
   'alice-computer': 'alice_phone',
   'bob-phone': 'bob',
   'carol-phone': 'carol',
   'dave-phone': 'dave',
-} as const;
+};
+
+/** Who shares a space with the person, so they can see that person idle. */
+const IDLE_FROM: Record<string, string> = {
+  alice: 'carol',
+  bob: 'dave',
+  carol: 'alice',
+  dave: 'bob',
+};
 
 const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
 
-function deviceActor(picks: Picks): string {
-  const name = String(picks['device']);
-  const actor = DEVICE_ACTOR[name as keyof typeof DEVICE_ACTOR];
-  if (actor === undefined) throw new Error(`Unknown device ${name}`);
+function actorOf(device: string): string {
+  const actor = ACTOR[device];
+  if (actor === undefined) throw new Error(`unknown device ${device}`);
   return actor;
-}
-
-function minutesOf(picks: Picks): number {
-  return Number(picks['minutes']);
-}
-
-function actorIsOffline(s: ProductHarness, actorId: string): boolean {
-  return partitioned(s).some((pair) => pair.split('|').includes(actorId));
 }
 
 function winnerOf(outcome: string | null): string {
@@ -57,68 +59,90 @@ function winnerOf(outcome: string | null): string {
   return 'nobody';
 }
 
+async function boards(s: ProductHarness): Promise<{
+  readonly shownMoves: Map<string, number>;
+  readonly shownWinner: Map<string, string>;
+  readonly canMove: Map<string, boolean>;
+}> {
+  const shownMoves = new Map<string, number>();
+  const shownWinner = new Map<string, string>();
+  const canMove = new Map<string, boolean>();
+  for (const [device, actor] of Object.entries(ACTOR)) {
+    const board = await multiplayerWatcherBoard(s, actor);
+    shownMoves.set(device, board.revision);
+    shownWinner.set(device, winnerOf(board.outcome));
+    canMove.set(device, board.canMove);
+  }
+  return { shownMoves, shownWinner, canMove };
+}
+
+async function recordOffered(s: ProductHarness): Promise<boolean> {
+  for (const actor of Object.values(ACTOR)) {
+    const offered = await gameRecordOffered(s, actor);
+    if (offered.gameRecord && offered.finalPosition) return true;
+  }
+  return false;
+}
+
+async function idleOf(s: ProductHarness): Promise<Map<string, boolean>> {
+  const idle = new Map<string, boolean>();
+  for (const person of PEOPLE) {
+    const member = await profileIdOf(s, person);
+    const observer = IDLE_FROM[person];
+    idle.set(
+      person,
+      member !== null &&
+        observer !== undefined &&
+        (await personIdleShown(s, observer, member))
+    );
+  }
+  return idle;
+}
+
+async function openSharedGame(w: QuintHarnessWorld): Promise<void> {
+  await w.s.apply(prepareMultiplayerSpaceModel);
+  await w.s.apply(joinMultiplayerSpace, 'carol', 'alice');
+  await w.s.apply(joinMultiplayerSpace, 'dave', 'bob');
+  await w.s.apply(signInWithGoogleAsAccount, 'alice_phone', 'alice');
+  await w.s.apply(returnToTabs, 'alice_phone');
+  await w.s.apply(joinMultiplayerSpace, 'alice_phone', 'alice');
+}
+
+function device(picks: Picks): string {
+  return actorOf(String(picks['device']));
+}
+
 bindQuintModel<QuintHarnessWorld>({
   model: 'multiplayer-shared-game',
-  traces: 32,
-  maxSteps: 24,
+  traces: 96,
+  maxSteps: 14,
+  verifySteps: 2,
+  timeoutMs: 300_000,
   actions: {
-    init: async (w) => {
-      // A day per move: two quiet minutes do not miss the first move.
-      await w.s.apply(prepareMultiplayerSpaceModel, '1d');
-      await w.s.apply(joinMultiplayerSpace, 'carol', 'alice');
-      await w.s.apply(signInWithGoogle, 'dave');
-      await w.s.apply(joinMultiplayerSpace, 'dave', 'bob');
-      await w.s.apply(signInWithGoogleAsAccount, 'alice_phone', 'alice');
-      await w.s.apply(returnToTabs, 'alice_phone');
-      await w.s.apply(returnToOwnSpace, 'alice_phone');
-      for (const actor of [...PEOPLE, 'alice_phone'])
-        await w.s.apply(openMultiplayerChess, actor);
+    init: (w) => openSharedGame(w),
+    playMove: (w, picks: Picks) =>
+      w.s.apply(changeSpaceMatch, device(picks), 'move'),
+    resignPlay: (w, picks: Picks) =>
+      w.s.apply(changeSpaceMatch, device(picks), 'resign'),
+    goQuiet: (w, picks: Picks) =>
+      w.s.apply(stayIdle, device(picks), Number(picks['minutes'])),
+    loseConnection: async (w, picks: Picks) => {
+      await w.s.apply(partition, device(picks));
+      await w.s.advanceTime(1_000);
     },
-    playMove: (w, picks) =>
-      w.s.apply(changeSpaceMatch, deviceActor(picks), 'move'),
-    resignPlay: (w, picks) =>
-      w.s.apply(changeSpaceMatch, deviceActor(picks), 'resign'),
-    goQuiet: (w, picks) =>
-      w.s.apply(stayQuiet, deviceActor(picks), minutesOf(picks)),
-    loseConnection: async (w, picks) => {
-      await w.s.apply(partition, deviceActor(picks));
-      await w.s.advanceTime(2_000);
-    },
-    connectionReturns: async (w, picks) => {
-      await w.s.apply(restoreActorConnection, deviceActor(picks));
-      await w.s.advanceTime(2_000);
-    },
-    copyGameRecord: async (w, picks) => {
-      const actor = deviceActor(picks);
-      // Copying changes nothing. A device with no connection keeps its last
-      // board and is not offered the record it never received.
-      if (await w.s.read(actorIsOffline, actor)) return;
-      await w.s.apply(copyGameRecord, actor);
-    },
+    connectionReturns: (w, picks: Picks) =>
+      w.s.apply(restoreActorConnection, device(picks)),
+    copyGameRecord: (w, picks: Picks) =>
+      w.s.apply(copyGameRecord, device(picks)),
   },
   observe: async (w) => {
-    const shownMoves = new Map<string, number>();
-    const shownWinner = new Map<string, string>();
-    const canMove = new Map<string, boolean>();
-    let gameRecordOffered = false;
-    for (const [device, actor] of Object.entries(DEVICE_ACTOR)) {
-      const board = await w.quiet.read(multiplayerWatcherBoard, actor);
-      const moves = board.revision < 0 ? 0 : board.revision;
-      shownMoves.set(device, moves);
-      const winner = winnerOf(board.outcome);
-      shownWinner.set(device, winner);
-      canMove.set(device, board.canMove);
-      if (winner !== 'nobody') gameRecordOffered = true;
-    }
-    const idle = new Map<string, boolean>();
-    const idleIds = new Set<string>();
-    for (const actor of [...PEOPLE, 'alice_phone']) {
-      for (const id of await w.quiet.read(presenceIdle, actor)) idleIds.add(id);
-    }
-    for (const person of PEOPLE) {
-      const id = await w.quiet.read(profileIdOf, person);
-      idle.set(person, id !== null && idleIds.has(id));
-    }
-    return { shownMoves, shownWinner, canMove, gameRecordOffered, idle };
+    const shown = await w.quiet.read(boards);
+    return {
+      shownMoves: shown.shownMoves,
+      shownWinner: shown.shownWinner,
+      canMove: shown.canMove,
+      gameRecordOffered: await w.quiet.read(recordOffered),
+      idle: await w.quiet.read(idleOf),
+    };
   },
 });

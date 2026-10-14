@@ -3,12 +3,14 @@ import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import {
   followTrail,
+  lookForTrail,
   prepareRecoveryCopy,
   recordTrail,
   recoverApp,
   recoveredAccountProfile,
   recoveredAccountUsable,
   recoveredPersonalData,
+  trailKind,
   trailPreservation,
   trailRead,
 } from '@libs/runtime-harness/privacy-retention';
@@ -67,5 +69,27 @@ Then(
   'the team cannot read that trail because its retention period has expired',
   async (w) => {
     expect(await w.s.read(trailRead)).toBeNull();
+    expect(await w.s.read(trailKind)).toBe('expired');
+  }
+);
+Given('{actor} has no trail', () => undefined);
+Then(
+  'the team cannot read that trail because nothing was written down',
+  async (w) => {
+    expect(await w.s.read(trailRead)).toBeNull();
+    expect(await w.s.read(trailKind)).toBe('nothing');
+  }
+);
+When(
+  "{actor} looks for {actor}'s trail",
+  async (w, _who: Actor, subject: Actor) => {
+    await w.s.apply(lookForTrail, _who, subject);
+  }
+);
+Then(
+  '{actor} cannot read that trail because people never see a trail',
+  async (w, _actor: Actor) => {
+    expect(await w.s.read(trailRead)).toBeNull();
+    expect(await w.s.read(trailKind)).toBe('refused');
   }
 );

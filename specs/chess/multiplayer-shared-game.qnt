@@ -1,10 +1,16 @@
-// Two people play one multiplayer game from their own spaces. A guest in
+// Two people play one 5+0 multiplayer game from their own spaces. A guest in
 // either space who has a connection sees the same accepted moves and the
 // same result as the other person. One game record is offered once the
-// game is over, and copying it changes nothing.
-// A device with no connection keeps the last board it showed and cannot
-// move or resign. Coming back online shows the accepted game. Being idle
-// changes nothing about the game: one minute is not idle, and two minutes is.
+// game is over with a winner, and copying it changes nothing. An aborted
+// game has no winner and no game record.
+// A minute or more with nothing done before both first moves is missing
+// the first move: the game aborts, nobody won, and nobody can move. After
+// both first moves each side has five minutes, and that time runs only for
+// the side to move. Running out means the other person won. Being idle
+// never plays a move. One minute is not idle, and two minutes is. A device
+// with no connection keeps the last board it showed and cannot move or
+// resign. Coming back online shows the accepted game. A missing connection
+// is not idle.
 module multiplayer_shared_game {
   pure val ALICE_PHONE = "alice-phone"
   pure val ALICE_COMPUTER = "alice-computer"
@@ -14,12 +20,14 @@ module multiplayer_shared_game {
   pure val DEVICES = Set(ALICE_PHONE, ALICE_COMPUTER, BOB_PHONE, CAROL_PHONE, DAVE_PHONE)
   pure val MATCHED = Set(ALICE_PHONE, ALICE_COMPUTER, BOB_PHONE)
   pure val PEOPLE = Set("alice", "bob", "carol", "dave")
+  /// Minutes each side starts with in this 5+0 game, once both have moved.
+  pure val GAME_MINUTES = 5
 
   /// How many accepted moves each device is showing. An offline device keeps its last number.
   var shownMoves: str -> int
-  /// The winner each device is showing, or "nobody" while the game is unfinished.
+  /// The winner each device is showing, or "nobody" while the game is unfinished or aborted.
   var shownWinner: str -> str
-  /// Whether that device can move a piece. Guests never can.
+  /// Whether that device can move a piece. Guests never can. Nobody can once the game is over.
   var canMove: str -> bool
   /// Whether the one game record and the final position are offered.
   var gameRecordOffered: bool
@@ -28,10 +36,18 @@ module multiplayer_shared_game {
 
   /// Whether each device has a connection. It starts connected.
   var _online: str -> bool
-  /// Whether each connected device has been quiet for 2 minutes.
-  var _quiet: str -> bool
+  /// Uninterrupted quiet minutes on each connected device. Two, added
+  /// together, is idle. One is not. A move does not end it. Losing the
+  /// connection does.
+  var _quiet: str -> int
   var _moves: int
   var _winner: str
+  /// Missing the first move, or a minute or more of quiet before both first moves.
+  var _aborted: bool
+  /// Minutes White still has once the multiplayer clock is running.
+  var _whiteLeft: int
+  /// Minutes Black still has once the multiplayer clock is running.
+  var _blackLeft: int
 
   pure def _phone(person: str): str =
     if (person == "bob") BOB_PHONE
@@ -45,85 +61,134 @@ module multiplayer_shared_game {
   pure def _canMove(device: str, moves: int, winner: str, online: str -> bool): bool =
     online.get(device) and (winner == "nobody") and _onTurn(device, moves)
 
-  pure def _isIdle(person: str, online: str -> bool, quiet: str -> bool): bool =
+  pure def _quietEnough(device: str, quiet: str -> int): bool =
+    quiet.get(device) >= 2
+
+  pure def _isIdle(person: str, online: str -> bool, quiet: str -> int): bool =
     if (person == "alice")
       (online.get(ALICE_PHONE) or online.get(ALICE_COMPUTER)) and
-      (not(online.get(ALICE_PHONE)) or quiet.get(ALICE_PHONE)) and
-      (not(online.get(ALICE_COMPUTER)) or quiet.get(ALICE_COMPUTER))
-    else online.get(_phone(person)) and quiet.get(_phone(person))
+      (not(online.get(ALICE_PHONE)) or _quietEnough(ALICE_PHONE, quiet)) and
+      (not(online.get(ALICE_COMPUTER)) or _quietEnough(ALICE_COMPUTER, quiet))
+    else online.get(_phone(person)) and _quietEnough(_phone(person), quiet)
 
   pure def _resignerGives(device: str): str =
     if (device == BOB_PHONE) "alice" else "bob"
 
-  action _show(moves: int, winner: str, online: str -> bool, quiet: str -> bool): bool = all {
+  pure def _playing(winner: str, aborted: bool): bool =
+    (not(aborted) and (winner == "nobody"))
+
+  pure def _clockOn(moves: int, winner: str, aborted: bool): bool =
+    (_playing(winner, aborted) and (moves >= 2))
+
+  pure def _whiteToMove(moves: int): bool =
+    (moves % 2 == 0)
+
+  pure def _abortedAfter(moves: int, winner: str, aborted: bool): bool =
+    if (aborted) true
+    else if (winner != "nobody") false
+    else (moves < 2)
+
+  pure def _flagged(moves: int, winner: str, aborted: bool, left: int, minutes: int): bool =
+    (_clockOn(moves, winner, aborted) and ((left - minutes) <= 0))
+
+  pure def _winnerAfter(moves: int, winner: str, aborted: bool, whiteLeft: int, blackLeft: int, minutes: int): str =
+    if (_flagged(moves, winner, aborted, if (_whiteToMove(moves)) whiteLeft else blackLeft, minutes))
+      (if (_whiteToMove(moves)) "bob" else "alice")
+    else winner
+
+  pure def _whiteAfter(moves: int, winner: str, aborted: bool, whiteLeft: int, minutes: int): int =
+    if (_clockOn(moves, winner, aborted) and _whiteToMove(moves))
+      (if ((whiteLeft - minutes) < 0) 0 else (whiteLeft - minutes))
+    else whiteLeft
+
+  pure def _blackAfter(moves: int, winner: str, aborted: bool, blackLeft: int, minutes: int): int =
+    if (_clockOn(moves, winner, aborted) and not(_whiteToMove(moves)))
+      (if ((blackLeft - minutes) < 0) 0 else (blackLeft - minutes))
+    else blackLeft
+
+  action _show(
+    moves: int,
+    winner: str,
+    online: str -> bool,
+    quiet: str -> int,
+    aborted: bool,
+    whiteLeft: int,
+    blackLeft: int
+  ): bool = all {
     _moves' = moves,
     _winner' = winner,
     _online' = online,
     _quiet' = quiet,
+    _aborted' = aborted,
+    _whiteLeft' = whiteLeft,
+    _blackLeft' = blackLeft,
     idle' = PEOPLE.mapBy(p => _isIdle(p, online, quiet)),
     shownMoves' = DEVICES.mapBy(d => if (online.get(d)) moves else shownMoves.get(d)),
     shownWinner' = DEVICES.mapBy(d => if (online.get(d)) winner else shownWinner.get(d)),
-    canMove' = DEVICES.mapBy(d => _canMove(d, moves, winner, online)),
+    canMove' = DEVICES.mapBy(d => (not(aborted) and _canMove(d, moves, winner, online))),
     gameRecordOffered' = (winner != "nobody"),
   }
 
-  action init = all {
-    _moves' = 0,
-    _winner' = "nobody",
-    _online' = DEVICES.mapBy(_ => true),
-    _quiet' = DEVICES.mapBy(_ => false),
-    idle' = PEOPLE.mapBy(_ => false),
-    shownMoves' = DEVICES.mapBy(_ => 0),
-    shownWinner' = DEVICES.mapBy(_ => "nobody"),
-    canMove' = DEVICES.mapBy(d => d == ALICE_PHONE or d == ALICE_COMPUTER),
-    gameRecordOffered' = false,
-  }
+  action init =
+    _show(0, "nobody", DEVICES.mapBy(_ => true), DEVICES.mapBy(_ => 0), false, GAME_MINUTES, GAME_MINUTES)
 
   /// The person to move plays on a device that has a connection. Both spaces show that one move.
   action playMove(device: str): bool = all {
+    not(_aborted),
     _online.get(device),
     MATCHED.contains(device),
     not(device == CAROL_PHONE),
     _winner == "nobody",
     _moves < 2,
     _onTurn(device, _moves),
-    _show(_moves + 1, _winner, _online, _quiet),
+    _show(_moves + 1, _winner, _online, _quiet, _aborted, _whiteLeft, _blackLeft),
   }
 
   /// After both first moves, a connected device resigns and both spaces share that result.
   action resignPlay(device: str): bool = all {
+    not(_aborted),
     _online.get(device),
     MATCHED.contains(device),
     _winner == "nobody",
     _moves >= 2,
-    _show(_moves, _resignerGives(device), _online, _quiet),
+    _show(_moves, _resignerGives(device), _online, _quiet, false, _whiteLeft, _blackLeft),
   }
 
-  /// Time passes with nothing done. Two minutes is idle; one minute is not. The game does not change.
+  /// Time passes with nothing done. Quiet minutes add up. Two is idle; one is not.
+  /// Before both first moves, a minute or more aborts the game. Afterwards the
+  /// side to move spends the minutes, and running out means the other person won.
   action goQuiet(device: str, minutes: int): bool = all {
     DEVICES.contains(device),
     _online.get(device),
     Set(1, 2).contains(minutes),
-    _show(_moves, _winner, _online, if (minutes == 2) _quiet.set(device, true) else _quiet),
+    _show(
+      _moves,
+      _winnerAfter(_moves, _winner, _aborted, _whiteLeft, _blackLeft, minutes),
+      _online,
+      _quiet.set(device, _quiet.get(device) + minutes),
+      _abortedAfter(_moves, _winner, _aborted),
+      _whiteAfter(_moves, _winner, _aborted, _whiteLeft, minutes),
+      _blackAfter(_moves, _winner, _aborted, _blackLeft, minutes),
+    ),
   }
 
   /// This device loses its connection. It keeps the board it was showing, and the game is unchanged.
   action loseConnection(device: str): bool = all {
     _online.get(device),
-    _show(_moves, _winner, _online.set(device, false), _quiet.set(device, false)),
+    _show(_moves, _winner, _online.set(device, false), _quiet.set(device, 0), _aborted, _whiteLeft, _blackLeft),
   }
 
   /// This device's connection comes back. It shows the accepted game, and it is not idle.
   action connectionReturns(device: str): bool = all {
     not(_online.get(device)),
-    _show(_moves, _winner, _online.set(device, true), _quiet.set(device, false)),
+    _show(_moves, _winner, _online.set(device, true), _quiet.set(device, 0), _aborted, _whiteLeft, _blackLeft),
   }
 
-  /// Copying the game record, once the game is over, changes nothing anyone is showing.
+  /// Copying the game record, once the game is over with a winner, changes nothing anyone is showing.
   action copyGameRecord(device: str): bool = all {
     DEVICES.contains(device),
     gameRecordOffered,
-    _show(_moves, _winner, _online, _quiet),
+    _show(_moves, _winner, _online, _quiet, _aborted, _whiteLeft, _blackLeft),
   }
 
   action step = {
@@ -162,6 +227,16 @@ module multiplayer_shared_game {
     canMove.get(DAVE_PHONE) == false,
   }
 
-  /// The game record is offered exactly when the game is over with a result.
+  /// The game record is offered exactly when somebody won.
   val invGameRecordNeedsAResult = gameRecordOffered iff (_winner != "nobody")
+
+  /// Missing the first move has no winner, and a win comes only after both first moves.
+  val invAbortHasNoWinner = and {
+    _aborted implies and {
+      _winner == "nobody",
+      not(gameRecordOffered),
+      _moves < 2,
+    },
+    (_winner != "nobody") implies ((_moves >= 2) and not(_aborted)),
+  }
 }

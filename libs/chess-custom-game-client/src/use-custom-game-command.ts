@@ -3,7 +3,9 @@ import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useSpaceOpenRooms } from '@libs/spaces-client/space-open-rooms-store';
 import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
 import { useSpaceCan } from '@libs/spaces-client/use-space-can';
+import { useSpaceHostConnection } from '@libs/spaces-client/use-space-host-connection';
 import { useClock, useTimers } from '@pkgs/clock-client/solid';
+import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { createSignal, onCleanup } from 'solid-js';
 import { confirmCustomGameChoice } from './confirm-custom-game-choice';
 
@@ -16,6 +18,8 @@ export function useCustomGameCommand() {
     () => spaceId() ?? '',
     PERMISSION.chessCustomCreate
   );
+  const hostConnection = useSpaceHostConnection();
+  const engine = useSyncEngine();
   const [error, setError] = createSignal('');
   const [settled, setSettled] = createSignal(0);
   const pending = new Set<() => void>();
@@ -24,6 +28,13 @@ export function useCustomGameCommand() {
   });
   const send = async (choice: CustomGameChoice): Promise<void> => {
     setError('');
+    // A guest's own lost connection is a different refusal from the host being gone.
+    if (engine.status().online && hostConnection() === 'host-offline') {
+      const reason = 'the host is offline';
+      setError(reason);
+      setSettled((value) => value + 1);
+      throw new Error(reason);
+    }
     try {
       await confirmCustomGameChoice(
         {

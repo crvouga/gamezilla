@@ -14,6 +14,8 @@ export type ChipGroupOption<K extends string = string> = {
   label: JSX.Element;
   /** Optional leading icon node inside the chip area (caller-sized). */
   icon?: JSX.Element | undefined;
+  /** Call-site id for the chip, shipped as `data-testid`. */
+  testid?: string | undefined;
 };
 
 export type ChipGroupProps<K extends string = string> = {
@@ -50,7 +52,10 @@ export function ChipGroup<K extends string = string>(
                 selected={opt.key === props.selected}
                 disabled={props.disabled}
                 onClick={() => props.onSelect(opt.key)}
-                dataSet={{ key: opt.key }}
+                dataSet={{
+                  key: opt.key,
+                  ...(opt.testid === undefined ? {} : { testid: opt.testid }),
+                }}
               />
             </div>
           )}

@@ -61,16 +61,18 @@ module hosting_limits {
   }
 
   /// Step out to the lobby; every open space remains there.
+  /// An invitation to Plus stays; leaving the space does not answer it.
   action stepOut: bool = all {
     whereabouts == InSpace,
-    _update(_count, _paid, Lobby, false),
+    _update(_count, _paid, Lobby, invitedToPlus),
   }
 
   /// Return to an existing space, with or without paid access.
+  /// An invitation to Plus stays; entering a space does not answer it.
   action returnToSpace: bool = all {
     whereabouts == Lobby,
     _count > 0,
-    _update(_count, _paid, InSpace, false),
+    _update(_count, _paid, InSpace, invitedToPlus),
   }
 
   /// End the space Alice is in, freeing its place without ending the others.
@@ -134,8 +136,9 @@ module hosting_limits {
   val invInsideAnOpenSpace = whereabouts == InSpace implies _count > 0
   /// Paid access ending never ends an existing space.
   val invPaidEndingKeepsSpaces = _lastPaidEnding implies _count == _countBeforePaidEnding
-  /// An invitation to Plus follows an attempted creation at the free hosting limit.
-  val invInvitationAtLimit = invitedToPlus implies all { whereabouts == Lobby, not(_paid), _count >= 1 }
+  /// An invitation to Plus follows an attempted creation at the free hosting limit
+  /// and stays when she enters a space she already hosts.
+  val invInvitationAtLimit = invitedToPlus implies all { not(_paid), _count >= 1 }
   /// While offline, Alice keeps the spaces and place she chose on her own device.
   val invOfflineKeepsOwnChoices = _offline.contains("alice") implies all { _count == _chosenCount, whereabouts == _chosenPlace }
 

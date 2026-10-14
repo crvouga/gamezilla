@@ -54,6 +54,12 @@ export type ProductProbes = {
   snapshot: HarnessSystemSnapshot | null;
   investigationTrail?: unknown;
   recoveryAccountId?: string | null;
+  environmentRelease?: {
+    readonly releaseState: string;
+    readonly checkState: string;
+    readonly openState: string;
+  };
+  releaseFact?: 'passed' | 'failed' | 'unfinished' | 'release-check';
   tools?: unknown;
   deletedDeviceReply?: { status: number; body: unknown };
 };

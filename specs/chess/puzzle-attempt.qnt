@@ -21,9 +21,10 @@
 // only the host may move on, and only the host's puzzles are counted.
 //
 // While a device has no connection, Alice still plays a puzzle already on it,
-// and her own board changes at once. Bob keeps the view he already had while
-// Alice is offline. Once both are online he sees Alice's position. Opening
-// puzzles before any have reached the device needs a connection.
+// and her own board changes at once. Bob keeps the last view they shared and
+// does not follow those changes while Alice is offline. Once both are online
+// he sees Alice's position. Opening puzzles before any have reached the
+// device needs a connection.
 //
 // The puzzle pool holds three puzzles, each with two solver moves. They are served in turn, never the one
 // just played; once all three were played the feed comes round to the one
@@ -558,12 +559,12 @@ module puzzle_attempt {
       puzzle.get(WATCHER) == _watcherPuzzleAtCutOff
     )
 
-  /// An online watcher keeps the view they had when the host went offline.
+  /// While the host is offline, an online watcher keeps the last view they shared.
   val invWatcherFollowsHostAvailability =
     (_offline.contains(HOST) and not(_offline.contains(WATCHER))) implies (
       view.get(WATCHER) == _watcherViewAtCutOff and
-      puzzleState.get(WATCHER) == _watcherStateAtCutOff and
-      puzzle.get(WATCHER) == _watcherPuzzleAtCutOff
+      puzzle.get(WATCHER) == _watcherPuzzleAtCutOff and
+      puzzleState.get(WATCHER) == _watcherStateAtCutOff
     )
   /// Examining a position cannot go beyond the moves reached on that puzzle.
   val invOnlyReachedPositions = position == (if (_at == Board) _shown else 0) and

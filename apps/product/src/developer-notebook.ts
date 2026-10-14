@@ -4,7 +4,9 @@ import {
   addCellAfter,
   createEmptyNotebook,
   duplicateCell,
+  moveCell,
   removeCell,
+  setCellSql,
   toggleLive,
 } from '@pkgs/harness-console-client/notebook-doc';
 import { runSqlCell } from '@pkgs/harness-console-client/run-sql-cell';
@@ -12,13 +14,18 @@ import { tools } from './developer-tools-state';
 export const FRIENDS_QUESTION =
   'SELECT id, user_low, user_high FROM friends_friendships';
 export const SPACES_QUESTION = 'SELECT id, title FROM spaces';
+export const ANSWER_ROW_LIMIT = 5000;
+
+function countingQuestion(rows: number): string {
+  return `WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < ${String(rows)}) SELECT i FROM n`;
+}
 export const saveNotebookQuestion = scenarioAction({
   name: 'saveNotebookQuestion',
   act: async (
     s,
     actor: string,
-    question: 'friends' | 'spaces' | 'invalid',
-    options: { automatic?: boolean; two?: boolean } = {}
+    question: 'friends' | 'spaces' | 'invalid' | 'count',
+    options: { automatic?: boolean; two?: boolean; rows?: number } = {}
   ) => {
     await ensureActor(s, actor);
     let doc = createEmptyNotebook({
@@ -27,9 +34,11 @@ export const saveNotebookQuestion = scenarioAction({
       starterSql:
         question === 'invalid'
           ? 'SELECT * FROM nonexistent_investigation_table'
-          : question === 'friends'
-            ? FRIENDS_QUESTION
-            : SPACES_QUESTION,
+          : question === 'count'
+            ? countingQuestion(options.rows ?? ANSWER_ROW_LIMIT)
+            : question === 'friends'
+              ? FRIENDS_QUESTION
+              : SPACES_QUESTION,
     });
     if (options.automatic) doc = toggleLive(doc, 'original');
     if (options.two)
@@ -41,17 +50,42 @@ export const saveNotebookQuestion = scenarioAction({
     const state = tools(s);
     await state.notebookStore.save(doc);
     state.notebook = doc;
+    // A newly saved question has not been run, so a previous answer is gone.
+    state.notebookRun = null;
   },
 });
 export const openNotebook = scenarioAction({
   name: 'openNotebook',
   act: async (s, actor: string) => {
-    tools(s).notebook = await tools(s).notebookStore.load(actor);
+    const state = tools(s);
+    const doc = await state.notebookStore.load(actor);
+    state.notebook = doc;
+    const live = doc?.cells.find((cell) => cell.live);
+    if (doc === null || live === undefined) {
+      state.notebookRun = null;
+      return;
+    }
+    const client = await s.harness.client(doc.nodeId);
+    const db = await client.openSqlClient();
+    state.notebookRun = await runSqlCell({
+      sqlClient: db,
+      sql: live.sql,
+      now: s.harness.clock.now,
+    });
   },
 });
 export const editNotebookQuestion = scenarioAction({
   name: 'editNotebookQuestion',
-  act: async (s, operation: 'duplicate' | 'remove' | 'run') => {
+  act: async (
+    s,
+    operation:
+      | 'duplicate'
+      | 'remove'
+      | 'run'
+      | 'edit-spaces'
+      | 'move-spaces-ahead'
+      | 'move-friends-ahead'
+  ) => {
     const state = tools(s);
     const doc = state.notebook;
     if (doc === null) throw new Error('Notebook is not open');
@@ -65,15 +99,24 @@ export const editNotebookQuestion = scenarioAction({
       });
       return;
     }
-    state.notebook =
-      operation === 'duplicate'
-        ? duplicateCell({
-            doc,
-            cellId: 'original',
-            newId: s.session.ports.createId(),
-          })
-        : removeCell(doc, 'original');
+    if (operation === 'edit-spaces')
+      state.notebook = setCellSql(doc, 'original', SPACES_QUESTION);
+    else if (operation === 'move-spaces-ahead')
+      state.notebook = moveCell(doc, 'spaces', -1);
+    else if (operation === 'move-friends-ahead')
+      state.notebook = moveCell(doc, 'original', -1);
+    else
+      state.notebook =
+        operation === 'duplicate'
+          ? duplicateCell({
+              doc,
+              cellId: 'original',
+              newId: s.session.ports.createId(),
+            })
+          : removeCell(doc, 'original');
     await state.notebookStore.save(state.notebook);
+    // Changing, moving, copying, or removing a question drops the old answer.
+    state.notebookRun = null;
   },
 });
 export const shownNotebook = (s: ProductHarness) => tools(s).notebook;

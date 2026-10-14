@@ -252,6 +252,7 @@ export const selectChessGame = scenarioAction({
         Handles.chessMenuPuzzle,
         Handles.gameChoiceRefused,
         Handles.connectionMissing,
+        Handles.notificationsConnectionMissing,
       ],
       'chess, or why the choice was refused'
     );

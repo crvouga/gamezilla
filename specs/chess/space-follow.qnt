@@ -10,35 +10,62 @@ module space_follow {
   pure val DEVICES = Set(ALICE_PHONE, ALICE_COMPUTER, BOB_PHONE)
   pure val HOSTS = Set(ALICE_PHONE, ALICE_COMPUTER)
 
-  /// What each device in the space is showing: "choice" (the game choice) or "chess".
+  /// What each device is showing: "choice", "chess", or "host offline".
   var view: str -> str
   /// Whether each device has a connection. It starts connected.
   var _online: str -> bool
   /// Whether each device is in the space.
   var _in: str -> bool
 
-  action _show(views: str -> str, online: str -> bool, inside: str -> bool): bool = all {
-    view' = views,
+  /// The host's last choice. An offline device keeps what it was showing
+  /// until its connection comes back, and then shows this. A guest whose
+  /// connection is up is told the host is offline only when no host device
+  /// in the space has a connection.
+  var _choice: str
+
+  /// Some host device in the space still has a connection.
+  pure def _hostUp(online: str -> bool, inside: str -> bool): bool =
+    HOSTS.exists(d => online.get(d) and inside.get(d))
+
+  action _show(
+    shown: str -> str,
+    online: str -> bool,
+    inside: str -> bool,
+    choice: str,
+  ): bool = all {
+    view' = shown,
     _online' = online,
     _in' = inside,
+    _choice' = choice,
   }
 
-  /// The choice an online device in the space is showing. A device with no
-  /// connection keeps what it was showing until it comes back.
-  pure def _agreed(online: str -> bool, inside: str -> bool, shown: str -> str, device: str): str =
-    if (online.get(ALICE_PHONE) and inside.get(ALICE_PHONE) and not(device == ALICE_PHONE)) shown.get(ALICE_PHONE)
-    else if (online.get(ALICE_COMPUTER) and inside.get(ALICE_COMPUTER) and not(device == ALICE_COMPUTER)) shown.get(ALICE_COMPUTER)
-    else if (online.get(BOB_PHONE) and inside.get(BOB_PHONE) and not(device == BOB_PHONE)) shown.get(BOB_PHONE)
-    else shown.get(device)
+  /// Online devices show the host's last choice while a host device is
+  /// connected. An offline device keeps what it was already showing. A
+  /// guest with a connection, and no host device connected, is told the
+  /// host is offline.
+  action _paint(
+    online: str -> bool,
+    inside: str -> bool,
+    choice: str,
+  ): bool =
+    _show(
+      DEVICES.mapBy(d =>
+        if (not(online.get(d))) view.get(d)
+        else if (_hostUp(online, inside) or HOSTS.contains(d)) choice
+        else "host offline"),
+      online,
+      inside,
+      choice,
+    )
 
-  action _apply(shown: str): bool =
-    _show(DEVICES.mapBy(d => if (_in.get(d) and _online.get(d)) shown else view.get(d)), _online, _in)
+  action _apply(shown: str): bool = _paint(_online, _in, shown)
 
   action init =
     _show(
       DEVICES.mapBy(_ => "choice"),
       DEVICES.mapBy(_ => true),
-      DEVICES.mapBy(_ => true)
+      DEVICES.mapBy(_ => true),
+      "choice",
     )
 
   /// The host picks chess. Every device in the space shows it. A guest or an offline device cannot.
@@ -66,19 +93,23 @@ module space_follow {
     DEVICES.contains(device),
     _online.get(device),
     _in.get(device),
-    _show(view, _online, _in),
+    _paint(_online, _in, _choice),
   }
 
-  /// This device loses its connection. What the space shows stays as it was.
+  /// This device loses its connection. What it was showing stays as it was.
+  /// Everyone still connected is told the host is offline only when no host
+  /// device remains connected.
   action loseConnection(device: str): bool = all {
     _online.get(device),
-    _show(view, _online.set(device, false), _in),
+    _paint(_online.set(device, false), _in, _choice),
   }
 
-  /// This device's connection comes back. It shows the same choice as the other devices in the space.
+  /// This device's connection comes back. It shows the host's last choice
+  /// when a host device is connected, and is told the host is offline when
+  /// none is.
   action connectionReturns(device: str): bool = all {
     not(_online.get(device)),
-    _show(view.set(device, _agreed(_online, _in, view, device)), _online.set(device, true), _in),
+    _paint(_online.set(device, true), _in, _choice),
   }
 
   action step = {

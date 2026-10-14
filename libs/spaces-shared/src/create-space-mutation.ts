@@ -1,11 +1,9 @@
-import { requireLimitInMutation } from '@libs/permissions-shared/mutation-permission';
-import { LIMIT } from '@libs/permissions-shared/permission-catalog';
 import sql from '@pkgs/sql-root-shared/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
-import { liveHostedSpacesCountSql } from './hosted-spaces-sql';
 import { spaceUserEntityId } from './participation-ids';
+import { reconcileHostedLimit } from './reconcile-hosted-limit';
 import { memberId, openSession } from './space-mutation-helpers';
 import { changeSpaceRoomMembership } from './space-withdrawal';
 import { spaceCreatedEvent } from './telemetry';
@@ -36,20 +34,20 @@ export const createSpaceMutation = defineMutation({
         'This space already belongs to another account.'
       );
     }
-    const hosted = await tx.query(
-      liveHostedSpacesCountSql({
-        memberId: actorMemberId,
-        exceptSpaceId: spaceId,
-      })
-    );
-    await requireLimitInMutation(
-      { tx, env },
-      LIMIT.hostedSpaces,
-      Number(hosted[0]?.hosted ?? 0)
-    );
+    const outcome = await reconcileHostedLimit(tx, env, {
+      spaceId,
+      memberId: actorMemberId,
+      now,
+    });
     await tx.run(sql`
-      INSERT INTO spaces (id, host_id, host_member_id, host_account_id, visibility, created_at, ended_at)
-      VALUES (${spaceId}, ${env.deviceId}, ${actorMemberId}, ${actorAccountId}, ${'public'}, ${now}, ${null})
+      INSERT INTO spaces (
+        id, host_id, host_member_id, host_account_id, visibility,
+        created_at, ended_at, hosting_limit_reached
+      )
+      VALUES (
+        ${spaceId}, ${env.deviceId}, ${actorMemberId}, ${actorAccountId}, ${'public'},
+        ${now}, ${null}, ${outcome === 'collapsed'}
+      )
       ON CONFLICT (id) DO NOTHING
     `);
     await tx.run(sql`

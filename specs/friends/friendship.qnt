@@ -6,7 +6,8 @@
 // inbox, where they can accept or decline it, or do the same from the
 // asker's profile. Accepting starts a friendship; either friend can later
 // remove the other. Once declined, the asker cannot ask that person again
-// for a day: the ask is refused and nothing reaches the other person.
+// for a day: the ask is refused and nothing reaches the other person. A day
+// passing ends that waiting period, and the asker can ask again.
 //
 // A person can block a friend, or someone who asked them, from that person's
 // profile: the friendship ends, or the friend request goes away, and the
@@ -242,6 +243,14 @@ module friendship {
     _update(friendships, friendRequests, blocks, declined, Set(), _done, _doneAtCutOff),
   }
 
+  /// A day passing ends every declined request's waiting period.
+  action dayPasses: bool = all {
+    declined != Set(),
+    _update(
+      friendships, friendRequests, blocks, Set(), _offline, _done, _doneAtCutOff,
+    ),
+  }
+
   action step = {
     nondet person = PEOPLE.oneOf()
     nondet other = PEOPLE.exclude(Set(person)).oneOf()
@@ -255,6 +264,7 @@ module friendship {
       remove(person, other),
       block(person, other),
       unblock(person, other),
+      dayPasses,
       any { _loseConnection(person), _connectionReturns },
     }
   }

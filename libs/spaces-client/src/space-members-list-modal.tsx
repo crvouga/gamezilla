@@ -1,26 +1,21 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { UserProfileAvatar } from '@libs/profile-client/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client/user-username';
-import {
-  memberIsIdle,
-  SpaceQuietRoomAttr,
-} from '@libs/spaces-shared/space-quiet';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { groupRosterByParticipant } from '@pkgs/collab-root-shared/group-roster';
 import type { PresenceRosterRow } from '@pkgs/collab-ui-client/presence-roster-list';
 import { PresenceRosterList } from '@pkgs/collab-ui-client/presence-roster-list';
+import type { RoomActor } from '@pkgs/room-root-shared/types';
 import { Badge } from '@pkgs/ui-root-client/badge';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import type { JSX } from 'solid-js';
 import { createEffect, createMemo, Show } from 'solid-js';
 import { useSpaceRoomClientId } from './space-room-context';
-import { useConnectedSpaceRoster } from './use-connected-space-roster';
 import { useMemberRole } from './use-member-role';
 import { useClearSpaceQuiet } from './use-space-device-quiet';
+import { useOpenSpacePresence } from './use-open-space-presence';
 import { useSpaceParticipantColors } from './use-space-participant-colors';
-import { useSpaceRoomSelector } from './use-space-room-selector';
 
 export type SpaceMembersListModalProps = {
   spaceId: string;
@@ -29,56 +24,50 @@ export type SpaceMembersListModalProps = {
 };
 
 /**
- * Modal listing connected people (one row per person). Uses
- * {@link ResponsiveSurface} (bottom sheet on mobile, centered modal on wider
- * viewports).
+ * People in the space, one row each. Uses {@link ResponsiveSurface}
+ * (bottom sheet on mobile, centered modal on wider viewports).
  */
 export function SpaceMembersListModal(
   props: SpaceMembersListModalProps
 ): JSX.Element {
   const { t } = useLingui();
   const myId = useMyId();
-  const roster = useConnectedSpaceRoster();
+  const presence = useOpenSpacePresence(props.spaceId);
   const colors = useSpaceParticipantColors(props.spaceId);
   const selfClientId = useSpaceRoomClientId();
-  const quiet = useSpaceRoomSelector(SpaceQuietRoomAttr.quiet.from);
   const clearQuiet = useClearSpaceQuiet();
   createEffect(() => {
     if (props.visible) clearQuiet();
   });
 
-  const rows = createMemo<readonly PresenceRosterRow[]>(() => {
-    const grouped = groupRosterByParticipant(roster(), selfClientId());
-    const out: PresenceRosterRow[] = [];
-    for (const participant of grouped) {
-      const client = participant.clients[0];
-      if (client === undefined) continue;
-      const clientIds = participant.clients.map((entry) => entry.clientId);
-      out.push({
+  const rows = createMemo<readonly PresenceRosterRow[]>(() =>
+    presence.people().map((person) => {
+      const client: RoomActor = { id: person.id, clientId: person.clientId };
+      const isThisTab = person.clientId === selfClientId();
+      return {
         client,
         title: (
           <UserUsername
-            profileId={client.id}
+            profileId={person.id}
             withAt={false}
-            dataSet={{ testid: Handles.spaceMemberName(client.id) }}
+            dataSet={{ testid: Handles.spaceMemberName(person.id) }}
           />
         ),
-        isYou: participant.isYou,
-        isThisTab: clientIds.includes(selfClientId() ?? ''),
+        isYou: person.id === myId(),
+        isThisTab,
         badges: (
           <SpaceMemberBadges
             spaceId={props.spaceId}
-            memberId={client.id}
+            memberId={person.id}
             myId={myId()}
-            isThisTab={clientIds.includes(selfClientId() ?? '')}
-            isIdle={memberIsIdle(quiet(), clientIds)}
+            isThisTab={isThisTab}
+            idle={presence.idle().has(person.id)}
           />
         ),
-        dataSet: { testid: Handles.spaceMemberRow(client.id) },
-      });
-    }
-    return out;
-  });
+        dataSet: { testid: Handles.spaceMemberRow(person.id) },
+      };
+    })
+  );
 
   // A person reads names: "You" for themself, everyone else's username.
   const titledRows = createMemo<readonly PresenceRosterRow[]>(() =>
@@ -125,11 +114,20 @@ function SpaceMemberBadges(props: {
   memberId: string;
   myId: string;
   isThisTab: boolean;
-  isIdle: boolean;
+  idle: boolean;
 }): JSX.Element {
   const role = useMemberRole(props.spaceId, props.memberId);
   return (
     <div class="box flex-row gap-1 items-center">
+      <Show when={props.idle}>
+        <Badge
+          label={<Trans>Idle</Trans>}
+          intent="neutral"
+          tone="subtle"
+          size="sm"
+          dataSet={{ testid: Handles.spaceMemberIdle(props.memberId) }}
+        />
+      </Show>
       <Show when={role() === 'host'}>
         <Badge
           label={<Trans>Host</Trans>}
@@ -152,15 +150,6 @@ function SpaceMemberBadges(props: {
           intent="success"
           tone="subtle"
           size="sm"
-        />
-      </Show>
-      <Show when={props.isIdle}>
-        <Badge
-          label={<Trans>Idle</Trans>}
-          intent="neutral"
-          tone="subtle"
-          size="sm"
-          dataSet={{ testid: Handles.spaceMemberIdle(props.memberId) }}
         />
       </Show>
     </div>

@@ -28,7 +28,7 @@ Feature: See one multiplayer game from either space
       And Dave sees the multiplayer move list "1. e4 e5"
 
   Rule: Being idle leaves both spaces on the same multiplayer game
-    No counter-example: idle never moves a piece or ends the game, and nobody is told the host is offline.
+    No counter-example: being idle never plays a move, and nobody is told the host is offline. Missing the first move aborts that same multiplayer game, and after both people have moved the multiplayer clock still runs.
 
     Background:
       Given Alice and Bob have a multiplayer game in different spaces

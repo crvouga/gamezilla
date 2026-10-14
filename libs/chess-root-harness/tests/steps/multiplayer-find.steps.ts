@@ -21,6 +21,21 @@ import type { HarnessWorld } from '@libs/harness/spec-world';
 import { multiplayerPeople } from './multiplayer-people';
 import { command, gameCommand, refusal, searchFor } from './multiplayer-world';
 
+/** Sign this device into the person's account unless it already is. */
+async function signOtherDevice(
+  w: HarnessWorld,
+  actor: string,
+  device: string
+): Promise<void> {
+  const present = await w.s.read((s) => s.actors.has(device));
+  if (present) {
+    const account = await w.s.read(signedInAccountOf, actor);
+    const there = await w.s.read(signedInAccountOf, device);
+    if (account !== null && account === there) return;
+  }
+  await w.s.apply(signInWithGoogleAsAccount, device, actor);
+}
+
 export async function looking(
   w: HarnessWorld,
   actor: string,
@@ -107,22 +122,12 @@ Given(
   (w, actor: Actor, timeControl: string) =>
     w.s.apply(findChessOpponent, actor, timeControl)
 );
-async function ensureAccountDevice(
-  w: HarnessWorld,
-  device: string,
-  account: Actor
-): Promise<void> {
-  const present = await w.s.read((s) => s.actors.has(device));
-  if (!present || (await w.s.read(signedInAccountOf, device)) === null)
-    await w.s.apply(signInWithGoogleAsAccount, device, account);
-}
-
 When(
   '{actor} finds a chess opponent for {word} on another device',
   async (w, actor: Actor, timeControl: string) => {
     acted(w);
     const device = `${actor}_computer`;
-    await ensureAccountDevice(w, device, actor);
+    await signOtherDevice(w, actor, device);
     w.memo.set(`multiplayer:other:${actor}`, device);
     await w.s.apply(findChessOpponent, device, timeControl);
   }
@@ -167,7 +172,7 @@ When(
   '{actor} opens multiplayer chess on another device',
   async (w, actor: Actor) => {
     const device = `${actor}_computer`;
-    await ensureAccountDevice(w, device, actor);
+    await signOtherDevice(w, actor, device);
     await w.s.apply(openMultiplayerChess, device);
     w.memo.set(`multiplayer:other:${actor}`, device);
     acted(w);

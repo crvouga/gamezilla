@@ -510,6 +510,10 @@ msgstr "Apple"
 msgid "Application version"
 msgstr "Application version"
 
+#: libs/notifications-client/src/inbox-archive-button.tsx
+msgid "Archive"
+msgstr "Archive"
+
 #: libs/notifications-client/src/notifications-filter-bar.tsx
 msgid "Archived"
 msgstr "Archived"
@@ -1780,6 +1784,7 @@ msgid "I'm ready"
 msgstr "I'm ready"
 
 #: libs/spaces-client/src/space-members-list-modal.tsx
+#: libs/spaces-client/src/space-presence-probe.tsx
 msgid "Idle"
 msgstr "Idle"
 
@@ -3803,6 +3808,8 @@ msgstr "The board changed. Review the current turn."
 msgid "The choice could not be confirmed. Try again."
 msgstr "The choice could not be confirmed. Try again."
 
+#: libs/notifications-client/src/notifications-screen.tsx
+#: libs/spaces-client/src/space-connection-missing.tsx
 #: libs/spaces-client/src/connection-missing-notice.tsx
 msgid "The connection is missing."
 msgstr "The connection is missing."

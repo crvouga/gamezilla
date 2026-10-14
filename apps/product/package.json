@@ -18,6 +18,7 @@
     "build": "vite build && bun run scripts/build-sw.ts",
     "check:live-dist": "bun run scripts/live-bundle-guard-cli.ts check-dist",
     "check:live-env": "bun run scripts/live-bundle-guard-cli.ts check-env",
+    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "check:offline-shell": "bun run scripts/check-offline-shell.ts",
     "check:ui-quality": "bun run scripts/check.ts",
     "check:worker-bundle": "bun run ../../libs/tools/scripts/check-worker-bundle.ts",

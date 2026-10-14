@@ -58,6 +58,11 @@ async function snapshotContext(s: ProductHarness): Promise<SnapshotSessionCtx> {
     runQuiet: (fn) => fn(),
   };
 }
+async function rememberKept(s: ProductHarness) {
+  const state = tools(s);
+  for (const [id, actor] of s.actors)
+    state.keptApps.set(id, await actor.currentPath());
+}
 async function refreshCheckpoints(s: ProductHarness) {
   const state = tools(s);
   state.snapshots = await listProductHarnessSnapshots(state.snapshotStore);
@@ -112,6 +117,19 @@ export const investigatePeople = scenarioAction({
     await ensureActor(s, 'alice');
     await ensureActor(s, 'bob');
     await Promise.resolve(openSettings.act(s, 'alice'));
+    const alice = s.actors.get('alice');
+    assert.defined(alice, 'Alice missing');
+    tools(s).firstWorldPath = await alice.currentPath();
+    tools(s).restoreFailure = 'none';
+    await rememberKept(s);
+  },
+});
+/** The next save hits a store fault, so an unfinished save is not listed. */
+export const interruptNextCheckpointSave = scenarioAction({
+  name: 'interruptNextCheckpointSave',
+  act: (s) => {
+    tools(s).snapshotStore.armFault(new Error('checkpoint save interrupted'));
+    return Promise.resolve();
   },
 });
 export const saveCheckpoint = scenarioAction({
@@ -138,6 +156,9 @@ export const saveCheckpoint = scenarioAction({
       );
     }
     await refreshCheckpoints(s);
+    state.checkpointApps.set(label, new Map(state.beforeApps));
+    state.restoreFailure = 'none';
+    await rememberKept(s);
   },
 });
 export const changeInvestigatedApp = scenarioAction({
@@ -147,6 +168,8 @@ export const changeInvestigatedApp = scenarioAction({
     const actor = s.actors.get('alice');
     assert.defined(actor, 'Alice missing');
     await actor.openLink('/');
+    tools(s).restoreFailure = 'none';
+    await rememberKept(s);
   },
 });
 export const checkpointOperation = scenarioAction({
@@ -166,8 +189,10 @@ export const checkpointOperation = scenarioAction({
     if (op === 'select') chrome.setSelectedId(chosenId ?? null);
     else if (op === 'delete')
       chrome.setPendingDeleteIds(chosenId === undefined ? null : [chosenId]);
-    else if (op === 'confirm-delete') await chrome.runDelete();
-    else if (op === 'cancel-delete') chrome.closeDelete();
+    else if (op === 'confirm-delete') {
+      await chrome.runDelete();
+      state.restoreFailure = 'none';
+    } else if (op === 'cancel-delete') chrome.closeDelete();
     else if (op === 'purge') {
       chrome.setPurgeOpen(true);
       await chrome.runPurge();
@@ -177,13 +202,57 @@ export const checkpointOperation = scenarioAction({
     } else throw new Error('Unknown checkpoint operation');
   },
 });
+/** The next restore cannot finish, and the world the team had stays. */
+export const failCheckpointRestore = scenarioAction({
+  name: 'failCheckpointRestore',
+  act: async (s, label: string) => {
+    const state = tools(s);
+    state.beforeRestoreApps = new Map();
+    for (const [id, actor] of s.actors)
+      state.beforeRestoreApps.set(id, await actor.currentPath());
+    state.snapshotStore.armFault(new Error('checkpoint restore failed'));
+    try {
+      await loadProductHarnessSnapshot(
+        await snapshotContext(s),
+        snapshotId(state, label)
+      );
+      state.restoreFailure = 'none';
+    } catch {
+      state.restoreFailure = 'failed';
+    }
+  },
+});
+/** Close and open the testing tool on the world it kept. */
+export const reopenTestingTool = scenarioAction({
+  name: 'reopenTestingTool',
+  act: async (s) => {
+    const state = tools(s);
+    const kept = new Map(state.keptApps);
+    for (const id of [...s.actors.keys()]) await s.runtime.restartActor(id);
+    for (const [id, path] of kept) {
+      await ensureActor(s, id);
+      const actor = s.actors.get(id);
+      assert.defined(actor, 'Checkpoint actor missing');
+      await actor.openLink(path);
+    }
+    state.restoreFailure = 'none';
+  },
+});
+function snapshotId(state: ReturnType<typeof tools>, label: string): string {
+  const chosen = state.snapshots.find((snapshot) => snapshot.label === label);
+  assert.defined(chosen, 'Checkpoint unavailable');
+  return chosen.id;
+}
 export const checkpointChoices = (s: ProductHarness) =>
   listProductHarnessSnapshots(tools(s).snapshotStore);
 export const checkpointCanRestore = (s: ProductHarness) =>
   tools(s).snapshotChrome?.hasCompatibleSelection ?? false;
-export async function restoredApps(s: ProductHarness) {
+export async function restoredApps(s: ProductHarness, label?: string) {
+  const savedByActor =
+    (label === undefined ? undefined : tools(s).checkpointApps.get(label)) ??
+    tools(s).beforeApps;
   const result = [];
-  for (const [id, path] of tools(s).beforeApps) {
+  for (const [id, path] of savedByActor) {
     await ensureActor(s, id);
     const actor = s.actors.get(id);
     assert.defined(actor, 'Checkpoint actor missing');
@@ -196,4 +265,31 @@ export async function restoredApps(s: ProductHarness) {
     });
   }
   return result;
+}
+export const restoreFailureOf = (s: ProductHarness) => tools(s).restoreFailure;
+export const stillBeforeRestore = (s: ProductHarness) =>
+  appsMatch(s, tools(s).beforeRestoreApps);
+export const stillKept = (s: ProductHarness) => appsMatch(s, tools(s).keptApps);
+export async function sharedCheckpointView(s: ProductHarness, label: string) {
+  const state = tools(s);
+  const alice = s.actors.get('alice');
+  const path = alice === undefined ? '' : await alice.currentPath();
+  const choices = await checkpointChoices(s);
+  return {
+    world: path === state.firstWorldPath ? 'first' : 'later',
+    failure: state.restoreFailure,
+    available: choices.some((choice) => choice.label === label),
+  };
+}
+export async function appsMatch(
+  s: ProductHarness,
+  savedByActor: ReadonlyMap<string, string>
+) {
+  for (const [id, path] of savedByActor) {
+    await ensureActor(s, id);
+    const actor = s.actors.get(id);
+    assert.defined(actor, 'Checkpoint actor missing');
+    if ((await actor.currentPath()) !== path) return false;
+  }
+  return savedByActor.size > 0;
 }

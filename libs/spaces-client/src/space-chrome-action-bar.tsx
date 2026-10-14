@@ -1,4 +1,6 @@
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { NoteActivity } from '@libs/spaces-shared/space-activity';
+import { isViewingSpaceClient } from '@libs/spaces-shared/space-presence-client-id';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { ActionBar } from '@pkgs/ui-root-client/action-bar';
@@ -17,10 +19,12 @@ import type { JSX } from 'solid-js';
 import { createMemo, createSignal } from 'solid-js';
 import { SpaceMembersListModal } from './space-members-list-modal';
 import { SpacePresenceStrip } from './space-presence-strip';
+import { useSpaceRoomClientId } from './space-room-context';
 import { useSpaceSessionUi } from './space-session-ui-context';
 import { SpaceShareSheet } from './space-share-sheet';
 import { useSpacesNavBack } from './spaces-nav-context';
 import { useSpaceCan } from './use-space-can';
+import { useSpaceRoomDispatch } from './use-space-room-selector';
 
 type SpaceChromeNavCallbacks = {
   onPressHome: () => void;
@@ -214,6 +218,8 @@ export function SpaceChromeLeadingActionBar(): JSX.Element {
 export function SpaceChromeTrailingActionBar(): JSX.Element {
   const sessionUi = useSpaceSessionUi();
   const [membersOpen, setMembersOpen] = createSignal(false);
+  const dispatch = useSpaceRoomDispatch();
+  const clientId = useSpaceRoomClientId();
   const [shareOpen, setShareOpen] = createSignal(false);
   const chrome = useActionBarChrome();
   const onPressBack = useSpacesNavBack();
@@ -232,7 +238,13 @@ export function SpaceChromeTrailingActionBar(): JSX.Element {
     (): SpaceChromeTrailingCallbacks => ({
       onPressHome: sessionUi.onPressHome,
       onPressBack: onPressBack(),
-      onPressMembers: () => setMembersOpen(true),
+      onPressMembers: () => {
+        const id = clientId();
+        if (id !== null && isViewingSpaceClient(id)) {
+          dispatch(NoteActivity({ clientId: id }));
+        }
+        setMembersOpen(true);
+      },
       onPressShare: () => setShareOpen(true),
       onPressRename: sessionUi.onRequestRename,
       onPressEnd: sessionUi.onRequestEnd,
