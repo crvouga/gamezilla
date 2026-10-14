@@ -3152,6 +3152,7 @@
                       "specs/billing/deleted-account-payments.feature",
                       "specs/billing/events.qnt",
                       "specs/billing/expired-card.feature",
+                      "specs/billing/free-trial.feature",
                       "specs/billing/grace-ends.feature",
                       "specs/billing/membership-cancellation.feature",
                       "specs/billing/membership-interval-switch.feature",
@@ -3389,6 +3390,7 @@
                           "specs/billing/billing-portal.feature",
                           "specs/billing/deleted-account-payments.feature",
                           "specs/billing/expired-card.feature",
+                          "specs/billing/free-trial.feature",
                           "specs/billing/grace-ends.feature",
                           "specs/billing/membership-cancellation.feature",
                           "specs/billing/membership-interval-switch.feature",
@@ -3430,6 +3432,7 @@
                         "confidence": "assumed",
                         "source": [
                           "specs/billing/billing-access-per-person.feature:7",
+                          "specs/billing/free-trial.feature:17",
                           "specs/billing/membership-cancellation.feature:10",
                           "specs/billing/payment-provider-switch.feature:8",
                           "specs/billing/payment-provider-switch.feature:17",
