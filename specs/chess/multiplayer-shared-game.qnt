@@ -106,7 +106,7 @@ module multiplayer_shared_game {
       (if ((blackLeft - minutes) < 0) 0 else (blackLeft - minutes))
     else blackLeft
 
-  action _show(
+  action _record(
     moves: int,
     winner: str,
     online: str -> bool,
@@ -123,14 +123,29 @@ module multiplayer_shared_game {
     _whiteLeft' = whiteLeft,
     _blackLeft' = blackLeft,
     idle' = PEOPLE.mapBy(p => _isIdle(p, online, quiet)),
-    shownMoves' = DEVICES.mapBy(d => if (online.get(d)) moves else shownMoves.get(d)),
-    shownWinner' = DEVICES.mapBy(d => if (online.get(d)) winner else shownWinner.get(d)),
     canMove' = DEVICES.mapBy(d => (not(aborted) and _canMove(d, moves, winner, online))),
     gameRecordOffered' = (winner != "nobody"),
   }
 
-  action init =
-    _show(0, "nobody", DEVICES.mapBy(_ => true), DEVICES.mapBy(_ => 0), false, GAME_MINUTES, GAME_MINUTES)
+  action _show(
+    moves: int,
+    winner: str,
+    online: str -> bool,
+    quiet: str -> int,
+    aborted: bool,
+    whiteLeft: int,
+    blackLeft: int
+  ): bool = all {
+    _record(moves, winner, online, quiet, aborted, whiteLeft, blackLeft),
+    shownMoves' = DEVICES.mapBy(d => if (online.get(d)) moves else shownMoves.get(d)),
+    shownWinner' = DEVICES.mapBy(d => if (online.get(d)) winner else shownWinner.get(d)),
+  }
+
+  action init = all {
+    _record(0, "nobody", DEVICES.mapBy(_ => true), DEVICES.mapBy(_ => 0), false, GAME_MINUTES, GAME_MINUTES),
+    shownMoves' = DEVICES.mapBy(_ => 0),
+    shownWinner' = DEVICES.mapBy(_ => "nobody"),
+  }
 
   /// The person to move plays on a device that has a connection. Both spaces show that one move.
   action playMove(device: str): bool = all {

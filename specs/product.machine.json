@@ -2619,7 +2619,9 @@
                       "specs/runtime/device-layouts.feature",
                       "specs/runtime/settings.feature",
                       "specs/runtime/ubiquitous-language.yml",
-                      "specs/ubiquitous-language.yml"
+                      "specs/ubiquitous-language.yml",
+                      "specs/runtime/interrupted-preference.feature",
+                      "specs/runtime/preference-recovery.qnt"
                     ],
                     "events": []
                   },
@@ -3163,7 +3165,8 @@
                       "specs/billing/refunds.feature",
                       "specs/billing/subscribe.feature",
                       "specs/billing/ubiquitous-language.yml",
-                      "specs/ubiquitous-language.yml"
+                      "specs/ubiquitous-language.yml",
+                      "specs/billing/grace-and-refunds.qnt"
                     ],
                     "events": []
                   },
@@ -3940,7 +3943,9 @@
                       "specs/friends/relationships-after-time-away.feature",
                       "specs/friends/social-needs-connection.feature",
                       "specs/friends/ubiquitous-language.yml",
-                      "specs/ubiquitous-language.yml"
+                      "specs/ubiquitous-language.yml",
+                      "specs/friends/inbox-items.feature",
+                      "specs/friends/inbox-items.qnt"
                     ],
                     "events": []
                   },
@@ -8740,7 +8745,8 @@
                           "specs/runtime/connected-services.feature",
                           "specs/runtime/request-records.feature",
                           "specs/sync-engine/notes-offline.feature",
-                          "specs/ubiquitous-language.yml"
+                          "specs/ubiquitous-language.yml",
+                          "specs/runtime/investigation.qnt"
                         ]
                       },
                       "initial": "Inspectors: Contract inventory",
@@ -8909,7 +8915,8 @@
                           "specs/synthetic-population/synthetic-user-continuity.qnt",
                           "specs/synthetic-population/synthetic-user-sign-in.feature",
                           "specs/synthetic-population/ubiquitous-language.yml",
-                          "specs/ubiquitous-language.yml"
+                          "specs/ubiquitous-language.yml",
+                          "specs/developer-tools/checkpoints.qnt"
                         ],
                         "events": [],
                         "routes": [
@@ -9073,7 +9080,8 @@
                         "source": [
                           "specs/developer-tools/data-notebook.feature",
                           "specs/developer-tools/ubiquitous-language.yml",
-                          "specs/ubiquitous-language.yml"
+                          "specs/ubiquitous-language.yml",
+                          "specs/developer-tools/data-notebook.qnt"
                         ],
                         "events": []
                       },
@@ -9327,7 +9335,10 @@
                           "specs/runtime/serving-people.feature",
                           "specs/runtime/stored-files.feature",
                           "specs/runtime/ubiquitous-language.yml",
-                          "specs/ubiquitous-language.yml"
+                          "specs/ubiquitous-language.yml",
+                          "specs/runtime/environment-release.feature",
+                          "specs/runtime/environment-release.qnt",
+                          "specs/runtime/privacy-recovery.qnt"
                         ],
                         "events": []
                       },
