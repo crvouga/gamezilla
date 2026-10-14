@@ -84,3 +84,42 @@ test('authority leaving during authorization refuses the waiting command', async
   expect(readTally(rig.server.getCommittedState())).toBe(0);
   expect(framesOfKind(guest.frames, ROOM_WIRE_KIND.rejected)).toHaveLength(1);
 });
+
+test('dependent readers receive history while authority is absent but cannot write', async () => {
+  const rig = await startServer({
+    module: {
+      ...gameRoomModule,
+      connectionView: (grants) =>
+        grants.includes('lead')
+          ? { mode: 'authority' }
+          : { mode: 'dependent-read', reason: 'room authority is offline' },
+    },
+  });
+  connectPerson(rig, 'alice', ['lead']);
+  await rig.server.handleClientMessage(
+    'alice',
+    'alice',
+    addOneCommand('saved')
+  );
+  rig.server.unregisterConnection('alice');
+  const reader = connectPerson(rig, 'bob');
+  await rig.server.handleClientMessage('bob', 'bob', {
+    v: WIRE_VERSION,
+    kind: ROOM_WIRE_KIND.sync,
+    fromSeq: 0,
+  });
+  const welcomes = framesOfKind(reader.frames, ROOM_WIRE_KIND.welcome);
+  expect(welcomes).toHaveLength(1);
+  expect(welcomes[0]).toMatchObject({
+    lastSeq: 1,
+    entries: expect.arrayContaining([expect.objectContaining({ seq: 1 })]),
+  });
+  expect(rig.server.getRoster()).toEqual([]);
+  await rig.server.handleClientMessage(
+    'bob',
+    'bob',
+    addOneCommand('blocked-reader')
+  );
+  expect(readTally(rig.server.getCommittedState())).toBe(1);
+  expect(framesOfKind(reader.frames, ROOM_WIRE_KIND.rejected)).toHaveLength(1);
+});

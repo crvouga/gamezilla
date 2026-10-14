@@ -184,7 +184,7 @@ export function createSpaceModule(
       if (grants.includes(PERMISSION.spacesSelectGame))
         return { mode: 'authority' };
       return grants.includes(PERMISSION.spacesLeave)
-        ? { mode: 'dependent', reason: 'the host is offline' }
+        ? { mode: 'dependent-read', reason: 'the host is offline' }
         : { mode: 'presence', reason: 'not in the space' };
     },
     initialState: (): RoomState => buildInitialState(games),

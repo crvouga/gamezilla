@@ -32,7 +32,7 @@ export function useCustomGameScreen() {
   const spaceId = useSpaceRoomSessionId();
   const scope = (): string => spaceId() ?? '';
   const roomGames = useSpaceRoomSelector(CustomGamesAttr.from);
-  // A guest keeps the board they already had while the host is offline.
+  // Connected guests learn committed outcomes even while the host is offline.
   const games = roomGames;
   const current = createMemo(() => games().current);
   const members = useSpaceRoomSelector(spaceSeatMemberIds);
