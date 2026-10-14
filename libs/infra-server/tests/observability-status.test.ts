@@ -1,6 +1,11 @@
 import { expect, test } from 'bun:test';
 import { permits } from './observability-condition';
 
+// regression: observability-property-process-per-sample
+test('the shrunk active stack with an empty trace state blocks deployment', () => {
+  expect(permits({ status: 'active', traces_status: '' })).toBe(false);
+});
+
 // regression: deploy-grafana-archived-active-traces
 test('archived stack with active traces remains usable by the trace-only module', () => {
   // Grafana stack 1842412 / shortawning2091 at the failed deploy:

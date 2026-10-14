@@ -1,4 +1,4 @@
 {
   "summary": "The observability property timed out after launching OpenTofu for every sample; its shrunk input had status active and an empty traces_status.",
-  "regressionTest": "libs/infra-server/tests/observability-status.property.test.ts"
+  "regressionTest": "libs/infra-server/tests/observability-status.test.ts"
 }
