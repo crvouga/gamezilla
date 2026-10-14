@@ -6,6 +6,7 @@ Feature: Observe and control the Synthetic Population
 
   Rule: Only authorized people can use the Bot Observatory
 
+    @regression:stack-fixtures-publish-to-in-process-broker
     Scenario: An authorized person sees the desired synthetic population
       Given Alice is authorized to view the Bot Observatory
       And the desired synthetic population is 4

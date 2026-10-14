@@ -177,7 +177,9 @@ terms:
     definition: >-
       Who is in a space right now, which everyone in it sees live as the
       people there, how many they are, and who among them is idle. Someone
-      who leaves, steps out or drops out stops showing. A person shows once
+      who leaves or drops out stops showing. Stepping out stops showing
+      someone other than the host; a connected host still counts while in
+      the lobby. A person shows once
       however many of their devices are in the space; nobody ever shows
       twice. An offline host with no other device in the space sees only
       themselves; other people see nobody while that host is offline. A
