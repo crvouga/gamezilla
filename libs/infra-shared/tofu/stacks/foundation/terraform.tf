@@ -49,6 +49,11 @@ terraform {
       method   = method.aes_gcm.state
       enforced = true
     }
+    remote_state_data_sources {
+      remote_state_data_source "fleet" {
+        method = method.aes_gcm.state
+      }
+    }
   }
 }
 

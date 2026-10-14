@@ -4,7 +4,7 @@
  * product.
  */
 
-import { spawnActor } from '@libs/harness/actions';
+import { damageDeviceData, spawnActor } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { cutConnection } from '@libs/harness/platform';
@@ -25,6 +25,10 @@ const UNKNOWN_ADDRESS = '/no-such-place';
 
 Given('{actor} has opened the app before', async (w, actor: Actor) => {
   await w.s.apply(spawnActor, actor);
+});
+
+Given("{actor}'s device data has become unusable", async (w, actor: Actor) => {
+  await w.s.apply(damageDeviceData, actor);
 });
 
 When(

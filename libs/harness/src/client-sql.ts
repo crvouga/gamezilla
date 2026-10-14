@@ -1,6 +1,8 @@
 import type { ClientEnv } from '@libs/app-root-client/client-env';
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import type { OpenSqlClient } from '@libs/sub-shared/sync';
+import { createFaultInjectingSqlClient } from '@pkgs/sql-client-root-shared/fault-injecting-sql-client';
+import { STORAGE_FAULTS } from '@pkgs/sql-client-root-shared/storage-faults';
 import { openFreshHarnessClientSql } from './sql';
 import type { HarnessSql } from './sql-types';
 import { handleBoundSqlClient } from './sql-types';
@@ -58,6 +60,8 @@ export function harnessClientSql(input: {
   readonly handles: Map<string, HarnessSql>;
   readonly clock: ClientEnv['clock'];
   readonly storage: ClientEnv['secureStorage'];
+  /** True while the device's data is unusable: every database call fails. */
+  readonly unusable?: () => boolean;
 }): OpenSqlClient {
   const state = databases(input.handles, input.id);
   const view = input.handles.get(input.id) ?? inspector(state);
@@ -78,6 +82,10 @@ export function harnessClientSql(input: {
       state.active = handle;
       input.handles.set(input.id, view);
     }
-    return handleBoundSqlClient(handle);
+    const bound = handleBoundSqlClient(handle);
+    if (input.unusable?.() !== true) return bound;
+    const damaged = createFaultInjectingSqlClient(bound);
+    damaged.breakWith(STORAGE_FAULTS.corrupt);
+    return damaged.client;
   };
 }

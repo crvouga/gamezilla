@@ -1,5 +1,8 @@
 import { shippedModerationRules } from '@libs/moderation-shared/moderation-rules';
-import { openMainSqlClient } from './open-main-sql-client';
+import {
+  LOCAL_CALL_DEADLINE_MS,
+  openMainSqlClient,
+} from './open-main-sql-client';
 // @io-wall-ok — browser / production ClientEnv composition root.
 /**
  * Production / localhost `ClientEnv` built from browser APIs only. Call only
@@ -131,6 +134,7 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
         createLogger({ name: 'sqlite-web', now: wallClock.now })
       );
     },
+    localCallDeadlineMs: LOCAL_CALL_DEADLINE_MS,
     kv: new KvImplWeb(),
     secureStorage,
     room: args.room,

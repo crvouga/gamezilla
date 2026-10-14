@@ -416,7 +416,7 @@ async function revokeDatabase(state: LocalEngineState): Promise<void> {
 
 async function clearState(
   state: LocalEngineState,
-  reason: 'cache' | 'revoked'
+  reason: 'cache' | 'revoked' | 'replaced'
 ): Promise<void> {
   if (reason === 'revoked') {
     await revokeDatabase(state);
@@ -424,12 +424,14 @@ async function clearState(
   }
   const reconnect = state.connected;
   await disconnectState(state);
-  try {
-    await clearLocalCache(state.options.db, state.options.localSchema);
-  } catch (error) {
-    // Revoke / dispose already closed the handle — cache is gone.
-    if (isSqliteClosedError(error)) return;
-    throw error;
+  if (reason === 'cache') {
+    try {
+      await clearLocalCache(state.options.db, state.options.localSchema);
+    } catch (error) {
+      // Revoke / dispose already closed the handle — cache is gone.
+      if (isSqliteClosedError(error)) return;
+      throw error;
+    }
   }
   state.runtime.reset();
   state.bus.emit([

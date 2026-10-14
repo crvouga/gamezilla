@@ -71,6 +71,12 @@ export type ClientEnv = {
   readonly openSqlClient: OpenSqlClient;
   /** Harness may shorten the sync safety-net interval. Wall uses the engine default. */
   readonly reconcileIntervalMs?: number;
+  /**
+   * A local database call that outlasts this is a storage failure: the engine
+   * moves to a disposable database. Wall sets it; harnesses run on virtual
+   * time, where nothing times out.
+   */
+  readonly localCallDeadlineMs?: number;
   readonly kv: Kv;
   readonly secureStorage: SecureStorageStore;
   readonly room: CreateRoomTransport;

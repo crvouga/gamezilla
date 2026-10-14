@@ -4,6 +4,11 @@ import type { Kind } from './infra-kind-helpers';
 import { link } from './infra-kind-helpers';
 
 export const OTHER_KINDS: Readonly<Record<string, Kind>> = {
+  terraform_remote_state: {
+    title: 'Encrypted stack outputs',
+    logo: 'opentofu',
+    category: 'Plumbing',
+  },
   railway_project: {
     title: 'Railway project',
     logo: 'railway',
