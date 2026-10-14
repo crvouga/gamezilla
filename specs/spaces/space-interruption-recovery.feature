@@ -58,6 +58,14 @@ Feature: Keep a space usable through time without a connection
 
   Rule: An unanswered join does not trap the person or claim they joined
 
+    @regression:unacknowledged-join-enters-space
+    Scenario: Reopening an unanswered join keeps it unconfirmed
+      Given Alice is hosting a space
+      And Bob has asked to join from the space link without hearing whether they joined
+      When Bob opens the space link again
+      Then Bob is not in a space
+      And Bob is told the join is not confirmed
+
     Scenario: A person can leave a join that has not finished
       Given Alice is hosting a space
       And Bob has asked to join from the space link without hearing whether they joined
