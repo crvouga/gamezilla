@@ -1,0 +1,4 @@
+{
+  "summary": "Leaving an unanswered space join shows a Live miniplayer and labels the lobby card a current space before membership is confirmed. Only confirmed guest joins belong in the current-space surfaces; the host's local spaces remain usable offline.",
+  "regressionTest": "specs/spaces/space-interruption-recovery.feature: A person can leave a join that has not finished"
+}

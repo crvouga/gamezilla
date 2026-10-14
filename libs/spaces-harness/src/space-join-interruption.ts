@@ -32,3 +32,35 @@ export async function joinUnconfirmedShown(
   const text = await ui.get(Handles.spaceJoin).text();
   return text?.includes('Not confirmed') === true;
 }
+
+export async function lobbyShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  await bringToFront(s, actorId);
+  const ui = await actorUi(s, actorId);
+  return (
+    (await ui.get(Handles.spacesListReady).isVisible()) &&
+    !(await ui.get(Handles.spaceJoinPrompt).isVisible()) &&
+    !(await ui.get(Handles.spaceClose).isVisible())
+  );
+}
+
+/** Current membership is claimed by the live-space dock as well as the full space. */
+export async function joinClaimShown(
+  s: ProductHarness,
+  actorId: string,
+  link: string
+): Promise<boolean> {
+  await bringToFront(s, actorId);
+  const spaceId = /^\/space\/([^/?#]+)/.exec(link)?.[1];
+  if (spaceId === undefined) throw new Error(`Not a space link: ${link}`);
+  const ui = await actorUi(s, actorId);
+  const join = ui.get(Handles.spaceJoin);
+  return (
+    (await ui.get(Handles.spaceMiniplayerOpen(spaceId)).isVisible()) ||
+    ((await join.isVisible()) && (await join.text()) === 'Joined') ||
+    ((await s.actors.get(actorId)?.currentPath()) === link &&
+      (await ui.get(Handles.spaceClose).isVisible()))
+  );
+}

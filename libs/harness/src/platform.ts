@@ -159,6 +159,11 @@ Given('{actor} is offline', async (w, actor: Actor) => {
   await cutConnection(w, actor);
 });
 
+Given('{actor} and {actor} are offline', async (w, a: Actor, b: Actor) => {
+  await cutConnection(w, a);
+  await cutConnection(w, b);
+});
+
 When('{actor} loses the connection', async (w, actor: Actor) => {
   await cutConnection(w, actor);
 });
@@ -174,6 +179,14 @@ When('the connection comes back', async (w) => {
 Given('{actor} has closed and reopened the app', async (w, actor: Actor) => {
   await w.s.apply(restartApp, actor);
 });
+
+Given(
+  '{actor} and {actor} have closed and reopened the app',
+  async (w, a: Actor, b: Actor) => {
+    await w.s.apply(restartApp, a);
+    await w.s.apply(restartApp, b);
+  }
+);
 
 When('{actor} closes and reopens the app', async (w, actor: Actor) => {
   await w.s.apply(restartApp, actor);

@@ -7,7 +7,8 @@ import {
   createQuery,
   useSyncEngine,
 } from '@pkgs/sync-engine-client/sync-engine-context';
-import { type Accessor, createMemo } from 'solid-js';
+import { useMutationFeedback } from '@pkgs/sync-engine-client/use-mutation-feedback';
+import { type Accessor, createMemo, mapArray } from 'solid-js';
 import type {
   CurrentSpaceEntry,
   CurrentSpaceRow,
@@ -73,9 +74,30 @@ export function useCurrentSpaceIds(): {
   const query = createQuery(() =>
     currentSpacesSql(enabled(), deviceId(), myId())
   );
-  const entries = createMemo(() => {
+  const candidates = createMemo(() => {
     if (!paintReady()) return [];
     return buildCurrentSpaceEntries(query.rows(), myId());
+  });
+  const confirmations = mapArray(
+    () => candidates().map((entry) => entry.spaceId),
+    (spaceId) => ({
+      spaceId,
+      feedback: useMutationFeedback('joinSpace', () => ({ spaceId })),
+    })
+  );
+  const entries = createMemo(() => {
+    const known = new Set(
+      confirmations()
+        .filter(
+          (entry) =>
+            entry.feedback() === null ||
+            entry.feedback()?.status === 'confirmed'
+        )
+        .map((entry) => entry.spaceId)
+    );
+    return candidates().filter(
+      (entry) => entry.role === 'host' || known.has(entry.spaceId)
+    );
   });
   const loading = createMemo(() => {
     if (!paintReady()) return true;
