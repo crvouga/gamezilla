@@ -22,13 +22,21 @@ Feature: Keep a space usable through time without a connection
   Rule: A person can leave while nobody else can be reached
     No counter-example: leaving needs nobody else's agreement.
 
-    Scenario: Leaving offline frees the person to use their own space
+    Scenario: Leaving offline offers the person their lobby
+      Given Alice is hosting a space that Bob joined from the link
+      And Alice and Bob are offline
+      When Bob leaves the space
+      Then Bob sees they have left the space
+      And Bob is offered the way back to Spaces
+
+    Scenario: Returning to an own space works after leaving offline
       Given Alice is hosting a space that Bob joined from the link
       And Alice and Bob are offline
       And Bob has a space of their own
-      When Bob leaves the space
-      Then Bob sees they have left the space
-      And Bob can return to their own space
+      And Bob has left the space while Alice and Bob were offline
+      When Bob returns to their space
+      Then Bob is in their own space
+      And Bob hosts 1 space
 
   Rule: Returning people see the lasting end or departure before being offered to join
 
