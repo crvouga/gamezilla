@@ -88,9 +88,12 @@
   "devDependencies": {
     "@pkgs/a11y-shared": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/db-schema-root-shared": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
   },

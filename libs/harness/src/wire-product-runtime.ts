@@ -8,6 +8,7 @@ import type { StepRecorder } from '@pkgs/ui-testing-root-shared/step-recorder';
 import {
   type ActorBrowserStorage,
   createActorBrowserStorage,
+  damageActorBrowserStorage,
 } from './actor-browser-storage';
 import type { ProductHarness, ProductRuntime } from './harness';
 import { productExtra } from './harness';
@@ -32,6 +33,7 @@ export function wireProductRuntime(
 ): { readonly entries: Map<string, ActorEntry> } {
   const entries = new Map<string, ActorEntry>();
   const browserDevices = new Map<string, ActorBrowserStorage>();
+  const damagedBrowserDevices = new Set<string>();
   const extra = productExtra(surface);
   const runtime: ProductRuntime = {
     async launchActor(id) {
@@ -72,6 +74,14 @@ export function wireProductRuntime(
       }
       surface.actors.delete(id);
       await surface.harness.dropClient(id);
+      const storage = browserDevices.get(id);
+      if (storage !== undefined && damagedBrowserDevices.delete(id)) {
+        await damageActorBrowserStorage(storage);
+      }
+    },
+    async damageDeviceData(id) {
+      surface.harness.damageDeviceData(id);
+      if (browserDevices.has(id)) damagedBrowserDevices.add(id);
     },
     async resetActor(id) {
       const existing = entries.get(id);

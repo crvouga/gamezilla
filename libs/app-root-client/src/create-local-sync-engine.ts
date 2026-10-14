@@ -16,9 +16,11 @@ import { defaultEntryChannel } from '@libs/sub-shared/sync';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
+import { createFailoverSqlClient } from '@pkgs/sql-client-root-shared/failover-sql-client';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { WebSqlClient } from '@pkgs/sql-client-sqlite-web-client/web-sql-client';
 import { createLocalSyncEngine } from '@pkgs/sync-engine-client/create-local-sync-engine';
+import { migrateLocalSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import type { SyncEngine } from '@pkgs/sync-engine-client/sync-engine-port';
 import type {
   GetFreshAuthToken,
@@ -27,12 +29,14 @@ import type {
 import { SyncApiAuthError } from '@pkgs/sync-engine-client/sync-http-client';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
 import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
+import { LOCAL_DATABASE, recordLocalDatabaseOpen } from './browser-boundaries';
 import {
   type ClientPubSubArgs,
   createClientPubSub,
   readEmqxWssUrlFromLocalDb,
 } from './create-client-pubsub';
 import {
+  isDisposableSqlClient,
   openDisposableSqlClient,
   openMainSqlClient,
 } from './open-main-sql-client';
@@ -72,6 +76,12 @@ export type CreateAppLocalSyncEngineArgs = {
   readonly waitUntilAvailable?:
     | ((signal?: AbortSignal | null) => Promise<void>)
     | undefined;
+  /**
+   * Local database calls that outlast this are a storage failure and move
+   * the engine to a disposable database. Unset on virtual time, where
+   * nothing times out.
+   */
+  readonly localCallDeadlineMs?: number | undefined;
 };
 
 /** Pool callers omit `mutationRegistry` — the pool loads it with the engine. */
@@ -162,22 +172,19 @@ async function openAppLocalDb(
       `createAppLocalSyncEngine: refusing OPFS open for harness database "${args.databaseName}" — inject openSqlClient`
     );
   }
-  if (args.openSqlClient !== undefined) {
-    return args.openSqlClient({
-      userId: args.userId,
-      databaseName: args.databaseName,
-    });
-  }
-  try {
-    return await openMainSqlClient(
+  if (args.openSqlClient === undefined) {
+    return openMainSqlClient(
       args.userId,
       args.timers,
       createLogger({ name: 'sqlite-web', now: args.clock.now })
     );
+  }
+  try {
+    return await args.openSqlClient({
+      userId: args.userId,
+      databaseName: args.databaseName,
+    });
   } catch (error) {
-    // SQLite is only an optimistic local cache. A stale worker, broken OPFS
-    // handle, or corrupt snapshot must never prevent the product shell from
-    // booting; discard this cache and use a disposable in-memory SQLite DB.
     return openDisposableSqlClient(error);
   }
 }
@@ -249,36 +256,87 @@ function buildEngine(
   });
 }
 
+function callDeadline(args: CreateAppLocalSyncEngineArgs) {
+  const ms = args.localCallDeadlineMs;
+  return ms === undefined ? {} : { deadline: { timers: args.timers, ms } };
+}
+
+/**
+ * The engine's database. SQLite is only an optimistic local cache, so a
+ * failure of its storage (a corrupt file, a full disk, a dead worker, a lost
+ * owner tab, a hung call) replaces it with a disposable in-memory database
+ * and has the engine refetch, instead of ever stopping the app.
+ */
+function guardLocalDatabase(
+  args: CreateAppLocalSyncEngineArgs,
+  app: ComposedSubs,
+  primary: SqlClient,
+  engineRef: { current: SyncEngine | null }
+): SqlClient {
+  const log = createLogger({ name: 'local-database', now: args.clock.now });
+  return createFailoverSqlClient({
+    primary,
+    openFallback: (reason) => openDisposableSqlClient(reason),
+    prepareFallback: async (fallback) => {
+      await migrateLocalSchema(fallback, {
+        domainSchema: app.schema,
+        cacheTableNames: app.tableNames,
+      });
+    },
+    onFailover: (reason) => {
+      log.warn('local SQLite failed: continuing on a disposable database', {
+        error: reason instanceof Error ? reason.message : String(reason),
+      });
+      recordLocalDatabaseOpen(LOCAL_DATABASE.memory, reason);
+      // Everything the engine believes about the old database is stale.
+      void engineRef.current
+        ?.clearLocalData({ reason: 'replaced' })
+        .catch((error: unknown) =>
+          log.error('refetch after failover failed', {
+            error: error instanceof Error ? error.message : String(error),
+          })
+        );
+    },
+    ...callDeadline(args),
+  });
+}
+
+/** The tab that holds no lock still boots; it just syncs alone. */
+async function acquireSyncLease(args: CreateAppLocalSyncEngineArgs) {
+  // Injected openSqlClient = harness/product-harness isolated DB — never share OPFS, so
+  // skip Web Locks (a prior engine's unreleased lock would make reload a
+  // permanent non-owner with no upload/push).
+  if (args.openSqlClient !== undefined) {
+    return { isOwner: true as const, release: () => undefined };
+  }
+  return tryAcquireSyncOwnerLease(args.databaseName);
+}
+
+async function readEmqxUrl(db: SqlClient): Promise<string | null> {
+  try {
+    return await readEmqxWssUrlFromLocalDb(db);
+  } catch {
+    // The broker address is cached data too; push waits for the next sync.
+    return null;
+  }
+}
+
 /** Opens the identity DB and builds the push-driven local sync engine. */
 export async function createAppLocalSyncEngine(
   args: CreateAppLocalSyncEngineArgs
 ): Promise<SyncEngine> {
-  // Injected openSqlClient = harness/product-harness isolated DB — never share OPFS, so
-  // skip Web Locks (a prior engine's unreleased lock would make reload a
-  // permanent non-owner with no upload/push).
   // The fold arrives with this module, not with the entry chunk.
   const app = await args.loadApp();
-  const syncLease =
-    args.openSqlClient !== undefined
-      ? { isOwner: true as const, release: () => undefined }
-      : await tryAcquireSyncOwnerLease(args.databaseName);
+  const syncLease = await acquireSyncLease(args);
   try {
-    let db = await openAppLocalDb(args);
-    let engine: SyncEngine;
-    try {
-      engine = await buildEngine(args, app, db, syncLease.isOwner);
-      emqxUrlHolderFor(args.databaseName).url =
-        await readEmqxWssUrlFromLocalDb(db);
-    } catch (error) {
-      // A worker can open successfully while the cached schema/snapshot is
-      // unusable. Rebuild once against a clean disposable cache; SQLite must
-      // never turn into an application boot gate.
-      await db.disconnect().catch(() => undefined);
-      db = await openDisposableSqlClient(error);
-      engine = await buildEngine(args, app, db, syncLease.isOwner);
-      emqxUrlHolderFor(args.databaseName).url =
-        await readEmqxWssUrlFromLocalDb(db);
-    }
+    const opened = await openAppLocalDb(args);
+    const engineRef: { current: SyncEngine | null } = { current: null };
+    const db = guardLocalDatabase(args, app, opened, engineRef);
+    // A disposable database is private to this tab: nobody else uploads for it.
+    const isOwner = syncLease.isOwner || isDisposableSqlClient(opened);
+    const engine = await buildEngine(args, app, db, isOwner);
+    engineRef.current = engine;
+    emqxUrlHolderFor(args.databaseName).url = await readEmqxUrl(db);
     const disconnect = engine.disconnect.bind(engine);
     return {
       ...engine,

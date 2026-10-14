@@ -67,10 +67,14 @@ export type SyncEngine = {
   disconnect(): Promise<void>;
   /**
    * Clears all local data managed by the sync engine.
+   *
+   * `replaced`: the database under the engine was swapped for a fresh one
+   * (its storage failed). Nothing is dropped; the engine forgets what it
+   * knew of the old database and refetches into the new one.
    * @returns A promise resolved when the data has been cleared.
    */
   clearLocalData(options?: {
-    readonly reason?: 'cache' | 'revoked';
+    readonly reason?: 'cache' | 'revoked' | 'replaced';
   }): Promise<void>;
   /**
    * Waits until the first successful sync is completed.
