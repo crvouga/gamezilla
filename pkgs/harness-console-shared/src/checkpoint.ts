@@ -9,6 +9,7 @@
 export type HarnessCheckpointSqlFormat =
   | 'sqlm'
   | 'sqlite3-image'
+  | 'logical'
   | 'mixed-pgmm-sqlm';
 
 export type HarnessCheckpointRoomDump = {

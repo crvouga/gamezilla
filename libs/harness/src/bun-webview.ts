@@ -10,6 +10,7 @@ import type { HarnessComposition } from './composition';
 import type { ProductExtra } from './ports';
 import { ensureRealStack } from './real-stack';
 import { openHarnessServerSqlFromSeedBytes } from './sql';
+import { sqlDataCheckpoint } from './sql-data-checkpoint';
 import type { HarnessSql } from './sql-types';
 import { sharedSqlClient } from './sql-types';
 
@@ -42,6 +43,9 @@ async function openSeededServerSql(
 }
 
 function postgresHandle(pg: {
+  readonly pool: Awaited<
+    ReturnType<typeof import('./boot-harness-postgres').bootHarnessPostgres>
+  >['pool'];
   readonly sqlClient: Awaited<
     ReturnType<typeof import('./boot-harness-postgres').bootHarnessPostgres>
   >['sqlClient'];
@@ -49,14 +53,14 @@ function postgresHandle(pg: {
 }): HarnessSql {
   const shared = sharedSqlClient(pg.sqlClient);
   return {
+    pool: pg.pool,
     get sqlClient() {
       return shared;
     },
     databaseName: 'harness_postgres',
     disconnect: () => pg.stop(),
     reset: () => Promise.resolve(),
-    exportBytes: () => Promise.resolve(new Uint8Array()),
-    importBytes: () => Promise.resolve(),
+    ...sqlDataCheckpoint(pg.sqlClient),
   };
 }
 
@@ -71,7 +75,12 @@ async function openRealPostgresSql(
 /** Stack mode owns no infrastructure — it attaches to what is already up. */
 async function openStackExtra(
   session: Session
-): Promise<Pick<ProductExtra, 'sql' | 'ui' | 'http' | 'serverEvents'>> {
+): Promise<
+  Pick<
+    ProductExtra,
+    'sql' | 'ui' | 'http' | 'serverEvents' | 'checkpointSqlFormat'
+  >
+> {
   const { readStackAddresses } = await import('./stack-manifest');
   const { bootHarnessPostgres } = await import('./boot-harness-postgres');
   const addresses = await readStackAddresses();
@@ -92,6 +101,7 @@ async function openStackExtra(
   process.env['VITE_API_URL'] = addresses.apiOrigin;
   return {
     serverEvents,
+    checkpointSqlFormat: 'logical',
     sql: postgresHandle(await bootHarnessPostgres(addresses.databaseUrl)),
     ui: { kind: 'bun-webview' as const, webOrigin: addresses.webOrigin },
     http: {
@@ -133,6 +143,7 @@ export function bunWebviewRuntime(
     const apiOrigin = process.env['VITE_API_URL'] ?? 'http://127.0.0.1:8787';
     return {
       sql,
+      ...(mode === 'real' ? { checkpointSqlFormat: 'logical' as const } : {}),
       ui: { kind: 'bun-webview' as const, webOrigin },
       http: { kind: 'localhost' as const, origin: apiOrigin },
       drainServerHttp: { current: () => Promise.resolve() },

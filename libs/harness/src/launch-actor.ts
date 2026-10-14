@@ -25,6 +25,7 @@ import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import type { ProductUi } from './ports';
 import { solidActorRoot } from './solid-actor-root';
 import { createHarnessWaitPump } from './wait-pump';
+import { webviewCheckpoint } from './webview-checkpoint';
 import { webviewLocalSql } from './webview-local-sql';
 
 export type ActorEntry = {
@@ -173,6 +174,7 @@ async function launchWebview(
   return {
     raw,
     localSql,
+    checkpoint: webviewCheckpoint(view, openLink),
     closeResources,
     openLink,
     currentPath,

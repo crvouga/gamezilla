@@ -11,6 +11,7 @@ import type { ProductHarnessSnapshotIndex } from './product-harness-snapshot-sch
 import {
   parseJsonBytesWithSchema,
   parseJsonWithSchema,
+  productHarnessLogicalSqlDumpSchema,
   productHarnessMockingbirdPostgresDumpSchema,
   productHarnessMockingbirdSqliteDumpSchema,
   productHarnessSnapshotIndexSchema,
@@ -133,6 +134,18 @@ async function isServerSqlBlob(
   return bytes.byteLength >= 16;
 }
 
+async function isLogicalSqlBlob(
+  store: ObjectStore,
+  key: string
+): Promise<boolean> {
+  const obj = await store.get(key);
+  if (obj === null) return false;
+  const bytes = await readBody(obj.body);
+  return (
+    parseJsonBytesWithSchema(bytes, productHarnessLogicalSqlDumpSchema) !== null
+  );
+}
+
 /** Structural integrity only — schema version is annotated separately. */
 async function isStructurallyValidSnapshot(
   store: ObjectStore,
@@ -145,11 +158,19 @@ async function isStructurallyValidSnapshot(
     productHarnessSnapshotManifestSchema
   );
   if (manifest === null || manifest.id !== info.id) return false;
-  if (!(await isServerSqlBlob(store, manifest.keys.serverSql))) return false;
+  const serverValid =
+    manifest.sqlFormat === 'logical'
+      ? await isLogicalSqlBlob(store, manifest.keys.serverSql)
+      : await isServerSqlBlob(store, manifest.keys.serverSql);
+  if (!serverValid) return false;
   for (const clientId of manifest.clientIds) {
     const key = manifest.keys.clientSql[clientId];
     if (key === undefined) return false;
-    if (!(await isMockingbirdSqliteBlob(store, key))) return false;
+    const valid =
+      manifest.sqlFormat === 'logical'
+        ? await isLogicalSqlBlob(store, key)
+        : await isMockingbirdSqliteBlob(store, key);
+    if (!valid) return false;
   }
   return true;
 }

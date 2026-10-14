@@ -3,6 +3,7 @@ import type { Session } from '@pkgs/harness-root-shared/runtime-types';
 import type { AudioPlayerStatus } from '@pkgs/sounds-shared/ports';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
+import type { ActorCheckpointPort } from './client-checkpoint';
 import type { Harness } from './create-harness';
 import type { ProductExtra } from './ports';
 
@@ -16,6 +17,7 @@ export type HarnessDevice = {
 };
 
 export type HarnessActor = {
+  readonly checkpoint?: ActorCheckpointPort;
   readonly device: HarnessDevice;
   readonly id: string;
   readonly ui: Driver;
