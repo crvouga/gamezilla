@@ -1000,6 +1000,7 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid-client": "workspace:*",
+        "@pkgs/outbox-shared": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
