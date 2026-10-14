@@ -15,6 +15,7 @@ import { serveFetch } from '@libs/app-root-shared/serve-fetch';
 import type { ServerEnv } from '@libs/app-root-shared/server-env';
 import { composeSubServers } from '@libs/sub-shared/compose-server';
 import type { ServerHttp } from '@libs/sub-shared/sync';
+import { createScopedHttpClient } from '@pkgs/http-client-shared/scoped-http-client';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
@@ -56,11 +57,31 @@ function nextServerId(taken: ReadonlySet<string>): string {
   return nextHarnessNodeId('server', taken);
 }
 
+async function openHarnessServer(args: {
+  env: ServerEnv;
+  composition: HarnessComposition;
+  rooms: RoomServicePort;
+}) {
+  const http = createScopedHttpClient({ fetch: args.env.fetch });
+  const env = { ...args.env, fetch: http.fetch };
+  const subServers = composeSubServers(
+    args.composition.servers({ billing: env.billing, rooms: args.rooms })
+  );
+  const app = await http.run(() =>
+    createServer(env, {
+      app: args.composition.app,
+      servers: subServers,
+    })
+  );
+  return { http, env, subServers, app };
+}
+
 function createServerNodeFetch(args: {
   app: Server;
   roomNamespace: () => RoomNamespace | undefined;
   disposed: () => boolean;
   instanceId: string;
+  http: ReturnType<typeof createScopedHttpClient>;
 }) {
   const raw = serveFetch((request) => {
     const namespace = args.roomNamespace();
@@ -72,7 +93,7 @@ function createServerNodeFetch(args: {
   return serializeFetch(async (input, init) => {
     if (args.disposed())
       throw new Error(`createHarness: server '${args.instanceId}' disposed`);
-    return raw(input, init);
+    return args.http.run(() => raw(input, init));
   });
 }
 
@@ -111,19 +132,17 @@ export function createHarnessServerNodes(args: {
       if (args.disposed()) {
         throw new Error('createHarness: server disposed');
       }
-      const env = await ensureEnv(instanceId);
-      const subServers = composeSubServers(
-        args.composition.servers({ billing: env.billing, rooms: args.rooms })
-      );
-      const app = await createServer(env, {
-        app: args.composition.app,
-        servers: subServers,
+      const { http, env, subServers, app } = await openHarnessServer({
+        env: await ensureEnv(instanceId),
+        composition: args.composition,
+        rooms: args.rooms,
       });
       const serialized = createServerNodeFetch({
         app,
         roomNamespace: () => roomNamespace,
         disposed: args.disposed,
         instanceId,
+        http,
       });
       const node: HarnessServerNode = {
         id: instanceId,

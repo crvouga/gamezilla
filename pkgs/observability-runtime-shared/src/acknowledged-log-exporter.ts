@@ -5,6 +5,7 @@ import type {
 } from '@opentelemetry/sdk-logs';
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
+import { acknowledgementBytes } from './otlp-acknowledgement';
 
 /** Standard OTLP JSON with a strict acknowledgement. Unlike best-effort SDK
  * export, rejected records must fail a durable delivery so it can be retried. */
@@ -72,39 +73,11 @@ export class AcknowledgedLogExporter implements LogRecordExporter {
       await response.body?.cancel();
       throw new Error('OTLP export rejected');
     }
-    const bytes = await acknowledgementBytes(response);
+    const bytes = await acknowledgementBytes(response, signal);
     if (bytes.byteLength === 0) return;
     const outcome = JsonLogsSerializer.deserializeResponse(bytes);
     const rejected = Number(outcome.partialSuccess?.rejectedLogRecords ?? 0);
     if (!Number.isSafeInteger(rejected) || rejected !== 0)
       throw new Error('OTLP records rejected');
   }
-}
-
-async function acknowledgementBytes(response: Response): Promise<Uint8Array> {
-  if (response.body === null) return new Uint8Array();
-  const reader = response.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let size = 0;
-  try {
-    for (;;) {
-      const next = await reader.read();
-      if (next.done) break;
-      size += next.value.byteLength;
-      if (size > 65_536) {
-        await reader.cancel();
-        throw new Error('OTLP acknowledgement too large');
-      }
-      chunks.push(next.value);
-    }
-  } finally {
-    reader.releaseLock();
-  }
-  const result = new Uint8Array(size);
-  let offset = 0;
-  for (const chunk of chunks) {
-    result.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return result;
 }
