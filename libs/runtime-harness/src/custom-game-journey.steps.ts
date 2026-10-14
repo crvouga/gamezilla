@@ -23,6 +23,7 @@ import {
   startCustomGameAgainstBot,
   startReadyGame,
 } from './custom-game-journey';
+import { prepareCustomGamePair } from './custom-game-pair';
 import { hostDeferringEnd } from './journey-space';
 import {
   type JourneyHost,
@@ -74,16 +75,6 @@ async function readWith(
     value = await read(ui);
   });
   return value;
-}
-
-async function seatBobAsBlack(w: JourneyWorld): Promise<void> {
-  await w.journey.act('inviteToBlack', inviteToBlack);
-  await w.journey.actAsGuest('acceptBlack', acceptBlack);
-}
-
-async function bothReady(w: JourneyWorld): Promise<void> {
-  await w.journey.act('becomeReady', becomeReady);
-  await w.journey.actAsGuest('becomeReady', becomeReady);
 }
 
 Given(
@@ -146,8 +137,7 @@ Given(
   '{actor} and {actor} are ready for a Custom Game with {actor} as Black',
   async (w, _host: Actor, _guest: Actor, black: Actor) => {
     if (black !== 'bob') throw new Error('the journey seats Bob as Black');
-    await seatBobAsBlack(w);
-    await bothReady(w);
+    await prepareCustomGamePair(w.journey);
   }
 );
 When('{actor} starts the Custom Game', async (w, actor: Actor) => {

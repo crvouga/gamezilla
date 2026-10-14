@@ -1,0 +1,4 @@
+{
+  "summary": "Overlapping Synthetic Population Worker claims produced PostgreSQL 40001 (could not serialize access due to concurrent update) and HTTP 500. A rolled-back losing claim must leave the worker unassigned without provisioning or notifications.",
+  "regressionTest": "libs/synthetic-population-server/tests/claim-serialization.test.ts"
+}
