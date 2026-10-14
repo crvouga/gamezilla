@@ -1,9 +1,12 @@
 import { expect, test } from 'bun:test';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { once } from 'node:events';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { withSeedRebuildLock } from '@libs/harness/seed-rebuild-lock';
+import { spawnOwned } from '@pkgs/os-server/dev-owner-spawn';
 
+// regression: harness-seed-lock-release-race
 // regression: harness-seed-rebuild-stampede
 test('one process rebuilds a seed while another waits', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'seed-lock-'));
@@ -35,18 +38,31 @@ test('one process rebuilds a seed while another waits', async () => {
   }
 });
 
-test('a lock left by a dead process is taken over', async () => {
+test('a lock held by a terminated process is released by the OS', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'seed-lock-'));
-  const lock = join(dir, 'harness-seed.lock');
+  const lock = join(dir, 'harness-seed.lock.sqlite');
+  const child = spawnOwned(
+    'bun',
+    [
+      '--eval',
+      'import { Database } from "bun:sqlite"; const db = new Database(process.argv[1], { create: true }); db.run("BEGIN EXCLUSIVE"); process.stdout.write("held"); await new Promise(() => {});',
+      lock,
+    ],
+    { stdio: ['ignore', 'pipe', 'pipe'] }
+  );
   try {
-    await mkdir(lock);
-    await writeFile(join(lock, 'pid'), '2147483646');
+    await once(child.stdout!, 'data');
+    const exited = once(child, 'exit');
+    child.kill('SIGKILL');
+    await exited;
     let ran = false;
     await withSeedRebuildLock(dir, 'harness-seed', async () => {
       ran = true;
     });
     expect(ran).toBe(true);
   } finally {
+    if (child.exitCode === null && child.signalCode === null)
+      child.kill('SIGKILL');
     await rm(dir, { recursive: true, force: true });
   }
 });

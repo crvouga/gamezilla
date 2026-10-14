@@ -1,86 +1,47 @@
-// @io-wall-ok — one cross-process rebuild of a harness seed. Waiters sleep on the wall.
+// @io-wall-ok — process-owned SQLite locking for a harness seed cache.
+import { Database } from 'bun:sqlite';
 import { join } from 'node:path';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-
-type Fs = ReturnType<typeof wallNodeFs>;
 
 const WAIT_SLICES = 600;
 const SLEEP_MS = 50;
 
-function codeOf(error: unknown): string | undefined {
-  if (typeof error !== 'object' || error === null || !('code' in error))
-    return undefined;
-  const code = (error as { code?: unknown }).code;
-  return typeof code === 'string' ? code : undefined;
+function busy(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    error.code === 'SQLITE_BUSY'
+  );
 }
 
-function pause(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
-function pidAlive(pid: number): boolean {
-  if (!Number.isSafeInteger(pid) || pid <= 0) return false;
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (error) {
-    return codeOf(error) !== 'ESRCH';
-  }
-}
-
-async function holderAlive(fs: Fs, lock: string): Promise<boolean> {
-  try {
-    const text = await fs.readFile(join(lock, 'pid'), 'utf8');
-    return pidAlive(Number(text));
-  } catch (error) {
-    return codeOf(error) !== 'ENOENT';
-  }
-}
-
-async function tryAcquire(fs: Fs, lock: string): Promise<boolean> {
-  try {
-    await fs.mkdir(lock);
-  } catch (error) {
-    if (codeOf(error) !== 'EEXIST') throw error;
-    return false;
-  }
-  try {
-    await fs.writeFile(join(lock, 'pid'), String(process.pid));
-    return true;
-  } catch (error) {
-    if (codeOf(error) !== 'ENOENT') throw error;
-    return false;
-  }
-}
-
-async function acquire(fs: Fs, lock: string): Promise<void> {
+async function acquire(db: Database, path: string): Promise<void> {
   for (let slice = 0; slice < WAIT_SLICES; slice++) {
-    if (await tryAcquire(fs, lock)) return;
-    if (!(await holderAlive(fs, lock))) {
-      await fs.rm(lock, { recursive: true, force: true });
-      continue;
+    try {
+      db.run('BEGIN EXCLUSIVE');
+      return;
+    } catch (error) {
+      if (!busy(error)) throw error;
     }
-    await pause(SLEEP_MS);
+    await new Promise<void>((resolve) => setTimeout(resolve, SLEEP_MS));
   }
-  throw new Error(`seed rebuild lock timed out waiting for ${lock}`);
+  throw new Error(`seed rebuild lock timed out waiting for ${path}`);
 }
 
-/** Run `fn` while this process is the only one rebuilding `seedKey`. */
+/** OS locks disappear on close or process death; there is no stale directory to delete. */
 export async function withSeedRebuildLock<T>(
   cacheDir: string,
   seedKey: string,
   fn: () => Promise<T>
 ): Promise<T> {
-  const fs = wallNodeFs();
-  const lock = join(cacheDir, `${seedKey}.lock`);
-  // A fresh checkout has no cache directory until the first seed is written.
-  await fs.mkdir(cacheDir, { recursive: true });
-  await acquire(fs, lock);
+  await wallNodeFs().mkdir(cacheDir, { recursive: true });
+  const path = join(cacheDir, `${seedKey}.lock.sqlite`);
+  const db = new Database(path, { create: true });
   try {
+    db.run('PRAGMA busy_timeout=0');
+    await acquire(db, path);
     return await fn();
   } finally {
-    await fs.rm(lock, { recursive: true, force: true });
+    db.close();
   }
 }
