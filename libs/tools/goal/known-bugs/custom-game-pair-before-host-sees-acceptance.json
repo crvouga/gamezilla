@@ -1,0 +1,4 @@
+{
+  "summary": "The live two-person Custom Game setup let Alice submit readiness with her stale invitation revision before seeing TotalDonkey649 accepted Black, producing the choices changed refusal.",
+  "regressionTest": "libs/runtime-harness/tests/custom-game-pair.test.ts"
+}

@@ -57,13 +57,15 @@ test('optional diagnostics never erase the already-created report', async () => 
         title: '',
         body,
       });
+      const originalTitle = result.report.title;
+      const originalBody = result.report.body.source;
       expect(reporter.reports.get(result.issue.id)?.body.source).toBe(body);
       await Promise.resolve();
       await Promise.resolve();
       clock.advance(500);
       const report = await result.enriched;
-      expect(report.title).toBe(result.report.title);
-      expect(report.body.source).toBe(result.report.body.source);
+      expect(report.title).toBe(originalTitle);
+      expect(report.body.source).toBe(originalBody);
       expect(report.diagnostics[0]?.status).toBe('unavailable');
       expect(reporter.reports.size).toBe(1);
       expect(clock.pendingOneShotCount()).toBe(0);

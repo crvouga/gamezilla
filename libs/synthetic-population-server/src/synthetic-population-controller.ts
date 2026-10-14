@@ -25,6 +25,11 @@ type AssignmentRow = {
   paused: boolean;
   personality: unknown;
 };
+type ClaimedAssignment = {
+  user: AssignmentRow;
+  lease: NonNullable<Awaited<ReturnType<LeaseRepository['acquire']>>>;
+  config: SyntheticPopulationConfig;
+};
 export type Assignment = {
   lease: Lease;
   deviceId: string;
@@ -73,7 +78,41 @@ export class SyntheticPopulationController {
   }
 
   async claim(workerId: string): Promise<Assignment | null> {
-    const assigned = await this.db.transaction(async (tx) => {
+    let assigned: ClaimedAssignment | null;
+    try {
+      assigned = await this.claimAssignment(workerId);
+    } catch (error) {
+      // A competing claim committed first. The transaction was rolled back;
+      // this worker remains unassigned until its next ordinary claim cycle.
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === '40001'
+      )
+        return null;
+      throw error;
+    }
+    if (assigned === null) return null;
+    await this.ports.notify();
+    return {
+      lease: assigned.lease,
+      deviceId: assigned.lease.deviceId,
+      username: assigned.user.username,
+      email: assigned.user.email,
+      registered: assigned.user.account_id !== null,
+      checkpoint: assigned.user.checkpoint,
+      config: assigned.config,
+      personality: personalitySchema.parse(
+        jsonValue(assigned.user.personality)
+      ),
+    };
+  }
+
+  private async claimAssignment(
+    workerId: string
+  ): Promise<ClaimedAssignment | null> {
+    return this.db.transaction(async (tx) => {
       const repo = new SyntheticPopulationRepository(tx, this.ports);
       await repo.initialize();
       // A portable row lock serializes capacity and desired-population admission.
@@ -128,19 +167,5 @@ export class SyntheticPopulationController {
       });
       return { user, lease, config };
     });
-    if (assigned === null) return null;
-    await this.ports.notify();
-    return {
-      lease: assigned.lease,
-      deviceId: assigned.lease.deviceId,
-      username: assigned.user.username,
-      email: assigned.user.email,
-      registered: assigned.user.account_id !== null,
-      checkpoint: assigned.user.checkpoint,
-      config: assigned.config,
-      personality: personalitySchema.parse(
-        jsonValue(assigned.user.personality)
-      ),
-    };
   }
 }
