@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { runSqlCell } from '@pkgs/harness-console-client/run-sql-cell';
+import { executeSqlStatements } from '@pkgs/sql-client-root-shared/statements';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
 import { raw } from '@pkgs/sql-root-shared/sql';
 
@@ -16,7 +17,7 @@ describe('runSqlCell', () => {
       };
     })();
     const ok = await runSqlCell({
-      sqlClient: client,
+      execute: (statements) => executeSqlStatements(client, statements),
       sql: `INSERT INTO t (id, n) VALUES (1, 10);\nSELECT n FROM t;`,
       now,
     });
@@ -30,7 +31,7 @@ describe('runSqlCell', () => {
     expect(ok.durationMs).toBeGreaterThan(0);
 
     const fail = await runSqlCell({
-      sqlClient: client,
+      execute: (statements) => executeSqlStatements(client, statements),
       sql: `INSERT INTO t (id, n) VALUES (2, 20);\nINSERT INTO t (id, n) VALUES (1, 99);`,
       now,
     });

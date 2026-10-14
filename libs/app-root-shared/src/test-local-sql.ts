@@ -13,6 +13,10 @@
 
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { dumpData, loadData } from '@pkgs/sql-client-root-shared/port';
+import {
+  executeSqlStatements,
+  type SqlStatement,
+} from '@pkgs/sql-client-root-shared/statements';
 import type { SqlDataDump } from '@pkgs/sql-client-root-shared/types';
 import type { Value } from '@pkgs/sql-root-shared/sql';
 import { Sql } from '@pkgs/sql-root-shared/sql';
@@ -24,6 +28,7 @@ export type TestLocalSql = {
   run(strings: readonly string[], values: readonly Value[]): Promise<string>;
   dump(): Promise<string>;
   restore(dump: SqlDataDump): Promise<void>;
+  executeStatements(statements: readonly SqlStatement[]): Promise<string>;
 };
 
 const env = import.meta.env as { VITE_TEST_HOOKS?: string };
@@ -36,6 +41,10 @@ export function exposeLocalSqlForTests(client: SqlClient): void {
 
 export function createTestLocalSql(client: SqlClient): TestLocalSql {
   return {
+    executeStatements: async (statements) => {
+      const results = await executeSqlStatements(client, statements);
+      return JSON.stringify(results);
+    },
     query: async (strings, values) => {
       const rows = await client.query(
         new Sql<Record<string, unknown>>(strings, values)

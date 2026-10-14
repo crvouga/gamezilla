@@ -1,0 +1,4 @@
+{
+  "summary": "A live device's automatic notebook question queried an empty headless database instead of the selected device's database.",
+  "regressionTest": "specs/developer-tools/data-notebook.feature"
+}
