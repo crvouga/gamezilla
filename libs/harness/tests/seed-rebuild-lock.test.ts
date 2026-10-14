@@ -1,10 +1,11 @@
 import { expect, test } from 'bun:test';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { withSeedRebuildLock } from '@libs/harness/seed-rebuild-lock';
 
 // regression: harness-seed-rebuild-stampede
+// regression: harness-seed-release-reclaims-live-waiter
 test('one process rebuilds a seed while another waits', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'seed-lock-'));
   try {
@@ -35,12 +36,14 @@ test('one process rebuilds a seed while another waits', async () => {
   }
 });
 
-test('a lock left by a dead process is taken over', async () => {
+test('a failed builder releases its lease for the next rebuild', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'seed-lock-'));
-  const lock = join(dir, 'harness-seed.lock');
   try {
-    await mkdir(lock);
-    await writeFile(join(lock, 'pid'), '2147483646');
+    await expect(
+      withSeedRebuildLock(dir, 'harness-seed', async () => {
+        throw new Error('Build interrupted');
+      })
+    ).rejects.toThrow('Build interrupted');
     let ran = false;
     await withSeedRebuildLock(dir, 'harness-seed', async () => {
       ran = true;
