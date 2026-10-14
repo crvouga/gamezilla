@@ -31,6 +31,7 @@ test('Check transfers the immutable plan as an artifact rather than a masked job
   expect(upload?.with?.['path']).toBe('.cache/check-ci/plan.payload');
   expect(upload?.with?.['overwrite']).toBe(true);
   expect(text).not.toContain('CHECK_PLAN_PAYLOAD');
+  // regression: github-download-artifact-node20
   for (const [name, script] of [
     ['check-shards', 'check-stage-transfer.ts'],
     ['check-end', 'check-consumers.ts'],
@@ -38,7 +39,7 @@ test('Check transfers the immutable plan as an artifact rather than a masked job
     const steps = jobs[name]!.steps;
     const download = steps.findIndex(
       (step) =>
-        step.uses === 'actions/download-artifact@v6' &&
+        step.uses === 'actions/download-artifact@v8' &&
         step.with?.['name'] === 'check-plan'
     );
     const restore = steps.findIndex((step) => step.run?.includes(script));

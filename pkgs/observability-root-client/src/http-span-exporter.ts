@@ -27,7 +27,8 @@ export function createHttpSpanExporter(args: {
           body: requestBody,
           signal: abort.signal,
         })
-        .then((response) => {
+        .then(async (response) => {
+          await response.body?.cancel();
           callback({
             code: response.ok
               ? ExportResultCode.SUCCESS

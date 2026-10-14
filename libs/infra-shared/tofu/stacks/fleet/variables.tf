@@ -2,6 +2,10 @@
 
 variable "project" {
   type = string
+  validation {
+    condition     = length(var.project) >= 1 && length(var.project) <= 32
+    error_message = "Railway project names must be between 1 and 32 characters."
+  }
 }
 
 variable "state" {
@@ -70,4 +74,4 @@ variable "infisical_token" {
   sensitive = true
 }
 
-variable "railway" { type = any }
+variable "railway" { type = object({ workspace_id = string }) }

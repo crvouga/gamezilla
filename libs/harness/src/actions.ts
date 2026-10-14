@@ -33,6 +33,15 @@ export const restartApp = defineAction({
   },
 });
 
+/** What the app kept on this device stops being usable (damaged, full, locked). */
+export const damageDeviceData = defineAction({
+  name: 'damageDeviceData',
+  pool: false,
+  act: async (s: ProductHarness, id: string) => {
+    await s.runtime.damageDeviceData(id);
+  },
+});
+
 export const partition = defineAction({
   name: 'partition',
   // Connectivity can change while every app is closed, before a later reopen.

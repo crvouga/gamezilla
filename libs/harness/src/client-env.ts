@@ -58,6 +58,8 @@ export type HarnessClientEnvDeps = {
   readonly appBuilds: HarnessAppBuilds;
   readonly accountReadyDelays: HarnessAccountReadyDelays;
   readonly syntheticUserDevices: HarnessSyntheticUserDevices;
+  /** Devices whose local database fails every call from their next opening. */
+  readonly unusableDeviceData: ReadonlySet<string>;
 };
 
 function hasWebLocalStorage(): boolean {
@@ -116,6 +118,21 @@ function clientEvents(deps: HarnessClientEnvDeps, id: string) {
   return { current: () => liveEvents, recreate };
 }
 
+function clientSqlOpener(
+  deps: HarnessClientEnvDeps,
+  id: string,
+  handles: Map<string, HarnessSql>,
+  storage: ClientEnv['secureStorage']
+): ClientEnv['openSqlClient'] {
+  return harnessClientSql({
+    id,
+    handles,
+    clock: deps.session.ports.clock,
+    storage,
+    unusable: () => deps.unusableDeviceData.has(id),
+  });
+}
+
 export function makeHarnessClientEnv(
   deps: HarnessClientEnvDeps,
   args: {
@@ -166,12 +183,7 @@ export function makeHarnessClientEnv(
       return events.current();
     },
     createPubSub: events.recreate,
-    openSqlClient: harnessClientSql({
-      id,
-      handles: clientSql,
-      clock: session.ports.clock,
-      storage: secureStorage,
-    }),
+    openSqlClient: clientSqlOpener(deps, id, clientSql, secureStorage),
     kv: clientKv(ns),
     secureStorage,
     room: (roomArgs) => {

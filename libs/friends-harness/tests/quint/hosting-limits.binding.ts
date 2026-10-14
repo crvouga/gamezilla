@@ -25,6 +25,7 @@ import {
 } from '@libs/spaces-harness/spaces-ui-reads';
 import { variant } from '@pkgs/quint-shared/itf';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import reconnectInvitation from './fixtures/hosting-invitation-clears-on-reconnect.itf.json';
 
 import regained from './fixtures/hosting-reconnect-keeps-open-space.itf.json';
 
@@ -93,6 +94,14 @@ bindQuintModel<QuintHarnessWorld>({
         'An offline-created retained space reconnects after paid access ends',
       seed: '0x67932',
       itf: regained,
+    },
+    {
+      // regression: hosting-invitation-clears-on-reconnect
+      id: 'hosting-invitation-clears-on-reconnect',
+      title: 'Reconnecting keeps the invitation after a refused creation',
+      seed: '0x67932',
+      itf: reconnectInvitation,
+
     },
   ],
   actions: {

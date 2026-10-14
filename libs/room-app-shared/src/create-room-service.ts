@@ -24,8 +24,10 @@ export function createRoomService(
         body: JSON.stringify(input),
       })
     );
-    if (!response.ok)
+    if (!response.ok) {
+      await response.body?.cancel();
       throw new Error(`Room service refused ${response.status}`);
+    }
     return response;
   };
   return {
@@ -35,13 +37,24 @@ export function createRoomService(
       ).json()) as RoomState;
     },
     async send(topic, commandId, payload: Message) {
-      await call(topic, { operation: 'send', commandId, payload });
+      const response = await call(topic, {
+        operation: 'send',
+        commandId,
+        payload,
+      });
+      await response.body?.cancel();
     },
     async eraseIdentity(topic, identity, replacement) {
-      await call(topic, { operation: 'erase', identity, replacement });
+      const response = await call(topic, {
+        operation: 'erase',
+        identity,
+        replacement,
+      });
+      await response.body?.cancel();
     },
     async disconnect(topic, identity) {
-      await call(topic, { operation: 'disconnect', identity });
+      const response = await call(topic, { operation: 'disconnect', identity });
+      await response.body?.cancel();
     },
   };
 }

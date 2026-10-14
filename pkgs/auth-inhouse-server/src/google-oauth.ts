@@ -56,6 +56,7 @@ async function redeemCode(args: {
     body: body.toString(),
   });
   if (!tokenRes.ok) {
+    await tokenRes.body?.cancel();
     throw new Error(`google token exchange failed: ${String(tokenRes.status)}`);
   }
   const tokenJson: unknown = await tokenRes.json();
@@ -88,6 +89,7 @@ export async function exchangeGoogleAuthorizationCode(args: {
     headers: { authorization: `Bearer ${accessToken}` },
   });
   if (!userRes.ok) {
+    await userRes.body?.cancel();
     throw new Error(`google userinfo failed: ${String(userRes.status)}`);
   }
   const profile: unknown = await userRes.json();
@@ -124,6 +126,7 @@ async function revokeGoogleToken(
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ token }).toString(),
     });
+    await res.body?.cancel();
     return res.ok;
   } catch {
     return false;

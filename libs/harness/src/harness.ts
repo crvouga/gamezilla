@@ -47,6 +47,11 @@ export type ProductRuntime = {
   resetActor: (id: string) => Promise<void>;
   /** App killed and reopened on the same device: storage and session survive. */
   restartActor: (id: string) => Promise<void>;
+  /**
+   * What the app kept on the device becomes unusable from its next opening.
+   * A browser device has its real stored files damaged while the app is closed.
+   */
+  damageDeviceData: (id: string) => Promise<void>;
   disposeResources: () => Promise<void>;
 };
 
@@ -94,6 +99,7 @@ export function createProductHarness(
     launchActor: () => Promise.reject(unwiredError('launchActor')),
     resetActor: () => Promise.reject(unwiredError('resetActor')),
     restartActor: () => Promise.reject(unwiredError('restartActor')),
+    damageDeviceData: () => Promise.reject(unwiredError('damageDeviceData')),
     disposeResources: () => Promise.reject(unwiredError('disposeResources')),
   };
   return {

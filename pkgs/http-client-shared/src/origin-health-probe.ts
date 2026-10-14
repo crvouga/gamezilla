@@ -29,6 +29,7 @@ export async function probeHealthEndpoint(args: {
   });
   const latencyMs = Math.round(args.clock.now() - t0);
   if (!res.ok) {
+    await res.body?.cancel();
     return { ok: false, latencyMs };
   }
   try {

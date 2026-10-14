@@ -35,6 +35,7 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
     ?.flatMap((step) => (step.run ? [step.run] : []))
     .join('\n');
   expect(commands).toMatch(/\bplan:foundation\b/);
+  expect(commands).toMatch(/\bplan:fleet\b/);
   expect(commands).not.toMatch(/apply|deploy:local|--recover-ci-identity/);
   expect(source).toContain('Deploy ships refs/heads/main only');
   expect(source).not.toContain('/pulls');

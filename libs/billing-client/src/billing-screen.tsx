@@ -14,7 +14,6 @@ import { useUnlock } from '@libs/permissions-client/unlock';
 import { useCan, useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useHostingInvite } from '@libs/spaces-client/hosting-invite';
-import { useHostingLimitInvite } from '@libs/spaces-client/hosting-limit-invite';
 import { useLingui as useLinguiRuntime } from '@lingui/solid';
 import { createTimedValue } from '@pkgs/clock-client/solid';
 import type { Decision } from '@pkgs/permissions-shared/decision';
@@ -69,14 +68,12 @@ export function BillingScreen(): JSX.Element {
   const unlock = useUnlock();
   const openExternalUrl = useOpenExternalUrl();
   const invite = useHostingInvite();
-  const limitInvite = useHostingLimitInvite();
   const [awaitingPlus, setAwaitingPlus] = createSignal(false);
   // Checkout answers a hosting invitation. Confirming an existing membership
   // after a connection returns does not.
   createEffect(() => {
     if (!awaitingPlus() || view().tier !== 'paid') return;
     invite.clear();
-    limitInvite.clear();
     setAwaitingPlus(false);
   });
   const formatDate = (ms: number): string =>

@@ -144,8 +144,10 @@ export async function exchangeAppleAuthorizationCode(args: {
     grant_type: 'authorization_code',
     redirect_uri: args.redirectUri,
   });
-  if (!res.ok)
+  if (!res.ok) {
+    await res.body?.cancel();
     throw new Error(`apple token exchange failed: ${String(res.status)}`);
+  }
   const body = (await res.json()) as Record<string, unknown>;
   const idToken = claimString(body['id_token']);
   if (idToken === null)
@@ -181,6 +183,7 @@ async function revokeAppleToken(
       token,
       token_type_hint: 'refresh_token',
     });
+    await res.body?.cancel();
     return res.ok;
   } catch {
     return false;

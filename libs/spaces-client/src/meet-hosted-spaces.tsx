@@ -1,20 +1,12 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { useLimitDecision } from '@libs/permissions-client/use-can';
 import { LIMIT } from '@libs/permissions-shared/permission-catalog';
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { Decision } from '@pkgs/permissions-shared/decision';
 import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { usePathname, useRouter } from '@pkgs/ui-root-client/app-router';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  type JSX,
-  Show,
-} from 'solid-js';
-import { useHostingLimitInvite } from './hosting-limit-invite';
+import { type Accessor, createEffect, createMemo, type JSX } from 'solid-js';
+import { useHostingInvite } from './hosting-invite';
 import { spaceDetailHref } from './space-routes';
 
 type IdRow = { readonly id: string };
@@ -115,7 +107,7 @@ export function MeetHostedSpaces(): JSX.Element {
   const rejected = useRejectedCreateIds();
   const ended = useEndedHostedIds();
   const flagged = useFlaggedHosted();
-  const invited = useHostingLimitInvite();
+  const invited = useHostingInvite();
   const over = createMemo(
     () =>
       flagged() ||
@@ -123,10 +115,10 @@ export function MeetHostedSpaces(): JSX.Element {
       invited.decision() !== null
   );
   const decision = useLimitDecision(LIMIT.hostedSpaces, () => (over() ? 1 : 0));
-  const shown = createMemo((): Decision | null => {
-    if (!over()) return null;
+  createEffect(() => {
+    if (!over()) return;
     const answer = decision();
-    return answer.allowed ? null : answer;
+    if (!answer.allowed) invited.note(answer);
   });
 
   createEffect(() => {
@@ -149,15 +141,6 @@ export function MeetHostedSpaces(): JSX.Element {
       >
         {live().join(' ')}
       </span>
-      <Show when={shown()}>
-        {(answer) => (
-          <DenialSurface
-            decision={answer()}
-            variant="compact"
-            testId={Handles.spacesHostingLimit}
-          />
-        )}
-      </Show>
     </>
   );
 }

@@ -148,6 +148,8 @@
       "Applies the supported app update": "user",
       "Connection returns": "system",
       "Defers the app update": "user",
+      "Device data becomes unusable": "system",
+      "Opens the app anyway": "user",
       "Opens the saved app": "user",
       "A Custom Game clock expires": "time",
       "A participant cancels before both people have moved": "user",
@@ -10929,6 +10931,7 @@
                       "specs/runtime/connection-restore.feature",
                       "specs/runtime/offline-open.feature",
                       "specs/runtime/ubiquitous-language.yml",
+                      "specs/runtime/unusable-device-data.feature",
                       "specs/runtime/voluntary-offline.feature",
                       "specs/ubiquitous-language.yml"
                     ],
@@ -10971,7 +10974,28 @@
                         "Opens the saved app": {
                           "target": "#App: Spaces"
                         },
+                        "Device data becomes unusable": {
+                          "target": "#Connection: Device data unusable"
+                        },
                         "Connection returns": {
+                          "target": "#App: Spaces"
+                        }
+                      }
+                    },
+                    "Connection: Device data unusable": {
+                      "id": "Connection: Device data unusable",
+                      "meta": {
+                        "description": "A device whose saved app data cannot be used still opens the app onto the tabs.",
+                        "snapshot": "A device whose saved app data cannot be used still opens the app.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/runtime/ubiquitous-language.yml",
+                          "specs/runtime/unusable-device-data.feature"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens the app anyway": {
                           "target": "#App: Spaces"
                         }
                       }

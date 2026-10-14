@@ -4,6 +4,7 @@ import {
   readDeploymentProtection,
 } from '@libs/app-root-shared/env';
 import type { Timers } from '@pkgs/clock-shared/types';
+import { wallTimers } from '@pkgs/clock-shared/wall';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { createBusinessEventDelivery } from '@pkgs/observability-root-server/event-delivery';
 import { createWorkerTelemetry } from '@pkgs/observability-root-server/worker-worker';
@@ -44,7 +45,8 @@ export function businessEventDeliveryOptions(
 
 export function ensureWorkerTelemetry(
   env: ApiWorkerEnv,
-  createId: () => string
+  createId: () => string,
+  http: HttpClient
 ): WorkerTelemetryRuntime {
   if (workerTelemetry !== null) return workerTelemetry;
   if (env.OBSERVABILITY_ENABLED?.trim() === '0') {
@@ -77,6 +79,8 @@ export function ensureWorkerTelemetry(
     token: collectorToken,
   });
   workerTelemetry = createWorkerTelemetry({
+    http,
+    timers: wallTimers,
     instanceId: createId(),
     serviceName: 'gamezilla-server',
     serviceVersion: buildSha,

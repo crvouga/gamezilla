@@ -66,6 +66,7 @@ export function mountBrowserTelemetryIngress(
       headers,
       body: outgoingBody,
     });
+    await response.body?.cancel();
     return new Response(null, { status: response.status });
   });
 }
