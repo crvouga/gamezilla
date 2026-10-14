@@ -18,6 +18,7 @@ import {
 } from '@pkgs/ui-root-client/icons';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal } from 'solid-js';
+import { useSpaceMembersDialog } from './space-members-dialog-context';
 import { SpaceMembersListModal } from './space-members-list-modal';
 import { SpacePresenceStrip } from './space-presence-strip';
 import { useSpaceRoomClientId } from './space-room-context';
@@ -219,7 +220,7 @@ export function SpaceChromeLeadingActionBar(): JSX.Element {
 export function SpaceChromeTrailingActionBar(): JSX.Element {
   const clock = useClock();
   const sessionUi = useSpaceSessionUi();
-  const [membersOpen, setMembersOpen] = createSignal(false);
+  const membersDialog = useSpaceMembersDialog();
   const dispatch = useSpaceRoomDispatch();
   const clientId = useSpaceRoomClientId();
   const [shareOpen, setShareOpen] = createSignal(false);
@@ -245,7 +246,7 @@ export function SpaceChromeTrailingActionBar(): JSX.Element {
         if (id !== null && isViewingSpaceClient(id)) {
           dispatch(NoteActivity({ clientId: id, at: clock.now() }));
         }
-        setMembersOpen(true);
+        membersDialog.setOpen(true);
       },
       onPressShare: () => setShareOpen(true),
       onPressRename: sessionUi.onRequestRename,
@@ -283,8 +284,8 @@ export function SpaceChromeTrailingActionBar(): JSX.Element {
       />
       <SpaceMembersListModal
         spaceId={sessionUi.spaceId}
-        visible={membersOpen()}
-        onClose={() => setMembersOpen(false)}
+        visible={membersDialog.open()}
+        onClose={() => membersDialog.setOpen(false)}
       />
       <SpaceShareSheet
         spaceId={sessionUi.spaceId}

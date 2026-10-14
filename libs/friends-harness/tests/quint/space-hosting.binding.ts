@@ -42,6 +42,7 @@ import hostInLobby from './fixtures/space-connected-host-counts-in-lobby.itf.jso
 import guestLeaves from './fixtures/space-host-in-lobby-after-reconnect.itf.json';
 import leftPreview from './fixtures/space-left-preview-misclassified-as-participant.itf.json';
 import orphanedPreview from './fixtures/space-link-preview-orphaned-after-leave.itf.json';
+import reconnectPresence from './fixtures/space-presence-closes-after-offline-creation.itf.json';
 
 const PEOPLE = ['alice', 'bob'] as const;
 
@@ -88,6 +89,14 @@ bindQuintModel<QuintHarnessWorld>({
   inductiveInvariant: '_inductive',
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: space-presence-closes-after-offline-creation
+      id: 'space-presence-closes-after-offline-creation',
+      title:
+        'Reconnecting after creating an offline space keeps its presence view open',
+      seed: '0x67932',
+      itf: reconnectPresence,
+    },
     {
       // regression: space-host-in-lobby-after-reconnect
       id: 'space-host-in-lobby-after-reconnect',
