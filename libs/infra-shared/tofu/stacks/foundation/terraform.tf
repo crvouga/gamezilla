@@ -79,6 +79,5 @@ provider "infisical" {
 
 provider "random" {}
 
-# One separate project per application environment; there are no shared Railway
-# environments into which an unscoped service could leak.
-provider "railway" { strict_env_scoping = false }
+# Fleet creates fork environments; services must stay scoped to their own fork.
+provider "railway" { strict_env_scoping = true }

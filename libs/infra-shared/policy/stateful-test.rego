@@ -26,6 +26,14 @@ test_unknown_type_delete_denied if {
 	count(deny) == 1 with input as plan([change("neon_project", ["delete"])], "standard")
 }
 
+test_railway_project_delete_denied if {
+	count(deny) == 1 with input as plan([change("railway_project", ["delete"])], "standard")
+}
+
+test_railway_environment_replace_denied if {
+	count(deny) == 1 with input as plan([change("railway_environment", ["delete", "create"])], "production")
+}
+
 test_token_replace_allowed if {
 	count(deny) == 0 with input as plan([change("cloudflare_account_token", ["create", "delete"])], "standard")
 }

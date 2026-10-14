@@ -7,7 +7,8 @@
  *               environment, CI identity, the AWS OIDC role, repo
  *   fleet       global, by CI: every env file's secrets environment and its
  *               import of the shared one; the OAuth relay's hostname;
- *               the private spec-report bucket every env's API reads
+ *               the private spec-report bucket every env's API reads;
+ *               the shared Railway project and its isolated environments
  *   foundation  per environment, before Worker code ships
  *   edge        per environment, after Worker code ships
  */
@@ -140,6 +141,7 @@ export function fleetEnvResources(env: string): readonly string[] {
   return [
     `infisical_secret_import.shared[${key}]`,
     `infisical_project_environment.this[${key}]`,
+    `railway_environment.this[${key}]`,
   ];
 }
 
@@ -199,6 +201,7 @@ export const CREDENTIAL_ENV: Readonly<
   fleet: {
     TF_VAR_state_passphrase: 'TOFU_STATE_PASSPHRASE',
     CLOUDFLARE_API_TOKEN: 'CLOUDFLARE_API_TOKEN',
+    RAILWAY_TOKEN: 'RAILWAY_TOKEN',
     ...STATE_CREDENTIALS,
   },
   // The state credential is optional here: bootstrap creates it.

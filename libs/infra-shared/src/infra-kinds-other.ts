@@ -16,6 +16,12 @@ export const OTHER_KINDS: Readonly<Record<string, Kind>> = {
     category: 'Compute',
     links: () => link('Railway', 'https://railway.com/dashboard'),
   },
+  railway_environment: {
+    title: 'Railway environment',
+    logo: 'railway',
+    category: 'Compute',
+    links: () => link('Railway', 'https://railway.com/dashboard'),
+  },
   railway_variable_collection: {
     title: 'Service variables',
     logo: 'railway',

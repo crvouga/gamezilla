@@ -50,15 +50,14 @@ const FOUNDATION_MAIN = join(
   import.meta.dirname,
   '../../infra-shared/tofu/stacks/foundation/main.tf'
 );
-const POPULATION = join(
+const FLEET_VARIABLES = join(
   import.meta.dirname,
-  '../../infra-shared/tofu/stacks/foundation/synthetic-population.tf'
+  '../../infra-shared/tofu/stacks/fleet/variables.tf'
 );
-const POPULATION_MODULE = join(
+const RAILWAY_PROJECT = join(
   import.meta.dirname,
-  '../../infra-shared/tofu/modules/synthetic-population-service/main.tf'
+  '../../infra-shared/tofu/stacks/fleet/railway.tf'
 );
-const ENV_DIR = join(import.meta.dirname, '../../infra-shared/tofu/envs');
 
 describe('foundation bootstrap', () => {
   // regression: foundation-provider-bootstrap-cycle
@@ -148,25 +147,20 @@ describe('foundation bootstrap', () => {
   });
 
   // regression: railway-project-name-over-32
-  test('each Railway project name is between 1 and 32 characters', () => {
-    const population = readFileSync(POPULATION, 'utf8');
-    const module = readFileSync(POPULATION_MODULE, 'utf8');
+  test('the shared Railway project name is between 1 and 32 characters', () => {
+    const railway = readFileSync(RAILWAY_PROJECT, 'utf8');
+    const variables = readFileSync(FLEET_VARIABLES, 'utf8');
     const global = JSON.parse(readFileSync(GLOBAL_VARIABLES, 'utf8')) as {
       project: string;
     };
 
-    expect(population).toContain(
-      'name         = "${var.project}-${var.env}-population"'
+    expect(railway).toMatch(/name\s*=\s*var.project/);
+    expect(variables).toContain(
+      'length(var.project) >= 1 && length(var.project) <= 32'
     );
-    expect(module).toContain('length(var.name) >= 1 && length(var.name) <= 32');
-    for (const file of ['dev.tfvars.json', 'prd.tfvars.json']) {
-      const env = JSON.parse(readFileSync(join(ENV_DIR, file), 'utf8')) as {
-        env: string;
-      };
-      const name = `${global.project}-${env.env}-population`;
-      expect(name.length).toBeGreaterThanOrEqual(1);
-      expect(name.length).toBeLessThanOrEqual(32);
-    }
+    expect(global.project.length).toBeGreaterThanOrEqual(1);
+    expect(global.project.length).toBeLessThanOrEqual(32);
+    expect('gamezilla-development-synthetic-population'.length).toBe(42);
   });
 
   // regression: neki-aws-region-name-is-not-region-slug

@@ -1,7 +1,8 @@
 # The fleet stack: what every environment needs before its first deploy can
 # even read its secrets — its secrets environment, and the import that gives
 # it the account-wide credentials held once in the shared environment — plus
-# the hostname of the OAuth callback relay they all sign in through.
+# the hostname of the OAuth callback relay they all sign in through, and
+# the shared Railway project with an isolated Railway environment per env file.
 # Global (one state object), driven by the env files: a new
 # `envs/<env>.tfvars.json` is picked up here with no edit. The Deploy
 # workflow applies it before any environment deploys.
@@ -12,6 +13,7 @@ terraform {
   required_providers {
     infisical  = { source = "infisical/infisical", version = "~> 0.19" }
     cloudflare = { source = "cloudflare/cloudflare", version = "~> 5.25" }
+    railway    = { source = "jamesprnich/railway", version = "= 0.11.5" }
   }
 
   backend "s3" {
@@ -50,6 +52,8 @@ terraform {
 
 # CLOUDFLARE_API_TOKEN arrives from `secrets-run` (see ../infra-server/scripts/tofu.ts).
 provider "cloudflare" {}
+
+provider "railway" { strict_env_scoping = true }
 
 provider "infisical" {
   auth = {

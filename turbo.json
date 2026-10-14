@@ -1441,6 +1441,8 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/infra-shared/tofu/**",
+        "$TURBO_ROOT$/libs/infra-shared/policy/**",
         "$TURBO_ROOT$/.github/workflows/**"
       ],
       "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
