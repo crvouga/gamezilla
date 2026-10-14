@@ -241,6 +241,30 @@
     },
     "test:spec:9": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/**"]
+    },
+    "test:spec:64": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/**"]
+    },
+    "test:spec:65": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/**"]
+    },
+    "test:spec:66": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/**"]
+    },
+    "test:spec:67": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/**"]
+    },
+    "test:spec:68": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/**"]
+    },
+    "test:spec:69": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/**"]
+    },
+    "test:spec:70": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/**"]
+    },
+    "test:spec:71": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/**"]
     }
   }
 }
