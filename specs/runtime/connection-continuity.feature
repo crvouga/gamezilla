@@ -5,6 +5,7 @@ Feature: Keep using the app while a connection is missing
   Rule: A missing connection is shown without taking away the person's place
     No counter-example: a missing connection never chooses another place for the person.
 
+    @regression:missing-connection-notice
     Scenario: Losing a connection on Settings keeps Settings usable
       Given Alice has opened Settings
       When Alice loses the connection
@@ -55,6 +56,7 @@ Feature: Keep using the app while a connection is missing
       Then Alice is offered to make that choice again
       And the refused choice has not happened on its own
 
+    @regression:offline-sign-in-leaves-app-waiting
     Scenario: Signing in offline gives a clear refusal
       Given Alice is a guest
       And Alice is offline
