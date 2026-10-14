@@ -19,6 +19,6 @@ export async function observeBackgroundWork<T>(
     throw reason;
   } finally {
     // An exporter failure cannot replace the operation's own result or exception.
-    await Promise.allSettled([forceFlush()]);
+    await Promise.allSettled([Promise.resolve().then(forceFlush)]);
   }
 }

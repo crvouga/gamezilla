@@ -112,3 +112,17 @@ test('an incoming unsampled trace cannot hide a server exception by default', as
   ).toBe(true);
   await runtime.shutdown();
 });
+
+// regression: diagnostic-flush-masks-background-error
+test('a synchronous exporter failure preserves the background operation result', async () => {
+  const flush = (): Promise<void> => {
+    throw new Error('exporter unavailable');
+  };
+  const original = new Error('literal background failure');
+  await expect(
+    observeBackgroundWork(Promise.reject(original), flush)
+  ).rejects.toBe(original);
+  expect(await observeBackgroundWork(Promise.resolve('completed'), flush)).toBe(
+    'completed'
+  );
+});
