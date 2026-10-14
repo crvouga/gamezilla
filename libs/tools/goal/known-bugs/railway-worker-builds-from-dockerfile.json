@@ -1,0 +1,4 @@
+{
+  "summary": "The Synthetic Population Worker's Railway service did not declare a builder, so Railway looked for a Dockerfile in the uploaded source (which has none by design) and the release failed with 'couldn't locate a dockerfile'. The service instance now declares the Railpack builder in OpenTofu.",
+  "regressionTest": "libs/infra-server/tests/foundation-bootstrap.test.ts"
+}
