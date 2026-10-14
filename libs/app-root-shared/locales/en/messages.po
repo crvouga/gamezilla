@@ -868,6 +868,7 @@ msgstr "Client SQL"
 #: libs/spaces-client/src/space-chrome-action-bar.tsx
 #: pkgs/ui-devtools-client/src/tab-strip-tab.tsx
 #: pkgs/ui-root-client/src/close-icon-button.tsx
+#: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "Close"
 msgstr "Close"
 
@@ -4382,6 +4383,10 @@ msgstr "You are reviewing an earlier position, at the start of the game. No piec
 #: libs/chess-matchmaking-client/src/multiplayer-status.tsx
 msgid "You are White."
 msgstr "You are White."
+
+#: pkgs/ui-root-client/src/mutation-modal-parts.tsx
+msgid "You can close this while we finish. Closing does not cancel your request."
+msgstr "You can close this while we finish. Closing does not cancel your request."
 
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "You can host one space at a time. End it to start another, or get Plus to host as many as you like."
