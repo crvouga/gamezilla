@@ -16,6 +16,7 @@ import {
 } from '@apps/product/developer-checkpoints';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import interruptedAfterFailure from './fixtures/checkpoint-interrupted-save-clears-restore-failure.itf.json';
 
 const LABEL = 'Before the invitation';
 
@@ -24,6 +25,16 @@ bindQuintModel<QuintHarnessWorld>({
   traces: 24,
   maxSteps: 6,
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: checkpoint-interrupted-save-clears-restore-failure
+      id: 'checkpoint-interrupted-save-clears-restore-failure',
+      title:
+        'Starting a save clears an earlier restore failure even if saving is interrupted',
+      seed: '0x67932',
+      itf: interruptedAfterFailure,
+    },
+  ],
   actions: {
     init: (w) => w.s.apply(investigatePeople),
     saveCheckpoint: (w) => w.s.apply(saveCheckpoint, LABEL),

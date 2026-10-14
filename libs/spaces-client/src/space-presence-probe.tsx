@@ -1,3 +1,4 @@
+import { useMyId } from '@libs/auth-client/use-current-user';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client/badge';
@@ -20,6 +21,7 @@ function OpenSpacePresenceMarkers(props: {
   readonly spaceId: string;
 }): JSX.Element {
   const presence = useOpenSpacePresence(props.spaceId);
+  const myId = useMyId();
   return (
     <div class="box">
       <span
@@ -51,6 +53,20 @@ function OpenSpacePresenceMarkers(props: {
           </div>
         )}
       </For>
+      <Show
+        when={
+          presence.ownIdle() &&
+          !presence.people().some((person) => person.id === myId())
+        }
+      >
+        <Badge
+          label={<Trans>Idle</Trans>}
+          intent="neutral"
+          tone="subtle"
+          size="sm"
+          dataSet={{ testid: Handles.spaceMemberIdle(myId()) }}
+        />
+      </Show>
     </div>
   );
 }

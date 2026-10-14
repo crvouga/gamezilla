@@ -136,6 +136,7 @@ export const saveCheckpoint = scenarioAction({
   name: 'saveCheckpoint',
   act: async (s, label: string, incompatible = false) => {
     const state = tools(s);
+    state.restoreFailure = 'none';
     for (const [id, actor] of s.actors)
       state.beforeApps.set(id, await actor.currentPath());
     const saved = await saveProductHarnessSnapshot(
@@ -157,7 +158,6 @@ export const saveCheckpoint = scenarioAction({
     }
     await refreshCheckpoints(s);
     state.checkpointApps.set(label, new Map(state.beforeApps));
-    state.restoreFailure = 'none';
     await rememberKept(s);
   },
 });

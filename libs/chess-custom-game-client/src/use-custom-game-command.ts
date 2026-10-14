@@ -6,8 +6,14 @@ import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useSpaceOpenRooms } from '@libs/spaces-client/space-open-rooms-store';
 import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
 import { useSpaceCan } from '@libs/spaces-client/use-space-can';
+import {
+  SpaceField,
+  useSpaceColumn,
+} from '@libs/spaces-client/use-space-column';
 import { useSpaceHostConnection } from '@libs/spaces-client/use-space-host-connection';
+import { SPACE_ROOM_NAME } from '@libs/spaces-client/use-space-room-selector';
 import { useClock, useTimers } from '@pkgs/clock-client/solid';
+import { useNamedRoomRoster } from '@pkgs/room-root-client/room-clients-context';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { createSignal, onCleanup } from 'solid-js';
 import { confirmCustomGameChoice } from './confirm-custom-game-choice';
@@ -22,6 +28,8 @@ export function useCustomGameCommand() {
     PERMISSION.chessCustomCreate
   );
   const hostConnection = useSpaceHostConnection();
+  const hostId = useSpaceColumn(() => spaceId() ?? '', SpaceField.hostMemberId);
+  const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
   const myId = useMyId();
   const engine = useSyncEngine();
   const [error, setError] = createSignal('');
@@ -34,7 +42,14 @@ export function useCustomGameCommand() {
     setError('');
     // A guest's own lost connection is a different refusal from the host being
     // gone, and the creator's authority is named before the host being gone.
-    if (engine.status().online && hostConnection() === 'host-offline') {
+    const hostAbsent =
+      hostId() !== null &&
+      hostId() !== myId() &&
+      !roster().some((actor) => actor.id === hostId());
+    if (
+      engine.status().online &&
+      (hostAbsent || hostConnection() === 'host-offline')
+    ) {
       const snapshot = rooms.getEntry(spaceId() ?? '')?.room.getSnapshot();
       const reason =
         customGameCreatorRefusal(

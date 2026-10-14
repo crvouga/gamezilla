@@ -78,28 +78,30 @@ test('seeded policies select only observed controls and replay controlled decisi
   );
 });
 
+const legalChessDecision = fc.property(
+  fc.integer(),
+  fc.integer({ min: 1, max: 12 }),
+  (seed, plies) => {
+    const random = createHarnessIds(seed).random;
+    const chess = new Chess();
+    for (let index = 0; index < plies && !chess.isGameOver(); index += 1) {
+      const move = chooseChessMove(chess.fen(), random);
+      expect(move).not.toBeNull();
+      expect(chess.move(move!).lan).toBe(move!.lan);
+    }
+  }
+);
+
 test('gameplay policy returns legal moves through progressively reached positions', () => {
-  assertProperty(
-    'legal chess decision',
-    fc.property(
-      fc.integer(),
-      fc.integer({ min: 1, max: 12 }),
-      (seed, plies) => {
-        const random = createHarnessIds(seed).random;
-        const chess = new Chess();
-        for (let index = 0; index < plies && !chess.isGameOver(); index += 1) {
-          const move = chooseChessMove(chess.fen(), random);
-          expect(move).not.toBeNull();
-          expect(
-            chess
-              .moves({ verbose: true })
-              .some((legal) => legal.lan === move?.lan)
-          ).toBe(true);
-          chess.move(move!);
-        }
-      }
-    )
-  );
+  assertProperty('legal chess decision', legalChessDecision);
+});
+
+test('the nightly gameplay seed finishes within the property budget', () => {
+  // regression: gameplay-policy-nightly-seed-cost
+  assertProperty('nightly legal chess decision', legalChessDecision, {
+    seed: 629_884_306,
+    numRuns: 200,
+  });
 });
 
 test('statechart acknowledges each move before choosing the next, and recovery discards obsolete actions', () => {

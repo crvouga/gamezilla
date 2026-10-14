@@ -35,6 +35,7 @@ import hostRefusal from './fixtures/custom-game-host-refusal-vocabulary.itf.json
 import idempotentReadiness from './fixtures/custom-game-idempotent-readiness.itf.json';
 import offlineBoundary from './fixtures/custom-game-offline-boundary.itf.json';
 import staleCancellation from './fixtures/custom-game-stale-cancellation.itf.json';
+import staleOfflineHost from './fixtures/custom-game-stale-offline-host.itf.json';
 import hostJoinStaleFanout from './fixtures/space-host-join-stale-fanout.itf.json';
 import hostLeaveRemount from './fixtures/space-host-leave-remount.itf.json';
 import joinBeforeHostAvailability from './fixtures/space-join-before-host-availability.itf.json';
@@ -59,6 +60,13 @@ bindQuintModel<QuintHarnessWorld>({
   inferPolymorphicTypes: false,
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: custom-game-stale-offline-host
+      id: 'custom-game-stale-offline-host',
+      title: 'An offline host is named before a stale invitation is declined',
+      seed: '0x67932',
+      itf: staleOfflineHost,
+    },
     {
       // regression: space-join-before-host-availability
       id: 'space-join-before-host-availability',

@@ -32,6 +32,7 @@ import {
 } from '@libs/spaces-harness/spaces-ui-reads';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import connectedHost from './fixtures/space-join-chooses-connected-host-device.itf.json';
 
 const LINKS = 'space-device-links';
 const ALICE_DEVICES = ['alice', 'alice_phone'] as const;
@@ -120,6 +121,15 @@ async function linkToEnter(
   return remembered;
 }
 
+async function connectedHostLink(w: QuintHarnessWorld): Promise<string> {
+  for (const host of ALICE_DEVICES) {
+    if (await w.s.read((s) => deviceOffline(s, host))) continue;
+    const link = linksOf(w).get(host) ?? (await w.s.read(readSpaceLink, host));
+    if (link !== undefined && link !== null) return link;
+  }
+  throw new Error('No connected host has shared a space link');
+}
+
 function counted(seenIds: ReadonlySet<string>, memberId: string): number {
   return memberId.length > 0 && seenIds.has(memberId) ? 1 : 0;
 }
@@ -130,6 +140,15 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 8,
   verifySteps: 2,
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: space-join-chooses-connected-host-device
+      id: 'space-join-chooses-connected-host-device',
+      title: 'Joining chooses the connected host device’s space',
+      seed: '0x67932',
+      itf: connectedHost,
+    },
+  ],
   actions: {
     init: async (w, picks) => {
       await signDevicePair(w, 'alice');
@@ -151,7 +170,7 @@ bindQuintModel<QuintHarnessWorld>({
     },
     join: async (w, picks) => {
       const actor = actorOf(String(picks['device']));
-      await w.s.apply(joinViaLink, actor, await linkToEnter(w, 'alice'));
+      await w.s.apply(joinViaLink, actor, await connectedHostLink(w));
       await waitActivity(w, actor);
     },
     viewPresence: async (w, picks) => {

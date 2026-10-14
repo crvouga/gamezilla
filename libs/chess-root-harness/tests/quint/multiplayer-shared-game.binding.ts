@@ -28,6 +28,8 @@ import { stayIdle } from '@libs/spaces-harness/space-idle-actions';
 import { personIdleShown } from '@libs/spaces-harness/space-idle-reads';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import idleTrace from './fixtures/multiplayer-idle-read-does-not-wake-person.itf.json';
+import quietMinutes from './fixtures/multiplayer-quiet-minutes-stay-on-one-device.itf.json';
 
 const ACTOR: Record<string, string> = {
   'alice-phone': 'alice',
@@ -37,15 +39,13 @@ const ACTOR: Record<string, string> = {
   'dave-phone': 'dave',
 };
 
-/** Who shares a space with the person, so they can see that person idle. */
-const IDLE_FROM: Record<string, string> = {
-  alice: 'carol',
-  bob: 'dave',
-  carol: 'alice',
-  dave: 'bob',
-};
-
 const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
+const DEVICES_OF: Record<string, readonly string[]> = {
+  alice: ['alice', 'alice_phone'],
+  bob: ['bob'],
+  carol: ['carol'],
+  dave: ['dave'],
+};
 
 function actorOf(device: string): string {
   const actor = ACTOR[device];
@@ -88,13 +88,16 @@ async function idleOf(s: ProductHarness): Promise<Map<string, boolean>> {
   const idle = new Map<string, boolean>();
   for (const person of PEOPLE) {
     const member = await profileIdOf(s, person);
-    const observer = IDLE_FROM[person];
-    idle.set(
-      person,
-      member !== null &&
-        observer !== undefined &&
-        (await personIdleShown(s, observer, member))
-    );
+    let shown = false;
+    if (member !== null) {
+      for (const observer of DEVICES_OF[person] ?? []) {
+        if (await personIdleShown(s, observer, member)) {
+          shown = true;
+          break;
+        }
+      }
+    }
+    idle.set(person, shown);
   }
   return idle;
 }
@@ -118,6 +121,22 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 14,
   verifySteps: 2,
   timeoutMs: 300_000,
+  regressions: [
+    {
+      // regression: multiplayer-quiet-minutes-stay-on-one-device
+      id: 'multiplayer-quiet-minutes-stay-on-one-device',
+      title: 'One device waiting does not add quiet minutes to other devices',
+      seed: '0x67932',
+      itf: quietMinutes,
+    },
+    {
+      // regression: multiplayer-idle-read-does-not-wake-person
+      id: 'multiplayer-idle-read-does-not-wake-person',
+      title: 'A disconnected observer does not hide another person being idle',
+      seed: '0x67932',
+      itf: idleTrace,
+    },
+  ],
   actions: {
     init: (w) => openSharedGame(w),
     playMove: (w, picks: Picks) =>

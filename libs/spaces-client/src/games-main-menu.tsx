@@ -1,7 +1,7 @@
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import type { GameClientDefinition } from '@libs/spaces-shared/game';
 import type { SelectedGameId } from '@libs/spaces-shared/games';
-import { GamesRoomAttr, SelectGame } from '@libs/spaces-shared/games';
+import { GamesRoomAttr } from '@libs/spaces-shared/games';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
@@ -22,11 +22,9 @@ import {
 import { useGamesRegistry } from './games-registry-context';
 import { SPACE_GAME_PARAM } from './space-routes';
 import { useSpaceSessionUi } from './space-session-ui-context';
+import { useOfflineGameBrowse } from './use-offline-game-browse';
 import { useSpaceCan } from './use-space-can';
-import {
-  useSpaceRoomDispatch,
-  useSpaceRoomSelector,
-} from './use-space-room-selector';
+import { useSpaceRoomSelector } from './use-space-room-selector';
 
 function HostChoosesNotice(): JSX.Element {
   return (
@@ -120,67 +118,6 @@ function GameListMenu(props: {
 const GAMES_LIST_FADE_KEY = 'games-list';
 
 /** What this device shows before the space has accepted it. */
-type LocalBrowse =
-  | { kind: 'room' }
-  | { kind: 'list' }
-  | { kind: 'game'; game: SelectedGameId };
-
-/**
- * Opening or leaving a game with no connection stays on this device.
- * Once the connection is back, that choice becomes the space's.
- */
-function useOfflineGameBrowse(selectedGame: () => SelectedGameId | null): {
-  shownGame: () => SelectedGameId | null;
-  chooseGame: (game: SelectedGameId) => void;
-  showList: () => void;
-} {
-  const dispatch = useSpaceRoomDispatch();
-  const engine = useSyncEngine();
-  const [local, setLocal] = createSignal<LocalBrowse>({ kind: 'room' });
-  let promoting = false;
-  createEffect(() => {
-    const choice = local();
-    const online = engine.status().online;
-    const selected = selectedGame();
-    if (!online || choice.kind === 'room') {
-      promoting = false;
-      return;
-    }
-    const game = choice.kind === 'list' ? null : choice.game;
-    if (selected === game) {
-      setLocal({ kind: 'room' });
-      return;
-    }
-    if (promoting) return;
-    promoting = true;
-    dispatch(SelectGame({ game }));
-  });
-  return {
-    shownGame: () => {
-      const choice = local();
-      if (choice.kind === 'list') return null;
-      if (choice.kind === 'game') return choice.game;
-      return selectedGame();
-    },
-    chooseGame: (game) => {
-      if (!engine.status().online) {
-        setLocal({ kind: 'game', game });
-        return;
-      }
-      setLocal({ kind: 'room' });
-      dispatch(SelectGame({ game }));
-    },
-    showList: () => {
-      if (!engine.status().online) {
-        setLocal({ kind: 'list' });
-        return;
-      }
-      setLocal({ kind: 'room' });
-      dispatch(SelectGame({ game: null }));
-    },
-  };
-}
-
 /**
  * Top-level games menu for a space. Routes to the selected game's main menu
  * (via {@link GameClientDefinition.MainMenu}) or shows the game list when no

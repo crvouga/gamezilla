@@ -1,5 +1,11 @@
 import { realTimeRuntime } from '@pkgs/harness-root-shared/real-time-runtime';
-import type { Ports, Runtime } from '@pkgs/harness-root-shared/runtime-types';
+import type {
+  Ports,
+  Runtime,
+  Session,
+} from '@pkgs/harness-root-shared/runtime-types';
+import { createLogger } from '@pkgs/logger-shared/logger';
+import { createAedesPubSub } from '@pkgs/pubsub-aedes-shared/create-aedes-pubsub';
 import type { HarnessComposition } from './composition';
 import type { ProductExtra } from './ports';
 import { ensureRealStack } from './real-stack';
@@ -63,14 +69,29 @@ async function openRealPostgresSql(
 }
 
 /** Stack mode owns no infrastructure — it attaches to what is already up. */
-async function openStackExtra(): Promise<
-  Pick<ProductExtra, 'sql' | 'ui' | 'http'>
-> {
+async function openStackExtra(
+  session: Session
+): Promise<Pick<ProductExtra, 'sql' | 'ui' | 'http' | 'serverEvents'>> {
   const { readStackAddresses } = await import('./stack-manifest');
   const { bootHarnessPostgres } = await import('./boot-harness-postgres');
   const addresses = await readStackAddresses();
+  if (addresses.mqttUrl === null)
+    throw new Error('Stack fixtures require the stack broker');
+  const serverEvents = createAedesPubSub({
+    url: addresses.mqttUrl,
+    auth: () => Promise.resolve({ username: 'stack', password: 'stack' }),
+    clientIdPrefix: `harness-fixtures-${session.ports.createId()}`,
+    timers: session.ports.timers,
+    random: session.ports.random,
+    logger: createLogger({
+      name: 'stack-fixtures',
+      now: session.ports.clock.now,
+    }),
+  });
+  session.onDispose(() => serverEvents.close());
   process.env['VITE_API_URL'] = addresses.apiOrigin;
   return {
+    serverEvents,
     sql: postgresHandle(await bootHarnessPostgres(addresses.databaseUrl)),
     ui: { kind: 'bun-webview' as const, webOrigin: addresses.webOrigin },
     http: {
@@ -96,10 +117,10 @@ export function bunWebviewRuntime(
   const mode = resolveMode();
   return realTimeRuntime({
     network: mode === 'seeded' ? 'model' : 'none',
-  }).with(async () => {
+  }).with(async (session) => {
     if (mode === 'stack') {
       return {
-        ...(await openStackExtra()),
+        ...(await openStackExtra(session)),
         drainServerHttp: { current: () => Promise.resolve() },
       };
     }

@@ -1,0 +1,434 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/home/runner/work/gamezilla/gamezilla/specs/spaces/space-devices.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Wed Oct 14 2026 09:09:01 GMT+0000 (Coordinated Universal Time)",
+    "timestamp": 1791968941370
+  },
+  "vars": [
+    "idle",
+    "_phoneCreated",
+    "_place",
+    "hostedSpaces",
+    "_computerCreated",
+    "invitedToPlus",
+    "_phoneOrder",
+    "_quiet",
+    "_computerOrder",
+    "presence",
+    "_open",
+    "_online",
+    "_paid",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": { "index": 0 },
+      "_computerCreated": false,
+      "_computerOrder": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-computer", true],
+          ["bob-phone", true]
+        ]
+      },
+      "_open": false,
+      "_paid": true,
+      "_phoneCreated": false,
+      "_phoneOrder": { "#bigint": "0" },
+      "_place": {
+        "#map": [
+          ["alice-computer", "out"],
+          ["alice-phone", "out"],
+          ["bob-computer", "out"],
+          ["bob-phone", "out"]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-computer", false],
+          ["bob-phone", false]
+        ]
+      },
+      "hostedSpaces": { "#bigint": "0" },
+      "idle": { "#map": [["alice", false], ["bob", false]] },
+      "invitedToPlus": false,
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "device": { "tag": "None", "value": { "#tup": [] } },
+        "minutes": { "tag": "None", "value": { "#tup": [] } },
+        "paid": { "tag": "Some", "value": true }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      }
+    },
+    {
+      "#meta": { "index": 1 },
+      "_computerCreated": false,
+      "_computerOrder": { "#bigint": "0" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", false],
+          ["bob-computer", true],
+          ["bob-phone", true]
+        ]
+      },
+      "_open": false,
+      "_paid": true,
+      "_phoneCreated": false,
+      "_phoneOrder": { "#bigint": "0" },
+      "_place": {
+        "#map": [
+          ["alice-computer", "out"],
+          ["alice-phone", "out"],
+          ["bob-computer", "out"],
+          ["bob-phone", "out"]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-computer", false],
+          ["bob-phone", false]
+        ]
+      },
+      "hostedSpaces": { "#bigint": "0" },
+      "idle": { "#map": [["alice", false], ["bob", false]] },
+      "invitedToPlus": false,
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "1" } },
+        "paid": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "0" }], ["bob", { "#bigint": "0" }]]
+      }
+    },
+    {
+      "#meta": { "index": 2 },
+      "_computerCreated": true,
+      "_computerOrder": { "#bigint": "1" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", false],
+          ["bob-computer", true],
+          ["bob-phone", true]
+        ]
+      },
+      "_open": true,
+      "_paid": true,
+      "_phoneCreated": false,
+      "_phoneOrder": { "#bigint": "0" },
+      "_place": {
+        "#map": [
+          ["alice-computer", "in"],
+          ["alice-phone", "out"],
+          ["bob-computer", "out"],
+          ["bob-phone", "out"]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-computer", false],
+          ["bob-phone", false]
+        ]
+      },
+      "hostedSpaces": { "#bigint": "1" },
+      "idle": { "#map": [["alice", false], ["bob", false]] },
+      "invitedToPlus": false,
+      "mbt::actionTaken": "createSpace",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice-computer" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "1" } },
+        "paid": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "0" }]]
+      }
+    },
+    {
+      "#meta": { "index": 3 },
+      "_computerCreated": true,
+      "_computerOrder": { "#bigint": "1" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", false],
+          ["bob-computer", true],
+          ["bob-phone", true]
+        ]
+      },
+      "_open": true,
+      "_paid": true,
+      "_phoneCreated": true,
+      "_phoneOrder": { "#bigint": "2" },
+      "_place": {
+        "#map": [
+          ["alice-computer", "in"],
+          ["alice-phone", "in"],
+          ["bob-computer", "out"],
+          ["bob-phone", "out"]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-computer", false],
+          ["bob-phone", false]
+        ]
+      },
+      "hostedSpaces": { "#bigint": "2" },
+      "idle": { "#map": [["alice", false], ["bob", false]] },
+      "invitedToPlus": false,
+      "mbt::actionTaken": "createSpace",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "2" } },
+        "paid": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "0" }]]
+      }
+    },
+    {
+      "#meta": { "index": 4 },
+      "_computerCreated": true,
+      "_computerOrder": { "#bigint": "1" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", false],
+          ["bob-computer", true],
+          ["bob-phone", true]
+        ]
+      },
+      "_open": true,
+      "_paid": true,
+      "_phoneCreated": true,
+      "_phoneOrder": { "#bigint": "2" },
+      "_place": {
+        "#map": [
+          ["alice-computer", "in"],
+          ["alice-phone", "closed"],
+          ["bob-computer", "out"],
+          ["bob-phone", "out"]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-computer", false],
+          ["bob-phone", false]
+        ]
+      },
+      "hostedSpaces": { "#bigint": "2" },
+      "idle": { "#map": [["alice", false], ["bob", false]] },
+      "invitedToPlus": false,
+      "mbt::actionTaken": "closeApp",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "alice-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "1" } },
+        "paid": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "0" }]]
+      }
+    },
+    {
+      "#meta": { "index": 5 },
+      "_computerCreated": true,
+      "_computerOrder": { "#bigint": "1" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", false],
+          ["bob-computer", true],
+          ["bob-phone", false]
+        ]
+      },
+      "_open": true,
+      "_paid": true,
+      "_phoneCreated": true,
+      "_phoneOrder": { "#bigint": "2" },
+      "_place": {
+        "#map": [
+          ["alice-computer", "in"],
+          ["alice-phone", "closed"],
+          ["bob-computer", "out"],
+          ["bob-phone", "out"]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-computer", false],
+          ["bob-phone", false]
+        ]
+      },
+      "hostedSpaces": { "#bigint": "2" },
+      "idle": { "#map": [["alice", false], ["bob", false]] },
+      "invitedToPlus": false,
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "1" } },
+        "paid": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "0" }]]
+      }
+    },
+    {
+      "#meta": { "index": 6 },
+      "_computerCreated": true,
+      "_computerOrder": { "#bigint": "1" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", false],
+          ["bob-computer", true],
+          ["bob-phone", true]
+        ]
+      },
+      "_open": true,
+      "_paid": true,
+      "_phoneCreated": true,
+      "_phoneOrder": { "#bigint": "2" },
+      "_place": {
+        "#map": [
+          ["alice-computer", "in"],
+          ["alice-phone", "closed"],
+          ["bob-computer", "out"],
+          ["bob-phone", "out"]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-computer", false],
+          ["bob-phone", false]
+        ]
+      },
+      "hostedSpaces": { "#bigint": "2" },
+      "idle": { "#map": [["alice", false], ["bob", false]] },
+      "invitedToPlus": false,
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "2" } },
+        "paid": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "0" }]]
+      }
+    },
+    {
+      "#meta": { "index": 7 },
+      "_computerCreated": true,
+      "_computerOrder": { "#bigint": "1" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", false],
+          ["bob-computer", true],
+          ["bob-phone", true]
+        ]
+      },
+      "_open": true,
+      "_paid": true,
+      "_phoneCreated": true,
+      "_phoneOrder": { "#bigint": "2" },
+      "_place": {
+        "#map": [
+          ["alice-computer", "in"],
+          ["alice-phone", "closed"],
+          ["bob-computer", "in"],
+          ["bob-phone", "out"]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-computer", false],
+          ["bob-phone", false]
+        ]
+      },
+      "hostedSpaces": { "#bigint": "2" },
+      "idle": { "#map": [["alice", false], ["bob", false]] },
+      "invitedToPlus": false,
+      "mbt::actionTaken": "join",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob-computer" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "2" } },
+        "paid": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "1" }]]
+      }
+    },
+    {
+      "#meta": { "index": 8 },
+      "_computerCreated": true,
+      "_computerOrder": { "#bigint": "1" },
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", false],
+          ["bob-computer", true],
+          ["bob-phone", false]
+        ]
+      },
+      "_open": true,
+      "_paid": true,
+      "_phoneCreated": true,
+      "_phoneOrder": { "#bigint": "2" },
+      "_place": {
+        "#map": [
+          ["alice-computer", "in"],
+          ["alice-phone", "closed"],
+          ["bob-computer", "in"],
+          ["bob-phone", "out"]
+        ]
+      },
+      "_quiet": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-computer", false],
+          ["bob-phone", false]
+        ]
+      },
+      "hostedSpaces": { "#bigint": "2" },
+      "idle": { "#map": [["alice", false], ["bob", false]] },
+      "invitedToPlus": false,
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "device": { "tag": "Some", "value": "bob-phone" },
+        "minutes": { "tag": "Some", "value": { "#bigint": "2" } },
+        "paid": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "presence": {
+        "#map": [["alice", { "#bigint": "1" }], ["bob", { "#bigint": "1" }]]
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "At the nightly 200-case budget, coverage repeatedly mounted and searched an entire editor toolbar for every paragraph, taking 23 seconds per property. The same property cases now reuse a mounted editor and toolbar handles, with an example checking independent edits and undo.",
+  "regressionTest": "pkgs/ui-root-harness/tests/markdown-editor.property.test.tsx"
+}

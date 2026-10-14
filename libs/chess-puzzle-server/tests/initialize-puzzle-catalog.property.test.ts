@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test';
+import { beforeAll, expect, test } from 'bun:test';
 import { InitializePuzzleCatalog } from '@libs/chess-puzzle-server/initialize-puzzle-catalog';
 import { CHESS_PUZZLES_LOAD_FILE_RELATIVE } from '@libs/chess-puzzle-server/load-file-constants';
 import { chessPuzzles } from '@libs/chess-puzzle-shared/puzzle-tables';
@@ -15,14 +15,26 @@ import sql from '@pkgs/sql-root-shared/sql';
 import { syncEngineTopicSeq } from '@pkgs/sync-engine-shared/tables';
 import fc from 'fast-check';
 
+let emptyCatalog: Uint8Array;
+beforeAll(async () => {
+  const db = SqlClientImplMockingbirdSqlite.open();
+  await db.connect();
+  try {
+    await reconcileSqliteSchema(
+      db,
+      registerTables([chessPuzzles, syncEngineTopicSeq]),
+      { ownership: 'declared-only' }
+    );
+    emptyCatalog = await db.exportDatabaseBytes();
+  } finally {
+    await db.disconnect();
+  }
+});
+
 async function openCatalog(csv: string) {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
-  await reconcileSqliteSchema(
-    db,
-    registerTables([chessPuzzles, syncEngineTopicSeq]),
-    { ownership: 'declared-only' }
-  );
+  await db.importDatabaseBytes(emptyCatalog);
   const store = new ObjectStoreImplInMemory();
   await writeUtf8(store, CHESS_PUZZLES_LOAD_FILE_RELATIVE, csv);
   const clock = { now: () => 1_700_000_000_000 };
@@ -66,6 +78,19 @@ const input = fc.record({
   rating: fc.integer({ min: 400, max: 3000 }),
   removed: fc.boolean(),
   deployments: fc.integer({ min: 1, max: 5 }),
+});
+
+test('two hundred catalog fixtures start with independent empty catalogs', async () => {
+  // regression: catalog-fixtures-repeat-schema-work
+  const text = csv('00000000-0000-4000-8000-000000000001', 2400);
+  for (let example = 0; example < 200; example += 1) {
+    const catalog = await openCatalog(text);
+    try {
+      expect((await catalog.initialize.run())?.rowsInserted).toBe(1);
+    } finally {
+      await catalog.close();
+    }
+  }
 });
 
 test('deploying changed reference data preserves initialized catalogs and removals', async () => {

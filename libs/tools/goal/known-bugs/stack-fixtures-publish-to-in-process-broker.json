@@ -1,0 +1,4 @@
+{
+  "summary": "The stack observatory fixture updated the live database but sent its permission-policy notification to an in-process broker that browser clients never subscribed to.",
+  "regressionTest": "libs/synthetic-population-harness/tests/steps/observatory.steps.ts"
+}

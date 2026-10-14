@@ -14,82 +14,91 @@ const writing = fc
   })
   .map((words) => words.join(' '));
 
+function editor() {
+  const [value, setValue] = createSignal('');
+  const [limit, setLimit] = createSignal(1000);
+  const mounted = renderUi(() => (
+    <MarkdownEditor
+      aria-label="Writing"
+      value={value()}
+      maxLength={limit()}
+      onChange={setValue}
+    />
+  ));
+  return {
+    ...mounted,
+    value,
+    setValue,
+    setLimit,
+    heading: mounted.getByRole('button', { name: 'Heading' }),
+    undo: mounted.getByRole('button', { name: 'Undo (⌘/Ctrl+Z)' }),
+    field: mounted.getByRole('textbox'),
+  };
+}
+
+function formatAndUndo(mounted: ReturnType<typeof editor>, text: string): void {
+  mounted.setValue(text);
+  fireEvent.click(mounted.heading);
+  expect(mounted.field.querySelector('h2')?.textContent).toBe(text);
+  expect(mounted.value()).toBe(`## ${text}`);
+  fireEvent.click(mounted.undo);
+  expect(mounted.field.querySelector('h2')).toBeNull();
+  expect(mounted.value()).toBe(text);
+}
+
+// regression: markdown-property-editor-remount-cost
+test('independent paragraphs can be formatted and undone in one editor', () => {
+  const mounted = editor();
+  try {
+    for (const text of ['Board', 'movement feels clear', 'today'])
+      formatAndUndo(mounted, text);
+  } finally {
+    mounted.unmount();
+  }
+});
+
 test('formatting and undo preserve arbitrary authored paragraphs', () => {
-  assertProperty(
-    'markdown-editor',
-    fc.property(writing, (text) => {
-      let value = text;
-      const mounted = renderUi(() => {
-        const [source, setSource] = createSignal(text);
-        return (
-          <MarkdownEditor
-            aria-label="Writing"
-            value={source()}
-            onChange={(next) => {
-              value = next;
-              setSource(next);
-            }}
-          />
-        );
-      });
-      try {
-        fireEvent.click(mounted.getByRole('button', { name: 'Heading' }));
-        expect(
-          mounted.getByRole('textbox').querySelector('h2')?.textContent
-        ).toBe(text);
-        expect(value).toBe(`## ${text}`);
-        fireEvent.click(
-          mounted.getByRole('button', { name: 'Undo (⌘/Ctrl+Z)' })
-        );
-        expect(mounted.getByRole('textbox').querySelector('h2')).toBeNull();
-        expect(value).toBe(text);
-      } finally {
-        mounted.unmount();
-      }
-    })
-  );
+  const mounted = editor();
+  try {
+    assertProperty(
+      'markdown-editor',
+      fc.property(writing, (text) => formatAndUndo(mounted, text))
+    );
+  } finally {
+    mounted.unmount();
+  }
 });
 
 test('formatting cannot exceed the serialized writing limit', () => {
-  assertProperty(
-    'markdown-editor',
-    fc.property(writing, (text) => {
-      let changed = false;
-      const mounted = renderUi(() => (
-        <MarkdownEditor
-          aria-label="Writing"
-          value={text}
-          maxLength={text.length}
-          onChange={() => {
-            changed = true;
-          }}
-        />
-      ));
-      try {
-        fireEvent.click(mounted.getByRole('button', { name: 'Heading' }));
-        expect(changed).toBe(false);
-        expect(mounted.getByRole('textbox').textContent).toBe(text);
-        expect(mounted.getByRole('textbox').querySelector('h2')).toBeNull();
-      } finally {
-        mounted.unmount();
-      }
-    })
-  );
+  const mounted = editor();
+  try {
+    assertProperty(
+      'markdown-editor',
+      fc.property(writing, (text) => {
+        mounted.setLimit(text.length);
+        mounted.setValue(text);
+        fireEvent.click(mounted.heading);
+        expect(mounted.value()).toBe(text);
+        expect(mounted.field.textContent).toBe(text);
+        expect(mounted.field.querySelector('h2')).toBeNull();
+      })
+    );
+  } finally {
+    mounted.unmount();
+  }
 });
 
 test('pasted links cannot introduce executable destinations', () => {
-  assertProperty(
-    'markdown-editor',
-    fc.property(
-      fc.constantFrom('javascript:', 'vbscript:', 'data:', '//'),
-      writing,
-      (scheme, text) => {
-        const mounted = renderUi(() => (
-          <MarkdownEditor aria-label="Writing" value="" onChange={() => {}} />
-        ));
-        try {
-          const field = mounted.getByRole('textbox');
-          fireEvent.paste(field, {
+  const mounted = editor();
+  try {
+    assertProperty(
+      'markdown-editor',
+      fc.property(
+        fc.constantFrom('javascript:', 'vbscript:', 'data:', '//'),
+        writing,
+        (scheme, text) => {
+          mounted.setValue('');
+          fireEvent.paste(mounted.field, {
             clipboardData: {
               files: [],
               getData: (type: string) =>
@@ -98,12 +107,12 @@ test('pasted links cannot introduce executable destinations', () => {
                   : text,
             },
           });
-          expect(field.querySelector('a')).toBeNull();
-          expect(field.textContent).toBe(text);
-        } finally {
-          mounted.unmount();
+          expect(mounted.field.querySelector('a')).toBeNull();
+          expect(mounted.field.textContent).toBe(text);
         }
-      }
-    )
-  );
+      )
+    );
+  } finally {
+    mounted.unmount();
+  }
 });

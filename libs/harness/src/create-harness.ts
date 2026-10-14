@@ -2,17 +2,12 @@ import type { ClientEnv } from '@libs/app-root-client/client-env';
 import type { Client } from '@libs/app-root-client/create-client';
 import { createClient } from '@libs/app-root-client/create-client';
 import type { ServerEnv } from '@libs/app-root-shared/server-env';
-import { HARNESS_SERVER_URL } from '@libs/sub-shared/harness-constants';
 import { assert } from '@pkgs/assert-root-shared/singleton';
-import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Session } from '@pkgs/harness-root-shared/runtime-types';
-import { createLogger } from '@pkgs/logger-shared/logger';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
-import {
-  createInMemoryBus,
-  createInMemoryPubSub,
-} from '@pkgs/pubsub-root-shared/in-memory';
+import { createInMemoryBus } from '@pkgs/pubsub-root-shared/in-memory';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
 import type { HarnessAccountReadyDelays } from './account-ready-delay';
 import { createHarnessAccountReadyDelays } from './account-ready-delay';
@@ -29,6 +24,7 @@ import { makeHarnessClientEnv } from './client-env';
 import { createHarnessClientNamespaces } from './client-namespace';
 import type { HarnessComposition, HarnessRoomNode } from './composition';
 import { harnessAuthProvider } from './harness-auth-provider';
+import { buildServerEnv } from './harness-server-env';
 import type { HarnessIdps } from './idp';
 import {
   addHarnessIdpAccounts,
@@ -69,6 +65,7 @@ import type { HarnessTeamRules } from './team-rules';
 import { createHarnessTeamRules } from './team-rules';
 
 export type CreateHarnessOptions = {
+  readonly serverEvents?: PubSub;
   /** Deployment credentials injected by integration hosts, scoped to this harness. */
   readonly secretValues?: Readonly<Record<string, string>>;
   /** The subs this harness boots. */
@@ -156,50 +153,6 @@ export type Harness = {
   clientSql(id: string): HarnessSql | undefined;
 };
 
-type ServerEnvDeps = {
-  readonly id: string;
-  readonly session: Session;
-  readonly seed: bigint;
-  readonly timers: Timers;
-  readonly shared: SharedServerServices;
-  readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
-  /** Outbound vendor HTTP: only the provider node is reachable. */
-  readonly vendorFetch: ServerEnv['fetch'];
-  /** This instance's membership adapter, or `null` when nothing is sold. */
-  readonly billing: MembershipProviders | null;
-};
-
-function buildServerEnv(args: ServerEnvDeps): ServerEnv {
-  const { id, session, seed, timers, shared, pubSubBus } = args;
-  return {
-    clock: session.ports.clock,
-    timers,
-    createId: session.ports.createId,
-    random: session.ports.random,
-    seed,
-    openSqlClient: () => Promise.resolve(shared.sqlClient),
-    events: createInMemoryPubSub({
-      bus: pubSubBus,
-      logger: createLogger({
-        name: `harness-${id}:pubsub`,
-        now: () => session.ports.clock.now(),
-      }),
-    }),
-    kv: shared.kv,
-    blob: shared.blob,
-    billing: args.billing,
-    tts: shared.tts,
-    llm: shared.llm,
-    secrets: shared.secrets,
-    auth: shared.auth,
-    moderation: shared.moderation,
-    protection: 'standard',
-    serverUrl: HARNESS_SERVER_URL,
-    skipDatabaseUrlPolicy: true,
-    fetch: args.vendorFetch,
-  };
-}
-
 type HarnessKernel = {
   readonly session: Session;
   readonly composition: HarnessComposition;
@@ -253,6 +206,7 @@ async function openServerSql(
 
 /** Each API instance's env, wired to this deployment's shared services. */
 function serverEnvBuilder(deps: {
+  readonly serverEvents: PubSub | undefined;
   readonly session: Session;
   readonly seed: bigint;
   readonly timers: Timers;
@@ -273,6 +227,7 @@ function serverEnvBuilder(deps: {
         timers: deps.timers,
         shared: deps.shared,
         pubSubBus: deps.pubSubBus,
+        serverEvents: deps.serverEvents,
         vendorFetch: harnessIdpFetchFrom({
           idps,
           net,
@@ -360,6 +315,7 @@ async function bootHarnessKernel(
       net,
       billing,
       egress: serverEgress,
+      serverEvents: opts.serverEvents,
     }),
     disposed: () => disposed.value,
   });
