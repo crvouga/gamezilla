@@ -70,12 +70,31 @@ function canonicalRequest(
     .join('');
   return [
     input.method,
-    input.path,
+    canonicalPath(input),
     input.query,
     canonicalHeaders,
     names.join(';'),
     payloadHash,
   ].join('\n');
+}
+
+/** Non-S3 signing normalizes and escapes the already encoded request path. */
+function canonicalPath(input: AwsSigV4Input): string {
+  if (input.service === 's3') return input.path;
+  const segments: string[] = [];
+  for (const segment of input.path.split('/')) {
+    if (segment === '' || segment === '.') continue;
+    if (segment === '..') segments.pop();
+    else segments.push(segment);
+  }
+  const leading = input.path.startsWith('/') ? '/' : '';
+  const trailing = segments.length > 0 && input.path.endsWith('/') ? '/' : '';
+  return encodeURIComponent(`${leading}${segments.join('/')}${trailing}`)
+    .replace(
+      /[!'()*]/g,
+      (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`
+    )
+    .replaceAll('%2F', '/');
 }
 
 function amzTimestamp(nowMs: number): {
