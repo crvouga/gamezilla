@@ -7,6 +7,7 @@ import { withSeedRebuildLock } from '@libs/harness/seed-rebuild-lock';
 import { spawnOwned } from '@pkgs/os-server/dev-owner-spawn';
 
 // regression: harness-seed-lock-release-race
+// regression: harness-seed-release-reclaims-live-waiter
 // regression: harness-seed-rebuild-stampede
 test('one process rebuilds a seed while another waits', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'seed-lock-'));
@@ -81,6 +82,24 @@ test('a checkout with no cache directory still rebuilds its seed', async () => {
         ran = true;
       }
     );
+    expect(ran).toBe(true);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('a failed builder releases its lease for the next rebuild', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'seed-lock-'));
+  try {
+    await expect(
+      withSeedRebuildLock(dir, 'harness-seed', async () => {
+        throw new Error('Build interrupted');
+      })
+    ).rejects.toThrow('Build interrupted');
+    let ran = false;
+    await withSeedRebuildLock(dir, 'harness-seed', async () => {
+      ran = true;
+    });
     expect(ran).toBe(true);
   } finally {
     await rm(dir, { recursive: true, force: true });
