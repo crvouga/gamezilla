@@ -11,7 +11,12 @@ import sql, {
 import { rowToDumpValues } from './cell-codec';
 import type { PostgresSqlClient } from './interface';
 import { quotePgIdent } from './postgres-db-scope';
-import type { SqlDataDump, SqlDataDumpOptions, SqlTableDump } from './types';
+import type {
+  SqlDataDump,
+  SqlDataDumpOptions,
+  SqlDumpValue,
+  SqlTableDump,
+} from './types';
 import { SQL_DATA_DUMP_VERSION } from './types';
 
 export async function listPostgresUserTables(
@@ -45,7 +50,7 @@ async function postgresTableColumns(
 function postgresRowValues(
   columns: readonly string[],
   row: Record<string, unknown>
-): readonly import('./types').SqlDumpValue[] {
+): readonly SqlDumpValue[] {
   const byLower = new Map<string, unknown>();
   for (const [key, value] of Object.entries(row)) {
     byLower.set(key.toLowerCase(), value);
