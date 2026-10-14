@@ -40,6 +40,7 @@ describe('SigV4', () => {
 });
 
 describe('createIotHttpPubSub', () => {
+  // regression: iot-fetch-illegal-invocation
   test('posts the encoded payload to the slash topic', async () => {
     const calls: { url: string; init: RequestInit | undefined }[] = [];
     const pubsub = createIotHttpPubSub({
@@ -48,7 +49,11 @@ describe('createIotHttpPubSub', () => {
       secretAccessKey: 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY',
       region: 'us-east-1',
       now: () => Date.UTC(2013, 4, 24),
-      fetchImpl: (input, init) => {
+      fetchImpl(this: unknown, input, init) {
+        if (this !== undefined && this !== globalThis)
+          throw new TypeError(
+            'Illegal invocation: function called with incorrect `this` reference'
+          );
         calls.push({ url: String(input), init });
         return Promise.resolve(new Response(null, { status: 200 }));
       },

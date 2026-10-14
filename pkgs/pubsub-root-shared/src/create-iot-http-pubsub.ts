@@ -81,7 +81,8 @@ async function publishIot(args: {
     headers: { 'content-type': 'application/octet-stream' },
   });
   const headers = requestHeaders(signed.headers, signed.authorization);
-  const res = await args.fetchImpl(`https://${args.host}${path}?qos=1`, {
+  const fetchImpl = args.fetchImpl;
+  const res = await fetchImpl(`https://${args.host}${path}?qos=1`, {
     method: 'POST',
     headers,
     body: payload,
