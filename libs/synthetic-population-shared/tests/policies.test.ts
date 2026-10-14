@@ -98,6 +98,7 @@ test('gameplay policy returns legal moves through progressively reached position
 
 test('the nightly gameplay seed finishes within the property budget', () => {
   // regression: gameplay-policy-nightly-seed-cost
+  // regression: gameplay-policy-verbose-enumeration-cost
   assertProperty('nightly legal chess decision', legalChessDecision, {
     seed: 629_884_306,
     numRuns: 200,
