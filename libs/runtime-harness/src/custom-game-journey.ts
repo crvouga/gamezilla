@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared/handles';
-import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
+import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { Chess } from 'chess.js';
 import { check, expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
@@ -221,15 +221,32 @@ export function expectBoardFacing(
 ): (ui: Driver) => Promise<void> {
   return async (ui) => {
     await expectVisible(ui, 'chess-custom-board');
-    const probe = await new ChessBoardFlows(
-      ui,
-      'chess-custom-board'
-    ).readProbe();
-    check(
-      probe.orientation === side,
-      `the board faces ${probe.orientation}, not ${side}`
-    );
+    const [a1, h8] = await Promise.all([
+      readCornerPosition(ui, 'a1'),
+      readCornerPosition(ui, 'h8'),
+    ]);
+    const white = a1.x < h8.x && a1.y > h8.y;
+    const black = a1.x > h8.x && a1.y < h8.y;
+    check(side === 'white' ? white : black, `the board does not face ${side}`);
   };
+}
+
+/** Read the square transforms that place the shipped board's visible corners. */
+async function readCornerPosition(
+  ui: Driver,
+  square: 'a1' | 'h8'
+): Promise<{ x: number; y: number }> {
+  const style = await ui
+    .get(chessBoardSquareTestId('chess-custom-board', square))
+    .attribute('style');
+  const position = style?.match(
+    /translate\(\s*(\d+(?:\.\d+)?)cqw,\s*(\d+(?:\.\d+)?)cqw\s*\)/
+  );
+  check(
+    position !== undefined && position !== null,
+    'board square positions are missing'
+  );
+  return { x: Number(position[1]), y: Number(position[2]) };
 }
 
 export function expectMoveListed(san: string): (ui: Driver) => Promise<void> {
