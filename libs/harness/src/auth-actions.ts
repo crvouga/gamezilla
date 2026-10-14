@@ -349,6 +349,9 @@ export const signOut = scenarioAction({
     await ui.get(Handles.accountSignIn).expect.visible({ timeoutMs: WAIT_MS });
     if (await ui.get(Handles.authSignOutModal).isVisible())
       await ui.get(Handles.authSignOutDone).tap({ timeoutMs: WAIT_MS });
+    await ui
+      .get(Handles.authSignOutModal)
+      .wait('hidden', { timeoutMs: WAIT_MS });
   },
 });
 
