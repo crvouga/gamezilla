@@ -83,11 +83,17 @@ export function failedGroups(
   return groups.filter((group) => group.result !== 'success');
 }
 
-export function formatNightlyTable(groups: readonly NightlyGroup[]): string {
+export function formatNightlyTable(
+  groups: readonly NightlyGroup[],
+  selection = 'all'
+): string {
   const width = Math.max(...groups.map((group) => group.name.length));
   const failed = failedGroups(groups);
+  const scope = selection === 'all' ? 'nightly' : 'selected diagnostic';
   return [
-    'Nightly verification',
+    selection === 'all'
+      ? 'Nightly verification'
+      : `Nightly diagnostic: ${selection} (not a complete Nightly verdict)`,
     '',
     ...groups.map(
       (group) =>
@@ -95,18 +101,19 @@ export function formatNightlyTable(groups: readonly NightlyGroup[]): string {
     ),
     '',
     failed.length === 0
-      ? 'Every nightly group passed'
-      : `${failed.length} of ${groups.length} nightly groups did not pass`,
+      ? `Every ${scope} group passed`
+      : `${failed.length} of ${groups.length} ${scope} groups did not pass`,
   ].join('\n');
 }
 
 export function formatNightlyMarkdown(
   groups: readonly NightlyGroup[],
-  run: { readonly url: string; readonly sha: string }
+  run: { readonly url: string; readonly sha: string },
+  selection = 'all'
 ): string {
   const failed = failedGroups(groups);
   return [
-    `## ${failed.length === 0 ? '✅' : '❌'} Nightly verification`,
+    `## ${failed.length === 0 ? '✅' : '❌'} ${selection === 'all' ? 'Nightly verification' : `Nightly diagnostic: ${selection}`}`,
     '',
     `Commit \`${run.sha}\`. Logs and artifacts: ${run.url}`,
     '',
@@ -179,17 +186,21 @@ function main(env: NodeJS.ProcessEnv): number {
   );
   const failed = failedGroups(groups);
   const repository = env['GITHUB_REPOSITORY'] ?? '';
-  const report = formatNightlyMarkdown(groups, {
-    url: `${env['GITHUB_SERVER_URL'] ?? 'https://github.com'}/${repository}/actions/runs/${env['GITHUB_RUN_ID'] ?? ''}`,
-    sha: env['GITHUB_SHA'] ?? '',
-  });
+  const report = formatNightlyMarkdown(
+    groups,
+    {
+      url: `${env['GITHUB_SERVER_URL'] ?? 'https://github.com'}/${repository}/actions/runs/${env['GITHUB_RUN_ID'] ?? ''}`,
+      sha: env['GITHUB_SHA'] ?? '',
+    },
+    selection
+  );
   const markdown =
     selection === 'all'
       ? report
       : `Diagnostic scope: ${selection}. This is not a complete Nightly verdict.\n\n${report}`;
   if (env['GITHUB_STEP_SUMMARY'])
     appendFileSync(env['GITHUB_STEP_SUMMARY'], markdown);
-  console.log(formatNightlyTable(groups));
+  console.log(formatNightlyTable(groups, selection));
   for (const group of failed)
     console.log(
       `::error title=check-nightly:${group.name}::${group.result} — ${group.summary}`

@@ -184,6 +184,22 @@ describe('Check Nightly workflow', () => {
   const nightly = workflow('check-nightly.yml');
   const gate = workflow('check-pr.yml');
 
+  // regression: ci-nightly-diagnostic-claims-full-verdict
+  test('a successful diagnostic labels its log and report as partial verification', () => {
+    const groups = nightlyGroups(
+      { 'check-nightly-performance': { result: 'success' } },
+      'performance'
+    );
+    const table = formatNightlyTable(groups, 'performance');
+    expect(table).toContain('Nightly diagnostic: performance');
+    expect(table).toContain('not a complete Nightly verdict');
+    expect(table).toContain('Every selected diagnostic group passed');
+    expect(table).not.toContain('Every nightly group passed');
+    expect(
+      formatNightlyMarkdown(groups, { url: 'run', sha: 'head' }, 'performance')
+    ).toContain('Nightly diagnostic: performance');
+  });
+
   test('diagnostics check only the requested scope and cannot stand for a full night', () => {
     expect(nightlyGroupNames()).toEqual([
       'gate',
