@@ -142,6 +142,7 @@ async function seedExtra(client: SqlClient): Promise<void> {
   );
 }
 
+// regression: local-sqlite-failure-stops-boot
 describe('a database that cannot be opened', () => {
   test('boots on a disposable database', async () => {
     const w = world(() => Promise.reject(new Error('no worker could start')));
@@ -176,6 +177,7 @@ describe('a database that cannot be opened', () => {
   });
 });
 
+// regression: local-sqlite-failure-stops-boot
 describe('a database that fails after the app is up', () => {
   test.each(Object.keys(STORAGE_FAULTS) as (keyof typeof STORAGE_FAULTS)[])(
     'keeps answering when it fails with %s',

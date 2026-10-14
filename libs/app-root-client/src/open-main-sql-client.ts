@@ -57,7 +57,7 @@ function withinOpenDeadline(
       },
       (error: unknown) => {
         timers.clearTimeout(handle);
-        reject(error);
+        reject(error instanceof Error ? error : new Error(String(error)));
       }
     );
   });

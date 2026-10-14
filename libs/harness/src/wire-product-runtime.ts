@@ -79,9 +79,10 @@ export function wireProductRuntime(
         await damageActorBrowserStorage(storage);
       }
     },
-    async damageDeviceData(id) {
+    damageDeviceData(id) {
       surface.harness.damageDeviceData(id);
       if (browserDevices.has(id)) damagedBrowserDevices.add(id);
+      return Promise.resolve();
     },
     async resetActor(id) {
       const existing = entries.get(id);
