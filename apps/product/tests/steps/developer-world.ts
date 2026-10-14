@@ -31,10 +31,8 @@ export const openDeveloperHarness = (
   options?: Parameters<typeof openHarness>[2]
 ) => openHarness(TOOLS_SYSTEM, testId, options);
 
-useHarnessWorld(
-  openDeveloperHarness,
-  undefined,
-  (ctx) => ctx.featureUri.startsWith('specs/developer-tools/')
+useHarnessWorld(openDeveloperHarness, undefined, (ctx) =>
+  ctx.featureUri.startsWith('specs/developer-tools/')
 );
 
 import { defineProductSystem } from '@libs/harness/define-product-system';

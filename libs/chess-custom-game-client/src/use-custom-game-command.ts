@@ -1,4 +1,7 @@
+import { useMyId } from '@libs/auth-client/use-current-user';
 import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
+import { customGameCreatorRefusal } from '@libs/chess-custom-game-shared/custom-game-refusal';
+import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useSpaceOpenRooms } from '@libs/spaces-client/space-open-rooms-store';
 import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
@@ -19,6 +22,7 @@ export function useCustomGameCommand() {
     PERMISSION.chessCustomCreate
   );
   const hostConnection = useSpaceHostConnection();
+  const myId = useMyId();
   const engine = useSyncEngine();
   const [error, setError] = createSignal('');
   const [settled, setSettled] = createSignal(0);
@@ -28,9 +32,18 @@ export function useCustomGameCommand() {
   });
   const send = async (choice: CustomGameChoice): Promise<void> => {
     setError('');
-    // A guest's own lost connection is a different refusal from the host being gone.
+    // A guest's own lost connection is a different refusal from the host being
+    // gone, and the creator's authority is named before the host being gone.
     if (engine.status().online && hostConnection() === 'host-offline') {
-      const reason = 'the host is offline';
+      const snapshot = rooms.getEntry(spaceId() ?? '')?.room.getSnapshot();
+      const reason =
+        customGameCreatorRefusal(
+          snapshot === undefined
+            ? null
+            : CustomGamesAttr.from(snapshot).current,
+          choice,
+          myId()
+        ) || 'the host is offline';
       setError(reason);
       setSettled((value) => value + 1);
       throw new Error(reason);

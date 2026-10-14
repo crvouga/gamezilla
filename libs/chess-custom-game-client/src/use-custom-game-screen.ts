@@ -1,7 +1,6 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
 import {
-  type CustomGames,
   CustomGamesAttr,
   customGamePersonSide,
 } from '@libs/chess-custom-game-shared/custom-game-state';
@@ -14,7 +13,6 @@ import { useSyncedProfiles } from '@libs/profile-client/use-synced-profiles';
 import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
 import { useSpaceCan } from '@libs/spaces-client/use-space-can';
 import { useSpaceDecision } from '@libs/spaces-client/use-space-decision';
-import { useSpaceHostConnection } from '@libs/spaces-client/use-space-host-connection';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -29,24 +27,13 @@ import { useCustomGameCommand } from './use-custom-game-command';
 
 export type CustomGameScreenModel = ReturnType<typeof useCustomGameScreen>;
 
-/** A guest sees no live Custom Game while its host is offline. */
-function pictureWhileHostOffline(
-  state: CustomGames,
-  hostOffline: boolean
-): CustomGames {
-  if (!hostOffline || state.current === null) return state;
-  return { ...state, current: null };
-}
-
 export function useCustomGameScreen() {
   const myId = useMyId();
   const spaceId = useSpaceRoomSessionId();
   const scope = (): string => spaceId() ?? '';
   const roomGames = useSpaceRoomSelector(CustomGamesAttr.from);
-  const hostConnection = useSpaceHostConnection();
-  const games = createMemo(() =>
-    pictureWhileHostOffline(roomGames(), hostConnection() === 'host-offline')
-  );
+  // A guest keeps the board they already had while the host is offline.
+  const games = roomGames;
   const current = createMemo(() => games().current);
   const members = useSpaceRoomSelector(spaceSeatMemberIds);
   const away = useSpaceRoomSelector(SpaceMembersRoomAttr.away.from);

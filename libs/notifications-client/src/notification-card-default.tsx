@@ -1,12 +1,12 @@
 /** @jsxImportSource solid-js */
 
 import { useModeration } from '@libs/moderation-client/moderation-context';
-import { Handles } from '@libs/test-ids-shared/handles';
 import type { Notification } from '@libs/notifications-shared/notification';
 import type {
   NotificationAction,
   NotificationCardActions,
 } from '@libs/notifications-shared/notification-action';
+import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client/solid';
 import type { SoundId } from '@pkgs/sounds-shared/sound-id';
@@ -22,8 +22,8 @@ import type { MutationStateTransition } from '@pkgs/ui-root-client/mutation-life
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client/relative-time';
 import { useTheme } from '@pkgs/ui-root-client/theme-context';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
-import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { createMemo, For, type JSX, Match, Show, Switch } from 'solid-js';
 
 import { InboxArchiveButton } from './inbox-archive-button';

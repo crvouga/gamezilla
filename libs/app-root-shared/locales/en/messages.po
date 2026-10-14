@@ -3809,8 +3809,8 @@ msgid "The choice could not be confirmed. Try again."
 msgstr "The choice could not be confirmed. Try again."
 
 #: libs/notifications-client/src/notifications-screen.tsx
-#: libs/spaces-client/src/space-connection-missing.tsx
 #: libs/spaces-client/src/connection-missing-notice.tsx
+#: libs/spaces-client/src/space-connection-missing.tsx
 msgid "The connection is missing."
 msgstr "The connection is missing."
 

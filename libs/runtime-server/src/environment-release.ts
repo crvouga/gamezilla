@@ -44,9 +44,7 @@ export function checkReplacement(
   return kind === 'proposal' ? 'replaced' : 'kept';
 }
 
-export function startedReleaseAfterCancel(
-  policy: ReleasePolicy
-): 'unfinished' {
+export function startedReleaseAfterCancel(policy: ReleasePolicy): 'unfinished' {
   if (!policy.underwayIsNotCancelled || !policy.noUndoOfStartedRelease)
     throw new Error('A release that has started is not undone');
   return 'unfinished';

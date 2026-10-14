@@ -86,8 +86,6 @@ export const Handles = {
   spaceMemberName: (memberId: string) => `space-member-name-${memberId}`,
   /** Hidden count probe in the space members modal. */
   spacePresenceCount: 'space-presence-count',
-  /** Idle badge on one person in the members list. */
-  spaceMemberIdle: (memberId: string) => `space-member-idle-${memberId}`,
   /** Hidden people the space is counting, one profile id per line. */
   spacePresencePeople: 'space-presence-people',
   /** Hidden people shown as idle, one profile id per line. */

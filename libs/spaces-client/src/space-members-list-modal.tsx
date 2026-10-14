@@ -13,8 +13,8 @@ import type { JSX } from 'solid-js';
 import { createEffect, createMemo, Show } from 'solid-js';
 import { useSpaceRoomClientId } from './space-room-context';
 import { useMemberRole } from './use-member-role';
-import { useClearSpaceQuiet } from './use-space-device-quiet';
 import { useOpenSpacePresence } from './use-open-space-presence';
+import { useClearSpaceQuiet } from './use-space-device-quiet';
 import { useSpaceParticipantColors } from './use-space-participant-colors';
 
 export type SpaceMembersListModalProps = {

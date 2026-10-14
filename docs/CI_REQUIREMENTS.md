@@ -100,11 +100,11 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 316 |
-| Check scripts | 1133 |
+| Check scripts | 1134 |
 | Measured scripts | 189 |
-| Estimated scripts | 944 |
+| Estimated scripts | 945 |
 | Stale cost keys | 538 |
-| Cold CPU | 5424 s |
+| Cold CPU | 5440 s |
 | Spec parts | 3632 s across 215 tasks |
 | Longest task | @apps/product#test:contract:render 60 s |
 
@@ -113,7 +113,7 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | Family | Tasks | CPU |
 | --- | --- | --- |
 | test:spec | 215 | 3632 s |
-| check:models | 28 | 455 s |
+| check:models | 29 | 471 s |
 | lint | 315 | 340 s |
 | tc | 315 | 329 s |
 | test | 218 | 265 s |
@@ -136,7 +136,7 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | --- | --- | --- |
 | @pkgs/matchmaking-root-harness | 161 s | @pkgs/matchmaking-root-harness#test:spec:1 17 s |
 | @pkgs/chess-board-root-harness | 156 s | @pkgs/chess-board-root-harness#test:spec:0 17 s |
-| @apps/product | 134 s | @apps/product#test:contract:render 60 s |
+| @apps/product | 150 s | @apps/product#test:contract:render 60 s |
 | @libs/tools | 88 s | @libs/tools#ci:statecharts 60 s |
 | @pkgs/auth-root-harness | 45 s | @pkgs/auth-root-harness#check:models 21 s |
 
@@ -146,9 +146,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 222 | 5179 s | @apps/product#test:contract:render 60 s |
-| @pkgs/clock-shared | 220 | 5170 s | @apps/product#test:contract:render 60 s |
-| @pkgs/assert-root-shared | 215 | 5152 s | @apps/product#test:contract:render 60 s |
+| @pkgs/property-shared | 222 | 5195 s | @apps/product#test:contract:render 60 s |
+| @pkgs/clock-shared | 220 | 5186 s | @apps/product#test:contract:render 60 s |
+| @pkgs/assert-root-shared | 215 | 5168 s | @apps/product#test:contract:render 60 s |
 
 ### Runner
 

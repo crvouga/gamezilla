@@ -1,9 +1,6 @@
 /** Opening, reading, and setting aside a friend request in the inbox. */
 
 import { expect } from 'bun:test';
-import { Given, Then, When } from '@libs/harness/define';
-import type { Actor } from '@libs/harness/parameter-types';
-import { rememberedUsername } from '@libs/profile-harness/remembered-username';
 import {
   archiveInboxItem,
   chooseInboxList,
@@ -12,6 +9,9 @@ import {
   markInboxRead,
   openInboxItem,
 } from '@libs/friends-harness/inbox-items';
+import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import { rememberedUsername } from '@libs/profile-harness/remembered-username';
 
 const SECOND_MS = 1_000;
 

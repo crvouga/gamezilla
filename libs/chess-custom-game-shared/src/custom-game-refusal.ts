@@ -237,13 +237,12 @@ function playRefusal(
   return '';
 }
 
-export function customGameRefusal(
+/** Only the creator makes the creator's choices, however connected they are. */
+export function customGameCreatorRefusal(
   game: CustomGame | null,
   choice: CustomGameChoice,
-  actor: string,
-  room: CustomGameRoom
+  actor: string
 ): string {
-  if (!room.members.includes(actor)) return 'not in the space';
   if (
     game !== null &&
     CUSTOM_GAME_CREATOR_OPERATIONS.includes(choice.operation) &&
@@ -254,6 +253,18 @@ export function customGameRefusal(
     )
   )
     return 'only the creator';
+  return '';
+}
+
+export function customGameRefusal(
+  game: CustomGame | null,
+  choice: CustomGameChoice,
+  actor: string,
+  room: CustomGameRoom
+): string {
+  if (!room.members.includes(actor)) return 'not in the space';
+  const creator = customGameCreatorRefusal(game, choice, actor);
+  if (creator !== '') return creator;
   const lifecycle = lifecycleRefusal(game, choice);
   if (lifecycle !== '') return lifecycle;
   if (choice.gameId !== (game?.id ?? null)) return 'choices changed';
