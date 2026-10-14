@@ -33,6 +33,8 @@ import { focusActor } from '@libs/harness/shell-actions';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import refundableTrial from './fixtures/billing-seven-day-trial-can-be-refunded.itf.json';
+import offlineTrial from './fixtures/billing-trial-ends-while-phone-offline.itf.json';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DEVICES = [BILLING_PAYER, BILLING_SECOND_DEVICE] as const;
@@ -51,6 +53,22 @@ bindQuintModel<QuintHarnessWorld>({
   traces: 64,
   maxSteps: 10,
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: billing-seven-day-trial-can-be-refunded
+      id: 'billing-seven-day-trial-can-be-refunded',
+      title: 'Seven days offline end the trial before a refund',
+      seed: '0x67932',
+      itf: refundableTrial,
+    },
+    {
+      // regression: billing-trial-ends-while-phone-offline
+      id: 'billing-trial-ends-while-phone-offline',
+      title: 'Eight offline days end the trial before the phone returns',
+      seed: '0x67932',
+      itf: offlineTrial,
+    },
+  ],
   actions: {
     init: async (w) => {
       await w.s.apply(signInWithGoogle, BILLING_PAYER);
@@ -88,7 +106,17 @@ bindQuintModel<QuintHarnessWorld>({
       // already move the clock by seconds. Land inside the model's day so
       // the 7th day is still paid and the 8th is free.
       const slopMs = 60_000;
-      await w.s.apply(letTimePass, Number(picks['n']) * DAY_MS - slopMs);
+      const days = Number(picks['n']);
+      await w.s.apply(letTimePass, days * DAY_MS - slopMs);
+      const trialDays = Number(w.memo.get('trial-days') ?? 0) + days;
+      w.memo.set('trial-days', trialDays);
+      // Access stays inside the day's boundary; the provider still reaches
+      // the seven-day trial end and charges its first paid renewal.
+      if (trialDays >= 7) {
+        const shown = await w.s.read(membershipShown, BILLING_PAYER);
+        if (shown?.state === 'trialing')
+          await w.s.apply(observeMembership, BILLING_PAYER, 'period_end');
+      }
     },
     refund: async (w) => {
       await w.s.apply(focusActor, BILLING_PAYER);

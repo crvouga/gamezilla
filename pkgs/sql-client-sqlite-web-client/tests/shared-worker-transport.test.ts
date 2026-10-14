@@ -117,6 +117,33 @@ describe('shared-worker transport across page loads', () => {
     delete (globalThis as { SharedWorker?: unknown }).SharedWorker;
   });
 
+  test('leaving while the database opens releases the pending owner', async () => {
+    // regression: sqlite-web-navigation-during-open
+    installSharedWorker();
+    const opening = Promise.withResolvers<void>();
+    const entered = Promise.withResolvers<void>();
+    let released = false;
+    const first = createSharedWorkerTransport({
+      dbName: 'app',
+      timers: parkedTimers,
+      workerUrl: '/db-host-shared-worker.js',
+      createOwnerRuntimeFn: ({ dbName }) => ({
+        ...stubOwnerRuntime(dbName, () => {
+          released = true;
+        }),
+        open: () => {
+          entered.resolve();
+          return opening.promise;
+        },
+      }),
+    });
+    void first.connect();
+    await entered.promise;
+    first.leaveOnUnload();
+    expect(released).toBe(true);
+    expect((await openPage().connect()).role).toBe('owner');
+  });
+
   // regression: sqlite-web-navigation-dead-owner — a same-tab navigation
   // (the sign-in callback, any reload) left the previous page owning the
   // store: discarded, or frozen in the back/forward cache still holding its

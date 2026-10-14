@@ -13,6 +13,7 @@ export type StackAddresses = {
   readonly webOrigin: string;
   readonly idpOrigins: StackIdpOrigins;
   readonly databaseUrl: string;
+  readonly mqttUrl: string | null;
 };
 
 export const STACK_MANIFEST_ENV = 'LOCALHOST_STACK_MANIFEST';

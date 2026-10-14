@@ -11,10 +11,9 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { AvatarHero } from '@pkgs/ui-root-client/avatar-hero';
 import { Combobox } from '@pkgs/ui-root-client/combobox';
 import { ConfirmationModal } from '@pkgs/ui-root-client/confirmation-modal';
-import { FormActionsFooter } from '@pkgs/ui-root-client/form-actions-footer';
+import { FormScreen } from '@pkgs/ui-root-client/form-screen';
 import { MultiSelectSwatchGrid } from '@pkgs/ui-root-client/multi-select-swatch-grid';
 import { PickerSection } from '@pkgs/ui-root-client/picker-section';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { Skeleton } from '@pkgs/ui-root-client/skeleton';
 import type { ComboboxOption } from '@pkgs/ui-root-shared/combobox-types';
 import type { JSX } from 'solid-js';
@@ -303,39 +302,31 @@ export function AvatarEditorScreen(): JSX.Element {
         confirmDataSet={{ testid: Handles.profileAvatarDiscardConfirm }}
         cancelDataSet={{ testid: Handles.profileAvatarDiscardKeep }}
       />
-      <ScreenBase
+      <FormScreen
         screenId="avatar-editor"
         breadcrumbs={[
           { name: <Trans>Profile</Trans>, onClick: editor.onBack },
           { name: <Trans>Avatar</Trans> },
         ]}
-        scroll
-        footer={
-          <FormActionsFooter
-            cancel={{
-              label: <Trans>Cancel</Trans>,
-              onClick: editor.onBack,
-              dataSet: { testid: Handles.profileAvatarCancel },
-            }}
-            submit={{
-              label: <Trans>Save</Trans>,
-              loadingLabel: <Trans>Saving…</Trans>,
-              successLabel: <Trans>Saved</Trans>,
-              errorLabel: <Trans>Couldn't save</Trans>,
-              operation: editor.save,
-              get disabled() {
-                return !editor.dirty || editor.profileId === null;
-              },
-              dataSet: { testid: Handles.profileAvatarSave },
-            }}
-          />
-        }
-        content={({ bodyClass }) => (
-          <div class={`box ${bodyClass}`}>
-            <EditorContent editor={editor} />
-          </div>
-        )}
-      />
+        cancel={{
+          label: <Trans>Cancel</Trans>,
+          onClick: editor.onBack,
+          dataSet: { testid: Handles.profileAvatarCancel },
+        }}
+        submit={{
+          label: <Trans>Save</Trans>,
+          loadingLabel: <Trans>Saving…</Trans>,
+          successLabel: <Trans>Saved</Trans>,
+          errorLabel: <Trans>Couldn't save</Trans>,
+          operation: editor.save,
+          get disabled() {
+            return !editor.dirty || editor.profileId === null;
+          },
+          dataSet: { testid: Handles.profileAvatarSave },
+        }}
+      >
+        <EditorContent editor={editor} />
+      </FormScreen>
     </>
   );
 }

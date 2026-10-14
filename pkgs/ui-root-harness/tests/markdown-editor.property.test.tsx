@@ -1,11 +1,8 @@
-/** @jsxImportSource solid-js */
 import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import { MarkdownEditor } from '@pkgs/ui-root-client/markdown-editor';
 import { fireEvent } from '@solidjs/testing-library';
 import fc from 'fast-check';
-import { createSignal } from 'solid-js';
-import { renderUi } from './render';
+import { editor, formatAndUndo } from './markdown-editor-fixture';
 
 const writing = fc
   .array(fc.constantFrom('Board', 'movement', 'feels', 'clear', 'today'), {
@@ -15,81 +12,47 @@ const writing = fc
   .map((words) => words.join(' '));
 
 test('formatting and undo preserve arbitrary authored paragraphs', () => {
-  assertProperty(
-    'markdown-editor',
-    fc.property(writing, (text) => {
-      let value = text;
-      const mounted = renderUi(() => {
-        const [source, setSource] = createSignal(text);
-        return (
-          <MarkdownEditor
-            aria-label="Writing"
-            value={source()}
-            onChange={(next) => {
-              value = next;
-              setSource(next);
-            }}
-          />
-        );
-      });
-      try {
-        fireEvent.click(mounted.getByRole('button', { name: 'Heading' }));
-        expect(
-          mounted.getByRole('textbox').querySelector('h2')?.textContent
-        ).toBe(text);
-        expect(value).toBe(`## ${text}`);
-        fireEvent.click(
-          mounted.getByRole('button', { name: 'Undo (⌘/Ctrl+Z)' })
-        );
-        expect(mounted.getByRole('textbox').querySelector('h2')).toBeNull();
-        expect(value).toBe(text);
-      } finally {
-        mounted.unmount();
-      }
-    })
-  );
+  const mounted = editor();
+  try {
+    assertProperty(
+      'markdown-editor',
+      fc.property(writing, (text) => formatAndUndo(mounted, text))
+    );
+  } finally {
+    mounted.unmount();
+  }
 });
 
 test('formatting cannot exceed the serialized writing limit', () => {
-  assertProperty(
-    'markdown-editor',
-    fc.property(writing, (text) => {
-      let changed = false;
-      const mounted = renderUi(() => (
-        <MarkdownEditor
-          aria-label="Writing"
-          value={text}
-          maxLength={text.length}
-          onChange={() => {
-            changed = true;
-          }}
-        />
-      ));
-      try {
-        fireEvent.click(mounted.getByRole('button', { name: 'Heading' }));
-        expect(changed).toBe(false);
-        expect(mounted.getByRole('textbox').textContent).toBe(text);
-        expect(mounted.getByRole('textbox').querySelector('h2')).toBeNull();
-      } finally {
-        mounted.unmount();
-      }
-    })
-  );
+  const mounted = editor();
+  try {
+    assertProperty(
+      'markdown-editor',
+      fc.property(writing, (text) => {
+        mounted.setLimit(text.length);
+        mounted.setValue(text);
+        fireEvent.click(mounted.heading);
+        expect(mounted.value()).toBe(text);
+        expect(mounted.field.textContent).toBe(text);
+        expect(mounted.field.querySelector('h2')).toBeNull();
+      })
+    );
+  } finally {
+    mounted.unmount();
+  }
 });
 
 test('pasted links cannot introduce executable destinations', () => {
-  assertProperty(
-    'markdown-editor',
-    fc.property(
-      fc.constantFrom('javascript:', 'vbscript:', 'data:', '//'),
-      writing,
-      (scheme, text) => {
-        const mounted = renderUi(() => (
-          <MarkdownEditor aria-label="Writing" value="" onChange={() => {}} />
-        ));
-        try {
-          const field = mounted.getByRole('textbox');
-          fireEvent.paste(field, {
+  const mounted = editor();
+  try {
+    assertProperty(
+      'markdown-editor',
+      fc.property(
+        fc.constantFrom('javascript:', 'vbscript:', 'data:', '//'),
+        writing,
+        (scheme, text) => {
+          mounted.setValue('');
+          fireEvent.paste(mounted.field, {
             clipboardData: {
               files: [],
               getData: (type: string) =>
@@ -98,12 +61,12 @@ test('pasted links cannot introduce executable destinations', () => {
                   : text,
             },
           });
-          expect(field.querySelector('a')).toBeNull();
-          expect(field.textContent).toBe(text);
-        } finally {
-          mounted.unmount();
+          expect(mounted.field.querySelector('a')).toBeNull();
+          expect(mounted.field.textContent).toBe(text);
         }
-      }
-    )
-  );
+      )
+    );
+  } finally {
+    mounted.unmount();
+  }
 });

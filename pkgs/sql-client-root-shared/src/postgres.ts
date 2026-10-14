@@ -2,11 +2,21 @@
  * Postgres dialect: list user tables, dump rows, load rows.
  */
 
-import sql, { ident, join, raw } from '@pkgs/sql-root-shared/sql';
+import sql, {
+  ident,
+  join,
+  MAX_BOUND_VALUES,
+  raw,
+} from '@pkgs/sql-root-shared/sql';
 import { rowToDumpValues } from './cell-codec';
 import type { PostgresSqlClient } from './interface';
 import { quotePgIdent } from './postgres-db-scope';
-import type { SqlDataDump, SqlDataDumpOptions, SqlTableDump } from './types';
+import type {
+  SqlDataDump,
+  SqlDataDumpOptions,
+  SqlDumpValue,
+  SqlTableDump,
+} from './types';
 import { SQL_DATA_DUMP_VERSION } from './types';
 
 export async function listPostgresUserTables(
@@ -40,7 +50,7 @@ async function postgresTableColumns(
 function postgresRowValues(
   columns: readonly string[],
   row: Record<string, unknown>
-): readonly import('./types').SqlDumpValue[] {
+): readonly SqlDumpValue[] {
   const byLower = new Map<string, unknown>();
   for (const [key, value] of Object.entries(row)) {
     byLower.set(key.toLowerCase(), value);
@@ -177,12 +187,36 @@ async function insertTableDump(
 ): Promise<void> {
   const { columns, rows } = slice;
   if (columns.length === 0 || rows.length === 0) return;
-  for (const row of rows) {
-    const values = columns.map((_, i) => sql`${row[i] as never}`);
+  const kinds = await client.query<{
+    column_name: string;
+    data_type: string;
+  }>(sql`
+    SELECT column_name, data_type FROM information_schema.columns
+    WHERE table_schema = ${client.dbScope.schema} AND table_name = ${table}
+  `);
+  const jsonColumns = new Set(
+    kinds
+      .filter(
+        (column) => column.data_type === 'json' || column.data_type === 'jsonb'
+      )
+      .map((column) => column.column_name)
+  );
+  const batchSize = Math.max(
+    1,
+    Math.min(200, Math.floor(MAX_BOUND_VALUES / columns.length))
+  );
+  for (let offset = 0; offset < rows.length; offset += batchSize) {
+    const values = rows.slice(offset, offset + batchSize).map((row) => {
+      const cells = columns.map((column, i) => {
+        const value = row[i];
+        return sql`${jsonColumns.has(column) && value !== null ? JSON.stringify(value) : (value as never)}`;
+      });
+      return sql`(${join(cells)})`;
+    });
     await client.run(
       sql`INSERT INTO ${ident(table)} (${join(
         columns.map((c) => raw(quotePgIdent(c)))
-      )}) VALUES (${join(values)})`
+      )}) VALUES ${join(values)}`
     );
   }
 }

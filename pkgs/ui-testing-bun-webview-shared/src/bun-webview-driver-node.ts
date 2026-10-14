@@ -84,7 +84,7 @@ const ARM_POINTER_COUNTER = `(function () {
       if (e.isTrusted) counts.click += 1;
     }, true);
   }
-  return [window.__uiTestingPointerCounts.down, window.__uiTestingPointerCounts.up, window.__uiTestingPointerCounts.click];
+  return [window.__uiTestingPointerCounts.down, window.__uiTestingPointerCounts.up, window.__uiTestingPointerCounts.click, performance.timeOrigin];
 })()`;
 
 /** Pause between re-sends, page-side so the host process stays unscheduled. */
@@ -98,6 +98,7 @@ type PointerCounts = {
   readonly down: number;
   readonly up: number;
   readonly click: number;
+  readonly documentId: number;
 };
 
 async function readPointerCounts(view: BunWebView): Promise<PointerCounts> {
@@ -113,6 +114,7 @@ async function readPointerCounts(view: BunWebView): Promise<PointerCounts> {
     down: raw[0],
     up: raw[1],
     click: typeof raw[2] === 'number' ? raw[2] : 0,
+    documentId: typeof raw[3] === 'number' ? raw[3] : 0,
   };
 }
 
@@ -148,6 +150,8 @@ async function nativeClick(
       button: button === 'secondary' ? 'right' : 'left',
     });
     const after = await readPointerCounts(view);
+    // A form navigation replaces the counters; the old click has already landed.
+    if (after.documentId !== before.documentId) return;
     if (completion === 'click') {
       if (after.click > before.click) return;
       continue;

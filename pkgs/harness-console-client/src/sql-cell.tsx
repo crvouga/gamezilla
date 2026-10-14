@@ -1,5 +1,6 @@
 import { useClock } from '@pkgs/clock-client/solid';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { executeSqlStatements } from '@pkgs/sql-client-root-shared/statements';
 import { IconButton } from '@pkgs/ui-root-client/icon-button';
 import {
   ChevronDownIcon,
@@ -74,7 +75,8 @@ export function SqlCell(props: SqlCellRenderProps): JSX.Element {
   const tokenize = (src: string) => tokenizeSql(src, props.dialect());
   const run = async (andNext: boolean) => {
     const out = await runSqlCell({
-      sqlClient: props.sqlClient,
+      execute: (statements) =>
+        executeSqlStatements(props.sqlClient, statements),
       sql: props.cell().sql,
       now: () => clock.now(),
     });

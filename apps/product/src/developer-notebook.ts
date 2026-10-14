@@ -11,6 +11,13 @@ import {
 } from '@pkgs/harness-console-client/notebook-doc';
 import { runSqlCell } from '@pkgs/harness-console-client/run-sql-cell';
 import { tools } from './developer-tools-state';
+
+async function notebookExecutor(s: ProductHarness, actorId: string) {
+  await ensureActor(s, actorId);
+  const actor = s.actors.get(actorId);
+  if (actor === undefined) throw new Error(`Device ${actorId} unavailable`);
+  return actor.executeStatements;
+}
 export const FRIENDS_QUESTION =
   'SELECT id, user_low, user_high FROM friends_friendships';
 export const SPACES_QUESTION = 'SELECT id, title FROM spaces';
@@ -65,10 +72,9 @@ export const openNotebook = scenarioAction({
       state.notebookRun = null;
       return;
     }
-    const client = await s.harness.client(doc.nodeId);
-    const db = await client.openSqlClient();
+    const execute = await notebookExecutor(s, doc.nodeId);
     state.notebookRun = await runSqlCell({
-      sqlClient: db,
+      execute,
       sql: live.sql,
       now: s.harness.clock.now,
     });
@@ -90,10 +96,9 @@ export const editNotebookQuestion = scenarioAction({
     const doc = state.notebook;
     if (doc === null) throw new Error('Notebook is not open');
     if (operation === 'run') {
-      const client = await s.harness.client(doc.nodeId);
-      const db = await client.openSqlClient();
+      const execute = await notebookExecutor(s, doc.nodeId);
       state.notebookRun = await runSqlCell({
-        sqlClient: db,
+        execute,
         sql: doc.cells[0]?.sql ?? '',
         now: s.harness.clock.now,
       });

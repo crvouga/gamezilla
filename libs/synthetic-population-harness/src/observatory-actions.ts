@@ -91,9 +91,11 @@ export async function desiredSyntheticPopulationShown(
   s: ProductHarness,
   actor: string
 ): Promise<number | null> {
-  const raw = await (await actorUi(s, actor))
-    .get('synthetic-population-desired-value')
-    .text();
+  const node = (await actorUi(s, actor)).get(
+    'synthetic-population-desired-value'
+  );
+  if (!(await node.isVisible())) return null;
+  const raw = await node.text();
   const number = raw?.match(/\d+\s*$/)?.[0];
   return number === undefined ? null : Number(number);
 }

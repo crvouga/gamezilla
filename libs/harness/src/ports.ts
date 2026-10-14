@@ -1,3 +1,5 @@
+import type { HarnessCheckpointSqlFormat } from '@pkgs/harness-console-shared/checkpoint';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client/multi-app-solid-dom-session';
 import type { HarnessSql } from './sql-types';
 
@@ -42,6 +44,8 @@ export type ProductHttp =
     };
 
 export type ProductExtra = {
+  readonly checkpointSqlFormat?: HarnessCheckpointSqlFormat;
+  readonly serverEvents?: PubSub;
   readonly sql: HarnessSql;
   readonly ui: ProductUi;
   readonly http: ProductHttp;

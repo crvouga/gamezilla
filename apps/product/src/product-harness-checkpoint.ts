@@ -38,7 +38,8 @@ export async function captureCheckpoint(
     serverIds: [...ctx.harness.serverIds()],
     roomTopics,
     ...collectFaultFields(ctx),
-    sqlFormat: getHarnessSqlEngines().checkpointSqlFormat,
+    sqlFormat:
+      ctx.checkpointSqlFormat ?? getHarnessSqlEngines().checkpointSqlFormat,
     ...blobs,
     rooms: collectRooms(ctx, roomTopics),
   };
@@ -48,7 +49,8 @@ export async function restoreCheckpoint(
   ctx: CheckpointSessionCtx,
   checkpoint: HarnessCheckpoint
 ): Promise<void> {
-  const expected = getHarnessSqlEngines().checkpointSqlFormat;
+  const expected =
+    ctx.checkpointSqlFormat ?? getHarnessSqlEngines().checkpointSqlFormat;
   if (checkpoint.sqlFormat === 'sqlm') {
     throw new Error(
       'restoreCheckpoint: legacy all-sqlm checkpoints are incompatible with the current server SQL fabric'

@@ -24,19 +24,24 @@ test('a zero exit after the task budget is not reusable passing evidence', () =>
     const hash = 'c54b47920c7edc79';
     writeFileSync(join(cache, `${hash}.tar.zst`), 'over-budget artifact');
     writeFileSync(join(cache, `${hash}-meta.json`), '{}');
-    publishCheckArtifacts(cache, store, {
-      tasks: [
-        {
-          taskId: '@pkgs/matchmaking-root-harness#test:spec:4',
-          hash,
-          execution: {
-            startTime: 1791601508533,
-            endTime: 1791602004890,
-            exitCode: 0,
+    publishCheckArtifacts(
+      cache,
+      store,
+      {
+        tasks: [
+          {
+            taskId: '@pkgs/matchmaking-root-harness#test:spec:4',
+            hash,
+            execution: {
+              startTime: 1791601508533,
+              endTime: 1791602004890,
+              exitCode: 0,
+            },
           },
-        },
-      ],
-    });
+        ],
+      },
+      {}
+    );
     restoreCheckArtifacts(store, restored);
     expect(() => readFileSync(join(restored, `${hash}.tar.zst`))).toThrow();
   } finally {

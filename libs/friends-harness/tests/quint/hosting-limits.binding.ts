@@ -27,6 +27,8 @@ import { variant } from '@pkgs/quint-shared/itf';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import reconnectInvitation from './fixtures/hosting-invitation-clears-on-reconnect.itf.json';
 
+import regained from './fixtures/hosting-reconnect-keeps-open-space.itf.json';
+
 const ACTOR = 'alice';
 const LINKS = 'hosting-limit-links';
 const OFFLINE = 'hosting-limit-offline';
@@ -85,6 +87,14 @@ bindQuintModel<QuintHarnessWorld>({
   inductiveInvariant: '_inductive',
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: hosting-reconnect-keeps-open-space
+      id: 'hosting-reconnect-keeps-open-space',
+      title:
+        'An offline-created retained space reconnects after paid access ends',
+      seed: '0x67932',
+      itf: regained,
+    },
     {
       // regression: hosting-invitation-clears-on-reconnect
       id: 'hosting-invitation-clears-on-reconnect',

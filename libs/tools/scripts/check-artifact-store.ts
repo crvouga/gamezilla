@@ -38,10 +38,11 @@ export function restoreCheckArtifacts(store: string, cache: string): void {
 export function publishCheckArtifacts(
   cache: string,
   store: string,
-  summary: RunSummary | null
+  summary: RunSummary | null,
+  env: NodeJS.ProcessEnv = process.env
 ): void {
   const overBudget = new Set(
-    findBudgetOverruns(summary ?? {}, false).map((task) => task.taskId)
+    findBudgetOverruns(summary ?? {}, false, env).map((task) => task.taskId)
   );
   const passed = new Set(
     (summary?.tasks ?? [])

@@ -11,6 +11,12 @@ Feature: Look at the people in a space
       When Alice views the space's presence
       Then Alice sees 2 people in the space's presence
 
+    Scenario: A connected host in the lobby still counts in presence
+      Given Alice is hosting a space that Bob joined from the link
+      And Alice has gone back to the lobby
+      When Bob views the space's presence
+      Then Bob sees 2 people in the space's presence
+
     Scenario: An offline host views their own presence
       Given Alice is hosting a space
       And Alice is offline

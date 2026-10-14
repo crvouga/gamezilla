@@ -7,6 +7,7 @@ import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 export type HarnessPostgresHandle = {
+  readonly pool: ReturnType<typeof createPgPool>['pool'];
   readonly sqlClient: SqlClient;
   readonly databaseUrl: string;
   stop(): Promise<void>;
@@ -23,6 +24,7 @@ export function bootHarnessPostgres(
     max: 4,
   });
   return Promise.resolve({
+    pool,
     sqlClient,
     databaseUrl,
     async stop() {

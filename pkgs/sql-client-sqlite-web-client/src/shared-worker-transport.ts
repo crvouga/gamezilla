@@ -252,7 +252,9 @@ class SharedWorkerTransport implements WebSqlTransport {
   }
 
   leaveOnUnload(): void {
-    if (!this.connected) return;
+    // Ownership starts before open() settles. Navigation during that open
+    // must release the worker and broker slot as well.
+    if (this.port === null) return;
     this.unsubOwnerChanged?.();
     this.unsubOwnerChanged = null;
     this.ownerRuntime?.release();

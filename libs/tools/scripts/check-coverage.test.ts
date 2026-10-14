@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
+import { coverageWorkerEnv } from './check-coverage';
 import type { FileCoverage, LcovRecord } from './lcov';
 import { countLines, formatLcov, mergeInto, parseLcov } from './lcov';
 import type { PackagePlan } from './packages';
@@ -10,6 +13,35 @@ const REPO_ROOT = join(import.meta.dirname, '../../..');
 const EQUAL_DIR = join(REPO_ROOT, 'pkgs/equal-shared');
 const EQUAL_SOURCE = join(EQUAL_DIR, 'src/is-equal.ts');
 const ASSERT_SOURCE = join(REPO_ROOT, 'pkgs/assert-root-shared/src/assert.ts');
+
+// regression: coverage-nested-concurrency-oversubscribes-runner
+test('coverage on two cores does not launch twenty concurrent tests per package', () => {
+  expect(coverageWorkerEnv({}, 2, 4)['CHECK_TEST_CONCURRENCY']).toBe('1');
+});
+
+test('coverage shares its CPU ceiling and keeps a lower explicit test limit', () => {
+  assertProperty(
+    'coverage CPU ceiling',
+    fc.property(
+      fc.integer({ min: 1, max: 128 }),
+      fc.integer({ min: 1, max: 16 }),
+      fc.integer({ min: 1, max: 32 }),
+      (cpus, jobs, limit) => {
+        const env = {
+          CHECK_TEST_CONCURRENCY: String(limit),
+          CHECK_PROFILE: 'nightly',
+        };
+        const worker = coverageWorkerEnv(env, cpus, jobs);
+        const count = Number(worker['CHECK_TEST_CONCURRENCY']);
+        expect(count).toBeGreaterThanOrEqual(1);
+        expect(count).toBeLessThanOrEqual(limit);
+        expect(count).toBeLessThanOrEqual(Math.max(1, Math.floor(cpus / jobs)));
+        expect(worker['CHECK_PROFILE']).toBe('nightly');
+        expect(env['CHECK_TEST_CONCURRENCY']).toBe(String(limit));
+      }
+    )
+  );
+});
 
 function firstRecord(text: string, baseDir: string): LcovRecord {
   const [record] = parseLcov(text, baseDir);

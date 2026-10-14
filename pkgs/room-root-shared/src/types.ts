@@ -119,6 +119,7 @@ export type RoomConnectionView =
   | { readonly mode: 'full' }
   | { readonly mode: 'authority' }
   | { readonly mode: 'dependent'; readonly reason: string }
+  | { readonly mode: 'dependent-read'; readonly reason: string }
   | { readonly mode: 'presence'; readonly reason: string };
 
 export type RoomModule<
@@ -129,7 +130,7 @@ export type RoomModule<
 > = {
   /** Wire id for DO routing (`module` query) and uniqueness in multi-module hosts. */
   readonly name: RoomModuleName;
-  /** Presence sees availability; dependent participants wait for authority. */
+  /** Dependent readers keep authorized history while participation waits for authority. */
   connectionView?(grants: readonly string[]): RoomConnectionView;
   initialState(): S;
   handle(

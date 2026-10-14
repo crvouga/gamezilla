@@ -2,7 +2,8 @@
 //
 // She is signed in on her computer and on her phone, with a new Plus
 // membership still in its free trial. The trial can end, and she still has
-// paid access. She can cancel while the free trial is still running and
+// paid access. The free trial lasts 7 days, including days her phone is
+// offline. She can cancel while the free trial is still running and
 // reach that period end: paid access then lasts 7 days and no longer.
 // Once the free trial has ended, this story does not run the paid month
 // out — a sign-in lapses before that period end, and signing in again is
@@ -29,6 +30,8 @@ module grace_and_refunds {
   var _day: int
   /// The free trial has ended and the membership is on a paid renewal.
   var _trialOver: bool
+  /// Days of the free trial already spent, up to its 7 days.
+  var _trialDays: int
   /// Devices whose connection is gone.
   var _offline: Set[Device]
 
@@ -40,12 +43,18 @@ module grace_and_refunds {
     day: int,
     trialOver: bool,
     offline: Set[Device],
-  ): bool = all {
-    accessOn' = access,
-    _phase' = phase,
-    _day' = day,
-    _trialOver' = trialOver,
-    _offline' = offline,
+  ): bool = {
+    val trialDays = if (phase == "live" and day > _day)
+      if (_trialDays + day - _day >= 7) 7 else _trialDays + day - _day
+      else if (trialOver) 7 else _trialDays
+    all {
+      accessOn' = access,
+      _phase' = phase,
+      _day' = day,
+      _trialOver' = (trialOver or trialDays >= 7),
+      _trialDays' = trialDays,
+      _offline' = offline,
+    }
   }
 
   action init = all {
@@ -53,6 +62,7 @@ module grace_and_refunds {
     _phase' = "live",
     _day' = 0,
     _trialOver' = false,
+    _trialDays' = 0,
     _offline' = Set(),
   }
 
@@ -150,5 +160,12 @@ module grace_and_refunds {
       if (_phase == "refunded") "free"
       else if (_phase == "grace") _after(_day)
       else "paid",
+  }
+
+  /// Days spent in the free trial are never regained when the connection returns.
+  val invTrialEndsAfterSevenDays = all {
+    _trialDays >= 0,
+    _trialDays <= 7,
+    _trialDays == 7 implies _trialOver,
   }
 }

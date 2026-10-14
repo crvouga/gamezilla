@@ -4,7 +4,7 @@ import {
   useLocalSearchParams,
   useRouter,
 } from '@pkgs/ui-root-client/app-router';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client/screen-base-types';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
@@ -86,46 +86,42 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
   const breadcrumbs = useFriendUserBreadcrumbs(userProfile, userId);
 
   return (
-    <ScreenBase
+    <ContentScreen
       screenId="friend-user"
       breadcrumbs={breadcrumbs()}
       actions={headerActions()}
-      content={({ bodyClass }) => (
-        <div class={`box gap-4 ${bodyClass}`}>
-          <FriendRequestFeedback
-            userId={props.userId}
-            outgoingRequestId={requestIds.outgoingRequestId()}
-          />
-          <Show
-            when={!userProfile.unavailable()}
-            fallback={
-              <p class="text textBody" data-testid="friend-profile-unavailable">
-                <Trans>
-                  This profile is no longer available because the account was
-                  deleted.
-                </Trans>
-              </p>
-            }
-          >
-            <FriendUserScreenContent
-              class={bodyClass}
-              profile={userProfile.profile()}
-              userId={props.userId}
-              status={status()}
-              incomingRequestId={requestIds.incomingRequestId()}
-              outgoingRequestId={requestIds.outgoingRequestId()}
-              onChanged={userProfile.refreshProfile}
-              removeOpen={removeOpen()}
-              blockOpen={blockOpen()}
-              onCloseRemove={() => setRemoveOpen(false)}
-              onCloseBlock={() => setBlockOpen(false)}
-              onRemove={dangerHandlers.onRemove}
-              onBlock={dangerHandlers.onBlock}
-            />
-          </Show>
-        </div>
-      )}
-    />
+    >
+      <FriendRequestFeedback
+        userId={props.userId}
+        outgoingRequestId={requestIds.outgoingRequestId()}
+      />
+      <Show
+        when={!userProfile.unavailable()}
+        fallback={
+          <p class="text textBody" data-testid="friend-profile-unavailable">
+            <Trans>
+              This profile is no longer available because the account was
+              deleted.
+            </Trans>
+          </p>
+        }
+      >
+        <FriendUserScreenContent
+          profile={userProfile.profile()}
+          userId={props.userId}
+          status={status()}
+          incomingRequestId={requestIds.incomingRequestId()}
+          outgoingRequestId={requestIds.outgoingRequestId()}
+          onChanged={userProfile.refreshProfile}
+          removeOpen={removeOpen()}
+          blockOpen={blockOpen()}
+          onCloseRemove={() => setRemoveOpen(false)}
+          onCloseBlock={() => setBlockOpen(false)}
+          onRemove={dangerHandlers.onRemove}
+          onBlock={dangerHandlers.onBlock}
+        />
+      </Show>
+    </ContentScreen>
   );
 }
 

@@ -1,0 +1,4 @@
+{
+  "summary": "The native browser could see signed-out account chrome underneath the retained sign-out success modal, but could not act on it. The scenario and worker gestures now dismiss that outcome before signing in again.",
+  "regressionTest": "specs/billing/billing-access-per-person.feature"
+}

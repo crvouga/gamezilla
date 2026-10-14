@@ -1,5 +1,7 @@
-import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
-import { raw } from '@pkgs/sql-root-shared/sql';
+import type {
+  ExecuteSqlStatements,
+  SqlStatementOutput,
+} from '@pkgs/sql-client-root-shared/statements';
 
 import { classifySqlStatement, splitSqlStatements } from './sql-tokenize';
 
@@ -28,24 +30,24 @@ export type SqlCellRun = {
 const MAX_DISPLAY_ROWS = 5000;
 
 export async function runSqlCell(args: {
-  readonly sqlClient: SqlClient;
+  readonly execute: ExecuteSqlStatements;
   readonly sql: string;
   readonly now: () => number;
 }): Promise<SqlCellRun> {
-  const { sqlClient, sql, now } = args;
+  const { execute, sql, now } = args;
   const statements = splitSqlStatements(sql);
   if (statements.length === 0) {
     return { statements: [], durationMs: 0, error: null };
   }
   const started = now();
   try {
-    const results = await sqlClient.transaction(async (tx) => {
-      const out: SqlStatementResult[] = [];
-      for (const stmt of statements) {
-        out.push(await runOneStatement(tx, stmt));
-      }
-      return out;
-    });
+    const output = await execute(
+      statements.map((text) => ({
+        text,
+        kind: classifySqlStatement(text) === 'rows' ? 'query' : 'run',
+      }))
+    );
+    const results = output.map(statementResult);
     return {
       statements: results,
       durationMs: Math.max(0, now() - started),
@@ -60,25 +62,18 @@ export async function runSqlCell(args: {
   }
 }
 
-async function runOneStatement(
-  tx: SqlClient,
-  stmt: string
-): Promise<SqlStatementResult> {
-  const kind = classifySqlStatement(stmt);
-  if (kind === 'rows') {
-    const rows = await tx.query<Record<string, unknown>>(raw(stmt));
-    const truncated = rows.length > MAX_DISPLAY_ROWS;
-    const clipped = truncated ? rows.slice(0, MAX_DISPLAY_ROWS) : rows;
-    return {
-      kind: 'rows',
-      sql: stmt,
-      columns: columnsFromRows(clipped),
-      rows: clipped,
-      truncated,
-    };
-  }
-  const result = await tx.run(raw(stmt));
-  return { kind: 'changes', sql: stmt, changes: result.changes };
+function statementResult(result: SqlStatementOutput): SqlStatementResult {
+  if (result.kind === 'changes')
+    return { kind: 'changes', sql: result.text, changes: result.changes };
+  const truncated = result.rows.length > MAX_DISPLAY_ROWS;
+  const rows = truncated ? result.rows.slice(0, MAX_DISPLAY_ROWS) : result.rows;
+  return {
+    kind: 'rows',
+    sql: result.text,
+    rows,
+    columns: columnsFromRows(rows),
+    truncated,
+  };
 }
 
 export function columnsFromRows(

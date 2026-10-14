@@ -58,44 +58,48 @@ function transform(fen: string, flip: boolean, black: boolean): string {
   return fields.join(' ');
 }
 
+const legalMates = fc.property(
+  fc.oneof(fc.constantFrom(...MATES), ladder),
+  fc.boolean(),
+  fc.boolean(),
+  fc.nat(500),
+  (seed, flip, black, preferred) => {
+    const fen = transform(seed, flip, black);
+    const position = new Chess(fen);
+    const candidates = position.moves({ verbose: true });
+    const oracle = new Chess(fen);
+    let mates = 0;
+    for (const candidate of candidates) {
+      oracle.move(candidate);
+      const checkmate = oracle.isCheckmate();
+      oracle.undo();
+      if (!checkmate) continue;
+      mates += 1;
+      const stored = candidates[preferred % candidates.length]!.lan;
+      for (const tokens of [
+        [],
+        ['a2a3', stored],
+        ['a2a3', candidate.lan, 'a4a3', stored],
+      ]) {
+        const actual = judgePuzzleMove({
+          fen,
+          tokens,
+          idx: 1,
+          uci: candidate.lan,
+        });
+        expect(actual).toMatchObject({ kind: 'correct', ends: true });
+        if (actual.kind === 'correct')
+          expect(actual.line.at(-1)).toBe(candidate.lan);
+      }
+    }
+    expect(mates).toBeGreaterThan(0);
+    if (seed === MATES[0]) expect(mates).toBeGreaterThan(1);
+  }
+);
+
 test('every legal mate succeeds regardless of preferred line and move order', () => {
   assertProperty(
     'every legal mate succeeds regardless of preferred line',
-    fc.property(
-      fc.oneof(fc.constantFrom(...MATES), ladder),
-      fc.boolean(),
-      fc.boolean(),
-      fc.nat(500),
-      (seed, flip, black, preferred) => {
-        const fen = transform(seed, flip, black);
-        const position = new Chess(fen);
-        const candidates = position.moves({ verbose: true });
-        let mates = 0;
-        for (const candidate of candidates) {
-          const oracle = new Chess(fen);
-          oracle.move(candidate);
-          if (!oracle.isCheckmate()) continue;
-          mates += 1;
-          const stored = candidates[preferred % candidates.length]!.lan;
-          for (const tokens of [
-            [],
-            ['a2a3', stored],
-            ['a2a3', candidate.lan, 'a4a3', stored],
-          ]) {
-            const actual = judgePuzzleMove({
-              fen,
-              tokens,
-              idx: 1,
-              uci: candidate.lan,
-            });
-            expect(actual).toMatchObject({ kind: 'correct', ends: true });
-            if (actual.kind === 'correct')
-              expect(actual.line.at(-1)).toBe(candidate.lan);
-          }
-        }
-        expect(mates).toBeGreaterThan(0);
-        if (seed === MATES[0]) expect(mates).toBeGreaterThan(1);
-      }
-    )
+    legalMates
   );
 });

@@ -59,6 +59,7 @@ import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import offlineNavigationTrace from './fixtures/puzzle-offline-navigation.itf.json';
+import offlineReopenTrace from './fixtures/puzzle-offline-reopen-keeps-view.itf.json';
 import reopenResult from './fixtures/puzzle-reopen-keeps-result.itf.json';
 import reviewSolutionTrace from './fixtures/puzzle-review-solution.itf.json';
 import skippedReconnectTrace from './fixtures/puzzle-skipped-reconnect.itf.json';
@@ -129,6 +130,13 @@ bindQuintModel<QuintHarnessWorld>({
   // times that beside the rest of the package's suite.
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: puzzle-offline-reopen-keeps-view
+      id: 'puzzle-offline-reopen-keeps-view',
+      title: 'Reopening offline keeps the host puzzle view',
+      seed: '0x67932',
+      itf: offlineReopenTrace,
+    },
     {
       // regression: puzzle-reopen-keeps-result
       id: 'puzzle-reopen-keeps-result',

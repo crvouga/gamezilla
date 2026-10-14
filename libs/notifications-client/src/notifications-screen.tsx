@@ -10,20 +10,19 @@ import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import { CollectionScreen } from '@pkgs/ui-root-client/collection-screen';
 import {
   BellIcon,
   CheckCheckIcon,
   WifiOffIcon,
 } from '@pkgs/ui-root-client/icons';
 import { Notice } from '@pkgs/ui-root-client/notice';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client/screen-base-types';
 import {
   createEffect,
   createMemo,
   createSignal,
   type JSX,
-  onCleanup,
   onMount,
   Show,
 } from 'solid-js';
@@ -42,11 +41,17 @@ export type NotificationsScreenProps = {
  * behind the invitation instead of an empty inbox.
  */
 function NotificationsDenied(): JSX.Element {
+  const { t } = useLingui();
   const decision = useDecision(PERMISSION.notificationsReceive);
   const unlock = useUnlock();
   onMount(() => unlock.run(decision()));
   return (
-    <DenialSurface decision={decision()} icon={BellIcon} variant="compact" />
+    <CollectionScreen
+      screenId="notifications"
+      breadcrumbs={[{ name: t`Notifications` }]}
+    >
+      <DenialSurface decision={decision()} icon={BellIcon} variant="compact" />
+    </CollectionScreen>
   );
 }
 
@@ -100,7 +105,6 @@ function reportingActions(
 
 function NotificationsScreenBody(props: {
   readonly initialFilter?: NotificationFilter | undefined;
-  readonly onHeaderAction: (action: ScreenBaseAction | null) => void;
 }): JSX.Element {
   const { t } = useLingui();
   const sync = useSyncEngine();
@@ -139,10 +143,10 @@ function NotificationsScreenBody(props: {
       setMissing(false);
     }
   });
-  createEffect(() => {
-    props.onHeaderAction(
-      hasUnread()
-        ? {
+  const headerActions = createMemo((): readonly ScreenBaseAction[] =>
+    hasUnread()
+      ? [
+          {
             type: 'default',
             label: t`Mark all read`,
             icon: CheckCheckIcon,
@@ -152,64 +156,50 @@ function NotificationsScreenBody(props: {
             },
             overflow: 'never',
             dataSet: { testid: Handles.notificationsMarkAllRead },
-          }
-        : null
-    );
-  });
-  onCleanup(() => props.onHeaderAction(null));
+          },
+        ]
+      : []
+  );
 
   return (
-    <div class="box flex-1 min-h-0 gap-2">
-      <Show when={missing()}>
-        <Notice
-          tone="error"
-          icon={WifiOffIcon}
-          dataSet={{ testid: Handles.notificationsConnectionMissing }}
-        >
-          <Trans>The connection is missing.</Trans>
-        </Notice>
-      </Show>
-      <NotificationsFilterBar
-        filter={inbox.filter()}
-        onFilterChange={inbox.setFilter}
-      />
+    <CollectionScreen
+      screenId="notifications"
+      breadcrumbs={[{ name: t`Notifications` }]}
+      actions={headerActions()}
+      controls={
+        <>
+          <Show when={missing()}>
+            <Notice
+              tone="error"
+              icon={WifiOffIcon}
+              dataSet={{ testid: Handles.notificationsConnectionMissing }}
+            >
+              <Trans>The connection is missing.</Trans>
+            </Notice>
+          </Show>
+          <NotificationsFilterBar
+            filter={inbox.filter()}
+            onFilterChange={inbox.setFilter}
+          />
+        </>
+      }
+    >
       <NotificationsList
         sections={inbox.sections()}
         isLoading={inbox.isLoading()}
         filter={inbox.filter()}
         actions={actions}
       />
-    </div>
+    </CollectionScreen>
   );
 }
 
 export function NotificationsScreen(
   props: NotificationsScreenProps
 ): JSX.Element {
-  const { t } = useLingui();
-  const [headerAction, setHeaderAction] = createSignal<ScreenBaseAction | null>(
-    null
-  );
-  const actions = createMemo((): readonly ScreenBaseAction[] => {
-    const action = headerAction();
-    return action === null ? [] : [action];
-  });
-
   return (
-    <ScreenBase
-      screenId="notifications"
-      breadcrumbs={[{ name: t`Notifications` }]}
-      actions={actions()}
-      content={(body) => (
-        <div class={`box ${body.bodyClass}`}>
-          <NotificationsPermissionGate>
-            <NotificationsScreenBody
-              initialFilter={props.initialFilter}
-              onHeaderAction={setHeaderAction}
-            />
-          </NotificationsPermissionGate>
-        </div>
-      )}
-    />
+    <NotificationsPermissionGate>
+      <NotificationsScreenBody initialFilter={props.initialFilter} />
+    </NotificationsPermissionGate>
   );
 }

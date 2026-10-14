@@ -1,0 +1,4 @@
+{
+  "summary": "Host disconnection hid a connected guest's idle indicator, and waiting on one device also made unrelated devices idle.",
+  "regressionTest": "libs/chess-root-harness/tests/quint/multiplayer-shared-game.binding.ts"
+}

@@ -6,6 +6,7 @@ import { useReopenLostHostSession } from './reopen-lost-host-session';
 import { SpaceDetailInitialLoading } from './space-detail-initial-loading';
 import { SpaceEndedScreen } from './space-ended-screen';
 import { SpaceJoinPrompt } from './space-join-prompt';
+import { SpaceMembersDialogProvider } from './space-members-dialog-context';
 import { SpaceRoomProvider } from './space-room-context';
 import { useSpaceRouteId } from './space-routes';
 import { SpacesNavProvider } from './spaces-nav-context';
@@ -26,7 +27,9 @@ export function SpaceDetailScreen(): JSX.Element {
     >
       <SpacesNavProvider>
         <SpaceRoomProvider spaceId={spaceId()}>
-          <SpaceDetailBody spaceId={spaceId()} />
+          <SpaceMembersDialogProvider spaceId={spaceId()}>
+            <SpaceDetailBody spaceId={spaceId()} />
+          </SpaceMembersDialogProvider>
         </SpaceRoomProvider>
       </SpacesNavProvider>
     </Show>

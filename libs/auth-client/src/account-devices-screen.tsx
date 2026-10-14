@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { MenuScreen } from '@pkgs/ui-root-client/menu-screen';
 import type { JSX } from 'solid-js';
 import { AccountDevicesCard } from './account-devices-card';
 import { useMyAccountId } from './use-current-user';
@@ -13,7 +13,7 @@ export function AccountDevicesScreen(): JSX.Element {
   };
 
   return (
-    <ScreenBase
+    <MenuScreen
       screenId="account-devices"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
@@ -24,15 +24,8 @@ export function AccountDevicesScreen(): JSX.Element {
         },
         { name: <Trans>Devices</Trans> },
       ]}
-      scroll
-      content={({ bodyClass }) => (
-        <div class={`box gap-5 ${bodyClass}`}>
-          <AccountDevicesCard
-            accountId={accountId()}
-            onOpenDevice={onOpenDevice}
-          />
-        </div>
-      )}
-    />
+    >
+      <AccountDevicesCard accountId={accountId()} onOpenDevice={onOpenDevice} />
+    </MenuScreen>
   );
 }

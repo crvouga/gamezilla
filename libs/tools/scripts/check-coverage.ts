@@ -17,7 +17,9 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
+import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
+import { testConcurrency } from '@pkgs/os-server/test-concurrency';
 import type { FileCoverage } from './lcov';
 import { formatLcov, mergeInto, parseLcov } from './lcov';
 import type { PackagePlan } from './packages';
@@ -28,7 +30,7 @@ import { formatDuration, renderReport, summarize } from './report';
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const ARTIFACT_DIR = join(REPO_ROOT, '.cache', 'coverage');
 const ARTIFACT_LABEL = '.cache/coverage';
-const DEFAULT_JOBS = 4;
+const DEFAULT_JOBS = Math.max(1, Math.min(4, availableParallelism() - 1));
 const FAILURE_TAIL_CHARS = 4000;
 
 type Options = {
@@ -102,13 +104,28 @@ function buildSpecs(plans: readonly PackagePlan[]): RunSpec[] {
   return specs;
 }
 
-async function runSpec(spec: RunSpec): Promise<RunResult> {
+export function coverageWorkerEnv(
+  env: NodeJS.ProcessEnv,
+  cpus: number,
+  jobs: number
+): NodeJS.ProcessEnv {
+  const ceiling = Math.max(1, Math.floor(cpus / jobs));
+  return {
+    ...env,
+    CHECK_TEST_CONCURRENCY: String(testConcurrency(env, ceiling)),
+  };
+}
+
+async function runSpec(
+  spec: RunSpec,
+  env: NodeJS.ProcessEnv
+): Promise<RunResult> {
   const coverageDir = join(spec.plan.coverageRoot, String(spec.index));
   const command = `${spec.command} --coverage --coverage-reporter=lcov --coverage-dir=${JSON.stringify(coverageDir)}`;
   const startedAt = Date.now();
   const proc = Bun.spawn(['sh', '-c', command], {
     cwd: spec.plan.dir,
-    env: process.env,
+    env,
     stdout: 'pipe',
     stderr: 'pipe',
   });
@@ -132,13 +149,14 @@ async function runSpecs(
 ): Promise<RunResult[]> {
   const queue = [...specs];
   const results: RunResult[] = [];
+  const env = coverageWorkerEnv(process.env, availableParallelism(), jobs);
   const workers = Array.from(
     { length: Math.max(1, Math.min(jobs, queue.length)) },
     async () => {
       for (;;) {
         const spec = queue.shift();
         if (spec === undefined) return;
-        const result = await runSpec(spec);
+        const result = await runSpec(spec, env);
         results.push(result);
         onDone(result);
       }
