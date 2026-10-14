@@ -4,6 +4,7 @@
  */
 
 import type {
+  PostgresSqlClient,
   PreparedStatement,
   RunResult,
   SqlClient,
@@ -240,8 +241,12 @@ export function wrapPgPoolWithSearchPathPin(
   return pool;
 }
 
-export function createPgSessionClient(poolClient: PgExecutor): SqlClient {
-  const self: SqlClient = {
+export function createPgSessionClient(
+  poolClient: PgExecutor,
+  dbScope: PostgresDbScope
+): PostgresSqlClient {
+  const self: PostgresSqlClient = {
+    dbScope,
     connect: async () => {
       /* connection owned by pool */
     },

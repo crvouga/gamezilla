@@ -84,7 +84,7 @@ export class SqlClientImplPg implements PostgresSqlClient {
       if (this.pinSearchPathEachQuery) {
         await setPgSessionSchema(client, this.dbScope);
       }
-      const txSql = createPgSessionClient(client);
+      const txSql = createPgSessionClient(client, this.dbScope);
       const out = await fn(txSql);
       await client.query('COMMIT');
       return out;
