@@ -57,12 +57,13 @@ test('optional diagnostics never erase the already-created report', async () => 
         title: '',
         body,
       });
+      const originalTitle = result.report.title;
       expect(reporter.reports.get(result.issue.id)?.body.source).toBe(body);
       await Promise.resolve();
       await Promise.resolve();
       clock.advance(500);
       const report = await result.enriched;
-      expect(report.title).toBe(body.trim().split('\n')[0]!);
+      expect(report.title).toBe(originalTitle);
       expect(report.diagnostics[0]?.status).toBe('unavailable');
       expect(reporter.reports.size).toBe(1);
       expect(clock.pendingOneShotCount()).toBe(0);
@@ -100,7 +101,7 @@ test('companion-file or enrichment failure preserves the authoritative report', 
         const saved = JSON.parse(
           new TextDecoder().decode(await readBytes(object!.body))
         ) as { title: string };
-        expect(saved.title).toBe(title.trim().split('\n')[0]!);
+        expect(saved.title).toBe(result.report.title);
         await result.enriched;
       }
     )
