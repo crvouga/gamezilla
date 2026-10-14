@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@libs/app-root-shared": "workspace:*",
+    "@libs/auth-client": "workspace:*",
     "@libs/moderation-shared": "workspace:*",
     "@libs/runtime-shared": "workspace:*",
     "@libs/sub-shared": "workspace:*",
@@ -44,6 +45,8 @@
     "@pkgs/pubsub-root-shared": "workspace:*",
     "@pkgs/secure-storage-root-shared": "workspace:*",
     "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
+    "@pkgs/sync-engine-client": "workspace:*",
     "@solidjs/router": "catalog:",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",

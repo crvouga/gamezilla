@@ -1,0 +1,4 @@
+{
+  "summary": "Pressing New space while already hosting one space rendered three identical Plus invitations from the hosting account, recovery observer and lobby. One session owner now presents the invitation across attempts and navigation.",
+  "regressionTest": "libs/runtime-client/tests/hosting-invitation.test.tsx"
+}

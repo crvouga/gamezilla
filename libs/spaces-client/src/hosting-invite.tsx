@@ -149,8 +149,6 @@ export function HostingAccount(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   const spaces = useHostedSpaceIds();
-  const hosted = useHostedSpaceCount();
-  const limit = useLimitDecision(LIMIT.hostedSpaces, hosted.count);
   const [decision, setDecision] = createSignal<Decision | null>(null);
   const note = (next: Decision): void => {
     setDecision(next);
@@ -158,11 +156,9 @@ export function HostingAccount(props: {
   const clear = (): void => {
     setDecision(null);
   };
-  // Paid access, or dropping back under the free limit, ends the invitation.
-  // Opening a space clears it too; a refused create stays on the lobby.
-  createEffect(() => {
-    if (limit().allowed) setDecision(null);
-  });
+  // Ending a space or completing checkout answers the invitation explicitly.
+  // Reconnecting can temporarily change the permission facts; it does not
+  // answer a refusal. This provider is its only presentation owner.
   const api: HostingInviteApi = { decision, note, clear };
 
   return (
