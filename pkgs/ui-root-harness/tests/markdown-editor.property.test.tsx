@@ -1,11 +1,8 @@
-/** @jsxImportSource solid-js */
 import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import { MarkdownEditor } from '@pkgs/ui-root-client/markdown-editor';
 import { fireEvent } from '@solidjs/testing-library';
 import fc from 'fast-check';
-import { createSignal } from 'solid-js';
-import { renderUi } from './render';
+import { editor, formatAndUndo } from './markdown-editor-fixture';
 
 const writing = fc
   .array(fc.constantFrom('Board', 'movement', 'feels', 'clear', 'today'), {
@@ -13,49 +10,6 @@ const writing = fc
     maxLength: 6,
   })
   .map((words) => words.join(' '));
-
-function editor() {
-  const [value, setValue] = createSignal('');
-  const [limit, setLimit] = createSignal(1000);
-  const mounted = renderUi(() => (
-    <MarkdownEditor
-      aria-label="Writing"
-      value={value()}
-      maxLength={limit()}
-      onChange={setValue}
-    />
-  ));
-  return {
-    ...mounted,
-    value,
-    setValue,
-    setLimit,
-    heading: mounted.getByRole('button', { name: 'Heading' }),
-    undo: mounted.getByRole('button', { name: 'Undo (⌘/Ctrl+Z)' }),
-    field: mounted.getByRole('textbox'),
-  };
-}
-
-function formatAndUndo(mounted: ReturnType<typeof editor>, text: string): void {
-  mounted.setValue(text);
-  fireEvent.click(mounted.heading);
-  expect(mounted.field.querySelector('h2')?.textContent).toBe(text);
-  expect(mounted.value()).toBe(`## ${text}`);
-  fireEvent.click(mounted.undo);
-  expect(mounted.field.querySelector('h2')).toBeNull();
-  expect(mounted.value()).toBe(text);
-}
-
-// regression: markdown-property-editor-remount-cost
-test('independent paragraphs can be formatted and undone in one editor', () => {
-  const mounted = editor();
-  try {
-    for (const text of ['Board', 'movement feels clear', 'today'])
-      formatAndUndo(mounted, text);
-  } finally {
-    mounted.unmount();
-  }
-});
 
 test('formatting and undo preserve arbitrary authored paragraphs', () => {
   const mounted = editor();

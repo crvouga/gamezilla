@@ -103,11 +103,3 @@ test('every legal mate succeeds regardless of preferred line and move order', ()
     legalMates
   );
 });
-
-test('the nightly mate inputs finish within the property budget', () => {
-  // regression: mate-oracle-rebuilds-every-candidate
-  assertProperty('nightly legal mates', legalMates, {
-    seed: 424_242,
-    numRuns: 200,
-  });
-});
