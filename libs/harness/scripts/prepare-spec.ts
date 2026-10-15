@@ -5,7 +5,7 @@ import { simulate } from '@pkgs/quint-server/simulate';
 import {
   DEFAULT_MAX_STEPS,
   DEFAULT_TRACES,
-  quintBinding,
+  findQuintBinding,
 } from '@pkgs/quint-shared/registry';
 import { packageSpecs } from './spec-sources';
 
@@ -30,7 +30,16 @@ async function main(): Promise<void> {
   );
   const output = join(dir, '.cache/prepared-spec-traces');
   for (const path of models) {
-    const binding = quintBinding(basename(path, '.qnt'));
+    const model = basename(path, '.qnt');
+    const binding = findQuintBinding(model);
+    // This task only warms draws. The model's test:spec check still requires
+    // its binding and fails explicitly; unrelated scenarios need no draw of it.
+    if (binding === undefined) {
+      console.warn(
+        `quint: model ${model} has no binding; test:spec will fail it`
+      );
+      continue;
+    }
     simulate({
       specPath: path,
       traces: binding.traces ?? DEFAULT_TRACES,
