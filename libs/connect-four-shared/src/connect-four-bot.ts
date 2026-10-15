@@ -1,5 +1,6 @@
 import type { ConnectFour } from './connect-four';
 import { legalColumns } from './connect-four';
+import { connectFourTacticalColumns } from './connect-four-bot-tactics';
 
 export const BOT_DIFFICULTIES = ['easy', 'medium', 'hard'] as const;
 export type BotDifficulty = (typeof BOT_DIFFICULTIES)[number];
@@ -123,6 +124,8 @@ export function chooseConnectFourColumn(
         Math.max(0, Math.floor(random() * legal.length))
       )
     ]!;
+  const candidates = connectFourTacticalColumns(game);
+  if (candidates.length === 1) return candidates[0]!;
   const state: Search = {
     board: [...game.board],
     heights: Array.from(
@@ -132,10 +135,10 @@ export function chooseConnectFourColumn(
     nodes: 0,
     discs: game.moves.length,
   };
-  let selected = legal[0]!;
+  let selected = candidates[0]!;
   let best = -Infinity;
   for (const column of ORDER) {
-    if (state.heights[column] === 6) continue;
+    if (!candidates.includes(column)) continue;
     const cell = place(state, column, game.turn);
     const score = wins(state, cell, game.turn)
       ? WIN + DEPTH[difficulty]
