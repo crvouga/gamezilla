@@ -99,12 +99,12 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 | | |
 | --- | --- |
-| Packages | 316 |
-| Check scripts | 1146 |
+| Packages | 325 |
+| Check scripts | 1168 |
 | Measured scripts | 189 |
-| Estimated scripts | 957 |
+| Estimated scripts | 979 |
 | Stale cost keys | 538 |
-| Cold CPU | 5595 s |
+| Cold CPU | 5632 s |
 | Spec parts | 3768 s across 223 tasks |
 | Longest task | @apps/product#test:contract:render 60 s |
 
@@ -113,10 +113,10 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | Family | Tasks | CPU |
 | --- | --- | --- |
 | test:spec | 223 | 3768 s |
-| check:models | 30 | 487 s |
-| lint | 315 | 340 s |
-| tc | 315 | 329 s |
-| test | 221 | 268 s |
+| check:models | 31 | 503 s |
+| lint | 324 | 349 s |
+| tc | 324 | 338 s |
+| test | 224 | 271 s |
 | check:board-contract | 4 | 240 s |
 | test:contract:render | 1 | 60 s |
 | ci:statecharts | 1 | 60 s |
@@ -146,9 +146,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 254 | 5440 s | @apps/product#test:contract:render 60 s |
-| @pkgs/clock-shared | 220 | 5341 s | @apps/product#test:contract:render 60 s |
-| @pkgs/assert-root-shared | 215 | 5323 s | @apps/product#test:contract:render 60 s |
+| @pkgs/property-shared | 261 | 5472 s | @apps/product#test:contract:render 60 s |
+| @pkgs/clock-shared | 226 | 5371 s | @apps/product#test:contract:render 60 s |
+| @pkgs/assert-root-shared | 221 | 5353 s | @apps/product#test:contract:render 60 s |
 
 ### Runner
 

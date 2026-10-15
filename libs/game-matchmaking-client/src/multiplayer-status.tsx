@@ -86,9 +86,10 @@ function PlayerHeadline(props: StatusProps): JSX.Element {
 }
 
 function WatcherHeadline(props: StatusProps): JSX.Element {
+  const presentation = useGamePresentation();
   return (
     <>
-      <Trans>Watching this game.</Trans>
+      <Trans>Watching multiplayer {presentation(props.game.fen).name()}.</Trans>
       <Show
         when={props.game.outcome === 'white' || props.game.outcome === 'black'}
       >

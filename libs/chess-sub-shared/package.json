@@ -17,8 +17,6 @@
     "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-root-shared": "workspace:*",
     "@libs/chess-rules-shared": "workspace:*",
-    "@libs/game-catalog-shared": "workspace:*",
-    "@libs/game-matchmaking-shared": "workspace:*",
     "@libs/game-session-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
     "@libs/sub-shared": "workspace:*",

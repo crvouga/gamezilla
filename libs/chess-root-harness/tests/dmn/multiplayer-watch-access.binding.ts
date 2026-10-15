@@ -1,4 +1,4 @@
-import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+import { MULTIPLAYER_TABLES } from '@libs/game-matchmaking-shared/multiplayer-tables';
 import { multiplayerRoomGrants } from '@libs/game-session-server/multiplayer-room-server';
 import { clientGatingLayer } from '@libs/permissions-harness/client';
 import { spaceRolesApplicationLayer } from '@libs/permissions-shared/application';
@@ -32,7 +32,7 @@ bindDecisions({
         ),
     },
     'server enforcement': serverEnforcementLayer({
-      tables: [...SPACE_TABLES, ...CHESS_TABLES],
+      tables: [...SPACE_TABLES, ...MULTIPLAYER_TABLES],
       seed: async (c) => {
         await seedPlaceInSpace(c);
         await c.db.run(sql`INSERT INTO chess_multiplayer_players (id, owner_id, game_id)

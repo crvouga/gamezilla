@@ -99,7 +99,7 @@ async function prepare(w: RoomWorld, capability: string): Promise<void> {
   const actor = memberIdOf(w.c);
   if (spacePresenceOf(w.c.input) === 'guest') await join(actor);
   if (capability === 'create a Custom Game') return;
-  await choice(w, w.host, { operation: 'create' });
+  await choice(w, w.host, { operation: 'create', game: 'chess' });
   if (capability === 'join a Custom Game' && actor === w.host)
     await choice(w, w.host, { operation: 'release', side: 'white' });
   if (capability === 'start a Custom Game') {
@@ -132,7 +132,7 @@ async function prepare(w: RoomWorld, capability: string): Promise<void> {
 function inputFor(capability: string): CustomGameInput | null {
   switch (capability) {
     case 'create a Custom Game':
-      return { operation: 'create' };
+      return { operation: 'create', game: 'chess' };
     case 'configure a Custom Game':
       return { operation: 'clock', minutes: 5, increment: 2 };
     case 'invite a Custom Game participant':

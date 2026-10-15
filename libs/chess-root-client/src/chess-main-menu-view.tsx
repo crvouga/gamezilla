@@ -53,6 +53,7 @@ function ChessScreenContent(props: {
       </Match>
       <Match when={props.screen === CHESS_SCREEN.customGame}>
         <CustomGameScreen
+          gameId="chess"
           onBack={() =>
             dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }))
           }

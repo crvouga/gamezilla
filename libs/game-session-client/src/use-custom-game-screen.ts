@@ -14,7 +14,6 @@ import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
 import { useSpaceCan } from '@libs/spaces-client/use-space-can';
 import { useSpaceDecision } from '@libs/spaces-client/use-space-decision';
 import { useSpaceRoomSelector } from '@libs/spaces-client/use-space-room-selector';
-import { GamesRoomAttr } from '@libs/spaces-shared/games';
 import {
   SpaceMembersRoomAttr,
   spaceSeatMemberIds,
@@ -25,12 +24,13 @@ import { type Accessor, createMemo } from 'solid-js';
 import { useCustomGameCommand } from './use-custom-game-command';
 import { useVisibleCustomGames } from './use-visible-custom-games';
 
-function useSelectedCustomGames(visible: Accessor<CustomGames>) {
+function useSelectedCustomGames(
+  visible: Accessor<CustomGames>,
+  gameId: Accessor<string>
+) {
   const rules = useTurnGames();
-  const selected = useSpaceRoomSelector(GamesRoomAttr.selected.from);
   return createMemo(() => {
-    const id = selected();
-    if (id === null) return { current: null, history: [] };
+    const id = gameId();
     const definition = rules.byId(id);
     const current = visible().current;
     return {
@@ -59,6 +59,7 @@ export type CustomGameScreenModel = ReturnType<typeof useCustomGameScreen>;
 
 export function useCustomGameScreen(
   back: () => void,
+  gameId: Accessor<string>,
   openHistory?: () => void
 ) {
   const myId = useMyId();
@@ -66,7 +67,7 @@ export function useCustomGameScreen(
   const scope = (): string => spaceId() ?? '';
   const roomGames = useSpaceRoomSelector(CustomGamesAttr.from);
   const visible = useVisibleCustomGames(roomGames);
-  const games = useSelectedCustomGames(visible);
+  const games = useSelectedCustomGames(visible, gameId);
   const current = createMemo(() => games().current);
   const members = useSpaceRoomSelector(spaceSeatMemberIds);
   const away = useAwayParticipants();
@@ -93,6 +94,7 @@ export function useCustomGameScreen(
   const choose = (input: CustomGameInput): Promise<void> =>
     command.send({
       ...input,
+      ...(input.operation === 'create' ? { game: gameId() } : {}),
       gameId: visible().current?.id ?? null,
       revision: visible().current?.revision ?? 0,
     });

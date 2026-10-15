@@ -67,7 +67,7 @@ function sourceFiles(): Map<string, string> {
     'libs/chess-puzzle-client/src/personal-chess-stats-client.tsx',
     'libs/chess-puzzle-client/src/puzzle-link-client.ts',
     'libs/chess-puzzle-shared/src/puzzle-link.ts',
-    'libs/game-matchmaking-client/src/multiplayer-link-client.ts',
+    'libs/game-matchmaking-client/src/multiplayer-link-client.tsx',
     'libs/game-matchmaking-shared/src/multiplayer-link.ts',
   ]);
   for (const path of routes)

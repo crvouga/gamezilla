@@ -1,5 +1,6 @@
 import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import type { CustomGameChoice } from './custom-game-choice';
+import { assertCustomGamePosition } from './custom-game-position';
 import type { CustomGame, CustomGameSide } from './custom-game-state';
 import {
   customGamePersonSide,
@@ -76,6 +77,7 @@ export function playCustomGameMove(
   rules: TurnGames
 ): CustomGame | null {
   if (game.status !== 'active') return null;
+  assertCustomGamePosition(game, rules);
   const move = rules.forPosition(game.fen).play(
     game.fen,
     uci,

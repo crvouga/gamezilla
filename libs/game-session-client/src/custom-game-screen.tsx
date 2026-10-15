@@ -181,11 +181,16 @@ function CustomGameContent(props: ModelProps): JSX.Element {
 }
 
 export function CustomGameScreen(props: {
+  gameId: string;
   onBack: () => void;
   title?: string;
   onHistory?: () => void;
 }): JSX.Element {
-  const model = useCustomGameScreen(props.onBack, props.onHistory);
+  const model = useCustomGameScreen(
+    props.onBack,
+    () => props.gameId,
+    props.onHistory
+  );
   return (
     <>
       <DefineBackButton onPress={model.back} />

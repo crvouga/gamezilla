@@ -8,7 +8,8 @@ This checkout contains Chess; it has no Quoridor implementation.
 
 `GAME_DEFINITIONS` and `GAME_CLIENT_DEFINITIONS` register selectable siblings.
 Each game provides its own deterministic rules and presentation adapter. The
-composition root builds `TURN_GAMES`; shared services receive that catalog
+composition root derives `TURN_GAMES` from the registered game definitions;
+shared services receive that catalog
 through an explicit port. No shared session, matchmaking or turn-game module
 imports Chess, Connect Four, chess.js, a concrete board, or a concrete catalog.
 The rules contract and its modules have no UI-framework dependency.
@@ -28,12 +29,17 @@ The capability owns session configuration, bots, clocks, schedules, presence
 reactions and history. Game selection remains limited to registered games.
 An unrelated counting-race contract exercises this integration without Chess.
 Host-local input uses the same eligibility as command confirmation, so solo
-boards remain operable without a remote connection.
+boards remain operable without a remote connection. Custom-game creation
+receives the browsed game explicitly rather than depending on room selection,
+which may not have been promoted while offline.
 
 The UI receives board renderers, side labels, result descriptions and optional
 orientation controls through the presentation contract. Shared gameplay and
 replay screens treat positions and actions as opaque. Each adapter owns its
-record codec; the shared export path does not format Chess notation.
+record codec; the shared export path does not format Chess notation. Notice
+links share a single parameterized route that admits registered games.
+Stored positions are checked against reconstructed accepted actions before
+play and replay, rejecting inconsistent records without changing history.
 
 ## Existing records and protocol identities
 

@@ -1,14 +1,9 @@
-import { chessNoticeText } from '@libs/chess-rules-shared/chess-notice-text';
-import { chessRules } from '@libs/chess-rules-shared/chess-rules';
-import { connectFourNoticeText } from '@libs/connect-four-shared/connect-four-notice-text';
-import { connectFourRules } from '@libs/connect-four-shared/connect-four-rules';
+import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
 import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
-/** Product composition only. Reusable engines receive this value through ports. */
-export const TURN_GAMES = createTurnGames([
-  { rules: chessRules, controlPrefix: '', notice: chessNoticeText },
-  {
-    rules: connectFourRules,
-    controlPrefix: 'connect-four/',
-    notice: connectFourNoticeText,
-  },
-]);
+
+/** The registered games are the single authority for the injected catalog. */
+export const TURN_GAMES = createTurnGames(
+  GAME_DEFINITIONS.flatMap((game) =>
+    game.turnGame === undefined ? [] : [game.turnGame]
+  )
+);

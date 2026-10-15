@@ -44,6 +44,17 @@ export function changedCustomGames(
   };
 }
 
+function initialPositionForChoice(
+  state: RoomState,
+  choice: CustomGameChoice,
+  rules: TurnGames
+): string {
+  const explicit = choice.operation === 'create' ? choice.game : undefined;
+  return rules
+    .byId(explicit ?? GamesRoomAttr.selected.from(state) ?? '')
+    .initial();
+}
+
 export function handleCustomGameChoice(
   state: RoomState,
   ctx: GameCommandContext,
@@ -79,7 +90,7 @@ export function handleCustomGameChoice(
         : newCustomGame(
             ctx.commandId,
             ctx.identity,
-            rules.byId(GamesRoomAttr.selected.from(state) ?? '').initial()
+            initialPositionForChoice(state, choice, rules)
           );
     return changedCustomGames(
       {

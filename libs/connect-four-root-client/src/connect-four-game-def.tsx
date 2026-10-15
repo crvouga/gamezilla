@@ -68,6 +68,7 @@ function ConnectFourMenu(props: GameClientMenuProps): JSX.Element {
     >
       <Match when={screen() === 'custom'}>
         <CustomGameScreen
+          gameId="connect-four"
           title="Connect Four"
           onBack={() => setScreen('menu')}
           onHistory={() => setScreen('history')}

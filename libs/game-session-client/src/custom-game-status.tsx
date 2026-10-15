@@ -233,13 +233,20 @@ export function CustomGameConnectionNotice(props: {
   model: CustomGameScreenModel;
 }): JSX.Element {
   return (
-    <Show when={!props.model.canSubmit()}>
+    <Show when={!props.model.connected()}>
       <Notice
         icon={WifiOffIcon}
         dataSet={{ testid: 'chess-custom-connection-needed' }}
       >
         <span role="status">
-          <Trans>Connection needed to change or play this game.</Trans>
+          <Show
+            when={props.model.canSubmit()}
+            fallback={
+              <Trans>Connection needed to change or play this game.</Trans>
+            }
+          >
+            <Trans>You are offline. Your local game can continue.</Trans>
+          </Show>
         </span>
       </Notice>
     </Show>

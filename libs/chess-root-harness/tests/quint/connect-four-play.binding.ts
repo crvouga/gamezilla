@@ -9,6 +9,11 @@ import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'connect-four-play',
+  inductiveInvariant: '_inductive',
+  separateInduction: true,
+  inductionCaseGroupSize: 1,
+  inferPolymorphicTypes: false,
+  encoding: 'fun-arrays',
   traces: 16,
   maxSteps: 42,
   timeoutMs: 180_000,
@@ -44,7 +49,11 @@ bindQuintModel<QuintHarnessWorld>({
       turn: view.current?.turn === 'white' ? 1 : 2,
       result: view.game.result,
       online: view.connected,
-      drops: view.game.moves,
+      drops: view.game.moves.reduce(
+        (history, column) => history * 8n + BigInt(column + 1),
+        0n
+      ),
+      _count: view.game.moves.length,
     };
   },
 });

@@ -1,3 +1,4 @@
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
 import { findOpponentMutation } from '@libs/game-matchmaking-shared/find-opponent-mutation';
 import { opponentSearchGuard } from '@libs/game-session-server/opponent-search-guard';
 import { useUnfinishedGamesDecision } from '@libs/permissions-client/use-can';
@@ -67,12 +68,14 @@ bindDecisions({
         await authorizeAppMutation(ctx);
         await searchGuard(ctx);
       },
-      operationFor: () =>
-        replayOperation(findOpponentMutation, () => ({
+      operationFor: () => async (c) => {
+        const replay = replayOperation(findOpponentMutation, () => ({
           requestId: 'another-game',
           spaceId: 'multiplayer-limit-space',
           timeControl: '5+0',
-        })),
+        }));
+        await replay({ ...c, env: { ...c.env, turnGames: TURN_GAMES } });
+      },
     }),
     'client gating': clientGatingLayer({
       tables: MULTIPLAYER_LIMIT_TABLES,

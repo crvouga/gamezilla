@@ -9,8 +9,15 @@ export const customGameChoiceSchema = z.discriminatedUnion('operation', [
   z
     .object({
       ...reference,
+      operation: z.literal('create'),
+      /** Explicit game when browsing locally; omission means the shared selection. */
+      game: z.string().min(1).max(128).optional(),
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
       operation: z.enum([
-        'create',
         'rematch',
         'ready',
         'unready',

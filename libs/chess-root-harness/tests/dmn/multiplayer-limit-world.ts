@@ -1,6 +1,6 @@
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
 import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { MULTIPLAYER_TABLES } from '@libs/game-matchmaking-shared/multiplayer-tables';
 import {
   BOT_CUSTOM_GAME_SIDE,
   CustomGamesAttr,
@@ -16,7 +16,7 @@ import sql from '@pkgs/sql-root-shared/sql';
 
 export const MULTIPLAYER_LIMIT_TABLES = [
   ...BILLING_TABLES,
-  ...CHESS_TABLES,
+  ...MULTIPLAYER_TABLES,
   ...SPACES_TABLES,
 ];
 export const UNFINISHED_INPUT = 'unfinished multiplayer games';

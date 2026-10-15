@@ -4155,6 +4155,10 @@ msgstr "This game is cancelled."
 msgid "This game is finished."
 msgstr "This game is finished."
 
+#: libs/game-matchmaking-client/src/multiplayer-link-client.tsx
+msgid "This game is unavailable."
+msgstr "This game is unavailable."
+
 #: libs/synthetic-population-client/src/synthetic-user-dom.tsx
 msgid "This is a sanitized DOM snapshot of the selected application instance. It is not a screenshot."
 msgstr "This is a sanitized DOM snapshot of the selected application instance. It is not a screenshot."
@@ -4440,9 +4444,10 @@ msgstr "Waiting for the host"
 msgid "Waiting for the host to start a puzzle."
 msgstr "Waiting for the host to start a puzzle."
 
+#. placeholder {0}: presentation(props.game.fen).name()
 #: libs/game-matchmaking-client/src/multiplayer-status.tsx
-msgid "Watching this game."
-msgstr "Watching this game."
+msgid "Watching multiplayer {0}."
+msgstr "Watching multiplayer {0}."
 
 #: libs/account-privacy-client/src/privacy-explanation.tsx
 msgid "We retain only minimum payment evidence for accounting and disputes for 7 years after payment. It cannot restore your account or membership."
@@ -4532,6 +4537,10 @@ msgstr "You are {0}."
 #: libs/friends-client/src/friend-request-error-label.tsx
 msgid "You are already friends with this person."
 msgstr "You are already friends with this person."
+
+#: libs/game-session-client/src/custom-game-status.tsx
+msgid "You are offline. Your local game can continue."
+msgstr "You are offline. Your local game can continue."
 
 #. placeholder {0}: move().name
 #: libs/game-matchmaking-client/src/multiplayer-reviewing.tsx

@@ -336,6 +336,13 @@
         "$TURBO_ROOT$/specs/chess/*.qnt",
         "$TURBO_ROOT$/specs/connect-four/*.qnt"
       ]
+    },
+    "check:models:17": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/chess/*.qnt",
+        "$TURBO_ROOT$/specs/connect-four/*.qnt"
+      ]
     }
   }
 }

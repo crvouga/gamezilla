@@ -50,7 +50,10 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@libs/game-catalog-shared": "workspace:*",
+    "@libs/game-session-server": "workspace:*",
+    "@libs/game-session-shared": "workspace:*"
   },
   "category": "harness",
   "specDomains": [
