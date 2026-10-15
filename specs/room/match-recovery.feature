@@ -28,10 +28,10 @@ Feature: Timed matches keep their clocks after interruption
 
   Rule: One player's missing connection does not pause an available match
 
-    Scenario: A disconnected player still runs out of time
+    Scenario: A returning player sees time ran out while their phone was offline
       Given White and Black have started a match with 4 seconds for White and 4 seconds for Black
-      And White's phone is offline
-      When 4 seconds pass
+      And White's phone has been offline for 4 seconds
+      When White's phone comes back online
       Then White and Black both see Black win on time
 
     Scenario: A disconnected player still has time before the deadline
