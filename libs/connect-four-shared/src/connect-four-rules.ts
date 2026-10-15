@@ -8,14 +8,19 @@ import {
   replayConnectFour,
 } from './connect-four';
 import { BOT_DIFFICULTIES, chooseConnectFourColumn } from './connect-four-bot';
+/** Only the canonical one-character column identifiers enter accepted history. */
+export function parseConnectFourColumn(action: string): number | null {
+  return action.length === 1 && /^[0-6]$/.test(action) ? Number(action) : null;
+}
 export const connectFourRules: GameRules = {
   botDifficulties: BOT_DIFFICULTIES,
   id: 'connect-four',
   recognizes: (position) => position.startsWith('c4:'),
   initial: () => encodeConnectFour(newConnectFour()),
   play(position, action) {
-    if (!/^[0-6]$/.test(action)) return null;
-    const next = dropDisc(decodeConnectFour(position), Number(action));
+    const column = parseConnectFourColumn(action);
+    if (column === null) return null;
+    const next = dropDisc(decodeConnectFour(position), column);
     if (next === null) return null;
     return {
       position: encodeConnectFour(next),
@@ -38,8 +43,15 @@ export const connectFourRules: GameRules = {
             : 'four in a row',
     };
   },
-  replay: (actions, ply) =>
-    encodeConnectFour(replayConnectFour(actions.slice(0, ply).map(Number))),
+  replay(actions, ply) {
+    const columns = actions.slice(0, ply).map((action) => {
+      const column = parseConnectFourColumn(action);
+      if (column === null)
+        throw new Error('Invalid Connect Four action history');
+      return column;
+    });
+    return encodeConnectFour(replayConnectFour(columns));
+  },
   legal: (position) => legalColumns(decodeConnectFour(position)).map(String),
   canWin: () => true,
   choose(position, difficulty, random) {
