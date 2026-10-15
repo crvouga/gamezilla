@@ -236,6 +236,19 @@ terms:
       - addSomePuzzles
       - stopAddingPuzzles
       - followAddingPuzzles
+      - addingPuzzles
+
+  - term: Lichess file
+    definition: >-
+      The chosen puzzles the team saves once so every environment can add
+      those puzzles without asking anyone to provide them again.
+    forms:
+      - saved Lichess file
+      - saves a Lichess file
+      - saved a Lichess file
+      - provide a Lichess file
+      - save another Lichess file
+    model: [lichessFileSaved, needsLichessFile, saveLichessFile]
 
   - term: broken puzzle
     definition: >-
