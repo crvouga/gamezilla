@@ -13,6 +13,15 @@ Feature: Find the saved Lichess file
       Then Alice is offered to add puzzles from the saved Lichess file
       And Alice is not asked to provide a Lichess file
 
+    Scenario: Checking a previously seen file waits before offering to add puzzles
+      Given Alice is on the team for this environment
+      And Alice has seen the saved Lichess file
+      And Alice is checking the saved Lichess file again
+      When Alice follows adding puzzles to this environment
+      Then Alice still sees the same saved Lichess file
+      And Alice is told the saved Lichess file is being checked
+      And Alice is not offered to add puzzles
+
     Scenario: An unfinished check does not ask the team for another file
       Given Alice is on the team for this environment
       And checking for the saved Lichess file has not finished
@@ -69,7 +78,7 @@ Feature: Find the saved Lichess file
 
     Scenario: An offline first opening does not assume that the file is missing
       Given Alice is on the team for this environment
-      And Alice has not checked for the saved Lichess file
+      And Alice has no previous Lichess file check
       And Alice is offline
       When Alice follows adding puzzles to this environment
       Then Alice is told a connection is needed to check for the saved Lichess file

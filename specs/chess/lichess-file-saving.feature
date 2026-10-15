@@ -43,6 +43,14 @@ Feature: Save the first Lichess file
       Then Alice is offered to add puzzles from the saved Lichess file
       And this environment is not adding puzzles
 
+    Scenario: A first-file choice reuses the file saved elsewhere before saving starts
+      Given Alice is on the team for this environment
+      And Alice has chosen the first Lichess file
+      And the team has since saved a Lichess file in another environment
+      When Alice saves the chosen file
+      Then Alice is offered the Lichess file already saved by the team
+      And the other environment's saved Lichess file has not been replaced
+
     Scenario: An existing saved file is kept when another save finishes later
       Given Alice is on the team for this environment
       And Alice started saving a Lichess file before any file was saved
@@ -66,7 +74,7 @@ Feature: Save the first Lichess file
       And Alice is saving the first Lichess file
       When saving Alice's Lichess file fails
       Then Alice is told the file could not be saved and why
-      And Alice is offered to save the chosen Lichess file again
+      And Alice is offered to save the chosen Lichess file
       And the other environment does not offer the unfinished Lichess file
 
     Scenario: A later save can finish after an earlier failure
@@ -97,7 +105,7 @@ Feature: Save the first Lichess file
       And Alice is being asked to confirm stopping the Lichess file save
       When Alice confirms stopping the Lichess file save
       Then Alice is told saving the Lichess file stopped
-      And Alice is offered to save the chosen Lichess file again
+      And Alice is offered to save the chosen Lichess file
       And the other environment does not offer the unfinished Lichess file
 
   Rule: A connection and team access are needed to finish saving

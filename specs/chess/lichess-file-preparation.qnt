@@ -16,13 +16,13 @@ module lichess_file_preparation {
     file.check == "known", not(file.available), file.save != "saving"
   } }
 
-  /// A visit can begin with a file being checked, chosen or saved.
+  /// The team can be checking, choosing, saving or deciding whether to stop.
   action init = {
-    nondet _initialChoice = Set("checking", "saved", "chosen", "saving").oneOf()
+    nondet _initialChoice = Set("checking", "saved", "chosen", "saving", "confirming").oneOf()
     all {
       lichessFile' = _choices({ check: if (Set("checking", "saved").contains(_initialChoice)) "checking" else "known",
-        save: if (_initialChoice == "saving") "saving" else "idle",
-        chosen: Set("chosen", "saving").contains(_initialChoice), available: false, confirmingStop: false, needsFile: false }),
+        save: if (Set("saving", "confirming").contains(_initialChoice)) "saving" else "idle",
+        chosen: Set("chosen", "saving", "confirming").contains(_initialChoice), available: false, confirmingStop: _initialChoice == "confirming", needsFile: false }),
       addingPuzzles' = false, online' = true, _saved' = _initialChoice == "saved", _availableWhenOffline' = false,
     }
   }
@@ -97,7 +97,7 @@ module lichess_file_preparation {
 
   /// Adding puzzles uses the last complete file seen and needs a connection.
   action addPuzzles = all {
-    online, lichessFile.available, lichessFile.save != "saving",
+    online, lichessFile.available, lichessFile.check != "checking", lichessFile.save != "saving",
     addingPuzzles' = true, lichessFile' = lichessFile, _saved' = _saved,
     online' = online, _availableWhenOffline' = _availableWhenOffline,
   }
