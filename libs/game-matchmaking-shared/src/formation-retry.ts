@@ -16,8 +16,9 @@ export async function scheduleFormationRetry(
 ): Promise<void> {
   const waiting = await tx.query(sql<{ owner_id: string }>`SELECT w.owner_id
     FROM matchmaking_waiting AS w JOIN matchmaking_owners AS o ON o.id = w.owner_id
-    WHERE w.deleted_at IS NULL AND o.available = ${true} AND o.current_id = w.id
-      AND w.partition_signature LIKE ${'chess.%'} LIMIT 1`);
+    JOIN chess_opponent_searches AS s ON s.owner_id = w.owner_id AND s.search_id = w.id
+    WHERE w.deleted_at IS NULL AND o.deleted_at IS NULL AND s.deleted_at IS NULL
+      AND o.available = ${true} AND o.current_id = w.id LIMIT 1`);
   const first = waiting[0];
   if (first === undefined) return;
   const at = nowMs + FORMATION_RETRY_MS;
