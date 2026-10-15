@@ -28,7 +28,7 @@ Feature: Leave while saving a Lichess file
 
     Scenario: Leaving after saving finishes needs no confirmation
       Given the team has saved a Lichess file
-      When Alice leaves adding puzzles
+      When Alice asks to leave adding puzzles
       Then Alice is away from adding puzzles
       And Alice is not asked to confirm leaving adding puzzles
 
