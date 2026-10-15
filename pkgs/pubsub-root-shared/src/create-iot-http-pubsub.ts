@@ -95,6 +95,7 @@ async function publishIot(args: {
       body
     );
   }
+  await res.body?.cancel();
 }
 
 function requestHeaders(
