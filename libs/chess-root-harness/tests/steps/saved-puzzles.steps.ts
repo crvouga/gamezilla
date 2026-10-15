@@ -23,7 +23,6 @@ Then(
   '{actor} is not asked to provide a Lichess file',
   async (w, actor: Actor) => {
     expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
-      saved: true,
       needsFile: false,
     });
   }

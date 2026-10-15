@@ -258,6 +258,10 @@ msgstr "1 minute"
 msgid "1 second"
 msgstr "1 second"
 
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
+msgid "A connection is needed to check for the saved Lichess file."
+msgstr "A connection is needed to check for the saved Lichess file."
+
 #: libs/chess-custom-game-client/src/custom-game-active.tsx
 msgid "A draw has been offered."
 msgstr "A draw has been offered."
@@ -832,6 +836,10 @@ msgstr "Choose who plays White and Black. Anyone in this space can watch."
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60."
 msgstr "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60."
+
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
+msgid "Chosen Lichess file"
+msgstr "Chosen Lichess file"
 
 #: libs/chess-custom-game-client/src/custom-game-active.tsx
 msgid "Claim the win"
@@ -2075,6 +2083,14 @@ msgstr "Load the saved file into this environment. The same file is available to
 msgid "Load this environment's puzzles from the saved Lichess file."
 msgstr "Load this environment's puzzles from the saved Lichess file."
 
+#: libs/chess-puzzle-client/src/puzzle-import-stop.tsx
+msgid "Loading already failed"
+msgstr "Loading already failed"
+
+#: libs/chess-puzzle-client/src/puzzle-import-stop.tsx
+msgid "Loading already finished"
+msgstr "Loading already finished"
+
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 msgid "Loading continues in the background. The saved file stays available. You can return here to follow its progress or stop it."
 msgstr "Loading continues in the background. The saved file stays available. You can return here to follow its progress or stop it."
@@ -2849,7 +2865,7 @@ msgstr "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes
 msgid "Puzzle link copied"
 msgstr "Puzzle link copied"
 
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client/src/puzzle-import-stop.tsx
 msgid "Puzzle loading stopped"
 msgstr "Puzzle loading stopped"
 
@@ -2897,7 +2913,7 @@ msgstr "Puzzles"
 msgid "Puzzles already added or updated are kept. Select the source again to start another load."
 msgstr "Puzzles already added or updated are kept. Select the source again to start another load."
 
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client/src/puzzle-import-stop.tsx
 msgid "Puzzles already added or updated stay available. No more batches will be added after stopping."
 msgstr "Puzzles already added or updated stay available. No more batches will be added after stopping."
 
@@ -3214,6 +3230,10 @@ msgstr "Saved Lichess file"
 #: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
 msgid "Saving Lichess file…"
 msgstr "Saving Lichess file…"
+
+#: libs/chess-puzzle-client/src/puzzle-import-stop.tsx
+msgid "Saving stopped"
+msgstr "Saving stopped"
 
 #: libs/profile-client/src/avatar-editor-screen.tsx
 #: libs/profile-client/src/profile-handle-screen.tsx
@@ -3732,13 +3752,25 @@ msgstr "Status"
 msgid "Stop every network connection until you work online"
 msgstr "Stop every network connection until you work online"
 
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client/src/puzzle-import-stop.tsx
 msgid "Stop loading"
 msgstr "Stop loading"
 
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client/src/puzzle-import-stop.tsx
 msgid "Stop loading puzzles?"
 msgstr "Stop loading puzzles?"
+
+#: libs/chess-puzzle-client/src/puzzle-import-stop.tsx
+msgid "Stop saving"
+msgstr "Stop saving"
+
+#: libs/chess-puzzle-client/src/puzzle-import-stop.tsx
+msgid "Stop saving file"
+msgstr "Stop saving file"
+
+#: libs/chess-puzzle-client/src/puzzle-import-stop.tsx
+msgid "Stop saving the Lichess file?"
+msgstr "Stop saving the Lichess file?"
 
 #: libs/chess-matchmaking-client/src/multiplayer-waiting.tsx
 msgid "Stop<0> finding an opponent</0>"
@@ -3992,6 +4024,10 @@ msgstr "The space stays open. They can join again through its link."
 #: libs/synthetic-population-client/src/synthetic-user-controls.tsx
 msgid "The Synthetic Population Worker will recover this application."
 msgstr "The Synthetic Population Worker will recover this application."
+
+#: libs/chess-puzzle-client/src/puzzle-import-stop.tsx
+msgid "The unfinished file will not become available. You can save the chosen file again."
+msgstr "The unfinished file will not become available. You can save the chosen file again."
 
 #: libs/app-root-client/src/app-header-global-menu.tsx
 #: libs/app-root-client/src/theme-screen.tsx
@@ -4490,8 +4526,8 @@ msgid "You are Black."
 msgstr "You are Black."
 
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "You are offline. The last status is shown. Reconnect to save a Lichess file, start loading, or stop loading."
-msgstr "You are offline. The last status is shown. Reconnect to save a Lichess file, start loading, or stop loading."
+msgid "You are offline. The last status is shown. Reconnect to check or save a Lichess file, start loading, or stop loading."
+msgstr "You are offline. The last status is shown. Reconnect to check or save a Lichess file, start loading, or stop loading."
 
 #. placeholder {0}: move().name
 #: libs/chess-matchmaking-client/src/multiplayer-reviewing.tsx

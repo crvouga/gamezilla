@@ -5,18 +5,17 @@ import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
 import { EmbeddedScreen } from '@pkgs/ui-root-client/embedded-screen';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
-import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 import { Notice } from '@pkgs/ui-root-client/notice';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
-import { createSignal, type JSX, Show } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { PuzzleImportStatus } from './puzzle-import-status';
+import { PuzzleImportStop } from './puzzle-import-stop';
 import { PuzzleSourceControls } from './puzzle-source-controls';
 import { usePuzzleImport } from './use-puzzle-import';
 
 function PuzzleManagementContent(): JSX.Element {
   const { t } = useLingui();
   const state = usePuzzleImport();
-  const [confirming, setConfirming] = createSignal(false);
   const running = () => state.uploading() || state.job()?.status === 'adding';
   const start = useMutationButton({
     operation: state.start,
@@ -59,8 +58,8 @@ function PuzzleManagementContent(): JSX.Element {
         <Show when={!state.connection.status().online}>
           <Notice dataSet={{ testid: 'puzzle-load-offline' }}>
             <Trans>
-              You are offline. The last status is shown. Reconnect to save a
-              Lichess file, start loading, or stop loading.
+              You are offline. The last status is shown. Reconnect to check or
+              save a Lichess file, start loading, or stop loading.
             </Trans>
           </Notice>
         </Show>
@@ -72,16 +71,7 @@ function PuzzleManagementContent(): JSX.Element {
             {...start.buttonProps}
             dataSet={{ testid: 'puzzle-load-start' }}
           />
-          <Show when={running()}>
-            <Button
-              title={t`Stop loading`}
-              disabled={!state.connection.status().online && !state.uploading()}
-              intent="danger"
-              variant="outline"
-              onClick={() => setConfirming(true)}
-              dataSet={{ testid: 'puzzle-load-stop' }}
-            />
-          </Show>
+          <PuzzleImportStop state={state} running={running()} />
         </div>
         <Show when={state.job()} keyed>
           {(job) => <PuzzleImportStatus job={job} />}
@@ -92,17 +82,6 @@ function PuzzleManagementContent(): JSX.Element {
             You can return here to follow its progress or stop it.
           </Trans>
         </Notice>
-        <MutationModal
-          visible={confirming()}
-          onClose={() => setConfirming(false)}
-          title={t`Stop loading puzzles?`}
-          message={t`Puzzles already added or updated stay available. No more batches will be added after stopping.`}
-          operation={state.stop}
-          submitLabel={t`Stop loading`}
-          variant="destructive"
-          successTitle={t`Puzzle loading stopped`}
-          submitDataSet={{ testid: 'puzzle-load-stop-confirm' }}
-        />
       </Show>
     </div>
   );

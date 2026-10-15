@@ -16,6 +16,27 @@ export async function readPuzzleSource(s: ProductHarness, actor = 'alice') {
   const saved = await ui.get('puzzle-source-saved').isVisible();
   return {
     saved,
+    chosen: await ui.get('puzzle-source-chosen').isVisible(),
+    filename: saved ? await ui.get('puzzle-source-saved').text() : null,
+    checking: await ui.get('puzzle-source-checking').isVisible(),
+    checkOffline: await ui.get('puzzle-source-check-offline').isVisible(),
+    checkFailed: await ui.get('puzzle-source-error').isVisible(),
+    checkAgainOffered: await ui.get('puzzle-source-recheck').isVisible(),
+    checkAgainEnabled:
+      (await ui.get('puzzle-source-recheck').isVisible()) &&
+      (await ui.get('puzzle-source-recheck').attribute('disabled')) === null,
+    saving: await ui.get('puzzle-source-saving').isVisible(),
+    saveFailed: await ui.get('puzzle-source-save-error').isVisible(),
+    saveError: (await ui.get('puzzle-source-save-error').isVisible())
+      ? await ui.get('puzzle-source-save-error').text()
+      : null,
+    saveEnabled:
+      (await ui.get('puzzle-source-save').isVisible()) &&
+      (await ui.get('puzzle-source-save').attribute('disabled')) === null,
+    chooseEnabled:
+      (await ui.get('puzzle-load-file').isVisible()) &&
+      (await ui.get('puzzle-load-file').attribute('aria-disabled')) !== 'true',
+
     needsFile: await ui.get('puzzle-source-missing').isVisible(),
     saveOffered: await ui.get('puzzle-source-save').isVisible(),
     startOffered:
@@ -37,7 +58,7 @@ export async function reloadPuzzleSource(s: ProductHarness, actor = 'alice') {
     s,
     async () => {
       const source = await readPuzzleSource(s, actor);
-      return source.saved || source.needsFile ? true : null;
+      return source.saved || source.needsFile || source.offline ? true : null;
     },
     { maxMs: 15000, description: 'shared Lichess file availability' }
   );

@@ -330,12 +330,27 @@ existing OpenTofu backend encrypts both state and saved plans.
 
 ### Fleet (every deploy)
 
+To provision the fleet from a laptop after bootstrap:
+
+```sh
+bun run infra:fleet
+bun run secrets:pull
+```
+
+`infra:bootstrap` applies only the bootstrap stack. `infra:fleet` applies the
+global fleet, including `cloudflare_r2_bucket.shared_data` (`gamezilla-shared`),
+and publishes its credentials to the shared secrets environment. Refresh the
+local secrets cache afterwards, then restart the managed local stack with
+`--keep-data` so its API processes receive the new bindings. Running bootstrap again cannot create a
+resource declared only in fleet.
+
 | Resource | Why |
 | --- | --- |
 | Infisical environment per env file, plus a live import of `shared` | That environment's secrets, with the shared ones visible through the import. A local copy of a shared name would shadow the import. |
 | Railway project `gamezilla`, with an environment per env file | One shared project, protected from deletion. Its default `core` environment stays empty; `dev` and `prd` fork it so service creation and removal stay isolated. Railway environments are protected by the plan policy and removed only by a deliberate non-production teardown. |
 | Custom domain `auth.gamezilla.app` on Worker `gamezilla-auth-relay` | One OAuth callback for every environment. The relay reads the OAuth state tag and forwards the callback home. |
 | R2 bucket `gamezilla-reports`, retained report layers | Check publishes immutable report layers. Atlas combines evidence across commits and branches. Reports are build output. |
+| Shared reference-data bucket and scoped S3 token | The [shared-data configuration](libs/infra-shared/tofu/stacks/fleet/shared-data.tf) retains the Lichess source independently of environment teardown. |
 
 Fleet applies before foundation. On the first deploy after consolidating Railway, foundation recreates the disposable population services in the shared project and deletes their old single-service projects. The worker release then publishes to the new deployment IDs; synthetic opponents pause during this transition, while backend accounts, leases and games remain intact. The deletion policy permits only the old `module.population_service.railway_project.worker` address to retire; other Railway projects and environments remain protected.
 

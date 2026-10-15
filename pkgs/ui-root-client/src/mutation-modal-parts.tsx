@@ -110,6 +110,7 @@ export function MutationSuccess(props: {
 }
 
 export function MutationError(props: {
+  ids: MutationModalIds;
   labels: MutationModalLabels;
   error: Error | null;
   onRetry: () => void;
@@ -124,6 +125,7 @@ export function MutationError(props: {
           title={props.labels.errorTitle ?? t`Something went wrong`}
           body={props.error?.message}
           retry={{
+            dataSet: props.ids.submitDataSet,
             label: props.labels.retryLabel ?? t`Try again`,
             onClick: () => props.onRetry(),
           }}

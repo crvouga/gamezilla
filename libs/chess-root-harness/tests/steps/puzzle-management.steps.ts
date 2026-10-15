@@ -21,6 +21,7 @@ import {
   joinPuzzleTeam,
   readImportPool,
 } from '@libs/chess-root-harness/puzzle-import-world';
+import { followPuzzleStopChoice } from '@libs/chess-root-harness/puzzle-stop-choice';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
@@ -142,7 +143,7 @@ When(
 When(
   '{actor} follows adding puzzles to this environment',
   async (w, actor: Actor) => {
-    await w.s.apply(followPuzzleImport, actor);
+    await w.s.apply(followPuzzleStopChoice, actor);
   }
 );
 When('this environment adds some of the puzzles', async (w) => {

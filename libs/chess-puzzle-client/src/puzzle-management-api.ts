@@ -7,6 +7,15 @@ import {
 } from '@libs/chess-puzzle-shared/puzzle-source';
 import { useHttpClient } from '@pkgs/http-client-client/solid';
 
+export class PuzzleSourceRequestError extends Error {
+  constructor(
+    readonly status: number,
+    detail: string
+  ) {
+    super(`Lichess file request failed (${String(status)}). ${detail}`);
+  }
+}
+
 /** External source bytes and metadata; domain status and commands use sync. */
 export function usePuzzleManagementApi() {
   const config = useConfigService();
@@ -25,9 +34,7 @@ export function usePuzzleManagementApi() {
     );
     if (!response.ok) {
       const detail = await response.text();
-      throw new Error(
-        `Lichess file request failed (${String(response.status)}). ${detail}`
-      );
+      throw new PuzzleSourceRequestError(response.status, detail);
     }
     return response;
   };

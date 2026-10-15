@@ -1,7 +1,4 @@
-import {
-  startPuzzleImport,
-  stopPuzzleImport,
-} from '@libs/chess-puzzle-shared/puzzle-import-mutations';
+import { startPuzzleImport } from '@libs/chess-puzzle-shared/puzzle-import-mutations';
 import { useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import sql from '@pkgs/sql-root-shared/sql';
@@ -20,6 +17,7 @@ import {
   untrack,
 } from 'solid-js';
 import { usePuzzleSourceUpload } from './use-puzzle-source-upload';
+import { usePuzzleStop } from './use-puzzle-stop';
 import { useSavedPuzzleSource } from './use-saved-puzzle-source';
 
 export type PuzzleImportRow = {
@@ -49,6 +47,9 @@ export function usePuzzleImport() {
     () => decision().allowed && connection.status().online
   );
   const sourceUpload = usePuzzleSourceUpload(source.setSource);
+  createEffect(() => {
+    if (source.source() !== null) sourceUpload.setFile(null);
+  });
   const query = createQuery(
     () =>
       sql<PuzzleImportRow>`SELECT * FROM chess_puzzle_load WHERE id = 'dataset' AND deleted_at IS NULL`
@@ -71,27 +72,19 @@ export function usePuzzleImport() {
         result.failures.map((failure) => failure.message).join(' ')
       );
   };
-  const stop = async (): Promise<void> => {
-    sourceUpload.abortUpload();
-    const job = query.rows()[0];
-    if (job?.status !== 'adding') return;
-    const result = await mutations.mutate(stopPuzzleImport, {
-      uploadId: job.source_etag,
-    });
-    if (!result.ok)
-      throw new Error(
-        result.failures.map((failure) => failure.message).join(' ')
-      );
-  };
+  const stopping = usePuzzleStop(
+    () => query.rows()[0],
+    sourceUpload.abortUpload
+  );
   return {
     decision,
     connection,
     ready,
     ...sourceUpload,
-    job: () => query.rows()[0],
+    job: stopping.job,
     source,
     start,
-    stop,
+    stop: stopping.stop,
   };
 }
 

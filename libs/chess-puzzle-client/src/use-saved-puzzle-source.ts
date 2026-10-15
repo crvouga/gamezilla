@@ -18,6 +18,7 @@ export function useSavedPuzzleSource(allowed: () => boolean) {
       return;
     }
     const controller = new AbortController();
+    setKnown(false);
     setLoading(true);
     setError(null);
     void api

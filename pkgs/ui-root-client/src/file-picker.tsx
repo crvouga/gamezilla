@@ -17,6 +17,7 @@ export function FilePicker(props: FilePickerProps): JSX.Element {
   return (
     <label
       class="box gap-2"
+      aria-disabled={props.disabled ?? false}
       {...dataAttrs({ component: 'FilePicker', ...props.dataSet })}
     >
       <span class="text textLabel">{props.label}</span>

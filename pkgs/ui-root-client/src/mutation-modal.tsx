@@ -80,7 +80,7 @@ export type MutationModalProps = {
   onSuccess?: (() => void) | undefined;
   /** Stable surface-stack id; keeps this dialog above remounting underlays. */
   stackId?: string | undefined;
-  /** `data-*` identifiers for the idle-phase confirm/submit button. */
+  /** `data-*` identifiers for the confirm/submit button, including retry after failure. */
   submitDataSet?: ComponentDataSet | undefined;
   /** `data-*` identifiers for the idle-phase cancel button. */
   cancelDataSet?: ComponentDataSet | undefined;
@@ -225,6 +225,7 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
           </Match>
           <Match when={lifecycle.phase() === 'error'}>
             <MutationError
+              ids={ids}
               labels={labels}
               error={lifecycle.error()}
               onRetry={run}

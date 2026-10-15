@@ -1,0 +1,77 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "source": "specs/chess/puzzle-loading-choices.qnt",
+    "description": "A confirmed stop remains pending until the server accepts it."
+  },
+  "vars": [
+    "_actualChoice",
+    "stoppingPuzzles",
+    "addingPuzzlesStatus",
+    "online",
+    "_actualStatus",
+    "_statusWhenOffline",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_actualStatus": "adding",
+      "_statusWhenOffline": "adding",
+      "addingPuzzlesStatus": "adding",
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "_choice": {
+          "tag": "Some",
+          "value": "idle"
+        }
+      },
+      "online": true,
+      "stoppingPuzzles": "idle",
+      "_actualChoice": "idle"
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_actualStatus": "adding",
+      "_statusWhenOffline": "adding",
+      "addingPuzzlesStatus": "adding",
+      "mbt::actionTaken": "askToStopAddingPuzzles",
+      "mbt::nondetPicks": {
+        "_choice": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "online": true,
+      "stoppingPuzzles": "confirming",
+      "_actualChoice": "confirming"
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_actualStatus": "adding",
+      "_statusWhenOffline": "adding",
+      "addingPuzzlesStatus": "adding",
+      "mbt::actionTaken": "confirmStoppingPuzzles",
+      "mbt::nondetPicks": {
+        "_choice": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "online": true,
+      "stoppingPuzzles": "stopping",
+      "_actualChoice": "stopping"
+    }
+  ]
+}
