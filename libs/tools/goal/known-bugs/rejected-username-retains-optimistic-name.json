@@ -1,0 +1,4 @@
+{
+  "summary": "Username-model trace 3 lets Bob locally save alice after official_support is refused, but the server rejects the duplicate. No accepted write or peer push follows, leaving the rejected optimistic name visible. Refetch active scopes after rejection removes the queued overlay.",
+  "regressionTest": "libs/profile-harness/tests/rejected-username-reconciliation.test.ts"
+}

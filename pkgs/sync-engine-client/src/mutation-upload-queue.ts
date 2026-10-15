@@ -62,6 +62,8 @@ export type MutationUploadQueueOptions = {
    * stale snapshot once the pending mutation is no longer there to rebase.
    */
   readonly onAckFence?: (() => void) | undefined;
+  /** Refetch after refused optimistic writes leave the replay queue. */
+  readonly onRejected?: (() => Promise<void>) | undefined;
   readonly timers: Timers;
   readonly now: () => number;
   readonly random?: () => number;
@@ -206,6 +208,9 @@ async function applyUploadResult(
     }
   }
   options.bus.emit(['sync_engine_mutations', 'sync_engine_write_rejections']);
+  if (result.verdicts.some((verdict) => verdict.status === 'rejected')) {
+    await options.onRejected?.();
+  }
 
   for (const verdict of result.verdicts) {
     if (verdict.status !== 'rejected') continue;
