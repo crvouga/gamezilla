@@ -29,6 +29,12 @@ Feature: Drop discs and connect four
       Then Bob is told it is the other player's Connect Four turn
       And the Connect Four board and turn are unchanged
 
+    Scenario: A missing connection prevents shared play
+      Given Alice and Bob have a new Connect Four game without a connection
+      When Alice drops into Connect Four column 4
+      Then Alice is told Connect Four needs a connection
+      And the Connect Four board and turn are unchanged
+
   Rule: A winning alignment ends the game immediately
 
     Scenario Outline: A winning alignment awards the victory

@@ -47,3 +47,12 @@ Feature: Configure and continue Connect Four games
       And Bob has made the next Connect Four drop
       When Alice returns to Connect Four
       Then Alice and Bob see the same Connect Four board and turn
+
+  Rule: A host's solo game keeps playing without a connection
+    No counter-example: the bot needs no other person's participation; shared games still require a connection.
+
+    Scenario: The offline host can drop a disc and receive a bot reply
+      Given Alice has an active Connect Four game against a Yellow bot while offline
+      When Alice drops into Connect Four column 4 on the board
+      Then the Yellow Connect Four bot replies within 5 seconds
+      And Red has the Connect Four turn
