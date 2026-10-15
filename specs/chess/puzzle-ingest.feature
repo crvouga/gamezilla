@@ -32,6 +32,7 @@ Feature: Add puzzles to an environment
       When Alice adds puzzles to this environment
       Then Alice sees that this environment is adding puzzles
 
+    @regression:puzzle-load-retry-shared-source
     Scenario: A team can start again after it failed to add puzzles
       Given Alice is on the team for this environment
       And this environment failed to add puzzles
