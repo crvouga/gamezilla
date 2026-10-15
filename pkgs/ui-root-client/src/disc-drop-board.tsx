@@ -54,6 +54,7 @@ function DiscCell(props: {
   return (
     <span
       class={styles['cell']}
+      data-testid={`${props.board.testId}-cell-${index()}`}
       data-cell={index()}
       data-disc={disc()}
       data-preview={String(props.target === index())}

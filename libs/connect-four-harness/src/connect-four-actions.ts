@@ -174,8 +174,12 @@ export async function connectFourView(s: ProductHarness, actor = 'alice') {
     throw new Error('No Connect Four board');
   const ui = await actorUi(s, actor);
   const cells = await ui.get('connect-four-board').attribute('data-cells');
-  const html = await ui.snapshotHtml();
-  const winningShown = (html?.match(/data-winning="true"/g) ?? []).length;
+  const highlights = await Promise.all(
+    Array.from({ length: 42 }, (_, cell) =>
+      ui.get(`connect-four-board-cell-${cell}`).attribute('data-winning')
+    )
+  );
+  const winningShown = highlights.filter((value) => value === 'true').length;
   return {
     ...probe,
     winningShown,

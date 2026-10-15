@@ -28,6 +28,9 @@ test('column controls expose occupancy, preserve gravity, and keep full columns 
   const view = example();
   const board = view.getByRole('group', { name: 'Drop board' });
   expect(board.querySelectorAll('[data-cell]')).toHaveLength(12);
+  expect(
+    board.querySelector('[data-cell="0"]')?.getAttribute('data-testid')
+  ).toBe(`${board.getAttribute('data-testid')}-cell-0`);
   const full = view.getByRole('button', { name: 'Column 1, 3 discs, full' });
   expect(full.getAttribute('aria-disabled')).toBe('true');
   expect(
