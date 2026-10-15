@@ -108,9 +108,6 @@ module connect_four_play {
   var _countAtDisconnect: int
   val board = (_p0, _p1, _p2, _p3, _p4, _p5, _p6, _p7, _p8, _p9, _p10, _p11, _p12, _p13, _p14, _p15, _p16, _p17, _p18, _p19, _p20, _p21, _p22, _p23, _p24, _p25, _p26, _p27, _p28, _p29, _p30, _p31, _p32, _p33, _p34, _p35, _p36, _p37, _p38, _p39, _p40, _p41)
   val _heights = (_h0, _h1, _h2, _h3, _h4, _h5, _h6)
-  val _boardAtDisconnect = (_savedP0, _savedP1, _savedP2, _savedP3, _savedP4, _savedP5, _savedP6, _savedP7, _savedP8, _savedP9, _savedP10, _savedP11, _savedP12, _savedP13, _savedP14, _savedP15, _savedP16, _savedP17, _savedP18, _savedP19, _savedP20, _savedP21, _savedP22, _savedP23, _savedP24, _savedP25, _savedP26, _savedP27, _savedP28, _savedP29, _savedP30, _savedP31, _savedP32, _savedP33, _savedP34, _savedP35, _savedP36, _savedP37, _savedP38, _savedP39, _savedP40, _savedP41)
-  pure val _empty = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-  pure val _zero = (0, 0, 0, 0, 0, 0, 0)
   pure def _height(h: Columns, c: int): int = if (c == 0) h._1 else if (c == 1) h._2 else if (c == 2) h._3 else if (c == 3) h._4 else if (c == 4) h._5 else if (c == 5) h._6 else h._7
   pure def _won(position: Board, p: int): bool = {
     pure val b: Board = position
@@ -260,7 +257,7 @@ module connect_four_play {
   /// Each player takes alternate turns, beginning with Red.
   val invTurn = turn == (if (_count % 2 == 0) 1 else 2)
   /// The board and turn stay unchanged while neither player has a connection.
-  val invOfflineBoard = not(online) implies ((board, drops, turn, result, _count) == (_boardAtDisconnect, _dropsAtDisconnect, _turnAtDisconnect, _resultAtDisconnect, _countAtDisconnect))
+  val invOfflineBoard = not(online) implies and { _p0 == _savedP0, _p1 == _savedP1, _p2 == _savedP2, _p3 == _savedP3, _p4 == _savedP4, _p5 == _savedP5, _p6 == _savedP6, _p7 == _savedP7, _p8 == _savedP8, _p9 == _savedP9, _p10 == _savedP10, _p11 == _savedP11, _p12 == _savedP12, _p13 == _savedP13, _p14 == _savedP14, _p15 == _savedP15, _p16 == _savedP16, _p17 == _savedP17, _p18 == _savedP18, _p19 == _savedP19, _p20 == _savedP20, _p21 == _savedP21, _p22 == _savedP22, _p23 == _savedP23, _p24 == _savedP24, _p25 == _savedP25, _p26 == _savedP26, _p27 == _savedP27, _p28 == _savedP28, _p29 == _savedP29, _p30 == _savedP30, _p31 == _savedP31, _p32 == _savedP32, _p33 == _savedP33, _p34 == _savedP34, _p35 == _savedP35, _p36 == _savedP36, _p37 == _savedP37, _p38 == _savedP38, _p39 == _savedP39, _p40 == _savedP40, _p41 == _savedP41, drops == _dropsAtDisconnect, turn == _turnAtDisconnect, result == _resultAtDisconnect, _count == _countAtDisconnect }
   /// Bookkeeping: a column holds at most six discs.
   val invCapacity = and { (_h0 >= 0 and _h0 <= 6), (_h1 >= 0 and _h1 <= 6), (_h2 >= 0 and _h2 <= 6), (_h3 >= 0 and _h3 <= 6), (_h4 >= 0 and _h4 <= 6), (_h5 >= 0 and _h5 <= 6), (_h6 >= 0 and _h6 <= 6) }
   /// Bookkeeping: discs cannot float above an empty place.
