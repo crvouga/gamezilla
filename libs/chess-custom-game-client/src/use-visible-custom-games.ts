@@ -1,9 +1,27 @@
-import type { CustomGames } from '@libs/chess-custom-game-shared/custom-game-state';
+import type {
+  CustomGame,
+  CustomGames,
+} from '@libs/chess-custom-game-shared/custom-game-state';
 import { useSpaceHostConnection } from '@libs/spaces-client/use-space-host-connection';
 import { useSpaceRoomSelector } from '@libs/spaces-client/use-space-room-selector';
 import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
+
+/** A committed pause or resume updates the clock without replacing the board. */
+function clockTransition(
+  before: CustomGame | null | undefined,
+  after: CustomGame | null
+): boolean {
+  return (
+    before?.status === 'active' &&
+    after?.status === 'active' &&
+    after.id === before.id &&
+    after.revision === before.revision &&
+    after.moves.length === before.moves.length &&
+    (after.turnStartedAt === null) !== (before.turnStartedAt === null)
+  );
+}
 
 /** Keep the received outcome separate from the board the guest was showing. */
 export function useVisibleCustomGames(received: Accessor<CustomGames>) {
@@ -19,7 +37,8 @@ export function useVisibleCustomGames(received: Accessor<CustomGames>) {
       connection() === 'ready' ||
       (currentRoom() &&
         (games.current?.status === 'completed' ||
-          games.current?.status === 'cancelled')) ||
+          games.current?.status === 'cancelled' ||
+          clockTransition(previous?.current, games.current))) ||
       (engine.status().online && games.current?.status === 'cancelled')
     )
       return games;
