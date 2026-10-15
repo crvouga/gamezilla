@@ -17,9 +17,8 @@ export function useVisibleCustomGames(received: Accessor<CustomGames>) {
     const games = received();
     if (
       connection() === 'ready' ||
-      (engine.status().online &&
-        (games.current?.status === 'cancelled' ||
-          (currentRoom() && games.current !== null)))
+      (currentRoom() && games.current !== null) ||
+      (engine.status().online && games.current?.status === 'cancelled')
     )
       return games;
     return previous?.current === null ? games : (previous ?? games);
