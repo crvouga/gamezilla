@@ -73,6 +73,20 @@ export const answerContinuityChoice = scenarioAction({
   ) => {
     if (answer === 'refused') {
       await Promise.resolve(endSpace.act(s, 'bob'));
+      // The optimistic ended view is not the server's refusal precondition.
+      await pollUntil(
+        s,
+        async () =>
+          (
+            await readMutationFeedback(s, 'bob', {
+              name: 'endSpace',
+              scope: { spaceId: link.slice('/space/'.length) },
+            })
+          )?.status === 'confirmed'
+            ? true
+            : null,
+        { maxMs: 5000, stepMs: 1, description: 'confirmed space ending' }
+      );
     }
     if (answer === 'unheard')
       s.harness.net.holdHttp(actor, '/api/mutations').acceptWithoutAnswer();

@@ -15,6 +15,7 @@ import { askToJoinAfterAdmission } from '@libs/spaces-harness/space-join-interru
 import { Handles } from '@libs/test-ids-shared/handles';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import admittedOffline from './fixtures/connection-admitted-choice-offline.itf.json';
+import refusedAfterReopen from './fixtures/connection-refusal-races-space-ending.itf.json';
 import returnedOrigin from './fixtures/connection-return-does-not-refresh.itf.json';
 import returnedProbe from './fixtures/stale-sync-error-keeps-missing-notice.itf.json';
 
@@ -26,6 +27,13 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 12,
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: connection-refusal-races-space-ending
+      id: 'connection-refusal-races-space-ending',
+      title: 'An ended space refuses a held join after repeated reopening',
+      seed: '0x67932',
+      itf: refusedAfterReopen,
+    },
     {
       // regression: stale-sync-error-keeps-missing-notice
       id: 'stale-sync-error-keeps-missing-notice',
