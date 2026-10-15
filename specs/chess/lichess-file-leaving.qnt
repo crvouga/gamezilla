@@ -37,7 +37,7 @@ module lichess_file_leaving {
   /// Finishing makes a requested departure safe without stopping the completed file.
   action finishSavingLichessFile = all {
     online, savingLichessFile, savingLichessFile' = false,
-    followingAddingPuzzles' = followingAddingPuzzles and not(leavingAddingPuzzles), leavingAddingPuzzles' = false,
+    followingAddingPuzzles' = all { followingAddingPuzzles, not(leavingAddingPuzzles) }, leavingAddingPuzzles' = false,
     _keepConnection,
   }
 
@@ -58,7 +58,7 @@ module lichess_file_leaving {
   /// Without a connection unfinished saving stops and a requested departure can proceed.
   action loseConnection = all {
     online, online' = false, savingLichessFile' = false,
-    followingAddingPuzzles' = followingAddingPuzzles and not(leavingAddingPuzzles), leavingAddingPuzzles' = false,
+    followingAddingPuzzles' = all { followingAddingPuzzles, not(leavingAddingPuzzles) }, leavingAddingPuzzles' = false,
   }
 
   /// Returning online never starts an unfinished save again.
