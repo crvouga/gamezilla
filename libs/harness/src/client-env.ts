@@ -107,6 +107,7 @@ function clientEvents(deps: HarnessClientEnvDeps, id: string) {
       reachable: () =>
         deps.net.isReachable(id, HARNESS_PRIMARY_SERVER_ID) &&
         deps.net.isReachable(`${id}:events`, HARNESS_PRIMARY_SERVER_ID),
+      subscribeReachability: deps.net.subscribe,
       timers: deps.timers,
     });
   let liveEvents: ReturnType<typeof createInMemoryPubSub> = openEvents();
