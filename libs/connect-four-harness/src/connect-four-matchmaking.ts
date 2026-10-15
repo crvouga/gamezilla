@@ -1,9 +1,7 @@
 import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
-import {
-  givenOpponentSearch,
-  pairGameOpponents,
-} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { pairGameOpponents } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { requestGameOpponent } from '@libs/game-matchmaking-harness/multiplayer-search-ui';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -24,15 +22,7 @@ export const prepareConnectFourSearch = scenarioAction({
           : 'chess-menu-multiplayer'
       )
       .tap();
-    await Promise.resolve(
-      givenOpponentSearch.act(
-        s,
-        actor,
-        game === 'connect-four' ? 'connect-four/5+0' : '5+0',
-        `search-${actor}`
-      )
-    );
-    await ui.get('multiplayer-waiting').expect.visible();
+    await Promise.resolve(requestGameOpponent.act(s, actor, '5+0'));
   },
 });
 export const pairConnectFourOpponents = scenarioAction({

@@ -72,6 +72,10 @@ Shared test support lives in `game-session-harness` and
 `game-matchmaking-harness`. Neither imports a concrete game or catalog; the
 fixtures receive rules from the harness composition. Chess keeps its navigation
 and board-specific gestures in its own adapters.
+The shared multiplayer reader observes local SQLite when available and the
+permission-approved rendered snapshot in real browsers. That read-only snapshot
+uses the existing test-hooks switch and is absent from end-user bundles. Search
+setup uses the same game-independent clock choices and Find controls as a person.
 
 The new business examples use the existing Gherkin harness. The Quint model
 binds to rendered room state, including connection loss and restoration.

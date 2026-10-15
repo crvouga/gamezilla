@@ -13,6 +13,7 @@ import { MultiplayerControls } from './multiplayer-controls';
 import { MultiplayerMoves } from './multiplayer-moves';
 import { MultiplayerNotices } from './multiplayer-notices';
 import { MultiplayerRatings } from './multiplayer-ratings';
+import { MultiplayerTest } from './multiplayer-test';
 import { useDeadlineSettle } from './use-deadline-settle';
 import { useMultiplayerControls } from './use-multiplayer-controls';
 import { useMultiplayerData } from './use-multiplayer-data';
@@ -88,6 +89,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
         <DenialSurface decision={access()} testId="multiplayer-access-denial" />
       }
     >
+      <MultiplayerTest data={props.data} />
       <MultiplayerNotices
         controls={props.controls}
         online={sync.status().online}
