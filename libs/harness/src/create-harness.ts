@@ -109,6 +109,8 @@ export type Harness = {
   dropServer(id: string): Promise<void>;
   serverIds(): readonly string[];
   serverEnv(id: string): ServerEnv | undefined;
+  /** Configure the simulated deployment with its puzzle-management roster. */
+  setPuzzleManagers(accountIds: readonly string[]): Promise<void>;
   outboxConsumers(): OutboxConsumerRegistry;
   /** The primary API instance's server-only mutation checks. */
   authorizeServerMutation(): MutationAuthorize;

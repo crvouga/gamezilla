@@ -28,6 +28,7 @@ function connectingDevice(available = true): {
       tapAt: unused,
       drag: unused,
       layout: unused,
+      selectFile: async () => {},
       input: unused,
       clear: unused,
       key: unused,

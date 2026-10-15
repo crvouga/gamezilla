@@ -84,3 +84,14 @@ export function validatePuzzleRecord(
     ? validateLichessPuzzleRow(row)
     : validateStoredPuzzleRow(row);
 }
+
+/** Current exports add DailyDate; older exports have the original ten columns. */
+export function isLichessPuzzleHeader(header: readonly string[]): boolean {
+  const base = LICHESS_PUZZLE_CSV_COLUMNS;
+  return (
+    (header.length === base.length ||
+      (header.length === base.length + 1 &&
+        header[base.length] === 'DailyDate')) &&
+    base.every((column, index) => header[index] === column)
+  );
+}

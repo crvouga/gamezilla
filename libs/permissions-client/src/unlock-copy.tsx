@@ -7,6 +7,8 @@ import type { DenialReason } from '@pkgs/permissions-shared/policy';
  * messages. Unknown keys fall back to the reason's neutral copy.
  */
 const COPY: Readonly<Record<string, () => string>> = {
+  'unlock.puzzle-management.title': () =>
+    t`Only the puzzle team can load puzzles`,
   'unlock.multiplayer.finish.title': () =>
     t`Finish your current multiplayer game first`,
   'unlock.custom-game.finish.title': () => t`Finish your Custom Game first`,

@@ -24,6 +24,7 @@ function node(args: {
     tapAt: () => Promise.reject(new Error('unused')),
     drag: () => Promise.reject(new Error('unused')),
     layout: () => Promise.resolve(null),
+    selectFile: async () => {},
     input: () => Promise.reject(new Error('unused')),
     clear: () => Promise.reject(new Error('unused')),
     key: () => Promise.reject(new Error('unused')),

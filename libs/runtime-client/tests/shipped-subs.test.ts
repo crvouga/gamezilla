@@ -77,6 +77,7 @@ const QUERY_NAMES = [
   'chessMultiplayerSpace',
   'chessPuzzleById',
   'chessPuzzleFeedSettings',
+  'chessPuzzleImport',
   'chessPuzzleInteractions',
   'chessPuzzleNearest',
   'chessPuzzlePool',
@@ -145,7 +146,9 @@ const MUTATION_NAMES = [
   'savePuzzleFeedSettings',
   'sendFriendRequest',
   'settleMultiplayerClock',
+  'startPuzzleImport',
   'stopFindingChessOpponent',
+  'stopPuzzleImport',
   'unblockUser',
 ] as const;
 

@@ -40,6 +40,11 @@ export const chessPuzzleLoad = defineTable({
     processed_rows: 'integer',
     inserted_rows: 'integer',
     failed_rows: 'integer',
+    updated_rows: 'integer',
+    duplicate_rows: 'integer',
+    total_chunks: 'integer',
+    completed_chunks: 'integer',
+    pool_rows: 'integer',
     error: 'text',
   },
 });

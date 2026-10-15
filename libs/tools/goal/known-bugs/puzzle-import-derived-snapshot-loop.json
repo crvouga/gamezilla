@@ -1,0 +1,4 @@
+{
+  "summary": "Synthesizing a ready import row with a computed inventory count in a sync snapshot caused a hydration loop. The status query now returns domain rows, and load mutations and the worker maintain inventory counts.",
+  "regressionTest": "libs/chess-root-harness/tests/puzzle-import-navigation.test.ts"
+}

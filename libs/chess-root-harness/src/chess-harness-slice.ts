@@ -26,6 +26,7 @@ import {
 import { joinMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
 import { PERSONAL_CHESS_STATS_CLIENT } from '@libs/chess-puzzle-client/personal-chess-stats-client';
 import { PUZZLE_LINK_CLIENT } from '@libs/chess-puzzle-client/puzzle-link-client';
+import { PuzzleManagementScreen } from '@libs/chess-puzzle-client/puzzle-management-screen';
 import { CHESS_HARNESS_ACTIONS } from '@libs/chess-puzzle-harness/chess-actions';
 import { seedChessPuzzlesForHarness } from '@libs/chess-puzzle-harness/chess-harness-seed';
 import { nextPuzzleDifferent } from '@libs/chess-puzzle-harness/chess-properties';
@@ -49,6 +50,7 @@ export const CHESS_HARNESS_SLICE: HarnessSlice = {
   client: {
     name: 'chess',
     routes: [
+      { path: '/more/puzzles', component: PuzzleManagementScreen },
       ...PUZZLE_LINK_CLIENT.routes,
       ...MULTIPLAYER_LINK_CLIENT.routes,
       ...PERSONAL_CHESS_STATS_CLIENT.routes,

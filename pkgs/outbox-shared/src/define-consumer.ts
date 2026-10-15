@@ -10,6 +10,7 @@ import { DEFAULT_OUTBOX_RETRY_POLICY } from './types';
 
 export function defineOutboxConsumer<P>(def: {
   readonly id: string;
+  readonly delivery?: 'background';
   readonly on: MessageTag<P>;
   readonly retryPolicy?: OutboxRetryPolicy;
   readonly handler: (
@@ -20,6 +21,7 @@ export function defineOutboxConsumer<P>(def: {
   assert.ok(def.id.length > 0, 'outbox consumer id required');
   return {
     id: def.id,
+    ...(def.delivery === undefined ? {} : { delivery: def.delivery }),
     on: def.on,
     ...(def.retryPolicy !== undefined ? { retryPolicy: def.retryPolicy } : {}),
     handler: def.handler,

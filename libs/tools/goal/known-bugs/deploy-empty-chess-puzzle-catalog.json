@@ -1,4 +1,4 @@
 {
-  "summary": "Production schema reconciliation created chess_puzzles but never loaded its required reference catalog. A rebuilt environment therefore reached 'No puzzles left'. An authorized environment manager can now load the environment's puzzle catalog from object storage, with PostgreSQL performing normalization, rejection, and deduplication.",
+  "summary": "An empty environment could leave solvers without a puzzle catalog. An authorized manager can load a staged Lichess CSV into the environment through durable batches that validate complete solutions, upsert existing puzzle IDs, skip duplicate positions, and retain committed progress after a stop or source failure.",
   "regressionTest": "libs/chess-root-server/tests/puzzle-load-job.test.ts"
 }

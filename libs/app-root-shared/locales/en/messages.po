@@ -382,10 +382,6 @@ msgstr "Activity"
 msgid "Add"
 msgstr "Add"
 
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "Add every puzzle in chess/puzzles.ndjson from this environment's object store. PostgreSQL validates and adds the rows in batches."
-msgstr "Add every puzzle in chess/puzzles.ndjson from this environment's object store. PostgreSQL validates and adds the rows in batches."
-
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "Add Friend"
 msgstr "Add Friend"
@@ -394,21 +390,13 @@ msgstr "Add Friend"
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
 
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Add or update this environment's puzzles from the Lichess database."
+msgstr "Add or update this environment's puzzles from the Lichess database."
+
 #: libs/spaces-client/src/space-share-add-people.tsx
 msgid "Add people"
 msgstr "Add people"
-
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "Add puzzles"
-msgstr "Add puzzles"
-
-#: libs/chess-puzzle-client/src/puzzle-management-settings.tsx
-msgid "Add puzzles from this environment's object store"
-msgstr "Add puzzles from this environment's object store"
-
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "Add puzzles to this environment?"
-msgstr "Add puzzles to this environment?"
 
 #: pkgs/ui-devtools-client/src/tab-strip.tsx
 msgid "Add tab"
@@ -418,13 +406,17 @@ msgstr "Add tab"
 msgid "Add…"
 msgstr "Add…"
 
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Added"
+msgstr "Added"
+
 #: libs/spaces-client/src/space-share-people-list.tsx
 msgid "Added people find this space in their lobby and choose Join. Anyone with the space link can also join."
 msgstr "Added people find this space in their lobby and choose Join. Anyone with the space link can also join."
 
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "Adding puzzles failed"
-msgstr "Adding puzzles failed"
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Adding puzzles"
+msgstr "Adding puzzles"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
 msgid "Adjust feed"
@@ -442,6 +434,10 @@ msgstr "Admission limit per worker"
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 msgid "After 1 s"
 msgstr "After 1 s"
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "After the upload finishes, loading continues in the background. You can return here to follow its progress or stop it."
+msgstr "After the upload finishes, loading continues in the background. You can return here to follow its progress or stop it."
 
 #: libs/chess-custom-game-client/src/custom-game-active.tsx
 msgid "Agree draw"
@@ -550,6 +546,10 @@ msgstr "Available"
 #: libs/synthetic-population-client/src/synthetic-population-workers.tsx
 msgid "Available capacity"
 msgstr "Available capacity"
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Available puzzles"
+msgstr "Available puzzles"
 
 #: libs/synthetic-population-client/src/synthetic-user-statechart.tsx
 msgid "Available transitions"
@@ -694,6 +694,10 @@ msgstr "bright"
 msgid "Bright surfaces, dark text"
 msgstr "Bright surfaces, dark text"
 
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Broken"
+msgstr "Broken"
+
 #: libs/chess-shared-client/src/chess-settings-developer-screen.tsx
 msgid "Browse design system primitives in this space."
 msgstr "Browse design system primitives in this space."
@@ -820,6 +824,10 @@ msgstr "Choose a username"
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Choose how you want to play."
 msgstr "Choose how you want to play."
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Choose the Lichess puzzle database CSV or its .csv.zst archive. Existing puzzle IDs are updated; broken puzzles and duplicate positions are skipped. Your players' progress is kept."
+msgstr "Choose the Lichess puzzle database CSV or its .csv.zst archive. Existing puzzle IDs are updated; broken puzzles and duplicate positions are skipped. Your players' progress is kept."
 
 #: libs/chess-custom-game-client/src/custom-game-screen.tsx
 msgid "Choose who plays White and Black. Anyone in this space can watch."
@@ -957,6 +965,10 @@ msgstr "Connected"
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "Connecting"
 msgstr "Connecting"
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Connecting to puzzle status…"
+msgstr "Connecting to puzzle status…"
 
 #: libs/auth-client/src/sign-in-method-row.tsx
 msgid "Connecting…"
@@ -1375,6 +1387,10 @@ msgstr "Draw agreement is available between two people."
 msgid "Drawn by agreement."
 msgstr "Drawn by agreement."
 
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Duplicates skipped"
+msgstr "Duplicates skipped"
+
 #: pkgs/ui-root-client/src/multi-select-swatch-grid.tsx
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
@@ -1425,6 +1441,10 @@ msgstr "End space"
 #: libs/spaces-client/src/end-space-confirm-modal.tsx
 msgid "End space?"
 msgstr "End space?"
+
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Ended"
+msgstr "Ended"
 
 #: libs/spaces-client/src/end-space-confirm-modal.tsx
 #: libs/spaces-client/src/leave-space-confirm-modal.tsx
@@ -1493,6 +1513,7 @@ msgstr "Export requested"
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
 #: libs/notifications-client/src/notification-card-default.tsx
 msgid "Failed"
 msgstr "Failed"
@@ -1575,6 +1596,10 @@ msgstr "Finish your current multiplayer game first"
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "Finish your Custom Game first"
 msgstr "Finish your Custom Game first"
+
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Finished"
+msgstr "Finished"
 
 #: libs/billing-client/src/billing-plan-card.tsx
 msgid "Finishing checkout…"
@@ -1930,6 +1955,10 @@ msgstr "Keep a separate account"
 msgid "Knight"
 msgstr "Knight"
 
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Last activity"
+msgstr "Last activity"
+
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "Last error"
 msgstr "Last error"
@@ -1950,6 +1979,10 @@ msgstr "Last successful action"
 #: libs/auth-client/src/account-device-active-session-line.tsx
 msgid "Latest expires {0}"
 msgstr "Latest expires {0}"
+
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Latest load"
+msgstr "Latest load"
 
 #: libs/synthetic-population-client/src/synthetic-population-workers.tsx
 msgid "Lease renewal failures"
@@ -1986,6 +2019,10 @@ msgstr "Leave this space on your account. You will leave on every device. You ca
 msgid "Leaving…"
 msgstr "Leaving…"
 
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Lichess puzzle database"
+msgstr "Lichess puzzle database"
+
 #: libs/app-root-client/src/app-commands.tsx
 msgid "light"
 msgstr "light"
@@ -2012,6 +2049,23 @@ msgstr "Live metrics"
 #: libs/app-config-client/src/client-config-entity-card.tsx
 msgid "LLM"
 msgstr "LLM"
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+#: libs/chess-shared-client/src/chess-settings-developer-screen.tsx
+msgid "Load chess puzzles"
+msgstr "Load chess puzzles"
+
+#: libs/chess-puzzle-client/src/puzzle-management-settings.tsx
+msgid "Load Lichess CSV and follow progress"
+msgstr "Load Lichess CSV and follow progress"
+
+#: libs/chess-shared-client/src/chess-settings-developer-screen.tsx
+msgid "Load Lichess CSV, follow progress, and stop loading."
+msgstr "Load Lichess CSV, follow progress, and stop loading."
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Load started"
+msgstr "Load started"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
 msgid "Loading puzzle…"
@@ -2490,6 +2544,10 @@ msgstr "Only the other participant can answer a draw offer."
 msgid "Only the participant whose turn it is can move."
 msgstr "Only the participant whose turn it is can move."
 
+#: libs/permissions-client/src/unlock-copy.tsx
+msgid "Only the puzzle team can load puzzles"
+msgstr "Only the puzzle team can load puzzles"
+
 #: pkgs/ui-root-client/src/command-palette-trigger.tsx
 msgid "Open command palette"
 msgstr "Open command palette"
@@ -2726,12 +2784,9 @@ msgstr "Previous move"
 msgid "Pricing"
 msgstr "Pricing"
 
-#. placeholder {0}: props.job.processedRows
-#. placeholder {1}: props.job.insertedRows
-#. placeholder {2}: props.job.failedRows
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "Processed {0}; added {1}; rejected {2}."
-msgstr "Processed {0}; added {1}; rejected {2}."
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Processed"
+msgstr "Processed"
 
 #: libs/app-root-client/src/about-screen.tsx
 msgid "Production"
@@ -2779,8 +2834,8 @@ msgid "Puzzle link copied"
 msgstr "Puzzle link copied"
 
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "Puzzle load finished"
-msgstr "Puzzle load finished"
+msgid "Puzzle loading stopped"
+msgstr "Puzzle loading stopped"
 
 #. placeholder {0}: props.rating
 #: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
@@ -2818,10 +2873,17 @@ msgstr "Puzzle stats"
 msgid "Puzzle unavailable"
 msgstr "Puzzle unavailable"
 
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 #: libs/chess-puzzle-client/src/puzzle-management-settings.tsx
 msgid "Puzzles"
 msgstr "Puzzles"
+
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Puzzles already added or updated are kept. Select the source again to start another load."
+msgstr "Puzzles already added or updated are kept. Select the source again to start another load."
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Puzzles already added or updated stay available. No more batches will be added after stopping."
+msgstr "Puzzles already added or updated stay available. No more batches will be added after stopping."
 
 #: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
 msgid "Puzzles download the first time you open the feed. Reconnect and they will appear here."
@@ -2830,6 +2892,10 @@ msgstr "Puzzles download the first time you open the feed. Reconnect and they wi
 #: libs/chess-puzzle-client/src/puzzle-link-screen.tsx
 msgid "Puzzles need a connection. Reconnect and open the puzzle link again."
 msgstr "Puzzles need a connection. Reconnect and open the puzzle link again."
+
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Puzzles processed"
+msgstr "Puzzles processed"
 
 #: pkgs/chess-board-root-client/src/chess-board-promotion.tsx
 msgid "Queen"
@@ -2869,11 +2935,8 @@ msgstr "Reading activity…"
 msgid "Reading Synthetic Population…"
 msgstr "Reading Synthetic Population…"
 
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "Reading the latest result…"
-msgstr "Reading the latest result…"
-
 #: libs/chess-custom-game-client/src/custom-game-side.tsx
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
 #: libs/spaces-client/src/spaces-screen.tsx
 #: libs/synthetic-population-client/src/synthetic-population-workers.tsx
 msgid "Ready"
@@ -3524,6 +3587,10 @@ msgstr "Sound off"
 msgid "Sound on"
 msgstr "Sound on"
 
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Source"
+msgstr "Source"
+
 #: libs/spaces-client/src/use-space-display-title.tsx
 msgid "Space"
 msgstr "Space"
@@ -3600,6 +3667,10 @@ msgstr "Start a space to play with friends. Spaces you join show up here."
 msgid "Start game"
 msgstr "Start game"
 
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Start loading"
+msgstr "Start loading"
+
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Start the game before playing."
 msgstr "Start the game before playing."
@@ -3620,18 +3691,25 @@ msgstr "Stats"
 msgid "Status"
 msgstr "Status"
 
-#. placeholder {0}: props.job.status
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "Status: {0}"
-msgstr "Status: {0}"
-
 #: libs/app-root-client/src/settings-screen.tsx
 msgid "Stop every network connection until you work online"
 msgstr "Stop every network connection until you work online"
 
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Stop loading"
+msgstr "Stop loading"
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Stop loading puzzles?"
+msgstr "Stop loading puzzles?"
+
 #: libs/chess-matchmaking-client/src/multiplayer-waiting.tsx
 msgid "Stop<0> finding an opponent</0>"
 msgstr "Stop<0> finding an opponent</0>"
+
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Stopped"
+msgstr "Stopped"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-stats-cards.tsx
 msgid "Streak"
@@ -3814,10 +3892,6 @@ msgstr "The choice could not be confirmed. Try again."
 msgid "The connection is missing."
 msgstr "The connection is missing."
 
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "The current environment's object is processed into its puzzle pool. Existing puzzles are kept."
-msgstr "The current environment's object is processed into its puzzle pool. Existing puzzles are kept."
-
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "The export could not be requested."
 msgstr "The export could not be requested."
@@ -3853,10 +3927,6 @@ msgstr "The host is offline. This space will reconnect when they return."
 #: libs/spaces-client/src/games-main-menu.tsx
 msgid "The host picks the game for this space."
 msgstr "The host picks the game for this space."
-
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "The latest PostgreSQL result is shown on this screen."
-msgstr "The latest PostgreSQL result is shown on this screen."
 
 #: libs/spaces-client/src/space-join-prompt.tsx
 msgid "The link may be wrong, or the space may never have existed."
@@ -4067,6 +4137,10 @@ msgstr "Try again later"
 msgid "Try again later. This person recently declined your request."
 msgstr "Try again later. This person recently declined your request."
 
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Try loading again"
+msgstr "Try loading again"
+
 #: pkgs/ui-root-client/src/command-palette-input.tsx
 msgid "Type a command or search…"
 msgstr "Type a command or search…"
@@ -4159,6 +4233,19 @@ msgstr "Update payment method"
 #: libs/app-root-client/src/app-update-required.tsx
 msgid "Update the app"
 msgstr "Update the app"
+
+#: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+msgid "Updated"
+msgstr "Updated"
+
+#. placeholder {0}: state.uploadedRows()
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Uploaded {0} puzzles. Keep this screen open until the upload finishes."
+msgstr "Uploaded {0} puzzles. Keep this screen open until the upload finishes."
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Uploading CSV…"
+msgstr "Uploading CSV…"
 
 #: libs/auth-client/src/email-sign-in-form.tsx
 msgid "Use a different email address"
@@ -4369,6 +4456,10 @@ msgstr "You are already friends with this person."
 #: libs/chess-matchmaking-client/src/multiplayer-status.tsx
 msgid "You are Black."
 msgstr "You are Black."
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "You are offline. The last status is shown. Reconnect to start or stop loading."
+msgstr "You are offline. The last status is shown. Reconnect to start or stop loading."
 
 #. placeholder {0}: move().name
 #: libs/chess-matchmaking-client/src/multiplayer-reviewing.tsx
