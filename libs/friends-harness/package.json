@@ -109,6 +109,7 @@
     "@pkgs/alloy-shared": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/dmn-shared": "workspace:*",
+    "@pkgs/gherkin-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
