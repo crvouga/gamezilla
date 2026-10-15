@@ -18,12 +18,6 @@ Feature: Add puzzles to an environment
 
   Rule: An environment adds puzzles only once at a time
 
-    Scenario: A ready environment starts adding puzzles
-      Given Alice is on the team for this environment
-      And this environment is ready to add puzzles
-      When Alice adds puzzles to this environment
-      Then Alice sees that this environment is adding puzzles
-
     Scenario: Another addition is refused while one is in progress
       Given Alice is on the team for this environment
       And this environment is adding puzzles

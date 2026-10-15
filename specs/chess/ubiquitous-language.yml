@@ -199,8 +199,10 @@ terms:
 
   - term: add puzzles
     definition: >-
-      The team putting new puzzles into the puzzle pool. Only good puzzles
-      get in; broken ones are turned away.
+      The team putting chosen puzzles into the puzzle pool, updating puzzles
+      already there instead of adding extra copies. Only good puzzles get
+      in; broken ones are turned away. The team can follow the result or
+      stop adding more while keeping the puzzles already added.
     forms:
       - adds puzzles
       - added puzzles
@@ -215,6 +217,15 @@ terms:
       - can add puzzles
       - allowed to add puzzles
       - puzzles were added
+      - adds these puzzles again
+      - updated puzzles
+      - puzzles updated
+      - puzzles were updated
+      - follows adding puzzles
+      - stops adding puzzles
+      - stopped adding puzzles
+      - stop adding puzzles
+      - adds some of the puzzles
     avoid: [import, ingest, puzzle file]
     model:
       - PuzzleLoading
@@ -222,13 +233,16 @@ terms:
       - addPuzzles
       - finishAddingPuzzles
       - failAddingPuzzles
+      - addSomePuzzles
+      - stopAddingPuzzles
+      - followAddingPuzzles
 
   - term: broken puzzle
     definition: >-
       A puzzle the team adds that cannot go in the pool: its line holds an
       illegal move, castles without the right to, or ends on the opponent's
       move; it starts from a position that could never happen in chess; or it
-      copies a puzzle already in the pool. It never reaches anyone.
+      copies another puzzle already in the pool. It never reaches anyone.
     forms: [broken puzzles, broken]
     avoid: [rejected puzzle, invalid puzzle, malformed]
 
