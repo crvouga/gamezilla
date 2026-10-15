@@ -96,6 +96,7 @@ export const establishConnectFour = scenarioAction({
     for (const person of people.filter((p) => p !== host)) {
       // regression: connect-four-fixture-before-space-join
       await Promise.resolve(openSpaceLink.act(s, person, link));
+      await (await actorUi(s, person)).get('space-join').expect.visible();
       await Promise.resolve(joinFromPrompt.act(s, person));
       await openConnectFour(s, person);
     }
