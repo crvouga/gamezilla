@@ -810,9 +810,7 @@
                 "description": "A guest explores with free access and the guest allowance; an account is needed for paid access.",
                 "snapshot": "A guest explores with free access and the guest allowance; an account is needed for paid access.",
                 "confidence": "assumed",
-                "source": [
-                  "specs/profile/profile-defaults.feature:7"
-                ],
+                "source": ["specs/profile/profile-defaults.feature:7"],
                 "events": []
               },
               "on": {
@@ -1023,9 +1021,7 @@
                     "Spaces: Lobby": {
                       "id": "Spaces: Lobby",
                       "meta": {
-                        "routes": [
-                          "/"
-                        ],
+                        "routes": ["/"],
                         "description": "Spaces lists hosted, joined and discoverable friends’ open spaces.",
                         "snapshot": "Spaces lists hosted, joined and discoverable friends’ open spaces.",
                         "confidence": "assumed",
@@ -1035,9 +1031,7 @@
                           "specs/spaces/spaces.feature:6"
                         ],
                         "events": [],
-                        "hints": [
-                          "App address: /"
-                        ]
+                        "hints": ["App address: /"]
                       },
                       "on": {
                         "Creates below the hosting limit online": {
@@ -1236,9 +1230,7 @@
                         "description": "The link identifies an open space and joining is in progress.",
                         "snapshot": "The link identifies an open space and joining is in progress.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/spaces/space-links.feature:7"
-                        ],
+                        "source": ["specs/spaces/space-links.feature:7"],
                         "events": []
                       },
                       "on": {
@@ -1292,9 +1284,7 @@
                     "Spaces: Hosting a space": {
                       "id": "Spaces: Hosting a space",
                       "meta": {
-                        "routes": [
-                          "/space/:id"
-                        ],
+                        "routes": ["/space/:id"],
                         "description": "The host sees the space’s people and choices and can play.",
                         "snapshot": "The host sees the space’s people and choices and can play.",
                         "confidence": "assumed",
@@ -1311,9 +1301,7 @@
                           "specs/spaces/space-remove-person.feature"
                         ],
                         "events": [],
-                        "hints": [
-                          "App address: /space/:id"
-                        ]
+                        "hints": ["App address: /space/:id"]
                       },
                       "on": {
                         "Shares the space link": {
@@ -1799,10 +1787,7 @@
                     "Profile: Viewing the profile": {
                       "id": "Profile: Viewing the profile",
                       "meta": {
-                        "routes": [
-                          "/profile",
-                          "/more/account"
-                        ],
+                        "routes": ["/profile", "/more/account"],
                         "description": "The current username, avatar and profile are shown.",
                         "snapshot": "The current username, avatar and profile are shown.",
                         "confidence": "assumed",
@@ -1844,9 +1829,7 @@
                     "Profile: Account devices": {
                       "id": "Profile: Account devices",
                       "meta": {
-                        "routes": [
-                          "/more/account/devices"
-                        ],
+                        "routes": ["/more/account/devices"],
                         "description": "Only this account's signed-in devices are listed and this device is identified. A device disappears from this list when it signs out.",
                         "snapshot": "Only this account's signed-in devices are listed and this device is identified. A device disappears from this list when it signs out.",
                         "confidence": "assumed",
@@ -1855,9 +1838,7 @@
                           "specs/profile/devices.feature:15"
                         ],
                         "events": [],
-                        "hints": [
-                          "App address: /more/account/devices"
-                        ]
+                        "hints": ["App address: /more/account/devices"]
                       },
                       "on": {
                         "Another account device signs out": {
@@ -1877,9 +1858,7 @@
                         "description": "A guest is asked to sign in before seeing account devices; no account's device list is exposed.",
                         "snapshot": "A guest is asked to sign in before seeing account devices; no account's device list is exposed.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/profile/devices.feature:22"
-                        ],
+                        "source": ["specs/profile/devices.feature:22"],
                         "events": []
                       },
                       "on": {
@@ -1894,9 +1873,7 @@
                         "description": "Signing out everywhere ends this account's device sessions. Other devices are signed out within one hundred fifty seconds; saved account data remains with the account.",
                         "snapshot": "Signing out everywhere ends this account's device sessions. Other devices are signed out within one hundred fifty seconds; saved account data remains with the account.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/profile/sessions.feature:9"
-                        ],
+                        "source": ["specs/profile/sessions.feature:9"],
                         "events": []
                       },
                       "on": {
@@ -2167,9 +2144,7 @@
                 "App: Signing in": {
                   "id": "App: Signing in",
                   "meta": {
-                    "routes": [
-                      "/sso-callback"
-                    ],
+                    "routes": ["/sso-callback"],
                     "description": "Google and Apple identify the person; account matching always preserves the person’s choice.",
                     "snapshot": "Outside providers prove the chosen account while the current profile is preserved.",
                     "confidence": "assumed",
@@ -2193,9 +2168,7 @@
                       "specs/ubiquitous-language.yml"
                     ],
                     "events": [],
-                    "hints": [
-                      "App address: /sso-callback"
-                    ]
+                    "hints": ["App address: /sso-callback"]
                   },
                   "initial": "Sign In: Choosing a method",
                   "states": {
@@ -2393,9 +2366,7 @@
                         "description": "Invalid or stolen proof gives no access to another person’s account.",
                         "snapshot": "Invalid or stolen proof gives no access to another person’s account.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/auth/stolen-sign-ins.feature:10"
-                        ],
+                        "source": ["specs/auth/stolen-sign-ins.feature:10"],
                         "events": []
                       },
                       "on": {
@@ -2506,9 +2477,7 @@
                         "description": "The person keeps the profile they had before signing in.",
                         "snapshot": "The person keeps the profile they had before signing in.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/profile/sign-in-abandoned.feature:7"
-                        ],
+                        "source": ["specs/profile/sign-in-abandoned.feature:7"],
                         "events": []
                       },
                       "on": {
@@ -2540,19 +2509,13 @@
                     "Sign In Methods: Connected methods": {
                       "id": "Sign In Methods: Connected methods",
                       "meta": {
-                        "routes": [
-                          "/more/account/providers"
-                        ],
+                        "routes": ["/more/account/providers"],
                         "description": "The account’s connected methods are shown.",
                         "snapshot": "The account’s connected methods are shown.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/profile/sign-in-methods.feature:7"
-                        ],
+                        "source": ["specs/profile/sign-in-methods.feature:7"],
                         "events": [],
-                        "hints": [
-                          "App address: /more/account/providers"
-                        ]
+                        "hints": ["App address: /more/account/providers"]
                       },
                       "on": {
                         "Connects a different provider with recent account proof": {
@@ -2578,9 +2541,7 @@
                         "description": "The chosen provider is proving the new method for this account.",
                         "snapshot": "The chosen provider is proving the new method for this account.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/profile/sign-in-methods.feature"
-                        ],
+                        "source": ["specs/profile/sign-in-methods.feature"],
                         "events": []
                       },
                       "on": {
@@ -2601,9 +2562,7 @@
                         "description": "Connecting a method needs recent proof of the current account.",
                         "snapshot": "Connecting a method needs recent proof of the current account.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/profile/sign-in-methods.feature"
-                        ],
+                        "source": ["specs/profile/sign-in-methods.feature"],
                         "events": []
                       },
                       "on": {
@@ -2618,9 +2577,7 @@
                         "description": "A method cannot move between accounts or replace the same provider’s method.",
                         "snapshot": "A method cannot move between accounts or replace the same provider’s method.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/profile/sign-in-methods.feature"
-                        ],
+                        "source": ["specs/profile/sign-in-methods.feature"],
                         "events": []
                       },
                       "on": {
@@ -2635,9 +2592,7 @@
                         "description": "Removing this method requires confirmation and another connected method.",
                         "snapshot": "Removing this method requires confirmation and another connected method.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/profile/sign-in-methods.feature"
-                        ],
+                        "source": ["specs/profile/sign-in-methods.feature"],
                         "events": []
                       },
                       "on": {
@@ -2655,9 +2610,7 @@
                         "description": "The last sign-in method stays connected so the person can return.",
                         "snapshot": "The last sign-in method stays connected so the person can return.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/profile/sign-in-methods.feature"
-                        ],
+                        "source": ["specs/profile/sign-in-methods.feature"],
                         "events": []
                       },
                       "on": {
@@ -2690,9 +2643,7 @@
                     "Settings: Settings home": {
                       "id": "Settings: Settings home",
                       "meta": {
-                        "routes": [
-                          "/more"
-                        ],
+                        "routes": ["/more"],
                         "description": "Settings offers preferences, About and permitted account and product choices.",
                         "snapshot": "Settings offers preferences, About and permitted account and product choices.",
                         "confidence": "assumed",
@@ -2704,9 +2655,7 @@
                           "specs/runtime/settings.feature:7"
                         ],
                         "events": [],
-                        "hints": [
-                          "App address: /more"
-                        ]
+                        "hints": ["App address: /more"]
                       },
                       "on": {
                         "Opens appearance preferences": {
@@ -2735,19 +2684,13 @@
                     "Settings: Appearance": {
                       "id": "Settings: Appearance",
                       "meta": {
-                        "routes": [
-                          "/more/theme"
-                        ],
+                        "routes": ["/more/theme"],
                         "description": "Theme choices apply on this device and survive closing the app.",
                         "snapshot": "Theme choices apply on this device and survive closing the app.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/runtime/device-layouts.feature:6"
-                        ],
+                        "source": ["specs/runtime/device-layouts.feature:6"],
                         "events": [],
-                        "hints": [
-                          "App address: /more/theme"
-                        ]
+                        "hints": ["App address: /more/theme"]
                       },
                       "on": {
                         "Chooses a permitted theme": {
@@ -2761,9 +2704,7 @@
                     "Settings: Sounds": {
                       "id": "Settings: Sounds",
                       "meta": {
-                        "routes": [
-                          "/more/sound"
-                        ],
+                        "routes": ["/more/sound"],
                         "description": "Sound choices apply on this device and survive closing the app.",
                         "snapshot": "Sound choices apply on this device and survive closing the app.",
                         "confidence": "assumed",
@@ -2773,9 +2714,7 @@
                           "specs/runtime/settings.feature"
                         ],
                         "events": [],
-                        "hints": [
-                          "App address: /more/sound"
-                        ]
+                        "hints": ["App address: /more/sound"]
                       },
                       "on": {
                         "Changes the sound preference": {
@@ -2789,9 +2728,7 @@
                     "Settings: About": {
                       "id": "Settings: About",
                       "meta": {
-                        "routes": [
-                          "/more/about"
-                        ],
+                        "routes": ["/more/about"],
                         "description": "About identifies the version of the app on this device.",
                         "snapshot": "About identifies the version of the app on this device.",
                         "confidence": "assumed",
@@ -2801,9 +2738,7 @@
                           "specs/runtime/settings.feature"
                         ],
                         "events": [],
-                        "hints": [
-                          "App address: /more/about"
-                        ]
+                        "hints": ["App address: /more/about"]
                       },
                       "on": {
                         "Returns to Settings": {
@@ -2836,9 +2771,7 @@
                     "Privacy: Account privacy": {
                       "id": "Privacy: Account privacy",
                       "meta": {
-                        "routes": [
-                          "/profile/privacy"
-                        ],
+                        "routes": ["/profile/privacy"],
                         "description": "Export and deletion choices are available according to account permission.",
                         "snapshot": "Export and deletion choices are available according to account permission.",
                         "confidence": "assumed",
@@ -2851,9 +2784,7 @@
                           "specs/profile/account-privacy.qnt"
                         ],
                         "events": [],
-                        "hints": [
-                          "App address: /profile/privacy"
-                        ]
+                        "hints": ["App address: /profile/privacy"]
                       },
                       "on": {
                         "Requests deletion with recent proof online": {
@@ -3099,9 +3030,7 @@
                     "Privacy: Export ready": {
                       "id": "Privacy: Export ready",
                       "meta": {
-                        "routes": [
-                          "/profile/privacy/export/:accountId"
-                        ],
+                        "routes": ["/profile/privacy/export/:accountId"],
                         "description": "Only the owning account with recent proof can download this complete export.",
                         "snapshot": "Only the owning account with recent proof can download this complete export.",
                         "confidence": "assumed",
@@ -3260,9 +3189,7 @@
                     "Billing: Plans": {
                       "id": "Billing: Plans",
                       "meta": {
-                        "routes": [
-                          "/more/billing"
-                        ],
+                        "routes": ["/more/billing"],
                         "description": "Monthly and yearly Plus plans show their price and trial before purchase.",
                         "snapshot": "Monthly and yearly Plus plans show their price and trial before purchase.",
                         "confidence": "assumed",
@@ -3280,9 +3207,7 @@
                           "specs/billing/subscribe.feature:7"
                         ],
                         "events": [],
-                        "hints": [
-                          "App address: /more/billing"
-                        ]
+                        "hints": ["App address: /more/billing"]
                       },
                       "on": {
                         "Current billing information shows a trial": {
@@ -3600,9 +3525,7 @@
                         "description": "The provider is opening membership management.",
                         "snapshot": "The provider is opening membership management.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/billing/billing-portal.feature:7"
-                        ],
+                        "source": ["specs/billing/billing-portal.feature:7"],
                         "events": []
                       },
                       "on": {
@@ -4047,10 +3970,7 @@
                     "Friends: People and friends": {
                       "id": "Friends: People and friends",
                       "meta": {
-                        "routes": [
-                          "/search",
-                          "/profile/friends"
-                        ],
+                        "routes": ["/search", "/profile/friends"],
                         "description": "The friends list and people search show only people the person may find.",
                         "snapshot": "The friends list and people search show only people the person may find.",
                         "confidence": "assumed",
@@ -4204,9 +4124,7 @@
                     "Friends: Person to ask": {
                       "id": "Friends: Person to ask",
                       "meta": {
-                        "routes": [
-                          "/profile/user/:userId"
-                        ],
+                        "routes": ["/profile/user/:userId"],
                         "description": "The person may send an allowed friend request or block this person.",
                         "snapshot": "The person may send an allowed friend request or block this person.",
                         "confidence": "assumed",
@@ -4220,9 +4138,7 @@
                           "specs/friends/friend-request-inbox.feature:22"
                         ],
                         "events": [],
-                        "hints": [
-                          "App address: /profile/user/:userId"
-                        ]
+                        "hints": ["App address: /profile/user/:userId"]
                       },
                       "on": {
                         "Returns to the people list": {
@@ -4523,9 +4439,7 @@
                         "description": "The confirmed removal is in progress; completion ends the friendship for both people and updates both friend counts.",
                         "snapshot": "The confirmed removal is in progress; completion ends the friendship for both people and updates both friend counts.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/friends/friend-remove.feature:17"
-                        ],
+                        "source": ["specs/friends/friend-remove.feature:17"],
                         "events": []
                       },
                       "on": {
@@ -4590,19 +4504,13 @@
                     "Inbox: Inbox": {
                       "id": "Inbox: Inbox",
                       "meta": {
-                        "routes": [
-                          "/notifications"
-                        ],
+                        "routes": ["/notifications"],
                         "description": "The person sees their current inbox and available choices.",
                         "snapshot": "The person sees their current inbox and available choices.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/README.md#context-map"
-                        ],
+                        "source": ["specs/README.md#context-map"],
                         "events": [],
-                        "hints": [
-                          "App address: /notifications"
-                        ]
+                        "hints": ["App address: /notifications"]
                       },
                       "on": {
                         "Opens an unread notice": {
@@ -4631,9 +4539,7 @@
                         "description": "This owned notice is unread and its current action is shown.",
                         "snapshot": "This owned notice is unread and its current action is shown.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/README.md#context-map"
-                        ],
+                        "source": ["specs/README.md#context-map"],
                         "events": []
                       },
                       "on": {
@@ -4657,9 +4563,7 @@
                         "description": "Reading a notice does not invent an outcome for its request.",
                         "snapshot": "Reading a notice does not invent an outcome for its request.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/README.md#context-map"
-                        ],
+                        "source": ["specs/README.md#context-map"],
                         "events": []
                       },
                       "on": {
@@ -4683,9 +4587,7 @@
                         "description": "The current request is being accepted once for this person.",
                         "snapshot": "The current request is being accepted once for this person.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/README.md#context-map"
-                        ],
+                        "source": ["specs/README.md#context-map"],
                         "events": []
                       },
                       "on": {
@@ -4706,9 +4608,7 @@
                         "description": "The failed inbox action has an explanation without losing the notice.",
                         "snapshot": "The failed inbox action has an explanation without losing the notice.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/README.md#context-map"
-                        ],
+                        "source": ["specs/README.md#context-map"],
                         "events": []
                       },
                       "on": {
@@ -4723,9 +4623,7 @@
                         "description": "An ended or expired request cannot still be accepted.",
                         "snapshot": "An ended or expired request cannot still be accepted.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/README.md#context-map"
-                        ],
+                        "source": ["specs/README.md#context-map"],
                         "events": []
                       },
                       "on": {
@@ -4746,9 +4644,7 @@
                         "description": "Archived notices keep their history and do not revive ended requests.",
                         "snapshot": "Archived notices keep their history and do not revive ended requests.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/README.md#context-map"
-                        ],
+                        "source": ["specs/README.md#context-map"],
                         "events": []
                       },
                       "on": {
@@ -5286,9 +5182,7 @@
                         "description": "Review shows only positions already reached and guidance belongs to that position.",
                         "snapshot": "Review shows only positions already reached and guidance belongs to that position.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/chess/puzzle-review.feature:13"
-                        ],
+                        "source": ["specs/chess/puzzle-review.feature:13"],
                         "events": []
                       },
                       "on": {
@@ -5592,9 +5486,7 @@
                         "description": "A puzzle that never reached the device needs a connection.",
                         "snapshot": "A puzzle that never reached the device needs a connection.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/chess/puzzle-offline-days.feature:7"
-                        ],
+                        "source": ["specs/chess/puzzle-offline-days.feature:7"],
                         "events": []
                       },
                       "on": {
@@ -5775,9 +5667,7 @@
                         "description": "Only the solver controls this puzzle; the watched position remains intact.",
                         "snapshot": "Only the solver controls this puzzle; the watched position remains intact.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/chess/puzzle-late-watcher.feature:7"
-                        ],
+                        "source": ["specs/chess/puzzle-late-watcher.feature:7"],
                         "events": []
                       },
                       "on": {
@@ -5998,9 +5888,7 @@
                         "description": "Offline choices stay on this device and reach the account when the connection returns.",
                         "snapshot": "Offline choices stay on this device and reach the account when the connection returns.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/chess/puzzle-feed-gates.feature:7"
-                        ],
+                        "source": ["specs/chess/puzzle-feed-gates.feature:7"],
                         "events": []
                       },
                       "on": {
@@ -6038,9 +5926,7 @@
                     "Puzzle Links: Opening a puzzle link": {
                       "id": "Puzzle Links: Opening a puzzle link",
                       "meta": {
-                        "routes": [
-                          "/chess/puzzle/:puzzleId"
-                        ],
+                        "routes": ["/chess/puzzle/:puzzleId"],
                         "description": "The link identifies one puzzle and the current allowance determines how it opens.",
                         "snapshot": "The link identifies one puzzle and the current allowance determines how it opens.",
                         "confidence": "assumed",
@@ -6051,9 +5937,7 @@
                           "specs/chess/puzzle-link.feature:59"
                         ],
                         "events": [],
-                        "hints": [
-                          "App address: /chess/puzzle/:puzzleId"
-                        ]
+                        "hints": ["App address: /chess/puzzle/:puzzleId"]
                       },
                       "on": {
                         "The linked puzzle opens as rated": {
@@ -6232,9 +6116,7 @@
                           "specs/chess/puzzle-stats.feature:11"
                         ],
                         "events": [],
-                        "routes": [
-                          "/more/chess-stats"
-                        ]
+                        "routes": ["/more/chess-stats"]
                       },
                       "on": {
                         "Opens a recorded puzzle attempt": {
@@ -6383,9 +6265,7 @@
                     "Multiplayer: Opening own multiplayer": {
                       "id": "Multiplayer: Opening own multiplayer",
                       "meta": {
-                        "routes": [
-                          "/:gameId/multiplayer"
-                        ],
+                        "routes": ["/:gameId/multiplayer"],
                         "description": "Opening observes the account's accepted search, current game or lasting result. These records belong to the account across devices and are not restarted by navigation.",
                         "snapshot": "Opening observes the account's accepted search, current game or lasting result. These records belong to the account across devices and are not restarted by navigation.",
                         "confidence": "assumed",
@@ -6396,9 +6276,7 @@
                           "specs/connect-four/find-connect-four-opponent.feature"
                         ],
                         "events": [],
-                        "hints": [
-                          "App address: /:gameId/multiplayer"
-                        ]
+                        "hints": ["App address: /:gameId/multiplayer"]
                       },
                       "on": {
                         "No accepted opponent search or multiplayer game exists": {
@@ -7936,9 +7814,7 @@
                         "description": "Draw agreement needs two people; an offer against a bot is refused and play continues.",
                         "snapshot": "Draw agreement needs two people; an offer against a bot is refused and play continues.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/chess/custom-game-draws.feature:12"
-                        ],
+                        "source": ["specs/chess/custom-game-draws.feature:12"],
                         "events": []
                       },
                       "on": {
@@ -8288,9 +8164,7 @@
                     "Puzzle Ingest: Ready to add puzzles": {
                       "id": "Puzzle Ingest: Ready to add puzzles",
                       "meta": {
-                        "routes": [
-                          "/more/puzzles"
-                        ],
+                        "routes": ["/more/puzzles"],
                         "description": "Adding puzzles is offered only when the current permission allows it.",
                         "snapshot": "Adding puzzles is offered only when the current permission allows it.",
                         "confidence": "assumed",
@@ -8302,9 +8176,7 @@
                           "specs/chess/puzzle-ingest.feature:82"
                         ],
                         "events": [],
-                        "hints": [
-                          "App address: /more/puzzles"
-                        ]
+                        "hints": ["App address: /more/puzzles"]
                       },
                       "on": {
                         "Adds puzzle material with permission online": {
@@ -8440,9 +8312,7 @@
                 "App: Unknown address": {
                   "id": "App: Unknown address",
                   "meta": {
-                    "routes": [
-                      "/*all"
-                    ],
+                    "routes": ["/*all"],
                     "description": "An unknown app address gives a clear way back.",
                     "snapshot": "An unknown app address gives a clear way back.",
                     "confidence": "assumed",
@@ -8452,9 +8322,7 @@
                       "specs/runtime/app-platform.qnt"
                     ],
                     "events": [],
-                    "hints": [
-                      "App address: /*all"
-                    ]
+                    "hints": ["App address: /*all"]
                   },
                   "on": {
                     "Returns to Spaces": {
@@ -8903,9 +8771,7 @@
                     "Tools: Tool home": {
                       "id": "Tools: Tool home",
                       "meta": {
-                        "routes": [
-                          "/harness"
-                        ],
+                        "routes": ["/harness"],
                         "description": "The team can choose a test world, evidence or an independent framework example.",
                         "snapshot": "The team can choose a test world, evidence or an independent framework example.",
                         "confidence": "assumed",
@@ -9006,10 +8872,7 @@
                           "id": "Inspectors: Sync inspection",
                           "meta": {
                             "description": "This device's sync inspection is at /more/sync; /more/server-status is currently a status placeholder. Offline recovery and keeping saved data have contracts; diagnostic controls, status details and their failure outcomes still need their own complete observable contract.",
-                            "routes": [
-                              "/more/sync",
-                              "/more/server-status"
-                            ],
+                            "routes": ["/more/sync", "/more/server-status"],
                             "source": [
                               "specs/sync-engine/notes-offline.feature",
                               "specs/README.md#product-contract-inventory"
@@ -9034,9 +8897,7 @@
                               "specs/runtime/connected-services.feature",
                               "specs/README.md#product-contract-inventory"
                             ],
-                            "hints": [
-                              "App address: /more/client-config"
-                            ]
+                            "hints": ["App address: /more/client-config"]
                           },
                           "on": {
                             "Returns to the inspection inventory": {
@@ -9052,9 +8913,7 @@
                             "source": [
                               "specs/README.md#product-contract-inventory"
                             ],
-                            "hints": [
-                              "App address: /more/performance"
-                            ]
+                            "hints": ["App address: /more/performance"]
                           },
                           "on": {
                             "Returns to the inspection inventory": {
@@ -9066,10 +8925,7 @@
                           "id": "Inspectors: Component reference",
                           "meta": {
                             "description": "The component reference is at /ui and an individual component at /ui/:component. Component exploration and team authoring are explicitly awaiting a complete observable contract in the product inventory.",
-                            "routes": [
-                              "/ui",
-                              "/ui/:component"
-                            ],
+                            "routes": ["/ui", "/ui/:component"],
                             "source": [
                               "specs/README.md#product-contract-inventory"
                             ],
@@ -9112,9 +8968,7 @@
                               "specs/runtime/request-records.feature",
                               "specs/README.md#product-contract-inventory"
                             ],
-                            "hints": [
-                              "App address: /client/events"
-                            ]
+                            "hints": ["App address: /client/events"]
                           },
                           "on": {
                             "Returns to the inspection inventory": {
@@ -9321,9 +9175,7 @@
                         "Notebook: Notebook": {
                           "id": "Notebook: Notebook",
                           "meta": {
-                            "routes": [
-                              "/client/sql"
-                            ],
+                            "routes": ["/client/sql"],
                             "description": "The selected device’s saved questions remain separate from another device’s notebook.",
                             "snapshot": "The selected device’s saved questions remain separate from another device’s notebook.",
                             "confidence": "assumed",
@@ -9334,9 +9186,7 @@
                               "specs/developer-tools/data-notebook.feature:46"
                             ],
                             "events": [],
-                            "hints": [
-                              "App address: /client/sql"
-                            ]
+                            "hints": ["App address: /client/sql"]
                           },
                           "on": {
                             "Adds a notebook question": {
@@ -9744,9 +9594,7 @@
                             "description": "Only the permitted person can obtain the stored file and unavailable files are explained.",
                             "snapshot": "Only the permitted person can obtain the stored file and unavailable files are explained.",
                             "confidence": "assumed",
-                            "source": [
-                              "specs/runtime/stored-files.feature:7"
-                            ],
+                            "source": ["specs/runtime/stored-files.feature:7"],
                             "events": []
                           },
                           "on": {
@@ -11263,9 +11111,7 @@
                         "description": "The old app must update before continuing; its local data is not erased.",
                         "snapshot": "The old app must update before continuing; its local data is not erased.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/runtime/app-updates.feature:7"
-                        ],
+                        "source": ["specs/runtime/app-updates.feature:7"],
                         "events": []
                       },
                       "on": {
