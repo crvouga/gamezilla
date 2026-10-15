@@ -117,3 +117,25 @@ test('arrow keys reach the focused control and the next global key follows its f
   await ui.key('arrowLeft');
   expect(keys).toEqual(['ArrowRight', 'ArrowLeft']);
 });
+
+test('the portable command-palette key uses the Mac primary modifier', async () => {
+  // regression: browser-command-palette-mac-modifier
+  const previous = Object.getOwnPropertyDescriptor(navigator, 'platform');
+  Object.defineProperty(navigator, 'platform', {
+    value: 'MacIntel',
+    configurable: true,
+  });
+  document.body.innerHTML = '<button data-testid="account">Account</button>';
+  let opened = false;
+  document.querySelector('button')!.addEventListener('keydown', (event) => {
+    opened = event.key === 'k' && event.metaKey && !event.ctrlKey;
+    event.preventDefault();
+  });
+  try {
+    await driver().get('account').key('commandPalette');
+    expect(opened).toBe(true);
+  } finally {
+    if (previous === undefined) Reflect.deleteProperty(navigator, 'platform');
+    else Object.defineProperty(navigator, 'platform', previous);
+  }
+});
