@@ -10,8 +10,6 @@ import { bindQuintModel } from '@pkgs/quint-shared/registry';
 bindQuintModel<QuintHarnessWorld>({
   model: 'connect-four-play',
   inductiveInvariant: '_inductive',
-  separateInduction: true,
-  inductionCaseGroupSize: 1,
   inferPolymorphicTypes: false,
   encoding: 'fun-arrays',
   traces: 16,
