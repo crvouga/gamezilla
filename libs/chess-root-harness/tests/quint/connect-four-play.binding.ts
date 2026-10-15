@@ -37,10 +37,10 @@ bindQuintModel<QuintHarnessWorld>({
   observe: async (w) => {
     const view = await w.s.read(connectFourView);
     return {
-      board: new Map(view.board.map((disc, i) => [i, disc])),
-      _heights: new Map(
+      ...Object.fromEntries(view.board.map((disc, i) => [`_p${i}`, disc])),
+      ...Object.fromEntries(
         Array.from({ length: 7 }, (_, col) => [
-          col,
+          `_h${col}`,
           view.board.filter((disc, i) => i % 7 === col && disc !== 0).length,
         ])
       ),
@@ -52,6 +52,7 @@ bindQuintModel<QuintHarnessWorld>({
         0n
       ),
       _count: view.game.moves.length,
+      _pairs: Math.floor(view.game.moves.length / 2),
     };
   },
 });
