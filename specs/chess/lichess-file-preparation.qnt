@@ -16,11 +16,14 @@ module lichess_file_preparation {
     file.check == "known", not(file.available), file.save != "saving"
   } }
 
+  /// A visit can begin with a file being checked, chosen or saved.
   action init = {
-    nondet _alreadySaved = Set(false, true).oneOf()
+    nondet _initialChoice = Set("checking", "saved", "chosen", "saving").oneOf()
     all {
-      lichessFile' = _choices({ check: "checking", save: "idle", chosen: false, available: false, confirmingStop: false, needsFile: false }),
-      addingPuzzles' = false, online' = true, _saved' = _alreadySaved, _availableWhenOffline' = false,
+      lichessFile' = _choices({ check: if (Set("checking", "saved").contains(_initialChoice)) "checking" else "known",
+        save: if (_initialChoice == "saving") "saving" else "idle",
+        chosen: Set("chosen", "saving").contains(_initialChoice), available: false, confirmingStop: false, needsFile: false }),
+      addingPuzzles' = false, online' = true, _saved' = _initialChoice == "saved", _availableWhenOffline' = false,
     }
   }
 

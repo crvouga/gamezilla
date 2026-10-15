@@ -33,10 +33,10 @@ module puzzle_loading_choices {
     Set("confirming", "failed").contains(stoppingPuzzles), stoppingPuzzles' = "idle", _keepAddition,
   }
 
-  /// Confirmation starts stopping; it cannot be submitted a second time while unfinished.
+  /// Confirmation starts stopping, or acknowledges the result when adding already finished.
   action confirmStoppingPuzzles = all {
     online, Set("confirming", "failed").contains(stoppingPuzzles),
-    stoppingPuzzles' = "stopping", _keepAddition,
+    stoppingPuzzles' = if (_actualStatus == "adding") "stopping" else "succeeded", _keepAddition,
   }
 
   /// A successful stop does not rewrite an addition that already finished or failed.
