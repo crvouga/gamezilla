@@ -31,7 +31,7 @@ function PuzzleManagementContent(): JSX.Element {
     },
     labels: {
       idle: t`Start loading`,
-      loading: t`Uploading CSV…`,
+      loading: t`Starting load…`,
       success: t`Load started`,
       error: t`Try loading again`,
     },

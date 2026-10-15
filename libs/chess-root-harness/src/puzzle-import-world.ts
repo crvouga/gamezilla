@@ -5,6 +5,7 @@ import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
 import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared/permission-policy';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import sql from '@pkgs/sql-root-shared/sql';
 import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
@@ -89,11 +90,17 @@ export const failPuzzleImport = scenarioAction({
       )
     )[0];
     if (!job) throw new Error('No import to interrupt');
-    // A source disappears before the worker reads it; the real worker records the failure.
-    await s.harness.server.blob.delete(
-      `${job.object_key.slice(0, job.object_key.lastIndexOf('/') + 1)}${String(job.completed_chunks)}.csv`
-    );
-    await Promise.resolve(advancePuzzleImport.act(s));
+    // Temporary external unavailability: the real worker records the failure,
+    // then the same saved bytes become available for a later load.
+    const key = `${job.object_key.slice(0, job.object_key.lastIndexOf('/') + 1)}${String(job.completed_chunks)}.csv`;
+    const source = await readUtf8(s.harness.server.blob, key);
+    await s.harness.server.blob.delete(key);
+    try {
+      await Promise.resolve(advancePuzzleImport.act(s));
+    } finally {
+      if (source !== null)
+        await writeUtf8(s.harness.server.blob, key, source, 'text/csv');
+    }
   },
 });
 

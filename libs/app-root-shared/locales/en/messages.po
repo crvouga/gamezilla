@@ -3712,6 +3712,10 @@ msgstr "Start the game before playing."
 msgid "Started"
 msgstr "Started"
 
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Starting load…"
+msgstr "Starting load…"
+
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "State"
 msgstr "State"
@@ -4274,10 +4278,6 @@ msgstr "Update the app"
 #: libs/chess-puzzle-client/src/puzzle-import-status.tsx
 msgid "Updated"
 msgstr "Updated"
-
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "Uploading CSV…"
-msgstr "Uploading CSV…"
 
 #: libs/auth-client/src/email-sign-in-form.tsx
 msgid "Use a different email address"

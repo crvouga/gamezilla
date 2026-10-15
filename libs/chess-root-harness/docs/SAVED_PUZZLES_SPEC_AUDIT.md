@@ -57,7 +57,11 @@ start. Its commands, status transitions and coverage remain unchanged.
 A deeper replay found an old delivery consuming the harness worker action
 after a stopped job. The literal trace is pinned as
 `puzzle-load-stale-delivery`; the worker action now targets the active job's
-part. The pinned replay passes. A subsequent Atlas report collection failed
-on a missing HTML snapshot after every replay passed; this is not a product
-conformance success for that command as a whole. The full gate remains the
-release verdict.
+part. The existing failed-load restart example is pinned as
+`puzzle-load-retry-shared-source`: its simulated outage now restores the same
+source bytes before a later load. No product assertion was relaxed.
+
+The final combined run passes all 55 checks: the saved-file and ingest
+scenarios, all 30 drawn source/loading traces, the pinned regression and
+model shape, type, invariant and action checks. Its Atlas report collection
+also succeeds. The full repository gate remains the release verdict.
