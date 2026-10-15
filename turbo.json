@@ -3007,6 +3007,13 @@
       "outputs": [".cache/quint-draws/**"]
     },
     "//#task:spec:inputs": {
+      "dependsOn": [
+        "@pkgs/quint-shared#src",
+        "@pkgs/gherkin-shared#src",
+        "@pkgs/openslo-shared#src",
+        "@pkgs/alloy-shared#src",
+        "@pkgs/dmn-shared#src"
+      ],
       "inputs": [
         "specs/**",
         "apps/*/package.json",
