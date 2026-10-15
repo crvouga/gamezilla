@@ -2426,7 +2426,6 @@
         "@libs/billing-shared": "workspace:*",
         "@libs/chess-puzzle-harness": "workspace:*",
         "@libs/friends-harness": "workspace:*",
-        "@libs/game-matchmaking-harness": "workspace:*",
         "@libs/games-shared": "workspace:*",
         "@libs/harness": "workspace:*",
         "@libs/profile-harness": "workspace:*",

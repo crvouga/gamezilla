@@ -1,0 +1,4 @@
+{
+  "summary": "The real-browser reconnect journey tried to partition a virtual network it does not own. Reuse the app's existing Work offline/online command and its shared HTTP and room network controller.",
+  "regressionTest": "specs/journeys/multiplayer-game.feature"
+}

@@ -52,8 +52,7 @@
     "@pkgs/gherkin-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/ui-testing-root-shared": "workspace:*",
-    "chess.js": "catalog:",
-    "@libs/game-matchmaking-harness": "workspace:*"
+    "chess.js": "catalog:"
   },
   "devDependencies": {
     "@pkgs/a11y-shared": "workspace:*",
