@@ -1,5 +1,5 @@
 {
-  "release": 14,
+  "release": 15,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -76,6 +76,7 @@
         "fen": "text",
         "match_id": "text",
         "outcome": "text",
+        "paused_at_ms": "integer",
         "pgn": "text",
         "reason": "text",
         "rematch_of": "text",
