@@ -9,7 +9,9 @@
       "./src/*.ts",
       "./src/*.tsx",
       "./src/*.d.ts"
-    ]
+    ],
+    "./spec-inputs": "./scripts/spec-inputs.ts",
+    "./spec-parts": "./scripts/spec-parts.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -28,11 +30,11 @@
     "@libs/app-root-shared": "workspace:*",
     "@libs/auth-shared": "workspace:*",
     "@libs/db-shared": "workspace:*",
+    "@libs/moderation-shared": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
     "@libs/sub-client": "workspace:*",
     "@libs/sub-shared": "workspace:*",
     "@libs/synthetic-population-shared": "workspace:*",
-    "@libs/moderation-shared": "workspace:*",
-    "@libs/permissions-shared": "workspace:*",
     "@libs/test-ids-shared": "workspace:*",
     "@pkgs/a11y-shared": "workspace:*",
     "@pkgs/alloy-shared": "workspace:*",

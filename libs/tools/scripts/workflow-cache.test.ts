@@ -42,7 +42,11 @@ test('setup installs frozen dependencies whether or not the dependency cache ans
   // The cache is an exact, content-only key: no ref, no fallback to the
   // trees of another lockfile.
   expect(source).not.toMatch(/github\.(ref|head_ref|base_ref)|GITHUB_REF/);
-  const caches = steps.filter((step) => step.uses?.startsWith('actions/cache'));
+  const caches = steps.filter(
+    (step) =>
+      step.uses?.startsWith('actions/cache') &&
+      step.with?.['path']?.includes('node_modules')
+  );
   expect(caches.map((step) => step.uses)).toEqual([
     'actions/cache/restore@v5',
     'actions/cache/save@v5',
@@ -61,6 +65,44 @@ test('setup installs frozen dependencies whether or not the dependency cache ans
   expect(steps.indexOf(restore)).toBeLessThan(install);
   expect(steps.indexOf(save)).toBeGreaterThan(install);
   expect(save.if).toBe("steps.dependencies.outputs.cache-hit != 'true'");
+});
+
+test('setup reuses generation artifacts separately while retaining frozen dependency validation', () => {
+  const setup = Bun.YAML.parse(
+    readFileSync(join(root, '.github/actions/setup/action.yml'), 'utf8')
+  ) as {
+    runs: {
+      steps: {
+        uses?: string;
+        run?: string;
+        if?: string;
+        env?: Record<string, string>;
+        with?: Record<string, string>;
+      }[];
+    };
+  };
+  const steps = setup.runs.steps;
+  const restore = steps.findIndex(
+    (step) =>
+      step.uses?.startsWith('actions/cache/restore') &&
+      step.with?.['path'] === '.cache/setup-generation'
+  );
+  const install = steps.findIndex(
+    (step) => step.run === 'bun install --frozen-lockfile'
+  );
+  const save = steps.findIndex(
+    (step) =>
+      step.uses?.startsWith('actions/cache/save') &&
+      step.with?.['path'] === '.cache/setup-generation'
+  );
+  expect(restore).toBeGreaterThan(-1);
+  expect(restore).toBeLessThan(install);
+  expect(save).toBeGreaterThan(install);
+  expect(steps[install]!.env?.['TURBO_CACHE_DIR']).toBe(
+    '.cache/setup-generation'
+  );
+  expect(steps[install]!.if).toBeUndefined();
+  expect(steps[save]!.if).toBe("steps.generation.outputs.cache-hit != 'true'");
 });
 
 // regression: turbo-build-unhashed-inputs

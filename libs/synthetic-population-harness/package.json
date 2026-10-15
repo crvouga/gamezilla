@@ -12,6 +12,7 @@
   "scripts": {
     "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client/register ../../libs/harness/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
     "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
@@ -20,11 +21,10 @@
     "@libs/account-privacy-harness": "workspace:*",
     "@libs/app-config-shared": "workspace:*",
     "@libs/billing-harness": "workspace:*",
-    "@libs/chess-sub-shared": "workspace:*",
     "@libs/chess-matchmaking-harness": "workspace:*",
     "@libs/chess-root-client": "workspace:*",
     "@libs/chess-root-harness": "workspace:*",
-    "@libs/sub-shared": "workspace:*",
+    "@libs/chess-sub-shared": "workspace:*",
     "@libs/friends-harness": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/notifications-harness": "workspace:*",
@@ -32,6 +32,7 @@
     "@libs/profile-harness": "workspace:*",
     "@libs/search-harness": "workspace:*",
     "@libs/spaces-harness": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@libs/synthetic-population-client": "workspace:*",
     "@libs/synthetic-population-server": "workspace:*",
     "@libs/synthetic-population-shared": "workspace:*",

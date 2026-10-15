@@ -6,6 +6,7 @@ import { SECRETS_RANGE_ENV } from './secrets-scan-range';
 import {
   MAX_MODEL_PARTS,
   MAX_SPEC_PARTS,
+  specPackages,
   specPartProblems,
 } from './spec-packages';
 import { flattenCheckAggregators } from './turbo-ci-run';
@@ -73,7 +74,25 @@ test('slow spec suites split into independently cached parts that all gate Check
   expectSpecParts('libs/chess-root-harness', 64, ['chess']);
 });
 
-function expectSpecParts(dir: string, count: number, domains: string[]): void {
+// regression: ci-chess-board-omits-inherited-spec-inputs
+test('every spec package retains its inherited runner and exact source inputs', () => {
+  expect(loadTasks()['@libs/tools#ci:specs']?.inputs).toContain(
+    '$TURBO_ROOT$/turbo.json'
+  );
+  for (const pkg of specPackages()) {
+    const manifest = JSON.parse(
+      readFileSync(join(REPO_ROOT, pkg.dir, 'package.json'), 'utf8')
+    ) as { specParts?: number };
+    if (manifest.specParts === undefined) continue;
+    expectSpecParts(pkg.dir, manifest.specParts, pkg.specDomains);
+  }
+});
+
+function expectSpecParts(
+  dir: string,
+  count: number,
+  domains: readonly string[]
+): void {
   const manifest = JSON.parse(
     readFileSync(join(REPO_ROOT, dir, 'package.json'), 'utf8')
   ) as { specParts: number; scripts: Record<string, string> };
@@ -85,18 +104,28 @@ function expectSpecParts(dir: string, count: number, domains: string[]): void {
       tasks: Tasks;
     }
   ).tasks;
+  const covered = new Set<string>();
   for (let part = 0; part < count; part++) {
     const task = `test:spec:${String(part)}`;
     expect(CHECK_LEAVES).toContain(task);
     expect(tasks[task]?.outputs).toEqual([
       `.cache/harness-report/part-${String(part)}/**`,
     ]);
-    for (const domain of domains) {
-      expect(packageTasks[task]?.inputs).toContain(
-        `$TURBO_ROOT$/specs/${domain}/**`
-      );
-    }
+    expect(packageTasks[task]?.inputs).toContain('$TURBO_EXTENDS$');
+    const input = `.cache/spec-inputs/part-${String(part)}.json`;
+    expect(tasks[task]?.inputs).toContain(input);
+    expect(tasks[task]?.dependsOn).toContain('prepare:spec');
+    const fingerprint = JSON.parse(
+      readFileSync(join(REPO_ROOT, dir, input), 'utf8')
+    ) as {
+      files: Record<string, string>;
+    };
+    for (const path of Object.keys(fingerprint.files)) covered.add(path);
   }
+  for (const domain of domains)
+    expect(
+      [...covered].some((path) => path.startsWith(`specs/${domain}/`))
+    ).toBe(true);
 }
 
 /**

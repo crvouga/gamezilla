@@ -29,11 +29,10 @@ const DIRECTORY = join(ROOT, '.cache/check-ci');
  * Estimated seconds of uncached work one shard is started for, per Turbo
  * slot. A runner spends about a minute on checkout and install before its
  * first task (Check run 38128423200: 7 s and 40 s medians, plus the plan
- * restore), so a shard is worth starting once it has that much work of its
- * own. A smaller target buys little wall clock for a second runner's setup;
- * a larger one makes a small change wait on a long shard.
+ * restore), so three minutes of useful work amortizes its startup. Heavy tasks and
+ * solvers retain dedicated runners; this only batches lightweight misses.
  */
-const SHARD_TARGET_SECONDS = 60;
+const SHARD_TARGET_SECONDS = 180;
 
 function shardTargetSeconds(env: NodeJS.ProcessEnv): number {
   const slots = Number(env['CHECK_CONCURRENCY'] ?? '1');

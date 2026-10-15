@@ -375,12 +375,13 @@
       "outputs": []
     },
     "test:spec:0": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-0.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -395,12 +396,13 @@
       "outputs": [".cache/harness-report/part-0/**"]
     },
     "test:spec:1": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-1.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -415,12 +417,13 @@
       "outputs": [".cache/harness-report/part-1/**"]
     },
     "test:spec:2": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-2.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -435,12 +438,13 @@
       "outputs": [".cache/harness-report/part-2/**"]
     },
     "test:spec:3": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-3.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -455,12 +459,13 @@
       "outputs": [".cache/harness-report/part-3/**"]
     },
     "test:spec:4": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-4.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -475,12 +480,13 @@
       "outputs": [".cache/harness-report/part-4/**"]
     },
     "test:spec:5": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-5.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1123,6 +1129,7 @@
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo.json",
         "!$TURBO_ROOT$/apps/**",
         "!$TURBO_ROOT$/libs/**",
         "!$TURBO_ROOT$/pkgs/**",
@@ -1165,7 +1172,14 @@
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-location.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/goal/**"
+        "$TURBO_ROOT$/libs/tools/goal/**",
+        "$TURBO_ROOT$/apps/*/.cache/spec-inputs/**",
+        "$TURBO_ROOT$/libs/*/.cache/spec-inputs/**",
+        "$TURBO_ROOT$/pkgs/*/.cache/spec-inputs/**",
+        "$TURBO_ROOT$/libs/harness/scripts/spec-inputs.ts",
+        "$TURBO_ROOT$/libs/harness/scripts/spec-sources.ts",
+        "$TURBO_ROOT$/libs/harness/scripts/spec-parts.ts",
+        "$TURBO_ROOT$/libs/harness/scripts/spec-check-kinds.ts"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -1450,8 +1464,12 @@
       "outputs": []
     },
     "test:spec:6": {
-      "dependsOn": ["^src"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        ".cache/spec-inputs/part-6.json"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -1465,8 +1483,12 @@
       "outputs": [".cache/harness-report/part-6/**"]
     },
     "test:spec:7": {
-      "dependsOn": ["^src"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        ".cache/spec-inputs/part-7.json"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -1480,8 +1502,12 @@
       "outputs": [".cache/harness-report/part-7/**"]
     },
     "test:spec:8": {
-      "dependsOn": ["^src"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        ".cache/spec-inputs/part-8.json"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -1495,8 +1521,12 @@
       "outputs": [".cache/harness-report/part-8/**"]
     },
     "test:spec:9": {
-      "dependsOn": ["^src"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        ".cache/spec-inputs/part-9.json"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -1510,8 +1540,12 @@
       "outputs": [".cache/harness-report/part-9/**"]
     },
     "test:spec:10": {
-      "dependsOn": ["^src"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        ".cache/spec-inputs/part-10.json"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -1525,8 +1559,12 @@
       "outputs": [".cache/harness-report/part-10/**"]
     },
     "test:spec:11": {
-      "dependsOn": ["^src"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        ".cache/spec-inputs/part-11.json"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -1540,8 +1578,12 @@
       "outputs": [".cache/harness-report/part-11/**"]
     },
     "test:spec:12": {
-      "dependsOn": ["^src"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        ".cache/spec-inputs/part-12.json"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -1555,8 +1597,12 @@
       "outputs": [".cache/harness-report/part-12/**"]
     },
     "test:spec:13": {
-      "dependsOn": ["^src"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        ".cache/spec-inputs/part-13.json"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -1570,8 +1616,12 @@
       "outputs": [".cache/harness-report/part-13/**"]
     },
     "test:spec:14": {
-      "dependsOn": ["^src"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        ".cache/spec-inputs/part-14.json"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -1585,8 +1635,12 @@
       "outputs": [".cache/harness-report/part-14/**"]
     },
     "test:spec:15": {
-      "dependsOn": ["^src"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        ".cache/spec-inputs/part-15.json"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -1600,12 +1654,13 @@
       "outputs": [".cache/harness-report/part-15/**"]
     },
     "test:spec:16": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-16.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1620,12 +1675,13 @@
       "outputs": [".cache/harness-report/part-16/**"]
     },
     "test:spec:17": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-17.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1640,12 +1696,13 @@
       "outputs": [".cache/harness-report/part-17/**"]
     },
     "test:spec:18": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-18.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1660,12 +1717,13 @@
       "outputs": [".cache/harness-report/part-18/**"]
     },
     "test:spec:19": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-19.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1680,12 +1738,13 @@
       "outputs": [".cache/harness-report/part-19/**"]
     },
     "test:spec:20": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-20.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1700,12 +1759,13 @@
       "outputs": [".cache/harness-report/part-20/**"]
     },
     "test:spec:21": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-21.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1720,12 +1780,13 @@
       "outputs": [".cache/harness-report/part-21/**"]
     },
     "test:spec:22": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-22.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1740,12 +1801,13 @@
       "outputs": [".cache/harness-report/part-22/**"]
     },
     "test:spec:23": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-23.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1760,12 +1822,13 @@
       "outputs": [".cache/harness-report/part-23/**"]
     },
     "test:spec:24": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-24.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1780,12 +1843,13 @@
       "outputs": [".cache/harness-report/part-24/**"]
     },
     "test:spec:25": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-25.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1800,12 +1864,13 @@
       "outputs": [".cache/harness-report/part-25/**"]
     },
     "test:spec:26": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-26.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1820,12 +1885,13 @@
       "outputs": [".cache/harness-report/part-26/**"]
     },
     "test:spec:27": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-27.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1840,12 +1906,13 @@
       "outputs": [".cache/harness-report/part-27/**"]
     },
     "test:spec:28": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-28.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1860,12 +1927,13 @@
       "outputs": [".cache/harness-report/part-28/**"]
     },
     "test:spec:29": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-29.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1880,12 +1948,13 @@
       "outputs": [".cache/harness-report/part-29/**"]
     },
     "test:spec:30": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-30.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1900,12 +1969,13 @@
       "outputs": [".cache/harness-report/part-30/**"]
     },
     "test:spec:31": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-31.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1920,12 +1990,13 @@
       "outputs": [".cache/harness-report/part-31/**"]
     },
     "test:spec:32": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-32.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1940,12 +2011,13 @@
       "outputs": [".cache/harness-report/part-32/**"]
     },
     "test:spec:33": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-33.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1960,12 +2032,13 @@
       "outputs": [".cache/harness-report/part-33/**"]
     },
     "test:spec:34": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-34.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1980,12 +2053,13 @@
       "outputs": [".cache/harness-report/part-34/**"]
     },
     "test:spec:35": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-35.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2000,12 +2074,13 @@
       "outputs": [".cache/harness-report/part-35/**"]
     },
     "test:spec:36": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-36.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2020,12 +2095,13 @@
       "outputs": [".cache/harness-report/part-36/**"]
     },
     "test:spec:37": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-37.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2040,12 +2116,13 @@
       "outputs": [".cache/harness-report/part-37/**"]
     },
     "test:spec:38": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-38.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2060,12 +2137,13 @@
       "outputs": [".cache/harness-report/part-38/**"]
     },
     "test:spec:39": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-39.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2080,12 +2158,13 @@
       "outputs": [".cache/harness-report/part-39/**"]
     },
     "test:spec:40": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-40.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2100,12 +2179,13 @@
       "outputs": [".cache/harness-report/part-40/**"]
     },
     "test:spec:41": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-41.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2120,12 +2200,13 @@
       "outputs": [".cache/harness-report/part-41/**"]
     },
     "test:spec:42": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-42.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2140,12 +2221,13 @@
       "outputs": [".cache/harness-report/part-42/**"]
     },
     "test:spec:43": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-43.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2160,12 +2242,13 @@
       "outputs": [".cache/harness-report/part-43/**"]
     },
     "test:spec:44": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-44.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2180,12 +2263,13 @@
       "outputs": [".cache/harness-report/part-44/**"]
     },
     "test:spec:45": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-45.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2200,12 +2284,13 @@
       "outputs": [".cache/harness-report/part-45/**"]
     },
     "test:spec:46": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-46.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2220,12 +2305,13 @@
       "outputs": [".cache/harness-report/part-46/**"]
     },
     "test:spec:47": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-47.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2240,12 +2326,13 @@
       "outputs": [".cache/harness-report/part-47/**"]
     },
     "test:spec:48": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-48.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2260,12 +2347,13 @@
       "outputs": [".cache/harness-report/part-48/**"]
     },
     "test:spec:49": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-49.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2280,12 +2368,13 @@
       "outputs": [".cache/harness-report/part-49/**"]
     },
     "test:spec:50": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-50.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2300,12 +2389,13 @@
       "outputs": [".cache/harness-report/part-50/**"]
     },
     "test:spec:51": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-51.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2320,12 +2410,13 @@
       "outputs": [".cache/harness-report/part-51/**"]
     },
     "test:spec:52": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-52.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2340,12 +2431,13 @@
       "outputs": [".cache/harness-report/part-52/**"]
     },
     "test:spec:53": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-53.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2360,12 +2452,13 @@
       "outputs": [".cache/harness-report/part-53/**"]
     },
     "test:spec:54": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-54.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2380,12 +2473,13 @@
       "outputs": [".cache/harness-report/part-54/**"]
     },
     "test:spec:55": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-55.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2400,12 +2494,13 @@
       "outputs": [".cache/harness-report/part-55/**"]
     },
     "test:spec:56": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-56.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2420,12 +2515,13 @@
       "outputs": [".cache/harness-report/part-56/**"]
     },
     "test:spec:57": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-57.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2440,12 +2536,13 @@
       "outputs": [".cache/harness-report/part-57/**"]
     },
     "test:spec:58": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-58.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2460,12 +2557,13 @@
       "outputs": [".cache/harness-report/part-58/**"]
     },
     "test:spec:59": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-59.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2480,12 +2578,13 @@
       "outputs": [".cache/harness-report/part-59/**"]
     },
     "test:spec:60": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-60.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2500,12 +2599,13 @@
       "outputs": [".cache/harness-report/part-60/**"]
     },
     "test:spec:61": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-61.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2520,12 +2620,13 @@
       "outputs": [".cache/harness-report/part-61/**"]
     },
     "test:spec:62": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-62.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2540,12 +2641,13 @@
       "outputs": [".cache/harness-report/part-62/**"]
     },
     "test:spec:63": {
-      "dependsOn": ["^src"],
+      "dependsOn": ["^src", "prepare:spec"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-63.json"
       ],
       "env": [
         "HARNESS_MODE",
@@ -2892,6 +2994,42 @@
       "dependsOn": ["//#task:i18n:compile"],
       "cache": false,
       "passThroughEnv": ["*"]
+    },
+    "prepare:spec": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        ".cache/spec-inputs/models.json",
+        "$TURBO_ROOT$/libs/harness/scripts/prepare-spec.ts",
+        "$TURBO_ROOT$/libs/harness/scripts/spec-sources.ts"
+      ],
+      "env": ["FC_SEED", "PBT_RANDOM"],
+      "outputs": [".cache/quint-draws/**"]
+    },
+    "//#task:spec:inputs": {
+      "dependsOn": [
+        "@pkgs/quint-shared#src",
+        "@pkgs/gherkin-shared#src",
+        "@pkgs/openslo-shared#src",
+        "@pkgs/alloy-shared#src",
+        "@pkgs/dmn-shared#src"
+      ],
+      "inputs": [
+        "specs/**",
+        "apps/*/package.json",
+        "libs/*/package.json",
+        "pkgs/*/package.json",
+        "libs/harness/scripts/spec-inputs.ts",
+        "libs/harness/scripts/spec-sources.ts",
+        "libs/harness/scripts/spec-parts.ts",
+        "libs/harness/scripts/spec-check-kinds.ts"
+      ],
+      "outputs": [
+        "apps/*/.cache/spec-inputs/**",
+        "libs/*/.cache/spec-inputs/**",
+        "pkgs/*/.cache/spec-inputs/**"
+      ]
     }
   }
 }

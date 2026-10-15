@@ -1,7 +1,8 @@
 import type { QuintWorld } from '@pkgs/quint-shared/registry';
-import { bindQuintModel, setQuintWorld } from '@pkgs/quint-shared/registry';
-import { interruptionBinding, interruptionWorld } from './interruption';
-import { retirementBinding, retirementWorld } from './retirement';
+import { setQuintWorld } from '@pkgs/quint-shared/registry';
+import './models.binding';
+import { interruptionWorld } from './interruption';
+import { retirementWorld } from './retirement';
 
 // Each aggregate selects its public harness; action/observation bindings stay typed.
 const worlds: Readonly<Record<string, QuintWorld<unknown>>> = {
@@ -26,5 +27,3 @@ setQuintWorld<unknown>({
     owners.delete(world as object);
   },
 });
-bindQuintModel(retirementBinding);
-bindQuintModel(interruptionBinding);

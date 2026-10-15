@@ -12,6 +12,12 @@
   "scripts": {
     "check:models:0": "bun run ../../libs/tools/scripts/check-models.ts --part 0/16",
     "check:models:1": "bun run ../../libs/tools/scripts/check-models.ts --part 1/16",
+    "check:models:10": "bun run ../../libs/tools/scripts/check-models.ts --part 10/16",
+    "check:models:11": "bun run ../../libs/tools/scripts/check-models.ts --part 11/16",
+    "check:models:12": "bun run ../../libs/tools/scripts/check-models.ts --part 12/16",
+    "check:models:13": "bun run ../../libs/tools/scripts/check-models.ts --part 13/16",
+    "check:models:14": "bun run ../../libs/tools/scripts/check-models.ts --part 14/16",
+    "check:models:15": "bun run ../../libs/tools/scripts/check-models.ts --part 15/16",
     "check:models:2": "bun run ../../libs/tools/scripts/check-models.ts --part 2/16",
     "check:models:3": "bun run ../../libs/tools/scripts/check-models.ts --part 3/16",
     "check:models:4": "bun run ../../libs/tools/scripts/check-models.ts --part 4/16",
@@ -20,13 +26,8 @@
     "check:models:7": "bun run ../../libs/tools/scripts/check-models.ts --part 7/16",
     "check:models:8": "bun run ../../libs/tools/scripts/check-models.ts --part 8/16",
     "check:models:9": "bun run ../../libs/tools/scripts/check-models.ts --part 9/16",
-    "check:models:10": "bun run ../../libs/tools/scripts/check-models.ts --part 10/16",
-    "check:models:11": "bun run ../../libs/tools/scripts/check-models.ts --part 11/16",
-    "check:models:12": "bun run ../../libs/tools/scripts/check-models.ts --part 12/16",
-    "check:models:13": "bun run ../../libs/tools/scripts/check-models.ts --part 13/16",
-    "check:models:14": "bun run ../../libs/tools/scripts/check-models.ts --part 14/16",
-    "check:models:15": "bun run ../../libs/tools/scripts/check-models.ts --part 15/16",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client/register ../../libs/harness/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --preload @libs/harness/preload tests",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
@@ -150,9 +151,9 @@
     "typescript": "catalog:"
   },
   "category": "harness",
+  "modelParts": 16,
   "specDomains": [
     "chess"
   ],
-  "specParts": 64,
-  "modelParts": 16
+  "specParts": 64
 }
