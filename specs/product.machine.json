@@ -730,7 +730,15 @@
       "Opens the notes example": "user",
       "Opens the room example": "user",
       "Returns to the testing tool": "user",
-      "Reads device and component inspection scope": "user"
+      "Reads device and component inspection scope": "user",
+      "Opens game choices": "user",
+      "Chooses Chess": "user",
+      "Chooses Connect Four": "user",
+      "Changes the selected game as a watcher": "user",
+      "Opens a Connect Four custom game": "user",
+      "Finds a Connect Four opponent": "user",
+      "Reviews a Connect Four game": "user",
+      "Returns to the game choice": "user"
     }
   },
   "states": {
@@ -1321,7 +1329,7 @@
                           "target": "#Spaces: Offline host"
                         },
                         "Opens chess choices": {
-                          "target": "#App: Games"
+                          "target": "#Games: Chess choices"
                         },
                         "AccountDeletionConfirmed": {
                           "target": "#Spaces: Ended space"
@@ -1375,7 +1383,7 @@
                           "target": "#Spaces: Confirming leaving"
                         },
                         "Opens chess choices": {
-                          "target": "#App: Games"
+                          "target": "#Games: Chess choices"
                         },
                         "SpaceEnded": {
                           "target": "#Spaces: Ended space"
@@ -11308,6 +11316,9 @@
                 },
                 "Opens a returning device offline": {
                   "target": "#Connection: Saved app offline"
+                },
+                "Opens game choices": {
+                  "target": "#App: Games"
                 }
               }
             },
