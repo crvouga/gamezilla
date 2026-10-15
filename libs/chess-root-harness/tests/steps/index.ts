@@ -17,7 +17,7 @@ import '@libs/friends-harness/friends.steps';
 import '@libs/friends-harness/spaces.steps';
 import '@libs/friends-harness/space-offline.steps';
 import '@libs/friends-harness/space-idle.steps';
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { setPhoneOfflineHook } from '@libs/harness/platform';
 import { useHarnessWorld } from '@libs/harness/spec-world';
 import { openSpecHarness } from '../open-chess-harness';

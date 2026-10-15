@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { spaceIdForActor } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
+import { spaceIdForActor } from '@libs/game-matchmaking-harness/multiplayer-spaces';
 
 // regression: signed-out-multiplayer-space
 test('a signed-out device keeps the space it is standing in', () => {

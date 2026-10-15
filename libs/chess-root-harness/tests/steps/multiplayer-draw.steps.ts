@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import { givenMultiplayerPosition } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import { givenMultiplayerPosition } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';

@@ -1,3 +1,4 @@
+import { multiplayerFixture } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
   MULTIPLAYER_NOTICE_NAMESPACE,
   MULTIPLAYER_RESULT_NOTICE,
@@ -17,7 +18,6 @@ import {
 import { inboxListSql } from '@libs/notifications-shared/notifications-queries';
 import { clientRowToInteraction } from '@libs/notifications-shared/row-mapper';
 import sql from '@pkgs/sql-root-shared/sql';
-import { multiplayerFixture } from './multiplayer-fixtures';
 
 export type MultiplayerNoticeKind = 'turn' | 'result';
 

@@ -1,8 +1,8 @@
+import { openCustomGameScreen } from '@libs/chess-custom-game-harness/custom-game-screen';
 import {
   configureCustomGame,
-  openCustomGameScreen,
   readCustomGameProbe,
-} from '@libs/chess-custom-game-harness/custom-game-ui';
+} from '@libs/game-session-harness/custom-game-ui';
 import {
   customGameActiveParticipant,
   customGameTerminal,

@@ -1,4 +1,10 @@
 import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import type { CustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
+import {
+  chooseCustomGame,
+  readCustomGameProbe,
+  waitCustomGameSettled,
+} from '@libs/game-session-harness/custom-game-ui';
 import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
 import { customGameLegalMoves } from '@libs/game-session-shared/custom-game-position';
 import { customGameStartable } from '@libs/game-session-shared/custom-game-state';
@@ -8,12 +14,6 @@ import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import type { ChessBoardPromotionChoice } from '@pkgs/chess-board-core-shared/probe';
 import { chessBoardPromotionTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type { CustomGameProbe } from './custom-game-ui';
-import {
-  chooseCustomGame,
-  readCustomGameProbe,
-  waitCustomGameSettled,
-} from './custom-game-ui';
 
 function choiceTarget(input: CustomGameInput, probe: CustomGameProbe): string {
   if ('side' in input) return `chess-custom-${input.side}-${input.operation}`;

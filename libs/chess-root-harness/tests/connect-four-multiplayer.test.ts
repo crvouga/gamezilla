@@ -1,9 +1,4 @@
 import { expect, test } from 'bun:test';
-import { setMultiplayerConnection } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import {
-  multiplayerCommandReply,
-  sendMultiplayerCommand,
-} from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import {
   connectFourSearchView,
   pairConnectFourOpponents,
@@ -11,6 +6,11 @@ import {
   submitConcurrentConnectFourDrops,
 } from '@libs/connect-four-harness/connect-four-matchmaking';
 import { decodeConnectFour } from '@libs/connect-four-shared/connect-four';
+import {
+  multiplayerCommandReply,
+  sendMultiplayerCommand,
+} from '@libs/game-matchmaking-harness/multiplayer-commands';
+import { setMultiplayerConnection } from '@libs/game-matchmaking-harness/multiplayer-connection';
 import type { OpenHarness } from '@libs/harness/open-harness';
 import { openHarness } from './open-chess-harness';
 

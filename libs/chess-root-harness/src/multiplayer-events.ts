@@ -1,12 +1,12 @@
-import { multiplayerClient } from '@libs/chess-matchmaking-harness/multiplayer-client';
-import type { MultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
-import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { multiplayerClient } from '@libs/game-matchmaking-harness/multiplayer-client';
+import type { MultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
+import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
 import {
   multiplayerFixture,
   multiplayerTransaction,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { multiplayerSpaceId } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
-import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerSpaceId } from '@libs/game-matchmaking-harness/multiplayer-spaces';
 import { acceptGameMatch } from '@libs/game-matchmaking-shared/match-handoff';
 import { OpponentRequested } from '@libs/game-matchmaking-shared/opponent-requested';
 import { scenarioAction } from '@libs/harness/actor-ui';

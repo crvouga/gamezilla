@@ -1,6 +1,6 @@
+import { multiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
-import { multiplayerText } from './multiplayer-reads';
 
 /** The visible match details, independent of their arrangement in the lineup. */
 export async function shownMultiplayerLineup(s: ProductHarness, actor: string) {

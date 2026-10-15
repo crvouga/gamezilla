@@ -166,7 +166,9 @@
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-client": "workspace:*",
     "@pkgs/sync-engine-server": "workspace:*",
-    "@pkgs/sync-engine-shared": "workspace:*"
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@libs/game-matchmaking-harness": "workspace:*",
+    "@libs/game-session-harness": "workspace:*"
   },
   "devDependencies": {
     "@libs/billing-harness": "workspace:*",

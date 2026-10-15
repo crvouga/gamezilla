@@ -7,7 +7,7 @@ import {
 import {
   multiplayerView,
   shownMultiplayerText,
-} from '@libs/chess-matchmaking-harness/multiplayer-reads';
+} from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';

@@ -1,10 +1,10 @@
+import { decodeConnectFour } from '@libs/connect-four-shared/connect-four';
 import {
   chooseCustomGame,
   configureCustomGame,
   readCustomGameProbe,
   waitCustomGameSettled,
-} from '@libs/chess-custom-game-harness/custom-game-ui';
-import { decodeConnectFour } from '@libs/connect-four-shared/connect-four';
+} from '@libs/game-session-harness/custom-game-ui';
 import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';

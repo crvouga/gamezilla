@@ -1,9 +1,9 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import type { MultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
-import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
-import { shownMultiplayerText } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
+import type { MultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
+import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
+import { shownMultiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import { accountIdOf } from '@libs/harness/identity';

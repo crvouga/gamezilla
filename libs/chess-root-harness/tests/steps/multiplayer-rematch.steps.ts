@@ -1,9 +1,9 @@
 import { expect } from 'bun:test';
 import {
-  awaitChessMatch,
+  awaitGameMatch,
   givenOpponentSearch,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -63,10 +63,10 @@ Given(
   '{actor} has since started an unfinished multiplayer game with {actor}',
   async (w, actor: Actor, opponent: Actor) => {
     await multiplayerPeople(w, [opponent]);
-    await w.s.apply(givenOpponentSearch, actor);
+    await w.s.apply(givenOpponentSearch, actor, '5+0');
     await w.s.advanceTime(1);
-    await w.s.apply(givenOpponentSearch, opponent);
-    await w.s.apply(awaitChessMatch, actor, opponent, true);
+    await w.s.apply(givenOpponentSearch, opponent, '5+0');
+    await w.s.apply(awaitGameMatch, actor, opponent, true);
     const opponentId = await ownerOf(w, opponent);
     await w.s.until(async (s) => {
       const game = (await multiplayerView(s, actor)).game;

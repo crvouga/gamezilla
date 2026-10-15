@@ -5,11 +5,9 @@ import {
   CUSTOM_GAME_REPETITION,
 } from '@libs/chess-custom-game-harness/custom-game-histories';
 import { playCustomGameHistory } from '@libs/chess-custom-game-harness/custom-game-history';
+import { waitCustomGameAvailability } from '@libs/chess-custom-game-harness/custom-game-screen';
 import { readStoredCustomGames } from '@libs/chess-custom-game-harness/custom-game-stored';
-import {
-  readCustomGameProbe,
-  waitCustomGameAvailability,
-} from '@libs/chess-custom-game-harness/custom-game-ui';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import { customGameTimeLeft } from '@libs/game-session-shared/custom-game-state';
 import { restartApp } from '@libs/harness/actions';
 import {

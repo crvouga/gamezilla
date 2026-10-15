@@ -26,7 +26,8 @@
     "@pkgs/chess-board-core-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
-    "chess.js": "catalog:"
+    "chess.js": "catalog:",
+    "@libs/game-session-harness": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

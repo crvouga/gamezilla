@@ -4,15 +4,6 @@ import {
   closeMultiplayerApp,
   reopenMultiplayerApp,
 } from '@libs/chess-matchmaking-harness/multiplayer-app';
-import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
-import {
-  awaitChessMatch,
-  givenMultiplayerClock,
-  givenMultiplayerPosition,
-  givenMultiplayerRating,
-  givenOpponentSearch,
-  pairChessOpponents,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 import {
   givenOpenedTurnNotice,
   openMultiplayerNotice,
@@ -44,6 +35,15 @@ import {
 } from '@libs/connect-four-harness/connect-four-review';
 import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
 import { createMultiplayerLinkClient } from '@libs/game-matchmaking-client/multiplayer-link-client';
+import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
+import {
+  awaitGameMatch,
+  givenMultiplayerClock,
+  givenMultiplayerPosition,
+  givenMultiplayerRating,
+  givenOpponentSearch,
+  pairGameOpponents,
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import type { HarnessSlice } from '@libs/harness/slices';
 import { focusChessScreen } from './chess-screen-reads';
 import { setCustomGameParticipation } from './custom-game-participation';
@@ -87,8 +87,8 @@ export const CHESS_HARNESS_SLICE: HarnessSlice = {
     joinMultiplayerSpace,
     givenMultiplayerSpace,
     givenOpponentSearch,
-    pairChessOpponents,
-    awaitChessMatch,
+    pairGameOpponents,
+    awaitGameMatch,
     sendMultiplayerCommand,
     givenMultiplayerPosition,
     givenMultiplayerClock,

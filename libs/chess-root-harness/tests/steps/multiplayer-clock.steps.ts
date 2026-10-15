@@ -1,11 +1,11 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
 import {
   givenMultiplayerClock,
   givenMultiplayerPosition,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { shownMultiplayerClock } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { shownMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { clockLeftMs } from '@libs/game-matchmaking-shared/multiplayer-clock';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';

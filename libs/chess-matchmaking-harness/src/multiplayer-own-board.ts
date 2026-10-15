@@ -1,3 +1,8 @@
+import type { MultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
+import {
+  forgetMultiplayerReply,
+  sendMultiplayerCommand,
+} from '@libs/game-matchmaking-harness/multiplayer-commands';
 import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
@@ -8,11 +13,6 @@ import {
 } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { openMultiplayerChess } from './multiplayer-actions';
-import type { MultiplayerCommand } from './multiplayer-commands';
-import {
-  forgetMultiplayerReply,
-  sendMultiplayerCommand,
-} from './multiplayer-commands';
 
 const BOARD = 'multiplayer-board';
 

@@ -1,6 +1,5 @@
 import { drainAndNotifyOutbox } from '@libs/app-root-server/outbox-drain';
 import { accountMutationEnv } from '@libs/auth-shared/account-mutation-env';
-import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
 import { findOpponentMutation } from '@libs/game-matchmaking-shared/find-opponent-mutation';
 import { MultiplayerGameRepository } from '@libs/game-matchmaking-shared/game-repository';
 import { formGameMatches } from '@libs/game-matchmaking-shared/match-handoff';
@@ -101,13 +100,13 @@ export async function multiplayerTransaction(
 }
 
 export const givenOpponentSearch = scenarioAction<
-  [actor: string, timeControl?: string, requestId?: string]
+  [actor: string, timeControl: string, requestId?: string]
 >({
   name: 'givenOpponentSearch',
   act: (
     s,
     actor: string,
-    timeControl = '5+0',
+    timeControl: string,
     requestId = s.session.ports.createId()
   ) =>
     multiplayerFixture(s, actor, async (tx, env) => {
@@ -124,10 +123,10 @@ export const givenOpponentSearch = scenarioAction<
  * The formation pass. `firstIsWhite` fixes the chance that settles equal
  * colour balances, for a setup that names the colours.
  */
-export const pairChessOpponents = scenarioAction<
+export const pairGameOpponents = scenarioAction<
   [actor?: string, firstIsWhite?: boolean]
 >({
-  name: 'pairChessOpponents',
+  name: 'pairGameOpponents',
   act: (s, actor = 'alice', firstIsWhite?: boolean) =>
     multiplayerFixture(s, actor, (tx) =>
       formGameMatches(
@@ -139,7 +138,7 @@ export const pairChessOpponents = scenarioAction<
             ? {}
             : { tieBreak: () => firstIsWhite }),
         },
-        TURN_GAMES
+        s.harness.composition.app.turnGames
       )
     ),
 });
@@ -156,10 +155,10 @@ const LONGEST_RANGE_WAIT_MS =
  * Matchmaking forms the match of these two waiting people as soon as their
  * growing ranges allow: a formation pass each second until it does.
  */
-export const awaitChessMatch = scenarioAction<
+export const awaitGameMatch = scenarioAction<
   [first: string, second: string, firstIsWhite?: boolean]
 >({
-  name: 'awaitChessMatch',
+  name: 'awaitGameMatch',
   act: async (s, first: string, second: string, firstIsWhite?: boolean) => {
     const people = [
       await signedInAccountOf(s, first),
@@ -177,14 +176,14 @@ export const awaitChessMatch = scenarioAction<
               ? {}
               : { tieBreak: () => firstIsWhite }),
           },
-          TURN_GAMES
+          s.harness.composition.app.turnGames
         );
         return formed;
       });
       if (people.every((id) => id !== null && formed.includes(id))) return;
       await s.session.advanceTime(1000);
     }
-    throw new Error(`No chess match formed for ${first} and ${second}`);
+    throw new Error(`No game match formed for ${first} and ${second}`);
   },
 });
 

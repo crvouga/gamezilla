@@ -869,6 +869,7 @@
         "@libs/auth-shared": "workspace:*",
         "@libs/game-catalog-shared": "workspace:*",
         "@libs/game-session-client": "workspace:*",
+        "@libs/game-session-harness": "workspace:*",
         "@libs/game-session-shared": "workspace:*",
         "@libs/harness": "workspace:*",
         "@libs/spaces-harness": "workspace:*",
@@ -892,9 +893,8 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/app-root-server": "workspace:*",
-        "@libs/auth-shared": "workspace:*",
         "@libs/chess-rules-shared": "workspace:*",
-        "@libs/game-catalog-shared": "workspace:*",
+        "@libs/game-matchmaking-harness": "workspace:*",
         "@libs/game-matchmaking-shared": "workspace:*",
         "@libs/harness": "workspace:*",
         "@libs/notifications-harness": "workspace:*",
@@ -908,15 +908,12 @@
         "@pkgs/device-shared": "workspace:*",
         "@pkgs/gherkin-shared": "workspace:*",
         "@pkgs/sounds-shared": "workspace:*",
-        "@pkgs/sql-client-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
-        "@pkgs/sync-engine-client": "workspace:*",
         "@pkgs/sync-engine-server": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
       },
       "devDependencies": {
         "@pkgs/bun-test-solid-client": "workspace:*",
-        "@pkgs/outbox-shared": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
@@ -1158,7 +1155,9 @@
         "@libs/connect-four-shared": "workspace:*",
         "@libs/game-catalog-shared": "workspace:*",
         "@libs/game-matchmaking-client": "workspace:*",
+        "@libs/game-matchmaking-harness": "workspace:*",
         "@libs/game-matchmaking-shared": "workspace:*",
+        "@libs/game-session-harness": "workspace:*",
         "@libs/game-session-server": "workspace:*",
         "@libs/game-session-shared": "workspace:*",
         "@libs/harness": "workspace:*",
@@ -1348,9 +1347,9 @@
       "name": "@libs/connect-four-harness",
       "version": "0.0.0",
       "dependencies": {
-        "@libs/chess-custom-game-harness": "workspace:*",
-        "@libs/chess-matchmaking-harness": "workspace:*",
         "@libs/connect-four-shared": "workspace:*",
+        "@libs/game-matchmaking-harness": "workspace:*",
+        "@libs/game-session-harness": "workspace:*",
         "@libs/game-session-shared": "workspace:*",
         "@libs/harness": "workspace:*",
         "@libs/spaces-harness": "workspace:*",
@@ -1639,6 +1638,29 @@
         "typescript": "catalog:",
       },
     },
+    "libs/game-matchmaking-harness": {
+      "name": "@libs/game-matchmaking-harness",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/app-root-server": "workspace:*",
+        "@libs/auth-shared": "workspace:*",
+        "@libs/game-matchmaking-shared": "workspace:*",
+        "@libs/harness": "workspace:*",
+        "@pkgs/sql-client-root-shared": "workspace:*",
+        "@pkgs/sql-root-shared": "workspace:*",
+        "@pkgs/sync-engine-client": "workspace:*",
+        "@pkgs/sync-engine-server": "workspace:*",
+        "@pkgs/sync-engine-shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@libs/permissions-shared": "workspace:*",
+        "@pkgs/outbox-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/game-matchmaking-shared": {
       "name": "@libs/game-matchmaking-shared",
       "version": "0.0.0",
@@ -1702,6 +1724,20 @@
         "@pkgs/turn-game-shared": "workspace:*",
         "@pkgs/ui-root-client": "workspace:*",
         "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/game-session-harness": {
+      "name": "@libs/game-session-harness",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-session-shared": "workspace:*",
+        "@libs/harness": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -2390,6 +2426,7 @@
         "@libs/billing-shared": "workspace:*",
         "@libs/chess-puzzle-harness": "workspace:*",
         "@libs/friends-harness": "workspace:*",
+        "@libs/game-matchmaking-harness": "workspace:*",
         "@libs/games-shared": "workspace:*",
         "@libs/harness": "workspace:*",
         "@libs/profile-harness": "workspace:*",
@@ -2406,7 +2443,6 @@
         "chess.js": "catalog:",
       },
       "devDependencies": {
-        "@libs/chess-matchmaking-harness": "workspace:*",
         "@pkgs/a11y-shared": "workspace:*",
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/db-indexes-root-harness": "workspace:*",
@@ -2822,7 +2858,6 @@
         "@libs/account-privacy-harness": "workspace:*",
         "@libs/app-config-shared": "workspace:*",
         "@libs/billing-harness": "workspace:*",
-        "@libs/chess-matchmaking-harness": "workspace:*",
         "@libs/chess-root-client": "workspace:*",
         "@libs/chess-root-harness": "workspace:*",
         "@libs/chess-sub-shared": "workspace:*",
@@ -2830,6 +2865,7 @@
         "@libs/connect-four-shared": "workspace:*",
         "@libs/friends-harness": "workspace:*",
         "@libs/game-catalog-shared": "workspace:*",
+        "@libs/game-matchmaking-harness": "workspace:*",
         "@libs/harness": "workspace:*",
         "@libs/notifications-harness": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
@@ -7351,9 +7387,13 @@
 
     "@libs/game-matchmaking-client": ["@libs/game-matchmaking-client@workspace:libs/game-matchmaking-client"],
 
+    "@libs/game-matchmaking-harness": ["@libs/game-matchmaking-harness@workspace:libs/game-matchmaking-harness"],
+
     "@libs/game-matchmaking-shared": ["@libs/game-matchmaking-shared@workspace:libs/game-matchmaking-shared"],
 
     "@libs/game-session-client": ["@libs/game-session-client@workspace:libs/game-session-client"],
+
+    "@libs/game-session-harness": ["@libs/game-session-harness@workspace:libs/game-session-harness"],
 
     "@libs/game-session-server": ["@libs/game-session-server@workspace:libs/game-session-server"],
 

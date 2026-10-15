@@ -35,7 +35,7 @@ export const sendMultiplayerCommand = scenarioAction({
     const { live, env, owner, engine } = await multiplayerClient(s, actor);
     const mutation = MULTIPLAYER_MUTATIONS.find((m) => m.name === command.name);
     if (mutation === undefined)
-      throw new Error(`Unknown chess command ${command.name}`);
+      throw new Error(`Unknown game command ${command.name}`);
     const client = createMutationClient({
       db: engine.db,
       registry: await live.syncEnginePool.mutationRegistry(),

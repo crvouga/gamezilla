@@ -1,17 +1,17 @@
 import { expect, test } from 'bun:test';
 import { multiplayerClockSeconds } from '@libs/chess-matchmaking-harness/multiplayer-availability';
-import {
-  multiplayerCommandReply,
-  sendMultiplayerCommand,
-} from '@libs/chess-matchmaking-harness/multiplayer-commands';
-import { givenMultiplayerClock } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { prepareMultiplayerSpaceModel } from '@libs/chess-root-harness/multiplayer-space-model';
 import {
   CLOCK_OBSERVERS,
   prepareSharedClockGame,
   sharedClockGame,
 } from '@libs/chess-root-harness/shared-clock-model';
+import {
+  multiplayerCommandReply,
+  sendMultiplayerCommand,
+} from '@libs/game-matchmaking-harness/multiplayer-commands';
+import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { cutConnection } from '@libs/harness/platform';
 import { openHarness } from './open-chess-harness';
 

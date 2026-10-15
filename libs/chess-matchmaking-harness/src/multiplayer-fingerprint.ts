@@ -1,4 +1,4 @@
-import type { storedMultiplayerSnapshot } from './multiplayer-reads';
+import type { storedMultiplayerSnapshot } from '@libs/game-matchmaking-harness/multiplayer-reads';
 
 /** Provider account ids are opaque; compare the same named people across runs. */
 export function multiplayerFingerprint(

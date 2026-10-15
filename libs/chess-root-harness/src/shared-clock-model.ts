@@ -3,10 +3,10 @@ import {
   SHARED_CLOCK_CONTROLS,
   setMultiplayerAvailability,
 } from '@libs/chess-matchmaking-harness/multiplayer-availability';
-import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
-import { givenMultiplayerClock } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { joinMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
+import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
+import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import {
   startingMs,
   timeControlOf,

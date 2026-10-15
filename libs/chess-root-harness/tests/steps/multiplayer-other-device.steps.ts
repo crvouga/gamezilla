@@ -5,7 +5,7 @@
 
 import { expect } from 'bun:test';
 import { copyGameRecord } from '@libs/chess-matchmaking-harness/multiplayer-game-record';
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import {
   returnToTabs,
   signInWithGoogleAsAccount,

@@ -7,8 +7,8 @@ import {
   readCustomGameBoard,
   reviewCustomGame,
 } from '@libs/chess-custom-game-harness/custom-game-review';
-import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
 import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import {
   customGameLegalMoves,
   customGamePositionAt,

@@ -14,12 +14,12 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@libs/chess-custom-game-harness": "workspace:*",
-    "@libs/chess-matchmaking-harness": "workspace:*",
     "@libs/connect-four-shared": "workspace:*",
     "@libs/game-session-shared": "workspace:*",
     "@libs/harness": "workspace:*",
-    "@libs/spaces-harness": "workspace:*"
+    "@libs/spaces-harness": "workspace:*",
+    "@libs/game-matchmaking-harness": "workspace:*",
+    "@libs/game-session-harness": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

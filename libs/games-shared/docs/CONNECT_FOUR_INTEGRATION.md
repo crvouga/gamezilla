@@ -68,6 +68,11 @@ ratings; existing Chess controls retain their stored identities.
 
 ## Verification and operations
 
+Shared test support lives in `game-session-harness` and
+`game-matchmaking-harness`. Neither imports a concrete game or catalog; the
+fixtures receive rules from the harness composition. Chess keeps its navigation
+and board-specific gestures in its own adapters.
+
 The new business examples use the existing Gherkin harness. The Quint model
 binds to rendered room state, including connection loss and restoration.
 Independent rule properties exercise legal games to completion, reconstruction,

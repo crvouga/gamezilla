@@ -5,13 +5,13 @@
  * the screen.
  */
 
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import type { ChessBoardProbe } from '@pkgs/chess-board-core-shared/probe';
-import { readCustomGameProbe } from './custom-game-ui';
 
 export const CUSTOM_GAME_BOARD = 'chess-custom-board';
 

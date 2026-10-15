@@ -1,7 +1,7 @@
 import type { ShownMultiplayerNotice } from '@libs/chess-matchmaking-harness/multiplayer-notices';
 import { heldMultiplayerNotices } from '@libs/chess-matchmaking-harness/multiplayer-notices';
-import type { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { multiplayerDeviceViews } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import type { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { multiplayerDeviceViews } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { clockLeftMs } from '@libs/game-matchmaking-shared/multiplayer-clock';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';

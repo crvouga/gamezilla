@@ -2,8 +2,8 @@ import {
   establishCustomGame,
   openCustomGame,
 } from '@libs/chess-custom-game-harness/custom-game-actions';
-import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
 import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
 import type { CustomGame } from '@libs/game-session-shared/custom-game-state';
 import type { ProductHarness } from '@libs/harness/harness';

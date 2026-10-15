@@ -1,5 +1,5 @@
-import { configureCustomGame } from '@libs/chess-custom-game-harness/custom-game-ui';
 import { dropDisc, legalColumns } from '@libs/connect-four-shared/connect-four';
+import { configureCustomGame } from '@libs/game-session-harness/custom-game-ui';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { connectFourView, establishConnectFour } from './connect-four-actions';

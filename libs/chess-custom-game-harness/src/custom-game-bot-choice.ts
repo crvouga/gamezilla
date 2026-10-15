@@ -1,11 +1,11 @@
 import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import { customGameLegalMoves } from '@libs/game-session-shared/custom-game-position';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type {
   HarnessComposition,
   HarnessRoomNode,
 } from '@libs/harness/composition';
-import { readCustomGameProbe } from './custom-game-ui';
 
 const choices = new WeakMap<HarnessRoomNode, { next: number | null }>();
 

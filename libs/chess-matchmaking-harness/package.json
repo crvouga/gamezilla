@@ -16,9 +16,7 @@
   },
   "dependencies": {
     "@libs/app-root-server": "workspace:*",
-    "@libs/auth-shared": "workspace:*",
     "@libs/chess-rules-shared": "workspace:*",
-    "@libs/game-catalog-shared": "workspace:*",
     "@libs/game-matchmaking-shared": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/notifications-harness": "workspace:*",
@@ -32,15 +30,13 @@
     "@pkgs/device-shared": "workspace:*",
     "@pkgs/gherkin-shared": "workspace:*",
     "@pkgs/sounds-shared": "workspace:*",
-    "@pkgs/sql-client-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
-    "@pkgs/sync-engine-client": "workspace:*",
     "@pkgs/sync-engine-server": "workspace:*",
-    "@pkgs/sync-engine-shared": "workspace:*"
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@libs/game-matchmaking-harness": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client": "workspace:*",
-    "@pkgs/outbox-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",

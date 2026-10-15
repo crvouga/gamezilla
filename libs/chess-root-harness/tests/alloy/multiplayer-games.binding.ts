@@ -1,10 +1,10 @@
-import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
+import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
+import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
 import {
   givenOpponentSearch,
-  pairChessOpponents,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { storedMultiplayerSnapshot } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
+  pairGameOpponents,
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { storedMultiplayerSnapshot } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { OpenHarness } from '@libs/harness/open-harness';
 import { bindStructure } from '@pkgs/alloy-shared/registry';
@@ -46,7 +46,7 @@ async function snapshots(): Promise<readonly Snapshot[]> {
   await s.apply(givenOpponentSearch, 'alice', '5+0', 'first');
   await s.advanceTime(1);
   await s.apply(givenOpponentSearch, 'bob', '5+0', 'first');
-  await s.apply(pairChessOpponents, 'alice', true);
+  await s.apply(pairGameOpponents, 'alice', true);
   await keep('one complete game');
   const first = await latest(s);
   for (const [actor, uci, revision] of [
@@ -75,7 +75,7 @@ async function snapshots(): Promise<readonly Snapshot[]> {
   await s.apply(givenOpponentSearch, 'carol', '3+2', 'first');
   await s.advanceTime(1);
   await s.apply(givenOpponentSearch, 'dave', '3+2', 'first');
-  await s.apply(pairChessOpponents, 'carol', true);
+  await s.apply(pairGameOpponents, 'carol', true);
   const third = await s.read(storedMultiplayerSnapshot);
   const aborted = third.games.find((g) => g.time_control === '3+2')!;
   await gameCommand(s, 'carol', 'abortMultiplayer', { gameId: aborted.id });

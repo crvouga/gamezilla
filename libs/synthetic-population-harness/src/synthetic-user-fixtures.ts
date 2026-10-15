@@ -1,8 +1,8 @@
 import {
-  awaitChessMatch,
+  awaitGameMatch,
   givenMultiplayerPosition,
   givenOpponentSearch,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -120,7 +120,7 @@ export const givenSyntheticUser = scenarioAction({
         )
       );
     }
-    await Promise.resolve(awaitChessMatch.act(s, 'cedar', 'bob', false));
+    await Promise.resolve(awaitGameMatch.act(s, 'cedar', 'bob', false));
     await Promise.resolve(openSyntheticGame.act(s, 'cedar', game));
     const gameId = await pollUntil(
       s,

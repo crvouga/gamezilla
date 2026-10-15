@@ -5,7 +5,7 @@
  * so nothing needs undoing.
  */
 
-import { setMultiplayerConnection } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { setMultiplayerConnection } from '@libs/game-matchmaking-harness/multiplayer-connection';
 import { restartApp, spawnActor } from '@libs/harness/actions';
 import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';

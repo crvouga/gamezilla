@@ -1,5 +1,5 @@
-import { shownMultiplayerText } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared/game-automations';
+import { shownMultiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';

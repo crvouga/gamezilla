@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { publishMultiplayerFixture } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import { publishMultiplayerFixture } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { MultiplayerGameChanged } from '@libs/game-matchmaking-shared/match-room';
 import { MULTIPLAYER_TABLES } from '@libs/game-matchmaking-shared/multiplayer-tables';
 import { openConformanceDb } from '@libs/permissions-shared/world';

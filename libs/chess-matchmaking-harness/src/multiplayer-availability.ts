@@ -1,11 +1,11 @@
+import { multiplayerFixture } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { enqueueMultiplayerAvailability } from '@libs/game-matchmaking-shared/multiplayer-availability';
 import { clockLeftMs } from '@libs/game-matchmaking-shared/multiplayer-clock';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
-import { multiplayerFixture } from './multiplayer-fixtures';
-import { multiplayerView } from './multiplayer-reads';
 import { runScheduledSweep } from './multiplayer-time';
 
 export const SHARED_CLOCK_CONTROLS: Readonly<Record<string, string>> = {
