@@ -6,6 +6,7 @@ import { SECRETS_RANGE_ENV } from './secrets-scan-range';
 import {
   MAX_MODEL_PARTS,
   MAX_SPEC_PARTS,
+  specPackages,
   specPartProblems,
 } from './spec-packages';
 import { flattenCheckAggregators } from './turbo-ci-run';
@@ -73,7 +74,22 @@ test('slow spec suites split into independently cached parts that all gate Check
   expectSpecParts('libs/chess-root-harness', 64, ['chess']);
 });
 
-function expectSpecParts(dir: string, count: number, domains: string[]): void {
+// regression: ci-chess-board-omits-inherited-spec-inputs
+test('every spec package retains its inherited runner and exact source inputs', () => {
+  for (const pkg of specPackages()) {
+    const manifest = JSON.parse(
+      readFileSync(join(REPO_ROOT, pkg.dir, 'package.json'), 'utf8')
+    ) as { specParts?: number };
+    if (manifest.specParts === undefined) continue;
+    expectSpecParts(pkg.dir, manifest.specParts, pkg.specDomains);
+  }
+});
+
+function expectSpecParts(
+  dir: string,
+  count: number,
+  domains: readonly string[]
+): void {
   const manifest = JSON.parse(
     readFileSync(join(REPO_ROOT, dir, 'package.json'), 'utf8')
   ) as { specParts: number; scripts: Record<string, string> };

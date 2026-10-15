@@ -3,31 +3,31 @@
   "extends": ["//"],
   "tasks": {
     "check:models": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/specs/chess-board/*.qnt"]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess-board/*.qnt"]
     },
     "test:spec:0": {
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:1": {
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:2": {
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:3": {
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:4": {
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:5": {
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:6": {
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:7": {
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }
