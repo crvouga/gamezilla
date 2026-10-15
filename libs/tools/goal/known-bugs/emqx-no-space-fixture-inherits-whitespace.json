@@ -1,0 +1,4 @@
+{
+  "summary": "Fuzz seed 1620525502 ran under a scratch path on OWC Express 1M2. The no-whitespace EMQX fixture inherited that whitespace through TMPDIR, so it exercised relocation while asserting the no-relocation contract. Give that case a genuinely whitespace-free parent; retain every disposal and data-preservation assertion.",
+  "regressionTest": "pkgs/emqx-server/tests/emqx-runtime.test.ts"
+}
