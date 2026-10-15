@@ -28,7 +28,7 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
     concurrency: { 'cancel-in-progress': string };
   };
   const replacement = check.concurrency['cancel-in-progress'];
-  const toldAt = preparation.indexOf('!!! mise install failed');
+  const toldAt = preparation.indexOf('!!! system tool setup is incomplete');
   const openAt = preparation.indexOf("printf 'warm\\n'");
   return {
     shipNeedsPassingCheck: needsCheck(deploy.jobs['deploy-fleet']?.needs),
