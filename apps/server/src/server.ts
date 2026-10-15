@@ -1,5 +1,9 @@
 // @io-wall-ok — platform entrypoint; feedback never imports product bootstrap
 
+// The local listener opens its HTTP scope before loading the product lazily.
+// Install native context here so that first scope supports concurrent requests.
+import './install-native-als';
+
 import type { ApiWorkerEnv } from '@libs/app-root-shared/env';
 import type {
   ExecutionContext,

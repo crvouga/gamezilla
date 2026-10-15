@@ -5,17 +5,9 @@ import {
   telemetryEndpointOptions,
   type WorkerTelemetryRuntime,
 } from './worker-telemetry';
+
 // @io-wall-ok
 // @api-wall-ok
-
-import type {
-  ExecutionContext,
-  ExportedHandler,
-  ScheduledController,
-} from '@libs/app-root-shared/worker-handler';
-// Must be first: installs native ALS on globalThis before any `@pkgs/async-local` construction.
-import { shippedModerationRules } from '@libs/moderation-shared/moderation-rules';
-import './install-native-als';
 
 import { createServer } from '@libs/app-root-server/create-server';
 import { createApiObjectStore } from '@libs/app-root-server/object-store';
@@ -39,10 +31,16 @@ import { ApiSecretName } from '@libs/app-root-shared/secret-names';
 import { createApiSecretStore } from '@libs/app-root-shared/secret-store';
 import type { ServerEnv } from '@libs/app-root-shared/server-env';
 import { resolveWebClientOrigin } from '@libs/app-root-shared/web-client-origin';
+import type {
+  ExecutionContext,
+  ExportedHandler,
+  ScheduledController,
+} from '@libs/app-root-shared/worker-handler';
 import { wrapSqlClientForObservability } from '@libs/app-root-shared/wrap-sql-client';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { assertNonProdDatabaseUrl } from '@libs/db-shared/database-url-policy';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
+import { shippedModerationRules } from '@libs/moderation-shared/moderation-rules';
 import { createRoomService } from '@libs/room-app-shared/create-room-service';
 import { APP_AUTH_PROVIDER } from '@libs/runtime-server/app-auth-provider';
 import { appSubServers } from '@libs/runtime-server/app-sub-servers';
