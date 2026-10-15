@@ -1,11 +1,8 @@
-import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import {
   awaitChessMatch,
   givenMultiplayerPosition,
   givenOpponentSearch,
 } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
-import { multiplayerWatcherBoard } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -17,6 +14,12 @@ import sql from '@pkgs/sql-root-shared/sql';
 import { bindFixtureAccount } from './fixture-account-binding';
 import { maintainFixtureLease } from './fixture-lease-lifecycle';
 import { givenDesiredSyntheticPopulation } from './observatory-actions';
+import {
+  givenSyntheticGameSpace,
+  openSyntheticGame,
+  syntheticGameAdapter,
+  syntheticGameView,
+} from './synthetic-game-actions';
 import {
   givenSyntheticUserDevice,
   signInSyntheticUser,
@@ -76,7 +79,7 @@ export const givenLeasedSyntheticUser = scenarioAction({
 });
 export const givenSyntheticUser = scenarioAction({
   name: 'givenSyntheticUser',
-  act: async (s, name: string, playing: boolean) => {
+  act: async (s, name: string, playing: boolean, game: string = 'chess') => {
     await Promise.resolve(givenLeasedSyntheticUser.act(s, name));
     const db = s.harness.serverSql.sqlClient;
     const user = await syntheticUserSignIn(s, name);
@@ -106,31 +109,43 @@ export const givenSyntheticUser = scenarioAction({
     );
     await configureUsername(await actorUi(s, 'bob'), 'bob');
     for (const actor of ['cedar', 'bob']) {
-      await Promise.resolve(givenMultiplayerSpace.act(s, actor));
-      await Promise.resolve(givenOpponentSearch.act(s, actor));
+      await Promise.resolve(givenSyntheticGameSpace.act(s, actor, game));
+      await Promise.resolve(
+        givenOpponentSearch.act(
+          s,
+          actor,
+          syntheticGameAdapter(game).rules.id === 'chess'
+            ? '5+0'
+            : `${syntheticGameAdapter(game).rules.id}/5+0`
+        )
+      );
     }
     await Promise.resolve(awaitChessMatch.act(s, 'cedar', 'bob', false));
-    await Promise.resolve(openMultiplayerChess.act(s, 'cedar'));
+    await Promise.resolve(openSyntheticGame.act(s, 'cedar', game));
     const gameId = await pollUntil(
       s,
-      async () => (await multiplayerWatcherBoard(s, 'cedar')).gameId,
+      async () => (await syntheticGameView(s, 'cedar')).gameId,
       { maxMs: 10_000, description: 'Cedar sees the assigned multiplayer game' }
     );
     const fen =
-      'rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq g3 0 2';
+      game === 'chess'
+        ? 'rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq g3 0 2'
+        : 'c4:1:1010203';
     await Promise.resolve(
       givenMultiplayerPosition.act(s, 'cedar', {
         gameId,
         fen,
       })
     );
-    await Promise.resolve(openMultiplayerChess.act(s, 'cedar', gameId));
+    await Promise.resolve(openSyntheticGame.act(s, 'cedar', game));
     await (await actorUi(s, 'cedar')).get('multiplayer-game').expect.visible();
     await pollUntil(
       s,
       async () => {
-        const board = await multiplayerWatcherBoard(s, 'cedar');
-        return board.gameId === gameId && board.fen === fen && board.canMove
+        const board = await syntheticGameView(s, 'cedar');
+        return board.gameId === gameId &&
+          board.position === fen &&
+          board.canMove
           ? true
           : null;
       },

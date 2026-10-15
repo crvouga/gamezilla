@@ -1,0 +1,4 @@
+{
+  "summary": "The shared automated opponent controller selected only Chess, waited for the Chess board and rejected a Connect Four participant whose seat read You play Yellow diamond. Registered game adapters now own navigation, legal move selection and gestures; ownership is established by the shared participant control rather than side copy.",
+  "regressionTest": "libs/synthetic-population-shared/tests/game-automation.test.ts"
+}

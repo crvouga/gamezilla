@@ -11,11 +11,13 @@
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
   },
   "dependencies": {
     "@pkgs/chess-rules-shared": "workspace:*",
     "@pkgs/turn-game-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
     "chess.js": "catalog:"
   },
   "devDependencies": {
@@ -23,7 +25,8 @@
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@pkgs/property-shared": "workspace:*"
   },
   "category": "isomorphic"
 }

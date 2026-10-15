@@ -1,13 +1,11 @@
-import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { multiplayerWatcherBoard } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
 import { restartApp } from '@libs/harness/actions';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { signedInAccountOf } from '@libs/harness/identity';
 import { bringToFront } from '@libs/harness/observations';
 import { readProfileUsernameShown } from '@libs/profile-harness/profile-ui-reads';
-import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
 import { Handles } from '@libs/test-ids-shared/handles';
+import { openSyntheticGame, syntheticGameView } from './synthetic-game-actions';
 import { completePausedGame } from './synthetic-population-control-actions';
 import { givenSyntheticUser } from './synthetic-user-fixtures';
 
@@ -15,7 +13,7 @@ export async function syntheticContinuity(s: ProductHarness) {
   await bringToFront(s, 'cedar');
   return {
     account: await signedInAccountOf(s, 'cedar'),
-    board: await multiplayerWatcherBoard(s, 'cedar'),
+    board: await syntheticGameView(s, 'cedar'),
   };
 }
 export async function syntheticUsername(s: ProductHarness) {
@@ -31,29 +29,29 @@ export async function syntheticAvailable(s: ProductHarness) {
   );
 }
 export async function syntheticGameShown(s: ProductHarness) {
-  await Promise.resolve(returnToOwnSpace.act(s, 'cedar'));
-  await Promise.resolve(openMultiplayerChess.act(s, 'cedar'));
+  await Promise.resolve(openSyntheticGame.act(s, 'cedar'));
   return syntheticContinuity(s);
 }
 export const reopenSyntheticApp = scenarioAction({
   name: 'reopenSyntheticApp',
   act: async (s, gameId: string | null) => {
+    const path = await s.actors.get('cedar')!.currentPath();
     await Promise.resolve(restartApp.act(s, 'cedar'));
     if (gameId !== null) {
-      await Promise.resolve(returnToOwnSpace.act(s, 'cedar'));
-      await Promise.resolve(openMultiplayerChess.act(s, 'cedar', gameId));
+      await s.actors.get('cedar')!.openLink(path);
+      await Promise.resolve(openSyntheticGame.act(s, 'cedar'));
     }
   },
 });
 export const givenFinishedSyntheticGame = scenarioAction({
   name: 'givenFinishedSyntheticGame',
-  act: async (s, name: string) => {
-    await Promise.resolve(givenSyntheticUser.act(s, name, true));
+  act: async (s, name: string, game: string = 'chess') => {
+    await Promise.resolve(givenSyntheticUser.act(s, name, true, game));
     await Promise.resolve(completePausedGame.act(s));
     await pollUntil(
       s,
       async () => {
-        const board = await multiplayerWatcherBoard(s, 'cedar');
+        const board = await syntheticGameView(s, 'cedar');
         return board.gameId !== null &&
           board.outcome !== null &&
           board.outcome !== 'ongoing'
@@ -66,12 +64,12 @@ export const givenFinishedSyntheticGame = scenarioAction({
 });
 export const givenSyntheticContinuity = scenarioAction({
   name: 'givenSyntheticContinuity',
-  act: async (s, activity: string) => {
+  act: async (s, activity: string, game: string = 'chess') => {
     if (activity === 'Finished')
-      await Promise.resolve(givenFinishedSyntheticGame.act(s, 'Cedar'));
+      await Promise.resolve(givenFinishedSyntheticGame.act(s, 'Cedar', game));
     else
       await Promise.resolve(
-        givenSyntheticUser.act(s, 'Cedar', activity === 'Playing')
+        givenSyntheticUser.act(s, 'Cedar', activity === 'Playing', game)
       );
   },
 });
@@ -99,7 +97,9 @@ export async function observeSyntheticContinuity(
       gameId === null
         ? ''
         : gameId === initial.board.gameId
-          ? 'friday-chess'
+          ? initial.board.position?.startsWith('c4:')
+            ? 'friday-connect-four'
+            : 'friday-chess'
           : gameId,
   };
 }

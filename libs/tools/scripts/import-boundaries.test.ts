@@ -82,6 +82,18 @@ const PROBES: readonly Probe[] = [
       'Shared game components receive rules and presentation through ports',
   },
   {
+    path: 'libs/synthetic-population-shared/src/concrete.ts',
+    source: "import { Chess } from 'chess.js';",
+    message:
+      'Shared game components receive rules and presentation through ports',
+  },
+  {
+    path: 'libs/synthetic-population-shared/src/port.ts',
+    source:
+      "import type { GameAutomation } from '@pkgs/turn-game-shared/game-automation';",
+    message: null,
+  },
+  {
     path: 'libs/game-session-client/src/port.ts',
     source:
       "import { useGamePresentation } from '@pkgs/turn-game-client/turn-games-context';",

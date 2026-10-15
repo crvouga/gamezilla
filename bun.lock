@@ -272,6 +272,7 @@
       "dependencies": {
         "@libs/app-root-client": "workspace:*",
         "@libs/auth-shared": "workspace:*",
+        "@libs/game-catalog-shared": "workspace:*",
         "@libs/runtime-client": "workspace:*",
         "@libs/runtime-shared": "workspace:*",
         "@libs/spaces-client": "workspace:*",
@@ -1271,9 +1272,11 @@
       "dependencies": {
         "@pkgs/chess-rules-shared": "workspace:*",
         "@pkgs/turn-game-shared": "workspace:*",
+        "@pkgs/uuid-shared": "workspace:*",
         "chess.js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/property-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
@@ -1313,7 +1316,10 @@
         "@libs/game-session-shared": "workspace:*",
         "@libs/spaces-shared": "workspace:*",
         "@libs/sub-shared": "workspace:*",
+        "@pkgs/chess-board-core-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
+        "@pkgs/turn-game-shared": "workspace:*",
+        "@pkgs/ui-testing-root-shared": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1385,6 +1391,7 @@
       "dependencies": {
         "@libs/game-session-shared": "workspace:*",
         "@pkgs/turn-game-shared": "workspace:*",
+        "@pkgs/ui-testing-root-shared": "workspace:*",
       },
       "devDependencies": {
         "@pkgs/property-shared": "workspace:*",
@@ -2819,7 +2826,10 @@
         "@libs/chess-root-client": "workspace:*",
         "@libs/chess-root-harness": "workspace:*",
         "@libs/chess-sub-shared": "workspace:*",
+        "@libs/connect-four-root-client": "workspace:*",
+        "@libs/connect-four-shared": "workspace:*",
         "@libs/friends-harness": "workspace:*",
+        "@libs/game-catalog-shared": "workspace:*",
         "@libs/harness": "workspace:*",
         "@libs/notifications-harness": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
@@ -2840,7 +2850,6 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
-        "@libs/game-catalog-shared": "workspace:*",
         "@libs/game-session-server": "workspace:*",
         "@libs/game-session-shared": "workspace:*",
         "@solidjs/testing-library": "catalog:",
@@ -2891,14 +2900,13 @@
       "dependencies": {
         "@libs/sub-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
-        "@pkgs/chess-board-core-shared": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
+        "@pkgs/turn-game-shared": "workspace:*",
         "@pkgs/ui-testing-root-shared": "workspace:*",
         "@pkgs/uuid-shared": "workspace:*",
-        "chess.js": "catalog:",
         "xstate": "5.33.2",
         "zod": "catalog:",
       },

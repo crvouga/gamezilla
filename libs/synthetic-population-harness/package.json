@@ -26,6 +26,7 @@
     "@libs/chess-root-harness": "workspace:*",
     "@libs/chess-sub-shared": "workspace:*",
     "@libs/friends-harness": "workspace:*",
+    "@libs/game-catalog-shared": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/notifications-harness": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
@@ -43,7 +44,9 @@
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-server": "workspace:*",
     "hono": "catalog:",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "@libs/connect-four-shared": "workspace:*",
+    "@libs/connect-four-root-client": "workspace:*"
   },
   "devDependencies": {
     "@solidjs/testing-library": "catalog:",
@@ -51,7 +54,6 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:",
-    "@libs/game-catalog-shared": "workspace:*",
     "@libs/game-session-server": "workspace:*",
     "@libs/game-session-shared": "workspace:*"
   },

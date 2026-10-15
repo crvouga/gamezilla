@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { chooseChessMove } from '@libs/synthetic-population-shared/gameplay-policy';
+import { chooseChessMove } from '@libs/chess-rules-shared/automated-move';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import { createHarnessIds } from '@pkgs/uuid-shared/seeded-create-id';
 import { Chess } from 'chess.js';

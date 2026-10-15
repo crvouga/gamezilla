@@ -20,7 +20,10 @@
     "@libs/game-session-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
     "@libs/sub-shared": "workspace:*",
-    "@pkgs/sql-root-shared": "workspace:*"
+    "@pkgs/chess-board-core-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
+    "@pkgs/turn-game-shared": "workspace:*",
+    "@pkgs/ui-testing-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

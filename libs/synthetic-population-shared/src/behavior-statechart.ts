@@ -20,7 +20,7 @@ export const BEHAVIOR_EVENTS = [
   'FAIL',
 ] as const;
 
-/** Lifecycle only: chess decisions are a separate Decision Policy. */
+/** Lifecycle only: game decisions are a separate Decision Policy. */
 export const behaviorStatechart = setup({
   types: {
     events: {} as { type: (typeof BEHAVIOR_EVENTS)[number] },

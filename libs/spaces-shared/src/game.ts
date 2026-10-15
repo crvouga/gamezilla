@@ -7,6 +7,7 @@ import type {
   RoomModule,
   RoomState,
 } from '@pkgs/room-root-shared/types';
+import type { GameAutomation } from '@pkgs/turn-game-shared/game-automation';
 import type { GamePresentation } from '@pkgs/turn-game-shared/game-presentation';
 import type {
   RegisteredTurnGame,
@@ -49,6 +50,7 @@ export type GameRoomCapability = {
   readonly bind: (rules: TurnGames) => GameDefinition;
 };
 export type GameDefinition = {
+  readonly automation?: GameAutomation<never>;
   readonly turnGame?: RegisteredTurnGame;
   readonly roomCapabilities?: readonly GameRoomCapability[];
   /** Stable wire id (e.g. `'chess'`). Mirrored in room state + URLs. */

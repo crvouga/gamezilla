@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@libs/game-session-shared": "workspace:*",
-    "@pkgs/turn-game-shared": "workspace:*"
+    "@pkgs/turn-game-shared": "workspace:*",
+    "@pkgs/ui-testing-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/property-shared": "workspace:*",

@@ -10,7 +10,7 @@ This checkout contains Chess; it has no Quoridor implementation.
 Each game provides its own deterministic rules and presentation adapter. The
 composition root derives `TURN_GAMES` from the registered game definitions;
 shared services receive that catalog
-through an explicit port. No shared session, matchmaking or turn-game module
+through an explicit port. No shared session, matchmaking, automated-opponent or turn-game module
 imports Chess, Connect Four, chess.js, a concrete board, or a concrete catalog.
 The rules contract and its modules have no UI-framework dependency.
 The import boundary `import-game-implementation.grit` enforces that dependency
@@ -40,6 +40,16 @@ record codec; the shared export path does not format Chess notation. Notice
 links share a single parameterized route that admits registered games.
 Stored positions are checked against reconstructed accepted actions before
 play and replay, rejecting inconsistent records without changing history.
+
+Automated opponents receive `GameAutomation<Ui>` ports derived from the same
+registry. The UI type is generic; the contract imports no driver or framework.
+Each game owns its navigation controls, move policy and board gestures. Shared
+activity, recovery, pause, queue and acknowledgement handling never interprets a
+position or a side label. The controller resumes an existing game's menu before
+choosing among offered games, and validates suggestions through the supplied
+rules before touching controls. A counting-game surface verifies the lifecycle
+without either production game. Chess's existing move policy lives with Chess's
+rules, with unchanged seeded-choice and random-consumption regression checks.
 
 ## Existing records and protocol identities
 
