@@ -197,13 +197,13 @@ async function prepareMutationNotify(
   });
 }
 
-function publishMutationPushes(
+async function publishMutationPushes(
   deps: MountMutationsRouteDeps,
   prepared: PreparedMutationNotify
-): void {
+): Promise<void> {
   if (deps.pubsub === undefined || prepared.result.applied.length === 0) return;
   const label = prepared.result.applied.map((a) => a.name).join(',');
-  publishPushMessages({
+  await publishPushMessages({
     pubsub: deps.pubsub,
     pushSeqs: prepared.checkpoints,
     // Minted after the replay transaction committed: any snapshot read before
@@ -277,7 +277,7 @@ export function mountMutationsRoute(
     const prepared = await prepareMutationNotify(deps, auth, mutationRows, db);
     const { result, checkpoints } = prepared;
     if (deps.pubsub !== undefined && result.applied.length > 0) {
-      publishMutationPushes(deps, prepared);
+      await publishMutationPushes(deps, prepared);
       return c.json(
         {
           ok: result.ok,

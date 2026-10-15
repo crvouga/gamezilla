@@ -189,9 +189,6 @@ async function runProductHarnessCommand(
             ? { tables: wake.tables }
             : {}),
           label: wake.label,
-          schedulePublish: (run) => {
-            buildArgs.harness.server.timers.setTimeout(run, 0);
-          },
         });
       },
     });
