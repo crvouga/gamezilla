@@ -1,0 +1,4 @@
+{
+  "summary": "Mockingbird OAuth 1.11.0 applied form-action limited to the API origin on Apple's auto-post page. WebKit submitted the callback successfully but refused its redirect to the separate web client, leaving sign-in stuck on the provider. Upgrade to the published upstream fix for https://github.com/crvouga/mockingbird/issues/348 and retain the three-origin handoff regression.",
+  "regressionTest": "pkgs/auth-inhouse-harness/tests/apple-callback-repeat.test.ts"
+}

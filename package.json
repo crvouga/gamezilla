@@ -188,7 +188,7 @@
     "@biomejs/biome": "2.5.7",
     "@clack/prompts": "^1.8.1",
     "@crvouga/atlas": "^0.1.0",
-    "@crvouga/mockingbird-service-oauth": "^1.11.0",
+    "@crvouga/mockingbird-service-oauth": "^3.4.0",
     "@crvouga/mockingbird-service-openai": "^0.1.0",
     "@crvouga/mockingbird-service-paddle": "^2.4.0",
     "@crvouga/mockingbird-service-postgres": "^3.4.0",

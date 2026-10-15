@@ -61,7 +61,7 @@ function providerClock(now: () => number) {
 
 async function bootAppleAuth(): Promise<{
   readonly wire: Wire;
-  readonly posted: { body: string };
+  readonly posted: { body: string; handoffPolicy?: string };
 }> {
   const sql = SqlClientImplMockingbirdSqlite.open({ seed: 1 });
   await reconcileIdpSqlite(sql);
@@ -90,7 +90,7 @@ async function bootAppleAuth(): Promise<{
       },
     ],
   });
-  const posted = { body: '' };
+  const posted: { body: string; handoffPolicy?: string } = { body: '' };
   const authApp = createAuthApp({
     getSql: () => sql,
     clock,
@@ -118,7 +118,14 @@ async function bootAppleAuth(): Promise<{
     if (href.startsWith(CALLBACK_PATH) && request.method === 'POST') {
       posted.body = await request.clone().text();
     }
-    if (href.startsWith(IDP_URL)) return await apple.fetch(request);
+    if (href.startsWith(IDP_URL)) {
+      const response = await apple.fetch(request);
+      if ((await response.clone().text()).includes('oauth-mock-form-post')) {
+        posted.handoffPolicy =
+          response.headers.get('content-security-policy') ?? '';
+      }
+      return response;
+    }
     return await app.request(request);
   };
   return { wire, posted };
@@ -147,6 +154,28 @@ async function sessionStatus(wire: Wire, code: string): Promise<number> {
 }
 
 describe('apple form_post callback', () => {
+  // regression: local-apple-form-post-csp
+  test('the handoff permits the API to redirect to its separate web client', async () => {
+    const { wire, posted } = await bootAppleAuth();
+    const open = createInProcessOpenAuthSession({
+      fetch: wire,
+      account: { email: ALICE_EMAIL },
+    });
+    const result = await open(
+      `${BASE_URL}${PREFIX}/auth/oauth/launch?provider=apple&callbackUrl=${encodeURIComponent(CALLBACK)}`,
+      CALLBACK
+    );
+    expect(result.type).toBe('success');
+    expect(posted.handoffPolicy).toBeDefined();
+    // The provider cannot know the origin the API redirects to. A form-action
+    // allow-list on this page also restricts that hop in WebKit (upstream #348).
+    expect(posted.handoffPolicy).not.toMatch(/(?:^|;)\s*form-action\b/);
+    const code = codeOf(
+      result.type === 'success' ? (result.url ?? null) : null
+    );
+    expect(await sessionStatus(wire, code)).toBe(200);
+  });
+
   // regression: apple-callback-repeat-invalid-state
   test('a second form post still redirects with a code that signs in', async () => {
     const { wire, posted } = await bootAppleAuth();
