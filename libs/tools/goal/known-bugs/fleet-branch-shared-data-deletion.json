@@ -1,4 +1,4 @@
 {
-  "summary": "Deploy run 38723618679 planned twelve deletions after a feature branch provisioned the shared-data bucket, account token, five Infisical secrets and five version records in fleet state before main declared them. The stateful policy correctly refused to delete cloudflare_r2_bucket.shared_data. Main must explicitly forget all four resource addresses with destroy = false, preserving both stored data and working credentials rather than deleting resources owned by the feature branch.",
+  "summary": "Deploy run 38723618679 planned twelve shared-data deletions when declarations were absent from main. Fleet must retain all twelve original resource addresses when declarations return, without simultaneous retirement blocks, and keep the bucket protected from destruction.",
   "regressionTest": "libs/infra-server/tests/fleet-shared-data.test.ts"
 }
