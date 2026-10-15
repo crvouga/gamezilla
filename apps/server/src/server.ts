@@ -1,5 +1,8 @@
 // @io-wall-ok — platform entrypoint; feedback never imports product bootstrap
 
+// Install before the outer invocation scope, including lazy product boot.
+import './install-native-als';
+
 import type { ApiWorkerEnv } from '@libs/app-root-shared/env';
 import type {
   ExecutionContext,
