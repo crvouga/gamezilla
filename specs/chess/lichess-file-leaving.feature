@@ -23,13 +23,13 @@ Feature: Leave while saving a Lichess file
     Scenario: Confirming departure stops the unfinished save
       Given Alice is choosing whether to leave while saving a Lichess file
       When Alice confirms leaving adding puzzles
-      Then Alice has left adding puzzles
+      Then Alice is away from adding puzzles
       And the other environment does not offer the unfinished Lichess file
 
     Scenario: Leaving after saving finishes needs no confirmation
       Given the team has saved a Lichess file
       When Alice leaves adding puzzles
-      Then Alice has left adding puzzles
+      Then Alice is away from adding puzzles
       And Alice is not asked to confirm leaving adding puzzles
 
     Scenario: Finishing while the choice is open keeps the completed file
@@ -47,5 +47,5 @@ Feature: Leave while saving a Lichess file
     Scenario: Confirming departure after completion keeps the saved file available
       Given Alice's Lichess file finished while she was choosing whether to leave adding puzzles
       When Alice confirms leaving adding puzzles
-      Then Alice has left adding puzzles
+      Then Alice is away from adding puzzles
       And the team can still add puzzles from the saved Lichess file
