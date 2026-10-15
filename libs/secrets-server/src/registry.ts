@@ -34,6 +34,7 @@ import { IOT_SECRETS } from '@libs/secrets-shared/pubsub-iot-secrets';
 import { RAILWAY_TOKEN } from '@libs/secrets-shared/railway-token';
 import { REPORTS_SECRETS } from '@libs/secrets-shared/reports-credentials';
 import type { Secret } from '@libs/secrets-shared/secret';
+import { SHARED_DATA_SECRETS } from '@libs/secrets-shared/shared-data-credentials';
 import { POPULATION_WORKER_TOKEN } from '@libs/secrets-shared/synthetic-population-secrets';
 import { ELEVEN_LABS_API_KEY } from '@libs/secrets-shared/tts-secrets';
 import { TURBO_API, TURBO_TOKEN } from '@libs/secrets-shared/turbo-token';
@@ -85,6 +86,7 @@ export const SECRETS: readonly Secret[] = [
   S3_ENDPOINT,
   S3_REGION,
   ...REPORTS_SECRETS,
+  ...SHARED_DATA_SECRETS,
   ELEVEN_LABS_API_KEY,
   GRAFANA_CLOUD_API_TOKEN,
   OBSERVABILITY_COLLECTOR_URL,

@@ -88,7 +88,9 @@ export function specUnits(
   return Array.from({ length: count }, (_, index) => ({
     path,
     slice: { index, count },
-    weight: weight / count,
+    weight: path.endsWith('.qnt')
+      ? 2 * (Math.floor(64 / count) + (index < 64 % count ? 1 : 0))
+      : weight / count,
   }));
 }
 
@@ -152,4 +154,30 @@ function placeOnLightest(
     lightest.units.push(unit);
     lightest.load += unit.weight;
   }
+}
+
+export type ModelDraw = {
+  readonly path: string;
+  readonly traces: number;
+  readonly maxSteps: number;
+};
+
+/** Two bounded workers prepare the same draws, with the largest work first. */
+export function modelDrawBatches(
+  draws: readonly ModelDraw[]
+): readonly (readonly ModelDraw[])[] {
+  const batches: { cost: number; draws: ModelDraw[] }[] = [
+    { cost: 0, draws: [] },
+    { cost: 0, draws: [] },
+  ];
+  const cost = (draw: ModelDraw) => draw.traces * draw.maxSteps;
+  for (const draw of [...draws].sort((a, b) => cost(b) - cost(a))) {
+    const batch =
+      batches[0]!.cost <= batches[1]!.cost ? batches[0]! : batches[1]!;
+    batch.draws.push(draw);
+    batch.cost += cost(draw);
+  }
+  return batches
+    .map((batch) => batch.draws)
+    .filter((batch) => batch.length > 0);
 }

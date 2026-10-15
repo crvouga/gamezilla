@@ -17,16 +17,10 @@ export type NotifyChannelsOptions = {
   /** Included in warn logs when publish fails. */
   readonly label?: string;
   readonly now: () => number;
-  /**
-   * When set, publish runs on this scheduler after allocate. Use a macrotask
-   * (`timers.setTimeout(s, 0)`) so in-memory pubsub does not re-enter the
-   * still-open request (overlapping mockingbird-postgres / Hono hangs under Jest).
-   */
-  readonly schedulePublish?: (run: () => void) => void;
 };
 
 /**
- * Allocate pushSeqs via `sql`, then fire-and-forget the pubsub publish.
+ * Allocate pushSeqs via `sql`, then await transport acceptance of each push.
  *
  * Await this while `sql` is still connected (request-scoped clients are
  * disconnected when the handler returns). Publish stays best-effort: failures
@@ -42,27 +36,20 @@ export async function notifyChannels(
       options.topics,
       options.now
     );
-    const publish = (): void => {
-      publishPushMessages({
-        pubsub: options.pubsub,
-        pushSeqs,
-        ...(options.tables !== undefined ? { tables: options.tables } : {}),
-        ...(options.rows !== undefined ? { rows: options.rows } : {}),
-        label,
-      });
-    };
-    if (options.schedulePublish !== undefined) {
-      options.schedulePublish(publish);
-    } else {
-      publish();
-    }
+    await publishPushMessages({
+      pubsub: options.pubsub,
+      pushSeqs,
+      ...(options.tables !== undefined ? { tables: options.tables } : {}),
+      ...(options.rows !== undefined ? { rows: options.rows } : {}),
+      label,
+    });
   } catch (error: unknown) {
     warnPush(`[pubsub] allocate/publish failed label=${label}`, error);
   }
 }
 
 /** Publish with pre-allocated pushSeqs (mutation replay txn / harness internals). */
-export function publishPushMessages(options: {
+export async function publishPushMessages(options: {
   readonly pubsub: PubSub;
   readonly pushSeqs: ReadonlyMap<Topic, string>;
   readonly tables?: readonly string[];
@@ -76,26 +63,33 @@ export function publishPushMessages(options: {
   /** Query-checkpoint minted after the replay committed (see `PushMessage`). */
   readonly checkpoint?: string;
   readonly label?: string;
-}): void {
+}): Promise<void> {
   const label = options.label ?? 'publishPushMessages';
-  for (const [topic, pushSeq] of options.pushSeqs) {
-    const topicRows = options.rowsByTopic?.get(topic) ?? options.rows;
-    const tables =
-      topicRows !== undefined && Object.keys(topicRows).length > 0
-        ? Object.keys(topicRows).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
-        : options.tables;
-    const payload: PushMessage = {
-      pushSeq,
-      ...(tables !== undefined && tables.length > 0 ? { tables } : {}),
-      ...(topicRows !== undefined && Object.keys(topicRows).length > 0
-        ? { rows: topicRows }
-        : {}),
-      ...(options.checkpoint !== undefined
-        ? { checkpoint: options.checkpoint }
-        : {}),
-    };
-    void options.pubsub.publish(topic, payload).catch((error: unknown) => {
-      warnPush(`[pubsub] publish failed topic=${topic} label=${label}`, error);
-    });
-  }
+  await Promise.all(
+    [...options.pushSeqs].map(async ([topic, pushSeq]) => {
+      const topicRows = options.rowsByTopic?.get(topic) ?? options.rows;
+      const tables =
+        topicRows !== undefined && Object.keys(topicRows).length > 0
+          ? Object.keys(topicRows).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+          : options.tables;
+      const payload: PushMessage = {
+        pushSeq,
+        ...(tables !== undefined && tables.length > 0 ? { tables } : {}),
+        ...(topicRows !== undefined && Object.keys(topicRows).length > 0
+          ? { rows: topicRows }
+          : {}),
+        ...(options.checkpoint !== undefined
+          ? { checkpoint: options.checkpoint }
+          : {}),
+      };
+      try {
+        await options.pubsub.publish(topic, payload);
+      } catch (error: unknown) {
+        warnPush(
+          `[pubsub] publish failed topic=${topic} label=${label}`,
+          error
+        );
+      }
+    })
+  );
 }

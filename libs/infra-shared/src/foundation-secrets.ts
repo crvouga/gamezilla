@@ -13,6 +13,7 @@ import secretNames from '../tofu/stacks/foundation/secrets.json';
 export type FoundationSecretNames = {
   readonly human: readonly string[];
   readonly shared: readonly string[];
+  readonly shared_derived: readonly string[];
   readonly generated: readonly string[];
   readonly placeholders: readonly string[];
   readonly derived: readonly string[];

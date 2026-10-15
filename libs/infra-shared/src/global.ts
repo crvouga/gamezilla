@@ -20,6 +20,7 @@ export const globalFileSchema = z
   .object({
     project: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
     state: z.object({ account_id: id, bucket: id }).strict(),
+    shared_data: z.object({ account_id: id, bucket: slug }).strict(),
     infisical: z
       .object({
         org_id: id,
@@ -99,6 +100,7 @@ export const globalFileSchema = z
     global_imports: z
       .object({
         infisical_environments: z.record(z.string(), id).optional(),
+        shared_data: z.boolean().optional(),
         github_repository: id.optional(),
         github_variables: z.array(id).optional(),
         grafana_stack: id.optional(),

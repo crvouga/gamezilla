@@ -12,6 +12,7 @@ import { useTimers } from '@pkgs/clock-client/solid';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
 import { type Accessor, createEffect, on, onCleanup, untrack } from 'solid-js';
 import { MutationObservation } from './mutation-observation';
+import { usePendingOperation } from './pending-navigation';
 
 export type MutationPhase = 'idle' | 'loading' | 'success' | 'error';
 
@@ -52,6 +53,8 @@ export function useMutationLifecycle(
   const state = createSubscriptionSignal(observation);
   const phase = (): MutationPhase => state().phase;
   const error = (): Error | null => state().error;
+  // Leaving dismisses the observation; admitted writes retain their outcome.
+  usePendingOperation(() => phase() === 'loading', observation.reset);
   // Track the previous phase ourselves: `on(..., { defer: true })` skips the
   // first run without recording it, so the first transition would lose `from`.
   createEffect(

@@ -1,3 +1,4 @@
+import { SharedObjectStore } from '@libs/app-root-server/shared-object-store';
 import type { ServerEnv } from '@libs/app-root-shared/server-env';
 import { HARNESS_SERVER_URL } from '@libs/sub-shared/harness-constants';
 import type { Clock } from '@pkgs/clock-shared/types';
@@ -27,6 +28,7 @@ export type SharedServerServices = {
 };
 
 export function buildSharedServerServices(args: {
+  readonly sharedDataStore?: ServerEnv['blob'];
   readonly secretValues?: Readonly<Record<string, string>>;
   readonly serverSql: HarnessSql;
   readonly appleKeys: AppleClientKeys;
@@ -42,7 +44,13 @@ export function buildSharedServerServices(args: {
   });
   return {
     kv: new KvImplPostgres(args.serverSql.sqlClient, () => args.clock.now()),
-    blob: createHarnessObjectStore(args.clock),
+    blob:
+      args.sharedDataStore === undefined
+        ? createHarnessObjectStore(args.clock)
+        : new SharedObjectStore(
+            createHarnessObjectStore(args.clock),
+            args.sharedDataStore
+          ),
     tts: new InMemoryTtsProvider(),
     llm: createHarnessLlm({ clock: args.clock }).provider,
     secrets,

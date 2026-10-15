@@ -330,12 +330,27 @@ existing OpenTofu backend encrypts both state and saved plans.
 
 ### Fleet (every deploy)
 
+To provision the fleet from a laptop after bootstrap:
+
+```sh
+bun run infra:fleet
+bun run secrets:pull
+```
+
+`infra:bootstrap` applies only the bootstrap stack. `infra:fleet` applies the
+global fleet, including `cloudflare_r2_bucket.shared_data` (`gamezilla-shared`),
+and publishes its credentials to the shared secrets environment. Refresh the
+local secrets cache afterwards, then restart the managed local stack with
+`--keep-data` so its API processes receive the new bindings. Running bootstrap again cannot create a
+resource declared only in fleet.
+
 | Resource | Why |
 | --- | --- |
 | Infisical environment per env file, plus a live import of `shared` | That environment's secrets, with the shared ones visible through the import. A local copy of a shared name would shadow the import. |
 | Railway project `gamezilla`, with an environment per env file | One shared project, protected from deletion. Its default `core` environment stays empty; `dev` and `prd` fork it so service creation and removal stay isolated. Railway environments are protected by the plan policy and removed only by a deliberate non-production teardown. |
 | Custom domain `auth.gamezilla.app` on Worker `gamezilla-auth-relay` | One OAuth callback for every environment. The relay reads the OAuth state tag and forwards the callback home. |
 | R2 bucket `gamezilla-reports`, retained report layers | Check publishes immutable report layers. Atlas combines evidence across commits and branches. Reports are build output. |
+| Shared reference-data bucket and scoped S3 token | The [shared-data configuration](libs/infra-shared/tofu/stacks/fleet/shared-data.tf) retains the Lichess source independently of environment teardown. |
 
 Fleet applies before foundation. On the first deploy after consolidating Railway, foundation recreates the disposable population services in the shared project and deletes their old single-service projects. The worker release then publishes to the new deployment IDs; synthetic opponents pause during this transition, while backend accounts, leases and games remain intact. The deletion policy permits only the old `module.population_service.railway_project.worker` address to retire; other Railway projects and environments remain protected.
 
@@ -386,7 +401,11 @@ OpenTofu looks them up. It does not create them.
 
 An environment rebuilds from its env file. `prevent_destroy` covers the state bucket, the Grafana stack, the repository, the shared secrets environment, the shared Railway project, and production's Postgres branch. `libs/infra-shared/policy/stateful.rego` allow-lists what an ordinary apply may delete: credentials, DNS, routing, connection config, and derived secrets. Postgres branches and roles stay protected. A plan that deletes most of a type in production is refused. To stop managing a stateful resource, use `removed { lifecycle { destroy = false } }`. Neon is forgotten that way and still exists at Neon. The Railway EMQX project is deleted; those addresses stay forgotten so an apply does not recreate the broker. A `removed` block cannot name one instance of a `for_each`, so a generated secret retired on purpose is listed in the policy's `retired` set. The previous Neki branch and roles are forgotten with `destroy = false` and stay listed there so a plan that still deletes one instance is allowed. Their rows stay on the old database. Drop each entry once every environment has applied without it. Production MQTT is AWS IoT Core. Before every apply, encrypted state is copied to `backups/<stack>/<env>/<timestamp>.tfstate`.
 
-Fleet also forgets the branch-provisioned `shared_data` bucket, token, secrets and version records without deleting them: their declarations have not reached `main`. Data and credentials stay intact. A change that manages them again must replace those `removed` blocks with declarations and adopt the existing resources before applying.
+Fleet manages the shared-data bucket, token, secrets and version records at their original addresses. Their former retirement blocks are removed when ownership returns to the fleet configuration; the bucket remains protected from destruction.
+The one-time `global_imports.shared_data` flag adopts the bucket, token and five
+write-only secrets forgotten by the earlier deployment. Imported tokens retain
+their matching saved S3 credential; missing or mismatched credentials fail the
+plan. Clear the flag after adoption; fresh installations leave it false.
 
 ```sh
 bun run infra:destroy -- --env <env> --confirm <env>
@@ -409,6 +428,8 @@ deploy:release tag and GitHub release
 `bun deploy` ships `main` only. Do not `tofu apply` from a laptop against production. Non-deploy commands cannot reach production Postgres (`@libs/db/public/database-url-policy`). `bun run db:wipe:dev` refuses `ALLOW_PRODUCTION_DATABASE_URL=1`.
 
 ## Laptop
+
+`./libs/tools/workspace/run.sh` is the one-stop workspace launcher used by the Run pane. It installs mise when missing, installs the system tools pinned in `mise.toml` on every launch, and loads their environment before installing app dependencies. The first launch also prepares local files; later launches reuse them. Failed preparation prints its cause and still attempts to start the stack; system tools and incomplete dependency installs are retried on the next launch.
 
 `bun run dev` (alias `bun run stack`) runs one supervised boot per checkout. Repeating the command reuses the live boot. A boot is live while its supervisor and the processes that launched it are alive; once its launcher is gone the supervisor stops it, and a start that still finds it collects it and boots in its place. The boot is one Turborepo run, `@apps/product#dev`, with a persistent task per process and a pane for each in the terminal UI: `dev:postgres` (Mockingbird Postgres, migrated and seeded), `dev:s3`, `dev:mqtt` (Aedes), `dev:openai`, `dev:observability`, `dev:idp` (simulated Google and Apple), `dev:billing` (simulated Stripe), `dev:server` (N API nodes behind the balancer), `dev:population` (Synthetic Population Workers) and `dev:web` (the product web app: `/`, `/harness`, `/simulator`). `dev:prepare` plans every port first; each service publishes itself under `.cache/localhost-stack/<instance>/services/` when it can serve, and its dependents wait for that. Ports are OS-assigned on the first boot, reused on later boots, and published to `.cache/localhost-stack/<instance>.json` once the whole stack is up. Processes that run side by side are Turborepo tasks: add a task, not a process runner. `source libs/tools/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
 
@@ -447,6 +468,12 @@ bun run psql                        # local Postgres shell
 ```
 
 Simulated Google starts as `alice@gmail.com` through `fred@gmail.com`. Apple starts as `alice@icloud.com`, `bob@icloud.com`, `chris@gmail.com` (the same person as Google's chris, so linking can be exercised), and `dan@icloud.com`, and offers Hide My Email. No passwords: the chooser lists the accounts. Apple is mock-only: enabled by all five `APPLE_*` bindings, refused when `SECRETS_ENV=prd`.
+
+Both local choosers also list **Admin One** (`admin@gmail.com`) and **Admin Two** (`admin2@gmail.com`). Stack startup seeds their linked app accounts and grants them puzzle-management permission through the local API binding. Sign in with either account, then open `/more/puzzles` to load the Lichess database. These fixtures are confined to the loopback stack.
+
+Shared reference data lives in the global fleet's R2 bucket, `gamezilla-shared`, protected by `prevent_destroy`. Its bucket-scoped S3 credentials are managed once by OpenTofu and imported through the shared secrets environment. Local APIs use those same `SHARED_DATA_*` bindings from the process or development secrets; automated harness and stack checks explicitly use disposable stores. Environment teardown never empties the shared bucket.
+
+The puzzle loader stores the first Lichess source as bounded CSV parts and publishes its manifest only after every part is present. Every environment imports from that manifest by default, pinning the source version for its job. Finished, stopped and failed imports retain the source. Catalog rows, progress and other application objects stay in their own environment's database and bucket. See [the saved-file contract](specs/chess/saved-puzzles.feature).
 
 `--idp-state` is `memory` (default, forgotten on exit), `instance` (survives a restart when `--keep-data` is set), or `path` (never deleted by stack cleanup). Signing keys are not persisted, so a restarted provider invalidates ID tokens it already issued. API sessions already issued stay valid. Local Stripe (`BILLING_PROVIDER=stripe`) is reconciled by `billing:sync` at boot. Pay with `4242 4242 4242 4242`. State is `<instance>/billing.sqlite`. `[stack] ready` means every API node answered a real request. `/api/health` can pass while the worker is in `api misconfigured`.
 

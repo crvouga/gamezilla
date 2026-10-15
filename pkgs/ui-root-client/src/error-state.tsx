@@ -48,6 +48,7 @@ import type { StateBlockVariant } from './state-block';
 import { StateBlock } from './state-block';
 
 export type ErrorStateRetry = {
+  dataSet?: ComponentDataSet | undefined;
   label?: JSX.Element | undefined;
   onClick: () => void;
 };
@@ -173,12 +174,14 @@ function ErrorActionRow(props: {
 }
 
 function PrimaryRecovery(props: {
+  dataSet?: ComponentDataSet | undefined;
   label: JSX.Element;
   onClick: () => void;
   size: ButtonSize;
 }): JSX.Element {
   return (
     <Button
+      dataSet={props.dataSet}
       title={props.label}
       intent="primary"
       size={props.size}
@@ -221,6 +224,7 @@ function SpecifiedErrorActions(props: ErrorActionProps): JSX.Element {
       <ErrorActionRow align={props.align} flush={props.flush}>
         <Show when={props.retry?.label !== undefined}>
           <PrimaryRecovery
+            dataSet={props.retry?.dataSet}
             label={props.retry?.label ?? ''}
             onClick={() => props.retry?.onClick()}
             size={props.size}
@@ -252,6 +256,7 @@ function CatalogErrorActions(props: ErrorActionProps): JSX.Element {
         <Show when={props.retry}>
           {(retry) => (
             <PrimaryRecovery
+              dataSet={retry().dataSet}
               label={retry().label ?? t`Retry`}
               onClick={() => retry().onClick()}
               size={props.size}

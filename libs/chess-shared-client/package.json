@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@libs/chess-root-shared": "workspace:*",
+    "@libs/permissions-client": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-client": "workspace:*",
     "@lingui/solid": "catalog:",
     "@pkgs/chess-board-root-client": "workspace:*",

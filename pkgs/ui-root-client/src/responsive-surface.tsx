@@ -37,6 +37,11 @@ import { ModalBackdrop } from './modal-backdrop';
 import { ModalContent, useModalContentMaxHeight } from './modal-content';
 import { ModalRoot } from './modal-root';
 import { OnColorReset } from './on-color-context';
+import {
+  createPendingOperationScope,
+  PendingOperationScopeContext,
+  useConfirmNavigation,
+} from './pending-navigation';
 import { ResponsiveSurfaceHeader } from './responsive-surface-header';
 import { ScrollView } from './scroll-view';
 import type { ResponsiveSurfacePresentation } from './should-use-mobile-sheet';
@@ -264,6 +269,13 @@ function MobileSheet(props: ResponsiveSurfaceProps): JSX.Element {
 export function ResponsiveSurface(props: ResponsiveSurfaceProps): JSX.Element {
   const layoutMode = useLayoutMode();
   const host = useBottomSheetHost();
+  const scope = createPendingOperationScope();
+  const confirmNavigation = useConfirmNavigation();
+  const requestClose = (): void => {
+    if (scope.blocked())
+      confirmNavigation(props.onClose, scope.pendingOperations());
+    else props.onClose();
+  };
   const useSheet = (): boolean =>
     shouldUseMobileSheet({
       presentation: props.presentation,
@@ -271,8 +283,13 @@ export function ResponsiveSurface(props: ResponsiveSurfaceProps): JSX.Element {
       supportsSheetPresentation: host.supportsSheetPresentation,
     });
   return (
-    <Show when={useSheet()} fallback={<DesktopModal {...props} />}>
-      <MobileSheet {...props} />
-    </Show>
+    <PendingOperationScopeContext.Provider value={scope}>
+      <Show
+        when={useSheet()}
+        fallback={<DesktopModal {...props} onClose={requestClose} />}
+      >
+        <MobileSheet {...props} onClose={requestClose} />
+      </Show>
+    </PendingOperationScopeContext.Provider>
   );
 }

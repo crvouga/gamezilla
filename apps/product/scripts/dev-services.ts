@@ -154,6 +154,7 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
         google: idps.google.url,
         apple: idps.apple.url,
         apiEnv: idps.apiEnv,
+        adminIdentities: idps.adminIdentities,
       },
       async stop() {
         await Promise.all([idps.google.close(), idps.apple.close()]);
@@ -194,6 +195,7 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
       options: plan.options,
       apiOrigin: plan.apiOrigin,
       idpEnv: idp.apiEnv,
+      adminIdentities: idp.adminIdentities,
       billing,
       webOrigin: plan.webOrigin,
       infraEnv: infraEnv({

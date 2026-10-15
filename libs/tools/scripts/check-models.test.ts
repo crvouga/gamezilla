@@ -298,6 +298,7 @@ describe('model parts', () => {
     );
   });
 
+  // regression: chess-model-proof-part-registration
   // regression: chess-model-check-outlasts-one-runner
   test('the chess models check one to a part, the slowest proof under its own budget', () => {
     const chess = specPackages().find(

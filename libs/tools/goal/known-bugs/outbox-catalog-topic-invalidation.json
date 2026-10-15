@@ -1,0 +1,4 @@
+{
+  "summary": "Background outbox writes published only explicit user notifications. Importing a catalog did not wake the shared puzzle topic, so other solvers could keep an empty or stale pool until reconnecting. Outbox notifications now derive destinations from captured row images and the composed topic map, matching mutation replay.",
+  "regressionTest": "libs/chess-root-server/tests/puzzle-load-job.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The failed-load fixture permanently removed bytes from the reusable source, causing a later load to fail immediately. Restore the identical bytes after the simulated outage so the existing failed-load restart example exercises a temporary external failure.",
+  "regressionTest": "specs/chess/puzzle-ingest.feature"
+}

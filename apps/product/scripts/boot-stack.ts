@@ -39,9 +39,15 @@ import {
   waitForHttp,
 } from './free-port';
 import { startLoadBalancer } from './load-balancer';
+import type { LocalAdminIdentity } from './local-admin-accounts';
+import { localAdminEnv } from './local-admin-env';
 import { localApiEnv } from './local-api-env';
 import { configureLocalPopulation } from './local-population';
 import { localProcessEnv } from './local-process-env';
+import {
+  isolatedSharedDataEnv,
+  localSharedDataEnv,
+} from './local-shared-data-env';
 import type { StackManifest } from './manifest';
 import { instanceDataDir, writeManifest } from './manifest';
 import { mockingbirdSqliteFile } from './mockingbird-sqlite';
@@ -266,6 +272,8 @@ export type BillingBinding = {
 };
 
 export async function startApiTier(args: {
+  readonly sharedDataBindings?: Readonly<Record<string, string>>;
+  readonly adminIdentities: readonly LocalAdminIdentity[];
   readonly dataDir: string;
   readonly options: StackOptions;
   readonly apiOrigin: string;
@@ -278,6 +286,12 @@ export async function startApiTier(args: {
   /** Planned ports, one per node; without them each asks the OS for its own. */
   readonly ports?: readonly number[] | undefined;
 }): Promise<ApiTier> {
+  const databaseUrl = args.infraEnv['DATABASE_URL'];
+  if (databaseUrl === undefined)
+    throw new Error('Local API needs DATABASE_URL');
+  const adminEnv = await localAdminEnv(databaseUrl, args.adminIdentities);
+  const sharedDataEnv =
+    args.sharedDataBindings ?? (await localSharedDataEnv(process.env));
   const roomServiceToken = crypto.randomUUID();
   const children: ChildProcess[] = [];
   const backends: { readonly id: string; readonly origin: string }[] = [];
@@ -297,7 +311,12 @@ export async function startApiTier(args: {
         idpEnv: args.idpEnv,
         billing: args.billing,
         webOrigin: args.webOrigin,
-        infraEnv: { ...args.infraEnv, ...args.syntheticPopulationSecrets },
+        infraEnv: {
+          ...args.infraEnv,
+          ...args.syntheticPopulationSecrets,
+          ...adminEnv,
+          ...sharedDataEnv,
+        },
         roomServiceToken,
       })
     );
@@ -367,6 +386,8 @@ type BillingAndApi = {
 
 /** The payment provider, then the API nodes that bill through it. */
 async function startBillingAndApi(args: {
+  readonly sharedDataBindings?: Readonly<Record<string, string>>;
+  readonly adminIdentities: readonly LocalAdminIdentity[];
   readonly options: StackOptions;
   readonly apiOrigin: string;
   readonly idpEnv: Readonly<Record<string, string>>;
@@ -392,6 +413,10 @@ async function startBillingAndApi(args: {
   }
   try {
     const api = await startApiTier({
+      ...(args.sharedDataBindings === undefined
+        ? {}
+        : { sharedDataBindings: args.sharedDataBindings }),
+      adminIdentities: args.adminIdentities,
       dataDir: args.dataDir,
       options: args.options,
       apiOrigin: args.apiOrigin,
@@ -483,17 +508,26 @@ function backingServiceManifest(infra: InfraHandles) {
   };
 }
 
+function sharedSourceOptions(
+  mode: 'shared' | 'isolated',
+  env: Readonly<Record<string, string>>
+) {
+  return mode === 'isolated'
+    ? { sharedDataBindings: isolatedSharedDataEnv(env) }
+    : {};
+}
+
 export async function bootLocalhostStack(
   options: StackOptions,
-  externalWeb = false
+  externalWeb = false,
+  sourceStorage: 'shared' | 'isolated' = 'shared'
 ): Promise<LocalhostStack> {
   const dataDir = instanceDataDir(REPO_ROOT, options);
   const syntheticPopulationSecrets = syntheticPopulationStackSecrets(dataDir);
   const idpState = resolveIdpState(options, dataDir);
   const { lbReservation, idpReservations, billingReservation, webReservation } =
     reserveStackPorts(options);
-  const webOrigin =
-    webReservation === null ? null : loopback(webReservation.port);
+  const webOrigin = webReservation && loopback(webReservation.port);
   const apiOrigin = loopback(lbReservation.port);
   const billingOrigin = loopback(billingReservation.port);
 
@@ -507,6 +541,8 @@ export async function bootLocalhostStack(
     idpState,
   });
   const { api, billing } = await startBillingAndApi({
+    ...sharedSourceOptions(sourceStorage, infra.env),
+    adminIdentities: idps.adminIdentities,
     options,
     apiOrigin,
     idpEnv: idps.apiEnv,
@@ -559,11 +595,9 @@ export async function bootLocalhostStack(
     ...backingServiceManifest(infra),
     dataDir,
   };
-  const path = writeManifest(REPO_ROOT, manifest);
-
   return {
     manifest,
-    manifestPath: path,
+    manifestPath: writeManifest(REPO_ROOT, manifest),
     async stop() {
       await stopClients();
       await Promise.all(api.children.map((child) => stopChild(child)));

@@ -1,44 +1,76 @@
 import { useConfigService } from '@libs/auth-client/config-service-context';
 import { useClientRequestAuth } from '@libs/auth-client/use-client-request-auth';
 import { clientAuthHeaders } from '@libs/auth-shared/client-request-auth';
-import type { PuzzleLoadJob } from '@libs/chess-puzzle-shared/puzzle-load-job';
+import {
+  type SavedPuzzleSource,
+  savedPuzzleSourceSchema,
+} from '@libs/chess-puzzle-shared/puzzle-source';
 import { useHttpClient } from '@pkgs/http-client-client/solid';
 
-function readJob(value: unknown): PuzzleLoadJob | null {
-  if (value === null) return null;
-  if (typeof value !== 'object' || value === null || !('id' in value)) {
-    throw new Error('Puzzle management returned an invalid job');
+export class PuzzleSourceRequestError extends Error {
+  constructor(
+    readonly status: number,
+    detail: string
+  ) {
+    super(`Lichess file request failed (${String(status)}). ${detail}`);
   }
-  return value as PuzzleLoadJob;
 }
 
-export function usePuzzleManagementApi(): {
-  readonly latest: () => Promise<PuzzleLoadJob | null>;
-  readonly start: () => Promise<PuzzleLoadJob>;
-} {
+/** External source bytes and metadata; domain status and commands use sync. */
+export function usePuzzleManagementApi() {
   const config = useConfigService();
   const auth = useClientRequestAuth();
   const http = useHttpClient();
-  const request = async (
-    method: 'GET' | 'POST'
-  ): Promise<PuzzleLoadJob | null> => {
-    const base = config.getApiUrl().replace(/\/$/, '');
-    const response = await http.fetch(`${base}/api/puzzle-management/job`, {
-      method,
-      headers: clientAuthHeaders(auth, { requireAccountIdForBearer: true }),
-    });
+  const request = async (suffix: string, init: RequestInit) => {
+    const response = await http.fetch(
+      `${config.getApiUrl().replace(/\/$/, '')}/api/puzzle-management/source${suffix}`,
+      {
+        ...init,
+        headers: {
+          ...clientAuthHeaders(auth, { requireAccountIdForBearer: true }),
+          ...init.headers,
+        },
+      }
+    );
     if (!response.ok) {
-      throw new Error(`Puzzle management failed (${String(response.status)})`);
+      const detail = await response.text();
+      throw new PuzzleSourceRequestError(response.status, detail);
     }
-    const body = (await response.json()) as { readonly job?: unknown };
-    return readJob(body.job);
+    return response;
+  };
+  const readSource = async (
+    response: Response
+  ): Promise<SavedPuzzleSource | null> => {
+    const value = (await response.json()) as { source: unknown };
+    return value.source === null
+      ? null
+      : savedPuzzleSourceSchema.parse(value.source);
   };
   return {
-    latest: () => request('GET'),
-    start: async () => {
-      const job = await request('POST');
-      if (job === null) throw new Error('Puzzle management returned no job');
-      return job;
+    read: async (signal: AbortSignal) =>
+      readSource(await request('', { method: 'GET', signal })),
+    save: async (source: SavedPuzzleSource, signal: AbortSignal) =>
+      readSource(
+        await request('', {
+          method: 'POST',
+          signal,
+          body: JSON.stringify(source),
+          headers: { 'content-type': 'application/json' },
+        })
+      ),
+    upload: async (
+      id: string,
+      part: number,
+      csv: string,
+      signal: AbortSignal
+    ) => {
+      const response = await request(`/${id}/${String(part)}`, {
+        method: 'PUT',
+        signal,
+        body: csv,
+        headers: { 'content-type': 'text/csv' },
+      });
+      await response.body?.cancel();
     },
   };
 }

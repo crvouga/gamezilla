@@ -5,24 +5,19 @@ Feature: Add puzzles to an environment
 
   Rule: Only the team may add puzzles
 
+    @regression:puzzle-import-status-subscription-loop
     Scenario: A person on the team starts adding puzzles
-      Given Alice is signed in and on the team for this environment
+      Given Alice is on the team for this environment
       When Alice adds puzzles to this environment
       Then Alice sees that this environment is adding puzzles
 
     Scenario: A person outside the team cannot add puzzles
       Given Alice is signed in and not on the team for this environment
       When Alice tries to add puzzles to this environment
-      Then Alice is told only the team can add puzzles
+      Then Alice is told only the team can add or stop adding puzzles
       And this environment is not adding puzzles
 
   Rule: An environment adds puzzles only once at a time
-
-    Scenario: A ready environment starts adding puzzles
-      Given Alice is on the team for this environment
-      And this environment is ready to add puzzles
-      When Alice adds puzzles to this environment
-      Then Alice sees that this environment is adding puzzles
 
     Scenario: Another addition is refused while one is in progress
       Given Alice is on the team for this environment
@@ -37,6 +32,7 @@ Feature: Add puzzles to an environment
       When Alice adds puzzles to this environment
       Then Alice sees that this environment is adding puzzles
 
+    @regression:puzzle-load-retry-shared-source
     Scenario: A team can start again after it failed to add puzzles
       Given Alice is on the team for this environment
       And this environment failed to add puzzles
@@ -44,6 +40,7 @@ Feature: Add puzzles to an environment
       Then Alice sees that this environment is adding puzzles
 
   Rule: Puzzles are added only to their environment
+    No counter-example: adding puzzles to one environment cannot choose another environment as its destination.
 
     Scenario: Adding puzzles changes this environment's puzzle pool
       Given Alice is on the team for this environment

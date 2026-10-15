@@ -336,6 +336,12 @@ describe('State blocks', () => {
     const message = wrappingErrorMessage();
     renderUi(() => (
       <MutationError
+        ids={{
+          submitDataSet: undefined,
+          cancelDataSet: undefined,
+          successDataSet: undefined,
+          dismissDataSet: undefined,
+        }}
         labels={{
           submitLabel: 'Save',
           cancelLabel: 'Cancel',

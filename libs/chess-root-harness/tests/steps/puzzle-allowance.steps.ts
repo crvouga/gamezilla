@@ -131,6 +131,10 @@ Then(
 Then(
   '{actor} can read that {int} rated puzzles remain today',
   async (w, actor: Actor, remaining: number) => {
-    expect(await w.s.read(readPuzzleRemainingToday, actor)).toBe(remaining);
+    const shown = await w.s.until((s) => readPuzzleRemainingToday(s, actor), {
+      pred: (value) => value === remaining,
+      maxMs: SETTLE_MS,
+    });
+    expect(shown).toBe(remaining);
   }
 );

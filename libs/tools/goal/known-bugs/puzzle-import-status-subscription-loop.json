@@ -1,0 +1,4 @@
+{
+  "summary": "Opening puzzle management with access repeatedly recreated its sync subscription as sync status changed. Starting a real uploaded CSV must settle and show the running load.",
+  "regressionTest": "specs/chess/puzzle-ingest.feature"
+}

@@ -49,6 +49,28 @@ describe('SolidDomDriver', () => {
     driver = undefined;
   });
 
+  test('chooses a file and delivers its UTF-8 bytes through the native change event', async () => {
+    const selected: { current: File | null } = { current: null };
+    driver = customDriver(() => (
+      <label data-testid="source">
+        Puzzle database
+        <input
+          type="file"
+          onChange={(event) => {
+            selected.current = event.currentTarget.files?.[0] ?? null;
+          }}
+        />
+      </label>
+    ));
+    await driver.launch();
+    await driver.get('source').selectFile({
+      name: 'lichess.csv',
+      bytes: [...new TextEncoder().encode('PuzzleId,FEN\nété,position\n')],
+    });
+    expect(selected.current?.name).toBe('lichess.csv');
+    expect(await selected.current?.text()).toBe('PuzzleId,FEN\nété,position\n');
+  });
+
   test('signs in through the public API and snapshots the result', async () => {
     driver = demoDriver();
     await driver.launch();

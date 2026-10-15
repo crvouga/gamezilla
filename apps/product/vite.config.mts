@@ -8,6 +8,7 @@ import {
   DEFAULT_WORKSPACE_SCOPES,
   workspaceExportsResolver,
 } from '@pkgs/vite-workspace-resolver-server/vite-workspace-resolver';
+import { workspaceWatchOptions } from '@pkgs/vite-workspace-resolver-server/workspace-watch';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type PluginOption } from 'vite';
 import solid from 'vite-plugin-solid';
@@ -64,6 +65,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: DEV_PORT,
       strictPort: true,
+      watch: workspaceWatchOptions(),
       warmup: {
         clientFiles: [
           './src/root.ts',

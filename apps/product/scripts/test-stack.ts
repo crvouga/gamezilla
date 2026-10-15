@@ -29,7 +29,7 @@ const options = parseStackOptions([
   '--frozen-web',
   '--test-hooks',
 ]);
-const stack = await bootLocalhostStack(options);
+const stack = await bootLocalhostStack(options, false, 'isolated');
 process.stdout.write(`[stack] ${stack.manifestPath}\n`);
 
 let code = 1;

@@ -1,98 +1,122 @@
-import type { PuzzleLoadJob } from '@libs/chess-puzzle-shared/puzzle-load-job';
+import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
 import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
-import { ErrorState } from '@pkgs/ui-root-client/error-state';
+import { EmbeddedScreen } from '@pkgs/ui-root-client/embedded-screen';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
-import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
-import { createSignal, type JSX, onMount, Show } from 'solid-js';
-import { usePuzzleManagementApi } from './puzzle-management-api';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { Notice } from '@pkgs/ui-root-client/notice';
+import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
+import { type JSX, Show } from 'solid-js';
+import { PuzzleImportStatus } from './puzzle-import-status';
+import { PuzzleImportStop } from './puzzle-import-stop';
+import { PuzzleSourceControls } from './puzzle-source-controls';
+import { usePuzzleImport } from './use-puzzle-import';
 
-function JobResult(props: { readonly job: PuzzleLoadJob }): JSX.Element {
+function PuzzleManagementContent(): JSX.Element {
+  const { t } = useLingui();
+  const state = usePuzzleImport();
+  const running = () => state.uploading() || state.job()?.status === 'adding';
+  const start = useMutationButton({
+    operation: state.start,
+    get disabled() {
+      return (
+        !state.source.source() ||
+        state.source.loading() ||
+        !state.ready() ||
+        !state.connection.status().online ||
+        running()
+      );
+    },
+    labels: {
+      idle: t`Start loading`,
+      loading: t`Starting load…`,
+      success: t`Load started`,
+      error: t`Try loading again`,
+    },
+  });
   return (
-    <div class="box gap-2" role="status" data-testid="puzzle-load-result">
-      <p class="text textBody">
-        <Trans>Status: {props.job.status}</Trans>
-      </p>
-      <p class="text textBody">
-        <Trans>
-          Processed {props.job.processedRows}; added {props.job.insertedRows};
-          rejected {props.job.failedRows}.
-        </Trans>
-      </p>
-      <Show when={props.job.error !== null}>
-        <p class="text textBody text-destructive">{props.job.error}</p>
+    <div class="box gap-4" data-testid="puzzle-load-content">
+      <Show
+        when={state.decision().allowed}
+        fallback={
+          <DenialSurface decision={state.decision()} variant="compact" />
+        }
+      >
+        <MenuRow
+          title={<Trans>Available puzzles</Trans>}
+          value={state.job()?.pool_rows ?? '—'}
+          dataSet={{ testid: 'puzzle-load-pool' }}
+        />
+        <PuzzleSourceControls state={state} />
+        <Show when={!state.ready()}>
+          <LoadingState
+            variant="compact"
+            caption={<Trans>Connecting to puzzle status…</Trans>}
+          />
+        </Show>
+        <Show when={!state.connection.status().online}>
+          <Notice dataSet={{ testid: 'puzzle-load-offline' }}>
+            <Trans>
+              You are offline. The last status is shown. Reconnect to check or
+              save a Lichess file, start loading, or stop loading.
+            </Trans>
+          </Notice>
+        </Show>
+        <Show when={start.error()} keyed>
+          {(error) => <Notice tone="error">{error.message}</Notice>}
+        </Show>
+        <div class="box flex-row flex-wrap gap-3">
+          <Button
+            {...start.buttonProps}
+            dataSet={{ testid: 'puzzle-load-start' }}
+          />
+          <PuzzleImportStop state={state} running={running()} />
+        </div>
+        <Show when={state.job()} keyed>
+          {(job) => <PuzzleImportStatus job={job} />}
+        </Show>
+        <Notice>
+          <Trans>
+            Loading continues in the background. The saved file stays available.
+            You can return here to follow its progress or stop it.
+          </Trans>
+        </Notice>
       </Show>
     </div>
   );
 }
 
-export function PuzzleManagementScreen(): JSX.Element {
-  const { t } = useLingui();
-  const api = usePuzzleManagementApi();
-  const [job, setJob] = createSignal<PuzzleLoadJob | null>(null);
-  const [loading, setLoading] = createSignal(true);
-  const [loadError, setLoadError] = createSignal<string | null>(null);
-  const [confirming, setConfirming] = createSignal(false);
-  onMount(() => {
-    void api
-      .latest()
-      .then(setJob)
-      .catch((error: unknown) => {
-        setLoadError(error instanceof Error ? error.message : String(error));
-      })
-      .finally(() => setLoading(false));
-  });
-  const start = async (): Promise<void> => {
-    const result = await api.start();
-    setJob(result);
-    if (result.status === 'failed') {
-      throw new Error(result.error ?? t`Adding puzzles failed`);
-    }
-  };
+export function PuzzleManagementScreen(props: {
+  embedded?: boolean;
+}): JSX.Element {
   return (
-    <ContentScreen
-      screenId="puzzle-management"
-      breadcrumbs={[
-        { name: <Trans>Settings</Trans>, href: '/more' },
-        { name: <Trans>Puzzles</Trans> },
-      ]}
+    <Show
+      when={props.embedded}
+      fallback={
+        <ContentScreen
+          screenId="puzzle-management"
+          breadcrumbs={[
+            { name: <Trans>Settings</Trans>, href: '/more' },
+            { name: <Trans>Load chess puzzles</Trans> },
+          ]}
+        >
+          <PuzzleManagementContent />
+        </ContentScreen>
+      }
     >
-      <p class="text textBody">
-        <Trans>
-          Add every puzzle in chess/puzzles.ndjson from this environment's
-          object store. PostgreSQL validates and adds the rows in batches.
-        </Trans>
-      </p>
-      <Show when={loading()}>
-        <LoadingState
-          variant="compact"
-          caption={<Trans>Reading the latest result…</Trans>}
-        />
-      </Show>
-      <Show when={loadError()} keyed>
-        {(message) => <ErrorState variant="compact" title={message} />}
-      </Show>
-      <Show when={job()} keyed>
-        {(value) => <JobResult job={value} />}
-      </Show>
-      <Button
-        title={t`Add puzzles`}
-        disabled={job()?.status === 'adding'}
-        onClick={() => setConfirming(true)}
-        dataSet={{ testid: 'puzzle-load-review' }}
-      />
-      <MutationModal
-        visible={confirming()}
-        onClose={() => setConfirming(false)}
-        title={t`Add puzzles to this environment?`}
-        message={t`The current environment's object is processed into its puzzle pool. Existing puzzles are kept.`}
-        operation={start}
-        submitLabel={t`Add puzzles`}
-        successTitle={t`Puzzle load finished`}
-        successBody={t`The latest PostgreSQL result is shown on this screen.`}
-        submitDataSet={{ testid: 'puzzle-load-confirm' }}
-      />
-    </ContentScreen>
+      <EmbeddedScreen
+        screenId="puzzle-management"
+        title={<Trans>Load chess puzzles</Trans>}
+        subtitle={
+          <Trans>
+            Upload a missing Lichess file, then load its puzzles into this
+            environment.
+          </Trans>
+        }
+      >
+        <PuzzleManagementContent />
+      </EmbeddedScreen>
+    </Show>
   );
 }

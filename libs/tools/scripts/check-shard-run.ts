@@ -138,7 +138,7 @@ function packEvidence(index: number, failed: boolean): void {
 function preserveFailedReports(results: readonly Result[]): void {
   for (const result of results.filter((task) => !task.passed)) {
     if (
-      /#check:models(:\d+)?$/.test(result.taskId) ||
+      /#check:models(?::\d+){0,2}$/.test(result.taskId) ||
       result.taskId === '@apps/product#test:contract' ||
       /@apps\/product#test:contract:\d+$/.test(result.taskId)
     ) {

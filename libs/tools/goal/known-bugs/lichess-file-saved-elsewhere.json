@@ -1,0 +1,4 @@
+{
+  "summary": "A stale first-file choice reuses the complete shared file.",
+  "regressionTest": "libs/chess-root-harness/tests/quint/lichess-file-preparation.binding.ts"
+}

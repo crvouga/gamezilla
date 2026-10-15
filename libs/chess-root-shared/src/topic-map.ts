@@ -1,3 +1,4 @@
+import { puzzleManagementAudience } from '@libs/permissions-shared/puzzle-management-audience';
 import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';
 import { multiplayerTopics } from './multiplayer-topics';
 import { chessPuzzlesTopic } from './sync-topics';
@@ -49,6 +50,14 @@ export const CHESS_TOPIC_MAP = {
   chess_puzzle_interactions: {
     topics(_row, ctx) {
       return [`user:${ctx.actorId}`];
+    },
+  },
+  chess_puzzle_load: {
+    // topic-map-db: status rows belong only to the configured puzzle-management audience.
+    async topics(row, ctx, db) {
+      if (db === undefined)
+        return [`user:${String(row['requested_by'] ?? ctx.actorId)}`];
+      return (await puzzleManagementAudience(db)).map((id) => `user:${id}`);
     },
   },
   chess_puzzles: {

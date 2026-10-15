@@ -37,7 +37,7 @@ export type ProgressBarProps = {
 };
 
 export function clamp01(v: number): number {
-  return Math.min(Math.max(v, 0), 1);
+  return Number.isNaN(v) ? 0 : Math.min(Math.max(v, 0), 1);
 }
 
 const INDETERMINATE_FILL = '40%';

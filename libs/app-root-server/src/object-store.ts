@@ -6,6 +6,8 @@ import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';
 import { S3SecretName } from '@pkgs/object-store-s3-shared/s3-config';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
+import { createSharedDataStore } from './shared-data-store';
+import { SharedObjectStore } from './shared-object-store';
 
 const S3_SECRET_NAMES = [
   S3SecretName.accessKeyId,
@@ -41,6 +43,16 @@ export type CreateApiObjectStoreOptions = {
 };
 
 export async function createApiObjectStore(
+  secretStore: SecretStore,
+  options: CreateApiObjectStoreOptions
+): Promise<ObjectStore> {
+  return new SharedObjectStore(
+    await createEnvironmentObjectStore(secretStore, options),
+    await createSharedDataStore(secretStore, options.http)
+  );
+}
+
+async function createEnvironmentObjectStore(
   secretStore: SecretStore,
   options: CreateApiObjectStoreOptions
 ): Promise<ObjectStore> {

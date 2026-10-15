@@ -23,6 +23,7 @@ export function ChessSettingsScreen(): JSX.Element {
   const items: readonly MainMenuItem[] = [
     {
       key: 'developer',
+      dataSet: { testid: 'chess-settings-developer' },
       title: <Trans>Developer</Trans>,
       caption: <Trans>UI explorer, debug tools.</Trans>,
       onClick: openDeveloper,

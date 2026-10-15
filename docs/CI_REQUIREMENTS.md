@@ -100,26 +100,26 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 316 |
-| Check scripts | 1146 |
+| Check scripts | 1174 |
 | Measured scripts | 189 |
-| Estimated scripts | 957 |
+| Estimated scripts | 985 |
 | Stale cost keys | 538 |
-| Cold CPU | 5595 s |
-| Spec parts | 3768 s across 223 tasks |
+| Cold CPU | 6539 s |
+| Spec parts | 3972 s across 235 tasks |
 | Longest task | @apps/product#test:contract:render 60 s |
 
 ### Families
 
 | Family | Tasks | CPU |
 | --- | --- | --- |
-| test:spec | 223 | 3768 s |
-| check:models | 30 | 487 s |
+| test:spec | 235 | 3972 s |
+| check:models:2 | 11 | 660 s |
+| check:models | 35 | 567 s |
 | lint | 315 | 340 s |
 | tc | 315 | 329 s |
 | test | 221 | 268 s |
 | check:board-contract | 4 | 240 s |
 | test:contract:render | 1 | 60 s |
-| ci:statecharts | 1 | 60 s |
 
 ### Leaves
 
@@ -146,21 +146,21 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 254 | 5440 s | @apps/product#test:contract:render 60 s |
-| @pkgs/clock-shared | 220 | 5341 s | @apps/product#test:contract:render 60 s |
-| @pkgs/assert-root-shared | 215 | 5323 s | @apps/product#test:contract:render 60 s |
+| @pkgs/property-shared | 254 | 6384 s | @apps/product#test:contract:render 60 s |
+| @pkgs/clock-shared | 220 | 6285 s | @apps/product#test:contract:render 60 s |
+| @pkgs/assert-root-shared | 215 | 6267 s | @apps/product#test:contract:render 60 s |
 
 ### Runner
 
-Work budget 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers stay at or under 16.
+Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers stay at or under 16.
 
 | | |
 | --- | --- |
 | Spec slots | 16 |
-| Other slots | 8 |
-| Cores required | 26 |
+| Other slots | 11 |
+| Cores required | 29 |
 | Memory required | 40 GiB |
-| Estimated makespan | 236 s |
+| Estimated makespan | 249 s |
 | Provision | 2 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->

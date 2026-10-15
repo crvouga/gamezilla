@@ -1,4 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { bundleOf, type MachineConfig, walkStates } from '@crvouga/atlas';
 import { type StateNodeConfig, StateNodeSchema } from '@crvouga/atlas/schema';
 import { productContracts, sourcePath } from './statechart-contracts';
@@ -27,6 +29,33 @@ const FEATURE = `Feature: A shared list
 `;
 
 describe('source-derived statechart guide', () => {
+  // regression: puzzle-contract-statechart-ownership
+  test('the puzzle import guide includes the new load and saved-source contracts', () => {
+    const root = join(import.meta.dir, '../../..');
+    const paths = [
+      'specs/chess/puzzle-load-controls.feature',
+      'specs/chess/puzzle-load-progress.feature',
+      'specs/chess/puzzle-load-updates.feature',
+      'specs/chess/puzzle-source.qnt',
+      'specs/chess/saved-puzzles.feature',
+    ];
+    const machine = JSON.parse(
+      readFileSync(join(root, 'specs/product.machine.json'), 'utf8')
+    ) as MachineConfig;
+    const bundle = bundleOf(
+      'specs',
+      [{ file: 'product.machine.json', format: 'xstate', machine }],
+      []
+    );
+    const contracts = productContracts(
+      new Map(
+        paths.map((path) => [path, readFileSync(join(root, path), 'utf8')])
+      )
+    );
+    const guide = productGuide(bundle, contracts);
+    expect(guide.meta?.['contracts']).toEqual(contracts);
+    expect(unmappedContracts(bundle, contracts)).toEqual([]);
+  });
   // regression: atlas-schema-strict-optional
   test('the public schema represents its explicit undefined optional fields', () => {
     const node: StateNodeConfig = StateNodeSchema.parse({

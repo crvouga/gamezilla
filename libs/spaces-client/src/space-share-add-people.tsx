@@ -10,6 +10,7 @@ import {
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { createAsync } from '@pkgs/async-root-client/solid';
 import { Combobox } from '@pkgs/ui-root-client/combobox';
+import { usePendingOperation } from '@pkgs/ui-root-client/pending-navigation';
 import type { ComboboxOption } from '@pkgs/ui-root-shared/combobox-types';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, Show } from 'solid-js';
@@ -37,6 +38,9 @@ export function SpaceShareAddPeople(props: {
       return name;
     },
   });
+  usePendingOperation(addition.loading, () =>
+    addition.cancelAll('Leaving while adding a person')
+  );
 
   const options = createMemo((): ComboboxOption[] =>
     [

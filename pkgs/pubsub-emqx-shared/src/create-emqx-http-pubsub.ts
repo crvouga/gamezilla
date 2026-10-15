@@ -55,6 +55,7 @@ export function createEmqxHttpPubSub(options: EmqxHttpPubSubOptions): PubSub {
           body
         );
       }
+      await res.body?.cancel();
     },
 
     subscribe(_topic: Topic, _handler: (data: unknown) => void): () => void {

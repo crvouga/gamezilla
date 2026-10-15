@@ -13,7 +13,7 @@ export const NARROW_CHECK_SECONDS = 90;
 export const WARM_START_SECONDS = 30;
 /** Post the verdict after the last task. */
 export const SLACK_SECONDS = 15;
-/** Task makespan inside the five-minute promise. */
+/** Conservative slot-allocation target; the hard deadline also reserves slack. */
 export const WORK_BUDGET_SECONDS = 240;
 /** Same cap as `specWorkerCeiling` in `@pkgs/os-server`. */
 export const SPEC_WORKER_CAP = 16;
@@ -129,7 +129,8 @@ export type LoadReport = {
 export function isCheckTask(name: string): boolean {
   return (
     EXACT_TASKS.has(name) ||
-    /^(test:spec|check:models|test:contract):\d+$/.test(name)
+    /^(test:spec|test:contract):\d+$/.test(name) ||
+    /^check:models:\d+(?::\d+)?$/.test(name)
   );
 }
 
@@ -152,7 +153,7 @@ export function runnerFit(load: {
   readonly leafPoleP90: number;
 }): RunnerFit {
   const otherSeconds = Math.max(0, load.coldSeconds - load.specSeconds);
-  const specSlots = slotsFor(load.specSeconds);
+  const specSlots = Math.min(SPEC_WORKER_CAP, slotsFor(load.specSeconds));
   const otherSlots = slotsFor(otherSeconds);
   const cores = specSlots + RESERVED_CORES + otherSlots;
   const memoryGib = specSlots * SPEC_WORKER_GIB + RESERVE_GIB;
@@ -167,7 +168,7 @@ export function runnerFit(load: {
     specSlots <= SPEC_WORKER_CAP &&
     cores <= RUNNER_VCPU &&
     memoryGib <= RUNNER_RAM_GIB &&
-    makespanSeconds + WARM_START_SECONDS <= PR_CHECK_SECONDS &&
+    makespanSeconds + WARM_START_SECONDS + SLACK_SECONDS <= PR_CHECK_SECONDS &&
     load.leafPoleMax + WARM_START_SECONDS + SLACK_SECONDS <=
       LEAF_CHECK_SECONDS &&
     load.leafPoleP90 + WARM_START_SECONDS + SLACK_SECONDS <=
@@ -476,7 +477,7 @@ function coneTable(cones: readonly ConeLoad[]): string {
 
 function fitTable(fit: RunnerFit): string {
   return [
-    `Work budget ${String(WORK_BUDGET_SECONDS)} s. Warm start ${String(WARM_START_SECONDS)} s. Verdict slack ${String(SLACK_SECONDS)} s. Spec workers stay at or under ${String(SPEC_WORKER_CAP)}.`,
+    `Slot allocation target ${String(WORK_BUDGET_SECONDS)} s. Warm start ${String(WARM_START_SECONDS)} s. Verdict slack ${String(SLACK_SECONDS)} s. Spec workers stay at or under ${String(SPEC_WORKER_CAP)}.`,
     '',
     '| | |',
     '| --- | --- |',

@@ -1,0 +1,4 @@
+{
+  "summary": "Losing the connection while saving the first shared Lichess file left the upload waiting instead of aborting and explaining that a connection is required.",
+  "regressionTest": "specs/chess/lichess-file-saving.feature"
+}

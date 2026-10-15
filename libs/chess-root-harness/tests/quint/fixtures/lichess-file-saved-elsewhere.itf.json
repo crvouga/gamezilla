@@ -1,0 +1,146 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "source": "specs/chess/lichess-file-preparation.qnt",
+    "description": "A stale first-file choice reuses the complete shared file."
+  },
+  "vars": [
+    "lichessFile",
+    "addingPuzzles",
+    "online",
+    "_saved",
+    "_availableWhenOffline",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_availableWhenOffline": false,
+      "_saved": false,
+      "addingPuzzles": false,
+      "lichessFile": {
+        "available": false,
+        "check": "known",
+        "chosen": true,
+        "confirmingStop": false,
+        "needsFile": true,
+        "save": "idle"
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "_initialChoice": {
+          "tag": "Some",
+          "value": "chosen"
+        }
+      },
+      "online": true
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_availableWhenOffline": false,
+      "_saved": true,
+      "addingPuzzles": false,
+      "lichessFile": {
+        "available": false,
+        "check": "known",
+        "chosen": true,
+        "confirmingStop": false,
+        "needsFile": true,
+        "save": "idle"
+      },
+      "mbt::actionTaken": "anotherEnvironmentSavesLichessFile",
+      "mbt::nondetPicks": {
+        "_initialChoice": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "online": true
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_availableWhenOffline": false,
+      "_saved": true,
+      "addingPuzzles": false,
+      "lichessFile": {
+        "available": false,
+        "check": "known",
+        "chosen": true,
+        "confirmingStop": false,
+        "needsFile": false,
+        "save": "saving"
+      },
+      "mbt::actionTaken": "saveLichessFile",
+      "mbt::nondetPicks": {
+        "_initialChoice": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "online": true
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_availableWhenOffline": false,
+      "_saved": true,
+      "addingPuzzles": false,
+      "lichessFile": {
+        "available": false,
+        "check": "known",
+        "chosen": true,
+        "confirmingStop": true,
+        "needsFile": false,
+        "save": "saving"
+      },
+      "mbt::actionTaken": "askToStopSavingLichessFile",
+      "mbt::nondetPicks": {
+        "_initialChoice": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "online": true
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_availableWhenOffline": false,
+      "_saved": true,
+      "addingPuzzles": false,
+      "lichessFile": {
+        "available": true,
+        "check": "known",
+        "chosen": false,
+        "confirmingStop": false,
+        "needsFile": false,
+        "save": "idle"
+      },
+      "mbt::actionTaken": "finishSavingLichessFile",
+      "mbt::nondetPicks": {
+        "_initialChoice": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "online": true
+    }
+  ]
+}

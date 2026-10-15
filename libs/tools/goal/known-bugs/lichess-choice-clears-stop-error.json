@@ -1,0 +1,4 @@
+{
+  "summary": "Choosing another file clears the preceding stopped-save outcome.",
+  "regressionTest": "libs/chess-root-harness/tests/quint/lichess-file-preparation.binding.ts"
+}

@@ -1,7 +1,6 @@
 import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
 import { accountMutationEnv } from '@libs/auth-shared/account-mutation-env';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
-import { userTopic } from '@libs/sub-shared/sync';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
@@ -10,10 +9,16 @@ import { type DrainOutboxDeps, drainOutbox } from '@pkgs/outbox-shared/drain';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
+import {
+  type TopicMap,
+  topicMapCtxFromEnv,
+} from '@pkgs/sync-engine-shared/topic-map';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
+import { outboxNotificationTopics } from './outbox-notification-topics';
 
 let registry: OutboxConsumerRegistry | null = null;
+const topicMaps = new WeakMap<OutboxConsumerRegistry, TopicMap>();
 
 /** Telemetry delivery belongs to the background drain, never gameplay latency. */
 export function requestOutboxRegistry(
@@ -21,8 +26,16 @@ export function requestOutboxRegistry(
 ): OutboxConsumerRegistry {
   const requests = new OutboxConsumerRegistry();
   requests.registerAll(
-    all.all().filter((consumer) => !consumer.id.startsWith('telemetry:'))
+    all
+      .all()
+      .filter(
+        (consumer) =>
+          consumer.delivery !== 'background' &&
+          !consumer.id.startsWith('telemetry:')
+      )
   );
+  const topicMap = topicMaps.get(all);
+  if (topicMap !== undefined) topicMaps.set(requests, topicMap);
   return requests;
 }
 
@@ -31,8 +44,12 @@ export function requestOutboxRegistry(
  * is built, because a delivery can be drained from any request and the
  * request has no idea which subs this app runs.
  */
-export function setOutboxConsumerRegistry(next: OutboxConsumerRegistry): void {
+export function setOutboxConsumerRegistry(
+  next: OutboxConsumerRegistry,
+  topicMap: TopicMap
+): void {
   registry = next;
+  topicMaps.set(next, topicMap);
 }
 
 export function getOutboxConsumerRegistry(): OutboxConsumerRegistry {
@@ -56,27 +73,40 @@ export async function drainAndNotifyOutbox(args: {
   readonly objectStore: ObjectStore;
   readonly consumerRegistry?: OutboxConsumerRegistry;
   readonly eventIds?: readonly string[];
+  readonly topicMap?: TopicMap;
+  readonly maxPasses?: number;
+  readonly limit?: number;
 }): Promise<number> {
   const captures: ReturnType<typeof wrapMutationDb>[] = [];
-  const result = await drainDueOutbox({
-    db: args.db,
-    clock: args.clock,
-    createId: args.createId,
-    registry: args.consumerRegistry ?? getOutboxConsumerRegistry(),
-    objectStore: args.objectStore,
-    ...(args.eventIds === undefined ? {} : { eventIds: args.eventIds }),
-    wrapConsumerTx: (tx) => {
-      const wrapped = wrapMutationDb(tx, accountMutationEnv('', args));
-      captures.push(wrapped);
-      return wrapped.tx;
+  const consumers = args.consumerRegistry ?? getOutboxConsumerRegistry();
+  const result = await drainDueOutbox(
+    {
+      db: args.db,
+      clock: args.clock,
+      createId: args.createId,
+      registry: consumers,
+      objectStore: args.objectStore,
+      ...(args.limit === undefined ? {} : { limit: args.limit }),
+      ...(args.eventIds === undefined ? {} : { eventIds: args.eventIds }),
+      wrapConsumerTx: (tx) => {
+        const wrapped = wrapMutationDb(tx, accountMutationEnv('', args));
+        captures.push(wrapped);
+        return wrapped.tx;
+      },
     },
-  });
-  if (result.notifyUserIds.length === 0) return result.processed;
+    args.maxPasses
+  );
 
   const store = apiRequestAsyncLocalStorage.getStore();
-  const topics = result.notifyUserIds
-    .filter((id) => id.length > 0)
-    .map((id) => userTopic(id));
+  const topics = await outboxNotificationTopics({
+    topicMap: args.topicMap ?? topicMaps.get(consumers),
+    captures: captures.map((capture) => capture.getCapture()),
+    notifyUserIds: result.notifyUserIds,
+    db: args.db,
+    ctx: topicMapCtxFromEnv(
+      accountMutationEnv(result.notifyUserIds[0] ?? 'system', args)
+    ),
+  });
   if (topics.length === 0) return result.processed;
   const pubsub =
     args.pubsub ??
@@ -106,10 +136,10 @@ export async function drainAndNotifyOutbox(args: {
 /** Each pass commits before following events are delivered. In particular, a
  * match formed by one consumer is durable before its room receives the board.
  * Bound the causal work so a request cannot drain an endless event chain. */
-async function drainDueOutbox(deps: DrainOutboxDeps) {
+async function drainDueOutbox(deps: DrainOutboxDeps, maxPasses = 8) {
   const notifyUserIds = new Set<string>();
   let processed = 0;
-  for (let pass = 0; pass < 8; pass++) {
+  for (let pass = 0; pass < maxPasses; pass++) {
     const result = await drainOutbox(deps);
     processed += result.processed;
     for (const id of result.notifyUserIds) notifyUserIds.add(id);

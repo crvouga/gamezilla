@@ -18,10 +18,16 @@ test('request drains exclude telemetry network delivery and preserve product wor
   );
   for (const id of ['telemetry:example:v1', 'example-business'])
     all.register({ id, on: event.message, handler: async () => {} });
+  all.register({
+    id: 'example-background',
+    delivery: 'background',
+    on: event.message,
+    handler: async () => {},
+  });
   expect(
     requestOutboxRegistry(all)
       .all()
       .map((consumer) => consumer.id)
   ).toEqual(['example-business']);
-  expect(all.all()).toHaveLength(2);
+  expect(all.all()).toHaveLength(3);
 });

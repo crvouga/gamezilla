@@ -16,7 +16,7 @@ export type PopulationDeployment = {
 };
 
 export const POPULATION_BUN_VERSION = '1.4.3';
-export const POPULATION_NODE_VERSION = '26.11.1';
+export const POPULATION_NODE_VERSION = '26.12.0';
 
 /**
  * The Dockerfile Railway builds from the uploaded source. Railway resolves

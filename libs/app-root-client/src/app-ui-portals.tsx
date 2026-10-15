@@ -10,6 +10,7 @@
  */
 
 import { OverlayPortalProvider } from '@pkgs/ui-root-client/overlay-portal';
+import { PendingNavigationConfirmation } from '@pkgs/ui-root-client/pending-navigation-provider';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client/surface-stack';
 import type { JSX } from 'solid-js';
 
@@ -18,7 +19,10 @@ export function AppUiPortals(props: {
 }): JSX.Element {
   return (
     <OverlayPortalProvider>
-      <SurfaceStackProvider>{props.children}</SurfaceStackProvider>
+      <SurfaceStackProvider>
+        {props.children}
+        <PendingNavigationConfirmation />
+      </SurfaceStackProvider>
     </OverlayPortalProvider>
   );
 }

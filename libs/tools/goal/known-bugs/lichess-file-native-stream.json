@@ -1,0 +1,4 @@
+{
+  "summary": "A fully downloaded Lichess file can fail before any upload when the browser's native File stream cannot open it. Read bounded file slices instead.",
+  "regressionTest": "libs/chess-puzzle-client/tests/puzzle-file-reading.test.ts"
+}

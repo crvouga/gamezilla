@@ -112,7 +112,7 @@ export const globalActionMenuAlwaysVisible = defineProperty({
  */
 export function defineProductSystem(
   composition: HarnessComposition,
-  options: Pick<CreateHarnessOptions, 'secretValues'> = {}
+  options: Pick<CreateHarnessOptions, 'secretValues' | 'sharedDataStore'> = {}
 ) {
   return defineSystem<ProductHarness>({
     name: `harness.${composition.name}`,

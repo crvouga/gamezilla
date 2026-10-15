@@ -15,9 +15,7 @@ export function PuzzleManagementSettings(): JSX.Element {
       <MenuSection title={<Trans>Environment</Trans>}>
         <MenuRow
           title={<Trans>Puzzles</Trans>}
-          caption={
-            <Trans>Add puzzles from this environment's object store</Trans>
-          }
+          caption={<Trans>Load Lichess CSV and follow progress</Trans>}
           leading={<DatabaseIcon size={20} color="icon" />}
           onClick={() => router.push('/more/puzzles')}
           dataSet={{ testid: 'settings-puzzle-management' }}

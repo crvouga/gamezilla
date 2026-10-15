@@ -24,6 +24,7 @@ import {
 } from './multiplayer-room-server';
 import { multiplayerTurnReminderConsumer } from './multiplayer-turn-reminder-consumer';
 import { opponentSearchGuard } from './opponent-search-guard';
+import { puzzleImportConsumer } from './puzzle-import-consumer';
 import { createPuzzleManagementApp } from './puzzle-management-route';
 
 async function customGameRoomGrants(
@@ -52,7 +53,7 @@ export function createChessServer(rooms: RoomServicePort) {
   return defineSubServer({
     telemetryEvents: [...MULTIPLAYER_TELEMETRY, ...PUZZLE_TELEMETRY],
     name: 'chess',
-    routes: (ctx) => createPuzzleManagementApp(ctx.clock, ctx.createId),
+    routes: (ctx) => createPuzzleManagementApp(ctx.clock),
     roomGrants: async (ctx) => [
       ...(await customGameRoomGrants(ctx)),
       ...(await multiplayerRoomGrants(ctx)),
@@ -60,6 +61,7 @@ export function createChessServer(rooms: RoomServicePort) {
     authorizeMutation: opponentSearchGuard(rooms),
     register: registerMultiplayerNoticeActions,
     registerOutbox(registry) {
+      registry.register(puzzleImportConsumer);
       registerMatchRoomConsumers(registry, rooms);
       registry.register(multiplayerNoticesConsumer);
       registry.register(multiplayerTurnReminderConsumer);

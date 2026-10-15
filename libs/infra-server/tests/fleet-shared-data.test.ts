@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseConfig } from '@libs/infra-shared/hcl-parse';
 import { exprRefs } from '@libs/infra-shared/hcl-refs';
@@ -21,35 +21,52 @@ const LIVE_ADDRESSES = [
   'terraform_data.shared_data_version["SHARED_DATA_SECRET_ACCESS_KEY"]',
 ];
 
-// regression: fleet-branch-shared-data-deletion
-test('main preserves branch-provisioned shared data and its access credentials', () => {
-  const imports = readFileSync(
-    join(
-      import.meta.dirname,
-      '../../infra-shared/tofu/stacks/fleet/imports.tf'
-    ),
-    'utf8'
-  );
-  const removed = parseConfig(imports).blocks.filter(
-    (block) => block.type === 'removed'
+const fleet = join(import.meta.dirname, '../../infra-shared/tofu/stacks/fleet');
+const blocks = readdirSync(fleet)
+  .filter((name) => name.endsWith('.tf'))
+  .flatMap(
+    (name) => parseConfig(readFileSync(join(fleet, name), 'utf8')).blocks
   );
 
+// regression: fleet-shared-data-retirement-conflict
+test('fleet never retires a resource it also manages', () => {
+  const managed = new Set(
+    blocks
+      .filter((block) => block.type === 'resource')
+      .map((block) => block.labels.join('.'))
+  );
+  for (const block of blocks.filter((entry) => entry.type === 'removed')) {
+    const from = block.body.attributes.get('from');
+    expect(from).toBeDefined();
+    if (from === undefined) throw new Error('Missing retirement address');
+    for (const ref of exprRefs(from)) {
+      expect(managed.has([ref.root, ...ref.path].join('.'))).toBe(false);
+    }
+  }
+});
+
+// regression: fleet-branch-shared-data-deletion
+test('fleet manages every existing shared-data address without deleting it', () => {
   for (const address of LIVE_ADDRESSES) {
     const resource = address.split('[')[0];
-    const block = removed.find((entry) => {
-      const from = entry.body.attributes.get('from');
-      if (from === undefined) return false;
-      return exprRefs(from).some(
-        (ref) => [ref.root, ...ref.path].join('.') === resource
-      );
-    });
-    expect(block, address).toBeDefined();
-    const lifecycle = block?.body.blocks.find(
-      (entry) => entry.type === 'lifecycle'
+    const block = blocks.find(
+      (entry) =>
+        entry.type === 'resource' && entry.labels.join('.') === resource
     );
-    expect(lifecycle?.body.attributes.get('destroy'), address).toEqual({
-      kind: 'literal',
-      value: false,
-    });
+    expect(block, address).toBeDefined();
+    if (address.includes('[')) {
+      expect(block?.body.attributes.has('for_each'), address).toBe(true);
+    }
   }
+  const bucket = blocks.find(
+    (entry) =>
+      entry.type === 'resource' && entry.labels.join('.') === LIVE_ADDRESSES[0]
+  );
+  const lifecycle = bucket?.body.blocks.find(
+    (entry) => entry.type === 'lifecycle'
+  );
+  expect(lifecycle?.body.attributes.get('prevent_destroy')).toEqual({
+    kind: 'literal',
+    value: true,
+  });
 });

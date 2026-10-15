@@ -19,6 +19,7 @@ export function serverHandles(
   | 'dropServer'
   | 'serverIds'
   | 'serverEnv'
+  | 'setPuzzleManagers'
   | 'drainServerFetch'
   | 'outboxConsumers'
   | 'authorizeServerMutation'
@@ -33,6 +34,15 @@ export function serverHandles(
     dropServer: (id) => servers.drop(id),
     serverIds: () => servers.ids(),
     serverEnv: (id) => servers.get(id)?.env,
+    async setPuzzleManagers(accountIds) {
+      for (const id of servers.ids()) {
+        const env = await servers.ensureEnv(id);
+        Object.assign(env, { puzzleManagerAccountIds: [...accountIds] });
+        Object.assign(servers.get(id)?.env ?? {}, {
+          puzzleManagerAccountIds: [...accountIds],
+        });
+      }
+    },
     drainServerFetch: () => servers.drainAll(),
     outboxConsumers: () => primaryServer(servers).outboxConsumers,
     authorizeServerMutation: () => primaryServer(servers).authorizeMutation,

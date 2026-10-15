@@ -35,7 +35,7 @@ export function createBillingSubApp(
     accountId: string,
     label: string,
     tables: readonly string[]
-  ) => notifyUserChannels([accountId], label, { tables, deferPublish: false });
+  ) => notifyUserChannels([accountId], label, { tables });
   return new BillingApp({
     getSqlClient,
     billing,
