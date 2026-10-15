@@ -203,3 +203,33 @@ test.each([
   await expect(exporter.forceFlush()).rejects.toThrow();
   await scope.finish();
 });
+
+// regression: otlp-timeout-unfinished-http-request
+test('a timeout waits for transport cancellation before the invocation ends', async () => {
+  const aborted = Promise.withResolvers<void>();
+  const canceled = Promise.withResolvers<void>();
+  const { clock, scope, exporter } = traceExporter(async () => {
+    await aborted.promise;
+    await canceled.promise;
+    throw new Error('transport aborted');
+  });
+  let callbackRan = false;
+  const outcome = new Promise<{ code: number }>((resolve) => {
+    exporter.export([], (result) => {
+      callbackRan = true;
+      resolve(result);
+    });
+  });
+  clock.advance(5000);
+  aborted.resolve();
+  // Drain the deadline reaction while the transport is still canceling.
+  for (let turn = 0; turn < 20; turn++) await Promise.resolve();
+  const prematureCallback = callbackRan;
+  canceled.resolve();
+  expect((await outcome).code).toBe(1);
+  expect(prematureCallback).toBe(false);
+  await expect(exporter.forceFlush()).rejects.toThrow(
+    'OTLP acknowledgement timed out'
+  );
+  await scope.finish();
+});

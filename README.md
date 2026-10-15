@@ -413,17 +413,19 @@ bun run infra:destroy -- --env <env> --confirm <env>
 
 That refuses `protection: "production"`. It runs deploy in reverse: edge domains, delete the application Worker and any superseded scripts, empty the bucket, then foundation (that database, Hyperdrive, bucket, IoT, trace tokens, secrets), then that env's fleet entries. The env file stays. The next deploy builds a new empty database and reconciles the schema. Deleting the env file alone deletes nothing.
 
-A new environment is `envs/<env>.tfvars.json` with `protection: "standard"` and no `imports`, registered in `libs/infra-shared/src/envs.ts`. Deploy creates the rest once `deploy.yml` has a job for it (a test fails until it does): `deploy:dev`, then `deploy:prd`. Health probes every env hourly. Rehearse before merging a change to deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands. Rehearsals execute in GitHub Actions, dispatched on a named branch with `gh workflow run` and managed locally with `gh run view`, `gh run watch`, and `gh run download`; never run them on the developer machine. Reuse Deploy's dev job, secrets authentication and deployment concurrency lock. A branch rejected by AWS's deployment trust remains an infrastructure-rehearsal blocker; an application deploy and health run must be reported separately, never as a full infrastructure apply.
+A new environment is `envs/<env>.tfvars.json` with `protection: "standard"` and no `imports`, registered in `libs/infra-shared/src/envs.ts`. Deploy creates the rest once `deploy.yml` has a job for it (a test fails until it does): `Deploy development`, then `Deploy production`. Health probes every env hourly. Rehearse before merging a change to deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands. Rehearsals execute in GitHub Actions, dispatched on a named branch with `gh workflow run` and managed locally with `gh run view`, `gh run watch`, and `gh run download`; never run them on the developer machine. Reuse Deploy's dev job, secrets authentication and deployment concurrency lock. A branch rejected by AWS's deployment trust remains an infrastructure-rehearsal blocker; an application deploy and health run must be reported separately, never as a full infrastructure apply.
 
 ```text
-deploy:guard   main only
-deploy:check   the Check PR gate on that commit
-deploy:fleet   auth-relay Worker, then the fleet stack
-deploy:dev     foundation -> migrate -> product (assets + API + rooms)
-               -> edge -> billing:sync -> health -> retire superseded Workers
-deploy:prd     the same chain, once dev is green
-deploy:release tag and GitHub release
+Verify commit                  main-only release guard + the full Check PR gate
+Deploy shared services         shared secrets -> auth relay -> fleet stack
+Deploy development             foundation -> migrate -> product (assets + API + rooms)
+                                -> edge -> billing:sync -> health -> retire superseded Workers
+Deploy production              the same chain, once development is green
+Publish release                tag and GitHub release
+Preview infrastructure changes rehearsal only: plan fleet and dev foundation
 ```
+
+Development and production reuse one deployment step list in `deploy.yml`. The release branch guard runs before setup in Check's planning job; `check:start`, `check:shards` and `check:end` keep their required status names. Rehearsal runs the same Check, then read-only infrastructure plans, with the release path closed.
 
 `bun deploy` ships `main` only. Do not `tofu apply` from a laptop against production. Non-deploy commands cannot reach production Postgres (`@libs/db/public/database-url-policy`). `bun run db:wipe:dev` refuses `ALLOW_PRODUCTION_DATABASE_URL=1`.
 

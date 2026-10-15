@@ -1,3 +1,4 @@
+import { drainOutboxOnCron } from './outbox-cron';
 import { runWorkerHttp } from './worker-http';
 import {
   businessEventDeliveryOptions,
@@ -12,7 +13,6 @@ import {
 import { createServer } from '@libs/app-root-server/create-server';
 import { createApiObjectStore } from '@libs/app-root-server/object-store';
 import { openRequestDb } from '@libs/app-root-server/open-request-db-postgres';
-import { drainAndNotifyOutbox } from '@libs/app-root-server/outbox-drain';
 import type { ApiWorkerEnv } from '@libs/app-root-shared/env';
 import {
   assertSecretsEnvBinding,
@@ -36,9 +36,7 @@ import type {
   ExportedHandler,
   ScheduledController,
 } from '@libs/app-root-shared/worker-handler';
-import { wrapSqlClientForObservability } from '@libs/app-root-shared/wrap-sql-client';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
-import { assertNonProdDatabaseUrl } from '@libs/db-shared/database-url-policy';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { shippedModerationRules } from '@libs/moderation-shared/moderation-rules';
 import { createRoomService } from '@libs/room-app-shared/create-room-service';
@@ -382,49 +380,6 @@ async function handleWorkerFetch(
   );
 }
 
-/** Sweeper for stranded outbox deliveries (cron). Opens its own DB session. */
-async function drainOutboxOnCron(env: ApiWorkerEnv): Promise<void> {
-  const secretsEnv = assertSecretsEnvBinding(env);
-  const secretStore = createApiSecretStore(
-    workerEnvToSecretRecord(env),
-    wallClock.now
-  );
-  const override = readOptionalDatabaseUrlOverride(env);
-  const dbUrl =
-    override !== null && override.length > 0
-      ? override
-      : (await secretStore.getRequired(ApiSecretName.dbUrl)).readSecretValue();
-  if (readDeploymentProtection(env) !== 'production') {
-    await assertNonProdDatabaseUrl(dbUrl, {
-      surface: 'api-worker-cron',
-      secretsEnv,
-    });
-  }
-  const opened = await openRequestDb(
-    postgresConnectionString(env, dbUrl),
-    appPostgresDbScope()
-  );
-  try {
-    const processed = await drainAndNotifyOutbox({
-      objectStore: await createApiObjectStore(secretStore, {
-        secretsEnv,
-        now: wallClock.now,
-        http: workerHttp,
-      }),
-      db: wrapSqlClientForObservability(opened.sqlClient),
-      clock: wallClock,
-      createId: () => crypto.randomUUID(),
-    });
-    if (processed > 0) {
-      log.info('outbox cron drained', { processed });
-    }
-  } finally {
-    if (opened.kind === 'postgres') {
-      await opened.pool.end();
-    }
-  }
-}
-
 const workerImplementation = {
   async fetch(
     request: Request,
@@ -529,10 +484,27 @@ const workerImplementation = {
       dimensions: { [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: [environment] },
     })(1, { [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: environment });
     try {
-      await withSpan('outbox.drain', () => drainOutboxOnCron(env), {
-        [ATTR.CODE_FILE_PATH]: 'apps/server/src/product-server.ts',
-        [ATTR.CODE_FUNCTION_NAME]: 'scheduled',
-      });
+      await withSpan(
+        'outbox.drain',
+        async () => {
+          // A scheduled event may be this isolate's first invocation.
+          if ((await ensureApp(env)) === null)
+            throw new ConfigurationError(
+              'Cannot drain outbox: application boot failed'
+            );
+          const processed = await drainOutboxOnCron(
+            env,
+            workerHttp,
+            wallClock,
+            () => crypto.randomUUID()
+          );
+          if (processed > 0) log.info('outbox cron drained', { processed });
+        },
+        {
+          [ATTR.CODE_FILE_PATH]: 'apps/server/src/product-server.ts',
+          [ATTR.CODE_FUNCTION_NAME]: 'scheduled',
+        }
+      );
     } catch (err: unknown) {
       log.error('outbox cron drain failed', { error: err });
       if (!hidesErrorDetail(env)) throw err;

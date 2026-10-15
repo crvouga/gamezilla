@@ -63,8 +63,15 @@ export class HttpOtlpExporter<T, R> {
         reject(new Error('OTLP acknowledgement timed out'));
       }, 5000);
     });
+    const request = this.request(payload, abort.signal);
     try {
-      await Promise.race([this.request(payload, abort.signal), deadline]);
+      await Promise.race([request, deadline]);
+    } catch (error) {
+      // Aborting transport is asynchronous. The invocation still owns its
+      // request/body until cancellation settles, including on a deadline.
+      abort.abort();
+      await request.catch(() => undefined);
+      throw error;
     } finally {
       this.timers.clearTimeout(timer);
     }

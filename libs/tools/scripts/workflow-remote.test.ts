@@ -72,7 +72,7 @@ describe('WORKFLOW_DISPATCH', () => {
     expect(health).not.toContain('run: bun run health\n');
     expect(deploy).toContain('run: bun run deploy:local');
     expect(deploy).not.toContain('run: bun run deploy\n');
-    expect(deploy).toContain('refs/heads/main');
+    expect(deploy).toContain('require-main: ${{ !inputs.rehearsal }}');
   });
 
   test('Deploy runs on every merge to main and ships only what the full Check verified', () => {
@@ -90,7 +90,10 @@ describe('WORKFLOW_DISPATCH', () => {
     expect(deploy.jobs['deploy-check']).toMatchObject({
       uses: './.github/workflows/check-pr.yml',
     });
-    expect(deploy.jobs['deploy-check']).not.toHaveProperty('with');
+    expect(deploy.jobs['deploy-check']).toHaveProperty(
+      'with.require-main',
+      '${{ !inputs.rehearsal }}'
+    );
     // Check, then the fleet, then dev, then production, then the release.
     expect(deploy.jobs['deploy-fleet']!.needs).toBe('deploy-check');
     expect(deploy.jobs['deploy-dev']!.needs).toBe('deploy-fleet');
