@@ -69,8 +69,17 @@ export const saveLichessFile = scenarioAction({
   name: 'saveLichessFile',
   act: async (s, actor: string) => {
     const ui = await actorUi(s, actor);
-    const view = await readPuzzleSource(s, actor);
-    if (view.saved || view.offline || !view.saveOffered) return;
+    const view = await pollUntil(
+      s,
+      async () => {
+        const source = await readPuzzleSource(s, actor);
+        return source.saved || source.offline || source.saveOffered
+          ? source
+          : null;
+      },
+      { maxMs: 15000, description: 'Lichess file availability before saving' }
+    );
+    if (view.saved || view.offline) return;
     await ui.get('puzzle-load-file').selectFile({
       name: 'lichess.csv',
       bytes: [...new TextEncoder().encode(importFixture(1))],
