@@ -5,7 +5,8 @@ Feature: Keep a shared Custom Game through interruption
   Rule: A paused Custom Game between people preserves its time and has no winner
 
     Scenario: A pause cannot decide a timed Custom Game
-      Given Alice has an active Custom Game between Alice as White and Bob as Black
+      Given Alice has an active Custom Game with 1 minute and 0 seconds increment
+      And 20 seconds have passed in the Custom Game
       And White has 40 seconds and Black has 60 seconds in the Custom Game
       And the Custom Game's clocks are paused
       When 60 seconds pass
