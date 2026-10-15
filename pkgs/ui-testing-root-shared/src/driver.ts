@@ -2,7 +2,8 @@ import type { DriverKey } from './keys';
 
 export type ScrollDirection = 'up' | 'down' | 'left' | 'right';
 
-export type WaitState = 'visible' | 'hidden';
+/** Enabled means visible and neither disabled nor marked aria-disabled. */
+export type WaitState = 'visible' | 'hidden' | 'enabled';
 
 /**
  * Wait until the node shows (or contains) this text.

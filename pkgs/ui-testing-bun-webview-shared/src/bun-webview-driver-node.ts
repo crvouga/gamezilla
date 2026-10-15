@@ -4,6 +4,7 @@
  */
 
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
+import { controlIsEnabled } from '@pkgs/ui-testing-root-shared/control-is-enabled';
 import type {
   DriverNode,
   DriverWaitOptions,
@@ -348,7 +349,14 @@ export class BunWebviewDriverNode implements DriverNode {
               : text.trim() === state.text;
           }
           const visible = await this.isVisible();
-          return state === 'visible' ? visible : !visible;
+          if (state !== 'enabled')
+            return state === 'visible' ? visible : !visible;
+          if (!visible) return false;
+          const [disabled, ariaDisabled] = await Promise.all([
+            this.attribute('disabled'),
+            this.attribute('aria-disabled'),
+          ]);
+          return controlIsEnabled(disabled, ariaDisabled);
         },
         {
           timeoutMs,

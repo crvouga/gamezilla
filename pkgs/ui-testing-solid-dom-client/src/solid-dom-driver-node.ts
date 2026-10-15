@@ -1,4 +1,5 @@
 import type { Clock } from '@pkgs/clock-shared/types';
+import { controlIsEnabled } from '@pkgs/ui-testing-root-shared/control-is-enabled';
 import type {
   DriverNode,
   DriverWaitOptions,
@@ -143,7 +144,7 @@ export class SolidDomDriverNode implements DriverNode {
     const description =
       options?.description ?? `${state} ${formatTestIdPath(this.path)}`;
     await this.waitUntil(
-      () => (state === 'visible' ? this.visibleNow() : !this.visibleNow()),
+      () => this.matchesState(state),
       description,
       options?.timeoutMs
     );
@@ -166,6 +167,18 @@ export class SolidDomDriverNode implements DriverNode {
   async attribute(name: string): Promise<string | null> {
     await this.host.activate();
     return this.host.requireApp().getAttribute(this.requireElement(), name);
+  }
+
+  private matchesState(state: WaitState): boolean {
+    const visible = this.visibleNow();
+    if (state !== 'enabled') return state === 'visible' ? visible : !visible;
+    if (!visible) return false;
+    const app = this.host.requireApp();
+    const element = this.requireElement();
+    return controlIsEnabled(
+      app.getAttribute(element, 'disabled'),
+      app.getAttribute(element, 'aria-disabled')
+    );
   }
 
   private visibleNow(): boolean {

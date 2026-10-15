@@ -33,6 +33,9 @@ export async function dropConnectFourDisc(
       .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
   await ui
     .get(`connect-four-column-${column + 1}`)
+    .wait('enabled', { timeoutMs: JOURNEY_WAIT_MS });
+  await ui
+    .get(`connect-four-column-${column + 1}`)
     .tap({ timeoutMs: JOURNEY_WAIT_MS });
   await ui
     .get(`multiplayer-move-${ply}`)

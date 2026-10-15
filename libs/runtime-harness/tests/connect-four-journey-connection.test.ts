@@ -25,7 +25,9 @@ function pendingOpponent(): { ui: Driver; gestures: string[] } {
       clear: unused,
       key: unused,
       scroll: unused,
-      wait: unused,
+      wait: async () => {
+        gestures.push(`${id}:enabled`);
+      },
       isVisible: unused,
       text: unused,
       tap: async () => {
@@ -51,6 +53,38 @@ test('the third drop waits for the opponent second move before tapping', async (
   await dropConnectFourDisc(ui, 0, 3);
   expect(gestures).toEqual([
     'multiplayer-move-2',
+    'connect-four-column-1:enabled',
+    'connect-four-column-1',
+    'multiplayer-move-3',
+  ]);
+});
+
+test('visible history does not trigger a drop while its column is still disabled', async () => {
+  // regression: connect-four-journey-pending-column
+  const { ui, gestures } = pendingOpponent();
+  const get = ui.get.bind(ui);
+  let enabled = false;
+  ui.get = (id) => {
+    const node = get(id);
+    return {
+      ...node,
+      wait: async () => {
+        enabled = true;
+        gestures.push(`${id}:enabled`);
+      },
+      tap: async () => {
+        if (!enabled)
+          throw new Error(
+            'The column is visible but the turn is still pending'
+          );
+        await node.tap();
+      },
+    };
+  };
+  await dropConnectFourDisc(ui, 0, 3);
+  expect(gestures).toEqual([
+    'multiplayer-move-2',
+    'connect-four-column-1:enabled',
     'connect-four-column-1',
     'multiplayer-move-3',
   ]);

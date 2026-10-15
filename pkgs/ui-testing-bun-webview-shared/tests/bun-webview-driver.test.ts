@@ -50,6 +50,39 @@ function createFakeView(): BunWebView & {
 }
 
 describe('BunWebviewDriver', () => {
+  it('enabled waits for a visible control to clear its native disabled flag', async () => {
+    const view = createFakeView();
+    const fallback = view.evaluate.getMockImplementation();
+    let disabled = true;
+    let observe: (() => void) | undefined;
+    const observed = new Promise<void>((resolve) => {
+      observe = resolve;
+    });
+    view.evaluate.mockImplementation((script: string) => {
+      if (script.includes('getAttribute("disabled")')) {
+        const value = disabled ? '' : null;
+        observe!();
+        return Promise.resolve(value);
+      }
+      if (script.includes('getAttribute("aria-disabled")'))
+        return Promise.resolve(null);
+      return fallback?.(script);
+    });
+    const driver = new BunWebviewDriver({ view, timers });
+    let ready = false;
+    const waiting = driver
+      .get('pending')
+      .wait('enabled')
+      .then(() => {
+        ready = true;
+      });
+    await observed;
+    expect(ready).toBe(false);
+    disabled = false;
+    await waiting;
+    expect(ready).toBe(true);
+    expect(view.click).not.toHaveBeenCalled();
+  });
   it('does not repeat a delivered click after its page navigates', async () => {
     // regression: browser-tap-repeats-after-navigation
     const view = createFakeView();
