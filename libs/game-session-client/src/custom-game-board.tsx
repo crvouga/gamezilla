@@ -168,6 +168,7 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
     props.model.current()?.status === 'active' &&
     props.model.mySide() === props.model.current()?.turn &&
     props.model.canPlay() &&
+    !props.model.submitting() &&
     props.model.canSubmit();
   const presentation = useGamePresentation();
   const move = async (action: string): Promise<void> => {

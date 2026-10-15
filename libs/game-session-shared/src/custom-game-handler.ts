@@ -90,6 +90,11 @@ export function handleCustomGameChoice(
     );
   }
   if (game === null) return refuseCustomGame('no Custom Game');
+  if (
+    choice.operation === 'difficulty' &&
+    !rules.forPosition(game.fen).botDifficulties.includes(choice.difficulty)
+  )
+    return refuseCustomGame('difficulty not offered');
   const configured = configureCustomGame(game, choice, ctx.identity);
   const next = playCustomGameChoice(
     configured,

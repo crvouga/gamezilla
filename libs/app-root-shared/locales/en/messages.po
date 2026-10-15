@@ -812,6 +812,10 @@ msgstr "Choice reproduced"
 msgid "Choose"
 msgstr "Choose"
 
+#: libs/game-session-client/src/custom-game-error.tsx
+msgid "Choose a bot difficulty offered by this game."
+msgstr "Choose a bot difficulty offered by this game."
+
 #: libs/game-session-client/src/custom-game-side-choices.tsx
 msgid "Choose a person"
 msgstr "Choose a person"
@@ -3400,6 +3404,10 @@ msgstr "Select style…"
 #: pkgs/ui-root-client/src/picker.tsx
 msgid "Select…"
 msgstr "Select…"
+
+#: libs/game-session-client/src/custom-game-status.tsx
+msgid "Sending choice…"
+msgstr "Sending choice…"
 
 #: libs/auth-client/src/use-email-sign-in.tsx
 #: libs/friends-client/src/friend-action-status-renderers.tsx

@@ -42,6 +42,7 @@ function result(board: Chess): Pick<PlayedPosition, 'winner' | 'reason'> {
   return { winner: null, reason: null };
 }
 export const chessRules: GameRules = {
+  botDifficulties: [],
   id: 'chess',
   recognizes: (position) => validateFen(position).ok,
   initial: () => DEFAULT_POSITION,

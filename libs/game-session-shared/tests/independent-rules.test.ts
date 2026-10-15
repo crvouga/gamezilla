@@ -14,6 +14,7 @@ import type { GameRules } from '@pkgs/turn-game-shared/game-rules';
 
 /** A counting race exercises opaque actions and positions unrelated to a board. */
 const rules: GameRules = {
+  botDifficulties: [],
   id: 'counting-race',
   recognizes: (position) => /^race:[0-4]$/.test(position),
   initial: () => 'race:0',
@@ -59,7 +60,7 @@ test('an unrelated game uses the same configuration, bot turns, completion and r
     ...SpaceMembersRoomAttr.seats({ alice: { joinedAt: '2026-10-15' } }),
   };
   let sequence = 0;
-  const change = (input: Record<string, unknown>) => {
+  const change = (input: Record<string, unknown>, accepted = true) => {
     const game = CustomGamesAttr.from(state).current;
     const result = module.handle(
       state,
@@ -74,13 +75,17 @@ test('an unrelated game uses the same configuration, bot turns, completion and r
       },
       'alice'
     );
-    expect(result.ok).toBe(true);
+    expect(result.ok).toBe(accepted);
     if (result.ok)
       for (const event of result.events) state = module.reduce(state, event);
   };
   change({ operation: 'create' });
   change({ operation: 'bot', side: 'white' });
   change({ operation: 'bot', side: 'black' });
+  // regression: game-session-cosmetic-difficulty
+  const beforeDifficulty = CustomGamesAttr.from(state).current;
+  change({ operation: 'difficulty', side: 'white', difficulty: 'hard' }, false);
+  expect(CustomGamesAttr.from(state).current).toEqual(beforeDifficulty);
   change({ operation: 'start' });
   for (let ply = 0; ply < 4; ply++) {
     const game = CustomGamesAttr.from(state).current!;

@@ -115,6 +115,7 @@ export function useCustomGameScreen(
     attempt: command.send,
     error: command.error,
     settled: command.settled,
+    submitting: command.submitting,
     mySide: createMemo(() => {
       const game = current();
       return game === null ? null : customGamePersonSide(game, myId());

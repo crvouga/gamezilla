@@ -17,6 +17,7 @@ function errorText(reason: string): string {
     finished: t`This game is finished.`,
     cancelled: t`This game is cancelled.`,
     'invalid time choice': t`Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60.`,
+    'difficulty not offered': t`Choose a bot difficulty offered by this game.`,
     'move is illegal': t`That move is not legal in this position.`,
     'only the participant to move may play': t`Only the participant whose turn it is can move.`,
     'not your invitation': t`That invitation is no longer yours to accept or decline.`,

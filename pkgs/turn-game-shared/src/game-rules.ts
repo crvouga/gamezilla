@@ -31,6 +31,7 @@ export type GameRecordMetadata = {
 };
 /** Rules and codecs supplied by a game. The host treats positions and actions as opaque. */
 export type GameRules = {
+  readonly botDifficulties: readonly BotDifficulty[];
   readonly id: string;
   readonly recognizes: (position: string) => boolean;
   readonly initial: () => string;

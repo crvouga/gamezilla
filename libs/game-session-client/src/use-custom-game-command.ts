@@ -34,6 +34,7 @@ export function useCustomGameCommand() {
   const engine = useSyncEngine();
   const [error, setError] = createSignal('');
   const [settled, setSettled] = createSignal(0);
+  const [submitting, setSubmitting] = createSignal(false);
   const pending = new Set<() => void>();
   onCleanup(() => {
     for (const cancel of pending) cancel();
@@ -64,6 +65,7 @@ export function useCustomGameCommand() {
       throw new Error(reason);
     }
     try {
+      setSubmitting(true);
       await confirmCustomGameChoice(
         {
           room: rooms.getEntry(spaceId() ?? '')?.room,
@@ -78,8 +80,9 @@ export function useCustomGameCommand() {
       setError(cause instanceof Error ? cause.message : 'choice failed');
       throw cause;
     } finally {
+      setSubmitting(false);
       setSettled((value) => value + 1);
     }
   };
-  return { send, error, settled };
+  return { send, error, settled, submitting };
 }

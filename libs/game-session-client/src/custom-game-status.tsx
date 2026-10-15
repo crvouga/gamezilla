@@ -208,6 +208,11 @@ export function CustomGameStatus(props: {
               {gameStateDescription(game(), presentation(game().fen))}
             </>
           }
+          detail={
+            props.model.submitting() ? (
+              <Trans>Sending choice…</Trans>
+            ) : undefined
+          }
           trailing={
             <div class="flex items-center gap-2">
               <Badge

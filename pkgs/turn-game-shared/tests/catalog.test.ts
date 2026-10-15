@@ -6,6 +6,7 @@ import {
 } from '@pkgs/turn-game-shared/game-rules';
 
 const game: GameRules = {
+  botDifficulties: [],
   id: 'counter',
   recognizes: (position) => position.startsWith('counter:'),
   initial: () => 'counter:0',

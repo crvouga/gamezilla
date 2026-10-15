@@ -7,8 +7,9 @@ import {
   newConnectFour,
   replayConnectFour,
 } from './connect-four';
-import { chooseConnectFourColumn } from './connect-four-bot';
+import { BOT_DIFFICULTIES, chooseConnectFourColumn } from './connect-four-bot';
 export const connectFourRules: GameRules = {
+  botDifficulties: BOT_DIFFICULTIES,
   id: 'connect-four',
   recognizes: (position) => position.startsWith('c4:'),
   initial: () => encodeConnectFour(newConnectFour()),

@@ -1,5 +1,6 @@
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { Trans } from '@lingui/solid/macro';
+import { useTurnGames } from '@pkgs/turn-game-client/turn-games-context';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
 import { GameActions } from '@pkgs/ui-root-client/game-section';
 import { For, type JSX, Show } from 'solid-js';
@@ -8,9 +9,15 @@ export function CustomGameDifficulty(props: {
   model: CustomGameScreenModel;
   side: CustomGameSide;
 }): JSX.Element {
+  const rules = useTurnGames();
+  const difficulties = () => {
+    const game = props.model.current();
+    return game === null ? [] : rules.forPosition(game.fen).botDifficulties;
+  };
   return (
     <Show
       when={
+        difficulties().length > 0 &&
         props.model.canBot() &&
         props.model.current()?.[props.side].kind === 'bot'
       }
@@ -19,7 +26,7 @@ export function CustomGameDifficulty(props: {
         <Trans>Bot difficulty</Trans>
       </p>
       <GameActions>
-        <For each={['easy', 'medium', 'hard'] as const}>
+        <For each={difficulties()}>
           {(difficulty) => (
             <GameActionButton
               title={
