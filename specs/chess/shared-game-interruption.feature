@@ -68,8 +68,9 @@ Feature: Keep the same shared game while its clocks are paused
 
     Scenario: A paused unfinished game is not offered as a finished game record
       Given Alice and Bob have a 5+0 multiplayer game after e4 and e5 with their multiplayer clocks paused
-      When Alice opens the multiplayer game record
-      Then Alice is told the multiplayer game is still unfinished
+      When Alice opens multiplayer chess
+      Then Alice is not offered the game record or the final position
+      And the multiplayer game is still unfinished
       And neither person's blitz rating has moved
 
   Rule: A resumed game records and rates only its eventual result

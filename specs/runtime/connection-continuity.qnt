@@ -53,8 +53,8 @@ module connection_continuity {
   action putAsideChoice: bool = all {
     choiceOpen, _show(place, false, choiceUnfinished, choiceConfirmed, _online, _available, _refused, _accepted),
   }
-  /// Closing and reopening keeps the place, preference and known outcome.
-  action reopen: bool = _show(place, false, choiceUnfinished, choiceConfirmed, _online, _available, _refused, _accepted)
+  /// Closing and reopening keeps the place, preference, open choice and known outcome.
+  action reopen: bool = _show(place, choiceOpen, choiceUnfinished, choiceConfirmed, _online, _available, _refused, _accepted)
   /// One device loses its connection independently of shared availability.
   action cutOff: bool = all {
     _online, _show(place, choiceOpen, choiceUnfinished, choiceConfirmed, false, _available, _refused, _accepted),
@@ -74,7 +74,7 @@ module connection_continuity {
   /// Checking machinery: the choice receives an accepted answer while it remains usable.
   action _choiceAccepted = all {
     choiceUnfinished, _online, _available, not(_refused),
-    _show(place, choiceOpen, false, true, _online, _available, false, true),
+    _show(place, false, false, true, _online, _available, false, true),
   }
   /// Checking machinery: the person receives a refusal before acceptance, with a clear reason.
   action _choiceRefused = all {
@@ -89,7 +89,7 @@ module connection_continuity {
   /// Checking machinery: the accepted choice is finally confirmed after return.
   action _choiceOutcomeKnown = all {
     choiceUnfinished, _online, _available, _accepted,
-    _show(place, choiceOpen, false, true, _online, _available, false, true),
+    _show(place, false, false, true, _online, _available, false, true),
   }
   action step = {
     nondet tab = Set("spaces", "profile").oneOf()
