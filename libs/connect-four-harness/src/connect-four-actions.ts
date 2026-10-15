@@ -10,7 +10,11 @@ import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
 import { backToTabs } from '@libs/harness/shell-actions';
-import { createSpace, joinViaLink } from '@libs/spaces-harness/space-actions';
+import {
+  createSpace,
+  joinFromPrompt,
+  openSpaceLink,
+} from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 
 export async function openConnectFour(
@@ -90,7 +94,9 @@ export const establishConnectFour = scenarioAction({
     if (link === null) throw new Error('Connect Four host has no space');
     await openConnectFour(s, host);
     for (const person of people.filter((p) => p !== host)) {
-      await Promise.resolve(joinViaLink.act(s, person, link));
+      // regression: connect-four-fixture-before-space-join
+      await Promise.resolve(openSpaceLink.act(s, person, link));
+      await Promise.resolve(joinFromPrompt.act(s, person));
       await openConnectFour(s, person);
     }
     await configureCustomGame(s, host, { operation: 'create' });

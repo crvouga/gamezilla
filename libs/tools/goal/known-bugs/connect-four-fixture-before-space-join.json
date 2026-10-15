@@ -1,0 +1,4 @@
+{
+  "summary": "The Connect Four setup looked for game controls before the remote person had joined the space. Join through the existing prompt action which awaits the join control.",
+  "regressionTest": "specs/connect-four/connect-four-accessibility.feature"
+}
