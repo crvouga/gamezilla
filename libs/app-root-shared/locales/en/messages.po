@@ -193,6 +193,14 @@ msgstr "{hours} hours"
 msgid "{hours}h ago"
 msgstr "{hours}h ago"
 
+#: libs/game-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "{label} has {left} left"
+msgstr "{label} has {left} left"
+
+#: libs/game-matchmaking-client/src/multiplayer-clocks.tsx
+msgid "{label} has {left} left and is low on time"
+msgstr "{label} has {left} left and is low on time"
+
 #: libs/spaces-client/src/space-join-ended-state.tsx
 msgid "{label}, hosted by {username}"
 msgstr "{label}, hosted by {username}"
@@ -629,14 +637,6 @@ msgstr "Bishop"
 msgid "Black"
 msgstr "Black"
 
-#: libs/game-matchmaking-client/src/multiplayer-clocks.tsx
-msgid "Black has {left} left"
-msgstr "Black has {left} left"
-
-#: libs/game-matchmaking-client/src/multiplayer-clocks.tsx
-msgid "Black has {left} left and is low on time"
-msgstr "Black has {left} left and is low on time"
-
 #: libs/game-matchmaking-client/src/speed-name.tsx
 msgid "Blitz"
 msgstr "Blitz"
@@ -653,7 +653,7 @@ msgstr "Block this user?"
 #: libs/game-session-client/src/custom-game-person.tsx
 #: libs/game-session-client/src/custom-game-side-choices.tsx
 #: libs/game-session-client/src/custom-game-status.tsx
-#: libs/game-session-client/src/game-history.tsx
+#: libs/game-session-client/src/game-history-participant.tsx
 #: libs/profile-client/src/account-automation-label.tsx
 msgid "Bot"
 msgstr "Bot"
@@ -2465,6 +2465,10 @@ msgstr "No one added yet"
 #: libs/spaces-client/src/space-members-list-modal.tsx
 msgid "No one connected yet"
 msgstr "No one connected yet"
+
+#: libs/game-session-client/src/game-history-participant.tsx
+msgid "No participant"
+msgstr "No participant"
 
 #: libs/spaces-client/src/space-share-add-people.tsx
 msgid "No people found"
@@ -4461,14 +4465,6 @@ msgstr "What Plus includes"
 #: libs/chess-root-client/src/chess-game-presentation.tsx
 msgid "White"
 msgstr "White"
-
-#: libs/game-matchmaking-client/src/multiplayer-clocks.tsx
-msgid "White has {left} left"
-msgstr "White has {left} left"
-
-#: libs/game-matchmaking-client/src/multiplayer-clocks.tsx
-msgid "White has {left} left and is low on time"
-msgstr "White has {left} left and is low on time"
 
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "White vs Black — play, invite or watch"
