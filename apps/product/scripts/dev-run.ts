@@ -31,8 +31,8 @@ process.exit(
     [
       'run',
       '@apps/product#dev',
-      // A failed preflight or service stays visible; the rest keep running.
-      '--continue',
+      // A failed service must release the boot; a partial stack is not reusable.
+      '--continue=never',
       // Tasks see the developer's own environment, as the stack always has.
       '--env-mode=loose',
       `--concurrency=${String(TASK_SLOTS)}`,
