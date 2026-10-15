@@ -58,6 +58,7 @@ test(
 test(
   'fair completion holds across the entire finite state graph',
   async () => {
+    // regression: tlc-ignores-runner-resources
     const result = await verifyTemporal({
       specPath: join(FIXTURES, 'progress.qnt'),
       properties: ['liveCompletion'],
@@ -66,6 +67,13 @@ test(
     });
     expect(result).toMatchObject({ ok: true });
     if (result.ok) expect(result.statesExplored).toBeGreaterThan(0);
+    const output = readFileSync(join(OUT, 'progress/tlc-output.txt'), 'utf8');
+    expect(output).toContain('with 2 workers');
+    // The collector reserves part of -Xmx; TLC reports the usable heap.
+    expect(Number(output.match(/with (\d+)MB heap/)?.[1])).toBeGreaterThan(
+      1500
+    );
+    expect(output).not.toContain('Please run the Java VM');
   },
   TIMEOUT_MS
 );

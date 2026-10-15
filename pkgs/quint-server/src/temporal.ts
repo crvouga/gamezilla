@@ -62,7 +62,7 @@ export async function verifyTemporal(
   const config = join(options.outDir, 'tlc-config.json');
   writeFileSync(
     config,
-    JSON.stringify({ maxHeap: '-Xmx512m', stackSize: '-Xss8m', workers: 1 })
+    JSON.stringify({ maxHeap: '-Xmx2048m', stackSize: '-Xss8m', workers: 2 })
   );
   const elapsed = wallStopwatch();
   const deadlineMs = verifyDeadlineMs(options.timeoutMs);
@@ -71,7 +71,13 @@ export async function verifyTemporal(
     args: temporalArgs(options, config, port),
     cwd: options.outDir,
     env: verifyEnv({
-      env: process.env,
+      // TLC is launched directly by Quint, so Apalache's JVM_GC_ARGS never
+      // reaches it. Use the throughput collector for the complete graph.
+      env: {
+        ...process.env,
+        JVM_GC_ARGS: '-XX:+UseParallelGC -Xmx2048m -Xms512m',
+        JAVA_TOOL_OPTIONS: `${process.env['JAVA_TOOL_OPTIONS'] ?? ''} -XX:+UseParallelGC`,
+      },
       quintHome: linkQuintHome(options.outDir, pinned.home),
     }),
     timeoutMs: deadlineMs,
