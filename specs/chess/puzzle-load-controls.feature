@@ -8,7 +8,7 @@ Feature: Stop adding puzzles
     Scenario: Stopping keeps the puzzles already added
       Given Alice is on the team for this environment
       And this environment has added some puzzles and is adding more
-      When Alice stops adding puzzles to this environment
+      When Alice tries to stop adding puzzles to this environment
       Then Alice sees that this environment stopped adding puzzles
       And the puzzles already added remain available to solvers
 
@@ -16,7 +16,7 @@ Feature: Stop adding puzzles
       Given Alice is signed in and not on the team for this environment
       And this environment is adding puzzles
       When Alice tries to stop adding puzzles to this environment
-      Then Alice is told only the team can stop adding puzzles
+      Then Alice is told only the team can add or stop adding puzzles
       And this environment is still adding puzzles
 
   Rule: Stopping is offered only while puzzles are being added
