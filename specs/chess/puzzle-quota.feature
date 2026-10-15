@@ -65,6 +65,7 @@ Feature: The daily rated puzzle allowance
   Rule: The remaining daily allowance is visible while solving
     No counter-example: A limited allowance always tells the solver how many rated puzzles remain today.
 
+    @regression:puzzle-allowance-read-before-start-settles
     Scenario: Starting a puzzle shows the remaining allowance
       Given Alice is a guest
       And Alice is hosting a space
