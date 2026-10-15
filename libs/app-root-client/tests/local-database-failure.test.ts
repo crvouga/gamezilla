@@ -142,6 +142,32 @@ async function seedExtra(client: SqlClient): Promise<void> {
   );
 }
 
+// regression: injected-sql-accelerates-query-reconciliation
+test('an injected database keeps the production query refresh cadence', async () => {
+  let requests = 0;
+  const w = world(openMockingbird, {
+    loadApp: () => Promise.resolve({ ...app, sessionQueries: ['probe'] }),
+    fetchFn: () => {
+      requests++;
+      return Promise.resolve(
+        Response.json({ responses: [{ status: 'not_modified' }] })
+      );
+    },
+  });
+  const engine = await boot(w);
+  w.clock.clock.advance(0);
+  await engine.waitForFirstSync();
+  const initial = requests;
+  for (let tick = 0; tick < 59; tick++) {
+    w.clock.clock.advance(500);
+    for (let turn = 0; turn < 100; turn++) await Promise.resolve();
+  }
+  expect(requests).toBe(initial);
+  w.clock.clock.advance(500);
+  await settles(() => requests > initial);
+  expect(requests).toBe(initial + 1);
+});
+
 // regression: local-sqlite-failure-stops-boot
 describe('a database that cannot be opened', () => {
   test('boots on a disposable database', async () => {
