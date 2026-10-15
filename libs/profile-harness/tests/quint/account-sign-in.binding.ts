@@ -41,6 +41,8 @@ import type { QuintValue } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
+import linkedPeer from './fixtures/linked-provider-peer-cache-stale.itf.json';
+
 const DEVICES = ['alice', 'bob'] as const;
 
 /** Whose outside accounts every device signs in with. */
@@ -122,6 +124,16 @@ bindQuintModel<QuintHarnessWorld>({
   traces: 8,
   maxSteps: 20,
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: linked-provider-peer-cache-stale
+      id: 'linked-provider-peer-cache-stale',
+      title:
+        'A signed-in peer learns the sign-in method linked from another device',
+      seed: '0x67932',
+      itf: linkedPeer,
+    },
+  ],
   actions: {
     init: async (w) => {
       for (const device of DEVICES) await w.s.apply(focusActor, device);

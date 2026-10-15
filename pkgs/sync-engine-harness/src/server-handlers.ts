@@ -164,7 +164,7 @@ async function notifyApplied(args: {
   if (args.ctx.shouldFailPublish?.() === true) {
     return checkpoints;
   }
-  publishPushMessages({
+  await publishPushMessages({
     pubsub: args.ctx.pubsub,
     pushSeqs: checkpoints,
     // After the replay commit — orders this push above any snapshot that was

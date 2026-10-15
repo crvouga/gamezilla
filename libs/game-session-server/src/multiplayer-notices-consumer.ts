@@ -138,7 +138,6 @@ export function registerMultiplayerNoticeActions(): void {
       );
       await notifyUserChannels([ctx.actorId], 'chess-multiplayer-notices', {
         tables: ['notifications'],
-        deferPublish: false,
       });
     }
   );

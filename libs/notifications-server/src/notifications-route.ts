@@ -62,7 +62,6 @@ function lazyRequestContext() {
     inboxChanged: () =>
       notifyUserChannels([actor.accountId], 'notifications-inbox', {
         tables: ['notifications'],
-        deferPublish: false,
       }),
   };
 }

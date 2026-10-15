@@ -54,8 +54,7 @@ function registerFriendsInboxActions(): void {
     // refetch friendships / requests. Omit `tables` so every active scope wakes.
     await notifyUserChannels(
       result.userIds,
-      `friends-notifications:${ctx.actionId}`,
-      { deferPublish: false }
+      `friends-notifications:${ctx.actionId}`
     );
   });
 }
