@@ -76,9 +76,9 @@ module connection_continuity {
     choiceUnfinished, _online, _available, not(_refused),
     _show(place, choiceOpen, false, true, _online, _available, false, true),
   }
-  /// Checking machinery: the choice is refused before acceptance, with a clear reason.
+  /// Checking machinery: the person receives a refusal before acceptance, with a clear reason.
   action _choiceRefused = all {
-    choiceUnfinished, not(_accepted),
+    choiceUnfinished, _online, _available, not(_accepted),
     _show(place, choiceOpen, false, false, _online, _available, true, false),
   }
   /// Checking machinery: an already-issued choice counts but its answer is not heard.
