@@ -10949,6 +10949,8 @@
                       "specs/chess/lichess-file-checking.feature",
                       "specs/chess/lichess-file-saving.feature",
                       "specs/chess/lichess-file-preparation.qnt",
+                      "specs/chess/lichess-file-leaving.feature",
+                      "specs/chess/lichess-file-leaving.qnt",
                       "specs/chess/puzzle-source.qnt",
                       "specs/chess/puzzle-ingest.feature",
                       "specs/chess/puzzle-load-controls.feature",
