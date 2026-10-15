@@ -82,3 +82,6 @@ terms:
     from: chess
   - term: Custom Game move list
     from: chess
+
+  - term: Connect Four
+    from: connect-four
