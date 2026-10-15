@@ -16,7 +16,7 @@ Feature: Find the saved Lichess file
     Scenario: Checking a previously seen file waits before offering to add puzzles
       Given Alice is on the team for this environment
       And Alice has seen the saved Lichess file
-      And Alice is checking the saved Lichess file again
+      And Alice is checking for the saved Lichess file
       When Alice follows adding puzzles to this environment
       Then Alice still sees the same saved Lichess file
       And Alice is told the saved Lichess file is being checked
@@ -64,6 +64,14 @@ Feature: Find the saved Lichess file
       Then Alice is told the saved Lichess file could not be checked
       And Alice is offered to check for the saved Lichess file again
       And Alice is not asked to provide a Lichess file
+
+    Scenario: Finding the saved file replaces an earlier first-file choice
+      Given Alice is on the team for this environment
+      And Alice has chosen the first Lichess file
+      And the team has since saved a Lichess file in another environment
+      When Alice checks for the saved Lichess file again
+      Then Alice is offered the Lichess file already saved by the team
+      And Alice is not offered to save another Lichess file
 
     Scenario: A failed later check keeps the file the team already saw
       Given Alice is on the team for this environment

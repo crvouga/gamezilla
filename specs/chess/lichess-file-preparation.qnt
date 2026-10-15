@@ -35,10 +35,11 @@ module lichess_file_preparation {
     lichessFile' = _choices({ ...lichessFile, check: "checking" }), _saved' = _saved, _keepEnvironment,
   }
 
-  /// A completed check offers the existing file or the first-file choice.
+  /// A completed check offers the existing file instead of an earlier first-file choice.
   action finishCheckingLichessFile = all {
     online, lichessFile.check == "checking",
-    lichessFile' = _choices({ ...lichessFile, check: "known", available: _saved }), _saved' = _saved, _keepEnvironment,
+    lichessFile' = _choices({ ...lichessFile, check: "known", available: _saved, chosen: if (_saved) false else lichessFile.chosen,
+      save: if (_saved) "idle" else lichessFile.save }), _saved' = _saved, _keepEnvironment,
   }
 
   /// A failed check preserves the last file seen and offers checking again.
