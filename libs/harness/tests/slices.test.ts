@@ -32,6 +32,7 @@ async function unexpectedRoomService(): Promise<never> {
 }
 
 const rooms = {
+  setAvailability: unexpectedRoomService,
   read: unexpectedRoomService,
   send: unexpectedRoomService,
   disconnect: unexpectedRoomService,

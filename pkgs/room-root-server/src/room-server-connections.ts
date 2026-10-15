@@ -2,7 +2,7 @@ import {
   type RoomConnection,
   rejectedFrame,
 } from '@pkgs/room-root-shared/room-server-types';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
+import { ROOM_ERROR_TYPE, type RoomActor } from '@pkgs/room-root-shared/types';
 
 export function hasAuthority(
   connections: ReadonlyMap<string, RoomConnection>
@@ -57,4 +57,13 @@ export function refuseConnectionCommand(
     rejectedFrame(commandId, { type: ROOM_ERROR_TYPE.unauthorized, reason })
   );
   return true;
+}
+
+export function participatingRoster(
+  connections: ReadonlyMap<string, RoomConnection>
+): readonly RoomActor[] {
+  const authority = hasAuthority(connections);
+  return [...connections.values()]
+    .filter((connection) => participates(connection, authority))
+    .map((connection) => connection.actor);
 }

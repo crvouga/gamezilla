@@ -21,6 +21,17 @@ import {
   ROOM_ERROR_TYPE,
 } from '@pkgs/room-root-shared/types';
 
+import {
+  blackMsAttr,
+  ClockAvailabilityChanged,
+  clockAvailability,
+  clocksPausedAttr,
+  isNonNegInt,
+  reduceClockAvailability,
+  turnStartedAtAttr,
+  whiteMsAttr,
+} from './game-room-clock';
+
 /**
  * The example app every test of the room framework drives: a game room
  * friends share. It keeps
@@ -66,10 +77,6 @@ function isInt(v: unknown): v is number {
   return typeof v === 'number' && Number.isInteger(v);
 }
 
-function isNonNegInt(v: unknown): v is number {
-  return isInt(v) && v >= 0;
-}
-
 function isPlayer(v: unknown): v is Player {
   return v === 'white' || v === 'black';
 }
@@ -97,15 +104,6 @@ const matchStatusAttr = ns.text('match-status', (v): string =>
 );
 const playerToMoveAttr = ns.text('player-to-move', (v): string =>
   isPlayer(v) ? v : 'white'
-);
-const whiteMsAttr = ns.integer('white-ms', (v): number =>
-  isNonNegInt(v) ? v : 0
-);
-const blackMsAttr = ns.integer('black-ms', (v): number =>
-  isNonNegInt(v) ? v : 0
-);
-const turnStartedAtAttr = ns.integer('turn-started-at', (v): number =>
-  isNonNegInt(v) ? v : 0
 );
 const winnerAttr = ns.textOrNull('winner', (v): string | null =>
   isPlayer(v) ? v : null
@@ -248,6 +246,8 @@ function handleMatch(
     };
   }
   if (!Move.is(msg) && !ClaimOutOfTime.is(msg)) return null;
+  if (clocksPausedAttr.from(state) === 1)
+    return conflict('the match is temporarily unavailable');
   if (status !== MATCH_STATUS.playing) {
     return conflict(`match is ${status}`);
   }
@@ -291,18 +291,36 @@ function handleMatch(
   };
 }
 
+function recoverMatchEffects(state: RoomState) {
+  if (clocksPausedAttr.from(state) === 1)
+    return [CancelScheduleEffect({ id: RAN_OUT_OF_TIME_SCHEDULE_ID })];
+  const status = matchStatusAttr.from(state);
+  if (status === MATCH_STATUS.notStarted) return [];
+  if (status === MATCH_STATUS.over)
+    return [CancelScheduleEffect({ id: RAN_OUT_OF_TIME_SCHEDULE_ID })];
+  const player = playerToMoveAttr.from(state) as Player;
+  return armRanOutOfTime(
+    player,
+    turnStartedAtAttr.from(state) + bankOf(state, player)
+  );
+}
+
 export const gameRoomModule: RoomModule<RoomState, Message, Message, string> = {
   name: assertRoomModuleName('game-room'),
-  recoverEffects(state) {
-    const status = matchStatusAttr.from(state);
-    if (status === MATCH_STATUS.notStarted) return [];
-    if (status === MATCH_STATUS.over)
-      return [CancelScheduleEffect({ id: RAN_OUT_OF_TIME_SCHEDULE_ID })];
-    const player = playerToMoveAttr.from(state) as Player;
-    return armRanOutOfTime(
-      player,
-      turnStartedAtAttr.from(state) + bankOf(state, player)
+  recoverEffects: recoverMatchEffects,
+  availabilityChange(state, available, now) {
+    if (matchStatusAttr.from(state) !== MATCH_STATUS.playing) return null;
+    const event = clockAvailability(
+      state,
+      available,
+      now,
+      readPlayerToMove(state)
     );
+    if (event === null) return null;
+    return {
+      events: [event],
+      effects: recoverMatchEffects(reduceClockAvailability(state, event)),
+    };
   },
   initialState(): RoomState {
     return {
@@ -314,6 +332,7 @@ export const gameRoomModule: RoomModule<RoomState, Message, Message, string> = {
       ...whiteMsAttr(0),
       ...blackMsAttr(0),
       ...turnStartedAtAttr(0),
+      ...clocksPausedAttr(0),
       ...winnerAttr(null),
     };
   },
@@ -342,6 +361,8 @@ export const gameRoomModule: RoomModule<RoomState, Message, Message, string> = {
   },
 
   reduce(state: RoomState, event: Message): RoomState {
+    if (ClockAvailabilityChanged.is(event))
+      return reduceClockAvailability(state, event);
     if (TallyChanged.is(event)) {
       return {
         ...state,
@@ -433,10 +454,22 @@ export function readTimeLeftSeconds(
   const status = readMatchStatus(state);
   const toMove = readPlayerToMove(state);
   const bank = bankOf(state, player);
-  if (player !== toMove || status === MATCH_STATUS.notStarted) {
+  if (
+    clocksPausedAttr.from(state) === 1 ||
+    player !== toMove ||
+    status === MATCH_STATUS.notStarted
+  ) {
     return Math.ceil(bank / 1000);
   }
   if (status === MATCH_STATUS.over) return 0;
   const left = bank - (now - turnStartedAtAttr.from(state));
   return Math.max(0, Math.ceil(left / 1000));
+}
+
+/** Whether the host has paused the shared match independently of its players. */
+export function readClocksPaused(state: RoomState): boolean {
+  return (
+    clocksPausedAttr.from(state) === 1 &&
+    readMatchStatus(state) === MATCH_STATUS.playing
+  );
 }

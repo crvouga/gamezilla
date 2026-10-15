@@ -154,4 +154,13 @@ export type RoomModule<
    * injected as `ROOM_PRESENCE_IDENTITY` (`@pkgs/room-root-shared/builtin`).
    */
   presenceCommand?(state: S, present: readonly string[]): C | null;
+  /** Host availability is independent of connected participants. */
+  availabilityChange?(
+    state: S,
+    available: boolean,
+    now: number
+  ): {
+    events: E[];
+    effects?: readonly RoomEffect[];
+  } | null;
 };

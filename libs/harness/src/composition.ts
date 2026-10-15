@@ -134,6 +134,7 @@ export function noRoomNode(compositionName: string): HarnessRoomNode {
   };
   return {
     services: {
+      setAvailability: absent,
       read: absent,
       send: absent,
       eraseIdentity: absent,

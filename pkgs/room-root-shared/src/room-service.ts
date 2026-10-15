@@ -4,6 +4,7 @@ import type { RoomState } from './types';
 /** An injected service binding to authoritative rooms, never a client API. */
 export type RoomServicePort = {
   read(topic: string): Promise<RoomState>;
+  setAvailability(topic: string, available: boolean): Promise<void>;
   send(topic: string, commandId: string, payload: Message): Promise<void>;
   disconnect(topic: string, identity: string | null): Promise<void>;
   eraseIdentity(
