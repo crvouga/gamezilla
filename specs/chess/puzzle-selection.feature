@@ -9,7 +9,7 @@ Feature: Choosing the next puzzle
       Given Alice is signed in
       And Alice is hosting a space
 
-    @regression:puzzle-selection-status-probe-missing
+    @regression:puzzle-board-read-before-selection-settles
     Scenario: A puzzle exactly at the quality bar is served
       Given the puzzle pool holds just one puzzle, with a popularity of 50, played 5 times
       When Alice opens puzzles in their space
