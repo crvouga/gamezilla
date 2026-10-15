@@ -109,10 +109,11 @@ Feature: Save the first Lichess file
       Then Alice is offered to add puzzles from the saved Lichess file
       And this environment is not adding puzzles
 
+    @regression:lichess-file-offline-save
     Scenario: Losing the connection leaves an unfinished save unavailable
       Given Alice is on the team for this environment
       And Alice is saving the first Lichess file
-      When Alice goes offline
+      When Alice loses the connection
       Then Alice is told the Lichess file could not finish saving without a connection
       And this environment is not adding puzzles
 

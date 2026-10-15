@@ -1,6 +1,6 @@
 // The team checks for the shared Lichess file before providing the first one.
 // Checking and saving can take time, fail, be tried again or be stopped.
-// An offline device keeps the last file it saw; it cannot check or finish saving.
+// An offline view keeps the last file it saw; reopening starts a fresh check.
 module lichess_file_preparation {
   type LichessFile = { check: str, save: str, chosen: bool, available: bool, confirmingStop: bool, needsFile: bool }
   /// The file, choices and progress the team can see.
@@ -99,11 +99,11 @@ module lichess_file_preparation {
     online' = online, _availableWhenOffline' = _availableWhenOffline,
   }
 
-  /// Leaving an unfinished save stops it; returning checks what was completed.
+  /// Leaving stops an unfinished save; returning checks before showing the saved file.
   action returnToLichessFile = all {
     lichessFile' = _choices({ check: if (online) "checking" else "offline", save: "idle", chosen: false,
-      available: lichessFile.available, confirmingStop: false, needsFile: false }),
-    _saved' = _saved, _keepEnvironment,
+      available: false, confirmingStop: false, needsFile: false }),
+    _saved' = _saved, addingPuzzles' = addingPuzzles, online' = online, _availableWhenOffline' = false,
   }
 
   action loseConnection = all {
@@ -138,6 +138,6 @@ module lichess_file_preparation {
     lichessFile.available implies _saved, addingPuzzles implies _saved,
     lichessFile.save == "saving" implies all { lichessFile.chosen, not(lichessFile.available) },
   }
-  /// Losing the connection keeps the last complete file the person saw.
+  /// Losing the connection keeps the last complete file in the current view.
   val invOfflineFileAvailabilityPreserved = not(online) implies lichessFile.available == _availableWhenOffline
 }
