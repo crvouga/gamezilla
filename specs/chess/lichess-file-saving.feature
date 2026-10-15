@@ -28,6 +28,8 @@ Feature: Save the first Lichess file
       Then Alice can see that the Lichess file is being saved
       And Alice is not offered to choose another Lichess file
       And Alice is not offered to add puzzles
+      And Alice is not offered to save a Lichess file
+      And Alice is not offered to check for the saved Lichess file again
 
     Scenario: An unfinished file cannot supply another environment
       Given Alice is on the team for this environment

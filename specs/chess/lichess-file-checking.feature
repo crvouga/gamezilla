@@ -21,6 +21,7 @@ Feature: Find the saved Lichess file
       Then Alice still sees the same saved Lichess file
       And Alice is told the saved Lichess file is being checked
       And Alice is not offered to add puzzles
+      And Alice is not offered to check for the saved Lichess file again
 
     Scenario: An unfinished check does not ask the team for another file
       Given Alice is on the team for this environment
@@ -29,6 +30,7 @@ Feature: Find the saved Lichess file
       Then Alice is told the saved Lichess file is being checked
       And Alice is not asked to provide a Lichess file
       And Alice is not offered to add puzzles
+      And Alice is not offered to check for the saved Lichess file again
 
     Scenario: A failed check explains the failure without asking for another file
       Given Alice is on the team for this environment
