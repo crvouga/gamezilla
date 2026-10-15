@@ -297,6 +297,7 @@ function createServerRouter(args: {
         protection,
         clock: env.clock,
         timers: env.timers,
+        http: { fetch: env.fetch },
         createId: env.createId,
         desiredClientConfig,
         openSqlClient: env.openSqlClient,

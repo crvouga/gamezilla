@@ -93,7 +93,7 @@ import { killProcessTree } from './kill-process-tree';
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import { solverSlots } from './solver-slots';
-import { MAX_MODEL_PARTS } from './spec-packages';
+import { MAX_MODEL_PARTS, MAX_SPEC_PARTS } from './spec-packages';
 import type { RunPlan } from './turbo-preflight';
 import {
   dryRunPlan,
@@ -128,7 +128,10 @@ export const MAIN_CHECK_TASKS = [
   'test:contract:render',
   // One symbolic model per task. The whole product suite outruns one runner.
   ...Array.from({ length: 11 }, (_, index) => `test:contract:${String(index)}`),
-  ...Array.from({ length: 128 }, (_, index) => `test:spec:${String(index)}`),
+  ...Array.from(
+    { length: MAX_SPEC_PARTS },
+    (_, index) => `test:spec:${String(index)}`
+  ),
   'check:models',
   // The parts of a split models check (`MAX_MODEL_PARTS` in spec-packages).
   ...Array.from(

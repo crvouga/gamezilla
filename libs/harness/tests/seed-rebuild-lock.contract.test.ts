@@ -1,11 +1,14 @@
 import { expect, test } from 'bun:test';
+import { once } from 'node:events';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { withSeedRebuildLock } from '@libs/harness/seed-rebuild-lock';
+import { spawnOwned } from '@pkgs/os-server/dev-owner-spawn';
 
-// regression: harness-seed-rebuild-stampede
+// regression: harness-seed-lock-release-race
 // regression: harness-seed-release-reclaims-live-waiter
+// regression: harness-seed-rebuild-stampede
 test('one process rebuilds a seed while another waits', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'seed-lock-'));
   try {
@@ -36,20 +39,31 @@ test('one process rebuilds a seed while another waits', async () => {
   }
 });
 
-test('a failed builder releases its lease for the next rebuild', async () => {
+test('a lock held by a terminated process is released by the OS', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'seed-lock-'));
+  const lock = join(dir, 'harness-seed.lock.sqlite');
+  const child = spawnOwned(
+    'bun',
+    [
+      '--eval',
+      'import { Database } from "bun:sqlite"; const db = new Database(process.argv[1], { create: true }); db.run("BEGIN EXCLUSIVE"); process.stdout.write("held"); await new Promise(() => {});',
+      lock,
+    ],
+    { stdio: ['ignore', 'pipe', 'pipe'] }
+  );
   try {
-    await expect(
-      withSeedRebuildLock(dir, 'harness-seed', async () => {
-        throw new Error('Build interrupted');
-      })
-    ).rejects.toThrow('Build interrupted');
+    await once(child.stdout!, 'data');
+    const exited = once(child, 'exit');
+    child.kill('SIGKILL');
+    await exited;
     let ran = false;
     await withSeedRebuildLock(dir, 'harness-seed', async () => {
       ran = true;
     });
     expect(ran).toBe(true);
   } finally {
+    if (child.exitCode === null && child.signalCode === null)
+      child.kill('SIGKILL');
     await rm(dir, { recursive: true, force: true });
   }
 });
@@ -68,6 +82,24 @@ test('a checkout with no cache directory still rebuilds its seed', async () => {
         ran = true;
       }
     );
+    expect(ran).toBe(true);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('a failed builder releases its lease for the next rebuild', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'seed-lock-'));
+  try {
+    await expect(
+      withSeedRebuildLock(dir, 'harness-seed', async () => {
+        throw new Error('Build interrupted');
+      })
+    ).rejects.toThrow('Build interrupted');
+    let ran = false;
+    await withSeedRebuildLock(dir, 'harness-seed', async () => {
+      ran = true;
+    });
     expect(ran).toBe(true);
   } finally {
     await rm(dir, { recursive: true, force: true });

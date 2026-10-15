@@ -17,6 +17,49 @@ const mergeDeps = {
 } as unknown as MergeApplierDeps;
 
 describe('SubscriptionRuntime.wakeAllAndDrain', () => {
+  // regression: sync-ack-discards-push-refetch
+  test('an upload acknowledgement replaces an invalidated push refetch', async () => {
+    const started = Promise.withResolvers<void>();
+    const response = Promise.withResolvers<readonly QueryResponse[]>();
+    let requests = 0;
+    let confirmed = 0;
+    const runtime = new SubscriptionRuntime({
+      db: emptyDb,
+      postQueries: async (batch) => {
+        requests += 1;
+        if (requests === 2) {
+          started.resolve();
+          return response.promise;
+        }
+        return batch.map(() => ({ status: 'not_modified' as const }));
+      },
+      getMergeDeps: () => mergeDeps,
+      onError: (error) => {
+        throw error;
+      },
+      onSynced: () => {
+        confirmed += 1;
+      },
+      timers: createHarnessClock().timers,
+      coalesceMs: 0,
+      reconcileIntervalMs: 0,
+    });
+    runtime.start();
+    const subscription = runtime.subscribe({ name: 'rows', params: {} });
+    await subscription.waitForFirstSync();
+    runtime.wakeScope(runtime.listActive()[0]!.scope);
+    await started.promise;
+    runtime.bumpGenerations();
+    response.resolve([{ status: 'not_modified' }]);
+    for (let turn = 0; turn < 100; turn += 1) await Promise.resolve();
+    // An ack without an in-flight read must not poll already settled scopes.
+    runtime.bumpGenerations();
+    for (let turn = 0; turn < 100; turn += 1) await Promise.resolve();
+    await runtime.stopAndDrain();
+    expect(requests).toBe(3);
+    expect(confirmed).toBe(2);
+  });
+
   // regression: sync-refresh-starved-by-later-sweeps
   test('resolves once its sweep is done, while later wakes keep sweeping', async () => {
     let sweeps = 0;

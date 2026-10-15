@@ -1,0 +1,4 @@
+{
+  "summary": "An HTTP transport that never returns, or returns headers and then stalls the body, leaves an interactive choice Working forever. Bound response observation using injected time and preserve an uncertain write outcome.",
+  "regressionTest": "pkgs/http-client-shared/tests/request-deadline-regression.test.ts"
+}

@@ -15,6 +15,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/pubsub-mqtt-shared": "workspace:*",
     "@pkgs/pubsub-root-shared": "workspace:*"
   },

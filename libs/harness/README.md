@@ -102,6 +102,13 @@ Faults (partition / restoreNetwork) are `defineAction`s gated by the `caps` read
 On the bun-webview real-mode host (no `partition` cap), `s.apply(partition, …)`
 throws `ActionNotEnabled`.
 
+`harness.net.holdHttp(actor, path)` holds a request before admission; aborting
+it prevents the write. `{ admitted: true }` instead owns the complete request
+body at server ingress, so a later client abort or client-path loss cannot
+revoke the admitted work. `acceptWithoutAnswer()` releases processing while
+withholding its answer; `releaseHttp` restores delivery. Closing the harness
+cancels held work before draining and closing the server database.
+
 **SQL fabric** — in-process harness always uses **mockingbird-postgres** + **mockingbird-sqlite**
 (checkpoint format `mixed-pgmm-sqlm`). Each composition migrates once into a
 seed, `<package>/.cache/harness-seed-<composition>.pgmm.json`, fingerprinted by its

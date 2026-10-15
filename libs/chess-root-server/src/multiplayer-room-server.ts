@@ -53,7 +53,7 @@ export function registerMatchRoomConsumers(
       const rows = await ctx.tx.query(sql<
         typeof game
       >`SELECT id, white_id, black_id, fen, pgn, revision, turn, outcome, reason,
-        time_control, white_ms, black_ms, clock_at_ms, draw_offer_by, rematch_offer_by,
+        time_control, white_ms, black_ms, clock_at_ms, paused_at_ms, draw_offer_by, rematch_offer_by,
         rematch_of, white_rating, black_rating, white_rating_diff, black_rating_diff
         FROM chess_multiplayer_games WHERE id = ${game.id} AND deleted_at IS NULL`);
       const current = rows[0];

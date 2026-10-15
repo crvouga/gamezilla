@@ -1,0 +1,4 @@
+{
+  "summary": "A choice waiting for a shared outcome leaves its surface Working indefinitely. Stop the spinner without claiming rejection, keep dismissal usable, and re-observe the same choice instead of submitting it twice.",
+  "regressionTest": "pkgs/ui-root-client/tests/mutation-observation-regression.test.tsx"
+}

@@ -29,6 +29,7 @@ import { assertUuid } from '@pkgs/uuid-shared/uuid';
 import { createUuidV7 } from '@pkgs/uuid-shared/uuid-v7';
 import type { MutationVerdict } from './mutation-status';
 import { recordOptimisticOwnRows } from './optimistic-own-rows';
+import { reobservePendingChoice } from './reobserve-pending-choice';
 import {
   storeLocalRefusal,
   storeMutationChoice,
@@ -326,6 +327,14 @@ export function createMutationClient(
       const mutationEnv = snapshotMutationEnv(env);
       const online = connectivity.isOnline();
       const run = mutationTail.then(async () => {
+        const pendingId = await reobservePendingChoice({
+          db,
+          clientId: ids.clientId,
+          mutation: m,
+          value: args,
+        });
+        if (pendingId !== null)
+          return { ok: true as const, mutationId: pendingId };
         if (m.requiresOnline === true && !online) {
           return {
             ok: false as const,

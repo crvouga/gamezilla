@@ -156,14 +156,6 @@ Then(
   "{actor}'s daily rating is still {int}",
   (w, actor: Actor, rating: number) => stillRated(w, actor, 'daily', rating)
 );
-Then("neither person's daily rating has moved", async (w) => {
-  for (const actor of pairOf(w)) {
-    const view = await w.s.read(multiplayerView, actor);
-    expect(view.game?.white_rating_diff ?? null).toBeNull();
-    expect(view.game?.black_rating_diff ?? null).toBeNull();
-    expect(view.ratings.find((r) => r.speed === 'daily')?.games ?? 0).toBe(0);
-  }
-});
 
 // --------------------------------------------------------- daily clock
 

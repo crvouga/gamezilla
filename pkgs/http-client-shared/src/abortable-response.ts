@@ -1,5 +1,5 @@
 /** Keep HTTP cancellation attached until the response body finishes. */
-export function trackOfflineHttpResponse(
+export function trackAbortableResponse(
   response: Response,
   signal: AbortSignal,
   release: () => void
@@ -20,7 +20,7 @@ export function trackOfflineHttpResponse(
   const abort = (): void => {
     if (finished) return;
     streamController.error(
-      new DOMException('The request was aborted', 'AbortError')
+      signal.reason ?? new DOMException('The request was aborted', 'AbortError')
     );
     finish();
     void reader.cancel().catch(() => undefined);

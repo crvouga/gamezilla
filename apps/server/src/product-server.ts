@@ -61,6 +61,7 @@ import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createScopedHttpClient } from '@pkgs/http-client-shared/scoped-http-client';
 import { InMemoryLlmProvider } from '@pkgs/llm-root-server/in-memory-llm-provider';
 import { createLogger } from '@pkgs/logger-shared/logger';
+import { observeBackgroundWork } from '@pkgs/observability-root-server/observe-background-work';
 import {
   extractRequestContext,
   injectRequestHeaders,
@@ -430,7 +431,10 @@ const workerImplementation = {
     env: ApiWorkerEnv,
     ctx: ExecutionContext
   ): Promise<Response> {
-    let telemetry: WorkerTelemetryRuntime = { flushWith: () => undefined };
+    let telemetry: WorkerTelemetryRuntime = {
+      flushWith: () => undefined,
+      forceFlush: async () => undefined,
+    };
     let traceId: string | undefined;
     try {
       telemetry = ensureWorkerTelemetry(
@@ -444,7 +448,18 @@ const workerImplementation = {
           'worker.fetch',
           async (span) => {
             traceId = span.spanContext().traceId;
-            const response = await handleWorkerFetch(request, env, ctx);
+            const observedContext: ExecutionContext = {
+              waitUntil: (work) =>
+                ctx.waitUntil(
+                  observeBackgroundWork(work, telemetry.forceFlush)
+                ),
+              passThroughOnException: () => ctx.passThroughOnException(),
+            };
+            const response = await handleWorkerFetch(
+              request,
+              env,
+              observedContext
+            );
             span.setAttribute(ATTR.HTTP_RESPONSE_STATUS_CODE, response.status);
             if (response.status >= 500) {
               span.setStatus({ code: SpanStatusCode.ERROR });
@@ -465,7 +480,7 @@ const workerImplementation = {
         latchFatal(message);
         return fatalConfigResponse(request, message);
       }
-      log.error('top-level handler error', { error: message });
+      log.error('top-level handler error', { error: err });
       if (!hidesErrorDetail(env)) throw err;
 
       if (request.method === 'OPTIONS') {
@@ -519,8 +534,7 @@ const workerImplementation = {
         [ATTR.CODE_FUNCTION_NAME]: 'scheduled',
       });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      log.error('outbox cron drain failed', { error: message });
+      log.error('outbox cron drain failed', { error: err });
       if (!hidesErrorDetail(env)) throw err;
     } finally {
       telemetry.flushWith(ctx.waitUntil.bind(ctx));

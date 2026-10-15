@@ -1,6 +1,12 @@
 import { MAX_WELCOME_ENTRIES_PER_FRAME } from '@pkgs/room-root-shared/bounds';
-import type { RoomConnection } from '@pkgs/room-root-shared/room-server-types';
-import type { RoomStorage } from '@pkgs/room-root-shared/server-core-storage';
+import {
+  type RoomConnection,
+  rejectedFrame,
+} from '@pkgs/room-root-shared/room-server-types';
+import type {
+  CommandDedupOutcome,
+  RoomStorage,
+} from '@pkgs/room-root-shared/server-core-storage';
 import type { RoomActor } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-root-shared/wire';
@@ -114,4 +120,19 @@ export function broadcastToConnections<
   if (dead !== null) {
     for (const id of dead) connections.delete(id);
   }
+}
+
+export function sendDedupReplay(
+  send: RoomConnection['send'],
+  commandId: string,
+  prior: CommandDedupOutcome
+): void {
+  if (prior.kind === 'committed') {
+    send({
+      v: WIRE_VERSION,
+      kind: ROOM_WIRE_KIND.committed,
+      commandId,
+      entries: prior.entries,
+    });
+  } else send(rejectedFrame(commandId, prior.error));
 }

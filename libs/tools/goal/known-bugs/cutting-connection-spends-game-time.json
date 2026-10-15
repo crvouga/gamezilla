@@ -1,0 +1,4 @@
+{
+  "summary": "The shared offline setup silently advanced a full second to settle connectivity, spending a running game's agreed clock: 40 seconds became 19 after an explicit 20-second wait. Refresh and settle the real connection boundary without advancing virtual time.",
+  "regressionTest": "libs/chess-root-harness/tests/connection-clock-regression.test.ts"
+}

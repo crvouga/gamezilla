@@ -95,6 +95,7 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
     props.connected &&
     !props.moving &&
     props.game.outcome === 'ongoing' &&
+    props.game.paused_at_ms === null &&
     props.game.turn === props.myId;
   // A watcher sees the board from White's side.
   const white = () => props.game.white_id === props.myId || !participant();

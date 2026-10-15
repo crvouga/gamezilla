@@ -687,7 +687,7 @@ terms:
   - term: move
     source: FIDE Laws of Chess, Article 3 (the moves of the pieces)
     forms: [moves, moved, moving, plays]
-    model: [playCustomMove, ply, sideToMove, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, playQuietPuzzleMove, playCapturePuzzleMove]
+    model: [playCustomMove, moves, ply, sideToMove, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, playQuietPuzzleMove, playCapturePuzzleMove]
   - term: capture
     source: FIDE Laws of Chess, Article 3.1.1 (removing an opposing piece as part of a move)
     forms: [captures, captured]
@@ -792,6 +792,7 @@ terms:
       or daily, as the time control lists them. Each speed has its own
       multiplayer rating.
     forms: [speeds, bullet, blitz, rapid, classical, daily]
+    model: [speed]
 
   - term: find a chess opponent
     definition: >-
@@ -889,7 +890,12 @@ terms:
       of the game. Making a move hands the full days to the other person:
       unused time is never saved up, and no move earns an increment. The
       side that is not to move shows the full days. A running clock that is
-      nearly used up is shown as low on time.
+      nearly used up is shown as low on time. When shared play is unavailable
+      to everyone, both clocks pause and everyone is told they are paused.
+      This includes daily games and time allowed for the first moves.
+      Resuming keeps the accepted board and time left, gives no increment
+      for returning, and never rates an unfinished game. A person whose own
+      device alone is offline continues to spend the ordinary time on turn.
     forms:
       - multiplayer clocks
       - seconds pass in multiplayer chess
@@ -901,7 +907,7 @@ terms:
       - day has passed in multiplayer chess
       - days have passed in multiplayer chess
     avoid: [timer]
-    model: [whiteClock, blackClock, multiplayerTimePasses]
+    model: [whiteClock, blackClock, multiplayerTimePasses, clocksPaused, timeLeft]
 
   - term: run out of time
     definition: >-
@@ -1084,7 +1090,9 @@ terms:
       1, 3 or 7 days for every move. It lasts across days: leaving or ending
       a space, closing the app or using another device never ends or pauses
       it, the time of the person whose turn it is keeps running, and the
-      game is there when they come back. Everything else about it is
+      game is there when they come back. A pause of shared play is the
+      exception: those days are kept just like every other multiplayer clock.
+      Everything else about it is
       ordinary multiplayer chess, and it counts as the person's one
       unfinished multiplayer game.
     forms: [daily games, daily game's]
@@ -1439,6 +1447,7 @@ terms:
     - chooseClock
     - clockLeft
     - customTimePasses
+    - clocksPaused
   - term: Custom Game outcome
     definition: 'The final result: White wins, Black wins, a draw or cancellation with no
       winner. Wins say checkmate, resignation, time, or the other participant staying away.
@@ -1499,7 +1508,9 @@ terms:
   - term: away
     definition: A participant of an active Custom Game who has no device with a connection in
       that game. Being away never gives up the game on its own, and a timed game's clock keeps
-      running for them. Coming back before anyone claims the win continues the game as it is.
+      running for them. A pause of shared play is not either participant
+      staying away, and cannot permit an away win. Coming back before anyone
+      claims the win continues the game as it is.
     forms:
     - stayed away
     - stays away

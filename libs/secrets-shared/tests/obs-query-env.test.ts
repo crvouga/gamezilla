@@ -6,8 +6,11 @@ import {
 } from '@libs/secrets-shared/obs-query-env';
 
 describe('production query credentials', () => {
-  test('only a prod or tempo source asks for production credentials', () => {
+  test('a production trace source or platform query asks for query credentials', () => {
     expect(productionQueryRequested(['person', '--source', 'prod'])).toBe(true);
+    expect(productionQueryRequested(['platform', '--service', 'example'])).toBe(
+      true
+    );
     expect(productionQueryRequested(['last', '--source', 'tempo'])).toBe(true);
     expect(productionQueryRequested(['last', '--source=prod'])).toBe(true);
     expect(productionQueryRequested(['last'])).toBe(false);

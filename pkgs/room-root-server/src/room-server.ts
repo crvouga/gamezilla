@@ -7,10 +7,7 @@ import { RoomCacheInvalidated } from '@pkgs/room-root-shared/cache-invalidation'
 import type { RoomEffectHandler } from '@pkgs/room-root-shared/handler';
 import { applyRoomEffects } from '@pkgs/room-root-shared/handler';
 import type { RoomIdentityErasure } from '@pkgs/room-root-shared/room-service';
-import type {
-  CommandDedupOutcome,
-  RoomStorage,
-} from '@pkgs/room-root-shared/server-core-storage';
+import type { RoomStorage } from '@pkgs/room-root-shared/server-core-storage';
 import {
   ROOM_SERVICE_GRANT,
   ROOM_SERVICE_IDENTITY,
@@ -34,14 +31,16 @@ import {
 } from '@pkgs/room-root-shared/wire';
 import {
   hasAuthority,
-  participates,
+  participatingRoster,
   readsHistory,
   refuseConnectionCommand,
 } from './room-server-connections';
 import {
   broadcastToConnections,
   sendConnectionWelcome,
+  sendDedupReplay,
 } from './room-server-fanout';
+import { loadRoomSnapshot } from './room-server-hydrate';
 import { sessionDenial } from './session-grant';
 
 const crash: Assert = Assert.crash();
@@ -139,24 +138,37 @@ export class RoomServer<
   }
 
   async hydrateFromStorage(): Promise<void> {
-    const entries = await this.storage.loadEventsAfter(this.topic, 0);
-    let state = this.module.initialState();
-    for (const e of entries) {
-      crash.ok(
-        isMessageEnvelope(e.event),
-        'Tiger: stored room events must be Message envelopes with wire-valid type',
-        { event: e.event }
-      );
-      if (!RoomCacheInvalidated.is(e.event))
-        state = this.module.reduce(state, e.event as E);
-    }
-    this.committedState = state;
-    this.lastSeq =
-      entries.length > 0
-        ? entries[entries.length - 1]!.seq
-        : await this.storage.getLastSeq(this.topic);
+    const snapshot = await loadRoomSnapshot(
+      this.module,
+      this.storage,
+      this.topic
+    );
+    this.committedState = snapshot.state;
+    this.lastSeq = snapshot.lastSeq;
     this.tipKnown = true;
-    await this.applyCommittedEffects(this.module.recoverEffects(state));
+    await this.applyCommittedEffects(
+      this.module.recoverEffects(snapshot.state)
+    );
+    await this.availabilitySerial(true);
+  }
+
+  setAvailability(available: boolean): Promise<void> {
+    return this.enqueue(() => this.availabilitySerial(available));
+  }
+
+  private async availabilitySerial(available: boolean): Promise<void> {
+    const change = this.module.availabilityChange?.(
+      this.committedState,
+      available,
+      this.clock.now()
+    );
+    if (change === null || change === undefined) return;
+    await this.commit({
+      actor: { id: ROOM_SERVICE_IDENTITY, clientId: 'host' },
+      commandId: `availability:${String(this.clock.now())}:${String(this.lastSeq + 1)}`,
+      events: change.events,
+      effects: change.effects ?? [],
+    });
   }
 
   registerConnection(
@@ -216,11 +228,7 @@ export class RoomServer<
   }
 
   getRoster(): readonly RoomActor[] {
-    const out: RoomActor[] = [];
-    const authority = hasAuthority(this.connections);
-    for (const conn of this.connections.values())
-      if (participates(conn, authority)) out.push(conn.actor);
-    return out;
+    return participatingRoster(this.connections);
   }
 
   broadcastRoster(): void {
@@ -307,23 +315,6 @@ export class RoomServer<
       roster: this.getRoster(),
       tip: () => this.tip(),
     });
-  }
-
-  private sendDedupReplay(
-    send: RoomConnection['send'],
-    commandId: string,
-    prior: CommandDedupOutcome
-  ): void {
-    if (prior.kind === 'committed') {
-      send({
-        v: WIRE_VERSION,
-        kind: ROOM_WIRE_KIND.committed,
-        commandId,
-        entries: prior.entries,
-      });
-    } else {
-      send(rejectedFrame(commandId, prior.error));
-    }
   }
 
   private async reject(
@@ -484,7 +475,7 @@ export class RoomServer<
     if (refuseConnectionCommand(conn, this.connections, commandId)) return;
     const prior = await this.storage.getDedupOutcome(this.topic, commandId);
     if (prior !== null) {
-      this.sendDedupReplay(send, commandId, prior);
+      sendDedupReplay(send, commandId, prior);
       return;
     }
     if (!isMessageEnvelope(parsed.payload)) {

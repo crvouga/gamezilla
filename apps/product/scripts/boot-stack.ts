@@ -51,6 +51,11 @@ import {
 import type { StackManifest } from './manifest';
 import { instanceDataDir, writeManifest } from './manifest';
 import { mockingbirdSqliteFile } from './mockingbird-sqlite';
+import {
+  expectChildExit,
+  observeChildFailures,
+  waitForChildDiagnostics,
+} from './process-observability';
 import type { StackOptions } from './stack-options';
 import type { IdpState, StackIdps } from './start-idps';
 import { startStackIdps } from './start-idps';
@@ -150,7 +155,11 @@ function waitForChildExit(child: ChildProcess): Promise<void> {
 
 /** SIGTERM, then wait for the exit so teardown leaves no orphan listener. */
 export async function stopChild(child: ChildProcess): Promise<void> {
-  if (child.exitCode !== null || child.signalCode !== null) return;
+  if (child.exitCode !== null || child.signalCode !== null) {
+    await waitForChildDiagnostics(child);
+    return;
+  }
+  expectChildExit(child);
   const exited = waitForChildExit(child).catch(() => undefined);
   try {
     child.kill('SIGTERM');
@@ -158,9 +167,12 @@ export async function stopChild(child: ChildProcess): Promise<void> {
     // already gone
   }
   await exited;
+  await waitForChildDiagnostics(child);
 }
 
 function startApiNode(args: {
+  readonly dataDir: string;
+  readonly instanceId: string;
   readonly id: string;
   readonly port: number;
   readonly apiOrigin: string;
@@ -170,12 +182,12 @@ function startApiNode(args: {
   readonly infraEnv: Readonly<Record<string, string>>;
   readonly roomServiceToken: string;
 }): ChildProcess {
-  return spawn(
+  const child = spawn(
     'bun',
     ['--no-env-file', 'run', 'apps/server/scripts/serve-api-node.ts'],
     {
       cwd: REPO_ROOT,
-      stdio: 'inherit',
+      stdio: ['inherit', 'inherit', 'pipe'],
       env: {
         ...localApiEnv(process.env),
         ...args.infraEnv,
@@ -199,9 +211,13 @@ function startApiNode(args: {
       },
     }
   );
+  observeChildFailures(child, args, `gamezilla-api-${args.id}`);
+  return child;
 }
 
 export async function startWeb(args: {
+  readonly dataDir: string;
+  readonly instanceId: string;
   readonly origin: string;
   readonly apiOrigin: string;
   readonly frozen: boolean;
@@ -209,7 +225,7 @@ export async function startWeb(args: {
 }): Promise<ChildProcess> {
   const child = spawn('bun', PRODUCT_DEV_ARGS, {
     cwd: REPO_ROOT,
-    stdio: 'inherit',
+    stdio: ['inherit', 'inherit', 'pipe'],
     env: {
       ...localProcessEnv(process.env),
       LOCALHOST_STACK: '1',
@@ -220,6 +236,7 @@ export async function startWeb(args: {
       ...(args.testHooks ? { VITE_TEST_HOOKS: '1' } : {}),
     },
   });
+  observeChildFailures(child, args, 'gamezilla-web');
   await waitForHttp(`${args.origin}/harness`);
   return child;
 }
@@ -257,6 +274,7 @@ export type BillingBinding = {
 export async function startApiTier(args: {
   readonly sharedDataBindings?: Readonly<Record<string, string>>;
   readonly adminIdentities: readonly LocalAdminIdentity[];
+  readonly dataDir: string;
   readonly options: StackOptions;
   readonly apiOrigin: string;
   readonly idpEnv: Readonly<Record<string, string>>;
@@ -285,6 +303,8 @@ export async function startApiTier(args: {
     const id = nodeId(index);
     children.push(
       startApiNode({
+        dataDir: args.dataDir,
+        instanceId: args.options.instanceId,
         id,
         port: reservation.port,
         apiOrigin: args.apiOrigin,
@@ -397,6 +417,7 @@ async function startBillingAndApi(args: {
         ? {}
         : { sharedDataBindings: args.sharedDataBindings }),
       adminIdentities: args.adminIdentities,
+      dataDir: args.dataDir,
       options: args.options,
       apiOrigin: args.apiOrigin,
       idpEnv: args.idpEnv,
@@ -435,6 +456,7 @@ function reserveStackPorts(options: StackOptions) {
 }
 
 async function startApplicationClients(input: {
+  dataDir: string;
   options: StackOptions;
   apiOrigin: string;
   webOrigin: string | null;
@@ -458,6 +480,8 @@ async function startApplicationClients(input: {
     if (input.webOrigin !== null && !input.externalWeb)
       children.push(
         await startWeb({
+          dataDir: input.dataDir,
+          instanceId: input.options.instanceId,
           origin: input.webOrigin,
           apiOrigin: input.apiOrigin,
           frozen: input.options.frozenWeb,
@@ -541,6 +565,7 @@ export async function bootLocalhostStack(
   });
   await waitForHttp(`${balancer.origin}/api/health`);
   const stopClients = await startApplicationClients({
+    dataDir,
     options,
     apiOrigin: balancer.origin,
     webOrigin,

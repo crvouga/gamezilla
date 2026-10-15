@@ -12,6 +12,7 @@ import { type JSX, Show } from 'solid-js';
 import { ErrorState } from './error-state';
 import { LoadingState } from './loading-state';
 import { ModalBody, ModalButton, ModalFooter } from './modal-parts';
+import { MutationOutcomeUnknownError } from './mutation-outcome-unknown-error';
 import { SuccessState } from './success-state';
 
 /** Fixed so loading / success / error share one state band (no grow). */
@@ -71,6 +72,7 @@ function FooterSlot(props: {
 
 export function MutationLoading(props: {
   labels: MutationModalLabels;
+  onClose: () => void;
 }): JSX.Element {
   const { t } = useLingui();
   return (
@@ -78,7 +80,17 @@ export function MutationLoading(props: {
       <StateArea>
         <LoadingState caption={props.labels.loadingLabel ?? t`Working…`} />
       </StateArea>
-      <FooterSlot />
+      <p class="text textCaption text-text-secondary">
+        {t`You can close this while we finish. Closing does not cancel your request.`}
+      </p>
+      <FooterSlot>
+        <ModalButton
+          label={t`Close`}
+          variant="cancel"
+          onClick={() => props.onClose()}
+          dataSet={{ action: 'close-pending' }}
+        />
+      </FooterSlot>
     </>
   );
 }
@@ -117,23 +129,35 @@ export function MutationError(props: {
   onClose: () => void;
 }): JSX.Element {
   const { t } = useLingui();
+  const unknown = (): boolean =>
+    props.error instanceof MutationOutcomeUnknownError;
   return (
     <>
       <StateArea>
         <ErrorState
           variant="band"
-          title={props.labels.errorTitle ?? t`Something went wrong`}
-          body={props.error?.message}
+          title={
+            unknown()
+              ? t`Not confirmed yet`
+              : (props.labels.errorTitle ?? t`Something went wrong`)
+          }
+          body={
+            unknown()
+              ? t`You can close this and keep using the app. Check again to learn the outcome of this choice.`
+              : props.error?.message
+          }
           retry={{
             dataSet: props.ids.submitDataSet,
-            label: props.labels.retryLabel ?? t`Try again`,
+            label: unknown()
+              ? t`Check again`
+              : (props.labels.retryLabel ?? t`Try again`),
             onClick: () => props.onRetry(),
           }}
         />
       </StateArea>
       <FooterSlot>
         <ModalButton
-          label={props.labels.cancelLabel ?? t`Cancel`}
+          label={unknown() ? t`Close` : (props.labels.cancelLabel ?? t`Cancel`)}
           variant="cancel"
           onClick={() => props.onClose()}
           dataSet={{ action: 'cancel' }}

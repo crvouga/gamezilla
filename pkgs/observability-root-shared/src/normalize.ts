@@ -46,6 +46,11 @@ function attrValue(value: unknown): AttributeValue | undefined {
   }
   const wrapped = object(value);
   if (wrapped === undefined) return undefined;
+  const integer = wrapped['intValue'];
+  if (typeof integer === 'string' && /^-?\d+$/.test(integer)) {
+    const parsed = Number(integer);
+    return Number.isSafeInteger(parsed) ? parsed : integer;
+  }
   return (
     attrValue(wrapped['stringValue']) ??
     attrValue(wrapped['boolValue']) ??

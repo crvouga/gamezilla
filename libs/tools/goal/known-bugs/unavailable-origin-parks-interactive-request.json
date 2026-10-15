@@ -1,0 +1,4 @@
+{
+  "summary": "An interactive POST /api/mutations issued while localhost:5428 health was unavailable waited indefinitely for recovery instead of telling its caller the connection was unavailable. Failed interactive requests must not be held for later execution.",
+  "regressionTest": "pkgs/http-client-shared/tests/unavailable-request-regression.test.ts"
+}

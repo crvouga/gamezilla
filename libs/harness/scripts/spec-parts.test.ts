@@ -208,7 +208,15 @@ describe('partOf', () => {
   test('the chess suite keeps model traces inside the 600s task cap', () => {
     // regression: chess-spec-trace-batches — 32 parts put 20 traces in one task.
     // regression: chess-spec-slice-weight
-    const count = 72;
+    // regression: network-model-overfills-chess-shard
+    const count = (
+      JSON.parse(
+        readFileSync(
+          join(import.meta.dir, '../../chess-root-harness/package.json'),
+          'utf8'
+        )
+      ) as { specParts: number }
+    ).specParts;
     const parts = chessSuiteParts(count);
     const tracesOf = (unit: SpecUnit) =>
       unit.path.endsWith('.qnt')
@@ -234,9 +242,10 @@ describe('partOf', () => {
         Array.from({ length: 64 }, (_, index) => index)
       );
     }
-    // Weight uneven model slices by their trace counts. Keep the existing
-    // sixteen-trace cap: a part of twelve took at
-    // most 332 s on the 2-core runner (Check run 38187450396).
+    // The combined puzzle and recovery suites retain every trace across more parts.
+    // A part of twelve traces took at most 332 s replaying every one
+    // on the 2-core runner (Check run 38187450396), so sixteen traces stay
+    // near 443 s, inside the 600 s cap. Twenty traces was the miss.
     for (const part of parts) {
       expect(part.flatMap(tracesOf).length).toBeLessThanOrEqual(16);
       for (const unit of part)

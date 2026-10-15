@@ -76,6 +76,7 @@
         "fen": "text",
         "match_id": "text",
         "outcome": "text",
+        "paused_at_ms": "integer",
         "pgn": "text",
         "reason": "text",
         "rematch_of": "text",

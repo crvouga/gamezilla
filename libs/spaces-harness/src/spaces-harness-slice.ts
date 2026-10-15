@@ -9,6 +9,7 @@ import type {
 import { SPACES_SUB } from '@libs/spaces-shared/sub';
 import { createInProcessRoomNode } from './in-process-room-node';
 import { SPACES_HARNESS_ACTIONS } from './space-actions';
+import { askToJoinWithoutAnswer } from './space-join-interruption';
 
 /**
  * Spaces in a harness, hosting exactly the games given: the product passes its
@@ -33,6 +34,6 @@ export function spacesHarnessSlice(registry: {
     server: (deps) => createSpacesServer(deps.rooms, registry.blocks ?? null),
     roomNode: (env, gateway) =>
       createInProcessRoomNode(env, { games: registry.games, gateway }),
-    actions: SPACES_HARNESS_ACTIONS,
+    actions: [...SPACES_HARNESS_ACTIONS, askToJoinWithoutAnswer],
   };
 }

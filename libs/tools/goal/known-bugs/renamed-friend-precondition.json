@@ -1,0 +1,4 @@
+{
+  "summary": "The friends-list precondition looks for Bob's original username after he has renamed himself to chess_cheater, so moderation scenarios fail before the team changes its rules.",
+  "regressionTest": "libs/friends-harness/tests/renamed-friend-precondition.test.ts"
+}

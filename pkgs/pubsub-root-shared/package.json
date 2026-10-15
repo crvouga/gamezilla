@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*"
   },
   "devDependencies": {

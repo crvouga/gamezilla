@@ -27,7 +27,7 @@ describe('createEmqxHttpPubSub', () => {
       apiBaseUrl: 'http://emqx:18083/',
       apiKey: 'key',
       apiSecret: 'secret',
-      fetchImpl,
+      http: { fetch: fetchImpl },
     });
     await ps.publish('user:1', { a: 1 });
     expect(fetchImpl).toHaveBeenCalledTimes(1);
@@ -39,7 +39,7 @@ describe('createEmqxHttpPubSub', () => {
       apiBaseUrl: 'http://emqx:18083',
       apiKey: 'k',
       apiSecret: 's',
-      fetchImpl: async () => new Response('nope', { status: 401 }),
+      http: { fetch: async () => new Response('nope', { status: 401 }) },
     });
     await expect(ps.publish('t', 1)).rejects.toBeInstanceOf(PubSubPublishError);
   });
@@ -49,7 +49,7 @@ describe('createEmqxHttpPubSub', () => {
       apiBaseUrl: 'http://x',
       apiKey: 'k',
       apiSecret: 's',
-      fetchImpl: async () => new Response(),
+      http: { fetch: async () => new Response() },
     });
     expect(() => ps.subscribe('t', () => undefined)).toThrow(
       PubSubNotSupportedError
@@ -63,7 +63,7 @@ describe('createEmqxHttpPubSub', () => {
       apiBaseUrl: 'http://x',
       apiKey: 'k',
       apiSecret: 's',
-      fetchImpl,
+      http: { fetch: fetchImpl },
     });
     await expect(ps.publish('a/b', 1)).rejects.toThrow();
     await expect(ps.publish('t', 'x'.repeat(33 * 1024))).rejects.toThrow();
@@ -75,7 +75,7 @@ describe('createEmqxHttpPubSub', () => {
       apiBaseUrl: 'http://x',
       apiKey: 'k',
       apiSecret: 's',
-      fetchImpl: async () => new Response(null, { status: 200 }),
+      http: { fetch: async () => new Response(null, { status: 200 }) },
     });
     ps.close();
     expect(ps.status()).toBe('down');

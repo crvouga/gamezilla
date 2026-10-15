@@ -84,6 +84,10 @@ outside the response; standard deployments join it and fail loudly. Every host
 must still arrange shutdown/flush; telemetry is best effort outside the outbox.
 Response ownership checks are described in the repository's
 [correctness machinery](../../README.md#correctness-machinery).
+`TelemetryOutbox` in the runtime package persists serialized browser trace and
+log batches in injected local object storage before SDK acknowledgement. It
+uploads with bounded deadlines, retries after reopening, retains batches on
+partial rejection, and expires pending batches after 30 days.
 
 Generic log bodies are replaced with stable names and instrumentation-scope
 attributes are removed before export. Diagnostic attributes use the existing default-deny redactor. Named

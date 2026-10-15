@@ -171,8 +171,15 @@ export function bindQuintModel<W>(binding: QuintBinding<W>): void {
   bindings.set(binding.model, binding as QuintBinding<unknown>);
 }
 
+/** Optional metadata lookup for cache preparation; replay requires `quintBinding`. */
+export function findQuintBinding(
+  model: string
+): QuintBinding<unknown> | undefined {
+  return registry().bindings.get(model);
+}
+
 export function quintBinding(model: string): QuintBinding<unknown> {
-  const binding = registry().bindings.get(model);
+  const binding = findQuintBinding(model);
   if (binding === undefined) {
     throw new Error(
       `quint: model ${model} has no binding — add bindQuintModel({ model: '${model}', … }) under tests/quint/ and import it from tests/quint/index.ts`

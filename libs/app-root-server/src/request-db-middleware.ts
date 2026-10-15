@@ -13,6 +13,7 @@ import type { OpenSqlClient } from '@libs/sub-shared/sync';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { KvImplPostgres } from '@pkgs/kv-postgres-shared/impl-postgres';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
@@ -61,6 +62,7 @@ export type RequestDbMiddlewareOptions = {
   readonly protection: DeploymentProtection;
   readonly clock: Clock;
   readonly timers: Timers;
+  readonly http: HttpClient;
   readonly createId: CreateId;
   /** Public client_config rows derived from Worker secrets at boot. */
   readonly desiredClientConfig: DesiredClientConfig;
@@ -152,6 +154,7 @@ async function attachRequestDatabase(
   );
   const store = {
     objectStore: options.objectStore,
+    http: options.http,
     sqlClient,
     sessionAuth,
     kv,

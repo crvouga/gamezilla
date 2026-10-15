@@ -4,8 +4,8 @@ import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
+import { useSpacePresence } from './public-use-space-presence';
 import { openSpaceDetail } from './space-routes';
-import { useIsSpaceOpenLocally } from './use-open-space-session-ids';
 import { useSpaceDisplayTitle } from './use-space-display-title';
 import { useSpaceHostUsername } from './use-space-host-username';
 
@@ -20,13 +20,13 @@ export type SpaceCardOpenLinkProps = {
 export function SpaceCardOpenLink(props: SpaceCardOpenLinkProps): JSX.Element {
   const router = useRouter();
   const { t } = useLingui();
-  const isOpen = useIsSpaceOpenLocally(() => props.spaceId);
+  const presence = useSpacePresence(() => props.spaceId);
   const resolvedTitle = useSpaceDisplayTitle(() => props.spaceId);
   const hostUsername = useSpaceHostUsername(() => props.spaceId);
   const accessibilityLabel = createMemo(() => {
     const override = props.accessibilityLabelOverride;
     if (override !== undefined) return override;
-    return isOpen()
+    return presence().status === 'active'
       ? t`Open current space ${resolvedTitle()}`
       : t`Open space ${resolvedTitle()}`;
   });

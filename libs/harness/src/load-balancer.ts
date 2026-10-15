@@ -136,53 +136,45 @@ export function createHarnessLoadBalancer(
     return null;
   }
 
-  /** Faithful fault for the caller when no backend can serve the request. */
-  function noBackendError(fromId: string): Error {
-    const backends = args.listBackends();
-    if (backends.length === 0) return harnessCrashedError(id);
-    for (const backend of backends) {
-      try {
-        args.net.assertReachable(id, backend.id);
-        args.net.assertReachable(fromId, backend.id);
-      } catch (err) {
-        if (err instanceof Error) return err;
-      }
-    }
-    return harnessCrashedError(id);
-  }
-
   return {
     id,
     requests,
     fetchFrom(fromId) {
-      return args.net.wrapHop(fromId, id, async (input, init) => {
-        const wire = {
-          at: args.now(),
-          from: fromId,
-          method: requestMethod(input, init),
-          path: requestPath(input),
-        };
-        const backend = pickBackend(fromId);
-        if (backend === null) {
-          state.rejected += 1;
-          recordRoute(state, { ...wire, to: null });
-          throw noBackendError(fromId);
-        }
-        state.requests += 1;
-        state.requestsByBackend.set(
-          backend.id,
-          (state.requestsByBackend.get(backend.id) ?? 0) + 1
-        );
-        recordRoute(state, { ...wire, to: backend.id });
-        const response = await requests.wrap(fromId, backend.fetch)(
-          input,
-          init
-        );
-        args.net.assertReachable(fromId, id);
-        args.net.assertReachable(id, backend.id);
-        args.net.assertReachable(fromId, backend.id);
-        return response;
-      });
+      return args.net.wrapHop(
+        fromId,
+        id,
+        async (input, init) => {
+          const wire = {
+            at: args.now(),
+            from: fromId,
+            method: requestMethod(input, init),
+            path: requestPath(input),
+          };
+          const backend = pickBackend(fromId);
+          if (backend === null) {
+            state.rejected += 1;
+            recordRoute(state, { ...wire, to: null });
+            throw noBackendError(args, { id, fromId });
+          }
+          state.requests += 1;
+          state.requestsByBackend.set(
+            backend.id,
+            (state.requestsByBackend.get(backend.id) ?? 0) + 1
+          );
+          recordRoute(state, { ...wire, to: backend.id });
+          const response = await args.net.wrapHop(
+            fromId,
+            backend.id,
+            requests.wrap(fromId, backend.fetch),
+            'server'
+          )(input, init);
+          args.net.assertReachable(fromId, id);
+          args.net.assertReachable(id, backend.id);
+          args.net.assertReachable(fromId, backend.id);
+          return response;
+        },
+        'ingress'
+      );
     },
     inspect: () => inspectBalancer(state, args, id),
     onRoute(listener) {
@@ -213,4 +205,26 @@ function inspectBalancer(
     })),
     recentRoutes: [...state.recentRoutes],
   };
+}
+
+/** Faithful fault for the caller when no backend can serve the request. */
+function noBackendError(
+  args: {
+    readonly net: HarnessNet;
+    readonly listBackends: () => readonly HarnessLoadBalancerBackend[];
+  },
+  context: { readonly id: string; readonly fromId: string }
+): Error {
+  const { id, fromId } = context;
+  const backends = args.listBackends();
+  if (backends.length === 0) return harnessCrashedError(id);
+  for (const backend of backends) {
+    try {
+      args.net.assertReachable(id, backend.id);
+      args.net.assertReachable(fromId, backend.id);
+    } catch (err) {
+      if (err instanceof Error) return err;
+    }
+  }
+  return harnessCrashedError(id);
 }

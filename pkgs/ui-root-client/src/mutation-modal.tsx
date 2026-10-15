@@ -4,8 +4,8 @@
  *
  * Always a centered modal via {@link ResponsiveSurface} `presentation="modal"`
  * (never a bottom sheet). Renders a confirm message or form body, then on
- * submit transitions through `loading -> success / error` in place (never
- * closing mid-flight). Success is dismissible; errors are retryable. This is
+ * submit transitions through `loading -> success / error` in place. Closing
+ * dismisses the observation without cancelling the operation. This is
  * the canonical surface for destructive confirms (sign out, end space) and
  * small form mutations (rename).
  *
@@ -92,13 +92,12 @@ export type MutationModalProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** Surface-level close: inert while loading, dismisses success, else cancels. */
+/** Closing a pending operation does not pretend that its request was cancelled. */
 export function resolveMutationSurfaceClose(args: {
   phase: MutationPhase;
   onClose: () => void;
   dismissSuccess: () => void;
 }): void {
-  if (args.phase === 'loading') return;
   if (args.phase === 'success') {
     args.dismissSuccess();
     return;
@@ -164,7 +163,7 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
     on(
       () => props.visible,
       (visible) => {
-        if (visible) lifecycle.reset();
+        if (visible && lifecycle.phase() !== 'loading') lifecycle.reset();
       }
     )
   );
@@ -187,7 +186,7 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
     <ResponsiveSurface
       visible={props.visible}
       onClose={surfaceClose}
-      closable={lifecycle.phase() !== 'loading'}
+      closable
       title={props.title}
       presentation="modal"
       stackId={props.stackId}
@@ -214,7 +213,7 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
           }
         >
           <Match when={lifecycle.phase() === 'loading'}>
-            <MutationLoading labels={labels} />
+            <MutationLoading labels={labels} onClose={props.onClose} />
           </Match>
           <Match when={lifecycle.phase() === 'success'}>
             <MutationSuccess

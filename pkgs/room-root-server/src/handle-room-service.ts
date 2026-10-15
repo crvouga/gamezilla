@@ -20,6 +20,13 @@ export async function handleRoomService<
   if (request.method !== 'POST') return new Response(null, { status: 405 });
   const input: unknown = await request.json();
   if (!isPlainRecord(input)) return new Response(null, { status: 400 });
+  if (
+    input['operation'] === 'availability' &&
+    typeof input['available'] === 'boolean'
+  ) {
+    await server.setAvailability(input['available']);
+    return new Response(null, { status: 204 });
+  }
   if (input['operation'] === 'read')
     return Response.json(await server.readCommittedState());
   if (

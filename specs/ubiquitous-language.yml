@@ -47,7 +47,10 @@ terms:
   - term: connection
     definition: >-
       Whether a device can reach everyone else. A device with no connection is
-      offline; once it has one again it is back online. What a person does
+      offline; once it has one again it is back online. This means reaching
+      other people in the app, not merely having a connection elsewhere.
+      If shared play is unavailable, the device remains usable on its own
+      and says what cannot be shared yet. What a person does
       offline and the app accepts shows for them at once; sharing those
       accepted changes waits for the connection, with nothing for the person
       to do. A choice refused while offline does not happen later on its own.

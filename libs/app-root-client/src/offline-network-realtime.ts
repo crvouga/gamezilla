@@ -17,11 +17,12 @@ type Subscription = {
 /** A push connection that is physically absent while voluntary offline is on. */
 export function createOfflinePubSub(
   offline: OfflineNetworkController,
-  open: () => PubSub | null
+  open: () => PubSub | null,
+  initial?: PubSub
 ): PubSub {
   const subscriptions = new Set<Subscription>();
   const statusListeners = new Set<(status: PubSubStatus) => void>();
-  let inner: PubSub | null = null;
+  let inner: PubSub | null = initial ?? null;
   let detachStatus: (() => void) | null = null;
   let closed = false;
   const notify = (status: PubSubStatus): void => {
@@ -53,6 +54,7 @@ export function createOfflinePubSub(
     notify(live.status());
     return live;
   };
+  if (initial !== undefined) detachStatus = initial.onStatus(notify);
   const stopOffline = offline.subscribe((isOffline) => {
     if (isOffline) disconnect();
     else connect();

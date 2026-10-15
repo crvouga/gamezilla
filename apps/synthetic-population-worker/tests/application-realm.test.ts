@@ -5,6 +5,7 @@ import { runtimeBackend } from './runtime-backend';
 import { awaitRuntimeUsers, runtimeSession } from './runtime-session';
 
 test('native realms authenticate, mutate profiles and inspect their own complete application', async () => {
+  // regression: hydrated-broker-url-never-reaches-push
   // regression: synthetic-population-offline-controller-missing
   // regression: solid-dom-concurrent-transform-cache
   // regression: synthetic-population-headless-object-store

@@ -1,3 +1,4 @@
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { PubSub, PubSubStatus } from '@pkgs/pubsub-root-shared/interface';
 import { encodePayload } from '@pkgs/pubsub-root-shared/payload';
 import { PubSubClosedError } from '@pkgs/pubsub-root-shared/pubsub-closed-error';
@@ -10,10 +11,7 @@ export type EmqxHttpPubSubOptions = {
   apiBaseUrl: string;
   apiKey: string;
   apiSecret: string;
-  fetchImpl?: (
-    input: RequestInfo | URL,
-    init?: RequestInit
-  ) => Promise<Response>;
+  http: HttpClient;
 };
 
 function basicAuthHeader(apiKey: string, apiSecret: string): string {
@@ -23,10 +21,9 @@ function basicAuthHeader(apiKey: string, apiSecret: string): string {
 
 /**
  * Publish-only PubSub via EMQX HTTP API (`POST /api/v5/publish`).
- * Workers-safe: uses injected or global `fetch` only.
+ * HTTP is injected by the composition root.
  */
 export function createEmqxHttpPubSub(options: EmqxHttpPubSubOptions): PubSub {
-  const fetchImpl = options.fetchImpl ?? fetch;
   const base = options.apiBaseUrl.replace(/\/$/, '');
   const auth = basicAuthHeader(options.apiKey, options.apiSecret);
   let closed = false;
@@ -36,7 +33,7 @@ export function createEmqxHttpPubSub(options: EmqxHttpPubSubOptions): PubSub {
       if (closed) throw new PubSubClosedError();
       assertValidTopic(topic);
       const payload = encodePayload(data);
-      const res = await fetchImpl(`${base}/api/v5/publish`, {
+      const res = await options.http.fetch(`${base}/api/v5/publish`, {
         method: 'POST',
         headers: {
           Authorization: auth,

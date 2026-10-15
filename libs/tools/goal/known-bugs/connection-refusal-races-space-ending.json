@@ -1,0 +1,4 @@
+{
+  "summary": "After shared availability returns and the app reopens twice, releasing the held join after an optimistic space ending can accept it before the server commits the ending. The refusal fixture must await the host's confirmed ending before delivering the join.",
+  "regressionTest": "libs/runtime-harness/tests/quint/connection-continuity.binding.ts"
+}

@@ -18,6 +18,7 @@ const accepted: MatchRoomGame = {
   turn: 'bob',
   outcome: 'ongoing',
   reason: null,
+  paused_at_ms: null,
 };
 async function deliver(
   state: RoomState,

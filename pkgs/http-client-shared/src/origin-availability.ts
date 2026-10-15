@@ -1,5 +1,6 @@
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 
+import { createDeadlineFetch } from './deadline-fetch';
 import { HttpAbortError } from './http-abort-error';
 import { nextBackoffMs, probeHealthEndpoint } from './origin-health-probe';
 import { hrefEquals, tryParseUrl } from './origin-href';
@@ -98,7 +99,10 @@ class HealthOriginAvailability implements OriginAvailability {
 
   constructor(args: CreateHealthOriginAvailabilityArgs) {
     this.healthUrl = args.healthUrl;
-    this.fetchFn = args.fetch;
+    this.fetchFn = createDeadlineFetch({
+      fetch: args.fetch,
+      timers: args.timers,
+    });
     this.timers = args.timers;
     this.clock = args.clock;
     this.initialBackoffMs = args.initialBackoffMs ?? DEFAULT_INITIAL_BACKOFF_MS;

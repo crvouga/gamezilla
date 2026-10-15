@@ -79,7 +79,10 @@ export function specUnits(
   const weight = specWeight(path, source);
   if (!isFeature(path) && !path.endsWith('.qnt')) return [{ path, weight }];
   const count = path.endsWith('.qnt')
-    ? Math.max(MODEL_SLICES, Math.ceil(partCount / 2))
+    ? Math.max(
+        MODEL_SLICES,
+        2 ** Math.floor(Math.log2(Math.max(1, partCount / 2)))
+      )
     : Math.ceil(weight / SLICE_SCENARIOS);
   if (count <= 1) return [{ path, weight }];
   return Array.from({ length: count }, (_, index) => ({

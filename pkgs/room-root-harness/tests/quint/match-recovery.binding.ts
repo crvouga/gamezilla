@@ -3,6 +3,7 @@ import { expectInSync } from '@pkgs/room-root-harness/expect-in-sync';
 import type { Player } from '@pkgs/room-root-harness/game-room';
 import {
   Move,
+  readClocksPaused,
   readMatchStatus,
   readPlayerToMove,
   readTimeLeftSeconds,
@@ -87,6 +88,7 @@ bindQuintModel<RoomTraceWorld>({
     const state = await readServer(s);
     const now = await s.read(clock);
     return {
+      clocksPaused: readClocksPaused(state),
       matchStatus: readMatchStatus(state),
       playerToMove: readPlayerToMove(state),
       winner: readWinner(state) ?? '',

@@ -14,15 +14,21 @@ import { useSyncEngineInstance } from './sync-engine-context';
 export function useMutationFeedback(
   mutationName: string | Accessor<string>,
   scope?: Accessor<MutationFeedbackScope>
-): Accessor<MutationFeedback | null> {
+): Accessor<MutationFeedback | null | undefined> {
   const engine = useSyncEngineInstance();
-  const [feedback, setFeedback] = createSignal<MutationFeedback | null>(null);
+  const [feedback, setFeedback] = createSignal<
+    MutationFeedback | null | undefined
+  >();
   createComputed(() => {
     const name =
       typeof mutationName === 'string' ? mutationName : mutationName();
     const subscription = engine.mutationFeedback(name, scope?.());
     const apply = (): void => {
-      setFeedback(subscription.getSnapshot()[0] ?? null);
+      setFeedback(
+        subscription.getHydrated()
+          ? (subscription.getSnapshot()[0] ?? null)
+          : undefined
+      );
     };
     apply();
     onCleanup(subscription.subscribe(apply));

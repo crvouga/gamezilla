@@ -21,6 +21,7 @@ import type { AuthAppCtx } from './create-auth-app-types';
 import type { LinkOutcome } from './identity-linker';
 import { IdentityLinker } from './identity-linker';
 import type { OauthStateRow } from './idp-repository';
+import { oauthCallbackResponse } from './oauth-callback-response';
 import { PendingLinkRepository } from './pending-link-repository';
 import type {
   OauthProviderAdapter,
@@ -95,7 +96,7 @@ function callbackRedirect(
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, value);
   }
-  return c.redirect(url.toString(), 302);
+  return oauthCallbackResponse(url, c.req.url);
 }
 
 export async function handleOauthLaunch(

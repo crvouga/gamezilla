@@ -1,5 +1,6 @@
 import { createMessageNamespace } from '@pkgs/message-shared/message';
 import { z } from 'zod';
+import { customGameAbsenceSchema } from './custom-game-absence';
 import type { CustomGameChoice } from './custom-game-choice';
 import { customGameChoiceSchema } from './custom-game-choice';
 import { customGameSideSchema, customGamesSchema } from './custom-game-state';
@@ -64,4 +65,17 @@ export const customGameEvtNs = createMessageNamespace('chess-custom-evt');
 export const CustomGamesChanged = customGameEvtNs(
   'changed',
   (p): p is CustomGamesChangedPayload => changedSchema.safeParse(p).success
+);
+export const CustomGameAvailabilityChanged = customGameEvtNs(
+  'availability-changed',
+  (
+    p
+  ): p is {
+    readonly available: boolean;
+    readonly absence: z.infer<typeof customGameAbsenceSchema>;
+  } =>
+    z
+      .object({ available: z.boolean(), absence: customGameAbsenceSchema })
+      .strict()
+      .safeParse(p).success
 );

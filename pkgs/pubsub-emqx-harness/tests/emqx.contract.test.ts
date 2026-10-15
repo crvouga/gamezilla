@@ -153,7 +153,7 @@ async function makeContractEnv(): Promise<PubSubContractEnv> {
         apiBaseUrl,
         apiKey: API_KEY,
         apiSecret: API_SECRET,
-        fetchImpl: (input, init) => http.fetch(input, init),
+        http,
       }),
     disruptTransport: async (p) => {
       const clientId = getEmqxClientId(p);

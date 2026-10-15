@@ -783,6 +783,10 @@ msgstr "Change participant"
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
 
+#: pkgs/ui-root-client/src/mutation-modal-parts.tsx
+msgid "Check again"
+msgstr "Check again"
+
 #: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
 msgid "Check saved file again"
 msgstr "Check saved file again"
@@ -884,6 +888,7 @@ msgstr "Client SQL"
 #: libs/spaces-client/src/space-chrome-action-bar.tsx
 #: pkgs/ui-devtools-client/src/tab-strip-tab.tsx
 #: pkgs/ui-root-client/src/close-icon-button.tsx
+#: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "Close"
 msgstr "Close"
 
@@ -990,6 +995,10 @@ msgstr "Connection"
 #: libs/chess-custom-game-client/src/custom-game-status.tsx
 msgid "Connection needed to change or play this game."
 msgstr "Connection needed to change or play this game."
+
+#: libs/app-root-client/src/connection-notice.tsx
+msgid "Connection unavailable. Saved content and local games remain available. Shared changes will reconnect automatically."
+msgstr "Connection unavailable. Saved content and local games remain available. Shared changes will reconnect automatically."
 
 #: libs/app-root-client/src/app-commands.tsx
 #: libs/app-root-client/src/app-header-global-menu.tsx
@@ -2228,6 +2237,10 @@ msgstr "Moves. The left and right arrow keys step through them."
 msgid "Multiplayer chess"
 msgstr "Multiplayer chess"
 
+#: libs/chess-matchmaking-client/src/multiplayer-status.tsx
+msgid "Multiplayer clocks are paused."
+msgstr "Multiplayer clocks are paused."
+
 #: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
 msgid "Multiplayer command accepted"
 msgstr "Multiplayer command accepted"
@@ -2466,6 +2479,15 @@ msgstr "Not available"
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "Not available on this account"
 msgstr "Not available on this account"
+
+#: pkgs/ui-root-client/src/mutation-modal-parts.tsx
+msgid "Not confirmed yet"
+msgstr "Not confirmed yet"
+
+#: libs/spaces-client/src/space-join-button.tsx
+#: pkgs/ui-root-client/src/use-mutation-button.tsx
+msgid "Not confirmed. Check again"
+msgstr "Not confirmed. Check again"
 
 #: libs/auth-client/src/sign-in-method-row.tsx
 msgid "Not connected"
@@ -4275,6 +4297,7 @@ msgstr "Unlimited access to Gamezilla servers"
 msgid "Unmute coach"
 msgstr "Unmute coach"
 
+#: libs/chess-custom-game-client/src/custom-game-status.tsx
 #: libs/chess-puzzle-client/src/chess-game-log-row.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
 msgid "Unrated"
@@ -4561,6 +4584,14 @@ msgstr "You are reviewing an earlier position, at the start of the game. No piec
 #: libs/chess-matchmaking-client/src/multiplayer-status.tsx
 msgid "You are White."
 msgstr "You are White."
+
+#: pkgs/ui-root-client/src/mutation-modal-parts.tsx
+msgid "You can close this and keep using the app. Check again to learn the outcome of this choice."
+msgstr "You can close this and keep using the app. Check again to learn the outcome of this choice."
+
+#: pkgs/ui-root-client/src/mutation-modal-parts.tsx
+msgid "You can close this while we finish. Closing does not cancel your request."
+msgstr "You can close this while we finish. Closing does not cancel your request."
 
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "You can host one space at a time. End it to start another, or get Plus to host as many as you like."

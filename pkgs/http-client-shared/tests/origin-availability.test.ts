@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-
-import { gateFetchUntilAvailable } from '@pkgs/http-client-shared/gate-fetch-until-available';
 import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
 import { createHealthOriginAvailability } from '@pkgs/http-client-shared/origin-availability';
+import { createOriginAwareFetch } from '@pkgs/http-client-shared/origin-aware-fetch';
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
 
 const HEALTH = 'http://localhost:8788/api/health';
@@ -84,15 +83,14 @@ describe('createHealthOriginAvailability', () => {
       timers,
       clock: createClock(),
     });
-    const gated = gateFetchUntilAvailable({ fetch: fetchFn, availability });
+    const gated = createOriginAwareFetch({ fetch: fetchFn, availability });
     availability.start();
     await waitFor(() => availability.getSnapshot().phase === 'unavailable');
-    const parked = gated(SESSION);
+    await expect(gated(SESSION)).rejects.toBeInstanceOf(HttpNetworkError);
     await flush();
     expect(calls).toEqual([HEALTH]);
     expect(availability.getSnapshot().phase).not.toBe('available');
     availability.stop();
-    await expect(parked).rejects.toBeInstanceOf(Error);
   });
 
   test('waiters resolve after a successful probe', async () => {
@@ -114,14 +112,20 @@ describe('createHealthOriginAvailability', () => {
       timers,
       clock: createClock(),
     });
-    const gated = gateFetchUntilAvailable({ fetch: fetchFn, availability });
+    const gated = createOriginAwareFetch({ fetch: fetchFn, availability });
     availability.start();
-    await waitFor(() => pendingCount() === 1);
-    const parked = gated(SESSION);
+    await waitFor(
+      () =>
+        availability.getSnapshot().phase === 'unavailable' &&
+        pendingCount() === 1
+    );
+    await expect(gated(SESSION)).rejects.toBeInstanceOf(HttpNetworkError);
+    const waiter = availability.waitUntilAvailable();
     healthOk = true;
     fireNext();
     await flush();
-    const response = await parked;
+    await waiter;
+    const response = await gated(SESSION);
     expect(response.status).toBe(200);
     expect(calls.filter((href) => href === SESSION)).toEqual([SESSION]);
     expect(availability.getSnapshot().phase).toBe('available');
@@ -144,7 +148,7 @@ describe('createHealthOriginAvailability', () => {
       timers,
       clock: createClock(),
     });
-    const gated = gateFetchUntilAvailable({ fetch: fetchFn, availability });
+    const gated = createOriginAwareFetch({ fetch: fetchFn, availability });
     availability.start();
     await waitFor(() => availability.getSnapshot().phase === 'available');
     healthOk = false;
@@ -175,20 +179,30 @@ describe('createHealthOriginAvailability', () => {
       initialBackoffMs: 1,
       maxBackoffMs: 8,
     });
-    const gated = gateFetchUntilAvailable({ fetch: fetchFn, availability });
+    const gated = createOriginAwareFetch({ fetch: fetchFn, availability });
     availability.start();
-    await waitFor(() => pendingCount() === 1);
-    const parked = gated(SESSION);
+    await waitFor(
+      () =>
+        availability.getSnapshot().phase === 'unavailable' &&
+        pendingCount() === 1
+    );
+    await expect(gated(SESSION)).rejects.toBeInstanceOf(HttpNetworkError);
+    const waiter = availability.waitUntilAvailable();
     for (let i = 0; i < 8; i += 1) {
       fireNext();
-      await waitFor(() => pendingCount() === 1);
+      await waitFor(
+        () =>
+          availability.getSnapshot().phase === 'unavailable' &&
+          pendingCount() === 1
+      );
     }
     expect(healthCalls).toBeGreaterThan(3);
     expect(availability.getSnapshot().phase).not.toBe('available');
     healthOk = true;
     fireNext();
     await flush();
-    const response = await parked;
+    await waiter;
+    const response = await gated(SESSION);
     expect(response.status).toBe(200);
     availability.stop();
   });
@@ -207,7 +221,7 @@ describe('createHealthOriginAvailability', () => {
       timers,
       clock: createClock(),
     });
-    const gated = gateFetchUntilAvailable({ fetch: fetchFn, availability });
+    const gated = createOriginAwareFetch({ fetch: fetchFn, availability });
     availability.start();
     await waitFor(() => availability.getSnapshot().phase === 'unavailable');
     const response = await gated(OTHER);

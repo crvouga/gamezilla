@@ -58,6 +58,7 @@ test(
 test(
   'fair completion holds across the entire finite state graph',
   async () => {
+    // regression: tlc-ignores-runner-resources
     const result = await verifyTemporal({
       specPath: join(FIXTURES, 'progress.qnt'),
       properties: ['liveCompletion'],
@@ -66,6 +67,23 @@ test(
     });
     expect(result).toMatchObject({ ok: true });
     if (result.ok) expect(result.statesExplored).toBeGreaterThan(0);
+    const output = readFileSync(join(OUT, 'progress/tlc-output.txt'), 'utf8');
+    // regression: tlc-rechecks-growing-prefixes
+    const command = JSON.parse(
+      readFileSync(join(OUT, 'progress/tlc-command.json'), 'utf8')
+    ) as string[];
+    expect(
+      command.slice(
+        command.indexOf('-lncheck'),
+        command.indexOf('-lncheck') + 2
+      )
+    ).toEqual(['-lncheck', 'final']);
+    expect(output).toContain('with 2 workers');
+    // The collector reserves part of -Xmx; TLC reports the usable heap.
+    expect(Number(output.match(/with (\d+)MB heap/)?.[1])).toBeGreaterThan(
+      1500
+    );
+    expect(output).not.toContain('Please run the Java VM');
   },
   TIMEOUT_MS
 );
@@ -115,3 +133,21 @@ test('a temporal check without a property fails before starting TLC', async () =
   expect(result).toMatchObject({ ok: false });
   if (!result.ok) expect(result.output).toContain('no temporal property');
 });
+
+test(
+  'unused choices retain the entire progress graph without duplicate transitions',
+  async () => {
+    // regression: tlc-unused-choice-cross-product
+    const result = await verifyTemporal({
+      specPath: join(FIXTURES, 'progress-choices.qnt'),
+      properties: ['liveCompletion'],
+      invariants: ['invSafe'],
+      outDir: join(OUT, 'choices'),
+      timeoutMs: TIMEOUT_MS,
+    });
+    expect(result).toMatchObject({ ok: true, statesExplored: 4 });
+    const output = readFileSync(join(OUT, 'choices/tlc-output.txt'), 'utf8');
+    expect(output).toContain('7 states generated, 4 distinct states found');
+  },
+  TIMEOUT_MS
+);

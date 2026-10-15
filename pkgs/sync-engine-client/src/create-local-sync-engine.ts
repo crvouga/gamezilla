@@ -206,6 +206,7 @@ function createUploadQueue(
       state.runtime.bumpGenerations();
       state.refreshTopics?.();
     },
+    onRejected: () => readState(stateRef).runtime.wakeAllAndDrain(),
     onError: (error) => handleError(readState(stateRef), error),
     timers: options.timers,
     now: options.now,

@@ -1,0 +1,4 @@
+{
+  "summary": "The Custom Game temporal proof exhausts its unchanged deadline while TLC repeatedly checks incomplete growing graph prefixes. Check liveness once on the complete graph while retaining every invariant and temporal property.",
+  "regressionTest": "pkgs/quint-server/tests/temporal.test.ts"
+}

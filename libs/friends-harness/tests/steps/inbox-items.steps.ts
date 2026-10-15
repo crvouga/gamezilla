@@ -4,7 +4,6 @@ import { expect } from 'bun:test';
 import {
   archiveInboxItem,
   chooseInboxList,
-  connectionMissingShown,
   inboxItemState,
   markInboxRead,
   openInboxItem,
@@ -43,15 +42,6 @@ Given(
 When('{actor} looks at the waiting inbox', async (w, actor: Actor) => {
   await w.s.apply(chooseInboxList, actor, 'waiting');
 });
-
-Then(
-  '{actor} is told the connection is missing within {int} seconds',
-  async (w, actor: Actor, seconds: number) => {
-    await w.s.until((harness) => connectionMissingShown(harness, actor), {
-      maxMs: seconds * SECOND_MS,
-    });
-  }
-);
 
 Then(
   "{actor}'s inbox shows the friend request from {actor} as marked opened",

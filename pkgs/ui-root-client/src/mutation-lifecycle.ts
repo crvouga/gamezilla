@@ -2,16 +2,16 @@
  * `useMutationLifecycle` -- phase machine behind `useMutationButton`,
  * `MutationModal`, and other submit surfaces.
  *
- * Wraps the canonical {@link createAsync} helper and collapses its status
- * into the four phases a mutation UI cares about: `idle` (show the form /
- * confirm body), `loading` (operation in flight), `success` (dismissible
- * confirmation), and `error` (retryable failure). Cancellation maps back to
- * `idle`. Must be called inside a reactive owner (component body).
+ * Observes one operation with a bounded wait and retains an uncertain
+ * operation until its real outcome is known. The four phases are `idle`
+ * (show the form or confirm body), `loading` (operation in flight), `success` (dismissible
+ * confirmation), and `error` (a refusal or unconfirmed outcome). Must be called inside a reactive owner (component body).
  */
 
-import { createAsync } from '@pkgs/async-root-client/solid';
-import type { AsyncStatus } from '@pkgs/async-root-shared/async-runner';
-import { type Accessor, createEffect, on, untrack } from 'solid-js';
+import { useTimers } from '@pkgs/clock-client/solid';
+import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
+import { type Accessor, createEffect, on, onCleanup, untrack } from 'solid-js';
+import { MutationObservation } from './mutation-observation';
 import { usePendingOperation } from './pending-navigation';
 
 export type MutationPhase = 'idle' | 'loading' | 'success' | 'error';
@@ -41,43 +41,20 @@ export type UseMutationLifecycleResult = {
   reset: () => void;
 };
 
-/**
- * Collapse an {@link AsyncStatus} into the four phases a mutation UI renders.
- * `idle` and `cancelled` both present the editable / confirm body again so a
- * cancelled run lets the user retry from scratch.
- */
-export function mutationPhaseFromStatus(status: AsyncStatus): MutationPhase {
-  if (status === 'running') return 'loading';
-  if (status === 'success') return 'success';
-  if (status === 'error') return 'error';
-  return 'idle';
-}
-
 export function useMutationLifecycle(
   params: UseMutationLifecycleParams
 ): UseMutationLifecycleResult {
-  const async = createAsync({
-    operation: async (): Promise<void> => {
-      await params.operation();
-    },
-    options: {
-      onError: (error) => {
-        params.onError?.(error);
-      },
-    },
+  const observation = new MutationObservation({
+    operation: () => params.operation(),
+    timers: useTimers(),
+    onError: (error) => params.onError?.(error),
   });
-  const phase = (): MutationPhase => mutationPhaseFromStatus(async.status());
-  usePendingOperation(
-    () => phase() === 'loading',
-    () => async.cancelAll('Leaving while work is in progress')
-  );
-  const run = async (): Promise<void> => {
-    try {
-      await async.run();
-    } catch {
-      // Failure is captured in async state; callers read `phase` / `error`.
-    }
-  };
+  onCleanup(observation.dispose);
+  const state = createSubscriptionSignal(observation);
+  const phase = (): MutationPhase => state().phase;
+  const error = (): Error | null => state().error;
+  // Leaving dismisses the observation; admitted writes retain their outcome.
+  usePendingOperation(() => phase() === 'loading', observation.reset);
   // Track the previous phase ourselves: `on(..., { defer: true })` skips the
   // first run without recording it, so the first transition would lose `from`.
   createEffect(
@@ -86,5 +63,5 @@ export function useMutationLifecycle(
       untrack(() => params.onPhaseChange?.({ from, to }));
     })
   );
-  return { phase, error: async.error, run, reset: async.reset };
+  return { phase, error, run: observation.run, reset: observation.reset };
 }

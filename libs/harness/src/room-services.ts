@@ -30,6 +30,8 @@ export function createHarnessRooms(args: {
 }) {
   const { session, composition, seed, timers, serverSql } = args;
   const rooms: RoomServicePort = {
+    setAvailability: (topic, available) =>
+      roomNode.services.setAvailability(topic, available),
     read: (topic) => roomNode.services.read(topic),
     send: (topic, id, payload) => roomNode.services.send(topic, id, payload),
     eraseIdentity: (topic, identity, replacement) =>

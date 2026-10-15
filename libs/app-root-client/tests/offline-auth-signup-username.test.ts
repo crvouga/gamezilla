@@ -14,7 +14,7 @@ test('a signup username left with the auth client is taken through its offline w
   const controller = createOfflineNetworkController(new KvImplInMemory());
   await controller.ready();
   const inner = { session: {} } as unknown as AuthClientPort;
-  const app = createOfflineAuthClient(controller, inner);
+  const app = createOfflineAuthClient(controller, inner, () => true);
 
   setPendingSignupUsername(inner, 'alice');
 

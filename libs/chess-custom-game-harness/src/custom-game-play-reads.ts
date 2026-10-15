@@ -59,6 +59,15 @@ export async function customGameAwayShown(
   return ui.get('chess-custom-away').isVisible();
 }
 
+/** Whether the person is offered the action to claim the game for absence. */
+export async function customGameAwayClaimShown(
+  s: ProductHarness,
+  actor: string
+): Promise<boolean> {
+  await bringToFront(s, actor);
+  return (await actorUi(s, actor)).get('chess-custom-claim-win').isVisible();
+}
+
 /** Since when `person` has been away as `observer`'s game shows it, or `null`. */
 export async function readCustomGameAwaySince(
   s: ProductHarness,

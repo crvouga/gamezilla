@@ -72,7 +72,7 @@ const bus = createEmqxHttpPubSub({
   apiBaseUrl: 'https://broker.example:18083',
   apiKey: env.EMQX_API_KEY,
   apiSecret: env.EMQX_API_SECRET,
-  // fetchImpl: fetch, // optional inject for Workers / tests
+  http, // injected HTTP transport
 });
 
 await bus.publish('space:abc', { type: 'push' });

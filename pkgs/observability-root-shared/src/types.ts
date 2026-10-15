@@ -48,7 +48,10 @@ export type AdjacentActivity = {
 export interface TraceStore {
   readonly source: string;
   adjacent(window: TimeRange): Promise<AdjacentActivity>;
-  recent(window: TimeRange): Promise<readonly TraceRef[]>;
+  recent(
+    window: TimeRange,
+    options?: { readonly errorsOnly?: boolean }
+  ): Promise<readonly TraceRef[]>;
   findByUser(userId: string, window: TimeRange): Promise<readonly TraceRef[]>;
   findBySession(sessionId: string): Promise<readonly TraceRef[]>;
   findByMutation(mutationId: string): Promise<readonly TraceRef[]>;

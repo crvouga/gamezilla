@@ -1,13 +1,17 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { useDeviceId } from '@libs/auth-client/use-device-id';
 import type { SpacePresence } from '@libs/spaces-shared/resolve-space-presence';
-import { resolveSpacePresence } from '@libs/spaces-shared/resolve-space-presence';
+import {
+  isViewerSpaceHost,
+  resolveSpacePresence,
+} from '@libs/spaces-shared/resolve-space-presence';
 import type { Sql } from '@pkgs/sql-root-shared/sql';
 import sql from '@pkgs/sql-root-shared/sql';
 import {
   createQuery,
   useSyncEngine,
 } from '@pkgs/sync-engine-client/sync-engine-context';
+import { useMutationFeedback } from '@pkgs/sync-engine-client/use-mutation-feedback';
 import { type Accessor, createMemo } from 'solid-js';
 
 type PresenceRow = {
@@ -78,11 +82,19 @@ export function useSpacePresence(
     presenceSql(resolveId(), spaceEnabled(), deviceId(), memberId())
   );
   const row = createMemo(() => query.rows()[0] ?? null);
+  const joinFeedback = useMutationFeedback('joinSpace', () => ({
+    spaceId: resolveId(),
+  }));
   return createMemo<SpacePresence>(() => {
     if (!paintReady()) {
       return { status: 'loading' };
     }
     const current = row();
+    const ownSpace = isViewerSpaceHost(current, memberId());
+    const feedback = joinFeedback();
+    if (!ownSpace && feedback === undefined) return { status: 'loading' };
+    const joinConfirmed =
+      ownSpace || feedback === null || feedback?.status === 'confirmed';
     return resolveSpacePresence({
       spaceEnabled: resolveId().length > 0,
       spaceLoading: query.isLoading(),
@@ -94,7 +106,7 @@ export function useSpacePresence(
               host_account_id: current.host_account_id,
               ended_at: current.ended_at,
             },
-      isOpenLocally: current?.is_open === 1,
+      isOpenLocally: current?.is_open === 1 && joinConfirmed,
       isMember: current?.is_member === 1,
       myId: memberId(),
     });

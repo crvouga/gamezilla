@@ -2,6 +2,7 @@ import { requireInMutation } from '@libs/permissions-shared/mutation-permission'
 import type { AppGrantKey } from '@libs/permissions-shared/permission-catalog';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import type { MutationCtx } from '@pkgs/sync-engine-shared/mutations-types';
+import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 import { MultiplayerGameRepository } from './game-repository';
 import type { MultiplayerGame } from './game-state';
@@ -49,6 +50,11 @@ export async function runGameCommand(
     )
   )
     return;
+  if (stored.outcome === 'ongoing' && stored.paused_at_ms !== null)
+    throw new MutationError(
+      'CHESS_PLAY_UNAVAILABLE',
+      'Multiplayer chess is temporarily unavailable.'
+    );
   const game = settleMultiplayerClock(stored, nowMs);
   await repository.save(stored, decide(game, ctx.env.actorId, nowMs), nowMs, {
     server: true,

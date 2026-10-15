@@ -25,12 +25,14 @@
  * ```
  */
 
+import { useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { type Accessor, createEffect, type JSX, onCleanup } from 'solid-js';
 import type { ButtonProps } from './button';
 import type { ButtonFeedback } from './button-face';
 import type { MutationStateTransition } from './mutation-lifecycle';
 import { useMutationLifecycle } from './mutation-lifecycle';
+import { MutationOutcomeUnknownError } from './mutation-outcome-unknown-error';
 import { useMutationSuccessHoldMs } from './mutation-success-hold';
 
 export type MutationButtonLabels = {
@@ -128,6 +130,7 @@ export function ariaLabelForPhase(
 export function useMutationButton(
   params: UseMutationButtonParams
 ): UseMutationButtonResult {
+  const { t } = useLingui();
   const envHoldMs = useMutationSuccessHoldMs();
   const holdMs = (): number =>
     params.successHoldMs ?? envHoldMs ?? DEFAULT_SUCCESS_HOLD_MS;
@@ -136,6 +139,10 @@ export function useMutationButton(
     onError: (error) => params.onError?.(error),
     onPhaseChange: (transition) => params.onPhaseChange?.(transition),
   });
+  const errorLabel = (): JSX.Element =>
+    lifecycle.error() instanceof MutationOutcomeUnknownError
+      ? t`Not confirmed. Check again`
+      : params.labels.error;
   const timers = useTimers();
 
   createEffect(() => {
@@ -169,7 +176,7 @@ export function useMutationButton(
       return params.labels.success;
     },
     get errorLabel() {
-      return params.labels.error;
+      return errorLabel();
     },
     onClick: click,
     onRetry: click,
@@ -192,7 +199,7 @@ export function useMutationButton(
       return params.labels.success;
     },
     get errorLabel() {
-      return params.labels.error;
+      return errorLabel();
     },
     onClick: click,
     onRetry: click,
@@ -200,7 +207,10 @@ export function useMutationButton(
       return disabled();
     },
     get 'aria-label'() {
-      return ariaLabelForPhase(lifecycle.phase(), params.labels);
+      return ariaLabelForPhase(lifecycle.phase(), {
+        ...params.labels,
+        error: errorLabel(),
+      });
     },
   };
 

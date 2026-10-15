@@ -8,6 +8,7 @@ import {
 } from './runtime-session';
 
 test('a lost move acknowledgement retries the ordinary upload with one effective game action', async () => {
+  // regression: synthetic-realms-miss-peer-invalidation
   const backend = await runtimeBackend(2);
   const sessions: ManagedSession[] = [];
   try {

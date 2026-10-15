@@ -8,7 +8,13 @@ import { expect } from 'bun:test';
 
 import { hostLimit } from '@pkgs/gherkin-shared/registry';
 import { ActionNotEnabled } from '@pkgs/harness-root-shared/probe';
-import { partition, restartApp, restoreNetwork } from './actions';
+import {
+  partition,
+  refreshActorConnection,
+  refreshActorQueries,
+  restartApp,
+  restoreNetwork,
+} from './actions';
 import {
   claimActorUsername,
   returnToTabs,
@@ -19,6 +25,7 @@ import {
 } from './auth-actions';
 import { Given, Then, When } from './define';
 import { accountIdOf, signedInAccountOf } from './identity';
+import { connectionMissing } from './network-notices';
 import { caps } from './observations';
 import type { Actor } from './parameter-types';
 import { focusActor, openAccount } from './shell-actions';
@@ -54,7 +61,7 @@ export function otherDevice(actor: string): string {
  * ends here instead of failing.
  */
 export async function cutConnection(
-  w: HarnessWorld,
+  w: Pick<HarnessWorld, 's'>,
   actor: string
 ): Promise<void> {
   if (!(await w.s.read(caps)).includes('partition')) {
@@ -66,8 +73,8 @@ export async function cutConnection(
     throw hostLimit('this host cannot cut the connection');
   }
   await w.s.apply(partition, actor);
-  // Let the disconnected transport publish its status before the next choice.
-  await w.s.advanceTime(1_000);
+  await w.s.apply(refreshActorConnection, actor);
+  await w.s.apply(refreshActorQueries, actor);
 }
 
 async function signIn(w: HarnessWorld, actor: Actor): Promise<void> {
@@ -158,6 +165,11 @@ Given('{actor} is offline', async (w, actor: Actor) => {
   await cutConnection(w, actor);
 });
 
+Given('{actor} and {actor} are offline', async (w, a: Actor, b: Actor) => {
+  await cutConnection(w, a);
+  await cutConnection(w, b);
+});
+
 When('{actor} loses the connection', async (w, actor: Actor) => {
   await cutConnection(w, actor);
 });
@@ -174,6 +186,23 @@ Given('{actor} has closed and reopened the app', async (w, actor: Actor) => {
   await w.s.apply(restartApp, actor);
 });
 
+Given(
+  '{actor} and {actor} have closed and reopened the app',
+  async (w, a: Actor, b: Actor) => {
+    await w.s.apply(restartApp, a);
+    await w.s.apply(restartApp, b);
+  }
+);
+
 When('{actor} closes and reopens the app', async (w, actor: Actor) => {
   await w.s.apply(restartApp, actor);
 });
+
+Then(
+  '{actor} is told the connection is missing within {int} seconds',
+  async (w, actor: Actor, seconds: number) => {
+    await w.s.until((s) => connectionMissing(s, actor), {
+      maxMs: seconds * 1_000,
+    });
+  }
+);

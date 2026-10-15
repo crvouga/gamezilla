@@ -23,7 +23,8 @@
     "sideToMove",
     "_ended",
     "mbt::actionTaken",
-    "mbt::nondetPicks"
+    "mbt::nondetPicks",
+    "clocksPaused"
   ],
   "states": [
     {
@@ -206,7 +207,8 @@
       "ply": {
         "#bigint": "0"
       },
-      "sideToMove": "white"
+      "sideToMove": "white",
+      "clocksPaused": false
     },
     {
       "mbt::actionTaken": "_loseConnection",
@@ -388,7 +390,8 @@
       "ply": {
         "#bigint": "0"
       },
-      "sideToMove": "white"
+      "sideToMove": "white",
+      "clocksPaused": false
     }
   ]
 }

@@ -1,3 +1,4 @@
+import { customGameAvailabilityChange } from '@libs/chess-custom-game-shared/custom-game-availability';
 import {
   customGameCmdNs,
   customGameEvtNs,
@@ -23,6 +24,7 @@ import type { GameDefinition } from '@libs/spaces-shared/game';
 export const chessGameShared: GameDefinition = {
   ...chessPuzzleGame,
   matchRooms: [matchRoomModule],
+  availabilityChange: customGameAvailabilityChange,
   prepareLocalCommand: prepareLocalCustomGameCommand,
   recoverLocalEffects: (state) =>
     localCustomGameEffects(CustomGamesAttr.from(state).current),

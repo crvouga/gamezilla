@@ -34,8 +34,10 @@
   "devDependencies": {
     "@pkgs/object-store-root-shared": "workspace:*",
     "@pkgs/os-server": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   },
   "category": "server"

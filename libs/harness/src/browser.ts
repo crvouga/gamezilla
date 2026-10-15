@@ -22,6 +22,7 @@ import type {
   OpenAuthSession,
   OpenAuthSessionResult,
 } from '@pkgs/auth-inhouse-client/auth-client-oauth';
+import { oauthNavigation } from '@pkgs/auth-inhouse-shared/oauth-navigation';
 import type { OpenExternalUrl } from '@pkgs/ui-root-client/external-url';
 import { type Accessor, createSignal } from 'solid-js';
 
@@ -149,11 +150,17 @@ function isHtml(response: Response): boolean {
  * browser shows whatever HTML it is answered, error statuses included.
  */
 async function landedOn(
-  url: URL,
+  hop: URL | FormPost,
   response: Response
 ): Promise<HarnessBrowserPage | URL | FormPost> {
-  const location = response.headers.get('location');
-  if (location !== null) return new URL(location, url);
+  const url = hop instanceof URL ? hop : hop.url;
+  const navigation = oauthNavigation(response, url.href);
+  if (navigation !== null) {
+    await response.body?.cancel();
+    return navigation.preserveMethod && !(hop instanceof URL)
+      ? { ...hop, url: navigation.url }
+      : navigation.url;
+  }
   if (isHtml(response)) {
     return { kind: 'document', url: url.href, html: await response.text() };
   }
@@ -219,7 +226,7 @@ export function createHarnessBrowser(args: {
     }
     if (isAppUrl(url, args.appOrigin())) return 'app';
     const response = await fetch(url.href, requestInitFor(hop));
-    return await landedOn(url, response);
+    return await landedOn(hop, response);
   };
 
   const load = async (start: URL | FormPost): Promise<void> => {

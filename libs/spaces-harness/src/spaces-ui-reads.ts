@@ -297,11 +297,15 @@ export function spaceNotFoundShown(
 }
 
 /** The actor's app offers the way back to Spaces from a dead link. */
-export function backToSpacesOffered(
+export async function backToSpacesOffered(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
-  return shows(s, actorId, Handles.spaceNotFoundBack);
+  return (
+    (await shows(s, actorId, Handles.spaceNotFoundBack)) ||
+    ((await shows(s, actorId, Handles.spaceJoinPrompt)) &&
+      (await shows(s, actorId, Handles.navBack)))
+  );
 }
 
 /** The name the actor's open space shows, or `null` outside a space. */

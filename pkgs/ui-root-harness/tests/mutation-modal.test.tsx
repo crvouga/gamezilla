@@ -70,10 +70,13 @@ describe('MutationModal', () => {
     fireEvent.click(submit);
     expect(await screen.findByText('Ending…')).toBeInTheDocument();
     expect(phaseBand).toHaveAttribute('data-phase', 'loading');
-    // Surface close is hidden while loading; Escape / backdrop stay inert.
+    // regression: mutation-modal-traps-unconfirmed-command
+    // Closing dismisses the observation, without cancelling a saved request.
     await user.keyboard('{Escape}');
-    expect(screen.queryByRole('button', { name: 'Close' })).toBeNull();
-    expect(onClose).not.toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getAllByRole('button', { name: 'Close' }).length
+    ).toBeGreaterThan(0);
     expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull();
 
     r.clock.advance(499);
@@ -86,7 +89,7 @@ describe('MutationModal', () => {
     expect(phaseBand).toHaveAttribute('data-phase', 'success');
 
     fireEvent.click(screen.getByTestId('dismiss'));
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(2);
     expect(onSuccess).toHaveBeenCalledTimes(1);
     expect(phases).toEqual(['loading', 'success']);
   });
@@ -154,10 +157,10 @@ describe('MutationModal', () => {
     const onClose = mock();
     const dismissSuccess = mock();
     resolveMutationSurfaceClose({ phase: 'loading', onClose, dismissSuccess });
-    expect(onClose).not.toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalledTimes(1);
     resolveMutationSurfaceClose({ phase: 'success', onClose, dismissSuccess });
     expect(dismissSuccess).toHaveBeenCalledTimes(1);
     resolveMutationSurfaceClose({ phase: 'error', onClose, dismissSuccess });
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(2);
   });
 });

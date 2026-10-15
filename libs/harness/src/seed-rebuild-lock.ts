@@ -1,4 +1,4 @@
-// @io-wall-ok — one cross-process rebuild of a harness seed. Waiters sleep on the wall.
+// @io-wall-ok — process-owned SQLite locking for a harness seed cache.
 import { Database } from 'bun:sqlite';
 import { join } from 'node:path';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
@@ -6,10 +6,13 @@ import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 const WAIT_SLICES = 600;
 const SLEEP_MS = 50;
 
-function pause(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
+function busy(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    error.code === 'SQLITE_BUSY'
+  );
 }
 
 async function acquire(db: Database, path: string): Promise<void> {
@@ -18,14 +21,14 @@ async function acquire(db: Database, path: string): Promise<void> {
       db.run('BEGIN EXCLUSIVE');
       return;
     } catch (error) {
-      if ((error as { code?: string }).code !== 'SQLITE_BUSY') throw error;
+      if (!busy(error)) throw error;
     }
-    await pause(SLEEP_MS);
+    await new Promise<void>((resolve) => setTimeout(resolve, SLEEP_MS));
   }
   throw new Error(`seed rebuild lock timed out waiting for ${path}`);
 }
 
-/** SQLite's OS lease is released on close or process death, without unlink races. */
+/** OS locks disappear on close or process death; there is no stale directory to delete. */
 export async function withSeedRebuildLock<T>(
   cacheDir: string,
   seedKey: string,

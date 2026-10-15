@@ -94,7 +94,9 @@ async function last(ctx: Context, args: ObsArgs): Promise<CommandResult> {
   const range = rangeFor(args, ctx.nowMs, '10m');
   if (range === undefined)
     return { code: 2, text: `${HELP}\ninvalid time range` };
-  let refs = await ctx.store.recent(range);
+  let refs = await ctx.store.recent(range, {
+    errorsOnly: args.flags['errors'] === true,
+  });
   if (args.flags['errors'] === true)
     refs = refs.filter((ref) => ref.errorCount > 0);
   return renderRefs(ctx, args, { refs, range, subject: 'recent activity' });

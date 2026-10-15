@@ -146,7 +146,7 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 230 | 5371 s | @apps/product#test:contract:render 60 s |
+| @pkgs/property-shared | 254 | 5440 s | @apps/product#test:contract:render 60 s |
 | @pkgs/clock-shared | 220 | 5341 s | @apps/product#test:contract:render 60 s |
 | @pkgs/assert-root-shared | 215 | 5323 s | @apps/product#test:contract:render 60 s |
 

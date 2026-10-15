@@ -27,7 +27,7 @@ export type TelemetryOptions = {
   readonly redact?: AttributeRedactor;
   readonly resourceAttributes?: Attributes;
   readonly spanProcessors?: readonly SpanProcessor[];
-  /** Head-sampling policy. Omitted means the SDK's always-on default. */
+  /** Head-sampling policy. The default records even an unsampled incoming context. */
   readonly sampler?: Sampler;
   /** Standard OTel ID generator. Useful for deterministic test artifacts. */
   readonly idGenerator?: IdGenerator;

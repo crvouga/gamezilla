@@ -259,6 +259,7 @@ async function serverCrashImpl<
   E extends RoomEvent,
 >(k: RoomKernel<S, C, E>): Promise<void> {
   if (k.serverCrashed) return;
+  await k.server.setAvailability(false);
   k.scheduleDispose();
   for (const slot of k.slots.values()) {
     if (slot.connectionId.length > 0) {

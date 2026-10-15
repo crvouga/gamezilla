@@ -89,6 +89,11 @@ Given(
   async (w, host: string) => {
     await customDefault(w, host);
     await customFact(w, host, { operation: 'bot', side: 'black' });
+    await customFact(w, host, {
+      operation: 'clock',
+      minutes: 5,
+      increment: 2,
+    });
     await customStart(w);
   }
 );

@@ -2,6 +2,7 @@ import type { Span } from '@opentelemetry/api';
 import { Assert } from '@pkgs/assert-root-shared/assert';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { serializeTraceContext } from '@pkgs/observability-root-shared/correlation';
+import { withSpan } from '@pkgs/observability-root-shared/span';
 import type { ResolvedAdapterConfig } from '@pkgs/room-adapter-durable-object-shared/adapter-base-types';
 import {
   DoAlarmHub,
@@ -124,10 +125,20 @@ export class RoomDurableObjectAdapterBase<
 
   /** Cloudflare DO alarm callback — injects due scheduled commands. */
   async alarm(): Promise<void> {
-    await this.ensureRestored();
-    await this.ensureServersForPendingAlarms();
-    for (const fire of this.scheduleFire.values()) {
-      await fire();
+    try {
+      await withSpan(
+        'room.alarm',
+        async () => {
+          await this.ensureRestored();
+          await this.ensureServersForPendingAlarms();
+          for (const fire of this.scheduleFire.values()) {
+            await fire();
+          }
+        },
+        { [ATTR.CODE_FUNCTION_NAME]: 'alarm' }
+      );
+    } finally {
+      this.flushTelemetry();
     }
   }
 

@@ -26,6 +26,7 @@ function stored(
     white_ms: 300_000,
     black_ms: 300_000,
     clock_at_ms: 0,
+    paused_at_ms: null,
     draw_offer_by: null,
     rematch_offer_by: null,
     rematch_of: null,

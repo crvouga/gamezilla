@@ -1,6 +1,7 @@
 import { CUSTOM_GAME_GRANT_KEYS } from '@libs/chess-custom-game-shared/custom-game-permissions';
 import { scheduleFormationRetry } from '@libs/chess-matchmaking-shared/formation-retry';
 import { formChessMatches } from '@libs/chess-matchmaking-shared/match-handoff';
+
 import { MultiplayerDeadline } from '@libs/chess-matchmaking-shared/multiplayer-deadline';
 import { OpponentRequested } from '@libs/chess-matchmaking-shared/opponent-requested';
 import { settleDueGame } from '@libs/chess-matchmaking-shared/settle-due-game';
@@ -12,6 +13,7 @@ import type { RoomGrantsCtx } from '@libs/sub-shared/server';
 import { defineSubServer } from '@libs/sub-shared/server';
 import { defineOutboxConsumer } from '@pkgs/outbox-shared/define-consumer';
 import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
+import { multiplayerAvailabilityConsumer } from './multiplayer-availability-consumer';
 import {
   multiplayerNoticesConsumer,
   registerMultiplayerNoticeActions,
@@ -63,6 +65,7 @@ export function createChessServer(rooms: RoomServicePort) {
       registerMatchRoomConsumers(registry, rooms);
       registry.register(multiplayerNoticesConsumer);
       registry.register(multiplayerTurnReminderConsumer);
+      registry.register(multiplayerAvailabilityConsumer);
       registry.register(
         defineOutboxConsumer({
           id: 'chess.form-opponent-match',

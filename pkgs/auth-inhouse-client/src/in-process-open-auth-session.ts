@@ -1,3 +1,4 @@
+import { oauthNavigation } from '@pkgs/auth-inhouse-shared/oauth-navigation';
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
 
 import { AUTH_SSO_POPUP_BLOCKED_ERROR } from './auth-client-http';
@@ -191,11 +192,12 @@ async function walk(
       redirect: 'manual',
     });
     jar.absorb(hop.url, response);
-    const location = response.headers.get('location');
-    if (location !== null) {
-      const next = new URL(location, hop.url).toString();
+    const navigation = oauthNavigation(response, hop.url);
+    if (navigation !== null) {
+      const next = navigation.url.href;
+      await response.body?.cancel();
       if (next.startsWith(callbackUrl)) return { type: 'success', url: next };
-      hop = { url: next };
+      hop = navigation.preserveMethod ? { ...hop, url: next } : { url: next };
       continue;
     }
     if (!response.ok) return { type: 'cancel' };
