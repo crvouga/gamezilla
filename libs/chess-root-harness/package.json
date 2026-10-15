@@ -120,18 +120,22 @@
     "test:spec:82": "bun run ../../libs/harness/scripts/test-spec.ts --part 82/84",
     "test:spec:83": "bun run ../../libs/harness/scripts/test-spec.ts --part 83/84",
     "check:models:21": "bun run ../../libs/tools/scripts/check-models.ts --part 21/22",
-    "check:models:10:0": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 0/12",
-    "check:models:10:1": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 1/12",
-    "check:models:10:2": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 2/12",
-    "check:models:10:3": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 3/12",
-    "check:models:10:4": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 4/12",
-    "check:models:10:5": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 5/12",
-    "check:models:10:6": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 6/12",
-    "check:models:10:7": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 7/12",
-    "check:models:10:8": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 8/12",
-    "check:models:10:9": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 9/12",
-    "check:models:10:10": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 10/12",
-    "check:models:10:11": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 11/12"
+    "check:models:10:0": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 0/16",
+    "check:models:10:1": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 1/16",
+    "check:models:10:2": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 2/16",
+    "check:models:10:3": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 3/16",
+    "check:models:10:4": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 4/16",
+    "check:models:10:5": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 5/16",
+    "check:models:10:6": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 6/16",
+    "check:models:10:7": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 7/16",
+    "check:models:10:8": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 8/16",
+    "check:models:10:9": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 9/16",
+    "check:models:10:10": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 10/16",
+    "check:models:10:11": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 11/16",
+    "check:models:10:12": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 12/16",
+    "check:models:10:13": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 13/16",
+    "check:models:10:14": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 14/16",
+    "check:models:10:15": "bun run ../../libs/tools/scripts/check-models.ts --part 10/22 --phase 15/16"
   },
   "dependencies": {
     "@libs/account-privacy-harness": "workspace:*",
@@ -209,6 +213,6 @@
   ],
   "specParts": 84,
   "phaseParts": {
-    "10": 12
+    "10": 16
   }
 }
