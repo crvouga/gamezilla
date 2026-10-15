@@ -245,6 +245,12 @@ terms:
       - finishStoppingPuzzles
       - failStoppingPuzzles
       - returnToLichessFile
+      - followingAddingPuzzles
+      - leavingAddingPuzzles
+      - askToLeaveAddingPuzzles
+      - cancelLeavingAddingPuzzles
+      - confirmLeavingAddingPuzzles
+      - leaveAddingPuzzles
 
   - term: Lichess file
     definition: >-
@@ -260,6 +266,7 @@ terms:
       - LichessFile
       - lichessFile
       - lichessFileSaved
+      - savingLichessFile
       - needsLichessFile
       - checkLichessFile
       - finishCheckingLichessFile
