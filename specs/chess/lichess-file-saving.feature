@@ -110,6 +110,13 @@ Feature: Save the first Lichess file
       And Alice is offered to save the chosen Lichess file
       And the other environment does not offer the unfinished Lichess file
 
+    Scenario: Saving can finish after the team stopped an earlier attempt
+      Given Alice is on the team for this environment
+      And Alice has stopped saving the chosen Lichess file
+      When Alice saves the chosen file
+      Then Alice is offered to add puzzles from the saved Lichess file
+      And this environment is not adding puzzles
+
   Rule: A connection and team access are needed to finish saving
 
     Scenario: A connected person on the team can save the first file

@@ -154,3 +154,17 @@ Feature: Stop adding puzzles
       When stopping adding puzzles fails
       Then Alice is told adding puzzles is being stopped
       And Alice sees that this environment is adding puzzles
+
+    Scenario: Cancelling a failed stop leaves the addition running
+      Given Alice is on the team for this environment
+      And Alice could not stop an ongoing addition
+      When Alice cancels stopping adding puzzles
+      Then Alice sees that this environment is adding puzzles
+      And Alice is not asked to confirm stopping adding puzzles
+
+    Scenario: Following after a successful stop closes its confirmation
+      Given Alice is on the team for this environment
+      And Alice has a successful stop confirmation
+      When Alice follows adding puzzles to this environment
+      Then Alice sees that this environment stopped adding puzzles
+      And Alice is not asked to confirm stopping adding puzzles
