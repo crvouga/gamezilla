@@ -42,6 +42,7 @@ Feature: Configure and continue Connect Four games
   Rule: Returning after time away restores the game as it stands
     No counter-example: time away alone never gives up the game; the clock and shared away-win policy still apply.
 
+    @regression:browser-room-connection-control
     Scenario: A returning participant sees the opponent's drop
       Given Alice and Bob have an active Connect Four custom game and Alice is away
       And Bob has made the next Connect Four drop

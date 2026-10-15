@@ -8889,6 +8889,8 @@
                           "specs/developer-tools/checkpoints.feature",
                           "specs/developer-tools/test-world-views.feature",
                           "specs/developer-tools/ubiquitous-language.yml",
+                          "specs/synthetic-population/choose-a-game.feature",
+                          "specs/synthetic-population/choose-a-game.qnt",
                           "specs/synthetic-population/observatory.feature",
                           "specs/synthetic-population/recognizing-synthetic-users.feature",
                           "specs/synthetic-population/synthetic-population-access.dmn",

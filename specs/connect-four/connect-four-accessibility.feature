@@ -4,6 +4,8 @@ Feature: Accessible Connect Four play
 
   Rule: A playable column offers a preview and a full column offers no drop
 
+    @regression:connect-four-fixture-before-space-join
+    @regression:native-conformance-command-not-clickable
     Scenario: Choosing a column shows its landing place
       Given Alice has a new Connect Four game
       When Alice chooses Connect Four column 4 with the keyboard
