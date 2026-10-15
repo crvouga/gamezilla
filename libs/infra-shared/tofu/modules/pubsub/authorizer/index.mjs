@@ -1,7 +1,7 @@
 // @io-wall-ok — AWS IoT custom authorizer entry. Verifies the app's HMAC
 // token and returns a session policy. The app's topics use `:`; IoT topic
 // ARNs split on `:`, so the wire topic uses `/`.
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
 const MAX_DISCONNECT_SEC = 86400;
 
@@ -134,19 +134,20 @@ export function authorize(event, config) {
   const payload = verifyHs256(token, config.tokenSecret, config.nowSec);
   if (payload === null) return deny();
   const remaining = payload.exp - config.nowSec;
+  // IoT requires both lifetimes to be at least 300 seconds. Do not extend
+  // authorization beyond the token's expiry just to satisfy that minimum.
+  if (remaining < 300) return deny();
   const disconnectAfterInSeconds = Math.min(
     MAX_DISCONNECT_SEC,
-    Math.max(1, remaining)
-  );
-  const refreshAfterInSeconds = Math.max(
-    1,
-    Math.min(300, disconnectAfterInSeconds - 1)
+    Math.floor(remaining)
   );
   return {
     isAuthenticated: true,
-    principalId: payload.sub,
+    // IoT accepts only alphanumeric principals (UUID hyphens are invalid).
+    // Hash rather than strip punctuation so distinct subjects stay distinct.
+    principalId: createHash('sha256').update(payload.sub).digest('hex'),
     disconnectAfterInSeconds,
-    refreshAfterInSeconds,
+    refreshAfterInSeconds: 300,
     policyDocuments: [
       policyDocument(payload, config.region, config.accountId, clientId),
     ],

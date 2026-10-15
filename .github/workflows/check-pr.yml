@@ -55,6 +55,10 @@ on:
         default: normal
   workflow_call:
     inputs:
+      require-main:
+        description: Refuse a release from any ref other than main
+        type: boolean
+        default: false
       shards:
         description: Most shards a run may start
         type: number
@@ -113,6 +117,14 @@ jobs:
     outputs:
       shards: ${{ steps.plan.outputs.shards }}
     steps:
+      - name: Validate release branch
+        if: ${{ inputs.require-main }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::Deploy ships refs/heads/main only (got ${GITHUB_REF})."
+            exit 1
+          fi
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
@@ -417,8 +429,10 @@ jobs:
         if: always() && !cancelled() && env.CHECK_PROFILE != 'nightly'
         run: |
           set -euo pipefail
-          gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" \
-            --jq '.artifacts[] | select(.name | startswith("check-")) | .id' |
-            while read -r id; do
-              gh api --method DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}"
-            done
+          # Finish pagination before deleting from the collection being listed.
+          artifact_ids=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" \
+            --jq '.artifacts[] | select(.name | startswith("check-")) | .id')
+          while read -r id; do
+            if [[ -z "$id" ]]; then continue; fi
+            gh api --method DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}"
+          done <<< "$artifact_ids"

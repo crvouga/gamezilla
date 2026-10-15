@@ -41,8 +41,28 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
   expect(commands).toMatch(/\bplan:foundation\b/);
   expect(commands).toMatch(/\bplan:fleet\b/);
   expect(commands).not.toMatch(/apply|deploy:local|--recover-ci-identity/);
-  expect(source).toContain('Deploy ships refs/heads/main only');
+  expect(source).not.toContain('deploy-guard:');
   expect(source).not.toContain('/pulls');
   expect(source).not.toContain('pull-requests:');
-  expect(workflow.jobs['deploy-check']?.needs).toBe('deploy-guard');
+  expect(workflow.jobs['deploy-check']?.needs).toBeUndefined();
+  expect(workflow.jobs['deploy-check']).toHaveProperty(
+    'with.require-main',
+    '${{ !inputs.rehearsal }}'
+  );
+  const check = Bun.YAML.parse(
+    readFileSync(
+      join(import.meta.dirname, '../../../.github/workflows/check-pr.yml'),
+      'utf8'
+    )
+  ) as {
+    jobs: Record<
+      string,
+      { steps: { name?: string; if?: string; run?: string }[] }
+    >;
+  };
+  expect(check.jobs['check-start']?.steps[0]).toMatchObject({
+    name: 'Validate release branch',
+    if: '${{ inputs.require-main }}',
+  });
+  expect(check.jobs['check-start']?.steps[0]?.run).toContain('refs/heads/main');
 });

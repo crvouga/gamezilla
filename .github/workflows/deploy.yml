@@ -5,20 +5,9 @@ name: Deploy
 #   <Workflow> · <trigger>
 run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 
-# Every merge to `main` ships, in order:
-#
-#   deploy:guard    refuse anything that is not `main`
-#   deploy:check    the full Check PR gate on this exact commit
-#   deploy:fleet    secrets shared by every environment, the auth relay, the fleet stack
-#   deploy:dev      migrate, ship the Workers, run the health probes
-#   deploy:prd      the same, in production, only once dev is green
-#   deploy:release  tag the commit and publish a GitHub release
-#
-# `bun deploy` (or "Run workflow" on `main`) does the same by hand. Running it
-# with `rehearsal` on a branch runs deploy:check, then only plans fleet and
-# dev's foundation (deploy:rehearsal) and ships nothing. Every environment file
-# (libs/infra-shared/tofu/envs/<env>.tfvars.json) needs its own job below; a
-# test fails until it has one.
+# Verify the exact commit, deploy shared services, then development and
+# production, then publish a release. A rehearsal checks and plans only.
+# Environment deployment steps are defined once and reused below.
 
 permissions:
   contents: read
@@ -45,30 +34,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy-guard:
-    name: deploy:guard
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      # A manual run on another ref must not ship. A direct push to main does.
-      - name: Ship only main
-        if: ${{ !inputs.rehearsal }}
-        run: |
-          set -euo pipefail
-          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
-            echo "::error::Deploy ships refs/heads/main only (got ${GITHUB_REF})."
-            exit 1
-          fi
-
-  # The same gate a pull request merges on. Nothing below starts unless it is
-  # green, and its cached results are what the environment jobs restore.
   deploy-check:
-    name: deploy:check
-    needs: deploy-guard
+    name: Verify commit
     uses: ./.github/workflows/check-pr.yml
+    with:
+      require-main: ${{ !inputs.rehearsal }}
 
   deploy-rehearsal:
-    name: deploy:rehearsal
+    name: Preview infrastructure changes
     if: ${{ inputs.rehearsal }}
     needs: deploy-check
     runs-on: ubuntu-24.04
@@ -94,7 +67,7 @@ jobs:
   # shared secrets, the auth relay that forwards to every env, and each env's
   # secrets environment. It runs before any environment deploys.
   deploy-fleet:
-    name: deploy:fleet
+    name: Deploy shared services
     if: ${{ !inputs.rehearsal }}
     needs: deploy-check
     runs-on: ubuntu-24.04
@@ -111,7 +84,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: shared
       # The fleet apply reads its state passphrase from shared.
-      - name: Promote shared secrets
+      - name: Reconcile shared secrets
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/secrets-server/scripts/secrets-reconcile-shared.ts promote
       # The fleet stack binds the relay's hostname, so its Worker must exist.
       - name: Deploy the auth relay
@@ -123,7 +96,7 @@ jobs:
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/secrets-server/scripts/secrets-reconcile-shared.ts prune
 
   deploy-dev:
-    name: deploy:dev
+    name: Deploy development
     needs: deploy-fleet
     runs-on: ubuntu-24.04
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
@@ -133,7 +106,7 @@ jobs:
       SECRETS_ENV: dev
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
-    steps:
+    steps: &deploy-environment
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
@@ -146,16 +119,16 @@ jobs:
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
+          environment: ${{ env.SECRETS_ENV }}
       # Foundation, migrations, Workers, edge, billing sync, then health.
-      - name: Deploy dev
+      - name: Deploy and verify environment
         id: deploy
         run: bun run deploy:local
       - name: Keep the critical journeys' evidence
         if: failure()
         uses: actions/upload-artifact@v6
         with:
-          name: critical-journeys-${{ github.run_id }}-dev
+          name: critical-journeys-${{ github.run_id }}-${{ env.SECRETS_ENV }}
           path: apps/product/.cache/critical-journeys/
           if-no-files-found: ignore
           include-hidden-files: true
@@ -163,12 +136,12 @@ jobs:
       - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
         env:
-          WORKFLOW_JOB: deploy:dev
+          WORKFLOW_JOB: ${{ github.job }}
           WORKFLOW_OUTCOME: ${{ steps.deploy.outcome }}
         run: bun run libs/tools/scripts/write-workflow-summary.ts
 
   deploy-prd:
-    name: deploy:prd
+    name: Deploy production
     needs: deploy-dev
     runs-on: ubuntu-24.04
     timeout-minutes: 55
@@ -177,39 +150,10 @@ jobs:
       SECRETS_ENV: prd
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - id: setup
-        uses: ./.github/actions/setup
-      - uses: ./.github/actions/visual-renderer
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: prd
-      - name: Deploy prd
-        id: deploy
-        run: bun run deploy:local
-      - name: Keep the critical journeys' evidence
-        if: failure()
-        uses: actions/upload-artifact@v6
-        with:
-          name: critical-journeys-${{ github.run_id }}-prd
-          path: apps/product/.cache/critical-journeys/
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 14
-      - name: Write workflow summary
-        if: always() && steps.setup.outcome == 'success'
-        env:
-          WORKFLOW_JOB: deploy:prd
-          WORKFLOW_OUTCOME: ${{ steps.deploy.outcome }}
-        run: bun run libs/tools/scripts/write-workflow-summary.ts
+    steps: *deploy-environment
 
   deploy-release:
-    name: deploy:release
+    name: Publish release
     needs: deploy-prd
     runs-on: ubuntu-24.04
     timeout-minutes: 5

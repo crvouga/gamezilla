@@ -46,6 +46,16 @@ const WORKFLOWS: Record<string, { name: string; jobs: string }> = {
   'health.yml': { name: 'Health', jobs: 'health' },
 };
 
+/** Deploy names explain the release sequence on the run page. */
+const DEPLOY_JOBS: Record<string, string> = {
+  'deploy-check': 'Verify commit',
+  'deploy-rehearsal': 'Preview infrastructure changes',
+  'deploy-fleet': 'Deploy shared services',
+  'deploy-dev': 'Deploy development',
+  'deploy-prd': 'Deploy production',
+  'deploy-release': 'Publish release',
+};
+
 /** A job fanned out over the env files renders as `<prefix>:<env>`. */
 const MATRIX_ENV = '${{ matrix.env }}';
 /** A job fanned out over shards renders as `<prefix>:<stage> (<shard>)`. */
@@ -98,6 +108,10 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
   test('jobs are named `<prefix>[:<stage>]` after their id, `<prefix>:<env>` per env, or with their shard', () => {
     const prefix = WORKFLOWS[file]!.jobs;
     for (const [id, job] of Object.entries(workflow.jobs)) {
+      if (file === 'deploy.yml') {
+        expect(job.name).toBe(DEPLOY_JOBS[id]);
+        continue;
+      }
       const perEnv = job.strategy?.matrix?.env !== undefined;
       const perShard = job.strategy?.matrix?.shard !== undefined;
       expect(id === prefix || id.startsWith(`${prefix}-`)).toBe(true);

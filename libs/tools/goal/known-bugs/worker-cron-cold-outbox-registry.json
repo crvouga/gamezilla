@@ -1,0 +1,4 @@
+{
+  "summary": "Scheduled invocations in fresh Worker isolates tried draining the outbox before createServer composed its consumers. Every cold cron failed with 'outbox registry: not composed'. Initialize the app before opening the cron database session.",
+  "regressionTest": "apps/server/tests/worker-cron-bootstrap.test.ts"
+}
