@@ -4,8 +4,17 @@ export function stackSuiteArgs(argv: readonly string[]) {
   const stack = separator < 0 ? argv : argv.slice(0, separator);
   const isSpec = (value: string) =>
     /(?:\.test\.[cm]?[jt]sx?|\.feature)$/.test(value);
+  const controls = stack.filter((value) => !isSpec(value));
+  const populationSpecified = controls.some(
+    (value) =>
+      value === '--synthetic-population-workers' ||
+      value.startsWith('--synthetic-population-workers=')
+  );
   return {
-    stack: stack.filter((value) => !isSpec(value)),
+    // Spec fixtures own their participants; explicit worker checks can opt in.
+    stack: populationSpecified
+      ? controls
+      : [...controls, '--synthetic-population-workers=0'],
     suite: [
       ...stack.filter(isSpec),
       ...(separator < 0 ? [] : argv.slice(separator + 1)),

@@ -438,12 +438,12 @@ deploy:release tag and GitHub release
 `bun run gc` collects abandoned boots for this checkout, preserving live ones. `bun run stop` (also `bun run kill`) intentionally stops all its boots. Ownership records live in `.cache/dev-owner/`: boot identities, per-PID ledgers, listen-port claims, resource records, the admission lock, and `gc.log`. A stopping boot records what it signalled in `gc.log` and never writes to its launch terminal, which may no longer be read. Launch gates stamp `DEV_OWNER_ROOT` and `DEV_OWNER_BOOT` and record service and Node/Bun worker leaders before execution. An independent watchdog and GC collect stamped descendants, including separate sessions after supervisor death. Cleanup compares process birth identities and refuses foreign checkout stamps; it never kills by a machine-wide name or port.
 
 Run initializes the local population controller with one synthetic opponent per worker
-(default one), then starts workers that sign in and use the normal space and chess
+(default one), then starts workers that sign in and use the normal space and registered-game
 matchmaking controls. Synthetic users sign in with an emailed link that is never
 sent: the API keeps it in an internal inbox only their worker can read, in every
 environment ([worker](apps/synthetic-population-worker/README.md)). People only
 ever see Google and Apple. `--synthetic-population-workers 3` starts three; `0` disables
-them for isolated scenarios. The committed puzzle pool supplies 2,000 puzzles.
+them for isolated scenarios. The committed puzzle pool supplies 2,000 puzzles. Stack spec suites default to no background population workers so fixtures own their participants; an explicit worker count still overrides that test default.
 Child processes inherit only process plumbing, with service bindings supplied by
 the stack. API reports use local Mockingbird S3; the development reports page shows
 workspace reports without fetching shared cloud credentials. Local data is fresh
