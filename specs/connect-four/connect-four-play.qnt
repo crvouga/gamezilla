@@ -4,8 +4,8 @@
 // When both players have no connection, they keep their last board and cannot
 // drop a disc. Returning online restores that same board and turn.
 module connect_four_play {
-  type Board = int -> int
-  type Columns = int -> int
+  type Board = (int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)
+  type Columns = (int, int, int, int, int, int, int)
   var board: Board
   var _heights: Columns
   var turn: int
@@ -18,79 +18,79 @@ module connect_four_play {
   var _turnAtDisconnect: int
   var _resultAtDisconnect: int
   var _countAtDisconnect: int
-  pure val _empty = 0.to(41).mapBy(_ => 0)
-  pure val _zero = 0.to(6).mapBy(_ => 0)
-  pure def _height(h: Columns, c: int): int = h.get(c)
+  pure val _empty = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+  pure val _zero = (0, 0, 0, 0, 0, 0, 0)
+  pure def _height(h: Columns, c: int): int = if (c == 0) h._1 else if (c == 1) h._2 else if (c == 2) h._3 else if (c == 3) h._4 else if (c == 4) h._5 else if (c == 5) h._6 else h._7
   pure def _won(b: Board, p: int): bool = or {
-    and { b.get(0) == p, b.get(1) == p, b.get(2) == p, b.get(3) == p },
-    and { b.get(0) == p, b.get(7) == p, b.get(14) == p, b.get(21) == p },
-    and { b.get(0) == p, b.get(8) == p, b.get(16) == p, b.get(24) == p },
-    and { b.get(1) == p, b.get(2) == p, b.get(3) == p, b.get(4) == p },
-    and { b.get(1) == p, b.get(8) == p, b.get(15) == p, b.get(22) == p },
-    and { b.get(1) == p, b.get(9) == p, b.get(17) == p, b.get(25) == p },
-    and { b.get(2) == p, b.get(3) == p, b.get(4) == p, b.get(5) == p },
-    and { b.get(2) == p, b.get(9) == p, b.get(16) == p, b.get(23) == p },
-    and { b.get(2) == p, b.get(10) == p, b.get(18) == p, b.get(26) == p },
-    and { b.get(3) == p, b.get(4) == p, b.get(5) == p, b.get(6) == p },
-    and { b.get(3) == p, b.get(10) == p, b.get(17) == p, b.get(24) == p },
-    and { b.get(3) == p, b.get(11) == p, b.get(19) == p, b.get(27) == p },
-    and { b.get(4) == p, b.get(11) == p, b.get(18) == p, b.get(25) == p },
-    and { b.get(5) == p, b.get(12) == p, b.get(19) == p, b.get(26) == p },
-    and { b.get(6) == p, b.get(13) == p, b.get(20) == p, b.get(27) == p },
-    and { b.get(7) == p, b.get(8) == p, b.get(9) == p, b.get(10) == p },
-    and { b.get(7) == p, b.get(14) == p, b.get(21) == p, b.get(28) == p },
-    and { b.get(7) == p, b.get(15) == p, b.get(23) == p, b.get(31) == p },
-    and { b.get(8) == p, b.get(9) == p, b.get(10) == p, b.get(11) == p },
-    and { b.get(8) == p, b.get(15) == p, b.get(22) == p, b.get(29) == p },
-    and { b.get(8) == p, b.get(16) == p, b.get(24) == p, b.get(32) == p },
-    and { b.get(9) == p, b.get(10) == p, b.get(11) == p, b.get(12) == p },
-    and { b.get(9) == p, b.get(16) == p, b.get(23) == p, b.get(30) == p },
-    and { b.get(9) == p, b.get(17) == p, b.get(25) == p, b.get(33) == p },
-    and { b.get(10) == p, b.get(11) == p, b.get(12) == p, b.get(13) == p },
-    and { b.get(10) == p, b.get(17) == p, b.get(24) == p, b.get(31) == p },
-    and { b.get(10) == p, b.get(18) == p, b.get(26) == p, b.get(34) == p },
-    and { b.get(11) == p, b.get(18) == p, b.get(25) == p, b.get(32) == p },
-    and { b.get(12) == p, b.get(19) == p, b.get(26) == p, b.get(33) == p },
-    and { b.get(13) == p, b.get(20) == p, b.get(27) == p, b.get(34) == p },
-    and { b.get(14) == p, b.get(15) == p, b.get(16) == p, b.get(17) == p },
-    and { b.get(14) == p, b.get(21) == p, b.get(28) == p, b.get(35) == p },
-    and { b.get(14) == p, b.get(22) == p, b.get(30) == p, b.get(38) == p },
-    and { b.get(15) == p, b.get(16) == p, b.get(17) == p, b.get(18) == p },
-    and { b.get(15) == p, b.get(22) == p, b.get(29) == p, b.get(36) == p },
-    and { b.get(15) == p, b.get(23) == p, b.get(31) == p, b.get(39) == p },
-    and { b.get(16) == p, b.get(17) == p, b.get(18) == p, b.get(19) == p },
-    and { b.get(16) == p, b.get(23) == p, b.get(30) == p, b.get(37) == p },
-    and { b.get(16) == p, b.get(24) == p, b.get(32) == p, b.get(40) == p },
-    and { b.get(17) == p, b.get(18) == p, b.get(19) == p, b.get(20) == p },
-    and { b.get(17) == p, b.get(24) == p, b.get(31) == p, b.get(38) == p },
-    and { b.get(17) == p, b.get(25) == p, b.get(33) == p, b.get(41) == p },
-    and { b.get(18) == p, b.get(25) == p, b.get(32) == p, b.get(39) == p },
-    and { b.get(19) == p, b.get(26) == p, b.get(33) == p, b.get(40) == p },
-    and { b.get(20) == p, b.get(27) == p, b.get(34) == p, b.get(41) == p },
-    and { b.get(21) == p, b.get(22) == p, b.get(23) == p, b.get(24) == p },
-    and { b.get(21) == p, b.get(15) == p, b.get(9) == p, b.get(3) == p },
-    and { b.get(22) == p, b.get(23) == p, b.get(24) == p, b.get(25) == p },
-    and { b.get(22) == p, b.get(16) == p, b.get(10) == p, b.get(4) == p },
-    and { b.get(23) == p, b.get(24) == p, b.get(25) == p, b.get(26) == p },
-    and { b.get(23) == p, b.get(17) == p, b.get(11) == p, b.get(5) == p },
-    and { b.get(24) == p, b.get(25) == p, b.get(26) == p, b.get(27) == p },
-    and { b.get(24) == p, b.get(18) == p, b.get(12) == p, b.get(6) == p },
-    and { b.get(28) == p, b.get(29) == p, b.get(30) == p, b.get(31) == p },
-    and { b.get(28) == p, b.get(22) == p, b.get(16) == p, b.get(10) == p },
-    and { b.get(29) == p, b.get(30) == p, b.get(31) == p, b.get(32) == p },
-    and { b.get(29) == p, b.get(23) == p, b.get(17) == p, b.get(11) == p },
-    and { b.get(30) == p, b.get(31) == p, b.get(32) == p, b.get(33) == p },
-    and { b.get(30) == p, b.get(24) == p, b.get(18) == p, b.get(12) == p },
-    and { b.get(31) == p, b.get(32) == p, b.get(33) == p, b.get(34) == p },
-    and { b.get(31) == p, b.get(25) == p, b.get(19) == p, b.get(13) == p },
-    and { b.get(35) == p, b.get(36) == p, b.get(37) == p, b.get(38) == p },
-    and { b.get(35) == p, b.get(29) == p, b.get(23) == p, b.get(17) == p },
-    and { b.get(36) == p, b.get(37) == p, b.get(38) == p, b.get(39) == p },
-    and { b.get(36) == p, b.get(30) == p, b.get(24) == p, b.get(18) == p },
-    and { b.get(37) == p, b.get(38) == p, b.get(39) == p, b.get(40) == p },
-    and { b.get(37) == p, b.get(31) == p, b.get(25) == p, b.get(19) == p },
-    and { b.get(38) == p, b.get(39) == p, b.get(40) == p, b.get(41) == p },
-    and { b.get(38) == p, b.get(32) == p, b.get(26) == p, b.get(20) == p },
+    and { b._1 == p, b._2 == p, b._3 == p, b._4 == p },
+    and { b._1 == p, b._8 == p, b._15 == p, b._22 == p },
+    and { b._1 == p, b._9 == p, b._17 == p, b._25 == p },
+    and { b._2 == p, b._3 == p, b._4 == p, b._5 == p },
+    and { b._2 == p, b._9 == p, b._16 == p, b._23 == p },
+    and { b._2 == p, b._10 == p, b._18 == p, b._26 == p },
+    and { b._3 == p, b._4 == p, b._5 == p, b._6 == p },
+    and { b._3 == p, b._10 == p, b._17 == p, b._24 == p },
+    and { b._3 == p, b._11 == p, b._19 == p, b._27 == p },
+    and { b._4 == p, b._5 == p, b._6 == p, b._7 == p },
+    and { b._4 == p, b._11 == p, b._18 == p, b._25 == p },
+    and { b._4 == p, b._12 == p, b._20 == p, b._28 == p },
+    and { b._5 == p, b._12 == p, b._19 == p, b._26 == p },
+    and { b._6 == p, b._13 == p, b._20 == p, b._27 == p },
+    and { b._7 == p, b._14 == p, b._21 == p, b._28 == p },
+    and { b._8 == p, b._9 == p, b._10 == p, b._11 == p },
+    and { b._8 == p, b._15 == p, b._22 == p, b._29 == p },
+    and { b._8 == p, b._16 == p, b._24 == p, b._32 == p },
+    and { b._9 == p, b._10 == p, b._11 == p, b._12 == p },
+    and { b._9 == p, b._16 == p, b._23 == p, b._30 == p },
+    and { b._9 == p, b._17 == p, b._25 == p, b._33 == p },
+    and { b._10 == p, b._11 == p, b._12 == p, b._13 == p },
+    and { b._10 == p, b._17 == p, b._24 == p, b._31 == p },
+    and { b._10 == p, b._18 == p, b._26 == p, b._34 == p },
+    and { b._11 == p, b._12 == p, b._13 == p, b._14 == p },
+    and { b._11 == p, b._18 == p, b._25 == p, b._32 == p },
+    and { b._11 == p, b._19 == p, b._27 == p, b._35 == p },
+    and { b._12 == p, b._19 == p, b._26 == p, b._33 == p },
+    and { b._13 == p, b._20 == p, b._27 == p, b._34 == p },
+    and { b._14 == p, b._21 == p, b._28 == p, b._35 == p },
+    and { b._15 == p, b._16 == p, b._17 == p, b._18 == p },
+    and { b._15 == p, b._22 == p, b._29 == p, b._36 == p },
+    and { b._15 == p, b._23 == p, b._31 == p, b._39 == p },
+    and { b._16 == p, b._17 == p, b._18 == p, b._19 == p },
+    and { b._16 == p, b._23 == p, b._30 == p, b._37 == p },
+    and { b._16 == p, b._24 == p, b._32 == p, b._40 == p },
+    and { b._17 == p, b._18 == p, b._19 == p, b._20 == p },
+    and { b._17 == p, b._24 == p, b._31 == p, b._38 == p },
+    and { b._17 == p, b._25 == p, b._33 == p, b._41 == p },
+    and { b._18 == p, b._19 == p, b._20 == p, b._21 == p },
+    and { b._18 == p, b._25 == p, b._32 == p, b._39 == p },
+    and { b._18 == p, b._26 == p, b._34 == p, b._42 == p },
+    and { b._19 == p, b._26 == p, b._33 == p, b._40 == p },
+    and { b._20 == p, b._27 == p, b._34 == p, b._41 == p },
+    and { b._21 == p, b._28 == p, b._35 == p, b._42 == p },
+    and { b._22 == p, b._23 == p, b._24 == p, b._25 == p },
+    and { b._22 == p, b._16 == p, b._10 == p, b._4 == p },
+    and { b._23 == p, b._24 == p, b._25 == p, b._26 == p },
+    and { b._23 == p, b._17 == p, b._11 == p, b._5 == p },
+    and { b._24 == p, b._25 == p, b._26 == p, b._27 == p },
+    and { b._24 == p, b._18 == p, b._12 == p, b._6 == p },
+    and { b._25 == p, b._26 == p, b._27 == p, b._28 == p },
+    and { b._25 == p, b._19 == p, b._13 == p, b._7 == p },
+    and { b._29 == p, b._30 == p, b._31 == p, b._32 == p },
+    and { b._29 == p, b._23 == p, b._17 == p, b._11 == p },
+    and { b._30 == p, b._31 == p, b._32 == p, b._33 == p },
+    and { b._30 == p, b._24 == p, b._18 == p, b._12 == p },
+    and { b._31 == p, b._32 == p, b._33 == p, b._34 == p },
+    and { b._31 == p, b._25 == p, b._19 == p, b._13 == p },
+    and { b._32 == p, b._33 == p, b._34 == p, b._35 == p },
+    and { b._32 == p, b._26 == p, b._20 == p, b._14 == p },
+    and { b._36 == p, b._37 == p, b._38 == p, b._39 == p },
+    and { b._36 == p, b._30 == p, b._24 == p, b._18 == p },
+    and { b._37 == p, b._38 == p, b._39 == p, b._40 == p },
+    and { b._37 == p, b._31 == p, b._25 == p, b._19 == p },
+    and { b._38 == p, b._39 == p, b._40 == p, b._41 == p },
+    and { b._38 == p, b._32 == p, b._26 == p, b._20 == p },
+    and { b._39 == p, b._40 == p, b._41 == p, b._42 == p },
+    and { b._39 == p, b._33 == p, b._27 == p, b._21 == p },
   }
   action init = all {
     board' = _empty, _heights' = _zero, turn' = 1, result' = 0,
@@ -100,8 +100,8 @@ module connect_four_play {
   action drop(column: int): bool =
     if (online and result == 0 and column >= 0 and column < 7 and _height(_heights, column) < 6) {
       val cell = _height(_heights, column) * 7 + column
-      val b = board.put(cell, turn)
-      val h = _heights.put(column, _heights.get(column) + 1)
+      val b = (if (cell == 0) turn else board._1, if (cell == 1) turn else board._2, if (cell == 2) turn else board._3, if (cell == 3) turn else board._4, if (cell == 4) turn else board._5, if (cell == 5) turn else board._6, if (cell == 6) turn else board._7, if (cell == 7) turn else board._8, if (cell == 8) turn else board._9, if (cell == 9) turn else board._10, if (cell == 10) turn else board._11, if (cell == 11) turn else board._12, if (cell == 12) turn else board._13, if (cell == 13) turn else board._14, if (cell == 14) turn else board._15, if (cell == 15) turn else board._16, if (cell == 16) turn else board._17, if (cell == 17) turn else board._18, if (cell == 18) turn else board._19, if (cell == 19) turn else board._20, if (cell == 20) turn else board._21, if (cell == 21) turn else board._22, if (cell == 22) turn else board._23, if (cell == 23) turn else board._24, if (cell == 24) turn else board._25, if (cell == 25) turn else board._26, if (cell == 26) turn else board._27, if (cell == 27) turn else board._28, if (cell == 28) turn else board._29, if (cell == 29) turn else board._30, if (cell == 30) turn else board._31, if (cell == 31) turn else board._32, if (cell == 32) turn else board._33, if (cell == 33) turn else board._34, if (cell == 34) turn else board._35, if (cell == 35) turn else board._36, if (cell == 36) turn else board._37, if (cell == 37) turn else board._38, if (cell == 38) turn else board._39, if (cell == 39) turn else board._40, if (cell == 40) turn else board._41, if (cell == 41) turn else board._42)
+      val h = (if (column == 0) _heights._1 + 1 else _heights._1, if (column == 1) _heights._2 + 1 else _heights._2, if (column == 2) _heights._3 + 1 else _heights._3, if (column == 3) _heights._4 + 1 else _heights._4, if (column == 4) _heights._5 + 1 else _heights._5, if (column == 5) _heights._6 + 1 else _heights._6, if (column == 6) _heights._7 + 1 else _heights._7)
       val played = drops * 8 + column + 1
       all {
         board' = b, _heights' = h, drops' = played, _count' = _count + 1, turn' = 3 - turn,
@@ -127,13 +127,13 @@ module connect_four_play {
   /// The board and turn stay unchanged while neither player has a connection.
   val invOfflineBoard = not(online) implies ((board, drops, turn, result, _count) == (_boardAtDisconnect, _dropsAtDisconnect, _turnAtDisconnect, _resultAtDisconnect, _countAtDisconnect))
   /// Bookkeeping: a column holds at most six discs.
-  val invCapacity = and { (_heights.get(0) >= 0 and _heights.get(0) <= 6), (_heights.get(1) >= 0 and _heights.get(1) <= 6), (_heights.get(2) >= 0 and _heights.get(2) <= 6), (_heights.get(3) >= 0 and _heights.get(3) <= 6), (_heights.get(4) >= 0 and _heights.get(4) <= 6), (_heights.get(5) >= 0 and _heights.get(5) <= 6), (_heights.get(6) >= 0 and _heights.get(6) <= 6) }
+  val invCapacity = and { (_heights._1 >= 0 and _heights._1 <= 6), (_heights._2 >= 0 and _heights._2 <= 6), (_heights._3 >= 0 and _heights._3 <= 6), (_heights._4 >= 0 and _heights._4 <= 6), (_heights._5 >= 0 and _heights._5 <= 6), (_heights._6 >= 0 and _heights._6 <= 6), (_heights._7 >= 0 and _heights._7 <= 6) }
   /// Bookkeeping: discs cannot float above an empty place.
-  val invGravity = and { ((board.get(0) != 0) == (0 < _heights.get(0))), ((board.get(1) != 0) == (0 < _heights.get(1))), ((board.get(2) != 0) == (0 < _heights.get(2))), ((board.get(3) != 0) == (0 < _heights.get(3))), ((board.get(4) != 0) == (0 < _heights.get(4))), ((board.get(5) != 0) == (0 < _heights.get(5))), ((board.get(6) != 0) == (0 < _heights.get(6))), ((board.get(7) != 0) == (1 < _heights.get(0))), ((board.get(8) != 0) == (1 < _heights.get(1))), ((board.get(9) != 0) == (1 < _heights.get(2))), ((board.get(10) != 0) == (1 < _heights.get(3))), ((board.get(11) != 0) == (1 < _heights.get(4))), ((board.get(12) != 0) == (1 < _heights.get(5))), ((board.get(13) != 0) == (1 < _heights.get(6))), ((board.get(14) != 0) == (2 < _heights.get(0))), ((board.get(15) != 0) == (2 < _heights.get(1))), ((board.get(16) != 0) == (2 < _heights.get(2))), ((board.get(17) != 0) == (2 < _heights.get(3))), ((board.get(18) != 0) == (2 < _heights.get(4))), ((board.get(19) != 0) == (2 < _heights.get(5))), ((board.get(20) != 0) == (2 < _heights.get(6))), ((board.get(21) != 0) == (3 < _heights.get(0))), ((board.get(22) != 0) == (3 < _heights.get(1))), ((board.get(23) != 0) == (3 < _heights.get(2))), ((board.get(24) != 0) == (3 < _heights.get(3))), ((board.get(25) != 0) == (3 < _heights.get(4))), ((board.get(26) != 0) == (3 < _heights.get(5))), ((board.get(27) != 0) == (3 < _heights.get(6))), ((board.get(28) != 0) == (4 < _heights.get(0))), ((board.get(29) != 0) == (4 < _heights.get(1))), ((board.get(30) != 0) == (4 < _heights.get(2))), ((board.get(31) != 0) == (4 < _heights.get(3))), ((board.get(32) != 0) == (4 < _heights.get(4))), ((board.get(33) != 0) == (4 < _heights.get(5))), ((board.get(34) != 0) == (4 < _heights.get(6))), ((board.get(35) != 0) == (5 < _heights.get(0))), ((board.get(36) != 0) == (5 < _heights.get(1))), ((board.get(37) != 0) == (5 < _heights.get(2))), ((board.get(38) != 0) == (5 < _heights.get(3))), ((board.get(39) != 0) == (5 < _heights.get(4))), ((board.get(40) != 0) == (5 < _heights.get(5))), ((board.get(41) != 0) == (5 < _heights.get(6))) }
+  val invGravity = and { ((board._1 != 0) == (0 < _heights._1)), ((board._2 != 0) == (0 < _heights._2)), ((board._3 != 0) == (0 < _heights._3)), ((board._4 != 0) == (0 < _heights._4)), ((board._5 != 0) == (0 < _heights._5)), ((board._6 != 0) == (0 < _heights._6)), ((board._7 != 0) == (0 < _heights._7)), ((board._8 != 0) == (1 < _heights._1)), ((board._9 != 0) == (1 < _heights._2)), ((board._10 != 0) == (1 < _heights._3)), ((board._11 != 0) == (1 < _heights._4)), ((board._12 != 0) == (1 < _heights._5)), ((board._13 != 0) == (1 < _heights._6)), ((board._14 != 0) == (1 < _heights._7)), ((board._15 != 0) == (2 < _heights._1)), ((board._16 != 0) == (2 < _heights._2)), ((board._17 != 0) == (2 < _heights._3)), ((board._18 != 0) == (2 < _heights._4)), ((board._19 != 0) == (2 < _heights._5)), ((board._20 != 0) == (2 < _heights._6)), ((board._21 != 0) == (2 < _heights._7)), ((board._22 != 0) == (3 < _heights._1)), ((board._23 != 0) == (3 < _heights._2)), ((board._24 != 0) == (3 < _heights._3)), ((board._25 != 0) == (3 < _heights._4)), ((board._26 != 0) == (3 < _heights._5)), ((board._27 != 0) == (3 < _heights._6)), ((board._28 != 0) == (3 < _heights._7)), ((board._29 != 0) == (4 < _heights._1)), ((board._30 != 0) == (4 < _heights._2)), ((board._31 != 0) == (4 < _heights._3)), ((board._32 != 0) == (4 < _heights._4)), ((board._33 != 0) == (4 < _heights._5)), ((board._34 != 0) == (4 < _heights._6)), ((board._35 != 0) == (4 < _heights._7)), ((board._36 != 0) == (5 < _heights._1)), ((board._37 != 0) == (5 < _heights._2)), ((board._38 != 0) == (5 < _heights._3)), ((board._39 != 0) == (5 < _heights._4)), ((board._40 != 0) == (5 < _heights._5)), ((board._41 != 0) == (5 < _heights._6)), ((board._42 != 0) == (5 < _heights._7)) }
   /// Bookkeeping: every accepted drop adds one disc.
-  val invConservation = (_heights.get(0) + _heights.get(1) + _heights.get(2) + _heights.get(3) + _heights.get(4) + _heights.get(5) + _heights.get(6)) == _count
+  val invConservation = (_heights._1 + _heights._2 + _heights._3 + _heights._4 + _heights._5 + _heights._6 + _heights._7) == _count
   /// Bookkeeping: only Red, Yellow, empty and draw have meanings here.
-  val invOwnership = and { Set(0, 1, 2, 3).contains(result), Set(0, 1, 2).contains(board.get(0)), Set(0, 1, 2).contains(board.get(1)), Set(0, 1, 2).contains(board.get(2)), Set(0, 1, 2).contains(board.get(3)), Set(0, 1, 2).contains(board.get(4)), Set(0, 1, 2).contains(board.get(5)), Set(0, 1, 2).contains(board.get(6)), Set(0, 1, 2).contains(board.get(7)), Set(0, 1, 2).contains(board.get(8)), Set(0, 1, 2).contains(board.get(9)), Set(0, 1, 2).contains(board.get(10)), Set(0, 1, 2).contains(board.get(11)), Set(0, 1, 2).contains(board.get(12)), Set(0, 1, 2).contains(board.get(13)), Set(0, 1, 2).contains(board.get(14)), Set(0, 1, 2).contains(board.get(15)), Set(0, 1, 2).contains(board.get(16)), Set(0, 1, 2).contains(board.get(17)), Set(0, 1, 2).contains(board.get(18)), Set(0, 1, 2).contains(board.get(19)), Set(0, 1, 2).contains(board.get(20)), Set(0, 1, 2).contains(board.get(21)), Set(0, 1, 2).contains(board.get(22)), Set(0, 1, 2).contains(board.get(23)), Set(0, 1, 2).contains(board.get(24)), Set(0, 1, 2).contains(board.get(25)), Set(0, 1, 2).contains(board.get(26)), Set(0, 1, 2).contains(board.get(27)), Set(0, 1, 2).contains(board.get(28)), Set(0, 1, 2).contains(board.get(29)), Set(0, 1, 2).contains(board.get(30)), Set(0, 1, 2).contains(board.get(31)), Set(0, 1, 2).contains(board.get(32)), Set(0, 1, 2).contains(board.get(33)), Set(0, 1, 2).contains(board.get(34)), Set(0, 1, 2).contains(board.get(35)), Set(0, 1, 2).contains(board.get(36)), Set(0, 1, 2).contains(board.get(37)), Set(0, 1, 2).contains(board.get(38)), Set(0, 1, 2).contains(board.get(39)), Set(0, 1, 2).contains(board.get(40)), Set(0, 1, 2).contains(board.get(41)) }
+  val invOwnership = and { Set(0, 1, 2, 3).contains(result), Set(0, 1, 2).contains(board._1), Set(0, 1, 2).contains(board._2), Set(0, 1, 2).contains(board._3), Set(0, 1, 2).contains(board._4), Set(0, 1, 2).contains(board._5), Set(0, 1, 2).contains(board._6), Set(0, 1, 2).contains(board._7), Set(0, 1, 2).contains(board._8), Set(0, 1, 2).contains(board._9), Set(0, 1, 2).contains(board._10), Set(0, 1, 2).contains(board._11), Set(0, 1, 2).contains(board._12), Set(0, 1, 2).contains(board._13), Set(0, 1, 2).contains(board._14), Set(0, 1, 2).contains(board._15), Set(0, 1, 2).contains(board._16), Set(0, 1, 2).contains(board._17), Set(0, 1, 2).contains(board._18), Set(0, 1, 2).contains(board._19), Set(0, 1, 2).contains(board._20), Set(0, 1, 2).contains(board._21), Set(0, 1, 2).contains(board._22), Set(0, 1, 2).contains(board._23), Set(0, 1, 2).contains(board._24), Set(0, 1, 2).contains(board._25), Set(0, 1, 2).contains(board._26), Set(0, 1, 2).contains(board._27), Set(0, 1, 2).contains(board._28), Set(0, 1, 2).contains(board._29), Set(0, 1, 2).contains(board._30), Set(0, 1, 2).contains(board._31), Set(0, 1, 2).contains(board._32), Set(0, 1, 2).contains(board._33), Set(0, 1, 2).contains(board._34), Set(0, 1, 2).contains(board._35), Set(0, 1, 2).contains(board._36), Set(0, 1, 2).contains(board._37), Set(0, 1, 2).contains(board._38), Set(0, 1, 2).contains(board._39), Set(0, 1, 2).contains(board._40), Set(0, 1, 2).contains(board._41), Set(0, 1, 2).contains(board._42) }
   /// Bookkeeping: an empty history means no disc has been dropped.
   val invHistory = drops >= 0 and ((drops == 0) == (_count == 0))
   /// Bookkeeping: a recorded victory has a winning alignment.
@@ -142,8 +142,8 @@ module connect_four_play {
   val invDraw = result == 3 implies (_count == 42 and not(_won(board, 1)) and not(_won(board, 2)))
   // An unfinished game has no winning alignment yet.
   val _unfinished = result == 0 implies (not(_won(board, 1)) and not(_won(board, 2)))
-  pure val _BOARDS = 0.to(41).setOfMaps(Set(0, 1, 2))
-  pure val _COLUMNS = 0.to(6).setOfMaps(0.to(6))
+  pure val _BOARDS = tuples(Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2))
+  pure val _COLUMNS = tuples(0.to(6), 0.to(6), 0.to(6), 0.to(6), 0.to(6), 0.to(6), 0.to(6))
   val _inductive = all {
     board.in(_BOARDS), _heights.in(_COLUMNS), drops.in(Nat), _count.in(0.to(42)),
     turn.in(Set(1, 2)), result.in(Set(0, 1, 2, 3)), online.in(Set(false, true)),
