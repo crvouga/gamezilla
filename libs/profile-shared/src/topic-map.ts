@@ -11,6 +11,10 @@ export const PROFILE_TOPIC_MAP = {
       const id = String(row['id'] ?? ctx.actorId);
       return [`user:${id}`];
     },
+    subscribeTopics(row, ctx) {
+      const id = String(row['id'] ?? ctx.actorId);
+      return [`user:${id}`];
+    },
     fallbackTopics(ctx) {
       return [`user:${ctx.actorId}`];
     },
