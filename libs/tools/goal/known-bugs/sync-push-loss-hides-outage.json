@@ -1,0 +1,4 @@
+{
+  "summary": "A device with no pending mutations keeps reporting a healthy connection after live push goes down because no server read confirms the outage.",
+  "regressionTest": "pkgs/sync-engine-client/tests/push-disconnect.test.ts"
+}

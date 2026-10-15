@@ -205,7 +205,10 @@ function onStatus(bag: PushSubscriptions, next: PubSubStatus): void {
   if (bag.disposed) return;
   const prev = bag.lastStatus;
   bag.lastStatus = next;
-  if (next === 'connected' && prev !== 'connected') {
+  // A lost push channel may be the first sign of a device-wide outage.
+  // Confirm through HTTP so status and online-only actions do not stay
+  // healthy until the next periodic reconciliation or user write.
+  if (next !== prev && (next === 'connected' || next === 'down')) {
     bag.options.runtime.wakeAll();
   }
 }
