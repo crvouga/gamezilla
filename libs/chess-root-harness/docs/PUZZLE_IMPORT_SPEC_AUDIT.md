@@ -1,6 +1,6 @@
 # Spec audit — chess puzzle loading — 2026-10-14
 
-Verdict: INCOMPLETE — final full-context verification is running.
+Verdict: INCOMPLETE — loading contracts pass their focused checks; repository-wide verification is blocked by unrelated model timeouts.
 
 ## Scope
 
@@ -123,13 +123,22 @@ an actual two-part file through the driver, and checks the running controls.
 
 ## Verification
 
-- Focused loading features and PR-profile model checks: 35 passed.
+- Focused loading features and PR-profile model checks: 35 passed (29 scenarios plus model checks).
 - All eight generated model traces and model checks: 12 passed.
 - Puzzle-loading model proof: passed.
 - Changed-package verification: 33 tasks passed; private status fanout and
   shared permission packages: 11 tasks passed.
-- Strict spec gate, ownership, and full repository verification: final
-  verdicts recorded after the final run.
+- Strict duplicate spec gate and spec-commit ownership: passed.
+- Check PR on implementation commit `188805ef6`: failed in the unchanged
+  `specs/profile/username-changes.qnt` proof. Its four-step bounded check
+  returned no verdict within 240,000 ms. Two other profile proofs passed;
+  Check stopped before completing the remaining tasks.
+- The whole-chess attempt reported 361 passes and one unchanged multiplayer
+  regression timing out after 300,000 ms. A lower-concurrency attempt was
+  interrupted when the isolated Check acquired the workspace's command owner.
+  Neither attempt is reported as a green whole-context run.
+- Final post-gate focused run: **41 passed, zero failed** — all 29 loading
+  scenarios, all eight generated traces, and four model checks.
 
 ## Triage
 
