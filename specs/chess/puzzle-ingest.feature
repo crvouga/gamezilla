@@ -5,6 +5,7 @@ Feature: Add puzzles to an environment
 
   Rule: Only the team may add puzzles
 
+    @regression:puzzle-import-status-subscription-loop
     Scenario: A person on the team starts adding puzzles
       Given Alice is signed in and on the team for this environment
       When Alice adds puzzles to this environment
