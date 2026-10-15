@@ -76,6 +76,13 @@ export const restoreActorConnection = defineAction({
   },
 });
 
+/** Settle a connectivity transition without spending virtual time. */
+export const refreshActorConnection = defineAction({
+  name: 'refreshActorConnection',
+  pool: false,
+  act: refreshOrigin,
+});
+
 /** A returning connection wakes the health probe, including after offline boot. */
 async function refreshOrigin(s: ProductHarness, id: string): Promise<void> {
   if (!s.actors.has(id)) return;

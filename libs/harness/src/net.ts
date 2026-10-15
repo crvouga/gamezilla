@@ -1,5 +1,8 @@
 import type { ServerHttp } from '@libs/sub-shared/sync';
-import { HttpResponseFaults } from './http-response-faults';
+import {
+  type HttpFaultStage,
+  HttpResponseFaults,
+} from './http-response-faults';
 
 export function harnessPartitionedError(from: string, to: string): TypeError {
   const err = new TypeError(`harness partition: ${from} ↛ ${to}`);
@@ -52,6 +55,7 @@ export function createHarnessNet(opts?: {
   return {
     holdHttp: httpFaults.hold,
     releaseHttp: httpFaults.release,
+    dispose: httpFaults.dispose,
     crash(id: string): void {
       crashed.add(id);
       changed();
@@ -87,11 +91,17 @@ export function createHarnessNet(opts?: {
       return () => listeners.delete(listener);
     },
     /** Gate one directed hop (`client-a → lb`, `lb → server-b`). */
-    wrapHop(fromId: string, toId: string, inner: ServerHttp): ServerHttp {
+    wrapHop(
+      fromId: string,
+      toId: string,
+      inner: ServerHttp,
+      stage: HttpFaultStage = 'direct'
+    ): ServerHttp {
       return httpFaults.wrap(
         fromId,
         () => assertReachable(fromId, toId),
-        inner
+        inner,
+        stage
       );
     },
     assertReachable,

@@ -8,7 +8,12 @@ import { expect } from 'bun:test';
 
 import { hostLimit } from '@pkgs/gherkin-shared/registry';
 import { ActionNotEnabled } from '@pkgs/harness-root-shared/probe';
-import { partition, restartApp, restoreNetwork } from './actions';
+import {
+  partition,
+  refreshActorConnection,
+  restartApp,
+  restoreNetwork,
+} from './actions';
 import {
   claimActorUsername,
   returnToTabs,
@@ -55,7 +60,7 @@ export function otherDevice(actor: string): string {
  * ends here instead of failing.
  */
 export async function cutConnection(
-  w: HarnessWorld,
+  w: Pick<HarnessWorld, 's'>,
   actor: string
 ): Promise<void> {
   if (!(await w.s.read(caps)).includes('partition')) {
@@ -67,8 +72,7 @@ export async function cutConnection(
     throw hostLimit('this host cannot cut the connection');
   }
   await w.s.apply(partition, actor);
-  // Let the disconnected transport publish its status before the next choice.
-  await w.s.advanceTime(1_000);
+  await w.s.apply(refreshActorConnection, actor);
 }
 
 async function signIn(w: HarnessWorld, actor: Actor): Promise<void> {
