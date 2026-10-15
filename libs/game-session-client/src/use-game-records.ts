@@ -12,6 +12,8 @@ export type GameHistoryRecord = {
   readonly position: string;
   readonly first: string;
   readonly second: string;
+  readonly firstBot: boolean;
+  readonly secondBot: boolean;
   readonly outcome: string;
   readonly reason: string;
   readonly moves: readonly RecordedMove[];
@@ -42,6 +44,8 @@ export function useGameRecords(gameId: () => string) {
         position: g.fen,
         first: g.white.person,
         second: g.black.person,
+        firstBot: g.white.kind === 'bot',
+        secondBot: g.black.kind === 'bot',
         outcome:
           g.outcome === 'draw'
             ? 'draw'
@@ -65,6 +69,8 @@ export function useGameRecords(gameId: () => string) {
         position: g.fen,
         first: g.white_id,
         second: g.black_id,
+        firstBot: false,
+        secondBot: false,
         outcome: g.outcome,
         reason: g.reason ?? '',
         moves: gameRules.moves(g.fen, g.pgn, []),
@@ -74,23 +80,21 @@ export function useGameRecords(gameId: () => string) {
       ...remote,
     ] satisfies readonly GameHistoryRecord[];
   });
-  const statistics = createMemo(() => {
-    let wins = 0;
-    let losses = 0;
-    let draws = 0;
-    for (const game of records()) {
-      const side =
-        game.first === myId()
-          ? 'white'
-          : game.second === myId()
-            ? 'black'
-            : null;
-      if (side === null || game.outcome === 'aborted') continue;
-      if (game.outcome === 'draw') draws++;
-      else if (game.outcome === side) wins++;
-      else losses++;
-    }
-    return { wins, losses, draws };
-  });
+  const statistics = createMemo(() => countResults(records(), myId()));
   return { records, statistics };
+}
+
+function countResults(records: readonly GameHistoryRecord[], myId: string) {
+  let wins = 0;
+  let losses = 0;
+  let draws = 0;
+  for (const game of records) {
+    const side =
+      game.first === myId ? 'white' : game.second === myId ? 'black' : null;
+    if (side === null || game.outcome === 'aborted') continue;
+    if (game.outcome === 'draw') draws++;
+    else if (game.outcome === side) wins++;
+    else losses++;
+  }
+  return { wins, losses, draws };
 }

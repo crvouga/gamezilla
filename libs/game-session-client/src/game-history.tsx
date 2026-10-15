@@ -1,6 +1,5 @@
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
-import { UserUsername } from '@libs/profile-client/user-username';
 import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useSpaceDecision } from '@libs/spaces-client/use-space-decision';
@@ -15,6 +14,7 @@ import { MainMenuItemRow } from '@pkgs/ui-root-client/main-menu-item-row';
 import { MenuList } from '@pkgs/ui-root-client/menu-list';
 import { createSignal, For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
+import { GameHistoryParticipant } from './game-history-participant';
 import { useGameRecordLabel } from './game-record-label';
 import { type GameHistoryRecord, useGameRecords } from './use-game-records';
 
@@ -140,25 +140,15 @@ function AllowedGameHistory(props: {
                         key: record.id,
                         title: (
                           <>
-                            <Show
-                              when={record.first !== ''}
-                              fallback={<Trans>Bot</Trans>}
-                            >
-                              <UserUsername
-                                profileId={record.first}
-                                withAt={false}
-                              />
-                            </Show>{' '}
+                            <GameHistoryParticipant
+                              id={record.first}
+                              bot={record.firstBot}
+                            />{' '}
                             /{' '}
-                            <Show
-                              when={record.second !== ''}
-                              fallback={<Trans>Bot</Trans>}
-                            >
-                              <UserUsername
-                                profileId={record.second}
-                                withAt={false}
-                              />
-                            </Show>
+                            <GameHistoryParticipant
+                              id={record.second}
+                              bot={record.secondBot}
+                            />
                           </>
                         ),
                         caption: recordLabel(record),
