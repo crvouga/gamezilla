@@ -17,6 +17,7 @@ import {
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import interruptedAfterFailure from './fixtures/checkpoint-interrupted-save-clears-restore-failure.itf.json';
+import repeatedLabel from './fixtures/checkpoint-repeated-label-identity.itf.json';
 
 const LABEL = 'Before the invitation';
 
@@ -26,6 +27,13 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 6,
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: checkpoint-repeated-label-identity
+      id: 'checkpoint-repeated-label-identity',
+      title: 'Deleting the latest checkpoint does not select an older namesake',
+      seed: '0x67932',
+      itf: repeatedLabel,
+    },
     {
       // regression: checkpoint-interrupted-save-clears-restore-failure
       id: 'checkpoint-interrupted-save-clears-restore-failure',
