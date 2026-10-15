@@ -1,0 +1,4 @@
+{
+  "summary": "The real-browser completion journey could tap its third column before the opponent's second move reached that device. Wait for the previous visible move before making the next ordinary choice, preserving failure when synchronization does not deliver it.",
+  "regressionTest": "libs/runtime-harness/tests/connect-four-journey-connection.test.ts"
+}

@@ -22,7 +22,15 @@ async function firstSide(ui: Driver): Promise<boolean> {
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
   return ((await ui.get('multiplayer-colour').text()) ?? '').includes('Red');
 }
-async function drop(ui: Driver, column: number, ply: number): Promise<void> {
+export async function dropConnectFourDisc(
+  ui: Driver,
+  column: number,
+  ply: number
+): Promise<void> {
+  if (ply > 1)
+    await ui
+      .get(`multiplayer-move-${ply - 1}`)
+      .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
   await ui
     .get(`connect-four-column-${column + 1}`)
     .tap({ timeoutMs: JOURNEY_WAIT_MS });
@@ -51,7 +59,7 @@ export async function playConnectFourJourney(
   const yellow = first ? host.actAsGuest : host.act;
   for (let ply = 1; ply <= 7; ply++)
     await (ply % 2 === 1 ? red : yellow)('dropConnectFourDisc', (ui) =>
-      drop(ui, ply % 2 === 1 ? 0 : 1, ply)
+      dropConnectFourDisc(ui, ply % 2 === 1 ? 0 : 1, ply)
     );
   return first;
 }
