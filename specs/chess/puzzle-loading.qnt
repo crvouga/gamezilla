@@ -28,7 +28,6 @@ module puzzle_loading {
 
   /// Starting while another addition runs, or without a connection, is refused.
   action addPuzzles = {
-    nondet _refreshSource = Set(false, true).oneOf()
     val starts = online and _actual.status != "adding"
     val _result = { ..._actual, status: "adding", added: 0, updated: 0, broken: 0 }
     all {
@@ -36,7 +35,7 @@ module puzzle_loading {
       _actual' = if (starts) _result else _actual,
       puzzleLoading' = if (starts) _result else puzzleLoading,
       _progressed' = if (starts) false else _progressed,
-      _refresh' = if (starts) _refreshSource else _refresh,
+      _refresh' = if (starts) _poolSize > 10 else _refresh,
       online' = online, _stoppedPoolSize' = _stoppedPoolSize,
     }
   }
