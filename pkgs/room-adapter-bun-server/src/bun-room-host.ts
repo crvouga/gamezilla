@@ -192,6 +192,7 @@ export function createBunRoomHost(deps: BunRoomHostDeps): BunRoomHost {
       const entry = entryFor(data.topic, data.moduleName);
       if (entry === null) return;
       await entry.ready;
+      if (!sockets.has(data.connId)) return;
       // A reconnect from the same tab supersedes its previous socket, so the
       // roster cannot accumulate ghosts.
       for (const stale of entry.server.connectionIdsForActor(
