@@ -30,6 +30,7 @@ type ClockFields = Pick<
   | 'white_ms'
   | 'black_ms'
   | 'clock_at_ms'
+  | 'paused_at_ms'
 >;
 
 export function sideToMove(
@@ -63,6 +64,7 @@ function firstMoveMs(game: Pick<MultiplayerGame, 'time_control'>): number {
 export function clockRunning(game: ClockFields): boolean {
   return (
     game.outcome === 'ongoing' &&
+    game.paused_at_ms === null &&
     timed(game) &&
     (bothHaveMoved(game) || daily(game))
   );
@@ -75,8 +77,15 @@ export function clockLeftMs(
   nowMs: number
 ): number {
   const stored = (side === 'white' ? game.white_ms : game.black_ms) ?? 0;
-  if (!clockRunning(game) || sideToMove(game) !== side) return stored;
-  return Math.max(0, stored - (nowMs - (game.clock_at_ms ?? nowMs)));
+  if (
+    game.outcome !== 'ongoing' ||
+    !timed(game) ||
+    (!bothHaveMoved(game) && !daily(game)) ||
+    sideToMove(game) !== side
+  )
+    return stored;
+  const at = game.paused_at_ms ?? nowMs;
+  return Math.max(0, stored - (at - (game.clock_at_ms ?? at)));
 }
 
 /**
@@ -84,7 +93,8 @@ export function clockLeftMs(
  * first move, or the side to move running out of time.
  */
 export function multiplayerDeadlineMs(game: ClockFields): number | null {
-  if (game.outcome !== 'ongoing' || !timed(game)) return null;
+  if (game.outcome !== 'ongoing' || game.paused_at_ms !== null || !timed(game))
+    return null;
   const startedAt = game.clock_at_ms ?? 0;
   if (!bothHaveMoved(game)) return startedAt + firstMoveMs(game);
   const side = sideToMove(game);
@@ -183,7 +193,13 @@ export function stopMultiplayerClock(
   after: MultiplayerGame,
   nowMs: number
 ): MultiplayerGame {
-  if (after.outcome === 'ongoing' || !clockRunning(before)) return after;
+  if (
+    after.outcome === 'ongoing' ||
+    before.outcome !== 'ongoing' ||
+    !timed(before) ||
+    (!bothHaveMoved(before) && !daily(before))
+  )
+    return after;
   if (after.revision !== before.revision) return after;
   const side = sideToMove(before);
   const stored = (side === 'white' ? after.white_ms : after.black_ms) ?? 0;

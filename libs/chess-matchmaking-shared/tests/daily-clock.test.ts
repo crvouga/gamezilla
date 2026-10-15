@@ -42,6 +42,7 @@ function game(
     white_ms: startingMs(timeControl),
     black_ms: startingMs(timeControl),
     clock_at_ms: 0,
+    paused_at_ms: null,
     draw_offer_by: null,
     rematch_offer_by: null,
     rematch_of: null,
@@ -93,6 +94,7 @@ describe("a daily game's multiplayer clock", () => {
     const blackToMove = {
       ...game('3d', { fen: AFTER_E4, revision: 1 }),
       clock_at_ms: 2 * DAY,
+      paused_at_ms: null,
     };
     expect(settleMultiplayerClock(blackToMove, 5 * DAY - 1)).toBe(blackToMove);
     expect(settleMultiplayerClock(blackToMove, 5 * DAY).reason).toBe(
@@ -111,6 +113,17 @@ describe("a daily game's multiplayer clock", () => {
 });
 
 describe('a game that ends while a clock is running', () => {
+  // regression: chess-finished-game-clock-resets
+  test('a result accepted during a shared pause retains time spent before the pause', () => {
+    const paused = { ...game('5+0', BEGUN), paused_at_ms: 10_000 };
+    const ended = {
+      ...paused,
+      outcome: 'black' as const,
+      reason: 'account deletion',
+    };
+    const stopped = stopMultiplayerClock(paused, ended, DAY);
+    expect(clockLeftMs(stopped, 'white', DAY)).toBe(290_000);
+  });
   // regression: chess-finished-game-clock-resets
   test('keeps what the running clock had left when a person resigned', () => {
     const blitz = game('5+0', BEGUN);

@@ -2151,6 +2151,10 @@ msgstr "Moves. The left and right arrow keys step through them."
 msgid "Multiplayer chess"
 msgstr "Multiplayer chess"
 
+#: libs/chess-matchmaking-client/src/multiplayer-status.tsx
+msgid "Multiplayer clocks are paused."
+msgstr "Multiplayer clocks are paused."
+
 #: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
 msgid "Multiplayer command accepted"
 msgstr "Multiplayer command accepted"

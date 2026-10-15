@@ -18,6 +18,7 @@ function whiteAboutToFlag(fen: string): MultiplayerGame {
     white_ms: 1_000,
     black_ms: 30_000,
     clock_at_ms: 0,
+    paused_at_ms: null,
     draw_offer_by: null,
     rematch_offer_by: null,
     rematch_of: null,

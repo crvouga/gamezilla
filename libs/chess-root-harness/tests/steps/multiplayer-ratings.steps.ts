@@ -164,12 +164,12 @@ Then(
     );
   }
 );
-Then("neither person's blitz rating has moved", async (w) => {
+Then("neither person's {word} rating has moved", async (w, speed: string) => {
   for (const actor of pairOf(w)) {
     const view = await w.s.read(multiplayerView, actor);
     expect(view.game?.white_rating_diff ?? null).toBeNull();
     expect(view.game?.black_rating_diff ?? null).toBeNull();
-    const blitz = view.ratings.find((r) => r.speed === 'blitz');
+    const blitz = view.ratings.find((r) => r.speed === speed);
     expect(blitz?.games ?? 0).toBe(0);
   }
 });

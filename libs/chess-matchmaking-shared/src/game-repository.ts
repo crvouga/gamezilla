@@ -105,7 +105,7 @@ export class MultiplayerGameRepository {
         : stopped;
     await this.tx.run(sql`UPDATE chess_multiplayer_games SET fen = ${game.fen}, pgn = ${game.pgn},
       revision = ${game.revision}, turn = ${game.turn}, outcome = ${game.outcome}, reason = ${game.reason},
-      white_ms = ${game.white_ms}, black_ms = ${game.black_ms}, clock_at_ms = ${game.clock_at_ms},
+      white_ms = ${game.white_ms}, black_ms = ${game.black_ms}, clock_at_ms = ${game.clock_at_ms}, paused_at_ms = ${game.paused_at_ms},
       draw_offer_by = ${game.draw_offer_by}, rematch_offer_by = ${game.rematch_offer_by},
       white_rating_diff = ${game.white_rating_diff}, black_rating_diff = ${game.black_rating_diff},
       updated_at = ${new Date(nowMs).toISOString()} WHERE id = ${game.id}`);

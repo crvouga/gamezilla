@@ -29,6 +29,7 @@ const gameSchema = z.object({
   white_ms: z.number().nullable().optional(),
   black_ms: z.number().nullable().optional(),
   clock_at_ms: z.number().nullable().optional(),
+  paused_at_ms: z.number().nullable(),
   draw_offer_by: z.string().nullable().optional(),
   rematch_offer_by: z.string().nullable().optional(),
   rematch_of: z.string().nullable().optional(),
