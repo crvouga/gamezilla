@@ -54,7 +54,7 @@ function groups(tasks: readonly CheckTask[]): CheckTask[][] {
  */
 function solverTask(taskId: string): boolean {
   return (
-    /#check:models(:\d+)?$/.test(taskId) ||
+    /#check:models(?::\d+){0,2}$/.test(taskId) ||
     taskId === '@apps/product#test:contract' ||
     /@apps\/product#test:contract:\d+$/.test(taskId)
   );

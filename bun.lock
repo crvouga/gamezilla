@@ -2080,6 +2080,7 @@
         "@pkgs/gherkin-shared": "workspace:*",
         "@pkgs/permissions-shared": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
+        "@pkgs/quint-server": "workspace:*",
         "@pkgs/quint-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@pkgs/sql-client-sqlite-root-server": "workspace:*",

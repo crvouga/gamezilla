@@ -129,7 +129,8 @@ export type LoadReport = {
 export function isCheckTask(name: string): boolean {
   return (
     EXACT_TASKS.has(name) ||
-    /^(test:spec|check:models|test:contract):\d+$/.test(name)
+    /^(test:spec|test:contract):\d+$/.test(name) ||
+    /^check:models:\d+(?::\d+)?$/.test(name)
   );
 }
 

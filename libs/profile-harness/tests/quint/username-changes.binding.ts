@@ -112,7 +112,7 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 10,
   timeoutMs: 180_000,
   // Check every invariant at the original bound in independent solver groups.
-  boundedInvariantGroupSize: 6,
+  boundedInvariantGroupSize: 1,
   encoding: 'fun-arrays',
   inferPolymorphicTypes: false,
   invariantMode: 'before',
