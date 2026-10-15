@@ -6,15 +6,8 @@ import { join } from 'node:path';
 import { quintNames } from '@pkgs/quint-shared/names';
 import { tlcStateSpace } from '@pkgs/quint-shared/tlc-state-space';
 import { verifyDeadlineMs, wallStopwatch } from '@pkgs/quint-shared/wall';
-import {
-  APALACHE_VERSION,
-  freePort,
-  linkQuintHome,
-  resolveApalache,
-  verifyEnv,
-} from './apalache';
-import { runQuint } from './run-quint';
-import { QUINT_CLI, quintModuleName } from './simulate';
+import { linkQuintHome, resolveApalache, verifyEnv } from './apalache';
+import { runTemporalChecker } from './temporal-checker';
 
 export type TemporalOptions = {
   readonly specPath: string;
@@ -59,28 +52,22 @@ export async function verifyTemporal(
   if ('error' in pinned) return { ok: false, output: pinned.error };
   rmSync(options.outDir, { recursive: true, force: true });
   mkdirSync(options.outDir, { recursive: true });
-  const config = join(options.outDir, 'tlc-config.json');
-  writeFileSync(
-    config,
-    JSON.stringify({ maxHeap: '-Xmx2048m', stackSize: '-Xss8m', workers: 2 })
-  );
   const elapsed = wallStopwatch();
   const deadlineMs = verifyDeadlineMs(options.timeoutMs);
-  const port = await freePort();
-  const run = await runQuint({
-    args: temporalArgs(options, config, port),
-    cwd: options.outDir,
+  const run = await runTemporalChecker({
+    options,
+    apalacheHome: pinned.home,
     env: verifyEnv({
-      // TLC is launched directly by Quint, so Apalache's JVM_GC_ARGS never
-      // reaches it. Use the throughput collector for the complete graph.
+      // The compiler and TLC JVM share the throughput collector; TLC's
+      // heap and worker count are pinned by the owned checker launcher.
       env: {
         ...process.env,
-        JVM_GC_ARGS: '-XX:+UseParallelGC -Xmx2048m -Xms512m',
+        JVM_GC_ARGS: '-XX:+UseParallelGC -Xmx2048m -Xms2048m',
         JAVA_TOOL_OPTIONS: `${process.env['JAVA_TOOL_OPTIONS'] ?? ''} -XX:+UseParallelGC`,
       },
       quintHome: linkQuintHome(options.outDir, pinned.home),
     }),
-    timeoutMs: deadlineMs,
+    deadlineMs,
   });
   writeFileSync(join(options.outDir, 'tlc-output.txt'), run.output);
   if (run.timedOut)
@@ -103,33 +90,4 @@ export async function verifyTemporal(
     statesExplored: graph.states,
     searchDepth: graph.depth,
   };
-}
-
-function temporalArgs(
-  options: TemporalOptions,
-  config: string,
-  port: number
-): string[] {
-  return [
-    QUINT_CLI,
-    'verify',
-    options.specPath,
-    '--main',
-    quintModuleName(options.specPath),
-    '--backend',
-    'tlc',
-    '--apalache-version',
-    APALACHE_VERSION,
-    '--server-endpoint',
-    `127.0.0.1:${String(port)}`,
-    '--temporal',
-    options.properties.join(','),
-    '--tlc-config',
-    config,
-    '--verbosity',
-    '3',
-    ...((options.invariants?.length ?? 0) === 0
-      ? []
-      : ['--invariants', ...(options.invariants ?? [])]),
-  ];
 }
