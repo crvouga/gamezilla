@@ -51,6 +51,7 @@ function createFakeView(): BunWebView & {
 
 describe('BunWebviewDriver', () => {
   it('enabled waits for a visible control to clear its native disabled flag', async () => {
+    // regression: browser-enabled-state-attribute-round-trips
     const view = createFakeView();
     const fallback = view.evaluate.getMockImplementation();
     let disabled = true;
@@ -59,13 +60,11 @@ describe('BunWebviewDriver', () => {
       observe = resolve;
     });
     view.evaluate.mockImplementation((script: string) => {
-      if (script.includes('getAttribute("disabled")')) {
-        const value = disabled ? '' : null;
+      if (script.includes('controlIsEnabled')) {
+        const value = !disabled;
         observe!();
         return Promise.resolve(value);
       }
-      if (script.includes('getAttribute("aria-disabled")'))
-        return Promise.resolve(null);
       return fallback?.(script);
     });
     const driver = new BunWebviewDriver({ view, timers });

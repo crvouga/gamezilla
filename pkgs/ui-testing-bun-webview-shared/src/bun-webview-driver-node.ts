@@ -352,11 +352,11 @@ export class BunWebviewDriverNode implements DriverNode {
           if (state !== 'enabled')
             return state === 'visible' ? visible : !visible;
           if (!visible) return false;
-          const [disabled, ariaDisabled] = await Promise.all([
-            this.attribute('disabled'),
-            this.attribute('aria-disabled'),
-          ]);
-          return controlIsEnabled(disabled, ariaDisabled);
+          // Keep nullable DOM flags on the page and return one coherent boolean.
+          const enabled = await (await this.view()).evaluate(
+            `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); return el !== null && (${controlIsEnabled.toString()})(el.getAttribute('disabled'), el.getAttribute('aria-disabled')); })()`
+          );
+          return enabled === true;
         },
         {
           timeoutMs,
