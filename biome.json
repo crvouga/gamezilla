@@ -221,12 +221,12 @@
         "**/libs/chess-puzzle-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-shared-client/src/**/*.{ts,tsx}",
         "**/libs/chess-root-shared/src/**/*.{ts,tsx}",
-        "**/libs/chess-matchmaking-client/src/**/*.{ts,tsx}",
-        "**/libs/chess-custom-game-client/src/**/*.{ts,tsx}",
+        "**/libs/game-matchmaking-client/src/**/*.{ts,tsx}",
+        "**/libs/game-session-client/src/**/*.{ts,tsx}",
         "**/libs/chess-root-server/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-server/src/**/*.{ts,tsx}",
-        "**/libs/chess-custom-game-shared/src/**/*.{ts,tsx}",
-        "**/libs/chess-matchmaking-shared/src/**/*.{ts,tsx}",
+        "**/libs/game-session-shared/src/**/*.{ts,tsx}",
+        "**/libs/game-matchmaking-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-shared/tests/**/*.{ts,tsx}",
         "**/libs/chess-root-harness/tests/**/*.{ts,tsx}",
         "**/libs/chess-matchmaking-harness/tests/**/*.{ts,tsx}",
@@ -311,12 +311,12 @@
         "**/libs/chess-puzzle-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-shared-client/src/**/*.{ts,tsx}",
         "**/libs/chess-root-shared/src/**/*.{ts,tsx}",
-        "**/libs/chess-matchmaking-client/src/**/*.{ts,tsx}",
-        "**/libs/chess-custom-game-client/src/**/*.{ts,tsx}",
+        "**/libs/game-matchmaking-client/src/**/*.{ts,tsx}",
+        "**/libs/game-session-client/src/**/*.{ts,tsx}",
         "**/libs/chess-root-server/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-server/src/**/*.{ts,tsx}",
-        "**/libs/chess-custom-game-shared/src/**/*.{ts,tsx}",
-        "**/libs/chess-matchmaking-shared/src/**/*.{ts,tsx}",
+        "**/libs/game-session-shared/src/**/*.{ts,tsx}",
+        "**/libs/game-matchmaking-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-shared/tests/**/*.{ts,tsx}",
         "**/libs/chess-root-harness/tests/**/*.{ts,tsx}",
         "**/libs/chess-matchmaking-harness/tests/**/*.{ts,tsx}",
@@ -785,12 +785,12 @@
         "**/libs/chess-puzzle-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-shared-client/src/**/*.{ts,tsx}",
         "**/libs/chess-root-shared/src/**/*.{ts,tsx}",
-        "**/libs/chess-matchmaking-client/src/**/*.{ts,tsx}",
-        "**/libs/chess-custom-game-client/src/**/*.{ts,tsx}",
+        "**/libs/game-matchmaking-client/src/**/*.{ts,tsx}",
+        "**/libs/game-session-client/src/**/*.{ts,tsx}",
         "**/libs/chess-root-server/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-server/src/**/*.{ts,tsx}",
-        "**/libs/chess-custom-game-shared/src/**/*.{ts,tsx}",
-        "**/libs/chess-matchmaking-shared/src/**/*.{ts,tsx}",
+        "**/libs/game-session-shared/src/**/*.{ts,tsx}",
+        "**/libs/game-matchmaking-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-shared/tests/**/*.{ts,tsx}",
         "!**/libs/chess-puzzle-shared/tests/chess-puzzle-play.test.ts"
       ]
@@ -1789,6 +1789,14 @@
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-game-implementation.grit",
+      "includes": [
+        "**/libs/game-session-*/src/**/*.{ts,tsx}",
+        "**/libs/game-matchmaking-*/src/**/*.{ts,tsx}",
+        "**/pkgs/turn-game-*/src/**/*.{ts,tsx}"
       ]
     }
   ],

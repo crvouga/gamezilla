@@ -10,7 +10,7 @@ import {
   shownMultiplayerText,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { passMultiplayerDays } from '@libs/chess-matchmaking-harness/multiplayer-time';
-import { dailyTimeControlId } from '@libs/chess-matchmaking-shared/time-control';
+import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Step, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';

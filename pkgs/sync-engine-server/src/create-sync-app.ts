@@ -12,6 +12,7 @@ import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';
 import type { AuthErrorBody } from '@pkgs/sync-engine-shared/v2';
 import { withFrameworkMutations } from '@pkgs/sync-engine-shared/with-framework-mutations';
+import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { Hono } from 'hono';
 import type { SyncSqlVariables } from './resolve-request-sql';
@@ -51,6 +52,7 @@ export type CreateSyncAppDeps = {
    * The app's content rules as they stood at a write's time (its
    * `created_at`), handed to the mutation body as `env.contentRules`.
    */
+  readonly turnGames?: TurnGames;
   readonly contentRulesAt?: (atMs: number) => ContentRules;
 };
 
@@ -97,6 +99,7 @@ export function createSyncApp(deps: CreateSyncAppDeps) {
     ...(deps.authorizeMutation !== undefined
       ? { authorize: productOnly(deps.authorizeMutation) }
       : {}),
+    ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
     ...(deps.contentRulesAt !== undefined
       ? { contentRulesAt: deps.contentRulesAt }
       : {}),

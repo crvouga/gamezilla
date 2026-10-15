@@ -201,4 +201,15 @@ export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
     regexp: /pawn|knight|bishop|rook|queen|king/,
     transformer: (text: string) => text,
   },
+  {
+    name: 'fourDirection',
+    regexp: /horizontal|vertical|ascending diagonal|descending diagonal/,
+    transformer: (text: string) => text,
+  },
+  {
+    name: 'fourParticipants',
+    regexp:
+      /two ready people|a ready person as Red and a bot as Yellow|a bot as Red and a ready person as Yellow|two bots/,
+    transformer: (text: string) => text,
+  },
 ];

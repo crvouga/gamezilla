@@ -1,8 +1,10 @@
 import type { SyncEngine } from '@pkgs/sync-engine-client/sync-engine-port';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
+import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
 export type ReadySyncEngine = {
+  readonly turnGames: TurnGames;
   readonly engine: SyncEngine;
   readonly registry: MutationRegistry;
 };

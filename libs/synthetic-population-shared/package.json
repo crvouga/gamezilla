@@ -20,13 +20,13 @@
     "@pkgs/chess-board-core-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/ui-testing-root-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "chess.js": "catalog:",
     "xstate": "5.33.2",
-    "zod": "catalog:",
-    "@pkgs/sql-client-root-shared": "workspace:*",
-    "@pkgs/sql-root-shared": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@pkgs/property-shared": "workspace:*",

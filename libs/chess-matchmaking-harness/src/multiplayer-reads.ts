@@ -1,5 +1,5 @@
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
-import { MULTIPLAYER_GAME_COLUMNS } from '@libs/chess-matchmaking-shared/game-state';
+import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
+import { MULTIPLAYER_GAME_COLUMNS } from '@libs/game-matchmaking-shared/game-state';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql, signedInAccountOf } from '@libs/harness/identity';

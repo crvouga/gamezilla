@@ -29,7 +29,9 @@
     "pkgs/feedback-client/src",
     "pkgs/feedback-shared/src",
     "pkgs/feedback-harness/src",
-    "pkgs/feedback-server/src"
+    "pkgs/feedback-server/src",
+    "libs/connect-four-board-client/src",
+    "libs/connect-four-root-client/src"
   ],
   "files": [
     "apps/client/src/main.tsx",
@@ -211,7 +213,9 @@
     "libs/permissions-client/src",
     "libs/permissions-shared/src",
     "libs/permissions-harness/src",
-    "libs/permissions-server/src"
+    "libs/permissions-server/src",
+    "libs/connect-four-board-client/src",
+    "libs/connect-four-root-client/src"
   ],
   "noDestructureDirs": [
     "libs/spaces-shared/src",
@@ -225,10 +229,12 @@
     "libs/chess-shared-client/src",
     "libs/chess-root-shared/src",
     "libs/chess-sub-shared/src",
-    "libs/chess-matchmaking-client/src",
-    "libs/chess-custom-game-client/src",
+    "libs/game-matchmaking-client/src",
+    "libs/game-session-client/src",
     "libs/chess-root-server/src",
     "libs/chess-puzzle-server/src",
-    "libs/chess-puzzle-client"
+    "libs/chess-puzzle-client",
+    "libs/connect-four-board-client/src",
+    "libs/connect-four-root-client/src"
   ]
 }

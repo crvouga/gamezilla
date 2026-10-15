@@ -19,7 +19,7 @@ import {
   joinMultiplayerSpace,
   multiplayerWatcherBoard,
 } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
-import { dailyTimeControlId } from '@libs/chess-matchmaking-shared/time-control';
+import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';

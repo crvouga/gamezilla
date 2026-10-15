@@ -1,0 +1,34 @@
+import { expect, test } from 'bun:test';
+import {
+  createTurnGames,
+  type GameRules,
+  requireTurnGames,
+} from '@pkgs/turn-game-shared/game-rules';
+
+const game: GameRules = {
+  id: 'counter',
+  recognizes: (position) => position.startsWith('counter:'),
+  initial: () => 'counter:0',
+  play: () => null,
+  replay: () => 'counter:0',
+  legal: () => [],
+  canWin: () => false,
+  choose: () => null,
+  moves: () => [],
+  record: (position) => position,
+};
+test('rules are explicit and unknown, duplicate or ambiguous registrations fail closed', () => {
+  expect(() => requireTurnGames({})).toThrow('inject');
+  expect(() =>
+    createTurnGames([
+      { rules: game, controlPrefix: '' },
+      { rules: game, controlPrefix: 'other/' },
+    ])
+  ).toThrow('Duplicate');
+  const rules = createTurnGames([{ rules: game, controlPrefix: 'counter/' }]);
+  expect(rules.byId('counter')).toBe(game);
+  expect(rules.forPosition('counter:0')).toBe(game);
+  expect(rules.forControl('counter/5+0')).toBe(game);
+  expect(() => rules.forPosition('unknown:0')).toThrow();
+  expect(() => rules.forControl('unregistered/5+0')).toThrow();
+});

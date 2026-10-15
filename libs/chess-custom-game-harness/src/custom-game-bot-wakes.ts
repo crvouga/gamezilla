@@ -1,5 +1,5 @@
-import { PlayCustomGameBot } from '@libs/chess-custom-game-shared/custom-game-commands';
-import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
+import { PlayCustomGameBot } from '@libs/game-session-shared/custom-game-commands';
+import { CustomGamesAttr } from '@libs/game-session-shared/custom-game-state';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { RoomServerApp } from '@libs/spaces-harness/in-process-room-node';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';

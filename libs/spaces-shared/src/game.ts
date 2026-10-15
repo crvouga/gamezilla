@@ -7,6 +7,11 @@ import type {
   RoomModule,
   RoomState,
 } from '@pkgs/room-root-shared/types';
+import type { GamePresentation } from '@pkgs/turn-game-shared/game-presentation';
+import type {
+  RegisteredTurnGame,
+  TurnGames,
+} from '@pkgs/turn-game-shared/game-rules';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 import type { JSX } from 'solid-js';
 
@@ -39,7 +44,13 @@ export type GameCommandContext = {
  * (`apps/server/src/api.ts`) — `@libs/spaces` itself never imports a
  * specific game.
  */
+export type GameRoomCapability = {
+  readonly id: string;
+  readonly bind: (rules: TurnGames) => GameDefinition;
+};
 export type GameDefinition = {
+  readonly turnGame?: RegisteredTurnGame;
+  readonly roomCapabilities?: readonly GameRoomCapability[];
   /** Stable wire id (e.g. `'chess'`). Mirrored in room state + URLs. */
   readonly id: string;
   /** Independent rooms shared by spaces playing a matched game. */
@@ -110,6 +121,7 @@ export type GameClientMenuProps = {
  * + mount the selected game's UI.
  */
 export type GameClientDefinition = {
+  readonly presentation?: GamePresentation<JSX.Element>;
   readonly id: string;
   /** Display title shown in the games picker (localized string or node). */
   readonly title: JSX.Element | string;

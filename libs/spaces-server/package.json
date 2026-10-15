@@ -15,10 +15,10 @@
   },
   "dependencies": {
     "@libs/auth-shared": "workspace:*",
-    "@libs/sub-shared": "workspace:*",
     "@libs/permissions-server": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@pkgs/attribute-shared": "workspace:*",
     "@pkgs/message-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",

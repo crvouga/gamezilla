@@ -3,7 +3,7 @@ import {
   MULTIPLAYER_RESULT_NOTICE,
   MULTIPLAYER_TURN_NOTICE,
   multiplayerTurnNoticeSource,
-} from '@libs/chess-matchmaking-shared/multiplayer-notices';
+} from '@libs/game-matchmaking-shared/multiplayer-notices';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql, signedInAccountOf } from '@libs/harness/identity';

@@ -1,0 +1,30 @@
+{
+  "name": "@libs/game-catalog-shared",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/chess-rules-shared": "workspace:*",
+    "@libs/connect-four-shared": "workspace:*",
+    "@pkgs/turn-game-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/property-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic"
+}

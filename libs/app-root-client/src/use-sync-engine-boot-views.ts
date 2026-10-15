@@ -75,8 +75,8 @@ function useSyncBootPromise(args: {
           }
         : {}),
     });
-    return Promise.all([engine, pool.mutationRegistry()]).then(
-      async ([resolved, registry]) => {
+    return Promise.all([engine, pool.mutationRegistry(), loadApp()]).then(
+      async ([resolved, registry, app]) => {
         // Connecting starts background sync. Whatever goes wrong there shows
         // in the engine's status; it never keeps the app from opening.
         await resolved.connect().catch((error: unknown) =>
@@ -85,7 +85,7 @@ function useSyncBootPromise(args: {
           })
         );
         exposeLocalSqlForTests(resolved.db);
-        return { engine: resolved, registry };
+        return { engine: resolved, registry, turnGames: app.turnGames };
       }
     );
   });

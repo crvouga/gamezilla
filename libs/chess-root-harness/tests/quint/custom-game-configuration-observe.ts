@@ -1,5 +1,5 @@
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
-import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
+import type { CustomGame } from '@libs/game-session-shared/custom-game-state';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import {

@@ -1,6 +1,6 @@
 import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { deviceMutationEnv } from '@libs/auth-shared/device-mutation-env';
-import { MULTIPLAYER_MUTATIONS } from '@libs/chess-matchmaking-shared/multiplayer-mutations';
+import { MULTIPLAYER_MUTATIONS } from '@libs/game-matchmaking-shared/multiplayer-mutations';
 import {
   actorUi,
   ensureActor,
@@ -39,7 +39,10 @@ export const sendMultiplayerCommand = scenarioAction({
     const client = createMutationClient({
       db: engine.db,
       registry: await live.syncEnginePool.mutationRegistry(),
-      env: deviceMutationEnv(owner, env),
+      env: {
+        ...deviceMutationEnv(owner, env),
+        turnGames: s.harness.composition.app.turnGames,
+      },
       ids: { clientId: String(env.secureStorage.getValue(DEVICE_ID_KEY)) },
       createId: env.createId,
       connectivity: { isOnline: () => engine.status.getSnapshot().online },

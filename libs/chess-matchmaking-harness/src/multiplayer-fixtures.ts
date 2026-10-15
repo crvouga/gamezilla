@@ -1,15 +1,16 @@
 import { drainAndNotifyOutbox } from '@libs/app-root-server/outbox-drain';
 import { accountMutationEnv } from '@libs/auth-shared/account-mutation-env';
-import { findChessOpponentMutation } from '@libs/chess-matchmaking-shared/find-opponent-mutation';
-import { MultiplayerGameRepository } from '@libs/chess-matchmaking-shared/game-repository';
-import { formChessMatches } from '@libs/chess-matchmaking-shared/match-handoff';
-import { MultiplayerGameChanged } from '@libs/chess-matchmaking-shared/match-room';
-import { scheduleMultiplayerDeadline } from '@libs/chess-matchmaking-shared/multiplayer-deadline';
-import { MultiplayerNoticesDue } from '@libs/chess-matchmaking-shared/multiplayer-notices';
-import { publishMatchGame } from '@libs/chess-matchmaking-shared/publish-match-game';
-import { MultiplayerRatingRepository } from '@libs/chess-matchmaking-shared/rating-repository';
-import { CHESS_SEARCH_RADIUS } from '@libs/chess-matchmaking-shared/search-config';
-import type { MultiplayerSpeed } from '@libs/chess-matchmaking-shared/time-control';
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { findOpponentMutation } from '@libs/game-matchmaking-shared/find-opponent-mutation';
+import { MultiplayerGameRepository } from '@libs/game-matchmaking-shared/game-repository';
+import { formGameMatches } from '@libs/game-matchmaking-shared/match-handoff';
+import { MultiplayerGameChanged } from '@libs/game-matchmaking-shared/match-room';
+import { scheduleMultiplayerDeadline } from '@libs/game-matchmaking-shared/multiplayer-deadline';
+import { MultiplayerNoticesDue } from '@libs/game-matchmaking-shared/multiplayer-notices';
+import { publishMatchGame } from '@libs/game-matchmaking-shared/publish-match-game';
+import { MultiplayerRatingRepository } from '@libs/game-matchmaking-shared/rating-repository';
+import { OPPONENT_SEARCH_RADIUS } from '@libs/game-matchmaking-shared/search-config';
+import type { MultiplayerSpeed } from '@libs/game-matchmaking-shared/time-control';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { signedInAccountOf } from '@libs/harness/identity';
@@ -58,7 +59,11 @@ export async function multiplayerTransaction(
   run: (tx: SqlTx, env: MutationEnv) => Promise<readonly string[]>
 ): Promise<void> {
   const base = accountMutationEnv(owner, s.harness.server);
-  const env = { ...base, serverNow: base.now };
+  const env = {
+    ...base,
+    serverNow: base.now,
+    turnGames: s.harness.composition.app.turnGames,
+  };
   let tables: readonly string[] = [];
   const owners = await s.harness.serverSql.sqlClient.transaction(async (tx) => {
     const wrapped = wrapMutationDb(tx, env);
@@ -107,7 +112,7 @@ export const givenOpponentSearch = scenarioAction<
   ) =>
     multiplayerFixture(s, actor, async (tx, env) => {
       const spaceId = await multiplayerSpaceId(s, actor);
-      await findChessOpponentMutation.run(
+      await findOpponentMutation.run(
         { tx, env },
         { requestId, timeControl, spaceId: spaceId ?? 'no-space' }
       );
@@ -125,19 +130,25 @@ export const pairChessOpponents = scenarioAction<
   name: 'pairChessOpponents',
   act: (s, actor = 'alice', firstIsWhite?: boolean) =>
     multiplayerFixture(s, actor, (tx) =>
-      formChessMatches(tx, {
-        nowMs: s.harness.clock.now(),
-        createId: s.harness.server.createId,
-        ...(firstIsWhite === undefined ? {} : { tieBreak: () => firstIsWhite }),
-      })
+      formGameMatches(
+        tx,
+        {
+          nowMs: s.harness.clock.now(),
+          createId: s.harness.server.createId,
+          ...(firstIsWhite === undefined
+            ? {}
+            : { tieBreak: () => firstIsWhite }),
+        },
+        TURN_GAMES
+      )
     ),
 });
 
 /** The changed game keeps its deadline for the scheduled sweep, as every write does. */
 /** The longest a search waits before its range reaches the maximum. */
 const LONGEST_RANGE_WAIT_MS =
-  ((CHESS_SEARCH_RADIUS.maxRadius - CHESS_SEARCH_RADIUS.baseRadius) /
-    CHESS_SEARCH_RADIUS.radiusGrowthPerSecond) *
+  ((OPPONENT_SEARCH_RADIUS.maxRadius - OPPONENT_SEARCH_RADIUS.baseRadius) /
+    OPPONENT_SEARCH_RADIUS.radiusGrowthPerSecond) *
     1000 +
   1000;
 
@@ -157,13 +168,17 @@ export const awaitChessMatch = scenarioAction<
     for (let waited = 0; waited <= LONGEST_RANGE_WAIT_MS; waited += 1000) {
       let formed: readonly string[] = [];
       await multiplayerFixture(s, first, async (tx) => {
-        formed = await formChessMatches(tx, {
-          nowMs: s.harness.clock.now(),
-          createId: s.harness.server.createId,
-          ...(firstIsWhite === undefined
-            ? {}
-            : { tieBreak: () => firstIsWhite }),
-        });
+        formed = await formGameMatches(
+          tx,
+          {
+            nowMs: s.harness.clock.now(),
+            createId: s.harness.server.createId,
+            ...(firstIsWhite === undefined
+              ? {}
+              : { tieBreak: () => firstIsWhite }),
+          },
+          TURN_GAMES
+        );
         return formed;
       });
       if (people.every((id) => id !== null && formed.includes(id))) return;

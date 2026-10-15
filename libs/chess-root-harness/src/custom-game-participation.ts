@@ -6,7 +6,7 @@ import {
 import {
   customGameActiveParticipant,
   customGameTerminal,
-} from '@libs/chess-custom-game-shared/custom-game-state';
+} from '@libs/game-session-shared/custom-game-state';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';

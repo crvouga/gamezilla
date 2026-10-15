@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@libs/chess-sub-shared": "workspace:*",
+    "@libs/connect-four-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*"
   },
   "devDependencies": {

@@ -10,7 +10,7 @@ import { joinMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplaye
 import {
   startingMs,
   timeControlOf,
-} from '@libs/chess-matchmaking-shared/time-control';
+} from '@libs/game-matchmaking-shared/time-control';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';

@@ -1,4 +1,4 @@
 {
   "summary": "Multiplayer chess scored running out of time against a king and one bishop as a loss whenever the flagged side had a rook or queen (4k3/8/8/8/8/1b6/8/R3K3 w), although bishops on one square colour can never checkmate unless the board also holds a pawn, a knight or a bishop on the other square colour: a rook or queen beside its king takes the bishop or blocks its check (FIDE 6.9). Fixed: the shared canCheckmate in @pkgs/chess-rules-shared draws these games as timeout vs insufficient material.",
-  "regressionTest": "libs/chess-matchmaking-shared/tests/multiplayer-clock.test.ts"
+  "regressionTest": "libs/chess-root-harness/tests/chess-multiplayer-clock.test.ts"
 }

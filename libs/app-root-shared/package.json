@@ -17,8 +17,8 @@
   "dependencies": {
     "@libs/app-config-shared": "workspace:*",
     "@libs/auth-shared": "workspace:*",
-    "@libs/sub-shared": "workspace:*",
     "@libs/moderation-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@lingui/core": "catalog:",
     "@opentelemetry/api": "catalog:",
     "@pkgs/assert-root-shared": "workspace:*",

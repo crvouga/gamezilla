@@ -4,7 +4,7 @@ import type { MultiplayerCommand } from '@libs/chess-matchmaking-harness/multipl
 import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import { shownMultiplayerText } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
+import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import { accountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';

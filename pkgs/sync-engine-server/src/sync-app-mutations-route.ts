@@ -26,6 +26,7 @@ import {
   SYNC_PROTOCOL_VERSION,
 } from '@pkgs/sync-engine-shared/v2';
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
+import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { Hono } from 'hono';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
@@ -146,6 +147,7 @@ async function prepareMutationNotify(
       now: deps.now,
       createId: deps.createId,
       ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
+      ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
       ...(deps.contentRulesAt !== undefined
         ? { contentRulesAt: deps.contentRulesAt }
         : {}),
@@ -239,6 +241,7 @@ export type MountMutationsRouteDeps = {
    * The app's content rules as they stood at a write's time (its
    * `created_at`), handed to the mutation body as `env.contentRules`.
    */
+  readonly turnGames?: TurnGames;
   readonly contentRulesAt?: (atMs: number) => ContentRules;
 };
 

@@ -9,9 +9,9 @@ import {
   multiplayerText,
   multiplayerView,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
 import { removeFriend } from '@libs/friends-harness/friends-actions';
 import { setupFriendsPair } from '@libs/friends-harness/setup-friends-pair';
+import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { signInWithGoogleAsAccount, signOut } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';

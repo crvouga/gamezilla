@@ -1,4 +1,4 @@
-import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
+import type { CustomGameChoice } from '@libs/game-session-shared/custom-game-choice';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import {
   chooseCustomGameWithKeyboard,

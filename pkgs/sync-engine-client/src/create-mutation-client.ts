@@ -294,6 +294,7 @@ function snapshotMutationEnv(env: MutationEnv): MutationEnv {
     isAnon: env.isAnon,
     now: env.now,
     createId: env.createId,
+    ...(env.turnGames === undefined ? {} : { turnGames: env.turnGames }),
     ...(env.contentRules === undefined
       ? {}
       : { contentRules: env.contentRules }),

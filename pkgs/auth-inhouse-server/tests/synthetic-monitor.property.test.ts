@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { createAuthApp } from '@pkgs/auth-inhouse-server/create-auth-app';
 import { reconcileIdpSqlite } from '@pkgs/auth-inhouse-server/reconcile-idp-sqlite';
-import { SYNTHETIC_MONITOR_USER } from '@pkgs/auth-inhouse-server/synthetic-monitor';
+import {
+  isSyntheticMonitor,
+  SYNTHETIC_MONITOR_PEER,
+  SYNTHETIC_MONITOR_USER,
+} from '@pkgs/auth-inhouse-server/synthetic-monitor';
 import {
   requestSyntheticMonitorRedirect,
   SYNTHETIC_MONITOR_CODE_PATH,
@@ -165,4 +169,46 @@ describe('synthetic-monitor sign-in', () => {
     },
     ROUND_TRIP_TIMEOUT_MS
   );
+});
+
+test('independent monitor participants cannot select an arbitrary person', async () => {
+  const booted = await boot(TOKEN);
+  for (const peer of [false, true]) {
+    const redirect = await requestSyntheticMonitorRedirect({
+      http: booted.http,
+      apiOrigin: API,
+      apiPathPrefix: PREFIX,
+      token: TOKEN,
+      callbackUrl: CALLBACK,
+      peer,
+    });
+    const response = await exchange(booted, redirect);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { user: { id: string } };
+    expect(body.user.id).toBe(
+      peer ? SYNTHETIC_MONITOR_PEER.id : SYNTHETIC_MONITOR_USER.id
+    );
+    expect(isSyntheticMonitor(body.user.id)).toBe(true);
+  }
+  expect(isSyntheticMonitor('someone-else')).toBe(false);
+  const response = await booted.http.fetch(
+    `${API}${PREFIX}${SYNTHETIC_MONITOR_CODE_PATH}`,
+    {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${TOKEN}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        callbackUrl: CALLBACK,
+        userId: 'someone-else',
+        peer: 'someone-else',
+      }),
+    }
+  );
+  const redirect = (await response.json()) as { redirectUrl: string };
+  const session = (await (
+    await exchange(booted, redirect.redirectUrl)
+  ).json()) as { user: { id: string } };
+  expect(session.user.id).toBe(SYNTHETIC_MONITOR_USER.id);
 });

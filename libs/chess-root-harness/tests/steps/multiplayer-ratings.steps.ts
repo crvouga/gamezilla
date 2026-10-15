@@ -5,8 +5,8 @@ import {
   multiplayerView,
   shownMultiplayerText,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { MULTIPLAYER_SETTLED_GAMES } from '@libs/chess-matchmaking-shared/multiplayer-rating';
-import type { MultiplayerSpeed } from '@libs/chess-matchmaking-shared/time-control';
+import { MULTIPLAYER_SETTLED_GAMES } from '@libs/game-matchmaking-shared/multiplayer-rating';
+import type { MultiplayerSpeed } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';

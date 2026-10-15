@@ -1,5 +1,5 @@
-import { findChessOpponentMutation } from '@libs/chess-matchmaking-shared/find-opponent-mutation';
-import { opponentSearchGuard } from '@libs/chess-root-server/opponent-search-guard';
+import { findOpponentMutation } from '@libs/game-matchmaking-shared/find-opponent-mutation';
+import { opponentSearchGuard } from '@libs/game-session-server/opponent-search-guard';
 import { useUnfinishedGamesDecision } from '@libs/permissions-client/use-can';
 import { clientGatingLayer } from '@libs/permissions-harness/client';
 import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
@@ -68,7 +68,7 @@ bindDecisions({
         await searchGuard(ctx);
       },
       operationFor: () =>
-        replayOperation(findChessOpponentMutation, () => ({
+        replayOperation(findOpponentMutation, () => ({
           requestId: 'another-game',
           spaceId: 'multiplayer-limit-space',
           timeControl: '5+0',

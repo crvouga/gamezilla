@@ -108,7 +108,7 @@ turn notifications, defined in `specs/`) lives there.
 
 | # | Bug | Verified by |
 | --- | --- | --- |
-| 1 | Multiplayer scored a loss on time against a lone knight when the flagged side had only queens (`4k3/8/8/8/8/2n5/8/Q3K3 w`). It is a draw. | Failing-first example test `libs/chess-matchmaking-shared/tests/multiplayer-clock.test.ts`, pinned `chess-timeout-lone-knight-vs-queens`. An enumeration of every placement found no mate for N v Q or N v QQ. |
+| 1 | Multiplayer scored a loss on time against a lone knight when the flagged side had only queens (`4k3/8/8/8/8/2n5/8/Q3K3 w`). It is a draw. | Failing-first example test `libs/game-matchmaking-shared/tests/multiplayer-clock.test.ts`, pinned `chess-timeout-lone-knight-vs-queens`. An enumeration of every placement found no mate for N v Q or N v QQ. |
 | 2 | Same for a lone bishop against only rooks or queens (`4k3/8/8/8/8/1b6/8/R3K3 w`). | Same file, pinned `chess-timeout-lone-bishop-vs-major-piece`. |
 | 3 | A promotion was announced to screen readers as "Queen to a8, promotes to Queen". | Failing-first DOM test `pkgs/chess-board-root-client/tests/chess-board-announcement.test.tsx`, pinned `chess-board-promotion-announced-as-promoted-piece`. |
 | 4 | A mating hundredth half-move left the board status both checkmated and drawn. No visible effect was found: every reader checks checkmate first. | `pkgs/chess-board-core-shared/tests/game-status.test.ts`, pinned `chess-board-mate-on-hundredth-half-move-also-drawn`. |
@@ -197,7 +197,7 @@ Ranked by player impact. Estimates assume the repo's spec-first workflow.
    virtual time.
 6. **A daily game locks the account out of live play** until it ends (gap 2).
    Decide whether to ship daily games before that is lifted.
-7. **`chess-matchmaking-shared` now imports `@libs/notifications-shared`**
+7. **`game-matchmaking-shared` now imports `@libs/notifications-shared`**
    for notice ids and the dismiss helper. Lint accepts it; confirm it fits
    the rule that sibling subs do not import each other.
 8. **One weak example.** "A piece cannot be moved on an earlier position"

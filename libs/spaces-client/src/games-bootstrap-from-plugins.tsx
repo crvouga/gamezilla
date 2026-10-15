@@ -4,6 +4,8 @@ import type {
 } from '@libs/spaces-shared/game';
 import { composeSpaceRoomModule } from '@libs/spaces-shared/load-game-plugins';
 import { useClock } from '@pkgs/clock-client/solid';
+import { TurnGamesProvider } from '@pkgs/turn-game-client/turn-games-context';
+import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
 import { useRandom } from '@pkgs/uuid-client/solid';
 import type { JSX } from 'solid-js';
 import { untrack } from 'solid-js';
@@ -38,7 +40,18 @@ export function GamesBootstrapFromPlugins(
   return (
     <SpaceModuleProvider value={spaceRoomModule}>
       <GamesRegistryProvider value={clients}>
-        {props.children}
+        <TurnGamesProvider
+          rules={createTurnGames(
+            games.flatMap((game) =>
+              game.turnGame === undefined ? [] : [game.turnGame]
+            )
+          )}
+          presentations={clients.flatMap((client) =>
+            client.presentation === undefined ? [] : [client.presentation]
+          )}
+        >
+          {props.children}
+        </TurnGamesProvider>
       </GamesRegistryProvider>
     </SpaceModuleProvider>
   );

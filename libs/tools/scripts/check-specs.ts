@@ -35,7 +35,7 @@ import { randomWalkViolations } from './behavior-tests';
 import { modelShapeProblems } from './model-shape';
 import { campaignProblems, specCampaigns } from './spec-campaigns';
 import { decouplingProblems } from './spec-decoupling';
-import { languageProblems, maintenanceVocabulary } from './spec-glossary';
+import { languageProblems, productVocabulary } from './spec-glossary';
 import { specLocationProblems } from './spec-location';
 import {
   externalSteps,
@@ -114,7 +114,7 @@ const errors: string[] = [
     external: external.steps,
     shared: shared.steps,
     parameterTypes,
-    allowedImplementationWords: maintenanceVocabulary(),
+    allowedImplementationWords: productVocabulary(),
   }),
   ...languageProblems(campaignDomains),
   ...modelShapeProblems(campaignDomains),

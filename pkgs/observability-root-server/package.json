@@ -24,12 +24,12 @@
     "@opentelemetry/sdk-logs": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@opentelemetry/sdk-trace-node": "catalog:",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/message-shared": "workspace:*",
     "@pkgs/observability-root-shared": "workspace:*",
     "@pkgs/observability-runtime-shared": "workspace:*",
-    "@pkgs/outbox-shared": "workspace:*",
-    "@pkgs/http-client-shared": "workspace:*",
-    "@pkgs/clock-shared": "workspace:*"
+    "@pkgs/outbox-shared": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/object-store-root-shared": "workspace:*",

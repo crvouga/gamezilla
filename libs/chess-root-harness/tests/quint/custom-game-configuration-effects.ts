@@ -10,7 +10,7 @@ import {
   readCustomGameProbe,
   waitCustomGameAvailability,
 } from '@libs/chess-custom-game-harness/custom-game-ui';
-import { customGameTimeLeft } from '@libs/chess-custom-game-shared/custom-game-state';
+import { customGameTimeLeft } from '@libs/game-session-shared/custom-game-state';
 import { restartApp } from '@libs/harness/actions';
 import {
   returnToTabs,

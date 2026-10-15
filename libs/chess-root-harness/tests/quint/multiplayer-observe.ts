@@ -1,7 +1,7 @@
 import type { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { multiplayerDeviceViews } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
-import { clockLeftMs } from '@libs/chess-matchmaking-shared/multiplayer-clock';
+import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
+import { clockLeftMs } from '@libs/game-matchmaking-shared/multiplayer-clock';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
 import type { PlayDevice, PlayTrace } from './multiplayer-world';

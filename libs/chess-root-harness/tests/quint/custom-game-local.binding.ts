@@ -4,7 +4,7 @@ import {
 } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { chooseCustomGameBotMove } from '@libs/chess-custom-game-harness/custom-game-bot-choice';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
-import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
+import type { CustomGameChoice } from '@libs/game-session-shared/custom-game-choice';
 import {
   partition,
   restartApp,

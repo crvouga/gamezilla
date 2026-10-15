@@ -12,6 +12,7 @@ import {
 } from '@pkgs/room-root-shared/service-identity';
 import type { RoomCommand } from '@pkgs/room-root-shared/types';
 import type { GameDefinition } from './game';
+import { gameModules } from './game-modules';
 import { SelectGame } from './games';
 import { AnnounceRenamed } from './space-log-messages';
 import {
@@ -52,6 +53,7 @@ export function createSpaceRoomAuthorizer(
   command: RoomCommand,
   grants: readonly string[]
 ) => Promise<Verdict> {
+  const modules = gameModules(games);
   return (identity, _topic, command, grants) => {
     if (
       identity !== ROOM_SERVICE_IDENTITY &&
@@ -76,7 +78,7 @@ export function createSpaceRoomAuthorizer(
           : { ok: false, reason: 'requires the space service' }
       );
     let required = spaceCommandGrant(msg);
-    for (const game of games)
+    for (const game of modules)
       required ??= game.permissionForCommand?.(msg) ?? null;
     return Promise.resolve(
       required === null || grants.includes(required.key)

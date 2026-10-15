@@ -12,6 +12,7 @@ const DATA_NAMES = [
   'friends',
   'notifications',
   'chess',
+  'game-session',
   'billing',
   'permissions',
   'synthetic-population',

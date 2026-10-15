@@ -1,6 +1,6 @@
 import { downloadedExport } from '@libs/account-privacy-harness/privacy-reads';
-import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
 import { CHESS_PRIVACY } from '@libs/chess-sub-shared/account-privacy';
+import type { CustomGame } from '@libs/game-session-shared/custom-game-state';
 import type { ProductHarness } from '@libs/harness/harness';
 
 /** Games offered in the proven person's readable and reusable export. */

@@ -1,17 +1,14 @@
 import { expect, test } from 'bun:test';
 import { publishMultiplayerFixture } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { MultiplayerGameChanged } from '@libs/chess-matchmaking-shared/match-room';
-import { CHESS_MULTIPLAYER_TABLES } from '@libs/chess-matchmaking-shared/multiplayer-tables';
+import { MultiplayerGameChanged } from '@libs/game-matchmaking-shared/match-room';
+import { MULTIPLAYER_TABLES } from '@libs/game-matchmaking-shared/multiplayer-tables';
 import { openConformanceDb } from '@libs/permissions-shared/world';
 import { outboxEvents } from '@pkgs/outbox-shared/tables';
 import sql from '@pkgs/sql-root-shared/sql';
 
 // regression: multiplayer-clock-fixture-room-stale
 test('an eleven-second clock fixture publishes its accepted position to the match room', async () => {
-  const db = await openConformanceDb([
-    ...CHESS_MULTIPLAYER_TABLES,
-    outboxEvents,
-  ]);
+  const db = await openConformanceDb([...MULTIPLAYER_TABLES, outboxEvents]);
   const fen = 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2';
   try {
     await db.run(sql`

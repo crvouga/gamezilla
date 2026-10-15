@@ -1,4 +1,4 @@
-import { timeControlKey } from '@libs/chess-matchmaking-shared/time-control';
+import { timeControlKey } from '@libs/game-matchmaking-shared/time-control';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import {
   actorUi,

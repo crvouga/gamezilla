@@ -15,9 +15,10 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@libs/sub-shared": "workspace:*",
     "@libs/moderation-shared": "workspace:*",
     "@libs/observability-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
+    "@libs/synthetic-population-shared": "workspace:*",
     "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/attribute-shared": "workspace:*",
     "@pkgs/auth-root-shared": "workspace:*",
@@ -32,14 +33,13 @@
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
-    "zod": "catalog:",
-    "@libs/synthetic-population-shared": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@typescript/native": "catalog:",
-    "typescript": "catalog:",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
-    "@pkgs/sql-client-sqlite-root-server": "workspace:*"
+    "@pkgs/sql-client-sqlite-root-server": "workspace:*",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
   },
   "category": "isomorphic"
 }

@@ -1,8 +1,9 @@
-import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
-import { ChangeCustomGame } from '@libs/chess-custom-game-shared/custom-game-commands';
-import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
-import { createChessServer } from '@libs/chess-root-server/sub-server';
 import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { createGameSessionServer } from '@libs/game-session-server/sub-server';
+import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
+import { ChangeCustomGame } from '@libs/game-session-shared/custom-game-commands';
+import { CustomGamesAttr } from '@libs/game-session-shared/custom-game-state';
 import type { HarnessRoomNode } from '@libs/harness/composition';
 import { capabilityOf, spacePresenceOf } from '@libs/permissions-shared/people';
 import type {
@@ -172,8 +173,10 @@ export const performCustomGameDecision: ServerOperation = async (c) => {
           const ctx = { db: c.db, topic, actor, nowMs: c.nowMs };
           return [
             ...((await spaceRoomGrants(ctx)) ?? []),
-            ...((await createChessServer(node.services).roomGrants?.(ctx)) ??
-              []),
+            ...((await createGameSessionServer(
+              node.services,
+              TURN_GAMES
+            ).roomGrants?.(ctx)) ?? []),
           ];
         },
       },

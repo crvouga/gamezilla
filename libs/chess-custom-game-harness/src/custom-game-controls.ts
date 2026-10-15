@@ -1,6 +1,7 @@
-import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
-import { customGameLegalMoves } from '@libs/chess-custom-game-shared/custom-game-position';
-import { customGameStartable } from '@libs/chess-custom-game-shared/custom-game-state';
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
+import { customGameLegalMoves } from '@libs/game-session-shared/custom-game-position';
+import { customGameStartable } from '@libs/game-session-shared/custom-game-state';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
@@ -78,7 +79,7 @@ function boardAllows(probe: CustomGameProbe, input: CustomGameInput): boolean {
     probe.live &&
     probe.current.status === 'active' &&
     probe.mySide === probe.current.turn &&
-    customGameLegalMoves(probe.current).some((move) =>
+    customGameLegalMoves(probe.current, TURN_GAMES).some((move) =>
       move.startsWith(input.uci)
     )
   );

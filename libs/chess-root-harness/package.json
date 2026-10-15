@@ -108,15 +108,20 @@
   "dependencies": {
     "@libs/account-privacy-harness": "workspace:*",
     "@libs/chess-custom-game-harness": "workspace:*",
-    "@libs/chess-custom-game-shared": "workspace:*",
-    "@libs/chess-matchmaking-client": "workspace:*",
     "@libs/chess-matchmaking-harness": "workspace:*",
-    "@libs/chess-matchmaking-shared": "workspace:*",
     "@libs/chess-puzzle-client": "workspace:*",
     "@libs/chess-puzzle-harness": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-root-server": "workspace:*",
     "@libs/chess-sub-shared": "workspace:*",
+    "@libs/connect-four-harness": "workspace:*",
+    "@libs/connect-four-root-client": "workspace:*",
+    "@libs/connect-four-shared": "workspace:*",
+    "@libs/game-catalog-shared": "workspace:*",
+    "@libs/game-matchmaking-client": "workspace:*",
+    "@libs/game-matchmaking-shared": "workspace:*",
+    "@libs/game-session-server": "workspace:*",
+    "@libs/game-session-shared": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-harness": "workspace:*",
@@ -135,6 +140,7 @@
     "@libs/billing-harness": "workspace:*",
     "@libs/billing-shared": "workspace:*",
     "@libs/chess-root-client": "workspace:*",
+    "@libs/chess-rules-shared": "workspace:*",
     "@libs/friends-harness": "workspace:*",
     "@libs/friends-shared": "workspace:*",
     "@libs/notifications-harness": "workspace:*",
@@ -154,15 +160,18 @@
     "@pkgs/quint-shared": "workspace:*",
     "@pkgs/room-root-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/turn-game-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
+    "chess.js": "catalog:",
     "typescript": "catalog:"
   },
   "category": "harness",
   "modelParts": 17,
   "specDomains": [
-    "chess"
+    "chess",
+    "connect-four"
   ],
   "specParts": 72
 }

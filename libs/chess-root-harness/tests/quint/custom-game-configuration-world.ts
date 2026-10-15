@@ -8,7 +8,7 @@ import {
   readCustomGameProbe,
   waitCustomGameAvailability,
 } from '@libs/chess-custom-game-harness/custom-game-ui';
-import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
+import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
 import {
   returnToTabs,
   signInWithGoogle,

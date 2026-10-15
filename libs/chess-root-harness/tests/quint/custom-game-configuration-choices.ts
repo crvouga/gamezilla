@@ -14,8 +14,8 @@ import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game
 import type {
   CustomGameChoice,
   CustomGameInput,
-} from '@libs/chess-custom-game-shared/custom-game-choice';
-import type { CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
+} from '@libs/game-session-shared/custom-game-choice';
+import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import {

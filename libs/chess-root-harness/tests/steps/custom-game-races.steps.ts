@@ -2,7 +2,7 @@ import { expect } from 'bun:test';
 import { attemptCustomGameChoice } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { raceCustomGameChoices } from '@libs/chess-custom-game-harness/custom-game-race';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
-import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
+import type { CustomGame } from '@libs/game-session-shared/custom-game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import {
   customFact,

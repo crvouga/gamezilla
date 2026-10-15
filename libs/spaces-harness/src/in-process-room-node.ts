@@ -195,7 +195,7 @@ function buildLoopbackTransport(
     const admissionKey =
       args.module === 'space'
         ? PERMISSION.spacesLeave
-        : PERMISSION.chessMultiplayerWatch;
+        : PERMISSION.gameMultiplayerWatch;
     if (
       !grants.includes(admissionKey) &&
       !(args.module === 'space' && grants.includes(PERMISSION.spacesJoin))

@@ -9,8 +9,8 @@ import { openMultiplayerNotice } from '@libs/chess-matchmaking-harness/multiplay
 import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { passMultiplayerDays } from '@libs/chess-matchmaking-harness/multiplayer-time';
-import { dailyTimeControlId } from '@libs/chess-matchmaking-shared/time-control';
 import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
+import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { accountIdOf } from '@libs/harness/identity';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import type { Picks } from '@pkgs/quint-shared/registry';

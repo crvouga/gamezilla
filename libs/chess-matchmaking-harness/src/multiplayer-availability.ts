@@ -1,5 +1,5 @@
-import { enqueueMultiplayerAvailability } from '@libs/chess-matchmaking-shared/multiplayer-availability';
-import { clockLeftMs } from '@libs/chess-matchmaking-shared/multiplayer-clock';
+import { enqueueMultiplayerAvailability } from '@libs/game-matchmaking-shared/multiplayer-availability';
+import { clockLeftMs } from '@libs/game-matchmaking-shared/multiplayer-clock';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';

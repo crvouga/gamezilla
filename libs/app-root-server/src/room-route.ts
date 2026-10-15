@@ -93,7 +93,7 @@ export function createRoomApp(roomGrants: ComposedSubServers['roomGrants']) {
     const stub = ns.get(ns.idFromName(topic));
     if (
       topic.startsWith('chess-match:') &&
-      !grants.includes(PERMISSION.chessMultiplayerWatch)
+      !grants.includes(PERMISSION.gameMultiplayerWatch)
     )
       return c.json({ error: 'not in a match space' }, 403);
     const headers = new Headers(c.req.raw.headers);

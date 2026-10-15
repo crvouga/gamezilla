@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { chessMultiplayerSpace } from '@libs/chess-matchmaking-shared/chess-multiplayer-space-query';
+import { multiplayerSpaceQuery } from '@libs/game-matchmaking-shared/multiplayer-space-query';
 import { runQuery } from '@pkgs/sync-engine-server/run-query';
 import { queryRegistry } from '@pkgs/sync-engine-shared/queries-registry';
 import {
@@ -18,7 +18,7 @@ test('the multiplayer space snapshot passes server SQL enforcement and includes 
       const response = await runQuery(
         {
           db,
-          registry: queryRegistry([chessMultiplayerSpace]),
+          registry: queryRegistry([multiplayerSpaceQuery]),
           auth: {
             actorId,
             deviceId: actorId === HOST ? DEVICE : 'watcher-device',

@@ -9,7 +9,7 @@ import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { identityJson } from './identity-handlers';
 import { IdentityRepository } from './identity-repository';
 import { IdpRepository } from './idp-repository';
-import { SYNTHETIC_MONITOR_USER } from './synthetic-monitor';
+import { isSyntheticMonitor } from './synthetic-monitor';
 
 export type CreateAuthServerAdapterDeps = {
   readonly getSql: () => SqlClient;
@@ -35,7 +35,7 @@ async function verifySessionToken(
   const found = await repository(deps).findSessionByToken(token);
   if (found === null) return null;
   return {
-    synthetic: found.user.id === SYNTHETIC_MONITOR_USER.id,
+    synthetic: isSyntheticMonitor(found.user.id),
     externalUserId: found.user.id,
     accountId: null,
     email: found.user.email,

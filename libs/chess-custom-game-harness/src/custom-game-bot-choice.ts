@@ -1,4 +1,5 @@
-import { customGameLegalMoves } from '@libs/chess-custom-game-shared/custom-game-position';
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { customGameLegalMoves } from '@libs/game-session-shared/custom-game-position';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type {
   HarnessComposition,
@@ -33,7 +34,7 @@ export const chooseCustomGameBotMove = scenarioAction({
     const game = (await readCustomGameProbe(s, observer))?.current;
     if (game === null || game === undefined)
       throw new Error('No Custom Game to follow');
-    const moves = customGameLegalMoves(game);
+    const moves = customGameLegalMoves(game, TURN_GAMES);
     const index = moves.indexOf(uci);
     if (index === -1) throw new Error(`${uci} is not a legal bot choice`);
     const choice = choices.get(s.harness.roomNode);

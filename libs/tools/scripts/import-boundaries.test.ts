@@ -58,6 +58,41 @@ type Probe = {
 
 const PROBES: readonly Probe[] = [
   {
+    path: 'libs/game-session-shared/src/concrete.ts',
+    source: "import { rules } from '@libs/chess-rules-shared/chess-rules';",
+    message:
+      'Shared game components receive rules and presentation through ports',
+  },
+  {
+    path: 'libs/game-session-client/src/concrete.ts',
+    source: "export { Board } from '@libs/connect-four-root-client/board';",
+    message:
+      'Shared game components receive rules and presentation through ports',
+  },
+  {
+    path: 'libs/game-matchmaking-shared/src/concrete.ts',
+    source: "const game = import('chess.js');",
+    message:
+      'Shared game components receive rules and presentation through ports',
+  },
+  {
+    path: 'pkgs/turn-game-client/src/concrete.ts',
+    source: "const rules = require('@libs/game-catalog-shared/turn-games');",
+    message:
+      'Shared game components receive rules and presentation through ports',
+  },
+  {
+    path: 'libs/game-session-client/src/port.ts',
+    source:
+      "import { useGamePresentation } from '@pkgs/turn-game-client/turn-games-context';",
+    message: null,
+  },
+  {
+    path: 'libs/chess-root-harness/tests/concrete.test.ts',
+    source: "import { rules } from '@libs/chess-rules-shared/chess-rules';",
+    message: null,
+  },
+  {
     path: 'libs/zz/src/provision-bucket.ts',
     source:
       'await fetch(`https://api.cloudflare.com/client/v4/accounts/${id}/r2/buckets`, { method: "POST" });',

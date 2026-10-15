@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   dailyClockParts,
   dailyClockStepMs,
-} from '@libs/chess-matchmaking-client/multiplayer-format';
+} from '@libs/game-matchmaking-client/multiplayer-format';
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;

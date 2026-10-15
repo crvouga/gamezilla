@@ -17,7 +17,9 @@
   "dependencies": {
     "@libs/app-root-server": "workspace:*",
     "@libs/auth-shared": "workspace:*",
-    "@libs/chess-matchmaking-shared": "workspace:*",
+    "@libs/chess-rules-shared": "workspace:*",
+    "@libs/game-catalog-shared": "workspace:*",
+    "@libs/game-matchmaking-shared": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/notifications-harness": "workspace:*",
     "@libs/notifications-shared": "workspace:*",

@@ -1,0 +1,4 @@
+{
+  "summary": "Tactical bot fixtures advanced a server copy of a solo game instead of the host device board. Establish the position through ordinary human moves and scheduled bot turns.",
+  "regressionTest": "libs/chess-root-harness/tests/steps/connect-four-bots.steps.ts"
+}

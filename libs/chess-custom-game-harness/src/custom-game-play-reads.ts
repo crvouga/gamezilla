@@ -5,7 +5,7 @@
  * the screen.
  */
 
-import type { CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
+import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';

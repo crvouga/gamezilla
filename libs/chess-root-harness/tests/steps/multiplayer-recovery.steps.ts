@@ -8,7 +8,7 @@ import {
   multiplayerText,
   multiplayerView,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
+import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import { accountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';

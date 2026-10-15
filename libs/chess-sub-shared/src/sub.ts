@@ -20,7 +20,6 @@ export const CHESS_SUB = defineSub({
   // Held open for the whole session: what keeps this sub's slice
   // of the local database warm.
   sessionQueries: [
-    'chessMultiplayerSession',
     'chessPuzzleProfile',
     'chessPuzzleFeedSettings',
     'chessPuzzleInteractions',
