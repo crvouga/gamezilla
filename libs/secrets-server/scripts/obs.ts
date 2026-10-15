@@ -4,6 +4,7 @@ import { exportSecretsMap } from '@libs/secrets-server/secrets-io';
 import {
   fillUnsetEnv,
   OBS_QUERY_KEYS,
+  PLATFORM_QUERY_KEYS,
   productionQueryRequested,
 } from '@libs/secrets-shared/obs-query-env';
 
@@ -15,7 +16,11 @@ async function loadProductionQueryCredentials(
   if (env === undefined) return;
   try {
     const values = await exportSecretsMap(env);
-    fillUnsetEnv(process.env, values, OBS_QUERY_KEYS);
+    fillUnsetEnv(
+      process.env,
+      values,
+      argv[0] === 'platform' ? PLATFORM_QUERY_KEYS : OBS_QUERY_KEYS
+    );
   } catch {
     process.stderr.write(
       'obs: production query credentials were not loaded; continuing with the environment already set\n'

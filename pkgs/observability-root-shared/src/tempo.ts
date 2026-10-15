@@ -33,6 +33,7 @@ type TempoOptions = {
 
 export class TempoTraceStore implements TraceStore {
   readonly source: string;
+  private readonly traces = new Map<string, Promise<Trace | null>>();
   constructor(private readonly options: TempoOptions) {
     this.source = `tempo:${options.baseUrl}`;
   }
@@ -64,11 +65,37 @@ export class TempoTraceStore implements TraceStore {
     );
     if (!response.ok)
       throw new Error(`Tempo search failed (${String(response.status)})`);
-    return traceRefs(await response.json());
+    const refs = traceRefs(await response.json());
+    const hydrated: TraceRef[] = [];
+    // Tempo search metadata has no errorCount or spanCount. Read the bounded
+    // result set before judging it; do not report unknown counts as zero.
+    for (let offset = 0; offset < refs.length; offset += 8) {
+      const traces = await Promise.all(
+        refs.slice(offset, offset + 8).map((ref) => this.getTrace(ref.traceId))
+      );
+      for (const trace of traces) {
+        if (
+          trace !== null &&
+          trace.spans.some(
+            (span) =>
+              span.startTimeMs >= range.startMs &&
+              span.startTimeMs <= range.endMs
+          )
+        )
+          hydrated.push(traceRef(trace));
+      }
+    }
+    return hydrated;
   }
 
-  recent(window: TimeRange): Promise<readonly TraceRef[]> {
-    return this.search('{ true }', window);
+  recent(
+    window: TimeRange,
+    options?: { readonly errorsOnly?: boolean }
+  ): Promise<readonly TraceRef[]> {
+    return this.search(
+      options?.errorsOnly === true ? '{ status = error }' : '{ true }',
+      window
+    );
   }
   async adjacent(window: TimeRange): Promise<AdjacentActivity> {
     const [beforeRefs, nearbyRefs, afterRefs] = await Promise.all([
@@ -143,6 +170,15 @@ export class TempoTraceStore implements TraceStore {
   }
 
   async getTrace(traceId: string): Promise<Trace | null> {
+    let result = this.traces.get(traceId);
+    if (result === undefined) {
+      result = this.loadTrace(traceId);
+      this.traces.set(traceId, result);
+    }
+    return result;
+  }
+
+  private async loadTrace(traceId: string): Promise<Trace | null> {
     const response = await this.options.fetch(
       `${this.options.baseUrl}/api/traces/${encodeURIComponent(traceId)}`,
       { headers: this.headers() }

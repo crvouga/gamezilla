@@ -12,7 +12,7 @@
   {
     "package": "@libs/chess-root-harness",
     "directory": "libs/chess-root-harness",
-    "parts": 64
+    "parts": 72
   },
   {
     "package": "@libs/friends-harness",

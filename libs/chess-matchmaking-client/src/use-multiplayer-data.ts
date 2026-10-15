@@ -44,6 +44,7 @@ function withRoom(
     turn: room.turn,
     outcome: room.outcome,
     reason: room.reason,
+    paused_at_ms: room.paused_at_ms,
     ...(room.time_control !== undefined
       ? { time_control: room.time_control }
       : {}),

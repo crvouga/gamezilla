@@ -1,0 +1,4 @@
+{
+  "summary": "Retained Postgres startup failure prevents the web client from starting, and the front-door task kills independent services. The local-first client and diagnostics must start independently, retaining planned reconnect addresses and reporting unavailable services.",
+  "regressionTest": "apps/product/scripts/development-web-startup.test.ts"
+}

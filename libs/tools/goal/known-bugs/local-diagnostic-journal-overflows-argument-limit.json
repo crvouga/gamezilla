@@ -1,0 +1,4 @@
+{
+  "summary": "Local obs could not read the accumulated 917125-record spans.ndjson: spreading parsed spans into push exceeded the JavaScript argument limit. Iterate and deduplicate records as they load.",
+  "regressionTest": "pkgs/observability-root-shared/tests/large-journal.test.ts"
+}

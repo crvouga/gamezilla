@@ -29,6 +29,10 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
     if: '${{ inputs.rehearsal }}',
     needs: 'deploy-check',
   });
+  // regression: rehearsal-uses-main-only-aws-role
+  expect(workflow.jobs['deploy-rehearsal']).toMatchObject({
+    env: { AWS_ROLE_ARN: '${{ vars.AWS_HEALTH_ROLE_ARN }}' },
+  });
   expect(workflow.jobs['deploy-fleet']?.if).toBe('${{ !inputs.rehearsal }}');
   expect(workflow.jobs['deploy-dev']?.needs).toBe('deploy-fleet');
   const commands = workflow.jobs['deploy-rehearsal']?.steps

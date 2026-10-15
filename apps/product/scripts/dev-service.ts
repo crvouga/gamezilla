@@ -21,8 +21,17 @@ import {
   type ServiceContext,
   startService,
 } from './dev-services';
-import type { StackManifest } from './manifest';
+import {
+  developmentManifest,
+  readDevelopmentServices,
+} from './development-readiness';
 import { removeManifest, writeManifest } from './manifest';
+import {
+  expectChildExit,
+  installProcessDiagnostics,
+  recordProcessFailure,
+  waitForChildDiagnostics,
+} from './process-observability';
 import { readPlan, type StackPlan } from './stack-plan';
 import {
   awaitService,
@@ -70,6 +79,13 @@ async function runService<K extends ServiceName>(
   try {
     running = await startService(name, context);
   } catch (error) {
+    recordProcessFailure(
+      { instanceId: plan.options.instanceId, dataDir: plan.dataDir },
+      {
+        serviceName: `gamezilla-${name}`,
+        error: error instanceof Error ? error : new Error(String(error)),
+      }
+    );
     publishFailed(
       plan,
       name,
@@ -94,8 +110,10 @@ async function runService<K extends ServiceName>(
     // and leaves its processes behind: end one that is still draining.
     await Promise.race([service.stop(), Bun.sleep(STOP_GRACE_MS)]);
     for (const child of service.children ?? []) {
-      if (child.exitCode === null && child.signalCode === null)
+      if (child.exitCode === null && child.signalCode === null) {
+        expectChildExit(child);
         child.kill('SIGKILL');
+      }
     }
   };
   // A service whose process died is no longer serving, whatever it published.
@@ -103,52 +121,27 @@ async function runService<K extends ServiceName>(
     child.once('exit', (code, signal) => {
       if (stopped) return;
       say(name, `a process exited (${signal ?? `code ${String(code)}`})`);
-      void stop().finally(() => process.exit(1));
+      void waitForChildDiagnostics(child)
+        .then(stop)
+        .finally(() => process.exit(1));
     });
   }
   return holdUntilStopped(stop);
 }
 
 async function runFrontDoor(plan: StackPlan): Promise<never> {
-  const need = <K extends ServiceName>(name: K) => awaitService(plan, name);
-  const [postgres, s3, mqtt, observability, idp, billing, server, web] =
-    await Promise.all([
-      need('postgres'),
-      need('s3'),
-      need('mqtt'),
-      need('observability'),
-      need('idp'),
-      need('billing'),
-      need('server'),
-      need('web'),
-      need('openai'),
-      need('population'),
-    ]);
-  if (postgres === null || idp === null || billing === null || server === null)
-    throw new Error(
-      'the stack came up without a service it cannot run without'
-    );
-  const manifest: StackManifest = {
-    instanceId: plan.options.instanceId,
-    startedAtMs: Date.now(),
-    apiOrigin: server.apiOrigin,
-    apiNodes: server.nodes,
-    webOrigin: web?.origin ?? '',
-    idpOrigins: { google: idp.google, apple: idp.apple },
-    billingOrigin: billing.origin,
-    databaseUrl: postgres.databaseUrl,
-    s3Endpoint: s3?.endpoint ?? null,
-    mqttWssUrl: mqtt?.wssUrl ?? null,
-    mqttUrl: mqtt?.mqttUrl ?? null,
-    observabilityCollectorUrl: observability?.collectorUrl ?? null,
-    observabilityTraceDir: observability?.traceDir ?? null,
-    observabilityTempoUrl: observability?.tempoUrl ?? null,
-    observabilityGrafanaUrl: observability?.grafanaUrl ?? null,
-    dataDir: plan.dataDir,
-  };
+  const services = await readDevelopmentServices(
+    (name) => awaitService(plan, name),
+    (name, error) =>
+      say(
+        'stack',
+        `${name} unavailable: ${error instanceof Error ? error.message : String(error)}`
+      )
+  );
+  const manifest = developmentManifest(plan, services, Date.now());
   const manifestPath = writeManifest(REPO_ROOT, manifest);
-  say('stack', `ready — ${manifestPath}`);
-  if (web !== null) say('stack', `simulator: ${web.origin}/?simulator`);
+  say('stack', `addresses — ${manifestPath}`);
+  if (services.web !== null) say('stack', `app: ${services.web.origin}/`);
   say('stack', 'Ctrl-C to stop');
   // A manifest must not point at processes that are gone.
   process.on('exit', () => {
@@ -159,6 +152,10 @@ async function runFrontDoor(plan: StackPlan): Promise<never> {
 
 const target = process.argv[2];
 const plan = readPlan(REPO_ROOT, devStackOptions().instanceId);
+installProcessDiagnostics(
+  { instanceId: plan.options.instanceId, dataDir: plan.dataDir },
+  `gamezilla-${target ?? 'stack'}`
+);
 if (target === 'ready') {
   await runFrontDoor(plan);
 } else if ((SERVICE_NAMES as readonly string[]).includes(target ?? '')) {

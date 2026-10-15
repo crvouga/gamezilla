@@ -6,9 +6,14 @@ export const OBS_QUERY_KEYS = [
   'OBS_READONLY_DATABASE_URL',
 ] as const;
 
+export const PLATFORM_QUERY_KEYS = [
+  'CLOUDFLARE_ACCOUNT_ID',
+  'CLOUDFLARE_API_TOKEN',
+] as const;
+
 export function productionQueryRequested(argv: readonly string[]): boolean {
   const source = flagValue(argv, 'source');
-  return source === 'prod' || source === 'tempo';
+  return argv[0] === 'platform' || source === 'prod' || source === 'tempo';
 }
 
 /** Fills only keys that are unset. An empty stored value is left unset. */

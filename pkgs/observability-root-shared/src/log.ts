@@ -1,17 +1,18 @@
 import { context } from '@opentelemetry/api';
 import { logs, SeverityNumber } from '@opentelemetry/api-logs';
 import { ATTR } from './attributes';
+import type { DiagnosticLog } from './diagnostic-log';
+import {
+  diagnosticAttributes,
+  recordDiagnosticFailure,
+} from './diagnostic-log';
 import { addEvent, EVENT } from './events';
 import { allowlistedAttributes } from './redaction';
 import { activeSpan } from './span';
 
 export type LogSeverity = 'debug' | 'info' | 'warn' | 'error';
 
-export type CorrelatedLogEvent = {
-  readonly severity: LogSeverity;
-  readonly message: string;
-  readonly loggerName: string;
-};
+export type CorrelatedLogEvent = DiagnosticLog;
 
 const LOG_EVENT_BRIDGE = Symbol.for('gamezilla.observability.log-event');
 type LogBridgeHost = {
@@ -29,6 +30,7 @@ export function installStructuredLogBridge(): void {
 }
 
 export function recordStructuredLog(event: CorrelatedLogEvent): void {
+  recordLogEvent(event);
   const severity = {
     debug: SeverityNumber.DEBUG,
     info: SeverityNumber.INFO,
@@ -40,10 +42,7 @@ export function recordStructuredLog(event: CorrelatedLogEvent): void {
       context: context.active(),
       severityNumber: severity[event.severity],
       severityText: event.severity.toUpperCase(),
-      attributes: allowlistedAttributes({
-        [ATTR.APP_LOG_MESSAGE]: event.message,
-        [ATTR.APP_LOG_NAME]: event.loggerName,
-      }),
+      attributes: diagnosticAttributes(event),
     });
   } catch {
     // Logging must not fail a product operation.
@@ -74,11 +73,14 @@ export function recordStructuredError(
 
 /** Records a log on the active span. Startup/no-context calls are no-ops. */
 export function recordLogEvent(event: CorrelatedLogEvent): void {
+  recordDiagnosticFailure(event);
   const span = activeSpan();
   if (span === undefined) return;
+  const attributes = diagnosticAttributes(event);
   addEvent(span, EVENT.LOG_EMITTED, {
+    ...attributes,
     [ATTR.APP_LOG_SEVERITY]: event.severity,
-    [ATTR.APP_LOG_MESSAGE]: event.message,
-    [ATTR.APP_LOG_NAME]: event.loggerName,
+    [ATTR.APP_LOG_MESSAGE]: String(attributes[ATTR.APP_LOG_MESSAGE] ?? ''),
+    [ATTR.APP_LOG_NAME]: String(attributes[ATTR.APP_LOG_NAME] ?? ''),
   });
 }

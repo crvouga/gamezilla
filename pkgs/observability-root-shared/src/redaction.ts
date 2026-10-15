@@ -69,7 +69,14 @@ function isTextArray(
 
 function redactText(value: string, limit: number): string {
   const withoutCredentials = value
-    .replace(/([?&](?:token|key|secret|password)=)[^&\s]+/gi, '$1[redacted]')
+    .replace(
+      /([?&](?:token|key|secret|password|code|state|ticket|email_link|access_token|refresh_token|id_token|client_secret)=)[^&\s]+/gi,
+      '$1[redacted]'
+    )
+    .replace(
+      /(\b[a-z][a-z0-9+.-]*:\/\/)[^\s/@]+:[^\s/@]+@/gi,
+      '$1[credentials-redacted]@'
+    )
     .replace(/\bBearer\s+[A-Za-z0-9._~+/=-]+/gi, 'Bearer [redacted]')
     .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[email-redacted]');
   return withoutCredentials.length <= limit

@@ -30,7 +30,7 @@ Given(
     customHumans(w, { host, white, black })
 );
 Given(
-  '{actor} has an active Custom Game between {actor} as White and {actor} as Black',
+  '{actor} has an active (untimed )Custom Game between {actor} as White and {actor} as Black',
   async (w, host: string, white: string, black: string) =>
     customHumans(w, { host, white, black, active: true })
 );

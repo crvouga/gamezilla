@@ -1,4 +1,4 @@
 {
-  "summary": "Reconnect observations read the previous game before the returning connection settled, reporting configuring or active instead of the current state.",
+  "summary": "Returning participants kept the previous game even after their room had connected and settled: an earlier HTTP sync error still gated the visible room state. A settled room's accepted game must be displayed independently of stale HTTP status, while disconnected rooms retain their last board.",
   "regressionTest": "specs/chess/custom-game-connection.feature"
 }

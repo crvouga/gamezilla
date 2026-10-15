@@ -1,0 +1,4 @@
+{
+  "summary": "Repeated delivery of the same telemetry span inflated local error and span counts.",
+  "regressionTest": "pkgs/observability-root-shared/tests/query.test.ts"
+}

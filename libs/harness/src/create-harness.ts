@@ -364,6 +364,7 @@ async function disposeHarness(args: {
 }): Promise<void> {
   const { kernel } = args;
   if (kernel.disposed.value) return;
+  kernel.net.dispose();
   // Close clients first so AuthBridge / session refresh stop scheduling work.
   for (const live of args.liveClients.values()) await live.close();
   args.liveClients.clear();

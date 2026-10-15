@@ -34,7 +34,8 @@ async function notifySyntheticPopulation(): Promise<void> {
   const store = requireRequestStore();
   const pubsub = await new HttpPubSubFromSecretStore(
     store.secretStore,
-    store.clock.now
+    store.clock.now,
+    store.http
   ).get();
   if (pubsub === undefined) return;
   await pubsub.publish(SYNTHETIC_POPULATION_TOPIC, {

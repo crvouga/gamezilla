@@ -184,10 +184,12 @@ When('{actor} opens their friends list', async (w, actor: Actor) => {
 });
 
 Given(
-  '{actor} is viewing their friends list with {person} in it',
-  async (w, actor: Actor, person: string) => {
+  '{actor} is viewing their friends list with {actor} in it',
+  async (w, actor: Actor, person: Actor) => {
     await w.s.apply(openFriendsList, actor);
-    await w.s.until((surf) => friendRowVisible(surf, actor, person));
+    await w.s.until((surf) =>
+      friendRowVisible(surf, actor, rememberedUsername(w, person))
+    );
   }
 );
 

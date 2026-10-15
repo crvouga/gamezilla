@@ -1,0 +1,4 @@
+{
+  "summary": "Custom Game replays failed at initialization because the binding omitted the model's public clocksPaused observation. Read it from the active timed game's retained clock state and retain that observation in historical regression traces, which contain no shared interruption.",
+  "regressionTest": "libs/chess-root-harness/tests/quint/custom-game-play.binding.ts"
+}

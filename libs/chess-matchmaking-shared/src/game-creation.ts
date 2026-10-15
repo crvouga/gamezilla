@@ -59,6 +59,7 @@ export async function createMultiplayerGame(
     white_ms: ms,
     black_ms: ms,
     clock_at_ms: input.nowMs,
+    paused_at_ms: null,
     draw_offer_by: '',
     rematch_offer_by: '',
     rematch_of: input.rematchOf,
@@ -69,11 +70,11 @@ export async function createMultiplayerGame(
   };
   await tx.run(sql`INSERT INTO chess_multiplayer_games
     (id, match_id, white_id, black_id, fen, pgn, revision, turn, outcome, reason, time_control,
-      white_ms, black_ms, clock_at_ms, draw_offer_by, rematch_offer_by, rematch_of, white_rating,
+      white_ms, black_ms, clock_at_ms, paused_at_ms, draw_offer_by, rematch_offer_by, rematch_of, white_rating,
       black_rating, white_rating_diff, black_rating_diff, created_at, updated_at, deleted_at)
     VALUES (${game.id}, ${game.id}, ${game.white_id}, ${game.black_id}, ${game.fen}, ${game.pgn},
       ${game.revision}, ${game.turn}, ${game.outcome}, ${game.reason}, ${game.time_control},
-      ${game.white_ms}, ${game.black_ms}, ${game.clock_at_ms}, ${game.draw_offer_by},
+      ${game.white_ms}, ${game.black_ms}, ${game.clock_at_ms}, ${game.paused_at_ms}, ${game.draw_offer_by},
       ${game.rematch_offer_by}, ${game.rematch_of}, ${game.white_rating}, ${game.black_rating},
       ${null}, ${null}, ${iso}, ${iso}, ${null})`);
   for (const ownerId of [input.whiteId, input.blackId]) {

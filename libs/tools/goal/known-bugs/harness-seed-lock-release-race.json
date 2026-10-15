@@ -1,0 +1,4 @@
+{
+  "summary": "Two seed rebuild callers racing with lock-directory release raised EPERM during stale cleanup; observed under HARNESS_SEED=-943078469.",
+  "regressionTest": "libs/harness/tests/seed-rebuild-lock.contract.test.ts"
+}

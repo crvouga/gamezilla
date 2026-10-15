@@ -25,7 +25,8 @@ function createRequestScopedPubSub(): PubSub {
       if (store === undefined) return;
       const pubsub = await new HttpPubSubFromSecretStore(
         store.secretStore,
-        () => store.clock.now()
+        () => store.clock.now(),
+        store.http
       ).get();
       if (pubsub === undefined) return;
       await pubsub.publish(topic, data);

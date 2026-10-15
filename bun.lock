@@ -120,6 +120,7 @@
         "@pkgs/object-store-node-fs-server": "workspace:*",
         "@pkgs/object-store-opfs-client": "workspace:*",
         "@pkgs/object-store-root-shared": "workspace:*",
+        "@pkgs/observability-root-shared": "workspace:*",
         "@pkgs/polyfill-shared": "workspace:*",
         "@pkgs/postgres-local-shared": "workspace:*",
         "@pkgs/pubsub-root-shared": "workspace:*",
@@ -167,6 +168,7 @@
         "@pkgs/git-shared": "workspace:*",
         "@pkgs/object-store-s3-server": "workspace:*",
         "@pkgs/object-store-s3-shared": "workspace:*",
+        "@pkgs/observability-cli-shared": "workspace:*",
         "@pkgs/openslo-server": "workspace:*",
         "@pkgs/openslo-shared": "workspace:*",
         "@pkgs/os-server": "workspace:*",
@@ -289,9 +291,11 @@
       },
       "devDependencies": {
         "@libs/harness": "workspace:*",
+        "@libs/pubsub-server": "workspace:*",
         "@libs/runtime-harness": "workspace:*",
         "@opentelemetry/api": "catalog:",
         "@opentelemetry/sdk-trace-base": "catalog:",
+        "@pkgs/aedes-server": "workspace:*",
         "@pkgs/harness-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
@@ -896,6 +900,7 @@
         "@pkgs/chess-board-core-shared": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
+        "chess.js": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -997,6 +1002,7 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid-client": "workspace:*",
+        "@pkgs/outbox-shared": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
@@ -1099,6 +1105,7 @@
       "name": "@libs/chess-puzzle-harness",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/auth-shared": "workspace:*",
         "@libs/chess-puzzle-server": "workspace:*",
         "@libs/chess-puzzle-shared": "workspace:*",
         "@libs/chess-root-shared": "workspace:*",
@@ -1123,6 +1130,7 @@
         "@pkgs/sounds-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
+        "@pkgs/sync-engine-server": "workspace:*",
         "@pkgs/ui-testing-root-shared": "workspace:*",
         "@pkgs/uuid-shared": "workspace:*",
         "chess.js": "catalog:",
@@ -1520,6 +1528,7 @@
         "@pkgs/alloy-shared": "workspace:*",
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/dmn-shared": "workspace:*",
+        "@pkgs/gherkin-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -1686,6 +1695,7 @@
         "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-client": "workspace:*",
+        "@pkgs/sync-engine-server": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
         "@pkgs/tts-root-server": "workspace:*",
         "@pkgs/ui-root-client": "workspace:*",
@@ -2100,6 +2110,7 @@
         "@libs/app-config-shared": "workspace:*",
         "@libs/pubsub-shared": "workspace:*",
         "@libs/sub-shared": "workspace:*",
+        "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/pubsub-emqx-shared": "workspace:*",
         "@pkgs/pubsub-root-shared": "workspace:*",
         "@pkgs/secret-store-shared": "workspace:*",
@@ -4632,6 +4643,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/object-store-node-fs-server": "workspace:*",
         "@pkgs/observability-cli-shared": "workspace:*",
         "@pkgs/observability-root-shared": "workspace:*",
@@ -4652,6 +4664,7 @@
       "name": "@pkgs/observability-cli-shared",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/object-store-root-shared": "workspace:*",
         "@pkgs/observability-root-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
@@ -4753,8 +4766,10 @@
       "devDependencies": {
         "@pkgs/object-store-root-shared": "workspace:*",
         "@pkgs/os-server": "workspace:*",
+        "@pkgs/property-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -4994,6 +5009,7 @@
       "name": "@pkgs/pubsub-emqx-shared",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/pubsub-mqtt-shared": "workspace:*",
         "@pkgs/pubsub-root-shared": "workspace:*",
       },
@@ -5039,6 +5055,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/logger-shared": "workspace:*",
       },
       "devDependencies": {
@@ -6078,8 +6095,6 @@
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/a11y-shared": "workspace:*",
-        "@pkgs/async-root-client": "workspace:*",
-        "@pkgs/async-root-shared": "workspace:*",
         "@pkgs/clock-client": "workspace:*",
         "@pkgs/i18n-shared": "workspace:*",
         "@pkgs/keyword-shared": "workspace:*",
@@ -6329,13 +6344,13 @@
     "@biomejs/biome": "2.5.7",
     "@clack/prompts": "^1.8.1",
     "@crvouga/atlas": "^0.1.0",
-    "@crvouga/mockingbird-service-oauth": "^1.11.0",
-    "@crvouga/mockingbird-service-openai": "^0.1.0",
+    "@crvouga/mockingbird-service-oauth": "^3.4.0",
+    "@crvouga/mockingbird-service-openai": "^1.3.0",
     "@crvouga/mockingbird-service-paddle": "^2.4.0",
-    "@crvouga/mockingbird-service-postgres": "^3.4.0",
-    "@crvouga/mockingbird-service-s3": "^1.8.0",
-    "@crvouga/mockingbird-service-sqlite": "^0.3.0",
-    "@crvouga/mockingbird-service-stripe": "^1.13.0",
+    "@crvouga/mockingbird-service-postgres": "^3.4.1",
+    "@crvouga/mockingbird-service-s3": "^3.3.0",
+    "@crvouga/mockingbird-service-sqlite": "^3.3.0",
+    "@crvouga/mockingbird-service-stripe": "^3.3.1",
     "@cucumber/cucumber-expressions": "^20.1.0",
     "@cucumber/gherkin": "^42.0.1",
     "@cucumber/messages": "^34.2.1",
@@ -6774,19 +6789,19 @@
 
     "@crvouga/atlas": ["@crvouga/atlas@0.1.0", "", { "dependencies": { "@cucumber/gherkin": "^42.0.1", "@cucumber/messages": "^34.2.1", "@radix-ui/react-collapsible": "^1.1.21", "@radix-ui/react-dialog": "^1.2.0", "@radix-ui/react-dropdown-menu": "^2.1.25", "@radix-ui/react-popover": "^1.2.0", "@radix-ui/react-tabs": "^1.1.22", "@radix-ui/react-tooltip": "^1.3.0", "@tanstack/query-persist-client-core": "^5.104.0", "@tanstack/react-query": "^5.101.4", "@tanstack/react-router": "^1.170.41", "@tanstack/solid-query": "^5.104.0", "@vitejs/plugin-react": "5.2.0", "@xyflow/react": "^12.11.5", "cmdk": "^1.1.1", "elkjs": "0.12.0", "fast-xml-parser": "5.11.0", "hono": "^4.13.9", "react": "^19.3.0", "react-dom": "^19.3.0", "solid-js": "^1.9.15", "tsx": "4.23.13", "vite": "7.3.6", "xstate": "5.33.2", "yaml": "^2.9.0", "zod": "^3.25.76", "zustand": "^5.0.15" }, "peerDependencies": { "detox": ">=20", "playwright": ">=1.45" }, "optionalPeers": ["detox", "playwright"], "bin": { "atlas": "packages/core/bin/atlas.mjs", "atlas-visualizer": "packages/visualizer/bin/atlas-visualizer.mjs" } }, "sha512-HohFPonpmTInnwmT+i1BkzH+zmxIwXxaPK1mr2xrVpnsSsHhRzwxR1wrSfvaZqiLIbpRzvLJ5czuFJW2E2VNWw=="],
 
-    "@crvouga/mockingbird-service-oauth": ["@crvouga/mockingbird-service-oauth@1.11.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.3.0" }, "bin": { "mockingbird-oauth": "dist/cli.js" } }, "sha512-G5EJjgDjFilrGUbTuqnapcpAiAFVu9YsWy/Vr1EzXvw5B9FnNfT10k1TCHCflRea/lEaTJiYNnPCwhIXE9RAFA=="],
+    "@crvouga/mockingbird-service-oauth": ["@crvouga/mockingbird-service-oauth@3.4.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "3.3.0" }, "bin": { "mockingbird-oauth": "dist/cli.js" } }, "sha512-l+Boyverw1j+u0litPgKdjapXv2JEFjLhEVtroSFiU6i7fUeCTs6QDcRsoZrUmqxRYjEQBZz5s8inuVfY2bSrA=="],
 
-    "@crvouga/mockingbird-service-openai": ["@crvouga/mockingbird-service-openai@0.1.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "2.1.1", "@noble/ciphers": "2.4.0", "@noble/hashes": "2.4.0", "hono": "4.11.9" }, "bin": { "mockingbird-openai": "dist/cli.js" } }, "sha512-LVsNTOqXALJDj5ywRPSQ1zsHeDWmL5TX+HVKzaxt6GvidoHICMgimgs9UDj5BXzVmxvA+tFzWmZ8jaJaVpH0uQ=="],
+    "@crvouga/mockingbird-service-openai": ["@crvouga/mockingbird-service-openai@1.3.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "3.3.0", "@noble/ciphers": "2.4.0", "@noble/hashes": "2.4.0", "hono": "4.11.9" }, "bin": { "mockingbird-openai": "dist/cli.js" } }, "sha512-FFIhjfg+hixBLMPiefah/cK9Qh7N86J38KHIzUOBHJ7ESlJPu1tMybnA5CVCBScFkW4Aww6ysdTFtK+xe0CDRw=="],
 
     "@crvouga/mockingbird-service-paddle": ["@crvouga/mockingbird-service-paddle@2.4.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "3.3.0", "hono": "4.11.9" }, "bin": { "mockingbird-paddle": "dist/cli.js" } }, "sha512-vm9+v5344oPYpFYA+thrHxfuFUOsDR5Y21bhX33mtxU8lsyHpEIMw0B+gawckwghopORohuPRERjXGLuOh+e+g=="],
 
-    "@crvouga/mockingbird-service-postgres": ["@crvouga/mockingbird-service-postgres@3.4.0", "", { "bin": { "mockingbird-postgres": "dist/wire/cli.js" } }, "sha512-G6dWHNWSSk95KSJ8FJ3alTMIUC5KoFy6S/2qxENP3VD7dJ7Apd55fW7zjmUjyITgNBElx9rt8Elkncc06qkaUw=="],
+    "@crvouga/mockingbird-service-postgres": ["@crvouga/mockingbird-service-postgres@3.4.1", "", { "bin": { "mockingbird-postgres": "dist/wire/cli.js" } }, "sha512-20+tteOEBBFICeQc3OSNy/VtDH0fDGVQP68m+HLn+NQtnrjjmX8p739c90+XLwnuH8sJnJortL34xJFLPWCz4Q=="],
 
-    "@crvouga/mockingbird-service-s3": ["@crvouga/mockingbird-service-s3@1.8.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.3.0" }, "bin": { "mockingbird-s3": "dist/cli.js" } }, "sha512-x7gwYCVbsD33afAWaQmV7/nSgwDFhJxnaGehqwPIUe8xd/21Er3qvpjHiiIqxroBpKLJBGITlX+jaxq8C/F10g=="],
+    "@crvouga/mockingbird-service-s3": ["@crvouga/mockingbird-service-s3@3.3.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "3.3.0" }, "bin": { "mockingbird-s3": "dist/cli.js" } }, "sha512-RAN3U/hf6bOXDFyM1wDiG+RGbfUc4H8lGJIj0G1TB+io1u9eMuswRx2V72Yx9y3a1I3IhQZ+c5ZFuK8dr8bg8A=="],
 
-    "@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@0.3.0", "", {}, "sha512-3ULGmlWaBprKZgVMkqrMZL1wAvwz+Dcq58jqKT/k+fKT4JpcG9OInycz7pXJnsShEjVd4uV2gFy49r3BnXnFnA=="],
+    "@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-SoNjnHvnliuDOxeB20dxu8EL/UiH5jC9LbqMAeONpoOoN/VE+AhhtUCFRf4DqGiGgunKKUv96+MtY07V2bkmLw=="],
 
-    "@crvouga/mockingbird-service-stripe": ["@crvouga/mockingbird-service-stripe@1.13.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.3.0", "hono": "4.11.9" }, "bin": { "mockingbird-stripe": "dist/cli.js" } }, "sha512-0i/GIS/zJBR5GO9UfF2iDLoAIUhoUSQ13Wiu5e+aj1zsbXnqCS1nHI6yBOmiPx2odiiKMMY+KL6hRfsoGy6MZw=="],
+    "@crvouga/mockingbird-service-stripe": ["@crvouga/mockingbird-service-stripe@3.3.1", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "3.3.0", "hono": "4.11.9" }, "bin": { "mockingbird-stripe": "dist/cli.js" } }, "sha512-7zoO40oYUv/cckleNKEH9PnA8hA8e40J8LuPjWzIHaBWgD13ehDy8njoQ85ppsU6aNallE2mgsRGHqAobLKGiw=="],
 
     "@cspotcode/source-map-support": ["@cspotcode/source-map-support@0.8.1", "", { "dependencies": { "@jridgewell/trace-mapping": "0.3.9" } }, "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw=="],
 
@@ -9593,16 +9608,6 @@
     "@crvouga/atlas/vite": ["vite@7.3.6", "", { "dependencies": { "esbuild": "^0.27.0 || ^0.28.0", "fdir": "^6.5.0", "picomatch": "^4.0.3", "postcss": "^8.5.6", "rollup": "^4.43.0", "tinyglobby": "^0.2.15" }, "optionalDependencies": { "fsevents": "~2.3.3" }, "peerDependencies": { "@types/node": "^20.19.0 || >=22.12.0", "jiti": ">=1.21.0", "less": "^4.0.0", "lightningcss": "^1.21.0", "sass": "^1.70.0", "sass-embedded": "^1.70.0", "stylus": ">=0.54.8", "sugarss": "^5.0.0", "terser": "^5.16.0", "tsx": "^4.8.1", "yaml": "^2.4.2" }, "optionalPeers": ["@types/node", "jiti", "less", "lightningcss", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "yaml"], "bin": { "vite": "bin/vite.js" } }, "sha512-4XP60spRGjSZFf1qYH+dJIkK2znL3zQfl9KkOV9MkkRR/3Dls0dxaBsQPTloEc5BLXWPL9vsOxopxyKoMmDueg=="],
 
     "@crvouga/atlas/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
-
-    "@crvouga/mockingbird-service-oauth/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@1.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-Jc80x8AxWdKZHsBZHsipmdRfcv/AhRlPn/zeZSohC7LJtXJ1pWMX0lmSlpiX0EQtRUTsYVteWGJ7J0H7hWiGvQ=="],
-
-    "@crvouga/mockingbird-service-openai/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@2.1.1", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-P/bKYKdm4PxVAEcffzqHI+eZzS8NAPdjeBHjXDPBuazFwyaSPjAhkCHs7ytKfwX1tln1l5ZZbgUrslJFg9Obdw=="],
-
-    "@crvouga/mockingbird-service-paddle/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@3.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-SoNjnHvnliuDOxeB20dxu8EL/UiH5jC9LbqMAeONpoOoN/VE+AhhtUCFRf4DqGiGgunKKUv96+MtY07V2bkmLw=="],
-
-    "@crvouga/mockingbird-service-s3/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@1.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-Jc80x8AxWdKZHsBZHsipmdRfcv/AhRlPn/zeZSohC7LJtXJ1pWMX0lmSlpiX0EQtRUTsYVteWGJ7J0H7hWiGvQ=="],
-
-    "@crvouga/mockingbird-service-stripe/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@1.3.0", "", { "bin": { "mockingbird-sqlite": "dist/socket/cli.js" } }, "sha512-Jc80x8AxWdKZHsBZHsipmdRfcv/AhRlPn/zeZSohC7LJtXJ1pWMX0lmSlpiX0EQtRUTsYVteWGJ7J0H7hWiGvQ=="],
 
     "@cspotcode/source-map-support/@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.9", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.0.3", "@jridgewell/sourcemap-codec": "^1.4.10" } }, "sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ=="],
 

@@ -1,0 +1,4 @@
+{
+  "summary": "Puzzle catalog fixtures changed server rows without notifying an already open client pool, hiding newly ingested puzzles and retirement tombstones.",
+  "regressionTest": "libs/chess-root-harness/tests/puzzle-catalog-regression.test.ts"
+}

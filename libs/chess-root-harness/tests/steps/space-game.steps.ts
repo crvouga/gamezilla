@@ -8,7 +8,6 @@ import { chessGameMenuVisible } from '@libs/chess-root-harness/chess-ui-reads';
 import {
   attemptLeaveChessMenu,
   attemptSelectChessGame,
-  connectionMissingShown,
   gameChoiceShown,
   hostChoosesShown,
 } from '@libs/chess-root-harness/space-follow-actions';
@@ -148,15 +147,6 @@ Then(
   '{actor} is told only the host chooses the game',
   async (w, actor: Actor) => {
     expect(await w.s.read(hostChoosesShown, actor)).toBe(true);
-  }
-);
-
-Then(
-  '{actor} is told the connection is missing within {int} seconds',
-  async (w, actor: Actor, seconds: number) => {
-    await w.s.until((surf) => connectionMissingShown(surf, actor), {
-      maxMs: seconds * SECOND_MS,
-    });
   }
 );
 

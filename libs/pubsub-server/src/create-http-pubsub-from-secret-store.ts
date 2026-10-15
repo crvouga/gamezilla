@@ -1,4 +1,5 @@
 import { PubsubSecretName } from '@libs/pubsub-shared/secret-names';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { createEmqxHttpPubSub } from '@pkgs/pubsub-emqx-shared/create-emqx-http-pubsub';
 import { createIotHttpPubSub } from '@pkgs/pubsub-root-shared/create-iot-http-pubsub';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
@@ -30,7 +31,8 @@ type Resolved =
 
 /** Publish-only client. IoT when all four credentials exist; otherwise EMQX. */
 export function createHttpPubSubFromSecretStore(
-  creds: EmqxHttpPubSubCreds | IotHttpPubSubCreds
+  creds: EmqxHttpPubSubCreds | IotHttpPubSubCreds,
+  http: HttpClient
 ): PubSub {
   if ('endpoint' in creds) {
     return createIotHttpPubSub({
@@ -39,9 +41,10 @@ export function createHttpPubSubFromSecretStore(
       secretAccessKey: creds.secretAccessKey,
       region: creds.region,
       now: creds.now,
+      http,
     });
   }
-  return createEmqxHttpPubSub(creds);
+  return createEmqxHttpPubSub({ ...creds, http });
 }
 
 let cached: Resolved | null | undefined;
@@ -65,14 +68,15 @@ export function resetHttpPubSubForTests(): void {
 export class HttpPubSubFromSecretStore {
   constructor(
     private readonly secretStore: SecretStore,
-    private readonly now: () => number
+    private readonly now: () => number,
+    private readonly http: HttpClient
   ) {}
 
   async get(): Promise<PubSub | undefined> {
     if (injected !== undefined) return injected;
     const creds = await this.resolve();
     if (creds === null) return undefined;
-    return publisherFrom(creds, this.now);
+    return publisherFrom(creds, this.now, this.http);
   }
 
   private async resolve(): Promise<Resolved | null> {
@@ -130,19 +134,29 @@ export class HttpPubSubFromSecretStore {
   }
 }
 
-function publisherFrom(creds: Resolved, now: () => number): PubSub {
+function publisherFrom(
+  creds: Resolved,
+  now: () => number,
+  http: HttpClient
+): PubSub {
   if (creds.kind === 'iot') {
-    return createHttpPubSubFromSecretStore({
-      endpoint: creds.endpoint,
-      accessKeyId: creds.accessKeyId,
-      secretAccessKey: creds.secretAccessKey,
-      region: creds.region,
-      now,
-    });
+    return createHttpPubSubFromSecretStore(
+      {
+        endpoint: creds.endpoint,
+        accessKeyId: creds.accessKeyId,
+        secretAccessKey: creds.secretAccessKey,
+        region: creds.region,
+        now,
+      },
+      http
+    );
   }
-  return createHttpPubSubFromSecretStore({
-    apiBaseUrl: creds.apiBaseUrl,
-    apiKey: creds.apiKey,
-    apiSecret: creds.apiSecret,
-  });
+  return createHttpPubSubFromSecretStore(
+    {
+      apiBaseUrl: creds.apiBaseUrl,
+      apiKey: creds.apiKey,
+      apiSecret: creds.apiSecret,
+    },
+    http
+  );
 }

@@ -6,6 +6,7 @@ import { formChessMatches } from '@libs/chess-matchmaking-shared/match-handoff';
 import { MultiplayerGameChanged } from '@libs/chess-matchmaking-shared/match-room';
 import { scheduleMultiplayerDeadline } from '@libs/chess-matchmaking-shared/multiplayer-deadline';
 import { MultiplayerNoticesDue } from '@libs/chess-matchmaking-shared/multiplayer-notices';
+import { publishMatchGame } from '@libs/chess-matchmaking-shared/publish-match-game';
 import { MultiplayerRatingRepository } from '@libs/chess-matchmaking-shared/rating-repository';
 import { CHESS_SEARCH_RADIUS } from '@libs/chess-matchmaking-shared/search-config';
 import type { MultiplayerSpeed } from '@libs/chess-matchmaking-shared/time-control';
@@ -172,10 +173,16 @@ export const awaitChessMatch = scenarioAction<
   },
 });
 
-async function gamePeople(tx: SqlTx, gameId: string, nowMs: number) {
+/** Deliver a fixture's accepted board and clocks through the production outbox. */
+export async function publishMultiplayerFixture(
+  tx: SqlTx,
+  gameId: string,
+  env: MutationEnv
+) {
   const game = await new MultiplayerGameRepository(tx).byId(gameId);
   if (game === null) throw new Error(`No multiplayer game ${gameId}`);
-  await scheduleMultiplayerDeadline(tx, game, nowMs);
+  await publishMatchGame({ tx, env }, game);
+  await scheduleMultiplayerDeadline(tx, game, env.now().getTime());
   return [game.white_id, game.black_id];
 }
 
@@ -202,7 +209,7 @@ export const givenMultiplayerPosition = scenarioAction({
         turn = ${env.actorId}, revision = ${2}, clock_at_ms = ${nowMs},
         white_ms = COALESCE(${clockMs ?? null}, white_ms), black_ms = COALESCE(${clockMs ?? null}, black_ms),
         updated_at = ${env.now().toISOString()} WHERE id = ${gameId}`);
-      return gamePeople(tx, gameId, nowMs);
+      return publishMultiplayerFixture(tx, gameId, env);
     }),
 });
 
@@ -226,7 +233,7 @@ export const givenMultiplayerClock = scenarioAction({
           ? sql`UPDATE chess_multiplayer_games SET white_ms = ${ms}, clock_at_ms = ${nowMs} WHERE id = ${gameId}`
           : sql`UPDATE chess_multiplayer_games SET black_ms = ${ms}, clock_at_ms = ${nowMs} WHERE id = ${gameId}`
       );
-      return gamePeople(tx, gameId, nowMs);
+      return publishMultiplayerFixture(tx, gameId, env);
     }),
 });
 

@@ -1,0 +1,4 @@
+{
+  "summary": "OTLP JSON integer attributes were read as text, so valid HTTP status values failed numeric diagnostics and health predicates.",
+  "regressionTest": "pkgs/observability-root-shared/tests/normalize.test.ts"
+}

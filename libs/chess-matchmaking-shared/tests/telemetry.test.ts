@@ -19,6 +19,7 @@ const game: MultiplayerGame = {
   white_ms: null,
   black_ms: null,
   clock_at_ms: null,
+  paused_at_ms: null,
   draw_offer_by: null,
   rematch_offer_by: null,
   rematch_of: null,

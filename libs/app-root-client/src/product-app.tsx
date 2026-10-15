@@ -23,6 +23,7 @@ import { AppProvidersOuter, AppProvidersSession } from './app-providers';
 import { useAppSubs } from './app-subs-context';
 import { AppThemeProvider } from './app-theme-provider';
 import { useClientEnv } from './client-env-context';
+import { ConnectionNotice } from './connection-notice';
 import { EmbeddedHrefPersistence } from './embedded-href-persistence';
 import { GlobalMenuIdentityRoot } from './global-menu-identity-context';
 import { originAvailabilityFor } from './origin-availability-for-env';
@@ -66,6 +67,7 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                       }
                     >
                       <AppFrame header={<AppHeaderIslandHost />}>
+                        <ConnectionNotice />
                         <AppProvidersSession>
                           {props.children}
                         </AppProvidersSession>

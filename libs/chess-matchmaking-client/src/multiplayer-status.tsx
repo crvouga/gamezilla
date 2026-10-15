@@ -283,6 +283,7 @@ function FirstMoveCountdown(props: StatusProps): JSX.Element {
 /** A daily game's first move is timed by its own clock, in days. */
 const awaitingFirstMoves = (props: StatusProps): boolean =>
   props.game.outcome === 'ongoing' &&
+  props.game.paused_at_ms === null &&
   !bothHaveMoved(props.game) &&
   !isDailyTimeControl(props.game.time_control);
 
@@ -299,6 +300,16 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
       dataSet={{ testid: 'multiplayer-announcement' }}
       title={
         <>
+          <Show
+            when={
+              props.game.outcome === 'ongoing' &&
+              props.game.paused_at_ms !== null
+            }
+          >
+            <span data-testid="multiplayer-paused">
+              <Trans>Multiplayer clocks are paused.</Trans>{' '}
+            </span>
+          </Show>
           <Show
             when={props.viewer.participant}
             fallback={<WatcherHeadline {...props} />}

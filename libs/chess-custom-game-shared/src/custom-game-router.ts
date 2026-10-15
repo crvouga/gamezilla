@@ -3,9 +3,12 @@ import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
 import { createMessageRouter } from '@pkgs/message-shared/router';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { z } from 'zod';
+import { CustomGameAbsenceAttr } from './custom-game-absence';
+import { CustomGameAvailableAttr } from './custom-game-availability';
 import {
   ChangeCustomGame,
   ChangeLocalCustomGame,
+  CustomGameAvailabilityChanged,
   CustomGamesChanged,
   customGameCmdNs,
   customGameEvtNs,
@@ -63,14 +66,20 @@ export const customGameEventReducer = createMessageRouter<
   RoomState,
   void,
   RoomState
->(customGameEvtNs).on(CustomGamesChanged, (state, _ctx, event) => ({
-  ...state,
-  ...CustomGamesAttr(event.payload.games),
-  ...CustomGameNoticeAttr({
-    commandId: event.payload.commandId,
-    reason: event.payload.reason,
-  }),
-}));
+>(customGameEvtNs)
+  .on(CustomGamesChanged, (state, _ctx, event) => ({
+    ...state,
+    ...CustomGamesAttr(event.payload.games),
+    ...CustomGameNoticeAttr({
+      commandId: event.payload.commandId,
+      reason: event.payload.reason,
+    }),
+  }))
+  .on(CustomGameAvailabilityChanged, (state, _ctx, event) => ({
+    ...state,
+    ...CustomGameAvailableAttr(event.payload.available),
+    ...CustomGameAbsenceAttr(event.payload.absence),
+  }));
 
 export function customGameInitialAttrs(): RoomState {
   return {

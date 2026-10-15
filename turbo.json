@@ -3030,6 +3030,202 @@
         "libs/*/.cache/spec-inputs/**",
         "pkgs/*/.cache/spec-inputs/**"
       ]
+    },
+    "test:spec:64": {
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-64.json"
+      ],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-64/**"]
+    },
+    "test:spec:65": {
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-65.json"
+      ],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-65/**"]
+    },
+    "test:spec:66": {
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-66.json"
+      ],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-66/**"]
+    },
+    "test:spec:67": {
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-67.json"
+      ],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-67/**"]
+    },
+    "test:spec:68": {
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-68.json"
+      ],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-68/**"]
+    },
+    "test:spec:69": {
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-69.json"
+      ],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-69/**"]
+    },
+    "test:spec:70": {
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-70.json"
+      ],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-70/**"]
+    },
+    "test:spec:71": {
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        ".cache/spec-inputs/part-71.json"
+      ],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-71/**"]
+    },
+    "check:models:16": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
     }
   }
 }

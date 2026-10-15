@@ -255,6 +255,11 @@ export function createInProcessRoomNode(
       });
     },
     services: {
+      async setAvailability(topic, available) {
+        const entry = getOrCreate(topic);
+        await entry.ready;
+        await entry.server.setAvailability(available);
+      },
       async read(topic) {
         const entry = getOrCreate(topic);
         await entry.ready;

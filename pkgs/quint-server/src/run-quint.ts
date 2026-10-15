@@ -10,6 +10,7 @@ export type QuintRun = {
   readonly signal: NodeJS.Signals | null;
   readonly timedOut: boolean;
   readonly output: string;
+  readonly stdout: string;
 };
 
 /** Kill a process group, if any of it is left. */
@@ -46,6 +47,7 @@ function guardGroup(pid: number | undefined): () => void {
 }
 
 export async function runQuint(input: {
+  readonly executable?: string;
   readonly args: readonly string[];
   readonly cwd: string;
   readonly env: Record<string, string>;
@@ -64,14 +66,18 @@ export async function runQuint(input: {
   };
   // Its own process group: Quint and the Apalache server it starts die
   // together, whatever state either is in.
-  const child = spawn(process.execPath, input.args, {
+  const child = spawn(input.executable ?? process.execPath, input.args, {
     cwd: input.cwd,
     env,
     detached: true,
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   const chunks: string[] = [];
-  child.stdout.on('data', (chunk: Buffer) => chunks.push(chunk.toString()));
+  const stdout: string[] = [];
+  child.stdout.on('data', (chunk: Buffer) => {
+    stdout.push(chunk.toString());
+    chunks.push(chunk.toString());
+  });
   child.stderr.on('data', (chunk: Buffer) => chunks.push(chunk.toString()));
   const release = guardGroup(child.pid);
   let timedOut = false;
@@ -98,7 +104,13 @@ export async function runQuint(input: {
       if (child.stdout.closed && child.stderr.closed) resolve();
       else child.once('close', () => resolve());
     });
-    return { code, signal, timedOut, output: chunks.join('') };
+    return {
+      code,
+      signal,
+      timedOut,
+      output: chunks.join(''),
+      stdout: stdout.join(''),
+    };
   } finally {
     cancel();
     killGroup(child.pid);

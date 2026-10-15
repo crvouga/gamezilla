@@ -47,14 +47,21 @@ export async function prepareStage(
     root,
     env
   );
-  for (const task of external)
-    if (
+  const missing = external.filter(
+    (task) =>
       !existsSync(join(resolveTurboCacheDir(root, env), `${task.hash}.tar.zst`))
-    )
-      throw new Error(
-        `Missing prerequisite artifact: ${task.taskId} (${task.hash}); upstream cache upload/transfer failed; refusing duplicate execution`
-      );
-  return { dependencies, publish };
+  );
+  const absent = new Set(missing.map((task) => task.taskId));
+  const blocked = new Set(
+    shard.tasks
+      .filter(
+        (task) =>
+          !task.hit &&
+          requiredTasks(plan, [task]).some((dep) => absent.has(dep.taskId))
+      )
+      .map((task) => task.taskId)
+  );
+  return { dependencies, publish, missing, blocked };
 }
 
 /** Files for consumers, even if remote upload is unavailable. */

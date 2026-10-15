@@ -1,6 +1,7 @@
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import {
+  AlwaysOnSampler,
   BatchSpanProcessor,
   SimpleSpanProcessor,
   type SpanProcessor,
@@ -47,7 +48,7 @@ export function createProviderConfig(
     ...(options.idGenerator === undefined
       ? {}
       : { idGenerator: options.idGenerator }),
-    ...(options.sampler === undefined ? {} : { sampler: options.sampler }),
+    sampler: options.sampler ?? new AlwaysOnSampler(),
     resource: resourceFromAttributes({
       ...(options.instanceId === undefined
         ? {}

@@ -5,6 +5,7 @@ import type { WorkerTelemetry } from '@pkgs/observability-root-server/worker-wor
 import { createWorkerTelemetry } from '@pkgs/observability-root-server/worker-worker';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { createDurableObjectAdapter } from '@pkgs/room-adapter-durable-object-server/adapter';
+import { roomDoKeyNs } from '@pkgs/room-adapter-durable-object-shared/storage-keys';
 import type { DurableObjectInstanceState } from '@pkgs/room-adapter-durable-object-shared/types';
 import { gameRoomModule } from '@pkgs/room-root-harness/game-room';
 import { MemoryKv } from './memory-kv';
@@ -43,6 +44,44 @@ afterEach(async () => {
 });
 
 describe('room Durable Object observability', () => {
+  // regression: room-alarm-failure-not-observed
+  test('alarm restoration failures retain the exception and flush before returning', async () => {
+    const exporter = new InMemorySpanExporter();
+    telemetry = createWorkerTelemetry({
+      serviceName: 'room-test',
+      serviceVersion: '1',
+      environment: 'test',
+      buildSha: 'test',
+      exporter,
+    });
+    const testState = createTestState([]);
+    await testState.state.storage.put(
+      roomDoKeyNs(gameRoomModule.name).topic,
+      'space:friday'
+    );
+    testState.state.storage.list = async () => {
+      throw new Error('literal alarm storage failure');
+    };
+    const RoomObject = createDurableObjectAdapter({
+      modules: [gameRoomModule],
+      clock: { now: () => 1 },
+      createId: () => 'generated-id',
+      telemetry: () => telemetry!,
+    });
+    const room = new RoomObject(testState.state, {});
+    await expect(room.alarm?.()).rejects.toThrow(
+      'literal alarm storage failure'
+    );
+    await testState.drain();
+    const alarm = exporter
+      .getFinishedSpans()
+      .find((span) => span.name === 'room.alarm');
+    expect(alarm?.status.code).toBe(2);
+    expect(alarm?.events[0]?.attributes?.[ATTR.EXCEPTION_MESSAGE]).toBe(
+      'literal alarm storage failure'
+    );
+  });
+
   test('continues upgrade context and reconnects hibernated message/error spans', async () => {
     const exporter = new InMemorySpanExporter();
     telemetry = createWorkerTelemetry({

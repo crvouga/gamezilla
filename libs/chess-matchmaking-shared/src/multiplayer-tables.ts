@@ -17,6 +17,7 @@ export const chessMultiplayerGames = defineTable({
     white_ms: 'integer',
     black_ms: 'integer',
     clock_at_ms: 'integer',
+    paused_at_ms: 'integer',
     draw_offer_by: 'text',
     rematch_offer_by: 'text',
     rematch_of: 'text',

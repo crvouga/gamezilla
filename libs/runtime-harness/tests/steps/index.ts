@@ -9,18 +9,14 @@ import '@libs/account-privacy-harness/privacy.steps';
 
 import '@libs/harness/platform';
 import '@libs/profile-harness/profile.steps';
-import './accessibility.steps';
-import './app-lifecycle.steps';
-import './app-shell.steps';
 import '@libs/runtime-harness/journeys.steps';
-import './settings.steps';
-import './device-layout.steps';
-import './interrupted-preference.steps';
-import './privacy-retention.steps';
-import './environment-release.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec-world';
 import { openHarness } from '../open-app-harness';
 import { harnessJourneyHost } from './journey-harness-host';
+
+// New local step modules register themselves without editing this entry.
+const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
 
 useHarnessWorld(openHarness, (w) => ({ journey: harnessJourneyHost(w) }));

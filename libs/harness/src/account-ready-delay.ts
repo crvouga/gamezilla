@@ -14,17 +14,39 @@ import { requestPath } from './http-request';
 const IDENTITY_REFRESH_PATH = '/api/identity/refresh';
 
 export type HarnessAccountReadyDelays = {
-  readonly of: (clientId: string) => number;
   readonly set: (clientId: string, delayMs: number) => void;
+  readonly wait: (
+    clientId: string,
+    token: string,
+    timers: Timers
+  ) => Promise<void>;
 };
 
 export function createHarnessAccountReadyDelays(): HarnessAccountReadyDelays {
   const delays = new Map<string, number>();
+  const ready = new Map<string, Map<string, Promise<void>>>();
   return {
-    of: (clientId) => delays.get(clientId) ?? 0,
     set: (clientId, delayMs) => {
+      ready.delete(clientId);
       if (delayMs > 0) delays.set(clientId, delayMs);
       else delays.delete(clientId);
+    },
+    wait: (clientId, token, timers) => {
+      const delayMs = delays.get(clientId) ?? 0;
+      if (delayMs === 0) return Promise.resolve();
+      let accounts = ready.get(clientId);
+      if (accounts === undefined) {
+        accounts = new Map();
+        ready.set(clientId, accounts);
+      }
+      let pending = accounts.get(token);
+      if (pending === undefined) {
+        pending = new Promise<void>((resolve) => {
+          timers.setTimeout(resolve, delayMs);
+        });
+        accounts.set(token, pending);
+      }
+      return pending;
     },
   };
 }
@@ -38,11 +60,11 @@ export function accountReadyDelayFetch(args: {
 }): ServerHttp {
   const { delays, clientId, timers, inner } = args;
   return async (input, init) => {
-    const delayMs = delays.of(clientId);
-    if (delayMs > 0 && requestPath(input).endsWith(IDENTITY_REFRESH_PATH)) {
-      await new Promise<void>((resolve) => {
-        timers.setTimeout(resolve, delayMs);
-      });
+    if (requestPath(input).endsWith(IDENTITY_REFRESH_PATH)) {
+      const headers = new Headers(
+        init?.headers ?? (input instanceof Request ? input.headers : undefined)
+      );
+      await delays.wait(clientId, headers.get('authorization') ?? '', timers);
     }
     return inner(input, init);
   };

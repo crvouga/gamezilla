@@ -57,15 +57,14 @@ export function createSerializedRunFor(
   let tail: Promise<void> = Promise.resolve();
   return (durationMs: number): Promise<void> => {
     const run = tail.then(async () => {
-      await scheduler.runFor(durationMs);
-      // Solid effects and MutationObserver callbacks settle on microtasks + a
-      // macrotask hop.
-      // Without this, `run.elapse` / `run.until` spin virtual time
-      // while the tree stays stale.
-      await flushMicrotasks();
-      await yieldEventLoop();
-      if (opts?.after !== undefined) {
-        await opts.after();
+      const end = scheduler.clock.now() + Math.max(0, durationMs);
+      // A timer callback can start HTTP without returning its promise. Drain
+      // that work before advancing to another timer, especially its deadline.
+      await settleTick(scheduler, 0, opts?.after);
+      while (scheduler.clock.now() < end) {
+        const next = scheduler.nextDueAt() ?? end;
+        const delta = Math.max(0, Math.min(next, end) - scheduler.clock.now());
+        await settleTick(scheduler, delta, opts?.after);
       }
     });
     tail = run.then(
@@ -74,6 +73,22 @@ export function createSerializedRunFor(
     );
     return run;
   };
+}
+
+async function settleTick(
+  scheduler: UnderlyingScheduler,
+  durationMs: number,
+  after: (() => Promise<void>) | undefined
+): Promise<void> {
+  await scheduler.runFor(durationMs);
+  // Solid effects, MutationObservers and HTTP bodies settle before time moves.
+  await flushMicrotasks();
+  await yieldEventLoop();
+  await after?.();
+  // Native response-body reads can finish on the next event-loop turn even
+  // after the request handler itself has completed.
+  await yieldEventLoop();
+  await flushMicrotasks();
 }
 
 /**

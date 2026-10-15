@@ -31,6 +31,13 @@ export function createRoomService(
     return response;
   };
   return {
+    async setAvailability(topic, available) {
+      const response = await call(topic, {
+        operation: 'availability',
+        available,
+      });
+      await response.body?.cancel();
+    },
     async read(topic): Promise<RoomState> {
       return (await (
         await call(topic, { operation: 'read' })

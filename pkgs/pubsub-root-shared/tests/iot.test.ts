@@ -44,20 +44,23 @@ describe('createIotHttpPubSub', () => {
   // regression: iot-publish-signature-scope
   test('posts the encoded payload to the slash topic', async () => {
     const calls: { url: string; init: RequestInit | undefined }[] = [];
-    const pubsub = createIotHttpPubSub({
-      endpoint: 'aaaa.iot.us-east-1.amazonaws.com',
-      accessKeyId: 'AKIDEXAMPLE',
-      secretAccessKey: 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY',
-      region: 'us-east-1',
-      now: () => Date.UTC(2013, 4, 24),
-      fetchImpl(this: unknown, input, init) {
-        if (this !== undefined && this !== globalThis)
+    const http = {
+      fetch(this: unknown, input: RequestInfo | URL, init?: RequestInit) {
+        if (this !== http)
           throw new TypeError(
             'Illegal invocation: function called with incorrect `this` reference'
           );
         calls.push({ url: String(input), init });
         return Promise.resolve(new Response(null, { status: 200 }));
       },
+    };
+    const pubsub = createIotHttpPubSub({
+      endpoint: 'aaaa.iot.us-east-1.amazonaws.com',
+      accessKeyId: 'AKIDEXAMPLE',
+      secretAccessKey: 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY',
+      region: 'us-east-1',
+      now: () => Date.UTC(2013, 4, 24),
+      http,
     });
     await pubsub.publish('user:actor1', { ok: true });
     expect(calls).toHaveLength(1);
@@ -84,7 +87,9 @@ describe('createIotHttpPubSub', () => {
       secretAccessKey: 'secret',
       region: 'us-east-1',
       now: () => 0,
-      fetchImpl: () => Promise.resolve(new Response('no', { status: 403 })),
+      http: {
+        fetch: () => Promise.resolve(new Response('no', { status: 403 })),
+      },
     });
     await expect(
       pubsub.publish('health-ping', { ok: true })

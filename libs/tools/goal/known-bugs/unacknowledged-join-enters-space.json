@@ -1,0 +1,4 @@
+{
+  "summary": "A healthy space preview followed by an unanswered join enters the space from optimistic local membership, falsely claiming the service accepted it. Reopening must retain an unconfirmed join and keep navigation available.",
+  "regressionTest": "specs/spaces/space-interruption-recovery.feature"
+}

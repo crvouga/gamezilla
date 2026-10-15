@@ -68,6 +68,27 @@ async function required<K extends ServiceName>(
   return value;
 }
 
+/** The web process owns its assets independently of the API process. */
+export function createWebStarter(spawnWeb: typeof startWeb): Service<'web'> {
+  return async (context) => {
+    const { plan } = context;
+    if (plan.webOrigin === null) return null;
+    const child = await spawnWeb({
+      dataDir: plan.dataDir,
+      instanceId: plan.options.instanceId,
+      origin: plan.webOrigin,
+      apiOrigin: plan.apiOrigin,
+      frozen: plan.options.frozenWeb,
+      testHooks: plan.options.testHooks,
+    });
+    return {
+      value: { origin: plan.webOrigin },
+      children: [child],
+      stop: () => stopChild(child),
+    };
+  };
+}
+
 const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
   async postgres({ plan }) {
     const postgres = await startPostgres({
@@ -169,6 +190,7 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
         required(context, 'billing'),
       ]);
     const tier = await startApiTier({
+      dataDir: plan.dataDir,
       options: plan.options,
       apiOrigin: plan.apiOrigin,
       idpEnv: idp.apiEnv,
@@ -229,22 +251,7 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
   },
 
   /** The product web app (`/`, `/harness`, `/simulator`): Vite itself. */
-  async web(context) {
-    const { plan } = context;
-    if (plan.webOrigin === null) return null;
-    const server = await required(context, 'server');
-    const child = await startWeb({
-      origin: plan.webOrigin,
-      apiOrigin: server.apiOrigin,
-      frozen: plan.options.frozenWeb,
-      testHooks: plan.options.testHooks,
-    });
-    return {
-      value: { origin: plan.webOrigin },
-      children: [child],
-      stop: () => stopChild(child),
-    };
-  },
+  web: createWebStarter(startWeb),
 };
 
 /** Start `name`; null when the stack's options turn it off. */

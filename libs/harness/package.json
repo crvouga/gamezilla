@@ -88,6 +88,7 @@
     "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-client": "workspace:*",
+    "@pkgs/sync-engine-server": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/tts-root-server": "workspace:*",
     "@pkgs/ui-root-client": "workspace:*",

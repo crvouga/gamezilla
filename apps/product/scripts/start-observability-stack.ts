@@ -2,7 +2,7 @@
 
 import type { ChildProcess } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { appendFileSync, mkdirSync } from 'node:fs';
+import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { registerDevContainer } from '@pkgs/os-server/dev-owner-resources';
 import { spawnOwned as spawn } from '@pkgs/os-server/dev-owner-spawn';
@@ -100,9 +100,19 @@ function isSignalDocument(
 /** Fast, dependency-free OTLP/HTTP JSON receiver for normal local development. */
 async function startNativeCollector(
   dataDir: string,
-  ports: ObservabilityPorts | undefined
+  ports: ObservabilityPorts | undefined,
+  instanceId: string,
+  upstream?: ObservabilityStack
 ): Promise<ObservabilityStack> {
   mkdirSync(dataDir, { recursive: true });
+  writeFileSync(
+    join(dataDir, 'trace-source.json'),
+    JSON.stringify({
+      instanceId,
+      startedAtMs: Date.now(),
+      observabilityTraceDir: dataDir,
+    })
+  );
   const reservation = portFor(ports?.collector);
   await reservation.release();
   const server = Bun.serve({
@@ -137,15 +147,50 @@ async function startNativeCollector(
         `${JSON.stringify(document)}\n`,
         'utf8'
       );
+      if (upstream !== undefined) {
+        const endpoint =
+          url.pathname === '/v1/traces'
+            ? upstream.collectorUrl
+            : url.pathname === '/v1/logs'
+              ? upstream.logsUrl
+              : upstream.metricsUrl;
+        try {
+          const forwarded = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: text,
+            signal: AbortSignal.timeout(5_000),
+          });
+          if (!forwarded.ok) {
+            await forwarded.body?.cancel();
+            return new Response('upstream collector refused signal', {
+              status: 502,
+              headers: corsHeaders(),
+            });
+          }
+          return new Response(forwarded.body, {
+            status: forwarded.status,
+            headers: { ...corsHeaders(), 'content-type': 'application/json' },
+          });
+        } catch {
+          return new Response(
+            'upstream collector unavailable; local copy retained',
+            { status: 502, headers: corsHeaders() }
+          );
+        }
+      }
       return new Response(null, { status: 200, headers: corsHeaders() });
     },
   });
   return {
     ...signalUrls(server.url.origin),
     traceDir: dataDir,
-    tempoUrl: null,
-    grafanaUrl: null,
-    stop: () => server.stop(true),
+    tempoUrl: upstream?.tempoUrl ?? null,
+    grafanaUrl: upstream?.grafanaUrl ?? null,
+    async stop() {
+      await server.stop(true);
+      await upstream?.stop();
+    },
   };
 }
 
@@ -190,7 +235,8 @@ async function startLgtmCollector(args: {
   readonly dataDir: string;
   readonly ports?: ObservabilityPorts | undefined;
 }): Promise<ObservabilityStack> {
-  const collectorPort = portFor(args.ports?.collector);
+  // The planned collector port belongs to the durable local gateway.
+  const collectorPort = reservePort();
   const tempoPort = portFor(args.ports?.tempo);
   const grafanaPort = portFor(args.ports?.grafana);
   await Promise.all([
@@ -238,14 +284,24 @@ async function startLgtmCollector(args: {
   };
 }
 
-export function startObservabilityStack(args: {
+export async function startObservabilityStack(args: {
   readonly backend: Exclude<ObservabilityBackend, 'off'>;
   readonly instanceId: string;
   readonly dataDir: string;
   /** Planned ports; without them each listener asks the OS for its own. */
   readonly ports?: ObservabilityPorts | undefined;
 }): Promise<ObservabilityStack> {
-  return args.backend === 'native'
-    ? startNativeCollector(args.dataDir, args.ports)
-    : startLgtmCollector(args);
+  const upstream =
+    args.backend === 'lgtm' ? await startLgtmCollector(args) : undefined;
+  try {
+    return await startNativeCollector(
+      args.dataDir,
+      args.ports,
+      args.instanceId,
+      upstream
+    );
+  } catch (error) {
+    await upstream?.stop();
+    throw error;
+  }
 }

@@ -1,0 +1,356 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "specs/runtime/connection-continuity.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Wed Oct 14 2026 22:47:38 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1792043258795
+  },
+  "vars": [
+    "choiceOpen",
+    "_available",
+    "choiceUnfinished",
+    "_refused",
+    "choiceConfirmed",
+    "_accepted",
+    "connectionMissing",
+    "_placeAtLoss",
+    "canPutAside",
+    "place",
+    "theme",
+    "_lostConnection",
+    "_online",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_accepted": false,
+      "_available": true,
+      "_lostConnection": false,
+      "_online": true,
+      "_placeAtLoss": "spaces",
+      "_refused": false,
+      "canPutAside": true,
+      "choiceConfirmed": false,
+      "choiceOpen": true,
+      "choiceUnfinished": true,
+      "connectionMissing": false,
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "place": "spaces",
+      "theme": "dark"
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_accepted": false,
+      "_available": false,
+      "_lostConnection": true,
+      "_online": true,
+      "_placeAtLoss": "spaces",
+      "_refused": false,
+      "canPutAside": true,
+      "choiceConfirmed": false,
+      "choiceOpen": true,
+      "choiceUnfinished": true,
+      "connectionMissing": true,
+      "mbt::actionTaken": "_sharedChoiceStops",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "place": "spaces",
+      "theme": "dark"
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_accepted": false,
+      "_available": false,
+      "_lostConnection": false,
+      "_online": true,
+      "_placeAtLoss": "spaces",
+      "_refused": false,
+      "canPutAside": false,
+      "choiceConfirmed": false,
+      "choiceOpen": false,
+      "choiceUnfinished": true,
+      "connectionMissing": true,
+      "mbt::actionTaken": "openSettings",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "place": "settings",
+      "theme": "dark"
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_accepted": false,
+      "_available": true,
+      "_lostConnection": false,
+      "_online": true,
+      "_placeAtLoss": "spaces",
+      "_refused": false,
+      "canPutAside": false,
+      "choiceConfirmed": false,
+      "choiceOpen": false,
+      "choiceUnfinished": true,
+      "connectionMissing": false,
+      "mbt::actionTaken": "_sharedChoiceReturns",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "place": "settings",
+      "theme": "dark"
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_accepted": false,
+      "_available": true,
+      "_lostConnection": false,
+      "_online": true,
+      "_placeAtLoss": "spaces",
+      "_refused": false,
+      "canPutAside": false,
+      "choiceConfirmed": false,
+      "choiceOpen": false,
+      "choiceUnfinished": true,
+      "connectionMissing": false,
+      "mbt::actionTaken": "reopen",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "place": "settings",
+      "theme": "dark"
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_accepted": false,
+      "_available": true,
+      "_lostConnection": false,
+      "_online": true,
+      "_placeAtLoss": "spaces",
+      "_refused": false,
+      "canPutAside": false,
+      "choiceConfirmed": false,
+      "choiceOpen": false,
+      "choiceUnfinished": true,
+      "connectionMissing": false,
+      "mbt::actionTaken": "reopen",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "Some",
+          "value": "profile"
+        }
+      },
+      "place": "settings",
+      "theme": "dark"
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_accepted": false,
+      "_available": true,
+      "_lostConnection": false,
+      "_online": true,
+      "_placeAtLoss": "spaces",
+      "_refused": true,
+      "canPutAside": false,
+      "choiceConfirmed": false,
+      "choiceOpen": false,
+      "choiceUnfinished": false,
+      "connectionMissing": false,
+      "mbt::actionTaken": "_choiceRefused",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "Some",
+          "value": "profile"
+        }
+      },
+      "place": "settings",
+      "theme": "dark"
+    },
+    {
+      "#meta": {
+        "index": 7
+      },
+      "_accepted": false,
+      "_available": true,
+      "_lostConnection": false,
+      "_online": true,
+      "_placeAtLoss": "spaces",
+      "_refused": true,
+      "canPutAside": false,
+      "choiceConfirmed": false,
+      "choiceOpen": false,
+      "choiceUnfinished": false,
+      "connectionMissing": false,
+      "mbt::actionTaken": "openTab",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "place": "spaces",
+      "theme": "dark"
+    },
+    {
+      "#meta": {
+        "index": 8
+      },
+      "_accepted": false,
+      "_available": true,
+      "_lostConnection": true,
+      "_online": false,
+      "_placeAtLoss": "spaces",
+      "_refused": true,
+      "canPutAside": false,
+      "choiceConfirmed": false,
+      "choiceOpen": false,
+      "choiceUnfinished": false,
+      "connectionMissing": true,
+      "mbt::actionTaken": "cutOff",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "Some",
+          "value": "profile"
+        }
+      },
+      "place": "spaces",
+      "theme": "dark"
+    },
+    {
+      "#meta": {
+        "index": 9
+      },
+      "_accepted": false,
+      "_available": true,
+      "_lostConnection": true,
+      "_online": true,
+      "_placeAtLoss": "spaces",
+      "_refused": true,
+      "canPutAside": false,
+      "choiceConfirmed": false,
+      "choiceOpen": false,
+      "choiceUnfinished": false,
+      "connectionMissing": false,
+      "mbt::actionTaken": "reconnect",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "place": "spaces",
+      "theme": "dark"
+    },
+    {
+      "#meta": {
+        "index": 10
+      },
+      "_accepted": false,
+      "_available": true,
+      "_lostConnection": true,
+      "_online": true,
+      "_placeAtLoss": "spaces",
+      "_refused": true,
+      "canPutAside": false,
+      "choiceConfirmed": false,
+      "choiceOpen": false,
+      "choiceUnfinished": false,
+      "connectionMissing": false,
+      "mbt::actionTaken": "openTab",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "place": "spaces",
+      "theme": "dark"
+    },
+    {
+      "#meta": {
+        "index": 11
+      },
+      "_accepted": false,
+      "_available": true,
+      "_lostConnection": true,
+      "_online": true,
+      "_placeAtLoss": "spaces",
+      "_refused": true,
+      "canPutAside": false,
+      "choiceConfirmed": false,
+      "choiceOpen": false,
+      "choiceUnfinished": false,
+      "connectionMissing": false,
+      "mbt::actionTaken": "openTab",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "place": "spaces",
+      "theme": "dark"
+    },
+    {
+      "#meta": {
+        "index": 12
+      },
+      "_accepted": false,
+      "_available": true,
+      "_lostConnection": true,
+      "_online": true,
+      "_placeAtLoss": "spaces",
+      "_refused": true,
+      "canPutAside": false,
+      "choiceConfirmed": false,
+      "choiceOpen": false,
+      "choiceUnfinished": false,
+      "connectionMissing": false,
+      "mbt::actionTaken": "reopen",
+      "mbt::nondetPicks": {
+        "tab": {
+          "tag": "Some",
+          "value": "spaces"
+        }
+      },
+      "place": "spaces",
+      "theme": "dark"
+    }
+  ]
+}

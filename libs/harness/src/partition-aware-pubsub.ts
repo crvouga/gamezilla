@@ -10,6 +10,7 @@ export const PUBSUB_HEARTBEAT_MS = 1_000;
 export function partitionAwarePubSub(args: {
   readonly inner: PubSub;
   readonly reachable: () => boolean;
+  readonly subscribeReachability: (listener: () => void) => () => void;
   readonly timers: Timers;
 }): PubSub {
   const listeners = new Set<(status: PubSubStatus) => void>();
@@ -25,6 +26,7 @@ export function partitionAwarePubSub(args: {
   };
   const heartbeat = args.timers.setInterval(tick, PUBSUB_HEARTBEAT_MS);
   const stopStatus = args.inner.onStatus(tick);
+  const stopReachability = args.subscribeReachability(tick);
   const assertOpen = (): void => {
     if (closed) throw new PubSubClosedError();
   };
@@ -54,6 +56,7 @@ export function partitionAwarePubSub(args: {
       closed = true;
       args.timers.clearInterval(heartbeat);
       stopStatus();
+      stopReachability();
       listeners.clear();
       args.inner.close();
     },

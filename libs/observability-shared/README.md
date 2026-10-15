@@ -79,7 +79,7 @@ inherit the stack's existing notification policy; no new contact channel is crea
 Additional business SLOs require owned objectives and compatible existing bindings.
 
 OpenTofu foundation manages per-environment writer/read policies, dashboard folders,
-service accounts and alerts. Workers receive ingestion credentials only. Browser exports use the injected offline-aware HTTP and timers. Browser logs
+service accounts and alerts. Workers receive ingestion credentials only. Browser exports persist redacted OTLP trace and log batches in the injected local object store before acknowledging the SDK. Delivery uses the injected offline-aware HTTP and timers, retries after outages and reopening, and keeps a complete batch on partial rejection. Pending batches expire after 30 days. Browser persistence is not a guarantee against a hard page termination before the local write finishes. Browser logs
 are proxied with server credentials; resource identity is forced, business claims and
 private bodies are stripped, and only diagnostic attributes or scalar Web Vitals pass.
 Browser cumulative metrics are not exported into a shared series. Server metric
@@ -90,6 +90,30 @@ reconciliation and dashboard structural checks run in existing package gates. Fu
 `bun check-pr` and the required GitHub Actions infrastructure rehearsal remain release
 evidence; a source declaration does not prove that dashboards are deployed or backend
 queries accepted. Never use manual dashboard inspection as verification.
+
+## Runtime failure investigation
+
+`bun obs last --errors` queries local journals; `--source prod` queries the shared
+Grafana backend. Tempo error search uses error status and reads the full traces;
+search metadata alone does not provide error counts. Trace resources identify the
+actual deployment environment, service, build and instance. A shared backend may
+contain multiple environments.
+
+Standalone error logs also produce searchable exception traces. Worker background
+work and Durable Object alarms flush failures at their boundaries. Local supervisors
+retain unexpected exit codes, signals and bounded redacted stderr after the child or
+collector stops; a fresh stack start preserves that evidence. Scheduled Bun room
+work has an explicit owner, and socket failures close the affected connection.
+
+The live trail health check makes an application request with a known trace context
+and requires its corresponding server trace, rather than accepting an empty upload
+as proof of app instrumentation. Platform-enforced termination, resource exhaustion
+and isolate startup failures may precede application exporters. `bun obs platform --service <worker-name> --window 1h` reads Cloudflare's
+retained native runtime errors independently of application export. It loads the
+configured Cloudflare credentials through the secrets entry point and only queries
+the named Worker. Missing read access is reported as an unavailable source, not an
+empty result. Platform retention and account sampling still limit historical coverage. A trace can only contain an exception stack when
+the runtime supplied one.
 
 ## Remaining limitations
 

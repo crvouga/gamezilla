@@ -1,0 +1,4 @@
+{
+  "summary": "Losing the connection on Settings leaves the app usable but gives no visible outage indication within 15 seconds. The common shell must keep a clear notice alongside every route.",
+  "regressionTest": "specs/runtime/connection-continuity.feature"
+}

@@ -1,6 +1,7 @@
 import { sharePendingSignupUsername } from '@libs/auth-shared/pending-signup-username';
 import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
 import type { AuthSessionStore } from '@pkgs/auth-root-shared/auth-session-state';
+import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
 import type { OfflineNetworkController } from './offline-network-controller';
 import { offlineNetworkError } from './offline-network-http';
 
@@ -21,10 +22,15 @@ function offlineSession(
 /** Auth SDKs own hidden HTTP and provider navigation, so gate their whole port. */
 export function createOfflineAuthClient(
   offline: OfflineNetworkController,
-  inner: AuthClientPort
+  inner: AuthClientPort,
+  canConnect: () => boolean
 ): AuthClientPort {
   const requireOnline = async <T>(work: () => Promise<T>): Promise<T> => {
     if (offline.isOffline()) throw offlineNetworkError();
+    if (!canConnect())
+      throw new HttpNetworkError(
+        'This choice needs a connection. Work online or wait for the connection to return.'
+      );
     return await work();
   };
   const client: AuthClientPort = {

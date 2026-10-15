@@ -140,6 +140,7 @@ export class SubscriptionRuntime {
   private coalesceTimer: unknown = null;
   private reconcileTimer: unknown = null;
   private inFlight = false;
+  private inFlightScopes: readonly string[] = [];
   private flushWaiters: FlushWaiter[] = [];
   /** Sweeps finished so far; orders {@link flushWaiters}. */
   private sweepsDone = 0;
@@ -247,10 +248,13 @@ export class SubscriptionRuntime {
    */
   bumpGenerations(): void {
     for (const entry of this.entries.values()) entry.generation += 1;
-    const needFirst = [...this.entries.values()]
+    const needRefetch = [...this.entries.values()]
       .filter((e) => !e.firstDone && !e.stopped && e.refs > 0)
       .map((e) => e.scope);
-    if (needFirst.length > 0) this.enqueue(needFirst);
+    // A push's sole refetch may race the ack, even for an already painted
+    // scope. Replace every invalidated in-flight read rather than lose it.
+    needRefetch.push(...this.inFlightScopes);
+    if (needRefetch.length > 0) this.enqueue(needRefetch);
   }
 
   /**
@@ -432,6 +436,7 @@ export class SubscriptionRuntime {
       return;
     }
     this.inFlight = true;
+    this.inFlightScopes = active.map((e) => e.scope);
     try {
       await runSubscriptionSweep(this.sweepContext(), active);
       if (this.running) {
@@ -441,6 +446,7 @@ export class SubscriptionRuntime {
       this.options.onError(error);
     } finally {
       this.inFlight = false;
+      this.inFlightScopes = [];
       this.sweepsDone += 1;
       resolveWaiters(this.inFlightDrain);
       resolveFlushWaiters(this.flushWaiters, this.sweepsDone);

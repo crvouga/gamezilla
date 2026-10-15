@@ -15,6 +15,7 @@ import { playerJoinedEvent } from './telemetry';
 export const joinSpaceMutation = defineMutation({
   name: 'joinSpace',
   args: spaceIdArgs,
+  pendingUx: 'pending',
   async run({ tx, env }, { spaceId }) {
     const actorAccountId = env.accountId;
     const row = await getSpaceHost(tx, spaceId);

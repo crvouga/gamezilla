@@ -55,13 +55,13 @@ export const MODELS_RUNNER = 'bun run ../../libs/tools/scripts/check-models.ts';
  * Most parts one suite may split into: root `turbo.json` defines
  * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and the sharded Check runs them.
  */
-export const MAX_SPEC_PARTS = 64;
+export const MAX_SPEC_PARTS = 72;
 /**
  * The most parts a package's models check splits into (`check:models:<k>`).
  * `turbo.json` declares that many; one part is one runner in the sharded
  * Check, and a model's proof is the least a part can hold.
  */
-export const MAX_MODEL_PARTS = 16;
+export const MAX_MODEL_PARTS = 17;
 
 export type SpecPackage = PackageSpecs & {
   /** Repo-relative package directory. */

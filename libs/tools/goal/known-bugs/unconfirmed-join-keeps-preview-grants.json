@@ -1,0 +1,4 @@
+{
+  "summary": "Waiting for a join verdict lets the room open with preview grants before membership reaches the service; the confirmed person then never appears in presence. Promote the preview connection only after durable confirmation.",
+  "regressionTest": "libs/friends-harness/tests/space-link-member-profile.test.ts"
+}

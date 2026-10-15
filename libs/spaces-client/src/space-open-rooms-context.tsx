@@ -1,4 +1,5 @@
 import { useMyDeviceId, useMyId } from '@libs/auth-client/use-current-user';
+import { useMutationFeedback } from '@pkgs/sync-engine-client/use-mutation-feedback';
 import {
   createEffect,
   createMemo,
@@ -112,6 +113,16 @@ function SpaceRoomCandidate(props: {
   const rooms = useSpaceOpenRooms();
   const myId = useMyId();
   const host = useSpaceColumn(() => props.spaceId, SpaceField.hostMemberId);
+  const feedback = useMutationFeedback('joinSpace', () => ({
+    spaceId: props.spaceId,
+  }));
+  const admitted = createMemo(
+    () =>
+      props.isOpen &&
+      (host() === myId() ||
+        feedback() === null ||
+        feedback()?.status === 'confirmed')
+  );
   const preview = useSpaceJoinSnapshot(
     () => props.spaceId,
     () => true
@@ -125,7 +136,7 @@ function SpaceRoomCandidate(props: {
       }
     >
       <Show
-        when={props.isOpen}
+        when={admitted()}
         fallback={<SpaceOpenRoomSlot spaceId={props.spaceId} />}
       >
         <SpaceOpenRoomSlot spaceId={props.spaceId} />

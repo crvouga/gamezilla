@@ -4,6 +4,7 @@ import type { ClientPubSubArgs } from '@libs/app-root-client/create-client-pubsu
 import { createInMemoryClientPorts } from '@libs/app-root-client/in-memory-client-ports';
 import { createOfflineClientEnv } from '@libs/app-root-client/offline-client-env';
 import { createOfflineNetworkController } from '@libs/app-root-client/offline-network-controller';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { KvImplInMemory } from '@pkgs/kv-root-shared/impl-in-memory';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
 import { createInMemoryPubSub } from '@pkgs/pubsub-root-shared/in-memory';
@@ -12,6 +13,7 @@ function networkEnv(overrides: Partial<ClientEnv> = {}): ClientEnv {
   // These tests exercise the network ports; unrelated composition ports are unused.
   return {
     ...createInMemoryClientPorts(),
+    ...createHarnessClock(),
     kv: new KvImplInMemory(),
     server: async () => new Response('ok'),
     events: createInMemoryPubSub({ logger: createNoopLogger() }),
@@ -88,12 +90,13 @@ test('auth receives gated HTTP so going offline aborts requests already underway
   });
   const client = createOfflineClientEnv(source, offline);
   const auth = client.env.createAuthClient(client.env.server);
-  void auth.session.refresh();
+  const firstRefresh = auth.session.refresh().catch((error: unknown) => error);
   await Promise.resolve();
 
   offline.setOffline(true);
 
   expect(signal?.aborted).toBe(true);
+  expect(await firstRefresh).toBeInstanceOf(Error);
   await expect(auth.session.refresh()).rejects.toMatchObject({
     name: 'HttpNetworkError',
   });
@@ -135,4 +138,39 @@ test('observation subscriptions preserve injected credentials and the offline br
   expect(push?.status()).toBe('down');
   detach?.();
   push?.close();
+});
+
+// regression: offline-wrapper-hides-missing-broker
+test('a missing broker stays unavailable until its address hydrates', async () => {
+  const offline = createOfflineNetworkController(new KvImplInMemory());
+  await offline.ready();
+  const urls: string[] = [];
+  let closed = 0;
+  const source = networkEnv({
+    createPubSub: (args) => {
+      urls.push(args.url);
+      if (args.url.length === 0) return null;
+      const port = createInMemoryPubSub({ logger: createNoopLogger() });
+      const close = port.close.bind(port);
+      port.close = () => {
+        closed += 1;
+        close();
+      };
+      return port;
+    },
+  });
+  const env = createOfflineClientEnv(source, offline).env;
+  expect(env.createPubSub({ url: '' } as ClientPubSubArgs)).toBeNull();
+  const push = env.createPubSub({
+    url: 'ws://broker.test/mqtt',
+  } as ClientPubSubArgs);
+  expect(push).not.toBeNull();
+  push!.subscribe('user:alice', () => undefined);
+  expect(urls).toEqual(['', 'ws://broker.test/mqtt']);
+  offline.setOffline(true);
+  expect(closed).toBe(1);
+  offline.setOffline(false);
+  expect(urls).toEqual(['', 'ws://broker.test/mqtt', 'ws://broker.test/mqtt']);
+  push!.close();
+  expect(closed).toBe(2);
 });

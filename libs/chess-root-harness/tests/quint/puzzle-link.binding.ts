@@ -105,6 +105,13 @@ bindQuintModel<QuintHarnessWorld>({
       seed: '0x67932',
       itf: lostRequest,
     },
+    {
+      // regression: puzzle-quota-fixture-not-published
+      id: 'puzzle-quota-fixture-not-published',
+      title: 'Earlier rated starts reach the open puzzle board',
+      seed: '0x67932',
+      itf: lostRequest,
+    },
   ],
   actions: {
     init: async (w, picks) => {
