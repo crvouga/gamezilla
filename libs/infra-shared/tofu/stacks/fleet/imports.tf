@@ -22,3 +22,35 @@ removed {
     destroy = false
   }
 }
+
+# A feature branch provisioned shared data in fleet state before its
+# declarations reached main. Preserve the bucket AND its access credentials;
+# main must not delete either while it does not manage this storage. A branch
+# taking ownership again must adopt the existing resources, not recreate them.
+removed {
+  from = cloudflare_r2_bucket.shared_data
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = cloudflare_account_token.shared_data
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = infisical_secret.shared_data
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = terraform_data.shared_data_version
+  lifecycle {
+    destroy = false
+  }
+}
