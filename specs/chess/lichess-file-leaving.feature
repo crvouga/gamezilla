@@ -35,17 +35,6 @@ Feature: Leave while saving a Lichess file
     Scenario: Finishing while the choice is open keeps the completed file
       Given Alice is choosing whether to leave while saving a Lichess file
       When saving Alice's Lichess file finishes
-      Then Alice is offered to add puzzles from the saved Lichess file
-      And Alice is still choosing whether to leave adding puzzles
-
-    Scenario: Staying after completion keeps the saved file available
-      Given Alice's Lichess file finished while she was choosing whether to leave adding puzzles
-      When Alice cancels leaving adding puzzles
-      Then Alice is offered to add puzzles from the saved Lichess file
-      And Alice is not asked to confirm leaving adding puzzles
-
-    Scenario: Confirming departure after completion keeps the saved file available
-      Given Alice's Lichess file finished while she was choosing whether to leave adding puzzles
-      When Alice confirms leaving adding puzzles
       Then Alice is away from adding puzzles
       And the team can still add puzzles from the saved Lichess file
+      And Alice is not asked to confirm leaving adding puzzles

@@ -1,6 +1,6 @@
 // The team chooses whether to stop an unfinished Lichess file by leaving.
 // Staying keeps saving; a completed file needs no departure confirmation.
-// Losing the connection stops unfinished saving; the departure choice remains until answered.
+// Losing the connection stops unfinished saving, so a requested departure can proceed.
 module lichess_file_leaving {
   var savingLichessFile: bool
   var followingAddingPuzzles: bool
@@ -34,10 +34,10 @@ module lichess_file_leaving {
     _keepConnection,
   }
 
-  /// A file may finish while the team is deciding whether to leave.
+  /// Finishing makes a requested departure safe without stopping the completed file.
   action finishSavingLichessFile = all {
     online, savingLichessFile, savingLichessFile' = false,
-    followingAddingPuzzles' = followingAddingPuzzles, leavingAddingPuzzles' = leavingAddingPuzzles,
+    followingAddingPuzzles' = followingAddingPuzzles and not(leavingAddingPuzzles), leavingAddingPuzzles' = false,
     _keepConnection,
   }
 
@@ -55,10 +55,10 @@ module lichess_file_leaving {
     _keepConnection,
   }
 
-  /// Without a connection the file cannot finish saving, but the departure choice stays.
+  /// Without a connection unfinished saving stops and a requested departure can proceed.
   action loseConnection = all {
     online, online' = false, savingLichessFile' = false,
-    followingAddingPuzzles' = followingAddingPuzzles, leavingAddingPuzzles' = leavingAddingPuzzles,
+    followingAddingPuzzles' = followingAddingPuzzles and not(leavingAddingPuzzles), leavingAddingPuzzles' = false,
   }
 
   /// Returning online never starts an unfinished save again.
@@ -73,7 +73,7 @@ module lichess_file_leaving {
   }
 
   /// An unanswered departure choice keeps the team with adding puzzles.
-  val invDepartureWaitsForConfirmation = leavingAddingPuzzles implies followingAddingPuzzles
+  val invDepartureWaitsForConfirmation = leavingAddingPuzzles implies all { followingAddingPuzzles, savingLichessFile }
   /// An unfinished save never continues after the team confirms leaving.
   val invConfirmedDepartureStopsUnfinishedSaving = not(followingAddingPuzzles) implies all {
     not(savingLichessFile), not(leavingAddingPuzzles),
