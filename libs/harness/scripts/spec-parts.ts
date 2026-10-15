@@ -85,7 +85,9 @@ export function specUnits(
   return Array.from({ length: count }, (_, index) => ({
     path,
     slice: { index, count },
-    weight: weight / count,
+    weight: path.endsWith('.qnt')
+      ? 2 * (Math.floor(64 / count) + (index < 64 % count ? 1 : 0))
+      : weight / count,
   }));
 }
 

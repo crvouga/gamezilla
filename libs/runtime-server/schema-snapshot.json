@@ -1,5 +1,5 @@
 {
-  "release": 14,
+  "release": 15,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -125,16 +125,21 @@
         "uci": "text"
       },
       "chess_puzzle_load": {
+        "completed_chunks": "integer",
         "cursor": "text",
+        "duplicate_rows": "integer",
         "error": "text",
         "failed_rows": "integer",
         "finished_at": "timestamp",
         "inserted_rows": "integer",
         "object_key": "text",
+        "pool_rows": "integer",
         "processed_rows": "integer",
         "requested_by": "text",
         "source_etag": "text",
-        "status": "text"
+        "status": "text",
+        "total_chunks": "integer",
+        "updated_rows": "integer"
       },
       "chess_puzzle_profiles": {
         "last_interaction_at": "timestamp",

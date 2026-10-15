@@ -93,6 +93,7 @@ import { killProcessTree } from './kill-process-tree';
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import { solverSlots } from './solver-slots';
+import { MAX_MODEL_PARTS } from './spec-packages';
 import type { RunPlan } from './turbo-preflight';
 import {
   dryRunPlan,
@@ -130,7 +131,10 @@ export const MAIN_CHECK_TASKS = [
   ...Array.from({ length: 128 }, (_, index) => `test:spec:${String(index)}`),
   'check:models',
   // The parts of a split models check (`MAX_MODEL_PARTS` in spec-packages).
-  ...Array.from({ length: 16 }, (_, index) => `check:models:${String(index)}`),
+  ...Array.from(
+    { length: MAX_MODEL_PARTS },
+    (_, index) => `check:models:${String(index)}`
+  ),
   '@apps/product#check:offline-shell',
   '@apps/auth-relay#check:worker-bundle',
   '@apps/product#check:worker-bundle',

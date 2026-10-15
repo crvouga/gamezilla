@@ -207,7 +207,8 @@ describe('partOf', () => {
 
   test('the chess suite keeps model traces inside the 600s task cap', () => {
     // regression: chess-spec-trace-batches — 32 parts put 20 traces in one task.
-    const count = 128;
+    // regression: chess-spec-slice-weight
+    const count = 72;
     const parts = chessSuiteParts(count);
     const tracesOf = (unit: SpecUnit) =>
       unit.path.endsWith('.qnt')
@@ -233,8 +234,8 @@ describe('partOf', () => {
         Array.from({ length: 64 }, (_, index) => index)
       );
     }
-    // Adding the shared-source model needs more parts, with one trace per
-    // file. Keep the existing sixteen-trace cap: a part of twelve took at
+    // Weight uneven model slices by their trace counts. Keep the existing
+    // sixteen-trace cap: a part of twelve took at
     // most 332 s on the 2-core runner (Check run 38187450396).
     for (const part of parts) {
       expect(part.flatMap(tracesOf).length).toBeLessThanOrEqual(16);
