@@ -14,7 +14,6 @@ import { useMatchRoom } from './use-match-room';
 export type MultiplayerSearchRow = {
   readonly search_id: string;
   readonly standing: string;
-  readonly match_id: string | null;
   readonly time_control: string | null;
   readonly joined_at_ms: number | null;
 };
@@ -95,7 +94,7 @@ export function useMultiplayerData() {
   );
   const searches = createQuery(
     () => sql<MultiplayerSearchRow>`
-    SELECT search_id, standing, match_id, time_control, joined_at_ms FROM chess_opponent_searches
+    SELECT search_id, standing, time_control, joined_at_ms FROM chess_opponent_searches
     WHERE owner_id = ${hostId()} AND deleted_at IS NULL`
   );
   const ratings = createQuery(

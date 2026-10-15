@@ -1,4 +1,0 @@
-{
-  "summary": "The native browser has no in-process local database. The shared multiplayer reader returned no game or tried to create a second client instead of observing the screen. Read its permission-approved test snapshot when that database port is unavailable, and request C4 matchmaking through the existing shared Find controls.",
-  "regressionTest": "libs/game-matchmaking-harness/tests/browser-matchmaking-read.test.ts"
-}

@@ -1599,7 +1599,6 @@
       "name": "@libs/game-matchmaking-client",
       "version": "0.0.0",
       "dependencies": {
-        "@libs/app-config-shared": "workspace:*",
         "@libs/auth-client": "workspace:*",
         "@libs/game-matchmaking-shared": "workspace:*",
         "@libs/game-session-shared": "workspace:*",

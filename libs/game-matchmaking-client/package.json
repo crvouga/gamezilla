@@ -15,7 +15,6 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@libs/app-config-shared": "workspace:*",
     "@libs/auth-client": "workspace:*",
     "@libs/game-matchmaking-shared": "workspace:*",
     "@libs/game-session-shared": "workspace:*",

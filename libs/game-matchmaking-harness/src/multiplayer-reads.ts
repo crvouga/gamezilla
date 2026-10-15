@@ -36,21 +36,8 @@ export async function multiplayerView(
   readonly ratings: readonly MultiplayerRatingView[];
 }> {
   const db = actorLocalSql(s, actor);
-  if (db === null) {
-    const ui = await actorUi(s, actor);
-    const probe = ui.get('multiplayer-state');
-    if (!(await probe.isVisible())) return NOTHING;
-    const snapshot = await probe.text();
-    return snapshot === null || snapshot.trim() === ''
-      ? NOTHING
-      : (JSON.parse(snapshot) as {
-          game: MultiplayerGame | null;
-          search: MultiplayerSearchView | null;
-          ratings: readonly MultiplayerRatingView[];
-        });
-  }
   const owner = await signedInAccountOf(s, actor);
-  if (owner === null) return NOTHING;
+  if (db === null || owner === null) return NOTHING;
   const games = await db.query(sql<MultiplayerGame>`SELECT ${GAME_COLUMNS}
     FROM chess_multiplayer_games AS g
     JOIN chess_multiplayer_players AS p ON p.game_id = g.id
