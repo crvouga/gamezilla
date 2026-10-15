@@ -14,6 +14,7 @@ import { connectFourGameShared } from '@libs/connect-four-shared/connect-four-ga
 import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-slice';
 import { FRIENDS_BLOCK_RELATION } from '@libs/friends-shared/block-relation';
 import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { withOpponentSearchCleanup } from '@libs/game-matchmaking-harness/opponent-search-cleanup';
 import { createGameSessionServer } from '@libs/game-session-server/sub-server';
 import { createGameSessionSub } from '@libs/game-session-shared/sub';
 import { defineProductSystem } from '@libs/harness/define-product-system';
@@ -88,9 +89,11 @@ export function openHarness(
 }
 
 /** {@link openHarness} for the chess scenarios (see {@link CHESS_SPEC_SYSTEM}). */
-export function openSpecHarness(
+export async function openSpecHarness(
   testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openSystemHarness(CHESS_SPEC_SYSTEM, testId, options);
+  return withOpponentSearchCleanup(
+    await openSystemHarness(CHESS_SPEC_SYSTEM, testId, options)
+  );
 }

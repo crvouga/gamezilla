@@ -1,5 +1,11 @@
 import { timeControlKey } from '@libs/game-matchmaking-shared/time-control';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
+import type { ProductHarness } from '@libs/harness/harness';
+
+const searches = new WeakMap<ProductHarness, Set<string>>();
+export function scenarioSearchActors(s: ProductHarness): readonly string[] {
+  return [...(searches.get(s) ?? [])];
+}
 
 /** The existing shared Find controls, independent of game or transport. */
 export const requestGameOpponent = scenarioAction({
@@ -10,6 +16,9 @@ export const requestGameOpponent = scenarioAction({
       .get(`multiplayer-time-control-${timeControlKey(timeControl)}`)
       .tap();
     await ui.get('multiplayer-find').wait('enabled');
+    const actors = searches.get(s) ?? new Set<string>();
+    actors.add(actor);
+    searches.set(s, actors);
     await ui.get('multiplayer-find').tap();
     await pollUntil(
       s,
