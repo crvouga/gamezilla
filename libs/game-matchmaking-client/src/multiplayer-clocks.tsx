@@ -43,17 +43,13 @@ function dailyClockSpoken(ms: number): string {
 
 /** What a listener hears for one clock: whose, how long, and if it is low. */
 function clockSpoken(
-  side: MultiplayerSide,
+  label: string,
   time: { readonly spoken: string; readonly low: boolean }
 ): string {
   const left = time.spoken;
-  if (side === 'white')
-    return time.low
-      ? t`White has ${left} left and is low on time`
-      : t`White has ${left} left`;
   return time.low
-    ? t`Black has ${left} left and is low on time`
-    : t`Black has ${left} left`;
+    ? t`${label} has ${left} left and is low on time`
+    : t`${label} has ${left} left`;
 }
 
 /** One side's multiplayer clock, shown to both people and to watchers. */
@@ -92,7 +88,7 @@ export function MultiplayerClock(props: {
       low={time().low}
       value={time().shown}
       dataSet={{ testid: `multiplayer-${props.side}-clock` }}
-      ariaLabel={clockSpoken(props.side, time())}
+      ariaLabel={clockSpoken(gameSideLabel(props.game.fen, props.side), time())}
     />
   );
 }
