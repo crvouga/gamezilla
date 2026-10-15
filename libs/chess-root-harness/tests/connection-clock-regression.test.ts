@@ -1,6 +1,12 @@
 import { expect, test } from 'bun:test';
 import { multiplayerClockSeconds } from '@libs/chess-matchmaking-harness/multiplayer-availability';
+import {
+  multiplayerCommandReply,
+  sendMultiplayerCommand,
+} from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import { givenMultiplayerClock } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { prepareMultiplayerSpaceModel } from '@libs/chess-root-harness/multiplayer-space-model';
 import {
   CLOCK_OBSERVERS,
   prepareSharedClockGame,
@@ -27,4 +33,26 @@ test('cutting a connection does not silently spend one second of an agreed game'
   expect(
     (await s.read(multiplayerClockSeconds, CLOCK_OBSERVERS.alice)).white
   ).toBe(20);
+}, 120_000);
+
+test('cutting the connection refuses an offered draw without waiting for a server answer', async () => {
+  // regression: offline-connection-keeps-sync-online
+  await using s = await openHarness('offline-connection-keeps-sync-online');
+  await s.apply(prepareMultiplayerSpaceModel, '5+0');
+  const game = (await s.read(multiplayerView, 'alice')).game;
+  if (game === null) throw new Error('The agreed game is missing');
+  await s.apply(sendMultiplayerCommand, 'bob', {
+    name: 'offerMultiplayerDraw',
+    args: { gameId: game.id, requestId: 'offered-draw' },
+  });
+  await cutConnection({ s }, 'alice');
+  await s.apply(sendMultiplayerCommand, 'alice', {
+    name: 'acceptMultiplayerDraw',
+    args: { gameId: game.id, requestId: 'offline-draw-acceptance' },
+  });
+  const reply = await s.read(multiplayerCommandReply, 'alice');
+  expect(reply?.result.ok).toBe(false);
+  expect(reply?.result.ok === false && reply.result.failures[0]?.code).toBe(
+    'OFFLINE'
+  );
 }, 120_000);

@@ -2,8 +2,9 @@ import { originAvailabilityFor } from '@libs/app-root-client/origin-availability
 import { defineAction } from '@pkgs/harness-root-shared/define-action';
 import type { UiOp } from '@pkgs/ui-testing-root-shared/ui-op';
 import { describeUiOp, performUiOp } from '@pkgs/ui-testing-root-shared/ui-op';
-import { ensureActor } from './actor-ui';
+import { ensureActor, pollUntil } from './actor-ui';
 import type { ProductHarness } from './harness';
+import { deviceMemberIdOf } from './identity';
 import { caps, partitioned } from './observations';
 import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
 
@@ -76,11 +77,36 @@ export const restoreActorConnection = defineAction({
   },
 });
 
-/** Settle a connectivity transition without spending virtual time. */
+/** Observe the current origin through the app's health probe. */
 export const refreshActorConnection = defineAction({
   name: 'refreshActorConnection',
   pool: false,
   act: refreshOrigin,
+});
+
+/** Let query-backed commands observe a changed connection before the next action. */
+export const refreshActorQueries = defineAction({
+  name: 'refreshActorQueries',
+  pool: false,
+  act: async (s: ProductHarness, id: string) => {
+    if (!s.actors.has(id)) return;
+    const client = await s.harness.spawnClient(id);
+    const identity = await deviceMemberIdOf(s, id);
+    if (identity === null) return;
+    const engine = client.syncEnginePool.peekReady(
+      client.env.resolveDatabaseName({ userId: identity })
+    );
+    if (engine === null) return;
+    let drained = false;
+    void engine.refreshQueries().then(() => {
+      drained = true;
+    });
+    await pollUntil(s, () => Promise.resolve(drained ? true : null), {
+      maxMs: 5000,
+      stepMs: 1,
+      description: 'the changed connection at query transport',
+    });
+  },
 });
 
 /** A returning connection wakes the health probe, including after offline boot. */

@@ -11,6 +11,7 @@ import { ActionNotEnabled } from '@pkgs/harness-root-shared/probe';
 import {
   partition,
   refreshActorConnection,
+  refreshActorQueries,
   restartApp,
   restoreNetwork,
 } from './actions';
@@ -73,6 +74,7 @@ export async function cutConnection(
   }
   await w.s.apply(partition, actor);
   await w.s.apply(refreshActorConnection, actor);
+  await w.s.apply(refreshActorQueries, actor);
 }
 
 async function signIn(w: HarnessWorld, actor: Actor): Promise<void> {
