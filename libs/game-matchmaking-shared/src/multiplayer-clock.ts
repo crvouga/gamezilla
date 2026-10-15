@@ -19,7 +19,9 @@ export type MultiplayerSide = 'white' | 'black';
 
 type ClockFields = Pick<
   MultiplayerGame,
-  | 'fen'
+  | 'turn'
+  | 'white_id'
+  | 'black_id'
   | 'outcome'
   | 'revision'
   | 'time_control'
@@ -30,9 +32,9 @@ type ClockFields = Pick<
 >;
 
 export function sideToMove(
-  game: Pick<MultiplayerGame, 'fen'>
+  game: Pick<MultiplayerGame, 'turn' | 'white_id' | 'black_id'>
 ): MultiplayerSide {
-  return game.fen.split(' ')[1] === 'b' ? 'black' : 'white';
+  return game.turn === game.black_id ? 'black' : 'white';
 }
 
 function timed(game: ClockFields): boolean {
