@@ -30,11 +30,11 @@ module puzzle_loading {
   action addPuzzles = {
     nondet _refreshSource = Set(false, true).oneOf()
     val starts = online and _actual.status != "adding"
-    val next = { ..._actual, status: "adding", added: 0, updated: 0, broken: 0 }
+    val _result = { ..._actual, status: "adding", added: 0, updated: 0, broken: 0 }
     all {
       _poolSize' = _poolSize,
-      _actual' = if (starts) next else _actual,
-      puzzleLoading' = if (starts) next else puzzleLoading,
+      _actual' = if (starts) _result else _actual,
+      puzzleLoading' = if (starts) _result else puzzleLoading,
       _progressed' = if (starts) false else _progressed,
       _refresh' = if (starts) _refreshSource else _refresh,
       online' = online, _stoppedPoolSize' = _stoppedPoolSize,
@@ -54,12 +54,12 @@ module puzzle_loading {
 
   /// A finished addition reports every accepted, updated, and broken puzzle.
   action finishAddingPuzzles = {
-    val next = { ..._actual, status: "finished",
+    val _result = { ..._actual, status: "finished",
       added: if (_refresh) 0 else 3, updated: if (_refresh) 3 else 0, broken: 2 }
     all {
-      _actual.status == "adding", _actual' = next,
+      _actual.status == "adding", _actual' = _result,
       _poolSize' = _poolSize + (if (_progressed or _refresh) 0 else 3),
-      puzzleLoading' = if (online) next else puzzleLoading,
+      puzzleLoading' = if (online) _result else puzzleLoading,
       online' = online, _progressed' = true, _refresh' = _refresh, _stoppedPoolSize' = _stoppedPoolSize,
     }
   }
@@ -75,11 +75,11 @@ module puzzle_loading {
   /// Stopping keeps accepted puzzles and is refused without a connection or an ongoing addition.
   action stopAddingPuzzles = {
     val stops = online and _actual.status == "adding"
-    val next = { ..._actual, status: "stopped" }
+    val _result = { ..._actual, status: "stopped" }
     all {
       _poolSize' = _poolSize,
-      _actual' = if (stops) next else _actual,
-      puzzleLoading' = if (stops) next else puzzleLoading,
+      _actual' = if (stops) _result else _actual,
+      puzzleLoading' = if (stops) _result else puzzleLoading,
       _stoppedPoolSize' = if (stops) _poolSize else _stoppedPoolSize,
       online' = online, _progressed' = _progressed, _refresh' = _refresh,
     }
