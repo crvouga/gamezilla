@@ -13,7 +13,7 @@ function publisher(broker: (typeof brokers)[number], fetchImpl: HttpFetch) {
         apiBaseUrl: 'http://127.0.0.1:55009',
         apiKey: 'local-key',
         apiSecret: 'local-secret',
-        fetchImpl,
+        http: { fetch: fetchImpl },
       })
     : createIotHttpPubSub({
         endpoint: 'broker.iot.us-east-1.amazonaws.com',
@@ -21,7 +21,7 @@ function publisher(broker: (typeof brokers)[number], fetchImpl: HttpFetch) {
         secretAccessKey: 'fixture',
         region: 'us-east-1',
         now: () => 0,
-        fetchImpl,
+        http: { fetch: fetchImpl },
       });
 }
 

@@ -594,7 +594,19 @@
         "@libs/runtime-harness#test:spec:11",
         "@libs/runtime-harness#test:spec:12",
         "@libs/runtime-harness#test:spec:13",
-        "@libs/runtime-harness#test:spec:14"
+        "@libs/runtime-harness#test:spec:14",
+        "@libs/chess-root-harness#test:spec:72",
+        "@libs/chess-root-harness#test:spec:73",
+        "@libs/chess-root-harness#test:spec:74",
+        "@libs/chess-root-harness#test:spec:75",
+        "@libs/chess-root-harness#test:spec:76",
+        "@libs/chess-root-harness#test:spec:77",
+        "@libs/chess-root-harness#test:spec:78",
+        "@libs/chess-root-harness#test:spec:79",
+        "@libs/chess-root-harness#test:spec:80",
+        "@libs/chess-root-harness#test:spec:81",
+        "@libs/chess-root-harness#test:spec:82",
+        "@libs/chess-root-harness#test:spec:83"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",

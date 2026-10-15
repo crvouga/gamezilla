@@ -1,0 +1,4 @@
+{
+  "summary": "3972 spec-seconds were rejected for requesting seventeen workers even though sixteen finish in 249 seconds and retain the existing 30-second startup and 15-second verdict slack within the 300-second deadline. Bound the allocation before evaluating its real makespan; work that exceeds the unchanged deadline still fails.",
+  "regressionTest": "libs/tools/scripts/ci-load.test.ts"
+}
