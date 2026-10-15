@@ -4,8 +4,10 @@ import type { UiOp } from '@pkgs/ui-testing-root-shared/ui-op';
 import { describeUiOp, performUiOp } from '@pkgs/ui-testing-root-shared/ui-op';
 import { ensureActor, pollUntil } from './actor-ui';
 import type { ProductHarness } from './harness';
+import { productExtra } from './harness';
 import { deviceMemberIdOf } from './identity';
 import { caps, partitioned } from './observations';
+import { chooseOfflineCommand } from './offline-gestures';
 import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
 
 export const spawnActor = defineAction({
@@ -46,9 +48,15 @@ export const damageDeviceData = defineAction({
 export const partition = defineAction({
   name: 'partition',
   // Connectivity can change while every app is closed, before a later reopen.
-  enabled: (s: ProductHarness) => caps(s).includes('partition'),
-  act: (s: ProductHarness, id: string) => {
+  enabled: (s: ProductHarness) =>
+    caps(s).includes('partition') || productExtra(s).ui.kind === 'bun-webview',
+  act: async (s: ProductHarness, id: string) => {
     if (id === '') return;
+    // regression: browser-room-connection-control
+    if (!caps(s).includes('partition')) {
+      await chooseOfflineCommand(s, id.replace(/:events$/, ''), true);
+      return;
+    }
     s.session.network.partition(HARNESS_PRIMARY_SERVER_ID, id);
     s.harness.partition(HARNESS_PRIMARY_SERVER_ID, id);
   },
@@ -57,8 +65,14 @@ export const partition = defineAction({
 export const restoreNetwork = defineAction({
   name: 'restoreNetwork',
   enabled: (s: ProductHarness) =>
-    caps(s).includes('partition') && partitioned(s).length > 0,
+    (caps(s).includes('partition') && partitioned(s).length > 0) ||
+    productExtra(s).ui.kind === 'bun-webview',
   act: async (s: ProductHarness) => {
+    if (!caps(s).includes('partition')) {
+      for (const id of s.actors.keys())
+        await chooseOfflineCommand(s, id, false);
+      return;
+    }
     s.session.network.healAll();
     s.harness.heal();
     for (const id of s.actors.keys()) await refreshOrigin(s, id);
@@ -69,8 +83,13 @@ export const restoreNetwork = defineAction({
 export const restoreActorConnection = defineAction({
   name: 'restoreActorConnection',
   enabled: (s: ProductHarness) =>
-    caps(s).includes('partition') && partitioned(s).length > 0,
+    (caps(s).includes('partition') && partitioned(s).length > 0) ||
+    productExtra(s).ui.kind === 'bun-webview',
   act: async (s: ProductHarness, id: string) => {
+    if (!caps(s).includes('partition')) {
+      await chooseOfflineCommand(s, id.replace(/:events$/, ''), false);
+      return;
+    }
     s.session.network.heal(HARNESS_PRIMARY_SERVER_ID, id);
     s.harness.heal(HARNESS_PRIMARY_SERVER_ID, id);
     await refreshOrigin(s, id);

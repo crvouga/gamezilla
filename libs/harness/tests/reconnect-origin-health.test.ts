@@ -39,6 +39,7 @@ test.each(['one', 'all'] as const)(
         heal: (...ids: string[]) => fabricHeals.push(ids),
       },
       session: {
+        caps: new Set(['partition']),
         network: {
           heal: (serverId: string, actor: string) => {
             expect([serverId, actor]).toEqual([

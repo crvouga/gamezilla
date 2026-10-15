@@ -1,5 +1,6 @@
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
+import { chooseOfflineCommand } from '@libs/harness/offline-gestures';
 import { multiplayerClient } from './multiplayer-client';
 
 /** Ask the ordinary query transport to observe the changed network. */
@@ -23,6 +24,10 @@ export const refreshMultiplayerConnection = scenarioAction({
 export const setMultiplayerConnection = scenarioAction({
   name: 'setMultiplayerConnection',
   act: async (s, actor: string, online: boolean) => {
+    if (!s.session.caps.has('partition')) {
+      await chooseOfflineCommand(s, actor, !online);
+      return;
+    }
     const change = online
       ? s.session.network.heal.bind(s.session.network)
       : s.session.network.partition.bind(s.session.network);
