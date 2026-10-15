@@ -36,14 +36,17 @@ async function openRuntimeBackend(
   // trusts: sign-in links are only ever minted for a trusted callback.
   let serve: (request: Request) => Promise<Response> = async () =>
     new Response('The backend is starting', { status: 503 });
+  const services = new AsyncDisposableStack();
+  cleanup.defer(() => services.disposeAsync());
   const server = Bun.serve({
     port: 0,
     hostname: '127.0.0.1',
     fetch: (request) => serve(request),
   });
-  cleanup.defer(() => server.stop(true));
+  // Drain admitted HTTP work while its harness and broker are still alive.
+  cleanup.defer(() => server.stop());
   const messaging = await runtimePubSub(wall);
-  cleanup.defer(() => messaging.close());
+  services.defer(() => messaging.close());
   const harness = await createHarness(session, {
     composition: APP_COMPOSITION,
     serverEvents: messaging.events,
@@ -54,7 +57,7 @@ async function openRuntimeBackend(
       EMQX_JWT_SECRET: wall.createId(),
     },
   });
-  cleanup.defer(() => harness.dispose());
+  services.defer(() => harness.dispose());
   await harness.spawnServer();
   const ports = { ...session.ports, notify: async () => undefined };
   const repository = new SyntheticPopulationRepository(
@@ -78,12 +81,12 @@ async function openRuntimeBackend(
   const requests: { path: string; status: number | null }[] = [];
   const acknowledgement = lostMoveAcknowledgement();
   serve = async (request) => {
-    const move = await acknowledgement.observe(request);
     const entry = {
       path: new URL(request.url).pathname,
       status: null as number | null,
     };
     requests.push(entry);
+    const move = await acknowledgement.observe(request);
     const response = await harness.loadBalancer.fetchFrom(
       'synthetic-population-worker'
     )(request);

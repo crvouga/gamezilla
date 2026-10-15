@@ -13,12 +13,28 @@ export async function runtimePubSub(wall: ReturnType<typeof workerWallPorts>) {
     },
     { fetch: wall.http }
   );
+  const pending = new Set<Promise<void>>();
   return {
     url: broker.wsUrl,
-    events,
+    events: {
+      ...events,
+      async publish(...args: Parameters<typeof events.publish>) {
+        const work = events.publish(...args);
+        pending.add(work);
+        try {
+          await work;
+        } finally {
+          pending.delete(work);
+        }
+      },
+    },
     async close() {
-      events.close();
-      await broker.stop();
+      try {
+        while (pending.size > 0) await Promise.all([...pending]);
+      } finally {
+        events.close();
+        await broker.stop();
+      }
     },
   };
 }
