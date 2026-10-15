@@ -20,6 +20,7 @@ export const globalFileSchema = z
   .object({
     project: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
     state: z.object({ account_id: id, bucket: id }).strict(),
+    shared_data: z.object({ account_id: id, bucket: slug }).strict(),
     infisical: z
       .object({
         org_id: id,

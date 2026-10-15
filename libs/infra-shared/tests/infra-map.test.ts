@@ -98,6 +98,29 @@ const stack = (e: ReturnType<typeof env>, name: string) =>
   e.stacks.find((s) => s.stack === name) as StackModel;
 
 describe('infrastructure map model', () => {
+  test('shared reference data belongs to the global fleet and survives environment retirement', () => {
+    const fleet = MODEL.globals.find((s) => s.stack === 'fleet')!;
+    const bucket = find(fleet, 'cloudflare_r2_bucket.shared_data');
+    expect(bucket.instances.map((instance) => instance.label)).toEqual([
+      'gamezilla-shared',
+    ]);
+    expect(bucket.preventDestroy).toBe(true);
+    expect(bucket.stateful).toBe(true);
+    for (const env of MODEL.envs) {
+      expect(
+        env.stacks
+          .flatMap((s) => s.nodes)
+          .some((n) => n.address === bucket.address)
+      ).toBe(false);
+    }
+    const credentials = find(fleet, 'infisical_secret.shared_data');
+    expect(credentials.instances).toHaveLength(5);
+    expect(fleet.edges).toContainEqual({
+      from: 'terraform_data.shared_data_version',
+      to: 'infisical_secret.shared_data',
+    });
+  });
+
   test('every file parses', () => {
     expect(STACKS.flatMap((s) => s.diagnostics)).toEqual([]);
   });

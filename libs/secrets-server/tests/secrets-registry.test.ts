@@ -10,6 +10,7 @@ describe('OpenTofu secrets ↔ @libs/secrets registry', () => {
       ...FOUNDATION_SECRETS.generated,
       ...FOUNDATION_SECRETS.derived,
       ...FOUNDATION_SECRETS.bootstrap,
+      ...FOUNDATION_SECRETS.shared_derived,
     ].sort();
     const managed = SECRETS.filter((s) => s.managedBy === 'tofu')
       .map((s) => s.name)
@@ -42,6 +43,7 @@ describe('OpenTofu secrets ↔ @libs/secrets registry', () => {
       ...FOUNDATION_SECRETS.generated,
       ...FOUNDATION_SECRETS.derived,
       ...FOUNDATION_SECRETS.bootstrap,
+      ...FOUNDATION_SECRETS.shared_derived,
     ];
     expect(all.length).toBe(new Set(all).size);
   });

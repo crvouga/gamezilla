@@ -129,7 +129,7 @@ When(
 When(
   '{actor} adds these puzzles again to this environment',
   async (w, actor: Actor) => {
-    await w.s.apply(startPuzzleLoading, actor, true);
+    await w.s.apply(startPuzzleLoading, actor);
     await w.s.apply(finishPuzzleImport);
   }
 );

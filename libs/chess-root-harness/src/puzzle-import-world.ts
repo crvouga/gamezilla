@@ -1,5 +1,4 @@
 import { drainAndNotifyOutbox } from '@libs/app-root-server/outbox-drain';
-import { puzzleUploadKey } from '@libs/chess-puzzle-shared/puzzle-load-job';
 import { puzzleImportConsumer } from '@libs/chess-root-server/puzzle-import-consumer';
 import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared/topic-map';
 import { scenarioAction } from '@libs/harness/actor-ui';
@@ -40,6 +39,15 @@ export const joinPuzzleTeam = scenarioAction({
 export const advancePuzzleImport = scenarioAction({
   name: 'advancePuzzleImport',
   act: async (s) => {
+    const job = (
+      await s.harness.serverSql.sqlClient.query(
+        sql<{
+          source_etag: string;
+          completed_chunks: number;
+        }>`SELECT source_etag, completed_chunks FROM chess_puzzle_load WHERE id = 'dataset' AND status = 'adding'`
+      )
+    )[0];
+    if (!job) return;
     const registry = new OutboxConsumerRegistry();
     registry.register(puzzleImportConsumer);
     await drainAndNotifyOutbox({
@@ -50,6 +58,9 @@ export const advancePuzzleImport = scenarioAction({
       objectStore: s.harness.server.blob,
       consumerRegistry: registry,
       topicMap: CHESS_TOPIC_MAP,
+      eventIds: [
+        `puzzle-import:${job.source_etag}:${String(job.completed_chunks)}`,
+      ],
       maxPasses: 1,
       limit: 1,
     });
@@ -71,15 +82,16 @@ export const failPuzzleImport = scenarioAction({
       await s.harness.serverSql.sqlClient.query(
         sql<{
           requested_by: string;
+          object_key: string;
           source_etag: string;
           completed_chunks: number;
-        }>`SELECT requested_by, source_etag, completed_chunks FROM chess_puzzle_load WHERE id = 'dataset'`
+        }>`SELECT requested_by, object_key, source_etag, completed_chunks FROM chess_puzzle_load WHERE id = 'dataset'`
       )
     )[0];
     if (!job) throw new Error('No import to interrupt');
     // A source disappears before the worker reads it; the real worker records the failure.
     await s.harness.server.blob.delete(
-      puzzleUploadKey(job.requested_by, job.source_etag, job.completed_chunks)
+      `${job.object_key.slice(0, job.object_key.lastIndexOf('/') + 1)}${String(job.completed_chunks)}.csv`
     );
     await Promise.resolve(advancePuzzleImport.act(s));
   },

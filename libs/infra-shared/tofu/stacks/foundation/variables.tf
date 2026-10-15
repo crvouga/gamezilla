@@ -179,3 +179,8 @@ variable "infisical_token" {
   type      = string
   sensitive = true
 }
+
+# The fleet owns durable data shared across every environment.
+variable "shared_data" {
+  type = object({ account_id = string, bucket = string })
+}

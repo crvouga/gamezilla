@@ -5,20 +5,21 @@ import sql from '@pkgs/sql-root-shared/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
+import { PuzzleImportRequested } from './puzzle-import-event';
 import {
-  PuzzleImportCleanup,
-  PuzzleImportRequested,
-} from './puzzle-import-event';
-import { PUZZLE_UPLOAD_MAX_CHUNKS, puzzleUploadKey } from './puzzle-load-job';
+  PUZZLE_UPLOAD_MAX_CHUNKS,
+  puzzleSourcePartKey,
+} from './puzzle-load-job';
 
-export const puzzleUploadIdSchema = z.string().regex(/^[a-zA-Z0-9-]{1,80}$/);
+import { puzzleSourceIdSchema } from './puzzle-source';
 
 export const startPuzzleImport = defineMutation({
   name: 'startPuzzleImport',
   pendingUx: 'pending',
   requiresOnline: true,
   args: z.object({
-    uploadId: puzzleUploadIdSchema,
+    uploadId: puzzleSourceIdSchema,
+    sourceId: puzzleSourceIdSchema,
     filename: z.string().min(1).max(255),
     chunks: z.number().int().min(1).max(PUZZLE_UPLOAD_MAX_CHUNKS),
   }),
@@ -36,7 +37,7 @@ export const startPuzzleImport = defineMutation({
         processed_rows, inserted_rows, failed_rows, updated_rows, duplicate_rows,
         total_chunks, completed_chunks, cursor, error, finished_at, pool_rows)
       VALUES ('dataset', ${args.uploadId}, 'adding', ${ctx.env.actorId},
-        ${puzzleUploadKey(ctx.env.actorId, args.uploadId, 0)}, 0, 0, 0, 0, 0,
+        ${puzzleSourcePartKey(args.sourceId, 0)}, 0, 0, 0, 0, 0,
         ${args.chunks}, 0, ${args.filename}, NULL, NULL, ${poolRows})
       ON CONFLICT (id) DO UPDATE SET source_etag = excluded.source_etag,
         status = excluded.status, requested_by = excluded.requested_by, object_key = excluded.object_key,
@@ -67,23 +68,12 @@ export const stopPuzzleImport = defineMutation({
   name: 'stopPuzzleImport',
   pendingUx: 'pending',
   requiresOnline: true,
-  args: z.object({ uploadId: puzzleUploadIdSchema }),
+  args: z.object({ uploadId: puzzleSourceIdSchema }),
   async run(ctx, args) {
     await requireInMutation(ctx, PERMISSION.puzzlesManage);
-    const jobs = await ctx.tx.query(
-      sql<{
-        requested_by: string;
-      }>`SELECT requested_by FROM chess_puzzle_load WHERE id = 'dataset' AND source_etag = ${args.uploadId}`
-    );
     await ctx.tx.run(sql`
       UPDATE chess_puzzle_load SET status = 'stopped', finished_at = ${ctx.env.now().toISOString()}
       WHERE id = 'dataset' AND source_etag = ${args.uploadId} AND status = 'adding'
     `);
-    const actorId = jobs[0]?.requested_by;
-    if (actorId !== undefined)
-      await new Outbox(ctx).send({
-        id: `puzzle-import-cleanup:${args.uploadId}`,
-        message: PuzzleImportCleanup({ actorId, uploadId: args.uploadId }),
-      });
   },
 });

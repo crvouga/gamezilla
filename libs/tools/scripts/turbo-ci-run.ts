@@ -127,7 +127,7 @@ export const MAIN_CHECK_TASKS = [
   'test:contract:render',
   // One symbolic model per task. The whole product suite outruns one runner.
   ...Array.from({ length: 11 }, (_, index) => `test:contract:${String(index)}`),
-  ...Array.from({ length: 64 }, (_, index) => `test:spec:${String(index)}`),
+  ...Array.from({ length: 128 }, (_, index) => `test:spec:${String(index)}`),
   'check:models',
   // The parts of a split models check (`MAX_MODEL_PARTS` in spec-packages).
   ...Array.from({ length: 16 }, (_, index) => `check:models:${String(index)}`),

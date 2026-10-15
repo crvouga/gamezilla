@@ -3,12 +3,10 @@ import {
   PuzzleCsvError,
 } from '@libs/chess-puzzle-server/puzzle-import-batch';
 import { PuzzleImportRequested } from '@libs/chess-puzzle-shared/puzzle-import-event';
-import { puzzleUploadKey } from '@libs/chess-puzzle-shared/puzzle-load-job';
 import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { defineOutboxConsumer } from '@pkgs/outbox-shared/define-consumer';
 import { insertOutboxEvent } from '@pkgs/outbox-shared/outbox';
 import sql from '@pkgs/sql-root-shared/sql';
-import { schedulePuzzleImportCleanup } from './puzzle-import-cleanup';
 
 export const puzzleImportConsumer = defineOutboxConsumer({
   id: 'chess.import-puzzles',
@@ -18,10 +16,11 @@ export const puzzleImportConsumer = defineOutboxConsumer({
     // Stop and each part serialize on this row. A stopped or superseded job cannot write again.
     const rows = await ctx.tx.query(sql<{
       requested_by: string;
+      object_key: string;
       total_chunks: number;
       completed_chunks: number;
     }>`
-      SELECT requested_by, total_chunks, completed_chunks FROM chess_puzzle_load
+      SELECT requested_by, object_key, total_chunks, completed_chunks FROM chess_puzzle_load
       WHERE id = 'dataset' AND source_etag = ${payload.uploadId} AND status = 'adding'
         AND deleted_at IS NULL FOR UPDATE
     `);
@@ -32,16 +31,11 @@ export const puzzleImportConsumer = defineOutboxConsumer({
       throw new Error('Puzzle import requires object storage.');
     const csv = await readUtf8(
       ctx.objectStore,
-      puzzleUploadKey(job.requested_by, payload.uploadId, payload.part)
+      `${job.object_key.slice(0, job.object_key.lastIndexOf('/') + 1)}${String(payload.part)}.csv`
     );
     if (csv === null) {
-      await ctx.tx.run(sql`UPDATE chess_puzzle_load SET status = 'failed', error = 'The uploaded CSV is incomplete. Select the file and start again.',
+      await ctx.tx.run(sql`UPDATE chess_puzzle_load SET status = 'failed', error = 'The saved Lichess file is incomplete. Puzzles already added remain available.',
         finished_at = ${nowIso} WHERE id = 'dataset'`);
-      await schedulePuzzleImportCleanup(
-        ctx,
-        job.requested_by,
-        payload.uploadId
-      );
       return { notifyUserIds: [job.requested_by] };
     }
     // Parsing happens before SQL; malformed CSV can fail without losing earlier parts.
@@ -52,11 +46,6 @@ export const puzzleImportConsumer = defineOutboxConsumer({
       if (!(error instanceof PuzzleCsvError)) throw error;
       await ctx.tx.run(sql`UPDATE chess_puzzle_load SET status = 'failed', error = ${error.message},
         finished_at = ${nowIso} WHERE id = 'dataset'`);
-      await schedulePuzzleImportCleanup(
-        ctx,
-        job.requested_by,
-        payload.uploadId
-      );
       return { notifyUserIds: [job.requested_by] };
     }
     const counts = await ctx.tx.query(
@@ -73,12 +62,6 @@ export const puzzleImportConsumer = defineOutboxConsumer({
       duplicate_rows = duplicate_rows + ${result.duplicates}, completed_chunks = ${completed},
       status = ${finished ? 'finished' : 'adding'}, finished_at = ${finished ? nowIso : null}
       WHERE id = 'dataset'`);
-    if (finished)
-      await schedulePuzzleImportCleanup(
-        ctx,
-        job.requested_by,
-        payload.uploadId
-      );
     if (!finished)
       await insertOutboxEvent(ctx.tx, {
         id: `puzzle-import:${payload.uploadId}:${String(completed)}`,

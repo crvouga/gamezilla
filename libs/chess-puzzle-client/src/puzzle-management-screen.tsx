@@ -3,7 +3,6 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
 import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
 import { EmbeddedScreen } from '@pkgs/ui-root-client/embedded-screen';
-import { FilePicker } from '@pkgs/ui-root-client/file-picker';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
@@ -11,6 +10,7 @@ import { Notice } from '@pkgs/ui-root-client/notice';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { PuzzleImportStatus } from './puzzle-import-status';
+import { PuzzleSourceControls } from './puzzle-source-controls';
 import { usePuzzleImport } from './use-puzzle-import';
 
 function PuzzleManagementContent(): JSX.Element {
@@ -22,7 +22,8 @@ function PuzzleManagementContent(): JSX.Element {
     operation: state.start,
     get disabled() {
       return (
-        !state.file() ||
+        !state.source.source() ||
+        state.source.loading() ||
         !state.ready() ||
         !state.connection.status().online ||
         running()
@@ -48,13 +49,7 @@ function PuzzleManagementContent(): JSX.Element {
           value={state.job()?.pool_rows ?? '—'}
           dataSet={{ testid: 'puzzle-load-pool' }}
         />
-        <Notice>
-          <Trans>
-            Choose the Lichess puzzle database CSV or its .csv.zst archive.
-            Existing puzzle IDs are updated; broken puzzles and duplicate
-            positions are skipped. Your players' progress is kept.
-          </Trans>
-        </Notice>
+        <PuzzleSourceControls state={state} />
         <Show when={!state.ready()}>
           <LoadingState
             variant="compact"
@@ -64,27 +59,10 @@ function PuzzleManagementContent(): JSX.Element {
         <Show when={!state.connection.status().online}>
           <Notice dataSet={{ testid: 'puzzle-load-offline' }}>
             <Trans>
-              You are offline. The last status is shown. Reconnect to start or
-              stop loading.
+              You are offline. The last status is shown. Reconnect to save a
+              Lichess file, start loading, or stop loading.
             </Trans>
           </Notice>
-        </Show>
-        <FilePicker
-          label={<Trans>Lichess puzzle database</Trans>}
-          accept=".csv,.csv.zst,.zst,text/csv"
-          disabled={running()}
-          onSelect={state.setFile}
-          dataSet={{ testid: 'puzzle-load-file' }}
-        />
-        <Show when={state.uploading()}>
-          <div role="status">
-            <Notice>
-              <Trans>
-                Uploaded {state.uploadedRows()} puzzles. Keep this screen open
-                until the upload finishes.
-              </Trans>
-            </Notice>
-          </div>
         </Show>
         <Show when={start.error()} keyed>
           {(error) => <Notice tone="error">{error.message}</Notice>}
@@ -110,8 +88,8 @@ function PuzzleManagementContent(): JSX.Element {
         </Show>
         <Notice>
           <Trans>
-            After the upload finishes, loading continues in the background. You
-            can return here to follow its progress or stop it.
+            Loading continues in the background. The saved file stays available.
+            You can return here to follow its progress or stop it.
           </Trans>
         </Notice>
         <MutationModal
@@ -153,7 +131,7 @@ export function PuzzleManagementScreen(props: {
         title={<Trans>Load chess puzzles</Trans>}
         subtitle={
           <Trans>
-            Add or update this environment's puzzles from the Lichess database.
+            Load this environment's puzzles from the saved Lichess file.
           </Trans>
         }
       >

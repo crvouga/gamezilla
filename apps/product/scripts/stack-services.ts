@@ -21,6 +21,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import type { LocalAdminIdentity } from './local-admin-accounts';
 import type { StackPlan } from './stack-plan';
 
 /** What each service tells the ones that depend on it. */
@@ -38,6 +39,7 @@ export type StackServices = {
     readonly grafanaUrl: string | null;
   };
   readonly idp: {
+    readonly adminIdentities: readonly LocalAdminIdentity[];
     readonly google: string;
     readonly apple: string;
     /** Worker bindings for both providers. */

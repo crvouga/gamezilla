@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { chessPuzzleImport } from '@libs/chess-puzzle-shared/puzzle-import-query';
-import { puzzleUploadKey } from '@libs/chess-puzzle-shared/puzzle-load-job';
+import { puzzleSourcePartKey } from '@libs/chess-puzzle-shared/puzzle-load-job';
 import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared/topic-map';
 import sql, { type Sql } from '@pkgs/sql-root-shared/sql';
 import { partitionFanoutRowsByTopic } from '@pkgs/sync-engine-shared/partition-fanout-rows';
@@ -99,6 +99,7 @@ test('malformed or missing source fails visibly while preserving earlier puzzles
   await host.start('missing');
   await host.drain();
   expect(await host.job()).toMatchObject({ status: 'failed' });
+  expect(await host.store.head(puzzleSourcePartKey('first', 0))).toBe(true);
   expect((await host.job())?.error).toContain('incomplete');
 }, 30_000);
 
@@ -170,32 +171,26 @@ test('load status row images reach the management audience without entering the 
   expect([...fanout.keys()]).toEqual(['user:manager', 'user:other-manager']);
 }, 30_000);
 
-test('finished, stopped and failed loads clean only their own staged source', async () => {
+test('finished, stopped and failed loads retain the shared sources for other environments', async () => {
   await using host = await openPuzzleImportHost();
   await host.stage('unrelated', 0, `${HEADER}\n${SAMPLE}\n`);
   await host.stage('finished', 0, `${HEADER}\n${SAMPLE}\n`);
   await host.start('finished');
   await host.drain();
-  await host.cleanup();
-  expect(await host.store.listKeys()).toEqual([
-    puzzleUploadKey('manager', 'unrelated', 0),
-  ]);
+  expect(await host.store.head(puzzleSourcePartKey('finished', 0))).toBe(true);
+  expect(await host.store.head(puzzleSourcePartKey('unrelated', 0))).toBe(true);
 
   await host.stage('stopped', 0, `${HEADER}\n${SAMPLE}\n`);
   await host.start('stopped');
   await host.stop('stopped');
-  await host.cleanup();
-  expect(await host.store.listKeys()).toEqual([
-    puzzleUploadKey('manager', 'unrelated', 0),
-  ]);
+  expect(await host.store.head(puzzleSourcePartKey('stopped', 0))).toBe(true);
+  expect(await host.store.head(puzzleSourcePartKey('unrelated', 0))).toBe(true);
 
   await host.stage('failed', 0, 'incorrect,header\none,two\n');
   await host.start('failed');
   await host.drain(); // Discard the queued work for the stopped load.
   await host.drain();
   expect(await host.job()).toMatchObject({ status: 'failed' });
-  await host.cleanup();
-  expect(await host.store.listKeys()).toEqual([
-    puzzleUploadKey('manager', 'unrelated', 0),
-  ]);
+  expect(await host.store.head(puzzleSourcePartKey('failed', 0))).toBe(true);
+  expect(await host.store.head(puzzleSourcePartKey('unrelated', 0))).toBe(true);
 }, 30_000);

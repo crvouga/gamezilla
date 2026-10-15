@@ -2,19 +2,12 @@ import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness/chess-puzzle-da
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { importFixture } from './puzzle-import-fixtures';
-
-const selections = new WeakMap<
-  ProductHarness,
-  { sequence: number; last: number; broken: boolean }
->();
-function selection(s: ProductHarness) {
-  let value = selections.get(s);
-  if (!value) {
-    value = { sequence: 0, last: 0, broken: false };
-    selections.set(s, value);
-  }
-  return value;
-}
+import {
+  onlyUseSavedPuzzleSource,
+  readPuzzleSource,
+  saveLichessFile,
+  seedSavedLichessFile,
+} from './puzzle-source-ui';
 
 export const followPuzzleImport = scenarioAction({
   name: 'followPuzzleImport',
@@ -30,14 +23,12 @@ export const followPuzzleImport = scenarioAction({
 
 export const chooseBrokenUpdates = scenarioAction({
   name: 'chooseBrokenUpdates',
-  act: (s) => {
-    selection(s).broken = true;
-  },
+  act: (s) => Promise.resolve(seedSavedLichessFile.act(s, true)),
 });
 
 export const startPuzzleLoading = scenarioAction({
   name: 'startPuzzleLoading',
-  act: async (s, actor: string, refresh = false, refreshSource?: number) => {
+  act: async (s, actor: string) => {
     const ui = await actorUi(s, actor);
     const start = ui.get('puzzle-load-start');
     if (!(await start.isVisible())) return; // The policy's denial surface is the outcome.
@@ -46,17 +37,18 @@ export const startPuzzleLoading = scenarioAction({
       (await ui.get('puzzle-load-offline').isVisible())
     )
       return;
-    const chosen = selection(s);
-    const sequence = refresh
-      ? (refreshSource ?? chosen.last)
-      : ++chosen.sequence;
-    chosen.last = sequence;
-    await ui.get('puzzle-load-file').selectFile({
-      name: 'lichess.csv',
-      bytes: [
-        ...new TextEncoder().encode(importFixture(sequence, chosen.broken)),
-      ],
-    });
+    await pollUntil(
+      s,
+      async () => {
+        const source = await readPuzzleSource(s, actor);
+        return source.saved || source.needsFile ? true : null;
+      },
+      { maxMs: 15000, description: 'saved file ready' }
+    );
+    if (!(await readPuzzleSource(s, actor)).saved) {
+      if (onlyUseSavedPuzzleSource(s)) return;
+      await Promise.resolve(saveLichessFile.act(s, actor));
+    }
     await pollUntil(
       s,
       async () => ((await start.attribute('disabled')) === null ? true : null),

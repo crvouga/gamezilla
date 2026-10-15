@@ -22,7 +22,6 @@ import {
 } from './multiplayer-room-server';
 import { multiplayerTurnReminderConsumer } from './multiplayer-turn-reminder-consumer';
 import { opponentSearchGuard } from './opponent-search-guard';
-import { puzzleImportCleanupConsumer } from './puzzle-import-cleanup';
 import { puzzleImportConsumer } from './puzzle-import-consumer';
 import { createPuzzleManagementApp } from './puzzle-management-route';
 
@@ -61,7 +60,6 @@ export function createChessServer(rooms: RoomServicePort) {
     register: registerMultiplayerNoticeActions,
     registerOutbox(registry) {
       registry.register(puzzleImportConsumer);
-      registry.register(puzzleImportCleanupConsumer);
       registerMatchRoomConsumers(registry, rooms);
       registry.register(multiplayerNoticesConsumer);
       registry.register(multiplayerTurnReminderConsumer);

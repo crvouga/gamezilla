@@ -390,10 +390,6 @@ msgstr "Add Friend"
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
 
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "Add or update this environment's puzzles from the Lichess database."
-msgstr "Add or update this environment's puzzles from the Lichess database."
-
 #: libs/spaces-client/src/space-share-add-people.tsx
 msgid "Add people"
 msgstr "Add people"
@@ -434,10 +430,6 @@ msgstr "Admission limit per worker"
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 msgid "After 1 s"
 msgstr "After 1 s"
-
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "After the upload finishes, loading continues in the background. You can return here to follow its progress or stop it."
-msgstr "After the upload finishes, loading continues in the background. You can return here to follow its progress or stop it."
 
 #: libs/chess-custom-game-client/src/custom-game-active.tsx
 msgid "Agree draw"
@@ -783,6 +775,10 @@ msgstr "Change participant"
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
 
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
+msgid "Check saved file again"
+msgstr "Check saved file again"
+
 #: libs/search-client/src/search-screen-view.tsx
 msgid "Check the spelling or try a different username."
 msgstr "Check the spelling or try a different username."
@@ -790,6 +786,10 @@ msgstr "Check the spelling or try a different username."
 #: libs/auth-client/src/email-sign-in-form.tsx
 msgid "Check your email"
 msgstr "Check your email"
+
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
+msgid "Checking for the saved Lichess file…"
+msgstr "Checking for the saved Lichess file…"
 
 #: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
@@ -824,10 +824,6 @@ msgstr "Choose a username"
 #: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Choose how you want to play."
 msgstr "Choose how you want to play."
-
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "Choose the Lichess puzzle database CSV or its .csv.zst archive. Existing puzzle IDs are updated; broken puzzles and duplicate positions are skipped. Your players' progress is kept."
-msgstr "Choose the Lichess puzzle database CSV or its .csv.zst archive. Existing puzzle IDs are updated; broken puzzles and duplicate positions are skipped. Your players' progress is kept."
 
 #: libs/chess-custom-game-client/src/custom-game-screen.tsx
 msgid "Choose who plays White and Black. Anyone in this space can watch."
@@ -2019,7 +2015,11 @@ msgstr "Leave this space on your account. You will leave on every device. You ca
 msgid "Leaving…"
 msgstr "Leaving…"
 
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
+msgid "Lichess file saved"
+msgstr "Lichess file saved"
+
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
 msgid "Lichess puzzle database"
 msgstr "Lichess puzzle database"
 
@@ -2066,6 +2066,18 @@ msgstr "Load Lichess CSV, follow progress, and stop loading."
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 msgid "Load started"
 msgstr "Load started"
+
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
+msgid "Load the saved file into this environment. The same file is available to every environment."
+msgstr "Load the saved file into this environment. The same file is available to every environment."
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Load this environment's puzzles from the saved Lichess file."
+msgstr "Load this environment's puzzles from the saved Lichess file."
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Loading continues in the background. The saved file stays available. You can return here to follow its progress or stop it."
+msgstr "Loading continues in the background. The saved file stays available. You can return here to follow its progress or stop it."
 
 #: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
 msgid "Loading puzzle…"
@@ -2339,6 +2351,10 @@ msgstr "No guests yet"
 #: libs/spaces-client/src/space-members-host-block.tsx
 msgid "No host listed"
 msgstr "No host listed"
+
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
+msgid "No Lichess file has been saved yet. Choose the database CSV or its .csv.zst archive once to make it available to every environment."
+msgstr "No Lichess file has been saved yet. Choose the database CSV or its .csv.zst archive once to make it available to every environment."
 
 #: pkgs/ui-root-client/src/command-palette-empty.tsx
 msgid "No matching commands"
@@ -3172,6 +3188,10 @@ msgstr "Save"
 msgid "Save {0}%"
 msgstr "Save {0}%"
 
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
+msgid "Save Lichess file"
+msgstr "Save Lichess file"
+
 #: libs/synthetic-population-client/src/synthetic-population-screen.tsx
 msgid "Save synthetic population"
 msgstr "Save synthetic population"
@@ -3181,6 +3201,19 @@ msgstr "Save synthetic population"
 #: libs/synthetic-population-client/src/synthetic-population-screen.tsx
 msgid "Saved"
 msgstr "Saved"
+
+#. placeholder {0}: props.state.uploadedRows()
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
+msgid "Saved {0} puzzles. Keep this screen open until the file finishes saving."
+msgstr "Saved {0} puzzles. Keep this screen open until the file finishes saving."
+
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
+msgid "Saved Lichess file"
+msgstr "Saved Lichess file"
+
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
+msgid "Saving Lichess file…"
+msgstr "Saving Lichess file…"
 
 #: libs/profile-client/src/avatar-editor-screen.tsx
 #: libs/profile-client/src/profile-handle-screen.tsx
@@ -4141,6 +4174,10 @@ msgstr "Try again later. This person recently declined your request."
 msgid "Try loading again"
 msgstr "Try loading again"
 
+#: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
+msgid "Try saving again"
+msgstr "Try saving again"
+
 #: pkgs/ui-root-client/src/command-palette-input.tsx
 msgid "Type a command or search…"
 msgstr "Type a command or search…"
@@ -4237,11 +4274,6 @@ msgstr "Update the app"
 #: libs/chess-puzzle-client/src/puzzle-import-status.tsx
 msgid "Updated"
 msgstr "Updated"
-
-#. placeholder {0}: state.uploadedRows()
-#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "Uploaded {0} puzzles. Keep this screen open until the upload finishes."
-msgstr "Uploaded {0} puzzles. Keep this screen open until the upload finishes."
 
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 msgid "Uploading CSV…"
@@ -4458,8 +4490,8 @@ msgid "You are Black."
 msgstr "You are Black."
 
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-msgid "You are offline. The last status is shown. Reconnect to start or stop loading."
-msgstr "You are offline. The last status is shown. Reconnect to start or stop loading."
+msgid "You are offline. The last status is shown. Reconnect to save a Lichess file, start loading, or stop loading."
+msgstr "You are offline. The last status is shown. Reconnect to save a Lichess file, start loading, or stop loading."
 
 #. placeholder {0}: move().name
 #: libs/chess-matchmaking-client/src/multiplayer-reviewing.tsx

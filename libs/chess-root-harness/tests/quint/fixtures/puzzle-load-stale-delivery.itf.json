@@ -1,0 +1,540 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "source": "specs/chess/puzzle-loading.qnt",
+    "description": "A stopped job leaves a stale delivery before the next saved-source import."
+  },
+  "vars": [
+    "puzzleLoading",
+    "_actual",
+    "_poolSize",
+    "online",
+    "_progressed",
+    "_refresh",
+    "_stoppedPoolSize",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "ready",
+        "updated": {
+          "#bigint": "0"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "10"
+      },
+      "_progressed": false,
+      "_refresh": false,
+      "_stoppedPoolSize": {
+        "#bigint": "10"
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {},
+      "online": true,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "ready",
+        "updated": {
+          "#bigint": "0"
+        }
+      }
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "adding",
+        "updated": {
+          "#bigint": "0"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "10"
+      },
+      "_progressed": false,
+      "_refresh": false,
+      "_stoppedPoolSize": {
+        "#bigint": "10"
+      },
+      "mbt::actionTaken": "addPuzzles",
+      "mbt::nondetPicks": {},
+      "online": true,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "adding",
+        "updated": {
+          "#bigint": "0"
+        }
+      }
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "3"
+        },
+        "broken": {
+          "#bigint": "2"
+        },
+        "status": "finished",
+        "updated": {
+          "#bigint": "0"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "13"
+      },
+      "_progressed": true,
+      "_refresh": false,
+      "_stoppedPoolSize": {
+        "#bigint": "10"
+      },
+      "mbt::actionTaken": "finishAddingPuzzles",
+      "mbt::nondetPicks": {},
+      "online": true,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "3"
+        },
+        "broken": {
+          "#bigint": "2"
+        },
+        "status": "finished",
+        "updated": {
+          "#bigint": "0"
+        }
+      }
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "3"
+        },
+        "broken": {
+          "#bigint": "2"
+        },
+        "status": "finished",
+        "updated": {
+          "#bigint": "0"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "13"
+      },
+      "_progressed": true,
+      "_refresh": false,
+      "_stoppedPoolSize": {
+        "#bigint": "10"
+      },
+      "mbt::actionTaken": "stopAddingPuzzles",
+      "mbt::nondetPicks": {},
+      "online": true,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "3"
+        },
+        "broken": {
+          "#bigint": "2"
+        },
+        "status": "finished",
+        "updated": {
+          "#bigint": "0"
+        }
+      }
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "adding",
+        "updated": {
+          "#bigint": "0"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "13"
+      },
+      "_progressed": false,
+      "_refresh": true,
+      "_stoppedPoolSize": {
+        "#bigint": "10"
+      },
+      "mbt::actionTaken": "addPuzzles",
+      "mbt::nondetPicks": {},
+      "online": true,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "adding",
+        "updated": {
+          "#bigint": "0"
+        }
+      }
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "adding",
+        "updated": {
+          "#bigint": "0"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "13"
+      },
+      "_progressed": false,
+      "_refresh": true,
+      "_stoppedPoolSize": {
+        "#bigint": "10"
+      },
+      "mbt::actionTaken": "followAddingPuzzles",
+      "mbt::nondetPicks": {},
+      "online": true,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "adding",
+        "updated": {
+          "#bigint": "0"
+        }
+      }
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "adding",
+        "updated": {
+          "#bigint": "0"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "13"
+      },
+      "_progressed": false,
+      "_refresh": true,
+      "_stoppedPoolSize": {
+        "#bigint": "10"
+      },
+      "mbt::actionTaken": "followAddingPuzzles",
+      "mbt::nondetPicks": {},
+      "online": true,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "adding",
+        "updated": {
+          "#bigint": "0"
+        }
+      }
+    },
+    {
+      "#meta": {
+        "index": 7
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "stopped",
+        "updated": {
+          "#bigint": "0"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "13"
+      },
+      "_progressed": false,
+      "_refresh": true,
+      "_stoppedPoolSize": {
+        "#bigint": "13"
+      },
+      "mbt::actionTaken": "stopAddingPuzzles",
+      "mbt::nondetPicks": {},
+      "online": true,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "stopped",
+        "updated": {
+          "#bigint": "0"
+        }
+      }
+    },
+    {
+      "#meta": {
+        "index": 8
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "adding",
+        "updated": {
+          "#bigint": "0"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "13"
+      },
+      "_progressed": false,
+      "_refresh": true,
+      "_stoppedPoolSize": {
+        "#bigint": "13"
+      },
+      "mbt::actionTaken": "addPuzzles",
+      "mbt::nondetPicks": {},
+      "online": true,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "0"
+        },
+        "status": "adding",
+        "updated": {
+          "#bigint": "0"
+        }
+      }
+    },
+    {
+      "#meta": {
+        "index": 9
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "2"
+        },
+        "status": "finished",
+        "updated": {
+          "#bigint": "3"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "13"
+      },
+      "_progressed": true,
+      "_refresh": true,
+      "_stoppedPoolSize": {
+        "#bigint": "13"
+      },
+      "mbt::actionTaken": "finishAddingPuzzles",
+      "mbt::nondetPicks": {},
+      "online": true,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "2"
+        },
+        "status": "finished",
+        "updated": {
+          "#bigint": "3"
+        }
+      }
+    },
+    {
+      "#meta": {
+        "index": 10
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "2"
+        },
+        "status": "finished",
+        "updated": {
+          "#bigint": "3"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "13"
+      },
+      "_progressed": true,
+      "_refresh": true,
+      "_stoppedPoolSize": {
+        "#bigint": "13"
+      },
+      "mbt::actionTaken": "followAddingPuzzles",
+      "mbt::nondetPicks": {},
+      "online": true,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "2"
+        },
+        "status": "finished",
+        "updated": {
+          "#bigint": "3"
+        }
+      }
+    },
+    {
+      "#meta": {
+        "index": 11
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "2"
+        },
+        "status": "finished",
+        "updated": {
+          "#bigint": "3"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "13"
+      },
+      "_progressed": true,
+      "_refresh": true,
+      "_stoppedPoolSize": {
+        "#bigint": "13"
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {},
+      "online": false,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "2"
+        },
+        "status": "finished",
+        "updated": {
+          "#bigint": "3"
+        }
+      }
+    },
+    {
+      "#meta": {
+        "index": 12
+      },
+      "_actual": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "2"
+        },
+        "status": "finished",
+        "updated": {
+          "#bigint": "3"
+        }
+      },
+      "_poolSize": {
+        "#bigint": "13"
+      },
+      "_progressed": true,
+      "_refresh": true,
+      "_stoppedPoolSize": {
+        "#bigint": "13"
+      },
+      "mbt::actionTaken": "addPuzzles",
+      "mbt::nondetPicks": {},
+      "online": false,
+      "puzzleLoading": {
+        "added": {
+          "#bigint": "0"
+        },
+        "broken": {
+          "#bigint": "2"
+        },
+        "status": "finished",
+        "updated": {
+          "#bigint": "3"
+        }
+      }
+    }
+  ]
+}

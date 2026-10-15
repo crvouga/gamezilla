@@ -4,8 +4,7 @@ import {
   startPuzzleImport,
   stopPuzzleImport,
 } from '@libs/chess-puzzle-shared/puzzle-import-mutations';
-import { puzzleUploadKey } from '@libs/chess-puzzle-shared/puzzle-load-job';
-import { puzzleImportCleanupConsumer } from '@libs/chess-root-server/puzzle-import-cleanup';
+import { puzzleSourcePartKey } from '@libs/chess-puzzle-shared/puzzle-load-job';
 import { puzzleImportConsumer } from '@libs/chess-root-server/puzzle-import-consumer';
 import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared/topic-map';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
@@ -90,8 +89,6 @@ function importHost(
     });
   const registry = new OutboxConsumerRegistry();
   registry.register(puzzleImportConsumer);
-  const cleanupRegistry = new OutboxConsumerRegistry();
-  cleanupRegistry.register(puzzleImportCleanupConsumer);
   const published: { topic: string; data: unknown }[] = [];
   return {
     published,
@@ -120,14 +117,14 @@ function importHost(
     stage: (uploadId: string, part: number, content: string) =>
       writeUtf8(
         store,
-        puzzleUploadKey('manager', uploadId, part),
+        puzzleSourcePartKey(uploadId, part),
         content,
         'text/csv'
       ),
     start: (uploadId: string, chunks = 1, actorId = 'manager') =>
       run(
         startPuzzleImport,
-        { uploadId, filename: 'lichess.csv', chunks },
+        { uploadId, sourceId: uploadId, filename: 'lichess.csv', chunks },
         actorId
       ),
     stop: (uploadId: string, actorId = 'manager') =>
@@ -141,14 +138,6 @@ function importHost(
         limit: 1,
         objectStore: store,
         wrapConsumerTx: (tx) => wrapMutationDb(tx, env('manager')).tx,
-      }),
-    cleanup: () =>
-      drainOutbox({
-        db: postgres.db,
-        clock,
-        createId,
-        registry: cleanupRegistry,
-        objectStore: store,
       }),
     job: async () =>
       (

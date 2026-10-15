@@ -13,11 +13,3 @@ export const PuzzleImportRequested = ns(
     Number.isInteger(value['part']) &&
     value['part'] >= 0
 );
-
-export const PuzzleImportCleanup = ns(
-  'cleanup',
-  (value: unknown): value is { actorId: string; uploadId: string } =>
-    isPlainRecord(value) &&
-    typeof value['actorId'] === 'string' &&
-    typeof value['uploadId'] === 'string'
-);

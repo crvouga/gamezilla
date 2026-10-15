@@ -19,8 +19,8 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js';
-import { usePuzzleManagementApi } from './puzzle-management-api';
-import { uploadPuzzleSource } from './upload-puzzle-source';
+import { usePuzzleSourceUpload } from './use-puzzle-source-upload';
+import { useSavedPuzzleSource } from './use-saved-puzzle-source';
 
 export type PuzzleImportRow = {
   source_etag: string;
@@ -45,11 +45,10 @@ export function usePuzzleImport() {
   const connection = useSyncEngine();
   const mutations = useMutationClient();
   const createId = useCreateId();
-  const upload = usePuzzleManagementApi();
-  const [file, setFile] = createSignal<File | null>(null);
-  const [uploading, setUploading] = createSignal(false);
-  const [uploadedRows, setUploadedRows] = createSignal(0);
-  let controller: AbortController | undefined;
+  const source = useSavedPuzzleSource(
+    () => decision().allowed && connection.status().online
+  );
+  const sourceUpload = usePuzzleSourceUpload(source.setSource);
   const query = createQuery(
     () =>
       sql<PuzzleImportRow>`SELECT * FROM chess_puzzle_load WHERE id = 'dataset' AND deleted_at IS NULL`
@@ -57,43 +56,23 @@ export function usePuzzleImport() {
   const ready = useImportSubscription(
     () => decision().allowed && connection.status().online
   );
-  onCleanup(() => controller?.abort());
   const start = async (): Promise<void> => {
-    const selected = file();
-    if (selected === null) throw new Error('Choose a Lichess CSV first.');
-    if (uploading()) return;
-    controller = new AbortController();
-    const signal = controller.signal;
-    const uploadId = createId();
-    setUploading(true);
-    setUploadedRows(0);
-    try {
-      const chunks = await uploadPuzzleSource(
-        selected,
-        { uploadId, signal, onProgress: setUploadedRows },
-        upload
+    const saved = source.source();
+    if (saved === null)
+      throw new Error('Save a Lichess file before adding puzzles.');
+    const result = await mutations.mutate(startPuzzleImport, {
+      uploadId: createId(),
+      sourceId: saved.id,
+      filename: saved.filename,
+      chunks: saved.chunks,
+    });
+    if (!result.ok)
+      throw new Error(
+        result.failures.map((failure) => failure.message).join(' ')
       );
-      const result = await mutations.mutate(startPuzzleImport, {
-        uploadId,
-        filename: selected.name,
-        chunks,
-      });
-      if (!result.ok)
-        throw new Error(
-          result.failures.map((failure) => failure.message).join(' ')
-        );
-    } catch (error) {
-      if (signal.aborted)
-        throw new Error(
-          'Upload stopped. No puzzles were added from this file.'
-        );
-      throw error;
-    } finally {
-      setUploading(false);
-    }
   };
   const stop = async (): Promise<void> => {
-    controller?.abort();
+    sourceUpload.abortUpload();
     const job = query.rows()[0];
     if (job?.status !== 'adding') return;
     const result = await mutations.mutate(stopPuzzleImport, {
@@ -108,11 +87,9 @@ export function usePuzzleImport() {
     decision,
     connection,
     ready,
-    file,
-    setFile,
-    uploading,
-    uploadedRows,
+    ...sourceUpload,
     job: () => query.rows()[0],
+    source,
     start,
     stop,
   };

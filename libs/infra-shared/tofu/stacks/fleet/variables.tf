@@ -75,3 +75,8 @@ variable "infisical_token" {
 }
 
 variable "railway" { type = object({ workspace_id = string }) }
+
+# The fleet owns durable data shared across every environment.
+variable "shared_data" {
+  type = object({ account_id = string, bucket = string })
+}

@@ -15,11 +15,21 @@ import { partition, restoreActorConnection } from '@libs/harness/actions';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import staleDelivery from './fixtures/puzzle-load-stale-delivery.itf.json';
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'puzzle-loading',
-  traces: 8,
+  traces: 24,
   maxSteps: 12,
+  regressions: [
+    {
+      // regression: puzzle-load-stale-delivery
+      id: 'puzzle-load-stale-delivery',
+      title: 'A saved-source load finishes after an earlier load was stopped',
+      seed: '0x67932',
+      itf: staleDelivery,
+    },
+  ],
   actions: {
     init: async (w) => {
       await w.s.apply(seedPuzzleRefreshPool);
@@ -31,13 +41,7 @@ bindQuintModel<QuintHarnessWorld>({
         maxMs: 15000,
       });
     },
-    addPuzzles: (w, picks) =>
-      w.s.apply(
-        startPuzzleLoading,
-        'alice',
-        picks['_refreshSource'] === true,
-        0
-      ),
+    addPuzzles: (w) => w.s.apply(startPuzzleLoading, 'alice'),
     addSomePuzzles: (w) => w.s.apply(advancePuzzleImport),
     finishAddingPuzzles: (w) => w.s.apply(finishPuzzleImport),
     failAddingPuzzles: (w) => w.s.apply(failPuzzleImport),

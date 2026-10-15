@@ -241,6 +241,198 @@
     },
     "test:spec:9": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:64": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:65": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:66": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:67": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:68": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:69": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:70": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:71": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:72": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:73": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:74": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:75": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:76": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:77": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:78": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:79": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:80": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:81": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:82": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:83": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:84": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:85": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:86": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:87": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:88": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:89": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:90": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:91": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:92": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:93": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:94": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:95": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:96": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:97": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:98": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:99": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:100": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:101": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:102": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:103": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:104": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:105": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:106": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:107": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:108": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:109": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:110": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:111": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:112": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:113": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:114": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:115": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:116": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:117": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:118": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:119": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:120": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:121": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:122": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:123": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:124": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:125": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:126": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:127": {
+      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }
