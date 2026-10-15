@@ -42,7 +42,9 @@ export function ConnectFourBoard(props: {
             : disc === 2
               ? t`Yellow diamond`
               : t`Empty`;
-        return t`Column ${column + 1}, row ${row + 1}: ${identity}`;
+        return game().winning.includes(row * 7 + column)
+          ? t`Column ${column + 1}, row ${row + 1}: ${identity}, winning disc`
+          : t`Column ${column + 1}, row ${row + 1}: ${identity}`;
       }}
       columnLabel={(column, occupied, full) =>
         full

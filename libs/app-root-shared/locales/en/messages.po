@@ -937,6 +937,12 @@ msgstr "Column {0}, full"
 msgid "Column {0}, row {1}: {identity}"
 msgstr "Column {0}, row {1}: {identity}"
 
+#. placeholder {0}: column + 1
+#. placeholder {1}: row + 1
+#: libs/connect-four-board-client/src/connect-four-board.tsx
+msgid "Column {0}, row {1}: {identity}, winning disc"
+msgstr "Column {0}, row {1}: {identity}, winning disc"
+
 #: pkgs/ui-root-client/src/command-palette.tsx
 msgid "Command palette"
 msgstr "Command palette"

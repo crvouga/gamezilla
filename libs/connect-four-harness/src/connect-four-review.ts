@@ -52,3 +52,11 @@ export async function connectFourHistoryStatistics(
     record: await ui.get('game-history-record').text(),
   };
 }
+
+export async function connectFourBoardDescription(
+  s: ProductHarness,
+  actor: string
+) {
+  const ui = await actorUi(s, actor);
+  return ui.get('connect-four-board').text();
+}
