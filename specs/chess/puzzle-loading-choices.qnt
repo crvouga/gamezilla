@@ -12,10 +12,11 @@ module puzzle_loading_choices {
   var _actualStatus: str
   var _statusWhenOffline: str
 
+  /// Each starting point is a choice about one ongoing addition.
   action init = {
-    nondet _status = Set("ready", "adding", "finished", "failed", "stopped").oneOf()
-    all { stoppingPuzzles' = "idle", addingPuzzlesStatus' = _status, online' = true,
-      _actualChoice' = "idle", _actualStatus' = _status, _statusWhenOffline' = _status }
+    nondet _choice = Set("idle", "confirming", "stopping", "failed").oneOf()
+    all { stoppingPuzzles' = _choice, addingPuzzlesStatus' = "adding", online' = true,
+      _actualChoice' = _choice, _actualStatus' = "adding", _statusWhenOffline' = "adding" }
   }
 
   action _keepAddition = all {
@@ -101,7 +102,7 @@ module puzzle_loading_choices {
   /// Every visible choice has a recognized stage and refers to a recognized result.
   val invRecognizedPuzzleLoadingChoices = all {
     Set("idle", "confirming", "stopping", "failed", "succeeded").contains(stoppingPuzzles),
-    Set("ready", "adding", "finished", "failed", "stopped").contains(addingPuzzlesStatus),
+    Set("adding", "finished", "failed", "stopped").contains(addingPuzzlesStatus),
   }
   /// A connected device sees the current addition result, even during confirmation.
   val invConnectedStopChoiceKeepsCurrentResult = online implies all { addingPuzzlesStatus == _actualStatus, stoppingPuzzles == _actualChoice }
