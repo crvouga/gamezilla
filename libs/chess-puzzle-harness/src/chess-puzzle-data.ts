@@ -6,9 +6,11 @@
  */
 
 import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzle-load-file-seeder';
+import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared/topic-map';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql } from '@libs/harness/identity';
+import { writeServerFixture } from '@libs/harness/write-server-fixture';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
@@ -38,15 +40,18 @@ export const ingestChessPuzzleCsv = scenarioAction({
     const store = new ObjectStoreImplInMemory();
     await writeUtf8(store, INGEST_KEY, csv, 'text/csv');
     const now = () => s.harness.clock.now();
-    await new ChessPuzzleLoadFileSeeder({
+    const seeder = new ChessPuzzleLoadFileSeeder({
       loadFileStore: store,
       loadFileKey: INGEST_KEY,
       createId: s.harness.server.createId,
       now,
-    }).seed({
-      sqlClient: s.harness.serverSql.sqlClient,
-      logger: createLogger({ name: 'harness:ingest', level: 'silent', now }),
     });
+    await writeServerFixture(s, CHESS_TOPIC_MAP, (sqlClient) =>
+      seeder.seed({
+        sqlClient,
+        logger: createLogger({ name: 'harness:ingest', level: 'silent', now }),
+      })
+    );
   },
 });
 
@@ -98,16 +103,18 @@ export async function readPuzzleBoardOrientation(
  * §34 "puzzle retired after being prefetched". Retirement is a soft delete on
  * the catalog row (domain rows are never hard-deleted), which takes the
  * puzzle out of every feed and pick read. The tombstone reaches the client
- * through the ordinary snapshot path when its pool subscription re-hydrates.
+ * through the ordinary push-triggered snapshot path.
  */
 export const retireChessPuzzle = scenarioAction({
   name: 'retireChessPuzzle',
   act: async (s, puzzleId: string) => {
-    await s.harness.serverSql.sqlClient.run(sql`
+    await writeServerFixture(s, CHESS_TOPIC_MAP, async (db) => {
+      await db.run(sql`
       UPDATE chess_puzzles
       SET deleted_at = ${new Date(s.harness.clock.now()).toISOString()}
       WHERE id = ${puzzleId}
-    `);
+      `);
+    });
   },
 });
 
@@ -115,11 +122,13 @@ export const retireChessPuzzle = scenarioAction({
 export const editChessPuzzleRating = scenarioAction({
   name: 'editChessPuzzleRating',
   act: async (s, puzzleId: string, rating: number) => {
-    await s.harness.serverSql.sqlClient.run(sql`
+    await writeServerFixture(s, CHESS_TOPIC_MAP, async (db) => {
+      await db.run(sql`
       UPDATE chess_puzzles
       SET rating = ${rating}
       WHERE id = ${puzzleId}
-    `);
+      `);
+    });
   },
 });
 
