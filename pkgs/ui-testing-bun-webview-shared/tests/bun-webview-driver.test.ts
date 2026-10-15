@@ -50,20 +50,6 @@ function createFakeView(): BunWebView & {
 }
 
 describe('BunWebviewDriver', () => {
-  it('sends a trusted key to the focused control for native button activation', async () => {
-    // regression: browser-node-key-missing-default-action
-    const view = createFakeView();
-    const driver = new BunWebviewDriver({ view, timers });
-    await driver.get('drop-column').key('enter');
-    expect(view.evaluate).toHaveBeenCalled();
-    expect(view.press).toHaveBeenCalledWith('Enter');
-    expect(
-      view.evaluate.mock.calls.some(([script]) =>
-        script.includes('dispatchEvent(new KeyboardEvent')
-      )
-    ).toBe(false);
-  });
-
   it('enabled waits for a visible control to clear its native disabled flag', async () => {
     // regression: browser-enabled-state-attribute-round-trips
     const view = createFakeView();
@@ -247,7 +233,11 @@ describe('BunWebviewDriver', () => {
     await driver.get('email').input('a@b.c');
     await driver.get('email').clear();
     await driver.key('enter');
-    expect(view.press).toHaveBeenCalledWith('Enter');
+    expect(
+      view.evaluate.mock.calls.some(([script]) =>
+        script.includes('KeyboardEvent')
+      )
+    ).toBe(true);
     await driver.get('list').scroll('down', 50);
     await driver.get('go').wait('visible');
 

@@ -30,6 +30,7 @@ import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared/keys';
 import { TimeoutError } from '@pkgs/ui-testing-root-shared/timeout-error';
 import { UiTestError } from '@pkgs/ui-testing-root-shared/ui-test-error';
 import { waitUntil } from '@pkgs/ui-testing-root-shared/wait';
+import { pressBrowserKey } from './browser-key';
 import type { BunWebView, BunWebviewHost } from './bun-webview-host';
 
 /**
@@ -324,18 +325,11 @@ export class BunWebviewDriverNode implements DriverNode {
   }
 
   async key(key: DriverKey): Promise<void> {
-    const domKey = DRIVER_KEY_TO_DOM[key];
-    const sel = JSON.stringify(cssPath(this.path));
-    const view = await this.view();
-    // Native keys preserve button activation and other browser default actions.
-    await view.evaluate(
-      `(function(){
-        const el = document.querySelector(${sel});
-        if (!el) throw new Error('Keyboard target not found');
-        if (!el.contains(document.activeElement)) el.focus();
-      })()`
+    await pressBrowserKey(
+      await this.view(),
+      DRIVER_KEY_TO_DOM[key],
+      cssPath(this.path)
     );
-    await view.press(domKey);
   }
 
   async scroll(direction: ScrollDirection, amount = 100): Promise<void> {
