@@ -34,14 +34,24 @@ resource "cloudflare_account_token" "shared_data" {
   }]
 }
 
+data "infisical_secrets" "shared_data" {
+  workspace_id = var.infisical.project_id
+  env_slug     = var.infisical.shared_env
+  folder_path  = "/"
+}
+
 locals {
-  shared_data_names = jsondecode(file("${path.module}/../foundation/secrets.json")).shared_derived
+  shared_data_names  = jsondecode(file("${path.module}/../foundation/secrets.json")).shared_derived
+  stored_shared_data = data.infisical_secrets.shared_data.secrets
+  # An imported token cannot return its one-time value. Keep the credential
+  # already distributed to every environment, only for the matching token ID.
+  shared_data_secret = cloudflare_account_token.shared_data.value == null ? try(local.stored_shared_data["SHARED_DATA_SECRET_ACCESS_KEY"].value, "") : sha256(cloudflare_account_token.shared_data.value)
   shared_data_values = {
     SHARED_DATA_BUCKET            = cloudflare_r2_bucket.shared_data.name
     SHARED_DATA_ENDPOINT          = "https://${var.shared_data.account_id}.r2.cloudflarestorage.com"
     SHARED_DATA_REGION            = "auto"
     SHARED_DATA_ACCESS_KEY_ID     = cloudflare_account_token.shared_data.id
-    SHARED_DATA_SECRET_ACCESS_KEY = sha256(cloudflare_account_token.shared_data.value)
+    SHARED_DATA_SECRET_ACCESS_KEY = local.shared_data_secret
   }
 }
 
@@ -63,4 +73,14 @@ resource "infisical_secret" "shared_data" {
   name             = each.key
   value_wo         = local.shared_data_values[each.key]
   value_wo_version = terraform_data.shared_data_version[each.key].output
+
+  lifecycle {
+    precondition {
+      condition = cloudflare_account_token.shared_data.value != null || (
+        cloudflare_account_token.shared_data.id == try(local.stored_shared_data["SHARED_DATA_ACCESS_KEY_ID"].value, "") &&
+        length(local.shared_data_secret) > 0
+      )
+      error_message = "An imported shared-data token requires its matching saved S3 credential."
+    }
+  }
 }

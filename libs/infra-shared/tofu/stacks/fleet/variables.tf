@@ -60,6 +60,7 @@ variable "reports" {
 variable "global_imports" {
   type = object({
     infisical_environments = optional(map(string), {})
+    shared_data            = optional(bool, false)
   })
   default = {}
 }

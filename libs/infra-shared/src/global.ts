@@ -100,6 +100,7 @@ export const globalFileSchema = z
     global_imports: z
       .object({
         infisical_environments: z.record(z.string(), id).optional(),
+        shared_data: z.boolean().optional(),
         github_repository: id.optional(),
         github_variables: z.array(id).optional(),
         grafana_stack: id.optional(),
