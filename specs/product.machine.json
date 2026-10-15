@@ -3,7 +3,7 @@
   "initial": "Gamezilla",
   "meta": {
     "description": "Explore Gamezilla: choose an action, read its outcome and rules, or find a route to any capability. Everything runs from the product model, without the application server.",
-    "snapshot": "Explore the whole product from one chart: the current person and this device\u2019s place change together.",
+    "snapshot": "Explore the whole product from one chart: the current person and this device’s place change together.",
     "confidence": "assumed",
     "source": [
       "specs/README.md#context-map",
@@ -106,14 +106,14 @@
       "Tries opening the portal again": "user",
       "A new watched position arrives": "system",
       "A newer authoritative position arrives": "system",
-      "An allowed premove plays on the person\u2019s turn": "system",
+      "An allowed premove plays on the person’s turn": "system",
       "Cancels chess selection": "user",
       "Cancels drawing the mark": "user",
       "Cancels holding the piece": "user",
       "Cancels promotion": "user",
       "Cancels the keyboard destination": "user",
       "Cancels the queued premove": "user",
-      "Changes the board\u2019s allowed presentation choices": "user",
+      "Changes the board’s allowed presentation choices": "user",
       "Chooses Bishop": "user",
       "Chooses Knight": "user",
       "Chooses Queen": "user",
@@ -136,7 +136,7 @@
       "Plays a legal destination": "user",
       "Plays a legal special chess move": "user",
       "Queues an allowed premove": "user",
-      "Restores the person\u2019s move controls": "user",
+      "Restores the person’s move controls": "user",
       "Selects a movable chess piece": "user",
       "Shows the board again": "user",
       "The board settles after the move": "system",
@@ -161,7 +161,7 @@
       "A participant withdraws readiness": "user",
       "A watcher creates a Custom Game": "user",
       "Another person starts the game": "user",
-      "Another person tries releasing a participant\u2019s side": "user",
+      "Another person tries releasing a participant’s side": "user",
       "Assigns a permitted person or bot to a side": "user",
       "Blocks a participant during the active game": "user",
       "Both sides are filled and every person is ready for the current choices": "system",
@@ -205,8 +205,8 @@
       "Returns to the Custom Game board": "user",
       "Returns to the Custom Game result": "user",
       "Returns to the unfinished Custom Game": "user",
-      "Reviews the Custom Game\u2019s moves": "user",
-      "Someone tries an ended or another person\u2019s invitation": "user",
+      "Reviews the Custom Game’s moves": "user",
+      "Someone tries an ended or another person’s invitation": "user",
       "Starts a cancelled Custom Game": "user",
       "Starts a finished Custom Game": "user",
       "Starts before everyone is ready": "user",
@@ -247,14 +247,14 @@
       "Owned unused indexes finish retiring": "system",
       "The maintenance budget is exhausted": "system",
       "Unused owned indexes are selected for retirement": "system",
-      "Checks the environment\u2019s public reachability": "user",
+      "Checks the environment’s public reachability": "user",
       "Inspects a permitted investigation trail": "user",
       "Inspects connected services": "user",
       "Investigates app trouble": "user",
       "Opens maintenance evidence": "user",
       "Reads an owned stored file": "user",
       "Rebuilds a declared environment": "user",
-      "Requests another person\u2019s forbidden private material": "user",
+      "Requests another person’s forbidden private material": "user",
       "Retention ends for investigation material": "time",
       "Returns to environment information": "user",
       "A forbidden feedback change is refused": "system",
@@ -308,7 +308,7 @@
       "Opens a current friend": "user",
       "Opens a matching person": "user",
       "Opens a person with no relationship": "user",
-      "Opens the friend\u2019s open space": "user",
+      "Opens the friend’s open space": "user",
       "Receives a friend request": "system",
       "Returns to the people list": "user",
       "Searches different people": "user",
@@ -325,7 +325,7 @@
       "The sender cancels the request": "system",
       "Tries asking during the one-day wait": "user",
       "Unblocks this person": "user",
-      "Changes the space\u2019s game as a watcher": "user",
+      "Changes the space’s game as a watcher": "user",
       "Opens a Custom Game": "user",
       "Opens a shared puzzle link": "user",
       "Opens chess puzzles": "user",
@@ -335,10 +335,10 @@
       "Opens the app as a new guest": "user",
       "SignedOut": "system",
       "The thirty-day sign-in expires": "time",
-      "Accepts the notice\u2019s current request": "user",
+      "Accepts the notice’s current request": "user",
       "Archives the ended notice": "user",
       "Archives the notice": "user",
-      "Declines the notice\u2019s current request": "user",
+      "Declines the notice’s current request": "user",
       "Dismisses the ended notice": "user",
       "Dismisses the notice": "user",
       "Filters notices": "user",
@@ -350,7 +350,7 @@
       "Reads the notice": "user",
       "Returns to the inbox": "user",
       "The inbox action fails": "system",
-      "The notice\u2019s request ends": "system",
+      "The notice’s request ends": "system",
       "Tries acting on the ended request": "user",
       "Tries the inbox action again": "user",
       "Reads sync inspection scope": "user",
@@ -443,7 +443,7 @@
       "Runs a notebook question": "user",
       "Runs the copied notebook question": "user",
       "Runs the failed notebook question again": "user",
-      "Selects another device\u2019s notebook": "user",
+      "Selects another device’s notebook": "user",
       "The notebook answer fails": "system",
       "The notebook answer succeeds": "system",
       "An earlier copy arrives": "system",
@@ -538,15 +538,15 @@
       "Plays the linked puzzle": "user",
       "Practices the linked puzzle": "user",
       "Returns from an unavailable puzzle link": "user",
-      "Shares this puzzle\u2019s link": "user",
+      "Shares this puzzle’s link": "user",
       "The linked puzzle is no longer available": "system",
-      "The linked puzzle is unplayed and today\u2019s guest allowance is used": "system",
+      "The linked puzzle is unplayed and today’s guest allowance is used": "system",
       "The linked puzzle opens as rated": "system",
       "The linked puzzle opens for practice": "system",
       "The next UTC day starts": "time",
       "A watcher changes the suggestion": "user",
       "A watcher suggests a move": "user",
-      "A watcher tries playing the host\u2019s move": "user",
+      "A watcher tries playing the host’s move": "user",
       "Asks for the first hint": "user",
       "Asks for the second hint": "user",
       "Cancels puzzle promotion": "user",
@@ -557,13 +557,13 @@
       "Chooses a wrong promotion": "user",
       "Configured puzzle auto-advance elapses": "time",
       "Connection returns to the open space": "system",
-      "Joins to watch the host\u2019s puzzle": "user",
+      "Joins to watch the host’s puzzle": "user",
       "Moves on before the puzzle finishes": "user",
       "Moves to another puzzle within the allowance": "user",
       "No suitable puzzle is available": "system",
       "Opens puzzle feed choices": "user",
       "Opens puzzles offline with no saved puzzle": "user",
-      "Opens the puzzle\u2019s history": "user",
+      "Opens the puzzle’s history": "user",
       "Plays a correct continuation": "user",
       "Plays a legal wrong move": "user",
       "Plays an illegal move": "user",
@@ -589,16 +589,16 @@
       "Selects a chess piece": "user",
       "Shares the current puzzle link": "user",
       "Shows the full solution": "user",
-      "Shows the offline puzzle\u2019s solution": "user",
+      "Shows the offline puzzle’s solution": "user",
       "Skips the puzzle": "user",
       "Solves the offline puzzle": "user",
       "Solves the puzzle": "user",
       "Takes another hint without retry": "user",
-      "The guest\u2019s twenty rated starts are used today": "system",
+      "The guest’s twenty rated starts are used today": "system",
       "The host plays a move and clears the suggestion": "system",
-      "The host\u2019s board changes": "system",
+      "The host’s board changes": "system",
       "The puzzle becomes ready": "system",
-      "The puzzle\u2019s correct result is restored after returning": "system",
+      "The puzzle’s correct result is restored after returning": "system",
       "The solver loses connection": "system",
       "The watcher loses connection": "system",
       "Tries a move or hint from an earlier position": "user",
@@ -730,7 +730,49 @@
       "Opens the notes example": "user",
       "Opens the room example": "user",
       "Returns to the testing tool": "user",
-      "Reads device and component inspection scope": "user"
+      "Reads device and component inspection scope": "user",
+      "Leaves adding puzzles": "user",
+      "Team access is allowed": "system",
+      "Team access is refused": "system",
+      "Team access is lost": "system",
+      "A complete file is found": "system",
+      "No complete file is found": "system",
+      "Checking fails": "system",
+      "Connection is lost": "system",
+      "Chooses a Lichess file": "user",
+      "Checks for the saved file again": "user",
+      "Starts saving the chosen file online": "user",
+      "Chooses a different Lichess file": "user",
+      "Saving the file finishes": "system",
+      "Saving the file fails": "system",
+      "Asks to stop saving": "user",
+      "Leaves before saving finishes": "user",
+      "Confirms stopping the save": "user",
+      "Cancels stopping the save": "user",
+      "Saving finishes before confirmation": "system",
+      "Saving fails before confirmation": "system",
+      "Saves the chosen file again online": "user",
+      "Chooses another Lichess file": "user",
+      "Returns to adding puzzles": "user",
+      "The current addition is ready": "system",
+      "The current addition is adding": "system",
+      "The current addition is finished": "system",
+      "The current addition is failed": "system",
+      "The current addition is stopped": "system",
+      "Starts adding puzzles from the saved file": "user",
+      "Adding puzzles finishes": "system",
+      "Adding puzzles fails": "system",
+      "A confirmed stop finishes": "system",
+      "Starts adding puzzles again": "user",
+      "Asks to stop an ongoing addition online": "user",
+      "Cancels stopping": "user",
+      "Confirms stopping online": "user",
+      "Stopping fails": "system",
+      "Confirms stopping again online": "user",
+      "Dismisses the stop outcome": "user",
+      "Tries to start or stop without a connection": "user",
+      "Returns to settings": "user",
+      "Signs in with permitted team access": "user"
     }
   },
   "states": {
@@ -814,8 +856,8 @@
             "Identity: Account signed in": {
               "id": "Identity: Account signed in",
               "meta": {
-                "description": "The signed-in account\u2019s own access stays explicit across navigation and follows permission policy.",
-                "snapshot": "This device uses the proven account and confirms that account\u2019s own access; other devices keep their places.",
+                "description": "The signed-in account’s own access stays explicit across navigation and follows permission policy.",
+                "snapshot": "This device uses the proven account and confirms that account’s own access; other devices keep their places.",
                 "confidence": "assumed",
                 "source": [
                   "specs/billing/access.dmn",
@@ -853,8 +895,8 @@
                 "Access: Paid access": {
                   "id": "Access: Paid access",
                   "meta": {
-                    "description": "The current person\u2019s confirmed paid access applies across their permitted features.",
-                    "snapshot": "The current person\u2019s confirmed paid access applies across their permitted features.",
+                    "description": "The current person’s confirmed paid access applies across their permitted features.",
+                    "snapshot": "The current person’s confirmed paid access applies across their permitted features.",
                     "confidence": "assumed",
                     "source": [
                       "specs/billing/access.dmn",
@@ -875,8 +917,8 @@
                 "Access: Access being confirmed": {
                   "id": "Access: Access being confirmed",
                   "meta": {
-                    "description": "The changed account\u2019s own access is being confirmed; another person\u2019s paid access cannot carry over.",
-                    "snapshot": "The changed account\u2019s own access is being confirmed; another person\u2019s paid access cannot carry over.",
+                    "description": "The changed account’s own access is being confirmed; another person’s paid access cannot carry over.",
+                    "snapshot": "The changed account’s own access is being confirmed; another person’s paid access cannot carry over.",
                     "confidence": "assumed",
                     "source": [
                       "specs/billing/access.dmn",
@@ -936,8 +978,8 @@
         "This device": {
           "id": "This device",
           "meta": {
-            "description": "This device starts at Spaces and keeps its own place while the person visits the product\u2019s capabilities.",
-            "snapshot": "Only this device\u2019s place changes when it navigates.",
+            "description": "This device starts at Spaces and keeps its own place while the person visits the product’s capabilities.",
+            "snapshot": "Only this device’s place changes when it navigates.",
             "confidence": "assumed",
             "source": [
               "specs/runtime/app-addresses.feature",
@@ -1011,8 +1053,8 @@
                       "id": "Spaces: Lobby",
                       "meta": {
                         "routes": ["/"],
-                        "description": "Spaces lists hosted, joined and discoverable friends\u2019 open spaces.",
-                        "snapshot": "Spaces lists hosted, joined and discoverable friends\u2019 open spaces.",
+                        "description": "Spaces lists hosted, joined and discoverable friends’ open spaces.",
+                        "snapshot": "Spaces lists hosted, joined and discoverable friends’ open spaces.",
                         "confidence": "assumed",
                         "source": [
                           "specs/spaces/space-friend-join.feature:9",
@@ -1274,8 +1316,8 @@
                       "id": "Spaces: Hosting a space",
                       "meta": {
                         "routes": ["/space/:id"],
-                        "description": "The host sees the space\u2019s people and choices and can play.",
-                        "snapshot": "The host sees the space\u2019s people and choices and can play.",
+                        "description": "The host sees the space’s people and choices and can play.",
+                        "snapshot": "The host sees the space’s people and choices and can play.",
                         "confidence": "assumed",
                         "source": [
                           "specs/spaces/adding-people.qnt",
@@ -1503,8 +1545,8 @@
                     "Spaces: Confirming ending": {
                       "id": "Spaces: Confirming ending",
                       "meta": {
-                        "description": "Ending the space requires the host\u2019s confirmation.",
-                        "snapshot": "Ending the space requires the host\u2019s confirmation.",
+                        "description": "Ending the space requires the host’s confirmation.",
+                        "snapshot": "Ending the space requires the host’s confirmation.",
                         "confidence": "assumed",
                         "source": [
                           "specs/spaces/hosting-limit.dmn",
@@ -2020,8 +2062,8 @@
                     "Profile: Profile saved": {
                       "id": "Profile: Profile saved",
                       "meta": {
-                        "description": "The saved profile appears on this person\u2019s devices and permitted public surfaces.",
-                        "snapshot": "The saved profile appears on this person\u2019s devices and permitted public surfaces.",
+                        "description": "The saved profile appears on this person’s devices and permitted public surfaces.",
+                        "snapshot": "The saved profile appears on this person’s devices and permitted public surfaces.",
                         "confidence": "assumed",
                         "source": [
                           "specs/profile/profile-edit.feature:8",
@@ -2134,7 +2176,7 @@
                   "id": "App: Signing in",
                   "meta": {
                     "routes": ["/sso-callback"],
-                    "description": "Google and Apple identify the person; account matching always preserves the person\u2019s choice.",
+                    "description": "Google and Apple identify the person; account matching always preserves the person’s choice.",
                     "snapshot": "Outside providers prove the chosen account while the current profile is preserved.",
                     "confidence": "assumed",
                     "source": [
@@ -2352,8 +2394,8 @@
                     "Sign In: Sign-in refused": {
                       "id": "Sign In: Sign-in refused",
                       "meta": {
-                        "description": "Invalid or stolen proof gives no access to another person\u2019s account.",
-                        "snapshot": "Invalid or stolen proof gives no access to another person\u2019s account.",
+                        "description": "Invalid or stolen proof gives no access to another person’s account.",
+                        "snapshot": "Invalid or stolen proof gives no access to another person’s account.",
                         "confidence": "assumed",
                         "source": ["specs/auth/stolen-sign-ins.feature:10"],
                         "events": []
@@ -2484,7 +2526,7 @@
                   "id": "App: Sign-in methods",
                   "meta": {
                     "description": "A person connects and removes sign-in methods without losing the last way into the account.",
-                    "snapshot": "The account\u2019s connected methods can be managed.",
+                    "snapshot": "The account’s connected methods can be managed.",
                     "confidence": "assumed",
                     "source": [
                       "specs/profile/sign-in-methods.feature",
@@ -2499,8 +2541,8 @@
                       "id": "Sign In Methods: Connected methods",
                       "meta": {
                         "routes": ["/more/account/providers"],
-                        "description": "The account\u2019s connected methods are shown.",
-                        "snapshot": "The account\u2019s connected methods are shown.",
+                        "description": "The account’s connected methods are shown.",
+                        "snapshot": "The account’s connected methods are shown.",
                         "confidence": "assumed",
                         "source": ["specs/profile/sign-in-methods.feature:7"],
                         "events": [],
@@ -2563,8 +2605,8 @@
                     "Sign In Methods: Method refused": {
                       "id": "Sign In Methods: Method refused",
                       "meta": {
-                        "description": "A method cannot move between accounts or replace the same provider\u2019s method.",
-                        "snapshot": "A method cannot move between accounts or replace the same provider\u2019s method.",
+                        "description": "A method cannot move between accounts or replace the same provider’s method.",
+                        "snapshot": "A method cannot move between accounts or replace the same provider’s method.",
                         "confidence": "assumed",
                         "source": ["specs/profile/sign-in-methods.feature"],
                         "events": []
@@ -3051,8 +3093,8 @@
                     "Privacy: Download refused": {
                       "id": "Privacy: Download refused",
                       "meta": {
-                        "description": "Another person cannot download this account\u2019s export.",
-                        "snapshot": "Another person cannot download this account\u2019s export.",
+                        "description": "Another person cannot download this account’s export.",
+                        "snapshot": "Another person cannot download this account’s export.",
                         "confidence": "assumed",
                         "source": [
                           "specs/profile/accounts.als",
@@ -3073,8 +3115,8 @@
                     "Privacy: Export downloaded": {
                       "id": "Privacy: Export downloaded",
                       "meta": {
-                        "description": "The person has their complete export without receiving another person\u2019s data.",
-                        "snapshot": "The person has their complete export without receiving another person\u2019s data.",
+                        "description": "The person has their complete export without receiving another person’s data.",
+                        "snapshot": "The person has their complete export without receiving another person’s data.",
                         "confidence": "assumed",
                         "source": [
                           "specs/profile/accounts.als",
@@ -3141,7 +3183,7 @@
                 "App: Billing": {
                   "id": "App: Billing",
                   "meta": {
-                    "description": "Plus checkout, renewals, cancellation, grace and refunds determine the person\u2019s paid access.",
+                    "description": "Plus checkout, renewals, cancellation, grace and refunds determine the person’s paid access.",
                     "snapshot": "Plus offers and membership management follow the current permission decision.",
                     "confidence": "assumed",
                     "source": [
@@ -3887,8 +3929,8 @@
                     "Billing: Payment records refused": {
                       "id": "Billing: Payment records refused",
                       "meta": {
-                        "description": "Another person\u2019s payment records cannot be read.",
-                        "snapshot": "Another person\u2019s payment records cannot be read.",
+                        "description": "Another person’s payment records cannot be read.",
+                        "snapshot": "Another person’s payment records cannot be read.",
                         "confidence": "assumed",
                         "source": [
                           "specs/billing/billing-access-per-person.feature",
@@ -4147,8 +4189,8 @@
                     "Friends: Outgoing request": {
                       "id": "Friends: Outgoing request",
                       "meta": {
-                        "description": "A sent request waits for the other person\u2019s choice.",
-                        "snapshot": "A sent request waits for the other person\u2019s choice.",
+                        "description": "A sent request waits for the other person’s choice.",
+                        "snapshot": "A sent request waits for the other person’s choice.",
                         "confidence": "assumed",
                         "source": [
                           "specs/friends/friendships.als",
@@ -4336,8 +4378,8 @@
                     "Friends: Friend": {
                       "id": "Friends: Friend",
                       "meta": {
-                        "description": "The current friendship and a discoverable friend\u2019s open space are shown.",
-                        "snapshot": "The current friendship and a discoverable friend\u2019s open space are shown.",
+                        "description": "The current friendship and a discoverable friend’s open space are shown.",
+                        "snapshot": "The current friendship and a discoverable friend’s open space are shown.",
                         "confidence": "assumed",
                         "source": [
                           "specs/friends/friend-profile.feature:11",
@@ -4353,7 +4395,7 @@
                         "Blocks this friend": {
                           "target": "#Friends: Blocked person"
                         },
-                        "Opens the friend\u2019s open space": {
+                        "Opens the friend’s open space": {
                           "target": "#App: Spaces"
                         },
                         "SpaceOpened": {
@@ -4535,13 +4577,13 @@
                         "Reads the notice": {
                           "target": "#Inbox: Read notice"
                         },
-                        "Accepts the notice\u2019s current request": {
+                        "Accepts the notice’s current request": {
                           "target": "#Inbox: Accepting an inbox request"
                         },
-                        "Declines the notice\u2019s current request": {
+                        "Declines the notice’s current request": {
                           "target": "#Inbox: Ended request"
                         },
-                        "The notice\u2019s request ends": {
+                        "The notice’s request ends": {
                           "target": "#Inbox: Ended request"
                         }
                       }
@@ -4562,10 +4604,10 @@
                         "Dismisses the notice": {
                           "target": "#Inbox: Inbox"
                         },
-                        "Accepts the notice\u2019s current request": {
+                        "Accepts the notice’s current request": {
                           "target": "#Inbox: Accepting an inbox request"
                         },
-                        "The notice\u2019s request ends": {
+                        "The notice’s request ends": {
                           "target": "#Inbox: Ended request"
                         }
                       }
@@ -4586,7 +4628,7 @@
                         "The inbox action fails": {
                           "target": "#Inbox: Action failed"
                         },
-                        "The notice\u2019s request ends": {
+                        "The notice’s request ends": {
                           "target": "#Inbox: Ended request"
                         }
                       }
@@ -4664,8 +4706,8 @@
                     "Games: Chess choices": {
                       "id": "Games: Chess choices",
                       "meta": {
-                        "description": "The space offers its supported chess games according to the person\u2019s role and permission.",
-                        "snapshot": "The space offers its supported chess games according to the person\u2019s role and permission.",
+                        "description": "The space offers its supported chess games according to the person’s role and permission.",
+                        "snapshot": "The space offers its supported chess games according to the person’s role and permission.",
                         "confidence": "assumed",
                         "source": [
                           "specs/chess/space-host-select-game.feature"
@@ -4685,7 +4727,7 @@
                         "Opens a shared puzzle link": {
                           "target": "#App: Puzzle links"
                         },
-                        "Changes the space\u2019s game as a watcher": {
+                        "Changes the space’s game as a watcher": {
                           "target": "#Games: Game choice refused"
                         }
                       }
@@ -4693,8 +4735,8 @@
                     "Games: Game choice refused": {
                       "id": "Games: Game choice refused",
                       "meta": {
-                        "description": "Only the host changes the space\u2019s selected game.",
-                        "snapshot": "Only the host changes the space\u2019s selected game.",
+                        "description": "Only the host changes the space’s selected game.",
+                        "snapshot": "Only the host changes the space’s selected game.",
                         "confidence": "assumed",
                         "source": [
                           "specs/chess/space-host-select-game.feature:6"
@@ -4718,7 +4760,7 @@
                   "id": "App: Puzzles",
                   "meta": {
                     "description": "The current puzzle stays connected to moves, hints, review, results, limits and offline watching.",
-                    "snapshot": "The current space\u2019s puzzle can be played, reviewed or watched.",
+                    "snapshot": "The current space’s puzzle can be played, reviewed or watched.",
                     "confidence": "assumed",
                     "source": [
                       "docs/statecharts/SPEC_CONFLICTS.md",
@@ -4820,10 +4862,10 @@
                         "The current person is watching the host's saved puzzle": {
                           "target": "#Puzzles: Watching"
                         },
-                        "Joins to watch the host\u2019s puzzle": {
+                        "Joins to watch the host’s puzzle": {
                           "target": "#Puzzles: Watching"
                         },
-                        "The guest\u2019s twenty rated starts are used today": {
+                        "The guest’s twenty rated starts are used today": {
                           "target": "#Puzzles: Daily allowance reached"
                         },
                         "No suitable puzzle is available": {
@@ -4869,7 +4911,7 @@
                         "Plays a correct continuation": {
                           "target": "#Puzzles: Solving"
                         },
-                        "The puzzle\u2019s correct result is restored after returning": {
+                        "The puzzle’s correct result is restored after returning": {
                           "target": "#Puzzles: Solved"
                         },
                         "Solves the puzzle": {
@@ -4905,7 +4947,7 @@
                         "Opens puzzle feed choices": {
                           "target": "#App: Puzzle feed"
                         },
-                        "Opens the puzzle\u2019s history": {
+                        "Opens the puzzle’s history": {
                           "target": "#App: Puzzle history"
                         }
                       }
@@ -5185,7 +5227,7 @@
                         "Configured puzzle auto-advance elapses": {
                           "target": "#Puzzles: Opening puzzles"
                         },
-                        "Opens the puzzle\u2019s history": {
+                        "Opens the puzzle’s history": {
                           "target": "#App: Puzzle history"
                         },
                         "Tries a move, hint or skip after solving": {
@@ -5463,7 +5505,7 @@
                         "Solves the offline puzzle": {
                           "target": "#Puzzles: Solved"
                         },
-                        "Shows the offline puzzle\u2019s solution": {
+                        "Shows the offline puzzle’s solution": {
                           "target": "#Puzzles: Solution shown"
                         },
                         "Connection returns": {
@@ -5474,8 +5516,8 @@
                     "Puzzles: Watching": {
                       "id": "Puzzles: Watching",
                       "meta": {
-                        "description": "The watcher sees the host\u2019s current board and cannot play the host\u2019s moves.",
-                        "snapshot": "The watcher sees the host\u2019s current board and cannot play the host\u2019s moves.",
+                        "description": "The watcher sees the host’s current board and cannot play the host’s moves.",
+                        "snapshot": "The watcher sees the host’s current board and cannot play the host’s moves.",
                         "confidence": "assumed",
                         "source": [
                           "specs/chess/assistant-observation.dmn",
@@ -5518,7 +5560,7 @@
                         "events": []
                       },
                       "on": {
-                        "The host\u2019s board changes": {
+                        "The host’s board changes": {
                           "target": "#Puzzles: Watching"
                         },
                         "A watcher suggests a move": {
@@ -5527,7 +5569,7 @@
                         "The watcher loses connection": {
                           "target": "#Puzzles: Stale watched board"
                         },
-                        "A watcher tries playing the host\u2019s move": {
+                        "A watcher tries playing the host’s move": {
                           "target": "#Puzzles: Watcher move refused"
                         }
                       }
@@ -5535,8 +5577,8 @@
                     "Puzzles: Suggested move": {
                       "id": "Puzzles: Suggested move",
                       "meta": {
-                        "description": "A watcher\u2019s suggestion is visible to the host without moving a piece; the host\u2019s next move clears it.",
-                        "snapshot": "A watcher\u2019s suggestion is visible to the host without moving a piece; the host\u2019s next move clears it.",
+                        "description": "A watcher’s suggestion is visible to the host without moving a piece; the host’s next move clears it.",
+                        "snapshot": "A watcher’s suggestion is visible to the host without moving a piece; the host’s next move clears it.",
                         "confidence": "assumed",
                         "source": [
                           "specs/chess/assistant-observation.dmn",
@@ -5872,7 +5914,7 @@
                         "The linked puzzle opens for practice": {
                           "target": "#Puzzle Links: Practice linked puzzle"
                         },
-                        "The linked puzzle is unplayed and today\u2019s guest allowance is used": {
+                        "The linked puzzle is unplayed and today’s guest allowance is used": {
                           "target": "#Puzzle Links: Linked puzzle allowance reached"
                         },
                         "Opens a puzzle link offline": {
@@ -5886,8 +5928,8 @@
                     "Puzzle Links: Rated linked puzzle": {
                       "id": "Puzzle Links: Rated linked puzzle",
                       "meta": {
-                        "description": "This linked puzzle counts under the person\u2019s rated allowance.",
-                        "snapshot": "This linked puzzle counts under the person\u2019s rated allowance.",
+                        "description": "This linked puzzle counts under the person’s rated allowance.",
+                        "snapshot": "This linked puzzle counts under the person’s rated allowance.",
                         "confidence": "assumed",
                         "source": [
                           "specs/chess/puzzle-link.feature",
@@ -5899,7 +5941,7 @@
                         "Plays the linked puzzle": {
                           "target": "#Puzzles: Solving"
                         },
-                        "Shares this puzzle\u2019s link": {
+                        "Shares this puzzle’s link": {
                           "target": "#Puzzle Links: Sharing a puzzle link"
                         }
                       }
@@ -5920,7 +5962,7 @@
                         "Practices the linked puzzle": {
                           "target": "#Puzzles: Solving"
                         },
-                        "Shares this puzzle\u2019s link": {
+                        "Shares this puzzle’s link": {
                           "target": "#Puzzle Links: Sharing a puzzle link"
                         }
                       }
@@ -6010,7 +6052,7 @@
                 "App: Puzzle history": {
                   "id": "App: Puzzle history",
                   "meta": {
-                    "description": "Puzzle history and statistics show the person\u2019s recorded attempts and skill without changing earlier outcomes.",
+                    "description": "Puzzle history and statistics show the person’s recorded attempts and skill without changing earlier outcomes.",
                     "snapshot": "Owned attempts, statistics and rating can be reviewed.",
                     "confidence": "assumed",
                     "source": [
@@ -6759,8 +6801,8 @@
                       "id": "Multiplayer: Finished multiplayer",
                       "initial": "Multiplayer: Recorded result",
                       "meta": {
-                        "description": "The result and the rating change for its speed are recorded once; other speeds\u2019 ratings stay intact and both people can review the game.",
-                        "snapshot": "The result and the rating change for its speed are recorded once; other speeds\u2019 ratings stay intact and both people can review the game.",
+                        "description": "The result and the rating change for its speed are recorded once; other speeds’ ratings stay intact and both people can review the game.",
+                        "snapshot": "The result and the rating change for its speed are recorded once; other speeds’ ratings stay intact and both people can review the game.",
                         "confidence": "assumed",
                         "source": [
                           "specs/chess/multiplayer-ratings.feature:7",
@@ -6829,8 +6871,8 @@
                     "Multiplayer: Reviewing multiplayer": {
                       "id": "Multiplayer: Reviewing multiplayer",
                       "meta": {
-                        "description": "The finished game\u2019s moves and result remain visible without restarting the game.",
-                        "snapshot": "The finished game\u2019s moves and result remain visible without restarting the game.",
+                        "description": "The finished game’s moves and result remain visible without restarting the game.",
+                        "snapshot": "The finished game’s moves and result remain visible without restarting the game.",
                         "confidence": "assumed",
                         "source": [
                           "specs/chess/multiplayer-games.als",
@@ -6983,7 +7025,7 @@
                   "id": "App: Custom game",
                   "meta": {
                     "description": "A host configures people or bots, gets readiness for the current choices, then plays and reviews an unrated Custom Game.",
-                    "snapshot": "The space\u2019s Custom Game connects configuration, readiness, play and results.",
+                    "snapshot": "The space’s Custom Game connects configuration, readiness, play and results.",
                     "confidence": "assumed",
                     "source": [
                       "specs/chess/custom-game-access.dmn",
@@ -7142,8 +7184,8 @@
                     "Custom Game: Creator required": {
                       "id": "Custom Game: Creator required",
                       "meta": {
-                        "description": "Only the space\u2019s host may create this Custom Game.",
-                        "snapshot": "Only the space\u2019s host may create this Custom Game.",
+                        "description": "Only the space’s host may create this Custom Game.",
+                        "snapshot": "Only the space’s host may create this Custom Game.",
                         "confidence": "assumed",
                         "source": [
                           "specs/chess/custom-game-access.feature:5",
@@ -7202,7 +7244,7 @@
                         "A participant releases their own side before start": {
                           "target": "#Custom Game: Configuring"
                         },
-                        "Another person tries releasing a participant\u2019s side": {
+                        "Another person tries releasing a participant’s side": {
                           "target": "#Custom Game: Side choice refused"
                         },
                         "A participant confirms readiness": {
@@ -7269,7 +7311,7 @@
                         "The creator revokes the invitation": {
                           "target": "#Custom Game: Configuring"
                         },
-                        "Someone tries an ended or another person\u2019s invitation": {
+                        "Someone tries an ended or another person’s invitation": {
                           "target": "#Custom Game: Invitation refused"
                         }
                       }
@@ -7304,8 +7346,8 @@
                     "Custom Game: Side choice refused": {
                       "id": "Custom Game: Side choice refused",
                       "meta": {
-                        "description": "Side choices cannot duplicate a person or bypass the creator\u2019s authority.",
-                        "snapshot": "Side choices cannot duplicate a person or bypass the creator\u2019s authority.",
+                        "description": "Side choices cannot duplicate a person or bypass the creator’s authority.",
+                        "snapshot": "Side choices cannot duplicate a person or bypass the creator’s authority.",
                         "confidence": "assumed",
                         "source": [
                           "specs/chess/custom-game-sides.feature:25",
@@ -7948,7 +7990,7 @@
                         }
                       },
                       "on": {
-                        "Reviews the Custom Game\u2019s moves": {
+                        "Reviews the Custom Game’s moves": {
                           "target": "#Custom Game: Reviewing"
                         },
                         "The host creates another Custom Game": {
@@ -8308,8 +8350,8 @@
                     "Feedback: Sending failed": {
                       "id": "Feedback: Sending failed",
                       "meta": {
-                        "description": "Submission failed plainly and preserves the person\u2019s writing.",
-                        "snapshot": "Submission failed plainly and preserves the person\u2019s writing.",
+                        "description": "Submission failed plainly and preserves the person’s writing.",
+                        "snapshot": "Submission failed plainly and preserves the person’s writing.",
                         "confidence": "assumed",
                         "source": [
                           "specs/feedback/availability.feature",
@@ -8427,8 +8469,8 @@
                     "Feedback: Saved feedback": {
                       "id": "Feedback: Saved feedback",
                       "meta": {
-                        "description": "Permitted feedback can be read and managed without exposing another person\u2019s private material.",
-                        "snapshot": "Permitted feedback can be read and managed without exposing another person\u2019s private material.",
+                        "description": "Permitted feedback can be read and managed without exposing another person’s private material.",
+                        "snapshot": "Permitted feedback can be read and managed without exposing another person’s private material.",
                         "confidence": "assumed",
                         "source": [
                           "specs/feedback/availability.feature",
@@ -8761,7 +8803,7 @@
                       "id": "Tools: Test worlds",
                       "meta": {
                         "description": "The team selects independent devices, changes their arrangement and saves or restores compatible checkpoints.",
-                        "snapshot": "The team investigates separate people\u2019s apps and checkpoints.",
+                        "snapshot": "The team investigates separate people’s apps and checkpoints.",
                         "confidence": "assumed",
                         "source": [
                           "specs/developer-tools/checkpoints.feature",
@@ -8789,8 +8831,8 @@
                         "Test Worlds: Selected device": {
                           "id": "Test Worlds: Selected device",
                           "meta": {
-                            "description": "The selected person\u2019s app is shown while other devices keep their own places.",
-                            "snapshot": "The selected person\u2019s app is shown while other devices keep their own places.",
+                            "description": "The selected person’s app is shown while other devices keep their own places.",
+                            "snapshot": "The selected person’s app is shown while other devices keep their own places.",
                             "confidence": "assumed",
                             "source": [
                               "specs/developer-tools/checkpoints.feature",
@@ -8816,8 +8858,8 @@
                         "Test Worlds: Several devices": {
                           "id": "Test Worlds: Several devices",
                           "meta": {
-                            "description": "Several people\u2019s devices appear together without acting in their apps.",
-                            "snapshot": "Several people\u2019s devices appear together without acting in their apps.",
+                            "description": "Several people’s devices appear together without acting in their apps.",
+                            "snapshot": "Several people’s devices appear together without acting in their apps.",
                             "confidence": "assumed",
                             "source": [
                               "specs/developer-tools/checkpoints.feature",
@@ -8950,8 +8992,8 @@
                           "id": "Notebook: Notebook",
                           "meta": {
                             "routes": ["/client/sql"],
-                            "description": "The selected device\u2019s saved questions remain separate from another device\u2019s notebook.",
-                            "snapshot": "The selected device\u2019s saved questions remain separate from another device\u2019s notebook.",
+                            "description": "The selected device’s saved questions remain separate from another device’s notebook.",
+                            "snapshot": "The selected device’s saved questions remain separate from another device’s notebook.",
                             "confidence": "assumed",
                             "source": [
                               "specs/developer-tools/data-notebook.feature:6",
@@ -8978,7 +9020,7 @@
                             "Runs a notebook question": {
                               "target": "#Notebook: Answering a question"
                             },
-                            "Selects another device\u2019s notebook": {
+                            "Selects another device’s notebook": {
                               "target": "#Notebook: Notebook"
                             }
                           }
@@ -9043,8 +9085,8 @@
                         "Notebook: Answer available": {
                           "id": "Notebook: Answer available",
                           "meta": {
-                            "description": "The answer belongs to its question on this device\u2019s notebook.",
-                            "snapshot": "The answer belongs to its question on this device\u2019s notebook.",
+                            "description": "The answer belongs to its question on this device’s notebook.",
+                            "snapshot": "The answer belongs to its question on this device’s notebook.",
                             "confidence": "assumed",
                             "source": [
                               "specs/developer-tools/data-notebook.feature"
@@ -9099,8 +9141,8 @@
                         "Release: Release evidence": {
                           "id": "Release: Release evidence",
                           "meta": {
-                            "description": "The edition\u2019s obligations and their evidence are available to inspect.",
-                            "snapshot": "The edition\u2019s obligations and their evidence are available to inspect.",
+                            "description": "The edition’s obligations and their evidence are available to inspect.",
+                            "snapshot": "The edition’s obligations and their evidence are available to inspect.",
                             "confidence": "assumed",
                             "source": [
                               "specs/developer-tools/release-check.feature"
@@ -9206,8 +9248,8 @@
                         "Environment: Declared environment": {
                           "id": "Environment: Declared environment",
                           "meta": {
-                            "description": "The environment\u2019s declared resources, connected services and protected data are inspectable by the team.",
-                            "snapshot": "The environment\u2019s declared resources, connected services and protected data are inspectable by the team.",
+                            "description": "The environment’s declared resources, connected services and protected data are inspectable by the team.",
+                            "snapshot": "The environment’s declared resources, connected services and protected data are inspectable by the team.",
                             "confidence": "assumed",
                             "source": [
                               "specs/runtime/connected-services.feature:8",
@@ -9224,7 +9266,7 @@
                             "Investigates app trouble": {
                               "target": "#Environment: Investigation trail"
                             },
-                            "Checks the environment\u2019s public reachability": {
+                            "Checks the environment’s public reachability": {
                               "target": "#Environment: Reachability outcome"
                             },
                             "Inspects connected services": {
@@ -9265,8 +9307,8 @@
                         "Environment: Investigation trail": {
                           "id": "Environment: Investigation trail",
                           "meta": {
-                            "description": "Permitted investigation records explain the person\u2019s trouble and obey privacy and retention.",
-                            "snapshot": "Permitted investigation records explain the person\u2019s trouble and obey privacy and retention.",
+                            "description": "Permitted investigation records explain the person’s trouble and obey privacy and retention.",
+                            "snapshot": "Permitted investigation records explain the person’s trouble and obey privacy and retention.",
                             "confidence": "assumed",
                             "source": [
                               "specs/runtime/privacy-retention.feature:6",
@@ -9279,7 +9321,7 @@
                             "Inspects a permitted investigation trail": {
                               "target": "#Environment: Investigation trail"
                             },
-                            "Requests another person\u2019s forbidden private material": {
+                            "Requests another person’s forbidden private material": {
                               "target": "#Environment: Private material refused"
                             },
                             "Retention ends for investigation material": {
@@ -9317,8 +9359,8 @@
                         "Environment: Reachability outcome": {
                           "id": "Environment: Reachability outcome",
                           "meta": {
-                            "description": "The app\u2019s measured reach and answers belong to the checked environment.",
-                            "snapshot": "The app\u2019s measured reach and answers belong to the checked environment.",
+                            "description": "The app’s measured reach and answers belong to the checked environment.",
+                            "snapshot": "The app’s measured reach and answers belong to the checked environment.",
                             "confidence": "assumed",
                             "source": [
                               "specs/runtime/availability.openslo.yaml",
@@ -9341,8 +9383,8 @@
                         "Environment: Connected services": {
                           "id": "Environment: Connected services",
                           "meta": {
-                            "description": "The environment\u2019s declared service choices and their visible failures can be inspected.",
-                            "snapshot": "The environment\u2019s declared service choices and their visible failures can be inspected.",
+                            "description": "The environment’s declared service choices and their visible failures can be inspected.",
+                            "snapshot": "The environment’s declared service choices and their visible failures can be inspected.",
                             "confidence": "assumed",
                             "source": [
                               "specs/runtime/availability.openslo.yaml",
@@ -9453,8 +9495,8 @@
                         "Notes: Saved note": {
                           "id": "Notes: Saved note",
                           "meta": {
-                            "description": "The latest allowed note is visible across the person\u2019s permitted devices.",
-                            "snapshot": "The latest allowed note is visible across the person\u2019s permitted devices.",
+                            "description": "The latest allowed note is visible across the person’s permitted devices.",
+                            "snapshot": "The latest allowed note is visible across the person’s permitted devices.",
                             "confidence": "assumed",
                             "source": [
                               "specs/sync-engine/note-conflicts.feature:10",
@@ -10020,8 +10062,8 @@
                         "Matchmaking: Last known wait": {
                           "id": "Matchmaking: Last known wait",
                           "meta": {
-                            "description": "Losing connection keeps the device\u2019s last known wait and does not stop the accepted wait.",
-                            "snapshot": "Losing connection keeps the device\u2019s last known wait and does not stop the accepted wait.",
+                            "description": "Losing connection keeps the device’s last known wait and does not stop the accepted wait.",
+                            "snapshot": "Losing connection keeps the device’s last known wait and does not stop the accepted wait.",
                             "confidence": "assumed",
                             "source": [
                               "specs/matchmaking/lasting-outcomes.feature:6",
@@ -10207,7 +10249,7 @@
                             "Queues an allowed premove": {
                               "target": "#Chess Board: Premove queued"
                             },
-                            "Changes the board\u2019s allowed presentation choices": {
+                            "Changes the board’s allowed presentation choices": {
                               "target": "#Chess Board: Settled board"
                             },
                             "Plays a legal special chess move": {
@@ -10412,8 +10454,8 @@
                         "Chess Board: Premove queued": {
                           "id": "Chess Board: Premove queued",
                           "meta": {
-                            "description": "An allowed planned move waits for the person\u2019s turn and is discarded if it becomes illegal.",
-                            "snapshot": "An allowed planned move waits for the person\u2019s turn and is discarded if it becomes illegal.",
+                            "description": "An allowed planned move waits for the person’s turn and is discarded if it becomes illegal.",
+                            "snapshot": "An allowed planned move waits for the person’s turn and is discarded if it becomes illegal.",
                             "confidence": "assumed",
                             "source": [
                               "specs/chess-board/board-options.feature:6",
@@ -10427,7 +10469,7 @@
                             "events": []
                           },
                           "on": {
-                            "An allowed premove plays on the person\u2019s turn": {
+                            "An allowed premove plays on the person’s turn": {
                               "target": "#Chess Board: Moving pieces"
                             },
                             "The queued premove becomes illegal": {
@@ -10473,7 +10515,7 @@
                             "A new watched position arrives": {
                               "target": "#Chess Board: Watching board"
                             },
-                            "Restores the person\u2019s move controls": {
+                            "Restores the person’s move controls": {
                               "target": "#Chess Board: Settled board"
                             }
                           }
@@ -10518,8 +10560,8 @@
                         "Chess Board: Closed board": {
                           "id": "Chess Board: Closed board",
                           "meta": {
-                            "description": "Closing cancels this board\u2019s gestures and leaves another board intact.",
-                            "snapshot": "Closing cancels this board\u2019s gestures and leaves another board intact.",
+                            "description": "Closing cancels this board’s gestures and leaves another board intact.",
+                            "snapshot": "Closing cancels this board’s gestures and leaves another board intact.",
                             "confidence": "assumed",
                             "source": [
                               "specs/chess-board/board-accessibility.feature",
@@ -10777,7 +10819,7 @@
                 "App: Opening without connection": {
                   "id": "App: Opening without connection",
                   "meta": {
-                    "description": "Opening offline distinguishes a device with saved app data from a fresh device, and recovery preserves the person\u2019s place.",
+                    "description": "Opening offline distinguishes a device with saved app data from a fresh device, and recovery preserves the person’s place.",
                     "snapshot": "Opening distinguishes saved app data from a fresh offline device.",
                     "confidence": "assumed",
                     "source": [
@@ -10857,8 +10899,8 @@
                     "Connection: Update available": {
                       "id": "Connection: Update available",
                       "meta": {
-                        "description": "An app update can be applied without silently losing the person\u2019s saved work.",
-                        "snapshot": "An app update can be applied without silently losing the person\u2019s saved work.",
+                        "description": "An app update can be applied without silently losing the person’s saved work.",
+                        "snapshot": "An app update can be applied without silently losing the person’s saved work.",
                         "confidence": "assumed",
                         "source": [
                           "specs/runtime/app-updates.feature",
