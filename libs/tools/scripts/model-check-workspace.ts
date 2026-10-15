@@ -23,14 +23,13 @@ function removeModelEvidence(report: string, specUri: string): void {
 
 /**
  * Reports can be replaced or restored while another check's JVM is running.
- * A run that checks every model of the package replaces the report; a part
- * (`only`: the models it checks) replaces those models' evidence and leaves
- * the other parts' in place, so the parts of one package add up to its report.
+ * Each run names the models it owns and replaces only their evidence. Other
+ * checkers may be compiling sources inside the same package's report.
  */
 export async function withModelWorkspace<T>(
   packageDir: string,
   check: (workspace: string) => Promise<T>,
-  only?: readonly string[],
+  only: readonly string[],
   /** A phase task adds its evidence and leaves the model's other phases. */
   mergeEvidence = false
 ): Promise<T> {
@@ -42,8 +41,7 @@ export async function withModelWorkspace<T>(
     return await check(workspace);
   } finally {
     try {
-      if (only === undefined) rmSync(report, { recursive: true, force: true });
-      else if (!mergeEvidence)
+      if (!mergeEvidence)
         for (const specUri of only) removeModelEvidence(report, specUri);
       copyModelEvidence(workspace, report);
     } finally {
