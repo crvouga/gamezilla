@@ -35,3 +35,10 @@ Feature: Follow adding puzzles
       And adding puzzles stopped while Alice was offline
       When Alice's device comes back online
       Then Alice sees that this environment stopped adding puzzles
+
+    Scenario: An offline device keeps the earlier result while following an addition
+      Given Alice is on the team for this environment
+      And some puzzles were added while Alice was offline
+      When Alice follows adding puzzles to this environment
+      Then Alice sees 0 puzzles added and 0 broken puzzles
+      And Alice sees that this environment is adding puzzles

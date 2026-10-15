@@ -39,6 +39,7 @@ Feature: Add puzzles to an environment
       Then Alice sees that this environment is adding puzzles
 
   Rule: Puzzles are added only to their environment
+    No counter-example: adding puzzles to one environment cannot choose another environment as its destination.
 
     Scenario: Adding puzzles changes this environment's puzzle pool
       Given Alice is on the team for this environment
