@@ -18,6 +18,7 @@ function fakeNode(log: string[], path: string[]): DriverNode {
       log.push('drag');
     },
     layout: async () => ({ x: 10, y: 20, width: 100, height: 40 }),
+    selectFile: async () => {},
     input: async (text) => {
       log.push(`input ${text}`);
     },

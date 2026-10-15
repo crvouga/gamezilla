@@ -166,6 +166,10 @@ function recordingNode(node: DriverNode, ctx: Ctx): DriverNode {
         node.input(text, options)
       ),
     clear: () => stepWithHit(ctx, ui('clear'), () => node.clear()),
+    selectFile: (file) =>
+      stepWithHit(ctx, ui(`select file ${file.name}`), () =>
+        node.selectFile(file)
+      ),
     key: (key: DriverKey) =>
       stepWithHit(ctx, ui(`key ${key}`), () => node.key(key)),
     scroll: (direction: ScrollDirection, amount?: number) =>
