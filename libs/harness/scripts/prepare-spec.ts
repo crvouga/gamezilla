@@ -86,4 +86,6 @@ if (import.meta.main) {
   if (process.argv[2] === '--draw')
     drawBatch(JSON.parse(process.argv[3]!) as ModelDraw[]);
   else await main();
+  // Binding imports may own harness handles; all admitted draws finished above.
+  process.exit(0);
 }

@@ -34,6 +34,8 @@ test('unbound models do not block preparation and still fail their own checks', 
       'tests/quint/preference.binding.ts',
       `
       import { bindQuintModel } from ${JSON.stringify(REGISTRY)};
+      import { setInterval } from 'node:timers';
+      setInterval(() => {}, 1000);
       bindQuintModel({ model: 'preference-recovery', traces: 1, maxSteps: 2,
         actions: {}, observe: async () => ({}) });
       bindQuintModel({ model: 'privacy-recovery', traces: 1, maxSteps: 2,
@@ -45,6 +47,7 @@ test('unbound models do not block preparation and still fail their own checks', 
       [join(ROOT, 'libs/harness/scripts/prepare-spec.ts')],
       {
         cwd: root,
+        timeout: 5000,
         env: { ...process.env, PBT_RANDOM: '0' },
         encoding: 'utf8',
       }

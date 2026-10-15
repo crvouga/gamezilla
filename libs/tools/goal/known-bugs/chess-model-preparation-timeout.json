@@ -1,4 +1,4 @@
 {
-  "summary": "Preparing every chess model sequentially exceeded the 600-second task cap after the puzzle and recovery suites were combined. Two bounded workers retain every original draw and start the largest batches first.",
+  "summary": "Chess preparation exceeded the 600-second task cap even after draws completed because imported bindings retained active handles. The CLI exits after both bounded workers finish every original draw; a binding with a live interval pins the failure.",
   "regressionTest": "libs/harness/tests/prepare-spec.test.ts"
 }
