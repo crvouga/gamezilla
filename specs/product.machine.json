@@ -8072,7 +8072,12 @@
                     "confidence": "assumed",
                     "source": [
                       "specs/chess/puzzle-ingest.feature",
+                      "specs/chess/puzzle-load-controls.feature",
+                      "specs/chess/puzzle-load-progress.feature",
+                      "specs/chess/puzzle-load-updates.feature",
+                      "specs/chess/saved-puzzles.feature",
                       "specs/chess/puzzle-loading.qnt",
+                      "specs/chess/puzzle-source.qnt",
                       "specs/chess/puzzle-management-access.dmn",
                       "specs/chess/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml"
