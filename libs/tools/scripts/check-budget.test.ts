@@ -61,9 +61,9 @@ describe('taskBudgetSeconds', () => {
 
   test('split multiplayer proofs retain their existing allowance', () => {
     // regression: multiplayer-bounded-proof-timeout
-    const measured = [205, 315, 419, 161];
+    const withinAllowance = Array.from({ length: 12 }, () => 419);
     const summary = {
-      tasks: measured.map((seconds, index) =>
+      tasks: withinAllowance.map((seconds, index) =>
         task(`@libs/chess-root-harness#check:models:10:${index}`, seconds)
       ),
     };

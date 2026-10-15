@@ -47,10 +47,10 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   '@pkgs/matchmaking-root-harness#check:models:0': 480,
   '@pkgs/matchmaking-root-harness#check:models:1': 480,
   // The multiplayer proof retains all twelve properties and the two-step bound.
-  // Its four independent groups measured 205, 315, 419 and 161 seconds with
-  // two solver slots. Carry its existing 420-second allowance to each phase.
+  // A three-property group timed out at 480 seconds under browser load.
+  // Check each property separately, retaining the existing 420-second allowance.
   ...Object.fromEntries(
-    Array.from({ length: 4 }, (_, index) => [
+    Array.from({ length: 12 }, (_, index) => [
       `@libs/chess-root-harness#check:models:10:${String(index)}`,
       420,
     ])

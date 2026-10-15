@@ -3736,6 +3736,230 @@
         "@pkgs/conformance-server#src",
         "@pkgs/conformance-shared#src"
       ]
+    },
+    "check:models:10:4": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:10:5": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:10:6": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:10:7": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:10:8": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:10:9": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:10:10": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
+    },
+    "check:models:10:11": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
     }
   }
 }

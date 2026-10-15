@@ -428,6 +428,62 @@
         "$TURBO_ROOT$/specs/chess/*.qnt",
         "$TURBO_ROOT$/specs/connect-four/*.qnt"
       ]
+    },
+    "check:models:10:4": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/chess/*.qnt",
+        "$TURBO_ROOT$/specs/connect-four/*.qnt"
+      ]
+    },
+    "check:models:10:5": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/chess/*.qnt",
+        "$TURBO_ROOT$/specs/connect-four/*.qnt"
+      ]
+    },
+    "check:models:10:6": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/chess/*.qnt",
+        "$TURBO_ROOT$/specs/connect-four/*.qnt"
+      ]
+    },
+    "check:models:10:7": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/chess/*.qnt",
+        "$TURBO_ROOT$/specs/connect-four/*.qnt"
+      ]
+    },
+    "check:models:10:8": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/chess/*.qnt",
+        "$TURBO_ROOT$/specs/connect-four/*.qnt"
+      ]
+    },
+    "check:models:10:9": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/chess/*.qnt",
+        "$TURBO_ROOT$/specs/connect-four/*.qnt"
+      ]
+    },
+    "check:models:10:10": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/chess/*.qnt",
+        "$TURBO_ROOT$/specs/connect-four/*.qnt"
+      ]
+    },
+    "check:models:10:11": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/chess/*.qnt",
+        "$TURBO_ROOT$/specs/connect-four/*.qnt"
+      ]
     }
   }
 }

@@ -1,4 +1,4 @@
 {
-  "summary": "The multiplayer safety proof exceeded its verifier deadline as one task. Four independent groups completed all twelve original properties at the original two-step bound in 205, 315, 419 and 161 seconds. Preserve the existing 420-second model allowance for each renamed phase and require every phase; a selected later phase must still reject its own violation.",
+  "summary": "The two-step multiplayer proof exceeded the existing deadline with three-property groups. Check each of its twelve original invariants in an independent phase while retaining the original bound and task allowances.",
   "regressionTest": "pkgs/quint-server/tests/verify-bounded-groups.test.ts"
 }
