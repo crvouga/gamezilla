@@ -100,9 +100,15 @@ bindQuintModel<QuintHarnessWorld>({
   regressions: [
     {
       // regression: puzzle-link-request-cleared-before-placement
-      // regression: puzzle-quota-fixture-not-published
       id: 'puzzle-link-request-cleared-before-placement',
       title: 'A puzzle link replaces a puzzle already on the board',
+      seed: '0x67932',
+      itf: lostRequest,
+    },
+    {
+      // regression: puzzle-quota-fixture-not-published
+      id: 'puzzle-quota-fixture-not-published',
+      title: 'Earlier rated starts reach the open puzzle board',
       seed: '0x67932',
       itf: lostRequest,
     },
