@@ -76,6 +76,9 @@ test('slow spec suites split into independently cached parts that all gate Check
 
 // regression: ci-chess-board-omits-inherited-spec-inputs
 test('every spec package retains its inherited runner and exact source inputs', () => {
+  expect(loadTasks()['@libs/tools#ci:specs']?.inputs).toContain(
+    '$TURBO_ROOT$/turbo.json'
+  );
   for (const pkg of specPackages()) {
     const manifest = JSON.parse(
       readFileSync(join(REPO_ROOT, pkg.dir, 'package.json'), 'utf8')

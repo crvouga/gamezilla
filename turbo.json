@@ -1129,6 +1129,7 @@
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/turbo.json",
         "!$TURBO_ROOT$/apps/**",
         "!$TURBO_ROOT$/libs/**",
         "!$TURBO_ROOT$/pkgs/**",
