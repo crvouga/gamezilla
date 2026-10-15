@@ -326,19 +326,16 @@ export class BunWebviewDriverNode implements DriverNode {
   async key(key: DriverKey): Promise<void> {
     const domKey = DRIVER_KEY_TO_DOM[key];
     const sel = JSON.stringify(cssPath(this.path));
-    // Focus moves into the node first (unless already inside), then the key
-    // goes to whatever holds focus — as when a person clicks, then types.
-    await (await this.view()).evaluate(
+    const view = await this.view();
+    // Native keys preserve button activation and other browser default actions.
+    await view.evaluate(
       `(function(){
         const el = document.querySelector(${sel});
-        if (!el) return;
+        if (!el) throw new Error('Keyboard target not found');
         if (!el.contains(document.activeElement)) el.focus();
-        const target = el.contains(document.activeElement) ? document.activeElement : el;
-        const init = { key: ${JSON.stringify(domKey)}, bubbles: true, cancelable: true };
-        target.dispatchEvent(new KeyboardEvent('keydown', init));
-        target.dispatchEvent(new KeyboardEvent('keyup', init));
       })()`
     );
+    await view.press(domKey);
   }
 
   async scroll(direction: ScrollDirection, amount = 100): Promise<void> {

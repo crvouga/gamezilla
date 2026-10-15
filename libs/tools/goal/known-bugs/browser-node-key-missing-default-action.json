@@ -1,0 +1,4 @@
+{
+  "summary": "Locator keyboard gestures dispatched untrusted events, which never activate native buttons on Enter. Focus the control and use the injected browser key port.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared/tests/bun-webview-driver.test.ts"
+}
