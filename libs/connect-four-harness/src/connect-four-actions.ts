@@ -17,13 +17,11 @@ import {
 } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 
-export async function openConnectFour(
+async function openConnectFourCustom(
   s: ProductHarness,
   actor: string
 ): Promise<void> {
   const ui = await actorUi(s, actor);
-  if (await ui.get('game-menu-connect-four').isVisible())
-    await ui.get('game-menu-connect-four').tap();
   await ui.get('connect-four-custom').expect.visible();
   await ui.get('connect-four-custom').tap();
   await ui.get('chess-custom-status').expect.visible();
@@ -92,13 +90,14 @@ export const establishConnectFour = scenarioAction({
     await Promise.resolve(createSpace.act(s, host));
     const link = await readSpaceLink(s, host);
     if (link === null) throw new Error('Connect Four host has no space');
-    await openConnectFour(s, host);
+    await (await actorUi(s, host)).get('game-menu-connect-four').tap();
+    await openConnectFourCustom(s, host);
     for (const person of people.filter((p) => p !== host)) {
       // regression: connect-four-fixture-before-space-join
       await Promise.resolve(openSpaceLink.act(s, person, link));
       await (await actorUi(s, person)).get('space-join').expect.visible();
       await Promise.resolve(joinFromPrompt.act(s, person));
-      await openConnectFour(s, person);
+      await openConnectFourCustom(s, person);
     }
     await configureCustomGame(s, host, { operation: 'create' });
     await configureCustomGame(s, host, { operation: 'open', side: 'white' });
