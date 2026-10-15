@@ -11,6 +11,7 @@ import {
   readCustomModelShown,
   repeatCustomModelMove,
 } from './custom-game-model-world';
+import pauseObservation from './fixtures/custom-game-binding-omits-clock-pause.itf.json';
 import observationTrace from './fixtures/custom-game-observation-spends-time.itf.json';
 import partitionTrace from './fixtures/custom-game-partition-spends-time.itf.json';
 
@@ -25,6 +26,13 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 16,
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: custom-game-binding-omits-clock-pause
+      id: 'custom-game-binding-omits-clock-pause',
+      title: 'A newly opened game reports whether its clocks are paused',
+      seed: '0x67932',
+      itf: pauseObservation,
+    },
     // regression: custom-game-observation-spends-time
     {
       id: 'custom-game-observation-spends-time',
@@ -96,6 +104,10 @@ bindQuintModel<QuintHarnessWorld>({
     return {
       ply: game.moves.length,
       sideToMove: game.turn,
+      clocksPaused:
+        game.minutes > 0 &&
+        game.status === 'active' &&
+        game.turnStartedAt === null,
       clockLeft,
       playShown: await readCustomModelShown(w, [
         ...CUSTOM_MODEL_PEOPLE,
