@@ -147,4 +147,15 @@ describe('development client startup', () => {
       expect(config).toContain("'../../pkgs/ui-root-client/src/hosts.css'");
     }
   });
+
+  // regression: dev-fsevents-starves-client
+  test('both web hosts use the workspace watcher policy', () => {
+    for (const app of ['client', 'product']) {
+      const config = source(`apps/${app}/vite.config.mts`);
+      expect(config).toContain('watch: workspaceWatchOptions()');
+    }
+    expect(source('apps/product/vite.config.mts')).toContain(
+      'hmr: false, watch: null'
+    );
+  });
 });
