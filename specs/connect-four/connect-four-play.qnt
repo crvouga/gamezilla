@@ -13,7 +13,11 @@ module connect_four_play {
   var drops: int
   var _count: int
   var online: bool
-  var _atDisconnect: (Board, int, int, int, int)
+  var _boardAtDisconnect: Board
+  var _dropsAtDisconnect: int
+  var _turnAtDisconnect: int
+  var _resultAtDisconnect: int
+  var _countAtDisconnect: int
   pure val _empty = 0.to(41).mapBy(_ => 0)
   pure val _zero = 0.to(6).mapBy(_ => 0)
   pure def _height(h: Columns, c: int): int = h.get(c)
@@ -90,7 +94,7 @@ module connect_four_play {
   }
   action init = all {
     board' = _empty, _heights' = _zero, turn' = 1, result' = 0,
-    drops' = 0, _count' = 0, online' = true, _atDisconnect' = (_empty, 0, 1, 0, 0),
+    drops' = 0, _count' = 0, online' = true, _boardAtDisconnect' = _empty, _dropsAtDisconnect' = 0, _turnAtDisconnect' = 1, _resultAtDisconnect' = 0, _countAtDisconnect' = 0,
   }
   /// Drop one disc, or keep the same board if that column cannot be played.
   action drop(column: int): bool =
@@ -101,18 +105,18 @@ module connect_four_play {
       val played = drops * 8 + column + 1
       all {
         board' = b, _heights' = h, drops' = played, _count' = _count + 1, turn' = 3 - turn,
-        online' = online, _atDisconnect' = _atDisconnect,
+        online' = online, _boardAtDisconnect' = _boardAtDisconnect, _dropsAtDisconnect' = _dropsAtDisconnect, _turnAtDisconnect' = _turnAtDisconnect, _resultAtDisconnect' = _resultAtDisconnect, _countAtDisconnect' = _countAtDisconnect,
         result' = if (_won(b, turn)) turn else if (_count + 1 == 42) 3 else 0,
       }
-    } else all { board' = board, _heights' = _heights, turn' = turn, result' = result, drops' = drops, _count' = _count, online' = online, _atDisconnect' = _atDisconnect }
+    } else all { board' = board, _heights' = _heights, turn' = turn, result' = result, drops' = drops, _count' = _count, online' = online, _boardAtDisconnect' = _boardAtDisconnect, _dropsAtDisconnect' = _dropsAtDisconnect, _turnAtDisconnect' = _turnAtDisconnect, _resultAtDisconnect' = _resultAtDisconnect, _countAtDisconnect' = _countAtDisconnect }
   /// Both players lose their connection and keep their last board.
   action loseConnection = all {
-    online, online' = false, _atDisconnect' = (board, drops, turn, result, _count),
+    online, online' = false, _boardAtDisconnect' = board, _dropsAtDisconnect' = drops, _turnAtDisconnect' = turn, _resultAtDisconnect' = result, _countAtDisconnect' = _count,
     board' = board, _heights' = _heights, turn' = turn, result' = result, drops' = drops, _count' = _count,
   }
   /// Both players return to the same board and turn.
   action connectionReturns = all {
-    not(online), online' = true, _atDisconnect' = _atDisconnect,
+    not(online), online' = true, _boardAtDisconnect' = _boardAtDisconnect, _dropsAtDisconnect' = _dropsAtDisconnect, _turnAtDisconnect' = _turnAtDisconnect, _resultAtDisconnect' = _resultAtDisconnect, _countAtDisconnect' = _countAtDisconnect,
     board' = board, _heights' = _heights, turn' = turn, result' = result, drops' = drops, _count' = _count,
   }
   action step = any {
@@ -121,7 +125,7 @@ module connect_four_play {
   /// Each player takes alternate turns, beginning with Red.
   val invTurn = turn == (if (_count % 2 == 0) 1 else 2)
   /// The board and turn stay unchanged while neither player has a connection.
-  val invOfflineBoard = not(online) implies ((board, drops, turn, result, _count) == _atDisconnect)
+  val invOfflineBoard = not(online) implies ((board, drops, turn, result, _count) == (_boardAtDisconnect, _dropsAtDisconnect, _turnAtDisconnect, _resultAtDisconnect, _countAtDisconnect))
   /// Bookkeeping: a column holds at most six discs.
   val invCapacity = and { (_heights.get(0) >= 0 and _heights.get(0) <= 6), (_heights.get(1) >= 0 and _heights.get(1) <= 6), (_heights.get(2) >= 0 and _heights.get(2) <= 6), (_heights.get(3) >= 0 and _heights.get(3) <= 6), (_heights.get(4) >= 0 and _heights.get(4) <= 6), (_heights.get(5) >= 0 and _heights.get(5) <= 6), (_heights.get(6) >= 0 and _heights.get(6) <= 6) }
   /// Bookkeeping: discs cannot float above an empty place.
@@ -143,7 +147,8 @@ module connect_four_play {
   val _inductive = all {
     board.in(_BOARDS), _heights.in(_COLUMNS), drops.in(Nat), _count.in(0.to(42)),
     turn.in(Set(1, 2)), result.in(Set(0, 1, 2, 3)), online.in(Set(false, true)),
-    _atDisconnect.in(tuples(_BOARDS, Nat, Set(1, 2), Set(0, 1, 2, 3), 0.to(42))),
+    _boardAtDisconnect.in(_BOARDS), _dropsAtDisconnect.in(Nat),
+    _turnAtDisconnect.in(Set(1, 2)), _resultAtDisconnect.in(Set(0, 1, 2, 3)), _countAtDisconnect.in(0.to(42)),
     invTurn, invOfflineBoard, invCapacity, invGravity, invConservation,
     invOwnership, invHistory, invVictory, invDraw, _unfinished,
   }
