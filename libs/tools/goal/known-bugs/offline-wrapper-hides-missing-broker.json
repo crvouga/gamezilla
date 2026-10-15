@@ -1,0 +1,4 @@
+{
+  "summary": "The offline composition turned a missing broker into a permanent push handle, preventing MQTT attachment after the broker URL hydrated. Preserve the unavailable factory result and adopt an available connection without opening it twice.",
+  "regressionTest": "libs/app-root-client/tests/offline-client-env.test.ts"
+}

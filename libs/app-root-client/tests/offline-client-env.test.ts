@@ -139,3 +139,38 @@ test('observation subscriptions preserve injected credentials and the offline br
   detach?.();
   push?.close();
 });
+
+// regression: offline-wrapper-hides-missing-broker
+test('a missing broker stays unavailable until its address hydrates', async () => {
+  const offline = createOfflineNetworkController(new KvImplInMemory());
+  await offline.ready();
+  const urls: string[] = [];
+  let closed = 0;
+  const source = networkEnv({
+    createPubSub: (args) => {
+      urls.push(args.url);
+      if (args.url.length === 0) return null;
+      const port = createInMemoryPubSub({ logger: createNoopLogger() });
+      const close = port.close.bind(port);
+      port.close = () => {
+        closed += 1;
+        close();
+      };
+      return port;
+    },
+  });
+  const env = createOfflineClientEnv(source, offline).env;
+  expect(env.createPubSub({ url: '' } as ClientPubSubArgs)).toBeNull();
+  const push = env.createPubSub({
+    url: 'ws://broker.test/mqtt',
+  } as ClientPubSubArgs);
+  expect(push).not.toBeNull();
+  push!.subscribe('user:alice', () => undefined);
+  expect(urls).toEqual(['', 'ws://broker.test/mqtt']);
+  offline.setOffline(true);
+  expect(closed).toBe(1);
+  offline.setOffline(false);
+  expect(urls).toEqual(['', 'ws://broker.test/mqtt', 'ws://broker.test/mqtt']);
+  push!.close();
+  expect(closed).toBe(2);
+});

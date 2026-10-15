@@ -2,6 +2,7 @@ import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
 import { createDeadlineFetch } from '@pkgs/http-client-shared/deadline-fetch';
 import { requestHref } from '@pkgs/http-client-shared/origin-href';
 import type { ClientEnv } from './client-env';
+import type { ClientPubSubArgs } from './create-client-pubsub';
 import { createOfflineAuthClient } from './offline-auth-client';
 import { createOfflineAudioPlayback } from './offline-network-audio';
 import {
@@ -53,8 +54,7 @@ export function createOfflineClientEnv(
     get events() {
       return (events ??= createOfflinePubSub(offline, () => source.events));
     },
-    createPubSub: (args) =>
-      createOfflinePubSub(offline, () => source.createPubSub(args)),
+    createPubSub: (args) => configuredOfflinePubSub(source, offline, args),
     room: (args) =>
       createOfflineRoomTransport(offline, () => source.room(args)),
     network: createOfflineNetworkState(offline, source.network),
@@ -75,4 +75,18 @@ export function createOfflineClientEnv(
     createOfflineOriginAvailability(offline, originAvailabilityFor(source))
   );
   return { env, offline };
+}
+
+/** Preserve null so sync can try again after client_config supplies the URL. */
+function configuredOfflinePubSub(
+  source: ClientEnv,
+  offline: OfflineNetworkController,
+  args: ClientPubSubArgs
+) {
+  const open = () => source.createPubSub(args);
+  if (offline.isOffline()) {
+    return args.url.length === 0 ? null : createOfflinePubSub(offline, open);
+  }
+  const initial = open();
+  return initial === null ? null : createOfflinePubSub(offline, open, initial);
 }

@@ -337,6 +337,12 @@ export async function createAppLocalSyncEngine(
     const disconnect = engine.disconnect.bind(engine);
     return {
       ...engine,
+      ensurePush: () => {
+        void readEmqxUrl(db).then((url) => {
+          emqxUrlHolderFor(args.databaseName).url = url;
+          engine.ensurePush();
+        });
+      },
       disconnect: async () => {
         try {
           await disconnect();
