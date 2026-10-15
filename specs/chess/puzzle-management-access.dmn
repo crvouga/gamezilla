@@ -11,10 +11,6 @@
         <inputExpression id="on-team-expression" typeRef="string"><text>on the team for this environment</text></inputExpression>
         <inputValues id="on-team-values"><text>"yes","no"</text></inputValues>
       </input>
-      <input id="capability" label="what they want to do">
-        <inputExpression id="capability-expression" typeRef="string"><text>what they want to do</text></inputExpression>
-        <inputValues id="capability-values"><text>"check Lichess file","save Lichess file","add puzzles","stop adding puzzles"</text></inputValues>
-      </input>
       <output id="answer" name="answer" typeRef="string">
         <outputValues id="answer-values"><text>"yes","no"</text></outputValues>
       </output>
@@ -25,7 +21,6 @@
         <description>A signed-in person on the team may check or save the Lichess file, add puzzles or stop adding puzzles.</description>
         <inputEntry id="team-account-adds-puzzles-in-1"><text>"yes"</text></inputEntry>
         <inputEntry id="team-account-adds-puzzles-in-2"><text>"yes"</text></inputEntry>
-        <inputEntry id="team-account-adds-puzzles-in-3"><text>-</text></inputEntry>
         <outputEntry id="team-account-adds-puzzles-out-1"><text>"yes"</text></outputEntry>
         <outputEntry id="team-account-adds-puzzles-out-2"><text>"none"</text></outputEntry>
       </rule>
@@ -33,7 +28,6 @@
         <description>A signed-in person outside the team cannot check or save the Lichess file, add puzzles or stop adding puzzles.</description>
         <inputEntry id="account-outside-team-cannot-add-puzzles-in-1"><text>"yes"</text></inputEntry>
         <inputEntry id="account-outside-team-cannot-add-puzzles-in-2"><text>"no"</text></inputEntry>
-        <inputEntry id="account-outside-team-cannot-add-puzzles-in-3"><text>-</text></inputEntry>
         <outputEntry id="account-outside-team-cannot-add-puzzles-out-1"><text>"no"</text></outputEntry>
         <outputEntry id="account-outside-team-cannot-add-puzzles-out-2"><text>"not on the team"</text></outputEntry>
       </rule>
@@ -41,7 +35,6 @@
         <description>A person without an account cannot check or save the Lichess file, add puzzles or stop adding puzzles.</description>
         <inputEntry id="guest-cannot-add-puzzles-in-1"><text>"no"</text></inputEntry>
         <inputEntry id="guest-cannot-add-puzzles-in-2"><text>-</text></inputEntry>
-        <inputEntry id="guest-cannot-add-puzzles-in-3"><text>-</text></inputEntry>
         <outputEntry id="guest-cannot-add-puzzles-out-1"><text>"no"</text></outputEntry>
         <outputEntry id="guest-cannot-add-puzzles-out-2"><text>"needs an account"</text></outputEntry>
       </rule>
