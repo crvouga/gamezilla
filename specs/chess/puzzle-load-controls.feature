@@ -124,6 +124,13 @@ Feature: Stop adding puzzles
       Then Alice sees that this environment finished adding puzzles
       And the puzzles already added remain available to solvers
 
+    Scenario: Failing before confirmation keeps the failure and accepted puzzles
+      Given Alice is on the team for this environment
+      And adding puzzles failed while Alice was being asked to confirm stopping
+      When Alice confirms stopping adding puzzles
+      Then Alice is told adding puzzles failed and why
+      And the puzzles already added remain available to solvers
+
     Scenario: Confirmation while offline keeps the addition running
       Given Alice is on the team for this environment
       And Alice is being asked to confirm stopping adding puzzles

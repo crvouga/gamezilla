@@ -65,6 +65,13 @@ module puzzle_loading_choices {
     online' = online, _statusWhenOffline' = _statusWhenOffline,
   }
 
+  /// An addition can fail while the team considers or attempts stopping it.
+  action failAddingPuzzles = all {
+    _actualStatus == "adding", _actualStatus' = "failed", stoppingPuzzles' = stoppingPuzzles, _actualChoice' = _actualChoice,
+    addingPuzzlesStatus' = if (online) "failed" else addingPuzzlesStatus,
+    online' = online, _statusWhenOffline' = _statusWhenOffline,
+  }
+
   /// Closing a successful confirmation returns to the current addition result.
   action followAddingPuzzles = all {
     stoppingPuzzles' = if (stoppingPuzzles == "succeeded") "idle" else stoppingPuzzles,
@@ -87,7 +94,7 @@ module puzzle_loading_choices {
 
   action step = any {
     askToStopAddingPuzzles, cancelStoppingPuzzles, confirmStoppingPuzzles,
-    finishStoppingPuzzles, failStoppingPuzzles, finishAddingPuzzles, followAddingPuzzles,
+    finishStoppingPuzzles, failStoppingPuzzles, finishAddingPuzzles, failAddingPuzzles, followAddingPuzzles,
     loseConnection, comeBackOnline,
   }
 
