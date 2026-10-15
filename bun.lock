@@ -291,9 +291,11 @@
       },
       "devDependencies": {
         "@libs/harness": "workspace:*",
+        "@libs/pubsub-server": "workspace:*",
         "@libs/runtime-harness": "workspace:*",
         "@opentelemetry/api": "catalog:",
         "@opentelemetry/sdk-trace-base": "catalog:",
+        "@pkgs/aedes-server": "workspace:*",
         "@pkgs/harness-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",

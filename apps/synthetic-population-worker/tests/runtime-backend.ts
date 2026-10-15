@@ -7,14 +7,29 @@ import { SyntheticPopulationRepository } from '@libs/synthetic-population-server
 import { realTimeRuntime } from '@pkgs/harness-root-shared/real-time-runtime';
 import sql from '@pkgs/sql-root-shared/sql';
 import { lostMoveAcknowledgement } from './lost-acknowledgement';
+import { runtimePubSub } from './runtime-pubsub';
 
 export async function runtimeBackend(desired: number) {
+  const cleanup = new AsyncDisposableStack();
+  try {
+    return await openRuntimeBackend(desired, cleanup);
+  } catch (error) {
+    await cleanup.disposeAsync();
+    throw error;
+  }
+}
+
+async function openRuntimeBackend(
+  desired: number,
+  cleanup: AsyncDisposableStack
+) {
   let elapsedMs = 0;
   const session = await realTimeRuntime({ network: 'model' })
     .with((source) => ({
       clock: { now: () => source.ports.clock.now() + elapsedMs },
     }))
     .open(7221);
+  cleanup.defer(() => session.dispose());
   const wall = workerWallPorts();
   const token = `${wall.createId()}-${wall.createId()}`;
   // As deployed, a Synthetic User's application runs on an origin the API
@@ -26,13 +41,20 @@ export async function runtimeBackend(desired: number) {
     hostname: '127.0.0.1',
     fetch: (request) => serve(request),
   });
+  cleanup.defer(() => server.stop(true));
+  const messaging = await runtimePubSub(wall);
+  cleanup.defer(() => messaging.close());
   const harness = await createHarness(session, {
     composition: APP_COMPOSITION,
+    serverEvents: messaging.events,
     secretValues: {
       POPULATION_WORKER_TOKEN: token,
       WEB_CLIENT_ORIGIN: server.url.origin,
+      EMQX_WSS_URL: messaging.url,
+      EMQX_JWT_SECRET: wall.createId(),
     },
   });
+  cleanup.defer(() => harness.dispose());
   await harness.spawnServer();
   const ports = { ...session.ports, notify: async () => undefined };
   const repository = new SyntheticPopulationRepository(
@@ -101,10 +123,6 @@ export async function runtimeBackend(desired: number) {
         sql`UPDATE population_users SET checkpoint = ${JSON.stringify(value)} WHERE id = ${userId}`
       );
     },
-    async close() {
-      await server.stop(true);
-      await harness.dispose();
-      await session.dispose();
-    },
+    close: () => cleanup.disposeAsync(),
   };
 }
