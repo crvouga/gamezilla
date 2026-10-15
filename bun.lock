@@ -1103,6 +1103,7 @@
       "name": "@libs/chess-puzzle-harness",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/auth-shared": "workspace:*",
         "@libs/chess-puzzle-server": "workspace:*",
         "@libs/chess-puzzle-shared": "workspace:*",
         "@libs/chess-root-shared": "workspace:*",
@@ -1127,6 +1128,7 @@
         "@pkgs/sounds-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
+        "@pkgs/sync-engine-server": "workspace:*",
         "@pkgs/ui-testing-root-shared": "workspace:*",
         "@pkgs/uuid-shared": "workspace:*",
         "chess.js": "catalog:",
