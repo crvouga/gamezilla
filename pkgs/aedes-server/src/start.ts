@@ -91,6 +91,7 @@ export async function startAedesServer(
   );
 
   try {
+    await broker.listen();
     const [mqttPort, wsPort] = await Promise.all([
       listen(mqttServer, options.mqttPort ?? 0, host),
       listen(httpServer, options.wsPort ?? 0, host),
