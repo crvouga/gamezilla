@@ -67,6 +67,13 @@ export type GameDefinition = {
     random: Random
   ) => Message;
   readonly recoverEffects: (state: RoomState) => readonly RoomEffect[];
+  /** Trusted room-host availability, distinct from participant presence. */
+  readonly availabilityChange?: RoomModule<
+    RoomState,
+    Message,
+    Message,
+    string
+  >['availabilityChange'];
   /** Domain reactions committed in the same room transaction as a space event. */
   readonly reactToSpaceEvent?: (
     state: RoomState,

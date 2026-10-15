@@ -1,5 +1,7 @@
 import type { CustomGames } from '@libs/chess-custom-game-shared/custom-game-state';
 import { useSpaceHostConnection } from '@libs/spaces-client/use-space-host-connection';
+import { useSpaceRoomSelector } from '@libs/spaces-client/use-space-room-selector';
+import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
 
@@ -7,11 +9,17 @@ import { type Accessor, createMemo } from 'solid-js';
 export function useVisibleCustomGames(received: Accessor<CustomGames>) {
   const connection = useSpaceHostConnection();
   const engine = useSyncEngine();
+  const currentRoom = useSpaceRoomSelector(
+    (state) =>
+      RoomMetaAttr.isConnected.from(state) && RoomMetaAttr.isSynced.from(state)
+  );
   return createMemo<CustomGames>((previous) => {
     const games = received();
     if (
       connection() === 'ready' ||
-      (engine.status().online && games.current?.status === 'cancelled')
+      (engine.status().online &&
+        (games.current?.status === 'cancelled' ||
+          (currentRoom() && games.current !== null)))
     )
       return games;
     return previous?.current === null ? games : (previous ?? games);

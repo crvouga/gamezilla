@@ -1,12 +1,13 @@
 import type { GameCommandContext } from '@libs/spaces-shared/game';
 import {
-  spaceMemberAwaySince,
   spaceMembersRestricted,
   spaceSeatMemberIds,
 } from '@libs/spaces-shared/space-members-messages';
 import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-root-shared/builtin';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
+import { customGameAwaySince } from './custom-game-absence';
+import { CustomGameAvailableAttr } from './custom-game-availability';
 import type { CustomGameChoice } from './custom-game-choice';
 import type { CustomGameBotWake, CustomGameWake } from './custom-game-commands';
 import { CustomGamesChanged } from './custom-game-commands';
@@ -54,13 +55,18 @@ export function handleCustomGameChoice(
   if (!members.includes(ctx.identity))
     return refuseCustomGame('not in the space');
   const game = games.current;
+  if (
+    !CustomGameAvailableAttr.from(state) &&
+    (game === null || !soloCustomGame(game))
+  )
+    return refuseCustomGame('the Custom Game is temporarily unavailable');
   const expired = game === null ? null : expireCustomGame(game, ctx.ts);
   if (expired !== game)
     return changedCustomGames({ ...games, current: expired }, ctx, 'finished');
   const reason = customGameRefusal(game, choice, ctx.identity, {
     members,
     restricted: (a, b) => spaceMembersRestricted(state, a, b),
-    awaySince: (person) => spaceMemberAwaySince(state, person),
+    awaySince: (person) => customGameAwaySince(state, person),
     now: ctx.ts,
   });
   if (reason !== '') return refuseCustomGame(reason);
@@ -115,6 +121,8 @@ export function handleCustomGameWake(
     )
   )
     return refuseCustomGame('only the game may move a bot or end a clock');
+  if (!CustomGameAvailableAttr.from(state) && !soloCustomGame(game))
+    return changedCustomGames(games, ctx);
   if (!currentWake(game, wake)) return changedCustomGames(games, ctx);
   const at = 'at' in wake ? Math.min(ctx.ts, wake.at) : ctx.ts;
   if (game.turnStartedAt !== null && at < game.turnStartedAt)

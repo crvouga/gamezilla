@@ -19,7 +19,7 @@ function awayOpponent(model: CustomGameScreenModel): string | null {
 
 function CustomGameAway(props: { model: CustomGameScreenModel }): JSX.Element {
   return (
-    <Show when={awayOpponent(props.model)}>
+    <Show when={props.model.sharedAvailable() && awayOpponent(props.model)}>
       {(person) => (
         <div class="box gap-3" data-testid="chess-custom-away">
           <Notice>

@@ -198,6 +198,21 @@ export function createSpaceModule(
       ),
     recoverEffects: (state) =>
       games.flatMap((game) => [...game.recoverEffects(state)]),
+    availabilityChange(state, available, at) {
+      const events: Message[] = [];
+      const effects: RoomEffect[] = [];
+      let current = state;
+      for (const game of games) {
+        const change = game.availabilityChange?.(current, available, at);
+        if (change === null || change === undefined) continue;
+        for (const event of change.events) {
+          events.push(event);
+          current = reduce(current, event);
+        }
+        effects.push(...(change.effects ?? []));
+      }
+      return events.length === 0 ? null : { events, effects };
+    },
 
     handle(
       state: RoomState,

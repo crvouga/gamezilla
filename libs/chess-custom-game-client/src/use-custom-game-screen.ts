@@ -1,4 +1,6 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import { customGameAwaySince } from '@libs/chess-custom-game-shared/custom-game-absence';
+import { CustomGameAvailableAttr } from '@libs/chess-custom-game-shared/custom-game-availability';
 import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
 import {
   CustomGamesAttr,
@@ -36,7 +38,15 @@ export function useCustomGameScreen() {
   const games = useVisibleCustomGames(roomGames);
   const current = createMemo(() => games().current);
   const members = useSpaceRoomSelector(spaceSeatMemberIds);
-  const away = useSpaceRoomSelector(SpaceMembersRoomAttr.away.from);
+  const away = useSpaceRoomSelector((state) =>
+    Object.fromEntries(
+      Object.keys(SpaceMembersRoomAttr.away.from(state)).map((person) => [
+        person,
+        customGameAwaySince(state, person),
+      ])
+    )
+  );
+  const sharedAvailable = useSpaceRoomSelector(CustomGameAvailableAttr.from);
   const connected = useSpaceRoomSelector(
     (s) => RoomMetaAttr.isConnected.from(s) && RoomMetaAttr.isSynced.from(s)
   );
@@ -67,6 +77,7 @@ export function useCustomGameScreen() {
     current,
     members,
     connected,
+    sharedAvailable,
     choose,
     playBot,
     attempt: command.send,
