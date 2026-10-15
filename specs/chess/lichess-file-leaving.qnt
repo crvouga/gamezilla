@@ -78,4 +78,6 @@ module lichess_file_leaving {
   val invConfirmedDepartureStopsUnfinishedSaving = not(followingAddingPuzzles) implies all {
     not(savingLichessFile), not(leavingAddingPuzzles),
   }
+  /// A file cannot continue saving without a connection.
+  val invOfflineDepartureHasNoUnfinishedSave = not(online) implies not(savingLichessFile)
 }
