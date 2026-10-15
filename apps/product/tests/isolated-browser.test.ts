@@ -80,3 +80,21 @@ test('a failed isolated browser rejects pending work and still tears down', asyn
   await device.close();
   expect(worker.terminated()).toBe(true);
 });
+
+// regression: isolated-browser-file-selection
+test('isolated devices forward file contents to the selected input', async () => {
+  const worker = controlled();
+  const device = await openIsolatedDevice(
+    { webOrigin: 'https://web.example', apiOrigin: 'https://api.example' },
+    () => worker.process
+  );
+  const file = { name: 'puzzles.csv', bytes: [73, 100, 10] };
+  await device.driver.get('settings').get('source').selectFile(file);
+  expect(worker.calls.at(-1)).toEqual({
+    target: 'node',
+    path: ['settings', 'source'],
+    method: 'selectFile',
+    args: [file],
+  });
+  await device.close();
+});

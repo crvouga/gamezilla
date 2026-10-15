@@ -17,6 +17,7 @@ function node(rpc: BrowserRpc, path: readonly string[]): DriverNode {
     drag: (from, to, options) => call('drag', from, to, options),
     layout: () => call('layout'),
     input: (text, options) => call('input', text, options),
+    selectFile: (file) => call('selectFile', file),
     clear: () => call('clear'),
     key: (key) => call('key', key),
     scroll: (direction, amount) => call('scroll', direction, amount),
