@@ -8,13 +8,14 @@ module puzzle_loading_choices {
   var addingPuzzlesStatus: str
   /// Whether the team's device has a connection.
   var online: bool
+  var _actualChoice: str
   var _actualStatus: str
   var _statusWhenOffline: str
 
   action init = {
     nondet _status = Set("ready", "adding", "finished", "failed", "stopped").oneOf()
     all { stoppingPuzzles' = "idle", addingPuzzlesStatus' = _status, online' = true,
-      _actualStatus' = _status, _statusWhenOffline' = _status }
+      _actualChoice' = "idle", _actualStatus' = _status, _statusWhenOffline' = _status }
   }
 
   action _keepAddition = all {
@@ -25,38 +26,41 @@ module puzzle_loading_choices {
   /// Asking is available only for an ongoing addition with a connection.
   action askToStopAddingPuzzles = all {
     online, _actualStatus == "adding", stoppingPuzzles == "idle",
-    stoppingPuzzles' = "confirming", _keepAddition,
+    stoppingPuzzles' = "confirming", _actualChoice' = "confirming", _keepAddition,
   }
 
   /// Cancelling or dismissing the choice keeps the addition's current result.
   action cancelStoppingPuzzles = all {
-    Set("confirming", "failed").contains(stoppingPuzzles), stoppingPuzzles' = "idle", _keepAddition,
+    Set("confirming", "failed").contains(stoppingPuzzles), stoppingPuzzles' = "idle", _actualChoice' = "idle", _keepAddition,
   }
 
   /// Confirmation starts stopping, or acknowledges the result when adding already finished.
   action confirmStoppingPuzzles = all {
     online, Set("confirming", "failed").contains(stoppingPuzzles),
-    stoppingPuzzles' = if (_actualStatus == "adding") "stopping" else "succeeded", _keepAddition,
+    stoppingPuzzles' = if (_actualStatus == "adding") "stopping" else "succeeded",
+    _actualChoice' = if (_actualStatus == "adding") "stopping" else "succeeded", _keepAddition,
   }
 
-  /// A successful stop does not rewrite an addition that already finished or failed.
+  /// A successful stop keeps a finished result; an offline person sees it on returning online.
   action finishStoppingPuzzles = {
     val _result = if (_actualStatus == "adding") "stopped" else _actualStatus
     all {
-      stoppingPuzzles == "stopping", stoppingPuzzles' = "succeeded", _actualStatus' = _result,
+      _actualChoice == "stopping", _actualChoice' = "succeeded",
+      stoppingPuzzles' = if (online) "succeeded" else stoppingPuzzles, _actualStatus' = _result,
       addingPuzzlesStatus' = if (online) _result else addingPuzzlesStatus,
       online' = online, _statusWhenOffline' = _statusWhenOffline,
     }
   }
 
-  /// A failed stop tells the team and keeps confirmation available for another attempt.
+  /// A failed stop is explained when the person has a connection again.
   action failStoppingPuzzles = all {
-    stoppingPuzzles == "stopping", stoppingPuzzles' = "failed", _keepAddition,
+    _actualChoice == "stopping", _actualChoice' = "failed",
+    stoppingPuzzles' = if (online) "failed" else stoppingPuzzles, _keepAddition,
   }
 
   /// Finishing remains possible while a stop is being considered or attempted.
   action finishAddingPuzzles = all {
-    _actualStatus == "adding", _actualStatus' = "finished", stoppingPuzzles' = stoppingPuzzles,
+    _actualStatus == "adding", _actualStatus' = "finished", stoppingPuzzles' = stoppingPuzzles, _actualChoice' = _actualChoice,
     addingPuzzlesStatus' = if (online) "finished" else addingPuzzlesStatus,
     online' = online, _statusWhenOffline' = _statusWhenOffline,
   }
@@ -64,19 +68,20 @@ module puzzle_loading_choices {
   /// Closing a successful confirmation returns to the current addition result.
   action followAddingPuzzles = all {
     stoppingPuzzles' = if (stoppingPuzzles == "succeeded") "idle" else stoppingPuzzles,
+    _actualChoice' = if (stoppingPuzzles == "succeeded") "idle" else _actualChoice,
     addingPuzzlesStatus' = if (online) _actualStatus else addingPuzzlesStatus,
     _actualStatus' = _actualStatus, online' = online, _statusWhenOffline' = _statusWhenOffline,
   }
 
   action loseConnection = all {
     online, online' = false, addingPuzzlesStatus' = addingPuzzlesStatus,
-    stoppingPuzzles' = stoppingPuzzles, _actualStatus' = _actualStatus,
+    stoppingPuzzles' = stoppingPuzzles, _actualChoice' = _actualChoice, _actualStatus' = _actualStatus,
     _statusWhenOffline' = addingPuzzlesStatus,
   }
 
   action comeBackOnline = all {
     not(online), online' = true, addingPuzzlesStatus' = _actualStatus,
-    stoppingPuzzles' = stoppingPuzzles, _actualStatus' = _actualStatus,
+    stoppingPuzzles' = _actualChoice, _actualChoice' = _actualChoice, _actualStatus' = _actualStatus,
     _statusWhenOffline' = _statusWhenOffline,
   }
 
@@ -92,7 +97,7 @@ module puzzle_loading_choices {
     Set("ready", "adding", "finished", "failed", "stopped").contains(addingPuzzlesStatus),
   }
   /// A connected device sees the current addition result, even during confirmation.
-  val invConnectedStopChoiceKeepsCurrentResult = online implies addingPuzzlesStatus == _actualStatus
+  val invConnectedStopChoiceKeepsCurrentResult = online implies all { addingPuzzlesStatus == _actualStatus, stoppingPuzzles == _actualChoice }
   /// An offline device retains its last addition result.
   val invOfflineStopChoiceKeepsLastResult = not(online) implies addingPuzzlesStatus == _statusWhenOffline
 }

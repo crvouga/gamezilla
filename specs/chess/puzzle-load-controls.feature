@@ -131,3 +131,19 @@ Feature: Stop adding puzzles
       When Alice confirms stopping adding puzzles
       Then Alice is told a connection is needed to stop adding puzzles
       And this environment is still adding puzzles
+
+    Scenario: A stop that finishes while offline keeps showing the earlier result
+      Given Alice is on the team for this environment
+      And Alice has confirmed stopping and the stop has not finished
+      And Alice is offline
+      When stopping adding puzzles finishes
+      Then Alice is told adding puzzles is being stopped
+      And Alice sees that this environment is adding puzzles
+
+    Scenario: A stop that fails while offline waits to show its failure
+      Given Alice is on the team for this environment
+      And Alice has confirmed stopping and the stop has not finished
+      And Alice is offline
+      When stopping adding puzzles fails
+      Then Alice is told adding puzzles is being stopped
+      And Alice sees that this environment is adding puzzles
