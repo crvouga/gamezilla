@@ -65,17 +65,42 @@ test('refuses wrong headers, truncated CSV and excessive records', async () => {
   await expect(collect(puzzleCsvParts(stream('')))).rejects.toThrow('empty');
 });
 
-test('streams a compressed Lichess archive through the same CSV pipeline', async () => {
-  const csv = `${HEADER}\na,b,c,d,e,f,g,h,i,j\n`;
-  const compressed = Bun.zstdCompressSync(new TextEncoder().encode(csv));
-  const file = new File(
-    [new Uint8Array(compressed)],
-    'lichess_db_puzzle.csv.zst'
-  );
-  expect(await collect(puzzleCsvParts(puzzleFileStream(file)))).toEqual([
-    { csv, rows: 1 },
-  ]);
-});
+test.each(['csv', 'csv.zst'])(
+  'uploads a Lichess .%s file through the CSV pipeline',
+  async (extension) => {
+    const csv = `${HEADER}\na,b,c,d,e,f,g,h,i,j\n`;
+    const bytes = new TextEncoder().encode(csv);
+    const file = new File(
+      [
+        extension === 'csv.zst'
+          ? new Uint8Array(Bun.zstdCompressSync(bytes))
+          : bytes,
+      ],
+      `lichess_db_puzzle.${extension}`
+    );
+    expect(await collect(puzzleCsvParts(puzzleFileStream(file)))).toEqual([
+      { csv, rows: 1 },
+    ]);
+    const uploads: { id: string; part: number; csv: string }[] = [];
+    const progress: number[] = [];
+    const chunks = await uploadPuzzleSource(
+      file,
+      {
+        uploadId: 'lichess-source',
+        signal: new AbortController().signal,
+        onProgress: () => undefined,
+        onFileProgress: (fraction) => progress.push(fraction),
+      },
+      async (id, part, value) => {
+        expect(progress).toEqual([]);
+        uploads.push({ id, part, csv: value });
+      }
+    );
+    expect(chunks).toBe(1);
+    expect(uploads).toEqual([{ id: 'lichess-source', part: 0, csv }]);
+    expect(progress).toEqual([0.99]);
+  }
+);
 
 test('stopping an upload closes the source without sending later parts', async () => {
   const controller = new AbortController();

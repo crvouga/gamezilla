@@ -1,5 +1,6 @@
 import type { SavedPuzzleSource } from '@libs/chess-puzzle-shared/puzzle-source';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import { usePendingOperation } from '@pkgs/ui-root-client/pending-navigation';
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import { createEffect, createSignal, onCleanup } from 'solid-js';
 import { usePuzzleManagementApi } from './puzzle-management-api';
@@ -14,7 +15,9 @@ export function usePuzzleSourceUpload(
   const [file, setFile] = createSignal<File | null>(null);
   const [uploading, setUploading] = createSignal(false);
   const [uploadedRows, setUploadedRows] = createSignal(0);
+  const [uploadProgress, setUploadProgress] = createSignal(0);
   let controller: AbortController | undefined;
+  usePendingOperation(uploading, () => controller?.abort());
   createEffect(() => {
     if (!connection.status().online && uploading())
       controller?.abort(
@@ -35,6 +38,7 @@ export function usePuzzleSourceUpload(
     const uploadId = createId();
     setUploading(true);
     setUploadedRows(0);
+    setUploadProgress(0);
     try {
       const value = await savePuzzleSource(
         selected,
@@ -42,10 +46,12 @@ export function usePuzzleSourceUpload(
           uploadId,
           signal,
           onProgress: setUploadedRows,
+          onFileProgress: setUploadProgress,
         },
         upload
       );
       saved(value);
+      setUploadProgress(1);
       setFile(null);
     } catch (error) {
       if (
@@ -68,6 +74,7 @@ export function usePuzzleSourceUpload(
     setFile,
     uploading,
     uploadedRows,
+    uploadProgress,
     save,
     abortUpload: () => controller?.abort(),
   };

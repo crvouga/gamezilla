@@ -26,6 +26,7 @@ export async function readPuzzleSource(s: ProductHarness, actor = 'alice') {
       (await ui.get('puzzle-source-recheck').isVisible()) &&
       (await ui.get('puzzle-source-recheck').attribute('disabled')) === null,
     saving: await ui.get('puzzle-source-saving').isVisible(),
+    progressVisible: await ui.get('puzzle-source-progress').isVisible(),
     saveFailed: await ui.get('puzzle-source-save-error').isVisible(),
     saveError: (await ui.get('puzzle-source-save-error').isVisible())
       ? await ui.get('puzzle-source-save-error').text()

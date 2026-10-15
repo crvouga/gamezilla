@@ -15,12 +15,17 @@ export async function uploadPuzzleSource(
     uploadId: string;
     signal: AbortSignal;
     onProgress: (rows: number) => void;
+    onFileProgress?: (fraction: number) => void;
   },
   upload: UploadPart
 ): Promise<number> {
   let chunks = 0;
   let rows = 0;
-  for await (const part of puzzleCsvParts(puzzleFileStream(file))) {
+  let consumed = 0;
+  const input = puzzleFileStream(file, (bytes) => {
+    consumed = bytes;
+  });
+  for await (const part of puzzleCsvParts(input)) {
     options.signal.throwIfAborted();
     if (chunks >= PUZZLE_UPLOAD_MAX_CHUNKS)
       throw new Error('The CSV is too large. Split it into smaller files.');
@@ -28,6 +33,8 @@ export async function uploadPuzzleSource(
     chunks += 1;
     rows += part.rows;
     options.onProgress(rows);
+    // Reserve completion for publishing the shared manifest after all parts.
+    options.onFileProgress?.(Math.min(consumed / Math.max(file.size, 1), 0.99));
   }
   options.signal.throwIfAborted();
   if (chunks === 0) throw new Error('The CSV has a header but no puzzles.');

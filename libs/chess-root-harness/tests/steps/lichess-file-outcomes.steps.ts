@@ -80,6 +80,7 @@ Then(
   async (w, actor: Actor) => {
     expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
       saving: true,
+      progressVisible: true,
     });
   }
 );

@@ -12,6 +12,7 @@
  * the simple stack is sufficient and predictable.
  */
 
+import { useConfirmNavigation } from '@pkgs/ui-root-client/pending-navigation';
 import {
   type Accessor,
   createContext,
@@ -119,10 +120,11 @@ export type DefineBackButtonProps = {
  */
 export function DefineBackButton(props: DefineBackButtonProps): null {
   const { setHandler } = useSpacesNavContext();
+  const confirmNavigation = useConfirmNavigation();
   const id = createUniqueId();
 
   createEffect(() => {
-    setHandler(id, () => props.onPress());
+    setHandler(id, () => confirmNavigation(() => props.onPress()));
     onCleanup(() => {
       setHandler(id, null);
     });

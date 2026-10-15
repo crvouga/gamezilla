@@ -1,6 +1,7 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
 import { FilePicker } from '@pkgs/ui-root-client/file-picker';
+import { LinearProgress } from '@pkgs/ui-root-client/linear-progress';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { Notice } from '@pkgs/ui-root-client/notice';
@@ -22,10 +23,10 @@ export function PuzzleSourceControls(props: {
       );
     },
     labels: {
-      idle: t`Save Lichess file`,
-      loading: t`Saving Lichess file…`,
-      success: t`Lichess file saved`,
-      error: t`Try saving again`,
+      idle: t`Upload Lichess file`,
+      loading: t`Uploading Lichess file…`,
+      success: t`Lichess file uploaded`,
+      error: t`Try uploading again`,
     },
   });
   createEffect(on(props.state.file, () => save.reset(), { defer: true }));
@@ -81,8 +82,8 @@ export function PuzzleSourceControls(props: {
             />
             <Notice>
               <Trans>
-                Load the saved file into this environment. The same file is
-                available to every environment.
+                The Lichess file is in the shared bucket. Start loading to add
+                its puzzles to this environment.
               </Trans>
             </Notice>
           </>
@@ -99,8 +100,9 @@ export function PuzzleSourceControls(props: {
         <Show when={!props.state.uploading()}>
           <Notice dataSet={{ testid: 'puzzle-source-missing' }}>
             <Trans>
-              No Lichess file has been saved yet. Choose the database CSV or its
-              .csv.zst archive once to make it available to every environment.
+              No Lichess file is in the shared bucket. Choose a .csv or .csv.zst
+              file to upload. Once uploaded, start loading to add its puzzles to
+              this environment.
             </Trans>
           </Notice>
         </Show>
@@ -132,12 +134,17 @@ export function PuzzleSourceControls(props: {
       </Show>
       <Show when={props.state.uploading()}>
         <div role="status" data-testid="puzzle-source-saving">
-          <Notice>
-            <Trans>
-              Saved {props.state.uploadedRows()} puzzles. Keep this screen open
-              until the file finishes saving.
-            </Trans>
-          </Notice>
+          <LinearProgress
+            label={t`Uploading Lichess file`}
+            progress={props.state.uploadProgress()}
+            dataSet={{ testid: 'puzzle-source-progress' }}
+            description={
+              <Trans>
+                Uploaded {props.state.uploadedRows()} puzzles to the shared
+                bucket. Keep this screen open until the upload finishes.
+              </Trans>
+            }
+          />
         </div>
       </Show>
     </>

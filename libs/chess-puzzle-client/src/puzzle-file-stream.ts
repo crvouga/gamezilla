@@ -2,9 +2,13 @@ import { Decompress } from 'fzstd';
 import { readPuzzleFile } from './read-puzzle-file';
 
 /** Streaming Zstandard keeps the full database out of browser memory. */
-export function puzzleFileStream(file: File): ReadableStream<Uint8Array> {
-  if (!file.name.toLowerCase().endsWith('.zst')) return readPuzzleFile(file);
-  const reader = readPuzzleFile(file).getReader();
+export function puzzleFileStream(
+  file: File,
+  onRead?: (bytes: number) => void
+): ReadableStream<Uint8Array> {
+  const input = readPuzzleFile(file, onRead);
+  if (!file.name.toLowerCase().endsWith('.zst')) return input;
+  const reader = input.getReader();
   let decompressor: Decompress;
   return new ReadableStream<Uint8Array>({
     start(controller) {

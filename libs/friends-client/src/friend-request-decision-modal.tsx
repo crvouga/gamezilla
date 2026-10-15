@@ -11,10 +11,11 @@ import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { Button } from '@pkgs/ui-root-client/button';
 import { ModalBody, ModalFooter } from '@pkgs/ui-root-client/modal-parts';
 import type { MutationStateTransition } from '@pkgs/ui-root-client/mutation-lifecycle';
+import { useConfirmNavigation } from '@pkgs/ui-root-client/pending-navigation';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import type { JSX } from 'solid-js';
-import { createMemo, Show } from 'solid-js';
+import { createMemo, Show, untrack } from 'solid-js';
 
 import { FriendProfileAvatar } from './friend-profile-avatar';
 import { profileFromFriendRequestNotification } from './friend-request-notification-profile';
@@ -150,6 +151,7 @@ export function FriendRequestDecisionModal(
   props: FriendRequestDecisionModalProps
 ): JSX.Element {
   const router = useRouter();
+  const confirmNavigation = useConfirmNavigation();
   const moderation = useModeration();
   const profile = createMemo(() =>
     profileFromFriendRequestNotification(props.interaction)
@@ -158,21 +160,24 @@ export function FriendRequestDecisionModal(
     () => displayNotification(moderation(), props.interaction).title
   );
 
-  const onViewProfile = () => {
-    props.onClose();
-    if (props.interaction.deepLink === undefined) return;
-    router.push({
-      pathname: props.interaction.deepLink.path,
-      ...(props.interaction.deepLink.params !== undefined
-        ? {
-            params: props.interaction.deepLink.params as Record<
-              string,
-              string | undefined
-            >,
-          }
-        : {}),
-    });
-  };
+  const onViewProfile = () =>
+    confirmNavigation(() =>
+      untrack(() => {
+        props.onClose();
+        if (props.interaction.deepLink === undefined) return;
+        router.push({
+          pathname: props.interaction.deepLink.path,
+          ...(props.interaction.deepLink.params !== undefined
+            ? {
+                params: props.interaction.deepLink.params as Record<
+                  string,
+                  string | undefined
+                >,
+              }
+            : {}),
+        });
+      })
+    );
 
   return (
     <ResponsiveSurface

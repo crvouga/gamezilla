@@ -11,6 +11,7 @@
 import type { Href, HrefObject } from '@pkgs/ui-root-shared/href';
 import { hrefToPath, normalizePath } from '@pkgs/ui-root-shared/href';
 import {
+  useBeforeLeave,
   useLocation,
   useNavigate,
   useParams,
@@ -24,6 +25,11 @@ import {
   untrack,
   useContext,
 } from 'solid-js';
+import {
+  useConfirmNavigation,
+  usePendingNavigation,
+} from './pending-navigation';
+import { PendingNavigationProvider } from './pending-navigation-provider';
 
 export type AppRouter = {
   push: (href: Href | HrefObject) => void;
@@ -39,25 +45,38 @@ export type AppRouterProviderProps = {
 };
 
 /** Mount once inside `<Router>`; provides the facade to the subtree. */
-export function AppRouterProvider(props: AppRouterProviderProps): JSX.Element {
+function RoutedAppRouter(props: AppRouterProviderProps): JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
+  const navigation = usePendingNavigation();
+  const confirmNavigation = useConfirmNavigation();
+  useBeforeLeave((event) => {
+    if (event.defaultPrevented || !navigation?.blocked()) return;
+    event.preventDefault();
+    navigation.request(() => event.retry(true));
+  });
   const [depth, setDepth] = createSignal(0);
   const router: AppRouter = {
     push(href) {
       const path = normalizePath(hrefToPath(href));
       if (path === `${location.pathname}${location.search}${location.hash}`)
         return;
-      navigate(path);
-      setDepth((d) => d + 1);
+      confirmNavigation(() => {
+        navigate(path);
+        setDepth((d) => d + 1);
+      });
     },
     replace(href) {
-      navigate(normalizePath(hrefToPath(href)), { replace: true });
+      confirmNavigation(() =>
+        navigate(normalizePath(hrefToPath(href)), { replace: true })
+      );
     },
     back() {
       if (depth() === 0) return;
-      setDepth((d) => d - 1);
-      navigate(-1);
+      confirmNavigation(() => {
+        setDepth((d) => d - 1);
+        navigate(-1);
+      });
     },
     canGoBack: () => depth() > 0,
   };
@@ -68,16 +87,43 @@ export function AppRouterProvider(props: AppRouterProviderProps): JSX.Element {
   );
 }
 
+export function AppRouterProvider(props: AppRouterProviderProps): JSX.Element {
+  return (
+    <PendingNavigationProvider>
+      <RoutedAppRouter>{props.children}</RoutedAppRouter>
+    </PendingNavigationProvider>
+  );
+}
+
 /** Explicit router (tests / hosts without `@solidjs/router`). */
-export function StaticAppRouterProvider(props: {
+type StaticRouterProps = {
   readonly router: AppRouter;
   readonly children: JSX.Element;
-}): JSX.Element {
+};
+
+function StaticRouterContext(props: StaticRouterProps): JSX.Element {
   const router = untrack(() => props.router);
+  const confirmNavigation = useConfirmNavigation();
+  const guarded: AppRouter = {
+    push: (href) => confirmNavigation(() => router.push(href)),
+    replace: (href) => confirmNavigation(() => router.replace(href)),
+    back: () => confirmNavigation(router.back),
+    canGoBack: router.canGoBack,
+  };
   return (
-    <AppRouterContext.Provider value={router}>
+    <AppRouterContext.Provider value={guarded}>
       {props.children}
     </AppRouterContext.Provider>
+  );
+}
+
+export function StaticAppRouterProvider(props: StaticRouterProps): JSX.Element {
+  return (
+    <PendingNavigationProvider>
+      <StaticRouterContext router={props.router}>
+        {props.children}
+      </StaticRouterContext>
+    </PendingNavigationProvider>
   );
 }
 

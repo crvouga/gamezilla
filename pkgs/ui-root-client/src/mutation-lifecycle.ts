@@ -12,6 +12,7 @@
 import { createAsync } from '@pkgs/async-root-client/solid';
 import type { AsyncStatus } from '@pkgs/async-root-shared/async-runner';
 import { type Accessor, createEffect, on, untrack } from 'solid-js';
+import { usePendingOperation } from './pending-navigation';
 
 export type MutationPhase = 'idle' | 'loading' | 'success' | 'error';
 
@@ -66,6 +67,10 @@ export function useMutationLifecycle(
     },
   });
   const phase = (): MutationPhase => mutationPhaseFromStatus(async.status());
+  usePendingOperation(
+    () => phase() === 'loading',
+    () => async.cancelAll('Leaving while work is in progress')
+  );
   const run = async (): Promise<void> => {
     try {
       await async.run();

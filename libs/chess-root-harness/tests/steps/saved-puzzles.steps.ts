@@ -1,9 +1,9 @@
 import { expect } from 'bun:test';
 import { saveLichessFileInAnotherEnvironment } from '@libs/chess-root-harness/puzzle-import-environments';
+import { saveLichessFileFromSpace } from '@libs/chess-root-harness/puzzle-import-navigation';
 import {
   noSavedLichessFile,
   readPuzzleSource,
-  saveLichessFile,
   seedSavedLichessFile,
 } from '@libs/chess-root-harness/puzzle-source-ui';
 import { Given, Then, When } from '@libs/harness/define';
@@ -16,9 +16,13 @@ Given('the team has saved a Lichess file', (w) =>
 Given('the team has saved a Lichess file in another environment', (w) =>
   w.s.apply(saveLichessFileInAnotherEnvironment)
 );
-When('{actor} saves a Lichess file', (w, actor: Actor) =>
-  w.s.apply(saveLichessFile, actor)
-);
+When('{actor} saves a Lichess file', async (w, actor: Actor) => {
+  await w.s.apply(
+    saveLichessFileFromSpace,
+    actor,
+    w.memo.get('puzzle-management:solver-space') as string
+  );
+});
 Then(
   '{actor} is not asked to provide a Lichess file',
   async (w, actor: Actor) => {
@@ -33,6 +37,8 @@ Then(
     expect(await w.s.read(readPuzzleSource, actor)).toMatchObject({
       saved: false,
       needsFile: true,
+      chooseEnabled: true,
+      saveOffered: true,
       startOffered: false,
     });
   }

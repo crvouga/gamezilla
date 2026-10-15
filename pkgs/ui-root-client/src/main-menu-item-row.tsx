@@ -10,6 +10,7 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { type JSX, Show } from 'solid-js';
 import { ChevronRightIcon, CircleCheckIcon } from './icons';
+import { useConfirmNavigation } from './pending-navigation';
 
 export type MainMenuItem = {
   /** Stable id for list keys. */
@@ -85,6 +86,7 @@ function ItemBody(props: {
 }
 
 export function MainMenuItemRow(props: { item: MainMenuItem }): JSX.Element {
+  const confirmNavigation = useConfirmNavigation();
   const interactive = (): boolean =>
     props.item.onClick !== undefined && props.item.disabled !== true;
   return (
@@ -104,7 +106,7 @@ export function MainMenuItemRow(props: { item: MainMenuItem }): JSX.Element {
           class="clickable clickableTint items-stretch"
           {...dataAttrs({ component: 'MainMenuItem', ...props.item.dataSet })}
           type="button"
-          onClick={() => onClick()()}
+          onClick={() => confirmNavigation(() => onClick()())}
           disabled={props.item.disabled === true}
           aria-pressed={props.item.selected === true ? true : undefined}
         >

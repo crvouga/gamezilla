@@ -110,7 +110,8 @@ export function PuzzleManagementScreen(props: {
         title={<Trans>Load chess puzzles</Trans>}
         subtitle={
           <Trans>
-            Load this environment's puzzles from the saved Lichess file.
+            Upload a missing Lichess file, then load its puzzles into this
+            environment.
           </Trans>
         }
       >

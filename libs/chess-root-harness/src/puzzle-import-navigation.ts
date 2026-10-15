@@ -3,6 +3,8 @@ import {
   openPuzzleFromSpace,
 } from '@libs/chess-puzzle-harness/chess-actions';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
+import { reopenSpaceLink } from '@libs/spaces-harness/space-actions';
+import { readPuzzleSource, saveLichessFile } from './puzzle-source-ui';
 
 export const openChessPuzzleDeveloperSettings = scenarioAction({
   name: 'openChessPuzzleDeveloperSettings',
@@ -20,5 +22,18 @@ export const openChessPuzzleLoader = scenarioAction({
     const ui = await actorUi(s, actor);
     await ui.get('chess-developer-puzzles').tap();
     await ui.get('puzzle-load-content').expect.visible();
+  },
+});
+
+/** Exercise file selection from the loader embedded in a space. */
+export const saveLichessFileFromSpace = scenarioAction({
+  name: 'saveLichessFileFromSpace',
+  act: async (s, actor: string, spaceLink: string) => {
+    if (!(await readPuzzleSource(s, actor)).offline) {
+      await Promise.resolve(reopenSpaceLink.act(s, actor, spaceLink));
+      await Promise.resolve(openChessPuzzleDeveloperSettings.act(s, actor));
+      await Promise.resolve(openChessPuzzleLoader.act(s, actor));
+    }
+    await Promise.resolve(saveLichessFile.act(s, actor));
   },
 });
