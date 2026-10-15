@@ -17,7 +17,9 @@ export function useVisibleCustomGames(received: Accessor<CustomGames>) {
     const games = received();
     if (
       connection() === 'ready' ||
-      (currentRoom() && games.current !== null) ||
+      (currentRoom() &&
+        (games.current?.status === 'completed' ||
+          games.current?.status === 'cancelled')) ||
       (engine.status().online && games.current?.status === 'cancelled')
     )
       return games;
