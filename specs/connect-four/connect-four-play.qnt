@@ -137,7 +137,7 @@ module connect_four_play {
   val _unfinished = result == 0 implies (not(_won(board, 1)) and not(_won(board, 2)))
   pure val _BOARDS = tuples(Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2), Set(0, 1, 2)).map(t => { p0: t._1, p1: t._2, p2: t._3, p3: t._4, p4: t._5, p5: t._6, p6: t._7, p7: t._8, p8: t._9, p9: t._10, p10: t._11, p11: t._12, p12: t._13, p13: t._14, p14: t._15, p15: t._16, p16: t._17, p17: t._18, p18: t._19, p19: t._20, p20: t._21, p21: t._22, p22: t._23, p23: t._24, p24: t._25, p25: t._26, p26: t._27, p27: t._28, p28: t._29, p29: t._30, p30: t._31, p31: t._32, p32: t._33, p33: t._34, p34: t._35, p35: t._36, p36: t._37, p37: t._38, p38: t._39, p39: t._40, p40: t._41, p41: t._42 })
   pure val _COLUMNS = tuples(0.to(6), 0.to(6), 0.to(6), 0.to(6), 0.to(6), 0.to(6), 0.to(6)).map(t => { c0: t._1, c1: t._2, c2: t._3, c3: t._4, c4: t._5, c5: t._6, c6: t._7 })
-  pure val _DROPS = 0.to(6).allListsUpTo(42)
+  pure val _DROPS = 0.to(6).allLists()
   val _inductive = all {
     board.in(_BOARDS), _heights.in(_COLUMNS), drops.in(_DROPS),
     turn.in(Set(1, 2)), result.in(Set(0, 1, 2, 3)), online.in(Set(false, true)),
