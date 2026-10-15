@@ -119,6 +119,19 @@ async function readPointerCounts(view: BunWebView): Promise<PointerCounts> {
   };
 }
 
+function clickProgress(
+  completion: 'pointer' | 'click',
+  counts: PointerCounts,
+  initial: PointerCounts
+): 'delivered' | 'pending' | 'send' {
+  if (completion !== 'click') return 'send';
+  if (counts.documentId !== initial.documentId || counts.click > initial.click)
+    return 'delivered';
+  return counts.down > initial.down && counts.up > initial.up
+    ? 'pending'
+    : 'send';
+}
+
 /**
  * `Bun.WebView.click(x, y)` synthesizes a non-automation `NSEvent` pair, so
  * WebKit reads `buttons` from the *system-wide* `[NSEvent pressedMouseButtons]`.
@@ -144,9 +157,15 @@ async function nativeClick(
   const { x, y } = point;
   const awaitsRelease = button !== 'secondary';
   let pressed = false;
+  let initial: PointerCounts | null = null;
   for (let attempt = 1; attempt <= NATIVE_CLICK_ATTEMPTS; attempt += 1) {
     if (attempt > 1) await view.evaluate(RESEND_PAUSE);
     const before = await readPointerCounts(view);
+    initial ??= before;
+    const progress = clickProgress(completion, before, initial);
+    if (progress === 'delivered') return;
+    // A complete press may still have its click queued in the page event loop.
+    if (progress === 'pending') continue;
     await view.click(x, y, {
       button: button === 'secondary' ? 'right' : 'left',
     });
@@ -154,7 +173,7 @@ async function nativeClick(
     // A form navigation replaces the counters; the old click has already landed.
     if (after.documentId !== before.documentId) return;
     if (completion === 'click') {
-      if (after.click > before.click) return;
+      if (after.click > initial.click) return;
       continue;
     }
     pressed ||= after.down > before.down;

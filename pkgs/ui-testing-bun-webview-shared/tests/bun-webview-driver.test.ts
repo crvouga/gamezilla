@@ -130,6 +130,37 @@ describe('BunWebviewDriver', () => {
     expect(view.pointer).toEqual({ down: 1, up: 0, click: 1 });
   });
 
+  it.each([1, 2])(
+    'a click delivered after %i acknowledgement polls is never sent again',
+    async (deliveryPolls) => {
+      // regression: browser-tap-repeats-late-click
+      const view = createFakeView();
+      const fallback = view.evaluate.getMockImplementation();
+      let late = false;
+      let polls = 0;
+      view.evaluate.mockImplementation((script: string) => {
+        if (script.includes('document.elementFromPoint'))
+          return Promise.resolve({ x: 50, y: 25 });
+        if (script.includes('setTimeout') && late) polls += 1;
+        if (polls >= deliveryPolls && late) {
+          view.pointer.click = (view.pointer.click ?? 0) + 1;
+          late = false;
+        }
+        return fallback?.(script);
+      });
+      view.click.mockImplementation(() => {
+        view.pointer.down += 1;
+        view.pointer.up += 1;
+        late = true;
+        if (view.click.mock.calls.length > 1)
+          view.pointer.click = (view.pointer.click ?? 0) + 1;
+        return Promise.resolve();
+      });
+      await new BunWebviewDriver({ view, timers }).get('find-opponent').tap();
+      expect(view.click).toHaveBeenCalledTimes(1);
+    }
+  );
+
   it('a menu tap completes a pointer press before returning', async () => {
     // regression: browser-menu-tap-incomplete-pointer
     const view = createFakeView();
