@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The only workspace start script. A cold checkout (no warm mark) prepares
-# itself once: pinned tools, dependencies, and the gitignored
-# local files. Every later run skips that and starts the stack. Preparation
+# itself once: dependencies and the gitignored local files. Every run first
+# installs the pinned system tools and loads their environment. Preparation
 # is idempotent and never fails the launch — a step that cannot finish says
 # so, the warm mark is still written, and dev starts. Pressing Run again is
 # safe. Deleting .cache/workspace-warm repeats preparation.
@@ -14,25 +14,19 @@ set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 # shellcheck source=libs/tools/workspace/install.sh
 . "$(dirname "${BASH_SOURCE[0]}")/install.sh"
+# shellcheck source=libs/tools/workspace/system.sh
+. "$(dirname "${BASH_SOURCE[0]}")/system.sh"
 # shellcheck source=libs/tools/workspace/port.sh
 . "$(dirname "${BASH_SOURCE[0]}")/port.sh"
 
 WARM_MARK=".cache/workspace-warm"
 STEP="$WORKSPACE_PATH/libs/tools/workspace/step.sh"
 
-workspace_mise() {
-  mise trust --quiet mise.toml
-  mise install
-}
+workspace_quiet "mise install" workspace_system ||
+  echo "!!! system tool setup is incomplete; Run retries it on the next launch"
 
 # One-time preparation. Each step names its own fix and returns here.
 workspace_cold() {
-  if command -v mise >/dev/null 2>&1; then
-    workspace_quiet "mise install" workspace_mise ||
-      echo "!!! mise install failed; run 'mise install' in this workspace"
-  else
-    echo "!!! mise not found; install it (https://mise.jdx.dev) and run 'mise install'"
-  fi
   workspace_install ||
     echo "!!! launching dev on an incomplete install"
   "$STEP" local-files || echo "!!! workspace:local-files is unfinished"

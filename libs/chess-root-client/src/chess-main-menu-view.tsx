@@ -2,6 +2,7 @@ import { ChessPuzzleFeedProvider } from '@libs/chess-puzzle-client/chess-puzzle-
 import { PuzzlePlayScreen } from '@libs/chess-puzzle-client/chess-puzzle-play-screen';
 import { ChessPuzzleReviewScreen } from '@libs/chess-puzzle-client/chess-puzzle-review-screen';
 import { ChessStatsScreen } from '@libs/chess-puzzle-client/chess-stats-screen';
+import { PuzzleManagementScreen } from '@libs/chess-puzzle-client/puzzle-management-screen';
 import { useIsPuzzleDriver } from '@libs/chess-puzzle-client/use-puzzle-space-role';
 import { LINKED_PUZZLE_PARAM } from '@libs/chess-puzzle-shared/puzzle-link';
 import type { ChessMainMenuScreen } from '@libs/chess-root-shared/chess-main-menu';
@@ -70,6 +71,16 @@ function ChessScreenContent(props: {
       </Match>
       <Match when={props.screen === CHESS_SCREEN.settingsDeveloper}>
         <ChessSettingsDeveloperScreen />
+      </Match>
+      <Match when={props.screen === CHESS_SCREEN.settingsDeveloperPuzzles}>
+        <DefineBackButton
+          onPress={() =>
+            dispatch(
+              SetChessMainMenuScreen({ screen: CHESS_SCREEN.settingsDeveloper })
+            )
+          }
+        />
+        <PuzzleManagementScreen embedded />
       </Match>
       <Match when={props.screen === CHESS_SCREEN.settingsDeveloperUi}>
         <ChessSettingsDeveloperUiComponentsScreen />
@@ -178,6 +189,7 @@ function RootMainMenu(props: ChessMainMenuProps): JSX.Element {
     },
     {
       key: 'settings',
+      dataSet: { testid: 'chess-menu-settings' },
       title: <Trans>Settings</Trans>,
       caption: <Trans>Preferences and developer tools</Trans>,
       onClick: () =>

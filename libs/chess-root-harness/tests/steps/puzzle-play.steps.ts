@@ -211,7 +211,11 @@ Given(
 Then('{actor} has a puzzle on the board', async (w, actor: Actor) => {
   const device = deviceInHand(w, actor);
   await w.s.apply(focusActor, device);
-  expect(await w.s.read(readActivePuzzleId, device)).not.toBeNull();
+  const puzzleId = await w.s.until((s) => readActivePuzzleId(s, device), {
+    pred: (id) => id !== null,
+    maxMs: SETTLE_MS,
+  });
+  expect(puzzleId).not.toBeNull();
 });
 
 Then(

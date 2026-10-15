@@ -8,6 +8,7 @@ import { partition } from '@libs/harness/actions';
 import { openHarness } from './open-chess-harness';
 
 // regression: game-session-offline-host-board-disabled
+// regression: solo-custom-setup-self-invitation
 test('an offline solo host can click column four and receive the local bot reply', async () => {
   await using s = await openHarness('offline-host-column-four');
   await s.apply(establishConnectFour, { yellow: 'bot' });

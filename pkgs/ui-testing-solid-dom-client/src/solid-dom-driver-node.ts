@@ -94,6 +94,26 @@ export class SolidDomDriverNode implements DriverNode {
     await this.host.requireApp().clearText(this.requireElement());
   }
 
+  async selectFile(file: {
+    readonly name: string;
+    readonly bytes: readonly number[];
+  }): Promise<void> {
+    await this.waitVisible();
+    const root = this.requireElement() as Element;
+    const input = (
+      root.matches('input[type="file"]')
+        ? root
+        : root.querySelector('input[type="file"]')
+    ) as HTMLInputElement | null;
+    if (!input) throw new Error('File input not found');
+    const selected = new File([new Uint8Array(file.bytes)], file.name);
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [selected],
+    });
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
   async key(key: DriverKey): Promise<void> {
     await this.host.activate();
     await this.host

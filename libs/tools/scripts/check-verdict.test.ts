@@ -37,6 +37,9 @@ describe('check verdict', () => {
     expect(suiteOf('@libs/chess-root-harness#check:models:7')).toBe(
       'Quint models'
     );
+    expect(suiteOf('@libs/profile-harness#check:models:2:8')).toBe(
+      'Quint models'
+    );
     expect(suiteOf('@libs/tools#check:root-lint')).toBe('Lint and boundaries');
     expect(suiteOf('@apps/product#test:spec:12')).toBe('Gherkin specs');
     expect(suiteOf('@apps/product#check:models')).toBe('Quint models');

@@ -804,12 +804,15 @@ journeys:
     events:
     - Opens Settings
     - Opens puzzle import
-    - Adds puzzle material with permission online
-    - Puzzle import fails
-    - Tries adding the puzzle material again
-    - Puzzle import completes
+    - Team access is allowed
+    - A complete file is found
+    - The current addition is ready
+    - Starts adding puzzles from the saved file
+    - Adding puzzles fails
+    - Starts adding puzzles again
+    - Adding puzzles finishes
     endsIn:
-    - 'Puzzle Ingest: Import outcome'
+    - 'Puzzle loading result: Finished'
     gherkin:
     - specs/chess/puzzle-ingest.feature
     tour: true
@@ -918,8 +921,11 @@ journeys:
     - Connection returns
     - Opens Settings
     - Opens puzzle import
-    - Adds puzzle material with permission online
-    - Puzzle import completes
+    - Team access is allowed
+    - A complete file is found
+    - The current addition is ready
+    - Starts adding puzzles from the saved file
+    - Adding puzzles finishes
     - Opens the testing tool
     - Opens test worlds
     - Opens test checkpoints

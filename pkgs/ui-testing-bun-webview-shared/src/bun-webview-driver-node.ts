@@ -293,6 +293,16 @@ export class BunWebviewDriverNode implements DriverNode {
     );
   }
 
+  async selectFile(file: {
+    readonly name: string;
+    readonly bytes: readonly number[];
+  }): Promise<void> {
+    await this.waitVisible();
+    await (await this.view()).evaluate(
+      `(function(){ const root = document.querySelector(${JSON.stringify(cssPath(this.path))}); const input = root?.matches('input[type="file"]') ? root : root?.querySelector('input[type="file"]'); if (!input) throw new Error('File input not found'); const file = ${JSON.stringify(file)}; const data = new DataTransfer(); data.items.add(new File([new Uint8Array(file.bytes)], file.name)); input.files = data.files; input.dispatchEvent(new Event('change', { bubbles: true })); })()`
+    );
+  }
+
   async key(key: DriverKey): Promise<void> {
     const domKey = DRIVER_KEY_TO_DOM[key];
     const sel = JSON.stringify(cssPath(this.path));

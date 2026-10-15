@@ -4,8 +4,45 @@ import { DEFAULT_SYNTHETIC_POPULATION_CONFIG } from '@libs/synthetic-population-
 import { localApiEnv } from './local-api-env';
 import { localPopulationConfig } from './local-population-config';
 import { localProcessEnv } from './local-process-env';
+import {
+  isolatedSharedDataEnv,
+  localSharedDataEnv,
+} from './local-shared-data-env';
 import { parseStackOptions } from './stack-options';
 import { stackSuiteArgs } from './stack-suite-args';
+
+test('only shared reference-data credentials cross into local APIs and stack tests replace them', async () => {
+  const shared = {
+    SHARED_DATA_BUCKET: 'gamezilla-shared',
+    SHARED_DATA_ENDPOINT: 'https://r2.example',
+    SHARED_DATA_REGION: 'auto',
+    SHARED_DATA_ACCESS_KEY_ID: 'shared-key',
+    SHARED_DATA_SECRET_ACCESS_KEY: 'shared-secret',
+  };
+  expect(
+    await localSharedDataEnv({
+      ...shared,
+      DATABASE_URL: 'postgres://outside',
+      S3_BUCKET: 'outside',
+    })
+  ).toEqual(shared);
+  expect(
+    isolatedSharedDataEnv({
+      S3_BUCKET: 'disposable',
+      S3_ENDPOINT: 'http://127.0.0.1:10001',
+      S3_REGION: 'auto',
+      S3_ACCESS_KEY_ID: 'test-key',
+      S3_SECRET_ACCESS_KEY: 'test-secret',
+      ...shared,
+    })
+  ).toEqual({
+    SHARED_DATA_BUCKET: 'disposable',
+    SHARED_DATA_ENDPOINT: 'http://127.0.0.1:10001',
+    SHARED_DATA_REGION: 'auto',
+    SHARED_DATA_ACCESS_KEY_ID: 'test-key',
+    SHARED_DATA_SECRET_ACCESS_KEY: 'test-secret',
+  });
+});
 
 test('a default local stack admits a synthetic opponent', () => {
   // regression: local-population-zero-desired

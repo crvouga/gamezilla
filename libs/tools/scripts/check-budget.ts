@@ -48,9 +48,9 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   '@pkgs/matchmaking-root-harness#check:models:1': 480,
   // `multiplayer.qnt`, alone in its part: twenty actions over three people's
   // six devices, explored two steps from every reachable start. 309 s on a
-  // 12-core laptop. Path order puts it in part 8 once space-follow and
-  // multiplayer-shared-game join the sixteen chess models.
-  '@libs/chess-root-harness#check:models:8': 420,
+  // 12-core laptop. Path order puts it in part 10 after the Lichess-file preparation and
+  // departure models join the Chess contracts.
+  '@libs/chess-root-harness#check:models:10': 420,
   // The eleven symbolic models used to share one task. Deploy 38446818279
   // killed that task at 840 s on a 2-core runner (Check concurrency 1) before
   // it finished. Each part keeps that same allowance for one model; the

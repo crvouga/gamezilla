@@ -33,6 +33,8 @@ export const DEFAULT_OUTBOX_RETRY_POLICY: OutboxRetryPolicy = {
 
 export type OutboxConsumerDef<P = unknown> = {
   readonly id: string;
+  /** Background work is delivered by the worker, outside request latency. */
+  readonly delivery?: 'background';
   readonly on: MessageTag<P>;
   readonly retryPolicy?: OutboxRetryPolicy;
   readonly handler: (

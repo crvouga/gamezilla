@@ -1,0 +1,4 @@
+{
+  "summary": "A stopped import left an earlier outbox delivery ahead of a later saved-source load. The harness worker action must target the current job part so one progress action cannot be consumed by superseded work.",
+  "regressionTest": "libs/chess-root-harness/tests/quint/puzzle-loading.binding.ts"
+}

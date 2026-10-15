@@ -738,7 +738,49 @@
       "Opens a Connect Four custom game": "user",
       "Finds a Connect Four opponent": "user",
       "Reviews a Connect Four game": "user",
-      "Returns to the game choice": "user"
+      "Returns to the game choice": "user",
+      "Leaves adding puzzles": "user",
+      "Team access is allowed": "system",
+      "Team access is refused": "system",
+      "Team access is lost": "system",
+      "A complete file is found": "system",
+      "No complete file is found": "system",
+      "Checking fails": "system",
+      "Connection is lost": "system",
+      "Chooses a Lichess file": "user",
+      "Checks for the saved file again": "user",
+      "Starts saving the chosen file online": "user",
+      "Chooses a different Lichess file": "user",
+      "Saving the file finishes": "system",
+      "Saving the file fails": "system",
+      "Asks to stop saving": "user",
+      "Leaves before saving finishes": "user",
+      "Confirms stopping the save": "user",
+      "Cancels stopping the save": "user",
+      "Saving finishes before confirmation": "system",
+      "Saving fails before confirmation": "system",
+      "Saves the chosen file again online": "user",
+      "Chooses another Lichess file": "user",
+      "Returns to adding puzzles": "user",
+      "The current addition is ready": "system",
+      "The current addition is adding": "system",
+      "The current addition is finished": "system",
+      "The current addition is failed": "system",
+      "The current addition is stopped": "system",
+      "Starts adding puzzles from the saved file": "user",
+      "Adding puzzles finishes": "system",
+      "Adding puzzles fails": "system",
+      "A confirmed stop finishes": "system",
+      "Starts adding puzzles again": "user",
+      "Asks to stop an ongoing addition online": "user",
+      "Cancels stopping": "user",
+      "Confirms stopping online": "user",
+      "Stopping fails": "system",
+      "Confirms stopping again online": "user",
+      "Dismisses the stop outcome": "user",
+      "Tries to start or stop without a connection": "user",
+      "Returns to settings": "user",
+      "Signs in with permitted team access": "user"
     }
   },
   "states": {
@@ -2677,7 +2719,7 @@
                           "target": "#App: Sign-in methods"
                         },
                         "Opens puzzle import": {
-                          "target": "#App: Puzzle import"
+                          "target": "#App: Adding puzzles"
                         }
                       }
                     },
@@ -8144,152 +8186,6 @@
                     }
                   }
                 },
-                "App: Puzzle import": {
-                  "id": "App: Puzzle import",
-                  "meta": {
-                    "description": "An allowed person adds puzzle material and sees accepted and broken items or a retryable failure.",
-                    "snapshot": "An allowed person can add puzzle material.",
-                    "confidence": "assumed",
-                    "source": [
-                      "specs/chess/puzzle-ingest.feature",
-                      "specs/chess/puzzle-loading.qnt",
-                      "specs/chess/puzzle-management-access.dmn",
-                      "specs/chess/ubiquitous-language.yml",
-                      "specs/ubiquitous-language.yml"
-                    ],
-                    "events": []
-                  },
-                  "initial": "Puzzle Ingest: Ready to add puzzles",
-                  "states": {
-                    "Puzzle Ingest: Ready to add puzzles": {
-                      "id": "Puzzle Ingest: Ready to add puzzles",
-                      "meta": {
-                        "routes": ["/more/puzzles"],
-                        "description": "Adding puzzles is offered only when the current permission allows it.",
-                        "snapshot": "Adding puzzles is offered only when the current permission allows it.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/chess/puzzle-ingest.feature:6",
-                          "specs/chess/puzzle-ingest.feature:19",
-                          "specs/chess/puzzle-ingest.feature:46",
-                          "specs/chess/puzzle-ingest.feature:59",
-                          "specs/chess/puzzle-ingest.feature:82"
-                        ],
-                        "events": [],
-                        "hints": ["App address: /more/puzzles"]
-                      },
-                      "on": {
-                        "Adds puzzle material with permission online": {
-                          "target": "#Puzzle Ingest: Adding puzzles"
-                        },
-                        "Adds puzzle material without permission": {
-                          "target": "#Puzzle Ingest: Adding refused"
-                        },
-                        "Adds puzzle material offline": {
-                          "target": "#Puzzle Ingest: Adding needs connection"
-                        }
-                      }
-                    },
-                    "Puzzle Ingest: Adding puzzles": {
-                      "id": "Puzzle Ingest: Adding puzzles",
-                      "meta": {
-                        "description": "The supplied puzzle material is being checked and added.",
-                        "snapshot": "The supplied puzzle material is being checked and added.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/chess/puzzle-management-access.dmn",
-                          "specs/chess/puzzle-ingest.feature",
-                          "specs/chess/puzzle-loading.qnt"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Puzzle import completes": {
-                          "target": "#Puzzle Ingest: Import outcome"
-                        },
-                        "Puzzle import fails": {
-                          "target": "#Puzzle Ingest: Import failed"
-                        }
-                      }
-                    },
-                    "Puzzle Ingest: Import outcome": {
-                      "id": "Puzzle Ingest: Import outcome",
-                      "meta": {
-                        "description": "The accepted and broken puzzle counts explain the completed import.",
-                        "snapshot": "The accepted and broken puzzle counts explain the completed import.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/chess/puzzle-management-access.dmn",
-                          "specs/chess/puzzle-ingest.feature",
-                          "specs/chess/puzzle-loading.qnt"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Adds more puzzle material": {
-                          "target": "#Puzzle Ingest: Ready to add puzzles"
-                        }
-                      }
-                    },
-                    "Puzzle Ingest: Import failed": {
-                      "id": "Puzzle Ingest: Import failed",
-                      "meta": {
-                        "description": "Failed puzzle import gives an explanation and another attempt.",
-                        "snapshot": "Failed puzzle import gives an explanation and another attempt.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/chess/puzzle-management-access.dmn",
-                          "specs/chess/puzzle-ingest.feature",
-                          "specs/chess/puzzle-loading.qnt"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Tries adding the puzzle material again": {
-                          "target": "#Puzzle Ingest: Adding puzzles"
-                        }
-                      }
-                    },
-                    "Puzzle Ingest: Adding refused": {
-                      "id": "Puzzle Ingest: Adding refused",
-                      "meta": {
-                        "description": "This person cannot add puzzle material under the current permission.",
-                        "snapshot": "This person cannot add puzzle material under the current permission.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/chess/puzzle-management-access.dmn",
-                          "specs/chess/puzzle-ingest.feature",
-                          "specs/chess/puzzle-loading.qnt"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Returns from refused puzzle import": {
-                          "target": "#App: Tools"
-                        }
-                      }
-                    },
-                    "Puzzle Ingest: Adding needs connection": {
-                      "id": "Puzzle Ingest: Adding needs connection",
-                      "meta": {
-                        "description": "Adding puzzle material needs a connection and keeps the last known outcome.",
-                        "snapshot": "Adding puzzle material needs a connection and keeps the last known outcome.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/chess/puzzle-management-access.dmn",
-                          "specs/chess/puzzle-ingest.feature",
-                          "specs/chess/puzzle-loading.qnt"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Connection returns": {
-                          "target": "#Puzzle Ingest: Ready to add puzzles"
-                        }
-                      }
-                    }
-                  }
-                },
                 "App: Ended space": {
                   "id": "App: Ended space",
                   "meta": {
@@ -11119,6 +11015,718 @@
                           "target": "#App: Spaces"
                         }
                       }
+                    }
+                  }
+                },
+                "App: Adding puzzles": {
+                  "id": "App: Adding puzzles",
+                  "meta": {
+                    "description": "The team provides the first complete shared Lichess file and uses it to add puzzles to one environment. All file and addition states remain distinct.",
+                    "snapshot": "The team provides the first complete shared Lichess file and uses it to add puzzles to one environment. All file and addition states remain distinct.",
+                    "confidence": "assumed",
+                    "source": [
+                      "specs/chess/saved-puzzles.feature",
+                      "specs/chess/lichess-file-checking.feature",
+                      "specs/chess/lichess-file-saving.feature",
+                      "specs/chess/lichess-file-preparation.qnt",
+                      "specs/chess/lichess-file-leaving.feature",
+                      "specs/chess/lichess-file-leaving.qnt",
+                      "specs/chess/puzzle-source.qnt",
+                      "specs/chess/puzzle-ingest.feature",
+                      "specs/chess/puzzle-load-controls.feature",
+                      "specs/chess/puzzle-load-progress.feature",
+                      "specs/chess/puzzle-load-updates.feature",
+                      "specs/chess/puzzle-loading-return.feature",
+                      "specs/chess/puzzle-loading.qnt",
+                      "specs/chess/puzzle-loading-choices.qnt",
+                      "specs/chess/puzzle-management-access.dmn"
+                    ],
+                    "events": [],
+                    "routes": ["/more/puzzles"]
+                  },
+                  "states": {
+                    "Puzzle loading: Checking access": {
+                      "id": "Puzzle loading: Checking access",
+                      "meta": {
+                        "description": "The person waits for the permission decision before seeing the shared file or making changes.",
+                        "snapshot": "The person waits for the permission decision before seeing the shared file or making changes.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/chess/puzzle-management-access.dmn",
+                          "specs/chess/lichess-file-checking.feature"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Team access is allowed": {
+                          "target": "#Puzzle loading: Team access"
+                        },
+                        "Team access is refused": {
+                          "target": "#Puzzle loading: Access refused"
+                        }
+                      }
+                    },
+                    "Puzzle loading: Team access": {
+                      "id": "Puzzle loading: Team access",
+                      "meta": {
+                        "description": "The shared-file choice, current addition, stop confirmation and connection are independent visible parts of the same flow.",
+                        "snapshot": "The shared-file choice, current addition, stop confirmation and connection are independent visible parts of the same flow.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/chess/saved-puzzles.feature",
+                          "specs/chess/lichess-file-checking.feature",
+                          "specs/chess/lichess-file-saving.feature",
+                          "specs/chess/lichess-file-preparation.qnt",
+                          "specs/chess/puzzle-source.qnt",
+                          "specs/chess/puzzle-ingest.feature",
+                          "specs/chess/puzzle-load-controls.feature",
+                          "specs/chess/puzzle-load-progress.feature",
+                          "specs/chess/puzzle-load-updates.feature",
+                          "specs/chess/puzzle-loading-return.feature",
+                          "specs/chess/puzzle-loading.qnt",
+                          "specs/chess/puzzle-loading-choices.qnt",
+                          "specs/chess/puzzle-management-access.dmn"
+                        ],
+                        "events": []
+                      },
+                      "states": {
+                        "Puzzle loading: Shared file": {
+                          "id": "Puzzle loading: Shared file",
+                          "meta": {
+                            "description": "The same complete Lichess file supplies every environment. Choosing, saving and checking are independent of an environment addition.",
+                            "snapshot": "The same complete Lichess file supplies every environment. Choosing, saving and checking are independent of an environment addition.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/chess/lichess-file-checking.feature",
+                              "specs/chess/lichess-file-saving.feature",
+                              "specs/chess/lichess-file-preparation.qnt"
+                            ],
+                            "events": []
+                          },
+                          "states": {
+                            "Lichess file: Checking": {
+                              "id": "Lichess file: Checking",
+                              "meta": {
+                                "description": "The team sees checking in progress and keeps any complete file already seen. An unanswered or failed check never means the file is missing.",
+                                "snapshot": "The team sees checking in progress and keeps any complete file already seen. An unanswered or failed check never means the file is missing.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/lichess-file-checking.feature",
+                                  "specs/chess/lichess-file-saving.feature",
+                                  "specs/chess/lichess-file-preparation.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "A complete file is found": {
+                                  "target": "#Lichess file: Saved"
+                                },
+                                "No complete file is found": {
+                                  "target": "#Lichess file: Missing"
+                                },
+                                "Checking fails": {
+                                  "target": "#Lichess file: Check failed"
+                                },
+                                "Connection is lost": {
+                                  "target": "#Lichess file: Needs connection"
+                                }
+                              }
+                            },
+                            "Lichess file: Missing": {
+                              "id": "Lichess file: Missing",
+                              "meta": {
+                                "description": "The team is asked to choose the first Lichess file. Saving and adding puzzles are unavailable until a file is chosen and saved.",
+                                "snapshot": "The team is asked to choose the first Lichess file. Saving and adding puzzles are unavailable until a file is chosen and saved.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/lichess-file-checking.feature",
+                                  "specs/chess/lichess-file-saving.feature",
+                                  "specs/chess/lichess-file-preparation.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Chooses a Lichess file": {
+                                  "target": "#Lichess file: Chosen"
+                                },
+                                "Checks for the saved file again": {
+                                  "target": "#Lichess file: Checking"
+                                }
+                              }
+                            },
+                            "Lichess file: Chosen": {
+                              "id": "Lichess file: Chosen",
+                              "meta": {
+                                "description": "The chosen file can be saved by the connected team. Choosing alone adds no puzzles.",
+                                "snapshot": "The chosen file can be saved by the connected team. Choosing alone adds no puzzles.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/lichess-file-checking.feature",
+                                  "specs/chess/lichess-file-saving.feature",
+                                  "specs/chess/lichess-file-preparation.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Starts saving the chosen file online": {
+                                  "target": "#Lichess file: Saving"
+                                },
+                                "Chooses a different Lichess file": {
+                                  "target": "#Lichess file: Chosen"
+                                },
+                                "Checks for the saved file again": {
+                                  "target": "#Lichess file: Checking"
+                                }
+                              }
+                            },
+                            "Lichess file: Saving": {
+                              "id": "Lichess file: Saving",
+                              "meta": {
+                                "description": "Saving progress is visible. Another file cannot be chosen or saved, and unfinished material cannot supply another environment.",
+                                "snapshot": "Saving progress is visible. Another file cannot be chosen or saved, and unfinished material cannot supply another environment.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/lichess-file-checking.feature",
+                                  "specs/chess/lichess-file-saving.feature",
+                                  "specs/chess/lichess-file-preparation.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Saving the file finishes": {
+                                  "target": "#Lichess file: Saved"
+                                },
+                                "Saving the file fails": {
+                                  "target": "#Lichess file: Save failed"
+                                },
+                                "Asks to stop saving": {
+                                  "target": "#Lichess file: Confirm stopping save"
+                                },
+                                "Connection is lost": {
+                                  "target": "#Lichess file: Save failed"
+                                },
+                                "Leaves before saving finishes": {
+                                  "target": "#Lichess file: Missing"
+                                }
+                              }
+                            },
+                            "Lichess file: Confirm stopping save": {
+                              "id": "Lichess file: Confirm stopping save",
+                              "meta": {
+                                "description": "Saving continues until the team confirms stopping. Cancelling or dismissing keeps the same save running.",
+                                "snapshot": "Saving continues until the team confirms stopping. Cancelling or dismissing keeps the same save running.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/lichess-file-checking.feature",
+                                  "specs/chess/lichess-file-saving.feature",
+                                  "specs/chess/lichess-file-preparation.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Confirms stopping the save": {
+                                  "target": "#Lichess file: Save stopped"
+                                },
+                                "Cancels stopping the save": {
+                                  "target": "#Lichess file: Saving"
+                                },
+                                "Saving finishes before confirmation": {
+                                  "target": "#Lichess file: Saved"
+                                },
+                                "Saving fails before confirmation": {
+                                  "target": "#Lichess file: Save failed"
+                                }
+                              }
+                            },
+                            "Lichess file: Save failed": {
+                              "id": "Lichess file: Save failed",
+                              "meta": {
+                                "description": "The team sees why saving failed and may try the chosen file again, choose a different file, or check whether another environment has saved one.",
+                                "snapshot": "The team sees why saving failed and may try the chosen file again, choose a different file, or check whether another environment has saved one.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/lichess-file-checking.feature",
+                                  "specs/chess/lichess-file-saving.feature",
+                                  "specs/chess/lichess-file-preparation.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Saves the chosen file again online": {
+                                  "target": "#Lichess file: Saving"
+                                },
+                                "Chooses another Lichess file": {
+                                  "target": "#Lichess file: Chosen"
+                                },
+                                "Checks for the saved file again": {
+                                  "target": "#Lichess file: Checking"
+                                }
+                              }
+                            },
+                            "Lichess file: Save stopped": {
+                              "id": "Lichess file: Save stopped",
+                              "meta": {
+                                "description": "An unfinished save is not shared. A later save can use the chosen file again.",
+                                "snapshot": "An unfinished save is not shared. A later save can use the chosen file again.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/lichess-file-checking.feature",
+                                  "specs/chess/lichess-file-saving.feature",
+                                  "specs/chess/lichess-file-preparation.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Saves the chosen file again online": {
+                                  "target": "#Lichess file: Saving"
+                                },
+                                "Chooses another Lichess file": {
+                                  "target": "#Lichess file: Chosen"
+                                },
+                                "Checks for the saved file again": {
+                                  "target": "#Lichess file: Checking"
+                                }
+                              }
+                            },
+                            "Lichess file: Saved": {
+                              "id": "Lichess file: Saved",
+                              "meta": {
+                                "description": "The complete shared file is offered for adding puzzles in this environment. Another file is not requested. Saving the file does not start adding puzzles.",
+                                "snapshot": "The complete shared file is offered for adding puzzles in this environment. Another file is not requested. Saving the file does not start adding puzzles.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/lichess-file-checking.feature",
+                                  "specs/chess/lichess-file-saving.feature",
+                                  "specs/chess/lichess-file-preparation.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Checks for the saved file again": {
+                                  "target": "#Lichess file: Checking"
+                                },
+                                "Connection returns": {
+                                  "target": "#Lichess file: Checking"
+                                }
+                              }
+                            },
+                            "Lichess file: Check failed": {
+                              "id": "Lichess file: Check failed",
+                              "meta": {
+                                "description": "The team sees that checking failed and can check again. A previously seen saved file is retained; an unknown file is never assumed missing.",
+                                "snapshot": "The team sees that checking failed and can check again. A previously seen saved file is retained; an unknown file is never assumed missing.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/lichess-file-checking.feature",
+                                  "specs/chess/lichess-file-saving.feature",
+                                  "specs/chess/lichess-file-preparation.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Checks for the saved file again": {
+                                  "target": "#Lichess file: Checking"
+                                },
+                                "Connection returns": {
+                                  "target": "#Lichess file: Checking"
+                                }
+                              }
+                            },
+                            "Lichess file: Needs connection": {
+                              "id": "Lichess file: Needs connection",
+                              "meta": {
+                                "description": "Without a first answer, the team is told checking needs a connection. No new file is requested on that assumption.",
+                                "snapshot": "Without a first answer, the team is told checking needs a connection. No new file is requested on that assumption.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/lichess-file-checking.feature",
+                                  "specs/chess/lichess-file-saving.feature",
+                                  "specs/chess/lichess-file-preparation.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Connection returns": {
+                                  "target": "#Lichess file: Checking"
+                                }
+                              }
+                            }
+                          },
+                          "initial": "Lichess file: Checking",
+                          "on": {
+                            "Connection returns": {
+                              "target": "#Lichess file: Checking"
+                            }
+                          }
+                        },
+                        "Puzzle loading: Current result": {
+                          "id": "Puzzle loading: Current result",
+                          "meta": {
+                            "description": "Every environment owns its own addition and puzzle pool. Returning or coming online shows its current result.",
+                            "snapshot": "Every environment owns its own addition and puzzle pool. Returning or coming online shows its current result.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/chess/puzzle-ingest.feature",
+                              "specs/chess/puzzle-load-progress.feature",
+                              "specs/chess/puzzle-loading-return.feature",
+                              "specs/chess/puzzle-loading.qnt"
+                            ],
+                            "events": []
+                          },
+                          "states": {
+                            "Puzzle loading result: Checking": {
+                              "id": "Puzzle loading result: Checking",
+                              "meta": {
+                                "description": "The team waits for the current addition result before starting another.",
+                                "snapshot": "The team waits for the current addition result before starting another.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-ingest.feature",
+                                  "specs/chess/puzzle-load-progress.feature",
+                                  "specs/chess/puzzle-loading-return.feature",
+                                  "specs/chess/puzzle-loading.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "The current addition is ready": {
+                                  "target": "#Puzzle loading result: Ready"
+                                },
+                                "The current addition is adding": {
+                                  "target": "#Puzzle loading result: Adding"
+                                },
+                                "The current addition is finished": {
+                                  "target": "#Puzzle loading result: Finished"
+                                },
+                                "The current addition is failed": {
+                                  "target": "#Puzzle loading result: Failed"
+                                },
+                                "The current addition is stopped": {
+                                  "target": "#Puzzle loading result: Stopped"
+                                }
+                              }
+                            },
+                            "Puzzle loading result: Ready": {
+                              "id": "Puzzle loading result: Ready",
+                              "meta": {
+                                "description": "The team can start from the complete saved file with permission and a connection.",
+                                "snapshot": "The team can start from the complete saved file with permission and a connection.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-ingest.feature",
+                                  "specs/chess/puzzle-load-progress.feature",
+                                  "specs/chess/puzzle-loading-return.feature",
+                                  "specs/chess/puzzle-loading.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Starts adding puzzles from the saved file": {
+                                  "target": "#Puzzle loading result: Adding"
+                                }
+                              }
+                            },
+                            "Puzzle loading result: Adding": {
+                              "id": "Puzzle loading result: Adding",
+                              "meta": {
+                                "description": "Accepted, updated, broken and duplicate puzzle counts explain progress. Only one addition runs in this environment; leaving does not stop it.",
+                                "snapshot": "Accepted, updated, broken and duplicate puzzle counts explain progress. Only one addition runs in this environment; leaving does not stop it.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-ingest.feature",
+                                  "specs/chess/puzzle-load-progress.feature",
+                                  "specs/chess/puzzle-loading-return.feature",
+                                  "specs/chess/puzzle-loading.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Adding puzzles finishes": {
+                                  "target": "#Puzzle loading result: Finished"
+                                },
+                                "Adding puzzles fails": {
+                                  "target": "#Puzzle loading result: Failed"
+                                },
+                                "A confirmed stop finishes": {
+                                  "target": "#Puzzle loading result: Stopped"
+                                }
+                              }
+                            },
+                            "Puzzle loading result: Finished": {
+                              "id": "Puzzle loading result: Finished",
+                              "meta": {
+                                "description": "Final counts and the saved source remain available. Existing puzzles and player progress remain. Reusing the source updates earlier puzzles.",
+                                "snapshot": "Final counts and the saved source remain available. Existing puzzles and player progress remain. Reusing the source updates earlier puzzles.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-ingest.feature",
+                                  "specs/chess/puzzle-load-progress.feature",
+                                  "specs/chess/puzzle-loading-return.feature",
+                                  "specs/chess/puzzle-loading.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Starts adding puzzles again": {
+                                  "target": "#Puzzle loading result: Adding"
+                                }
+                              }
+                            },
+                            "Puzzle loading result: Failed": {
+                              "id": "Puzzle loading result: Failed",
+                              "meta": {
+                                "description": "The reason and completed progress remain visible. Earlier puzzles, player progress and the shared file are kept; the team can start again.",
+                                "snapshot": "The reason and completed progress remain visible. Earlier puzzles, player progress and the shared file are kept; the team can start again.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-ingest.feature",
+                                  "specs/chess/puzzle-load-progress.feature",
+                                  "specs/chess/puzzle-loading-return.feature",
+                                  "specs/chess/puzzle-loading.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Starts adding puzzles again": {
+                                  "target": "#Puzzle loading result: Adding"
+                                }
+                              }
+                            },
+                            "Puzzle loading result: Stopped": {
+                              "id": "Puzzle loading result: Stopped",
+                              "meta": {
+                                "description": "Accepted puzzles and completed progress remain. No later work from this addition may change the pool; the shared file is kept.",
+                                "snapshot": "Accepted puzzles and completed progress remain. No later work from this addition may change the pool; the shared file is kept.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-ingest.feature",
+                                  "specs/chess/puzzle-load-progress.feature",
+                                  "specs/chess/puzzle-loading-return.feature",
+                                  "specs/chess/puzzle-loading.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Starts adding puzzles again": {
+                                  "target": "#Puzzle loading result: Adding"
+                                }
+                              }
+                            }
+                          },
+                          "initial": "Puzzle loading result: Checking",
+                          "on": {
+                            "Connection returns": {
+                              "target": "#Puzzle loading result: Checking"
+                            },
+                            "Returns to adding puzzles": {
+                              "target": "#Puzzle loading result: Checking"
+                            }
+                          }
+                        },
+                        "Puzzle loading: Stop choice": {
+                          "id": "Puzzle loading: Stop choice",
+                          "meta": {
+                            "description": "The stop choice can overlap with progress or completion; it never rewrites an already finished result.",
+                            "snapshot": "The stop choice can overlap with progress or completion; it never rewrites an already finished result.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/chess/puzzle-load-controls.feature",
+                              "specs/chess/puzzle-loading-choices.qnt"
+                            ],
+                            "events": []
+                          },
+                          "states": {
+                            "Puzzle loading stop: Idle": {
+                              "id": "Puzzle loading stop: Idle",
+                              "meta": {
+                                "description": "Only the connected team following an ongoing addition is offered stopping.",
+                                "snapshot": "Only the connected team following an ongoing addition is offered stopping.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-load-controls.feature",
+                                  "specs/chess/puzzle-loading-choices.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Asks to stop an ongoing addition online": {
+                                  "target": "#Puzzle loading stop: Confirming"
+                                }
+                              }
+                            },
+                            "Puzzle loading stop: Confirming": {
+                              "id": "Puzzle loading stop: Confirming",
+                              "meta": {
+                                "description": "The team must confirm stopping. Cancelling or dismissing leaves the addition running.",
+                                "snapshot": "The team must confirm stopping. Cancelling or dismissing leaves the addition running.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-load-controls.feature",
+                                  "specs/chess/puzzle-loading-choices.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Cancels stopping": {
+                                  "target": "#Puzzle loading stop: Idle"
+                                },
+                                "Confirms stopping online": {
+                                  "target": "#Puzzle loading stop: Stopping"
+                                }
+                              }
+                            },
+                            "Puzzle loading stop: Stopping": {
+                              "id": "Puzzle loading stop: Stopping",
+                              "meta": {
+                                "description": "The team sees stopping in progress and cannot submit the same choice again.",
+                                "snapshot": "The team sees stopping in progress and cannot submit the same choice again.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-load-controls.feature",
+                                  "specs/chess/puzzle-loading-choices.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "A confirmed stop finishes": {
+                                  "target": "#Puzzle loading stop: Succeeded"
+                                },
+                                "Stopping fails": {
+                                  "target": "#Puzzle loading stop: Failed"
+                                }
+                              }
+                            },
+                            "Puzzle loading stop: Failed": {
+                              "id": "Puzzle loading stop: Failed",
+                              "meta": {
+                                "description": "The stop failure is explained and can be tried again. The current addition result remains honest.",
+                                "snapshot": "The stop failure is explained and can be tried again. The current addition result remains honest.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-load-controls.feature",
+                                  "specs/chess/puzzle-loading-choices.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Confirms stopping again online": {
+                                  "target": "#Puzzle loading stop: Stopping"
+                                },
+                                "Cancels stopping": {
+                                  "target": "#Puzzle loading stop: Idle"
+                                }
+                              }
+                            },
+                            "Puzzle loading stop: Succeeded": {
+                              "id": "Puzzle loading stop: Succeeded",
+                              "meta": {
+                                "description": "The team sees the result of the stop, keeping accepted puzzles. A finished addition stays finished even if confirmation came later.",
+                                "snapshot": "The team sees the result of the stop, keeping accepted puzzles. A finished addition stays finished even if confirmation came later.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-load-controls.feature",
+                                  "specs/chess/puzzle-loading-choices.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Dismisses the stop outcome": {
+                                  "target": "#Puzzle loading stop: Idle"
+                                }
+                              }
+                            }
+                          },
+                          "initial": "Puzzle loading stop: Idle"
+                        },
+                        "Puzzle loading: Connection": {
+                          "id": "Puzzle loading: Connection",
+                          "meta": {
+                            "description": "Offline the last known file and addition remain visible; saving, starting and confirming a stop need a connection.",
+                            "snapshot": "Offline the last known file and addition remain visible; saving, starting and confirming a stop need a connection.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/chess/puzzle-load-controls.feature",
+                              "specs/chess/puzzle-load-updates.feature"
+                            ],
+                            "events": []
+                          },
+                          "states": {
+                            "Puzzle loading connection: Online": {
+                              "id": "Puzzle loading connection: Online",
+                              "meta": {
+                                "description": "The connected team can check, save, add puzzles and confirm stopping when the corresponding choice is available.",
+                                "snapshot": "The connected team can check, save, add puzzles and confirm stopping when the corresponding choice is available.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-load-controls.feature",
+                                  "specs/chess/puzzle-load-updates.feature"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Connection is lost": {
+                                  "target": "#Puzzle loading connection: Offline"
+                                }
+                              }
+                            },
+                            "Puzzle loading connection: Offline": {
+                              "id": "Puzzle loading connection: Offline",
+                              "meta": {
+                                "description": "The last result is retained. Trying to save, start or stop explains that a connection is needed and cannot silently start work later.",
+                                "snapshot": "The last result is retained. Trying to save, start or stop explains that a connection is needed and cannot silently start work later.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/chess/puzzle-load-controls.feature",
+                                  "specs/chess/puzzle-load-updates.feature"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Connection returns": {
+                                  "target": "#Puzzle loading connection: Online"
+                                },
+                                "Tries to start or stop without a connection": {
+                                  "target": "#Puzzle loading connection: Offline"
+                                }
+                              }
+                            }
+                          },
+                          "initial": "Puzzle loading connection: Online"
+                        }
+                      },
+                      "type": "parallel",
+                      "on": {
+                        "Team access is lost": {
+                          "target": "#Puzzle loading: Access refused"
+                        }
+                      }
+                    },
+                    "Puzzle loading: Access refused": {
+                      "id": "Puzzle loading: Access refused",
+                      "meta": {
+                        "description": "A person without an account or outside the team sees the permission reason and no file or save choices.",
+                        "snapshot": "A person without an account or outside the team sees the permission reason and no file or save choices.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/chess/puzzle-management-access.dmn",
+                          "specs/chess/lichess-file-checking.feature"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Returns to settings": {
+                          "target": "#App: Tools"
+                        },
+                        "Signs in with permitted team access": {
+                          "target": "#Puzzle loading: Checking access"
+                        }
+                      }
+                    }
+                  },
+                  "initial": "Puzzle loading: Checking access",
+                  "on": {
+                    "Leaves adding puzzles": {
+                      "target": "#App: Tools"
                     }
                   }
                 }

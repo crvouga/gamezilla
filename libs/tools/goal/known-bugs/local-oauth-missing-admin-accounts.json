@@ -1,0 +1,4 @@
+{
+  "summary": "The local OAuth choosers had no admin accounts and local API nodes received an empty puzzle-manager roster, leaving the puzzle loader inaccessible. Both providers now list two seeded admins whose canonical app accounts receive local puzzle-management permission.",
+  "regressionTest": "apps/product/tests/local-admin-seeder.test.ts"
+}

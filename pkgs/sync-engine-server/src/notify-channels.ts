@@ -20,7 +20,7 @@ export type NotifyChannelsOptions = {
 };
 
 /**
- * Allocate pushSeqs via `sql`, then await transport acceptance.
+ * Allocate pushSeqs via `sql`, then await transport acceptance of each push.
  *
  * Await this while `sql` is still connected (request-scoped clients are
  * disconnected when the handler returns). HTTP publication belongs to that
@@ -83,12 +83,14 @@ export async function publishPushMessages(options: {
           ? { checkpoint: options.checkpoint }
           : {}),
       };
-      await options.pubsub.publish(topic, payload).catch((error: unknown) => {
+      try {
+        await options.pubsub.publish(topic, payload);
+      } catch (error: unknown) {
         warnPush(
           `[pubsub] publish failed topic=${topic} label=${label}`,
           error
         );
-      });
+      }
     })
   );
 }

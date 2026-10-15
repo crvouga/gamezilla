@@ -499,6 +499,7 @@ test('a narrowed plan leaves each uncached solver group alone on its runner', ()
       task('@libs/chess-root-harness#check:models', 5),
       // A part of a split models check is a solver task like the whole.
       task('@libs/chess-root-harness#check:models:7', 5),
+      task('@libs/profile-harness#check:models:2:8', 5),
       // Check run 38195467632: its thirteen proofs outran the task budget
       // and 39 tasks queued on shard 25 ended unrun.
       task('@apps/product#test:contract', 5),
@@ -511,16 +512,16 @@ test('a narrowed plan leaves each uncached solver group alone on its runner', ()
     120
   );
   const started = plan.shards.filter(executes);
-  // Three solver runners, and 300 s of spec work at 120 s a shard.
-  expect(started).toHaveLength(6);
+  // Four solver runners, and 300 s of spec work at 120 s a shard.
+  expect(started).toHaveLength(7);
   const solverShards = started.filter((shard) =>
     shard.tasks.some(
       (item) =>
-        /#check:models(:\d+)?$/.test(item.taskId) ||
+        /#check:models(?::\d+){0,2}$/.test(item.taskId) ||
         item.taskId === '@apps/product#test:contract'
     )
   );
-  expect(solverShards).toHaveLength(3);
+  expect(solverShards).toHaveLength(4);
   expect(solverShards.every((shard) => shard.tasks.length === 1)).toBe(true);
   expect(plan.shards).toEqual(
     balanceShards([...plan.tasks].reverse(), 16, 120).shards

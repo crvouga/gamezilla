@@ -25,6 +25,7 @@
     "@libs/permissions-shared": "workspace:*",
     "@libs/pubsub-server": "workspace:*",
     "@libs/pubsub-shared": "workspace:*",
+    "@libs/secrets-shared": "workspace:*",
     "@libs/sub-shared": "workspace:*",
     "@opentelemetry/api": "catalog:",
     "@pkgs/assert-root-shared": "workspace:*",

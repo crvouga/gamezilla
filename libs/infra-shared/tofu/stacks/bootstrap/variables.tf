@@ -107,3 +107,8 @@ variable "aws_session_token" {
 }
 
 variable "railway" { type = any }
+
+# The fleet owns durable data shared across every environment.
+variable "shared_data" {
+  type = object({ account_id = string, bucket = string })
+}

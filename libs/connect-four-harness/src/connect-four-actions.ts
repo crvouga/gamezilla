@@ -43,6 +43,10 @@ async function configureParticipant(
     await configureCustomGame(s, host, { operation: 'bot', side });
     return;
   }
+  if (person === host) {
+    await configureCustomGame(s, host, { operation: 'take', side });
+    return;
+  }
   const id = (await readCustomGameProbe(s, person))?.myId;
   if (!id) throw new Error(`No identity for ${person}`);
   await configureCustomGame(s, host, { operation: 'invite', side, person: id });

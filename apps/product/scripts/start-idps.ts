@@ -10,6 +10,11 @@
 import type { Account } from '@crvouga/mockingbird-service-oauth';
 import { createServer } from '@crvouga/mockingbird-service-oauth/server';
 
+import {
+  LOCAL_ADMIN_ACCOUNTS,
+  type LocalAdminIdentity,
+  localAdminIdentities,
+} from './local-admin-accounts';
 import { mockingbirdSqliteFile } from './mockingbird-sqlite';
 import type { IdpStateMode } from './stack-options';
 
@@ -53,6 +58,7 @@ type IdpServer = Awaited<ReturnType<typeof createServer>>;
 export type StackIdps = {
   readonly google: IdpServer;
   readonly apple: IdpServer;
+  readonly adminIdentities: readonly LocalAdminIdentity[];
   /** Worker bindings for both providers. */
   readonly apiEnv: Readonly<Record<string, string>>;
 };
@@ -73,7 +79,7 @@ function storageOf(state: IdpState) {
 }
 
 /** The P-256 pair the API signs its Apple client secret with. */
-async function createAppleClientKeys(): Promise<{
+export async function createAppleClientKeys(): Promise<{
   readonly privateJwk: JsonWebKey;
   readonly publicJwk: JsonWebKey;
 }> {
@@ -111,7 +117,7 @@ export async function startStackIdps(args: {
       port: args.ports.google,
       issuer: origin(args.ports.google),
       ...storageOf(args.state),
-      accounts: GOOGLE_ACCOUNTS.map(accountAt),
+      accounts: [...GOOGLE_ACCOUNTS.map(accountAt), ...LOCAL_ADMIN_ACCOUNTS],
       clients: [
         {
           id: GOOGLE_CLIENT_ID,
@@ -126,7 +132,7 @@ export async function startStackIdps(args: {
       port: args.ports.apple,
       issuer: origin(args.ports.apple),
       ...storageOf(appleState(args.state)),
-      accounts: APPLE_ACCOUNTS.map(accountAt),
+      accounts: [...APPLE_ACCOUNTS.map(accountAt), ...LOCAL_ADMIN_ACCOUNTS],
       behavior: { session: { reuseLastAccount: false } },
       clients: [
         {
@@ -153,6 +159,18 @@ export async function startStackIdps(args: {
   return {
     google: google.value,
     apple: apple.value,
+    adminIdentities: [
+      ...(await localAdminIdentities(
+        'google',
+        GOOGLE_CLIENT_ID,
+        google.value.runtime
+      )),
+      ...(await localAdminIdentities(
+        'apple',
+        APPLE_CLIENT_ID,
+        apple.value.runtime
+      )),
+    ],
     apiEnv: {
       WEB_CLIENT_GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID,
       WEB_CLIENT_GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET,

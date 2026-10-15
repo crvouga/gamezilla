@@ -173,6 +173,17 @@ is also `aria-current`, `aria-pressed`, or a checked radio.
 
 ## Guard rails
 
+`LinearProgress` combines a named progress bar, percentage and optional
+description. Pass a fraction from zero to one, or omit `progress` while the
+amount of work is unknown. Announce completion only after the operation succeeds.
+
+`AppRouterProvider` guards navigation and browser reloads while shared mutation
+controls are loading. Mount `PendingNavigationConfirmation` inside the app's
+localization and surface providers. Register other cancellable work with
+`usePendingOperation`, and wrap embedded content changes with
+`useConfirmNavigation` before unmounting their owner. Finishing the work clears
+the warning and allows the requested departure.
+
 The rules are enforced, so the easy path is the right one:
 
 - The Tailwind theme (`codemod/theme.css`) is locked to these tokens. Stock

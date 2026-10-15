@@ -50,6 +50,7 @@
     "@pkgs/ui-root-shared": "workspace:*",
     "@pkgs/uuid-client": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
+    "fzstd": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

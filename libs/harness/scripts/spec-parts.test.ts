@@ -9,6 +9,7 @@ import {
   CHECK_WEIGHT,
   MODEL_SLICES,
   MODEL_WEIGHT,
+  modelDrawBatches,
   partOf,
   SLICE_SCENARIOS,
   specUnits,
@@ -207,8 +208,16 @@ describe('partOf', () => {
 
   test('the chess suite keeps model traces inside the 600s task cap', () => {
     // regression: chess-spec-trace-batches — 32 parts put 20 traces in one task.
+    // regression: chess-spec-slice-weight
     // regression: network-model-overfills-chess-shard
-    const count = 72;
+    const count = (
+      JSON.parse(
+        readFileSync(
+          join(import.meta.dir, '../../chess-root-harness/package.json'),
+          'utf8'
+        )
+      ) as { specParts: number }
+    ).specParts;
     const parts = chessSuiteParts(count);
     const tracesOf = (unit: SpecUnit) =>
       unit.path.endsWith('.qnt')
@@ -234,7 +243,8 @@ describe('partOf', () => {
         Array.from({ length: 64 }, (_, index) => index)
       );
     }
-    // The larger recovery suite uses 72 parts with balanced two-trace files. A part of twelve traces took at most 332 s replaying every one
+    // The combined puzzle and recovery suites retain every trace across more parts.
+    // A part of twelve traces took at most 332 s replaying every one
     // on the 2-core runner (Check run 38187450396), so sixteen traces stay
     // near 443 s, inside the 600 s cap. Twenty traces was the miss.
     for (const part of parts) {
@@ -269,3 +279,44 @@ function chessSuiteParts(count: number): readonly (readonly SpecUnit[])[] {
     partOf(units, { index, count })
   );
 }
+
+// regression: chess-model-preparation-timeout
+test('preparation retains every draw and bounds the workers for the combined chess suite', () => {
+  const draws = [
+    [96, 14],
+    [256, 24],
+    [16, 8],
+    [96, 18],
+    [16, 24],
+    [64, 16],
+    [32, 16],
+    [32, 16],
+    [32, 12],
+    [80, 120],
+    [48, 48],
+    [32, 24],
+    [64, 64],
+    [24, 32],
+    [16, 8],
+    [24, 12],
+    [48, 18],
+    [64, 32],
+    [24, 12],
+    [6, 8],
+    [16, 8],
+  ].map(([traces, maxSteps], index) => ({
+    path: `model-${index}.qnt`,
+    traces: traces!,
+    maxSteps: maxSteps!,
+  }));
+  const batches = modelDrawBatches(draws);
+  expect(batches).toHaveLength(2);
+  expect(batches.flat().sort((a, b) => a.path.localeCompare(b.path))).toEqual(
+    [...draws].sort((a, b) => a.path.localeCompare(b.path))
+  );
+  const cost = (batch: typeof draws) =>
+    batch.reduce((sum, draw) => sum + draw.traces * draw.maxSteps, 0);
+  expect(
+    Math.max(...batches.map((batch) => cost([...batch])))
+  ).toBeLessThanOrEqual(cost(draws) / 2 + 128);
+});

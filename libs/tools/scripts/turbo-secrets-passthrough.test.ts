@@ -60,6 +60,7 @@ describe('turbo globalPassThroughEnv', () => {
     ).toEqual([]);
   });
 
+  // regression: puzzle-import-secret-passthrough
   test('passes every registry secret through', () => {
     const patterns = loadPassThroughEnv();
     expect(

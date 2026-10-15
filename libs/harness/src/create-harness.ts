@@ -63,6 +63,8 @@ import { createHarnessTeamRules } from './team-rules';
 
 export type CreateHarnessOptions = {
   readonly serverEvents?: PubSub;
+  /** Reference data shared by separately booted harness environments. */
+  readonly sharedDataStore?: ServerEnv['blob'];
   /** Deployment credentials injected by integration hosts, scoped to this harness. */
   readonly secretValues?: Readonly<Record<string, string>>;
   /** The subs this harness boots. */
@@ -109,6 +111,8 @@ export type Harness = {
   dropServer(id: string): Promise<void>;
   serverIds(): readonly string[];
   serverEnv(id: string): ServerEnv | undefined;
+  /** Configure the simulated deployment with its puzzle-management roster. */
+  setPuzzleManagers(accountIds: readonly string[]): Promise<void>;
   outboxConsumers(): OutboxConsumerRegistry;
   /** The primary API instance's server-only mutation checks. */
   authorizeServerMutation(): MutationAuthorize;
@@ -252,13 +256,16 @@ function sharedServerServices(
   opts: CreateHarnessOptions,
   deps: Omit<
     Parameters<typeof buildSharedServerServices>[0],
-    'secretValues' | 'auth'
+    'secretValues' | 'auth' | 'sharedDataStore'
   >
 ): SharedServerServices {
   return buildSharedServerServices({
     ...(opts.secretValues === undefined
       ? {}
       : { secretValues: opts.secretValues }),
+    ...(opts.sharedDataStore === undefined
+      ? {}
+      : { sharedDataStore: opts.sharedDataStore }),
     auth: harnessAuthProvider(opts.composition),
     ...deps,
   });

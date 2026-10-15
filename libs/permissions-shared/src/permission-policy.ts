@@ -247,7 +247,10 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       restricted: { titleKey: 'unlock.custom-game.finish.title' },
     },
     [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,
-    [PERMISSION.puzzlesManage]: SIGN_UP_UNLOCK,
+    [PERMISSION.puzzlesManage]: {
+      ...SIGN_UP_UNLOCK,
+      not_granted: { titleKey: 'unlock.puzzle-management.title' },
+    },
     [LIMIT.hostedSpaces]: {
       // Guests and free accounts alike: hosting more is what Plus is for.
       limit_reached: {

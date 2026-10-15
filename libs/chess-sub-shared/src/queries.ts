@@ -7,8 +7,10 @@ import {
 } from '@libs/chess-puzzle-shared/chess-puzzle-pool-query';
 import { chessPuzzleProfile } from '@libs/chess-puzzle-shared/chess-puzzle-profile-query';
 import { chessPuzzleRatingEvents } from '@libs/chess-puzzle-shared/chess-puzzle-rating-events-query';
+import { chessPuzzleImport } from '@libs/chess-puzzle-shared/puzzle-import-query';
 
 export const CHESS_QUERIES = [
+  chessPuzzleImport,
   chessPuzzleProfile,
   chessPuzzleFeedSettings,
   chessPuzzleInteractions,

@@ -14,6 +14,10 @@
 
 import type { ServerHttp } from '@libs/sub-shared/sync';
 import { requestMethod, requestPath } from './http-request';
+import {
+  createHttpRequestControls,
+  type HttpRequestControls,
+} from './http-request-controls';
 import type { HarnessNet } from './net';
 import { harnessCrashedError } from './net';
 
@@ -54,6 +58,7 @@ export type HarnessLoadBalancerBackend = {
 
 export type HarnessLoadBalancer = {
   readonly id: string;
+  readonly requests: HttpRequestControls;
   /** HTTP port handed to one client; round-robins across healthy backends. */
   fetchFrom(fromId: string): ServerHttp;
   inspect(): HarnessLoadBalancerSnapshot;
@@ -87,14 +92,8 @@ function recordRoute(
   }
 }
 
-export function createHarnessLoadBalancer(args: {
-  readonly id?: string;
-  readonly net: HarnessNet;
-  readonly now: () => number;
-  readonly listBackends: () => readonly HarnessLoadBalancerBackend[];
-}): HarnessLoadBalancer {
-  const id = args.id ?? HARNESS_LOAD_BALANCER_ID;
-  const state: LoadBalancerState = {
+function createBalancerState(): LoadBalancerState {
+  return {
     cursor: 0,
     requests: 0,
     rejected: 0,
@@ -102,6 +101,21 @@ export function createHarnessLoadBalancer(args: {
     recentRoutes: [],
     routeListeners: new Set(),
   };
+}
+
+type LoadBalancerArgs = {
+  readonly id?: string;
+  readonly net: HarnessNet;
+  readonly now: () => number;
+  readonly listBackends: () => readonly HarnessLoadBalancerBackend[];
+};
+
+export function createHarnessLoadBalancer(
+  args: LoadBalancerArgs
+): HarnessLoadBalancer {
+  const id = args.id ?? HARNESS_LOAD_BALANCER_ID;
+  const requests = createHttpRequestControls();
+  const state = createBalancerState();
 
   /** First backend reachable from both the balancer and the caller. */
   function pickBackend(fromId: string): HarnessLoadBalancerBackend | null {
@@ -124,6 +138,7 @@ export function createHarnessLoadBalancer(args: {
 
   return {
     id,
+    requests,
     fetchFrom(fromId) {
       return args.net.wrapHop(
         fromId,
@@ -147,38 +162,48 @@ export function createHarnessLoadBalancer(args: {
             (state.requestsByBackend.get(backend.id) ?? 0) + 1
           );
           recordRoute(state, { ...wire, to: backend.id });
-          return args.net.wrapHop(
+          const response = await args.net.wrapHop(
             fromId,
             backend.id,
-            backend.fetch,
+            requests.wrap(fromId, backend.fetch),
             'server'
           )(input, init);
+          args.net.assertReachable(fromId, id);
+          args.net.assertReachable(id, backend.id);
+          args.net.assertReachable(fromId, backend.id);
+          return response;
         },
         'ingress'
       );
     },
-    inspect() {
-      const backends = args.listBackends();
-      return {
-        id,
-        algorithm: 'round-robin',
-        cursor: backends.length === 0 ? 0 : state.cursor % backends.length,
-        requests: state.requests,
-        rejected: state.rejected,
-        backends: backends.map((backend) => ({
-          id: backend.id,
-          reachable: args.net.isReachable(id, backend.id),
-          requests: state.requestsByBackend.get(backend.id) ?? 0,
-        })),
-        recentRoutes: [...state.recentRoutes],
-      };
-    },
+    inspect: () => inspectBalancer(state, args, id),
     onRoute(listener) {
       state.routeListeners.add(listener);
       return () => {
         state.routeListeners.delete(listener);
       };
     },
+  };
+}
+
+function inspectBalancer(
+  state: LoadBalancerState,
+  args: LoadBalancerArgs,
+  id: string
+): HarnessLoadBalancerSnapshot {
+  const backends = args.listBackends();
+  return {
+    id,
+    algorithm: 'round-robin',
+    cursor: backends.length === 0 ? 0 : state.cursor % backends.length,
+    requests: state.requests,
+    rejected: state.rejected,
+    backends: backends.map((backend) => ({
+      id: backend.id,
+      reachable: args.net.isReachable(id, backend.id),
+      requests: state.requestsByBackend.get(backend.id) ?? 0,
+    })),
+    recentRoutes: [...state.recentRoutes],
   };
 }
 

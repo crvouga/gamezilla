@@ -14,6 +14,7 @@ export const SHARED_SECRETS_ENV: string = GLOBAL.infisical.shared_env;
  */
 export const SHARED_SECRET_NAMES: readonly string[] = [
   ...FOUNDATION_SECRETS.shared,
+  ...FOUNDATION_SECRETS.shared_derived,
   ...FOUNDATION_SECRETS.bootstrap,
 ];
 

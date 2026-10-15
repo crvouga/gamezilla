@@ -6,6 +6,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  renameSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
@@ -85,6 +86,11 @@ function writeFakeTools(dir: string): void {
   writeExecutable(
     join(dir, '.bin/mise'),
     '#!/usr/bin/env bash\n' +
+      'if [ -n "${WORKSPACE_RUN_TEST_RECORD_SYSTEM:-}" ]; then\n' +
+      '  printf "mise %s\\n" "$*" >> "$WORKSPACE_RUN_TEST_CALLS"\n' +
+      'fi\n' +
+      'if [ "$1" = "env" ]; then printf \'export PATH="%s:$PATH"\\n\' "$PWD/.tools"; fi\n' +
+      'if [ "$1" = "install" ] && [ "${WORKSPACE_RUN_TEST_SYSTEM:-ok}" != "ok" ]; then exit 1; fi\n' +
       '[ "$1" = "install" ] && echo "mise: installing every tool"\n' +
       'exit 0\n'
   );
@@ -103,6 +109,7 @@ function checkout() {
   writeFakeTools(dir);
   mkdirSync(join(dir, 'apps/product'), { recursive: true });
   writeFileSync(join(dir, 'bun.lock'), '{}\n');
+  writeFileSync(join(dir, 'mise.toml'), '[tools]\nbun = "1.4.3"\n');
   writeFileSync(join(dir, 'package.json'), '{"name":"root"}\n');
   writeFileSync(join(dir, 'apps/product/package.json'), '{"name":"app"}\n');
   const script = (name: string, args: readonly string[] = []) => {
@@ -115,8 +122,9 @@ function checkout() {
           encoding: 'utf8',
           env: {
             ...process.env,
+            HOME: join(dir, 'home'),
             ...env,
-            PATH: `${join(dir, '.bin')}:${process.env['PATH'] ?? ''}`,
+            PATH: `${join(dir, '.bin')}:/usr/bin:/bin`,
             VITE_PORT: '5800',
             WORKSPACE_RUN_TEST_CALLS: calls,
           },
@@ -275,5 +283,66 @@ test('a cold run still launches when the secrets pull fails, and a warm run skip
   const warm = run({ WORKSPACE_RUN_TEST_ROOT: root });
   expect(warm.status).toBe(0);
   expect(warm.calls).toEqual([DEV]);
-  expect(warm.stdout).toBe('');
+  expect(warm.stdout).toBe('==> mise install\n');
+});
+
+// regression: workspace-run-missing-system-tools
+test('Run installs and activates system tools before app dependencies on cold and warm launches', () => {
+  const { dir, run } = checkout();
+  mkdirSync(join(dir, '.tools'));
+  renameSync(join(dir, '.bin/bun'), join(dir, '.tools/bun'));
+  const env = { WORKSPACE_RUN_TEST_RECORD_SYSTEM: '1' };
+  const system = [
+    'mise trust --quiet mise.toml',
+    'mise install --yes',
+    'mise env --shell bash',
+  ];
+  const cold = run(env);
+  expect(cold.status).toBe(0);
+  expect(cold.calls).toEqual([...system, INSTALL, DEV]);
+  // The old warm marker must not hide pins introduced by a pull.
+  writeFileSync(join(dir, 'mise.toml'), '[tools]\nbun = "1.4.4"\n');
+  const warm = run(env);
+  expect(warm.status).toBe(0);
+  expect(warm.calls).toEqual([...system, DEV]);
+});
+
+test('Run bootstraps mise without a shell profile and reuses its user installation', () => {
+  const { dir, run } = checkout();
+  renameSync(join(dir, '.bin/mise'), join(dir, '.bin/mise-template'));
+  writeExecutable(
+    join(dir, '.bin/curl'),
+    '#!/usr/bin/env bash\n' +
+      'printf "curl %s\\n" "$*" >> "$WORKSPACE_RUN_TEST_CALLS"\n' +
+      'while [ "$1" != "--output" ]; do shift; done\n' +
+      'cat > "$2" <<\'INSTALLER\'\n' +
+      'mkdir -p "$(dirname "$MISE_INSTALL_PATH")"\n' +
+      'cp .bin/mise-template "$MISE_INSTALL_PATH"\n' +
+      'INSTALLER\n'
+  );
+  const env = { WORKSPACE_RUN_TEST_RECORD_SYSTEM: '1' };
+  const cold = run(env);
+  expect(cold.status).toBe(0);
+  expect(cold.calls[0]).toContain('https://mise.run --output ');
+  expect(cold.calls.slice(1)).toEqual([
+    'mise trust --quiet mise.toml',
+    'mise install --yes',
+    'mise env --shell bash',
+    INSTALL,
+    DEV,
+  ]);
+  expect(existsSync(join(dir, 'home/.local/bin/mise'))).toBe(true);
+  expect(run(env).calls).toEqual(cold.calls.slice(1, -2).concat(DEV));
+});
+
+test('Run retries failed system setup in a warm workspace and still attempts dev', () => {
+  const { run } = checkout();
+  const failed = run({ WORKSPACE_RUN_TEST_SYSTEM: 'fail' });
+  expect(failed.status).toBe(0);
+  expect(failed.stdout).toContain('system tool setup is incomplete');
+  expect(failed.calls.at(-1)).toBe(DEV);
+  const recovered = run({ WORKSPACE_RUN_TEST_RECORD_SYSTEM: '1' });
+  expect(recovered.status).toBe(0);
+  expect(recovered.calls).toContain('mise install --yes');
+  expect(recovered.stdout).not.toContain('incomplete');
 });

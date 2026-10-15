@@ -389,7 +389,7 @@ async function pushChangedAuthUser(
 export async function createServer(env: ServerEnv, args: CreateServerArgs) {
   const log = createAppLogger(env);
   registerTelemetryConsumers(args.servers, env);
-  setOutboxConsumerRegistry(args.servers.outboxConsumers);
+  setOutboxConsumerRegistry(args.servers.outboxConsumers, args.app.topicMap);
 
   if (env.events !== null) {
     setHttpPubSubOverride(env.events);

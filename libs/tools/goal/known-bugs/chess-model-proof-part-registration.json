@@ -1,0 +1,4 @@
+{
+  "summary": "A seventeenth chess model shared a proof task because only sixteen parts were registered, violating the one-model-per-task budget.",
+  "regressionTest": "libs/tools/scripts/check-models.test.ts"
+}

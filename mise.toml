@@ -10,7 +10,7 @@
 
 [tools]
 bun = "1.4.3"
-node = "26.11.1"
+node = "26.12.0"
 gh = "2.102.0"
 gitleaks = "8.30.1"
 actionlint = "1.7.12"
@@ -19,7 +19,7 @@ duckdb = "1.5.6"
 opentofu = "1.13.1"
 conftest = "0.71.1"
 tflint = "0.64.0"
-railway = "5.64.2"
+railway = "5.68.0"
 # Executable specs (specs/README.md): the JVM that runs Alloy (structural
 # invariants, `.als`) and Apalache (Quint model checking, `quint verify`).
 java = "temurin-21.0.12+8.0.LTS"
@@ -47,7 +47,7 @@ checksum = "sha256:a61c07569d7195ddc589f01037fa10fafef4fb0796af2f1c9cb45226375df
 # resolves a templated pattern on the laptop and writes that laptop's platform
 # back, and Linux CI then installs a macOS binary (ENOEXEC).
 [tools.infisical]
-version = "0.43.141"
+version = "0.43.145"
 
 [tools.infisical.platforms]
 macos-arm64 = { asset_pattern = "cli_{{ version }}_darwin_arm64.tar.gz" }

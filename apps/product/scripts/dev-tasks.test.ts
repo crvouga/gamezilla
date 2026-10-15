@@ -56,6 +56,11 @@ describe('bun dev tasks', () => {
     ).toMatchObject({ dev: 'bun run apps/product/scripts/dev-run.ts' });
     expect(launcher).toContain("'node_modules/.bin/turbo'");
     expect(launcher).toContain("'@apps/product#dev'");
+    // regression: workspace-reuses-dead-web-boot
+    expect(launcher).toContain("'--continue=never'");
+    expect(launcher).not.toMatch(
+      /'--continue(?:=always|=dependencies-successful)?'/
+    );
   });
 
   // regression: workspace-run-stale-install

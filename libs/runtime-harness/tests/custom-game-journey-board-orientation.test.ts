@@ -17,6 +17,7 @@ function productionBoard(side: 'white' | 'black' | null): Driver {
       get: unused,
       tapAt: unused,
       drag: unused,
+      selectFile: async () => {},
       input: unused,
       clear: unused,
       key: unused,

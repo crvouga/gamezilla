@@ -11,6 +11,7 @@ import {
   readLoadInput,
   renderMeasuredLoad,
   replaceMeasuredLoad,
+  runnerFit,
   SLACK_SECONDS,
   SPEC_WORKER_CAP,
   WARM_START_SECONDS,
@@ -94,4 +95,28 @@ test('replaceMeasuredLoad rewrites only the marked section', () => {
   expect(replaceMeasuredLoad(doc, 'new')).toBe(
     'before\n<!-- ci-load:start -->\nnew\n<!-- ci-load:end -->\nafter\n'
   );
+});
+
+// regression: ci-capacity-overallocates-spec-workers
+test('capacity stays within sixteen workers when they meet the unchanged deadline', () => {
+  const load = {
+    specSeconds: 3972,
+    coldSeconds: 5866,
+    poleSeconds: 60,
+    leafPoleMax: 60,
+    leafPoleP90: 1,
+  };
+  const fit = runnerFit(load);
+  expect(fit).toMatchObject({
+    specSlots: 16,
+    makespanSeconds: 249,
+    fits: true,
+  });
+  expect(fit.cores).toBeLessThanOrEqual(RUNNER_VCPU);
+  expect(
+    fit.makespanSeconds + WARM_START_SECONDS + SLACK_SECONDS
+  ).toBeLessThanOrEqual(PR_CHECK_SECONDS);
+  expect(
+    runnerFit({ ...load, specSeconds: 5000, coldSeconds: 6894 })
+  ).toMatchObject({ specSlots: 16, fits: false });
 });

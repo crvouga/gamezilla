@@ -131,6 +131,12 @@ export type DriverNode = {
   /** Wait until visible, then type `text` (appends by default). */
   input(text: string, options?: UiWaitOptions): Promise<void>;
 
+  /** Choose a file using in-memory contents, without accessing the host filesystem. */
+  selectFile(file: {
+    readonly name: string;
+    readonly bytes: readonly number[];
+  }): Promise<void>;
+
   /** Clear the current value of the element. */
   clear(): Promise<void>;
 
