@@ -112,76 +112,121 @@ module connect_four_play {
   pure val _empty = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
   pure val _zero = (0, 0, 0, 0, 0, 0, 0)
   pure def _height(h: Columns, c: int): int = if (c == 0) h._1 else if (c == 1) h._2 else if (c == 2) h._3 else if (c == 3) h._4 else if (c == 4) h._5 else if (c == 5) h._6 else h._7
-  pure def _won(b: Board, p: int): bool = or {
-    and { b._1 == p, b._2 == p, b._3 == p, b._4 == p },
-    and { b._1 == p, b._8 == p, b._15 == p, b._22 == p },
-    and { b._1 == p, b._9 == p, b._17 == p, b._25 == p },
-    and { b._2 == p, b._3 == p, b._4 == p, b._5 == p },
-    and { b._2 == p, b._9 == p, b._16 == p, b._23 == p },
-    and { b._2 == p, b._10 == p, b._18 == p, b._26 == p },
-    and { b._3 == p, b._4 == p, b._5 == p, b._6 == p },
-    and { b._3 == p, b._10 == p, b._17 == p, b._24 == p },
-    and { b._3 == p, b._11 == p, b._19 == p, b._27 == p },
-    and { b._4 == p, b._5 == p, b._6 == p, b._7 == p },
-    and { b._4 == p, b._11 == p, b._18 == p, b._25 == p },
-    and { b._4 == p, b._12 == p, b._20 == p, b._28 == p },
-    and { b._5 == p, b._12 == p, b._19 == p, b._26 == p },
-    and { b._6 == p, b._13 == p, b._20 == p, b._27 == p },
-    and { b._7 == p, b._14 == p, b._21 == p, b._28 == p },
-    and { b._8 == p, b._9 == p, b._10 == p, b._11 == p },
-    and { b._8 == p, b._15 == p, b._22 == p, b._29 == p },
-    and { b._8 == p, b._16 == p, b._24 == p, b._32 == p },
-    and { b._9 == p, b._10 == p, b._11 == p, b._12 == p },
-    and { b._9 == p, b._16 == p, b._23 == p, b._30 == p },
-    and { b._9 == p, b._17 == p, b._25 == p, b._33 == p },
-    and { b._10 == p, b._11 == p, b._12 == p, b._13 == p },
-    and { b._10 == p, b._17 == p, b._24 == p, b._31 == p },
-    and { b._10 == p, b._18 == p, b._26 == p, b._34 == p },
-    and { b._11 == p, b._12 == p, b._13 == p, b._14 == p },
-    and { b._11 == p, b._18 == p, b._25 == p, b._32 == p },
-    and { b._11 == p, b._19 == p, b._27 == p, b._35 == p },
-    and { b._12 == p, b._19 == p, b._26 == p, b._33 == p },
-    and { b._13 == p, b._20 == p, b._27 == p, b._34 == p },
-    and { b._14 == p, b._21 == p, b._28 == p, b._35 == p },
-    and { b._15 == p, b._16 == p, b._17 == p, b._18 == p },
-    and { b._15 == p, b._22 == p, b._29 == p, b._36 == p },
-    and { b._15 == p, b._23 == p, b._31 == p, b._39 == p },
-    and { b._16 == p, b._17 == p, b._18 == p, b._19 == p },
-    and { b._16 == p, b._23 == p, b._30 == p, b._37 == p },
-    and { b._16 == p, b._24 == p, b._32 == p, b._40 == p },
-    and { b._17 == p, b._18 == p, b._19 == p, b._20 == p },
-    and { b._17 == p, b._24 == p, b._31 == p, b._38 == p },
-    and { b._17 == p, b._25 == p, b._33 == p, b._41 == p },
-    and { b._18 == p, b._19 == p, b._20 == p, b._21 == p },
-    and { b._18 == p, b._25 == p, b._32 == p, b._39 == p },
-    and { b._18 == p, b._26 == p, b._34 == p, b._42 == p },
-    and { b._19 == p, b._26 == p, b._33 == p, b._40 == p },
-    and { b._20 == p, b._27 == p, b._34 == p, b._41 == p },
-    and { b._21 == p, b._28 == p, b._35 == p, b._42 == p },
-    and { b._22 == p, b._23 == p, b._24 == p, b._25 == p },
-    and { b._22 == p, b._16 == p, b._10 == p, b._4 == p },
-    and { b._23 == p, b._24 == p, b._25 == p, b._26 == p },
-    and { b._23 == p, b._17 == p, b._11 == p, b._5 == p },
-    and { b._24 == p, b._25 == p, b._26 == p, b._27 == p },
-    and { b._24 == p, b._18 == p, b._12 == p, b._6 == p },
-    and { b._25 == p, b._26 == p, b._27 == p, b._28 == p },
-    and { b._25 == p, b._19 == p, b._13 == p, b._7 == p },
-    and { b._29 == p, b._30 == p, b._31 == p, b._32 == p },
-    and { b._29 == p, b._23 == p, b._17 == p, b._11 == p },
-    and { b._30 == p, b._31 == p, b._32 == p, b._33 == p },
-    and { b._30 == p, b._24 == p, b._18 == p, b._12 == p },
-    and { b._31 == p, b._32 == p, b._33 == p, b._34 == p },
-    and { b._31 == p, b._25 == p, b._19 == p, b._13 == p },
-    and { b._32 == p, b._33 == p, b._34 == p, b._35 == p },
-    and { b._32 == p, b._26 == p, b._20 == p, b._14 == p },
-    and { b._36 == p, b._37 == p, b._38 == p, b._39 == p },
-    and { b._36 == p, b._30 == p, b._24 == p, b._18 == p },
-    and { b._37 == p, b._38 == p, b._39 == p, b._40 == p },
-    and { b._37 == p, b._31 == p, b._25 == p, b._19 == p },
-    and { b._38 == p, b._39 == p, b._40 == p, b._41 == p },
-    and { b._38 == p, b._32 == p, b._26 == p, b._20 == p },
-    and { b._39 == p, b._40 == p, b._41 == p, b._42 == p },
-    and { b._39 == p, b._33 == p, b._27 == p, b._21 == p },
+  pure def _won(position: Board, p: int): bool = {
+    pure val b: Board = position
+    pure val _d0: int = b._1
+    pure val _d1: int = b._2
+    pure val _d2: int = b._3
+    pure val _d3: int = b._4
+    pure val _d4: int = b._5
+    pure val _d5: int = b._6
+    pure val _d6: int = b._7
+    pure val _d7: int = b._8
+    pure val _d8: int = b._9
+    pure val _d9: int = b._10
+    pure val _d10: int = b._11
+    pure val _d11: int = b._12
+    pure val _d12: int = b._13
+    pure val _d13: int = b._14
+    pure val _d14: int = b._15
+    pure val _d15: int = b._16
+    pure val _d16: int = b._17
+    pure val _d17: int = b._18
+    pure val _d18: int = b._19
+    pure val _d19: int = b._20
+    pure val _d20: int = b._21
+    pure val _d21: int = b._22
+    pure val _d22: int = b._23
+    pure val _d23: int = b._24
+    pure val _d24: int = b._25
+    pure val _d25: int = b._26
+    pure val _d26: int = b._27
+    pure val _d27: int = b._28
+    pure val _d28: int = b._29
+    pure val _d29: int = b._30
+    pure val _d30: int = b._31
+    pure val _d31: int = b._32
+    pure val _d32: int = b._33
+    pure val _d33: int = b._34
+    pure val _d34: int = b._35
+    pure val _d35: int = b._36
+    pure val _d36: int = b._37
+    pure val _d37: int = b._38
+    pure val _d38: int = b._39
+    pure val _d39: int = b._40
+    pure val _d40: int = b._41
+    pure val _d41: int = b._42
+    or {
+    and { _d0 == p, _d1 == p, _d2 == p, _d3 == p },
+    and { _d0 == p, _d7 == p, _d14 == p, _d21 == p },
+    and { _d0 == p, _d8 == p, _d16 == p, _d24 == p },
+    and { _d1 == p, _d2 == p, _d3 == p, _d4 == p },
+    and { _d1 == p, _d8 == p, _d15 == p, _d22 == p },
+    and { _d1 == p, _d9 == p, _d17 == p, _d25 == p },
+    and { _d2 == p, _d3 == p, _d4 == p, _d5 == p },
+    and { _d2 == p, _d9 == p, _d16 == p, _d23 == p },
+    and { _d2 == p, _d10 == p, _d18 == p, _d26 == p },
+    and { _d3 == p, _d4 == p, _d5 == p, _d6 == p },
+    and { _d3 == p, _d10 == p, _d17 == p, _d24 == p },
+    and { _d3 == p, _d11 == p, _d19 == p, _d27 == p },
+    and { _d4 == p, _d11 == p, _d18 == p, _d25 == p },
+    and { _d5 == p, _d12 == p, _d19 == p, _d26 == p },
+    and { _d6 == p, _d13 == p, _d20 == p, _d27 == p },
+    and { _d7 == p, _d8 == p, _d9 == p, _d10 == p },
+    and { _d7 == p, _d14 == p, _d21 == p, _d28 == p },
+    and { _d7 == p, _d15 == p, _d23 == p, _d31 == p },
+    and { _d8 == p, _d9 == p, _d10 == p, _d11 == p },
+    and { _d8 == p, _d15 == p, _d22 == p, _d29 == p },
+    and { _d8 == p, _d16 == p, _d24 == p, _d32 == p },
+    and { _d9 == p, _d10 == p, _d11 == p, _d12 == p },
+    and { _d9 == p, _d16 == p, _d23 == p, _d30 == p },
+    and { _d9 == p, _d17 == p, _d25 == p, _d33 == p },
+    and { _d10 == p, _d11 == p, _d12 == p, _d13 == p },
+    and { _d10 == p, _d17 == p, _d24 == p, _d31 == p },
+    and { _d10 == p, _d18 == p, _d26 == p, _d34 == p },
+    and { _d11 == p, _d18 == p, _d25 == p, _d32 == p },
+    and { _d12 == p, _d19 == p, _d26 == p, _d33 == p },
+    and { _d13 == p, _d20 == p, _d27 == p, _d34 == p },
+    and { _d14 == p, _d15 == p, _d16 == p, _d17 == p },
+    and { _d14 == p, _d21 == p, _d28 == p, _d35 == p },
+    and { _d14 == p, _d22 == p, _d30 == p, _d38 == p },
+    and { _d15 == p, _d16 == p, _d17 == p, _d18 == p },
+    and { _d15 == p, _d22 == p, _d29 == p, _d36 == p },
+    and { _d15 == p, _d23 == p, _d31 == p, _d39 == p },
+    and { _d16 == p, _d17 == p, _d18 == p, _d19 == p },
+    and { _d16 == p, _d23 == p, _d30 == p, _d37 == p },
+    and { _d16 == p, _d24 == p, _d32 == p, _d40 == p },
+    and { _d17 == p, _d18 == p, _d19 == p, _d20 == p },
+    and { _d17 == p, _d24 == p, _d31 == p, _d38 == p },
+    and { _d17 == p, _d25 == p, _d33 == p, _d41 == p },
+    and { _d18 == p, _d25 == p, _d32 == p, _d39 == p },
+    and { _d19 == p, _d26 == p, _d33 == p, _d40 == p },
+    and { _d20 == p, _d27 == p, _d34 == p, _d41 == p },
+    and { _d21 == p, _d22 == p, _d23 == p, _d24 == p },
+    and { _d21 == p, _d15 == p, _d9 == p, _d3 == p },
+    and { _d22 == p, _d23 == p, _d24 == p, _d25 == p },
+    and { _d22 == p, _d16 == p, _d10 == p, _d4 == p },
+    and { _d23 == p, _d24 == p, _d25 == p, _d26 == p },
+    and { _d23 == p, _d17 == p, _d11 == p, _d5 == p },
+    and { _d24 == p, _d25 == p, _d26 == p, _d27 == p },
+    and { _d24 == p, _d18 == p, _d12 == p, _d6 == p },
+    and { _d28 == p, _d29 == p, _d30 == p, _d31 == p },
+    and { _d28 == p, _d22 == p, _d16 == p, _d10 == p },
+    and { _d29 == p, _d30 == p, _d31 == p, _d32 == p },
+    and { _d29 == p, _d23 == p, _d17 == p, _d11 == p },
+    and { _d30 == p, _d31 == p, _d32 == p, _d33 == p },
+    and { _d30 == p, _d24 == p, _d18 == p, _d12 == p },
+    and { _d31 == p, _d32 == p, _d33 == p, _d34 == p },
+    and { _d31 == p, _d25 == p, _d19 == p, _d13 == p },
+    and { _d35 == p, _d36 == p, _d37 == p, _d38 == p },
+    and { _d35 == p, _d29 == p, _d23 == p, _d17 == p },
+    and { _d36 == p, _d37 == p, _d38 == p, _d39 == p },
+    and { _d36 == p, _d30 == p, _d24 == p, _d18 == p },
+    and { _d37 == p, _d38 == p, _d39 == p, _d40 == p },
+    and { _d37 == p, _d31 == p, _d25 == p, _d19 == p },
+    and { _d38 == p, _d39 == p, _d40 == p, _d41 == p },
+    and { _d38 == p, _d32 == p, _d26 == p, _d20 == p },
+  }
   }
   action init = all {
     _p0' = 0, _p1' = 0, _p2' = 0, _p3' = 0, _p4' = 0, _p5' = 0, _p6' = 0, _p7' = 0, _p8' = 0, _p9' = 0, _p10' = 0, _p11' = 0, _p12' = 0, _p13' = 0, _p14' = 0, _p15' = 0, _p16' = 0, _p17' = 0, _p18' = 0, _p19' = 0, _p20' = 0, _p21' = 0, _p22' = 0, _p23' = 0, _p24' = 0, _p25' = 0, _p26' = 0, _p27' = 0, _p28' = 0, _p29' = 0, _p30' = 0, _p31' = 0, _p32' = 0, _p33' = 0, _p34' = 0, _p35' = 0, _p36' = 0, _p37' = 0, _p38' = 0, _p39' = 0, _p40' = 0, _p41' = 0, _h0' = 0, _h1' = 0, _h2' = 0, _h3' = 0, _h4' = 0, _h5' = 0, _h6' = 0, turn' = 1, result' = 0,
