@@ -103,20 +103,21 @@ export const givenOpponentSearch = scenarioAction<
   [actor: string, timeControl: string, requestId?: string]
 >({
   name: 'givenOpponentSearch',
-  act: (
+  act: async (
     s,
     actor: string,
     timeControl: string,
     requestId = s.session.ports.createId()
-  ) =>
-    multiplayerFixture(s, actor, async (tx, env) => {
-      const spaceId = await multiplayerSpaceId(s, actor);
+  ) => {
+    const spaceId = await multiplayerSpaceId(s, actor);
+    return multiplayerFixture(s, actor, async (tx, env) => {
       await findOpponentMutation.run(
         { tx, env },
         { requestId, timeControl, spaceId: spaceId ?? 'no-space' }
       );
       return [env.actorId];
-    }),
+    });
+  },
 });
 
 /**
