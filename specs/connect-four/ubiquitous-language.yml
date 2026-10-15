@@ -10,6 +10,7 @@ terms:
   - term: column
     definition: One of seven vertical stacks, numbered one through seven from left to right.
     forms: [columns, full column]
+    model: [Columns]
   - term: drop
     definition: Place one disc in the lowest empty place in a column on your turn.
     forms: [drops, dropping, dropped]
@@ -46,7 +47,7 @@ terms:
     from: kernel
     model: [online, loseConnection, connectionReturns]
   - term: board
-    model: [board]
+    model: [board, Board]
     definition: The seven-column, six-row playing area, with stable column numbers regardless of who is watching.
   - term: opponent
     definition: The other player, paired only with someone seeking Connect Four at the same clock choice.

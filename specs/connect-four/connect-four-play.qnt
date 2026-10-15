@@ -4,19 +4,19 @@
 // When both players have no connection, they keep their last board and cannot
 // drop a disc. Returning online restores that same board and turn.
 module connect_four_play {
-  type _Board = { p0: int, p1: int, p2: int, p3: int, p4: int, p5: int, p6: int, p7: int, p8: int, p9: int, p10: int, p11: int, p12: int, p13: int, p14: int, p15: int, p16: int, p17: int, p18: int, p19: int, p20: int, p21: int, p22: int, p23: int, p24: int, p25: int, p26: int, p27: int, p28: int, p29: int, p30: int, p31: int, p32: int, p33: int, p34: int, p35: int, p36: int, p37: int, p38: int, p39: int, p40: int, p41: int }
-  type _Heights = { c0: int, c1: int, c2: int, c3: int, c4: int, c5: int, c6: int }
-  var board: _Board
-  var _heights: _Heights
+  type Board = { p0: int, p1: int, p2: int, p3: int, p4: int, p5: int, p6: int, p7: int, p8: int, p9: int, p10: int, p11: int, p12: int, p13: int, p14: int, p15: int, p16: int, p17: int, p18: int, p19: int, p20: int, p21: int, p22: int, p23: int, p24: int, p25: int, p26: int, p27: int, p28: int, p29: int, p30: int, p31: int, p32: int, p33: int, p34: int, p35: int, p36: int, p37: int, p38: int, p39: int, p40: int, p41: int }
+  type Columns = { c0: int, c1: int, c2: int, c3: int, c4: int, c5: int, c6: int }
+  var board: Board
+  var _heights: Columns
   var turn: int
   var result: int
   var drops: List[int]
   var online: bool
-  var _atDisconnect: (_Board, List[int], int, int)
+  var _atDisconnect: (Board, List[int], int, int)
   pure val _empty = { p0: 0, p1: 0, p2: 0, p3: 0, p4: 0, p5: 0, p6: 0, p7: 0, p8: 0, p9: 0, p10: 0, p11: 0, p12: 0, p13: 0, p14: 0, p15: 0, p16: 0, p17: 0, p18: 0, p19: 0, p20: 0, p21: 0, p22: 0, p23: 0, p24: 0, p25: 0, p26: 0, p27: 0, p28: 0, p29: 0, p30: 0, p31: 0, p32: 0, p33: 0, p34: 0, p35: 0, p36: 0, p37: 0, p38: 0, p39: 0, p40: 0, p41: 0 }
   pure val _zero = { c0: 0, c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0 }
-  pure def _height(h: _Heights, c: int): int = if (c == 0) h.c0 else if (c == 1) h.c1 else if (c == 2) h.c2 else if (c == 3) h.c3 else if (c == 4) h.c4 else if (c == 5) h.c5 else h.c6
-  pure def _won(b: _Board, p: int): bool = or {
+  pure def _height(h: Columns, c: int): int = if (c == 0) h.c0 else if (c == 1) h.c1 else if (c == 2) h.c2 else if (c == 3) h.c3 else if (c == 4) h.c4 else if (c == 5) h.c5 else h.c6
+  pure def _won(b: Board, p: int): bool = or {
     and { b.p0 == p, b.p1 == p, b.p2 == p, b.p3 == p },
     and { b.p0 == p, b.p7 == p, b.p14 == p, b.p21 == p },
     and { b.p0 == p, b.p8 == p, b.p16 == p, b.p24 == p },
