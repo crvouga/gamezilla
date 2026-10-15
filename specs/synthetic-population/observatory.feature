@@ -39,12 +39,17 @@ Feature: Observe and control the Synthetic Population
 
     @regression:synthetic-population-chess-clicks-submit-no-move
     @regression:game-session-synthetic-composition-missing
-    Scenario: A paused Synthetic User finishes its ongoing game
+    Scenario Outline: A paused Synthetic User finishes its ongoing <game> game
       Given Alice is authorized to control the Synthetic Population
-      And the Synthetic User "Cedar" has an ongoing game
+      And the Synthetic User "Cedar" has an ongoing "<game>" game
       When Alice pauses the Synthetic User "Cedar"
       Then "Cedar" can finish its ongoing game
       And "Cedar" starts no new activity
+
+      Examples:
+        | game |
+        | chess |
+        | Connect Four |
 
     Scenario: A person with observation permission cannot pause a Synthetic User
       Given Alice is authorized to view the Bot Observatory
