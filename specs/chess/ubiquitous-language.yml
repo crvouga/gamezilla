@@ -237,6 +237,14 @@ terms:
       - stopAddingPuzzles
       - followAddingPuzzles
       - addingPuzzles
+      - addingPuzzlesStatus
+      - stoppingPuzzles
+      - askToStopAddingPuzzles
+      - cancelStoppingPuzzles
+      - confirmStoppingPuzzles
+      - finishStoppingPuzzles
+      - failStoppingPuzzles
+      - returnToLichessFile
 
   - term: Lichess file
     definition: >-
@@ -248,7 +256,22 @@ terms:
       - saved a Lichess file
       - provide a Lichess file
       - save another Lichess file
-    model: [lichessFileSaved, needsLichessFile, saveLichessFile]
+    model:
+      - LichessFile
+      - lichessFile
+      - lichessFileSaved
+      - needsLichessFile
+      - checkLichessFile
+      - finishCheckingLichessFile
+      - failCheckingLichessFile
+      - chooseLichessFile
+      - saveLichessFile
+      - finishSavingLichessFile
+      - failSavingLichessFile
+      - askToStopSavingLichessFile
+      - cancelStoppingLichessFile
+      - confirmStoppingLichessFile
+      - anotherEnvironmentSavesLichessFile
 
   - term: broken puzzle
     definition: >-

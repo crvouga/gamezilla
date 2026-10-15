@@ -71,3 +71,63 @@ Feature: Stop adding puzzles
       When Alice tries to stop adding puzzles to this environment
       Then Alice is told a connection is needed to stop adding puzzles
       And this environment is still adding puzzles
+
+  Rule: Stopping needs confirmation and preserves the current result
+
+    Scenario: Asking to stop does not stop an addition before confirmation
+      Given Alice is on the team for this environment
+      And this environment is adding puzzles
+      When Alice asks to stop adding puzzles
+      Then Alice is asked to confirm stopping adding puzzles
+      And this environment is still adding puzzles
+
+    Scenario: Cancelling the stop leaves puzzles being added
+      Given Alice is on the team for this environment
+      And Alice is being asked to confirm stopping adding puzzles
+      When Alice cancels stopping adding puzzles
+      Then this environment is still adding puzzles
+      And Alice is not asked to confirm stopping adding puzzles
+
+    Scenario: Confirmation stops the addition while keeping accepted puzzles
+      Given Alice is on the team for this environment
+      And Alice is being asked to confirm stopping adding puzzles
+      When Alice confirms stopping adding puzzles
+      Then Alice sees that this environment stopped adding puzzles
+      And the puzzles already added remain available to solvers
+
+    Scenario: An unfinished stop cannot be confirmed a second time
+      Given Alice is on the team for this environment
+      And Alice has confirmed stopping and the stop has not finished
+      When Alice follows adding puzzles to this environment
+      Then Alice is told adding puzzles is being stopped
+      And Alice is not offered to confirm stopping adding puzzles again
+
+    Scenario: Finishing a confirmed stop keeps the accepted puzzles available
+      Given Alice is on the team for this environment
+      And Alice has confirmed stopping and the stop has not finished
+      When stopping adding puzzles finishes
+      Then Alice sees that this environment stopped adding puzzles
+      And the puzzles already added remain available to solvers
+
+    Scenario: A failed stop can be tried again while the addition continues
+      Given Alice is on the team for this environment
+      And Alice is being asked to confirm stopping adding puzzles
+      When stopping adding puzzles fails
+      Then Alice is told adding puzzles could not be stopped and why
+      And Alice is offered to confirm stopping adding puzzles again
+      And this environment is still adding puzzles
+
+    Scenario: Finishing before confirmation keeps the finished result
+      Given Alice is on the team for this environment
+      And adding puzzles finished while Alice was being asked to confirm stopping
+      When Alice confirms stopping adding puzzles
+      Then Alice sees that this environment finished adding puzzles
+      And the puzzles already added remain available to solvers
+
+    Scenario: Confirmation while offline keeps the addition running
+      Given Alice is on the team for this environment
+      And Alice is being asked to confirm stopping adding puzzles
+      And Alice is offline
+      When Alice confirms stopping adding puzzles
+      Then Alice is told a connection is needed to stop adding puzzles
+      And this environment is still adding puzzles

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="puzzle-management-access-decisions" name="Puzzle management access" namespace="https://gamezilla.dev/decisions">
-  <decision id="puzzle-management-access" name="May this person add puzzles?">
-    <description>Only a signed-in person on the team for this environment may add puzzles.</description>
+  <decision id="puzzle-management-access" name="May this person manage puzzles?">
+    <description>Only a signed-in person on the team for this environment may check or save the Lichess file, add puzzles or stop adding puzzles.</description>
     <decisionTable id="puzzle-management-access-table" hitPolicy="UNIQUE">
       <input id="signed-in" label="signed in">
         <inputExpression id="signed-in-expression" typeRef="string"><text>signed in</text></inputExpression>
@@ -13,7 +13,7 @@
       </input>
       <input id="capability" label="what they want to do">
         <inputExpression id="capability-expression" typeRef="string"><text>what they want to do</text></inputExpression>
-        <inputValues id="capability-values"><text>"add puzzles"</text></inputValues>
+        <inputValues id="capability-values"><text>"check Lichess file","save Lichess file","add puzzles","stop adding puzzles"</text></inputValues>
       </input>
       <output id="answer" name="answer" typeRef="string">
         <outputValues id="answer-values"><text>"yes","no"</text></outputValues>
@@ -22,26 +22,26 @@
         <outputValues id="reason-values"><text>"none","needs an account","not on the team"</text></outputValues>
       </output>
       <rule id="team-account-adds-puzzles">
-        <description>A signed-in person on the team may add puzzles.</description>
+        <description>A signed-in person on the team may check or save the Lichess file, add puzzles or stop adding puzzles.</description>
         <inputEntry id="team-account-adds-puzzles-in-1"><text>"yes"</text></inputEntry>
         <inputEntry id="team-account-adds-puzzles-in-2"><text>"yes"</text></inputEntry>
-        <inputEntry id="team-account-adds-puzzles-in-3"><text>"add puzzles"</text></inputEntry>
+        <inputEntry id="team-account-adds-puzzles-in-3"><text>-</text></inputEntry>
         <outputEntry id="team-account-adds-puzzles-out-1"><text>"yes"</text></outputEntry>
         <outputEntry id="team-account-adds-puzzles-out-2"><text>"none"</text></outputEntry>
       </rule>
       <rule id="account-outside-team-cannot-add-puzzles">
-        <description>A signed-in person outside the team cannot add puzzles.</description>
+        <description>A signed-in person outside the team cannot check or save the Lichess file, add puzzles or stop adding puzzles.</description>
         <inputEntry id="account-outside-team-cannot-add-puzzles-in-1"><text>"yes"</text></inputEntry>
         <inputEntry id="account-outside-team-cannot-add-puzzles-in-2"><text>"no"</text></inputEntry>
-        <inputEntry id="account-outside-team-cannot-add-puzzles-in-3"><text>"add puzzles"</text></inputEntry>
+        <inputEntry id="account-outside-team-cannot-add-puzzles-in-3"><text>-</text></inputEntry>
         <outputEntry id="account-outside-team-cannot-add-puzzles-out-1"><text>"no"</text></outputEntry>
         <outputEntry id="account-outside-team-cannot-add-puzzles-out-2"><text>"not on the team"</text></outputEntry>
       </rule>
       <rule id="guest-cannot-add-puzzles">
-        <description>A person without an account cannot add puzzles.</description>
+        <description>A person without an account cannot check or save the Lichess file, add puzzles or stop adding puzzles.</description>
         <inputEntry id="guest-cannot-add-puzzles-in-1"><text>"no"</text></inputEntry>
         <inputEntry id="guest-cannot-add-puzzles-in-2"><text>-</text></inputEntry>
-        <inputEntry id="guest-cannot-add-puzzles-in-3"><text>"add puzzles"</text></inputEntry>
+        <inputEntry id="guest-cannot-add-puzzles-in-3"><text>-</text></inputEntry>
         <outputEntry id="guest-cannot-add-puzzles-out-1"><text>"no"</text></outputEntry>
         <outputEntry id="guest-cannot-add-puzzles-out-2"><text>"needs an account"</text></outputEntry>
       </rule>
