@@ -295,6 +295,9 @@ const NOISE = [
 function verdict(output: string): string {
   const at = output.indexOf('An example execution:');
   if (at >= 0) return output.slice(at).trim();
+  // An opaque RPC failure can follow the server's actual exception. Keep
+  // that existing diagnostic instead of retaining only the client stack.
+  if (/\bINTERNAL:/.test(output)) return output.trim();
   return tail(
     output
       .split('\n')
