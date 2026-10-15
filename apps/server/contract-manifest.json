@@ -39,7 +39,9 @@
     "savePuzzleFeedSettings",
     "sendFriendRequest",
     "settleMultiplayerClock",
+    "startPuzzleImport",
     "stopFindingChessOpponent",
+    "stopPuzzleImport",
     "unblockUser"
   ],
   "queries": [
@@ -47,6 +49,7 @@
     "chessMultiplayerSpace",
     "chessPuzzleById",
     "chessPuzzleFeedSettings",
+    "chessPuzzleImport",
     "chessPuzzleInteractions",
     "chessPuzzleNearest",
     "chessPuzzlePool",
