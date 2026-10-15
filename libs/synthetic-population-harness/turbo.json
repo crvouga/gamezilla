@@ -9,10 +9,7 @@
       ]
     },
     "test:spec:0": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/synthetic-population/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }

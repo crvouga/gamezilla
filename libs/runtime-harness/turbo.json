@@ -6,109 +6,49 @@
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/runtime/*.qnt"]
     },
     "test:spec:0": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:1": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:2": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:3": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:4": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:5": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:6": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:7": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:8": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:9": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:10": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:11": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:12": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:13": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:14": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/runtime/**",
-        "$TURBO_ROOT$/specs/journeys/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }

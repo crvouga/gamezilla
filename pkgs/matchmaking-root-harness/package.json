@@ -13,6 +13,7 @@
     "check:models:0": "bun run ../../libs/tools/scripts/check-models.ts --phase 4/12",
     "check:models:1": "bun run ../../libs/tools/scripts/check-models.ts --phase 0-3,5-11/12",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client/register ../../libs/harness/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --parallel=1 --timeout 120000 tests",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
@@ -51,13 +52,13 @@
     "typescript": "catalog:"
   },
   "category": "harness",
-  "specDomains": [
-    "matchmaking"
-  ],
-  "specParts": 8,
-  "proofParts": 12,
   "proofGroups": [
     "4",
     "0-3,5-11"
-  ]
+  ],
+  "proofParts": 12,
+  "specDomains": [
+    "matchmaking"
+  ],
+  "specParts": 8
 }

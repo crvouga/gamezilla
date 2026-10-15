@@ -19,6 +19,7 @@
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { specInputProblems } from '@libs/harness/spec-inputs';
 import type { PackageSpecs } from '@pkgs/gherkin-shared/check';
 import type { ExtractedStep } from '@pkgs/gherkin-shared/extract';
 import { extractStepImports, extractSteps } from '@pkgs/gherkin-shared/extract';
@@ -610,25 +611,30 @@ function turboTasks(dir: string): TurboTasks {
   );
 }
 
-/** Each `test:spec:<k>` must hash the specs of every domain the package runs. */
+/** Every part inherits its exact generated spec fingerprint, including model imports. */
 function specPartInputProblems(pkg: SpecPackage): readonly string[] {
   const tasks = turboTasks(pkg.dir);
+  const root = turboTasks('');
   const parts = Object.keys(readManifest(pkg.dir).scripts ?? {}).filter(
     (name) => /^test:spec:\d+$/.test(name)
   );
-  const out: string[] = [];
-  for (const part of parts) {
-    const inputs = tasks[part]?.inputs ?? [];
-    for (const domain of pkg.specDomains) {
-      const input = `$TURBO_ROOT$/${SPECS_DIR}/${domain}/**`;
-      if (!inputs.includes(input)) {
-        out.push(
-          `${pkg.dir}/turbo.json: ${part} inputs must include "${input}" so a spec change re-runs ${pkg.name}`
-        );
-      }
-    }
-  }
-  return out;
+  return [
+    ...specInputProblems(join(REPO_ROOT, pkg.dir), REPO_ROOT),
+    ...parts.flatMap((part) => {
+      const local = tasks[part]?.inputs;
+      const inherited = root[part]?.inputs ?? [];
+      const inputs =
+        local?.flatMap((input) =>
+          input === '$TURBO_EXTENDS$' ? [...inherited] : [input]
+        ) ?? inherited;
+      const input = `.cache/spec-inputs/part-${part.split(':').at(-1)}.json`;
+      return inputs.includes(input)
+        ? []
+        : [
+            `${pkg.dir}/turbo.json: ${part} inputs must include "${input}" so its assigned specs invalidate the verdict`,
+          ];
+    }),
+  ];
 }
 
 /**

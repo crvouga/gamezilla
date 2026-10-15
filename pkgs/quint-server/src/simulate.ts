@@ -30,6 +30,7 @@ import type { ItfTrace } from '@pkgs/quint-shared/itf';
 import { decodeItfTrace, renderQuint } from '@pkgs/quint-shared/itf';
 import { quintSeed } from '@pkgs/quint-shared/wall';
 import { cachedQuintDir } from './draw-cache';
+import { modelSourceKey } from './model-source';
 
 /** The Quint CLI that ships in the npm package, run under Bun. */
 export const QUINT_CLI = Bun.resolveSync(
@@ -84,7 +85,7 @@ export function simulate(options: SimulateOptions): SimulateResult {
   const source = readFileSync(options.specPath, 'utf8');
   const invariants = modelInvariants(source);
   const itfDir = cachedQuintDir({
-    source,
+    source: modelSourceKey(options.specPath),
     seed,
     traces: options.traces,
     maxSteps: options.maxSteps,

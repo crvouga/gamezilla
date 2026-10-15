@@ -1,0 +1,4 @@
+{
+  "summary": "Chess-board's local Turbo inputs replaced inherited runner inputs, omitting the generated per-part source fingerprints. Every spec package must retain those inherited inputs.",
+  "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+}

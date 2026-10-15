@@ -150,9 +150,17 @@ describe('partOf', () => {
     expect(paths(parts.flat()).sort()).toEqual(['a', 'b', 'c', 'd']);
   });
 
-  test('heaviest first onto the lightest part; part 0 carries tests/harness', () => {
-    expect(paths(partOf(units, { index: 0, count: 2 }))).toEqual(['b', 'c']);
-    expect(paths(partOf(units, { index: 1, count: 2 }))).toEqual(['a', 'd']);
+  test('stable ownership keeps unrelated units in place when weights change', () => {
+    expect(paths(partOf(units, { index: 0, count: 2 }))).toEqual(['a', 'c']);
+    expect(paths(partOf(units, { index: 1, count: 2 }))).toEqual(['b', 'd']);
+    const changed = units.map((unit) => ({
+      ...unit,
+      weight: unit.weight * 10,
+    }));
+    for (const index of [0, 1])
+      expect(paths(partOf(changed, { index, count: 2 }))).toEqual(
+        paths(partOf(units, { index, count: 2 }))
+      );
   });
 
   test('slices of one spec are distinct units', () => {
@@ -162,7 +170,7 @@ describe('partOf', () => {
       weight: 5,
     }));
     const parts = [0, 1].map((index) => partOf(sliced, { index, count: 2 }));
-    expect(parts.map((p) => p.map((u) => u.slice?.index))).toEqual([[1], [0]]);
+    expect(parts.map((p) => p.map((u) => u.slice?.index))).toEqual([[0], [1]]);
   });
 
   test('the three friends models retain all traces in bounded batches', () => {

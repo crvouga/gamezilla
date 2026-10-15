@@ -16,6 +16,7 @@
   "scripts": {
     "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client/register ../../libs/harness/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --preload @pkgs/chess-board-root-client/board-style-preload --path-ignore-patterns='**/browser/**' tests",
     "test:contract": "bun test tests/browser",

@@ -53,20 +53,18 @@ import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness/report-ready';
 import { testFailureSpans } from '@libs/harness/test-failure-spans';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared/stubs';
-import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
-import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
 import { specParallelism } from '@pkgs/os-server/test-concurrency';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint-shared/stubs';
 import { completedOrigin, reportOrigin } from './report-origin';
-import { CHECK_KINDS, isSpecPath, SPEC_GLOBS } from './spec-check-kinds';
+import { CHECK_KINDS, isSpecPath } from './spec-check-kinds';
 import type { Part, SpecUnit } from './spec-parts';
 import { partOf, specUnits } from './spec-parts';
+import { packageSpecDomains, packageSpecs } from './spec-sources';
 
 const PACKAGE_DIR = process.cwd();
 const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/index.ts');
 const QUINT_ENTRY = join(PACKAGE_DIR, 'tests/quint/index.ts');
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
-const SPECS_DIR = join(REPO_ROOT, 'specs');
 const TEST_PACKAGE_NAME = process.env['npm_package_name'] ?? 'unknown';
 const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-spec`;
 /**
@@ -134,43 +132,6 @@ function parsePart(value: string | undefined): Part {
   return { index, count };
 }
 
-/** The `specs/<domain>/` directories this package runs (`specDomains`). */
-function specDomains(): readonly string[] {
-  const manifestPath = join(PACKAGE_DIR, 'package.json');
-  if (!existsSync(manifestPath)) return [];
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
-    readonly specDomains?: readonly string[];
-  };
-  return manifest.specDomains ?? [];
-}
-
-/** Absolute paths of every spec in this package's domains (flat). */
-function listSpecs(): readonly string[] {
-  return specDomains().flatMap((domain) => {
-    const dir = join(SPECS_DIR, domain);
-    if (!existsSync(dir)) return [];
-    // `events.qnt` is a context's published language (types only), not a model.
-    return SPEC_GLOBS.flatMap((glob) => [
-      ...new Bun.Glob(glob).scanSync({ cwd: dir }),
-    ])
-      .filter((file) => file !== 'events.qnt')
-      .filter((file) => harnessKeeps(join(dir, file)))
-      .sort()
-      .map((file) => join(dir, file));
-  });
-}
-
-/** `@synthetic` features and `# live` objectives run in `health`, not here. */
-function harnessKeeps(path: string): boolean {
-  if (path.endsWith('.feature')) {
-    return !isSyntheticFeatureSource(readFileSync(path, 'utf8'));
-  }
-  if (path.endsWith('.openslo.yaml')) {
-    return !isLiveObjectiveSource(readFileSync(path, 'utf8'));
-  }
-  return true;
-}
-
 /** The test files of `specs` (absolute paths), long specs sliced. */
 function unitsOf(specs: readonly string[], partCount = 1): readonly SpecUnit[] {
   return specs.flatMap((path) =>
@@ -180,7 +141,7 @@ function unitsOf(specs: readonly string[], partCount = 1): readonly SpecUnit[] {
 
 /** Test files to run: the specs named, else all (or one part's share). */
 function selectSpecs(cli: Cli): readonly SpecUnit[] {
-  const all = listSpecs();
+  const all = packageSpecs(PACKAGE_DIR, REPO_ROOT);
   if (cli.part !== undefined)
     return partOf(unitsOf(all, cli.part.count), cli.part);
   if (cli.specPaths.length === 0) {
@@ -195,7 +156,7 @@ function namedSpecs(cli: Cli, all: readonly string[]): readonly string[] {
     const abs = candidates.find((path) => all.includes(path));
     if (abs === undefined) {
       console.error(
-        `test-spec: ${given} is not a spec of ${TEST_PACKAGE_NAME}'s specDomains (${specDomains().join(', ')})`
+        `test-spec: ${given} is not a spec of ${TEST_PACKAGE_NAME}'s specDomains (${packageSpecDomains(PACKAGE_DIR).join(', ')})`
       );
       process.exit(1);
     }

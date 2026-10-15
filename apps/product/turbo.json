@@ -385,7 +385,7 @@
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/developer-tools/*.qnt"]
     },
     "test:spec:0": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/developer-tools/**"]
+      "inputs": ["$TURBO_EXTENDS$"]
     },
     "prepare:ui-quality-model": {
       "dependsOn": ["@pkgs/ui-quality-check-server#build"],
