@@ -1,3 +1,4 @@
+// @spec-meta — Quint runner fixture for deeply typed calibration values.
 // A door keeps a complete set of calibration readings while it stays shut.
 module door_many_values {
   type Readings = (int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)
