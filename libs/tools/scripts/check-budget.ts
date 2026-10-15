@@ -46,11 +46,15 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   // one solver slot runs them one at a time.
   '@pkgs/matchmaking-root-harness#check:models:0': 480,
   '@pkgs/matchmaking-root-harness#check:models:1': 480,
-  // `multiplayer.qnt`, alone in its part: twenty actions over three people's
-  // six devices, explored two steps from every reachable start. 309 s on a
-  // 12-core laptop. Path order puts it in part 10 after the Lichess-file preparation and
-  // departure models join the Chess contracts.
-  '@libs/chess-root-harness#check:models:10': 420,
+  // The multiplayer proof retains all twelve properties and the two-step bound.
+  // Its four independent groups measured 205, 315, 419 and 161 seconds with
+  // two solver slots. Carry its existing 420-second allowance to each phase.
+  ...Object.fromEntries(
+    Array.from({ length: 4 }, (_, index) => [
+      `@libs/chess-root-harness#check:models:10:${String(index)}`,
+      420,
+    ])
+  ),
   // The eleven symbolic models used to share one task. Deploy 38446818279
   // killed that task at 840 s on a 2-core runner (Check concurrency 1) before
   // it finished. Each part keeps that same allowance for one model; the
