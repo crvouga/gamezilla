@@ -38,3 +38,9 @@ Feature: Leave while saving a Lichess file
       Then Alice is away from adding puzzles
       And the team can still add puzzles from the saved Lichess file
       And Alice is not asked to confirm leaving adding puzzles
+
+    Scenario: Losing the connection makes a requested departure safe
+      Given Alice is choosing whether to leave while saving a Lichess file
+      When Alice loses the connection
+      Then Alice is away from adding puzzles
+      And Alice is not asked to confirm leaving adding puzzles
