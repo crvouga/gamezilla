@@ -66,7 +66,7 @@ module shared_clock_recovery {
     winner == "", moves < 4,
     if (canMove.get(person))
       _show(moves + 1, _other(person),
-        if (speed == "daily") timeLeft.set(_other(person), _allowance) else timeLeft,
+        if (speed == "daily") PEOPLE.mapBy(_ => _allowance) else timeLeft,
         winner, _available, _online)
     else _show(moves, turn, timeLeft, winner, _available, _online),
   }
@@ -126,6 +126,8 @@ module shared_clock_recovery {
   /// A move is part of the same alternating game, at the agreed speed.
   val invSameGame = SPEEDS.contains(speed) and moves >= 2 and moves <= 4 and
     turn == (if (moves % 2 == 0) "alice" else "bob")
+  /// In a daily game the person not to move shows the full days for a move.
+  val invDailyClockKeepsFullDays = speed == "daily" implies timeLeft.get(_other(turn)) == _allowance
   /// No clock is negative, including when a deadline passes during return.
   val invClocksAreNonnegative = PEOPLE.forall(p => timeLeft.get(p) >= 0)
   /// A disconnected person cannot move even while the shared game remains available.
