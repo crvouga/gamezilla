@@ -155,3 +155,29 @@ function placeOnLightest(
     lightest.load += unit.weight;
   }
 }
+
+export type ModelDraw = {
+  readonly path: string;
+  readonly traces: number;
+  readonly maxSteps: number;
+};
+
+/** Two bounded workers prepare the same draws, with the largest work first. */
+export function modelDrawBatches(
+  draws: readonly ModelDraw[]
+): readonly (readonly ModelDraw[])[] {
+  const batches: { cost: number; draws: ModelDraw[] }[] = [
+    { cost: 0, draws: [] },
+    { cost: 0, draws: [] },
+  ];
+  const cost = (draw: ModelDraw) => draw.traces * draw.maxSteps;
+  for (const draw of [...draws].sort((a, b) => cost(b) - cost(a))) {
+    const batch =
+      batches[0]!.cost <= batches[1]!.cost ? batches[0]! : batches[1]!;
+    batch.draws.push(draw);
+    batch.cost += cost(draw);
+  }
+  return batches
+    .map((batch) => batch.draws)
+    .filter((batch) => batch.length > 0);
+}

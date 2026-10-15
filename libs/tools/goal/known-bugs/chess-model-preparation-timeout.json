@@ -1,0 +1,4 @@
+{
+  "summary": "Preparing every chess model sequentially exceeded the 600-second task cap after the puzzle and recovery suites were combined. Two bounded workers retain every original draw and start the largest batches first.",
+  "regressionTest": "libs/harness/tests/prepare-spec.test.ts"
+}

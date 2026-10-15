@@ -7,6 +7,7 @@ import {
   DEFAULT_TRACES,
   findQuintBinding,
 } from '@pkgs/quint-shared/registry';
+import { type ModelDraw, modelDrawBatches } from './spec-parts';
 import { packageSpecs } from './spec-sources';
 
 async function main(): Promise<void> {
@@ -29,6 +30,7 @@ async function main(): Promise<void> {
     '.cache/harness-report/prepared'
   );
   const output = join(dir, '.cache/prepared-spec-traces');
+  const draws: ModelDraw[] = [];
   for (const path of models) {
     const model = basename(path, '.qnt');
     const binding = findQuintBinding(model);
@@ -40,14 +42,48 @@ async function main(): Promise<void> {
       );
       continue;
     }
-    simulate({
-      specPath: path,
+    draws.push({
+      path,
       traces: binding.traces ?? DEFAULT_TRACES,
       maxSteps: binding.maxSteps ?? DEFAULT_MAX_STEPS,
-      outDir: join(output, binding.model),
     });
   }
-  rmSync(output, { recursive: true, force: true });
+  const workers = modelDrawBatches(draws).map((batch) =>
+    Bun.spawn(
+      [process.execPath, import.meta.path, '--draw', JSON.stringify(batch)],
+      {
+        cwd: dir,
+        env: { ...process.env },
+        stdout: 'inherit',
+        stderr: 'inherit',
+      }
+    )
+  );
+  try {
+    const codes = await Promise.all(workers.map((worker) => worker.exited));
+    if (codes.some((code) => code !== 0))
+      throw new Error('Quint preparation failed');
+  } finally {
+    for (const worker of workers) if (worker.exitCode === null) worker.kill();
+    rmSync(output, { recursive: true, force: true });
+  }
 }
 
-if (import.meta.main) await main();
+function drawBatch(draws: readonly ModelDraw[]): void {
+  const output = join(process.cwd(), '.cache/prepared-spec-traces');
+  for (const draw of draws) {
+    console.log(`quint: preparing ${basename(draw.path)}`);
+    simulate({
+      specPath: draw.path,
+      traces: draw.traces,
+      maxSteps: draw.maxSteps,
+      outDir: join(output, basename(draw.path, '.qnt')),
+    });
+  }
+}
+
+if (import.meta.main) {
+  if (process.argv[2] === '--draw')
+    drawBatch(JSON.parse(process.argv[3]!) as ModelDraw[]);
+  else await main();
+}

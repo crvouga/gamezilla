@@ -9,6 +9,7 @@ import {
   CHECK_WEIGHT,
   MODEL_SLICES,
   MODEL_WEIGHT,
+  modelDrawBatches,
   partOf,
   SLICE_SCENARIOS,
   specUnits,
@@ -278,3 +279,44 @@ function chessSuiteParts(count: number): readonly (readonly SpecUnit[])[] {
     partOf(units, { index, count })
   );
 }
+
+// regression: chess-model-preparation-timeout
+test('preparation retains every draw and bounds the workers for the combined chess suite', () => {
+  const draws = [
+    [96, 14],
+    [256, 24],
+    [16, 8],
+    [96, 18],
+    [16, 24],
+    [64, 16],
+    [32, 16],
+    [32, 16],
+    [32, 12],
+    [80, 120],
+    [48, 48],
+    [32, 24],
+    [64, 64],
+    [24, 32],
+    [16, 8],
+    [24, 12],
+    [48, 18],
+    [64, 32],
+    [24, 12],
+    [6, 8],
+    [16, 8],
+  ].map(([traces, maxSteps], index) => ({
+    path: `model-${index}.qnt`,
+    traces: traces!,
+    maxSteps: maxSteps!,
+  }));
+  const batches = modelDrawBatches(draws);
+  expect(batches).toHaveLength(2);
+  expect(batches.flat().sort((a, b) => a.path.localeCompare(b.path))).toEqual(
+    [...draws].sort((a, b) => a.path.localeCompare(b.path))
+  );
+  const cost = (batch: typeof draws) =>
+    batch.reduce((sum, draw) => sum + draw.traces * draw.maxSteps, 0);
+  expect(
+    Math.max(...batches.map((batch) => cost([...batch])))
+  ).toBeLessThanOrEqual(cost(draws) / 2 + 128);
+});

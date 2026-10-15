@@ -15,6 +15,7 @@ const REGISTRY = Bun.resolveSync(
 const RUNNER = Bun.resolveSync('@pkgs/quint-server/bun-test', import.meta.dir);
 
 // regression: unbound-model-blocks-independent-specs
+// regression: chess-model-preparation-timeout
 test('unbound models do not block preparation and still fail their own checks', async () => {
   const root = mkdtempSync(join(tmpdir(), 'prepare-spec-'));
   const store = createNodeFsObjectStore({
@@ -34,6 +35,8 @@ test('unbound models do not block preparation and still fail their own checks', 
       `
       import { bindQuintModel } from ${JSON.stringify(REGISTRY)};
       bindQuintModel({ model: 'preference-recovery', traces: 1, maxSteps: 2,
+        actions: {}, observe: async () => ({}) });
+      bindQuintModel({ model: 'privacy-recovery', traces: 1, maxSteps: 2,
         actions: {}, observe: async () => ({}) });
     `
     );
@@ -55,7 +58,7 @@ test('unbound models do not block preparation and still fail their own checks', 
       readdirSync(draws).filter((key) =>
         readdirSync(join(draws, key)).includes('ready')
       )
-    ).toHaveLength(1);
+    ).toHaveLength(2);
 
     await writeUtf8(
       store,
