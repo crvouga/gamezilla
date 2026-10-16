@@ -1,4 +1,0 @@
-{
-  "summary": "Fresh browser journeys started gestures before service-worker installation completed. An unfinished install could remain active when the next scenario cleared the same browser profile. Await the browser's offline-shell readiness event before continuing.",
-  "regressionTest": "apps/product/tests/prepare-critical-journey-access.test.ts"
-}
