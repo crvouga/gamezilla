@@ -25,8 +25,16 @@ class FakeMqttClient extends EventEmitter {
   readonly endCalls: { force?: boolean; opts?: unknown }[] = [];
   ended = false;
 
-  subscribe(topic: string, opts?: { qos?: number }): this {
+  subscribe(
+    topic: string,
+    opts?: { qos?: number },
+    done?: (
+      error: Error | null,
+      grants: { topic: string; qos: number }[]
+    ) => void
+  ): this {
     this.subscribeCalls.push({ topic, qos: opts?.qos ?? 0 });
+    done?.(null, [{ topic, qos: opts?.qos ?? 0 }]);
     return this;
   }
 

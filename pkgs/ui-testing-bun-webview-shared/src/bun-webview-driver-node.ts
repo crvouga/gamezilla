@@ -449,7 +449,7 @@ function pressablePointScript(selector: string): string {
       var el = all[i];
       var style = getComputedStyle(el);
       if (style.display === 'none' || style.visibility === 'hidden') continue;
-      el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
+      el.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
       var previous = null;
       for (var frame = 0; frame < 18; frame++) {
         await new Promise(requestAnimationFrame);

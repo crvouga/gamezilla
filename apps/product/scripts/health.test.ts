@@ -23,6 +23,7 @@ import {
   selectSpecs,
   targetEnv,
 } from './health';
+import { releaseJourneySpecs } from './release-journey-selection';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 
@@ -34,6 +35,37 @@ const STANDARD: Environment = {
   production: false,
   observability: true,
 };
+
+// regression: deploy-missing-multiplayer-release-journeys
+test('the release bundle checks Connect Four and multiplayer as well as space journeys', () => {
+  const paths = releaseJourneySpecs().map((path) => relative(REPO_ROOT, path));
+  expect(paths).toContain('specs/journeys/connect-four-game.feature');
+  expect(paths).toContain('specs/journeys/multiplayer-game.feature');
+  expect(paths).toContain('specs/journeys/custom-game.feature');
+  expect(paths).toContain('specs/journeys/join-and-offline.feature');
+});
+
+// regression: live-connect-four-journey-unbound
+test('the live entry binds the literal Connect Four journey steps', () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      '-e',
+      `
+    await import('./tests/steps/live-index.ts');
+    const { matchStep } = await import('@pkgs/gherkin-shared/registry');
+    for (const text of [
+      'Alice and Bob play Connect Four from fresh devices',
+      'Alice and Bob see the same completed Connect Four game'
+    ]) {
+      if (matchStep(text).kind !== 'match') throw new Error('unbound: ' + text);
+    }
+  `,
+    ],
+    { cwd: resolve(import.meta.dir, '..'), encoding: 'utf8' }
+  );
+  expect(result.status, result.stdout + result.stderr).toBe(0);
+});
 
 // regression: deploy-health-stale-foundation-secrets
 test('health uses the post-foundation database and monitor credentials', () => {

@@ -1,6 +1,11 @@
 import type { Timers } from '@pkgs/clock-shared/types';
 import { createDeadlineFetch } from '@pkgs/http-client-shared/deadline-fetch';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
+import {
+  mqttPushEvidence,
+  syncRequestEvidence,
+  syncResponseEvidence,
+} from './browser-sync-evidence';
 
 function onNetwork<T>(
   view: Bun.WebView,
@@ -17,11 +22,13 @@ function socketEvidence(
   view: Bun.WebView,
   record: (entry: unknown) => void
 ): void {
+  const protocols = new Map<string, number>();
   onNetwork<{ requestId: string; url: string }>(
     view,
     'Network.webSocketCreated',
     (data) => {
       const url = new URL(data.url);
+      protocols.set(data.requestId, url.protocol === 'wss:' ? 5 : 4);
       record({
         event: 'socket',
         id: data.requestId,
@@ -29,6 +36,18 @@ function socketEvidence(
       });
     }
   );
+  onNetwork<{
+    requestId: string;
+    response: { opcode: number; payloadData: string };
+  }>(view, 'Network.webSocketFrameReceived', (data) => {
+    if (data.response.opcode !== 2) return;
+    const push = mqttPushEvidence(
+      data.response.payloadData,
+      protocols.get(data.requestId) ?? 4
+    );
+    if (push !== undefined)
+      record({ event: 'push', id: data.requestId, ...push });
+  });
   onNetwork<{ requestId: string; response: { status: number } }>(
     view,
     'Network.webSocketHandshakeResponseReceived',
@@ -56,7 +75,7 @@ function socketEvidence(
   });
 }
 
-/** Sanitized transport evidence: no request bodies, query strings or credentials. */
+/** Sanitized transport evidence: names and row counts, never bodies or credentials. */
 export function browserNetworkEvidence(view: Bun.WebView): string[] {
   const lines: string[] = [];
   const requests = new Map<string, string>();
@@ -65,7 +84,7 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
     if (lines.length > 200) lines.shift();
   };
   socketEvidence(view, record);
-  onNetwork<{ requestId: string; request: { url: string } }>(
+  onNetwork<{ requestId: string; request: { url: string; postData?: string } }>(
     view,
     'Network.requestWillBeSent',
     (data) => {
@@ -73,7 +92,12 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
       if (!url.pathname.startsWith('/api/')) return;
       const path = `${url.origin}${url.pathname}`;
       requests.set(data.requestId, path);
-      record({ event: 'request', id: data.requestId, url: path });
+      record({
+        event: 'request',
+        id: data.requestId,
+        url: path,
+        names: syncRequestEvidence(path, data.request.postData),
+      });
     }
   );
   onNetwork<{
@@ -117,6 +141,45 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
     requests.delete(data.requestId);
   });
   return lines;
+}
+
+/** Bun permits one pending CDP command: collect bodies only after the failed gesture. */
+export async function readSyncResponseEvidence(
+  view: Pick<Bun.WebView, 'cdp'>,
+  lines: readonly string[]
+): Promise<string[]> {
+  const summaries: string[] = [];
+  for (const line of [...lines]) {
+    const event = JSON.parse(line) as {
+      event: string;
+      id: string;
+      url?: string;
+    };
+    if (
+      event.event !== 'request' ||
+      !event.url ||
+      !/\/(query|mutations)$/.test(event.url)
+    )
+      continue;
+    try {
+      const response = (await view.cdp('Network.getResponseBody', {
+        requestId: event.id,
+      })) as { body: string; base64Encoded?: boolean };
+      const body = response.base64Encoded
+        ? Buffer.from(response.body, 'base64').toString('utf8')
+        : response.body;
+      summaries.push(
+        JSON.stringify({
+          event: 'sync-response',
+          id: event.id,
+          summary: syncResponseEvidence(event.url, body),
+        })
+      );
+    } catch {
+      // Chrome may already have discarded an old response body.
+    }
+  }
+  return summaries;
 }
 
 export async function nativeHealthEvidence(

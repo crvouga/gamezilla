@@ -1,19 +1,19 @@
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
-import {
-  check,
-  endActiveSpace,
-  hostSpace,
-  JOURNEY_WAIT_MS,
-  tap,
-} from './journey-gestures';
+import { check, hostSpace, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 import { expectSharedMultiplayerGame } from './multiplayer-journey';
+import {
+  endMultiplayerSpace,
+  retirePreviousMultiplayer,
+} from './multiplayer-search-recovery';
+import { chooseMultiplayerTimeControl } from './multiplayer-time-control-gesture';
 
 async function search(ui: Driver): Promise<void> {
   await hostSpace(ui);
   await tap(ui, 'game-menu-connect-four');
   await tap(ui, 'connect-four-multiplayer');
-  await tap(ui, 'multiplayer-time-control-5-0');
+  await retirePreviousMultiplayer(ui);
+  await chooseMultiplayerTimeControl(ui, '5+0');
   await tap(ui, 'multiplayer-find');
 }
 async function firstSide(ui: Driver): Promise<boolean> {
@@ -47,9 +47,9 @@ export async function playConnectFourJourney(
 ): Promise<boolean> {
   await host.open('signed-in');
   await host.openPeer('signed-in');
-  host.defer('connect-four-host-space', endActiveSpace);
+  host.defer('connect-four-host-space', endMultiplayerSpace);
   host.defer('connect-four-peer-space', () =>
-    host.actAsGuest('endPeerSpace', endActiveSpace)
+    host.actAsGuest('endPeerSpace', endMultiplayerSpace)
   );
   await host.act('findConnectFourOpponent', search);
   await host.actAsGuest('findConnectFourOpponent', search);

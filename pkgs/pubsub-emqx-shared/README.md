@@ -37,6 +37,11 @@ Short disconnects (minutes) can be bridged by the broker session:
 
 One live connection per `clientId` — a second connect with the same id kicks the older connection. Production uses the device id as `clientIdPrefix`.
 
+A rejected subscription or publish starts a reconnect with fresh credentials.
+This picks up grants added after the previous connection, such as joining a
+new topic. The rejected publish still fails its caller; reconnecting does not
+silently replay a write. Desired subscriptions are restored on reconnect.
+
 ## Usage — full-duplex (WSS)
 
 ```ts
@@ -101,3 +106,8 @@ App clients authenticate with MQTT username `jwt` and password = short-lived HS2
 2. `acl_claim_name = acl` — subscribe-only rules embedded in the token
 3. Prefer `authorization.no_match = deny` in production so clients cannot subscribe outside their ACL
 4. Keep HTTP API keys (`EMQX_API_KEY` / `EMQX_API_SECRET`) for Worker publish-only pushes
+
+MQTT reports readiness only after every desired subscription is acknowledged.
+Adding a topic temporarily reports `connecting`, then `connected` after SUBACK,
+so sync can reconcile changes that happened between its snapshot and broker acceptance.
+Stale acknowledgments cannot complete a replacement subscription.

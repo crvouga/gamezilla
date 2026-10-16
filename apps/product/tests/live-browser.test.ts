@@ -1,7 +1,10 @@
 import { expect, test } from 'bun:test';
 import { join } from 'node:path';
 import { runInNewContext } from 'node:vm';
-import { browserNetworkEvidence } from '@apps/product/browser-network-evidence';
+import {
+  browserNetworkEvidence,
+  readSyncResponseEvidence,
+} from '@apps/product/browser-network-evidence';
 import {
   EVIDENCE_DIR,
   emulateOffline,
@@ -47,6 +50,45 @@ test('transport evidence keeps protocol failures without copying credentials or 
   ).toEqual(['request', 'response', 'failed']);
   expect(evidence.join('\n')).toContain('ERR_HTTP2_PROTOCOL_ERROR');
   expect(evidence.join('\n')).not.toContain('private-');
+});
+
+// regression: live-network-evidence-competes-for-cdp
+test('network observation leaves the gesture CDP channel alone until failure collection', async () => {
+  const listeners = new Map<string, (event: { data: unknown }) => void>();
+  let calls = 0;
+  const view = {
+    addEventListener: (
+      name: string,
+      listener: (event: { data: unknown }) => void
+    ) => listeners.set(name, listener),
+    cdp: async () => {
+      calls++;
+      return {
+        body: JSON.stringify({
+          responses: [
+            {
+              status: 'ok',
+              checkpoint: '3',
+              tables: { games: [{ id: 'private-id', deleted_at: null }] },
+            },
+          ],
+        }),
+      };
+    },
+  } as unknown as Bun.WebView;
+  const evidence = browserNetworkEvidence(view);
+  listeners.get('Network.requestWillBeSent')!({
+    data: {
+      requestId: 'query',
+      request: { url: 'https://api.example/api/query' },
+    },
+  });
+  listeners.get('Network.loadingFinished')!({ data: { requestId: 'query' } });
+  expect(calls).toBe(0);
+  const responses = await readSyncResponseEvidence(view, evidence);
+  expect(calls).toBe(1);
+  expect(responses.join('\n')).toContain('games');
+  expect(responses.join('\n')).not.toContain('private-id');
 });
 
 // regression: health-journey-evidence-outside-package

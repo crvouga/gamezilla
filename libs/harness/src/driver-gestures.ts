@@ -68,3 +68,22 @@ export async function openGlobalMenu(
   }
   await goal.expect.visible({ timeoutMs });
 }
+
+/** Select while the menu is open; hydration may close it after the visible read. */
+export async function chooseGlobalMenuItem(
+  ui: Driver,
+  item: string,
+  timeoutMs: number
+): Promise<void> {
+  const goal = ui.get(item);
+  for (let attempt = 0; attempt < MENU_OPEN_LIMIT; attempt += 1) {
+    await openGlobalMenu(ui, item, timeoutMs);
+    try {
+      await goal.tap({ timeoutMs: MENU_SETTLE_MS });
+      return;
+    } catch (error) {
+      if (await goal.isVisible()) throw error;
+    }
+  }
+  await goal.tap({ timeoutMs });
+}

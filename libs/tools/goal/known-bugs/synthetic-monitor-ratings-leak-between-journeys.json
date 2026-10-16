@@ -1,0 +1,4 @@
+{
+  "summary": "Fixed synthetic monitoring accounts retain ratings from previous multiplayer journeys, exceeding the initial matchmaking radius and making later independent scenarios fail.",
+  "regressionTest": "pkgs/auth-inhouse-server/tests/synthetic-monitor-isolation.test.ts"
+}

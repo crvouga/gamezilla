@@ -112,12 +112,16 @@ test('a feature path selects a suite and trailing flags select its scenarios', (
 
 test('stack sessions use the same signing authority as harness assertions', () => {
   // regression: local-stack-auth-authority-mismatch
+  // regression: release-journey-monitor-unconfigured
   const env = localApiEnv({
     AUTH_SECRET: 'unrelated-parent-key',
     SECRETS_ENV: 'prd',
+    SYNTHETIC_MONITOR_TOKEN: 'unrelated-production-monitor',
   });
   expect(env.AUTH_SECRET).toBe(HARNESS_AUTH_SECRET);
   expect(env.SECRETS_ENV).toBe('dev');
+  expect(env.SYNTHETIC_MONITOR_TOKEN.length).toBeGreaterThanOrEqual(32);
+  expect(env.SYNTHETIC_MONITOR_TOKEN).not.toBe('unrelated-production-monitor');
 });
 
 test('isolated stack suites have no uninvited matchmaking participants', () => {

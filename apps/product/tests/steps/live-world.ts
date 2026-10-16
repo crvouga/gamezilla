@@ -1,4 +1,15 @@
+import {
+  BROWSER_FAILURE_LAYOUT,
+  browserFailureSummary,
+} from '@apps/product/browser-failure-summary';
+import { readSyncResponseEvidence } from '@apps/product/browser-network-evidence';
 import { openIsolatedDevice } from '@apps/product/isolated-browser';
+import {
+  actOnLiveDevice,
+  type LiveDevices,
+  openGuestDevice,
+  requireDevice,
+} from '@apps/product/live-journey-devices';
 // @io-wall-ok — live health: the world every `liveDomains` scenario runs in.
 /**
  * The world a live scenario (`@synthetic` features, `specs/journeys/`) runs in:
@@ -99,21 +110,7 @@ type Browsing = {
   close(): Promise<void>;
 };
 
-type LiveDevices = {
-  host: Device | null;
-  guest: Device | null;
-  /** The device the last gesture ran on — what a failure should capture. */
-  shown: Device | null;
-};
-
 type FailureFlag = { failed: boolean };
-
-function requireDevice(device: Device | null, who: string): Device {
-  if (device === null) {
-    throw new Error(`no ${who}: a journey opens the app first`);
-  }
-  return device;
-}
 
 async function openLiveDevice(
   target: LiveTarget,
@@ -139,17 +136,6 @@ async function ensureHost(
 ): Promise<Device> {
   if (devices.host === null) await openLiveDevice(target, devices, 'anonymous');
   return requireDevice(devices.host, 'device');
-}
-
-async function openGuestDevice(
-  target: LiveTarget,
-  devices: LiveDevices,
-  link: string
-): Promise<void> {
-  if (devices.guest === null) devices.guest = await openDevice(target);
-  const guest = requireDevice(devices.guest, 'guest');
-  devices.shown = guest;
-  await guest.view.navigate(new URL(link, target.webOrigin).href);
 }
 
 function liveJourneyHost(
@@ -182,13 +168,11 @@ function liveJourneyHost(
     },
     act: async (_name, gestures) => {
       const current = await ensureHost(target, devices);
-      devices.shown = current;
-      await gestures(current.driver);
+      await actOnLiveDevice(devices, current, gestures);
     },
     actAsGuest: async (_name, gestures) => {
       const current = requireDevice(devices.guest, 'guest');
-      devices.shown = current;
-      await gestures(current.driver);
+      await actOnLiveDevice(devices, current, gestures);
     },
     spaceLink: async () =>
       spaceLinkFromLocation(
@@ -251,8 +235,35 @@ function browsing(target: LiveTarget): Browsing {
   const failureFlag: FailureFlag = { failed: false };
   return {
     host: liveJourneyHost(target, devices, cleanups),
-    evidence: (id, cause) => {
+    evidence: async (id, cause) => {
       failureFlag.failed = true;
+      for (const [name, current] of [
+        ['host', devices.host],
+        ['peer', devices.guest],
+      ] as const) {
+        const layout = await current?.view
+          .evaluate(BROWSER_FAILURE_LAYOUT)
+          .catch(() => null);
+        if (layout !== null && layout !== undefined)
+          console.error(
+            `browser failure geometry (${name}): ${String(layout)}`
+          );
+        const html = await current?.driver.snapshotHtml().catch(() => null);
+        if (typeof html === 'string')
+          console.error(
+            `browser failure state (${name}): ${browserFailureSummary(html)}`
+          );
+        if (current !== null) {
+          const transport = [...current.network];
+          const responses = await readSyncResponseEvidence(
+            current.view,
+            transport
+          );
+          console.error(
+            `browser failure transport (${name}): ${[...transport, ...responses].join('\n')}`
+          );
+        }
+      }
       const device = devices.shown ?? devices.host;
       return device === null
         ? Promise.resolve(null)

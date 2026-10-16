@@ -12,8 +12,10 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { runInThisContext } from 'node:vm';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-driver';
 import type { BunWebView } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-host';
+import fc from 'fast-check';
 
 beforeAll(() => {
   GlobalRegistrator.register();
@@ -138,4 +140,44 @@ test('the portable command-palette key uses the Mac primary modifier', async () 
     if (previous === undefined) Reflect.deleteProperty(navigator, 'platform');
     else Object.defineProperty(navigator, 'platform', previous);
   }
+});
+
+// regression: live-multiplayer-wrong-time-control
+test('Space selects the requested native radio instead of the previous time control', async () => {
+  document.body.innerHTML =
+    '<label><input type="radio" name="pace" checked data-testid="pace-2-1">2+1</label><label><input type="radio" name="pace" data-testid="pace-5-0">5+0</label>';
+  await driver().get('pace-5-0').key('space');
+  const previous = document.querySelector<HTMLInputElement>(
+    '[data-testid="pace-2-1"]'
+  )!;
+  const requested = document.querySelector<HTMLInputElement>(
+    '[data-testid="pace-5-0"]'
+  )!;
+  expect(previous.checked).toBe(false);
+  expect(requested.checked).toBe(true);
+});
+
+test('Space selects exactly the requested option across native radio groups', async () => {
+  await assertProperty(
+    'native radio keyboard selection',
+    fc.asyncProperty(
+      fc.integer({ min: 2, max: 8 }),
+      fc.integer({ min: 0, max: 100 }),
+      async (count, drawn) => {
+        const selected = drawn % count;
+        document.body.innerHTML = Array.from(
+          { length: count },
+          (_, index) =>
+            `<label><input type="radio" name="choice" style="opacity:0" data-testid="radio-${index}" ${index === 0 ? 'checked' : ''}>${index}</label>`
+        ).join('');
+        await driver().get(`radio-${selected}`).key('space');
+        for (let index = 0; index < count; index++) {
+          const option = document.querySelector<HTMLInputElement>(
+            `[data-testid="radio-${index}"]`
+          )!;
+          expect(option.checked).toBe(index === selected);
+        }
+      }
+    )
+  );
 });

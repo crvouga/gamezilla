@@ -1,9 +1,49 @@
 import { expect, test } from 'bun:test';
 import { openIsolatedDevice } from '@apps/product/isolated-browser';
+import {
+  actOnLiveDevice,
+  type LiveDevices,
+  openGuestDevice,
+} from '@apps/product/live-journey-devices';
 import type { BrowserCall } from '@apps/product/remote-browser-driver';
 import type { IsolatedWorker } from '@pkgs/os-server/wall-isolated-worker';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 
-function controlled() {
+// regression: live-guest-clears-host-storage
+test('a link guest uses an isolated process and keeps it across navigations', async () => {
+  const worker = controlled();
+  const target = {
+    webOrigin: 'https://web.example',
+    apiOrigin: 'https://api.example',
+    oauthCallbackOrigin: 'https://api.example',
+    http: {
+      fetch: async () => {
+        throw new Error('unexpected HTTP');
+      },
+    },
+  };
+  let opened = 0;
+  const devices: LiveDevices = { host: null, guest: null, shown: null };
+  const open = async () => {
+    opened++;
+    return openIsolatedDevice(target, () => worker.process);
+  };
+  try {
+    await openGuestDevice(target, devices, '/space/one', open);
+    await openGuestDevice(target, devices, '/space/two', open);
+    expect(opened).toBe(1);
+    expect(devices.shown).toBe(devices.guest);
+    expect(worker.calls.map((call) => call.args)).toEqual([
+      ['https://web.example/space/one'],
+      ['https://web.example/space/two'],
+    ]);
+  } finally {
+    await devices.guest?.close();
+  }
+});
+
+function controlled(focus?: { activate(): void; interact(): void }) {
   let reply: (value: unknown) => void = () => {};
   let error: (message: string) => void = () => {};
   const calls: BrowserCall[] = [];
@@ -12,7 +52,15 @@ function controlled() {
   const process: IsolatedWorker = {
     post: (raw) => {
       const request = raw as { id: number; call?: BrowserCall };
-      if (request.call) calls.push(request.call);
+      if (request.call) {
+        calls.push(request.call);
+        if (request.call.target === 'node') focus?.interact();
+        if (
+          request.call.target === 'view' &&
+          request.call.args[0] === 'Page.bringToFront'
+        )
+          focus?.activate();
+      }
       if (
         request.call?.method === 'evaluate' &&
         request.call.args[0] === 'fail'
@@ -104,4 +152,54 @@ test('isolated devices forward file contents to the selected input', async () =>
     args: [file],
   });
   await device.close();
+});
+
+async function switchDevices(order: readonly boolean[]): Promise<number> {
+  let active = 1;
+  let reads = 0;
+  const workers = [0, 1].map((id) =>
+    controlled({
+      activate: () => {
+        active = id;
+      },
+      interact: () => {
+        expect(active).toBe(id);
+        reads++;
+      },
+    })
+  );
+  const target = {
+    webOrigin: 'https://web.example',
+    apiOrigin: 'https://api.example',
+  };
+  const host = await openIsolatedDevice(target, () => workers[0]!.process);
+  const peer = await openIsolatedDevice(target, () => workers[1]!.process);
+  const devices: LiveDevices = { host, guest: peer, shown: peer };
+  try {
+    for (const second of order)
+      await actOnLiveDevice(devices, second ? peer : host, async (ui) => {
+        expect(await ui.get('multiplayer-game').text()).toBe('A real disc');
+      });
+    return reads;
+  } finally {
+    await host.close();
+    await peer.close();
+  }
+}
+
+// regression: live-journey-background-device
+test('returning from the peer activates the host before observing or playing its game', async () => {
+  expect(await switchDevices([false, true, false])).toBe(3);
+});
+
+test('every device switch activates the selected person before reading their page', async () => {
+  await assertProperty(
+    'live journey device activation',
+    fc.asyncProperty(
+      fc.array(fc.boolean(), { minLength: 1, maxLength: 20 }),
+      async (order) => {
+        expect(await switchDevices(order)).toBe(order.length);
+      }
+    )
+  );
 });

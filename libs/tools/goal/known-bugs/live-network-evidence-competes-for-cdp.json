@@ -1,0 +1,4 @@
+{
+  "summary": "Reading response bodies during network events competes with Bun's single pending CDP command and aborts an active live gesture. Record passive metadata during the scenario and collect bodies only after failure.",
+  "regressionTest": "apps/product/tests/live-browser.test.ts"
+}
