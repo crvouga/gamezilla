@@ -74,6 +74,8 @@ class MqttPubSub implements PubSub {
   private reconnectAttempt = 0;
   private reconnectTimer: unknown | null = null;
   private readonly topics = new Map<Topic, Set<Handler>>();
+  private readonly pendingSubscriptions = new Map<Topic, number>();
+  private subscriptionSerial = 0;
   private readonly statusListeners = new Set<(s: PubSubStatus) => void>();
   private connectWaiters = new Set<() => void>();
 
@@ -119,7 +121,7 @@ class MqttPubSub implements PubSub {
     }
     set.add(handler);
     if (isFirst && this.client?.connected) {
-      this.subscribeTopic(this.client, topic);
+      this.subscribeTopics(this.client, [topic]);
     }
     return () => this.unsubscribeHandler(topic, handler);
   }
@@ -141,6 +143,7 @@ class MqttPubSub implements PubSub {
     this.closed = true;
     this.clearReconnectTimer();
     this.topics.clear();
+    this.pendingSubscriptions.clear();
     this.statusListeners.clear();
     this.setStatus('down');
     const client = this.client;
@@ -159,8 +162,10 @@ class MqttPubSub implements PubSub {
     set.delete(handler);
     if (set.size > 0) return;
     this.topics.delete(topic);
+    this.pendingSubscriptions.delete(topic);
     if (this.client?.connected) {
       this.client.unsubscribe(this.toWireTopic(topic));
+      this.markSubscriptionReady(this.client);
     }
   }
 
@@ -200,10 +205,8 @@ class MqttPubSub implements PubSub {
     client.on('connect', () => {
       if (this.closed || this.client !== client) return;
       this.reconnectAttempt = 0;
-      this.setStatus('connected');
-      // Keep the app's desired set aligned after every reconnect.
-      this.resubscribeAll(client);
-      if (this.currentStatus === 'connected') this.flushConnectWaiters();
+      this.pendingSubscriptions.clear();
+      this.subscribeTopics(client, [...this.topics.keys()]);
     });
     client.on('close', () => {
       if (this.closed || this.client !== client) return;
@@ -222,28 +225,61 @@ class MqttPubSub implements PubSub {
     });
   }
 
-  private resubscribeAll(client: MqttClient): void {
-    for (const topic of this.topics.keys()) {
-      this.subscribeTopic(client, topic);
-    }
+  private subscribeTopics(client: MqttClient, topics: readonly Topic[]): void {
+    const requests = topics.map((topic) => ({
+      topic,
+      serial: ++this.subscriptionSerial,
+    }));
+    // Register the entire batch before synchronous broker callbacks can run.
+    for (const request of requests)
+      this.pendingSubscriptions.set(request.topic, request.serial);
+    this.setStatus('connecting');
+    for (const request of requests)
+      this.sendSubscription(client, request.topic, request.serial);
+    this.markSubscriptionReady(client);
   }
 
-  private subscribeTopic(client: MqttClient, topic: Topic): void {
+  private sendSubscription(
+    client: MqttClient,
+    topic: Topic,
+    serial: number
+  ): void {
     client.subscribe(
       this.toWireTopic(topic),
       { qos: MQTT_PUBSUB_QOS },
       (error, grants) => {
-        if (this.closed || this.client !== client || !this.topics.has(topic))
+        if (
+          this.closed ||
+          this.client !== client ||
+          this.pendingSubscriptions.get(topic) !== serial
+        )
           return;
-        if (!error && grants?.every((grant) => grant.qos < 128)) return;
-        // Membership can change after CONNECT minted its topic grants.
-        // Fetch fresh credentials and restore the desired subscriptions.
-        this.logger.warn('subscription rejected; refreshing authorization', {
-          topic,
-        });
-        this.scheduleReconnect();
+        if (error || !grants?.every((grant) => grant.qos < 128)) {
+          this.logger.warn('subscription rejected; refreshing authorization', {
+            topic,
+          });
+          this.scheduleReconnect();
+          return;
+        }
+        this.pendingSubscriptions.delete(topic);
+        this.markSubscriptionReady(client);
       }
     );
+  }
+
+  private markSubscriptionReady(client: MqttClient): void {
+    if (
+      this.closed ||
+      this.client !== client ||
+      !client.connected ||
+      this.pendingSubscriptions.size > 0 ||
+      this.reconnectTimer !== null
+    )
+      return;
+    // A connected signal must follow SUBACK, so consumers can repair a
+    // snapshot read before the broker began delivering the desired topics.
+    this.setStatus('connected');
+    if (this.currentStatus === 'connected') this.flushConnectWaiters();
   }
 
   private logicalTopic(wireTopic: string): Topic | undefined {
