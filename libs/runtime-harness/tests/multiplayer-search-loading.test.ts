@@ -14,6 +14,7 @@ function loadingScreen(
   leftover = false
 ): { ui: Driver; taps: string[] } {
   let ongoing = leftover;
+  let selected = 'multiplayer-time-control-2-1';
   const taps: string[] = [];
   const unused = (): never => {
     throw new Error('unexpected gesture');
@@ -23,7 +24,8 @@ function loadingScreen(
     launch: unused,
     close: unused,
     key: unused,
-    snapshotHtml: unused,
+    snapshotHtml: async () =>
+      `<label data-selected="true"><input data-testid="${selected}"></label>`,
     get: (id): DriverNode => ({
       get: unused,
       attribute: async () => (ongoing ? 'ongoing' : null),
@@ -33,7 +35,11 @@ function loadingScreen(
       selectFile: unused,
       input: unused,
       clear: unused,
-      key: unused,
+      key: async (key) => {
+        expect(key).toBe('space');
+        selected = id;
+        taps.push(id);
+      },
       scroll: unused,
       wait: unused,
       text: unused,
@@ -130,7 +136,7 @@ test('the same completed board on both devices is not a newly matched game', asy
 test('recovery setup can establish its unfinished game beyond the separate timed pairing assertion', async () => {
   const { ui } = loadingScreen(false);
   ui.snapshotHtml = async () =>
-    '<div data-testid="multiplayer-game" data-game-id="fresh-game" data-outcome="ongoing"></div>';
+    '<label data-selected="true"><input data-testid="multiplayer-time-control-5-0"></label><div data-testid="multiplayer-game" data-game-id="fresh-game" data-outcome="ongoing"></div>';
   const get = ui.get.bind(ui);
   const moves: string[] = [];
   ui.get = (id) => {
@@ -202,4 +208,24 @@ test('cleanup stops a waiting search before ending its space', async () => {
     Handles.spaceEndConfirm,
     Handles.spaceMutationDismiss,
   ]);
+});
+
+// regression: live-multiplayer-wrong-time-control
+test('a previous 2+1 choice is changed to the requested 5+0 before finding an opponent', async () => {
+  const { ui, taps } = loadingScreen(false);
+  await startMultiplayerSearch('5+0')(ui);
+  expect(await ui.snapshotHtml()).toContain(
+    'data-testid="multiplayer-time-control-5-0"'
+  );
+  expect(taps).toEqual(['multiplayer-time-control-5-0', 'multiplayer-find']);
+});
+
+test('an unchanged 2+1 radio refuses to start a search requested at 5+0', async () => {
+  const { ui, taps } = loadingScreen(false);
+  const get = ui.get.bind(ui);
+  ui.get = (id) => ({ ...get(id), key: async () => {} });
+  await expect(startMultiplayerSearch('5+0')(ui)).rejects.toThrow(
+    '5+0 was not selected'
+  );
+  expect(taps).not.toContain('multiplayer-find');
 });

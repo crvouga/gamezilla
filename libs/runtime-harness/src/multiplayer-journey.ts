@@ -11,6 +11,7 @@ import {
   endMultiplayerSpace,
   retirePreviousMultiplayer,
 } from './multiplayer-search-recovery';
+import { chooseMultiplayerTimeControl } from './multiplayer-time-control-gesture';
 
 export async function openMultiplayerJourney(ui: Driver): Promise<void> {
   // A parked device reads as blank until its chrome is in front. Deciding
@@ -62,7 +63,7 @@ export function startMultiplayerSearch(
     await retirePreviousMultiplayer(ui);
     // The permission surface is the guest's invitation; no command is offered.
     if (await guestInvited(ui)) return;
-    await tap(ui, `multiplayer-time-control-${timeControl.replace('+', '-')}`);
+    await chooseMultiplayerTimeControl(ui, timeControl);
     await tap(ui, 'multiplayer-find');
   };
 }

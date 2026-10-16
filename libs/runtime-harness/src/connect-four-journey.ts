@@ -6,13 +6,14 @@ import {
   endMultiplayerSpace,
   retirePreviousMultiplayer,
 } from './multiplayer-search-recovery';
+import { chooseMultiplayerTimeControl } from './multiplayer-time-control-gesture';
 
 async function search(ui: Driver): Promise<void> {
   await hostSpace(ui);
   await tap(ui, 'game-menu-connect-four');
   await tap(ui, 'connect-four-multiplayer');
   await retirePreviousMultiplayer(ui);
-  await tap(ui, 'multiplayer-time-control-5-0');
+  await chooseMultiplayerTimeControl(ui, '5+0');
   await tap(ui, 'multiplayer-find');
 }
 async function firstSide(ui: Driver): Promise<boolean> {
