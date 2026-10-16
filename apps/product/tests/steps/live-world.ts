@@ -1,4 +1,7 @@
-import { browserFailureSummary } from '@apps/product/browser-failure-summary';
+import {
+  BROWSER_FAILURE_LAYOUT,
+  browserFailureSummary,
+} from '@apps/product/browser-failure-summary';
 import { openIsolatedDevice } from '@apps/product/isolated-browser';
 import {
   actOnLiveDevice,
@@ -237,6 +240,13 @@ function browsing(target: LiveTarget): Browsing {
         ['host', devices.host],
         ['peer', devices.guest],
       ] as const) {
+        const layout = await current?.view
+          .evaluate(BROWSER_FAILURE_LAYOUT)
+          .catch(() => null);
+        if (layout !== null && layout !== undefined)
+          console.error(
+            `browser failure geometry (${name}): ${String(layout)}`
+          );
         const html = await current?.driver.snapshotHtml().catch(() => null);
         if (typeof html === 'string')
           console.error(

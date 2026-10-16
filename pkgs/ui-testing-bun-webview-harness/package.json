@@ -11,9 +11,11 @@
   "devDependencies": {
     "@happy-dom/global-registrator": "catalog:",
     "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
     "@pkgs/ui-testing-bun-webview-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   },
   "category": "harness"

@@ -5,6 +5,8 @@ import {
   prepareUnfinishedMultiplayerGame,
   startMultiplayerSearch,
 } from '@libs/runtime-harness/multiplayer-journey';
+import { endMultiplayerSpace } from '@libs/runtime-harness/multiplayer-search-recovery';
+import { Handles } from '@libs/test-ids-shared/handles';
 import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
 
 function loadingScreen(
@@ -173,4 +175,31 @@ test('recovery setup can establish its unfinished game beyond the separate timed
   });
   expect(moves).toEqual(['1. e4', '1. e4', '1. e4 e5']);
   expect(elapsed).toBe(12000);
+});
+
+// regression: failed-multiplayer-journey-leaves-search
+test('cleanup stops a waiting search before ending its space', async () => {
+  const { ui, taps } = loadingScreen(false);
+  let waiting = true;
+  const get = ui.get.bind(ui);
+  ui.get = (id) => {
+    const node = get(id);
+    return {
+      ...node,
+      isVisible: async () =>
+        id === 'multiplayer-stop' ? waiting : id === Handles.spaceEnd,
+      tap: async (options) => {
+        if (id === 'multiplayer-stop') waiting = false;
+        await node.tap(options);
+      },
+    };
+  };
+  await endMultiplayerSpace(ui);
+  expect(waiting).toBe(false);
+  expect(taps).toEqual([
+    'multiplayer-stop',
+    Handles.spaceEnd,
+    Handles.spaceEndConfirm,
+    Handles.spaceMutationDismiss,
+  ]);
 });

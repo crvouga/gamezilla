@@ -2,13 +2,15 @@ import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import {
   atTabShell,
   check,
-  endActiveSpace,
   hostSpace,
   JOURNEY_WAIT_MS,
   tap,
 } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
-import { retirePreviousMultiplayer } from './multiplayer-search-recovery';
+import {
+  endMultiplayerSpace,
+  retirePreviousMultiplayer,
+} from './multiplayer-search-recovery';
 
 export async function openMultiplayerJourney(ui: Driver): Promise<void> {
   // A parked device reads as blank until its chrome is in front. Deciding
@@ -218,9 +220,9 @@ export async function expectMultiplayerLoss(ui: Driver): Promise<void> {
 export async function prepareMultiplayerPair(host: JourneyHost): Promise<void> {
   await host.open('signed-in');
   await host.openPeer('signed-in');
-  host.defer('multiplayer-host-space', endActiveSpace);
+  host.defer('multiplayer-host-space', endMultiplayerSpace);
   host.defer('multiplayer-peer-space', () =>
-    host.actAsGuest('endPeerSpace', endActiveSpace)
+    host.actAsGuest('endPeerSpace', endMultiplayerSpace)
   );
 }
 

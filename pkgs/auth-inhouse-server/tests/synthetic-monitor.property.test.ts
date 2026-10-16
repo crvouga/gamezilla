@@ -53,7 +53,8 @@ describe('synthetic-monitor sign-in', () => {
         fc
           .domain()
           .filter(
-            (d) => !['api.gamezilla.app', 'www.gamezilla.app'].includes(d)
+            (d) =>
+              ![new URL(API).hostname, new URL(CALLBACK).hostname].includes(d)
           ),
         async (host) => {
           const res = await postCode(

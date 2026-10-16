@@ -7,8 +7,8 @@ import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-sha
 import sql from '@pkgs/sql-root-shared/sql';
 import { Hono } from 'hono';
 
-export const API = 'https://api.gamezilla.app';
-export const WEB = 'https://www.gamezilla.app';
+export const API = 'https://api.example.test';
+export const WEB = 'https://web.example.test';
 export const PREFIX = '/api';
 const SECRET = 'auth-system-secret-0123456789abcdef';
 export const TOKEN = 'synthetic-monitor-token-0123456789abcdef';

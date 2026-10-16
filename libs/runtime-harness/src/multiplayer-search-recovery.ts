@@ -1,5 +1,5 @@
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
-import { JOURNEY_WAIT_MS, tap } from './journey-gestures';
+import { endActiveSpace, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 
 /** A monitor account survives failed runs; retire its previous search or game. */
 export async function retirePreviousMultiplayer(ui: Driver): Promise<void> {
@@ -26,4 +26,10 @@ export async function retirePreviousMultiplayer(ui: Driver): Promise<void> {
   await ui
     .get('multiplayer-find')
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+}
+
+/** A failed scenario must not leave a search to consume the next person's match. */
+export async function endMultiplayerSpace(ui: Driver): Promise<void> {
+  await retirePreviousMultiplayer(ui);
+  await endActiveSpace(ui);
 }
