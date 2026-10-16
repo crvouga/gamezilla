@@ -1,3 +1,4 @@
+import { browserFailureSummary } from '@apps/product/browser-failure-summary';
 import { openIsolatedDevice } from '@apps/product/isolated-browser';
 import {
   type LiveDevices,
@@ -231,8 +232,18 @@ function browsing(target: LiveTarget): Browsing {
   const failureFlag: FailureFlag = { failed: false };
   return {
     host: liveJourneyHost(target, devices, cleanups),
-    evidence: (id, cause) => {
+    evidence: async (id, cause) => {
       failureFlag.failed = true;
+      for (const [name, current] of [
+        ['host', devices.host],
+        ['peer', devices.guest],
+      ] as const) {
+        const html = await current?.driver.snapshotHtml().catch(() => null);
+        if (typeof html === 'string')
+          console.error(
+            `browser failure state (${name}): ${browserFailureSummary(html)}`
+          );
+      }
       const device = devices.shown ?? devices.host;
       return device === null
         ? Promise.resolve(null)
