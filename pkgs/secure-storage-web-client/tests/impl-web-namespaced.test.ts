@@ -1,7 +1,7 @@
 /**
  * Mirrors product-harness `dumpProductHarnessClientDurable` / restore: namespaced web
  * secure storage + namespaced Kv must round-trip through a localStorage dump
- * (session-scoped keys via sessionStorage).
+ * including account identity alongside its session capability.
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
@@ -16,8 +16,6 @@ import {
   clearNamespacedWebSecureStorage,
   createNamespacedWebSecureStorage,
 } from '@pkgs/secure-storage-web-client/impl-web';
-
-const SESSION_SCOPED = new Set(['lastLocalAccountId']);
 
 function installMemoryStorage(): Storage {
   const map = new Map<string, string>();
@@ -72,11 +70,7 @@ function restoreClientDurable(
   clearNamespacedKvWeb(namespace);
   clearNamespacedWebSecureStorage(namespace);
   for (const [rel, value] of Object.entries(entries)) {
-    if (SESSION_SCOPED.has(rel)) {
-      globalThis.sessionStorage.setItem(`${namespace}.${rel}`, value);
-    } else {
-      globalThis.localStorage.setItem(`${namespace}.${rel}`, value);
-    }
+    globalThis.localStorage.setItem(`${namespace}.${rel}`, value);
   }
 }
 
@@ -143,8 +137,8 @@ describe('namespaced web durable dump (product-harness clientKv)', () => {
     );
     expect(await restoredSecure.getItem('deviceId')).toBe('dev-1');
     expect(await restoredSecure.getItem('lastLocalAccountId')).toBe('acct-1');
-    expect(session.getItem(`${toNs}.lastLocalAccountId`)).toBe('acct-1');
-    expect(local.getItem(`${toNs}.lastLocalAccountId`)).toBeNull();
+    expect(session.getItem(`${toNs}.lastLocalAccountId`)).toBeNull();
+    expect(local.getItem(`${toNs}.lastLocalAccountId`)).toBe('acct-1');
 
     const row = await restoredKv.get(asKeyword('playground.test/row'));
     expect(row?.[asKeyword('playground.test/value')]).toBe('yes');

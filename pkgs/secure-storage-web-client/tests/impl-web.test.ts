@@ -56,12 +56,34 @@ describe('createWebSecureStorage', () => {
     });
   });
 
-  it('stores lastLocalAccountId in sessionStorage', async () => {
+  // regression: new-tab-loses-local-account
+  it('keeps the account alongside the session when a new tab opens', async () => {
     const storage = createWebSecureStorage();
     await storage.setItem('lastLocalAccountId', 'acct-tab-a');
-    expect(session.getItem('lastLocalAccountId')).toBe('acct-tab-a');
-    expect(local.getItem('lastLocalAccountId')).toBeNull();
-    expect(await storage.getItem('lastLocalAccountId')).toBe('acct-tab-a');
+    await storage.setItem('sessionToken', 'saved-session');
+    session.clear();
+    const nextTab = createWebSecureStorage();
+    expect(await nextTab.getItem('lastLocalAccountId')).toBe('acct-tab-a');
+    expect(await nextTab.getItem('sessionToken')).toBe('saved-session');
+  });
+
+  it('moves an existing tab account to persistent storage', async () => {
+    session.setItem('lastLocalAccountId', 'existing-account');
+    const storage = createWebSecureStorage();
+    expect(await storage.getItem('lastLocalAccountId')).toBe(
+      'existing-account'
+    );
+    expect(local.getItem('lastLocalAccountId')).toBe('existing-account');
+    expect(session.getItem('lastLocalAccountId')).toBeNull();
+  });
+
+  it('keeps the current persistent account over an older tab account', async () => {
+    session.setItem('lastLocalAccountId', 'old-account');
+    local.setItem('lastLocalAccountId', 'current-account');
+    const storage = createWebSecureStorage();
+    expect(await storage.getItem('lastLocalAccountId')).toBe('current-account');
+    await storage.deleteItem('lastLocalAccountId');
+    expect(await storage.getItem('lastLocalAccountId')).toBeNull();
   });
 
   it('stores other keys in localStorage', async () => {

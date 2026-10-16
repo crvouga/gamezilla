@@ -2,31 +2,15 @@ import { wrapSecureStorage } from '@pkgs/secure-storage-root-shared/contract';
 import type { SecureStorage } from '@pkgs/secure-storage-root-shared/interface';
 
 /**
- * Web keys that must stay tab-scoped (not shared across browser tabs).
- * Everything else uses `localStorage` for cross-tab availability.
- */
-const SESSION_SCOPED_KEYS = new Set(['lastLocalAccountId']);
-
-/**
- * Web `SecureStorage` backed by `localStorage` (or `sessionStorage` for
- * tab-scoped keys). Wrapped with `wrapSecureStorage` so key/value validation
+ * Web `SecureStorage` backed by `localStorage`. Identity and its session
+ * survive together across tabs. Wrapped with `wrapSecureStorage` so validation
  * matches the secure-store contract (key charset + 2048-byte value cap) on
  * every call.
  *
  * Neither web store is encrypted; keep this for small identifiers only.
  */
 export function createWebSecureStorage(): SecureStorage {
-  return wrapSecureStorage({
-    async getItem(key: string): Promise<string | null> {
-      return webStore(key).getItem(key);
-    },
-    async setItem(key: string, value: string): Promise<void> {
-      webStore(key).setItem(key, value);
-    },
-    async deleteItem(key: string): Promise<void> {
-      webStore(key).removeItem(key);
-    },
-  });
+  return persistentStorage('');
 }
 
 /**
@@ -37,16 +21,33 @@ export function createWebSecureStorage(): SecureStorage {
 export function createNamespacedWebSecureStorage(
   namespace: string
 ): SecureStorage {
-  const prefix = `${namespace}.`;
+  return persistentStorage(`${namespace}.`);
+}
+
+function persistentStorage(prefix: string): SecureStorage {
   return wrapSecureStorage({
     async getItem(key: string): Promise<string | null> {
-      return webStore(key).getItem(prefix + key);
+      assertLocalStorageAvailable();
+      const physicalKey = prefix + key;
+      const persisted = globalThis.localStorage.getItem(physicalKey);
+      if (persisted !== null) return persisted;
+      // Move data written by older clients without dropping the tab's account.
+      const previous = globalThis.sessionStorage?.getItem(physicalKey) ?? null;
+      if (previous !== null) {
+        globalThis.localStorage.setItem(physicalKey, previous);
+        globalThis.sessionStorage.removeItem(physicalKey);
+      }
+      return previous;
     },
     async setItem(key: string, value: string): Promise<void> {
-      webStore(key).setItem(prefix + key, value);
+      assertLocalStorageAvailable();
+      globalThis.localStorage.setItem(prefix + key, value);
+      globalThis.sessionStorage?.removeItem(prefix + key);
     },
     async deleteItem(key: string): Promise<void> {
-      webStore(key).removeItem(prefix + key);
+      assertLocalStorageAvailable();
+      globalThis.localStorage.removeItem(prefix + key);
+      globalThis.sessionStorage?.removeItem(prefix + key);
     },
   });
 }
@@ -75,27 +76,10 @@ function clearStorageKeysWithPrefix(
   }
 }
 
-function webStore(key: string): Storage {
-  if (SESSION_SCOPED_KEYS.has(key)) {
-    assertSessionStorageAvailable();
-    return globalThis.sessionStorage;
-  }
-  assertLocalStorageAvailable();
-  return globalThis.localStorage;
-}
-
 function assertLocalStorageAvailable(): void {
   if (typeof globalThis.localStorage === 'undefined') {
     throw new Error(
       'localStorage is not available — SecureStorage cannot be used on this platform'
-    );
-  }
-}
-
-function assertSessionStorageAvailable(): void {
-  if (typeof globalThis.sessionStorage === 'undefined') {
-    throw new Error(
-      'sessionStorage is not available — SecureStorage cannot be used on this platform'
     );
   }
 }

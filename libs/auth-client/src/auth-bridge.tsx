@@ -41,7 +41,6 @@ import { useAuthClientPort } from './auth-client-provider';
 import { useConfigService } from './config-service-context';
 import { SessionBearerTokenResolver } from './resolve-session-bearer-token';
 import { originRevalidate } from './session-revalidate-on-origin';
-import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
 import { useFreshAuthToken } from './use-fresh-auth-token';
 
@@ -298,7 +297,6 @@ export function AuthBridge(props: ParentProps): JSX.Element {
   const tokenItem = createSecureStorageItem(SESSION_TOKEN_KEY);
   const accountItem = createSecureStorageItem(LAST_LOCAL_ACCOUNT_ID_KEY);
   const expiresItem = createSecureStorageItem(SESSION_EXPIRES_AT_KEY);
-  const currentAccountId = useCurrentAccountId();
   const log = useLogger('auth-bridge');
   const timers = useTimers();
   const createId = useCreateId();
@@ -344,9 +342,9 @@ export function AuthBridge(props: ParentProps): JSX.Element {
   });
   useClearStaleAccountOnExternalUserChange({ authState, deps });
   useReconcileAuthSession({ authState, port, deps });
-  const refreshEnabled = createMemo(
-    () => authToken() !== null && currentAccountId() !== null
-  );
+  // A saved session without a local account still needs to recover when the
+  // connection returns. Waiting for the account here would deadlock boot.
+  const refreshEnabled = createMemo(() => authToken() !== null);
   useRefreshOnAppForeground({
     enabled: refreshEnabled,
     port,
