@@ -3,7 +3,6 @@ import { resourceFromAttributes } from '@opentelemetry/resources';
 import {
   AlwaysOnSampler,
   BatchSpanProcessor,
-  SimpleSpanProcessor,
   type SpanProcessor,
   type TracerConfig,
 } from '@opentelemetry/sdk-trace-base';
@@ -14,13 +13,14 @@ import {
   allowlistedAttributes,
   createAllowlistRedactor,
 } from '@pkgs/observability-root-shared/redaction';
+import { FlushSpanProcessor } from './flush-span-processor';
 import { IdentitySpanProcessor } from './identity-span-processor';
 import type { TelemetryOptions } from './options';
 import { RedactingSpanProcessor } from './redacting-span-processor';
 
 export function createProviderConfig(
   options: TelemetryOptions,
-  exportMode: 'batch' | 'simple'
+  exportMode: 'batch' | 'flush'
 ): TracerConfig {
   if (options.registerGlobal !== false) installLogEventBridge();
   const processors: SpanProcessor[] = [];
@@ -40,9 +40,9 @@ export function createProviderConfig(
         : { headers: options.otlpHeaders }),
     });
   processors.push(
-    exportMode === 'batch'
-      ? new BatchSpanProcessor(exporter)
-      : new SimpleSpanProcessor(exporter)
+    exportMode === 'flush'
+      ? new FlushSpanProcessor(exporter)
+      : new BatchSpanProcessor(exporter)
   );
   return {
     ...(options.idGenerator === undefined

@@ -6,6 +6,7 @@ import { resourceFromAttributes } from '@opentelemetry/resources';
 import {
   BatchLogRecordProcessor,
   LoggerProvider,
+  type LogRecordExporter,
 } from '@opentelemetry/sdk-logs';
 import {
   AggregationType,
@@ -17,6 +18,7 @@ import {
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { installStructuredLogBridge } from '@pkgs/observability-root-shared/log';
 import { METRIC_DIMENSION_KEYS } from '@pkgs/observability-root-shared/metric-contract';
+import { FlushLogProcessor } from './flush-log-processor';
 import { FlushMetricReader } from './flush-metric-reader';
 import { GuardedLogExporter } from './guarded-log-exporter';
 import type { TelemetryOptions, TelemetryRuntime } from './options';
@@ -35,7 +37,7 @@ export function createSignals(
     [ATTR.APP_BUILD_SHA]: options.buildSha,
   });
   const meter = createMeter(options, resource, worker);
-  const logger = createLoggerProvider(options, resource, meter);
+  const logger = createLoggerProvider(options, resource, meter, worker);
   if (options.registerGlobal !== false) {
     if (meter !== undefined) metrics.setGlobalMeterProvider(meter);
     if (logger !== undefined) {
@@ -109,7 +111,8 @@ function createMeter(
 function createLoggerProvider(
   options: TelemetryOptions,
   resource: ReturnType<typeof resourceFromAttributes>,
-  meter: MeterProvider | undefined
+  meter: MeterProvider | undefined,
+  worker: boolean
 ) {
   const logExporter =
     options.logExporter ??
@@ -126,22 +129,32 @@ function createLoggerProvider(
     : new LoggerProvider({
         resource,
         ...(meter === undefined ? {} : { meterProvider: meter }),
-        processors: [
-          new BatchLogRecordProcessor({
-            ...(meter === undefined ? {} : { selfObsMeterProvider: meter }),
-            exporter: new GuardedLogExporter(
-              logExporter,
-              options.eventContracts ?? [],
-              meter?.getMeter('@pkgs/observability')
-            ),
-            maxQueueSize: 2048,
-            maxExportBatchSize: 256,
-            exportTimeoutMillis: 5000,
-          }),
-        ],
+        processors: [logProcessor(options, meter, logExporter, worker)],
         logRecordLimits: {
           attributeCountLimit: 32,
           attributeValueLengthLimit: 512,
         },
+      });
+}
+
+function logProcessor(
+  options: TelemetryOptions,
+  meter: MeterProvider | undefined,
+  exporter: LogRecordExporter,
+  worker: boolean
+) {
+  const guarded = new GuardedLogExporter(
+    exporter,
+    options.eventContracts ?? [],
+    meter?.getMeter('@pkgs/observability')
+  );
+  return worker
+    ? new FlushLogProcessor(guarded)
+    : new BatchLogRecordProcessor({
+        ...(meter === undefined ? {} : { selfObsMeterProvider: meter }),
+        exporter: guarded,
+        maxQueueSize: 2048,
+        maxExportBatchSize: 256,
+        exportTimeoutMillis: 5000,
       });
 }

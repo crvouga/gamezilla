@@ -38,7 +38,7 @@ export function createWorkerTelemetry(
 ): WorkerTelemetry {
   const configured = workerExporterOptions(options);
   const provider = new NodeTracerProvider(
-    createProviderConfig(configured, 'simple')
+    createProviderConfig(configured, 'flush')
   );
   if (options.registerGlobal !== false) {
     provider.register({

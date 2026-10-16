@@ -34,7 +34,8 @@ export class FlushMetricReader extends MetricReader {
         else reject(new Error('Metric export failed'));
       });
     });
-    await this.#exporter.forceFlush();
+    // The callback acknowledged this invocation's export. A shared exporter
+    // may also hold another invocation's I/O, which this request cannot join.
   }
 
   protected async onShutdown(): Promise<void> {
