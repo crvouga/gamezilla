@@ -1,6 +1,6 @@
 import { downloadedExport } from '@libs/account-privacy-harness/privacy-reads';
-import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
-import { CHESS_PRIVACY } from '@libs/chess-sub-shared/account-privacy';
+import { GAME_SESSION_PRIVACY } from '@libs/game-session-shared/account-privacy';
+import type { CustomGame } from '@libs/game-session-shared/custom-game-state';
 import type { ProductHarness } from '@libs/harness/harness';
 
 /** Games offered in the proven person's readable and reusable export. */
@@ -13,7 +13,7 @@ export async function readExportedCustomGames(
   const detail = JSON.parse(data.export_detail) as {
     categories: Record<string, { customGames?: readonly CustomGame[] }>;
   };
-  const games = detail.categories[CHESS_PRIVACY.name]?.customGames;
+  const games = detail.categories[GAME_SESSION_PRIVACY.name]?.customGames;
   if (!Array.isArray(games))
     throw new Error('The personal-data export has no Custom Games');
   return games;

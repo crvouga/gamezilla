@@ -102,9 +102,9 @@ Given(
   }
 );
 Given(
-  'the Synthetic User {string} has an ongoing game',
-  async (w, name: string) => {
-    await w.s.apply(givenSyntheticUser, name, true);
+  'the Synthetic User {string} has an ongoing {string} game',
+  async (w, name: string, game: string) => {
+    await w.s.apply(givenSyntheticUser, name, true, game);
   }
 );
 Given('the Synthetic User {string} is available', async (w, name: string) => {
@@ -120,7 +120,7 @@ Then('{string} can finish its ongoing game', async (w, name: string) => {
   expect(name).toBe('Cedar');
   await w.s.apply(completePausedGame);
   await w.s.until(cedarGameResult, {
-    pred: (text) => /won the multiplayer game.*checkmate/i.test(text ?? ''),
+    pred: (text) => /won.*(checkmate|four in a row)/i.test(text ?? ''),
     maxMs: 10_000,
   });
 });

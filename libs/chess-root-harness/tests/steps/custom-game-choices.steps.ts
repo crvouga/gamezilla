@@ -5,9 +5,9 @@ import {
 } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { attemptCustomGameBoundary } from '@libs/chess-custom-game-harness/custom-game-boundary';
 import { readCustomGameIdentity } from '@libs/chess-custom-game-harness/custom-game-identity';
-import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
-import type { CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
-import { customGameStartable } from '@libs/chess-custom-game-shared/custom-game-state';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
+import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
+import { customGameStartable } from '@libs/game-session-shared/custom-game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import { reopenSpaceLink } from '@libs/spaces-harness/space-actions';
 import {

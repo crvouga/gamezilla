@@ -6,8 +6,6 @@ import {
   subscribeToPlus,
 } from '@libs/billing-harness/billing-actions';
 import { billingTier } from '@libs/billing-harness/billing-reads';
-import { givenOpponentSearch } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import {
   leavePuzzleToChessMenu,
   reopenPuzzleFromChessMenu,
@@ -25,6 +23,8 @@ import {
   openPersonFromSearch,
 } from '@libs/friends-harness/person-actions';
 import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
+import { givenOpponentSearch } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
@@ -77,7 +77,7 @@ Given(
     await multiplayerPeople(w, [actor]);
     await w.s.apply(openBilling, actor);
     await w.s.apply(subscribeToPlus, actor);
-    await w.s.apply(givenOpponentSearch, actor);
+    await w.s.apply(givenOpponentSearch, actor, '5+0');
     await w.s.apply(observeMembership, actor, 'period_end');
     await w.s.apply(providerEvent, actor, 'refund');
     await w.s.apply(openBilling, actor);

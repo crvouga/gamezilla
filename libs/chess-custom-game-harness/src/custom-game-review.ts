@@ -1,8 +1,8 @@
+import { openCustomGameScreen } from '@libs/chess-custom-game-harness/custom-game-screen';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
-import { openCustomGameScreen } from './custom-game-ui';
 
 export const reviewCustomGame = scenarioAction({
   name: 'reviewCustomGame',

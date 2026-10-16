@@ -3,7 +3,7 @@
  * else's space, does not start a second one.
  */
 
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import {
   returnToTabs,
   signInWithGoogleAsAccount,

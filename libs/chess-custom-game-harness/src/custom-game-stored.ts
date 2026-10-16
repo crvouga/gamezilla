@@ -1,4 +1,4 @@
-import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
+import { CustomGamesAttr } from '@libs/game-session-shared/custom-game-state';
 import type { ProductHarness } from '@libs/harness/harness';
 import sql from '@pkgs/sql-root-shared/sql';
 

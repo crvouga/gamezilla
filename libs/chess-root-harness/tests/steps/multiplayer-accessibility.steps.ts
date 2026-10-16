@@ -6,7 +6,7 @@ import {
   openMultiplayerChess,
   pressMultiplayerControl,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { shownMultiplayerText } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { shownMultiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { Given, Then, When } from '@libs/harness/define';
 import { actorHtml } from '@libs/harness/observations';
 import type { Actor } from '@libs/harness/parameter-types';

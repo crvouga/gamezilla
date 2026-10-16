@@ -170,6 +170,7 @@ export const saveCheckpoint = scenarioAction({
     }
     await refreshCheckpoints(s);
     state.checkpointApps.set(label, new Map(state.beforeApps));
+    state.checkpointIds.set(label, saved.id);
     await rememberKept(s);
   },
 });
@@ -192,7 +193,9 @@ export const checkpointOperation = scenarioAction({
     const chosen =
       label === undefined
         ? undefined
-        : state.snapshots.find((snapshot) => snapshot.label === label);
+        : state.snapshots.find(
+            (snapshot) => snapshot.id === state.checkpointIds.get(label)
+          );
     if (label !== undefined && chosen === undefined)
       throw new Error('Checkpoint unavailable');
     if (['select', 'delete', 'restore'].includes(op))
@@ -251,7 +254,9 @@ export const reopenTestingTool = scenarioAction({
   },
 });
 function snapshotId(state: ReturnType<typeof tools>, label: string): string {
-  const chosen = state.snapshots.find((snapshot) => snapshot.label === label);
+  const chosen = state.snapshots.find(
+    (snapshot) => snapshot.id === state.checkpointIds.get(label)
+  );
   assert.defined(chosen, 'Checkpoint unavailable');
   return chosen.id;
 }
@@ -290,7 +295,9 @@ export async function sharedCheckpointView(s: ProductHarness, label: string) {
   return {
     world: path === state.firstWorldPath ? 'first' : 'later',
     failure: state.restoreFailure,
-    available: choices.some((choice) => choice.label === label),
+    available: choices.some(
+      (choice) => choice.id === state.checkpointIds.get(label)
+    ),
   };
 }
 export async function appsMatch(

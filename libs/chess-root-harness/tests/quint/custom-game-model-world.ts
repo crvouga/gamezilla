@@ -4,11 +4,11 @@ import {
 } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { attemptCustomGameBoundary } from '@libs/chess-custom-game-harness/custom-game-boundary';
 import { CUSTOM_GAME_FOOLS_MATE } from '@libs/chess-custom-game-harness/custom-game-histories';
-import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import type {
   CustomGameChoice,
   CustomGameInput,
-} from '@libs/chess-custom-game-shared/custom-game-choice';
+} from '@libs/game-session-shared/custom-game-choice';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import {
   customFact,

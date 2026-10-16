@@ -1,4 +1,3 @@
-import { MULTIPLAYER_MUTATIONS } from '@libs/chess-matchmaking-shared/multiplayer-mutations';
 import { appendPuzzleInteractionMutation } from '@libs/chess-puzzle-shared/append-puzzle-interaction-mutation';
 import {
   startPuzzleImport,
@@ -10,7 +9,6 @@ import { savePuzzleFeedSettingsMutation } from '@libs/chess-puzzle-shared/save-p
 export const CHESS_MUTATIONS = [
   startPuzzleImport,
   stopPuzzleImport,
-  ...MULTIPLAYER_MUTATIONS,
   appendPuzzleInteractionMutation,
   ratePuzzleAttemptMutation,
   savePuzzleFeedSettingsMutation,

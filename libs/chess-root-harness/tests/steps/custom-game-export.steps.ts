@@ -1,6 +1,6 @@
 import { expect } from 'bun:test';
-import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
 import { readExportedCustomGames } from '@libs/chess-root-harness/custom-game-export';
+import type { CustomGame } from '@libs/game-session-shared/custom-game-state';
 import { Then } from '@libs/harness/define';
 
 // regression: chess-custom-export-category

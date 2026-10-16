@@ -1,21 +1,19 @@
 import { expect, test } from 'bun:test';
-import {
-  openMultiplayerChess,
-  refreshMultiplayerConnection,
-} from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
-} from '@libs/chess-matchmaking-harness/multiplayer-commands';
+} from '@libs/game-matchmaking-harness/multiplayer-commands';
+import { refreshMultiplayerConnection } from '@libs/game-matchmaking-harness/multiplayer-connection';
 import {
   givenOpponentSearch,
-  pairChessOpponents,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+  pairGameOpponents,
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
   multiplayerText,
   multiplayerView,
-} from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
+} from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { partition } from '@libs/harness/actions';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { partitionLoadBalancer } from '@libs/harness/server-actions';
@@ -47,7 +45,7 @@ test('an offline White device retains its accepted board and refuses e2e4 withou
   await s.apply(givenOpponentSearch, 'alice', '5+0', 'phone-1');
   await s.advanceTime(1);
   await s.apply(givenOpponentSearch, 'bob', '5+0', 'phone-1');
-  await s.apply(pairChessOpponents);
+  await s.apply(pairGameOpponents);
   await s.until(
     async (world) => (await multiplayerView(world, 'alice')).game !== null
   );

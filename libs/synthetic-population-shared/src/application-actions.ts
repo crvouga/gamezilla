@@ -83,11 +83,6 @@ export async function configureUsername(
   await driver.get(Handles.profileUsernameSave).expect.text('Saved');
   await driver.get(Handles.profileUsernameCancel).tap();
 }
-export async function openMultiplayer(driver: Driver): Promise<void> {
-  for (const id of [Handles.gameMenuChess, 'chess-menu-multiplayer']) {
-    if (await driver.get(id).isVisible()) await driver.get(id).tap();
-  }
-}
 export async function leaveSpace(driver: Driver): Promise<void> {
   if (await driver.get(Handles.spaceChromeOverflow).isVisible())
     await driver.get(Handles.spaceChromeOverflow).tap();

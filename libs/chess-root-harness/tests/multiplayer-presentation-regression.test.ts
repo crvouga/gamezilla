@@ -4,15 +4,15 @@ import {
   openMultiplayerChess,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import {
-  awaitChessMatch,
-  givenMultiplayerRating,
-  givenOpponentSearch,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import {
   shownMultiplayerLineup,
   shownMultiplayerSearch,
 } from '@libs/chess-matchmaking-harness/multiplayer-presentation';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
+import {
+  awaitGameMatch,
+  givenMultiplayerRating,
+  givenOpponentSearch,
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { openHarness } from './open-chess-harness';
 
@@ -37,7 +37,7 @@ test('a 40-second search and a 3+2 lineup expose all their visible details', asy
     games: 20,
   });
   await s.apply(givenOpponentSearch, 'bob', '3+2');
-  await s.apply(awaitChessMatch, 'alice', 'bob', true);
+  await s.apply(awaitGameMatch, 'alice', 'bob', true);
   expect(await s.read(shownMultiplayerLineup, 'alice')).toEqual({
     opponent: 'bob (1620)',
     timeControl: '3+2',

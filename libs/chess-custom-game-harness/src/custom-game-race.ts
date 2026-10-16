@@ -1,6 +1,6 @@
 import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
-import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
-import { ChangeCustomGame } from '@libs/chess-custom-game-shared/custom-game-commands';
+import type { CustomGameChoice } from '@libs/game-session-shared/custom-game-choice';
+import { ChangeCustomGame } from '@libs/game-session-shared/custom-game-commands';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
 import { readCustomGameIdentity } from './custom-game-identity';

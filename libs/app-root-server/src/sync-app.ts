@@ -72,6 +72,7 @@ export async function createSyncApp(deps: {
     },
     now: deps.now,
     createId: deps.createId,
+    turnGames: deps.app.turnGames,
     contentRulesAt: (atMs) => deps.moderation.at(atMs),
     pubsub: createRequestScopedPubSub(),
     rowImageFanout: true,

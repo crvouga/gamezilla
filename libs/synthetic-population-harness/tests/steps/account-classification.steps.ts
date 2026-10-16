@@ -6,9 +6,12 @@ import {
   openSyntheticPopulationGame,
 } from '@libs/synthetic-population-harness/account-classification-actions';
 
-When('{actor} opens multiplayer chess', async (w, actor: Actor) => {
-  await w.s.apply(openSyntheticPopulationGame, actor);
-});
+When(
+  '{actor} opens multiplayer {string}',
+  async (w, actor: Actor, game: string) => {
+    await w.s.apply(openSyntheticPopulationGame, actor, game);
+  }
+);
 Then(
   '{actor} sees {string} identified as a Synthetic User',
   async (w, actor: Actor, name: string) => {

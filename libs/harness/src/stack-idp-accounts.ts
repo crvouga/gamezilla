@@ -35,6 +35,8 @@ async function addAccount(
       `stack IdP ${origin}: adding ${email} failed (${String(response.status)}: ${await response.text()})`
     );
   }
+  // regression: stack-idp-setup-response-leak
+  await response.body?.cancel();
 }
 
 export async function ensureStackIdpAccounts(args: {

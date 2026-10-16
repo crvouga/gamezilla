@@ -1,4 +1,9 @@
-import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
+import { openCustomGameScreen } from '@libs/chess-custom-game-harness/custom-game-screen';
+import {
+  configureCustomGame,
+  sendCustomGameChoice,
+} from '@libs/game-session-harness/custom-game-ui';
+import type { CustomGameChoice } from '@libs/game-session-shared/custom-game-choice';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import {
   chooseCustomGameWithKeyboard,
@@ -12,11 +17,6 @@ import { changeThroughCustomGameControls } from './custom-game-controls';
 import { playCustomGameHistory } from './custom-game-history';
 import { raceCustomGameChoices } from './custom-game-race';
 import { reviewCustomGame } from './custom-game-review';
-import {
-  configureCustomGame,
-  openCustomGameScreen,
-  sendCustomGameChoice,
-} from './custom-game-ui';
 
 export const openCustomGame = scenarioAction({
   name: 'openCustomGame',

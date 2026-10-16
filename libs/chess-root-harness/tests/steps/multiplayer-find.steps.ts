@@ -3,16 +3,16 @@ import {
   findChessOpponent,
   openMultiplayerChess,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { multiplayerRefusalCode } from '@libs/chess-matchmaking-harness/multiplayer-commands';
+import { multiplayerRefusalCode } from '@libs/game-matchmaking-harness/multiplayer-commands';
 import {
-  awaitChessMatch,
-  pairChessOpponents,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+  awaitGameMatch,
+  pairGameOpponents,
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
   multiplayerText,
   multiplayerView,
-} from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { multiplayerSpaceId } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
+} from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { multiplayerSpaceId } from '@libs/game-matchmaking-harness/multiplayer-spaces';
 import { signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
 import { Given, Step, Then, When } from '@libs/harness/define';
 import { signedInAccountOf } from '@libs/harness/identity';
@@ -150,12 +150,12 @@ When(
       await multiplayerPeople(w, [second]);
       await searchFor(w, second, String(control ?? '5+0'));
     }
-    await w.s.apply(awaitChessMatch, first, second);
+    await w.s.apply(awaitGameMatch, first, second);
   }
 );
 When('matchmaking pairs people up', async (w) => {
   acted(w);
-  await w.s.apply(pairChessOpponents);
+  await w.s.apply(pairGameOpponents);
 });
 When('{actor} opens multiplayer chess', async (w, actor: Actor) => {
   acted(w);

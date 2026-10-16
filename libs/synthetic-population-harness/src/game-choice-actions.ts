@@ -1,0 +1,65 @@
+import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared/game-automations';
+import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
+import type { ProductHarness } from '@libs/harness/harness';
+import { backToTabs } from '@libs/harness/shell-actions';
+import { SyntheticUserApplication } from '@libs/synthetic-population-shared/synthetic-user-application';
+import { Handles } from '@libs/test-ids-shared/handles';
+import { syntheticGameAdapter } from './synthetic-game-actions';
+import { givenSyntheticUser } from './synthetic-user-fixtures';
+
+export const givenSyntheticGameChoice = scenarioAction({
+  name: 'givenSyntheticGameChoice',
+  act: async (s, name: string) => {
+    await Promise.resolve(givenSyntheticUser.act(s, name, false));
+    await Promise.resolve(backToTabs.act(s, 'cedar'));
+    await (await actorUi(s, 'cedar')).get(Handles.tabSpaces).tap();
+    await ensureActor(s, 'bob');
+  },
+});
+export const startSyntheticActivity = scenarioAction({
+  name: 'startSyntheticActivity',
+  act: async (s, game: string) => {
+    const selected = syntheticGameAdapter(game);
+    const index = GAME_AUTOMATIONS.indexOf(selected);
+    const ui = await actorUi(s, 'cedar');
+    const application = new SyntheticUserApplication(ui, {
+      games: GAME_AUTOMATIONS,
+      clock: s.harness.clock,
+      random: () => (index + 0.5) / GAME_AUTOMATIONS.length,
+      username: 'cedar',
+      emit: () => undefined,
+    });
+    application.authenticated();
+    try {
+      // Normal autonomous ticks create a space, choose a game, then enter its queue.
+      for (let tick = 0; tick < 6; tick += 1) {
+        if (await ui.get('multiplayer-waiting').isVisible()) return;
+        await application.tick({
+          paused: false,
+          draining: false,
+          elapsedMs: 0,
+          sessionMs: 60_000,
+          hostingWeight: 1,
+        });
+        await s.session.waitForIdle();
+      }
+    } finally {
+      application.close();
+    }
+  },
+});
+export async function syntheticGameChoice(s: ProductHarness) {
+  const ui = await actorUi(s, 'cedar');
+  const seekingOpponent = await ui.get('multiplayer-waiting').isVisible();
+  const text = seekingOpponent
+    ? await ui.get('multiplayer-waiting').text()
+    : null;
+  return {
+    chosenGame: text?.includes('Connect Four')
+      ? 'Connect Four'
+      : text?.toLowerCase().includes('chess')
+        ? 'chess'
+        : '',
+    seekingOpponent,
+  };
+}

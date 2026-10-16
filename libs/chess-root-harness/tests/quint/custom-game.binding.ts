@@ -1,5 +1,5 @@
 import { repeatCustomGameAcknowledgement } from '@libs/chess-custom-game-harness/custom-game-acknowledgement';
-import type { CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
+import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import type { Picks } from '@pkgs/quint-shared/registry';

@@ -1,3 +1,4 @@
+import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared/game-automations';
 import { BEHAVIOR_EVENTS } from '@libs/synthetic-population-shared/behavior-statechart';
 import {
   type Checkpoint,
@@ -142,6 +143,7 @@ export class SessionRuntime {
     const random = createHarnessIds(this.checkpoint.policySeed).random;
     for (let index = 0; index < this.checkpoint.decisions; index += 1) random();
     this.behavior = new SyntheticUserApplication(this.instance.driver, {
+      games: GAME_AUTOMATIONS,
       clock: this.ports.clock,
       username: this.assignment.username,
       restoreGame: this.checkpoint.matchId !== null,

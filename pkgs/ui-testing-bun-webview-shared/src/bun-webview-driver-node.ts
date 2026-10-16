@@ -4,6 +4,7 @@
  */
 
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
+import { controlIsEnabled } from '@pkgs/ui-testing-root-shared/control-is-enabled';
 import type {
   DriverNode,
   DriverWaitOptions,
@@ -29,6 +30,7 @@ import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared/keys';
 import { TimeoutError } from '@pkgs/ui-testing-root-shared/timeout-error';
 import { UiTestError } from '@pkgs/ui-testing-root-shared/ui-test-error';
 import { waitUntil } from '@pkgs/ui-testing-root-shared/wait';
+import { pressBrowserKey } from './browser-key';
 import type { BunWebView, BunWebviewHost } from './bun-webview-host';
 
 /**
@@ -118,6 +120,19 @@ async function readPointerCounts(view: BunWebView): Promise<PointerCounts> {
   };
 }
 
+function clickProgress(
+  completion: 'pointer' | 'click',
+  counts: PointerCounts,
+  initial: PointerCounts
+): 'delivered' | 'pending' | 'send' {
+  if (completion !== 'click') return 'send';
+  if (counts.documentId !== initial.documentId || counts.click > initial.click)
+    return 'delivered';
+  return counts.down > initial.down && counts.up > initial.up
+    ? 'pending'
+    : 'send';
+}
+
 /**
  * `Bun.WebView.click(x, y)` synthesizes a non-automation `NSEvent` pair, so
  * WebKit reads `buttons` from the *system-wide* `[NSEvent pressedMouseButtons]`.
@@ -143,9 +158,15 @@ async function nativeClick(
   const { x, y } = point;
   const awaitsRelease = button !== 'secondary';
   let pressed = false;
+  let initial: PointerCounts | null = null;
   for (let attempt = 1; attempt <= NATIVE_CLICK_ATTEMPTS; attempt += 1) {
     if (attempt > 1) await view.evaluate(RESEND_PAUSE);
     const before = await readPointerCounts(view);
+    initial ??= before;
+    const progress = clickProgress(completion, before, initial);
+    if (progress === 'delivered') return;
+    // A complete press may still have its click queued in the page event loop.
+    if (progress === 'pending') continue;
     await view.click(x, y, {
       button: button === 'secondary' ? 'right' : 'left',
     });
@@ -153,7 +174,7 @@ async function nativeClick(
     // A form navigation replaces the counters; the old click has already landed.
     if (after.documentId !== before.documentId) return;
     if (completion === 'click') {
-      if (after.click > before.click) return;
+      if (after.click > initial.click) return;
       continue;
     }
     pressed ||= after.down > before.down;
@@ -304,20 +325,10 @@ export class BunWebviewDriverNode implements DriverNode {
   }
 
   async key(key: DriverKey): Promise<void> {
-    const domKey = DRIVER_KEY_TO_DOM[key];
-    const sel = JSON.stringify(cssPath(this.path));
-    // Focus moves into the node first (unless already inside), then the key
-    // goes to whatever holds focus — as when a person clicks, then types.
-    await (await this.view()).evaluate(
-      `(function(){
-        const el = document.querySelector(${sel});
-        if (!el) return;
-        if (!el.contains(document.activeElement)) el.focus();
-        const target = el.contains(document.activeElement) ? document.activeElement : el;
-        const init = { key: ${JSON.stringify(domKey)}, bubbles: true, cancelable: true };
-        target.dispatchEvent(new KeyboardEvent('keydown', init));
-        target.dispatchEvent(new KeyboardEvent('keyup', init));
-      })()`
+    await pressBrowserKey(
+      await this.view(),
+      DRIVER_KEY_TO_DOM[key],
+      cssPath(this.path)
     );
   }
 
@@ -348,7 +359,14 @@ export class BunWebviewDriverNode implements DriverNode {
               : text.trim() === state.text;
           }
           const visible = await this.isVisible();
-          return state === 'visible' ? visible : !visible;
+          if (state !== 'enabled')
+            return state === 'visible' ? visible : !visible;
+          if (!visible) return false;
+          // Keep nullable DOM flags on the page and return one coherent boolean.
+          const enabled = await (await this.view()).evaluate(
+            `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); return el !== null && (${controlIsEnabled.toString()})(el.getAttribute('disabled'), el.getAttribute('aria-disabled')); })()`
+          );
+          return enabled === true;
         },
         {
           timeoutMs,

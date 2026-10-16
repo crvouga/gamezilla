@@ -62,7 +62,9 @@ export async function runQuint(input: {
     TMPDIR: temporary,
     TEMP: temporary,
     TMP: temporary,
-    JAVA_TOOL_OPTIONS: `${input.env['JAVA_TOOL_OPTIONS'] ?? ''} -Djava.io.tmpdir=${JSON.stringify(temporary)}`,
+    // Keep deeply typed values independent of the host JVM's default stack,
+    // matching the temporal checker's worker stack.
+    JAVA_TOOL_OPTIONS: `${input.env['JAVA_TOOL_OPTIONS'] ?? ''} -Xss8m -Djava.io.tmpdir=${JSON.stringify(temporary)}`,
   };
   // Its own process group: Quint and the Apalache server it starts die
   // together, whatever state either is in.

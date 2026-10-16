@@ -9,8 +9,14 @@ import {
 import { chessGameClient } from '@libs/chess-root-client/chess-game-def';
 import { CHESS_HARNESS_SLICE } from '@libs/chess-root-harness/chess-harness-slice';
 import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
+import { connectFourGameClient } from '@libs/connect-four-root-client/connect-four-game-def';
+import { connectFourGameShared } from '@libs/connect-four-shared/connect-four-game';
 import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-slice';
 import { FRIENDS_BLOCK_RELATION } from '@libs/friends-shared/block-relation';
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { withOpponentSearchCleanup } from '@libs/game-matchmaking-harness/opponent-search-cleanup';
+import { createGameSessionServer } from '@libs/game-session-server/sub-server';
+import { createGameSessionSub } from '@libs/game-session-shared/sub';
 import { defineProductSystem } from '@libs/harness/define-product-system';
 import type { OpenHarnessOptions } from '@libs/harness/mode';
 import type { OpenHarness } from '@libs/harness/open-harness';
@@ -32,8 +38,8 @@ import { spacesHarnessSlice } from '@libs/spaces-harness/spaces-harness-slice';
  */
 function chessSystem(chess: HarnessSlice) {
   const spaces = spacesHarnessSlice({
-    games: [chessGameShared],
-    clients: [chessGameClient],
+    games: [chessGameShared, connectFourGameShared],
+    clients: [chessGameClient, connectFourGameClient],
     blocks: FRIENDS_BLOCK_RELATION,
   });
   if (spaces.roomNode === undefined) throw new Error('Chess needs a room node');
@@ -45,6 +51,11 @@ function chessSystem(chess: HarnessSlice) {
       FRIENDS_HARNESS_SLICE,
       NOTIFICATIONS_HARNESS_SLICE,
       SEARCH_HARNESS_SLICE,
+      {
+        name: 'game-session',
+        sub: createGameSessionSub(TURN_GAMES.games),
+        server: (deps) => createGameSessionServer(deps.rooms, TURN_GAMES),
+      },
       chess,
       BILLING_HARNESS_SLICE,
     ])
@@ -78,9 +89,11 @@ export function openHarness(
 }
 
 /** {@link openHarness} for the chess scenarios (see {@link CHESS_SPEC_SYSTEM}). */
-export function openSpecHarness(
+export async function openSpecHarness(
   testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openSystemHarness(CHESS_SPEC_SYSTEM, testId, options);
+  return withOpponentSearchCleanup(
+    await openSystemHarness(CHESS_SPEC_SYSTEM, testId, options)
+  );
 }

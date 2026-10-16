@@ -1,0 +1,4 @@
+{
+  "summary": "Native pointer automation cannot activate the screen-reader-only conformance submit. Focus it and press Enter through the shared browser key port; the same validated command and receipt remain authoritative.",
+  "regressionTest": "specs/connect-four/connect-four-accessibility.feature"
+}

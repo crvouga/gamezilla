@@ -14,6 +14,7 @@ Feature: A matchmaking pair play a lasting multiplayer game
       When Bob resigns multiplayer chess
       Then both people see Alice won the multiplayer game
 
+    @regression:journey-offline-live-browser-capability
     Scenario: Returning after time away opens the accepted multiplayer game
       Given Alice and Bob have accounts and an unfinished multiplayer chess game
       And Alice's device went offline before Bob resigned

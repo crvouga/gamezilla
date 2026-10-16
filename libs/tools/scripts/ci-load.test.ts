@@ -120,3 +120,22 @@ test('capacity stays within sixteen workers when they meet the unchanged deadlin
     runnerFit({ ...load, specSeconds: 5000, coldSeconds: 6894 })
   ).toMatchObject({ specSlots: 16, fits: false });
 });
+
+// regression: ci-capacity-unused-deadline-slack
+test('the existing runner fits the expanded corpus within its unchanged deadline', () => {
+  const load = {
+    specSeconds: 3972,
+    coldSeconds: 7526,
+    poleSeconds: 60,
+    leafPoleMax: 60,
+    leafPoleP90: 1,
+  };
+  expect(runnerFit(load)).toMatchObject({
+    specSlots: 16,
+    otherSlots: 14,
+    cores: 32,
+    makespanSeconds: 254,
+    fits: true,
+  });
+  expect(runnerFit({ ...load, coldSeconds: 7543 }).fits).toBe(false);
+});

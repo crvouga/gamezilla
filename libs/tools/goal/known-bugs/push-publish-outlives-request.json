@@ -1,0 +1,4 @@
+{
+  "summary": "An accepted slow HTTP pubsub publish outlived the request that owned it. The browser stack reported an unfinished HTTP request on identity refresh, then closed-scope errors during publication and telemetry. Await all transport acceptance promises before returning from notification and mutation handlers, with publish failures still contained.",
+  "regressionTest": "pkgs/sync-engine-server/tests/publish-lifetime-regression.test.ts"
+}

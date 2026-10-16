@@ -50,6 +50,38 @@ function createFakeView(): BunWebView & {
 }
 
 describe('BunWebviewDriver', () => {
+  it('enabled waits for a visible control to clear its native disabled flag', async () => {
+    // regression: browser-enabled-state-attribute-round-trips
+    const view = createFakeView();
+    const fallback = view.evaluate.getMockImplementation();
+    let disabled = true;
+    let observe: (() => void) | undefined;
+    const observed = new Promise<void>((resolve) => {
+      observe = resolve;
+    });
+    view.evaluate.mockImplementation((script: string) => {
+      if (script.includes('controlIsEnabled')) {
+        const value = !disabled;
+        observe!();
+        return Promise.resolve(value);
+      }
+      return fallback?.(script);
+    });
+    const driver = new BunWebviewDriver({ view, timers });
+    let ready = false;
+    const waiting = driver
+      .get('pending')
+      .wait('enabled')
+      .then(() => {
+        ready = true;
+      });
+    await observed;
+    expect(ready).toBe(false);
+    disabled = false;
+    await waiting;
+    expect(ready).toBe(true);
+    expect(view.click).not.toHaveBeenCalled();
+  });
   it('does not repeat a delivered click after its page navigates', async () => {
     // regression: browser-tap-repeats-after-navigation
     const view = createFakeView();
@@ -97,6 +129,37 @@ describe('BunWebviewDriver', () => {
     expect(view.click).toHaveBeenCalledTimes(1);
     expect(view.pointer).toEqual({ down: 1, up: 0, click: 1 });
   });
+
+  it.each([1, 2])(
+    'a click delivered after %i acknowledgement polls is never sent again',
+    async (deliveryPolls) => {
+      // regression: browser-tap-repeats-late-click
+      const view = createFakeView();
+      const fallback = view.evaluate.getMockImplementation();
+      let late = false;
+      let polls = 0;
+      view.evaluate.mockImplementation((script: string) => {
+        if (script.includes('document.elementFromPoint'))
+          return Promise.resolve({ x: 50, y: 25 });
+        if (script.includes('setTimeout') && late) polls += 1;
+        if (polls >= deliveryPolls && late) {
+          view.pointer.click = (view.pointer.click ?? 0) + 1;
+          late = false;
+        }
+        return fallback?.(script);
+      });
+      view.click.mockImplementation(() => {
+        view.pointer.down += 1;
+        view.pointer.up += 1;
+        late = true;
+        if (view.click.mock.calls.length > 1)
+          view.pointer.click = (view.pointer.click ?? 0) + 1;
+        return Promise.resolve();
+      });
+      await new BunWebviewDriver({ view, timers }).get('find-opponent').tap();
+      expect(view.click).toHaveBeenCalledTimes(1);
+    }
+  );
 
   it('a menu tap completes a pointer press before returning', async () => {
     // regression: browser-menu-tap-incomplete-pointer
@@ -170,7 +233,11 @@ describe('BunWebviewDriver', () => {
     await driver.get('email').input('a@b.c');
     await driver.get('email').clear();
     await driver.key('enter');
-    expect(view.press).toHaveBeenCalledWith('Enter');
+    expect(
+      view.evaluate.mock.calls.some(([script]) =>
+        script.includes('KeyboardEvent')
+      )
+    ).toBe(true);
     await driver.get('list').scroll('down', 50);
     await driver.get('go').wait('visible');
 

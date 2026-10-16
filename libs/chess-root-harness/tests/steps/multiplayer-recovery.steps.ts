@@ -2,13 +2,13 @@ import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import {
   givenOpponentSearch,
-  pairChessOpponents,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+  pairGameOpponents,
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
   multiplayerText,
   multiplayerView,
-} from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
+} from '@libs/game-matchmaking-harness/multiplayer-reads';
+import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import { accountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -184,8 +184,8 @@ Then(
   "{actor} cannot be matched with {actor}'s deleted account",
   async (w, actor: Actor, deleted: Actor) => {
     await multiplayerPeople(w, [actor]);
-    await w.s.apply(givenOpponentSearch, actor);
-    await w.s.apply(pairChessOpponents, actor);
+    await w.s.apply(givenOpponentSearch, actor, '5+0');
+    await w.s.apply(pairGameOpponents, actor);
     await w.s.until(
       async (s) =>
         (await multiplayerView(s, actor)).search?.standing === 'waiting'

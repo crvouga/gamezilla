@@ -2,8 +2,8 @@ import type { Message } from '@pkgs/message-shared/message';
 import type { RoomModule, RoomState } from '@pkgs/room-root-shared/types';
 import { assertRoomModuleName } from '@pkgs/room-root-shared/types';
 import type { Random } from '@pkgs/uuid-shared/create-id';
-
 import type { GameDefinition } from './game';
+import { gameModules } from './game-modules';
 import { createSpaceModule, type SpaceModule } from './space-module';
 import { SPACE_ROOM_MODULE_NAME } from './space-room-module-name';
 
@@ -69,6 +69,6 @@ export function composeRoomModules(
 ): readonly RoomModule<RoomState, Message, Message, string>[] {
   return [
     composeSpaceRoomModule(games, now, random),
-    ...games.flatMap((game) => game.matchRooms ?? []),
+    ...gameModules(games).flatMap((game) => game.matchRooms ?? []),
   ];
 }

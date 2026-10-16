@@ -13,10 +13,13 @@ import {
   SpaceChromeLeadingActionBar,
   SpaceChromeTrailingActionBar,
 } from './space-chrome-action-bar';
+import { SpaceHostConnectionStatus } from './space-host-connection-status';
 import { useSpaceSessionUi } from './space-session-ui-context';
 import { SpaceTitleText } from './space-title-text';
 
-export type SpaceActiveLayoutProps = ParentProps;
+export type SpaceActiveLayoutProps = ParentProps<{
+  readonly hostOffline: boolean;
+}>;
 
 function SpaceChromeTitle(props: {
   readonly spaceId: string;
@@ -38,19 +41,23 @@ function SpaceChromeTitle(props: {
  * every action into a lone More menu), then the global avatar menu sits at
  * the far edge — same on wide header trailing and compact TopBar trailing.
  */
-function SpaceTrailingWithGlobal(): JSX.Element {
+function SpaceTrailingWithGlobal(props: {
+  readonly hostOffline: boolean;
+}): JSX.Element {
   const globalTrailing = useAppFrameGlobalTrailing();
   return (
     <div class="box flex-1 min-w-0 flex-row items-center gap-2">
       <div class="box flex-1 min-w-0">
         <SpaceChromeTrailingActionBar />
       </div>
+      <SpaceHostConnectionStatus offline={props.hostOffline} />
       {globalTrailing()}
     </div>
   );
 }
 
 function SpaceActiveLayoutWide(props: {
+  readonly hostOffline: boolean;
   readonly spaceId: string;
   readonly children: JSX.Element;
 }): JSX.Element {
@@ -66,7 +73,7 @@ function SpaceActiveLayoutWide(props: {
             <SpaceChromeTitle spaceId={props.spaceId} variant="subtitle" />
           </div>
         }
-        trailing={<SpaceTrailingWithGlobal />}
+        trailing={<SpaceTrailingWithGlobal hostOffline={props.hostOffline} />}
       />
       <div class="box flex-1 min-h-0 min-w-0 overflow-hidden">
         {props.children}
@@ -76,6 +83,7 @@ function SpaceActiveLayoutWide(props: {
 }
 
 function SpaceActiveLayoutCompact(props: {
+  readonly hostOffline: boolean;
   readonly spaceId: string;
   readonly children: JSX.Element;
 }): JSX.Element {
@@ -86,7 +94,7 @@ function SpaceActiveLayoutCompact(props: {
         center={
           <SpaceChromeTitle spaceId={props.spaceId} variant="navigationTitle" />
         }
-        trailing={<SpaceTrailingWithGlobal />}
+        trailing={<SpaceTrailingWithGlobal hostOffline={props.hostOffline} />}
         centerPosition="flex"
       />
       <div class="box flex-1 min-h-0 min-w-0 overflow-hidden">
@@ -122,12 +130,18 @@ export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
       <Show
         when={mode() === 'wide'}
         fallback={
-          <SpaceActiveLayoutCompact spaceId={sessionUi.spaceId}>
+          <SpaceActiveLayoutCompact
+            spaceId={sessionUi.spaceId}
+            hostOffline={props.hostOffline}
+          >
             {props.children}
           </SpaceActiveLayoutCompact>
         }
       >
-        <SpaceActiveLayoutWide spaceId={sessionUi.spaceId}>
+        <SpaceActiveLayoutWide
+          spaceId={sessionUi.spaceId}
+          hostOffline={props.hostOffline}
+        >
           {props.children}
         </SpaceActiveLayoutWide>
       </Show>

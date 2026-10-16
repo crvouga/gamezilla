@@ -1,4 +1,4 @@
 {
   "summary": "Multiplayer clock and position fixtures updated SQL without publishing the accepted game to its match room. The room's older clock overrode the eleven-second fixture, so the low-time warning scenario never heard its first warning.",
-  "regressionTest": "libs/chess-matchmaking-harness/tests/multiplayer-fixture-publication.test.ts"
+  "regressionTest": "libs/game-matchmaking-harness/tests/multiplayer-fixture-publication.test.ts"
 }

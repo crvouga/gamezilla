@@ -1,13 +1,10 @@
 import { Handles } from '@libs/test-ids-shared/handles';
-import {
-  chessBoardPromotionTestId,
-  chessBoardSquareTestId,
-} from '@pkgs/chess-board-core-shared/probe';
 import type { Clock } from '@pkgs/clock-shared/types';
+import type { GameAutomation } from '@pkgs/turn-game-shared/game-automation';
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 import { createActor } from 'xstate';
-import { logOutThroughUi, openMultiplayer } from './application-actions';
+import { logOutThroughUi } from './application-actions';
 import type { ApplicationEvent } from './application-events';
 import {
   isMatchParticipant,
@@ -24,11 +21,11 @@ import {
   type Decision,
   type PolicyInputs,
 } from './decision-policy';
-import { chooseChessMove } from './gameplay-policy';
+import { gameForPosition, openMultiplayer } from './game-automation';
 
 export class SyntheticUserApplication {
   readonly actor = createActor(behaviorStatechart).start();
-  private pendingFen: string | null = null;
+  private pendingPosition: string | null = null;
   private submittedAt = 0;
   private idleUntil = 0;
   private restoringGame: boolean;
@@ -37,6 +34,7 @@ export class SyntheticUserApplication {
   constructor(
     private readonly driver: Driver,
     private readonly ports: {
+      games: readonly GameAutomation<Driver>[];
       clock: Clock;
       random: Random;
       username: string;
@@ -85,7 +83,7 @@ export class SyntheticUserApplication {
     sessionMs: number;
     hostingWeight?: number;
   }): Promise<boolean> {
-    await openMultiplayer(this.driver);
+    await openMultiplayer(this.driver, this.ports.games, this.ports.random);
     if (await this.playCurrentGame()) return true;
     if (this.restoringGame) {
       if (await this.driver.get(Handles.spaceJoin).isVisible()) {
@@ -104,7 +102,7 @@ export class SyntheticUserApplication {
       (await this.driver.get(ownSpace).isVisible())
     ) {
       await this.driver.get(ownSpace).tap();
-      await openMultiplayer(this.driver);
+      await openMultiplayer(this.driver, this.ports.games, this.ports.random);
       this.transition({ type: 'HOST' });
       this.event('SessionRestored', ownSpace);
       return true;
@@ -155,10 +153,10 @@ export class SyntheticUserApplication {
       await this.driver.get(Handles.spaceJoin).wait('hidden');
       this.transition({ type: 'JOIN' });
       this.event('JoinedSpace', Handles.spaceJoin);
-      await openMultiplayer(this.driver);
+      await openMultiplayer(this.driver, this.ports.games, this.ports.random);
       return;
     }
-    await openMultiplayer(this.driver);
+    await openMultiplayer(this.driver, this.ports.games, this.ports.random);
     if (
       (await this.driver.get('multiplayer-find').isVisible()) &&
       decision.activity !== 'browsing'
@@ -225,10 +223,11 @@ export class SyntheticUserApplication {
     )
       return false;
     const game = this.driver.get('multiplayer-game');
-    const fen = await game.attribute('data-fen');
-    if (fen === null)
+    const position = await game.attribute('data-fen');
+    if (position === null)
       throw new Error('The game position is unavailable in the app');
-    await this.driver.get('multiplayer-board').wait('visible');
+    const automation = gameForPosition(this.ports.games, position);
+    await this.driver.get(automation.boardControl).wait('visible');
     this.restoringGame = false;
     if ((await game.attribute('data-outcome')) !== 'ongoing') {
       if (this.activity() !== 'postGame') {
@@ -242,12 +241,12 @@ export class SyntheticUserApplication {
       this.transition({ type: 'MATCH' });
       this.event('GameStarted');
     }
-    if (this.pendingFen !== null && fen !== this.pendingFen) {
-      this.pendingFen = null;
+    if (this.pendingPosition !== null && position !== this.pendingPosition) {
+      this.pendingPosition = null;
       this.transition({ type: 'ACKNOWLEDGED' });
     }
     if ((await game.attribute('data-can-move')) === 'true') {
-      if (this.pendingFen === null) await this.move(fen);
+      if (this.pendingPosition === null) await this.move(position);
       else if (this.ports.clock.now() - this.submittedAt > 5_000)
         throw new Error(
           'Move acknowledgement requires authoritative reconciliation'
@@ -255,30 +254,22 @@ export class SyntheticUserApplication {
     }
     return true;
   }
-  private async move(fen: string): Promise<void> {
-    const move = chooseChessMove(fen, this.ports.random);
-    if (move === null) return;
+  private async move(position: string): Promise<void> {
+    const automation = gameForPosition(this.ports.games, position);
+    const action = automation.choose(position, this.ports.random);
+    if (action === null) return;
+    if (!automation.rules.legal(position).includes(action))
+      throw new Error('The automated participant suggested an illegal action');
     this.transition({ type: 'TURN' });
-    // Mark uncertainty before the UI gesture, so failure always reconciles against the server.
-    this.pendingFen = fen;
+    // Mark uncertainty before the gesture; recovery always reads canonical state.
+    this.pendingPosition = position;
     this.submittedAt = this.ports.clock.now();
-    await this.driver
-      .get(chessBoardSquareTestId('multiplayer-board', move.from))
-      .key('enter');
-    await this.driver
-      .get(chessBoardSquareTestId('multiplayer-board', move.to))
-      .key('enter');
-    if (
-      move.promotion === 'q' ||
-      move.promotion === 'r' ||
-      move.promotion === 'b' ||
-      move.promotion === 'n'
-    )
-      await this.driver
-        .get(chessBoardPromotionTestId('multiplayer-board', move.promotion))
-        .tap();
+    await automation.perform(this.driver, action);
     this.transition({ type: 'MOVE' });
-    this.event('MoveSubmitted', move.lan, { fen });
+    this.event('MoveSubmitted', action, {
+      position,
+      game: automation.rules.id,
+    });
   }
   close(): void {
     this.actor.stop();

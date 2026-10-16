@@ -77,7 +77,10 @@ export default function ReadyEngineTree(
         <SyncStatusBridge>
           <SqlClientProvider value={ready.engine.db}>
             <AuthSyncBridge>
-              <MutationClientProvider registry={ready.registry}>
+              <MutationClientProvider
+                registry={ready.registry}
+                turnGames={ready.turnGames}
+              >
                 <AppSignInCapabilities>
                   {/* Sign-in modal needs the outer AppUiPortals surface
                         stack plus this session chrome (palette / banners). */}

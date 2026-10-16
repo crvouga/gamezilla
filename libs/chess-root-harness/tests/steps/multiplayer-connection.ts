@@ -1,11 +1,9 @@
-import {
-  openMultiplayerChess,
-  refreshMultiplayerConnection,
-} from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { refreshMultiplayerConnection } from '@libs/game-matchmaking-harness/multiplayer-connection';
 import {
   multiplayerText,
   multiplayerView,
-} from '@libs/chess-matchmaking-harness/multiplayer-reads';
+} from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { partition, restoreNetwork } from '@libs/harness/actions';
 import { partitionLoadBalancer } from '@libs/harness/server-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';

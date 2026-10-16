@@ -23,6 +23,8 @@ function reconnectRig(previousAt: number, deliveryMs: number) {
     ]),
     harness: { client: async () => ({}), heal: () => {} },
     session: {
+      // regression: reconnect-fixture-capability-metadata
+      caps: new Set(['partition']),
       ports: { clock },
       network: {
         heal: () => {

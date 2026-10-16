@@ -51,8 +51,11 @@ test('a release on OWC Express 1M2 runs from a self-contained path without space
   }
 });
 
+// regression: emqx-no-space-fixture-inherits-whitespace
 test('a release already in a path without spaces is retained after disposal', () => {
-  const fixture = mkdtempSync(join(tmpdir(), 'emqx-runtime-test-'));
+  const temporary = realpathSync(tmpdir());
+  const parent = /\s/.test(temporary) ? realpathSync('/tmp') : temporary;
+  const fixture = mkdtempSync(join(parent, 'emqx-runtime-test-'));
   const source = release(join(fixture, 'emqx'));
   const runtime = prepareEmqxRuntime(source);
   try {

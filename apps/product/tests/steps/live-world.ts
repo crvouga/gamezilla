@@ -1,3 +1,4 @@
+import { openIsolatedDevice } from '@apps/product/isolated-browser';
 // @io-wall-ok — live health: the world every `liveDomains` scenario runs in.
 /**
  * The world a live scenario (`@synthetic` features, `specs/journeys/`) runs in:
@@ -34,7 +35,7 @@ import { spaceLinkFromLocation } from '@libs/runtime-harness/journey-types';
 import { requestSyntheticMonitorRedirect } from '@pkgs/auth-inhouse-shared/synthetic-monitor';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import type { ScenarioContext } from '@pkgs/gherkin-shared/registry';
-import { hostLimit, setWorld } from '@pkgs/gherkin-shared/registry';
+import { setWorld } from '@pkgs/gherkin-shared/registry';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 
@@ -63,12 +64,17 @@ export function requireSecret(name: string): string {
 }
 
 /** Sign in as the synthetic-monitor user through the real callback path. */
-async function signIn(device: Device, target: LiveTarget): Promise<void> {
+async function signIn(
+  device: Device,
+  target: LiveTarget,
+  peer = false
+): Promise<void> {
   const redirectUrl = await requestSyntheticMonitorRedirect({
     http: target.http,
     apiOrigin: target.apiOrigin,
     apiPathPrefix: API_PATH_PREFIX,
     token: requireSecret('SYNTHETIC_MONITOR_TOKEN'),
+    peer,
     callbackUrl: `${target.webOrigin}${SSO_CALLBACK_PATH}`,
   });
   await device.view.navigate(redirectUrl);
@@ -163,11 +169,16 @@ function liveJourneyHost(
     showsPuzzleAnswers: false,
     open: (access) => openLiveDevice(target, devices, access),
     openPeer: async (access) => {
-      if (access === 'signed-in')
-        throw hostLimit(
-          'two account journeys need independent browser storage and a second synthetic-monitor account; this host has one account and Chrome views share storage'
-        );
-      await openGuestDevice(target, devices, '/');
+      if (devices.guest !== null)
+        throw new Error('The second device is already open');
+      devices.guest = await openIsolatedDevice(target);
+      devices.shown = devices.guest;
+      await prepareCriticalJourneyAccess({
+        access,
+        launch: () => devices.guest!.driver.launch(),
+        waitForTabShell: () => atTabShell(devices.guest!.driver),
+        signIn: () => signIn(devices.guest!, target, true),
+      });
     },
     act: async (_name, gestures) => {
       const current = await ensureHost(target, devices);

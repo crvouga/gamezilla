@@ -1,0 +1,4 @@
+{
+  "summary": "Connect Four setup raced both the remote Join prompt and the host's selected game arriving. Await the prompt, join, then enter the selected game's custom screen without tapping an outgoing chooser.",
+  "regressionTest": "specs/connect-four/connect-four-accessibility.feature"
+}

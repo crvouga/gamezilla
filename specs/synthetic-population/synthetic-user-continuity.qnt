@@ -20,7 +20,8 @@ module synthetic_user_continuity {
 
   action init = {
     nondet initialActivity = Set(Browsing, Playing, Finished).oneOf()
-    val initialGame = if (initialActivity == Browsing) "" else "friday-chess"
+    nondet gameChoice = Set("friday-chess", "friday-connect-four").oneOf()
+    val initialGame = if (initialActivity == Browsing) "" else gameChoice
     all {
       identity' = "Cedar",
       activity' = initialActivity,

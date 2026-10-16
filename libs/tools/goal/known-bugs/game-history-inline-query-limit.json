@@ -1,0 +1,4 @@
+{
+  "summary": "An inline limit in the shared game-history query made the entire sync sweep fail, preventing space joins.",
+  "regressionTest": "libs/chess-root-harness/tests/connect-four-query-regression.test.ts"
+}

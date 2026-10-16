@@ -1,3 +1,5 @@
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { createGameSessionSub } from '@libs/game-session-shared/sub';
 /**
  * The composition root's sub list, and the single fold over it.
  *
@@ -32,6 +34,7 @@ export const APP_SUBS: readonly SubManifest[] = [
   FRIENDS_SUB,
   NOTIFICATIONS_SUB,
   CHESS_SUB,
+  createGameSessionSub(TURN_GAMES.games),
   BILLING_SUB,
   PERMISSIONS_SUB,
   SYNTHETIC_POPULATION_SUB,

@@ -19,7 +19,8 @@ bindQuintModel<QuintHarnessWorld>({
     init: async (w, picks) => {
       await w.s.apply(
         givenSyntheticContinuity,
-        renderQuint(picks['initialActivity']!)
+        renderQuint(picks['initialActivity']!),
+        picks['gameChoice'] === 'friday-connect-four' ? 'Connect Four' : 'chess'
       );
       w.memo.set(
         'synthetic-population:continuity',

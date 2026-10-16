@@ -25,6 +25,7 @@ export type ToolsState = {
   disposeChrome: (() => void) | null;
   beforeApps: Map<string, string>;
   checkpointApps: Map<string, Map<string, string>>;
+  checkpointIds: Map<string, string>;
   keptApps: Map<string, string>;
   beforeRestoreApps: Map<string, string>;
   firstWorldPath: string | null;
@@ -47,6 +48,7 @@ export function tools(s: ProductHarness): ToolsState {
       disposeChrome: null,
       beforeApps: new Map(),
       checkpointApps: new Map(),
+      checkpointIds: new Map(),
       keptApps: new Map(),
       beforeRestoreApps: new Map(),
       firstWorldPath: null,

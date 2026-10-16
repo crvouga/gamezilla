@@ -23,7 +23,8 @@ export type NotifyChannelsOptions = {
  * Allocate pushSeqs via `sql`, then await transport acceptance of each push.
  *
  * Await this while `sql` is still connected (request-scoped clients are
- * disconnected when the handler returns). Publish stays best-effort: failures
+ * disconnected when the handler returns). HTTP publication belongs to that
+ * invocation too. Publish stays best-effort: failures
  * are logged, never retried, and never thrown.
  */
 export async function notifyChannels(

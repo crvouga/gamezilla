@@ -5,12 +5,12 @@
  * so nothing needs undoing.
  */
 
-import { setMultiplayerConnection } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { restartApp, spawnActor } from '@libs/harness/actions';
 import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { setWorkOfflineFromCurrentPlace } from '@libs/runtime-harness/app-settings';
 import { confirmSignedIn } from '@libs/runtime-harness/journey-gestures';
 import type {
   JourneyGestures,
@@ -105,10 +105,11 @@ export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
     spaceLink: () => w.s.read(actorSpaceLink, HOST),
     openGuest: (link) => w.s.apply(openActorLink, GUEST, link),
     offline: async () => {
-      await w.s.apply(setMultiplayerConnection, HOST, false);
+      // regression: journey-offline-live-browser-capability
+      await w.s.apply(setWorkOfflineFromCurrentPlace, HOST, true);
       await w.s.advanceTime(1000);
     },
-    online: () => w.s.apply(setMultiplayerConnection, HOST, true),
+    online: () => w.s.apply(setWorkOfflineFromCurrentPlace, HOST, false),
     reopen: () => w.s.apply(restartApp, HOST),
     defer: () => undefined,
     settle: () => undefined,

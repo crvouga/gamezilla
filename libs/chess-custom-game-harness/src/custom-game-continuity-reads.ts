@@ -1,7 +1,7 @@
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { Chess } from 'chess.js';
-import { readCustomGameProbe } from './custom-game-ui';
 
 /** The first White bot move is legal from the starting board. */
 export async function legalWhiteBotMoveShown(

@@ -4,9 +4,9 @@ import {
   readCustomGameSeconds,
   readCustomGameTime,
 } from '@libs/chess-custom-game-harness/custom-game-clocks';
-import { customGameChess } from '@libs/chess-custom-game-shared/custom-game-position';
-import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
-import { customGameTimeLeft } from '@libs/chess-custom-game-shared/custom-game-state';
+import { chessCustomBoard as customGameChess } from '@libs/chess-rules-shared/chess-harness';
+import type { CustomGame } from '@libs/game-session-shared/custom-game-state';
+import { customGameTimeLeft } from '@libs/game-session-shared/custom-game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import { remember } from '@libs/harness/spec-world';
 import { customSide } from './custom-game-choices.steps';

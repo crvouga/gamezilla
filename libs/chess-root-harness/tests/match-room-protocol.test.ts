@@ -4,7 +4,7 @@ import {
   MultiplayerGameChanged,
   matchRoomGame,
   matchRoomModule,
-} from '@libs/chess-matchmaking-shared/match-room';
+} from '@libs/game-matchmaking-shared/match-room';
 import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-root-shared/service-identity';
 import type { RoomState } from '@pkgs/room-root-shared/types';
 

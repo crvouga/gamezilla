@@ -1,0 +1,113 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/home/runner/work/gamezilla/gamezilla/specs/developer-tools/checkpoints.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Thu Oct 15 2026 15:50:20 GMT+0000 (Coordinated Universal Time)",
+    "timestamp": 1792079420222
+  },
+  "vars": [
+    "world",
+    "failure",
+    "available",
+    "_kept",
+    "_captured",
+    "_deleted",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_captured": "first",
+      "_deleted": false,
+      "_kept": "first",
+      "available": false,
+      "failure": "none",
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {},
+      "world": "first"
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_captured": "first",
+      "_deleted": false,
+      "_kept": "later",
+      "available": false,
+      "failure": "none",
+      "mbt::actionTaken": "changeWorld",
+      "mbt::nondetPicks": {},
+      "world": "later"
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_captured": "later",
+      "_deleted": false,
+      "_kept": "later",
+      "available": true,
+      "failure": "none",
+      "mbt::actionTaken": "saveCheckpoint",
+      "mbt::nondetPicks": {},
+      "world": "later"
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_captured": "later",
+      "_deleted": false,
+      "_kept": "later",
+      "available": true,
+      "failure": "none",
+      "mbt::actionTaken": "saveCheckpoint",
+      "mbt::nondetPicks": {},
+      "world": "later"
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_captured": "later",
+      "_deleted": true,
+      "_kept": "later",
+      "available": false,
+      "failure": "none",
+      "mbt::actionTaken": "deleteCheckpoint",
+      "mbt::nondetPicks": {},
+      "world": "later"
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_captured": "later",
+      "_deleted": true,
+      "_kept": "later",
+      "available": false,
+      "failure": "none",
+      "mbt::actionTaken": "interruptSave",
+      "mbt::nondetPicks": {},
+      "world": "later"
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_captured": "later",
+      "_deleted": true,
+      "_kept": "later",
+      "available": false,
+      "failure": "none",
+      "mbt::actionTaken": "interruptSave",
+      "mbt::nondetPicks": {},
+      "world": "later"
+    }
+  ]
+}

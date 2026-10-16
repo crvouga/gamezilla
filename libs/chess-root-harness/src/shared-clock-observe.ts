@@ -3,8 +3,8 @@ import {
   multiplayerPauseShown,
 } from '@libs/chess-matchmaking-harness/multiplayer-availability';
 import { gameRecordOffered } from '@libs/chess-matchmaking-harness/multiplayer-game-record';
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { multiplayerWatcherBoard } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import type { ProductHarness } from '@libs/harness/harness';
 import {
   CLOCK_OBSERVERS,

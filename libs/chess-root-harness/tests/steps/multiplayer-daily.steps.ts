@@ -3,14 +3,14 @@ import {
   findChessOpponent,
   openMultiplayerChess,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { givenMultiplayerClock } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import { passMultiplayerDays } from '@libs/chess-matchmaking-harness/multiplayer-time';
+import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
   multiplayerView,
   shownMultiplayerClockDays,
   shownMultiplayerText,
-} from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { passMultiplayerDays } from '@libs/chess-matchmaking-harness/multiplayer-time';
-import { dailyTimeControlId } from '@libs/chess-matchmaking-shared/time-control';
+} from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Step, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';

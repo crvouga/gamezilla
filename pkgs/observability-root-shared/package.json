@@ -23,11 +23,11 @@
     "@pkgs/outbox-shared": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/property-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:",
-    "@pkgs/property-shared": "workspace:*",
-    "fast-check": "catalog:"
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
   },
   "category": "isomorphic"
 }

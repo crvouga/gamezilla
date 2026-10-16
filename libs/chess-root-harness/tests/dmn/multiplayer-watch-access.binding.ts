@@ -1,5 +1,5 @@
-import { multiplayerRoomGrants } from '@libs/chess-root-server/multiplayer-room-server';
-import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+import { MULTIPLAYER_TABLES } from '@libs/game-matchmaking-shared/multiplayer-tables';
+import { multiplayerRoomGrants } from '@libs/game-session-server/multiplayer-room-server';
 import { clientGatingLayer } from '@libs/permissions-harness/client';
 import { spaceRolesApplicationLayer } from '@libs/permissions-shared/application';
 import { DMN_INPUT } from '@libs/permissions-shared/people';
@@ -32,7 +32,7 @@ bindDecisions({
         ),
     },
     'server enforcement': serverEnforcementLayer({
-      tables: [...SPACE_TABLES, ...CHESS_TABLES],
+      tables: [...SPACE_TABLES, ...MULTIPLAYER_TABLES],
       seed: async (c) => {
         await seedPlaceInSpace(c);
         await c.db.run(sql`INSERT INTO chess_multiplayer_players (id, owner_id, game_id)
@@ -49,7 +49,7 @@ bindDecisions({
             deviceId: c.env.deviceId!,
           },
         });
-        if (!grants.includes(PERMISSION.chessMultiplayerWatch))
+        if (!grants.includes(PERMISSION.gameMultiplayerWatch))
           throw new OperationRefused('not in the space');
       },
     }),
@@ -57,7 +57,7 @@ bindDecisions({
       tables: SPACE_TABLES,
       seed: seedPlaceInSpaceOnDevice,
       probe: () => {
-        const can = useSpaceCan(SPACE_ID, PERMISSION.chessMultiplayerWatch);
+        const can = useSpaceCan(SPACE_ID, PERMISSION.gameMultiplayerWatch);
         return () => ({ answer: can() ? 'yes' : 'no' });
       },
     }),

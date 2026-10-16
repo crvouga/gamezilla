@@ -20,6 +20,7 @@ import type {
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import { type Accessor, createMemo } from 'solid-js';
 import { useSpaceOpenRooms } from './space-open-rooms-store';
+import { useRoomQueryRefresh } from './use-room-query-refresh';
 import { useRoomResumeLiveness } from './use-room-resume-liveness';
 import { useSpaceCan } from './use-space-can';
 import { useSpaceRoomConnection } from './use-space-room-connection';
@@ -102,6 +103,7 @@ export function useSpaceRoom(
     getFreshToken,
   });
   useRoomResumeLiveness(transport);
+  useRoomQueryRefresh(transport);
   const snapshot = createRoomSnapshot(room);
   const isSynced = createMemo(() => RoomMetaAttr.isSynced.from(snapshot()));
   return {

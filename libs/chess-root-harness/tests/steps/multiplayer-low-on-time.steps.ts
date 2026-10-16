@@ -1,13 +1,13 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { givenMultiplayerClock } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 import {
   lowOnTimeWarningsHeard,
   shownMultiplayerClockLow,
 } from '@libs/chess-matchmaking-harness/multiplayer-low-on-time';
-import { shownMultiplayerText } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
 import { readPuzzleSoundsOn } from '@libs/chess-puzzle-harness/puzzle-sound-preference';
+import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { shownMultiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';

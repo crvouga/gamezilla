@@ -34,7 +34,8 @@ const SURFACE_SETTLE_MS = JOURNEY_WAIT_MS / SURFACE_POLLS;
  */
 async function guestInvited(ui: Driver): Promise<boolean> {
   for (let poll = 0; poll < SURFACE_POLLS; poll += 1) {
-    if (await ui.get('multiplayer-access-denial').isVisible()) return true;
+    if (await ui.get('multiplayer-access-denial-action').isVisible())
+      return true;
     try {
       await ui
         .get('multiplayer-find')
@@ -44,7 +45,7 @@ async function guestInvited(ui: Driver): Promise<boolean> {
       // Still loading, or the invitation is showing instead.
     }
   }
-  return ui.get('multiplayer-access-denial').isVisible();
+  return ui.get('multiplayer-access-denial-action').isVisible();
 }
 
 /** Choose the time control (`5+0`), then find an opponent at it. */

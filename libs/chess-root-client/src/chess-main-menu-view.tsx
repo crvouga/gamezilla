@@ -1,6 +1,3 @@
-import { CustomGameScreen } from '@libs/chess-custom-game-client/custom-game-screen';
-import MultiplayerScreen from '@libs/chess-matchmaking-client/multiplayer-screen';
-import { LINKED_MULTIPLAYER_PARAM } from '@libs/chess-matchmaking-shared/multiplayer-link';
 import { ChessPuzzleFeedProvider } from '@libs/chess-puzzle-client/chess-puzzle-feed-provider';
 import { PuzzlePlayScreen } from '@libs/chess-puzzle-client/chess-puzzle-play-screen';
 import { ChessPuzzleReviewScreen } from '@libs/chess-puzzle-client/chess-puzzle-review-screen';
@@ -18,6 +15,9 @@ import { ChessSettingsDeveloperScreen } from '@libs/chess-shared-client/chess-se
 import { ChessSettingsDeveloperUiComponentDetailScreen } from '@libs/chess-shared-client/chess-settings-developer-ui-component-detail-screen';
 import { ChessSettingsDeveloperUiComponentsScreen } from '@libs/chess-shared-client/chess-settings-developer-ui-components-screen';
 import { ChessSettingsScreen } from '@libs/chess-shared-client/chess-settings-screen';
+import MultiplayerScreen from '@libs/game-matchmaking-client/multiplayer-screen';
+import { LINKED_MULTIPLAYER_PARAM } from '@libs/game-matchmaking-shared/multiplayer-link';
+import { CustomGameScreen } from '@libs/game-session-client/custom-game-screen';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import {
   useSpaceRoomDispatch,
@@ -46,10 +46,19 @@ function ChessScreenContent(props: {
         <PuzzlePlayScreen />
       </Match>
       <Match when={props.screen === CHESS_SCREEN.multiplayer}>
-        <MultiplayerScreen />
+        <MultiplayerScreen
+          onBack={() =>
+            dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }))
+          }
+        />
       </Match>
       <Match when={props.screen === CHESS_SCREEN.customGame}>
-        <CustomGameScreen />
+        <CustomGameScreen
+          gameId="chess"
+          onBack={() =>
+            dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }))
+          }
+        />
       </Match>
       <Match when={props.screen === CHESS_SCREEN.stats}>
         <ChessStatsScreen />

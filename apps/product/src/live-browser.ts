@@ -1,3 +1,4 @@
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 // @io-wall-ok — live health: a real browser drives the deployed web client.
 /**
  * A real Chrome browser (`Bun.WebView`) against
@@ -39,8 +40,10 @@ export type LiveTarget = {
 
 export type Device = {
   readonly apiOrigin: string;
-  readonly view: Bun.WebView;
-  readonly driver: BunWebviewDriver;
+  readonly view: Pick<Bun.WebView, 'navigate' | 'evaluate' | 'cdp'> & {
+    screenshot(options: { encoding: 'buffer' }): Promise<Buffer>;
+  };
+  readonly driver: Driver;
   readonly console: string[];
   readonly network: string[];
   close(): Promise<void>;
@@ -109,7 +112,9 @@ function delay(ms: number): Promise<void> {
   });
 }
 
-export async function readLocation(view: Bun.WebView): Promise<string> {
+export async function readLocation(
+  view: Pick<Bun.WebView, 'evaluate'>
+): Promise<string> {
   const href = await view.evaluate('location.href');
   return typeof href === 'string' ? href : '';
 }
@@ -124,7 +129,9 @@ const SHELL_STATE_SCRIPT = `(function () {
   });
 })()`;
 
-export async function waitForCachedShell(view: Bun.WebView): Promise<void> {
+export async function waitForCachedShell(
+  view: Pick<Bun.WebView, 'evaluate'>
+): Promise<void> {
   const state = await view.evaluate(SHELL_STATE_SCRIPT);
   if (state !== 'active') throw new Error('the offline shell is not ready');
 }
@@ -133,7 +140,9 @@ export async function waitForCachedShell(view: Bun.WebView): Promise<void> {
  * The device has no network. Chrome exposes this through CDP
  * (`Network.emulateNetworkConditions`); other engines have no equivalent.
  */
-export async function emulateOffline(view: Bun.WebView): Promise<void> {
+export async function emulateOffline(
+  view: Pick<Bun.WebView, 'evaluate' | 'cdp'>
+): Promise<void> {
   await waitForCachedShell(view);
   await view.cdp('Network.emulateNetworkConditions', {
     offline: true,

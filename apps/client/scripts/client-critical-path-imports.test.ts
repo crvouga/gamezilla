@@ -43,7 +43,7 @@ describe('client-critical-path-imports', () => {
 
   test('allows eager chess and SQLite paths', () => {
     expect(
-      isDeniedResolvedPath('/repo/libs/chess-custom-game-client/src/board.tsx')
+      isDeniedResolvedPath('/repo/libs/game-session-client/src/board.tsx')
     ).toBe(false);
     expect(
       isDeniedResolvedPath('/repo/apps/client/public/sql-workers/sqlite3.wasm')

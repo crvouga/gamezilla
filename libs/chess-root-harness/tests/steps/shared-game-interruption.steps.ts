@@ -7,8 +7,8 @@ import {
   SHARED_CLOCK_CONTROLS,
   setMultiplayerAvailability,
 } from '@libs/chess-matchmaking-harness/multiplayer-availability';
-import { givenMultiplayerClock } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 import { passMultiplayerDays } from '@libs/chess-matchmaking-harness/multiplayer-time';
+import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { Given, Then, When } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { disconnectMultiplayer } from './multiplayer-connection';

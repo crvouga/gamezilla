@@ -7,6 +7,7 @@
  */
 
 import { afterAll, afterEach } from 'bun:test';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { setDomWindow } from '@pkgs/bun-test-solid-client/register';
 import { wallTimers } from '@pkgs/clock-shared/wall';
 import { setDefaultLogLevel } from '@pkgs/logger-shared/logger';
@@ -16,6 +17,13 @@ import type { NodeTelemetry } from '@pkgs/observability-root-server/node-node';
 import { createNodeTelemetry } from '@pkgs/observability-root-server/node-node';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { NdjsonSpanExporter } from '@pkgs/observability-runtime-shared/ndjson-exporter';
+
+// Match the server entry: overlapping requests need native async context.
+const nativeContext = globalThis as typeof globalThis & {
+  AsyncLocalStorage?: typeof AsyncLocalStorage;
+};
+if (typeof nativeContext.AsyncLocalStorage !== 'function')
+  nativeContext.AsyncLocalStorage = AsyncLocalStorage;
 
 process.env['VITE_TEST_HOOKS'] = '1';
 process.env['HARNESS_WITH_DOM'] = process.env['HARNESS_WITH_DOM'] ?? '1';

@@ -3,8 +3,8 @@ import {
   givenOpenedTurnNotice,
   shownMultiplayerNotices,
 } from '@libs/chess-matchmaking-harness/multiplayer-notices';
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { dailyTimeControlId } from '@libs/chess-matchmaking-shared/time-control';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';

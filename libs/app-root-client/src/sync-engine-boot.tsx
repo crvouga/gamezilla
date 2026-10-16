@@ -16,6 +16,7 @@
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import { LocalDatabaseBootErrorScreen } from './boot-error-screen';
 import { BootLoadingShell } from './boot-loading-shell';
+import { IdentityBootPending } from './identity-boot-pending';
 import { useLocalIdentity } from './identity-context';
 import ReadyEngineTree from './sync-engine-ready-tree';
 import { useSyncEngineBootViews } from './use-sync-engine-boot-views';
@@ -63,7 +64,7 @@ export function SyncEngineBoot(props: {
     return userId !== null && deviceId !== null ? { userId, deviceId } : null;
   });
   return (
-    <Show when={bound()} fallback={<BootLoadingShell />} keyed>
+    <Show when={bound()} fallback={<IdentityBootPending />} keyed>
       {(ids) => (
         <SyncEngineBootWithUser userId={ids.userId} deviceId={ids.deviceId}>
           {props.children}

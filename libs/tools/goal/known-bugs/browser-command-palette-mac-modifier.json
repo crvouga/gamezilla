@@ -1,0 +1,4 @@
+{
+  "summary": "The portable command-palette gesture sent Control+K on Mac, where the app requires Command+K. Resolve the primary modifier from the page's platform, preserving Control elsewhere.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-harness/tests/button-text.test.ts"
+}

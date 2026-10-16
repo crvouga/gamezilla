@@ -2,15 +2,8 @@ import {
   confirmDeletion,
   runPrivacyJobs,
 } from '@libs/account-privacy-harness/privacy-actions';
-import {
-  openMultiplayerChess,
-  setMultiplayerConnection,
-} from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { multiplayerFingerprint } from '@libs/chess-matchmaking-harness/multiplayer-fingerprint';
-import {
-  multiplayerView,
-  storedMultiplayerSnapshot,
-} from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
 import {
@@ -18,6 +11,11 @@ import {
   multiplayerMatchFact,
   receiveMultiplayerMatch,
 } from '@libs/chess-root-harness/multiplayer-events';
+import { setMultiplayerConnection } from '@libs/game-matchmaking-harness/multiplayer-connection';
+import {
+  multiplayerView,
+  storedMultiplayerSnapshot,
+} from '@libs/game-matchmaking-harness/multiplayer-reads';
 import {
   signInWithGoogle,
   signInWithGoogleAsAccount,

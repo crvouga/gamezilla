@@ -15,6 +15,7 @@ product:
     - feedback
     - chess
     - chess-board
+    - connect-four
     - developer-tools
     - db-indexes
     - friends

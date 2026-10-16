@@ -71,6 +71,47 @@ describe('SolidDomDriver', () => {
     expect(await selected.current?.text()).toBe('PuzzleId,FEN\nété,position\n');
   });
 
+  test('enabled waits until a visible control clears its pending state', async () => {
+    let enable: (() => void) | undefined;
+    driver = customDriver(() => {
+      const [pending, setPending] = createSignal(true);
+      enable = () => setPending(false);
+      return (
+        <button data-testid="pending" disabled={pending()}>
+          Continue
+        </button>
+      );
+    });
+    await driver.launch();
+    await driver.get('pending').expect.visible();
+    let ready = false;
+    const waiting = driver
+      .get('pending')
+      .wait('enabled')
+      .then(() => {
+        ready = true;
+      });
+    await driver.get('pending').attribute('disabled');
+    expect(ready).toBe(false);
+    if (enable === undefined) throw new Error('The control was not mounted');
+    enable();
+    await waiting;
+    expect(ready).toBe(true);
+  });
+
+  test('an aria-disabled control cannot satisfy an enabled wait', async () => {
+    driver = customDriver(() => (
+      <button data-testid="pending" aria-disabled="true">
+        Continue
+      </button>
+    ));
+    await driver.launch();
+    const error = await rejection(
+      driver.get('pending').wait('enabled', { timeoutMs: 10 })
+    );
+    expect(error).toBeInstanceOf(TimeoutError);
+  });
+
   test('signs in through the public API and snapshots the result', async () => {
     driver = demoDriver();
     await driver.launch();

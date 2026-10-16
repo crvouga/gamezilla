@@ -1,4 +1,4 @@
-import { multiplayerBoard } from '@libs/chess-matchmaking-shared/game-state';
+import { chessHistoryBoard as multiplayerBoard } from '@libs/chess-rules-shared/chess-harness';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';

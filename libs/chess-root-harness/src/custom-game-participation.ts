@@ -1,12 +1,12 @@
+import { openCustomGameScreen } from '@libs/chess-custom-game-harness/custom-game-screen';
 import {
   configureCustomGame,
-  openCustomGameScreen,
   readCustomGameProbe,
-} from '@libs/chess-custom-game-harness/custom-game-ui';
+} from '@libs/game-session-harness/custom-game-ui';
 import {
   customGameActiveParticipant,
   customGameTerminal,
-} from '@libs/chess-custom-game-shared/custom-game-state';
+} from '@libs/game-session-shared/custom-game-state';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';

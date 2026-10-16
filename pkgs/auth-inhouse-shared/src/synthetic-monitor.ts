@@ -16,6 +16,7 @@ export type SyntheticMonitorRedirectArgs = {
   /** Path the auth app is mounted under (`/api` in the product). */
   readonly apiPathPrefix: string;
   readonly token: string;
+  readonly peer?: boolean;
   /** Trusted web callback, e.g. `https://www.example.com/sso-callback`. */
   readonly callbackUrl: string;
 };
@@ -33,7 +34,10 @@ export async function requestSyntheticMonitorRedirect(
       authorization: `Bearer ${args.token}`,
       'content-type': 'application/json',
     },
-    body: JSON.stringify({ callbackUrl: args.callbackUrl }),
+    body: JSON.stringify({
+      callbackUrl: args.callbackUrl,
+      ...(args.peer === true ? { peer: true } : {}),
+    }),
   });
   const body: unknown = await res.json().catch(() => null);
   const redirectUrl =
