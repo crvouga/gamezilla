@@ -2,11 +2,13 @@ import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import {
   atTabShell,
   check,
+  endActiveSpace,
   hostSpace,
   JOURNEY_WAIT_MS,
   tap,
 } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
+import { retirePreviousMultiplayer } from './multiplayer-search-recovery';
 
 export async function openMultiplayerJourney(ui: Driver): Promise<void> {
   // A parked device reads as blank until its chrome is in front. Deciding
@@ -54,6 +56,7 @@ export function startMultiplayerSearch(
 ): (ui: Driver) => Promise<void> {
   return async (ui) => {
     await openMultiplayerJourney(ui);
+    await retirePreviousMultiplayer(ui);
     // The permission surface is the guest's invitation; no command is offered.
     if (await guestInvited(ui)) return;
     await tap(ui, `multiplayer-time-control-${timeControl.replace('+', '-')}`);
@@ -186,6 +189,17 @@ export async function expectMultiplayerLoss(ui: Driver): Promise<void> {
 export async function prepareMultiplayerPair(host: JourneyHost): Promise<void> {
   await host.open('signed-in');
   await host.openPeer('signed-in');
+  host.defer('multiplayer-host-space', endActiveSpace);
+  host.defer('multiplayer-peer-space', () =>
+    host.actAsGuest('endPeerSpace', endActiveSpace)
+  );
+  // The reused monitor may have left a different game's screen open.
+  const chooseChess = async (ui: Driver): Promise<void> => {
+    await hostSpace(ui);
+    await tap(ui, 'game-menu-chess');
+  };
+  await host.act('chooseMultiplayerChess', chooseChess);
+  await host.actAsGuest('chooseMultiplayerChess', chooseChess);
 }
 
 export async function prepareUnfinishedMultiplayerGame(

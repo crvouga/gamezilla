@@ -7,7 +7,9 @@ import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { build } from 'vite';
 import { bootLocalhostStack } from './boot-stack';
 import { healthTestArguments, parseCli, writeFeatureStubs } from './health';
+import { LOCAL_MONITOR_TOKEN } from './local-api-env';
 import { removeManifest } from './manifest';
+import { releaseJourneySpecs } from './release-journey-selection';
 import { specProcessExit } from './spec-process';
 import { parseStackOptions } from './stack-options';
 
@@ -82,9 +84,7 @@ function journeyStubs(): readonly string[] {
   mkdirSync(dirs.stubDir, { recursive: true });
   return writeFeatureStubs(
     { production: false, observability: false },
-    ['custom-game', 'join-and-offline'].map((name) =>
-      join(REPO_ROOT, `specs/journeys/${name}.feature`)
-    ),
+    releaseJourneySpecs(),
     dirs,
     join(PACKAGE_DIR, 'tests/steps/release-index.ts')
   );
@@ -102,6 +102,7 @@ try {
       env: {
         ...process.env,
         SPEC_WORLD: 'release',
+        SYNTHETIC_MONITOR_TOKEN: LOCAL_MONITOR_TOKEN,
         SPEC_TAGS: '',
         LOCALHOST_STACK_MANIFEST: stack.manifestPath,
       },

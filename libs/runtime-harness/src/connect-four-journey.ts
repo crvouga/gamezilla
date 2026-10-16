@@ -8,11 +8,13 @@ import {
 } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 import { expectSharedMultiplayerGame } from './multiplayer-journey';
+import { retirePreviousMultiplayer } from './multiplayer-search-recovery';
 
 async function search(ui: Driver): Promise<void> {
   await hostSpace(ui);
   await tap(ui, 'game-menu-connect-four');
   await tap(ui, 'connect-four-multiplayer');
+  await retirePreviousMultiplayer(ui);
   await tap(ui, 'multiplayer-time-control-5-0');
   await tap(ui, 'multiplayer-find');
 }

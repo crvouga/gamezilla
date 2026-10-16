@@ -100,7 +100,12 @@ class MqttPubSub implements PubSub {
     const payload = encodePayload(data);
     await this.waitUntilConnected();
     const client = this.requireClient();
-    await publishQos1(client, this.toWireTopic(topic), payload);
+    try {
+      await publishQos1(client, this.toWireTopic(topic), payload);
+    } catch (error) {
+      if (!this.closed && this.client === client) this.scheduleReconnect();
+      throw error;
+    }
   }
 
   subscribe(topic: Topic, handler: Handler): () => void {
@@ -114,7 +119,7 @@ class MqttPubSub implements PubSub {
     }
     set.add(handler);
     if (isFirst && this.client?.connected) {
-      this.client.subscribe(this.toWireTopic(topic), { qos: MQTT_PUBSUB_QOS });
+      this.subscribeTopic(this.client, topic);
     }
     return () => this.unsubscribeHandler(topic, handler);
   }
@@ -198,7 +203,7 @@ class MqttPubSub implements PubSub {
       this.setStatus('connected');
       // Keep the app's desired set aligned after every reconnect.
       this.resubscribeAll(client);
-      this.flushConnectWaiters();
+      if (this.currentStatus === 'connected') this.flushConnectWaiters();
     });
     client.on('close', () => {
       if (this.closed || this.client !== client) return;
@@ -219,8 +224,26 @@ class MqttPubSub implements PubSub {
 
   private resubscribeAll(client: MqttClient): void {
     for (const topic of this.topics.keys()) {
-      client.subscribe(this.toWireTopic(topic), { qos: MQTT_PUBSUB_QOS });
+      this.subscribeTopic(client, topic);
     }
+  }
+
+  private subscribeTopic(client: MqttClient, topic: Topic): void {
+    client.subscribe(
+      this.toWireTopic(topic),
+      { qos: MQTT_PUBSUB_QOS },
+      (error, grants) => {
+        if (this.closed || this.client !== client || !this.topics.has(topic))
+          return;
+        if (!error && grants?.every((grant) => grant.qos < 128)) return;
+        // Membership can change after CONNECT minted its topic grants.
+        // Fetch fresh credentials and restore the desired subscriptions.
+        this.logger.warn('subscription rejected; refreshing authorization', {
+          topic,
+        });
+        this.scheduleReconnect();
+      }
+    );
   }
 
   private logicalTopic(wireTopic: string): Topic | undefined {
@@ -286,7 +309,8 @@ class MqttPubSub implements PubSub {
 
   private waitUntilConnected(): Promise<void> {
     if (this.closed) return Promise.reject(new PubSubClosedError());
-    if (this.client?.connected) return Promise.resolve();
+    if (this.client?.connected && this.currentStatus === 'connected')
+      return Promise.resolve();
     return new Promise((resolve, reject) => {
       const finish = () => {
         this.connectWaiters.delete(finish);

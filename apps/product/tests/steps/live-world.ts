@@ -1,4 +1,9 @@
 import { openIsolatedDevice } from '@apps/product/isolated-browser';
+import {
+  type LiveDevices,
+  openGuestDevice,
+  requireDevice,
+} from '@apps/product/live-journey-devices';
 // @io-wall-ok — live health: the world every `liveDomains` scenario runs in.
 /**
  * The world a live scenario (`@synthetic` features, `specs/journeys/`) runs in:
@@ -99,21 +104,7 @@ type Browsing = {
   close(): Promise<void>;
 };
 
-type LiveDevices = {
-  host: Device | null;
-  guest: Device | null;
-  /** The device the last gesture ran on — what a failure should capture. */
-  shown: Device | null;
-};
-
 type FailureFlag = { failed: boolean };
-
-function requireDevice(device: Device | null, who: string): Device {
-  if (device === null) {
-    throw new Error(`no ${who}: a journey opens the app first`);
-  }
-  return device;
-}
 
 async function openLiveDevice(
   target: LiveTarget,
@@ -139,17 +130,6 @@ async function ensureHost(
 ): Promise<Device> {
   if (devices.host === null) await openLiveDevice(target, devices, 'anonymous');
   return requireDevice(devices.host, 'device');
-}
-
-async function openGuestDevice(
-  target: LiveTarget,
-  devices: LiveDevices,
-  link: string
-): Promise<void> {
-  if (devices.guest === null) devices.guest = await openDevice(target);
-  const guest = requireDevice(devices.guest, 'guest');
-  devices.shown = guest;
-  await guest.view.navigate(new URL(link, target.webOrigin).href);
 }
 
 function liveJourneyHost(

@@ -1,7 +1,44 @@
 import { expect, test } from 'bun:test';
 import { openIsolatedDevice } from '@apps/product/isolated-browser';
+import {
+  type LiveDevices,
+  openGuestDevice,
+} from '@apps/product/live-journey-devices';
 import type { BrowserCall } from '@apps/product/remote-browser-driver';
 import type { IsolatedWorker } from '@pkgs/os-server/wall-isolated-worker';
+
+// regression: live-guest-clears-host-storage
+test('a link guest uses an isolated process and keeps it across navigations', async () => {
+  const worker = controlled();
+  const target = {
+    webOrigin: 'https://web.example',
+    apiOrigin: 'https://api.example',
+    oauthCallbackOrigin: 'https://api.example',
+    http: {
+      fetch: async () => {
+        throw new Error('unexpected HTTP');
+      },
+    },
+  };
+  let opened = 0;
+  const devices: LiveDevices = { host: null, guest: null, shown: null };
+  const open = async () => {
+    opened++;
+    return openIsolatedDevice(target, () => worker.process);
+  };
+  try {
+    await openGuestDevice(target, devices, '/space/one', open);
+    await openGuestDevice(target, devices, '/space/two', open);
+    expect(opened).toBe(1);
+    expect(devices.shown).toBe(devices.guest);
+    expect(worker.calls.map((call) => call.args)).toEqual([
+      ['https://web.example/space/one'],
+      ['https://web.example/space/two'],
+    ]);
+  } finally {
+    await devices.guest?.close();
+  }
+});
 
 function controlled() {
   let reply: (value: unknown) => void = () => {};

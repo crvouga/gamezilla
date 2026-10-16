@@ -37,6 +37,11 @@ Short disconnects (minutes) can be bridged by the broker session:
 
 One live connection per `clientId` — a second connect with the same id kicks the older connection. Production uses the device id as `clientIdPrefix`.
 
+A rejected subscription or publish starts a reconnect with fresh credentials.
+This picks up grants added after the previous connection, such as joining a
+new topic. The rejected publish still fails its caller; reconnecting does not
+silently replay a write. Desired subscriptions are restored on reconnect.
+
 ## Usage — full-duplex (WSS)
 
 ```ts
