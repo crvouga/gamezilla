@@ -154,6 +154,7 @@ const CHECK_LEAVES = [
   'check:models',
   ...MODEL_PART_TASKS,
   '@apps/product#check:offline-shell',
+  '@apps/product#test:release-journeys',
   '@apps/auth-relay#check:worker-bundle',
   '@apps/product#check:worker-bundle',
   '@libs/runtime-server#check:schema-evolution',
