@@ -21,6 +21,7 @@ import {
   counterEvtNs,
 } from './counter';
 import type { GameCommandContext, GameDefinition } from './game';
+import { gameModules } from './game-modules';
 import {
   createGamesCommandRouter,
   createGamesEventReducer,
@@ -80,7 +81,10 @@ function assertUniqueGameIds(games: readonly GameDefinition[]): void {
   }
 }
 
-function buildCommandRouter(games: readonly GameDefinition[]) {
+function buildCommandRouter(
+  games: readonly GameDefinition[],
+  modules: readonly GameDefinition[]
+) {
   return createComposedMessageRouter<
     RoomState,
     GameCommandContext,
@@ -92,13 +96,14 @@ function buildCommandRouter(games: readonly GameDefinition[]) {
     { namespace: spaceQuietCmdNs, router: spaceQuietCommandRouter },
     { namespace: counterCmdNs, router: counterCommandRouter },
     { namespace: gamesCmdNs, router: createGamesCommandRouter(games) },
-    ...games.flatMap((game) => [...game.commandRouters]),
+    ...modules.flatMap((game) => [...game.commandRouters]),
   ]);
 }
 
 function buildEventReducer(
   games: readonly GameDefinition[],
-  now: () => number
+  now: () => number,
+  modules: readonly GameDefinition[]
 ) {
   return createComposedMessageRouter<RoomState, void, RoomState>([
     { namespace: spaceLogEvtNs, router: spaceLogEventReducer },
@@ -110,7 +115,7 @@ function buildEventReducer(
     },
     { namespace: counterEvtNs, router: counterEventReducer },
     { namespace: gamesEvtNs, router: createGamesEventReducer(games) },
-    ...games.flatMap((game) => [...game.eventRouters]),
+    ...modules.flatMap((game) => [...game.eventRouters]),
   ]);
 }
 
@@ -168,13 +173,14 @@ function appendGameReactions(input: {
  */
 export function createSpaceModule(
   name: RoomModuleName,
-  games: readonly GameDefinition[],
+  definitions: readonly GameDefinition[],
   now: () => number,
   random: Random
 ): SpaceModule {
-  assertUniqueGameIds(games);
-  const commandRouter = buildCommandRouter(games);
-  const eventReducer = buildEventReducer(games, now);
+  assertUniqueGameIds(definitions);
+  const games = gameModules(definitions);
+  const commandRouter = buildCommandRouter(definitions, games);
+  const eventReducer = buildEventReducer(definitions, now, games);
   const reduce = (state: RoomState, event: Message): RoomState =>
     eventReducer.dispatch(state, undefined, event, (s) => s);
 

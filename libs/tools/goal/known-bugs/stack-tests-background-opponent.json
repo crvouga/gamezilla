@@ -1,0 +1,4 @@
+{
+  "summary": "An isolated two-person Connect Four journey left Alice waiting because the stack's background Synthetic User legitimately matched the other person. Stack spec fixtures must own their population: default to zero background workers, preserve explicit worker options, and keep the ordinary development stack default of one.",
+  "regressionTest": "apps/product/scripts/local-stack-config.test.ts"
+}

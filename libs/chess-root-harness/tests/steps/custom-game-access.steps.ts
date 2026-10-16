@@ -11,7 +11,7 @@ import {
   readCustomGameBoundary,
 } from '@libs/chess-custom-game-harness/custom-game-boundary';
 import { readCustomGameIdentity } from '@libs/chess-custom-game-harness/custom-game-identity';
-import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';

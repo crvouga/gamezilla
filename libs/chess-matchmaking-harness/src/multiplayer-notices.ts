@@ -1,9 +1,10 @@
+import { multiplayerFixture } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
   MULTIPLAYER_NOTICE_NAMESPACE,
   MULTIPLAYER_RESULT_NOTICE,
   MULTIPLAYER_TURN_NOTICE,
   multiplayerTurnNoticeSource,
-} from '@libs/chess-matchmaking-shared/multiplayer-notices';
+} from '@libs/game-matchmaking-shared/multiplayer-notices';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql, signedInAccountOf } from '@libs/harness/identity';
@@ -17,7 +18,6 @@ import {
 import { inboxListSql } from '@libs/notifications-shared/notifications-queries';
 import { clientRowToInteraction } from '@libs/notifications-shared/row-mapper';
 import sql from '@pkgs/sql-root-shared/sql';
-import { multiplayerFixture } from './multiplayer-fixtures';
 
 export type MultiplayerNoticeKind = 'turn' | 'result';
 

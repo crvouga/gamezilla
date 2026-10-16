@@ -71,6 +71,7 @@ export const SLICE_ORDER = [
   'notifications',
   'search',
   'chess',
+  'game-session',
   'billing',
   'permissions',
   'synthetic-population',

@@ -3,15 +3,15 @@ import {
   findChessOpponent,
   openMultiplayerChess,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { givenOpponentSearch } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import type { MultiplayerSearchView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { removeFriend } from '@libs/friends-harness/friends-actions';
+import { setupFriendsPair } from '@libs/friends-harness/setup-friends-pair';
+import { givenOpponentSearch } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import type { MultiplayerSearchView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import {
   multiplayerText,
   multiplayerView,
-} from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
-import { removeFriend } from '@libs/friends-harness/friends-actions';
-import { setupFriendsPair } from '@libs/friends-harness/setup-friends-pair';
+} from '@libs/game-matchmaking-harness/multiplayer-reads';
+import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { signInWithGoogleAsAccount, signOut } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -35,7 +35,7 @@ Given(
   '{actor} signed out on her phone while looking for a chess opponent',
   async (w, actor: Actor) => {
     await multiplayerPeople(w, [actor]);
-    await w.s.apply(givenOpponentSearch, actor);
+    await w.s.apply(givenOpponentSearch, actor, '5+0');
     await w.s.until(
       async (s) =>
         (await multiplayerView(s, actor)).search?.standing === 'waiting'

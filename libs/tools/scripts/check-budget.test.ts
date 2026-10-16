@@ -59,6 +59,30 @@ describe('taskBudgetSeconds', () => {
     );
   });
 
+  test('split multiplayer proofs retain their existing allowance', () => {
+    // regression: multiplayer-bounded-proof-timeout
+    const withinAllowance = Array.from({ length: 16 }, () => 419);
+    const summary = {
+      tasks: withinAllowance.map((seconds, index) =>
+        task(`@libs/chess-root-harness#check:models:10:${index}`, seconds)
+      ),
+    };
+    expect(findBudgetOverruns(summary, false, {})).toEqual([]);
+    expect(
+      findBudgetOverruns(
+        { tasks: [task('@libs/chess-root-harness#check:models:10:2', 421)] },
+        false,
+        {}
+      )
+    ).toEqual([
+      {
+        taskId: '@libs/chess-root-harness#check:models:10:2',
+        seconds: 421,
+        budgetSeconds: 420,
+      },
+    ]);
+  });
+
   test('slow runners scale every budget by the same factor', () => {
     expect(taskBudgetSeconds('@libs/nope#test', true, {})).toBe(
       DEFAULT_TASK_BUDGET_SECONDS * SLOW_RUNNER_MULTIPLIER

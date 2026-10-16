@@ -1,0 +1,4 @@
+{
+  "summary": "The shared clock inferred the active seat by parsing a Chess FEN field. A Connect Four game after columns 0,1,2 therefore charged the first participant while the second participant was active. Use the canonical active participant and seat assignment, without interpreting opaque game positions.",
+  "regressionTest": "libs/game-matchmaking-shared/tests/clock-turn-authority.test.ts"
+}

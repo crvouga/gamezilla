@@ -6,8 +6,8 @@ import type {
   MutationAuthorize,
   MutationRegistry,
 } from '@pkgs/sync-engine-shared/mutations-types';
-
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
+import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { MutationRow, ReplayAuth, ReplayOutcome } from './replay-mutation';
 import { replayMutation } from './replay-mutation';
@@ -47,6 +47,7 @@ export type ProcessMutationsBatchDeps = {
    * The app's content rules as they stood at a write's time (its
    * `created_at`), handed to the mutation body as `env.contentRules`.
    */
+  readonly turnGames?: TurnGames;
   readonly contentRulesAt?: (atMs: number) => ContentRules;
   /**
    * Called after each mutation attempt (applied/rejected/duplicate).
@@ -81,6 +82,7 @@ export async function processMutationsBatch(
         now: deps.now,
         createId: deps.createId,
         ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
+        ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
         ...(deps.contentRulesAt !== undefined
           ? { contentRulesAt: deps.contentRulesAt }
           : {}),

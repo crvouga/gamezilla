@@ -764,6 +764,7 @@ terms:
       The other person in someone's multiplayer game, shown with their
       username and their multiplayer rating for the game's speed.
     forms: [multiplayer opponents, multiplayer opponent's]
+    published: true
 
   - term: time control
     definition: >-

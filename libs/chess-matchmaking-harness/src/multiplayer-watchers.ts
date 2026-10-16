@@ -1,3 +1,4 @@
+import { multiplayerSpaceId } from '@libs/game-matchmaking-harness/multiplayer-spaces';
 import {
   actorUi,
   ensureActor,
@@ -7,7 +8,6 @@ import {
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
 import { joinViaLink } from '@libs/spaces-harness/space-actions';
-import { multiplayerSpaceId } from './multiplayer-spaces';
 
 export const joinMultiplayerSpace = scenarioAction({
   name: 'joinMultiplayerSpace',

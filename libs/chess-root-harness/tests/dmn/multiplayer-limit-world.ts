@@ -1,10 +1,11 @@
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { MULTIPLAYER_TABLES } from '@libs/game-matchmaking-shared/multiplayer-tables';
 import {
   BOT_CUSTOM_GAME_SIDE,
   CustomGamesAttr,
   newCustomGame,
-} from '@libs/chess-custom-game-shared/custom-game-state';
-import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+} from '@libs/game-session-shared/custom-game-state';
 import { countInput } from '@libs/permissions-shared/people';
 import type { ServerCase } from '@libs/permissions-shared/server';
 import { SPACES_TABLES } from '@libs/spaces-shared/tables';
@@ -15,7 +16,7 @@ import sql from '@pkgs/sql-root-shared/sql';
 
 export const MULTIPLAYER_LIMIT_TABLES = [
   ...BILLING_TABLES,
-  ...CHESS_TABLES,
+  ...MULTIPLAYER_TABLES,
   ...SPACES_TABLES,
 ];
 export const UNFINISHED_INPUT = 'unfinished multiplayer games';
@@ -33,7 +34,11 @@ export const LIMIT_ROOMS = {
     if (host === undefined) return {};
     return CustomGamesAttr({
       current: {
-        ...newCustomGame(`custom-game-of-${host}`, host),
+        ...newCustomGame(
+          `custom-game-of-${host}`,
+          host,
+          TURN_GAMES.byId('chess').initial()
+        ),
         status: 'active',
         white: { kind: 'person', person: host },
         black: BOT_CUSTOM_GAME_SIDE,

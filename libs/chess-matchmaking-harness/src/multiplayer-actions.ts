@@ -1,5 +1,14 @@
-import { timeControlKey } from '@libs/chess-matchmaking-shared/time-control';
-import { partition, restoreActorConnection } from '@libs/harness/actions';
+import {
+  forgetMultiplayerReply,
+  sendMultiplayerCommand,
+} from '@libs/game-matchmaking-harness/multiplayer-commands';
+import {
+  refreshMultiplayerConnection,
+  setMultiplayerConnection,
+} from '@libs/game-matchmaking-harness/multiplayer-connection';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { multiplayerSpaceId } from '@libs/game-matchmaking-harness/multiplayer-spaces';
+import { timeControlKey } from '@libs/game-matchmaking-shared/time-control';
 import {
   actorUi,
   ensureActor,
@@ -9,17 +18,10 @@ import {
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import { multiplayerClient } from './multiplayer-client';
-import {
-  forgetMultiplayerReply,
-  sendMultiplayerCommand,
-} from './multiplayer-commands';
 import {
   multiplayerArrivalIsTerminal,
   reachMultiplayerChoices,
 } from './multiplayer-navigation';
-import { multiplayerView } from './multiplayer-reads';
-import { multiplayerSpaceId } from './multiplayer-spaces';
 import { multiplayerWatcherBoard } from './multiplayer-watchers';
 
 /** Chess was chosen for this space, so multiplayer is one tap in. */
@@ -33,55 +35,6 @@ async function multiplayerMenuOpened(
     return false;
   }
 }
-
-/** Ask the ordinary query transport to observe the changed network. */
-export const refreshMultiplayerConnection = scenarioAction({
-  name: 'refreshMultiplayerConnection',
-  act: async (s, actor: string) => {
-    const { engine } = await multiplayerClient(s, actor);
-    let drained = false;
-    void engine.refreshQueries().then(() => {
-      drained = true;
-    });
-    await pollUntil(s, async () => (drained ? true : null), {
-      maxMs: 5000,
-      stepMs: 1,
-      description: 'multiplayer connection refresh',
-    });
-  },
-});
-
-/** Change one device's real HTTP and push reachability; leave its peers alone. */
-export const setMultiplayerConnection = scenarioAction({
-  name: 'setMultiplayerConnection',
-  act: async (s, actor: string, online: boolean) => {
-    const change = online
-      ? s.session.network.heal.bind(s.session.network)
-      : s.session.network.partition.bind(s.session.network);
-    change(s.harness.loadBalancer.id, actor);
-    if (online) {
-      await Promise.resolve(restoreActorConnection.act(s, `${actor}:events`));
-      await Promise.resolve(restoreActorConnection.act(s, actor));
-      const { env } = await multiplayerClient(s, actor);
-      let refreshed = false;
-      void env
-        .createAuthClient(env.server)
-        .session.refresh()
-        .finally(() => {
-          refreshed = true;
-        });
-      await pollUntil(s, async () => (refreshed ? true : null), {
-        maxMs: 5000,
-        stepMs: 1,
-        description: 'multiplayer returning session',
-      });
-    } else {
-      await Promise.resolve(partition.act(s, actor));
-      await Promise.resolve(partition.act(s, `${actor}:events`));
-    }
-    await Promise.resolve(refreshMultiplayerConnection.act(s, actor));
-  },
-});
 
 export const openMultiplayerChess = scenarioAction({
   name: 'openMultiplayerChess',

@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   timeLeftText,
   turnReminderBody,
-} from '@libs/chess-root-server/multiplayer-notice-text';
+} from '@libs/game-session-server/multiplayer-notice-text';
 
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;

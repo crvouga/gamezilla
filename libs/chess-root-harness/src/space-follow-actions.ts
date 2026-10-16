@@ -13,13 +13,13 @@ import { Handles } from '@libs/test-ids-shared/handles';
 const CHOOSE_OR_REFUSAL = [
   Handles.chessMenuPuzzle,
   Handles.spaceHostChoosesGame,
-  Handles.notificationsConnectionMissing,
+  Handles.statusConnectionMissing,
 ] as const;
 
 const BACK_OR_REFUSAL = [
   Handles.gameMenuChess,
   Handles.spaceHostChoosesGame,
-  Handles.notificationsConnectionMissing,
+  Handles.statusConnectionMissing,
 ] as const;
 
 export function hostChoosesShown(
@@ -40,7 +40,7 @@ export function connectionMissingShown(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
-  return visible(s, actorId, [Handles.notificationsConnectionMissing]);
+  return visible(s, actorId, [Handles.statusConnectionMissing]);
 }
 
 export const attemptSelectChessGame = scenarioAction({

@@ -7,9 +7,9 @@ import {
   openMultiplayerNotice,
   shownMultiplayerNotices,
 } from '@libs/chess-matchmaking-harness/multiplayer-notices';
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { ownerOf } from './multiplayer-world';
 

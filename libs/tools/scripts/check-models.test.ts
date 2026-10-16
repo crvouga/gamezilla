@@ -300,6 +300,7 @@ describe('model parts', () => {
 
   // regression: chess-model-proof-part-registration
   // regression: chess-model-check-outlasts-one-runner
+  // regression: phased-model-budget-contract
   test('the chess models check one to a part, the slowest proof under its own budget', () => {
     const chess = specPackages().find(
       (candidate) => candidate.name === '@libs/chess-root-harness'
@@ -307,7 +308,11 @@ describe('model parts', () => {
     const checks = modelChecks(chess);
     const manifest = JSON.parse(
       readFileSync(join(REPO_ROOT, chess.dir, 'package.json'), 'utf8')
-    ) as { modelParts: number; scripts: Record<string, string> };
+    ) as {
+      modelParts: number;
+      phaseParts: Record<string, number>;
+      scripts: Record<string, string>;
+    };
     expect(manifest.scripts['check:models']).toBeUndefined();
     // Fourteen models took 788 s of proof time on a laptop; one runner
     // checks them one at a time, about twice as slowly, against 600 s.
@@ -319,11 +324,16 @@ describe('model parts', () => {
     const slowest = parts.findIndex(
       (part) => part[0]?.specUri === 'specs/chess/multiplayer.qnt'
     );
-    expect(
-      taskBudgetSeconds(
-        `@libs/chess-root-harness#check:models:${String(slowest)}`,
-        false
-      )
-    ).toBe(profileBudgetSeconds(420));
+    const phases = manifest.phaseParts[String(slowest)];
+    expect(phases).toBeGreaterThan(0);
+    for (let index = 0; index < phases!; index++) {
+      const name = `check:models:${String(slowest)}:${String(index)}`;
+      expect(manifest.scripts[name]).toContain(
+        `--phase ${String(index)}/${String(phases)}`
+      );
+      expect(taskBudgetSeconds(`@libs/chess-root-harness#${name}`, false)).toBe(
+        profileBudgetSeconds(420)
+      );
+    }
   });
 });

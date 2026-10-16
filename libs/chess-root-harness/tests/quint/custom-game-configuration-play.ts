@@ -1,8 +1,8 @@
 import { changeCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { playCustomGameHistory } from '@libs/chess-custom-game-harness/custom-game-history';
 import { readStoredCustomGames } from '@libs/chess-custom-game-harness/custom-game-stored';
-import type { CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
 import { setupBlock } from '@libs/friends-harness/setup-block';
+import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import {

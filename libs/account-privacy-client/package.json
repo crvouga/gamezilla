@@ -16,9 +16,9 @@
   "dependencies": {
     "@libs/account-privacy-shared": "workspace:*",
     "@libs/auth-client": "workspace:*",
-    "@libs/sub-client": "workspace:*",
     "@libs/permissions-client": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
+    "@libs/sub-client": "workspace:*",
     "@lingui/solid": "catalog:",
     "@pkgs/clock-client": "workspace:*",
     "@pkgs/permissions-shared": "workspace:*",

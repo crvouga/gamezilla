@@ -29,6 +29,8 @@ import {
 import { variant } from '@pkgs/quint-shared/itf';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
+import offlineHostEnd from './fixtures/link-preview-after-offline-host-end.itf.json';
+
 const LINK = 'adding-people-link';
 function link(w: QuintHarnessWorld): string {
   const value = w.memo.get(LINK);
@@ -42,6 +44,15 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 24,
   inductiveInvariant: '_inductive',
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: link-preview-after-offline-host-end
+      id: 'link-preview-after-offline-host-end',
+      title: 'A link preview learns that the returning host ended the space',
+      seed: '0x67932',
+      itf: offlineHostEnd,
+    },
+  ],
   actions: {
     init: async (w) => {
       await w.s.apply(signInWithGoogle, 'alice');

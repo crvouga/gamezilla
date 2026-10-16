@@ -21,11 +21,11 @@
     "@libs/account-privacy-harness": "workspace:*",
     "@libs/app-config-shared": "workspace:*",
     "@libs/billing-harness": "workspace:*",
-    "@libs/chess-matchmaking-harness": "workspace:*",
     "@libs/chess-root-client": "workspace:*",
     "@libs/chess-root-harness": "workspace:*",
     "@libs/chess-sub-shared": "workspace:*",
     "@libs/friends-harness": "workspace:*",
+    "@libs/game-catalog-shared": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/notifications-harness": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
@@ -43,14 +43,19 @@
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-server": "workspace:*",
     "hono": "catalog:",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "@libs/connect-four-shared": "workspace:*",
+    "@libs/connect-four-root-client": "workspace:*",
+    "@libs/game-matchmaking-harness": "workspace:*"
   },
   "devDependencies": {
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@libs/game-session-server": "workspace:*",
+    "@libs/game-session-shared": "workspace:*"
   },
   "category": "harness",
   "specDomains": [

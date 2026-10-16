@@ -1,7 +1,7 @@
 import { expect } from 'bun:test';
 import { setCustomGameAvailability } from '@libs/chess-custom-game-harness/custom-game-availability';
 import { customGameAwayClaimShown } from '@libs/chess-custom-game-harness/custom-game-play-reads';
-import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import { Given, Then } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { customGame } from './custom-game-world';

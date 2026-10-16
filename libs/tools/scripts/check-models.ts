@@ -406,9 +406,7 @@ if (import.meta.main) {
         { reportDir, packageName: `${pkg.name}#check:models`, phase },
         checks
       ),
-    part === null && phase === null
-      ? undefined
-      : checks.map((check) => check.specUri),
+    checks.map((check) => check.specUri),
     phase !== null
   );
   const failed = verdicts.filter((verdict) => !verdict.ok);

@@ -133,3 +133,20 @@ export function maintenanceVocabulary(): ReadonlyMap<
   }
   return out;
 }
+
+/** A glossary disambiguates product homonyms such as a game's column. */
+export function productVocabulary(): ReadonlyMap<string, readonly string[]> {
+  return new Map(
+    domains().map((domain) => {
+      const glossary = readGlossary(
+        `${SPECS_DIR}/${domain}/${GLOSSARY_FILE}`,
+        domain,
+        []
+      );
+      return [
+        domain,
+        glossary.terms.flatMap((term) => [term.term, ...term.forms]),
+      ] as const;
+    })
+  );
+}

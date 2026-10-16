@@ -80,3 +80,62 @@ test('transparent native radio controls remain actionable through their visible 
     '<button data-testid="pace" style="opacity:0">Hidden</button>';
   expect(await driver().get('pace').isVisible()).toBe(false);
 });
+
+test('Enter activates a clipped conformance button exactly once', async () => {
+  // regression: browser-node-key-missing-default-action
+  document.body.innerHTML =
+    '<div style="position:absolute;width:1px;height:1px;overflow:hidden"><button tabindex="-1" data-testid="send">Send</button></div>';
+  let sent = 0;
+  document.querySelector('button')!.addEventListener('click', () => {
+    sent++;
+  });
+  await driver().get('send').key('enter');
+  expect(sent).toBe(1);
+});
+
+test('a canceled Enter never performs a button default action', async () => {
+  document.body.innerHTML = '<button data-testid="send">Send</button>';
+  let sent = 0;
+  const button = document.querySelector('button')!;
+  button.addEventListener('keydown', (event) => event.preventDefault());
+  button.addEventListener('click', () => {
+    sent++;
+  });
+  await driver().get('send').key('enter');
+  expect(sent).toBe(0);
+});
+
+test('arrow keys reach the focused control and the next global key follows its focus', async () => {
+  document.body.innerHTML = '<button data-testid="column">Column</button>';
+  const keys: string[] = [];
+  document.querySelector('button')!.addEventListener('keydown', (event) => {
+    keys.push(event.key);
+    event.preventDefault();
+  });
+  const ui = driver();
+  await ui.get('column').key('arrowRight');
+  await ui.key('arrowLeft');
+  expect(keys).toEqual(['ArrowRight', 'ArrowLeft']);
+});
+
+test('the portable command-palette key uses the Mac primary modifier', async () => {
+  // regression: browser-command-palette-mac-modifier
+  const previous = Object.getOwnPropertyDescriptor(navigator, 'platform');
+  Object.defineProperty(navigator, 'platform', {
+    value: 'MacIntel',
+    configurable: true,
+  });
+  document.body.innerHTML = '<button data-testid="account">Account</button>';
+  let opened = false;
+  document.querySelector('button')!.addEventListener('keydown', (event) => {
+    opened = event.key === 'k' && event.metaKey && !event.ctrlKey;
+    event.preventDefault();
+  });
+  try {
+    await driver().get('account').key('commandPalette');
+    expect(opened).toBe(true);
+  } finally {
+    if (previous === undefined) Reflect.deleteProperty(navigator, 'platform');
+    else Object.defineProperty(navigator, 'platform', previous);
+  }
+});

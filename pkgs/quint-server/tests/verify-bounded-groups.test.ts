@@ -76,3 +76,27 @@ test.concurrent(
   },
   TIMEOUT_MS
 );
+
+test.concurrent(
+  'a selected later bounded phase retains its bound and rejects a violation',
+  async () => {
+    // regression: multiplayer-bounded-proof-timeout
+    const outDir = join(OUT, 'selected-later-violation');
+    const result = await verify({
+      specPath: FIXTURE,
+      invariants: ['invKnownState', 'invNeverOpen'],
+      maxSteps: 2,
+      boundedInvariantGroupSize: 1,
+      phase: { indexes: [1], count: 2 },
+      outDir,
+      timeoutMs: TIMEOUT_MS,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.output).toContain('found a counterexample');
+    expect(result.output).toContain('[State 1] { state: "open" }');
+    expect(existsSync(join(outDir, 'case-0/_apalache-out'))).toBe(false);
+    expect(existsSync(join(outDir, 'case-1/_apalache-out'))).toBe(true);
+  },
+  TIMEOUT_MS
+);

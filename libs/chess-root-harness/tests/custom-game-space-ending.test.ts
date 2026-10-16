@@ -1,20 +1,23 @@
 import { expect, test } from 'bun:test';
-import { CustomGamesChanged } from '@libs/chess-custom-game-shared/custom-game-commands';
+import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { CustomGamesChanged } from '@libs/game-session-shared/custom-game-commands';
+import { withCustomGames } from '@libs/game-session-shared/custom-game-definition';
 import {
   BOT_CUSTOM_GAME_SIDE,
   type CustomGame,
   CustomGamesAttr,
   newCustomGame,
-} from '@libs/chess-custom-game-shared/custom-game-state';
-import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
+} from '@libs/game-session-shared/custom-game-state';
 import { SpaceEnded } from '@libs/spaces-shared/space-log-messages';
 import {
   CancelScheduleEffect,
   ScheduleEffect,
 } from '@pkgs/room-root-shared/builtin';
 
+const session = withCustomGames(chessGameShared, TURN_GAMES);
 const active: CustomGame = {
-  ...newCustomGame('friday-game', 'alice'),
+  ...newCustomGame('friday-game', 'alice', TURN_GAMES.byId('chess').initial()),
   status: 'active',
   black: { kind: 'person', person: 'bob' },
   ready: ['white', 'black'],
@@ -23,7 +26,7 @@ const active: CustomGame = {
 };
 
 function endSpace(game: CustomGame): CustomGame {
-  const result = chessGameShared.reactToSpaceEvent?.(
+  const result = session.reactToSpaceEvent?.(
     CustomGamesAttr({ current: game, history: [] }),
     {
       identity: 'alice',
@@ -73,8 +76,8 @@ test('ending a two-bot game cancels it and leaves no bot wake', () => {
   expect(result.outcome).toBe('cancelled');
   const state = CustomGamesAttr({ current: result, history: [] });
   for (const effects of [
-    chessGameShared.recoverEffects(state),
-    chessGameShared.recoverLocalEffects?.(state) ?? [],
+    session.recoverEffects(state),
+    session.recoverLocalEffects?.(state) ?? [],
   ]) {
     expect(effects.some(ScheduleEffect.is)).toBe(false);
     expect(effects.some(CancelScheduleEffect.is)).toBe(true);

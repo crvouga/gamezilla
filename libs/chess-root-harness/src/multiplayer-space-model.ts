@@ -1,12 +1,12 @@
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
-import {
-  givenOpponentSearch,
-  pairChessOpponents,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { multiplayerWatcherBoard } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
+import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
+import {
+  givenOpponentSearch,
+  pairGameOpponents,
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -22,7 +22,7 @@ export const prepareMultiplayerSpaceModel = scenarioAction<
       await Promise.resolve(givenOpponentSearch.act(s, actor, timeControl));
       await s.session.advanceTime(1);
     }
-    await Promise.resolve(pairChessOpponents.act(s, 'alice', true));
+    await Promise.resolve(pairGameOpponents.act(s, 'alice', true));
     for (const actor of ['alice', 'bob'])
       await Promise.resolve(openMultiplayerChess.act(s, actor));
     await ensureActor(s, 'carol');

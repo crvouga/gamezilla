@@ -25,7 +25,7 @@ terms:
   - term: activity
     definition: What a Synthetic User is currently doing in the app.
     forms: [activities]
-    model: [Activity, activity, Browsing, Playing, Finished, invActivityRestored]
+    model: [Activity, activity, Browsing, Playing, Finished, invActivityRestored, startNextActivity]
   - term: Recovery
     definition: Restoring an interrupted Synthetic User to its current activity safely.
     forms: [recovers, recovered, recovering]
@@ -69,11 +69,18 @@ terms:
     from: spaces
   - term: leave
     from: spaces
+  - term: chess
+    from: chess
+  - term: Connect Four
+    from: connect-four
+  - term: multiplayer opponent
+    from: chess
+    model: [seekingOpponent, invLookingHasGame]
   - term: game
     from: chess
+    model: [game, chosenGame, invOnlyOfferedGames]
   - term: multiplayer chess
     from: chess
-    model: [game]
   - term: multiplayer result
     from: chess
     model: [invFinishedGamePreserved]

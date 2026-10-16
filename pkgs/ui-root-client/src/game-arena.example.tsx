@@ -2,6 +2,7 @@ import { useClock } from '@pkgs/clock-client/solid';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { Badge } from './badge';
 import { Button } from './button';
+import { DiscDropBoardExample } from './disc-drop-board-example';
 import { ExampleRoot } from './example-root';
 import { GameActionButton } from './game-action-button';
 import { GameBoardStage } from './game-board-stage';
@@ -61,9 +62,7 @@ export default function GameArenaExample(): JSX.Element {
             />
           }
         >
-          <div class="box items-center justify-center min-h-32 bg-surface-sunken text-text-secondary">
-            Interactive play surface
-          </div>
+          <DiscDropBoardExample />
         </GameBoardStage>
         <GameStatus
           tone="active"

@@ -105,7 +105,7 @@ test('a feature path selects a suite and trailing flags select its scenarios', (
       'Apple',
     ])
   ).toEqual({
-    stack: ['--api-nodes', '2'],
+    stack: ['--api-nodes', '2', '--synthetic-population-workers=0'],
     suite: ['specs/profile/apple-sign-in.feature', '-t', 'Apple'],
   });
 });
@@ -118,4 +118,22 @@ test('stack sessions use the same signing authority as harness assertions', () =
   });
   expect(env.AUTH_SECRET).toBe(HARNESS_AUTH_SECRET);
   expect(env.SECRETS_ENV).toBe('dev');
+});
+
+test('isolated stack suites have no uninvited matchmaking participants', () => {
+  // regression: stack-tests-background-opponent
+  expect(
+    parseStackOptions(stackSuiteArgs([]).stack).syntheticPopulationWorkers
+  ).toBe(0);
+  expect(
+    parseStackOptions(
+      stackSuiteArgs(['--synthetic-population-workers', '2']).stack
+    ).syntheticPopulationWorkers
+  ).toBe(2);
+  expect(
+    parseStackOptions(
+      stackSuiteArgs(['--synthetic-population-workers=1']).stack
+    ).syntheticPopulationWorkers
+  ).toBe(1);
+  expect(parseStackOptions([]).syntheticPopulationWorkers).toBe(1);
 });

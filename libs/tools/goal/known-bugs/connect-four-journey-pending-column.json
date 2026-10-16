@@ -1,0 +1,4 @@
+{
+  "summary": "At ply three in the real Connect Four journey, move two was visible while the column button remained disabled during synchronization. A tap was ignored and move three never appeared. Wait for the ordinary control to become enabled, through the game-independent UI driver, before committing the drop.",
+  "regressionTest": "libs/runtime-harness/tests/connect-four-journey-connection.test.ts"
+}

@@ -12,28 +12,55 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { withModelWorkspace } from './model-check-workspace';
 
+test('an unsplit check preserves another running checker source', async () => {
+  // regression: model-check-report-ownership
+  const root = mkdtempSync(join(tmpdir(), 'model-report-owner-'));
+  const report = join(root, '.cache/harness-report/models');
+  const source = join(report, 'identity-machine/cached-source/identity.qnt');
+  mkdirSync(join(source, '..'), { recursive: true });
+  writeFileSync(source, 'module identity { pure val authValid = true }');
+  try {
+    await withModelWorkspace(root, async () => {}, [
+      'specs/developer-tools/checkpoints.qnt',
+    ]);
+    expect(readFileSync(source, 'utf8')).toContain('authValid');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 // regression: overlapping-model-check-workspaces
 test('overlapping checks publish evidence without deleting a running solver directory', async () => {
   const root = mkdtempSync(join(tmpdir(), 'model-workspaces-'));
   const report = join(root, '.cache/harness-report/models');
   let first = '';
   try {
-    await withModelWorkspace(root, async (workspace) => {
-      first = workspace;
-      const cwd = join(workspace, 'apalache/specs-spaces-space-hosting-qnt');
-      mkdirSync(cwd, { recursive: true });
-      writeFileSync(join(cwd, 'running'), 'live JVM');
-      await withModelWorkspace(root, async (second) => {
-        expect(second).not.toBe(first);
-        writeFileSync(join(second, 'verdict.json'), 'second');
-      });
-      expect(readFileSync(join(cwd, 'running'), 'utf8')).toBe('live JVM');
-      expect(readFileSync(join(report, 'verdict.json'), 'utf8')).toBe('second');
-      // A cached report restore must also leave this invocation alive.
-      rmSync(report, { recursive: true, force: true });
-      expect(existsSync(cwd)).toBe(true);
-      writeFileSync(join(workspace, 'verdict.json'), 'first');
-    });
+    await withModelWorkspace(
+      root,
+      async (workspace) => {
+        first = workspace;
+        const cwd = join(workspace, 'apalache/specs-spaces-space-hosting-qnt');
+        mkdirSync(cwd, { recursive: true });
+        writeFileSync(join(cwd, 'running'), 'live JVM');
+        await withModelWorkspace(
+          root,
+          async (second) => {
+            expect(second).not.toBe(first);
+            writeFileSync(join(second, 'verdict.json'), 'second');
+          },
+          ['specs/spaces/another-room.qnt']
+        );
+        expect(readFileSync(join(cwd, 'running'), 'utf8')).toBe('live JVM');
+        expect(readFileSync(join(report, 'verdict.json'), 'utf8')).toBe(
+          'second'
+        );
+        // A cached report restore must also leave this invocation alive.
+        rmSync(report, { recursive: true, force: true });
+        expect(existsSync(cwd)).toBe(true);
+        writeFileSync(join(workspace, 'verdict.json'), 'first');
+      },
+      ['specs/spaces/space-hosting.qnt']
+    );
     expect(readFileSync(join(report, 'verdict.json'), 'utf8')).toBe('first');
     expect(existsSync(join(report, 'apalache'))).toBe(false);
     expect(existsSync(first)).toBe(false);
@@ -48,11 +75,15 @@ test('a failed checker still publishes its diagnostics and releases scratch', as
   let workspace = '';
   try {
     await expect(
-      withModelWorkspace(root, async (path) => {
-        workspace = path;
-        writeFileSync(join(path, 'verdict.json'), 'failed');
-        throw new Error('checker failed');
-      })
+      withModelWorkspace(
+        root,
+        async (path) => {
+          workspace = path;
+          writeFileSync(join(path, 'verdict.json'), 'failed');
+          throw new Error('checker failed');
+        },
+        ['specs/system/failure.qnt']
+      )
     ).rejects.toThrow('checker failed');
     expect(
       readFileSync(
@@ -103,10 +134,18 @@ test("a part replaces its own models' evidence and leaves the other parts'", asy
       'chess-door-qnt.bbbb.json',
     ]);
     expect(existsSync(join(report, 'tlc/specs-chess-door-qnt'))).toBe(false);
-    // The unsplit check still replaces the whole report.
-    await withModelWorkspace(root, async (workspace) => {
-      write(workspace, 'evidence/chess-key-qnt.dddd.json', 'key');
-    });
+    // A complete run clears all of its owned models, retaining other writers.
+    await withModelWorkspace(
+      root,
+      async (workspace) => {
+        write(workspace, 'evidence/chess-key-qnt.dddd.json', 'key');
+      },
+      [
+        'specs/chess/door.qnt',
+        'specs/chess/door-lock.qnt',
+        'specs/chess/key.qnt',
+      ]
+    );
     expect(readdirSync(join(report, 'evidence'))).toEqual([
       'chess-key-qnt.dddd.json',
     ]);

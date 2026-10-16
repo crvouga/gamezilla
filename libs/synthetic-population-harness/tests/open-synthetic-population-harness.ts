@@ -3,7 +3,12 @@ import { BILLING_HARNESS_SLICE } from '@libs/billing-harness/billing-harness-sli
 import { chessGameClient } from '@libs/chess-root-client/chess-game-def';
 import { CHESS_HARNESS_SLICE } from '@libs/chess-root-harness/chess-harness-slice';
 import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
+import { connectFourGameClient } from '@libs/connect-four-root-client/connect-four-game-def';
+import { connectFourGameShared } from '@libs/connect-four-shared/connect-four-game';
 import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-slice';
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { createGameSessionServer } from '@libs/game-session-server/sub-server';
+import { createGameSessionSub } from '@libs/game-session-shared/sub';
 import { defineProductSystem } from '@libs/harness/define-product-system';
 import type { OpenHarnessOptions } from '@libs/harness/mode';
 import { openHarness as openSystemHarness } from '@libs/harness/open-harness';
@@ -20,13 +25,18 @@ const SYNTHETIC_POPULATION_SYSTEM = defineProductSystem(
     PROFILE_HARNESS_SLICE,
     BILLING_HARNESS_SLICE,
     spacesHarnessSlice({
-      games: [chessGameShared],
-      clients: [chessGameClient],
+      games: [chessGameShared, connectFourGameShared],
+      clients: [chessGameClient, connectFourGameClient],
     }),
     FRIENDS_HARNESS_SLICE,
     NOTIFICATIONS_HARNESS_SLICE,
     SEARCH_HARNESS_SLICE,
     CHESS_HARNESS_SLICE,
+    {
+      name: 'game-session',
+      sub: createGameSessionSub(TURN_GAMES.games),
+      server: (deps) => createGameSessionServer(deps.rooms, TURN_GAMES),
+    },
     SYNTHETIC_POPULATION_HARNESS_SLICE,
   ]),
   {

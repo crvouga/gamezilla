@@ -731,6 +731,14 @@
       "Opens the room example": "user",
       "Returns to the testing tool": "user",
       "Reads device and component inspection scope": "user",
+      "Opens game choices": "user",
+      "Chooses Chess": "user",
+      "Chooses Connect Four": "user",
+      "Changes the selected game as a watcher": "user",
+      "Opens a Connect Four custom game": "user",
+      "Finds a Connect Four opponent": "user",
+      "Reviews a Connect Four game": "user",
+      "Returns to the game choice": "user",
       "Leaves adding puzzles": "user",
       "Team access is allowed": "system",
       "Team access is refused": "system",
@@ -1351,7 +1359,7 @@
                           "target": "#Spaces: Offline host"
                         },
                         "Opens chess choices": {
-                          "target": "#App: Games"
+                          "target": "#Games: Chess choices"
                         },
                         "AccountDeletionConfirmed": {
                           "target": "#Spaces: Ended space"
@@ -1405,7 +1413,7 @@
                           "target": "#Spaces: Confirming leaving"
                         },
                         "Opens chess choices": {
-                          "target": "#App: Games"
+                          "target": "#Games: Chess choices"
                         },
                         "SpaceEnded": {
                           "target": "#Spaces: Ended space"
@@ -4692,8 +4700,8 @@
                 "App: Games": {
                   "id": "App: Games",
                   "meta": {
-                    "description": "The host chooses puzzles, private multiplayer chess or a Custom Game; participants watch as permitted.",
-                    "snapshot": "A current space offers its supported chess choices.",
+                    "description": "The host chooses a registered game; participants play or watch according to their permission.",
+                    "snapshot": "The space offers Chess and Connect Four.",
                     "confidence": "assumed",
                     "source": [
                       "specs/chess/space-follow.qnt",
@@ -4704,7 +4712,7 @@
                     ],
                     "events": []
                   },
-                  "initial": "Games: Chess choices",
+                  "initial": "Games: Choose a game",
                   "states": {
                     "Games: Chess choices": {
                       "id": "Games: Chess choices",
@@ -4732,6 +4740,9 @@
                         },
                         "Changes the space’s game as a watcher": {
                           "target": "#Games: Game choice refused"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
                         }
                       }
                     },
@@ -4749,6 +4760,65 @@
                       "on": {
                         "Returns to chess choices": {
                           "target": "#Games: Chess choices"
+                        }
+                      }
+                    },
+                    "Games: Choose a game": {
+                      "id": "Games: Choose a game",
+                      "meta": {
+                        "description": "The host chooses among the registered games for this space.",
+                        "snapshot": "The host chooses among the registered games for this space.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/chess/space-host-select-game.feature",
+                          "specs/connect-four/custom-connect-four.feature"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Chooses Chess": {
+                          "target": "#Games: Chess choices"
+                        },
+                        "Chooses Connect Four": {
+                          "target": "#Games: Connect Four choices"
+                        },
+                        "Changes the selected game as a watcher": {
+                          "target": "#Games: Game choice refused"
+                        }
+                      }
+                    },
+                    "Games: Connect Four choices": {
+                      "id": "Games: Connect Four choices",
+                      "meta": {
+                        "description": "Connect Four offers custom games, opponents, instructions, history and replay.",
+                        "snapshot": "Connect Four offers custom games, opponents, instructions, history and replay.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/connect-four/connect-four-accessibility.feature",
+                          "specs/connect-four/connect-four-bots.feature",
+                          "specs/connect-four/connect-four-health.feature",
+                          "specs/connect-four/connect-four-history.feature",
+                          "specs/connect-four/connect-four-play.qnt",
+                          "specs/connect-four/custom-connect-four.feature",
+                          "specs/connect-four/find-connect-four-opponent.feature",
+                          "specs/connect-four/play-connect-four.feature",
+                          "specs/connect-four/ubiquitous-language.yml",
+                          "specs/journeys/connect-four-game.feature"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Connect Four custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds a Connect Four opponent": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Connect Four game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
                         }
                       }
                     }
@@ -6237,17 +6307,18 @@
                     "Multiplayer: Opening own multiplayer": {
                       "id": "Multiplayer: Opening own multiplayer",
                       "meta": {
-                        "routes": ["/chess/multiplayer"],
+                        "routes": ["/:gameId/multiplayer"],
                         "description": "Opening observes the account's accepted search, current game or lasting result. These records belong to the account across devices and are not restarted by navigation.",
                         "snapshot": "Opening observes the account's accepted search, current game or lasting result. These records belong to the account across devices and are not restarted by navigation.",
                         "confidence": "assumed",
                         "source": [
                           "specs/chess/find-an-opponent.feature:71",
                           "specs/chess/multiplayer-game-over.feature:9",
-                          "specs/chess/multiplayer-account-and-space.feature:6"
+                          "specs/chess/multiplayer-account-and-space.feature:6",
+                          "specs/connect-four/find-connect-four-opponent.feature"
                         ],
                         "events": [],
-                        "hints": ["App address: /chess/multiplayer"]
+                        "hints": ["App address: /:gameId/multiplayer"]
                       },
                       "on": {
                         "No accepted opponent search or multiplayer game exists": {
@@ -7067,7 +7138,8 @@
                       "specs/chess/custom-game.qnt",
                       "specs/chess/custom-games.als",
                       "specs/chess/ubiquitous-language.yml",
-                      "specs/ubiquitous-language.yml"
+                      "specs/ubiquitous-language.yml",
+                      "specs/connect-four/custom-connect-four.feature"
                     ],
                     "events": []
                   },
@@ -8817,6 +8889,8 @@
                           "specs/developer-tools/checkpoints.feature",
                           "specs/developer-tools/test-world-views.feature",
                           "specs/developer-tools/ubiquitous-language.yml",
+                          "specs/synthetic-population/choose-a-game.feature",
+                          "specs/synthetic-population/choose-a-game.qnt",
                           "specs/synthetic-population/observatory.feature",
                           "specs/synthetic-population/recognizing-synthetic-users.feature",
                           "specs/synthetic-population/synthetic-population-access.dmn",
@@ -11698,6 +11772,9 @@
                 },
                 "Opens a returning device offline": {
                   "target": "#Connection: Saved app offline"
+                },
+                "Opens game choices": {
+                  "target": "#App: Games"
                 }
               }
             },

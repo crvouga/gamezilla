@@ -19,9 +19,8 @@ export async function observeAvailableSpaces(
 }
 
 export async function isMatchParticipant(driver: Driver): Promise<boolean> {
-  const colour = driver.get('multiplayer-colour');
-  if (!(await colour.isVisible())) return false;
-  return /^You play (White|Black)$/.test((await colour.text())?.trim() ?? '');
+  // The shared seat renders this control only for its authorized participant.
+  return driver.get('multiplayer-colour').isVisible();
 }
 
 export async function returnToSpaces(driver: Driver): Promise<void> {

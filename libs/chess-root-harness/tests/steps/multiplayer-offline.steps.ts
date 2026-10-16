@@ -1,10 +1,10 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { pairChessOpponents } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import { pairGameOpponents } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
   multiplayerView,
   shownMultiplayerText,
-} from '@libs/chess-matchmaking-harness/multiplayer-reads';
+} from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -93,7 +93,7 @@ Given(
     await w.s.advanceTime(1);
     await searchFor(w, black, timeControl);
     await disconnectMultiplayer(w, white);
-    await w.s.apply(pairChessOpponents, white, true);
+    await w.s.apply(pairGameOpponents, white, true);
     w.memo.set('multiplayer:pair', [white, black]);
     const blackId = await ownerOf(w, black);
     await w.s.until(

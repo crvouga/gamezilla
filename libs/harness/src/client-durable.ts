@@ -9,9 +9,6 @@ import {
 } from '@pkgs/kv-web-client/impl-kv-web-namespaced';
 import { clearNamespacedWebSecureStorage } from '@pkgs/secure-storage-web-client/impl-web';
 
-/** Mirrors `@pkgs/secure-storage` session-scoped keys (tab-local). */
-const SESSION_SCOPED_DURABLE_KEYS = new Set(['lastLocalAccountId']);
-
 function dumpStoragePrefix(
   storage: Storage | undefined,
   namespace: string
@@ -51,12 +48,7 @@ export function restoreProductHarnessClientDurable(
 ): void {
   clearProductHarnessClientDurable(namespace);
   const ls = globalThis.localStorage;
-  const ss = globalThis.sessionStorage;
   for (const [rel, value] of Object.entries(entries)) {
-    if (SESSION_SCOPED_DURABLE_KEYS.has(rel)) {
-      ss.setItem(`${namespace}.${rel}`, value);
-    } else {
-      ls.setItem(`${namespace}.${rel}`, value);
-    }
+    ls.setItem(`${namespace}.${rel}`, value);
   }
 }

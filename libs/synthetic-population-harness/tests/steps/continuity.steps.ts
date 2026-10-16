@@ -11,12 +11,12 @@ import {
 import { recallContinuity, rememberContinuity } from './continuity-memo';
 
 Given(
-  'the Synthetic User {string} has a finished multiplayer game',
-  async (w, name: string) => {
+  'the Synthetic User {string} has a finished {string} game',
+  async (w, name: string, game: string) => {
     // regression: finished-game-fixture-observes-unsettled-result
     // regression: synthetic-game-fixture-runs-before-position
     // regression: multiplayer-snapshot-one-millisecond-focus
-    await w.s.apply(givenFinishedSyntheticGame, name);
+    await w.s.apply(givenFinishedSyntheticGame, name, game);
   }
 );
 When(

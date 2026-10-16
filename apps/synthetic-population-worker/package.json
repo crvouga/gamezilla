@@ -21,6 +21,7 @@
   "dependencies": {
     "@libs/app-root-client": "workspace:*",
     "@libs/auth-shared": "workspace:*",
+    "@libs/game-catalog-shared": "workspace:*",
     "@libs/runtime-client": "workspace:*",
     "@libs/runtime-shared": "workspace:*",
     "@libs/spaces-client": "workspace:*",

@@ -55,7 +55,6 @@
     "chess.js": "catalog:"
   },
   "devDependencies": {
-    "@libs/chess-matchmaking-harness": "workspace:*",
     "@pkgs/a11y-shared": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/db-indexes-root-harness": "workspace:*",

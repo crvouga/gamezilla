@@ -1,0 +1,4 @@
+{
+  "summary": "The real browser accepts one evaluation at a time. Reading 42 highlighted cells concurrently rejected the first board observation and left pending work during disposal. Read the actual cell attributes sequentially.",
+  "regressionTest": "libs/chess-root-harness/tests/connect-four-highlight-read.test.ts"
+}

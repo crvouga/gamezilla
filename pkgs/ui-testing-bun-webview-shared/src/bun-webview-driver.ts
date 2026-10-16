@@ -1,3 +1,4 @@
+import { pressBrowserKey } from './browser-key';
 /**
  * Bun.WebView driver — localhost / headless browser actors.
  * Lazy-imported so UI tests never load Bun.WebView.
@@ -88,7 +89,7 @@ export class BunWebviewDriver implements Driver, BunWebviewHost {
   }
 
   async key(key: DriverKey): Promise<void> {
-    await this.view.press(DRIVER_KEY_TO_DOM[key]);
+    await pressBrowserKey(this.view, DRIVER_KEY_TO_DOM[key]);
   }
 
   async snapshotHtml(): Promise<string | null> {

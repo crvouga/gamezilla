@@ -1,7 +1,7 @@
 import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
-import { confirmCustomGameChoice } from '@libs/chess-custom-game-client/confirm-custom-game-choice';
-import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
-import { ChangeCustomGame } from '@libs/chess-custom-game-shared/custom-game-commands';
+import { confirmCustomGameChoice } from '@libs/game-session-client/confirm-custom-game-choice';
+import type { CustomGameChoice } from '@libs/game-session-shared/custom-game-choice';
+import { ChangeCustomGame } from '@libs/game-session-shared/custom-game-commands';
 import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';

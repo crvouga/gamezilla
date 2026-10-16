@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@libs/chess-root-client": "workspace:*",
+    "@libs/connect-four-root-client": "workspace:*",
     "@libs/games-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*"
   },

@@ -1,18 +1,9 @@
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  Match,
-  Show,
-  Switch,
-} from 'solid-js';
+import { createEffect, createSignal, type JSX, Match, Switch } from 'solid-js';
 
 import { GamesMainMenu } from './games-main-menu';
 import { SpaceActiveLayout } from './space-active-layout';
-import { SpaceConnectionMissingNotice } from './space-connection-missing';
-import { SpaceHostOfflineNotice } from './space-connection-notice';
 import type { SpaceSessionUiValue } from './space-session-ui-context';
 import { SpaceSessionUiProvider } from './space-session-ui-context';
 import { useAnnounceJoinedOnSync } from './use-announce-joined-on-sync';
@@ -86,19 +77,11 @@ export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
   return (
     <SpaceSessionUiProvider value={sessionUi}>
       <SpaceQuietHost>
-        <SpaceActiveLayout>
-          <Show when={!engine.status().online}>
-            <div class="box p-4">
-              <SpaceConnectionMissingNotice />
-            </div>
-          </Show>
-          <Show
-            when={connection() === 'host-offline' && engine.status().online}
-          >
-            <div class="box p-4">
-              <SpaceHostOfflineNotice />
-            </div>
-          </Show>
+        <SpaceActiveLayout
+          hostOffline={
+            connection() === 'host-offline' && engine.status().online
+          }
+        >
           <SpaceGames
             connection={connection()}
             online={engine.status().online}

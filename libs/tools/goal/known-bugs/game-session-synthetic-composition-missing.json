@@ -1,0 +1,4 @@
+{
+  "summary": "The synthetic-population harness still relied on Chess to contribute multiplayer tables after the shared session sub became independent. Its Cedar ongoing-game fixture must compose the shared session slice explicitly.",
+  "regressionTest": "specs/synthetic-population/observatory.feature"
+}

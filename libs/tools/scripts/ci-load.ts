@@ -144,17 +144,32 @@ export function percentile(values: readonly number[], p: number): number {
   return sorted[index] ?? 0;
 }
 
+type RunnerLoad = Pick<
+  LoadReport,
+  'specSeconds' | 'coldSeconds' | 'poleSeconds' | 'leafPoleMax' | 'leafPoleP90'
+>;
+
 /** Slots and memory the warm runner needs for this corpus. */
-export function runnerFit(load: {
-  readonly specSeconds: number;
-  readonly coldSeconds: number;
-  readonly poleSeconds: number;
-  readonly leafPoleMax: number;
-  readonly leafPoleP90: number;
-}): RunnerFit {
-  const otherSeconds = Math.max(0, load.coldSeconds - load.specSeconds);
+export function runnerFit(load: RunnerLoad): RunnerFit {
   const specSlots = Math.min(SPEC_WORKER_CAP, slotsFor(load.specSeconds));
-  const otherSlots = slotsFor(otherSeconds);
+  const otherSlots = slotsFor(Math.max(0, load.coldSeconds - load.specSeconds));
+  const preferred = placeOnRunner(load, specSlots, otherSlots);
+  if (preferred.fits) return preferred;
+  const available = Math.max(0, RUNNER_VCPU - RESERVED_CORES - specSlots);
+  const bounded = placeOnRunner(
+    load,
+    specSlots,
+    Math.min(otherSlots, available)
+  );
+  return bounded.fits ? bounded : preferred;
+}
+
+function placeOnRunner(
+  load: RunnerLoad,
+  specSlots: number,
+  otherSlots: number
+): RunnerFit {
+  const otherSeconds = Math.max(0, load.coldSeconds - load.specSeconds);
   const cores = specSlots + RESERVED_CORES + otherSlots;
   const memoryGib = specSlots * SPEC_WORKER_GIB + RESERVE_GIB;
   const makespanSeconds = Math.ceil(
@@ -182,7 +197,7 @@ function slotsFor(seconds: number): number {
 }
 
 function span(seconds: number, slots: number): number {
-  if (slots <= 0) return 0;
+  if (slots <= 0) return seconds > 0 ? Number.POSITIVE_INFINITY : 0;
   return seconds / slots;
 }
 

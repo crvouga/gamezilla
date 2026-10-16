@@ -31,6 +31,7 @@ import {
 import { mutationAppliedId } from '@pkgs/sync-engine-shared/tables';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
+import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { mapConstraintError } from './map-constraint-error';
 import { storedReplayVerdict } from './stored-replay-verdict';
@@ -70,6 +71,7 @@ export type ReplayMutationDeps = {
    * The app's content rules at the time selected by the mutation,
    * handed to its body as `env.contentRules`.
    */
+  readonly turnGames?: TurnGames;
   readonly contentRulesAt?: (atMs: number) => ContentRules;
 };
 
@@ -161,6 +163,7 @@ async function applyReplayMutationInTxn(args: {
     ...(deps.auth.authenticatedAtMs === undefined
       ? {}
       : { authenticatedAtMs: deps.auth.authenticatedAtMs }),
+    ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
     ...(deps.contentRulesAt === undefined
       ? {}
       : {

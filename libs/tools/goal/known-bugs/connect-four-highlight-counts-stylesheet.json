@@ -1,0 +1,4 @@
+{
+  "summary": "The live browser snapshot includes the winning-cell CSS selector, so matching raw HTML counted five winning marks for a vertical four. Read each actual cell attribute through the normal driver; stylesheet text cannot inflate the result.",
+  "regressionTest": "libs/chess-root-harness/tests/connect-four-highlight-read.test.ts"
+}

@@ -14,16 +14,19 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@libs/chess-custom-game-client": "workspace:*",
-    "@libs/chess-matchmaking-client": "workspace:*",
-    "@libs/chess-matchmaking-shared": "workspace:*",
     "@libs/chess-puzzle-client": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-root-shared": "workspace:*",
     "@libs/chess-shared-client": "workspace:*",
+    "@libs/game-matchmaking-client": "workspace:*",
+    "@libs/game-matchmaking-shared": "workspace:*",
+    "@libs/game-session-client": "workspace:*",
     "@libs/spaces-client": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
+    "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
+    "@pkgs/chess-board-root-client": "workspace:*",
+    "@pkgs/turn-game-shared": "workspace:*",
     "@pkgs/ui-root-client": "workspace:*",
     "solid-js": "catalog:"
   },

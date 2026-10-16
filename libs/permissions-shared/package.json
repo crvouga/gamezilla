@@ -17,8 +17,8 @@
   "dependencies": {
     "@libs/app-config-shared": "workspace:*",
     "@libs/auth-shared": "workspace:*",
-    "@libs/sub-shared": "workspace:*",
     "@libs/moderation-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@pkgs/billing-root-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",

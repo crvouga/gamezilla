@@ -1,0 +1,32 @@
+{
+  "name": "@libs/connect-four-harness",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/connect-four-shared": "workspace:*",
+    "@libs/game-session-shared": "workspace:*",
+    "@libs/harness": "workspace:*",
+    "@libs/spaces-harness": "workspace:*",
+    "@libs/game-matchmaking-harness": "workspace:*",
+    "@libs/game-session-harness": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness"
+}

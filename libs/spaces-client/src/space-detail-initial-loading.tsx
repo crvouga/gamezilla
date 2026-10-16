@@ -41,7 +41,7 @@ export function SpaceDetailInitialLoading(
       <div class="box flex-1 min-h-0">
         <SpaceSessionUiProvider value={sessionUi}>
           <DefineBackButton onPress={onPressBack} />
-          <SpaceActiveLayout>
+          <SpaceActiveLayout hostOffline={false}>
             <div class="box flex-1" />
           </SpaceActiveLayout>
         </SpaceSessionUiProvider>

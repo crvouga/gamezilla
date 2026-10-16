@@ -5,7 +5,7 @@ import {
   readCustomGameHeard,
 } from '@libs/chess-custom-game-harness/custom-game-accessibility';
 import { readCustomGameName } from '@libs/chess-custom-game-harness/custom-game-names';
-import { customGameStartable } from '@libs/chess-custom-game-shared/custom-game-state';
+import { customGameStartable } from '@libs/game-session-shared/custom-game-state';
 import { Then, When } from '@libs/harness/define';
 import { customGame, customPerson } from './custom-game-world';
 

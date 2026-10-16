@@ -1,13 +1,14 @@
-import { multiplayerClient } from '@libs/chess-matchmaking-harness/multiplayer-client';
-import type { MultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
-import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { multiplayerClient } from '@libs/game-matchmaking-harness/multiplayer-client';
+import type { MultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
+import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
 import {
   multiplayerFixture,
   multiplayerTransaction,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { multiplayerSpaceId } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
-import { acceptChessMatch } from '@libs/chess-matchmaking-shared/match-handoff';
-import { OpponentRequested } from '@libs/chess-matchmaking-shared/opponent-requested';
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerSpaceId } from '@libs/game-matchmaking-harness/multiplayer-spaces';
+import { acceptGameMatch } from '@libs/game-matchmaking-shared/match-handoff';
+import { OpponentRequested } from '@libs/game-matchmaking-shared/opponent-requested';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import { accountIdOf } from '@libs/harness/identity';
 import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
@@ -78,11 +79,16 @@ export const receiveMultiplayerMatch = scenarioAction<
   name: 'receiveMultiplayerMatch',
   act: (s, fact: MatchFormation, firstIsWhite = true) =>
     multiplayerTransaction(s, fact.participants[0]!.ownerId, async (tx) => {
-      await acceptChessMatch(tx, fact, {
-        nowMs: s.harness.clock.now(),
-        tieBreak: () => firstIsWhite,
-        createId: s.harness.server.createId,
-      });
+      await acceptGameMatch(
+        tx,
+        fact,
+        {
+          nowMs: s.harness.clock.now(),
+          tieBreak: () => firstIsWhite,
+          createId: s.harness.server.createId,
+        },
+        TURN_GAMES
+      );
       return fact.participants.map((p) => p.ownerId);
     }),
 });

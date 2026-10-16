@@ -3,6 +3,7 @@ import '@libs/runtime-harness/journeys.steps';
 import './api.steps';
 import './billing.steps';
 import './client-config.steps';
+import './connect-four.steps';
 import './finding-a-person.steps';
 import './google-oauth.steps';
 import './infrastructure.steps';

@@ -34,6 +34,7 @@
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-client": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
+    "@pkgs/turn-game-shared": "workspace:*",
     "@pkgs/ui-root-client": "workspace:*",
     "@pkgs/uuid-client": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",

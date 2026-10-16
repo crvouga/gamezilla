@@ -564,18 +564,20 @@ module multiplayer {
       (g.outcome == WonPlay(g.white) or g.outcome == WonPlay(g.black)) implies g.moves >= 2,
     }
   })
-  /// Every search and game has an offered time control; a rematch follows a
-  /// finished game with the same time control and the colours swapped.
-  val invTimeControls = and {
-    PEOPLE.forall(p => _seeking.get(p) == NONE or TIME_CONTROLS.keys().contains(_seeking.get(p))),
-    NUMBERS.forall(n => _games.get(n).outcome != NoPlay implies TIME_CONTROLS.keys().contains(_games.get(n).control)),
-    MATCHES.forall(n => _games.get(n + 2).outcome != NoPlay implies and {
-      _games.get(n + 2).white == _games.get(n).black,
-      _games.get(n + 2).black == _games.get(n).white,
-      _games.get(n + 2).control == _games.get(n).control,
-      _finished(_games.get(n).outcome),
-    }),
-  }
+  /// Every person looking for an opponent chooses an offered time control.
+  val invSearchTimeControl = PEOPLE.forall(p =>
+    _seeking.get(p) == NONE or TIME_CONTROLS.keys().contains(_seeking.get(p)))
+  /// Every multiplayer game has an offered time control.
+  val invGameTimeControl = NUMBERS.forall(n =>
+    _games.get(n).outcome != NoPlay implies TIME_CONTROLS.keys().contains(_games.get(n).control))
+  /// A rematch follows a finished game with the same time control and the
+  /// colours swapped.
+  val invRematchTimeControl = MATCHES.forall(n => _games.get(n + 2).outcome != NoPlay implies and {
+    _games.get(n + 2).white == _games.get(n).black,
+    _games.get(n + 2).black == _games.get(n).white,
+    _games.get(n + 2).control == _games.get(n).control,
+    _finished(_games.get(n).outcome),
+  })
   /// Of two matched people, the one with the greater colour balance plays
   /// Black; a colour balance counts finished games only.
   val invFairColours = and {
@@ -645,9 +647,11 @@ module multiplayer {
   val invDeletedCannotPlay = PEOPLE.forall(p => not(_accounts.contains(p)) implies and {
     _seeking.get(p) == NONE, _current.get(p) == 0, not(_unfinished(p)),
   })
+  /// Bookkeeping: a game never has fewer than zero accepted moves.
+  val invNonnegativeMoveCount = NUMBERS.forall(n => _games.get(n).moves >= 0)
   /// Bookkeeping: games are bounded here to eight accepted moves.
-  val invAcceptedMoves = NUMBERS.forall(n => and {
-    _games.get(n).moves >= 0, _games.get(n).moves <= 8,
-    _games.get(n).outcome == NoPlay implies _games.get(n).moves == 0,
-  })
+  val invMoveCountLimit = NUMBERS.forall(n => _games.get(n).moves <= 8)
+  /// Bookkeeping: a game not yet played has no accepted moves.
+  val invUnplayedMoveCount = NUMBERS.forall(n =>
+    _games.get(n).outcome == NoPlay implies _games.get(n).moves == 0)
 }

@@ -5,6 +5,7 @@ import type {
   MutationEnv,
   MutationRegistry,
 } from '@pkgs/sync-engine-shared/mutations-types';
+import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import { type JSX, type ParentProps, untrack } from 'solid-js';
 
@@ -12,7 +13,10 @@ import { useRulesAuth } from './use-rules-auth';
 
 /** Product wrapper: injects rules auth into the sync-engine mutation client. */
 export function MutationClientProvider(
-  props: ParentProps<{ readonly registry: MutationRegistry }>
+  props: ParentProps<{
+    readonly registry: MutationRegistry;
+    readonly turnGames: TurnGames;
+  }>
 ): JSX.Element {
   const auth = useRulesAuth();
   const clock = useClock();
@@ -37,6 +41,9 @@ export function MutationClientProvider(
     },
     now: () => new Date(clock.now()),
     createId,
+    get turnGames() {
+      return props.turnGames;
+    },
     // The device's rules as they stand when the write is made.
     get contentRules() {
       return moderation();

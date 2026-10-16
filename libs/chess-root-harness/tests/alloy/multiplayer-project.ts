@@ -1,4 +1,4 @@
-import type { storedMultiplayerSnapshot } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import type { storedMultiplayerSnapshot } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import type { Snapshot } from '@pkgs/alloy-shared/world';
 
 type Stored = Awaited<ReturnType<typeof storedMultiplayerSnapshot>>;

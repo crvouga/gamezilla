@@ -1,4 +1,4 @@
-import { CHESS_MULTIPLAYER_TABLES } from '@libs/chess-matchmaking-shared/multiplayer-tables';
+import { MULTIPLAYER_TABLES } from '@libs/game-matchmaking-shared/multiplayer-tables';
 import { openConformanceDb } from '@libs/permissions-shared/world';
 import { PROFILE_TABLES } from '@libs/profile-shared/tables';
 import { spaceUserEntityId } from '@libs/spaces-shared/participation-ids';
@@ -14,7 +14,7 @@ export async function openMultiplayerQueryFixture() {
   const db = await openConformanceDb([
     ...SPACES_TABLES,
     ...PROFILE_TABLES,
-    ...CHESS_MULTIPLAYER_TABLES,
+    ...MULTIPLAYER_TABLES,
   ]);
   await db.run(sql`
     INSERT INTO spaces (id, host_id, host_member_id, deleted_at)

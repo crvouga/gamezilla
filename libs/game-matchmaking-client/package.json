@@ -1,0 +1,57 @@
+{
+  "name": "@libs/game-matchmaking-client",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "check:board-contract": "bun run ../tools/scripts/check-board-contract.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/auth-client": "workspace:*",
+    "@libs/game-matchmaking-shared": "workspace:*",
+    "@libs/game-session-shared": "workspace:*",
+    "@libs/moderation-client": "workspace:*",
+    "@libs/moderation-shared": "workspace:*",
+    "@libs/permissions-client": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@libs/profile-client": "workspace:*",
+    "@libs/spaces-client": "workspace:*",
+    "@libs/spaces-shared": "workspace:*",
+    "@libs/sub-client": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/clock-client": "workspace:*",
+    "@pkgs/device-client": "workspace:*",
+    "@pkgs/keyword-shared": "workspace:*",
+    "@pkgs/kv-root-client": "workspace:*",
+    "@pkgs/kv-root-shared": "workspace:*",
+    "@pkgs/message-shared": "workspace:*",
+    "@pkgs/permissions-shared": "workspace:*",
+    "@pkgs/room-root-client": "workspace:*",
+    "@pkgs/room-root-shared": "workspace:*",
+    "@pkgs/sounds-client": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
+    "@pkgs/sync-engine-client": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@pkgs/turn-game-client": "workspace:*",
+    "@pkgs/turn-game-shared": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
+    "@pkgs/uuid-client": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client"
+}

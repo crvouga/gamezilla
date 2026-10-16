@@ -1,6 +1,6 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { dailyTimeControlId } from '@libs/chess-matchmaking-shared/time-control';
+import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';

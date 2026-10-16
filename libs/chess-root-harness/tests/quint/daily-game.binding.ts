@@ -1,16 +1,16 @@
-import { setMultiplayerConnection } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
-import {
-  awaitChessMatch,
-  givenOpponentSearch,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 import type { MultiplayerNoticeKind } from '@libs/chess-matchmaking-harness/multiplayer-notices';
 import { openMultiplayerNotice } from '@libs/chess-matchmaking-harness/multiplayer-notices';
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { passMultiplayerDays } from '@libs/chess-matchmaking-harness/multiplayer-time';
-import { dailyTimeControlId } from '@libs/chess-matchmaking-shared/time-control';
 import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
+import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
+import { setMultiplayerConnection } from '@libs/game-matchmaking-harness/multiplayer-connection';
+import {
+  awaitGameMatch,
+  givenOpponentSearch,
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { accountIdOf } from '@libs/harness/identity';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import type { Picks } from '@pkgs/quint-shared/registry';
@@ -39,7 +39,7 @@ async function formDailyMatch(w: QuintHarnessWorld) {
   await w.s.apply(givenOpponentSearch, white, timeControl);
   await w.s.advanceTime(1);
   await w.s.apply(givenOpponentSearch, black, timeControl);
-  await w.s.apply(awaitChessMatch, white, black, true);
+  await w.s.apply(awaitGameMatch, white, black, true);
 }
 
 /** A command on the game the person's device shows, as its screen sends it. */

@@ -1,15 +1,15 @@
 import { expect } from 'bun:test';
+import { playMultiplayerMove } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
 import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
-} from '@libs/chess-matchmaking-harness/multiplayer-commands';
+} from '@libs/game-matchmaking-harness/multiplayer-commands';
 import {
-  awaitChessMatch,
+  awaitGameMatch,
   givenOpponentSearch,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { playMultiplayerMove } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
-import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
+} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { accountIdOf } from '@libs/harness/identity';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { multiplayerPeople } from './multiplayer-people';
@@ -37,7 +37,7 @@ export async function givenGame(
   await w.s.apply(givenOpponentSearch, white, timeControl);
   await w.s.advanceTime(1);
   await w.s.apply(givenOpponentSearch, black, timeControl);
-  await w.s.apply(awaitChessMatch, white, black, true);
+  await w.s.apply(awaitGameMatch, white, black, true);
   await sameBoards(w, white, black);
   const game = (await w.s.read(multiplayerView, white)).game!;
   const owner = await w.s.read(accountIdOf, white);

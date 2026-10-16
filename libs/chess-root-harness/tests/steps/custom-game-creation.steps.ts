@@ -3,7 +3,7 @@ import {
   changeCustomGame,
   openCustomGame,
 } from '@libs/chess-custom-game-harness/custom-game-actions';
-import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import { Given, Then, When } from '@libs/harness/define';
 import {
   customDefault,

@@ -90,7 +90,7 @@ export type CreateAppLocalSyncEnginePoolArgs = Omit<
   'mutationRegistry'
 >;
 
-function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
+function mutationEnv(args: CreateAppLocalSyncEngineArgs, app: ComposedSubs) {
   return {
     ...localSyncActor({
       accountId: args.auth.getAccountId(),
@@ -101,6 +101,7 @@ function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
     now: () => new Date(args.clock.now()),
     createId: args.createId,
     contentRules: args.moderation.current(),
+    turnGames: app.turnGames,
   };
 }
 
@@ -232,7 +233,7 @@ function buildEngine(
       cacheTableNames: app.tableNames,
     },
     mutationRegistry: args.mutationRegistry,
-    getMutationEnv: () => mutationEnv(args),
+    getMutationEnv: () => mutationEnv(args, app),
     getClientId: () => args.auth.getDeviceId() ?? args.databaseName,
     sessionQueries: sessionQuerySpecs(app),
     postQueries: (requests) => postAppQueries({ ...args, requests }),

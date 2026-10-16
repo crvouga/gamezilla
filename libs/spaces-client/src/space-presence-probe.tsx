@@ -1,9 +1,7 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { Handles } from '@libs/test-ids-shared/handles';
-import { Trans } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-root-client/badge';
 import type { JSX } from 'solid-js';
-import { For, Show } from 'solid-js';
+import { For } from 'solid-js';
+import { SpacePresenceMarkers } from './space-presence-markers';
 import { useOpenSpacePresence } from './use-open-space-presence';
 import { useOpenSpaceSessionIds } from './use-open-space-session-ids';
 
@@ -23,50 +21,19 @@ function OpenSpacePresenceMarkers(props: {
   const presence = useOpenSpacePresence(props.spaceId);
   const myId = useMyId();
   return (
-    <div class="box">
-      <span
-        data-testid={Handles.spaceOwnActivity}
-        class="hidden"
-        aria-hidden="true"
-      >
-        {presence.ownActivity()}
-      </span>
-      <For each={presence.people()}>
-        {(person) => (
-          <div class="box flex-row">
-            <span
-              data-testid={Handles.spacePerson(person.id)}
-              class="hidden"
-              aria-hidden="true"
-            >
-              1
-            </span>
-            <Show when={presence.idle().has(person.id)}>
-              <Badge
-                label={<Trans>Idle</Trans>}
-                intent="neutral"
-                tone="subtle"
-                size="sm"
-                dataSet={{ testid: Handles.spaceMemberIdle(person.id) }}
-              />
-            </Show>
-          </div>
-        )}
-      </For>
-      <Show
-        when={
-          presence.ownIdle() &&
-          !presence.people().some((person) => person.id === myId())
-        }
-      >
-        <Badge
-          label={<Trans>Idle</Trans>}
-          intent="neutral"
-          tone="subtle"
-          size="sm"
-          dataSet={{ testid: Handles.spaceMemberIdle(myId()) }}
-        />
-      </Show>
-    </div>
+    <SpacePresenceMarkers
+      activity={presence.ownActivity()}
+      people={presence.people().map((person) => person.id)}
+      idle={[
+        ...presence
+          .people()
+          .filter((person) => presence.idle().has(person.id))
+          .map((person) => person.id),
+        ...(presence.ownIdle() &&
+        !presence.people().some((person) => person.id === myId())
+          ? [myId()]
+          : []),
+      ]}
+    />
   );
 }

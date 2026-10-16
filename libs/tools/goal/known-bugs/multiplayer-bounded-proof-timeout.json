@@ -1,0 +1,4 @@
+{
+  "summary": "Multiplayer time-control and move-count conjunctions exceeded the unchanged task allowance even alone. Name their equivalent individual safety facts and check all sixteen facts independently, preserving every original clause, action, choice, and the two-step bound.",
+  "regressionTest": "pkgs/quint-server/tests/verify-bounded-groups.test.ts"
+}

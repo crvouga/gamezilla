@@ -62,12 +62,12 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                       globalTrailing={
                         <div class="flex items-center gap-2">
                           <WorkOfflineStatus />
+                          <ConnectionNotice />
                           <AppHeaderGlobalMenu />
                         </div>
                       }
                     >
                       <AppFrame header={<AppHeaderIslandHost />}>
-                        <ConnectionNotice />
                         <AppProvidersSession>
                           {props.children}
                         </AppProvidersSession>

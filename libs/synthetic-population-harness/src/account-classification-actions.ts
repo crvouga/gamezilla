@@ -1,15 +1,13 @@
-import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { signedInAccountOf } from '@libs/harness/identity';
 import { bringToFront } from '@libs/harness/observations';
-import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
+import { openSyntheticGame } from './synthetic-game-actions';
 
 export const openSyntheticPopulationGame = scenarioAction({
   name: 'openSyntheticPopulationGame',
-  act: async (s, actor: string) => {
-    await Promise.resolve(returnToOwnSpace.act(s, actor));
-    await Promise.resolve(openMultiplayerChess.act(s, actor));
+  act: async (s, actor: string, game: string) => {
+    await Promise.resolve(openSyntheticGame.act(s, actor, game));
   },
 });
 

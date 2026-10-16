@@ -1,0 +1,4 @@
+{
+  "summary": "An idle presence probe rendered standalone Idle badges in the space screen. Keep its observations hidden and remove visible badge components from the probe.",
+  "regressionTest": "libs/spaces-client/tests/space-presence-markers.test.tsx"
+}
