@@ -32,7 +32,12 @@ export async function spaceScreenOf(
     Handles.statusConnectionMissing,
   ]);
   const hostKeepsSpace = await visible(s, actorId, [Handles.spaceEnd]);
-  if (connectionMissing && !hostKeepsSpace) return 'droppedOut';
+  if (
+    connectionMissing &&
+    !hostKeepsSpace &&
+    (await visible(s, actorId, [Handles.spaceClose]))
+  )
+    return 'droppedOut';
   if (await visible(s, actorId, [Handles.spaceMembersClose]))
     return 'viewingPresence';
   if (await visible(s, actorId, [Handles.spaceClose])) return 'space';

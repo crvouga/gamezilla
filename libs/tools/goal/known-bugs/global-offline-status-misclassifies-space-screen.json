@@ -1,0 +1,4 @@
+{
+  "summary": "After the offline indicator moved to the global header, the space observer classified an offline person in the lobby or another screen as a guest dropped out of a space. Only an active space screen may use the global indicator to infer lost guest participation; hosts keep their space.",
+  "regressionTest": "libs/spaces-harness/tests/space-screen-read.test.ts"
+}
