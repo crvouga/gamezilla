@@ -76,10 +76,10 @@ function useSyncBootPromise(args: {
         : {}),
     });
     return Promise.all([engine, pool.mutationRegistry(), loadApp()]).then(
-      async ([resolved, registry, app]) => {
+      ([resolved, registry, app]) => {
         // Connecting starts background sync. Whatever goes wrong there shows
         // in the engine's status; it never keeps the app from opening.
-        await resolved.connect().catch((error: unknown) =>
+        void resolved.connect().catch((error: unknown) =>
           log.error('sync engine connect failed', {
             error: error instanceof Error ? error.message : String(error),
           })

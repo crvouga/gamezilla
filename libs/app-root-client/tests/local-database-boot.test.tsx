@@ -188,6 +188,31 @@ describe('booting the app', () => {
     expect(b.state()).toBe('ready');
     b.unmount();
   });
+
+  // regression: boot-waits-for-background-sync
+  test('opens while starting background sync remains pending', async () => {
+    let connecting = false;
+    const b = await boot({
+      openSqlClient: openMockingbird,
+      pool: (real) => ({
+        ...real,
+        getOrCreate: async (args) => ({
+          ...(await real.getOrCreate(args)),
+          connect: () => {
+            connecting = true;
+            return new Promise<void>(() => undefined);
+          },
+        }),
+      }),
+    });
+    await until(() => connecting);
+    expect(connecting).toBe(true);
+    await until(() => b.state() === 'ready');
+    expect(b.state()).toBe('ready');
+    b.clock.clock.advance(30_000);
+    expect(b.state()).toBe('ready');
+    b.unmount();
+  });
 });
 
 describe('a boot that is not about the database', () => {
