@@ -58,13 +58,19 @@ test('live journey evidence lives in the package directory uploaded by CI', () =
 
 // regression: health-macos-offline-network
 // regression: health-offline-existing-room-socket
+// regression: health-profile-deleted-between-devices
 test('a fresh live device can cut its network through Chrome', async () => {
   const commands: { method: string; params: unknown }[] = [];
   let closed = false;
   const device = await openDevice(
     { webOrigin: 'https://web.example', apiOrigin: 'https://api.example' },
     (options) => {
-      const backend = options.backend ?? 'webkit';
+      expect(options.dataStore).toBe('ephemeral');
+      expect(options.backend).toEqual({ type: 'chrome', url: false });
+      const backend =
+        typeof options.backend === 'object'
+          ? options.backend.type
+          : (options.backend ?? 'webkit');
       return {
         navigate: async () => {},
         addEventListener: () => {},

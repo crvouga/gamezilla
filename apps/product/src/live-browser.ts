@@ -6,8 +6,6 @@
  * carried over.
  */
 
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { JourneyBrowser } from '@libs/runtime-harness/journey-types';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
@@ -24,6 +22,7 @@ import {
 const NAVIGATION_POLL_MS = 250;
 /** Phone-sized: the layout most people use. */
 const VIEWPORT = { width: 390, height: 844 } as const;
+const CHROME_BACKEND = { type: 'chrome', url: false } as const;
 /** Uploaded by the Health and Deploy workflows when a journey fails. */
 export const EVIDENCE_DIR = join(
   import.meta.dir,
@@ -63,12 +62,13 @@ export async function openDevice(
     options
   ) => new Bun.WebView(options)
 ): Promise<Device> {
-  const directory = await mkdtemp(join(tmpdir(), 'critical-journey-'));
-  const dataStore = { directory };
+  // Chrome shares its first profile for the whole process. Bun owns that
+  // profile's lifetime; closing one device must not remove it under later views.
+  const dataStore = 'ephemeral' as const;
   const consoleLines: string[] = [];
   const view = createView({
     ...VIEWPORT,
-    backend: 'chrome',
+    backend: CHROME_BACKEND,
     dataStore,
     console: (type, ...args) => {
       consoleLines.push(`[${type}] ${args.map(formatConsoleArg).join(' ')}`);
@@ -90,7 +90,7 @@ export async function openDevice(
   const driver = new BunWebviewDriver({
     view,
     baseUrl: target.webOrigin,
-    popupOptions: { dataStore, backend: 'chrome' },
+    popupOptions: { dataStore, backend: CHROME_BACKEND },
     timers: wallTimers,
   });
   return {
@@ -99,10 +99,7 @@ export async function openDevice(
     driver,
     console: consoleLines,
     network,
-    close: async () => {
-      await driver.close();
-      await rm(directory, { recursive: true, force: true });
-    },
+    close: () => driver.close(),
   };
 }
 
