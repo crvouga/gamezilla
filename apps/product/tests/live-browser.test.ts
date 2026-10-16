@@ -42,11 +42,9 @@ test('transport evidence keeps protocol failures without copying credentials or 
       canceled: false,
     },
   });
-  expect(evidence.map((line) => JSON.parse(line).event)).toEqual([
-    'request',
-    'response',
-    'failed',
-  ]);
+  expect(
+    evidence.map((line) => (JSON.parse(line) as { event: string }).event)
+  ).toEqual(['request', 'response', 'failed']);
   expect(evidence.join('\n')).toContain('ERR_HTTP2_PROTOCOL_ERROR');
   expect(evidence.join('\n')).not.toContain('private-');
 });
