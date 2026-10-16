@@ -2,13 +2,16 @@ import { expect, test } from 'bun:test';
 import { EventEmitter } from 'node:events';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
 import { createMqttPubSub } from '@pkgs/pubsub-mqtt-shared/create-mqtt-pubsub';
+import fc from 'fast-check';
 import type { MqttClient } from 'mqtt';
 
 class Broker extends EventEmitter {
   connected = false;
   subscriptions: string[] = [];
   refused = true;
+  refusalCode = 135;
   subscribe(
     topic: string,
     _opts: unknown,
@@ -18,7 +21,7 @@ class Broker extends EventEmitter {
     ) => void
   ) {
     this.subscriptions.push(topic);
-    done?.(null, [{ topic, qos: this.refused ? 135 : 1 }]);
+    done?.(null, [{ topic, qos: this.refused ? this.refusalCode : 1 }]);
   }
   publish(
     _topic: string,
@@ -37,7 +40,7 @@ async function settle() {
   for (let turn = 0; turn < 32; turn++) await Promise.resolve();
 }
 
-function connection() {
+function connection(refusals = 1, refusalCode = 135) {
   const clock = createHarnessClock();
   const brokers: Broker[] = [];
   let authCalls = 0;
@@ -50,7 +53,8 @@ function connection() {
     auth: async () => ({ username: 'jwt', password: `grant-${++authCalls}` }),
     connectFn: () => {
       const broker = new Broker();
-      broker.refused = brokers.length === 0;
+      broker.refused = brokers.length < refusals;
+      broker.refusalCode = refusalCode;
       brokers.push(broker);
       queueMicrotask(() => {
         broker.connected = true;
@@ -84,6 +88,33 @@ test('a denied room subscription refreshes authorization and restores delivery',
   } finally {
     c.pubsub.close();
   }
+});
+
+test('refused subscription grants recover without losing desired topics', async () => {
+  await assertProperty(
+    'MQTT authorization recovery',
+    fc.asyncProperty(
+      fc.integer({ min: 1, max: 4 }),
+      fc.integer({ min: 128, max: 255 }),
+      async (refusals, code) => {
+        const c = connection(refusals, code);
+        try {
+          await settle();
+          c.pubsub.subscribe('room:new-space', () => {});
+          for (let attempt = 0; attempt < refusals; attempt++) {
+            expect(c.pubsub.status()).toBe('connecting');
+            c.clock.clock.advance(1);
+            await settle();
+          }
+          expect(c.authCalls()).toBe(refusals + 1);
+          expect(c.pubsub.status()).toBe('connected');
+          expect(c.brokers.at(-1)?.subscriptions).toEqual(['room:new-space']);
+        } finally {
+          c.pubsub.close();
+        }
+      }
+    )
+  );
 });
 
 // regression: mqtt-stale-topic-authorization

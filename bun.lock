@@ -5249,10 +5249,12 @@
       "devDependencies": {
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/logger-shared": "workspace:*",
+        "@pkgs/property-shared": "workspace:*",
         "@pkgs/pubsub-mqtt-shared": "workspace:*",
         "@pkgs/pubsub-root-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
