@@ -156,3 +156,42 @@ test('a later invocation flush does not wait for an earlier invocation HTTP resp
     await runtime.shutdown();
   }
 });
+
+// regression: worker-metric-flush-joins-foreign-io
+test('an acknowledged metric batch does not join exporter I/O owned by another invocation', async () => {
+  const foreign = Promise.withResolvers<void>();
+  let foreignFlushes = 0;
+  const runtime = createWorkerTelemetry({
+    serviceName: 'fixture',
+    serviceVersion: '1',
+    environment: 'test',
+    buildSha: 'fixture',
+    registerGlobal: false,
+    exporter: {
+      export: (_spans, done) => done({ code: 0 }),
+      forceFlush: async () => {},
+      shutdown: async () => {},
+    },
+    metricExporter: {
+      export: (_metrics, done) => done({ code: 0 }),
+      forceFlush: () => {
+        foreignFlushes++;
+        return foreign.promise;
+      },
+      shutdown: async () => {},
+    },
+  });
+  let settled = false;
+  const flush = runtime.forceFlush().then(() => {
+    settled = true;
+  });
+  try {
+    for (let turn = 0; turn < 64; turn++) await Promise.resolve();
+    expect(settled).toBe(true);
+    expect(foreignFlushes).toBe(0);
+  } finally {
+    foreign.resolve();
+    await flush;
+    await runtime.shutdown();
+  }
+});

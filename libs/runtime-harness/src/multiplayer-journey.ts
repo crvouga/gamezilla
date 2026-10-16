@@ -89,9 +89,15 @@ async function playsWhite(ui: Driver): Promise<boolean> {
 function tapMove(
   from: { readonly x: number; readonly y: number },
   to: { readonly x: number; readonly y: number },
-  expectedMoves: string
+  expectedMoves: string,
+  previousMoves?: string
 ): (ui: Driver) => Promise<void> {
   return async (ui) => {
+    if (previousMoves !== undefined)
+      await ui.get('multiplayer-move-list').expect.text(previousMoves, {
+        exact: false,
+        timeoutMs: JOURNEY_WAIT_MS,
+      });
     await ui.get('multiplayer-board').layout();
     await ui
       .get('multiplayer-board')
@@ -108,10 +114,17 @@ function tapMove(
 
 /** White's board: e2 to e4. Black's board is turned round: e7 to e5. */
 const PLAY_E4 = tapMove({ x: 4.5, y: 6.5 }, { x: 4.5, y: 4.5 }, '1. e4');
-const PLAY_E5 = tapMove({ x: 3.5, y: 6.5 }, { x: 3.5, y: 4.5 }, '1. e4 e5');
+const PLAY_E5 = tapMove(
+  { x: 3.5, y: 6.5 },
+  { x: 3.5, y: 4.5 },
+  '1. e4 e5',
+  '1. e4'
+);
 
 /** Whoever plays White opens with e4, and the other answers e5. */
-export async function openWithE4AndE5(host: JourneyHost): Promise<void> {
+export async function openWithE4AndE5(
+  host: Pick<JourneyHost, 'act' | 'actAsGuest'>
+): Promise<void> {
   let firstIsWhite = false;
   await host.act('readMultiplayerColour', async (ui) => {
     firstIsWhite = await playsWhite(ui);

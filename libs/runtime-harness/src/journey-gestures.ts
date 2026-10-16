@@ -5,7 +5,7 @@
  */
 
 import {
-  openGlobalMenu,
+  chooseGlobalMenuItem,
   pressBackUntilVisible,
 } from '@libs/harness/driver-gestures';
 import { Handles } from '@libs/test-ids-shared/handles';
@@ -44,8 +44,7 @@ export async function expectVisible(ui: Driver, testId: string): Promise<void> {
  */
 export async function confirmSignedIn(ui: Driver): Promise<void> {
   await atTabShell(ui);
-  await openGlobalMenu(ui, Handles.globalMenuAccount, JOURNEY_WAIT_MS);
-  await tap(ui, Handles.globalMenuAccount);
+  await chooseGlobalMenuItem(ui, Handles.globalMenuAccount, JOURNEY_WAIT_MS);
   await expectVisible(ui, Handles.accountSignOut);
   await pressBackUntilVisible(ui, Handles.tabProfile, JOURNEY_WAIT_MS);
 }
