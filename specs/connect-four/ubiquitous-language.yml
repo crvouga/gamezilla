@@ -1,5 +1,5 @@
 context: Connect Four
-purpose: Classic two-player Connect Four in a space, with custom games, opponents, bots and replay.
+purpose: Classic two-player Connect Four in a space, its board, drops, endings and bots. What every game offers alike is the games context's.
 terms:
   - term: Connect Four
     definition: A game on seven columns and six rows. Two players alternate dropping a disc into a column. The first to connect four wins; a full board without a winner is a draw.
@@ -28,46 +28,28 @@ terms:
   - term: draw
     definition: A completed game with no winner, including a full board with no winning alignment.
     forms: [drawn, draws]
-  - term: replay
-    definition: Review the initial board or any played drop without changing the game.
-    forms: [replays, reviews]
   - term: bot
     definition: An automated player. Easy chooses legal columns, Medium sees immediate victories and threats, and Hard plans several turns ahead within a fixed amount of thinking.
     forms: [bots, Easy, Medium, Hard, difficulty]
-  - term: custom game
-    definition: A game whose creator chooses people or bots, their sides and the clock before everyone agrees to start. Finished games keep their results and drops.
-    forms: [custom games, creator, participant, participants, readiness, clock, clocks, resignation, resigns, cancellation, cancelled, rematch, rematches]
   - term: space
     from: spaces
   - term: host
     from: spaces
   - term: game
-    from: chess
+    from: games
   - term: connection
     from: kernel
     model: [online, loseConnection, connectionReturns]
   - term: board
     model: [board, Board]
     definition: The seven-column, six-row playing area, with stable column numbers regardless of who is watching.
-  - term: opponent
-    definition: The other player, paired only with someone seeking Connect Four at the same clock choice.
-    forms: [opponents, matchmaking]
-  - term: history
-    definition: The game's participants, clock choice, ordered drops, result and reason for completion, available only to people allowed to watch that game.
-  - term: statistics
-    definition: Wins, losses and draws for Connect Four alone.
   - term: keyboard
     from: runtime
   - term: reduced motion
     definition: A person's preference to avoid decorative movement while keeping every game action available.
   - term: control
     from: runtime
-  - term: chess
-    from: chess
   - term: end
     definition: Complete this game with its final result.
     forms: [ends, ended, ending]
     model: [result]
-  - term: search
-    definition: Waiting to be paired with an opponent for this game and clock choice.
-    forms: [searches, seeking, seeks]

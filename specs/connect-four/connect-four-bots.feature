@@ -2,15 +2,6 @@
 Feature: Play Connect Four with bots
   When Alice chooses a bot, she wants an opponent at her chosen difficulty, so she can play either side or watch two bots finish.
 
-  Rule: Bots use legal columns and stop when the game ends
-    No counter-example: a bot never has an ordinary turn in a completed game.
-
-    Scenario: Two bots finish without help
-      Given Alice has an active Connect Four custom game with two bots
-      When the Connect Four bots play their turns
-      Then Connect Four has a victory or draw within 60 seconds
-      And every Connect Four drop obeys gravity
-
   Rule: Stronger bots take a victory and defend an immediate threat
     No counter-example: when no defense can prevent defeat, the bot still makes a legal drop.
 

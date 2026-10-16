@@ -1,0 +1,132 @@
+context: Games
+purpose: >-
+  What every game a space can play offers the same way, whichever game it
+  is: the game's choices, custom games with people and bots, turns, finding
+  an opponent, history and review. Each game adds only its own rules and
+  board; a scenario here holds for every game that offers what it shows.
+terms:
+  - term: game
+    definition: >-
+      Something a space plays together, chosen by its host, such as chess or
+      Connect Four. Every game offers its choices, custom games, turns,
+      opponents, history and review the same way; its rules decide which
+      moves are possible and how it is won or drawn. "The game" in a
+      scenario is each game in turn; "another game" is any other one.
+    forms: [games, another game, the game's]
+    published: true
+
+  - term: the game's choices
+    definition: >-
+      Where a game starts in a space: what the game offers of its own, then
+      custom games, finding an opponent and its history. Everyone in the
+      space is shown the choice anyone in it opens, on every device.
+    forms: [the game's custom games]
+    avoid: [menu, screen]
+    published: true
+
+  - term: custom game
+    definition: >-
+      One game of the game whose creator chooses a person or a bot for each
+      side and the clock, before every person in it is ready and it starts.
+      A finished custom game keeps its participants, moves and result.
+    forms: [custom games, creator, participant, participants, rematch]
+    avoid: [match, room, lobby]
+    published: true
+
+  - term: side
+    definition: >-
+      One of a game's two places to play from. The first side moves first;
+      a side is open until a person or a bot takes it.
+    forms: [sides, first side, second side, open side]
+
+  - term: bot
+    definition: An automated participant that makes legal moves at its turn.
+    forms: [bots, the bots]
+
+  - term: move
+    definition: >-
+      One action on the board on a participant's turn, as the game's own
+      rules allow it.
+    forms: [moves, makes a move, makes her move, makes his move, made]
+    avoid: [command, action]
+
+  - term: turn
+    definition: The participant who may make the next move.
+    forms: [turns, Alice's turn, Bob's turn, the other player's turn]
+
+  - term: board
+    definition: >-
+      What a game is played on, as that game draws it. Everyone in the space
+      sees the same board.
+
+  - term: finished
+    definition: >-
+      A custom game that has ended with a result: a victory or a draw. A
+      finished custom game takes no more moves.
+    forms: [finishes]
+
+  - term: victory
+    definition: >-
+      The result that gives a participant the game, by the game's own rules
+      or because the opponent resigns.
+    forms: [victories, wins, won]
+
+  - term: draw
+    definition: A finished game that nobody wins.
+    forms: [draws]
+
+  - term: opponent
+    definition: >-
+      The other participant. One found for a person seeks the same game at
+      the same clock choice.
+    forms: [opponents]
+
+  - term: seek an opponent
+    definition: >-
+      Wait to be paired with an opponent for the game at a clock choice. A
+      person seeks for one game at a time and may stop seeking.
+    forms: [seeking, seeks, stops seeking, waiting for an opponent]
+
+  - term: clock choice
+    definition: How much time each participant has to play.
+
+  - term: pair people up
+    from: matchmaking
+    forms: [paired, are paired]
+
+  - term: history
+    definition: >-
+      A game's finished custom games and found-opponent games, with their
+      participants, moves and results, for people allowed to watch them.
+
+  - term: review
+    definition: >-
+      See the board after any move that was played, without changing the
+      game.
+    forms: [reviews, reviewed]
+
+  - term: statistics
+    definition: >-
+      Victories, losses and draws of one game alone; another game's results
+      never count.
+
+  - term: watcher
+    definition: >-
+      Someone in the space who has no side in the custom game and makes no
+      move in it.
+    forms: [watched]
+
+  - term: space
+    from: spaces
+
+  - term: host
+    from: spaces
+
+  - term: join
+    from: spaces
+
+  - term: space link
+    from: spaces
+
+  - term: connection
+    from: kernel

@@ -16,6 +16,7 @@ product:
     - chess
     - chess-board
     - connect-four
+    - games
     - developer-tools
     - db-indexes
     - friends

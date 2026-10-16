@@ -737,6 +737,7 @@
       "Changes the selected game as a watcher": "user",
       "Opens a Connect Four custom game": "user",
       "Finds a Connect Four opponent": "user",
+      "Reviews a chess game": "user",
       "Reviews a Connect Four game": "user",
       "Returns to the game choice": "user",
       "Leaves adding puzzles": "user",
@@ -4717,11 +4718,12 @@
                     "Games: Chess choices": {
                       "id": "Games: Chess choices",
                       "meta": {
-                        "description": "The space offers its supported chess games according to the person’s role and permission.",
-                        "snapshot": "The space offers its supported chess games according to the person’s role and permission.",
+                        "description": "The space offers chess puzzles and the choices every game offers, according to the person’s role and permission.",
+                        "snapshot": "The space offers chess puzzles and the choices every game offers, according to the person’s role and permission.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/space-host-select-game.feature"
+                          "specs/chess/space-host-select-game.feature",
+                          "specs/games/game-choices.feature"
                         ],
                         "events": []
                       },
@@ -4734,6 +4736,9 @@
                         },
                         "Opens a Custom Game": {
                           "target": "#App: Custom game"
+                        },
+                        "Reviews a chess game": {
+                          "target": "#Custom Game: Reviewing"
                         },
                         "Opens a shared puzzle link": {
                           "target": "#App: Puzzle links"
@@ -4771,7 +4776,7 @@
                         "confidence": "assumed",
                         "source": [
                           "specs/chess/space-host-select-game.feature",
-                          "specs/connect-four/custom-connect-four.feature"
+                          "specs/games/game-choices.feature"
                         ],
                         "events": []
                       },
@@ -4790,20 +4795,23 @@
                     "Games: Connect Four choices": {
                       "id": "Games: Connect Four choices",
                       "meta": {
-                        "description": "Connect Four offers custom games, opponents, instructions, history and replay.",
-                        "snapshot": "Connect Four offers custom games, opponents, instructions, history and replay.",
+                        "description": "Connect Four offers custom games, opponents, instructions, history and replay, as every game does.",
+                        "snapshot": "Connect Four offers custom games, opponents, instructions, history and replay, as every game does.",
                         "confidence": "assumed",
                         "source": [
                           "specs/connect-four/connect-four-accessibility.feature",
                           "specs/connect-four/connect-four-bots.feature",
                           "specs/connect-four/connect-four-health.feature",
-                          "specs/connect-four/connect-four-history.feature",
+                          "specs/games/game-history.feature",
                           "specs/connect-four/connect-four-play.qnt",
-                          "specs/connect-four/custom-connect-four.feature",
-                          "specs/connect-four/find-connect-four-opponent.feature",
+                          "specs/games/custom-games.feature",
+                          "specs/games/finding-an-opponent.feature",
                           "specs/connect-four/play-connect-four.feature",
                           "specs/connect-four/ubiquitous-language.yml",
-                          "specs/journeys/connect-four-game.feature"
+                          "specs/journeys/connect-four-game.feature",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-turns.feature",
+                          "specs/games/ubiquitous-language.yml"
                         ],
                         "events": []
                       },
@@ -6315,7 +6323,7 @@
                           "specs/chess/find-an-opponent.feature:71",
                           "specs/chess/multiplayer-game-over.feature:9",
                           "specs/chess/multiplayer-account-and-space.feature:6",
-                          "specs/connect-four/find-connect-four-opponent.feature"
+                          "specs/games/finding-an-opponent.feature"
                         ],
                         "events": [],
                         "hints": ["App address: /:gameId/multiplayer"]
@@ -7139,7 +7147,7 @@
                       "specs/chess/custom-games.als",
                       "specs/chess/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml",
-                      "specs/connect-four/custom-connect-four.feature"
+                      "specs/games/custom-games.feature"
                     ],
                     "events": []
                   },
