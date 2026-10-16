@@ -30,6 +30,7 @@ type World = {
   profileReady: boolean;
   cardReady: boolean;
   readonly taps: string[];
+  autoJoin: boolean;
 };
 
 function tabVisible(world: World, id: string): boolean | undefined {
@@ -116,6 +117,10 @@ function node(world: World, id: string): DriverNode {
     get: (child) => node(world, child),
     attribute: () => Promise.resolve(null),
     tap: async () => {
+      if (id === Handles.spaceJoin && world.autoJoin) {
+        world.screen = 'in-space';
+        throw new Error('Join disappeared as saved participation opened');
+      }
       assertState('visible');
       applyTap(world, id);
     },
@@ -182,6 +187,7 @@ function driver(
     profileReady,
     cardReady: true,
     taps: [],
+    autoJoin: false,
   };
   const ui: Driver = {
     kind: 'script',
@@ -273,4 +279,13 @@ describe('hostSpace', () => {
     expect(world.profileReady).toBe(true);
     expect(world.created).toBe(true);
   });
+});
+
+// regression: live-space-cleanup-auto-join-race
+test('cleanup ends the space when saved participation opens during the Join tap', async () => {
+  const { ui, world } = driver(1, true, true);
+  world.autoJoin = true;
+  await hostSpace(ui);
+  expect(world.spacesLeft).toBe(0);
+  expect(world.created).toBe(true);
 });

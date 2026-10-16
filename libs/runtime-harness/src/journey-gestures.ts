@@ -101,7 +101,14 @@ async function enterHostedSpace(ui: Driver): Promise<void> {
         continue;
       }
     }
-    await tap(ui, Handles.spaceJoin);
+    try {
+      await ui.get(Handles.spaceJoin).tap({ timeoutMs: ENTER_SETTLE_MS });
+    } catch (error) {
+      // Restoring this device's existing participation can remove Join
+      // between the visibility read and the tap.
+      if (await endIsUp(ui)) return;
+      throw error;
+    }
     if (await endIsUp(ui)) return;
   }
   check(false, 'the hosted space never opened, so it cannot be ended');

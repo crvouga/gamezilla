@@ -2,6 +2,7 @@ import type { Actor } from '@libs/harness/parameter-types';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { JourneyHost, JourneyWorld } from './journey-types';
 import {
+  establishMultiplayerSearch,
   expectMultiplayerInvitation,
   expectMultiplayerLoss,
   expectMultiplayerWin,
@@ -37,8 +38,8 @@ Given(
   '{actor} is finding a {word} multiplayer chess opponent',
   (w, actor: Actor, timeControl: string) =>
     device(w.journey, actor)(
-      'startMultiplayerSearch',
-      startMultiplayerSearch(timeControl)
+      'establishMultiplayerSearch',
+      establishMultiplayerSearch(timeControl)
     )
 );
 When(

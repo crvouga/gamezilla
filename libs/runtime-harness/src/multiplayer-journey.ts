@@ -16,8 +16,9 @@ export async function openMultiplayerJourney(ui: Driver): Promise<void> {
   // game does not have.
   await atTabShell(ui);
   if (
-    !(await ui.get('chess-menu-multiplayer').isVisible()) &&
-    !(await ui.get('multiplayer-game').isVisible())
+    (await ui.get('connect-four-board').isVisible()) ||
+    (!(await ui.get('chess-menu-multiplayer').isVisible()) &&
+      !(await ui.get('multiplayer-game').isVisible()))
   ) {
     await hostSpace(ui);
     await tap(ui, 'game-menu-chess');
@@ -61,6 +62,18 @@ export function startMultiplayerSearch(
     if (await guestInvited(ui)) return;
     await tap(ui, `multiplayer-time-control-${timeControl.replace('+', '-')}`);
     await tap(ui, 'multiplayer-find');
+  };
+}
+
+/** A Given search is established once the server's waiting row is shown. */
+export function establishMultiplayerSearch(
+  timeControl: string
+): (ui: Driver) => Promise<void> {
+  return async (ui) => {
+    await startMultiplayerSearch(timeControl)(ui);
+    await ui
+      .get('multiplayer-waiting')
+      .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
   };
 }
 
@@ -133,6 +146,9 @@ export async function expectNoMultiplayerGame(ui: Driver): Promise<void> {
 /** Observe the rendered board, rather than a server or local database row. */
 async function shownGameId(ui: Driver, timeoutMs: number): Promise<string> {
   await ui.get('multiplayer-game').expect.visible({ timeoutMs });
+  // The previous completed board stays visible while a new search runs.
+  // A fresh pairing offers Abort until either person has played.
+  await ui.get('multiplayer-abort').expect.visible({ timeoutMs });
   const html = await ui.snapshotHtml();
   const tag = html?.match(/<[^>]*data-testid="multiplayer-game"[^>]*>/)?.[0];
   const id = tag?.match(/data-game-id="([^"]+)"/)?.[1];
@@ -144,7 +160,7 @@ async function shownGameId(ui: Driver, timeoutMs: number): Promise<string> {
 }
 
 export async function expectSharedMultiplayerGame(
-  host: JourneyHost,
+  host: Pick<JourneyHost, 'act' | 'actAsGuest' | 'now'>,
   timeoutMs: number
 ): Promise<void> {
   const deadline = (await host.now()) + timeoutMs;
@@ -193,20 +209,16 @@ export async function prepareMultiplayerPair(host: JourneyHost): Promise<void> {
   host.defer('multiplayer-peer-space', () =>
     host.actAsGuest('endPeerSpace', endActiveSpace)
   );
-  // The reused monitor may have left a different game's screen open.
-  const chooseChess = async (ui: Driver): Promise<void> => {
-    await hostSpace(ui);
-    await tap(ui, 'game-menu-chess');
-  };
-  await host.act('chooseMultiplayerChess', chooseChess);
-  await host.actAsGuest('chooseMultiplayerChess', chooseChess);
 }
 
 export async function prepareUnfinishedMultiplayerGame(
   host: JourneyHost
 ): Promise<void> {
   await prepareMultiplayerPair(host);
-  await host.act('startMultiplayerSearch', startMultiplayerSearch('5+0'));
+  await host.act(
+    'establishMultiplayerSearch',
+    establishMultiplayerSearch('5+0')
+  );
   await host.actAsGuest(
     'startMultiplayerSearch',
     startMultiplayerSearch('5+0')

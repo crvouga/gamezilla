@@ -6,7 +6,12 @@ import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { build } from 'vite';
 import { bootLocalhostStack } from './boot-stack';
-import { healthTestArguments, parseCli, writeFeatureStubs } from './health';
+import {
+  healthTestArguments,
+  parseCli,
+  selectSpecs,
+  writeFeatureStubs,
+} from './health';
 import { LOCAL_MONITOR_TOKEN } from './local-api-env';
 import { removeManifest } from './manifest';
 import { releaseJourneySpecs } from './release-journey-selection';
@@ -17,6 +22,7 @@ const PACKAGE_DIR = join(import.meta.dir, '..');
 const REPO_ROOT = join(PACKAGE_DIR, '../..');
 const DIST = join(PACKAGE_DIR, '.cache/release-web');
 const options = parseStackOptions(['--synthetic-population-workers=0']);
+const cli = parseCli(process.argv.slice(2));
 
 async function buildRelease(apiOrigin: string): Promise<void> {
   process.env['VITE_API_URL'] = apiOrigin;
@@ -76,6 +82,8 @@ function serveRelease(origin: string): ReturnType<typeof Bun.serve> {
 }
 
 function journeyStubs(): readonly string[] {
+  const selection = selectSpecs({ all: releaseJourneySpecs(), cli });
+  if (!selection.ok) throw new Error(selection.error);
   const dirs = {
     stubDir: join(PACKAGE_DIR, '.cache/spec-release'),
     reportDir: join(PACKAGE_DIR, '.cache/release-report'),
@@ -84,7 +92,7 @@ function journeyStubs(): readonly string[] {
   mkdirSync(dirs.stubDir, { recursive: true });
   return writeFeatureStubs(
     { production: false, observability: false },
-    releaseJourneySpecs(),
+    selection.specs,
     dirs,
     join(PACKAGE_DIR, 'tests/steps/release-index.ts')
   );
@@ -96,7 +104,7 @@ try {
   await buildRelease(stack.manifest.apiOrigin);
   server = serveRelease(stack.manifest.webOrigin);
   const code = await specProcessExit(
-    spawn('bun', healthTestArguments(parseCli([]), journeyStubs()), {
+    spawn('bun', healthTestArguments(cli, journeyStubs()), {
       cwd: PACKAGE_DIR,
       stdio: 'inherit',
       env: {

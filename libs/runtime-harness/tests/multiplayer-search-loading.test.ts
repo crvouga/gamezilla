@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
-import { startMultiplayerSearch } from '@libs/runtime-harness/multiplayer-journey';
+import {
+  establishMultiplayerSearch,
+  expectSharedMultiplayerGame,
+  startMultiplayerSearch,
+} from '@libs/runtime-harness/multiplayer-journey';
 import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
 
 function loadingScreen(
@@ -41,7 +45,13 @@ function loadingScreen(
         taps.push(id);
         if (id === 'multiplayer-confirm') ongoing = false;
       },
-      expect: { hidden: async () => {}, text: unused, visible: async () => {} },
+      expect: {
+        hidden: async () => {},
+        text: unused,
+        visible: async () => {
+          if (id === 'multiplayer-waiting') taps.push('waiting-row-shown');
+        },
+      },
     }),
   };
   return { ui, taps };
@@ -71,4 +81,44 @@ test('an account invitation never starts a guest search', async () => {
   const { ui, taps } = loadingScreen(true);
   await startMultiplayerSearch('5+0')(ui);
   expect(taps).toEqual([]);
+});
+
+// regression: multiplayer-given-search-not-landed
+test('a pre-existing search waits for its accepted waiting row before the next person searches', async () => {
+  const { ui, taps } = loadingScreen(false);
+  await establishMultiplayerSearch('5+0')(ui);
+  expect(taps).toEqual([
+    'multiplayer-time-control-5-0',
+    'multiplayer-find',
+    'waiting-row-shown',
+  ]);
+});
+
+// regression: multiplayer-shared-game-was-finished
+test('the same completed board on both devices is not a newly matched game', async () => {
+  const { ui } = loadingScreen(false);
+  ui.snapshotHtml = async () =>
+    '<div data-testid="multiplayer-game" data-game-id="last-match" data-outcome="white"></div>';
+  const get = ui.get.bind(ui);
+  ui.get = (id) => {
+    const node = get(id);
+    return {
+      ...node,
+      expect: {
+        ...node.expect,
+        visible: async () => {
+          if (id === 'multiplayer-abort')
+            throw new Error('there is no ongoing game');
+        },
+      },
+    };
+  };
+  const act = async (_name: string, gestures: (ui: Driver) => Promise<void>) =>
+    gestures(ui);
+  await expect(
+    expectSharedMultiplayerGame(
+      { act, actAsGuest: act, now: async () => 0 },
+      5000
+    )
+  ).rejects.toThrow('no ongoing game');
 });
