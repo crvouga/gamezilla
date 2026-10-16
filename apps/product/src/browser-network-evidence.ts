@@ -138,25 +138,48 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
     requests.delete(data.requestId);
   });
   onNetwork<{ requestId: string }>(view, 'Network.loadingFinished', (data) => {
-    const path = requests.get(data.requestId);
     requests.delete(data.requestId);
-    if (!path || !/\/(query|mutations)$/.test(path)) return;
-    void view
-      .cdp('Network.getResponseBody', { requestId: data.requestId })
-      .then((response) => {
-        const result = response as { body: string; base64Encoded?: boolean };
-        const body = result.base64Encoded
-          ? Buffer.from(result.body, 'base64').toString('utf8')
-          : result.body;
-        record({
-          event: 'sync-response',
-          id: data.requestId,
-          summary: syncResponseEvidence(path, body),
-        });
-      })
-      .catch(() => {});
   });
   return lines;
+}
+
+/** Bun permits one pending CDP command: collect bodies only after the failed gesture. */
+export async function readSyncResponseEvidence(
+  view: Pick<Bun.WebView, 'cdp'>,
+  lines: readonly string[]
+): Promise<string[]> {
+  const summaries: string[] = [];
+  for (const line of [...lines]) {
+    const event = JSON.parse(line) as {
+      event: string;
+      id: string;
+      url?: string;
+    };
+    if (
+      event.event !== 'request' ||
+      !event.url ||
+      !/\/(query|mutations)$/.test(event.url)
+    )
+      continue;
+    try {
+      const response = (await view.cdp('Network.getResponseBody', {
+        requestId: event.id,
+      })) as { body: string; base64Encoded?: boolean };
+      const body = response.base64Encoded
+        ? Buffer.from(response.body, 'base64').toString('utf8')
+        : response.body;
+      summaries.push(
+        JSON.stringify({
+          event: 'sync-response',
+          id: event.id,
+          summary: syncResponseEvidence(event.url, body),
+        })
+      );
+    } catch {
+      // Chrome may already have discarded an old response body.
+    }
+  }
+  return summaries;
 }
 
 export async function nativeHealthEvidence(

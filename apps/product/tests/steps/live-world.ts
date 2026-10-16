@@ -2,6 +2,7 @@ import {
   BROWSER_FAILURE_LAYOUT,
   browserFailureSummary,
 } from '@apps/product/browser-failure-summary';
+import { readSyncResponseEvidence } from '@apps/product/browser-network-evidence';
 import { openIsolatedDevice } from '@apps/product/isolated-browser';
 import {
   actOnLiveDevice,
@@ -252,10 +253,16 @@ function browsing(target: LiveTarget): Browsing {
           console.error(
             `browser failure state (${name}): ${browserFailureSummary(html)}`
           );
-        if (current !== null)
-          console.error(
-            `browser failure transport (${name}): ${current.network.join('\n')}`
+        if (current !== null) {
+          const transport = [...current.network];
+          const responses = await readSyncResponseEvidence(
+            current.view,
+            transport
           );
+          console.error(
+            `browser failure transport (${name}): ${[...transport, ...responses].join('\n')}`
+          );
+        }
       }
       const device = devices.shown ?? devices.host;
       return device === null
