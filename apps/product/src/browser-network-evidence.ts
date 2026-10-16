@@ -1,3 +1,14 @@
+function onNetwork<T>(
+  view: Bun.WebView,
+  type: `Network.${string}`,
+  listener: (data: T) => void
+): void {
+  view.addEventListener(type, (event) => {
+    // Bun's event declaration resolves to the constructor under the DOM lib.
+    listener((event as unknown as { data: T }).data);
+  });
+}
+
 /** Sanitized transport evidence: no request bodies, query strings or credentials. */
 export function browserNetworkEvidence(view: Bun.WebView): string[] {
   const lines: string[] = [];
@@ -6,9 +17,10 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
     lines.push(JSON.stringify(entry));
     if (lines.length > 200) lines.shift();
   };
-  view.addEventListener<{ requestId: string; request: { url: string } }>(
+  onNetwork<{ requestId: string; request: { url: string } }>(
+    view,
     'Network.requestWillBeSent',
-    ({ data }) => {
+    (data) => {
       const url = new URL(data.request.url);
       if (!url.pathname.startsWith('/api/')) return;
       const path = `${url.origin}${url.pathname}`;
@@ -16,10 +28,10 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
       record({ event: 'request', id: data.requestId, url: path });
     }
   );
-  view.addEventListener<{
+  onNetwork<{
     requestId: string;
     response: { status: number; protocol: string; timing?: unknown };
-  }>('Network.responseReceived', ({ data }) => {
+  }>(view, 'Network.responseReceived', (data) => {
     if (!requests.has(data.requestId)) return;
     record({
       event: 'response',
@@ -29,12 +41,12 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
       timing: data.response.timing,
     });
   });
-  view.addEventListener<{
+  onNetwork<{
     requestId: string;
     errorText: string;
     blockedReason?: string;
     canceled?: boolean;
-  }>('Network.loadingFailed', ({ data }) => {
+  }>(view, 'Network.loadingFailed', (data) => {
     if (!requests.has(data.requestId)) return;
     record({
       event: 'failed',
@@ -45,11 +57,8 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
     });
     requests.delete(data.requestId);
   });
-  view.addEventListener<{ requestId: string }>(
-    'Network.loadingFinished',
-    ({ data }) => {
-      requests.delete(data.requestId);
-    }
-  );
+  onNetwork<{ requestId: string }>(view, 'Network.loadingFinished', (data) => {
+    requests.delete(data.requestId);
+  });
   return lines;
 }

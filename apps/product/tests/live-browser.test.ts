@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { join } from 'node:path';
 import { runInNewContext } from 'node:vm';
+import { browserNetworkEvidence } from '@apps/product/browser-network-evidence';
 import {
   EVIDENCE_DIR,
   emulateOffline,
@@ -8,6 +9,47 @@ import {
   waitForCachedShell,
 } from '@apps/product/live-browser';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+
+test('transport evidence keeps protocol failures without copying credentials or query strings', () => {
+  const listeners = new Map<string, (event: { data: unknown }) => void>();
+  const view = {
+    addEventListener: (
+      name: string,
+      listener: (event: { data: unknown }) => void
+    ) => listeners.set(name, listener),
+  } as unknown as Bun.WebView;
+  const evidence = browserNetworkEvidence(view);
+  listeners.get('Network.requestWillBeSent')!({
+    data: {
+      requestId: 'one',
+      request: { url: 'https://api.example/api/health?token=private-token' },
+    },
+  });
+  listeners.get('Network.responseReceived')!({
+    data: {
+      requestId: 'one',
+      response: {
+        status: 200,
+        protocol: 'h2',
+        headers: { 'set-cookie': 'private-cookie' },
+      },
+    },
+  });
+  listeners.get('Network.loadingFailed')!({
+    data: {
+      requestId: 'one',
+      errorText: 'net::ERR_HTTP2_PROTOCOL_ERROR',
+      canceled: false,
+    },
+  });
+  expect(evidence.map((line) => JSON.parse(line).event)).toEqual([
+    'request',
+    'response',
+    'failed',
+  ]);
+  expect(evidence.join('\n')).toContain('ERR_HTTP2_PROTOCOL_ERROR');
+  expect(evidence.join('\n')).not.toContain('private-');
+});
 
 // regression: health-journey-evidence-outside-package
 test('live journey evidence lives in the package directory uploaded by CI', () => {
