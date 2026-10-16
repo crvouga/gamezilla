@@ -3079,6 +3079,11 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "@apps/product#test:release-journeys": {
+      "dependsOn": ["//#task:i18n:compile"],
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "@pkgs/db-indexes-root-shared#mutants": {
       "cache": false,
       "passThroughEnv": ["*"]

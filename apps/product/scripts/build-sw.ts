@@ -59,61 +59,67 @@ const { generateSW } = require('workbox-build') as {
 const log = createLogger({ name: 'product:build-sw', now: wallClock.now });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const distDir = resolve(__dirname, '..', 'dist');
-const wallFiles = new Set(
-  wallReachable(
-    await readDistGraph(
-      createNodeFsObjectStore({
-        rootDir: distDir,
-        fs: wallNodeFs(),
-        layout: 'tree',
-      })
+export async function buildServiceWorker(distDir: string): Promise<void> {
+  const wallFiles = new Set(
+    wallReachable(
+      await readDistGraph(
+        createNodeFsObjectStore({
+          rootDir: distDir,
+          fs: wallNodeFs(),
+          layout: 'tree',
+        })
+      )
     )
-  )
-);
+  );
 
-const { count, size, warnings } = await generateSW({
-  swDest: join(distDir, 'sw.js'),
-  globDirectory: distDir,
-  /**
-   * Offline shell (`sw-policy.ts`): precache every file the wall client can
-   * load, including the complete eager entry graph, and drop what only the
-   * harness reaches.
-   * No per-file cap below the total budget, so Workbox never silently skips
-   * a large chunk; `check:offline-shell` enforces the budget on the result.
-   */
-  maximumFileSizeToCacheInBytes: PRECACHE_BUDGET_BYTES,
-  globPatterns: [...PRECACHE_GLOB_PATTERNS],
-  globIgnores: [...PRECACHE_GLOB_IGNORES],
-  manifestTransforms: [
-    (entries) => ({
-      manifest: entries.filter((entry) => keepInPrecache(entry.url, wallFiles)),
-      warnings: [],
-    }),
-  ],
-  navigateFallback: '/index.html',
-  // Keep SharedWorker + OPFS wipe assets as real static files (not the SPA shell).
-  navigateFallbackDenylist: [/^\/api\//, /^\/sql-workers\//],
-  runtimeCaching: [
-    {
-      urlPattern: /^\/api\//,
-      handler: 'NetworkOnly' as const,
-    },
-    {
-      urlPattern: ({ request }) => request.destination === 'image',
-      handler: 'StaleWhileRevalidate' as const,
-      options: {
-        cacheName: 'images',
-        expiration: { maxEntries: 200, maxAgeSeconds: 30 * 24 * 3600 },
+  const { count, size, warnings } = await generateSW({
+    swDest: join(distDir, 'sw.js'),
+    globDirectory: distDir,
+    /**
+     * Offline shell (`sw-policy.ts`): precache every file the wall client can
+     * load, including the complete eager entry graph, and drop what only the
+     * harness reaches.
+     * No per-file cap below the total budget, so Workbox never silently skips
+     * a large chunk; `check:offline-shell` enforces the budget on the result.
+     */
+    maximumFileSizeToCacheInBytes: PRECACHE_BUDGET_BYTES,
+    globPatterns: [...PRECACHE_GLOB_PATTERNS],
+    globIgnores: [...PRECACHE_GLOB_IGNORES],
+    manifestTransforms: [
+      (entries) => ({
+        manifest: entries.filter((entry) =>
+          keepInPrecache(entry.url, wallFiles)
+        ),
+        warnings: [],
+      }),
+    ],
+    navigateFallback: '/index.html',
+    // Keep SharedWorker + OPFS wipe assets as real static files (not the SPA shell).
+    navigateFallbackDenylist: [/^\/api\//, /^\/sql-workers\//],
+    runtimeCaching: [
+      {
+        urlPattern: /^\/api\//,
+        handler: 'NetworkOnly' as const,
       },
-    },
-  ],
-  cleanupOutdatedCaches: true,
-  clientsClaim: false,
-  skipWaiting: false,
-});
+      {
+        urlPattern: ({ request }) => request.destination === 'image',
+        handler: 'StaleWhileRevalidate' as const,
+        options: {
+          cacheName: 'images',
+          expiration: { maxEntries: 200, maxAgeSeconds: 30 * 24 * 3600 },
+        },
+      },
+    ],
+    cleanupOutdatedCaches: true,
+    clientsClaim: false,
+    skipWaiting: false,
+  });
 
-if (warnings.length > 0) {
-  console.warn('workbox warnings:', warnings.join('\n'));
+  if (warnings.length > 0) {
+    console.warn('workbox warnings:', warnings.join('\n'));
+  }
+  log.info(`workbox: precached ${count} entries, ${size} bytes`);
 }
-log.info(`workbox: precached ${count} entries, ${size} bytes`);
+
+if (import.meta.main)
+  await buildServiceWorker(resolve(__dirname, '..', 'dist'));

@@ -277,7 +277,8 @@ function freshDirs(dirs: RunDirs): void {
 export function writeFeatureStubs(
   env: Environment,
   features: readonly string[],
-  dirs: RunDirs
+  dirs: RunDirs,
+  stepsEntry = STEPS_ENTRY
 ): readonly string[] {
   const { stubDir, reportDir } = dirs;
   const bridge = Bun.resolveSync(
@@ -295,7 +296,7 @@ export function writeFeatureStubs(
         packageName: '@apps/product',
         featurePath,
         featureUri,
-        stepsEntry: STEPS_ENTRY,
+        stepsEntry,
         bridge,
         skip: skips.scenarios,
         reportDir,

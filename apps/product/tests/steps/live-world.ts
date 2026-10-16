@@ -254,18 +254,20 @@ function browsing(target: LiveTarget): Browsing {
 type LiveScenario = LiveWorld & { readonly browsing: Browsing };
 
 /** Register the live world for this package's `liveDomains` features. */
-export function useLiveWorld(): void {
+export function useLiveWorld(target?: LiveTarget): void {
   const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
   const origins = envOrigins(env);
   const http = createGlobalHttpClient();
   setWorld<LiveScenario>({
     create: (ctx) => {
-      const scenario = browsing({
-        webOrigin: origins.web,
-        apiOrigin: origins.api,
-        oauthCallbackOrigin: authRelayOrigin(),
-        http,
-      });
+      const scenario = browsing(
+        target ?? {
+          webOrigin: origins.web,
+          apiOrigin: origins.api,
+          oauthCallbackOrigin: authRelayOrigin(),
+          http,
+        }
+      );
       return Promise.resolve({
         ctx,
         env,
