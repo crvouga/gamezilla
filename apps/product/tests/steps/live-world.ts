@@ -252,6 +252,10 @@ function browsing(target: LiveTarget): Browsing {
           console.error(
             `browser failure state (${name}): ${browserFailureSummary(html)}`
           );
+        if (current !== null)
+          console.error(
+            `browser failure transport (${name}): ${current.network.join('\n')}`
+          );
       }
       const device = devices.shown ?? devices.host;
       return device === null

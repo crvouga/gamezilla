@@ -1,6 +1,11 @@
 import type { Timers } from '@pkgs/clock-shared/types';
 import { createDeadlineFetch } from '@pkgs/http-client-shared/deadline-fetch';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
+import {
+  mqttPushEvidence,
+  syncRequestEvidence,
+  syncResponseEvidence,
+} from './browser-sync-evidence';
 
 function onNetwork<T>(
   view: Bun.WebView,
@@ -17,11 +22,13 @@ function socketEvidence(
   view: Bun.WebView,
   record: (entry: unknown) => void
 ): void {
+  const protocols = new Map<string, number>();
   onNetwork<{ requestId: string; url: string }>(
     view,
     'Network.webSocketCreated',
     (data) => {
       const url = new URL(data.url);
+      protocols.set(data.requestId, url.protocol === 'wss:' ? 5 : 4);
       record({
         event: 'socket',
         id: data.requestId,
@@ -29,6 +36,18 @@ function socketEvidence(
       });
     }
   );
+  onNetwork<{
+    requestId: string;
+    response: { opcode: number; payloadData: string };
+  }>(view, 'Network.webSocketFrameReceived', (data) => {
+    if (data.response.opcode !== 2) return;
+    const push = mqttPushEvidence(
+      data.response.payloadData,
+      protocols.get(data.requestId) ?? 4
+    );
+    if (push !== undefined)
+      record({ event: 'push', id: data.requestId, ...push });
+  });
   onNetwork<{ requestId: string; response: { status: number } }>(
     view,
     'Network.webSocketHandshakeResponseReceived',
@@ -56,7 +75,7 @@ function socketEvidence(
   });
 }
 
-/** Sanitized transport evidence: no request bodies, query strings or credentials. */
+/** Sanitized transport evidence: names and row counts, never bodies or credentials. */
 export function browserNetworkEvidence(view: Bun.WebView): string[] {
   const lines: string[] = [];
   const requests = new Map<string, string>();
@@ -65,7 +84,7 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
     if (lines.length > 200) lines.shift();
   };
   socketEvidence(view, record);
-  onNetwork<{ requestId: string; request: { url: string } }>(
+  onNetwork<{ requestId: string; request: { url: string; postData?: string } }>(
     view,
     'Network.requestWillBeSent',
     (data) => {
@@ -73,7 +92,12 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
       if (!url.pathname.startsWith('/api/')) return;
       const path = `${url.origin}${url.pathname}`;
       requests.set(data.requestId, path);
-      record({ event: 'request', id: data.requestId, url: path });
+      record({
+        event: 'request',
+        id: data.requestId,
+        url: path,
+        names: syncRequestEvidence(path, data.request.postData),
+      });
     }
   );
   onNetwork<{
@@ -114,7 +138,23 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
     requests.delete(data.requestId);
   });
   onNetwork<{ requestId: string }>(view, 'Network.loadingFinished', (data) => {
+    const path = requests.get(data.requestId);
     requests.delete(data.requestId);
+    if (!path || !/\/(query|mutations)$/.test(path)) return;
+    void view
+      .cdp('Network.getResponseBody', { requestId: data.requestId })
+      .then((response) => {
+        const result = response as { body: string; base64Encoded?: boolean };
+        const body = result.base64Encoded
+          ? Buffer.from(result.body, 'base64').toString('utf8')
+          : result.body;
+        record({
+          event: 'sync-response',
+          id: data.requestId,
+          summary: syncResponseEvidence(path, body),
+        });
+      })
+      .catch(() => {});
   });
   return lines;
 }
