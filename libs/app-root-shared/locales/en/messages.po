@@ -523,6 +523,7 @@ msgid "App"
 msgstr "App"
 
 #: libs/app-root-client/src/boot-error-screen.tsx
+#: libs/app-root-client/src/identity-boot-pending.tsx
 msgid "App failed to start"
 msgstr "App failed to start"
 
@@ -1930,7 +1931,6 @@ msgid "I'm ready"
 msgstr "I'm ready"
 
 #: libs/spaces-client/src/space-members-list-modal.tsx
-#: libs/spaces-client/src/space-presence-probe.tsx
 msgid "Idle"
 msgstr "Idle"
 
@@ -3202,6 +3202,7 @@ msgid "Reload"
 msgstr "Reload"
 
 #: libs/app-root-client/src/boot-error-screen.tsx
+#: libs/app-root-client/src/identity-boot-pending.tsx
 msgid "Reload app"
 msgstr "Reload app"
 
@@ -4146,7 +4147,6 @@ msgstr "The choice could not be confirmed. Try again."
 
 #: libs/notifications-client/src/notifications-screen.tsx
 #: libs/spaces-client/src/connection-missing-notice.tsx
-#: libs/spaces-client/src/space-connection-missing.tsx
 msgid "The connection is missing."
 msgstr "The connection is missing."
 
@@ -4179,6 +4179,7 @@ msgid "The host hasn't started a puzzle yet."
 msgstr "The host hasn't started a puzzle yet."
 
 #: libs/spaces-client/src/space-connection-notice.tsx
+#: libs/spaces-client/src/space-host-connection-status.tsx
 msgid "The host is offline. This space will reconnect when they return."
 msgstr "The host is offline. This space will reconnect when they return."
 
@@ -4845,6 +4846,10 @@ msgstr "You've used this for now"
 #: pkgs/ui-root-client/src/text-input.example.tsx
 msgid "you@example.com"
 msgstr "you@example.com"
+
+#: libs/app-root-client/src/identity-boot-pending.tsx
+msgid "Your account could not be loaded. Check your connection and reload the app."
+msgstr "Your account could not be loaded. Check your connection and reload the app."
 
 #: libs/account-privacy-client/src/privacy-screen.tsx
 msgid "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by"
