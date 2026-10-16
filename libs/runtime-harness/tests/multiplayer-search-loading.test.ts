@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import {
   establishMultiplayerSearch,
   expectSharedMultiplayerGame,
+  prepareUnfinishedMultiplayerGame,
   startMultiplayerSearch,
 } from '@libs/runtime-harness/multiplayer-journey';
 import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
@@ -121,4 +122,55 @@ test('the same completed board on both devices is not a newly matched game', asy
       5000
     )
   ).rejects.toThrow('no ongoing game');
+});
+
+// regression: multiplayer-recovery-given-inherits-pairing-deadline
+test('recovery setup can establish its unfinished game beyond the separate timed pairing assertion', async () => {
+  const { ui } = loadingScreen(false);
+  ui.snapshotHtml = async () =>
+    '<div data-testid="multiplayer-game" data-game-id="fresh-game" data-outcome="ongoing"></div>';
+  const get = ui.get.bind(ui);
+  const moves: string[] = [];
+  ui.get = (id) => {
+    const node = get(id);
+    return {
+      ...node,
+      text: async () => 'White',
+      layout: async () => ({ x: 0, y: 0, width: 400, height: 400 }),
+      tapAt: async () => {},
+      expect: {
+        ...node.expect,
+        text: async (value) => {
+          moves.push(value);
+        },
+      },
+    };
+  };
+  let elapsed = 0;
+  const act = async (
+    name: string,
+    gestures: (driver: Driver) => Promise<void>
+  ) => {
+    await gestures(ui);
+    if (name === 'observeMultiplayerGame') elapsed += 6000;
+  };
+  await prepareUnfinishedMultiplayerGame({
+    runId: 'recovery-setup',
+    now: async () => elapsed,
+    browser: null,
+    showsPuzzleAnswers: false,
+    open: async () => {},
+    openPeer: async () => {},
+    act,
+    actAsGuest: act,
+    spaceLink: async () => '',
+    openGuest: async () => {},
+    offline: async () => {},
+    online: async () => {},
+    reopen: async () => {},
+    defer: () => {},
+    settle: () => {},
+  });
+  expect(moves).toEqual(['1. e4', '1. e4', '1. e4 e5']);
+  expect(elapsed).toBe(12000);
 });

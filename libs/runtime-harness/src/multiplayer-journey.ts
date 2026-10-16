@@ -236,6 +236,8 @@ export async function prepareUnfinishedMultiplayerGame(
     'startMultiplayerSearch',
     startMultiplayerSearch('5+0')
   );
-  await expectSharedMultiplayerGame(host, 5000);
+  // This Given establishes a game for recovery; the separate timed Then
+  // checks the five-second pairing promise. Use the ordinary setup bound.
+  await expectSharedMultiplayerGame(host, JOURNEY_WAIT_MS);
   await openWithE4AndE5(host);
 }
