@@ -1,35 +1,44 @@
 /** @jsxImportSource solid-js */
 import { Handles } from '@libs/test-ids-shared/handles';
-import { Trans } from '@lingui/solid/macro';
+import { useLingui } from '@lingui/solid/macro';
 import { createOriginAvailabilitySnapshot } from '@pkgs/http-client-client/solid';
-import { InFlowBanner } from '@pkgs/ui-root-client/dismissible-top-banner';
-import { Notice } from '@pkgs/ui-root-client/notice';
-import type { JSX } from 'solid-js';
+import { WifiOffIcon } from '@pkgs/ui-root-client/icons';
+import { type JSX, Show } from 'solid-js';
 import { useOfflinePreference } from './offline-preference';
 import { createNetworkOnline } from './use-connectivity';
 
-/** Local content remains mounted while shared connectivity recovers. */
+/** A reserved header slot keeps content still as connectivity changes. */
 export function ConnectionNotice(): JSX.Element {
   const online = createNetworkOnline();
   const origin = createOriginAvailabilitySnapshot();
   const { offline } = useOfflinePreference();
   const missing = (): boolean =>
     offline() || !online() || origin().phase !== 'available';
+  return <ConnectionStatusIndicator missing={missing()} />;
+}
+
+export function ConnectionStatusIndicator(props: {
+  readonly missing: boolean;
+}): JSX.Element {
+  const { t } = useLingui();
+  const label = () =>
+    t`Connection unavailable. Saved content and local games remain available. Shared changes will reconnect automatically.`;
   return (
-    <InFlowBanner visible={missing()}>
-      <div
-        role="status"
-        aria-live="polite"
-        data-component="ConnectionNotice"
-        data-testid={Handles.statusConnectionMissing}
-      >
-        <Notice>
-          <Trans>
-            Connection unavailable. Saved content and local games remain
-            available. Shared changes will reconnect automatically.
-          </Trans>
-        </Notice>
-      </div>
-    </InFlowBanner>
+    <div
+      class="box h-8 w-8 shrink-0 items-center justify-center"
+      data-component="ConnectionStatus"
+    >
+      <Show when={props.missing}>
+        <span
+          role="status"
+          aria-live="polite"
+          title={label()}
+          data-testid={Handles.statusConnectionMissing}
+        >
+          <WifiOffIcon size={20} color="icon" />
+          <span class="sr-only">{label()}</span>
+        </span>
+      </Show>
+    </div>
   );
 }

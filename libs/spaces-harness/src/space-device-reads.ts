@@ -59,7 +59,7 @@ export async function connectionMissingShown(
   actorId: string
 ): Promise<boolean> {
   if (await visible(s, actorId, [Handles.connectionMissing])) return true;
-  return visible(s, actorId, [Handles.notificationsConnectionMissing]);
+  return visible(s, actorId, [Handles.statusConnectionMissing]);
 }
 
 export function gameChoiceRefusedShown(
