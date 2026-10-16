@@ -14,6 +14,7 @@ import {
   openDevice,
   readLocation,
   saveEvidence,
+  waitForCachedShell,
 } from '@apps/product/live-browser';
 import { prepareCriticalJourneyAccess } from '@apps/product/prepare-critical-journey-access';
 import type { EnvFile, EnvOrigins } from '@libs/infra-shared/env-file';
@@ -123,6 +124,7 @@ async function openLiveDevice(
     access,
     launch: () => opened.driver.launch(),
     waitForTabShell: () => atTabShell(opened.driver),
+    waitForOfflineShell: () => waitForCachedShell(opened.view),
     signIn: () => signIn(opened, target),
   });
 }
@@ -144,6 +146,7 @@ async function openGuestDevice(
   const guest = requireDevice(devices.guest, 'guest');
   devices.shown = guest;
   await guest.view.navigate(new URL(link, target.webOrigin).href);
+  await waitForCachedShell(guest.view);
 }
 
 function liveJourneyHost(
