@@ -142,7 +142,7 @@ jobs:
       # Critical journeys (specs/journeys/, apps/product/tests/steps/live-world.ts)
       # save a screenshot, the page HTML and the browser console per failure.
       - name: Upload critical journey evidence
-        if: failure() && contains(fromJSON(needs.health-matrix.outputs.production), matrix.env)
+        if: failure()
         uses: actions/upload-artifact@v6
         with:
           name: critical-journeys-${{ github.run_id }}-${{ matrix.env }}

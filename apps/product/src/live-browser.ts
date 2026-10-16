@@ -35,6 +35,7 @@ export type LiveTarget = {
 };
 
 export type Device = {
+  readonly apiOrigin: string;
   readonly view: Bun.WebView;
   readonly driver: BunWebviewDriver;
   readonly console: string[];
@@ -87,6 +88,7 @@ export async function openDevice(
     timers: wallTimers,
   });
   return {
+    apiOrigin: target.apiOrigin,
     view,
     driver,
     console: consoleLines,
@@ -188,6 +190,31 @@ export async function saveEvidence(
     error instanceof Error ? (error.stack ?? error.message) : String(error);
   const summary = `scenario: ${id}\nurl: ${await pageUrl(device)}\n\n${message}\n`;
   await writeUtf8(store, key('error.txt'), summary);
+  try {
+    const connection = await device.view.evaluate(`(async () => {
+      const state = {
+        online: navigator.onLine,
+        offlinePreference: localStorage.getItem('app.prefs/work-offline'),
+        requests: performance.getEntriesByType('resource').map(entry => ({
+          url: new URL(entry.name).origin + new URL(entry.name).pathname,
+          status: entry.responseStatus,
+          duration: entry.duration
+        }))
+      };
+      try {
+        const response = await fetch(${JSON.stringify(`${device.apiOrigin}/api/health`)}, {
+          signal: AbortSignal.timeout(5000)
+        });
+        state.health = { status: response.status, body: await response.text() };
+      } catch (error) {
+        state.health = { error: String(error) };
+      }
+      return JSON.stringify(state);
+    })()`);
+    await writeUtf8(store, key('connection.json'), String(connection));
+  } catch {
+    // A crashed document cannot report its connection state.
+  }
   await writeUtf8(store, key('console.log'), `${device.console.join('\n')}\n`);
   try {
     const png = await device.view.screenshot({ encoding: 'buffer' });
