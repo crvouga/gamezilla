@@ -139,6 +139,7 @@ export const MAIN_CHECK_TASKS = [
     (_, index) => `check:models:${String(index)}`
   ),
   '@apps/product#check:offline-shell',
+  '@apps/product#test:release-journeys',
   '@apps/auth-relay#check:worker-bundle',
   '@apps/product#check:worker-bundle',
   '@libs/runtime-server#check:schema-evolution',

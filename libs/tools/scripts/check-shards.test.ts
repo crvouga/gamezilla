@@ -350,6 +350,10 @@ test('a cold corpus still finishes after every solver takes a runner', () => {
 });
 
 test('renderer setup only serves uncached native browser tasks', () => {
+  // regression: deploy-journeys-missing-pr-browser-gate
+  expect(needsBrowser([task('@apps/product#test:release-journeys')])).toBe(
+    true
+  );
   expect(needsBrowser([task('@apps/product#test:contract:render')])).toBe(true);
   expect(needsBrowser([task('@apps/product#test:contract')])).toBe(false);
   expect(needsBrowser([task('@pkgs/ui-testing-bun-webview#test')])).toBe(true);

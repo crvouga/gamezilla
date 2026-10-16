@@ -1,0 +1,4 @@
+{
+  "summary": "Deploy run 38810999586 passed PR verification but failed browser journeys because PR checks only exercised the in-process app, bypassing the shipped browser composition.",
+  "regressionTest": "libs/tools/scripts/check-profile.test.ts"
+}

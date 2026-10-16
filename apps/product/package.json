@@ -68,6 +68,7 @@
     "test:fuzz": "bun run scripts/test-fuzz.ts",
     "test:max": "bun ./scripts/test-max.ts",
     "test:quint-system": "bun test tests/quint/simulation.test.ts tests/quint/effectiveness.test.ts",
+    "test:release-journeys": "bun run scripts/test-release-journeys.ts",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
     "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1",
     "test:stack": "bun run scripts/test-stack.ts"

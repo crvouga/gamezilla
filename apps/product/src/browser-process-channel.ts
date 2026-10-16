@@ -12,6 +12,7 @@ export function browserProcessChannel(process: IsolatedWorker) {
   >();
   let sequence = 0;
   const consoleLines: string[] = [];
+  const networkLines: string[] = [];
   const fail = (error: Error): void => {
     for (const reply of pending.values()) reply.reject(error);
     pending.clear();
@@ -22,9 +23,12 @@ export function browserProcessChannel(process: IsolatedWorker) {
       value?: unknown;
       error?: string;
       console?: string[];
+      network?: string[];
     };
     if (response.console !== undefined)
       consoleLines.splice(0, consoleLines.length, ...response.console);
+    if (response.network !== undefined)
+      networkLines.splice(0, networkLines.length, ...response.network);
     const reply = pending.get(response.id);
     pending.delete(response.id);
     if (response.error !== undefined) reply?.reject(new Error(response.error));
@@ -73,6 +77,7 @@ export function browserProcessChannel(process: IsolatedWorker) {
   return {
     request,
     consoleLines,
+    networkLines,
     close: () => {
       unsubscribe();
       unwatch();

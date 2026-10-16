@@ -1,0 +1,4 @@
+{
+  "summary": "Chrome shares the first WebView's profile for the entire process, but live journeys deleted that directory when closing each device. Later devices then reused a browser whose profile had been removed. Bun now owns an ephemeral profile and its lifetime.",
+  "regressionTest": "apps/product/tests/live-browser.test.ts"
+}

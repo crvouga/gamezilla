@@ -22,6 +22,11 @@ import {
 } from './check-profile';
 import { flattenCheckAggregators, MAIN_CHECK_TASKS } from './turbo-ci-run';
 
+// regression: deploy-journeys-missing-pr-browser-gate
+test('PR verification runs the production-bundle journeys before deployment', () => {
+  expect(MAIN_CHECK_TASKS).toContain('@apps/product#test:release-journeys');
+});
+
 const ROOT = join(import.meta.dirname, '../../..');
 const NIGHTLY = { CHECK_PROFILE: 'nightly' };
 

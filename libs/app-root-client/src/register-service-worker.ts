@@ -9,13 +9,9 @@ export type RegisterServiceWorkerArgs = {
   readonly networkAllowed?: (() => boolean) | undefined;
 };
 
-function isLocalHostname(hostname: string): boolean {
-  return hostname === 'localhost' || hostname === '127.0.0.1';
-}
-
 /**
  * Registers `/sw.js` and invokes `onUpdateAvailable` when a new service worker
- * is waiting. Only active in production browser bundles (not localhost).
+ * is waiting. Only active in production browser bundles, including previews.
  */
 export function registerServiceWorker(
   args: RegisterServiceWorkerArgs
@@ -23,7 +19,6 @@ export function registerServiceWorker(
   const noop = (): void => undefined;
   if (typeof window === 'undefined') return noop;
   if (!('serviceWorker' in navigator)) return noop;
-  if (isLocalHostname(window.location.hostname)) return noop;
   if (!import.meta.env.PROD) return noop;
 
   const wb = new Workbox('/sw.js');

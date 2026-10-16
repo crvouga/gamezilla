@@ -277,7 +277,8 @@ function freshDirs(dirs: RunDirs): void {
 export function writeFeatureStubs(
   env: Environment,
   features: readonly string[],
-  dirs: RunDirs
+  dirs: RunDirs,
+  stepsEntry = STEPS_ENTRY
 ): readonly string[] {
   const { stubDir, reportDir } = dirs;
   const bridge = Bun.resolveSync(
@@ -295,7 +296,7 @@ export function writeFeatureStubs(
         packageName: '@apps/product',
         featurePath,
         featureUri,
-        stepsEntry: STEPS_ENTRY,
+        stepsEntry,
         bridge,
         skip: skips.scenarios,
         reportDir,
@@ -412,7 +413,11 @@ export function healthTestEnvironment(input: {
 }
 
 if (import.meta.main) {
-  const cli = parseCli(process.argv.slice(2));
+  const feature = process.env['HEALTH_SPEC']?.trim();
+  const cli = parseCli([
+    ...process.argv.slice(2),
+    ...(feature ? [feature] : []),
+  ]);
   if (cli.synthetic && cli.objectives) {
     console.error('health: --synthetic does not run objectives');
     process.exit(1);

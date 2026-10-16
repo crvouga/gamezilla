@@ -1352,6 +1352,7 @@
     },
     "health": {
       "cache": false,
+      "passThroughEnv": ["HEALTH_SPEC"],
       "dependsOn": [
         "@libs/infra-server#apply:edge",
         "@libs/billing-server#billing:sync",
@@ -2964,6 +2965,18 @@
     },
     "@apps/product#test:stack": {
       "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@apps/product#test:release-journeys": {
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["CHECK_PROFILE"],
+      "outputs": [".cache/release-report/**"],
       "passThroughEnv": ["*"]
     },
     "@pkgs/db-indexes-root-shared#mutants": {
