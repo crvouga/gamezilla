@@ -88,8 +88,8 @@ Reliable lifecycle telemetry retains the existing pipeline and includes the
 namespaced time control for game attribution.
 
 The health runner previously could not open two independently signed-in people.
-Its shared monitoring port now admits exactly two fixed monitoring identities,
-never arbitrary people. The second browser uses an owned isolated process so
+Its shared monitoring port mints fresh dedicated identities for each sign-in,
+never sessions for arbitrary people. Ratings cannot leak between scenarios. The second browser uses an owned isolated process so
 Chrome's shared profile cannot mix identities. Process lifecycle and gesture
 contracts cover cleanup and failed work. Production resources and deployment
 configuration are unchanged.

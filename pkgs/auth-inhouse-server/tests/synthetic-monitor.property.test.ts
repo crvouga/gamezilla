@@ -1,11 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { createAuthApp } from '@pkgs/auth-inhouse-server/create-auth-app';
 import { reconcileIdpSqlite } from '@pkgs/auth-inhouse-server/reconcile-idp-sqlite';
-import {
-  isSyntheticMonitor,
-  SYNTHETIC_MONITOR_PEER,
-  SYNTHETIC_MONITOR_USER,
-} from '@pkgs/auth-inhouse-server/synthetic-monitor';
+import { isSyntheticMonitor } from '@pkgs/auth-inhouse-server/synthetic-monitor';
 import {
   requestSyntheticMonitorRedirect,
   SYNTHETIC_MONITOR_CODE_PATH,
@@ -87,7 +83,7 @@ async function exchange(booted: Booted, redirectUrl: string) {
 
 async function monitorUserRows(booted: Booted): Promise<number> {
   const rows = await booted.sql.query(sql<{ n: number }>`
-    SELECT COUNT(*) AS n FROM idp_users WHERE id = ${SYNTHETIC_MONITOR_USER.id}
+    SELECT COUNT(*) AS n FROM idp_users WHERE id LIKE ${'synthetic-monitor:%'}
   `);
   return Number(rows[0]?.n ?? 0);
 }
@@ -140,12 +136,13 @@ describe('synthetic-monitor sign-in', () => {
   });
 
   test(
-    'every sign-in yields a single-use code for the one monitor user',
+    'every sign-in yields a single-use code for a fresh monitor user',
     async () => {
       await assertProperty(
         'synthetic-monitor round trip',
         fc.asyncProperty(fc.integer({ min: 1, max: 3 }), async (signIns) => {
           const booted = await boot(TOKEN);
+          const users = new Set<string>();
           for (let i = 0; i < signIns; i += 1) {
             const redirectUrl = await requestSyntheticMonitorRedirect({
               http: booted.http,
@@ -160,10 +157,12 @@ describe('synthetic-monitor sign-in', () => {
             const session = (await first.json()) as {
               readonly user: { readonly id: string };
             };
-            expect(session.user.id).toBe(SYNTHETIC_MONITOR_USER.id);
+            expect(isSyntheticMonitor(session.user.id)).toBe(true);
+            users.add(session.user.id);
             expect((await exchange(booted, redirectUrl)).status).toBe(400);
           }
-          expect(await monitorUserRows(booted)).toBe(1);
+          expect(users.size).toBe(signIns);
+          expect(await monitorUserRows(booted)).toBe(signIns);
         })
       );
     },
@@ -185,9 +184,7 @@ test('independent monitor participants cannot select an arbitrary person', async
     const response = await exchange(booted, redirect);
     expect(response.status).toBe(200);
     const body = (await response.json()) as { user: { id: string } };
-    expect(body.user.id).toBe(
-      peer ? SYNTHETIC_MONITOR_PEER.id : SYNTHETIC_MONITOR_USER.id
-    );
+    expect(body.user.id).not.toBe('someone-else');
     expect(isSyntheticMonitor(body.user.id)).toBe(true);
   }
   expect(isSyntheticMonitor('someone-else')).toBe(false);
@@ -210,5 +207,29 @@ test('independent monitor participants cannot select an arbitrary person', async
   const session = (await (
     await exchange(booted, redirect.redirectUrl)
   ).json()) as { user: { id: string } };
-  expect(session.user.id).toBe(SYNTHETIC_MONITOR_USER.id);
+  expect(isSyntheticMonitor(session.user.id)).toBe(true);
+  expect(session.user.id).not.toBe('someone-else');
+});
+
+// regression: synthetic-monitor-ratings-leak-between-journeys
+test('consecutive multiplayer journeys get disjoint pairs of monitoring accounts', async () => {
+  const booted = await boot(TOKEN);
+  const ids = new Set<string>();
+  for (const peer of [false, true, false, true]) {
+    const redirect = await requestSyntheticMonitorRedirect({
+      http: booted.http,
+      apiOrigin: API,
+      apiPathPrefix: PREFIX,
+      token: TOKEN,
+      callbackUrl: CALLBACK,
+      peer,
+    });
+    const response = await exchange(booted, redirect);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { user: { id: string } };
+    expect(isSyntheticMonitor(body.user.id)).toBe(true);
+    ids.add(body.user.id);
+  }
+  expect(ids.size).toBe(4);
+  expect(await monitorUserRows(booted)).toBe(4);
 });
