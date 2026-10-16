@@ -1,6 +1,6 @@
 // @io-wall-ok — CI owns the stack, production bundle, browser process and teardown.
-import { spawn } from 'node:child_process';
-import { mkdirSync } from 'node:fs';
+import { execFileSync, spawn } from 'node:child_process';
+import { mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
@@ -22,7 +22,19 @@ const options = parseStackOptions([
 async function buildRelease(apiOrigin: string): Promise<void> {
   process.env['VITE_API_URL'] = apiOrigin;
   // Exercise the shipped build: no harness probes, dev mode or HMR.
-  delete process.env['VITE_TEST_HOOKS'];
+  process.env['VITE_TEST_HOOKS'] = '0';
+  process.env['VITE_COMMIT_HASH'] = execFileSync('git', ['rev-parse', 'HEAD'], {
+    cwd: REPO_ROOT,
+  })
+    .toString()
+    .trim();
+  process.env['VITE_COMMIT_DATE'] = execFileSync(
+    'git',
+    ['log', '-1', '--format=%cI', 'HEAD'],
+    { cwd: REPO_ROOT }
+  )
+    .toString()
+    .trim();
   await build({
     configFile: join(PACKAGE_DIR, 'vite.config.mts'),
     mode: 'production',
@@ -69,6 +81,7 @@ function journeyStubs(): readonly string[] {
     stubDir: join(PACKAGE_DIR, '.cache/spec-release'),
     reportDir: join(PACKAGE_DIR, '.cache/release-report'),
   };
+  rmSync(dirs.stubDir, { recursive: true, force: true });
   mkdirSync(dirs.stubDir, { recursive: true });
   return writeFeatureStubs(
     { production: false, observability: false },
@@ -102,4 +115,15 @@ try {
   await server?.stop(true);
   await stack.stop();
   removeManifest(REPO_ROOT, options.instanceId);
+  rmSync(DIST, { recursive: true, force: true });
+  if (process.env['CHECK_PROFILE'] !== 'nightly') {
+    rmSync(join(PACKAGE_DIR, '.cache/release-report'), {
+      recursive: true,
+      force: true,
+    });
+    rmSync(join(PACKAGE_DIR, '.cache/critical-journeys'), {
+      recursive: true,
+      force: true,
+    });
+  }
 }
