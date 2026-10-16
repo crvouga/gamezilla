@@ -14,10 +14,7 @@ import { parseStackOptions } from './stack-options';
 const PACKAGE_DIR = join(import.meta.dir, '..');
 const REPO_ROOT = join(PACKAGE_DIR, '../..');
 const DIST = join(PACKAGE_DIR, '.cache/release-web');
-const options = parseStackOptions([
-  '--synthetic-population-workers=0',
-  '--no-observability',
-]);
+const options = parseStackOptions(['--synthetic-population-workers=0']);
 
 async function buildRelease(apiOrigin: string): Promise<void> {
   process.env['VITE_API_URL'] = apiOrigin;
@@ -115,6 +112,8 @@ try {
   await server?.stop(true);
   await stack.stop();
   removeManifest(REPO_ROOT, options.instanceId);
+  if (!options.keepData)
+    rmSync(stack.manifest.dataDir, { recursive: true, force: true });
   rmSync(DIST, { recursive: true, force: true });
   if (process.env['CHECK_PROFILE'] !== 'nightly') {
     rmSync(join(PACKAGE_DIR, '.cache/release-report'), {
