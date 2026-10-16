@@ -1,0 +1,4 @@
+{
+  "summary": "Two-player live journeys switched driver references without activating Chrome's selected page, allowing background rendering and native actionability waits to stall or observe a parked page.",
+  "regressionTest": "apps/product/tests/isolated-browser.test.ts"
+}

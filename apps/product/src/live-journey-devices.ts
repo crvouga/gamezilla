@@ -1,3 +1,4 @@
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { openIsolatedDevice } from './isolated-browser';
 import type { Device, LiveTarget } from './live-browser';
 
@@ -24,4 +25,15 @@ export async function openGuestDevice(
   const guest = requireDevice(devices.guest, 'guest');
   devices.shown = guest;
   await guest.view.navigate(new URL(link, target.webOrigin).href);
+}
+
+/** Activate the person's tab before reading it or delivering native gestures. */
+export async function actOnLiveDevice(
+  devices: LiveDevices,
+  device: Device,
+  gestures: (ui: Driver) => Promise<void>
+): Promise<void> {
+  devices.shown = device;
+  await device.view.cdp('Page.bringToFront', {});
+  await gestures(device.driver);
 }

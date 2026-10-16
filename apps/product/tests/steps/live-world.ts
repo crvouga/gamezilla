@@ -1,6 +1,7 @@
 import { browserFailureSummary } from '@apps/product/browser-failure-summary';
 import { openIsolatedDevice } from '@apps/product/isolated-browser';
 import {
+  actOnLiveDevice,
   type LiveDevices,
   openGuestDevice,
   requireDevice,
@@ -163,13 +164,11 @@ function liveJourneyHost(
     },
     act: async (_name, gestures) => {
       const current = await ensureHost(target, devices);
-      devices.shown = current;
-      await gestures(current.driver);
+      await actOnLiveDevice(devices, current, gestures);
     },
     actAsGuest: async (_name, gestures) => {
       const current = requireDevice(devices.guest, 'guest');
-      devices.shown = current;
-      await gestures(current.driver);
+      await actOnLiveDevice(devices, current, gestures);
     },
     spaceLink: async () =>
       spaceLinkFromLocation(
