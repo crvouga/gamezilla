@@ -3080,8 +3080,15 @@
       "passThroughEnv": ["*"]
     },
     "@apps/product#test:release-journeys": {
-      "dependsOn": ["//#task:i18n:compile"],
-      "cache": false,
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["CHECK_PROFILE"],
+      "outputs": [".cache/release-report/**"],
       "passThroughEnv": ["*"]
     },
     "@pkgs/db-indexes-root-shared#mutants": {
