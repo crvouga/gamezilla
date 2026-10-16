@@ -16,27 +16,15 @@ async function markerText(
   }
 }
 
-async function markerVisible(
-  s: ProductHarness,
-  actorId: string,
-  handle: string
-): Promise<boolean> {
-  try {
-    await bringToFront(s, actorId);
-    const ui = await actorUi(s, actorId);
-    return await ui.get(handle).isVisible();
-  } catch {
-    return false;
-  }
-}
-
-/** `observer` can see that `memberId` is idle. */
-export function personIdleShown(
+/** `observer`'s presence records `memberId` as idle. */
+export async function personIdleShown(
   s: ProductHarness,
   observerId: string,
   memberId: string
 ): Promise<boolean> {
-  return markerVisible(s, observerId, Handles.spaceMemberIdle(memberId));
+  return (
+    (await markerText(s, observerId, Handles.spaceMemberIdle(memberId))) === '1'
+  );
 }
 
 /** How many times `observer`'s presence counts `memberId`. */
