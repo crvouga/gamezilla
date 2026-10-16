@@ -41,7 +41,12 @@ process.on('message', async (raw: unknown) => {
       value = true;
     } else if (request.call !== undefined) value = await invoke(request.call);
     else throw new Error('Invalid browser request');
-    process.send?.({ id: request.id, value, console: device?.console });
+    process.send?.({
+      id: request.id,
+      value,
+      console: device?.console,
+      network: device?.network,
+    });
   } catch (cause) {
     process.send?.({
       id: request.id,

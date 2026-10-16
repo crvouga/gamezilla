@@ -22,8 +22,10 @@ export async function openIsolatedDevice(
     throw error;
   }
   return {
+    apiOrigin: target.apiOrigin,
     driver,
     console: channel.consoleLines,
+    network: channel.networkLines,
     view: {
       navigate: (url) =>
         rpc({ target: 'view', path: [], method: 'navigate', args: [url] }),

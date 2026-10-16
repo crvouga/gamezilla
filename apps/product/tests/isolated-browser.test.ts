@@ -22,6 +22,9 @@ function controlled() {
         reply({
           id: request.id,
           value: request.call?.method === 'text' ? 'A real disc' : true,
+          network: [
+            '{"event":"request","url":"https://api.example/api/health"}',
+          ],
         });
     },
     subscribe: (listener) => {
@@ -55,6 +58,10 @@ test('isolated devices preserve scoped gestures and release their process on clo
     () => worker.process
   );
   await device.driver.get('board').get('column-2').tap();
+  expect(device.apiOrigin).toBe('https://api.example');
+  expect(device.network).toEqual([
+    '{"event":"request","url":"https://api.example/api/health"}',
+  ]);
   expect(await device.driver.get('disc').text()).toBe('A real disc');
   await device.driver.get('result').expect.visible({ timeoutMs: 2000 });
   expect(worker.calls[0]).toEqual({
