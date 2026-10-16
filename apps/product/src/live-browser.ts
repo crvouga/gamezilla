@@ -15,6 +15,7 @@ import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-driver';
+import { browserFailureSummary } from './browser-failure-summary';
 import {
   browserNetworkEvidence,
   nativeHealthEvidence,
@@ -249,6 +250,7 @@ export async function saveEvidence(
   try {
     const html = await device.driver.snapshotHtml();
     if (html !== null) {
+      console.error(`browser failure state: ${browserFailureSummary(html)}`);
       await writeUtf8(
         store,
         key('page.html'),
