@@ -40,6 +40,11 @@ on:
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:
+    inputs:
+      spec:
+        description: Optional live feature path to investigate (empty runs every feature)
+        type: string
+        default: ''
 
 env:
   TURBO_UI: stream
@@ -115,6 +120,7 @@ jobs:
       matrix:
         env: ${{ fromJSON(needs.health-matrix.outputs.all) }}
     env:
+      HEALTH_SPEC: ${{ inputs.spec || '' }}
       SECRETS_ENV: ${{ matrix.env }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       # Health refreshes the declared AWS resources but must never mutate them.

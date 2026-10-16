@@ -413,7 +413,11 @@ export function healthTestEnvironment(input: {
 }
 
 if (import.meta.main) {
-  const cli = parseCli(process.argv.slice(2));
+  const feature = process.env['HEALTH_SPEC']?.trim();
+  const cli = parseCli([
+    ...process.argv.slice(2),
+    ...(feature ? [feature] : []),
+  ]);
   if (cli.synthetic && cli.objectives) {
     console.error('health: --synthetic does not run objectives');
     process.exit(1);

@@ -16,6 +16,7 @@ import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-driver';
+import { browserNetworkEvidence } from './browser-network-evidence';
 
 const NAVIGATION_POLL_MS = 250;
 /** Phone-sized: the layout most people use. */
@@ -39,6 +40,7 @@ export type Device = {
   readonly view: Bun.WebView;
   readonly driver: BunWebviewDriver;
   readonly console: string[];
+  readonly network: string[];
   close(): Promise<void>;
 };
 
@@ -75,6 +77,7 @@ export async function openDevice(
   // Chrome associates socket throttling with the session when a socket opens.
   // Enable it before the app creates rooms, not only when going offline.
   await view.cdp('Network.enable');
+  const network = browserNetworkEvidence(view);
   for (const origin of [target.webOrigin, target.apiOrigin]) {
     await view.cdp('Storage.clearDataForOrigin', {
       origin,
@@ -92,6 +95,7 @@ export async function openDevice(
     view,
     driver,
     console: consoleLines,
+    network,
     close: async () => {
       await driver.close();
       await rm(directory, { recursive: true, force: true });
@@ -216,6 +220,7 @@ export async function saveEvidence(
     // A crashed document cannot report its connection state.
   }
   await writeUtf8(store, key('console.log'), `${device.console.join('\n')}\n`);
+  await writeUtf8(store, key('network.log'), `${device.network.join('\n')}\n`);
   try {
     const png = await device.view.screenshot({ encoding: 'buffer' });
     await store.put(key('screenshot.png'), new Uint8Array(png), 'image/png');

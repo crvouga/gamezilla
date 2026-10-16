@@ -27,6 +27,7 @@ test('a fresh live device can cut its network through Chrome', async () => {
       const backend = options.backend ?? 'webkit';
       return {
         navigate: async () => {},
+        addEventListener: () => {},
         evaluate: async () => 'active',
         cdp: async (method: string, params: unknown) => {
           if (backend !== 'chrome') throw new Error('WebKit has no CDP');
