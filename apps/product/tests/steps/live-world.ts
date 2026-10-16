@@ -245,7 +245,7 @@ function browsing(target: LiveTarget): Browsing {
       const device = devices.shown ?? devices.host;
       return device === null
         ? Promise.resolve(null)
-        : saveEvidence(id, device, cause);
+        : saveEvidence(id, device, cause, target.http);
     },
     close: () => closeBrowsing(devices, cleanups, failureFlag),
   };

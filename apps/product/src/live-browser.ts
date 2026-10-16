@@ -16,17 +16,14 @@ import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-driver';
-import { browserNetworkEvidence } from './browser-network-evidence';
+import {
+  browserNetworkEvidence,
+  nativeHealthEvidence,
+} from './browser-network-evidence';
 
 const NAVIGATION_POLL_MS = 250;
 /** Phone-sized: the layout most people use. */
 const VIEWPORT = { width: 390, height: 844 } as const;
-/** Hosted runners must not strand all later requests on a stalled QUIC session. */
-const CHROME_BACKEND: Bun.WebView.Backend = {
-  type: 'chrome',
-  url: false,
-  argv: ['--disable-quic'],
-};
 /** Uploaded by the Health and Deploy workflows when a journey fails. */
 export const EVIDENCE_DIR = join(
   import.meta.dir,
@@ -71,7 +68,7 @@ export async function openDevice(
   const consoleLines: string[] = [];
   const view = createView({
     ...VIEWPORT,
-    backend: CHROME_BACKEND,
+    backend: 'chrome',
     dataStore,
     console: (type, ...args) => {
       consoleLines.push(`[${type}] ${args.map(formatConsoleArg).join(' ')}`);
@@ -93,7 +90,7 @@ export async function openDevice(
   const driver = new BunWebviewDriver({
     view,
     baseUrl: target.webOrigin,
-    popupOptions: { dataStore, backend: CHROME_BACKEND },
+    popupOptions: { dataStore, backend: 'chrome' },
     timers: wallTimers,
   });
   return {
@@ -188,7 +185,8 @@ async function pageUrl(device: Device): Promise<string> {
 export async function saveEvidence(
   id: string,
   device: Device,
-  error: unknown
+  error: unknown,
+  http: HttpClient
 ): Promise<string> {
   const store = createNodeFsObjectStore({
     rootDir: EVIDENCE_DIR,
@@ -200,6 +198,15 @@ export async function saveEvidence(
     error instanceof Error ? (error.stack ?? error.message) : String(error);
   const summary = `scenario: ${id}\nurl: ${await pageUrl(device)}\n\n${message}\n`;
   await writeUtf8(store, key('error.txt'), summary);
+  await writeUtf8(
+    store,
+    key('native-health.json'),
+    await nativeHealthEvidence(
+      http,
+      `${device.apiOrigin}/api/health`,
+      wallTimers
+    )
+  );
   try {
     const connection = await device.view.evaluate(`(async () => {
       const state = {

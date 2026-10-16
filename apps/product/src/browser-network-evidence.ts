@@ -1,3 +1,7 @@
+import type { Timers } from '@pkgs/clock-shared/types';
+import { createDeadlineFetch } from '@pkgs/http-client-shared/deadline-fetch';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
+
 function onNetwork<T>(
   view: Bun.WebView,
   type: `Network.${string}`,
@@ -9,6 +13,49 @@ function onNetwork<T>(
   });
 }
 
+function socketEvidence(
+  view: Bun.WebView,
+  record: (entry: unknown) => void
+): void {
+  onNetwork<{ requestId: string; url: string }>(
+    view,
+    'Network.webSocketCreated',
+    (data) => {
+      const url = new URL(data.url);
+      record({
+        event: 'socket',
+        id: data.requestId,
+        url: `${url.origin}${url.pathname}`,
+      });
+    }
+  );
+  onNetwork<{ requestId: string; response: { status: number } }>(
+    view,
+    'Network.webSocketHandshakeResponseReceived',
+    (data) => {
+      record({
+        event: 'socket-response',
+        id: data.requestId,
+        status: data.response.status,
+      });
+    }
+  );
+  onNetwork<{ requestId: string; errorMessage: string }>(
+    view,
+    'Network.webSocketFrameError',
+    (data) => {
+      record({
+        event: 'socket-error',
+        id: data.requestId,
+        error: data.errorMessage.replace(/\w+:\/\/\S+/g, '[url]'),
+      });
+    }
+  );
+  onNetwork<{ requestId: string }>(view, 'Network.webSocketClosed', (data) => {
+    record({ event: 'socket-closed', id: data.requestId });
+  });
+}
+
 /** Sanitized transport evidence: no request bodies, query strings or credentials. */
 export function browserNetworkEvidence(view: Bun.WebView): string[] {
   const lines: string[] = [];
@@ -17,6 +64,7 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
     lines.push(JSON.stringify(entry));
     if (lines.length > 200) lines.shift();
   };
+  socketEvidence(view, record);
   onNetwork<{ requestId: string; request: { url: string } }>(
     view,
     'Network.requestWillBeSent',
@@ -30,7 +78,13 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
   );
   onNetwork<{
     requestId: string;
-    response: { status: number; protocol: string; timing?: unknown };
+    response: {
+      status: number;
+      protocol: string;
+      timing?: unknown;
+      remoteIPAddress?: string;
+      fromServiceWorker?: boolean;
+    };
   }>(view, 'Network.responseReceived', (data) => {
     if (!requests.has(data.requestId)) return;
     record({
@@ -38,6 +92,8 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
       id: data.requestId,
       status: data.response.status,
       protocol: data.response.protocol,
+      peer: data.response.remoteIPAddress,
+      serviceWorker: data.response.fromServiceWorker,
       timing: data.response.timing,
     });
   });
@@ -61,4 +117,25 @@ export function browserNetworkEvidence(view: Bun.WebView): string[] {
     requests.delete(data.requestId);
   });
   return lines;
+}
+
+export async function nativeHealthEvidence(
+  http: HttpClient,
+  url: string,
+  timers: Timers
+): Promise<string> {
+  const request = createDeadlineFetch({
+    fetch: (input, init) => http.fetch(input, init),
+    timers,
+    timeoutMs: 5000,
+  });
+  try {
+    const response = await request(url);
+    return JSON.stringify({
+      status: response.status,
+      body: await response.text(),
+    });
+  } catch (error) {
+    return JSON.stringify({ error: String(error) });
+  }
 }
