@@ -21,6 +21,12 @@ import { browserNetworkEvidence } from './browser-network-evidence';
 const NAVIGATION_POLL_MS = 250;
 /** Phone-sized: the layout most people use. */
 const VIEWPORT = { width: 390, height: 844 } as const;
+/** Hosted runners must not strand all later requests on a stalled QUIC session. */
+const CHROME_BACKEND: Bun.WebView.Backend = {
+  type: 'chrome',
+  url: false,
+  argv: ['--disable-quic'],
+};
 /** Uploaded by the Health and Deploy workflows when a journey fails. */
 export const EVIDENCE_DIR = join(
   import.meta.dir,
@@ -65,7 +71,7 @@ export async function openDevice(
   const consoleLines: string[] = [];
   const view = createView({
     ...VIEWPORT,
-    backend: 'chrome',
+    backend: CHROME_BACKEND,
     dataStore,
     console: (type, ...args) => {
       consoleLines.push(`[${type}] ${args.map(formatConsoleArg).join(' ')}`);
@@ -87,7 +93,7 @@ export async function openDevice(
   const driver = new BunWebviewDriver({
     view,
     baseUrl: target.webOrigin,
-    popupOptions: { dataStore, backend: 'chrome' },
+    popupOptions: { dataStore, backend: CHROME_BACKEND },
     timers: wallTimers,
   });
   return {

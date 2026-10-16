@@ -1465,6 +1465,7 @@
     },
     "health": {
       "cache": false,
+      "passThroughEnv": ["HEALTH_SPEC"],
       "dependsOn": [
         "@libs/infra-server#apply:edge",
         "@libs/billing-server#billing:sync",

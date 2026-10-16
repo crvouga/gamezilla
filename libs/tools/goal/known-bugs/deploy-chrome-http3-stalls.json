@@ -1,0 +1,4 @@
+{
+  "summary": "Deploy run 38810999586 and its Health reproductions stalled development API requests over HTTP/3, then timed out every later health probe. Automated Chrome journeys use TCP transport and an owned browser process.",
+  "regressionTest": "apps/product/tests/live-browser.test.ts"
+}
