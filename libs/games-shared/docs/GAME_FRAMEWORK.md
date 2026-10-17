@@ -173,8 +173,17 @@ Beyond that class:
 - The shared suites live in one package, so changing any game reruns every
   game's shared conformance; each game's own rules suites stay in its own
   package and rerun only for it.
-- Chess's matched-game Quint model (`specs/chess/multiplayer.qnt`) still
-  draws chess lines; the shared specifications have no game-neutral model
-  yet.
+- About forty `specs/chess/` features still describe shared behaviour for
+  chess alone: custom-game readiness, invitations, sides, clocks and
+  completion; matched-game clocks, notices, reminders, ratings, time
+  controls and recovery. Each moves the way the matched-game lifecycle did:
+  a `spec:` commit rewording it for every game in `specs/games/`, then one
+  binding in `@libs/games-harness` over the shared matched-game and
+  custom-game worlds, deleting chess's copy.
+- The shared specifications have no game-neutral Quint model yet; chess's
+  `custom-game-play.qnt` and `multiplayer.qnt` draw chess lines. A shared
+  model needs the Quint runner to replay traces per game (as Gherkin
+  variants do) and a model-check task, which the PR runner's capacity
+  (`ci-load.ts`) only allows by retiring chess's copy.
 - A game's own Gherkin parameter types join the one list the spec check
   reads (`libs/harness/src/parameter-types.ts`).
