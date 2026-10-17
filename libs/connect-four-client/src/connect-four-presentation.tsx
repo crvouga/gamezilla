@@ -1,8 +1,6 @@
+import type { GameClientPresentation } from '@libs/game-menu-client/game-client';
 import { t } from '@lingui/core/macro';
-import type {
-  GameBoardProps,
-  GamePresentation,
-} from '@pkgs/turn-game-shared/game-presentation';
+import type { GameBoardProps } from '@pkgs/turn-game-shared/game-presentation';
 import type { JSX } from 'solid-js';
 import { ConnectFourBoard } from './connect-four-board';
 
@@ -16,8 +14,7 @@ function Board(props: GameBoardProps): JSX.Element {
     />
   );
 }
-export const connectFourPresentation: GamePresentation<JSX.Element> = {
-  id: 'connect-four',
+export const connectFourPresentation: GameClientPresentation = {
   canFlip: false,
   name: () => t`Connect Four`,
   Board,

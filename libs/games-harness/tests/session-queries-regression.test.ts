@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { openGamesHarness as openHarness } from '@libs/games-harness/games-system';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
+import { openConformanceHarness as openHarness } from './conformance-world';
 
 // regression: game-history-inline-query-limit
 test('the composed session queries remain available to a second signed-in player', async () => {

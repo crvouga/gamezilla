@@ -11,6 +11,10 @@ export const CONNECT_FOUR_HARNESS_GAME: HarnessGame = assertHarnessGame({
   shared: connectFourGameShared,
   client: connectFourGameClient,
   actions: [...CONNECT_FOUR_ACTIONS, establishConnectFourBotPosition],
-  // Red stacks four in the first column while Yellow plays the second.
-  firstSideVictory: ['0', '1', '0', '1', '0', '1', '0'],
+  fixtures: {
+    // Red stacks four in the first column while Yellow plays the second.
+    firstSideVictory: ['0', '1', '0', '1', '0', '1', '0'],
+    // There are seven columns, numbered from 0; a column is one digit.
+    refusedOpenings: ['7', '-1', '00', 'a'],
+  },
 });

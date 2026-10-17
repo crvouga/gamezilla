@@ -1,4 +1,4 @@
 {
   "summary": "The shared multiplayer clock displayed the registered game side but hardcoded White/Black in its screen-reader announcement. Connect Four therefore announced Chess colours. Both visual and spoken identities must come from the injected game presentation.",
-  "regressionTest": "libs/chess-root-harness/tests/connect-four-clock-label-regression.test.ts"
+  "regressionTest": "libs/connect-four-harness/tests/connect-four-clock-label-regression.test.ts"
 }

@@ -1,3 +1,8 @@
+/**
+ * The shared history of every game offering it records what happened to a
+ * custom game, and nothing that did not.
+ */
+
 import { expect, test } from 'bun:test';
 import { establishCustomGame } from '@libs/game-session-harness/custom-game-lineup';
 import { attemptCustomGame } from '@libs/game-session-harness/custom-game-ui';
@@ -5,15 +10,13 @@ import {
   gameHistoryStatistics,
   openGameHistory,
 } from '@libs/game-session-harness/game-history-actions';
-import { openGamesHarness } from '@libs/games-harness/games-system';
-import { HARNESS_GAMES } from '@libs/games-harness/harness-games';
+import { openConformanceHarness } from '../../conformance-world';
+import { forEveryGame } from '../game-suite';
 
-for (const game of HARNESS_GAMES.filter((candidate) =>
-  candidate.shared.turnGame.capabilities.includes('history')
-)) {
+forEveryGame(import.meta.path, (game) => {
   // regression: cancelled-history-invents-bot
-  test(`${game.label}: a cancelled game with an unfilled place records no invented bot or result`, async () => {
-    await using s = await openGamesHarness(
+  test('a cancelled game with an unfilled place records no invented bot or result', async () => {
+    await using s = await openConformanceHarness(
       `${game.shared.id}-cancelled-history`
     );
     await s.apply(establishCustomGame, game.shared.id, {
@@ -28,4 +31,4 @@ for (const game of HARNESS_GAMES.filter((candidate) =>
     expect(history.record).not.toContain('Bot');
     expect([history.wins, history.losses, history.draws]).toEqual([0, 0, 0]);
   }, 120_000);
-}
+});

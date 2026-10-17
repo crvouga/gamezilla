@@ -2,36 +2,16 @@ import type { CustomGameLineup } from '@libs/game-session-harness/custom-game-li
 import { establishCustomGame } from '@libs/game-session-harness/custom-game-lineup';
 import { customGameView } from '@libs/game-session-harness/custom-game-moves';
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
-import { HARNESS_GAMES } from '@libs/games-harness/harness-games';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import type { GameCapability } from '@pkgs/turn-game-shared/game-rules';
-
-/**
- * What each shared feature shows, so it runs only for the games offering
- * it. A feature missing here fails rather than running for nobody.
- */
-const SHOWN: Readonly<Record<string, readonly GameCapability[]>> = {
-  'game-choices': ['custom-games', 'matchmaking', 'history'],
-  'custom-games': ['custom-games'],
-  'game-turns': ['custom-games'],
-  'finding-an-opponent': ['matchmaking'],
-  'game-history': ['custom-games', 'history'],
-};
-
-export function capabilitiesShown(
-  featureUri: string
-): readonly GameCapability[] {
-  const stem = featureUri.replace(/^.*\//, '').replace(/\.feature$/, '');
-  const shown = SHOWN[stem];
-  if (shown === undefined)
-    throw new Error(`${featureUri}: say which capabilities it shows`);
-  return shown;
-}
+import { CONFORMANCE_GAMES } from '../conformance-world';
 
 /** The game this run of the scenario is for. */
 export function gameOf(w: HarnessWorld): HarnessGame {
   const id = w.ctx.variant?.id;
-  const game = HARNESS_GAMES.find((candidate) => candidate.shared.id === id);
+  const game = CONFORMANCE_GAMES.find(
+    (candidate) => candidate.shared.id === id
+  );
   if (game === undefined)
     throw new Error(`${w.ctx.scenarioName}: no game for this run`);
   return game;
@@ -42,10 +22,10 @@ export function anotherGame(
   w: HarnessWorld,
   capability: GameCapability
 ): HarnessGame {
-  const other = HARNESS_GAMES.find(
+  const other = CONFORMANCE_GAMES.find(
     (game) =>
       game.shared.id !== gameOf(w).shared.id &&
-      game.shared.turnGame.capabilities.includes(capability)
+      game.shared.turnGame.capabilities[capability] !== undefined
   );
   if (other === undefined)
     throw new Error(`No other game offers ${capability} to compare with`);

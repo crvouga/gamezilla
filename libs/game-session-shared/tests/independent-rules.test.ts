@@ -4,20 +4,20 @@ import {
   PlayCustomGameBot,
 } from '@libs/game-session-shared/custom-game-commands';
 import { CustomGamesAttr } from '@libs/game-session-shared/custom-game-state';
-import { GAME_ROOM_CAPABILITY } from '@libs/game-session-shared/game-room-capability';
+import { defineTurnGame } from '@libs/game-session-shared/turn-game-definition';
 import { GamesRoomAttr } from '@libs/spaces-shared/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared/space-members-messages';
 import { createSpaceModule } from '@libs/spaces-shared/space-module';
 import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-root-shared/builtin';
 import { assertRoomModuleName } from '@pkgs/room-root-shared/types';
 import type {
-  GameCapability,
+  GameBots,
   GameRules,
+  TurnGameCapabilities,
 } from '@pkgs/turn-game-shared/game-rules';
 
 /** A counting race exercises opaque actions and positions unrelated to a board. */
 const rules: GameRules = {
-  botDifficulties: [],
   id: 'counting-race',
   recognizes: (position) => /^race:[0-4]$/.test(position),
   initial: () => 'race:0',
@@ -36,9 +36,11 @@ const rules: GameRules = {
   replay: (_actions, ply) => `race:${ply}`,
   legal: (position) => (position === 'race:4' ? [] : ['advance-token']),
   canWin: () => true,
-  choose: (position) => (position === 'race:4' ? null : 'advance-token'),
   moves: () => [],
-  record: (position) => position,
+};
+const bots: GameBots = {
+  difficulties: [],
+  choose: (position) => (position === 'race:4' ? null : 'advance-token'),
 };
 const notice = {
   timeoutDraw: () => 'drawn on time',
@@ -46,15 +48,12 @@ const notice = {
   ending: () => undefined,
 };
 
-function raceRoom(capabilities: readonly GameCapability[]) {
-  const definition = {
-    id: rules.id,
-    turnGame: { rules, controlPrefix: 'race/', notice, capabilities },
-    commandRouters: [],
-    eventRouters: [],
-    recoverEffects: () => [],
-    roomCapabilities: [GAME_ROOM_CAPABILITY],
-  };
+function raceRoom(capabilities: TurnGameCapabilities) {
+  const definition = defineTurnGame({
+    rules,
+    capabilities,
+    automation: { choose: () => null, perform: async () => {} },
+  });
   const module = createSpaceModule(
     assertRoomModuleName('race-room'),
     [definition],
@@ -70,7 +69,10 @@ function raceRoom(capabilities: readonly GameCapability[]) {
 }
 
 test('a game that declares no custom games cannot create one', () => {
-  const { module, state } = raceRoom(['matchmaking', 'history']);
+  const { module, state } = raceRoom({
+    matchmaking: { clockNamespace: 'counting-race/', notice },
+    history: { record: String },
+  });
   const result = module.handle(
     state,
     {
@@ -90,7 +92,7 @@ test('a game that declares no custom games cannot create one', () => {
 
 // regression: game-session-action-length-coupling
 test('an unrelated game uses the same configuration, bot turns, completion and replay contracts', () => {
-  const room = raceRoom(['custom-games']);
+  const room = raceRoom({ 'custom-games': { bots } });
   const module = room.module;
   let state = room.state;
   let sequence = 0;

@@ -10,9 +10,6 @@
     },
     "test:spec:2": {
       "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:3": {
-      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }

@@ -1,8 +1,9 @@
 /**
  * The extension contract, exercised end to end with a game no shared code
- * knows: the shared menu offers exactly what it declares, the shared
- * custom-game screen plays it on its own board, and the shared history
- * counts its result.
+ * knows, in a world of its own: the shared menu offers exactly what it
+ * declares, the shared custom-game screen plays it on its own board, and the
+ * shared history counts its result. (Beside the registered games, the same
+ * game also runs every shared specification and suite it offers.)
  */
 
 import { expect, test } from 'bun:test';
@@ -30,7 +31,7 @@ const RACE_SYSTEM = gameSystem('counting-race', [COUNTING_RACE_GAME]);
 test('a game registered only through the public contracts is offered, played and counted by the shared platform', async () => {
   await using s = await openGameHarness(RACE_SYSTEM, 'counting-race-plugin');
   await s.apply(establishCustomGame, 'counting-race', {
-    moves: COUNTING_RACE_GAME.firstSideVictory.slice(0, -1),
+    moves: COUNTING_RACE_GAME.fixtures.firstSideVictory.slice(0, -1),
   });
   await s.apply(makeCustomGameMove, 'alice', 'counting-race', 'advance');
   const finished = (await s.read(customGameView, 'alice')).current;

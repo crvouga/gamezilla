@@ -216,6 +216,24 @@ describe('evaluateLines', () => {
     ]);
   });
 
+  test('a scenario run per game is decided by its per-game verdicts, and a failing game is named', () => {
+    const records = [
+      record(FEATURE, [
+        pass('scenario:A guest creates a space [chess]', 'system'),
+        {
+          id: 'scenario:A guest creates a space [connect-four]',
+          layer: 'system',
+          status: 'fail',
+          detail: 'no board',
+        },
+        pass('scenario:A member creates a space', 'system'),
+      ]),
+    ];
+    expect(line(input({ records }), 'acceptance').problems).toEqual([
+      `${FEATURE.path}: scenario:A guest creates a space [connect-four] failed — no board`,
+    ]);
+  });
+
   test('every scenario passing passes, and fresh records from several buckets merge', () => {
     const records = [
       record(FEATURE, [pass('scenario:A guest creates a space', 'system')]),

@@ -18,12 +18,9 @@
     "@libs/chess-root-shared": "workspace:*",
     "@libs/chess-rules-shared": "workspace:*",
     "@libs/game-session-shared": "workspace:*",
-    "@libs/spaces-shared": "workspace:*",
     "@libs/sub-shared": "workspace:*",
     "@pkgs/chess-board-core-shared": "workspace:*",
-    "@pkgs/sql-root-shared": "workspace:*",
-    "@pkgs/turn-game-shared": "workspace:*",
-    "@pkgs/ui-testing-root-shared": "workspace:*"
+    "@pkgs/sql-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

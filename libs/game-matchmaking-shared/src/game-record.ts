@@ -15,7 +15,10 @@ type RecordFields = Pick<
   | 'white_rating'
   | 'black_rating'
 >;
-/** Each registered game owns its notation and export format. */
+/**
+ * The finished game's portable record, in its game's own format; `null`
+ * while it is unfinished or when its game offers no history.
+ */
 export function gameRecord(
   game: RecordFields,
   names: GameRecordNames,
@@ -27,7 +30,9 @@ export function gameRecord(
     game.outcome !== 'draw'
   )
     return null;
-  return rules.forPosition(game.fen).record(game.fen, game.pgn, {
+  const history = rules.capability(rules.forPosition(game.fen).id, 'history');
+  if (history === undefined) return null;
+  return history.record(game.fen, game.pgn, {
     participants: [
       { name: names.white, rating: game.white_rating },
       { name: names.black, rating: game.black_rating },

@@ -1,11 +1,9 @@
-import type { GameAutomation } from '@pkgs/turn-game-shared/game-automation';
-import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
-import { connectFourRules, parseConnectFourColumn } from './connect-four-rules';
+import type { TurnGame } from '@libs/game-session-shared/turn-game-definition';
+import { connectFourBots, parseConnectFourColumn } from './connect-four-rules';
 
-export const connectFourAutomation: GameAutomation<Driver> = {
-  rules: connectFourRules,
+export const connectFourAutomation: TurnGame['automation'] = {
   choose: (position, random) =>
-    connectFourRules.choose(position, 'medium', random),
+    connectFourBots.choose(position, 'medium', random),
   async perform(ui, board, action) {
     const column = parseConnectFourColumn(action);
     if (column === null)

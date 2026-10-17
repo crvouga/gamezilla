@@ -120,15 +120,11 @@ export function useMultiplayerControls(data: MultiplayerData) {
       refusals.setDenial(decision);
       return;
     }
-    const registration = rules.games.find(
-      (game) =>
-        game.rules.id === data.gameId() &&
-        game.capabilities.includes('matchmaking')
-    );
-    if (registration === undefined)
+    const matchmaking = rules.capability(data.gameId(), 'matchmaking');
+    if (matchmaking === undefined)
       throw new Error('The selected game does not support matchmaking');
     await run(findOpponentMutation, {
-      timeControl: registration.controlPrefix + timeControl,
+      timeControl: matchmaking.clockNamespace + timeControl,
     });
   };
   const stop = () =>

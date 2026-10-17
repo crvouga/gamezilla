@@ -124,11 +124,14 @@ export function timeControlKey(id: string): string {
   return id.replace('+', '-');
 }
 
-/** Offered controls are configured by the injected game registrations. */
+/** The clock choices of every registered game offering matchmaking. */
 export function offeredTimeControls(rules: TurnGames): readonly TimeControl[] {
-  return rules.games.flatMap((game) =>
-    TIME_CONTROLS.map(
-      (control) => timeControlOf(game.controlPrefix + control.id)!
-    )
-  );
+  return rules.games.flatMap((game) => {
+    const matchmaking = game.capabilities.matchmaking;
+    return matchmaking === undefined
+      ? []
+      : TIME_CONTROLS.map(
+          (control) => timeControlOf(matchmaking.clockNamespace + control.id)!
+        );
+  });
 }

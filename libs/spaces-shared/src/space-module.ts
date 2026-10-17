@@ -101,7 +101,6 @@ function buildCommandRouter(
 }
 
 function buildEventReducer(
-  games: readonly GameDefinition[],
   now: () => number,
   modules: readonly GameDefinition[]
 ) {
@@ -114,7 +113,7 @@ function buildEventReducer(
       router: createSpaceMembersEventReducer(now),
     },
     { namespace: counterEvtNs, router: counterEventReducer },
-    { namespace: gamesEvtNs, router: createGamesEventReducer(games) },
+    { namespace: gamesEvtNs, router: createGamesEventReducer() },
     ...modules.flatMap((game) => [...game.eventRouters]),
   ]);
 }
@@ -180,7 +179,7 @@ export function createSpaceModule(
   assertUniqueGameIds(definitions);
   const games = gameModules(definitions);
   const commandRouter = buildCommandRouter(definitions, games);
-  const eventReducer = buildEventReducer(definitions, now, games);
+  const eventReducer = buildEventReducer(now, games);
   const reduce = (state: RoomState, event: Message): RoomState =>
     eventReducer.dispatch(state, undefined, event, (s) => s);
 

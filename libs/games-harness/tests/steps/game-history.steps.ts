@@ -17,7 +17,7 @@ import {
 } from './game-world';
 
 Given('{actor} has won a custom game', async (w) =>
-  setupCustomGame(w, { moves: gameOf(w).firstSideVictory })
+  setupCustomGame(w, { moves: gameOf(w).fixtures.firstSideVictory })
 );
 Given(
   '{actor} has won a custom game of another game',
@@ -26,7 +26,7 @@ Given(
     await w.s.apply(establishCustomGame, other.shared.id, {
       host: actor,
       first: actor,
-      moves: other.firstSideVictory,
+      moves: other.fixtures.firstSideVictory,
     });
     await w.s.apply(switchSpaceGame, actor, gameOf(w).shared.id);
   }

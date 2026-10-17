@@ -1,4 +1,4 @@
 {
   "summary": "Browser room recovery scenarios were refused because their shared connection actions only supported virtual partitions. Reuse the existing app network kill switch on browser devices, leaving virtual network faults intact.",
-  "regressionTest": "specs/connect-four/custom-connect-four.feature"
+  "regressionTest": "specs/games/custom-games.feature"
 }

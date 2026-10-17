@@ -4,7 +4,7 @@ import {
   chessScreensCommandRouter,
   chessScreensEventReducer,
 } from '@libs/chess-root-shared/chess-screens';
-import type { GameDefinition } from '@libs/spaces-shared/game';
+import type { GameOwnRoom } from '@libs/spaces-shared/game';
 import {
   chessPuzzlePlayCmdNs,
   chessPuzzlePlayEvtNs,
@@ -17,15 +17,11 @@ import { chessPuzzlePlayCommandRouter } from './chess-puzzle-play-router';
 export const CHESS_GAME_ID = 'chess';
 
 /**
- * Server/shared chess game definition. Registered in `@libs/games` and composed
- * into the space `SpaceModule` at the composition root.
- *
- * Note: this is the *only* place chess wires itself into the spaces
- * registry. `@libs/spaces` knows nothing about chess.
+ * The room behaviour of chess's own screens (its puzzles and the screens
+ * they open), installed beside the shared ones by chess's registration.
+ * `@libs/spaces` knows nothing about chess.
  */
-export const chessPuzzleGame: GameDefinition = {
-  id: CHESS_GAME_ID,
-  recoverEffects: () => [],
+export const chessPuzzleRoom: GameOwnRoom = {
   commandRouters: [
     { namespace: chessCmdNs, router: chessScreensCommandRouter },
     { namespace: chessPuzzlePlayCmdNs, router: chessPuzzlePlayCommandRouter },

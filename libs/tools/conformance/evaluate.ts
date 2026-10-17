@@ -108,6 +108,21 @@ export function indexEvidence(
 
 type Index = ReadonlyMap<string, SpecEvidence>;
 
+/**
+ * Whether scenario `name` has a verdict: its own, or one per variant it ran
+ * for (`scenario:<name> [<variant>]`, a shared game scenario per game).
+ */
+function decided(
+  fresh: ReadonlyMap<string, Obligation>,
+  layer: Layer,
+  name: string
+): boolean {
+  if (fresh.has(key(layer, `scenario:${name}`))) return true;
+  const variant = key(layer, `scenario:${name} [`);
+  for (const id of fresh.keys()) if (id.startsWith(variant)) return true;
+  return false;
+}
+
 function absent(path: string, evidence: SpecEvidence | undefined): string {
   return (evidence?.stale ?? 0) > 0
     ? `${path}: stale evidence — recorded from another text of the spec; run its suite again`
@@ -157,7 +172,7 @@ function specProblems(
   }
   if (rule.everyScenario === true) {
     for (const name of spec.scenarios) {
-      if (!fresh.has(key(rule.layer, `scenario:${name}`))) {
+      if (!decided(fresh, rule.layer, name)) {
         out.push(
           `${spec.path}: not run — scenario "${name}" has no ${rule.layer} verdict`
         );

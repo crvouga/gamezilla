@@ -12,7 +12,10 @@ export function CustomGameDifficulty(props: {
   const rules = useTurnGames();
   const difficulties = () => {
     const game = props.model.current();
-    return game === null ? [] : rules.forPosition(game.fen).botDifficulties;
+    return game === null
+      ? []
+      : (rules.capability(rules.forPosition(game.fen).id, 'custom-games')?.bots
+          .difficulties ?? []);
   };
   return (
     <Show

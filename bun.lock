@@ -1307,12 +1307,9 @@
         "@libs/chess-root-shared": "workspace:*",
         "@libs/chess-rules-shared": "workspace:*",
         "@libs/game-session-shared": "workspace:*",
-        "@libs/spaces-shared": "workspace:*",
         "@libs/sub-shared": "workspace:*",
         "@pkgs/chess-board-core-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
-        "@pkgs/turn-game-shared": "workspace:*",
-        "@pkgs/ui-testing-root-shared": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1366,9 +1363,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/game-session-shared": "workspace:*",
-        "@libs/spaces-shared": "workspace:*",
         "@pkgs/turn-game-shared": "workspace:*",
-        "@pkgs/ui-testing-root-shared": "workspace:*",
       },
       "devDependencies": {
         "@pkgs/property-shared": "workspace:*",
@@ -1755,8 +1750,9 @@
         "@libs/spaces-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
         "@pkgs/harness-root-shared": "workspace:*",
+        "@pkgs/property-shared": "workspace:*",
         "@pkgs/turn-game-shared": "workspace:*",
-        "@pkgs/ui-testing-root-shared": "workspace:*",
+        "fast-check": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1809,6 +1805,7 @@
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
         "@pkgs/turn-game-shared": "workspace:*",
+        "@pkgs/ui-testing-root-shared": "workspace:*",
         "zod": "catalog:",
       },
       "devDependencies": {
@@ -1853,9 +1850,9 @@
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/gherkin-shared": "workspace:*",
         "@pkgs/turn-game-shared": "workspace:*",
-        "@pkgs/ui-testing-root-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "solid-js": "catalog:",
         "typescript": "catalog:",
       },
@@ -1866,6 +1863,7 @@
       "dependencies": {
         "@libs/chess-sub-shared": "workspace:*",
         "@libs/connect-four-shared": "workspace:*",
+        "@libs/game-session-shared": "workspace:*",
         "@libs/spaces-shared": "workspace:*",
       },
       "devDependencies": {
@@ -2906,6 +2904,8 @@
         "@libs/app-config-shared": "workspace:*",
         "@libs/game-catalog-shared": "workspace:*",
         "@libs/game-matchmaking-harness": "workspace:*",
+        "@libs/game-session-harness": "workspace:*",
+        "@libs/games-harness": "workspace:*",
         "@libs/harness": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/profile-harness": "workspace:*",
@@ -2924,8 +2924,6 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
-        "@libs/game-session-harness": "workspace:*",
-        "@libs/games-harness": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",

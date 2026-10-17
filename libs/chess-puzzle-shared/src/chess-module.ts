@@ -16,7 +16,7 @@ import {
 } from '@pkgs/room-root-shared/types';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 
-import { chessPuzzleGame } from './chess-game';
+import { chessPuzzleRoom } from './chess-game';
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
@@ -27,14 +27,14 @@ const commandRouter = createComposedMessageRouter<
   GameCommandContext,
   HandleResult
 >(
-  chessPuzzleGame.commandRouters.map((entry) => ({
+  chessPuzzleRoom.commandRouters.map((entry) => ({
     namespace: entry.namespace,
     router: entry.router,
   }))
 );
 
 const eventReducer = createComposedMessageRouter<RoomState, void, RoomState>(
-  chessPuzzleGame.eventRouters.map((entry) => ({
+  chessPuzzleRoom.eventRouters.map((entry) => ({
     namespace: entry.namespace,
     router: entry.router,
   }))
@@ -46,17 +46,16 @@ const eventReducer = createComposedMessageRouter<RoomState, void, RoomState>(
  * `@libs/spaces` (which would re-introduce a chess <-> spaces cycle).
  *
  * Production traffic always goes through the composed `SpaceModule` built
- * by `createSpaceModule(name, [chessPuzzleGame, …])` at the composition root.
+ * by `createSpaceModule(name, [chessGameShared, …])` at the composition root.
  */
 export function createChessModule(
   random: Random
 ): RoomModule<RoomState, Message, Message, string> {
   return {
     name: assertRoomModuleName('chess'),
-    recoverEffects: (state) => chessPuzzleGame.recoverEffects(state),
+    recoverEffects: () => [],
     initialState(): RoomState {
-      if (chessPuzzleGame.initialState === undefined) return {};
-      return chessPuzzleGame.initialState();
+      return chessPuzzleRoom.initialState?.() ?? {};
     },
 
     handle(state, command: RoomCommand, identity): HandleResult {

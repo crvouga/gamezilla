@@ -25,6 +25,7 @@
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/turn-game-shared": "workspace:*",
+    "@pkgs/ui-testing-root-shared": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

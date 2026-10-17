@@ -12,16 +12,13 @@ import { automationDriver } from './automation-driver';
 
 const RULES: GameRules = {
   id: 'counting',
-  botDifficulties: ['easy'],
   recognizes: (position) => position.startsWith('count:'),
   initial: () => 'count:0',
   legal: (position) => (position === 'count:3' ? [] : ['advance']),
-  choose: () => 'advance',
   canWin: () => true,
   play: () => null,
   replay: () => 'count:0',
   moves: () => [],
-  record: () => '',
 };
 function game(id: string): GameAutomation<Driver> {
   return {

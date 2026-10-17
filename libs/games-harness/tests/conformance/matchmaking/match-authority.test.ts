@@ -1,9 +1,10 @@
 /**
  * The shared match authority, for every game that offers finding an
  * opponent: one accepted turn at a time, refusals for the wrong person, a
- * stale or repeated request and a finished game, a rematch that keeps the
- * result, and reconnection to the same match. Moves come from each game's
- * own rules, so a new game is held to the contract without a copy.
+ * refused action, a stale or repeated request and a finished game — none of
+ * which changes the game — a rematch that keeps the result, and
+ * reconnection to the same match. Moves come from each game's fixtures, so
+ * a new game is held to the contract without a copy.
  */
 
 import { expect, test } from 'bun:test';
@@ -17,15 +18,10 @@ import {
   opponentSearchView,
   seekGameOpponent,
 } from '@libs/game-matchmaking-harness/opponent-seeking';
-import { firstLegalMove } from '@libs/game-session-harness/custom-game-moves';
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
-import { openGamesHarness } from '@libs/games-harness/games-system';
-import { HARNESS_GAMES } from '@libs/games-harness/harness-games';
 import type { OpenHarness } from '@libs/harness/open-harness';
-
-const MATCHED = HARNESS_GAMES.filter((game) =>
-  game.shared.turnGame.capabilities.includes('matchmaking')
-);
+import { openConformanceHarness } from '../../conformance-world';
+import { forEveryGame } from '../game-suite';
 
 async function paired(s: OpenHarness, game: HarnessGame) {
   await s.apply(seekGameOpponent, 'alice', game.shared.id);
@@ -58,12 +54,15 @@ async function agreed(s: OpenHarness) {
   return first;
 }
 
-for (const game of MATCHED) {
+forEveryGame(import.meta.path, (game) => {
   const rules = game.shared.turnGame.rules;
-  const opening = firstLegalMove(game, rules.initial());
+  const victory = game.fixtures.firstSideVictory;
+  const opening = victory[0]!;
 
-  test(`${game.label}: the authority refuses the wrong, repeated, stale and late moves, and a rematch keeps the result`, async () => {
-    await using s = await openGamesHarness(`${game.shared.id}-match-authority`);
+  test('the authority refuses the wrong, repeated, stale and late moves, and a rematch keeps the result', async () => {
+    await using s = await openConformanceHarness(
+      `${game.shared.id}-match-authority`
+    );
     let match = await paired(s, game);
     const id = match.id;
     expect(
@@ -77,7 +76,7 @@ for (const game of MATCHED) {
     const first = {
       gameId: id,
       revision: 0,
-      uci: game.firstSideVictory[0],
+      uci: opening,
       requestId: 'first',
     };
     expect(await command(s, 'alice', first)).toBe(true);
@@ -88,11 +87,11 @@ for (const game of MATCHED) {
       await command(s, 'bob', {
         gameId: id,
         revision: 0,
-        uci: game.firstSideVictory[1],
+        uci: victory[1],
         requestId: 'stale',
       })
     ).toBe(false);
-    for (const move of game.firstSideVictory.slice(1)) {
+    for (const move of victory.slice(1)) {
       match = await agreed(s);
       expect(
         await command(s, match.revision % 2 === 0 ? 'alice' : 'bob', {
@@ -131,10 +130,31 @@ for (const game of MATCHED) {
     expect(rematch.white_id).toBe(finished.black_id);
   }, 180_000);
 
-  test(`${game.label}: a reconnecting player receives the opponent's accepted move in the same match`, async () => {
-    await using s = await openGamesHarness(`${game.shared.id}-match-reconnect`);
+  test("a refused action changes neither player's game", async () => {
+    await using s = await openConformanceHarness(
+      `${game.shared.id}-match-refused`
+    );
     const match = await paired(s, game);
-    const [mine, theirs] = game.firstSideVictory;
+    for (const [index, refused] of game.fixtures.refusedOpenings.entries())
+      expect(
+        await command(s, 'alice', {
+          gameId: match.id,
+          revision: 0,
+          uci: refused,
+          requestId: `refused-${String(index)}`,
+        })
+      ).toBe(false);
+    const unchanged = await agreed(s);
+    expect(unchanged.revision).toBe(0);
+    expect(unchanged.fen).toBe(rules.initial());
+  }, 180_000);
+
+  test("a reconnecting player receives the opponent's accepted move in the same match", async () => {
+    await using s = await openConformanceHarness(
+      `${game.shared.id}-match-reconnect`
+    );
+    const match = await paired(s, game);
+    const [mine, theirs] = victory;
     await command(s, 'alice', {
       gameId: match.id,
       revision: 0,
@@ -158,20 +178,25 @@ for (const game of MATCHED) {
     expect(restored.fen).toBe(rules.replay([mine!, theirs!], 2));
   }, 180_000);
 
-  test(`${game.label}: concurrent requests consume a single turn`, async () => {
-    await using s = await openGamesHarness(`${game.shared.id}-concurrent-turn`);
+  test('concurrent requests consume a single turn', async () => {
+    await using s = await openConformanceHarness(
+      `${game.shared.id}-concurrent-turn`
+    );
     const match = await paired(s, game);
-    const choices = rules.legal(rules.initial()).slice(0, 2);
-    expect(choices).toHaveLength(2);
+    // Two different moves when the game offers them, else one sent twice.
+    const choices = [
+      opening,
+      rules.legal(rules.initial()).find((uci) => uci !== opening) ?? opening,
+    ];
     await Promise.all(
-      choices.map((uci) =>
+      choices.map((uci, index) =>
         s.apply(sendMultiplayerCommand, 'alice', {
           name: 'playMultiplayerMove',
           args: {
             gameId: match.id,
             revision: 0,
             uci,
-            requestId: `concurrent-${uci}`,
+            requestId: `concurrent-${String(index)}`,
           },
         })
       )
@@ -182,4 +207,4 @@ for (const game of MATCHED) {
       accepted.fen
     );
   }, 180_000);
-}
+});

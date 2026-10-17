@@ -100,26 +100,18 @@ export function createGamesCommandRouter(games: readonly GameDefinition[]) {
 }
 
 /**
- * Factory for the games event reducer. Applies the `selected` attr and, when
- * the host switches from one game to another, returns the space to the
- * game's choices and invokes
- * the previously-selected game's `resetRoomState` (if any) so per-game
- * attributes are cleared when the host switches away.
+ * The games event reducer. Applies the `selected` attr and, when the host
+ * switches from one game to another, returns the space to the game's
+ * choices.
  */
-export function createGamesEventReducer(games: readonly GameDefinition[]) {
-  const byId = new Map(games.map((g) => [g.id, g]));
+export function createGamesEventReducer() {
   return createMessageRouter<RoomState, void, RoomState>(gamesEvtNs)
     .on(GameSelected, (state, _identity, event) => {
       const previous = GamesRoomAttr.selected.from(state);
       const next = event.payload.game;
       let result: RoomState = { ...state, ...GamesRoomAttr.selected(next) };
-      if (previous !== null && previous !== next) {
+      if (previous !== null && previous !== next)
         result = { ...result, ...GamesRoomAttr.screen(GAME_CHOICES_SCREEN) };
-        const game = byId.get(previous);
-        if (game?.resetRoomState !== undefined) {
-          result = game.resetRoomState(result);
-        }
-      }
       return result;
     })
     .on(GameScreenShown, (state, _identity, event) => ({

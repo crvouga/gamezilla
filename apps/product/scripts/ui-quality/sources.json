@@ -15,9 +15,19 @@
     "parts": 84
   },
   {
+    "package": "@libs/connect-four-harness",
+    "directory": "libs/connect-four-harness",
+    "parts": 3
+  },
+  {
     "package": "@libs/friends-harness",
     "directory": "libs/friends-harness",
     "parts": 64
+  },
+  {
+    "package": "@libs/games-harness",
+    "directory": "libs/games-harness",
+    "parts": 3
   },
   {
     "package": "@libs/profile-harness",

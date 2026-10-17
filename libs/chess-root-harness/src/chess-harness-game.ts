@@ -10,6 +10,11 @@ export const CHESS_HARNESS_GAME: HarnessGame = assertHarnessGame({
   shared: chessGameShared,
   client: chessGameClient,
   slice: CHESS_HARNESS_SLICE,
-  // Scholar's mate: White mates on f7 with the seventh move.
-  firstSideVictory: ['e2e4', 'e7e5', 'f1c4', 'b8c6', 'd1h5', 'g8f6', 'h5f7'],
+  fixtures: {
+    // Scholar's mate: White mates on f7 with the seventh move.
+    firstSideVictory: ['e2e4', 'e7e5', 'f1c4', 'b8c6', 'd1h5', 'g8f6', 'h5f7'],
+    // A pawn cannot advance three squares, a knight cannot move straight, a
+    // black pawn cannot move first, and a square is not a move.
+    refusedOpenings: ['e2e5', 'g1g3', 'e7e5', 'e2'],
+  },
 });

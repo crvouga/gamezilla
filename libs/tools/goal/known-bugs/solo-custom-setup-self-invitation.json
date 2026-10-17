@@ -1,4 +1,4 @@
 {
   "summary": "The Connect Four setup invited the host to their own place, requiring a synchronized remote room even for a solo local game. Faster startup exposed the refusal before room synchronization. Establish the host through the ordinary Take place action; remote people still use invitations and acceptance.",
-  "regressionTest": "libs/chess-root-harness/tests/connect-four-offline-column.test.ts"
+  "regressionTest": "libs/connect-four-harness/tests/connect-four-offline-column.test.ts"
 }

@@ -13,11 +13,13 @@ export const CUSTOM_GAME_BOARD = 'custom-game-board';
 
 /**
  * A legal move of the position by the game's own rules; from a finished
- * position, which has none, a move legal at the start of a game.
+ * position, which has none, the game's known opening (a move legal at the
+ * start of a game).
  */
 export function firstLegalMove(game: HarnessGame, position: string): string {
-  const rules = game.shared.turnGame.rules;
-  const move = rules.legal(position)[0] ?? rules.legal(rules.initial())[0];
+  const move =
+    game.shared.turnGame.rules.legal(position)[0] ??
+    game.fixtures.firstSideVictory[0];
   if (move === undefined)
     throw new Error(`${game.label}: the game offers no first move`);
   return move;

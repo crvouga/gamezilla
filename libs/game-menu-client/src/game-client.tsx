@@ -4,6 +4,9 @@ import type { JSX } from 'solid-js';
 import { GameMenu } from './game-menu';
 import { assertGameScreens } from './shared-game-screens';
 
+/** How the shared screens show the game: its board, side names and endings. */
+export type GameClientPresentation = Omit<GamePresentation<JSX.Element>, 'id'>;
+
 /** A screen the game renders itself, shown to everyone in the space. */
 export type GameOwnScreen = {
   /** Its key in the space; a choice's key also names its control (`game-choice-<screen>`). */
@@ -35,7 +38,7 @@ export type GameClient = {
   readonly subtitle: () => JSX.Element;
   /** How to play, under the game's choices. */
   readonly instructions?: () => JSX.Element;
-  readonly presentation: GamePresentation<JSX.Element>;
+  readonly presentation: GameClientPresentation;
   /** The game's own choices, offered before the shared ones. */
   readonly choices?: readonly GameChoice[];
   /** The game's settings, offered last under the shared name. */
@@ -45,7 +48,6 @@ export type GameClient = {
   /** Wraps every screen of the game (shared data the game's screens read). */
   readonly Frame?: (props: { children: JSX.Element }) => JSX.Element;
   readonly SessionEffects?: () => JSX.Element;
-  readonly preload?: () => void;
 };
 
 /** The one way a game joins the space's game choice. */
@@ -58,13 +60,12 @@ export function defineGameClient(game: GameClient): GameClientDefinition {
     id: game.id,
     title: game.title,
     caption: game.caption,
-    presentation: game.presentation,
+    presentation: { ...game.presentation, id: game.id },
     MainMenu: (props) => (
       <GameMenu game={game} onBackToGames={props.onBackToGames} />
     ),
     ...(game.SessionEffects === undefined
       ? {}
       : { SessionEffects: game.SessionEffects }),
-    ...(game.preload === undefined ? {} : { preload: game.preload }),
   };
 }

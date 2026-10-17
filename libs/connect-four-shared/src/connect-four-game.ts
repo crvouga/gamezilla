@@ -1,25 +1,22 @@
-import { GAME_ROOM_CAPABILITY } from '@libs/game-session-shared/game-room-capability';
-import type { GameDefinition } from '@libs/spaces-shared/game';
-import type { RegisteredTurnGame } from '@pkgs/turn-game-shared/game-rules';
-import { GAME_CAPABILITIES } from '@pkgs/turn-game-shared/game-rules';
+import { defineTurnGame } from '@libs/game-session-shared/turn-game-definition';
 import { connectFourAutomation } from './connect-four-automation';
 import { connectFourNoticeText } from './connect-four-notice-text';
-import { connectFourRules } from './connect-four-rules';
+import {
+  connectFourBots,
+  connectFourRecord,
+  connectFourRules,
+} from './connect-four-rules';
 
-export const connectFourTurnGame: RegisteredTurnGame = {
+/** Connect Four offers every shared capability; its rules are its own. */
+export const connectFourGameShared = defineTurnGame({
   rules: connectFourRules,
-  controlPrefix: 'connect-four/',
-  notice: connectFourNoticeText,
-  capabilities: GAME_CAPABILITIES,
-};
-
-/** The space's shared custom-game and competitive lifecycles own sessions. */
-export const connectFourGameShared = {
-  id: 'connect-four',
+  capabilities: {
+    'custom-games': { bots: connectFourBots },
+    matchmaking: {
+      clockNamespace: 'connect-four/',
+      notice: connectFourNoticeText,
+    },
+    history: { record: connectFourRecord },
+  },
   automation: connectFourAutomation,
-  roomCapabilities: [GAME_ROOM_CAPABILITY],
-  turnGame: connectFourTurnGame,
-  commandRouters: [],
-  eventRouters: [],
-  recoverEffects: () => [],
-} satisfies GameDefinition;
+});

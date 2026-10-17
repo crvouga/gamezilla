@@ -78,7 +78,7 @@ export async function playGameJourney(
   const [mover, opponent] = first
     ? [host.act, host.actAsGuest]
     : [host.actAsGuest, host.act];
-  for (const [index, action] of game.firstSideVictory.entries())
+  for (const [index, action] of game.fixtures.firstSideVictory.entries())
     await (index % 2 === 0 ? mover : opponent)('playJourneyMove', (ui) =>
       playJourneyMove(ui, game, action, index + 1)
     );
@@ -96,8 +96,8 @@ export async function observeGameJourney(
     : [host.actAsGuest, host.act];
   const rules = game.shared.turnGame.rules;
   const finished = rules.replay(
-    game.firstSideVictory,
-    game.firstSideVictory.length
+    game.fixtures.firstSideVictory,
+    game.fixtures.firstSideVictory.length
   );
   await winner('observeGameVictory', async (ui) => {
     await expectMultiplayerWin(ui);

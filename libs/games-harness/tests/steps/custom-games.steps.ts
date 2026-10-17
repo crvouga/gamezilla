@@ -74,7 +74,7 @@ Then('{actor} is told she is not a participant', async (w, actor: string) => {
 });
 
 Given('{actor} has a finished custom game', async (w) =>
-  setupCustomGame(w, { moves: gameOf(w).firstSideVictory })
+  setupCustomGame(w, { moves: gameOf(w).fixtures.firstSideVictory })
 );
 When('{actor} asks for a rematch', async (w, actor: string) => {
   await w.s.apply(attemptCustomGame, actor, { operation: 'rematch' });

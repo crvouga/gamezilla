@@ -24,6 +24,7 @@ import {
   playCustomGameChoice,
   playCustomGameMove,
 } from './custom-game-play';
+import { customGameBotMove, customGameBots } from './custom-game-position';
 import { customGameRefusal } from './custom-game-refusal';
 import type { CustomGame, CustomGames } from './custom-game-state';
 import { CustomGamesAttr, newCustomGame } from './custom-game-state';
@@ -62,10 +63,14 @@ function createdCustomGame(
   }
 ): CustomGame | null {
   const { game, members, rules } = context;
+  const id =
+    choice.operation === 'rematch' && game !== null
+      ? rules.forPosition(game.fen).id
+      : gameForChoice(state, choice);
+  // A game no longer offering custom games is refused, rematches included.
+  if (!rules.offers(id, 'custom-games')) return null;
   if (choice.operation === 'rematch' && game !== null)
     return rematchCustomGame(game, ctx.commandId, members, rules);
-  const id = gameForChoice(state, choice);
-  if (!rules.offers(id, 'custom-games')) return null;
   return newCustomGame(ctx.commandId, ctx.identity, rules.byId(id).initial());
 }
 
@@ -116,7 +121,7 @@ export function handleCustomGameChoice(
   if (game === null) return refuseCustomGame('no Custom Game');
   if (
     choice.operation === 'difficulty' &&
-    !rules.forPosition(game.fen).botDifficulties.includes(choice.difficulty)
+    !customGameBots(game, rules).difficulties.includes(choice.difficulty)
   )
     return refuseCustomGame('difficulty not offered');
   const configured = configureCustomGame(game, choice, ctx.identity);
@@ -177,11 +182,7 @@ export function handleCustomGameWake(
   if (!bot || game[game.turn].kind !== 'bot')
     return changedCustomGames(games, ctx);
   const move =
-    'move' in wake
-      ? wake.move
-      : rules
-          .forPosition(game.fen)
-          .choose(game.fen, game.difficulty[game.turn], ctx.random);
+    'move' in wake ? wake.move : customGameBotMove(game, rules, ctx.random);
   if (move === null) throw new Error('active bot game has no legal move');
   const next = playCustomGameMove(game, move, at, rules);
   if (next === null) return refuseCustomGame('move is illegal');

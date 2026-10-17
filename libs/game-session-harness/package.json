@@ -30,8 +30,9 @@
     "@libs/spaces-shared": "workspace:*",
     "@libs/test-ids-shared": "workspace:*",
     "@pkgs/harness-root-shared": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
     "@pkgs/turn-game-shared": "workspace:*",
-    "@pkgs/ui-testing-root-shared": "workspace:*"
+    "fast-check": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

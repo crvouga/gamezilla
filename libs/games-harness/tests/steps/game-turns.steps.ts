@@ -1,7 +1,6 @@
 import { expect } from 'bun:test';
 import {
   customGameView,
-  firstLegalMove,
   makeCustomGameMove,
 } from '@libs/game-session-harness/custom-game-moves';
 import { partition } from '@libs/harness/actions';
@@ -13,9 +12,8 @@ const SECOND_MS = 1000;
 Given(
   "{actor} and {actor} have a custom game after {actor}'s first move",
   async (w) => {
-    const rules = gameOf(w).shared.turnGame.rules;
     await setupCustomGame(w, {
-      moves: [firstLegalMove(gameOf(w), rules.initial())],
+      moves: gameOf(w).fixtures.firstSideVictory.slice(0, 1),
     });
   }
 );
@@ -31,7 +29,7 @@ Given(
   }
 );
 Given('{actor} has a custom game one move from her victory', async (w) => {
-  const victory = gameOf(w).firstSideVictory;
+  const victory = gameOf(w).fixtures.firstSideVictory;
   await setupCustomGame(w, { moves: victory.slice(0, -1) });
   w.memo.set('winning-move', victory.at(-1));
 });

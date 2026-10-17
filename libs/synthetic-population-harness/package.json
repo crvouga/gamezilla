@@ -21,6 +21,8 @@
     "@libs/app-config-shared": "workspace:*",
     "@libs/game-catalog-shared": "workspace:*",
     "@libs/game-matchmaking-harness": "workspace:*",
+    "@libs/game-session-harness": "workspace:*",
+    "@libs/games-harness": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/profile-harness": "workspace:*",
@@ -39,8 +41,6 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@libs/game-session-harness": "workspace:*",
-    "@libs/games-harness": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
@@ -48,6 +48,7 @@
     "typescript": "catalog:"
   },
   "category": "harness",
+  "gameRegistry": true,
   "specDomains": [
     "synthetic-population"
   ],

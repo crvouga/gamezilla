@@ -15,7 +15,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  onMount,
   Show,
   untrack,
 } from 'solid-js';
@@ -81,12 +80,6 @@ function GameListMenu(props: {
   const onSelectGame = (game: SelectedGameId): void => {
     props.chooseGame(game);
   };
-
-  // Warm each game's heavy assets while the picker is shown so selecting a
-  // game does not block on a first-time load (no Suspense spinner on entry).
-  onMount(() => {
-    for (const game of props.games) game.preload?.();
-  });
 
   useOpenLinkedGame({
     games: () => props.games,

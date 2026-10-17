@@ -21,8 +21,7 @@ export function MultiplayerRatings(props: {
 }): JSX.Element {
   const rules = useTurnGames();
   const prefix = () =>
-    rules.games.find((game) => game.rules.id === props.gameId)?.controlPrefix ??
-    '';
+    rules.capability(props.gameId, 'matchmaking')?.clockNamespace ?? '';
   const ratingOf = (speed: MultiplayerSpeed) =>
     props.ratings.find((row) => row.speed === gameSpeed(prefix(), speed)) ??
     NEW_RATING;

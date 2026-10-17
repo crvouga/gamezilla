@@ -1,15 +1,12 @@
 import { chooseChessMove } from '@libs/chess-rules-shared/automated-move';
-import { chessRules } from '@libs/chess-rules-shared/chess-rules';
+import type { TurnGame } from '@libs/game-session-shared/turn-game-definition';
 import {
   chessBoardPromotionTestId,
   chessBoardSquareTestId,
 } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type { GameAutomation } from '@pkgs/turn-game-shared/game-automation';
-import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 
-export const chessAutomation: GameAutomation<Driver> = {
-  rules: chessRules,
+export const chessAutomation: TurnGame['automation'] = {
   choose: (position, random) => chooseChessMove(position, random)?.lan ?? null,
   async perform(ui, board, action) {
     if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(action))

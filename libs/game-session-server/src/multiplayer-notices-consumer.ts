@@ -101,7 +101,8 @@ export function createMultiplayerNoticesConsumer(rules: TurnGames) {
           person,
           opponent,
           gameType: rules.forPosition(game.fen).id,
-          text: rules.notice(rules.forPosition(game.fen).id),
+          text: rules.capability(rules.forPosition(game.fen).id, 'matchmaking')
+            ?.notice,
         };
         await reconcileTurnNotice(reconcile);
         await reconcileResultNotice(reconcile);

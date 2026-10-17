@@ -39,29 +39,18 @@ export type GameCommandContext = {
 };
 
 /**
- * Shared definition of a playable game inside a space. Implementations live
- * in sub packages (e.g. `@libs/chess/shared/chess-game`) and are
- * wired into the composed `SpaceModule` at the composition root
- * (`apps/server/src/api.ts`) — `@libs/spaces` itself never imports a
- * specific game.
+ * A module the platform installs once in every space, whichever games use
+ * it, bound to the rules of every registered turn game (the shared custom
+ * games and match rooms). Games never name one: their registration
+ * (`defineTurnGame`) declares it, and the space installs it once.
  */
-export type GameRoomCapability = {
+export type SharedGameModule = {
   readonly id: string;
   readonly bind: (rules: TurnGames) => GameDefinition;
 };
-export type GameDefinition = {
-  readonly automation?: GameAutomation<never>;
-  readonly turnGame?: RegisteredTurnGame;
-  readonly roomCapabilities?: readonly GameRoomCapability[];
-  /** Stable wire id (e.g. `'chess'`). Mirrored in room state + URLs. */
-  readonly id: string;
-  /** Independent rooms shared by spaces playing a matched game. */
-  readonly matchRooms?: readonly RoomModule<
-    RoomState,
-    Message,
-    Message,
-    string
-  >[];
+
+/** The room behaviour of a game's own screens, beside the shared ones. */
+export type GameOwnRoom = {
   /** Command sub-routers this game contributes (one per namespace). */
   readonly commandRouters: readonly GameRouterEntry<
     GameCommandContext,
@@ -69,7 +58,32 @@ export type GameDefinition = {
   >[];
   /** Event sub-routers this game contributes (one per namespace). */
   readonly eventRouters: readonly GameRouterEntry<void, RoomState>[];
-  /** Recover idempotent effects from committed game state after a room restart. */
+  /** Attributes the game's reducers expect, merged into the space's initial state. */
+  readonly initialState?: () => RoomState;
+};
+
+/**
+ * Shared definition of a playable game inside a space. Implementations live
+ * in game packages and are listed by the game registry (`GAME_DEFINITIONS`),
+ * composed into the space room at the composition roots — `@libs/spaces`
+ * itself never imports a specific game. A turn game is defined with
+ * `defineTurnGame`; the optional room hooks below are what shared modules
+ * supply, never a game.
+ */
+export type GameDefinition = GameOwnRoom & {
+  /** Stable wire id (e.g. `'chess'`). Mirrored in room state + URLs. */
+  readonly id: string;
+  readonly automation?: GameAutomation<never>;
+  readonly turnGame?: RegisteredTurnGame;
+  /** Shared modules the game is played through, installed once per space. */
+  readonly sharedModules?: readonly SharedGameModule[];
+  /** Independent rooms shared by spaces playing a matched game. */
+  readonly matchRooms?: readonly RoomModule<
+    RoomState,
+    Message,
+    Message,
+    string
+  >[];
   /** Host-device schedules recovered from its current local game. */
   readonly recoverLocalEffects?: (state: RoomState) => readonly RoomEffect[];
   /** Fix a locally chosen move in the durable command before delivery. */
@@ -79,6 +93,7 @@ export type GameDefinition = {
     now: number,
     random: Random
   ) => Message;
+  /** Recover idempotent effects from committed game state after a room restart. */
   readonly recoverEffects: (state: RoomState) => readonly RoomEffect[];
   /** Trusted room-host availability, distinct from participant presence. */
   readonly availabilityChange?: RoomModule<
@@ -97,18 +112,6 @@ export type GameDefinition = {
   readonly permissionForCommand?: (
     command: Message
   ) => { readonly key: AppGrantKey; readonly reason: string } | null;
-  /**
-   * Optional initial-state seed merged into `SpaceModule.initialState()`.
-   * Use when a game's reducers expect certain attributes to be present
-   * (e.g. chess puzzle play seeds defaults like `status: 'idle'`).
-   */
-  readonly initialState?: () => RoomState;
-  /**
-   * Reset hook applied to room state when the host de-selects this game.
-   * Should clear any game-specific attrs so a subsequent select starts fresh.
-   * Return the input unchanged when no reset is needed.
-   */
-  readonly resetRoomState?: (state: RoomState) => RoomState;
 };
 
 export type GameClientMenuProps = {
@@ -133,11 +136,4 @@ export type GameClientDefinition = {
   readonly MainMenu: (props: GameClientMenuProps) => JSX.Element;
   /** Account-owned effects observe open rooms even while another screen is shown. */
   readonly SessionEffects?: () => JSX.Element;
-  /**
-   * Optional: warm heavy, lazily-loaded assets (WASM, dynamic chunks) before
-   * the user selects this game. Fired by the games picker while the list is
-   * shown so selecting the game does not block on a first-time load. Must be
-   * idempotent and safe to call repeatedly.
-   */
-  readonly preload?: () => void;
 };
