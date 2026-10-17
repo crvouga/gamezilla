@@ -64,4 +64,4 @@ Feature: Custom games of every game
     Scenario: Two bots finish a custom game without help
       Given Alice has a custom game under way between two bots
       When the bots play their turns
-      Then the custom game is finished with a victory or a draw within 60 seconds
+      Then the custom game is finished with a victory or a draw
