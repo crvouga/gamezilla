@@ -2,10 +2,8 @@ import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import {
   copiedGameRecord,
-  copiedMultiplayerText,
   copyFinalPosition,
   copyGameRecord,
-  gameRecordOffered,
 } from '@libs/chess-matchmaking-harness/multiplayer-game-record';
 import {
   acceptedMoves,
@@ -15,6 +13,10 @@ import {
   resignation,
   viewerOf,
 } from '@libs/game-matchmaking-harness/matched-game-world';
+import {
+  copiedMultiplayerText,
+  gameRecordOffered,
+} from '@libs/game-matchmaking-harness/multiplayer-game-record';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';

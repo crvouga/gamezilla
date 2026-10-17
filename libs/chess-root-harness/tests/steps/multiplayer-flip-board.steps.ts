@@ -1,12 +1,10 @@
 import { expect } from 'bun:test';
-import {
-  flipMultiplayerBoard,
-  nearestMultiplayerSeat,
-} from '@libs/chess-matchmaking-harness/multiplayer-own-board';
+import { flipMultiplayerBoard } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
 import {
   bothBoards,
   ownerOf,
 } from '@libs/game-matchmaking-harness/matched-game-world';
+import { nearestMultiplayerSeat } from '@libs/game-matchmaking-harness/multiplayer-review';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { ownBoardSeen } from './multiplayer-own-board-world';

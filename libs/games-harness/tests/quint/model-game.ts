@@ -1,15 +1,18 @@
 /**
- * The game a model trace is replayed for, and the words the custom-game
- * models use for what the product shows: the first and second side for its
- * two sides, and results by side.
+ * The game a model trace is replayed for, and the words the custom-game and
+ * matched-game models use for what the product shows: the first and second
+ * side for its two sides, and results by side.
  *
- * Every custom-game model follows the first side's known victory
+ * Every game model follows the first side's known victory
  * (`GameFixtures.firstSideVictory`), never one game's line:
- * - `custom-game-control` plays the whole victory, so it takes exactly
- *   {@link VICTORY_MOVES} moves (the model's `VICTORY_MOVES`);
- * - `custom-game-play` plays its first three moves, `custom-game-local` its
- *   first four and `custom-game` up to its first three before finishing it,
- *   all unfinished games because the victory is longer.
+ * - `custom-game-control`, `matched-game` and `matched-game-daily` play the
+ *   whole victory, so it takes exactly {@link VICTORY_MOVES} moves (the
+ *   models' `VICTORY_MOVES`), the last one winning;
+ * - `custom-game-play` plays its first three moves, `custom-game-local` and
+ *   `matched-game-own-board` their first four, `custom-game` up to its first
+ *   three before finishing it, `matched-game-clock-recovery` its first four
+ *   and `matched-game-shared` and `matched-game-spaces` the first move of
+ *   each side, all unfinished games because the victory is longer.
  * Seven is the shortest victory every enrolled game can show (four in a row
  * needs seven moves); a game whose victory takes another number of moves
  * fails here, naming it, before any trace runs.
@@ -20,7 +23,7 @@ import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { conformanceGameOf } from '../conformance-world';
 
-/** The moves of the victory the custom-game models follow. */
+/** The moves of the victory the game models follow. */
 export const VICTORY_MOVES = 7;
 
 /** `game`'s victory, or a failure saying what the models need of it. */
@@ -28,7 +31,7 @@ export function victoryOf(game: HarnessGame): readonly string[] {
   const victory = game.fixtures.firstSideVictory;
   if (victory.length !== VICTORY_MOVES)
     throw new Error(
-      `${game.label}: the custom-game models (specs/games/custom-game*.qnt) follow a first-side victory of exactly ${String(VICTORY_MOVES)} moves, but its firstSideVictory takes ${String(victory.length)} — give it a ${String(VICTORY_MOVES)}-move victory`
+      `${game.label}: the game models (specs/games/custom-game*.qnt, matched-game*.qnt) follow a first-side victory of exactly ${String(VICTORY_MOVES)} moves, but its firstSideVictory takes ${String(victory.length)} — give it a ${String(VICTORY_MOVES)}-move victory`
     );
   return victory;
 }

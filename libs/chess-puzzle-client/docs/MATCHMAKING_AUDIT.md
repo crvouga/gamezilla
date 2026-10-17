@@ -68,7 +68,7 @@ model's four ratings do not replace these numeric obligations.
 Each row is an interleaving obligation of `matching.qnt`; device-visible results
 are compared after every action. Simultaneous operations linearize to a legal
 ordering, with no intermediate partial match observable. The assembled game
-additionally binds `multiplayer.qnt` at the same transaction boundary.
+additionally binds `games/matched-game.qnt` at the same transaction boundary.
 
 | Race | Classification and coverage |
 | --- | --- |
@@ -87,7 +87,7 @@ additionally binds `multiplayer.qnt` at the same transaction boundary.
 | Handoff/cancel | Atomic accepted match and game; stop cannot undo formed game; find-an-opponent |
 | Formation retry | Same match and one game, fixed sides; lasting-outcomes, find-an-opponent |
 | Move/move from two devices | One accepted revision; stale revision refused; matched-game-turns |
-| Resign/move; resign/resign | Legal ordering, immutable terminal outcome; multiplayer.qnt, matched-game-turns, matched-game-over |
+| Resign/move; resign/resign | Legal ordering, immutable terminal outcome; matched-game.qnt, matched-game-turns, matched-game-over |
 | Account deletion/formation or move | No new deleted participant; unfinished game resigned, historical result retained; multiplayer-recovery-and-privacy |
 
 ## Aggregate coverage
@@ -98,14 +98,14 @@ additionally binds `multiplayer.qnt` at the same transaction boundary.
 | All connection/time/world events | waits-after-time-away, rating-ranges, lasting-outcomes, availability-and-details, pair-restrictions |
 | Search identity, terminal states, exactly-once outcome | matching.qnt invariants and searches.als |
 | Accepted outcomes and per-device convergence | matching.qnt `invAcknowledgedOutcomes`, `invReturningAgrees`, `invOfflineKeepsKnown` |
-| Match-formed event consumed by game | events.qnt publication, multiplayer.qnt `matchFormed`, find-an-opponent |
-| Play actions and strongest refusals | matched-game-turns, matched-game-abort, matched-game-draw-offers, matched-game-rematch, matched-game-over; multiplayer.qnt `playMove`, `resignPlay` |
+| Match-formed event consumed by game | events.qnt publication, matched-game.qnt `pairPeopleUp`, find-an-opponent |
+| Play actions and strongest refusals | matched-game-turns, matched-game-abort, matched-game-draw-offers, matched-game-rematch, matched-game-over; matched-game.qnt `playMove`, `resignGame` |
 | Game continuity, privacy, account reaction | multiplayer-recovery-and-privacy, multiplayer-account-and-space |
-| Game ownership, fixed sides, one unfinished game | multiplayer-games.als; multiplayer.qnt safety invariants |
-| Upstream permission and usage policies | billing/access.dmn; chess/unfinished-game-limit.dmn; conformance capabilities |
+| Game ownership, fixed sides, one unfinished game | matched-games.als; matched-game.qnt safety invariants |
+| Upstream permission and usage policies | billing/access.dmn; games/unfinished-game-limit.dmn; conformance capabilities |
 | Upstream blocks, paid access, spaces, friends, usernames | chess-opponent-policies, multiplayer-account-and-space |
 | Keyboard and listener access | multiplayer-accessibility; real rendered control checks required |
-| Match ready latency and reliability | multiplayer-ready.openslo.yaml; multiplayer-game journey |
+| Match ready latency and reliability | matched-game-ready.openslo.yaml; multiplayer-game journey |
 | Critical assembled flow | journeys/multiplayer-game.feature |
 | Model-only bookkeeping | Bounded example identifiers, counters, received facts and sequence choices; comments in models justify the finite projection |
 | Published versus private language | Context map and each context's ubiquitous-language.yml; no Chess vocabulary in generic Matchmaking |

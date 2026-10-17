@@ -1,11 +1,9 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
-import {
-  joinMultiplayerSpace,
-  multiplayerWatcherBoard,
-} from '@libs/chess-matchmaking-harness/multiplayer-watchers';
+import { multiplayerWatcherBoard } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
 import { refusal } from '@libs/game-matchmaking-harness/matched-game-world';
+import { joinMultiplayerSpace } from '@libs/game-matchmaking-harness/multiplayer-board';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { leaveSpace } from '@libs/spaces-harness/space-actions';

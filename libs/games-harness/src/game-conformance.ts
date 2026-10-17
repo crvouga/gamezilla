@@ -91,6 +91,17 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'custom-game-local': ['custom-games'],
   'custom-game-access': ['custom-games'],
   'custom-game-delivery': ['custom-games'],
+  'matched-game': ['matchmaking'],
+  'matched-game-daily': ['matchmaking'],
+  'matched-game-own-board': ['matchmaking', 'history'],
+  'matched-game-shared': ['matchmaking', 'history'],
+  'matched-game-spaces': ['matchmaking'],
+  'matched-game-clock-recovery': ['matchmaking', 'history'],
+  'space-follow': ['custom-games'],
+  'matched-games': ['matchmaking'],
+  'matched-game-watch-access': ['matchmaking'],
+  'unfinished-game-limit': ['matchmaking', 'custom-games'],
+  'matched-game-ready': ['matchmaking'],
 };
 
 /** The file endings of the specifications a game is held to. */

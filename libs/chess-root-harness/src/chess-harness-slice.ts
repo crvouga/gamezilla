@@ -4,12 +4,7 @@ import {
   closeMultiplayerApp,
   reopenMultiplayerApp,
 } from '@libs/chess-matchmaking-harness/multiplayer-app';
-import {
-  givenOpenedTurnNotice,
-  openMultiplayerNotice,
-} from '@libs/chess-matchmaking-harness/multiplayer-notices';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
-import { joinMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
 import { PERSONAL_CHESS_STATS_CLIENT } from '@libs/chess-puzzle-client/personal-chess-stats-client';
 import { PUZZLE_LINK_CLIENT } from '@libs/chess-puzzle-client/puzzle-link-client';
 import { PuzzleManagementScreen } from '@libs/chess-puzzle-client/puzzle-management-screen';
@@ -18,7 +13,12 @@ import { seedChessPuzzlesForHarness } from '@libs/chess-puzzle-harness/chess-har
 import { nextPuzzleDifferent } from '@libs/chess-puzzle-harness/chess-properties';
 import { createChessServer } from '@libs/chess-root-server/sub-server';
 import { CHESS_SUB } from '@libs/chess-sub-shared/sub';
+import { joinMultiplayerSpace } from '@libs/game-matchmaking-harness/multiplayer-board';
 import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
+import {
+  controlledMultiplayerCommand,
+  receiveMultiplayerMatch,
+} from '@libs/game-matchmaking-harness/multiplayer-events';
 import {
   awaitGameMatch,
   givenMultiplayerClock,
@@ -28,16 +28,16 @@ import {
   pairGameOpponents,
 } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
+  givenOpenedTurnNotice,
+  openMultiplayerNotice,
+} from '@libs/game-matchmaking-harness/multiplayer-notices';
+import {
   passMultiplayerDays,
   passMultiplayerTime,
 } from '@libs/game-matchmaking-harness/multiplayer-time';
 import type { HarnessSlice } from '@libs/harness/slices';
 import { focusChessScreen } from './chess-screen-reads';
 import { setCustomGameParticipation } from './custom-game-participation';
-import {
-  controlledMultiplayerCommand,
-  receiveMultiplayerMatch,
-} from './multiplayer-events';
 
 /**
  * Chess in a harness: the puzzle catalog, seeded; its screens arrive through the

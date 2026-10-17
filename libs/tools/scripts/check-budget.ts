@@ -46,12 +46,12 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   // one solver slot runs them one at a time.
   '@pkgs/matchmaking-root-harness#check:models:0': 480,
   '@pkgs/matchmaking-root-harness#check:models:1': 480,
-  // The multiplayer proof retains every original clause and the two-step bound.
+  // The matched-game proof retains every original clause and the two-step bound.
   // Bundled time-control and move-count clauses exceeded their task allowance.
   // Check each property separately, retaining the existing 420-second allowance.
   ...Object.fromEntries(
     Array.from({ length: 16 }, (_, index) => [
-      `@libs/chess-root-harness#check:models:6:${String(index)}`,
+      `@libs/games-harness#check:models:9:${String(index)}`,
       420,
     ])
   ),

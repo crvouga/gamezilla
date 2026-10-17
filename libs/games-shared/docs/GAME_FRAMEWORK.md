@@ -112,9 +112,12 @@ behaviour for exactly what it offers:
   (`scenario:<scenario> [<game id>]`), so the job log and Atlas name the game.
   The `specs/games/*.qnt` models are listed the same way and replay once per
   such game (`defineTraceVariants`; `<trace> [<game>]`, `trace:<n> [<game
-  id>]`); the custom-game models follow each game's known victory, which
-  takes exactly seven moves (`tests/quint/model-game.ts`). The decision
-  table, structure and objective check every such game in their one run.
+  id>]`); the custom-game and matched-game models follow each game's known
+  victory, which takes exactly seven moves (`tests/quint/model-game.ts`),
+  and play the matched games at each game's own clock choices (its clock
+  namespace). The decision tables, structures and objectives check every
+  such game in their one run (the matched-game watch and unfinished-game
+  tables as one server layer per game).
 - **Shared code suites.** A test under `tests/conformance/<area>/` of
   `@libs/games-harness` runs once per game its area binds (`rules`: every
   game; otherwise the capability of that name), as `<game> › <area> › <suite>`.
@@ -193,13 +196,21 @@ Beyond that class:
   a `spec:` commit rewording it for every game in `specs/games/`, then one
   binding in `@libs/games-harness` over the shared matched-game and
   custom-game worlds, deleting chess's copy.
-- The custom-game models are every game's; chess's `multiplayer.qnt` and
-  its matched-game models still draw chess lines for chess alone. Moving one
-  retires chess's copy, its model-check task and its share of chess's spec
-  parts, which the PR runner's capacity (`ci-load.ts`) needs.
-- The custom-game models follow a first-side victory of exactly seven
-  moves (Connect Four's shortest), so every game supplies one; a game whose
-  victories all take longer needs the models' bound raised with it.
+- The custom-game and matched-game models are every game's. Chess keeps
+  only its puzzle and Lichess models; a model that moves takes its
+  model-check task and its share of chess's spec parts to
+  `@libs/games-harness`, which the PR runner's capacity (`ci-load.ts`)
+  needs.
+- The game models follow a first-side victory of exactly seven moves
+  (Connect Four's shortest), so every game supplies one; a game whose
+  victories all take longer needs the models' bound raised with it. The
+  matched-game models therefore end only by that victory or by agreement,
+  time, resignation, aborting or deletion: no fixture shows a draw or a
+  second-side victory by the game's own rules short enough for every game
+  (Connect Four's shortest draw fills its 42 cells), so those stay each
+  game's own (chess's repetition and Fool's Mate examples in its
+  features). Flipping the board is chess's alone (`canFlip`), specified by
+  `specs/chess/multiplayer-flip-board.feature`.
 - No contract lets a shared scenario make a move with the keyboard alone
   or hear a move announced: `GameAutomation.perform` is the board's one
   pointer gesture, and `GamePresentation` names sides and endings but not a

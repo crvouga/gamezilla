@@ -78,7 +78,7 @@ export const RACE_PLAYABLE: PlayableGame = {
   shared: raceGameShared,
   fixtures: {
     // Written from the game's laws, never computed by its implementation.
-    // Seven moves: the victory every custom-game model follows.
+    // Seven moves: the victory every custom-game and matched-game model follows.
     firstSideVictory: ['step', 'step', 'step', 'step', 'step', 'step', 'step'],
     refusedOpenings: ['back', ''],
     // Only for a game with positions where a side cannot win (chess's bare

@@ -71,9 +71,10 @@ test('slow spec suites split into independently cached parts that all gate Check
   expectSpecParts('libs/friends-harness', 64, ['friends', 'spaces']);
   expectSpecParts('pkgs/sync-engine-harness', 4, ['sync-engine']);
   // regression: chess-spec-task-budget — parts 3, 7, and 9 hit 600s; part 5 took 593s.
-  // The custom-game models moved to every game's suite, and their parts with them.
-  expectSpecParts('libs/chess-root-harness', 68, ['chess']);
-  expectSpecParts('libs/games-harness', 19, ['games']);
+  // The custom-game and matched-game models moved to every game's suite, and
+  // their parts with them.
+  expectSpecParts('libs/chess-root-harness', 40, ['chess']);
+  expectSpecParts('libs/games-harness', 47, ['games']);
 });
 
 // regression: ci-chess-board-omits-inherited-spec-inputs

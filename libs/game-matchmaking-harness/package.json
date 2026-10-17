@@ -19,8 +19,14 @@
     "@libs/auth-shared": "workspace:*",
     "@libs/game-matchmaking-shared": "workspace:*",
     "@libs/harness": "workspace:*",
+    "@libs/notifications-harness": "workspace:*",
+    "@libs/notifications-shared": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-harness": "workspace:*",
     "@libs/test-ids-shared": "workspace:*",
+    "@pkgs/device-shared": "workspace:*",
+    "@pkgs/gherkin-shared": "workspace:*",
+    "@pkgs/matchmaking-sql-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-client": "workspace:*",
@@ -28,11 +34,12 @@
     "@pkgs/sync-engine-shared": "workspace:*"
   },
   "devDependencies": {
-    "@libs/permissions-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   },
   "category": "harness"

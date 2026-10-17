@@ -1,73 +1,30 @@
 import { chessHistoryBoard as multiplayerBoard } from '@libs/chess-rules-shared/chess-harness';
-import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
+import type { MultiplayerCopy } from '@libs/game-matchmaking-harness/multiplayer-game-record';
+import {
+  copiedMultiplayerText,
+  copyShownMultiplayerText,
+} from '@libs/game-matchmaking-harness/multiplayer-game-record';
+import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import { bringToFront } from '@libs/harness/observations';
-import type { RecordingClipboard } from '@pkgs/device-shared/clipboard';
-import { hostLimit } from '@pkgs/gherkin-shared/registry';
 import { openMultiplayerChess } from './multiplayer-actions';
 
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const DAY_SECONDS = 86_400;
 
-async function clipboardOf(
-  s: ProductHarness,
-  actor: string
-): Promise<RecordingClipboard> {
-  const env = await s.harness.client(actor);
-  const clipboard = env.clipboard as Partial<RecordingClipboard>;
-  if (typeof clipboard.last !== 'function')
-    throw hostLimit('this host does not show what a person copied');
-  return clipboard as RecordingClipboard;
-}
-
-/** What a person's multiplayer screen offers them to copy. */
-export async function gameRecordOffered(
-  s: ProductHarness,
-  actor: string
-): Promise<{ readonly gameRecord: boolean; readonly finalPosition: boolean }> {
-  await bringToFront(s, actor);
-  const ui = await actorUi(s, actor);
-  return {
-    gameRecord: await ui.get('multiplayer-copy-game-record').isVisible(),
-    finalPosition: await ui.get('multiplayer-copy-final-position').isVisible(),
-  };
-}
-
-function copying(name: string, control: string) {
+function copying(name: string, what: MultiplayerCopy) {
   return scenarioAction({
     name,
     act: async (s, actor: string) => {
       await Promise.resolve(openMultiplayerChess.act(s, actor));
-      const clipboard = await clipboardOf(s, actor);
-      const before = clipboard.writes.length;
-      await (await actorUi(s, actor)).get(control).tap();
-      await pollUntil(
-        s,
-        async () => (clipboard.writes.length > before ? true : null),
-        { maxMs: 5000, stepMs: 1, description: `${name}: the copy` }
-      );
+      await Promise.resolve(copyShownMultiplayerText.act(s, actor, what));
     },
   });
 }
 
 /** The person copies the game record their multiplayer screen offers. */
-export const copyGameRecord = copying(
-  'copyGameRecord',
-  'multiplayer-copy-game-record'
-);
+export const copyGameRecord = copying('copyGameRecord', 'game record');
 /** The person copies the final position their multiplayer screen offers. */
-export const copyFinalPosition = copying(
-  'copyFinalPosition',
-  'multiplayer-copy-final-position'
-);
-
-/** What the person last copied on this device; null before anything was. */
-export async function copiedMultiplayerText(
-  s: ProductHarness,
-  actor: string
-): Promise<string | null> {
-  return (await clipboardOf(s, actor)).last();
-}
+export const copyFinalPosition = copying('copyFinalPosition', 'final position');
 
 /** A game record as another chess program reads it. */
 export type CopiedGameRecord = {

@@ -1,13 +1,13 @@
 import { expect } from 'bun:test';
+import { ownerOf } from '@libs/game-matchmaking-harness/matched-game-world';
 import type {
   MultiplayerNoticeKind,
   ShownMultiplayerNotice,
-} from '@libs/chess-matchmaking-harness/multiplayer-notices';
+} from '@libs/game-matchmaking-harness/multiplayer-notices';
 import {
   openMultiplayerNotice,
   shownMultiplayerNotices,
-} from '@libs/chess-matchmaking-harness/multiplayer-notices';
-import { ownerOf } from '@libs/game-matchmaking-harness/matched-game-world';
+} from '@libs/game-matchmaking-harness/multiplayer-notices';
 import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { passMultiplayerTime } from '@libs/game-matchmaking-harness/multiplayer-time';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';

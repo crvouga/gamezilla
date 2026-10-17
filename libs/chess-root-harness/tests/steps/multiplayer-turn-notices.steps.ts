@@ -1,9 +1,9 @@
 import { expect } from 'bun:test';
+import { move } from '@libs/game-matchmaking-harness/matched-game-world';
 import {
   givenOpenedTurnNotice,
   shownMultiplayerNotices,
-} from '@libs/chess-matchmaking-harness/multiplayer-notices';
-import { move } from '@libs/game-matchmaking-harness/matched-game-world';
+} from '@libs/game-matchmaking-harness/multiplayer-notices';
 import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Then, When } from '@libs/harness/define';

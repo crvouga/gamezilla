@@ -1,18 +1,18 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import {
-  multiplayerCanLeave,
-  multiplayerClockSeconds,
-  multiplayerPauseShown,
-  SHARED_CLOCK_CONTROLS,
-  setMultiplayerAvailability,
-} from '@libs/chess-matchmaking-harness/multiplayer-availability';
-import {
   bothBoards,
   matchedGameOf,
   refusal,
   resignation,
 } from '@libs/game-matchmaking-harness/matched-game-world';
+import {
+  multiplayerCanLeave,
+  multiplayerClockSeconds,
+  multiplayerPauseShown,
+  SHARED_CLOCK_CONTROLS,
+  setMultiplayerAvailability,
+} from '@libs/game-matchmaking-harness/multiplayer-availability';
 import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { passMultiplayerDays } from '@libs/game-matchmaking-harness/multiplayer-time';
 import { Given, Then, When } from '@libs/harness/define';

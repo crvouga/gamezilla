@@ -84,8 +84,8 @@ describe('partOf', () => {
   const paths = (list: readonly SpecUnit[]) => list.map((u) => u.path);
 
   // regression: github-chess-spec-trace-batch-timeout
-  test('sixty-four chess parts preserve all 256 multiplayer traces in smaller batches', () => {
-    const units = specUnits('specs/chess/multiplayer.qnt', '', 64);
+  test('sixty-four parts preserve all 256 matched-game traces in smaller batches', () => {
+    const units = specUnits('specs/games/matched-game.qnt', '', 64);
     const parts = Array.from({ length: 64 }, (_, index) =>
       partOf(units, { index, count: 64 })
     );
@@ -213,11 +213,12 @@ describe('partOf', () => {
    * sixteen stay near 443 s inside the 600 s cap; twenty was the miss), and
    * a model file holds at most `unitTraces` of them. The shared games suite
    * replays each trace for one game, and the traces taking every action for
-   * each game, in the same parts.
+   * each game, in the same parts. Chess, down to its ten puzzle and Lichess
+   * models, keeps four traces to a file: sixteen to a part, as before.
    */
   const TRACE_CAPPED_SUITES = [
-    { dir: 'libs/chess-root-harness', unitTraces: 2 },
-    { dir: 'libs/games-harness', unitTraces: 8 },
+    { dir: 'libs/chess-root-harness', unitTraces: 4 },
+    { dir: 'libs/games-harness', unitTraces: 4 },
   ] as const;
 
   test.each(TRACE_CAPPED_SUITES)(

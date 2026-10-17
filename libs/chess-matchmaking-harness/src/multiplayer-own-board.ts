@@ -3,6 +3,7 @@ import {
   forgetMultiplayerReply,
   sendMultiplayerCommand,
 } from '@libs/game-matchmaking-harness/multiplayer-commands';
+import { reviewMultiplayerMoves } from '@libs/game-matchmaking-harness/multiplayer-review';
 import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
@@ -68,61 +69,6 @@ export async function shownMultiplayerBoard(
   };
 }
 
-/** The seat below the board, nearest the person holding the device. */
-export type NearestMultiplayerSeat = {
-  /** The multiplayer opponent's name and multiplayer rating, when it is theirs. */
-  readonly opponent: string | null;
-  /** Whose multiplayer clock the seat carries. */
-  readonly clock: 'white' | 'black' | null;
-};
-
-export async function nearestMultiplayerSeat(
-  s: ProductHarness,
-  actor: string
-): Promise<NearestMultiplayerSeat> {
-  await bringToFront(s, actor);
-  const seat = (await actorUi(s, actor)).get('multiplayer-seat-near');
-  const opponent = seat.get('multiplayer-opponent');
-  let clock: 'white' | 'black' | null = null;
-  for (const side of ['white', 'black'] as const)
-    if (await seat.get(`multiplayer-${side}-clock`).isVisible()) clock = side;
-  return {
-    opponent: (await opponent.isVisible()) ? await opponent.text() : null,
-    clock,
-  };
-}
-
-/**
- * The earlier position a person's screen shows, as the number of moves
- * played to reach it: 0 at the start of the game. Null while their board
- * shows the current position.
- */
-export async function shownEarlierPosition(
-  s: ProductHarness,
-  actor: string
-): Promise<number | null> {
-  await bringToFront(s, actor);
-  const ui = await actorUi(s, actor);
-  if (!(await ui.get('multiplayer-reviewing').isVisible())) return null;
-  for (let ply = 1; ; ply++) {
-    const move = ui.get(`multiplayer-move-${String(ply)}`);
-    if (!(await move.isVisible())) return 0;
-    if ((await move.attribute('aria-current')) === 'true') return ply;
-  }
-}
-
-/** How many accepted moves the multiplayer move list on a screen shows. */
-export async function shownMultiplayerMoveCount(
-  s: ProductHarness,
-  actor: string
-): Promise<number> {
-  await bringToFront(s, actor);
-  const ui = await actorUi(s, actor);
-  for (let ply = 1; ; ply++)
-    if (!(await ui.get(`multiplayer-move-${String(ply)}`).isVisible()))
-      return ply - 1;
-}
-
 /** The move of the multiplayer move list that is written this way. */
 async function movePly(
   s: ProductHarness,
@@ -147,9 +93,7 @@ export const chooseMultiplayerMove = scenarioAction({
   act: async (s, actor: string, move: string | number) => {
     await Promise.resolve(openMultiplayerChess.act(s, actor));
     const ply = typeof move === 'number' ? move : await movePly(s, actor, move);
-    const ui = await actorUi(s, actor);
-    await ui.get(`multiplayer-move-${String(ply)}`).tap();
-    await s.session.waitForIdle();
+    await Promise.resolve(reviewMultiplayerMoves.act(s, actor, ply));
   },
 });
 
@@ -166,36 +110,28 @@ export const stepMultiplayerMoves = scenarioAction({
     keyboard = false
   ) => {
     await Promise.resolve(openMultiplayerChess.act(s, actor));
-    const ui = await actorUi(s, actor);
-    if (keyboard)
-      await ui
-        .get('multiplayer-moves')
-        .key(direction === 'back' ? 'arrowLeft' : 'arrowRight');
-    else await ui.get(`multiplayer-review-${direction}`).tap();
-    await s.session.waitForIdle();
+    await Promise.resolve(
+      reviewMultiplayerMoves.act(s, actor, direction, keyboard)
+    );
   },
 });
 
-function pressing(name: string, control: string) {
+function pressing(name: string, step: 'start' | 'current') {
   return scenarioAction({
     name,
     act: async (s, actor: string) => {
       await Promise.resolve(openMultiplayerChess.act(s, actor));
-      await (await actorUi(s, actor)).get(control).tap();
-      await s.session.waitForIdle();
+      await Promise.resolve(reviewMultiplayerMoves.act(s, actor, step));
     },
   });
 }
 
 /** The person goes to the start of the multiplayer move list. */
-export const goToMultiplayerStart = pressing(
-  'goToMultiplayerStart',
-  'multiplayer-review-start'
-);
+export const goToMultiplayerStart = pressing('goToMultiplayerStart', 'start');
 /** The person returns to the current position, in the one step offered. */
 export const returnToCurrentPosition = pressing(
   'returnToCurrentPosition',
-  'multiplayer-return-to-current'
+  'current'
 );
 
 /** The person's hand tries a piece on the board their screen shows. */
@@ -233,7 +169,11 @@ export const playMultiplayerMove = scenarioAction({
 });
 
 /** The person flips their own multiplayer board, or flips it back. */
-export const flipMultiplayerBoard = pressing(
-  'flipMultiplayerBoard',
-  'multiplayer-flip-board'
-);
+export const flipMultiplayerBoard = scenarioAction({
+  name: 'flipMultiplayerBoard',
+  act: async (s, actor: string) => {
+    await Promise.resolve(openMultiplayerChess.act(s, actor));
+    await (await actorUi(s, actor)).get('multiplayer-flip-board').tap();
+    await s.session.waitForIdle();
+  },
+});

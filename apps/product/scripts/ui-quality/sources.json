@@ -12,7 +12,7 @@
   {
     "package": "@libs/chess-root-harness",
     "directory": "libs/chess-root-harness",
-    "parts": 68
+    "parts": 40
   },
   {
     "package": "@libs/connect-four-harness",
@@ -27,7 +27,7 @@
   {
     "package": "@libs/games-harness",
     "directory": "libs/games-harness",
-    "parts": 19
+    "parts": 47
   },
   {
     "package": "@libs/profile-harness",

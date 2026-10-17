@@ -405,8 +405,8 @@ test('the root manifest depends on no workspace package', () => {
 
 // regression: tools-test-unhashed-model-bindings
 test.each([
-  'libs/chess-root-harness/tests/quint/multiplayer.binding.ts',
-  'specs/chess/multiplayer.qnt',
+  'libs/games-harness/tests/quint/matched-game.binding.ts',
+  'specs/games/matched-game.qnt',
   'libs/chess-root-harness/package.json',
   'libs/chess-root-harness/turbo.json',
   'libs/profile-harness/src/username.steps.ts',

@@ -12,9 +12,9 @@ match is shared by both hosts' spaces; guests watch without gaining a side.
 
 ## Aggregate coverage
 
-The existing `multiplayer.qnt` owns pairing handoff, moves, results, account
+The existing `games/matched-game.qnt` owns pairing handoff, moves, results, account
 withdrawal, device agreement and disconnection. Its space membership is now
-explicitly supplied by scenario setup. `multiplayer-spaces.qnt` owns watching
+explicitly supplied by scenario setup. `games/matched-game-spaces.qnt` owns watching
 that game from either space, leaving, returning and the matched people's side.
 
 | Model action or invariant | Observable coverage |
@@ -58,7 +58,7 @@ Code checks cover room admission, forged room commands, stale deliveries,
 namespace isolation and identity erasure. Those mechanisms are not business
 scenarios (B17).
 
-The `multiplayer-watch-access` decision table covers every combination of guest,
+The `matched-game-watch-access` decision table covers every combination of guest,
 free account and Plus member with host, joined and outside presence. Application,
 server room admission and client gating agree on all nine cases. The conformance
 manifest declares watching as its own capability. Returning to Puzzle after

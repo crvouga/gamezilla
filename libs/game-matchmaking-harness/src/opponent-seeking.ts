@@ -59,6 +59,54 @@ const FINDING_SURFACES = [
   'multiplayer-unavailable',
 ] as const;
 
+/** Where a device can show no finding an opponent at all. */
+const NOWHERE_TO_FIND = [Handles.spaceEnded, Handles.spaceNotFound] as const;
+
+async function reachFindingAnOpponent(
+  s: ProductHarness,
+  actor: string,
+  gameId: string,
+  whereverItCan: boolean
+): Promise<void> {
+  await ensureActor(s, actor);
+  const spaceId = await multiplayerSpaceId(s, actor);
+  if (spaceId === null) {
+    if (whereverItCan) return;
+    throw new Error(`${actor} has no space to play in`);
+  }
+  const device = s.actors.get(actor)!;
+  if (!(await device.currentPath()).includes(spaceId))
+    await device.openLink(`/space/${spaceId}`);
+  await s.session.waitForIdle();
+  const ui = await actorUi(s, actor);
+  const arrived = whereverItCan
+    ? [...FINDING_SURFACES, ...NOWHERE_TO_FIND]
+    : FINDING_SURFACES;
+  await pollUntil(
+    s,
+    async () => {
+      await bringToFront(s, actor);
+      for (const surface of arrived)
+        if (await ui.get(surface).isVisible()) return true;
+      for (const way of [
+        Handles.gameChoice('multiplayer'),
+        Handles.gameMenu(gameId),
+        Handles.navBack,
+      ])
+        if (await ui.get(way).isVisible()) {
+          await ui.get(way).tap();
+          return null;
+        }
+      return null;
+    },
+    {
+      maxMs: 15_000,
+      stepMs: 1,
+      description: `${actor} opens finding an opponent`,
+    }
+  );
+}
+
 /**
  * `actor` opens finding an opponent for `gameId` in their space, from
  * wherever their device is: back to the game's choices, the game picked
@@ -66,39 +114,19 @@ const FINDING_SURFACES = [
  */
 export const openFindingAnOpponent = scenarioAction({
   name: 'openFindingAnOpponent',
-  act: async (s, actor: string, gameId: string) => {
-    await ensureActor(s, actor);
-    const spaceId = await multiplayerSpaceId(s, actor);
-    if (spaceId === null) throw new Error(`${actor} has no space to play in`);
-    const device = s.actors.get(actor)!;
-    if (!(await device.currentPath()).includes(spaceId))
-      await device.openLink(`/space/${spaceId}`);
-    await s.session.waitForIdle();
-    const ui = await actorUi(s, actor);
-    await pollUntil(
-      s,
-      async () => {
-        await bringToFront(s, actor);
-        for (const surface of FINDING_SURFACES)
-          if (await ui.get(surface).isVisible()) return true;
-        for (const way of [
-          Handles.gameChoice('multiplayer'),
-          Handles.gameMenu(gameId),
-          Handles.navBack,
-        ])
-          if (await ui.get(way).isVisible()) {
-            await ui.get(way).tap();
-            return null;
-          }
-        return null;
-      },
-      {
-        maxMs: 15_000,
-        stepMs: 1,
-        description: `${actor} opens finding an opponent`,
-      }
-    );
-  },
+  act: (s, actor: string, gameId: string) =>
+    reachFindingAnOpponent(s, actor, gameId, false),
+});
+
+/**
+ * `actor` opens finding an opponent for `gameId` as far as their device
+ * can: nothing without a space to play in, and a space that has ended or is
+ * gone shows only that. A model's person may try it on any device.
+ */
+export const openFindingAnOpponentIfAny = scenarioAction({
+  name: 'openFindingAnOpponentIfAny',
+  act: (s, actor: string, gameId: string) =>
+    reachFindingAnOpponent(s, actor, gameId, true),
 });
 
 /** `actor` stops seeking from the shared waiting controls. */

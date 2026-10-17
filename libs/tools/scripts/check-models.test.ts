@@ -98,11 +98,11 @@ describe('modelChecks', () => {
   test('only the matching binding opts into separate induction', () => {
     // regression: tools-test-unhashed-model-bindings
     const checks = modelChecksFromBindings(
-      ['specs/chess/multiplayer.qnt', 'specs/chess/custom-game.qnt'],
+      ['specs/games/matched-game.qnt', 'specs/games/custom-game.qnt'],
       new Map([
         [
-          'multiplayer',
-          "model: 'multiplayer', inductiveInvariant: '_proof', separateInduction: true",
+          'matched-game',
+          "model: 'matched-game', inductiveInvariant: '_proof', separateInduction: true",
         ],
         ['custom-game', "model: 'custom-game', inductiveInvariant: '_proof'"],
       ])
@@ -111,9 +111,9 @@ describe('modelChecks', () => {
       checks
         .filter((check) => check.separateInduction)
         .map((check) => check.specUri)
-    ).toEqual(['specs/chess/multiplayer.qnt']);
+    ).toEqual(['specs/games/matched-game.qnt']);
     expect(
-      checks.find((check) => check.specUri === 'specs/chess/custom-game.qnt')
+      checks.find((check) => check.specUri === 'specs/games/custom-game.qnt')
         ?.separateInduction
     ).toBeUndefined();
   });
@@ -301,39 +301,46 @@ describe('model parts', () => {
   // regression: chess-model-proof-part-registration
   // regression: chess-model-check-outlasts-one-runner
   // regression: phased-model-budget-contract
-  test('the chess models check one to a part, the slowest proof under its own budget', () => {
-    const chess = specPackages().find(
-      (candidate) => candidate.name === '@libs/chess-root-harness'
-    )!;
-    const checks = modelChecks(chess);
-    const manifest = JSON.parse(
-      readFileSync(join(REPO_ROOT, chess.dir, 'package.json'), 'utf8')
-    ) as {
-      modelParts: number;
-      phaseParts: Record<string, number>;
-      scripts: Record<string, string>;
-    };
-    expect(manifest.scripts['check:models']).toBeUndefined();
-    // Fourteen models took 788 s of proof time on a laptop; one runner
-    // checks them one at a time, about twice as slowly, against 600 s.
-    expect(manifest.modelParts).toBe(checks.length);
-    const parts = Array.from({ length: manifest.modelParts }, (_, index) =>
-      modelPartChecks(checks, { index, count: manifest.modelParts })
-    );
-    expect(parts.every((part) => part.length === 1)).toBe(true);
-    const slowest = parts.findIndex(
-      (part) => part[0]?.specUri === 'specs/chess/multiplayer.qnt'
-    );
-    const phases = manifest.phaseParts[String(slowest)];
-    expect(phases).toBeGreaterThan(0);
-    for (let index = 0; index < phases!; index++) {
-      const name = `check:models:${String(slowest)}:${String(index)}`;
-      expect(manifest.scripts[name]).toContain(
-        `--phase ${String(index)}/${String(phases)}`
+  test.each([
+    { name: '@libs/chess-root-harness', slowest: null },
+    { name: '@libs/games-harness', slowest: 'specs/games/matched-game.qnt' },
+  ])(
+    '$name checks its models one to a part, the slowest proof under its own budget',
+    ({ name, slowest }) => {
+      const pkg = specPackages().find((candidate) => candidate.name === name)!;
+      const checks = modelChecks(pkg);
+      const manifest = JSON.parse(
+        readFileSync(join(REPO_ROOT, pkg.dir, 'package.json'), 'utf8')
+      ) as {
+        modelParts: number;
+        phaseParts?: Record<string, number>;
+        scripts: Record<string, string>;
+      };
+      expect(manifest.scripts['check:models']).toBeUndefined();
+      // Fourteen models took 788 s of proof time on a laptop; one runner
+      // checks them one at a time, about twice as slowly, against 600 s.
+      expect(manifest.modelParts).toBe(checks.length);
+      const parts = Array.from({ length: manifest.modelParts }, (_, index) =>
+        modelPartChecks(checks, { index, count: manifest.modelParts })
       );
-      expect(taskBudgetSeconds(`@libs/chess-root-harness#${name}`, false)).toBe(
-        profileBudgetSeconds(420)
-      );
+      expect(parts.every((part) => part.length === 1)).toBe(true);
+      if (slowest === null) {
+        expect(manifest.phaseParts).toBeUndefined();
+        return;
+      }
+      // The matched-game model proves each invariant in its own phase.
+      const part = parts.findIndex((each) => each[0]?.specUri === slowest);
+      const phases = manifest.phaseParts?.[String(part)];
+      expect(phases).toBeGreaterThan(0);
+      for (let index = 0; index < phases!; index++) {
+        const task = `check:models:${String(part)}:${String(index)}`;
+        expect(manifest.scripts[task]).toContain(
+          `--phase ${String(index)}/${String(phases)}`
+        );
+        expect(taskBudgetSeconds(`${name}#${task}`, false)).toBe(
+          profileBudgetSeconds(420)
+        );
+      }
     }
-  });
+  );
 });

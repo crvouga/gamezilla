@@ -1,0 +1,103 @@
+/**
+ * Cutting a device's connection in a matched game, for every game offering
+ * finding an opponent: it spends no time of the agreed game, and a draw
+ * accepted with no connection is refused at once.
+ */
+
+import { describe, expect, test } from 'bun:test';
+import { multiplayerClockSeconds } from '@libs/game-matchmaking-harness/multiplayer-availability';
+import {
+  multiplayerCommandReply,
+  sendMultiplayerCommand,
+} from '@libs/game-matchmaking-harness/multiplayer-commands';
+import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import type { HarnessGame } from '@libs/game-session-harness/harness-game';
+import type { OpenHarness } from '@libs/harness/open-harness';
+import { cutConnection } from '@libs/harness/platform';
+import type { QuintHarnessWorld } from '@libs/harness/quint-world';
+import { gamesHeldTo, openConformanceHarness } from './conformance-world';
+import {
+  CLOCK_OBSERVERS,
+  prepareSharedClockGame,
+} from './quint/matched-game-clock-recovery-world';
+import {
+  prepareMatchedSpaces,
+  spacesMatch,
+} from './quint/matched-game-spaces-world';
+
+const SPEC_URI = 'specs/games/matched-game-clock-recovery.qnt';
+
+/** A run of the clock-recovery model's world for `game`, outside a trace. */
+function runFor(
+  s: OpenHarness,
+  game: HarnessGame,
+  id: string
+): QuintHarnessWorld {
+  return {
+    s,
+    quiet: s,
+    memo: new Map(),
+    calls: [],
+    ctx: {
+      packageName: '@libs/games-harness',
+      specUri: SPEC_URI,
+      model: 'matched-game-clock-recovery',
+      trace: 1,
+      seed: '0x67932',
+      testId: `${id}.${game.shared.id}`,
+      title: `${id} [${game.label}]`,
+      variant: { id: game.shared.id, label: game.label },
+    },
+  };
+}
+
+describe.each(gamesHeldTo(SPEC_URI).map((game) => [game.label, game] as const))(
+  '%s',
+  (_label, game) => {
+    test('cutting a connection does not silently spend one second of an agreed game', async () => {
+      // regression: cutting-connection-spends-game-time
+      const id = 'cutting-connection-spends-game-time';
+      await using s = await openConformanceHarness(`${id}-${game.shared.id}`);
+      const w = runFor(s, game, id);
+      await prepareSharedClockGame(w, 'blitz');
+      const played = await spacesMatch(w);
+      await s.apply(givenMultiplayerClock, 'alice', {
+        gameId: played.id,
+        side: 'white',
+        ms: 40_000,
+      });
+      await cutConnection({ s }, 'alice');
+      expect(
+        (await s.read(multiplayerClockSeconds, CLOCK_OBSERVERS.alice)).white
+      ).toBe(40);
+      await s.advanceTime(20_000);
+      expect(
+        (await s.read(multiplayerClockSeconds, CLOCK_OBSERVERS.alice)).white
+      ).toBe(20);
+    }, 120_000);
+
+    test('cutting the connection refuses an offered draw without waiting for a server answer', async () => {
+      // regression: offline-connection-keeps-sync-online
+      const id = 'offline-connection-keeps-sync-online';
+      await using s = await openConformanceHarness(`${id}-${game.shared.id}`);
+      await prepareMatchedSpaces(runFor(s, game, id), '5+0');
+      const played = (await s.read(multiplayerView, 'alice')).game;
+      if (played === null) throw new Error('The agreed game is missing');
+      await s.apply(sendMultiplayerCommand, 'bob', {
+        name: 'offerMultiplayerDraw',
+        args: { gameId: played.id, requestId: 'offered-draw' },
+      });
+      await cutConnection({ s }, 'alice');
+      await s.apply(sendMultiplayerCommand, 'alice', {
+        name: 'acceptMultiplayerDraw',
+        args: { gameId: played.id, requestId: 'offline-draw-acceptance' },
+      });
+      const reply = await s.read(multiplayerCommandReply, 'alice');
+      expect(reply?.result.ok).toBe(false);
+      expect(reply?.result.ok === false && reply.result.failures[0]?.code).toBe(
+        'OFFLINE'
+      );
+    }, 120_000);
+  }
+);

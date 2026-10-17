@@ -1,4 +1,4 @@
 {
   "summary": "Cutting a phone's connection refreshed only the origin probe, leaving sync's previous online verdict live. Accepting an offered draw or rematch then waited for a server answer instead of refusing offline. Refresh the active query transport as well without a fixed time jump.",
-  "regressionTest": "libs/chess-root-harness/tests/connection-clock-regression.test.ts"
+  "regressionTest": "libs/games-harness/tests/matched-game-connection-regression.test.ts"
 }

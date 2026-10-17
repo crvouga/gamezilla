@@ -1,10 +1,10 @@
 import { expect } from 'bun:test';
-import type { ShownMultiplayerNotice } from '@libs/chess-matchmaking-harness/multiplayer-notices';
+import { acceptedMoves } from '@libs/game-matchmaking-harness/matched-game-world';
+import type { ShownMultiplayerNotice } from '@libs/game-matchmaking-harness/multiplayer-notices';
 import {
   givenOpenedTurnNotice,
   heldMultiplayerNotices,
-} from '@libs/chess-matchmaking-harness/multiplayer-notices';
-import { acceptedMoves } from '@libs/game-matchmaking-harness/matched-game-world';
+} from '@libs/game-matchmaking-harness/multiplayer-notices';
 import { passMultiplayerDays } from '@libs/game-matchmaking-harness/multiplayer-time';
 import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Then } from '@libs/harness/define';

@@ -83,12 +83,12 @@ const PUBLIC_CONTRACTS: ProofTable = {
     { spec: 'specs/matchmaking/competing-waits.feature' },
     { spec: 'specs/matchmaking/matching.qnt' },
   ],
-  'private multiplayer games': [
+  'private matched games': [
     { spec: 'specs/games/matched-game-turns.feature' },
     { spec: 'specs/chess/multiplayer-recovery-and-privacy.feature' },
-    { spec: 'specs/chess/multiplayer-games.als' },
-    { spec: 'specs/chess/multiplayer.qnt' },
-    { spec: 'specs/chess/multiplayer-ready.openslo.yaml' },
+    { spec: 'specs/games/matched-games.als' },
+    { spec: 'specs/games/matched-game.qnt' },
+    { spec: 'specs/games/matched-game-ready.openslo.yaml' },
   ],
   'reusable chessboard': [
     { spec: 'specs/chess-board/board-authority.feature' },
