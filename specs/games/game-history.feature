@@ -16,6 +16,12 @@ Feature: History and review of every game
       Then Alice sees the game's starting position
       And the finished custom game is unchanged
 
+    Scenario: A watcher reviews the starting position of a finished game
+      Given Alice has a finished custom game
+      And Carol is in Alice's space
+      When Carol reviews the starting position
+      Then Carol sees the game's starting position
+
     Scenario: A move that was not played cannot be reviewed
       Given Alice has a finished custom game
       When Alice reviews a move that was not played

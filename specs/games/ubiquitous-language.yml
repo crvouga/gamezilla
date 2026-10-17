@@ -470,6 +470,21 @@ terms:
     forms: [claims the win, claimed the win]
     model: [claimWin]
 
+  - term: paused
+    definition: >-
+      A custom game under way between two people that neither participant
+      can play for now. Its clocks stop, nobody is away and nobody may claim
+      the win; it goes on as it stood once they can play again.
+    forms: [is paused]
+
+  - term: cannot win
+    definition: >-
+      A side the game's own rules leave no way to win from where the board
+      stands. Running out of time, the other side's resignation or a claim
+      of the win that would give that side the victory is a draw instead;
+      the other side, which can still win, wins as usual.
+    forms: [can win, can still win, the side that can win]
+
   - term: speed
     definition: >-
       The family a clock choice belongs to, such as bullet, blitz, rapid or
@@ -508,17 +523,19 @@ terms:
     definition: >-
       What a person is told when their choice in a custom game cannot take
       effect, and why: who may make it, whether the custom game allows it
-      now, someone in the space they or the creator blocked, a missing
-      connection, or a set-up that has changed since they saw it. A refused
-      choice changes nothing.
+      now, someone in the space they or the creator blocked (never saying
+      who blocked whom), not being in the space, a missing connection, a
+      paused custom game, or a set-up that has changed since they saw it. A
+      refused choice changes nothing and never happens later on its own.
     forms: [refusals]
     model: [refusal]
 
   - term: watcher
     definition: >-
       Someone in the space who has no side in the custom game and makes no
-      move in it.
-    forms: [watched, watching, watches]
+      move in it. Only people in the space may watch it: anyone else cannot
+      see it, even a finished one.
+    forms: [watch, watched, watching, watches]
 
   - term: space
     from: spaces
@@ -548,6 +565,58 @@ terms:
 
   - term: sign in
     from: profile
+
+  - term: sign out
+    from: profile
+
+  - term: account
+    from: profile
+
+  - term: recently proven account
+    from: profile
+
+  - term: Google
+    from: profile
+
+  - term: username
+    from: profile
+
+  - term: rename themselves
+    from: profile
+
+  - term: account deletion
+    from: profile
+
+  - term: personal data
+    from: profile
+
+  - term: personal-data export
+    from: profile
+
+  - term: paid access
+    from: billing
+
+  - term: Plus member
+    from: billing
+
+  - term: block someone
+    from: friends
+
+  - term: create a space
+    from: spaces
+
+  - term: keyboard
+    from: runtime
+
+  - term: listen to the app
+    from: runtime
+    forms: [listens to the custom game, hears]
+
+  - term: the app
+    from: kernel
+
+  - term: device
+    from: kernel
 
   - term: connection
     from: kernel

@@ -58,10 +58,11 @@ Feature: Custom games of every game
   Rule: The host's custom game against a bot keeps going without a connection
     No counter-example: a bot needs nobody else; a custom game with another person needs the connection.
 
+    @regression:custom-game-offline-bot-stops
     Scenario: The offline host's move receives the bot's reply
       Given Alice has a custom game under way against a bot while offline
       When Alice makes her move on the board
-      Then the bot replies within 5 seconds
+      Then the bot replies with a legal move within 5 seconds
       And it is Alice's turn
 
   Rule: Bots make legal moves until the custom game is finished

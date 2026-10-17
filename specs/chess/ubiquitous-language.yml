@@ -30,8 +30,6 @@ terms:
   - term: account deletion
     from: profile
     model: [deletePlayAccount]
-  - term: recently proven account
-    from: profile
   # --- Borrowed -------------------------------------------------------------
 
   - term: guest
@@ -1243,11 +1241,6 @@ terms:
     - Custom Games
     - Custom Game's
     published: true
-  - term: creator
-    definition: The host whose Custom Game it is. Only the creator creates, configures, starts,
-      cancels or makes a rematch, including when watching two other participants; the one
-      exception is that either participant of a game between two people may cancel it until
-      each side has moved. Leaving the space ends it and cancels unfinished games.
   - term: side
     definition: White or Black in a Custom Game or a multiplayer game. In a Custom Game each
       has one choice of participant, and one person cannot be accepted or invited on both sides.
@@ -1266,13 +1259,6 @@ terms:
       choices. A bot stops when the game ends.
     forms:
     - bots
-  - term: open place
-    definition: An unoccupied side anybody already in the space may claim before start, except
-      someone who has blocked the creator or whom the creator has blocked; they are only told the
-      side is not available to them. Competing claims leave exactly one accepted person; either
-      may win. A person must confirm readiness after claiming.
-    forms:
-    - open places
   - term: closed side
     definition: An unoccupied side nobody may claim until the creator opens it or chooses
       a participant. A closed side prevents starting.
@@ -1309,12 +1295,6 @@ terms:
     - assigned
     - replaced
     - replaces
-  - term: release a side
-    definition: An accepted person giving up their own side before start. It becomes an open
-      place. After start leaving the space resigns instead of releasing.
-    forms:
-    - releases
-    - released
   - term: readiness
     definition: A participating person agreeing to the current sides and time choice before
       start. Every changed choice clears all people's readiness. Bots need no confirmation.
@@ -1405,26 +1385,6 @@ terms:
     - move list
     published: true
 
-  - term: away
-    definition: A participant of an active Custom Game who has no device with a connection in
-      that game. Being away never gives up the game on its own, and a timed game's clock keeps
-      running for them. A pause of shared play is not either participant
-      staying away, and cannot permit an away win. Coming back before anyone
-      claims the win continues the game as it is.
-    forms:
-    - stayed away
-    - stays away
-
-  - term: claim the win
-    definition: In an active Custom Game between two people, a participant ending the game
-      because the other participant has been away for 60 seconds. The claimant wins because
-      the other participant stayed away, or draws when the claimant cannot mate with the
-      remaining material. Earlier, the claimant is told the other participant may still
-      return. Watchers cannot claim the win.
-    forms:
-    - claims the win
-    - claimed the win
-
   - term: side control
     definition: Who may move for a side in a Custom Game, exclusively its accepted person
       or chosen bot.
@@ -1437,14 +1397,6 @@ terms:
       invited or claim a side.
   - term: listen to the app
     from: runtime
-  - term: watch a Custom Game
-    definition: A person already in the space following its game without controlling a side.
-      Outside the space the game is unavailable.
-    forms:
-    - watches the Custom Game
-    - watching the Custom Game
-    - listens to the Custom Game
-    - reviews
   - term: repetition
     definition: The same position with the same side to move and the same rights appearing
       again. The third appearance completes a Custom Game as a draw.
@@ -1452,10 +1404,6 @@ terms:
     - repeated
     - second repetition
     - third repetition
-  - term: personal-data export
-    from: profile
-  - term: personal data
-    from: profile
   - term: stalemate
     definition: The side to move is not in check but has no legal move. The Custom Game ends
       as a draw.

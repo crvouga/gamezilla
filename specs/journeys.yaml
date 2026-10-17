@@ -56,6 +56,7 @@ journeys:
     - 'Custom Game: Drawn result'
     gherkin:
     - specs/chess/custom-game-material.feature
+    - specs/games/custom-game-cannot-win.feature
   Returning to a puzzle observes the saved wrong-move result:
     description: Leaving for Profile and returning opens the saved attempt; retry remains an explicit choice.
     events:
