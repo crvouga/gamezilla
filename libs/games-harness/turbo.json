@@ -2,6 +2,15 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/games/*.feature",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/package.json"
+      ]
+    },
     "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$"]
     },

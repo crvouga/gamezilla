@@ -5,6 +5,8 @@
  */
 
 import { expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { HARNESS_GAMES } from '@libs/games-harness/harness-games';
 import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
 import { CONFORMANCE_GAMES } from './conformance-world';
@@ -37,4 +39,21 @@ test('the shared suites run every registered game and only test-only games besid
     expect(
       GAME_DEFINITIONS.some((definition) => definition.id === game.shared.id)
     ).toBe(registered.has(game.shared));
+});
+
+test('every game a package implements is registered, and every registered game has packages', () => {
+  const root = join(import.meta.dir, '../../..');
+  const declared = new Set<string>();
+  for (const tier of ['apps', 'libs', 'pkgs'])
+    for (const manifest of new Bun.Glob(`${tier}/*/package.json`).scanSync(
+      root
+    )) {
+      const { game } = JSON.parse(
+        readFileSync(join(root, manifest), 'utf8')
+      ) as { game?: string };
+      if (game !== undefined) declared.add(game);
+    }
+  expect([...declared].sort()).toEqual(
+    GAME_DEFINITIONS.map((game) => game.id).sort()
+  );
 });
