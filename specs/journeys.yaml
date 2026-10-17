@@ -578,7 +578,7 @@ journeys:
     - 'Custom Game: Finished'
     gherkin:
     - specs/journeys/custom-game.feature
-    - specs/chess/custom-game-creation.feature
+    - specs/games/custom-game-creation.feature
     tour: true
   An invited participant agrees to the current Custom Game:
     description: An invited person accepts their reserved side; readiness permits the creator to start.
@@ -598,8 +598,8 @@ journeys:
     - 'Custom Game: Playing'
     gherkin:
     - specs/journeys/custom-game.feature
-    - specs/chess/custom-game-invitations.feature
-    - specs/chess/custom-game-readiness.feature
+    - specs/games/custom-game-invitations.feature
+    - specs/games/custom-game-readiness.feature
     tour: true
   An early away claim cannot steal a Custom Game:
     description: The active game survives an early claim, and a later permitted claim finishes it.

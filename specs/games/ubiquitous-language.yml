@@ -29,15 +29,130 @@ terms:
       One game of the game whose creator chooses a person or a bot for each
       side and the clock, before every person in it is ready and it starts.
       A finished custom game keeps its participants, moves and result.
-    forms: [custom games, creator, participant, participants]
+    forms:
+      - custom games
+      - creator
+      - participant
+      - participants
+      - create a custom game
+      - creates a custom game
     avoid: [match, room, lobby]
     published: true
+
+  - term: set up
+    definition: >-
+      Choose a custom game's sides and clock choice before it starts. Only
+      its creator sets it up, and a custom game is set up until it starts or
+      is cancelled. Its set-up is the sides and clock choice it has now; a
+      choice made for an earlier set-up is refused.
+    forms: [sets up, setting up, being set up, set-up]
+
+  - term: ready
+    definition: >-
+      A person in a custom game agreeing to its current set-up before it
+      starts. Any change to the sides or the clock choice leaves every
+      person not ready; a bot needs no agreement. A person may withdraw
+      readiness until the custom game starts.
+    forms:
+      - readiness
+      - not ready
+      - no longer ready
+      - becomes ready
+      - become ready
+      - withdraws readiness
+
+  - term: start
+    definition: >-
+      Begin a custom game once both sides have a participant and every
+      person in it is ready, which only its creator does. It starts from the
+      game's starting position with the first side to move, and it starts
+      once however often the creator asks; a start for an earlier set-up is
+      refused.
+    forms: [starts, started, starting, startable, can start, cannot start]
+
+  - term: under way
+    definition: >-
+      A custom game that has started and is not finished yet. Its sides and
+      clock choice can no longer change, and nobody may take or give up a
+      side.
+    forms: [remains under way]
+
+  - term: cancelled
+    definition: >-
+      A custom game called off before it finished. It has no result, takes
+      no more moves and cannot start; a new custom game may follow it.
+
+  - term: starting position
+    definition: >-
+      The board as the game's own rules set it out before anyone has moved.
+    forms: [the game's starting position]
+
+  - term: open a side
+    definition: >-
+      The creator making a side open again before the custom game starts,
+      removing the person, bot or invitation chosen for it.
+    forms: [opens the first side, opens the second side, opened the first side, opened the second side]
+
+  - term: close a side
+    definition: >-
+      The creator keeping an unoccupied side from being claimed until they
+      open it or choose someone for it. A closed side keeps the custom game
+      from starting.
+    forms: [closes, closed]
+
+  - term: take a side
+    definition: >-
+      The creator choosing themselves for a side before the custom game
+      starts. One person takes at most one side.
+    forms: [takes the first side, takes the second side, take both sides]
+
+  - term: assign a bot
+    definition: >-
+      The creator choosing a bot for a side before the custom game starts,
+      in place of whatever was chosen for it before.
+    forms: [assigns a bot, assigned a bot, assigned bots, replaced by a bot]
+
+  - term: claim a side
+    definition: >-
+      Someone in the space taking an open side for themselves before the
+      custom game starts. When people claim the same side at once, exactly
+      one of them gets it.
+    forms: [claims, claim, claimant]
+
+  - term: release a side
+    definition: >-
+      A participant giving up their own side before the custom game starts,
+      which leaves it open. Nobody else may release it.
+    forms: [releases, released, releasing]
+
+  - term: invitation
+    definition: >-
+      A side the creator reserves for someone in the space, who alone may
+      accept or decline it before the custom game starts. They are shown
+      it, and nobody outside the space is. Accepting makes them its
+      participant; declining or revoking it, or choosing someone else for
+      the side, leaves no invitation to accept.
+    forms: [invitations, invite, invites, invited, reserved, revoke, revokes, revoked]
+
+  - term: nearest
+    definition: >-
+      Where a person sees each side sit around the board: their own side
+      nearest them, and the first side nearest anyone without one.
 
   - term: side
     definition: >-
       One of a game's two places to play from. The first side moves first;
       a side is open until a person or a bot takes it.
-    forms: [sides, first side, second side, open side, sides swapped, swaps the sides]
+    forms:
+      - sides
+      - first side
+      - second side
+      - open side
+      - both sides
+      - sides swapped
+      - swaps the sides
+      - swapped the sides
+      - swapping the sides
 
   - term: bot
     definition: An automated participant that makes legal moves at its turn.
@@ -67,7 +182,7 @@ terms:
 
   - term: turn
     definition: The participant who may make the next move.
-    forms: [turns, Alice's turn, Bob's turn, the other player's turn]
+    forms: [turns, Alice's turn, Bob's turn, the other player's turn, to move]
 
   - term: board
     definition: >-
@@ -79,7 +194,7 @@ terms:
       A custom game or matched game that has a result: a victory or a draw.
       A finished game takes no more moves. A game without a result yet is
       unfinished.
-    forms: [finishes, unfinished]
+    forms: [finish, finishes, unfinished]
 
   - term: end
     definition: >-
@@ -174,14 +289,14 @@ terms:
 
   - term: accept
     definition: >-
-      Say yes to a draw offer or a rematch offer, which takes effect at once.
-      Only the person offered may accept.
+      Say yes to a draw offer, a rematch offer or an invitation, which takes
+      effect at once. Only the person offered may accept.
     forms: [accepts, accepted, accepting]
 
   - term: decline
     definition: >-
-      Say no to a draw offer or a rematch offer. Only the person offered may
-      decline.
+      Say no to a draw offer, a rematch offer or an invitation. Only the
+      person offered may decline.
     forms: [declines, declined, declining]
 
   - term: rematch
@@ -237,10 +352,11 @@ terms:
 
   - term: clock choice
     definition: >-
-      How much time each participant has to play. A matched game's clock
-      choice is written as the minutes each side starts with plus the
-      seconds each move adds, such as 5+0, and belongs to one speed.
-    forms: [clock choices, played at]
+      How much time each participant has to play, written as the minutes
+      each side starts with plus the seconds each move adds, such as 5+0. A
+      matched game's clock choice belongs to one speed. A custom game may
+      instead be untimed, which it is until its creator chooses a clock.
+    forms: [clock choices, played at, untimed]
 
   - term: seconds pass
     definition: >-
@@ -258,8 +374,8 @@ terms:
       A person's strength at one speed. Finding an opponent uses the rating
       for the chosen clock choice's speed. A finished matched game changes
       both people's rating for its speed; an aborted matched game changes
-      none.
-    forms: [ratings, bullet rating, blitz rating, rapid rating, classical rating]
+      none. A custom game is unrated: it changes nobody's rating.
+    forms: [ratings, bullet rating, blitz rating, rapid rating, classical rating, unrated]
 
   - term: pair people up
     from: matchmaking
@@ -285,7 +401,7 @@ terms:
     definition: >-
       Someone in the space who has no side in the custom game and makes no
       move in it.
-    forms: [watched]
+    forms: [watched, watching, watches]
 
   - term: space
     from: spaces
@@ -301,6 +417,12 @@ terms:
 
   - term: free account
     from: billing
+
+  - term: guest
+    from: profile
+
+  - term: sign in
+    from: profile
 
   - term: connection
     from: kernel

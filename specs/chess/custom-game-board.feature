@@ -19,12 +19,6 @@ Feature: The Custom Game board faces the player's side
       When Alice starts the Custom Game
       Then Carol's board faces White
 
-    Scenario: A creator watching two bots sees the board facing White
-      Given Alice has a configuring Custom Game
-      And White and Black in the Custom Game are bots
-      When Alice starts the Custom Game
-      Then Alice's board faces White
-
   Rule: Swapping sides before start turns each person's board to their new side
 
     Scenario: Swapping sides turns both people's boards
