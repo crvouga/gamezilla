@@ -48,8 +48,6 @@ terms:
     from: spaces
   - term: sign in
     from: profile
-  - term: paid access
-    from: billing
   - term: control
     from: runtime
   - term: Plus

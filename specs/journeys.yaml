@@ -504,7 +504,7 @@ journeys:
     - 'Multiplayer: Multiplayer account required'
     gherkin:
     - specs/journeys/multiplayer-game.feature
-    - specs/chess/find-an-opponent.feature
+    - specs/games/finding-an-opponent.feature
     tour: true
   Multiplayer search, game and rematch form one journey:
     description: Two accounts are matched, play, finish, agree on a rematch and play with swapped colours.
@@ -777,7 +777,7 @@ journeys:
     - 'Multiplayer: Playing multiplayer'
     gherkin:
     - specs/matchmaking/complete-groups.feature
-    - specs/chess/multiplayer-being-matched.feature
+    - specs/games/finding-an-opponent.feature
     tour: true
   Board gestures, promotion and personal marks stay on their board:
     description: The board example rejects an illegal drag, offers promotion and preserves personal marks separately.
