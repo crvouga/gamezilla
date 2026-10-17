@@ -20,7 +20,28 @@ export type TraceContext = {
   /** Stable id for the trace (`<model>.trace-<n>`). */
   readonly testId: string;
   readonly title: string;
+  /** The variant this run of the trace is for, when the host defines them. */
+  readonly variant?: TraceVariant;
 };
+
+/** One subject a model holds for (a game, …), as reports name it. */
+export type TraceVariant = { readonly id: string; readonly label: string };
+
+/** The model a host is asked to vary. */
+export type VariedModel = {
+  /** The model: the `.qnt` file's stem. */
+  readonly model: string;
+  /** Repo-relative model path. */
+  readonly specUri: string;
+};
+
+/**
+ * The variants a host replays `model`'s traces for, or `null` to replay them
+ * once. An empty list is a failure: no variant offers what the model shows.
+ */
+export type TraceVariants = (
+  model: VariedModel
+) => readonly TraceVariant[] | null;
 
 /** One trace step as the world's report shows it. */
 export type TraceStepMeta = {
@@ -138,6 +159,7 @@ export const DEFAULT_VERIFY_TIMEOUT_MS = 240_000;
 
 type Registry = {
   world: QuintWorld<unknown> | null;
+  variants: TraceVariants | null;
   readonly bindings: Map<string, QuintBinding<unknown>>;
 };
 
@@ -145,7 +167,7 @@ const REGISTRY_KEY = Symbol.for('quint.registry');
 
 function registry(): Registry {
   const host = globalThis as { [REGISTRY_KEY]?: Registry };
-  host[REGISTRY_KEY] ??= { world: null, bindings: new Map() };
+  host[REGISTRY_KEY] ??= { world: null, variants: null, bindings: new Map() };
   return host[REGISTRY_KEY];
 }
 
@@ -161,6 +183,24 @@ export function quintWorld(): QuintWorld<unknown> {
     );
   }
   return world;
+}
+
+/**
+ * Replay each model's traces once per variant `variants` returns for it, each
+ * its own test in a fresh world (see `@pkgs/quint-server/bun-test`). Call once.
+ */
+export function defineTraceVariants(variants: TraceVariants): void {
+  const reg = registry();
+  if (reg.variants !== null)
+    throw new Error('quint: trace variants are already defined');
+  reg.variants = variants;
+}
+
+/** The variants `model` is replayed for, or `null` to replay it once. */
+export function traceVariants(
+  model: VariedModel
+): readonly TraceVariant[] | null {
+  return registry().variants?.(model) ?? null;
 }
 
 export function bindQuintModel<W>(binding: QuintBinding<W>): void {
