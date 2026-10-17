@@ -7133,7 +7133,7 @@
                     "snapshot": "The space’s Custom Game connects configuration, readiness, play and results.",
                     "confidence": "assumed",
                     "source": [
-                      "specs/chess/custom-game-access.dmn",
+                      "specs/games/custom-game-access.dmn",
                       "specs/chess/custom-game-access.feature",
                       "specs/chess/custom-game-accessibility.feature",
                       "specs/games/custom-game-away.feature",
@@ -7143,10 +7143,10 @@
                       "specs/games/custom-game-clock.feature",
                       "specs/games/custom-game-completion.feature",
                       "specs/chess/custom-game-connection.feature",
-                      "specs/chess/custom-game-control.qnt",
+                      "specs/games/custom-game-control.qnt",
                       "specs/chess/custom-game-creation.feature",
                       "specs/games/custom-game-creation.feature",
-                      "specs/chess/custom-game-delivery.openslo.yaml",
+                      "specs/games/custom-game-delivery.openslo.yaml",
                       "specs/chess/custom-game-devices.feature",
                       "specs/games/custom-game-draw-offers.feature",
                       "specs/chess/custom-game-history.feature",
@@ -7157,13 +7157,13 @@
                       "specs/games/custom-game-open-places.feature",
                       "specs/games/custom-game-sides.feature",
                       "specs/chess/custom-game-play.feature",
-                      "specs/chess/custom-game-play.qnt",
+                      "specs/games/custom-game-play.qnt",
                       "specs/chess/custom-game-position-draws.feature",
                       "specs/chess/custom-game-privacy.feature",
                       "specs/games/custom-game-readiness.feature",
                       "specs/chess/custom-game-shared-interruption.feature",
-                      "specs/chess/custom-game.qnt",
-                      "specs/chess/custom-games.als",
+                      "specs/games/custom-game.qnt",
+                      "specs/games/custom-games.als",
                       "specs/chess/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml",
                       "specs/games/custom-games.feature"
@@ -7272,7 +7272,7 @@
                           "specs/chess/custom-game-connection.feature:30",
                           "specs/chess/custom-game-connection.feature:48",
                           "specs/chess/custom-game-connection.feature:5",
-                          "specs/chess/custom-game-local.qnt"
+                          "specs/games/custom-game-local.qnt"
                         ],
                         "events": []
                       },
@@ -7375,9 +7375,9 @@
                         "snapshot": "The invited person chooses whether to take the offered side.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/custom-game-access.dmn",
-                          "specs/chess/custom-game-delivery.openslo.yaml",
-                          "specs/chess/custom-games.als",
+                          "specs/games/custom-game-access.dmn",
+                          "specs/games/custom-game-delivery.openslo.yaml",
+                          "specs/games/custom-games.als",
                           "specs/chess/custom-game-access.feature",
                           "specs/chess/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -7401,9 +7401,9 @@
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/chess/custom-game-privacy.feature",
                           "specs/games/custom-game-readiness.feature",
-                          "specs/chess/custom-game-control.qnt",
-                          "specs/chess/custom-game-play.qnt",
-                          "specs/chess/custom-game.qnt"
+                          "specs/games/custom-game-control.qnt",
+                          "specs/games/custom-game-play.qnt",
+                          "specs/games/custom-game.qnt"
                         ],
                         "events": []
                       },
@@ -7475,9 +7475,9 @@
                         "snapshot": "Some participants agreed to the current choices; the remaining people must agree too.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/custom-game-access.dmn",
-                          "specs/chess/custom-game-delivery.openslo.yaml",
-                          "specs/chess/custom-games.als",
+                          "specs/games/custom-game-access.dmn",
+                          "specs/games/custom-game-delivery.openslo.yaml",
+                          "specs/games/custom-games.als",
                           "specs/chess/custom-game-access.feature",
                           "specs/chess/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -7501,9 +7501,9 @@
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/chess/custom-game-privacy.feature",
                           "specs/games/custom-game-readiness.feature",
-                          "specs/chess/custom-game-control.qnt",
-                          "specs/chess/custom-game-play.qnt",
-                          "specs/chess/custom-game.qnt"
+                          "specs/games/custom-game-control.qnt",
+                          "specs/games/custom-game-play.qnt",
+                          "specs/games/custom-game.qnt"
                         ],
                         "events": []
                       },
@@ -7564,9 +7564,9 @@
                         "snapshot": "Starting explains the missing people, readiness, authority or changed choices and keeps the game intact.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/custom-game-access.dmn",
-                          "specs/chess/custom-game-delivery.openslo.yaml",
-                          "specs/chess/custom-games.als",
+                          "specs/games/custom-game-access.dmn",
+                          "specs/games/custom-game-delivery.openslo.yaml",
+                          "specs/games/custom-games.als",
                           "specs/chess/custom-game-access.feature",
                           "specs/chess/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -7590,9 +7590,9 @@
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/chess/custom-game-privacy.feature",
                           "specs/games/custom-game-readiness.feature",
-                          "specs/chess/custom-game-control.qnt",
-                          "specs/chess/custom-game-play.qnt",
-                          "specs/chess/custom-game.qnt"
+                          "specs/games/custom-game-control.qnt",
+                          "specs/games/custom-game-play.qnt",
+                          "specs/games/custom-game.qnt"
                         ],
                         "events": []
                       },
@@ -7732,9 +7732,9 @@
                         "snapshot": "A refused move does not advance the board, clock or turn.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/custom-game-access.dmn",
-                          "specs/chess/custom-game-delivery.openslo.yaml",
-                          "specs/chess/custom-games.als",
+                          "specs/games/custom-game-access.dmn",
+                          "specs/games/custom-game-delivery.openslo.yaml",
+                          "specs/games/custom-games.als",
                           "specs/chess/custom-game-access.feature",
                           "specs/chess/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -7758,9 +7758,9 @@
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/chess/custom-game-privacy.feature",
                           "specs/games/custom-game-readiness.feature",
-                          "specs/chess/custom-game-control.qnt",
-                          "specs/chess/custom-game-play.qnt",
-                          "specs/chess/custom-game.qnt"
+                          "specs/games/custom-game-control.qnt",
+                          "specs/games/custom-game-play.qnt",
+                          "specs/games/custom-game.qnt"
                         ],
                         "events": []
                       },
@@ -7777,9 +7777,9 @@
                         "snapshot": "The participant chooses Queen, Rook, Bishop or Knight for the promotion.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/custom-game-access.dmn",
-                          "specs/chess/custom-game-delivery.openslo.yaml",
-                          "specs/chess/custom-games.als",
+                          "specs/games/custom-game-access.dmn",
+                          "specs/games/custom-game-delivery.openslo.yaml",
+                          "specs/games/custom-games.als",
                           "specs/chess/custom-game-access.feature",
                           "specs/chess/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -7803,9 +7803,9 @@
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/chess/custom-game-privacy.feature",
                           "specs/games/custom-game-readiness.feature",
-                          "specs/chess/custom-game-control.qnt",
-                          "specs/chess/custom-game-play.qnt",
-                          "specs/chess/custom-game.qnt"
+                          "specs/games/custom-game-control.qnt",
+                          "specs/games/custom-game-play.qnt",
+                          "specs/games/custom-game.qnt"
                         ],
                         "events": []
                       },
@@ -7935,9 +7935,9 @@
                         "snapshot": "The board preserves the last known game and prevents unauthorised offline moves.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/custom-game-access.dmn",
-                          "specs/chess/custom-game-delivery.openslo.yaml",
-                          "specs/chess/custom-games.als",
+                          "specs/games/custom-game-access.dmn",
+                          "specs/games/custom-game-delivery.openslo.yaml",
+                          "specs/games/custom-games.als",
                           "specs/chess/custom-game-access.feature",
                           "specs/chess/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -7961,9 +7961,9 @@
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/chess/custom-game-privacy.feature",
                           "specs/games/custom-game-readiness.feature",
-                          "specs/chess/custom-game-control.qnt",
-                          "specs/chess/custom-game-play.qnt",
-                          "specs/chess/custom-game.qnt"
+                          "specs/games/custom-game-control.qnt",
+                          "specs/games/custom-game-play.qnt",
+                          "specs/games/custom-game.qnt"
                         ],
                         "events": []
                       },
@@ -8015,9 +8015,9 @@
                         "snapshot": "The final result and move list remain visible without changing puzzle ratings; further moves or claims cannot replace the outcome.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/custom-game-access.dmn",
-                          "specs/chess/custom-game-delivery.openslo.yaml",
-                          "specs/chess/custom-games.als",
+                          "specs/games/custom-game-access.dmn",
+                          "specs/games/custom-game-delivery.openslo.yaml",
+                          "specs/games/custom-games.als",
                           "specs/chess/custom-game-access.feature",
                           "specs/chess/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -8041,9 +8041,9 @@
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/chess/custom-game-privacy.feature",
                           "specs/games/custom-game-readiness.feature",
-                          "specs/chess/custom-game-control.qnt",
-                          "specs/chess/custom-game-play.qnt",
-                          "specs/chess/custom-game.qnt"
+                          "specs/games/custom-game-control.qnt",
+                          "specs/games/custom-game-play.qnt",
+                          "specs/games/custom-game.qnt"
                         ],
                         "events": []
                       },
@@ -8113,9 +8113,9 @@
                         "snapshot": "The reached move list remains attached to the finished game on each device.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/custom-game-access.dmn",
-                          "specs/chess/custom-game-delivery.openslo.yaml",
-                          "specs/chess/custom-games.als",
+                          "specs/games/custom-game-access.dmn",
+                          "specs/games/custom-game-delivery.openslo.yaml",
+                          "specs/games/custom-games.als",
                           "specs/chess/custom-game-access.feature",
                           "specs/chess/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -8139,9 +8139,9 @@
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/chess/custom-game-privacy.feature",
                           "specs/games/custom-game-readiness.feature",
-                          "specs/chess/custom-game-control.qnt",
-                          "specs/chess/custom-game-play.qnt",
-                          "specs/chess/custom-game.qnt"
+                          "specs/games/custom-game-control.qnt",
+                          "specs/games/custom-game-play.qnt",
+                          "specs/games/custom-game.qnt"
                         ],
                         "events": []
                       },
@@ -8158,9 +8158,9 @@
                         "snapshot": "Cancellation is recorded and cannot restart the cancelled game.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/custom-game-access.dmn",
-                          "specs/chess/custom-game-delivery.openslo.yaml",
-                          "specs/chess/custom-games.als",
+                          "specs/games/custom-game-access.dmn",
+                          "specs/games/custom-game-delivery.openslo.yaml",
+                          "specs/games/custom-games.als",
                           "specs/chess/custom-game-access.feature",
                           "specs/chess/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -8184,9 +8184,9 @@
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/chess/custom-game-privacy.feature",
                           "specs/games/custom-game-readiness.feature",
-                          "specs/chess/custom-game-control.qnt",
-                          "specs/chess/custom-game-play.qnt",
-                          "specs/chess/custom-game.qnt"
+                          "specs/games/custom-game-control.qnt",
+                          "specs/games/custom-game-play.qnt",
+                          "specs/games/custom-game.qnt"
                         ],
                         "events": []
                       },

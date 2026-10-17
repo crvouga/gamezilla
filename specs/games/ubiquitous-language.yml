@@ -38,6 +38,23 @@ terms:
       - creates a custom game
     avoid: [match, room, lobby]
     published: true
+    model:
+      - CustomGame
+      - customGame
+      - gameShown
+      - createGame
+      - status
+      - statusShown
+      - creator
+      - creatorShown
+      - Participant
+      - ParticipantKind
+      - PersonSide
+      - participants
+      - kind
+      - person
+      - current
+      - CustomGameStatus
 
   - term: set up
     definition: >-
@@ -46,6 +63,7 @@ terms:
       is cancelled. Its set-up is the sides and clock choice it has now; a
       choice made for an earlier set-up is refused.
     forms: [sets up, setting up, being set up, set-up]
+    model: [SettingUp]
 
   - term: ready
     definition: >-
@@ -60,6 +78,7 @@ terms:
       - becomes ready
       - become ready
       - withdraws readiness
+    model: [ready, readyShown, becomeReady, becomeUnready]
 
   - term: start
     definition: >-
@@ -69,6 +88,7 @@ terms:
       once however often the creator asks; a start for an earlier set-up is
       refused.
     forms: [starts, started, starting, startable, can start, cannot start]
+    model: [startGame, started, startsShown]
 
   - term: under way
     definition: >-
@@ -76,6 +96,7 @@ terms:
       clock choice can no longer change, and nobody may take or give up a
       side.
     forms: [remains under way]
+    model: [UnderWay]
 
   - term: cancelled
     definition: >-
@@ -86,6 +107,7 @@ terms:
       moved, and must resign instead from then on. Ending its space cancels
       an unfinished custom game.
     forms: [cancel, cancels, cancelling, cancellation]
+    model: [cancelGame, cancelCustomGame, Cancelled]
 
   - term: starting position
     definition: >-
@@ -97,6 +119,7 @@ terms:
       The creator making a side open again before the custom game starts,
       removing the person, bot or invitation chosen for it.
     forms: [opens the first side, opens the second side, opened the first side, opened the second side]
+    model: [openSide]
 
   - term: close a side
     definition: >-
@@ -104,18 +127,21 @@ terms:
       open it or choose someone for it. A closed side keeps the custom game
       from starting.
     forms: [closes, closed]
+    model: [closeSide, ClosedSide]
 
   - term: take a side
     definition: >-
       The creator choosing themselves for a side before the custom game
       starts. One person takes at most one side.
     forms: [takes the first side, takes the second side, take both sides]
+    model: [takeSide]
 
   - term: assign a bot
     definition: >-
       The creator choosing a bot for a side before the custom game starts,
       in place of whatever was chosen for it before.
     forms: [assigns a bot, assigned a bot, assigned bots, replaced by a bot]
+    model: [assignBot]
 
   - term: claim a side
     definition: >-
@@ -123,6 +149,7 @@ terms:
       custom game starts. When people claim the same side at once, exactly
       one of them gets it.
     forms: [claims, claim, claimant]
+    model: [claimSide]
 
   - term: release a side
     definition: >-
@@ -130,6 +157,7 @@ terms:
       which leaves it open. Nobody else may release it. Leaving the space
       before the start releases their side too.
     forms: [releases, released, releasing]
+    model: [releaseSide]
 
   - term: invitation
     definition: >-
@@ -139,11 +167,13 @@ terms:
       participant; declining or revoking it, or choosing someone else for
       the side, leaves no invitation to accept.
     forms: [invitations, invite, invites, invited, reserved, revoke, revokes, revoked]
+    model: [invite, acceptSide, declineSide, revokeSide, InvitedSide]
 
   - term: nearest
     definition: >-
       Where a person sees each side sit around the board: their own side
       nearest them, and the first side nearest anyone without one.
+    model: [nearestSide]
 
   - term: side
     definition: >-
@@ -159,10 +189,19 @@ terms:
       - swaps the sides
       - swapped the sides
       - swapping the sides
+    model:
+      - Side
+      - OpenSide
+      - firstSide
+      - secondSide
+      - firstSideShown
+      - secondSideShown
+      - swapSides
 
   - term: bot
     definition: An automated participant that makes legal moves at its turn.
     forms: [bots, the bots]
+    model: [botPlays, BotSide]
 
   - term: move
     definition: >-
@@ -186,10 +225,12 @@ terms:
       - move played
       - moves played
     avoid: [command, action]
+    model: [playCustomMove, movesPlayed, movesShown]
 
   - term: turn
     definition: The participant who may make the next move.
     forms: [turns, Alice's turn, Bob's turn, the other player's turn, to move]
+    model: [sideToMove]
 
   - term: move list
     definition: >-
@@ -200,6 +241,7 @@ terms:
     definition: >-
       What a game is played on, as that game draws it. Everyone in the space
       sees the same board.
+    model: [playShown]
 
   - term: finished
     definition: >-
@@ -207,6 +249,7 @@ terms:
       A finished game takes no more moves. A game without a result yet is
       unfinished.
     forms: [finish, finishes, unfinished]
+    model: [Finished]
 
   - term: end
     definition: >-
@@ -220,6 +263,7 @@ terms:
       How a finished game came out: a victory or a draw. Both people see the
       same result, kept with the moves. An aborted matched game has none.
     forms: [results]
+    model: [result, resultShown]
 
   - term: over
     definition: >-
@@ -253,6 +297,7 @@ terms:
       resignation.
     forms: [resigns, resigned, resigning, resignation]
     avoid: [forfeit, concede, quit]
+    model: [resignGame, resignCustomGame]
 
   - term: matched game
     definition: >-
@@ -306,6 +351,7 @@ terms:
       - accepts the draw
       - decline the draw
       - declines the draw
+    model: [offerDraw, acceptDraw, declineDraw, drawOfferedByShown]
 
   - term: accept
     definition: >-
@@ -343,6 +389,7 @@ terms:
       - accepting the rematch
       - decline the rematch
       - declines the rematch
+    model: [rematch]
 
   - term: find a new opponent
     definition: >-
@@ -380,6 +427,7 @@ terms:
       seconds a move, and any other is not offered. Its creator may change
       it only before the custom game starts.
     forms: [clock choices, played at, untimed, timed]
+    model: [chooseClock, minutesShown, incrementShown]
 
   - term: clock
     definition: >-
@@ -388,6 +436,7 @@ terms:
       by that side's move, and it keeps running while a participant is
       away.
     forms: [clocks]
+    model: [clockLeft, clocksPaused]
 
   - term: run out of time
     definition: >-
@@ -401,6 +450,7 @@ terms:
       Time going by in a matched game or a custom game while nobody makes a
       move.
     forms: [second passes, seconds have passed]
+    model: [customTimePasses]
 
   - term: away
     definition: >-
@@ -418,6 +468,7 @@ terms:
       return. Watchers cannot claim the win, and a finished custom game
       keeps its result.
     forms: [claims the win, claimed the win]
+    model: [claimWin]
 
   - term: speed
     definition: >-
@@ -453,6 +504,16 @@ terms:
       Victories, losses and draws of one game alone; another game's results
       never count.
 
+  - term: refusal
+    definition: >-
+      What a person is told when their choice in a custom game cannot take
+      effect, and why: who may make it, whether the custom game allows it
+      now, someone in the space they or the creator blocked, a missing
+      connection, or a set-up that has changed since they saw it. A refused
+      choice changes nothing.
+    forms: [refusals]
+    model: [refusal]
+
   - term: watcher
     definition: >-
       Someone in the space who has no side in the custom game and makes no
@@ -461,9 +522,11 @@ terms:
 
   - term: space
     from: spaces
+    model: [Space, space, peopleInSpace]
 
   - term: host
     from: spaces
+    model: [spaceHost]
 
   - term: join
     from: spaces

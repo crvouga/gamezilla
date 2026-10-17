@@ -67,10 +67,8 @@ terms:
     from: billing
   - term: space
     from: spaces
-    model: [Space, space]
   - term: host
     from: spaces
-    model: [spaceHost]
   - term: join
     from: spaces
     model: [joinSpace]
@@ -148,7 +146,7 @@ terms:
       puzzle's state; a watcher's board agrees with the host's. In a Custom
       Game each participant's board faces their own side, and everyone
       else's board faces White.
-    model: [Board, playShown, boardFacing]
+    model: [Board, boardFacing]
     published: true
 
   - term: play puzzles
@@ -687,7 +685,7 @@ terms:
   - term: move
     source: FIDE Laws of Chess, Article 3 (the moves of the pieces)
     forms: [moves, moved, moving, plays]
-    model: [playCustomMove, moves, ply, sideToMove, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, playQuietPuzzleMove, playCapturePuzzleMove]
+    model: [moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, playQuietPuzzleMove, playCapturePuzzleMove]
   - term: capture
     source: FIDE Laws of Chess, Article 3.1.1 (removing an opposing piece as part of a move)
     forms: [captures, captured]
@@ -1244,44 +1242,12 @@ terms:
     forms:
     - Custom Games
     - Custom Game's
-    model:
-    - CustomGame
-    - black
-    - blackShown
-    - createGame
-    - creator
-    - creatorShown
-    - customGame
-    - drawOfferedByShown
-    - gameShown
-    - incrementShown
-    - minutesShown
-    - outcomeShown
-    - ready
-    - readyShown
-    - startsShown
-    - status
-    - statusShown
-    - white
-    - whiteShown
-    - controllers
-    - controlledStatus
-    - controlledPly
-    - controlledTurn
-    - controlledOutcome
-    - controlledShown
-    - playControlledMove
-    - resignControlledGame
-    - cancelControlledGame
-    - current
     published: true
   - term: creator
     definition: The host whose Custom Game it is. Only the creator creates, configures, starts,
       cancels or makes a rematch, including when watching two other participants; the one
       exception is that either participant of a game between two people may cancel it until
       each side has moved. Leaving the space ends it and cancels unfinished games.
-    model:
-    - creator
   - term: side
     definition: White or Black in a Custom Game or a multiplayer game. In a Custom Game each
       has one choice of participant, and one person cannot be accepted or invited on both sides.
@@ -1289,34 +1255,17 @@ terms:
     - sides
     - White
     - Black
-    model:
-    - Side
-    - Color
-    - color
-    - White
-    - Black
-    - white
-    - black
   - term: participant
     definition: A person who accepted one side, or a bot chosen for one side. The creator
       is a participant only when accepted on a side. Watching never gives control of a participant.
     forms:
     - participants
-    model:
-    - Participant
-    - ParticipantKind
-    - PersonSide
-    - BotSide
-    - kind
-    - person
   - term: bot
     definition: A chess opponent that plays legal moves by itself for its own side. Either
       or both sides may be bots, including identical bots. There are no strength or personality
       choices. A bot stops when the game ends.
     forms:
     - bots
-    model:
-    - botPlays
   - term: open place
     definition: An unoccupied side anybody already in the space may claim before start, except
       someone who has blocked the creator or whom the creator has blocked; they are only told the
@@ -1324,10 +1273,6 @@ terms:
       may win. A person must confirm readiness after claiming.
     forms:
     - open places
-    model:
-    - OpenPlace
-    - openSide
-    - claimSide
   - term: closed side
     definition: An unoccupied side nobody may claim until the creator opens it or chooses
       a participant. A closed side prevents starting.
@@ -1335,9 +1280,6 @@ terms:
     - closed sides
     - closed
     - closes
-    model:
-    - ClosedSide
-    - closeSide
   - term: invitation
     definition: A side reserved by the creator for a person already in the space, who alone
       may accept or decline it before start. The invited person is shown it; nobody outside
@@ -1352,20 +1294,12 @@ terms:
     - reserved
     - revoked
     - revokes
-    model:
-    - InvitedSide
-    - invite
-    - acceptSide
-    - declineSide
-    - revokeSide
   - term: take a side
     definition: The creator choosing themselves for one side before start. Replacing a choice
       clears readiness; taking the same accepted side again changes nothing.
     forms:
     - takes
     - take
-    model:
-    - takeSide
   - term: assign a bot
     definition: The creator choosing a bot for one side before start. Replacing any earlier
       choice removes it and clears people's readiness; choosing the same bot again changes
@@ -1375,16 +1309,12 @@ terms:
     - assigned
     - replaced
     - replaces
-    model:
-    - assignBot
   - term: release a side
     definition: An accepted person giving up their own side before start. It becomes an open
       place. After start leaving the space resigns instead of releasing.
     forms:
     - releases
     - released
-    model:
-    - releaseSide
   - term: readiness
     definition: A participating person agreeing to the current sides and time choice before
       start. Every changed choice clears all people's readiness. Bots need no confirmation.
@@ -1395,10 +1325,6 @@ terms:
     - becomes ready
     - become ready
     - no longer ready
-    model:
-    - ready
-    - becomeReady
-    - becomeUnready
   - term: swap sides
     definition: The creator exchanging all of White's and Black's choices before start. Any
       people must become ready again.
@@ -1406,8 +1332,6 @@ terms:
     - swaps
     - swapped
     - swapping
-    model:
-    - swapSides
   - term: Custom Game status
     definition: Whether a Custom Game is configuring, active, completed or cancelled. A new
       game follows a terminal game without reviving it.
@@ -1419,15 +1343,6 @@ terms:
     - started
     - finished
     - startable
-    model:
-    - status
-    - CustomGameStatus
-    - Configuring
-    - Active
-    - Completed
-    - Cancelled
-    - startGame
-    - cancelGame
   - term: Custom Game choices
     definition: The sides and time choice agreed before start. Start requires two participants
       and every person ready. Starting freezes these choices. Choices that have since changed
@@ -1435,8 +1350,6 @@ terms:
     forms:
     - choices
     - earlier choices
-    model:
-    - started
   - term: time choice
     definition: An untimed game, or the same whole number of minutes from 1 to 180 for both
       sides with a whole number of seconds increment from 0 to 60. Untimed games have no
@@ -1445,9 +1358,6 @@ terms:
     - untimed
     - timed
     model:
-    - chooseClock
-    - clockLeft
-    - customTimePasses
     - clocksPaused
   - term: Custom Game outcome
     definition: 'The final result: White wins, Black wins, a draw or cancellation with no
@@ -1461,9 +1371,6 @@ terms:
     - on time
     - wins
     model:
-    - resignGame
-    - resignCustomGame
-    - cancelCustomGame
     - result
   - term: draw offer
     definition: One participating person asking the other to agree to a draw in an active
@@ -1475,10 +1382,6 @@ terms:
     - offers a draw
     - accepts the draw
     - declines the draw
-    model:
-    - offerDraw
-    - acceptDraw
-    - declineDraw
   - term: rematch
     definition: A separate configuring Custom Game after completion or cancellation, with
       accepted participants swapped and the same time choice. Invitations are not inherited
@@ -1486,8 +1389,6 @@ terms:
       its outcome and move list.
     forms:
     - rematches
-    model:
-    - rematch
   - term: Custom Game refusal
     definition: 'Why a person''s choice cannot take effect: authority, lifecycle, participant
       relationship, a block, readiness, time choice, a draw offer just declined, an opponent
@@ -1495,8 +1396,6 @@ terms:
       never says who blocked whom. No refused choice changes a side, starts play or happens
       later on its own.'
     forms:
-    - refusal
-    model:
     - refusal
   - term: Custom Game move list
     definition: The moves of one game in algebraic notation, kept with its final outcome.
@@ -1525,8 +1424,6 @@ terms:
     forms:
     - claims the win
     - claimed the win
-    model:
-    - claimWin
 
   - term: side control
     definition: Who may move for a side in a Custom Game, exclusively its accepted person
@@ -1538,8 +1435,6 @@ terms:
   - term: people in the space
     definition: The people who already belong to the Custom Game's space; only they may be
       invited or claim a side.
-    model:
-    - peopleInSpace
   - term: listen to the app
     from: runtime
   - term: watch a Custom Game

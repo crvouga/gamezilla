@@ -28,9 +28,9 @@ or policy without an owner fails compilation.
 | [specs/chess-board/board-options.qnt](../../specs/chess-board/board-options.qnt) | chess-board |
 | [specs/chess-board/board-premoves.qnt](../../specs/chess-board/board-premoves.qnt) | chess-board |
 | [specs/chess-board/board-promotion.qnt](../../specs/chess-board/board-promotion.qnt) | chess-board |
-| [specs/chess/custom-game-control.qnt](../../specs/chess/custom-game-control.qnt) | custom-game |
-| [specs/chess/custom-game-play.qnt](../../specs/chess/custom-game-play.qnt) | custom-game |
-| [specs/chess/custom-game.qnt](../../specs/chess/custom-game.qnt) | custom-game |
+| [specs/games/custom-game-control.qnt](../../specs/games/custom-game-control.qnt) | custom-game |
+| [specs/games/custom-game-play.qnt](../../specs/games/custom-game-play.qnt) | custom-game |
+| [specs/games/custom-game.qnt](../../specs/games/custom-game.qnt) | custom-game |
 | [specs/chess/multiplayer-spaces.qnt](../../specs/chess/multiplayer-spaces.qnt) | multiplayer |
 | [specs/chess/multiplayer.qnt](../../specs/chess/multiplayer.qnt) | multiplayer |
 | [specs/chess/puzzle-attempt.qnt](../../specs/chess/puzzle-attempt.qnt) | puzzles |
@@ -97,9 +97,9 @@ These contracts constrain the capabilities and appear in their business catalog.
 | --- | --- |
 | [specs/billing/access.dmn](../../specs/billing/access.dmn) | access |
 | [specs/chess/assistant-observation.dmn](../../specs/chess/assistant-observation.dmn) | puzzles |
-| [specs/chess/custom-game-access.dmn](../../specs/chess/custom-game-access.dmn) | custom-game |
-| [specs/chess/custom-game-delivery.openslo.yaml](../../specs/chess/custom-game-delivery.openslo.yaml) | custom-game |
-| [specs/chess/custom-games.als](../../specs/chess/custom-games.als) | custom-game |
+| [specs/games/custom-game-access.dmn](../../specs/games/custom-game-access.dmn) | custom-game |
+| [specs/games/custom-game-delivery.openslo.yaml](../../specs/games/custom-game-delivery.openslo.yaml) | custom-game |
+| [specs/games/custom-games.als](../../specs/games/custom-games.als) | custom-game |
 | [specs/chess/daily-puzzle-limit.dmn](../../specs/chess/daily-puzzle-limit.dmn) | puzzles |
 | [specs/chess/multiplayer-games.als](../../specs/chess/multiplayer-games.als) | multiplayer |
 | [specs/chess/multiplayer-ready.openslo.yaml](../../specs/chess/multiplayer-ready.openslo.yaml) | multiplayer |

@@ -1,9 +1,9 @@
-# Connected people see the agreed Custom Game choices promptly.
+# Connected people see the agreed custom game choices promptly, in every game.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
   name: custom-game-choice-arrival
-  displayName: Time for a Custom Game choice to reach another person
+  displayName: Time for a custom game choice to reach another person
 spec:
   description: >-
     Seconds from a connected creator's accepted choice until another
@@ -13,19 +13,19 @@ spec:
       type: product
       spec:
         measures: >-
-          The seconds between an accepted Custom Game choice and that
+          The seconds between an accepted custom game choice and that
           choice showing to another connected person in the space.
 ---
 apiVersion: openslo/v1
 kind: SLO
 metadata:
   name: custom-game-choices-arrive-promptly
-  displayName: Custom Game choices arrive promptly
+  displayName: Custom game choices arrive promptly
 spec:
   description: >-
     At least 99 in every 100 accepted choices reach other connected
     people in the same space within five seconds over the last four weeks.
-  service: chess
+  service: games
   indicatorRef: custom-game-choice-arrival
   timeWindow:
     - duration: 28d

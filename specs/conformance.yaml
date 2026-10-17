@@ -63,15 +63,15 @@ product:
     - { id: customize the puzzle feed, context: chess, decided by: access }
     - { id: start a rated puzzle, context: chess, decided by: daily-puzzle-limit }
     - { id: add puzzles, context: chess, decided by: puzzle-management-access }
-    - { id: create a Custom Game, context: chess, decided by: custom-game-access }
-    - { id: configure a Custom Game, context: chess, decided by: custom-game-access }
-    - { id: invite a Custom Game participant, context: chess, decided by: custom-game-access }
-    - { id: configure a Custom Game bot, context: chess, decided by: custom-game-access }
-    - { id: start a Custom Game, context: chess, decided by: custom-game-access }
-    - { id: cancel a Custom Game, context: chess, decided by: custom-game-access }
-    - { id: join a Custom Game, context: chess, decided by: custom-game-access }
-    - { id: watch a Custom Game, context: chess, decided by: custom-game-access }
-    - { id: play a Custom Game, context: chess, decided by: custom-game-access }
+    - { id: create a custom game, context: games, decided by: custom-game-access }
+    - { id: configure a custom game, context: games, decided by: custom-game-access }
+    - { id: invite a custom game participant, context: games, decided by: custom-game-access }
+    - { id: configure a custom game bot, context: games, decided by: custom-game-access }
+    - { id: start a custom game, context: games, decided by: custom-game-access }
+    - { id: cancel a custom game, context: games, decided by: custom-game-access }
+    - { id: join a custom game, context: games, decided by: custom-game-access }
+    - { id: watch a custom game, context: games, decided by: custom-game-access }
+    - { id: play a custom game, context: games, decided by: custom-game-access }
     - { id: create a space, context: spaces, decided by: access }
     - { id: join a space, context: spaces, decided by: access }
     - { id: host another open space, context: spaces, decided by: hosting-limit }
