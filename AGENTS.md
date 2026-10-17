@@ -325,14 +325,16 @@ each probed in `libs/tools/scripts/import-boundaries.test.ts`, plus
   behind injected ports and `@api-wall-ok` modules;
 - libs and pkgs never import `@apps/*`.
 
-**Games.** A game supplies only its rules, board, copy and test adapter;
-the platform owns every shared screen, workflow, spec and suite. Follow
-[`libs/games-shared/docs/ADDING_A_GAME.md`](libs/games-shared/docs/ADDING_A_GAME.md):
-`<game>-shared` / `-client` / `-harness` packages declaring `"game"`,
-registered in `GAME_DEFINITIONS`, `GAME_CLIENT_DEFINITIONS` and
-`HARNESS_GAMES`. Games never import each other and only `"gameRegistry"`
-packages compose them (`package-boundaries.ts`); behaviour every game shares
-is specified once in `specs/games/` and runs per game.
+**Games.** Gamezilla is a game framework with pluggable games
+([`GAME_FRAMEWORK.md`](libs/games-shared/docs/GAME_FRAMEWORK.md)). A game
+supplies only its rules, board, copy, board gesture and known examples
+(`defineTurnGame`, `defineGameClient`, a `HarnessGame` with `fixtures`); the
+framework owns every shared screen, lifecycle, spec and suite. Follow
+[`ADDING_A_GAME.md`](libs/games-shared/docs/ADDING_A_GAME.md). Games never
+import each other or a registry; only `"gameRegistry"` packages compose
+games, and platform code never spells a game id (`package-boundaries.ts`).
+Behaviour every game shares is specified once in `specs/games/` and runs per
+game; shared code suites live in `libs/games-harness/tests/conformance/<area>/`.
 **Billing providers** each export one `MembershipProviderModule`;
 `@pkgs/billing-providers-server` is the single list composition roots iterate —
 never name a provider elsewhere (`import-billing-vendor.grit`).
