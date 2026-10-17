@@ -2,8 +2,11 @@ import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import type { ShownMultiplayerBoard } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
 import { shownMultiplayerBoard } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
+import {
+  bothBoards,
+  viewerOf,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import { bothBoards, viewerOf } from './multiplayer-world';
 
 /**
  * The person's screen comes to show the two people's current multiplayer

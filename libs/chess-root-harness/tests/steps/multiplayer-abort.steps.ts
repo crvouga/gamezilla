@@ -1,15 +1,15 @@
 import { expect } from 'bun:test';
-import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
-import { Given, Then, When } from '@libs/harness/define';
-import type { Actor } from '@libs/harness/parameter-types';
-import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
   bothBoards,
   gameCommand,
-  givenAbortedGame,
   refusal,
   sameBoards,
-} from './multiplayer-world';
+} from '@libs/game-matchmaking-harness/matched-game-world';
+import { passMultiplayerTime } from '@libs/game-matchmaking-harness/multiplayer-time';
+import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import type { HarnessWorld } from '@libs/harness/spec-world';
+import { givenAbortedGame } from './multiplayer-world';
 
 const SECOND_MS = 1000;
 
@@ -50,10 +50,6 @@ Then(
 Then(
   '{actor} is told the multiplayer game can no longer be aborted',
   (w, actor: Actor) => refusal(w, actor, 'CHESS_ABORT_TOO_LATE')
-);
-Then(
-  '{actor} is told to abort the multiplayer game instead',
-  (w, actor: Actor) => refusal(w, actor, 'CHESS_ABORT_INSTEAD')
 );
 Then('the multiplayer game is still unfinished', async (w) => {
   expect((await bothBoards(w)).outcome).toBe('ongoing');

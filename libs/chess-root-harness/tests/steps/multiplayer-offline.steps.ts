@@ -1,22 +1,15 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { pairGameOpponents } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
-  multiplayerView,
-  shownMultiplayerText,
-} from '@libs/game-matchmaking-harness/multiplayer-reads';
-import { signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
-import { Given, Then } from '@libs/harness/define';
-import type { Actor } from '@libs/harness/parameter-types';
-import type { HarnessWorld } from '@libs/harness/spec-world';
-import { disconnectMultiplayer } from './multiplayer-connection';
-import { multiplayerPeople } from './multiplayer-people';
-import {
-  givenOverGame,
-  ownerOf,
   refusal,
   searchFor,
-} from './multiplayer-world';
+} from '@libs/game-matchmaking-harness/matched-game-world';
+import { shownMultiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { Given, Then } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import { disconnectMultiplayer } from './multiplayer-connection';
+import { multiplayerPeople } from './multiplayer-people';
+import { givenOverGame } from './multiplayer-world';
 
 Given(
   '{actor} is looking for a {word} chess opponent and her phone is offline',
@@ -44,60 +37,5 @@ Then(
     expect(
       await w.s.read(shownMultiplayerText, actor, 'multiplayer-waiting')
     ).toContain(`Looking for a ${timeControl} chess opponent`);
-  }
-);
-
-/** Controls the person's multiplayer screen does not offer. */
-async function notOffered(
-  w: HarnessWorld,
-  actor: string,
-  testIds: readonly string[]
-) {
-  await w.s.apply(openMultiplayerChess, actor);
-  for (const testId of testIds)
-    expect(await w.s.read(shownMultiplayerText, actor, testId)).toBeNull();
-}
-
-Given(
-  '{actor} has a free account and has never played a multiplayer game',
-  async (w, actor: Actor) => {
-    await multiplayerPeople(w, [actor]);
-  }
-);
-Then(
-  '{actor} cannot resign multiplayer chess, abort the multiplayer game or offer a multiplayer draw',
-  (w, actor: Actor) =>
-    notOffered(w, actor, [
-      'multiplayer-resign',
-      'multiplayer-abort',
-      'multiplayer-offer-draw',
-    ])
-);
-Then(
-  '{actor} cannot find a new opponent or offer a multiplayer rematch',
-  (w, actor: Actor) =>
-    notOffered(w, actor, [
-      'multiplayer-new-opponent',
-      'multiplayer-offer-rematch',
-    ])
-);
-
-Given(
-  '{actor} is White in a new {word} multiplayer game with {actor} and her phone has been offline since they were matched',
-  async (w, white: Actor, timeControl: string, black: Actor) => {
-    await multiplayerPeople(w, [white, black]);
-    // Her other device stays online: what Alice sees is read there.
-    await w.s.apply(signInWithGoogleAsAccount, `${white}_computer`, white);
-    w.memo.set(`multiplayer:viewer:${white}`, `${white}_computer`);
-    await searchFor(w, white, timeControl);
-    await w.s.advanceTime(1);
-    await searchFor(w, black, timeControl);
-    await disconnectMultiplayer(w, white);
-    await w.s.apply(pairGameOpponents, white, true);
-    w.memo.set('multiplayer:pair', [white, black]);
-    const blackId = await ownerOf(w, black);
-    await w.s.until(
-      async (s) => (await multiplayerView(s, black)).game?.black_id === blackId
-    );
   }
 );

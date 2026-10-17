@@ -1,31 +1,24 @@
 import { expect } from 'bun:test';
+import {
+  acceptedMoves,
+  bothBoards,
+  drawnByAgreement,
+  gameCommand,
+  move,
+  opponentOf,
+  ownerOf,
+  sameBoards,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import { givenMultiplayerPosition } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import {
-  acceptedMoves,
-  bothBoards,
-  gameCommand,
-  givenBegunGame,
-  givenDrawnByAgreement,
-  givenGame,
-  move,
-  ownerOf,
-  pairOf,
-  refusal,
-  sameBoards,
-} from './multiplayer-world';
+import { givenBegunGame, givenGame } from './multiplayer-world';
 
 /** Who a waiting draw offer is from, as both boards show it (empty when none). */
 async function drawOfferBy(w: HarnessWorld) {
   return (await bothBoards(w)).draw_offer_by ?? '';
-}
-
-function otherOf(w: HarnessWorld, actor: string) {
-  const [white, black] = pairOf(w);
-  return actor === white ? black : white;
 }
 
 Given(
@@ -43,7 +36,7 @@ Given(
   "{actor}'s {word} multiplayer game with {actor} was drawn by agreement after e4 and e5",
   async (w, a: Actor, timeControl: string, b: Actor) => {
     await givenBegunGame(w, a, b, timeControl);
-    await givenDrawnByAgreement(w);
+    await drawnByAgreement(w);
   }
 );
 When('{actor} offers a multiplayer draw', async (w, actor: Actor) => {
@@ -56,39 +49,14 @@ When('{actor} declines the multiplayer draw', async (w, actor: Actor) => {
   await gameCommand(w, actor, 'declineMultiplayerDraw');
 });
 Then('{actor} is offered a multiplayer draw', async (w, actor: Actor) => {
-  const by = await ownerOf(w, otherOf(w, actor));
+  const by = await ownerOf(w, opponentOf(w, actor));
   await bothBoards(w, (g) => g.draw_offer_by === by);
   expect(await drawOfferBy(w)).toBe(by);
 });
 
 Then('{actor} is not offered a multiplayer draw', async (w, actor: Actor) => {
-  expect(await drawOfferBy(w)).not.toBe(await ownerOf(w, otherOf(w, actor)));
+  expect(await drawOfferBy(w)).not.toBe(await ownerOf(w, opponentOf(w, actor)));
 });
-Then('neither person is offered a multiplayer draw', async (w) => {
-  await bothBoards(w, (g) => (g.draw_offer_by ?? '') === '');
-  expect(await drawOfferBy(w)).toBe('');
-});
-Then(
-  '{actor} sees the multiplayer game is drawn by agreement',
-  async (w, actor: Actor) => {
-    const device = String(w.memo.get(`multiplayer:other:${actor}`) ?? actor);
-    const game = await sameBoards(
-      w,
-      actor,
-      device,
-      (g) => g.outcome === 'draw'
-    );
-    expect(game.reason).toBe('agreement');
-  }
-);
-Then(
-  '{actor} is told only {actor} may answer her multiplayer draw offer',
-  (w, actor: Actor) => refusal(w, actor, 'CHESS_OWN_DRAW_OFFER')
-);
-Then(
-  '{actor} is told no multiplayer draw offer is waiting',
-  (w, actor: Actor) => refusal(w, actor, 'CHESS_NO_DRAW_OFFER')
-);
 
 /** The scenario's words for how a game was drawn, and the product's reason. */
 const DRAW_REASONS: Record<string, string> = {

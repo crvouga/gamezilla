@@ -1,24 +1,24 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
+import {
+  bothBoards,
+  matchedGameOf,
+  ownerOf,
+  pairOf,
+  sameBoards,
+  winner,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import {
   givenMultiplayerClock,
   givenMultiplayerPosition,
 } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { shownMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { passMultiplayerTime } from '@libs/game-matchmaking-harness/multiplayer-time';
 import { clockLeftMs } from '@libs/game-matchmaking-shared/multiplayer-clock';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import {
-  bothBoards,
-  gameOf,
-  givenGame,
-  ownerOf,
-  pairOf,
-  sameBoards,
-  winner,
-} from './multiplayer-world';
+import { givenGame } from './multiplayer-world';
 
 async function personClocks(
   w: HarnessWorld,
@@ -60,7 +60,7 @@ Then(
 
 Given("White's multiplayer clock has run out", async (w) => {
   const [white] = pairOf(w);
-  const game = await gameOf(w, white);
+  const game = await matchedGameOf(w, white);
   const now = await w.s.read((s) => s.harness.clock.now());
   await w.s.apply(passMultiplayerTime, clockLeftMs(game, 'white', now));
 });
@@ -102,7 +102,7 @@ Given(
 Given(
   "{actor} has {int} second left on White's multiplayer clock on her turn",
   async (w, actor: Actor, seconds: number) => {
-    const game = await gameOf(w, actor);
+    const game = await matchedGameOf(w, actor);
     await w.s.apply(givenMultiplayerClock, actor, {
       gameId: game.id,
       side: 'white',

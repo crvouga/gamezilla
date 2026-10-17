@@ -1,5 +1,10 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import {
+  acceptedMoves,
+  command,
+  resignation,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -14,14 +19,7 @@ import {
   noticesWithin,
   openNotice,
 } from './multiplayer-notice-world';
-import {
-  acceptedMoves,
-  command,
-  givenBegunGame,
-  givenGame,
-  givenOverGame,
-  resignation,
-} from './multiplayer-world';
+import { givenBegunGame, givenGame, givenOverGame } from './multiplayer-world';
 
 /** The daily time control of a game the scenario does not name one for. */
 const UNNAMED_DAYS = 3;

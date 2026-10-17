@@ -5,7 +5,6 @@ import {
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { multiplayerFingerprint } from '@libs/chess-matchmaking-harness/multiplayer-fingerprint';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
-import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
 import {
   controlledMultiplayerCommand,
   multiplayerMatchFact,
@@ -16,6 +15,7 @@ import {
   multiplayerView,
   storedMultiplayerSnapshot,
 } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { passMultiplayerTime } from '@libs/game-matchmaking-harness/multiplayer-time';
 import {
   signInWithGoogle,
   signInWithGoogleAsAccount,

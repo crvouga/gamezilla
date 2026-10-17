@@ -1,5 +1,7 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { MULTIPLAYER_GAME_COLUMNS } from '@libs/game-matchmaking-shared/game-state';
+import type { ClockSpeed } from '@libs/game-matchmaking-shared/time-control';
+import { gameSpeed } from '@libs/game-matchmaking-shared/time-control';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql, signedInAccountOf } from '@libs/harness/identity';
@@ -50,6 +52,24 @@ export async function multiplayerView(
     SELECT speed, rating, games FROM chess_multiplayer_ratings
     WHERE owner_id = ${owner} AND deleted_at IS NULL ORDER BY speed`);
   return { game: games[0] ?? null, search: searches[0] ?? null, ratings };
+}
+
+/**
+ * The person's own rating at one speed (`blitz`) of the game whose time
+ * controls are in `clockNamespace`, or `null` before they have one.
+ */
+export async function multiplayerRatingAt(
+  s: ProductHarness,
+  actor: string,
+  clockNamespace: string,
+  speed: ClockSpeed
+): Promise<MultiplayerRatingView | null> {
+  const wanted = gameSpeed(clockNamespace, speed);
+  return (
+    (await multiplayerView(s, actor)).ratings.find(
+      (rating) => rating.speed === wanted
+    ) ?? null
+  );
 }
 
 /** One observed moment across devices, without a report frame per SQL read. */
@@ -124,4 +144,17 @@ export async function storedMultiplayerSnapshot(s: ProductHarness) {
       SELECT owner_id, game_id FROM chess_multiplayer_players
       WHERE deleted_at IS NULL AND owner_id IS NOT NULL AND game_id IS NOT NULL ORDER BY owner_id`),
   }));
+}
+
+/** How many moves the person's move list shows, brought to the front. */
+export async function shownMoveCount(
+  s: ProductHarness,
+  actor: string
+): Promise<number> {
+  await bringToFront(s, actor);
+  const ui = await actorUi(s, actor);
+  let shown = 0;
+  while (await ui.get(`multiplayer-move-${String(shown + 1)}`).isVisible())
+    shown++;
+  return shown;
 }

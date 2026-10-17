@@ -6,22 +6,20 @@ import {
   openMultiplayerChess,
   pressMultiplayerControl,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import {
+  bothBoards,
+  matchedGameOf,
+  pairOf,
+  sameBoards,
+  searchFor,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import { shownMultiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { Given, Then, When } from '@libs/harness/define';
 import { actorHtml } from '@libs/harness/observations';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { multiplayerPeople } from './multiplayer-people';
-import {
-  bothBoards,
-  gameOf,
-  givenBegunGame,
-  givenGame,
-  givenOverGame,
-  pairOf,
-  sameBoards,
-  searchFor,
-} from './multiplayer-world';
+import { givenBegunGame, givenGame, givenOverGame } from './multiplayer-world';
 
 /** What the person hears: the screen's live announcement, once it says `phrase`. */
 async function hears(w: HarnessWorld, actor: string, phrase: string) {
@@ -99,7 +97,7 @@ When(
 When(
   '{actor} plays {word} to {word} as a multiplayer move with the keyboard',
   async (w, actor: Actor, from: string, to: string) => {
-    const before = (await gameOf(w, actor)).revision;
+    const before = (await matchedGameOf(w, actor)).revision;
     await w.s.apply(moveMultiplayerPiece, actor, from + to, true);
     await bothBoards(w, (g) => g.revision === before + 1);
   }

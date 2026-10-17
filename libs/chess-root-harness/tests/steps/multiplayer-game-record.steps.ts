@@ -7,20 +7,20 @@ import {
   copyGameRecord,
   gameRecordOffered,
 } from '@libs/chess-matchmaking-harness/multiplayer-game-record';
+import {
+  acceptedMoves,
+  bothBoards,
+  gameCommand,
+  ownerOf,
+  resignation,
+  viewerOf,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { standInNameOf } from '@libs/profile-harness/profile-ui-reads';
 import { PIECES_AFTER } from './multiplayer-own-board-world';
-import {
-  acceptedMoves,
-  bothBoards,
-  gameCommand,
-  givenGame,
-  ownerOf,
-  resignation,
-  viewerOf,
-} from './multiplayer-world';
+import { givenGame } from './multiplayer-world';
 
 /** The game record the person copied, as another chess program reads it. */
 async function recordCopied(w: HarnessWorld, actor: string) {

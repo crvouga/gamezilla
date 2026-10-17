@@ -1,5 +1,6 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { pairOf } from '@libs/game-matchmaking-harness/matched-game-world';
 import { givenMultiplayerRating } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
   multiplayerView,
@@ -11,7 +12,7 @@ import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { multiplayerPeople } from './multiplayer-people';
-import { givenBegunGame, pairOf } from './multiplayer-world';
+import { givenBegunGame } from './multiplayer-world';
 
 /** A settled rating: enough rated games at its speed to have lost the "?". */
 export async function settledRating(

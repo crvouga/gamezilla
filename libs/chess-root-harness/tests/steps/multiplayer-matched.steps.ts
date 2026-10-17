@@ -5,6 +5,10 @@ import {
   shownMultiplayerSearch,
 } from '@libs/chess-matchmaking-harness/multiplayer-presentation';
 import {
+  ownerOf,
+  searchFor,
+} from '@libs/game-matchmaking-harness/matched-game-world';
+import {
   multiplayerView,
   shownMultiplayerText,
 } from '@libs/game-matchmaking-harness/multiplayer-reads';
@@ -12,7 +16,7 @@ import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { multiplayerPeople } from './multiplayer-people';
-import { givenOverGame, ownerOf, searchFor } from './multiplayer-world';
+import { givenOverGame } from './multiplayer-world';
 
 export async function matchedAs(
   w: HarnessWorld,

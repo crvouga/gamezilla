@@ -3,6 +3,12 @@ import {
   findChessOpponent,
   openMultiplayerChess,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import {
+  command,
+  gameCommand,
+  refusal,
+  searchFor,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import { multiplayerRefusalCode } from '@libs/game-matchmaking-harness/multiplayer-commands';
 import {
   awaitGameMatch,
@@ -19,7 +25,6 @@ import { signedInAccountOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { multiplayerPeople } from './multiplayer-people';
-import { command, gameCommand, refusal, searchFor } from './multiplayer-world';
 
 /** Sign this device into the person's account unless it already is. */
 async function signOtherDevice(

@@ -3,13 +3,22 @@ import {
   findChessOpponent,
   openMultiplayerChess,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { passMultiplayerDays } from '@libs/chess-matchmaking-harness/multiplayer-time';
+import {
+  acceptedMoves,
+  bothBoards,
+  matchedGameOf,
+  pairOf,
+  refusal,
+  searchFor,
+  viewerOf,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
   multiplayerView,
   shownMultiplayerClockDays,
   shownMultiplayerText,
 } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { passMultiplayerDays } from '@libs/game-matchmaking-harness/multiplayer-time';
 import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Step, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -19,17 +28,7 @@ import { acted, searchStep } from './multiplayer-find.steps';
 import { matchedAs } from './multiplayer-matched.steps';
 import { multiplayerPeople } from './multiplayer-people';
 import { settledRating, stillRated } from './multiplayer-ratings.steps';
-import {
-  acceptedMoves,
-  bothBoards,
-  gameOf,
-  givenBegunGame,
-  givenGame,
-  pairOf,
-  refusal,
-  searchFor,
-  viewerOf,
-} from './multiplayer-world';
+import { givenBegunGame, givenGame } from './multiplayer-world';
 
 const HOUR_MS = 3_600_000;
 const DAY_MS = 24 * HOUR_MS;
@@ -84,7 +83,7 @@ Given(
 Given(
   "{actor} has {int} day(s) left on White's multiplayer clock on her turn",
   async (w, actor: Actor, days: number) => {
-    const game = await gameOf(w, actor);
+    const game = await matchedGameOf(w, actor);
     await w.s.apply(givenMultiplayerClock, actor, {
       gameId: game.id,
       side: 'white',

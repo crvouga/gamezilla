@@ -870,7 +870,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth-shared": "workspace:*",
-        "@libs/game-catalog-shared": "workspace:*",
+        "@libs/chess-sub-shared": "workspace:*",
         "@libs/game-session-client": "workspace:*",
         "@libs/game-session-harness": "workspace:*",
         "@libs/game-session-shared": "workspace:*",
@@ -895,7 +895,6 @@
       "name": "@libs/chess-matchmaking-harness",
       "version": "0.0.0",
       "dependencies": {
-        "@libs/app-root-server": "workspace:*",
         "@libs/chess-rules-shared": "workspace:*",
         "@libs/game-matchmaking-harness": "workspace:*",
         "@libs/game-matchmaking-shared": "workspace:*",
@@ -1151,7 +1150,6 @@
         "@libs/chess-root-server": "workspace:*",
         "@libs/chess-root-shared": "workspace:*",
         "@libs/chess-sub-shared": "workspace:*",
-        "@libs/game-catalog-shared": "workspace:*",
         "@libs/game-matchmaking-client": "workspace:*",
         "@libs/game-matchmaking-harness": "workspace:*",
         "@libs/game-matchmaking-shared": "workspace:*",
@@ -1310,6 +1308,7 @@
         "@libs/sub-shared": "workspace:*",
         "@pkgs/chess-board-core-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
+        "@pkgs/turn-game-shared": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",

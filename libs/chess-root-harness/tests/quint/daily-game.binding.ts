@@ -1,7 +1,6 @@
 import type { MultiplayerNoticeKind } from '@libs/chess-matchmaking-harness/multiplayer-notices';
 import { openMultiplayerNotice } from '@libs/chess-matchmaking-harness/multiplayer-notices';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
-import { passMultiplayerDays } from '@libs/chess-matchmaking-harness/multiplayer-time';
 import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
 import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
 import { setMultiplayerConnection } from '@libs/game-matchmaking-harness/multiplayer-connection';
@@ -10,6 +9,7 @@ import {
   givenOpponentSearch,
 } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { passMultiplayerDays } from '@libs/game-matchmaking-harness/multiplayer-time';
 import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { accountIdOf } from '@libs/harness/identity';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';

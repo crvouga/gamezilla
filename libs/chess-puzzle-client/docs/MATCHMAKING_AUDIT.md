@@ -86,8 +86,8 @@ additionally binds `multiplayer.qnt` at the same transaction boundary.
 | Stale range change/new begin | Older identity never changes newer range; changing-ranges |
 | Handoff/cancel | Atomic accepted match and game; stop cannot undo formed game; find-an-opponent |
 | Formation retry | Same match and one game, fixed sides; lasting-outcomes, find-an-opponent |
-| Move/move from two devices | One accepted revision; stale revision refused; play-multiplayer-chess |
-| Resign/move; resign/resign | Legal ordering, immutable terminal outcome; multiplayer.qnt, play-multiplayer-chess |
+| Move/move from two devices | One accepted revision; stale revision refused; matched-game-turns |
+| Resign/move; resign/resign | Legal ordering, immutable terminal outcome; multiplayer.qnt, matched-game-turns, matched-game-over |
 | Account deletion/formation or move | No new deleted participant; unfinished game resigned, historical result retained; multiplayer-recovery-and-privacy |
 
 ## Aggregate coverage
@@ -99,7 +99,7 @@ additionally binds `multiplayer.qnt` at the same transaction boundary.
 | Search identity, terminal states, exactly-once outcome | matching.qnt invariants and searches.als |
 | Accepted outcomes and per-device convergence | matching.qnt `invAcknowledgedOutcomes`, `invReturningAgrees`, `invOfflineKeepsKnown` |
 | Match-formed event consumed by game | events.qnt publication, multiplayer.qnt `matchFormed`, find-an-opponent |
-| Play actions and strongest refusals | play-multiplayer-chess; multiplayer.qnt `playMove`, `resignPlay` |
+| Play actions and strongest refusals | matched-game-turns, matched-game-abort, matched-game-draw-offers, matched-game-rematch, matched-game-over; multiplayer.qnt `playMove`, `resignPlay` |
 | Game continuity, privacy, account reaction | multiplayer-recovery-and-privacy, multiplayer-account-and-space |
 | Game ownership, fixed sides, one unfinished game | multiplayer-games.als; multiplayer.qnt safety invariants |
 | Upstream permission and usage policies | billing/access.dmn; chess/unfinished-game-limit.dmn; conformance capabilities |
@@ -142,7 +142,7 @@ existing scenarios were preserved, rather than rewritten to fit the package.
 | `specs/chess/multiplayer-accessibility.feature` | 2 | 4 | A/B/C reviewed; D/P required |
 | `specs/chess/multiplayer-account-and-space.feature` | 3 | 5 | A/B/C reviewed; D/P required |
 | `specs/chess/multiplayer-recovery-and-privacy.feature` | 3 | 9 | A/B/C reviewed; D/P required |
-| `specs/chess/play-multiplayer-chess.feature` | 5 | 14 | A/B/C reviewed; D/P required |
+| `specs/games/matched-game-turns.feature` | 4 | 10 | A/B/C reviewed; D/P required |
 | `specs/journeys/multiplayer-game.feature` | 1 | 3 | A/B/C reviewed; D/P required |
 | `specs/matchmaking/availability-and-details.feature` | 4 | 10 | A/B/C reviewed; D/P required |
 | `specs/matchmaking/being-matched.feature` | 2 | 7 | A/B/C reviewed; D/P required |

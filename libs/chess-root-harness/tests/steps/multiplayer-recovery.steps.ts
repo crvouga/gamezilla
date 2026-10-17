@@ -1,6 +1,15 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import {
+  acceptedMoves,
+  command,
+  matchedGameOf,
+  move,
+  refusal,
+  resignation,
+  sameBoards,
+} from '@libs/game-matchmaking-harness/matched-game-world';
+import {
   givenOpponentSearch,
   pairGameOpponents,
 } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
@@ -17,17 +26,7 @@ import {
   reconnectMultiplayer,
 } from './multiplayer-connection';
 import { multiplayerPeople } from './multiplayer-people';
-import {
-  acceptedMoves,
-  command,
-  gameOf,
-  givenBegunGame,
-  givenGame,
-  move,
-  refusal,
-  resignation,
-  sameBoards,
-} from './multiplayer-world';
+import { givenBegunGame, givenGame } from './multiplayer-world';
 
 Given(
   '{actor} has an account without a connection',
@@ -88,7 +87,7 @@ Then('{actor} is told multiplayer moves need a connection', (w, actor: Actor) =>
 Then(
   "{actor}'s phone keeps its last known multiplayer board",
   async (w, actor: Actor) => {
-    expect(await gameOf(w, actor)).toEqual(
+    expect(await matchedGameOf(w, actor)).toEqual(
       w.memo.get(`multiplayer:offline-board:${actor}`) as MultiplayerGame
     );
   }
@@ -115,7 +114,7 @@ Then(
   '{actor} and {actor} keep the unfinished multiplayer game',
   async (w, a: Actor, b: Actor) => {
     for (const actor of [a, b]) {
-      const game = await gameOf(w, actor);
+      const game = await matchedGameOf(w, actor);
       expect(game.outcome).toBe('ongoing');
       expect(game.id).toBe(
         (w.memo.get('multiplayer:game') as MultiplayerGame).id
@@ -139,7 +138,7 @@ Then(
 When(
   "{actor} opens {actor}'s multiplayer game",
   async (w, outsider: Actor, owner: Actor) => {
-    const game = await gameOf(w, owner);
+    const game = await matchedGameOf(w, owner);
     if (!w.memo.get(`multiplayer:watcher:${outsider}`))
       await multiplayerPeople(w, [outsider]);
     await w.s.apply(openMultiplayerChess, outsider, game.id);
@@ -148,7 +147,7 @@ When(
 When(
   "{actor} plays e2 to e4 in {actor}'s multiplayer game",
   async (w, outsider: Actor, owner: Actor) => {
-    const game = await gameOf(w, owner);
+    const game = await matchedGameOf(w, owner);
     if (!w.memo.get(`multiplayer:watcher:${outsider}`))
       await multiplayerPeople(w, [outsider]);
     await command(w, outsider, 'playMultiplayerMove', {
@@ -201,7 +200,7 @@ Then('{actor} sees he won the multiplayer game', async (w, actor: Actor) => {
   await w.s.until(
     async (s) => (await multiplayerView(s, actor)).game?.outcome === 'black'
   );
-  const game = await gameOf(w, actor);
+  const game = await matchedGameOf(w, actor);
   expect(game.outcome).toBe(game.black_id === owner ? 'black' : 'white');
   expect(game.reason).toBe('account deletion');
 });

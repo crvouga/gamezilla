@@ -9,10 +9,6 @@ import {
   openMultiplayerNotice,
 } from '@libs/chess-matchmaking-harness/multiplayer-notices';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
-import {
-  passMultiplayerDays,
-  passMultiplayerTime,
-} from '@libs/chess-matchmaking-harness/multiplayer-time';
 import { joinMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
 import { PERSONAL_CHESS_STATS_CLIENT } from '@libs/chess-puzzle-client/personal-chess-stats-client';
 import { PUZZLE_LINK_CLIENT } from '@libs/chess-puzzle-client/puzzle-link-client';
@@ -31,6 +27,10 @@ import {
   givenOpponentSearch,
   pairGameOpponents,
 } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import {
+  passMultiplayerDays,
+  passMultiplayerTime,
+} from '@libs/game-matchmaking-harness/multiplayer-time';
 import type { HarnessSlice } from '@libs/harness/slices';
 import { focusChessScreen } from './chess-screen-reads';
 import { setCustomGameParticipation } from './custom-game-participation';

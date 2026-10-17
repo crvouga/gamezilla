@@ -4,7 +4,8 @@ import {
   givenOpenedTurnNotice,
   heldMultiplayerNotices,
 } from '@libs/chess-matchmaking-harness/multiplayer-notices';
-import { passMultiplayerDays } from '@libs/chess-matchmaking-harness/multiplayer-time';
+import { acceptedMoves } from '@libs/game-matchmaking-harness/matched-game-world';
+import { passMultiplayerDays } from '@libs/game-matchmaking-harness/multiplayer-time';
 import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -15,7 +16,7 @@ import {
   noticesAfter,
   noticesWithin,
 } from './multiplayer-notice-world';
-import { acceptedMoves, givenBegunGame } from './multiplayer-world';
+import { givenBegunGame } from './multiplayer-world';
 
 const DAY_MS = 86_400_000;
 

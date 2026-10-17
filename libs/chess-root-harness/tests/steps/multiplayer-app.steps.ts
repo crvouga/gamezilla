@@ -2,11 +2,11 @@ import {
   closeMultiplayerApp,
   reopenMultiplayerApp,
 } from '@libs/chess-matchmaking-harness/multiplayer-app';
-import { passMultiplayerDays } from '@libs/chess-matchmaking-harness/multiplayer-time';
+import { pairOf } from '@libs/game-matchmaking-harness/matched-game-world';
+import { passMultiplayerDays } from '@libs/game-matchmaking-harness/multiplayer-time';
 import { Given, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import { pairOf } from './multiplayer-world';
 
 const DAY_MS = 86_400_000;
 

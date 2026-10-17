@@ -5,10 +5,11 @@ import {
   joinMultiplayerSpace,
   multiplayerWatcherBoard,
 } from '@libs/chess-matchmaking-harness/multiplayer-watchers';
+import { refusal } from '@libs/game-matchmaking-harness/matched-game-world';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { leaveSpace } from '@libs/spaces-harness/space-actions';
-import { givenGame, refusal } from './multiplayer-world';
+import { givenGame } from './multiplayer-world';
 
 Given('{actor} is outside a space', async (w, actor: Actor) => {
   await w.s.apply(leaveSpace, actor);

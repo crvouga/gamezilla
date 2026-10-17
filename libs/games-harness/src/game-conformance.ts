@@ -27,6 +27,11 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'custom-games': ['custom-games'],
   'game-turns': ['custom-games'],
   'finding-an-opponent': ['matchmaking'],
+  'matched-game-abort': ['matchmaking'],
+  'matched-game-draw-offers': ['matchmaking'],
+  'matched-game-over': ['matchmaking'],
+  'matched-game-rematch': ['matchmaking'],
+  'matched-game-turns': ['matchmaking'],
   'game-history': ['custom-games', 'history'],
 };
 

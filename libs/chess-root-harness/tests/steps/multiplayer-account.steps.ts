@@ -5,6 +5,10 @@ import {
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { removeFriend } from '@libs/friends-harness/friends-actions';
 import { setupFriendsPair } from '@libs/friends-harness/setup-friends-pair';
+import {
+  matchedGameOf,
+  sameBoards,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import { givenOpponentSearch } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import type { MultiplayerSearchView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import {
@@ -22,7 +26,7 @@ import {
 } from '@libs/profile-harness/profile-actions';
 import { closeSpaceScreen, endSpace } from '@libs/spaces-harness/space-actions';
 import { multiplayerPeople } from './multiplayer-people';
-import { gameOf, givenGame, sameBoards } from './multiplayer-world';
+import { givenGame } from './multiplayer-world';
 
 async function signOutPhone(
   w: import('@libs/harness/spec-world').HarnessWorld,
@@ -140,6 +144,6 @@ Given(
     await givenGame(w, actor, opponent);
     await w.s.apply(closeSpaceScreen, actor);
     await w.s.apply(removeFriend, actor, opponent);
-    expect((await gameOf(w, actor)).outcome).toBe('ongoing');
+    expect((await matchedGameOf(w, actor)).outcome).toBe('ongoing');
   }
 );

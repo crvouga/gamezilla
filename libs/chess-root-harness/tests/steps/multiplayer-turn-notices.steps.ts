@@ -3,6 +3,7 @@ import {
   givenOpenedTurnNotice,
   shownMultiplayerNotices,
 } from '@libs/chess-matchmaking-harness/multiplayer-notices';
+import { move } from '@libs/game-matchmaking-harness/matched-game-world';
 import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Then, When } from '@libs/harness/define';
@@ -16,7 +17,7 @@ import {
   noticesWithin,
   openNotice,
 } from './multiplayer-notice-world';
-import { givenGame, move } from './multiplayer-world';
+import { givenGame } from './multiplayer-world';
 
 Then(
   "{actor}'s inbox shows a turn notice for their daily game with {actor} within {int} seconds",

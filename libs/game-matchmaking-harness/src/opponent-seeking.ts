@@ -1,12 +1,19 @@
 import { DEFAULT_TIME_CONTROL } from '@libs/game-matchmaking-shared/time-control';
-import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
+import {
+  actorUi,
+  ensureActor,
+  pollUntil,
+  scenarioAction,
+} from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
+import { bringToFront } from '@libs/harness/observations';
 import { backToTabs } from '@libs/harness/shell-actions';
 import { createSpace } from '@libs/spaces-harness/space-actions';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { multiplayerView } from './multiplayer-reads';
 import { requestGameOpponent } from './multiplayer-search-ui';
+import { multiplayerSpaceId } from './multiplayer-spaces';
 
 /**
  * `actor` seeks an opponent for `gameId` from their own space, through the
@@ -30,6 +37,70 @@ export const seekGameOpponent = scenarioAction({
   },
 });
 
+/**
+ * Given setup: `actor`'s space to seek an opponent from, open on their
+ * device; a person without one starts it.
+ */
+export const givenGameSpace = scenarioAction({
+  name: 'givenGameSpace',
+  act: async (s, actor: string) => {
+    const id = await multiplayerSpaceId(s, actor);
+    if (id === null) await Promise.resolve(createSpace.act(s, actor));
+    else await s.actors.get(actor)!.openLink(`/space/${id}`);
+  },
+});
+
+/** What finding an opponent shows first: a game, a search, or the choices. */
+const FINDING_SURFACES = [
+  'multiplayer-game',
+  'multiplayer-waiting',
+  'multiplayer-find',
+  'multiplayer-access-denial',
+  'multiplayer-unavailable',
+] as const;
+
+/**
+ * `actor` opens finding an opponent for `gameId` in their space, from
+ * wherever their device is: back to the game's choices, the game picked
+ * when the space has not picked one yet, then the choice itself.
+ */
+export const openFindingAnOpponent = scenarioAction({
+  name: 'openFindingAnOpponent',
+  act: async (s, actor: string, gameId: string) => {
+    await ensureActor(s, actor);
+    const spaceId = await multiplayerSpaceId(s, actor);
+    if (spaceId === null) throw new Error(`${actor} has no space to play in`);
+    const device = s.actors.get(actor)!;
+    if (!(await device.currentPath()).includes(spaceId))
+      await device.openLink(`/space/${spaceId}`);
+    await s.session.waitForIdle();
+    const ui = await actorUi(s, actor);
+    await pollUntil(
+      s,
+      async () => {
+        await bringToFront(s, actor);
+        for (const surface of FINDING_SURFACES)
+          if (await ui.get(surface).isVisible()) return true;
+        for (const way of [
+          Handles.gameChoice('multiplayer'),
+          Handles.gameMenu(gameId),
+          Handles.navBack,
+        ])
+          if (await ui.get(way).isVisible()) {
+            await ui.get(way).tap();
+            return null;
+          }
+        return null;
+      },
+      {
+        maxMs: 15_000,
+        stepMs: 1,
+        description: `${actor} opens finding an opponent`,
+      }
+    );
+  },
+});
+
 /** `actor` stops seeking from the shared waiting controls. */
 export const stopSeekingOpponent = scenarioAction({
   name: 'stopSeekingOpponent',
@@ -48,4 +119,9 @@ export async function opponentSearchView(s: ProductHarness, actor: string) {
   };
 }
 
-export const OPPONENT_SEEKING_ACTIONS = [seekGameOpponent, stopSeekingOpponent];
+export const OPPONENT_SEEKING_ACTIONS = [
+  seekGameOpponent,
+  givenGameSpace,
+  openFindingAnOpponent,
+  stopSeekingOpponent,
+];

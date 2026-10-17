@@ -15,7 +15,6 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --preload @libs/harness/preload tests"
   },
   "dependencies": {
-    "@libs/app-root-server": "workspace:*",
     "@libs/chess-rules-shared": "workspace:*",
     "@libs/game-matchmaking-harness": "workspace:*",
     "@libs/game-matchmaking-shared": "workspace:*",

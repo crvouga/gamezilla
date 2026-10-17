@@ -3,6 +3,7 @@
  * else's space, does not start a second one.
  */
 
+import { searchFor } from '@libs/game-matchmaking-harness/matched-game-world';
 import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import {
   returnToTabs,
@@ -14,7 +15,6 @@ import { joinViaLink } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { disconnectMultiplayer } from './multiplayer-connection';
 import { multiplayerPeople } from './multiplayer-people';
-import { searchFor } from './multiplayer-world';
 
 /** The find-on-another-device step addresses this device. */
 function searchDevice(actor: Actor): string {

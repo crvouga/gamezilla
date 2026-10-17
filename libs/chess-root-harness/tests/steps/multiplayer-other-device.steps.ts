@@ -5,6 +5,7 @@
 
 import { expect } from 'bun:test';
 import { copyGameRecord } from '@libs/chess-matchmaking-harness/multiplayer-game-record';
+import { sameBoards } from '@libs/game-matchmaking-harness/matched-game-world';
 import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import {
   returnToTabs,
@@ -13,7 +14,7 @@ import {
 import { Given, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
-import { givenGame, playOnOwnBoard, sameBoards } from './multiplayer-world';
+import { givenGame, playOnOwnBoard } from './multiplayer-world';
 
 When(
   '{actor} copies the game record on another device',

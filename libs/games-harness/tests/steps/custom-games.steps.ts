@@ -1,4 +1,9 @@
 import { expect } from 'bun:test';
+import {
+  bothBoards,
+  inMatchedGame,
+  ownerOf,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import { playCustomGameBots } from '@libs/game-session-harness/custom-game-bots';
 import {
   customGameView,
@@ -140,7 +145,10 @@ Then('the bot replies within {int} seconds', async (w, seconds: number) => {
   });
 });
 Then("it is {actor}'s turn", async (w, actor: string) => {
-  expect((await view(w)).current?.turn).toBe(await sideOf(w, actor));
+  if (inMatchedGame(w)) {
+    const owner = await ownerOf(w, actor);
+    expect((await bothBoards(w, (g) => g.turn === owner)).turn).toBe(owner);
+  } else expect((await view(w)).current?.turn).toBe(await sideOf(w, actor));
 });
 
 Given('{actor} has a custom game under way between two bots', async (w) =>

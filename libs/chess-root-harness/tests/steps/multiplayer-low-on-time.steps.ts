@@ -4,21 +4,21 @@ import {
   lowOnTimeWarningsHeard,
   shownMultiplayerClockLow,
 } from '@libs/chess-matchmaking-harness/multiplayer-low-on-time';
-import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
 import { readPuzzleSoundsOn } from '@libs/chess-puzzle-harness/puzzle-sound-preference';
-import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
-import { shownMultiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
-import { Given, Then } from '@libs/harness/define';
-import type { Actor } from '@libs/harness/parameter-types';
-import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
   acceptedMoves,
   bothBoards,
-  gameOf,
-  givenBegunGame,
+  matchedGameOf,
   pairOf,
   viewerOf,
-} from './multiplayer-world';
+} from '@libs/game-matchmaking-harness/matched-game-world';
+import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { shownMultiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { passMultiplayerTime } from '@libs/game-matchmaking-harness/multiplayer-time';
+import { Given, Then } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import type { HarnessWorld } from '@libs/harness/spec-world';
+import { givenBegunGame } from './multiplayer-world';
 
 const SECOND_MS = 1000;
 /** A bullet multiplayer clock is low on time with this many seconds left. */
@@ -100,7 +100,7 @@ Given(
   ) => {
     await givenBegunGame(w, white, black, timeControl);
     await w.s.apply(openMultiplayerChess, white);
-    const game = await gameOf(w, white);
+    const game = await matchedGameOf(w, white);
     await w.s.apply(givenMultiplayerClock, white, {
       gameId: game.id,
       side: 'white',

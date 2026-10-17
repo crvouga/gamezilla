@@ -7,24 +7,24 @@ import {
   SHARED_CLOCK_CONTROLS,
   setMultiplayerAvailability,
 } from '@libs/chess-matchmaking-harness/multiplayer-availability';
-import { passMultiplayerDays } from '@libs/chess-matchmaking-harness/multiplayer-time';
+import {
+  bothBoards,
+  matchedGameOf,
+  refusal,
+  resignation,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import { passMultiplayerDays } from '@libs/game-matchmaking-harness/multiplayer-time';
 import { Given, Then, When } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { disconnectMultiplayer } from './multiplayer-connection';
-import {
-  bothBoards,
-  gameOf,
-  givenBegunGame,
-  refusal,
-  resignation,
-} from './multiplayer-world';
+import { givenBegunGame } from './multiplayer-world';
 
 async function availability(w: HarnessWorld, available: boolean) {
-  const game = await gameOf(w);
+  const game = await matchedGameOf(w);
   await w.s.apply(setMultiplayerAvailability, 'alice', game.id, available);
   await bothBoards(w, (game) => (game.paused_at_ms === null) === available);
-  w.memo.set('multiplayer:game', await gameOf(w));
+  w.memo.set('multiplayer:game', await matchedGameOf(w));
 }
 
 async function pause(w: HarnessWorld) {
@@ -66,7 +66,7 @@ Given(
   async (w, control: string, seconds: number) => {
     await givenBegunGame(w, 'alice', 'bob', control);
     await w.s.apply(givenMultiplayerClock, 'alice', {
-      gameId: (await gameOf(w)).id,
+      gameId: (await matchedGameOf(w)).id,
       side: 'white',
       ms: seconds * 1000,
     });

@@ -5,6 +5,10 @@ import {
   returnToCurrentPosition,
   stepMultiplayerMoves,
 } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
+import {
+  acceptedMoves,
+  viewerOf,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -13,7 +17,6 @@ import {
   ownBoardSeen,
   piecesAfter,
 } from './multiplayer-own-board-world';
-import { acceptedMoves, viewerOf } from './multiplayer-world';
 
 /** The person's board shows the position after the move, earlier or current. */
 function positionSeen(

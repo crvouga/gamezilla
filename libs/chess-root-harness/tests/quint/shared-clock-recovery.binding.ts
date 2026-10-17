@@ -1,5 +1,4 @@
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { passMultiplayerDays } from '@libs/chess-matchmaking-harness/multiplayer-time';
 import {
   changeSharedClockAvailability,
   playSharedClockMove,
@@ -8,6 +7,7 @@ import {
 } from '@libs/chess-root-harness/shared-clock-model';
 import { observeSharedClockGame } from '@libs/chess-root-harness/shared-clock-observe';
 import { setMultiplayerConnection } from '@libs/game-matchmaking-harness/multiplayer-connection';
+import { passMultiplayerDays } from '@libs/game-matchmaking-harness/multiplayer-time';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import pausedDaily from './fixtures/multiplayer-shared-clock-pauses.itf.json';

@@ -84,7 +84,7 @@ const PUBLIC_CONTRACTS: ProofTable = {
     { spec: 'specs/matchmaking/matching.qnt' },
   ],
   'private multiplayer games': [
-    { spec: 'specs/chess/play-multiplayer-chess.feature' },
+    { spec: 'specs/games/matched-game-turns.feature' },
     { spec: 'specs/chess/multiplayer-recovery-and-privacy.feature' },
     { spec: 'specs/chess/multiplayer-games.als' },
     { spec: 'specs/chess/multiplayer.qnt' },
