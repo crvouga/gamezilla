@@ -34,6 +34,9 @@ Given(
 When('{actor} reviews the third move', async (w, actor: string) => {
   await w.s.apply(reviewCustomGameMove, actor, 3);
 });
+When('{actor} reviews the starting position', async (w, actor: string) => {
+  await w.s.apply(reviewCustomGameMove, actor, 0);
+});
 When('{actor} reviews a move that was not played', async (w, actor: string) => {
   const played = (await view(w, actor)).current?.moves.length ?? 0;
   await w.s.apply(reviewCustomGameMove, actor, played + 1);
@@ -45,6 +48,11 @@ Then('{actor} sees the board after three moves', async (w, actor: string) => {
   const seen = await view(w, actor);
   const moves = seen.current?.moves.map((move) => move.uci) ?? [];
   expect(seen.displayFen).toBe(positionAfter(w, moves, 3));
+});
+Then("{actor} sees the game's starting position", async (w, actor: string) => {
+  const seen = await view(w, actor);
+  expect(seen.reviewPly).toBe(0);
+  expect(seen.displayFen).toBe(gameOf(w).shared.turnGame.rules.initial());
 });
 Then('the finished custom game is unchanged', async (w) => {
   expect((await view(w)).current).toEqual(before(w).current);

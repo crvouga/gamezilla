@@ -9,6 +9,11 @@ import {
 } from '@libs/game-matchmaking-harness/matched-game-world';
 import { Given, Then, When } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import {
+  noCustomGameDrawOffer,
+  offeredCustomGameDraw,
+} from './custom-game-play-world';
+import { choose, toldOf } from './custom-game-set-up-world';
 import { drawnAfterFirstMoves, pairedAt, seenOn, told } from './matched-game';
 
 /** Both people see a draw offer from `offerer`. */
@@ -36,20 +41,27 @@ Given(
   }
 );
 
+// A matched game's draw offer, else the custom game's.
 When('{actor} offers a draw', async (w, actor: string) => {
-  await gameCommand(w, actor, 'offerMultiplayerDraw');
+  if (inMatchedGame(w)) await gameCommand(w, actor, 'offerMultiplayerDraw');
+  else await choose(w, actor, { operation: 'offer' });
 });
 When('{actor} accepts the draw', async (w, actor: string) => {
-  await gameCommand(w, actor, 'acceptMultiplayerDraw');
+  if (inMatchedGame(w)) await gameCommand(w, actor, 'acceptMultiplayerDraw');
+  else await choose(w, actor, { operation: 'agree' });
 });
 When('{actor} declines the draw', async (w, actor: string) => {
-  await gameCommand(w, actor, 'declineMultiplayerDraw');
+  if (inMatchedGame(w)) await gameCommand(w, actor, 'declineMultiplayerDraw');
+  else await choose(w, actor, { operation: 'reject' });
 });
 
 Then('{actor} is (still )offered a draw', (w, actor: string) =>
-  drawOfferedBy(w, opponentOf(w, actor))
+  inMatchedGame(w)
+    ? drawOfferedBy(w, opponentOf(w, actor))
+    : offeredCustomGameDraw(w, actor)
 );
 Then('neither person is offered a draw', async (w) => {
+  if (!inMatchedGame(w)) return noCustomGameDrawOffer(w);
   const game = await bothBoards(w, (g) => (g.draw_offer_by ?? '') === '');
   expect(game.draw_offer_by ?? '').toBe('');
 });
@@ -71,7 +83,10 @@ Then(
 );
 Then(
   '{actor} is told only {actor} may accept or decline her draw offer',
-  (w, actor: string) => told(w, actor, 'CHESS_OWN_DRAW_OFFER')
+  (w, actor: string) =>
+    inMatchedGame(w)
+      ? told(w, actor, 'CHESS_OWN_DRAW_OFFER')
+      : toldOf(w, actor, 'not the other participant')
 );
 Then('{actor} is told there is no draw offer', (w, actor: string) =>
   told(w, actor, 'CHESS_NO_DRAW_OFFER')

@@ -1,6 +1,6 @@
 import { changeCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { setCustomGameAvailability } from '@libs/chess-custom-game-harness/custom-game-availability';
-import { readCustomGameSeconds } from '@libs/chess-custom-game-harness/custom-game-clocks';
+import { readCustomGameSeconds } from '@libs/game-session-harness/custom-game-clocks';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';

@@ -1,4 +1,4 @@
-import { readCustomGameTime } from '@libs/chess-custom-game-harness/custom-game-clocks';
+import { readCustomGameTime } from '@libs/game-session-harness/custom-game-clocks';
 import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import type { Measurement } from '@pkgs/openslo-shared/evaluate';
 import type { MeasureContext } from '@pkgs/openslo-shared/registry';

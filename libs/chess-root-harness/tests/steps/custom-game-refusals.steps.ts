@@ -23,36 +23,8 @@ Then(
   refusal('connection needed')
 );
 Then(
-  '{actor} is told draw agreement needs two people',
-  refusal('draw agreement needs two people')
-);
-Then(
-  '{actor} is told only a participant may resign',
-  refusal('not a participant')
-);
-Then(
-  '{actor} is told only the creator cancels the Custom Game',
-  refusal('only the creator cancels the Custom Game')
-);
-Then(
   '{actor} is told only the creator configures the Custom Game',
   refusal('only the creator configures the Custom Game')
-);
-Then(
-  '{actor} is told only the other participant may accept a draw',
-  refusal('not the other participant')
-);
-Then(
-  '{actor} is told only the other participant may decline a draw',
-  refusal('not the other participant')
-);
-Then(
-  '{actor} is told only the participant to move may play',
-  refusal('only the participant to move may play')
-);
-Then(
-  '{actor} is told that move is not in the Custom Game',
-  refusal('no such move')
 );
 Then(
   '{actor} is told the Custom Game choices have changed',
@@ -62,28 +34,8 @@ Then(
   '{actor} is told the Custom Game has already started',
   refusal('already started')
 );
-Then('{actor} is told the Custom Game has finished', refusal('finished'));
-Then('{actor} is told the Custom Game has not started', refusal('not started'));
-Then('{actor} is told the Custom Game was cancelled', refusal('cancelled'));
 Then('{actor} is told the move is illegal', refusal('move is illegal'));
-Then(
-  '{actor} is told the time choice is outside the Custom Game limits',
-  refusal('invalid time choice')
-);
 Then('{actor} is told they are not in the space', refusal('not in the space'));
-Then('{actor} is told {actor} may still return', refusal('may still return'));
-Then(
-  '{actor} is told only a participant may claim the win',
-  refusal('not a participant')
-);
-Then(
-  '{actor} is told to resign instead of cancelling',
-  refusal('resign instead')
-);
-Then(
-  '{actor} is told she may offer a draw again after her next move',
-  refusal('offer again after moving')
-);
 Then('{actor} is told {actor} cannot be invited', refusal('cannot be invited'));
 Then(
   '{actor} is told that side is not available to him',

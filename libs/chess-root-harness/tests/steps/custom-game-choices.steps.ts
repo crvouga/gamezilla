@@ -48,11 +48,7 @@ Given(
     });
   }
 );
-Given('The Custom Game has started', customStart);
 Given('{actor} has started the Custom Game', async (w) => customStart(w));
-Given('The Custom Game has a timed choice', async (w) =>
-  customFact(w, customHost(w), { operation: 'clock', minutes: 5, increment: 2 })
-);
 Given('Black has since been replaced by a bot', async (w) => {
   w.memo.set('custom-earlier', await customGame(w));
   await customFact(w, customHost(w), { operation: 'bot', side: 'black' });
@@ -110,21 +106,6 @@ When(
   async (w, actor: string) =>
     w.s.apply(changeCustomGame, actor, { operation: 'swap' })
 );
-When(
-  '{actor} chooses {int} minutes with {int} seconds increment for the Custom Game',
-  async (w, actor: string, minutes: number, increment: number) =>
-    w.s.apply(changeCustomGame, actor, {
-      operation: 'clock',
-      minutes,
-      increment,
-    })
-);
-When('{actor} chooses an untimed Custom Game', async (w, actor: string) =>
-  w.s.apply(changeCustomGame, actor, { operation: 'untimed' })
-);
-When('{actor} cancels the Custom Game', async (w, actor: string) =>
-  w.s.apply(changeCustomGame, actor, { operation: 'cancel' })
-);
 When('{actor} creates a rematch of the Custom Game', async (w, actor: string) =>
   w.s.apply(changeCustomGame, actor, { operation: 'rematch' })
 );
@@ -155,9 +136,6 @@ Then(
       kind: 'invitation',
       person: customPerson(w, actor),
     })
-);
-Then('Neither person is ready for the Custom Game', async (w) =>
-  expect((await customGame(w)).ready).toEqual([])
 );
 Then(
   'The/the Custom Game has {int} minutes with {int} seconds increment',

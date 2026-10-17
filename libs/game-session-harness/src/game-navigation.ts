@@ -109,6 +109,12 @@ export async function showCustomGames(
   );
 }
 
+/** `actor` opens the selected game's custom games, as {@link showCustomGames}. */
+export const openCustomGames = scenarioAction({
+  name: 'openCustomGames',
+  act: showCustomGames,
+});
+
 /** The host takes the space from its current game to `gameId`'s custom games. */
 export const switchSpaceGame = scenarioAction({
   name: 'switchSpaceGame',
@@ -136,5 +142,6 @@ export const GAME_NAVIGATION_ACTIONS = [
   pickGame,
   openGameChoice,
   goBackInGame,
+  openCustomGames,
   switchSpaceGame,
 ];

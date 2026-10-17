@@ -26,6 +26,17 @@ import type { HarnessWorld } from '@libs/harness/spec-world';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { gameOf, hostOf, view } from './game-world';
 
+/** `5+2` as the minutes each side starts with and the seconds a move adds. */
+export function clockChoice(text: string): {
+  minutes: number;
+  increment: number;
+} {
+  const [minutes, increment] = text.split('+').map(Number);
+  if (minutes === undefined || increment === undefined)
+    throw new Error(`a clock choice reads like 5+2, not "${text}"`);
+  return { minutes, increment };
+}
+
 /** A choice `actor` makes, with the screen's own controls where it has them. */
 export async function choose(
   w: HarnessWorld,

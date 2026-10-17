@@ -55,21 +55,6 @@ Given("{actor} has left {actor}'s space", async (w, actor: string) => {
   customMembers(w).delete(actor);
 });
 Given(
-  '{actor} has left the space after releasing Black',
-  async (w, actor: string) => {
-    await customFact(w, actor, { operation: 'claim', side: 'black' });
-    await w.s.apply(leaveSpace, actor);
-    customMembers(w).delete(actor);
-  }
-);
-Given(
-  '{actor} has claimed Black in the Custom Game',
-  async (w, actor: string) => {
-    await customSpace(w, customHost(w), [actor]);
-    await customFact(w, actor, { operation: 'claim', side: 'black' });
-  }
-);
-Given(
   '{actor} has a cancelled Custom Game that invited {actor} to Black',
   async (w, host: string, actor: string) => {
     await customDefault(w, host);
@@ -175,17 +160,6 @@ Then(
     expect((await w.s.read(readCustomGameBoard, actor))?.fen).toBe(
       probe.displayFen
     );
-  }
-);
-Then(
-  'White is {actor} and Black is {actor} in the configuring Custom Game',
-  async (w, white: string, black: string) => {
-    const probe = await w.s.read(readCustomGameProbe, customHost(w));
-    const whiteId = customPerson(w, white);
-    const blackId = customPerson(w, black);
-    expect(probe?.current?.status).toBe('configuring');
-    expect(probe?.current?.white).toEqual({ kind: 'person', person: whiteId });
-    expect(probe?.current?.black).toEqual({ kind: 'person', person: blackId });
   }
 );
 Then(

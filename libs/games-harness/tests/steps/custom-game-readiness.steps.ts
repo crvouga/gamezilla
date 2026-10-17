@@ -6,19 +6,12 @@ import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
   choose,
   chosen,
+  clockChoice,
   current,
   race,
   toldOf,
 } from './custom-game-set-up-world';
 import { before, hostOf, rememberCustomGame, view } from './game-world';
-
-/** `5+2` as the minutes each side starts with and the seconds a move adds. */
-function clockChoice(text: string): { minutes: number; increment: number } {
-  const [minutes, increment] = text.split('+').map(Number);
-  if (minutes === undefined || increment === undefined)
-    throw new Error(`a clock choice reads like 5+2, not "${text}"`);
-  return { minutes, increment };
-}
 
 async function startOffered(w: HarnessWorld): Promise<boolean> {
   return w.s.read(customGameStartOffered, hostOf(w));

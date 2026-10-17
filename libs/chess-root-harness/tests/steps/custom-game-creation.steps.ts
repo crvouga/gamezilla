@@ -17,14 +17,6 @@ import {
 
 Given('{actor} has a configuring Custom Game', customDefault);
 Given(
-  '{actor} has (a )cancelled (the )Custom Game',
-  async (w, actor: string) => {
-    if (!w.memo.has('custom-link')) await customDefault(w, actor);
-    w.memo.set('custom-before-moves', (await customGame(w)).moves);
-    await customFact(w, actor, { operation: 'cancel' });
-  }
-);
-Given(
   '{actor} has a Custom Game between {actor} as White and {actor} as Black',
   async (w, host: string, white: string, black: string) =>
     customHumans(w, { host, white, black })
@@ -81,11 +73,6 @@ Then('The Custom Game is active with White to move', async (w) => {
   const game = await customGame(w);
   expect(game.status).toBe('active');
   expect(game.turn).toBe('white');
-});
-Then('The Custom Game is unrated and untimed', async (w) => {
-  const game = await customGame(w);
-  expect(game.minutes).toBe(0);
-  expect(game.increment).toBe(0);
 });
 Then(
   '{actor} wins the Custom Game by resignation',

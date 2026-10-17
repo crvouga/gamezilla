@@ -22,6 +22,8 @@ export type CustomGameLineup = {
   readonly first?: CustomGameSeat;
   readonly second?: CustomGameSeat;
   readonly watchers?: readonly string[];
+  /** The clock choice the creator makes before anyone agrees (default: untimed). */
+  readonly clock?: { readonly minutes: number; readonly increment: number };
   /** Every person in it agrees to start (default). */
   readonly ready?: boolean;
   /** It is started (default). */
@@ -140,6 +142,11 @@ export const establishCustomGame = scenarioAction({
     });
     await configureCustomGame(s, host, { operation: 'open', side: 'white' });
     for (const side of SIDES) await seat(s, host, side, seats[side]);
+    if (lineup.clock !== undefined)
+      await configureCustomGame(s, host, {
+        operation: 'clock',
+        ...lineup.clock,
+      });
     // Changing either side withdraws all readiness, so agree to the final lineup.
     if (lineup.ready !== false)
       for (const side of SIDES)

@@ -1,7 +1,7 @@
 /**
  * What a person sees of a custom game beyond its state: an invitation
  * offered to them, which side sits nearest them at the board, whether its
- * creator is offered the start, and that it is unrated.
+ * creator is offered the start, that it is unrated, and its move list.
  */
 
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
@@ -72,4 +72,19 @@ export async function customGameShownUnrated(
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
   return ui.get('custom-game-unrated').isVisible();
+}
+
+/** The moves the person's move list shows, in order, as the game writes them. */
+export async function readCustomGameMoveList(
+  s: ProductHarness,
+  actor: string
+): Promise<readonly string[]> {
+  const ui = await actorUi(s, actor);
+  await bringToFront(s, actor);
+  const shown: string[] = [];
+  for (let ply = 1; ; ply += 1) {
+    const move = ui.get(`custom-game-review-move-${String(ply)}`);
+    if (!(await move.isVisible())) return shown;
+    shown.push((await move.text()) ?? '');
+  }
 }

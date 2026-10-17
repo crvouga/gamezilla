@@ -1,6 +1,7 @@
 import { expect } from 'bun:test';
 import {
   bothBoards,
+  inMatchedGame,
   move,
   pairOf,
 } from '@libs/game-matchmaking-harness/matched-game-world';
@@ -11,6 +12,8 @@ import {
 import { openFindingAnOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';
 import { Then, When } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { refusedCustomGameMove } from './custom-game-play-world';
+import { toldOf } from './custom-game-set-up-world';
 import { gameOf } from './game-world';
 import {
   actOnOtherDevice,
@@ -68,7 +71,8 @@ When(
   }
 );
 When('{actor} makes a move the game refuses', async (w, actor: string) => {
-  await move(w, actor, refusedMove(w));
+  if (inMatchedGame(w)) await move(w, actor, refusedMove(w));
+  else await refusedCustomGameMove(w, actor);
 });
 
 Then(
@@ -85,7 +89,9 @@ Then('{actor} sees the two moves played', (w, actor: string) =>
   movesSeen(w, seenOn(w, actor), 2)
 );
 Then('{actor} is told that move is not allowed', (w, actor: string) =>
-  told(w, actor, 'CHESS_ILLEGAL_MOVE')
+  inMatchedGame(w)
+    ? told(w, actor, 'CHESS_ILLEGAL_MOVE')
+    : toldOf(w, actor, 'move is illegal')
 );
 Then('{actor} is told her board has changed', (w, actor: string) =>
   told(w, actor, 'CHESS_BOARD_CHANGED')
