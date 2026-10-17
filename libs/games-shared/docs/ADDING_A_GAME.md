@@ -78,7 +78,8 @@ export const RACE_PLAYABLE: PlayableGame = {
   shared: raceGameShared,
   fixtures: {
     // Written from the game's laws, never computed by its implementation.
-    firstSideVictory: ['step', 'step', 'step', 'step', 'step'],
+    // Seven moves: the victory every custom-game model follows.
+    firstSideVictory: ['step', 'step', 'step', 'step', 'step', 'step', 'step'],
     refusedOpenings: ['back', ''],
   },
 };
@@ -93,7 +94,9 @@ export const RACE_HARNESS_GAME: HarnessGame = assertHarnessGame({
 That is all. The game is now enrolled automatically:
 
 - `specs/games/*.feature` runs for it wherever it offers what a feature
-  shows, each scenario its own test named `<scenario> [race]`;
+  shows, each scenario its own test named `<scenario> [race]`, and so do the
+  `specs/games/` models (each trace `<trace> [race]`), decision tables,
+  structures and objectives;
 - `libs/games-harness/tests/conformance/rules/` holds its rules to the laws
   every game keeps, and `…/<capability>/` to each capability it offers;
 - the conformance matrix gains a `race` row and fails if the game offers a

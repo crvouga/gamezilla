@@ -2,7 +2,8 @@
  * The game × capability conformance matrix, derived from what each game
  * offers and which shared suites exist, never from a list kept by hand: a
  * code suite is a file under `tests/conformance/<area>/`, a shared
- * specification a feature of `specs/games/`. An offered capability no
+ * specification any spec of `specs/games/` — a feature, a Quint model, a
+ * decision table, a structure or an objective. An offered capability no
  * suite verifies fails; an unoffered one owes nothing.
  */
 
@@ -16,8 +17,10 @@ import {
   CONFORMANCE_AREAS,
   conformanceMatrix,
   formatConformanceMatrix,
+  SHARED_SPECIFICATION_KINDS,
   SHARED_SPECIFICATIONS,
   sharedSpecificationNeeds,
+  sharedSpecificationStem,
 } from '@libs/games-harness/game-conformance';
 import { suiteArea, suiteName } from './conformance/game-suite';
 import { CONFORMANCE_GAMES } from './conformance-world';
@@ -39,14 +42,19 @@ function codeSuites(): readonly ConformanceSuite[] {
     });
 }
 
-function sharedFeatures(): readonly string[] {
-  return [...new Bun.Glob('*.feature').scanSync(SHARED_SPECS)]
+/** Every spec a game is held to (the glossary and events are not). */
+function sharedSpecifications(): readonly string[] {
+  return [...new Bun.Glob('*').scanSync(SHARED_SPECS)]
+    .filter((file) =>
+      SHARED_SPECIFICATION_KINDS.some((kind) => file.endsWith(kind))
+    )
+    .filter((file) => file !== 'events.qnt')
     .sort()
     .map((file) => `specs/games/${file}`);
 }
 
 function specificationSuites(): readonly ConformanceSuite[] {
-  return sharedFeatures().flatMap((uri) => {
+  return sharedSpecifications().flatMap((uri) => {
     const needs = sharedSpecificationNeeds(uri);
     return needs.map((area) => ({ id: uri, area, needs }));
   });
@@ -56,9 +64,26 @@ const SUITES = [...codeSuites(), ...specificationSuites()];
 
 test('every shared specification says what it shows, and nothing else is listed', () => {
   expect(Object.keys(SHARED_SPECIFICATIONS).sort()).toEqual(
-    sharedFeatures().map((uri) =>
-      uri.replace(/^.*\//, '').replace(/\.feature$/, '')
+    [...new Set(sharedSpecifications().map(sharedSpecificationStem))].sort()
+  );
+});
+
+test('a model, decision table, structure and objective are listed like features', () => {
+  const kinds = new Set(
+    sharedSpecifications().map((uri) =>
+      SHARED_SPECIFICATION_KINDS.find((kind) => uri.endsWith(kind))
     )
+  );
+  expect([...kinds].sort()).toEqual([...SHARED_SPECIFICATION_KINDS].sort());
+});
+
+test('an unlisted shared specification fails, whatever its kind', () => {
+  for (const kind of SHARED_SPECIFICATION_KINDS)
+    expect(() =>
+      sharedSpecificationNeeds(`specs/games/never-listed${kind}`)
+    ).toThrow('list the capabilities it shows in SHARED_SPECIFICATIONS');
+  expect(() => sharedSpecificationNeeds('specs/games/notes.txt')).toThrow(
+    'not a specification a game is held to'
   );
 });
 
@@ -112,5 +137,7 @@ test('a shared feature binds only games offering everything it shows', () => {
     expect(customGames.suites).not.toContain(
       'specs/games/game-choices.feature'
     );
+    // The custom-game models bind it like the features do.
+    expect(customGames.suites).toContain('specs/games/custom-game-play.qnt');
   }
 });

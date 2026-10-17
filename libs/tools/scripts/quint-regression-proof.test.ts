@@ -2,9 +2,9 @@ import { describe, expect, test } from 'bun:test';
 import { validateGoalGate } from '../goal/goal-manifest';
 
 const bindingPath =
-  'libs/chess-root-harness/tests/quint/custom-game-play.binding.ts';
+  'libs/games-harness/tests/quint/custom-game-play.binding.ts';
 const fixturePath =
-  'libs/chess-root-harness/tests/quint/fixtures/partition.itf.json';
+  'libs/games-harness/tests/quint/fixtures/partition.itf.json';
 const binding = `
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import trace from './fixtures/partition.itf.json';

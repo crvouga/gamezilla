@@ -113,7 +113,7 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | Family | Tasks | CPU |
 | --- | --- | --- |
 | test:spec | 241 | 4074 s |
-| check:models:10 | 16 | 960 s |
+| check:models:6 | 16 | 960 s |
 | check:models:2 | 11 | 660 s |
 | check:models | 35 | 567 s |
 | lint | 327 | 352 s |

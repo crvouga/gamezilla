@@ -3,7 +3,7 @@ import {
   changeCustomGame,
   openCustomGame,
 } from '@libs/chess-custom-game-harness/custom-game-actions';
-import { attemptCustomGameBoundary } from '@libs/chess-custom-game-harness/custom-game-boundary';
+import { attemptCustomGameBoundary } from '@libs/game-session-harness/custom-game-boundary';
 import { readCustomGameIdentity } from '@libs/game-session-harness/custom-game-identity';
 import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';

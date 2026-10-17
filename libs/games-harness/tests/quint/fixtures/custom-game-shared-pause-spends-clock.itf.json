@@ -1,0 +1,846 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "source": "specs/games/custom-game-play.qnt",
+    "description": "Literal failing prefix: the binding omitted the public clock-pause observation."
+  },
+  "vars": [
+    "_previousClocks",
+    "_ended",
+    "_result",
+    "playShown",
+    "_atCutOff",
+    "_previousStatus",
+    "clocksPaused",
+    "clockLeft",
+    "_available",
+    "_playStatus",
+    "_awayFor",
+    "_offline",
+    "_timed",
+    "_previousAvailable",
+    "movesPlayed",
+    "_canceller",
+    "_terminalPicture",
+    "sideToMove",
+    "_claimedAfter",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_atCutOff": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ]
+        ]
+      },
+      "_available": true,
+      "_awayFor": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "_canceller": "",
+      "_claimedAfter": {
+        "#bigint": "0"
+      },
+      "_ended": false,
+      "_offline": {
+        "#set": []
+      },
+      "_playStatus": "active",
+      "_previousAvailable": true,
+      "_previousClocks": {
+        "#map": [
+          [
+            "second",
+            {
+              "#bigint": "4"
+            }
+          ],
+          [
+            "first",
+            {
+              "#bigint": "4"
+            }
+          ]
+        ]
+      },
+      "_previousStatus": "active",
+      "_result": "",
+      "_terminalPicture": {
+        "#tup": [
+          "active",
+          {
+            "#bigint": "0"
+          },
+          "",
+          {
+            "#map": [
+              [
+                "second",
+                {
+                  "#bigint": "4"
+                }
+              ],
+              [
+                "first",
+                {
+                  "#bigint": "4"
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "_timed": true,
+      "clockLeft": {
+        "#map": [
+          [
+            "second",
+            {
+              "#bigint": "4"
+            }
+          ],
+          [
+            "first",
+            {
+              "#bigint": "4"
+            }
+          ]
+        ]
+      },
+      "clocksPaused": false,
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "actor": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "quarters": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "timed": {
+          "tag": "Some",
+          "value": true
+        }
+      },
+      "playShown": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ]
+        ]
+      },
+      "movesPlayed": {
+        "#bigint": "0"
+      },
+      "sideToMove": "first"
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_atCutOff": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ]
+        ]
+      },
+      "_available": false,
+      "_awayFor": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "_canceller": "",
+      "_claimedAfter": {
+        "#bigint": "0"
+      },
+      "_ended": false,
+      "_offline": {
+        "#set": []
+      },
+      "_playStatus": "active",
+      "_previousAvailable": true,
+      "_previousClocks": {
+        "#map": [
+          [
+            "second",
+            {
+              "#bigint": "4"
+            }
+          ],
+          [
+            "first",
+            {
+              "#bigint": "4"
+            }
+          ]
+        ]
+      },
+      "_previousStatus": "active",
+      "_result": "",
+      "_terminalPicture": {
+        "#tup": [
+          "active",
+          {
+            "#bigint": "0"
+          },
+          "",
+          {
+            "#map": [
+              [
+                "second",
+                {
+                  "#bigint": "4"
+                }
+              ],
+              [
+                "first",
+                {
+                  "#bigint": "4"
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "_timed": true,
+      "clockLeft": {
+        "#map": [
+          [
+            "second",
+            {
+              "#bigint": "4"
+            }
+          ],
+          [
+            "first",
+            {
+              "#bigint": "4"
+            }
+          ]
+        ]
+      },
+      "clocksPaused": true,
+      "mbt::actionTaken": "_sharedPlayStops",
+      "mbt::nondetPicks": {
+        "actor": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "quarters": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "timed": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "playShown": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ]
+        ]
+      },
+      "movesPlayed": {
+        "#bigint": "0"
+      },
+      "sideToMove": "first"
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_atCutOff": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ]
+        ]
+      },
+      "_available": false,
+      "_awayFor": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "_canceller": "",
+      "_claimedAfter": {
+        "#bigint": "0"
+      },
+      "_ended": false,
+      "_offline": {
+        "#set": []
+      },
+      "_playStatus": "active",
+      "_previousAvailable": false,
+      "_previousClocks": {
+        "#map": [
+          [
+            "second",
+            {
+              "#bigint": "4"
+            }
+          ],
+          [
+            "first",
+            {
+              "#bigint": "4"
+            }
+          ]
+        ]
+      },
+      "_previousStatus": "active",
+      "_result": "",
+      "_terminalPicture": {
+        "#tup": [
+          "active",
+          {
+            "#bigint": "0"
+          },
+          "",
+          {
+            "#map": [
+              [
+                "second",
+                {
+                  "#bigint": "4"
+                }
+              ],
+              [
+                "first",
+                {
+                  "#bigint": "4"
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "_timed": true,
+      "clockLeft": {
+        "#map": [
+          [
+            "second",
+            {
+              "#bigint": "4"
+            }
+          ],
+          [
+            "first",
+            {
+              "#bigint": "4"
+            }
+          ]
+        ]
+      },
+      "clocksPaused": true,
+      "mbt::actionTaken": "customTimePasses",
+      "mbt::nondetPicks": {
+        "actor": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "quarters": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "4"
+          }
+        },
+        "timed": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "playShown": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ]
+        ]
+      },
+      "movesPlayed": {
+        "#bigint": "0"
+      },
+      "sideToMove": "first"
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_atCutOff": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ]
+        ]
+      },
+      "_available": true,
+      "_awayFor": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "_canceller": "",
+      "_claimedAfter": {
+        "#bigint": "0"
+      },
+      "_ended": false,
+      "_offline": {
+        "#set": []
+      },
+      "_playStatus": "active",
+      "_previousAvailable": false,
+      "_previousClocks": {
+        "#map": [
+          [
+            "second",
+            {
+              "#bigint": "4"
+            }
+          ],
+          [
+            "first",
+            {
+              "#bigint": "4"
+            }
+          ]
+        ]
+      },
+      "_previousStatus": "active",
+      "_result": "",
+      "_terminalPicture": {
+        "#tup": [
+          "active",
+          {
+            "#bigint": "0"
+          },
+          "",
+          {
+            "#map": [
+              [
+                "second",
+                {
+                  "#bigint": "4"
+                }
+              ],
+              [
+                "first",
+                {
+                  "#bigint": "4"
+                }
+              ]
+            ]
+          }
+        ]
+      },
+      "_timed": true,
+      "clockLeft": {
+        "#map": [
+          [
+            "second",
+            {
+              "#bigint": "4"
+            }
+          ],
+          [
+            "first",
+            {
+              "#bigint": "4"
+            }
+          ]
+        ]
+      },
+      "clocksPaused": false,
+      "mbt::actionTaken": "_sharedPlayReturns",
+      "mbt::nondetPicks": {
+        "actor": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "quarters": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "4"
+          }
+        },
+        "timed": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "playShown": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#tup": [
+                "active",
+                {
+                  "#bigint": "0"
+                },
+                ""
+              ]
+            }
+          ]
+        ]
+      },
+      "movesPlayed": {
+        "#bigint": "0"
+      },
+      "sideToMove": "first"
+    }
+  ]
+}

@@ -9,8 +9,8 @@ import {
   CUSTOM_GAME_REPETITION,
   CUSTOM_GAME_STALEMATE,
 } from '@libs/chess-custom-game-harness/custom-game-histories';
-import { playCustomGameHistory } from '@libs/chess-custom-game-harness/custom-game-history';
 import { readCustomGameTime } from '@libs/game-session-harness/custom-game-clocks';
+import { playCustomGameHistory } from '@libs/game-session-harness/custom-game-history';
 import { customGameTimeLeft } from '@libs/game-session-shared/custom-game-state';
 import { Given } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';

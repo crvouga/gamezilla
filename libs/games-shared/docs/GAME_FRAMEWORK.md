@@ -106,6 +106,11 @@ behaviour for exactly what it offers:
   `@libs/games-harness/game-conformance`). Each game's run is its own test,
   `<scenario> [<game>]`, recording its own evidence obligation
   (`scenario:<scenario> [<game id>]`), so the job log and Atlas name the game.
+  The `specs/games/*.qnt` models are listed the same way and replay once per
+  such game (`defineTraceVariants`; `<trace> [<game>]`, `trace:<n> [<game
+  id>]`); the custom-game models follow each game's known victory, which
+  takes exactly seven moves (`tests/quint/model-game.ts`). The decision
+  table, structure and objective check every such game in their one run.
 - **Shared code suites.** A test under `tests/conformance/<area>/` of
   `@libs/games-harness` runs once per game its area binds (`rules`: every
   game; otherwise the capability of that name), as `<game> › <area> › <suite>`.
@@ -180,10 +185,12 @@ Beyond that class:
   a `spec:` commit rewording it for every game in `specs/games/`, then one
   binding in `@libs/games-harness` over the shared matched-game and
   custom-game worlds, deleting chess's copy.
-- The shared specifications have no game-neutral Quint model yet; chess's
-  `custom-game-play.qnt` and `multiplayer.qnt` draw chess lines. A shared
-  model needs the Quint runner to replay traces per game (as Gherkin
-  variants do) and a model-check task, which the PR runner's capacity
-  (`ci-load.ts`) only allows by retiring chess's copy.
+- The custom-game models are every game's; chess's `multiplayer.qnt` and
+  its matched-game models still draw chess lines for chess alone. Moving one
+  retires chess's copy, its model-check task and its share of chess's spec
+  parts, which the PR runner's capacity (`ci-load.ts`) needs.
+- The custom-game models follow a first-side victory of exactly seven
+  moves (Connect Four's shortest), so every game supplies one; a game whose
+  victories all take longer needs the models' bound raised with it.
 - A game's own Gherkin parameter types join the one list the spec check
   reads (`libs/harness/src/parameter-types.ts`).

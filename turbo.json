@@ -3638,7 +3638,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:0": {
+    "check:models:6:0": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3666,7 +3666,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:1": {
+    "check:models:6:1": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3694,7 +3694,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:2": {
+    "check:models:6:2": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3722,7 +3722,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:3": {
+    "check:models:6:3": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3750,7 +3750,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:4": {
+    "check:models:6:4": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3778,7 +3778,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:5": {
+    "check:models:6:5": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3806,7 +3806,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:6": {
+    "check:models:6:6": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3834,7 +3834,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:7": {
+    "check:models:6:7": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3862,7 +3862,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:8": {
+    "check:models:6:8": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3890,7 +3890,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:9": {
+    "check:models:6:9": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3918,7 +3918,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:10": {
+    "check:models:6:10": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3946,7 +3946,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:11": {
+    "check:models:6:11": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3974,7 +3974,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:12": {
+    "check:models:6:12": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -4002,7 +4002,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:13": {
+    "check:models:6:13": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -4030,7 +4030,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:14": {
+    "check:models:6:14": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -4058,7 +4058,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:15": {
+    "check:models:6:15": {
       "inputs": [
         "package.json",
         "tests/quint/**",

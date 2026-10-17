@@ -1,4 +1,4 @@
 {
   "summary": "An online guest sent a stale Custom Game choice before host absence was confirmed, receiving a lifecycle refusal instead of the missing-host refusal. Choices now check the current roster.",
-  "regressionTest": "libs/chess-root-harness/tests/quint/custom-game.binding.ts"
+  "regressionTest": "libs/games-harness/tests/quint/custom-game.binding.ts"
 }

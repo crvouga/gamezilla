@@ -44,3 +44,22 @@ export function runsOfTrace(
 ): readonly TraceRun[] {
   return runs.length <= 1 || cover.has(i) ? runs : [runs[i % runs.length]!];
 }
+
+/** One of the files a model's tests are spread over (`index` of `count`). */
+export type TraceSlice = { readonly index: number; readonly count: number };
+
+/**
+ * Whether run `run` (0-based, of `runCount`) of the model's `test`-th test
+ * (0-based: its traces, then its pinned histories) belongs to `slice`. A
+ * varied model's runs are dealt out among the slices one by one, so each
+ * slice holds about its share of every run rather than every run of its
+ * own tests; an unvaried model's tests are sliced as they always were.
+ */
+export function runInSlice(
+  test: number,
+  run: number,
+  runCount: number,
+  slice: TraceSlice
+): boolean {
+  return (test * runCount + run) % slice.count === slice.index;
+}

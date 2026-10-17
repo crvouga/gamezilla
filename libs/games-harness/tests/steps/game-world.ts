@@ -4,17 +4,11 @@ import { customGameView } from '@libs/game-session-harness/custom-game-moves';
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import type { GameCapability } from '@pkgs/turn-game-shared/game-rules';
-import { CONFORMANCE_GAMES } from '../conformance-world';
+import { CONFORMANCE_GAMES, conformanceGameOf } from '../conformance-world';
 
 /** The game this run of the scenario is for. */
 export function gameOf(w: HarnessWorld): HarnessGame {
-  const id = w.ctx.variant?.id;
-  const game = CONFORMANCE_GAMES.find(
-    (candidate) => candidate.shared.id === id
-  );
-  if (game === undefined)
-    throw new Error(`${w.ctx.scenarioName}: no game for this run`);
-  return game;
+  return conformanceGameOf(w.ctx.variant, w.ctx.scenarioName);
 }
 
 /** Any other enrolled game offering `capability`. */

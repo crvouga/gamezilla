@@ -45,10 +45,11 @@ import type { RecordObligation } from './model-evidence';
 import { decide, modelEvidence } from './model-evidence';
 import { registerRegressionTraces } from './regression-tests';
 import { simulate } from './simulate';
-import type { TraceRun } from './trace-runs';
+import type { TraceRun, TraceSlice } from './trace-runs';
 import {
   ONCE,
   runContext,
+  runInSlice,
   runName,
   runObligation,
   runsOfTrace,
@@ -67,9 +68,11 @@ export type RunModelOptions = {
   readonly reportDir: string;
   /**
    * Replay only every `count`-th trace from `index`, so one model's traces
-   * run as several test files in parallel. Every slice draws the same traces
-   * (the draw is a function of the model and the seed) into its own
-   * `quint/<model>@<k>of<n>/`; slice 0 also runs the model-wide tests.
+   * run as several test files in parallel; a varied model deals out every
+   * run of its traces, pinned histories and determinism check instead
+   * (`runInSlice`). Every slice draws the same traces (the draw is a function
+   * of the model and the seed) into its own `quint/<model>@<k>of<n>/`; slice
+   * 0 also runs the model-wide tests.
    */
   readonly slice?: { readonly index: number; readonly count: number };
   /**
@@ -102,7 +105,6 @@ export function runQuintModel(options: RunModelOptions): void {
       ? model
       : `${model}@${String(slice.index)}of${String(slice.count)}`
   );
-  const mine = (i: number): boolean => i % slice.count === slice.index;
   const record = modelEvidence(options);
   describe(options.specUri, () => {
     const binding = boundModel(model);
@@ -146,7 +148,7 @@ export function runQuintModel(options: RunModelOptions): void {
         }));
       return;
     }
-    registerReplays({ options, model, drawn, binding, record, outDir, mine });
+    registerReplays({ options, model, drawn, binding, record, outDir, slice });
   });
 }
 
@@ -158,11 +160,11 @@ function registerReplays(input: {
   readonly binding: Binding;
   readonly record: RecordObligation;
   readonly outDir: string;
-  /** Whether the `i`-th test of the model (0-based) belongs to this slice. */
-  readonly mine: (i: number) => boolean;
+  /** The file of the model's tests this run registers. */
+  readonly slice: TraceSlice;
 }): void {
-  const { options, model, drawn, binding, record, mine } = input;
-  const first = options.slice === undefined || options.slice.index === 0;
+  const { options, model, drawn, binding, record, slice } = input;
+  const first = slice.index === 0;
   const replayed = replaySelection(
     drawn.traces,
     Object.keys(binding.actions),
@@ -180,6 +182,10 @@ function registerReplays(input: {
     return;
   }
   const cover = replayCover(drawn.traces, Object.keys(binding.actions));
+  // Run `run` of test `test` (the traces, the pinned histories, then the
+  // determinism check) is this slice's to register.
+  const mine = (test: number, run: TraceRun): boolean =>
+    runInSlice(test, runs.indexOf(run), runs.length, slice);
   const registration = {
     options,
     model,
@@ -190,15 +196,23 @@ function registerReplays(input: {
     runs,
   };
   if (first) registerModelWide(registration);
+  registerDeterminism({
+    ...registration,
+    // An unvaried model checks it with the draw as a whole, in slice 0.
+    mine: (run) =>
+      runs.length <= 1
+        ? first
+        : mine(drawn.traces.length + (binding.regressions?.length ?? 0), run),
+  });
   registerTraces({
     ...registration,
-    mine: (i) => mine(i) && replayed.has(i),
+    mine: (i, run) => replayed.has(i) && mine(i, run),
     runsOf: (i) => runsOfTrace(i, runs, cover),
   });
   registerRegressionTraces({
     options,
     binding,
-    mine: (i) => mine(drawn.traces.length + i),
+    mine: (i, run) => mine(drawn.traces.length + i, run),
     record,
     runs,
   });
@@ -274,10 +288,20 @@ function registerModelWide(input: Registration): void {
         return `${Object.keys(binding.actions).join(', ')} taken`;
       },
     }));
+}
 
+/** Each run's determinism check: the longest trace replayed twice alike. */
+function registerDeterminism(
+  input: Registration & {
+    /** Whether `run`'s check belongs to this slice. */
+    readonly mine: (run: TraceRun) => boolean;
+  }
+): void {
+  const { drawn, binding, record } = input;
   if (binding.fingerprint !== undefined && drawn.traces.length > 0) {
     const longest = longestTrace(input);
     for (const run of input.runs) {
+      if (!input.mine(run)) continue;
       const replayTwice = () =>
         decide({
           record,
@@ -305,18 +329,18 @@ function registerModelWide(input: Registration): void {
 
 function registerTraces(
   input: Registration & {
-    /** Whether trace `i` (0-based) belongs to this slice. */
-    readonly mine: (i: number) => boolean;
+    /** Whether `run` of trace `i` (0-based) belongs to this slice. */
+    readonly mine: (i: number, run: TraceRun) => boolean;
     /** The runs trace `i` is replayed for. */
     readonly runsOf: (i: number) => readonly TraceRun[];
   }
 ): void {
   const { options, model, drawn, binding, mine, record } = input;
   for (const [i, trace] of drawn.traces.entries()) {
-    if (!mine(i)) continue;
     const n = i + 1;
     const steps = `${String(trace.states.length - 1)} steps`;
     for (const run of input.runsOf(i)) {
+      if (!mine(i, run)) continue;
       const ctx = runContext(traceContext(options, model, drawn.seed, n), run);
       const body = () =>
         decide({

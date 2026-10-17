@@ -7,21 +7,15 @@
 
 import '@libs/harness/platform';
 import '@libs/friends-harness/spaces.steps';
-import {
-  offersAll,
-  sharedSpecificationNeeds,
-} from '@libs/games-harness/game-conformance';
 import { useHarnessWorld } from '@libs/harness/spec-world';
 import { defineScenarioVariants } from '@pkgs/gherkin-shared/registry';
-import {
-  CONFORMANCE_GAMES,
-  openConformanceHarness,
-} from '../conformance-world';
+import { gamesHeldTo, openConformanceHarness } from '../conformance-world';
 
 defineScenarioVariants((ctx) =>
-  CONFORMANCE_GAMES.filter((game) =>
-    offersAll(game, sharedSpecificationNeeds(ctx.featureUri))
-  ).map((game) => ({ id: game.shared.id, label: game.label }))
+  gamesHeldTo(ctx.featureUri).map((game) => ({
+    id: game.shared.id,
+    label: game.label,
+  }))
 );
 
 // Every `*.steps.ts` under this folder registers itself.

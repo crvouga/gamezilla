@@ -1,5 +1,5 @@
 /**
- * The reference game: test-only, never shipped. A race to five where each
+ * The reference game: test-only, never shipped. A race to seven where each
  * turn counts one more, registered, rendered and played purely through the
  * platform's public contracts — `defineTurnGame`, `defineGameClient` and a
  * `HarnessGame` — and enrolled in every shared suite beside the registered
@@ -17,12 +17,16 @@ import type { GameBoardProps } from '@pkgs/turn-game-shared/game-presentation';
 import type { GameRules } from '@pkgs/turn-game-shared/game-rules';
 import type { JSX } from 'solid-js';
 
-const FINISH = 5;
+/**
+ * Seven, the length of the victory every custom-game model follows
+ * (`tests/quint/model-game.ts`), so the first side counts the last number.
+ */
+const FINISH = 7;
 const count = (position: string) => Number(position.slice('race:'.length));
 
 const rules: GameRules = {
   id: 'counting-race',
-  recognizes: (position) => /^race:[0-5]$/.test(position),
+  recognizes: (position) => /^race:[0-7]$/.test(position),
   initial: () => 'race:0',
   play(position, action, history) {
     const at = count(position);
@@ -90,7 +94,7 @@ export const COUNTING_RACE_GAME: HarnessGame = assertHarnessGame({
   client: defineGameClient({
     id: rules.id,
     title: 'Counting race',
-    caption: 'Count to five first',
+    caption: 'Count to seven first',
     subtitle: () => 'Take turns counting on.',
     presentation: {
       canFlip: false,
@@ -98,13 +102,21 @@ export const COUNTING_RACE_GAME: HarnessGame = assertHarnessGame({
       Board,
       sideLabel,
       endingDescription: (reason) =>
-        reason === 'finish line' ? 'First to five.' : undefined,
+        reason === 'finish line' ? 'First to seven.' : undefined,
       timeoutDrawDescription: () => 'Drawn on time.',
       endingLabel: () => 'finish line',
     },
   }),
   fixtures: {
-    firstSideVictory: ['advance', 'advance', 'advance', 'advance', 'advance'],
+    firstSideVictory: [
+      'advance',
+      'advance',
+      'advance',
+      'advance',
+      'advance',
+      'advance',
+      'advance',
+    ],
     refusedOpenings: ['retreat', ''],
   },
 });

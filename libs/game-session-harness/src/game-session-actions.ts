@@ -1,8 +1,12 @@
+import { repeatCustomGameAcknowledgement } from './custom-game-acknowledgement';
+import { redeliverCustomGameBotWake } from './custom-game-bot-wakes';
 import {
   chooseCustomGameBotMove,
   playCustomGameBots,
 } from './custom-game-bots';
+import { attemptCustomGameBoundary } from './custom-game-boundary';
 import { createCustomGameIn, operateCustomGame } from './custom-game-controls';
+import { playCustomGameHistory } from './custom-game-history';
 import { establishCustomGame, joinCustomGames } from './custom-game-lineup';
 import { makeCustomGameMove } from './custom-game-moves';
 import { raceCustomGameChoices } from './custom-game-race';
@@ -30,4 +34,8 @@ export const GAME_SESSION_HARNESS_ACTIONS = [
   openGameHistory,
   chooseCustomGameBotMove,
   playCustomGameBots,
+  playCustomGameHistory,
+  attemptCustomGameBoundary,
+  repeatCustomGameAcknowledgement,
+  redeliverCustomGameBotWake,
 ];

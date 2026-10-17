@@ -15,6 +15,7 @@ import { runQuintModel } from '@pkgs/quint-server/bun-test';
 import { simulate } from '@pkgs/quint-server/simulate';
 import {
   runContext,
+  runInSlice,
   runName,
   runObligation,
   runsOfTrace,
@@ -178,6 +179,34 @@ describe('the runs of one trace', () => {
     expect(runsOfTrace(1, runs, new Set([1]))).toEqual(runs);
     expect(runsOfTrace(2, runs, new Set([1]))).toEqual([runs[0]!]);
     expect(runsOfTrace(3, runs, new Set([1]))).toEqual([runs[1]!]);
+  });
+
+  test('an unvaried model slices by test, as before', () => {
+    for (let test = 0; test < 20; test++)
+      for (let index = 0; index < 8; index++)
+        expect(runInSlice(test, 0, 1, { index, count: 8 })).toBe(
+          test % 8 === index
+        );
+  });
+
+  test("a varied model's runs are dealt out among the slices one by one", () => {
+    const count = 8;
+    const slicesOf = (test: number, run: number) =>
+      Array.from({ length: count }, (_, index) => index).filter((index) =>
+        runInSlice(test, run, 3, { index, count })
+      );
+    const load = Array.from({ length: count }, () => 0);
+    for (let test = 0; test < 12; test++)
+      for (let run = 0; run < 3; run++) {
+        const slices = slicesOf(test, run);
+        // Every run is in exactly one slice.
+        expect(slices).toHaveLength(1);
+        load[slices[0]!]! += 1;
+      }
+    // A test's three runs land in three slices, and no slice takes more
+    // than its share of the 36 runs.
+    expect(new Set([0, 1, 2].map((run) => slicesOf(5, run)[0])).size).toBe(3);
+    expect(Math.max(...load) - Math.min(...load)).toBeLessThanOrEqual(1);
   });
 
   test('a variant run names its variant in its test, world and verdict', () => {

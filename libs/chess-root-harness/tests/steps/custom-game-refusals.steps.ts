@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import { readCustomGameBoundary } from '@libs/chess-custom-game-harness/custom-game-boundary';
+import { readCustomGameBoundary } from '@libs/game-session-harness/custom-game-boundary';
 import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import { Then } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';

@@ -2,7 +2,7 @@ import { expect } from 'bun:test';
 import {
   attemptCustomGameBoundary,
   readCustomGameBoundary,
-} from '@libs/chess-custom-game-harness/custom-game-boundary';
+} from '@libs/game-session-harness/custom-game-boundary';
 import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import { Given, Then } from '@libs/harness/define';
 import { openSpaceLink } from '@libs/spaces-harness/space-actions';

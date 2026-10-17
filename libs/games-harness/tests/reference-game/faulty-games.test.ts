@@ -80,12 +80,12 @@ test('a game showing moves other than those played is refused', () => {
 test('a game still playable after its victory is refused', () => {
   const endless = faulty({
     play: (position, action, history, actions) =>
-      position === 'race:5' && action === 'advance'
+      position === 'race:7' && action === 'advance'
         ? {
             position,
             history,
             turn: 'white',
-            label: 'step 6',
+            label: 'step 8',
             winner: null,
             reason: null,
           }

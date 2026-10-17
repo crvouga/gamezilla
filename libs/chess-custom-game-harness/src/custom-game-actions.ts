@@ -4,11 +4,7 @@ import {
   chooseCustomGameWithKeyboard,
   listenToCustomGame,
 } from './custom-game-accessibility';
-import { repeatCustomGameAcknowledgement } from './custom-game-acknowledgement';
-import { redeliverCustomGameBotWake } from './custom-game-bot-wakes';
-import { attemptCustomGameBoundary } from './custom-game-boundary';
 import { changeThroughCustomGameControls } from './custom-game-controls';
-import { playCustomGameHistory } from './custom-game-history';
 import { reviewCustomGame } from './custom-game-review';
 
 export const openCustomGame = scenarioAction({
@@ -31,11 +27,7 @@ export const CUSTOM_GAME_HARNESS_ACTIONS = [
   openCustomGame,
   changeCustomGame,
   playCustomGamePreset,
-  playCustomGameHistory,
   reviewCustomGame,
-  attemptCustomGameBoundary,
-  repeatCustomGameAcknowledgement,
-  redeliverCustomGameBotWake,
   chooseCustomGameWithKeyboard,
   listenToCustomGame,
 ];

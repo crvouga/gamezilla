@@ -206,74 +206,110 @@ describe('partOf', () => {
     }
   });
 
-  test('the chess suite keeps model traces inside the 600s task cap', () => {
-    // regression: chess-spec-trace-batches — 32 parts put 20 traces in one task.
-    // regression: chess-spec-slice-weight
-    // regression: network-model-overfills-chess-shard
-    const count = (
-      JSON.parse(
+  /**
+   * The suites whose part counts their model traces decide: every trace of
+   * every model runs once, a part replays at most sixteen (a part of twelve
+   * took at most 332 s on the 2-core runner, Check run 38187450396, so
+   * sixteen stay near 443 s inside the 600 s cap; twenty was the miss), and
+   * a model file holds at most `unitTraces` of them. The shared games suite
+   * replays each trace for one game, and the traces taking every action for
+   * each game, in the same parts.
+   */
+  const TRACE_CAPPED_SUITES = [
+    { dir: 'libs/chess-root-harness', unitTraces: 2 },
+    { dir: 'libs/games-harness', unitTraces: 8 },
+  ] as const;
+
+  test.each(TRACE_CAPPED_SUITES)(
+    '$dir keeps model traces inside the 600s task cap',
+    ({ dir, unitTraces }) => {
+      // regression: chess-spec-trace-batches — 32 parts put 20 traces in one task.
+      // regression: chess-spec-slice-weight
+      // regression: network-model-overfills-chess-shard
+      const manifest = JSON.parse(
         readFileSync(
-          join(import.meta.dir, '../../chess-root-harness/package.json'),
+          join(import.meta.dir, '../../..', dir, 'package.json'),
           'utf8'
         )
-      ) as { specParts: number }
-    ).specParts;
-    const parts = chessSuiteParts(count);
-    const tracesOf = (unit: SpecUnit) =>
-      unit.path.endsWith('.qnt')
-        ? Array.from({ length: 64 }, (_, index) => index).filter(
-            (index) =>
-              index % (unit.slice?.count ?? 1) === (unit.slice?.index ?? 0)
-          )
-        : [];
-    const models = [
-      ...new Set(
-        parts
+      ) as { specParts: number; specDomains: readonly string[] };
+      const parts = suiteParts(manifest.specDomains, manifest.specParts);
+      const tracesOf = modelTraces;
+      const models = [
+        ...new Set(
+          parts
+            .flat()
+            .flatMap((unit) => (unit.path.endsWith('.qnt') ? [unit.path] : []))
+        ),
+      ];
+      expect(models.length).toBeGreaterThan(0);
+      for (const path of models) {
+        const traces = parts
           .flat()
-          .flatMap((unit) => (unit.path.endsWith('.qnt') ? [unit.path] : []))
-      ),
-    ];
-    expect(models.length).toBeGreaterThan(0);
-    for (const path of models) {
-      const traces = parts
-        .flat()
-        .filter((unit) => unit.path === path)
-        .flatMap(tracesOf);
-      expect(traces.sort((a, b) => a - b)).toEqual(
-        Array.from({ length: 64 }, (_, index) => index)
+          .filter((unit) => unit.path === path)
+          .flatMap(tracesOf);
+        expect(traces.sort((a, b) => a - b)).toEqual(
+          Array.from({ length: 64 }, (_, index) => index)
+        );
+      }
+      for (const part of parts) {
+        expect(part.flatMap(tracesOf).length).toBeLessThanOrEqual(16);
+        for (const unit of part)
+          expect(tracesOf(unit).length).toBeLessThanOrEqual(unitTraces);
+      }
+    }
+  );
+
+  test('the chess suite runs in the fewest parts its trace cap allows', () => {
+    const manifest = JSON.parse(
+      readFileSync(
+        join(import.meta.dir, '../../chess-root-harness/package.json'),
+        'utf8'
+      )
+    ) as { specParts: number };
+    const mostTraces = (count: number) =>
+      Math.max(
+        ...suiteParts(['chess'], count).map(
+          (part) => part.flatMap(modelTraces).length
+        )
       );
-    }
-    // The combined puzzle and recovery suites retain every trace across more parts.
-    // A part of twelve traces took at most 332 s replaying every one
-    // on the 2-core runner (Check run 38187450396), so sixteen traces stay
-    // near 443 s, inside the 600 s cap. Twenty traces was the miss.
-    for (const part of parts) {
-      expect(part.flatMap(tracesOf).length).toBeLessThanOrEqual(16);
-      for (const unit of part)
-        expect(tracesOf(unit).length).toBeLessThanOrEqual(2);
-    }
+    expect(mostTraces(manifest.specParts)).toBeLessThanOrEqual(16);
+    expect(mostTraces(manifest.specParts - 1)).toBeGreaterThan(16);
   });
 });
 
-/** The chess harness assignment at `count` parts, using the same spec files. */
-function chessSuiteParts(count: number): readonly (readonly SpecUnit[])[] {
-  const dir = join(import.meta.dir, '../../../specs/chess');
-  const files = [
-    ...new Set(
-      SPEC_GLOBS.flatMap((glob) => [
-        ...new Bun.Glob(glob).scanSync({ cwd: dir }),
-      ])
-    ),
-  ]
-    .filter((file) => file !== 'events.qnt')
-    .sort();
-  const units = files.flatMap((file) => {
-    const source = readFileSync(join(dir, file), 'utf8');
-    if (file.endsWith('.feature') && isSyntheticFeatureSource(source))
-      return [];
-    if (file.endsWith('.openslo.yaml') && isLiveObjectiveSource(source))
-      return [];
-    return specUnits(join('specs/chess', file), source, count);
+/** The 64 traces a model unit stands for, sliced: none for any other spec. */
+function modelTraces(unit: SpecUnit): readonly number[] {
+  return unit.path.endsWith('.qnt')
+    ? Array.from({ length: 64 }, (_, index) => index).filter(
+        (index) => index % (unit.slice?.count ?? 1) === (unit.slice?.index ?? 0)
+      )
+    : [];
+}
+
+/** A suite's assignment at `count` parts, using its domains' spec files. */
+function suiteParts(
+  domains: readonly string[],
+  count: number
+): readonly (readonly SpecUnit[])[] {
+  const units = domains.flatMap((domain) => {
+    const dir = join(import.meta.dir, '../../../specs', domain);
+    const files = [
+      ...new Set(
+        SPEC_GLOBS.flatMap((glob) => [
+          ...new Bun.Glob(glob).scanSync({ cwd: dir }),
+        ])
+      ),
+    ]
+      .filter((file) => file !== 'events.qnt')
+      .sort();
+    return files.flatMap((file) => {
+      const source = readFileSync(join(dir, file), 'utf8');
+      if (file.endsWith('.feature') && isSyntheticFeatureSource(source))
+        return [];
+      if (file.endsWith('.openslo.yaml') && isLiveObjectiveSource(source))
+        return [];
+      return specUnits(join('specs', domain, file), source, count);
+    });
   });
   return Array.from({ length: count }, (_, index) =>
     partOf(units, { index, count })

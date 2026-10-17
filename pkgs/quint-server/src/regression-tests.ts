@@ -13,7 +13,8 @@ import { runContext, runName, runObligation } from './trace-runs';
 export function registerRegressionTraces(input: {
   readonly options: RunModelOptions;
   readonly binding: QuintBinding<unknown>;
-  readonly mine: (index: number) => boolean;
+  /** Whether `run` of the `index`-th pinned history belongs to this slice. */
+  readonly mine: (index: number, run: TraceRun) => boolean;
   readonly record: RecordObligation;
   /** The model's runs: each replays every pinned history. */
   readonly runs: readonly TraceRun[];
@@ -21,8 +22,8 @@ export function registerRegressionTraces(input: {
   for (const [index, regression] of (
     input.binding.regressions ?? []
   ).entries()) {
-    if (!input.mine(index)) continue;
     for (const run of input.runs) {
+      if (!input.mine(index, run)) continue;
       const body = () =>
         decide({
           record: input.record,

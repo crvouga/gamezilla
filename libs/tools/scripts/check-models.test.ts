@@ -183,11 +183,11 @@ describe('modelChecks', () => {
 // regression: model-proof-scheduling-expectation
 test('custom-game default encoding retains the full induction and original deadline', () => {
   const [check] = modelChecks({
-    dir: 'libs/chess-root-harness',
-    models: ['specs/chess/custom-game.qnt'],
+    dir: 'libs/games-harness',
+    models: ['specs/games/custom-game.qnt'],
   });
   expect(check).toEqual({
-    specUri: 'specs/chess/custom-game.qnt',
+    specUri: 'specs/games/custom-game.qnt',
     steps: 4,
     inductiveInvariant: '_inductive',
     separateInduction: true,

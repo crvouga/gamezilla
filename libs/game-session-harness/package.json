@@ -21,6 +21,7 @@
     "@libs/friends-shared": "workspace:*",
     "@libs/game-matchmaking-client": "workspace:*",
     "@libs/game-matchmaking-harness": "workspace:*",
+    "@libs/game-session-client": "workspace:*",
     "@libs/game-session-server": "workspace:*",
     "@libs/game-session-shared": "workspace:*",
     "@libs/harness": "workspace:*",
@@ -30,8 +31,10 @@
     "@libs/spaces-harness": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
     "@libs/test-ids-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
     "@pkgs/harness-root-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/turn-game-shared": "workspace:*",
     "fast-check": "catalog:"
   },

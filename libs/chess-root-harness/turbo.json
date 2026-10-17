@@ -20,9 +20,6 @@
     "check:models:5": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:6": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
-    },
     "check:models:7": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
@@ -30,6 +27,9 @@
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
     "check:models:9": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
+    },
+    "check:models:10": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
     "check:models:11": {
@@ -50,19 +50,34 @@
     "check:models:16": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:17": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
-    },
-    "check:models:18": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
-    },
-    "check:models:19": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
-    },
     "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:1": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:2": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:3": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:4": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:5": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:6": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:7": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:8": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:9": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:10": {
@@ -95,9 +110,6 @@
     "test:spec:19": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
-    "test:spec:2": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
     "test:spec:20": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
@@ -126,9 +138,6 @@
       "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:29": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:3": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:30": {
@@ -161,9 +170,6 @@
     "test:spec:39": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
-    "test:spec:4": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
     "test:spec:40": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
@@ -192,9 +198,6 @@
       "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:49": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:5": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:50": {
@@ -227,9 +230,6 @@
     "test:spec:59": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
-    "test:spec:6": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
     "test:spec:60": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
@@ -240,15 +240,6 @@
       "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:63": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:7": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:8": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:9": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:64": {
@@ -263,103 +254,52 @@
     "test:spec:67": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
-    "test:spec:68": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:69": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:70": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:71": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "check:models:20": {
+    "check:models:6:0": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "test:spec:72": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:73": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:74": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:75": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:76": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:77": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:78": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:79": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:80": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:81": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:82": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:83": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "check:models:10:0": {
+    "check:models:6:1": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:1": {
+    "check:models:6:2": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:2": {
+    "check:models:6:3": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:3": {
+    "check:models:6:4": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:4": {
+    "check:models:6:5": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:5": {
+    "check:models:6:6": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:6": {
+    "check:models:6:7": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:7": {
+    "check:models:6:8": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:8": {
+    "check:models:6:9": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:9": {
+    "check:models:6:10": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:10": {
+    "check:models:6:11": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:11": {
+    "check:models:6:12": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:12": {
+    "check:models:6:13": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:13": {
+    "check:models:6:14": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:10:14": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
-    },
-    "check:models:10:15": {
+    "check:models:6:15": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     }
   }

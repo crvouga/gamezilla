@@ -109,6 +109,39 @@ export async function showCustomGames(
   );
 }
 
+/**
+ * Wait until `actor` is shown somewhere to play `gameId` in the space — the
+ * game choice, its shared choices or its custom games — or is told the host
+ * is offline instead.
+ */
+export async function waitCustomGameAvailability(
+  s: ProductHarness,
+  actor: string,
+  gameId: string
+): Promise<'available' | 'host offline'> {
+  const ui = await actorUi(s, actor);
+  return pollUntil(
+    s,
+    async () => {
+      if (await ui.get(Handles.spaceHostOffline).isVisible())
+        return 'host offline';
+      for (const handle of [
+        Handles.gameMenu(gameId),
+        Handles.gameChoice('custom-game'),
+        SHARED_SCREEN_MARK['custom-game'],
+      ]) {
+        if (await ui.get(handle).isVisible()) return 'available';
+      }
+      return null;
+    },
+    {
+      maxMs: 15_000,
+      stepMs: 1,
+      description: 'space play choices or host availability',
+    }
+  );
+}
+
 /** `actor` opens the selected game's custom games, as {@link showCustomGames}. */
 export const openCustomGames = scenarioAction({
   name: 'openCustomGames',

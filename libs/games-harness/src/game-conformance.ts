@@ -16,9 +16,13 @@ export const CONFORMANCE_AREAS = ['rules', ...GAME_CAPABILITIES] as const;
 export type ConformanceArea = (typeof CONFORMANCE_AREAS)[number];
 
 /**
- * The capabilities each feature of `specs/games/` shows, by file stem: the
- * feature runs once for every game offering all of them. A feature missing
- * here, or an entry with no feature, fails the conformance matrix.
+ * The capabilities each specification of `specs/games/` shows, by file stem:
+ * a feature, a Quint model, a decision table, a structure or an objective.
+ * It runs once for every game offering all of them (a feature's scenarios
+ * and a model's traces as one test per game; a decision table, structure or
+ * objective checks every such game in its one run). Specifications sharing a
+ * stem show the same capabilities. A specification missing here, or an
+ * entry with none, fails the conformance matrix.
  */
 export const SHARED_SPECIFICATIONS: Readonly<
   Record<string, readonly GameCapability[]>
@@ -42,17 +46,42 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'matched-game-rematch': ['matchmaking'],
   'matched-game-turns': ['matchmaking'],
   'game-history': ['custom-games', 'history'],
+  'custom-game': ['custom-games'],
+  'custom-game-play': ['custom-games'],
+  'custom-game-control': ['custom-games'],
+  'custom-game-local': ['custom-games'],
+  'custom-game-access': ['custom-games'],
+  'custom-game-delivery': ['custom-games'],
 };
 
-/** The capabilities a shared feature shows, or a failure naming it. */
+/** The file endings of the specifications a game is held to. */
+export const SHARED_SPECIFICATION_KINDS = [
+  '.feature',
+  '.qnt',
+  '.dmn',
+  '.als',
+  '.openslo.yaml',
+] as const;
+
+/** A specification's stem: its file name without the kind's ending. */
+export function sharedSpecificationStem(specUri: string): string {
+  const file = specUri.replace(/^.*\//, '');
+  const kind = SHARED_SPECIFICATION_KINDS.find((ending) =>
+    file.endsWith(ending)
+  );
+  if (kind === undefined)
+    throw new Error(`${specUri}: not a specification a game is held to`);
+  return file.slice(0, -kind.length);
+}
+
+/** The capabilities a shared specification shows, or a failure naming it. */
 export function sharedSpecificationNeeds(
-  featureUri: string
+  specUri: string
 ): readonly GameCapability[] {
-  const stem = featureUri.replace(/^.*\//, '').replace(/\.feature$/, '');
-  const needs = SHARED_SPECIFICATIONS[stem];
+  const needs = SHARED_SPECIFICATIONS[sharedSpecificationStem(specUri)];
   if (needs === undefined)
     throw new Error(
-      `${featureUri}: list the capabilities it shows in SHARED_SPECIFICATIONS (@libs/games-harness/game-conformance)`
+      `${specUri}: list the capabilities it shows in SHARED_SPECIFICATIONS (@libs/games-harness/game-conformance)`
     );
   return needs;
 }
@@ -66,9 +95,9 @@ export function offersAll(
   return needs.every((need) => need === 'rules' || offered.includes(need));
 }
 
-/** One shared suite: a code suite or a shared feature, and what it needs. */
+/** One shared suite: a code suite or a shared specification, and what it needs. */
 export type ConformanceSuite = {
-  /** `conformance/<area>/<file>` or `specs/games/<feature>.feature`. */
+  /** `conformance/<area>/<file>` or `specs/games/<file>` (any kind). */
   readonly id: string;
   readonly area: ConformanceArea;
   readonly needs: readonly (GameCapability | 'rules')[];

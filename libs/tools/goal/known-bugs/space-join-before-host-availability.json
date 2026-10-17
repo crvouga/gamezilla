@@ -1,4 +1,4 @@
 {
   "summary": "A space join returned when its header appeared, before the host availability notice, causing the scenario to attempt an unavailable game.",
-  "regressionTest": "libs/chess-root-harness/tests/quint/custom-game.binding.ts"
+  "regressionTest": "libs/games-harness/tests/quint/custom-game.binding.ts"
 }
