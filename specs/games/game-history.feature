@@ -10,6 +10,12 @@ Feature: History and review of every game
       Then Alice sees the board after three moves
       And the finished custom game is unchanged
 
+    Scenario: The starting position of a finished game can be reviewed
+      Given Alice has a finished custom game
+      When Alice reviews the starting position
+      Then Alice sees the game's starting position
+      And the finished custom game is unchanged
+
     Scenario: A move that was not played cannot be reviewed
       Given Alice has a finished custom game
       When Alice reviews a move that was not played

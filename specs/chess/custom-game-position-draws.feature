@@ -1,6 +1,6 @@
 @domain:chess
 Feature: Drawn positions finish the Custom Game
-  When chess can no longer produce a winner, the participants want a draw, so a game cannot continue after stalemate or a drawn position.
+  When chess can no longer produce a winner, the participants want a draw, so a game cannot continue after stalemate, a repeated position or another drawn position.
 
   Rule: Stalemate completes the game as a draw
 
@@ -40,3 +40,17 @@ Feature: Drawn positions finish the Custom Game
       When Alice plays b1-a1 in the Custom Game
       Then The Custom Game remains active
       And Black is to move in the Custom Game
+
+  Rule: A repeated position three times completes the game as a draw
+    No counter-example: a repetition comes from the moves played, not a choice anyone makes; the second repetition shows play continuing.
+
+    Scenario: The third repetition ends the game
+      Given Alice has a Custom Game one move before the third repetition
+      When Bob plays f6-g8 in the Custom Game
+      Then The Custom Game is completed as a draw
+
+    Scenario: A second repetition leaves the game active
+      Given Alice has a Custom Game one move before the second repetition
+      When Bob plays f6-g8 in the Custom Game
+      Then The Custom Game remains active
+      And Neither person has won the Custom Game

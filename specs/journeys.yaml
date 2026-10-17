@@ -42,7 +42,7 @@ journeys:
     endsIn:
     - 'Custom Game: Draw offered'
     gherkin:
-    - specs/chess/custom-game-draws.feature
+    - specs/games/custom-game-draw-offers.feature
   A Custom Game clock needs mating material for a win:
     description: A waiting draw offer does not stop the clock; expiration against a side unable to mate produces a draw.
     events:
@@ -620,7 +620,7 @@ journeys:
     endsIn:
     - 'Custom Game: Finished'
     gherkin:
-    - specs/chess/custom-game-away.feature
+    - specs/games/custom-game-away.feature
     tour: true
   Feedback retry preserves writing and the recording:
     description: A failed send keeps its writing and recording, then succeeds on another attempt.

@@ -33,6 +33,12 @@ Feature: Custom games of every game
       When Carol resigns the custom game
       Then Carol is told she is not a participant
 
+    Scenario: Resigning cannot replace a victory by the game's rules
+      Given Alice has a finished custom game
+      When Bob resigns the custom game
+      Then Bob is told the game is finished
+      And the finished custom game is unchanged
+
     Scenario: A rematch starts a new custom game with the sides swapped
       Given Alice has a finished custom game
       When Alice asks for a rematch
