@@ -71,7 +71,7 @@ function walk(rules: GameRules, picks: readonly number[]) {
 }
 
 const picks = fc.array(fc.nat(), { maxLength: WALK_PLIES });
-const draw = fc.double({ min: 0, max: 1, maxExcluded: true });
+const draw = fc.double({ min: 0, max: 1, maxExcluded: true, noNaN: true });
 /** Actions a person, a stale client or a hostile one might send. */
 const strangers = fc.oneof(
   fc.string({ maxLength: 6 }),
@@ -86,6 +86,22 @@ function knownPositions(game: HarnessGame): readonly string[] {
   return Array.from({ length: line.length + 1 }, (_, ply) =>
     rules.replay(line, ply)
   );
+}
+
+/**
+ * Near misses of the legal actions — an extra or missing character, another
+ * case, stray spaces — which a lenient parser would take for a legal move.
+ */
+function misspellings(legal: readonly string[]): readonly string[] {
+  return legal
+    .slice(0, 6)
+    .flatMap((action) => [
+      ...['a', 'q', '!', '0', ' '].map((suffix) => `${action}${suffix}`),
+      action.slice(0, -1),
+      ` ${action}`,
+      action.toUpperCase(),
+    ])
+    .filter((candidate) => !legal.includes(candidate));
 }
 
 /** The fixtures' known line, which only its last move wins, and then nothing. */
@@ -107,8 +123,11 @@ function knownVictory(game: HarnessGame): void {
     position = played!.position;
     history = played!.history;
   }
-  must(rules.legal(position).length === 0, 'a won game still offers actions');
-  for (const action of [...victory, ...game.fixtures.refusedOpenings])
+  for (const action of [
+    ...rules.legal(position),
+    ...victory,
+    ...game.fixtures.refusedOpenings,
+  ])
     must(
       rules.play(position, action, history, actions) === null,
       `a won game accepted ${action}`
@@ -233,9 +252,14 @@ export function gameRulesLaws(
             (drawn, sent) => {
               const played = walk(rules, drawn);
               const legal = rules.legal(played.position);
-              if (played.steps.at(-1)?.winner != null)
-                must(legal.length === 0, 'a finished game offers actions');
-              for (const action of sent)
+              // A game may end by its history (a repetition) while its
+              // position still lists actions: finished, it accepts none.
+              const finished = played.steps.at(-1)?.winner != null;
+              for (const action of [
+                ...sent,
+                ...misspellings(legal),
+                ...(finished ? legal : []),
+              ])
                 must(
                   (rules.play(
                     played.position,
@@ -244,8 +268,8 @@ export function gameRulesLaws(
                     played.actions
                   ) !==
                     null) ===
-                    legal.includes(action),
-                  `${action} was accepted against its legality at ${played.position}`
+                    (!finished && legal.includes(action)),
+                  `${action} was ${finished ? 'accepted after the game finished' : 'accepted against its legality'} at ${played.position}`
                 );
             }
           )
@@ -258,7 +282,9 @@ export function gameRulesLaws(
         assertProperty(
           `${game.label}: automation`,
           fc.property(picks, draw, (drawn, r) => {
-            const { position } = walk(rules, drawn);
+            const { position, steps } = walk(rules, drawn);
+            // The platform never asks for a move in a finished game.
+            if (steps.at(-1)?.winner != null) return;
             const legal = rules.legal(position);
             const chosen = game.shared.automation.choose(position, () => r);
             must(
@@ -316,10 +342,13 @@ export function gameBotLaws(game: HarnessGame): readonly GameLaw[] {
                 chosen !== null && legal.includes(chosen),
                 `a bot chose ${String(chosen)} at ${position}`
               );
-              const played = rules.play(position, chosen!, history, actions)!;
+              const played = rules.play(position, chosen!, history, actions);
+              must(played !== null, `the bot's ${String(chosen)} was refused`);
               actions.push(chosen!);
-              position = played.position;
-              history = played.history;
+              position = played!.position;
+              history = played!.history;
+              // The platform never asks a bot to move in a finished game.
+              if (played!.winner !== null) return;
             }
           }
         )

@@ -78,8 +78,37 @@ test('a game showing moves other than those played is refused', () => {
 });
 
 test('a game still playable after its victory is refused', () => {
-  expect(broken(faulty({ legal: () => ['advance'] }))).toContain(
+  const endless = faulty({
+    play: (position, action, history, actions) =>
+      position === 'race:5' && action === 'advance'
+        ? {
+            position,
+            history,
+            turn: 'white',
+            label: 'step 6',
+            winner: null,
+            reason: null,
+          }
+        : rules.play(position, action, history, actions),
+  });
+  expect(broken(endless)).toContain(
     'the known victory finishes the game for the first side and nothing follows it'
+  );
+});
+
+test('a game accepting a legal move under another spelling is refused', () => {
+  // As chess once did with `b2b3a`: the action is a legal move, misspelt.
+  const lenient = faulty({
+    play: (position, action, history, actions) =>
+      rules.play(
+        position,
+        action === 'advance!' ? 'advance' : action,
+        history,
+        actions
+      ),
+  });
+  expect(broken(lenient)).toContain(
+    'only a legal action is accepted, and a finished game accepts none'
   );
 });
 

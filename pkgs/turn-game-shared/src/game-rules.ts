@@ -48,6 +48,12 @@ export type GameRules = {
   ) => PlayedPosition | null;
   /** The position after the first `ply` accepted `actions` from the start. */
   readonly replay: (actions: readonly string[], ply: number) => string;
+  /**
+   * The actions `position` allows. A game may also end by its history (a
+   * repetition) while its position still lists actions; `play`, which sees
+   * the history, then refuses them, and the result of the move that ended
+   * the game said so.
+   */
   readonly legal: (position: string) => readonly string[];
   /** Whether `side` could still win (a flag fall against it is otherwise a draw). */
   readonly canWin: (position: string, side: GameSide) => boolean;
