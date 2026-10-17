@@ -1,6 +1,6 @@
-import { chooseCustomGameBotMove } from '@libs/chess-custom-game-harness/custom-game-bot-choice';
 import { redeliverCustomGameBotWake } from '@libs/chess-custom-game-harness/custom-game-bot-wakes';
 import { CUSTOM_GAME_FOOLS_MATE } from '@libs/chess-custom-game-harness/custom-game-histories';
+import { chooseCustomGameBotMove } from '@libs/game-session-harness/custom-game-bots';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';

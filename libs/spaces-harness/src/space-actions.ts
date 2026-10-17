@@ -243,20 +243,20 @@ export const selectChessGame = scenarioAction({
   name: 'selectChessGame',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    if (!(await ui.get(Handles.gameMenuChess).isVisible())) return;
-    await ui.get(Handles.gameMenuChess).tap({ timeoutMs: SPACE_WAIT_MS });
+    if (!(await ui.get(Handles.gameMenu('chess')).isVisible())) return;
+    await ui.get(Handles.gameMenu('chess')).tap({ timeoutMs: SPACE_WAIT_MS });
     const outcome = await waitForOneOf(
       s,
       actorId,
       [
-        Handles.chessMenuPuzzle,
+        Handles.gameChoice('puzzle'),
         Handles.gameChoiceRefused,
         Handles.connectionMissing,
         Handles.statusConnectionMissing,
       ],
       'chess, or why the choice was refused'
     );
-    if (outcome !== Handles.chessMenuPuzzle) return;
+    if (outcome !== Handles.gameChoice('puzzle')) return;
   },
 });
 

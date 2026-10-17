@@ -1,23 +1,18 @@
-import {
-  CHESS_SCREEN,
-  SetChessMainMenuScreen,
-} from '@libs/chess-root-shared/chess-main-menu';
+import { CHESS_SCREEN } from '@libs/chess-root-shared/chess-screens';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
-import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
+import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import { Trans } from '@lingui/solid/macro';
 import type { MainMenuItem } from '@pkgs/ui-root-client/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client/main-menu-screen';
 import type { JSX } from 'solid-js';
 
 export function ChessSettingsScreen(): JSX.Element {
-  const dispatch = useSpaceRoomDispatch();
+  const gameScreen = useGameScreen();
   const backToRoot = (): void => {
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
+    gameScreen.showChoices();
   };
   const openDeveloper = (): void => {
-    dispatch(
-      SetChessMainMenuScreen({ screen: CHESS_SCREEN.settingsDeveloper })
-    );
+    gameScreen.show(CHESS_SCREEN.settingsDeveloper);
   };
 
   const items: readonly MainMenuItem[] = [

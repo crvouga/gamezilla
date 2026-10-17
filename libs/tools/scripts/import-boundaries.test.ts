@@ -65,7 +65,7 @@ const PROBES: readonly Probe[] = [
   },
   {
     path: 'libs/game-session-client/src/concrete.ts',
-    source: "export { Board } from '@libs/connect-four-root-client/board';",
+    source: "export { Board } from '@libs/connect-four-client/board';",
     message:
       'Shared game components receive rules and presentation through ports',
   },

@@ -1,184 +1,120 @@
 import { decodeConnectFour } from '@libs/connect-four-shared/connect-four';
+import type { CustomGameSeat } from '@libs/game-session-harness/custom-game-lineup';
+import { establishCustomGame } from '@libs/game-session-harness/custom-game-lineup';
+import { CUSTOM_GAME_BOARD } from '@libs/game-session-harness/custom-game-moves';
 import {
   chooseCustomGame,
-  configureCustomGame,
   readCustomGameProbe,
   waitCustomGameSettled,
 } from '@libs/game-session-harness/custom-game-ui';
-import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
-import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
-import { backToTabs } from '@libs/harness/shell-actions';
-import {
-  createSpace,
-  joinFromPrompt,
-  openSpaceLink,
-} from '@libs/spaces-harness/space-actions';
-import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 
-async function openConnectFourCustom(
-  s: ProductHarness,
-  actor: string
-): Promise<void> {
-  const ui = await actorUi(s, actor);
-  await ui.get('connect-four-custom').expect.visible();
-  await ui.get('connect-four-custom').tap();
-  await ui.get('chess-custom-status').expect.visible();
-}
+const COLUMNS = 7;
+const CELLS = 42;
+const column = (index: number) => `${CUSTOM_GAME_BOARD}-column-${index + 1}`;
+
+/** A Connect Four custom game by its sides' disc colours and its drops. */
 export type ConnectFourSetup = {
   readonly host?: string;
-  readonly red?: string | 'bot';
-  readonly yellow?: string | 'bot' | 'open';
+  readonly red?: CustomGameSeat;
+  readonly yellow?: CustomGameSeat;
   readonly ready?: boolean;
   readonly active?: boolean;
   readonly moves?: readonly number[];
   readonly watchers?: readonly string[];
 };
-async function configureParticipant(
-  s: ProductHarness,
-  options: { host: string; side: 'white' | 'black'; person: string }
-): Promise<void> {
-  const { host, side, person } = options;
-  if (person === 'open') return;
-  if (person === 'bot') {
-    await configureCustomGame(s, host, { operation: 'bot', side });
-    return;
-  }
-  if (person === host) {
-    await configureCustomGame(s, host, { operation: 'take', side });
-    return;
-  }
-  const id = (await readCustomGameProbe(s, person))?.myId;
-  if (!id) throw new Error(`No identity for ${person}`);
-  await configureCustomGame(s, host, { operation: 'invite', side, person: id });
-  await configureCustomGame(s, person, { operation: 'accept', side });
-}
-async function playFixture(
-  s: ProductHarness,
-  options: {
-    host: string;
-    red: string;
-    yellow: string;
-    moves: readonly number[];
-  }
-): Promise<void> {
-  for (const column of options.moves) {
-    const game = (await readCustomGameProbe(s, options.host))?.current;
-    if (game === null || game === undefined) throw new Error('No game');
-    await configureCustomGame(
-      s,
-      game.turn === 'white' ? options.red : options.yellow,
-      { operation: 'move', uci: String(column), ply: game.moves.length }
-    );
-  }
-}
-/** Preconditions use ordinary room choices, never inject a board or its winner. */
+
+/** The shared custom-game lineup, in Connect Four's own words. */
 export const establishConnectFour = scenarioAction({
   name: 'establishConnectFour',
   act: async (s, options: ConnectFourSetup = {}) => {
-    const host = options.host ?? 'alice';
-    const red = options.red ?? 'alice';
-    const yellow = options.yellow ?? 'bob';
-    const people = [
-      ...new Set([host, red, yellow, ...(options.watchers ?? [])]),
-    ].filter((p) => p !== 'bot' && p !== 'open');
-    for (const person of people) {
-      await Promise.resolve(signInWithGoogle.act(s, person));
-      await Promise.resolve(backToTabs.act(s, person));
-    }
-    await Promise.resolve(createSpace.act(s, host));
-    const link = await readSpaceLink(s, host);
-    if (link === null) throw new Error('Connect Four host has no space');
-    await (await actorUi(s, host)).get('game-menu-connect-four').tap();
-    await openConnectFourCustom(s, host);
-    for (const person of people.filter((p) => p !== host)) {
-      // regression: connect-four-fixture-before-space-join
-      await Promise.resolve(openSpaceLink.act(s, person, link));
-      await (await actorUi(s, person)).get('space-join').expect.visible();
-      await Promise.resolve(joinFromPrompt.act(s, person));
-      await openConnectFourCustom(s, person);
-    }
-    await configureCustomGame(s, host, { operation: 'create' });
-    await configureCustomGame(s, host, { operation: 'open', side: 'white' });
-    await configureParticipant(s, { host, side: 'white', person: red });
-    await configureParticipant(s, { host, side: 'black', person: yellow });
-    // Configuring either side withdraws all readiness, so agree to the final lineup.
-    if (options.ready !== false)
-      for (const person of [red, yellow]) {
-        if (person !== 'bot' && person !== 'open')
-          await configureCustomGame(s, person, { operation: 'ready' });
-      }
-    if (options.active !== false)
-      await configureCustomGame(s, host, { operation: 'start' });
-    await playFixture(s, { host, red, yellow, moves: options.moves ?? [] });
+    await Promise.resolve(
+      establishCustomGame.act(s, 'connect-four', {
+        ...(options.host === undefined ? {} : { host: options.host }),
+        ...(options.red === undefined ? {} : { first: options.red }),
+        ...(options.yellow === undefined ? {} : { second: options.yellow }),
+        ...(options.ready === undefined ? {} : { ready: options.ready }),
+        ...(options.active === undefined ? {} : { active: options.active }),
+        ...(options.watchers === undefined
+          ? {}
+          : { watchers: options.watchers }),
+        moves: (options.moves ?? []).map(String),
+      })
+    );
   },
 });
+
+/** Drop into a column as a person does: its control when offered, else by choosing it. */
 export const dropConnectFour = scenarioAction({
   name: 'dropConnectFour',
-  act: async (s, actor: string, column: number, keyboard = false) => {
+  act: async (s, actor: string, index: number, keyboard = false) => {
     const ui = await actorUi(s, actor);
     const probe = await readCustomGameProbe(s, actor);
     const game = probe?.current;
     if (probe === null || game === null || game === undefined)
       throw new Error('No Connect Four game');
-    if (!Number.isInteger(column) || column < 0 || column >= 7) {
-      await chooseCustomGame(s, actor, {
-        operation: 'move',
-        uci: String(column),
-        ply: game.moves.length,
-      });
-      return;
-    }
-    const target = ui.get(`connect-four-column-${column + 1}`);
-    if ((await target.attribute('aria-disabled')) === 'false') {
+    const target = ui.get(column(index));
+    if (
+      Number.isInteger(index) &&
+      index >= 0 &&
+      index < COLUMNS &&
+      (await target.attribute('aria-disabled')) === 'false'
+    ) {
       if (keyboard) await target.key('enter');
       else await target.tap();
       await waitCustomGameSettled(s, actor, probe.settled);
-    } else
-      await chooseCustomGame(s, actor, {
-        operation: 'move',
-        uci: String(column),
-        ply: game.moves.length,
-      });
+      return;
+    }
+    await chooseCustomGame(s, actor, {
+      operation: 'move',
+      uci: String(index),
+      ply: game.moves.length,
+    });
   },
 });
-/** A normal positive interaction must reach the actual board control. */
+
+/** A positive interaction that must reach the actual column control. */
 export const clickConnectFourColumn = scenarioAction({
   name: 'clickConnectFourColumn',
-  act: async (s, actor: string, column: number) => {
+  act: async (s, actor: string, index: number) => {
     const ui = await actorUi(s, actor);
     const before = await readCustomGameProbe(s, actor);
     if (before === null) throw new Error('No Connect Four game');
-    await ui.get(`connect-four-column-${column + 1}`).tap();
+    await ui.get(column(index)).tap();
     await waitCustomGameSettled(s, actor, before.settled);
   },
 });
-export const chooseConnectFour = scenarioAction({
-  name: 'chooseConnectFour',
-  act: async (s, actor: string, input: CustomGameInput) => {
-    await chooseCustomGame(s, actor, input);
-  },
-});
+
+/** Move the keyboard preview onto a column without dropping. */
 export const previewConnectFour = scenarioAction({
   name: 'previewConnectFour',
-  act: async (s, actor: string, column: number) => {
+  act: async (s, actor: string, index: number) => {
     const ui = await actorUi(s, actor);
-    await ui.get(`connect-four-column-${column + 1}`).key('arrowRight');
+    await ui.get(column(index)).key('arrowRight');
     await ui.key('arrowLeft');
   },
 });
+
+export const preferConnectFourReducedMotion = scenarioAction({
+  name: 'preferConnectFourReducedMotion',
+  act: async (s, actor: string) => {
+    await s.actors.get(actor)!.device.setReducedMotion(true);
+  },
+});
+
+/** The Connect Four board `actor` sees, decoded from what is rendered. */
 export async function connectFourView(s: ProductHarness, actor = 'alice') {
   const probe = await readCustomGameProbe(s, actor);
   if (probe?.current === undefined || probe.current === null)
     throw new Error('No Connect Four board');
   const ui = await actorUi(s, actor);
-  const cells = await ui.get('connect-four-board').attribute('data-cells');
+  const cells = await ui.get(CUSTOM_GAME_BOARD).attribute('data-cells');
   let winningShown = 0;
-  for (let cell = 0; cell < 42; cell++) {
+  for (let cell = 0; cell < CELLS; cell++) {
     if (
       (await ui
-        .get(`connect-four-board-cell-${cell}`)
+        .get(`${CUSTOM_GAME_BOARD}-cell-${cell}`)
         .attribute('data-winning')) === 'true'
     )
       winningShown += 1;
@@ -189,13 +125,40 @@ export async function connectFourView(s: ProductHarness, actor = 'alice') {
     board: cells === null ? [] : (JSON.parse(cells) as number[]),
     game: decodeConnectFour(probe.displayFen),
     preview: Number(
-      await ui.get('connect-four-board').attribute('data-preview-cell')
+      await ui.get(CUSTOM_GAME_BOARD).attribute('data-preview-cell')
     ),
   };
 }
+
+/** How one column presents itself to someone following the board. */
+export async function connectFourColumn(
+  s: ProductHarness,
+  actor: string,
+  index: number
+) {
+  const node = (await actorUi(s, actor)).get(column(index));
+  return {
+    full: await node.attribute('data-full'),
+    disabled: await node.attribute('aria-disabled'),
+    label: await node.attribute('aria-label'),
+  };
+}
+
+export async function connectFourStatus(s: ProductHarness, actor: string) {
+  return (await actorUi(s, actor)).get('custom-game-status').text();
+}
+
+export async function connectFourBoardDescription(
+  s: ProductHarness,
+  actor: string
+) {
+  return (await actorUi(s, actor)).get(CUSTOM_GAME_BOARD).text();
+}
+
 export const CONNECT_FOUR_ACTIONS = [
   establishConnectFour,
   dropConnectFour,
-  chooseConnectFour,
+  clickConnectFourColumn,
   previewConnectFour,
+  preferConnectFourReducedMotion,
 ];

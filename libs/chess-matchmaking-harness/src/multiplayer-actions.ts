@@ -29,7 +29,7 @@ async function multiplayerMenuOpened(
   ui: Awaited<ReturnType<typeof actorUi>>
 ): Promise<boolean> {
   try {
-    await ui.get('chess-menu-multiplayer').expect.visible({ timeoutMs: 5000 });
+    await ui.get('game-choice-multiplayer').expect.visible({ timeoutMs: 5000 });
     return true;
   } catch {
     return false;
@@ -56,9 +56,9 @@ export const openMultiplayerChess = scenarioAction({
       // The caller sends the same command a stale screen would.
       if (!(await multiplayerMenuOpened(ui))) return;
     }
-    if (await ui.get('chess-menu-multiplayer').isVisible()) {
-      if (keyboard) await ui.get('chess-menu-multiplayer').key('enter');
-      else await ui.get('chess-menu-multiplayer').tap();
+    if (await ui.get('game-choice-multiplayer').isVisible()) {
+      if (keyboard) await ui.get('game-choice-multiplayer').key('enter');
+      else await ui.get('game-choice-multiplayer').tap();
     }
     await s.session.waitForIdle();
     await pollUntil(

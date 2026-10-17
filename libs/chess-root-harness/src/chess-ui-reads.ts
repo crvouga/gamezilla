@@ -8,7 +8,7 @@ export async function chessGameMenuVisible(
 ): Promise<boolean> {
   try {
     const ui = await actorUi(s, actorId);
-    return await ui.get(Handles.chessMenuPuzzle).isVisible();
+    return await ui.get(Handles.gameChoice('puzzle')).isVisible();
   } catch {
     return false;
   }

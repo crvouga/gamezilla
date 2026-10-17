@@ -12,7 +12,7 @@ export const openChessPuzzleDeveloperSettings = scenarioAction({
     await Promise.resolve(openPuzzleFromSpace.act(s, actor));
     await Promise.resolve(leavePuzzleToChessMenu.act(s, actor));
     const ui = await actorUi(s, actor);
-    await ui.get('chess-menu-settings').tap();
+    await ui.get('game-choice-settings').tap();
     await ui.get('chess-settings-developer').tap();
   },
 });

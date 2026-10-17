@@ -83,6 +83,7 @@
     "@libs/app-root-client": "workspace:*",
     "@libs/app-root-shared": "workspace:*",
     "@libs/chess-puzzle-harness": "workspace:*",
+    "@libs/connect-four-harness": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/runtime-client": "workspace:*",
     "@libs/runtime-harness": "workspace:*",
@@ -194,6 +195,7 @@
     "wrangler": "catalog:"
   },
   "category": "harness",
+  "gameRegistry": true,
   "liveDomains": [
     "journeys"
   ],

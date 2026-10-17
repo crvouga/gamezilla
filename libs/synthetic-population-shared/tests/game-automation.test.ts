@@ -26,11 +26,8 @@ const RULES: GameRules = {
 function game(id: string): GameAutomation<Driver> {
   return {
     rules: { ...RULES, id },
-    selectControl: `pick-${id}`,
-    multiplayerControl: `menu-${id}`,
-    boardControl: `board-${id}`,
     choose: () => 'advance',
-    perform: (ui, action) => ui.get(action).key('enter'),
+    perform: (ui, board, action) => ui.get(`${board}-${action}`).key('enter'),
   };
 }
 const COUNTING = game('counting');
@@ -40,32 +37,31 @@ const noRandom = () => {
 };
 
 test('any offered game can be selected; the existing game resumes without a new choice', async () => {
-  const visible = new Set(['pick-counting', 'pick-stones']);
+  const visible = new Set(['game-menu-counting', 'game-menu-stones']);
   const { driver, actions } = automationDriver({
     visible,
     onTap: (id) => {
-      if (id.startsWith('pick-')) {
+      if (id.startsWith('game-menu-')) {
         visible.clear();
-        visible.add(`menu-${id.slice(5)}`);
+        visible.add('game-choice-multiplayer');
       }
     },
   });
   await openMultiplayer(driver, [COUNTING, STONES], () => 0.9);
-  expect(actions).toEqual(['pick-stones', 'menu-stones']);
+  expect(actions).toEqual(['game-menu-stones', 'game-choice-multiplayer']);
   actions.length = 0;
   await openMultiplayer(driver, [COUNTING, STONES], noRandom);
-  expect(actions).toEqual(['menu-stones']);
+  expect(actions).toEqual(['game-choice-multiplayer']);
 });
 
 test('one offered game needs no random draw and unavailable games are never selected', async () => {
-  const visible = new Set(['pick-stones', 'menu-stones']);
-  visible.delete('menu-stones');
+  const visible = new Set(['game-menu-stones']);
   const { driver, actions } = automationDriver({
     visible,
-    onTap: () => visible.add('menu-stones'),
+    onTap: () => visible.add('game-choice-multiplayer'),
   });
   await openMultiplayer(driver, [COUNTING, STONES], noRandom);
-  expect(actions).toEqual(['pick-stones', 'menu-stones']);
+  expect(actions).toEqual(['game-menu-stones', 'game-choice-multiplayer']);
   visible.clear();
   await openMultiplayer(driver, [COUNTING, STONES], noRandom);
   expect(actions).toHaveLength(2);
@@ -97,7 +93,7 @@ test('an unrelated game uses the same pending, completion and disposal lifecycle
     visible: new Set([
       'multiplayer-colour',
       'multiplayer-game',
-      'board-counting',
+      'multiplayer-board',
     ]),
     attributes,
   });
@@ -114,10 +110,13 @@ test('an unrelated game uses the same pending, completion and disposal lifecycle
   try {
     await application.tick(context);
     await application.tick(context);
-    expect(surface.actions).toEqual(['advance:enter']);
+    expect(surface.actions).toEqual(['multiplayer-board-advance:enter']);
     attributes.set('multiplayer-game:data-fen', 'count:2');
     await application.tick(context);
-    expect(surface.actions).toEqual(['advance:enter', 'advance:enter']);
+    expect(surface.actions).toEqual([
+      'multiplayer-board-advance:enter',
+      'multiplayer-board-advance:enter',
+    ]);
     attributes.set('multiplayer-game:data-fen', 'count:3');
     attributes.set('multiplayer-game:data-can-move', 'false');
     attributes.set('multiplayer-game:data-outcome', 'draw');
@@ -131,13 +130,16 @@ test('an unrelated game uses the same pending, completion and disposal lifecycle
   } finally {
     application.close();
   }
-  expect(surface.actions).toEqual(['advance:enter', 'advance:enter']);
+  expect(surface.actions).toEqual([
+    'multiplayer-board-advance:enter',
+    'multiplayer-board-advance:enter',
+  ]);
   expect(events.filter((event) => event === 'GameCompleted')).toHaveLength(1);
   expect(application.actor.getSnapshot().status).toBe('stopped');
 });
 
 test('invalid suggestions and spectators cannot submit through the shared controller', async () => {
-  const visible = new Set(['multiplayer-game', 'board-counting']);
+  const visible = new Set(['multiplayer-game', 'multiplayer-board']);
   const surface = automationDriver({
     visible,
     attributes: new Map([

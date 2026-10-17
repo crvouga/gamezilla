@@ -1,10 +1,10 @@
 import {
   CHESS_SCREEN,
-  ChessMainMenuScreenAttr,
-  SetChessMainMenuScreen,
+  ChessScreensAttr,
   SetChessSelectedUiComponent,
-} from '@libs/chess-root-shared/chess-main-menu';
+} from '@libs/chess-root-shared/chess-screens';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
+import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -17,15 +17,14 @@ import { CHESS_COMPONENT_ENTRIES } from './chess-board-register-example';
 
 export function ChessSettingsDeveloperUiComponentDetailScreen(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
+  const gameScreen = useGameScreen();
   const selectedName = useSpaceRoomSelector(
-    ChessMainMenuScreenAttr.selectedUiComponentName.from
+    ChessScreensAttr.selectedUiComponentName.from
   );
 
   const back = (): void => {
     dispatch(SetChessSelectedUiComponent({ name: null }));
-    dispatch(
-      SetChessMainMenuScreen({ screen: CHESS_SCREEN.settingsDeveloperUi })
-    );
+    gameScreen.show(CHESS_SCREEN.settingsDeveloperUi);
   };
 
   const onNavigate = (id: string): void => {

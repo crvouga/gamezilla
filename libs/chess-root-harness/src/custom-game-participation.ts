@@ -30,9 +30,9 @@ async function reachJoinedCustomGame(
     s,
     async () => {
       await bringToFront(s, actor);
-      if (await ui.get('chess-custom-status').isVisible()) return true;
-      if (await ui.get('chess-menu-custom-game').isVisible())
-        await ui.get('chess-menu-custom-game').tap();
+      if (await ui.get('custom-game-status').isVisible()) return true;
+      if (await ui.get('game-choice-custom-game').isVisible())
+        await ui.get('game-choice-custom-game').tap();
       return null;
     },
     { maxMs: ARRIVAL_MS, description: `${actor} reaching the Custom Game` }

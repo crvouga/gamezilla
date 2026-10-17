@@ -52,8 +52,8 @@ async function viewOf(s: ProductHarness, actor: string): Promise<string> {
   if (await visible(s, actor, [Handles.spaceHostOffline])) {
     return 'host offline';
   }
-  if (await visible(s, actor, [Handles.chessMenuPuzzle])) return 'chess';
-  if (await visible(s, actor, [Handles.gameMenuChess])) return 'choice';
+  if (await visible(s, actor, [Handles.gameChoice('puzzle')])) return 'chess';
+  if (await visible(s, actor, [Handles.gameMenu('chess')])) return 'choice';
   return 'elsewhere';
 }
 

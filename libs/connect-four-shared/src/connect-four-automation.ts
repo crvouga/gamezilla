@@ -4,15 +4,15 @@ import { connectFourRules, parseConnectFourColumn } from './connect-four-rules';
 
 export const connectFourAutomation: GameAutomation<Driver> = {
   rules: connectFourRules,
-  selectControl: 'game-menu-connect-four',
-  multiplayerControl: 'connect-four-multiplayer',
-  boardControl: 'connect-four-board',
   choose: (position, random) =>
     connectFourRules.choose(position, 'medium', random),
-  async perform(ui, action) {
+  async perform(ui, board, action) {
     const column = parseConnectFourColumn(action);
     if (column === null)
       throw new Error('Invalid automated Connect Four action');
-    await ui.get(`connect-four-column-${column + 1}`).key('enter');
+    const target = ui.get(`${board}-column-${column + 1}`);
+    // regression: connect-four-journey-pending-column
+    await target.wait('enabled');
+    await target.key('enter');
   },
 };

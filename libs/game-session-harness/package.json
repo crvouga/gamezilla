@@ -14,8 +14,24 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
+    "@libs/account-privacy-harness": "workspace:*",
+    "@libs/billing-harness": "workspace:*",
+    "@libs/friends-harness": "workspace:*",
+    "@libs/friends-shared": "workspace:*",
+    "@libs/game-matchmaking-client": "workspace:*",
+    "@libs/game-matchmaking-harness": "workspace:*",
+    "@libs/game-session-server": "workspace:*",
     "@libs/game-session-shared": "workspace:*",
-    "@libs/harness": "workspace:*"
+    "@libs/harness": "workspace:*",
+    "@libs/notifications-harness": "workspace:*",
+    "@libs/profile-harness": "workspace:*",
+    "@libs/search-harness": "workspace:*",
+    "@libs/spaces-harness": "workspace:*",
+    "@libs/spaces-shared": "workspace:*",
+    "@libs/test-ids-shared": "workspace:*",
+    "@pkgs/harness-root-shared": "workspace:*",
+    "@pkgs/turn-game-shared": "workspace:*",
+    "@pkgs/ui-testing-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

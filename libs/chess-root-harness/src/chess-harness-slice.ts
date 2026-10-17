@@ -22,19 +22,6 @@ import { seedChessPuzzlesForHarness } from '@libs/chess-puzzle-harness/chess-har
 import { nextPuzzleDifferent } from '@libs/chess-puzzle-harness/chess-properties';
 import { createChessServer } from '@libs/chess-root-server/sub-server';
 import { CHESS_SUB } from '@libs/chess-sub-shared/sub';
-import { CONNECT_FOUR_ACTIONS } from '@libs/connect-four-harness/connect-four-actions';
-import {
-  establishConnectFourBotPosition,
-  playConnectFourBots,
-} from '@libs/connect-four-harness/connect-four-bots';
-import { CONNECT_FOUR_MATCHMAKING_ACTIONS } from '@libs/connect-four-harness/connect-four-matchmaking';
-import {
-  openConnectFourHistory,
-  preferConnectFourReducedMotion,
-  reviewConnectFour,
-} from '@libs/connect-four-harness/connect-four-review';
-import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
-import { createMultiplayerLinkClient } from '@libs/game-matchmaking-client/multiplayer-link-client';
 import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
 import {
   awaitGameMatch,
@@ -64,7 +51,6 @@ export const CHESS_HARNESS_SLICE: HarnessSlice = {
     routes: [
       { path: '/more/puzzles', component: PuzzleManagementScreen },
       ...PUZZLE_LINK_CLIENT.routes,
-      ...createMultiplayerLinkClient(TURN_GAMES).routes,
       ...PERSONAL_CHESS_STATS_CLIENT.routes,
     ],
     ...(PERSONAL_CHESS_STATS_CLIENT.settings === undefined
@@ -74,13 +60,6 @@ export const CHESS_HARNESS_SLICE: HarnessSlice = {
   server: () => createChessServer(),
   seedServer: seedChessPuzzlesForHarness,
   actions: [
-    ...CONNECT_FOUR_ACTIONS,
-    ...CONNECT_FOUR_MATCHMAKING_ACTIONS,
-    reviewConnectFour,
-    openConnectFourHistory,
-    preferConnectFourReducedMotion,
-    establishConnectFourBotPosition,
-    playConnectFourBots,
     ...CHESS_HARNESS_ACTIONS,
     ...CUSTOM_GAME_HARNESS_ACTIONS,
     ...MULTIPLAYER_HARNESS_ACTIONS,

@@ -65,10 +65,23 @@ export type GameNoticeText = {
   readonly side: (side: GameSide) => string;
   readonly ending: (reason: string) => string | undefined;
 };
+/**
+ * What the shared platform offers for a turn game. Each needs only the rules,
+ * clock namespace and notice text every registration already supplies; a
+ * capability a game does not declare is absent everywhere, never disabled.
+ */
+export const GAME_CAPABILITIES = [
+  'custom-games',
+  'matchmaking',
+  'history',
+] as const;
+export type GameCapability = (typeof GAME_CAPABILITIES)[number];
 export type RegisteredTurnGame = {
   readonly rules: GameRules;
+  /** Clock namespace of the game's searches and ratings (`''` or `<id>/`). */
   readonly controlPrefix: string;
-  readonly notice?: GameNoticeText;
+  readonly notice: GameNoticeText;
+  readonly capabilities: readonly GameCapability[];
 };
 export type TurnGames = {
   readonly games: readonly RegisteredTurnGame[];
@@ -76,6 +89,8 @@ export type TurnGames = {
   readonly notice: (id: string) => GameNoticeText | undefined;
   readonly byId: (id: string) => GameRules;
   readonly forControl: (control: string) => GameRules;
+  /** Whether the registered game `id` declares `capability`. */
+  readonly offers: (id: string, capability: GameCapability) => boolean;
 };
 export function createTurnGames(
   games: readonly RegisteredTurnGame[]
@@ -89,6 +104,10 @@ export function createTurnGames(
   };
   return {
     games,
+    offers: (id, capability) =>
+      games.some(
+        (game) => game.rules.id === id && game.capabilities.includes(capability)
+      ),
     notice: (id) => games.find((game) => game.rules.id === id)?.notice,
     byId: (id) =>
       one(games.filter((g) => g.rules.id === id).map((g) => g.rules)),

@@ -24,8 +24,9 @@ export async function readPuzzleControlAvailability(
 export async function readPuzzleView(s: ProductHarness, actor: string) {
   await bringToFront(s, actor);
   if (await visible(s, actor, [Handles.chessPuzzlePlayScreen])) return 'Board';
-  if (await visible(s, actor, [Handles.chessMenuPuzzle])) return 'ChessChoices';
-  if (await visible(s, actor, [Handles.gameMenuChess])) return 'GameChoice';
+  if (await visible(s, actor, [Handles.gameChoice('puzzle')]))
+    return 'ChessChoices';
+  if (await visible(s, actor, [Handles.gameMenu('chess')])) return 'GameChoice';
   return 'Elsewhere';
 }
 

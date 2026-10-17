@@ -10,5 +10,5 @@ export async function readCustomGameName(
 ): Promise<string | null> {
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
-  return ui.get(`chess-custom-${side}-person`).text();
+  return ui.get(`custom-game-${side}-person`).text();
 }

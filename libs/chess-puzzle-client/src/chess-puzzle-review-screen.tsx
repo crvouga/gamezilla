@@ -1,12 +1,12 @@
 import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import {
   CHESS_SCREEN,
-  ChessMainMenuScreenAttr,
+  ChessScreensAttr,
   SeekChessPuzzleReview,
-  SetChessMainMenuScreen,
   SetChessSelectedReviewPuzzle,
-} from '@libs/chess-root-shared/chess-main-menu';
+} from '@libs/chess-root-shared/chess-screens';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
+import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -101,19 +101,20 @@ export function ChessPuzzleReviewBody(props: {
 
 export function ChessPuzzleReviewScreen(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
+  const gameScreen = useGameScreen();
   const puzzleId = useSpaceRoomSelector(
-    ChessMainMenuScreenAttr.selectedReviewPuzzleId.from
+    ChessScreensAttr.selectedReviewPuzzleId.from
   );
   const cursor: PuzzleReviewCursor = {
     solveIdx: useSpaceRoomSelector(
-      ChessMainMenuScreenAttr.selectedReviewSolveIdx.from
+      ChessScreensAttr.selectedReviewSolveIdx.from
     ),
     seek: (solveIdx) => dispatch(SeekChessPuzzleReview({ solveIdx })),
   };
 
   const backToStats = (): void => {
     dispatch(SetChessSelectedReviewPuzzle({ puzzleId: null, solveIdx: 0 }));
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.stats }));
+    gameScreen.show(CHESS_SCREEN.stats);
   };
 
   return (

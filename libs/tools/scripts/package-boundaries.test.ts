@@ -4,6 +4,7 @@ import {
   categoryViolations,
   familyMayDependOn,
   familyOf,
+  gameViolations,
 } from './package-boundaries';
 
 const lib = { tier: 'libs', hasSrc: true, sources: [] };
@@ -230,4 +231,57 @@ test('Hono RPC contracts cross the client boundary through erased types only', (
       }
     )
   ).toEqual([]);
+});
+
+describe('game isolation', () => {
+  const workspace = new Map([
+    [
+      '@libs/chess-rules-shared',
+      { name: '@libs/chess-rules-shared', game: 'chess' },
+    ],
+    ['@libs/race-shared', { name: '@libs/race-shared', game: 'race' }],
+    ['@libs/game-session-shared', { name: '@libs/game-session-shared' }],
+  ]);
+  test('a game may use the shared platform and its own packages', () => {
+    expect(
+      gameViolations(
+        {
+          name: '@libs/race-client',
+          game: 'race',
+          dependencies: {
+            '@libs/race-shared': 'workspace:*',
+            '@libs/game-session-shared': 'workspace:*',
+          },
+        },
+        workspace
+      )
+    ).toEqual([]);
+  });
+  test('a game never depends on another game', () => {
+    expect(
+      gameViolations(
+        {
+          name: '@libs/race-client',
+          game: 'race',
+          dependencies: { '@libs/chess-rules-shared': 'workspace:*' },
+        },
+        workspace
+      )
+    ).toHaveLength(1);
+  });
+  test('only a game registry composes concrete games', () => {
+    const platform = {
+      name: '@libs/game-session-client',
+      devDependencies: { '@libs/race-shared': 'workspace:*' },
+    };
+    expect(gameViolations(platform, workspace)).toHaveLength(1);
+    expect(
+      gameViolations({ ...platform, gameRegistry: true }, workspace)
+    ).toEqual([]);
+  });
+  test('a package named for a game declares it', () => {
+    expect(gameViolations({ name: '@libs/race-harness' }, workspace)).toEqual([
+      '@libs/race-harness is named for the game race; declare "game": "race"',
+    ]);
+  });
 });

@@ -1,4 +1,4 @@
 {
-  "summary": "The live Custom Game journey read chess-custom-board-probe to check Bob's Black orientation, but deployed builds omit the debug probe. The shipped corner squares already expose their rendered positions.",
+  "summary": "The live Custom Game journey read custom-game-board-probe to check Bob's Black orientation, but deployed builds omit the debug probe. The shipped corner squares already expose their rendered positions.",
   "regressionTest": "libs/runtime-harness/tests/custom-game-journey-board-orientation.test.ts"
 }

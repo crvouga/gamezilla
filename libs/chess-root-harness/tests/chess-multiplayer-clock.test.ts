@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { chessRules } from '@libs/chess-rules-shared/chess-rules';
+import { chessTurnGame } from '@libs/chess-sub-shared/chess-game';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { settleMultiplayerClock } from '@libs/game-matchmaking-shared/multiplayer-clock';
 import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
 
-const TURN_GAMES = createTurnGames([{ rules: chessRules, controlPrefix: '' }]);
+const TURN_GAMES = createTurnGames([chessTurnGame]);
 
 /** White to move in a live 1+0 game, both have moved, one second left. */
 function whiteAboutToFlag(fen: string): MultiplayerGame {

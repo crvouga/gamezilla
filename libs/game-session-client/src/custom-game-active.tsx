@@ -21,7 +21,7 @@ function CustomGameAway(props: { model: CustomGameScreenModel }): JSX.Element {
   return (
     <Show when={props.model.sharedAvailable() && awayOpponent(props.model)}>
       {(person) => (
-        <div class="box gap-3" data-testid="chess-custom-away">
+        <div class="box gap-3" data-testid="custom-game-away">
           <Notice>
             <span role="status">
               <UserUsername profileId={person()} withAt={false} />{' '}
@@ -32,7 +32,7 @@ function CustomGameAway(props: { model: CustomGameScreenModel }): JSX.Element {
             <GameActionButton
               title={<Trans>Claim the win</Trans>}
               variant="solid"
-              dataSet={{ testid: 'chess-custom-claim-win' }}
+              dataSet={{ testid: 'custom-game-claim-win' }}
               operation={() => props.model.choose({ operation: 'claimWin' })}
             />
           </Show>
@@ -94,7 +94,7 @@ export function CustomGameDrawActions(props: ActiveProps): JSX.Element {
       >
         <GameActionButton
           title={<Trans>Offer draw</Trans>}
-          dataSet={{ testid: 'chess-custom-offer' }}
+          dataSet={{ testid: 'custom-game-offer' }}
           operation={() => props.model.choose({ operation: 'offer' })}
         />
       </Show>
@@ -102,12 +102,12 @@ export function CustomGameDrawActions(props: ActiveProps): JSX.Element {
         <GameActionButton
           title={<Trans>Agree draw</Trans>}
           variant="solid"
-          dataSet={{ testid: 'chess-custom-agree' }}
+          dataSet={{ testid: 'custom-game-agree' }}
           operation={() => props.model.choose({ operation: 'agree' })}
         />
         <GameActionButton
           title={<Trans>Decline draw</Trans>}
-          dataSet={{ testid: 'chess-custom-reject' }}
+          dataSet={{ testid: 'custom-game-reject' }}
           operation={() => props.model.choose({ operation: 'reject' })}
         />
       </Show>

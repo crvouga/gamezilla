@@ -98,7 +98,10 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
             <Show when={props.data.game()}>
               {(game) => <MultiplayerMoves game={game()} view={props.view} />}
             </Show>
-            <MultiplayerRatings ratings={props.data.ratings()} />
+            <MultiplayerRatings
+              gameId={props.data.gameId()}
+              ratings={props.data.ratings()}
+            />
           </>
         }
       >
@@ -113,19 +116,17 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
 }
 
 export default function MultiplayerScreen(props: {
+  gameId: string;
   onBack: () => void;
-  title?: string;
+  title: string;
 }): JSX.Element {
-  const data = useMultiplayerData();
+  const data = useMultiplayerData(() => props.gameId);
   const controls = useMultiplayerControls(data);
   const view = useOwnBoard(data.game);
   return (
     <>
       <DefineBackButton onPress={props.onBack} />
-      <GameScreen
-        screenId="chess-multiplayer"
-        title={props.title ?? <Trans>Multiplayer game</Trans>}
-      >
+      <GameScreen screenId="multiplayer" title={props.title}>
         <MultiplayerContent data={data} controls={controls} view={view} />
       </GameScreen>
     </>

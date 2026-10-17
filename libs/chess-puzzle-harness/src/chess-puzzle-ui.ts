@@ -142,14 +142,16 @@ async function openPuzzleChoice(
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
   if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) return;
-  if (!(await ui.get(Handles.chessMenuPuzzle).isVisible())) {
-    await ui.get(Handles.gameMenuChess).expect.visible({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });
+  if (!(await ui.get(Handles.gameChoice('puzzle')).isVisible())) {
     await ui
-      .get(Handles.chessMenuPuzzle)
+      .get(Handles.gameMenu('chess'))
+      .expect.visible({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.gameMenu('chess')).tap({ timeoutMs: WAIT_MS });
+    await ui
+      .get(Handles.gameChoice('puzzle'))
       .expect.visible({ timeoutMs: WAIT_MS });
   }
-  await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.gameChoice('puzzle')).tap({ timeoutMs: WAIT_MS });
 }
 
 export async function openPuzzlePlay(
@@ -205,8 +207,10 @@ export async function openPuzzleFromChessMenu(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
+  await ui
+    .get(Handles.gameChoice('puzzle'))
+    .expect.visible({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.gameChoice('puzzle')).tap({ timeoutMs: WAIT_MS });
   await expectPlayReady(s, actorId);
 }
 
@@ -252,8 +256,8 @@ async function openPuzzleReturn(
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
   if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) return;
-  if (await ui.get(Handles.chessMenuPuzzle).isVisible()) {
-    await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
+  if (await ui.get(Handles.gameChoice('puzzle')).isVisible()) {
+    await ui.get(Handles.gameChoice('puzzle')).tap({ timeoutMs: WAIT_MS });
     return;
   }
   await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
@@ -735,7 +739,9 @@ export async function pressPuzzleBackToChessMenu(
   // person must before the header behind it can be pressed.
   await closePuzzleSummary(s, actorId);
   await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
+  await ui
+    .get(Handles.gameChoice('puzzle'))
+    .expect.visible({ timeoutMs: WAIT_MS });
 }
 
 /** Chrome back arrow from the chess choices → the space's game menu. */
@@ -744,19 +750,19 @@ export async function pressChessMenuBackToGameMenu(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  if (!(await ui.get(Handles.chessMenuPuzzle).isVisible())) return;
+  if (!(await ui.get(Handles.gameChoice('puzzle')).isVisible())) return;
   await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
   const outcome = await waitForOneOf(
     s,
     actorId,
     [
-      Handles.gameMenuChess,
+      Handles.gameMenu('chess'),
       Handles.gameChoiceRefused,
       Handles.connectionMissing,
     ],
     'the game choice, or why going back was refused'
   );
-  if (outcome !== Handles.gameMenuChess) return;
+  if (outcome !== Handles.gameMenu('chess')) return;
 }
 
 export async function openChessStats(
@@ -764,7 +770,7 @@ export async function openChessStats(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.chessMenuStats).tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.gameChoice('stats')).tap({ timeoutMs: WAIT_MS });
   await ui.get(Handles.chessStatsElo).expect.visible({ timeoutMs: WAIT_MS });
 }
 
@@ -800,7 +806,7 @@ async function returnFromChessScreen(
   actorId: string
 ): Promise<boolean> {
   const ui = await actorUi(s, actorId);
-  if (await ui.get(Handles.chessMenuStats).isVisible()) {
+  if (await ui.get(Handles.gameChoice('stats')).isVisible()) {
     await openChessStats(s, actorId);
     return true;
   }
@@ -808,7 +814,7 @@ async function returnFromChessScreen(
     await pressPuzzleBackToChessMenu(s, actorId);
     return true;
   }
-  if (await ui.get('chess-custom-status').isVisible()) {
+  if (await ui.get('custom-game-status').isVisible()) {
     await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
     return true;
   }
@@ -826,8 +832,8 @@ export async function showChessStats(
     async () => {
       if (await ui.get(Handles.chessStatsElo).isVisible()) return true;
       if (await returnFromChessScreen(s, actorId)) return null;
-      if (await ui.get(Handles.gameMenuChess).isVisible()) {
-        await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });
+      if (await ui.get(Handles.gameMenu('chess')).isVisible()) {
+        await ui.get(Handles.gameMenu('chess')).tap({ timeoutMs: WAIT_MS });
       } else if (await ui.get(Handles.spaceClose).isVisible()) {
         // In a space whose game is still coming up: wait for it.
       } else if (await ui.get(Handles.spaceMiniplayer).isVisible()) {
@@ -853,7 +859,9 @@ export async function leaveChessStats(
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
   await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
+  await ui
+    .get(Handles.gameChoice('puzzle'))
+    .expect.visible({ timeoutMs: WAIT_MS });
 }
 
 export async function readStatsElo(

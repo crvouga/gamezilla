@@ -8,12 +8,12 @@ const BOARD_MEASURE_LIMIT = 20;
 const BOARD_SETTLE_MS = 1_000;
 
 export async function expectGamesOffered(ui: Driver): Promise<void> {
-  await expectVisible(ui, Handles.gameMenuChess);
+  await expectVisible(ui, Handles.gameMenu('chess'));
 }
 
 export async function startChessPuzzle(ui: Driver): Promise<void> {
-  await tap(ui, Handles.gameMenuChess);
-  await tap(ui, Handles.chessMenuPuzzle);
+  await tap(ui, Handles.gameMenu('chess'));
+  await tap(ui, Handles.gameChoice('puzzle'));
   await expectVisible(ui, Handles.chessPuzzlePlayScreen);
 }
 

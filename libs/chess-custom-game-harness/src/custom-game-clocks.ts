@@ -15,7 +15,7 @@ export async function readCustomGameSeconds(
 ): Promise<number> {
   await bringToFront(s, actor);
   const text = await (await actorUi(s, actor))
-    .get(`chess-custom-${side}-clock`)
+    .get(`custom-game-${side}-clock`)
     .text();
   const parts = /^(\d+):(\d{2})$/.exec(text ?? '');
   if (parts === null)

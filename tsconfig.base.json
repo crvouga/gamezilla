@@ -445,12 +445,9 @@
         "./pkgs/object-store-opfs-client/src/*"
       ],
       "@libs/connect-four-shared/*": ["./libs/connect-four-shared/src/*"],
-      "@libs/connect-four-board-client/*": [
-        "./libs/connect-four-board-client/src/*"
-      ],
-      "@libs/connect-four-root-client/*": [
-        "./libs/connect-four-root-client/src/*"
-      ],
+      "@libs/connect-four-client/*": ["./libs/connect-four-client/src/*"],
+      "@libs/game-menu-client/*": ["./libs/game-menu-client/src/*"],
+      "@libs/games-harness/*": ["./libs/games-harness/src/*"],
       "@libs/connect-four-harness/*": ["./libs/connect-four-harness/src/*"],
       "@libs/game-catalog-shared/*": ["./libs/game-catalog-shared/src/*"],
       "@libs/chess-rules-shared/*": ["./libs/chess-rules-shared/src/*"],

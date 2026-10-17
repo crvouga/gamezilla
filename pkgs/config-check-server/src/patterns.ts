@@ -471,7 +471,11 @@ function checkScript(
   const uiSource = kind === 'ui' && source.path.startsWith('src/');
   function visit(node: ts.Node): void {
     if (node.kind === ts.SyntaxKind.AnyKeyword)
-      report(node.getStart(), 'explicit-any', '`any` switches type checking off');
+      report(
+        node.getStart(),
+        'explicit-any',
+        '`any` switches type checking off'
+      );
     if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node))
       checkJsx(node, kind, report);
     const text = literalText(node);

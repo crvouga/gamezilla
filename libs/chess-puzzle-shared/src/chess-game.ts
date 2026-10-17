@@ -1,13 +1,10 @@
 import {
-  CHESS_SCREEN,
-  ChessMainMenuScreenAttr,
   chessCmdNs,
   chessEvtNs,
-  chessMainMenuCommandRouter,
-  chessMainMenuEventReducer,
-} from '@libs/chess-root-shared/chess-main-menu';
+  chessScreensCommandRouter,
+  chessScreensEventReducer,
+} from '@libs/chess-root-shared/chess-screens';
 import type { GameDefinition } from '@libs/spaces-shared/game';
-import type { RoomState } from '@pkgs/room-root-shared/types';
 import {
   chessPuzzlePlayCmdNs,
   chessPuzzlePlayEvtNs,
@@ -30,18 +27,12 @@ export const chessPuzzleGame: GameDefinition = {
   id: CHESS_GAME_ID,
   recoverEffects: () => [],
   commandRouters: [
-    { namespace: chessCmdNs, router: chessMainMenuCommandRouter },
+    { namespace: chessCmdNs, router: chessScreensCommandRouter },
     { namespace: chessPuzzlePlayCmdNs, router: chessPuzzlePlayCommandRouter },
   ],
   eventRouters: [
-    { namespace: chessEvtNs, router: chessMainMenuEventReducer },
+    { namespace: chessEvtNs, router: chessScreensEventReducer },
     { namespace: chessPuzzlePlayEvtNs, router: chessPuzzlePlayEventReducer },
   ],
   initialState: chessPuzzlePlayInitialAttrs,
-  resetRoomState(state: RoomState): RoomState {
-    return {
-      ...state,
-      ...ChessMainMenuScreenAttr.screen(CHESS_SCREEN.root),
-    };
-  },
 };

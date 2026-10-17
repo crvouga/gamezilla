@@ -1,11 +1,9 @@
 import { expect, test } from 'bun:test';
-import {
-  establishCustomGame,
-  openCustomGame,
-} from '@libs/chess-custom-game-harness/custom-game-actions';
+import { openCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { readCustomGameIdentity } from '@libs/chess-custom-game-harness/custom-game-identity';
 import { readCustomGameName } from '@libs/chess-custom-game-harness/custom-game-names';
 import { readCustomGameInvitation } from '@libs/chess-custom-game-harness/custom-game-play-reads';
+import { configureCustomGameChoice } from '@libs/game-session-harness/custom-game-ui';
 import { createSpace, joinViaLink } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { openHarness } from './open-chess-harness';
@@ -19,10 +17,10 @@ test('a guest invited from the link sees the host’s name on the invitation', a
   await s.apply(joinViaLink, 'bob', link);
   await s.apply(openCustomGame, 'alice');
   await s.apply(openCustomGame, 'bob');
-  await s.apply(establishCustomGame, 'alice', { operation: 'create' });
+  await s.apply(configureCustomGameChoice, 'alice', { operation: 'create' });
   const host = await s.read(readCustomGameName, 'alice', 'white');
   expect(host).toBeTruthy();
-  await s.apply(establishCustomGame, 'alice', {
+  await s.apply(configureCustomGameChoice, 'alice', {
     operation: 'invite',
     side: 'black',
     person: await s.read(readCustomGameIdentity, 'bob'),

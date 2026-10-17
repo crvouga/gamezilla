@@ -40,14 +40,14 @@ function connectingDevice(available = true): {
         taps.push(id);
         if (
           !connected &&
-          (id === 'chess-custom-create' || id === 'chess-custom-play-bot')
+          (id === 'custom-game-create' || id === 'custom-game-play-bot')
         )
           throw new Error('connection needed');
       },
       expect: {
         visible: async () => {},
         hidden: async () => {
-          if (id !== 'chess-custom-connection-needed')
+          if (id !== 'custom-game-connection-needed')
             throw new Error(`unexpected wait: ${id}`);
           if (!available) throw new Error('room did not connect');
           connected = true;
@@ -66,8 +66,8 @@ test.each([prepareCustomGame, startCustomGameAgainstBot])(
     const { ui, taps } = connectingDevice();
     await journey(ui);
     expect(
-      taps.includes('chess-custom-create') ||
-        taps.includes('chess-custom-play-bot')
+      taps.includes('custom-game-create') ||
+        taps.includes('custom-game-play-bot')
     ).toBe(true);
   }
 );
@@ -77,15 +77,15 @@ test.each([prepareCustomGame, startCustomGameAgainstBot])(
   async (journey) => {
     const { ui, taps } = connectingDevice(false);
     await expect(journey(ui)).rejects.toThrow('room did not connect');
-    expect(taps).not.toContain('chess-custom-create');
-    expect(taps).not.toContain('chess-custom-play-bot');
+    expect(taps).not.toContain('custom-game-create');
+    expect(taps).not.toContain('custom-game-play-bot');
   }
 );
 
 test('the offline start gesture still attempts the choice while disconnected', async () => {
   const { ui, taps } = connectingDevice(false);
   await startCustomGame(ui);
-  expect(taps).toEqual(['chess-custom-start']);
+  expect(taps).toEqual(['custom-game-start']);
 });
 
 // regression: health-offline-existing-room-socket
@@ -100,7 +100,7 @@ test('the offline start waits for the room to observe the network cut', async ()
     ...ui,
     get: (id) => {
       const node = get(id);
-      return id === 'chess-custom-connection-needed'
+      return id === 'custom-game-connection-needed'
         ? { ...node, expect: { ...node.expect, visible: () => disconnected } }
         : node;
     },
@@ -110,5 +110,5 @@ test('the offline start waits for the room to observe the network cut', async ()
   expect(taps).toEqual([]);
   disconnect();
   await starting;
-  expect(taps).toEqual(['chess-custom-start']);
+  expect(taps).toEqual(['custom-game-start']);
 });

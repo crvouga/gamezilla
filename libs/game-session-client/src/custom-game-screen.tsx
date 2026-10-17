@@ -49,13 +49,13 @@ function CustomGameStarter(props: ModelProps): JSX.Element {
         <GameActions>
           <GameActionButton
             title={<Trans>Create game</Trans>}
-            dataSet={{ testid: 'chess-custom-create' }}
+            dataSet={{ testid: 'custom-game-create' }}
             variant="solid"
             operation={() => props.model.choose({ operation: 'create' })}
           />
           <GameActionButton
             title={<Trans>Play a bot</Trans>}
-            dataSet={{ testid: 'chess-custom-play-bot' }}
+            dataSet={{ testid: 'custom-game-play-bot' }}
             operation={props.model.playBot}
           />
         </GameActions>
@@ -73,13 +73,13 @@ function CustomGameNextActions(props: ModelProps): JSX.Element {
     <Show when={over() && props.model.canCreate()}>
       <GameActionButton
         title={<Trans>New game</Trans>}
-        dataSet={{ testid: 'chess-custom-new' }}
+        dataSet={{ testid: 'custom-game-new' }}
         variant="solid"
         operation={() => props.model.choose({ operation: 'create' })}
       />
       <GameActionButton
         title={<Trans>Rematch</Trans>}
-        dataSet={{ testid: 'chess-custom-rematch' }}
+        dataSet={{ testid: 'custom-game-rematch' }}
         operation={() => props.model.choose({ operation: 'rematch' })}
       />
     </Show>
@@ -124,7 +124,7 @@ function CustomGameContent(props: ModelProps): JSX.Element {
       <GameSessionLayout
         dataSet={{
           component: 'CustomGameContent',
-          testid: 'chess-custom-content',
+          testid: 'custom-game-content',
         }}
         notices={
           <>
@@ -195,7 +195,7 @@ export function CustomGameScreen(props: {
     <>
       <DefineBackButton onPress={model.back} />
       <GameScreen
-        screenId="chess-custom-game"
+        screenId="custom-game"
         title={props.title ?? <Trans>Custom game</Trans>}
       >
         <Show
@@ -203,7 +203,7 @@ export function CustomGameScreen(props: {
           fallback={
             <DenialSurface
               decision={model.watchDecision()}
-              testId="chess-custom-denial"
+              testId="custom-game-denial"
             />
           }
         >

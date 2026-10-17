@@ -75,8 +75,12 @@ function withRoom(
   };
 }
 
-/** The space's host's search and game, including a game watched by guests. */
-export function useMultiplayerData() {
+/**
+ * The space's host's search and game, including a game watched by guests.
+ * Both belong to the account, whichever game they are of; `gameId` is the
+ * game a new search from this screen is for.
+ */
+export function useMultiplayerData(gameId: () => string) {
   const myId = useMyId();
   const spaceId = useSpaceRoomSessionId();
   const sync = useSyncEngineInstance();
@@ -116,6 +120,7 @@ export function useMultiplayerData() {
     return row === null ? null : withRoom(row, roomGame());
   };
   return {
+    gameId,
     myId,
     spaceId,
     hostId,

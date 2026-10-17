@@ -16,22 +16,20 @@ import { chessBoardPromotionTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 
 function choiceTarget(input: CustomGameInput, probe: CustomGameProbe): string {
-  if ('side' in input) return `chess-custom-${input.side}-${input.operation}`;
+  if ('side' in input) return `custom-game-${input.side}-${input.operation}`;
   switch (input.operation) {
     case 'create':
-      return probe.current === null
-        ? 'chess-custom-create'
-        : 'chess-custom-new';
+      return probe.current === null ? 'custom-game-create' : 'custom-game-new';
     case 'rematch':
-      return 'chess-custom-rematch';
+      return 'custom-game-rematch';
     case 'unready':
-      return 'chess-custom-ready';
+      return 'custom-game-ready';
     case 'move':
-      return 'chess-custom-board';
+      return 'custom-game-board';
     case 'claimWin':
-      return 'chess-custom-claim-win';
+      return 'custom-game-claim-win';
     default:
-      return `chess-custom-${input.operation}`;
+      return `custom-game-${input.operation}`;
   }
 }
 
@@ -45,10 +43,10 @@ async function prepareChoice(
     'side' in input &&
     ['take', 'bot', 'open', 'close', 'invite'].includes(input.operation)
   ) {
-    const toggle = `chess-custom-${input.side}-choices`;
+    const toggle = `custom-game-${input.side}-choices`;
     if (
       !(await ui
-        .get(`chess-custom-${input.side}-${input.operation}`)
+        .get(`custom-game-${input.side}-${input.operation}`)
         .isVisible()) &&
       (await ui.get(toggle).isVisible())
     )
@@ -56,18 +54,18 @@ async function prepareChoice(
   }
   if (
     ['swap', 'clock', 'untimed'].includes(input.operation) &&
-    !(await ui.get(`chess-custom-${input.operation}`).isVisible()) &&
-    (await ui.get('chess-custom-options').isVisible())
+    !(await ui.get(`custom-game-${input.operation}`).isVisible()) &&
+    (await ui.get('custom-game-options').isVisible())
   )
-    await ui.get('chess-custom-options').tap();
+    await ui.get('custom-game-options').tap();
   if (
     input.operation === 'clock' &&
-    (await ui.get('chess-custom-minutes').isVisible())
+    (await ui.get('custom-game-minutes').isVisible())
   ) {
-    await ui.get('chess-custom-minutes').clear();
-    await ui.get('chess-custom-minutes').input(String(input.minutes));
-    await ui.get('chess-custom-increment').clear();
-    await ui.get('chess-custom-increment').input(String(input.increment));
+    await ui.get('custom-game-minutes').clear();
+    await ui.get('custom-game-minutes').input(String(input.minutes));
+    await ui.get('custom-game-increment').clear();
+    await ui.get('custom-game-increment').input(String(input.increment));
   }
 }
 
@@ -111,8 +109,8 @@ async function enterMove(
 ): Promise<void> {
   if (input.operation !== 'move') throw new Error('not a board move');
   const ui = await actorUi(s, actor);
-  await ui.get('chess-custom-board').layout();
-  const board = new ChessBoardFlows(ui, 'chess-custom-board');
+  await ui.get('custom-game-board').layout();
+  const board = new ChessBoardFlows(ui, 'custom-game-board');
   await board.tapSquare(input.uci.slice(0, 2) as Square);
   await board.tapSquare(input.uci.slice(2, 4) as Square);
   const piece = input.uci[4];
@@ -120,7 +118,7 @@ async function enterMove(
     await ui
       .get(
         chessBoardPromotionTestId(
-          'chess-custom-board',
+          'custom-game-board',
           piece as ChessBoardPromotionChoice
         )
       )
@@ -135,7 +133,7 @@ async function promotionAsked(
 ): Promise<boolean> {
   if (input.operation !== 'move' || input.uci.length !== 4) return false;
   const ui = await actorUi(s, actor);
-  const board = new ChessBoardFlows(ui, 'chess-custom-board');
+  const board = new ChessBoardFlows(ui, 'custom-game-board');
   return (await board.readProbe()).promotion !== null;
 }
 

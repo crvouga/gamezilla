@@ -15,9 +15,9 @@ function statsSurface(entryScreen: string) {
     }
     if (screen === 'join') return handle === Handles.spaceJoin;
     if (screen === 'games') {
-      return [Handles.spaceClose, Handles.gameMenuChess].includes(handle);
+      return [Handles.spaceClose, Handles.gameMenu('chess')].includes(handle);
     }
-    if (screen === 'chess') return handle === Handles.chessMenuStats;
+    if (screen === 'chess') return handle === Handles.gameChoice('stats');
     return screen === 'stats' && handle === Handles.chessStatsElo;
   };
   const ui = {
@@ -37,8 +37,8 @@ function statsSurface(entryScreen: string) {
         taps.push(handle);
         if (handle === card) {
           screen = entryScreen;
-        } else if (handle === Handles.gameMenuChess) screen = 'chess';
-        else if (handle === Handles.chessMenuStats) screen = 'stats';
+        } else if (handle === Handles.gameMenu('chess')) screen = 'chess';
+        else if (handle === Handles.gameChoice('stats')) screen = 'stats';
       },
     }),
   };

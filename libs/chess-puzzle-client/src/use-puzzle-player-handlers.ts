@@ -11,10 +11,7 @@ import {
   StepForwardChessPuzzlePlay,
 } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
-import {
-  CHESS_SCREEN,
-  SetChessMainMenuScreen,
-} from '@libs/chess-root-shared/chess-main-menu';
+import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { formatUci } from '@pkgs/chess-rules-shared/uci';
@@ -97,6 +94,7 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
   backToRoot: () => void;
 } {
   const dispatch = useSpaceRoomDispatch();
+  const gameScreen = useGameScreen();
   const { onHint, onSolution } = useHintSolutionHandlers({
     hintStage: args.hintStage,
     appendUsedHint: args.appendUsedHint,
@@ -112,7 +110,7 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
     if (!isUnfinishedPuzzleStatus(args.status())) {
       dispatch(ClearChessPuzzlePlay({}));
     }
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
+    gameScreen.showChoices();
   };
 
   const onRetry = (): void => {

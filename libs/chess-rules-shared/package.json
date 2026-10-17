@@ -21,12 +21,13 @@
     "chess.js": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/property-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:",
-    "@pkgs/property-shared": "workspace:*"
+    "typescript": "catalog:"
   },
-  "category": "isomorphic"
+  "category": "isomorphic",
+  "game": "chess"
 }

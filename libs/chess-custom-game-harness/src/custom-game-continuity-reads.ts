@@ -23,5 +23,5 @@ export async function customGameUnratedShown(
   actor: string
 ): Promise<boolean> {
   const ui = await actorUi(s, actor);
-  return (await ui.get('chess-custom-unrated').text()) === 'Unrated';
+  return (await ui.get('custom-game-unrated').text()) === 'Unrated';
 }

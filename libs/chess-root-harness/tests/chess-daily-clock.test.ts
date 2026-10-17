@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { chessRules } from '@libs/chess-rules-shared/chess-rules';
+import { chessTurnGame } from '@libs/chess-sub-shared/chess-game';
 import { resignGame } from '@libs/game-matchmaking-shared/game-decisions';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import {
@@ -19,7 +19,7 @@ import {
 } from '@libs/game-matchmaking-shared/time-control';
 import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
 
-const TURN_GAMES = createTurnGames([{ rules: chessRules, controlPrefix: '' }]);
+const TURN_GAMES = createTurnGames([chessTurnGame]);
 
 const DAY = 86_400_000;
 const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';

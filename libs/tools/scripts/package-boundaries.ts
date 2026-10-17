@@ -146,6 +146,10 @@ export function familyMayDependOn(family: string, dependency: string): boolean {
 type Manifest = {
   readonly name?: string;
   readonly category?: string;
+  /** The one game this package implements (`chess`, `connect-four`, …). */
+  readonly game?: string;
+  /** This package composes concrete games: a game registry or composition root. */
+  readonly gameRegistry?: boolean;
   readonly dependencies?: Record<string, string>;
   readonly devDependencies?: Record<string, string>;
 };
@@ -251,6 +255,64 @@ export function categoryViolations(
 }
 
 /**
+ * Games are isolated by construction. A game package (`"game": "<id>"`)
+ * depends on no other game; a package that is not a game depends on a game
+ * only when it declares itself a game registry (`"gameRegistry": true`) — the
+ * few composition roots that list every game. A package named for a game
+ * (`@libs/<id>-…`) declares that game, so a new package cannot slip past.
+ */
+export function gameViolations(
+  manifest: Manifest,
+  workspace: ReadonlyMap<string, Manifest>
+): readonly string[] {
+  const name = manifest.name ?? '';
+  const games = new Set(
+    [...workspace.values()].flatMap((other) =>
+      other.game === undefined ? [] : [other.game]
+    )
+  );
+  const out: string[] = [];
+  for (const game of games)
+    if (name.startsWith(`@libs/${game}-`) && manifest.game !== game)
+      out.push(
+        `${name} is named for the game ${game}; declare "game": "${game}"`
+      );
+  const declared = [
+    ...Object.keys(manifest.dependencies ?? {}),
+    ...Object.keys(manifest.devDependencies ?? {}),
+  ];
+  for (const dep of declared) {
+    const game = workspace.get(dep)?.game;
+    if (game === undefined || game === manifest.game) continue;
+    if (manifest.game !== undefined)
+      out.push(
+        `game ${manifest.game} depends on ${dep} of game ${game}: games never know each other; a game registry composes them`
+      );
+    else if (manifest.gameRegistry !== true)
+      out.push(
+        `${dep} implements the game ${game}: only a game registry ("gameRegistry": true) composes concrete games; receive the game through the registry's ports`
+      );
+  }
+  return out;
+}
+
+function workspaceManifests(pkgDir: string): ReadonlyMap<string, Manifest> {
+  const root = join(pkgDir, '..', '..');
+  const out = new Map<string, Manifest>();
+  for (const tier of ['apps', 'libs', 'pkgs']) {
+    const dir = join(root, tier);
+    if (!existsSync(dir)) continue;
+    for (const entry of readdirSync(dir)) {
+      const file = join(dir, entry, 'package.json');
+      if (!existsSync(file)) continue;
+      const other = JSON.parse(readFileSync(file, 'utf8')) as Manifest;
+      if (other.name !== undefined) out.set(other.name, other);
+    }
+  }
+  return out;
+}
+
+/**
  * Every boundary the package at `pkgDir` breaks, as printable lines. Empty for
  * a package that keeps them all.
  */
@@ -269,6 +331,7 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
         text: readFileSync(path, 'utf8'),
       })),
     }),
+    ...gameViolations(manifest, workspaceManifests(pkgDir)),
   ];
   const family = familyOf(manifest.name ?? '');
   const rule = family === undefined ? undefined : RULES.get(family);

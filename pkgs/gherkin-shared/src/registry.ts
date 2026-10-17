@@ -44,7 +44,29 @@ export type ScenarioContext = {
   readonly tags: readonly string[];
   /** Stable id for the scenario (`<feature-stem>.<scenario-slug>`). */
   readonly testId: string;
+  /** The variant this run is for, when the host runs the scenario per variant. */
+  readonly variant?: ScenarioVariant | undefined;
 };
+
+/**
+ * One of the subjects a host runs a scenario for: the scenario runs once per
+ * variant, each in a fresh world, and fails naming every variant that failed.
+ * A spec never names its variants; the host derives them beside its bindings.
+ */
+export type ScenarioVariant = {
+  /** Stable id, part of the world's test id. */
+  readonly id: string;
+  /** Shown in failures and reports. */
+  readonly label: string;
+};
+
+/**
+ * The variants of a scenario, or `null` to run it once. An empty list means
+ * no registered subject offers what the scenario shows: it is not run.
+ */
+export type ScenarioVariants = (
+  ctx: ScenarioContext
+) => readonly ScenarioVariant[] | null;
 
 export type WorldLifecycle<W> = {
   /** Select a dedicated host for these scenarios; unmatched scenarios use the default host. */
@@ -84,6 +106,7 @@ type Registry = {
   readonly definitions: StepDefinition[];
   world: WorldLifecycle<unknown> | null;
   readonly scopedWorlds: WorldLifecycle<unknown>[];
+  variants: ScenarioVariants | null;
 };
 
 const REGISTRY_KEY = Symbol.for('gherkin.registry');
@@ -96,6 +119,7 @@ function registry(): Registry {
     definitions: [],
     world: null,
     scopedWorlds: [],
+    variants: null,
   };
   return host[REGISTRY_KEY];
 }
@@ -223,6 +247,21 @@ export function setWorld<W>(lifecycle: WorldLifecycle<W>): void {
   const next = lifecycle as WorldLifecycle<unknown>;
   if (lifecycle.matches === undefined) registry().world = next;
   else registry().scopedWorlds.push(next);
+}
+
+/** Run scenarios once per variant `variants` returns for them. Call once. */
+export function defineScenarioVariants(variants: ScenarioVariants): void {
+  const reg = registry();
+  if (reg.variants !== null)
+    throw new Error('gherkin: scenario variants are already defined');
+  reg.variants = variants;
+}
+
+/** The variants `ctx` runs for, or `null` to run it once. */
+export function scenarioVariants(
+  ctx: ScenarioContext
+): readonly ScenarioVariant[] | null {
+  return registry().variants?.(ctx) ?? null;
 }
 
 export function worldLifecycle(ctx: ScenarioContext): WorldLifecycle<unknown> {

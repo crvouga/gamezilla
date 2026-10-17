@@ -10,11 +10,11 @@ export async function openCustomGameScreen(
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
   await waitCustomGameAvailability(s, actor);
-  if (await ui.get(Handles.gameMenuChess).isVisible())
-    await ui.get(Handles.gameMenuChess).tap();
-  if (await ui.get('chess-menu-custom-game').isVisible())
-    await ui.get('chess-menu-custom-game').tap();
-  await ui.get('chess-custom-status').expect.visible();
+  if (await ui.get(Handles.gameMenu('chess')).isVisible())
+    await ui.get(Handles.gameMenu('chess')).tap();
+  if (await ui.get('game-choice-custom-game').isVisible())
+    await ui.get('game-choice-custom-game').tap();
+  await ui.get('custom-game-status').expect.visible();
 }
 
 /** Wait for actual play choices, or the host's unavailable notice. */
@@ -29,9 +29,9 @@ export async function waitCustomGameAvailability(
       if (await ui.get(Handles.spaceHostOffline).isVisible())
         return 'host offline';
       for (const handle of [
-        Handles.gameMenuChess,
-        'chess-menu-custom-game',
-        'chess-custom-status',
+        Handles.gameMenu('chess'),
+        'game-choice-custom-game',
+        'custom-game-status',
       ]) {
         if (await ui.get(handle).isVisible()) return 'available';
       }

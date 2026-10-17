@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { connectFourTurnGame } from '@libs/connect-four-shared/connect-four-game';
 import { connectFourRules } from '@libs/connect-four-shared/connect-four-rules';
 import { playCustomGameMove } from '@libs/game-session-shared/custom-game-play';
 import { customGamePositionAt } from '@libs/game-session-shared/custom-game-position';
@@ -7,9 +8,7 @@ import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
 
 // regression: game-session-inconsistent-retained-history
 test('a retained first drop cannot be silently paired with an empty action history', () => {
-  const rules = createTurnGames([
-    { rules: connectFourRules, controlPrefix: 'connect-four/' },
-  ]);
+  const rules = createTurnGames([connectFourTurnGame]);
   const game = {
     ...newCustomGame('retained-match', 'alice', 'c4:1:3'),
     status: 'active' as const,
@@ -24,9 +23,7 @@ test('a retained first drop cannot be silently paired with an empty action histo
 
 test('an empty accepted action cannot be normalized into a legal retained drop', () => {
   // regression: connect-four-replay-normalizes-invalid-actions
-  const rules = createTurnGames([
-    { rules: connectFourRules, controlPrefix: 'connect-four/' },
-  ]);
+  const rules = createTurnGames([connectFourTurnGame]);
   const game = {
     ...newCustomGame('retained-match', 'alice', 'c4:1:0'),
     status: 'active' as const,

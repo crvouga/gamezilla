@@ -11,13 +11,13 @@ import { waitForOneOf } from '@libs/spaces-harness/space-ui';
 import { Handles } from '@libs/test-ids-shared/handles';
 
 const CHOOSE_OR_REFUSAL = [
-  Handles.chessMenuPuzzle,
+  Handles.gameChoice('puzzle'),
   Handles.spaceHostChoosesGame,
   Handles.statusConnectionMissing,
 ] as const;
 
 const BACK_OR_REFUSAL = [
-  Handles.gameMenuChess,
+  Handles.gameMenu('chess'),
   Handles.spaceHostChoosesGame,
   Handles.statusConnectionMissing,
 ] as const;
@@ -33,7 +33,7 @@ export function gameChoiceShown(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
-  return visible(s, actorId, [Handles.gameMenuChess]);
+  return visible(s, actorId, [Handles.gameMenu('chess')]);
 }
 
 export function connectionMissingShown(
@@ -47,9 +47,9 @@ export const attemptSelectChessGame = scenarioAction({
   name: 'attemptSelectChessGame',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    if (!(await ui.get(Handles.gameMenuChess).isVisible())) return;
+    if (!(await ui.get(Handles.gameMenu('chess')).isVisible())) return;
     if (await ui.get(Handles.spaceHostChoosesGame).isVisible()) return;
-    await ui.get(Handles.gameMenuChess).tap();
+    await ui.get(Handles.gameMenu('chess')).tap();
     await waitForOneOf(s, actorId, CHOOSE_OR_REFUSAL, 'chess, or why not');
   },
 });
@@ -58,7 +58,7 @@ export const attemptLeaveChessMenu = scenarioAction({
   name: 'attemptLeaveChessMenu',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    if (!(await ui.get(Handles.chessMenuPuzzle).isVisible())) return;
+    if (!(await ui.get(Handles.gameChoice('puzzle')).isVisible())) return;
     await ui.get(Handles.navBack).tap();
     await waitForOneOf(
       s,

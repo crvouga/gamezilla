@@ -55,5 +55,6 @@
     "solid-js": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "client"
+  "category": "client",
+  "gameRegistry": true
 }

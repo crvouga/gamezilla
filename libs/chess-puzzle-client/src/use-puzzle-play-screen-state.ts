@@ -12,11 +12,8 @@ import {
   resolvePuzzlePickState,
 } from '@libs/chess-puzzle-shared/pick-state';
 import { LINKED_PUZZLE_PARAM } from '@libs/chess-puzzle-shared/puzzle-link';
-import {
-  CHESS_SCREEN,
-  SetChessMainMenuScreen,
-} from '@libs/chess-root-shared/chess-main-menu';
 import { useUnlock } from '@libs/permissions-client/unlock';
+import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -412,6 +409,7 @@ function useDriverPlacement(
 export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   const myId = useMyId();
   const dispatch = useSpaceRoomDispatch();
+  const gameScreen = useGameScreen();
   const { status: syncStatus } = useSyncEngine();
   const { poolReady } = useChessPuzzleFeedState();
   const [, setFeedConfig] = useChessPuzzleFeedConfig();
@@ -420,7 +418,7 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   const { next } = placement;
 
   const backToChessRoot = (): void => {
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
+    gameScreen.showChoices();
   };
 
   const pickState = createMemo<PuzzlePickState>(() => {

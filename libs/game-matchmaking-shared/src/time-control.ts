@@ -91,6 +91,16 @@ export function timeControlOf(
     : found;
 }
 
+/** The rating speed of `speed` in a game's clock namespace (`''` or `<id>/`). */
+export function gameSpeed(
+  controlPrefix: string,
+  speed: MultiplayerSpeed
+): MultiplayerSpeed {
+  return controlPrefix === ''
+    ? speed
+    : (`${controlPrefix.slice(0, -1)}:${speed}` as MultiplayerSpeed);
+}
+
 export function startingMs(id: string | null | undefined): number {
   return (timeControlOf(id)?.minutes ?? 0) * 60_000;
 }

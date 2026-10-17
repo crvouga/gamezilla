@@ -83,9 +83,9 @@ function SeatTags(props: SideProps): JSX.Element {
 export function CustomGameSeat(props: SideProps): JSX.Element {
   return (
     <GamePlayerBar
-      dataSet={{ testid: `chess-custom-${props.side}` }}
+      dataSet={{ testid: `custom-game-${props.side}` }}
       name={
-        <span data-testid={`chess-custom-${props.side}-person`}>
+        <span data-testid={`custom-game-${props.side}-person`}>
           <CustomGamePerson participant={props.model.current()![props.side]} />
         </span>
       }
@@ -132,7 +132,7 @@ function CustomGameSideActions(props: SideProps): JSX.Element {
         <GameActionButton
           title={<Trans>Claim this side</Trans>}
           variant="solid"
-          dataSet={{ testid: `chess-custom-${props.side}-claim` }}
+          dataSet={{ testid: `custom-game-${props.side}-claim` }}
           operation={() =>
             props.model.choose({ operation: 'claim', side: props.side })
           }
@@ -147,7 +147,7 @@ function CustomGameSideActions(props: SideProps): JSX.Element {
       >
         <GameActionButton
           title={<Trans>Release this side</Trans>}
-          dataSet={{ testid: `chess-custom-${props.side}-release` }}
+          dataSet={{ testid: `custom-game-${props.side}-release` }}
           operation={() =>
             props.model.choose({ operation: 'release', side: props.side })
           }
@@ -156,7 +156,7 @@ function CustomGameSideActions(props: SideProps): JSX.Element {
       <Show when={props.model.canConfigure()}>
         <GameDisclosure
           title={<Trans>Change participant</Trans>}
-          dataSet={{ testid: `chess-custom-${props.side}-choices` }}
+          dataSet={{ testid: `custom-game-${props.side}-choices` }}
         >
           <CustomGameSideChoices {...props} />
         </GameDisclosure>

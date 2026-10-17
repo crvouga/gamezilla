@@ -24,7 +24,6 @@
     "@libs/permissions-shared": "workspace:*",
     "@libs/profile-client": "workspace:*",
     "@libs/spaces-client": "workspace:*",
-    "@libs/spaces-shared": "workspace:*",
     "@libs/sub-client": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",

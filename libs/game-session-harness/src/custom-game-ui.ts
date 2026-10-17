@@ -3,7 +3,7 @@ import type {
   CustomGameInput,
 } from '@libs/game-session-shared/custom-game-choice';
 import type { CustomGames } from '@libs/game-session-shared/custom-game-state';
-import { actorUi } from '@libs/harness/actor-ui';
+import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
 
@@ -33,7 +33,7 @@ export async function readCustomGameProbe(
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
   try {
-    const raw = await ui.get('chess-custom-debug').text();
+    const raw = await ui.get('custom-game-debug').text();
     return raw === null || raw.trim() === ''
       ? null
       : (JSON.parse(raw.replace(/\u200b/g, '')) as CustomGameProbe);
@@ -62,10 +62,10 @@ export async function sendCustomGameChoice(
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
   const raw = JSON.stringify(choice);
-  await ui.get('chess-custom-command-input').clear();
-  await ui.get('chess-custom-command-input').input(raw);
+  await ui.get('custom-game-command-input').clear();
+  await ui.get('custom-game-command-input').input(raw);
   // regression: native-conformance-command-not-clickable
-  await ui.get('chess-custom-command-send').key('enter');
+  await ui.get('custom-game-command-send').key('enter');
   for (let turn = 0; turn < 1_000; turn += 1) {
     const probe = await readCustomGameProbe(s, actor);
     if (probe?.receipt.request === raw && !probe.receipt.pending)
@@ -113,3 +113,24 @@ export async function waitCustomGameSettled(
   }
   throw new Error(`${actor}'s game operation never settled`);
 }
+
+/** Attempt one choice as `actor`; a refusal shows as the probe's error. */
+export const attemptCustomGame = scenarioAction({
+  name: 'attemptCustomGame',
+  act: async (s, actor: string, input: CustomGameInput) => {
+    await chooseCustomGame(s, actor, input);
+  },
+});
+
+/** A choice the scenario relies on; a refusal fails the precondition. */
+export const configureCustomGameChoice = scenarioAction({
+  name: 'configureCustomGameChoice',
+  act: configureCustomGame,
+});
+
+/** Send one exact choice (its own game and revision) as a modified device could. */
+export const attemptCustomGameChoice = scenarioAction({
+  name: 'attemptCustomGameChoice',
+  act: (s, actor: string, choice: CustomGameChoice) =>
+    sendCustomGameChoice(s, actor, choice).then(() => undefined),
+});

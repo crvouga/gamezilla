@@ -22,6 +22,7 @@ import type { ScenarioContext, StepMatch } from '@pkgs/gherkin-shared/registry';
 import {
   isHostLimit,
   matchStep,
+  scenarioVariants,
   worldLifecycle,
 } from '@pkgs/gherkin-shared/registry';
 import { tagFilter } from '@pkgs/gherkin-shared/tags';
@@ -141,10 +142,53 @@ async function recordStep(
   }
 }
 
-/** Runs the scenario; false when a host limit ended it undecided. */
+/** The scenario's name as a failure reports it, naming its variant. */
+function runName(scenario: SpecScenario, ctx: ScenarioContext): string {
+  return ctx.variant === undefined
+    ? scenario.name
+    : `${scenario.name} [${ctx.variant.label}]`;
+}
+
+/**
+ * Runs the scenario once, or once per variant the host defines for it, each
+ * in a fresh world; false when a host limit left a run undecided. Every
+ * variant runs even after one fails, and the failure names each that failed.
+ */
 async function runScenario(run: ScenarioRun): Promise<boolean> {
+  const base = scenarioContext(run);
+  const variants = scenarioVariants(base);
+  if (variants === null) return runScenarioOnce(run, base);
+  if (variants.length === 0)
+    throw new Error(
+      `${run.options.featureUri}:${String(run.scenario.line)} ${run.scenario.name}: no variant the host registers offers what this scenario shows`
+    );
+  const failures: Error[] = [];
+  let completed = true;
+  for (const variant of variants) {
+    const ctx = {
+      ...base,
+      variant,
+      testId: `${base.testId}.${slug(variant.id)}`,
+    };
+    try {
+      completed = (await runScenarioOnce(run, ctx)) && completed;
+    } catch (cause) {
+      failures.push(cause instanceof Error ? cause : new Error(String(cause)));
+    }
+  }
+  if (failures.length === 1) throw failures[0];
+  if (failures.length > 1)
+    throw new Error(failures.map((failure) => failure.message).join('\n\n'), {
+      cause: failures[0],
+    });
+  return completed;
+}
+
+async function runScenarioOnce(
+  run: ScenarioRun,
+  ctx: ScenarioContext
+): Promise<boolean> {
   const { options, scenario } = run;
-  const ctx = scenarioContext(run);
   const lifecycle = worldLifecycle(ctx);
   const reporter = createFeatureReporter(
     ctx,
@@ -166,13 +210,13 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
           hostLimited = true;
           const skipped = scenario.steps.length - index - 1;
           console.warn(
-            `${options.featureUri}:${String(step.line)} ${scenario.name}: ${(cause as Error).message} — ${String(skipped)} later step(s) skipped`
+            `${options.featureUri}:${String(step.line)} ${runName(scenario, ctx)}: ${(cause as Error).message} — ${String(skipped)} later step(s) skipped`
           );
           return false;
         }
         await lifecycle.failed?.(world, cause).catch((error: unknown) => {
           console.warn(
-            `${options.featureUri}:${String(step.line)} ${scenario.name}: capturing failure evidence failed: ${String(error)}`
+            `${options.featureUri}:${String(step.line)} ${runName(scenario, ctx)}: capturing failure evidence failed: ${String(error)}`
           );
         });
         const failing = outcome(step, 'failed');
@@ -184,7 +228,7 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
             packageName: options.packageName,
             featureUri: options.featureUri,
             featureName: run.featureName,
-            scenarioName: scenario.name,
+            scenarioName: runName(scenario, ctx),
             scenarioLine: scenario.line,
             steps: [...outcomes, failing, ...rest],
             failingStep: failing,

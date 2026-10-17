@@ -44,15 +44,29 @@ export function changedCustomGames(
   };
 }
 
-function initialPositionForChoice(
-  state: RoomState,
-  choice: CustomGameChoice,
-  rules: TurnGames
-): string {
+/** The game a new custom game is of: the one asked for, else the space's. */
+function gameForChoice(state: RoomState, choice: CustomGameChoice): string {
   const explicit = choice.operation === 'create' ? choice.game : undefined;
-  return rules
-    .byId(explicit ?? GamesRoomAttr.selected.from(state) ?? '')
-    .initial();
+  return explicit ?? GamesRoomAttr.selected.from(state) ?? '';
+}
+
+/** A rematch of the current game, or a new one of a game offering Custom Games. */
+function createdCustomGame(
+  state: RoomState,
+  ctx: GameCommandContext,
+  choice: CustomGameChoice,
+  context: {
+    readonly game: CustomGame | null;
+    readonly members: readonly string[];
+    readonly rules: TurnGames;
+  }
+): CustomGame | null {
+  const { game, members, rules } = context;
+  if (choice.operation === 'rematch' && game !== null)
+    return rematchCustomGame(game, ctx.commandId, members, rules);
+  const id = gameForChoice(state, choice);
+  if (!rules.offers(id, 'custom-games')) return null;
+  return newCustomGame(ctx.commandId, ctx.identity, rules.byId(id).initial());
 }
 
 export function handleCustomGameChoice(
@@ -84,14 +98,13 @@ export function handleCustomGameChoice(
   });
   if (reason !== '') return refuseCustomGame(reason);
   if (choice.operation === 'create' || choice.operation === 'rematch') {
-    const created =
-      choice.operation === 'rematch' && game !== null
-        ? rematchCustomGame(game, ctx.commandId, members, rules)
-        : newCustomGame(
-            ctx.commandId,
-            ctx.identity,
-            initialPositionForChoice(state, choice, rules)
-          );
+    const created = createdCustomGame(state, ctx, choice, {
+      game,
+      members,
+      rules,
+    });
+    if (created === null)
+      return refuseCustomGame('the game offers no Custom Games');
     return changedCustomGames(
       {
         current: created,

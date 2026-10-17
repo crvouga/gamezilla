@@ -15,14 +15,14 @@ export const chooseCustomGameWithKeyboard = scenarioAction({
     if (probe === null) throw new Error('keyboard has no game');
     const ui = await actorUi(s, actor);
     if (operation === 'bot') {
-      await tabTo(s, actor, 'chess-custom-black-choices');
+      await tabTo(s, actor, 'custom-game-black-choices');
       await ui.key('enter');
       await s.session.waitForIdle();
     }
     await tabTo(
       s,
       actor,
-      operation === 'bot' ? 'chess-custom-black-bot' : 'chess-custom-start'
+      operation === 'bot' ? 'custom-game-black-bot' : 'custom-game-start'
     );
     await ui.key('enter');
     await waitCustomGameSettled(s, actor, probe.settled);
@@ -39,7 +39,7 @@ export const listenToCustomGame = scenarioAction({
 /** What the actual live status exposes to assistive technology, plus ACT failures. */
 export async function readCustomGameHeard(s: ProductHarness, actor: string) {
   const page = await actorPage(s, actor);
-  const status = page.querySelector('[data-testid="chess-custom-status"]');
+  const status = page.querySelector('[data-testid="custom-game-status"]');
   if (
     status === null ||
     isHiddenFromAt(status) ||

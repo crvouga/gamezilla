@@ -17,6 +17,7 @@
     "@libs/auth-shared": "workspace:*",
     "@libs/game-catalog-shared": "workspace:*",
     "@libs/game-session-client": "workspace:*",
+    "@libs/game-session-harness": "workspace:*",
     "@libs/game-session-shared": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/spaces-harness": "workspace:*",
@@ -26,8 +27,7 @@
     "@pkgs/chess-board-core-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
-    "chess.js": "catalog:",
-    "@libs/game-session-harness": "workspace:*"
+    "chess.js": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
@@ -35,5 +35,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "harness"
+  "category": "harness",
+  "game": "chess"
 }

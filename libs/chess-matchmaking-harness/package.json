@@ -17,6 +17,7 @@
   "dependencies": {
     "@libs/app-root-server": "workspace:*",
     "@libs/chess-rules-shared": "workspace:*",
+    "@libs/game-matchmaking-harness": "workspace:*",
     "@libs/game-matchmaking-shared": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/notifications-harness": "workspace:*",
@@ -32,8 +33,7 @@
     "@pkgs/sounds-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-server": "workspace:*",
-    "@pkgs/sync-engine-shared": "workspace:*",
-    "@libs/game-matchmaking-harness": "workspace:*"
+    "@pkgs/sync-engine-shared": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client": "workspace:*",
@@ -44,5 +44,6 @@
     "fast-check": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "harness"
+  "category": "harness",
+  "game": "chess"
 }

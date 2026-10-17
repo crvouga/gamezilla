@@ -19,7 +19,7 @@ function issues(body: string) {
   );
 }
 
-// regression: chess-custom-board-sound-preference
+// regression: custom-game-board-sound-preference
 test('boards must follow the app preference or explicitly remain silent', () => {
   expect(issues('<ChessBoard />')).toHaveLength(1);
   expect(issues('<ChessBoard sound={true} />')).toHaveLength(1);

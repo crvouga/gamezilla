@@ -41,5 +41,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "isomorphic"
+  "category": "isomorphic",
+  "gameRegistry": true
 }

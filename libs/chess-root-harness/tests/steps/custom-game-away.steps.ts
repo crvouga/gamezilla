@@ -1,10 +1,8 @@
 import { expect } from 'bun:test';
-import {
-  changeCustomGame,
-  establishCustomGame,
-} from '@libs/chess-custom-game-harness/custom-game-actions';
+import { changeCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { readCustomGameTime } from '@libs/chess-custom-game-harness/custom-game-clocks';
 import { readCustomGameAwaySince } from '@libs/chess-custom-game-harness/custom-game-play-reads';
+import { configureCustomGameChoice } from '@libs/game-session-harness/custom-game-ui';
 import { partition } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -72,14 +70,14 @@ Given('{actor} is away from the Custom Game', async (w, actor: string) =>
 Given(
   "{actor} has declined {actor}'s draw offer in the Custom Game",
   async (w, actor: string, offerer: string) => {
-    await w.s.apply(establishCustomGame, offerer, { operation: 'offer' });
-    await w.s.apply(establishCustomGame, actor, { operation: 'reject' });
+    await w.s.apply(configureCustomGameChoice, offerer, { operation: 'offer' });
+    await w.s.apply(configureCustomGameChoice, actor, { operation: 'reject' });
   }
 );
 Given(
   '{actor} has since played {word} in the Custom Game',
   async (w, actor: string, move: string) =>
-    w.s.apply(establishCustomGame, actor, {
+    w.s.apply(configureCustomGameChoice, actor, {
       operation: 'move',
       uci: move.replace('-', ''),
       ply: (await customGame(w)).moves.length,

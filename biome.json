@@ -1796,6 +1796,8 @@
       "includes": [
         "**/libs/game-session-*/src/**/*.{ts,tsx}",
         "**/libs/game-matchmaking-*/src/**/*.{ts,tsx}",
+        "**/libs/game-menu-client/src/**/*.{ts,tsx}",
+        "**/libs/spaces-*/src/**/*.{ts,tsx}",
         "**/libs/synthetic-population-shared/src/**/*.{ts,tsx}",
         "**/pkgs/turn-game-*/src/**/*.{ts,tsx}"
       ]

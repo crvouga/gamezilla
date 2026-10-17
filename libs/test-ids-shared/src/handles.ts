@@ -325,12 +325,15 @@ export const Handles = {
   notificationsFriendAcceptedCard: (username: string) =>
     `notifications-friend-accepted-card-${username}`,
 
-  // chess / spaces games
-  gameMenuChess: 'game-menu-chess',
+  // spaces games
+  /** A game offered in the space's game choice. */
+  gameMenu: (gameId: string) => `game-menu-${gameId}`,
+  /** One of the selected game's choices, by the screen it opens. */
+  gameChoice: (screen: string) => `game-choice-${screen}`,
+  /** The board of a matched game, whichever game it is. */
+  multiplayerBoard: 'multiplayer-board',
   /** A person who is not the host is told that the host chooses the game. */
   spaceHostChoosesGame: 'space-host-chooses-game',
-  chessMenuPuzzle: 'chess-menu-puzzle',
-  chessMenuStats: 'chess-menu-stats',
   chessPuzzlePlayScreen: 'chess-puzzle-play-screen',
   chessPuzzleBoardFrame: 'chess-puzzle-board-frame',
   chessPuzzleBoard: 'chess-puzzle-board',

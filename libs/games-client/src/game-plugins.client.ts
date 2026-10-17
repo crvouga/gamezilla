@@ -1,5 +1,5 @@
-import { chessGameClient } from '@libs/chess-root-client/chess-game-def';
-import { connectFourGameClient } from '@libs/connect-four-root-client/connect-four-game-def';
+import { chessGameClient } from '@libs/chess-root-client/chess-game-client';
+import { connectFourGameClient } from '@libs/connect-four-client/connect-four-game-client';
 import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
 import type { GameClientDefinition } from '@libs/spaces-shared/game';
 import {

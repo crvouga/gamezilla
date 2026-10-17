@@ -43,7 +43,7 @@ Given(
 );
 
 When('{actor} creates a Custom Game', async (w, actor: string) => {
-  // regression: chess-custom-client-schedules — a guest's first create.
+  // regression: custom-game-client-schedules — a guest's first create.
   const host = customHost(w);
   await customSpace(w, host, actor === host ? [] : [actor]);
   await w.s.apply(openCustomGame, actor);

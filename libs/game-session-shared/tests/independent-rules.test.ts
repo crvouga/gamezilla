@@ -10,7 +10,10 @@ import { SpaceMembersRoomAttr } from '@libs/spaces-shared/space-members-messages
 import { createSpaceModule } from '@libs/spaces-shared/space-module';
 import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-root-shared/builtin';
 import { assertRoomModuleName } from '@pkgs/room-root-shared/types';
-import type { GameRules } from '@pkgs/turn-game-shared/game-rules';
+import type {
+  GameCapability,
+  GameRules,
+} from '@pkgs/turn-game-shared/game-rules';
 
 /** A counting race exercises opaque actions and positions unrelated to a board. */
 const rules: GameRules = {
@@ -37,12 +40,16 @@ const rules: GameRules = {
   moves: () => [],
   record: (position) => position,
 };
-// regression: game-session-action-length-coupling
-test('an unrelated game uses the same configuration, bot turns, completion and replay contracts', () => {
-  const registered = { rules, controlPrefix: 'race/' };
+const notice = {
+  timeoutDraw: () => 'drawn on time',
+  side: (side: string) => side,
+  ending: () => undefined,
+};
+
+function raceRoom(capabilities: readonly GameCapability[]) {
   const definition = {
     id: rules.id,
-    turnGame: registered,
+    turnGame: { rules, controlPrefix: 'race/', notice, capabilities },
     commandRouters: [],
     eventRouters: [],
     recoverEffects: () => [],
@@ -54,11 +61,38 @@ test('an unrelated game uses the same configuration, bot turns, completion and r
     () => 0,
     () => 0
   );
-  let state = {
+  const state = {
     ...module.initialState(),
     ...GamesRoomAttr.selected(rules.id),
     ...SpaceMembersRoomAttr.seats({ alice: { joinedAt: '2026-10-15' } }),
   };
+  return { module, state };
+}
+
+test('a game that declares no custom games cannot create one', () => {
+  const { module, state } = raceRoom(['matchmaking', 'history']);
+  const result = module.handle(
+    state,
+    {
+      id: 'choice-0',
+      ts: 0,
+      payload: ChangeCustomGame({
+        gameId: null,
+        revision: 0,
+        operation: 'create',
+      } as Parameters<typeof ChangeCustomGame>[0]),
+    },
+    'alice'
+  );
+  expect(result.ok).toBe(false);
+  expect(CustomGamesAttr.from(state).current).toBeNull();
+});
+
+// regression: game-session-action-length-coupling
+test('an unrelated game uses the same configuration, bot turns, completion and replay contracts', () => {
+  const room = raceRoom(['custom-games']);
+  const module = room.module;
+  let state = room.state;
   let sequence = 0;
   const change = (input: Record<string, unknown>, accepted = true) => {
     const game = CustomGamesAttr.from(state).current;

@@ -14,7 +14,7 @@ export function MultiplayerLinkScreen(props: { gameId: string }): JSX.Element {
   const opening = useMultiplayerLinkOpening(props.gameId);
   return (
     <ContentScreen
-      screenId="chess-multiplayer-link"
+      screenId="multiplayer-link"
       breadcrumbs={[{ name: <Trans>Multiplayer</Trans> }]}
       dataSet={{ testid: 'multiplayer-link-screen' }}
     >

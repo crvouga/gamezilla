@@ -23,19 +23,19 @@ function CustomGameTimeChoices(props: {
         type="number"
         value={minutes()}
         onChangeText={setMinutes}
-        dataSet={{ testid: 'chess-custom-minutes' }}
+        dataSet={{ testid: 'custom-game-minutes' }}
       />
       <TextInput
         label={<Trans>Seconds added after a move</Trans>}
         type="number"
         value={increment()}
         onChangeText={setIncrement}
-        dataSet={{ testid: 'chess-custom-increment' }}
+        dataSet={{ testid: 'custom-game-increment' }}
       />
       <GameActions>
         <GameActionButton
           title={<Trans>Use this clock</Trans>}
-          dataSet={{ testid: 'chess-custom-clock' }}
+          dataSet={{ testid: 'custom-game-clock' }}
           operation={() =>
             props.model.choose({
               operation: 'clock',
@@ -46,12 +46,12 @@ function CustomGameTimeChoices(props: {
         />
         <GameActionButton
           title={<Trans>Untimed</Trans>}
-          dataSet={{ testid: 'chess-custom-untimed' }}
+          dataSet={{ testid: 'custom-game-untimed' }}
           operation={() => props.model.choose({ operation: 'untimed' })}
         />
         <GameActionButton
           title={<Trans>Swap sides</Trans>}
-          dataSet={{ testid: 'chess-custom-swap' }}
+          dataSet={{ testid: 'custom-game-swap' }}
           operation={() => props.model.choose({ operation: 'swap' })}
         />
       </GameActions>
@@ -80,7 +80,7 @@ export function CustomGameConfiguration(props: {
       <p
         class="text textBodyBold"
         role="status"
-        data-testid="chess-custom-startable"
+        data-testid="custom-game-startable"
       >
         <Show
           when={startable()}
@@ -99,7 +99,7 @@ export function CustomGameConfiguration(props: {
                 <Trans>Withdraw readiness</Trans>
               </Show>
             }
-            dataSet={{ testid: 'chess-custom-ready' }}
+            dataSet={{ testid: 'custom-game-ready' }}
             variant={ready() ? 'outline' : 'solid'}
             operation={() =>
               props.model.choose({ operation: ready() ? 'unready' : 'ready' })
@@ -109,7 +109,7 @@ export function CustomGameConfiguration(props: {
         <Show when={props.model.canStart()}>
           <GameActionButton
             title={<Trans>Start game</Trans>}
-            dataSet={{ testid: 'chess-custom-start' }}
+            dataSet={{ testid: 'custom-game-start' }}
             variant="solid"
             operation={() => props.model.choose({ operation: 'start' })}
             disabled={!startable()}
@@ -119,7 +119,7 @@ export function CustomGameConfiguration(props: {
       <Show when={props.model.canConfigure()}>
         <GameDisclosure
           title={<Trans>Game options</Trans>}
-          dataSet={{ testid: 'chess-custom-options' }}
+          dataSet={{ testid: 'custom-game-options' }}
         >
           <CustomGameTimeChoices model={props.model} />
         </GameDisclosure>

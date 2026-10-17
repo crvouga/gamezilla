@@ -207,9 +207,9 @@ export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
     transformer: (text: string) => text,
   },
   {
-    name: 'fourParticipants',
+    name: 'gameParticipants',
     regexp:
-      /two ready people|a ready person as Red and a bot as Yellow|a bot as Red and a ready person as Yellow|two bots/,
+      /two ready people|a ready person on the first side and a bot on the second side|a bot on the first side and a ready person on the second side|two bots/,
     transformer: (text: string) => text,
   },
 ];

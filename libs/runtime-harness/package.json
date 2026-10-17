@@ -38,7 +38,10 @@
     "@libs/billing-harness": "workspace:*",
     "@libs/billing-shared": "workspace:*",
     "@libs/chess-puzzle-harness": "workspace:*",
+    "@libs/connect-four-harness": "workspace:*",
     "@libs/friends-harness": "workspace:*",
+    "@libs/game-catalog-shared": "workspace:*",
+    "@libs/game-session-harness": "workspace:*",
     "@libs/games-shared": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/profile-harness": "workspace:*",
@@ -68,6 +71,7 @@
     "typescript": "catalog:"
   },
   "category": "harness",
+  "gameRegistry": true,
   "specDomains": [
     "runtime",
     "journeys"

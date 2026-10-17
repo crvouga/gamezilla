@@ -108,10 +108,10 @@ export type DefineBackButtonProps = {
  * @example
  * ```tsx
  * function ChessSettingsScreen() {
- *   const dispatch = useSpaceRoomDispatch();
+ *   const gameScreen = useGameScreen();
  *   return (
  *     <>
- *       <DefineBackButton onPress={() => dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }))} />
+ *       <DefineBackButton onPress={() => gameScreen.showChoices()} />
  *       <MainMenuScreen items={items} />
  *     </>
  *   );

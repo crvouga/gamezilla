@@ -8,7 +8,7 @@ import { Handles } from '@libs/test-ids-shared/handles';
  */
 const ARRIVAL_IDS = [
   'game-menu-chess',
-  'chess-menu-multiplayer',
+  'game-choice-multiplayer',
   'multiplayer-game',
   'multiplayer-waiting',
   'multiplayer-find',

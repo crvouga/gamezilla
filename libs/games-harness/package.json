@@ -1,0 +1,52 @@
+{
+  "name": "@libs/games-harness",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client/register ../../libs/harness/scripts/prepare-spec.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --preload @libs/harness/preload tests",
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/4",
+    "test:spec:1": "bun run ../../libs/harness/scripts/test-spec.ts --part 1/4",
+    "test:spec:2": "bun run ../../libs/harness/scripts/test-spec.ts --part 2/4",
+    "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/4"
+  },
+  "dependencies": {
+    "@libs/chess-root-harness": "workspace:*",
+    "@libs/connect-four-harness": "workspace:*",
+    "@libs/game-session-harness": "workspace:*",
+    "@libs/games-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@libs/friends-harness": "workspace:*",
+    "@libs/game-matchmaking-harness": "workspace:*",
+    "@libs/game-menu-client": "workspace:*",
+    "@libs/game-session-shared": "workspace:*",
+    "@libs/games-client": "workspace:*",
+    "@libs/harness": "workspace:*",
+    "@libs/spaces-harness": "workspace:*",
+    "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/gherkin-shared": "workspace:*",
+    "@pkgs/turn-game-shared": "workspace:*",
+    "@pkgs/ui-testing-root-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "solid-js": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "gameRegistry": true,
+  "specDomains": [
+    "games"
+  ],
+  "specParts": 4
+}

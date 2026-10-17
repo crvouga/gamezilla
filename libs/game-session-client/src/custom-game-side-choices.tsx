@@ -22,7 +22,7 @@ export function CustomGameInvitation(props: SideProps): JSX.Element {
         <p
           class="text textBody flex flex-row flex-wrap gap-x-1"
           role="status"
-          data-testid={`chess-custom-${props.side}-invitation`}
+          data-testid={`custom-game-${props.side}-invitation`}
         >
           <UserUsername
             profileId={props.model.current()?.creator ?? ''}
@@ -40,14 +40,14 @@ export function CustomGameInvitation(props: SideProps): JSX.Element {
           <GameActionButton
             title={<Trans>Accept</Trans>}
             variant="solid"
-            dataSet={{ testid: `chess-custom-${props.side}-accept` }}
+            dataSet={{ testid: `custom-game-${props.side}-accept` }}
             operation={() =>
               props.model.choose({ operation: 'accept', side: props.side })
             }
           />
           <GameActionButton
             title={<Trans>Decline</Trans>}
-            dataSet={{ testid: `chess-custom-${props.side}-decline` }}
+            dataSet={{ testid: `custom-game-${props.side}-decline` }}
             operation={() =>
               props.model.choose({ operation: 'decline', side: props.side })
             }
@@ -56,7 +56,7 @@ export function CustomGameInvitation(props: SideProps): JSX.Element {
         <Show when={props.model.canInvite()}>
           <GameActionButton
             title={<Trans>Revoke invitation</Trans>}
-            dataSet={{ testid: `chess-custom-${props.side}-revoke` }}
+            dataSet={{ testid: `custom-game-${props.side}-revoke` }}
             operation={() =>
               props.model.choose({ operation: 'revoke', side: props.side })
             }
@@ -81,7 +81,7 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
         // Someone who may be invited, as a person picks them from the list.
         ...(disabled
           ? {}
-          : { dataSet: { testid: `chess-custom-${props.side}-invitable` } }),
+          : { dataSet: { testid: `custom-game-${props.side}-invitable` } }),
       };
     })
   );
@@ -90,7 +90,7 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
       <GameActions>
         <GameActionButton
           title={<Trans>Take this side</Trans>}
-          dataSet={{ testid: `chess-custom-${props.side}-take` }}
+          dataSet={{ testid: `custom-game-${props.side}-take` }}
           operation={() =>
             props.model.choose({ operation: 'take', side: props.side })
           }
@@ -98,7 +98,7 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
         <Show when={props.model.canBot()}>
           <GameActionButton
             title={<Trans>Bot</Trans>}
-            dataSet={{ testid: `chess-custom-${props.side}-bot` }}
+            dataSet={{ testid: `custom-game-${props.side}-bot` }}
             operation={() =>
               props.model.choose({ operation: 'bot', side: props.side })
             }
@@ -106,14 +106,14 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
         </Show>
         <GameActionButton
           title={<Trans>Open place</Trans>}
-          dataSet={{ testid: `chess-custom-${props.side}-open` }}
+          dataSet={{ testid: `custom-game-${props.side}-open` }}
           operation={() =>
             props.model.choose({ operation: 'open', side: props.side })
           }
         />
         <GameActionButton
           title={<Trans>Close place</Trans>}
-          dataSet={{ testid: `chess-custom-${props.side}-close` }}
+          dataSet={{ testid: `custom-game-${props.side}-close` }}
           operation={() =>
             props.model.choose({ operation: 'close', side: props.side })
           }
@@ -127,15 +127,15 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
           options={invitations()}
           value={person()}
           onValueChange={(value) => setPerson(String(value))}
-          dataSet={{ testid: `chess-custom-${props.side}-invite-person` }}
+          dataSet={{ testid: `custom-game-${props.side}-invite-person` }}
           triggerDataSet={{
-            testid: `chess-custom-${props.side}-invite-choose`,
+            testid: `custom-game-${props.side}-invite-choose`,
           }}
         />
         <GameActionButton
           title={<Trans>Invite</Trans>}
           disabled={person() === ''}
-          dataSet={{ testid: `chess-custom-${props.side}-invite` }}
+          dataSet={{ testid: `custom-game-${props.side}-invite` }}
           operation={() =>
             props.model.choose({
               operation: 'invite',

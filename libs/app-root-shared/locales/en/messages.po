@@ -181,7 +181,7 @@ msgstr "{first}: {white}. {second}: {black}."
 msgid "{flagged} ran out of time, but the other side cannot checkmate."
 msgstr "{flagged} ran out of time, but the other side cannot checkmate."
 
-#: libs/connect-four-root-client/src/connect-four-presentation.tsx
+#: libs/connect-four-client/src/connect-four-presentation.tsx
 msgid "{flagged} ran out of time, but the other side cannot win."
 msgstr "{flagged} ran out of time, but the other side cannot win."
 
@@ -812,7 +812,6 @@ msgid "chess"
 msgstr "chess"
 
 #: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Chess"
 msgstr "Chess"
 
@@ -845,7 +844,7 @@ msgstr "Choose a sign-in method"
 msgid "Choose a username"
 msgstr "Choose a username"
 
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
+#: libs/chess-root-client/src/chess-game-client.tsx
 msgid "Choose how you want to play."
 msgstr "Choose how you want to play."
 
@@ -923,24 +922,24 @@ msgid "Color {0}"
 msgstr "Color {0}"
 
 #. placeholder {0}: column + 1
-#: libs/connect-four-board-client/src/connect-four-board.tsx
+#: libs/connect-four-client/src/connect-four-board.tsx
 msgid "Column {0}, {occupied} of 6 occupied"
 msgstr "Column {0}, {occupied} of 6 occupied"
 
 #. placeholder {0}: column + 1
-#: libs/connect-four-board-client/src/connect-four-board.tsx
+#: libs/connect-four-client/src/connect-four-board.tsx
 msgid "Column {0}, full"
 msgstr "Column {0}, full"
 
 #. placeholder {0}: column + 1
 #. placeholder {1}: row + 1
-#: libs/connect-four-board-client/src/connect-four-board.tsx
+#: libs/connect-four-client/src/connect-four-board.tsx
 msgid "Column {0}, row {1}: {identity}"
 msgstr "Column {0}, row {1}: {identity}"
 
 #. placeholder {0}: column + 1
 #. placeholder {1}: row + 1
-#: libs/connect-four-board-client/src/connect-four-board.tsx
+#: libs/connect-four-client/src/connect-four-board.tsx
 msgid "Column {0}, row {1}: {identity}, winning disc"
 msgstr "Column {0}, row {1}: {identity}, winning disc"
 
@@ -1000,12 +999,11 @@ msgstr "connect"
 msgid "Connect"
 msgstr "Connect"
 
-#: libs/connect-four-root-client/src/connect-four-game-def.tsx
-#: libs/connect-four-root-client/src/connect-four-presentation.tsx
+#: libs/connect-four-client/src/connect-four-presentation.tsx
 msgid "Connect Four"
 msgstr "Connect Four"
 
-#: libs/connect-four-board-client/src/connect-four-board.tsx
+#: libs/connect-four-client/src/connect-four-board.tsx
 msgid "Connect Four board, seven columns and six rows"
 msgstr "Connect Four board, seven columns and six rows"
 
@@ -1241,13 +1239,9 @@ msgstr "Custom · {0}"
 msgid "Custom game"
 msgstr "Custom game"
 
-#: libs/connect-four-root-client/src/connect-four-game-def.tsx
+#: libs/game-menu-client/src/game-menu.tsx
 msgid "Custom games"
 msgstr "Custom games"
-
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
-msgid "Custom Games"
-msgstr "Custom Games"
 
 #: pkgs/ui-root-client/src/multi-select-swatch-grid.tsx
 msgid "Custom hex color"
@@ -1459,12 +1453,12 @@ msgstr "Drawn by agreement."
 msgid "Draws"
 msgstr "Draws"
 
-#: libs/connect-four-root-client/src/connect-four-game-def.tsx
+#: libs/connect-four-client/src/connect-four-game-client.tsx
 msgid "Drop a disc. Connect four. Plan your next turn."
 msgstr "Drop a disc. Connect four. Plan your next turn."
 
 #. placeholder {0}: column + 1
-#: libs/connect-four-board-client/src/connect-four-board.tsx
+#: libs/connect-four-client/src/connect-four-board.tsx
 msgid "Drop in column {0}, {occupied} of 6 occupied"
 msgstr "Drop in column {0}, {occupied} of 6 occupied"
 
@@ -1504,7 +1498,7 @@ msgstr "Email address"
 msgid "Email me a link"
 msgstr "Email me a link"
 
-#: libs/connect-four-board-client/src/connect-four-board.tsx
+#: libs/connect-four-client/src/connect-four-board.tsx
 msgid "Empty"
 msgstr "Empty"
 
@@ -1637,14 +1631,10 @@ msgstr "Final position"
 msgid "Final position copied"
 msgstr "Final position copied"
 
-#: libs/connect-four-root-client/src/connect-four-game-def.tsx
 #: libs/game-matchmaking-client/src/multiplayer-find-panel.tsx
+#: libs/game-menu-client/src/game-menu.tsx
 msgid "Find an opponent"
 msgstr "Find an opponent"
-
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
-msgid "Find an opponent and watch together"
-msgstr "Find an opponent and watch together"
 
 #: libs/friends-client/src/friends-list-screen-view.tsx
 #: libs/friends-client/src/profile-friends-actions-view.tsx
@@ -1723,11 +1713,11 @@ msgstr "Forward"
 msgid "Forward<0> one move</0>"
 msgstr "Forward<0> one move</0>"
 
-#: libs/connect-four-root-client/src/connect-four-presentation.tsx
+#: libs/connect-four-client/src/connect-four-presentation.tsx
 msgid "four in a row"
 msgstr "four in a row"
 
-#: libs/connect-four-root-client/src/connect-four-presentation.tsx
+#: libs/connect-four-client/src/connect-four-presentation.tsx
 msgid "Four in a row."
 msgstr "Four in a row."
 
@@ -1768,7 +1758,7 @@ msgstr "Friends"
 msgid "Friends let you find each other and jump into shared spaces."
 msgstr "Friends let you find each other and jump into shared spaces."
 
-#: libs/connect-four-root-client/src/connect-four-presentation.tsx
+#: libs/connect-four-client/src/connect-four-presentation.tsx
 msgid "full board"
 msgstr "full board"
 
@@ -1896,7 +1886,7 @@ msgstr "Hint"
 msgid "Hint: move the {side} {piece} on {0}."
 msgstr "Hint: move the {side} {piece} on {0}."
 
-#: libs/connect-four-root-client/src/connect-four-game-def.tsx
+#: libs/game-menu-client/src/game-menu.tsx
 #: libs/game-session-client/src/custom-game-board.tsx
 #: libs/game-session-client/src/game-history.tsx
 msgid "History and stats"
@@ -2283,9 +2273,9 @@ msgstr "Matchmaking"
 msgid "Medium"
 msgstr "Medium"
 
-#: libs/connect-four-root-client/src/connect-four-game-def.tsx
-msgid "Meet another Connect Four player"
-msgstr "Meet another Connect Four player"
+#: libs/game-menu-client/src/game-menu.tsx
+msgid "Meet another {name} player"
+msgstr "Meet another {name} player"
 
 #: libs/account-privacy-client/src/privacy-screen.tsx
 msgid "Membership cancellation has completed."
@@ -2356,10 +2346,6 @@ msgstr "Moves. The left and right arrow keys step through them."
 msgid "Multiplayer"
 msgstr "Multiplayer"
 
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
-msgid "Multiplayer chess"
-msgstr "Multiplayer chess"
-
 #: libs/game-matchmaking-client/src/multiplayer-status.tsx
 msgid "Multiplayer clocks are paused."
 msgstr "Multiplayer clocks are paused."
@@ -2379,10 +2365,6 @@ msgstr "Multiplayer commands need a connection. Your accepted game stays here."
 #: libs/game-matchmaking-client/src/multiplayer-game-actions.tsx
 msgid "Multiplayer draw offered"
 msgstr "Multiplayer draw offered"
-
-#: libs/game-matchmaking-client/src/multiplayer-screen.tsx
-msgid "Multiplayer game"
-msgstr "Multiplayer game"
 
 #: libs/game-matchmaking-client/src/multiplayer-game-actions.tsx
 msgid "Multiplayer rematch offered"
@@ -2931,7 +2913,7 @@ msgstr "Platform"
 msgid "Play a bot"
 msgstr "Play a bot"
 
-#: libs/connect-four-root-client/src/connect-four-game-def.tsx
+#: libs/game-menu-client/src/game-menu.tsx
 msgid "Play a person, choose a bot, or watch two bots"
 msgstr "Play a person, choose a bot, or watch two bots"
 
@@ -2969,7 +2951,7 @@ msgstr "Policy changed"
 msgid "Preferences"
 msgstr "Preferences"
 
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
+#: libs/chess-root-client/src/chess-game-client.tsx
 msgid "Preferences and developer tools"
 msgstr "Preferences and developer tools"
 
@@ -3013,7 +2995,7 @@ msgid "Prove the account again to continue"
 msgstr "Prove the account again to continue"
 
 #: libs/chess-puzzle-client/src/puzzle-link-screen.tsx
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
+#: libs/chess-root-client/src/chess-game-client.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
 
@@ -3050,6 +3032,10 @@ msgstr "Puzzle rated {0}"
 msgid "Puzzle rating {puzzleRating}"
 msgstr "Puzzle rating {puzzleRating}"
 
+#: libs/chess-root-client/src/chess-game-client.tsx
+msgid "Puzzle rating trend and game log"
+msgstr "Puzzle rating trend and game log"
+
 #: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
 #: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
 msgid "Puzzle review"
@@ -3070,6 +3056,7 @@ msgstr "Puzzle solved."
 #: libs/chess-puzzle-client/src/chess-stats-body.tsx
 #: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
 #: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
+#: libs/chess-root-client/src/chess-game-client.tsx
 msgid "Puzzle stats"
 msgstr "Puzzle stats"
 
@@ -3127,10 +3114,6 @@ msgstr "Rating after each puzzle"
 msgid "Rating offset"
 msgstr "Rating offset"
 
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
-msgid "Rating trend and game log"
-msgstr "Rating trend and game log"
-
 #: libs/synthetic-population-client/src/synthetic-user-screen.tsx
 msgid "Reading activity…"
 msgstr "Reading activity…"
@@ -3171,12 +3154,12 @@ msgstr "Reconnect before changing or playing the game."
 msgid "Recovering"
 msgstr "Recovering"
 
-#: libs/connect-four-board-client/src/connect-four-board.tsx
-#: libs/connect-four-root-client/src/connect-four-presentation.tsx
+#: libs/connect-four-client/src/connect-four-board.tsx
+#: libs/connect-four-client/src/connect-four-presentation.tsx
 msgid "Red circle"
 msgstr "Red circle"
 
-#: libs/connect-four-root-client/src/connect-four-game-def.tsx
+#: libs/connect-four-client/src/connect-four-game-client.tsx
 msgid "Red circles play first, then Yellow diamonds. Choose a column to drop into its lowest empty place. Four in a row, column, or diagonal wins. A full board without four is a draw."
 msgstr "Red circles play first, then Yellow diamonds. Choose a column to drop into its lowest empty place. Four in a row, column, or diagonal wins. A full board without four is a draw."
 
@@ -3368,7 +3351,7 @@ msgstr "Return to current position"
 msgid "Review position"
 msgstr "Review position"
 
-#: libs/connect-four-root-client/src/connect-four-game-def.tsx
+#: libs/game-menu-client/src/game-menu.tsx
 msgid "Review your games, wins and draws"
 msgstr "Review your games, wins and draws"
 
@@ -3575,8 +3558,8 @@ msgstr "Sessions"
 #: libs/billing-client/src/billing-screen-view.tsx
 #: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
 #: libs/chess-shared-client/src/chess-settings-screen.tsx
+#: libs/game-menu-client/src/game-menu.tsx
 #: libs/synthetic-population-client/src/synthetic-population-screen.tsx
 msgid "Settings"
 msgstr "Settings"
@@ -3789,7 +3772,7 @@ msgstr "Solution"
 msgid "Solution shown."
 msgstr "Solution shown."
 
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
+#: libs/chess-root-client/src/chess-game-client.tsx
 msgid "Solve rated puzzles and climb the ladder"
 msgstr "Solve rated puzzles and climb the ladder"
 
@@ -3921,10 +3904,6 @@ msgstr "Starting load…"
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "State"
 msgstr "State"
-
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
-msgid "Stats"
-msgstr "Stats"
 
 #: libs/app-root-client/src/settings-screen.tsx
 msgid "Status"
@@ -4137,7 +4116,7 @@ msgstr "That's all the puzzles for now. The board opens again when your allowanc
 msgid "The board changed. Review the current turn."
 msgstr "The board changed. Review the current turn."
 
-#: libs/connect-four-root-client/src/connect-four-presentation.tsx
+#: libs/connect-four-client/src/connect-four-presentation.tsx
 msgid "The board is full. Game drawn."
 msgstr "The board is full. Game drawn."
 
@@ -4648,10 +4627,6 @@ msgstr "What Plus includes"
 msgid "White"
 msgstr "White"
 
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
-msgid "White vs Black — play, invite or watch"
-msgstr "White vs Black — play, invite or watch"
-
 #: libs/game-session-client/src/game-history.tsx
 msgid "Wins"
 msgstr "Wins"
@@ -4692,8 +4667,8 @@ msgstr "Wrong move. That is not the solution."
 msgid "Yearly"
 msgstr "Yearly"
 
-#: libs/connect-four-board-client/src/connect-four-board.tsx
-#: libs/connect-four-root-client/src/connect-four-presentation.tsx
+#: libs/connect-four-client/src/connect-four-board.tsx
+#: libs/connect-four-client/src/connect-four-presentation.tsx
 msgid "Yellow diamond"
 msgstr "Yellow diamond"
 

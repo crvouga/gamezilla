@@ -33,8 +33,9 @@ export function requireOfferedTimeControl(
   id: string,
   rules: TurnGames
 ): TimeControl {
-  rules.forControl(id);
-  const control = timeControlOf(id);
+  const control = rules.offers(rules.forControl(id).id, 'matchmaking')
+    ? timeControlOf(id)
+    : null;
   if (control === null)
     throw new MutationError(
       'CHESS_TIME_CONTROL_NOT_OFFERED',

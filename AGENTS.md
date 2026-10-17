@@ -325,11 +325,14 @@ each probed in `libs/tools/scripts/import-boundaries.test.ts`, plus
   behind injected ports and `@api-wall-ok` modules;
 - libs and pkgs never import `@apps/*`.
 
-**Games.** A game is a sub package modeled on `@libs/chess`: a
-`RoomModule` in `shared/` with `hash(state)`
-([`README.md`](README.md#correctness-machinery)), its `*GameShared` definition
-appended to `GAME_DEFINITIONS` in `libs/games-shared/src/game-plugins.ts`, and its
-`src/` added to the Lingui catalogs (`LINGUI_CATALOG_SOURCES`, `libs/tools/scripts/lingui-scope.ts`).
+**Games.** A game supplies only its rules, board, copy and test adapter;
+the platform owns every shared screen, workflow, spec and suite. Follow
+[`libs/games-shared/docs/ADDING_A_GAME.md`](libs/games-shared/docs/ADDING_A_GAME.md):
+`<game>-shared` / `-client` / `-harness` packages declaring `"game"`,
+registered in `GAME_DEFINITIONS`, `GAME_CLIENT_DEFINITIONS` and
+`HARNESS_GAMES`. Games never import each other and only `"gameRegistry"`
+packages compose them (`package-boundaries.ts`); behaviour every game shares
+is specified once in `specs/games/` and runs per game.
 **Billing providers** each export one `MembershipProviderModule`;
 `@pkgs/billing-providers-server` is the single list composition roots iterate —
 never name a provider elsewhere (`import-billing-vendor.grit`).

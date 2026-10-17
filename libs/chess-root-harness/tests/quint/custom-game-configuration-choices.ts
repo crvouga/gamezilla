@@ -2,15 +2,15 @@ import {
   customGameAcknowledgementTip,
   rememberCustomGameAcknowledgement,
 } from '@libs/chess-custom-game-harness/custom-game-acknowledgement';
-import {
-  attemptCustomGameChoice,
-  changeCustomGame,
-} from '@libs/chess-custom-game-harness/custom-game-actions';
+import { changeCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
 import {
   attemptCustomGameBoundary,
   readCustomGameBoundary,
 } from '@libs/chess-custom-game-harness/custom-game-boundary';
-import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
+import {
+  attemptCustomGameChoice,
+  readCustomGameProbe,
+} from '@libs/game-session-harness/custom-game-ui';
 import type {
   CustomGameChoice,
   CustomGameInput,

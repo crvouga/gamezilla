@@ -62,5 +62,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "harness"
+  "category": "harness",
+  "game": "chess"
 }

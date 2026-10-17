@@ -13,7 +13,7 @@ import { bringToFront } from '@libs/harness/observations';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import type { ChessBoardProbe } from '@pkgs/chess-board-core-shared/probe';
 
-export const CUSTOM_GAME_BOARD = 'chess-custom-board';
+export const CUSTOM_GAME_BOARD = 'custom-game-board';
 
 /** The Custom Game board as painted, or `null` when none is on screen. */
 export async function readCustomGameBoardProbe(
@@ -34,7 +34,7 @@ export async function customGameInvitationShown(
 ): Promise<boolean> {
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
-  return ui.get(`chess-custom-${side}-invitation`).isVisible();
+  return ui.get(`custom-game-${side}-invitation`).isVisible();
 }
 
 /** What the person's invitation to play `side` says, or `null` with none. */
@@ -45,7 +45,7 @@ export async function readCustomGameInvitation(
 ): Promise<string | null> {
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
-  const invitation = ui.get(`chess-custom-${side}-invitation`);
+  const invitation = ui.get(`custom-game-${side}-invitation`);
   return (await invitation.isVisible()) ? await invitation.text() : null;
 }
 
@@ -56,7 +56,7 @@ export async function customGameAwayShown(
 ): Promise<boolean> {
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
-  return ui.get('chess-custom-away').isVisible();
+  return ui.get('custom-game-away').isVisible();
 }
 
 /** Whether the person is offered the action to claim the game for absence. */
@@ -65,7 +65,7 @@ export async function customGameAwayClaimShown(
   actor: string
 ): Promise<boolean> {
   await bringToFront(s, actor);
-  return (await actorUi(s, actor)).get('chess-custom-claim-win').isVisible();
+  return (await actorUi(s, actor)).get('custom-game-claim-win').isVisible();
 }
 
 /** Since when `person` has been away as `observer`'s game shows it, or `null`. */
@@ -84,7 +84,7 @@ export async function readCustomGameScreenText(
 ): Promise<string | null> {
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
-  const content = ui.get('chess-custom-content');
+  const content = ui.get('custom-game-content');
   return (await content.isVisible()) ? await content.text() : null;
 }
 
@@ -98,7 +98,7 @@ export async function readCustomGameAlert(
 ): Promise<string | null> {
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
-  if (!(await ui.get('chess-custom-content').isVisible())) return null;
-  const alert = ui.get('chess-custom-error');
+  if (!(await ui.get('custom-game-content').isVisible())) return null;
+  const alert = ui.get('custom-game-error');
   return (await alert.isVisible()) ? ((await alert.text()) ?? '') : '';
 }

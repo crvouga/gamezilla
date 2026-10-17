@@ -23,6 +23,8 @@ import {
 } from './decision-policy';
 import { gameForPosition, openMultiplayer } from './game-automation';
 
+const MULTIPLAYER_BOARD = Handles.multiplayerBoard;
+
 export class SyntheticUserApplication {
   readonly actor = createActor(behaviorStatechart).start();
   private pendingPosition: string | null = null;
@@ -226,8 +228,9 @@ export class SyntheticUserApplication {
     const position = await game.attribute('data-fen');
     if (position === null)
       throw new Error('The game position is unavailable in the app');
-    const automation = gameForPosition(this.ports.games, position);
-    await this.driver.get(automation.boardControl).wait('visible');
+    // Only a registered game is played; its adapter moves on its turn.
+    gameForPosition(this.ports.games, position);
+    await this.driver.get(MULTIPLAYER_BOARD).wait('visible');
     this.restoringGame = false;
     if ((await game.attribute('data-outcome')) !== 'ongoing') {
       if (this.activity() !== 'postGame') {
@@ -264,7 +267,7 @@ export class SyntheticUserApplication {
     // Mark uncertainty before the gesture; recovery always reads canonical state.
     this.pendingPosition = position;
     this.submittedAt = this.ports.clock.now();
-    await automation.perform(this.driver, action);
+    await automation.perform(this.driver, MULTIPLAYER_BOARD, action);
     this.transition({ type: 'MOVE' });
     this.event('MoveSubmitted', action, {
       position,

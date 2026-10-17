@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { chessRules } from '@libs/chess-rules-shared/chess-rules';
+import { chessTurnGame } from '@libs/chess-sub-shared/chess-game';
 import { gameRecord } from '@libs/game-matchmaking-shared/game-record';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
 import { Chess } from 'chess.js';
 
-const TURN_GAMES = createTurnGames([{ rules: chessRules, controlPrefix: '' }]);
+const TURN_GAMES = createTurnGames([chessTurnGame]);
 
 const NAMES = { white: 'alice', black: 'bob' } as const;
 
