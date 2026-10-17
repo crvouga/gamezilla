@@ -1,6 +1,6 @@
 # Shared clock recovery audit
 
-Scope: `specs/games/matched-game-clock-recovery.qnt`, with its existing chess
+Scope: `specs/games/matched-game-clock-recovery.qnt`, with its existing
 examples. The daily-clock correction follows the definitions of `clock` and
 `daily game` in `specs/games/ubiquitous-language.yml` and
 `matched-game-daily-clock.feature:14`; it introduces no behavior or vocabulary.
@@ -29,28 +29,28 @@ cases; no counter-example or assertion is removed.
 
 ## Aggregate coverage
 
-Paths in this table are relative to `specs/chess/`, except those under `games/`.
+Paths in this table are relative to `specs/`.
 
 | Obligation | Evidence |
 | --- | --- |
 | `playMove`, daily legal / out of turn | `games/matched-game-daily-clock.feature:14`, `:19` |
-| `playMove`, offline / paused / finished refusal | `multiplayer-recovery-and-privacy.feature:8`, `shared-game-interruption.feature:40`, `games/matched-game-clock.feature:41` |
+| `playMove`, offline / paused / finished refusal | `games/matched-game-recovery.feature:7`, `games/matched-game-interruption.feature:40`, `games/matched-game-clock.feature:41` |
 | `resignPlay`, active / already finished | `games/matched-game-ratings.feature:7`, `:34` |
-| `resignPlay`, offline / paused refusal | `multiplayer-offline.feature:14`, `shared-game-interruption.feature:46` |
-| `openMultiplayer`, unfinished / finished | `shared-game-interruption.feature:52`, `multiplayer-game-record.feature:46` |
-| `multiplayerTimePasses`, running / paused | `games/matched-game-daily-clock.feature:10`, `shared-game-interruption.feature:9` |
-| `loseConnection`, connected → offline | `multiplayer-recovery-and-privacy.feature:25` |
-| `comeBackOnline`, offline → connected | `multiplayer-recovery-and-privacy.feature:14`, `:20` |
-| Shared stop / return | Model-only fault helpers; observable pause and resume in `shared-game-interruption.feature:9`, `:34` |
-| `invPauseKeepsGame` | `shared-game-interruption.feature:9`, `:34`, `:40` |
-| `invResultIsCountedOnce` | `shared-game-interruption.feature:62`, `:78`, `:84` |
-| `invFinishedRecordIsHonest` | `shared-game-interruption.feature:69`, `multiplayer-game-record.feature:46` |
-| `invOnlyUsableTurnCanMove` | `games/matched-game-clock.feature:22`, `:27`, `shared-game-interruption.feature:40`, `multiplayer-recovery-and-privacy.feature:8` |
-| `invSameGame` | `shared-game-interruption.feature:34`; the two-to-four move bound is model bookkeeping |
+| `resignPlay`, offline / paused refusal | `games/matched-game-offline.feature:13`, `games/matched-game-interruption.feature:46` |
+| `openMultiplayer`, unfinished / finished | `games/matched-game-interruption.feature:52`, `games/matched-game-record.feature:43` |
+| `multiplayerTimePasses`, running / paused | `games/matched-game-daily-clock.feature:10`, `games/matched-game-interruption.feature:9` |
+| `loseConnection`, connected → offline | `games/matched-game-recovery.feature:26` |
+| `comeBackOnline`, offline → connected | `games/matched-game-recovery.feature:14`, `:21` |
+| Shared stop / return | Model-only fault helpers; observable pause and resume in `games/matched-game-interruption.feature:9`, `:34` |
+| `invPauseKeepsGame` | `games/matched-game-interruption.feature:9`, `:34`, `:40` |
+| `invResultIsCountedOnce` | `games/matched-game-interruption.feature:62`, `:78`, `:85` |
+| `invFinishedRecordIsHonest` | `games/matched-game-interruption.feature:69`, `games/matched-game-record.feature:43` |
+| `invOnlyUsableTurnCanMove` | `games/matched-game-clock.feature:22`, `:27`, `games/matched-game-interruption.feature:40`, `games/matched-game-recovery.feature:7` |
+| `invSameGame` | `games/matched-game-interruption.feature:34`; the two-to-four move bound is model bookkeeping |
 | `invDailyClockKeepsFullDays` | `games/matched-game-daily-clock.feature:10`, `:14`, `:19` |
 | `invClocksAreNonnegative` | `games/matched-game-daily-clock.feature:58`, `:66` |
-| `invOfflineCannotMove` | `multiplayer-recovery-and-privacy.feature:8` |
-| `invPauseIsShown` | `shared-game-interruption.feature:52` |
+| `invOfflineCannotMove` | `games/matched-game-recovery.feature:7` |
+| `invPauseIsShown` | `games/matched-game-interruption.feature:52` |
 
 C1–C4: commands, observed invariants and relevant allowed/refused transitions
 are mapped above. Going offline and returning are world events, without

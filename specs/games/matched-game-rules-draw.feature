@@ -9,3 +9,12 @@ Feature: A matched game drawn by the game's own rules
       Given Alice has the first side against Bob in a matched game one move from a draw by the game's own rules
       When the person whose turn it is makes the drawing move
       Then both people see the matched game is drawn by the game's own rules
+
+  Rule: A daily game drawn by the game's own rules leaves both of its people a result notice saying so
+    No counter-example: the game's own rules decide the draw, and both people's result notices say the same.
+
+    Scenario: A daily game drawn by the game's own rules leaves both people a result notice
+      Given Alice has the first side against Bob in a daily game at 3 days per move one move from a draw by the game's own rules
+      When the person whose turn it is makes the drawing move
+      Then Alice's inbox shows within 15 seconds a result notice of a daily game drawn against Bob by the game's own rules
+      And Bob's inbox shows within 15 seconds a result notice of a daily game drawn against Alice by the game's own rules

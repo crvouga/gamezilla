@@ -555,7 +555,7 @@ journeys:
     - 'Multiplayer: Finished multiplayer'
     gherkin:
     - specs/journeys/multiplayer-game.feature
-    - specs/chess/multiplayer-offline.feature
+    - specs/games/matched-game-offline.feature
     tour: true
   A Custom Game with a bot uses the same readiness and play flow:
     description: A guest configures the sides, becomes ready, starts, plays and resigns.

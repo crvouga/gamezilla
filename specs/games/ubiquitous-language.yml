@@ -502,10 +502,15 @@ terms:
 
   - term: paused
     definition: >-
-      A custom game under way between two people that neither participant
-      can play for now. Its clocks stop, nobody is away and nobody may claim
-      the win; it goes on as it stood once they can play again.
-    forms: [is paused]
+      A custom game under way between two people, or an unfinished matched
+      game, that neither of its people can play for now. Its clocks stop and
+      spend nothing, at every speed and before the first moves too; nobody is
+      away, nobody may claim the win, and a move or resignation is refused
+      with the person told so. It resumes as it stood, with the same board
+      and the time that remained, once they can play again, and it is rated
+      only once it is finished. One device without a connection pauses
+      nothing.
+    forms: [is paused, are paused, resume, resumes, resumed, resuming]
 
   - term: cannot win
     definition: >-
@@ -811,10 +816,29 @@ terms:
   - term: block someone
     from: friends
 
+  - term: friend
+    from: friends
+
+  - term: friends list
+    from: friends
+
+  - term: inbox
+    from: friends
+
+  - term: stand-in name
+    from: profile
+
+  - term: stop allowing
+    from: profile
+
   - term: create a space
     from: spaces
 
   - term: keyboard
+    from: runtime
+    forms: [left arrow, right arrow]
+
+  - term: control
     from: runtime
 
   - term: listen to the app

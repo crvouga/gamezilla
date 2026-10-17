@@ -11,8 +11,6 @@ purpose: >-
 terms:
   - term: pair people up
     from: matchmaking
-  - term: matchmaking match
-    from: matchmaking
   - term: person
     from: kernel
   - term: device
@@ -32,16 +30,6 @@ terms:
     from: profile
   - term: account
     from: profile
-  - term: sign out
-    from: profile
-  - term: username
-    from: profile
-  - term: rename themselves
-    from: profile
-  - term: friends list
-    from: friends
-  - term: inbox
-    from: friends
   - term: leave
     from: spaces
   - term: end a space
@@ -710,11 +698,6 @@ terms:
   - term: keyboard
     from: runtime
     forms: [left arrow, right arrow]
-  - term: stand-in name
-    from: profile
-  - term: stop allowing
-    from: profile
-
   # --- Multiplayer chess -------------------------------------------------------
 
   - term: multiplayer chess
@@ -735,12 +718,6 @@ terms:
       copies that one game.
     forms: [multiplayer game, multiplayer games, multiplayer board, multiplayer boards]
     published: true
-
-  - term: matched
-    definition: >-
-      Given a multiplayer opponent by a matchmaking match. A matched person
-      sees their multiplayer opponent, the time control and their colour.
-    forms: [matched with, being matched]
 
   - term: multiplayer opponent
     definition: >-
@@ -769,13 +746,6 @@ terms:
       - days per move
     avoid: [time format, game mode, pace]
 
-  - term: speed
-    definition: >-
-      The family a time control belongs to: bullet, blitz, rapid, classical
-      or daily, as the time control lists them. Each speed has its own
-      multiplayer rating.
-    forms: [speeds, bullet, blitz, rapid, classical, daily]
-
   - term: find a chess opponent
     definition: >-
       From a space, ask matchmaking for another person available for a
@@ -799,30 +769,6 @@ terms:
       - chess opponent search
       - opponent search
       - search
-
-  - term: find a new opponent
-    definition: >-
-      From a multiplayer game that is over or aborted, look for a chess
-      opponent again at that game's time control, in one step. It ends any
-      waiting multiplayer rematch offer. During an unfinished game it is
-      refused like any other search.
-    forms: [finds a new opponent, found a new opponent, finding a new opponent]
-
-  - term: stop finding a chess opponent
-    definition: >-
-      Stop the person's current matchmaking wait, keeping any multiplayer
-      game already formed. A person without a wait has nothing to stop.
-    forms: [stops finding a chess opponent, stopped finding a chess opponent]
-
-  - term: open multiplayer chess
-    definition: >-
-      Within a space, see the person's current opponent search or most
-      recent multiplayer game. A space can watch its host's multiplayer
-      game, including a game against someone in another space. Coming back
-      or opening it on another device never starts a second game. After a
-      game is over or aborted, the person may find a new opponent, and after
-      a result they may offer a multiplayer rematch.
-    forms: [opens multiplayer chess, returns to multiplayer chess]
 
   - term: colour balance
     definition: >-
@@ -894,34 +840,6 @@ terms:
       move; before that, the time running out is missing the first move.
     forms: [runs out of time, ran out of time, running out of time, has run out]
 
-  - term: miss the first move
-    definition: >-
-      Not make one's first move in time: White within 30 seconds of the
-      multiplayer game's start, and Black within 30 seconds of White's first
-      move. In a daily game each has the time control's days instead of 30
-      seconds. It aborts the game, so nobody loses a game they never began,
-      even when they were matched while away.
-    forms: [misses the first move, missed the first move, missing the first move]
-
-  - term: abort the multiplayer game
-    definition: >-
-      End a multiplayer game before both people have made their first move.
-      It has no winner, moves nobody's multiplayer rating, and frees both
-      people to find a chess opponent again; it has no rematch. Either person
-      may abort until both have moved, and only afterwards may resign.
-      Missing the first move, or confirming account deletion before both
-      people have moved, aborts the game too.
-    forms:
-      - aborts the multiplayer game
-      - aborted the multiplayer game
-      - multiplayer game was aborted
-      - aborted multiplayer game
-      - aborted
-      - aborts
-      - abort
-      - can no longer be aborted
-    avoid: [void]
-
   - term: multiplayer result
     definition: >-
       The permanent win or draw both people see when the multiplayer game
@@ -935,32 +853,6 @@ terms:
       An aborted game is over without a result.
     forms: [multiplayer game is over, multiplayer draw, multiplayer win, drawn, drawn by agreement, finished multiplayer game]
     published: true
-
-  - term: offer a multiplayer draw
-    definition: >-
-      One person in an unfinished multiplayer game asking the other to agree
-      to a draw. Only the other person may accept or decline it, and offering
-      a draw back accepts it. A move by the person offered declines it; a
-      move by the person who offered keeps it. A game that is over takes no
-      offer.
-    forms:
-      - offers a multiplayer draw
-      - offered a multiplayer draw
-      - offered someone a multiplayer draw
-      - multiplayer draw offer
-      - multiplayer draw offers
-
-  - term: accept the multiplayer draw
-    definition: >-
-      The person offered a multiplayer draw agreeing to it. The game is drawn
-      by agreement and rated as a draw.
-    forms: [accepts the multiplayer draw, accepted the multiplayer draw]
-
-  - term: decline the multiplayer draw
-    definition: >-
-      The person offered a multiplayer draw turning it down. The game goes
-      on and nobody is offered a draw.
-    forms: [declines the multiplayer draw, declined the multiplayer draw]
 
   - term: offer a multiplayer rematch
     definition: >-
@@ -982,12 +874,6 @@ terms:
       The person offered a multiplayer rematch agreeing to it, which starts
       the new multiplayer game at once.
     forms: [accepts the multiplayer rematch, accepted the multiplayer rematch]
-
-  - term: decline the multiplayer rematch
-    definition: >-
-      The person offered a multiplayer rematch turning it down. The offer
-      ends.
-    forms: [declines the multiplayer rematch, declined the multiplayer rematch]
 
   - term: resign multiplayer chess
     definition: >-
@@ -1026,96 +912,11 @@ terms:
       - daily ratings
     avoid: [elo, ladder points]
 
-  - term: rated multiplayer game
-    definition: >-
-      A multiplayer game that finished with a win or a draw. It counts once
-      toward both people's multiplayer rating for its speed, and each person
-      sees how many rated multiplayer games they have played at each speed.
-      An aborted game is not rated.
-    forms: [rated multiplayer games]
-
   - term: last known multiplayer board
     definition: >-
       The accepted board, multiplayer clocks, offers and result shown before
       a device went offline. They stay visible until a connection brings the
       accepted outcome back.
-
-  - term: daily game
-    definition: >-
-      A multiplayer game played at a daily time control, so each person has
-      1, 3 or 7 days for every move. It lasts across days: leaving or ending
-      a space, closing the app or using another device never ends or pauses
-      it, the time of the person whose turn it is keeps running, and the
-      game is there when they come back. A pause of shared play is the
-      exception: those days are kept just like every other multiplayer clock.
-      Everything else about it is
-      ordinary multiplayer chess, and it counts as the person's one
-      unfinished multiplayer game.
-    forms: [daily games, daily game's]
-    avoid: [correspondence, turn-based game, slow game]
-
-  - term: turn notice
-    definition: >-
-      An inbox item telling a person it is their turn in their daily game
-      and naming their multiplayer opponent. White has one when the daily
-      game starts; after that a person gets one each time their multiplayer
-      opponent's move is accepted and the game is still unfinished. It is
-      unread until the person opens it, and it leaves the inbox as soon as
-      the person's own move is accepted, or the daily game is over or
-      aborted. A person has one turn notice for a daily game, never more:
-      their next turn brings it back unread, and so does becoming low on
-      time before they have moved, which makes it a turn reminder. Opening
-      it takes the person to
-      multiplayer chess in their own space, creating a space when they host
-      none; with no connection it shows the last known multiplayer board
-      and stays as it was. Only the two people of a daily game get one: a
-      watcher never does, and no other multiplayer game brings one.
-    forms: [turn notices, unread turn notice, unread]
-    avoid: [notification, alert, ping]
-
-  - term: result notice
-    definition: >-
-      An inbox item telling one of a daily game's two people how it ended
-      for them: won, lost or drawn, with the reason the multiplayer result
-      gives, or aborted. Both people get one when their daily game is over
-      or aborted, and each keeps theirs until they dismiss it, which needs
-      a connection. Opening it never dismisses it and takes the person to
-      multiplayer chess in their own space, creating a space when they host
-      none; with no connection it shows the last known multiplayer board. A
-      watcher never gets one, and no other multiplayer game brings one.
-    forms: [result notices, dismiss, dismisses, dismissed, dismissing]
-
-  - term: low on time
-    definition: >-
-      Said of a running multiplayer clock that is nearly used up: it has no
-      more than 10 seconds left at bullet, 20 seconds at blitz, 30 seconds
-      at rapid or 60 seconds at classical; in a daily game, 6 hours or less
-      at 1 day per move, and 1 day or less at 3 or 7 days per move. Both
-      people and every watcher see that clock shown as low on time, and a
-      person listening to the app is told so with the time left. The person
-      whose clock it is hears the low on time warning, a sound, once per
-      game, when their clock first becomes low on time. Nobody else hears
-      it, nobody hears it with sounds turned off, and a daily game gives
-      none. A clock that is not running is never low on time: before both
-      people have moved outside a daily game, and once the game is over or
-      aborted. An increment that lifts a clock back above that time shows
-      it as not low on time again, and the warning is not repeated.
-    forms: [low on time warning, not low on time]
-    avoid: [time trouble, time pressure, flagging soon]
-
-  - term: turn reminder
-    definition: >-
-      What a person's turn notice becomes when their multiplayer clock is
-      low on time in a daily game and they have not moved: it comes back
-      unread and tells them they are low on time and how long they have
-      left. A person gets one turn reminder per turn, for their first move
-      too. It is still their one turn notice, never a second inbox item, so
-      it leaves the inbox as a turn notice does, and a person who was not
-      using the app finds it when they are back. A person who moved in time
-      gets none, a daily game that is over or aborted gives none, and no
-      other multiplayer game gives one.
-    forms: [turn reminders, unread turn reminder]
-    avoid: [nudge, ping, alert]
 
   - term: earlier position
     definition: >-
@@ -1341,9 +1142,6 @@ terms:
     - control
     - controls
     - controller
-  - term: people in the space
-    definition: The people who already belong to the Custom Game's space; only they may be
-      invited or claim a side.
   - term: listen to the app
     from: runtime
   - term: repetition
