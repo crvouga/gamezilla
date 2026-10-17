@@ -1,9 +1,5 @@
 import { openCustomGameScreen } from '@libs/chess-custom-game-harness/custom-game-screen';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
-import {
-  chooseCustomGameWithKeyboard,
-  listenToCustomGame,
-} from './custom-game-accessibility';
 import { changeThroughCustomGameControls } from './custom-game-controls';
 import { reviewCustomGame } from './custom-game-review';
 
@@ -28,6 +24,4 @@ export const CUSTOM_GAME_HARNESS_ACTIONS = [
   changeCustomGame,
   playCustomGamePreset,
   reviewCustomGame,
-  chooseCustomGameWithKeyboard,
-  listenToCustomGame,
 ];

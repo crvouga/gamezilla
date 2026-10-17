@@ -1,6 +1,5 @@
 import { expect } from 'bun:test';
 import { customGameInvitationShown } from '@libs/game-session-harness/custom-game-reads';
-import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { Then, When } from '@libs/harness/define';
 import {
@@ -65,9 +64,6 @@ Then(
     ).toBe(false);
   }
 );
-Then('{actor} cannot see the custom game', async (w, person: string) => {
-  expect(await w.s.read(readCustomGameProbe, person)).toBeNull();
-});
 
 Then(
   '{actor} is told that side is not their invitation',

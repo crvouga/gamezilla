@@ -874,9 +874,7 @@
         "@libs/game-session-shared": "workspace:*",
         "@libs/harness": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
-        "@pkgs/a11y-shared": "workspace:*",
         "@pkgs/chess-board-core-shared": "workspace:*",
-        "chess.js": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -1741,6 +1739,7 @@
         "@libs/spaces-harness": "workspace:*",
         "@libs/spaces-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
+        "@pkgs/a11y-shared": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/harness-root-shared": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
@@ -1834,6 +1833,8 @@
         "@libs/games-shared": "workspace:*",
       },
       "devDependencies": {
+        "@libs/account-privacy-harness": "workspace:*",
+        "@libs/billing-harness": "workspace:*",
         "@libs/friends-harness": "workspace:*",
         "@libs/game-matchmaking-harness": "workspace:*",
         "@libs/game-menu-client": "workspace:*",

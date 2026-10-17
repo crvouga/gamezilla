@@ -1,18 +1,14 @@
 import { expect } from 'bun:test';
 import { changeCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { chessCustomBoard as customGameChess } from '@libs/chess-rules-shared/chess-harness';
-import { readCustomGameSeconds } from '@libs/game-session-harness/custom-game-clocks';
-import type { CustomGame } from '@libs/game-session-shared/custom-game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import { remember } from '@libs/harness/spec-world';
 import { customSide } from './custom-game-choices.steps';
 import {
   customFact,
   customGame,
-  customHost,
   customHumans,
   customPerson,
-  customStart,
 } from './custom-game-world';
 import { lastMoveKey, promotionPiece } from './puzzle-world';
 
@@ -24,22 +20,6 @@ Given(
     w.memo.set('custom-completed', await customGame(w));
   }
 );
-Given(
-  '{actor} has an active Custom Game with {int} minute and {int} seconds increment',
-  async (w, host: string, minutes: number, increment: number) => {
-    await customHumans(w, { host, white: host, black: 'bob' });
-    await customFact(w, host, { operation: 'clock', minutes, increment });
-    await customStart(w);
-  }
-);
-Given(
-  '{int} seconds have passed in the Custom Game',
-  async (w, seconds: number) => w.s.advanceTime(seconds * 1000)
-);
-Given('{actor} has resigned the Custom Game', async (w, actor: string) => {
-  await customFact(w, actor, { operation: 'resign' });
-  w.memo.set('custom-completed', await customGame(w));
-});
 
 When(
   '{actor} plays {word} in the Custom Game',
@@ -74,9 +54,6 @@ Then('The Custom Game move list shows {word}', async (w, san: string) =>
 Then('The Custom Game remains active', async (w) =>
   expect((await customGame(w)).status).toBe('active')
 );
-Then('The Custom Game remains configuring', async (w) =>
-  expect((await customGame(w)).status).toBe('configuring')
-);
 Then('Neither person has won the Custom Game', async (w) =>
   expect((await customGame(w)).outcome).toBe('')
 );
@@ -97,31 +74,9 @@ Then('{actor} wins the Custom Game by checkmate', async (w, actor: string) => {
   expect(game.status).toBe('completed');
   expect(game.outcome).toBe(`${side} wins by checkmate`);
 });
-Then(
-  'White has {int} seconds and Black has {int} seconds in the Custom Game',
-  async (w, white: number, black: number) => {
-    expect(await w.s.read(readCustomGameSeconds, customHost(w), 'white')).toBe(
-      white
-    );
-    expect(await w.s.read(readCustomGameSeconds, customHost(w), 'black')).toBe(
-      black
-    );
-  }
-);
 Then('Black is in check in the active Custom Game', async (w) => {
   const game = await customGame(w);
   expect(game.status).toBe('active');
   expect(game.turn).toBe('black');
   expect(customGameChess(game).isCheck()).toBe(true);
-});
-Then('The Custom Game keeps its completed outcome', async (w) => {
-  const before = w.memo.get('custom-completed') as CustomGame;
-  const game = await customGame(w);
-  expect(game.outcome).toBe(before.outcome);
-  expect(game.moves).toEqual(before.moves);
-});
-Then('Neither side offers an invitation', async (w) => {
-  const game = await customGame(w);
-  expect(game.white.kind).not.toBe('invitation');
-  expect(game.black.kind).not.toBe('invitation');
 });

@@ -50,10 +50,6 @@ async function historicalGame(
 }
 
 Given(
-  "{actor} has an active Custom Game after White's e4",
-  async (w, host: string) => historicalGame(w, host, ['e2e4'])
-);
-Given(
   '{actor} has an active Custom Game one move before White promotes on e8',
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_BEFORE_PROMOTION)
@@ -72,14 +68,6 @@ Given(
   "{actor} has an active Custom Game where White's king would castle through check",
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_CASTLING_THROUGH_CHECK)
-);
-Given(
-  "{actor} has a completed Custom Game after White's e4",
-  async (w, host: string) => {
-    await historicalGame(w, host, ['e2e4']);
-    await customFact(w, host, { operation: 'resign' });
-    w.memo.set('custom-completed', await customGame(w));
-  }
 );
 Given(
   "{actor} has an active Custom Game one move before Black's checkmate",
@@ -115,20 +103,6 @@ Given(
   '{actor} has a Custom Game two moves before fifty moves without a pawn move or capture',
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_FIFTY.slice(0, 98))
-);
-Given(
-  "{actor} has an active Custom Game with a queen against {actor}'s bare king",
-  async (w, host: string, black: string) => {
-    await customHumans(w, { host, white: host, black, active: true });
-    await history(w, CUSTOM_GAME_MATERIAL.slice(0, 52));
-  }
-);
-Given(
-  "{actor} hosts an active Custom Game with {actor}'s queen against {actor}'s bare king",
-  async (w, host: string, white: string, black: string) => {
-    await customHumans(w, { host, white, black, active: true });
-    await history(w, CUSTOM_GAME_MATERIAL.slice(0, 52));
-  }
 );
 Given(
   "{actor} has a timed Custom Game with a queen against {actor}'s bare king",

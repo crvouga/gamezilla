@@ -46,6 +46,8 @@
     "@libs/games-shared": "workspace:*"
   },
   "devDependencies": {
+    "@libs/account-privacy-harness": "workspace:*",
+    "@libs/billing-harness": "workspace:*",
     "@libs/friends-harness": "workspace:*",
     "@libs/game-matchmaking-harness": "workspace:*",
     "@libs/game-menu-client": "workspace:*",

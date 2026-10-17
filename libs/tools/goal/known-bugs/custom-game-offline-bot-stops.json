@@ -1,4 +1,4 @@
 {
   "summary": "Solo Custom Game moves were refused offline and bots depended on a connected room.",
-  "regressionTest": "specs/chess/custom-game-connection.feature"
+  "regressionTest": "specs/games/custom-games.feature"
 }

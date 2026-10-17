@@ -16,8 +16,37 @@ export const CONFORMANCE_AREAS = ['rules', ...GAME_CAPABILITIES] as const;
 export type ConformanceArea = (typeof CONFORMANCE_AREAS)[number];
 
 /**
- * The capabilities each specification of `specs/games/` shows, by file stem:
- * a feature, a Quint model, a decision table, a structure or an objective.
+ * What some shared specifications need beyond a capability: a trait of the
+ * game's rules that not every game has, shown by its fixtures. A game
+ * without the fixture lacks the trait, which the rules laws verify (a side
+ * that cannot win: bounded play never reaches one), so a specification
+ * needing it holds for exactly the games whose rules have it.
+ */
+export const GAME_TRAITS = {
+  /** A position where the second side cannot win (`secondSideCannotWin`). */
+  'a side that cannot win': (game: HarnessGame) =>
+    game.fixtures.secondSideCannotWin !== undefined,
+} as const satisfies Readonly<Record<string, (game: HarnessGame) => boolean>>;
+export type GameTrait = keyof typeof GAME_TRAITS;
+
+/** What a shared specification can need: a capability or a trait. */
+export type ConformanceNeed = GameCapability | GameTrait;
+
+function isTrait(need: string): need is GameTrait {
+  return Object.hasOwn(GAME_TRAITS, need);
+}
+
+/** The capabilities among `needs`, which are the areas it is counted in. */
+export function capabilitiesOf(
+  needs: readonly ConformanceNeed[]
+): readonly GameCapability[] {
+  return needs.filter((need): need is GameCapability => !isTrait(need));
+}
+
+/**
+ * The capabilities, and any trait, each specification of `specs/games/`
+ * shows, by file stem: a feature, a Quint model, a decision table, a
+ * structure or an objective.
  * It runs once for every game offering all of them (a feature's scenarios
  * and a model's traces as one test per game; a decision table, structure or
  * objective checks every such game in its one run). Specifications sharing a
@@ -25,7 +54,7 @@ export type ConformanceArea = (typeof CONFORMANCE_AREAS)[number];
  * entry with none, fails the conformance matrix.
  */
 export const SHARED_SPECIFICATIONS: Readonly<
-  Record<string, readonly GameCapability[]>
+  Record<string, readonly ConformanceNeed[]>
 > = {
   'game-choices': ['custom-games', 'matchmaking', 'history'],
   'custom-games': ['custom-games'],
@@ -38,6 +67,16 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'custom-game-away': ['custom-games'],
   'custom-game-completion': ['custom-games'],
   'custom-game-draw-offers': ['custom-games'],
+  'custom-game-cannot-win': ['custom-games', 'a side that cannot win'],
+  'custom-game-rematch': ['custom-games'],
+  'custom-game-connection': ['custom-games'],
+  'custom-game-offline': ['custom-games'],
+  'custom-game-devices': ['custom-games'],
+  'custom-game-interruption': ['custom-games'],
+  'custom-game-blocking': ['custom-games'],
+  'custom-game-identity': ['custom-games'],
+  'custom-game-privacy': ['custom-games'],
+  'custom-game-accessibility': ['custom-games'],
   'game-turns': ['custom-games'],
   'finding-an-opponent': ['matchmaking'],
   'matched-game-abort': ['matchmaking'],
@@ -74,10 +113,10 @@ export function sharedSpecificationStem(specUri: string): string {
   return file.slice(0, -kind.length);
 }
 
-/** The capabilities a shared specification shows, or a failure naming it. */
+/** What a shared specification shows, or a failure naming it. */
 export function sharedSpecificationNeeds(
   specUri: string
-): readonly GameCapability[] {
+): readonly ConformanceNeed[] {
   const needs = SHARED_SPECIFICATIONS[sharedSpecificationStem(specUri)];
   if (needs === undefined)
     throw new Error(
@@ -89,10 +128,16 @@ export function sharedSpecificationNeeds(
 /** Whether `game` is bound by a suite needing `needs` (`rules`: every game). */
 export function offersAll(
   game: HarnessGame,
-  needs: readonly (GameCapability | 'rules')[]
+  needs: readonly (ConformanceNeed | 'rules')[]
 ): boolean {
   const offered = offeredCapabilities(game.shared.turnGame);
-  return needs.every((need) => need === 'rules' || offered.includes(need));
+  return needs.every((need) =>
+    need === 'rules'
+      ? true
+      : isTrait(need)
+        ? GAME_TRAITS[need](game)
+        : offered.includes(need)
+  );
 }
 
 /** One shared suite: a code suite or a shared specification, and what it needs. */
@@ -100,7 +145,7 @@ export type ConformanceSuite = {
   /** `conformance/<area>/<file>` or `specs/games/<file>` (any kind). */
   readonly id: string;
   readonly area: ConformanceArea;
-  readonly needs: readonly (GameCapability | 'rules')[];
+  readonly needs: readonly (ConformanceNeed | 'rules')[];
 };
 
 /** A cell of the matrix: how one game stands against one area. */

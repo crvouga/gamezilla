@@ -24,7 +24,7 @@ import type {
 import type { ProductHarness } from '@libs/harness/harness';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
-import { gameOf, hostOf, view } from './game-world';
+import { backToCustomGames, gameOf, hostOf, view } from './game-world';
 
 /** `5+2` as the minutes each side starts with and the seconds a move adds. */
 export function clockChoice(text: string): {
@@ -69,8 +69,9 @@ export async function identityOf(
   return seen?.myId || (await w.s.read(readCustomGameIdentity, person));
 }
 
-/** The custom game as its host sees it now. */
+/** The custom game as its host sees it now, back at the custom games. */
 export async function current(w: HarnessWorld): Promise<CustomGame> {
+  await backToCustomGames(w, hostOf(w));
   const game = (await view(w, hostOf(w))).current;
   if (game === null) throw new Error('The host sees no custom game');
   return game;

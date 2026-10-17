@@ -21,13 +21,13 @@ import {
 
 type CustomWorld = Pick<HarnessWorld, 's' | 'memo'>;
 
-export function customHost(w: CustomWorld): string {
+function customHost(w: CustomWorld): string {
   return String(
     w.memo.get('custom-host') ?? w.memo.get('spaceHost') ?? 'alice'
   );
 }
 /** The people this scenario put in the space. */
-export function customMembers(w: CustomWorld): Set<string> {
+function customMembers(w: CustomWorld): Set<string> {
   const members = w.memo.get('custom-members');
   if (members instanceof Set) return members as Set<string>;
   const created = new Set<string>();
@@ -119,10 +119,7 @@ export function customPerson(w: CustomWorld, actor: string): string {
   return id;
 }
 
-export async function customScreen(
-  w: CustomWorld,
-  actor: string
-): Promise<void> {
+async function customScreen(w: CustomWorld, actor: string): Promise<void> {
   if ((await w.s.read(readCustomGameProbe, actor)) !== null) return;
   await w.s.apply(reopenSpaceLink, actor, String(w.memo.get('custom-link')));
   await w.s.apply(openCustomGame, actor);

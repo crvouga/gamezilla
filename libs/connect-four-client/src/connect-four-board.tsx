@@ -24,7 +24,6 @@ export function ConnectFourBoard(props: {
   });
   return (
     <DiscDropBoard
-      emptyLabel={t`Empty`}
       testId={props.testId}
       columnTestId={(column) => `${props.testId}-column-${column + 1}`}
       cells={game().board}
@@ -34,7 +33,6 @@ export function ConnectFourBoard(props: {
       winning={game().winning}
       lastCell={lastCell()}
       interactive={props.interactive && game().result === 0}
-      identities={[t`Red circle`, t`Yellow diamond`]}
       label={t`Connect Four board, seven columns and six rows`}
       cellLabel={(column, row, disc) => {
         const identity =

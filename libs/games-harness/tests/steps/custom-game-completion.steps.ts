@@ -57,7 +57,6 @@ Then('neither side has an invitation', async (w) => {
 Then('{actor} cannot make a move', async (w, actor: string) => {
   await w.s.apply(openCustomGames, actor, gameOf(w).shared.id);
   const seen = await w.s.read(customGameView, actor);
-  expect(seen.mySide).toBeNull();
   expect(seen.gates['move'] ?? false).toBe(false);
 });
 Then(

@@ -103,7 +103,11 @@ behaviour for exactly what it offers:
 
 - **Shared specifications.** `specs/games/*.feature` run once per game
   offering everything a feature shows (`SHARED_SPECIFICATIONS` in
-  `@libs/games-harness/game-conformance`). Each game's run is its own test,
+  `@libs/games-harness/game-conformance`). A feature may also need a trait
+  of the game's rules that not every game has (`GAME_TRAITS`: a side that
+  cannot win); a game has it exactly when its fixtures show it
+  (`secondSideCannotWin`), and a game without the fixture is held by the
+  rules laws to never reach such a position. Each game's run is its own test,
   `<scenario> [<game>]`, recording its own evidence obligation
   (`scenario:<scenario> [<game id>]`), so the job log and Atlas name the game.
   The `specs/games/*.qnt` models are listed the same way and replay once per
@@ -119,7 +123,9 @@ behaviour for exactly what it offers:
   played, only legal actions are accepted, and automation and bots choose
   legally.
 - **Independent oracles.** Expected outcomes come from each game's
-  `fixtures` — a known first-side victory and known refused openings,
+  `fixtures` — a known first-side victory, known refused openings and, for
+  a game that has one, a known line to a position its second side cannot
+  win,
   written from the game's own laws — or from the contract, never from asking
   the implementation whether it agrees with itself. Faulty copies of the
   reference game prove each law refuses the fault it names.
@@ -178,10 +184,12 @@ Beyond that class:
 - The shared suites live in one package, so changing any game reruns every
   game's shared conformance; each game's own rules suites stay in its own
   package and rerun only for it.
-- About thirty-one `specs/chess/` features still describe shared behaviour
-  for chess alone: custom-game access, connection, devices, history,
-  privacy and recovery; matched-game clocks, notices, reminders, ratings,
-  time controls and recovery. Each moves the way the matched-game lifecycle did:
+- Several `specs/chess/` features still describe shared behaviour for
+  chess alone: matched-game clocks, notices, reminders, ratings, time
+  controls and recovery. Chess's `custom-game-*` features keep only chess's
+  own rules: the board facing a colour, promotion, castling and en passant,
+  algebraic notation, checkmate, drawn positions, the puzzle rating and a
+  bare king's flag fall. Each moves the way the matched-game lifecycle did:
   a `spec:` commit rewording it for every game in `specs/games/`, then one
   binding in `@libs/games-harness` over the shared matched-game and
   custom-game worlds, deleting chess's copy.
@@ -192,5 +200,14 @@ Beyond that class:
 - The custom-game models follow a first-side victory of exactly seven
   moves (Connect Four's shortest), so every game supplies one; a game whose
   victories all take longer needs the models' bound raised with it.
+- No contract lets a shared scenario make a move with the keyboard alone
+  or hear a move announced: `GameAutomation.perform` is the board's one
+  pointer gesture, and `GamePresentation` names sides and endings but not a
+  move. The shared custom-game accessibility feature therefore covers only
+  the platform's own controls (choosing a bot, starting) and what the
+  status line says; keyboard play and spoken moves stay chess's own
+  (`specs/chess/multiplayer-accessibility.feature`, its board and
+  notation) until the contract gains a keyboard gesture and a spoken label
+  for an action.
 - A game's own Gherkin parameter types join the one list the spec check
   reads (`libs/harness/src/parameter-types.ts`).

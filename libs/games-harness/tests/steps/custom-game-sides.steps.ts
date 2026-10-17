@@ -1,5 +1,7 @@
 import { expect } from 'bun:test';
+import { attemptCustomGameBoundary } from '@libs/game-session-harness/custom-game-boundary';
 import { customGameNearestSide } from '@libs/game-session-harness/custom-game-reads';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { Then, When } from '@libs/harness/define';
 import {
@@ -9,7 +11,7 @@ import {
   race,
   sideShownTo,
 } from './custom-game-set-up-world';
-import { view } from './game-world';
+import { spaceLinkOf, view } from './game-world';
 
 When(
   '{actor} assigns a bot to the {gameSide}',
@@ -36,8 +38,24 @@ When('{actor} swaps the sides', async (w, actor: string) =>
 );
 When(
   '{actor} claims the {gameSide}',
-  async (w, actor: string, side: CustomGameSide) =>
-    choose(w, actor, { operation: 'claim', side })
+  async (w, actor: string, side: CustomGameSide) => {
+    if ((await w.s.read(readCustomGameProbe, actor)) !== null) {
+      await choose(w, actor, { operation: 'claim', side });
+      return;
+    }
+    // Someone outside the space has no custom game to claim from, so the
+    // claim is sent as a modified device would.
+    const game = await current(w);
+    await w.s.apply(attemptCustomGameBoundary, actor, {
+      spaceId: (await spaceLinkOf(w)).split('/space/')[1] ?? '',
+      choice: {
+        operation: 'claim',
+        side,
+        gameId: game.id,
+        revision: game.revision,
+      },
+    });
+  }
 );
 When(
   '{actor} releases the {gameSide}',

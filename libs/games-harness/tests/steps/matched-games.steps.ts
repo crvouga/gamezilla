@@ -74,7 +74,7 @@ Given(
   }
 );
 
-When('{int} seconds pass', async (w, seconds: number) => {
+When('{int} second(s) pass(es)', async (w, seconds: number) => {
   await w.s.apply(passMultiplayerTime, seconds * SECOND_MS);
 });
 When('{actor} resigns the matched game', async (w, actor: string) => {

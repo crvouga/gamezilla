@@ -69,10 +69,6 @@ useHarnessWorld(openSpecHarness, (w) => ({
     );
     if (customLink === null) throw new Error('Deleted account has no space');
     await w.s.apply(leaveChessStatsScreen, actor);
-    await w.s.apply(reopenSpaceLink, actor, customLink);
-    await customDefault(w, actor);
-    remember(w, 'deleted-custom-game-id', (await customGame(w)).id);
-    remember(w, 'deleted-custom-game-link', w.memo.get('custom-link'));
   },
 }));
 
@@ -106,10 +102,6 @@ import './multiplayer-recovery.steps';
 import './multiplayer-accessibility.steps';
 import './multiplayer-account.steps';
 import './multiplayer-policies.steps';
-import {
-  createSpace,
-  reopenSpaceLink,
-} from '@libs/spaces-harness/space-actions';
+import { createSpace } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
-import { customDefault, customGame } from './custom-game-world';
 import { rememberOfflineBoard } from './multiplayer-connection';

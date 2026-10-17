@@ -1,7 +1,8 @@
 /**
  * What a person sees of a custom game beyond its state: an invitation
  * offered to them, which side sits nearest them at the board, whether its
- * creator is offered the start, that it is unrated, and its move list.
+ * creator is offered the start, that it is unrated, its move list, and the
+ * offer to claim the win.
  */
 
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
@@ -87,4 +88,40 @@ export async function readCustomGameMoveList(
     if (!(await move.isVisible())) return shown;
     shown.push((await move.text()) ?? '');
   }
+}
+
+/** Whether the person is offered to claim the win from someone away. */
+export async function customGameClaimWinOffered(
+  s: ProductHarness,
+  actor: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actor);
+  await bringToFront(s, actor);
+  return ui.get('custom-game-claim-win').isVisible();
+}
+
+/** Everything the custom-game screen says, or `null` when it is not shown. */
+export async function readCustomGameScreenText(
+  s: ProductHarness,
+  actor: string
+): Promise<string | null> {
+  const ui = await actorUi(s, actor);
+  await bringToFront(s, actor);
+  const content = ui.get('custom-game-content');
+  return (await content.isVisible()) ? await content.text() : null;
+}
+
+/**
+ * What the custom-game screen tells the person after a refused choice: the
+ * alert's words, `''` with none, or `null` when the screen is not shown.
+ */
+export async function readCustomGameAlert(
+  s: ProductHarness,
+  actor: string
+): Promise<string | null> {
+  const ui = await actorUi(s, actor);
+  await bringToFront(s, actor);
+  if (!(await ui.get('custom-game-content').isVisible())) return null;
+  const alert = ui.get('custom-game-error');
+  return (await alert.isVisible()) ? ((await alert.text()) ?? '') : '';
 }

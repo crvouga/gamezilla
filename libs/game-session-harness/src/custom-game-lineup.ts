@@ -2,11 +2,13 @@ import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
+import { signedInAccountOf } from '@libs/harness/identity';
 import { backToTabs } from '@libs/harness/shell-actions';
 import {
   createSpace,
   joinFromPrompt,
   openSpaceLink,
+  reopenSpaceLink,
 } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { configureCustomGame, readCustomGameProbe } from './custom-game-ui';
@@ -80,8 +82,10 @@ export async function playCustomGameMoves(
   }
 }
 
+/** `person` signs in with Google, unless their device already has an account. */
 async function signIn(s: ProductHarness, person: string): Promise<void> {
-  await Promise.resolve(signInWithGoogle.act(s, person));
+  if ((await signedInAccountOf(s, person)) === null)
+    await Promise.resolve(signInWithGoogle.act(s, person));
   await Promise.resolve(backToTabs.act(s, person));
 }
 
@@ -99,6 +103,24 @@ async function enterCustomGames(
   await showCustomGames(s, person, gameId);
 }
 
+/** Who joins whose space, for the game's custom games, signed in or not. */
+type Joining = {
+  readonly gameId: string;
+  readonly host: string;
+  readonly person: string;
+  readonly guest: boolean;
+};
+
+async function join(s: ProductHarness, joining: Joining): Promise<void> {
+  const { gameId, host, person } = joining;
+  if (s.actors.has(person) && (await readCustomGameProbe(s, person)) !== null)
+    return;
+  const link = await readSpaceLink(s, host);
+  if (link === null) throw new Error(`${host} is not in a space`);
+  if (!joining.guest) await signIn(s, person);
+  await enterCustomGames(s, gameId, person, link);
+}
+
 /**
  * `person` joins `host`'s space from its link and opens the game's custom
  * games, as anyone the host shares the link with does; someone already
@@ -106,13 +128,28 @@ async function enterCustomGames(
  */
 export const joinCustomGames = scenarioAction({
   name: 'joinCustomGames',
-  act: async (s, gameId: string, host: string, person: string) => {
-    if (s.actors.has(person) && (await readCustomGameProbe(s, person)) !== null)
-      return;
-    const link = await readSpaceLink(s, host);
-    if (link === null) throw new Error(`${host} is not in a space`);
-    await signIn(s, person);
-    await enterCustomGames(s, gameId, person, link);
+  act: (s, gameId: string, host: string, person: string) =>
+    join(s, { gameId, host, person, guest: false }),
+});
+
+/** {@link joinCustomGames} as a guest, who has not signed in. */
+export const joinCustomGamesAsGuest = scenarioAction({
+  name: 'joinCustomGamesAsGuest',
+  act: (s, gameId: string, host: string, person: string) =>
+    join(s, { gameId, host, person, guest: true }),
+});
+
+/**
+ * `person`, in the space at `link` but away from its custom games (on
+ * another tab, back from signing in or reopening the app), returns to them;
+ * someone already shown them stays as they are.
+ */
+export const returnToCustomGames = scenarioAction({
+  name: 'returnToCustomGames',
+  act: async (s, gameId: string, person: string, link: string) => {
+    if ((await readCustomGameProbe(s, person)) !== null) return;
+    await Promise.resolve(reopenSpaceLink.act(s, person, link));
+    await showCustomGames(s, person, gameId);
   },
 });
 

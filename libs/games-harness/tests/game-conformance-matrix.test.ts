@@ -15,6 +15,7 @@ import type {
 } from '@libs/games-harness/game-conformance';
 import {
   CONFORMANCE_AREAS,
+  capabilitiesOf,
   conformanceMatrix,
   formatConformanceMatrix,
   SHARED_SPECIFICATION_KINDS,
@@ -23,7 +24,7 @@ import {
   sharedSpecificationStem,
 } from '@libs/games-harness/game-conformance';
 import { suiteArea, suiteName } from './conformance/game-suite';
-import { CONFORMANCE_GAMES } from './conformance-world';
+import { CONFORMANCE_GAMES, gamesHeldTo } from './conformance-world';
 import { COUNTING_RACE_GAME } from './reference-game/counting-race-game';
 
 const TESTS = import.meta.dir;
@@ -56,7 +57,7 @@ function sharedSpecifications(): readonly string[] {
 function specificationSuites(): readonly ConformanceSuite[] {
   return sharedSpecifications().flatMap((uri) => {
     const needs = sharedSpecificationNeeds(uri);
-    return needs.map((area) => ({ id: uri, area, needs }));
+    return capabilitiesOf(needs).map((area) => ({ id: uri, area, needs }));
   });
 }
 
@@ -140,4 +141,21 @@ test('a shared feature binds only games offering everything it shows', () => {
     // The custom-game models bind it like the features do.
     expect(customGames.suites).toContain('specs/games/custom-game-play.qnt');
   }
+});
+
+test('a specification needing a trait binds only games whose fixtures show it', () => {
+  const cannotWin = 'specs/games/custom-game-cannot-win.feature';
+  expect(sharedSpecificationNeeds(cannotWin)).toContain(
+    'a side that cannot win'
+  );
+  expect(gamesHeldTo(cannotWin).map((game) => game.label)).toEqual(
+    CONFORMANCE_GAMES.filter(
+      (game) => game.fixtures.secondSideCannotWin !== undefined
+    ).map((game) => game.label)
+  );
+  // The reference game's sides can always win, so it owes nothing here.
+  const [row] = conformanceMatrix([COUNTING_RACE_GAME], SUITES);
+  const customGames = row!.cells['custom-games'];
+  if (customGames.status === 'bound')
+    expect(customGames.suites).not.toContain(cannotWin);
 });

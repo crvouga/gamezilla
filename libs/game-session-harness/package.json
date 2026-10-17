@@ -31,6 +31,7 @@
     "@libs/spaces-harness": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
     "@libs/test-ids-shared": "workspace:*",
+    "@pkgs/a11y-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/harness-root-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",

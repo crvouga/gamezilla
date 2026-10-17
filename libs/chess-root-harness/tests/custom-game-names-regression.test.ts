@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { openCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
-import { readCustomGameName } from '@libs/chess-custom-game-harness/custom-game-names';
 import { readCustomGameIdentity } from '@libs/game-session-harness/custom-game-identity';
+import { readCustomGameName } from '@libs/game-session-harness/custom-game-names';
 import { readCustomGameInvitation } from '@libs/game-session-harness/custom-game-reads';
 import { configureCustomGameChoice } from '@libs/game-session-harness/custom-game-ui';
 import { createSpace, joinViaLink } from '@libs/spaces-harness/space-actions';

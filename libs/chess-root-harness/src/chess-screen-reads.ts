@@ -1,9 +1,9 @@
+import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { multiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import {
   readCustomGameAlert,
   readCustomGameScreenText,
-} from '@libs/chess-custom-game-harness/custom-game-play-reads';
-import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { multiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
+} from '@libs/game-session-harness/custom-game-reads';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 

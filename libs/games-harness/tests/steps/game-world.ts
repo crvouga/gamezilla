@@ -1,8 +1,12 @@
 import type { CustomGameLineup } from '@libs/game-session-harness/custom-game-lineup';
-import { establishCustomGame } from '@libs/game-session-harness/custom-game-lineup';
+import {
+  establishCustomGame,
+  returnToCustomGames,
+} from '@libs/game-session-harness/custom-game-lineup';
 import { customGameView } from '@libs/game-session-harness/custom-game-moves';
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import type { GameCapability } from '@pkgs/turn-game-shared/game-rules';
 import { CONFORMANCE_GAMES, conformanceGameOf } from '../conformance-world';
 
@@ -38,8 +42,33 @@ export async function setupCustomGame(
   lineup: CustomGameLineup = {}
 ): Promise<void> {
   await w.s.apply(establishCustomGame, gameOf(w).shared.id, lineup);
-  w.memo.set('custom-game-host', lineup.host ?? 'alice');
+  const host = lineup.host ?? 'alice';
+  w.memo.set('custom-game-host', host);
+  w.memo.set('custom-game-link', await w.s.read(readSpaceLink, host));
   await rememberCustomGame(w);
+}
+
+/** The link of the space the custom game is in. */
+export async function spaceLinkOf(w: HarnessWorld): Promise<string> {
+  const remembered = w.memo.get('custom-game-link');
+  if (typeof remembered === 'string') return remembered;
+  const link = await w.s.read(readSpaceLink, hostOf(w));
+  if (link === null) throw new Error('The host is not in a space');
+  w.memo.set('custom-game-link', link);
+  return link;
+}
+
+/** `actor`, in the space but away from its custom games, returns to them. */
+export async function backToCustomGames(
+  w: HarnessWorld,
+  actor: string
+): Promise<void> {
+  await w.s.apply(
+    returnToCustomGames,
+    gameOf(w).shared.id,
+    actor,
+    await spaceLinkOf(w)
+  );
 }
 
 /** The custom game as it is now, remembered as it was before the act. */

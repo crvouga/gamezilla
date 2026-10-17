@@ -21,6 +21,15 @@ export type GameFixtures = {
    * action, a malformed one); at least one.
    */
   readonly refusedOpenings: readonly string[];
+  /**
+   * Actions, alternating from the first side and ending with the first
+   * side's move, after which the second side cannot win while the first
+   * side still can, and nothing has finished the game — both after the
+   * last action and before it. Absent for a game whose sides can always
+   * win, which the rules laws check. The shared custom-game feature about a
+   * side that cannot win (`custom-game-cannot-win`) needs it.
+   */
+  readonly secondSideCannotWin?: readonly string[];
 };
 
 /**
@@ -66,6 +75,8 @@ export function assertHarnessGame(game: HarnessGame): HarnessGame {
   for (const action of refusedOpenings)
     if (rules.play(rules.initial(), action, '', []) !== null)
       fail(`the refused opening ${action} is accepted`);
+  const cannotWin = game.fixtures.secondSideCannotWin;
+  if (cannotWin !== undefined) assertCannotWinLine(game, cannotWin, fail);
   let position = rules.initial();
   let history = '';
   const actions: string[] = [];
@@ -80,4 +91,39 @@ export function assertHarnessGame(game: HarnessGame): HarnessGame {
     actions.push(action);
   }
   return game;
+}
+
+/**
+ * The known line after which the second side cannot win: legal, unfinished,
+ * ending with the first side's move, and leaving the second side unable to
+ * win (the first side able to) before and after that move.
+ */
+function assertCannotWinLine(
+  game: HarnessGame,
+  line: readonly string[],
+  fail: (problem: string) => void
+): void {
+  const rules = game.shared.turnGame.rules;
+  if (line.length % 2 === 0)
+    fail(
+      'the line where the second side cannot win must end with the first side'
+    );
+  let position = rules.initial();
+  let history = '';
+  const actions: string[] = [];
+  for (const action of line) {
+    const played = rules.play(position, action, history, actions);
+    if (played === null || played.winner !== null)
+      fail(`the line where the second side cannot win stops at ${action}`);
+    position = played!.position;
+    history = played!.history;
+    actions.push(action);
+  }
+  for (const ply of [line.length - 1, line.length]) {
+    const at = rules.replay(line, ply);
+    if (rules.canWin(at, 'black') || !rules.canWin(at, 'white'))
+      fail(
+        `after ${String(ply)} moves the second side can win, or the first cannot`
+      );
+  }
 }

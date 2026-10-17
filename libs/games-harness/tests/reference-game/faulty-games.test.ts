@@ -133,3 +133,14 @@ test('a bot choosing an action the rules do not offer is refused', () => {
     'two bots play only legal actions until the game finishes'
   );
 });
+
+test('a game whose side cannot win without naming a line to it is refused', () => {
+  // Past its first count the second side can no longer win, yet the game
+  // names no line where that happens.
+  const hopeless = faulty({
+    canWin: (position, side) => side === 'white' || position === 'race:0',
+  });
+  expect(broken(hopeless)).toContain(
+    'a side cannot win only where the game names a line to it'
+  );
+});

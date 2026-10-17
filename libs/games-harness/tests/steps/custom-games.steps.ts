@@ -139,12 +139,6 @@ Given(
 When('{actor} makes her move on the board', async (w, actor: string) => {
   await w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id);
 });
-Then('the bot replies within {int} seconds', async (w, seconds: number) => {
-  await w.s.until((s) => customGameView(s, 'alice'), {
-    maxMs: seconds * SECOND_MS,
-    pred: (seen) => seen.current?.moves.length === 2,
-  });
-});
 Then("it is {actor}'s turn", async (w, actor: string) => {
   if (inMatchedGame(w)) {
     const owner = await ownerOf(w, actor);

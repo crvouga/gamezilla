@@ -139,6 +139,38 @@ function knownVictory(game: HarnessGame): void {
 }
 
 /**
+ * A side can lose its chance to win only where the game says so: with no
+ * known line where the second side cannot win, both sides can still win
+ * wherever bounded play goes; with one, its end is such a position, and
+ * both sides can win at the start.
+ */
+function cannotWinOnlyWhereKnown(game: HarnessGame): void {
+  const rules = game.shared.turnGame.rules;
+  const both = (position: string) =>
+    rules.canWin(position, 'white') && rules.canWin(position, 'black');
+  must(both(rules.initial()), 'a side cannot win from the starting position');
+  const line = game.fixtures.secondSideCannotWin;
+  if (line !== undefined) {
+    const end = rules.replay(line, line.length);
+    must(
+      !rules.canWin(end, 'black') && rules.canWin(end, 'white'),
+      'the known line leaves the second side able to win, or the first not'
+    );
+    return;
+  }
+  assertProperty(
+    `${game.label}: every side can win`,
+    fc.property(picks, (drawn) => {
+      for (const step of walk(rules, drawn).steps)
+        must(
+          step.winner !== null || both(step.position),
+          `a side cannot win at ${step.position}, which the game names no line to`
+        );
+    })
+  );
+}
+
+/**
  * Every law of a turn game's rules, for `game`, among the `others` whose
  * positions it must never claim.
  */
@@ -274,6 +306,9 @@ export function gameRulesLaws(
             }
           )
         )
+    ),
+    law(game, 'a side cannot win only where the game names a line to it', () =>
+      cannotWinOnlyWhereKnown(game)
     ),
     law(
       game,

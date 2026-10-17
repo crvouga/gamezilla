@@ -10,7 +10,7 @@ import {
   identityOf,
   toldOf,
 } from './custom-game-set-up-world';
-import { hostOf, sideOf } from './game-world';
+import { backToCustomGames, hostOf, sideOf } from './game-world';
 
 const SECOND_MS = 1_000;
 /** How long the other participant may take to be shown someone went away. */
@@ -97,15 +97,18 @@ Then(
 Then('{actor} is told {actor} may still return', async (w, actor: string) =>
   toldOf(w, actor, 'may still return')
 );
+// regression: custom-game-reconnect-read-before-settlement
 Then(
-  '{actor} sees the custom game under way with the first side to move',
+  '{actor} (still )sees the custom game under way with the first side to move',
   async (w, actor: string) => {
+    await backToCustomGames(w, actor);
     const seen = await w.s.until((s) => customGameView(s, actor), {
       pred: (view) =>
         view.current?.status === 'active' && view.current.turn === 'white',
     });
     expect(seen.current?.status).toBe('active');
     expect(seen.current?.turn).toBe('white');
+    expect(seen.gates['watch']).toBe(true);
   }
 );
 Then('neither person has won the custom game', async (w) => {
