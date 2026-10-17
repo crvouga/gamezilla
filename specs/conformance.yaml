@@ -55,9 +55,9 @@ product:
     - { id: see their matchmaking wait, context: matchmaking, decided by: access }
     - { id: stop waiting for a match, context: matchmaking, decided by: access }
     - { id: change their matchmaking range, context: matchmaking, decided by: access }
-    - { id: watch multiplayer chess, context: chess, decided by: multiplayer-watch-access }
+    - { id: watch a matched game, context: games, decided by: matched-game-watch-access }
     - { id: play multiplayer chess, context: chess, decided by: access }
-    - { id: start another multiplayer game, context: chess, decided by: unfinished-game-limit }
+    - { id: start another matched game, context: games, decided by: unfinished-game-limit }
     - { id: resign multiplayer chess, context: chess, decided by: access }
     - { id: play puzzles, context: chess, decided by: access }
     - { id: customize the puzzle feed, context: chess, decided by: access }
@@ -98,10 +98,10 @@ product:
       promise: >-
         Accepted waits keep their identity and outcome across devices and
         time away; a stale command never changes a newer wait.
-    - id: private multiplayer games
-      context: chess
+    - id: private matched games
+      context: games
       promise: >-
-        A matchmaking match gives its two people one private multiplayer
+        Pairing two people up gives them one private matched game of the
         game, with the same lasting board, turns and result on their devices.
     - id: space links
       context: spaces

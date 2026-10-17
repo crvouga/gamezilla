@@ -1,17 +1,17 @@
-// Two people play one 5+0 multiplayer game from their own spaces. A guest in
-// either space who has a connection sees the same accepted moves and the
-// same result as the other person. One game record is offered once the
-// game is over with a winner, and copying it changes nothing. An aborted
-// game has no winner and no game record.
+// Two people play one 5+0 matched game of the game from their own spaces. A
+// guest in either space who has a connection sees the same accepted moves
+// and the same result as the other person. One game record is offered once
+// the matched game is over with a winner, and copying it changes nothing. An
+// aborted matched game has no winner and no game record.
 // A minute or more with nothing done before both first moves is missing
-// the first move: the game aborts, nobody won, and nobody can move. After
-// both first moves each side has five minutes, and that time runs only for
-// the side to move. Running out means the other person won. Being idle
-// never plays a move. One minute is not idle, and two minutes is. A device
+// the first move: the matched game aborts, nobody won, and nobody can move.
+// After both first moves each side has five minutes, and that time runs only
+// for the side to move. Running out means the other person won. Being idle
+// never makes a move. One minute is not idle, and two minutes is. A device
 // with no connection keeps the last board it showed and cannot move or
-// resign. Coming back online shows the accepted game. A missing connection
-// is not idle.
-module multiplayer_shared_game {
+// resign. Coming back online shows the accepted matched game. A missing
+// connection is not idle.
+module matched_game_shared {
   pure val ALICE_PHONE = "alice-phone"
   pure val ALICE_COMPUTER = "alice-computer"
   pure val BOB_PHONE = "bob-phone"
@@ -20,14 +20,14 @@ module multiplayer_shared_game {
   pure val DEVICES = Set(ALICE_PHONE, ALICE_COMPUTER, BOB_PHONE, CAROL_PHONE, DAVE_PHONE)
   pure val MATCHED = Set(ALICE_PHONE, ALICE_COMPUTER, BOB_PHONE)
   pure val PEOPLE = Set("alice", "bob", "carol", "dave")
-  /// Minutes each side starts with in this 5+0 game, once both have moved.
+  /// Minutes each side starts with in this 5+0 matched game, once both have moved.
   pure val GAME_MINUTES = 5
 
   /// How many accepted moves each device is showing. An offline device keeps its last number.
   var shownMoves: str -> int
-  /// The winner each device is showing, or "nobody" while the game is unfinished or aborted.
+  /// The winner each device is showing, or "nobody" while the matched game is unfinished or aborted.
   var shownWinner: str -> str
-  /// Whether that device can move a piece. Guests never can. Nobody can once the game is over.
+  /// Whether that device can make a move. Guests never can. Nobody can once the matched game is over.
   var canMove: str -> bool
   /// Whether the one game record and the final position are offered.
   var gameRecordOffered: bool
@@ -44,10 +44,10 @@ module multiplayer_shared_game {
   var _winner: str
   /// Missing the first move, or a minute or more of quiet before both first moves.
   var _aborted: bool
-  /// Minutes White still has once the multiplayer clock is running.
-  var _whiteLeft: int
-  /// Minutes Black still has once the multiplayer clock is running.
-  var _blackLeft: int
+  /// Minutes the first side still has once its clock is running.
+  var _firstLeft: int
+  /// Minutes the second side still has once its clock is running.
+  var _secondLeft: int
 
   pure def _phone(person: str): str =
     if (person == "bob") BOB_PHONE
@@ -80,7 +80,7 @@ module multiplayer_shared_game {
   pure def _clockOn(moves: int, winner: str, aborted: bool): bool =
     (_playing(winner, aborted) and (moves >= 2))
 
-  pure def _whiteToMove(moves: int): bool =
+  pure def _firstToMove(moves: int): bool =
     (moves % 2 == 0)
 
   pure def _abortedAfter(moves: int, winner: str, aborted: bool): bool =
@@ -91,20 +91,20 @@ module multiplayer_shared_game {
   pure def _flagged(moves: int, winner: str, aborted: bool, left: int, minutes: int): bool =
     (_clockOn(moves, winner, aborted) and ((left - minutes) <= 0))
 
-  pure def _winnerAfter(moves: int, winner: str, aborted: bool, whiteLeft: int, blackLeft: int, minutes: int): str =
-    if (_flagged(moves, winner, aborted, if (_whiteToMove(moves)) whiteLeft else blackLeft, minutes))
-      (if (_whiteToMove(moves)) "bob" else "alice")
+  pure def _winnerAfter(moves: int, winner: str, aborted: bool, firstLeft: int, secondLeft: int, minutes: int): str =
+    if (_flagged(moves, winner, aborted, if (_firstToMove(moves)) firstLeft else secondLeft, minutes))
+      (if (_firstToMove(moves)) "bob" else "alice")
     else winner
 
-  pure def _whiteAfter(moves: int, winner: str, aborted: bool, whiteLeft: int, minutes: int): int =
-    if (_clockOn(moves, winner, aborted) and _whiteToMove(moves))
-      (if ((whiteLeft - minutes) < 0) 0 else (whiteLeft - minutes))
-    else whiteLeft
+  pure def _firstAfter(moves: int, winner: str, aborted: bool, firstLeft: int, minutes: int): int =
+    if (_clockOn(moves, winner, aborted) and _firstToMove(moves))
+      (if ((firstLeft - minutes) < 0) 0 else (firstLeft - minutes))
+    else firstLeft
 
-  pure def _blackAfter(moves: int, winner: str, aborted: bool, blackLeft: int, minutes: int): int =
-    if (_clockOn(moves, winner, aborted) and not(_whiteToMove(moves)))
-      (if ((blackLeft - minutes) < 0) 0 else (blackLeft - minutes))
-    else blackLeft
+  pure def _secondAfter(moves: int, winner: str, aborted: bool, secondLeft: int, minutes: int): int =
+    if (_clockOn(moves, winner, aborted) and not(_firstToMove(moves)))
+      (if ((secondLeft - minutes) < 0) 0 else (secondLeft - minutes))
+    else secondLeft
 
   action _record(
     moves: int,
@@ -112,16 +112,16 @@ module multiplayer_shared_game {
     online: str -> bool,
     quiet: str -> int,
     aborted: bool,
-    whiteLeft: int,
-    blackLeft: int
+    firstLeft: int,
+    secondLeft: int
   ): bool = all {
     _moves' = moves,
     _winner' = winner,
     _online' = online,
     _quiet' = quiet,
     _aborted' = aborted,
-    _whiteLeft' = whiteLeft,
-    _blackLeft' = blackLeft,
+    _firstLeft' = firstLeft,
+    _secondLeft' = secondLeft,
     idle' = PEOPLE.mapBy(p => _isIdle(p, online, quiet)),
     canMove' = DEVICES.mapBy(d => (not(aborted) and _canMove(d, moves, winner, online))),
     gameRecordOffered' = (winner != "nobody"),
@@ -133,10 +133,10 @@ module multiplayer_shared_game {
     online: str -> bool,
     quiet: str -> int,
     aborted: bool,
-    whiteLeft: int,
-    blackLeft: int
+    firstLeft: int,
+    secondLeft: int
   ): bool = all {
-    _record(moves, winner, online, quiet, aborted, whiteLeft, blackLeft),
+    _record(moves, winner, online, quiet, aborted, firstLeft, secondLeft),
     shownMoves' = DEVICES.mapBy(d => if (online.get(d)) moves else shownMoves.get(d)),
     shownWinner' = DEVICES.mapBy(d => if (online.get(d)) winner else shownWinner.get(d)),
   }
@@ -156,21 +156,21 @@ module multiplayer_shared_game {
     _winner == "nobody",
     _moves < 2,
     _onTurn(device, _moves),
-    _show(_moves + 1, _winner, _online, _quiet, _aborted, _whiteLeft, _blackLeft),
+    _show(_moves + 1, _winner, _online, _quiet, _aborted, _firstLeft, _secondLeft),
   }
 
   /// After both first moves, a connected device resigns and both spaces share that result.
-  action resignPlay(device: str): bool = all {
+  action resignGame(device: str): bool = all {
     not(_aborted),
     _online.get(device),
     MATCHED.contains(device),
     _winner == "nobody",
     _moves >= 2,
-    _show(_moves, _resignerGives(device), _online, _quiet, false, _whiteLeft, _blackLeft),
+    _show(_moves, _resignerGives(device), _online, _quiet, false, _firstLeft, _secondLeft),
   }
 
   /// Time passes with nothing done. Quiet minutes add up. Two is idle; one is not.
-  /// Before both first moves, a minute or more aborts the game. Afterwards the
+  /// Before both first moves, a minute or more aborts the matched game. Afterwards the
   /// side to move spends the minutes, and running out means the other person won.
   action goQuiet(device: str, minutes: int): bool = all {
     DEVICES.contains(device),
@@ -178,32 +178,32 @@ module multiplayer_shared_game {
     Set(1, 2).contains(minutes),
     _show(
       _moves,
-      _winnerAfter(_moves, _winner, _aborted, _whiteLeft, _blackLeft, minutes),
+      _winnerAfter(_moves, _winner, _aborted, _firstLeft, _secondLeft, minutes),
       _online,
       _quiet.set(device, _quiet.get(device) + minutes),
       _abortedAfter(_moves, _winner, _aborted),
-      _whiteAfter(_moves, _winner, _aborted, _whiteLeft, minutes),
-      _blackAfter(_moves, _winner, _aborted, _blackLeft, minutes),
+      _firstAfter(_moves, _winner, _aborted, _firstLeft, minutes),
+      _secondAfter(_moves, _winner, _aborted, _secondLeft, minutes),
     ),
   }
 
-  /// This device loses its connection. It keeps the board it was showing, and the game is unchanged.
+  /// This device loses its connection. It keeps the board it was showing, and the matched game is unchanged.
   action loseConnection(device: str): bool = all {
     _online.get(device),
-    _show(_moves, _winner, _online.set(device, false), _quiet.set(device, 0), _aborted, _whiteLeft, _blackLeft),
+    _show(_moves, _winner, _online.set(device, false), _quiet.set(device, 0), _aborted, _firstLeft, _secondLeft),
   }
 
-  /// This device's connection comes back. It shows the accepted game, and it is not idle.
+  /// This device's connection comes back. It shows the accepted matched game, and it is not idle.
   action connectionReturns(device: str): bool = all {
     not(_online.get(device)),
-    _show(_moves, _winner, _online.set(device, true), _quiet.set(device, 0), _aborted, _whiteLeft, _blackLeft),
+    _show(_moves, _winner, _online.set(device, true), _quiet.set(device, 0), _aborted, _firstLeft, _secondLeft),
   }
 
-  /// Copying the game record, once the game is over with a winner, changes nothing anyone is showing.
+  /// Copying the game record, once the matched game is over with a winner, changes nothing anyone is showing.
   action copyGameRecord(device: str): bool = all {
     DEVICES.contains(device),
     gameRecordOffered,
-    _show(_moves, _winner, _online, _quiet, _aborted, _whiteLeft, _blackLeft),
+    _show(_moves, _winner, _online, _quiet, _aborted, _firstLeft, _secondLeft),
   }
 
   action step = {
@@ -211,7 +211,7 @@ module multiplayer_shared_game {
     nondet minutes = Set(1, 2).oneOf()
     any {
       playMove(device),
-      resignPlay(device),
+      resignGame(device),
       goQuiet(device, minutes),
       loseConnection(device),
       connectionReturns(device),

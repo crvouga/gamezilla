@@ -1,17 +1,18 @@
-// Two hosts play one multiplayer game from their own spaces. A guest may
-// join either space to watch, leave it, and return to the accepted board.
+// Two hosts play one matched game of the game from their own spaces. A guest
+// may join either space to watch, leave it, and return to the accepted board.
 // An offline guest keeps the last accepted board and cannot move. Returning
 // online shows the current accepted board and result.
-// The short opening is e2 to e4 followed by e7 to e5. After both first moves,
-// either host may resign. Before both first moves, resignation changes nothing.
-module multiplayer_spaces {
+// The moves are each side's first move of the game's known victory. After
+// both first moves, either host may resign. Before both first moves,
+// resignation changes nothing.
+module matched_game_spaces {
   pure val PEOPLE = Set("alice", "bob", "carol")
   pure val HOSTS = Set("alice", "bob")
   /// Accepted moves shown to each person; nobody sees a board outside a space.
   var shownMoves: str -> int
   /// The winner each person sees, or nobody while play continues or is hidden.
   var shownWinner: str -> str
-  /// Whether each person can move a piece on the multiplayer board.
+  /// Whether each person can make a move on the board.
   var canMove: str -> bool
   var _guestSpace: str
   var _moves: int
@@ -31,18 +32,18 @@ module multiplayer_spaces {
     shownWinner' = PEOPLE.mapBy(_ => "nobody"),
     canMove' = PEOPLE.mapBy(p => p == "alice"),
   }
-  /// Joining either host's space shows its current multiplayer board.
+  /// Joining either host's space shows its matched game's current board.
   action joinSpace(host: str): bool = all {
     _online, _guestSpace == "outside", HOSTS.contains(host),
     _show(host, _moves, _winner, _online),
   }
-  /// A guest who leaves no longer watches the multiplayer board.
+  /// A guest who leaves no longer watches the board.
   action leaveSpace = all {
     _online, _guestSpace != "outside", _show("outside", _moves, _winner, _online),
   }
-  /// Opening multiplayer chess keeps the same accepted game.
-  action openMultiplayer = _show(_guestSpace, _moves, _winner, _online)
-  /// Only a matched person on their turn may move; watchers cannot move.
+  /// Opening finding an opponent keeps the same accepted matched game.
+  action openFindingAnOpponent = _show(_guestSpace, _moves, _winner, _online)
+  /// Only a paired person on their turn may move; watchers cannot move.
   action playMove(person: str): bool = {
     val accepted = HOSTS.contains(person) and _winner == "nobody" and person == _turn
     all {
@@ -50,8 +51,8 @@ module multiplayer_spaces {
       _show(_guestSpace, if (accepted) _moves + 1 else _moves, _winner, _online),
     }
   }
-  /// After both first moves, resignation gives the other matched person the lasting win.
-  action resignPlay(person: str): bool = {
+  /// After both first moves, resignation gives the other paired person the lasting win.
+  action resignGame(person: str): bool = {
     val winner = if (HOSTS.contains(person) and _winner == "nobody" and _moves >= 2)
       (if (person == "alice") "bob" else "alice") else _winner
     _show(_guestSpace, _moves, winner, _online)
@@ -68,7 +69,7 @@ module multiplayer_spaces {
   action step = {
     nondet host = HOSTS.oneOf()
     nondet person = PEOPLE.oneOf()
-    any { joinSpace(host), leaveSpace, openMultiplayer, playMove(person), resignPlay(person), loseConnection, comeBackOnline }
+    any { joinSpace(host), leaveSpace, openFindingAnOpponent, playMove(person), resignGame(person), loseConnection, comeBackOnline }
   }
   /// Hosts and guests in either space see the same accepted board and result.
   val invSharedBoard = PEOPLE.forall(p => (_inside(p) and (p != "carol" or _online)) implies and {
@@ -78,7 +79,7 @@ module multiplayer_spaces {
   val invOutsideCannotWatch = _guestSpace == "outside" implies and {
     shownMoves.get("carol") == -1, shownWinner.get("carol") == "nobody",
   }
-  /// Guests never gain a side, and matched people cannot move after a result.
+  /// Guests never gain a side, and the paired people cannot move after a result.
   val invMatchedPeopleOnly = PEOPLE.forall(p => canMove.get(p) implies and {
     HOSTS.contains(p), _winner == "nobody", p == _turn,
   })

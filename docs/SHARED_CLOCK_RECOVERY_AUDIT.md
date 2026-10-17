@@ -1,6 +1,6 @@
 # Shared clock recovery audit
 
-Scope: `specs/chess/shared-clock-recovery.qnt`, with its existing chess
+Scope: `specs/games/matched-game-clock-recovery.qnt`, with its existing chess
 examples. The daily-clock correction follows the definition of
 `multiplayer clock` in `specs/chess/ubiquitous-language.yml` and
 `multiplayer-daily-clock.feature:15`; it introduces no behavior or vocabulary.

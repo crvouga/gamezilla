@@ -4705,7 +4705,7 @@
                     "snapshot": "The space offers Chess and Connect Four.",
                     "confidence": "assumed",
                     "source": [
-                      "specs/chess/space-follow.qnt",
+                      "specs/games/space-follow.qnt",
                       "specs/chess/space-follows-the-host.feature",
                       "specs/chess/space-host-select-game.feature",
                       "specs/chess/ubiquitous-language.yml",
@@ -6276,7 +6276,7 @@
                     "confidence": "assumed",
                     "source": [
                       "specs/chess/chess-opponent-policies.feature",
-                      "specs/chess/daily-game.qnt",
+                      "specs/games/matched-game-daily.qnt",
                       "specs/chess/find-an-opponent.feature",
                       "specs/games/matched-game-abort.feature",
                       "specs/chess/multiplayer-accessibility.feature",
@@ -6290,33 +6290,33 @@
                       "specs/chess/multiplayer-flip-board.feature",
                       "specs/games/matched-game-over.feature",
                       "specs/chess/multiplayer-game-record.feature",
-                      "specs/chess/multiplayer-games.als",
+                      "specs/games/matched-games.als",
                       "specs/chess/multiplayer-in-spaces.feature",
                       "specs/chess/multiplayer-low-on-time.feature",
                       "specs/chess/multiplayer-move-list-review.feature",
                       "specs/chess/multiplayer-offline.feature",
                       "specs/chess/multiplayer-one-game-record.feature",
                       "specs/chess/multiplayer-one-search-across-spaces.feature",
-                      "specs/chess/multiplayer-own-board.qnt",
+                      "specs/games/matched-game-own-board.qnt",
                       "specs/chess/multiplayer-ratings.feature",
-                      "specs/chess/multiplayer-ready.openslo.yaml",
+                      "specs/games/matched-game-ready.openslo.yaml",
                       "specs/chess/multiplayer-recovery-and-privacy.feature",
                       "specs/games/matched-game-rematch.feature",
                       "specs/chess/multiplayer-result-notices.feature",
-                      "specs/chess/multiplayer-shared-game.qnt",
+                      "specs/games/matched-game-shared.qnt",
                       "specs/chess/multiplayer-shared-in-both-spaces.feature",
-                      "specs/chess/multiplayer-spaces.qnt",
+                      "specs/games/matched-game-spaces.qnt",
                       "specs/chess/multiplayer-time-controls.feature",
                       "specs/chess/multiplayer-turn-notices.feature",
                       "specs/chess/multiplayer-turn-reminders.feature",
-                      "specs/chess/multiplayer-watch-access.dmn",
-                      "specs/chess/multiplayer.qnt",
+                      "specs/games/matched-game-watch-access.dmn",
+                      "specs/games/matched-game.qnt",
                       "specs/chess/play-multiplayer-chess.feature",
                       "specs/games/matched-game-turns.feature",
-                      "specs/chess/shared-clock-recovery.qnt",
+                      "specs/games/matched-game-clock-recovery.qnt",
                       "specs/chess/shared-game-interruption.feature",
                       "specs/chess/ubiquitous-language.yml",
-                      "specs/chess/unfinished-game-limit.dmn",
+                      "specs/games/unfinished-game-limit.dmn",
                       "specs/ubiquitous-language.yml"
                     ],
                     "events": []
@@ -6493,10 +6493,10 @@
                         "snapshot": "Starting multiplayer search needs a connection.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/multiplayer-games.als",
-                          "specs/chess/multiplayer-ready.openslo.yaml",
-                          "specs/chess/multiplayer-watch-access.dmn",
-                          "specs/chess/unfinished-game-limit.dmn",
+                          "specs/games/matched-games.als",
+                          "specs/games/matched-game-ready.openslo.yaml",
+                          "specs/games/matched-game-watch-access.dmn",
+                          "specs/games/unfinished-game-limit.dmn",
                           "specs/chess/chess-opponent-policies.feature",
                           "specs/chess/find-an-opponent.feature",
                           "specs/games/matched-game-abort.feature",
@@ -6515,8 +6515,8 @@
                           "specs/chess/multiplayer-time-controls.feature",
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-turns.feature",
-                          "specs/chess/multiplayer-spaces.qnt",
-                          "specs/chess/multiplayer.qnt"
+                          "specs/games/matched-game-spaces.qnt",
+                          "specs/games/matched-game.qnt"
                         ],
                         "events": []
                       },
@@ -6533,10 +6533,10 @@
                         "snapshot": "Another unfinished game or competing wait prevents starting this search.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/multiplayer-games.als",
-                          "specs/chess/multiplayer-ready.openslo.yaml",
-                          "specs/chess/multiplayer-watch-access.dmn",
-                          "specs/chess/unfinished-game-limit.dmn",
+                          "specs/games/matched-games.als",
+                          "specs/games/matched-game-ready.openslo.yaml",
+                          "specs/games/matched-game-watch-access.dmn",
+                          "specs/games/unfinished-game-limit.dmn",
                           "specs/chess/chess-opponent-policies.feature",
                           "specs/chess/find-an-opponent.feature",
                           "specs/games/matched-game-abort.feature",
@@ -6555,8 +6555,8 @@
                           "specs/chess/multiplayer-time-controls.feature",
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-turns.feature",
-                          "specs/chess/multiplayer-spaces.qnt",
-                          "specs/chess/multiplayer.qnt"
+                          "specs/games/matched-game-spaces.qnt",
+                          "specs/games/matched-game.qnt"
                         ],
                         "events": []
                       },
@@ -6573,10 +6573,10 @@
                         "snapshot": "Both participants see the assigned colours, whose turn it is, and the agreed clocks.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/multiplayer-games.als",
-                          "specs/chess/multiplayer-ready.openslo.yaml",
-                          "specs/chess/multiplayer-watch-access.dmn",
-                          "specs/chess/unfinished-game-limit.dmn",
+                          "specs/games/matched-games.als",
+                          "specs/games/matched-game-ready.openslo.yaml",
+                          "specs/games/matched-game-watch-access.dmn",
+                          "specs/games/unfinished-game-limit.dmn",
                           "specs/chess/chess-opponent-policies.feature",
                           "specs/chess/find-an-opponent.feature",
                           "specs/games/matched-game-abort.feature",
@@ -6595,8 +6595,8 @@
                           "specs/chess/multiplayer-time-controls.feature",
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-turns.feature",
-                          "specs/chess/multiplayer-spaces.qnt",
-                          "specs/chess/multiplayer.qnt"
+                          "specs/games/matched-game-spaces.qnt",
+                          "specs/games/matched-game.qnt"
                         ],
                         "events": []
                       },
@@ -6655,10 +6655,10 @@
                         "snapshot": "Illegal, wrong-turn and spectator moves leave the current game unchanged.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/multiplayer-games.als",
-                          "specs/chess/multiplayer-ready.openslo.yaml",
-                          "specs/chess/multiplayer-watch-access.dmn",
-                          "specs/chess/unfinished-game-limit.dmn",
+                          "specs/games/matched-games.als",
+                          "specs/games/matched-game-ready.openslo.yaml",
+                          "specs/games/matched-game-watch-access.dmn",
+                          "specs/games/unfinished-game-limit.dmn",
                           "specs/chess/chess-opponent-policies.feature",
                           "specs/chess/find-an-opponent.feature",
                           "specs/games/matched-game-abort.feature",
@@ -6677,8 +6677,8 @@
                           "specs/chess/multiplayer-time-controls.feature",
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-turns.feature",
-                          "specs/chess/multiplayer-spaces.qnt",
-                          "specs/chess/multiplayer.qnt"
+                          "specs/games/matched-game-spaces.qnt",
+                          "specs/games/matched-game.qnt"
                         ],
                         "events": []
                       },
@@ -6695,10 +6695,10 @@
                         "snapshot": "The participant chooses a permitted promotion piece before finishing the move.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/multiplayer-games.als",
-                          "specs/chess/multiplayer-ready.openslo.yaml",
-                          "specs/chess/multiplayer-watch-access.dmn",
-                          "specs/chess/unfinished-game-limit.dmn",
+                          "specs/games/matched-games.als",
+                          "specs/games/matched-game-ready.openslo.yaml",
+                          "specs/games/matched-game-watch-access.dmn",
+                          "specs/games/unfinished-game-limit.dmn",
                           "specs/chess/chess-opponent-policies.feature",
                           "specs/chess/find-an-opponent.feature",
                           "specs/games/matched-game-abort.feature",
@@ -6717,8 +6717,8 @@
                           "specs/chess/multiplayer-time-controls.feature",
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-turns.feature",
-                          "specs/chess/multiplayer-spaces.qnt",
-                          "specs/chess/multiplayer.qnt"
+                          "specs/games/matched-game-spaces.qnt",
+                          "specs/games/matched-game.qnt"
                         ],
                         "events": []
                       },
@@ -6839,10 +6839,10 @@
                         "snapshot": "Once the permitted opening has passed the game continues under its clocks.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/multiplayer-games.als",
-                          "specs/chess/multiplayer-ready.openslo.yaml",
-                          "specs/chess/multiplayer-watch-access.dmn",
-                          "specs/chess/unfinished-game-limit.dmn",
+                          "specs/games/matched-games.als",
+                          "specs/games/matched-game-ready.openslo.yaml",
+                          "specs/games/matched-game-watch-access.dmn",
+                          "specs/games/unfinished-game-limit.dmn",
                           "specs/chess/chess-opponent-policies.feature",
                           "specs/chess/find-an-opponent.feature",
                           "specs/games/matched-game-abort.feature",
@@ -6861,8 +6861,8 @@
                           "specs/chess/multiplayer-time-controls.feature",
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-turns.feature",
-                          "specs/chess/multiplayer-spaces.qnt",
-                          "specs/chess/multiplayer.qnt"
+                          "specs/games/matched-game-spaces.qnt",
+                          "specs/games/matched-game.qnt"
                         ],
                         "events": []
                       },
@@ -6977,10 +6977,10 @@
                         "snapshot": "The finished game’s moves and result remain visible without restarting the game.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/multiplayer-games.als",
-                          "specs/chess/multiplayer-ready.openslo.yaml",
-                          "specs/chess/multiplayer-watch-access.dmn",
-                          "specs/chess/unfinished-game-limit.dmn",
+                          "specs/games/matched-games.als",
+                          "specs/games/matched-game-ready.openslo.yaml",
+                          "specs/games/matched-game-watch-access.dmn",
+                          "specs/games/unfinished-game-limit.dmn",
                           "specs/chess/chess-opponent-policies.feature",
                           "specs/chess/find-an-opponent.feature",
                           "specs/games/matched-game-abort.feature",
@@ -6999,8 +6999,8 @@
                           "specs/chess/multiplayer-time-controls.feature",
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-turns.feature",
-                          "specs/chess/multiplayer-spaces.qnt",
-                          "specs/chess/multiplayer.qnt"
+                          "specs/games/matched-game-spaces.qnt",
+                          "specs/games/matched-game.qnt"
                         ],
                         "events": []
                       },
@@ -7048,10 +7048,10 @@
                         "snapshot": "An aborted game, ended offer or competing game prevents the rematch for the stated reason.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/multiplayer-games.als",
-                          "specs/chess/multiplayer-ready.openslo.yaml",
-                          "specs/chess/multiplayer-watch-access.dmn",
-                          "specs/chess/unfinished-game-limit.dmn",
+                          "specs/games/matched-games.als",
+                          "specs/games/matched-game-ready.openslo.yaml",
+                          "specs/games/matched-game-watch-access.dmn",
+                          "specs/games/unfinished-game-limit.dmn",
                           "specs/chess/chess-opponent-policies.feature",
                           "specs/chess/find-an-opponent.feature",
                           "specs/games/matched-game-abort.feature",
@@ -7070,8 +7070,8 @@
                           "specs/chess/multiplayer-time-controls.feature",
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-turns.feature",
-                          "specs/chess/multiplayer-spaces.qnt",
-                          "specs/chess/multiplayer.qnt"
+                          "specs/games/matched-game-spaces.qnt",
+                          "specs/games/matched-game.qnt"
                         ],
                         "events": []
                       },
@@ -7088,10 +7088,10 @@
                         "snapshot": "The game was aborted and offers no rematch; another search remains available.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/multiplayer-games.als",
-                          "specs/chess/multiplayer-ready.openslo.yaml",
-                          "specs/chess/multiplayer-watch-access.dmn",
-                          "specs/chess/unfinished-game-limit.dmn",
+                          "specs/games/matched-games.als",
+                          "specs/games/matched-game-ready.openslo.yaml",
+                          "specs/games/matched-game-watch-access.dmn",
+                          "specs/games/unfinished-game-limit.dmn",
                           "specs/chess/chess-opponent-policies.feature",
                           "specs/chess/find-an-opponent.feature",
                           "specs/games/matched-game-abort.feature",
@@ -7110,8 +7110,8 @@
                           "specs/chess/multiplayer-time-controls.feature",
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-turns.feature",
-                          "specs/chess/multiplayer-spaces.qnt",
-                          "specs/chess/multiplayer.qnt"
+                          "specs/games/matched-game-spaces.qnt",
+                          "specs/games/matched-game.qnt"
                         ],
                         "events": []
                       },

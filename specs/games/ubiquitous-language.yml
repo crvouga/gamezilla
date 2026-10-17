@@ -14,6 +14,7 @@ terms:
       scenario is each game in turn; "another game" is any other one.
     forms: [games, another game, the game's]
     published: true
+    model: [pickGame]
 
   - term: the game's choices
     definition: >-
@@ -225,12 +226,12 @@ terms:
       - move played
       - moves played
     avoid: [command, action]
-    model: [playCustomMove, movesPlayed, movesShown]
+    model: [playCustomMove, movesPlayed, movesShown, playMove, playCurrentMove, moveCount, moves]
 
   - term: turn
     definition: The participant who may make the next move.
     forms: [turns, Alice's turn, Bob's turn, the other player's turn, to move]
-    model: [sideToMove]
+    model: [sideToMove, turn]
 
   - term: move list
     definition: >-
@@ -241,7 +242,7 @@ terms:
     definition: >-
       What a game is played on, as that game draws it. Everyone in the space
       sees the same board.
-    model: [playShown]
+    model: [playShown, PlayBoard, playBoard]
 
   - term: finished
     definition: >-
@@ -263,7 +264,7 @@ terms:
       How a finished game came out: a victory or a draw. Both people see the
       same result, kept with the moves. An aborted matched game has none.
     forms: [results]
-    model: [result, resultShown]
+    model: [result, resultShown, PlayOutcome, NoPlay, OngoingPlay, WonPlay, DrawnPlay, playOutcome, PlayState, UnfinishedPlay, WonGame, DrawnGame, playState, winner]
 
   - term: over
     definition: >-
@@ -285,6 +286,7 @@ terms:
       A finished game that nobody wins. A matched game whose draw offer is
       accepted is drawn by agreement; so is a custom game.
     forms: [draws, drawn, drawn by agreement]
+    model: [drawByAgreement]
 
   - term: resign
     definition: >-
@@ -308,6 +310,7 @@ terms:
       matched game.
     forms: [matched games, matched game's]
     avoid: [multiplayer game, online game, found-opponent game]
+    model: [PlayGame, PlayWorld, playNumber, playSide]
 
   - term: abort
     definition: >-
@@ -317,6 +320,7 @@ terms:
       people to seek an opponent again; aborting it again changes nothing.
     forms: [aborts, aborted, aborting, can no longer be aborted]
     avoid: [void]
+    model: [abortGame, AbortedPlay, AbortedGame]
 
   - term: miss the first move
     definition: >-
@@ -351,7 +355,7 @@ terms:
       - accepts the draw
       - decline the draw
       - declines the draw
-    model: [offerDraw, acceptDraw, declineDraw, drawOfferedByShown]
+    model: [offerDraw, acceptDraw, declineDraw, drawOfferedByShown, drawOffer]
 
   - term: accept
     definition: >-
@@ -389,13 +393,14 @@ terms:
       - accepting the rematch
       - decline the rematch
       - declines the rematch
-    model: [rematch]
+    model: [rematch, offerRematch, acceptRematch, declineRematch, rematchOffer, rematchOf]
 
   - term: find a new opponent
     definition: >-
       From a matched game that is over, seek an opponent again at that
       game's clock choice, in one step. It ends any rematch offer.
     forms: [finds a new opponent, found a new opponent, finding a new opponent]
+    model: [findNewOpponent]
 
   - term: opponent
     definition: >-
@@ -409,6 +414,7 @@ terms:
       current search, or their latest matched game, unfinished or over, the
       same on every device.
     forms: [opens finding an opponent]
+    model: [openFindingAnOpponent]
 
   - term: seek an opponent
     definition: >-
@@ -416,6 +422,7 @@ terms:
       person seeks for one game at a time and may stop seeking. Someone
       seeking an opponent cannot offer a rematch.
     forms: [seeking, seeks, stops seeking, waiting for an opponent]
+    model: [seekOpponent, stopSeeking, seeking, seekingSeconds]
 
   - term: clock choice
     definition: >-
@@ -427,7 +434,7 @@ terms:
       seconds a move, and any other is not offered. Its creator may change
       it only before the custom game starts.
     forms: [clock choices, played at, untimed, timed]
-    model: [chooseClock, minutesShown, incrementShown]
+    model: [chooseClock, minutesShown, incrementShown, ClockChoice, clockChoice]
 
   - term: clock
     definition: >-
@@ -436,7 +443,7 @@ terms:
       by that side's move, and it keeps running while a participant is
       away.
     forms: [clocks]
-    model: [clockLeft, clocksPaused]
+    model: [clockLeft, clocksPaused, firstSideClock, secondSideClock, timeLeft]
 
   - term: run out of time
     definition: >-
@@ -450,7 +457,7 @@ terms:
       Time going by in a matched game or a custom game while nobody makes a
       move.
     forms: [second passes, seconds have passed]
-    model: [customTimePasses]
+    model: [customTimePasses, secondsPass]
 
   - term: away
     definition: >-
@@ -490,6 +497,7 @@ terms:
       The family a clock choice belongs to, such as bullet, blitz, rapid or
       classical. Each speed has its own rating.
     forms: [speeds, bullet, blitz, rapid, classical]
+    model: [speed]
 
   - term: rating
     definition: >-
@@ -498,10 +506,160 @@ terms:
       both people's rating for its speed; an aborted matched game changes
       none. A custom game is unrated: it changes nobody's rating.
     forms: [ratings, bullet rating, blitz rating, rapid rating, classical rating, unrated]
+    model: [ratedGames]
+
+  - term: side balance
+    definition: >-
+      How many more of their finished matched games a person has played on
+      the first side than on the second; aborted matched games do not count.
+      Of two people paired up, the one with the greater side balance gets
+      the second side; when the balances are equal, either may get the first
+      side. A rematch swaps the sides instead.
+    forms: [side balances]
+
+  - term: unfinished matched game limit
+    definition: >-
+      Every account has at most one unfinished matched game, whichever game
+      it is. Before seeking an opponent again, the person finishes it, and
+      any custom game under way they are a participant of. A matched game
+      that is over no longer counts. Free accounts and Plus members have
+      the same allowance.
+
+  - term: pairing
+    definition: >-
+      Two people seeking an opponent for the same game at the same clock
+      choice whom matchmaking paired up. Each pairing gives them exactly one
+      matched game, however often the game is told about it.
+    forms: [pairings]
+    model: [Pairing, pairedPeople, fromPairing]
+
+  - term: last known board
+    definition: >-
+      The board, clocks, offers, search and result a device showed before it
+      lost its connection. They stay on it, and it can make no move,
+      resignation, abort or offer, until the connection brings back the
+      matched game as it now stands.
+    model: [LastKnownPlay]
+
+  - term: daily game
+    definition: >-
+      A matched game played at a clock choice that gives each person 1, 3 or
+      7 days for every move. It lasts across days: leaving or ending a
+      space, closing the app or using another device never ends or pauses
+      it, the time of the person whose turn it is keeps running, and the
+      daily game is there when they come back. A move hands the other person
+      their full days, and unused days are never saved up. Everything else
+      about it is an ordinary matched game, and it counts as the person's
+      one unfinished matched game.
+    forms: [daily games, daily game's, days per move]
+    avoid: [correspondence, turn-based game, slow game]
+    model: [DailyGame, daysPass]
+
+  - term: turn notice
+    definition: >-
+      An item in a person's inbox telling them it is their turn in their
+      daily game and naming their opponent. The first side has one when the
+      daily game starts; after that a person gets one each time their
+      opponent's move is accepted and the daily game is still unfinished. It
+      is unread until the person opens it, and it leaves the inbox as soon
+      as the person's own move is accepted, or the daily game is over. A
+      person has one turn notice for a daily game, never more: their next
+      turn brings it back unread, and so does becoming low on time before
+      they have moved, which makes it a turn reminder. Opening it shows the
+      person their daily game; with no connection it shows the last known
+      board and stays as it was. Only the two people of a daily game get
+      one.
+    forms: [turn notices, unread turn notice, unread, opened]
+    avoid: [notification, alert, ping]
+    model: [turnNotice, openTurnNotice]
+
+  - term: result notice
+    definition: >-
+      An item in the inbox of each of a daily game's two people telling them
+      how it ended for them: won, lost or drawn, with the reason, or
+      aborted. Both people get one when their daily game is over, and each
+      keeps theirs until they dismiss it, which needs a connection. Opening
+      it never dismisses it and shows the person their daily game; with no
+      connection it shows the last known board. A watcher never gets one.
+    forms: [result notices, dismiss, dismisses, dismissed, dismissing]
+    model: [resultNotice, openResultNotice, dismissResultNotice]
+
+  - term: low on time
+    definition: >-
+      Said of a running clock that is nearly used up; in a daily game, one
+      day or less is left at 3 or 7 days per move. A clock that is not
+      running is never low on time.
+    forms: [not low on time]
+    avoid: [time trouble, time pressure, flagging soon]
+
+  - term: turn reminder
+    definition: >-
+      What a person's turn notice becomes when their clock is low on time in
+      a daily game and they have not moved: it comes back unread and tells
+      them they are low on time. A person gets one turn reminder per turn,
+      for their first move too. It is still their one turn notice, never a
+      second item, so it leaves the inbox as a turn notice does.
+    forms: [turn reminders, unread turn reminder]
+    avoid: [nudge]
+    model: [turnReminder]
+
+  - term: earlier position
+    definition: >-
+      A position a game was in before its latest move. In a matched game,
+      whether unfinished or over, each of its people and every watcher can
+      review any earlier position on their own device: choose a move in the
+      move list, step back or forward one move, or go to the start. Their
+      board then shows that position, marked as an earlier position, and no
+      move can be made on it; their clocks, turn, offers and result keep
+      showing the matched game as it really stands. Reviewing one is private
+      to the device, makes no move and needs no connection: with none it
+      uses the last known board. A move accepted meanwhile joins the move
+      list and leaves the board on the position the person chose.
+    forms: [earlier positions, step back, step forward, the start]
+    avoid: [past position, old position]
+    model: [earlierPosition, chooseEarlierPosition, stepBackOneMove, stepForwardOneMove, goToStart]
+
+  - term: current position
+    definition: >-
+      The position after a game's latest accepted move: the game as it
+      really stands. A board shows it unless its person is reviewing an
+      earlier position, and one step returns them to it. Once the game is
+      over it is the final position.
+    forms: [return to the current position, final position]
+    avoid: [live position, latest position]
+    model: [returnToCurrentPosition]
+
+  - term: game record
+    definition: >-
+      A finished matched game written out in its game's own notation, with
+      both people's names, the result, the clock choice and every move. Once
+      a matched game is over with a result, each of its people and anyone
+      watching can copy its game record, or copy just its final position;
+      copying changes nothing. A watcher in either space, and either person
+      on another device, copies that same one. An unfinished or aborted
+      matched game offers neither.
+    forms: [game records, copy the game record, copy the final position, copied]
+    model: [gameRecordOffered, copyGameRecord, copyFinalPosition]
+
+  - term: game choice
+    definition: >-
+      Where a space's host picks the game the space plays, and where everyone
+      in the space starts. Going back from the game's choices returns there.
+    model: [backToGameChoice]
+
+  - term: space view
+    definition: >-
+      What a person in a space is looking at: the space's game choice or the
+      game's choices. What a space plays belongs to the space, so everyone in
+      it sees what its host last chose, on every device they have in the
+      space; a guest's choice does nothing. Going idle does not change it.
+    avoid: [screen, page]
+    model: [view]
 
   - term: pair people up
     from: matchmaking
     forms: [paired, are paired]
+    model: [pairPeopleUp]
 
   - term: history
     definition: >-
@@ -536,6 +694,7 @@ terms:
       move in it. Only people in the space may watch it: anyone else cannot
       see it, even a finished one.
     forms: [watch, watched, watching, watches]
+    model: [shownMoves, shownWinner, canMove]
 
   - term: space
     from: spaces
@@ -547,9 +706,15 @@ terms:
 
   - term: join
     from: spaces
+    model: [joinSpace]
+
+  - term: idle
+    from: spaces
+    model: [idle, goQuiet]
 
   - term: leave
     from: spaces
+    model: [leaveSpace]
 
   - term: end a space
     from: spaces
@@ -586,6 +751,7 @@ terms:
 
   - term: account deletion
     from: profile
+    model: [deleteAccount]
 
   - term: personal data
     from: profile
@@ -615,8 +781,14 @@ terms:
   - term: the app
     from: kernel
 
+  - term: person
+    from: kernel
+    model: [currentPlay]
+
   - term: device
     from: kernel
+    model: [PlayDevice]
 
   - term: connection
     from: kernel
+    model: [loseConnection, comeBackOnline, connectionReturns]

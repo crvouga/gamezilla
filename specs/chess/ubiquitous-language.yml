@@ -13,13 +13,10 @@ terms:
     from: matchmaking
   - term: matchmaking match
     from: matchmaking
-    model: [matchFormed, MatchmakingMatch, matchedPeople, fromMatch]
   - term: person
     from: kernel
-    model: [PlayPerson, currentPlay]
   - term: device
     from: kernel
-    model: [PlayDevice]
   - term: connection
     from: kernel
     model: [online, loseConnection, comeBackOnline, connectionReturns]
@@ -29,7 +26,6 @@ terms:
     from: friends
   - term: account deletion
     from: profile
-    model: [deletePlayAccount]
   # --- Borrowed -------------------------------------------------------------
 
   - term: guest
@@ -48,7 +44,6 @@ terms:
     from: friends
   - term: leave
     from: spaces
-    model: [leaveSpace]
   - term: end a space
     from: spaces
   - term: sign in
@@ -69,7 +64,6 @@ terms:
     from: spaces
   - term: join
     from: spaces
-    model: [joinSpace]
   - term: space link
     from: spaces
   - term: lobby
@@ -80,7 +74,6 @@ terms:
     from: spaces
   - term: idle
     from: spaces
-    model: [goQuiet, idle]
   - term: friend
     from: friends
   - term: Google
@@ -104,7 +97,6 @@ terms:
       have in the space. A guest cannot choose a different one. A later
       choice by the host replaces the earlier one everywhere in the space.
       Chess is one.
-    model: [pickChess]
     published: true
 
   - term: chess
@@ -112,7 +104,6 @@ terms:
       The game whose puzzles this context is about. In a space, chess offers
       its chess choices; playing puzzles is one of them. The host picks chess
       for the space; a guest cannot.
-    model: [pickChess]
     published: true
 
   - term: space view
@@ -144,7 +135,7 @@ terms:
       puzzle's state; a watcher's board agrees with the host's. In a Custom
       Game each participant's board faces their own side, and everyone
       else's board faces White.
-    model: [Board, boardFacing]
+    model: [Board]
     published: true
 
   - term: play puzzles
@@ -563,7 +554,6 @@ terms:
       review an earlier position on their own device, which changes nobody
       else's board.
     forms: [watch, watches, watched, watching]
-    model: [shownMoves, shownWinner, canMove]
     avoid: [spectator, viewer, observer]
 
   - term: suggestion
@@ -683,7 +673,7 @@ terms:
   - term: move
     source: FIDE Laws of Chess, Article 3 (the moves of the pieces)
     forms: [moves, moved, moving, plays]
-    model: [moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, playQuietPuzzleMove, playCapturePuzzleMove]
+    model: [playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, playQuietPuzzleMove, playCapturePuzzleMove]
   - term: capture
     source: FIDE Laws of Chess, Article 3.1.1 (removing an opposing piece as part of a move)
     forms: [captures, captured]
@@ -746,7 +736,6 @@ terms:
       Copying the game record from either space, or from another device,
       copies that one game.
     forms: [multiplayer game, multiplayer games, multiplayer board, multiplayer boards]
-    model: [PlayGame, PlayWorld, playNumber, playSide, whiteSide, blackSide, playBoard, PlayBoard]
     published: true
 
   - term: matched
@@ -781,7 +770,6 @@ terms:
       - day per move
       - days per move
     avoid: [time format, game mode, pace]
-    model: [TimeControl, timeControl]
 
   - term: speed
     definition: >-
@@ -789,7 +777,6 @@ terms:
       or daily, as the time control lists them. Each speed has its own
       multiplayer rating.
     forms: [speeds, bullet, blitz, rapid, classical, daily]
-    model: [speed]
 
   - term: find a chess opponent
     definition: >-
@@ -814,7 +801,6 @@ terms:
       - chess opponent search
       - opponent search
       - search
-    model: [findOpponent, lookingForOpponent, lookingSeconds]
 
   - term: find a new opponent
     definition: >-
@@ -823,14 +809,12 @@ terms:
       waiting multiplayer rematch offer. During an unfinished game it is
       refused like any other search.
     forms: [finds a new opponent, found a new opponent, finding a new opponent]
-    model: [findNewOpponent]
 
   - term: stop finding a chess opponent
     definition: >-
       Stop the person's current matchmaking wait, keeping any multiplayer
       game already formed. A person without a wait has nothing to stop.
     forms: [stops finding a chess opponent, stopped finding a chess opponent]
-    model: [stopFindingOpponent]
 
   - term: open multiplayer chess
     definition: >-
@@ -841,7 +825,6 @@ terms:
       game is over or aborted, the person may find a new opponent, and after
       a result they may offer a multiplayer rematch.
     forms: [opens multiplayer chess, returns to multiplayer chess]
-    model: [openMultiplayer]
 
   - term: colour balance
     definition: >-
@@ -864,7 +847,6 @@ terms:
       last accepted board and cannot send a move, resignation, abort or offer
       for later.
     forms: [turn, turns, plays a multiplayer move, repeats a multiplayer move, plays, repeats that multiplayer move]
-    model: [playMove, playCurrentMove, moveCount, turn]
 
   - term: multiplayer move list
     definition: >-
@@ -872,7 +854,6 @@ terms:
       people and every watcher and kept with its result. Choosing a move in
       it shows the earlier position after that move.
     forms: [multiplayer move lists]
-    model: [chooseEarlierPosition, stepBackOneMove, stepForwardOneMove, goToStart]
 
   - term: multiplayer clock
     definition: >-
@@ -904,7 +885,6 @@ terms:
       - day has passed in multiplayer chess
       - days have passed in multiplayer chess
     avoid: [timer]
-    model: [whiteClock, blackClock, multiplayerTimePasses, clocksPaused, timeLeft]
 
   - term: run out of time
     definition: >-
@@ -943,7 +923,6 @@ terms:
       - abort
       - can no longer be aborted
     avoid: [void]
-    model: [abortPlay, AbortedPlay, AbortedGame]
 
   - term: multiplayer result
     definition: >-
@@ -957,7 +936,6 @@ terms:
       disconnected person's multiplayer clock keeps running on their turn.
       An aborted game is over without a result.
     forms: [multiplayer game is over, multiplayer draw, multiplayer win, drawn, drawn by agreement, finished multiplayer game]
-    model: [PlayOutcome, NoPlay, OngoingPlay, WonPlay, DrawnPlay, playOutcome, PlayState, UnfinishedPlay, WonGame, DrawnGame, playState, winner]
     published: true
 
   - term: offer a multiplayer draw
@@ -973,21 +951,18 @@ terms:
       - offered someone a multiplayer draw
       - multiplayer draw offer
       - multiplayer draw offers
-    model: [offerPlayDraw, drawOffer]
 
   - term: accept the multiplayer draw
     definition: >-
       The person offered a multiplayer draw agreeing to it. The game is drawn
       by agreement and rated as a draw.
     forms: [accepts the multiplayer draw, accepted the multiplayer draw]
-    model: [acceptPlayDraw]
 
   - term: decline the multiplayer draw
     definition: >-
       The person offered a multiplayer draw turning it down. The game goes
       on and nobody is offered a draw.
     forms: [declines the multiplayer draw, declined the multiplayer draw]
-    model: [declinePlayDraw]
 
   - term: offer a multiplayer rematch
     definition: >-
@@ -1003,21 +978,18 @@ terms:
       - offered someone a multiplayer rematch
       - multiplayer rematch
       - multiplayer rematch offer
-    model: [offerRematch, rematchOffer, rematchOf]
 
   - term: accept the multiplayer rematch
     definition: >-
       The person offered a multiplayer rematch agreeing to it, which starts
       the new multiplayer game at once.
     forms: [accepts the multiplayer rematch, accepted the multiplayer rematch]
-    model: [acceptRematch]
 
   - term: decline the multiplayer rematch
     definition: >-
       The person offered a multiplayer rematch turning it down. The offer
       ends.
     forms: [declines the multiplayer rematch, declined the multiplayer rematch]
-    model: [declineRematch]
 
   - term: resign multiplayer chess
     definition: >-
@@ -1029,7 +1001,6 @@ terms:
       unfinished game, or aborts it if both people have not yet moved, and
       stops their opponent search before their account disappears.
     forms: [resigns multiplayer chess, resigned multiplayer chess]
-    model: [resignPlay]
 
   - term: multiplayer rating
     definition: >-
@@ -1064,22 +1035,12 @@ terms:
       sees how many rated multiplayer games they have played at each speed.
       An aborted game is not rated.
     forms: [rated multiplayer games]
-    model: [ratedGames]
 
   - term: last known multiplayer board
     definition: >-
       The accepted board, multiplayer clocks, offers and result shown before
       a device went offline. They stay visible until a connection brings the
       accepted outcome back.
-    model: [LastKnownPlay]
-
-  - term: unfinished multiplayer game limit
-    definition: >-
-      Every account has at most one unfinished multiplayer game. Before
-      seeking a new opponent, the person finishes that game, and also any
-      active Custom Game they are a participant of. A game that is over or
-      aborted no longer counts. Free accounts and Plus members have the same
-      allowance.
 
   - term: daily game
     definition: >-
@@ -1094,7 +1055,6 @@ terms:
       unfinished multiplayer game.
     forms: [daily games, daily game's]
     avoid: [correspondence, turn-based game, slow game]
-    model: [DailyGame]
 
   - term: turn notice
     definition: >-
@@ -1114,7 +1074,6 @@ terms:
       watcher never does, and no other multiplayer game brings one.
     forms: [turn notices, unread turn notice, unread]
     avoid: [notification, alert, ping]
-    model: [turnNotice, openTurnNotice]
 
   - term: result notice
     definition: >-
@@ -1127,7 +1086,6 @@ terms:
       none; with no connection it shows the last known multiplayer board. A
       watcher never gets one, and no other multiplayer game brings one.
     forms: [result notices, dismiss, dismisses, dismissed, dismissing]
-    model: [resultNotice, openResultNotice, dismissResultNotice]
 
   - term: low on time
     definition: >-
@@ -1160,7 +1118,6 @@ terms:
       other multiplayer game gives one.
     forms: [turn reminders, unread turn reminder]
     avoid: [nudge, ping, alert]
-    model: [turnReminder]
 
   - term: earlier position
     definition: >-
@@ -1179,7 +1136,6 @@ terms:
       the app is told which earlier position they are reviewing.
     forms: [earlier positions]
     avoid: [past position, old position]
-    model: [earlierPosition]
 
   - term: current position
     definition: >-
@@ -1193,7 +1149,6 @@ terms:
       - returning to the current position
       - final position
     avoid: [live position, latest position]
-    model: [returnToCurrentPosition]
 
   - term: game record
     definition: >-
@@ -1211,7 +1166,6 @@ terms:
     source: Portable Game Notation for the game record and Forsyth-Edwards Notation for the final position
     forms: [game records, copy the game record, copies the game record, copy the final position, copies the final position, copied]
     avoid: [PGN, download]
-    model: [gameRecordOffered, copyGameRecord, copyFinalPosition]
 
   - term: flip the board
     definition: >-
@@ -1225,7 +1179,6 @@ terms:
       whose turn it is, and needs no connection.
     forms: [flips the board, flipped the board, flipping the board, flipping, flipped]
     avoid: [rotate, switch sides]
-    model: [flipBoard]
 
   # --- Custom Games --------------------------------------------------------
 
@@ -1337,8 +1290,6 @@ terms:
     forms:
     - untimed
     - timed
-    model:
-    - clocksPaused
   - term: Custom Game outcome
     definition: 'The final result: White wins, Black wins, a draw or cancellation with no
       winner. Wins say checkmate, resignation, time, or the other participant staying away.

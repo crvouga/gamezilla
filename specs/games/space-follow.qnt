@@ -1,8 +1,10 @@
 // Everyone in a space sees what its host last chose, on every device they
-// have in the space. The host's other device chooses for the whole space.
-// A guest's choice does nothing. A device with no connection cannot choose,
-// and what the space shows stays the host's last choice. Being idle does
-// not change it. Coming back online shows that same choice.
+// have in the space: the space's game choice, or the game's choices once the
+// host picks the game, whichever game it is. The host's other device chooses
+// for the whole space. A guest's choice does nothing. A device with no
+// connection cannot choose, and what the space shows stays the host's last
+// choice. Being idle does not change it. Coming back online shows that same
+// choice.
 module space_follow {
   pure val ALICE_PHONE = "alice-phone"
   pure val ALICE_COMPUTER = "alice-computer"
@@ -10,7 +12,8 @@ module space_follow {
   pure val DEVICES = Set(ALICE_PHONE, ALICE_COMPUTER, BOB_PHONE)
   pure val HOSTS = Set(ALICE_PHONE, ALICE_COMPUTER)
 
-  /// What each device is showing: "choice", "chess", or "host offline".
+  /// What each device is showing: "choice" (the space's game choice), "game"
+  /// (the game's choices), or "host offline".
   var view: str -> str
   /// Whether each device has a connection. It starts connected.
   var _online: str -> bool
@@ -68,14 +71,14 @@ module space_follow {
       "choice",
     )
 
-  /// The host picks chess. Every device in the space shows it. A guest or an offline device cannot.
-  action pickChess(device: str): bool = all {
+  /// The host picks the game. Every device in the space shows its choices. A guest or an offline device cannot.
+  action pickGame(device: str): bool = all {
     HOSTS.contains(device),
     _online.get(device),
     _in.get(device),
-    not(view.get(device) == "chess"),
+    not(view.get(device) == "game"),
     not(device == BOB_PHONE),
-    _apply("chess"),
+    _apply("game"),
   }
 
   /// The host goes back to the game choice. A guest or an offline device cannot.
@@ -83,7 +86,7 @@ module space_follow {
     HOSTS.contains(device),
     _online.get(device),
     _in.get(device),
-    view.get(device) == "chess",
+    view.get(device) == "game",
     not(device == BOB_PHONE),
     _apply("choice"),
   }
@@ -115,7 +118,7 @@ module space_follow {
   action step = {
     nondet device = DEVICES.oneOf()
     any {
-      pickChess(device),
+      pickGame(device),
       backToGameChoice(device),
       goQuiet(device),
       loseConnection(device),
