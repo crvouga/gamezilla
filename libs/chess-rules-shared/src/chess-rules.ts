@@ -43,6 +43,12 @@ function result(board: Chess): Pick<PlayedPosition, 'winner' | 'reason'> {
     };
   return { winner: null, reason: null };
 }
+/** Every legal move of `board`, spelled as an action (`e2e4`, `e7e8q`). */
+function legalActions(board: Chess): readonly string[] {
+  return board
+    .moves({ verbose: true })
+    .map((m) => m.from + m.to + (m.promotion ?? ''));
+}
 export const chessRules: GameRules = {
   id: 'chess',
   recognizes: (position) => validateFen(position).ok,
@@ -50,6 +56,9 @@ export const chessRules: GameRules = {
   play(position, action, history, actions) {
     const board = boardFrom(position, history, actions);
     if (board.isGameOver()) return null;
+    // Only the canonical spelling of a legal move enters the accepted history:
+    // chess.js would otherwise take `b2b3a` as b2b3, or `e7e8` as a queen.
+    if (!legalActions(board).includes(action)) return null;
     try {
       const move = board.move(chessMoveInput(action));
       return {
@@ -65,10 +74,7 @@ export const chessRules: GameRules = {
   },
   replay: (actions, ply) =>
     boardFrom(DEFAULT_POSITION, '', actions.slice(0, ply)).fen(),
-  legal: (position) =>
-    new Chess(position)
-      .moves({ verbose: true })
-      .map((m) => m.from + m.to + (m.promotion ?? '')),
+  legal: (position) => legalActions(new Chess(position)),
   canWin: (position, side) =>
     canCheckmate(new Chess(position), side === 'white' ? 'w' : 'b'),
   moves: (position, history, actions) =>
