@@ -19,13 +19,17 @@ export type ConformanceArea = (typeof CONFORMANCE_AREAS)[number];
  * What some shared specifications need beyond a capability: a trait of the
  * game's rules that not every game has, shown by its fixtures. A game
  * without the fixture lacks the trait, which the rules laws verify (a side
- * that cannot win: bounded play never reaches one), so a specification
+ * that cannot win, a draw by its rules: bounded play never reaches one), so
+ * a specification
  * needing it holds for exactly the games whose rules have it.
  */
 export const GAME_TRAITS = {
   /** A position where the second side cannot win (`secondSideCannotWin`). */
   'a side that cannot win': (game: HarnessGame) =>
     game.fixtures.secondSideCannotWin !== undefined,
+  /** A line the game's own rules draw (`drawByRules`). */
+  "a draw by the game's own rules": (game: HarnessGame) =>
+    game.fixtures.drawByRules !== undefined,
 } as const satisfies Readonly<Record<string, (game: HarnessGame) => boolean>>;
 export type GameTrait = keyof typeof GAME_TRAITS;
 
@@ -79,6 +83,18 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'custom-game-accessibility': ['custom-games'],
   'game-turns': ['custom-games'],
   'finding-an-opponent': ['matchmaking'],
+  'finding-an-opponent-devices': ['matchmaking'],
+  'finding-an-opponent-clock-choices': ['matchmaking'],
+  'finding-an-opponent-after-a-custom-game': ['matchmaking', 'custom-games'],
+  'matched-game-sides': ['matchmaking'],
+  'matched-game-clock': ['matchmaking'],
+  'matched-game-cannot-win': ['matchmaking', 'a side that cannot win'],
+  'matched-game-daily-clock': ['matchmaking'],
+  'matched-game-low-on-time': ['matchmaking'],
+  'matched-game-ratings': ['matchmaking'],
+  'matched-game-blocking': ['matchmaking'],
+  'matched-game-results': ['matchmaking'],
+  'matched-game-rules-draw': ['matchmaking', "a draw by the game's own rules"],
   'matched-game-abort': ['matchmaking'],
   'matched-game-draw-offers': ['matchmaking'],
   'matched-game-over': ['matchmaking'],

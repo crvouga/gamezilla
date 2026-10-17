@@ -1,10 +1,9 @@
 /**
- * A custom game where the second side cannot win: the game's known line to
- * such a position (`secondSideCannotWin`), short of its last move, so the
- * first side is to move. Only games whose fixtures name such a line run
- * these scenarios (`SHARED_SPECIFICATIONS`: a side that cannot win).
+ * A custom game where the second side cannot win, along the game's known
+ * line to such a position (`cannot-win-world`).
  */
 
+import { inMatchedGame } from '@libs/game-matchmaking-harness/matched-game-world';
 import { readCustomGameTime } from '@libs/game-session-harness/custom-game-clocks';
 import type { CustomGameLineup } from '@libs/game-session-harness/custom-game-lineup';
 import { makeCustomGameMove } from '@libs/game-session-harness/custom-game-moves';
@@ -12,22 +11,13 @@ import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state
 import { customGameTimeLeft } from '@libs/game-session-shared/custom-game-state';
 import { Given } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { cannotWinLine, matchedTimeLeft } from './cannot-win-world';
 import { clockChoice, current } from './custom-game-set-up-world';
 import { gameOf, setupCustomGame } from './game-world';
 
 const SECOND_MS = 1000;
 /** Who plays the first side, who makes the line's last move. */
 const FIRST_SIDE = 'custom-game-first-side';
-
-/** The game's known line to a position where the second side cannot win. */
-function cannotWinLine(w: HarnessWorld): readonly string[] {
-  const line = gameOf(w).fixtures.secondSideCannotWin;
-  if (line === undefined)
-    throw new Error(
-      `${gameOf(w).label} names no position its second side cannot win`
-    );
-  return line;
-}
 
 async function cannotWinGame(
   w: HarnessWorld,
@@ -54,6 +44,7 @@ Given(
 // The second side's clock runs once the first side makes the line's last
 // move, which leaves the second side still unable to win.
 Given('the {gameSide} has one second left', async (w, side: CustomGameSide) => {
+  if (inMatchedGame(w)) return matchedTimeLeft(w, side, SECOND_MS);
   if (side === 'black')
     await w.s.apply(
       makeCustomGameMove,

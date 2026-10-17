@@ -15,6 +15,7 @@ import {
 import { openFindingAnOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';
 import { Given, Then, When } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { clockShown, daily } from './finding-an-opponent-world';
 import { gameOf } from './game-world';
 import { finishedAt, readyPeople, timeControlFor, told } from './matched-game';
 
@@ -70,11 +71,6 @@ Given(
     });
   }
 );
-Given(
-  '{actor} is seeking an opponent for the game at {word}',
-  (w, actor: string, clock: string) =>
-    searchFor(w, actor, timeControlFor(w, clock))
-);
 
 When('{actor} offers a rematch', async (w, actor: string) => {
   await gameCommand(w, actor, 'offerMultiplayerRematch');
@@ -112,20 +108,27 @@ Then(
     );
   }
 );
+/** Both people see their matched game is played at `clock`. */
+async function playedAt(w: HarnessWorld, clock: string) {
+  for (const person of pairOf(w)) {
+    await w.s.apply(openFindingAnOpponent, person, gameOf(w).shared.id);
+    await w.s.until(
+      (s) => shownMultiplayerText(s, person, 'multiplayer-time-control'),
+      { pred: (shown) => shown === clockShown(clock) }
+    );
+    expect((await w.s.read(multiplayerView, person)).game?.time_control).toBe(
+      timeControlFor(w, clock)
+    );
+  }
+}
+
 Then(
   'both people see their matched game is played at {word}',
-  async (w, clock: string) => {
-    for (const person of pairOf(w)) {
-      await w.s.apply(openFindingAnOpponent, person, gameOf(w).shared.id);
-      await w.s.until(
-        (s) => shownMultiplayerText(s, person, 'multiplayer-time-control'),
-        { pred: (shown) => shown === clock }
-      );
-      expect((await w.s.read(multiplayerView, person)).game?.time_control).toBe(
-        timeControlFor(w, clock)
-      );
-    }
-  }
+  (w, clock: string) => playedAt(w, clock)
+);
+Then(
+  'both people see their matched game is played at {int} day(s) per move',
+  (w, days: number) => playedAt(w, daily(days))
 );
 Then(
   '{actor} is told an aborted matched game has no rematch',
@@ -137,9 +140,6 @@ Then('{actor} is told the matched game is not over yet', (w, actor: string) =>
 Then(
   '{actor} is told {actor} already has another unfinished matched game',
   (w, actor: string) => told(w, actor, 'CHESS_OPPONENT_PLAYING')
-);
-Then('{actor} is told he is already seeking an opponent', (w, actor: string) =>
-  told(w, actor, 'CHESS_ALREADY_LOOKING')
 );
 Then(
   '{actor} is told {actor} is already seeking an opponent',

@@ -15,11 +15,6 @@ async function rematchOfferBy(w: HarnessWorld) {
 }
 
 Given(
-  "{actor}'s {word} multiplayer game with {actor} is over",
-  (w, a: Actor, timeControl: string, b: Actor) =>
-    givenOverGame(w, a, b, timeControl)
-);
-Given(
   '{actor} was White and {actor} was Black in their finished {word} multiplayer game',
   (w, white: Actor, black: Actor, timeControl: string) =>
     givenOverGame(w, white, black, timeControl)

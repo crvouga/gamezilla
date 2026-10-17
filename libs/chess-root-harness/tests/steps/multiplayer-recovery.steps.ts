@@ -29,27 +29,6 @@ import { multiplayerPeople } from './multiplayer-people';
 import { givenBegunGame, givenGame } from './multiplayer-world';
 
 Given(
-  '{actor} has an account without a connection',
-  async (w, actor: Actor) => {
-    await multiplayerPeople(w, [actor]);
-    await disconnectMultiplayer(w, actor);
-  }
-);
-Then(
-  '{actor} is told finding an opponent needs a connection',
-  async (w, actor: Actor) => {
-    expect(
-      await w.s.read(multiplayerText, actor, 'multiplayer-offline')
-    ).toContain('need a connection');
-    expect(
-      await w.s.read(multiplayerText, actor, 'multiplayer-error')
-    ).toContain('needs a connection');
-  }
-);
-Then('{actor} is told she has no opponent search to stop', (w, actor: Actor) =>
-  refusal(w, actor, 'CHESS_NO_SEARCH')
-);
-Given(
   '{actor} has a new multiplayer game and her phone is offline',
   async (w, actor: Actor) => {
     await givenGame(w, actor, 'bob');

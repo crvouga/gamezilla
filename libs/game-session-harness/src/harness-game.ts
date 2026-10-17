@@ -30,6 +30,14 @@ export type GameFixtures = {
    * side that cannot win (`custom-game-cannot-win`) needs it.
    */
   readonly secondSideCannotWin?: readonly string[];
+  /**
+   * Actions, alternating from the first side, after which the game's own
+   * rules have drawn it; only the last one draws, and nothing finishes the
+   * game before it. Absent for a game its rules never draw, which the rules
+   * laws check. The shared matched-game feature about a draw by the game's
+   * own rules (`matched-game-rules-draw`) needs it.
+   */
+  readonly drawByRules?: readonly string[];
 };
 
 /**
@@ -77,6 +85,8 @@ export function assertHarnessGame(game: HarnessGame): HarnessGame {
       fail(`the refused opening ${action} is accepted`);
   const cannotWin = game.fixtures.secondSideCannotWin;
   if (cannotWin !== undefined) assertCannotWinLine(game, cannotWin, fail);
+  const drawn = game.fixtures.drawByRules;
+  if (drawn !== undefined) assertDrawingLine(game, drawn, fail);
   let position = rules.initial();
   let history = '';
   const actions: string[] = [];
@@ -125,5 +135,31 @@ function assertCannotWinLine(
       fail(
         `after ${String(ply)} moves the second side can win, or the first cannot`
       );
+  }
+}
+
+/**
+ * The known line the game's rules draw: legal, unfinished until its last
+ * action, which draws the game.
+ */
+function assertDrawingLine(
+  game: HarnessGame,
+  line: readonly string[],
+  fail: (problem: string) => void
+): void {
+  const rules = game.shared.turnGame.rules;
+  let position = rules.initial();
+  let history = '';
+  const actions: string[] = [];
+  for (const [index, action] of line.entries()) {
+    const played = rules.play(position, action, history, actions);
+    const last = index === line.length - 1;
+    if (played === null || played.winner !== (last ? 'draw' : null))
+      fail(
+        `the line its rules draw ${last ? 'does not draw' : 'stops'} at ${action}`
+      );
+    position = played!.position;
+    history = played!.history;
+    actions.push(action);
   }
 }

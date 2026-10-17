@@ -4,15 +4,12 @@ import {
   acceptedMoves,
   boardBeforeMove,
   bothBoards,
-  matchedGameOf,
   pairOf,
   refusal,
   resignation,
-  sameBoards,
   winner,
 } from '@libs/game-matchmaking-harness/matched-game-world';
 import { shownMultiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
-import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import { accountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -37,29 +34,10 @@ Given(
   givenBegunGame
 );
 Given('{actor} has an unfinished multiplayer game with {actor}', givenGame);
-Given(
-  '{actor} and {actor} have a multiplayer game from a matchmaking match',
-  givenGame
-);
-Given(
-  "{actor}'s multiplayer game with {actor} is over",
-  (w, a: Actor, b: Actor) => givenOverGame(w, a, b)
-);
 Given("{actor}'s multiplayer move e2 to e4 was accepted", async (w) => {
   await givenGame(w);
   await acceptedMoves(w, ['e2e4']);
 });
-Given(
-  '{actor} resigned multiplayer chess and {actor} won',
-  async (w, loser: Actor, win: Actor) => {
-    if (!w.memo.has('multiplayer:game')) {
-      await givenOverGame(w, win, loser);
-      return;
-    }
-    expect((await resignation(w, loser)).result.ok).toBe(true);
-    await bothBoards(w, (g) => g.outcome !== 'ongoing');
-  }
-);
 Given(
   '{actor} resigned multiplayer chess after the multiplayer moves e4 and e5',
   (w, loser: Actor) => givenOverGame(w, 'alice', loser)
@@ -108,44 +86,10 @@ Then('{actor} is told it is not their multiplayer turn', (w, actor: Actor) =>
 Then('{actor} is told that multiplayer move is illegal', (w, actor: Actor) =>
   refusal(w, actor, 'CHESS_ILLEGAL_MOVE')
 );
-Then('{actor} is told the multiplayer game is over', (w, actor: Actor) =>
-  refusal(w, actor, 'CHESS_GAME_OVER')
-);
-Then('both people see {actor} won the multiplayer game', (w, actor: Actor) =>
-  winner(w, actor)
-);
 
 Then(
   'both people see {actor} won the multiplayer game by checkmate',
   (w, actor: Actor) => winner(w, actor, 'checkmate')
-);
-Then(
-  '{actor} and {actor} keep the same multiplayer game and board',
-  async (w, a: Actor, b: Actor) => {
-    expect(await sameBoards(w, a, b)).toEqual(
-      w.memo.get('multiplayer:game') as MultiplayerGame
-    );
-  }
-);
-Then(
-  '{actor} keeps her multiplayer game with {actor}',
-  async (w, a: Actor, b: Actor) => {
-    expect((await sameBoards(w, a, b)).id).toBe(
-      (w.memo.get('multiplayer:game') as MultiplayerGame).id
-    );
-  }
-);
-Then(
-  '{actor} sees the same multiplayer game and board on that device',
-  async (w, actor: Actor) => {
-    const other = String(w.memo.get(`multiplayer:other:${actor}`));
-    expect((await sameBoards(w, actor, other)).id).toBe(
-      (w.memo.get('multiplayer:game') as MultiplayerGame).id
-    );
-    expect(await matchedGameOf(w, other)).toEqual(
-      await matchedGameOf(w, actor)
-    );
-  }
 );
 
 /** The move list a person sees on their multiplayer screen. */

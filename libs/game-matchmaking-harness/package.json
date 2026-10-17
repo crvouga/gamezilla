@@ -27,6 +27,7 @@
     "@pkgs/device-shared": "workspace:*",
     "@pkgs/gherkin-shared": "workspace:*",
     "@pkgs/matchmaking-sql-shared": "workspace:*",
+    "@pkgs/sounds-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-client": "workspace:*",

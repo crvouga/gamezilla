@@ -1,18 +1,20 @@
-import {
-  closeMultiplayerApp,
-  reopenMultiplayerApp,
-} from '@libs/chess-matchmaking-harness/multiplayer-app';
-import { pairOf } from '@libs/game-matchmaking-harness/matched-game-world';
-import { passMultiplayerDays } from '@libs/game-matchmaking-harness/multiplayer-time';
+/**
+ * Closing and reopening the app during a matched game, shared by every
+ * context whose features play one.
+ */
+
 import { Given, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { pairOf } from './matched-game-world';
+import { closeMultiplayerApp, reopenMultiplayerApp } from './multiplayer-app';
+import { passMultiplayerDays } from './multiplayer-time';
 
 const DAY_MS = 86_400_000;
 
 /**
  * The person's app is closed. Nobody looks at that device meanwhile, so
- * what "both people see" is read on their multiplayer opponent's device
+ * what "both people see" is read on their opponent's device
  * until they reopen it.
  */
 export async function closeApp(w: HarnessWorld, actor: string) {

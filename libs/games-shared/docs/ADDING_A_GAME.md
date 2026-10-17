@@ -85,6 +85,10 @@ export const RACE_PLAYABLE: PlayableGame = {
     // king): a line to one, ending with the first side's move. Without it
     // the rules laws check that both sides can always win.
     // secondSideCannotWin: [...],
+    // Only for a game its rules can draw (chess's repetition, Connect
+    // Four's full board): a line the rules draw on its last move. Without
+    // it the rules laws check that the game is never drawn by its rules.
+    // drawByRules: [...],
   },
 };
 

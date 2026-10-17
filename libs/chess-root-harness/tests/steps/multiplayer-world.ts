@@ -6,7 +6,6 @@
 
 import { playMultiplayerMove } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
 import {
-  abortedByFirst,
   acceptedMoves,
   matchedGameOf,
   pairMatchedGame,
@@ -73,14 +72,4 @@ export async function givenOverGame(
 ) {
   await givenBegunGame(w, white, black, timeControl);
   return resignedBySecond(w);
-}
-
-export async function givenAbortedGame(
-  w: HarnessWorld,
-  white = 'alice',
-  black = 'bob',
-  timeControl = '5+0'
-) {
-  await givenGame(w, white, black, timeControl);
-  return abortedByFirst(w);
 }

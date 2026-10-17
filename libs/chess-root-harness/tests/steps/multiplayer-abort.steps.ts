@@ -6,10 +6,9 @@ import {
   sameBoards,
 } from '@libs/game-matchmaking-harness/matched-game-world';
 import { passMultiplayerTime } from '@libs/game-matchmaking-harness/multiplayer-time';
-import { Given, Then, When } from '@libs/harness/define';
+import { Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import { givenAbortedGame } from './multiplayer-world';
 
 const SECOND_MS = 1000;
 
@@ -19,16 +18,9 @@ function passing(w: HarnessWorld, seconds: number) {
 
 When('{int} seconds pass in multiplayer chess', passing);
 
-Given('{int} seconds have passed in multiplayer chess', passing);
-
 When('{actor} aborts the multiplayer game', async (w, actor: Actor) => {
   await gameCommand(w, actor, 'abortMultiplayer');
 });
-Given(
-  "{actor}'s {word} multiplayer game with {actor} was aborted",
-  (w, a: Actor, timeControl: string, b: Actor) =>
-    givenAbortedGame(w, a, b, timeControl)
-);
 Then('both people see the multiplayer game was aborted', async (w) => {
   expect((await bothBoards(w, (g) => g.outcome === 'aborted')).outcome).toBe(
     'aborted'

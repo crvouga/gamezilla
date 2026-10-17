@@ -1,4 +1,7 @@
-import { DEFAULT_TIME_CONTROL } from '@libs/game-matchmaking-shared/time-control';
+import {
+  DEFAULT_TIME_CONTROL,
+  timeControlKey,
+} from '@libs/game-matchmaking-shared/time-control';
 import {
   actorUi,
   ensureActor,
@@ -7,10 +10,15 @@ import {
 } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
+import { signedInAccountOf } from '@libs/harness/identity';
 import { bringToFront } from '@libs/harness/observations';
 import { backToTabs } from '@libs/harness/shell-actions';
 import { createSpace } from '@libs/spaces-harness/space-actions';
 import { Handles } from '@libs/test-ids-shared/handles';
+import {
+  forgetMultiplayerReply,
+  sendMultiplayerCommand,
+} from './multiplayer-commands';
 import { multiplayerView } from './multiplayer-reads';
 import { requestGameOpponent } from './multiplayer-search-ui';
 import { multiplayerSpaceId } from './multiplayer-spaces';
@@ -129,11 +137,70 @@ export const openFindingAnOpponentIfAny = scenarioAction({
     reachFindingAnOpponent(s, actor, gameId, true),
 });
 
-/** `actor` stops seeking from the shared waiting controls. */
+/**
+ * `actor` seeks an opponent for `gameId` at `timeControl` (in the game's
+ * clock namespace) from finding an opponent in their space — an account
+ * without one starts it, as seeking from the game's choices does — opened as
+ * far as their device can: they choose the clock choice and find. A screen
+ * that cannot express
+ * the request — a clock choice it does not offer, or a search, matched game
+ * or custom game already under way — sends the same command a stale screen
+ * on another device would; a sign-in invitation takes no command at all.
+ */
+export const findGameOpponent = scenarioAction({
+  name: 'findGameOpponent',
+  act: async (s, actor: string, gameId: string, timeControl: string) => {
+    await ensureActor(s, actor);
+    if (
+      (await multiplayerSpaceId(s, actor)) === null &&
+      (await signedInAccountOf(s, actor)) !== null
+    )
+      await Promise.resolve(createSpace.act(s, actor));
+    await reachFindingAnOpponent(s, actor, gameId, true);
+    const ui = await actorUi(s, actor);
+    if (await ui.get('multiplayer-access-denial').isVisible()) return;
+    const clock = timeControl.split('/').at(-1) ?? timeControl;
+    const choice = ui.get(`multiplayer-time-control-${timeControlKey(clock)}`);
+    if (!(await choice.isVisible())) {
+      await Promise.resolve(
+        sendMultiplayerCommand.act(s, actor, {
+          name: 'findChessOpponent',
+          args: { timeControl, requestId: s.session.ports.createId() },
+        })
+      );
+      return;
+    }
+    forgetMultiplayerReply(s, actor);
+    await choice.tap();
+    await ui.get('multiplayer-find').tap();
+    await s.session.waitForIdle();
+  },
+});
+
+/**
+ * `actor` stops seeking from the shared waiting controls. A screen showing
+ * no search to stop, such as the matched game it became, sends the same
+ * command a stale screen would, for the search the device last held.
+ */
 export const stopSeekingOpponent = scenarioAction({
   name: 'stopSeekingOpponent',
   act: async (s, actor: string) => {
-    await (await actorUi(s, actor)).get('multiplayer-stop').tap();
+    const stop = (await actorUi(s, actor)).get('multiplayer-stop');
+    if (await stop.isVisible()) {
+      forgetMultiplayerReply(s, actor);
+      await stop.tap();
+      return;
+    }
+    const { search } = await multiplayerView(s, actor);
+    await Promise.resolve(
+      sendMultiplayerCommand.act(s, actor, {
+        name: 'stopFindingChessOpponent',
+        args: {
+          searchId: search?.search_id ?? 'no-search',
+          requestId: s.session.ports.createId(),
+        },
+      })
+    );
   },
 });
 
@@ -149,6 +216,7 @@ export async function opponentSearchView(s: ProductHarness, actor: string) {
 
 export const OPPONENT_SEEKING_ACTIONS = [
   seekGameOpponent,
+  findGameOpponent,
   givenGameSpace,
   openFindingAnOpponent,
   stopSeekingOpponent,

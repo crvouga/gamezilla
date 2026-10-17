@@ -1,5 +1,6 @@
 import { connectFourGameShared } from '@libs/connect-four-shared/connect-four-game';
 import type { PlayableGame } from '@libs/game-session-harness/harness-game';
+import { CONNECT_FOUR_FIXTURES } from './connect-four-fixtures';
 
 /** Connect Four as any driver plays it, without its screens. */
 export const CONNECT_FOUR_PLAYABLE: PlayableGame = {
@@ -10,5 +11,7 @@ export const CONNECT_FOUR_PLAYABLE: PlayableGame = {
     firstSideVictory: ['0', '1', '0', '1', '0', '1', '0'],
     // There are seven columns, numbered from 0; a column is one digit.
     refusedOpenings: ['7', '-1', '00', 'a'],
+    // All 42 cells filled with no four in a row: a full board is a draw.
+    drawByRules: CONNECT_FOUR_FIXTURES.draw.map(String),
   },
 };

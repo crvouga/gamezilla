@@ -159,3 +159,17 @@ test('a specification needing a trait binds only games whose fixtures show it', 
   if (customGames.status === 'bound')
     expect(customGames.suites).not.toContain(cannotWin);
 });
+
+test("a draw by the game's own rules binds only games whose fixtures show one", () => {
+  const rulesDraw = 'specs/games/matched-game-rules-draw.feature';
+  expect(sharedSpecificationNeeds(rulesDraw)).toContain(
+    "a draw by the game's own rules"
+  );
+  expect(gamesHeldTo(rulesDraw).map((game) => game.label)).toEqual(
+    CONFORMANCE_GAMES.filter(
+      (game) =>
+        game.fixtures.drawByRules !== undefined &&
+        game.shared.turnGame.capabilities.matchmaking !== undefined
+    ).map((game) => game.label)
+  );
+});

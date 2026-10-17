@@ -144,3 +144,19 @@ test('a game whose side cannot win without naming a line to it is refused', () =
     'a side cannot win only where the game names a line to it'
   );
 });
+
+test('a game its rules draw without naming a line to it is refused', () => {
+  // Counting to six draws the race, yet the game names no line its rules
+  // draw.
+  const tied = faulty({
+    play: (position, action, history, actions) => {
+      const played = rules.play(position, action, history, actions);
+      return played?.position === 'race:6'
+        ? { ...played, winner: 'draw', reason: 'tie' }
+        : played;
+    },
+  });
+  expect(broken(tied)).toContain(
+    'its rules draw it only where the game names a line to it'
+  );
+});

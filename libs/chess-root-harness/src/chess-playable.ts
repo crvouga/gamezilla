@@ -15,5 +15,17 @@ export const CHESS_PLAYABLE: PlayableGame = {
     // White's king and queen against Black's bare king, which can never
     // mate (FIDE 6.9); White's last move, Qh6-f6, keeps it so.
     secondSideCannotWin: CUSTOM_GAME_MATERIAL.slice(0, 53),
+    // Both knights out and home twice: the starting position stands for the
+    // third time, with White to move, which draws by repetition (FIDE 9.2).
+    drawByRules: [
+      'g1f3',
+      'g8f6',
+      'f3g1',
+      'f6g8',
+      'g1f3',
+      'g8f6',
+      'f3g1',
+      'f6g8',
+    ],
   },
 };

@@ -171,6 +171,48 @@ function cannotWinOnlyWhereKnown(game: HarnessGame): void {
 }
 
 /**
+ * A game is drawn by its own rules only where the game says so: with no
+ * known line its rules draw, bounded play never reaches a draw; with one,
+ * its end is a draw.
+ */
+function drawnOnlyWhereKnown(game: HarnessGame): void {
+  const rules = game.shared.turnGame.rules;
+  const line = game.fixtures.drawByRules;
+  if (line !== undefined) {
+    const played = walkLine(rules, line);
+    must(played === 'draw', 'the known line its rules draw does not draw');
+    return;
+  }
+  assertProperty(
+    `${game.label}: never drawn by its rules`,
+    fc.property(picks, (drawn) => {
+      for (const step of walk(rules, drawn).steps)
+        must(
+          step.winner !== 'draw',
+          `its rules drew at ${step.position}, which the game names no line to`
+        );
+    })
+  );
+}
+
+/** How the known `line` ends: the result of its last action, if accepted. */
+function walkLine(rules: GameRules, line: readonly string[]): string | null {
+  let position = rules.initial();
+  let history = '';
+  const actions: string[] = [];
+  let winner: string | null = null;
+  for (const action of line) {
+    const played = rules.play(position, action, history, actions);
+    if (played === null) return null;
+    actions.push(action);
+    position = played.position;
+    history = played.history;
+    winner = played.winner;
+  }
+  return winner;
+}
+
+/**
  * Every law of a turn game's rules, for `game`, among the `others` whose
  * positions it must never claim.
  */
@@ -309,6 +351,9 @@ export function gameRulesLaws(
     ),
     law(game, 'a side cannot win only where the game names a line to it', () =>
       cannotWinOnlyWhereKnown(game)
+    ),
+    law(game, 'its rules draw it only where the game names a line to it', () =>
+      drawnOnlyWhereKnown(game)
     ),
     law(
       game,

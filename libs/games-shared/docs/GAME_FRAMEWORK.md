@@ -105,9 +105,10 @@ behaviour for exactly what it offers:
   offering everything a feature shows (`SHARED_SPECIFICATIONS` in
   `@libs/games-harness/game-conformance`). A feature may also need a trait
   of the game's rules that not every game has (`GAME_TRAITS`: a side that
-  cannot win); a game has it exactly when its fixtures show it
-  (`secondSideCannotWin`), and a game without the fixture is held by the
-  rules laws to never reach such a position. Each game's run is its own test,
+  cannot win, a draw by the game's own rules); a game has it exactly when
+  its fixtures show it (`secondSideCannotWin`, `drawByRules`), and a game
+  without the fixture is held by the rules laws to never reach such a
+  position. Each game's run is its own test,
   `<scenario> [<game>]`, recording its own evidence obligation
   (`scenario:<scenario> [<game id>]`), so the job log and Atlas name the game.
   The `specs/games/*.qnt` models are listed the same way and replay once per
@@ -188,8 +189,10 @@ Beyond that class:
   game's shared conformance; each game's own rules suites stay in its own
   package and rerun only for it.
 - Several `specs/chess/` features still describe shared behaviour for
-  chess alone: matched-game clocks, notices, reminders, ratings, time
-  controls and recovery. Chess's `custom-game-*` features keep only chess's
+  chess alone: matched-game notices, reminders, records, review, watchers,
+  being offline, recovery and accessibility (finding an opponent, sides,
+  clocks, daily games, low on time, ratings, blocks and results by the
+  game's own rules are every game's). Chess's `custom-game-*` features keep only chess's
   own rules: the board facing a colour, promotion, castling and en passant,
   algebraic notation, checkmate, drawn positions, the puzzle rating and a
   bare king's flag fall. Each moves the way the matched-game lifecycle did:
@@ -207,9 +210,10 @@ Beyond that class:
   matched-game models therefore end only by that victory or by agreement,
   time, resignation, aborting or deletion: no fixture shows a draw or a
   second-side victory by the game's own rules short enough for every game
-  (Connect Four's shortest draw fills its 42 cells), so those stay each
-  game's own (chess's repetition and Fool's Mate examples in its
-  features). Flipping the board is chess's alone (`canFlip`), specified by
+  (Connect Four's shortest draw fills its 42 cells). A draw by the game's
+  own rules is a feature instead (`matched-game-rules-draw`, over each
+  game's `drawByRules`), and chess's own endings (checkmate, stalemate,
+  repetition, mating material, fifty moves) stay in its features. Flipping the board is chess's alone (`canFlip`), specified by
   `specs/chess/multiplayer-flip-board.feature`.
 - No contract lets a shared scenario make a move with the keyboard alone
   or hear a move announced: `GameAutomation.perform` is the board's one

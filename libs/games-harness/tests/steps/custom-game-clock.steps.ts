@@ -1,5 +1,12 @@
 import { expect } from 'bun:test';
 import {
+  inMatchedGame,
+  matchedGameOf,
+  pairOf,
+} from '@libs/game-matchmaking-harness/matched-game-world';
+import { passMultiplayerTime } from '@libs/game-matchmaking-harness/multiplayer-time';
+import { clockLeftMs } from '@libs/game-matchmaking-shared/multiplayer-clock';
+import {
   readCustomGameSeconds,
   readCustomGameTime,
 } from '@libs/game-session-harness/custom-game-clocks';
@@ -37,7 +44,14 @@ Given(
   async (w, actor: string, clock: string) =>
     chosen(w, actor, { operation: 'clock', ...clockChoice(clock) })
 );
+// A custom game's clock, or the matched game's: the side's time passes.
 Given('the {gameSide} has run out of time', async (w, side: CustomGameSide) => {
+  if (inMatchedGame(w)) {
+    const game = await matchedGameOf(w, pairOf(w)[0]);
+    const now = await w.s.read((s) => s.harness.clock.now());
+    await w.s.apply(passMultiplayerTime, clockLeftMs(game, side, now));
+    return;
+  }
   const game = await current(w);
   await w.s.advanceTime(
     customGameTimeLeft(game, side, await w.s.read(readCustomGameTime))

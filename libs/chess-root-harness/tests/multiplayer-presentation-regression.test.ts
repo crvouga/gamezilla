@@ -3,16 +3,16 @@ import {
   confirmMultiplayerCommand,
   openMultiplayerChess,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import {
-  shownMultiplayerLineup,
-  shownMultiplayerSearch,
-} from '@libs/chess-matchmaking-harness/multiplayer-presentation';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import {
   awaitGameMatch,
   givenMultiplayerRating,
   givenOpponentSearch,
 } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
+import {
+  shownMultiplayerLineup,
+  shownMultiplayerSearch,
+} from '@libs/game-matchmaking-harness/multiplayer-presentation';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { openHarness } from './open-chess-harness';
 

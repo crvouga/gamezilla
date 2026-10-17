@@ -10,9 +10,7 @@ import {
   multiplayerRatingAt,
   multiplayerView,
 } from '@libs/game-matchmaking-harness/multiplayer-reads';
-import { requestGameOpponent } from '@libs/game-matchmaking-harness/multiplayer-search-ui';
-import { openFindingAnOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';
-import { Given, Then, When } from '@libs/harness/define';
+import { Given, Then } from '@libs/harness/define';
 import { gameOf } from './game-world';
 import { otherDevice, readyPeople, timeControlFor, told } from './matched-game';
 
@@ -33,14 +31,6 @@ Given(
       { pred: (seen) => seen !== null }
     );
     w.memo.set('multiplayer:game', game);
-  }
-);
-
-When(
-  '{actor} seeks an opponent for the game at {word}',
-  async (w, actor: string, clock: string) => {
-    await w.s.apply(openFindingAnOpponent, actor, gameOf(w).shared.id);
-    await w.s.apply(requestGameOpponent, actor, clock);
   }
 );
 

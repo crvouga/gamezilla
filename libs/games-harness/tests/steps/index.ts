@@ -6,6 +6,8 @@
  */
 
 import '@libs/harness/platform';
+import '@libs/harness/sounds.steps';
+import '@libs/game-matchmaking-harness/matched-game-app.steps';
 import '@libs/friends-harness/spaces.steps';
 import '@libs/friends-harness/space-offline.steps';
 import '@libs/friends-harness/friends.steps';

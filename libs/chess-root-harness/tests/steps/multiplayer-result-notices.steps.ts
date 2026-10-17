@@ -1,5 +1,6 @@
 import { expect } from 'bun:test';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { closeApp } from '@libs/game-matchmaking-harness/matched-game-app.steps';
 import {
   acceptedMoves,
   command,
@@ -9,7 +10,6 @@ import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import { closeApp } from './multiplayer-app.steps';
 import { disconnectMultiplayer } from './multiplayer-connection';
 import { REPETITION } from './multiplayer-draw.steps';
 import type { NoticeWanted } from './multiplayer-notice-world';

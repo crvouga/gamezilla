@@ -32,7 +32,7 @@ that game from either space, leaving, returning and the matched people's side.
 Joining and leaving change visibility; accepted moves change the shared board;
 resigning changes unfinished play to a permanent result. A guest's attempted
 move is refused, and someone outside either space cannot open the game.
-Upstream matchmaking's accepted match remains covered by `find-an-opponent.feature`.
+Upstream matchmaking's accepted match remains covered by `games/finding-an-opponent.feature`.
 No new upstream event or product term was added.
 
 ## Audit

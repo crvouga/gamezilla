@@ -1,25 +1,11 @@
 import { expect } from 'bun:test';
 import { changeCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { chessCustomBoard as customGameChess } from '@libs/chess-rules-shared/chess-harness';
-import { Given, Then, When } from '@libs/harness/define';
+import { Then, When } from '@libs/harness/define';
 import { remember } from '@libs/harness/spec-world';
 import { customSide } from './custom-game-choices.steps';
-import {
-  customFact,
-  customGame,
-  customHumans,
-  customPerson,
-} from './custom-game-world';
+import { customGame, customPerson } from './custom-game-world';
 import { lastMoveKey, promotionPiece } from './puzzle-world';
-
-Given(
-  '{actor} has a completed Custom Game between {actor} as White and {actor} as Black',
-  async (w, host: string, white: string, black: string) => {
-    await customHumans(w, { host, white, black, active: true });
-    await customFact(w, white, { operation: 'resign' });
-    w.memo.set('custom-completed', await customGame(w));
-  }
-);
 
 When(
   '{actor} plays {word} in the Custom Game',

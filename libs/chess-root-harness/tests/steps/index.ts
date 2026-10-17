@@ -10,6 +10,8 @@ import '@libs/account-privacy-harness/exports.steps';
  */
 
 import '@libs/harness/platform';
+import '@libs/harness/sounds.steps';
+import '@libs/game-matchmaking-harness/matched-game-app.steps';
 import '@libs/profile-harness/profile.steps';
 import '@libs/profile-harness/auth.steps';
 import '@libs/billing-harness/access.steps';

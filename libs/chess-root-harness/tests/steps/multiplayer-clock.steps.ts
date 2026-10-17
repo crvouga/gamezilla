@@ -3,8 +3,6 @@ import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplaye
 import {
   bothBoards,
   matchedGameOf,
-  ownerOf,
-  pairOf,
   sameBoards,
   winner,
 } from '@libs/game-matchmaking-harness/matched-game-world';
@@ -13,8 +11,6 @@ import {
   givenMultiplayerPosition,
 } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { shownMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-reads';
-import { passMultiplayerTime } from '@libs/game-matchmaking-harness/multiplayer-time';
-import { clockLeftMs } from '@libs/game-matchmaking-shared/multiplayer-clock';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -39,15 +35,6 @@ async function personClocks(
   ]).toEqual([white, black]);
 }
 
-async function clocksSeen(w: HarnessWorld, white: number, black: number) {
-  for (const actor of pairOf(w)) await personClocks(w, actor, white, black);
-}
-
-Then(
-  "both people see {int} seconds on White's multiplayer clock and {int} seconds on Black's",
-  clocksSeen
-);
-
 Then(
   "{actor}, {actor} and {actor} see {int} seconds on White's multiplayer clock and {int} seconds on Black's",
   async (w, ...named: [Actor, Actor, Actor, number, number]) => {
@@ -58,15 +45,8 @@ Then(
   }
 );
 
-Given("White's multiplayer clock has run out", async (w) => {
-  const [white] = pairOf(w);
-  const game = await matchedGameOf(w, white);
-  const now = await w.s.read((s) => s.harness.clock.now());
-  await w.s.apply(passMultiplayerTime, clockLeftMs(game, 'white', now));
-});
-
 /** White to move with a rook; Black down to the pieces the scenario names. */
-export async function lastPieces(
+async function lastPieces(
   w: HarnessWorld,
   people: { readonly white: string; readonly black: string },
   timeControl: string,
@@ -79,16 +59,6 @@ export async function lastPieces(
   });
   await sameBoards(w, people.white, people.black, (g) => g.fen === fen);
 }
-Given(
-  '{actor} has only his king left as Black in his {word} multiplayer game with {actor}',
-  (w, black: Actor, timeControl: string, white: Actor) =>
-    lastPieces(
-      w,
-      { white, black },
-      timeControl,
-      '4k3/8/8/8/8/8/8/R3K3 w - - 0 40'
-    )
-);
 Given(
   '{actor} has only his king and a knight left as Black in his {word} multiplayer game with {actor}',
   (w, black: Actor, timeControl: string, white: Actor) =>
@@ -124,18 +94,4 @@ Then(
 Then(
   'the multiplayer game is still won by {actor} because White ran out of time',
   whiteFlagged
-);
-Then(
-  '{actor} sees he won the multiplayer game because White ran out of time',
-  async (w, actor: Actor) => {
-    const owner = await ownerOf(w, actor);
-    const game = await sameBoards(
-      w,
-      actor,
-      actor,
-      (g) => g.outcome !== 'ongoing'
-    );
-    expect(game.outcome).toBe(game.black_id === owner ? 'black' : 'white');
-    expect(game.reason).toBe('timeout');
-  }
 );

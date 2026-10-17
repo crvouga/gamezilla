@@ -13,7 +13,7 @@ import {
 import { partition } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import { before, gameOf, setupCustomGame, sideOf, view } from './game-world';
-import { told, victoryMoveAt } from './matched-game';
+import { nextVictoryMove, told } from './matched-game';
 
 const SECOND_MS = 1000;
 
@@ -46,16 +46,13 @@ Given('{actor} has a custom game one move from her victory', async (w) => {
 When('{actor} makes his/her/a move', async (w, actor: string) => {
   if (inMatchedGame(w)) {
     const { revision } = await matchedGameOf(w, actor);
-    await move(w, actor, victoryMoveAt(w, revision));
+    await move(w, actor, nextVictoryMove(w, revision));
   } else await w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id);
 });
 When('{actor} makes the winning move', async (w, actor: string) => {
-  await w.s.apply(
-    makeCustomGameMove,
-    actor,
-    gameOf(w).shared.id,
-    String(w.memo.get('winning-move'))
-  );
+  const winning = String(w.memo.get('winning-move'));
+  if (inMatchedGame(w)) await move(w, actor, winning);
+  else await w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id, winning);
 });
 
 Then(

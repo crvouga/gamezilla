@@ -4,10 +4,8 @@ import {
   bothBoards,
   gameCommand,
   resignation,
-  viewerOf,
   winner,
 } from '@libs/game-matchmaking-harness/matched-game-world';
-import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { passMultiplayerTime } from '@libs/game-matchmaking-harness/multiplayer-time';
 import { Given, Then, When } from '@libs/harness/define';
 import {
@@ -15,7 +13,6 @@ import {
   firstMoveOf,
   firstMoves,
   pairedAt,
-  timeControlFor,
   told,
 } from './matched-game';
 
@@ -101,19 +98,4 @@ Then('the matched game is still unfinished', async (w) => {
 });
 Then('{actor} is told the matched game is over', (w, actor: string) =>
   told(w, actor, 'CHESS_GAME_OVER')
-);
-Then(
-  '{actor} is waiting for an opponent at {word}',
-  async (w, actor: string, clock: string) => {
-    const timeControl = timeControlFor(w, clock);
-    const waiting = (
-      search: { standing: string; time_control: string | null } | null
-    ) => search?.standing === 'waiting' && search.time_control === timeControl;
-    await w.s.until(async (s) =>
-      waiting((await multiplayerView(s, viewerOf(w, actor))).search)
-    );
-    expect(
-      waiting((await w.s.read(multiplayerView, viewerOf(w, actor))).search)
-    ).toBe(true);
-  }
 );

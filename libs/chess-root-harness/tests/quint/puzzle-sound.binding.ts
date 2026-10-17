@@ -21,12 +21,9 @@ import {
   readPuzzleDebug,
 } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
-import {
-  configurePuzzleSounds,
-  readPuzzleSoundsOn,
-} from '@libs/chess-puzzle-harness/puzzle-sound-preference';
 import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
+import { configureSounds, readSoundsOn } from '@libs/harness/sounds-preference';
 import { createSpace } from '@libs/spaces-harness/space-actions';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
@@ -40,7 +37,7 @@ async function boundary(w: QuintHarnessWorld) {
 async function prepare(w: QuintHarnessWorld, kind: string, on: boolean) {
   await w.s.apply(signInWithGoogle, ACTOR);
   await w.s.apply(returnToTabs, ACTOR);
-  await w.s.apply(configurePuzzleSounds, ACTOR, on);
+  await w.s.apply(configureSounds, ACTOR, on);
   const puzzle =
     kind === 'quiet puzzle'
       ? NAMED_PUZZLES.twoRookClearance
@@ -88,7 +85,7 @@ async function observed(w: QuintHarnessWorld) {
     puzzleSound: {
       kind,
       move: review?.solveIdx ?? debug?.solveIdx ?? -1,
-      soundsOn: await w.quiet.read(readPuzzleSoundsOn, ACTOR),
+      soundsOn: await w.quiet.read(readSoundsOn, ACTOR),
       heard: new Set(names.slice(start).map((name) => labels[name] ?? name)),
     },
   };
@@ -122,7 +119,7 @@ bindQuintModel<QuintHarnessWorld>({
     },
     configurePuzzleSounds: async (w, p) => {
       await boundary(w);
-      await w.s.apply(configurePuzzleSounds, ACTOR, p['on'] as boolean);
+      await w.s.apply(configureSounds, ACTOR, p['on'] as boolean);
       await w.s.advanceTime(1000);
     },
   },

@@ -134,6 +134,15 @@ export async function shownMultiplayerClockDays(
   return parts === null ? null : Number(parts[1]);
 }
 
+/** How many people are waiting for an opponent, for any game. */
+export async function waitingSearchCount(s: ProductHarness): Promise<number> {
+  const rows = await s.harness.serverSql.sqlClient.query(sql<{
+    readonly waiting: number | string;
+  }>`SELECT COUNT(*) AS waiting FROM chess_opponent_searches
+    WHERE standing = 'waiting' AND deleted_at IS NULL`);
+  return Number(rows[0]?.waiting ?? 0);
+}
+
 export async function storedMultiplayerSnapshot(s: ProductHarness) {
   return s.harness.serverSql.sqlClient.transaction(async (tx) => ({
     games: await tx.query(sql<

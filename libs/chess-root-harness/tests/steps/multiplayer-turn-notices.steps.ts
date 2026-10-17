@@ -1,4 +1,5 @@
 import { expect } from 'bun:test';
+import { closeApp } from '@libs/game-matchmaking-harness/matched-game-app.steps';
 import { move } from '@libs/game-matchmaking-harness/matched-game-world';
 import {
   givenOpenedTurnNotice,
@@ -9,7 +10,6 @@ import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import { closeApp } from './multiplayer-app.steps';
 import { disconnectMultiplayer } from './multiplayer-connection';
 import {
   noticeGame,

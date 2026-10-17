@@ -1,9 +1,5 @@
 import { CUSTOM_GAME_HARNESS_ACTIONS } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { MULTIPLAYER_HARNESS_ACTIONS } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import {
-  closeMultiplayerApp,
-  reopenMultiplayerApp,
-} from '@libs/chess-matchmaking-harness/multiplayer-app';
 import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { PERSONAL_CHESS_STATS_CLIENT } from '@libs/chess-puzzle-client/personal-chess-stats-client';
 import { PUZZLE_LINK_CLIENT } from '@libs/chess-puzzle-client/puzzle-link-client';
@@ -13,6 +9,10 @@ import { seedChessPuzzlesForHarness } from '@libs/chess-puzzle-harness/chess-har
 import { nextPuzzleDifferent } from '@libs/chess-puzzle-harness/chess-properties';
 import { createChessServer } from '@libs/chess-root-server/sub-server';
 import { CHESS_SUB } from '@libs/chess-sub-shared/sub';
+import {
+  closeMultiplayerApp,
+  reopenMultiplayerApp,
+} from '@libs/game-matchmaking-harness/multiplayer-app';
 import { joinMultiplayerSpace } from '@libs/game-matchmaking-harness/multiplayer-board';
 import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
 import {

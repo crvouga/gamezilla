@@ -1,7 +1,5 @@
 /** @jsxImportSource solid-js */
-import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
-import type { ProductHarness } from '@libs/harness/harness';
-import { openSettings } from '@libs/harness/shell-actions';
+
 import { Handles } from '@libs/test-ids-shared/handles';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { KvProvider } from '@pkgs/kv-root-client/solid';
@@ -10,9 +8,12 @@ import {
   useSoundsPreference,
 } from '@pkgs/sounds-client/solid';
 import { createRoot } from 'solid-js';
+import { actorUi, scenarioAction } from './actor-ui';
+import type { ProductHarness } from './harness';
+import { openSettings } from './shell-actions';
 
 /** Observe the persisted preference through its public provider and real Kv. */
-export async function readPuzzleSoundsOn(s: ProductHarness, actor: string) {
+export async function readSoundsOn(s: ProductHarness, actor: string) {
   const env = await s.harness.client(actor);
   let read = () => false;
   const dispose = createRoot((cleanup) => {
@@ -38,15 +39,18 @@ export async function readPuzzleSoundsOn(s: ProductHarness, actor: string) {
   }
 }
 
-/** Change Settings through the real switch, then return to the prior activity. */
-export const configurePuzzleSounds = scenarioAction({
-  name: 'configurePuzzleSounds',
+/**
+ * Turn the app's sounds on or off through the real Settings switch, then
+ * return to what the person was doing.
+ */
+export const configureSounds = scenarioAction({
+  name: 'configureSounds',
   async act(s, actor: string, on: boolean) {
     const ui = await actorUi(s, actor);
     const handle = s.actors.get(actor);
     if (handle === undefined) throw new Error('Missing sound preference actor');
     const path = await handle.currentPath();
-    const current = await readPuzzleSoundsOn(s, actor);
+    const current = await readSoundsOn(s, actor);
     await Promise.resolve(openSettings.act(s, actor));
     await ui.get(Handles.settingsSound).tap({ timeoutMs: 15_000 });
     if (current !== on)

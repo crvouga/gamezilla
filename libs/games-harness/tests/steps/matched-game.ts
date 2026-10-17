@@ -77,6 +77,15 @@ export function victoryMoveAt(w: HarnessWorld, revision: number): string {
   return due;
 }
 
+/**
+ * The move of the game's victory due after `revision` moves; once the whole
+ * victory is played, its winning move again, which a finished game refuses.
+ */
+export function nextVictoryMove(w: HarnessWorld, revision: number): string {
+  const line = victory(w);
+  return line[Math.min(revision, line.length - 1)]!;
+}
+
 /** A move the game refuses. */
 export function refusedMove(w: HarnessWorld): string {
   return gameOf(w).fixtures.refusedOpenings[0]!;
