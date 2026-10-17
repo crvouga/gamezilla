@@ -21,6 +21,8 @@
  * - `{device}` — one of a person's devices (`Alice's app`, `Alice's phone`,
  *   `Alice's tablet`), transformed to `{ actor, kind }`.
  * - `{deviceKind}` — `phone` or `tablet`.
+ * - `{gameSide}` — `first side` or `second side` of any game, transformed to
+ *   its seat (`white`, `black`).
  *
  * `@pkgs/sync-engine` cannot import this module (pkgs never import libs), so
  * its steps entry registers `{actor}` / `{device}` / `{deviceKind}` with the
@@ -205,6 +207,11 @@ export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
     name: 'fourDirection',
     regexp: /horizontal|vertical|ascending diagonal|descending diagonal/,
     transformer: (text: string) => text,
+  },
+  {
+    name: 'gameSide',
+    regexp: /first side|second side/,
+    transformer: (text: string) => (text === 'first side' ? 'white' : 'black'),
   },
   {
     name: 'gameParticipants',

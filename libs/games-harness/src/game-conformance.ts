@@ -25,6 +25,11 @@ export const SHARED_SPECIFICATIONS: Readonly<
 > = {
   'game-choices': ['custom-games', 'matchmaking', 'history'],
   'custom-games': ['custom-games'],
+  'custom-game-creation': ['custom-games'],
+  'custom-game-invitations': ['custom-games'],
+  'custom-game-open-places': ['custom-games'],
+  'custom-game-readiness': ['custom-games'],
+  'custom-game-sides': ['custom-games'],
   'game-turns': ['custom-games'],
   'finding-an-opponent': ['matchmaking'],
   'matched-game-abort': ['matchmaking'],

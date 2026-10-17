@@ -44,7 +44,18 @@ export async function setupCustomGame(
   lineup: CustomGameLineup = {}
 ): Promise<void> {
   await w.s.apply(establishCustomGame, gameOf(w).shared.id, lineup);
-  w.memo.set('custom-game-before', await view(w));
+  w.memo.set('custom-game-host', lineup.host ?? 'alice');
+  await rememberCustomGame(w);
+}
+
+/** The custom game as it is now, remembered as it was before the act. */
+export async function rememberCustomGame(w: HarnessWorld): Promise<void> {
+  w.memo.set('custom-game-before', await view(w, hostOf(w)));
+}
+
+/** The host whose space the custom game is in. */
+export function hostOf(w: HarnessWorld): string {
+  return String(w.memo.get('custom-game-host') ?? 'alice');
 }
 
 export function before(w: HarnessWorld): View {

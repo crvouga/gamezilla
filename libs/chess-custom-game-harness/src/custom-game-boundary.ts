@@ -1,5 +1,6 @@
 import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { confirmCustomGameChoice } from '@libs/game-session-client/confirm-custom-game-choice';
+import { readCustomGameIdentity } from '@libs/game-session-harness/custom-game-identity';
 import type { CustomGameChoice } from '@libs/game-session-shared/custom-game-choice';
 import { ChangeCustomGame } from '@libs/game-session-shared/custom-game-commands';
 import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
@@ -7,7 +8,6 @@ import type { ProductHarness } from '@libs/harness/harness';
 import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
 import { roomHistoryDisclosed } from '@libs/spaces-harness/room-history-observation';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import { readCustomGameIdentity } from './custom-game-identity';
 
 type Reply = { readonly reason: string; readonly disclosed: boolean };
 const replies = new WeakMap<ProductHarness, Map<string, Reply>>();

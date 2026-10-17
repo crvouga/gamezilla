@@ -23,32 +23,12 @@ Then(
   refusal('connection needed')
 );
 Then(
-  '{actor} is told a person cannot take both sides',
-  refusal('one side per person')
-);
-Then(
-  '{actor} is told both sides need participants',
-  refusal('both sides need participants')
-);
-Then(
   '{actor} is told draw agreement needs two people',
   refusal('draw agreement needs two people')
 );
 Then(
-  '{actor} is told every person must be ready',
-  refusal('every person must be ready')
-);
-Then(
-  '{actor} is told only a participant may become ready',
-  refusal('not a participant')
-);
-Then(
   '{actor} is told only a participant may resign',
   refusal('not a participant')
-);
-Then(
-  '{actor} is told only that participant may release the side',
-  refusal('not your side')
 );
 Then(
   '{actor} is told only the creator cancels the Custom Game',
@@ -57,10 +37,6 @@ Then(
 Then(
   '{actor} is told only the creator configures the Custom Game',
   refusal('only the creator configures the Custom Game')
-);
-Then(
-  '{actor} is told only the creator starts the Custom Game',
-  refusal('only the creator starts the Custom Game')
 );
 Then(
   '{actor} is told only the other participant may accept a draw',
@@ -79,14 +55,6 @@ Then(
   refusal('no such move')
 );
 Then(
-  '{actor} is told that side is not an open place',
-  refusal('not an open place')
-);
-Then(
-  '{actor} is told that side is not their invitation',
-  refusal('not your invitation')
-);
-Then(
   '{actor} is told the Custom Game choices have changed',
   refusal('choices changed')
 );
@@ -98,10 +66,6 @@ Then('{actor} is told the Custom Game has finished', refusal('finished'));
 Then('{actor} is told the Custom Game has not started', refusal('not started'));
 Then('{actor} is told the Custom Game was cancelled', refusal('cancelled'));
 Then('{actor} is told the move is illegal', refusal('move is illegal'));
-Then(
-  '{actor} is told the person must be in the space',
-  refusal('person not in the space')
-);
 Then(
   '{actor} is told the time choice is outside the Custom Game limits',
   refusal('invalid time choice')

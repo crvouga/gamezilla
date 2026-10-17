@@ -43,7 +43,6 @@ Given(
 );
 
 When('{actor} creates a Custom Game', async (w, actor: string) => {
-  // regression: custom-game-client-schedules — a guest's first create.
   const host = customHost(w);
   await customSpace(w, host, actor === host ? [] : [actor]);
   await w.s.apply(openCustomGame, actor);
@@ -68,22 +67,6 @@ Then(
       person: customPerson(w, actor),
     });
     expect(game.black.kind).toBe('open');
-  }
-);
-Then(
-  '{actor} is told only the host creates a Custom Game',
-  async (w, actor: string) => {
-    expect((await w.s.read(readCustomGameProbe, actor))?.error).toBe(
-      'only the host creates a Custom Game'
-    );
-  }
-);
-Then(
-  '{actor} has a configuring Custom Game with no moves',
-  async (w, actor: string) => {
-    const game = await customGame(w, actor);
-    expect(game.status).toBe('configuring');
-    expect(game.moves).toEqual([]);
   }
 );
 Then(

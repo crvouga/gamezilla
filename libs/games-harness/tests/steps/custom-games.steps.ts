@@ -12,6 +12,7 @@ import {
 import { attemptCustomGame } from '@libs/game-session-harness/custom-game-ui';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
+import { choose } from './custom-game-set-up-world';
 import { before, gameOf, setupCustomGame, sideOf, view } from './game-world';
 
 const SECOND_MS = 1000;
@@ -42,9 +43,9 @@ Given(
 Given('{actor} has a custom game with an open second side', async (w) =>
   setupCustomGame(w, { second: 'open', active: false })
 );
-When('{actor} starts the custom game', async (w, actor: string) => {
-  await w.s.apply(attemptCustomGame, actor, { operation: 'start' });
-});
+When('{actor} starts the custom game', async (w, actor: string) =>
+  choose(w, actor, { operation: 'start' })
+);
 Then('the custom game is under way', async (w) => {
   expect((await view(w)).current?.status).toBe('active');
 });

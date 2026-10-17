@@ -1,12 +1,10 @@
 /**
  * What a person sees of an active Custom Game beyond the debug probe: the
- * board as painted (how it faces, a waiting promotion), an invitation offered
- * to them, the notice that the other participant is away, and the words on
- * the screen.
+ * board as painted (how it faces, a waiting promotion), the notice that the
+ * other participant is away, and the words on the screen.
  */
 
 import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
-import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
@@ -24,29 +22,6 @@ export async function readCustomGameBoardProbe(
   await bringToFront(s, actor);
   if (!(await ui.get(CUSTOM_GAME_BOARD).isVisible())) return null;
   return new ChessBoardFlows(ui, CUSTOM_GAME_BOARD).readProbe();
-}
-
-/** Whether the person is shown their invitation to play `side`. */
-export async function customGameInvitationShown(
-  s: ProductHarness,
-  actor: string,
-  side: CustomGameSide
-): Promise<boolean> {
-  const ui = await actorUi(s, actor);
-  await bringToFront(s, actor);
-  return ui.get(`custom-game-${side}-invitation`).isVisible();
-}
-
-/** What the person's invitation to play `side` says, or `null` with none. */
-export async function readCustomGameInvitation(
-  s: ProductHarness,
-  actor: string,
-  side: CustomGameSide
-): Promise<string | null> {
-  const ui = await actorUi(s, actor);
-  await bringToFront(s, actor);
-  const invitation = ui.get(`custom-game-${side}-invitation`);
-  return (await invitation.isVisible()) ? await invitation.text() : null;
 }
 
 /** Whether the person is told the other participant is away. */

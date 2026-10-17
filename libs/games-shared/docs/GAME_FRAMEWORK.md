@@ -173,9 +173,8 @@ Beyond that class:
 - The shared suites live in one package, so changing any game reruns every
   game's shared conformance; each game's own rules suites stay in its own
   package and rerun only for it.
-- About forty `specs/chess/` features still describe shared behaviour for
-  chess alone: custom-game readiness, invitations, sides, clocks and
-  completion; matched-game clocks, notices, reminders, ratings, time
+- About thirty-five `specs/chess/` features still describe shared behaviour
+  for chess alone: custom-game clocks and completion; matched-game clocks, notices, reminders, ratings, time
   controls and recovery. Each moves the way the matched-game lifecycle did:
   a `spec:` commit rewording it for every game in `specs/games/`, then one
   binding in `@libs/games-harness` over the shared matched-game and

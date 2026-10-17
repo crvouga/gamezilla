@@ -10,7 +10,7 @@ import {
   attemptCustomGameBoundary,
   readCustomGameBoundary,
 } from '@libs/chess-custom-game-harness/custom-game-boundary';
-import { readCustomGameIdentity } from '@libs/chess-custom-game-harness/custom-game-identity';
+import { readCustomGameIdentity } from '@libs/game-session-harness/custom-game-identity';
 import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';

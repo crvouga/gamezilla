@@ -9,7 +9,6 @@ import { redeliverCustomGameBotWake } from './custom-game-bot-wakes';
 import { attemptCustomGameBoundary } from './custom-game-boundary';
 import { changeThroughCustomGameControls } from './custom-game-controls';
 import { playCustomGameHistory } from './custom-game-history';
-import { raceCustomGameChoices } from './custom-game-race';
 import { reviewCustomGame } from './custom-game-review';
 
 export const openCustomGame = scenarioAction({
@@ -33,7 +32,6 @@ export const CUSTOM_GAME_HARNESS_ACTIONS = [
   changeCustomGame,
   playCustomGamePreset,
   playCustomGameHistory,
-  raceCustomGameChoices,
   reviewCustomGame,
   attemptCustomGameBoundary,
   repeatCustomGameAcknowledgement,

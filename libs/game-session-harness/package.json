@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@libs/account-privacy-harness": "workspace:*",
+    "@libs/auth-shared": "workspace:*",
     "@libs/billing-harness": "workspace:*",
     "@libs/friends-harness": "workspace:*",
     "@libs/friends-shared": "workspace:*",

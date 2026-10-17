@@ -2,8 +2,10 @@ import {
   chooseCustomGameBotMove,
   playCustomGameBots,
 } from './custom-game-bots';
-import { establishCustomGame } from './custom-game-lineup';
+import { createCustomGameIn, operateCustomGame } from './custom-game-controls';
+import { establishCustomGame, joinCustomGames } from './custom-game-lineup';
 import { makeCustomGameMove } from './custom-game-moves';
+import { raceCustomGameChoices } from './custom-game-race';
 import {
   attemptCustomGame,
   attemptCustomGameChoice,
@@ -16,6 +18,10 @@ import { GAME_NAVIGATION_ACTIONS } from './game-navigation';
 export const GAME_SESSION_HARNESS_ACTIONS = [
   ...GAME_NAVIGATION_ACTIONS,
   establishCustomGame,
+  joinCustomGames,
+  operateCustomGame,
+  createCustomGameIn,
+  raceCustomGameChoices,
   attemptCustomGame,
   attemptCustomGameChoice,
   configureCustomGameChoice,

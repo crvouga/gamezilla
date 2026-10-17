@@ -190,7 +190,9 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
       }
       bottom={
         seated() ? (
-          <CustomGameSeat model={props.model} side={near()} />
+          <div data-testid="custom-game-seat-near">
+            <CustomGameSeat model={props.model} side={near()} />
+          </div>
         ) : undefined
       }
     >

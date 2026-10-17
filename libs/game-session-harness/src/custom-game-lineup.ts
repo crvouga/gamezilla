@@ -78,6 +78,42 @@ export async function playCustomGameMoves(
   }
 }
 
+async function signIn(s: ProductHarness, person: string): Promise<void> {
+  await Promise.resolve(signInWithGoogle.act(s, person));
+  await Promise.resolve(backToTabs.act(s, person));
+}
+
+/** `person` comes into `link`'s space at the game's custom games. */
+async function enterCustomGames(
+  s: ProductHarness,
+  gameId: string,
+  person: string,
+  link: string
+): Promise<void> {
+  // regression: connect-four-fixture-before-space-join
+  await Promise.resolve(openSpaceLink.act(s, person, link));
+  await (await actorUi(s, person)).get('space-join').expect.visible();
+  await Promise.resolve(joinFromPrompt.act(s, person));
+  await showCustomGames(s, person, gameId);
+}
+
+/**
+ * `person` joins `host`'s space from its link and opens the game's custom
+ * games, as anyone the host shares the link with does; someone already
+ * shown them stays as they are.
+ */
+export const joinCustomGames = scenarioAction({
+  name: 'joinCustomGames',
+  act: async (s, gameId: string, host: string, person: string) => {
+    if (s.actors.has(person) && (await readCustomGameProbe(s, person)) !== null)
+      return;
+    const link = await readSpaceLink(s, host);
+    if (link === null) throw new Error(`${host} is not in a space`);
+    await signIn(s, person);
+    await enterCustomGames(s, gameId, person, link);
+  },
+});
+
 /** Preconditions use ordinary space and game choices, never inject a board or a winner. */
 export const establishCustomGame = scenarioAction({
   name: 'establishCustomGame',
@@ -91,21 +127,13 @@ export const establishCustomGame = scenarioAction({
     const people = [
       ...new Set([host, seats.white, seats.black, ...(lineup.watchers ?? [])]),
     ].filter(isPerson);
-    for (const person of people) {
-      await Promise.resolve(signInWithGoogle.act(s, person));
-      await Promise.resolve(backToTabs.act(s, person));
-    }
+    for (const person of people) await signIn(s, person);
     await Promise.resolve(createSpace.act(s, host));
     const link = await readSpaceLink(s, host);
     if (link === null) throw new Error(`${game.label}: the host has no space`);
     await showCustomGames(s, host, game.shared.id);
-    for (const person of people.filter((p) => p !== host)) {
-      // regression: connect-four-fixture-before-space-join
-      await Promise.resolve(openSpaceLink.act(s, person, link));
-      await (await actorUi(s, person)).get('space-join').expect.visible();
-      await Promise.resolve(joinFromPrompt.act(s, person));
-      await showCustomGames(s, person, game.shared.id);
-    }
+    for (const person of people.filter((p) => p !== host))
+      await enterCustomGames(s, game.shared.id, person, link);
     await configureCustomGame(s, host, {
       operation: 'create',
       game: game.shared.id,

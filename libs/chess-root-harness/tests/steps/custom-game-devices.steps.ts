@@ -3,9 +3,9 @@ import {
   changeCustomGame,
   openCustomGame,
 } from '@libs/chess-custom-game-harness/custom-game-actions';
-import { readCustomGameIdentity } from '@libs/chess-custom-game-harness/custom-game-identity';
 import { readCustomGameName } from '@libs/chess-custom-game-harness/custom-game-names';
-import { raceCustomGameChoices } from '@libs/chess-custom-game-harness/custom-game-race';
+import { readCustomGameIdentity } from '@libs/game-session-harness/custom-game-identity';
+import { raceCustomGameChoices } from '@libs/game-session-harness/custom-game-race';
 import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import {
