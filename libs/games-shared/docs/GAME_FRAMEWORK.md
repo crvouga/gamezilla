@@ -38,7 +38,7 @@ composition roots (registries, runtime, apps)
 | `@libs/game-session-client` / `-server` | The custom-game, history and review screens; the matched-game notice, reminder and availability consumers. |
 | `@libs/game-matchmaking-shared` / `-client` | Opponent searches, matched games, ratings per speed, rematches, the multiplayer screen and link. |
 | `@libs/game-menu-client` | `defineGameClient` and the one `GameMenu` every game is offered through. |
-| `@libs/game-session-harness` | The conformance contract a game's harness supplies (`HarnessGame`, `GameFixtures`), `gameSystem` (a world of any games), shared drivers, and the rules laws (`game-rules-laws`). |
+| `@libs/game-session-harness` | The conformance contract a game's harness supplies (`PlayableGame` without screens, `HarnessGame` with them, `GameFixtures`), `gameSystem` (a world of any games), shared drivers, and the rules laws (`game-rules-laws`). |
 | `@libs/game-matchmaking-harness` | Opponent seeking and the one matched-game scenario world. |
 | `@libs/games-harness` | `HARNESS_GAMES`, the conformance matrix, every shared suite and the steps of `specs/games/`. |
 

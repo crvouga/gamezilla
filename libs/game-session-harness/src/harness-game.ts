@@ -24,22 +24,30 @@ export type GameFixtures = {
 };
 
 /**
- * A registered game as the shared suites exercise it: the conformance
- * adapter its harness package exports. The games registry harness lists
- * every one, and a registered game without one fails the enrollment test.
+ * What any driver needs to play a game — its name, its shared definition and
+ * its known examples — without its screens, so a journey or a synthetic user
+ * playing it loads no client code.
  */
-export type HarnessGame = {
+export type PlayableGame = {
   /** How failures and reports name the game ("chess", "Connect Four"). */
   readonly label: string;
   /** The same shared definition production registers. */
   readonly shared: TurnGameDefinition;
+  readonly fixtures: GameFixtures;
+};
+
+/**
+ * A registered game as the shared suites exercise it: the conformance
+ * adapter its harness package exports. The games registry harness lists
+ * every one, and a registered game without one fails the enrollment test.
+ */
+export type HarnessGame = PlayableGame & {
   /** The same client definition production registers. */
   readonly client: GameClientDefinition;
   /** The sub only this game's screens need, beside the shared ones. */
   readonly slice?: HarnessSlice;
   /** This game's own testing-tool actions. */
   readonly actions?: readonly CatalogAction<ProductHarness>[];
-  readonly fixtures: GameFixtures;
 };
 
 /** Fail fast, naming the game, on an adapter its own rules contradict. */

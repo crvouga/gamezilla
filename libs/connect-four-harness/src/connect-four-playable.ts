@@ -1,0 +1,14 @@
+import { connectFourGameShared } from '@libs/connect-four-shared/connect-four-game';
+import type { PlayableGame } from '@libs/game-session-harness/harness-game';
+
+/** Connect Four as any driver plays it, without its screens. */
+export const CONNECT_FOUR_PLAYABLE: PlayableGame = {
+  label: 'Connect Four',
+  shared: connectFourGameShared,
+  fixtures: {
+    // Red stacks four in the first column while Yellow plays the second.
+    firstSideVictory: ['0', '1', '0', '1', '0', '1', '0'],
+    // There are seven columns, numbered from 0; a column is one digit.
+    refusedOpenings: ['7', '-1', '00', 'a'],
+  },
+};

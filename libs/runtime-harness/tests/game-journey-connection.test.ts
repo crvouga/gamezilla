@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { CONNECT_FOUR_HARNESS_GAME } from '@libs/connect-four-harness/connect-four-harness-game';
+import { CONNECT_FOUR_PLAYABLE } from '@libs/connect-four-harness/connect-four-playable';
 import { playJourneyMove } from '@libs/runtime-harness/game-journey';
 import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
 
@@ -51,7 +51,7 @@ function pendingOpponent(): { ui: Driver; gestures: string[] } {
 test('the third move waits for the opponent second move before its gesture', async () => {
   // regression: connect-four-journey-opponent-update
   const { ui, gestures } = pendingOpponent();
-  await playJourneyMove(ui, CONNECT_FOUR_HARNESS_GAME, '0', 3);
+  await playJourneyMove(ui, CONNECT_FOUR_PLAYABLE, '0', 3);
   expect(gestures).toEqual([
     'multiplayer-move-2',
     'multiplayer-board-column-1:enabled',
@@ -82,7 +82,7 @@ test('visible history does not trigger a drop while its column is still disabled
       },
     };
   };
-  await playJourneyMove(ui, CONNECT_FOUR_HARNESS_GAME, '0', 3);
+  await playJourneyMove(ui, CONNECT_FOUR_PLAYABLE, '0', 3);
   expect(gestures).toEqual([
     'multiplayer-move-2',
     'multiplayer-board-column-1:enabled',

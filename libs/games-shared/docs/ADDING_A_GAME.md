@@ -20,7 +20,7 @@ For a game with id `race` (a lowercase slug; it is the game's wire id):
 | | `race-game.ts` | `raceGameShared = defineTurnGame({ … })` — the registration. |
 | `libs/race-client` (client) | `race-board.tsx` | The board: renders a position, calls `onAction`, prefixes its controls with the `testId` it is given. |
 | | `race-game-client.tsx` | `raceGameClient = defineGameClient({ … })`. |
-| `libs/race-harness` (harness) | `race-harness-game.ts` | `RACE_HARNESS_GAME: HarnessGame` — the conformance adapter. |
+| `libs/race-harness` (harness) | `race-playable.ts`, `race-harness-game.ts` | `RACE_PLAYABLE: PlayableGame` (label, shared definition, fixtures) and `RACE_HARNESS_GAME: HarnessGame` (adds the client) — the conformance adapter. |
 | | `tests/` | The game's own rules specs and regressions. |
 | `specs/race/` | features, glossary | The game's own rules in its own words (a `spec:` commit). |
 
@@ -71,16 +71,22 @@ packages besides workspace setup (step 4):
 ## 3. Supply the conformance adapter
 
 ```ts
-// libs/race-harness/src/race-harness-game.ts
-export const RACE_HARNESS_GAME: HarnessGame = assertHarnessGame({
+// libs/race-harness/src/race-playable.ts — what any driver needs to play
+// the game (journeys, synthetic users); it loads no client code.
+export const RACE_PLAYABLE: PlayableGame = {
   label: 'race',
   shared: raceGameShared,
-  client: raceGameClient,
   fixtures: {
     // Written from the game's laws, never computed by its implementation.
     firstSideVictory: ['step', 'step', 'step', 'step', 'step'],
     refusedOpenings: ['back', ''],
   },
+};
+
+// libs/race-harness/src/race-harness-game.ts — the shared suites' adapter.
+export const RACE_HARNESS_GAME: HarnessGame = assertHarnessGame({
+  ...RACE_PLAYABLE,
+  client: raceGameClient,
 });
 ```
 

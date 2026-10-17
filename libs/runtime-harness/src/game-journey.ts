@@ -1,4 +1,4 @@
-import type { HarnessGame } from '@libs/game-session-harness/harness-game';
+import type { PlayableGame } from '@libs/game-session-harness/harness-game';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { check, hostSpace, JOURNEY_WAIT_MS, tap } from './journey-gestures';
@@ -15,7 +15,7 @@ import {
 import { chooseMultiplayerTimeControl } from './multiplayer-time-control-gesture';
 
 /** Host a space, pick `game` and find an opponent at 5+0, with real controls. */
-function findOpponent(game: HarnessGame): (ui: Driver) => Promise<void> {
+function findOpponent(game: PlayableGame): (ui: Driver) => Promise<void> {
   return async (ui) => {
     await hostSpace(ui);
     await tap(ui, Handles.gameMenu(game.shared.id));
@@ -42,7 +42,7 @@ async function playsFirst(ui: Driver): Promise<boolean> {
  */
 export async function playJourneyMove(
   ui: Driver,
-  game: HarnessGame,
+  game: PlayableGame,
   action: string,
   ply: number
 ): Promise<void> {
@@ -59,7 +59,7 @@ export async function playJourneyMove(
 /** Two people find each other for `game` and play its victory to the end. */
 export async function playGameJourney(
   host: JourneyHost,
-  game: HarnessGame
+  game: PlayableGame
 ): Promise<boolean> {
   const id = game.shared.id;
   await host.open('signed-in');
@@ -88,7 +88,7 @@ export async function playGameJourney(
 /** Both people see the same finished game: one won, the other lost. */
 export async function observeGameJourney(
   host: JourneyHost,
-  game: HarnessGame,
+  game: PlayableGame,
   first: boolean
 ): Promise<void> {
   const [winner, loser] = first
