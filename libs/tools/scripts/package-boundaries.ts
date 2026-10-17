@@ -29,6 +29,7 @@
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import ts from 'typescript';
 import { sourceImports } from './source-imports';
 
 export const CATEGORIES = [
@@ -258,8 +259,11 @@ export function categoryViolations(
  * Games are isolated by construction. A game package (`"game": "<id>"`)
  * depends on no other game; a package that is not a game depends on a game
  * only when it declares itself a game registry (`"gameRegistry": true`) — the
- * few composition roots that list every game. A package named for a game
- * (`@libs/<id>-…`) declares that game, so a new package cannot slip past.
+ * few composition roots that list every game. A registry composes every
+ * game, so depending on one makes a package a registry too, and a game is
+ * never one: no game reaches its siblings through a registry. A package
+ * named for a game (`@libs/<id>-…`) declares that game, so a new package
+ * cannot slip past.
  */
 export function gameViolations(
   manifest: Manifest,
@@ -281,7 +285,21 @@ export function gameViolations(
     ...Object.keys(manifest.dependencies ?? {}),
     ...Object.keys(manifest.devDependencies ?? {}),
   ];
+  if (manifest.game !== undefined && manifest.gameRegistry === true)
+    out.push(
+      `${name} is a game of ${manifest.game} and a game registry: a game never composes the others`
+    );
   for (const dep of declared) {
+    if (workspace.get(dep)?.gameRegistry === true) {
+      if (manifest.game !== undefined)
+        out.push(
+          `game ${manifest.game} depends on ${dep}, a game registry: through it the game would know every other game; take its own rules from its own packages`
+        );
+      else if (manifest.gameRegistry !== true)
+        out.push(
+          `${dep} composes every game: a package depending on it composes games too; declare "gameRegistry": true, or receive the games through ports`
+        );
+    }
     const game = workspace.get(dep)?.game;
     if (game === undefined || game === manifest.game) continue;
     if (manifest.game !== undefined)
@@ -293,6 +311,64 @@ export function gameViolations(
         `${dep} implements the game ${game}: only a game registry ("gameRegistry": true) composes concrete games; receive the game through the registry's ports`
       );
   }
+  return out;
+}
+
+/** A game's id in a platform package's own source: the line marks a durable name. */
+const DURABLE_NAME = '@durable-name';
+
+/**
+ * Platform source never spells a game: outside a game's own packages and
+ * the registries, no string literal equals a registered game id, so no
+ * shared code can branch on, route to or special-case one game. A durable
+ * stored name that predates the platform is declared once, on a line marked
+ * `@durable-name`. Comments are not code and do not count.
+ */
+export function gameIdentityViolations(
+  manifest: Manifest,
+  options: {
+    readonly gameIds: ReadonlySet<string>;
+    readonly sources: readonly {
+      readonly path: string;
+      readonly text: string;
+    }[];
+  }
+): readonly string[] {
+  if (manifest.game !== undefined || manifest.gameRegistry === true) return [];
+  const out: string[] = [];
+  for (const file of options.sources) {
+    const lines = file.text.split('\n');
+    for (const literal of stringLiterals(file.text)) {
+      if (!options.gameIds.has(literal.text)) continue;
+      if (lines[literal.line]?.includes(DURABLE_NAME)) continue;
+      out.push(
+        `${file.path}:${String(literal.line + 1)} spells the game '${literal.text}': platform code receives games through the registry's ports and never names one`
+      );
+    }
+  }
+  return out;
+}
+
+function stringLiterals(
+  text: string
+): readonly { readonly text: string; readonly line: number }[] {
+  const file = ts.createSourceFile(
+    'source.tsx',
+    text,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX
+  );
+  const out: { text: string; line: number }[] = [];
+  const visit = (node: ts.Node): void => {
+    if (ts.isStringLiteralLike(node))
+      out.push({
+        text: node.text,
+        line: file.getLineAndCharacterOfPosition(node.getStart(file)).line,
+      });
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
   return out;
 }
 
@@ -321,6 +397,7 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
     readFileSync(join(pkgDir, 'package.json'), 'utf8')
   ) as Manifest;
   const srcDir = join(pkgDir, 'src');
+  const workspace = workspaceManifests(pkgDir);
   const sources = sourceFiles(srcDir).filter((f) => !/\.test\.tsx?$/.test(f));
   const out: string[] = [
     ...categoryViolations(manifest, {
@@ -331,7 +408,23 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
         text: readFileSync(path, 'utf8'),
       })),
     }),
-    ...gameViolations(manifest, workspaceManifests(pkgDir)),
+    ...gameViolations(manifest, workspace),
+    ...(pkgDir.split('/').at(-2) === 'libs'
+      ? gameIdentityViolations(manifest, {
+          gameIds: new Set(
+            [...workspace.values()].flatMap((other) =>
+              other.game === undefined ? [] : [other.game]
+            )
+          ),
+          sources: [
+            ...sourceFiles(srcDir),
+            ...sourceFiles(join(pkgDir, 'tests')),
+          ].map((path) => ({
+            path: path.slice(pkgDir.length + 1),
+            text: readFileSync(path, 'utf8'),
+          })),
+        })
+      : []),
   ];
   const family = familyOf(manifest.name ?? '');
   const rule = family === undefined ? undefined : RULES.get(family);

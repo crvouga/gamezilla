@@ -59,7 +59,9 @@ export type HarnessSlice = {
 /**
  * Production's composition order (`@libs/runtime` `APP_SUBS`,
  * `APP_SUB_CLIENTS`, `appSubServers`), which all agree on this
- * relative order. A provider mounted earlier is outermost.
+ * relative order. A provider mounted earlier is outermost. `games` stands
+ * for every game's own slice (`game:<id>`), in the order a suite lists
+ * them, so a game's sub needs no entry here.
  */
 export const SLICE_ORDER = [
   'auth',
@@ -70,14 +72,22 @@ export const SLICE_ORDER = [
   'friends',
   'notifications',
   'search',
-  'chess',
+  'games',
   'game-session',
   'billing',
   'permissions',
   'synthetic-population',
 ] as const;
 
-export type SliceName = (typeof SLICE_ORDER)[number];
+/** The slice of one game's own sub (its own screens' data, beside the shared ones). */
+export type GameSliceName = `game:${string}`;
+
+export type SliceName =
+  | Exclude<(typeof SLICE_ORDER)[number], 'games'>
+  | GameSliceName;
+
+const isGameSlice = (name: SliceName): name is GameSliceName =>
+  name.startsWith('game:');
 
 /** Identity: every composition runs it, the shell cannot boot without it. */
 export const AUTH_HARNESS_SLICE: HarnessSlice = {
@@ -149,6 +159,8 @@ export function composeHarnessSlices(
     byName.set(slice.name, slice);
   }
   const ordered = SLICE_ORDER.flatMap((key) => {
+    if (key === 'games')
+      return [...byName.values()].filter((slice) => isGameSlice(slice.name));
     const slice = byName.get(key);
     return slice === undefined ? [] : [slice];
   });

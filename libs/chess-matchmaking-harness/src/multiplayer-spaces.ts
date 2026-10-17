@@ -1,9 +1,7 @@
 import { multiplayerSpaceId } from '@libs/game-matchmaking-harness/multiplayer-spaces';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
-import {
-  createSpace,
-  selectChessGame,
-} from '@libs/spaces-harness/space-actions';
+import { createSpace } from '@libs/spaces-harness/space-actions';
+import { selectChessGame } from './chess-game-choice';
 
 /** Given setup: supply the space required for all multiplayer play. */
 export const givenMultiplayerSpace = scenarioAction({

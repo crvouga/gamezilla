@@ -1,5 +1,5 @@
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { CHESS_TURN_GAMES } from '@libs/chess-sub-shared/chess-game';
 import { MULTIPLAYER_TABLES } from '@libs/game-matchmaking-shared/multiplayer-tables';
 import {
   BOT_CUSTOM_GAME_SIDE,
@@ -37,7 +37,7 @@ export const LIMIT_ROOMS = {
         ...newCustomGame(
           `custom-game-of-${host}`,
           host,
-          TURN_GAMES.byId('chess').initial()
+          CHESS_TURN_GAMES.byId('chess').initial()
         ),
         status: 'active',
         white: { kind: 'person', person: host },

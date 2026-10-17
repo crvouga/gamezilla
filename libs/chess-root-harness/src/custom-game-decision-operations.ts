@@ -1,5 +1,7 @@
-import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
-import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import {
+  CHESS_TURN_GAMES,
+  chessGameShared,
+} from '@libs/chess-sub-shared/chess-game';
 import { createGameSessionServer } from '@libs/game-session-server/sub-server';
 import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
 import { ChangeCustomGame } from '@libs/game-session-shared/custom-game-commands';
@@ -175,7 +177,7 @@ export const performCustomGameDecision: ServerOperation = async (c) => {
             ...((await spaceRoomGrants(ctx)) ?? []),
             ...((await createGameSessionServer(
               node.services,
-              TURN_GAMES
+              CHESS_TURN_GAMES
             ).roomGrants?.(ctx)) ?? []),
           ];
         },

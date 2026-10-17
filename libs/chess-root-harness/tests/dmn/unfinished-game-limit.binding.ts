@@ -1,4 +1,4 @@
-import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { CHESS_TURN_GAMES } from '@libs/chess-sub-shared/chess-game';
 import { findOpponentMutation } from '@libs/game-matchmaking-shared/find-opponent-mutation';
 import { opponentSearchGuard } from '@libs/game-session-server/opponent-search-guard';
 import { useUnfinishedGamesDecision } from '@libs/permissions-client/use-can';
@@ -74,7 +74,7 @@ bindDecisions({
           spaceId: 'multiplayer-limit-space',
           timeControl: '5+0',
         }));
-        await replay({ ...c, env: { ...c.env, turnGames: TURN_GAMES } });
+        await replay({ ...c, env: { ...c.env, turnGames: CHESS_TURN_GAMES } });
       },
     }),
     'client gating': clientGatingLayer({

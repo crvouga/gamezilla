@@ -44,7 +44,7 @@ import {
  * spaces game registry (`spacesHarnessSlice({ games: [chessGameShared], … })`).
  */
 export const CHESS_HARNESS_SLICE: HarnessSlice = {
-  name: 'chess',
+  name: 'game:chess',
   sub: CHESS_SUB,
   client: {
     name: 'chess',

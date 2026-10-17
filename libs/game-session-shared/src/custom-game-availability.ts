@@ -1,3 +1,4 @@
+import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared/durable-names';
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
 import type { Message } from '@pkgs/message-shared/message';
 import type { RoomModule, RoomState } from '@pkgs/room-root-shared/types';
@@ -12,7 +13,7 @@ import { soloCustomGame } from './custom-game-local';
 import { expireCustomGame } from './custom-game-play';
 import { CustomGamesAttr, customGameTimeLeft } from './custom-game-state';
 
-const ns = createAttrNamespace('chess', 'custom');
+const ns = createAttrNamespace(GAME_PLATFORM_NAMESPACE, 'custom');
 export const CustomGameAvailableAttr = ns.boolean(
   'available',
   (value) => value !== false

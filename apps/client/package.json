@@ -53,5 +53,6 @@
     "vite-plugin-solid": "catalog:",
     "workbox-build": "catalog:"
   },
-  "category": "client"
+  "category": "client",
+  "gameRegistry": true
 }

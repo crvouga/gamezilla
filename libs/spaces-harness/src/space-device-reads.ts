@@ -69,13 +69,6 @@ export function gameChoiceRefusedShown(
   return visible(s, actorId, [Handles.gameChoiceRefused]);
 }
 
-export function chessChoiceOffered(
-  s: ProductHarness,
-  actorId: string
-): Promise<boolean> {
-  return visible(s, actorId, [Handles.gameMenu('chess')]);
-}
-
 export function spaceBackOffered(
   s: ProductHarness,
   actorId: string

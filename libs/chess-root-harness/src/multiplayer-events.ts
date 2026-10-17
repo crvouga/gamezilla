@@ -1,4 +1,4 @@
-import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { CHESS_TURN_GAMES } from '@libs/chess-sub-shared/chess-game';
 import { multiplayerClient } from '@libs/game-matchmaking-harness/multiplayer-client';
 import type { MultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
 import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
@@ -87,7 +87,7 @@ export const receiveMultiplayerMatch = scenarioAction<
           tieBreak: () => firstIsWhite,
           createId: s.harness.server.createId,
         },
-        TURN_GAMES
+        CHESS_TURN_GAMES
       );
       return fact.participants.map((p) => p.ownerId);
     }),

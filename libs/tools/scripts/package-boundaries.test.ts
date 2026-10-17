@@ -4,6 +4,7 @@ import {
   categoryViolations,
   familyMayDependOn,
   familyOf,
+  gameIdentityViolations,
   gameViolations,
 } from './package-boundaries';
 
@@ -241,6 +242,7 @@ describe('game isolation', () => {
     ],
     ['@libs/race-shared', { name: '@libs/race-shared', game: 'race' }],
     ['@libs/game-session-shared', { name: '@libs/game-session-shared' }],
+    ['@libs/games-shared', { name: '@libs/games-shared', gameRegistry: true }],
   ]);
   test('a game may use the shared platform and its own packages', () => {
     expect(
@@ -279,9 +281,80 @@ describe('game isolation', () => {
       gameViolations({ ...platform, gameRegistry: true }, workspace)
     ).toEqual([]);
   });
+  test('depending on a registry composes every game, so only a registry may', () => {
+    const catalog = {
+      name: '@libs/game-catalog-shared',
+      dependencies: { '@libs/games-shared': 'workspace:*' },
+    };
+    expect(gameViolations(catalog, workspace)).toHaveLength(1);
+    expect(
+      gameViolations({ ...catalog, gameRegistry: true }, workspace)
+    ).toEqual([]);
+  });
+  test('a game never reaches its siblings through a registry', () => {
+    expect(
+      gameViolations(
+        {
+          name: '@libs/race-harness',
+          game: 'race',
+          devDependencies: { '@libs/games-shared': 'workspace:*' },
+        },
+        workspace
+      )
+    ).toHaveLength(1);
+    expect(
+      gameViolations(
+        { name: '@libs/race-harness', game: 'race', gameRegistry: true },
+        workspace
+      )
+    ).toHaveLength(1);
+  });
   test('a package named for a game declares it', () => {
     expect(gameViolations({ name: '@libs/race-harness' }, workspace)).toEqual([
       '@libs/race-harness is named for the game race; declare "game": "race"',
     ]);
+  });
+});
+
+describe('game identity', () => {
+  const gameIds = new Set(['chess', 'race']);
+  const scan = (
+    text: string,
+    manifest = { name: '@libs/game-session-shared' }
+  ) =>
+    gameIdentityViolations(manifest, {
+      gameIds,
+      sources: [{ path: 'src/a.ts', text }],
+    });
+  test('platform code never spells a game id', () => {
+    expect(scan("if (game.id === 'race') return null;")).toEqual([
+      "src/a.ts:1 spells the game 'race': platform code receives games through the registry's ports and never names one",
+    ]);
+    expect(scan('const name = `chess`;')).toHaveLength(1);
+  });
+  test('comments, longer names and the marked durable name are allowed', () => {
+    expect(
+      scan(
+        [
+          "// a game such as 'chess'",
+          "const table = 'chess_multiplayer_games';",
+          "export const NAMESPACE = 'chess'; // @durable-name",
+        ].join('\n')
+      )
+    ).toEqual([]);
+  });
+  test('a game and a registry may name games', () => {
+    expect(
+      scan("const id = 'chess';", {
+        name: '@libs/chess-rules-shared',
+        game: 'chess',
+      } as never)
+    ).toEqual([]);
+    expect(
+      scan("const id = 'race';", {
+        name: '@libs/games-shared',
+        gameRegistry: true,
+      } as never)
+    ).toEqual([]);
   });
 });

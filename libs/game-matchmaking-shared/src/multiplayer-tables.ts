@@ -1,7 +1,8 @@
 import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { GAME_PLATFORM_NAMESPACE } from './durable-names';
 
 export const multiplayerGames = defineTable({
-  domain: 'chess',
+  domain: GAME_PLATFORM_NAMESPACE,
   name: 'chess_multiplayer_games',
   columns: {
     match_id: 'text',
@@ -32,7 +33,7 @@ export const multiplayerGames = defineTable({
 
 /** One person's multiplayer rating at one speed (Glicko-2, integral). */
 export const multiplayerRatings = defineTable({
-  domain: 'chess',
+  domain: GAME_PLATFORM_NAMESPACE,
   name: 'chess_multiplayer_ratings',
   columns: {
     owner_id: 'text',
@@ -46,7 +47,7 @@ export const multiplayerRatings = defineTable({
 });
 
 export const multiplayerPlayers = defineTable({
-  domain: 'chess',
+  domain: GAME_PLATFORM_NAMESPACE,
   name: 'chess_multiplayer_players',
   columns: { owner_id: 'text', game_id: 'text' },
   uniqueIndexes: ['owner_id'],
@@ -54,7 +55,7 @@ export const multiplayerPlayers = defineTable({
 
 /** The actor's synchronized projection of the reusable package's accepted search. */
 export const opponentSearches = defineTable({
-  domain: 'chess',
+  domain: GAME_PLATFORM_NAMESPACE,
   name: 'chess_opponent_searches',
   columns: {
     owner_id: 'text',
@@ -70,7 +71,7 @@ export const opponentSearches = defineTable({
 });
 
 export const multiplayerCommands = defineTable({
-  domain: 'chess',
+  domain: GAME_PLATFORM_NAMESPACE,
   name: 'chess_multiplayer_commands',
   columns: {
     owner_id: 'text',

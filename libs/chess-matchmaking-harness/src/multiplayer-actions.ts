@@ -18,6 +18,7 @@ import {
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
+import { selectChessGame } from './chess-game-choice';
 import {
   multiplayerArrivalIsTerminal,
   reachMultiplayerChoices,
@@ -216,4 +217,5 @@ export const MULTIPLAYER_HARNESS_ACTIONS = [
   pressMultiplayerControl,
   confirmMultiplayerCommand,
   moveMultiplayerPiece,
+  selectChessGame,
 ] as const;

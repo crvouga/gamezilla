@@ -1,3 +1,4 @@
+import { selectChessGame } from '@libs/chess-matchmaking-harness/chess-game-choice';
 /**
  * `specs/chess/space-follow.qnt` against a space the host and a guest share
  * on every device they have there. The host's choice is what those devices
@@ -20,11 +21,7 @@ import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront, visible } from '@libs/harness/observations';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { focusActor } from '@libs/harness/shell-actions';
-import {
-  createSpace,
-  joinViaLink,
-  selectChessGame,
-} from '@libs/spaces-harness/space-actions';
+import { createSpace, joinViaLink } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { Picks } from '@pkgs/quint-shared/registry';

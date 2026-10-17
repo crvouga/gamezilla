@@ -1,3 +1,4 @@
+import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared/durable-names';
 import type { GameCommandContext } from '@libs/spaces-shared/game';
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
 import { createMessageRouter } from '@pkgs/message-shared/router';
@@ -28,7 +29,7 @@ import { CustomGamesAttr, EMPTY_CUSTOM_GAMES } from './custom-game-state';
 const noticeSchema = z
   .object({ commandId: z.string(), reason: z.string() })
   .strict();
-const ns = createAttrNamespace('chess', 'custom');
+const ns = createAttrNamespace(GAME_PLATFORM_NAMESPACE, 'custom');
 export const CustomGameNoticeAttr = ns.json('notice', (v) =>
   v === undefined ? { commandId: '', reason: '' } : noticeSchema.parse(v)
 );

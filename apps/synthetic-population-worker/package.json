@@ -61,5 +61,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "harness"
+  "category": "harness",
+  "gameRegistry": true
 }

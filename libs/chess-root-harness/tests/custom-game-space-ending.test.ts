@@ -1,6 +1,8 @@
 import { expect, test } from 'bun:test';
-import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
-import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import {
+  CHESS_TURN_GAMES,
+  chessGameShared,
+} from '@libs/chess-sub-shared/chess-game';
 import { CustomGamesChanged } from '@libs/game-session-shared/custom-game-commands';
 import { withCustomGames } from '@libs/game-session-shared/custom-game-definition';
 import {
@@ -15,9 +17,13 @@ import {
   ScheduleEffect,
 } from '@pkgs/room-root-shared/builtin';
 
-const session = withCustomGames(chessGameShared, TURN_GAMES);
+const session = withCustomGames(chessGameShared, CHESS_TURN_GAMES);
 const active: CustomGame = {
-  ...newCustomGame('friday-game', 'alice', TURN_GAMES.byId('chess').initial()),
+  ...newCustomGame(
+    'friday-game',
+    'alice',
+    CHESS_TURN_GAMES.byId('chess').initial()
+  ),
   status: 'active',
   black: { kind: 'person', person: 'bob' },
   ready: ['white', 'black'],

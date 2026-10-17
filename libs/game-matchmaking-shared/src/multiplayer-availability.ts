@@ -3,6 +3,7 @@ import { insertOutboxEvent } from '@pkgs/outbox-shared/outbox';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import { z } from 'zod';
+import { GAME_PLATFORM_NAMESPACE } from './durable-names';
 import { MultiplayerGameRepository } from './game-repository';
 import { settleMultiplayerClock } from './multiplayer-clock';
 
@@ -11,7 +12,7 @@ const availabilitySchema = z
   .strict();
 /** Only the trusted server outbox delivers a shared availability transition. */
 export const MultiplayerAvailability = createMessageNamespace(
-  'chess',
+  GAME_PLATFORM_NAMESPACE,
   'outbox'
 )(
   'multiplayer-availability',

@@ -7,7 +7,7 @@ import {
   readCustomGameBoard,
   reviewCustomGame,
 } from '@libs/chess-custom-game-harness/custom-game-review';
-import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { CHESS_TURN_GAMES } from '@libs/chess-sub-shared/chess-game';
 import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import {
   customGameLegalMoves,
@@ -169,7 +169,7 @@ Then(
     const probe = await w.s.read(readCustomGameProbe, actor);
     if (probe === null) throw new Error(`${actor} sees no game review`);
     expect(probe?.reviewPly).toBe(0);
-    const fen = customGamePositionAt(await customGame(w), 0, TURN_GAMES);
+    const fen = customGamePositionAt(await customGame(w), 0, CHESS_TURN_GAMES);
     if (fen === null) throw new Error('game has no starting position');
     expect(probe.displayFen).toBe(fen);
     expect((await w.s.read(readCustomGameBoard, actor))?.fen).toBe(
@@ -224,7 +224,7 @@ Then(
     const before = await customGame(w);
     expect(before.turn).toBe('black');
     expect(before.black.kind).toBe('bot');
-    const legal = customGameLegalMoves(before, TURN_GAMES);
+    const legal = customGameLegalMoves(before, CHESS_TURN_GAMES);
     await w.s.until(
       async () =>
         (await customGame(w)).moves.length === before.moves.length + 1,

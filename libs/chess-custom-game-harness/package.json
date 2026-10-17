@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@libs/auth-shared": "workspace:*",
-    "@libs/game-catalog-shared": "workspace:*",
+    "@libs/chess-sub-shared": "workspace:*",
     "@libs/game-session-client": "workspace:*",
     "@libs/game-session-harness": "workspace:*",
     "@libs/game-session-shared": "workspace:*",

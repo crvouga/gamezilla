@@ -4,6 +4,7 @@
  */
 
 import { expect } from 'bun:test';
+import { selectChessGame } from '@libs/chess-matchmaking-harness/chess-game-choice';
 import { chessGameMenuVisible } from '@libs/chess-root-harness/chess-ui-reads';
 import {
   attemptLeaveChessMenu,
@@ -23,11 +24,7 @@ import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import {
-  createSpace,
-  joinViaLink,
-  selectChessGame,
-} from '@libs/spaces-harness/space-actions';
+import { createSpace, joinViaLink } from '@libs/spaces-harness/space-actions';
 import {
   activeSpaceVisible,
   readSpaceLink,

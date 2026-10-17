@@ -1,3 +1,4 @@
+import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared/durable-names';
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
 import type { BotDifficulty } from '@pkgs/turn-game-shared/game-rules';
 import { z } from 'zod';
@@ -83,7 +84,7 @@ function parseCustomGames(value: unknown): CustomGames {
     ? EMPTY_CUSTOM_GAMES
     : customGamesSchema.parse(value);
 }
-const ns = createAttrNamespace('chess', 'custom');
+const ns = createAttrNamespace(GAME_PLATFORM_NAMESPACE, 'custom');
 export const CustomGamesAttr = ns.json('games', parseCustomGames);
 
 /** A bot's strength until someone chooses one (a game with one bot ignores it). */

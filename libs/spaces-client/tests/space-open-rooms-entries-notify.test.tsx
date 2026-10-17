@@ -64,7 +64,7 @@ function DispatchProbe(props: { readonly spaceId: string }): JSX.Element {
       onClick={() => {
         const payload: RoomCommandPayload = {
           type: asKeyword('team-cmd/select-game'),
-          payload: { game: 'chess' },
+          payload: { game: 'race' },
         };
         dispatch(props.spaceId, payload);
       }}
@@ -136,7 +136,7 @@ describe('SpaceOpenRoomsStoreProvider entries notify', () => {
 
     screen.getByTestId('commit').click();
     expect(roomDispatchCount).toBe(1);
-    expect(dispatched[0]?.payload).toEqual({ game: 'chess' });
+    expect(dispatched[0]?.payload).toEqual({ game: 'race' });
 
     unmount();
   });

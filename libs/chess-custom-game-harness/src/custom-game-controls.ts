@@ -1,4 +1,4 @@
-import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { CHESS_TURN_GAMES } from '@libs/chess-sub-shared/chess-game';
 import type { CustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import {
   chooseCustomGame,
@@ -77,7 +77,7 @@ function boardAllows(probe: CustomGameProbe, input: CustomGameInput): boolean {
     probe.live &&
     probe.current.status === 'active' &&
     probe.mySide === probe.current.turn &&
-    customGameLegalMoves(probe.current, TURN_GAMES).some((move) =>
+    customGameLegalMoves(probe.current, CHESS_TURN_GAMES).some((move) =>
       move.startsWith(input.uci)
     )
   );

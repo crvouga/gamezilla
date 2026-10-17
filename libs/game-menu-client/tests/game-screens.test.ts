@@ -3,7 +3,7 @@ import { assertGameScreens } from '@libs/game-menu-client/shared-game-screens';
 
 test('a game may declare its own distinct slug screens', () => {
   expect(() =>
-    assertGameScreens('chess', ['puzzle', 'stats', 'stats-review'])
+    assertGameScreens('race', ['laps', 'stats', 'stats-review'])
   ).not.toThrow();
 });
 

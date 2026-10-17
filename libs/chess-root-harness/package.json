@@ -148,7 +148,6 @@
     "@libs/chess-root-server": "workspace:*",
     "@libs/chess-root-shared": "workspace:*",
     "@libs/chess-sub-shared": "workspace:*",
-    "@libs/game-catalog-shared": "workspace:*",
     "@libs/game-matchmaking-client": "workspace:*",
     "@libs/game-matchmaking-harness": "workspace:*",
     "@libs/game-matchmaking-shared": "workspace:*",
