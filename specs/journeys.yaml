@@ -13,7 +13,7 @@ journeys:
     endsIn:
     - 'Multiplayer: Playing multiplayer'
     gherkin:
-    - specs/chess/multiplayer-draw-offers.feature
+    - specs/games/matched-game-draw-offers.feature
   Offering the multiplayer draw back accepts it:
     description: The recipient's reciprocal draw offer ends the game as an agreed draw.
     events:
@@ -26,7 +26,7 @@ journeys:
     endsIn:
     - 'Multiplayer: Drawn result'
     gherkin:
-    - specs/chess/multiplayer-draw-offers.feature
+    - specs/games/matched-game-draw-offers.feature
   A Custom Game draw refusal needs the sender's next move:
     description: A declined offer cannot be repeated until its sender makes the next legal move.
     events:
@@ -529,7 +529,7 @@ journeys:
     - 'Multiplayer: Playing multiplayer'
     gherkin:
     - specs/journeys/multiplayer-game.feature
-    - specs/chess/multiplayer-rematch.feature
+    - specs/games/matched-game-rematch.feature
     tour: true
   Returning to multiplayer sees the completed outcome:
     description: Connection loss keeps the old board; returning shows the durable finished game.

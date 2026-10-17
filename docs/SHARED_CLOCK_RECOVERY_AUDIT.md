@@ -34,8 +34,8 @@ Paths in this table are relative to `specs/chess/`.
 | Obligation | Evidence |
 | --- | --- |
 | `playMove`, daily legal / out of turn | `multiplayer-daily-clock.feature:15`, `:20` |
-| `playMove`, offline / paused / finished refusal | `multiplayer-recovery-and-privacy.feature:8`, `shared-game-interruption.feature:40`, `play-multiplayer-chess.feature:62` |
-| `resignPlay`, active / already finished | `play-multiplayer-chess.feature:45`, `:50` |
+| `playMove`, offline / paused / finished refusal | `multiplayer-recovery-and-privacy.feature:8`, `shared-game-interruption.feature:40`, `multiplayer-clock.feature:43` |
+| `resignPlay`, active / already finished | `multiplayer-ratings.feature:9`, `:36` |
 | `resignPlay`, offline / paused refusal | `multiplayer-offline.feature:14`, `shared-game-interruption.feature:46` |
 | `openMultiplayer`, unfinished / finished | `shared-game-interruption.feature:52`, `multiplayer-game-record.feature:46` |
 | `multiplayerTimePasses`, running / paused | `multiplayer-daily-clock.feature:11`, `shared-game-interruption.feature:9` |
@@ -45,7 +45,7 @@ Paths in this table are relative to `specs/chess/`.
 | `invPauseKeepsGame` | `shared-game-interruption.feature:9`, `:34`, `:40` |
 | `invResultIsCountedOnce` | `shared-game-interruption.feature:62`, `:78`, `:84` |
 | `invFinishedRecordIsHonest` | `shared-game-interruption.feature:69`, `multiplayer-game-record.feature:46` |
-| `invOnlyUsableTurnCanMove` | `play-multiplayer-chess.feature:9`, `:15`, `shared-game-interruption.feature:40`, `multiplayer-recovery-and-privacy.feature:8` |
+| `invOnlyUsableTurnCanMove` | `multiplayer-clock.feature:24`, `:29`, `shared-game-interruption.feature:40`, `multiplayer-recovery-and-privacy.feature:8` |
 | `invSameGame` | `shared-game-interruption.feature:34`; the two-to-four move bound is model bookkeeping |
 | `invDailyClockKeepsFullDays` | `multiplayer-daily-clock.feature:11`, `:15`, `:20` |
 | `invClocksAreNonnegative` | `multiplayer-daily-clock.feature:56`, `:66` |

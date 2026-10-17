@@ -2,7 +2,7 @@ context: Games
 purpose: >-
   What every game a space can play offers the same way, whichever game it
   is: the game's choices, custom games with people and bots, turns, finding
-  an opponent, history and review. Each game adds only its own rules and
+  an opponent and the matched games it starts, history and review. Each game adds only its own rules and
   board; a scenario here holds for every game that offers what it shows.
 terms:
   - term: game
@@ -29,7 +29,7 @@ terms:
       One game of the game whose creator chooses a person or a bot for each
       side and the clock, before every person in it is ready and it starts.
       A finished custom game keeps its participants, moves and result.
-    forms: [custom games, creator, participant, participants, rematch]
+    forms: [custom games, creator, participant, participants]
     avoid: [match, room, lobby]
     published: true
 
@@ -37,7 +37,7 @@ terms:
     definition: >-
       One of a game's two places to play from. The first side moves first;
       a side is open until a person or a bot takes it.
-    forms: [sides, first side, second side, open side]
+    forms: [sides, first side, second side, open side, sides swapped, swaps the sides]
 
   - term: bot
     definition: An automated participant that makes legal moves at its turn.
@@ -46,8 +46,23 @@ terms:
   - term: move
     definition: >-
       One action on the board on a participant's turn, as the game's own
-      rules allow it.
-    forms: [moves, makes a move, makes her move, makes his move, made]
+      rules allow it. A move the game's rules do not allow is refused and
+      changes nothing. Each side's first move is its first move of the game.
+    forms:
+      - moves
+      - makes a move
+      - makes her move
+      - makes his move
+      - made
+      - first move
+      - first moves
+      - makes her first move
+      - makes his first move
+      - has made her first move
+      - has made his first move
+      - made her first move
+      - move played
+      - moves played
     avoid: [command, action]
 
   - term: turn
@@ -61,9 +76,30 @@ terms:
 
   - term: finished
     definition: >-
-      A custom game that has ended with a result: a victory or a draw. A
-      finished custom game takes no more moves.
-    forms: [finishes]
+      A custom game or matched game that has a result: a victory or a draw.
+      A finished game takes no more moves. A game without a result yet is
+      unfinished.
+    forms: [finishes, unfinished]
+
+  - term: end
+    definition: >-
+      What happens to a rematch offer once it is declined or someone finds a
+      new opponent: nobody is offered the rematch any more, and it can no
+      longer be accepted.
+    forms: [ends, ended]
+
+  - term: result
+    definition: >-
+      How a finished game came out: a victory or a draw. Both people see the
+      same result, kept with the moves. An aborted matched game has none.
+    forms: [results]
+
+  - term: over
+    definition: >-
+      A matched game that is finished or was aborted. It takes no more
+      moves, resignations, aborts or draw offers; only a rematch, after a
+      result, or finding a new opponent can follow it.
+    forms: [is over, not over yet]
 
   - term: victory
     definition: >-
@@ -72,8 +108,112 @@ terms:
     forms: [victories, wins, won]
 
   - term: draw
-    definition: A finished game that nobody wins.
-    forms: [draws]
+    definition: >-
+      A finished game that nobody wins. A matched game whose draw offer is
+      accepted is drawn by agreement.
+    forms: [draws, drawn, drawn by agreement]
+
+  - term: resign
+    definition: >-
+      Give up a game under way, which gives the opponent the victory. In a
+      matched game, resigning is refused until both people have made their
+      first move, and the person is told to abort instead; from then on
+      either person may resign, whoever's turn it is, and resigning again
+      keeps the result.
+    forms: [resigns, resigned, resigning, resignation]
+    avoid: [forfeit, concede, quit]
+
+  - term: matched game
+    definition: >-
+      A game of the game between two people who were paired as opponents at
+      the clock choice they both chose. Each is given a side, both see the
+      same board, moves and result, and only those two people may move,
+      resign, abort it or offer a draw. A person has at most one unfinished
+      matched game.
+    forms: [matched games, matched game's]
+    avoid: [multiplayer game, online game, found-opponent game]
+
+  - term: abort
+    definition: >-
+      Stop a matched game before both people have made their first move.
+      Either person may abort until then. An aborted matched game is over
+      with no result, changes nobody's rating, has no rematch, and frees both
+      people to seek an opponent again; aborting it again changes nothing.
+    forms: [aborts, aborted, aborting, can no longer be aborted]
+    avoid: [cancel, void]
+
+  - term: miss the first move
+    definition: >-
+      Not make one's first move in a matched game in time: the first side
+      within 30 seconds of the matched game's start, the second side within
+      30 seconds of the first side's first move. Missing it aborts the
+      matched game, so nobody loses a game they never began, even when they
+      were paired while offline. A clock choice that gives days for each
+      move gives those days instead of the 30 seconds.
+    forms: [misses the first move, missed the first move, missing the first move]
+
+  - term: draw offer
+    definition: >-
+      One person in an unfinished matched game asking the other to agree to
+      a draw. Only the other person may accept or decline it, and offering a
+      draw back accepts it. Accepting draws the game by agreement; declining
+      lets the game go on. A move by the person offered declines it; a move
+      by the person who made the draw offer keeps it. Offering again keeps
+      one draw offer. A matched game that is over takes no draw offer.
+    forms:
+      - draw offers
+      - offer a draw
+      - offers a draw
+      - offered a draw
+      - offered someone a draw
+      - offering a draw
+      - accept the draw
+      - accepts the draw
+      - decline the draw
+      - declines the draw
+
+  - term: accept
+    definition: >-
+      Say yes to a draw offer or a rematch offer, which takes effect at once.
+      Only the person offered may accept.
+    forms: [accepts, accepted, accepting]
+
+  - term: decline
+    definition: >-
+      Say no to a draw offer or a rematch offer. Only the person offered may
+      decline.
+    forms: [declines, declined, declining]
+
+  - term: rematch
+    definition: >-
+      A new game between the same two people with the sides swapped, after
+      their game is finished. A custom game's rematch keeps the earlier one
+      in the history. After a finished matched game either person may offer
+      a rematch: a new matched game at the same clock choice, without
+      seeking an opponent again. Offering one back accepts it. It is refused
+      while either person plays another unfinished matched game or seeks an
+      opponent, and an aborted matched game has none. The offer ends when
+      either person declines it or finds a new opponent.
+    forms:
+      - rematches
+      - asks for a rematch
+      - rematch offer
+      - offer a rematch
+      - offers a rematch
+      - offered a rematch
+      - offered someone a rematch
+      - offering a rematch
+      - accept the rematch
+      - accepts the rematch
+      - accepting the rematch
+      - decline the rematch
+      - declines the rematch
+
+  - term: find a new opponent
+    definition: >-
+      From a matched game that is over, seek an opponent again at that
+      game's clock choice, in one step. It ends any rematch offer.
+    forms: [finds a new opponent, found a new opponent, finding a new opponent]
 
   - term: opponent
     definition: >-
@@ -81,14 +221,45 @@ terms:
       the same clock choice.
     forms: [opponents]
 
+  - term: finding an opponent
+    definition: >-
+      The game's choice where a person seeks an opponent. It shows their
+      current search, or their latest matched game, unfinished or over, the
+      same on every device.
+    forms: [opens finding an opponent]
+
   - term: seek an opponent
     definition: >-
       Wait to be paired with an opponent for the game at a clock choice. A
-      person seeks for one game at a time and may stop seeking.
+      person seeks for one game at a time and may stop seeking. Someone
+      seeking an opponent cannot offer a rematch.
     forms: [seeking, seeks, stops seeking, waiting for an opponent]
 
   - term: clock choice
-    definition: How much time each participant has to play.
+    definition: >-
+      How much time each participant has to play. A matched game's clock
+      choice is written as the minutes each side starts with plus the
+      seconds each move adds, such as 5+0, and belongs to one speed.
+    forms: [clock choices, played at]
+
+  - term: seconds pass
+    definition: >-
+      Time going by in a matched game while nobody makes a move.
+    forms: [second passes]
+
+  - term: speed
+    definition: >-
+      The family a clock choice belongs to, such as bullet, blitz, rapid or
+      classical. Each speed has its own rating.
+    forms: [speeds, bullet, blitz, rapid, classical]
+
+  - term: rating
+    definition: >-
+      A person's strength at one speed. Finding an opponent uses the rating
+      for the chosen clock choice's speed. A finished matched game changes
+      both people's rating for its speed; an aborted matched game changes
+      none.
+    forms: [ratings, bullet rating, blitz rating, rapid rating, classical rating]
 
   - term: pair people up
     from: matchmaking
@@ -96,7 +267,7 @@ terms:
 
   - term: history
     definition: >-
-      A game's finished custom games and found-opponent games, with their
+      A game's finished custom games and matched games, with their
       participants, moves and results, for people allowed to watch them.
 
   - term: review
@@ -127,6 +298,9 @@ terms:
 
   - term: space link
     from: spaces
+
+  - term: free account
+    from: billing
 
   - term: connection
     from: kernel
