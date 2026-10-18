@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@libs/chess-root-shared": "workspace:*",
+    "@libs/chess-rules-shared": "workspace:*",
     "@libs/game-puzzle-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
@@ -29,6 +30,7 @@
     "@pkgs/room-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
+    "@pkgs/turn-game-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "chess.js": "catalog:",
     "zod": "catalog:"

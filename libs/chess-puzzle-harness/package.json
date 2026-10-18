@@ -53,11 +53,13 @@
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
     "@pkgs/http-client-shared": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
     "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   },
   "category": "harness",
