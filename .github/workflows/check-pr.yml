@@ -338,6 +338,29 @@ jobs:
         with:
           name: check-plan
           path: .cache/check-ci
+      # What Deploy would apply, planned against the real state for this merge
+      # result. Some configuration errors only a plan finds (a `removed` block
+      # whose resource is still in state, a project the provider cannot find);
+      # each failed Deploy after the pull request had passed. Read-only: the
+      # plan applies nothing and the AWS role it uses cannot mutate. A failure
+      # is held until the end so the fan-in consumers still report; the last
+      # step turns it into this job's failure.
+      - name: Plan the fleet stack
+        id: plan-fleet
+        if: ${{ github.event_name == 'pull_request' }}
+        continue-on-error: true
+        timeout-minutes: 15
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:fleet
+      # Foundation also reads AWS. Bootstrap sets the variable in the same
+      # apply that lets the read-only role trust a pull request.
+      - name: Plan dev's foundation stack
+        id: plan-foundation
+        if: ${{ github.event_name == 'pull_request' && vars.INFRA_PLAN_ON_PULL_REQUEST == 'true' }}
+        continue-on-error: true
+        timeout-minutes: 15
+        env:
+          AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:foundation
       # Does nothing when the plan left the fan-in stage nothing to execute.
       - name: Run fan-in consumers
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
@@ -384,6 +407,14 @@ jobs:
           START_RESULT: ${{ needs.check-start.result }}
           SHARD_RESULT: ${{ needs.check-shards.result }}
         run: bun run libs/tools/scripts/check-verdict.ts
+      - name: Fail on a plan Deploy would not survive
+        if: ${{ always() && !cancelled() && (steps.plan-fleet.outcome == 'failure' || steps.plan-foundation.outcome == 'failure') }}
+        env:
+          FLEET: ${{ steps.plan-fleet.outcome }}
+          FOUNDATION: ${{ steps.plan-foundation.outcome }}
+        run: |
+          echo "::error::A plan Deploy would run failed (fleet: ${FLEET}, foundation: ${FOUNDATION}). Read that step's log."
+          exit 1
       # A red run still measured every task that passed.
       - name: Save measured task durations
         if: always() && !cancelled() && hashFiles('.cache/check-ci/measured-costs.json') != ''
