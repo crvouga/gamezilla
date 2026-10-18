@@ -161,7 +161,10 @@ there whatever the host's connection).
 The platform then offers Puzzle and Puzzle stats among the game's
 choices, the feed and its settings, ratings and feed settings of the
 game's own, review, watchers' suggestions, the puzzle link and the
-conformance puzzle suite.
+conformance puzzle suite; the game's puzzles share the one daily puzzle
+limit a guest has across every game offering puzzles, and play as a
+guest, refuse a choice and erase a deleted account's progress as every
+game's do.
 
 Then add one entry to each registry — the only edits outside the game's
 packages besides workspace setup (step 4):

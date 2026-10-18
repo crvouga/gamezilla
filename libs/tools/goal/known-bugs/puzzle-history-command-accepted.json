@@ -1,4 +1,4 @@
 {
   "summary": "Submitting a move or requesting a hint while viewing an earlier position applied a move or revealed the opponent move. Only the current solving position can accept either action.",
-  "regressionTest": "specs/chess/puzzle-refusals.feature"
+  "regressionTest": "specs/games/puzzle-refusals.feature"
 }

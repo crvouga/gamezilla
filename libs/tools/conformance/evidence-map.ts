@@ -69,8 +69,8 @@ const ENVIRONMENTS: ProofTable = {
   // Every message the app shows is in its one catalog (the i18n gate).
   English: [{ task: '@libs/tools#ci:i18n' }],
   UTC: [
-    { spec: 'specs/chess/daily-puzzle-limit.dmn' },
-    { spec: 'specs/chess/puzzle-limits-by-kind.feature' },
+    { spec: 'specs/games/daily-puzzle-limit.dmn' },
+    { spec: 'specs/games/puzzle-limits-by-kind.feature' },
   ],
 };
 

@@ -209,7 +209,11 @@ export async function enterKnownPuzzle(
   return known;
 }
 
-/** Bring `actor`'s board into view for a `Then` that reads it. */
+/**
+ * Bring `actor`'s board into view for a `Then` that reads it: back to the
+ * game's puzzles in their space, or into a space of their own when they are
+ * in none (a person just signed in).
+ */
 export async function focusPuzzle(
   w: HarnessWorld,
   actor: string
@@ -218,6 +222,10 @@ export async function focusPuzzle(
   if (await w.s.read(isPuzzleScreenShown, actor)) return;
   if (await w.s.read(isPuzzleStatsShown, actor))
     await w.s.apply(leaveGamePuzzleStats, actor);
+  if (!(await w.s.read(activeSpaceVisible, actor))) {
+    await openPuzzles(w, actor);
+    return;
+  }
   await w.s.apply(goBackToGamePuzzles, actor);
 }
 

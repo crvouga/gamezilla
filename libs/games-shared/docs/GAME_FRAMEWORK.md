@@ -106,6 +106,7 @@ It is never a new entry for an internal module.
 | | `puzzle-screen`, `puzzle-records` | The platform's puzzle screens as a person uses them, for any game: the way in and back, the attempt's controls, what the board and its probes say, the rating change, the puzzle stats (in the space, or a person's own from Settings), the game log and a played puzzle's review; retiring a catalogue puzzle |
 | | `puzzle-feed`, `puzzle-feed-choices` | The feed settings as a person customizes them, for any game: the history filter, target mode, rating offset and custom target, the game's themes (as the game names them) and auto-advance, saved, discarded or closed, and what the feed bar and the settings say; the feed choices `puzzle-feed.qnt` names, and "a theme of the game's known puzzle" (`chosenFeedTheme`) |
 | | `puzzle-pool` | A pool a scenario describes (rating, popularity, times played, themes) made of the game's known puzzles and written through `admitCataloguePuzzle`; what the catalogue says of a puzzle; a person's earlier puzzle rating at a game (`seedPuzzleRating`) |
+| | `puzzle-allowance` | The daily puzzle limit as a scenario sets it up, one allowance for every game: the rated starts a device has charged, earlier starts of the same day written to the one ledger, and the night passing to the next UTC day |
 | | `puzzle-moves`, `puzzle-room-probe` | Moves on a puzzle board with the game's own gesture, chosen from its known puzzles (the line, the wrong, refused and opponent's moves); a puzzle command sent straight to the space's room, as a modified client would |
 | `@libs/game-matchmaking-harness` | `matched-game-world`, `matched-game-app.steps` | The scenario's matched game: pairing, both boards, commands and verdicts, the game a device holds (`heldMatchedGame`) |
 | | `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record` | Finding an opponent, the board (`sendMoveFromBoard`), reviewing earlier positions, copying the game record, as a person does |
@@ -788,8 +789,12 @@ Beyond that class:
 - Playing a puzzle — the feed, the attempt, hints, retries, the shown
   solution, the clock, resuming and the review — and the feed's settings
   and gates, how the next puzzle is chosen, the puzzle rating, the stats
-  and the game log are every game's in specification (`specs/games/puzzle-*`,
-  `solve-*`, `puzzle-attempt.qnt`, `puzzle-feed.qnt`,
+  and the game log, the daily puzzle limit (one allowance for every game
+  offering puzzles), playing as a guest and carrying that progress over,
+  what a puzzle refuses, and erasing a deleted account's puzzle progress
+  are every game's in specification (`specs/games/puzzle-*`, `solve-*`,
+  `deleted-account-progress`, `puzzle-attempt.qnt`, `puzzle-feed.qnt`,
+  `daily-puzzle-limit.dmn`, `puzzle-progress.als`,
   `puzzle-ready.openslo.yaml`) and run for chess and the reference game (a
   race where a turn may count two or three, so a move can be legal and
   wrong) on their known puzzles, in a world whose catalogue holds exactly
@@ -800,12 +805,14 @@ Beyond that class:
   ±400 in steps of 50, the custom target 400 to 3000, the windows of 100
   and 200, the quality bar and half credit — is the platform's
   (`@libs/game-puzzle-shared` `rating`, `feed-config`,
-  `next-puzzle-selection`); no game supplies one. The rest of the puzzle
-  specifications — limits, links, saved puzzles, sounds, the Puzzle
-  Assistant, accessibility, recovery and chess's own themes such as
-  "fork" (`specs/chess/puzzle-*`, `puzzle-assistant.qnt`,
-  `daily-puzzle-limit.dmn`, …) — still name chess and its board, so only
-  chess is held to them. A game's puzzle stats outside any space are on
+  `next-puzzle-selection`); no game supplies one, nor the daily limit's 20
+  (`@libs/permissions-shared`), whose earlier starts a scenario writes to
+  the one ledger (`puzzle-allowance`). The rest of the puzzle
+  specifications — links, saved puzzles, sounds, the Puzzle Assistant
+  (and why it says nothing happens from an earlier position),
+  accessibility, recovery and chess's own themes such as "fork"
+  (`specs/chess/puzzle-*`, `puzzle-assistant.qnt`, …) — still name chess
+  and its board, so only chess is held to them. A game's puzzle stats outside any space are on
   the game's own route (chess's `/more/chess-stats`, pinned by
   `specs/product.machine.json`; the reference game's
   `/more/counting-race-stats`) behind a Settings row marked

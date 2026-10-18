@@ -1,4 +1,4 @@
 {
   "summary": "The allowance observation read the initial 20 starts while opening a puzzle was still pending, instead of waiting for the existing 19-start result. Wait within the unchanged UI-settle bound and retain the exact expected count.",
-  "regressionTest": "specs/chess/puzzle-quota.feature"
+  "regressionTest": "specs/games/puzzle-quota.feature"
 }

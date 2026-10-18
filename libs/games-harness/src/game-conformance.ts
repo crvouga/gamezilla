@@ -148,6 +148,15 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'puzzle-stats': ['puzzles'],
   'puzzle-stats-summary': ['puzzles'],
   'puzzle-ready': ['puzzles'],
+  'puzzle-quota': ['puzzles'],
+  'puzzle-limits-by-kind': ['puzzles'],
+  'puzzle-limit-upgrade': ['puzzles'],
+  'puzzle-guest-play': ['puzzles'],
+  'puzzle-guest-carryover': ['puzzles'],
+  'puzzle-refusals': ['puzzles'],
+  'deleted-account-progress': ['puzzles'],
+  'daily-puzzle-limit': ['puzzles'],
+  'puzzle-progress': ['puzzles'],
 };
 
 /** The file endings of the specifications a game is held to. */

@@ -31,7 +31,7 @@ export const HOSTING_LIMIT_REASONS: ReasonWords = {
   limit_reached: 'hosting limit reached',
 };
 
-/** `specs/chess/daily-puzzle-limit.dmn`. */
+/** `specs/games/daily-puzzle-limit.dmn`. */
 export const DAILY_PUZZLE_LIMIT_REASONS: ReasonWords = {
   quota_exhausted: 'daily puzzle limit reached',
 };

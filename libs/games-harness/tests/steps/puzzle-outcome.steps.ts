@@ -29,6 +29,7 @@ import {
 } from '@libs/game-session-harness/puzzle-screen';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
+import { otherDevice } from '@libs/harness/platform';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { joinViaLink } from '@libs/spaces-harness/space-actions';
@@ -146,6 +147,35 @@ Then(
   }
 );
 
+type Figures = {
+  readonly played: number;
+  readonly solved: number;
+  readonly accuracy: number;
+};
+
+/** `device`'s stats come to show `expected`'s figures. */
+async function untilFigures(
+  w: HarnessWorld,
+  device: string,
+  expected: Figures,
+  maxMs = SETTLE_MS
+): Promise<void> {
+  await focusStats(w, device);
+  await w.s.until((surf) => readStatsFigures(surf, device), {
+    maxMs,
+    pred: (figures) =>
+      figures.played === expected.played &&
+      figures.solved === expected.solved &&
+      figures.accuracy === expected.accuracy,
+  });
+}
+
+/**
+ * How long another device may take to show what one device played, when a
+ * step names no time: it syncs once it opens the account.
+ */
+const CONVERGE_MS = 60_000;
+
 Then(
   "{actor}'s stats show {int} played, {int} solved, and {int}% accuracy",
   async (
@@ -153,14 +183,23 @@ Then(
     actor: Actor,
     ...[played, solved, accuracy]: [number, number, number]
   ) => {
-    await focusStats(w, actor);
-    await w.s.until((surf) => readStatsFigures(surf, actor), {
-      maxMs: SETTLE_MS,
-      pred: (figures) =>
-        figures.played === played &&
-        figures.solved === solved &&
-        figures.accuracy === accuracy,
-    });
+    await untilFigures(w, actor, { played, solved, accuracy });
+  }
+);
+
+Then(
+  "{actor}'s other device shows {int} played, {int} solved, and {int}% accuracy",
+  async (
+    w,
+    actor: Actor,
+    ...[played, solved, accuracy]: [number, number, number]
+  ) => {
+    await untilFigures(
+      w,
+      otherDevice(actor),
+      { played, solved, accuracy },
+      CONVERGE_MS
+    );
   }
 );
 

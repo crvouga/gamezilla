@@ -42,7 +42,8 @@ import {
   takePuzzleHint,
   takeSecondPuzzleHint,
 } from '@libs/game-session-harness/puzzle-screen';
-import { restartApp } from '@libs/harness/actions';
+import { restartApp, restoreNetwork } from '@libs/harness/actions';
+import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor, PuzzleFinishName } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
@@ -558,10 +559,23 @@ Given(
 When('{actor} goes back to the puzzles', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
   await w.s.apply(goBackToGamePuzzles, actor);
-  await trackPuzzle(w, actor);
+  // A puzzle on the board replaces the one noted before; the daily puzzle
+  // limit puts none there.
+  if ((await w.s.read(readPuzzleOnBoard, actor)) !== null)
+    await trackPuzzle(w, actor);
 });
 
 When('{actor} reopens the app on the puzzle', async (w, actor: Actor) => {
   await w.s.apply(restartApp, actor);
   await w.s.apply(returnToOwnSpace, actor);
 });
+
+// ------------------------------------------------------------------ account
+
+Given(
+  '{actor} has since come back online and signed in with Google',
+  async (w, actor: Actor) => {
+    await w.s.apply(restoreNetwork);
+    await w.s.apply(signInWithGoogle, actor);
+  }
+);

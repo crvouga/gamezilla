@@ -1,4 +1,4 @@
 {
   "summary": "A raw hint command after a wrong move bypassed the required retry and changed help on the wrong-state board.",
-  "regressionTest": "specs/chess/puzzle-refusals.feature"
+  "regressionTest": "specs/games/puzzle-refusals.feature"
 }
