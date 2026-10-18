@@ -5,9 +5,13 @@ import { assertTurnGameDefinitions } from '@libs/game-session-shared/turn-game-d
 import type { ProductHarness } from '@libs/harness/harness';
 import type { HarnessSlice } from '@libs/harness/slices';
 import type { CatalogAction } from '@pkgs/harness-root-shared/effect';
-import type { PuzzleRecord } from '@pkgs/turn-game-shared/game-puzzles';
-import type { GameSide } from '@pkgs/turn-game-shared/game-rules';
+import type {
+  GameSide,
+  TurnGameCapabilities,
+} from '@pkgs/turn-game-shared/game-rules';
 import { offeredCapabilities } from '@pkgs/turn-game-shared/game-rules';
+import type { KnownPuzzles } from './known-puzzles';
+import { assertKnownPuzzles } from './known-puzzles';
 
 /**
  * Known examples of a game's rules, written by the game's author from the
@@ -15,7 +19,7 @@ import { offeredCapabilities } from '@pkgs/turn-game-shared/game-rules';
  * rules implementation fails the shared suites instead of agreeing with
  * itself.
  */
-export type GameFixtures = {
+type RulesFixtures = {
   /**
    * Actions, alternating from the first side, after which the first side
    * has won; only the last one wins.
@@ -51,18 +55,27 @@ export type GameFixtures = {
    * own rules (`matched-game-rules-draw`) needs it.
    */
   readonly drawByRules?: readonly string[];
-  /**
-   * For a game offering puzzles, and only for one: a known puzzle of its own
-   * (its line ends with the solver's winning move, or with the solver's move
-   * the line expects) and a solver move its rules accept at the first solver
-   * move that is neither the line's nor a win. The shared puzzle suite
-   * (`conformance/puzzles`) needs it.
-   */
-  readonly puzzle?: {
-    readonly record: PuzzleRecord;
-    readonly wrongAction: string;
-  };
 };
+
+/**
+ * The game's known puzzles, exactly when its definition offers puzzles: the
+ * shared puzzle suites (`conformance/puzzles`) and laws (`game-puzzle-laws`)
+ * need them, and nothing else may name one.
+ */
+export type PuzzleFixtureObligation<C> = 'puzzles' extends keyof C
+  ? undefined extends C['puzzles' & keyof C]
+    ? { readonly puzzles?: KnownPuzzles }
+    : { readonly puzzles: KnownPuzzles }
+  : { readonly puzzles?: never };
+
+/**
+ * Known examples of a game, written by the game's author from the game's
+ * own laws; its known puzzles exactly when its definition `C` offers
+ * puzzles (a type error otherwise, and a refusal from `assertHarnessGame`).
+ */
+export type GameFixtures<
+  C extends TurnGameCapabilities = TurnGameCapabilities,
+> = RulesFixtures & PuzzleFixtureObligation<C>;
 
 /**
  * A finished matched game's record (the game's `history.record`) as the
@@ -83,12 +96,14 @@ export type ReadGameRecord = {
  * its known examples — without its screens, so a journey or a synthetic user
  * playing it loads no client code.
  */
-export type PlayableGame = {
+export type PlayableGame<
+  C extends TurnGameCapabilities = TurnGameCapabilities,
+> = {
   /** How failures and reports name the game ("chess", "Connect Four"). */
   readonly label: string;
   /** The same shared definition production registers. */
-  readonly shared: TurnGameDefinition;
-  readonly fixtures: GameFixtures;
+  readonly shared: TurnGameDefinition<C>;
+  readonly fixtures: GameFixtures<C>;
 };
 
 /**
@@ -96,24 +111,32 @@ export type PlayableGame = {
  * adapter its harness package exports. The games registry harness lists
  * every one, and a registered game without one fails the enrollment test.
  */
-export type HarnessGame = PlayableGame & {
-  /** The same client definition production registers. */
-  readonly client: GameClientRegistration;
-  /** The sub only this game's screens need, beside the shared ones. */
-  readonly slice?: HarnessSlice;
-  /** This game's own testing-tool actions. */
-  readonly actions?: readonly CatalogAction<ProductHarness>[];
-  /**
-   * Reads the game's record back in its own format, for a game offering
-   * finding an opponent and history (whose matched games offer a game
-   * record); absent otherwise, which `assertHarnessGame` checks. The shared
-   * game-record feature (`matched-game-record`) needs it.
-   */
-  readonly readRecord?: (record: string) => ReadGameRecord;
-};
+export type HarnessGame<C extends TurnGameCapabilities = TurnGameCapabilities> =
+  PlayableGame<C> & {
+    /** The same client definition production registers. */
+    readonly client: GameClientRegistration;
+    /** The sub only this game's screens need, beside the shared ones. */
+    readonly slice?: HarnessSlice;
+    /** This game's own testing-tool actions. */
+    readonly actions?: readonly CatalogAction<ProductHarness>[];
+    /**
+     * Reads the game's record back in its own format, for a game offering
+     * finding an opponent and history (whose matched games offer a game
+     * record); absent otherwise, which `assertHarnessGame` checks. The shared
+     * game-record feature (`matched-game-record`) needs it.
+     */
+    readonly readRecord?: (record: string) => ReadGameRecord;
+  };
 
-/** Fail fast, naming the game, on an adapter its own rules contradict. */
-export function assertHarnessGame(game: HarnessGame): HarnessGame {
+/**
+ * Fail fast, naming the game, on an adapter its own rules contradict. Its
+ * fixtures follow what its definition offers (`C`): known puzzles exactly
+ * for a game offering puzzles.
+ */
+export function assertHarnessGame<C extends TurnGameCapabilities>(
+  harnessGame: HarnessGame<C>
+): HarnessGame {
+  const game: HarnessGame = harnessGame;
   const rules = game.shared.turnGame.rules;
   const fail = (problem: string) => {
     throw new Error(`${game.label}: ${problem}`);
@@ -159,8 +182,9 @@ export function assertHarnessGame(game: HarnessGame): HarnessGame {
 }
 
 /**
- * A game offering puzzles has a puzzles part in its client and a known
- * puzzle among its fixtures; a game offering none has neither.
+ * A game offering puzzles has a puzzles part in its client and known
+ * puzzles among its fixtures, which its rules do not contradict; a game
+ * offering none has neither.
  */
 function assertPuzzlesAgree(
   game: HarnessGame,
@@ -173,11 +197,19 @@ function assertPuzzlesAgree(
         ? 'the game offers puzzles but its client has no puzzles part — give defineGameClient puzzles: { Board, … }'
         : 'its client has a puzzles part but the game offers no puzzles — make the client with this definition as its shared'
     );
-  if (offered !== (game.fixtures.puzzle !== undefined))
+  const known = game.fixtures.puzzles;
+  if (offered !== (known !== undefined))
     fail(
-      game.fixtures.puzzle === undefined
-        ? 'a game offering puzzles names a known puzzle of its own (fixtures.puzzle)'
-        : 'only a game offering puzzles names a known puzzle'
+      known === undefined
+        ? 'a game offering puzzles names known puzzles of its own (fixtures.puzzles)'
+        : 'only a game offering puzzles names known puzzles'
+    );
+  const puzzles = game.shared.turnGame.capabilities.puzzles;
+  if (known !== undefined && puzzles !== undefined)
+    assertKnownPuzzles(
+      { rules: game.shared.turnGame.rules, namespace: puzzles.namespace },
+      known,
+      fail
     );
 }
 

@@ -61,6 +61,7 @@
     "game-navigation",
     "game-system",
     "harness-game",
+    "known-puzzles",
     "space-game-choice",
     "puzzle-session-probe",
     "puzzle-fixtures"
