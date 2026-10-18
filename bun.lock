@@ -1815,6 +1815,7 @@
         "@pkgs/permissions-shared": "workspace:*",
         "@pkgs/quint-server": "workspace:*",
         "@pkgs/quint-shared": "workspace:*",
+        "@pkgs/room-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/sync-engine-client": "workspace:*",
         "@pkgs/turn-game-shared": "workspace:*",
