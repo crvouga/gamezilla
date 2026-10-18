@@ -30,6 +30,11 @@ export const GAME_TRAITS = {
   /** A line the game's own rules draw (`drawByRules`). */
   "a draw by the game's own rules": (game: HarnessGame) =>
     game.fixtures.drawByRules !== undefined,
+  /** A known puzzle the game's rules let the solver win off its line (`wonAnotherWay`). */
+  'a known puzzle won another way': (game: HarnessGame) =>
+    game.fixtures.puzzles?.some(
+      (fixture) => fixture.wonAnotherWay !== undefined
+    ) === true,
 } as const satisfies Readonly<Record<string, (game: HarnessGame) => boolean>>;
 export type GameTrait = keyof typeof GAME_TRAITS;
 
@@ -157,6 +162,18 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'deleted-account-progress': ['puzzles'],
   'daily-puzzle-limit': ['puzzles'],
   'puzzle-progress': ['puzzles'],
+  'puzzle-offline': ['puzzles'],
+  'puzzle-offline-days': ['puzzles'],
+  'puzzle-outcome-sync': ['puzzles'],
+  'puzzle-interruption-recovery': ['puzzles'],
+  'puzzle-result-recovery': ['puzzles'],
+  'puzzle-spectator': ['puzzles'],
+  'puzzle-late-watcher': ['puzzles'],
+  'puzzle-link': ['puzzles'],
+  'puzzle-sound': ['puzzles'],
+  'puzzle-accessibility': ['puzzles'],
+  'puzzle-objective': ['puzzles', 'a known puzzle won another way'],
+  'puzzle-other-play': ['puzzles', 'matchmaking', 'custom-games'],
 };
 
 /** The file endings of the specifications a game is held to. */

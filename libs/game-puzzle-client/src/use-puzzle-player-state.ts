@@ -269,7 +269,9 @@ function usePuzzlePlayerUi(args: {
   const recommendationProbe = createMemo(() =>
     recommendations
       .entries()
-      .map((entry) => `${entry.by}:${entry.from}${entry.to}`)
+      // A cell is the game's own name for it (a square, a count), so the
+      // two are kept apart.
+      .map((entry) => `${entry.by}:${entry.from}-${entry.to}`)
       .join(',')
   );
 

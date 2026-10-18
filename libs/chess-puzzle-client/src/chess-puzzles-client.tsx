@@ -21,7 +21,7 @@ import { ChessPuzzleAnnouncement } from './chess-puzzle-announcement';
 import { ChessPuzzleBoard } from './chess-puzzle-board';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
 
-/** The attempt said in words, for someone listening to the app. */
+/** The attempt's moves said in words, for someone listening to the app. */
 function ChessPuzzleCompanion(props: {
   readonly attempt: PuzzleAttempt;
 }): JSX.Element {
@@ -35,7 +35,6 @@ function ChessPuzzleCompanion(props: {
       hintStage={a.hintStage}
       fen={a.position}
       hintSquare={a.hintFrom}
-      completion={a.completion}
     />
   );
 }

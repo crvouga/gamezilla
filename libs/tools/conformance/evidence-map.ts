@@ -56,7 +56,7 @@ const ENVIRONMENTS: ProofTable = {
     { spec: 'specs/sync-engine/notes-offline.feature' },
     { spec: 'specs/sync-engine/a-long-time-offline.feature' },
     { spec: 'specs/sync-engine/online-only-actions.feature' },
-    { spec: 'specs/chess/puzzle-offline.feature' },
+    { spec: 'specs/games/puzzle-offline.feature' },
     { spec: 'specs/billing/billing-offline-grace.feature' },
     { spec: 'specs/profile/offline-sign-in.feature' },
     { spec: 'specs/friends/social-needs-connection.feature' },

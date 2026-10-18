@@ -4,6 +4,7 @@ import { joinMultiplayerSpace } from '@libs/game-matchmaking-harness/multiplayer
 import { openFindingAnOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';
 import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
+import { sharedSpecificationNeeds } from '@libs/games-harness/game-conformance';
 import { Given, Then } from '@libs/harness/define';
 import { focusActor } from '@libs/harness/shell-actions';
 import {
@@ -16,7 +17,12 @@ import {
   settingUp,
   toldOf,
 } from './custom-game-set-up-world';
-import { gameOf, rememberCustomGame, setupCustomGame } from './game-world';
+import {
+  gameOf,
+  joinHostsSpace,
+  rememberCustomGame,
+  setupCustomGame,
+} from './game-world';
 
 Given('{actor} is setting up a custom game', async (w, host: string) =>
   setupCustomGame(w, settingUp(host))
@@ -40,9 +46,16 @@ Given(
     await w.s.apply(joinMultiplayerSpace, person, host);
   }
 );
+// In a feature without custom games, the people simply join the host's
+// space from its link (the host starting one if they have none).
 Given(
   "{actor} and {actor} are in {actor}'s space",
-  async (w, first: string, second: string) => {
+  async (w, first: string, second: string, host: string) => {
+    if (!sharedSpecificationNeeds(w.ctx.featureUri).includes('custom-games')) {
+      for (const person of [first, second])
+        await joinHostsSpace(w, host, person);
+      return;
+    }
     await inSpace(w, first);
     await inSpace(w, second);
   }

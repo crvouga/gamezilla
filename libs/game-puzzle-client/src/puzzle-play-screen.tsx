@@ -21,6 +21,7 @@ import { usePuzzleGame } from './puzzle-game-context';
 import type { PuzzlePlayBoardChrome } from './puzzle-play-layout';
 import { PuzzlePlayLayout } from './puzzle-play-layout';
 import { PuzzleRecommendationLegend } from './puzzle-recommendation-legend';
+import { PuzzleResultAnnouncement } from './puzzle-result-announcement';
 import { PuzzleShareLink } from './puzzle-share-link';
 import { PuzzleStatusHeader } from './puzzle-status-header';
 import { PuzzleTestLoadingStatus } from './puzzle-test-loading-status';
@@ -79,12 +80,16 @@ function PuzzlePlayerBoardSlot(props: {
   );
 }
 
-/** The attempt's probes, and the game's own companion to it. */
+/**
+ * The attempt's probes, its results said for someone listening, and the
+ * game's own companion to it.
+ */
 function PuzzleCompanion(props: { p: PuzzlePlayerChromeModel }): JSX.Element {
   const { client } = usePuzzleGame();
   return (
     <>
       <PuzzleTestProbes attempt={props.p.attempt} />
+      <PuzzleResultAnnouncement attempt={props.p.attempt} />
       <Show when={client.Companion} keyed>
         {(Companion) => <Companion attempt={props.p.attempt} />}
       </Show>

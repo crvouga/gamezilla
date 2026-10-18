@@ -43,7 +43,7 @@ in source, tests and steps alike (the full map and the reasons are in
 | `@libs/game-puzzle-shared` (a game offering puzzles) | `puzzle-catalogue`, `sub`, `puzzle-link`, `completion`, `hint-stage`, `solve-status` |
 | `@libs/game-puzzle-client` (a game offering puzzles) | `puzzle-client`, `personal-puzzle-stats-screen` |
 | `@libs/spaces-shared` | `game` (only for a game with its own room behaviour) |
-| `@libs/game-session-harness` (its `-harness`) | `harness-game`, `known-puzzles`, `game-system`, `game-navigation`, `space-game-choice`, `custom-game-ui`, `custom-game-controls`, `custom-game-lineup`, `custom-game-moves`, `custom-game-screen`, `custom-game-reads`, `custom-game-history`, `puzzle-session-probe`, `puzzle-fixtures`, `puzzle-screen`, `puzzle-records`, `puzzle-moves`, `puzzle-room-probe` |
+| `@libs/game-session-harness` (its `-harness`) | `harness-game`, `known-puzzles`, `game-system`, `game-navigation`, `space-game-choice`, `custom-game-ui`, `custom-game-controls`, `custom-game-lineup`, `custom-game-moves`, `custom-game-screen`, `custom-game-reads`, `custom-game-history`, `puzzle-session-probe`, `puzzle-fixtures`, `puzzle-screen`, `puzzle-records`, `puzzle-moves`, `puzzle-room-probe`, `puzzle-link`, `puzzle-finishes`, `puzzle-result-recovery`, `puzzle-listening`, `puzzle-sounds` |
 | `@libs/game-matchmaking-harness` (its `-harness`) | `matched-game-world`, `matched-game-app.steps`, `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record`, `multiplayer-time`, `matched-game-fixtures` |
 
 Nothing else: not the platform's screens, consumers or storage, and never
@@ -147,8 +147,14 @@ Puzzles are offered by a part on each side, and nothing else changes:
   (a wrong move's half credit then lowers the rating) and two of them
   within 100 of it (a settled 1500 then has a next puzzle in its rating
   window after a solve); give the known puzzle a theme the client's feed
-  `themes` offers, and offer one theme no known puzzle has. That is
-  all a game supplies: every puzzle suite and specification, its
+  `themes` offers, and offer one theme no known puzzle has. Name at least
+  thirty more puzzles (`fixtures.morePuzzles`, each held to what a known
+  puzzle is, none repeating another's position and line), which days of
+  offline play stock. And name the sounds its puzzles play
+  (`puzzleSounds` on the `HarnessGame`: each source its `useFeedback` or
+  board plays, as a move, a correct move, a wrong move, the end of the
+  line, a solve or a rating), with at least a move, a correct move, a
+  wrong move and an end sound. That is all a game supplies: every puzzle suite and specification, its
   orchestration and assertions and the faulty copies that prove them are
   the framework's.
 
@@ -160,11 +166,18 @@ there whatever the host's connection).
 
 The platform then offers Puzzle and Puzzle stats among the game's
 choices, the feed and its settings, ratings and feed settings of the
-game's own, review, watchers' suggestions, the puzzle link and the
+game's own, review, watchers' suggestions, the puzzle link, the results
+said for someone listening, the controls from the keyboard and the
 conformance puzzle suite; the game's puzzles share the one daily puzzle
 limit a guest has across every game offering puzzles, and play as a
-guest, refuse a choice and erase a deleted account's progress as every
-game's do.
+guest, refuse a choice, erase a deleted account's progress, play offline
+and for days without a connection, count a result once across closing
+the app and two devices, are watched, linked, heard and kept apart from
+other play as every game's do (`specs/games/puzzle-*`, and the
+`puzzle-attempt`, `puzzle-feed`, `puzzle-link`, `puzzle-result-recovery`
+and `puzzle-sound` models). A known puzzle won another way
+(`wonAnotherWay`) holds the game to `puzzle-objective` too; without one,
+the puzzle laws check its rules win each known puzzle only by its line.
 
 Then add one entry to each registry — the only edits outside the game's
 packages besides workspace setup (step 4):

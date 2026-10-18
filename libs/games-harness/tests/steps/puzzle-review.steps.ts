@@ -27,9 +27,12 @@ import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
   currentPuzzle,
+  enterKnownPuzzle,
   focusStats,
   lastPuzzlePlayer,
   lineOf,
+  noteSoundsSoFar,
+  playsPuzzles,
   puzzleGameId,
   puzzleOn,
   SETTLE_MS,
@@ -74,6 +77,8 @@ When(
 Given(
   '{actor} is reviewing the solved puzzle at move {int}',
   async (w, actor: Actor, move: number) => {
+    // Onto the game's known puzzle first, unless already on a puzzle.
+    if (!playsPuzzles(w, actor)) await enterKnownPuzzle(w, actor);
     await w.s.apply(focusActor, actor);
     await w.s.apply(solveKnownPuzzle, actor, puzzleGameId(w));
     await openReview(w, actor);
@@ -109,6 +114,7 @@ Then(
 When(
   '{actor} steps {direction} one move in the review',
   async (w, actor: Actor, way: Direction) => {
+    await noteSoundsSoFar(w, actor);
     await w.s.apply(useReviewControl, actor, way);
   }
 );

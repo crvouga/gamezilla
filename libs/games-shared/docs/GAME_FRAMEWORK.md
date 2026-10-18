@@ -94,8 +94,8 @@ It is never a new entry for an internal module.
 | `@libs/game-session-shared` | `turn-game-definition` | `defineTurnGame` and `TurnGame`: the registration |
 | `@libs/game-menu-client` | `game-client` | `defineGameClient`, `GameClient` (its `shared` registration and, for a game offering puzzles, its `puzzles` part), `GameClientPresentation`, the game's own screens and choices |
 | `@libs/spaces-shared` | `game` | `GameOwnRoom`, `GameCommandContext`: a game's own room behaviour, and `mergeGameRouterEntries` (one router per namespace, as the space composes a shared module and a game's own room) for a game's room tests |
-| `@libs/game-session-harness` | `harness-game` | `PlayableGame`, `HarnessGame`, `GameFixtures`, `ReadGameRecord`, `assertHarnessGame`: the conformance adapter |
-| | `known-puzzles` | `PuzzleFixture`, `PuzzleFixtureMove`, `KnownPuzzles`: the known puzzles of a game offering puzzles |
+| `@libs/game-session-harness` | `harness-game` | `PlayableGame`, `HarnessGame`, `GameFixtures`, `ReadGameRecord`, `PuzzleSoundKind`, `assertHarnessGame`: the conformance adapter (a game offering puzzles names the sounds its puzzles play, `puzzleSounds`) |
+| | `known-puzzles` | `PuzzleFixture`, `PuzzleFixtureMove`, `KnownPuzzles`: the known puzzles of a game offering puzzles, and its more puzzles (`morePuzzles`) for a scenario needing many at once |
 | | `game-system` | `gameSystem`, `openGameHarness`: a world of any games |
 | | `game-navigation`, `space-game-choice` | Choosing a game in a space and moving between its screens |
 | | `custom-game-ui`, `custom-game-controls`, `custom-game-lineup` | Making Custom Game choices as a person does (`CustomGameAction`): one choice, the screen's controls, a whole lineup |
@@ -107,7 +107,9 @@ It is never a new entry for an internal module.
 | | `puzzle-feed`, `puzzle-feed-choices` | The feed settings as a person customizes them, for any game: the history filter, target mode, rating offset and custom target, the game's themes (as the game names them) and auto-advance, saved, discarded or closed, and what the feed bar and the settings say; the feed choices `puzzle-feed.qnt` names, and "a theme of the game's known puzzle" (`chosenFeedTheme`) |
 | | `puzzle-pool` | A pool a scenario describes (rating, popularity, times played, themes) made of the game's known puzzles and written through `admitCataloguePuzzle`; what the catalogue says of a puzzle; a person's earlier puzzle rating at a game (`seedPuzzleRating`) |
 | | `puzzle-allowance` | The daily puzzle limit as a scenario sets it up, one allowance for every game: the rated starts a device has charged, earlier starts of the same day written to the one ledger, and the night passing to the next UTC day |
-| | `puzzle-moves`, `puzzle-room-probe` | Moves on a puzzle board with the game's own gesture, chosen from its known puzzles (the line, the wrong, refused and opponent's moves); a puzzle command sent straight to the space's room, as a modified client would |
+| | `puzzle-moves`, `puzzle-room-probe` | Moves on a puzzle board with the game's own gesture, chosen from its known puzzles (the line, the wrong, refused and opponent's moves, a win off the line); a puzzle command sent straight to the space's room, as a modified client would |
+| | `puzzle-finishes`, `puzzle-result-recovery` | Finishing a puzzle every way a solver can (cleanly, after a hint, a wrong move retried, the shown solution, a skip), as the app closes, on two devices of one account apart, won both ways, and day after day; closing and reopening the app, and the first result each device's stats show, judged by an independent Glicko-2 update from the known puzzle's rating |
+| | `puzzle-link`, `puzzle-listening`, `puzzle-sounds` | Sharing and opening a puzzle link, and what its screen says; the puzzle controls from the keyboard alone and what someone listening hears of the results; the puzzle sounds a device actually played, as the game names them |
 | `@libs/game-matchmaking-harness` | `matched-game-world`, `matched-game-app.steps` | The scenario's matched game: pairing, both boards, commands and verdicts, the game a device holds (`heldMatchedGame`) |
 | | `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record` | Finding an opponent, the board (`sendMoveFromBoard`), reviewing earlier positions, copying the game record, as a person does |
 | | `multiplayer-time`, `matched-game-fixtures` | Fixtures: time passing through the real sweep; a position or a clock set where no person could reach it in time |
@@ -619,10 +621,14 @@ behaviour for exactly what it offers:
   offering everything a feature shows (`SHARED_SPECIFICATIONS` in
   `@libs/games-harness/game-conformance`). A feature may also need a trait
   of the game's rules that not every game has (`GAME_TRAITS`: a side that
-  cannot win, a draw by the game's own rules); a game has it exactly when
-  its fixtures show it (`secondSideCannotWin`, `drawByRules`), and a game
-  without the fixture is held by the rules laws to never reach such a
-  position. The moves played and a copied game record are checked against
+  cannot win, a draw by the game's own rules, a known puzzle won another
+  way); a game has it exactly when its fixtures show it
+  (`secondSideCannotWin`, `drawByRules`, a known puzzle's `wonAnotherWay`),
+  and a game without the fixture is held by the rules laws to never reach
+  such a position (or, for puzzles, to win each known puzzle only by its
+  line). A feature showing more than one capability holds for the games
+  offering all of them (`puzzle-other-play`: puzzles, finding an opponent
+  and custom games). The moves played and a copied game record are checked against
   how the game writes its victory's moves (`firstSideVictoryLabels`, held
   to the rules' own labels), and a game whose matched games offer a game
   record reads it back in its own format (`readRecord`), never through the
@@ -791,9 +797,15 @@ Beyond that class:
   and gates, how the next puzzle is chosen, the puzzle rating, the stats
   and the game log, the daily puzzle limit (one allowance for every game
   offering puzzles), playing as a guest and carrying that progress over,
-  what a puzzle refuses, and erasing a deleted account's puzzle progress
-  are every game's in specification (`specs/games/puzzle-*`, `solve-*`,
-  `deleted-account-progress`, `puzzle-attempt.qnt`, `puzzle-feed.qnt`,
+  what a puzzle refuses, erasing a deleted account's puzzle progress,
+  playing offline and for days without a connection, a result counted
+  once across closing the app and two devices, friends watching and
+  arriving mid-puzzle, puzzle links, the app's sounds, the results heard
+  and the controls from the keyboard, a win off the line, and other play
+  leaving the puzzles alone are every game's in specification
+  (`specs/games/puzzle-*`, `solve-*`, `deleted-account-progress`,
+  `puzzle-attempt.qnt`, `puzzle-feed.qnt`, `puzzle-link.qnt`,
+  `puzzle-result-recovery.qnt`, `puzzle-sound.qnt`,
   `daily-puzzle-limit.dmn`, `puzzle-progress.als`,
   `puzzle-ready.openslo.yaml`) and run for chess and the reference game (a
   race where a turn may count two or three, so a move can be legal and
@@ -807,12 +819,18 @@ Beyond that class:
   (`@libs/game-puzzle-shared` `rating`, `feed-config`,
   `next-puzzle-selection`); no game supplies one, nor the daily limit's 20
   (`@libs/permissions-shared`), whose earlier starts a scenario writes to
-  the one ledger (`puzzle-allowance`). The rest of the puzzle
-  specifications — links, saved puzzles, sounds, the Puzzle Assistant
-  (and why it says nothing happens from an earlier position),
-  accessibility, recovery and chess's own themes such as "fork"
-  (`specs/chess/puzzle-*`, `puzzle-assistant.qnt`, …) — still name chess
-  and its board, so only chess is held to them. A game's puzzle stats outside any space are on
+  the one ledger (`puzzle-allowance`). Days of offline play stock the
+  game's more puzzles (`morePuzzles`, at least thirty) before going
+  offline. A game's sounds are heard as it names them
+  (`HarnessGame.puzzleSounds`); the results someone listening hears are
+  the platform's live region (`Handles.puzzleResultAnnouncement`), a
+  game's words about its moves its own companion's. The rest of the
+  puzzle specifications — saved puzzles, the Puzzle Assistant (and why it
+  says nothing happens from an earlier position), chess's capture sound,
+  spoken moves and squares, a legal checkmate counting as one, and chess's
+  own themes such as "fork" (`specs/chess/puzzle-*`, `puzzle-assistant.qnt`,
+  `puzzle-sound.qnt`, …) — still name chess and its board, so only chess
+  is held to them. A game's puzzle stats outside any space are on
   the game's own route (chess's `/more/chess-stats`, pinned by
   `specs/product.machine.json`; the reference game's
   `/more/counting-race-stats`) behind a Settings row marked
@@ -822,11 +840,13 @@ Beyond that class:
   moves takes its model-check task and its share of chess's spec parts to
   `@libs/games-harness`, which the PR runner's capacity (`ci-load.ts`)
   needs. A suite's parts are bounded below by its models (sixteen traces
-  to a part): chess's nine keep it at 36 (nine model-check tasks), games'
-  thirteen at 52 (eleven model-check tasks, two holding two small
-  models); the puzzle attempt model's one extra part came from billing's
-  24, which its light suite allows, and the feed model's four from
-  chess's 40.
+  to a part, and chess's four to a file): chess's seven keep it at 32,
+  games' sixteen at 64, each model checked in a task of its own (seven
+  and sixteen model-check tasks, the matched-game model's sixteen phases
+  apart); the puzzle attempt model's one extra part came from billing's
+  24, which its light suite allows. The link, result-recovery and sound
+  models took eight parts more than chess gave up (241 spec tasks became
+  249), past the PR runner's estimated fit (`docs/CI_REQUIREMENTS.md`).
 - The game models follow a first-side victory of exactly seven moves
   (Connect Four's shortest), so every game supplies one; a game whose
   victories all take longer needs the models' bound raised with it. The

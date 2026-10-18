@@ -1,11 +1,11 @@
 /**
- * What someone listening to the app hears about the puzzle on the board, as
- * plain parts the client words and puts in its live region: the opponent's
- * setup move or reply and whose move it is, the solver's own move, a wrong
- * move, the piece a hint picks, the result and the rating change.
+ * What someone listening to the app hears about the chess puzzle on the
+ * board, as plain parts the client words and puts in its live region: the
+ * opponent's setup move or reply and whose move it is, the solver's own
+ * move and the piece a hint picks. A wrong move, the result and the rating
+ * change are every game's (`@libs/game-puzzle-shared/puzzle-result-announcement`).
  */
 
-import type { PuzzleCompletion } from '@libs/game-puzzle-shared/completion';
 import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
 import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
 import type { PieceType } from '@pkgs/chess-board-core-shared/types';
@@ -43,22 +43,12 @@ export type PuzzleAnnouncementPart =
       readonly to: string;
     }
   | { readonly kind: 'toMove'; readonly side: PuzzleSide }
-  | { readonly kind: 'wrong' }
   | {
       readonly kind: 'hint';
       readonly side: PuzzleSide;
       readonly piece: PieceType;
       readonly square: string;
-    }
-  | { readonly kind: 'solved' }
-  | { readonly kind: 'revealed' }
-  | { readonly kind: 'skipped' }
-  | {
-      readonly kind: 'ratingChange';
-      readonly delta: number;
-      readonly ratingAfter: number;
-    }
-  | { readonly kind: 'unrated' };
+    };
 
 export type PuzzleAnnouncementInput = {
   readonly status: SolveStatus;
@@ -73,7 +63,6 @@ export type PuzzleAnnouncementInput = {
   readonly fen: string | null;
   /** The square of the piece the hint picks, when one is picked. */
   readonly hintSquare: string | null;
-  readonly completion: PuzzleCompletion | null;
 };
 
 function otherSide(side: PuzzleSide): PuzzleSide {
@@ -118,37 +107,11 @@ function hintPart(
   };
 }
 
-function resultParts(
-  input: PuzzleAnnouncementInput
-): readonly PuzzleAnnouncementPart[] {
-  const done =
-    input.status === 'solved'
-      ? ({ kind: 'solved' } as const)
-      : input.status === 'revealed'
-        ? ({ kind: 'revealed' } as const)
-        : input.status === 'skipped'
-          ? ({ kind: 'skipped' } as const)
-          : null;
-  if (done === null) return [];
-  const completion = input.completion;
-  if (completion === null) return [done];
-  if (!completion.rated) return [done, { kind: 'unrated' }];
-  return [
-    done,
-    {
-      kind: 'ratingChange',
-      delta: completion.delta,
-      ratingAfter: completion.ratingAfter,
-    },
-  ];
-}
-
-/** The parts heard for the puzzle as it stands; empty while it loads. */
+/** The parts heard of the puzzle's moves while it is solved; none otherwise. */
 export function puzzleAnnouncement(
   input: PuzzleAnnouncementInput
 ): readonly PuzzleAnnouncementPart[] {
-  if (input.status === 'wrong') return [{ kind: 'wrong' }];
-  if (input.status !== 'solving') return resultParts(input);
+  if (input.status !== 'solving') return [];
   const parts: PuzzleAnnouncementPart[] = [];
   const last = lastMovePart(input);
   if (last !== null) parts.push(last);

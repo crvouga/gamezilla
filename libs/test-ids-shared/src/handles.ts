@@ -446,8 +446,14 @@ export const Handles = {
   chessPuzzleFeedRatingChange: 'chess-puzzle-feed-rating-change',
   /** The feed bar's themes of the puzzle on the board, once it is over. */
   chessPuzzleFeedPuzzleThemes: 'chess-puzzle-feed-puzzle-themes',
-  /** The puzzle's live region: what someone listening to the app hears. */
+  /** Chess's live region: what someone listening hears of a puzzle's moves. */
   chessPuzzleAnnouncement: 'chess-puzzle-announcement',
+  /**
+   * Every game's live region about a puzzle attempt's results: what someone
+   * listening hears of a wrong move, a solve, the solution shown, a skip
+   * and the rating change.
+   */
+  puzzleResultAnnouncement: 'puzzle-result-announcement',
   /** "Share puzzle link" on the puzzle screen. */
   chessPuzzleShareLink: 'chess-puzzle-share-link',
   /** A puzzle link's screen while it opens, or why it cannot. */

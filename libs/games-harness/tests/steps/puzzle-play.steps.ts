@@ -58,6 +58,7 @@ import {
   enterPuzzles,
   focusPuzzle,
   lineOf,
+  noteSoundsSoFar,
   previousPuzzle,
   puzzleGameId,
   puzzleOn,
@@ -183,6 +184,7 @@ Then("{actor}'s puzzle is not solved", async (w, actor: Actor) => {
 When('{actor} plays the next move of the solution', async (w, actor: Actor) => {
   w.memo.set(LAST_MOVER, actor);
   await w.s.apply(focusActor, actor);
+  await noteSoundsSoFar(w, actor);
   await w.s.apply(playSolutionMove, actor, puzzleGameId(w));
 });
 
@@ -231,6 +233,8 @@ Then(
 // ------------------------------------------------------------ wrong moves
 
 When('{actor} plays a wrong move', async (w, actor: Actor) => {
+  await w.s.apply(focusActor, actor);
+  await noteSoundsSoFar(w, actor);
   await wrongMove(w, actor);
 });
 

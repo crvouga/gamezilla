@@ -100,22 +100,22 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 328 |
-| Check scripts | 1230 |
+| Check scripts | 1241 |
 | Measured scripts | 189 |
-| Estimated scripts | 1041 |
+| Estimated scripts | 1052 |
 | Stale cost keys | 538 |
-| Cold CPU | 7620 s |
-| Spec parts | 4074 s across 241 tasks |
+| Cold CPU | 7804 s |
+| Spec parts | 4210 s across 249 tasks |
 | Longest task | @apps/product#test:contract:render 60 s |
 
 ### Families
 
 | Family | Tasks | CPU |
 | --- | --- | --- |
-| test:spec | 241 | 4074 s |
+| test:spec | 249 | 4210 s |
 | check:models:9 | 16 | 960 s |
 | check:models:2 | 11 | 660 s |
-| check:models | 34 | 551 s |
+| check:models | 37 | 599 s |
 | lint | 327 | 352 s |
 | tc | 327 | 341 s |
 | test | 232 | 279 s |
@@ -146,9 +146,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 264 | 7460 s | @apps/product#test:contract:render 60 s |
-| @pkgs/clock-shared | 230 | 7361 s | @apps/product#test:contract:render 60 s |
-| @pkgs/assert-root-shared | 225 | 7343 s | @apps/product#test:contract:render 60 s |
+| @pkgs/property-shared | 264 | 7644 s | @apps/product#test:contract:render 60 s |
+| @pkgs/clock-shared | 230 | 7545 s | @apps/product#test:contract:render 60 s |
+| @pkgs/assert-root-shared | 225 | 7527 s | @apps/product#test:contract:render 60 s |
 
 ### Runner
 
@@ -157,10 +157,10 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 | | |
 | --- | --- |
 | Spec slots | 16 |
-| Other slots | 14 |
-| Cores required | 32 |
+| Other slots | 15 |
+| Cores required | 33 |
 | Memory required | 40 GiB |
-| Estimated makespan | 255 s |
+| Estimated makespan | 264 s |
 | Provision | 2 × 32 vCPU, 64 GB, Linux x64 |
-| Fits | yes |
+| Fits | no |
 <!-- ci-load:end -->

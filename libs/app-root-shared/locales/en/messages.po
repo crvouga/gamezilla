@@ -3041,7 +3041,7 @@ msgstr "Puzzle rating trend and game log"
 msgid "Puzzle review"
 msgstr "Puzzle review"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
+#: libs/game-puzzle-client/src/puzzle-result-announcement.tsx
 msgid "Puzzle skipped."
 msgstr "Puzzle skipped."
 
@@ -3049,7 +3049,7 @@ msgstr "Puzzle skipped."
 msgid "Puzzle solved!"
 msgstr "Puzzle solved!"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
+#: libs/game-puzzle-client/src/puzzle-result-announcement.tsx
 msgid "Puzzle solved."
 msgstr "Puzzle solved."
 
@@ -3768,7 +3768,7 @@ msgstr "Snapshot (JSON)"
 msgid "Solution"
 msgstr "Solution"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
+#: libs/game-puzzle-client/src/puzzle-result-announcement.tsx
 msgid "Solution shown."
 msgstr "Solution shown."
 
@@ -4247,7 +4247,7 @@ msgstr "They won't be able to send you friend requests."
 msgid "This account already has a sign-in method from that provider. Remove it first to use a different one."
 msgstr "This account already has a sign-in method from that provider. Remove it first to use a different one."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
+#: libs/game-puzzle-client/src/puzzle-result-announcement.tsx
 msgid "This attempt was unrated."
 msgstr "This attempt was unrated."
 
@@ -4659,7 +4659,7 @@ msgstr "Worker Lease duration (milliseconds)"
 msgid "Working…"
 msgstr "Working…"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
+#: libs/game-puzzle-client/src/puzzle-result-announcement.tsx
 msgid "Wrong move. That is not the solution."
 msgstr "Wrong move. That is not the solution."
 
@@ -4882,15 +4882,15 @@ msgstr "Your opponent's turn."
 msgid "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
 msgstr "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
+#: libs/game-puzzle-client/src/puzzle-result-announcement.tsx
 msgid "Your puzzle rating stayed at {after}."
 msgstr "Your puzzle rating stayed at {after}."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
+#: libs/game-puzzle-client/src/puzzle-result-announcement.tsx
 msgid "Your puzzle rating went down by {down}, to {after}."
 msgstr "Your puzzle rating went down by {down}, to {after}."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
+#: libs/game-puzzle-client/src/puzzle-result-announcement.tsx
 msgid "Your puzzle rating went up by {delta}, to {after}."
 msgstr "Your puzzle rating went up by {delta}, to {after}."
 

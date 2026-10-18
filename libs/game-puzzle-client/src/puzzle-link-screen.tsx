@@ -4,6 +4,7 @@
  * available, or the person cannot open another space.
  */
 
+import { puzzleIdOfRouteParam } from '@libs/game-puzzle-shared/puzzle-link';
 import { puzzleNamespaceOf } from '@libs/game-puzzle-shared/puzzle-namespace';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { Handles } from '@libs/test-ids-shared/handles';
@@ -34,7 +35,7 @@ export function PuzzleLinkScreen(props: {
   readonly turnGames: TurnGames;
 }): JSX.Element {
   const params = useLocalSearchParams<{ puzzleId?: string | undefined }>();
-  const puzzleId = () => params().puzzleId ?? '';
+  const puzzleId = () => puzzleIdOfRouteParam(params().puzzleId ?? '');
   const gameId = createMemo(() => gameOfPuzzle(props.turnGames, puzzleId()));
   return (
     <ContentScreen

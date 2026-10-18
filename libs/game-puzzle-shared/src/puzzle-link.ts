@@ -31,6 +31,19 @@ export function puzzleIdOfLink(link: string): string | null {
   }
 }
 
+/**
+ * The puzzle a link's route names by its `:puzzleId` parameter, which the
+ * route leaves encoded: a puzzle of a game with a namespace
+ * (`counting-race/…`) has its slash encoded; empty when it is no puzzle id.
+ */
+export function puzzleIdOfRouteParam(param: string): string {
+  try {
+    return decodeURIComponent(param);
+  } catch {
+    return '';
+  }
+}
+
 /** The path within a puzzle link: what a device opens. */
 export function puzzleLinkPathOf(link: string): string | null {
   const puzzleId = puzzleIdOfLink(link);

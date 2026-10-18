@@ -37,6 +37,9 @@ import {
   readPuzzleOnBoard,
   readPuzzleProbe,
 } from '@libs/game-session-harness/puzzle-screen';
+import { readPuzzleSoundsPlayed } from '@libs/game-session-harness/puzzle-sounds';
+import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
+import { accountIdOf } from '@libs/harness/identity';
 import { otherDevice } from '@libs/harness/platform';
 import { backToTabs, focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -57,6 +60,16 @@ export const SETTLE_MS = 20_000;
 /** The run's game's id, as its puzzles and choices are found by. */
 export function puzzleGameId(w: HarnessWorld): string {
   return gameOf(w).shared.id;
+}
+
+/** Someone with puzzle progress of their own has an account: sign in if not yet. */
+export async function withAccount(
+  w: HarnessWorld,
+  actor: string
+): Promise<void> {
+  if ((await w.s.read(accountIdOf, actor)) !== null) return;
+  await w.s.apply(signInWithGoogle, actor);
+  await w.s.apply(returnToTabs, actor);
 }
 
 export function required<T>(value: T | null | undefined, what: string): T {
@@ -413,4 +426,30 @@ export async function otherDevicePuzzles(
   await w.s.apply(reopenSpaceLink, device, link);
   await w.s.apply(openGamePuzzlesNoWait, device, puzzleGameId(w));
   return device;
+}
+
+// ------------------------------------------------------------ the sounds
+
+const heardKey = (actor: string) => `puzzle-sounds-heard:${actor}`;
+
+/**
+ * Note how many of the run's game's puzzle sounds `actor`'s device has
+ * played so far, so a later step hears only what followed.
+ */
+export async function noteSoundsSoFar(
+  w: HarnessWorld,
+  actor: string
+): Promise<void> {
+  w.memo.set(
+    heardKey(actor),
+    (await w.s.read(readPuzzleSoundsPlayed, actor, puzzleGameId(w))).length
+  );
+}
+
+/** How many puzzle sounds `actor` had heard when last noted. */
+export function soundsNoted(w: HarnessWorld, actor: string): number {
+  return required(
+    w.memo.get(heardKey(actor)) as number | undefined,
+    `a note of what ${actor} had heard`
+  );
 }

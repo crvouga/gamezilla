@@ -24,9 +24,7 @@ import {
   moveOnToNextPuzzle,
   skipGamePuzzle,
 } from '@libs/game-session-harness/puzzle-screen';
-import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
-import { accountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
 import { cutConnection, otherDevice } from '@libs/harness/platform';
 import { focusActor } from '@libs/harness/shell-actions';
@@ -42,17 +40,11 @@ import {
   SECOND_MS,
   SETTLE_MS,
   trackPuzzle,
+  withAccount,
 } from './puzzle-world';
 
 /** Memo key: how each puzzle of a played run ended, in order. */
 const resultsKey = (actor: string) => `puzzle-results:${actor}`;
-
-/** A puzzle rating to set belongs to an account: sign in if not yet. */
-async function withAccount(w: HarnessWorld, actor: Actor): Promise<void> {
-  if ((await w.s.read(accountIdOf, actor)) !== null) return;
-  await w.s.apply(signInWithGoogle, actor);
-  await w.s.apply(returnToTabs, actor);
-}
 
 async function seedRating(
   w: HarnessWorld,

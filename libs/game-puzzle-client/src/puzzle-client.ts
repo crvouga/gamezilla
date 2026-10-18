@@ -83,7 +83,7 @@ export type PuzzleAttempt = {
   readonly clockElapsedMs: Accessor<number | null>;
   readonly rating: Accessor<number>;
   readonly themes: Accessor<readonly string[]>;
-  /** Watchers' suggestions, `by:fromto`, comma separated, oldest first. */
+  /** Watchers' suggestions, `by:from-to`, comma separated, oldest first. */
   readonly suggestionsProbe: Accessor<string>;
   readonly completion: Accessor<PuzzleCompletion | null>;
 };

@@ -32,9 +32,7 @@ import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import { joinViaLink } from '@libs/spaces-harness/space-actions';
-import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
-import { gameOf } from './game-world';
+import { gameOf, joinHostsSpace } from './game-world';
 import {
   currentPuzzle,
   ensureOnPuzzle,
@@ -341,10 +339,8 @@ Given(
   "{actor} is watching {actor}'s puzzle",
   async (w, watcher: Actor, host: Actor) => {
     await ensureOnPuzzle(w, host);
-    await w.s.apply(focusActor, host);
-    const link = await w.s.read(readSpaceLink, host);
-    if (link === null) throw new Error(`${host} is not in a space`);
-    await w.s.apply(joinViaLink, watcher, link);
+    // Into the host's space from its link, unless already there.
+    await joinHostsSpace(w, host, watcher);
     await w.s.apply(focusActor, watcher);
     // Precondition guard: the watcher's board shows the host's puzzle.
     await w.s.until(

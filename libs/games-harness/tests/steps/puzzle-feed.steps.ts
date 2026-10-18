@@ -135,8 +135,10 @@ Then('{actor} has a puzzle on the board', async (w, actor: Actor) => {
   await servedPuzzle(w, actor);
 });
 
+// What the person has in view now: going back to the puzzles would bring
+// one back.
 Then('{actor} has no puzzle on the board', async (w, actor: Actor) => {
-  await focusPuzzle(w, actor);
+  await w.s.apply(focusActor, actor);
   expect(await w.s.read(readPuzzleOnBoard, actor)).toBeNull();
 });
 

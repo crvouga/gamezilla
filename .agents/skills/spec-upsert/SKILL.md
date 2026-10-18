@@ -154,7 +154,7 @@ cases left to code tests (B17), and the coverage gaps still open.
 
 ### Several rules in one prose paragraph (B2, B3, B4, B5)
 
-Before — `specs/chess/puzzle-quota.feature`: the rules live in the
+Before — `specs/games/puzzle-quota.feature`: the rules live in the
 description, there is no `Rule:`, and one scenario has two `When`s:
 
 ```gherkin

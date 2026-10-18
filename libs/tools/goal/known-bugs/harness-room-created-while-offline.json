@@ -1,4 +1,4 @@
 {
   "summary": "The harness room transport factory rejected construction while offline, so the saved board never opened and reconnection could not recover a finished attempt. Only connection attempts now fail while disconnected; local hydration and heartbeat recovery remain available. Finish as the app closes, reopen offline, then reconnect is pinned.",
-  "regressionTest": "specs/chess/puzzle-outcome-sync.feature"
+  "regressionTest": "specs/games/puzzle-outcome-sync.feature"
 }
