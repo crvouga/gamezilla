@@ -70,6 +70,7 @@ import {
   trackPuzzle,
   writePool,
 } from './puzzle-world';
+import { themePool } from './theme-pool';
 
 const HISTORY_FILTERS: Readonly<Record<string, FeedHistoryFilter>> = {
   Any: 'any',
@@ -409,33 +410,9 @@ Then(
 Given(
   "the puzzle pool holds puzzles with and without a theme of the game's known puzzle",
   async (w) => {
-    const theme = feedTheme(w);
-    const known = theKnownPuzzle(gameOf(w));
-    const others = gameOf(w).fixtures.puzzles?.filter(
-      (fixture) => fixture.record.id !== known.record.id
-    );
-    const [second, third] = others ?? [];
-    if (second === undefined || third === undefined)
-      throw new Error('a pool with and without the theme needs three puzzles');
-    // The known puzzle and one other with the theme, the third without.
-    const pool = [
-      { fixture: known, themed: true },
-      { fixture: second, themed: true },
-      { fixture: third, themed: false },
-    ];
-    await writePool(
-      w,
-      pool.map(({ fixture, themed }) => ({
-        id: fixture.record.id,
-        themes: themesWith(fixture.record.themes, theme, themed),
-      }))
-    );
-    rememberThemed(
-      w,
-      pool
-        .filter((entry) => entry.themed)
-        .map((entry) => entry.fixture.record.id)
-    );
+    const { pool, themed } = themePool(gameOf(w));
+    await writePool(w, pool);
+    rememberThemed(w, themed);
   }
 );
 

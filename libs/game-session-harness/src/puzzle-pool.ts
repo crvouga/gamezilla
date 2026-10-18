@@ -43,17 +43,21 @@ export function puzzleNamespaceOfGame(game: HarnessGame): string {
 }
 
 /**
- * Make `gameId`'s pool exactly `pool`: each of its known puzzles as `pool`
- * describes it, and none of the game's other known puzzles.
+ * Make `gameId`'s pool exactly `pool`: each of its known puzzles, or of its
+ * more puzzles (`fixtures.morePuzzles`), as `pool` describes it, and none of
+ * the game's other known puzzles.
  */
 export const writeKnownPuzzlePool = scenarioAction({
   name: 'writeKnownPuzzlePool',
   act: async (s, gameId: string, pool: readonly PoolPuzzle[]) => {
     const game = harnessGameOf(s, gameId);
     const known = knownPuzzlesOf(game);
+    const authored = [...known, ...(game.fixtures.morePuzzles ?? [])];
     const turnGames = createTurnGames([game.shared.turnGame]);
     const rows = pool.map(({ id, ...described }) => {
-      const record = known.find((fixture) => fixture.record.id === id)?.record;
+      const record = authored.find(
+        (fixture) => fixture.record.id === id
+      )?.record;
       if (record === undefined)
         throw new Error(`${game.label} names no known puzzle ${id}`);
       const admission = admitCataloguePuzzle(turnGames, {
