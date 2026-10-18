@@ -26,7 +26,6 @@ import {
 import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
 import {
   goBackToGamePuzzles,
-  isPuzzleOfflineNoticeShown,
   isPuzzleSolved,
   leavePuzzleForGameChoices,
   moveOnToNextPuzzle,
@@ -37,7 +36,6 @@ import {
   readPuzzleProbe,
   readPuzzlePrompt,
   readPuzzleState,
-  readPuzzleStatusKind,
   readPuzzleWatch,
   retryGamePuzzle,
   showPuzzleSolution,
@@ -46,17 +44,14 @@ import {
 } from '@libs/game-session-harness/puzzle-screen';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
-import { cutConnection } from '@libs/harness/platform';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { remember } from '@libs/harness/spec-world';
-import { createSpace } from '@libs/spaces-harness/space-actions';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { markPuzzleSoundBoundary } from './puzzle-sound-evidence';
 import {
   activePuzzle,
   boardBefore,
-  currentPuzzle,
   ensureOnPuzzle,
   enterNamedPuzzle,
   enterPuzzles,
@@ -107,31 +102,6 @@ When('{actor} opens puzzles in their space', async (w, actor: Actor) => {
   // The board may not come (offline, empty): the Then steps wait for it.
   await w.s.apply(openGamePuzzlesNoWait, actor, CHESS_GAME_ID);
 });
-
-Given('{actor} has opened puzzles in their space', async (w, actor: Actor) => {
-  await w.s.apply(openGamePuzzlesNoWait, actor, CHESS_GAME_ID);
-  // Precondition guard: offline, the screen settles on its notice.
-  await w.s.until((surf) => isPuzzleOfflineNoticeShown(surf, actor), {
-    maxMs: SETTLE_MS,
-  });
-});
-
-Given(
-  '{actor} went offline before any puzzles reached their device',
-  async (w, actor: Actor) => {
-    await w.s.apply(createSpace, actor);
-    await cutConnection(w, actor);
-  }
-);
-
-Then(
-  '{actor} is told puzzles need a connection within {int} seconds',
-  async (w, actor: Actor, seconds: number) => {
-    await w.s.until((surf) => isPuzzleOfflineNoticeShown(surf, actor), {
-      maxMs: seconds * SECOND_MS,
-    });
-  }
-);
 
 Given(
   '{actor} is solving the four-move mate-in-two puzzle',
@@ -194,30 +164,6 @@ Given(
   }
 );
 
-Then('{actor} has a puzzle on the board', async (w, actor: Actor) => {
-  await w.s.apply(focusActor, actor);
-  const puzzleId = await w.s.until((s) => readPuzzleOnBoard(s, actor), {
-    pred: (id) => id !== null,
-    maxMs: SETTLE_MS,
-  });
-  expect(puzzleId).not.toBeNull();
-});
-
-Then(
-  '{actor} has a puzzle on the board within {int} seconds',
-  async (w, actor: Actor, seconds: number) => {
-    await w.s.until(async (surf) => readPuzzleOnBoard(surf, actor), {
-      maxMs: seconds * SECOND_MS,
-      pred: (id) => id !== null,
-    });
-    await trackPuzzle(w, actor);
-  }
-);
-
-Then('{actor} has no puzzle on the board', async (w, actor: Actor) => {
-  expect(await w.s.read(readPuzzleOnBoard, actor)).toBeNull();
-});
-
 // ------------------------------------------------------------------ solving
 
 /** Solve the puzzle, noting the clock at the solve for later steps. */
@@ -228,17 +174,9 @@ async function solve(w: HarnessWorld, actor: Actor): Promise<void> {
   remember(w, solvedClockKey(actor), probe?.clockMs ?? null);
 }
 
-When('{actor} solves the puzzle', async (w, actor: Actor) => {
-  await solve(w, actor);
-});
-
 Given('{actor} has solved the puzzle', async (w, actor: Actor) => {
   await ensureOnPuzzle(w, actor);
   await solve(w, actor);
-});
-
-Then("{actor}'s puzzle is solved", async (w, actor: Actor) => {
-  expect(await w.s.read(isPuzzleSolved, actor)).toBe(true);
 });
 
 Then(
@@ -316,16 +254,6 @@ Given('{actor} has shown the solution', async (w, actor: Actor) => {
     pred: (debug) => debug?.status === 'revealed',
   });
 });
-
-Then(
-  "{actor}'s puzzle shows the revealed solution within {int} seconds",
-  async (w, actor: Actor, seconds: number) => {
-    await w.s.until(async (surf) => readPuzzleProbe(surf, actor), {
-      maxMs: seconds * SECOND_MS,
-      pred: (debug) => debug?.status === 'revealed',
-    });
-  }
-);
 
 Then(
   "{actor}'s board is at move {int} of the line within {int} seconds",
@@ -472,17 +400,6 @@ Then(
   }
 );
 
-Then(
-  '{actor} is solving the puzzle at move {int} of the line',
-  async (w, actor: Actor, move: number) => {
-    await waitSolverToMove(w, actor);
-    expect(await w.s.read(readPuzzleProbe, actor)).toMatchObject({
-      status: 'solving',
-      solveIdx: move,
-    });
-  }
-);
-
 Then("{actor}'s board is unchanged", async (w, actor: Actor) => {
   expect((await boardProbe(w, actor)).fen).toBe(boardBefore(w, actor));
 });
@@ -493,11 +410,6 @@ Given('{actor} has skipped the puzzle', async (w, actor: Actor) => {
   await w.s.apply(skipGamePuzzle, actor);
 });
 
-Then("{actor}'s puzzle is skipped", async (w, actor: Actor) => {
-  expect(await w.s.read(readPuzzleState, actor)).toBe('skipped');
-  expect(await w.s.read(readPuzzleStatusKind, actor)).toBe('skipped');
-});
-
 When('{int} second(s) pass(es)', async (w, seconds: number) => {
   await w.s.advanceTime(seconds * SECOND_MS);
 });
@@ -505,11 +417,6 @@ When('{int} second(s) pass(es)', async (w, seconds: number) => {
 // ------------------------------------------------------------- moving on
 
 When('{actor} moves on to the next puzzle', async (w, actor: Actor) => {
-  await w.s.apply(moveOnToNextPuzzle, actor);
-  await trackPuzzle(w, actor);
-});
-
-Given('{actor} has moved on to the next puzzle', async (w, actor: Actor) => {
   await w.s.apply(moveOnToNextPuzzle, actor);
   await trackPuzzle(w, actor);
 });
@@ -533,13 +440,6 @@ Then(
     expect((await w.s.read(readPuzzleControls, actor)).resultShown).toBe(false);
   }
 );
-
-Then('{actor} is on the same puzzle as before', async (w, actor: Actor) => {
-  await w.s.apply(focusActor, actor);
-  expect(await w.s.read(readPuzzleOnBoard, actor)).toBe(
-    currentPuzzle(w, actor)
-  );
-});
 
 // ------------------------------------------------ leaving and coming back
 

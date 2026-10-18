@@ -43,14 +43,15 @@ export function theKnownPuzzle(game: HarnessGame): PuzzleFixture {
   return fixture;
 }
 
-/** `game`'s known puzzle `puzzleId`. */
+/** `game`'s known puzzle `puzzleId`, or one of its more puzzles. */
 export function knownPuzzle(
   game: HarnessGame,
   puzzleId: string
 ): PuzzleFixture {
-  const fixture = knownPuzzlesOf(game).find(
-    (known) => known.record.id === puzzleId
-  );
+  const fixture = [
+    ...knownPuzzlesOf(game),
+    ...(game.fixtures.morePuzzles ?? []),
+  ].find((known) => known.record.id === puzzleId);
   if (fixture === undefined)
     throw new Error(`${game.label} names no known puzzle ${puzzleId}`);
   return fixture;
@@ -268,10 +269,37 @@ export const suggestMoveToHost = scenarioAction({
 });
 
 /**
+ * The known puzzle that can be won another way: the first whose author
+ * wrote a winning move off its line.
+ */
+export function puzzleWonAnotherWay(game: HarnessGame): PuzzleFixture {
+  const fixture = knownPuzzlesOf(game).find(
+    (known) => known.wonAnotherWay !== undefined
+  );
+  if (fixture === undefined)
+    throw new Error(`${game.label} names no known puzzle won another way`);
+  return fixture;
+}
+
+/**
+ * Win the puzzle on the board off its line: its author's other winning
+ * move, played where they wrote it.
+ */
+export const winKnownPuzzleAnotherWay = scenarioAction({
+  name: 'winKnownPuzzleAnotherWay',
+  act: (s, actorId: string, gameId: string) =>
+    playFixtureMove(s, actorId, gameId, (fixture) => {
+      if (fixture.wonAnotherWay === undefined)
+        throw new Error(`${fixture.record.id} is not won another way`);
+      return fixture.wonAnotherWay;
+    }),
+});
+
+/**
  * A move the rules allow at the line's `index` that is not right there: not
  * the line's move, no win, and no other way its author wrote to go on.
  */
-function wrongMoveAt(
+export function wrongMoveAt(
   game: HarnessGame,
   fixture: PuzzleFixture,
   index: number
@@ -307,4 +335,5 @@ export const PUZZLE_MOVE_ACTIONS = [
   tryKnownOpponentMove,
   playWrongMoveHere,
   suggestMoveToHost,
+  winKnownPuzzleAnotherWay,
 ];

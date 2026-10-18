@@ -38,10 +38,13 @@
     "@pkgs/a11y-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/device-shared": "workspace:*",
+    "@pkgs/gherkin-shared": "workspace:*",
+    "@pkgs/glicko2-shared": "workspace:*",
     "@pkgs/harness-root-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",
     "@pkgs/room-root-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sounds-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-server": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
@@ -78,6 +81,11 @@
     "puzzle-feed",
     "puzzle-feed-choices",
     "puzzle-pool",
-    "puzzle-allowance"
+    "puzzle-allowance",
+    "puzzle-link",
+    "puzzle-finishes",
+    "puzzle-listening",
+    "puzzle-sounds",
+    "puzzle-result-recovery"
   ]
 }

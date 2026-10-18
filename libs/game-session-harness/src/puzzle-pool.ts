@@ -11,7 +11,10 @@ import {
   admitCataloguePuzzle,
   upsertCatalogueRows,
 } from '@libs/game-puzzle-shared/puzzle-catalogue';
-import { puzzleOwnerKey } from '@libs/game-puzzle-shared/puzzle-namespace';
+import {
+  inPuzzleNamespace,
+  puzzleOwnerKey,
+} from '@libs/game-puzzle-shared/puzzle-namespace';
 import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -75,6 +78,48 @@ export const writeKnownPuzzlePool = scenarioAction({
     });
   },
 });
+
+/**
+ * Add the first `count` of `gameId`'s more puzzles to its pool, as its
+ * import pipeline would: a pool of more puzzles than its known ones.
+ */
+export const stockMorePuzzles = scenarioAction({
+  name: 'stockMorePuzzles',
+  act: async (s, gameId: string, count: number) => {
+    const game = harnessGameOf(s, gameId);
+    const more = game.fixtures.morePuzzles ?? [];
+    if (more.length < count)
+      throw new Error(
+        `${game.label} names ${String(more.length)} more puzzles, not ${String(count)} (fixtures.morePuzzles)`
+      );
+    const turnGames = createTurnGames([game.shared.turnGame]);
+    const rows = more.slice(0, count).map(({ record }) => {
+      const admission = admitCataloguePuzzle(turnGames, {
+        record,
+        source: { url: null, tags: [] },
+      });
+      if (!admission.ok) throw new Error(admission.detail);
+      return admission.row;
+    });
+    await writeServerFixture(s, GAME_PUZZLE_SUB.topicMap, (db) =>
+      upsertCatalogueRows(db, rows)
+    );
+  },
+});
+
+/** How many of `namespace`'s puzzles the actor's device holds to serve. */
+export async function countDevicePuzzles(
+  s: ProductHarness,
+  actorId: string,
+  namespace: string
+): Promise<number> {
+  const db = actorLocalSql(s, actorId);
+  if (db === null) return 0;
+  const rows = await db.query(sql<{ readonly id: string }>`
+    SELECT id FROM chess_puzzles WHERE deleted_at IS NULL
+  `);
+  return rows.filter((row) => inPuzzleNamespace(row.id, namespace)).length;
+}
 
 /** What the catalogue says of `puzzleId`: its own rating and its themes. */
 export async function readCataloguePuzzle(
@@ -141,4 +186,8 @@ export const seedPuzzleRating = scenarioAction({
   },
 });
 
-export const PUZZLE_POOL_ACTIONS = [writeKnownPuzzlePool, seedPuzzleRating];
+export const PUZZLE_POOL_ACTIONS = [
+  writeKnownPuzzlePool,
+  stockMorePuzzles,
+  seedPuzzleRating,
+];

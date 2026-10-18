@@ -2,7 +2,6 @@ import { expect } from 'bun:test';
 import {
   acceptedMoves,
   bothBoards,
-  resignation,
   winner,
 } from '@libs/game-matchmaking-harness/matched-game-world';
 import { Given, Then, When } from '@libs/harness/define';
@@ -27,10 +26,6 @@ When(
     await playOnOwnBoard(w, actor, from + to);
   }
 );
-When('{actor} resigns multiplayer chess', async (w, actor: Actor) => {
-  await resignation(w, actor);
-});
-
 Then('{actor} has the multiplayer turn', async (w, actor: Actor) => {
   const owner = await w.s.read(accountIdOf, actor);
   expect((await bothBoards(w)).turn).toBe(owner!);

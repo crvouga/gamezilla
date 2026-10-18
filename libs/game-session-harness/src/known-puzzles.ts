@@ -197,3 +197,29 @@ export function assertKnownPuzzles(
     assertMoves(game, fixture, assertLine(game, fixture, fail), fail);
   }
 }
+
+/**
+ * Fail, naming the problem, on more puzzles of the game its rules
+ * contradict, that leave its namespace, or that repeat a puzzle: each is
+ * held to what a known puzzle is, and none shares an id or a position and
+ * line with another, known or more.
+ */
+export function assertMorePuzzles(
+  game: PuzzleGameFacts,
+  known: KnownPuzzles,
+  more: readonly PuzzleFixture[],
+  fail: Fail
+): void {
+  const all = [...known, ...more];
+  const ids = all.map((fixture) => fixture.record.id);
+  if (new Set(ids).size !== ids.length) fail('two puzzles share an id');
+  const keys = all.map(
+    ({ record }) => `${record.position} ${record.line.join(' ')}`
+  );
+  if (new Set(keys).size !== keys.length)
+    fail('two puzzles share a position and line');
+  for (const fixture of more) {
+    assertShape(game, fixture, fail);
+    assertMoves(game, fixture, assertLine(game, fixture, fail), fail);
+  }
+}

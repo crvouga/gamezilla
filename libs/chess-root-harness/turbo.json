@@ -23,12 +23,6 @@
     "check:models:6": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
-    "check:models:7": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
-    },
-    "check:models:8": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
-    },
     "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
@@ -123,18 +117,6 @@
       "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:31": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:32": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:33": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:34": {
-      "inputs": ["$TURBO_EXTENDS$"]
-    },
-    "test:spec:35": {
       "inputs": ["$TURBO_EXTENDS$"]
     }
   }

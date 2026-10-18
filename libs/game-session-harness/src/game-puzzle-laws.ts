@@ -327,6 +327,25 @@ function wonAnotherWay(
   );
 }
 
+/**
+ * At each of the solver's moves of the line, no move the game's rules allow
+ * other than the line's wins for the solver: a game naming no puzzle won
+ * another way has none among its known puzzles.
+ */
+function winsOnlyByLine(rules: GameRules, fixture: PuzzleFixture): void {
+  const trail = rulesTrail(rules, fixture.record);
+  for (const [index, lineMove] of fixture.record.line.entries()) {
+    if (index % 2 !== 1) continue;
+    const position = trail[index] ?? '';
+    for (const action of rules.legal(position))
+      must(
+        action === lineMove ||
+          rules.play(position, action, '', [])?.winner !== fixture.solverSide,
+        `${fixture.record.id}: ${action} wins off the line at move ${String(index)}, but the game names no puzzle won another way`
+      );
+  }
+}
+
 function transposes(
   puzzleGame: PuzzleGame,
   fixture: PuzzleFixture,
@@ -428,6 +447,15 @@ export function gamePuzzleJudgeLaws(game: HarnessGame): readonly GameLaw[] {
       'every move its rules allow is judged, never refused',
       each((fixture) => legalJudged(puzzleGame, fixture))
     ),
+    ...(known.some((fixture) => fixture.wonAnotherWay !== undefined)
+      ? []
+      : [
+          law(
+            game,
+            'with no known puzzle won another way, its rules win each known puzzle only by its line',
+            each((fixture) => winsOnlyByLine(puzzleGame.rules, fixture))
+          ),
+        ]),
     ...traitLaws(game, known, [
       {
         name: 'a win off the line solves the puzzle at once',

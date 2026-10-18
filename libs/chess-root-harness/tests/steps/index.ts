@@ -41,5 +41,4 @@ import type { Actor } from '@libs/harness/parameter-types';
 
 import './multiplayer-game.steps';
 import './multiplayer-accessibility.steps';
-import './multiplayer-policies.steps';
 import { rememberOfflineBoard } from './multiplayer-connection';

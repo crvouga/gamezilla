@@ -1,7 +1,8 @@
 /**
- * Puzzle links as people use them: "Share puzzle link" on the puzzle screen
- * copies the link; opening a link goes to it as a tapped link would; the
- * link's screen says why a puzzle cannot open.
+ * Puzzle links as people use them, for any game offering puzzles: "Share
+ * puzzle link" on the puzzle screen copies the link; opening a link goes to
+ * it as a tapped link would; the link's screen says why a puzzle cannot
+ * open.
  */
 
 import {
@@ -9,11 +10,6 @@ import {
   puzzleLink,
   puzzleLinkPathOf,
 } from '@libs/game-puzzle-shared/puzzle-link';
-import {
-  isPuzzleLimitShown,
-  isPuzzleOfflineNoticeShown,
-  readPuzzleOnBoard,
-} from '@libs/game-session-harness/puzzle-screen';
 import {
   actorUi,
   ensureActor,
@@ -25,6 +21,11 @@ import { bringToFront } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { RecordingClipboard } from '@pkgs/device-shared/clipboard';
 import { hostLimit } from '@pkgs/gherkin-shared/registry';
+import {
+  isPuzzleLimitShown,
+  isPuzzleOfflineNoticeShown,
+  readPuzzleOnBoard,
+} from './puzzle-screen';
 
 const WAIT_MS = 15_000;
 const POLL_MS = 100;
@@ -130,3 +131,5 @@ export async function readPuzzleLinkOutcome(
     ? 'linked'
     : 'other';
 }
+
+export const PUZZLE_LINK_ACTIONS = [sharePuzzleLink, openPuzzleLink];

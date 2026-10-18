@@ -138,13 +138,14 @@ export type PuzzleWatchProbe = {
   readonly suggestions: readonly PuzzleSuggestionSeen[];
 };
 
-/** `by:fromto` pairs, comma separated, oldest first. */
+/** `by:from-to` pairs, comma separated, oldest first: cells of any game. */
 function parseSuggestions(raw: string): readonly PuzzleSuggestionSeen[] {
   if (raw.length === 0) return [];
   return raw.split(',').flatMap((entry) => {
     const [by, cells] = entry.split(':');
-    if (by === undefined || cells === undefined || cells.length < 4) return [];
-    return [{ by, from: cells.slice(0, 2), to: cells.slice(2, 4) }];
+    const [from, to] = cells?.split('-') ?? [];
+    if (by === undefined || !from || !to) return [];
+    return [{ by, from, to }];
   });
 }
 
@@ -324,6 +325,31 @@ async function waitBoardSettled(s: ProductHarness, actorId: string) {
   }
 }
 
+/**
+ * The positions two people's puzzle boards show now, each brought into view
+ * to be read (an opponent's automatic reply included).
+ */
+export async function readPuzzleBoardPair(
+  s: ProductHarness,
+  first: string,
+  second: string
+): Promise<{ readonly first: string | null; readonly second: string | null }> {
+  await bringToFront(s, first);
+  const firstPosition = await readPuzzleBoardPosition(s, first);
+  await bringToFront(s, second);
+  const secondPosition = await readPuzzleBoardPosition(s, second);
+  return { first: firstPosition, second: secondPosition };
+}
+
+/** Whether the puzzles offer the way back to the game's choices. */
+export async function isPuzzleExitOffered(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  return ui.get(Handles.navBack).isVisible();
+}
+
 /** Whether the puzzle board's screen is the one on show. */
 export async function isPuzzleScreenShown(
   s: ProductHarness,
@@ -491,6 +517,38 @@ export const goBackToGamePuzzles = scenarioAction({
       { maxMs: WAIT_MS, description: 'the puzzles, or why not' }
     );
     if (shown === 'board') await waitBoardSettled(s, actorId);
+  },
+});
+
+/**
+ * Back to `gameId`'s puzzles in the space from wherever the person is in it
+ * (another of the game's screens, its choices, or the space's game choice),
+ * as they would make their way: back until the game's choices or the game,
+ * then Puzzle. An unfinished puzzle comes back as it was.
+ */
+export const returnToGamePuzzles = scenarioAction({
+  name: 'returnToGamePuzzles',
+  act: async (s, actorId: string, gameId: string) => {
+    const ui = await actorUi(s, actorId);
+    await pollUntil(
+      s,
+      async () => {
+        if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible())
+          return true;
+        for (const way of [
+          Handles.gameChoice('puzzle'),
+          Handles.gameMenu(gameId),
+          Handles.navBack,
+        ])
+          if (await ui.get(way).isVisible()) {
+            await ui.get(way).tap({ timeoutMs: WAIT_MS });
+            return null;
+          }
+        return null;
+      },
+      { maxMs: WAIT_MS, description: `${actorId} back at the puzzles` }
+    );
+    await waitBoardSettled(s, actorId);
   },
 });
 
@@ -852,6 +910,7 @@ export const PUZZLE_SCREEN_ACTIONS = [
   moveOnWithoutWaiting,
   leavePuzzleForGameChoices,
   goBackToGamePuzzles,
+  returnToGamePuzzles,
   takePuzzleHint,
   takeSecondPuzzleHint,
   showPuzzleSolution,

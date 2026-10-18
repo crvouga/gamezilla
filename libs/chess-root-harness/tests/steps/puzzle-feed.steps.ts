@@ -6,7 +6,6 @@
  */
 
 import { expect } from 'bun:test';
-import { solvePuzzlesDaily } from '@libs/chess-puzzle-harness/chess-actions';
 import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness/chess-puzzle-data';
 import {
   playPuzzleFeedPass,
@@ -21,16 +20,11 @@ import {
   STANDARD_PUZZLE_IDS,
 } from '@libs/chess-puzzle-harness/puzzle-fixtures';
 import { retireCataloguePuzzle } from '@libs/game-session-harness/puzzle-records';
-import {
-  isEmptyFeedShown,
-  isPuzzleUnratedShown,
-} from '@libs/game-session-harness/puzzle-screen';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
-import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { remember } from '@libs/harness/spec-world';
-import { recalled, SERVABLE_KEY, SETTLE_MS, trackPuzzle } from './puzzle-world';
+import { recalled, SERVABLE_KEY, trackPuzzle } from './puzzle-world';
 
 const REJECTED = 'rejectedPuzzles';
 
@@ -90,25 +84,6 @@ Then(
 
 // ------------------------------------------------------- an exhausted feed
 
-Given(
-  '{actor} has solved {int} puzzles a day for {int} days',
-  async (w, actor: Actor, perDay: number, days: number) => {
-    await w.s.apply(solvePuzzlesDaily, actor, perDay, days);
-    await trackPuzzle(w, actor);
-  }
-);
-
-Then('{actor} is told the attempt is unrated', async (w, actor: Actor) => {
-  await w.s.apply(focusActor, actor);
-  await w.s.until((surf) => isPuzzleUnratedShown(surf, actor), {
-    maxMs: SETTLE_MS,
-  });
-});
-
 // ------------------------------------------------------------ feed settings
 
 // ------------------------------------------------------------ empty feeds
-
-Then('{actor} is not told the feed is empty', async (w, actor: Actor) => {
-  expect(await w.s.read(isEmptyFeedShown, actor)).toBe(false);
-});

@@ -10,8 +10,8 @@ import type {
   TurnGameCapabilities,
 } from '@pkgs/turn-game-shared/game-rules';
 import { offeredCapabilities } from '@pkgs/turn-game-shared/game-rules';
-import type { KnownPuzzles } from './known-puzzles';
-import { assertKnownPuzzles } from './known-puzzles';
+import type { KnownPuzzles, PuzzleFixture } from './known-puzzles';
+import { assertKnownPuzzles, assertMorePuzzles } from './known-puzzles';
 
 /**
  * Known examples of a game's rules, written by the game's author from the
@@ -64,9 +64,18 @@ type RulesFixtures = {
  */
 export type PuzzleFixtureObligation<C> = 'puzzles' extends keyof C
   ? undefined extends C['puzzles' & keyof C]
-    ? { readonly puzzles?: KnownPuzzles }
-    : { readonly puzzles: KnownPuzzles }
-  : { readonly puzzles?: never };
+    ? { readonly puzzles?: KnownPuzzles; readonly morePuzzles?: MorePuzzles }
+    : { readonly puzzles: KnownPuzzles; readonly morePuzzles?: MorePuzzles }
+  : { readonly puzzles?: never; readonly morePuzzles?: never };
+
+/**
+ * Further puzzles of a game offering puzzles, written by its author like
+ * its known puzzles but kept out of the catalogue until a scenario needs
+ * many distinct puzzles at once (`stockMorePuzzles`: days of puzzles
+ * played offline). The shared puzzle-offline-days feature needs at least
+ * thirty.
+ */
+export type MorePuzzles = readonly PuzzleFixture[];
 
 /**
  * Known examples of a game, written by the game's author from the game's
@@ -107,6 +116,28 @@ export type PlayableGame<
 };
 
 /**
+ * What a puzzle sound is to the solver, whichever game plays it: a move on
+ * the board (the solver's, a reply, a review step), the cue that a move
+ * was right, a wrong move, the end of the line on the board, a solve, and
+ * a rating change.
+ */
+export type PuzzleSoundKind =
+  | 'move'
+  | 'correct move'
+  | 'wrong move'
+  | 'end'
+  | 'solved'
+  | 'rating';
+
+/** The puzzle sound kinds the shared specifications hear. */
+export const HEARD_PUZZLE_SOUNDS: readonly PuzzleSoundKind[] = [
+  'move',
+  'correct move',
+  'wrong move',
+  'end',
+];
+
+/**
  * A registered game as the shared suites exercise it: the conformance
  * adapter its harness package exports. The games registry harness lists
  * every one, and a registered game without one fails the enrollment test.
@@ -126,6 +157,14 @@ export type HarnessGame<C extends TurnGameCapabilities = TurnGameCapabilities> =
      * game-record feature (`matched-game-record`) needs it.
      */
     readonly readRecord?: (record: string) => ReadGameRecord;
+    /**
+     * The sounds its puzzles and their reviews play, by the source the
+     * app's audio plays (`createAudioPlayer(source)`), each as what it is to
+     * the solver; a game offering puzzles names one for each kind the shared
+     * puzzle-sound specifications hear ({@link HEARD_PUZZLE_SOUNDS}), and
+     * no other game names any, which `assertHarnessGame` checks.
+     */
+    readonly puzzleSounds?: Readonly<Record<string, PuzzleSoundKind>>;
   };
 
 /**
@@ -204,13 +243,29 @@ function assertPuzzlesAgree(
         ? 'a game offering puzzles names known puzzles of its own (fixtures.puzzles)'
         : 'only a game offering puzzles names known puzzles'
     );
+  const sounds = game.puzzleSounds;
+  if (!offered && sounds !== undefined)
+    fail('only a game offering puzzles names puzzle sounds');
+  if (offered) {
+    const named = new Set(Object.values(sounds ?? {}));
+    const missing = HEARD_PUZZLE_SOUNDS.filter((kind) => !named.has(kind));
+    if (missing.length > 0)
+      fail(
+        `a game offering puzzles names the sounds its puzzles play (puzzleSounds) — none is a ${missing.join(', ')} sound`
+      );
+  }
+  const more = game.fixtures.morePuzzles;
+  if (!offered && more !== undefined)
+    fail('only a game offering puzzles names more puzzles');
   const puzzles = game.shared.turnGame.capabilities.puzzles;
-  if (known !== undefined && puzzles !== undefined)
-    assertKnownPuzzles(
-      { rules: game.shared.turnGame.rules, namespace: puzzles.namespace },
-      known,
-      fail
-    );
+  if (known !== undefined && puzzles !== undefined) {
+    const facts = {
+      rules: game.shared.turnGame.rules,
+      namespace: puzzles.namespace,
+    };
+    assertKnownPuzzles(facts, known, fail);
+    if (more !== undefined) assertMorePuzzles(facts, known, more, fail);
+  }
 }
 
 /**

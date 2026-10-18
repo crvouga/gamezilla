@@ -30,9 +30,13 @@ import { GAME_NAVIGATION_ACTIONS } from './game-navigation';
 import { PUZZLE_ALLOWANCE_ACTIONS } from './puzzle-allowance';
 import { PUZZLE_FEED_ACTIONS } from './puzzle-feed';
 import { PUZZLE_FEED_CHOICE_ACTIONS } from './puzzle-feed-choices';
+import { PUZZLE_FINISH_ACTIONS } from './puzzle-finishes';
+import { PUZZLE_LINK_ACTIONS } from './puzzle-link';
+import { PUZZLE_LISTENING_ACTIONS } from './puzzle-listening';
 import { PUZZLE_MOVE_ACTIONS } from './puzzle-moves';
 import { PUZZLE_POOL_ACTIONS } from './puzzle-pool';
 import { PUZZLE_RECORD_ACTIONS } from './puzzle-records';
+import { PUZZLE_RESULT_RECOVERY_ACTIONS } from './puzzle-result-recovery';
 import { PUZZLE_ROOM_PROBE_ACTIONS } from './puzzle-room-probe';
 import { PUZZLE_SCREEN_ACTIONS } from './puzzle-screen';
 import { SPACE_GAME_CHOICE_ACTIONS } from './space-game-choice';
@@ -71,4 +75,8 @@ export const GAME_SESSION_HARNESS_ACTIONS = [
   ...PUZZLE_FEED_CHOICE_ACTIONS,
   ...PUZZLE_POOL_ACTIONS,
   ...PUZZLE_ALLOWANCE_ACTIONS,
+  ...PUZZLE_LINK_ACTIONS,
+  ...PUZZLE_FINISH_ACTIONS,
+  ...PUZZLE_RESULT_RECOVERY_ACTIONS,
+  ...PUZZLE_LISTENING_ACTIONS,
 ];

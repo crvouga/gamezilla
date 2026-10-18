@@ -213,8 +213,9 @@ describe('partOf', () => {
    * sixteen stay near 443 s inside the 600 s cap; twenty was the miss), and
    * a model file holds at most `unitTraces` of them. The shared games suite
    * replays each trace for one game, and the traces taking every action for
-   * each game, in the same parts. Chess, down to its ten puzzle and Lichess
-   * models, keeps four traces to a file: sixteen to a part, as before.
+   * each game, in the same parts. Chess, down to its seven puzzle and
+   * Lichess models, keeps four traces to a file: sixteen to a part, as
+   * before.
    */
   const TRACE_CAPPED_SUITES = [
     { dir: 'libs/chess-root-harness', unitTraces: 4 },
@@ -260,21 +261,23 @@ describe('partOf', () => {
     }
   );
 
-  test('the chess suite runs in the fewest parts its trace cap allows', () => {
+  test('the chess suite runs in the fewest parts its trace caps allow', () => {
     const manifest = JSON.parse(
       readFileSync(
         join(import.meta.dir, '../../chess-root-harness/package.json'),
         'utf8'
       )
     ) as { specParts: number };
-    const mostTraces = (count: number) =>
-      Math.max(
-        ...suiteParts(['chess'], count).map(
-          (part) => part.flatMap(modelTraces).length
-        )
+    // Sixteen traces to a part, four to a file (TRACE_CAPPED_SUITES).
+    const withinCaps = (count: number) => {
+      const parts = suiteParts(['chess'], count);
+      return (
+        parts.every((part) => part.flatMap(modelTraces).length <= 16) &&
+        parts.flat().every((unit) => modelTraces(unit).length <= 4)
       );
-    expect(mostTraces(manifest.specParts)).toBeLessThanOrEqual(16);
-    expect(mostTraces(manifest.specParts - 1)).toBeGreaterThan(16);
+    };
+    expect(withinCaps(manifest.specParts)).toBe(true);
+    expect(withinCaps(manifest.specParts - 1)).toBe(false);
   });
 });
 

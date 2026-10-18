@@ -12,11 +12,9 @@ import {
   readReducedMotionApplied,
   unmutePuzzleAssistant,
 } from '@libs/chess-puzzle-harness/puzzle-assistant-ui';
-import { deliverCompetingPuzzleMates } from '@libs/chess-puzzle-harness/puzzle-competing-mates';
 import { stepThroughPuzzleLine } from '@libs/game-session-harness/puzzle-screen';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
-import { cutConnection, otherDevice } from '@libs/harness/platform';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { remember } from '@libs/harness/spec-world';
 import { ASSISTANT_PUZZLES } from './assistant-fixtures';
@@ -253,22 +251,6 @@ Given("{actor}'s assistant is speaking", async (w, actor: Actor) => {
   });
   expect((await shown(w, actor)).speaking).toBe(true);
 });
-Given(
-  '{actor} has delivered the alternate checkmate offline',
-  async (w, actor: Actor) => {
-    await cutConnection(w, actor);
-    await waitSolverToMove(w, actor);
-    await w.s.apply(playPuzzleMove, actor, 'a7a8');
-  }
-);
-
-Given(
-  '{actor} has delivered different valid checkmates on both devices offline',
-  async (w, actor: Actor) => {
-    await w.s.apply(deliverCompetingPuzzleMates, actor, otherDevice(actor));
-  }
-);
-
 Given('{actor} prefers reduced motion', async (w, actor: Actor) => {
   await w.s.apply(preferReducedMotion, actor);
 });

@@ -1,20 +1,14 @@
 import { CHESS_GAME_ID } from '@libs/chess-puzzle-shared/chess-game';
 import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
-import { sleepUntilNextUtcDay } from '@libs/game-session-harness/puzzle-allowance';
 import {
   closePuzzleFeedSettings,
   openPuzzleFeedSettings,
   setPuzzleFeedTheme,
 } from '@libs/game-session-harness/puzzle-feed';
 import {
-  moveOnToNextPuzzle,
   readPuzzleBoardPosition,
   readPuzzleOnBoard,
   readPuzzleProbe,
-  retryGamePuzzle,
-  showPuzzleSolution,
-  skipGamePuzzle,
-  takePuzzleHint,
 } from '@libs/game-session-harness/puzzle-screen';
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -33,11 +27,7 @@ import {
   playWrongMove,
   solvePuzzle,
 } from './chess-puzzle-ui';
-import {
-  listenToTheApp,
-  playPuzzleMoveWithKeyboard,
-  usePuzzleControlWithKeyboard,
-} from './puzzle-keyboard';
+import { listenToTheApp, playPuzzleMoveWithKeyboard } from './puzzle-keyboard';
 
 export const playUntilSolved = scenarioAction({
   name: 'playUntilSolved',
@@ -185,70 +175,10 @@ export const suggestNonSolutionMove = scenarioAction({
   },
 });
 
-/** Solve `count` puzzles one after another, moving on between them. */
-export const solvePuzzlesInARow = scenarioAction({
-  name: 'solvePuzzlesInARow',
-  act: async (s, actorId: string, count: number) => {
-    for (let i = 0; i < count; i += 1) {
-      await solvePuzzle(s, actorId);
-      if (i < count - 1) {
-        await Promise.resolve(moveOnToNextPuzzle.act(s, actorId));
-      }
-    }
-  },
-});
-
-/** Ways a player finishes the puzzle on the board. */
-export type PuzzleFinish =
-  | 'clean'
-  | 'hintThenSolve'
-  | 'wrongRetrySolve'
-  | 'showSolution'
-  | 'skip';
-
-/** Finish the puzzle on the board the way `finish` names. */
-export const finishPuzzleBy = scenarioAction({
-  name: 'finishPuzzleBy',
-  act: async (s, actorId: string, finish: PuzzleFinish) => {
-    if (finish === 'hintThenSolve')
-      await Promise.resolve(takePuzzleHint.act(s, actorId));
-    if (finish === 'wrongRetrySolve') {
-      await playWrongMove(s, actorId);
-      await Promise.resolve(retryGamePuzzle.act(s, actorId));
-      await waitSolverCanMove(s, actorId);
-    }
-    if (finish === 'showSolution') {
-      await Promise.resolve(showPuzzleSolution.act(s, actorId));
-    } else if (finish === 'skip') {
-      await Promise.resolve(skipGamePuzzle.act(s, actorId));
-    } else {
-      await solvePuzzle(s, actorId);
-    }
-  },
-});
-
-/**
- * `perDay` puzzles solved one after another on each of `days` days, the
- * night between days slept through, moving on after every solve.
- */
-export const solvePuzzlesDaily = scenarioAction({
-  name: 'solvePuzzlesDaily',
-  act: async (s, actorId: string, perDay: number, days: number) => {
-    for (let day = 0; day < days; day += 1) {
-      if (day > 0) {
-        await Promise.resolve(sleepUntilNextUtcDay.act(s));
-        await Promise.resolve(moveOnToNextPuzzle.act(s, actorId));
-      }
-      await Promise.resolve(solvePuzzlesInARow.act(s, actorId, perDay));
-    }
-  },
-});
-
 /** Registered on every system that composes this sub. */
 export const CHESS_HARNESS_ACTIONS = [
   listenToTheApp,
   playPuzzleMoveWithKeyboard,
-  usePuzzleControlWithKeyboard,
   playUntilSolved,
   playPuzzleMove,
   tapPuzzleMove,
@@ -260,7 +190,4 @@ export const CHESS_HARNESS_ACTIONS = [
   castlePuzzleKing,
   playNextSolutionMove,
   suggestNonSolutionMove,
-  solvePuzzlesInARow,
-  finishPuzzleBy,
-  solvePuzzlesDaily,
 ];

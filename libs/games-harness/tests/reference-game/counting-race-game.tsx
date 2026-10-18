@@ -16,15 +16,28 @@
 import type { GameClient } from '@libs/game-menu-client/game-client';
 import { defineGameClient } from '@libs/game-menu-client/game-client';
 import { PersonalPuzzleStatsScreen } from '@libs/game-puzzle-client/personal-puzzle-stats-screen';
-import type { PuzzleBoardProps } from '@libs/game-puzzle-client/puzzle-client';
+import type {
+  PuzzleBoardProps,
+  PuzzleFeedback,
+} from '@libs/game-puzzle-client/puzzle-client';
 import type {
   GameFixtures,
   HarnessGame,
 } from '@libs/game-session-harness/harness-game';
 import { assertHarnessGame } from '@libs/game-session-harness/harness-game';
+import type {
+  KnownPuzzles,
+  PuzzleFixture,
+} from '@libs/game-session-harness/known-puzzles';
 import type { TurnGame } from '@libs/game-session-shared/turn-game-definition';
 import { defineTurnGame } from '@libs/game-session-shared/turn-game-definition';
 import { Handles } from '@libs/test-ids-shared/handles';
+import {
+  createAudioPlayer,
+  createPlayFromStartHandles,
+  useSoundsPreference,
+} from '@pkgs/sounds-client/solid';
+import { soundAssetUrls } from '@pkgs/sounds-shared/sound-urls';
 import type { GameBoardProps } from '@pkgs/turn-game-shared/game-presentation';
 import type {
   PuzzleRecord,
@@ -40,7 +53,7 @@ import type {
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
-import { For, type JSX } from 'solid-js';
+import { createEffect, For, type JSX, on } from 'solid-js';
 
 /**
  * Seven, the length of the victory every custom-game model follows
@@ -285,12 +298,61 @@ function markOf(marks: PuzzleBoardProps['marks'], cell: string): string {
   return '';
 }
 
+/** The race's sounds: a count, the race won, and a puzzle's two cues. */
+export const COUNTING_RACE_SOUNDS = {
+  count: soundAssetUrls['gameplay.move'],
+  finish: soundAssetUrls['gameplay.victory'],
+  rightCount: soundAssetUrls['gameplay.checkpoint'],
+  wrongCount: soundAssetUrls['gameplay.invalidMove'],
+} as const;
+
+/**
+ * Each count the board shows is heard, and reaching seven after it, while
+ * `sound` allows; turning sounds on plays nothing already shown.
+ */
+function useCountSounds(props: PuzzleBoardProps): void {
+  const handles = createPlayFromStartHandles({
+    count: createAudioPlayer(COUNTING_RACE_SOUNDS.count),
+    finish: createAudioPlayer(COUNTING_RACE_SOUNDS.finish),
+  });
+  createEffect(
+    on(
+      () => props.position,
+      (position, before) => {
+        if (!props.sound || position === before) return;
+        handles.count.play();
+        if (parse(position)?.count === FINISH) handles.finish.play();
+      },
+      { defer: true }
+    )
+  );
+}
+
+/** The cue that a count was right or wrong, unless sounds are off. */
+function useRaceFeedback(): PuzzleFeedback {
+  const preference = useSoundsPreference();
+  const handles = createPlayFromStartHandles({
+    right: createAudioPlayer(COUNTING_RACE_SOUNDS.rightCount),
+    wrong: createAudioPlayer(COUNTING_RACE_SOUNDS.wrongCount),
+  });
+  const play = (cue: 'right' | 'wrong') => {
+    if (!preference.muted()) handles[cue].play();
+  };
+  return {
+    onCorrectMove: () => play('right'),
+    onWrongMove: () => play('wrong'),
+    onSolved: () => {},
+    onRatingComplete: () => {},
+  };
+}
+
 /**
  * The puzzle board: the counts, each with its mark, the race's buttons for
  * the side to move and the waiting side's. Every count reaches the
  * platform, which judges it by the rules.
  */
 function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
+  useCountSounds(props);
   const interactive = () => props.interactive && props.mode === 'play';
   return (
     <div data-testid={props.testId} data-position={props.position}>
@@ -369,6 +431,7 @@ export const COUNTING_RACE_CLIENT: GameClient<typeof CAPABILITIES> = {
   },
   puzzles: {
     Board: PuzzleBoard,
+    useFeedback: useRaceFeedback,
     // A long race is a theme no known puzzle has: a feed limited to it is
     // empty.
     themes: {
@@ -402,6 +465,179 @@ function racePuzzle(
   };
 }
 
+/** A count of one, two or three, as a race puzzle's author names it. */
+const AUTHOR_STEPS = [
+  { action: 'advance', by: 1, verb: 'step' },
+  { action: 'leap', by: 2, verb: 'leap to' },
+  { action: 'hop', by: 3, verb: 'hop to' },
+] as const;
+type AuthorStep = (typeof AUTHOR_STEPS)[number];
+
+/**
+ * One more race puzzle from `count`, `mover` counting first: `steps` in
+ * turn, only the last reaching seven, for the other side. At the solver's
+ * first move, `wrong` is a count that neither follows the line nor wins.
+ */
+function moreRacePuzzle(
+  n: number,
+  start: RaceStart,
+  steps: readonly AuthorStep[],
+  wrong: AuthorStep
+): PuzzleFixture {
+  let count = start.count;
+  const labels = steps.map((step) => {
+    count += step.by;
+    return `${step.verb} ${String(count)}`;
+  });
+  const solverSide = start.mover === 'w' ? 'black' : 'white';
+  const line = steps.map((step) => step.action);
+  const second = steps[3];
+  return {
+    record: racePuzzle(
+      `more-${String(n)}`,
+      `race:${String(start.count)}${start.mover}`,
+      line,
+      1300 + (n % 20) * 15
+    ),
+    solverSide,
+    solution: line.filter((_, index) => index % 2 === 1),
+    labels,
+    wrongMove: { at: 1, action: wrong.action },
+    refusedMove: { at: 1, action: 'retreat' },
+    // The side that counted the setup waits: it cannot count now.
+    opponentMove: {
+      at: 1,
+      action: `${start.mover === 'w' ? 'hare' : 'tortoise'}-advance`,
+    },
+    ...(second !== undefined && second.action !== line[1]
+      ? { transposition: { at: 1, action: second.action } }
+      : {}),
+  };
+}
+
+/**
+ * More race puzzles than the known three, from the race's laws (a count
+ * goes on by one, two or three and never past seven; who reaches seven
+ * wins): the setup brings the count to at most five, so the solver cannot
+ * win at once unless the line is one move, and every count the solver
+ * might make first is open. Lines of the solver's one move from four or
+ * five, and of two moves where either order reaches seven; none repeats a
+ * known puzzle.
+ */
+type RaceStart = { readonly count: number; readonly mover: 'w' | 'b' };
+type RaceShape = { readonly start: RaceStart; readonly steps: AuthorStep[] };
+
+/** After the setup reaches `after`: the solver's one move home, from four or five. */
+function oneMoveHome(start: RaceStart, setup: AuthorStep): RaceShape[] {
+  const after = start.count + setup.by;
+  const win = AUTHOR_STEPS.find((step) => after + step.by === FINISH);
+  return (after === 4 || after === 5) && win !== undefined
+    ? [{ start, steps: [setup, win] }]
+    : [];
+}
+
+/** After the setup reaches three or less: two solver moves around a reply. */
+function twoMovesHome(start: RaceStart, setup: AuthorStep): RaceShape[] {
+  const after = start.count + setup.by;
+  if (after > 3) return [];
+  return AUTHOR_STEPS.flatMap((first) =>
+    AUTHOR_STEPS.flatMap((reply) =>
+      AUTHOR_STEPS.filter(
+        (last) => after + first.by + reply.by + last.by === FINISH
+      ).map((last) => ({ start, steps: [setup, first, reply, last] }))
+    )
+  );
+}
+
+function moreRacePuzzles(known: readonly PuzzleFixture[]): PuzzleFixture[] {
+  const key = (record: PuzzleRecord) =>
+    `${record.position} ${record.line.join(' ')}`;
+  const taken = new Set(known.map((fixture) => key(fixture.record)));
+  const starts = (['w', 'b'] as const).flatMap((mover) =>
+    [0, 1, 2, 3, 4, 5].map((count) => ({ count, mover }))
+  );
+  const shapes = starts.flatMap((start) =>
+    AUTHOR_STEPS.flatMap((setup) => [
+      ...oneMoveHome(start, setup),
+      ...twoMovesHome(start, setup),
+    ])
+  );
+  return shapes
+    .map(({ start, steps }, n) => {
+      const line = steps.map((step) => step.action);
+      // The count the line does not make at the solver's first move.
+      const wrong =
+        AUTHOR_STEPS.find(
+          (step) => step.action !== line[1] && step.action !== line[3]
+        ) ?? AUTHOR_STEPS[0];
+      return moreRacePuzzle(n, start, steps, wrong);
+    })
+    .filter((fixture) => !taken.has(key(fixture.record)));
+}
+
+/**
+ * Each has two solver moves, so a pool of the three plays as the
+ * specifications' puzzle pool does, and at each a move the rules allow
+ * is wrong. Three from five passes seven; a count for the waiting side
+ * is never the rules' (only the side to move counts).
+ */
+const KNOWN_RACE_PUZZLES: KnownPuzzles = [
+  {
+    // The Tortoise counts to one; the Hare leaps to three, and after the
+    // Tortoise's leap to five leaps home. Counting one, to two, is the
+    // wrong move; three from five would pass seven.
+    record: racePuzzle(
+      'leap-home',
+      'race:0b',
+      ['advance', 'leap', 'leap', 'leap'],
+      1200
+    ),
+    solverSide: 'white',
+    solution: ['leap', 'leap'],
+    labels: ['step 1', 'leap to 3', 'leap to 5', 'leap to 7'],
+    wrongMove: { at: 1, action: 'advance' },
+    refusedMove: { at: 3, action: 'hop' },
+    opponentMove: { at: 1, action: 'tortoise-advance' },
+  },
+  {
+    // The Hare counts to two; the Tortoise leaps to four and, after the
+    // Hare's step to five, leaps home. Hopping to five instead is the
+    // wrong move; a count back is no count at all.
+    record: racePuzzle(
+      'leap-past-four',
+      'race:1w',
+      ['advance', 'leap', 'advance', 'leap'],
+      1450
+    ),
+    solverSide: 'black',
+    solution: ['leap', 'leap'],
+    labels: ['step 2', 'leap to 4', 'step 5', 'leap to 7'],
+    wrongMove: { at: 1, action: 'hop' },
+    refusedMove: { at: 1, action: 'retreat' },
+    opponentMove: { at: 1, action: 'hare-advance' },
+  },
+  {
+    // From three the Hare counts one, the Tortoise one, and the Hare
+    // leaps home; leaping first and stepping home after the Tortoise's
+    // count reaches the same finish (seven, the Tortoise to move). At
+    // three a hop to six is wrong; at five, counting one instead of
+    // leaping is.
+    record: racePuzzle(
+      'either-order',
+      'race:2b',
+      ['advance', 'advance', 'advance', 'leap'],
+      1450
+    ),
+    solverSide: 'white',
+    solution: ['advance', 'leap'],
+    labels: ['step 3', 'step 4', 'step 5', 'leap to 7'],
+    wrongMove: { at: 3, action: 'advance' },
+    refusedMove: { at: 1, action: 'retreat' },
+    opponentMove: { at: 1, action: 'tortoise-leap' },
+    transposition: { at: 1, action: 'leap' },
+  },
+];
+
 export const COUNTING_RACE_FIXTURES: GameFixtures<typeof CAPABILITIES> = {
   firstSideVictory: [
     'advance',
@@ -415,66 +651,8 @@ export const COUNTING_RACE_FIXTURES: GameFixtures<typeof CAPABILITIES> = {
   // Each count is written as the step it reaches.
   firstSideVictoryLabels: [1, 2, 3, 4, 5, 6, 7].map((step) => `step ${step}`),
   refusedOpenings: ['retreat', ''],
-  // Each has two solver moves, so a pool of the three plays as the
-  // specifications' puzzle pool does, and at each a move the rules allow
-  // is wrong. Three from five passes seven; a count for the waiting side
-  // is never the rules' (only the side to move counts).
-  puzzles: [
-    {
-      // The Tortoise counts to one; the Hare leaps to three, and after the
-      // Tortoise's leap to five leaps home. Counting one, to two, is the
-      // wrong move; three from five would pass seven.
-      record: racePuzzle(
-        'leap-home',
-        'race:0b',
-        ['advance', 'leap', 'leap', 'leap'],
-        1200
-      ),
-      solverSide: 'white',
-      solution: ['leap', 'leap'],
-      labels: ['step 1', 'leap to 3', 'leap to 5', 'leap to 7'],
-      wrongMove: { at: 1, action: 'advance' },
-      refusedMove: { at: 3, action: 'hop' },
-      opponentMove: { at: 1, action: 'tortoise-advance' },
-    },
-    {
-      // The Hare counts to two; the Tortoise leaps to four and, after the
-      // Hare's step to five, leaps home. Hopping to five instead is the
-      // wrong move; a count back is no count at all.
-      record: racePuzzle(
-        'leap-past-four',
-        'race:1w',
-        ['advance', 'leap', 'advance', 'leap'],
-        1450
-      ),
-      solverSide: 'black',
-      solution: ['leap', 'leap'],
-      labels: ['step 2', 'leap to 4', 'step 5', 'leap to 7'],
-      wrongMove: { at: 1, action: 'hop' },
-      refusedMove: { at: 1, action: 'retreat' },
-      opponentMove: { at: 1, action: 'hare-advance' },
-    },
-    {
-      // From three the Hare counts one, the Tortoise one, and the Hare
-      // leaps home; leaping first and stepping home after the Tortoise's
-      // count reaches the same finish (seven, the Tortoise to move). At
-      // three a hop to six is wrong; at five, counting one instead of
-      // leaping is.
-      record: racePuzzle(
-        'either-order',
-        'race:2b',
-        ['advance', 'advance', 'advance', 'leap'],
-        1450
-      ),
-      solverSide: 'white',
-      solution: ['advance', 'leap'],
-      labels: ['step 3', 'step 4', 'step 5', 'leap to 7'],
-      wrongMove: { at: 3, action: 'advance' },
-      refusedMove: { at: 1, action: 'retreat' },
-      opponentMove: { at: 1, action: 'tortoise-leap' },
-      transposition: { at: 1, action: 'leap' },
-    },
-  ],
+  puzzles: KNOWN_RACE_PUZZLES,
+  morePuzzles: moreRacePuzzles(KNOWN_RACE_PUZZLES),
 };
 
 const COUNTING_RACE_STATS_PATH = '/more/counting-race-stats';
@@ -511,6 +689,12 @@ export const COUNTING_RACE_GAME: HarnessGame = assertHarnessGame({
   shared: COUNTING_RACE_SHARED,
   client: defineGameClient(COUNTING_RACE_CLIENT),
   fixtures: COUNTING_RACE_FIXTURES,
+  puzzleSounds: {
+    [COUNTING_RACE_SOUNDS.count]: 'move',
+    [COUNTING_RACE_SOUNDS.finish]: 'end',
+    [COUNTING_RACE_SOUNDS.rightCount]: 'correct move',
+    [COUNTING_RACE_SOUNDS.wrongCount]: 'wrong move',
+  },
   slice: {
     name: 'game:counting-race',
     client: {

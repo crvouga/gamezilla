@@ -1,9 +1,47 @@
 import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
 import type { PlayableGame } from '@libs/game-session-harness/harness-game';
+import type { PuzzleFixture } from '@libs/game-session-harness/known-puzzles';
 import { CUSTOM_GAME_MATERIAL } from './custom-game-histories';
 
 /** Chess's game id, as the space's game choice and finding an opponent name it. */
 export const CHESS_GAME_ID = chessGameShared.id;
+
+const ROOK_FILES = ['a', 'b', 'c', 'd', 'e', 'f'] as const;
+const ROOK_RANKS = [1, 2, 3, 4, 5] as const;
+
+/**
+ * More chess puzzles than the known three, from the laws of chess (FIDE):
+ * Black's king on g8 steps to h8 beside White's king on g6, and White's
+ * rook, anywhere on the a- to f-files below the sixth rank, mates on the
+ * eighth (g7 and h7 are the king's, g8 the rook's). Kf6 is legal and no
+ * mate; a king cannot move two squares; Black cannot move on White's turn.
+ */
+function moreChessPuzzles(): PuzzleFixture[] {
+  return ROOK_FILES.flatMap((file, column) =>
+    ROOK_RANKS.map((rank, row) => {
+      const rookRow = `${column === 0 ? '' : String(column)}R${String(7 - column)}`;
+      const rows = [5, 4, 3, 2, 1].map((r) => (r === rank ? rookRow : '8'));
+      return {
+        record: {
+          id: `KRm${file}${String(rank)}`,
+          position: `6k1/8/6K1/${rows.join('/')} b - - 0 1`,
+          line: ['g8h8', `${file}${String(rank)}${file}8`],
+          rating: 1300 + (column * 5 + row) * 10,
+          ratingDeviation: 80,
+          popularity: 90,
+          plays: 100,
+          themes: ['endgame', 'mate', 'mateIn1', 'oneMove'],
+        },
+        solverSide: 'white' as const,
+        solution: [`${file}${String(rank)}${file}8`],
+        labels: ['Kh8', `R${file}8#`],
+        wrongMove: { at: 1, action: 'g6f6' },
+        refusedMove: { at: 1, action: 'g6g8' },
+        opponentMove: { at: 1, action: 'h8g8' },
+      };
+    })
+  );
+}
 
 /** Chess as any driver plays it, without its screens. */
 export const CHESS_PLAYABLE: PlayableGame<
@@ -111,5 +149,6 @@ export const CHESS_PLAYABLE: PlayableGame<
         wonAnotherWay: { at: 1, action: 'b7b8' },
       },
     ],
+    morePuzzles: moreChessPuzzles(),
   },
 };

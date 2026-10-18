@@ -1,51 +1,12 @@
 import { expect } from 'bun:test';
-import { playUntilSolved } from '@libs/chess-puzzle-harness/chess-actions';
-import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
-import { Given, Then, When } from '@libs/harness/define';
+import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { configureSounds, readSoundsOn } from '@libs/harness/sounds-preference';
-import {
-  markPuzzleSoundBoundary,
-  recentPuzzleSounds,
-} from './puzzle-sound-evidence';
-import { enterNamedPuzzle } from './puzzle-world';
+import { recentPuzzleSounds } from './puzzle-sound-evidence';
 
-Given(
-  '{actor} has since turned sounds off and returned to that unfinished puzzle',
-  (w, actor: Actor) => w.s.apply(configureSounds, actor, false)
-);
 Given(
   '{actor} has since turned sounds on and returned to that unfinished puzzle',
   (w, actor: Actor) => w.s.apply(configureSounds, actor, true)
-);
-Given('{actor} has solved the en passant puzzle', async (w, actor: Actor) => {
-  await enterNamedPuzzle(w, actor, NAMED_PUZZLES.enPassant);
-  await w.s.apply(playUntilSolved, actor);
-  await w.s.advanceTime(1000);
-});
-When('{actor} turns sounds off', async (w, actor: Actor) => {
-  await markPuzzleSoundBoundary(w, actor);
-  await w.s.apply(configureSounds, actor, false);
-});
-When('{actor} turns sounds on', async (w, actor: Actor) => {
-  await markPuzzleSoundBoundary(w, actor);
-  await w.s.apply(configureSounds, actor, true);
-});
-Then('{actor} hears no new puzzle feedback', async (w, actor: Actor) =>
-  expect(await recentPuzzleSounds(w, actor)).toEqual([])
-);
-Then("{actor}'s sounds are off", async (w, actor: Actor) =>
-  expect(await w.s.read(readSoundsOn, actor)).toBe(false)
-);
-Then("{actor}'s sounds are on", async (w, actor: Actor) =>
-  expect(await w.s.read(readSoundsOn, actor)).toBe(true)
-);
-Then("{actor} hears the puzzle's move sounds", async (w, actor: Actor) =>
-  expect(await recentPuzzleSounds(w, actor)).toEqual([
-    'move',
-    'puzzleCorrectMove',
-    'move',
-  ])
 );
 Then("{actor} hears the puzzle's capture sound", async (w, actor: Actor) =>
   expect((await recentPuzzleSounds(w, actor)).toSorted()).toEqual([
@@ -53,20 +14,6 @@ Then("{actor} hears the puzzle's capture sound", async (w, actor: Actor) =>
     'promote',
     'puzzleCheckmate',
   ])
-);
-Then("{actor} hears the review's move sound", async (w, actor: Actor) =>
-  expect(await recentPuzzleSounds(w, actor)).toEqual([
-    'move',
-    'check',
-    'gameEnd',
-  ])
-);
-Then(
-  "{actor} hears the puzzle's wrong-move feedback",
-  async (w, actor: Actor) =>
-    expect(
-      (await recentPuzzleSounds(w, actor)).filter((name) => name === 'illegal')
-    ).toEqual(['illegal'])
 );
 Then(
   "{actor} cannot hear puzzle sounds while the app's sounds are off",
