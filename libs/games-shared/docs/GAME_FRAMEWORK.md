@@ -47,6 +47,65 @@ its presentation and notice copy, its UI automation gesture, its own
 screens and room behaviour if it has any, and its own rules specifications
 in `specs/<game>/`.
 
+## The public API
+
+The framework's public API is what a game may depend on. It has three
+layers, and everything else is the framework's own implementation, free
+to change without touching a game:
+
+- **Core contracts** — the shapes a game implements: its rules, its
+  presentation, its automation.
+- **Capability contracts** — what a game supplies to be offered a
+  capability (bots, a clock namespace and notice copy, a game record), in
+  the same modules as the core contracts.
+- **Product composition** — the constructors that turn a game into the one
+  value its registry accepts, and, for its harness, the conformance
+  adapter, the scenario world, and the drivers, reads and fixture helpers
+  its own specifications use.
+
+**Internal implementation** is never public: stored state and its types
+(`custom-game-state`, `game-state`, the `chess_multiplayer_*` tables),
+transport and mutation clients (`custom-game-commands`,
+`multiplayer-commands`), room and match-room details (`match-room`,
+`custom-game-handler`), screen probes (`custom-game-probe`), direct reads
+of a device's tables (`multiplayer-reads`), fixture transactions
+(`multiplayer-fixtures`), UI controllers, and the registries.
+
+Each framework package declares its public modules in its manifest
+(`"gameApi"`, the `src/<module>` files a game may import). A game
+package's `lint` refuses any other import from a framework package, in
+its source, tests and steps alike, type-only imports included
+(`gameApiViolations` in `libs/tools/scripts/package-boundaries.ts`). The
+framework's own packages use each other's modules freely. A need the list
+cannot meet is a framework change: a focused read, action or fixture
+helper in a public module, or a framework test at the framework's owner.
+It is never a new entry for an internal module.
+
+| Package | Public modules (`gameApi`) | For |
+| --- | --- | --- |
+| `@pkgs/turn-game-shared` | `game-rules` | `GameRules`, `TurnGameCapabilities` and each capability's contract (`GameBots`, `MatchmakingCapability`, `GameNoticeText`, `HistoryCapability`, `GameRecordMetadata`), `GameSide`, and `createTurnGames` for a game's own suites |
+| | `game-presentation` | `GamePresentation`, `GameBoardProps`: the board and the copy the shared screens show |
+| | `game-automation` | `GameAutomation`: a synthetic or scripted participant's choice and its board gesture |
+| `@libs/game-session-shared` | `turn-game-definition` | `defineTurnGame` and `TurnGame`: the registration |
+| `@libs/game-menu-client` | `game-client` | `defineGameClient`, `GameClientPresentation`, the game's own screens and choices |
+| `@libs/spaces-shared` | `game` | `GameOwnRoom`, `GameCommandContext`: a game's own room behaviour |
+| `@libs/game-session-harness` | `harness-game` | `PlayableGame`, `HarnessGame`, `GameFixtures`, `ReadGameRecord`, `assertHarnessGame`: the conformance adapter |
+| | `game-system` | `gameSystem`, `openGameHarness`: a world of any games |
+| | `game-navigation`, `space-game-choice` | Choosing a game in a space and moving between its screens |
+| | `custom-game-ui`, `custom-game-controls`, `custom-game-lineup` | Making Custom Game choices as a person does (`CustomGameAction`): one choice, the screen's controls, a whole lineup |
+| | `custom-game-moves` | The shared board (`CUSTOM_GAME_BOARD`), `makeCustomGameMove`, `customGameBoardTakes`, `playOnCustomGameBoard` (the game's own gesture, then the product's answer) |
+| | `custom-game-screen`, `custom-game-reads` | What a person's Custom Game screen shows: a projection of the game, the refusal they were told, their clock, invitations, the move list |
+| | `custom-game-history` | Fixture: a legal earlier history played through the real move boundary |
+| `@libs/game-matchmaking-harness` | `matched-game-world`, `matched-game-app.steps` | The scenario's matched game: pairing, both boards, commands and verdicts, the game a device holds (`heldMatchedGame`) |
+| | `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record` | Finding an opponent, the board (`sendMoveFromBoard`), reviewing earlier positions, copying the game record, as a person does |
+| | `multiplayer-time`, `matched-game-fixtures` | Fixtures: time passing through the real sweep; a position or a clock set where no person could reach it in time |
+| `@pkgs/turn-game-client`, `@libs/game-session-client`, `@libs/game-session-server`, `@libs/game-matchmaking-shared`, `@libs/game-matchmaking-client` | none | The platform's screens, consumers, commands and storage: a game never imports them |
+| `@libs/games-shared`, `@libs/games-client`, `@libs/game-catalog-shared`, `@libs/games-harness` | none | Registries: composition roots import `game-plugins`, `game-plugins.client`, `turn-games` / `game-automations` and `harness-games` / `game-conformance`; a game never depends on one (`gameViolations`) |
+
+Matched-game reads keep the record's durable field names (`fen`, `pgn`,
+`white_id`, … — see [Durable names](#durable-names)): a game reads the
+values the world returns but never imports their stored type.
+
 ## The lifecycle of a registered game
 
 1. **Definition.** `defineTurnGame({ rules, capabilities, automation, own? })`
@@ -113,6 +172,263 @@ names, ending copy), optional `choices` and `screens` (the game's own
 screens, shown space-wide), `settings`, `Frame` (data its own screens
 share) and `SessionEffects`. A game screen navigates with `useGameScreen()`;
 it never renders the platform's screens itself.
+
+## Semantics
+
+What each contract promises: who calls it and when, what it may trust,
+whether it computes, proposes or commits, who owns the state and its side
+effects, what a duplicate, a stale or interrupted call, a refusal and an
+error do, and which code owns the guarantee and which test proves it. The
+rule underneath every row: **a game makes domain decisions, as pure
+functions of what it is given; the framework owns concurrency, commits,
+deduplication, cleanup and recovery.** A game function never writes,
+schedules, retries or remembers anything.
+
+### `GameRules`: `play`, `replay`, `legal`, `canWin`, `moves`, `initial`
+
+- **Callers.** Custom games: `playCustomGameMove` (`play`, only while the
+  game is active), `customGamePositionAt` / `assertCustomGamePosition`
+  (`replay`), `customGameLegalMoves` (`legal`, empty unless active),
+  `customGameWinOrDraw` (`canWin` on resignation, a flag fall or an
+  absence), all in `@libs/game-session-shared`. Matched games:
+  `playMultiplayerMove` (`game.ts`), `settleMultiplayerClock` (`canWin`),
+  `createMultiplayerGame` (`initial`). Screens: `moves` for move lists and
+  review.
+- **Inputs.** A stored position is trusted only after `replay` of its
+  accepted actions reproduces it (custom games refuse a retained position
+  that does not, before anyone plays or reviews from it). A client's
+  action is shape-checked by the command schema and is otherwise
+  untrusted: `play` is the only judge of legality.
+- **Compute only.** Each function is pure and deterministic. The
+  framework commits the result: the space room's command result
+  (`changedCustomGames`) or the mutation transaction
+  (`runGameCommand` → `MultiplayerGameRepository.save`).
+- **Refusal and errors.** `play` returning `null` is a refusal
+  (`move is illegal`, `CHESS_ILLEGAL_MOVE`) and nothing changes. A throw
+  fails the room command or mutation as a whole, so nothing is saved.
+- **Duplicates and stale calls.** A custom-game move names its ply (a
+  stale one is `board changed`). A matched-game move names its revision
+  and request id: a repeated request id answers as before
+  (`repository.repeated` / `remember`), and both people's owner lock
+  serialises concurrent commands.
+- **Proof.** `conformance/rules/game-rules` (the rules laws:
+  `game-session-harness/src/game-rules-laws.ts`),
+  `reference-game/faulty-games`, `conformance/custom-games/retained-history`,
+  `conformance/matchmaking/match-authority` (wrong, repeated, stale and
+  late moves; concurrent requests consume one turn),
+  `game-session-shared/tests/independent-rules`.
+
+### `GameBots.choose`: asynchronous bot decisions
+
+- **Callers and lifecycle.** Only an active custom game whose side to
+  move is a bot. `customGameEffects` schedules a `PlayCustomGameBot` wake
+  one second after the turn starts, and cancels and reschedules it on
+  every change. The wake runs as the room's scheduler
+  (`handleCustomGameWake`), which calls `choose` with the room's seeded
+  `random`, so a replay decides alike. An offline solo game chooses on the
+  device and sends the chosen action in the wake, which is then
+  validated like any move.
+- **Propose, then commit.** `choose` proposes an action. The framework
+  plays it through `play` and commits it in the same room command.
+- **Superseded or stale.** A wake for another game, ply or side, or for a
+  finished or paused game, commits nothing (`currentWake`). A wake older
+  than the turn is refused (`choices changed`). A redelivered wake finds
+  its ply already played and does nothing.
+- **Errors and recovery.** An illegal proposal is refused
+  (`move is illegal`) and the game is unchanged. `null` while the game is
+  active throws (`active bot game has no legal move`). A throw leaves the
+  wake undelivered: the scheduler keeps it and redelivers it. Both are
+  contract violations that the bot law refuses before a game ships.
+- **Proof.** `conformance/custom-games/bots` (two bots play only legal
+  actions until the game ends), `faulty-games` (a bot choosing illegally
+  is refused), `custom-game-control.qnt` `_staleBot` / `_wrongBot`
+  (`tests/quint/custom-game-control.binding.ts`).
+
+### `GameAutomation`: `choose` and `perform`
+
+- **Callers.** Only drivers, never the product: synthetic users
+  (`synthetic-user-application.ts`), the runtime journeys and the
+  harnesses (`makeCustomGameMove`). `choose` proposes among `legal`, and
+  `perform` makes the one pointer gesture on the board.
+- **Commit.** Through the product, as a person's gesture would. A refusal
+  is the product's.
+- **Errors.** A choice outside `legal` fails the synthetic user, and so
+  does a gesture the product never acknowledges. A rejected `perform`
+  propagates to the driver.
+- **Proof.** The rules laws ("the automated participant only ever chooses
+  a legal action") and `faulty-games`.
+
+### `history.record`: the game record
+
+- **Callers and lifecycle.** `gameRecord`
+  (`game-matchmaking-shared/src/game-record.ts`) calls it on read, when a
+  screen offers a finished matched game's record. It is never stored or
+  copied. An ongoing or aborted game has no record, and the game is not
+  asked.
+- **Inputs.** Trusted, from storage: the final position and history, and
+  `GameRecordMetadata` (both people's names and ratings, the result and
+  reason, the clock choice converted from its id).
+- **Compute only.** Pure. It is the same text however often it is asked.
+- **Proof.** `game-matchmaking-shared/tests/game-record-and-flag-fall`
+  (asked once finished, with what), `conformance/history/game-record`
+  (`gameRecordLaws`), `faulty-capabilities`,
+  `specs/games/matched-game-record.feature`.
+
+### `GamePresentation`
+
+- **Callers.** The shared screens only: boards
+  (`multiplayer-board.tsx`, `custom-game-board.tsx`, `game-history.tsx`)
+  and the copy for sides, endings and draws on time (`multiplayer-status`,
+  `custom-game-status`, `game-record-label`, `useGameSideLabel`), found
+  for a position through `TurnGamesProvider`.
+- **Compute only.** It renders what it is given. A board reports a
+  gesture through `onAction`, and the framework decides whether to send
+  it.
+- **Proof.** `conformance/rules/presentation` (`gamePresentationLaws`),
+  `faulty-capabilities`.
+
+### Matchmaking handoff
+
+- **Lifecycle.** `beginOpponentSearch` validates the person, the space,
+  the clock choice and the unfinished-game limit. It then enqueues
+  `OpponentRequested` (outbox id: person and request id). The
+  `chess.form-opponent-match` consumer pairs searches and, in one
+  transaction, creates the game, both seats, both people's unavailability,
+  the deadline, the notices and the match-room publish
+  (`acceptGameMatch` → `createMultiplayerGame`). Storage owns the game.
+  The match room only projects it.
+- **Duplicates and retries.** One game per match (`match-handoff.ts`
+  returns early on an existing `match_id`, which a unique index backs).
+  Formation retries in five-second slots (`formation-retry.ts`), each one
+  outbox id. The match room ignores a non-service sender, another game, a
+  lower revision, and a finished game reopened (`match-room.ts`).
+- **Space gone.** Watching needs a space that has not ended. When a space
+  ends or a member leaves, the room disconnects and the game carries on
+  in storage.
+- **Proof.** `game-matchmaking-shared/tests/match-room-protocol`,
+  `conformance/matchmaking/finding-an-opponent`,
+  `game-matchmaking-harness/tests/opponent-search-transaction`,
+  `specs/games/finding-an-opponent.feature`,
+  `finding-an-opponent-devices.feature`.
+
+### Custom-game commands
+
+- **Callers.** People's devices, through the space room (`chess-custom-cmd`:
+  change, local change), and the room's scheduler (bot turn, time up).
+- **Validated.** The payload schema (`custom-game-choice`), then the
+  capability grants at the room boundary (`custom-game-permissions`),
+  then the domain refusals (`customGameRefusal`). A choice names its game
+  and revision: another game is `choices changed`, and a stale revision is
+  refused for settings, start and cancel.
+- **Commit and duplicates.** The handler computes. The room commits the
+  state change and the command id's verdict atomically, and replays the
+  stored verdict for a repeated command id (`RoomServer`, invariant
+  `command-id-dedup-stable`). A refusal is a conflict with its reason, and
+  a throw fails the command without a stored verdict.
+- **Proof.** `custom-game.qnt` (`_competingChoices`), the
+  `specs/games/custom-game-*.feature` refusals,
+  `conformance/custom-games/retained-history`.
+
+### Completion, rating and history recording
+
+- **Matched games.** A game ends in exactly one committed transition.
+  `MultiplayerGameRepository.save` rates both people and frees them only
+  when the game it was given was ongoing and the result is not
+  (`rateFinishedGame` skips aborted games). Every writer reads the game
+  under both people's owner lock first: commands (`owned(…, lockAt)`),
+  the availability consumer and the deadline sweep (`settleDueGame`), so
+  a sweep and a resignation that meet can never both end the game. A
+  retried command is answered from its request receipt, and a retried
+  mutation from its stored verdict (`storedReplayVerdict`).
+- **Custom games.** `finishCustomGame` ends the game in place. It enters
+  the history once, in the transition that replaces it with a new game.
+  Custom games are never rated.
+- **Proof.** `game-matchmaking-shared/tests/settle-due-game` (regression
+  `matched-game-sweep-ends-a-game-twice`),
+  `matched-game-ratings.feature` ("Resigning again counts the rated
+  matched game only once"), `matched-game.qnt` `invRatedOnce`,
+  `matched-game-interruption.feature` (one rated game after resuming),
+  `game-session-shared/tests/independent-rules` ("a finished game enters
+  the history once"), `conformance/history/cancelled-game`.
+
+### Game history lists each game once
+
+`useGameRecords` (`@libs/game-session-client`) lists the space's
+custom-game history and current game beside the person's matched games.
+It does not merge by id, because no game can be in both:
+
+- matched games never write a room's custom-game history;
+- their ids are the match id or `rematch:<id>`, while a custom game's id
+  is its room command's id;
+- the custom-game history never repeats a game (above);
+- a matched game is one row (a primary key, and a unique `match_id`).
+
+### Rematch
+
+- **Matched games.** An offer needs a finished game that was not aborted.
+  Accepting needs the other person's waiting offer, and offering back
+  accepts. Both people must be free. The new game is `rematch:<id>`, so
+  one finished game has at most one rematch, and the owner lock
+  serialises two acceptances. After the rematch starts, a later accept is
+  refused (`CHESS_REMATCH_ENDED`).
+- **Custom games.** The creator rematches a finished game. The sides swap,
+  the new game's id is the command id, and the finished game enters the
+  history once.
+- **Proof.** `matched-game-rematch.feature` ("Offering a rematch back
+  accepts the rematch", "Nobody can accept the rematch once its rematch
+  offer has ended"), `matched-game.qnt` `invOffers`,
+  `custom-game-rematch.feature`, `custom-game-completion.feature`.
+
+### Reconnecting after a result
+
+- A result is committed in storage (matched) or in the room (custom), and
+  a returning device reads the committed result. Nothing a device kept
+  can revive a finished game.
+- A daily game's result notice is one outbox message per game, revision
+  and outcome. Its consumer upserts by source and person without clearing
+  a dismissal, so a redelivery never brings a dismissed notice back.
+- **Proof.** `matched-game-recovery.feature` ("Returning after the
+  opponent resigns shows the accepted result"),
+  `matched-game-interruption.feature` ("Returning finds a result accepted
+  before the pause"), `matched-game-result-notices.feature` ("A person
+  whose phone was offline finds their result notice once it is back
+  online"), `custom-game-connection.feature` ("A returning participant
+  cannot revive a finished custom game"),
+  `game-matchmaking-shared/tests/multiplayer-notices`.
+
+### Cancellation and ending a space
+
+- **Custom games.** `reactCustomGameToSpaceEvent` first expires a clock
+  that ran out. Ending the space cancels the game. When someone leaves:
+  the creator leaving cancels the game; before the start, the leaver's
+  side opens; during play, the leaver resigns, which is a draw when the
+  other side cannot win. `customGameEffects` then cancels the bot and
+  clock wakes. A cancelled game enters the history like any finished
+  one.
+- **Matched games.** Aborting is allowed only before both people have
+  moved. It leaves no rating and no record, and frees both people.
+  Repeating it changes nothing. Stopping a search names its request.
+  Ending a space never ends a matched game.
+- **Proof.** `conformance/custom-games/space-ending`,
+  `conformance/history/cancelled-game`,
+  `custom-game-completion.feature`, `custom-game-interruption.feature`,
+  `matched-game-abort.feature` ("Aborting an aborted matched game again
+  changes nothing"), `matched-game-shared.qnt` `invAbortHasNoWinner`,
+  `finding-an-opponent.feature`,
+  `game-matchmaking-harness/tests/opponent-search-cleanup`.
+
+### Not yet proven by a test
+
+These hold by construction today, but no test pins them yet:
+
+- A redelivered result notice stays dismissed. The consumer sends it
+  without `resurface`, and `publishNotification` in
+  `@libs/notifications-server` keeps a dismissal unless asked to
+  resurface it.
+- A bot whose proposal is refused leaves its game waiting for the next
+  wake or a clock: no new bot wake is scheduled. The bot law refuses such
+  a bot before it ships.
+- A presentation is a pure function of what it is given.
 
 ## Conformance
 

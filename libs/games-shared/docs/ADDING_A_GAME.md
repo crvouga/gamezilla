@@ -28,6 +28,34 @@ Every package declares `"game": "race"` in its `package.json`; it may
 depend on the framework and its own packages, never on another game or a
 registry.
 
+### What a game may import
+
+A game imports only the framework's public modules, each framework
+package's `"gameApi"` list. The package's `lint` refuses anything else,
+in source, tests and steps alike (the full map and the reasons are in
+[The public API](GAME_FRAMEWORK.md#the-public-api)):
+
+| From | A game imports |
+| --- | --- |
+| `@pkgs/turn-game-shared` | `game-rules`, `game-presentation`, `game-automation` |
+| `@libs/game-session-shared` | `turn-game-definition` |
+| `@libs/game-menu-client` | `game-client` |
+| `@libs/spaces-shared` | `game` (only for a game with its own room behaviour) |
+| `@libs/game-session-harness` (its `-harness`) | `harness-game`, `game-system`, `game-navigation`, `space-game-choice`, `custom-game-ui`, `custom-game-controls`, `custom-game-lineup`, `custom-game-moves`, `custom-game-screen`, `custom-game-reads`, `custom-game-history` |
+| `@libs/game-matchmaking-harness` (its `-harness`) | `matched-game-world`, `matched-game-app.steps`, `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record`, `multiplayer-time`, `matched-game-fixtures` |
+
+Nothing else: not the platform's screens, consumers or storage, and never
+a stored type, a probe, a table or a transport client. A game reads its
+Custom Game through `custom-game-screen` and its matched game through
+`matched-game-world`. Its board gesture goes through
+`playOnCustomGameBoard` or `sendMoveFromBoard`, and a scenario's given
+position through `matched-game-fixtures`. If the game needs something the
+list does not offer, add a focused read, action or fixture helper to a
+public module, or move the test to the framework when it checks the
+framework's behaviour. Never make an internal module public. A game's own
+tests call only its own contract: its rules, its `history.record`, its
+bots.
+
 ## 2. Register the game
 
 ```ts
@@ -154,6 +182,7 @@ A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
 | Endings or side names the shared screens cannot show | `tests/conformance/rules/presentation` |
 | A game record with the wrong people, result, clock or moves | `tests/conformance/history/game-record` |
 | A game depending on another game or a registry; a framework package depending on a game | the package's `lint` (`gameViolations`) |
+| A game importing a framework module outside its `gameApi` | the package's `lint` (`gameApiViolations`) |
 | Framework code spelling a game id | the package's `lint` (`gameIdentityViolations`) |
 
 ## 6. Prove it
