@@ -43,10 +43,7 @@ import {
   showPuzzleSolution,
   skipGamePuzzle,
   takePuzzleHint,
-  takeSecondPuzzleHint,
 } from '@libs/game-session-harness/puzzle-screen';
-import { restoreNetwork } from '@libs/harness/actions';
-import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { cutConnection } from '@libs/harness/platform';
@@ -298,36 +295,14 @@ Then(
   }
 );
 
-Then(
-  '{actor} is asked to find the next move within {int} seconds',
-  async (w, actor: Actor, seconds: number) => {
-    await w.s.until(async (surf) => readPuzzleState(surf, actor), {
-      maxMs: seconds * SECOND_MS,
-      pred: (status) => status === 'solving',
-    });
-  }
-);
-
 // -------------------------------------------------------------------- hints
 
 When('{actor} asks for a hint', async (w, actor: Actor) => {
   await w.s.apply(takePuzzleHint, actor);
 });
 
-Given('{actor} has taken a hint', async (w, actor: Actor) => {
-  await w.s.apply(takePuzzleHint, actor);
-});
-
-When('{actor} asks for another hint', async (w, actor: Actor) => {
-  await w.s.apply(takeSecondPuzzleHint, actor);
-});
-
 Then("{actor}'s hint highlights the piece to move", async (w, actor: Actor) => {
   expect(await w.s.read(readPuzzleHelp, actor)).toBe('highlight');
-});
-
-Then("{actor}'s hint shows the solution move", async (w, actor: Actor) => {
-  expect(await w.s.read(readPuzzleHelp, actor)).toBe('solution');
 });
 
 When('{actor} shows the solution', async (w, actor: Actor) => {
@@ -592,11 +567,3 @@ When('{actor} goes back to the puzzles', async (w, actor: Actor) => {
 });
 
 // ------------------------------------------------------------------ account
-
-Given(
-  '{actor} has since come back online and signed in with Google',
-  async (w, actor: Actor) => {
-    await w.s.apply(restoreNetwork);
-    await w.s.apply(signInWithGoogle, actor);
-  }
-);

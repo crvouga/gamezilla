@@ -6,10 +6,7 @@
  */
 
 import { expect } from 'bun:test';
-import {
-  solvePuzzlesDaily,
-  solvePuzzlesInARow,
-} from '@libs/chess-puzzle-harness/chess-actions';
+import { solvePuzzlesDaily } from '@libs/chess-puzzle-harness/chess-actions';
 import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness/chess-puzzle-data';
 import {
   playPuzzleFeedPass,
@@ -23,10 +20,6 @@ import {
   ingestCsv,
   STANDARD_PUZZLE_IDS,
 } from '@libs/chess-puzzle-harness/puzzle-fixtures';
-import {
-  readFeedHistoryLabel,
-  readFeedTargetLabel,
-} from '@libs/game-session-harness/puzzle-feed';
 import { retireCataloguePuzzle } from '@libs/game-session-harness/puzzle-records';
 import {
   isEmptyFeedShown,
@@ -37,36 +30,9 @@ import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { remember } from '@libs/harness/spec-world';
-import {
-  ensureOnPuzzle,
-  focusFeed,
-  recalled,
-  SERVABLE_KEY,
-  SETTLE_MS,
-  trackPuzzle,
-} from './puzzle-world';
+import { recalled, SERVABLE_KEY, SETTLE_MS, trackPuzzle } from './puzzle-world';
 
 const REJECTED = 'rejectedPuzzles';
-
-async function untilFeedTarget(
-  w: HarnessWorld,
-  actor: Actor,
-  mode: 'auto' | 'custom',
-  rating: number
-): Promise<void> {
-  await focusFeed(w, actor);
-  await w.s.until(async (surf) => readFeedTargetLabel(surf, actor), {
-    maxMs: SETTLE_MS,
-    pred: (label) => label?.mode === mode && label.rating === rating,
-  });
-}
-
-/** Solve `count` puzzles in a row. */
-async function solveInARow(w: HarnessWorld, actor: Actor, count: number) {
-  await ensureOnPuzzle(w, actor);
-  await w.s.apply(solvePuzzlesInARow, actor, count);
-  await trackPuzzle(w, actor);
-}
 
 // ----------------------------------------------------------- the pool
 
@@ -125,13 +91,6 @@ Then(
 // ------------------------------------------------------- an exhausted feed
 
 Given(
-  '{actor} has solved {int} puzzles in a row',
-  async (w, actor: Actor, count: number) => {
-    await solveInARow(w, actor, count);
-  }
-);
-
-Given(
   '{actor} has solved {int} puzzles a day for {int} days',
   async (w, actor: Actor, perDay: number, days: number) => {
     await w.s.apply(solvePuzzlesDaily, actor, perDay, days);
@@ -147,24 +106,6 @@ Then('{actor} is told the attempt is unrated', async (w, actor: Actor) => {
 });
 
 // ------------------------------------------------------------ feed settings
-
-Then(
-  "{actor}'s feed history shows {string}",
-  async (w, actor: Actor, label: string) => {
-    await focusFeed(w, actor);
-    await w.s.until((surf) => readFeedHistoryLabel(surf, actor), {
-      maxMs: SETTLE_MS,
-      pred: (shown) => shown === label,
-    });
-  }
-);
-
-Then(
-  "{actor}'s feed targets {int} automatically",
-  async (w, actor: Actor, rating: number) => {
-    await untilFeedTarget(w, actor, 'auto', rating);
-  }
-);
 
 // ------------------------------------------------------------ empty feeds
 

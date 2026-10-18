@@ -7,10 +7,6 @@
 
 import { playUntilSolved } from '@libs/chess-puzzle-harness/chess-actions';
 import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness/chess-puzzle-data';
-import {
-  readLocalPuzzleStartLedger,
-  useUpPuzzleStartsToday,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ledger-data';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
 import type { PuzzleLinkOutcome } from '@libs/chess-puzzle-harness/puzzle-link-ui';
 import {
@@ -21,6 +17,10 @@ import {
   sharePuzzleLink,
 } from '@libs/chess-puzzle-harness/puzzle-link-ui';
 import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import {
+  readLocalPuzzleStartLedger,
+  useUpPuzzleStartsToday,
+} from '@libs/game-session-harness/puzzle-allowance';
 import { retireCataloguePuzzle } from '@libs/game-session-harness/puzzle-records';
 import {
   isPuzzleAttemptRated,

@@ -29,6 +29,7 @@
     "@libs/game-session-shared": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/notifications-harness": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
     "@libs/profile-harness": "workspace:*",
     "@libs/search-harness": "workspace:*",
     "@libs/spaces-harness": "workspace:*",
@@ -42,6 +43,8 @@
     "@pkgs/room-root-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
+    "@pkgs/sync-engine-server": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/turn-game-shared": "workspace:*",
     "@pkgs/ui-testing-root-shared": "workspace:*",
     "fast-check": "catalog:"
@@ -74,6 +77,7 @@
     "puzzle-room-probe",
     "puzzle-feed",
     "puzzle-feed-choices",
-    "puzzle-pool"
+    "puzzle-pool",
+    "puzzle-allowance"
   ]
 }

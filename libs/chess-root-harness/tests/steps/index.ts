@@ -1,5 +1,4 @@
 import '@libs/account-privacy-harness/privacy.steps';
-import '@libs/account-privacy-harness/exports.steps';
 /**
  * Steps entry for the `specs/<domain>/` features this package runs
  * (`specDomains`): registers the world (this package's harness
@@ -36,74 +35,11 @@ for (const file of [...modules].sort()) await import(`./${file}`);
 
 useHarnessWorld(openSpecHarness, (w) => ({
   beforePhoneOffline: (actor: Actor) => rememberOfflineBoard(w, actor),
-  beforeAccountDeletion: async (actor: Actor) => {
-    await w.s.apply(proveAccount, actor);
-    await w.s.apply(seedPuzzleRating, actor, CHESS_GAME_ID, {
-      rating: 1800,
-      ratingDeviation: PUZZLE_RATING_SCALE.deviationFloor,
-      volatilityMicros: PUZZLE_RATING_SCALE.startVolatilityMicros,
-    });
-    await w.s.apply(createSpace, actor);
-    const customLink = await w.s.read(readSpaceLink, actor);
-    await w.s.apply(openGamePuzzles, actor, CHESS_GAME_ID);
-    await w.s.apply(playUntilSolved, actor);
-    // A saved custom feed target, two steps up.
-    await w.s.apply(openPuzzleFeedSettings, actor);
-    await w.s.apply(setPuzzleFeedMode, actor, 'custom');
-    await w.s.apply(raisePuzzleFeedCustomTarget, actor, 2);
-    await w.s.apply(closePuzzleFeedSettings, actor);
-    remember(
-      w,
-      'deleted-feed-target',
-      await w.s.read(readFeedTargetLabel, actor)
-    );
-    await w.s.apply(showGamePuzzleStats, actor, CHESS_GAME_ID);
-    remember(
-      w,
-      'deleted-puzzle-rating',
-      await w.s.read(readStatsPuzzleRating, actor)
-    );
-    remember(
-      w,
-      'deleted-puzzle-label',
-      await w.s.read(readStatsRatingLabel, actor)
-    );
-    remember(
-      w,
-      'deleted-puzzle-solved',
-      (await w.s.read(readStatsFigures, actor)).solved
-    );
-    if (customLink === null) throw new Error('Deleted account has no space');
-    await w.s.apply(leaveGamePuzzleStats, actor);
-  },
 }));
 
-import { proveAccount } from '@libs/account-privacy-harness/privacy-actions';
-import { playUntilSolved } from '@libs/chess-puzzle-harness/chess-actions';
-import {
-  closePuzzleFeedSettings,
-  openPuzzleFeedSettings,
-  raisePuzzleFeedCustomTarget,
-  readFeedTargetLabel,
-  setPuzzleFeedMode,
-} from '@libs/game-session-harness/puzzle-feed';
-import { PUZZLE_RATING_SCALE } from '@libs/game-session-harness/puzzle-fixtures';
-import { seedPuzzleRating } from '@libs/game-session-harness/puzzle-pool';
 import type { Actor } from '@libs/harness/parameter-types';
-import { remember } from '@libs/harness/spec-world';
 
 import './multiplayer-game.steps';
 import './multiplayer-accessibility.steps';
 import './multiplayer-policies.steps';
-import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
-import {
-  leaveGamePuzzleStats,
-  readStatsFigures,
-  readStatsPuzzleRating,
-  readStatsRatingLabel,
-  showGamePuzzleStats,
-} from '@libs/game-session-harness/puzzle-records';
-import { openGamePuzzles } from '@libs/game-session-harness/puzzle-screen';
-import { createSpace } from '@libs/spaces-harness/space-actions';
-import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { rememberOfflineBoard } from './multiplayer-connection';

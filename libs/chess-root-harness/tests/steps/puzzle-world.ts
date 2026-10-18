@@ -18,7 +18,6 @@ import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
 import { showGamePuzzleStats } from '@libs/game-session-harness/puzzle-records';
 import type { PuzzleProbe } from '@libs/game-session-harness/puzzle-screen';
 import {
-  isPuzzleScreenShown,
   openGamePuzzles,
   readPuzzleOnBoard,
   readPuzzleProbe,
@@ -121,14 +120,6 @@ export async function enterPuzzles(
   }
   await w.s.apply(openGamePuzzles, actor, CHESS_GAME_ID);
   return trackPuzzle(w, actor);
-}
-
-/** Bring the puzzle feed into view for a `Then` that reads it. */
-export async function focusFeed(w: HarnessWorld, actor: Actor): Promise<void> {
-  await w.s.apply(focusActor, actor);
-  if (!(await w.s.read(isPuzzleScreenShown, actor))) {
-    await enterPuzzles(w, actor);
-  }
 }
 
 /**

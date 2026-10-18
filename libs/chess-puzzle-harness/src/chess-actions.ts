@@ -1,5 +1,6 @@
 import { CHESS_GAME_ID } from '@libs/chess-puzzle-shared/chess-game';
 import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
+import { sleepUntilNextUtcDay } from '@libs/game-session-harness/puzzle-allowance';
 import {
   closePuzzleFeedSettings,
   openPuzzleFeedSettings,
@@ -18,7 +19,6 @@ import {
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import { readMsUntilNextUtcDay } from './chess-puzzle-ledger-data';
 import {
   dragPuzzleUci,
   pickPuzzlePromotion,
@@ -228,20 +228,6 @@ export const finishPuzzleBy = scenarioAction({
 });
 
 /**
- * The night passes: every device and the server sleep until the next UTC
- * midnight (when the day's puzzle allowance resets), and whatever fell due
- * meanwhile runs once on waking.
- */
-export const sleepUntilNextUtcDay = scenarioAction({
-  name: 'sleepUntilNextUtcDay',
-  act: async (s) => {
-    await s.session.advanceTime(0);
-    await s.session.scheduler.underlying.sleep(readMsUntilNextUtcDay(s));
-    await s.session.advanceTime(0);
-  },
-});
-
-/**
  * `perDay` puzzles solved one after another on each of `days` days, the
  * night between days slept through, moving on after every solve.
  */
@@ -276,6 +262,5 @@ export const CHESS_HARNESS_ACTIONS = [
   suggestNonSolutionMove,
   solvePuzzlesInARow,
   finishPuzzleBy,
-  sleepUntilNextUtcDay,
   solvePuzzlesDaily,
 ];

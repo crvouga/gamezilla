@@ -30,7 +30,6 @@ import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
   currentPuzzle,
-  ensureOnPuzzle,
   ensureStatsOpen,
   enterNamedPuzzle,
   SECOND_MS,
@@ -136,12 +135,6 @@ Then(
 
 // -------------------------------------------------------- offline, devices
 
-Given('{actor} has solved a puzzle while offline', async (w, actor: Actor) => {
-  await ensureOnPuzzle(w, actor);
-  await cutConnection(w, actor);
-  await w.s.apply(playUntilSolved, actor);
-});
-
 Given('{actor} has solved the hook-mate puzzle', async (w, actor: Actor) => {
   await enterNamedPuzzle(w, actor, NAMED_PUZZLES.hookMate);
   await w.s.apply(playUntilSolved, actor);
@@ -157,13 +150,6 @@ Given(
 
 Then(
   "both of {actor}'s devices show the same puzzle rating within {int} seconds",
-  async (w, actor: Actor, seconds: number) => {
-    await untilSameRating(w, actor, otherDevice(actor), seconds * SECOND_MS);
-  }
-);
-
-Then(
-  "{actor}'s other device shows the same puzzle rating within {int} seconds",
   async (w, actor: Actor, seconds: number) => {
     await untilSameRating(w, actor, otherDevice(actor), seconds * SECOND_MS);
   }

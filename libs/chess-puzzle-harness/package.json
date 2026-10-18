@@ -15,7 +15,6 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --preload @libs/harness/preload tests"
   },
   "dependencies": {
-    "@libs/auth-shared": "workspace:*",
     "@libs/chess-puzzle-server": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-sub-shared": "workspace:*",
@@ -41,18 +40,15 @@
     "@pkgs/sounds-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
-    "@pkgs/sync-engine-server": "workspace:*",
     "@pkgs/ui-testing-root-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "chess.js": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@libs/permissions-shared": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/http-client-shared": "workspace:*",
-    "@pkgs/sync-engine-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",

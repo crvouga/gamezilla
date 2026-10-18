@@ -27,6 +27,7 @@ import {
 } from './custom-game-ui';
 import { openGameHistory, reviewCustomGameMove } from './game-history-actions';
 import { GAME_NAVIGATION_ACTIONS } from './game-navigation';
+import { PUZZLE_ALLOWANCE_ACTIONS } from './puzzle-allowance';
 import { PUZZLE_FEED_ACTIONS } from './puzzle-feed';
 import { PUZZLE_FEED_CHOICE_ACTIONS } from './puzzle-feed-choices';
 import { PUZZLE_MOVE_ACTIONS } from './puzzle-moves';
@@ -69,4 +70,5 @@ export const GAME_SESSION_HARNESS_ACTIONS = [
   ...PUZZLE_FEED_ACTIONS,
   ...PUZZLE_FEED_CHOICE_ACTIONS,
   ...PUZZLE_POOL_ACTIONS,
+  ...PUZZLE_ALLOWANCE_ACTIONS,
 ];
