@@ -1,29 +1,13 @@
 @domain:chess
-Feature: Showing the solution
-  When a solver cannot find the line, they want to see the solution played
-  out, so they learn it. Showing the solution plays out the rest of the line,
-  stops play, and counts as a fail.
+Feature: A shown chess solution ends in checkmate
+  When a solver cannot find the mate in a chess puzzle, they want the shown
+  solution to play out all the way to checkmate, so they see the whole mate.
 
-  Rule: Showing the solution plays the line and keeps the attempt failed
-
-    Background:
-      Given Alice is signed in
-      And Alice is solving the hook-mate puzzle
+  Rule: Showing a mating puzzle's solution plays its line out to checkmate
+    No counter-example: showing the solution always plays the whole line; how it stops play and counts is every game's.
 
     Scenario: The rest of the line plays out to checkmate
+      Given Alice is signed in
+      And Alice is solving the hook-mate puzzle
       When Alice shows the solution
       Then Alice's board reaches checkmate at move 4 of the line within 20 seconds
-
-    Scenario: Showing the solution stops play
-      When Alice shows the solution
-      Then Alice's puzzle shows the revealed solution within 20 seconds
-      And Alice cannot move pieces
-
-    Scenario: Showing the solution counts as a fail
-      When Alice shows the solution
-      Then Alice's game log records that puzzle as failed
-      And Alice's stats show 1 played, 0 solved, and 0% accuracy
-
-    Scenario: Showing the solution drops the rating
-      When Alice shows the solution
-      Then Alice's puzzle rating is below 1500

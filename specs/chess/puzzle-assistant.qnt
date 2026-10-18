@@ -1,4 +1,11 @@
-// Playing puzzles in a space, with a friend watching.
+// The Puzzle Assistant over a chess puzzle attempt in a space, with a
+// friend watching. How the attempt itself goes holds for every game that
+// offers puzzles and is the Games context's puzzle attempt model; this model
+// plays the same attempt on chess's board and holds the assistant to it: it
+// always speaks of the puzzle on that device's board, never contradicts the
+// board, keeps its observation when muted, and its guidance belongs to the
+// position being looked at. The board's own invariants are kept beside the
+// assistant's, so the assistant is checked against the same attempt.
 //
 // Alice, a guest, hosts a space; Bob, another guest, joined it from its
 // space link. Both have the space's game choice in view. Alice drives: from
@@ -34,7 +41,7 @@
 // (after leaving it or closing the app) is no start at all. So a guest here
 // uses at most three puzzle starts, and never reaches the daily puzzle limit
 // — the limit itself is shown by its own examples, not by this model.
-module puzzle_attempt {
+module puzzle_assistant {
   type Person = str
 
   /// The host, who drives the puzzle.

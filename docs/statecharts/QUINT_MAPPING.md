@@ -33,7 +33,8 @@ or policy without an owner fails compilation.
 | [specs/games/custom-game.qnt](../../specs/games/custom-game.qnt) | custom-game |
 | [specs/games/matched-game-spaces.qnt](../../specs/games/matched-game-spaces.qnt) | multiplayer |
 | [specs/games/matched-game.qnt](../../specs/games/matched-game.qnt) | multiplayer |
-| [specs/chess/puzzle-attempt.qnt](../../specs/chess/puzzle-attempt.qnt) | puzzles |
+| [specs/games/puzzle-attempt.qnt](../../specs/games/puzzle-attempt.qnt) | puzzles |
+| [specs/chess/puzzle-assistant.qnt](../../specs/chess/puzzle-assistant.qnt) | puzzles |
 | [specs/chess/puzzle-feed.qnt](../../specs/chess/puzzle-feed.qnt) | puzzle-feed |
 | [specs/chess/puzzle-link.qnt](../../specs/chess/puzzle-link.qnt) | puzzle-links |
 | [specs/chess/puzzle-loading.qnt](../../specs/chess/puzzle-loading.qnt) | puzzle-ingest |

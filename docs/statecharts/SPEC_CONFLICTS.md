@@ -4,7 +4,7 @@ The charts preserve the current specifications and identify unresolved distincti
 
 ## The next puzzle (existing review reference KI-001)
 
-[The critical journey](../../specs/journeys/critical-journeys.feature) says a guest solves a puzzle and the next puzzle is ready. [Resuming attempts](../../specs/chess/puzzle-attempt-resume.feature) distinguishes moving on from configured auto-advance. The chart keeps the solved state, the explicit move-on event and the configured auto-advance event. The guided journey uses explicit move-on. Whether the critical journey’s “ready” means displayed or available to choose remains unresolved.
+[The critical journey](../../specs/journeys/critical-journeys.feature) says a guest solves a puzzle and the next puzzle is ready. [Resuming attempts](../../specs/games/puzzle-attempt-resume.feature) distinguishes moving on from configured auto-advance. The chart keeps the solved state, the explicit move-on event and the configured auto-advance event. The guided journey uses explicit move-on. Whether the critical journey’s “ready” means displayed or available to choose remains unresolved.
 
 ## Membership grace and refunds
 

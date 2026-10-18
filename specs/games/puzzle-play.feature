@@ -1,8 +1,8 @@
-@domain:chess
+@domain:games
 Feature: Puzzle play is a feed
-  When a solver finishes a puzzle, they want to see what it did to their
-  rating and have the next one ready at once, so play flows like a feed and
-  it is never the puzzle just played.
+  When a solver finishes a puzzle of the game, they want to see what it did to
+  their puzzle rating and have the next one ready at once, so play flows like
+  a feed and it is never the puzzle just played.
 
   Background:
     Given Alice is signed in

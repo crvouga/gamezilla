@@ -1,7 +1,8 @@
-@domain:chess
+@domain:games
 Feature: A puzzle attempt survives leaving the puzzle and closing the app
-  When a solver steps away mid-puzzle, they want the same attempt waiting
-  when they come back, so stepping away never skips a puzzle or starts a fresh one.
+  When a solver steps away in the middle of a puzzle of the game, they want
+  the same attempt waiting when they come back, so stepping away never skips
+  a puzzle or starts a fresh one.
 
   Background:
     Given Alice is signed in
@@ -11,7 +12,7 @@ Feature: A puzzle attempt survives leaving the puzzle and closing the app
 
     Scenario: Going back to an unfinished puzzle resumes the same attempt
       Given Alice has played a wrong move
-      And Alice has left the puzzle for the chess choices
+      And Alice has left the puzzle for the game's choices
       When Alice goes back to the puzzles
       Then Alice is on the same puzzle as before
       And Alice is told the move was wrong
@@ -24,7 +25,7 @@ Feature: A puzzle attempt survives leaving the puzzle and closing the app
 
     Scenario: Going back after a finished puzzle starts the next one
       Given Alice has solved the puzzle
-      And Alice has left the puzzle for the chess choices
+      And Alice has left the puzzle for the game's choices
       When Alice goes back to the puzzles
       Then Alice is solving a different puzzle than the one before
       And Alice is not offered the puzzle that is over
@@ -52,12 +53,12 @@ Feature: A puzzle attempt survives leaving the puzzle and closing the app
       Then Alice is on a different puzzle than the one before within 5 seconds
       And Alice's puzzle is not solved
 
-  Rule: Going back from the chess choices reaches the game choice
-    No counter-example: Going back from the chess choices always has this destination; going back from a board reaches the chess choices first.
+  Rule: Going back from the game's choices reaches the game choice
+    No counter-example: Going back from the game's choices always has this destination; going back from a board reaches the game's choices first.
 
-    Scenario: The solver returns from the chess choices to the game choice
-      Given Alice has left the puzzle for the chess choices
-      When Alice goes back from the chess choices to the game choice
+    Scenario: The solver returns from the game's choices to the game choice
+      Given Alice has left the puzzle for the game's choices
+      When Alice goes back from the game's choices to the game choice
       Then Alice sees the space's game choice
 
   Rule: Reopening keeps the board and its result until the solver moves on

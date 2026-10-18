@@ -74,7 +74,7 @@ journeys:
     endsIn:
     - 'Puzzles: Wrong move'
     gherkin:
-    - specs/chess/puzzle-attempt-resume.feature
+    - specs/games/puzzle-attempt-resume.feature
   Plus credit pays before an expired card:
     description: Unused yearly value becomes Plus credit on the monthly plan and a covered renewal remains active.
     events:
@@ -239,7 +239,7 @@ journeys:
     - 'Puzzles: Solving'
     gherkin:
     - specs/journeys/critical-journeys.feature
-    - specs/chess/puzzle-attempt-resume.feature
+    - specs/games/puzzle-attempt-resume.feature
     tour: true
   Hints, wrong moves and review keep one attempt:
     description: A wrong move needs retry; hints and review stay attached to the same puzzle.
@@ -262,7 +262,7 @@ journeys:
     - 'Puzzles: Solved'
     gherkin:
     - specs/chess/puzzle-refusals.feature
-    - specs/chess/puzzle-review.feature
+    - specs/games/puzzle-review.feature
     tour: true
   Signing in lifts the guest puzzle limit:
     description: At the allowance, the published sign-in result both changes identity and enables a fresh start.
@@ -364,7 +364,7 @@ journeys:
     - 'Puzzle History: Puzzle results'
     gherkin:
     - specs/chess/puzzle-stats.feature
-    - specs/chess/puzzle-review.feature
+    - specs/games/puzzle-review.feature
     tour: true
   Plus unlocks another hosted space:
     description: An account sees the hosting denial, completes checkout, then uses the current permission to create

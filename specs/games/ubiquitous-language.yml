@@ -2,7 +2,7 @@ context: Games
 purpose: >-
   What every game a space can play offers the same way, whichever game it
   is: the game's choices, custom games with people and bots, turns, finding
-  an opponent and the matched games it starts, history and review. Each game adds only its own rules and
+  an opponent and the matched games it starts, puzzles, history and review. Each game adds only its own rules and
   board; a scenario here holds for every game that offers what it shows.
 terms:
   - term: game
@@ -19,11 +19,14 @@ terms:
   - term: the game's choices
     definition: >-
       Where a game starts in a space: what the game offers of its own, then
-      custom games, finding an opponent and its history. Everyone in the
-      space is shown the choice anyone in it opens, on every device.
+      custom games, finding an opponent, its puzzles when it offers them,
+      and its history. Everyone in the space is shown the choice anyone in
+      it opens, on every device. A solver steps back here from a puzzle's
+      board, and goes back to the puzzles from here.
     forms: [the game's custom games]
     avoid: [menu, screen]
     published: true
+    model: [GameChoices]
 
   - term: custom game
     definition: >-
@@ -208,7 +211,8 @@ terms:
     definition: >-
       One action on the board on a participant's turn, as the game's own
       rules allow it. A move the game's rules do not allow is refused and
-      changes nothing. Each side's first move is its first move of the game.
+      changes nothing; in a puzzle it is no move at all and is never held
+      against the solver. Each side's first move is its first move of the game.
       A custom game takes moves only while it is under way.
     forms:
       - moves
@@ -226,7 +230,7 @@ terms:
       - move played
       - moves played
     avoid: [command, action]
-    model: [playCustomMove, movesPlayed, movesShown, playMove, playCurrentMove, moveCount, moves]
+    model: [playCustomMove, movesPlayed, movesShown, playMove, playCurrentMove, moveCount, moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, tryIllegalMove]
 
   - term: turn
     definition: The participant who may make the next move.
@@ -241,14 +245,17 @@ terms:
   - term: board
     definition: >-
       What a game is played on, as that game draws it. Everyone in the space
-      sees the same board.
-    model: [playShown, PlayBoard, playBoard]
+      sees the same board. A puzzle's board faces the solver's side, shows
+      the last move and shows the puzzle's state; a watcher's board agrees
+      with the host's.
+    model: [playShown, PlayBoard, playBoard, Board]
 
   - term: finished
     definition: >-
       A custom game or matched game that has a result: a victory or a draw.
       A finished game takes no more moves. A game without a result yet is
-      unfinished.
+      unfinished. A puzzle is finished once it is over; one still being
+      solved, or waiting for a retry after a wrong move, is unfinished.
     forms: [finish, finishes, unfinished]
     model: [Finished]
 
@@ -410,8 +417,9 @@ terms:
   - term: opponent
     definition: >-
       The other participant. One found for a person seeks the same game at
-      the same clock choice.
-    forms: [opponents]
+      the same clock choice. In a puzzle, the side the solver plays against:
+      its setup move and its replies play by themselves.
+    forms: [opponents, the opponent's side]
 
   - term: finding an opponent
     definition: >-
@@ -691,18 +699,18 @@ terms:
     definition: >-
       Where a space's host picks the game the space plays, and where everyone
       in the space starts. Going back from the game's choices returns there.
-    model: [backToGameChoice]
+    model: [GameChoice, backToGameChoice]
 
   - term: space view
     definition: >-
-      What a person in a space is looking at: the space's game choice or the
-      game's choices. What a space plays belongs to the space, so everyone in
+      What a person in a space is looking at: the space's game choice, the
+      game's choices, or a puzzle's board. What a space plays belongs to the space, so everyone in
       it sees what its host last chose, on every device they have in the
       space. A guest cannot change it and is told only the host chooses the
       game; a device without a connection cannot change it either. Going
       idle does not change it.
     avoid: [screen, page]
-    model: [view]
+    model: [View, view, Elsewhere]
 
   - term: pair people up
     from: matchmaking
@@ -717,13 +725,318 @@ terms:
   - term: review
     definition: >-
       See the board after any move that was played, without changing the
-      game.
-    forms: [reviews, reviewed]
+      game. A played puzzle's review steps through its whole line from the
+      game log: it opens on the final position, stepping one move animates
+      and jumping snaps straight to a position, and the current move is the
+      highlighted one in the review's move list, written as the game writes
+      it. A retired puzzle still opens in review. While a puzzle is on the
+      board, the solver can also look back at a position the line already
+      reached, without changing the attempt; after a wrong move or a skip
+      that needs a retry first.
+    forms: [reviews, reviewed, reviewing]
+    avoid: [replay, analysis]
+    model: [stepBackPosition, stepForwardPosition, position, chooseReviewPosition, tryReviewBeforeRetry]
 
   - term: statistics
     definition: >-
       Victories, losses and draws of one game alone; another game's results
       never count.
+
+  # --- Puzzles, for every game that offers them -------------------------------
+
+  - term: puzzle
+    definition: >-
+      A position of the game, with a line to find, that a solver plays on
+      the game's board in their space. Only some games offer puzzles; a
+      game that offers them offers them among the game's choices. Each
+      puzzle has a rating of its own, which is how hard it is.
+    forms: [puzzles, this puzzle, next puzzle, a different puzzle, the puzzle's]
+    avoid: [problem, exercise]
+    model: [puzzle]
+
+  - term: known puzzle
+    definition: >-
+      A puzzle written by hand for a game that offers puzzles, so its every
+      move is known in advance: the side the solver plays, the line and its
+      solution, how the game writes each move, a wrong move, and a move the
+      game's rules do not allow. "The game's known puzzle" in a scenario is
+      that game's one whose line is four moves long: the setup move, the
+      solver's move, the opponent's reply and the solver's last move.
+    forms: [known puzzles, the game's known puzzle]
+
+  - term: play puzzles
+    definition: >-
+      Solve puzzles of the game from the puzzle feed on the board in a
+      space. A person opens puzzles from the game choice, and goes back to
+      the puzzles from the game's choices, finding any unfinished puzzle as
+      they left it.
+    forms:
+      - plays puzzles
+      - playing puzzles
+      - open puzzles
+      - opens puzzles
+      - opened puzzles
+      - go back to the puzzles
+      - goes back to the puzzles
+    model: [openPuzzles, goBackToPuzzles]
+
+  - term: leave the puzzle
+    definition: >-
+      Step back from the board to the game's choices. An unfinished puzzle
+      waits, as it was, for the solver to go back to the puzzles; a finished
+      one does not, and going back starts the next puzzle.
+    forms: [leaves the puzzle, left the puzzle, leaving the puzzle]
+    model: [leavePuzzle]
+
+  - term: puzzle pool
+    definition: >-
+      Every puzzle of the game that can be served. The puzzle feed chooses
+      from it.
+    forms: [pool]
+
+  - term: puzzle feed
+    definition: >-
+      The endless run of puzzles of the game a solver plays in their space:
+      finish one and the next is ready at once, never the one just played.
+      Once every puzzle is played it comes round to the one played longest
+      ago, unrated.
+    forms: [feed, feed's, come round]
+    avoid: [queue, playlist]
+
+  - term: puzzle's own rating
+    definition: >-
+      How hard a puzzle is, as a rating on the same scale as the puzzle
+      rating. It is hidden while the puzzle is being solved, shows once the
+      puzzle is over, and shows beside the puzzle in the game log.
+    forms: [own rating]
+
+  - term: puzzle theme
+    definition: >-
+      A kind of puzzle, as its game names it. A puzzle has one or more
+      themes; they are hidden while it is being solved and show once it is
+      over.
+    forms: [theme, themes, puzzle's themes]
+
+  - term: solver
+    definition: >-
+      The person solving the puzzle on the board: the host, when a space has
+      watchers. The board faces the solver's side.
+    forms: [solvers, the solver's side]
+    avoid: [puzzler]
+
+  - term: attempt
+    definition: >-
+      One play of one puzzle, from its start until it is solved, failed or
+      abandoned. The first wrong move is the attempt's outcome, and a retry
+      continues the same attempt. Leaving the puzzle or closing the app does
+      not end it.
+    forms: [attempts, attempt's]
+    avoid: [session]
+
+  - term: puzzle state
+    definition: >-
+      Where the puzzle on a board stands, as the board tells it: being solved
+      (the solver is asked to find the next move), a wrong move played,
+      solved, skipped, or its solution shown.
+    model: [puzzleState]
+
+  - term: line
+    definition: >-
+      A puzzle's whole sequence of moves, from the opponent's setup move to
+      its end. "Move N of the line" is the position after its Nth move.
+    forms: [the line's]
+
+  - term: setup move
+    definition: >-
+      The opponent's first move of the line, already played when the puzzle
+      opens.
+
+  - term: prompt
+    definition: >-
+      What the board asks the solver: to find the next move for the
+      solver's side. While the puzzle is being solved, the solver is asked
+      to find the next move.
+    forms: [prompted, asked to find the next move]
+
+  - term: solution
+    definition: >-
+      The solver's moves in the line. Every way to finish that the game's
+      rules count as the same win counts: another winning last move, a
+      faster win, or the same moves in another order.
+    forms: [the last move of the solution, the next move of the solution]
+
+  - term: solution move
+    definition: The next move of the solution, from where the board stands.
+    model: [revealSolutionMove, trySolutionBeforeHint]
+
+  - term: solve
+    definition: >-
+      Finish a puzzle with its solution. A solved puzzle is over, and no
+      more moves can be made in it.
+    forms: [solves, solved, solving, solving it cleanly]
+    model: [solve]
+
+  - term: wrong move
+    definition: >-
+      A move the game's rules allow that is not the solution. The solver is
+      told at once, the attempt is failed from then on, and no move can be
+      made until a retry.
+    forms: [wrong]
+    avoid: [mistake, blunder]
+    model: [playWrongMove]
+
+  - term: hint
+    definition: >-
+      Help while solving: the first highlights where the solution move
+      starts, the second shows the solution move. Help cannot skip the
+      first stage, repeat it, or be asked for after a wrong move before a
+      retry, or once the puzzle is over.
+    forms: [hints, asks for a hint, asks for another hint, taken a hint, taken two hints]
+    model: [requestHint, help, tryHintAfterFinish, tryHintFromReview, tryHintBeforeRetry, tryEarlierHint]
+
+  - term: retry the puzzle
+    definition: >-
+      After a wrong move, continue at the position already reached. After a
+      solve, a shown solution or a skip, play the same puzzle from its
+      start. It continues the same attempt, so its first outcome does not
+      change. It is not offered while the puzzle is being solved.
+    forms: [retry, retries the puzzle, retried, retried the puzzle, retrying the puzzle, retrying]
+    model: [retry, tryRetryWhileSolving]
+
+  - term: show the solution
+    definition: >-
+      Have the rest of the line play out on the board (the revealed
+      solution). The puzzle is over and the attempt is failed.
+    forms:
+      - shows the solution
+      - shown the solution
+      - showing the solution
+      - shown solution
+      - revealed
+      - revealed solution
+      - revealed line
+    model: [showSolution, tryShowSolutionAfterFinish, tryShowSolutionFromReview]
+
+  - term: skip
+    definition: >-
+      Give up on a puzzle being solved. It is over, and the attempt is
+      abandoned.
+    forms: [skips, skipped, skipping, skipping it]
+    model: [skip, trySkipAfterFinish]
+
+  - term: failed attempt
+    definition: >-
+      An attempt's outcome once a wrong move was played or the solution was
+      shown, however the puzzle ends afterwards.
+    forms: [failed]
+    avoid: [loss]
+
+  - term: abandoned attempt
+    definition: An attempt's outcome when the puzzle was skipped.
+    forms: [abandoned]
+
+  - term: puzzle is over
+    definition: >-
+      A puzzle is over once it is solved, skipped or its solution shown. No
+      more moves can be made in it, and the host may move on.
+    model: [isOver]
+
+  - term: move on
+    definition: >-
+      Go from a puzzle that is over to the next puzzle in the feed, never the
+      one just played. Only the host is offered it; asking twice at once
+      still moves on one puzzle, and it works offline.
+    forms:
+      - moves on
+      - moved on
+      - moving on
+      - asks for the next puzzle
+      - asking for the next puzzle
+    model: [moveOn, moveOnTwiceAtOnce, moveOnOffered]
+
+  - term: auto-advance
+    definition: >-
+      A solver's setting to move on by itself a set time after a solve.
+    forms: [advance]
+
+  - term: puzzle clock
+    definition: >-
+      How long the current attempt has run. It runs while the puzzle is being
+      solved and stops when the puzzle is over.
+    model: [timePasses]
+
+  - term: haptic
+    definition: >-
+      A buzz the solver feels from their device: the success haptic on a
+      solve, the error haptic on a wrong move.
+    forms: [success haptic, error haptic]
+
+  - term: suggestion
+    definition: >-
+      A move a watcher proposes in a puzzle. The host and every watcher see
+      it; it does not move the puzzle, and the host's next move clears it.
+    forms: [suggest, suggests, suggested]
+    model: [suggestMove]
+
+  - term: puzzle rating
+    definition: >-
+      A solver's running rating at the game's puzzles, moved by every rated
+      attempt, online or offline. A new solver starts at 1500. Time taken
+      never changes it.
+    forms: [puzzle ratings]
+    avoid: [score, elo]
+
+  - term: rating change
+    definition: >-
+      How much one rated attempt moved the solver's puzzle rating. It shows
+      as soon as the attempt's outcome is decided: raised after a solve,
+      lowered after a wrong move, a skip or a shown solution. An unrated
+      attempt shows that it is unrated instead, and a watcher sees none.
+    forms: [rating changes]
+    avoid: [delta, rating diff, rating difference]
+
+  - term: rated attempt
+    definition: >-
+      An attempt that moves the puzzle rating: a solver's first attempt at a
+      puzzle, ever. A repeat of an already-played puzzle is unrated, and a
+      watcher is never rated.
+    forms: [rated puzzle, rated puzzles]
+
+  - term: puzzle stats
+    definition: >-
+      A solver's puzzle rating, puzzles played and solved, and accuracy at
+      the game's puzzles. They count each puzzle's rated attempt only.
+    forms: [stats]
+
+  - term: accuracy
+    definition: The share of rated attempts solved, as a whole percentage.
+
+  - term: game log
+    definition: >-
+      A solver's list of every puzzle of the game they played, each
+      recorded as solved, failed or abandoned with the puzzle's own rating
+      and its rating change (or that it was unrated), and each opening in
+      review.
+    avoid: [puzzle history]
+
+  - term: retired puzzle
+    definition: >-
+      A puzzle taken out of the puzzle feed. It is never served again, but
+      it stays in the game log and still opens in review.
+    forms: [retired]
+
+  - term: daily puzzle limit
+    definition: >-
+      The 20 rated puzzles a guest may start in a day. A puzzle served again
+      once the pool is played through is unrated and uses none.
+    forms: [daily allowance]
+    avoid: [quota, cap]
+
+  - term: puzzle start
+    definition: >-
+      One use of a guest's daily puzzle limit, spent when a rated puzzle
+      first starts. Going back to a puzzle already started spends none.
+    model: [puzzleStarts]
 
   - term: refusal
     definition: >-
@@ -739,7 +1052,10 @@ terms:
   - term: watcher
     definition: >-
       Someone in the space who has no side in the custom game, or a guest in
-      the space of one of a matched game's people, who makes no move in it.
+      the space of one of a matched game's people, who makes no move in it;
+      or someone in a space watching the host's puzzle, whose board agrees
+      with the host's, who may make a suggestion but never drives the puzzle
+      and is never rated for it.
       Only people in the space may watch it: anyone else cannot see it, even
       a finished one. A watcher sees the same board and clocks as its
       people.
@@ -854,6 +1170,7 @@ terms:
   - term: the app
     from: kernel
     forms: [closed the app, has closed the app]
+    model: [reopenApp]
 
   - term: person
     from: kernel
