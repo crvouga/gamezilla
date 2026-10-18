@@ -10,7 +10,9 @@
     "../../pkgs/ui-root-client/src/lingui-augmentation.ts",
     "../app-root-shared/src/vite-env.d.ts",
     "./src/**/*.ts",
-    "./src/**/*.tsx"
+    "./src/**/*.tsx",
+    "./tests/**/*.ts",
+    "./tests/**/*.tsx"
   ],
   "exclude": ["node_modules"]
 }

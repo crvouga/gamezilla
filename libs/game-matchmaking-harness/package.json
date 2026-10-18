@@ -35,6 +35,8 @@
     "@pkgs/sync-engine-shared": "workspace:*"
   },
   "devDependencies": {
+    "@libs/profile-shared": "workspace:*",
+    "@libs/spaces-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",
     "@types/bun": "catalog:",
