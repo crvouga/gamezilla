@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import net from 'node:net';
 import { startLoadBalancer } from './load-balancer';
 
 test('room sockets forward their first command and receive the reply', async () => {
@@ -41,5 +42,29 @@ test('room sockets forward their first command and receive the reply', async () 
     socket.close();
     await balancer.stop();
     await backend.stop(true);
+  }
+});
+
+test('a backend that resets the connection is a bad gateway, not a failed run', async () => {
+  // regression: local-balancer-upstream-reset-fails-run
+  const backend = net.createServer((socket) => socket.resetAndDestroy());
+  await new Promise<void>((resolve) =>
+    backend.listen(0, '127.0.0.1', () => resolve())
+  );
+  const { port } = backend.address() as net.AddressInfo;
+  const balancer = startLoadBalancer({
+    port: 0,
+    backends: [{ id: 'stopping', origin: `http://127.0.0.1:${port}` }],
+  });
+  try {
+    const response = await fetch(`${balancer.origin}/api/mutations`, {
+      method: 'POST',
+      body: '{}',
+    });
+    expect(response.status).toBe(502);
+    expect(response.headers.get('x-lb-backend')).toBe('stopping');
+  } finally {
+    await balancer.stop();
+    backend.close();
   }
 });

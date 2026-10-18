@@ -14,6 +14,7 @@ import {
   parseEnvFile,
 } from '@libs/infra-shared/env-file';
 import { ENV_FILES } from '@libs/infra-shared/envs';
+import { GLOBAL } from '@libs/infra-shared/global';
 import {
   ROOM_ARCHIVE_CLASS,
   ROOM_ARCHIVE_TAG,
@@ -24,6 +25,7 @@ import {
 } from '@libs/infra-shared/worker-lifecycle';
 import type { WranglerConfig } from '@libs/infra-shared/wrangler';
 import {
+  databasePlacement,
   deletedDurableObjectClasses,
   HYPERDRIVE_BINDING,
   renderWranglerConfig,
@@ -98,6 +100,28 @@ describe('wrangler.toml', () => {
       expect(secrets['EMQX_WSS_URL']).toBeUndefined();
       expect(secrets['SECRETS_ENV']).toBe(env.env);
     }
+  });
+  // regression: api-worker-far-from-its-database
+  test('the API Worker runs in the cloud region of its database', () => {
+    expect(GLOBAL.planetscale.region).toBe('us-east');
+    for (const env of Object.values(ENV_FILES)) {
+      expect(renderWranglerConfig(base, env)['placement']).toEqual({
+        region: 'aws:us-east-1',
+      });
+    }
+    expect(databasePlacement('us-west')).toEqual({ region: 'aws:us-west-2' });
+  });
+  test('a database region without a known cloud region fails the render', () => {
+    expect(() => databasePlacement('mars-north')).toThrow('mars-north');
+  });
+  test('placement is not committed beside the code config', () => {
+    expect(base['placement']).toBeUndefined();
+    expect(() =>
+      renderWranglerConfig(
+        { ...base, placement: { mode: 'smart' } },
+        ENV_FILES['dev']!
+      )
+    ).toThrow('placement');
   });
   // regression: deploy-dev-duplicate-room-namespaces
   test('renders the ordered retention and transfer steps for the pinned dev conflict', () => {

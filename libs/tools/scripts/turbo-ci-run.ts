@@ -142,6 +142,7 @@ export const MAIN_CHECK_TASKS = [
   '@apps/product#test:release-journeys',
   '@apps/auth-relay#check:worker-bundle',
   '@apps/product#check:worker-bundle',
+  '@apps/product#check:rendered-worker',
   '@libs/runtime-server#check:schema-evolution',
   '@libs/tools#check:actionlint',
   '@libs/tools#check:secrets',

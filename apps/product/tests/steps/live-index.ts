@@ -4,6 +4,7 @@ import './api.steps';
 import './billing.steps';
 import './client-config.steps';
 import './connect-four.steps';
+import './database-trips.steps';
 import './finding-a-person.steps';
 import './google-oauth.steps';
 import './infrastructure.steps';

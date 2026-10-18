@@ -17,12 +17,20 @@ import {
 
 import { runLocalMigrate } from '../../server/scripts/run-local-postgres-migrate';
 import { runLocalSeed } from '../../server/scripts/run-local-postgres-seed';
+import type { DatabaseLink } from './database-link';
+import { startDatabaseLink } from './database-link';
 import { reservePort } from './free-port';
+import { PRODUCTION_DATABASE } from './production-database';
 import type { StackOptions } from './stack-options';
 import { startObservabilityStack } from './start-observability-stack';
 
 export type InfraHandles = {
   readonly databaseUrl: string;
+  /**
+   * The production-shaped link the API nodes use instead of `databaseUrl`;
+   * null when the stack reaches Postgres directly.
+   */
+  readonly databaseLink: DatabaseLink | null;
   readonly s3Endpoint: string | null;
   readonly mqttWssUrl: string | null;
   readonly mqttUrl: string | null;
@@ -151,7 +159,19 @@ export async function bootInfra(args: {
   let observability: Awaited<
     ReturnType<typeof startObservabilityStack>
   > | null = null;
+  let databaseLink: DatabaseLink | null = null;
   try {
+    databaseLink = args.options.productionDatabase
+      ? await startDatabaseLink({
+          upstreamUrl: postgres.url,
+          ...PRODUCTION_DATABASE,
+          // STACK_DATABASE_PROFILE=1: keep every statement of each request,
+          // so the costliest can be read in full (`profileOf`).
+          ...(process.env['STACK_DATABASE_PROFILE'] === '1'
+            ? { statementSample: 1000 }
+            : {}),
+        })
+      : null;
     openai = await startOpenAi({ port: await freshPort() });
     s3 = args.options.withS3
       ? await startS3({ port: await freshPort() })
@@ -172,6 +192,7 @@ export async function bootInfra(args: {
         : null;
   } catch (error) {
     await Promise.allSettled([
+      databaseLink?.stop(),
       mqtt?.stop(),
       s3?.stop(),
       openai?.close(),
@@ -182,6 +203,7 @@ export async function bootInfra(args: {
 
   return {
     databaseUrl: postgres.url,
+    databaseLink,
     s3Endpoint: s3?.endpoint ?? null,
     mqttWssUrl: mqtt?.wssUrl ?? null,
     mqttUrl: mqtt?.mqttUrl ?? null,
@@ -201,6 +223,7 @@ export async function bootInfra(args: {
       await mqtt?.stop();
       await s3?.stop();
       await openai?.close();
+      await databaseLink?.stop();
       await postgres.stop();
     },
   };

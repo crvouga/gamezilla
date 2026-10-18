@@ -14,6 +14,7 @@ export const DEVELOPMENT_PLAN: ServiceContext['plan'] = {
     frozenWeb: false,
     testHooks: false,
     keepData: true,
+    productionDatabase: false,
     idpStateMode: 'memory',
     idpStatePath: null,
   },
