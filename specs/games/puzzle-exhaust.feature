@@ -1,8 +1,8 @@
-@domain:chess
+@domain:games
 Feature: An exhausted feed
-  When a solver has played every puzzle in the pool, or chosen feed
-  settings no puzzle fits, they want to know what the feed can still serve,
-  so it never silently runs dry.
+  When a solver has played every puzzle of the game in the pool, or chosen
+  feed settings no puzzle fits, they want to know what the feed can still
+  serve, so it never silently runs dry.
 
   Background:
     Given the puzzle pool holds just three puzzles
@@ -26,13 +26,13 @@ Feature: An exhausted feed
   Rule: A feed choice no puzzle fits empties the feed, and including played puzzles brings puzzles back
 
     Scenario: A theme filter no puzzle fits empties the feed
-      When Alice limits the feed to the "zugzwang" theme
+      When Alice limits the feed to a theme of the game that no puzzle in the pool has
       Then Alice is told the feed is empty within 15 seconds
       And Alice has no puzzle on the board
 
     Scenario: Including played puzzles recovers from an empty feed
-      Given Alice has already played the pool's one "zugzwang" puzzle
-      And Alice has limited the feed to the "zugzwang" theme and it is empty
+      Given Alice has already played the pool's one puzzle with a theme of the game's known puzzle
+      And Alice has limited the feed to that theme and it is empty
       When Alice includes puzzles they have already played
       Then Alice's feed history shows "Any"
       And Alice has a puzzle on the board

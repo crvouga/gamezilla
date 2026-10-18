@@ -1,4 +1,6 @@
-// One account's saved puzzle feed choices on two devices.
+// One account's saved puzzle feed choices for the game on two devices. It
+// holds for every game that offers puzzles, and runs once for each of them;
+// each game's feed settings are its own.
 // Editing previews a choice; only saving replaces the saved choice.
 // Closing an edit discards its preview. A saved choice survives reopening.
 // Offline saving changes that device at once. The other device sees the
@@ -11,7 +13,7 @@ module puzzle_feed {
   pure val SECOND_DEVICE = "charlie"
   pure val DEVICES = Set(SOLVER, SECOND_DEVICE)
   pure val CHOICES = Set("own rating", "harder", "chosen rating", "any history",
-    "played", "failed", "mate in two", "after one second", "immediately")
+    "played", "failed", "chosen theme", "after one second", "immediately")
 
   /// The saved feed choice each device shows.
   var feedChoice: Device -> str

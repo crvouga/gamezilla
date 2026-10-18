@@ -1,4 +1,5 @@
-# A solver who moves on quickly has the next puzzle ready to solve.
+# A solver who moves on quickly has the next puzzle ready to solve, in every
+# game that offers puzzles.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
@@ -6,8 +7,9 @@ metadata:
   displayName: Time until the next puzzle is on the board
 spec:
   description: >-
-    The time from a solver moving on from a puzzle that is over until the
-    next puzzle is on their board and they are asked to find the next move.
+    The time from a solver moving on from a puzzle of the game that is over
+    until the next puzzle is on their board and they are asked to find the
+    next move, in every game that offers puzzles.
   thresholdMetric:
     metricSource:
       type: product
@@ -23,9 +25,10 @@ metadata:
   displayName: The next puzzle is ready quickly
 spec:
   description: >-
-    At least 99 in every 100 times a solver moves on, the next puzzle is on
-    their board within one second, judged over four weeks.
-  service: chess
+    At least 99 in every 100 times a solver moves on, in any game that offers
+    puzzles, the next puzzle is on their board within one second, judged over
+    four weeks.
+  service: games
   indicatorRef: next-puzzle-ready-time
   timeWindow:
     - duration: 28d

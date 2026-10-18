@@ -1,8 +1,8 @@
-@domain:chess
+@domain:games
 Feature: Puzzle stats and game log
-  When a solver has played puzzles, they want every puzzle they played listed
-  with how it went, so they can look back at what each puzzle did to their
-  rating.
+  When a solver has played puzzles of the game, they want every puzzle they
+  played listed with how it went, so they can look back at what each puzzle
+  did to their puzzle rating.
 
   Background:
     Given Alice is signed in

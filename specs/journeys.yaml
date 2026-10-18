@@ -328,8 +328,8 @@ journeys:
     endsIn:
     - 'Puzzles: Solving'
     gherkin:
-    - specs/chess/puzzle-feed.feature
-    - specs/chess/puzzle-feed-sticks.feature
+    - specs/games/puzzle-feed.feature
+    - specs/games/puzzle-feed-sticks.feature
     tour: true
   A shared puzzle opens in practice without another rated start:
     description: An already played linked puzzle opens for practice and reaches that puzzle’s board.
@@ -363,7 +363,7 @@ journeys:
     endsIn:
     - 'Puzzle History: Puzzle results'
     gherkin:
-    - specs/chess/puzzle-stats.feature
+    - specs/games/puzzle-stats.feature
     - specs/games/puzzle-review.feature
     tour: true
   Plus unlocks another hosted space:

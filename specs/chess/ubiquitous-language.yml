@@ -309,7 +309,6 @@ terms:
       attempted longest ago, unrated.
     forms: [feed, feed's]
     avoid: [queue, playlist]
-    model: [feedChoice]
 
   - term: feed settings
     definition: >-
@@ -319,7 +318,6 @@ terms:
       their other devices. Editing previews choices; saving applies them.
       Closing without saving keeps the saved choices.
     forms: [feed choices, unsaved feed settings]
-    model: [feedChoice, editing, startEditingFeed, previewFeedChoice, saveFeedChoices, discardFeedChoices]
 
   - term: history filter
     definition: >-

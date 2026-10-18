@@ -551,7 +551,8 @@ terms:
   - term: settle
     definition: >-
       What a rating does once enough rated matched games have been played at
-      its speed: it then loses its "?".
+      its speed, and a puzzle rating once enough rated attempts have been
+      played: it then loses its "?".
     forms: [settles, settled, settling]
 
   - term: side balance
@@ -757,11 +758,14 @@ terms:
   - term: known puzzle
     definition: >-
       A puzzle written by hand for a game that offers puzzles, so its every
-      move is known in advance: the side the solver plays, the line and its
-      solution, how the game writes each move, a wrong move, and a move the
-      game's rules do not allow. "The game's known puzzle" in a scenario is
-      that game's one whose line is four moves long: the setup move, the
-      solver's move, the opponent's reply and the solver's last move.
+      move is known in advance: its own rating, its themes and its
+      popularity, the side the solver plays, the line and its solution, how
+      the game writes each move, a wrong move, and a move the game's rules do
+      not allow. "The game's known puzzle" in a scenario is that game's one
+      whose line is four moves long: the setup move, the solver's move, the
+      opponent's reply and the solver's last move. A scenario's puzzle pool
+      holds the game's known puzzles, or puzzles made from them with the
+      ratings and popularity the scenario states.
     forms: [known puzzles, the game's known puzzle]
 
   - term: play puzzles
@@ -798,10 +802,74 @@ terms:
     definition: >-
       The endless run of puzzles of the game a solver plays in their space:
       finish one and the next is ready at once, never the one just played.
-      Once every puzzle is played it comes round to the one played longest
-      ago, unrated.
+      It serves unplayed puzzles in the rating window first, then the
+      unplayed puzzle nearest the feed target, and never a low-quality
+      puzzle; a puzzle played on one of the solver's devices is not served
+      on another. Once every puzzle is played it comes round to the one
+      played longest ago, unrated.
     forms: [feed, feed's, come round]
     avoid: [queue, playlist]
+
+  - term: feed settings
+    definition: >-
+      A solver's choices for their puzzle feed of the game: the history
+      filter, a puzzle theme, the feed target and auto-advance. Each game's
+      feed settings are its own. Only a person with an account can change
+      them; saved choices stick after the app closes and follow the person
+      to their other devices. Editing previews choices; saving applies
+      them. Closing without saving keeps the saved choices.
+    forms: [feed choices, unsaved feed settings, saved feed]
+    model: [feedChoice, editing, startEditingFeed, previewFeedChoice, saveFeedChoices, discardFeedChoices]
+
+  - term: history filter
+    definition: >-
+      Which puzzles the feed may serve by whether the solver has played them:
+      "Unseen" (the default), "Any", "Seen" for played puzzles, or "Failed"
+      for puzzles whose first attempt failed. "Failed" puzzles come back
+      unrated; with no failed attempt the feed is empty and the solver is
+      told why.
+    forms: [feed history]
+
+  - term: feed target
+    definition: >-
+      The rating the puzzle feed serves puzzles near. It is automatic (the
+      puzzle rating after the last result, plus the rating offset) or custom
+      (a fixed rating from 400 to 3000, in steps of 50). These bounds are
+      the same in every game that offers puzzles.
+    forms:
+      - target
+      - feed targets
+      - automatic target
+      - custom target
+      - custom feed target
+    avoid: [difficulty]
+
+  - term: rating offset
+    definition: >-
+      How far above or below the puzzle rating an automatic feed target
+      sits, in steps of 50, from −400 to +400, in every game that offers
+      puzzles.
+    forms: [feed rating offset]
+
+  - term: rating window
+    definition: >-
+      The ratings around the feed target the feed serves unplayed puzzles
+      from: within 100 of the feed target once the puzzle rating has
+      settled, within 200 while it is provisional. With no unplayed puzzle
+      in it, the unplayed puzzle nearest the feed target comes next.
+    avoid: [band]
+
+  - term: popularity
+    definition: >-
+      How much the people who played a puzzle liked it. A puzzle needs a
+      popularity of at least 50 to be served.
+
+  - term: low-quality puzzle
+    definition: >-
+      A puzzle below the quality bar: a popularity below 50, or played fewer
+      than 5 times. The puzzle feed never serves one; a puzzle with a
+      popularity of exactly 50 that was played exactly 5 times is served.
+    forms: [quality bar, low-quality]
 
   - term: puzzle's own rating
     definition: >-
@@ -814,8 +882,9 @@ terms:
     definition: >-
       A kind of puzzle, as its game names it. A puzzle has one or more
       themes; they are hidden while it is being solved and show once it is
-      over.
-    forms: [theme, themes, puzzle's themes]
+      over. Limiting the feed to a theme serves only puzzles with it, sticks
+      like other feed choices, and empties the feed when no puzzle fits.
+    forms: [theme, themes, puzzle's themes, theme filter]
 
   - term: solver
     definition: >-
@@ -890,7 +959,8 @@ terms:
       Help while solving: the first highlights where the solution move
       starts, the second shows the solution move. Help cannot skip the
       first stage, repeat it, or be asked for after a wrong move before a
-      retry, or once the puzzle is over.
+      retry, or once the puzzle is over. A puzzle solved after a hint earns
+      half credit.
     forms: [hints, asks for a hint, asks for another hint, taken a hint, taken two hints]
     model: [requestHint, help, tryHintAfterFinish, tryHintFromReview, tryHintBeforeRetry, tryEarlierHint]
 
@@ -981,8 +1051,12 @@ terms:
   - term: puzzle rating
     definition: >-
       A solver's running rating at the game's puzzles, moved by every rated
-      attempt, online or offline. A new solver starts at 1500. Time taken
-      never changes it.
+      attempt, online or offline; each game's puzzle rating is its own, and
+      every device shows the same one. A new solver starts at 1500,
+      provisional. Solving a puzzle whose own rating is above the solver's
+      gains more than solving an easier one; failing an easier puzzle costs
+      more than failing a harder one. It stays between the rating floor and
+      the rating ceiling. Time taken never changes it.
     forms: [puzzle ratings]
     avoid: [score, elo]
 
@@ -1004,9 +1078,32 @@ terms:
 
   - term: puzzle stats
     definition: >-
-      A solver's puzzle rating, puzzles played and solved, and accuracy at
-      the game's puzzles. They count each puzzle's rated attempt only.
+      A solver's puzzle rating, puzzles played and solved, accuracy, and how
+      the puzzle rating moved over time, at the game's puzzles. They count
+      each puzzle's rated attempt only.
     forms: [stats]
+
+  - term: rating floor
+    definition: >-
+      400, the lowest a puzzle rating goes, in every game that offers
+      puzzles. Failing at the rating floor leaves the puzzle rating at 400.
+
+  - term: rating ceiling
+    definition: >-
+      3000, the highest a puzzle rating goes, in every game that offers
+      puzzles. Solving at the rating ceiling leaves the puzzle rating at
+      3000.
+
+  - term: provisional
+    definition: >-
+      A rating or puzzle rating that has not yet settled, shown with a
+      trailing "?" (for example "1500?"). A provisional puzzle rating moves
+      further for each puzzle than a settled one does.
+
+  - term: half credit
+    definition: >-
+      What a solve after a hint earns toward the puzzle rating: the same
+      rating change as a wrong move, and less than a clean solve.
 
   - term: accuracy
     definition: The share of rated attempts solved, as a whole percentage.

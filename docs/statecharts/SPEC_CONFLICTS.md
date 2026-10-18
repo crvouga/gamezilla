@@ -12,7 +12,7 @@ The charts preserve the current specifications and identify unresolved distincti
 
 ## Feed customization
 
-[The feed access feature](../../specs/chess/puzzle-feed-gates.feature) requires an account. The `customize` branch in [the whole-product interpretation](../../specs/system/product-state.qnt) also requires paid access. The feed chart presents the feature’s account invitation and identifies this disagreement. It does not resolve the discrepancy by changing a permission rule.
+[The feed access feature](../../specs/games/puzzle-feed-gates.feature) requires an account. The `customize` branch in [the whole-product interpretation](../../specs/system/product-state.qnt) also requires paid access. The feed chart presents the feature’s account invitation and identifies this disagreement. It does not resolve the discrepancy by changing a permission rule.
 
 ## A declined friend request
 

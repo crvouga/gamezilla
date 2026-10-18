@@ -1,8 +1,8 @@
-@domain:chess
+@domain:games
 Feature: Customizing the feed is for people with an account
-  When a guest reaches for the feed settings, they want an invitation to sign
-  in rather than an error, so customizing the feed is something an account
-  unlocks. Until then a guest plays the feed as it comes.
+  When a guest reaches for the feed settings of the game's puzzles, they want
+  an invitation to sign in rather than an error, so customizing the feed is
+  something an account unlocks. Until then a guest plays the feed as it comes.
 
   Rule: A guest can play puzzles but needs an account to customize the feed
 

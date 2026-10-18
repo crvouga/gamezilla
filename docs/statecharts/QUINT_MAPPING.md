@@ -35,7 +35,7 @@ or policy without an owner fails compilation.
 | [specs/games/matched-game.qnt](../../specs/games/matched-game.qnt) | multiplayer |
 | [specs/games/puzzle-attempt.qnt](../../specs/games/puzzle-attempt.qnt) | puzzles |
 | [specs/chess/puzzle-assistant.qnt](../../specs/chess/puzzle-assistant.qnt) | puzzles |
-| [specs/chess/puzzle-feed.qnt](../../specs/chess/puzzle-feed.qnt) | puzzle-feed |
+| [specs/games/puzzle-feed.qnt](../../specs/games/puzzle-feed.qnt) | puzzle-feed |
 | [specs/chess/puzzle-link.qnt](../../specs/chess/puzzle-link.qnt) | puzzle-links |
 | [specs/chess/puzzle-loading.qnt](../../specs/chess/puzzle-loading.qnt) | puzzle-ingest |
 | [specs/chess/puzzle-result-recovery.qnt](../../specs/chess/puzzle-result-recovery.qnt) | puzzles |
@@ -107,7 +107,7 @@ These contracts constrain the capabilities and appear in their business catalog.
 | [specs/games/matched-game-watch-access.dmn](../../specs/games/matched-game-watch-access.dmn) | multiplayer |
 | [specs/chess/puzzle-management-access.dmn](../../specs/chess/puzzle-management-access.dmn) | puzzle-ingest |
 | [specs/chess/puzzle-progress.als](../../specs/chess/puzzle-progress.als) | puzzles |
-| [specs/chess/puzzle-ready.openslo.yaml](../../specs/chess/puzzle-ready.openslo.yaml) | puzzles |
+| [specs/games/puzzle-ready.openslo.yaml](../../specs/games/puzzle-ready.openslo.yaml) | puzzles |
 | [specs/games/unfinished-game-limit.dmn](../../specs/games/unfinished-game-limit.dmn) | multiplayer |
 | [specs/conformance.yaml](../../specs/conformance.yaml) | product |
 | [specs/friends/friendships.als](../../specs/friends/friendships.als) | friends |
