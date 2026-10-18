@@ -1,4 +1,4 @@
 {
   "summary": "Two starts of the same puzzle at the same clock time shared the attempt key. The persisted start command identity now identifies the attempt, survives retries and differs for a fresh start. Both literal starts at 1700000000000 are pinned.",
-  "regressionTest": "libs/chess-puzzle-shared/tests/attempt-identity.test.ts"
+  "regressionTest": "libs/chess-puzzle-harness/tests/attempt-identity.test.ts"
 }

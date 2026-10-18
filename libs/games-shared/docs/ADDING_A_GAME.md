@@ -72,6 +72,12 @@ export const raceGameShared = defineTurnGame({
     // Finding an opponent needs history beside it: every finished matched
     // game offers its game record.
     // matchmaking: { clockNamespace: 'race/', notice: raceNoticeText },
+    // Puzzles need nothing else: the catalogue's namespace, whether a stored
+    // record is one of the game's puzzles, the cells an action names and
+    // the board's cells (optionally its canonical spelling of an action and
+    // when two positions are the same).
+    // puzzles: { namespace: 'race/', content: { validate: validateRacePuzzle },
+    //   marks: (position, action) => ({ from: null, to: action }), isCell },
   },
   automation: {
     choose: (position, random) => chooseStep(position, 'easy', random),
@@ -122,6 +128,9 @@ export const RACE_PLAYABLE: PlayableGame = {
     // Four's full board): a line the rules draw on its last move. Without
     // it the rules laws check that the game is never drawn by its rules.
     // drawByRules: [...],
+    // Only for a game offering puzzles: a known puzzle of its own and a
+    // solver move off its line (the shared puzzle suite needs it).
+    // puzzle: { record: { id: 'race/1', position, line, rating, … }, wrongAction },
   },
 };
 
@@ -178,7 +187,8 @@ A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
 | A screen key that is not a slug, is declared twice or belongs to the platform | `defineGameClient` |
 | A client missing, extra or out of order | `assertMatchingGameIds`, naming the entry to fix |
 | A game missing from `HARNESS_GAMES` (or there but not registered) | the conformance plan (`game-conformance-matrix.test.ts`) |
-| Fixtures the game's rules contradict, ids that differ between the definitions | `assertHarnessGame` |
+| Fixtures the game's rules contradict, ids that differ between the definitions, a game offering puzzles without a known puzzle (or naming one without offering them) | `assertHarnessGame` |
+| A puzzle the game refuses, a line that does not solve it, a legal move judged illegal, marks that name no cell | `tests/conformance/puzzles` |
 | Rules that break a shared law (replay, isolation, legality, automation, bots) | `tests/conformance/rules`, `…/custom-games` |
 | Endings or side names the shared screens cannot show | `tests/conformance/rules/presentation` |
 | A game record with the wrong people, result, clock or moves | `tests/conformance/history/game-record` |

@@ -1,5 +1,6 @@
 import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared/durable-names';
 import { matchRoomModule } from '@libs/game-matchmaking-shared/match-room';
+import { PUZZLE_SESSIONS } from '@libs/game-puzzle-shared/puzzle-sessions';
 import type {
   GameDefinition,
   GameOwnRoom,
@@ -52,7 +53,7 @@ class DefinedTurnGame implements GameDefinition {
   readonly id: string;
   readonly turnGame: RegisteredTurnGame;
   readonly automation: GameAutomation<Driver>;
-  readonly sharedModules: readonly SharedGameModule[] = [TURN_GAME_SESSIONS];
+  readonly sharedModules: readonly SharedGameModule[];
   readonly commandRouters: GameOwnRoom['commandRouters'];
   readonly eventRouters: GameOwnRoom['eventRouters'];
   declare readonly initialState?: () => RoomState;
@@ -62,6 +63,11 @@ class DefinedTurnGame implements GameDefinition {
     this.id = game.rules.id;
     this.turnGame = turnGame;
     this.automation = { rules: game.rules, ...game.automation };
+    // Puzzles are offered through the one puzzle session every space installs.
+    this.sharedModules =
+      game.capabilities.puzzles === undefined
+        ? [TURN_GAME_SESSIONS]
+        : [TURN_GAME_SESSIONS, PUZZLE_SESSIONS];
     this.commandRouters = game.own?.commandRouters ?? [];
     this.eventRouters = game.own?.eventRouters ?? [];
     if (game.own?.initialState !== undefined)

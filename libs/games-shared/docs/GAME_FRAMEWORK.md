@@ -37,7 +37,7 @@ composition roots (registries, runtime, apps)
 | `@libs/game-session-shared` | `defineTurnGame`, custom games (sides, people, bots, readiness, clocks, resignation, draws, rematches, offline solo play) and the shared session module installed once per space. |
 | `@libs/game-session-client` / `-server` | The custom-game, history and review screens; the matched-game notice, reminder and availability consumers. |
 | `@libs/game-matchmaking-shared` / `-client` | Opponent searches, matched games, ratings per speed, rematches, the multiplayer screen and link. |
-| `@libs/game-puzzle-shared` | Puzzles over any game's rules: the space's puzzle session (its room state and messages), puzzle ratings, completion, statistics, the feed and its settings, choosing the next puzzle, the puzzle tables, queries and mutations, and the puzzle link. |
+| `@libs/game-puzzle-shared` | Puzzles over any game's rules: setting a puzzle up, replaying and judging its line (`puzzle-setup`, `puzzle-judge`), the space's puzzle session (`PUZZLE_SESSIONS`: its room state, messages, router and handlers), puzzle ratings, completion, statistics, the feed and its settings, choosing the next puzzle, the puzzle tables, queries and mutations, and the puzzle link. |
 | `@libs/game-menu-client` | `defineGameClient` and the one `GameMenu` every game is offered through. |
 | `@libs/game-session-harness` | The conformance contract a game's harness supplies (`PlayableGame` without screens, `HarnessGame` with them, `GameFixtures`), `gameSystem` (a world of any games), shared drivers, and the rules laws (`game-rules-laws`). |
 | `@libs/game-matchmaking-harness` | Opponent seeking and the one matched-game scenario world. |
@@ -421,6 +421,48 @@ It does not merge by id, because no game can be in both:
   `finding-an-opponent.feature`,
   `game-matchmaking-harness/tests/opponent-search-cleanup`.
 
+### `puzzles`: setup, judge and the puzzle session
+
+- **Callers.** The space's puzzle session (`PUZZLE_SESSIONS`, installed
+  once by `gameModules` for the games declaring `capabilities.puzzles`,
+  `defineTurnGame` adding it to the game's shared modules), and chess's
+  review board and opponent staging until the platform's puzzle screens
+  replace them. The session finds a puzzle's game by its position
+  (`TurnGames.forPosition`): a position no game recognises starts an
+  `invalid` puzzle; one whose game offers no puzzles is refused.
+- **Inputs.** A puzzle's position and line come from the catalogue the
+  game's `content.validate` admitted; a solver's action is shape-checked
+  only (no whitespace, at most 64 characters), and `rules.play` alone
+  decides whether it is a move. A suggestion's two cells must satisfy
+  `isCell`.
+- **Compute only.** `setupPuzzle` plays `line[0]`; the solver is the side
+  whose turn it gives (`PlayedPosition.turn`). `judgePuzzleAction`: a
+  move `play` refuses is illegal; one whose result is the solver's win
+  solves the puzzle; one equal to the line's move after
+  `judge.canonical` follows the line; the solver's following line move
+  played one turn early transposes when `judge.samePosition` (string
+  equality by default) says both orders meet; anything else is wrong.
+  Each action is played from the puzzle's position with no earlier
+  history. A hint and a wrong move show `marks`; a move's spoken and
+  listed label is `PlayedPosition.label`. The room commits the verdict's
+  events; a game function never writes.
+- **Durable names.** The session's room attributes (`chess.puzzle.play/*`,
+  `chess.puzzle.result/*`), its message namespaces
+  (`chess-puzzle-play-cmd`, `chess-puzzle-play-evt`) and payload keys
+  (`fen`, `moves`, `displayFen`, `uci`, `san`, `wrongToSquare`,
+  `fromSquare`, `toSquare`, `orientation`), the `chess_puzzle*` tables in
+  domain `GAME_PLATFORM_NAMESPACE`, the query and mutation names, the
+  catalogue topic `system:chess_puzzles` and the route
+  `/chess/puzzle/:puzzleId` are unchanged.
+- **Proof.** `conformance/puzzles/puzzle-laws` (each offering game's known
+  puzzle: its own namespace and content, the setup's solver, the line
+  solving it, every legal move judged, its wrong move wrong, marks naming
+  cells), `game-puzzle-shared/tests/puzzle-judge` (a game the platform
+  knows nothing about), chess's `move-judge` and `mate-objective` tests,
+  `chess-puzzle-harness/tests/chess-puzzle-play` and
+  `puzzle-session-compatibility` (a chess puzzle room recorded before the
+  capability replays to the same events, refusals and state).
+
 ### Not yet proven by a test
 
 These hold by construction today, but no test pins them yet:
@@ -518,7 +560,7 @@ The matrix today:
 
 | game | rules | custom-games | matchmaking | history | puzzles |
 | --- | --- | --- | --- | --- | --- |
-| chess | bound | bound | bound | bound | — |
+| chess | bound | bound | bound | bound | bound |
 | Connect Four | bound | bound | bound | bound | — |
 | counting race (reference, test-only) | bound | bound | — | bound | — |
 
@@ -557,11 +599,12 @@ Beyond that class:
 - **Hidden information** (Battleship). Room state is shared with everyone in
   the space, so the shared sessions cannot keep a side's private state; it
   needs a per-viewer projection of the position before it can be offered.
-- **Single-player, puzzle-first** (Numberlink). Puzzles are chess's own
-  screens, not a framework capability. Registering a game without turn
-  rules means widening `GAME_DEFINITIONS` from `TurnGameDefinition` to
-  `GameDefinition` (the space room already composes such definitions) and a
-  client without a turn-game presentation.
+- **Single-player, puzzle-first** (Numberlink). Puzzles are a capability
+  of a two-sided turn game: a position, the opponent's setup move and the
+  solver's line against its replies. A puzzle without an opponent, or a
+  game without turn rules, means widening `GAME_DEFINITIONS` from
+  `TurnGameDefinition` to `GameDefinition` (the space room already composes
+  such definitions) and a client without a turn-game presentation.
 
 ## Known limits
 

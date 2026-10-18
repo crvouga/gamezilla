@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { createChessModule } from '@libs/chess-puzzle-shared/chess-module';
+import { createChessModule } from '@libs/chess-puzzle-harness/chess-module';
 import { projectBoardFen } from '@libs/chess-puzzle-shared/solve-projection';
 import {
   PUZZLE_PLAY_STATUS,

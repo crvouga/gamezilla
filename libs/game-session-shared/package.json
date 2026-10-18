@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@libs/game-matchmaking-shared": "workspace:*",
+    "@libs/game-puzzle-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
     "@libs/sub-shared": "workspace:*",

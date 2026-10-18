@@ -1,4 +1,5 @@
-import { chessPuzzleRoom } from '@libs/chess-puzzle-shared/chess-game';
+import { chessScreensRoom } from '@libs/chess-puzzle-shared/chess-game';
+import { chessPuzzles } from '@libs/chess-puzzle-shared/chess-puzzles';
 import { chessNoticeText } from '@libs/chess-rules-shared/chess-notice-text';
 import {
   chessBots,
@@ -10,9 +11,9 @@ import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
 import { chessAutomation } from './chess-automation';
 
 /**
- * Chess offers every shared capability, and its puzzles as its own screens.
- * Its clock namespace is the unprefixed one, the established identity of
- * every stored chess search, rating and game.
+ * Chess offers every shared capability, puzzles included. Its clock and
+ * puzzle namespaces are the unprefixed one, the established identity of
+ * every stored chess search, rating, game and puzzle.
  */
 export const chessGameShared = defineTurnGame({
   rules: chessRules,
@@ -20,9 +21,10 @@ export const chessGameShared = defineTurnGame({
     'custom-games': { bots: chessBots },
     matchmaking: { clockNamespace: '', notice: chessNoticeText },
     history: { record: chessGameRecord },
+    puzzles: chessPuzzles,
   },
   automation: chessAutomation,
-  own: chessPuzzleRoom,
+  own: chessScreensRoom,
 });
 
 export const chessTurnGame = chessGameShared.turnGame;

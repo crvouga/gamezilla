@@ -20,7 +20,6 @@ import {
   codeConformanceSuites,
   conformanceMatrix,
   formatConformanceMatrix,
-  offersAll,
   planConformance,
   SHARED_SPECIFICATION_KINDS,
   SHARED_SPECIFICATIONS,
@@ -87,14 +86,9 @@ test('an unlisted shared specification fails, whatever its kind', () => {
   );
 });
 
-test('every area a conformance game offers has a shared suite', async () => {
+test('every area the platform offers has a shared suite', async () => {
   const all = await suites();
-  // An area no game offers yet binds nothing; a suite for it would register
-  // no case, which the plan refuses.
-  const offered = CONFORMANCE_AREAS.filter((area) =>
-    CONFORMANCE_GAMES.some((game) => offersAll(game, [area]))
-  );
-  for (const area of offered)
+  for (const area of CONFORMANCE_AREAS)
     expect(all.some((suite) => suite.area === area)).toBe(true);
 });
 

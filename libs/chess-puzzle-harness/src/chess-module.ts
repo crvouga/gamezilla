@@ -1,3 +1,7 @@
+import {
+  CHESS_TURN_GAMES,
+  chessGameShared,
+} from '@libs/chess-sub-shared/chess-game';
 import type { GameCommandContext } from '@libs/spaces-shared/game';
 import type { Message } from '@pkgs/message-shared/message';
 import { isMessageEnvelope } from '@pkgs/message-shared/message';
@@ -16,34 +20,36 @@ import {
 } from '@pkgs/room-root-shared/types';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 
-import { chessPuzzleRoom } from './chess-game';
-
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
 }
+
+/**
+ * Chess as its registration installs it: its own room and every shared
+ * module it declares (the custom games and the puzzle session), bound to
+ * chess's rules alone.
+ */
+const modules = [
+  chessGameShared,
+  ...chessGameShared.sharedModules.map((module) =>
+    module.bind(CHESS_TURN_GAMES)
+  ),
+];
 
 const commandRouter = createComposedMessageRouter<
   RoomState,
   GameCommandContext,
   HandleResult
->(
-  chessPuzzleRoom.commandRouters.map((entry) => ({
-    namespace: entry.namespace,
-    router: entry.router,
-  }))
-);
+>(modules.flatMap((module) => [...module.commandRouters]));
 
 const eventReducer = createComposedMessageRouter<RoomState, void, RoomState>(
-  chessPuzzleRoom.eventRouters.map((entry) => ({
-    namespace: entry.namespace,
-    router: entry.router,
-  }))
+  modules.flatMap((module) => [...module.eventRouters])
 );
 
 /**
- * Self-contained chess RoomModule built only from chess's own routers. Used
- * by chess tests so they exercise the chess FSMs without importing
- * `@libs/spaces` (which would re-introduce a chess <-> spaces cycle).
+ * Chess in a room: the room modules chess's registration installs (its own
+ * screens, the custom games and the puzzle session), without the rest of a
+ * space. Used by chess's puzzle tests and pins.
  *
  * Production traffic always goes through the composed `SpaceModule` built
  * by `createSpaceModule(name, [chessGameShared, …])` at the composition root.
@@ -55,7 +61,10 @@ export function createChessModule(
     name: assertRoomModuleName('chess'),
     recoverEffects: () => [],
     initialState(): RoomState {
-      return chessPuzzleRoom.initialState?.() ?? {};
+      return modules.reduce<RoomState>(
+        (state, module) => ({ ...state, ...(module.initialState?.() ?? {}) }),
+        {}
+      );
     },
 
     handle(state, command: RoomCommand, identity): HandleResult {

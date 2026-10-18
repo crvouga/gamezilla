@@ -32,5 +32,20 @@ export const CHESS_PLAYABLE: PlayableGame = {
       'f3g1',
       'f6g8',
     ],
+    // Lichess puzzle 01Xbe: after Kh4, g5+ Kg3 Rg2# mates in two; Ra1 is
+    // a legal rook move that neither follows the line nor mates.
+    puzzle: {
+      record: {
+        id: '01Xbe',
+        position: '8/3R3p/6pk/3p4/2p1b1P1/6KP/r7/4R3 w - - 0 41',
+        line: ['g3h4', 'g6g5', 'h4g3', 'a2g2'],
+        rating: 1190,
+        ratingDeviation: 76,
+        popularity: 100,
+        plays: 220,
+        themes: ['endgame', 'mate', 'mateIn2', 'short'],
+      },
+      wrongAction: 'a2a1',
+    },
   },
 };

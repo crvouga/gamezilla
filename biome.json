@@ -789,8 +789,7 @@
         "**/libs/game-session-shared/src/**/*.{ts,tsx}",
         "**/libs/game-matchmaking-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-shared/tests/**/*.{ts,tsx}",
-        "**/libs/game-puzzle-shared/tests/**/*.{ts,tsx}",
-        "!**/libs/chess-puzzle-shared/tests/chess-puzzle-play.test.ts"
+        "**/libs/game-puzzle-shared/tests/**/*.{ts,tsx}"
       ]
     },
     {

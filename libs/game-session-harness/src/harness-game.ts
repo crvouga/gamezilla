@@ -5,6 +5,7 @@ import { assertTurnGameDefinitions } from '@libs/game-session-shared/turn-game-d
 import type { ProductHarness } from '@libs/harness/harness';
 import type { HarnessSlice } from '@libs/harness/slices';
 import type { CatalogAction } from '@pkgs/harness-root-shared/effect';
+import type { PuzzleRecord } from '@pkgs/turn-game-shared/game-puzzles';
 import type { GameSide } from '@pkgs/turn-game-shared/game-rules';
 import { offeredCapabilities } from '@pkgs/turn-game-shared/game-rules';
 
@@ -50,6 +51,17 @@ export type GameFixtures = {
    * own rules (`matched-game-rules-draw`) needs it.
    */
   readonly drawByRules?: readonly string[];
+  /**
+   * For a game offering puzzles, and only for one: a known puzzle of its own
+   * (its line ends with the solver's winning move, or with the solver's move
+   * the line expects) and a solver move its rules accept at the first solver
+   * move that is neither the line's nor a win. The shared puzzle suite
+   * (`conformance/puzzles`) needs it.
+   */
+  readonly puzzle?: {
+    readonly record: PuzzleRecord;
+    readonly wrongAction: string;
+  };
 };
 
 /**
@@ -121,6 +133,15 @@ export function assertHarnessGame(game: HarnessGame): HarnessGame {
     if (rules.play(rules.initial(), action, '', []) !== null)
       fail(`the refused opening ${action} is accepted`);
   assertMoveNamesAndRecord(game, fail);
+  if (
+    offeredCapabilities(game.shared.turnGame).includes('puzzles') !==
+    (game.fixtures.puzzle !== undefined)
+  )
+    fail(
+      game.fixtures.puzzle === undefined
+        ? 'a game offering puzzles names a known puzzle of its own (fixtures.puzzle)'
+        : 'only a game offering puzzles names a known puzzle'
+    );
   const cannotWin = game.fixtures.secondSideCannotWin;
   if (cannotWin !== undefined) assertCannotWinLine(game, cannotWin, fail);
   const drawn = game.fixtures.drawByRules;
