@@ -43,7 +43,7 @@ in source, tests and steps alike (the full map and the reasons are in
 | `@libs/game-puzzle-shared` (a game offering puzzles) | `puzzle-catalogue`, `sub`, `puzzle-link`, `completion`, `hint-stage`, `solve-status` |
 | `@libs/game-puzzle-client` (a game offering puzzles) | `puzzle-client`, `personal-puzzle-stats-screen` |
 | `@libs/spaces-shared` | `game` (only for a game with its own room behaviour) |
-| `@libs/game-session-harness` (its `-harness`) | `harness-game`, `game-system`, `game-navigation`, `space-game-choice`, `custom-game-ui`, `custom-game-controls`, `custom-game-lineup`, `custom-game-moves`, `custom-game-screen`, `custom-game-reads`, `custom-game-history`, `puzzle-session-probe`, `puzzle-fixtures` |
+| `@libs/game-session-harness` (its `-harness`) | `harness-game`, `known-puzzles`, `game-system`, `game-navigation`, `space-game-choice`, `custom-game-ui`, `custom-game-controls`, `custom-game-lineup`, `custom-game-moves`, `custom-game-screen`, `custom-game-reads`, `custom-game-history`, `puzzle-session-probe`, `puzzle-fixtures` |
 | `@libs/game-matchmaking-harness` (its `-harness`) | `matched-game-world`, `matched-game-app.steps`, `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record`, `multiplayer-time`, `matched-game-fixtures` |
 
 Nothing else: not the platform's screens, consumers or storage, and never
@@ -125,7 +125,15 @@ Puzzles are offered by a part on each side, and nothing else changes:
   `upsertCatalogueRows` (`@libs/game-puzzle-shared/puzzle-catalogue`),
   with ids `race/<local id>`; a puzzle the game does not recognise or
   validate is refused.
-- **Fixtures** — `fixtures.puzzle`: a known puzzle and a wrong move.
+- **Fixtures** — `fixtures.puzzles`: the game's known puzzles (below),
+  written from its own laws. Each names its stored record, the side the
+  solver plays, the solution (the line's solver moves), how the rules
+  label every line move, a wrong move (legal, neither the line's nor a
+  win) and a refused move, each at a solver move of the line (`at`); and,
+  where the game's puzzles have one, a win off the line (`wonAnotherWay`)
+  or a transposition. At least one has two solver moves. That is all a
+  game supplies: every puzzle suite, its orchestration and assertions and
+  the faulty copies that prove them are the framework's.
 
 The platform then offers Puzzle and Puzzle stats among the game's
 choices, the feed and its settings, ratings and feed settings of the
@@ -163,9 +171,16 @@ export const RACE_PLAYABLE: PlayableGame = {
     // Four's full board): a line the rules draw on its last move. Without
     // it the rules laws check that the game is never drawn by its rules.
     // drawByRules: [...],
-    // Only for a game offering puzzles: a known puzzle of its own and a
-    // solver move off its line (the shared puzzle suite needs it).
-    // puzzle: { record: { id: 'race/1', position, line, rating, … }, wrongAction },
+    // Exactly for a game offering puzzles (a type error otherwise, typed
+    // PlayableGame<typeof raceGameShared.capabilities>): its known puzzles.
+    // puzzles: [{
+    //   record: { id: 'race/leap-home', position: 'race:4b', line: ['advance', 'leap'], rating, … },
+    //   solverSide: 'white',
+    //   solution: ['leap'],
+    //   labels: ['step 5', 'leap to 7'],
+    //   wrongMove: { at: 1, action: 'advance' },
+    //   refusedMove: { at: 1, action: 'retreat' },
+    // }, …],
   },
 };
 
@@ -224,8 +239,8 @@ A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
 | A screen key that is not a slug, is declared twice or belongs to the platform (`puzzle`, `stats`, `stats-review`, `custom-game`, `multiplayer`, `history`, `settings`, `choices`) | `defineGameClient` |
 | A client missing, extra or out of order | `assertMatchingGameIds`, naming the entry to fix |
 | A game missing from `HARNESS_GAMES` (or there but not registered) | the conformance plan (`game-conformance-matrix.test.ts`) |
-| Fixtures the game's rules contradict, ids that differ between the definitions, a game offering puzzles without a known puzzle (or naming one without offering them) | `assertHarnessGame` |
-| A puzzle the game refuses, a line that does not solve it, a legal move judged illegal, marks that name no cell | `tests/conformance/puzzles` |
+| Fixtures the game's rules contradict (a known puzzle's line, labels, solver, wrong or refused move included), ids that differ between the definitions, a game offering puzzles without known puzzles (or naming them without offering them), none of two solver moves, a known puzzle outside its namespace | type checking (`GameFixtures`), and `assertHarnessGame` |
+| A puzzle its validation refuses or another game's it accepts, a line its judge does not follow to the solve, a wrong move judged otherwise, a legal move judged illegal, marks that name no cell, a board its automation cannot play the solution on | `tests/conformance/puzzles` |
 | Rules that break a shared law (replay, isolation, legality, automation, bots) | `tests/conformance/rules`, `…/custom-games` |
 | Endings or side names the shared screens cannot show | `tests/conformance/rules/presentation` |
 | A game record with the wrong people, result, clock or moves | `tests/conformance/history/game-record` |

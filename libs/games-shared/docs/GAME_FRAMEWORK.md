@@ -40,7 +40,7 @@ composition roots (registries, runtime, apps)
 | `@libs/game-puzzle-shared` | Puzzles over any game's rules: setting a puzzle up, replaying, staging and judging its line (`puzzle-setup`, `opponent-stage`, `solve-projection`, `move-history`, `puzzle-judge`), the space's puzzle session (`PUZZLE_SESSIONS`: its room state, messages, router and handlers, and the puzzle the space reviews), puzzle ratings, completion, statistics, the feed and its settings, choosing the next puzzle, the catalogue and its namespaces (`puzzle-catalogue`, `puzzle-namespace`), the puzzle sub (`GAME_PUZZLE_SUB`: its tables, queries, mutations and erasure) and its server half, and the puzzle link. |
 | `@libs/game-puzzle-client` | The client part a game supplies (`GamePuzzlesClient`) and every puzzle screen: play, stats and review, the feed and its settings, the attempt's solver, controls, recorder and result reconciliation, the move list, the puzzle frame (`PuzzleFrame`, `PuzzleSessionEffects`), the puzzle link and the personal stats screen. |
 | `@libs/game-menu-client` | `defineGameClient` and the one `GameMenu` every game is offered through. |
-| `@libs/game-session-harness` | The conformance contract a game's harness supplies (`PlayableGame` without screens, `HarnessGame` with them, `GameFixtures`), `gameSystem` (a world of any games, with the puzzle sub when a game offers puzzles), shared drivers (the puzzle session's commands and reads among them), and the rules laws (`game-rules-laws`). |
+| `@libs/game-session-harness` | The conformance contract a game's harness supplies (`PlayableGame` without screens, `HarnessGame` with them, `GameFixtures` and, for a game offering puzzles, its known puzzles: `known-puzzles`), `gameSystem` (a world of any games, with the puzzle sub when a game offers puzzles), shared drivers (the puzzle session's commands and reads among them), and the laws (`game-rules-laws`, `game-capability-laws`, `game-puzzle-laws`). |
 | `@libs/game-matchmaking-harness` | Opponent seeking and the one matched-game scenario world. |
 | `@libs/games-harness` | `HARNESS_GAMES`, the conformance matrix, every shared suite and the steps of `specs/games/`. |
 
@@ -95,6 +95,7 @@ It is never a new entry for an internal module.
 | `@libs/game-menu-client` | `game-client` | `defineGameClient`, `GameClient` (its `shared` registration and, for a game offering puzzles, its `puzzles` part), `GameClientPresentation`, the game's own screens and choices |
 | `@libs/spaces-shared` | `game` | `GameOwnRoom`, `GameCommandContext`: a game's own room behaviour, and `mergeGameRouterEntries` (one router per namespace, as the space composes a shared module and a game's own room) for a game's room tests |
 | `@libs/game-session-harness` | `harness-game` | `PlayableGame`, `HarnessGame`, `GameFixtures`, `ReadGameRecord`, `assertHarnessGame`: the conformance adapter |
+| | `known-puzzles` | `PuzzleFixture`, `PuzzleFixtureMove`, `KnownPuzzles`: the known puzzles of a game offering puzzles |
 | | `game-system` | `gameSystem`, `openGameHarness`: a world of any games |
 | | `game-navigation`, `space-game-choice` | Choosing a game in a space and moving between its screens |
 | | `custom-game-ui`, `custom-game-controls`, `custom-game-lineup` | Making Custom Game choices as a person does (`CustomGameAction`): one choice, the screen's controls, a whole lineup |
@@ -533,17 +534,43 @@ It does not merge by id, because no game can be in both:
   (unprefixed for chess) are unchanged. A feed's stored notation is the
   game's own key; `''` (the default stored now) reads as the game's first,
   and a stored `'san'` stays chess's SAN.
-- **Proof.** `conformance/puzzles/puzzle-laws` (each offering game's known
-  puzzle: its own namespace and content, the setup's solver, the line
-  solving it, every legal move judged, its wrong move wrong, marks naming
-  cells); `game-puzzle-shared/tests`: `puzzle-judge` and `opponent-stager`
+- **Proof.** Per game offering puzzles, on its known puzzles
+  (`fixtures.puzzles`), in `@libs/games-harness/tests/conformance/puzzles/`:
+  `puzzle-content` (its own namespace and content, every other game's
+  known puzzle refused by its validation, recognised by it alone, admitted
+  into its namespace alone, duplicates by key), `puzzle-judge` (the
+  solution follows the line and solves on its last move, the wrong move is
+  wrong, the refused move no move, every legal move judged; a win off the
+  line and a transposition where its puzzles show them), `puzzle-playback`
+  (the line replays as its rules play it; hints, wrong moves and
+  suggestions name cells) — the laws of `game-puzzle-laws` — and
+  `puzzle-catalogue` (written beside every other game's, read by the pool,
+  nearest read and next pick of its namespace alone), `puzzle-session`
+  (start, setup refusals, submit, wrong and refused moves, hints, retry,
+  clear, reclaim, stepping, watchers; regression
+  `puzzle-solved-review-resumes`), `puzzle-completion` (the clock, skip,
+  the shown solution, the result decided once — a late or repeated move,
+  a skip or the solution after it change nothing — the traits in the room;
+  regression `puzzle-attempt-clock-identity-collision`), `puzzle-results`
+  (a result uploaded again and again rates once in its game's profile, as
+  on the device; a later attempt leaves the rating alone; an attempt keeps
+  its first result) and `puzzle-board` (the game's automation plays each
+  solution move on its puzzle board, which shows each mark, takes no move
+  in review, and every line move has words in each notation). Faulty
+  copies of the reference game (`reference-game/faulty-games`) are refused
+  by the law they break, and `reference-game/known-puzzles-contract` holds
+  the fixture obligation. Beside them: `game-puzzle-shared/tests`:
+  `puzzle-judge` and `opponent-stager`
   (a game the platform knows nothing about), `puzzle-catalogue` (admission,
   the namespaced reads on SQLite and Mockingbird Postgres, the per-game
-  profile and feed settings, beside a second game in `pile/`),
-  `rate-puzzle-attempt` and `puzzle-profile-query` (regressions
-  `puzzle-inconsistent-result-score`, `puzzle-profile-volatility-sync`);
-  `games-harness/tests/chess-puzzles` (the judge, mate objective, line
-  steps, the room-level session and attempt identity over chess);
+  profile and feed settings, beside a second game in `pile/`), `step` (the
+  line's indices), `rate-puzzle-attempt` and `puzzle-profile-query`
+  (regressions `puzzle-inconsistent-result-score`,
+  `puzzle-profile-volatility-sync`);
+  `games-harness/tests/chess-puzzles` (a mate ends a chess puzzle whatever
+  its stored line says, against chess.js);
+  `chess-puzzle-shared/tests/canonical-spelling` (chess's castling and
+  promotion spelling);
   `games-harness/tests/rated-puzzle-quota` (`rated-puzzle-quota-bypass`);
   `game-puzzle-client/tests/interrupted-outcome`
   (`puzzle-outcome-recorded-rating-lost`,
@@ -618,14 +645,22 @@ behaviour for exactly what it offers:
 - **Independent oracles.** Expected outcomes come from each game's
   `fixtures` — a known first-side victory, known refused openings and, for
   a game that has one, a known line to a position its second side cannot
-  win,
-  written from the game's own laws — or from the contract, never from asking
-  the implementation whether it agrees with itself. Faulty copies of the
+  win; for a game offering puzzles, its known puzzles (each with its
+  solver, solution, every line move's label, a wrong move and a refused
+  move, and a win off the line or a transposition where its puzzles have
+  one) — written from the game's own laws, or from the contract, never from
+  asking the implementation whether it agrees with itself: the positions a
+  puzzle's line reaches are asked of the game's rules alone, never of the
+  platform's puzzle engine, and `assertHarnessGame` refuses known puzzles
+  the rules contradict. Faulty copies of the
   reference game (`reference-game/faulty-*.test.ts`), each defined through
   `defineTurnGame` and `defineGameClient` like any game, prove each law
   refuses the fault it names — and only that law, for that reason: rules,
   bots, automation, a strength offered twice, endings and side names lost,
-  and a record with the wrong people, result or game.
+  a record with the wrong people, result or game, a puzzle spelling that
+  misjudges the solution, marks off the board, a puzzle validation
+  accepting another game's puzzle, a puzzle namespace taken from another
+  game, and known puzzles the rules contradict.
 - **The matrix.** `tests/game-conformance-matrix.test.ts` derives the
   game × area matrix from offered capabilities and the suites that require
   a case of each game, prints it, and fails on every problem
@@ -670,7 +705,7 @@ The matrix today:
 | --- | --- | --- | --- | --- | --- |
 | chess | bound | bound | bound | bound | bound |
 | Connect Four | bound | bound | bound | bound | — |
-| counting race (reference, test-only) | bound | bound | — | bound | — |
+| counting race (reference, test-only) | bound | bound | — | bound | bound |
 
 ## Durable names
 
@@ -746,9 +781,14 @@ Beyond that class:
   puzzle features and models (`specs/chess/puzzle-*`,
   `puzzle-attempt.qnt`, `puzzle-feed.qnt`, `daily-puzzle-limit.dmn`, …)
   and their steps and drivers (`@libs/chess-puzzle-harness`) still name
-  chess and its board, so only chess is held to them; the reference game
-  offers no puzzles yet. Moving them to `specs/games/` with a reference
-  game offering puzzles is the next step, after which chess's harness
+  chess and its board, so only chess is held to them in specification. The
+  reference game offers puzzles (a race where a turn may count two, so a
+  move can be legal and wrong), and every shared puzzle code suite runs for
+  it and chess. Moving the specifications to `specs/games/` is the next
+  step: their runner already plays every conformance game, the reference
+  game included, but a world seeds no game's known puzzles into its
+  catalogue yet, and the game-choice reader (`offeredGameChoices`) does not
+  read the puzzle choices. After that, chess's harness
   needs no puzzle-session probe and its personal stats route
   (`/more/chess-stats`, pinned by `specs/product.machine.json`) can become
   the platform's.
