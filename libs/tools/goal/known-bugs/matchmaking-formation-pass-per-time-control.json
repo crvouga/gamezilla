@@ -1,0 +1,4 @@
+{
+  "summary": "Pairing ran a full formation pass (partition upsert, two waiting reads, restriction read) for every offered time control, 28 on dev, even where nobody waited. A find-opponent request sent 207 statements and took 14 s on dev, holding a pooled database session throughout, and exceeded the journeys' 5 s window on the loaded CI stack. Pairing now passes only over the pools that have someone waiting.",
+  "regressionTest": "libs/game-matchmaking-shared/tests/formation-statements.test.ts"
+}
