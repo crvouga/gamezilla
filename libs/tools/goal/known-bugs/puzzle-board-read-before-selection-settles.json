@@ -1,4 +1,4 @@
 {
   "summary": "Opening puzzles intentionally returns before selection completes, but the board observation read its initial null state immediately. Wait for the existing board-ready outcome within the unchanged 15-second bound; the exact 50-popularity, 5-play scenario pins this failure.",
-  "regressionTest": "specs/chess/puzzle-selection.feature"
+  "regressionTest": "specs/games/puzzle-selection.feature"
 }

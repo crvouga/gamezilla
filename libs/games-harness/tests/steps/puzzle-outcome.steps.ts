@@ -12,6 +12,7 @@ import {
 } from '@libs/game-session-harness/puzzle-moves';
 import {
   readCataloguePuzzles,
+  readGameLogRow,
   readGameLogTitle,
   readStatsFigures,
   readStatsPuzzleRating,
@@ -39,7 +40,9 @@ import {
   enterKnownPuzzle,
   focusPuzzle,
   focusStats,
+  ownRatingOf,
   puzzleGameId,
+  ratingOf,
   SECOND_MS,
   SETTLE_MS,
   trackPuzzle,
@@ -55,16 +58,6 @@ async function untilRatingChange(
     maxMs: SETTLE_MS,
     pred: (shown) => shown === change,
   });
-}
-
-async function ratingOf(w: HarnessWorld, actor: Actor): Promise<number> {
-  await focusStats(w, actor);
-  const rating = await w.s.until((surf) => readStatsPuzzleRating(surf, actor), {
-    maxMs: SETTLE_MS,
-    pred: (shown) => shown !== null,
-  });
-  if (rating === null) throw new Error(`${actor} sees no puzzle rating`);
-  return rating;
 }
 
 // ------------------------------------------------------- the rating change
@@ -195,6 +188,8 @@ Then(
 // --------------------------------------------- the pool, and coming round
 
 const firstPlayedKey = (actor: string) => `puzzle-first-played:${actor}`;
+const ratingBeforeRepeatKey = (actor: string) =>
+  `puzzle-rating-before-repeat:${actor}`;
 
 Given('the puzzle pool holds just three puzzles', async (w) => {
   const known = knownPuzzlesOf(gameOf(w)).map((fixture) => fixture.record.id);
@@ -234,6 +229,70 @@ Given(
       pred: (id) => id === first,
     });
     await trackPuzzle(w, actor);
+    // The puzzle rating before the repeat, as the stats show it.
+    w.memo.set(ratingBeforeRepeatKey(actor), await ratingOf(w, actor));
+    await focusPuzzle(w, actor);
+  }
+);
+
+Given('{actor} has moved on to the next puzzle', async (w, actor: Actor) => {
+  await focusPuzzle(w, actor);
+  await w.s.apply(moveOnToNextPuzzle, actor);
+  await trackPuzzle(w, actor);
+});
+
+Then(
+  "{actor}'s feed comes round to the first puzzle they played within {int} seconds",
+  async (w, actor: Actor, seconds: number) => {
+    const first = String(w.memo.get(firstPlayedKey(actor)));
+    await focusPuzzle(w, actor);
+    await w.s.until((surf) => readPuzzleOnBoard(surf, actor), {
+      maxMs: seconds * SECOND_MS,
+      pred: (id) => id === first,
+    });
+    await trackPuzzle(w, actor);
+  }
+);
+
+Then(
+  "{actor}'s puzzle rating is still unchanged by the repeat because that puzzle is already rated",
+  async (w, actor: Actor) => {
+    const before = w.memo.get(ratingBeforeRepeatKey(actor));
+    await focusStats(w, actor);
+    await w.s.until((surf) => readStatsPuzzleRating(surf, actor), {
+      maxMs: SETTLE_MS,
+      pred: (shown) => shown !== null,
+    });
+    expect(await w.s.read(readStatsPuzzleRating, actor)).toBe(before as number);
+  }
+);
+
+// ------------------------------------------------------------- game log
+
+Then(
+  "{actor}'s game log shows that puzzle's own rating and its rating change",
+  async (w, actor: Actor) => {
+    const puzzle = currentPuzzle(w, actor);
+    const own = await ownRatingOf(w, puzzle);
+    await focusStats(w, actor);
+    const row = await w.s.until((surf) => readGameLogRow(surf, actor, puzzle), {
+      maxMs: SETTLE_MS,
+      pred: (shown) => typeof shown?.change === 'number',
+    });
+    expect(row?.puzzleRating).toBe(own);
+    expect(row?.change).not.toBe(0);
+  }
+);
+
+Then(
+  "{actor}'s game log shows the repeat as unrated",
+  async (w, actor: Actor) => {
+    const puzzle = currentPuzzle(w, actor);
+    await focusStats(w, actor);
+    await w.s.until((surf) => readGameLogRow(surf, actor, puzzle), {
+      maxMs: SETTLE_MS,
+      pred: (shown) => shown?.change === 'unrated',
+    });
   }
 );
 

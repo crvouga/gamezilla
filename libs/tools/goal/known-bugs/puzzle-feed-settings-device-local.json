@@ -1,4 +1,4 @@
 {
   "summary": "Feed choices were stored only on the device and never reached the player's other devices. Fixed with synced feed settings written by a mutation.",
-  "regressionTest": "specs/chess/puzzle-feed-sticks.feature"
+  "regressionTest": "specs/games/puzzle-feed-sticks.feature"
 }

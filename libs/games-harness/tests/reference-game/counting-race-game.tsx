@@ -15,6 +15,7 @@
 
 import type { GameClient } from '@libs/game-menu-client/game-client';
 import { defineGameClient } from '@libs/game-menu-client/game-client';
+import { PersonalPuzzleStatsScreen } from '@libs/game-puzzle-client/personal-puzzle-stats-screen';
 import type { PuzzleBoardProps } from '@libs/game-puzzle-client/puzzle-client';
 import type {
   GameFixtures,
@@ -23,6 +24,7 @@ import type {
 import { assertHarnessGame } from '@libs/game-session-harness/harness-game';
 import type { TurnGame } from '@libs/game-session-shared/turn-game-definition';
 import { defineTurnGame } from '@libs/game-session-shared/turn-game-definition';
+import { Handles } from '@libs/test-ids-shared/handles';
 import type { GameBoardProps } from '@pkgs/turn-game-shared/game-presentation';
 import type {
   PuzzleRecord,
@@ -35,6 +37,9 @@ import type {
   PlayedPosition,
   TurnGameCapabilities,
 } from '@pkgs/turn-game-shared/game-rules';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import { For, type JSX } from 'solid-js';
 
 /**
@@ -344,6 +349,9 @@ export const COUNTING_RACE_TURN_GAME: TurnGame<typeof CAPABILITIES> = {
 
 export const COUNTING_RACE_SHARED = defineTurnGame(COUNTING_RACE_TURN_GAME);
 
+/** The themes a race's feed can be limited to. */
+const RACE_THEMES = ['short', 'long'] as const satisfies readonly string[];
+
 export const COUNTING_RACE_CLIENT: GameClient<typeof CAPABILITIES> = {
   shared: COUNTING_RACE_SHARED,
   title: 'Counting race',
@@ -359,20 +367,34 @@ export const COUNTING_RACE_CLIENT: GameClient<typeof CAPABILITIES> = {
     timeoutDrawDescription: () => 'Drawn on time.',
     endingLabel: () => 'finish line',
   },
-  puzzles: { Board: PuzzleBoard },
+  puzzles: {
+    Board: PuzzleBoard,
+    // A long race is a theme no known puzzle has: a feed limited to it is
+    // empty.
+    themes: {
+      choices: RACE_THEMES,
+      label: (theme) => (theme === 'long' ? 'Long race' : 'Short race'),
+    },
+  },
 };
 
-/** A race puzzle record, as a seed would store it. */
+/**
+ * A race puzzle record, as a seed would store it. Every known puzzle is
+ * rated below a new solver's 1500, so a wrong move's half credit lowers
+ * their rating; two are within 100 of it, so a settled 1500 has a next
+ * puzzle in its rating window after solving one.
+ */
 function racePuzzle(
   id: string,
   position: string,
-  line: readonly string[]
+  line: readonly string[],
+  rating: number
 ): PuzzleRecord {
   return {
     id: `counting-race/${id}`,
     position,
     line,
-    rating: 1200,
+    rating,
     ratingDeviation: 80,
     popularity: 90,
     plays: 10,
@@ -402,12 +424,12 @@ export const COUNTING_RACE_FIXTURES: GameFixtures<typeof CAPABILITIES> = {
       // The Tortoise counts to one; the Hare leaps to three, and after the
       // Tortoise's leap to five leaps home. Counting one, to two, is the
       // wrong move; three from five would pass seven.
-      record: racePuzzle('leap-home', 'race:0b', [
-        'advance',
-        'leap',
-        'leap',
-        'leap',
-      ]),
+      record: racePuzzle(
+        'leap-home',
+        'race:0b',
+        ['advance', 'leap', 'leap', 'leap'],
+        1200
+      ),
       solverSide: 'white',
       solution: ['leap', 'leap'],
       labels: ['step 1', 'leap to 3', 'leap to 5', 'leap to 7'],
@@ -419,12 +441,12 @@ export const COUNTING_RACE_FIXTURES: GameFixtures<typeof CAPABILITIES> = {
       // The Hare counts to two; the Tortoise leaps to four and, after the
       // Hare's step to five, leaps home. Hopping to five instead is the
       // wrong move; a count back is no count at all.
-      record: racePuzzle('leap-past-four', 'race:1w', [
-        'advance',
-        'leap',
-        'advance',
-        'leap',
-      ]),
+      record: racePuzzle(
+        'leap-past-four',
+        'race:1w',
+        ['advance', 'leap', 'advance', 'leap'],
+        1450
+      ),
       solverSide: 'black',
       solution: ['leap', 'leap'],
       labels: ['step 2', 'leap to 4', 'step 5', 'leap to 7'],
@@ -438,12 +460,12 @@ export const COUNTING_RACE_FIXTURES: GameFixtures<typeof CAPABILITIES> = {
       // count reaches the same finish (seven, the Tortoise to move). At
       // three a hop to six is wrong; at five, counting one instead of
       // leaping is.
-      record: racePuzzle('either-order', 'race:2b', [
-        'advance',
-        'advance',
-        'advance',
-        'leap',
-      ]),
+      record: racePuzzle(
+        'either-order',
+        'race:2b',
+        ['advance', 'advance', 'advance', 'leap'],
+        1450
+      ),
       solverSide: 'white',
       solution: ['advance', 'leap'],
       labels: ['step 3', 'step 4', 'step 5', 'leap to 7'],
@@ -455,9 +477,48 @@ export const COUNTING_RACE_FIXTURES: GameFixtures<typeof CAPABILITIES> = {
   ],
 };
 
+const COUNTING_RACE_STATS_PATH = '/more/counting-race-stats';
+
+/** The race's puzzle stats outside any space, from Settings, as chess's. */
+function CountingRaceStatsSettings(): JSX.Element {
+  const router = useRouter();
+  return (
+    <MenuSection title="Counting race">
+      <MenuRow
+        title="Puzzle stats"
+        caption="Your rating and game log, available offline"
+        onClick={() => router.push(COUNTING_RACE_STATS_PATH)}
+        dataSet={{
+          testid: Handles.settingsPuzzleStats(COUNTING_RACE_SHARED.id),
+        }}
+      />
+    </MenuSection>
+  );
+}
+
+function CountingRaceStatsScreen(): JSX.Element {
+  return (
+    <PersonalPuzzleStatsScreen
+      gameId={COUNTING_RACE_SHARED.id}
+      puzzles={COUNTING_RACE_CLIENT.puzzles}
+      screenId="personal-counting-race-stats"
+    />
+  );
+}
+
 export const COUNTING_RACE_GAME: HarnessGame = assertHarnessGame({
   label: 'counting race',
   shared: COUNTING_RACE_SHARED,
   client: defineGameClient(COUNTING_RACE_CLIENT),
   fixtures: COUNTING_RACE_FIXTURES,
+  slice: {
+    name: 'game:counting-race',
+    client: {
+      name: 'counting-race-stats',
+      routes: [
+        { path: COUNTING_RACE_STATS_PATH, component: CountingRaceStatsScreen },
+      ],
+      settings: CountingRaceStatsSettings,
+    },
+  },
 });

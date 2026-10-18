@@ -8,14 +8,23 @@
 import { expect } from 'bun:test';
 import { rulesTrail } from '@libs/game-session-harness/game-puzzle-laws';
 import type { PuzzleFixture } from '@libs/game-session-harness/known-puzzles';
+import { chosenFeedTheme } from '@libs/game-session-harness/puzzle-feed-choices';
 import {
   knownPuzzle,
   knownPuzzlesOf,
   theKnownPuzzle,
 } from '@libs/game-session-harness/puzzle-moves';
+import type { PoolPuzzle } from '@libs/game-session-harness/puzzle-pool';
+import {
+  puzzleNamespaceOfGame,
+  readCataloguePuzzle,
+  writeKnownPuzzlePool,
+} from '@libs/game-session-harness/puzzle-pool';
 import {
   isPuzzleStatsShown,
   leaveGamePuzzleStats,
+  readCataloguePuzzles,
+  readStatsPuzzleRating,
   retireCataloguePuzzle,
   showGamePuzzleStats,
 } from '@libs/game-session-harness/puzzle-records';
@@ -23,14 +32,22 @@ import {
   goBackToGamePuzzles,
   isPuzzleScreenShown,
   openGamePuzzles,
+  openGamePuzzlesNoWait,
   readPuzzleBoardPosition,
   readPuzzleOnBoard,
   readPuzzleProbe,
 } from '@libs/game-session-harness/puzzle-screen';
+import { otherDevice } from '@libs/harness/platform';
 import { backToTabs, focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import { createSpace } from '@libs/spaces-harness/space-actions';
-import { activeSpaceVisible } from '@libs/spaces-harness/spaces-ui-reads';
+import {
+  createSpace,
+  reopenSpaceLink,
+} from '@libs/spaces-harness/space-actions';
+import {
+  activeSpaceVisible,
+  readSpaceLink,
+} from '@libs/spaces-harness/spaces-ui-reads';
 import { gameOf } from './game-world';
 
 export const SECOND_MS = 1_000;
@@ -42,7 +59,7 @@ export function puzzleGameId(w: HarnessWorld): string {
   return gameOf(w).shared.id;
 }
 
-function required<T>(value: T | null | undefined, what: string): T {
+export function required<T>(value: T | null | undefined, what: string): T {
   if (value === null || value === undefined)
     throw new Error(`expected ${what}`);
   return value;
@@ -129,18 +146,35 @@ export function writtenAs(w: HarnessWorld, label: string): string {
 
 // --------------------------------------------------------- into a puzzle
 
-/** Open the game's puzzles in `actor`'s space, starting one if needed. */
-export async function enterPuzzles(
-  w: HarnessWorld,
-  actor: string
-): Promise<string> {
+/** Into `actor`'s space, starting one if they are in none. */
+async function intoSpace(w: HarnessWorld, actor: string): Promise<void> {
   await w.s.apply(focusActor, actor);
   if (!(await w.s.read(activeSpaceVisible, actor))) {
     await w.s.apply(backToTabs, actor);
     await w.s.apply(createSpace, actor);
   }
+}
+
+/** Open the game's puzzles in `actor`'s space, starting one if needed. */
+export async function enterPuzzles(
+  w: HarnessWorld,
+  actor: string
+): Promise<string> {
+  await intoSpace(w, actor);
   await w.s.apply(openGamePuzzles, actor, puzzleGameId(w));
   return trackPuzzle(w, actor);
+}
+
+/**
+ * Open the game's puzzles in `actor`'s space without waiting for a puzzle:
+ * the feed may have none to serve.
+ */
+export async function openPuzzles(
+  w: HarnessWorld,
+  actor: string
+): Promise<void> {
+  await intoSpace(w, actor);
+  await w.s.apply(openGamePuzzlesNoWait, actor, puzzleGameId(w));
 }
 
 /** A `Given` needing a puzzle on the board opens one unless there is one. */
@@ -185,6 +219,21 @@ export async function focusPuzzle(
   if (await w.s.read(isPuzzleStatsShown, actor))
     await w.s.apply(leaveGamePuzzleStats, actor);
   await w.s.apply(goBackToGamePuzzles, actor);
+}
+
+/** The puzzle rating `actor`'s stats show, once they show one. */
+export async function ratingOf(
+  w: HarnessWorld,
+  actor: string
+): Promise<number> {
+  await focusStats(w, actor);
+  return required(
+    await w.s.until((surf) => readStatsPuzzleRating(surf, actor), {
+      maxMs: SETTLE_MS,
+      pred: (shown) => shown !== null,
+    }),
+    `${actor}'s puzzle rating`
+  );
 }
 
 /** The game's puzzle stats on `actor`'s device, for a `Then` reading them. */
@@ -241,4 +290,119 @@ export async function boardTakesNoMove(
 ): Promise<void> {
   await focusPuzzle(w, actor);
   expect((await w.s.read(readPuzzleProbe, actor))?.interactive).toBe(false);
+}
+
+// ------------------------------------------------------------- the pool
+
+/** Memo key: the puzzles `actor` failed, in the order played. */
+export const failedPuzzlesKey = (actor: string) => `puzzle-failed:${actor}`;
+
+/** "A theme of the game's known puzzle", as the feed can be limited to it. */
+export function feedTheme(w: HarnessWorld): string {
+  return chosenFeedTheme(gameOf(w));
+}
+
+/** The run's game's pool is exactly `pool`, made of its known puzzles. */
+export async function writePool(
+  w: HarnessWorld,
+  pool: readonly PoolPuzzle[]
+): Promise<void> {
+  await w.s.apply(writeKnownPuzzlePool, puzzleGameId(w), pool);
+}
+
+/** The ids of every puzzle in the run's game's pool. */
+export async function poolIds(w: HarnessWorld): Promise<readonly string[]> {
+  return w.s.read(readCataloguePuzzles, puzzleNamespaceOfGame(gameOf(w)));
+}
+
+/** `themes` with `theme`, or without it. */
+export function themesWith(
+  themes: readonly string[],
+  theme: string,
+  included: boolean
+): readonly string[] {
+  const others = themes.filter((candidate) => candidate !== theme);
+  return included ? [theme, ...others] : others;
+}
+
+const themedKey = 'puzzle-pool:themed';
+
+/** Note the pool's puzzles with the theme the scenario names. */
+export function rememberThemed(w: HarnessWorld, ids: readonly string[]): void {
+  w.memo.set(themedKey, ids);
+}
+
+/** The pool's puzzles with the theme the scenario names. */
+export function themedPuzzles(w: HarnessWorld): readonly string[] {
+  return required(
+    w.memo.get(themedKey) as readonly string[] | undefined,
+    'a pool with the theme'
+  );
+}
+
+/**
+ * The game's known puzzle, alone in the pool and rated `rating`, on
+ * `actor`'s board.
+ */
+export async function enterKnownPuzzleRated(
+  w: HarnessWorld,
+  actor: string,
+  rating: number
+): Promise<void> {
+  const known = theKnownPuzzle(gameOf(w));
+  await writePool(w, [{ id: known.record.id, rating }]);
+  const id = await enterPuzzles(w, actor);
+  // Precondition guard: the feed served it.
+  if (id !== known.record.id)
+    throw new Error(`${actor} was served ${id}, not ${known.record.id}`);
+}
+
+/**
+ * The puzzle the feed puts on `device`'s board, once the solver may play
+ * it and `pred` holds of it, noted as "that puzzle".
+ */
+export async function servedPuzzle(
+  w: HarnessWorld,
+  device: string,
+  pred: (id: string) => boolean = () => true
+): Promise<string> {
+  await focusPuzzle(w, device);
+  await w.s.until(
+    async (surf) => ({
+      id: await readPuzzleOnBoard(surf, device),
+      probe: await readPuzzleProbe(surf, device),
+    }),
+    {
+      maxMs: SETTLE_MS,
+      pred: (seen) =>
+        seen.id !== null && seen.probe?.status === 'solving' && pred(seen.id),
+    }
+  );
+  return trackPuzzle(w, device);
+}
+
+/** The catalogue's own rating of `puzzleId`. */
+export async function ownRatingOf(
+  w: HarnessWorld,
+  puzzleId: string
+): Promise<number> {
+  return required(
+    await w.s.read(readCataloguePuzzle, puzzleId),
+    `${puzzleId} in the pool`
+  ).rating;
+}
+
+/**
+ * The game's puzzles on `actor`'s other device, in the space `actor`'s
+ * account hosts; the other device.
+ */
+export async function otherDevicePuzzles(
+  w: HarnessWorld,
+  actor: string
+): Promise<string> {
+  const device = otherDevice(actor);
+  const link = required(await w.s.read(readSpaceLink, actor), 'a space');
+  await w.s.apply(reopenSpaceLink, device, link);
+  await w.s.apply(openGamePuzzlesNoWait, device, puzzleGameId(w));
+  return device;
 }

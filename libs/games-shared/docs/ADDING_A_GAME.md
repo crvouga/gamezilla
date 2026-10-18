@@ -141,10 +141,22 @@ Puzzles are offered by a part on each side, and nothing else changes:
   long, the puzzle pool of their world holds exactly the known puzzles
   (`gameSystem(…, { knownPuzzles: true })`), and the puzzle attempt model
   needs three of two solver moves each, with a legal move at each that is
-  neither the line's nor a win nor another way the author names. That is
+  neither the line's nor a win nor another way the author names. A pool a
+  scenario describes is made of those three, rated, themed and judged for
+  quality as it says. Rate every known puzzle below a new solver's 1500
+  (a wrong move's half credit then lowers the rating) and two of them
+  within 100 of it (a settled 1500 then has a next puzzle in its rating
+  window after a solve); give the known puzzle a theme the client's feed
+  `themes` offers, and offer one theme no known puzzle has. That is
   all a game supplies: every puzzle suite and specification, its
   orchestration and assertions and the faulty copies that prove them are
   the framework's.
+
+A game offering puzzles also wires its puzzle stats outside any space,
+as chess's `personal-chess-stats-client` does: a route rendering
+`PersonalPuzzleStatsScreen` and a Settings row marked
+`Handles.settingsPuzzleStats(<game id>)` (a watcher reads their own stats
+there whatever the host's connection).
 
 The platform then offers Puzzle and Puzzle stats among the game's
 choices, the feed and its settings, ratings and feed settings of the

@@ -139,6 +139,15 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'puzzle-review': ['puzzles'],
   'puzzle-skip-clock': ['puzzles'],
   'puzzle-attempt': ['puzzles'],
+  'puzzle-feed': ['puzzles'],
+  'puzzle-feed-gates': ['puzzles'],
+  'puzzle-feed-sticks': ['puzzles'],
+  'puzzle-exhaust': ['puzzles'],
+  'puzzle-selection': ['puzzles'],
+  'puzzle-rating': ['puzzles'],
+  'puzzle-stats': ['puzzles'],
+  'puzzle-stats-summary': ['puzzles'],
+  'puzzle-ready': ['puzzles'],
 };
 
 /** The file endings of the specifications a game is held to. */

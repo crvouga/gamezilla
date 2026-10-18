@@ -1083,7 +1083,6 @@
         "@pkgs/alloy-shared": "workspace:*",
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/dmn-shared": "workspace:*",
-        "@pkgs/openslo-shared": "workspace:*",
         "@pkgs/outbox-shared": "workspace:*",
         "@pkgs/permissions-shared": "workspace:*",
         "@pkgs/quint-shared": "workspace:*",

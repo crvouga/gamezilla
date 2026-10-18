@@ -68,8 +68,10 @@ export const CHESS_PLAYABLE: PlayableGame<
           position: '6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1',
           line: ['a7a6', 'a1a5', 'h7h6', 'h1h5'],
           // Below a new solver's 1500, as every known puzzle is: a wrong
-          // move's half credit then still lowers their rating.
-          rating: 1400,
+          // move's half credit then still lowers their rating. This one
+          // and the ladder are within 100 of it, so a settled 1500 has a
+          // next puzzle in its rating window after solving one.
+          rating: 1450,
           ratingDeviation: 80,
           popularity: 90,
           plays: 100,
@@ -93,7 +95,7 @@ export const CHESS_PLAYABLE: PlayableGame<
           id: 'Laddr',
           position: '7k/RR6/8/p7/8/8/8/6K1 b - - 0 1',
           line: ['a5a4', 'b7c7', 'a4a3', 'c7c8'],
-          rating: 1300,
+          rating: 1450,
           ratingDeviation: 80,
           popularity: 90,
           plays: 100,

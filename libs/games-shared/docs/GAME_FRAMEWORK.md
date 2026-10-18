@@ -103,7 +103,9 @@ It is never a new entry for an internal module.
 | | `custom-game-screen`, `custom-game-reads` | What a person's Custom Game screen shows: a projection of the game, the refusal they were told, their clock, invitations, the move list |
 | | `custom-game-history` | Fixture: a legal earlier history played through the real move boundary |
 | | `puzzle-session-probe`, `puzzle-fixtures` | The space's puzzle session below the screens: a command as a (possibly modified) client sends it and what the session holds; the rating scale, the rated start key and the rated-result write a quota table replays |
-| | `puzzle-screen`, `puzzle-records` | The platform's puzzle screens as a person uses them, for any game: the way in and back, the attempt's controls, what the board and its probes say, the rating change, the puzzle stats, the game log and a played puzzle's review; retiring a catalogue puzzle |
+| | `puzzle-screen`, `puzzle-records` | The platform's puzzle screens as a person uses them, for any game: the way in and back, the attempt's controls, what the board and its probes say, the rating change, the puzzle stats (in the space, or a person's own from Settings), the game log and a played puzzle's review; retiring a catalogue puzzle |
+| | `puzzle-feed`, `puzzle-feed-choices` | The feed settings as a person customizes them, for any game: the history filter, target mode, rating offset and custom target, the game's themes (as the game names them) and auto-advance, saved, discarded or closed, and what the feed bar and the settings say; the feed choices `puzzle-feed.qnt` names, and "a theme of the game's known puzzle" (`chosenFeedTheme`) |
+| | `puzzle-pool` | A pool a scenario describes (rating, popularity, times played, themes) made of the game's known puzzles and written through `admitCataloguePuzzle`; what the catalogue says of a puzzle; a person's earlier puzzle rating at a game (`seedPuzzleRating`) |
 | | `puzzle-moves`, `puzzle-room-probe` | Moves on a puzzle board with the game's own gesture, chosen from its known puzzles (the line, the wrong, refused and opponent's moves); a puzzle command sent straight to the space's room, as a modified client would |
 | `@libs/game-matchmaking-harness` | `matched-game-world`, `matched-game-app.steps` | The scenario's matched game: pairing, both boards, commands and verdicts, the game a device holds (`heldMatchedGame`) |
 | | `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record` | Finding an opponent, the board (`sendMoveFromBoard`), reviewing earlier positions, copying the game record, as a person does |
@@ -113,7 +115,7 @@ It is never a new entry for an internal module.
 | | `puzzle-link` | The puzzle link's route, path and parsing |
 | | `completion`, `hint-stage`, `solve-status` | The attempt's vocabulary its `PuzzleAttempt` speaks: a completion and its rating change, the hint's stage, the solve status |
 | `@libs/game-puzzle-client` | `puzzle-client` | `GamePuzzlesClient`, `PuzzleBoardProps`, `PuzzleBoardMarks`, `PuzzleSuggestion`, `PuzzleAttempt`, `PuzzleCoachLine`, `PuzzleFeedback`: the client part a game offering puzzles supplies |
-| | `personal-puzzle-stats-screen` | `PersonalPuzzleStatsScreen`: a game's puzzle stats outside any space, on the game's own route (chess's `/more/chess-stats`) |
+| | `personal-puzzle-stats-screen` | `PersonalPuzzleStatsScreen`: a game's puzzle stats outside any space, on the game's own route (chess's `/more/chess-stats`), reached from a Settings row marked `Handles.settingsPuzzleStats(<game id>)` |
 | `@pkgs/turn-game-client`, `@libs/game-session-client`, `@libs/game-session-server`, `@libs/game-matchmaking-shared`, `@libs/game-matchmaking-client` | none | The platform's screens, consumers, commands and storage: a game never imports them |
 | `@libs/games-shared`, `@libs/games-client`, `@libs/game-catalog-shared`, `@libs/games-harness` | none | Registries: composition roots import `game-plugins`, `game-plugins.client`, `turn-games` / `game-automations` and `harness-games` / `game-conformance`; a game never depends on one (`gameViolations`) |
 
@@ -784,27 +786,40 @@ Beyond that class:
   promotion, castling and en passant, algebraic notation, checkmate, drawn
   positions, the puzzle rating and a bare king's flag fall.
 - Playing a puzzle — the feed, the attempt, hints, retries, the shown
-  solution, the clock, resuming and the review — is every game's in
-  specification (`specs/games/puzzle-*`, `solve-*`, `puzzle-attempt.qnt`)
-  and runs for chess and the reference game (a race where a turn may count
-  two or three, so a move can be legal and wrong) on their known puzzles,
-  in a world whose catalogue holds exactly those
-  (`gameSystem(…, { knownPuzzles: true })`). The rest of the puzzle
-  specifications — the feed's settings and gates, ratings, limits, links,
-  saved puzzles, sounds, the Puzzle Assistant, accessibility and
-  recovery (`specs/chess/puzzle-*`, `puzzle-feed.qnt`,
-  `puzzle-assistant.qnt`, `daily-puzzle-limit.dmn`, …) — still name chess
-  and its board, so only chess is held to them. Its personal stats route
-  (`/more/chess-stats`, pinned by `specs/product.machine.json`) can become
-  the platform's.
+  solution, the clock, resuming and the review — and the feed's settings
+  and gates, how the next puzzle is chosen, the puzzle rating, the stats
+  and the game log are every game's in specification (`specs/games/puzzle-*`,
+  `solve-*`, `puzzle-attempt.qnt`, `puzzle-feed.qnt`,
+  `puzzle-ready.openslo.yaml`) and run for chess and the reference game (a
+  race where a turn may count two or three, so a move can be legal and
+  wrong) on their known puzzles, in a world whose catalogue holds exactly
+  those (`gameSystem(…, { knownPuzzles: true })`); a scenario's pool (its
+  ratings, quality, themes) is those same known puzzles rewritten through
+  the catalogue writer (`puzzle-pool`). Every number of the feed and the
+  rating — the 1500 start, the floor 400 and ceiling 3000, the offset of
+  ±400 in steps of 50, the custom target 400 to 3000, the windows of 100
+  and 200, the quality bar and half credit — is the platform's
+  (`@libs/game-puzzle-shared` `rating`, `feed-config`,
+  `next-puzzle-selection`); no game supplies one. The rest of the puzzle
+  specifications — limits, links, saved puzzles, sounds, the Puzzle
+  Assistant, accessibility, recovery and chess's own themes such as
+  "fork" (`specs/chess/puzzle-*`, `puzzle-assistant.qnt`,
+  `daily-puzzle-limit.dmn`, …) — still name chess and its board, so only
+  chess is held to them. A game's puzzle stats outside any space are on
+  the game's own route (chess's `/more/chess-stats`, pinned by
+  `specs/product.machine.json`; the reference game's
+  `/more/counting-race-stats`) behind a Settings row marked
+  `Handles.settingsPuzzleStats(<game id>)`; they can become the platform's.
 - The custom-game, matched-game and puzzle-attempt models are every
   game's. Chess keeps only its own puzzle and Lichess models; a model that
   moves takes its model-check task and its share of chess's spec parts to
   `@libs/games-harness`, which the PR runner's capacity (`ci-load.ts`)
   needs. A suite's parts are bounded below by its models (sixteen traces
-  to a part): chess's ten keep it at 40, games' twelve at 48 (eleven
-  model-check tasks, one holding two small models), so the puzzle model's
-  one extra part came from billing's 24, which its light suite allows.
+  to a part): chess's nine keep it at 36 (nine model-check tasks), games'
+  thirteen at 52 (eleven model-check tasks, two holding two small
+  models); the puzzle attempt model's one extra part came from billing's
+  24, which its light suite allows, and the feed model's four from
+  chess's 40.
 - The game models follow a first-side victory of exactly seven moves
   (Connect Four's shortest), so every game supplies one; a game whose
   victories all take longer needs the models' bound raised with it. The
