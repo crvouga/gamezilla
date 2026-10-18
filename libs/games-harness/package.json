@@ -149,5 +149,6 @@
   "specDomains": [
     "games"
   ],
-  "specParts": 47
+  "specParts": 47,
+  "gameApi": []
 }

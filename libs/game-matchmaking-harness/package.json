@@ -45,5 +45,15 @@
     "fast-check": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "harness"
+  "category": "harness",
+  "gameApi": [
+    "matched-game-app.steps",
+    "matched-game-fixtures",
+    "matched-game-world",
+    "multiplayer-board",
+    "multiplayer-game-record",
+    "multiplayer-review",
+    "multiplayer-time",
+    "opponent-seeking"
+  ]
 }

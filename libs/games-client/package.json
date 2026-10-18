@@ -26,5 +26,6 @@
     "typescript": "catalog:"
   },
   "category": "client",
-  "gameRegistry": true
+  "gameRegistry": true,
+  "gameApi": []
 }

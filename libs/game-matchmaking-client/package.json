@@ -53,5 +53,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "client"
+  "category": "client",
+  "gameApi": []
 }

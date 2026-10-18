@@ -151,6 +151,12 @@ type Manifest = {
   readonly game?: string;
   /** This package composes concrete games: a game registry or composition root. */
   readonly gameRegistry?: boolean;
+  /**
+   * A game framework package's public modules: the `src/<module>` files a
+   * game package may import. Every other module is the framework's own
+   * implementation.
+   */
+  readonly gameApi?: readonly string[];
   readonly dependencies?: Record<string, string>;
   readonly devDependencies?: Record<string, string>;
 };
@@ -314,6 +320,53 @@ export function gameViolations(
   return out;
 }
 
+/**
+ * A game depends on what the framework promises, never on how it is built.
+ * A framework package declares its public modules (`"gameApi"`); a game
+ * package — its source, tests and steps alike — imports only those from it.
+ * Framework packages keep using each other's modules freely; the list
+ * binds games alone. A framework package lists only modules it has, and is
+ * never a game itself.
+ */
+export function gameApiViolations(
+  manifest: Manifest,
+  options: {
+    readonly workspace: ReadonlyMap<string, Manifest>;
+    readonly modules: ReadonlySet<string>;
+    readonly sources: readonly {
+      readonly path: string;
+      readonly text: string;
+    }[];
+  }
+): readonly string[] {
+  const name = manifest.name ?? '';
+  const out: string[] = [];
+  if (manifest.gameApi !== undefined) {
+    if (manifest.game !== undefined)
+      out.push(
+        `${name} is a game of ${manifest.game} and declares a game API: only framework packages offer one`
+      );
+    for (const module of manifest.gameApi)
+      if (!options.modules.has(module))
+        out.push(
+          `gameApi lists "${module}", which ${name} does not have (src/${module}.ts): list only modules a game may import`
+        );
+  }
+  if (manifest.game === undefined) return out;
+  for (const file of options.sources)
+    for (const reference of sourceImports(file.text)) {
+      const match = /^(@(?:libs|pkgs)\/[^/]+)\/(.+)$/.exec(reference.specifier);
+      if (match === null) continue;
+      const [, dependency = '', module = ''] = match;
+      const api = options.workspace.get(dependency)?.gameApi;
+      if (api === undefined || api.includes(module)) continue;
+      out.push(
+        `${file.path}: imports ${reference.specifier}, which is ${dependency}'s own implementation, not its game API (${api.length === 0 ? 'it offers games none' : api.join(', ')}). A game depends on what the framework promises: use a public module, add a focused read, action or fixture helper to one, or move a test of the framework's own behaviour into the framework`
+      );
+    }
+  return out;
+}
+
 /** A game's id in a platform package's own source: the line marks a durable name. */
 const DURABLE_NAME = '@durable-name';
 
@@ -409,6 +462,20 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
       })),
     }),
     ...gameViolations(manifest, workspace),
+    ...gameApiViolations(manifest, {
+      workspace,
+      modules: new Set(
+        sourceFiles(srcDir).map((path) =>
+          path.slice(srcDir.length + 1).replace(/\.(ts|tsx)$/, '')
+        )
+      ),
+      sources: ['src', 'tests', 'scripts']
+        .flatMap((dir) => sourceFiles(join(pkgDir, dir)))
+        .map((path) => ({
+          path: path.slice(pkgDir.length + 1),
+          text: readFileSync(path, 'utf8'),
+        })),
+    }),
     ...(pkgDir.split('/').at(-2) === 'libs'
       ? gameIdentityViolations(manifest, {
           gameIds: new Set(

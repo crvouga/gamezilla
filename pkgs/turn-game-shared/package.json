@@ -20,5 +20,10 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "isomorphic"
+  "category": "isomorphic",
+  "gameApi": [
+    "game-automation",
+    "game-presentation",
+    "game-rules"
+  ]
 }

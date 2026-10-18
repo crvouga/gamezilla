@@ -46,5 +46,18 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "harness"
+  "category": "harness",
+  "gameApi": [
+    "custom-game-controls",
+    "custom-game-history",
+    "custom-game-lineup",
+    "custom-game-moves",
+    "custom-game-reads",
+    "custom-game-screen",
+    "custom-game-ui",
+    "game-navigation",
+    "game-system",
+    "harness-game",
+    "space-game-choice"
+  ]
 }

@@ -4,6 +4,7 @@ import {
   categoryViolations,
   familyMayDependOn,
   familyOf,
+  gameApiViolations,
   gameIdentityViolations,
   gameViolations,
 } from './package-boundaries';
@@ -312,6 +313,93 @@ describe('game isolation', () => {
   test('a package named for a game declares it', () => {
     expect(gameViolations({ name: '@libs/race-harness' }, workspace)).toEqual([
       '@libs/race-harness is named for the game race; declare "game": "race"',
+    ]);
+  });
+});
+
+describe('the game API', () => {
+  const workspace = new Map([
+    [
+      '@libs/game-session-shared',
+      {
+        name: '@libs/game-session-shared',
+        gameApi: ['turn-game-definition'],
+      },
+    ],
+    [
+      '@libs/game-session-server',
+      { name: '@libs/game-session-server', gameApi: [] },
+    ],
+    ['@libs/race-shared', { name: '@libs/race-shared', game: 'race' }],
+    ['@pkgs/sql-root-shared', { name: '@pkgs/sql-root-shared' }],
+  ]);
+  const race = { name: '@libs/race-harness', game: 'race' };
+  const imports = (text: string, manifest: object = race) =>
+    gameApiViolations(manifest, {
+      workspace,
+      modules: new Set(),
+      sources: [{ path: 'tests/race.test.ts', text }],
+    });
+
+  test('a game imports the framework through its public modules', () => {
+    expect(
+      imports(
+        [
+          "import { defineTurnGame } from '@libs/game-session-shared/turn-game-definition';",
+          "import { raceRules } from '@libs/race-shared/race-rules';",
+          "import sql from '@pkgs/sql-root-shared/sql';",
+        ].join('\n')
+      )
+    ).toEqual([]);
+  });
+
+  test('a game never imports a framework internal, in source, tests or types', () => {
+    for (const text of [
+      "import { newCustomGame } from '@libs/game-session-shared/custom-game-state';",
+      "import type { CustomGame } from '@libs/game-session-shared/custom-game-state';",
+      "export { newCustomGame } from '@libs/game-session-shared/custom-game-state';",
+      "const state = await import('@libs/game-session-shared/custom-game-state');",
+    ])
+      expect(imports(text)).toEqual([
+        "tests/race.test.ts: imports @libs/game-session-shared/custom-game-state, which is @libs/game-session-shared's own implementation, not its game API (turn-game-definition). A game depends on what the framework promises: use a public module, add a focused read, action or fixture helper to one, or move a test of the framework's own behaviour into the framework",
+      ]);
+  });
+
+  test('a framework package offering games nothing refuses every import', () => {
+    expect(
+      imports(
+        "import { createGameSessionServer } from '@libs/game-session-server/sub-server';"
+      )
+    ).toEqual([
+      "tests/race.test.ts: imports @libs/game-session-server/sub-server, which is @libs/game-session-server's own implementation, not its game API (it offers games none). A game depends on what the framework promises: use a public module, add a focused read, action or fixture helper to one, or move a test of the framework's own behaviour into the framework",
+    ]);
+  });
+
+  test('the framework itself may use its own internals', () => {
+    expect(
+      imports(
+        "import { newCustomGame } from '@libs/game-session-shared/custom-game-state';",
+        { name: '@libs/games-harness', gameRegistry: true }
+      )
+    ).toEqual([]);
+  });
+
+  test('a framework package lists only modules it has and is never a game', () => {
+    expect(
+      gameApiViolations(
+        { name: '@libs/game-menu-client', gameApi: ['game-client', 'gone'] },
+        { workspace, modules: new Set(['game-client']), sources: [] }
+      )
+    ).toEqual([
+      'gameApi lists "gone", which @libs/game-menu-client does not have (src/gone.ts): list only modules a game may import',
+    ]);
+    expect(
+      gameApiViolations(
+        { name: '@libs/race-shared', game: 'race', gameApi: [] },
+        { workspace, modules: new Set(), sources: [] }
+      )
+    ).toEqual([
+      '@libs/race-shared is a game of race and declares a game API: only framework packages offer one',
     ]);
   });
 });
