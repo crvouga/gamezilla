@@ -109,51 +109,45 @@ async function processClaims(args: {
   return count;
 }
 
-/** Events given a delivery per consumer in one pass. */
-const DELIVERIES_PER_CONSUMER_PER_PASS = 200;
-
-/**
- * One statement for every consumer. A pass runs inside a transaction that
- * holds one of the pooled database sessions, and each statement costs a
- * round trip to the database, so the statement count must not grow with the
- * number of registered consumers.
- */
 async function ensureDeliveries(
   tx: SqlTx,
   registry: OutboxConsumerRegistry,
   clock: Clock
 ): Promise<void> {
-  const consumers = registry.all();
-  if (consumers.length === 0) return;
   const nowIso = new Date(clock.now()).toISOString();
-  const subscriptions = join(
-    consumers.map(
-      (consumer) =>
-        sql`SELECT ${consumer.on.type} AS type, ${consumer.id} AS consumer_id`
-    ),
-    ' UNION ALL '
-  );
-  await tx.run(sql`
-    INSERT INTO outbox_deliveries (
-      id, event_id, consumer_id, attempts, available_at, processed_at,
-      last_error, created_at, updated_at, deleted_at
-    )
-    SELECT e.id || ':' || s.consumer_id, e.id, s.consumer_id, 0,
-           COALESCE(e.available_at, ${nowIso}), NULL,
-           NULL, ${nowIso}, ${nowIso}, NULL
-      FROM outbox_events e
-      JOIN (${subscriptions}) s ON s.type = e.type
-     WHERE e.deleted_at IS NULL
-       AND NOT EXISTS (
-         SELECT 1
-           FROM outbox_deliveries d
-          WHERE d.event_id = e.id
-            AND d.consumer_id = s.consumer_id
-            AND d.deleted_at IS NULL
-       )
-     LIMIT ${DELIVERIES_PER_CONSUMER_PER_PASS * consumers.length}
-    ON CONFLICT (event_id, consumer_id) DO NOTHING
-  `);
+  for (const consumer of registry.all()) {
+    const missing = await tx.query(sql<{
+      id: string;
+      available_at: string | Date | null;
+    }>`
+      SELECT e.id, e.available_at
+        FROM outbox_events e
+       WHERE e.type = ${consumer.on.type}
+         AND e.deleted_at IS NULL
+         AND NOT EXISTS (
+           SELECT 1
+             FROM outbox_deliveries d
+            WHERE d.event_id = e.id
+              AND d.consumer_id = ${consumer.id}
+              AND d.deleted_at IS NULL
+         )
+       LIMIT 200
+    `);
+    for (const row of missing) {
+      const deliveryId = `${row.id}:${consumer.id}`;
+      await tx.run(sql`
+        INSERT INTO outbox_deliveries (
+          id, event_id, consumer_id, attempts, available_at, processed_at,
+          last_error, created_at, updated_at, deleted_at
+        )
+        VALUES (
+          ${deliveryId}, ${row.id}, ${consumer.id}, ${0}, ${row.available_at ?? nowIso}, ${null},
+          ${null}, ${nowIso}, ${nowIso}, ${null}
+        )
+        ON CONFLICT (event_id, consumer_id) DO NOTHING
+      `);
+    }
+  }
 }
 
 async function claimDueDeliveries(
