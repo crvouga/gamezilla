@@ -31,9 +31,6 @@ async function pickedGame(w: HarnessWorld, host: string, guest: string) {
   });
 }
 
-When('{actor} picks the game for the space', async (w, actor: string) => {
-  await w.s.apply(pickGame, actor, gameOf(w).shared.id);
-});
 Then(
   "{actor} and {actor} are offered the game's custom games, finding an opponent and its history",
   async (w, a: string, b: string) => {

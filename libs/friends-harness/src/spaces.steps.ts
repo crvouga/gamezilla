@@ -78,6 +78,16 @@ export function rememberedSpaceLink(w: HarnessWorld): string {
   return recall(w, SPACE_LINK) as string;
 }
 const SPACE_HOST = 'spaceHost';
+const SPACE_GUESTS = 'spaceGuests';
+
+/** The guests an earlier step had join the host's space, in order. */
+export function rememberedSpaceGuests(w: HarnessWorld): readonly Actor[] {
+  return (w.memo.get(SPACE_GUESTS) as readonly Actor[] | undefined) ?? [];
+}
+
+function rememberSpaceGuest(w: HarnessWorld, guest: Actor): void {
+  remember(w, SPACE_GUESTS, [...rememberedSpaceGuests(w), guest]);
+}
 const hostSpaceLinkKey = (host: Actor) => `hostSpaceLink:${host}`;
 
 async function spaceLinkForHost(w: HarnessWorld, host: Actor): Promise<string> {
@@ -364,6 +374,7 @@ Given(
   async (w, host: Actor, guest: Actor) => {
     await w.s.apply(createSpace, host);
     await w.s.apply(joinViaLink, guest, await shareLink(w, host));
+    rememberSpaceGuest(w, guest);
     // Precondition: both are there before the scenario acts.
     await untilPresence(w, host, 2, PRESENCE_SETTLES_MS);
   }
@@ -374,6 +385,7 @@ Given(
   async (w, host: Actor, guest: Actor) => {
     await hostSpace(w, host);
     await joinHostFromLobby(w, guest, host);
+    rememberSpaceGuest(w, guest);
   }
 );
 

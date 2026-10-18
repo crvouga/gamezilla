@@ -27,10 +27,12 @@ import {
 } from './custom-game-ui';
 import { openGameHistory, reviewCustomGameMove } from './game-history-actions';
 import { GAME_NAVIGATION_ACTIONS } from './game-navigation';
+import { SPACE_GAME_CHOICE_ACTIONS } from './space-game-choice';
 
 /** The testing tool's shared game actions, the same for every game. */
 export const GAME_SESSION_HARNESS_ACTIONS = [
   ...GAME_NAVIGATION_ACTIONS,
+  ...SPACE_GAME_CHOICE_ACTIONS,
   establishCustomGame,
   joinCustomGames,
   joinCustomGamesAsGuest,

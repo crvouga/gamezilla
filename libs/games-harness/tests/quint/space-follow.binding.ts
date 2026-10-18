@@ -10,8 +10,8 @@
 import {
   goBackInGame,
   pickGame,
-  showsGameScreen,
 } from '@libs/game-session-harness/game-navigation';
+import { readSpaceView } from '@libs/game-session-harness/space-game-choice';
 import {
   letTimePass,
   partition,
@@ -22,13 +22,10 @@ import {
   signInWithGoogle,
   signInWithGoogleAsAccount,
 } from '@libs/harness/auth-actions';
-import type { ProductHarness } from '@libs/harness/harness';
-import { bringToFront, visible } from '@libs/harness/observations';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { focusActor } from '@libs/harness/shell-actions';
 import { createSpace, joinViaLink } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
-import { Handles } from '@libs/test-ids-shared/handles';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import { modelGameOf } from './model-game';
@@ -50,24 +47,11 @@ function actorOf(device: string): string {
   return actor;
 }
 
-async function viewOf(
-  s: ProductHarness,
-  actor: string,
-  gameId: string
-): Promise<string> {
-  await bringToFront(s, actor);
-  if (await visible(s, actor, [Handles.spaceHostOffline]))
-    return 'host offline';
-  if (await showsGameScreen(s, actor, null)) return 'game';
-  if (await visible(s, actor, [Handles.gameMenu(gameId)])) return 'choice';
-  return 'elsewhere';
-}
-
 async function views(w: QuintHarnessWorld): Promise<Map<string, string>> {
   const gameId = modelGameOf(w).shared.id;
   const view = new Map<string, string>();
   for (const [device, actor] of Object.entries(ACTOR_OF))
-    view.set(device, await w.quiet.read(viewOf, actor, gameId));
+    view.set(device, await w.quiet.read(readSpaceView, actor, gameId));
   return view;
 }
 

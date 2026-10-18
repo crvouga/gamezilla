@@ -125,6 +125,7 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'matched-game-spaces': ['matchmaking'],
   'matched-game-clock-recovery': ['matchmaking', 'history'],
   'space-follow': ['custom-games'],
+  'space-follows-the-host': ['custom-games'],
   'matched-games': ['matchmaking'],
   'matched-game-watch-access': ['matchmaking'],
   'unfinished-game-limit': ['matchmaking', 'custom-games'],
