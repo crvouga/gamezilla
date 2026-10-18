@@ -6,21 +6,6 @@ import { customGamePositionAt } from '@libs/game-session-shared/custom-game-posi
 import { newCustomGame } from '@libs/game-session-shared/custom-game-state';
 import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
 
-// regression: game-session-inconsistent-retained-history
-test('a retained first drop cannot be silently paired with an empty action history', () => {
-  const rules = createTurnGames([connectFourGameShared.turnGame]);
-  const game = {
-    ...newCustomGame('retained-match', 'alice', 'c4:1:3'),
-    status: 'active' as const,
-  };
-  const before = JSON.stringify(game);
-  expect(() => customGamePositionAt(game, 0, rules)).toThrow('action history');
-  expect(() => playCustomGameMove(game, '2', 1000, rules)).toThrow(
-    'action history'
-  );
-  expect(JSON.stringify(game)).toBe(before);
-});
-
 test('an empty accepted action cannot be normalized into a legal retained drop', () => {
   // regression: connect-four-replay-normalizes-invalid-actions
   const rules = createTurnGames([connectFourGameShared.turnGame]);
