@@ -1,11 +1,11 @@
-@domain:chess
+@domain:games
 Feature: Friends watch a puzzle
-  When friends are in a host's space, they want to watch the host's puzzle as
-  it happens and suggest moves, so they follow along without taking it over.
+  When friends are in a host's space, they want to watch the host's puzzle of
+  the game as it happens and suggest moves, so they follow along without taking it over.
 
   Background:
     Given Alice and Bob are friends
-    And Alice is hosting a space that Bob joined from the lobby
+    And Alice and Bob are in Alice's space
     And Alice is playing puzzles in their space
     And Bob is watching Alice's puzzle
 
@@ -13,8 +13,8 @@ Feature: Friends watch a puzzle
 
     Scenario: The host drives the puzzle and the watcher only watches
       When Alice plays the next move of the solution
-      Then Alice is the host of the puzzle and can move pieces
-      And Bob is watching the puzzle and cannot move pieces
+      Then Alice is the host of the puzzle and can make a move
+      And Bob is watching the puzzle and cannot make a move
 
     Scenario: The host can move on from a finished puzzle
       Given Alice has solved the puzzle
@@ -49,7 +49,7 @@ Feature: Friends watch a puzzle
       And Bob's game log is empty within 15 seconds
       And Bob's puzzle rating is 1500
 
-  Rule: A watcher's view follows the host, on the board and off it
+  Rule: What a watcher sees follows the host, on the board and off it
 
     Scenario: A watcher sees the host's puzzle solved
       When Alice solves the puzzle
@@ -60,7 +60,7 @@ Feature: Friends watch a puzzle
       Then Alice's and Bob's boards agree
 
     Scenario: Leaving the puzzle takes the watcher off the board too
-      When Alice leaves the puzzle for the chess choices
+      When Alice leaves the puzzle for the game's choices
       Then Alice has no puzzle on the board
       And Bob has no puzzle on the board
       And Bob is not offered a puzzle of his own

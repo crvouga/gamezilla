@@ -1,6 +1,6 @@
-@domain:chess
+@domain:games
 Feature: Arriving while a puzzle is under way
-  When someone arrives mid-puzzle, or their connection drops while watching,
+  When someone arrives in the middle of a puzzle of the game, or their connection drops while watching,
   they want the position the host is actually in, never an older one, so they
   can follow along. Guests can watch as well as friends.
 

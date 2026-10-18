@@ -36,9 +36,10 @@ or policy without an owner fails compilation.
 | [specs/games/puzzle-attempt.qnt](../../specs/games/puzzle-attempt.qnt) | puzzles |
 | [specs/chess/puzzle-assistant.qnt](../../specs/chess/puzzle-assistant.qnt) | puzzles |
 | [specs/games/puzzle-feed.qnt](../../specs/games/puzzle-feed.qnt) | puzzle-feed |
-| [specs/chess/puzzle-link.qnt](../../specs/chess/puzzle-link.qnt) | puzzle-links |
+| [specs/games/puzzle-link.qnt](../../specs/games/puzzle-link.qnt) | puzzle-links |
 | [specs/chess/puzzle-loading.qnt](../../specs/chess/puzzle-loading.qnt) | puzzle-ingest |
-| [specs/chess/puzzle-result-recovery.qnt](../../specs/chess/puzzle-result-recovery.qnt) | puzzles |
+| [specs/games/puzzle-result-recovery.qnt](../../specs/games/puzzle-result-recovery.qnt) | puzzles |
+| [specs/games/puzzle-sound.qnt](../../specs/games/puzzle-sound.qnt) | puzzles |
 | [specs/chess/puzzle-sound.qnt](../../specs/chess/puzzle-sound.qnt) | puzzles |
 | [specs/db-indexes/index-interruption.qnt](../../specs/db-indexes/index-interruption.qnt) | database-maintenance |
 | [specs/db-indexes/index-retirement.qnt](../../specs/db-indexes/index-retirement.qnt) | database-maintenance |

@@ -1,8 +1,8 @@
-@domain:chess
+@domain:games
 Feature: Puzzles offline
-  When a device goes offline before it ever had puzzles, a solver wants to be
-  told that puzzles need a connection instead of waiting forever, so they
-  know why; puzzles arrive by themselves once the connection is back.
+  When a device goes offline before it ever had puzzles of the game, a solver
+  wants to be told that puzzles need a connection instead of waiting forever,
+  so they know why; puzzles arrive by themselves once the connection is back.
 
   Rule: A solver can finish puzzles and move on without a connection
 

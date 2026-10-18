@@ -300,8 +300,8 @@ journeys:
     endsIn:
     - 'Spaces: Lobby'
     gherkin:
-    - specs/chess/puzzle-offline.feature
-    - specs/chess/puzzle-late-watcher.feature
+    - specs/games/puzzle-offline.feature
+    - specs/games/puzzle-late-watcher.feature
     - specs/spaces/space-end.feature
     tour: true
   Preview and save a puzzle feed then keep playing:
@@ -344,7 +344,7 @@ journeys:
     endsIn:
     - 'Puzzles: Solving'
     gherkin:
-    - specs/chess/puzzle-link.feature
+    - specs/games/puzzle-link.feature
     tour: true
   Puzzle results remain reviewable:
     description: A finished puzzle leads to the owned history, a recorded attempt and its unchanged result.

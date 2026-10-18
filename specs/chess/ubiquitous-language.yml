@@ -67,12 +67,11 @@ terms:
   - term: sounds
     from: runtime
     forms: [sound, silence, silent, turned sounds off, turned sounds on, turns sounds off, turns sounds on]
-    model: [configurePuzzleSounds]
 
   # The shared kernel's "the app", named in this context's model.
   - term: the app
     from: kernel
-    model: [reopenApp, closeApp]
+    model: [reopenApp]
 
   # --- Where a person is in a space ------------------------------------------
 
@@ -276,28 +275,9 @@ terms:
 
   - term: retired puzzle
     definition: >-
-      A puzzle taken out of the puzzle feed. It is never served again and its
-      puzzle link no longer opens it, but it stays in the game log and still
-      opens in review.
+      A puzzle taken out of the puzzle feed. It is never served again, but
+      it stays in the game log and still opens in review.
     forms: [retired]
-    model: [retirePuzzle]
-
-  - term: puzzle link
-    definition: >-
-      A link to one puzzle that a solver can share from the puzzle on their
-      board, finished or not. Opening it puts that exact puzzle on the
-      person's board: rated if they have never played it, unrated if they
-      have. For a guest a rated one uses a puzzle start. A retired puzzle's
-      link no longer opens it, and the person is told the puzzle is no longer
-      available.
-    forms:
-      - puzzle links
-      - puzzle link's
-      - shares a puzzle link
-      - shared a puzzle link
-      - opens a puzzle link
-    avoid: [puzzle address, permalink, deep link, puzzle URL]
-    model: [sharePuzzleLink, openPuzzleLink, linkShared, linkRefusal]
 
   - term: puzzle feed
     definition: >-
@@ -378,7 +358,6 @@ terms:
       continues the same attempt. Leaving the puzzle or closing the app does
       not end it.
     avoid: [session]
-    model: [finish, finishAsAppCloses, finishAlongsideOtherDevice, Unfinished]
 
   - term: puzzle state
     definition: >-
@@ -426,7 +405,7 @@ terms:
       Finish a puzzle with the solution or any legal checkmate. A solved puzzle is over, and
       its pieces can no longer be moved.
     forms: [solves, solved, solving]
-    model: [solve, CleanSolve]
+    model: [solve]
     published: true
 
   - term: wrong move
@@ -436,14 +415,14 @@ terms:
       retry. It earns half credit, like a hint.
     forms: [wrong]
     avoid: [mistake, blunder]
-    model: [playWrongMove, WrongMove]
+    model: [playWrongMove]
 
   - term: hint
     definition: >-
       Help while solving: the first highlights the piece to move, the second
       shows the solution move. A puzzle solved after a hint earns half credit.
     forms: [asks for a hint, asks for another hint, asked for a hint]
-    model: [HintedSolve, requestHint, help, tryHintAfterFinish, tryHintFromReview, tryHintBeforeRetry, tryEarlierHint]
+    model: [requestHint, help, tryHintAfterFinish, tryHintFromReview, tryHintBeforeRetry, tryEarlierHint]
 
   - term: half credit
     definition: >-
@@ -456,7 +435,7 @@ terms:
       solve, a shown solution or a skip, play the same puzzle from its start.
       It continues the same attempt, so its first outcome does not change.
     forms: [retries the puzzle, retried the puzzle, retrying the puzzle]
-    model: [retry, retryAndSolve, tryRetryWhileSolving]
+    model: [retry, tryRetryWhileSolving]
 
   - term: show the solution
     definition: >-
@@ -470,14 +449,14 @@ terms:
       - revealed
       - revealed solution
       - revealed line
-    model: [showSolution, ShownSolution, tryShowSolutionAfterFinish, tryShowSolutionFromReview]
+    model: [showSolution, tryShowSolutionAfterFinish, tryShowSolutionFromReview]
 
   - term: skip
     definition: >-
       Give up on a puzzle being solved. It is over, and the attempt is
       abandoned.
     forms: [skips, skipped, skipping]
-    model: [skip, Skipped, trySkipAfterFinish]
+    model: [skip, trySkipAfterFinish]
 
   - term: failed attempt
     definition: >-
@@ -558,7 +537,6 @@ terms:
       it.
     forms: [rating, rating gain, puzzle ratings]
     avoid: [score, elo]
-    model: [ratedResult]
 
   - term: seed rating
     definition: The puzzle rating every solver starts at, 1500.
@@ -601,7 +579,6 @@ terms:
       puzzle, ever. A repeat of an already-played puzzle is unrated, and a
       watcher is never rated.
     forms: [rated, unrated, rated puzzle]
-    model: [rated]
 
   - term: stats
     definition: >-
@@ -609,7 +586,6 @@ terms:
       the rating moved over time. They count each puzzle's rated attempt
       only.
     avoid: [statistics, scoreboard]
-    model: [readStats, readStatsOnOtherDevice]
 
   - term: accuracy
     definition: The share of rated attempts solved, as a whole percentage.
@@ -620,7 +596,6 @@ terms:
       failed or abandoned with the puzzle's own rating and its rating change
       (or that it was unrated), and each opening in review.
     avoid: [puzzle history]
-    model: [gameLog]
 
   - term: review
     definition: >-
@@ -632,7 +607,7 @@ terms:
       device.
     forms: [reviews, reviewing, reviewed]
     avoid: [replay, analysis]
-    model: [stepBackPosition, stepForwardPosition, position, chooseReviewPosition, tryReviewBeforeRetry, stepPuzzleSoundReview]
+    model: [stepBackPosition, stepForwardPosition, position, chooseReviewPosition, tryReviewBeforeRetry]
 
   # --- The daily puzzle limit --------------------------------------------------
 
@@ -656,7 +631,7 @@ terms:
   - term: move
     source: FIDE Laws of Chess, Article 3 (the moves of the pieces)
     forms: [moves, moved, moving, plays]
-    model: [playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, playQuietPuzzleMove, playCapturePuzzleMove]
+    model: [playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, playCapturePuzzleMove]
   - term: capture
     source: FIDE Laws of Chess, Article 3.1.1 (removing an opposing piece as part of a move)
     forms: [captures, captured]
@@ -1209,6 +1184,5 @@ terms:
   - term: first result
     definition: >-
       The first solved, failed or abandoned outcome recorded for a solver's
-      puzzle. If devices act apart, the outcome that reaches the account first
-      is kept.
-    model: [Result]
+      puzzle. If devices act apart, the outcome counted first is kept, and
+      every device of the account shows it.

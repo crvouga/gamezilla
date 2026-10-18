@@ -1,7 +1,7 @@
-@domain:chess
+@domain:games
 Feature: Days of puzzles without a connection
-  When a solver has puzzles on their device and no connection for days, they
-  want to keep playing, so there are no errors, nothing blocked, and nothing
+  When a solver has puzzles of the game on their device and no connection for
+  days, they want to keep playing, so there are no errors, nothing blocked, and nothing
   lost or counted twice once the connection comes back.
 
   Rule: Puzzles already on the device keep the feed playing with no connection

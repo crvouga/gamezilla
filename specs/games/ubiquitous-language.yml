@@ -230,7 +230,7 @@ terms:
       - move played
       - moves played
     avoid: [command, action]
-    model: [playCustomMove, movesPlayed, movesShown, playMove, playCurrentMove, moveCount, moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, tryIllegalMove]
+    model: [playCustomMove, movesPlayed, movesShown, playMove, playCurrentMove, moveCount, moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, tryIllegalMove, playPuzzleMove]
 
   - term: turn
     definition: The participant who may make the next move.
@@ -738,7 +738,7 @@ terms:
       that needs a retry first.
     forms: [reviews, reviewed, reviewing]
     avoid: [replay, analysis]
-    model: [stepBackPosition, stepForwardPosition, position, chooseReviewPosition, tryReviewBeforeRetry]
+    model: [stepBackPosition, stepForwardPosition, position, chooseReviewPosition, tryReviewBeforeRetry, stepPuzzleSoundReview]
 
   - term: statistics
     definition: >-
@@ -755,7 +755,7 @@ terms:
       puzzle has a rating of its own, which is how hard it is.
     forms: [puzzles, this puzzle, next puzzle, a different puzzle, the puzzle's]
     avoid: [problem, exercise]
-    model: [puzzle, Puzzle]
+    model: [puzzle, Puzzle, PuzzleSound, puzzleSound]
 
   - term: known puzzle
     definition: >-
@@ -904,6 +904,7 @@ terms:
       not end it.
     forms: [attempts, attempt's]
     avoid: [session]
+    model: [finish, finishAsAppCloses, finishAlongsideOtherDevice, Unfinished]
 
   - term: puzzle state
     definition: >-
@@ -946,7 +947,7 @@ terms:
       Finish a puzzle with its solution. A solved puzzle is over, and no
       more moves can be made in it.
     forms: [solves, solved, solving, solving it cleanly]
-    model: [solve]
+    model: [solve, CleanSolve]
 
   - term: wrong move
     definition: >-
@@ -955,7 +956,7 @@ terms:
       made until a retry.
     forms: [wrong]
     avoid: [mistake, blunder]
-    model: [playWrongMove]
+    model: [playWrongMove, WrongMove]
 
   - term: hint
     definition: >-
@@ -965,7 +966,7 @@ terms:
       retry, or once the puzzle is over. A puzzle solved after a hint earns
       half credit.
     forms: [hints, asks for a hint, asks for another hint, taken a hint, taken two hints]
-    model: [requestHint, help, tryHintAfterFinish, tryHintFromReview, tryHintBeforeRetry, tryEarlierHint]
+    model: [HintedSolve, requestHint, help, tryHintAfterFinish, tryHintFromReview, tryHintBeforeRetry, tryEarlierHint]
 
   - term: retry the puzzle
     definition: >-
@@ -974,7 +975,7 @@ terms:
       start. It continues the same attempt, so its first outcome does not
       change. It is not offered while the puzzle is being solved.
     forms: [retry, retries the puzzle, retried, retried the puzzle, retrying the puzzle, retrying]
-    model: [retry, tryRetryWhileSolving]
+    model: [retry, retryAndSolve, tryRetryWhileSolving]
 
   - term: show the solution
     definition: >-
@@ -988,14 +989,14 @@ terms:
       - revealed
       - revealed solution
       - revealed line
-    model: [showSolution, tryShowSolutionAfterFinish, tryShowSolutionFromReview]
+    model: [showSolution, ShownSolution, tryShowSolutionAfterFinish, tryShowSolutionFromReview]
 
   - term: skip
     definition: >-
       Give up on a puzzle being solved. It is over, and the attempt is
       abandoned.
     forms: [skips, skipped, skipping, skipping it]
-    model: [skip, trySkipAfterFinish]
+    model: [skip, Skipped, trySkipAfterFinish]
 
   - term: failed attempt
     definition: >-
@@ -1062,6 +1063,7 @@ terms:
       the rating ceiling. Time taken never changes it.
     forms: [puzzle ratings]
     avoid: [score, elo]
+    model: [ratedResult]
 
   - term: rating change
     definition: >-
@@ -1077,8 +1079,8 @@ terms:
       An attempt that moves the puzzle rating: a solver's first attempt at a
       puzzle, ever. A repeat of an already-played puzzle is unrated, and a
       watcher is never rated.
-    forms: [rated puzzle, rated puzzles]
-    model: [RatedPuzzle]
+    forms: [rated, rated puzzle, rated puzzles]
+    model: [RatedPuzzle, rated]
 
   - term: puzzle stats
     definition: >-
@@ -1086,6 +1088,7 @@ terms:
       the puzzle rating moved over time, at the game's puzzles. They count
       each puzzle's rated attempt only.
     forms: [stats]
+    model: [readStats, readStatsOnOtherDevice]
 
   - term: rating floor
     definition: >-
@@ -1119,20 +1122,39 @@ terms:
       and its rating change (or that it was unrated), and each opening in
       review.
     avoid: [puzzle history]
-    model: [PlayedPuzzle]
+    model: [PlayedPuzzle, gameLog]
 
   - term: first result
     definition: >-
       The first solved, failed or abandoned outcome recorded for a solver's
-      puzzle. If devices act apart, the outcome that reaches the account first
-      is kept.
+      puzzle. If devices act apart, the outcome counted first is kept, and
+      every device of the account shows it.
     model: [Result, Solved, Failed, Abandoned]
 
   - term: retired puzzle
     definition: >-
-      A puzzle taken out of the puzzle feed. It is never served again, but
-      it stays in the game log and still opens in review.
+      A puzzle taken out of the puzzle feed. It is never served again and its
+      puzzle link no longer opens it, but it stays in the game log and still
+      opens in review.
     forms: [retired]
+    model: [retirePuzzle]
+
+  - term: puzzle link
+    definition: >-
+      A link to one puzzle of the game that a solver can share from the
+      puzzle on their board, finished or not. Opening it puts that exact
+      puzzle on the person's board, in its game: rated if they have never
+      played it, unrated if they have. For a guest a rated one uses a puzzle
+      start. A retired puzzle's link no longer opens it, and the person is
+      told the puzzle is no longer available.
+    forms:
+      - puzzle links
+      - puzzle link's
+      - shares a puzzle link
+      - shared a puzzle link
+      - opens a puzzle link
+    avoid: [puzzle address, permalink, deep link, puzzle URL]
+    model: [sharePuzzleLink, openPuzzleLink, linkShared, linkRefusal]
 
   - term: daily puzzle limit
     definition: >-
@@ -1289,12 +1311,13 @@ terms:
 
   - term: sounds
     from: runtime
-    forms: [turned sounds on, turned sounds off]
+    forms: [sound, silence, silent, turned sounds on, turned sounds off, turns sounds on, turns sounds off]
+    model: [configurePuzzleSounds]
 
   - term: the app
     from: kernel
     forms: [closed the app, has closed the app]
-    model: [reopenApp]
+    model: [reopenApp, closeApp]
 
   - term: person
     from: kernel

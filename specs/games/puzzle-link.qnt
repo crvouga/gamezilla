@@ -1,15 +1,18 @@
-// Alice shares a puzzle link to the puzzle on her board; Bob, a guest, opens
-// it on his device. Bob may or may not have played that puzzle before, and
-// has started 18, 19 or 20 rated puzzles today. Either device can lose its
-// connection and get it back, more than once, while the other keeps its own.
-// Alice can share the link with or without a connection.
+// Alice shares a puzzle link to the puzzle of the game on her board; Bob, a
+// guest, opens it on his device, and it opens that puzzle in its game. It
+// holds for every game that offers puzzles, and runs once for each of them.
+// Bob may or may not have played that puzzle before, and has started 18, 19
+// or 20 rated puzzles today, in any game offering puzzles. Either device can
+// lose its connection and get it back, more than once, while the other keeps
+// its own. Alice can share the link with or without a connection.
 //
 // Opening the link puts that exact puzzle on Bob's board. If Bob has never
 // played it, the attempt is rated and uses one puzzle start of his daily
-// puzzle limit of 20; if he has, it is unrated and uses none. A guest who has
-// reached the daily puzzle limit cannot open a puzzle he has never played:
-// he is told the limit is reached. Opening the link again while the puzzle
-// is on his board changes nothing and uses no further puzzle start.
+// puzzle limit of 20, the one allowance every game offering puzzles shares;
+// if he has, it is unrated and uses none. A guest who has reached the daily
+// puzzle limit cannot open a puzzle he has never played: he is told the
+// limit is reached. Opening the link again while the puzzle is on his board
+// changes nothing and uses no further puzzle start.
 //
 // Once the puzzle is retired, its link no longer opens it, and Bob is told
 // the puzzle is no longer available; a puzzle already on his board stays.

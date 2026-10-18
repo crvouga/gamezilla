@@ -1,6 +1,8 @@
-// Alice plays one rated puzzle, Charlie uses another device of Alice's
-// account, and Bob watches. The first result belongs to Alice even if her
-// app closes as she finishes. Closing an app and losing a connection are
+// Alice plays one rated puzzle of the game, Charlie uses another device of
+// Alice's account, and Bob watches. It holds for every game that offers
+// puzzles, and runs once for each of them; each game's game log and puzzle
+// rating are its own. The first result belongs to Alice even if her app
+// closes as she finishes. Closing an app and losing a connection are
 // independent: each device can return in any order, more than once.
 // Taking a hint or making a wrong move keeps its effect on the rating;
 // retrying and solving afterwards never replaces the first result.
@@ -85,7 +87,7 @@ module puzzle_result_recovery {
   }
 
   /// Both devices finish while apart, possibly differently. After both return,
-  /// the result that reached the account first remains the only counted result.
+  /// the result counted first remains the only counted result.
   action finishAlongsideOtherDevice(result: Result, otherResult: Result): bool = all {
     _firstResult == Unfinished, not(_readingStats),
     _open.get(SOLVER), _online.get(SOLVER),

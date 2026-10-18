@@ -1,9 +1,9 @@
-@domain:chess
+@domain:games
 Feature: Keep puzzle play and its first result without a connection
-  When a solver loses the connection during a puzzle, they want the same attempt and honest progress kept, so they can carry on without losing or repeating a result.
+  When a solver loses the connection during a puzzle of the game, they want the same attempt and honest progress kept, so they can carry on without losing or repeating a result.
 
   Rule: A puzzle already on the device stays playable without a connection
-    No counter-example: the daily puzzle limit and chess rules remain the same with or without a connection.
+    No counter-example: the daily puzzle limit and the game's rules remain the same with or without a connection.
 
     Scenario: The current puzzle can be solved after the connection is lost
       Given Alice is playing puzzles in their space
@@ -16,7 +16,7 @@ Feature: Keep puzzle play and its first result without a connection
       Given Alice is playing puzzles in their space
       And Alice is offline
       When Alice asks for a hint
-      Then Alice's hint highlights the piece to move
+      Then Alice's hint highlights where the solution move starts
       And Alice is on the same puzzle as before
 
   Rule: Reopening and returning keep the first result without counting another attempt
@@ -36,6 +36,7 @@ Feature: Keep puzzle play and its first result without a connection
       And Alice's puzzle rating counts that first result exactly once
 
   Rule: Missing puzzles are explained without preventing the solver from leaving
+    No counter-example: leaving the puzzles is never refused.
 
     Scenario: An empty offline feed offers a way back to the game choice
       Given Alice went offline before any puzzles reached their device
