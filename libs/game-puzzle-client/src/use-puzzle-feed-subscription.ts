@@ -14,6 +14,7 @@ import {
   createSignal,
   onCleanup,
 } from 'solid-js';
+import { usePuzzleGame } from './puzzle-game-context';
 import { useEffectivePuzzleRatingFor } from './use-effective-puzzle-rating';
 
 const POOL_QUERY_NAME = 'chessPuzzlePool';
@@ -36,6 +37,9 @@ export function usePuzzleFeedSubscription(
   config: Accessor<PuzzleFeedConfig>
 ): Accessor<boolean> {
   const sync = useSyncEngineInstance();
+  const { namespace } = usePuzzleGame();
+  // The game's share of the catalogue; the durable game's reads name none.
+  const scope = namespace === '' ? {} : { namespace };
   const rating = useEffectivePuzzleRatingFor(config);
   const [poolReady, setPoolReady] = createSignal(false);
   const ranges = createMemo(() => puzzlePoolRangesForRating(rating()), [], {
@@ -47,10 +51,13 @@ export function usePuzzleFeedSubscription(
     setPoolReady(false);
     const bands = ranges();
     const handle = sync.subscribeQueries([
-      ...bands.map((params) => ({ name: POOL_QUERY_NAME, params })),
+      ...bands.map((range) => ({
+        name: POOL_QUERY_NAME,
+        params: { ...range, ...scope },
+      })),
       {
         name: NEAREST_QUERY_NAME,
-        params: { rating: nearestRating() },
+        params: { rating: nearestRating(), ...scope },
       },
     ]);
     let live = true;

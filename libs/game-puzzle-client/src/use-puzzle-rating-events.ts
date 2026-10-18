@@ -1,4 +1,5 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import { puzzleNamespaceCondition } from '@libs/game-puzzle-shared/puzzle-namespace';
 import type {
   PuzzleRatingEvent,
   PuzzleRatingEventSqlRow,
@@ -7,6 +8,7 @@ import { ratingEventFromSql } from '@libs/game-puzzle-shared/rating-event';
 import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
+import { usePuzzleGame } from './puzzle-game-context';
 
 /** Match the sync hydrate limit so the graph sees the whole ledger. */
 const RATING_EVENT_LIMIT = 5000;
@@ -20,6 +22,7 @@ export function usePuzzleRatingEvents(): Accessor<
   readonly PuzzleRatingEvent[]
 > {
   const myId = useMyId();
+  const { namespace } = usePuzzleGame();
   const { rows } = createQuery(
     () => sql<PuzzleRatingEventSqlRow>`
       SELECT
@@ -35,6 +38,7 @@ export function usePuzzleRatingEvents(): Accessor<
       FROM chess_puzzle_rating_events
       WHERE owner_id = ${myId()}
         AND deleted_at IS NULL
+        AND ${puzzleNamespaceCondition(namespace, 'puzzle_id')}
       ORDER BY at ASC
       LIMIT ${RATING_EVENT_LIMIT}
     `

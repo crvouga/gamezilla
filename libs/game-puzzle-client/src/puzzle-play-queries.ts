@@ -1,5 +1,6 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import type { PuzzleInteractionRow } from '@libs/game-puzzle-shared/interaction-entities';
+import { puzzleNamespaceCondition } from '@libs/game-puzzle-shared/puzzle-namespace';
 import sql from '@pkgs/sql-root-shared/sql';
 import {
   createQuery,
@@ -13,6 +14,7 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js';
+import { usePuzzleGame } from './puzzle-game-context';
 
 function readStringArray(raw: unknown): readonly string[] {
   if (typeof raw === 'string') {
@@ -196,6 +198,7 @@ export function usePuzzleInteractions(puzzleId: Accessor<string>): {
 
 export function usePuzzleAllInteractions(): Accessor<PuzzleInteractionRow[]> {
   const myId = useMyId();
+  const { namespace } = usePuzzleGame();
   const query = () => sql<InteractionSqlRow>`
       SELECT
         puzzle_id,
@@ -207,6 +210,7 @@ export function usePuzzleAllInteractions(): Accessor<PuzzleInteractionRow[]> {
         at
       FROM chess_puzzle_interactions
       WHERE owner_id = ${myId()}
+        AND ${puzzleNamespaceCondition(namespace, 'puzzle_id')}
       ORDER BY at DESC
       LIMIT ${INTERACTION_HISTORY_LIMIT}
     `;

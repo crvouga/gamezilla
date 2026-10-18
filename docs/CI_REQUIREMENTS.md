@@ -123,7 +123,7 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 ### Leaves
 
-48 leaves have check scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
+47 leaves have check scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
 
 | | |
 | --- | --- |

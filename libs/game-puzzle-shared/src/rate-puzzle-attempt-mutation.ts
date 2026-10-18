@@ -29,6 +29,7 @@ import { z } from 'zod';
 
 import { PUZZLE_POOL_RATING_CEILING } from './feed-config';
 import { PUZZLE_INTERACTION_KIND } from './interaction-entities';
+import { puzzleNamespaceOf, puzzleOwnerKey } from './puzzle-namespace';
 import { ratedStartKeyPrefix } from './rated-start-key';
 import type { PuzzleRatingState } from './rating';
 import {
@@ -67,14 +68,17 @@ type ProfileSqlRow = {
   readonly volatility_micros: number | null;
 };
 
+/** The player's rating profile for the game the puzzle is from. */
+type ProfileKey = { readonly id: string; readonly ownerId: string };
+
 async function readProfile(
   tx: MutationDb,
-  ownerId: string
+  profile: ProfileKey
 ): Promise<{ exists: boolean; state: PuzzleRatingState }> {
   const rows = await tx.query(sql<ProfileSqlRow>`
     SELECT rating, rating_deviation, volatility_micros
     FROM chess_puzzle_profiles
-    WHERE id = ${ownerId}
+    WHERE id = ${profile.id}
       AND deleted_at IS NULL
     LIMIT 1
   `);
@@ -151,7 +155,7 @@ async function insertRatingEvent(
 
 async function writeProfile(
   tx: MutationDb,
-  ownerId: string,
+  profile: ProfileKey,
   next: {
     state: PuzzleRatingState;
     before: PuzzleRatingState;
@@ -168,7 +172,7 @@ async function writeProfile(
           rating_deviation = ${next.state.ratingDeviation},
           volatility_micros = ${next.state.volatilityMicros},
           last_interaction_at = ${next.at}
-      WHERE id = ${ownerId}
+      WHERE id = ${profile.id}
         AND deleted_at IS NULL
         AND rating = ${next.before.rating}
         AND rating_deviation = ${next.before.ratingDeviation}
@@ -186,7 +190,7 @@ async function writeProfile(
       last_interaction_at
     )
     VALUES (
-      ${ownerId}, ${ownerId}, ${next.state.rating},
+      ${profile.id}, ${profile.ownerId}, ${next.state.rating},
       ${next.state.ratingDeviation}, ${next.state.volatilityMicros},
       ${next.at}
     )
@@ -229,7 +233,13 @@ export const ratePuzzleAttemptMutation = defineMutation({
     // Result, first rating, and queued upload share the mutation transaction.
     await recordOutcome(tx, args, at);
     if (rated) return;
-    const profile = await readProfile(tx, args.ownerId);
+    // Each game rates its puzzles apart: the profile in the puzzle's
+    // namespace (the durable game's is the owner's id itself).
+    const key: ProfileKey = {
+      id: puzzleOwnerKey(puzzleNamespaceOf(args.puzzleId), args.ownerId),
+      ownerId: args.ownerId,
+    };
+    const profile = await readProfile(tx, key);
     const after = applyPuzzleAttemptRating({
       player: profile.state,
       puzzleRating: args.puzzleRating,
@@ -241,7 +251,7 @@ export const ratePuzzleAttemptMutation = defineMutation({
       after,
       at,
     });
-    await writeProfile(tx, args.ownerId, {
+    await writeProfile(tx, key, {
       state: after,
       before: profile.state,
       at,

@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@libs/chess-puzzle-shared": "workspace:*",
+    "@libs/chess-sub-shared": "workspace:*",
     "@libs/db-shared": "workspace:*",
     "@libs/game-puzzle-shared": "workspace:*",
     "@libs/infra-shared": "workspace:*",
@@ -47,7 +48,6 @@
     "fzstd": "catalog:"
   },
   "devDependencies": {
-    "@libs/chess-sub-shared": "workspace:*",
     "@pkgs/chess-rules-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",

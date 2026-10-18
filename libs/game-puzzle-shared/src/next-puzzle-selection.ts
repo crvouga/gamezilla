@@ -4,6 +4,7 @@ import sql, { empty, join } from '@pkgs/sql-root-shared/sql';
 import type { PuzzleFeedHistoryFilter } from './feed-config';
 import { PUZZLE_RATING_BAND_SIZE } from './feed-config';
 import { PUZZLE_INTERACTION_KIND } from './interaction-entities';
+import { puzzleNamespaceCondition } from './puzzle-namespace';
 import {
   PUZZLE_RATING_DEFAULT,
   PUZZLE_RATING_DEFAULT_RD,
@@ -62,6 +63,8 @@ export type PuzzleCandidateRow = {
 };
 
 export type BuildPuzzleFilterArgs = {
+  /** The game whose puzzles are picked (its puzzle namespace). */
+  readonly namespace: string;
   readonly rating: number;
   readonly halfWindow: number | null;
   readonly ownerId: string;
@@ -137,6 +140,7 @@ export function buildPuzzleFilterConditions(
   // Live reads skip sync tombstones (`deleted_at` rows stay on the wire).
   const conditions: SqlFragment[] = [
     sql<void>`deleted_at IS NULL`,
+    puzzleNamespaceCondition(args.namespace),
     ...qualityConditions(),
   ];
   if (args.halfWindow !== null) {
@@ -213,6 +217,7 @@ export type PuzzleExhaustedCandidateRow = PuzzleCandidateRow & {
 };
 
 export type BuildExhaustedPuzzleCandidatesArgs = {
+  readonly namespace: string;
   readonly ownerId: string;
   readonly themes: readonly string[];
   readonly currentPuzzleId: string | null;
@@ -230,6 +235,7 @@ export function buildExhaustedPuzzleCandidatesSql(
 ): Sql<PuzzleExhaustedCandidateRow> {
   const conditions: SqlFragment[] = [
     sql<void>`deleted_at IS NULL`,
+    puzzleNamespaceCondition(args.namespace),
     ...qualityConditions(),
     sql<void>`id IN (
       SELECT puzzle_id
@@ -272,11 +278,14 @@ export function buildPuzzleMatchedCountSql(
   `;
 }
 
-export function buildPuzzleTotalCountSql(): Sql<PuzzleCountRow> {
+export function buildPuzzleTotalCountSql(
+  namespace: string
+): Sql<PuzzleCountRow> {
   return sql<PuzzleCountRow>`
     SELECT COUNT(*) AS value
     FROM chess_puzzles
     WHERE deleted_at IS NULL
+      AND ${puzzleNamespaceCondition(namespace)}
   `;
 }
 
@@ -286,10 +295,14 @@ export function buildPuzzleTotalCountSql(): Sql<PuzzleCountRow> {
  * instead of "you cleared your feed".
  */
 export function buildPuzzleBandCountSql(args: {
+  readonly namespace: string;
   readonly rating: number;
   readonly halfWindow: number | null;
 }): Sql<PuzzleCountRow> {
-  const conditions: SqlFragment[] = [sql<void>`deleted_at IS NULL`];
+  const conditions: SqlFragment[] = [
+    sql<void>`deleted_at IS NULL`,
+    puzzleNamespaceCondition(args.namespace),
+  ];
   if (args.halfWindow !== null) {
     conditions.push(
       sql<void>`rating >= ${Math.max(0, args.rating - args.halfWindow)}`,

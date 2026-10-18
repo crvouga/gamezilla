@@ -8,6 +8,7 @@ import {
 } from '@libs/game-puzzle-shared/next-puzzle-selection';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
+import { usePuzzleGame } from './puzzle-game-context';
 import { usePuzzleProfileRatings } from './use-puzzle-profile-ratings';
 
 export type PuzzleFeedPoolStats = {
@@ -21,8 +22,10 @@ export function usePuzzleFeedPoolStats(
 ): PuzzleFeedPoolStats {
   const myId = useMyId();
   const profile = usePuzzleProfileRatings(myId);
+  const { namespace } = usePuzzleGame();
   const matched = createQuery(() =>
     buildPuzzleMatchedCountSql({
+      namespace,
       rating: resolveEffectivePuzzleRating({
         config: config(),
         profileRating: profile.profileRating(),
@@ -34,7 +37,7 @@ export function usePuzzleFeedPoolStats(
       currentPuzzleId: null,
     })
   );
-  const total = createQuery(buildPuzzleTotalCountSql);
+  const total = createQuery(() => buildPuzzleTotalCountSql(namespace));
   return {
     matched: createMemo(() => matched.rows()[0]?.value ?? 0),
     total: createMemo(() => total.rows()[0]?.value ?? 0),

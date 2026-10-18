@@ -36,7 +36,13 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/billing-shared": "workspace:*",
+    "@pkgs/db-schema-postgres-server": "workspace:*",
+    "@pkgs/db-schema-postgres-shared": "workspace:*",
+    "@pkgs/db-schema-root-shared": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
@@ -56,6 +62,7 @@
     "play-result",
     "pool-query",
     "profile-query",
+    "puzzle-catalogue",
     "puzzle-judge",
     "puzzle-link",
     "puzzle-setup",

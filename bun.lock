@@ -958,6 +958,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/chess-puzzle-shared": "workspace:*",
+        "@libs/chess-sub-shared": "workspace:*",
         "@libs/db-shared": "workspace:*",
         "@libs/game-puzzle-shared": "workspace:*",
         "@libs/infra-shared": "workspace:*",
@@ -985,7 +986,6 @@
         "fzstd": "catalog:",
       },
       "devDependencies": {
-        "@libs/chess-sub-shared": "workspace:*",
         "@pkgs/chess-rules-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
@@ -1676,7 +1676,13 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@libs/billing-shared": "workspace:*",
+        "@pkgs/db-schema-postgres-server": "workspace:*",
+        "@pkgs/db-schema-postgres-shared": "workspace:*",
+        "@pkgs/db-schema-root-shared": "workspace:*",
+        "@pkgs/db-schema-sqlite-shared": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
+        "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",

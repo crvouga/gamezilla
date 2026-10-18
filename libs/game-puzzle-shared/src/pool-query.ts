@@ -11,6 +11,19 @@ import {
   PUZZLE_MIN_PLAYS,
   PUZZLE_MIN_POPULARITY,
 } from './next-puzzle-selection';
+import {
+  isPuzzleNamespace,
+  puzzleNamespaceCondition,
+} from './puzzle-namespace';
+
+/**
+ * Which game's puzzles: its namespace, the durable game's `''` when left
+ * out (so a device that never names one reads chess's catalogue as before).
+ */
+const namespaceParam = z
+  .string()
+  .refine(isPuzzleNamespace, 'not a puzzle namespace')
+  .default('');
 
 export const chessPuzzlePool = defineQuery({
   name: 'chessPuzzlePool',
@@ -28,12 +41,17 @@ export const chessPuzzlePool = defineQuery({
         .min(0)
         .max(PUZZLE_POOL_RATING_CEILING)
         .default(PUZZLE_POOL_RATING_CEILING),
+      namespace: namespaceParam,
     })
     .refine((p) => p.ratingMin <= p.ratingMax),
-  sampleParams: { ratingMin: 0, ratingMax: PUZZLE_POOL_RATING_CEILING },
+  sampleParams: {
+    ratingMin: 0,
+    ratingMax: PUZZLE_POOL_RATING_CEILING,
+    namespace: '',
+  },
   limit: PUZZLE_POOL_BAND_ROW_LIMIT,
   entryChannel: () => puzzleCatalogueChannels(),
-  async run(ctx, { ratingMin, ratingMax }) {
+  async run(ctx, { ratingMin, ratingMax, namespace }) {
     const rows = await ctx.db.query(sql`
       SELECT
         id, 
@@ -50,6 +68,7 @@ export const chessPuzzlePool = defineQuery({
       FROM chess_puzzles
       WHERE rating >= ${ratingMin}
         AND rating <= ${ratingMax}
+        AND ${puzzleNamespaceCondition(namespace)}
       ORDER BY popularity DESC, nb_plays DESC, id ASC
 `);
     return { chess_puzzles: rows };
@@ -65,11 +84,12 @@ export const chessPuzzleNearest = defineQuery({
   name: 'chessPuzzleNearest',
   params: z.object({
     rating: z.number().int().min(0).max(PUZZLE_POOL_RATING_CEILING).default(0),
+    namespace: namespaceParam,
   }),
-  sampleParams: { rating: 1500 },
+  sampleParams: { rating: 1500, namespace: '' },
   limit: PUZZLE_POOL_NEAREST_ROW_LIMIT,
   entryChannel: () => puzzleCatalogueChannels(),
-  async run(ctx, { rating }) {
+  async run(ctx, { rating, namespace }) {
     const rows = await ctx.db.query(sql`
       SELECT
         id,
@@ -86,6 +106,7 @@ export const chessPuzzleNearest = defineQuery({
       FROM chess_puzzles
       WHERE popularity >= ${PUZZLE_MIN_POPULARITY}
         AND nb_plays >= ${PUZZLE_MIN_PLAYS}
+        AND ${puzzleNamespaceCondition(namespace)}
       ORDER BY ABS(rating - ${rating}) ASC, id ASC
 `);
     return { chess_puzzles: rows };

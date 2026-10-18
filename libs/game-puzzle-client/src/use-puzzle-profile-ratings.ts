@@ -1,3 +1,4 @@
+import { puzzleOwnerKey } from '@libs/game-puzzle-shared/puzzle-namespace';
 import {
   isProvisionalPuzzleRating,
   PUZZLE_RATING_DEFAULT_RD,
@@ -8,6 +9,7 @@ import {
   useSyncEngine,
 } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
+import { usePuzzleGame } from './puzzle-game-context';
 
 type PuzzleProfileRatingsRow = {
   readonly rating: number | null;
@@ -24,12 +26,13 @@ export function usePuzzleProfileRatings(myId: Accessor<string>): {
   readonly provisional: Accessor<boolean>;
 } {
   const { paintReady } = useSyncEngine();
+  const { namespace } = usePuzzleGame();
   const { rows } = createQuery(() =>
     paintReady() && myId().length > 0
       ? sql<PuzzleProfileRatingsRow>`
           SELECT rating, rating_deviation
           FROM chess_puzzle_profiles
-          WHERE id = ${myId()}
+          WHERE id = ${puzzleOwnerKey(namespace, myId())}
             AND deleted_at IS NULL
         `
       : sql<PuzzleProfileRatingsRow>`

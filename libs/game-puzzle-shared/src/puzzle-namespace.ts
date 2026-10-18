@@ -1,3 +1,6 @@
+import type { SqlFragment } from '@pkgs/sql-root-shared/sql';
+import sql, { raw } from '@pkgs/sql-root-shared/sql';
+
 /**
  * A puzzle's namespace: the share of the catalogue, the puzzle profiles
  * and the feed settings that belongs to one game. A game's namespace is
@@ -36,4 +39,23 @@ export function inPuzzleNamespace(
  */
 export function puzzleOwnerKey(namespace: string, ownerId: string): string {
   return `${namespace}${ownerId}`;
+}
+
+/**
+ * The SQL condition that `column` (a puzzle id) is in `namespace`, alike in
+ * SQLite and Postgres: no `/` at all for the durable namespace, otherwise
+ * the namespace as a prefix. A namespace is lowercase letters, digits and
+ * `-` before its `/`, so it holds no `LIKE` wildcard, and ids outside it
+ * never enter the catalogue (`admitCataloguePuzzle`). Every reader filters
+ * rows a rating index has already narrowed, so it needs no index of its own.
+ */
+export function puzzleNamespaceCondition(
+  namespace: string,
+  column = 'id'
+): SqlFragment {
+  if (!isPuzzleNamespace(namespace))
+    throw new Error(`"${namespace}" is not a puzzle namespace`);
+  return namespace === ''
+    ? sql<void>`${raw(column)} NOT LIKE '%/%'`
+    : sql<void>`${raw(column)} LIKE ${`${namespace}%`}`;
 }

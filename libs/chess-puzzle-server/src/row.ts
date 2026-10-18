@@ -1,41 +1,37 @@
 import type { Puzzle } from '@libs/chess-puzzle-shared/puzzle-validation';
-
-/**
- * Physical `chess_puzzles` row for bulk INSERT. `moves` is the §4 `moves[]`
- * as space-separated canonical UCI; themes / opening tags are JSON arrays.
- */
-export type PuzzleTableRow = {
-  readonly id: string;
-  readonly fen: string;
-  readonly moves: string;
-  readonly rating: number;
-  readonly rating_deviation: number;
-  readonly popularity: number;
-  readonly nb_plays: number;
-  readonly themes: string;
-  readonly game_url: string | null;
-  readonly opening_tags: string;
-  readonly position_key: string;
-};
+import { CHESS_TURN_GAMES } from '@libs/chess-sub-shared/chess-game';
+import type { CatalogueRow } from '@libs/game-puzzle-shared/puzzle-catalogue';
+import { admitCataloguePuzzle } from '@libs/game-puzzle-shared/puzzle-catalogue';
 
 export type PuzzleBatchEntry = {
   puzzleId: string;
-  row: PuzzleTableRow;
+  row: CatalogueRow;
 };
 
-/** Table row of a puzzle that passed the §23 validation pass. */
-export function puzzleTableRowOf(puzzle: Puzzle): PuzzleTableRow {
-  return {
-    id: puzzle.id,
-    fen: puzzle.fen,
-    moves: puzzle.moves.join(' '),
-    rating: puzzle.rating,
-    rating_deviation: puzzle.ratingDeviation,
-    popularity: puzzle.popularity,
-    nb_plays: puzzle.plays,
-    themes: JSON.stringify(puzzle.themes),
-    game_url: puzzle.sourceGameUrl,
-    opening_tags: JSON.stringify(puzzle.openingTags),
-    position_key: puzzle.positionKey,
-  };
+/**
+ * The catalogue row of a puzzle that passed the §23 validation pass, as the
+ * platform admits it into chess's namespace (`moves` the canonical UCI
+ * line, themes and opening tags JSON arrays). The platform validates it
+ * again through chess's own `content.validate`, so a refusal here means
+ * the two disagree: that is a defect, never a skipped row.
+ */
+export function puzzleTableRowOf(puzzle: Puzzle): CatalogueRow {
+  const admission = admitCataloguePuzzle(CHESS_TURN_GAMES, {
+    record: {
+      id: puzzle.id,
+      position: puzzle.fen,
+      line: puzzle.moves,
+      rating: puzzle.rating,
+      ratingDeviation: puzzle.ratingDeviation,
+      popularity: puzzle.popularity,
+      plays: puzzle.plays,
+      themes: puzzle.themes,
+    },
+    source: { url: puzzle.sourceGameUrl, tags: puzzle.openingTags },
+  });
+  if (!admission.ok)
+    throw new Error(
+      `the catalogue refused a puzzle chess validated (${admission.reason}): ${admission.detail}`
+    );
+  return admission.row;
 }

@@ -1,10 +1,13 @@
 /**
  * Fast-path bulk writer for the chess puzzle seed.
  */
+
+import type { CatalogueRow } from '@libs/game-puzzle-shared/puzzle-catalogue';
+import { insertNewCatalogueRows } from '@libs/game-puzzle-shared/puzzle-catalogue';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client-root-shared/interface';
-import sql, { bulk, join, raw } from '@pkgs/sql-root-shared/sql';
+import sql, { join, raw } from '@pkgs/sql-root-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type {
   ExistingPuzzleKey,
@@ -13,55 +16,12 @@ import type {
 } from './puzzle-ingest';
 import { partitionPuzzleBatch } from './puzzle-ingest';
 import type { PuzzleSeedReporter } from './reporter';
-import type { PuzzleBatchEntry, PuzzleTableRow } from './row';
-
-type PuzzleInsertRow = PuzzleTableRow & {
-  readonly created_at: string;
-  readonly updated_at: string;
-};
-
-function insertPuzzlesBatchQuery(rows: readonly PuzzleInsertRow[]) {
-  return sql<void>`
-    INSERT INTO chess_puzzles (
-      id,
-      created_at,
-      updated_at,
-      fen,
-      moves,
-      rating,
-      rating_deviation,
-      popularity,
-      nb_plays,
-      themes,
-      game_url,
-      opening_tags,
-      position_key
-    )
-    VALUES ${bulk(
-      rows.map((row) => [
-        row.id,
-        row.created_at,
-        row.updated_at,
-        row.fen,
-        row.moves,
-        row.rating,
-        row.rating_deviation,
-        row.popularity,
-        row.nb_plays,
-        row.themes,
-        row.game_url,
-        row.opening_tags,
-        row.position_key,
-      ])
-    )}
-    ON CONFLICT DO NOTHING
-  `;
-}
+import type { PuzzleBatchEntry } from './row';
 
 /** Stored rows sharing an id or a position key with the batch. */
 async function readExistingKeys(
   tx: Pick<SqlTx, 'query'>,
-  rows: readonly PuzzleTableRow[]
+  rows: readonly CatalogueRow[]
 ): Promise<ExistingPuzzleKey[]> {
   return tx.query(sql<ExistingPuzzleKey>`
     SELECT id, position_key
@@ -174,7 +134,7 @@ export class PuzzleSeedFastPath {
    * the backstop for both unique keys.
    */
   async insertPuzzleTableRows(
-    rows: readonly PuzzleTableRow[],
+    rows: readonly CatalogueRow[],
     io: InsertPuzzleTableRowsIo
   ): Promise<PuzzleInsertOutcome> {
     if (rows.length === 0) {
@@ -191,17 +151,9 @@ export class PuzzleSeedFastPath {
         rows,
         await readExistingKeys(tx, rows)
       );
-      const insertRows: PuzzleInsertRow[] = split.novel.map((row) => ({
-        ...row,
-        created_at: nowIso,
-        updated_at: nowIso,
-      }));
-      const res =
-        insertRows.length === 0
-          ? { changes: 0 }
-          : await tx.run(insertPuzzlesBatchQuery(insertRows));
+      const inserted = await insertNewCatalogueRows(tx, split.novel, nowIso);
       outcome = {
-        inserted: res.changes,
+        inserted,
         duplicateId: split.duplicateId,
         duplicatePosition: split.duplicatePosition,
       };

@@ -4,6 +4,8 @@
  * Lichess shape (`PuzzleId,FEN,Moves,…`); every record goes through the §23
  * validation pass and the same deduping bulk insert as the streaming seed.
  */
+
+import type { CatalogueRow } from '@libs/game-puzzle-shared/puzzle-catalogue';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type {
   DatabaseSeeder,
@@ -17,7 +19,6 @@ import { PuzzleSeedFastPath } from './fast-path';
 import { CHESS_PUZZLES_LOAD_FILE_RELATIVE } from './load-file-constants';
 import type { PuzzleSkipReason } from './puzzle-ingest';
 import { PuzzleIngestTally } from './puzzle-ingest';
-import type { PuzzleTableRow } from './row';
 
 const BATCH_SIZE = 250;
 
@@ -70,7 +71,7 @@ export class ChessPuzzleLoadFileSeeder implements DatabaseSeeder {
     }) as Record<string, unknown>[];
 
     const tally = new PuzzleIngestTally();
-    const rows: PuzzleTableRow[] = [];
+    const rows: CatalogueRow[] = [];
     for (const record of records) {
       const row = tally.accept(record);
       if (row !== null) rows.push(row);

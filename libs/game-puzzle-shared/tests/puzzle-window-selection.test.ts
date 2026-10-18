@@ -53,6 +53,7 @@ function candidates(
   halfWindow: number | null
 ): PuzzleCandidateRow[] {
   const query = buildPuzzleCandidatesSql({
+    namespace: '',
     rating,
     halfWindow,
     ownerId: 'alice',

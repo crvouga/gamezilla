@@ -27,6 +27,7 @@ import {
 describe('buildPuzzleCandidatesSql', () => {
   test('rating band bounds are present in SQL', () => {
     const query = buildPuzzleCandidatesSql({
+      namespace: '',
       rating: 1500,
       halfWindow: 200,
       ownerId: '',
@@ -49,6 +50,7 @@ describe('buildPuzzleCandidatesSql', () => {
 
   test('neverSeen excludes interacted puzzles via subquery', () => {
     const query = buildPuzzleCandidatesSql({
+      namespace: '',
       rating: 1500,
       halfWindow: 200,
       ownerId: 'user_123',
@@ -65,6 +67,7 @@ describe('buildPuzzleCandidatesSql', () => {
 
   test('seen requires prior interaction', () => {
     const query = buildPuzzleCandidatesSql({
+      namespace: '',
       rating: 1500,
       halfWindow: null,
       ownerId: 'user_123',
@@ -81,6 +84,7 @@ describe('buildPuzzleCandidatesSql', () => {
 
   test('failed excludes solved puzzles', () => {
     const query = buildPuzzleCandidatesSql({
+      namespace: '',
       rating: 1500,
       halfWindow: null,
       ownerId: 'user_123',
@@ -95,6 +99,7 @@ describe('buildPuzzleCandidatesSql', () => {
 
   test('themes add a quoted-id OR filter over the synced array', () => {
     const query = buildPuzzleCandidatesSql({
+      namespace: '',
       rating: 1500,
       halfWindow: null,
       ownerId: '',
@@ -111,6 +116,7 @@ describe('buildPuzzleCandidatesSql', () => {
 
   test('currentPuzzleId adds inequality filter', () => {
     const query = buildPuzzleCandidatesSql({
+      namespace: '',
       rating: 1500,
       halfWindow: 200,
       ownerId: 'user_123',
@@ -124,6 +130,7 @@ describe('buildPuzzleCandidatesSql', () => {
 
   test('halfWindow null omits rating bounds (unbounded fallback)', () => {
     const query = buildPuzzleCandidatesSql({
+      namespace: '',
       rating: 3000,
       halfWindow: null,
       ownerId: '',
@@ -160,6 +167,7 @@ describe('capPuzzleCandidateOffset', () => {
 describe('buildPuzzleMatchedCountSql', () => {
   test('counts with theme filter and no limit', () => {
     const query = buildPuzzleMatchedCountSql({
+      namespace: '',
       rating: 1200,
       halfWindow: 400,
       ownerId: 'u1',
@@ -357,6 +365,7 @@ describe('resolveProfilePuzzleRating', () => {
 describe('buildPuzzleBandCountSql', () => {
   test('counts only the active rating window', () => {
     const query = buildPuzzleBandCountSql({
+      namespace: '',
       rating: 1500,
       halfWindow: 400,
     });
@@ -367,7 +376,11 @@ describe('buildPuzzleBandCountSql', () => {
   });
 
   test('counts the whole catalog without a window', () => {
-    const query = buildPuzzleBandCountSql({ rating: 1500, halfWindow: null });
+    const query = buildPuzzleBandCountSql({
+      namespace: '',
+      rating: 1500,
+      halfWindow: null,
+    });
     expect(query.sql.replace(/\s+/g, ' ')).not.toContain('rating >=');
     expect(query.values).toEqual([]);
   });
@@ -401,6 +414,7 @@ describe('§9 quality filter', () => {
   test('every candidate read carries the popularity and play-count bars', () => {
     for (const query of [
       buildPuzzleCandidatesSql({
+        namespace: '',
         rating: 1500,
         halfWindow: 200,
         ownerId: 'user_1',
@@ -409,6 +423,7 @@ describe('§9 quality filter', () => {
         currentPuzzleId: null,
       }),
       buildPuzzleMatchedCountSql({
+        namespace: '',
         rating: 1500,
         halfWindow: 200,
         ownerId: 'user_1',
@@ -417,6 +432,7 @@ describe('§9 quality filter', () => {
         currentPuzzleId: null,
       }),
       buildExhaustedPuzzleCandidatesSql({
+        namespace: '',
         ownerId: 'user_1',
         themes: [],
         currentPuzzleId: null,
@@ -433,6 +449,7 @@ describe('§9 quality filter', () => {
 describe('§9 exhausted pool', () => {
   test('reads attempted puzzles, oldest attempt first, with no rating window', () => {
     const query = buildExhaustedPuzzleCandidatesSql({
+      namespace: '',
       ownerId: 'user_1',
       themes: [],
       currentPuzzleId: 'current',

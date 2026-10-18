@@ -4,7 +4,7 @@ import {
   PuzzleIngestTally,
   partitionPuzzleBatch,
 } from '@libs/chess-puzzle-server/puzzle-ingest';
-import type { PuzzleTableRow } from '@libs/chess-puzzle-server/row';
+import type { CatalogueRow } from '@libs/game-puzzle-shared/puzzle-catalogue';
 
 const FEN = '6k1/5p1p/1p4p1/p1bN1p2/2Pq1P2/1P5P/1P1Q2P1/7K w - - 1 32';
 
@@ -58,7 +58,7 @@ describe('partitionPuzzleBatch', () => {
     'b',
     FEN.replace(' 1 32', ' 0 40')
   );
-  const other: PuzzleTableRow = { ...a, id: 'c', position_key: 'other' };
+  const other: CatalogueRow = { ...a, id: 'c', position_key: 'other' };
 
   test('a re-seeded id is a duplicate id, not new content', () => {
     const split = partitionPuzzleBatch([a], [{ id: 'a', position_key: null }]);

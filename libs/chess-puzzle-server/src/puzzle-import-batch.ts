@@ -2,10 +2,12 @@ import {
   isLichessPuzzleHeader,
   validateLichessPuzzleRow,
 } from '@libs/chess-puzzle-shared/puzzle-records';
+import type { CatalogueRow } from '@libs/game-puzzle-shared/puzzle-catalogue';
+import { upsertCatalogueRows } from '@libs/game-puzzle-shared/puzzle-catalogue';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
-import sql, { bulk, join } from '@pkgs/sql-root-shared/sql';
+import sql, { join } from '@pkgs/sql-root-shared/sql';
 import { parse } from 'csv-parse/sync';
-import { type PuzzleTableRow, puzzleTableRowOf } from './row';
+import { puzzleTableRowOf } from './row';
 
 export type PuzzleImportCounts = {
   processed: number;
@@ -17,7 +19,7 @@ export type PuzzleImportCounts = {
 
 export class PuzzleCsvError extends Error {}
 
-function validRows(csv: string, counts: PuzzleImportCounts): PuzzleTableRow[] {
+function validRows(csv: string, counts: PuzzleImportCounts): CatalogueRow[] {
   const records: Record<string, unknown>[] = parse(csv, {
     bom: true,
     skip_empty_lines: true,
@@ -34,7 +36,7 @@ function validRows(csv: string, counts: PuzzleImportCounts): PuzzleTableRow[] {
   if (records.length > 1000)
     throw new Error('Puzzle source part has too many rows.');
   counts.processed = records.length;
-  const rows: PuzzleTableRow[] = [];
+  const rows: CatalogueRow[] = [];
   for (const record of records) {
     const result = validateLichessPuzzleRow(record);
     if (result.ok) rows.push(puzzleTableRowOf(result.puzzle));
@@ -45,9 +47,9 @@ function validRows(csv: string, counts: PuzzleImportCounts): PuzzleTableRow[] {
 
 async function selectNovelRows(
   tx: SqlTx,
-  rows: PuzzleTableRow[],
+  rows: CatalogueRow[],
   counts: PuzzleImportCounts
-): Promise<PuzzleTableRow[]> {
+): Promise<CatalogueRow[]> {
   if (rows.length === 0) return [];
   const existing = await tx.query(sql<{
     id: string;
@@ -96,7 +98,7 @@ export async function importPuzzleCsvBatch(
     rejected: 0,
     duplicates: 0,
   };
-  let validated: PuzzleTableRow[];
+  let validated: CatalogueRow[];
   try {
     validated = validRows(csv, counts);
   } catch (error) {
@@ -106,28 +108,6 @@ export async function importPuzzleCsvBatch(
   }
   const rows = await selectNovelRows(tx, validated, counts);
   if (rows.length === 0) return counts;
-  await tx.run(sql`
-    INSERT INTO chess_puzzles (id, fen, moves, rating, rating_deviation, popularity,
-      nb_plays, themes, game_url, opening_tags, position_key)
-    VALUES ${bulk(
-      rows.map((row) => [
-        row.id,
-        row.fen,
-        row.moves,
-        row.rating,
-        row.rating_deviation,
-        row.popularity,
-        row.nb_plays,
-        row.themes,
-        row.game_url,
-        row.opening_tags,
-        row.position_key,
-      ])
-    )}
-    ON CONFLICT (id) DO UPDATE SET fen = excluded.fen, moves = excluded.moves,
-      rating = excluded.rating, rating_deviation = excluded.rating_deviation,
-      popularity = excluded.popularity, nb_plays = excluded.nb_plays, themes = excluded.themes,
-      game_url = excluded.game_url, opening_tags = excluded.opening_tags, position_key = excluded.position_key
-  `);
+  await upsertCatalogueRows(tx, rows);
   return counts;
 }

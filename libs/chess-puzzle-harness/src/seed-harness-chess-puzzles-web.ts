@@ -8,8 +8,8 @@
 
 import { PuzzleSeedFastPath } from '@libs/chess-puzzle-server/fast-path';
 import { PuzzleIngestTally } from '@libs/chess-puzzle-server/puzzle-ingest';
-import type { PuzzleTableRow } from '@libs/chess-puzzle-server/row';
 import { puzzleCatalogueTopic } from '@libs/game-puzzle-shared/catalogue-topics';
+import type { CatalogueRow } from '@libs/game-puzzle-shared/puzzle-catalogue';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 import { HARNESS_CHESS_PUZZLES_WEB_CSV } from './chess-puzzles-web-fixture';
@@ -91,7 +91,7 @@ export async function seedHarnessChessPuzzlesWeb(
 ): Promise<void> {
   // Same §23 validation pass + dedupe as every other ingest path.
   const tally = new PuzzleIngestTally();
-  const rows: PuzzleTableRow[] = [];
+  const rows: CatalogueRow[] = [];
   for (const record of parseHarnessChessPuzzleCsv(
     HARNESS_CHESS_PUZZLES_WEB_CSV
   )) {

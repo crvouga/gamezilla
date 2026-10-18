@@ -5,6 +5,7 @@ import {
   decodePuzzleFeedConfig,
   encodePuzzleFeedConfig,
 } from '@libs/game-puzzle-shared/feed-config';
+import { puzzleOwnerKey } from '@libs/game-puzzle-shared/puzzle-namespace';
 import { savePuzzleFeedSettingsMutation } from '@libs/game-puzzle-shared/save-puzzle-feed-settings-mutation';
 import { useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
@@ -22,6 +23,7 @@ import {
 } from 'solid-js';
 import type { PuzzleFeedConfigSetter } from './puzzle-feed-context';
 import { usePuzzleFeedState } from './puzzle-feed-context';
+import { usePuzzleGame } from './puzzle-game-context';
 
 type FeedSettingsRow = { readonly config: string };
 
@@ -30,18 +32,18 @@ type FeedSettingsRow = { readonly config: string };
  * first save (and for a guest, who has none).
  */
 function useSavedFeedConfig(
-  myId: Accessor<string>,
+  key: Accessor<string>,
   paintReady: Accessor<boolean>
 ): {
   readonly saved: Accessor<PuzzleFeedConfig | null>;
   readonly loading: Accessor<boolean>;
 } {
   const { rows, isLoading } = createQuery(() =>
-    paintReady() && myId().length > 0
+    paintReady() && key().length > 0
       ? sql<FeedSettingsRow>`
           SELECT config
           FROM chess_puzzle_feed_settings
-          WHERE owner_id = ${myId()}
+          WHERE id = ${key()}
             AND deleted_at IS NULL
         `
       : sql<FeedSettingsRow>`SELECT '' AS config WHERE false`
@@ -72,7 +74,12 @@ export function createPuzzleFeedConfigState(): [
   const { paintReady } = useSyncEngine();
   const mutationClient = useMutationClient();
   const customize = useDecision(PERMISSION.puzzlesCustomizeFeed);
-  const { saved, loading } = useSavedFeedConfig(myId, paintReady);
+  const { namespace } = usePuzzleGame();
+  // The account's settings for this game (its own row in the game's namespace).
+  const { saved, loading } = useSavedFeedConfig(
+    () => (myId().length > 0 ? puzzleOwnerKey(namespace, myId()) : ''),
+    paintReady
+  );
   const [pending, setPending] = createSignal<PuzzleFeedConfig | null>(null);
 
   const config = createMemo(
@@ -101,6 +108,7 @@ export function createPuzzleFeedConfigState(): [
     void mutationClient
       .mutate(savePuzzleFeedSettingsMutation, {
         config: encodePuzzleFeedConfig(value),
+        ...(namespace === '' ? {} : { namespace }),
       })
       .then((result) => {
         if (!result.ok) drop();

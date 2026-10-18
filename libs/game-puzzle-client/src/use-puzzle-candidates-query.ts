@@ -3,13 +3,13 @@ import type {
   PuzzleCandidateRow,
   PuzzleExhaustedCandidateRow,
 } from '@libs/game-puzzle-shared/next-puzzle-selection';
-
 import {
   buildExhaustedPuzzleCandidatesSql,
   buildPuzzleCandidatesSql,
 } from '@libs/game-puzzle-shared/next-puzzle-selection';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import type { Accessor } from 'solid-js';
+import { usePuzzleGame } from './puzzle-game-context';
 
 export type PuzzleCandidatesQueryArgs = {
   readonly rating: Accessor<number>;
@@ -26,8 +26,10 @@ export function usePuzzleCandidatesQuery(args: PuzzleCandidatesQueryArgs): {
   readonly rows: Accessor<readonly PuzzleCandidateRow[]>;
   readonly isLoading: Accessor<boolean>;
 } {
+  const { namespace } = usePuzzleGame();
   const query = createQuery(() =>
     buildPuzzleCandidatesSql({
+      namespace,
       rating: args.rating(),
       halfWindow: args.halfWindow(),
       ownerId: args.ownerId(),
@@ -54,8 +56,10 @@ export function useExhaustedPuzzleCandidatesQuery(args: {
   readonly rows: Accessor<readonly PuzzleExhaustedCandidateRow[]>;
   readonly isLoading: Accessor<boolean>;
 } {
+  const { namespace } = usePuzzleGame();
   const query = createQuery(() =>
     buildExhaustedPuzzleCandidatesSql({
+      namespace,
       ownerId: args.enabled() ? args.ownerId() : '',
       themes: args.themes(),
       currentPuzzleId: args.currentPuzzleId(),

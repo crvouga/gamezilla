@@ -1,7 +1,6 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import type { PuzzleFeedHistoryFilter } from '@libs/game-puzzle-shared/feed-config';
 import type { PuzzlePickSource } from '@libs/game-puzzle-shared/next-puzzle-selection';
-
 import {
   buildPuzzleBandCountSql,
   computeNextPuzzleLoading,
@@ -15,6 +14,7 @@ import {
   useSyncEngine,
 } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
+import { usePuzzleGame } from './puzzle-game-context';
 import { useEffectivePuzzleRating } from './use-effective-puzzle-rating';
 import {
   useExhaustedPuzzleCandidatesQuery,
@@ -66,8 +66,10 @@ function usePuzzleCandidateQueries(args: {
 
 /** Local rows in the active rating window (not the whole catalog). */
 function useLocalPuzzleTotal(rating: Accessor<number>): Accessor<number> {
+  const { namespace } = usePuzzleGame();
   const { rows } = createQuery(() =>
     buildPuzzleBandCountSql({
+      namespace,
       rating: rating(),
       halfWindow: PUZZLE_NEXT_MAX_BAND,
     })
