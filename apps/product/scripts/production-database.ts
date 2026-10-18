@@ -10,15 +10,18 @@
  * together. The round trip is what a request pays per statement between the
  * Worker and Postgres. The Worker is placed beside the database
  * (`databasePlacement` in `libs/infra-shared/src/wrangler.ts`), where a
- * statement costs single-digit milliseconds; the link models 10.
+ * statement costs a few milliseconds in all, which is what the link adds:
+ * the stack's emulated Postgres already spends more than that executing one on
+ * a CI runner, so a longer modelled distance would count the same time twice
+ * and fail the journeys' wall-clock windows for a reason production does not
+ * have. What the link decides is deterministic: the session pool, and the
+ * round trips each request is billed.
  */
-
-import type { ConnectionBill, DatabaseLinkSummary } from './database-link';
 
 export const PRODUCTION_DATABASE = {
   sessions: 10,
   waitMs: 15_000,
-  roundTripMs: 10,
+  roundTripMs: 3,
 } as const;
 
 /**
