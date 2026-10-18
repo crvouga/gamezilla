@@ -12,12 +12,14 @@ import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql } from '@libs/harness/identity';
+import { openSettings } from '@libs/harness/shell-actions';
 import { writeServerFixture } from '@libs/harness/write-server-fixture';
 import { ownSpaceCard, waitActiveSpace } from '@libs/spaces-harness/space-ui';
 import { Handles } from '@libs/test-ids-shared/handles';
 import sql from '@pkgs/sql-root-shared/sql';
 import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
 import { SHARED_SCREEN_MARK } from './game-navigation';
+import { PUZZLE_RATING_SCALE } from './puzzle-fixtures';
 import { closeResultPanel } from './puzzle-screen';
 
 const WAIT_MS = 15_000;
@@ -95,6 +97,23 @@ export const showGamePuzzleStats = scenarioAction({
         (await stepTowardStats(s, actorId, gameId, entered)) ? true : null,
       { maxMs: WAIT_MS * 2, stepMs: POLL_MS, description: 'the puzzle stats' }
     );
+  },
+});
+
+/**
+ * The game's puzzle stats outside any space, from Settings: a person's own,
+ * whoever hosts the space they are in and whether it is reachable.
+ */
+export const showPersonalPuzzleStats = scenarioAction({
+  name: 'showPersonalPuzzleStats',
+  act: async (s, actorId: string, gameId: string) => {
+    const ui = await actorUi(s, actorId);
+    if (await ui.get(Handles.chessStatsElo).isVisible()) return;
+    await Promise.resolve(openSettings.act(s, actorId));
+    await ui
+      .get(Handles.settingsPuzzleStats(gameId))
+      .tap({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.chessStatsElo).expect.visible({ timeoutMs: WAIT_MS });
   },
 });
 
@@ -177,6 +196,23 @@ export async function readStatsRatingHistory(
     ratings.push(Number.parseInt(stripProbe(await point.text()), 10));
   }
   return ratings;
+}
+
+/**
+ * Whether each of the latest rated puzzles raised or lowered the puzzle
+ * rating, as the stats history draws it, oldest first: the first against
+ * the rating every person starts at.
+ */
+export async function readStatsRatingDirections(
+  s: ProductHarness,
+  actorId: string
+): Promise<readonly ('raised' | 'lowered')[]> {
+  const ratings = await readStatsRatingHistory(s, actorId);
+  return ratings.map((rating, index) =>
+    rating > (ratings[index - 1] ?? PUZZLE_RATING_SCALE.start)
+      ? 'raised'
+      : 'lowered'
+  );
 }
 
 /** Whether the game log says no puzzle was played yet. */
@@ -432,6 +468,7 @@ export async function readCataloguePuzzles(
 
 export const PUZZLE_RECORD_ACTIONS = [
   showGamePuzzleStats,
+  showPersonalPuzzleStats,
   leaveGamePuzzleStats,
   openPuzzleReviewFromLog,
   useReviewControl,

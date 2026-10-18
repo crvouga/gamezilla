@@ -60,7 +60,6 @@ import {
   activePuzzle,
   boardBefore,
   currentPuzzle,
-  deviceInHand,
   ensureOnPuzzle,
   enterNamedPuzzle,
   enterPuzzles,
@@ -199,9 +198,8 @@ Given(
 );
 
 Then('{actor} has a puzzle on the board', async (w, actor: Actor) => {
-  const device = deviceInHand(w, actor);
-  await w.s.apply(focusActor, device);
-  const puzzleId = await w.s.until((s) => readPuzzleOnBoard(s, device), {
+  await w.s.apply(focusActor, actor);
+  const puzzleId = await w.s.until((s) => readPuzzleOnBoard(s, actor), {
     pred: (id) => id !== null,
     maxMs: SETTLE_MS,
   });

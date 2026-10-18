@@ -1,6 +1,7 @@
 import { CHESS_GAME_ID } from '@libs/chess-puzzle-shared/chess-game';
 import { PersonalPuzzleStatsScreen } from '@libs/game-puzzle-client/personal-puzzle-stats-screen';
 import { defineSubClient } from '@libs/sub-client/client';
+import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
@@ -16,7 +17,7 @@ function PersonalChessStatsSettings(): JSX.Element {
         title={<Trans>Puzzle stats</Trans>}
         caption={<Trans>Your rating and game log, available offline</Trans>}
         onClick={() => router.push('/more/chess-stats')}
-        dataSet={{ testid: 'settings-chess-stats' }}
+        dataSet={{ testid: Handles.settingsPuzzleStats(CHESS_GAME_ID) }}
       />
     </MenuSection>
   );

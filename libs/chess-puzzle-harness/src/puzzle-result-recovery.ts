@@ -1,3 +1,5 @@
+import { CHESS_GAME_ID } from '@libs/chess-puzzle-shared/chess-game';
+import { showPersonalPuzzleStats } from '@libs/game-session-harness/puzzle-records';
 import { retryGamePuzzle } from '@libs/game-session-harness/puzzle-screen';
 import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -10,7 +12,7 @@ import { bringToFront, partitioned } from '@libs/harness/observations';
 import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
-import { playUntilSolved, showPersonalChessStatsScreen } from './chess-actions';
+import { playUntilSolved } from './chess-actions';
 import { readRecoveryStats } from './puzzle-recovery-stats';
 
 export const closePuzzleApp = scenarioAction({
@@ -43,7 +45,9 @@ export const viewPuzzleStatsAfterReturn = scenarioAction({
   name: 'viewPuzzleStatsAfterReturn',
   act: async (s, device: string) => {
     await ensureActor(s, device);
-    await Promise.resolve(showPersonalChessStatsScreen.act(s, device));
+    await Promise.resolve(
+      showPersonalPuzzleStats.act(s, device, CHESS_GAME_ID)
+    );
   },
 });
 
@@ -111,7 +115,9 @@ export const viewRecoveryStats = scenarioAction({
       : ['alice', 'bob']) {
       if (!s.actors.has(device)) continue;
       await bringToFront(s, device);
-      await Promise.resolve(showPersonalChessStatsScreen.act(s, device));
+      await Promise.resolve(
+        showPersonalPuzzleStats.act(s, device, CHESS_GAME_ID)
+      );
     }
   },
 });

@@ -38,7 +38,7 @@ useHarnessWorld(openSpecHarness, (w) => ({
   beforePhoneOffline: (actor: Actor) => rememberOfflineBoard(w, actor),
   beforeAccountDeletion: async (actor: Actor) => {
     await w.s.apply(proveAccount, actor);
-    await w.s.apply(seedPuzzleRating, actor, {
+    await w.s.apply(seedPuzzleRating, actor, CHESS_GAME_ID, {
       rating: 1800,
       ratingDeviation: PUZZLE_RATING_SCALE.deviationFloor,
       volatilityMicros: PUZZLE_RATING_SCALE.startVolatilityMicros,
@@ -50,7 +50,7 @@ useHarnessWorld(openSpecHarness, (w) => ({
     // A saved custom feed target, two steps up.
     await w.s.apply(openPuzzleFeedSettings, actor);
     await w.s.apply(setPuzzleFeedMode, actor, 'custom');
-    await w.s.apply(bumpPuzzleFeedCustomRating, actor, 2);
+    await w.s.apply(raisePuzzleFeedCustomTarget, actor, 2);
     await w.s.apply(closePuzzleFeedSettings, actor);
     remember(
       w,
@@ -79,16 +79,16 @@ useHarnessWorld(openSpecHarness, (w) => ({
 }));
 
 import { proveAccount } from '@libs/account-privacy-harness/privacy-actions';
+import { playUntilSolved } from '@libs/chess-puzzle-harness/chess-actions';
 import {
-  bumpPuzzleFeedCustomRating,
   closePuzzleFeedSettings,
   openPuzzleFeedSettings,
-  playUntilSolved,
+  raisePuzzleFeedCustomTarget,
+  readFeedTargetLabel,
   setPuzzleFeedMode,
-} from '@libs/chess-puzzle-harness/chess-actions';
-import { readFeedTargetLabel } from '@libs/chess-puzzle-harness/chess-puzzle-feed-ui';
-import { seedPuzzleRating } from '@libs/chess-puzzle-harness/chess-rating-data';
+} from '@libs/game-session-harness/puzzle-feed';
 import { PUZZLE_RATING_SCALE } from '@libs/game-session-harness/puzzle-fixtures';
+import { seedPuzzleRating } from '@libs/game-session-harness/puzzle-pool';
 import type { Actor } from '@libs/harness/parameter-types';
 import { remember } from '@libs/harness/spec-world';
 

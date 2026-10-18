@@ -415,6 +415,8 @@ export const Handles = {
   chessPuzzleRecommendationClear: 'chess-puzzle-recommendation-clear',
   chessPuzzleWaitingForHost: 'chess-puzzle-waiting-for-host',
   chessStatsElo: 'chess-stats-elo',
+  /** Settings' way to a game's puzzle stats outside any space. */
+  settingsPuzzleStats: (gameId: string) => `settings-${gameId}-stats`,
   /** §15 P0 tiles: total solved and overall accuracy. */
   chessStatsSolved: 'chess-stats-solved',
   chessStatsAccuracy: 'chess-stats-accuracy',

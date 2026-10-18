@@ -71,6 +71,9 @@
     "puzzle-screen",
     "puzzle-records",
     "puzzle-moves",
-    "puzzle-room-probe"
+    "puzzle-room-probe",
+    "puzzle-feed",
+    "puzzle-feed-choices",
+    "puzzle-pool"
   ]
 }

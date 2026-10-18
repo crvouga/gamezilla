@@ -27,7 +27,10 @@ import {
 } from './custom-game-ui';
 import { openGameHistory, reviewCustomGameMove } from './game-history-actions';
 import { GAME_NAVIGATION_ACTIONS } from './game-navigation';
+import { PUZZLE_FEED_ACTIONS } from './puzzle-feed';
+import { PUZZLE_FEED_CHOICE_ACTIONS } from './puzzle-feed-choices';
 import { PUZZLE_MOVE_ACTIONS } from './puzzle-moves';
+import { PUZZLE_POOL_ACTIONS } from './puzzle-pool';
 import { PUZZLE_RECORD_ACTIONS } from './puzzle-records';
 import { PUZZLE_ROOM_PROBE_ACTIONS } from './puzzle-room-probe';
 import { PUZZLE_SCREEN_ACTIONS } from './puzzle-screen';
@@ -63,4 +66,7 @@ export const GAME_SESSION_HARNESS_ACTIONS = [
   ...PUZZLE_RECORD_ACTIONS,
   ...PUZZLE_MOVE_ACTIONS,
   ...PUZZLE_ROOM_PROBE_ACTIONS,
+  ...PUZZLE_FEED_ACTIONS,
+  ...PUZZLE_FEED_CHOICE_ACTIONS,
+  ...PUZZLE_POOL_ACTIONS,
 ];

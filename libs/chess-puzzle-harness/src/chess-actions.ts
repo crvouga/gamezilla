@@ -1,8 +1,12 @@
+import { CHESS_GAME_ID } from '@libs/chess-puzzle-shared/chess-game';
 import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
 import {
-  isEmptyFeedShown,
+  closePuzzleFeedSettings,
+  openPuzzleFeedSettings,
+  setPuzzleFeedTheme,
+} from '@libs/game-session-harness/puzzle-feed';
+import {
   moveOnToNextPuzzle,
-  pressEmptyFeedAction,
   readPuzzleBoardPosition,
   readPuzzleOnBoard,
   readPuzzleProbe,
@@ -10,24 +14,10 @@ import {
   showPuzzleSolution,
   skipGamePuzzle,
   takePuzzleHint,
-  waitNextPuzzle,
 } from '@libs/game-session-harness/puzzle-screen';
-import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
+import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import { openSettings } from '@libs/harness/shell-actions';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type { FeedHistoryFilter, FeedMode } from './chess-puzzle-feed-ui';
-import {
-  closeFeedSettings,
-  decreaseFeedCustomRating,
-  decreaseFeedOffset,
-  increaseFeedCustomRating,
-  increaseFeedOffset,
-  openFeedSettings,
-  selectFeedHistory,
-  selectFeedMode,
-  selectFeedTheme,
-} from './chess-puzzle-feed-ui';
 import { readMsUntilNextUtcDay } from './chess-puzzle-ledger-data';
 import {
   dragPuzzleUci,
@@ -92,118 +82,6 @@ export const suggestPuzzleMove = scenarioAction({
   act: dragSuggestedMove,
 });
 
-/** Personal progress is reachable from the shell even without a live space. */
-export const showPersonalChessStatsScreen = scenarioAction({
-  name: 'showPersonalChessStatsScreen',
-  act: async (s, actor: string) => {
-    const ui = await actorUi(s, actor);
-    if (await ui.get('chess-stats-elo').isVisible()) return;
-    await Promise.resolve(openSettings.act(s, actor));
-    await ui.get('settings-chess-stats').tap();
-    await ui.get('chess-stats-elo').expect.visible();
-  },
-});
-
-/** Exhausted-feed block primary action, then wait for a placed puzzle. */
-export const includePlayedPuzzles = scenarioAction({
-  name: 'includePlayedPuzzles',
-  act: async (s, actorId: string) => {
-    await pressEmptyFeedAction(s, actorId);
-    await waitNextPuzzle(s, actorId);
-  },
-});
-
-export const openPuzzleFeedSettings = scenarioAction({
-  name: 'openPuzzleFeedSettings',
-  act: openFeedSettings,
-});
-
-/** Done closes the modal; a changed config re-picks the active puzzle. */
-export const closePuzzleFeedSettings = scenarioAction({
-  name: 'closePuzzleFeedSettings',
-  act: async (s, actorId: string) => {
-    await closeFeedSettings(s, actorId);
-    await expectPlayReady(s, actorId);
-  },
-});
-
-/** Done without waiting for a board — the new filter may match nothing. */
-export const closePuzzleFeedSettingsNoWait = scenarioAction({
-  name: 'closePuzzleFeedSettingsNoWait',
-  act: closeFeedSettings,
-});
-
-export const setPuzzleFeedHistory = scenarioAction({
-  name: 'setPuzzleFeedHistory',
-  act: async (s, actorId: string, filter: FeedHistoryFilter) => {
-    await selectFeedHistory(s, actorId, filter);
-  },
-});
-
-export const setPuzzleFeedMode = scenarioAction({
-  name: 'setPuzzleFeedMode',
-  act: async (s, actorId: string, mode: FeedMode) => {
-    await selectFeedMode(s, actorId, mode);
-  },
-});
-export const setPuzzleFeedTheme = scenarioAction({
-  name: 'setPuzzleFeedTheme',
-  act: async (
-    s,
-    actorId: string,
-    theme: Parameters<typeof selectFeedTheme>[2]
-  ) => {
-    await selectFeedTheme(s, actorId, theme);
-  },
-});
-
-export const bumpPuzzleFeedOffset = scenarioAction({
-  name: 'bumpPuzzleFeedOffset',
-  act: async (s, actorId: string, steps: number) => {
-    await increaseFeedOffset(s, actorId, steps);
-  },
-});
-
-export const bumpPuzzleFeedCustomRating = scenarioAction({
-  name: 'bumpPuzzleFeedCustomRating',
-  act: async (s, actorId: string, steps: number) => {
-    await increaseFeedCustomRating(s, actorId, steps);
-  },
-});
-
-export const lowerPuzzleFeedOffset = scenarioAction({
-  name: 'lowerPuzzleFeedOffset',
-  act: decreaseFeedOffset,
-});
-
-export const lowerPuzzleFeedCustomRating = scenarioAction({
-  name: 'lowerPuzzleFeedCustomRating',
-  act: decreaseFeedCustomRating,
-});
-
-/**
- * Done saves the feed settings; wait for what the feed comes to — a playable
- * puzzle, or the empty-feed notice when the saved choices fit no puzzle.
- */
-export const savePuzzleFeedSettings = scenarioAction({
-  name: 'savePuzzleFeedSettings',
-  act: async (s, actorId: string) => {
-    await closeFeedSettings(s, actorId);
-    await pollUntil(
-      s,
-      async () =>
-        (await isEmptyFeedShown(s, actorId)) ||
-        (await readPuzzleOnBoard(s, actorId)) !== null
-          ? true
-          : null,
-      { maxMs: SETTLE_MS, stepMs: POLL_MS, description: 'feed settled' }
-    );
-    if (!(await isEmptyFeedShown(s, actorId))) {
-      await expectPlayReady(s, actorId);
-    }
-  },
-});
-
 const SETTLE_MS = 20_000;
 const POLL_MS = 250;
 
@@ -239,9 +117,11 @@ export const openPuzzleByTheme = scenarioAction({
     theme: ChessPuzzleTheme,
     puzzleId: string
   ) => {
-    await openFeedSettings(s, actorId);
-    await selectFeedTheme(s, actorId, theme);
-    await closeFeedSettings(s, actorId);
+    await Promise.resolve(openPuzzleFeedSettings.act(s, actorId));
+    await Promise.resolve(
+      setPuzzleFeedTheme.act(s, actorId, CHESS_GAME_ID, theme)
+    );
+    await Promise.resolve(closePuzzleFeedSettings.act(s, actorId));
     await expectPlayReady(s, actorId);
     await pollUntil(
       s,
@@ -318,25 +198,6 @@ export const solvePuzzlesInARow = scenarioAction({
   },
 });
 
-/**
- * Play `solved` puzzles to a solve, then `failed` puzzles to a fail (a wrong
- * move, then a skip), moving on after each one.
- */
-export const playPuzzleResults = scenarioAction({
-  name: 'playPuzzleResults',
-  act: async (s, actorId: string, solved: number, failed: number) => {
-    for (let i = 0; i < solved + failed; i += 1) {
-      if (i < solved) {
-        await solvePuzzle(s, actorId);
-      } else {
-        await playWrongMove(s, actorId);
-        await Promise.resolve(skipGamePuzzle.act(s, actorId));
-      }
-      await Promise.resolve(moveOnToNextPuzzle.act(s, actorId));
-    }
-  },
-});
-
 /** Ways a player finishes the puzzle on the board. */
 export type PuzzleFinish =
   | 'clean'
@@ -408,27 +269,13 @@ export const CHESS_HARNESS_ACTIONS = [
   pickUpPuzzlePiece,
   choosePuzzlePromotion,
   playWrongPuzzleMove,
-  includePlayedPuzzles,
   suggestPuzzleMove,
-  openPuzzleFeedSettings,
-  closePuzzleFeedSettings,
-  closePuzzleFeedSettingsNoWait,
-  setPuzzleFeedHistory,
-  setPuzzleFeedMode,
-  setPuzzleFeedTheme,
-  bumpPuzzleFeedOffset,
-  bumpPuzzleFeedCustomRating,
-  lowerPuzzleFeedOffset,
-  lowerPuzzleFeedCustomRating,
-  savePuzzleFeedSettings,
   openPuzzleByTheme,
   castlePuzzleKing,
   playNextSolutionMove,
   suggestNonSolutionMove,
   solvePuzzlesInARow,
-  playPuzzleResults,
   finishPuzzleBy,
-  showPersonalChessStatsScreen,
   sleepUntilNextUtcDay,
   solvePuzzlesDaily,
 ];

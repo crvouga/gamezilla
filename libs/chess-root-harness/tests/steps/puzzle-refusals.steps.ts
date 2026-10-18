@@ -12,10 +12,8 @@ import {
   takePuzzleHint,
   takeSecondPuzzleHint,
 } from '@libs/game-session-harness/puzzle-screen';
-import { restartApp } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor, PuzzleFinishName } from '@libs/harness/parameter-types';
-import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 
 Given(
@@ -55,10 +53,6 @@ Then(
   }
 );
 
-When('{actor} reopens the app on the puzzle', async (w, actor: Actor) => {
-  await w.s.apply(restartApp, actor);
-  await w.s.apply(returnToOwnSpace, actor);
-});
 When(
   '{actor} steps forward one move in the puzzle',
   async (w, actor: Actor) => {
