@@ -1,4 +1,5 @@
 import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
+import { gamePuzzleServers } from '@libs/game-puzzle-shared/puzzle-sub-server';
 import { createGameSessionServer } from '@libs/game-session-server/sub-server';
 /**
  * The server half of the composition root: which bounded contexts this
@@ -34,6 +35,7 @@ export function appSubServers(deps: AppSubServerDeps): readonly SubServer[] {
     AUTH_SERVER,
     createAccountPrivacyServer(APP.accountPrivacy, deps.rooms),
     createSpacesServer(deps.rooms, FRIENDS_BLOCK_RELATION),
+    ...gamePuzzleServers(TURN_GAMES),
     createChessServer(),
     createGameSessionServer(deps.rooms, TURN_GAMES),
     // Friends registers the inbox actions its deliveries carry, so it is

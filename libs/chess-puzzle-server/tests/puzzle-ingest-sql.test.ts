@@ -3,7 +3,7 @@ import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzl
 import { PuzzleValidationReport } from '@libs/chess-puzzle-server/puzzle-validation-report';
 import { validatePuzzleTable } from '@libs/chess-puzzle-server/puzzle-validation-sources';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
-import { PUZZLE_TABLES } from '@libs/game-puzzle-shared/puzzle-tables';
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { createLogger } from '@pkgs/logger-shared/logger';
@@ -39,7 +39,7 @@ async function openDb(): Promise<SqlClient> {
   await db.connect();
   await reconcileSqliteSchema(
     db,
-    registerTables([...PUZZLE_TABLES, ...CHESS_TABLES]),
+    registerTables([...GAME_PUZZLE_SUB.tables, ...CHESS_TABLES]),
     {
       ownership: 'declared-only',
     }

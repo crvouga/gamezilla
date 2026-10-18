@@ -1,4 +1,4 @@
-import { puzzleCatalogueChannels } from '@libs/game-puzzle-shared/catalogue-topics';
+import { puzzleCatalogueChannels } from '@libs/game-puzzle-shared/puzzle-catalogue';
 import sql from '@pkgs/sql-root-shared/sql';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';
 import { z } from 'zod';

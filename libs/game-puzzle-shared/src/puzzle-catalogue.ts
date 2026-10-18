@@ -3,9 +3,11 @@
  * platform its puzzles; the platform admits a puzzle only into the
  * namespace of the game that recognises its position, only as that game's
  * `content.validate` accepts it, and keys its duplicates by the game's
- * `content.positionKey`. Only an admitted row can be written.
+ * `content.positionKey`. Only an admitted row can be written, and a write
+ * outside a mutation wakes the catalogue topic its readers hold.
  */
 
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql, { bulk } from '@pkgs/sql-root-shared/sql';
 import type { PuzzleRecord } from '@pkgs/turn-game-shared/game-puzzles';
@@ -171,4 +173,16 @@ export async function insertNewCatalogueRows(
     ON CONFLICT DO NOTHING
   `);
   return result.changes;
+}
+
+/**
+ * Broadcast topic of the puzzle catalogue, every game's puzzles in one
+ * stream (its name predates the other games and is kept).
+ */
+export function puzzleCatalogueTopic(): Topic {
+  return 'system:chess_puzzles';
+}
+
+export function puzzleCatalogueChannels(): Topic[] {
+  return [puzzleCatalogueTopic()];
 }

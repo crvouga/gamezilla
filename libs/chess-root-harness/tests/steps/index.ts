@@ -40,8 +40,8 @@ useHarnessWorld(openSpecHarness, (w) => ({
     await w.s.apply(proveAccount, actor);
     await w.s.apply(seedPuzzleRating, actor, {
       rating: 1800,
-      ratingDeviation: PUZZLE_RATING_RD_MIN,
-      volatilityMicros: PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+      ratingDeviation: PUZZLE_RATING_SCALE.deviationFloor,
+      volatilityMicros: PUZZLE_RATING_SCALE.startVolatilityMicros,
     });
     await w.s.apply(createSpace, actor);
     const customLink = await w.s.read(readSpaceLink, actor);
@@ -92,10 +92,7 @@ import {
   readStatsSolved,
 } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { seedPuzzleRating } from '@libs/chess-puzzle-harness/chess-rating-data';
-import {
-  PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
-  PUZZLE_RATING_RD_MIN,
-} from '@libs/game-puzzle-shared/rating';
+import { PUZZLE_RATING_SCALE } from '@libs/game-session-harness/puzzle-fixtures';
 import type { Actor } from '@libs/harness/parameter-types';
 import { remember } from '@libs/harness/spec-world';
 

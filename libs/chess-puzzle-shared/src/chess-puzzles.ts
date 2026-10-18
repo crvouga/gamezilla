@@ -6,8 +6,6 @@
  * names its from- and to-squares.
  */
 
-import { chessRules } from '@libs/chess-rules-shared/chess-rules';
-import type { PuzzleGame } from '@libs/game-puzzle-shared/puzzle-setup';
 import { isSamePosition } from '@pkgs/chess-rules-shared/fen';
 import { applyUci } from '@pkgs/chess-rules-shared/moves';
 import { parseUci } from '@pkgs/chess-rules-shared/uci';
@@ -59,10 +57,4 @@ export const chessPuzzles: PuzzlesCapability = {
     return move === null ? null : { from: move.from, to: move.to };
   },
   isCell: isBoardSquare,
-};
-
-/** Chess as a puzzle game: its rules and its puzzles. */
-export const CHESS_PUZZLE_GAME: PuzzleGame = {
-  rules: chessRules,
-  puzzles: chessPuzzles,
 };

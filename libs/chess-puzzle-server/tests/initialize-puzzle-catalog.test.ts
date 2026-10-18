@@ -3,9 +3,8 @@ import { join } from 'node:path';
 import { InitializePuzzleCatalog } from '@libs/chess-puzzle-server/initialize-puzzle-catalog';
 import { chessPackageRootFromLoadFileModule } from '@libs/chess-puzzle-server/load-file';
 import { CHESS_PUZZLES_LOAD_FILE_RELATIVE } from '@libs/chess-puzzle-server/load-file-constants';
-import { puzzleCatalogueTopic } from '@libs/game-puzzle-shared/catalogue-topics';
-import { chessPuzzlePool } from '@libs/game-puzzle-shared/pool-query';
-import { chessPuzzles } from '@libs/game-puzzle-shared/puzzle-tables';
+import { puzzleCatalogueTopic } from '@libs/game-puzzle-shared/puzzle-catalogue';
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { createLogger } from '@pkgs/logger-shared/logger';
@@ -22,7 +21,7 @@ async function openCatalog(csv: string) {
   await db.connect();
   await reconcileSqliteSchema(
     db,
-    registerTables([chessPuzzles, syncEngineTopicSeq]),
+    registerTables([...GAME_PUZZLE_SUB.tables, syncEngineTopicSeq]),
     { ownership: 'declared-only' }
   );
   const store = new ObjectStoreImplInMemory();
@@ -71,7 +70,9 @@ test('an empty deployed catalog serves puzzles at the seed rating and wakes devi
       const response = await runQuery(
         {
           db: catalog.db,
-          registry: { chessPuzzlePool },
+          registry: Object.fromEntries(
+            GAME_PUZZLE_SUB.queries.map((query) => [query.name, query])
+          ),
           auth: {
             actorId: '5e7e71c0-0000-4000-8000-00000000c0de',
             accountId: '5e7e71c0-0000-4000-8000-00000000c0de',

@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { importPuzzleCsvBatch } from '@libs/chess-puzzle-server/puzzle-import-batch';
 import { puzzlePositionKey } from '@libs/chess-puzzle-shared/puzzle-validation';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
-import { PUZZLE_TABLES } from '@libs/game-puzzle-shared/puzzle-tables';
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
@@ -20,7 +20,7 @@ async function database() {
   await db.connect();
   await reconcileSqliteSchema(
     db,
-    registerTables([...PUZZLE_TABLES, ...CHESS_TABLES]),
+    registerTables([...GAME_PUZZLE_SUB.tables, ...CHESS_TABLES]),
     {
       ownership: 'declared-only',
     }

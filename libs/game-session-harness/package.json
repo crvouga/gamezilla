@@ -38,6 +38,7 @@
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/harness-root-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",
+    "@pkgs/room-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/turn-game-shared": "workspace:*",
     "fast-check": "catalog:"
@@ -60,6 +61,8 @@
     "game-navigation",
     "game-system",
     "harness-game",
-    "space-game-choice"
+    "space-game-choice",
+    "puzzle-session-probe",
+    "puzzle-fixtures"
   ]
 }

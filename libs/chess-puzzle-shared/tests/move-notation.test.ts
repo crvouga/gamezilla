@@ -1,14 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import {
   chessMoveNotationOf,
+  chessMoveNumber,
   DEFAULT_CHESS_MOVE_NOTATION,
   formatSanNotation,
   isChessMoveNotation,
 } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
-import {
-  DEFAULT_PUZZLE_FEED_CONFIG,
-  readPuzzleFeedConfig,
-} from '@libs/game-puzzle-shared/feed-config';
 
 describe('§7 figurine notation', () => {
   test('SAN is the default and passes strings through untouched', () => {
@@ -50,52 +47,16 @@ describe('§7 figurine notation', () => {
   });
 });
 
-describe('notation in the puzzle prefs row', () => {
-  test('defaults to SAN letters', () => {
-    expect(chessMoveNotationOf(DEFAULT_PUZZLE_FEED_CONFIG.notation)).toBe(
-      'san'
-    );
+describe('chess reads any stored notation it does not offer as SAN', () => {
+  test('the platform default, a legacy row and an unknown key all read as SAN', () => {
+    for (const stored of ['', 'hieroglyphs', 'not a key'])
+      expect(chessMoveNotationOf(stored)).toBe('san');
+    expect(chessMoveNotationOf('figurine')).toBe('figurine');
   });
 
-  test('a legacy row without the field still decodes, as SAN', () => {
-    const decoded = readPuzzleFeedConfig({
-      mode: 'auto',
-      customRating: 1500,
-    });
-    expect(chessMoveNotationOf(decoded?.notation ?? '')).toBe('san');
-  });
-
-  test('a stored SAN preference stays SAN', () => {
-    const decoded = readPuzzleFeedConfig({
-      ...DEFAULT_PUZZLE_FEED_CONFIG,
-      notation: 'san',
-    });
-    expect(decoded?.notation).toBe('san');
-  });
-
-  test('a stored figurine preference round-trips', () => {
-    const decoded = readPuzzleFeedConfig({
-      ...DEFAULT_PUZZLE_FEED_CONFIG,
-      notation: 'figurine',
-    });
-    expect(decoded?.notation).toBe('figurine');
-  });
-
-  test('an unusable notation falls back rather than voiding the row', () => {
-    const decoded = readPuzzleFeedConfig({
-      ...DEFAULT_PUZZLE_FEED_CONFIG,
-      notation: 'hieroglyphs',
-    });
-    // The row still decodes; chess draws a notation it does not know as SAN.
-    expect(decoded).toBeDefined();
-    expect(chessMoveNotationOf(decoded?.notation ?? '')).toBe('san');
-    expect(
-      chessMoveNotationOf(
-        readPuzzleFeedConfig({
-          ...DEFAULT_PUZZLE_FEED_CONFIG,
-          notation: 'not a key',
-        })?.notation ?? ''
-      )
-    ).toBe('san');
+  test('chess numbers a move as its position says', () => {
+    expect(chessMoveNumber('8/8/8/8/8/8/8/K6k w - - 0 32', 0)).toBe('32.');
+    expect(chessMoveNumber('8/8/8/8/8/8/8/K6k b - - 0 32', 0)).toBe('32...');
+    expect(chessMoveNumber('8/8/8/8/8/8/8/K6k b - - 0 32', 1)).toBeNull();
   });
 });

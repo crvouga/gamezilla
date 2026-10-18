@@ -1,4 +1,4 @@
-import { PUZZLE_TOPIC_MAP } from '@libs/game-puzzle-shared/puzzle-topic-map';
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 /**
  * Stock the puzzle pool with puzzles a scenario describes by what matters to
  * it — rating, popularity, times played, themes — through the real load-file
@@ -85,7 +85,7 @@ export const stockPuzzles = scenarioAction({
 export const retireEveryPuzzle = scenarioAction({
   name: 'retireEveryPuzzle',
   act: async (s) => {
-    await writeServerFixture(s, PUZZLE_TOPIC_MAP, async (db) => {
+    await writeServerFixture(s, GAME_PUZZLE_SUB.topicMap, async (db) => {
       await db.run(sql`
       UPDATE chess_puzzles
       SET deleted_at = ${new Date(s.harness.clock.now()).toISOString()}

@@ -61,7 +61,12 @@ export const GAME_PUZZLE_SUB = defineSub({
  * whose games offer none has no puzzle tables, reads or writes.
  */
 export function gamePuzzleSubs(turnGames: TurnGames): readonly SubManifest[] {
-  return turnGames.games.some((game) => game.capabilities.puzzles !== undefined)
-    ? [GAME_PUZZLE_SUB]
-    : [];
+  return offersPuzzles(turnGames) ? [GAME_PUZZLE_SUB] : [];
+}
+
+/** Whether any registered game offers puzzles. */
+export function offersPuzzles(turnGames: TurnGames): boolean {
+  return turnGames.games.some(
+    (game) => game.capabilities.puzzles !== undefined
+  );
 }

@@ -1,7 +1,7 @@
 import { drainAndNotifyOutbox } from '@libs/app-root-server/outbox-drain';
 import { puzzleImportConsumer } from '@libs/chess-root-server/puzzle-import-consumer';
 import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared/topic-map';
-import { PUZZLE_TOPIC_MAP } from '@libs/game-puzzle-shared/puzzle-topic-map';
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
@@ -59,7 +59,7 @@ export const advancePuzzleImport = scenarioAction({
       pubsub: s.harness.server.events,
       objectStore: s.harness.server.blob,
       consumerRegistry: registry,
-      topicMap: { ...PUZZLE_TOPIC_MAP, ...CHESS_TOPIC_MAP },
+      topicMap: { ...GAME_PUZZLE_SUB.topicMap, ...CHESS_TOPIC_MAP },
       eventIds: [
         `puzzle-import:${job.source_etag}:${String(job.completed_chunks)}`,
       ],

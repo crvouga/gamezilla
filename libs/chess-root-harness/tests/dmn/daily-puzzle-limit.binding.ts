@@ -1,4 +1,4 @@
-import { PUZZLE_TABLES } from '@libs/game-puzzle-shared/puzzle-tables';
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 /**
  * `specs/chess/daily-puzzle-limit.dmn` against the permission system:
  *
@@ -22,8 +22,10 @@ import { PUZZLE_TABLES } from '@libs/game-puzzle-shared/puzzle-tables';
 
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
-import { ratePuzzleAttemptMutation } from '@libs/game-puzzle-shared/rate-puzzle-attempt-mutation';
-import { ratedStartKey } from '@libs/game-puzzle-shared/rated-start-key';
+import {
+  RATE_PUZZLE_ATTEMPT,
+  ratedPuzzleStartKey,
+} from '@libs/game-session-harness/puzzle-fixtures';
 import { dailyPuzzleLimitClientLayer } from '@libs/permissions-harness/client-layers';
 import { dailyPuzzleLimitApplicationLayer } from '@libs/permissions-shared/application';
 import { PERMISSIONS_MUTATIONS } from '@libs/permissions-shared/mutations';
@@ -51,9 +53,9 @@ function ratedResultServerLayer(): DecisionLayer {
   const start = replayOperation(consumeQuota, (c) => ({
     id: 'attempted-start',
     quota: ACTION.puzzleRatedSolve,
-    idempotencyKey: ratedStartKey(ATTEMPTED_PUZZLE, c.nowMs),
+    idempotencyKey: ratedPuzzleStartKey(ATTEMPTED_PUZZLE, c.nowMs),
   }));
-  const result = replayOperation(ratePuzzleAttemptMutation, (c) => ({
+  const result = replayOperation(RATE_PUZZLE_ATTEMPT, (c) => ({
     attemptKey: 'attempted-start',
     solveIdx: 3,
     ownerId: c.env.actorId,
@@ -64,7 +66,7 @@ function ratedResultServerLayer(): DecisionLayer {
     scorePermille: 1000,
   }));
   return serverEnforcementLayer({
-    tables: [...BILLING_TABLES, ...PUZZLE_TABLES, ...CHESS_TABLES],
+    tables: [...BILLING_TABLES, ...GAME_PUZZLE_SUB.tables, ...CHESS_TABLES],
     reasons: DAILY_PUZZLE_LIMIT_REASONS,
     seed: (c) =>
       insertStarted(c.db, {

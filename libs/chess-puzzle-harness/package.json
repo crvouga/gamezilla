@@ -20,6 +20,7 @@
     "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-sub-shared": "workspace:*",
     "@libs/game-puzzle-shared": "workspace:*",
+    "@libs/game-session-harness": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/spaces-harness": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
@@ -47,14 +48,10 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@libs/billing-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/db-schema-root-shared": "workspace:*",
-    "@pkgs/db-schema-sqlite-shared": "workspace:*",
     "@pkgs/http-client-shared": "workspace:*",
-    "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",

@@ -1,4 +1,4 @@
-import { puzzleCatalogueChannels } from '@libs/game-puzzle-shared/catalogue-topics';
+import { puzzleCatalogueChannels } from '@libs/game-puzzle-shared/puzzle-catalogue';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';

@@ -8,8 +8,8 @@
 
 import { PuzzleSeedFastPath } from '@libs/chess-puzzle-server/fast-path';
 import { PuzzleIngestTally } from '@libs/chess-puzzle-server/puzzle-ingest';
-import { puzzleCatalogueTopic } from '@libs/game-puzzle-shared/catalogue-topics';
 import type { CatalogueRow } from '@libs/game-puzzle-shared/puzzle-catalogue';
+import { puzzleCatalogueTopic } from '@libs/game-puzzle-shared/puzzle-catalogue';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 import { HARNESS_CHESS_PUZZLES_WEB_CSV } from './chess-puzzles-web-fixture';

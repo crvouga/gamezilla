@@ -5,7 +5,6 @@
  */
 import { expect, test } from 'bun:test';
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
 import { chessPuzzleProfile } from '@libs/game-puzzle-shared/profile-query';
 import { PUZZLE_TABLES } from '@libs/game-puzzle-shared/puzzle-tables';
 import { ratePuzzleAttemptMutation } from '@libs/game-puzzle-shared/rate-puzzle-attempt-mutation';
@@ -42,9 +41,7 @@ test('the synced puzzle profile carries rating, deviation and volatility', async
   await db.connect();
   await reconcileSqliteSchema(
     db,
-    registerTables(
-      uniqueTables([...BILLING_TABLES, ...PUZZLE_TABLES, ...CHESS_TABLES])
-    ),
+    registerTables(uniqueTables([...BILLING_TABLES, ...PUZZLE_TABLES])),
     {
       ownership: 'declared-only',
     }

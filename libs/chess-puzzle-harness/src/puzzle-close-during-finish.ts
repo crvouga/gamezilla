@@ -1,11 +1,7 @@
-import { PuzzlePlayAttr } from '@libs/game-puzzle-shared/play-attr';
 import {
-  RequestPuzzleHint,
-  ResetPuzzlePlay,
-  ShowPuzzleSolution,
-  SkipPuzzlePlay,
-  SubmitPuzzleMove,
-} from '@libs/game-puzzle-shared/play-messages';
+  puzzleSessionCommand,
+  readPuzzleSession,
+} from '@libs/game-session-harness/puzzle-session-probe';
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
@@ -28,26 +24,32 @@ function finishCommands(
   state: RoomState,
   finish: PuzzleFinish
 ): RoomCommandPayload[] {
-  if (finish === 'skip') return [SkipPuzzlePlay({})];
-  if (finish === 'showSolution') return [ShowPuzzleSolution({})];
-  const moves = PuzzlePlayAttr.line.from(state).split(' ');
-  const next = PuzzlePlayAttr.solveIdx.from(state);
+  if (finish === 'skip') return [puzzleSessionCommand({ kind: 'skip' })];
+  if (finish === 'showSolution')
+    return [puzzleSessionCommand({ kind: 'show-line' })];
+  const session = readPuzzleSession(state);
+  const moves = session.line;
+  const next = session.solveIdx;
   const prefix: RoomCommandPayload[] = [];
-  if (finish === 'hintThenSolve') prefix.push(RequestPuzzleHint({}));
+  if (finish === 'hintThenSolve')
+    prefix.push(puzzleSessionCommand({ kind: 'hint' }));
   if (finish === 'wrongRetrySolve') {
-    const board = new Chess(PuzzlePlayAttr.displayPosition.from(state)!);
+    const board = new Chess(session.displayPosition!);
     const wrong = board
       .moves({ verbose: true })
       .map((move) => `${move.from}${move.to}${move.promotion ?? ''}`)
       .find((move) => move !== moves[next]);
     if (wrong === undefined) throw new Error('Puzzle has no legal wrong move');
-    prefix.push(SubmitPuzzleMove({ uci: wrong }), ResetPuzzlePlay({}));
+    prefix.push(
+      puzzleSessionCommand({ kind: 'move', action: wrong }),
+      puzzleSessionCommand({ kind: 'retry' })
+    );
   }
   const first = finish === 'wrongRetrySolve' ? 1 : next;
   for (let i = first; i < moves.length; i += 2) {
-    const uci = moves[i];
-    if (uci === undefined) throw new Error('Missing solution move');
-    prefix.push(SubmitPuzzleMove({ uci }));
+    const action = moves[i];
+    if (action === undefined) throw new Error('Missing solution move');
+    prefix.push(puzzleSessionCommand({ kind: 'move', action }));
   }
   return prefix;
 }

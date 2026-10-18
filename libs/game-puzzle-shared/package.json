@@ -51,31 +51,11 @@
   },
   "category": "isomorphic",
   "gameApi": [
-    "catalogue-topics",
-    "code-unit-compare",
     "completion",
-    "feed-config",
     "hint-stage",
-    "observation-policy",
-    "play-attr",
-    "play-messages",
-    "play-result",
-    "pool-query",
-    "profile-query",
     "puzzle-catalogue",
-    "puzzle-judge",
     "puzzle-link",
-    "puzzle-setup",
-    "puzzle-tables",
-    "puzzle-topic-map",
-    "rate-puzzle-attempt-mutation",
-    "rated-start-key",
-    "rating",
-    "recommendations",
-    "solve-projection",
     "solve-status",
-    "step",
-    "sub",
-    "telemetry"
+    "sub"
   ]
 }

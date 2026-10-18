@@ -34,7 +34,6 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/property-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",

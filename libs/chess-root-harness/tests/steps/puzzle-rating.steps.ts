@@ -23,13 +23,7 @@ import {
 } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { seedPuzzleRating } from '@libs/chess-puzzle-harness/chess-rating-data';
 import { readPuzzleRatingHistoryDirections } from '@libs/chess-puzzle-harness/puzzle-rating-history-reads';
-import {
-  PUZZLE_PROVISIONAL_RD,
-  PUZZLE_RATING_DEFAULT,
-  PUZZLE_RATING_DEFAULT_RD,
-  PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
-  PUZZLE_RATING_RD_MIN,
-} from '@libs/game-puzzle-shared/rating';
+import { PUZZLE_RATING_SCALE } from '@libs/game-session-harness/puzzle-fixtures';
 import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -125,9 +119,9 @@ Given(
     // The deviation sits on the provisional threshold: one more rated
     // attempt settles it.
     await w.s.apply(seedPuzzleRating, actor, {
-      rating: PUZZLE_RATING_DEFAULT,
-      ratingDeviation: PUZZLE_PROVISIONAL_RD,
-      volatilityMicros: PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+      rating: PUZZLE_RATING_SCALE.start,
+      ratingDeviation: PUZZLE_RATING_SCALE.provisionalDeviation,
+      volatilityMicros: PUZZLE_RATING_SCALE.startVolatilityMicros,
     });
   }
 );
@@ -139,8 +133,8 @@ Given(
     // As settled as a rating gets: the deviation at its floor.
     await w.s.apply(seedPuzzleRating, actor, {
       rating,
-      ratingDeviation: PUZZLE_RATING_RD_MIN,
-      volatilityMicros: PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+      ratingDeviation: PUZZLE_RATING_SCALE.deviationFloor,
+      volatilityMicros: PUZZLE_RATING_SCALE.startVolatilityMicros,
     });
   }
 );
@@ -152,8 +146,8 @@ Given(
     // No rated attempt yet: the deviation at its ceiling.
     await w.s.apply(seedPuzzleRating, actor, {
       rating,
-      ratingDeviation: PUZZLE_RATING_DEFAULT_RD,
-      volatilityMicros: PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+      ratingDeviation: PUZZLE_RATING_SCALE.startDeviation,
+      volatilityMicros: PUZZLE_RATING_SCALE.startVolatilityMicros,
     });
   }
 );

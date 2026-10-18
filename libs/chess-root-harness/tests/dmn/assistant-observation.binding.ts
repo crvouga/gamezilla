@@ -1,5 +1,5 @@
-import type { ObservationFacts } from '@libs/game-puzzle-shared/observation-policy';
-import { chooseObservation } from '@libs/game-puzzle-shared/observation-policy';
+import type { ObservationFacts } from '@libs/chess-puzzle-shared/observation-policy';
+import { chooseObservation } from '@libs/chess-puzzle-shared/observation-policy';
 import { bindDecisions } from '@pkgs/dmn-shared/registry';
 
 bindDecisions({

@@ -1,10 +1,10 @@
 import { expect, test } from 'bun:test';
-import { CHESS_PUZZLE_GAME } from '@libs/chess-puzzle-shared/chess-puzzles';
 import { judgePuzzleAction } from '@libs/game-puzzle-shared/puzzle-judge';
 import { sideToMoveOf } from '@pkgs/chess-rules-shared/fen';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import { Chess, type Square } from 'chess.js';
 import fc from 'fast-check';
+import { CHESS_PUZZLE_GAME } from './chess-puzzle-game';
 
 /** The platform's judge over chess, as the solver to move in `fen`. */
 function judgePuzzleMove(args: {

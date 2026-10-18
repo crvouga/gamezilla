@@ -1,4 +1,4 @@
-import { PUZZLE_RATING_DEFAULT } from '@libs/game-puzzle-shared/rating';
+import { PUZZLE_RATING_SCALE } from '@libs/game-session-harness/puzzle-fixtures';
 import type { ProductHarness } from '@libs/harness/harness';
 import { readStatsRatingHistory } from './chess-puzzle-ui';
 
@@ -9,6 +9,8 @@ export async function readPuzzleRatingHistoryDirections(
 ) {
   const ratings = await readStatsRatingHistory(s, actor);
   return ratings.map((rating, index) =>
-    rating > (ratings[index - 1] ?? PUZZLE_RATING_DEFAULT) ? 'solved' : 'failed'
+    rating > (ratings[index - 1] ?? PUZZLE_RATING_SCALE.start)
+      ? 'solved'
+      : 'failed'
   );
 }

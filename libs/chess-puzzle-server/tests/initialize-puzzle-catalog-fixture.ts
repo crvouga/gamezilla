@@ -1,8 +1,8 @@
 import { beforeAll } from 'bun:test';
 import { InitializePuzzleCatalog } from '@libs/chess-puzzle-server/initialize-puzzle-catalog';
 import { CHESS_PUZZLES_LOAD_FILE_RELATIVE } from '@libs/chess-puzzle-server/load-file-constants';
-import { puzzleCatalogueTopic } from '@libs/game-puzzle-shared/catalogue-topics';
-import { chessPuzzles } from '@libs/game-puzzle-shared/puzzle-tables';
+import { puzzleCatalogueTopic } from '@libs/game-puzzle-shared/puzzle-catalogue';
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { createLogger } from '@pkgs/logger-shared/logger';
@@ -19,7 +19,7 @@ beforeAll(async () => {
   try {
     await reconcileSqliteSchema(
       db,
-      registerTables([chessPuzzles, syncEngineTopicSeq]),
+      registerTables([...GAME_PUZZLE_SUB.tables, syncEngineTopicSeq]),
       { ownership: 'declared-only' }
     );
     emptyCatalog = await db.exportDatabaseBytes();

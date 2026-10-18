@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { createChessModule } from '@libs/chess-puzzle-harness/chess-module';
-import { CHESS_PUZZLE_GAME } from '@libs/chess-puzzle-shared/chess-puzzles';
 import {
   PUZZLE_PLAY_STATUS,
   PuzzlePlayAttr,
@@ -24,6 +23,7 @@ import { PUZZLE_MAX_RECOMMENDATIONS } from '@libs/game-puzzle-shared/recommendat
 import { projectBoardPosition } from '@libs/game-puzzle-shared/solve-projection';
 import type { RoomCommand, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
+import { CHESS_PUZZLE_GAME } from './chess-puzzle-game';
 
 const ChessModule = createChessModule(() => 0);
 

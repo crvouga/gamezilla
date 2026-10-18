@@ -1,5 +1,5 @@
 import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';
-import { puzzleCatalogueTopic } from './catalogue-topics';
+import { puzzleCatalogueTopic } from './puzzle-catalogue';
 
 /**
  * Wake topics of the puzzle tables: a person's progress and preferences
