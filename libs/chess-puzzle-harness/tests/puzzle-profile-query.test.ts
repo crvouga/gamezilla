@@ -6,14 +6,15 @@
 import { expect, test } from 'bun:test';
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
-import { CHESS_QUERIES } from '@libs/chess-sub-shared/queries';
 import { chessPuzzleProfile } from '@libs/game-puzzle-shared/profile-query';
+import { PUZZLE_TABLES } from '@libs/game-puzzle-shared/puzzle-tables';
 import { ratePuzzleAttemptMutation } from '@libs/game-puzzle-shared/rate-puzzle-attempt-mutation';
 import {
   applyPuzzleAttemptRating,
   DEFAULT_PUZZLE_RATING_STATE,
   PUZZLE_SCORE_PERMILLE,
 } from '@libs/game-puzzle-shared/rating';
+import { PUZZLE_QUERIES } from '@libs/game-puzzle-shared/sub';
 import { uniqueTables } from '@libs/permissions-shared/world';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
@@ -41,7 +42,9 @@ test('the synced puzzle profile carries rating, deviation and volatility', async
   await db.connect();
   await reconcileSqliteSchema(
     db,
-    registerTables(uniqueTables([...BILLING_TABLES, ...CHESS_TABLES])),
+    registerTables(
+      uniqueTables([...BILLING_TABLES, ...PUZZLE_TABLES, ...CHESS_TABLES])
+    ),
     {
       ownership: 'declared-only',
     }
@@ -60,7 +63,7 @@ test('the synced puzzle profile carries rating, deviation and volatility', async
   await ratePuzzleAttemptMutation.run({ tx: db, env }, parsed.value);
 
   const query = chessPuzzleProfile;
-  expect(CHESS_QUERIES).toContain(query);
+  expect(PUZZLE_QUERIES).toContain(query);
   expect(query.name).toBe('chessPuzzleProfile');
   const tables = await query.run(
     { db: { query: (q) => db.query(q as Sql<QueryRow>) }, env },

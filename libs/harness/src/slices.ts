@@ -72,6 +72,7 @@ export const SLICE_ORDER = [
   'friends',
   'notifications',
   'search',
+  'game-puzzle',
   'games',
   'game-session',
   'billing',

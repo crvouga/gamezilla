@@ -3,6 +3,7 @@ import { BILLING_TABLES } from '@libs/billing-shared/tables';
 import { ChessPuzzleInteractionDb } from '@libs/chess-puzzle-client/chess-puzzle-interaction-db';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
 import type { PuzzleInteractionRow } from '@libs/game-puzzle-shared/interaction-entities';
+import { PUZZLE_TABLES } from '@libs/game-puzzle-shared/puzzle-tables';
 import { uniqueTables } from '@libs/permissions-shared/world';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
@@ -17,7 +18,9 @@ test('a failed result write leaves no half-finished attempt and retry counts onc
   await db.connect();
   await reconcileSqliteSchema(
     db,
-    registerTables(uniqueTables([...BILLING_TABLES, ...CHESS_TABLES])),
+    registerTables(
+      uniqueTables([...BILLING_TABLES, ...PUZZLE_TABLES, ...CHESS_TABLES])
+    ),
     { ownership: 'declared-only' }
   );
   let id = 0;

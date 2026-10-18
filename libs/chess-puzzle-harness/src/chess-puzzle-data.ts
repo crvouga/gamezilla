@@ -1,3 +1,4 @@
+import { PUZZLE_TOPIC_MAP } from '@libs/game-puzzle-shared/puzzle-topic-map';
 /**
  * Puzzle-content stimuli and reads for the §4 / §23 ingest scenarios: ingest
  * a CSV into the harness server through the real load-file seeder (validation +
@@ -6,7 +7,6 @@
  */
 
 import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzle-load-file-seeder';
-import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared/topic-map';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql } from '@libs/harness/identity';
@@ -46,7 +46,7 @@ export const ingestChessPuzzleCsv = scenarioAction({
       createId: s.harness.server.createId,
       now,
     });
-    await writeServerFixture(s, CHESS_TOPIC_MAP, (sqlClient) =>
+    await writeServerFixture(s, PUZZLE_TOPIC_MAP, (sqlClient) =>
       seeder.seed({
         sqlClient,
         logger: createLogger({ name: 'harness:ingest', level: 'silent', now }),
@@ -108,7 +108,7 @@ export async function readPuzzleBoardOrientation(
 export const retireChessPuzzle = scenarioAction({
   name: 'retireChessPuzzle',
   act: async (s, puzzleId: string) => {
-    await writeServerFixture(s, CHESS_TOPIC_MAP, async (db) => {
+    await writeServerFixture(s, PUZZLE_TOPIC_MAP, async (db) => {
       await db.run(sql`
       UPDATE chess_puzzles
       SET deleted_at = ${new Date(s.harness.clock.now()).toISOString()}
@@ -122,7 +122,7 @@ export const retireChessPuzzle = scenarioAction({
 export const editChessPuzzleRating = scenarioAction({
   name: 'editChessPuzzleRating',
   act: async (s, puzzleId: string, rating: number) => {
-    await writeServerFixture(s, CHESS_TOPIC_MAP, async (db) => {
+    await writeServerFixture(s, PUZZLE_TOPIC_MAP, async (db) => {
       await db.run(sql`
       UPDATE chess_puzzles
       SET rating = ${rating}

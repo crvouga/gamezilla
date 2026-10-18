@@ -18,7 +18,6 @@
     "@libs/auth-shared": "workspace:*",
     "@libs/chess-puzzle-server": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
-    "@libs/chess-root-shared": "workspace:*",
     "@libs/chess-sub-shared": "workspace:*",
     "@libs/game-puzzle-shared": "workspace:*",
     "@libs/harness": "workspace:*",

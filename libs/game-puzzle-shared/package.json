@@ -19,6 +19,7 @@
     "@libs/observability-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
+    "@libs/sub-shared": "workspace:*",
     "@pkgs/attribute-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
@@ -72,6 +73,7 @@
     "puzzle-setup",
     "puzzle-swipe-handlers",
     "puzzle-tables",
+    "puzzle-topic-map",
     "rate-puzzle-attempt-mutation",
     "rated-start-key",
     "rating",
@@ -85,6 +87,7 @@
     "stats",
     "status-kind",
     "step",
+    "sub",
     "telemetry"
   ]
 }

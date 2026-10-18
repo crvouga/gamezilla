@@ -1,3 +1,4 @@
+import { PUZZLE_TABLES } from '@libs/game-puzzle-shared/puzzle-tables';
 /**
  * `specs/chess/daily-puzzle-limit.dmn` against the permission system:
  *
@@ -63,7 +64,7 @@ function ratedResultServerLayer(): DecisionLayer {
     scorePermille: 1000,
   }));
   return serverEnforcementLayer({
-    tables: [...BILLING_TABLES, ...CHESS_TABLES],
+    tables: [...BILLING_TABLES, ...PUZZLE_TABLES, ...CHESS_TABLES],
     reasons: DAILY_PUZZLE_LIMIT_REASONS,
     seed: (c) =>
       insertStarted(c.db, {

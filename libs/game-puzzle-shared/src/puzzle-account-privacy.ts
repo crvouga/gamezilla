@@ -8,7 +8,7 @@ const PERSONAL_TABLES = [
   'chess_puzzle_feed_settings',
 ] as const;
 
-export const CHESS_PRIVACY: AccountPrivacyContribution = {
+export const PUZZLE_PRIVACY: AccountPrivacyContribution = {
   name: 'puzzle progress and preferences',
   snapshot: async (ctx) => {
     const { tx, env } = ctx;

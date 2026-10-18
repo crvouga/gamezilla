@@ -1,3 +1,4 @@
+import { PUZZLE_TOPIC_MAP } from '@libs/game-puzzle-shared/puzzle-topic-map';
 /**
  * Stock the puzzle pool with puzzles a scenario describes by what matters to
  * it — rating, popularity, times played, themes — through the real load-file
@@ -5,7 +6,6 @@
  * seeder's position dedupe never drops a stocked puzzle.
  */
 
-import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared/topic-map';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import { writeServerFixture } from '@libs/harness/write-server-fixture';
 import sql from '@pkgs/sql-root-shared/sql';
@@ -85,7 +85,7 @@ export const stockPuzzles = scenarioAction({
 export const retireEveryPuzzle = scenarioAction({
   name: 'retireEveryPuzzle',
   act: async (s) => {
-    await writeServerFixture(s, CHESS_TOPIC_MAP, async (db) => {
+    await writeServerFixture(s, PUZZLE_TOPIC_MAP, async (db) => {
       await db.run(sql`
       UPDATE chess_puzzles
       SET deleted_at = ${new Date(s.harness.clock.now()).toISOString()}

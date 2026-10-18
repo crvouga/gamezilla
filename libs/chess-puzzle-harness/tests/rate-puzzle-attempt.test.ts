@@ -6,6 +6,7 @@
 import { describe, expect, test } from 'bun:test';
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+import { PUZZLE_TABLES } from '@libs/game-puzzle-shared/puzzle-tables';
 import { ratePuzzleAttemptMutation } from '@libs/game-puzzle-shared/rate-puzzle-attempt-mutation';
 import {
   applyPuzzleAttemptRating,
@@ -42,7 +43,9 @@ async function openDb(): Promise<SqlClient> {
   await db.connect();
   await reconcileSqliteSchema(
     db,
-    registerTables(uniqueTables([...BILLING_TABLES, ...CHESS_TABLES])),
+    registerTables(
+      uniqueTables([...BILLING_TABLES, ...PUZZLE_TABLES, ...CHESS_TABLES])
+    ),
     {
       ownership: 'declared-only',
     }

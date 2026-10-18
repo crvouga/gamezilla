@@ -12,9 +12,9 @@
  * finishes after signing in is rated.
  */
 import { describe, expect, test } from 'bun:test';
-
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+import { PUZZLE_TABLES } from '@libs/game-puzzle-shared/puzzle-tables';
 import { ratePuzzleAttemptMutation } from '@libs/game-puzzle-shared/rate-puzzle-attempt-mutation';
 import { ratedStartKey } from '@libs/game-puzzle-shared/rated-start-key';
 import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
@@ -35,7 +35,7 @@ import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 const [consumeQuota] = PERMISSIONS_MUTATIONS;
 const GUEST_LIMIT = 20;
 const DAY_MS = 86_400_000;
-const TABLES = [...BILLING_TABLES, ...CHESS_TABLES];
+const TABLES = [...BILLING_TABLES, ...PUZZLE_TABLES, ...CHESS_TABLES];
 
 async function openGuestServer(): Promise<ServerCase> {
   const input = { [DMN_INPUT.who]: 'guest' };
