@@ -56,5 +56,5 @@ Feature: A matched game follows the account
     Scenario: Deleting an account keeps the other person's result
       Given Alice has the first side against Bob in a 5+0 matched game after their first moves
       When Alice confirms account deletion
-      Then Bob sees he won the matched game
+      Then Bob sees he won the matched game by account deletion
       And Bob is not shown Alice's deleted personal details
