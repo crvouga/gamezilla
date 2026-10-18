@@ -31,7 +31,7 @@ composition roots (registries, runtime, apps)
 
 | Package | Owns |
 | --- | --- |
-| `@pkgs/turn-game-shared` | The contracts: `GameRules`, `TurnGameCapabilities` and their parts (`GameBots`, `MatchmakingCapability`, `HistoryCapability`), `TurnGames` (lookup by id, position and clock), `GamePresentation`, `GameAutomation`. |
+| `@pkgs/turn-game-shared` | The contracts: `GameRules`, `TurnGameCapabilities` and their parts (`GameBots`, `MatchmakingCapability`, `HistoryCapability`, `PuzzlesCapability`), `TurnGames` (lookup by id, position and clock), `GamePresentation`, `GameAutomation`. |
 | `@pkgs/turn-game-client` | `TurnGamesProvider` and `useGamePresentation`: the shared screens find a position's presentation. |
 | `@libs/spaces-shared` | `GameDefinition` and `GameClientDefinition` (what a space can play), `GameOwnRoom` (a game's own room behaviour), `SharedGameModule`, and the space room that composes them. |
 | `@libs/game-session-shared` | `defineTurnGame`, custom games (sides, people, bots, readiness, clocks, resignation, draws, rematches, offline solo play) and the shared session module installed once per space. |
@@ -84,6 +84,7 @@ It is never a new entry for an internal module.
 | Package | Public modules (`gameApi`) | For |
 | --- | --- | --- |
 | `@pkgs/turn-game-shared` | `game-rules` | `GameRules`, `TurnGameCapabilities` and each capability's contract (`GameBots`, `MatchmakingCapability`, `GameNoticeText`, `HistoryCapability`, `GameRecordMetadata`), `GameSide`, and `createTurnGames` for a game's own suites |
+| | `game-puzzles` | `PuzzlesCapability`, `PuzzleRecord`, `PuzzleMarks`: what a game supplies to be offered puzzles |
 | | `game-presentation` | `GamePresentation`, `GameBoardProps`: the board and the copy the shared screens show |
 | | `game-automation` | `GameAutomation`: a synthetic or scripted participant's choice and its board gesture |
 | `@libs/game-session-shared` | `turn-game-definition` | `defineTurnGame` and `TurnGame`: the registration |
@@ -153,6 +154,7 @@ Capabilities are present or absent, each with what it needs:
 | `custom-games` | Custom games with people and bots, invitations, readiness, clocks, resignation, draws, rematches, offline solo play, review | `bots: { difficulties, choose }` (no difficulties = one bot) |
 | `matchmaking` | Finding an opponent at a clock choice, matched games, ratings per speed, turn and result notices, rematches, the multiplayer link | `clockNamespace` (`'<id>/'`), `notice` copy for server-sent notices; **requires `history`** |
 | `history` | History, statistics and review of finished games; the downloadable record | `record(position, history, metadata)` |
+| `puzzles` | Puzzles from the game's positions: the catalogue, the next puzzle, setting it up, judging each move, hints, the solution, ratings, statistics and watchers | `namespace` (`'<id>/'`), `content.validate(record)` (and optionally `content.positionKey`), optionally `judge.canonical(position, action)` and `judge.samePosition(a, b)`, `marks(position, action)` (the cells a hint or a wrong move shows) and `isCell(cell)`; **requires nothing else** |
 
 A game never supplies a placeholder for a capability it does not offer, and
 the platform shows, accepts and tests nothing for an absent one.
@@ -512,11 +514,11 @@ behaviour for exactly what it offers:
 
 The matrix today:
 
-| game | rules | custom-games | matchmaking | history |
-| --- | --- | --- | --- | --- |
-| chess | bound | bound | bound | bound |
-| Connect Four | bound | bound | bound | bound |
-| counting race (reference, test-only) | bound | bound | — | bound |
+| game | rules | custom-games | matchmaking | history | puzzles |
+| --- | --- | --- | --- | --- | --- |
+| chess | bound | bound | bound | bound | — |
+| Connect Four | bound | bound | bound | bound | — |
+| counting race (reference, test-only) | bound | bound | — | bound | — |
 
 ## Durable names
 
@@ -528,11 +530,12 @@ tables `chess_multiplayer_*` and `chess_opponent_searches`, room modules
 `white` / `black` (first and second side), the record fields `fen` / `uci` /
 `san` / `pgn` (position, action, label, history), chess's unprefixed clock
 namespace, and the space-wide game screen (`games/screen`). The unprefixed
-clock namespace `''` belongs to the game whose id is
-`GAME_PLATFORM_NAMESPACE` alone: `defineTurnGame` grants it to that game
-(`unprefixedClockNamespace`), and `createTurnGames` refuses it for any
+namespace `''` — of clock choices and of puzzles — belongs to the game
+whose id is `GAME_PLATFORM_NAMESPACE` alone: `defineTurnGame` grants it to
+that game (`unprefixedNamespace`), and `createTurnGames` refuses it for any
 other (`<id>: the unprefixed clock namespace "" belongs to the platform's
-durable game alone — use "<id>/"`). Renaming any of
+durable game alone — use "<id>/"`, and likewise for the puzzle
+namespace). Renaming any of
 them would change stored histories, pending offline mutations or queued
 messages. A game's own positions and actions are stored verbatim: a game that
 changes its encoding keeps `recognizes`, `play` and `replay` accepting every

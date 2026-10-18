@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import type { PuzzlesCapability } from '@pkgs/turn-game-shared/game-puzzles';
 import {
   createTurnGames,
   type GameRules,
@@ -70,7 +71,7 @@ test('clock namespaces are the game id and never shared', () => {
   ).toThrow('clock namespace "other/" is not "counter/"');
   const unprefixed = (rules: GameRules): RegisteredTurnGame => ({
     ...registration({ matchmaking: matchmaking(''), history }, rules),
-    unprefixedClockNamespace: true,
+    unprefixedNamespace: true,
   });
   expect(() =>
     createTurnGames([unprefixed(game), unprefixed(rulesOf('second'))])
@@ -86,7 +87,7 @@ test('only the game granted it keeps the unprefixed clock namespace', () => {
   const granted = createTurnGames([
     {
       ...registration({ matchmaking: matchmaking(''), history }),
-      unprefixedClockNamespace: true,
+      unprefixedNamespace: true,
     },
   ]);
   expect(granted.forControl('5+0')).toBe(game);
@@ -107,4 +108,40 @@ test('a game whose starting position another game claims is refused', () => {
   expect(() =>
     createTurnGames([registration({}), registration({}, greedy)])
   ).toThrow('recognized by it alone');
+});
+
+const puzzles = (namespace: string): PuzzlesCapability => ({
+  namespace,
+  content: { validate: () => ({ ok: true }) },
+  marks: (_position, action) => ({ from: null, to: action }),
+  isCell: (cell) => cell.length > 0,
+});
+
+test('puzzles need no other capability, and their namespace is the game id', () => {
+  const rules = createTurnGames([
+    registration({ puzzles: puzzles('counter/') }),
+  ]);
+  expect(rules.offers('counter', 'puzzles')).toBe(true);
+  expect(offeredCapabilities(rules.games[0]!)).toEqual(['puzzles']);
+  expect(() =>
+    createTurnGames([registration({ puzzles: puzzles('other/') })])
+  ).toThrow('counter: puzzle namespace "other/" is not "counter/"');
+});
+
+test('only the game granted it keeps the unprefixed puzzle namespace, and no two games share one', () => {
+  expect(() =>
+    createTurnGames([registration({ puzzles: puzzles('') })])
+  ).toThrow(
+    `counter: the unprefixed puzzle namespace "" belongs to the platform's durable game alone — use "counter/"`
+  );
+  const unprefixed = (rules: GameRules): RegisteredTurnGame => ({
+    ...registration({ puzzles: puzzles('') }, rules),
+    unprefixedNamespace: true,
+  });
+  expect(createTurnGames([unprefixed(game)]).offers('counter', 'puzzles')).toBe(
+    true
+  );
+  expect(() =>
+    createTurnGames([unprefixed(game), unprefixed(rulesOf('second'))])
+  ).toThrow('second: puzzle namespace "" is taken');
 });

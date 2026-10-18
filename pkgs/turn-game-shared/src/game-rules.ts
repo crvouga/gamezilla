@@ -1,3 +1,5 @@
+import type { PuzzlesCapability } from './game-puzzles';
+
 /** Stable opaque seat tokens retained for durable records; visual identity comes from presentation. */
 export type GameSide = 'white' | 'black';
 export type BotDifficulty = 'easy' | 'medium' | 'hard';
@@ -113,6 +115,8 @@ export type HistoryCapability = {
  */
 export type TurnGameCapabilities = {
   readonly 'custom-games'?: CustomGamesCapability;
+  /** Puzzles from the game's positions; needs no other capability. */
+  readonly puzzles?: PuzzlesCapability;
 } & (
   | {
       readonly matchmaking: MatchmakingCapability;
@@ -128,6 +132,7 @@ export const GAME_CAPABILITIES = [
   'custom-games',
   'matchmaking',
   'history',
+  'puzzles',
 ] as const satisfies readonly GameCapability[];
 /**
  * What each capability needs offered beside it: matched games offer a game
@@ -140,11 +145,11 @@ export type RegisteredTurnGame = {
   readonly rules: GameRules;
   readonly capabilities: TurnGameCapabilities;
   /**
-   * The one game whose stored clock choices, searches and ratings predate
-   * clock namespaces keeps the unprefixed namespace `''`; every other game's
-   * is `'<id>/'`. Only the composition granting it may set this.
+   * The one game whose stored clock choices, searches, ratings and puzzles
+   * predate namespaces keeps the unprefixed namespace `''`; every other
+   * game's is `'<id>/'`. Only the composition granting it may set this.
    */
-  readonly unprefixedClockNamespace?: true;
+  readonly unprefixedNamespace?: true;
 };
 /** The capabilities `game` offers, in the platform's order. */
 export function offeredCapabilities(
@@ -181,32 +186,51 @@ function assertRequirements(game: RegisteredTurnGame): void {
         );
 }
 
-/** The clock namespace `game` may use. */
-function assertClockNamespace(game: RegisteredTurnGame, namespace: string) {
+/** The namespaces a game's capabilities claim, by what each names. */
+const NAMESPACES = [
+  {
+    of: 'clock',
+    read: (game: RegisteredTurnGame) =>
+      game.capabilities.matchmaking?.clockNamespace,
+  },
+  {
+    of: 'puzzle',
+    read: (game: RegisteredTurnGame) => game.capabilities.puzzles?.namespace,
+  },
+] as const;
+
+/** The `kind` namespace `game` may use. */
+function assertNamespace(
+  game: RegisteredTurnGame,
+  kind: string,
+  namespace: string
+) {
   const id = game.rules.id;
-  if (namespace === '' && game.unprefixedClockNamespace !== true)
+  if (namespace === '' && game.unprefixedNamespace !== true)
     throw new Error(
-      `${id}: the unprefixed clock namespace "" belongs to the platform's durable game alone — use "${id}/"`
+      `${id}: the unprefixed ${kind} namespace "" belongs to the platform's durable game alone — use "${id}/"`
     );
   if (namespace !== '' && namespace !== `${id}/`)
-    throw new Error(`${id}: clock namespace "${namespace}" is not "${id}/"`);
+    throw new Error(`${id}: ${kind} namespace "${namespace}" is not "${id}/"`);
 }
 
-/** Fail when the registered games cannot be told apart by id, position or clock. */
+/** Fail when the registered games cannot be told apart by id, position or namespace. */
 function assertDistinct(games: readonly RegisteredTurnGame[]): void {
   if (new Set(games.map((g) => g.rules.id)).size !== games.length)
     throw new Error('Duplicate game rules');
-  const namespaces = new Set<string>();
-  for (const game of games) {
-    assertRequirements(game);
-    const namespace = game.capabilities.matchmaking?.clockNamespace;
-    if (namespace === undefined) continue;
-    assertClockNamespace(game, namespace);
-    if (namespaces.has(namespace))
-      throw new Error(
-        `${game.rules.id}: clock namespace "${namespace}" is taken`
-      );
-    namespaces.add(namespace);
+  for (const game of games) assertRequirements(game);
+  for (const { of, read } of NAMESPACES) {
+    const namespaces = new Set<string>();
+    for (const game of games) {
+      const namespace = read(game);
+      if (namespace === undefined) continue;
+      assertNamespace(game, of, namespace);
+      if (namespaces.has(namespace))
+        throw new Error(
+          `${game.rules.id}: ${of} namespace "${namespace}" is taken`
+        );
+      namespaces.add(namespace);
+    }
   }
   for (const game of games) {
     const initial = game.rules.initial();

@@ -16,6 +16,7 @@ import {
   assertTurnGameDefinitions,
   defineTurnGame,
 } from '@libs/game-session-shared/turn-game-definition';
+import type { PuzzlesCapability } from '@pkgs/turn-game-shared/game-puzzles';
 import type {
   GameRules,
   TurnGameCapabilities,
@@ -70,7 +71,7 @@ test('an unknown capability is refused at type checking and when defined', () =>
   const capabilities: TurnGameCapabilities = { tournaments: {} };
   void capabilities;
   expect(() => defineTurnGame(game(unchecked({ tournaments: {} })))).toThrow(
-    'race: "tournaments" is not a capability the platform offers (custom-games, matchmaking, history)'
+    'race: "tournaments" is not a capability the platform offers (custom-games, matchmaking, history, puzzles)'
   );
 });
 
@@ -120,11 +121,11 @@ test('only the platform’s durable game keeps the unprefixed clock namespace', 
       GAME_PLATFORM_NAMESPACE
     )
   );
-  expect(durable.turnGame.unprefixedClockNamespace).toBe(true);
+  expect(durable.turnGame.unprefixedNamespace).toBe(true);
   expect(
     defineTurnGame(
       game({ matchmaking: { clockNamespace: 'race/', notice }, history })
-    ).turnGame.unprefixedClockNamespace
+    ).turnGame.unprefixedNamespace
   ).toBeUndefined();
 });
 
@@ -154,4 +155,62 @@ test('a definition defineTurnGame did not make is refused at type checking and b
   expect(() =>
     assertTurnGameDefinitions('GAME_DEFINITIONS', [handBuilt])
   ).toThrow('GAME_DEFINITIONS[0] (race) was not made by defineTurnGame');
+});
+
+const puzzles: PuzzlesCapability = {
+  namespace: 'race/',
+  content: { validate: () => ({ ok: true }) },
+  marks: (_position, action) => ({ from: null, to: action }),
+  isCell: (cell) => cell.length > 0,
+};
+
+test('puzzles declared without what they need are refused at type checking and when defined', () => {
+  const { namespace: _namespace, ...withoutNamespace } = puzzles;
+  const { marks: _marks, ...withoutMarks } = puzzles;
+  const { isCell: _isCell, ...withoutCells } = puzzles;
+  const capabilities: readonly TurnGameCapabilities[] = [
+    // @ts-expect-error: puzzles need the namespace of their catalogue.
+    { puzzles: withoutNamespace },
+    // @ts-expect-error: puzzles need the cells an action names.
+    { puzzles: withoutMarks },
+    // @ts-expect-error: puzzles need to know a board cell.
+    { puzzles: withoutCells },
+    // @ts-expect-error: puzzles need to accept or refuse a stored record.
+    { puzzles: { ...puzzles, content: {} } },
+  ];
+  void capabilities;
+  expect(() =>
+    defineTurnGame(game(unchecked({ puzzles: withoutMarks })))
+  ).toThrow(
+    'race: offering puzzles needs capabilities.puzzles.marks — the platform judges and shows a puzzle only through it'
+  );
+  expect(() =>
+    defineTurnGame(game(unchecked({ puzzles: { ...puzzles, content: {} } })))
+  ).toThrow(
+    'race: offering puzzles needs capabilities.puzzles.content.validate'
+  );
+  expect(() =>
+    defineTurnGame(game(unchecked({ puzzles: withoutNamespace })))
+  ).toThrow(
+    'race: offering puzzles needs capabilities.puzzles.namespace ("race/")'
+  );
+});
+
+test('puzzles need no other capability, and only the platform’s durable game keeps the unprefixed puzzle namespace', () => {
+  expect(defineTurnGame(game({ puzzles })).turnGame.capabilities.puzzles).toBe(
+    puzzles
+  );
+  expect(() =>
+    defineTurnGame(game({ puzzles: { ...puzzles, namespace: '' } }))
+  ).toThrow(
+    `race: the unprefixed puzzle namespace "" belongs to the platform's durable game alone — use "race/"`
+  );
+  expect(() =>
+    defineTurnGame(game({ puzzles: { ...puzzles, namespace: 'other/' } }))
+  ).toThrow('race: puzzle namespace "other/" is not "race/"');
+  expect(
+    defineTurnGame(
+      game({ puzzles: { ...puzzles, namespace: '' } }, GAME_PLATFORM_NAMESPACE)
+    ).turnGame.unprefixedNamespace
+  ).toBe(true);
 });

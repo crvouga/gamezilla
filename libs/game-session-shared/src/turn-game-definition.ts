@@ -7,6 +7,7 @@ import type {
 } from '@libs/spaces-shared/game';
 import type { RoomState } from '@pkgs/room-root-shared/types';
 import type { GameAutomation } from '@pkgs/turn-game-shared/game-automation';
+import type { PuzzlesCapability } from '@pkgs/turn-game-shared/game-puzzles';
 import type {
   GameRules,
   RegisteredTurnGame,
@@ -104,6 +105,25 @@ function assertCapabilityKeys(id: string, capabilities: object): void {
   }
 }
 
+/** What puzzles need from the game, for what a type cannot see. */
+function assertPuzzles(id: string, puzzles: PuzzlesCapability | undefined) {
+  if (puzzles === undefined) return;
+  const needs = {
+    'content.validate': puzzles.content?.validate,
+    marks: puzzles.marks,
+    isCell: puzzles.isCell,
+  };
+  for (const [name, value] of Object.entries(needs))
+    if (typeof value !== 'function')
+      throw new Error(
+        `${id}: offering puzzles needs capabilities.puzzles.${name} — the platform judges and shows a puzzle only through it`
+      );
+  if (typeof puzzles.namespace !== 'string')
+    throw new Error(
+      `${id}: offering puzzles needs capabilities.puzzles.namespace ("${id}/")`
+    );
+}
+
 /**
  * The one way a turn game joins the platform. The platform installs the
  * shared sessions, refuses an inconsistent game when it is defined, and
@@ -114,6 +134,7 @@ export function defineTurnGame(game: TurnGame): TurnGameDefinition {
   if (!/^[a-z][a-z0-9-]{0,31}$/.test(id))
     throw new Error(`game id "${id}" is not a lowercase slug`);
   assertCapabilityKeys(id, game.capabilities);
+  assertPuzzles(id, game.capabilities.puzzles);
   const difficulties = game.capabilities['custom-games']?.bots.difficulties;
   if (
     difficulties !== undefined &&
@@ -123,9 +144,10 @@ export function defineTurnGame(game: TurnGame): TurnGameDefinition {
   const turnGame: RegisteredTurnGame = {
     rules: game.rules,
     capabilities: game.capabilities,
-    // Its stored clock choices predate namespaces (GAME_PLATFORM_NAMESPACE).
+    // Its stored clock choices and puzzles predate namespaces
+    // (GAME_PLATFORM_NAMESPACE).
     ...(id === GAME_PLATFORM_NAMESPACE
-      ? { unprefixedClockNamespace: true as const }
+      ? { unprefixedNamespace: true as const }
       : {}),
   };
   // Capability requirements, the clock namespace and the starting position.

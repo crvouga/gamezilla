@@ -37,7 +37,7 @@ in source, tests and steps alike (the full map and the reasons are in
 
 | From | A game imports |
 | --- | --- |
-| `@pkgs/turn-game-shared` | `game-rules`, `game-presentation`, `game-automation` |
+| `@pkgs/turn-game-shared` | `game-rules`, `game-presentation`, `game-automation`, `game-puzzles` |
 | `@libs/game-session-shared` | `turn-game-definition` |
 | `@libs/game-menu-client` | `game-client` |
 | `@libs/spaces-shared` | `game` (only for a game with its own room behaviour) |
@@ -172,7 +172,8 @@ A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
 | --- | --- |
 | A capability without what it needs, an unknown capability, a placeholder (`history: undefined`) for one not offered, finding an opponent without history | type checking (`TurnGameCapabilities`), and `defineTurnGame` when the module loads |
 | A duplicate bot difficulty, an id that is not a slug | `defineTurnGame`, when the module loads |
-| A clock namespace other than `'<id>/'` (only the `GAME_PLATFORM_NAMESPACE` game keeps `''`), a starting position another game recognizes, a duplicate id | `defineTurnGame` and `createTurnGames`, at registration |
+| A clock or puzzle namespace other than `'<id>/'` (only the `GAME_PLATFORM_NAMESPACE` game keeps `''`), a starting position another game recognizes, a duplicate id | `defineTurnGame` and `createTurnGames`, at registration |
+| Puzzles without `content.validate`, `marks`, `isCell` or a namespace | type checking (`PuzzlesCapability`), and `defineTurnGame` when the module loads |
 | A hand-built or copied definition or client | type checking (only `defineTurnGame` makes a `TurnGameDefinition`, only `defineGameClient` a `GameClientRegistration`), and the registries when they load |
 | A screen key that is not a slug, is declared twice or belongs to the platform | `defineGameClient` |
 | A client missing, extra or out of order | `assertMatchingGameIds`, naming the entry to fix |
