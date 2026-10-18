@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
 import { ChessPuzzleInteractionDb } from '@libs/chess-puzzle-client/chess-puzzle-interaction-db';
-import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+import type { PuzzleInteractionRow } from '@libs/game-puzzle-shared/interaction-entities';
 import { uniqueTables } from '@libs/permissions-shared/world';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
@@ -77,7 +77,7 @@ test('a failed result write leaves no half-finished attempt and retry counts onc
   try {
     await recorder.appendRow({ ...attempt, kind: 'started' });
     const rows = () =>
-      db.query(sql<ChessPuzzleInteractionRow>`
+      db.query(sql<PuzzleInteractionRow>`
       SELECT puzzle_id AS puzzleId, puzzle_rating AS puzzleRating,
         kind, solve_idx AS solveIdx, uci, correct, at
       FROM chess_puzzle_interactions ORDER BY at ASC, id ASC

@@ -1,17 +1,17 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { isBoardSquare } from '@libs/chess-puzzle-shared/recommendation-arrows';
+import { PuzzlePlayAttr } from '@libs/game-puzzle-shared/play-attr';
 import {
-  ClearChessPuzzleRecommendation,
-  ReclaimChessPuzzlePlay,
-  RecommendChessPuzzleMove,
-  StartChessPuzzlePlay,
-} from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
-import { ChessPuzzleResultAttr } from '@libs/chess-puzzle-shared/chess-puzzle-result';
-import { isBoardSquare } from '@libs/chess-puzzle-shared/recommendations';
+  ClearPuzzleRecommendation,
+  ReclaimPuzzlePlay,
+  RecommendPuzzleMove,
+  StartPuzzlePlay,
+} from '@libs/game-puzzle-shared/play-messages';
+import { PuzzleResultAttr } from '@libs/game-puzzle-shared/play-result';
 import {
   decidePuzzleSessionStart,
   shouldReclaimPuzzleHost,
-} from '@libs/chess-puzzle-shared/session-start-policy';
+} from '@libs/game-puzzle-shared/session-start-policy';
 import { useSpacePresence } from '@libs/spaces-client/room-use-space-presence';
 import {
   useSpaceRoomDispatch,
@@ -40,10 +40,8 @@ import { useIsPuzzleDriver, usePuzzleSpaceRole } from './use-puzzle-space-role';
 function useReclaimStalePuzzleHost(canDrive: Accessor<boolean>): void {
   const memberId = useMyId();
   const dispatch = useSpaceRoomDispatch();
-  const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
-  const hostIdentity = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.hostIdentity.from
-  );
+  const roomStatus = useSpaceRoomSelector(PuzzlePlayAttr.status.from);
+  const hostIdentity = useSpaceRoomSelector(PuzzlePlayAttr.hostIdentity.from);
   const roomSynced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
   const { peersByMemberId } = useSpacePresence();
   createEffect(() => {
@@ -56,16 +54,14 @@ function useReclaimStalePuzzleHost(canDrive: Accessor<boolean>): void {
       hostPresent:
         hostIdentity() !== null && peersByMemberId().has(hostIdentity()!),
     });
-    if (reclaim) dispatch(ReclaimChessPuzzlePlay({}));
+    if (reclaim) dispatch(ReclaimPuzzlePlay({}));
   });
 }
 
 /** True for the member the room recorded as the puzzle host (the one moving). */
 function usePuzzleHostIdentityMatch(): Accessor<boolean> {
   const myId = useMyId();
-  const hostIdentity = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.hostIdentity.from
-  );
+  const hostIdentity = useSpaceRoomSelector(PuzzlePlayAttr.hostIdentity.from);
   return createMemo(() => {
     const host = hostIdentity();
     return host !== null && host === myId();
@@ -82,8 +78,8 @@ function useStartPuzzleSessionOnMount(args: {
   startNonce: Accessor<number>;
 }): void {
   const dispatch = useSpaceRoomDispatch();
-  const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
-  const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
+  const roomStatus = useSpaceRoomSelector(PuzzlePlayAttr.status.from);
+  const roomPuzzleId = useSpaceRoomSelector(PuzzlePlayAttr.puzzleId.from);
   const myId = useMyId();
   const lastStartedNonceRef: { current: number } = { current: 0 };
   createEffect(() => {
@@ -103,7 +99,7 @@ function useStartPuzzleSessionOnMount(args: {
     lastStartedNonceRef.current = args.startNonce();
     if (decision.kind === 'start') {
       dispatch(
-        StartChessPuzzlePlay({
+        StartPuzzlePlay({
           puzzleId: args.puzzleId(),
           fen: args.fen(),
           moves: args.movesStr(),
@@ -128,13 +124,13 @@ function usePuzzleRecommendDispatch(): {
       const from = uci.slice(0, 2);
       const to = uci.slice(2, 4);
       if (!isBoardSquare(from) || !isBoardSquare(to)) return;
-      dispatch(RecommendChessPuzzleMove({ from, to }));
+      dispatch(RecommendPuzzleMove({ from, to }));
       // The board applied the drag optimistically; bump the sync key so it
       // snaps back to the room's position (the suggestion is only an arrow).
       setRecommendBump((n) => n + 1);
     },
     onClearMyRecommendation: (): void => {
-      dispatch(ClearChessPuzzleRecommendation({}));
+      dispatch(ClearPuzzleRecommendation({}));
     },
   };
 }
@@ -155,13 +151,9 @@ function usePuzzlePlayerModel(args: {
   const interactions = createMemo(() => entity.interactions);
   const interactionsReady = createMemo(() => entity.interactionsReady);
   const allInteractions = useChessPuzzleAllInteractions();
-  const startedAtMs = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.startedAtMs.from
-  );
-  const endedAtMs = useSpaceRoomSelector(ChessPuzzlePlayAttr.endedAtMs.from);
-  const hostIdentity = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.hostIdentity.from
-  );
+  const startedAtMs = useSpaceRoomSelector(PuzzlePlayAttr.startedAtMs.from);
+  const endedAtMs = useSpaceRoomSelector(PuzzlePlayAttr.endedAtMs.from);
+  const hostIdentity = useSpaceRoomSelector(PuzzlePlayAttr.hostIdentity.from);
   useReclaimStalePuzzleHost(canDrive);
   useStartPuzzleSessionOnMount({
     canDrive,
@@ -183,7 +175,7 @@ function usePuzzlePlayerModel(args: {
     interactions,
     interactionsReady,
     canRecord: isPuzzleHost,
-    attemptKey: useSpaceRoomSelector(ChessPuzzleResultAttr.attempt.from),
+    attemptKey: useSpaceRoomSelector(PuzzleResultAttr.attempt.from),
   });
 
   return {

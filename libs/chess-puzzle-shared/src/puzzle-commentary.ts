@@ -1,3 +1,5 @@
+import type { ObservationKind } from '@libs/game-puzzle-shared/observation-policy';
+import { chooseObservation } from '@libs/game-puzzle-shared/observation-policy';
 import {
   applyUci,
   hasMateInOne,
@@ -5,8 +7,6 @@ import {
   positionStatus,
 } from '@pkgs/chess-rules-shared/moves';
 import { hangingPieces, knightForks } from '@pkgs/chess-rules-shared/tactics';
-import type { ObservationKind } from './observation-policy';
-import { chooseObservation } from './observation-policy';
 
 export type CommentaryInput = {
   readonly puzzleId: string;

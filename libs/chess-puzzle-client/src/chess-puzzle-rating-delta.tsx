@@ -1,4 +1,4 @@
-import { formatPuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+import { formatPuzzleRating } from '@libs/game-puzzle-shared/rating';
 import { Trans } from '@lingui/solid/macro';
 import { useTheme } from '@pkgs/ui-root-client/theme-context';
 import type { JSX } from 'solid-js';

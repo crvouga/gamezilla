@@ -1,11 +1,11 @@
-import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { PuzzlePlayAttr } from '@libs/game-puzzle-shared/play-attr';
 import {
-  RequestChessPuzzleHint,
-  ResetChessPuzzlePlay,
-  ShowChessPuzzleSolution,
-  SkipChessPuzzlePlay,
-  SubmitChessPuzzleMove,
-} from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
+  RequestPuzzleHint,
+  ResetPuzzlePlay,
+  ShowPuzzleSolution,
+  SkipPuzzlePlay,
+  SubmitPuzzleMove,
+} from '@libs/game-puzzle-shared/play-messages';
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
@@ -28,29 +28,26 @@ function finishCommands(
   state: RoomState,
   finish: PuzzleFinish
 ): RoomCommandPayload[] {
-  if (finish === 'skip') return [SkipChessPuzzlePlay({})];
-  if (finish === 'showSolution') return [ShowChessPuzzleSolution({})];
-  const moves = ChessPuzzlePlayAttr.moves.from(state).split(' ');
-  const next = ChessPuzzlePlayAttr.solveIdx.from(state);
+  if (finish === 'skip') return [SkipPuzzlePlay({})];
+  if (finish === 'showSolution') return [ShowPuzzleSolution({})];
+  const moves = PuzzlePlayAttr.line.from(state).split(' ');
+  const next = PuzzlePlayAttr.solveIdx.from(state);
   const prefix: RoomCommandPayload[] = [];
-  if (finish === 'hintThenSolve') prefix.push(RequestChessPuzzleHint({}));
+  if (finish === 'hintThenSolve') prefix.push(RequestPuzzleHint({}));
   if (finish === 'wrongRetrySolve') {
-    const board = new Chess(ChessPuzzlePlayAttr.displayFen.from(state)!);
+    const board = new Chess(PuzzlePlayAttr.displayPosition.from(state)!);
     const wrong = board
       .moves({ verbose: true })
       .map((move) => `${move.from}${move.to}${move.promotion ?? ''}`)
       .find((move) => move !== moves[next]);
     if (wrong === undefined) throw new Error('Puzzle has no legal wrong move');
-    prefix.push(
-      SubmitChessPuzzleMove({ uci: wrong }),
-      ResetChessPuzzlePlay({})
-    );
+    prefix.push(SubmitPuzzleMove({ uci: wrong }), ResetPuzzlePlay({}));
   }
   const first = finish === 'wrongRetrySolve' ? 1 : next;
   for (let i = first; i < moves.length; i += 2) {
     const uci = moves[i];
     if (uci === undefined) throw new Error('Missing solution move');
-    prefix.push(SubmitChessPuzzleMove({ uci }));
+    prefix.push(SubmitPuzzleMove({ uci }));
   }
   return prefix;
 }

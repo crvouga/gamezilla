@@ -1,8 +1,8 @@
-import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import {
   CHESS_SCREEN,
   SetChessSelectedReviewPuzzle,
 } from '@libs/chess-root-shared/chess-screens';
+import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared/stats';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
@@ -17,7 +17,7 @@ export function ChessStatsScreen(): JSX.Element {
     gameScreen.showChoices();
   };
 
-  const openReview = (entry: ChessPuzzleGameLogEntry): void => {
+  const openReview = (entry: PuzzleGameLogEntry): void => {
     dispatch(
       SetChessSelectedReviewPuzzle({
         puzzleId: entry.puzzleId,

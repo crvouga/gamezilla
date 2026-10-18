@@ -1,7 +1,7 @@
 import type { ChessPuzzleActionBarSlot } from '@libs/chess-puzzle-shared/action-bar-plan';
 import { buildChessPuzzleActionBarPlan } from '@libs/chess-puzzle-shared/action-bar-plan';
-import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
-import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
+import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
+import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
 import { Trans } from '@lingui/solid/macro';
 import type { BottomActionBarItem } from '@pkgs/ui-root-client/bottom-action-bar-types';
 import type { IconComponent } from '@pkgs/ui-root-client/create-icon';

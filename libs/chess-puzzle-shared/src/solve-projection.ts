@@ -3,23 +3,22 @@
  * solve status, move counting, and the next solution ply / hint arrow.
  */
 
+import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
+import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
+import { PUZZLE_PLAY_STATUS } from '@libs/game-puzzle-shared/play-attr';
+import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
 import type { BoardArrow, Square } from '@pkgs/chess-board-core-shared/types';
 import { applyUci } from '@pkgs/chess-rules-shared/moves';
-
 import { tokenize } from './chess-puzzle-fsm';
-import type { ChessPuzzlePlayStatus } from './chess-puzzle-play-attr';
-import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
-import type { HintStage } from './hint-stage';
-import type { SolveStatus } from './solve-status';
 
 /** Room status for a different puzzle (or idle) reads as `loading` for this screen. */
 export function projectSolveStatus(args: {
-  roomStatus: ChessPuzzlePlayStatus;
+  roomStatus: PuzzlePlayStatus;
   roomPuzzleId: string | null;
   puzzleId: string;
 }): SolveStatus {
   if (
-    args.roomStatus === CHESS_PUZZLE_PLAY_STATUS.idle ||
+    args.roomStatus === PUZZLE_PLAY_STATUS.idle ||
     args.roomPuzzleId !== args.puzzleId
   ) {
     return 'loading';

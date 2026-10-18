@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
 import type { PuzzleAnnouncementInput } from '@libs/chess-puzzle-shared/puzzle-announcement';
 import { puzzleAnnouncement } from '@libs/chess-puzzle-shared/puzzle-announcement';
+import type { PuzzleCompletion } from '@libs/game-puzzle-shared/completion';
 
 const MOVES = 'a7a6 a1a5 h7h6 h1h5';
 const START_FEN = '6k1/1p3ppp/p7/8/8/8/5PPP/R5KR w - - 0 1';

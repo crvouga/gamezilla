@@ -60,6 +60,7 @@
       "@libs/chess-puzzle-harness/*": ["../../libs/chess-puzzle-harness/src/*"],
       "@libs/chess-puzzle-server/*": ["../../libs/chess-puzzle-server/src/*"],
       "@libs/chess-puzzle-shared/*": ["../../libs/chess-puzzle-shared/src/*"],
+      "@libs/game-puzzle-shared/*": ["../../libs/game-puzzle-shared/src/*"],
       "@libs/chess-root-server/*": ["../../libs/chess-root-server/src/*"],
       "@libs/chess-shared-client/*": ["../../libs/chess-shared-client/src/*"],
       "@libs/chess-root-shared/*": ["../../libs/chess-root-shared/src/*"],

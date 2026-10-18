@@ -1,7 +1,7 @@
 import {
   isProvisionalPuzzleRating,
   PUZZLE_RATING_DEFAULT_RD,
-} from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+} from '@libs/game-puzzle-shared/rating';
 import sql from '@pkgs/sql-root-shared/sql';
 import {
   createQuery,

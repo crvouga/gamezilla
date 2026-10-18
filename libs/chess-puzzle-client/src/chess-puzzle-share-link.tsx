@@ -3,7 +3,7 @@
  * finished or not, so someone else can try exactly that puzzle.
  */
 
-import { puzzleLink } from '@libs/chess-puzzle-shared/puzzle-link';
+import { puzzleLink } from '@libs/game-puzzle-shared/puzzle-link';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client/solid';

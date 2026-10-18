@@ -1,9 +1,7 @@
-import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import type { ChessPuzzleRecommendationEntry } from '@libs/chess-puzzle-shared/recommendations';
-import {
-  recommendationArrows,
-  sortedRecommendations,
-} from '@libs/chess-puzzle-shared/recommendations';
+import { recommendationArrows } from '@libs/chess-puzzle-shared/recommendation-arrows';
+import { PuzzlePlayAttr } from '@libs/game-puzzle-shared/play-attr';
+import type { PuzzleRecommendationEntry } from '@libs/game-puzzle-shared/recommendations';
+import { sortedRecommendations } from '@libs/game-puzzle-shared/recommendations';
 import { useSpaceRoomSelector } from '@libs/spaces-client/use-space-room-selector';
 import type { BoardArrow } from '@pkgs/chess-board-core-shared/types';
 import {
@@ -20,12 +18,12 @@ import { type Accessor, createMemo } from 'solid-js';
 export function usePuzzleRecommendations(args: {
   readonly excludeMemberId: Accessor<string | null>;
 }): {
-  entries: Accessor<readonly ChessPuzzleRecommendationEntry[]>;
+  entries: Accessor<readonly PuzzleRecommendationEntry[]>;
   arrows: Accessor<readonly BoardArrow[]>;
   colorFor: (memberId: string) => string;
 } {
   const recommendations = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.recommendations.from
+    PuzzlePlayAttr.recommendations.from
   );
   const colors = createMemo(() =>
     assignParticipantColors(Object.keys(recommendations()))

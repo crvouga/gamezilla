@@ -2705,7 +2705,7 @@
         "$TURBO_ROOT$/libs/runtime-client/src/app-sub-clients.ts",
         "$TURBO_ROOT$/libs/*-client/src/sub-client.{ts,tsx}",
         "$TURBO_ROOT$/libs/chess-puzzle-client/src/puzzle-link-client.ts",
-        "$TURBO_ROOT$/libs/chess-puzzle-shared/src/puzzle-link.ts",
+        "$TURBO_ROOT$/libs/game-puzzle-shared/src/puzzle-link.ts",
         "$TURBO_ROOT$/libs/game-matchmaking-client/src/multiplayer-link-client.tsx",
         "$TURBO_ROOT$/libs/game-matchmaking-shared/src/multiplayer-link.ts",
         "$TURBO_ROOT$/apps/product/src/main.tsx",

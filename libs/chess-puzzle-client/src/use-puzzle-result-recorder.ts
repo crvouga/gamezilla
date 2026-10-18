@@ -1,4 +1,4 @@
-import type { ChessPuzzleOutcomeKind } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
+import type { PuzzleOutcomeKind } from '@libs/game-puzzle-shared/interaction-entities';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
@@ -11,13 +11,13 @@ export function usePuzzleResultRecorder(args: {
     readonly result: Accessor<{
       readonly owner: string | null;
       readonly attempt: string | null;
-      readonly outcome: ChessPuzzleOutcomeKind | null;
+      readonly outcome: PuzzleOutcomeKind | null;
       readonly score: number | null;
     }>;
   };
   readonly myId: Accessor<string>;
   readonly finalize: (
-    kind: ChessPuzzleOutcomeKind,
+    kind: PuzzleOutcomeKind,
     score: 0 | 500 | 1000
   ) => Promise<void>;
   readonly reportFailure: (error: unknown) => void;

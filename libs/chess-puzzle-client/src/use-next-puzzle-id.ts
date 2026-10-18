@@ -1,6 +1,6 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import type { ChessPuzzleFeedHistoryFilter } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import type { PuzzlePickSource } from '@libs/chess-puzzle-shared/next-puzzle-selection';
+import type { PuzzleFeedHistoryFilter } from '@libs/game-puzzle-shared/feed-config';
+import type { PuzzlePickSource } from '@libs/game-puzzle-shared/next-puzzle-selection';
 
 import {
   buildPuzzleBandCountSql,
@@ -9,7 +9,7 @@ import {
   pickNextPuzzle,
   puzzleSelectionHalfWindow,
   resolvePuzzlePickOffset,
-} from '@libs/chess-puzzle-shared/next-puzzle-selection';
+} from '@libs/game-puzzle-shared/next-puzzle-selection';
 import {
   createQuery,
   useSyncEngine,
@@ -28,7 +28,7 @@ function usePuzzleCandidateQueries(args: {
   myId: Accessor<string>;
   currentPuzzleId: Accessor<string | null>;
   pickOffset: Accessor<number>;
-  historyFilter: Accessor<ChessPuzzleFeedHistoryFilter>;
+  historyFilter: Accessor<PuzzleFeedHistoryFilter>;
   themes: Accessor<readonly string[]>;
   halfWindow: Accessor<number>;
 }) {

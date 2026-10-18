@@ -3,9 +3,9 @@ import { join } from 'node:path';
 import { InitializePuzzleCatalog } from '@libs/chess-puzzle-server/initialize-puzzle-catalog';
 import { chessPackageRootFromLoadFileModule } from '@libs/chess-puzzle-server/load-file';
 import { CHESS_PUZZLES_LOAD_FILE_RELATIVE } from '@libs/chess-puzzle-server/load-file-constants';
-import { chessPuzzlePool } from '@libs/chess-puzzle-shared/chess-puzzle-pool-query';
-import { chessPuzzles } from '@libs/chess-puzzle-shared/puzzle-tables';
-import { chessPuzzlesTopic } from '@libs/chess-root-shared/sync-topics';
+import { puzzleCatalogueTopic } from '@libs/game-puzzle-shared/catalogue-topics';
+import { chessPuzzlePool } from '@libs/game-puzzle-shared/pool-query';
+import { chessPuzzles } from '@libs/game-puzzle-shared/puzzle-tables';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { createLogger } from '@pkgs/logger-shared/logger';
@@ -35,7 +35,7 @@ async function openCatalog(csv: string) {
   });
   const pubsub = createInMemoryPubSub({ logger });
   const pushes: unknown[] = [];
-  pubsub.subscribe(chessPuzzlesTopic(), (push) => pushes.push(push));
+  pubsub.subscribe(puzzleCatalogueTopic(), (push) => pushes.push(push));
   let id = 0;
   const initialize = new InitializePuzzleCatalog(db, {
     loadFileStore: store,

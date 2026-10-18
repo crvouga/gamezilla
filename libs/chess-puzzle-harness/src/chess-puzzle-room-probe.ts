@@ -6,15 +6,15 @@
  * changes nothing: the host alone drives the puzzle (§12, always-true:7).
  */
 
-import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { PuzzlePlayAttr } from '@libs/game-puzzle-shared/play-attr';
 import {
-  RequestChessPuzzleHint,
-  RevealChessPuzzleSolution,
-  ShowChessPuzzleSolution,
-  SkipChessPuzzlePlay,
-  StepBackChessPuzzlePlay,
-  SubmitChessPuzzleMove,
-} from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
+  RequestPuzzleHint,
+  RevealPuzzleSolution,
+  ShowPuzzleSolution,
+  SkipPuzzlePlay,
+  StepBackPuzzlePlay,
+  SubmitPuzzleMove,
+} from '@libs/game-puzzle-shared/play-messages';
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
@@ -79,17 +79,17 @@ async function commandPayload(
   hostId: string,
   command: HostPuzzleCommand
 ): Promise<RoomCommandPayload> {
-  if (command === 'step') return StepBackChessPuzzlePlay({});
-  if (command === 'illegal') return SubmitChessPuzzleMove({ uci: 'a1a1' });
-  if (command === 'show-line') return ShowChessPuzzleSolution({});
-  if (command === 'skip') return SkipChessPuzzlePlay({});
-  if (command === 'hint') return RequestChessPuzzleHint({});
-  if (command === 'solution') return RevealChessPuzzleSolution({});
+  if (command === 'step') return StepBackPuzzlePlay({});
+  if (command === 'illegal') return SubmitPuzzleMove({ uci: 'a1a1' });
+  if (command === 'show-line') return ShowPuzzleSolution({});
+  if (command === 'skip') return SkipPuzzlePlay({});
+  if (command === 'hint') return RequestPuzzleHint({});
+  if (command === 'solution') return RevealPuzzleSolution({});
   // The host's own next move: even the right move is not the watcher's.
   const debug = await readPuzzleDebug(s, hostId);
   const next = debug?.solutionUci ?? '';
   const uci = next.length >= 4 ? next : 'a7a8';
-  return SubmitChessPuzzleMove({ uci });
+  return SubmitPuzzleMove({ uci });
 }
 
 function spaceIdOfLink(link: string | null, hostId: string): string {
@@ -116,7 +116,7 @@ export const attemptHostPuzzleCommand = scenarioAction({
     )?.committedState;
     const identity =
       actorId === hostId && state !== undefined
-        ? ChessPuzzlePlayAttr.hostIdentity.from(state)
+        ? PuzzlePlayAttr.hostIdentity.from(state)
         : await accountIdOf(s, actorId);
     if (identity === null) throw new Error(`${actorId} has no account`);
     const payload = await commandPayload(s, hostId, command);

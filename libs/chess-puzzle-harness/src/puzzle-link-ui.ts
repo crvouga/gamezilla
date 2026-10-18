@@ -8,7 +8,7 @@ import {
   puzzleIdOfLink,
   puzzleLink,
   puzzleLinkPathOf,
-} from '@libs/chess-puzzle-shared/puzzle-link';
+} from '@libs/game-puzzle-shared/puzzle-link';
 import {
   actorUi,
   ensureActor,

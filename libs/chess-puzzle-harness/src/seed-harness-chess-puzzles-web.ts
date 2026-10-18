@@ -9,7 +9,7 @@
 import { PuzzleSeedFastPath } from '@libs/chess-puzzle-server/fast-path';
 import { PuzzleIngestTally } from '@libs/chess-puzzle-server/puzzle-ingest';
 import type { PuzzleTableRow } from '@libs/chess-puzzle-server/row';
-import { chessPuzzlesTopic } from '@libs/chess-root-shared/sync-topics';
+import { puzzleCatalogueTopic } from '@libs/game-puzzle-shared/catalogue-topics';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 import { HARNESS_CHESS_PUZZLES_WEB_CSV } from './chess-puzzles-web-fixture';
@@ -108,7 +108,7 @@ export async function seedHarnessChessPuzzlesWeb(
   }
   if (args.notifySyncWake !== undefined) {
     await args.notifySyncWake({
-      topics: [chessPuzzlesTopic()],
+      topics: [puzzleCatalogueTopic()],
       tables: ['chess_puzzles'],
       label: 'seed-chess-puzzles',
     });

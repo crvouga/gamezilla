@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
+import type { PuzzleInteractionRow } from '@libs/game-puzzle-shared/interaction-entities';
 import sql from '@pkgs/sql-root-shared/sql';
 import {
   createQuery,
@@ -48,12 +48,10 @@ type InteractionSqlRow = {
   readonly at: string;
 };
 
-function interactionRowFromSql(
-  row: InteractionSqlRow
-): ChessPuzzleInteractionRow {
+function interactionRowFromSql(row: InteractionSqlRow): PuzzleInteractionRow {
   return {
     puzzleId: row.puzzle_id,
-    kind: row.kind as ChessPuzzleInteractionRow['kind'],
+    kind: row.kind as PuzzleInteractionRow['kind'],
     solveIdx: row.solve_idx,
     uci: row.uci,
     correct: readNullableBoolean(row.correct),
@@ -170,7 +168,7 @@ export function useReviewPuzzleEntity(
 
 /** This actor's interaction rows for one puzzle, plus whether the first read landed. */
 export function usePuzzleInteractions(puzzleId: Accessor<string>): {
-  rows: Accessor<ChessPuzzleInteractionRow[]>;
+  rows: Accessor<PuzzleInteractionRow[]>;
   ready: Accessor<boolean>;
 } {
   const myId = useMyId();
@@ -197,7 +195,7 @@ export function usePuzzleInteractions(puzzleId: Accessor<string>): {
 }
 
 export function useChessPuzzleAllInteractions(): Accessor<
-  ChessPuzzleInteractionRow[]
+  PuzzleInteractionRow[]
 > {
   const myId = useMyId();
   const query = () => sql<InteractionSqlRow>`
@@ -224,7 +222,7 @@ export function usePuzzleEntityAndInteractions(puzzleId: Accessor<string>): {
   rating: number;
   ratingDeviation: number;
   themes: readonly string[];
-  interactions: ChessPuzzleInteractionRow[];
+  interactions: PuzzleInteractionRow[];
   interactionsReady: boolean;
 } {
   const base = usePuzzleEntity(puzzleId);

@@ -1,6 +1,6 @@
-import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
-import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
-import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
+import type { PuzzleCompletion } from '@libs/game-puzzle-shared/completion';
+import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
+import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { PuzzleScreen } from '@pkgs/ui-root-client/puzzle-screen';
 import {

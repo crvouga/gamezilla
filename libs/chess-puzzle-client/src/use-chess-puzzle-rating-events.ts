@@ -1,9 +1,9 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import type {
-  ChessPuzzleRatingEvent,
-  ChessPuzzleRatingEventSqlRow,
-} from '@libs/chess-puzzle-shared/chess-puzzle-rating-event';
-import { ratingEventFromSql } from '@libs/chess-puzzle-shared/chess-puzzle-rating-event';
+  PuzzleRatingEvent,
+  PuzzleRatingEventSqlRow,
+} from '@libs/game-puzzle-shared/rating-event';
+import { ratingEventFromSql } from '@libs/game-puzzle-shared/rating-event';
 import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
@@ -17,11 +17,11 @@ const RATING_EVENT_LIMIT = 5000;
  * never recomputes it.
  */
 export function useChessPuzzleRatingEvents(): Accessor<
-  readonly ChessPuzzleRatingEvent[]
+  readonly PuzzleRatingEvent[]
 > {
   const myId = useMyId();
   const { rows } = createQuery(
-    () => sql<ChessPuzzleRatingEventSqlRow>`
+    () => sql<PuzzleRatingEventSqlRow>`
       SELECT
         puzzle_id,
         puzzle_rating,

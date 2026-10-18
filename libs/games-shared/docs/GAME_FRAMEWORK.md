@@ -37,6 +37,7 @@ composition roots (registries, runtime, apps)
 | `@libs/game-session-shared` | `defineTurnGame`, custom games (sides, people, bots, readiness, clocks, resignation, draws, rematches, offline solo play) and the shared session module installed once per space. |
 | `@libs/game-session-client` / `-server` | The custom-game, history and review screens; the matched-game notice, reminder and availability consumers. |
 | `@libs/game-matchmaking-shared` / `-client` | Opponent searches, matched games, ratings per speed, rematches, the multiplayer screen and link. |
+| `@libs/game-puzzle-shared` | Puzzles over any game's rules: the space's puzzle session (its room state and messages), puzzle ratings, completion, statistics, the feed and its settings, choosing the next puzzle, the puzzle tables, queries and mutations, and the puzzle link. |
 | `@libs/game-menu-client` | `defineGameClient` and the one `GameMenu` every game is offered through. |
 | `@libs/game-session-harness` | The conformance contract a game's harness supplies (`PlayableGame` without screens, `HarnessGame` with them, `GameFixtures`), `gameSystem` (a world of any games), shared drivers, and the rules laws (`game-rules-laws`). |
 | `@libs/game-matchmaking-harness` | Opponent seeking and the one matched-game scenario world. |
@@ -100,6 +101,7 @@ It is never a new entry for an internal module.
 | `@libs/game-matchmaking-harness` | `matched-game-world`, `matched-game-app.steps` | The scenario's matched game: pairing, both boards, commands and verdicts, the game a device holds (`heldMatchedGame`) |
 | | `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record` | Finding an opponent, the board (`sendMoveFromBoard`), reviewing earlier positions, copying the game record, as a person does |
 | | `multiplayer-time`, `matched-game-fixtures` | Fixtures: time passing through the real sweep; a position or a clock set where no person could reach it in time |
+| `@libs/game-puzzle-shared` | the modules its manifest lists | Transitional: chess's puzzle screens, harness, server and sub still use the platform's puzzle session, feed, ratings and tables directly. The list shrinks to nothing as those move into the platform's puzzle screens and sub |
 | `@pkgs/turn-game-client`, `@libs/game-session-client`, `@libs/game-session-server`, `@libs/game-matchmaking-shared`, `@libs/game-matchmaking-client` | none | The platform's screens, consumers, commands and storage: a game never imports them |
 | `@libs/games-shared`, `@libs/games-client`, `@libs/game-catalog-shared`, `@libs/games-harness` | none | Registries: composition roots import `game-plugins`, `game-plugins.client`, `turn-games` / `game-automations` and `harness-games` / `game-conformance`; a game never depends on one (`gameViolations`) |
 

@@ -1,4 +1,4 @@
-import { PUZZLE_LINK_ROUTE } from '@libs/chess-puzzle-shared/puzzle-link';
+import { PUZZLE_LINK_ROUTE } from '@libs/game-puzzle-shared/puzzle-link';
 import { defineSubClient } from '@libs/sub-client/client';
 import { PuzzleLinkScreen } from './puzzle-link-screen';
 

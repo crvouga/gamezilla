@@ -1,14 +1,15 @@
 import { buildPuzzleMoveHistory } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
+import { chessMoveNotationOf } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
 import {
-  CHESS_PUZZLE_PLAY_STATUS,
-  ChessPuzzlePlayAttr,
-} from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { SeekChessPuzzlePlay } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
-import type { PuzzleNavIntent } from '@libs/chess-puzzle-shared/puzzle-nav';
+  PUZZLE_PLAY_STATUS,
+  PuzzlePlayAttr,
+} from '@libs/game-puzzle-shared/play-attr';
+import { SeekPuzzlePlay } from '@libs/game-puzzle-shared/play-messages';
+import type { PuzzleNavIntent } from '@libs/game-puzzle-shared/puzzle-nav';
 import {
   puzzleNavFromState,
   resolvePuzzleNavTarget,
-} from '@libs/chess-puzzle-shared/puzzle-nav';
+} from '@libs/game-puzzle-shared/puzzle-nav';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -20,13 +21,13 @@ import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 export function ChessPuzzleMoveHistoryBar(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
   const [config] = useChessPuzzleFeedConfig();
-  const fen = useSpaceRoomSelector(ChessPuzzlePlayAttr.fen.from);
-  const moves = useSpaceRoomSelector(ChessPuzzlePlayAttr.moves.from);
-  const solveIdx = useSpaceRoomSelector(ChessPuzzlePlayAttr.solveIdx.from);
+  const fen = useSpaceRoomSelector(PuzzlePlayAttr.position.from);
+  const moves = useSpaceRoomSelector(PuzzlePlayAttr.line.from);
+  const solveIdx = useSpaceRoomSelector(PuzzlePlayAttr.solveIdx.from);
   const furthestSolveIdx = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.furthestSolveIdx.from
+    PuzzlePlayAttr.furthestSolveIdx.from
   );
-  const status = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
+  const status = useSpaceRoomSelector(PuzzlePlayAttr.status.from);
 
   const plies = createMemo(() =>
     buildPuzzleMoveHistory({
@@ -38,9 +39,9 @@ export function ChessPuzzleMoveHistoryBar(): JSX.Element {
 
   const interactive = createMemo(
     () =>
-      status() === CHESS_PUZZLE_PLAY_STATUS.solving ||
-      status() === CHESS_PUZZLE_PLAY_STATUS.solved ||
-      status() === CHESS_PUZZLE_PLAY_STATUS.revealed
+      status() === PUZZLE_PLAY_STATUS.solving ||
+      status() === PUZZLE_PLAY_STATUS.solved ||
+      status() === PUZZLE_PLAY_STATUS.revealed
   );
 
   const nav = createMemo(() =>
@@ -53,7 +54,7 @@ export function ChessPuzzleMoveHistoryBar(): JSX.Element {
   );
 
   const onSeek = (targetSolveIdx: number): void => {
-    dispatch(SeekChessPuzzlePlay({ solveIdx: targetSolveIdx }));
+    dispatch(SeekPuzzlePlay({ solveIdx: targetSolveIdx }));
   };
 
   const onNavigate = (intent: PuzzleNavIntent): void => {
@@ -71,7 +72,7 @@ export function ChessPuzzleMoveHistoryBar(): JSX.Element {
       plies={plies()}
       selectedSolveIdx={solveIdx()}
       interactive={interactive()}
-      notation={config().notation}
+      notation={chessMoveNotationOf(config().notation)}
       onSeek={onSeek}
       nav={{
         canGoBack: nav().canGoBack,

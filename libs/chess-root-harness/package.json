@@ -93,6 +93,7 @@
     "@libs/billing-harness": "workspace:*",
     "@libs/billing-shared": "workspace:*",
     "@libs/friends-harness": "workspace:*",
+    "@libs/game-puzzle-shared": "workspace:*",
     "@libs/permissions-harness": "workspace:*",
     "@libs/profile-harness": "workspace:*",
     "@pkgs/alloy-shared": "workspace:*",

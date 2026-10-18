@@ -1,15 +1,14 @@
-import type { Square } from '@pkgs/chess-board-core-shared/types';
+import {
+  PUZZLE_PLAY_STATUS,
+  PuzzlePlayAttr,
+} from '@libs/game-puzzle-shared/play-attr';
+import {
+  PuzzleMoveRecommended,
+  PuzzleRecommendationCleared,
+} from '@libs/game-puzzle-shared/play-messages';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
-
-import {
-  CHESS_PUZZLE_PLAY_STATUS,
-  ChessPuzzlePlayAttr,
-} from './chess-puzzle-play-attr';
-import {
-  ChessPuzzleMoveRecommended,
-  ChessPuzzleRecommendationCleared,
-} from './chess-puzzle-play-messages';
+import { isBoardSquare } from './recommendation-arrows';
 
 function conflict(reason: string): HandleResult {
   return { ok: false, error: { type: ROOM_ERROR_TYPE.conflict, reason } };
@@ -22,16 +21,25 @@ function conflict(reason: string): HandleResult {
 export function handleRecommend(
   state: RoomState,
   identity: string,
-  payload: { from: Square; to: Square }
+  payload: { from: string; to: string }
 ): HandleResult {
-  const status = ChessPuzzlePlayAttr.status.from(state);
-  if (status !== CHESS_PUZZLE_PLAY_STATUS.solving) {
+  if (!isBoardSquare(payload.from) || !isBoardSquare(payload.to)) {
+    return {
+      ok: false,
+      error: {
+        type: ROOM_ERROR_TYPE.invalidCommand,
+        reason: 'a suggestion names two squares of the board',
+      },
+    };
+  }
+  const status = PuzzlePlayAttr.status.from(state);
+  if (status !== PUZZLE_PLAY_STATUS.solving) {
     return conflict(`cannot suggest a move while status is ${status}`);
   }
   return {
     ok: true,
     events: [
-      ChessPuzzleMoveRecommended({
+      PuzzleMoveRecommended({
         by: identity,
         from: payload.from,
         to: payload.to,
@@ -45,11 +53,11 @@ export function handleClearRecommendation(
   state: RoomState,
   identity: string
 ): HandleResult {
-  if (ChessPuzzlePlayAttr.recommendations.from(state)[identity] === undefined) {
+  if (PuzzlePlayAttr.recommendations.from(state)[identity] === undefined) {
     return conflict('caller has no suggestion to clear');
   }
   return {
     ok: true,
-    events: [ChessPuzzleRecommendationCleared({ by: identity })],
+    events: [PuzzleRecommendationCleared({ by: identity })],
   };
 }

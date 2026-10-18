@@ -1,15 +1,14 @@
+import {
+  PUZZLE_PLAY_STATUS,
+  PuzzlePlayAttr,
+} from '@libs/game-puzzle-shared/play-attr';
+import {
+  PuzzleHintRevealed,
+  PuzzleSolutionRevealed,
+} from '@libs/game-puzzle-shared/play-messages';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
-
 import { tokenize, uciToSquares } from './chess-puzzle-fsm';
-import {
-  CHESS_PUZZLE_PLAY_STATUS,
-  ChessPuzzlePlayAttr,
-} from './chess-puzzle-play-attr';
-import {
-  ChessPuzzleHintRevealed,
-  ChessPuzzleSolutionRevealed,
-} from './chess-puzzle-play-messages';
 
 type HintHandleResult = HandleResult;
 
@@ -35,20 +34,20 @@ function internal(reason: string): HintHandleResult {
 }
 
 function isHostOf(state: RoomState, identity: string): boolean {
-  const host = ChessPuzzlePlayAttr.hostIdentity.from(state);
+  const host = PuzzlePlayAttr.hostIdentity.from(state);
   return host !== null && host === identity;
 }
 
 function requireCurrentSolvingPosition(
   state: RoomState
 ): HintHandleResult | null {
-  const status = ChessPuzzlePlayAttr.status.from(state);
-  if (status !== CHESS_PUZZLE_PLAY_STATUS.solving) {
+  const status = PuzzlePlayAttr.status.from(state);
+  if (status !== PUZZLE_PLAY_STATUS.solving) {
     return conflict(`cannot request hint while status is ${status}`);
   }
   if (
-    ChessPuzzlePlayAttr.solveIdx.from(state) !==
-    ChessPuzzlePlayAttr.furthestSolveIdx.from(state)
+    PuzzlePlayAttr.solveIdx.from(state) !==
+    PuzzlePlayAttr.furthestSolveIdx.from(state)
   ) {
     return conflict('return to the current position before requesting help');
   }
@@ -59,13 +58,13 @@ function buildHintEvents(state: RoomState): HintHandleResult {
   const denied = requireCurrentSolvingPosition(state);
   if (denied !== null) return denied;
   if (
-    ChessPuzzlePlayAttr.expectedFromSquare.from(state) !== null ||
-    ChessPuzzlePlayAttr.expectedToSquare.from(state) !== null
+    PuzzlePlayAttr.hintFrom.from(state) !== null ||
+    PuzzlePlayAttr.hintTo.from(state) !== null
   ) {
     return conflict('the first hint is already taken');
   }
-  const tokens = tokenize(ChessPuzzlePlayAttr.moves.from(state));
-  const idx = ChessPuzzlePlayAttr.solveIdx.from(state);
+  const tokens = tokenize(PuzzlePlayAttr.line.from(state));
+  const idx = PuzzlePlayAttr.solveIdx.from(state);
   const expected = tokens[idx];
   if (expected === undefined) {
     return internal('no expected move at current solve index');
@@ -74,11 +73,11 @@ function buildHintEvents(state: RoomState): HintHandleResult {
   if (squares === null) {
     return internal('expected move uci is malformed');
   }
-  const layoutKey = ChessPuzzlePlayAttr.layoutKey.from(state) + 1;
+  const layoutKey = PuzzlePlayAttr.layoutKey.from(state) + 1;
   return {
     ok: true,
     events: [
-      ChessPuzzleHintRevealed({
+      PuzzleHintRevealed({
         fromSquare: squares.from,
         toSquare: squares.to,
         layoutKey,
@@ -104,15 +103,15 @@ export function handleRevealSolution(
   if (!isHostOf(state, identity)) {
     return unauthorized('only the puzzle host may reveal the solution');
   }
-  if (ChessPuzzlePlayAttr.solutionRevealed.from(state)) {
+  if (PuzzlePlayAttr.solutionRevealed.from(state)) {
     return conflict('solution already revealed');
   }
   const denied = requireCurrentSolvingPosition(state);
   if (denied !== null) return denied;
-  const from = ChessPuzzlePlayAttr.expectedFromSquare.from(state);
-  const to = ChessPuzzlePlayAttr.expectedToSquare.from(state);
+  const from = PuzzlePlayAttr.hintFrom.from(state);
+  const to = PuzzlePlayAttr.hintTo.from(state);
   if (from === null || to === null) {
     return conflict('take the first hint before revealing the solution move');
   }
-  return { ok: true, events: [ChessPuzzleSolutionRevealed({})] };
+  return { ok: true, events: [PuzzleSolutionRevealed({})] };
 }

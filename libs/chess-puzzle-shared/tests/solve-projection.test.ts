@@ -1,6 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { hintStageFromRoom } from '@libs/chess-puzzle-shared/hint-stage';
-import { puzzleNavFromState } from '@libs/chess-puzzle-shared/puzzle-nav';
 import {
   countMoveTokens,
   nextSolutionUci,
@@ -9,6 +7,8 @@ import {
   projectSolveStatus,
   solutionArrows,
 } from '@libs/chess-puzzle-shared/solve-projection';
+import { hintStageFromRoom } from '@libs/game-puzzle-shared/hint-stage';
+import { puzzleNavFromState } from '@libs/game-puzzle-shared/puzzle-nav';
 
 describe('projectSolveStatus', () => {
   test('idle room reads as loading', () => {

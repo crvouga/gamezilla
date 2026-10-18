@@ -5,6 +5,7 @@
  * deterministically. UI layers bind via `getSnapshot` / `subscribe`.
  */
 
+import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { OpponentStagePlan } from './chess-puzzle-opponent-stage';
 import {
@@ -12,7 +13,6 @@ import {
   PUZZLE_PIECE_MOVE_MS,
   planOpponentStage,
 } from './chess-puzzle-opponent-stage';
-import type { SolveStatus } from './solve-status';
 
 export type OpponentStagerInput = {
   readonly startFen: string;

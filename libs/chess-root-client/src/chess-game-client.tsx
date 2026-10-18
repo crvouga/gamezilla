@@ -6,13 +6,13 @@ import { PuzzleManagementScreen } from '@libs/chess-puzzle-client/puzzle-managem
 import { ReconcilePuzzleResult } from '@libs/chess-puzzle-client/reconcile-puzzle-result';
 import { useIsPuzzleDriver } from '@libs/chess-puzzle-client/use-puzzle-space-role';
 import { CHESS_GAME_ID } from '@libs/chess-puzzle-shared/chess-game';
-import { LINKED_PUZZLE_PARAM } from '@libs/chess-puzzle-shared/puzzle-link';
 import { CHESS_SCREEN } from '@libs/chess-root-shared/chess-screens';
 import { ChessSettingsDeveloperScreen } from '@libs/chess-shared-client/chess-settings-developer-screen';
 import { ChessSettingsDeveloperUiComponentDetailScreen } from '@libs/chess-shared-client/chess-settings-developer-ui-component-detail-screen';
 import { ChessSettingsDeveloperUiComponentsScreen } from '@libs/chess-shared-client/chess-settings-developer-ui-components-screen';
 import { ChessSettingsScreen } from '@libs/chess-shared-client/chess-settings-screen';
 import { defineGameClient } from '@libs/game-menu-client/game-client';
+import { LINKED_PUZZLE_PARAM } from '@libs/game-puzzle-shared/puzzle-link';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import { Trans } from '@lingui/solid/macro';

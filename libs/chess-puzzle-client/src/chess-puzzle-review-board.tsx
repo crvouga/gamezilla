@@ -1,6 +1,7 @@
-import { puzzleNavIntentFromKey } from '@libs/chess-puzzle-shared/puzzle-nav';
-import { puzzleSwipeHandlers } from '@libs/chess-puzzle-shared/puzzle-swipe-handlers';
+import { chessMoveNotationOf } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
 import { BOARD_THEME } from '@libs/chess-root-shared/board-theme';
+import { puzzleNavIntentFromKey } from '@libs/game-puzzle-shared/puzzle-nav';
+import { puzzleSwipeHandlers } from '@libs/game-puzzle-shared/puzzle-swipe-handlers';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { registerFeedbackContext } from '@pkgs/feedback-shared/context';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
@@ -101,7 +102,7 @@ export function ChessPuzzleReviewBoard(props: {
         plies={model.plies()}
         selectedSolveIdx={model.solveIdx()}
         interactive={model.ready()}
-        notation={config().notation}
+        notation={chessMoveNotationOf(config().notation)}
         onSeek={model.onSeek}
         nav={{
           canGoBack: model.canGoBack(),
@@ -114,7 +115,7 @@ export function ChessPuzzleReviewBoard(props: {
         solveIdx={model.solveIdx}
         lastSolveIdx={model.lastSolveIdx}
         animated={model.animated}
-        notation={() => config().notation}
+        notation={() => chessMoveNotationOf(config().notation)}
         displayFen={model.displayFen}
       />
     </div>

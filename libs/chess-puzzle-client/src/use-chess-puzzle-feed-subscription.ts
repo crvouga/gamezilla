@@ -1,11 +1,11 @@
 import type {
-  ChessPuzzleFeedConfig,
-  ChessPuzzlePoolRange,
-} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+  PuzzleFeedConfig,
+  PuzzlePoolRange,
+} from '@libs/game-puzzle-shared/feed-config';
 import {
-  chessPuzzleNearestRating,
-  chessPuzzlePoolRangesForRating,
-} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+  puzzleNearestRating,
+  puzzlePoolRangesForRating,
+} from '@libs/game-puzzle-shared/feed-config';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
 import {
   type Accessor,
@@ -19,7 +19,7 @@ import { useEffectivePuzzleRatingFor } from './use-effective-puzzle-rating';
 const POOL_QUERY_NAME = 'chessPuzzlePool';
 const NEAREST_QUERY_NAME = 'chessPuzzleNearest';
 
-function rangesKey(ranges: readonly ChessPuzzlePoolRange[]): string {
+function rangesKey(ranges: readonly PuzzlePoolRange[]): string {
   return ranges.map((r) => `${r.ratingMin}-${r.ratingMax}`).join(',');
 }
 
@@ -33,18 +33,16 @@ function rangesKey(ranges: readonly ChessPuzzlePoolRange[]): string {
  * Returns `poolReady`: first hydrate for the current bands has landed.
  */
 export function useChessPuzzleFeedSubscription(
-  config: Accessor<ChessPuzzleFeedConfig>
+  config: Accessor<PuzzleFeedConfig>
 ): Accessor<boolean> {
   const sync = useSyncEngineInstance();
   const rating = useEffectivePuzzleRatingFor(config);
   const [poolReady, setPoolReady] = createSignal(false);
-  const ranges = createMemo(
-    () => chessPuzzlePoolRangesForRating(rating()),
-    [],
-    { equals: (a, b) => rangesKey(a) === rangesKey(b) }
-  );
+  const ranges = createMemo(() => puzzlePoolRangesForRating(rating()), [], {
+    equals: (a, b) => rangesKey(a) === rangesKey(b),
+  });
   // Band-centred, so it changes only when the bands do.
-  const nearestRating = createMemo(() => chessPuzzleNearestRating(rating()));
+  const nearestRating = createMemo(() => puzzleNearestRating(rating()));
   createEffect(() => {
     setPoolReady(false);
     const bands = ranges();

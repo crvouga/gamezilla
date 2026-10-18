@@ -1,4 +1,4 @@
-import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
+import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared/stats';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { createMemo, For, type JSX, Show } from 'solid-js';
@@ -11,7 +11,7 @@ function signedDelta(delta: number): string {
 }
 
 function HistoryPoint(props: {
-  readonly entry: ChessPuzzleGameLogEntry;
+  readonly entry: PuzzleGameLogEntry;
   readonly index: number;
 }): JSX.Element {
   return (
@@ -37,7 +37,7 @@ function HistoryPoint(props: {
 
 export type ChessRatingHistoryProps = {
   /** The game log, newest first; only its rated attempts are drawn. */
-  readonly entries: readonly ChessPuzzleGameLogEntry[];
+  readonly entries: readonly PuzzleGameLogEntry[];
 };
 
 /**

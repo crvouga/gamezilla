@@ -1,7 +1,7 @@
-import { appendPuzzleInteractionMutation } from '@libs/chess-puzzle-shared/append-puzzle-interaction-mutation';
-import type { AppendPuzzleInteractionInput } from '@libs/chess-puzzle-shared/append-puzzle-interaction-write';
-import type { ChessPuzzleOutcomeKind } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
-import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
+import { appendPuzzleInteractionMutation } from '@libs/game-puzzle-shared/append-puzzle-interaction-mutation';
+import type { AppendPuzzleInteractionInput } from '@libs/game-puzzle-shared/append-puzzle-interaction-write';
+import type { PuzzleOutcomeKind } from '@libs/game-puzzle-shared/interaction-entities';
+import { ratePuzzleAttemptMutation } from '@libs/game-puzzle-shared/rate-puzzle-attempt-mutation';
 import type { MutationClient } from '@pkgs/sync-engine-client/create-mutation-client';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
@@ -25,7 +25,7 @@ export type FinalizePlayInput = {
   readonly puzzleRating: number;
   readonly puzzleRatingDeviation: number;
   readonly solveIdx: number;
-  readonly terminalKind: ChessPuzzleOutcomeKind;
+  readonly terminalKind: PuzzleOutcomeKind;
   readonly scorePermille: 0 | 500 | 1000;
 };
 
@@ -60,7 +60,7 @@ export class ChessPuzzleInteractionDb {
     puzzleId: string;
     puzzleRating: number;
     puzzleRatingDeviation: number;
-    outcome: ChessPuzzleOutcomeKind;
+    outcome: PuzzleOutcomeKind;
     scorePermille: number;
   }): Promise<void> {
     const result = await this.mutationClient.mutate(

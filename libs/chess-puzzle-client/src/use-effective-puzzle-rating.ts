@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { resolveEffectivePuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { resolveProfilePuzzleRating } from '@libs/chess-puzzle-shared/next-puzzle-selection';
+import type { PuzzleFeedConfig } from '@libs/game-puzzle-shared/feed-config';
+import { resolveEffectivePuzzleRating } from '@libs/game-puzzle-shared/feed-config';
+import { resolveProfilePuzzleRating } from '@libs/game-puzzle-shared/next-puzzle-selection';
 import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
@@ -29,7 +29,7 @@ export function usePuzzleProfileRating(): Accessor<number> {
  * offset, or the custom target. Drives both the sync bands and the pick window.
  */
 export function useEffectivePuzzleRatingFor(
-  config: Accessor<ChessPuzzleFeedConfig>
+  config: Accessor<PuzzleFeedConfig>
 ): Accessor<number> {
   const profileRating = usePuzzleProfileRating();
   return createMemo(() =>

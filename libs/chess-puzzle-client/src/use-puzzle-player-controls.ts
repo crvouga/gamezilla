@@ -1,7 +1,7 @@
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
-import { hintStageFromRoom } from '@libs/chess-puzzle-shared/hint-stage';
-import { puzzleNavFromState } from '@libs/chess-puzzle-shared/puzzle-nav';
+import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
+import { hintStageFromRoom } from '@libs/game-puzzle-shared/hint-stage';
+import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
+import { puzzleNavFromState } from '@libs/game-puzzle-shared/puzzle-nav';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { type Accessor, createMemo } from 'solid-js';
 import { usePuzzlePlayerEffects } from './use-puzzle-player-effects';
@@ -12,7 +12,7 @@ type ControlsArgs = {
   moves: Accessor<string>;
   solveIdx: Accessor<number>;
   furthestSolveIdx: Accessor<number>;
-  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  status: Accessor<PuzzlePlayStatus | 'loading'>;
   expectedFromSquare: Accessor<string | null>;
   solutionRevealed: Accessor<boolean>;
   onMoveRaw: (m: Move) => void;

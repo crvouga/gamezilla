@@ -2,9 +2,9 @@
  * Pure mode → slot plan for the puzzle bottom bar (no UI imports).
  */
 
-import type { ChessPuzzlePlayStatus } from './chess-puzzle-play-attr';
+import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
 
-export type ActionBarSolveStatus = 'loading' | ChessPuzzlePlayStatus;
+export type ActionBarSolveStatus = 'loading' | PuzzlePlayStatus;
 export type ActionBarHintStage = 'none' | 'highlight' | 'solution';
 
 export type ChessPuzzleActionBarPlanInput = {

@@ -1,6 +1,6 @@
-import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { puzzleFeedHasNarrowingFilters } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import type { PuzzlePickState } from '@libs/chess-puzzle-shared/pick-state';
+import type { PuzzleFeedConfig } from '@libs/game-puzzle-shared/feed-config';
+import { puzzleFeedHasNarrowingFilters } from '@libs/game-puzzle-shared/feed-config';
+import type { PuzzlePickState } from '@libs/game-puzzle-shared/pick-state';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { Trans } from '@lingui/solid/macro';
 import type { Decision } from '@pkgs/permissions-shared/decision';
@@ -13,7 +13,7 @@ export type ChessPuzzleEmptyPoolStateProps = {
   /** `'empty'`, `'offline'`, `'limited'` or `'waiting'`; `loading` never renders. */
   kind: Exclude<PuzzlePickState, 'ready' | 'loading'>;
   size: number;
-  config: ChessPuzzleFeedConfig;
+  config: PuzzleFeedConfig;
   /** Drop history / theme filters so every synced puzzle is eligible. */
   onIncludeAllPuzzles: () => void;
   onOpenFeedSettings: () => void;
@@ -52,11 +52,11 @@ function WaitingBlock(): JSX.Element {
  * "Failed" with no theme: the window falls back to every synced puzzle, so
  * an empty feed means no puzzle was ever failed.
  */
-function isEmptyForNoFailedAttempts(config: ChessPuzzleFeedConfig): boolean {
+function isEmptyForNoFailedAttempts(config: PuzzleFeedConfig): boolean {
   return config.historyFilter === 'failed' && config.themes.length === 0;
 }
 
-function ExhaustedBody(props: { config: ChessPuzzleFeedConfig }): JSX.Element {
+function ExhaustedBody(props: { config: PuzzleFeedConfig }): JSX.Element {
   return (
     <Show
       when={!isEmptyForNoFailedAttempts(props.config)}
@@ -88,7 +88,7 @@ function ExhaustedBody(props: { config: ChessPuzzleFeedConfig }): JSX.Element {
 }
 
 function ExhaustedBlock(props: {
-  config: ChessPuzzleFeedConfig;
+  config: PuzzleFeedConfig;
   onIncludeAllPuzzles: () => void;
   onOpenFeedSettings: () => void;
 }): JSX.Element {

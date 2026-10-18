@@ -1,6 +1,6 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { ChessPuzzleResultAttr } from '@libs/chess-puzzle-shared/chess-puzzle-result';
+import { PuzzlePlayAttr } from '@libs/game-puzzle-shared/play-attr';
+import { PuzzleResultAttr } from '@libs/game-puzzle-shared/play-result';
 import { useSpaceRoomSelector } from '@libs/spaces-client/use-space-room-selector';
 import { useLogger } from '@pkgs/logger-client/solid';
 import {
@@ -15,15 +15,15 @@ export function ReconcilePuzzleResult(): null {
   const myId = useMyId();
   const log = useLogger('chess-puzzle-result');
   const puzzleId = useSpaceRoomSelector(
-    (state) => ChessPuzzlePlayAttr.puzzleId.from(state) ?? ''
+    (state) => PuzzlePlayAttr.puzzleId.from(state) ?? ''
   );
   const result = useSpaceRoomSelector((state) => ({
-    owner: ChessPuzzleResultAttr.owner.from(state),
-    attempt: ChessPuzzleResultAttr.attempt.from(state),
-    outcome: ChessPuzzleResultAttr.outcome.from(state),
-    score: ChessPuzzleResultAttr.score.from(state),
+    owner: PuzzleResultAttr.owner.from(state),
+    attempt: PuzzleResultAttr.attempt.from(state),
+    outcome: PuzzleResultAttr.outcome.from(state),
+    score: PuzzleResultAttr.score.from(state),
   }));
-  const solveIdx = useSpaceRoomSelector(ChessPuzzlePlayAttr.solveIdx.from);
+  const solveIdx = useSpaceRoomSelector(PuzzlePlayAttr.solveIdx.from);
   const entity = usePuzzleEntity(puzzleId);
   const interactions = usePuzzleInteractions(puzzleId);
   const writes = useChessPuzzleInteractionWrites({

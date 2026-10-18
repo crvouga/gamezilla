@@ -1,26 +1,26 @@
 import { describe, expect, test } from 'bun:test';
 import { createChessModule } from '@libs/chess-puzzle-shared/chess-module';
-import {
-  CHESS_PUZZLE_PLAY_STATUS,
-  ChessPuzzlePlayAttr,
-} from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import {
-  ClearChessPuzzlePlay,
-  ClearChessPuzzleRecommendation,
-  ReclaimChessPuzzlePlay,
-  RecommendChessPuzzleMove,
-  RequestChessPuzzleHint,
-  ResetChessPuzzlePlay,
-  RevealChessPuzzleSolution,
-  SeekChessPuzzlePlay,
-  SkipChessPuzzlePlay,
-  StartChessPuzzlePlay,
-  StepBackChessPuzzlePlay,
-  StepForwardChessPuzzlePlay,
-  SubmitChessPuzzleMove,
-} from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
-import { CHESS_PUZZLE_MAX_RECOMMENDATIONS } from '@libs/chess-puzzle-shared/recommendations';
 import { projectBoardFen } from '@libs/chess-puzzle-shared/solve-projection';
+import {
+  PUZZLE_PLAY_STATUS,
+  PuzzlePlayAttr,
+} from '@libs/game-puzzle-shared/play-attr';
+import {
+  ClearPuzzlePlay,
+  ClearPuzzleRecommendation,
+  ReclaimPuzzlePlay,
+  RecommendPuzzleMove,
+  RequestPuzzleHint,
+  ResetPuzzlePlay,
+  RevealPuzzleSolution,
+  SeekPuzzlePlay,
+  SkipPuzzlePlay,
+  StartPuzzlePlay,
+  StepBackPuzzlePlay,
+  StepForwardPuzzlePlay,
+  SubmitPuzzleMove,
+} from '@libs/game-puzzle-shared/play-messages';
+import { PUZZLE_MAX_RECOMMENDATIONS } from '@libs/game-puzzle-shared/recommendations';
 import type { RoomCommand, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 
@@ -53,7 +53,7 @@ function startValid(state: RoomState, identity = HOST): RoomState {
   const res = ChessModule.handle(
     state,
     cmd(
-      StartChessPuzzlePlay({
+      StartPuzzlePlay({
         puzzleId: 'puzzle-1',
         fen: VALID_FEN,
         moves: VALID_MOVES,
@@ -68,15 +68,13 @@ function startValid(state: RoomState, identity = HOST): RoomState {
 describe('chess puzzle play FSM — Start', () => {
   test('valid multi-move payload transitions to solving with host captured', () => {
     const state = startValid(ChessModule.initialState());
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solving
-    );
-    expect(ChessPuzzlePlayAttr.hostIdentity.from(state)).toBe(HOST);
-    expect(ChessPuzzlePlayAttr.puzzleId.from(state)).toBe('puzzle-1');
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
-    expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(0);
-    expect(ChessPuzzlePlayAttr.orientation.from(state)).toBe('white');
-    const display = ChessPuzzlePlayAttr.displayFen.from(state);
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solving);
+    expect(PuzzlePlayAttr.hostIdentity.from(state)).toBe(HOST);
+    expect(PuzzlePlayAttr.puzzleId.from(state)).toBe('puzzle-1');
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(1);
+    expect(PuzzlePlayAttr.layoutKey.from(state)).toBe(0);
+    expect(PuzzlePlayAttr.solverSide.from(state)).toBe('white');
+    const display = PuzzlePlayAttr.displayPosition.from(state);
     expect(display).not.toBeNull();
     expect((display ?? '').split(/\s+/)[1]).toBe('w');
   });
@@ -86,7 +84,7 @@ describe('chess puzzle play FSM — Start', () => {
     const res = ChessModule.handle(
       state,
       cmd(
-        StartChessPuzzlePlay({
+        StartPuzzlePlay({
           puzzleId: 'puzzle-short',
           fen: VALID_FEN,
           moves: SHORT_MOVES,
@@ -97,11 +95,9 @@ describe('chess puzzle play FSM — Start', () => {
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     state = reduceAll(state, res.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solved
-    );
-    expect(ChessPuzzlePlayAttr.hostIdentity.from(state)).toBe(HOST);
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solved);
+    expect(PuzzlePlayAttr.hostIdentity.from(state)).toBe(HOST);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(1);
   });
 
   test('bad FEN transitions to invalid but still captures host', () => {
@@ -109,7 +105,7 @@ describe('chess puzzle play FSM — Start', () => {
     const res = ChessModule.handle(
       state,
       cmd(
-        StartChessPuzzlePlay({
+        StartPuzzlePlay({
           puzzleId: 'puzzle-bad',
           fen: BAD_FEN,
           moves: VALID_MOVES,
@@ -120,11 +116,9 @@ describe('chess puzzle play FSM — Start', () => {
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     state = reduceAll(state, res.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.invalid
-    );
-    expect(ChessPuzzlePlayAttr.hostIdentity.from(state)).toBe(HOST);
-    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.invalid);
+    expect(PuzzlePlayAttr.hostIdentity.from(state)).toBe(HOST);
+    expect(PuzzlePlayAttr.displayPosition.from(state)).toBeNull();
   });
 
   test('illegal opening move transitions to invalid', () => {
@@ -132,7 +126,7 @@ describe('chess puzzle play FSM — Start', () => {
     const res = ChessModule.handle(
       state,
       cmd(
-        StartChessPuzzlePlay({
+        StartPuzzlePlay({
           puzzleId: 'puzzle-bad-moves',
           fen: VALID_FEN,
           moves: BAD_MOVES,
@@ -143,9 +137,7 @@ describe('chess puzzle play FSM — Start', () => {
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     state = reduceAll(state, res.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.invalid
-    );
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.invalid);
   });
 
   test('Start while session already running rejects with conflict', () => {
@@ -153,7 +145,7 @@ describe('chess puzzle play FSM — Start', () => {
     const res = ChessModule.handle(
       state,
       cmd(
-        StartChessPuzzlePlay({
+        StartPuzzlePlay({
           puzzleId: 'puzzle-2',
           fen: VALID_FEN,
           moves: VALID_MOVES,
@@ -170,10 +162,10 @@ describe('chess puzzle play FSM — Start', () => {
 describe('chess puzzle play FSM — Submit', () => {
   test('correct move from host advances index past opponent reply', () => {
     let state = startValid(ChessModule.initialState());
-    const before = ChessPuzzlePlayAttr.displayFen.from(state);
+    const before = PuzzlePlayAttr.displayPosition.from(state);
     const res = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     expect(res.ok).toBe(true);
@@ -184,11 +176,9 @@ describe('chess puzzle play FSM — Submit', () => {
     expect(accepted.payload.uci).toBe('e1f2');
     expect(accepted.payload.san).toBe('Kf2');
     state = reduceAll(state, res.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solving
-    );
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
-    const after = ChessPuzzlePlayAttr.displayFen.from(state);
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solving);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    const after = PuzzlePlayAttr.displayPosition.from(state);
     expect(after).not.toBe(before);
     expect(after).not.toBeNull();
     expect((after ?? '').split(/\s+/)[1]).toBe('w');
@@ -198,32 +188,30 @@ describe('chess puzzle play FSM — Submit', () => {
     let state = startValid(ChessModule.initialState());
     const r1 = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     if (!r1.ok) throw new Error('first move failed');
     state = reduceAll(state, r1.events);
     const r2 = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'f2e3' })),
+      cmd(SubmitPuzzleMove({ uci: 'f2e3' })),
       HOST
     );
     expect(r2.ok).toBe(true);
     if (!r2.ok) return;
     state = reduceAll(state, r2.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solved
-    );
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(4);
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solved);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(4);
   });
 
   test('wrong move is not applied to the reached position and flips to wrong', () => {
     let state = startValid(ChessModule.initialState());
-    const before = ChessPuzzlePlayAttr.layoutKey.from(state);
-    const beforeFen = ChessPuzzlePlayAttr.displayFen.from(state);
+    const before = PuzzlePlayAttr.layoutKey.from(state);
+    const beforeFen = PuzzlePlayAttr.displayPosition.from(state);
     const res = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'h1h2' })),
+      cmd(SubmitPuzzleMove({ uci: 'h1h2' })),
       HOST
     );
     expect(res.ok).toBe(true);
@@ -234,30 +222,28 @@ describe('chess puzzle play FSM — Submit', () => {
     expect(rejected.payload.uci).toBe('h1h2');
     expect(rejected.payload.san).toBe('Rh2');
     state = reduceAll(state, res.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.wrong
-    );
-    expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(before + 1);
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.wrong);
+    expect(PuzzlePlayAttr.layoutKey.from(state)).toBe(before + 1);
     // §5: the reached position is kept; the board paints the wrong move
     // over it from `wrongUci` (`projectBoardFen`).
-    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(beforeFen);
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
-    expect(ChessPuzzlePlayAttr.wrongUci.from(state)).toBe('h1h2');
-    expect(ChessPuzzlePlayAttr.wrongToSquare.from(state)).toBe('h2');
+    expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(beforeFen);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(1);
+    expect(PuzzlePlayAttr.wrongAction.from(state)).toBe('h1h2');
+    expect(PuzzlePlayAttr.wrongMark.from(state)).toBe('h2');
   });
 
   test('second submit while already wrong is rejected as conflict', () => {
     let state = startValid(ChessModule.initialState());
     const wrong1 = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'h1h2' })),
+      cmd(SubmitPuzzleMove({ uci: 'h1h2' })),
       HOST
     );
     if (!wrong1.ok) throw new Error('first wrong failed');
     state = reduceAll(state, wrong1.events);
     const wrong2 = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     expect(wrong2.ok).toBe(false);
@@ -267,43 +253,39 @@ describe('chess puzzle play FSM — Submit', () => {
 
   test('illegal wrong move is rejected as invalidCommand without state change', () => {
     const state = startValid(ChessModule.initialState());
-    const beforeFen = ChessPuzzlePlayAttr.displayFen.from(state);
+    const beforeFen = PuzzlePlayAttr.displayPosition.from(state);
     // a1 is empty so a1a2 is not a legal move from the post-opening position.
     const res = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'a1a2' })),
+      cmd(SubmitPuzzleMove({ uci: 'a1a2' })),
       HOST
     );
     expect(res.ok).toBe(false);
     if (res.ok) return;
     expect(res.error.type).toBe(ROOM_ERROR_TYPE.invalidCommand);
-    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(beforeFen);
+    expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(beforeFen);
   });
 
   test('the board keeps a wrong move on its square until the retry', () => {
     const boardOf = (state: RoomState): string | null =>
       projectBoardFen({
-        status: ChessPuzzlePlayAttr.status.from(state),
-        fen: ChessPuzzlePlayAttr.displayFen.from(state),
-        wrongUci: ChessPuzzlePlayAttr.wrongUci.from(state),
+        status: PuzzlePlayAttr.status.from(state),
+        fen: PuzzlePlayAttr.displayPosition.from(state),
+        wrongUci: PuzzlePlayAttr.wrongAction.from(state),
       });
     let state = startValid(ChessModule.initialState());
-    const reached = ChessPuzzlePlayAttr.displayFen.from(state);
+    const reached = PuzzlePlayAttr.displayPosition.from(state);
     expect(boardOf(state)).toBe(reached);
     const wrong = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'h1h2' })),
+      cmd(SubmitPuzzleMove({ uci: 'h1h2' })),
       HOST
     );
     if (!wrong.ok) throw new Error('wrong submit failed');
     state = reduceAll(state, wrong.events);
     // The rook stands on h2, where it was dropped; h1 is empty.
     expect(boardOf(state)).toBe('8/3k4/8/8/8/8/4P2R/4K3 b - - 2 2');
-    const reset = ChessModule.handle(
-      state,
-      cmd(ResetChessPuzzlePlay({})),
-      HOST
-    );
+    const reset = ChessModule.handle(state, cmd(ResetPuzzlePlay({})), HOST);
     if (!reset.ok) throw new Error('retry failed');
     state = reduceAll(state, reset.events);
     expect(boardOf(state)).toBe(reached);
@@ -313,43 +295,33 @@ describe('chess puzzle play FSM — Submit', () => {
     let state = startValid(ChessModule.initialState());
     const wrong = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'h1h2' })),
+      cmd(SubmitPuzzleMove({ uci: 'h1h2' })),
       HOST
     );
     if (!wrong.ok) throw new Error('wrong submit failed');
     state = reduceAll(state, wrong.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.wrong
-    );
-    const reset = ChessModule.handle(
-      state,
-      cmd(ResetChessPuzzlePlay({})),
-      HOST
-    );
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.wrong);
+    const reset = ChessModule.handle(state, cmd(ResetPuzzlePlay({})), HOST);
     if (!reset.ok) throw new Error('retry failed');
     state = reduceAll(state, reset.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solving
-    );
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solving);
     const correct = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     expect(correct.ok).toBe(true);
     if (!correct.ok) return;
     state = reduceAll(state, correct.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solving
-    );
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solving);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(3);
   });
 
   test('non-host move is rejected as unauthorized', () => {
     const state = startValid(ChessModule.initialState());
     const res = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       GUEST
     );
     expect(res.ok).toBe(false);
@@ -362,7 +334,7 @@ describe('chess puzzle play FSM — Submit', () => {
     const start = ChessModule.handle(
       state,
       cmd(
-        StartChessPuzzlePlay({
+        StartPuzzlePlay({
           puzzleId: 'short',
           fen: VALID_FEN,
           moves: SHORT_MOVES,
@@ -374,7 +346,7 @@ describe('chess puzzle play FSM — Submit', () => {
     state = reduceAll(state, start.events);
     const res = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     expect(res.ok).toBe(false);
@@ -386,7 +358,7 @@ describe('chess puzzle play FSM — Submit', () => {
     const state = ChessModule.initialState();
     const res = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     expect(res.ok).toBe(false);
@@ -398,62 +370,50 @@ describe('chess puzzle play FSM — Submit', () => {
 describe('chess puzzle play FSM — Hint', () => {
   test('RequestHint sets expected squares and bumps layoutKey', () => {
     let state = startValid(ChessModule.initialState());
-    const beforeLk = ChessPuzzlePlayAttr.layoutKey.from(state);
-    const res = ChessModule.handle(
-      state,
-      cmd(RequestChessPuzzleHint({})),
-      HOST
-    );
+    const beforeLk = PuzzlePlayAttr.layoutKey.from(state);
+    const res = ChessModule.handle(state, cmd(RequestPuzzleHint({})), HOST);
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     state = reduceAll(state, res.events);
-    expect(ChessPuzzlePlayAttr.expectedFromSquare.from(state)).toBe('e1');
-    expect(ChessPuzzlePlayAttr.expectedToSquare.from(state)).toBe('f2');
-    expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(beforeLk + 1);
-    expect(ChessPuzzlePlayAttr.solutionRevealed.from(state)).toBe(0);
+    expect(PuzzlePlayAttr.hintFrom.from(state)).toBe('e1');
+    expect(PuzzlePlayAttr.hintTo.from(state)).toBe('f2');
+    expect(PuzzlePlayAttr.layoutKey.from(state)).toBe(beforeLk + 1);
+    expect(PuzzlePlayAttr.solutionRevealed.from(state)).toBe(0);
   });
 
   test('RevealSolution sets solutionRevealed after hint', () => {
     let state = startValid(ChessModule.initialState());
-    const hint = ChessModule.handle(
-      state,
-      cmd(RequestChessPuzzleHint({})),
-      HOST
-    );
+    const hint = ChessModule.handle(state, cmd(RequestPuzzleHint({})), HOST);
     if (!hint.ok) throw new Error('hint failed');
     state = reduceAll(state, hint.events);
     const reveal = ChessModule.handle(
       state,
-      cmd(RevealChessPuzzleSolution({})),
+      cmd(RevealPuzzleSolution({})),
       HOST
     );
     expect(reveal.ok).toBe(true);
     if (!reveal.ok) return;
     state = reduceAll(state, reveal.events);
-    expect(ChessPuzzlePlayAttr.solutionRevealed.from(state)).toBe(1);
+    expect(PuzzlePlayAttr.solutionRevealed.from(state)).toBe(1);
   });
 
   test('Reset clears wrong and hint squares', () => {
     let state = startValid(ChessModule.initialState());
     const wrong = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'h1h2' })),
+      cmd(SubmitPuzzleMove({ uci: 'h1h2' })),
       HOST
     );
     if (!wrong.ok) throw new Error('wrong failed');
     state = reduceAll(state, wrong.events);
-    const reset = ChessModule.handle(
-      state,
-      cmd(ResetChessPuzzlePlay({})),
-      HOST
-    );
+    const reset = ChessModule.handle(state, cmd(ResetPuzzlePlay({})), HOST);
     expect(reset.ok).toBe(true);
     if (!reset.ok) return;
     state = reduceAll(state, reset.events);
-    expect(ChessPuzzlePlayAttr.wrongUci.from(state)).toBeNull();
-    expect(ChessPuzzlePlayAttr.wrongToSquare.from(state)).toBeNull();
-    expect(ChessPuzzlePlayAttr.expectedFromSquare.from(state)).toBeNull();
-    expect(ChessPuzzlePlayAttr.expectedToSquare.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.wrongAction.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.wrongMark.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.hintFrom.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.hintTo.from(state)).toBeNull();
   });
 });
 
@@ -462,75 +422,59 @@ describe('chess puzzle play FSM — Reset', () => {
     let state = startValid(ChessModule.initialState());
     const correct = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     if (!correct.ok) throw new Error('first correct failed');
     state = reduceAll(state, correct.events);
-    const fenAfterFirstCorrect = ChessPuzzlePlayAttr.displayFen.from(state);
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    const fenAfterFirstCorrect = PuzzlePlayAttr.displayPosition.from(state);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(3);
     const wrong = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'f2f3' })),
+      cmd(SubmitPuzzleMove({ uci: 'f2f3' })),
       HOST
     );
     if (!wrong.ok) throw new Error('wrong submit failed');
     state = reduceAll(state, wrong.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.wrong
-    );
-    const reset = ChessModule.handle(
-      state,
-      cmd(ResetChessPuzzlePlay({})),
-      HOST
-    );
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.wrong);
+    const reset = ChessModule.handle(state, cmd(ResetPuzzlePlay({})), HOST);
     expect(reset.ok).toBe(true);
     if (!reset.ok) return;
     state = reduceAll(state, reset.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solving
-    );
-    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solving);
+    expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(
       fenAfterFirstCorrect
     );
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(3);
   });
 
   test('host reset returns to post-opening state and bumps layoutKey', () => {
     let state = startValid(ChessModule.initialState());
-    const startedFen = ChessPuzzlePlayAttr.displayFen.from(state);
-    const startedLk = ChessPuzzlePlayAttr.layoutKey.from(state);
+    const startedFen = PuzzlePlayAttr.displayPosition.from(state);
+    const startedLk = PuzzlePlayAttr.layoutKey.from(state);
     const submit = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     if (!submit.ok) throw new Error('submit failed');
     state = reduceAll(state, submit.events);
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(3);
 
-    const reset = ChessModule.handle(
-      state,
-      cmd(ResetChessPuzzlePlay({})),
-      HOST
-    );
+    const reset = ChessModule.handle(state, cmd(ResetPuzzlePlay({})), HOST);
     expect(reset.ok).toBe(true);
     if (!reset.ok) return;
     state = reduceAll(state, reset.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solving
-    );
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
-    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(startedFen);
-    expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBeGreaterThan(
-      startedLk
-    );
-    expect(ChessPuzzlePlayAttr.hostIdentity.from(state)).toBe(HOST);
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solving);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(1);
+    expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(startedFen);
+    expect(PuzzlePlayAttr.layoutKey.from(state)).toBeGreaterThan(startedLk);
+    expect(PuzzlePlayAttr.hostIdentity.from(state)).toBe(HOST);
   });
 
   test('non-host reset is unauthorized', () => {
     const state = startValid(ChessModule.initialState());
-    const res = ChessModule.handle(state, cmd(ResetChessPuzzlePlay({})), GUEST);
+    const res = ChessModule.handle(state, cmd(ResetPuzzlePlay({})), GUEST);
     expect(res.ok).toBe(false);
     if (res.ok) return;
     expect(res.error.type).toBe(ROOM_ERROR_TYPE.unauthorized);
@@ -539,7 +483,7 @@ describe('chess puzzle play FSM — Reset', () => {
   test('reset while idle is unauthorized (no host yet)', () => {
     const res = ChessModule.handle(
       ChessModule.initialState(),
-      cmd(ResetChessPuzzlePlay({})),
+      cmd(ResetPuzzlePlay({})),
       HOST
     );
     expect(res.ok).toBe(false);
@@ -551,32 +495,30 @@ describe('chess puzzle play FSM — Reset', () => {
 describe('chess puzzle play FSM — Clear', () => {
   test('host clear resets all attrs to defaults', () => {
     let state = startValid(ChessModule.initialState());
-    const res = ChessModule.handle(state, cmd(ClearChessPuzzlePlay({})), HOST);
+    const res = ChessModule.handle(state, cmd(ClearPuzzlePlay({})), HOST);
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     state = reduceAll(state, res.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.idle
-    );
-    expect(ChessPuzzlePlayAttr.puzzleId.from(state)).toBeNull();
-    expect(ChessPuzzlePlayAttr.hostIdentity.from(state)).toBeNull();
-    expect(ChessPuzzlePlayAttr.fen.from(state)).toBe('');
-    expect(ChessPuzzlePlayAttr.moves.from(state)).toBe('');
-    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBeNull();
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(0);
-    expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(0);
-    expect(ChessPuzzlePlayAttr.orientation.from(state)).toBe('white');
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.idle);
+    expect(PuzzlePlayAttr.puzzleId.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.hostIdentity.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.position.from(state)).toBe('');
+    expect(PuzzlePlayAttr.line.from(state)).toBe('');
+    expect(PuzzlePlayAttr.displayPosition.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(0);
+    expect(PuzzlePlayAttr.layoutKey.from(state)).toBe(0);
+    expect(PuzzlePlayAttr.solverSide.from(state)).toBe('white');
   });
 
   test('clear with no host succeeds (no-op)', () => {
     const state = ChessModule.initialState();
-    const res = ChessModule.handle(state, cmd(ClearChessPuzzlePlay({})), GUEST);
+    const res = ChessModule.handle(state, cmd(ClearPuzzlePlay({})), GUEST);
     expect(res.ok).toBe(true);
   });
 
   test('non-host clear during running session is unauthorized', () => {
     const state = startValid(ChessModule.initialState());
-    const res = ChessModule.handle(state, cmd(ClearChessPuzzlePlay({})), GUEST);
+    const res = ChessModule.handle(state, cmd(ClearPuzzlePlay({})), GUEST);
     expect(res.ok).toBe(false);
     if (res.ok) return;
     expect(res.error.type).toBe(ROOM_ERROR_TYPE.unauthorized);
@@ -584,27 +526,27 @@ describe('chess puzzle play FSM — Clear', () => {
 
   test('start, clear, start again succeeds with possibly different host', () => {
     let state = startValid(ChessModule.initialState());
-    const c = ChessModule.handle(state, cmd(ClearChessPuzzlePlay({})), HOST);
+    const c = ChessModule.handle(state, cmd(ClearPuzzlePlay({})), HOST);
     if (!c.ok) throw new Error('clear failed');
     state = reduceAll(state, c.events);
     state = startValid(state, GUEST);
-    expect(ChessPuzzlePlayAttr.hostIdentity.from(state)).toBe(GUEST);
+    expect(PuzzlePlayAttr.hostIdentity.from(state)).toBe(GUEST);
   });
 
   test('reclaim transfers host so a new actor can submit moves', () => {
     let state = startValid(ChessModule.initialState());
     const reclaim = ChessModule.handle(
       state,
-      cmd(ReclaimChessPuzzlePlay({})),
+      cmd(ReclaimPuzzlePlay({})),
       GUEST
     );
     expect(reclaim.ok).toBe(true);
     if (!reclaim.ok) return;
     state = reduceAll(state, reclaim.events);
-    expect(ChessPuzzlePlayAttr.hostIdentity.from(state)).toBe(GUEST);
+    expect(PuzzlePlayAttr.hostIdentity.from(state)).toBe(GUEST);
     const move = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       GUEST
     );
     expect(move.ok).toBe(true);
@@ -612,11 +554,7 @@ describe('chess puzzle play FSM — Clear', () => {
 
   test('reclaim is conflict when caller is already host', () => {
     const state = startValid(ChessModule.initialState());
-    const res = ChessModule.handle(
-      state,
-      cmd(ReclaimChessPuzzlePlay({})),
-      HOST
-    );
+    const res = ChessModule.handle(state, cmd(ReclaimPuzzlePlay({})), HOST);
     expect(res.ok).toBe(false);
     if (res.ok) return;
     expect(res.error.type).toBe(ROOM_ERROR_TYPE.conflict);
@@ -629,99 +567,87 @@ describe('chess puzzle play FSM — StepBack / StepForward', () => {
     let state = startValid(ChessModule.initialState());
     const r1 = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     if (!r1.ok) throw new Error('first move failed');
     state = reduceAll(state, r1.events);
-    const midFen = ChessPuzzlePlayAttr.displayFen.from(state);
+    const midFen = PuzzlePlayAttr.displayPosition.from(state);
     const r2 = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'f2e3' })),
+      cmd(SubmitPuzzleMove({ uci: 'f2e3' })),
       HOST
     );
     if (!r2.ok) throw new Error('second move failed');
     state = reduceAll(state, r2.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solved
-    );
-    expect(ChessPuzzlePlayAttr.furthestSolveIdx.from(state)).toBe(4);
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solved);
+    expect(PuzzlePlayAttr.furthestSolveIdx.from(state)).toBe(4);
 
-    const back = ChessModule.handle(
-      state,
-      cmd(StepBackChessPuzzlePlay({})),
-      HOST
-    );
+    const back = ChessModule.handle(state, cmd(StepBackPuzzlePlay({})), HOST);
     expect(back.ok).toBe(true);
     if (!back.ok) return;
     state = reduceAll(state, back.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solved
-    );
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
-    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(midFen);
-    expect(ChessPuzzlePlayAttr.furthestSolveIdx.from(state)).toBe(4);
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solved);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(midFen);
+    expect(PuzzlePlayAttr.furthestSolveIdx.from(state)).toBe(4);
   });
 
   test('step back/forward walks every ply including opponent replies', () => {
     let state = startValid(ChessModule.initialState());
     const r1 = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     if (!r1.ok) throw new Error('first move failed');
     state = reduceAll(state, r1.events);
-    const afterFirst = ChessPuzzlePlayAttr.displayFen.from(state);
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    const afterFirst = PuzzlePlayAttr.displayPosition.from(state);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(3);
 
     const backToPlayer = ChessModule.handle(
       state,
-      cmd(StepBackChessPuzzlePlay({})),
+      cmd(StepBackPuzzlePlay({})),
       HOST
     );
     if (!backToPlayer.ok) throw new Error('step back to player ply failed');
     state = reduceAll(state, backToPlayer.events);
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(2);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(2);
 
     const backToOpening = ChessModule.handle(
       state,
-      cmd(StepBackChessPuzzlePlay({})),
+      cmd(StepBackPuzzlePlay({})),
       HOST
     );
     if (!backToOpening.ok) throw new Error('step back to opening failed');
     state = reduceAll(state, backToOpening.events);
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(1);
 
     const forwardToPlayer = ChessModule.handle(
       state,
-      cmd(StepForwardChessPuzzlePlay({})),
+      cmd(StepForwardPuzzlePlay({})),
       HOST
     );
     expect(forwardToPlayer.ok).toBe(true);
     if (!forwardToPlayer.ok) return;
     state = reduceAll(state, forwardToPlayer.events);
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(2);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(2);
 
     const forwardToReply = ChessModule.handle(
       state,
-      cmd(StepForwardChessPuzzlePlay({})),
+      cmd(StepForwardPuzzlePlay({})),
       HOST
     );
     expect(forwardToReply.ok).toBe(true);
     if (!forwardToReply.ok) return;
     state = reduceAll(state, forwardToReply.events);
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
-    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(afterFirst);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(afterFirst);
   });
 
   test('step back at start is conflict', () => {
     const state = startValid(ChessModule.initialState());
-    const res = ChessModule.handle(
-      state,
-      cmd(StepBackChessPuzzlePlay({})),
-      HOST
-    );
+    const res = ChessModule.handle(state, cmd(StepBackPuzzlePlay({})), HOST);
     expect(res.ok).toBe(false);
     if (res.ok) return;
     expect(res.error.type).toBe(ROOM_ERROR_TYPE.conflict);
@@ -731,64 +657,64 @@ describe('chess puzzle play FSM — StepBack / StepForward', () => {
     let state = startValid(ChessModule.initialState());
     const r1 = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     if (!r1.ok) throw new Error('first move failed');
     state = reduceAll(state, r1.events);
-    const afterFirst = ChessPuzzlePlayAttr.displayFen.from(state);
+    const afterFirst = PuzzlePlayAttr.displayPosition.from(state);
 
     const seek = ChessModule.handle(
       state,
-      cmd(SeekChessPuzzlePlay({ solveIdx: 1 })),
+      cmd(SeekPuzzlePlay({ solveIdx: 1 })),
       HOST
     );
     expect(seek.ok).toBe(true);
     if (!seek.ok) return;
     state = reduceAll(state, seek.events);
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
-    expect(ChessPuzzlePlayAttr.furthestSolveIdx.from(state)).toBe(3);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(1);
+    expect(PuzzlePlayAttr.furthestSolveIdx.from(state)).toBe(3);
 
     const seekBack = ChessModule.handle(
       state,
-      cmd(SeekChessPuzzlePlay({ solveIdx: 3 })),
+      cmd(SeekPuzzlePlay({ solveIdx: 3 })),
       HOST
     );
     expect(seekBack.ok).toBe(true);
     if (!seekBack.ok) return;
     state = reduceAll(state, seekBack.events);
-    expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
-    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(afterFirst);
+    expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+    expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(afterFirst);
   });
 });
 
 describe('chess puzzle play FSM — clock', () => {
   test('start stamps the server time and solving keeps it running', () => {
     const state = startValid(ChessModule.initialState());
-    expect(ChessPuzzlePlayAttr.startedAtMs.from(state)).toBe(1);
-    expect(ChessPuzzlePlayAttr.endedAtMs.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.startedAtMs.from(state)).toBe(1);
+    expect(PuzzlePlayAttr.endedAtMs.from(state)).toBeNull();
   });
 
   test('a wrong move keeps the clock running; retry does not reset it', () => {
     let state = startValid(ChessModule.initialState());
     const wrong = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1d1' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1d1' })),
       HOST
     );
     if (!wrong.ok) throw new Error('wrong move rejected');
     state = reduceAll(state, wrong.events);
-    expect(ChessPuzzlePlayAttr.endedAtMs.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.endedAtMs.from(state)).toBeNull();
 
     const retry = ChessModule.handle(
       state,
-      cmd(ResetChessPuzzlePlay({}), 500),
+      cmd(ResetPuzzlePlay({}), 500),
       HOST
     );
     if (!retry.ok) throw new Error('retry rejected');
     state = reduceAll(state, retry.events);
-    expect(ChessPuzzlePlayAttr.startedAtMs.from(state)).toBe(1);
-    expect(ChessPuzzlePlayAttr.endedAtMs.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.startedAtMs.from(state)).toBe(1);
+    expect(PuzzlePlayAttr.endedAtMs.from(state)).toBeNull();
   });
 
   test('solving the last ply freezes the clock at the commit time', () => {
@@ -797,52 +723,40 @@ describe('chess puzzle play FSM — clock', () => {
     for (const [index, uci] of tokens.entries()) {
       const res = ChessModule.handle(
         state,
-        cmd(SubmitChessPuzzleMove({ uci }), 10 + index),
+        cmd(SubmitPuzzleMove({ uci }), 10 + index),
         HOST
       );
       if (!res.ok) throw new Error(`move ${uci} rejected`);
       state = reduceAll(state, res.events);
     }
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solved
-    );
-    expect(ChessPuzzlePlayAttr.endedAtMs.from(state)).toBe(11);
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solved);
+    expect(PuzzlePlayAttr.endedAtMs.from(state)).toBe(11);
   });
 
   test('clear resets both anchors', () => {
     let state = startValid(ChessModule.initialState());
-    const cleared = ChessModule.handle(
-      state,
-      cmd(ClearChessPuzzlePlay({})),
-      HOST
-    );
+    const cleared = ChessModule.handle(state, cmd(ClearPuzzlePlay({})), HOST);
     if (!cleared.ok) throw new Error('clear rejected');
     state = reduceAll(state, cleared.events);
-    expect(ChessPuzzlePlayAttr.startedAtMs.from(state)).toBeNull();
-    expect(ChessPuzzlePlayAttr.endedAtMs.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.startedAtMs.from(state)).toBeNull();
+    expect(PuzzlePlayAttr.endedAtMs.from(state)).toBeNull();
   });
 });
 
 describe('chess puzzle play FSM — skip', () => {
   test('the host skips a live attempt and it becomes terminal', () => {
     let state = startValid(ChessModule.initialState());
-    const res = ChessModule.handle(
-      state,
-      cmd(SkipChessPuzzlePlay({}), 42),
-      HOST
-    );
+    const res = ChessModule.handle(state, cmd(SkipPuzzlePlay({}), 42), HOST);
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     state = reduceAll(state, res.events);
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.skipped
-    );
-    expect(ChessPuzzlePlayAttr.endedAtMs.from(state)).toBe(42);
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.skipped);
+    expect(PuzzlePlayAttr.endedAtMs.from(state)).toBe(42);
   });
 
   test('a guest cannot skip', () => {
     const state = startValid(ChessModule.initialState());
-    const res = ChessModule.handle(state, cmd(SkipChessPuzzlePlay({})), GUEST);
+    const res = ChessModule.handle(state, cmd(SkipPuzzlePlay({})), GUEST);
     expect(res.ok).toBe(false);
     if (res.ok) return;
     expect(res.error.type).toBe(ROOM_ERROR_TYPE.unauthorized);
@@ -853,16 +767,14 @@ describe('chess puzzle play FSM — skip', () => {
     for (const uci of ['e1f2', 'f2e3']) {
       const solved = ChessModule.handle(
         state,
-        cmd(SubmitChessPuzzleMove({ uci })),
+        cmd(SubmitPuzzleMove({ uci })),
         HOST
       );
       if (!solved.ok) throw new Error(`move ${uci} rejected`);
       state = reduceAll(state, solved.events);
     }
-    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solved
-    );
-    const res = ChessModule.handle(state, cmd(SkipChessPuzzlePlay({})), HOST);
+    expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solved);
+    const res = ChessModule.handle(state, cmd(SkipPuzzlePlay({})), HOST);
     expect(res.ok).toBe(false);
     if (res.ok) return;
     expect(res.error.type).toBe(ROOM_ERROR_TYPE.conflict);
@@ -874,14 +786,14 @@ describe('chess puzzle play FSM — guest permissions', () => {
     const state = startValid(ChessModule.initialState());
     const before = JSON.stringify(state);
     const commands = [
-      RequestChessPuzzleHint({}),
-      RevealChessPuzzleSolution({}),
-      StepBackChessPuzzlePlay({}),
-      StepForwardChessPuzzlePlay({}),
-      SeekChessPuzzlePlay({ solveIdx: 1 }),
-      ResetChessPuzzlePlay({}),
-      ClearChessPuzzlePlay({}),
-      SkipChessPuzzlePlay({}),
+      RequestPuzzleHint({}),
+      RevealPuzzleSolution({}),
+      StepBackPuzzlePlay({}),
+      StepForwardPuzzlePlay({}),
+      SeekPuzzlePlay({ solveIdx: 1 }),
+      ResetPuzzlePlay({}),
+      ClearPuzzlePlay({}),
+      SkipPuzzlePlay({}),
     ];
     for (const payload of commands) {
       const res = ChessModule.handle(state, cmd(payload), GUEST);
@@ -896,13 +808,13 @@ describe('chess puzzle play FSM — spectator recommendations', () => {
     let state = startValid(ChessModule.initialState());
     const res = ChessModule.handle(
       state,
-      cmd(RecommendChessPuzzleMove({ from: 'e1', to: 'f2' })),
+      cmd(RecommendPuzzleMove({ from: 'e1', to: 'f2' })),
       GUEST
     );
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     state = reduceAll(state, res.events);
-    expect(ChessPuzzlePlayAttr.recommendations.from(state)).toEqual({
+    expect(PuzzlePlayAttr.recommendations.from(state)).toEqual({
       [GUEST]: { from: 'e1', to: 'f2', seq: 1 },
     });
   });
@@ -911,7 +823,7 @@ describe('chess puzzle play FSM — spectator recommendations', () => {
     const idle = ChessModule.initialState();
     const rejected = ChessModule.handle(
       idle,
-      cmd(RecommendChessPuzzleMove({ from: 'e1', to: 'f2' })),
+      cmd(RecommendPuzzleMove({ from: 'e1', to: 'f2' })),
       GUEST
     );
     expect(rejected.ok).toBe(false);
@@ -921,35 +833,35 @@ describe('chess puzzle play FSM — spectator recommendations', () => {
     let state = startValid(ChessModule.initialState());
     const add = ChessModule.handle(
       state,
-      cmd(RecommendChessPuzzleMove({ from: 'e1', to: 'f2' })),
+      cmd(RecommendPuzzleMove({ from: 'e1', to: 'f2' })),
       GUEST
     );
     if (!add.ok) throw new Error('suggest rejected');
     state = reduceAll(state, add.events);
     const cleared = ChessModule.handle(
       state,
-      cmd(ClearChessPuzzleRecommendation({})),
+      cmd(ClearPuzzleRecommendation({})),
       GUEST
     );
     expect(cleared.ok).toBe(true);
     if (!cleared.ok) return;
     state = reduceAll(state, cleared.events);
-    expect(ChessPuzzlePlayAttr.recommendations.from(state)).toEqual({});
+    expect(PuzzlePlayAttr.recommendations.from(state)).toEqual({});
   });
 
   test('the cap evicts the oldest suggester', () => {
     let state = startValid(ChessModule.initialState());
-    for (let i = 0; i < CHESS_PUZZLE_MAX_RECOMMENDATIONS + 1; i += 1) {
+    for (let i = 0; i < PUZZLE_MAX_RECOMMENDATIONS + 1; i += 1) {
       const res = ChessModule.handle(
         state,
-        cmd(RecommendChessPuzzleMove({ from: 'e1', to: 'f2' })),
+        cmd(RecommendPuzzleMove({ from: 'e1', to: 'f2' })),
         `guest-${i}`
       );
       if (!res.ok) throw new Error('suggest rejected');
       state = reduceAll(state, res.events);
     }
-    const map = ChessPuzzlePlayAttr.recommendations.from(state);
-    expect(Object.keys(map)).toHaveLength(CHESS_PUZZLE_MAX_RECOMMENDATIONS);
+    const map = PuzzlePlayAttr.recommendations.from(state);
+    expect(Object.keys(map)).toHaveLength(PUZZLE_MAX_RECOMMENDATIONS);
     expect(map['guest-0']).toBeUndefined();
   });
 
@@ -957,7 +869,7 @@ describe('chess puzzle play FSM — spectator recommendations', () => {
     let state = startValid(ChessModule.initialState());
     const add = ChessModule.handle(
       state,
-      cmd(RecommendChessPuzzleMove({ from: 'e1', to: 'f2' })),
+      cmd(RecommendPuzzleMove({ from: 'e1', to: 'f2' })),
       GUEST
     );
     if (!add.ok) throw new Error('suggest rejected');
@@ -965,11 +877,11 @@ describe('chess puzzle play FSM — spectator recommendations', () => {
 
     const move = ChessModule.handle(
       state,
-      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      cmd(SubmitPuzzleMove({ uci: 'e1f2' })),
       HOST
     );
     if (!move.ok) throw new Error('move rejected');
     state = reduceAll(state, move.events);
-    expect(ChessPuzzlePlayAttr.recommendations.from(state)).toEqual({});
+    expect(PuzzlePlayAttr.recommendations.from(state)).toEqual({});
   });
 });

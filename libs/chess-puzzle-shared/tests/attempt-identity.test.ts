@@ -1,11 +1,11 @@
 import { expect, test } from 'bun:test';
 import { createChessModule } from '@libs/chess-puzzle-shared/chess-module';
 import {
-  ClearChessPuzzlePlay,
-  ResetChessPuzzlePlay,
-  StartChessPuzzlePlay,
-} from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
-import { ChessPuzzleResultAttr } from '@libs/chess-puzzle-shared/chess-puzzle-result';
+  ClearPuzzlePlay,
+  ResetPuzzlePlay,
+  StartPuzzlePlay,
+} from '@libs/game-puzzle-shared/play-messages';
+import { PuzzleResultAttr } from '@libs/game-puzzle-shared/play-result';
 import type {
   RoomCommandPayload,
   RoomState,
@@ -32,16 +32,16 @@ function apply(
 
 test('distinct starts at the same clock time retain distinct attempt identities', () => {
   // regression: puzzle-attempt-clock-identity-collision
-  const start = StartChessPuzzlePlay({
+  const start = StartPuzzlePlay({
     puzzleId: 'same-puzzle',
     fen: '4k3/8/8/8/8/8/4P3/4K2R b - - 0 1',
     moves: 'e8d7 e1f2 d7e6 f2e3',
   });
   const first = apply(ChessModule.initialState(), 'first-start', start);
-  const retried = apply(first, 'retry', ResetChessPuzzlePlay({}));
-  const cleared = apply(retried, 'clear', ClearChessPuzzlePlay({}));
+  const retried = apply(first, 'retry', ResetPuzzlePlay({}));
+  const cleared = apply(retried, 'clear', ClearPuzzlePlay({}));
   const second = apply(cleared, 'second-start', start);
-  expect(ChessPuzzleResultAttr.attempt.from(first)).toBe('first-start');
-  expect(ChessPuzzleResultAttr.attempt.from(retried)).toBe('first-start');
-  expect(ChessPuzzleResultAttr.attempt.from(second)).toBe('second-start');
+  expect(PuzzleResultAttr.attempt.from(first)).toBe('first-start');
+  expect(PuzzleResultAttr.attempt.from(retried)).toBe('first-start');
+  expect(PuzzleResultAttr.attempt.from(second)).toBe('second-start');
 });

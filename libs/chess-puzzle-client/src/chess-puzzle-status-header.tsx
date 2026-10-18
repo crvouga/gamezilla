@@ -1,4 +1,4 @@
-import type { ChessPuzzleStatusKind } from '@libs/chess-puzzle-shared/status-kind';
+import type { PuzzleStatusKind } from '@libs/game-puzzle-shared/status-kind';
 import { Trans } from '@lingui/solid/macro';
 import { SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT } from '@pkgs/ui-root-client/speech-bubble';
 import type { JSX } from 'solid-js';
@@ -9,7 +9,7 @@ const HEADER_ROW_HEIGHT = SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT;
 
 export { HEADER_ROW_HEIGHT };
 
-function statusLabel(kind: ChessPuzzleStatusKind): JSX.Element | null {
+function statusLabel(kind: PuzzleStatusKind): JSX.Element | null {
   switch (kind) {
     case 'loading':
       return <Trans>Loading puzzle…</Trans>;
@@ -44,7 +44,7 @@ function yourTurnLabel(side: 'white' | 'black'): JSX.Element {
 }
 
 export type ChessPuzzleStatusHeaderProps = {
-  kind: ChessPuzzleStatusKind;
+  kind: PuzzleStatusKind;
   /** The solver's side: the `started` label becomes the §5 "your turn" prompt. */
   sideToMove?: 'white' | 'black' | null;
   /** Right-aligned slot, e.g. the puzzle clock. */

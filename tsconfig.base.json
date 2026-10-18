@@ -53,6 +53,7 @@
       "@libs/billing-shared/*": ["./libs/billing-shared/src/*"],
       "@libs/chess-root-client/*": ["./libs/chess-root-client/src/*"],
       "@libs/game-session-client/*": ["./libs/game-session-client/src/*"],
+      "@libs/game-puzzle-shared/*": ["./libs/game-puzzle-shared/src/*"],
       "@libs/game-session-shared/*": ["./libs/game-session-shared/src/*"],
       "@libs/chess-sub-shared/*": ["./libs/chess-sub-shared/src/*"],
       "@libs/chess-root-harness/*": ["./libs/chess-root-harness/src/*"],

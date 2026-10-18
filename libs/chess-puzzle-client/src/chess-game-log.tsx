@@ -1,12 +1,12 @@
-import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
+import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared/stats';
 import { Trans } from '@lingui/solid/macro';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import { For, type JSX, Show } from 'solid-js';
 import { ChessGameLogRow } from './chess-game-log-row';
 
 export type ChessGameLogProps = {
-  entries: readonly ChessPuzzleGameLogEntry[];
-  onSelectEntry: (entry: ChessPuzzleGameLogEntry) => void;
+  entries: readonly PuzzleGameLogEntry[];
+  onSelectEntry: (entry: PuzzleGameLogEntry) => void;
 };
 
 /** Every puzzle the player has played, newest first, as one panel of rows. */

@@ -226,6 +226,7 @@
     "libs/chess-root-client/src",
     "libs/chess-puzzle-client/src",
     "libs/chess-puzzle-shared/src",
+    "libs/game-puzzle-shared/src",
     "libs/chess-shared-client/src",
     "libs/chess-root-shared/src",
     "libs/chess-sub-shared/src",

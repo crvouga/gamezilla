@@ -1,6 +1,6 @@
-import { puzzleAutoAdvanceDelayMs } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { puzzleAutoAdvanceDelayMs } from '@libs/game-puzzle-shared/feed-config';
+import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
+import { PUZZLE_PLAY_STATUS } from '@libs/game-puzzle-shared/play-attr';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { type Accessor, createEffect, onCleanup } from 'solid-js';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
@@ -11,13 +11,13 @@ import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
  * (injected timers). Off by default; failures never auto-advance.
  */
 export function usePuzzleAutoAdvance(args: {
-  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  status: Accessor<PuzzlePlayStatus | 'loading'>;
   canDrive: Accessor<boolean>;
   onNext: () => void;
 }): void {
   const timers = useTimers();
   const [config] = useChessPuzzleFeedConfig();
-  const prevRef: { current: ChessPuzzlePlayStatus | 'loading' | null } = {
+  const prevRef: { current: PuzzlePlayStatus | 'loading' | null } = {
     current: null,
   };
   let pending: ReturnType<typeof timers.setTimeout> | null = null;
@@ -32,11 +32,11 @@ export function usePuzzleAutoAdvance(args: {
     const status = args.status();
     const prev = prevRef.current;
     prevRef.current = status;
-    if (status !== CHESS_PUZZLE_PLAY_STATUS.solved) {
+    if (status !== PUZZLE_PLAY_STATUS.solved) {
       cancel();
       return;
     }
-    if (prev !== CHESS_PUZZLE_PLAY_STATUS.solving || !args.canDrive()) return;
+    if (prev !== PUZZLE_PLAY_STATUS.solving || !args.canDrive()) return;
     const delayMs = puzzleAutoAdvanceDelayMs(config().autoAdvance);
     if (delayMs === null) return;
     cancel();

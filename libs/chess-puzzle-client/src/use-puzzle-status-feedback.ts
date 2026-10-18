@@ -1,6 +1,6 @@
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
 
-import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { PUZZLE_PLAY_STATUS } from '@libs/game-puzzle-shared/play-attr';
 import { type Accessor, createEffect } from 'solid-js';
 
 type PuzzleFeedback = {
@@ -10,10 +10,10 @@ type PuzzleFeedback = {
 
 export function usePuzzleStatusFeedback(args: {
   puzzleId: Accessor<string>;
-  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  status: Accessor<PuzzlePlayStatus | 'loading'>;
   feedback: PuzzleFeedback;
 }): void {
-  const prevStatusRef: { current: ChessPuzzlePlayStatus | 'loading' | null } = {
+  const prevStatusRef: { current: PuzzlePlayStatus | 'loading' | null } = {
     current: null,
   };
 
@@ -26,11 +26,11 @@ export function usePuzzleStatusFeedback(args: {
     const prev = prevStatusRef.current;
     const status = args.status();
     prevStatusRef.current = status;
-    if (prev !== CHESS_PUZZLE_PLAY_STATUS.solving) return;
-    if (status === CHESS_PUZZLE_PLAY_STATUS.wrong) {
+    if (prev !== PUZZLE_PLAY_STATUS.solving) return;
+    if (status === PUZZLE_PLAY_STATUS.wrong) {
       args.feedback.onWrongMove();
     }
-    if (status === CHESS_PUZZLE_PLAY_STATUS.solved) {
+    if (status === PUZZLE_PLAY_STATUS.solved) {
       args.feedback.onSolved();
     }
   });

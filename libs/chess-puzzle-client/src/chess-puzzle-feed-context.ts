@@ -1,12 +1,10 @@
-import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import type { PuzzleFeedConfig } from '@libs/game-puzzle-shared/feed-config';
 import { defineContext } from '@pkgs/solid-context-client/define-context';
 import type { Accessor } from 'solid-js';
 
 /** Replace the feed config, or patch it from the current one. */
 export type ChessPuzzleFeedConfigSetter = (
-  next:
-    | ChessPuzzleFeedConfig
-    | ((prev: ChessPuzzleFeedConfig) => ChessPuzzleFeedConfig)
+  next: PuzzleFeedConfig | ((prev: PuzzleFeedConfig) => PuzzleFeedConfig)
 ) => void;
 
 /**
@@ -16,7 +14,7 @@ export type ChessPuzzleFeedConfigSetter = (
  * previews a separate draft until the person saves it.
  */
 export type ChessPuzzleFeedState = {
-  readonly config: Accessor<ChessPuzzleFeedConfig>;
+  readonly config: Accessor<PuzzleFeedConfig>;
   readonly setConfig: ChessPuzzleFeedConfigSetter;
   /**
    * True once the pool subscription for the current rating bands finished

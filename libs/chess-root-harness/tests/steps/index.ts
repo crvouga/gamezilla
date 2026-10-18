@@ -95,7 +95,7 @@ import { seedPuzzleRating } from '@libs/chess-puzzle-harness/chess-rating-data';
 import {
   PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
   PUZZLE_RATING_RD_MIN,
-} from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+} from '@libs/game-puzzle-shared/rating';
 import type { Actor } from '@libs/harness/parameter-types';
 import { remember } from '@libs/harness/spec-world';
 

@@ -1,12 +1,12 @@
-import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { SubmitChessPuzzleMove } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import {
   countMoveTokens,
   nextSolutionUci,
   projectBoardFen,
   projectSolveStatus,
 } from '@libs/chess-puzzle-shared/solve-projection';
-import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
+import { PuzzlePlayAttr } from '@libs/game-puzzle-shared/play-attr';
+import { SubmitPuzzleMove } from '@libs/game-puzzle-shared/play-messages';
+import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -17,30 +17,22 @@ import { type Accessor, createMemo } from 'solid-js';
 import { usePuzzleOpponentMoveStage } from './use-puzzle-opponent-move-stage';
 
 function useChessPuzzlePlayRoomSelectors() {
-  const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
-  const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
-  const startFen = useSpaceRoomSelector(ChessPuzzlePlayAttr.fen.from);
-  const displayFen = useSpaceRoomSelector(ChessPuzzlePlayAttr.displayFen.from);
-  const layoutKey = useSpaceRoomSelector(ChessPuzzlePlayAttr.layoutKey.from);
-  const orientation = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.orientation.from
-  );
-  const solveIdx = useSpaceRoomSelector(ChessPuzzlePlayAttr.solveIdx.from);
+  const roomStatus = useSpaceRoomSelector(PuzzlePlayAttr.status.from);
+  const roomPuzzleId = useSpaceRoomSelector(PuzzlePlayAttr.puzzleId.from);
+  const startFen = useSpaceRoomSelector(PuzzlePlayAttr.position.from);
+  const displayFen = useSpaceRoomSelector(PuzzlePlayAttr.displayPosition.from);
+  const layoutKey = useSpaceRoomSelector(PuzzlePlayAttr.layoutKey.from);
+  const orientation = useSpaceRoomSelector(PuzzlePlayAttr.solverSide.from);
+  const solveIdx = useSpaceRoomSelector(PuzzlePlayAttr.solveIdx.from);
   const furthestSolveIdx = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.furthestSolveIdx.from
+    PuzzlePlayAttr.furthestSolveIdx.from
   );
-  const roomMoves = useSpaceRoomSelector(ChessPuzzlePlayAttr.moves.from);
-  const wrongToSquare = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.wrongToSquare.from
-  );
-  const expectedFromSquare = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.expectedFromSquare.from
-  );
-  const expectedToSquare = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.expectedToSquare.from
-  );
+  const roomMoves = useSpaceRoomSelector(PuzzlePlayAttr.line.from);
+  const wrongToSquare = useSpaceRoomSelector(PuzzlePlayAttr.wrongMark.from);
+  const expectedFromSquare = useSpaceRoomSelector(PuzzlePlayAttr.hintFrom.from);
+  const expectedToSquare = useSpaceRoomSelector(PuzzlePlayAttr.hintTo.from);
   const solutionRevealedRaw = useSpaceRoomSelector(
-    ChessPuzzlePlayAttr.solutionRevealed.from
+    PuzzlePlayAttr.solutionRevealed.from
   );
   return {
     roomStatus,
@@ -52,7 +44,7 @@ function useChessPuzzlePlayRoomSelectors() {
     solveIdx,
     furthestSolveIdx,
     roomMoves,
-    wrongUci: useSpaceRoomSelector(ChessPuzzlePlayAttr.wrongUci.from),
+    wrongUci: useSpaceRoomSelector(PuzzlePlayAttr.wrongAction.from),
     wrongToSquare,
     expectedFromSquare,
     expectedToSquare,
@@ -83,7 +75,7 @@ export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
   const room = useChessPuzzlePlayRoomSelectors();
 
   const onMove = (m: Move): void => {
-    dispatch(SubmitChessPuzzleMove({ uci: formatUci(m) }));
+    dispatch(SubmitPuzzleMove({ uci: formatUci(m) }));
   };
 
   const status = createMemo<SolveStatus>(() =>

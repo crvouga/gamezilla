@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
+import type { PuzzleCompletion } from '@libs/game-puzzle-shared/completion';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';

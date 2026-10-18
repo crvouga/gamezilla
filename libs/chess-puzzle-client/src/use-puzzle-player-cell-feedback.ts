@@ -1,5 +1,5 @@
 import { deriveChessPuzzleCellFeedback } from '@libs/chess-puzzle-shared/cell-feedback';
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
 import type {
   CellHighlight,
   Square,
@@ -7,7 +7,7 @@ import type {
 import { type Accessor, createMemo } from 'solid-js';
 
 export function usePuzzlePlayerCellFeedback(args: {
-  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  status: Accessor<PuzzlePlayStatus | 'loading'>;
   wrongToSquare: Accessor<string | null>;
   expectedFromSquare: Accessor<string | null>;
 }): {

@@ -1,11 +1,11 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import type {
-  ChessPuzzleFeedConfig,
-  ChessPuzzleFeedHistoryFilter,
-} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { resolveEffectivePuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 import { formatChessPuzzleThemeLabel } from '@libs/chess-puzzle-shared/chess-puzzle-theme-label';
-import { derivePuzzleRatingChange } from '@libs/chess-puzzle-shared/rating-change';
+import type {
+  PuzzleFeedConfig,
+  PuzzleFeedHistoryFilter,
+} from '@libs/game-puzzle-shared/feed-config';
+import { resolveEffectivePuzzleRating } from '@libs/game-puzzle-shared/feed-config';
+import { derivePuzzleRatingChange } from '@libs/game-puzzle-shared/rating-change';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
@@ -31,7 +31,7 @@ export type ChessPuzzleFeedBarProps = {
   onOpenFeedSettings: () => void;
 };
 
-function historyFilterLabel(filter: ChessPuzzleFeedHistoryFilter): string {
+function historyFilterLabel(filter: PuzzleFeedHistoryFilter): string {
   switch (filter) {
     case 'any':
       return t`Any`;
@@ -55,10 +55,7 @@ function themesSummary(themes: readonly string[]): string {
   return t`${themes.length} themes`;
 }
 
-function feedAccessibleLabel(
-  config: ChessPuzzleFeedConfig,
-  rating: number
-): string {
+function feedAccessibleLabel(config: PuzzleFeedConfig, rating: number): string {
   const mode = config.mode === 'auto' ? t`Automatic` : t`Custom`;
   const history = historyFilterLabel(config.historyFilter);
   const themes = themesSummary(config.themes);
@@ -157,7 +154,7 @@ function FeedBarPuzzleFacts(props: {
  * appearing cannot move them or the board below.
  */
 function FeedBarFilters(props: {
-  config: ChessPuzzleFeedConfig;
+  config: PuzzleFeedConfig;
   effectiveRating: number;
   matched: number;
   total: number;

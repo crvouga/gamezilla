@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-
 import {
-  DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
-  readChessPuzzleFeedConfig,
-} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import {
+  chessMoveNotationOf,
   DEFAULT_CHESS_MOVE_NOTATION,
   formatSanNotation,
   isChessMoveNotation,
 } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
+import {
+  DEFAULT_PUZZLE_FEED_CONFIG,
+  readPuzzleFeedConfig,
+} from '@libs/game-puzzle-shared/feed-config';
 
 describe('§7 figurine notation', () => {
   test('SAN is the default and passes strings through untouched', () => {
@@ -52,11 +52,11 @@ describe('§7 figurine notation', () => {
 
 describe('notation in the puzzle prefs row', () => {
   test('defaults to SAN letters', () => {
-    expect(DEFAULT_CHESS_PUZZLE_FEED_CONFIG.notation).toBe('san');
+    expect(DEFAULT_PUZZLE_FEED_CONFIG.notation).toBe('san');
   });
 
   test('a legacy row without the field still decodes', () => {
-    const decoded = readChessPuzzleFeedConfig({
+    const decoded = readPuzzleFeedConfig({
       mode: 'auto',
       customRating: 1500,
     });
@@ -64,18 +64,26 @@ describe('notation in the puzzle prefs row', () => {
   });
 
   test('a stored figurine preference round-trips', () => {
-    const decoded = readChessPuzzleFeedConfig({
-      ...DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
+    const decoded = readPuzzleFeedConfig({
+      ...DEFAULT_PUZZLE_FEED_CONFIG,
       notation: 'figurine',
     });
     expect(decoded?.notation).toBe('figurine');
   });
 
   test('an unusable notation falls back rather than voiding the row', () => {
-    const decoded = readChessPuzzleFeedConfig({
-      ...DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
+    const decoded = readPuzzleFeedConfig({
+      ...DEFAULT_PUZZLE_FEED_CONFIG,
       notation: 'hieroglyphs',
     });
-    expect(decoded?.notation).toBe('san');
+    // The row still decodes; chess draws a notation it does not know as SAN.
+    expect(decoded).toBeDefined();
+    expect(chessMoveNotationOf(decoded?.notation ?? '')).toBe('san');
+    expect(
+      readPuzzleFeedConfig({
+        ...DEFAULT_PUZZLE_FEED_CONFIG,
+        notation: 'not a key',
+      })?.notation
+    ).toBe('san');
   });
 });

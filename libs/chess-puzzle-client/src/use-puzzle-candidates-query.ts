@@ -1,13 +1,13 @@
-import type { ChessPuzzleFeedHistoryFilter } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import type { PuzzleFeedHistoryFilter } from '@libs/game-puzzle-shared/feed-config';
 import type {
   PuzzleCandidateRow,
   PuzzleExhaustedCandidateRow,
-} from '@libs/chess-puzzle-shared/next-puzzle-selection';
+} from '@libs/game-puzzle-shared/next-puzzle-selection';
 
 import {
   buildExhaustedPuzzleCandidatesSql,
   buildPuzzleCandidatesSql,
-} from '@libs/chess-puzzle-shared/next-puzzle-selection';
+} from '@libs/game-puzzle-shared/next-puzzle-selection';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import type { Accessor } from 'solid-js';
 
@@ -15,7 +15,7 @@ export type PuzzleCandidatesQueryArgs = {
   readonly rating: Accessor<number>;
   readonly ownerId: Accessor<string>;
   readonly currentPuzzleId: Accessor<string | null>;
-  readonly historyFilter: Accessor<ChessPuzzleFeedHistoryFilter>;
+  readonly historyFilter: Accessor<PuzzleFeedHistoryFilter>;
   readonly themes: Accessor<readonly string[]>;
   /** §9 half-window around the rating; null reads the whole catalog. */
   readonly halfWindow: Accessor<number | null>;

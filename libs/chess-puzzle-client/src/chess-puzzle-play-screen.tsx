@@ -1,10 +1,10 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { PUZZLE_PIECE_MOVE_MS } from '@libs/chess-puzzle-shared/chess-puzzle-opponent-stage';
-import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
-import type { PuzzlePickState } from '@libs/chess-puzzle-shared/pick-state';
-import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
-import type { ChessPuzzleStatusKind } from '@libs/chess-puzzle-shared/status-kind';
 import { BOARD_THEME } from '@libs/chess-root-shared/board-theme';
+import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
+import type { PuzzlePickState } from '@libs/game-puzzle-shared/pick-state';
+import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
+import type { PuzzleStatusKind } from '@libs/game-puzzle-shared/status-kind';
 import { t } from '@lingui/core/macro';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
@@ -122,7 +122,7 @@ function PuzzlePlayerTestHints(props: {
   p: PuzzlePlayerChromeModel;
 }): JSX.Element {
   const p = props.p;
-  const statusKind = (): ChessPuzzleStatusKind => p.statusKind();
+  const statusKind = (): PuzzleStatusKind => p.statusKind();
   return (
     <ChessPuzzleTestHints
       orientation={p.orientation}
@@ -158,7 +158,7 @@ function PuzzlePlayerChrome(props: {
   const p = props.model;
   const myId = useMyId();
   const avatarSize = usePuzzleAvatarSize();
-  const statusKind = (): ChessPuzzleStatusKind => p.statusKind();
+  const statusKind = (): PuzzleStatusKind => p.statusKind();
   return (
     <PuzzlePlayLayout
       backToRoot={p.backToRoot}
@@ -262,7 +262,7 @@ function PuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
 type ShellPickState = Exclude<PuzzlePickState, 'ready'>;
 type ShellBoardPickState = Exclude<ShellPickState, 'loading'>;
 
-function shellHeaderKind(state: ShellPickState): ChessPuzzleStatusKind {
+function shellHeaderKind(state: ShellPickState): PuzzleStatusKind {
   return state;
 }
 

@@ -1,4 +1,4 @@
-import { PUZZLE_RATING_DEFAULT } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+import { PUZZLE_RATING_DEFAULT } from '@libs/game-puzzle-shared/rating';
 import type { ProductHarness } from '@libs/harness/harness';
 import { readStatsRatingHistory } from './chess-puzzle-ui';
 

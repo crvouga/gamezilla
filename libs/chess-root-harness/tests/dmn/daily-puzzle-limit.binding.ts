@@ -20,9 +20,9 @@
  */
 
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
-import { ratedStartKey } from '@libs/chess-puzzle-shared/rated-start-key';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+import { ratePuzzleAttemptMutation } from '@libs/game-puzzle-shared/rate-puzzle-attempt-mutation';
+import { ratedStartKey } from '@libs/game-puzzle-shared/rated-start-key';
 import { dailyPuzzleLimitClientLayer } from '@libs/permissions-harness/client-layers';
 import { dailyPuzzleLimitApplicationLayer } from '@libs/permissions-shared/application';
 import { PERMISSIONS_MUTATIONS } from '@libs/permissions-shared/mutations';

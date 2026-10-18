@@ -1,4 +1,4 @@
-import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
+import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared/stats';
 import { Trans } from '@lingui/solid/macro';
 import { CircleCheckIcon, XIcon } from '@pkgs/ui-root-client/icons';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
@@ -11,7 +11,7 @@ function formatSignedDelta(delta: number): string {
 }
 
 function GameLogOutcome(props: {
-  outcome: ChessPuzzleGameLogEntry['outcome'];
+  outcome: PuzzleGameLogEntry['outcome'];
 }): JSX.Element {
   return (
     <Switch fallback={<Trans>Abandoned</Trans>}>
@@ -26,7 +26,7 @@ function GameLogOutcome(props: {
 }
 
 /** The rating change the puzzle made, in the colour of its direction. */
-function GameLogChange(props: { entry: ChessPuzzleGameLogEntry }): JSX.Element {
+function GameLogChange(props: { entry: PuzzleGameLogEntry }): JSX.Element {
   return (
     <span
       class="text textLabel textNumeral shrink-0"
@@ -45,7 +45,7 @@ function GameLogChange(props: { entry: ChessPuzzleGameLogEntry }): JSX.Element {
 }
 
 export type ChessGameLogRowProps = {
-  entry: ChessPuzzleGameLogEntry;
+  entry: PuzzleGameLogEntry;
   onClick: () => void;
 };
 

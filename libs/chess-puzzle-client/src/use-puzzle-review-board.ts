@@ -2,16 +2,14 @@ import type { ChessPuzzleOrientation } from '@libs/chess-puzzle-shared/chess-puz
 import { setupPuzzleStart } from '@libs/chess-puzzle-shared/chess-puzzle-fsm';
 import type { PuzzleHistoryPly } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
 import { buildPuzzleMoveHistory } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
-import {
-  fenAtSolveIdx,
-  puzzleTokensLength,
-} from '@libs/chess-puzzle-shared/chess-puzzle-step';
-import type { PuzzleNavIntent } from '@libs/chess-puzzle-shared/puzzle-nav';
+import { fenAtSolveIdx } from '@libs/chess-puzzle-shared/chess-puzzle-step';
+import type { PuzzleNavIntent } from '@libs/game-puzzle-shared/puzzle-nav';
 import {
   isPuzzleSeekAnimated,
   PUZZLE_FIRST_SOLVE_IDX,
   resolvePuzzleNavTarget,
-} from '@libs/chess-puzzle-shared/puzzle-nav';
+} from '@libs/game-puzzle-shared/puzzle-nav';
+import { lineLength } from '@libs/game-puzzle-shared/step';
 import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 
@@ -41,7 +39,7 @@ export function usePuzzleReviewBoard(
   cursor: PuzzleReviewCursor
 ): PuzzleReviewBoardModel {
   const setup = createMemo(() => setupPuzzleStart(fen, moves));
-  const tokensLength = createMemo(() => puzzleTokensLength(moves));
+  const tokensLength = createMemo(() => lineLength(moves));
   // The board snaps unless the seek that produced this position was one ply.
   const [animated, setAnimated] = createSignal(false);
 

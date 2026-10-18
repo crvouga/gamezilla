@@ -1,8 +1,8 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import type {
-  ChessPuzzleInteractionKind,
-  ChessPuzzleOutcomeKind,
-} from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
+  PuzzleInteractionKind,
+  PuzzleOutcomeKind,
+} from '@libs/game-puzzle-shared/interaction-entities';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import type { Accessor } from 'solid-js';
@@ -22,11 +22,11 @@ export function useChessPuzzleInteractionWrites(args: {
   attemptKey: Accessor<string | null>;
 }): {
   appendInteraction: (
-    kind: ChessPuzzleInteractionKind,
+    kind: PuzzleInteractionKind,
     extra?: AppendExtra
   ) => Promise<void>;
   finalizePlay: (
-    terminalKind: ChessPuzzleOutcomeKind,
+    terminalKind: PuzzleOutcomeKind,
     scorePermille: 0 | 500 | 1000
   ) => Promise<void>;
 } {
@@ -36,7 +36,7 @@ export function useChessPuzzleInteractionWrites(args: {
   const interactionDb = new ChessPuzzleInteractionDb(mutationClient, createId);
 
   const appendInteraction = async (
-    kind: ChessPuzzleInteractionKind,
+    kind: PuzzleInteractionKind,
     extra?: AppendExtra
   ): Promise<void> => {
     if (myId().length === 0) return;
@@ -52,7 +52,7 @@ export function useChessPuzzleInteractionWrites(args: {
   };
 
   const finalizePlay = async (
-    terminalKind: ChessPuzzleOutcomeKind,
+    terminalKind: PuzzleOutcomeKind,
     scorePermille: 0 | 500 | 1000
   ): Promise<void> => {
     if (myId().length === 0) return;

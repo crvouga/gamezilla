@@ -1,12 +1,12 @@
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
 import { puzzleCommentary } from '@libs/chess-puzzle-shared/puzzle-commentary';
-import { chessPuzzleStatusKindFromState } from '@libs/chess-puzzle-shared/status-kind';
+import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
+import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
+import { puzzleStatusKindFromState } from '@libs/game-puzzle-shared/status-kind';
 import { type Accessor, createMemo } from 'solid-js';
 
 export function usePuzzlePlayerPresentation(args: {
   puzzleId: Accessor<string>;
-  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  status: Accessor<PuzzlePlayStatus | 'loading'>;
   solveIdx: Accessor<number>;
   layoutKey: Accessor<number>;
   displayFen: Accessor<string | null>;
@@ -29,7 +29,7 @@ export function usePuzzlePlayerPresentation(args: {
     })
   );
   const statusKind = createMemo(() =>
-    chessPuzzleStatusKindFromState({ status: args.status() })
+    puzzleStatusKindFromState({ status: args.status() })
   );
   return { assistant, statusKind };
 }

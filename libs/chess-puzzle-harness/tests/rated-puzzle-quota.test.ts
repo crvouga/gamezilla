@@ -14,9 +14,9 @@
 import { describe, expect, test } from 'bun:test';
 
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
-import { ratedStartKey } from '@libs/chess-puzzle-shared/rated-start-key';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+import { ratePuzzleAttemptMutation } from '@libs/game-puzzle-shared/rate-puzzle-attempt-mutation';
+import { ratedStartKey } from '@libs/game-puzzle-shared/rated-start-key';
 import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
 import { PERMISSIONS_MUTATIONS } from '@libs/permissions-shared/mutations';
 import { CASE_NOW_MS, DMN_INPUT } from '@libs/permissions-shared/people';

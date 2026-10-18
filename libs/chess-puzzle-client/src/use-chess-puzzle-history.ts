@@ -1,20 +1,20 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import type {
-  ChessPuzzleGameLogEntry,
-  ChessPuzzleStats,
-} from '@libs/chess-puzzle-shared/chess-puzzle-stats';
+  PuzzleGameLogEntry,
+  PuzzleStats,
+} from '@libs/game-puzzle-shared/stats';
 import {
-  deriveChessPuzzleGameLog,
-  deriveChessPuzzleStats,
-} from '@libs/chess-puzzle-shared/chess-puzzle-stats';
+  derivePuzzleGameLog,
+  derivePuzzleStats,
+} from '@libs/game-puzzle-shared/stats';
 import { type Accessor, createMemo } from 'solid-js';
 import { useChessPuzzleAllInteractions } from './chess-puzzle-play-queries';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 import { useChessPuzzleRatingEvents } from './use-chess-puzzle-rating-events';
 
 export function useChessPuzzleHistory(): {
-  stats: Accessor<ChessPuzzleStats>;
-  gameLog: Accessor<readonly ChessPuzzleGameLogEntry[]>;
+  stats: Accessor<PuzzleStats>;
+  gameLog: Accessor<readonly PuzzleGameLogEntry[]>;
   loading: Accessor<boolean>;
 } {
   const myId = useMyId();
@@ -23,7 +23,7 @@ export function useChessPuzzleHistory(): {
   const { profileRating, profileRd } = useChessPuzzleProfileRatings(myId);
 
   const stats = createMemo(() =>
-    deriveChessPuzzleStats({
+    derivePuzzleStats({
       profileRating: profileRating(),
       profileRatingDeviation: profileRd(),
       ratingEvents: ratingEvents(),
@@ -31,7 +31,7 @@ export function useChessPuzzleHistory(): {
     })
   );
   const gameLog = createMemo(() =>
-    deriveChessPuzzleGameLog(ratingEvents(), interactions())
+    derivePuzzleGameLog(ratingEvents(), interactions())
   );
 
   return {

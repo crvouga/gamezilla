@@ -20,8 +20,8 @@
   },
   "dependencies": {
     "@libs/chess-puzzle-shared": "workspace:*",
-    "@libs/chess-root-shared": "workspace:*",
     "@libs/db-shared": "workspace:*",
+    "@libs/game-puzzle-shared": "workspace:*",
     "@libs/infra-shared": "workspace:*",
     "@libs/pubsub-server": "workspace:*",
     "@libs/secrets-server": "workspace:*",

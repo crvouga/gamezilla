@@ -1,3 +1,38 @@
+import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
+import {
+  PUZZLE_PLAY_STATUS,
+  PuzzlePlayAttr,
+} from '@libs/game-puzzle-shared/play-attr';
+import {
+  ClearPuzzlePlay,
+  ClearPuzzleRecommendation,
+  PuzzleHostReclaimed,
+  PuzzlePlayCleared,
+  PuzzlePlayMoveAccepted,
+  PuzzlePlayMoveRejected,
+  PuzzlePlayResetEvt,
+  PuzzlePlayStarted,
+  PuzzlePlayStepped,
+  puzzlePlayCmdNs,
+  ReclaimPuzzlePlay,
+  RecommendPuzzleMove,
+  RequestPuzzleHint,
+  ResetPuzzlePlay,
+  RevealPuzzleSolution,
+  SeekPuzzlePlay,
+  ShowPuzzleSolution,
+  SkipPuzzlePlay,
+  StartPuzzlePlay,
+  StepBackPuzzlePlay,
+  StepForwardPuzzlePlay,
+  SubmitPuzzleMove,
+} from '@libs/game-puzzle-shared/play-messages';
+import {
+  lineLength,
+  nextForwardSolveIdx,
+  prevSolveIdx,
+  resolveSeekSolveIdx,
+} from '@libs/game-puzzle-shared/step';
 import type { GameCommandContext } from '@libs/spaces-shared/game';
 import { applyUci } from '@pkgs/chess-rules-shared/moves';
 import { createMessageRouter } from '@pkgs/message-shared/router';
@@ -7,43 +42,13 @@ import type {
   RoomState,
 } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
-
 import { setupPuzzleStart, tokenize, uciToSquares } from './chess-puzzle-fsm';
 import type { PuzzleMoveAccepted } from './chess-puzzle-move-judge';
 import { judgePuzzleMove } from './chess-puzzle-move-judge';
-import type { ChessPuzzlePlayStatus } from './chess-puzzle-play-attr';
-import {
-  CHESS_PUZZLE_PLAY_STATUS,
-  ChessPuzzlePlayAttr,
-} from './chess-puzzle-play-attr';
 import {
   handleRequestHint,
   handleRevealSolution,
 } from './chess-puzzle-play-hint-handlers';
-import {
-  ChessPuzzleHostReclaimed,
-  ChessPuzzlePlayCleared,
-  ChessPuzzlePlayMoveAccepted,
-  ChessPuzzlePlayMoveRejected,
-  ChessPuzzlePlayResetEvt,
-  ChessPuzzlePlayStarted,
-  ChessPuzzlePlayStepped,
-  ClearChessPuzzlePlay,
-  ClearChessPuzzleRecommendation,
-  chessPuzzlePlayCmdNs,
-  ReclaimChessPuzzlePlay,
-  RecommendChessPuzzleMove,
-  RequestChessPuzzleHint,
-  ResetChessPuzzlePlay,
-  RevealChessPuzzleSolution,
-  SeekChessPuzzlePlay,
-  ShowChessPuzzleSolution,
-  SkipChessPuzzlePlay,
-  StartChessPuzzlePlay,
-  StepBackChessPuzzlePlay,
-  StepForwardChessPuzzlePlay,
-  SubmitChessPuzzleMove,
-} from './chess-puzzle-play-messages';
 import {
   handleClearRecommendation,
   handleRecommend,
@@ -52,13 +57,7 @@ import {
   handleShowSolution,
   handleSkip,
 } from './chess-puzzle-play-terminal-handlers';
-import {
-  fenAtSolveIdx,
-  nextForwardSolveIdx,
-  prevSolveIdx,
-  puzzleTokensLength,
-  resolveSeekSolveIdx,
-} from './chess-puzzle-step';
+import { fenAtSolveIdx } from './chess-puzzle-step';
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
@@ -77,7 +76,7 @@ function internal(reason: string): HandleResult {
 }
 
 function isHostOf(state: RoomState, identity: string): boolean {
-  const host = ChessPuzzlePlayAttr.hostIdentity.from(state);
+  const host = PuzzlePlayAttr.hostIdentity.from(state);
   return host !== null && host === identity;
 }
 
@@ -92,7 +91,7 @@ function acceptedMovePayload(args: {
       san: string;
       displayFen: string;
       solveIdx: number;
-      status: ChessPuzzlePlayStatus;
+      status: PuzzlePlayStatus;
       endedAtMs: number | null;
       moves: string;
     }
@@ -110,7 +109,7 @@ function acceptedMovePayload(args: {
       ...base,
       displayFen: accepted.fen,
       solveIdx: replyIdx,
-      status: CHESS_PUZZLE_PLAY_STATUS.solved,
+      status: PUZZLE_PLAY_STATUS.solved,
       endedAtMs: ts,
     };
   }
@@ -126,9 +125,7 @@ function acceptedMovePayload(args: {
     ...base,
     displayFen: replied.fen,
     solveIdx,
-    status: solved
-      ? CHESS_PUZZLE_PLAY_STATUS.solved
-      : CHESS_PUZZLE_PLAY_STATUS.solving,
+    status: solved ? PUZZLE_PLAY_STATUS.solved : PUZZLE_PLAY_STATUS.solving,
     endedAtMs: solved ? ts : null,
   };
 }
@@ -141,16 +138,16 @@ function handleSubmitMove(
   if (!isHostOf(state, ctx.identity)) {
     return unauthorized('only the puzzle host may submit moves');
   }
-  const status = ChessPuzzlePlayAttr.status.from(state);
-  if (status !== CHESS_PUZZLE_PLAY_STATUS.solving) {
+  const status = PuzzlePlayAttr.status.from(state);
+  if (status !== PUZZLE_PLAY_STATUS.solving) {
     return conflict(`cannot submit move while status is ${status}`);
   }
-  const tokens = tokenize(ChessPuzzlePlayAttr.moves.from(state));
-  const idx = ChessPuzzlePlayAttr.solveIdx.from(state);
-  if (idx !== ChessPuzzlePlayAttr.furthestSolveIdx.from(state)) {
+  const tokens = tokenize(PuzzlePlayAttr.line.from(state));
+  const idx = PuzzlePlayAttr.solveIdx.from(state);
+  if (idx !== PuzzlePlayAttr.furthestSolveIdx.from(state)) {
     return conflict('return to the current position before submitting a move');
   }
-  const fen = ChessPuzzlePlayAttr.displayFen.from(state);
+  const fen = PuzzlePlayAttr.displayPosition.from(state);
   if (tokens[idx] === undefined) {
     return internal('no expected move at current solve index');
   }
@@ -169,7 +166,7 @@ function handleSubmitMove(
   if ('error' in applied) return applied.error;
   return {
     ok: true,
-    events: [ChessPuzzlePlayMoveAccepted(applied)],
+    events: [PuzzlePlayMoveAccepted(applied)],
   };
 }
 
@@ -193,10 +190,10 @@ function handleWrongMove(
   return {
     ok: true,
     events: [
-      ChessPuzzlePlayMoveRejected({
+      PuzzlePlayMoveRejected({
         uci,
         san,
-        layoutKey: ChessPuzzlePlayAttr.layoutKey.from(state) + 1,
+        layoutKey: PuzzlePlayAttr.layoutKey.from(state) + 1,
         wrongToSquare: squares.to,
       }),
     ],
@@ -208,7 +205,7 @@ function handleStart(
   ctx: GameCommandContext,
   payload: { puzzleId: string; fen: string; moves: string }
 ): HandleResult {
-  if (ChessPuzzlePlayAttr.hostIdentity.from(state) !== null) {
+  if (PuzzlePlayAttr.hostIdentity.from(state) !== null) {
     return conflict('puzzle play already started; clear first');
   }
   const { puzzleId, fen, moves } = payload;
@@ -217,14 +214,14 @@ function handleStart(
     return {
       ok: true,
       events: [
-        ChessPuzzlePlayStarted({
+        PuzzlePlayStarted({
           puzzleId,
           fen,
           moves,
           hostIdentity: ctx.identity,
           displayFen: null,
           orientation: 'white',
-          status: CHESS_PUZZLE_PLAY_STATUS.invalid,
+          status: PUZZLE_PLAY_STATUS.invalid,
           solveIdx: 0,
           startedAtMs: ctx.ts,
           attemptId: ctx.commandId,
@@ -235,7 +232,7 @@ function handleStart(
   return {
     ok: true,
     events: [
-      ChessPuzzlePlayStarted({
+      PuzzlePlayStarted({
         puzzleId,
         fen,
         moves,
@@ -255,41 +252,41 @@ function handleReset(state: RoomState, identity: string): HandleResult {
   if (!isHostOf(state, identity)) {
     return unauthorized('only the puzzle host may reset');
   }
-  const status = ChessPuzzlePlayAttr.status.from(state);
-  if (status === CHESS_PUZZLE_PLAY_STATUS.idle) {
+  const status = PuzzlePlayAttr.status.from(state);
+  if (status === PUZZLE_PLAY_STATUS.idle) {
     return conflict('no puzzle in play to reset');
   }
-  const layoutKey = ChessPuzzlePlayAttr.layoutKey.from(state) + 1;
+  const layoutKey = PuzzlePlayAttr.layoutKey.from(state) + 1;
 
   // Wrong-move retry: the wrong move was never applied, so keep the position
   // and `solveIdx`; the player picks back up at the same expected move.
-  if (status === CHESS_PUZZLE_PLAY_STATUS.wrong) {
+  if (status === PUZZLE_PLAY_STATUS.wrong) {
     return {
       ok: true,
       events: [
-        ChessPuzzlePlayResetEvt({
-          displayFen: ChessPuzzlePlayAttr.displayFen.from(state),
-          solveIdx: ChessPuzzlePlayAttr.solveIdx.from(state),
-          furthestSolveIdx: ChessPuzzlePlayAttr.furthestSolveIdx.from(state),
-          status: CHESS_PUZZLE_PLAY_STATUS.solving,
+        PuzzlePlayResetEvt({
+          displayFen: PuzzlePlayAttr.displayPosition.from(state),
+          solveIdx: PuzzlePlayAttr.solveIdx.from(state),
+          furthestSolveIdx: PuzzlePlayAttr.furthestSolveIdx.from(state),
+          status: PUZZLE_PLAY_STATUS.solving,
           layoutKey,
         }),
       ],
     };
   }
 
-  const fen = ChessPuzzlePlayAttr.fen.from(state);
-  const moves = ChessPuzzlePlayAttr.moves.from(state);
+  const fen = PuzzlePlayAttr.position.from(state);
+  const moves = PuzzlePlayAttr.line.from(state);
   const setup = setupPuzzleStart(fen, moves);
   if (setup.kind === 'invalid') {
     return {
       ok: true,
       events: [
-        ChessPuzzlePlayResetEvt({
+        PuzzlePlayResetEvt({
           displayFen: null,
           solveIdx: 0,
           furthestSolveIdx: 0,
-          status: CHESS_PUZZLE_PLAY_STATUS.invalid,
+          status: PUZZLE_PLAY_STATUS.invalid,
           layoutKey,
         }),
       ],
@@ -298,7 +295,7 @@ function handleReset(state: RoomState, identity: string): HandleResult {
   return {
     ok: true,
     events: [
-      ChessPuzzlePlayResetEvt({
+      PuzzlePlayResetEvt({
         displayFen: setup.displayFen,
         solveIdx: 1,
         furthestSolveIdx: 1,
@@ -316,11 +313,11 @@ function assertCanSeekLine(
   if (!isHostOf(state, identity)) {
     return unauthorized('only the puzzle host may step the puzzle line');
   }
-  const status = ChessPuzzlePlayAttr.status.from(state);
+  const status = PuzzlePlayAttr.status.from(state);
   if (
-    status !== CHESS_PUZZLE_PLAY_STATUS.solving &&
-    status !== CHESS_PUZZLE_PLAY_STATUS.solved &&
-    status !== CHESS_PUZZLE_PLAY_STATUS.revealed
+    status !== PUZZLE_PLAY_STATUS.solving &&
+    status !== PUZZLE_PLAY_STATUS.solved &&
+    status !== PUZZLE_PLAY_STATUS.revealed
   ) {
     return conflict(`cannot step while status is ${status}`);
   }
@@ -328,8 +325,8 @@ function assertCanSeekLine(
 }
 
 function emitSeekToSolveIdx(state: RoomState, nextIdx: number): HandleResult {
-  const fen = ChessPuzzlePlayAttr.fen.from(state);
-  const moves = ChessPuzzlePlayAttr.moves.from(state);
+  const fen = PuzzlePlayAttr.position.from(state);
+  const moves = PuzzlePlayAttr.line.from(state);
   const displayFen = fenAtSolveIdx({ fen, moves, solveIdx: nextIdx });
   if (displayFen === null) {
     return internal('could not rebuild fen for stepped solve index');
@@ -337,12 +334,12 @@ function emitSeekToSolveIdx(state: RoomState, nextIdx: number): HandleResult {
   return {
     ok: true,
     events: [
-      ChessPuzzlePlayStepped({
+      PuzzlePlayStepped({
         displayFen,
         solveIdx: nextIdx,
         // Viewing an earlier position never reopens a finished puzzle.
-        status: ChessPuzzlePlayAttr.status.from(state),
-        layoutKey: ChessPuzzlePlayAttr.layoutKey.from(state) + 1,
+        status: PuzzlePlayAttr.status.from(state),
+        layoutKey: PuzzlePlayAttr.layoutKey.from(state) + 1,
       }),
     ],
   };
@@ -355,11 +352,9 @@ function handleStepSeek(
 ): HandleResult {
   const denied = assertCanSeekLine(state, identity);
   if (denied !== null) return denied;
-  const solveIdx = ChessPuzzlePlayAttr.solveIdx.from(state);
-  const furthest = ChessPuzzlePlayAttr.furthestSolveIdx.from(state);
-  const tokensLength = puzzleTokensLength(
-    ChessPuzzlePlayAttr.moves.from(state)
-  );
+  const solveIdx = PuzzlePlayAttr.solveIdx.from(state);
+  const furthest = PuzzlePlayAttr.furthestSolveIdx.from(state);
+  const tokensLength = lineLength(PuzzlePlayAttr.line.from(state));
   const nextIdx =
     direction === 'back'
       ? prevSolveIdx(solveIdx)
@@ -384,8 +379,8 @@ function handleSeek(
   const denied = assertCanSeekLine(state, identity);
   if (denied !== null) return denied;
   const nextIdx = resolveSeekSolveIdx({
-    solveIdx: ChessPuzzlePlayAttr.solveIdx.from(state),
-    furthestSolveIdx: ChessPuzzlePlayAttr.furthestSolveIdx.from(state),
+    solveIdx: PuzzlePlayAttr.solveIdx.from(state),
+    furthestSolveIdx: PuzzlePlayAttr.furthestSolveIdx.from(state),
     targetSolveIdx,
   });
   if (nextIdx === null) {
@@ -395,25 +390,25 @@ function handleSeek(
 }
 
 function handleClear(state: RoomState, identity: string): HandleResult {
-  const host = ChessPuzzlePlayAttr.hostIdentity.from(state);
+  const host = PuzzlePlayAttr.hostIdentity.from(state);
   if (host !== null && host !== identity) {
     return unauthorized('only the puzzle host may clear');
   }
-  return { ok: true, events: [ChessPuzzlePlayCleared({})] };
+  return { ok: true, events: [PuzzlePlayCleared({})] };
 }
 
 function handleReclaim(state: RoomState, identity: string): HandleResult {
-  const status = ChessPuzzlePlayAttr.status.from(state);
-  if (status === CHESS_PUZZLE_PLAY_STATUS.idle) {
+  const status = PuzzlePlayAttr.status.from(state);
+  if (status === PUZZLE_PLAY_STATUS.idle) {
     return conflict('no puzzle in play to reclaim');
   }
-  const host = ChessPuzzlePlayAttr.hostIdentity.from(state);
+  const host = PuzzlePlayAttr.hostIdentity.from(state);
   if (host === identity) {
     return conflict('caller is already the puzzle host');
   }
   return {
     ok: true,
-    events: [ChessPuzzleHostReclaimed({ hostIdentity: identity })],
+    events: [PuzzleHostReclaimed({ hostIdentity: identity })],
   };
 }
 
@@ -421,38 +416,32 @@ export const chessPuzzlePlayCommandRouter = createMessageRouter<
   RoomState,
   GameCommandContext,
   HandleResult
->(chessPuzzlePlayCmdNs)
-  .on(StartChessPuzzlePlay, (state, ctx, c) =>
-    handleStart(state, ctx, c.payload)
-  )
-  .on(SubmitChessPuzzleMove, (state, ctx, c) =>
+>(puzzlePlayCmdNs)
+  .on(StartPuzzlePlay, (state, ctx, c) => handleStart(state, ctx, c.payload))
+  .on(SubmitPuzzleMove, (state, ctx, c) =>
     handleSubmitMove(state, ctx, c.payload.uci)
   )
-  .on(ResetChessPuzzlePlay, (state, ctx) => handleReset(state, ctx.identity))
-  .on(StepBackChessPuzzlePlay, (state, ctx) =>
+  .on(ResetPuzzlePlay, (state, ctx) => handleReset(state, ctx.identity))
+  .on(StepBackPuzzlePlay, (state, ctx) =>
     handleStepSeek(state, ctx.identity, 'back')
   )
-  .on(StepForwardChessPuzzlePlay, (state, ctx) =>
+  .on(StepForwardPuzzlePlay, (state, ctx) =>
     handleStepSeek(state, ctx.identity, 'forward')
   )
-  .on(SeekChessPuzzlePlay, (state, ctx, c) =>
+  .on(SeekPuzzlePlay, (state, ctx, c) =>
     handleSeek(state, ctx.identity, c.payload.solveIdx)
   )
-  .on(ClearChessPuzzlePlay, (state, ctx) => handleClear(state, ctx.identity))
-  .on(RequestChessPuzzleHint, (state, ctx) =>
-    handleRequestHint(state, ctx.identity)
-  )
-  .on(RevealChessPuzzleSolution, (state, ctx) =>
+  .on(ClearPuzzlePlay, (state, ctx) => handleClear(state, ctx.identity))
+  .on(RequestPuzzleHint, (state, ctx) => handleRequestHint(state, ctx.identity))
+  .on(RevealPuzzleSolution, (state, ctx) =>
     handleRevealSolution(state, ctx.identity)
   )
-  .on(ReclaimChessPuzzlePlay, (state, ctx) =>
-    handleReclaim(state, ctx.identity)
-  )
-  .on(SkipChessPuzzlePlay, (state, ctx) => handleSkip(state, ctx))
-  .on(ShowChessPuzzleSolution, (state, ctx) => handleShowSolution(state, ctx))
-  .on(RecommendChessPuzzleMove, (state, ctx, c) =>
+  .on(ReclaimPuzzlePlay, (state, ctx) => handleReclaim(state, ctx.identity))
+  .on(SkipPuzzlePlay, (state, ctx) => handleSkip(state, ctx))
+  .on(ShowPuzzleSolution, (state, ctx) => handleShowSolution(state, ctx))
+  .on(RecommendPuzzleMove, (state, ctx, c) =>
     handleRecommend(state, ctx.identity, c.payload)
   )
-  .on(ClearChessPuzzleRecommendation, (state, ctx) =>
+  .on(ClearPuzzleRecommendation, (state, ctx) =>
     handleClearRecommendation(state, ctx.identity)
   );

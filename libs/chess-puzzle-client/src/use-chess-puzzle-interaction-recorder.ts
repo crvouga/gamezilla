@@ -1,10 +1,10 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { hasPendingPlay } from '@libs/chess-puzzle-shared/chess-puzzle-derive';
-import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
-import { CHESS_PUZZLE_INTERACTION_KIND } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
-import { syncInteractionForRoomStatus } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-status-sync';
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { hasPendingPlay } from '@libs/game-puzzle-shared/derive';
+import type { PuzzleInteractionRow } from '@libs/game-puzzle-shared/interaction-entities';
+import { PUZZLE_INTERACTION_KIND } from '@libs/game-puzzle-shared/interaction-entities';
+import { syncInteractionForRoomStatus } from '@libs/game-puzzle-shared/interaction-status-sync';
+import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
+import { PUZZLE_PLAY_STATUS } from '@libs/game-puzzle-shared/play-attr';
 import { useLogger } from '@pkgs/logger-client/solid';
 import { type Accessor, createEffect, untrack } from 'solid-js';
 import { useChessPuzzleInteractionWrites } from './use-chess-puzzle-interaction-writes';
@@ -13,9 +13,9 @@ export type InteractionRecorderArgs = {
   puzzleId: Accessor<string>;
   puzzleRating: Accessor<number>;
   puzzleRatingDeviation: Accessor<number>;
-  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  status: Accessor<PuzzlePlayStatus | 'loading'>;
   solveIdx: Accessor<number>;
-  interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
+  interactions: Accessor<readonly PuzzleInteractionRow[]>;
   /** The per-puzzle interaction read has landed (restore decisions wait for it). */
   interactionsReady: Accessor<boolean>;
   /**
@@ -46,7 +46,7 @@ function useRecordStarted(args: {
     if (!r.interactionsReady() || r.status() === 'loading') return;
     if (handledRef.current === key) return;
     handledRef.current = key;
-    if (r.status() !== CHESS_PUZZLE_PLAY_STATUS.solving) return;
+    if (r.status() !== PUZZLE_PLAY_STATUS.solving) return;
     if (hasPendingPlay(untrack(r.interactions), untrack(r.puzzleId))) return;
     args.append();
   });
@@ -81,7 +81,7 @@ export function useChessPuzzleInteractionRecorder(
     });
   };
 
-  const prevStatusRef: Ref<ChessPuzzlePlayStatus | 'loading' | null> = {
+  const prevStatusRef: Ref<PuzzlePlayStatus | 'loading' | null> = {
     current: null,
   };
   const prevSolveIdxRef: Ref<number | null> = { current: null };
@@ -102,8 +102,8 @@ export function useChessPuzzleInteractionRecorder(
     myId,
     attemptKey,
     append: () => {
-      appendInteraction(CHESS_PUZZLE_INTERACTION_KIND.started).catch(
-        reportWriteFailure(CHESS_PUZZLE_INTERACTION_KIND.started)
+      appendInteraction(PUZZLE_INTERACTION_KIND.started).catch(
+        reportWriteFailure(PUZZLE_INTERACTION_KIND.started)
       );
     },
   });
@@ -139,8 +139,8 @@ export function useChessPuzzleInteractionRecorder(
 
   const appendUsedHint = async (): Promise<void> => {
     if (!args.canRecord()) return;
-    await appendInteraction(CHESS_PUZZLE_INTERACTION_KIND.usedHint).catch(
-      reportWriteFailure(CHESS_PUZZLE_INTERACTION_KIND.usedHint)
+    await appendInteraction(PUZZLE_INTERACTION_KIND.usedHint).catch(
+      reportWriteFailure(PUZZLE_INTERACTION_KIND.usedHint)
     );
   };
 

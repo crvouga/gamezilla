@@ -1,6 +1,6 @@
 import type { PuzzleHistoryPly } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
 import type { ChessMoveNotation } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
-import { puzzleSwipeHandlers } from '@libs/chess-puzzle-shared/puzzle-swipe-handlers';
+import { puzzleSwipeHandlers } from '@libs/game-puzzle-shared/puzzle-swipe-handlers';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import { createEffect, createSignal, For, type JSX, Show } from 'solid-js';
 import type { ChessPuzzleMoveNavProps } from './chess-puzzle-move-history-nav';

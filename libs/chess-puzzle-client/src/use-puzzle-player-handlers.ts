@@ -1,16 +1,16 @@
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
+import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
+import { PUZZLE_PLAY_STATUS } from '@libs/game-puzzle-shared/play-attr';
 import {
-  ClearChessPuzzlePlay,
-  RequestChessPuzzleHint,
-  ResetChessPuzzlePlay,
-  RevealChessPuzzleSolution,
-  ShowChessPuzzleSolution,
-  SkipChessPuzzlePlay,
-  StepBackChessPuzzlePlay,
-  StepForwardChessPuzzlePlay,
-} from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
-import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
+  ClearPuzzlePlay,
+  RequestPuzzleHint,
+  ResetPuzzlePlay,
+  RevealPuzzleSolution,
+  ShowPuzzleSolution,
+  SkipPuzzlePlay,
+  StepBackPuzzlePlay,
+  StepForwardPuzzlePlay,
+} from '@libs/game-puzzle-shared/play-messages';
 import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
@@ -23,29 +23,28 @@ import type { Accessor } from 'solid-js';
  * only Skip forfeits it.
  */
 export function isUnfinishedPuzzleStatus(
-  status: ChessPuzzlePlayStatus | 'loading'
+  status: PuzzlePlayStatus | 'loading'
 ): boolean {
   return (
-    status === CHESS_PUZZLE_PLAY_STATUS.solving ||
-    status === CHESS_PUZZLE_PLAY_STATUS.wrong
+    status === PUZZLE_PLAY_STATUS.solving || status === PUZZLE_PLAY_STATUS.wrong
   );
 }
 
 /** Next is offered once the attempt is over (or the puzzle cannot be played). */
 export function isFinishedPuzzleStatus(
-  status: ChessPuzzlePlayStatus | 'loading'
+  status: PuzzlePlayStatus | 'loading'
 ): boolean {
   return (
-    status === CHESS_PUZZLE_PLAY_STATUS.solved ||
-    status === CHESS_PUZZLE_PLAY_STATUS.revealed ||
-    status === CHESS_PUZZLE_PLAY_STATUS.skipped ||
-    status === CHESS_PUZZLE_PLAY_STATUS.invalid
+    status === PUZZLE_PLAY_STATUS.solved ||
+    status === PUZZLE_PLAY_STATUS.revealed ||
+    status === PUZZLE_PLAY_STATUS.skipped ||
+    status === PUZZLE_PLAY_STATUS.invalid
   );
 }
 
 type HandlersArgs = {
   puzzleId: Accessor<string>;
-  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  status: Accessor<PuzzlePlayStatus | 'loading'>;
   hintStage: Accessor<HintStage>;
   onMoveRaw: (m: Move) => void;
   setLastUci: (uci: string) => void;
@@ -62,21 +61,21 @@ function useHintSolutionHandlers(args: {
   const onHint = (): void => {
     const hintStage = args.hintStage();
     if (hintStage === 'none') {
-      dispatch(RequestChessPuzzleHint({}));
+      dispatch(RequestPuzzleHint({}));
       void args.appendUsedHint();
       return;
     }
     if (hintStage === 'highlight') {
-      dispatch(RevealChessPuzzleSolution({}));
+      dispatch(RevealPuzzleSolution({}));
       return;
     }
     // Already arrowed: the last step of the same button is §6 "Show solution".
-    dispatch(ShowChessPuzzleSolution({}));
+    dispatch(ShowPuzzleSolution({}));
   };
 
   /** §6 "Show solution": the room plays the rest of the line out, then review. */
   const onSolution = (): void => {
-    dispatch(ShowChessPuzzleSolution({}));
+    dispatch(ShowPuzzleSolution({}));
   };
 
   return { onHint, onSolution };
@@ -108,19 +107,19 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
   /** An unfinished attempt stays pending in the room; a finished one is cleared. */
   const backToRoot = (): void => {
     if (!isUnfinishedPuzzleStatus(args.status())) {
-      dispatch(ClearChessPuzzlePlay({}));
+      dispatch(ClearPuzzlePlay({}));
     }
     gameScreen.showChoices();
   };
 
   const onRetry = (): void => {
-    dispatch(ResetChessPuzzlePlay({}));
+    dispatch(ResetPuzzlePlay({}));
   };
 
   /** Skip is a terminal forfeit; the recorder finalizes it from `skipped`. */
   const onSkip = (): void => {
     if (!isUnfinishedPuzzleStatus(args.status())) return;
-    dispatch(SkipChessPuzzlePlay({}));
+    dispatch(SkipPuzzlePlay({}));
   };
 
   /**
@@ -133,16 +132,16 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
     if (!isFinishedPuzzleStatus(args.status())) return;
     if (nextRequestedForRef.current === args.puzzleId()) return;
     nextRequestedForRef.current = args.puzzleId();
-    dispatch(ClearChessPuzzlePlay({}));
+    dispatch(ClearPuzzlePlay({}));
     args.onRequestNext();
   };
 
   const onBack = (): void => {
-    dispatch(StepBackChessPuzzlePlay({}));
+    dispatch(StepBackPuzzlePlay({}));
   };
 
   const onForward = (): void => {
-    dispatch(StepForwardChessPuzzlePlay({}));
+    dispatch(StepForwardPuzzlePlay({}));
   };
 
   return {

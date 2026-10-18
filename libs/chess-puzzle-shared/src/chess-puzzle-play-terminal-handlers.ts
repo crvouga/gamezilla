@@ -1,27 +1,26 @@
+import {
+  PUZZLE_PLAY_STATUS,
+  PuzzlePlayAttr,
+} from '@libs/game-puzzle-shared/play-attr';
+import {
+  PuzzlePlaySkipped,
+  PuzzleSolutionShown,
+} from '@libs/game-puzzle-shared/play-messages';
+import { lineLength } from '@libs/game-puzzle-shared/step';
 import type { GameCommandContext } from '@libs/spaces-shared/game';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
-
-import {
-  CHESS_PUZZLE_PLAY_STATUS,
-  ChessPuzzlePlayAttr,
-} from './chess-puzzle-play-attr';
-import {
-  ChessPuzzlePlaySkipped,
-  ChessPuzzleSolutionShown,
-} from './chess-puzzle-play-messages';
-import { fenAtSolveIdx, puzzleTokensLength } from './chess-puzzle-step';
+import { fenAtSolveIdx } from './chess-puzzle-step';
 
 function isHostOf(state: RoomState, identity: string): boolean {
-  const host = ChessPuzzlePlayAttr.hostIdentity.from(state);
+  const host = PuzzlePlayAttr.hostIdentity.from(state);
   return host !== null && host === identity;
 }
 
 function isLiveAttempt(state: RoomState): boolean {
-  const status = ChessPuzzlePlayAttr.status.from(state);
+  const status = PuzzlePlayAttr.status.from(state);
   return (
-    status === CHESS_PUZZLE_PLAY_STATUS.solving ||
-    status === CHESS_PUZZLE_PLAY_STATUS.wrong
+    status === PUZZLE_PLAY_STATUS.solving || status === PUZZLE_PLAY_STATUS.wrong
   );
 }
 
@@ -48,13 +47,13 @@ export function handleShowSolution(
       ok: false,
       error: {
         type: ROOM_ERROR_TYPE.conflict,
-        reason: `cannot show the solution while status is ${ChessPuzzlePlayAttr.status.from(state)}`,
+        reason: `cannot show the solution while status is ${PuzzlePlayAttr.status.from(state)}`,
       },
     };
   }
   if (
-    ChessPuzzlePlayAttr.solveIdx.from(state) !==
-    ChessPuzzlePlayAttr.furthestSolveIdx.from(state)
+    PuzzlePlayAttr.solveIdx.from(state) !==
+    PuzzlePlayAttr.furthestSolveIdx.from(state)
   ) {
     return {
       ok: false,
@@ -64,9 +63,9 @@ export function handleShowSolution(
       },
     };
   }
-  const fen = ChessPuzzlePlayAttr.fen.from(state);
-  const moves = ChessPuzzlePlayAttr.moves.from(state);
-  const solveIdx = puzzleTokensLength(moves);
+  const fen = PuzzlePlayAttr.position.from(state);
+  const moves = PuzzlePlayAttr.line.from(state);
+  const solveIdx = lineLength(moves);
   const displayFen = fenAtSolveIdx({ fen, moves, solveIdx });
   if (displayFen === null) {
     return {
@@ -79,9 +78,7 @@ export function handleShowSolution(
   }
   return {
     ok: true,
-    events: [
-      ChessPuzzleSolutionShown({ displayFen, solveIdx, endedAtMs: ctx.ts }),
-    ],
+    events: [PuzzleSolutionShown({ displayFen, solveIdx, endedAtMs: ctx.ts })],
   };
 }
 
@@ -104,12 +101,12 @@ export function handleSkip(
       ok: false,
       error: {
         type: ROOM_ERROR_TYPE.conflict,
-        reason: `cannot skip while status is ${ChessPuzzlePlayAttr.status.from(state)}`,
+        reason: `cannot skip while status is ${PuzzlePlayAttr.status.from(state)}`,
       },
     };
   }
   return {
     ok: true,
-    events: [ChessPuzzlePlaySkipped({ endedAtMs: ctx.ts })],
+    events: [PuzzlePlaySkipped({ endedAtMs: ctx.ts })],
   };
 }

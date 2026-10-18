@@ -6,8 +6,8 @@
 
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { CHESS_GAME_ID } from '@libs/chess-puzzle-shared/chess-game';
-import { hasPendingPlay } from '@libs/chess-puzzle-shared/chess-puzzle-derive';
-import { LINKED_PUZZLE_PARAM } from '@libs/chess-puzzle-shared/puzzle-link';
+import { hasPendingPlay } from '@libs/game-puzzle-shared/derive';
+import { LINKED_PUZZLE_PARAM } from '@libs/game-puzzle-shared/puzzle-link';
 import { spaceGameHref } from '@libs/spaces-client/space-routes';
 import { useCheckConnection } from '@libs/spaces-client/use-check-connection';
 import { useCreateSpace } from '@libs/spaces-client/use-create-space';

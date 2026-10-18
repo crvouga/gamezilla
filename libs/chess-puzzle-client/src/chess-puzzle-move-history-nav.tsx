@@ -1,5 +1,5 @@
-import type { PuzzleNavIntent } from '@libs/chess-puzzle-shared/puzzle-nav';
-import { PUZZLE_NAV_INTENT } from '@libs/chess-puzzle-shared/puzzle-nav';
+import type { PuzzleNavIntent } from '@libs/game-puzzle-shared/puzzle-nav';
+import { PUZZLE_NAV_INTENT } from '@libs/game-puzzle-shared/puzzle-nav';
 import { t } from '@lingui/core/macro';
 import type { IconComponent } from '@pkgs/ui-root-client/create-icon';
 import {

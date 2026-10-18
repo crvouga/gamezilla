@@ -1,4 +1,4 @@
-import { ratedStartKey } from '@libs/chess-puzzle-shared/rated-start-key';
+import { ratedStartKey } from '@libs/game-puzzle-shared/rated-start-key';
 import { usePermissions } from '@libs/permissions-client/use-permissions';
 import { ACTION } from '@libs/permissions-shared/permission-catalog';
 import { useClock, useTimers } from '@pkgs/clock-client/solid';

@@ -1,28 +1,29 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import type {
-  ChessPuzzleAutoAdvance,
-  ChessPuzzleFeedConfig,
-  ChessPuzzleFeedHistoryFilter,
-  ChessPuzzleFeedMode,
-} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import { formatChessPuzzleThemeLabel } from '@libs/chess-puzzle-shared/chess-puzzle-theme-label';
+import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
 import {
-  chessPuzzleFeedConfigFingerprint,
+  CHESS_PUZZLE_THEMES,
+  chessPuzzleThemesOf,
+  isChessPuzzleTheme,
+} from '@libs/chess-puzzle-shared/chess-puzzle-themes';
+import type {
+  PuzzleAutoAdvance,
+  PuzzleFeedConfig,
+  PuzzleFeedHistoryFilter,
+  PuzzleFeedMode,
+} from '@libs/game-puzzle-shared/feed-config';
+import {
   clampPuzzleFeedAutoOffset,
   clampPuzzleFeedRating,
-  encodeChessPuzzleFeedConfig,
+  encodePuzzleFeedConfig,
   PUZZLE_FEED_AUTO_OFFSET_MAX,
   PUZZLE_FEED_AUTO_OFFSET_MIN,
   PUZZLE_FEED_AUTO_OFFSET_STEP,
   PUZZLE_FEED_RATING_MAX,
   PUZZLE_FEED_RATING_MIN,
+  puzzleFeedConfigFingerprint,
   resolveEffectivePuzzleRating,
-} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { formatChessPuzzleThemeLabel } from '@libs/chess-puzzle-shared/chess-puzzle-theme-label';
-import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
-import {
-  CHESS_PUZZLE_THEMES,
-  isChessPuzzleTheme,
-} from '@libs/chess-puzzle-shared/chess-puzzle-themes';
+} from '@libs/game-puzzle-shared/feed-config';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
@@ -44,10 +45,7 @@ import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useChessPuzzleFeedPoolStats } from './use-chess-puzzle-feed-pool-stats';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 
-function feedModeCaption(
-  mode: ChessPuzzleFeedMode,
-  profileCaption: string
-): string {
+function feedModeCaption(mode: PuzzleFeedMode, profileCaption: string): string {
   if (mode === 'auto') {
     return t`Match puzzles to your profile rating (${profileCaption}), plus an optional offset.`;
   }
@@ -55,11 +53,11 @@ function feedModeCaption(
 }
 
 function PuzzleFeedModeSection(props: {
-  config: ChessPuzzleFeedConfig;
+  config: PuzzleFeedConfig;
   profileCaption: string;
-  onSelectMode: (mode: ChessPuzzleFeedMode) => void;
+  onSelectMode: (mode: PuzzleFeedMode) => void;
 }): JSX.Element {
-  const modeSegments: Array<{ key: ChessPuzzleFeedMode; label: string }> = [
+  const modeSegments: Array<{ key: PuzzleFeedMode; label: string }> = [
     { key: 'auto', label: t`Auto` },
     { key: 'custom', label: t`Custom` },
   ];
@@ -80,11 +78,11 @@ function PuzzleFeedModeSection(props: {
 }
 
 function PuzzleFeedHistorySection(props: {
-  historyFilter: ChessPuzzleFeedHistoryFilter;
-  onSelect: (filter: ChessPuzzleFeedHistoryFilter) => void;
+  historyFilter: PuzzleFeedHistoryFilter;
+  onSelect: (filter: PuzzleFeedHistoryFilter) => void;
 }): JSX.Element {
   const segments: Array<{
-    key: ChessPuzzleFeedHistoryFilter;
+    key: PuzzleFeedHistoryFilter;
     label: string;
   }> = [
     { key: 'any', label: t`Any` },
@@ -107,10 +105,10 @@ function PuzzleFeedHistorySection(props: {
 }
 
 function PuzzleAutoAdvanceSection(props: {
-  autoAdvance: ChessPuzzleAutoAdvance;
-  onSelect: (autoAdvance: ChessPuzzleAutoAdvance) => void;
+  autoAdvance: PuzzleAutoAdvance;
+  onSelect: (autoAdvance: PuzzleAutoAdvance) => void;
 }): JSX.Element {
-  const segments: Array<{ key: ChessPuzzleAutoAdvance; label: string }> = [
+  const segments: Array<{ key: PuzzleAutoAdvance; label: string }> = [
     { key: 'off', label: t`Off` },
     { key: 'after1s', label: t`After 1 s` },
     { key: 'immediate', label: t`Immediately` },
@@ -165,7 +163,7 @@ function PuzzleFeedThemesSection(props: {
  * branch for the modal's lifetime).
  */
 function PuzzleFeedRatingSection(props: {
-  config: ChessPuzzleFeedConfig;
+  config: PuzzleFeedConfig;
   targetRating: number;
   onChangeCustomRating: (rating: number) => void;
   onChangeAutoOffset: (offset: number) => void;
@@ -210,12 +208,12 @@ export type ChessPuzzleFeedSettingsModalProps = {
 };
 
 type FeedConfigEditors = {
-  onSelectMode: (mode: ChessPuzzleFeedMode) => void;
+  onSelectMode: (mode: PuzzleFeedMode) => void;
   onChangeCustomRating: (rating: number) => void;
   onChangeAutoOffset: (offset: number) => void;
-  onSelectHistory: (filter: ChessPuzzleFeedHistoryFilter) => void;
+  onSelectHistory: (filter: PuzzleFeedHistoryFilter) => void;
   onChangeThemes: (themes: ChessPuzzleTheme[]) => void;
-  onSelectAutoAdvance: (autoAdvance: ChessPuzzleAutoAdvance) => void;
+  onSelectAutoAdvance: (autoAdvance: PuzzleAutoAdvance) => void;
 };
 
 /** One edit per field, each a patch on the persisted feed config. */
@@ -243,7 +241,7 @@ function feedConfigEditors(
 }
 
 function PuzzleFeedSections(props: {
-  config: ChessPuzzleFeedConfig;
+  config: PuzzleFeedConfig;
   profileCaption: string;
   targetRating: number;
   editors: FeedConfigEditors;
@@ -266,7 +264,7 @@ function PuzzleFeedSections(props: {
         onSelect={props.editors.onSelectHistory}
       />
       <PuzzleFeedThemesSection
-        themes={props.config.themes}
+        themes={chessPuzzleThemesOf(props.config.themes)}
         onChange={props.editors.onChangeThemes}
       />
       <PuzzleAutoAdvanceSection
@@ -306,7 +304,7 @@ export function ChessPuzzleFeedSettingsModal(
       return;
     }
     if (openFingerprintRef.current === null) {
-      openFingerprintRef.current = chessPuzzleFeedConfigFingerprint(config());
+      openFingerprintRef.current = puzzleFeedConfigFingerprint(config());
     }
   });
 
@@ -314,11 +312,8 @@ export function ChessPuzzleFeedSettingsModal(
 
   const onDone = (): void => {
     const opened = openFingerprintRef.current;
-    const current = chessPuzzleFeedConfigFingerprint(config());
-    if (
-      encodeChessPuzzleFeedConfig(saved()) !==
-      encodeChessPuzzleFeedConfig(config())
-    )
+    const current = puzzleFeedConfigFingerprint(config());
+    if (encodePuzzleFeedConfig(saved()) !== encodePuzzleFeedConfig(config()))
       setSaved(config());
     if (opened !== null && opened !== current) {
       props.onFeedConfigApplied?.();

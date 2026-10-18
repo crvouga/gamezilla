@@ -1,8 +1,8 @@
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
 import {
   isPuzzleClockRunning,
   puzzleElapsedMs,
-} from '@libs/chess-puzzle-shared/puzzle-clock';
+} from '@libs/game-puzzle-shared/puzzle-clock';
 import { useClock, useTimers } from '@pkgs/clock-client/solid';
 import {
   type Accessor,
@@ -21,7 +21,7 @@ const TICK_MS = 250;
  * exactly.
  */
 export function usePuzzleClock(args: {
-  readonly status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  readonly status: Accessor<PuzzlePlayStatus | 'loading'>;
   readonly startedAtMs: Accessor<number | null>;
   readonly endedAtMs: Accessor<number | null>;
 }): {

@@ -1,6 +1,6 @@
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
 
-import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { PUZZLE_PLAY_STATUS } from '@libs/game-puzzle-shared/play-attr';
 import { type Accessor, createEffect } from 'solid-js';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
 import { usePuzzleStatusFeedback } from './use-puzzle-status-feedback';
@@ -9,7 +9,7 @@ import { usePuzzleStatusFeedback } from './use-puzzle-status-feedback';
 export function usePuzzlePlayerEffects(args: {
   puzzleId: Accessor<string>;
   solveIdx: Accessor<number>;
-  status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  status: Accessor<PuzzlePlayStatus | 'loading'>;
 }): void {
   const feedback = useChessPuzzleFeedback();
   const prevSolveIdxRef: { current: number } = { current: 0 };
@@ -29,7 +29,7 @@ export function usePuzzlePlayerEffects(args: {
     const solveIdx = args.solveIdx();
     const status = args.status();
     if (
-      status !== CHESS_PUZZLE_PLAY_STATUS.solving ||
+      status !== PUZZLE_PLAY_STATUS.solving ||
       solveIdx <= prevSolveIdxRef.current ||
       prevSolveIdxRef.current <= 0
     ) {

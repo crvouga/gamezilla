@@ -1,4 +1,4 @@
-import type { ChessPuzzleStatusKind } from '@libs/chess-puzzle-shared/status-kind';
+import type { PuzzleStatusKind } from '@libs/game-puzzle-shared/status-kind';
 import { Trans } from '@lingui/solid/macro';
 import {
   ClockIcon,
@@ -45,7 +45,7 @@ function badgeMark(kind: BadgeKind): JSX.Element {
 /** The glyph for one status; called from JSX so it re-runs when the kind changes. */
 function statusGlyph(
   theme: ReturnType<typeof useTheme>,
-  kind: ChessPuzzleStatusKind
+  kind: PuzzleStatusKind
 ): JSX.Element {
   switch (kind) {
     case 'loading':
@@ -67,7 +67,7 @@ function statusGlyph(
 }
 
 export function ChessPuzzleStatusIcon(props: {
-  kind: ChessPuzzleStatusKind;
+  kind: PuzzleStatusKind;
 }): JSX.Element {
   const theme = useTheme();
   return (

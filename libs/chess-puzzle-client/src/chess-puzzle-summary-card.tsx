@@ -1,4 +1,4 @@
-import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
+import type { PuzzleCompletion } from '@libs/game-puzzle-shared/completion';
 import { Trans } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
 import { ChessPuzzleRatingDelta } from './chess-puzzle-rating-delta';

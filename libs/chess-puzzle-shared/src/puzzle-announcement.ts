@@ -5,11 +5,11 @@
  * move, the piece a hint picks, the result and the rating change.
  */
 
+import type { PuzzleCompletion } from '@libs/game-puzzle-shared/completion';
+import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
+import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
 import type { PieceType } from '@pkgs/chess-board-core-shared/types';
 import { Chess } from 'chess.js';
-import type { PuzzleCompletion } from './completion';
-import type { HintStage } from './hint-stage';
-import type { SolveStatus } from './solve-status';
 
 export type PuzzleSide = 'white' | 'black';
 

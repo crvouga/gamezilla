@@ -1,6 +1,6 @@
+import { puzzleCatalogueTopic } from '@libs/game-puzzle-shared/catalogue-topics';
 import { puzzleManagementAudience } from '@libs/permissions-shared/puzzle-management-audience';
 import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';
-import { chessPuzzlesTopic } from './sync-topics';
 
 export const CHESS_TOPIC_MAP = {
   chess_puzzle_profiles: {
@@ -33,10 +33,10 @@ export const CHESS_TOPIC_MAP = {
   },
   chess_puzzles: {
     topics() {
-      return [chessPuzzlesTopic()];
+      return [puzzleCatalogueTopic()];
     },
     fallbackTopics() {
-      return [chessPuzzlesTopic()];
+      return [puzzleCatalogueTopic()];
     },
   },
 } satisfies TopicMap;

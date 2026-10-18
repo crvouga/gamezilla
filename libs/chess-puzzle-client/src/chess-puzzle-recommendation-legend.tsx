@@ -1,5 +1,5 @@
-import type { ChessPuzzleRecommendationEntry } from '@libs/chess-puzzle-shared/recommendations';
-import { formatRecommendedMove } from '@libs/chess-puzzle-shared/recommendations';
+import { formatRecommendedMove } from '@libs/chess-puzzle-shared/recommendation-arrows';
+import type { PuzzleRecommendationEntry } from '@libs/game-puzzle-shared/recommendations';
 import { UserUsername } from '@libs/profile-client/user-username';
 import { Trans } from '@lingui/solid/macro';
 import { XIcon } from '@pkgs/ui-root-client/icons';
@@ -10,7 +10,7 @@ import { type Accessor, For, type JSX, Show } from 'solid-js';
  * be withdrawn; everyone else's clears when the host moves on.
  */
 export function ChessPuzzleRecommendationLegend(props: {
-  entries: Accessor<readonly ChessPuzzleRecommendationEntry[]>;
+  entries: Accessor<readonly PuzzleRecommendationEntry[]>;
   colorFor: (memberId: string) => string;
   myId: string;
   onClearMine: () => void;

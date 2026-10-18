@@ -1,6 +1,6 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { ChessPuzzleResultAttr } from '@libs/chess-puzzle-shared/chess-puzzle-result';
+import { PuzzlePlayAttr } from '@libs/game-puzzle-shared/play-attr';
+import { PuzzleResultAttr } from '@libs/game-puzzle-shared/play-result';
 import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
 import { useSpaceRoomSelector } from '@libs/spaces-client/use-space-room-selector';
 import { useLogger } from '@pkgs/logger-client/solid';
@@ -18,8 +18,8 @@ function keyPart(value: string): string {
 export function usePuzzleAttemptMemory() {
   const myId = useMyId();
   const spaceId = useSpaceRoomSessionId();
-  const attempt = useSpaceRoomSelector(ChessPuzzleResultAttr.attempt.from);
-  const status = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
+  const attempt = useSpaceRoomSelector(PuzzleResultAttr.attempt.from);
+  const status = useSpaceRoomSelector(PuzzlePlayAttr.status.from);
   const canPick = useIsPuzzleDriver();
   const store = useSecureStorageStore();
   const log = useLogger('puzzle-attempt-memory');

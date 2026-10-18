@@ -1,4 +1,4 @@
-import type { ChessPuzzleStats } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
+import type { PuzzleStats } from '@libs/game-puzzle-shared/stats';
 import { Trans } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
 
@@ -24,7 +24,7 @@ function StatTile(props: StatTileProps): JSX.Element {
 }
 
 export type ChessPuzzleStatsCardsProps = {
-  stats: ChessPuzzleStats;
+  stats: PuzzleStats;
 };
 
 /** The player's totals, in one panel like every other group on the screen. */

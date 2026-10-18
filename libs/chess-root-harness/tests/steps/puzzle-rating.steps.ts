@@ -29,7 +29,7 @@ import {
   PUZZLE_RATING_DEFAULT_RD,
   PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
   PUZZLE_RATING_RD_MIN,
-} from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+} from '@libs/game-puzzle-shared/rating';
 import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { ProductHarness } from '@libs/harness/harness';

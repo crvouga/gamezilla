@@ -1,4 +1,4 @@
-import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
+import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared/stats';
 import { Trans } from '@lingui/solid/macro';
 import { GameHistoryScreen } from '@pkgs/ui-root-client/game-history-screen';
 import type { JSX } from 'solid-js';
@@ -10,7 +10,7 @@ import { ChessRatingSparkline } from './chess-rating-sparkline';
 import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 
 export function ChessStatsBody(props: {
-  readonly onSelectEntry: (entry: ChessPuzzleGameLogEntry) => void;
+  readonly onSelectEntry: (entry: PuzzleGameLogEntry) => void;
   /**
    * The host's bar already names this screen (the personal stats route), so
    * the body does not repeat the title.

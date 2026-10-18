@@ -9,14 +9,14 @@
  * and the line ends on a solver move (even length). The solver is therefore
  * the side NOT to move in `fen`.
  */
+
+import { compareCodeUnit } from '@libs/game-puzzle-shared/code-unit-compare';
 import type { Color } from '@pkgs/chess-rules-shared/fen';
 import { fenConsistencyError, parseFen } from '@pkgs/chess-rules-shared/fen';
 import { playUci } from '@pkgs/chess-rules-shared/moves';
 import { parseUci, tokenizeUciLine } from '@pkgs/chess-rules-shared/uci';
 import { fnv1a64Hex } from '@pkgs/room-root-shared/hash-room-state';
 import { Chess } from 'chess.js';
-
-import { compareCodeUnit } from './code-unit-compare';
 
 /** §4 logical puzzle (`moves` is physically a space-separated text column). */
 export type Puzzle = {

@@ -1,6 +1,6 @@
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+import { ratePuzzleAttemptMutation } from '@libs/game-puzzle-shared/rate-puzzle-attempt-mutation';
 import { uniqueTables } from '@libs/permissions-shared/world';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';

@@ -14,6 +14,11 @@ export type ChessMoveNotation = (typeof CHESS_MOVE_NOTATIONS)[number];
 
 export const DEFAULT_CHESS_MOVE_NOTATION: ChessMoveNotation = 'san';
 
+/** A stored feed notation as chess draws it; anything else reads as SAN. */
+export function chessMoveNotationOf(value: string): ChessMoveNotation {
+  return isChessMoveNotation(value) ? value : DEFAULT_CHESS_MOVE_NOTATION;
+}
+
 export function isChessMoveNotation(
   value: unknown
 ): value is ChessMoveNotation {

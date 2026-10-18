@@ -1,6 +1,6 @@
 import { CHESS_PUZZLE_TEST_ENABLED } from '@libs/chess-puzzle-shared/chess-puzzle-test-enabled';
-import type { PuzzlePickSource } from '@libs/chess-puzzle-shared/next-puzzle-selection';
-import type { PuzzlePickState } from '@libs/chess-puzzle-shared/pick-state';
+import type { PuzzlePickSource } from '@libs/game-puzzle-shared/next-puzzle-selection';
+import type { PuzzlePickState } from '@libs/game-puzzle-shared/pick-state';
 import type { JSX } from 'solid-js';
 
 export type ChessPuzzleTestLoadingStatusProps = {

@@ -1,10 +1,10 @@
-import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import {
   CHESS_SCREEN,
   ChessScreensAttr,
   SeekChessPuzzleReview,
   SetChessSelectedReviewPuzzle,
 } from '@libs/chess-root-shared/chess-screens';
+import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared/stats';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import {
@@ -21,9 +21,7 @@ import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 import type { PuzzleReviewCursor } from './use-puzzle-review-board';
 
 /** How the reviewed attempt went; "Puzzle review" before the log has it. */
-function ReviewTitle(props: {
-  entry: ChessPuzzleGameLogEntry | null;
-}): JSX.Element {
+function ReviewTitle(props: { entry: PuzzleGameLogEntry | null }): JSX.Element {
   return (
     <Switch fallback={<Trans>Puzzle review</Trans>}>
       <Match when={props.entry?.outcome === 'solved'}>
@@ -49,9 +47,9 @@ function ReviewSubtitle(props: { rating: number }): JSX.Element {
 }
 
 function findLogEntry(
-  gameLog: readonly ChessPuzzleGameLogEntry[],
+  gameLog: readonly PuzzleGameLogEntry[],
   puzzleId: string
-): ChessPuzzleGameLogEntry | null {
+): PuzzleGameLogEntry | null {
   return gameLog.find((e) => e.puzzleId === puzzleId) ?? null;
 }
 

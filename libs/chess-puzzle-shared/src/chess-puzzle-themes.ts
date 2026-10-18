@@ -88,3 +88,10 @@ export const CHESS_PUZZLE_THEME_SET: ReadonlySet<ChessPuzzleTheme> = new Set(
 export function isChessPuzzleTheme(s: string): s is ChessPuzzleTheme {
   return (CHESS_PUZZLE_THEME_SET as ReadonlySet<string>).has(s);
 }
+
+/** The stored feed themes chess knows, in order. */
+export function chessPuzzleThemesOf(
+  themes: readonly string[]
+): readonly ChessPuzzleTheme[] {
+  return themes.filter(isChessPuzzleTheme);
+}

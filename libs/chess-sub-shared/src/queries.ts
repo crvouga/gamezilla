@@ -1,13 +1,13 @@
-import { chessPuzzleById } from '@libs/chess-puzzle-shared/chess-puzzle-by-id-query';
-import { chessPuzzleFeedSettings } from '@libs/chess-puzzle-shared/chess-puzzle-feed-settings-query';
-import { chessPuzzleInteractions } from '@libs/chess-puzzle-shared/chess-puzzle-interactions-query';
+import { chessPuzzleImport } from '@libs/chess-puzzle-shared/puzzle-import-query';
+import { chessPuzzleById } from '@libs/game-puzzle-shared/by-id-query';
+import { chessPuzzleFeedSettings } from '@libs/game-puzzle-shared/feed-settings-query';
+import { chessPuzzleInteractions } from '@libs/game-puzzle-shared/interactions-query';
 import {
   chessPuzzleNearest,
   chessPuzzlePool,
-} from '@libs/chess-puzzle-shared/chess-puzzle-pool-query';
-import { chessPuzzleProfile } from '@libs/chess-puzzle-shared/chess-puzzle-profile-query';
-import { chessPuzzleRatingEvents } from '@libs/chess-puzzle-shared/chess-puzzle-rating-events-query';
-import { chessPuzzleImport } from '@libs/chess-puzzle-shared/puzzle-import-query';
+} from '@libs/game-puzzle-shared/pool-query';
+import { chessPuzzleProfile } from '@libs/game-puzzle-shared/profile-query';
+import { chessPuzzleRatingEvents } from '@libs/game-puzzle-shared/rating-events-query';
 
 export const CHESS_QUERIES = [
   chessPuzzleImport,

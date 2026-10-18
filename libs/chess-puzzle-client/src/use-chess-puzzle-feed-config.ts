@@ -1,11 +1,11 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import type { PuzzleFeedConfig } from '@libs/game-puzzle-shared/feed-config';
 import {
-  DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
-  decodeChessPuzzleFeedConfig,
-  encodeChessPuzzleFeedConfig,
-} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { savePuzzleFeedSettingsMutation } from '@libs/chess-puzzle-shared/save-puzzle-feed-settings-mutation';
+  DEFAULT_PUZZLE_FEED_CONFIG,
+  decodePuzzleFeedConfig,
+  encodePuzzleFeedConfig,
+} from '@libs/game-puzzle-shared/feed-config';
+import { savePuzzleFeedSettingsMutation } from '@libs/game-puzzle-shared/save-puzzle-feed-settings-mutation';
 import { useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import sql from '@pkgs/sql-root-shared/sql';
@@ -33,7 +33,7 @@ function useSavedFeedConfig(
   myId: Accessor<string>,
   paintReady: Accessor<boolean>
 ): {
-  readonly saved: Accessor<ChessPuzzleFeedConfig | null>;
+  readonly saved: Accessor<PuzzleFeedConfig | null>;
   readonly loading: Accessor<boolean>;
 } {
   const { rows, isLoading } = createQuery(() =>
@@ -48,9 +48,7 @@ function useSavedFeedConfig(
   );
   const saved = createMemo(() => {
     const text = rows()[0]?.config;
-    return text === undefined
-      ? null
-      : (decodeChessPuzzleFeedConfig(text) ?? null);
+    return text === undefined ? null : (decodePuzzleFeedConfig(text) ?? null);
   });
   return { saved, loading: isLoading };
 }
@@ -66,7 +64,7 @@ function useSavedFeedConfig(
  * session-long widening an exhausted feed offers.
  */
 export function createChessPuzzleFeedConfigState(): [
-  Accessor<ChessPuzzleFeedConfig>,
+  Accessor<PuzzleFeedConfig>,
   ChessPuzzleFeedConfigSetter,
   Accessor<boolean>,
 ] {
@@ -75,12 +73,10 @@ export function createChessPuzzleFeedConfigState(): [
   const mutationClient = useMutationClient();
   const customize = useDecision(PERMISSION.puzzlesCustomizeFeed);
   const { saved, loading } = useSavedFeedConfig(myId, paintReady);
-  const [pending, setPending] = createSignal<ChessPuzzleFeedConfig | null>(
-    null
-  );
+  const [pending, setPending] = createSignal<PuzzleFeedConfig | null>(null);
 
   const config = createMemo(
-    () => pending() ?? saved() ?? DEFAULT_CHESS_PUZZLE_FEED_CONFIG
+    () => pending() ?? saved() ?? DEFAULT_PUZZLE_FEED_CONFIG
   );
 
   // An edit is shown until the saved row catches up with it.
@@ -88,9 +84,7 @@ export function createChessPuzzleFeedConfigState(): [
     const edit = pending();
     const row = saved();
     if (edit === null || row === null || !customize().allowed) return;
-    if (
-      encodeChessPuzzleFeedConfig(edit) === encodeChessPuzzleFeedConfig(row)
-    ) {
+    if (encodePuzzleFeedConfig(edit) === encodePuzzleFeedConfig(row)) {
       setPending(null);
     }
   });
@@ -106,7 +100,7 @@ export function createChessPuzzleFeedConfigState(): [
     };
     void mutationClient
       .mutate(savePuzzleFeedSettingsMutation, {
-        config: encodeChessPuzzleFeedConfig(value),
+        config: encodePuzzleFeedConfig(value),
       })
       .then((result) => {
         if (!result.ok) drop();
@@ -121,7 +115,7 @@ export function createChessPuzzleFeedConfigState(): [
 
 /** Shared feed config for the mounted chess surface (see the feed provider). */
 export function useChessPuzzleFeedConfig(): [
-  Accessor<ChessPuzzleFeedConfig>,
+  Accessor<PuzzleFeedConfig>,
   ChessPuzzleFeedConfigSetter,
 ] {
   const state = useChessPuzzleFeedState();

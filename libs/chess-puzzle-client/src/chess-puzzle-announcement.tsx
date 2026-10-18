@@ -5,15 +5,15 @@
  * result and the rating change.
  */
 
-import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
-import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
 import {
   type PuzzleAnnouncementPart,
   type PuzzleSide,
   puzzleAnnouncement,
   spokenPiece,
 } from '@libs/chess-puzzle-shared/puzzle-announcement';
-import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
+import type { PuzzleCompletion } from '@libs/game-puzzle-shared/completion';
+import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
+import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { t } from '@lingui/core/macro';
 import { type Accessor, createMemo, type JSX } from 'solid-js';

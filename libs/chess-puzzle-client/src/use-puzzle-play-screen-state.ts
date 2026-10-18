@@ -1,17 +1,17 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { widenPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import {
-  CHESS_PUZZLE_PLAY_STATUS,
-  ChessPuzzlePlayAttr,
-  type ChessPuzzlePlayStatus,
-} from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { ClearChessPuzzlePlay } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
-import type { PuzzlePickState } from '@libs/chess-puzzle-shared/pick-state';
+import { widenPuzzleFeedConfig } from '@libs/game-puzzle-shared/feed-config';
+import type { PuzzlePickState } from '@libs/game-puzzle-shared/pick-state';
 import {
   decidePuzzlePlacement,
   resolvePuzzlePickState,
-} from '@libs/chess-puzzle-shared/pick-state';
-import { LINKED_PUZZLE_PARAM } from '@libs/chess-puzzle-shared/puzzle-link';
+} from '@libs/game-puzzle-shared/pick-state';
+import {
+  PUZZLE_PLAY_STATUS,
+  PuzzlePlayAttr,
+  type PuzzlePlayStatus,
+} from '@libs/game-puzzle-shared/play-attr';
+import { ClearPuzzlePlay } from '@libs/game-puzzle-shared/play-messages';
+import { LINKED_PUZZLE_PARAM } from '@libs/game-puzzle-shared/puzzle-link';
 import { useUnlock } from '@libs/permissions-client/unlock';
 import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import {
@@ -323,7 +323,7 @@ function useUnlockDeniedLink(args: {
 function useLinkedPuzzleRequest(args: {
   canPick: Accessor<boolean>;
   activePuzzleId: Accessor<string | null>;
-  roomStatus: Accessor<ChessPuzzlePlayStatus>;
+  roomStatus: Accessor<PuzzlePlayStatus>;
   requestLinked: (puzzleId: string, over: boolean) => void;
 }): void {
   const params = useLocalSearchParams<{ puzzle?: string | undefined }>();
@@ -341,7 +341,7 @@ function useLinkedPuzzleRequest(args: {
     }
     if (
       args.activePuzzleId() === linked &&
-      args.roomStatus() !== CHESS_PUZZLE_PLAY_STATUS.idle
+      args.roomStatus() !== PUZZLE_PLAY_STATUS.idle
     )
       untrack(() => router.replace(pathname()));
   });
@@ -353,7 +353,7 @@ function useLinkedPuzzles(args: {
   placement: PuzzlePlacement;
   denial: Accessor<Decision | null>;
 }): void {
-  const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
+  const roomStatus = useSpaceRoomSelector(PuzzlePlayAttr.status.from);
   useUnlockDeniedLink({
     linkedDenied: args.placement.linkedDenied,
     denial: args.denial,
@@ -376,13 +376,13 @@ function useDriverPlacement(
 } {
   const dispatch = useSpaceRoomDispatch();
   const canPick = useIsPuzzleDriver();
-  const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
-  const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
+  const roomPuzzleId = useSpaceRoomSelector(PuzzlePlayAttr.puzzleId.from);
+  const roomStatus = useSpaceRoomSelector(PuzzlePlayAttr.status.from);
   const roomSynced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
   const { status: syncStatus } = useSyncEngine();
   const memory = usePuzzleAttemptMemory();
   const roomResumable = createMemo(
-    () => roomStatus() !== CHESS_PUZZLE_PLAY_STATUS.idle
+    () => roomStatus() !== PUZZLE_PLAY_STATUS.idle
   );
   const requestNextRef: { current: () => void } = { current: () => {} };
   const gate = useRatedStartGate(() => requestNextRef.current());
@@ -393,14 +393,14 @@ function useDriverPlacement(
     roomReady: () =>
       memory.ready() &&
       (roomSynced() ||
-        roomStatus() !== CHESS_PUZZLE_PLAY_STATUS.idle ||
+        roomStatus() !== PUZZLE_PLAY_STATUS.idle ||
         !syncStatus().online),
     roomFinished: () => isFinishedPuzzleStatus(roomStatus()),
     seenAttempt: memory.seen,
     poolReady,
     canPick,
     gate,
-    clearRoomPuzzle: () => dispatch(ClearChessPuzzlePlay({})),
+    clearRoomPuzzle: () => dispatch(ClearPuzzlePlay({})),
   });
   requestNextRef.current = placement.onRequestNext;
   return { canPick, gate, placement };
@@ -436,7 +436,7 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   });
 
   const reselectActivePuzzleFromFeed = (): void => {
-    dispatch(ClearChessPuzzlePlay({}));
+    dispatch(ClearPuzzlePlay({}));
     placement.onRequestNext();
   };
 
