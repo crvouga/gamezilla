@@ -10,13 +10,16 @@ import { BOARD_THEME } from '@libs/chess-root-shared/board-theme';
 import type { PuzzleBoardProps } from '@libs/game-puzzle-client/puzzle-client';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { formatUci } from '@pkgs/chess-rules-shared/uci';
+import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { type JSX, Show } from 'solid-js';
 
 function PlayBoard(props: PuzzleBoardProps): JSX.Element {
+  // Chess's boards follow the app's sound preference themselves.
+  const sounds = useSoundsPreference();
   return (
     <ChessBoard
       theme={BOARD_THEME}
-      sound={props.sound}
+      sound={!sounds.muted()}
       dataSet={{ testid: props.testId }}
       size={props.size}
       fen={props.position}
@@ -39,10 +42,11 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
 }
 
 function ReviewBoard(props: PuzzleBoardProps): JSX.Element {
+  const sounds = useSoundsPreference();
   return (
     <ChessBoard
       theme={BOARD_THEME}
-      sound={props.sound}
+      sound={!sounds.muted()}
       dataSet={{ testid: props.testId }}
       size={props.size}
       fen={props.position}
