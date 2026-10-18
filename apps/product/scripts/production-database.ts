@@ -18,6 +18,8 @@
  * round trips each request is billed.
  */
 
+import type { ConnectionBill, DatabaseLinkSummary } from './database-link';
+
 export const PRODUCTION_DATABASE = {
   sessions: 10,
   waitMs: 15_000,
