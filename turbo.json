@@ -1339,7 +1339,8 @@
         "@libs/chess-puzzle-server#initialize:catalog",
         "@apps/server#check:api",
         "@apps/product#check:offline-shell",
-        "@apps/product#check:worker-bundle"
+        "@apps/product#check:worker-bundle",
+        "@apps/product#check:rendered-worker"
       ]
     },
     "@libs/infra-server#apply:edge": {
@@ -2676,6 +2677,17 @@
         "!**/*.md",
         "$TURBO_ROOT$/libs/tools/scripts/check-worker-bundle.ts",
         "$TURBO_ROOT$/libs/tools/scripts/worker-compat-date.ts"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "@apps/product#check:rendered-worker": {
+      "dependsOn": ["^src", "build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/infra-shared/tofu/global.tfvars.json",
+        "$TURBO_ROOT$/libs/infra-shared/tofu/envs/*.tfvars.json"
       ],
       "outputLogs": "errors-only",
       "outputs": []

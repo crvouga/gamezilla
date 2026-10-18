@@ -25,6 +25,7 @@
     "check:live-env": "bun run scripts/live-bundle-guard-cli.ts check-env",
     "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "check:offline-shell": "bun run scripts/check-offline-shell.ts",
+    "check:rendered-worker": "bun run scripts/check-rendered-worker.ts",
     "check:ui-quality": "bun run scripts/check.ts",
     "check:worker-bundle": "bun run ../../libs/tools/scripts/check-worker-bundle.ts",
     "deploy": "bun run scripts/deploy.ts",

@@ -100,11 +100,11 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 327 |
-| Check scripts | 1217 |
-| Measured scripts | 189 |
+| Check scripts | 1218 |
+| Measured scripts | 190 |
 | Estimated scripts | 1028 |
 | Stale cost keys | 538 |
-| Cold CPU | 7526 s |
+| Cold CPU | 7532 s |
 | Spec parts | 3972 s across 235 tasks |
 | Longest task | @apps/product#test:contract:render 60 s |
 
@@ -135,8 +135,8 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | Package | CPU | Longest task |
 | --- | --- | --- |
 | @pkgs/matchmaking-root-harness | 161 s | @pkgs/matchmaking-root-harness#test:spec:1 17 s |
+| @apps/product | 156 s | @apps/product#test:contract:render 60 s |
 | @pkgs/chess-board-root-harness | 156 s | @pkgs/chess-board-root-harness#test:spec:0 17 s |
-| @apps/product | 150 s | @apps/product#test:contract:render 60 s |
 | @libs/tools | 88 s | @libs/tools#ci:statecharts 60 s |
 | @pkgs/auth-root-harness | 45 s | @pkgs/auth-root-harness#check:models 21 s |
 
@@ -146,9 +146,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 263 | 7366 s | @apps/product#test:contract:render 60 s |
-| @pkgs/clock-shared | 229 | 7267 s | @apps/product#test:contract:render 60 s |
-| @pkgs/assert-root-shared | 224 | 7249 s | @apps/product#test:contract:render 60 s |
+| @pkgs/property-shared | 263 | 7372 s | @apps/product#test:contract:render 60 s |
+| @pkgs/clock-shared | 229 | 7273 s | @apps/product#test:contract:render 60 s |
+| @pkgs/assert-root-shared | 224 | 7255 s | @apps/product#test:contract:render 60 s |
 
 ### Runner
 
@@ -160,7 +160,7 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 | Other slots | 14 |
 | Cores required | 32 |
 | Memory required | 40 GiB |
-| Estimated makespan | 254 s |
+| Estimated makespan | 255 s |
 | Provision | 2 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->
