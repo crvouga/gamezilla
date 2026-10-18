@@ -1,4 +1,4 @@
 {
   "summary": "The real puzzle harness pressed the escalating hint control three times even when a hint had already been taken, then waited for a control removed by showing the solution. Stop pressing once the solution is revealed; the literal model history is pinned.",
-  "regressionTest": "specs/chess/puzzle-controls.feature"
+  "regressionTest": "specs/games/puzzle-controls.feature"
 }

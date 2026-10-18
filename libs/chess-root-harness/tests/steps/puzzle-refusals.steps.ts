@@ -4,22 +4,14 @@ import {
   requestPuzzleHint,
   revealPuzzleSolution,
 } from '@libs/chess-puzzle-harness/chess-actions';
-import type { HostPuzzleCommand } from '@libs/chess-puzzle-harness/chess-puzzle-room-probe';
+import { readPuzzleStatus } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import { stepPuzzlePosition } from '@libs/chess-puzzle-harness/puzzle-assistant-ui';
+import type { HostPuzzleCommand } from '@libs/game-session-harness/puzzle-room-probe';
 import {
   attemptHostPuzzleCommand,
   readLastPuzzleCommandOutcome,
   readLastPuzzleRefusal,
-} from '@libs/chess-puzzle-harness/chess-puzzle-room-probe';
-import { readPuzzleStatus } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import {
-  pressPuzzleRetryIfVisible,
-  stepPuzzlePosition,
-} from '@libs/chess-puzzle-harness/puzzle-assistant-ui';
-import {
-  readPuzzleControlAvailability,
-  readPuzzleView,
-} from '@libs/chess-puzzle-harness/puzzle-control-reads';
-import { attemptLeaveChessMenu } from '@libs/chess-root-harness/space-follow-actions';
+} from '@libs/game-session-harness/puzzle-room-probe';
 import { restartApp } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor, PuzzleFinishName } from '@libs/harness/parameter-types';
@@ -63,30 +55,6 @@ Then(
   }
 );
 
-When(
-  '{actor} tries to retry before a wrong move or result',
-  async (w, actor: Actor) => {
-    await w.s.apply(pressPuzzleRetryIfVisible, actor);
-  }
-);
-Then('{actor} is not offered to retry', async (w, actor: Actor) => {
-  expect(
-    (await w.s.read(readPuzzleControlAvailability, actor)).retryOffered
-  ).toBe(false);
-});
-
-When(
-  '{actor} goes back from the chess choices to the game choice',
-  async (w, actor: Actor) => {
-    await w.s.apply(attemptLeaveChessMenu, actor);
-  }
-);
-Then("{actor} sees the space's game choice", async (w, actor: Actor) => {
-  await w.s.until((surf) => readPuzzleView(surf, actor), {
-    pred: (view) => view === 'GameChoice',
-    maxMs: 15_000,
-  });
-});
 When('{actor} reopens the app on the puzzle', async (w, actor: Actor) => {
   await w.s.apply(restartApp, actor);
   await w.s.apply(returnToOwnSpace, actor);

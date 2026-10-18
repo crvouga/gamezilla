@@ -27,10 +27,17 @@ import { GAME_SESSION_HARNESS_ACTIONS } from './game-session-actions';
 import type { HarnessGame } from './harness-game';
 import { assertHarnessGame } from './harness-game';
 import { registerHarnessGames } from './harness-game-of';
+import { seedKnownPuzzles } from './known-puzzle-catalogue';
 
 export type GameSystemOptions = {
   /** Replaces a game's own slice (a richer seed for its own suites). */
   readonly slices?: readonly HarnessSlice[];
+  /**
+   * The puzzle catalogue holds each game's known puzzles and nothing else,
+   * in place of the content a game's own slice seeds: a world whose every
+   * puzzle a scenario knows in advance.
+   */
+  readonly knownPuzzles?: boolean;
   /** Further subs a suite plays the games beside (the synthetic population). */
   readonly beside?: readonly HarnessSlice[];
   readonly product?: Parameters<typeof defineProductSystem>[1];
@@ -66,11 +73,13 @@ export function gameSystem(
     FRIENDS_HARNESS_SLICE,
     NOTIFICATIONS_HARNESS_SLICE,
     SEARCH_HARNESS_SLICE,
-    ...games.flatMap((game) =>
-      game.slice === undefined
-        ? []
-        : [replaced.get(game.slice.name) ?? game.slice]
-    ),
+    ...games.flatMap((game) => {
+      if (game.slice === undefined) return [];
+      const slice = replaced.get(game.slice.name) ?? game.slice;
+      if (options.knownPuzzles !== true) return [slice];
+      const { seedServer: _ownContent, ...withoutContent } = slice;
+      return [withoutContent];
+    }),
     {
       name: 'game-session',
       sub: createGameSessionSub(turnGames.games),
@@ -89,6 +98,12 @@ export function gameSystem(
         sub,
         client: createPuzzleLinkClient(turnGames),
         server: () => GAME_PUZZLE_SERVER,
+        ...(options.knownPuzzles === true
+          ? {
+              seedServer: (sqlClient) =>
+                seedKnownPuzzles(sqlClient, turnGames, games),
+            }
+          : {}),
       })
     ),
     BILLING_HARNESS_SLICE,

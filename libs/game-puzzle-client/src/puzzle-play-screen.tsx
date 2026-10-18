@@ -8,6 +8,7 @@ import { t } from '@lingui/core/macro';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { createSpeak } from '@pkgs/tts-root-client/solid';
+import { useGamePresentation } from '@pkgs/turn-game-client/turn-games-context';
 import { SpeakingAvatar } from '@pkgs/ui-root-client/speaking-avatar';
 import { SpectatorIndicator } from '@pkgs/ui-root-client/spectator-indicator';
 import { useLayoutMode } from '@pkgs/ui-root-client/use-layout-mode';
@@ -23,6 +24,7 @@ import { PuzzleRecommendationLegend } from './puzzle-recommendation-legend';
 import { PuzzleShareLink } from './puzzle-share-link';
 import { PuzzleStatusHeader } from './puzzle-status-header';
 import { PuzzleTestLoadingStatus } from './puzzle-test-loading-status';
+import { PuzzleTestProbes } from './puzzle-test-probes';
 import { usePuzzleFeedConfig } from './use-puzzle-feed-config';
 import { usePuzzlePlayScreenState } from './use-puzzle-play-screen-state';
 import type { PuzzlePlayerChromeModel } from './use-puzzle-player-state';
@@ -77,13 +79,16 @@ function PuzzlePlayerBoardSlot(props: {
   );
 }
 
-/** The game's own companion to the attempt: its live region and probes. */
+/** The attempt's probes, and the game's own companion to it. */
 function PuzzleCompanion(props: { p: PuzzlePlayerChromeModel }): JSX.Element {
   const { client } = usePuzzleGame();
   return (
-    <Show when={client.Companion} keyed>
-      {(Companion) => <Companion attempt={props.p.attempt} />}
-    </Show>
+    <>
+      <PuzzleTestProbes attempt={props.p.attempt} />
+      <Show when={client.Companion} keyed>
+        {(Companion) => <Companion attempt={props.p.attempt} />}
+      </Show>
+    </>
   );
 }
 
@@ -95,6 +100,14 @@ function PuzzlePlayerChrome(props: {
   const myId = useMyId();
   const avatarSize = usePuzzleAvatarSize();
   const statusKind = (): PuzzleStatusKind => p.statusKind();
+  const presentation = useGamePresentation();
+  /** The solver's side as the game names it, once a position is shown. */
+  const solverSide = (): string | null => {
+    const position = p.boardPosition();
+    return position === null || position.length === 0
+      ? null
+      : presentation(position).sideLabel(p.orientation());
+  };
   return (
     <PuzzlePlayLayout
       backToRoot={p.backToRoot}
@@ -114,7 +127,7 @@ function PuzzlePlayerChrome(props: {
           header={
             <PuzzleStatusHeader
               kind={statusKind()}
-              sideToMove={p.orientation()}
+              solverSide={solverSide()}
               trailing={
                 <>
                   <PuzzleClockLabel elapsedMs={p.clockElapsedMs} />

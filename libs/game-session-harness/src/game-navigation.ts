@@ -52,15 +52,22 @@ export const goBackInGame = scenarioAction({
   },
 });
 
-/** Which of the shared choices `actor` is offered right now. */
+/** The puzzle choices a game offering puzzles adds, by the screen each opens. */
+export const PUZZLE_GAME_CHOICES = ['puzzle', 'stats'] as const;
+
+export type GameChoiceScreen =
+  | SharedGameScreen
+  | (typeof PUZZLE_GAME_CHOICES)[number];
+
+/** Which of the platform's choices `actor` is offered right now, in order. */
 export async function offeredGameChoices(
   s: ProductHarness,
   actor: string
-): Promise<readonly SharedGameScreen[]> {
+): Promise<readonly GameChoiceScreen[]> {
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
-  const offered: SharedGameScreen[] = [];
-  for (const screen of SHARED_GAME_CHOICES)
+  const offered: GameChoiceScreen[] = [];
+  for (const screen of [...SHARED_GAME_CHOICES, ...PUZZLE_GAME_CHOICES])
     if (await ui.get(Handles.gameChoice(screen)).isVisible())
       offered.push(screen);
   return offered;

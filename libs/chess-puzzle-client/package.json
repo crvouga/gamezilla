@@ -30,7 +30,6 @@
     "@lingui/solid": "catalog:",
     "@pkgs/chess-board-root-client": "workspace:*",
     "@pkgs/chess-rules-shared": "workspace:*",
-    "@pkgs/device-client": "workspace:*",
     "@pkgs/http-client-client": "workspace:*",
     "@pkgs/sounds-client": "workspace:*",
     "@pkgs/sounds-shared": "workspace:*",

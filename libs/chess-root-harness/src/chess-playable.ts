@@ -56,6 +56,8 @@ export const CHESS_PLAYABLE: PlayableGame<
         labels: ['Kh4', 'g5+', 'Kg3', 'Rg2#'],
         wrongMove: { at: 3, action: 'a2a1' },
         refusedMove: { at: 1, action: 'g6g4' },
+        // Black is to move: White's rook cannot be moved.
+        opponentMove: { at: 1, action: 'd7d8' },
       },
       {
         // Two rooks to the fifth rank, the a-rook first: either rook may
@@ -65,7 +67,9 @@ export const CHESS_PLAYABLE: PlayableGame<
           id: 'TwoRk',
           position: '6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1',
           line: ['a7a6', 'a1a5', 'h7h6', 'h1h5'],
-          rating: 1500,
+          // Below a new solver's 1500, as every known puzzle is: a wrong
+          // move's half credit then still lowers their rating.
+          rating: 1400,
           ratingDeviation: 80,
           popularity: 90,
           plays: 100,
@@ -77,6 +81,8 @@ export const CHESS_PLAYABLE: PlayableGame<
         labels: ['a6', 'Ra5', 'h6', 'Rhh5'],
         wrongMove: { at: 1, action: 'e1e2' },
         refusedMove: { at: 1, action: 'a1a8' },
+        // White is to move: Black's king cannot be moved.
+        opponentMove: { at: 1, action: 'g8f8' },
         transposition: { at: 1, action: 'h1h5' },
       },
       {
@@ -98,6 +104,8 @@ export const CHESS_PLAYABLE: PlayableGame<
         labels: ['a4', 'Rc7', 'a3', 'Rc8#'],
         wrongMove: { at: 1, action: 'g1f2' },
         refusedMove: { at: 1, action: 'g1g3' },
+        // White is to move: Black's king cannot be moved.
+        opponentMove: { at: 1, action: 'h8g8' },
         wonAnotherWay: { at: 1, action: 'b7b8' },
       },
     ],

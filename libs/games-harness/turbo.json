@@ -182,6 +182,9 @@
     "test:spec:46": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
+    "test:spec:47": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
     "check:models:9:0": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
     },

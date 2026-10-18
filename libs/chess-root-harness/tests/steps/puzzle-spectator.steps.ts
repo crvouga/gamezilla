@@ -12,8 +12,6 @@ import {
   pressPuzzleNextIfVisible,
   suggestNonSolutionMove,
 } from '@libs/chess-puzzle-harness/chess-actions';
-import type { HostPuzzleCommand } from '@libs/chess-puzzle-harness/chess-puzzle-room-probe';
-import { attemptHostPuzzleCommand } from '@libs/chess-puzzle-harness/chess-puzzle-room-probe';
 import type { PuzzleSpectatorProbe } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import {
   isEmptyPoolVisible,
@@ -27,6 +25,8 @@ import {
 import { puzzleBoardPair } from '@libs/chess-puzzle-harness/puzzle-board-pair-read';
 import { readPuzzleControlAvailability } from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import { joinSpaceFromLink } from '@libs/friends-harness/spaces.steps';
+import type { HostPuzzleCommand } from '@libs/game-session-harness/puzzle-room-probe';
+import { attemptHostPuzzleCommand } from '@libs/game-session-harness/puzzle-room-probe';
 import { Given, Then, When } from '@libs/harness/define';
 import { accountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';

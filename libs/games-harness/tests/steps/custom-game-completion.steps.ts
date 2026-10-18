@@ -16,6 +16,7 @@ import {
 } from './custom-game-set-up-world';
 import { gameOf, hostOf, setupCustomGame } from './game-world';
 import { onlyWatches } from './matched-game-watchers.steps';
+import { boardTakesNoMove, playsPuzzles } from './puzzle-world';
 
 Given(
   '{actor} and {actor} have a custom game after their first moves',
@@ -57,6 +58,8 @@ Then('neither side has an invitation', async (w) => {
   expect(game.black.kind).not.toBe('invitation');
 });
 Then('{actor} cannot make a move', async (w, actor: string) => {
+  // On a puzzle's board, the board takes no move.
+  if (playsPuzzles(w, actor)) return boardTakesNoMove(w, actor);
   // A guest watching a matched game has no side in it.
   if (inMatchedGame(w)) return onlyWatches(w, actor);
   await w.s.apply(openCustomGames, actor, gameOf(w).shared.id);

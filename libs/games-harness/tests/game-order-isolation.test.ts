@@ -118,5 +118,6 @@ test('each faulty copy is its own game: defining one leaves the reference game a
   expect(COUNTING_RACE_GAME.shared.turnGame.rules.legal('race:0w')).toEqual([
     'advance',
     'leap',
+    'hop',
   ]);
 });

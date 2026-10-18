@@ -99,7 +99,7 @@ export type PuzzleCoachLine = {
   readonly text: string;
 };
 
-/** Sounds and haptics for an attempt's moments. */
+/** The game's sounds for an attempt's moments (the platform adds haptics). */
 export type PuzzleFeedback = {
   readonly onCorrectMove: () => void;
   readonly onWrongMove: () => void;
@@ -131,6 +131,6 @@ export type GamePuzzlesClient = {
     readonly format: (label: string, notation: string) => string;
     readonly moveNumber?: (before: string, plyIndex: number) => string | null;
   };
-  /** Sounds and haptics for a correct move, a wrong one, a solve, a rating. */
+  /** Sounds for a correct move, a wrong one, a solve, a rating. */
   readonly useFeedback?: () => PuzzleFeedback;
 };

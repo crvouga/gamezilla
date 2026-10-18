@@ -40,10 +40,13 @@ test('a game registered only through the public contracts is offered, played and
   const history = await s.read(gameHistoryStatistics, 'alice');
   expect([history.wins, history.losses, history.draws]).toEqual([1, 0, 0]);
 
-  // What the game does not declare is absent, not disabled.
+  // What the game does not declare is absent, not disabled: no finding an
+  // opponent; its puzzles and their stats are offered.
   await s.apply(goBackInGame, 'alice');
   expect(await s.read(offeredGameChoices, 'alice')).toEqual([
     'custom-game',
     'history',
+    'puzzle',
+    'stats',
   ]);
 }, 120_000);

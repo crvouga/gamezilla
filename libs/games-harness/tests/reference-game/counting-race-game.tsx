@@ -1,7 +1,7 @@
 /**
  * The reference game: test-only, never shipped. A race to seven where each
- * turn counts one on (`advance`) or, from five or less, two (`leap`); who
- * reaches seven wins. It is registered, rendered and played purely through
+ * turn counts one on (`advance`), from five or less two (`leap`), or from
+ * four or less three (`hop`); who reaches seven wins. It is registered, rendered and played purely through
  * the platform's public contracts — `defineTurnGame`, `defineGameClient`
  * and a `HarnessGame` — and enrolled in every shared suite beside the
  * registered games (`tests/conformance-world.ts`). It proves a new game
@@ -10,7 +10,7 @@
  * matrix holds an unsupported capability too.
  *
  * A position is `race:<count><side to move>` (`race:3w`): the count alone
- * cannot say whose turn it is once a turn may count two.
+ * cannot say whose turn it is once a turn may count more than one.
  */
 
 import type { GameClient } from '@libs/game-menu-client/game-client';
@@ -43,10 +43,10 @@ import { For, type JSX } from 'solid-js';
  * last number.
  */
 const FINISH = 7;
-/** A leap counts two, so it is allowed only where it cannot pass seven. */
-const LEAP_UP_TO = FINISH - 2;
-const STEP = { advance: 1, leap: 2 } as const;
+/** A count is allowed only where it cannot pass seven. */
+const STEP = { advance: 1, leap: 2, hop: 3 } as const;
 type RaceAction = keyof typeof STEP;
+const ACTIONS = Object.keys(STEP) as readonly RaceAction[];
 
 const POSITION = /^race:([0-7])([wb])$/;
 
@@ -69,11 +69,12 @@ const other = (side: GameSide): GameSide =>
 function legal(position: string): readonly RaceAction[] {
   const race = parse(position);
   if (race === null || race.count >= FINISH) return [];
-  return race.count <= LEAP_UP_TO ? ['advance', 'leap'] : ['advance'];
+  return ACTIONS.filter((action) => race.count + STEP[action] <= FINISH);
 }
 
+const LABEL_VERB = { advance: 'step', leap: 'leap to', hop: 'hop to' };
 const labelOf = (action: RaceAction, count: number) =>
-  action === 'advance' ? `step ${count}` : `leap to ${count}`;
+  `${LABEL_VERB[action]} ${count}`;
 
 function play(
   position: string,
@@ -125,14 +126,18 @@ export const COUNTING_RACE_RULES: GameRules = {
   legal,
   canWin: () => true,
   // The history is the counts reached, so it alone says every move: a
-  // count one on is an advance, two on a leap, each side in turn.
+  // count one on is an advance, two on a leap, three a hop, each side in
+  // turn.
   moves: (_position, history) => {
     const counts = history === '' ? [] : history.split(' ').map(Number);
     return counts.map((count, ply) => {
       const from = ply === 0 ? 0 : (counts[ply - 1] ?? 0);
       const mover: GameSide = ply % 2 === 0 ? 'white' : 'black';
+      const action =
+        ACTIONS.find((candidate) => STEP[candidate] === count - from) ??
+        'advance';
       return {
-        label: labelOf(count - from === 2 ? 'leap' : 'advance', count),
+        label: labelOf(action, count),
         before: show({ count: from, mover }),
         after: show({ count, mover: other(mover) }),
       };
@@ -187,26 +192,65 @@ export const COUNTING_RACE_PUZZLES: PuzzlesCapability = {
   isCell: (cell) => (CELLS as readonly string[]).includes(cell),
 };
 
-/** The race's two buttons, each prefixed with the board's test id. */
+/** How a button names each count. */
+const COUNT_WORDS = { advance: 'one', leap: 'two', hop: 'three' } as const;
+
+/**
+ * The race's buttons, one per count, each prefixed with the board's test
+ * id. A board that `refuses` nothing itself leaves every count to the
+ * rules: one they do not allow (three from five) reaches the platform,
+ * which refuses it.
+ */
 function RaceButtons(props: {
   readonly testId: string;
   readonly position: string;
   readonly interactive: boolean;
+  readonly refuses: boolean;
   readonly onAction: (action: string) => void;
 }): JSX.Element {
   return (
-    <For each={['advance', 'leap'] as const}>
+    <For each={ACTIONS}>
       {(action) => (
         <button
           type="button"
           data-testid={`${props.testId}-${action}`}
           disabled={
-            !props.interactive || !legal(props.position).includes(action)
+            !props.interactive ||
+            (props.refuses && !legal(props.position).includes(action))
           }
           onClick={() => props.onAction(action)}
         >
-          {action === 'advance' ? 'Count one' : 'Count two'} from{' '}
-          {parse(props.position)?.count}
+          Count {COUNT_WORDS[action]} from {parse(props.position)?.count}
+        </button>
+      )}
+    </For>
+  );
+}
+
+/**
+ * The waiting side's buttons on a puzzle board: a count for the side not
+ * to move, `<side>-advance` or `<side>-leap`, which the rules never allow.
+ */
+function WaitingSideButtons(props: {
+  readonly testId: string;
+  readonly position: string;
+  readonly interactive: boolean;
+  readonly onAction: (action: string) => void;
+}): JSX.Element {
+  const waiting = () => {
+    const race = parse(props.position);
+    return race === null ? null : sideName(other(race.mover));
+  };
+  return (
+    <For each={['advance', 'leap'] as const}>
+      {(action) => (
+        <button
+          type="button"
+          data-testid={`${props.testId}-${waiting() ?? ''}-${action}`}
+          disabled={!props.interactive || waiting() === null}
+          onClick={() => props.onAction(`${waiting() ?? ''}-${action}`)}
+        >
+          {waiting()} counts {COUNT_WORDS[action]}
         </button>
       )}
     </For>
@@ -220,6 +264,7 @@ function Board(props: GameBoardProps): JSX.Element {
         testId={props.testId}
         position={props.position}
         interactive={props.interactive}
+        refuses
         onAction={props.onAction}
       />
     </div>
@@ -235,8 +280,13 @@ function markOf(marks: PuzzleBoardProps['marks'], cell: string): string {
   return '';
 }
 
-/** The puzzle board: the counts, each with its mark, and the race's buttons. */
+/**
+ * The puzzle board: the counts, each with its mark, the race's buttons for
+ * the side to move and the waiting side's. Every count reaches the
+ * platform, which judges it by the rules.
+ */
 function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
+  const interactive = () => props.interactive && props.mode === 'play';
   return (
     <div data-testid={props.testId} data-position={props.position}>
       <ol>
@@ -251,7 +301,14 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
       <RaceButtons
         testId={props.testId}
         position={props.position}
-        interactive={props.interactive && props.mode === 'play'}
+        interactive={interactive()}
+        refuses={false}
+        onAction={props.onAction}
+      />
+      <WaitingSideButtons
+        testId={props.testId}
+        position={props.position}
+        interactive={interactive()}
         onAction={props.onAction}
       />
     </div>
@@ -260,6 +317,8 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
 
 const sideLabel = (side: 'white' | 'black') =>
   side === 'white' ? 'Hare' : 'Tortoise';
+/** A side as a count named for it writes it: `hare`, `tortoise`. */
+const sideName = (side: GameSide) => sideLabel(side).toLowerCase();
 
 const CAPABILITIES = {
   'custom-games': { bots: { difficulties: ['easy'], choose: advance } },
@@ -334,41 +393,51 @@ export const COUNTING_RACE_FIXTURES: GameFixtures<typeof CAPABILITIES> = {
   // Each count is written as the step it reaches.
   firstSideVictoryLabels: [1, 2, 3, 4, 5, 6, 7].map((step) => `step ${step}`),
   refusedOpenings: ['retreat', ''],
-  // Whoever is to move at four loses: both counts on (to five or six) let
-  // the other reach seven. So the winning move leaves the other side at
-  // four, and at five or six the side to move reaches seven.
+  // Each has two solver moves, so a pool of the three plays as the
+  // specifications' puzzle pool does, and at each a move the rules allow
+  // is wrong. Three from five passes seven; a count for the waiting side
+  // is never the rules' (only the side to move counts).
   puzzles: [
     {
-      // The Tortoise counts to five; the Hare leaps home. Counting one
-      // leaves six, from which the Tortoise reaches seven.
-      record: racePuzzle('leap-home', 'race:4b', ['advance', 'leap']),
+      // The Tortoise counts to one; the Hare leaps to three, and after the
+      // Tortoise's leap to five leaps home. Counting one, to two, is the
+      // wrong move; three from five would pass seven.
+      record: racePuzzle('leap-home', 'race:0b', [
+        'advance',
+        'leap',
+        'leap',
+        'leap',
+      ]),
       solverSide: 'white',
-      solution: ['leap'],
-      labels: ['step 5', 'leap to 7'],
+      solution: ['leap', 'leap'],
+      labels: ['step 1', 'leap to 3', 'leap to 5', 'leap to 7'],
       wrongMove: { at: 1, action: 'advance' },
-      refusedMove: { at: 1, action: 'retreat' },
+      refusedMove: { at: 3, action: 'hop' },
+      opponentMove: { at: 1, action: 'tortoise-advance' },
     },
     {
-      // The Hare leaps to three; the Tortoise counts to four and, after the
-      // Hare's leap to six, steps home. Leaping to five instead lets the
-      // Hare leap home; from six a leap would pass seven.
-      record: racePuzzle('hold-four', 'race:1w', [
-        'leap',
+      // The Hare counts to two; the Tortoise leaps to four and, after the
+      // Hare's step to five, leaps home. Hopping to five instead is the
+      // wrong move; a count back is no count at all.
+      record: racePuzzle('leap-past-four', 'race:1w', [
         'advance',
         'leap',
         'advance',
+        'leap',
       ]),
       solverSide: 'black',
-      solution: ['advance', 'advance'],
-      labels: ['leap to 3', 'step 4', 'leap to 6', 'step 7'],
-      wrongMove: { at: 1, action: 'leap' },
-      refusedMove: { at: 3, action: 'leap' },
+      solution: ['leap', 'leap'],
+      labels: ['step 2', 'leap to 4', 'step 5', 'leap to 7'],
+      wrongMove: { at: 1, action: 'hop' },
+      refusedMove: { at: 1, action: 'retreat' },
+      opponentMove: { at: 1, action: 'hare-advance' },
     },
     {
       // From three the Hare counts one, the Tortoise one, and the Hare
       // leaps home; leaping first and stepping home after the Tortoise's
       // count reaches the same finish (seven, the Tortoise to move). At
-      // five, counting one instead of leaping hands the Tortoise six.
+      // three a hop to six is wrong; at five, counting one instead of
+      // leaping is.
       record: racePuzzle('either-order', 'race:2b', [
         'advance',
         'advance',
@@ -380,6 +449,7 @@ export const COUNTING_RACE_FIXTURES: GameFixtures<typeof CAPABILITIES> = {
       labels: ['step 3', 'step 4', 'step 5', 'leap to 7'],
       wrongMove: { at: 3, action: 'advance' },
       refusedMove: { at: 1, action: 'retreat' },
+      opponentMove: { at: 1, action: 'tortoise-leap' },
       transposition: { at: 1, action: 'leap' },
     },
   ],

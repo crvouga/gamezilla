@@ -60,7 +60,7 @@ test('a two-line status prompt grows its row instead of overlapping the coach', 
         colorScheme="dark"
         fixedLayout={{ width: 390, height: 640 }}
       >
-        <PuzzleStatusHeader kind="started" sideToMove="white" />
+        <PuzzleStatusHeader kind="started" solverSide="White" />
       </ThemeProvider>
     </I18nProvider>
   ));

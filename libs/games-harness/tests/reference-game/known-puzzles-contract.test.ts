@@ -82,14 +82,30 @@ test('assertHarnessGame refuses a game offering puzzles without known puzzles, a
 });
 
 test('the known puzzles include one of two solver moves, and no two share an id', () => {
-  const short = knownPuzzle('counting-race/leap-home');
+  const long = knownPuzzle('counting-race/leap-past-four');
+  // From four, the Tortoise counts one and the Hare leaps home: one solver
+  // move alone.
+  const short: PuzzleFixture = {
+    ...long,
+    record: {
+      ...long.record,
+      id: 'counting-race/leap-at-once',
+      position: 'race:4b',
+      line: ['advance', 'leap'],
+    },
+    solverSide: 'white',
+    solution: ['leap'],
+    labels: ['step 5', 'leap to 7'],
+    wrongMove: { at: 1, action: 'advance' },
+    refusedMove: { at: 1, action: 'retreat' },
+    opponentMove: { at: 1, action: 'tortoise-advance' },
+  };
   expect(() =>
     assertHarnessGame({
       ...COUNTING_RACE_GAME,
       fixtures: { ...rulesFixtures, puzzles: [short] },
     })
   ).toThrow('name a known puzzle of two solver moves or more');
-  const long = knownPuzzle('counting-race/hold-four');
   expect(() =>
     assertHarnessGame({
       ...COUNTING_RACE_GAME,

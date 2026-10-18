@@ -12,14 +12,12 @@ import { readStatsElo } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
-import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
   ensureStatsOpen,
   enterNamedPuzzle,
   enterStockedPuzzle,
   required,
-  SECOND_MS,
   SETTLE_MS,
 } from './puzzle-world';
 
@@ -78,15 +76,6 @@ Given('{actor} has solved the hook-mate puzzle', async (w, actor: Actor) => {
   await enterNamedPuzzle(w, actor, NAMED_PUZZLES.hookMate);
   await w.s.apply(playUntilSolved, actor);
 });
-
-Given(
-  '{actor} has been solving the hook-mate puzzle for {int} minutes',
-  async (w, actor: Actor, minutes: number) => {
-    await enterNamedPuzzle(w, actor, NAMED_PUZZLES.hookMate);
-    await w.s.apply(focusActor, actor);
-    await w.s.advanceTime(minutes * 60 * SECOND_MS);
-  }
-);
 
 // ---------------------------------------------------- comparing solvers
 

@@ -40,7 +40,7 @@ composition roots (registries, runtime, apps)
 | `@libs/game-puzzle-shared` | Puzzles over any game's rules: setting a puzzle up, replaying, staging and judging its line (`puzzle-setup`, `opponent-stage`, `solve-projection`, `move-history`, `puzzle-judge`), the space's puzzle session (`PUZZLE_SESSIONS`: its room state, messages, router and handlers, and the puzzle the space reviews), puzzle ratings, completion, statistics, the feed and its settings, choosing the next puzzle, the catalogue and its namespaces (`puzzle-catalogue`, `puzzle-namespace`), the puzzle sub (`GAME_PUZZLE_SUB`: its tables, queries, mutations and erasure) and its server half, and the puzzle link. |
 | `@libs/game-puzzle-client` | The client part a game supplies (`GamePuzzlesClient`) and every puzzle screen: play, stats and review, the feed and its settings, the attempt's solver, controls, recorder and result reconciliation, the move list, the puzzle frame (`PuzzleFrame`, `PuzzleSessionEffects`), the puzzle link and the personal stats screen. |
 | `@libs/game-menu-client` | `defineGameClient` and the one `GameMenu` every game is offered through. |
-| `@libs/game-session-harness` | The conformance contract a game's harness supplies (`PlayableGame` without screens, `HarnessGame` with them, `GameFixtures` and, for a game offering puzzles, its known puzzles: `known-puzzles`), `gameSystem` (a world of any games, with the puzzle sub when a game offers puzzles), shared drivers (the puzzle session's commands and reads among them), and the laws (`game-rules-laws`, `game-capability-laws`, `game-puzzle-laws`). |
+| `@libs/game-session-harness` | The conformance contract a game's harness supplies (`PlayableGame` without screens, `HarnessGame` with them, `GameFixtures` and, for a game offering puzzles, its known puzzles: `known-puzzles`), `gameSystem` (a world of any games, with the puzzle sub when a game offers puzzles, and optionally a catalogue holding exactly every game's known puzzles), shared drivers (the platform's puzzle screens as a person uses them, a game's moves on its puzzle board from its known puzzles, and the puzzle session's commands and reads among them), and the laws (`game-rules-laws`, `game-capability-laws`, `game-puzzle-laws`). |
 | `@libs/game-matchmaking-harness` | Opponent seeking and the one matched-game scenario world. |
 | `@libs/games-harness` | `HARNESS_GAMES`, the conformance matrix, every shared suite and the steps of `specs/games/`. |
 
@@ -103,6 +103,8 @@ It is never a new entry for an internal module.
 | | `custom-game-screen`, `custom-game-reads` | What a person's Custom Game screen shows: a projection of the game, the refusal they were told, their clock, invitations, the move list |
 | | `custom-game-history` | Fixture: a legal earlier history played through the real move boundary |
 | | `puzzle-session-probe`, `puzzle-fixtures` | The space's puzzle session below the screens: a command as a (possibly modified) client sends it and what the session holds; the rating scale, the rated start key and the rated-result write a quota table replays |
+| | `puzzle-screen`, `puzzle-records` | The platform's puzzle screens as a person uses them, for any game: the way in and back, the attempt's controls, what the board and its probes say, the rating change, the puzzle stats, the game log and a played puzzle's review; retiring a catalogue puzzle |
+| | `puzzle-moves`, `puzzle-room-probe` | Moves on a puzzle board with the game's own gesture, chosen from its known puzzles (the line, the wrong, refused and opponent's moves); a puzzle command sent straight to the space's room, as a modified client would |
 | `@libs/game-matchmaking-harness` | `matched-game-world`, `matched-game-app.steps` | The scenario's matched game: pairing, both boards, commands and verdicts, the game a device holds (`heldMatchedGame`) |
 | | `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record` | Finding an opponent, the board (`sendMoveFromBoard`), reviewing earlier positions, copying the game record, as a person does |
 | | `multiplayer-time`, `matched-game-fixtures` | Fixtures: time passing through the real sweep; a position or a clock set where no person could reach it in time |
@@ -582,10 +584,14 @@ It does not merge by id, because no game can be in both:
   and `games-shared/tests/game-plugin-contract` (the puzzles part);
   `chess-puzzle-harness/tests/puzzle-session-compatibility` (a chess
   puzzle room recorded before the capability replays to the same events,
-  refusals and state); and chess's puzzle specifications
+  refusals and state); the shared puzzle specifications, run for every game
+  offering puzzles on its known puzzles (`specs/games/puzzle-play`,
+  `solve-flow`, `solve-move-rules`, `solve-show-solution`,
+  `puzzle-controls`, `puzzle-attempt-resume`, `puzzle-review`,
+  `puzzle-skip-clock` and `puzzle-attempt.qnt`); and chess's own
   (`specs/chess/puzzle-*.feature`, `puzzle-outcome-sync.feature`,
   `puzzle-offline*.feature`, `puzzle-interruption-recovery.feature`,
-  `puzzle-attempt.qnt`, `puzzle-result-recovery.qnt`).
+  `puzzle-assistant.qnt`, `puzzle-result-recovery.qnt`).
 
 ### Not yet proven by a test
 
@@ -777,26 +783,28 @@ Beyond that class:
   features keep only chess's own rules: the board facing a colour,
   promotion, castling and en passant, algebraic notation, checkmate, drawn
   positions, the puzzle rating and a bare king's flag fall.
-- Puzzles are the platform's in code but chess's in specification: the
-  puzzle features and models (`specs/chess/puzzle-*`,
-  `puzzle-attempt.qnt`, `puzzle-feed.qnt`, `daily-puzzle-limit.dmn`, …)
-  and their steps and drivers (`@libs/chess-puzzle-harness`) still name
-  chess and its board, so only chess is held to them in specification. The
-  reference game offers puzzles (a race where a turn may count two, so a
-  move can be legal and wrong), and every shared puzzle code suite runs for
-  it and chess. Moving the specifications to `specs/games/` is the next
-  step: their runner already plays every conformance game, the reference
-  game included, but a world seeds no game's known puzzles into its
-  catalogue yet, and the game-choice reader (`offeredGameChoices`) does not
-  read the puzzle choices. After that, chess's harness
-  needs no puzzle-session probe and its personal stats route
+- Playing a puzzle — the feed, the attempt, hints, retries, the shown
+  solution, the clock, resuming and the review — is every game's in
+  specification (`specs/games/puzzle-*`, `solve-*`, `puzzle-attempt.qnt`)
+  and runs for chess and the reference game (a race where a turn may count
+  two or three, so a move can be legal and wrong) on their known puzzles,
+  in a world whose catalogue holds exactly those
+  (`gameSystem(…, { knownPuzzles: true })`). The rest of the puzzle
+  specifications — the feed's settings and gates, ratings, limits, links,
+  saved puzzles, sounds, the Puzzle Assistant, accessibility and
+  recovery (`specs/chess/puzzle-*`, `puzzle-feed.qnt`,
+  `puzzle-assistant.qnt`, `daily-puzzle-limit.dmn`, …) — still name chess
+  and its board, so only chess is held to them. Its personal stats route
   (`/more/chess-stats`, pinned by `specs/product.machine.json`) can become
   the platform's.
-- The custom-game and matched-game models are every game's. Chess keeps
-  only its puzzle and Lichess models; a model that moves takes its
-  model-check task and its share of chess's spec parts to
+- The custom-game, matched-game and puzzle-attempt models are every
+  game's. Chess keeps only its own puzzle and Lichess models; a model that
+  moves takes its model-check task and its share of chess's spec parts to
   `@libs/games-harness`, which the PR runner's capacity (`ci-load.ts`)
-  needs.
+  needs. A suite's parts are bounded below by its models (sixteen traces
+  to a part): chess's ten keep it at 40, games' twelve at 48 (eleven
+  model-check tasks, one holding two small models), so the puzzle model's
+  one extra part came from billing's 24, which its light suite allows.
 - The game models follow a first-side victory of exactly seven moves
   (Connect Four's shortest), so every game supplies one; a game whose
   victories all take longer needs the models' bound raised with it. The

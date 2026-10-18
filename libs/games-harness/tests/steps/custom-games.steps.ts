@@ -12,6 +12,7 @@ import { partition, restoreActorConnection } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import { choose } from './custom-game-set-up-world';
 import { before, gameOf, setupCustomGame, sideOf, view } from './game-world';
+import { playsPuzzles, solverToMove } from './puzzle-world';
 
 const SECOND_MS = 1000;
 
@@ -138,6 +139,8 @@ When('{actor} makes her move on the board', async (w, actor: string) => {
   await w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id);
 });
 Then("it is {actor}'s turn", async (w, actor: string) => {
+  // On a puzzle's board, the solver is to move.
+  if (playsPuzzles(w, actor)) return solverToMove(w, actor);
   if (inMatchedGame(w)) {
     const owner = await ownerOf(w, actor);
     expect((await bothBoards(w, (g) => g.turn === owner)).turn).toBe(owner);

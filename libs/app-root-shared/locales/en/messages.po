@@ -4913,12 +4913,8 @@ msgid "Your ratings"
 msgstr "Your ratings"
 
 #: libs/game-puzzle-client/src/puzzle-status-header.tsx
-msgid "Your turn — find the best move for Black"
-msgstr "Your turn — find the best move for Black"
-
-#: libs/game-puzzle-client/src/puzzle-status-header.tsx
-msgid "Your turn — find the best move for White"
-msgstr "Your turn — find the best move for White"
+msgid "Your turn — find the best move for {side}"
+msgstr "Your turn — find the best move for {side}"
 
 #: libs/game-matchmaking-client/src/multiplayer-status.tsx
 msgid "Your turn."

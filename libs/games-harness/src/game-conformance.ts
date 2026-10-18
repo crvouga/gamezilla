@@ -130,6 +130,15 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'matched-game-watch-access': ['matchmaking'],
   'unfinished-game-limit': ['matchmaking', 'custom-games'],
   'matched-game-ready': ['matchmaking'],
+  'puzzle-play': ['puzzles'],
+  'solve-flow': ['puzzles'],
+  'solve-move-rules': ['puzzles'],
+  'solve-show-solution': ['puzzles'],
+  'puzzle-controls': ['puzzles'],
+  'puzzle-attempt-resume': ['puzzles'],
+  'puzzle-review': ['puzzles'],
+  'puzzle-skip-clock': ['puzzles'],
+  'puzzle-attempt': ['puzzles'],
 };
 
 /** The file endings of the specifications a game is held to. */

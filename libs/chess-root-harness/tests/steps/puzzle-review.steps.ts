@@ -8,9 +8,7 @@ import { expect } from 'bun:test';
 import {
   openPuzzleReview,
   playUntilSolved,
-  pressPuzzleReviewArrow,
   pressPuzzleReviewNav,
-  swipePuzzleReview,
   tapPuzzleReviewMove,
 } from '@libs/chess-puzzle-harness/chess-actions';
 import type { LocalPuzzleRow } from '@libs/chess-puzzle-harness/chess-puzzle-data';
@@ -46,7 +44,6 @@ import {
 const reviewedKey = (actor: Actor) => `reviewedLine:${actor}`;
 
 type Direction = 'back' | 'forward';
-type End = 'start' | 'end';
 
 /** Open the current puzzle's review from the game log. */
 async function openReview(w: HarnessWorld, actor: Actor): Promise<void> {
@@ -120,13 +117,6 @@ Then(
 );
 
 Then(
-  "{actor}'s review is at move {int} of {int}, reached without animation",
-  async (w, actor: Actor, move: number, of: number) => {
-    await expectReviewAt(w, actor, { move, of, animated: false });
-  }
-);
-
-Then(
   "{actor}'s review lists the moves {string}",
   async (w, actor: Actor, moves: string) => {
     expect(await w.s.read(readPuzzleReviewMoveLabels, actor)).toEqual(
@@ -140,50 +130,6 @@ When(
   async (w, actor: Actor, way: Direction) => {
     await markPuzzleSoundBoundary(w, actor);
     await w.s.apply(pressPuzzleReviewNav, actor, way);
-  }
-);
-
-When(
-  '{actor} steps {direction} one move in the review with the keyboard',
-  async (w, actor: Actor, way: Direction) => {
-    const key = way === 'back' ? 'arrowLeft' : 'arrowRight';
-    await w.s.apply(pressPuzzleReviewArrow, actor, key);
-  }
-);
-
-When(
-  '{actor} jumps to the {end} of the review',
-  async (w, actor: Actor, which: End) => {
-    await w.s.apply(pressPuzzleReviewNav, actor, which);
-  }
-);
-
-When(
-  '{actor} jumps to the {end} of the review with the keyboard',
-  async (w, actor: Actor, which: End) => {
-    const key = which === 'start' ? 'home' : 'end';
-    await w.s.apply(pressPuzzleReviewArrow, actor, key);
-  }
-);
-
-When(
-  '{actor} jumps to the {end} of the revealed line',
-  async (w, actor: Actor, which: End) => {
-    await w.s.apply(pressPuzzleReviewNav, actor, which);
-  }
-);
-
-When(
-  "{actor} chooses move {int} from the review's move list",
-  async (w, actor: Actor, move: number) => {
-    await w.s.apply(tapPuzzleReviewMove, actor, move - 1);
-  }
-);
-
-When(
-  '{actor} flicks the review {direction} one move',
-  async (w, actor: Actor, way: Direction) => {
-    await w.s.apply(swipePuzzleReview, actor, way);
   }
 );
 

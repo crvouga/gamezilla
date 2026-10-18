@@ -37,6 +37,12 @@ export type PuzzleFixture = {
   /** A move its rules refuse there: no move at all. */
   readonly refusedMove: PuzzleFixtureMove;
   /**
+   * A move for the opponent's side while the solver is to move there,
+   * made on the board as the game lets a person try one: its rules refuse
+   * it, so it is no move at all.
+   */
+  readonly opponentMove: PuzzleFixtureMove;
+  /**
    * Only for a puzzle the game's rules let the solver win off the line: a
    * winning move other than the line's, which solves it at once.
    */
@@ -72,6 +78,7 @@ export function fixtureMovesOf(
   const moves: (readonly [string, PuzzleFixtureMove | undefined])[] = [
     ['wrong move', fixture.wrongMove],
     ['refused move', fixture.refusedMove],
+    ["opponent's move", fixture.opponentMove],
     ['win another way', fixture.wonAnotherWay],
     ['transposition', fixture.transposition],
   ];
@@ -152,6 +159,10 @@ function assertMoves(
   if (play(fixture.refusedMove) !== null)
     fail(
       `the known puzzle ${id}'s refused move ${fixture.refusedMove.action} is accepted`
+    );
+  if (play(fixture.opponentMove) !== null)
+    fail(
+      `the known puzzle ${id}'s opponent's move ${fixture.opponentMove.action} is accepted`
     );
   const wrong = play(fixture.wrongMove);
   if (wrong === null || wrong.winner === fixture.solverSide)

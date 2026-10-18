@@ -6,10 +6,6 @@
  * changes nothing: the host alone drives the puzzle (§12, always-true:7).
  */
 
-import {
-  puzzleSessionCommand,
-  readPuzzleSession,
-} from '@libs/game-session-harness/puzzle-session-probe';
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
@@ -24,7 +20,11 @@ import {
   ROOM_WIRE_KIND,
   WIRE_VERSION,
 } from '@pkgs/room-root-shared/wire';
-import { readPuzzleDebug } from './chess-puzzle-ui';
+import { readPuzzleProbe } from './puzzle-screen';
+import {
+  puzzleSessionCommand,
+  readPuzzleSession,
+} from './puzzle-session-probe';
 
 const WAIT_MS = 15_000;
 const POLL_MS = 100;
@@ -69,19 +69,24 @@ export function readLastPuzzleRefusal(s: ProductHarness): string | null {
   return reason;
 }
 
+/** An action no game's rules know: never a move. */
+const NO_MOVE = 'no-such-move';
+
 async function commandPayload(
   s: ProductHarness,
   hostId: string,
   command: HostPuzzleCommand
 ): Promise<RoomCommandPayload> {
   if (command === 'illegal')
-    return puzzleSessionCommand({ kind: 'move', action: 'a1a1' });
+    return puzzleSessionCommand({ kind: 'move', action: NO_MOVE });
   if (command !== 'move') return puzzleSessionCommand({ kind: command });
   // The host's own next move: even the right move is not the watcher's.
-  const debug = await readPuzzleDebug(s, hostId);
-  const next = debug?.solutionUci ?? '';
-  const action = next.length >= 4 ? next : 'a7a8';
-  return puzzleSessionCommand({ kind: 'move', action });
+  // A puzzle that is over has none: any move is refused there alike.
+  const next = (await readPuzzleProbe(s, hostId))?.next ?? '';
+  return puzzleSessionCommand({
+    kind: 'move',
+    action: next.length > 0 ? next : NO_MOVE,
+  });
 }
 
 function spaceIdOfLink(link: string | null, hostId: string): string {
@@ -177,3 +182,5 @@ function answerTo(
   }
   return null;
 }
+
+export const PUZZLE_ROOM_PROBE_ACTIONS = [attemptHostPuzzleCommand];

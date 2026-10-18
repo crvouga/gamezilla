@@ -92,8 +92,13 @@ export function conformanceGameOf(
   return game;
 }
 
-/** One world where every conformance game is offered at once. */
-export const CONFORMANCE_SYSTEM = gameSystem('games', CONFORMANCE_GAMES);
+/**
+ * One world where every conformance game is offered at once, its puzzle
+ * catalogue holding each game's known puzzles and nothing else.
+ */
+export const CONFORMANCE_SYSTEM = gameSystem('games', CONFORMANCE_GAMES, {
+  knownPuzzles: true,
+});
 
 export function openConformanceHarness(
   testId: string,

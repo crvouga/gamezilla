@@ -409,13 +409,18 @@ export function gamePuzzleJudgeLaws(game: HarnessGame): readonly GameLaw[] {
     ),
     law(
       game,
-      'its refused move is no move',
+      "its refused move and its opponent's move are no move",
       each((fixture) => {
-        const verdict = judged(puzzleGame, fixture, fixture.refusedMove);
-        must(
-          verdict.kind === 'illegal',
-          `${fixture.record.id}: the refused move ${fixture.refusedMove.action} is judged ${kindOf(verdict)}`
-        );
+        for (const [name, move] of [
+          ['refused move', fixture.refusedMove],
+          ["opponent's move", fixture.opponentMove],
+        ] as const) {
+          const verdict = judged(puzzleGame, fixture, move);
+          must(
+            verdict.kind === 'illegal',
+            `${fixture.record.id}: the ${name} ${move.action} is judged ${kindOf(verdict)}`
+          );
+        }
       })
     ),
     law(

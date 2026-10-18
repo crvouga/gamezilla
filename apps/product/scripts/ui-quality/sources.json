@@ -7,7 +7,7 @@
   {
     "package": "@libs/billing-harness",
     "directory": "libs/billing-harness",
-    "parts": 24
+    "parts": 23
   },
   {
     "package": "@libs/chess-root-harness",
@@ -27,7 +27,7 @@
   {
     "package": "@libs/games-harness",
     "directory": "libs/games-harness",
-    "parts": 47
+    "parts": 48
   },
   {
     "package": "@libs/profile-harness",

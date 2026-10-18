@@ -1,7 +1,8 @@
 /**
- * `specs/chess/puzzle-attempt.qnt` against the chess composition: a guest
- * hosting a space plays puzzles through the chess harness actions while another
- * guest in the space watches, and the model's state is read back off both
+ * `specs/chess/puzzle-assistant.qnt` against the chess composition: a guest
+ * hosting a space plays chess puzzles through the chess harness actions
+ * while another guest in the space watches, and the model's state — the
+ * attempt and the Puzzle Assistant following it — is read back off both
  * views. Puzzle ids are opaque, so each is numbered in the order it first
  * reached the host's board.
  */
@@ -24,7 +25,6 @@ import {
   suggestNonSolutionMove,
   tapPuzzleReviewMove,
 } from '@libs/chess-puzzle-harness/chess-actions';
-import { attemptHostPuzzleCommand } from '@libs/chess-puzzle-harness/chess-puzzle-room-probe';
 import {
   closePuzzleSummary,
   readActivePuzzleId,
@@ -45,6 +45,7 @@ import {
   readPuzzleView,
 } from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import { preparePuzzleModelPool } from '@libs/chess-puzzle-harness/puzzle-model-pool';
+import { attemptHostPuzzleCommand } from '@libs/game-session-harness/puzzle-room-probe';
 import { partition, restartApp, restoreNetwork } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { focusActor } from '@libs/harness/shell-actions';
@@ -122,7 +123,7 @@ async function startsUsed(
 }
 
 bindQuintModel<QuintHarnessWorld>({
-  model: 'puzzle-attempt',
+  model: 'puzzle-assistant',
   traces: 64,
   maxSteps: 64,
   verifySteps: 8,

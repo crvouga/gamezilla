@@ -225,7 +225,7 @@ function knownPuzzle(id: string): PuzzleFixture {
 }
 
 const LEAP_HOME = knownPuzzle('leap-home');
-const HOLD_FOUR = knownPuzzle('hold-four');
+const LEAP_PAST_FOUR = knownPuzzle('leap-past-four');
 const EITHER_ORDER = knownPuzzle('either-order');
 
 /** The reference game's adapter with its known puzzles replaced. */
@@ -237,8 +237,9 @@ function withKnownPuzzles(...puzzles: [PuzzleFixture, ...PuzzleFixture[]]) {
 }
 
 test('a puzzle judge spelling a leap as an advance is refused by the solution it then misjudges', () => {
-  // Its spelling makes the leap home an advance to six: the line's move,
-  // as the judge now reads it, but not the move the solver made.
+  // Its spelling makes the Hare's leap to three an advance to two: the
+  // line's move, as the judge now reads it, but not the move the solver
+  // made; and the Hare's wrong count of one reads as the line's leap.
   const misspelling = faultyPuzzles({
     judge: {
       canonical: (_position, action) =>
@@ -251,10 +252,10 @@ test('a puzzle judge spelling a leap as an advance is refused by the solution it
       'following the solution solves the puzzle, each move as the line names it'
     )
   ).toContain(
-    "counting-race/leap-home: the solution's leap is labelled step 6, not leap to 7"
+    "counting-race/leap-home: the solution's leap is labelled step 2, not leap to 3"
   );
   expect(refused.get('its wrong move is judged wrong')).toContain(
-    'the wrong move advance is judged correct (line)'
+    'counting-race/leap-home: the wrong move advance is judged correct (line)'
   );
   // Its rules, presentation and record are untouched.
   for (const law of refused.keys()) expect(law).not.toContain('known victory');
@@ -270,7 +271,7 @@ test('a puzzle board whose marks name no cells of the board is refused', () => {
   expectRefusedBy(
     offBoard,
     'a hint, a wrong move and a suggestion name cells of its board',
-    'leap ends on cell-7, not a cell'
+    'leap ends on cell-3, not a cell'
   );
 });
 
@@ -295,30 +296,33 @@ test("a puzzle namespace taken from the durable game, or another game's, is refu
 });
 
 test('known puzzles the rules contradict, or outside the namespace, are refused when the adapter is made', () => {
-  const misnamed = { ...LEAP_HOME, labels: ['step 5', 'step 7'] };
+  const misnamed = {
+    ...LEAP_HOME,
+    labels: ['step 1', 'leap to 3', 'leap to 5', 'step 7'],
+  };
   expect(() =>
-    assertHarnessGame(withKnownPuzzles(misnamed, HOLD_FOUR))
+    assertHarnessGame(withKnownPuzzles(misnamed, LEAP_PAST_FOUR))
   ).toThrow(
     "counting race: the known puzzle counting-race/leap-home's line move leap is written leap to 7, not step 7"
   );
-  const wrongSide = { ...HOLD_FOUR, solverSide: 'white' as const };
+  const wrongSide = { ...LEAP_PAST_FOUR, solverSide: 'white' as const };
   expect(() => assertHarnessGame(withKnownPuzzles(wrongSide))).toThrow(
-    "counting-race/hold-four's setup move gives black the turn, not white"
+    "counting-race/leap-past-four's setup move gives black the turn, not white"
   );
-  const winning = { ...LEAP_HOME, wrongMove: { at: 1, action: 'leap' } };
-  expect(() => assertHarnessGame(withKnownPuzzles(winning, HOLD_FOUR))).toThrow(
-    "counting-race/leap-home's wrong move leap is a win"
-  );
-  const legal = { ...HOLD_FOUR, refusedMove: { at: 1, action: 'leap' } };
+  const winning = { ...LEAP_HOME, wrongMove: { at: 3, action: 'leap' } };
+  expect(() =>
+    assertHarnessGame(withKnownPuzzles(winning, LEAP_PAST_FOUR))
+  ).toThrow("counting-race/leap-home's wrong move leap is a win");
+  const legal = { ...LEAP_PAST_FOUR, refusedMove: { at: 1, action: 'leap' } };
   expect(() => assertHarnessGame(withKnownPuzzles(legal))).toThrow(
-    "counting-race/hold-four's refused move leap is accepted"
+    "counting-race/leap-past-four's refused move leap is accepted"
   );
   const borrowed = {
     ...EITHER_ORDER,
     record: { ...EITHER_ORDER.record, id: 'either-order' },
   };
   expect(() =>
-    assertHarnessGame(withKnownPuzzles(borrowed, HOLD_FOUR))
+    assertHarnessGame(withKnownPuzzles(borrowed, LEAP_PAST_FOUR))
   ).toThrow(
     'the known puzzle either-order is not in the namespace "counting-race/"'
   );

@@ -54,7 +54,7 @@ properties, seeds, room host, browser pages) from `@libs/<sub>/harness/*`.
 `composeHarnessSlices` adds the platform (auth, client-config, permissions, and
 the population tables identity reads) and folds in production's order. Run one package's suite with
 `bun run --filter @libs/chess-root-harness test:spec`, one spec with
-`bun run spec specs/chess/puzzle-play.feature`.
+`bun run spec specs/games/puzzle-play.feature`.
 
 ## Hosts
 

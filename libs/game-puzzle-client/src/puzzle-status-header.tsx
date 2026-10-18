@@ -35,18 +35,17 @@ function statusLabel(kind: PuzzleStatusKind): JSX.Element | null {
 }
 
 /** §5 prompt once the setup move has played: the solver is to move. */
-function yourTurnLabel(side: 'white' | 'black'): JSX.Element {
-  return side === 'white' ? (
-    <Trans>Your turn — find the best move for White</Trans>
-  ) : (
-    <Trans>Your turn — find the best move for Black</Trans>
-  );
+function yourTurnLabel(side: string): JSX.Element {
+  return <Trans>Your turn — find the best move for {side}</Trans>;
 }
 
 export type PuzzleStatusHeaderProps = {
   kind: PuzzleStatusKind;
-  /** The solver's side: the `started` label becomes the §5 "your turn" prompt. */
-  sideToMove?: 'white' | 'black' | null;
+  /**
+   * The solver's side, as the game names it: the `started` label becomes
+   * the §5 "your turn" prompt.
+   */
+  solverSide?: string | null;
   /** Right-aligned slot, e.g. the puzzle clock. */
   trailing?: JSX.Element;
 };
@@ -65,7 +64,7 @@ export function PuzzleStatusHeader(
         data-testid="chess-puzzle-status-label"
       >
         <Show
-          when={props.kind === 'started' ? props.sideToMove : null}
+          when={props.kind === 'started' ? props.solverSide : null}
           fallback={statusLabel(props.kind)}
         >
           {(side) => yourTurnLabel(side())}

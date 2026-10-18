@@ -27,7 +27,8 @@ async function pickedGame(w: HarnessWorld, host: string, guest: string) {
   await w.s.apply(joinFromPrompt, guest);
   await w.s.apply(pickGame, host, gameOf(w).shared.id);
   await w.s.until((s) => offeredGameChoices(s, guest), {
-    pred: (offered) => offered.length === SHARED_GAME_CHOICES.length,
+    pred: (offered) =>
+      SHARED_GAME_CHOICES.every((choice) => offered.includes(choice)),
   });
 }
 

@@ -36,11 +36,14 @@
     "@libs/test-ids-shared": "workspace:*",
     "@pkgs/a11y-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/device-shared": "workspace:*",
     "@pkgs/harness-root-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",
     "@pkgs/room-root-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/turn-game-shared": "workspace:*",
+    "@pkgs/ui-testing-root-shared": "workspace:*",
     "fast-check": "catalog:"
   },
   "devDependencies": {
@@ -64,6 +67,10 @@
     "known-puzzles",
     "space-game-choice",
     "puzzle-session-probe",
-    "puzzle-fixtures"
+    "puzzle-fixtures",
+    "puzzle-screen",
+    "puzzle-records",
+    "puzzle-moves",
+    "puzzle-room-probe"
   ]
 }
