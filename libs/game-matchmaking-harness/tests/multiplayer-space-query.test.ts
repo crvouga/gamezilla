@@ -29,7 +29,7 @@ test('the multiplayer space snapshot passes server SQL enforcement and includes 
           nextCheckpoint: () => '1',
           strictQueryLimits: true,
         },
-        { name: 'chessMultiplayerSpace', params: { spaceId: SPACE } }
+        { name: multiplayerSpaceQuery.name, params: { spaceId: SPACE } }
       );
       expect(response.status).toBe('ok');
       if (response.status !== 'ok') throw new Error('expected snapshot');

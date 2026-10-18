@@ -7,7 +7,7 @@ import sql from '@pkgs/sql-root-shared/sql';
 
 export const HOST = '6cd7d77a-023c-414a-90d3-e1b2b4908e2d';
 export const DEVICE = '2e7a41ec-a2cc-4075-809e-b919b60d4b0d';
-export const SPACE = 'friday-chess';
+export const SPACE = 'friday-games';
 export const TOMBSTONE = '2026-10-05T11:42:24.881Z';
 
 export async function openMultiplayerQueryFixture() {
