@@ -41,6 +41,19 @@ test('a game whose ending has no description is refused', () => {
   );
 });
 
+test('a game describing a reason it never gives is refused', () => {
+  // regression: game-session-ending-descriptions-lost
+  const generic = definedWith(
+    {},
+    { presentation: { ...PRESENTATION, endingDescription: () => 'Game over.' } }
+  );
+  expectRefusedBy(
+    generic,
+    'a reason the game never gives has no description',
+    'is described as "Game over."'
+  );
+});
+
 test('a game whose sides share one name is refused', () => {
   const nameless = definedWith(
     {},

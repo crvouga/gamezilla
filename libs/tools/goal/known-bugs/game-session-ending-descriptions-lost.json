@@ -1,4 +1,4 @@
 {
   "summary": "Extracting the shared result screen collapsed distinct Chess draw explanations into a generic draw label. Complete ending descriptions and timeout-draw wording belong to each game's presentation adapter.",
-  "regressionTest": "libs/games-harness/tests/conformance/rules/ending-descriptions.test.ts"
+  "regressionTest": "libs/games-harness/tests/conformance/rules/presentation.test.ts"
 }

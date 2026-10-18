@@ -19,38 +19,57 @@ import type { HarnessGame } from './harness-game';
 const filled = (text: string | undefined): boolean =>
   text !== undefined && text.trim() !== '';
 
-/** The ending reasons of the game's known lines. */
+/**
+ * The ending reason of each known line the game's rules end — its known
+ * victory and, for a game its rules can draw, that draw. A known line its
+ * rules refuse, never end, or end without a reason is a fault.
+ */
 function knownEndings(game: HarnessGame): readonly string[] {
   const rules = game.shared.turnGame.rules;
-  return [game.fixtures.firstSideVictory, game.fixtures.drawByRules].flatMap(
-    (line) => {
-      const reason = line === undefined ? null : lastReason(rules, line);
-      return reason === null ? [] : [reason];
-    }
+  const lines = [
+    ['known victory', game.fixtures.firstSideVictory],
+    ["draw by the game's rules", game.fixtures.drawByRules],
+  ] as const;
+  return lines.flatMap(([name, line]) =>
+    line === undefined ? [] : [endingReason(rules, name, line)]
   );
 }
 
-function lastReason(rules: GameRules, line: readonly string[]): string | null {
+function endingReason(
+  rules: GameRules,
+  name: string,
+  line: readonly string[]
+): string {
   let position = rules.initial();
   let history = '';
   const actions: string[] = [];
-  let reason: string | null = null;
   for (const action of line) {
     const played = rules.play(position, action, history, actions);
-    if (played === null) return null;
+    if (played === null) throw new Error(`the ${name}'s ${action} was refused`);
     actions.push(action);
     position = played.position;
     history = played.history;
-    reason = played.reason;
+    if (played.winner === null) continue;
+    if (played.reason === null || played.reason.trim() === '')
+      throw new Error(`the ${name} ends without a reason`);
+    return played.reason;
   }
-  return reason;
+  throw new Error(`the ${name} never ends the game`);
 }
 
-/** The laws of how the shared screens name a game's sides and endings. */
+const SIDES = ['white', 'black'] as const;
+const sideName = (side: GameSide) => (side === 'white' ? 'first' : 'second');
+
+/**
+ * The laws of how the shared screens name a game's sides and endings: the
+ * result screens and notices show only what the game's presentation says
+ * of how a game ended, so each ending keeps words of its own.
+ */
 export function gamePresentationLaws(game: HarnessGame): readonly GameLaw[] {
   const presentation = game.client.presentation;
   return [
     law(game, 'the game and each of its sides have a name of their own', () => {
+      must(presentation !== undefined, 'the game supplies no presentation');
       must(filled(presentation.name()), 'the game has no name');
       const first = presentation.sideLabel('white');
       const second = presentation.sideLabel('black');
@@ -79,13 +98,53 @@ export function gamePresentationLaws(game: HarnessGame): readonly GameLaw[] {
         })
       );
     }),
+    law(game, 'distinct endings keep descriptions of their own', () => {
+      const byDescription = new Map<string, string>();
+      for (const reason of new Set(knownEndings(game))) {
+        const description = presentation.endingDescription(reason) ?? '';
+        const earlier = byDescription.get(description);
+        must(
+          earlier === undefined,
+          `the endings "${String(earlier)}" and "${reason}" are both described as "${description}"`
+        );
+        byDescription.set(description, reason);
+      }
+    }),
+    law(game, 'a reason the game never gives has no description', () => {
+      const unknown = `not an ending of ${game.label}`;
+      const description = presentation.endingDescription(unknown);
+      must(
+        description === undefined,
+        `the reason "${unknown}" is described as "${String(description)}"`
+      );
+    }),
     law(game, 'a draw on time is described whichever side ran out', () => {
-      for (const side of ['white', 'black'] as const)
+      for (const side of SIDES)
         must(
           filled(presentation.timeoutDrawDescription(side)),
-          `a draw on time against the ${side === 'white' ? 'first' : 'second'} side has no description`
+          `a draw on time against the ${sideName(side)} side has no description`
         );
     }),
+    // A flag fall is a draw only against a side that cannot win, which a
+    // game shows by its fixture; a game without one is never drawn on time.
+    ...(game.fixtures.secondSideCannotWin === undefined
+      ? []
+      : [
+          law(game, 'a draw on time names the side that ran out', () => {
+            const [first, second] = SIDES.map((side) => {
+              const description = presentation.timeoutDrawDescription(side);
+              must(
+                description.includes(presentation.sideLabel(side)),
+                `a draw on time against the ${sideName(side)} side ("${description}") does not name ${presentation.sideLabel(side)}`
+              );
+              return description;
+            });
+            must(
+              first !== second,
+              `a draw on time reads "${String(first)}" whichever side ran out`
+            );
+          }),
+        ]),
   ];
 }
 
