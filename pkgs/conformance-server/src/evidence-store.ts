@@ -30,6 +30,8 @@ import {
   isEvidenceRecord,
   sha256,
 } from '@pkgs/conformance-shared/evidence';
+import type { VariantRequirements } from '@pkgs/conformance-shared/variants';
+import { isVariantRequirements } from '@pkgs/conformance-shared/variants';
 
 export function evidenceDir(reportDir: string): string {
   return join(reportDir, 'evidence');
@@ -114,4 +116,49 @@ function mergeObligations(
     byId.set(obligation.id, obligation);
   }
   return sortObligations([...byId.values()]);
+}
+
+function variantsDir(reportDir: string): string {
+  return join(reportDir, 'variants');
+}
+
+/**
+ * Record what `requirements.packageName` requires of its specs per variant
+ * (`<reportDir>/variants/<package>.json`), atomically: every worker of one
+ * run writes the same declaration.
+ */
+export function recordVariantRequirements(
+  reportDir: string,
+  requirements: VariantRequirements
+): void {
+  const dir = variantsDir(reportDir);
+  mkdirSync(dir, { recursive: true });
+  const file = join(dir, `${evidenceKey(requirements.packageName)}.json`);
+  const temporary = `${file}.${String(process.pid)}.tmp`;
+  writeFileSync(temporary, `${JSON.stringify(requirements, null, 2)}\n`);
+  renameSync(temporary, file);
+}
+
+/** Every variant requirement declared in `reportDir`; malformed files are reported. */
+export function readVariantRequirements(reportDir: string): {
+  readonly requirements: readonly VariantRequirements[];
+  readonly malformed: readonly string[];
+} {
+  const dir = variantsDir(reportDir);
+  if (!existsSync(dir)) return { requirements: [], malformed: [] };
+  const requirements: VariantRequirements[] = [];
+  const malformed: string[] = [];
+  for (const name of readdirSync(dir).sort()) {
+    if (!name.endsWith('.json')) continue;
+    const file = join(dir, name);
+    let parsed: unknown = null;
+    try {
+      parsed = JSON.parse(readFileSync(file, 'utf8'));
+    } catch {
+      parsed = null;
+    }
+    if (isVariantRequirements(parsed)) requirements.push(parsed);
+    else malformed.push(file);
+  }
+  return { requirements, malformed };
 }

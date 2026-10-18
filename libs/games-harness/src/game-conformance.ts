@@ -179,6 +179,44 @@ export function offersAll(
   );
 }
 
+/**
+ * The games a shared specification holds, among `games`: each offering
+ * everything it shows. Its runs (one test and one evidence obligation per
+ * game) and the report's per-game requirement both come from here, so a
+ * game the specification needs without a verdict of its own reads as
+ * missing, never satisfied by another game's.
+ */
+export function specificationGames<Game extends HarnessGame>(
+  specUri: string,
+  games: readonly Game[]
+): readonly Game[] {
+  const needs = sharedSpecificationNeeds(specUri);
+  return games.filter((game) => offersAll(game, needs));
+}
+
+/**
+ * For every shared specification, the ids of the games it must have a
+ * verdict of its own for, and every game there is: what the conformance
+ * report holds each game × specification cell to.
+ */
+export function requiredGames(
+  specUris: readonly string[],
+  games: readonly HarnessGame[]
+): {
+  readonly variants: readonly string[];
+  readonly required: Readonly<Record<string, readonly string[]>>;
+} {
+  return {
+    variants: games.map((game) => game.shared.id),
+    required: Object.fromEntries(
+      specUris.map((uri) => [
+        uri,
+        specificationGames(uri, games).map((game) => game.shared.id),
+      ])
+    ),
+  };
+}
+
 /** One shared suite: a code suite or a shared specification, and whom it binds. */
 export type ConformanceSuite = {
   /** `conformance/<area>/<file>` or `specs/games/<file>` (any kind). */

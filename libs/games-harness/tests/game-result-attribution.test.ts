@@ -7,20 +7,15 @@
  */
 
 import { expect, test } from 'bun:test';
-import { join } from 'node:path';
-import { SHARED_SPECIFICATION_KINDS } from '@libs/games-harness/game-conformance';
 import { scenarioObligationId } from '@pkgs/gherkin-server/evidence';
 import { runName, runObligation } from '@pkgs/quint-server/trace-runs';
-import { CONFORMANCE_GAMES, conformanceVariants } from './conformance-world';
+import {
+  CONFORMANCE_GAMES,
+  conformanceVariants,
+  sharedSpecifications,
+} from './conformance-world';
 
-const SHARED_SPECS = join(import.meta.dir, '../../../specs/games');
-const SPECS = [...new Bun.Glob('*').scanSync(SHARED_SPECS)]
-  .filter((file) =>
-    SHARED_SPECIFICATION_KINDS.some((kind) => file.endsWith(kind))
-  )
-  .filter((file) => file !== 'events.qnt')
-  .sort()
-  .map((file) => `specs/games/${file}`);
+const SPECS = sharedSpecifications();
 const SCENARIO = 'A scenario every game shares';
 
 /** What a game's run of `uri` is named and recorded as. */

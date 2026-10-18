@@ -21,12 +21,14 @@ import { useHarnessWorld } from '@libs/harness/spec-world';
 import { defineScenarioVariants } from '@pkgs/gherkin-shared/registry';
 import {
   conformanceVariants,
+  declareRequiredGames,
   openConformanceHarness,
 } from '../conformance-world';
 import { customGameBeforeDeletion } from './custom-game-privacy.steps';
 import { deviceOffline, playsMatchedGames } from './matched-game-connection';
 
 defineScenarioVariants((ctx) => conformanceVariants(ctx.featureUri));
+declareRequiredGames();
 
 // Every `*.steps.ts` under this folder registers itself.
 const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);

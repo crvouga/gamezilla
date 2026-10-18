@@ -118,6 +118,7 @@
     "@pkgs/alloy-shared": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/conformance-server": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
     "@pkgs/dmn-shared": "workspace:*",
     "@pkgs/gherkin-server": "workspace:*",

@@ -15,6 +15,7 @@ import type { EvidenceRecord, Layer } from '@pkgs/conformance-shared/evidence';
 import type { ProofTable } from '@pkgs/conformance-shared/proofs';
 
 import type { LineResult } from './evaluate';
+import type { VariantCell } from './variant-evidence';
 
 export type RequirementResult = {
   readonly id: string;
@@ -160,6 +161,8 @@ export type ConformanceReport = Verdict & {
     readonly bun: string;
   };
   readonly evidence: readonly (EvidenceRecord & { readonly fresh: boolean })[];
+  /** Every variant cell of a spec run per variant: passed, failed, stale, missing or not applicable. */
+  readonly variants: readonly VariantCell[];
 };
 
 /** The revision of a spec tree: its files' paths and hashes, in path order. */

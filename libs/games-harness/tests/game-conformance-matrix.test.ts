@@ -11,7 +11,6 @@
  */
 
 import { expect, test } from 'bun:test';
-import { join } from 'node:path';
 import type {
   ConformanceArea,
   ConformanceSuite,
@@ -30,23 +29,14 @@ import {
 import { HARNESS_GAMES } from '@libs/games-harness/harness-games';
 import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
 import { planCodeSuites } from './conformance/game-suite';
-import { CONFORMANCE_GAMES, gamesHeldTo } from './conformance-world';
+import {
+  CONFORMANCE_GAMES,
+  gamesHeldTo,
+  sharedSpecifications,
+} from './conformance-world';
 import { COUNTING_RACE_GAME } from './reference-game/counting-race-game';
 
 const TESTS = import.meta.dir;
-const SHARED_SPECS = join(TESTS, '../../../specs/games');
-
-/** Every spec a game is held to (the glossary and events are not). */
-function sharedSpecifications(): readonly string[] {
-  return [...new Bun.Glob('*').scanSync(SHARED_SPECS)]
-    .filter((file) =>
-      SHARED_SPECIFICATION_KINDS.some((kind) => file.endsWith(kind))
-    )
-    .filter((file) => file !== 'events.qnt')
-    .sort()
-    .map((file) => `specs/games/${file}`);
-}
-
 /** Every shared suite; planning must run inside a test. */
 async function suites(): Promise<readonly ConformanceSuite[]> {
   return [

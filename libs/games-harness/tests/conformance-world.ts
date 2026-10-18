@@ -4,18 +4,21 @@
  * game beside them. Each is held to exactly what it offers.
  */
 
+import { join } from 'node:path';
 import {
   gameSystem,
   openGameHarness,
 } from '@libs/game-session-harness/game-system';
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
 import {
-  offersAll,
-  sharedSpecificationNeeds,
+  requiredGames,
+  SHARED_SPECIFICATION_KINDS,
+  specificationGames,
 } from '@libs/games-harness/game-conformance';
 import { HARNESS_GAMES } from '@libs/games-harness/harness-games';
 import type { OpenHarnessOptions } from '@libs/harness/mode';
 import type { OpenHarness } from '@libs/harness/open-harness';
+import { recordVariantRequirements } from '@pkgs/conformance-server/evidence-store';
 import { COUNTING_RACE_GAME } from './reference-game/counting-race-game';
 
 export const CONFORMANCE_GAMES: readonly HarnessGame[] = [
@@ -28,8 +31,35 @@ export const CONFORMANCE_GAMES: readonly HarnessGame[] = [
  * for: every conformance game offering what it shows.
  */
 export function gamesHeldTo(specUri: string): readonly HarnessGame[] {
-  const needs = sharedSpecificationNeeds(specUri);
-  return CONFORMANCE_GAMES.filter((game) => offersAll(game, needs));
+  return specificationGames(specUri, CONFORMANCE_GAMES);
+}
+
+const SHARED_SPECS = join(import.meta.dir, '../../../specs/games');
+
+/** Every spec of `specs/games/` a game is held to (the glossary and events are not). */
+export function sharedSpecifications(): readonly string[] {
+  return [...new Bun.Glob('*').scanSync(SHARED_SPECS)]
+    .filter((file) =>
+      SHARED_SPECIFICATION_KINDS.some((kind) => file.endsWith(kind))
+    )
+    .filter((file) => file !== 'events.qnt')
+    .sort()
+    .map((file) => `specs/games/${file}`);
+}
+
+/**
+ * Declare, beside the run's evidence (`HARNESS_REPORT_DIR`, set by
+ * `test:spec`), which games every shared specification must have a verdict
+ * of its own for, so the conformance report holds each game × specification
+ * cell to its own evidence. Outside a spec run there is nothing to declare.
+ */
+export function declareRequiredGames(): void {
+  const reportDir = process.env['HARNESS_REPORT_DIR'];
+  if (reportDir === undefined || reportDir === '') return;
+  recordVariantRequirements(reportDir, {
+    packageName: '@libs/games-harness',
+    ...requiredGames(sharedSpecifications(), CONFORMANCE_GAMES),
+  });
 }
 
 /**

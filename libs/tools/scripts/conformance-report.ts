@@ -9,7 +9,9 @@
  * `test:spec` parts) and `<package>/.cache/health-report/**` evidence (the
  * live `health` run), checks each record against the spec's current text
  * (another text is stale: FAIL), requires evidence for every spec a suite
- * runs (none: FAIL), asks the build cache whether each release gate passed
+ * runs (none: FAIL) — for a spec run once per variant (a shared game
+ * specification, per game), a verdict of its own for every variant its host
+ * declared it needs (`<bucket>/variants/`) — asks the build cache whether each release gate passed
  * for the current inputs, and prints the pipeline — SPECIFICATION,
  * IMPLEMENTATION, SYSTEM, RELEASE / LIVE, COMPLETENESS, a PASS or FAIL and
  * counts per line — then `PRODUCT CONFORMANCE` and `PRODUCTION READINESS`.
@@ -32,15 +34,21 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { readEvidence } from '@pkgs/conformance-server/evidence-store';
+import {
+  readEvidence,
+  readVariantRequirements,
+} from '@pkgs/conformance-server/evidence-store';
 import { closureProblems } from '@pkgs/conformance-shared/closure';
 import type { EvidenceRecord } from '@pkgs/conformance-shared/evidence';
 import { sha256 } from '@pkgs/conformance-shared/evidence';
+import type { VariantRequirements } from '@pkgs/conformance-shared/variants';
+import { specVariants } from '@pkgs/conformance-shared/variants';
 import { modelTemporalProperties } from '@pkgs/quint-server/temporal';
 import type { ReportInput, ReportSpec } from '../conformance/evaluate';
-import { evaluateLines } from '../conformance/evaluate';
+import { evaluateLines, evaluateVariantCells } from '../conformance/evaluate';
 import { EVIDENCE_MAP, RELEASE_GATE_TASKS } from '../conformance/evidence-map';
 import { gateVerdicts } from '../conformance/gate-verdicts';
+import { variantSummary } from '../conformance/variant-evidence';
 import type { ConformanceReport } from '../conformance/verdict';
 import {
   decideVerdict,
@@ -93,10 +101,14 @@ const reportSpecs: ReportSpec[] = specs.map((spec) => {
 
 const records: EvidenceRecord[] = [];
 const malformed: string[] = [];
+const declared: VariantRequirements[] = [];
 for (const bucket of reportBuckets(REPO_ROOT)) {
   const read = readEvidence(bucket);
   records.push(...read.records);
   malformed.push(...read.malformed);
+  const variants = readVariantRequirements(bucket);
+  declared.push(...variants.requirements);
+  malformed.push(...variants.malformed);
 }
 
 const decisionSpec = new Map(
@@ -106,6 +118,7 @@ const input: ReportInput = {
   specs: reportSpecs,
   records,
   malformed,
+  variants: specVariants(declared),
   closure,
   capabilities: (manifest?.product.capabilities ?? []).map((capability) => ({
     id: capability.id,
@@ -124,6 +137,7 @@ const verdict = decideVerdict({
   require: manifest?.['production readiness'].require ?? null,
   readiness: EVIDENCE_MAP['production readiness'],
 });
+const cells = evaluateVariantCells(input);
 const current = new Map(reportSpecs.map((spec) => [spec.path, spec.sha256]));
 const report: ConformanceReport = {
   ...verdict,
@@ -142,6 +156,7 @@ const report: ConformanceReport = {
     ...record,
     fresh: current.get(record.specUri) === record.specSha256,
   })),
+  variants: cells,
 };
 mkdirSync(join(REPO_ROOT, '.cache/conformance'), { recursive: true });
 writeFileSync(
@@ -150,6 +165,8 @@ writeFileSync(
 );
 
 console.log(renderVerdict(verdict));
+if (cells.length > 0)
+  console.log(`\nper-variant evidence: ${variantSummary(cells)}`);
 console.log(
   `\nspec revision ${report.specRevision.slice(0, 12)} · commit ${report.artifact.commit.slice(0, 12)}${report.artifact.dirty ? ' (dirty)' : ''} · ${String(records.length)} evidence records · ${REPORT_PATH}`
 );
