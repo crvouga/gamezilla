@@ -14,6 +14,10 @@ import { partition } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import { before, gameOf, setupCustomGame, sideOf, view } from './game-world';
 import { nextVictoryMove, told } from './matched-game';
+import {
+  boardTakesNoMove,
+  reviewsEarlierPosition,
+} from './matched-game-review-world';
 
 const SECOND_MS = 1000;
 
@@ -44,7 +48,8 @@ Given('{actor} has a custom game one move from her victory', async (w) => {
 
 // A custom game's next move, or the matched game's next move of the game's victory.
 When('{actor} makes his/her/a move', async (w, actor: string) => {
-  if (inMatchedGame(w)) {
+  if (reviewsEarlierPosition(w, actor)) await boardTakesNoMove(w, actor);
+  else if (inMatchedGame(w)) {
     const { revision } = await matchedGameOf(w, actor);
     await move(w, actor, nextVictoryMove(w, revision));
   } else await w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id);
@@ -93,7 +98,8 @@ Then(
 Then(
   '{actor} is told the game needs a connection',
   async (w, actor: string) => {
-    expect((await view(w, actor)).error).toBe('connection needed');
+    if (inMatchedGame(w)) await told(w, actor, 'OFFLINE');
+    else expect((await view(w, actor)).error).toBe('connection needed');
   }
 );
 Then('{actor} wins the custom game', async (w, actor: string) => {

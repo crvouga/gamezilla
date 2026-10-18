@@ -3,6 +3,8 @@ import type { ProductHarness } from '@libs/harness/harness';
 import type { HarnessSlice } from '@libs/harness/slices';
 import type { GameClientDefinition } from '@libs/spaces-shared/game';
 import type { CatalogAction } from '@pkgs/harness-root-shared/effect';
+import type { GameSide } from '@pkgs/turn-game-shared/game-rules';
+import { offeredCapabilities } from '@pkgs/turn-game-shared/game-rules';
 
 /**
  * Known examples of a game's rules, written by the game's author from the
@@ -16,6 +18,14 @@ export type GameFixtures = {
    * has won; only the last one wins.
    */
   readonly firstSideVictory: readonly string[];
+  /**
+   * How the game writes each action of `firstSideVictory`, in order, in its
+   * move list and its game record (chess: algebraic notation). The shared
+   * matched-game features showing the moves played or a copied game record
+   * (`matched-game-watchers`, `matched-game-review`, `matched-game-record`)
+   * need it.
+   */
+  readonly firstSideVictoryLabels: readonly string[];
   /**
    * Actions the rules must refuse from the starting position (an illegal
    * action, a malformed one); at least one.
@@ -38,6 +48,20 @@ export type GameFixtures = {
    * own rules (`matched-game-rules-draw`) needs it.
    */
   readonly drawByRules?: readonly string[];
+};
+
+/**
+ * A finished matched game's record (the game's `history.record`) as the
+ * game's own format reads, without the game's code: the names it gives the
+ * two sides, the result, the clock choice and every move as it writes them.
+ */
+export type ReadGameRecord = {
+  readonly firstSide: string | null;
+  readonly secondSide: string | null;
+  readonly result: GameSide | 'draw' | null;
+  /** As finding an opponent writes it, without the game's namespace: `5+0`, `3d`. */
+  readonly clockChoice: string | null;
+  readonly moves: readonly string[];
 };
 
 /**
@@ -65,6 +89,13 @@ export type HarnessGame = PlayableGame & {
   readonly slice?: HarnessSlice;
   /** This game's own testing-tool actions. */
   readonly actions?: readonly CatalogAction<ProductHarness>[];
+  /**
+   * Reads the game's record back in its own format, for a game offering
+   * finding an opponent and history (whose matched games offer a game
+   * record); absent otherwise, which `assertHarnessGame` checks. The shared
+   * game-record feature (`matched-game-record`) needs it.
+   */
+  readonly readRecord?: (record: string) => ReadGameRecord;
 };
 
 /** Fail fast, naming the game, on an adapter its own rules contradict. */
@@ -83,6 +114,7 @@ export function assertHarnessGame(game: HarnessGame): HarnessGame {
   for (const action of refusedOpenings)
     if (rules.play(rules.initial(), action, '', []) !== null)
       fail(`the refused opening ${action} is accepted`);
+  assertMoveNamesAndRecord(game, fail);
   const cannotWin = game.fixtures.secondSideCannotWin;
   if (cannotWin !== undefined) assertCannotWinLine(game, cannotWin, fail);
   const drawn = game.fixtures.drawByRules;
@@ -96,11 +128,37 @@ export function assertHarnessGame(game: HarnessGame): HarnessGame {
     const last = index === firstSideVictory.length - 1;
     if (last !== (played?.winner === 'white'))
       fail('the victory must be won by its last move, by the first side');
+    if (played?.label !== game.fixtures.firstSideVictoryLabels[index])
+      fail(
+        `victory move ${action} is not written ${String(game.fixtures.firstSideVictoryLabels[index])}`
+      );
     position = played!.position;
     history = played!.history;
     actions.push(action);
   }
   return game;
+}
+
+/**
+ * Every move of the victory is named, and exactly a game whose matched
+ * games offer a game record (finding an opponent and history) reads it.
+ */
+function assertMoveNamesAndRecord(
+  game: HarnessGame,
+  fail: (problem: string) => void
+): void {
+  const { firstSideVictory, firstSideVictoryLabels } = game.fixtures;
+  if (firstSideVictoryLabels.length !== firstSideVictory.length)
+    fail('name every move of the first-side victory');
+  const offered = offeredCapabilities(game.shared.turnGame);
+  const recorded =
+    offered.includes('matchmaking') && offered.includes('history');
+  if (recorded !== (game.readRecord !== undefined))
+    fail(
+      recorded
+        ? 'a game whose matched games offer a game record reads it back'
+        : 'only a game whose matched games offer a game record reads one'
+    );
 }
 
 /**

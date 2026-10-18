@@ -10,6 +10,7 @@ import '@libs/harness/sounds.steps';
 import '@libs/game-matchmaking-harness/matched-game-app.steps';
 import '@libs/friends-harness/spaces.steps';
 import '@libs/friends-harness/space-offline.steps';
+import '@libs/friends-harness/space-idle.steps';
 import '@libs/friends-harness/friends.steps';
 import '@libs/profile-harness/profile.steps';
 import '@libs/profile-harness/auth.steps';
@@ -20,6 +21,7 @@ import { useHarnessWorld } from '@libs/harness/spec-world';
 import { defineScenarioVariants } from '@pkgs/gherkin-shared/registry';
 import { gamesHeldTo, openConformanceHarness } from '../conformance-world';
 import { customGameBeforeDeletion } from './custom-game-privacy.steps';
+import { deviceOffline, playsMatchedGames } from './matched-game-connection';
 
 defineScenarioVariants((ctx) =>
   gamesHeldTo(ctx.featureUri).map((game) => ({
@@ -35,4 +37,8 @@ for (const file of [...modules].sort()) await import(`./${file}`);
 useHarnessWorld(openConformanceHarness, (w) => ({
   // A deleted account had a custom game of the run's game.
   beforeAccountDeletion: (actor: Actor) => customGameBeforeDeletion(w, actor),
+  // A phone going offline keeps the matched game or search it showed.
+  beforePhoneOffline: async (actor: Actor) => {
+    if (playsMatchedGames(w, actor)) await deviceOffline(w, actor);
+  },
 }));

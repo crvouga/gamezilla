@@ -1,10 +1,20 @@
+/**
+ * A daily game's turn notices, turn reminders and result notices as each
+ * person's inbox shows them, whichever game it is: the notices of one kind
+ * that say what a scenario names, counted within or after some seconds.
+ */
+
 import { expect } from 'bun:test';
-import { ownerOf } from '@libs/game-matchmaking-harness/matched-game-world';
+import {
+  ownerOf,
+  pairOf,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import type {
   MultiplayerNoticeKind,
   ShownMultiplayerNotice,
 } from '@libs/game-matchmaking-harness/multiplayer-notices';
 import {
+  heldMultiplayerNotices,
   openMultiplayerNotice,
   shownMultiplayerNotices,
 } from '@libs/game-matchmaking-harness/multiplayer-notices';
@@ -12,23 +22,28 @@ import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-read
 import { passMultiplayerTime } from '@libs/game-matchmaking-harness/multiplayer-time';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { rememberLastKnownBoard } from './matched-game-connection';
 
 const SECOND_MS = 1000;
 
-/** `White` and `Black` name whoever plays that colour in Alice and Bob's game. */
+/**
+ * The person a step names: a person, or `white` / `black` for whoever was
+ * given the first or second side when the two people were paired.
+ */
 export async function noticePerson(w: HarnessWorld, actor: string) {
   if (actor !== 'white' && actor !== 'black') return actor;
-  await w.s.until(
-    async (s) => (await multiplayerView(s, 'alice')).game !== null
+  const [first, second] = pairOf(w);
+  const game = await w.s.until(
+    async (s) => (await multiplayerView(s, first)).game,
+    { pred: (seen) => seen !== null }
   );
-  const game = (await w.s.read(multiplayerView, 'alice')).game!;
-  const whiteIsAlice = game.white_id === (await ownerOf(w, 'alice'));
-  return (actor === 'white') === whiteIsAlice ? 'alice' : 'bob';
+  const firstHasFirstSide = game?.white_id === (await ownerOf(w, first));
+  return (actor === 'white') === firstHasFirstSide ? first : second;
 }
 
 export type NoticeWanted = {
   readonly kind: MultiplayerNoticeKind;
-  /** The multiplayer opponent it names; any when left out. */
+  /** The opponent it names; any when left out. */
   readonly opponent?: string;
   readonly unread?: boolean;
   /** A turn notice that is, or is not, a turn reminder. */
@@ -36,9 +51,18 @@ export type NoticeWanted = {
   /** Words the notice has to say, such as the time left. */
   readonly says?: string;
   readonly result?: string;
-  readonly reason?: string;
+  /** The reason it gives, or whether that reason passes this test. */
+  readonly reason?: string | ((reason: string | null) => boolean);
   readonly flaggedSide?: string;
 };
+
+function reasonMatches(
+  wanted: NoticeWanted['reason'],
+  reason: string | null
+): boolean {
+  if (wanted === undefined) return true;
+  return typeof wanted === 'function' ? wanted(reason) : reason === wanted;
+}
 
 /** The inbox's notices of this kind that say what the scenario names. */
 async function matching(
@@ -59,17 +83,22 @@ async function matching(
           notice.reminder === wanted.reminder) &&
         (wanted.says === undefined || notice.text.includes(wanted.says)) &&
         (wanted.result === undefined || notice.result === wanted.result) &&
-        (wanted.reason === undefined || notice.reason === wanted.reason) &&
+        reasonMatches(wanted.reason, notice.reason) &&
         (wanted.flaggedSide === undefined ||
           notice.flaggedSide === wanted.flaggedSide)
     ).length;
 }
 
+type Counted = NoticeWanted & {
+  readonly count: number;
+  readonly seconds: number;
+};
+
 /** The person's inbox comes to show exactly this many such notices in time. */
 export async function noticesWithin(
   w: HarnessWorld,
   actor: string,
-  wanted: NoticeWanted & { readonly count: number; readonly seconds: number }
+  wanted: Counted
 ) {
   const person = await noticePerson(w, actor);
   const count = await matching(w, wanted);
@@ -86,7 +115,7 @@ export async function noticesWithin(
 export async function noticesAfter(
   w: HarnessWorld,
   actor: string,
-  wanted: NoticeWanted & { readonly count: number; readonly seconds: number }
+  wanted: Counted
 ) {
   const person = await noticePerson(w, actor);
   const count = await matching(w, wanted);
@@ -96,24 +125,45 @@ export async function noticesAfter(
   );
 }
 
+type TurnNoticeHeld = {
+  readonly unread?: boolean;
+  readonly reminder?: boolean;
+};
+
+/** The person's device comes to hold one turn notice that is as named. */
+export async function turnNoticeHeld(
+  w: HarnessWorld,
+  actor: string,
+  wanted: TurnNoticeHeld
+) {
+  const held = (notices: readonly ShownMultiplayerNotice[]) => {
+    const turn = notices.filter((notice) => notice.kind === 'turn');
+    return (
+      turn.length === 1 &&
+      (wanted.unread === undefined || turn[0]?.unread === wanted.unread) &&
+      (wanted.reminder === undefined || turn[0]?.reminder === wanted.reminder)
+    );
+  };
+  await w.s.until((s) => heldMultiplayerNotices(s, actor), { pred: held });
+  expect(held(await w.s.read(heldMultiplayerNotices, actor))).toBe(true);
+}
+
 /**
  * The person opens the notice from their inbox. The board their device held
- * just before is its last known multiplayer board.
+ * just before is its last known board.
  */
 export async function openNotice(
   w: HarnessWorld,
   actor: string,
   kind: MultiplayerNoticeKind
 ) {
-  if (!w.memo.has(`multiplayer:offline-board:${actor}`))
-    w.memo.set(
-      `multiplayer:offline-board:${actor}`,
-      (await w.s.read(multiplayerView, actor)).game
-    );
+  await rememberLastKnownBoard(w, actor);
   await w.s.apply(openMultiplayerNotice, actor, kind);
 }
 
 /** The scenario's game, whatever either person's screen shows now. */
 export function noticeGame(w: HarnessWorld): MultiplayerGame {
-  return w.memo.get('multiplayer:game') as MultiplayerGame;
+  const game = w.memo.get('multiplayer:game') as MultiplayerGame | undefined;
+  if (game === undefined) throw new Error('No matched game was set up');
+  return game;
 }

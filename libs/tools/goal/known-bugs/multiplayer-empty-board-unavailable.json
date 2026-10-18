@@ -1,4 +1,4 @@
 {
   "summary": "An empty multiplayer board must show the unavailable state even when its viewer is the host of their own unrelated space.",
-  "regressionTest": "specs/chess/multiplayer-in-spaces.feature"
+  "regressionTest": "specs/games/matched-game-watchers.feature"
 }

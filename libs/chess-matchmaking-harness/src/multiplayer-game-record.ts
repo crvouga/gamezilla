@@ -65,7 +65,12 @@ export async function copiedGameRecord(
   actor: string
 ): Promise<CopiedGameRecord | null> {
   const record = await copiedMultiplayerText(s, actor);
-  if (record === null || !record.startsWith('[')) return null;
+  return record === null ? null : readGameRecord(record);
+}
+
+/** A game record as another chess program reads it; null when it is none. */
+export function readGameRecord(record: string): CopiedGameRecord | null {
+  if (!record.startsWith('[')) return null;
   const lines = record.split('\n').map((line) => line.trim());
   const tags = new Map<string, string>();
   for (const line of lines) {

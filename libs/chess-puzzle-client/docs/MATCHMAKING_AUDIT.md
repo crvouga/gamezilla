@@ -88,7 +88,7 @@ additionally binds `games/matched-game.qnt` at the same transaction boundary.
 | Formation retry | Same match and one game, fixed sides; lasting-outcomes, finding-an-opponent |
 | Move/move from two devices | One accepted revision; stale revision refused; matched-game-turns |
 | Resign/move; resign/resign | Legal ordering, immutable terminal outcome; matched-game.qnt, matched-game-turns, matched-game-over |
-| Account deletion/formation or move | No new deleted participant; unfinished game resigned, historical result retained; multiplayer-recovery-and-privacy |
+| Account deletion/formation or move | No new deleted participant; unfinished game resigned, historical result retained; matched-game-ownership |
 
 ## Aggregate coverage
 
@@ -100,11 +100,11 @@ additionally binds `games/matched-game.qnt` at the same transaction boundary.
 | Accepted outcomes and per-device convergence | matching.qnt `invAcknowledgedOutcomes`, `invReturningAgrees`, `invOfflineKeepsKnown` |
 | Match-formed event consumed by game | events.qnt publication, matched-game.qnt `pairPeopleUp`, finding-an-opponent |
 | Play actions and strongest refusals | matched-game-turns, matched-game-abort, matched-game-draw-offers, matched-game-rematch, matched-game-over; matched-game.qnt `playMove`, `resignGame` |
-| Game continuity, privacy, account reaction | multiplayer-recovery-and-privacy, multiplayer-account-and-space |
+| Game continuity, privacy, account reaction | matched-game-recovery, matched-game-ownership |
 | Game ownership, fixed sides, one unfinished game | matched-games.als; matched-game.qnt safety invariants |
 | Upstream permission and usage policies | billing/access.dmn; games/unfinished-game-limit.dmn; conformance capabilities |
-| Upstream blocks, paid access, spaces, friends, usernames | matched-game-blocking, finding-an-opponent, multiplayer-account-and-space |
-| Keyboard and listener access | multiplayer-accessibility; real rendered control checks required |
+| Upstream blocks, paid access, spaces, friends, usernames | matched-game-blocking, finding-an-opponent, matched-game-ownership |
+| Keyboard and listener access | matched-game-accessibility (a keyboard move by its squares: chess's multiplayer-accessibility); real rendered control checks required |
 | Match ready latency and reliability | matched-game-ready.openslo.yaml; multiplayer-game journey |
 | Critical assembled flow | journeys/multiplayer-game.feature |
 | Model-only bookkeeping | Bounded example identifiers, counters, received facts and sequence choices; comments in models justify the finite projection |
@@ -141,9 +141,9 @@ existing scenarios were preserved, rather than rewritten to fit the package.
 | `specs/games/finding-an-opponent.feature` | 8 | 15 | A/B/C reviewed; D/P required |
 | `specs/games/finding-an-opponent-devices.feature` | 3 | 6 | A/B/C reviewed; D/P required |
 | `specs/games/matched-game-blocking.feature` | 2 | 3 | A/B/C reviewed; D/P required |
-| `specs/chess/multiplayer-accessibility.feature` | 2 | 4 | A/B/C reviewed; D/P required |
-| `specs/chess/multiplayer-account-and-space.feature` | 3 | 5 | A/B/C reviewed; D/P required |
-| `specs/chess/multiplayer-recovery-and-privacy.feature` | 3 | 9 | A/B/C reviewed; D/P required |
+| `specs/games/matched-game-accessibility.feature` | 2 | 12 | A/B/C reviewed; D/P required |
+| `specs/games/matched-game-ownership.feature` | 4 | 8 | A/B/C reviewed; D/P required |
+| `specs/games/matched-game-recovery.feature` | 2 | 6 | A/B/C reviewed; D/P required |
 | `specs/games/matched-game-turns.feature` | 4 | 10 | A/B/C reviewed; D/P required |
 | `specs/journeys/multiplayer-game.feature` | 1 | 3 | A/B/C reviewed; D/P required |
 | `specs/matchmaking/availability-and-details.feature` | 4 | 10 | A/B/C reviewed; D/P required |

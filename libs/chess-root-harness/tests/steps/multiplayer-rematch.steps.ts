@@ -2,17 +2,11 @@ import { expect } from 'bun:test';
 import {
   bothBoards,
   gameCommand,
-  opponentOf,
   ownerOf,
 } from '@libs/game-matchmaking-harness/matched-game-world';
-import { Given, Then, When } from '@libs/harness/define';
+import { Given, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
-import type { HarnessWorld } from '@libs/harness/spec-world';
 import { givenOverGame } from './multiplayer-world';
-
-async function rematchOfferBy(w: HarnessWorld) {
-  return (await bothBoards(w)).rematch_offer_by ?? '';
-}
 
 Given(
   '{actor} was White and {actor} was Black in their finished {word} multiplayer game',
@@ -30,26 +24,6 @@ Given(
     await bothBoards(w, (g) => g.rematch_offer_by === by);
   }
 );
-When('{actor} offers a multiplayer rematch', async (w, actor: Actor) => {
-  await gameCommand(w, actor, 'offerMultiplayerRematch');
-});
 When('{actor} accepts the multiplayer rematch', async (w, actor: Actor) => {
   await gameCommand(w, actor, 'acceptMultiplayerRematch');
 });
-When('{actor} declines the multiplayer rematch', async (w, actor: Actor) => {
-  await gameCommand(w, actor, 'declineMultiplayerRematch');
-});
-Then('{actor} is offered a multiplayer rematch', async (w, actor: Actor) => {
-  const by = await ownerOf(w, opponentOf(w, actor));
-  await bothBoards(w, (g) => g.rematch_offer_by === by);
-  expect(await rematchOfferBy(w)).toBe(by);
-});
-
-Then(
-  '{actor} is not offered a multiplayer rematch',
-  async (w, actor: Actor) => {
-    expect(await rematchOfferBy(w)).not.toBe(
-      await ownerOf(w, opponentOf(w, actor))
-    );
-  }
-);

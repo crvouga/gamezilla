@@ -8,7 +8,6 @@ import {
   readPuzzleDisplayFen,
 } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
-import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
@@ -17,14 +16,6 @@ import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { multiplayerPeople } from './multiplayer-people';
 import { enterPuzzles, waitSolverToMove } from './puzzle-world';
 
-Then(
-  '{actor} is still looking for a chess opponent',
-  async (w, actor: Actor) => {
-    expect((await w.s.read(multiplayerView, actor)).search?.standing).toBe(
-      'waiting'
-    );
-  }
-);
 Given(
   '{actor} and {actor} are playing a puzzle in a space',
   async (w, host: Actor, watcher: Actor) => {

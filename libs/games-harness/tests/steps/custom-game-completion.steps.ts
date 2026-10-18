@@ -1,4 +1,5 @@
 import { expect } from 'bun:test';
+import { inMatchedGame } from '@libs/game-matchmaking-harness/matched-game-world';
 import { customGameView } from '@libs/game-session-harness/custom-game-moves';
 import { openCustomGames } from '@libs/game-session-harness/game-navigation';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
@@ -14,6 +15,7 @@ import {
   toldOf,
 } from './custom-game-set-up-world';
 import { gameOf, hostOf, setupCustomGame } from './game-world';
+import { onlyWatches } from './matched-game-watchers.steps';
 
 Given(
   '{actor} and {actor} have a custom game after their first moves',
@@ -55,6 +57,8 @@ Then('neither side has an invitation', async (w) => {
   expect(game.black.kind).not.toBe('invitation');
 });
 Then('{actor} cannot make a move', async (w, actor: string) => {
+  // A guest watching a matched game has no side in it.
+  if (inMatchedGame(w)) return onlyWatches(w, actor);
   await w.s.apply(openCustomGames, actor, gameOf(w).shared.id);
   const seen = await w.s.read(customGameView, actor);
   expect(seen.gates['move'] ?? false).toBe(false);

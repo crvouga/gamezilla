@@ -9,6 +9,8 @@ export const CONNECT_FOUR_PLAYABLE: PlayableGame = {
   fixtures: {
     // Red stacks four in the first column while Yellow plays the second.
     firstSideVictory: ['0', '1', '0', '1', '0', '1', '0'],
+    // A move is written as its column, counted from 1 at the left.
+    firstSideVictoryLabels: ['1', '2', '1', '2', '1', '2', '1'],
     // There are seven columns, numbered from 0; a column is one digit.
     refusedOpenings: ['7', '-1', '00', 'a'],
     // All 42 cells filled with no four in a row: a full board is a draw.

@@ -1,5 +1,4 @@
 import { expect } from 'bun:test';
-import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import {
   bothBoards,
   matchedGameOf,
@@ -10,40 +9,10 @@ import {
   givenMultiplayerClock,
   givenMultiplayerPosition,
 } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
-import { shownMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { givenGame } from './multiplayer-world';
-
-async function personClocks(
-  w: HarnessWorld,
-  actor: string,
-  white: number,
-  black: number
-) {
-  await w.s.apply(openMultiplayerChess, actor);
-  await w.s.until(
-    async (s) =>
-      (await shownMultiplayerClock(s, actor, 'white')) === white &&
-      (await shownMultiplayerClock(s, actor, 'black')) === black,
-    { maxMs: 500 }
-  );
-  expect([
-    await w.s.read(shownMultiplayerClock, actor, 'white'),
-    await w.s.read(shownMultiplayerClock, actor, 'black'),
-  ]).toEqual([white, black]);
-}
-
-Then(
-  "{actor}, {actor} and {actor} see {int} seconds on White's multiplayer clock and {int} seconds on Black's",
-  async (w, ...named: [Actor, Actor, Actor, number, number]) => {
-    const [first, second, third, white, black] = named;
-    await personClocks(w, first, white, black);
-    await personClocks(w, second, white, black);
-    await personClocks(w, third, white, black);
-  }
-);
 
 /** White to move with a rook; Black down to the pieces the scenario names. */
 async function lastPieces(
@@ -87,10 +56,6 @@ async function whiteFlagged(w: HarnessWorld, actor: string) {
   expect((await bothBoards(w)).white_ms).toBe(0);
 }
 
-Then(
-  'both people see {actor} won the multiplayer game because White ran out of time',
-  whiteFlagged
-);
 Then(
   'the multiplayer game is still won by {actor} because White ran out of time',
   whiteFlagged

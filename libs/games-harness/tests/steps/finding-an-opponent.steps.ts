@@ -29,9 +29,7 @@ import {
   stopSeekingOpponent,
 } from '@libs/game-matchmaking-harness/opponent-seeking';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
-import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
-import { backToTabs } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
   daily,
@@ -58,13 +56,9 @@ function pairedGame(w: HarnessWorld): MultiplayerGame {
   return game;
 }
 
-// An account, with no space yet: seeking an opponent starts one.
-Given(
-  '{actor} has a free account and a connection',
-  async (w, actor: string) => {
-    await w.s.apply(signInWithGoogle, actor);
-    await w.s.apply(backToTabs, actor);
-  }
+// An account with a space of its own to seek an opponent from.
+Given('{actor} has a free account and a connection', (w, actor: string) =>
+  readyPeople(w, [actor])
 );
 Given(
   '{actor} has an account without a connection',

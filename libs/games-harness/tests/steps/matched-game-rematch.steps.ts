@@ -2,6 +2,7 @@ import { expect } from 'bun:test';
 import {
   bothBoards,
   gameCommand,
+  inMatchedGame,
   opponentOf,
   ownerOf,
   pairOf,
@@ -37,12 +38,17 @@ Given(
   (w, first: string, second: string, clock: string) =>
     finishedAt(w, first, second, clock)
 );
-Given('{actor} has offered {actor} a rematch', async (w, offerer: string) => {
-  expect(
-    (await gameCommand(w, offerer, 'offerMultiplayerRematch')).result.ok
-  ).toBe(true);
-  await rematchOfferedBy(w, offerer);
-});
+Given(
+  '{actor} has offered {actor} a rematch',
+  async (w, offerer: string, offered: string) => {
+    // Without an earlier matched game, theirs has just finished.
+    if (!inMatchedGame(w)) await finishedAt(w, offered, offerer, '5+0');
+    expect(
+      (await gameCommand(w, offerer, 'offerMultiplayerRematch')).result.ok
+    ).toBe(true);
+    await rematchOfferedBy(w, offerer);
+  }
+);
 Given(
   "{actor}'s rematch offer ended when he found a new opponent",
   async (w, actor: string) => {

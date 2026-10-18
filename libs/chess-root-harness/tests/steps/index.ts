@@ -100,9 +100,7 @@ import type { Actor } from '@libs/harness/parameter-types';
 import { remember } from '@libs/harness/spec-world';
 
 import './multiplayer-game.steps';
-import './multiplayer-recovery.steps';
 import './multiplayer-accessibility.steps';
-import './multiplayer-account.steps';
 import './multiplayer-policies.steps';
 import { createSpace } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';

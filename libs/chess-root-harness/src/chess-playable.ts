@@ -9,6 +9,8 @@ export const CHESS_PLAYABLE: PlayableGame = {
   fixtures: {
     // Scholar's mate: White mates on f7 with the seventh move.
     firstSideVictory: ['e2e4', 'e7e5', 'f1c4', 'b8c6', 'd1h5', 'g8f6', 'h5f7'],
+    // The same moves in algebraic notation (FIDE Appendix C).
+    firstSideVictoryLabels: ['e4', 'e5', 'Bc4', 'Nc6', 'Qh5', 'Nf6', 'Qxf7#'],
     // A pawn cannot advance three squares, a knight cannot move straight, a
     // black pawn cannot move first, and a square is not a move.
     refusedOpenings: ['e2e5', 'g1g3', 'e7e5', 'e2'],

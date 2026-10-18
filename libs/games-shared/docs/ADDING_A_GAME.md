@@ -80,6 +80,9 @@ export const RACE_PLAYABLE: PlayableGame = {
     // Written from the game's laws, never computed by its implementation.
     // Seven moves: the victory every custom-game and matched-game model follows.
     firstSideVictory: ['step', 'step', 'step', 'step', 'step', 'step', 'step'],
+    // How the game writes each of those moves in its move list and its
+    // game record, as its rules label them.
+    firstSideVictoryLabels: ['1', '2', '3', '4', '5', '6', '7'],
     refusedOpenings: ['back', ''],
     // Only for a game with positions where a side cannot win (chess's bare
     // king): a line to one, ending with the first side's move. Without it
@@ -96,6 +99,10 @@ export const RACE_PLAYABLE: PlayableGame = {
 export const RACE_HARNESS_GAME: HarnessGame = assertHarnessGame({
   ...RACE_PLAYABLE,
   client: raceGameClient,
+  // Only for a game offering finding an opponent and history: its game
+  // record read back in its own format (names, result, clock choice, moves),
+  // written without the game's code.
+  // readRecord: readRaceRecord,
 });
 ```
 

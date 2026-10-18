@@ -117,6 +117,8 @@ export const COUNTING_RACE_GAME: HarnessGame = assertHarnessGame({
       'advance',
       'advance',
     ],
+    // Each count is written as the step it reaches.
+    firstSideVictoryLabels: [1, 2, 3, 4, 5, 6, 7].map((step) => `step ${step}`),
     refusedOpenings: ['retreat', ''],
   },
 });

@@ -38,12 +38,12 @@ turn notifications, defined in `specs/`) lives there.
   aborted, and each keeps theirs until they dismiss it.
 - **Opening a notice** goes to multiplayer chess in the person's own space,
   creating a space when they host none.
-- **Specs.** Five feature files (`multiplayer-daily-games`,
-  `multiplayer-daily-clock`, `multiplayer-turn-notices`,
-  `multiplayer-result-notices`, `multiplayer-turn-reminders`), the model
-  `daily-game.qnt`, and the glossary terms `daily game`, `turn notice`,
-  `turn reminder` and `result notice`. Friends now publishes `inbox` so
-  chess may put items there.
+- **Specs.** Every game's now: `specs/games/matched-game-daily`,
+  `matched-game-daily-clock`, `matched-game-turn-notices`,
+  `matched-game-result-notices` and `matched-game-turn-reminders`, the
+  model `matched-game-daily.qnt`, and the Games terms `daily game`, `turn
+  notice`, `turn reminder` and `result notice`. Friends publishes `inbox`
+  so a game may put items there.
 
 ### Priority 1: rules correctness
 

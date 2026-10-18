@@ -97,26 +97,7 @@ export const chooseMultiplayerMove = scenarioAction({
   },
 });
 
-/**
- * The person steps one move back or forward through the multiplayer move
- * list: with its control, or with the keyboard's left or right arrow.
- */
-export const stepMultiplayerMoves = scenarioAction({
-  name: 'stepMultiplayerMoves',
-  act: async (
-    s,
-    actor: string,
-    direction: 'back' | 'forward',
-    keyboard = false
-  ) => {
-    await Promise.resolve(openMultiplayerChess.act(s, actor));
-    await Promise.resolve(
-      reviewMultiplayerMoves.act(s, actor, direction, keyboard)
-    );
-  },
-});
-
-function pressing(name: string, step: 'start' | 'current') {
+function pressing(name: string, step: 'current') {
   return scenarioAction({
     name,
     act: async (s, actor: string) => {
@@ -126,8 +107,6 @@ function pressing(name: string, step: 'start' | 'current') {
   });
 }
 
-/** The person goes to the start of the multiplayer move list. */
-export const goToMultiplayerStart = pressing('goToMultiplayerStart', 'start');
 /** The person returns to the current position, in the one step offered. */
 export const returnToCurrentPosition = pressing(
   'returnToCurrentPosition',
@@ -135,7 +114,7 @@ export const returnToCurrentPosition = pressing(
 );
 
 /** The person's hand tries a piece on the board their screen shows. */
-export const tryMultiplayerPiece = scenarioAction({
+const tryMultiplayerPiece = scenarioAction({
   name: 'tryMultiplayerPiece',
   act: async (s, actor: string, uci: string) => {
     await ensureActor(s, actor);

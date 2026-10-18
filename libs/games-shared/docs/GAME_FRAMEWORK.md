@@ -108,7 +108,11 @@ behaviour for exactly what it offers:
   cannot win, a draw by the game's own rules); a game has it exactly when
   its fixtures show it (`secondSideCannotWin`, `drawByRules`), and a game
   without the fixture is held by the rules laws to never reach such a
-  position. Each game's run is its own test,
+  position. The moves played and a copied game record are checked against
+  how the game writes its victory's moves (`firstSideVictoryLabels`, held
+  to the rules' own labels), and a game whose matched games offer a game
+  record reads it back in its own format (`readRecord`), never through the
+  game's code. Each game's run is its own test,
   `<scenario> [<game>]`, recording its own evidence obligation
   (`scenario:<scenario> [<game id>]`), so the job log and Atlas name the game.
   The `specs/games/*.qnt` models are listed the same way and replay once per
@@ -188,17 +192,18 @@ Beyond that class:
 - The shared suites live in one package, so changing any game reruns every
   game's shared conformance; each game's own rules suites stay in its own
   package and rerun only for it.
-- Several `specs/chess/` features still describe shared behaviour for
-  chess alone: matched-game notices, reminders, records, review, watchers,
-  being offline, recovery and accessibility (finding an opponent, sides,
-  clocks, daily games, low on time, ratings, blocks and results by the
-  game's own rules are every game's). Chess's `custom-game-*` features keep only chess's
-  own rules: the board facing a colour, promotion, castling and en passant,
-  algebraic notation, checkmate, drawn positions, the puzzle rating and a
-  bare king's flag fall. Each moves the way the matched-game lifecycle did:
-  a `spec:` commit rewording it for every game in `specs/games/`, then one
-  binding in `@libs/games-harness` over the shared matched-game and
-  custom-game worlds, deleting chess's copy.
+- Chess's `multiplayer-*` features keep only what makes chess chess:
+  flipping the board, a move made with the keyboard by its squares, an
+  earlier position heard by its move in algebraic notation, a game record
+  in Portable Game Notation another chess program opens, a king and a
+  knight winning on time, and checkmate and chess's draws (matched-game
+  notices, reminders, records, review, watchers, being offline, recovery,
+  ownership, accessibility and interruptions are every game's, like
+  finding an opponent, sides, clocks, daily games, low on time, ratings,
+  blocks and results by the game's own rules). Chess's `custom-game-*`
+  features keep only chess's own rules: the board facing a colour,
+  promotion, castling and en passant, algebraic notation, checkmate, drawn
+  positions, the puzzle rating and a bare king's flag fall.
 - The custom-game and matched-game models are every game's. Chess keeps
   only its puzzle and Lichess models; a model that moves takes its
   model-check task and its share of chess's spec parts to
@@ -218,11 +223,12 @@ Beyond that class:
 - No contract lets a shared scenario make a move with the keyboard alone
   or hear a move announced: `GameAutomation.perform` is the board's one
   pointer gesture, and `GamePresentation` names sides and endings but not a
-  move. The shared custom-game accessibility feature therefore covers only
-  the platform's own controls (choosing a bot, starting) and what the
-  status line says; keyboard play and spoken moves stay chess's own
-  (`specs/chess/multiplayer-accessibility.feature`, its board and
-  notation) until the contract gains a keyboard gesture and a spoken label
-  for an action.
+  move. The shared custom-game and matched-game accessibility features
+  therefore cover only the platform's own controls (choosing a bot,
+  starting; seeking, resigning, aborting, offering a draw or a rematch) and
+  what the status line and announcements say; a keyboard move and a move
+  heard by name stay chess's own (`specs/chess/multiplayer-accessibility.feature`
+  and `multiplayer-move-list-review.feature`, its board and notation) until
+  the contract gains a keyboard gesture and a spoken label for an action.
 - A game's own Gherkin parameter types join the one list the spec check
   reads (`libs/harness/src/parameter-types.ts`).

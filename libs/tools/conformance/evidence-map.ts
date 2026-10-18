@@ -85,7 +85,8 @@ const PUBLIC_CONTRACTS: ProofTable = {
   ],
   'private matched games': [
     { spec: 'specs/games/matched-game-turns.feature' },
-    { spec: 'specs/chess/multiplayer-recovery-and-privacy.feature' },
+    { spec: 'specs/games/matched-game-recovery.feature' },
+    { spec: 'specs/games/matched-game-ownership.feature' },
     { spec: 'specs/games/matched-games.als' },
     { spec: 'specs/games/matched-game.qnt' },
     { spec: 'specs/games/matched-game-ready.openslo.yaml' },

@@ -11,7 +11,11 @@ import {
 } from '@libs/game-matchmaking-harness/matched-game-world';
 import type { MultiplayerSearchView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
-import { findGameOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';
+import { everInASpace } from '@libs/game-matchmaking-harness/multiplayer-spaces';
+import {
+  findGameOpponent,
+  findGameOpponentOutsideSpaces,
+} from '@libs/game-matchmaking-harness/opponent-seeking';
 import { dailyTimeControlId } from '@libs/game-matchmaking-shared/time-control';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { gameOf } from './game-world';
@@ -36,15 +40,17 @@ export async function seeking(w: HarnessWorld, actor: string, clock: string) {
 }
 
 /** `actor` seeks an opponent at `clock` from `device` (their phone). */
-export function seek(
+export async function seek(
   w: HarnessWorld,
   actor: string,
   clock: string,
   device = actor
 ) {
   actOnOtherDevice(w, actor, device);
+  // Someone who left their space is outside every space, not new to them.
+  const outside = await w.s.read(everInASpace, device);
   return w.s.apply(
-    findGameOpponent,
+    outside ? findGameOpponentOutsideSpaces : findGameOpponent,
     device,
     gameOf(w).shared.id,
     timeControlFor(w, clock)

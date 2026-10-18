@@ -87,3 +87,18 @@ export const reviewMultiplayerMoves = scenarioAction({
     await s.session.waitForIdle();
   },
 });
+
+/**
+ * The position the board in front of the person shows, in the game's own
+ * notation: an earlier position while they review one, else the current
+ * position. Null without a matched game's board.
+ */
+export async function shownBoardPosition(
+  s: ProductHarness,
+  actor: string
+): Promise<string | null> {
+  await bringToFront(s, actor);
+  const html = await (await actorUi(s, actor)).snapshotHtml();
+  const tag = html?.match(/<[^>]*data-testid="multiplayer-game"[^>]*>/)?.[0];
+  return tag?.match(/data-shown-position="([^"]+)"/)?.[1] ?? null;
+}

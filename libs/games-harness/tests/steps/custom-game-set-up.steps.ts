@@ -1,4 +1,7 @@
 import { expect } from 'bun:test';
+import { inMatchedGame } from '@libs/game-matchmaking-harness/matched-game-world';
+import { joinMultiplayerSpace } from '@libs/game-matchmaking-harness/multiplayer-board';
+import { openFindingAnOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';
 import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { Given, Then } from '@libs/harness/define';
@@ -13,7 +16,7 @@ import {
   settingUp,
   toldOf,
 } from './custom-game-set-up-world';
-import { rememberCustomGame, setupCustomGame } from './game-world';
+import { gameOf, rememberCustomGame, setupCustomGame } from './game-world';
 
 Given('{actor} is setting up a custom game', async (w, host: string) =>
   setupCustomGame(w, settingUp(host))
@@ -28,8 +31,14 @@ Given('{actor} has a cancelled custom game', async (w, host: string) => {
   await chosen(w, host, { operation: 'cancel' });
   await rememberCustomGame(w);
 });
-Given("{actor} is in {actor}'s space", async (w, person: string) =>
-  inSpace(w, person)
+// In a matched game, the person watches it from its host's space.
+Given(
+  "{actor} is in {actor}'s space",
+  async (w, person: string, host: string) => {
+    if (!inMatchedGame(w)) return inSpace(w, person);
+    await w.s.apply(openFindingAnOpponent, host, gameOf(w).shared.id);
+    await w.s.apply(joinMultiplayerSpace, person, host);
+  }
 );
 Given(
   "{actor} and {actor} are in {actor}'s space",

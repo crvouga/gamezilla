@@ -134,11 +134,9 @@ export async function otherDevice(w: HarnessWorld, person: string) {
   const device = `${person}_computer`;
   const account = await w.s.read(signedInAccountOf, person);
   const present = await w.s.read((s) => s.actors.has(device));
-  if (
-    !present ||
-    account === null ||
-    (await w.s.read(signedInAccountOf, device)) !== account
-  )
+  // A device still signed in keeps the account after the phone signed out.
+  const onDevice = present ? await w.s.read(signedInAccountOf, device) : null;
+  if (onDevice === null || (account !== null && onDevice !== account))
     await w.s.apply(signInWithGoogleAsAccount, device, person);
   w.memo.set(`multiplayer:other:${person}`, device);
   return device;

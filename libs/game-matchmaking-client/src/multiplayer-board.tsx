@@ -124,6 +124,7 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
       )}
       data-revision={props.game.revision}
       data-fen={props.game.fen}
+      data-shown-position={props.view.earlier()?.fen ?? props.game.fen}
       data-outcome={props.game.outcome}
       data-reason={props.game.reason ?? ''}
     >

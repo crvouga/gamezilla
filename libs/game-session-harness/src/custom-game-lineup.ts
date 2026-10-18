@@ -1,3 +1,4 @@
+import { hostedSpaceId } from '@libs/game-matchmaking-harness/multiplayer-spaces';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
@@ -167,7 +168,13 @@ export const establishCustomGame = scenarioAction({
       ...new Set([host, seats.white, seats.black, ...(lineup.watchers ?? [])]),
     ].filter(isPerson);
     for (const person of people) await signIn(s, person);
-    await Promise.resolve(createSpace.act(s, host));
+    // A host already hosting a space plays in it.
+    const hosted = await hostedSpaceId(s, host);
+    if (hosted === null) await Promise.resolve(createSpace.act(s, host));
+    else {
+      await s.actors.get(host)!.openLink(`/space/${hosted}`);
+      await s.session.waitForIdle();
+    }
     const link = await readSpaceLink(s, host);
     if (link === null) throw new Error(`${game.label}: the host has no space`);
     await showCustomGames(s, host, game.shared.id);

@@ -1,4 +1,4 @@
 {
   "summary": "Multiplayer matchmaking was accessible and playable outside spaces",
-  "regressionTest": "specs/chess/multiplayer-in-spaces.feature"
+  "regressionTest": "specs/games/matched-game-watchers.feature"
 }

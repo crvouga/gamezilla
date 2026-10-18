@@ -137,6 +137,33 @@ export const openFindingAnOpponentIfAny = scenarioAction({
     reachFindingAnOpponent(s, actor, gameId, true),
 });
 
+/** Choose the clock choice and find, or send what a stale screen would. */
+async function seekFromFindingAnOpponent(
+  s: ProductHarness,
+  actor: string,
+  gameId: string,
+  timeControl: string
+) {
+  await reachFindingAnOpponent(s, actor, gameId, true);
+  const ui = await actorUi(s, actor);
+  if (await ui.get('multiplayer-access-denial').isVisible()) return;
+  const clock = timeControl.split('/').at(-1) ?? timeControl;
+  const choice = ui.get(`multiplayer-time-control-${timeControlKey(clock)}`);
+  if (!(await choice.isVisible())) {
+    await Promise.resolve(
+      sendMultiplayerCommand.act(s, actor, {
+        name: 'findChessOpponent',
+        args: { timeControl, requestId: s.session.ports.createId() },
+      })
+    );
+    return;
+  }
+  forgetMultiplayerReply(s, actor);
+  await choice.tap();
+  await ui.get('multiplayer-find').tap();
+  await s.session.waitForIdle();
+}
+
 /**
  * `actor` seeks an opponent for `gameId` at `timeControl` (in the game's
  * clock namespace) from finding an opponent in their space — an account
@@ -156,24 +183,21 @@ export const findGameOpponent = scenarioAction({
       (await signedInAccountOf(s, actor)) !== null
     )
       await Promise.resolve(createSpace.act(s, actor));
-    await reachFindingAnOpponent(s, actor, gameId, true);
-    const ui = await actorUi(s, actor);
-    if (await ui.get('multiplayer-access-denial').isVisible()) return;
-    const clock = timeControl.split('/').at(-1) ?? timeControl;
-    const choice = ui.get(`multiplayer-time-control-${timeControlKey(clock)}`);
-    if (!(await choice.isVisible())) {
-      await Promise.resolve(
-        sendMultiplayerCommand.act(s, actor, {
-          name: 'findChessOpponent',
-          args: { timeControl, requestId: s.session.ports.createId() },
-        })
-      );
-      return;
-    }
-    forgetMultiplayerReply(s, actor);
-    await choice.tap();
-    await ui.get('multiplayer-find').tap();
-    await s.session.waitForIdle();
+    await seekFromFindingAnOpponent(s, actor, gameId, timeControl);
+  },
+});
+
+/**
+ * `actor`, who left every space they were in, seeks an opponent for
+ * `gameId` at `timeControl` without starting a space: their stale screen
+ * sends the command, and whether they may seek from no space is decided
+ * by the refusal.
+ */
+export const findGameOpponentOutsideSpaces = scenarioAction({
+  name: 'findGameOpponentOutsideSpaces',
+  act: async (s, actor: string, gameId: string, timeControl: string) => {
+    await ensureActor(s, actor);
+    await seekFromFindingAnOpponent(s, actor, gameId, timeControl);
   },
 });
 
@@ -217,6 +241,7 @@ export async function opponentSearchView(s: ProductHarness, actor: string) {
 export const OPPONENT_SEEKING_ACTIONS = [
   seekGameOpponent,
   findGameOpponent,
+  findGameOpponentOutsideSpaces,
   givenGameSpace,
   openFindingAnOpponent,
   stopSeekingOpponent,
