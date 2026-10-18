@@ -6,6 +6,11 @@ import { settleMultiplayerClock } from './multiplayer-clock';
 /**
  * The scheduled sweep's half of a deadline: applies a missed first move or a
  * flag that fell due, whoever is online. Returns the people to notify.
+ *
+ * It takes both people's owner lock and reads the game again under it, as
+ * every command does, so a move, resignation or agreement committed while
+ * the sweep waited is what it settles from: a game that already ended is
+ * left alone, rated and freed once by the transaction that ended it.
  */
 export async function settleDueGame(
   tx: SqlTx,
@@ -14,8 +19,9 @@ export async function settleDueGame(
 ): Promise<readonly string[]> {
   const { gameId, nowMs, createId } = deadline;
   const repository = new MultiplayerGameRepository(tx);
-  const stored = await repository.byId(gameId);
-  if (stored === null) return [];
+  const found = await repository.byId(gameId);
+  if (found === null) return [];
+  const stored = await repository.owned(gameId, found.white_id, nowMs);
   const settled = settleMultiplayerClock(stored, nowMs, rules);
   if (settled === stored) return [];
   await repository.save(stored, settled, nowMs, {
