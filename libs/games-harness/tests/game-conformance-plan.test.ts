@@ -35,6 +35,11 @@ const HISTORY_SUITE: PlannedCodeSuite = {
   area: 'history',
   registers: { 'counting-race': true },
 };
+const PUZZLES_SUITE: PlannedCodeSuite = {
+  id: 'conformance/puzzles/judged',
+  area: 'puzzles',
+  registers: { 'counting-race': true },
+};
 const CUSTOM_GAMES_FEATURE = 'specs/games/race-custom.feature';
 
 /** A complete plan for the reference game alone; each test breaks one part. */
@@ -42,7 +47,7 @@ const SOUND: ConformancePlan = {
   registered: [],
   harness: [],
   games: [RACE],
-  codeSuites: [RULES_SUITE, HISTORY_SUITE],
+  codeSuites: [RULES_SUITE, HISTORY_SUITE, PUZZLES_SUITE],
   specifications: [CUSTOM_GAMES_FEATURE],
   table: { 'race-custom': ['custom-games'] },
 };
@@ -83,7 +88,7 @@ test('harness games out of registry order, or holding another definition, fail',
 test('an offered capability no suite requires a case of fails', () => {
   const { matrix, problems } = planConformance({
     ...SOUND,
-    codeSuites: [RULES_SUITE],
+    codeSuites: [RULES_SUITE, PUZZLES_SUITE],
   });
   expect(matrix[0]!.cells.history.status).toBe('missing');
   expect(problems).toEqual([

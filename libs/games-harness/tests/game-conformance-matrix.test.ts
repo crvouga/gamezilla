@@ -102,7 +102,7 @@ test('what a game does not offer is unsupported, not untested', async () => {
     'custom-games': 'bound',
     matchmaking: 'unsupported',
     history: 'bound',
-    puzzles: 'unsupported',
+    puzzles: 'bound',
   });
 });
 

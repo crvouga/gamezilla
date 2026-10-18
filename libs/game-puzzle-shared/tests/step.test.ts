@@ -1,16 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import { positionAt, setupPuzzle } from '@libs/game-puzzle-shared/puzzle-setup';
 import {
   nextForwardSolveIdx,
   prevSolveIdx,
   resolveSeekSolveIdx,
 } from '@libs/game-puzzle-shared/step';
-import { CHESS_PUZZLE_GAME } from './chess-puzzle-game';
 
-const VALID_FEN = '4k3/8/8/8/8/8/4P3/4K2R b - - 0 1';
-const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';
-
-describe('chess-puzzle-step', () => {
+/**
+ * Stepping through a puzzle's line by index, the same for every game: one
+ * move back at a time, forward never past the furthest move reached, and a
+ * seek only to a move already reached. (Each game's line replayed to those
+ * positions is `conformance/puzzles/puzzle-playback` in @libs/games-harness.)
+ */
+describe('stepping through a line', () => {
   test('prevSolveIdx rewinds one ply at a time', () => {
     expect(prevSolveIdx(1)).toBeNull();
     expect(prevSolveIdx(2)).toBe(1);
@@ -72,18 +73,5 @@ describe('chess-puzzle-step', () => {
         targetSolveIdx: 5,
       })
     ).toBeNull();
-  });
-
-  test('the position at idx 1 is the set-up position', () => {
-    const setup = setupPuzzle(
-      CHESS_PUZZLE_GAME,
-      VALID_FEN,
-      VALID_MOVES.split(' ')
-    );
-    expect(setup.kind).toBe('ready');
-    if (setup.kind !== 'ready') return;
-    expect(
-      positionAt(CHESS_PUZZLE_GAME, VALID_FEN, VALID_MOVES.split(' '), 1)
-    ).toBe(setup.displayPosition);
   });
 });

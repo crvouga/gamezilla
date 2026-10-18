@@ -11,6 +11,7 @@ import {
   gamePresentationLaws,
   gameRecordLaws,
 } from '@libs/game-session-harness/game-capability-laws';
+import { gamePuzzleLaws } from '@libs/game-session-harness/game-puzzle-laws';
 import type { GameLaw } from '@libs/game-session-harness/game-rules-laws';
 import {
   gameBotLaws,
@@ -31,15 +32,29 @@ import {
 export function definedWith(
   turnGame: Partial<TurnGame>,
   client: Partial<GameClient> = {},
-  adapter: Partial<Pick<HarnessGame, 'readRecord'>> = {}
+  adapter: Partial<Pick<HarnessGame, 'readRecord' | 'fixtures'>> = {}
 ): HarnessGame {
   const shared = defineTurnGame({ ...COUNTING_RACE_TURN_GAME, ...turnGame });
+  // A copy offering no puzzles has no puzzles part and names no puzzle.
+  const offersPuzzles = shared.turnGame.capabilities.puzzles !== undefined;
+  const { puzzles, ...withoutPuzzles } = COUNTING_RACE_CLIENT;
+  const { puzzles: known, ...rulesFixtures } = COUNTING_RACE_FIXTURES;
   return {
     label: COUNTING_RACE_GAME.label,
     shared,
-    client: defineGameClient({ ...COUNTING_RACE_CLIENT, shared, ...client }),
-    fixtures: COUNTING_RACE_FIXTURES,
-    ...adapter,
+    client: defineGameClient({
+      ...withoutPuzzles,
+      ...(offersPuzzles ? { puzzles } : {}),
+      shared,
+      ...client,
+    }),
+    ...(adapter.readRecord === undefined
+      ? {}
+      : { readRecord: adapter.readRecord }),
+    fixtures: {
+      ...(offersPuzzles ? { ...rulesFixtures, puzzles: known } : rulesFixtures),
+      ...adapter.fixtures,
+    },
   };
 }
 
@@ -50,6 +65,7 @@ function lawsOf(game: HarnessGame): readonly GameLaw[] {
     ...gameBotLaws(game),
     ...gamePresentationLaws(game),
     ...gameRecordLaws(game),
+    ...gamePuzzleLaws(game, HARNESS_GAMES),
   ];
 }
 

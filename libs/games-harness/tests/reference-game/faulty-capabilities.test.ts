@@ -180,7 +180,7 @@ test('a record giving the wrong result is refused', () => {
 test('a record of a game other than the one played is refused', () => {
   // Every record is of one finished race, whatever was played.
   const another = matched((_position, _history, metadata) =>
-    soundRecord('race:7', '', metadata)
+    soundRecord('race:7b', '', metadata)
   );
   expectRefusedBy(another, RECORD_LAW, "are not this game's");
 });
