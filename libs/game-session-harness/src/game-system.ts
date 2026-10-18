@@ -3,6 +3,7 @@ import { BILLING_HARNESS_SLICE } from '@libs/billing-harness/billing-harness-sli
 import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-slice';
 import { FRIENDS_BLOCK_RELATION } from '@libs/friends-shared/block-relation';
 import { createMultiplayerLinkClient } from '@libs/game-matchmaking-client/multiplayer-link-client';
+import { MATCHED_GAME_HARNESS_ACTIONS } from '@libs/game-matchmaking-harness/matched-game-actions';
 import { withOpponentSearchCleanup } from '@libs/game-matchmaking-harness/opponent-search-cleanup';
 import { OPPONENT_SEEKING_ACTIONS } from '@libs/game-matchmaking-harness/opponent-seeking';
 import { createGameSessionServer } from '@libs/game-session-server/sub-server';
@@ -75,6 +76,7 @@ export function gameSystem(
       actions: [
         ...GAME_SESSION_HARNESS_ACTIONS,
         ...OPPONENT_SEEKING_ACTIONS,
+        ...MATCHED_GAME_HARNESS_ACTIONS,
         ...games.flatMap((game) => game.actions ?? []),
       ],
     },

@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import { changeCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
+import { changeCustomGame } from '@libs/chess-root-harness/chess-custom-game-board';
 import { Given, Then, When } from '@libs/harness/define';
 import {
   customFact,

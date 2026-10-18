@@ -1,13 +1,13 @@
 import { expect } from 'bun:test';
-import {
-  copiedGameRecord,
-  copyGameRecord,
-} from '@libs/chess-matchmaking-harness/multiplayer-game-record';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import { copiedGameRecord } from '@libs/chess-root-harness/chess-record-reading';
 import {
   bothBoards,
   resignation,
   viewerOf,
 } from '@libs/game-matchmaking-harness/matched-game-world';
+import { copyShownMultiplayerText } from '@libs/game-matchmaking-harness/multiplayer-game-record';
+import { openFindingAnOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -26,9 +26,11 @@ Given('{actor} has resigned multiplayer chess', async (w, actor: Actor) => {
   await bothBoards(w, (game) => game.reason === 'resignation');
 });
 
-When('{actor} copies the game record', (w, actor: Actor) =>
-  w.s.apply(copyGameRecord, viewerOf(w, actor))
-);
+When('{actor} copies the game record', async (w, actor: Actor) => {
+  const device = viewerOf(w, actor);
+  await w.s.apply(openFindingAnOpponent, device, CHESS_GAME_ID);
+  await w.s.apply(copyShownMultiplayerText, device, 'game record');
+});
 
 Then(
   'the game record {actor} copied gives the multiplayer result as {word}, the time control as {word} and the moves as {string}',

@@ -1,5 +1,8 @@
+import { customGameLegalMoves } from '@libs/game-session-shared/custom-game-position';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
+import type { CustomGameProbe } from './custom-game-ui';
 import {
   chooseCustomGame,
   readCustomGameProbe,
@@ -23,6 +26,30 @@ export function firstLegalMove(game: HarnessGame, position: string): string {
   if (move === undefined)
     throw new Error(`${game.label}: the game offers no first move`);
   return move;
+}
+
+/**
+ * Whether the person's board takes `action` from them: they are connected
+ * to the live custom game, it is under way and their turn, and `action` is
+ * one of the position's legal actions or the start of one (a gesture still
+ * waiting for its last choice). Anything else is refused by the product, so
+ * a driver sends it as a modified device would.
+ */
+export function customGameBoardTakes(
+  probe: CustomGameProbe,
+  action: string,
+  rules: TurnGames
+): boolean {
+  return (
+    probe.current !== null &&
+    probe.connected &&
+    probe.live &&
+    probe.current.status === 'active' &&
+    probe.mySide === probe.current.turn &&
+    customGameLegalMoves(probe.current, rules).some((legal) =>
+      legal.startsWith(action)
+    )
+  );
 }
 
 /**

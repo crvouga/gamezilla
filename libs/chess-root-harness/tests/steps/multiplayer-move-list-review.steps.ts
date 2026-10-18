@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import { chooseMultiplayerMove } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
+import { chooseMultiplayerMove } from '@libs/chess-root-harness/chess-multiplayer-board';
 import { viewerOf } from '@libs/game-matchmaking-harness/matched-game-world';
 import { Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';

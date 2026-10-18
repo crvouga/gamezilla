@@ -1,21 +1,37 @@
+/**
+ * Chess's own board in a matched game, as a person's screen shows it: the
+ * side it faces and where the pieces stand, flipping it, a move chosen in
+ * the move list by how chess writes it, a piece tried on a board that shows
+ * an earlier position, and a move made with the keyboard square by square.
+ * Finding an opponent itself is the shared driver's.
+ */
+
 import type { MultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
 import {
   forgetMultiplayerReply,
   sendMultiplayerCommand,
 } from '@libs/game-matchmaking-harness/multiplayer-commands';
 import { reviewMultiplayerMoves } from '@libs/game-matchmaking-harness/multiplayer-review';
+import { openFindingAnOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';
 import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
+import { Handles } from '@libs/test-ids-shared/handles';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import {
   chessBoardProbeTestId,
+  chessBoardSquareTestId,
   parseChessBoardProbe,
 } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import { openMultiplayerChess } from './multiplayer-actions';
+import { CHESS_GAME_ID } from './chess-playable';
 
-const BOARD = 'multiplayer-board';
+const BOARD = Handles.multiplayerBoard;
+
+/** `actor` opens chess's finding an opponent, as the shared driver does. */
+function openChessMatches(s: ProductHarness, actor: string) {
+  return Promise.resolve(openFindingAnOpponent.act(s, actor, CHESS_GAME_ID));
+}
 
 /** A person's own multiplayer board, as their screen shows it. */
 export type ShownMultiplayerBoard = {
@@ -91,27 +107,11 @@ async function movePly(
 export const chooseMultiplayerMove = scenarioAction({
   name: 'chooseMultiplayerMove',
   act: async (s, actor: string, move: string | number) => {
-    await Promise.resolve(openMultiplayerChess.act(s, actor));
+    await openChessMatches(s, actor);
     const ply = typeof move === 'number' ? move : await movePly(s, actor, move);
     await Promise.resolve(reviewMultiplayerMoves.act(s, actor, ply));
   },
 });
-
-function pressing(name: string, step: 'current') {
-  return scenarioAction({
-    name,
-    act: async (s, actor: string) => {
-      await Promise.resolve(openMultiplayerChess.act(s, actor));
-      await Promise.resolve(reviewMultiplayerMoves.act(s, actor, step));
-    },
-  });
-}
-
-/** The person returns to the current position, in the one step offered. */
-export const returnToCurrentPosition = pressing(
-  'returnToCurrentPosition',
-  'current'
-);
 
 /** The person's hand tries a piece on the board their screen shows. */
 const tryMultiplayerPiece = scenarioAction({
@@ -151,8 +151,30 @@ export const playMultiplayerMove = scenarioAction({
 export const flipMultiplayerBoard = scenarioAction({
   name: 'flipMultiplayerBoard',
   act: async (s, actor: string) => {
-    await Promise.resolve(openMultiplayerChess.act(s, actor));
+    await openChessMatches(s, actor);
     await (await actorUi(s, actor)).get('multiplayer-flip-board').tap();
     await s.session.waitForIdle();
   },
 });
+
+/** The person moves a piece with the keyboard alone: Enter on each square. */
+export const moveMultiplayerPieceWithKeyboard = scenarioAction({
+  name: 'moveMultiplayerPieceWithKeyboard',
+  act: async (s, actor: string, uci: string) => {
+    await openChessMatches(s, actor);
+    const ui = await actorUi(s, actor);
+    for (const square of [uci.slice(0, 2), uci.slice(2, 4)])
+      await ui
+        .get(chessBoardSquareTestId(BOARD, square as Square))
+        .key('enter');
+    await s.session.waitForIdle();
+  },
+});
+
+/** Chess's own matched-game actions, beside the shared ones. */
+export const CHESS_MULTIPLAYER_BOARD_ACTIONS = [
+  chooseMultiplayerMove,
+  playMultiplayerMove,
+  flipMultiplayerBoard,
+  moveMultiplayerPieceWithKeyboard,
+];

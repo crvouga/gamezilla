@@ -8,7 +8,7 @@ import {
   CUSTOM_GAME_MATERIAL,
   CUSTOM_GAME_REPETITION,
   CUSTOM_GAME_STALEMATE,
-} from '@libs/chess-custom-game-harness/custom-game-histories';
+} from '@libs/chess-root-harness/custom-game-histories';
 import { readCustomGameTime } from '@libs/game-session-harness/custom-game-clocks';
 import { playCustomGameHistory } from '@libs/game-session-harness/custom-game-history';
 import { customGameTimeLeft } from '@libs/game-session-shared/custom-game-state';

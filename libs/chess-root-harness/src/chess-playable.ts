@@ -1,6 +1,9 @@
-import { CUSTOM_GAME_MATERIAL } from '@libs/chess-custom-game-harness/custom-game-histories';
 import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
 import type { PlayableGame } from '@libs/game-session-harness/harness-game';
+import { CUSTOM_GAME_MATERIAL } from './custom-game-histories';
+
+/** Chess's game id, as the space's game choice and finding an opponent name it. */
+export const CHESS_GAME_ID = chessGameShared.id;
 
 /** Chess as any driver plays it, without its screens. */
 export const CHESS_PLAYABLE: PlayableGame = {

@@ -53,17 +53,11 @@
       "@libs/billing-shared/*": ["./libs/billing-shared/src/*"],
       "@libs/chess-root-client/*": ["./libs/chess-root-client/src/*"],
       "@libs/game-session-client/*": ["./libs/game-session-client/src/*"],
-      "@libs/chess-custom-game-harness/*": [
-        "./libs/chess-custom-game-harness/src/*"
-      ],
       "@libs/game-session-shared/*": ["./libs/game-session-shared/src/*"],
       "@libs/chess-sub-shared/*": ["./libs/chess-sub-shared/src/*"],
       "@libs/chess-root-harness/*": ["./libs/chess-root-harness/src/*"],
       "@libs/game-matchmaking-client/*": [
         "./libs/game-matchmaking-client/src/*"
-      ],
-      "@libs/chess-matchmaking-harness/*": [
-        "./libs/chess-matchmaking-harness/src/*"
       ],
       "@libs/game-matchmaking-shared/*": [
         "./libs/game-matchmaking-shared/src/*"

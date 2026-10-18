@@ -1,4 +1,4 @@
-import { changeCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
+import { changeCustomGame } from '@libs/chess-root-harness/chess-custom-game-board';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { Given, When } from '@libs/harness/define';
 import { customSpace } from './custom-game-world';

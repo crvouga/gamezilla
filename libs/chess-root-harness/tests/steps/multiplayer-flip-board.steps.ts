@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import { flipMultiplayerBoard } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
+import { flipMultiplayerBoard } from '@libs/chess-root-harness/chess-multiplayer-board';
 import {
   bothBoards,
   ownerOf,

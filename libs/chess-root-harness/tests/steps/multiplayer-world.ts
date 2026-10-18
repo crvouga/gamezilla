@@ -4,7 +4,7 @@
  * people, its time controls and its moves.
  */
 
-import { playMultiplayerMove } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
+import { playMultiplayerMove } from '@libs/chess-root-harness/chess-multiplayer-board';
 import {
   acceptedMoves,
   matchedGameOf,

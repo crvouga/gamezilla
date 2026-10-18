@@ -1,34 +1,33 @@
-import { CHESS_TURN_GAMES } from '@libs/chess-sub-shared/chess-game';
+/**
+ * Chess's own custom-game board, as a person uses it: a move made square by
+ * square (and with the promotion picker), and the board as it is painted —
+ * how it faces and a promotion still waiting. Every other choice is the
+ * shared custom-game controls'.
+ */
+
 import { operateCustomGameControls } from '@libs/game-session-harness/custom-game-controls';
-import type { CustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
+import {
+  CUSTOM_GAME_BOARD,
+  customGameBoardTakes,
+} from '@libs/game-session-harness/custom-game-moves';
 import {
   chooseCustomGame,
   readCustomGameProbe,
   waitCustomGameSettled,
 } from '@libs/game-session-harness/custom-game-ui';
 import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
-import { customGameLegalMoves } from '@libs/game-session-shared/custom-game-position';
-import { actorUi } from '@libs/harness/actor-ui';
+import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { bringToFront } from '@libs/harness/observations';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
-import type { ChessBoardPromotionChoice } from '@pkgs/chess-board-core-shared/probe';
+import type {
+  ChessBoardProbe,
+  ChessBoardPromotionChoice,
+} from '@pkgs/chess-board-core-shared/probe';
 import { chessBoardPromotionTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 
 type MoveInput = Extract<CustomGameInput, { operation: 'move' }>;
-
-function boardAllows(probe: CustomGameProbe, input: MoveInput): boolean {
-  return (
-    probe.current !== null &&
-    probe.connected &&
-    probe.live &&
-    probe.current.status === 'active' &&
-    probe.mySide === probe.current.turn &&
-    customGameLegalMoves(probe.current, CHESS_TURN_GAMES).some((move) =>
-      move.startsWith(input.uci)
-    )
-  );
-}
 
 async function enterMove(
   s: ProductHarness,
@@ -36,8 +35,8 @@ async function enterMove(
   input: MoveInput
 ): Promise<void> {
   const ui = await actorUi(s, actor);
-  await ui.get('custom-game-board').layout();
-  const board = new ChessBoardFlows(ui, 'custom-game-board');
+  await ui.get(CUSTOM_GAME_BOARD).layout();
+  const board = new ChessBoardFlows(ui, CUSTOM_GAME_BOARD);
   await board.tapSquare(input.uci.slice(0, 2) as Square);
   await board.tapSquare(input.uci.slice(2, 4) as Square);
   const piece = input.uci[4];
@@ -45,7 +44,7 @@ async function enterMove(
     await ui
       .get(
         chessBoardPromotionTestId(
-          'custom-game-board',
+          CUSTOM_GAME_BOARD,
           piece as ChessBoardPromotionChoice
         )
       )
@@ -60,7 +59,7 @@ async function promotionAsked(
 ): Promise<boolean> {
   if (input.uci.length !== 4) return false;
   const ui = await actorUi(s, actor);
-  const board = new ChessBoardFlows(ui, 'custom-game-board');
+  const board = new ChessBoardFlows(ui, CUSTOM_GAME_BOARD);
   return (await board.readProbe()).promotion !== null;
 }
 
@@ -68,7 +67,7 @@ async function promotionAsked(
  * A chess move on the board, square by square (and the promotion picker),
  * when the board takes it; every other choice through the shared controls.
  */
-export async function changeThroughCustomGameControls(
+async function changeThroughCustomGameControls(
   s: ProductHarness,
   actor: string,
   input: CustomGameInput
@@ -80,8 +79,12 @@ export async function changeThroughCustomGameControls(
   const probe = await readCustomGameProbe(s, actor);
   if (probe === null) throw new Error(`${actor} sees no Custom Game screen`);
   if (
-    !boardAllows(probe, input) ||
-    !(await (await actorUi(s, actor)).get('custom-game-board').isVisible())
+    !customGameBoardTakes(
+      probe,
+      input.uci,
+      s.harness.composition.app.turnGames
+    ) ||
+    !(await (await actorUi(s, actor)).get(CUSTOM_GAME_BOARD).isVisible())
   ) {
     await chooseCustomGame(s, actor, input);
     return;
@@ -89,4 +92,21 @@ export async function changeThroughCustomGameControls(
   await enterMove(s, actor, input);
   if (await promotionAsked(s, actor, input)) return;
   await waitCustomGameSettled(s, actor, probe.settled);
+}
+
+/** One custom-game choice, a move made on chess's board as a person does. */
+export const changeCustomGame = scenarioAction({
+  name: 'changeCustomGame',
+  act: changeThroughCustomGameControls,
+});
+
+/** The Custom Game board as painted, or `null` when none is on screen. */
+export async function readCustomGameBoardProbe(
+  s: ProductHarness,
+  actor: string
+): Promise<ChessBoardProbe | null> {
+  const ui = await actorUi(s, actor);
+  await bringToFront(s, actor);
+  if (!(await ui.get(CUSTOM_GAME_BOARD).isVisible())) return null;
+  return new ChessBoardFlows(ui, CUSTOM_GAME_BOARD).readProbe();
 }

@@ -1,11 +1,12 @@
 import { expect } from 'bun:test';
-import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import type { ShownMultiplayerBoard } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
-import { shownMultiplayerBoard } from '@libs/chess-matchmaking-harness/multiplayer-own-board';
+import type { ShownMultiplayerBoard } from '@libs/chess-root-harness/chess-multiplayer-board';
+import { shownMultiplayerBoard } from '@libs/chess-root-harness/chess-multiplayer-board';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
 import {
   bothBoards,
   viewerOf,
 } from '@libs/game-matchmaking-harness/matched-game-world';
+import { openFindingAnOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 
 /**
@@ -29,7 +30,7 @@ export async function ownBoardSeen(
     ...Object.fromEntries(named),
     gameId: (await bothBoards(w)).id,
   };
-  await w.s.apply(openMultiplayerChess, actor, wanted.gameId);
+  await w.s.apply(openFindingAnOpponent, actor, CHESS_GAME_ID);
   await w.s.until((s) => shownMultiplayerBoard(s, actor), {
     pred: (shown) =>
       Object.entries(wanted).every(

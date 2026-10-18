@@ -70,6 +70,42 @@ const FINDING_SURFACES = [
 /** Where a device can show no finding an opponent at all. */
 const NOWHERE_TO_FIND = [Handles.spaceEnded, Handles.spaceNotFound] as const;
 
+/** Every handle {@link findingAnOpponentStep} reads, in the order it reads them. */
+export function findingAnOpponentHandles(gameId: string): readonly string[] {
+  return [
+    ...FINDING_SURFACES,
+    ...NOWHERE_TO_FIND,
+    Handles.gameChoice('multiplayer'),
+    Handles.gameMenu(gameId),
+    Handles.navBack,
+  ];
+}
+
+/**
+ * The next step towards finding an opponent for `gameId`, from the handles
+ * on screen: `arrived` once it (or, `whereverItCan`, an ended or missing
+ * space) shows, `nowhere` for an ended or missing space otherwise, the way in
+ * to tap, or `null` while nothing is shown yet. An ended or missing space
+ * also shows Back, but that Back leaves the space and is never a way in.
+ */
+export function findingAnOpponentStep(
+  visible: ReadonlySet<string>,
+  gameId: string,
+  whereverItCan: boolean
+): 'arrived' | 'nowhere' | string | null {
+  if (FINDING_SURFACES.some((surface) => visible.has(surface)))
+    return 'arrived';
+  if (NOWHERE_TO_FIND.some((surface) => visible.has(surface)))
+    return whereverItCan ? 'arrived' : 'nowhere';
+  return (
+    [
+      Handles.gameChoice('multiplayer'),
+      Handles.gameMenu(gameId),
+      Handles.navBack,
+    ].find((way) => visible.has(way)) ?? null
+  );
+}
+
 async function reachFindingAnOpponent(
   s: ProductHarness,
   actor: string,
@@ -87,24 +123,18 @@ async function reachFindingAnOpponent(
     await device.openLink(`/space/${spaceId}`);
   await s.session.waitForIdle();
   const ui = await actorUi(s, actor);
-  const arrived = whereverItCan
-    ? [...FINDING_SURFACES, ...NOWHERE_TO_FIND]
-    : FINDING_SURFACES;
   await pollUntil(
     s,
     async () => {
       await bringToFront(s, actor);
-      for (const surface of arrived)
-        if (await ui.get(surface).isVisible()) return true;
-      for (const way of [
-        Handles.gameChoice('multiplayer'),
-        Handles.gameMenu(gameId),
-        Handles.navBack,
-      ])
-        if (await ui.get(way).isVisible()) {
-          await ui.get(way).tap();
-          return null;
-        }
+      const visible = new Set<string>();
+      for (const handle of findingAnOpponentHandles(gameId))
+        if (await ui.get(handle).isVisible()) visible.add(handle);
+      const step = findingAnOpponentStep(visible, gameId, whereverItCan);
+      if (step === 'arrived') return true;
+      if (step === 'nowhere')
+        throw new Error(`${actor}'s space has no finding an opponent left`);
+      if (step !== null) await ui.get(step).tap();
       return null;
     },
     {

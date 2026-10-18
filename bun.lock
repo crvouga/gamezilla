@@ -865,50 +865,6 @@
         "typescript": "catalog:",
       },
     },
-    "libs/chess-custom-game-harness": {
-      "name": "@libs/chess-custom-game-harness",
-      "version": "0.0.0",
-      "dependencies": {
-        "@libs/chess-sub-shared": "workspace:*",
-        "@libs/game-session-harness": "workspace:*",
-        "@libs/game-session-shared": "workspace:*",
-        "@libs/harness": "workspace:*",
-        "@libs/test-ids-shared": "workspace:*",
-        "@pkgs/chess-board-core-shared": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/pg": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "libs/chess-matchmaking-harness": {
-      "name": "@libs/chess-matchmaking-harness",
-      "version": "0.0.0",
-      "dependencies": {
-        "@libs/chess-rules-shared": "workspace:*",
-        "@libs/game-matchmaking-harness": "workspace:*",
-        "@libs/game-matchmaking-shared": "workspace:*",
-        "@libs/harness": "workspace:*",
-        "@libs/permissions-shared": "workspace:*",
-        "@libs/profile-shared": "workspace:*",
-        "@libs/spaces-harness": "workspace:*",
-        "@libs/spaces-shared": "workspace:*",
-        "@libs/test-ids-shared": "workspace:*",
-        "@pkgs/chess-board-core-shared": "workspace:*",
-        "@pkgs/sql-root-shared": "workspace:*",
-        "@pkgs/sync-engine-server": "workspace:*",
-        "@pkgs/sync-engine-shared": "workspace:*",
-      },
-      "devDependencies": {
-        "@pkgs/bun-test-solid-client": "workspace:*",
-        "@types/bun": "catalog:",
-        "@types/pg": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "libs/chess-puzzle-client": {
       "name": "@libs/chess-puzzle-client",
       "version": "0.0.0",
@@ -1123,14 +1079,13 @@
       "dependencies": {
         "@libs/account-privacy-harness": "workspace:*",
         "@libs/app-root-server": "workspace:*",
-        "@libs/chess-custom-game-harness": "workspace:*",
-        "@libs/chess-matchmaking-harness": "workspace:*",
         "@libs/chess-puzzle-client": "workspace:*",
         "@libs/chess-puzzle-harness": "workspace:*",
         "@libs/chess-puzzle-shared": "workspace:*",
         "@libs/chess-root-client": "workspace:*",
         "@libs/chess-root-server": "workspace:*",
         "@libs/chess-root-shared": "workspace:*",
+        "@libs/chess-rules-shared": "workspace:*",
         "@libs/chess-sub-shared": "workspace:*",
         "@libs/game-matchmaking-client": "workspace:*",
         "@libs/game-matchmaking-harness": "workspace:*",
@@ -1151,7 +1106,6 @@
       "devDependencies": {
         "@libs/billing-harness": "workspace:*",
         "@libs/billing-shared": "workspace:*",
-        "@libs/chess-rules-shared": "workspace:*",
         "@libs/friends-harness": "workspace:*",
         "@libs/permissions-harness": "workspace:*",
         "@libs/profile-harness": "workspace:*",
@@ -1180,7 +1134,6 @@
         "@libs/auth-shared": "workspace:*",
         "@libs/chess-puzzle-server": "workspace:*",
         "@libs/chess-puzzle-shared": "workspace:*",
-        "@libs/game-session-server": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/sub-shared": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
@@ -1605,6 +1558,8 @@
         "@pkgs/sync-engine-shared": "workspace:*",
       },
       "devDependencies": {
+        "@libs/profile-shared": "workspace:*",
+        "@libs/spaces-shared": "workspace:*",
         "@pkgs/outbox-shared": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@types/bun": "catalog:",
@@ -7388,10 +7343,6 @@
     "@libs/billing-server": ["@libs/billing-server@workspace:libs/billing-server"],
 
     "@libs/billing-shared": ["@libs/billing-shared@workspace:libs/billing-shared"],
-
-    "@libs/chess-custom-game-harness": ["@libs/chess-custom-game-harness@workspace:libs/chess-custom-game-harness"],
-
-    "@libs/chess-matchmaking-harness": ["@libs/chess-matchmaking-harness@workspace:libs/chess-matchmaking-harness"],
 
     "@libs/chess-puzzle-client": ["@libs/chess-puzzle-client@workspace:libs/chess-puzzle-client"],
 
