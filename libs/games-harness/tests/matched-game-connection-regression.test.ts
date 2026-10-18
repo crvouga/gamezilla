@@ -6,12 +6,12 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/matched-game-fixtures';
 import { multiplayerClockSeconds } from '@libs/game-matchmaking-harness/multiplayer-availability';
 import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
 } from '@libs/game-matchmaking-harness/multiplayer-commands';
-import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
 import type { OpenHarness } from '@libs/harness/open-harness';

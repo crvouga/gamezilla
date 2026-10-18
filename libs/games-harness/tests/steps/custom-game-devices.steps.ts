@@ -6,10 +6,10 @@
 import { expect } from 'bun:test';
 import { readCustomGameIdentity } from '@libs/game-session-harness/custom-game-identity';
 import {
-  customGameView,
   firstLegalMove,
   makeCustomGameMove,
 } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import { readCustomGameMoveList } from '@libs/game-session-harness/custom-game-reads';
 import { openCustomGames } from '@libs/game-session-harness/game-navigation';
 import { partition, restoreActorConnection } from '@libs/harness/actions';

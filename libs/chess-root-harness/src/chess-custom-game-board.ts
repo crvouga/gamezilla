@@ -9,13 +9,10 @@ import { operateCustomGameControls } from '@libs/game-session-harness/custom-gam
 import {
   CUSTOM_GAME_BOARD,
   customGameBoardTakes,
+  playOnCustomGameBoard,
 } from '@libs/game-session-harness/custom-game-moves';
-import {
-  chooseCustomGame,
-  readCustomGameProbe,
-  waitCustomGameSettled,
-} from '@libs/game-session-harness/custom-game-ui';
-import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
+import type { CustomGameAction } from '@libs/game-session-harness/custom-game-screen';
+import { chooseCustomGame } from '@libs/game-session-harness/custom-game-ui';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
@@ -27,7 +24,7 @@ import type {
 import { chessBoardPromotionTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 
-type MoveInput = Extract<CustomGameInput, { operation: 'move' }>;
+type MoveInput = Extract<CustomGameAction, { operation: 'move' }>;
 
 async function enterMove(
   s: ProductHarness,
@@ -70,28 +67,20 @@ async function promotionAsked(
 async function changeThroughCustomGameControls(
   s: ProductHarness,
   actor: string,
-  input: CustomGameInput
+  input: CustomGameAction
 ): Promise<void> {
   if (input.operation !== 'move') {
     await operateCustomGameControls(s, actor, input);
     return;
   }
-  const probe = await readCustomGameProbe(s, actor);
-  if (probe === null) throw new Error(`${actor} sees no Custom Game screen`);
-  if (
-    !customGameBoardTakes(
-      probe,
-      input.uci,
-      s.harness.composition.app.turnGames
-    ) ||
-    !(await (await actorUi(s, actor)).get(CUSTOM_GAME_BOARD).isVisible())
-  ) {
+  if (!(await customGameBoardTakes(s, actor, input.uci))) {
     await chooseCustomGame(s, actor, input);
     return;
   }
-  await enterMove(s, actor, input);
-  if (await promotionAsked(s, actor, input)) return;
-  await waitCustomGameSettled(s, actor, probe.settled);
+  await playOnCustomGameBoard(s, actor, async () => {
+    await enterMove(s, actor, input);
+    return (await promotionAsked(s, actor, input)) ? 'waiting' : 'made';
+  });
 }
 
 /** One custom-game choice, a move made on chess's board as a person does. */

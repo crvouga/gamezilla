@@ -12,7 +12,8 @@ import {
   reopenSpaceLink,
 } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
-import { configureCustomGame, readCustomGameProbe } from './custom-game-ui';
+import { readCustomGameProbe } from './custom-game-probe';
+import { configureCustomGame } from './custom-game-ui';
 import { showCustomGames } from './game-navigation';
 import { harnessGameOf } from './harness-game-of';
 

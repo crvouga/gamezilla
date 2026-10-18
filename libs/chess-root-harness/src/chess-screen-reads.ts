@@ -1,10 +1,9 @@
-import { multiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { openFindingAnOpponentIfAny } from '@libs/game-matchmaking-harness/opponent-seeking';
 import {
   readCustomGameAlert,
   readCustomGameScreenText,
 } from '@libs/game-session-harness/custom-game-reads';
-import { scenarioAction } from '@libs/harness/actor-ui';
+import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { CHESS_GAME_ID } from './chess-playable';
 
@@ -30,8 +29,8 @@ export async function readChessToldText(
   s: ProductHarness,
   actor: string
 ): Promise<string | null> {
-  return (
-    (await readCustomGameAlert(s, actor)) ??
-    (await multiplayerText(s, actor, 'multiplayer-waiting'))
-  );
+  const alert = await readCustomGameAlert(s, actor);
+  if (alert !== null) return alert;
+  const waiting = (await actorUi(s, actor)).get('multiplayer-waiting');
+  return (await waiting.isVisible()) ? await waiting.text() : null;
 }

@@ -8,11 +8,9 @@ import { operateCustomGame } from '@libs/game-session-harness/custom-game-contro
 import { readCustomGameIdentity } from '@libs/game-session-harness/custom-game-identity';
 import type { CustomGameLineup } from '@libs/game-session-harness/custom-game-lineup';
 import { joinCustomGames } from '@libs/game-session-harness/custom-game-lineup';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
 import { raceCustomGameChoices } from '@libs/game-session-harness/custom-game-race';
-import {
-  configureCustomGameChoice,
-  readCustomGameProbe,
-} from '@libs/game-session-harness/custom-game-ui';
+import { configureCustomGameChoice } from '@libs/game-session-harness/custom-game-ui';
 import type {
   CustomGameChoice,
   CustomGameInput,

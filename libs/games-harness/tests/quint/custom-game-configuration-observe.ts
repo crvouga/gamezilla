@@ -1,4 +1,4 @@
-import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
 import type {
   CustomGame,
   CustomGameParticipant,

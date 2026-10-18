@@ -8,10 +8,8 @@
 
 import { expect, test } from 'bun:test';
 import { establishCustomGame } from '@libs/game-session-harness/custom-game-lineup';
-import {
-  CUSTOM_GAME_BOARD,
-  customGameView,
-} from '@libs/game-session-harness/custom-game-moves';
+import { CUSTOM_GAME_BOARD } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import { cutConnection } from '@libs/harness/platform';
 import { openConformanceHarness } from '../../conformance-world';

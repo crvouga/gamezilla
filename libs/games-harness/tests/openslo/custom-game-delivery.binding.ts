@@ -1,9 +1,7 @@
 import { readCustomGameTime } from '@libs/game-session-harness/custom-game-clocks';
 import { establishCustomGame } from '@libs/game-session-harness/custom-game-lineup';
-import {
-  configureCustomGameChoice,
-  readCustomGameProbe,
-} from '@libs/game-session-harness/custom-game-ui';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
+import { configureCustomGameChoice } from '@libs/game-session-harness/custom-game-ui';
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
 import type { Measurement } from '@pkgs/openslo-shared/evaluate';
 import type { MeasureContext } from '@pkgs/openslo-shared/registry';

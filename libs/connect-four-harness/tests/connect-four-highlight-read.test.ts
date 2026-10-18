@@ -11,7 +11,20 @@ test('the winning alignment read counts highlighted cells without counting CSS',
     get: (id: string) => ({
       layout: async () => null,
       text: async () =>
-        JSON.stringify({ current: {}, displayFen: 'c4:1:0101010' }),
+        JSON.stringify({
+          current: {
+            id: 'game',
+            revision: 9,
+            status: 'completed',
+            white: { kind: 'person', person: 'alice' },
+            black: { kind: 'bot', person: '' },
+            ready: [],
+            turn: 'black',
+            outcome: 'white wins',
+            moves: [],
+          },
+          displayFen: 'c4:1:0101010',
+        }),
       attribute: async (name: string) => {
         if (reading)
           throw new Error('Invalid state: an evaluate() is already pending');

@@ -5,10 +5,8 @@ import {
   ownerOf,
 } from '@libs/game-matchmaking-harness/matched-game-world';
 import { playCustomGameBots } from '@libs/game-session-harness/custom-game-bots';
-import {
-  customGameView,
-  makeCustomGameMove,
-} from '@libs/game-session-harness/custom-game-moves';
+import { makeCustomGameMove } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import { attemptCustomGame } from '@libs/game-session-harness/custom-game-ui';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';

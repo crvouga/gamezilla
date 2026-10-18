@@ -1,8 +1,6 @@
 import { expect } from 'bun:test';
-import {
-  customGameView,
-  firstLegalMove,
-} from '@libs/game-session-harness/custom-game-moves';
+import { firstLegalMove } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import { readCustomGameMoveList } from '@libs/game-session-harness/custom-game-reads';
 import { Given, Then } from '@libs/harness/define';
 import { chosen, current, toldOf } from './custom-game-set-up-world';

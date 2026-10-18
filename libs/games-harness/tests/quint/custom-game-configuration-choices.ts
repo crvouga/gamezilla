@@ -7,10 +7,8 @@ import {
   readCustomGameBoundary,
 } from '@libs/game-session-harness/custom-game-boundary';
 import { operateCustomGame } from '@libs/game-session-harness/custom-game-controls';
-import {
-  attemptCustomGameChoice,
-  readCustomGameProbe,
-} from '@libs/game-session-harness/custom-game-ui';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
+import { attemptCustomGameChoice } from '@libs/game-session-harness/custom-game-ui';
 import type {
   CustomGameChoice,
   CustomGameInput,

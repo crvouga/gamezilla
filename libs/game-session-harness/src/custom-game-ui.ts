@@ -2,47 +2,10 @@ import type {
   CustomGameChoice,
   CustomGameInput,
 } from '@libs/game-session-shared/custom-game-choice';
-import type { CustomGames } from '@libs/game-session-shared/custom-game-state';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
-
-export type CustomGameProbe = CustomGames & {
-  readonly myId: string;
-  readonly mySide: 'white' | 'black' | null;
-  /** People in the space who are away, each with since when (room time). */
-  readonly away: Readonly<Record<string, number>>;
-  readonly error: string;
-  readonly connected: boolean;
-  readonly settled: number;
-  readonly displayFen: string;
-  readonly reviewPly: number;
-  readonly live: boolean;
-  readonly gates: Readonly<Record<string, boolean>>;
-  readonly receipt: {
-    readonly request: string;
-    readonly reason: string;
-    readonly pending: boolean;
-  };
-};
-
-export async function readCustomGameProbe(
-  s: ProductHarness,
-  actor: string
-): Promise<CustomGameProbe | null> {
-  const ui = await actorUi(s, actor);
-  await bringToFront(s, actor);
-  try {
-    const raw = await ui.get('custom-game-debug').text();
-    return raw === null || raw.trim() === ''
-      ? null
-      : (JSON.parse(raw.replace(/\u200b/g, '')) as CustomGameProbe);
-  } catch (cause) {
-    if (cause instanceof Error && cause.name === 'ElementNotFoundError')
-      return null;
-    throw cause;
-  }
-}
+import { readCustomGameProbe } from './custom-game-probe';
 
 export async function customGameReference(s: ProductHarness, actor: string) {
   const probe = await readCustomGameProbe(s, actor);

@@ -8,10 +8,8 @@
 
 import { expect, test } from 'bun:test';
 import { establishCustomGame } from '@libs/game-session-harness/custom-game-lineup';
-import {
-  customGameView,
-  makeCustomGameMove,
-} from '@libs/game-session-harness/custom-game-moves';
+import { makeCustomGameMove } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import {
   gameHistoryStatistics,
   openGameHistory,

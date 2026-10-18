@@ -19,13 +19,13 @@ import '@libs/friends-harness/friends.steps';
 import '@libs/friends-harness/spaces.steps';
 import '@libs/friends-harness/space-offline.steps';
 import '@libs/friends-harness/space-idle.steps';
-import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { heldMatchedGame } from '@libs/game-matchmaking-harness/matched-game-world';
 import { setPhoneOfflineHook } from '@libs/harness/platform';
 import { useHarnessWorld } from '@libs/harness/spec-world';
 import { openSpecHarness } from '../open-chess-harness';
 
 setPhoneOfflineHook(async (w, actor) => {
-  const game = (await w.s.read(multiplayerView, actor)).game;
+  const game = await w.s.read(heldMatchedGame, actor);
   if (game !== null) w.memo.set(`multiplayer:offline-board:${actor}`, game);
 });
 

@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import { customGameView } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { Given, Then } from '@libs/harness/define';
 import {

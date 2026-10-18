@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import { customGameView } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import { attemptCustomGameChoice } from '@libs/game-session-harness/custom-game-ui';
 import type {
   CustomGame,

@@ -1,11 +1,11 @@
-import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { heldMatchedGame } from '@libs/game-matchmaking-harness/matched-game-world';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 
 /** The board this device holds, kept as what it last knew once it is offline. */
 export async function rememberOfflineBoard(w: HarnessWorld, actor: string) {
   const key = `multiplayer:offline-board:${actor}`;
   if (w.memo.has(key)) return;
-  const game = (await w.s.read(multiplayerView, actor)).game;
+  const game = await w.s.read(heldMatchedGame, actor);
   if (game === null) return;
   w.memo.set(key, game);
 }

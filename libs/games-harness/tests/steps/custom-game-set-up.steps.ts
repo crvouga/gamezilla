@@ -2,7 +2,7 @@ import { expect } from 'bun:test';
 import { inMatchedGame } from '@libs/game-matchmaking-harness/matched-game-world';
 import { joinMultiplayerSpace } from '@libs/game-matchmaking-harness/multiplayer-board';
 import { openFindingAnOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';
-import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { Given, Then } from '@libs/harness/define';
 import { focusActor } from '@libs/harness/shell-actions';

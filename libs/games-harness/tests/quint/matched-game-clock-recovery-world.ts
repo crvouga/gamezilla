@@ -6,6 +6,7 @@
  * is away.
  */
 
+import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/matched-game-fixtures';
 import {
   clockChoiceOfSpeed,
   multiplayerClockSeconds,
@@ -16,7 +17,6 @@ import {
   joinMultiplayerSpace,
   multiplayerBoardShown,
 } from '@libs/game-matchmaking-harness/multiplayer-board';
-import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { gameRecordOffered } from '@libs/game-matchmaking-harness/multiplayer-game-record';
 import { multiplayerView } from '@libs/game-matchmaking-harness/multiplayer-reads';
 import { openFindingAnOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';

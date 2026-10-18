@@ -1,9 +1,9 @@
 import { expect } from 'bun:test';
 import {
-  customGameView,
   firstLegalMove,
   makeCustomGameMove,
 } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import { customGameShownUnrated } from '@libs/game-session-harness/custom-game-reads';
 import type {
   CustomGame,

@@ -1,7 +1,7 @@
 import { readCustomGameTime } from '@libs/game-session-harness/custom-game-clocks';
 import { playCustomGameHistory } from '@libs/game-session-harness/custom-game-history';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
 import { readStoredCustomGames } from '@libs/game-session-harness/custom-game-stored';
-import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import { customGameTimeLeft } from '@libs/game-session-shared/custom-game-state';
 import { restartApp } from '@libs/harness/actions';
 import {

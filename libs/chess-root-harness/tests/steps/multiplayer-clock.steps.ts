@@ -1,14 +1,14 @@
 import { expect } from 'bun:test';
 import {
+  givenMultiplayerClock,
+  givenMultiplayerPosition,
+} from '@libs/game-matchmaking-harness/matched-game-fixtures';
+import {
   bothBoards,
   matchedGameOf,
   sameBoards,
   winner,
 } from '@libs/game-matchmaking-harness/matched-game-world';
-import {
-  givenMultiplayerClock,
-  givenMultiplayerPosition,
-} from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';

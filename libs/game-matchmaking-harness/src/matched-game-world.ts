@@ -7,6 +7,7 @@
 
 import { expect } from 'bun:test';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
+import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
@@ -78,6 +79,14 @@ export function pairOf(w: HarnessWorld): readonly [string, string] {
 export function opponentOf(w: HarnessWorld, actor: string): string {
   const [first, second] = pairOf(w);
   return actor === first ? second : first;
+}
+
+/**
+ * The matched game `actor`'s device holds, or `null` without one: the game
+ * as their screen knows it, in the record's durable field names.
+ */
+export async function heldMatchedGame(s: ProductHarness, actor: string) {
+  return (await multiplayerView(s, actor)).game;
 }
 
 /** The matched game `actor`'s device holds. */

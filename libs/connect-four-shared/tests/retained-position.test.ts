@@ -1,24 +1,12 @@
 import { expect, test } from 'bun:test';
-import { connectFourGameShared } from '@libs/connect-four-shared/connect-four-game';
 import { connectFourRules } from '@libs/connect-four-shared/connect-four-rules';
-import { playCustomGameMove } from '@libs/game-session-shared/custom-game-play';
-import { customGamePositionAt } from '@libs/game-session-shared/custom-game-position';
-import { newCustomGame } from '@libs/game-session-shared/custom-game-state';
-import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
 
-test('an empty accepted action cannot be normalized into a legal retained drop', () => {
-  // regression: connect-four-replay-normalizes-invalid-actions
-  const rules = createTurnGames([connectFourGameShared.turnGame]);
-  const game = {
-    ...newCustomGame('retained-match', 'alice', 'c4:1:0'),
-    status: 'active' as const,
-    turn: 'black' as const,
-    moves: [{ uci: '', san: '1' }],
-  };
-  const before = JSON.stringify(game);
-  expect(() => customGamePositionAt(game, 1, rules)).toThrow();
-  expect(() => playCustomGameMove(game, '1', 1000, rules)).toThrow();
-  expect(JSON.stringify(game)).toBe(before);
+// regression: connect-four-replay-normalizes-invalid-actions
+test('an empty accepted action is never replayed as a drop in column zero', () => {
+  expect(
+    connectFourRules.play(connectFourRules.initial(), '', '', [])
+  ).toBeNull();
+  expect(() => connectFourRules.replay([''], 1)).toThrow();
 });
 
 test.each([' ', '1.0', '1e0', '+1', '01', '0\n', '1\r\n'])(

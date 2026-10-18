@@ -1,12 +1,12 @@
 import { decodeConnectFour } from '@libs/connect-four-shared/connect-four';
 import type { CustomGameSeat } from '@libs/game-session-harness/custom-game-lineup';
 import { establishCustomGame } from '@libs/game-session-harness/custom-game-lineup';
-import { CUSTOM_GAME_BOARD } from '@libs/game-session-harness/custom-game-moves';
 import {
-  chooseCustomGame,
-  readCustomGameProbe,
-  waitCustomGameSettled,
-} from '@libs/game-session-harness/custom-game-ui';
+  CUSTOM_GAME_BOARD,
+  playOnCustomGameBoard,
+} from '@libs/game-session-harness/custom-game-moves';
+import { readCustomGameScreen } from '@libs/game-session-harness/custom-game-screen';
+import { chooseCustomGame } from '@libs/game-session-harness/custom-game-ui';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 
@@ -50,9 +50,8 @@ export const dropConnectFour = scenarioAction({
   name: 'dropConnectFour',
   act: async (s, actor: string, index: number, keyboard = false) => {
     const ui = await actorUi(s, actor);
-    const probe = await readCustomGameProbe(s, actor);
-    const game = probe?.current;
-    if (probe === null || game === null || game === undefined)
+    const game = (await readCustomGameScreen(s, actor))?.current;
+    if (game === null || game === undefined)
       throw new Error('No Connect Four game');
     const target = ui.get(column(index));
     if (
@@ -61,9 +60,11 @@ export const dropConnectFour = scenarioAction({
       index < COLUMNS &&
       (await target.attribute('aria-disabled')) === 'false'
     ) {
-      if (keyboard) await target.key('enter');
-      else await target.tap();
-      await waitCustomGameSettled(s, actor, probe.settled);
+      await playOnCustomGameBoard(s, actor, async () => {
+        if (keyboard) await target.key('enter');
+        else await target.tap();
+        return 'made';
+      });
       return;
     }
     await chooseCustomGame(s, actor, {
@@ -79,10 +80,10 @@ export const clickConnectFourColumn = scenarioAction({
   name: 'clickConnectFourColumn',
   act: async (s, actor: string, index: number) => {
     const ui = await actorUi(s, actor);
-    const before = await readCustomGameProbe(s, actor);
-    if (before === null) throw new Error('No Connect Four game');
-    await ui.get(column(index)).tap();
-    await waitCustomGameSettled(s, actor, before.settled);
+    await playOnCustomGameBoard(s, actor, async () => {
+      await ui.get(column(index)).tap();
+      return 'made';
+    });
   },
 });
 
@@ -105,8 +106,8 @@ export const preferConnectFourReducedMotion = scenarioAction({
 
 /** The Connect Four board `actor` sees, decoded from what is rendered. */
 export async function connectFourView(s: ProductHarness, actor = 'alice') {
-  const probe = await readCustomGameProbe(s, actor);
-  if (probe?.current === undefined || probe.current === null)
+  const screen = await readCustomGameScreen(s, actor);
+  if (screen?.current === undefined || screen.current === null)
     throw new Error('No Connect Four board');
   const ui = await actorUi(s, actor);
   const cells = await ui.get(CUSTOM_GAME_BOARD).attribute('data-cells');
@@ -120,10 +121,10 @@ export async function connectFourView(s: ProductHarness, actor = 'alice') {
       winningShown += 1;
   }
   return {
-    ...probe,
+    ...screen,
     winningShown,
     board: cells === null ? [] : (JSON.parse(cells) as number[]),
-    game: decodeConnectFour(probe.displayFen),
+    game: decodeConnectFour(screen.position),
     preview: Number(
       await ui.get(CUSTOM_GAME_BOARD).attribute('data-preview-cell')
     ),

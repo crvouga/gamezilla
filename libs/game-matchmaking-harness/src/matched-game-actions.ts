@@ -1,3 +1,7 @@
+import {
+  givenMultiplayerClock,
+  givenMultiplayerPosition,
+} from './matched-game-fixtures';
 import { closeMultiplayerApp, reopenMultiplayerApp } from './multiplayer-app';
 import { joinMultiplayerSpace } from './multiplayer-board';
 import { sendMultiplayerCommand } from './multiplayer-commands';
@@ -11,8 +15,6 @@ import {
 } from './multiplayer-events';
 import {
   awaitGameMatch,
-  givenMultiplayerClock,
-  givenMultiplayerPosition,
   givenMultiplayerRating,
   givenOpponentSearch,
   pairGameOpponents,

@@ -10,7 +10,8 @@ import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
 import { isHiddenFromAt } from '@pkgs/a11y-shared/visibility';
-import { readCustomGameProbe, waitCustomGameSettled } from './custom-game-ui';
+import { readCustomGameProbe } from './custom-game-probe';
+import { waitCustomGameSettled } from './custom-game-ui';
 
 /** `actor` assigns a bot to `side` using the keyboard alone. */
 export const assignCustomGameBotWithKeyboard = scenarioAction({

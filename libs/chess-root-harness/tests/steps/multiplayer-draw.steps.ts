@@ -1,12 +1,11 @@
 import { expect } from 'bun:test';
+import { givenMultiplayerPosition } from '@libs/game-matchmaking-harness/matched-game-fixtures';
 import {
   acceptedMoves,
   bothBoards,
   move,
   sameBoards,
 } from '@libs/game-matchmaking-harness/matched-game-world';
-import { givenMultiplayerPosition } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
-import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { givenGame } from './multiplayer-world';
@@ -63,10 +62,7 @@ When('the person whose turn it is plays that multiplayer move', async (w) => {
 Then(
   'both people see the multiplayer game is drawn by {}',
   async (w, reason: string) => {
-    const game: MultiplayerGame = await bothBoards(
-      w,
-      (g) => g.outcome === 'draw'
-    );
+    const game = await bothBoards(w, (g) => g.outcome === 'draw');
     expect(game.reason).toBe(DRAW_REASONS[reason] ?? reason);
   }
 );

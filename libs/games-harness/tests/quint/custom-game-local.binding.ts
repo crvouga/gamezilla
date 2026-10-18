@@ -1,9 +1,9 @@
 import { chooseCustomGameBotMove } from '@libs/game-session-harness/custom-game-bots';
 import { operateCustomGame } from '@libs/game-session-harness/custom-game-controls';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
 import {
   attemptCustomGameChoice,
   configureCustomGameChoice,
-  readCustomGameProbe,
 } from '@libs/game-session-harness/custom-game-ui';
 import { openCustomGames } from '@libs/game-session-harness/game-navigation';
 import type {

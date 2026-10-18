@@ -10,7 +10,8 @@ import {
   readCustomGameBoundary,
 } from '@libs/game-session-harness/custom-game-boundary';
 import { joinCustomGamesAsGuest } from '@libs/game-session-harness/custom-game-lineup';
-import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
+import { readCustomGameRefusal } from '@libs/game-session-harness/custom-game-screen';
 import { openCustomGames } from '@libs/game-session-harness/game-navigation';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
@@ -85,10 +86,7 @@ Then('{actor} cannot see the custom game', async (w, actor: string) =>
   seesNoCustomGame(w, actor)
 );
 Then('{actor} is told she is not in the space', async (w, actor: string) => {
-  const reason =
-    (await w.s.read(readCustomGameProbe, actor))?.error ??
-    (await w.s.read(readCustomGameBoundary, actor))?.reason;
-  expect(reason).toBe('not in the space');
+  expect(await w.s.read(readCustomGameRefusal, actor)).toBe('not in the space');
 });
 Then(
   '{actor} is told only the creator sets up the custom game',

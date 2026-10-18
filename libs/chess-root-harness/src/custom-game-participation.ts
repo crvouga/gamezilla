@@ -1,27 +1,15 @@
 import {
-  configureCustomGame,
-  readCustomGameProbe,
-} from '@libs/game-session-harness/custom-game-ui';
+  inActiveCustomGame,
+  readCustomGameScreen,
+} from '@libs/game-session-harness/custom-game-screen';
+import { configureCustomGame } from '@libs/game-session-harness/custom-game-ui';
 import { showCustomGames } from '@libs/game-session-harness/game-navigation';
-import {
-  customGameActiveParticipant,
-  customGameTerminal,
-} from '@libs/game-session-shared/custom-game-state';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
 import { createSpace, joinViaLink } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { CHESS_GAME_ID } from './chess-playable';
-
-/** Whether `actor` takes part in an active Custom Game in the space it shows. */
-export async function inActiveCustomGame(
-  s: ProductHarness,
-  actor: string
-): Promise<boolean> {
-  const probe = await readCustomGameProbe(s, actor);
-  return probe !== null && customGameActiveParticipant(probe, probe.myId);
-}
 
 /**
  * The space `host` hosts, with its Custom Game on screen: a new person who
@@ -47,8 +35,8 @@ async function startWithActorAsWhite(
   host: string,
   actor: string
 ): Promise<void> {
-  const current = (await readCustomGameProbe(s, host))?.current ?? null;
-  if (current === null || customGameTerminal(current))
+  const status = (await readCustomGameScreen(s, host))?.current?.status;
+  if (status === undefined || status === 'completed' || status === 'cancelled')
     await configureCustomGame(s, host, { operation: 'create' });
   await configureCustomGame(s, host, { operation: 'open', side: 'white' });
   await configureCustomGame(s, host, { operation: 'bot', side: 'black' });

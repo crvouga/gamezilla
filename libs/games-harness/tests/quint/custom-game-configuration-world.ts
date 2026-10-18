@@ -3,10 +3,8 @@ import {
   rememberCustomGameAcknowledgement,
 } from '@libs/game-session-harness/custom-game-acknowledgement';
 import { readCustomGameIdentity } from '@libs/game-session-harness/custom-game-identity';
-import {
-  configureCustomGameChoice,
-  readCustomGameProbe,
-} from '@libs/game-session-harness/custom-game-ui';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
+import { configureCustomGameChoice } from '@libs/game-session-harness/custom-game-ui';
 import {
   openCustomGames,
   waitCustomGameAvailability,

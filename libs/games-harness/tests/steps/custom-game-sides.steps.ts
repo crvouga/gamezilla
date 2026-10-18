@@ -1,7 +1,7 @@
 import { expect } from 'bun:test';
 import { attemptCustomGameBoundary } from '@libs/game-session-harness/custom-game-boundary';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
 import { customGameNearestSide } from '@libs/game-session-harness/custom-game-reads';
-import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { Then, When } from '@libs/harness/define';
 import {

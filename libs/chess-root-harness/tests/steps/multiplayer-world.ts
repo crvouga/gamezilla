@@ -42,13 +42,10 @@ export async function playOnOwnBoard(
   const game = await matchedGameOf(w, actor);
   rememberBoardBeforeMove(w, game);
   await w.s.apply(playMultiplayerMove, actor, {
-    name: 'playMultiplayerMove',
-    args: {
-      gameId: game.id,
-      revision: game.revision,
-      uci,
-      requestId: `move-${game.id}-${actor}-${String(game.revision)}-${uci}`,
-    },
+    gameId: game.id,
+    revision: game.revision,
+    uci,
+    requestId: `move-${game.id}-${actor}-${String(game.revision)}-${uci}`,
   });
 }
 

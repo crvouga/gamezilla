@@ -10,7 +10,7 @@ import {
   readCustomGameSeconds,
   readCustomGameTime,
 } from '@libs/game-session-harness/custom-game-clocks';
-import { customGameView } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { customGameTimeLeft } from '@libs/game-session-shared/custom-game-state';
 import { Given, Then, When } from '@libs/harness/define';

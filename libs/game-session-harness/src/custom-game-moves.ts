@@ -1,13 +1,8 @@
 import { customGameLegalMoves } from '@libs/game-session-shared/custom-game-position';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
-import type { CustomGameProbe } from './custom-game-ui';
-import {
-  chooseCustomGame,
-  readCustomGameProbe,
-  waitCustomGameSettled,
-} from './custom-game-ui';
+import { readCustomGameProbe } from './custom-game-probe';
+import { chooseCustomGame, waitCustomGameSettled } from './custom-game-ui';
 import type { HarnessGame } from './harness-game';
 import { harnessGameOf } from './harness-game-of';
 
@@ -29,27 +24,50 @@ export function firstLegalMove(game: HarnessGame, position: string): string {
 }
 
 /**
- * Whether the person's board takes `action` from them: they are connected
- * to the live custom game, it is under way and their turn, and `action` is
- * one of the position's legal actions or the start of one (a gesture still
- * waiting for its last choice). Anything else is refused by the product, so
- * a driver sends it as a modified device would.
+ * Whether the person's board takes `action` from them now: the board is on
+ * screen, they are connected to the live custom game, it is under way and
+ * their turn, and `action` is one of the position's legal actions or the
+ * start of one (a gesture still waiting for its last choice). Anything else
+ * is refused by the product, so a driver sends it as a modified device
+ * would.
  */
-export function customGameBoardTakes(
-  probe: CustomGameProbe,
-  action: string,
-  rules: TurnGames
-): boolean {
+export async function customGameBoardTakes(
+  s: ProductHarness,
+  actor: string,
+  action: string
+): Promise<boolean> {
+  const probe = await readCustomGameProbe(s, actor);
   return (
-    probe.current !== null &&
+    probe?.current !== null &&
+    probe?.current !== undefined &&
     probe.connected &&
     probe.live &&
     probe.current.status === 'active' &&
     probe.mySide === probe.current.turn &&
-    customGameLegalMoves(probe.current, rules).some((legal) =>
-      legal.startsWith(action)
-    )
+    customGameLegalMoves(
+      probe.current,
+      s.harness.composition.app.turnGames
+    ).some((legal) => legal.startsWith(action)) &&
+    (await (await actorUi(s, actor)).get(CUSTOM_GAME_BOARD).isVisible())
   );
+}
+
+/**
+ * A gesture on the Custom Game board, then the product's answer. The
+ * gesture says whether the board took a whole action (`'made'`) or still
+ * waits for a choice before anything is sent (`'waiting'`, a promotion
+ * picker). Returns what the screen refused ('' when the action was
+ * accepted), or `null` while the board still waits.
+ */
+export async function playOnCustomGameBoard(
+  s: ProductHarness,
+  actor: string,
+  gesture: () => Promise<'made' | 'waiting'>
+): Promise<string | null> {
+  const before = await readCustomGameProbe(s, actor);
+  if (before === null) throw new Error(`${actor} sees no Custom Game screen`);
+  if ((await gesture()) === 'waiting') return null;
+  return waitCustomGameSettled(s, actor, before.settled);
 }
 
 /**
@@ -82,10 +100,3 @@ export const makeCustomGameMove = scenarioAction({
     });
   },
 });
-
-/** What `actor` sees of the custom game: its state, board and any refusal. */
-export async function customGameView(s: ProductHarness, actor: string) {
-  const probe = await readCustomGameProbe(s, actor);
-  if (probe === null) throw new Error(`${actor} sees no custom game`);
-  return probe;
-}

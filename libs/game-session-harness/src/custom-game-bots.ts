@@ -5,7 +5,7 @@ import type {
   HarnessRoomNode,
 } from '@libs/harness/composition';
 import type { ProductHarness } from '@libs/harness/harness';
-import { readCustomGameProbe } from './custom-game-ui';
+import { readCustomGameProbe } from './custom-game-probe';
 
 const choices = new WeakMap<HarnessRoomNode, { next: number | null }>();
 

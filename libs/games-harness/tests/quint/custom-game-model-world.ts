@@ -12,10 +12,10 @@ import {
   joinCustomGames,
 } from '@libs/game-session-harness/custom-game-lineup';
 import { makeCustomGameMove } from '@libs/game-session-harness/custom-game-moves';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
 import {
   attemptCustomGame,
   attemptCustomGameChoice,
-  readCustomGameProbe,
 } from '@libs/game-session-harness/custom-game-ui';
 import { openCustomGames } from '@libs/game-session-harness/game-navigation';
 import type {

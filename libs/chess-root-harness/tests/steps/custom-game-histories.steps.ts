@@ -9,14 +9,14 @@ import {
   CUSTOM_GAME_REPETITION,
   CUSTOM_GAME_STALEMATE,
 } from '@libs/chess-root-harness/custom-game-histories';
-import { readCustomGameTime } from '@libs/game-session-harness/custom-game-clocks';
 import { playCustomGameHistory } from '@libs/game-session-harness/custom-game-history';
-import { customGameTimeLeft } from '@libs/game-session-shared/custom-game-state';
+import { customGameTimeLeftMs } from '@libs/game-session-harness/custom-game-screen';
 import { Given } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
   customFact,
   customGame,
+  customHost,
   customHumans,
   customPeople,
   customStart,
@@ -117,10 +117,9 @@ Given(
   '{word} has one second left in the Custom Game',
   async (w, side: string) => {
     if (side === 'Black') await history(w, ['h6f6']);
-    const game = await customGame(w);
+    await customGame(w);
     await w.s.advanceTime(
-      customGameTimeLeft(game, game.turn, await w.s.read(readCustomGameTime)) -
-        1000
+      (await w.s.read(customGameTimeLeftMs, customHost(w))) - 1000
     );
   }
 );

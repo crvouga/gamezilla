@@ -5,6 +5,7 @@
  */
 
 import { expect } from 'bun:test';
+import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/matched-game-fixtures';
 import {
   acceptedMoves,
   bothBoards,
@@ -13,7 +14,6 @@ import {
   viewerOf,
 } from '@libs/game-matchmaking-harness/matched-game-world';
 import { joinMultiplayerSpace } from '@libs/game-matchmaking-harness/multiplayer-board';
-import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
   lowOnTimeWarningsHeard,
   shownMultiplayerClockLow,

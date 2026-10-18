@@ -201,57 +201,6 @@ export async function publishMultiplayerFixture(
   return [game.white_id, game.black_id];
 }
 
-/**
- * A legal pre-existing position after both first moves, the actor to move,
- * with this much time on each clock; the next move still uses the real
- * command.
- */
-export const givenMultiplayerPosition = scenarioAction({
-  name: 'givenMultiplayerPosition',
-  act: (
-    s,
-    actor: string,
-    position: {
-      readonly gameId: string;
-      readonly fen: string;
-      readonly clockMs?: number;
-    }
-  ) =>
-    multiplayerFixture(s, actor, async (tx, env) => {
-      const { gameId, fen, clockMs } = position;
-      const nowMs = env.now().getTime();
-      await tx.run(sql`UPDATE chess_multiplayer_games SET fen = ${fen}, pgn = ${''},
-        turn = ${env.actorId}, revision = ${2}, clock_at_ms = ${nowMs},
-        white_ms = COALESCE(${clockMs ?? null}, white_ms), black_ms = COALESCE(${clockMs ?? null}, black_ms),
-        updated_at = ${env.now().toISOString()} WHERE id = ${gameId}`);
-      return publishMultiplayerFixture(tx, gameId, env);
-    }),
-});
-
-/** Time left on one side's clock, that side to move, its clock running from now. */
-export const givenMultiplayerClock = scenarioAction({
-  name: 'givenMultiplayerClock',
-  act: (
-    s,
-    actor: string,
-    clock: {
-      readonly gameId: string;
-      readonly side: 'white' | 'black';
-      readonly ms: number;
-    }
-  ) =>
-    multiplayerFixture(s, actor, async (tx, env) => {
-      const { gameId, side, ms } = clock;
-      const nowMs = env.now().getTime();
-      await tx.run(
-        side === 'white'
-          ? sql`UPDATE chess_multiplayer_games SET white_ms = ${ms}, clock_at_ms = ${nowMs} WHERE id = ${gameId}`
-          : sql`UPDATE chess_multiplayer_games SET black_ms = ${ms}, clock_at_ms = ${nowMs} WHERE id = ${gameId}`
-      );
-      return publishMultiplayerFixture(tx, gameId, env);
-    }),
-});
-
 /** A multiplayer rating at one speed, with this many rated games behind it. */
 export const givenMultiplayerRating = scenarioAction({
   name: 'givenMultiplayerRating',

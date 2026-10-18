@@ -7,6 +7,10 @@ import {
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
 import { joinViaLink } from '@libs/spaces-harness/space-actions';
+import {
+  forgetMultiplayerReply,
+  sendMultiplayerCommand,
+} from './multiplayer-commands';
 import { multiplayerSpaceId } from './multiplayer-spaces';
 
 /** A matched game's board as a device's screen shows it, whichever game it is. */
@@ -65,3 +69,40 @@ export const joinMultiplayerSpace = scenarioAction({
     );
   },
 });
+
+/** A move a person makes on their matched game's board, at the revision it shows. */
+export type MatchedGameMove = {
+  readonly gameId: string;
+  readonly revision: number;
+  /** The game's own action. */
+  readonly uci: string;
+  /** The screen's request id: a repeated one is answered as before. */
+  readonly requestId: string;
+};
+
+/**
+ * The person plays a move on the board their device shows. The board sends
+ * it as the screen does (`'sent'`); a board that shows an earlier position
+ * sends nothing (`'reviewing'`), and the game's own board gesture is all the
+ * person's hand can try on it.
+ */
+export async function sendMoveFromBoard(
+  s: ProductHarness,
+  actor: string,
+  move: MatchedGameMove
+): Promise<'sent' | 'reviewing'> {
+  await ensureActor(s, actor);
+  if (
+    await (await actorUi(s, actor)).get('multiplayer-reviewing').isVisible()
+  ) {
+    forgetMultiplayerReply(s, actor);
+    return 'reviewing';
+  }
+  await Promise.resolve(
+    sendMultiplayerCommand.act(s, actor, {
+      name: 'playMultiplayerMove',
+      args: { ...move },
+    })
+  );
+  return 'sent';
+}

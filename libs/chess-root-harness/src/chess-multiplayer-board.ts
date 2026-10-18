@@ -6,11 +6,8 @@
  * Finding an opponent itself is the shared driver's.
  */
 
-import type { MultiplayerCommand } from '@libs/game-matchmaking-harness/multiplayer-commands';
-import {
-  forgetMultiplayerReply,
-  sendMultiplayerCommand,
-} from '@libs/game-matchmaking-harness/multiplayer-commands';
+import type { MatchedGameMove } from '@libs/game-matchmaking-harness/multiplayer-board';
+import { sendMoveFromBoard } from '@libs/game-matchmaking-harness/multiplayer-board';
 import { reviewMultiplayerMoves } from '@libs/game-matchmaking-harness/multiplayer-review';
 import { openFindingAnOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';
 import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
@@ -133,17 +130,9 @@ const tryMultiplayerPiece = scenarioAction({
  */
 export const playMultiplayerMove = scenarioAction({
   name: 'playMultiplayerMove',
-  act: async (s, actor: string, command: MultiplayerCommand) => {
-    await ensureActor(s, actor);
-    const ui = await actorUi(s, actor);
-    if (!(await ui.get('multiplayer-reviewing').isVisible())) {
-      await Promise.resolve(sendMultiplayerCommand.act(s, actor, command));
-      return;
-    }
-    forgetMultiplayerReply(s, actor);
-    await Promise.resolve(
-      tryMultiplayerPiece.act(s, actor, String(command.args['uci']))
-    );
+  act: async (s, actor: string, move: MatchedGameMove) => {
+    if ((await sendMoveFromBoard(s, actor, move)) === 'reviewing')
+      await Promise.resolve(tryMultiplayerPiece.act(s, actor, move.uci));
   },
 });
 

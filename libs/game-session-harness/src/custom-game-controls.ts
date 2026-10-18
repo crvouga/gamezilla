@@ -2,12 +2,9 @@ import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choi
 import { customGameStartable } from '@libs/game-session-shared/custom-game-state';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import type { CustomGameProbe } from './custom-game-ui';
-import {
-  chooseCustomGame,
-  readCustomGameProbe,
-  waitCustomGameSettled,
-} from './custom-game-ui';
+import type { CustomGameProbe } from './custom-game-probe';
+import { readCustomGameProbe } from './custom-game-probe';
+import { chooseCustomGame, waitCustomGameSettled } from './custom-game-ui';
 import { showCustomGames } from './game-navigation';
 
 /** The custom-game control a person uses for `input`. */

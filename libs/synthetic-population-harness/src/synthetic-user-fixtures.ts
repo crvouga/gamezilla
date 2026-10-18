@@ -1,6 +1,6 @@
+import { givenMultiplayerPosition } from '@libs/game-matchmaking-harness/matched-game-fixtures';
 import {
   awaitGameMatch,
-  givenMultiplayerPosition,
   givenOpponentSearch,
 } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';

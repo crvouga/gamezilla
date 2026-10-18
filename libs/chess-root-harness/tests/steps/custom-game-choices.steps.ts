@@ -1,9 +1,9 @@
 import { changeCustomGame } from '@libs/chess-root-harness/chess-custom-game-board';
-import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { Given, When } from '@libs/harness/define';
+import type { GameSide } from '@pkgs/turn-game-shared/game-rules';
 import { customSpace } from './custom-game-world';
 
-export function customSide(name: string): CustomGameSide {
+export function customSide(name: string): GameSide {
   if (name === 'White') return 'white';
   if (name === 'Black') return 'black';
   throw new Error(`unknown side ${name}`);

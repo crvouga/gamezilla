@@ -3,7 +3,7 @@ import {
   establishCustomGame,
   returnToCustomGames,
 } from '@libs/game-session-harness/custom-game-lineup';
-import { customGameView } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';

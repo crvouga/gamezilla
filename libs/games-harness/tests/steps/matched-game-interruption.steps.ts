@@ -6,6 +6,7 @@
  */
 
 import { expect } from 'bun:test';
+import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/matched-game-fixtures';
 import {
   bothBoards,
   matchedGameOf,
@@ -19,7 +20,6 @@ import {
   multiplayerPauseShown,
   setMultiplayerAvailability,
 } from '@libs/game-matchmaking-harness/multiplayer-availability';
-import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { passMultiplayerDays } from '@libs/game-matchmaking-harness/multiplayer-time';
 import { openFindingAnOpponent } from '@libs/game-matchmaking-harness/opponent-seeking';
 import { Given, Then, When } from '@libs/harness/define';

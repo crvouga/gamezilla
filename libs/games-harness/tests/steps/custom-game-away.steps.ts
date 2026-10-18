@@ -1,6 +1,6 @@
 import { expect } from 'bun:test';
 import { readCustomGameTime } from '@libs/game-session-harness/custom-game-clocks';
-import { customGameView } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import { partition } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';

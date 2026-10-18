@@ -1,9 +1,7 @@
 import { establishCustomGame } from '@libs/game-session-harness/custom-game-lineup';
+import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-probe';
 import { readStoredCustomGameWorld } from '@libs/game-session-harness/custom-game-stored';
-import {
-  configureCustomGameChoice,
-  readCustomGameProbe,
-} from '@libs/game-session-harness/custom-game-ui';
+import { configureCustomGameChoice } from '@libs/game-session-harness/custom-game-ui';
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
 import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';

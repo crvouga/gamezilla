@@ -6,10 +6,8 @@ import {
   matchedGameOf,
   move,
 } from '@libs/game-matchmaking-harness/matched-game-world';
-import {
-  customGameView,
-  makeCustomGameMove,
-} from '@libs/game-session-harness/custom-game-moves';
+import { makeCustomGameMove } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import { partition } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import { before, gameOf, setupCustomGame, sideOf, view } from './game-world';

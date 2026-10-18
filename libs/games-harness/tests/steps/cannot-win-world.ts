@@ -5,13 +5,13 @@
  * scenarios that need it (`SHARED_SPECIFICATIONS`: a side that cannot win).
  */
 
+import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/matched-game-fixtures';
 import {
   acceptedMoves,
   bothBoards,
   matchedGameOf,
   pairOf,
 } from '@libs/game-matchmaking-harness/matched-game-world';
-import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { gameOf } from './game-world';

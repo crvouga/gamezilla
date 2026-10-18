@@ -1,6 +1,6 @@
 import { expect } from 'bun:test';
 import { inMatchedGame } from '@libs/game-matchmaking-harness/matched-game-world';
-import { customGameView } from '@libs/game-session-harness/custom-game-moves';
+import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import { openCustomGames } from '@libs/game-session-harness/game-navigation';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { Given, Then, When } from '@libs/harness/define';
