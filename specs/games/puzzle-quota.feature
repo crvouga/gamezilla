@@ -2,7 +2,9 @@
 Feature: The daily rated puzzle allowance
   When a guest reaches the daily puzzle limit, they want to finish the puzzle
   on the board and know how to carry on, so the limit never costs them a
-  puzzle they already started.
+  puzzle they already started. The limit is one allowance for every game
+  offering puzzles, so its rules about another game apply when at least two
+  games offer puzzles.
 
   Rule: A guest starts at most 20 rated puzzles a day
 
@@ -15,6 +17,22 @@ Feature: The daily rated puzzle allowance
     Scenario: The next puzzle past the limit does not start
       Given Alice is a guest who has finished today's last allowed puzzle
       When Alice asks for another puzzle
+      Then Alice is told no new puzzle can start because today's allowance is used within 15 seconds
+      And Alice has no puzzle on the board
+
+  Rule: Rated puzzles of every game offering puzzles count toward the same daily puzzle limit
+
+    Scenario: A guest's twentieth puzzle of the day still starts after rated puzzles of another game
+      Given Alice is a guest who has played 19 rated puzzles of another game offering puzzles today
+      And Alice is hosting a space
+      When Alice opens puzzles in their space
+      Then Alice has a puzzle on the board
+      And Alice can read that 0 rated puzzles remain today
+
+    Scenario: A guest who used today's allowance in another game gets no new puzzle of the game
+      Given Alice is a guest who has played 20 rated puzzles of another game offering puzzles today
+      And Alice is hosting a space
+      When Alice opens puzzles in their space
       Then Alice is told no new puzzle can start because today's allowance is used within 15 seconds
       And Alice has no puzzle on the board
 

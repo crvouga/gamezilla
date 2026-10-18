@@ -938,6 +938,21 @@ terms:
       faster win, or the same moves in another order.
     forms: [the last move of the solution, the next move of the solution]
 
+  - term: won another way
+    definition: >-
+      Said of a known puzzle whose last solver move can be made another way
+      that the game's rules count as the same win, though it is not in the
+      puzzle's line, and of a puzzle the solver finishes that way. Making
+      it solves the puzzle, as the line's own last move would. Only a game
+      whose known puzzles include such a puzzle shows it.
+    forms:
+      - can be won another way
+      - the other winning last move
+      - won the puzzle another way
+      - won the puzzle a different way
+      - winning the puzzle different ways
+    model: [solve]
+
   - term: solution move
     definition: The next move of the solution, from where the board stands.
     model: [revealSolutionMove, trySolutionBeforeHint]
