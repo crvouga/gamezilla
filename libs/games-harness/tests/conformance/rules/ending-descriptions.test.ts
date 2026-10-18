@@ -37,6 +37,12 @@ function endingReason(game: HarnessGame, line: readonly string[]): string {
 
 forEveryGame(import.meta.path, (game) => {
   const presentation = game.client.presentation;
+  // A turn game's shared screens show its endings only through its
+  // presentation; a game must supply one to be shown at all.
+  test('the game supplies the presentation its endings are shown through', () => {
+    expect(presentation).toBeDefined();
+  });
+  if (presentation === undefined) return;
 
   // regression: game-session-ending-descriptions-lost
   test("each ending the game's rules reach keeps a description of its own", () => {
