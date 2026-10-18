@@ -51,11 +51,20 @@ in `specs/<game>/`.
 
 1. **Definition.** `defineTurnGame({ rules, capabilities, automation, own? })`
    in the game's `-shared` package validates the game when its module loads
-   and returns the only value the registry accepts (a branded
-   `TurnGameDefinition`). `defineGameClient` does the same for the client.
+   and returns the only value the registry accepts: a `TurnGameDefinition`,
+   an instance carrying a private brand that a spread copy or a hand-built
+   object lacks, so either is refused at type checking. `defineGameClient`
+   does the same for the client (`GameClientRegistration`). Neither needs a
+   cast.
 2. **Registration.** One entry in `GAME_DEFINITIONS`, one in
    `GAME_CLIENT_DEFINITIONS` (client bundles only), one in `HARNESS_GAMES`
-   (tests only). The three are checked to agree, entry for entry.
+   (tests only). Each registry checks, when it loads, that every entry was
+   made by its constructor (`assertTurnGameDefinitions`,
+   `assertGameClientDefinitions`, and `assertHarnessGame` for an adapter's
+   two); the client registry agrees with the turn games entry for entry
+   (`assertMatchingGameIds`, naming the entry to add, remove or reorder);
+   the harness games agree with the registry (the conformance plan,
+   below).
 3. **Composition.** The registries are the single source of what is played:
    - the space room (`composeRoomModules`) installs each game's own room and,
      once, every shared module bound to all registered rules;
@@ -83,11 +92,21 @@ Capabilities are present or absent, each with what it needs:
 | Capability | The platform offers | The game supplies |
 | --- | --- | --- |
 | `custom-games` | Custom games with people and bots, invitations, readiness, clocks, resignation, draws, rematches, offline solo play, review | `bots: { difficulties, choose }` (no difficulties = one bot) |
-| `matchmaking` | Finding an opponent at a clock choice, matched games, ratings per speed, turn and result notices, rematches, the multiplayer link | `clockNamespace` (`'<id>/'`), `notice` copy for server-sent notices |
+| `matchmaking` | Finding an opponent at a clock choice, matched games, ratings per speed, turn and result notices, rematches, the multiplayer link | `clockNamespace` (`'<id>/'`), `notice` copy for server-sent notices; **requires `history`** |
 | `history` | History, statistics and review of finished games; the downloadable record | `record(position, history, metadata)` |
 
 A game never supplies a placeholder for a capability it does not offer, and
 the platform shows, accepts and tests nothing for an absent one.
+
+Finding an opponent requires history: every finished matched game offers
+its game record (`specs/games/matched-game-record.feature`), which only
+`history.record` writes. `TurnGameCapabilities` makes `matchmaking`
+without `history` a type error, and `createTurnGames` (so `defineTurnGame`)
+refuses it for what a type cannot see: `<id>: offering matchmaking needs
+history too (every finished matched game offers its game record) — add
+capabilities.history`. The requirement is `CAPABILITY_REQUIRES`. History
+alone, without matched games, is custom-game history, statistics and
+review; its record is never copied.
 
 Client extension points (`defineGameClient`): `presentation` (board, side
 names, ending copy), optional `choices` and `screens` (the game's own
@@ -129,18 +148,49 @@ behaviour for exactly what it offers:
   The rules laws are property tests (`assertProperty`): positions name one
   game, replay reproduces every position, the moves shown are the moves
   played, only legal actions are accepted, and automation and bots choose
-  legally.
+  legally. The capability laws (`game-capability-laws`) hold every game's
+  presentation to naming the game and each side apart, describing and
+  labelling every ending its rules reach, and describing a draw on time
+  (`conformance/rules/presentation`), and every game whose matched games
+  offer a record to writing both people on their sides, the result, the
+  clock choice and this game's moves, as its `readRecord` reads them
+  (`conformance/history/game-record`). A suite registers its tests inside
+  `forEveryGame`.
 - **Independent oracles.** Expected outcomes come from each game's
   `fixtures` — a known first-side victory, known refused openings and, for
   a game that has one, a known line to a position its second side cannot
   win,
   written from the game's own laws — or from the contract, never from asking
   the implementation whether it agrees with itself. Faulty copies of the
-  reference game prove each law refuses the fault it names.
+  reference game (`reference-game/faulty-*.test.ts`), each defined through
+  `defineTurnGame` and `defineGameClient` like any game, prove each law
+  refuses the fault it names — and only that law, for that reason: rules,
+  bots, automation, a strength offered twice, endings and side names lost,
+  and a record with the wrong people, result or game.
 - **The matrix.** `tests/game-conformance-matrix.test.ts` derives the
-  game × area matrix from offered capabilities and the suites on disk,
-  prints it, and fails on an offered capability no suite verifies. An
-  unoffered capability is `—` (unsupported), never "not tested".
+  game × area matrix from offered capabilities and the suites that require
+  a case of each game, prints it, and fails on every problem
+  `planConformance` (`@libs/games-harness/game-conformance`) finds, each
+  saying what to fix: a game in `GAME_DEFINITIONS` but not `HARNESS_GAMES`
+  or the reverse, out of order or with another definition; a code suite
+  that registers no case for any game it binds, or never calls
+  `forEveryGame`; an offered capability no suite or specification requires
+  a case of; a specification of `specs/games/` without a
+  `SHARED_SPECIFICATIONS` entry, an entry without a specification, listing
+  nothing, only a trait, or a need that is neither a capability nor a
+  trait. A code suite counts for a game only when it registers a case of
+  it: `planCodeSuites` loads each suite inside a running test, where
+  `bun:test` refuses every registration, so an empty file binds nothing.
+  The planner is pure, and `tests/game-conformance-plan.test.ts` proves
+  each refusal on fake registries. An unoffered capability is `—`
+  (unsupported), never "not tested".
+- **Attribution and isolation.** `tests/game-result-attribution.test.ts`
+  proves, with the runners' own naming functions, that each game's run of
+  every shared specification has its own test name and evidence
+  obligation, so no game's verdict satisfies another's;
+  `tests/game-order-isolation.test.ts` proves the plan, the matrix and the
+  laws' verdicts are the same whatever order the games are listed or
+  checked in.
 - **Depth.** The same suites run in both check profiles; `bun check-nightly`
   replays more property runs and Quint traces (`check-profile.ts`).
 
@@ -161,7 +211,12 @@ tables `chess_multiplayer_*` and `chess_opponent_searches`, room modules
 `chess/custom` and `chess-match`, refusal codes `CHESS_*`, the seat tokens
 `white` / `black` (first and second side), the record fields `fen` / `uci` /
 `san` / `pgn` (position, action, label, history), chess's unprefixed clock
-namespace, and the space-wide game screen (`games/screen`). Renaming any of
+namespace, and the space-wide game screen (`games/screen`). The unprefixed
+clock namespace `''` belongs to the game whose id is
+`GAME_PLATFORM_NAMESPACE` alone: `defineTurnGame` grants it to that game
+(`unprefixedClockNamespace`), and `createTurnGames` refuses it for any
+other (`<id>: the unprefixed clock namespace "" belongs to the platform's
+durable game alone — use "<id>/"`). Renaming any of
 them would change stored histories, pending offline mutations or queued
 messages. A game's own positions and actions are stored verbatim: a game that
 changes its encoding keeps `recognizes`, `play` and `replay` accepting every

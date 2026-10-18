@@ -41,6 +41,8 @@ export const raceGameShared = defineTurnGame({
     // and the platform neither shows nor accepts it.
     'custom-games': { bots: { difficulties: ['easy'], choose: chooseStep } },
     history: { record: (position, history, metadata) => raceRecord(position, metadata) },
+    // Finding an opponent needs history beside it: every finished matched
+    // game offers its game record.
     // matchmaking: { clockNamespace: 'race/', notice: raceNoticeText },
   },
   automation: {
@@ -140,14 +142,17 @@ A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
 
 | Mistake | Fails at |
 | --- | --- |
-| A capability without what it needs, a placeholder for one not offered | type checking (`TurnGameCapabilities`) |
-| An unknown capability, a duplicate bot difficulty, an id that is not a slug | `defineTurnGame`, when the module loads |
-| A clock namespace other than `'<id>/'`, a starting position another game recognizes, a duplicate id | `createTurnGames`, at registration |
-| A hand-built definition skipping the shared sessions | type checking (only `defineTurnGame` makes a `TurnGameDefinition`) |
+| A capability without what it needs, an unknown capability, a placeholder (`history: undefined`) for one not offered, finding an opponent without history | type checking (`TurnGameCapabilities`), and `defineTurnGame` when the module loads |
+| A duplicate bot difficulty, an id that is not a slug | `defineTurnGame`, when the module loads |
+| A clock namespace other than `'<id>/'` (only the `GAME_PLATFORM_NAMESPACE` game keeps `''`), a starting position another game recognizes, a duplicate id | `defineTurnGame` and `createTurnGames`, at registration |
+| A hand-built or copied definition or client | type checking (only `defineTurnGame` makes a `TurnGameDefinition`, only `defineGameClient` a `GameClientRegistration`), and the registries when they load |
 | A screen key that is not a slug, is declared twice or belongs to the platform | `defineGameClient` |
-| Registries that disagree, a game missing from `HARNESS_GAMES` | `assertMatchingGameIds`, `game-enrollment.test.ts` |
-| Fixtures the game's rules contradict | `assertHarnessGame` |
-| Rules that break a shared law (replay, isolation, legality, bots) | `tests/conformance/rules`, `…/custom-games` |
+| A client missing, extra or out of order | `assertMatchingGameIds`, naming the entry to fix |
+| A game missing from `HARNESS_GAMES` (or there but not registered) | the conformance plan (`game-conformance-matrix.test.ts`) |
+| Fixtures the game's rules contradict, ids that differ between the definitions | `assertHarnessGame` |
+| Rules that break a shared law (replay, isolation, legality, automation, bots) | `tests/conformance/rules`, `…/custom-games` |
+| Endings or side names the shared screens cannot show | `tests/conformance/rules/presentation` |
+| A game record with the wrong people, result, clock or moves | `tests/conformance/history/game-record` |
 | A game depending on another game or a registry; a framework package depending on a game | the package's `lint` (`gameViolations`) |
 | Framework code spelling a game id | the package's `lint` (`gameIdentityViolations`) |
 
