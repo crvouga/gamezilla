@@ -7,7 +7,11 @@
 import { expect } from 'bun:test';
 import { removeFriend } from '@libs/friends-harness/friends-actions';
 import { setupFriendsPair } from '@libs/friends-harness/setup-friends-pair';
-import { matchedGameOf } from '@libs/game-matchmaking-harness/matched-game-world';
+import {
+  matchedGameOf,
+  ownerOf,
+  viewerOf,
+} from '@libs/game-matchmaking-harness/matched-game-world';
 import { pairGameOpponents } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import {
   multiplayerText,
@@ -132,5 +136,20 @@ Then(
     expect(
       await w.s.read(shownMultiplayerText, actor, 'multiplayer-opponent')
     ).toContain('Deleted account');
+  }
+);
+
+Then(
+  '{actor} sees he won the matched game by account deletion',
+  async (w, actor: string) => {
+    const owner = await ownerOf(w, actor);
+    const device = viewerOf(w, actor);
+    await w.s.until(
+      async (s) => (await multiplayerView(s, device)).game?.outcome,
+      { pred: (outcome) => outcome !== undefined && outcome !== 'ongoing' }
+    );
+    const game = await matchedGameOf(w, device);
+    expect(game.outcome).toBe(game.white_id === owner ? 'white' : 'black');
+    expect(game.reason).toBe('account deletion');
   }
 );
