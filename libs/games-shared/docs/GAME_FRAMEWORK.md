@@ -627,8 +627,8 @@ behaviour for exactly what it offers:
   and a game without the fixture is held by the rules laws to never reach
   such a position (or, for puzzles, to win each known puzzle only by its
   line). A feature showing more than one capability holds for the games
-  offering all of them (`puzzle-other-play`: puzzles, finding an opponent
-  and custom games). The moves played and a copied game record are checked against
+  offering all of them (`puzzle-matched-play`: puzzles and finding an
+  opponent; `puzzle-custom-play`: puzzles and custom games). The moves played and a copied game record are checked against
   how the game writes its victory's moves (`firstSideVictoryLabels`, held
   to the rules' own labels), and a game whose matched games offer a game
   record reads it back in its own format (`readRecord`), never through the

@@ -173,7 +173,8 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'puzzle-sound': ['puzzles'],
   'puzzle-accessibility': ['puzzles'],
   'puzzle-objective': ['puzzles', 'a known puzzle won another way'],
-  'puzzle-other-play': ['puzzles', 'matchmaking', 'custom-games'],
+  'puzzle-matched-play': ['puzzles', 'matchmaking'],
+  'puzzle-custom-play': ['puzzles', 'custom-games'],
 };
 
 /** The file endings of the specifications a game is held to. */
