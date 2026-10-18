@@ -1,14 +1,11 @@
-import {
-  PUZZLE_PLAY_STATUS,
-  PuzzlePlayAttr,
-} from '@libs/game-puzzle-shared/play-attr';
+import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
+import { PUZZLE_PLAY_STATUS, PuzzlePlayAttr } from './play-attr';
 import {
   PuzzleMoveRecommended,
   PuzzleRecommendationCleared,
-} from '@libs/game-puzzle-shared/play-messages';
-import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
-import { isBoardSquare } from './recommendation-arrows';
+} from './play-messages';
+import type { PuzzleGame } from './puzzle-setup';
 
 function conflict(reason: string): HandleResult {
   return { ok: false, error: { type: ROOM_ERROR_TYPE.conflict, reason } };
@@ -17,18 +14,23 @@ function conflict(reason: string): HandleResult {
 /**
  * Any room member may suggest a move for the live position. Suggestions are
  * annotations: they never advance the puzzle and never depend on host rights.
+ * A suggestion names two cells of the puzzle's board (`isCell`).
  */
 export function handleRecommend(
   state: RoomState,
   identity: string,
-  payload: { from: string; to: string }
+  payload: { from: string; to: string },
+  game: PuzzleGame | null
 ): HandleResult {
-  if (!isBoardSquare(payload.from) || !isBoardSquare(payload.to)) {
+  if (
+    game !== null &&
+    (!game.puzzles.isCell(payload.from) || !game.puzzles.isCell(payload.to))
+  ) {
     return {
       ok: false,
       error: {
         type: ROOM_ERROR_TYPE.invalidCommand,
-        reason: 'a suggestion names two squares of the board',
+        reason: 'a suggestion names two cells of the board',
       },
     };
   }

@@ -1,8 +1,27 @@
 import { expect, test } from 'bun:test';
-import { judgePuzzleMove } from '@libs/chess-puzzle-shared/chess-puzzle-move-judge';
+import { CHESS_PUZZLE_GAME } from '@libs/chess-puzzle-shared/chess-puzzles';
+import { judgePuzzleAction } from '@libs/game-puzzle-shared/puzzle-judge';
+import { sideToMoveOf } from '@pkgs/chess-rules-shared/fen';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import { Chess, type Square } from 'chess.js';
 import fc from 'fast-check';
+
+/** The platform's judge over chess, as the solver to move in `fen`. */
+function judgePuzzleMove(args: {
+  fen: string;
+  tokens: readonly string[];
+  idx: number;
+  uci: string;
+}) {
+  return judgePuzzleAction({
+    game: CHESS_PUZZLE_GAME,
+    position: args.fen,
+    line: args.tokens,
+    idx: args.idx,
+    solverSide: sideToMoveOf(args.fen) === 'w' ? 'white' : 'black',
+    action: args.uci,
+  });
+}
 
 const MATES = [
   '7k/RR6/8/8/p7/8/8/6K1 w - - 0 2',

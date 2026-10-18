@@ -12,8 +12,9 @@ import {
   puzzlePlayEventReducer,
   puzzlePlayInitialAttrs,
 } from '@libs/game-puzzle-shared/play-reducer';
+import { createPuzzlePlayCommandRouter } from '@libs/game-puzzle-shared/play-router';
 import type { GameOwnRoom } from '@libs/spaces-shared/game';
-import { chessPuzzlePlayCommandRouter } from './chess-puzzle-play-router';
+import { CHESS_PUZZLE_GAME } from './chess-puzzles';
 export const CHESS_GAME_ID = 'chess';
 
 /**
@@ -24,7 +25,14 @@ export const CHESS_GAME_ID = 'chess';
 export const chessPuzzleRoom: GameOwnRoom = {
   commandRouters: [
     { namespace: chessCmdNs, router: chessScreensCommandRouter },
-    { namespace: puzzlePlayCmdNs, router: chessPuzzlePlayCommandRouter },
+    {
+      namespace: puzzlePlayCmdNs,
+      // The platform's puzzle session, over chess alone until puzzles are a
+      // capability chess declares.
+      router: createPuzzlePlayCommandRouter((position) =>
+        CHESS_PUZZLE_GAME.rules.recognizes(position) ? CHESS_PUZZLE_GAME : null
+      ),
+    },
   ],
   eventRouters: [
     { namespace: chessEvtNs, router: chessScreensEventReducer },

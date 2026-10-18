@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { setupPuzzleStart } from '@libs/chess-puzzle-shared/chess-puzzle-fsm';
-import { fenAtSolveIdx } from '@libs/chess-puzzle-shared/chess-puzzle-step';
+import { CHESS_PUZZLE_GAME } from '@libs/chess-puzzle-shared/chess-puzzles';
+import { positionAt, setupPuzzle } from '@libs/game-puzzle-shared/puzzle-setup';
 import {
   nextForwardSolveIdx,
   prevSolveIdx,
@@ -74,12 +74,16 @@ describe('chess-puzzle-step', () => {
     ).toBeNull();
   });
 
-  test('fenAtSolveIdx matches setup opening fen at idx 1', () => {
-    const setup = setupPuzzleStart(VALID_FEN, VALID_MOVES);
+  test('the position at idx 1 is the set-up position', () => {
+    const setup = setupPuzzle(
+      CHESS_PUZZLE_GAME,
+      VALID_FEN,
+      VALID_MOVES.split(' ')
+    );
     expect(setup.kind).toBe('ready');
     if (setup.kind !== 'ready') return;
     expect(
-      fenAtSolveIdx({ fen: VALID_FEN, moves: VALID_MOVES, solveIdx: 1 })
-    ).toBe(setup.displayFen);
+      positionAt(CHESS_PUZZLE_GAME, VALID_FEN, VALID_MOVES.split(' '), 1)
+    ).toBe(setup.displayPosition);
   });
 });

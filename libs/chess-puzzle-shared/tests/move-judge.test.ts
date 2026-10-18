@@ -1,6 +1,25 @@
 import { describe, expect, test } from 'bun:test';
 
-import { judgePuzzleMove } from '@libs/chess-puzzle-shared/chess-puzzle-move-judge';
+import { CHESS_PUZZLE_GAME } from '@libs/chess-puzzle-shared/chess-puzzles';
+import { judgePuzzleAction } from '@libs/game-puzzle-shared/puzzle-judge';
+import { sideToMoveOf } from '@pkgs/chess-rules-shared/fen';
+
+/** The platform's judge over chess, as the solver to move in `fen`. */
+function judgePuzzleMove(args: {
+  fen: string;
+  tokens: readonly string[];
+  idx: number;
+  uci: string;
+}) {
+  return judgePuzzleAction({
+    game: CHESS_PUZZLE_GAME,
+    position: args.fen,
+    line: args.tokens,
+    idx: args.idx,
+    solverSide: sideToMoveOf(args.fen) === 'w' ? 'white' : 'black',
+    action: args.uci,
+  });
+}
 
 /** Position after the opponent's setup move a7a6 in the transposition puzzle. */
 const TWO_ROOKS = '6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2';
@@ -18,7 +37,7 @@ function judge(args: {
   return judgePuzzleMove(args);
 }
 
-describe('judgePuzzleMove', () => {
+describe('the platform judge over chess', () => {
   test('the expected move is correct and ends the puzzle on the last ply', () => {
     const mid = judge({
       fen: TWO_ROOKS,
@@ -34,7 +53,7 @@ describe('judgePuzzleMove', () => {
       idx: 1,
       uci: 'b7b8',
     });
-    expect(last).toMatchObject({ kind: 'correct', via: 'mate', ends: true });
+    expect(last).toMatchObject({ kind: 'correct', via: 'win', ends: true });
   });
 
   test('castling is compared in canonical form, king-onto-rook included', () => {
@@ -42,7 +61,7 @@ describe('judgePuzzleMove', () => {
     for (const uci of ['e1g1', 'e1h1']) {
       expect(
         judge({ fen, tokens: ['a7a6', 'e1g1'], idx: 1, uci })
-      ).toMatchObject({ kind: 'correct', via: 'line', uci: 'e1g1' });
+      ).toMatchObject({ kind: 'correct', via: 'line', action: 'e1g1' });
     }
   });
 
@@ -55,7 +74,7 @@ describe('judgePuzzleMove', () => {
     });
     expect(judge({ fen, tokens, idx: 1, uci: 'e7e8q' })).toMatchObject({
       kind: 'wrong',
-      uci: 'e7e8q',
+      action: 'e7e8q',
     });
   });
 
@@ -66,7 +85,7 @@ describe('judgePuzzleMove', () => {
       idx: 1,
       uci: 'a7a8',
     });
-    expect(final).toMatchObject({ kind: 'correct', via: 'mate', ends: true });
+    expect(final).toMatchObject({ kind: 'correct', via: 'win', ends: true });
 
     // A faster mate than the stored four-ply line ends the puzzle at once.
     const faster = judge({
@@ -75,7 +94,7 @@ describe('judgePuzzleMove', () => {
       idx: 1,
       uci: 'b7b8',
     });
-    expect(faster).toMatchObject({ kind: 'correct', via: 'mate', ends: true });
+    expect(faster).toMatchObject({ kind: 'correct', via: 'win', ends: true });
     expect(faster.kind === 'correct' && faster.line).toEqual(['a5a4', 'b7b8']);
   });
 
@@ -107,7 +126,7 @@ describe('judgePuzzleMove', () => {
         idx: 1,
         uci: 'e1e2',
       })
-    ).toMatchObject({ kind: 'wrong', san: 'Ke2' });
+    ).toMatchObject({ kind: 'wrong', label: 'Ke2' });
     // a1a8 is blocked by the pawn on a6.
     expect(
       judge({

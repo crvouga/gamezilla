@@ -1,16 +1,11 @@
-import {
-  PUZZLE_PLAY_STATUS,
-  PuzzlePlayAttr,
-} from '@libs/game-puzzle-shared/play-attr';
-import {
-  PuzzlePlaySkipped,
-  PuzzleSolutionShown,
-} from '@libs/game-puzzle-shared/play-messages';
-import { lineLength } from '@libs/game-puzzle-shared/step';
 import type { GameCommandContext } from '@libs/spaces-shared/game';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
-import { fenAtSolveIdx } from './chess-puzzle-step';
+import { PUZZLE_PLAY_STATUS, PuzzlePlayAttr } from './play-attr';
+import { PuzzlePlaySkipped, PuzzleSolutionShown } from './play-messages';
+import type { PuzzleGame } from './puzzle-setup';
+import { positionAt } from './puzzle-setup';
+import { lineActions } from './step';
 
 function isHostOf(state: RoomState, identity: string): boolean {
   const host = PuzzlePlayAttr.hostIdentity.from(state);
@@ -31,7 +26,8 @@ function isLiveAttempt(state: RoomState): boolean {
  */
 export function handleShowSolution(
   state: RoomState,
-  ctx: GameCommandContext
+  ctx: GameCommandContext,
+  game: PuzzleGame
 ): HandleResult {
   if (!isHostOf(state, ctx.identity)) {
     return {
@@ -63,16 +59,20 @@ export function handleShowSolution(
       },
     };
   }
-  const fen = PuzzlePlayAttr.position.from(state);
-  const moves = PuzzlePlayAttr.line.from(state);
-  const solveIdx = lineLength(moves);
-  const displayFen = fenAtSolveIdx({ fen, moves, solveIdx });
+  const line = lineActions(PuzzlePlayAttr.line.from(state));
+  const solveIdx = line.length;
+  const displayFen = positionAt(
+    game,
+    PuzzlePlayAttr.position.from(state),
+    line,
+    solveIdx
+  );
   if (displayFen === null) {
     return {
       ok: false,
       error: {
         type: ROOM_ERROR_TYPE.internal,
-        reason: 'could not rebuild the final fen of the line',
+        reason: 'could not rebuild the final position of the line',
       },
     };
   }

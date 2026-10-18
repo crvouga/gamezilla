@@ -1,15 +1,15 @@
 import type { ChessPuzzleOrientation } from '@libs/chess-puzzle-shared/chess-puzzle-fsm';
-import { setupPuzzleStart } from '@libs/chess-puzzle-shared/chess-puzzle-fsm';
 import type { PuzzleHistoryPly } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
 import { buildPuzzleMoveHistory } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
-import { fenAtSolveIdx } from '@libs/chess-puzzle-shared/chess-puzzle-step';
+import { CHESS_PUZZLE_GAME } from '@libs/chess-puzzle-shared/chess-puzzles';
 import type { PuzzleNavIntent } from '@libs/game-puzzle-shared/puzzle-nav';
 import {
   isPuzzleSeekAnimated,
   PUZZLE_FIRST_SOLVE_IDX,
   resolvePuzzleNavTarget,
 } from '@libs/game-puzzle-shared/puzzle-nav';
-import { lineLength } from '@libs/game-puzzle-shared/step';
+import { positionAt, setupPuzzle } from '@libs/game-puzzle-shared/puzzle-setup';
+import { lineActions, lineLength } from '@libs/game-puzzle-shared/step';
 import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 
@@ -38,7 +38,9 @@ export function usePuzzleReviewBoard(
   moves: string,
   cursor: PuzzleReviewCursor
 ): PuzzleReviewBoardModel {
-  const setup = createMemo(() => setupPuzzleStart(fen, moves));
+  const setup = createMemo(() =>
+    setupPuzzle(CHESS_PUZZLE_GAME, fen, lineActions(moves))
+  );
   const tokensLength = createMemo(() => lineLength(moves));
   // The board snaps unless the seek that produced this position was one ply.
   const [animated, setAnimated] = createSignal(false);
@@ -58,15 +60,20 @@ export function usePuzzleReviewBoard(
   );
 
   const displayFen = createMemo(() => {
-    const atIdx = fenAtSolveIdx({ fen, moves, solveIdx: solveIdx() });
+    const atIdx = positionAt(
+      CHESS_PUZZLE_GAME,
+      fen,
+      lineActions(moves),
+      solveIdx()
+    );
     if (atIdx !== null) return atIdx;
     const s = setup();
-    return s.kind === 'ready' ? s.displayFen : '';
+    return s.kind === 'ready' ? s.displayPosition : '';
   });
 
   const orientation = createMemo<ChessPuzzleOrientation>(() => {
     const s = setup();
-    return s.kind === 'ready' ? s.orientation : 'white';
+    return s.kind === 'ready' ? s.solverSide : 'white';
   });
 
   const ready = createMemo(

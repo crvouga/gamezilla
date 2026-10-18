@@ -1,32 +1,25 @@
-import {
-  PUZZLE_PLAY_STATUS,
-  PuzzlePlayAttr,
-} from '@libs/game-puzzle-shared/play-attr';
-import {
-  PuzzleHintRevealed,
-  PuzzleSolutionRevealed,
-} from '@libs/game-puzzle-shared/play-messages';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
-import { tokenize, uciToSquares } from './chess-puzzle-fsm';
+import { PUZZLE_PLAY_STATUS, PuzzlePlayAttr } from './play-attr';
+import { PuzzleHintRevealed, PuzzleSolutionRevealed } from './play-messages';
+import type { PuzzleGame } from './puzzle-setup';
+import { lineActions } from './step';
 
-type HintHandleResult = HandleResult;
-
-function unauthorized(reason: string): HintHandleResult {
+function unauthorized(reason: string): HandleResult {
   return {
     ok: false,
     error: { type: ROOM_ERROR_TYPE.unauthorized, reason },
   };
 }
 
-function conflict(reason: string): HintHandleResult {
+function conflict(reason: string): HandleResult {
   return {
     ok: false,
     error: { type: ROOM_ERROR_TYPE.conflict, reason },
   };
 }
 
-function internal(reason: string): HintHandleResult {
+function internal(reason: string): HandleResult {
   return {
     ok: false,
     error: { type: ROOM_ERROR_TYPE.internal, reason },
@@ -38,9 +31,7 @@ function isHostOf(state: RoomState, identity: string): boolean {
   return host !== null && host === identity;
 }
 
-function requireCurrentSolvingPosition(
-  state: RoomState
-): HintHandleResult | null {
+function requireCurrentSolvingPosition(state: RoomState): HandleResult | null {
   const status = PuzzlePlayAttr.status.from(state);
   if (status !== PUZZLE_PLAY_STATUS.solving) {
     return conflict(`cannot request hint while status is ${status}`);
@@ -54,7 +45,8 @@ function requireCurrentSolvingPosition(
   return null;
 }
 
-function buildHintEvents(state: RoomState): HintHandleResult {
+/** The hint: the cells the line's expected action names (`PuzzleMarks`). */
+function buildHintEvents(state: RoomState, game: PuzzleGame): HandleResult {
   const denied = requireCurrentSolvingPosition(state);
   if (denied !== null) return denied;
   if (
@@ -63,23 +55,25 @@ function buildHintEvents(state: RoomState): HintHandleResult {
   ) {
     return conflict('the first hint is already taken');
   }
-  const tokens = tokenize(PuzzlePlayAttr.line.from(state));
+  const line = lineActions(PuzzlePlayAttr.line.from(state));
   const idx = PuzzlePlayAttr.solveIdx.from(state);
-  const expected = tokens[idx];
+  const expected = line[idx];
   if (expected === undefined) {
     return internal('no expected move at current solve index');
   }
-  const squares = uciToSquares(expected);
-  if (squares === null) {
-    return internal('expected move uci is malformed');
+  const position = PuzzlePlayAttr.displayPosition.from(state) ?? '';
+  const marks = game.puzzles.marks(position, expected);
+  if (marks === null) {
+    return internal('expected move names no cells');
   }
   const layoutKey = PuzzlePlayAttr.layoutKey.from(state) + 1;
   return {
     ok: true,
     events: [
       PuzzleHintRevealed({
-        fromSquare: squares.from,
-        toSquare: squares.to,
+        // A move placed on one cell starts and ends there.
+        fromSquare: marks.from ?? marks.to,
+        toSquare: marks.to,
         layoutKey,
       }),
     ],
@@ -88,18 +82,19 @@ function buildHintEvents(state: RoomState): HintHandleResult {
 
 export function handleRequestHint(
   state: RoomState,
-  identity: string
-): HintHandleResult {
+  identity: string,
+  game: PuzzleGame
+): HandleResult {
   if (!isHostOf(state, identity)) {
     return unauthorized('only the puzzle host may request a hint');
   }
-  return buildHintEvents(state);
+  return buildHintEvents(state, game);
 }
 
 export function handleRevealSolution(
   state: RoomState,
   identity: string
-): HintHandleResult {
+): HandleResult {
   if (!isHostOf(state, identity)) {
     return unauthorized('only the puzzle host may reveal the solution');
   }

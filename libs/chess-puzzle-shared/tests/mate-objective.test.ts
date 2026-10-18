@@ -1,5 +1,25 @@
 import { expect, test } from 'bun:test';
-import { judgePuzzleMove } from '@libs/chess-puzzle-shared/chess-puzzle-move-judge';
+
+import { CHESS_PUZZLE_GAME } from '@libs/chess-puzzle-shared/chess-puzzles';
+import { judgePuzzleAction } from '@libs/game-puzzle-shared/puzzle-judge';
+import { sideToMoveOf } from '@pkgs/chess-rules-shared/fen';
+
+/** The platform's judge over chess, as the solver to move in `fen`. */
+function judgePuzzleMove(args: {
+  fen: string;
+  tokens: readonly string[];
+  idx: number;
+  uci: string;
+}) {
+  return judgePuzzleAction({
+    game: CHESS_PUZZLE_GAME,
+    position: args.fen,
+    line: args.tokens,
+    idx: args.idx,
+    solverSide: sideToMoveOf(args.fen) === 'w' ? 'white' : 'black',
+    action: args.uci,
+  });
+}
 
 // regression: puzzle-stored-mate-continues
 test('checkmate ends play even when contradictory data expects another reply', () => {

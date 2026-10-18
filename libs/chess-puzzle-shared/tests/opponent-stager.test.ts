@@ -6,9 +6,11 @@ import {
   PUZZLE_REPLY_PREVIEW_MS,
   PUZZLE_SOLUTION_STEP_MS,
 } from '@libs/chess-puzzle-shared/chess-puzzle-opponent-stage';
-import { fenAtSolveIdx } from '@libs/chess-puzzle-shared/chess-puzzle-step';
+import { CHESS_PUZZLE_GAME } from '@libs/chess-puzzle-shared/chess-puzzles';
 import type { OpponentStagerInput } from '@libs/chess-puzzle-shared/opponent-stager';
 import { createPuzzleOpponentStager } from '@libs/chess-puzzle-shared/opponent-stager';
+import { positionAt } from '@libs/game-puzzle-shared/puzzle-setup';
+import { lineActions } from '@libs/game-puzzle-shared/step';
 import type { Timers } from '@pkgs/clock-shared/types';
 
 /** Minimal deterministic timers: run callbacks in due order on `advance`. */
@@ -51,7 +53,12 @@ const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 // Opening ply e2e4 (opponent), human reply e7e5, opponent g1f3, human b8c6.
 const MOVES = 'e2e4 e7e5 g1f3 b8c6';
 const fenAt = (solveIdx: number): string => {
-  const fen = fenAtSolveIdx({ fen: START, moves: MOVES, solveIdx });
+  const fen = positionAt(
+    CHESS_PUZZLE_GAME,
+    START,
+    lineActions(MOVES),
+    solveIdx
+  );
   if (fen === null) throw new Error(`no fen at ${solveIdx}`);
   return fen;
 };

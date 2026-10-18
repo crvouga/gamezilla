@@ -1,4 +1,20 @@
-import { fenAtSolveIdx } from './chess-puzzle-step';
+import { positionAt } from '@libs/game-puzzle-shared/puzzle-setup';
+import { lineActions } from '@libs/game-puzzle-shared/step';
+import { CHESS_PUZZLE_GAME } from './chess-puzzles';
+
+/** The position after `solveIdx` actions of the stored line. */
+function fenAtSolveIdx(args: {
+  fen: string;
+  moves: string;
+  solveIdx: number;
+}): string | null {
+  return positionAt(
+    CHESS_PUZZLE_GAME,
+    args.fen,
+    lineActions(args.moves),
+    args.solveIdx
+  );
+}
 
 /**
  * §5 load: the pre-setup position holds this long before the opponent's
