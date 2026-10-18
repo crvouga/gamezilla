@@ -33,6 +33,13 @@ export type StackOptions = {
   /** Reuse a data directory (and its Postgres cluster) instead of a fresh one. */
   readonly keepData: boolean;
   /**
+   * Reach Postgres the way the deployed API does: through a link with the
+   * production round trip, session pool and per-request bill
+   * (`database-link.ts`). Off for development, on where a run decides whether
+   * a change is ready to deploy.
+   */
+  readonly productionDatabase: boolean;
+  /**
    * `memory` (default) — the IdP's SQLite lives in the child's memory.
    * `instance` — `<instance data dir>/idp.sqlite`, wiped with the instance
    *   unless `--keep-data`, then lasting across restarts.
@@ -138,6 +145,7 @@ export function parseStackOptions(argv: readonly string[]): StackOptions {
     frozenWeb: flag(argv, 'frozen-web'),
     testHooks: flag(argv, 'test-hooks'),
     keepData: flag(argv, 'keep-data'),
+    productionDatabase: flag(argv, 'production-database'),
     idpStateMode: idpState.mode,
     idpStatePath: idpState.path,
   };
