@@ -1,0 +1,4 @@
+{
+  "summary": "The API Worker ran wherever the caller entered Cloudflare while Postgres lives in one region, so each of a request's 60-200 statements paid the distance (80-240 ms in Deploy's traces). The rendered Worker config now places it in the cloud region of the database declared in global.tfvars.json.",
+  "regressionTest": "apps/product/tests/wrangler-config.test.ts"
+}

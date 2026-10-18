@@ -63,11 +63,46 @@ export function deletedDurableObjectClasses(
   return migrations.flatMap((m) => m.deleted_classes ?? []);
 }
 
+/**
+ * The cloud region each PlanetScale region runs in. Add a region here when the
+ * database moves; an unlisted one fails the render rather than guessing.
+ */
+const DATABASE_CLOUD_REGION: Readonly<Record<string, string>> = {
+  'us-east': 'aws:us-east-1',
+  'us-west': 'aws:us-west-2',
+  'eu-west': 'aws:eu-west-1',
+  'eu-central': 'aws:eu-central-1',
+};
+
+/**
+ * Where the API Worker runs. A request sends dozens of statements to Postgres,
+ * each a round trip through Hyperdrive, and Cloudflare otherwise runs the
+ * Worker wherever the caller enters its network: a request from the other side
+ * of the continent pays that distance on every statement. Placing the Worker
+ * beside the database pays it once per request.
+ */
+export function databasePlacement(databaseRegion: string): {
+  readonly region: string;
+} {
+  const region = DATABASE_CLOUD_REGION[databaseRegion];
+  if (region === undefined) {
+    throw new Error(
+      `No cloud region is known for the database region '${databaseRegion}'; add it to DATABASE_CLOUD_REGION in libs/infra-shared/src/wrangler.ts`
+    );
+  }
+  return { region };
+}
+
 function assertEnvAgnostic(base: WranglerConfig): void {
   const deleted = deletedDurableObjectClasses(base);
   if (deleted.length > 0) {
     throw new Error(
       `wrangler config deletes Durable Object classes (${deleted.join(', ')}); that destroys their storage and is never allowed.`
+    );
+  }
+  if ('placement' in base) {
+    throw new Error(
+      'wrangler.toml must not set placement: it is derived from the database region in libs/infra-shared/tofu/global.tfvars.json.'
     );
   }
   if ('env' in base || 'routes' in base || 'route' in base) {
@@ -98,6 +133,7 @@ export function renderWranglerConfig(
       ...apiWorkerVars(env),
     },
   };
+  rendered['placement'] = databasePlacement(GLOBAL.planetscale.region);
   if (resources.hyperdriveId !== undefined) {
     rendered['hyperdrive'] = [
       { binding: HYPERDRIVE_BINDING, id: resources.hyperdriveId },
