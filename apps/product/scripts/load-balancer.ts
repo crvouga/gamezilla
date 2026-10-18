@@ -127,7 +127,17 @@ export function startLoadBalancer(args: {
           : nextBackend();
       const forwarded = new Request(forwardUrl(backend, request), request);
       forwarded.headers.set('x-lb-backend', backend.id);
-      return await fetch(forwarded, { redirect: 'manual' });
+      try {
+        return await fetch(forwarded, { redirect: 'manual' });
+      } catch {
+        // A node that is stopping resets what it was serving. That is the
+        // caller's retry to handle: an uncaught rejection here is reported by
+        // Bun as an error, and fails the whole run after every test passed.
+        return new Response(null, {
+          status: 502,
+          headers: { 'x-lb-backend': backend.id },
+        });
+      }
     },
     websocket: {
       open(ws) {

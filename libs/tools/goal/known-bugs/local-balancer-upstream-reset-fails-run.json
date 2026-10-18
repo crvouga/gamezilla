@@ -1,0 +1,4 @@
+{
+  "summary": "The local stack's load balancer let an upstream connection reset escape its request handler. Bun reports that as an error and exits non-zero, so Check PR failed `test:release-journeys` after all 11 journeys passed, whenever an API node reset an in-flight request. The balancer now answers 502.",
+  "regressionTest": "apps/product/scripts/load-balancer.test.ts"
+}
