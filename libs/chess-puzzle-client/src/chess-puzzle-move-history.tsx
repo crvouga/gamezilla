@@ -1,10 +1,10 @@
 import type { PuzzleHistoryPly } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
 import type { ChessMoveNotation } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
+import type { PuzzleMoveNavProps } from '@libs/game-puzzle-client/puzzle-move-history-nav';
+import { PuzzleMoveNav } from '@libs/game-puzzle-client/puzzle-move-history-nav';
 import { puzzleSwipeHandlers } from '@libs/game-puzzle-shared/puzzle-swipe-handlers';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import { createEffect, createSignal, For, type JSX, Show } from 'solid-js';
-import type { ChessPuzzleMoveNavProps } from './chess-puzzle-move-history-nav';
-import { ChessPuzzleMoveNav } from './chess-puzzle-move-history-nav';
 import { HistoryPlyCluster } from './chess-puzzle-move-history-ply';
 
 const ROW_HEIGHT = 28;
@@ -15,7 +15,7 @@ export type ChessPuzzleMoveHistoryProps = {
   interactive: boolean;
   onSeek: (solveIdx: number) => void;
   /** §7 jump-to-start / jump-to-end (and step controls on review). */
-  nav: ChessPuzzleMoveNavProps;
+  nav: PuzzleMoveNavProps;
   notation: ChessMoveNotation;
 };
 
@@ -74,9 +74,9 @@ function MoveHistoryRow(props: ChessPuzzleMoveHistoryProps): JSX.Element {
       onPointerUp={swipe.onPointerUp}
       onPointerCancel={swipe.onPointerCancel}
     >
-      <ChessPuzzleMoveNav side="leading" nav={props.nav} />
+      <PuzzleMoveNav side="leading" nav={props.nav} />
       <MoveHistoryScroll {...props} />
-      <ChessPuzzleMoveNav side="trailing" nav={props.nav} />
+      <PuzzleMoveNav side="trailing" nav={props.nav} />
     </div>
   );
 }

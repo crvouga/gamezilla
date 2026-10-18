@@ -1,5 +1,8 @@
 import { chessMoveNotationOf } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
 import { BOARD_THEME } from '@libs/chess-root-shared/board-theme';
+import { PuzzleBoardFrame } from '@libs/game-puzzle-client/puzzle-board-frame';
+import { PuzzleBoardLoadingState } from '@libs/game-puzzle-client/puzzle-board-loading-state';
+import { usePuzzleFeedConfig } from '@libs/game-puzzle-client/use-puzzle-feed-config';
 import { puzzleNavIntentFromKey } from '@libs/game-puzzle-shared/puzzle-nav';
 import { puzzleSwipeHandlers } from '@libs/game-puzzle-shared/puzzle-swipe-handlers';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
@@ -7,11 +10,8 @@ import { registerFeedbackContext } from '@pkgs/feedback-shared/context';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { useDocumentShortcuts } from '@pkgs/ui-root-client/use-document-shortcuts';
 import { type JSX, onCleanup, Show } from 'solid-js';
-import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
-import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleMoveHistory } from './chess-puzzle-move-history';
 import { ChessPuzzleReviewTest } from './chess-puzzle-review-test';
-import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import type {
   PuzzleReviewBoardModel,
   PuzzleReviewCursor,
@@ -31,11 +31,11 @@ function ReviewBoardSurface(props: {
       onPointerUp={swipe.onPointerUp}
       onPointerCancel={swipe.onPointerCancel}
     >
-      <ChessPuzzleBoardFrame>
+      <PuzzleBoardFrame>
         {(size) => (
           <Show
             when={model.ready()}
-            fallback={<ChessPuzzleBoardLoadingState size={size} />}
+            fallback={<PuzzleBoardLoadingState size={size} />}
           >
             <ChessBoard
               theme={BOARD_THEME}
@@ -52,7 +52,7 @@ function ReviewBoardSurface(props: {
             />
           </Show>
         )}
-      </ChessPuzzleBoardFrame>
+      </PuzzleBoardFrame>
     </div>
   );
 }
@@ -63,7 +63,7 @@ export function ChessPuzzleReviewBoard(props: {
   cursor: PuzzleReviewCursor;
 }): JSX.Element {
   const model = usePuzzleReviewBoard(props.fen, props.moves, props.cursor);
-  const [config] = useChessPuzzleFeedConfig();
+  const [config] = usePuzzleFeedConfig();
   onCleanup(
     registerFeedbackContext({
       name: 'chess-puzzle-review',

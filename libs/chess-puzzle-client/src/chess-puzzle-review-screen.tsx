@@ -4,6 +4,8 @@ import {
   SeekChessPuzzleReview,
   SetChessSelectedReviewPuzzle,
 } from '@libs/chess-root-shared/chess-screens';
+import { useReviewPuzzleEntity } from '@libs/game-puzzle-client/puzzle-play-queries';
+import { usePuzzleHistory } from '@libs/game-puzzle-client/use-puzzle-history';
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared/stats';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useGameScreen } from '@libs/spaces-client/use-game-screen';
@@ -15,9 +17,7 @@ import { Trans } from '@lingui/solid/macro';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { GameReviewScreen } from '@pkgs/ui-root-client/game-review-screen';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
-import { useReviewPuzzleEntity } from './chess-puzzle-play-queries';
 import { ChessPuzzleReviewBoard } from './chess-puzzle-review-board';
-import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 import type { PuzzleReviewCursor } from './use-puzzle-review-board';
 
 /** How the reviewed attempt went; "Puzzle review" before the log has it. */
@@ -58,7 +58,7 @@ export function ChessPuzzleReviewBody(props: {
   cursor: PuzzleReviewCursor;
 }): JSX.Element {
   const entity = useReviewPuzzleEntity(() => props.puzzleId);
-  const history = useChessPuzzleHistory();
+  const history = usePuzzleHistory();
   const entry = createMemo(() =>
     findLogEntry(history.gameLog(), props.puzzleId)
   );

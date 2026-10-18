@@ -1058,6 +1058,7 @@
         "$TURBO_ROOT$/libs/game-session-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-matchmaking-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/chess-puzzle-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/game-puzzle-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/chess-shared-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/friends-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/notifications-client/src/**/*.{ts,tsx}",

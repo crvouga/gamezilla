@@ -1,4 +1,17 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import { usePuzzleFeedState } from '@libs/game-puzzle-client/puzzle-feed-context';
+import type { PuzzleTestLoadingStatusProps } from '@libs/game-puzzle-client/puzzle-test-loading-status';
+import { useNextPuzzleId } from '@libs/game-puzzle-client/use-next-puzzle-id';
+import { usePuzzleAttemptMemory } from '@libs/game-puzzle-client/use-puzzle-attempt-memory';
+import { usePuzzleFeedConfig } from '@libs/game-puzzle-client/use-puzzle-feed-config';
+import {
+  useIsPuzzleAlreadyRated,
+  usePuzzleRatingEvents,
+} from '@libs/game-puzzle-client/use-puzzle-rating-events';
+import { usePuzzleResultRecorded } from '@libs/game-puzzle-client/use-puzzle-result-recorded';
+import { useIsPuzzleDriver } from '@libs/game-puzzle-client/use-puzzle-space-role';
+import type { RatedStartGate } from '@libs/game-puzzle-client/use-rated-start-gate';
+import { useRatedStartGate } from '@libs/game-puzzle-client/use-rated-start-gate';
 import { widenPuzzleFeedConfig } from '@libs/game-puzzle-shared/feed-config';
 import type { PuzzlePickState } from '@libs/game-puzzle-shared/pick-state';
 import {
@@ -35,20 +48,7 @@ import {
   type Setter,
   untrack,
 } from 'solid-js';
-import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
-import type { ChessPuzzleTestLoadingStatusProps } from './chess-puzzle-test-loading-status';
-import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
-import {
-  useChessPuzzleRatingEvents,
-  useIsPuzzleAlreadyRated,
-} from './use-chess-puzzle-rating-events';
-import { useNextPuzzleId } from './use-next-puzzle-id';
-import { usePuzzleAttemptMemory } from './use-puzzle-attempt-memory';
 import { isFinishedPuzzleStatus } from './use-puzzle-player-handlers';
-import { usePuzzleResultRecorded } from './use-puzzle-result-recorded';
-import { useIsPuzzleDriver } from './use-puzzle-space-role';
-import type { RatedStartGate } from './use-rated-start-gate';
-import { useRatedStartGate } from './use-rated-start-gate';
 
 export type PuzzlePlayScreenModel = {
   backToChessRoot: () => void;
@@ -63,7 +63,7 @@ export type PuzzlePlayScreenModel = {
   reselectActivePuzzleFromFeed: () => void;
   /** Drop history / theme filters, then re-pick from the widened feed. */
   includeAllPuzzles: () => void;
-  testLoadingStatus: Accessor<ChessPuzzleTestLoadingStatusProps>;
+  testLoadingStatus: Accessor<PuzzleTestLoadingStatusProps>;
   /** Why the last start was denied (renders the denial surface). */
   startDenial: Accessor<Decision | null>;
 };
@@ -208,7 +208,7 @@ function createLinkedPuzzleRequest(state: {
 }
 
 function useAlreadyRatedPuzzle(): (puzzleId: string) => boolean {
-  const ratingEvents = useChessPuzzleRatingEvents();
+  const ratingEvents = usePuzzleRatingEvents();
   return (puzzleId) =>
     ratingEvents().some((event) => event.puzzleId === puzzleId);
 }
@@ -411,8 +411,8 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   const dispatch = useSpaceRoomDispatch();
   const gameScreen = useGameScreen();
   const { status: syncStatus } = useSyncEngine();
-  const { poolReady } = useChessPuzzleFeedState();
-  const [, setFeedConfig] = useChessPuzzleFeedConfig();
+  const { poolReady } = usePuzzleFeedState();
+  const [, setFeedConfig] = usePuzzleFeedConfig();
   const { canPick, gate, placement } = useDriverPlacement(myId, poolReady);
   useLinkedPuzzles({ canPick, placement, denial: gate.denial });
   const { next } = placement;
@@ -448,21 +448,19 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   const alreadyRated = useIsPuzzleAlreadyRated(
     () => placement.activePuzzleId() ?? ''
   );
-  const testLoadingStatus = createMemo<ChessPuzzleTestLoadingStatusProps>(
-    () => ({
-      myId: myId(),
-      nextId: next.puzzleId(),
-      activePuzzleId: placement.activePuzzleId(),
-      pickState: pickState(),
-      bandedCount: next.bandedCount(),
-      fallbackCount: next.fallbackCount(),
-      poolReady: poolReady(),
-      loading: next.loading(),
-      halfWindow: next.halfWindow(),
-      source: next.source(),
-      rated: !alreadyRated(),
-    })
-  );
+  const testLoadingStatus = createMemo<PuzzleTestLoadingStatusProps>(() => ({
+    myId: myId(),
+    nextId: next.puzzleId(),
+    activePuzzleId: placement.activePuzzleId(),
+    pickState: pickState(),
+    bandedCount: next.bandedCount(),
+    fallbackCount: next.fallbackCount(),
+    poolReady: poolReady(),
+    loading: next.loading(),
+    halfWindow: next.halfWindow(),
+    source: next.source(),
+    rated: !alreadyRated(),
+  }));
 
   return {
     backToChessRoot,

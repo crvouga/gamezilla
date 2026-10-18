@@ -1,9 +1,8 @@
+import { usePuzzleStatusFeedback } from '@libs/game-puzzle-client/use-puzzle-status-feedback';
 import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
-
 import { PUZZLE_PLAY_STATUS } from '@libs/game-puzzle-shared/play-attr';
 import { type Accessor, createEffect } from 'solid-js';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
-import { usePuzzleStatusFeedback } from './use-puzzle-status-feedback';
 
 /** Status + correct-move SFX only — no decorative flash / crown timers. */
 export function usePuzzlePlayerEffects(args: {

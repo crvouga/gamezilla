@@ -225,6 +225,7 @@
     "libs/spaces-harness/tests",
     "libs/chess-root-client/src",
     "libs/chess-puzzle-client/src",
+    "libs/game-puzzle-client/src",
     "libs/chess-puzzle-shared/src",
     "libs/game-puzzle-shared/src",
     "libs/chess-shared-client/src",
@@ -235,6 +236,7 @@
     "libs/chess-root-server/src",
     "libs/chess-puzzle-server/src",
     "libs/chess-puzzle-client",
+    "libs/game-puzzle-client",
     "libs/connect-four-client/src",
     "libs/game-menu-client/src"
   ]

@@ -1,5 +1,6 @@
 import { buildPuzzleMoveHistory } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
 import { chessMoveNotationOf } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
+import { usePuzzleFeedConfig } from '@libs/game-puzzle-client/use-puzzle-feed-config';
 import {
   PUZZLE_PLAY_STATUS,
   PuzzlePlayAttr,
@@ -16,11 +17,10 @@ import {
 } from '@libs/spaces-client/use-space-room-selector';
 import { createMemo, type JSX } from 'solid-js';
 import { ChessPuzzleMoveHistory } from './chess-puzzle-move-history';
-import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 
 export function ChessPuzzleMoveHistoryBar(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
-  const [config] = useChessPuzzleFeedConfig();
+  const [config] = usePuzzleFeedConfig();
   const fen = useSpaceRoomSelector(PuzzlePlayAttr.position.from);
   const moves = useSpaceRoomSelector(PuzzlePlayAttr.line.from);
   const solveIdx = useSpaceRoomSelector(PuzzlePlayAttr.solveIdx.from);

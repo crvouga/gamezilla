@@ -6,6 +6,7 @@
 
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { CHESS_GAME_ID } from '@libs/chess-puzzle-shared/chess-game';
+import { usePuzzleInteractions } from '@libs/game-puzzle-client/puzzle-play-queries';
 import { hasPendingPlay } from '@libs/game-puzzle-shared/derive';
 import { LINKED_PUZZLE_PARAM } from '@libs/game-puzzle-shared/puzzle-link';
 import { spaceGameHref } from '@libs/spaces-client/space-routes';
@@ -27,7 +28,6 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js';
-import { usePuzzleInteractions } from './chess-puzzle-play-queries';
 
 /** Registered query that hydrates one puzzle by id. */
 const PUZZLE_BY_ID_QUERY_NAME = 'chessPuzzleById';

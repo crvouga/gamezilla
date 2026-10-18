@@ -1,3 +1,6 @@
+import { PuzzleActionBar } from '@libs/game-puzzle-client/puzzle-action-bar';
+import { PuzzleAllowance } from '@libs/game-puzzle-client/puzzle-allowance';
+import { PuzzleBoardFrame } from '@libs/game-puzzle-client/puzzle-board-frame';
 import type { PuzzleCompletion } from '@libs/game-puzzle-shared/completion';
 import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
 import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
@@ -10,9 +13,6 @@ import {
   type JSX,
   Show,
 } from 'solid-js';
-import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
-import { ChessPuzzleAllowance } from './chess-puzzle-allowance';
-import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleCelebrationOverlay } from './chess-puzzle-celebration-overlay';
 import { ChessPuzzleFeedBar } from './chess-puzzle-feed-bar';
 import { ChessPuzzleFeedSettingsModal } from './chess-puzzle-feed-settings-modal';
@@ -96,7 +96,7 @@ function PuzzlePlayActions(props: {
 }): JSX.Element {
   const p = props.layout;
   return (
-    <ChessPuzzleActionBar
+    <PuzzleActionBar
       status={p.status()}
       hintStage={p.hintStage()}
       canGoBack={p.canGoBack()}
@@ -117,9 +117,9 @@ function PuzzlePlayBoard(props: {
   chrome: PuzzlePlayBoardChrome;
 }): JSX.Element {
   return (
-    <ChessPuzzleBoardFrame>
+    <PuzzleBoardFrame>
       {(size) => props.boardSlot(size, props.chrome)}
-    </ChessPuzzleBoardFrame>
+    </PuzzleBoardFrame>
   );
 }
 
@@ -172,7 +172,7 @@ function PuzzlePlayStack(props: PlayChromeProps): JSX.Element {
             />
           </Show>
           <Show when={props.layout.spectator()}>
-            <ChessPuzzleAllowance />
+            <PuzzleAllowance />
           </Show>
           {props.layout.assistant}
         </>

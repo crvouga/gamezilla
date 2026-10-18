@@ -19,6 +19,7 @@
     "@libs/chess-root-shared": "workspace:*",
     "@libs/chess-shared-client": "workspace:*",
     "@libs/game-menu-client": "workspace:*",
+    "@libs/game-puzzle-client": "workspace:*",
     "@libs/game-puzzle-shared": "workspace:*",
     "@libs/spaces-client": "workspace:*",
     "@lingui/core": "catalog:",

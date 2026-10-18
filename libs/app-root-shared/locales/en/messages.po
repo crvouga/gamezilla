@@ -22,7 +22,7 @@ msgid "?"
 msgstr "?"
 
 #. js-lingui-explicit-id
-#: libs/chess-puzzle-client/src/chess-puzzle-status-icons.tsx
+#: libs/game-puzzle-client/src/puzzle-status-icons.tsx
 msgid "chess.puzzleStatus.skippedMark"
 msgstr "»"
 
@@ -101,7 +101,7 @@ msgid "{0} offered you a multiplayer rematch."
 msgstr "{0} offered you a multiplayer rematch."
 
 #. placeholder {0}: props.streak
-#: libs/chess-puzzle-client/src/chess-puzzle-summary-card.tsx
+#: libs/game-puzzle-client/src/puzzle-summary-card.tsx
 msgid "{0} puzzle streak"
 msgstr "{0} puzzle streak"
 
@@ -111,7 +111,7 @@ msgid "{0} ran out of time."
 msgstr "{0} ran out of time."
 
 #. placeholder {0}: remaining()
-#: libs/chess-puzzle-client/src/use-puzzle-allowance.tsx
+#: libs/game-puzzle-client/src/use-puzzle-allowance.tsx
 msgid "{0} rated puzzles remaining today"
 msgstr "{0} rated puzzles remaining today"
 
@@ -251,7 +251,7 @@ msgid "<0>Return to the </0>Current<1> position</1>"
 msgstr "<0>Return to the </0>Current<1> position</1>"
 
 #. js-lingui-explicit-id
-#: libs/chess-puzzle-client/src/chess-puzzle-status-icons.tsx
+#: libs/game-puzzle-client/src/puzzle-status-icons.tsx
 msgid "chess.puzzleStatus.solvedMark"
 msgstr "★"
 
@@ -260,7 +260,7 @@ msgid "✕"
 msgstr "✕"
 
 #. js-lingui-explicit-id
-#: libs/chess-puzzle-client/src/chess-puzzle-status-icons.tsx
+#: libs/game-puzzle-client/src/puzzle-status-icons.tsx
 msgid "chess.puzzleStatus.failedMark"
 msgstr "✕"
 
@@ -305,8 +305,8 @@ msgstr "A person can have only one side."
 msgid "A specific legal preservation obligation may retain only the information it covers until that obligation ends. Preserved information cannot restore a profile or be used to promote the product. Any applicable obligation and its end condition will be disclosed here."
 msgstr "A specific legal preservation obligation may retain only the information it covers until that obligation ends. Preserved information cannot restore a profile or be used to promote the product. Any applicable obligation and its end condition will be disclosed here."
 
-#: libs/chess-puzzle-client/src/chess-game-log-row.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-game-log-row.tsx
 msgid "Abandoned"
 msgstr "Abandoned"
 
@@ -379,7 +379,7 @@ msgstr "Account menu"
 msgid "Account privacy"
 msgstr "Account privacy"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-stats-cards.tsx
+#: libs/game-puzzle-client/src/puzzle-stats-cards.tsx
 msgid "Accuracy"
 msgstr "Accuracy"
 
@@ -453,7 +453,7 @@ msgstr "Added people find this space in their lobby and choose Join. Anyone with
 msgid "Adding puzzles"
 msgstr "Adding puzzles"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
+#: libs/game-puzzle-client/src/puzzle-empty-pool-state.tsx
 msgid "Adjust feed"
 msgstr "Adjust feed"
 
@@ -596,7 +596,7 @@ msgstr "Available transitions"
 msgid "Avatar"
 msgstr "Avatar"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
+#: libs/game-puzzle-client/src/puzzle-action-bar-items.tsx
 #: libs/spaces-client/src/space-chrome-action-bar.tsx
 #: pkgs/ui-root-client/src/back-icon-button.tsx
 msgid "Back"
@@ -619,7 +619,7 @@ msgstr "Back<0> one move</0>"
 msgid "Behavior Statechart"
 msgstr "Behavior Statechart"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-stats-cards.tsx
+#: libs/game-puzzle-client/src/puzzle-stats-cards.tsx
 msgid "Best streak"
 msgstr "Best streak"
 
@@ -1137,7 +1137,7 @@ msgstr "Couldn't connect"
 msgid "Couldn't copy"
 msgstr "Couldn't copy"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-share-link.tsx
+#: libs/game-puzzle-client/src/puzzle-share-link.tsx
 msgid "Couldn't copy the puzzle link"
 msgstr "Couldn't copy the puzzle link"
 
@@ -1251,7 +1251,7 @@ msgstr "Custom hex color"
 msgid "Daily"
 msgstr "Daily"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
+#: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Daily limit reached"
 msgstr "Daily limit reached"
 
@@ -1591,12 +1591,12 @@ msgstr "Expand all"
 msgid "Export requested"
 msgstr "Export requested"
 
-#: libs/chess-puzzle-client/src/chess-game-log-row.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
 #: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+#: libs/game-puzzle-client/src/puzzle-game-log-row.tsx
+#: libs/game-puzzle-client/src/puzzle-status-header.tsx
 #: libs/notifications-client/src/notification-card-default.tsx
 msgid "Failed"
 msgstr "Failed"
@@ -1705,7 +1705,7 @@ msgstr "Flip board"
 msgid "Follows your device appearance"
 msgstr "Follows your device appearance"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
+#: libs/game-puzzle-client/src/puzzle-action-bar-items.tsx
 msgid "Forward"
 msgstr "Forward"
 
@@ -1784,7 +1784,7 @@ msgstr "Game drawn."
 msgid "Game finished"
 msgstr "Game finished"
 
-#: libs/chess-puzzle-client/src/chess-game-log.tsx
+#: libs/game-puzzle-client/src/puzzle-game-log.tsx
 msgid "Game log"
 msgstr "Game log"
 
@@ -1877,7 +1877,7 @@ msgstr "Hidden email ({0})"
 msgid "Hide performance monitor"
 msgstr "Hide performance monitor"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
+#: libs/game-puzzle-client/src/puzzle-action-bar-items.tsx
 msgid "Hint"
 msgstr "Hint"
 
@@ -1936,7 +1936,7 @@ msgstr "Immediately"
 msgid "In-process UI inspector"
 msgstr "In-process UI inspector"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
+#: libs/game-puzzle-client/src/puzzle-empty-pool-state.tsx
 msgid "Include played puzzles"
 msgstr "Include played puzzles"
 
@@ -2043,11 +2043,11 @@ msgstr "Joining someone else's space needs a connection. Your own spaces work of
 msgid "Joining…"
 msgstr "Joining…"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-move-history-nav.tsx
+#: libs/game-puzzle-client/src/puzzle-move-history-nav.tsx
 msgid "Jump to end"
 msgstr "Jump to end"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-move-history-nav.tsx
+#: libs/game-puzzle-client/src/puzzle-move-history-nav.tsx
 msgid "Jump to start"
 msgstr "Jump to start"
 
@@ -2199,7 +2199,7 @@ msgstr "Loading already finished"
 msgid "Loading continues in the background. The saved file stays available. You can return here to follow its progress or stop it."
 msgstr "Loading continues in the background. The saved file stays available. You can return here to follow its progress or stop it."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
+#: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Loading puzzle…"
 msgstr "Loading puzzle…"
 
@@ -2422,13 +2422,13 @@ msgstr "New space"
 msgid "New version available — reload to update"
 msgstr "New version available — reload to update"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
+#: libs/game-puzzle-client/src/puzzle-action-bar-items.tsx
 #: pkgs/ui-root-client/src/catalog-detail-nav.tsx
 #: pkgs/ui-root-client/src/pagination-controls.tsx
 msgid "Next"
 msgstr "Next"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-move-history-nav.tsx
+#: libs/game-puzzle-client/src/puzzle-move-history-nav.tsx
 #: libs/game-session-client/src/custom-game-board.tsx
 #: libs/game-session-client/src/game-history.tsx
 msgid "Next move"
@@ -2561,15 +2561,15 @@ msgstr "No people found for “{0}”"
 msgid "No puzzle selected"
 msgstr "No puzzle selected"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
+#: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "No puzzles left"
 msgstr "No puzzles left"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
+#: libs/game-puzzle-client/src/puzzle-empty-pool-state.tsx
 msgid "No puzzles match your feed"
 msgstr "No puzzles match your feed"
 
-#: libs/chess-puzzle-client/src/chess-game-log.tsx
+#: libs/game-puzzle-client/src/puzzle-game-log.tsx
 msgid "No puzzles played yet."
 msgstr "No puzzles played yet."
 
@@ -2635,7 +2635,7 @@ msgstr "Nothing archived"
 msgid "Nothing needs your attention"
 msgstr "Nothing needs your attention"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
+#: libs/game-puzzle-client/src/puzzle-empty-pool-state.tsx
 msgid "Nothing synced near this rating yet. Change the target rating to keep playing."
 msgstr "Nothing synced near this rating yet. Change the target rating to keep playing."
 
@@ -2674,7 +2674,7 @@ msgstr "offline"
 
 #: libs/app-root-client/src/app-header-global-menu.tsx
 #: libs/app-root-client/src/settings-screen.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
+#: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Offline"
 msgstr "Offline"
 
@@ -2921,7 +2921,7 @@ msgstr "Play a person, choose a bot, or watch two bots"
 msgid "Play history"
 msgstr "Play history"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-stats-cards.tsx
+#: libs/game-puzzle-client/src/puzzle-stats-cards.tsx
 msgid "Played"
 msgstr "Played"
 
@@ -2960,7 +2960,7 @@ msgstr "Preferences and developer tools"
 msgid "Previous"
 msgstr "Previous"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-move-history-nav.tsx
+#: libs/game-puzzle-client/src/puzzle-move-history-nav.tsx
 #: libs/game-session-client/src/custom-game-board.tsx
 #: libs/game-session-client/src/game-history.tsx
 msgid "Previous move"
@@ -3015,7 +3015,7 @@ msgstr "Puzzle feed"
 msgid "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 msgstr "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-share-link.tsx
+#: libs/game-puzzle-client/src/puzzle-share-link.tsx
 msgid "Puzzle link copied"
 msgstr "Puzzle link copied"
 
@@ -3028,7 +3028,7 @@ msgstr "Puzzle loading stopped"
 msgid "Puzzle rated {0}"
 msgstr "Puzzle rated {0}"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-summary-card.tsx
+#: libs/game-puzzle-client/src/puzzle-summary-card.tsx
 msgid "Puzzle rating {puzzleRating}"
 msgstr "Puzzle rating {puzzleRating}"
 
@@ -3053,10 +3053,10 @@ msgstr "Puzzle solved!"
 msgid "Puzzle solved."
 msgstr "Puzzle solved."
 
-#: libs/chess-puzzle-client/src/chess-stats-body.tsx
 #: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
 #: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
 #: libs/chess-root-client/src/chess-game-client.tsx
+#: libs/game-puzzle-client/src/puzzle-stats-body.tsx
 msgid "Puzzle stats"
 msgstr "Puzzle stats"
 
@@ -3076,7 +3076,7 @@ msgstr "Puzzles already added or updated are kept. Select the source again to st
 msgid "Puzzles already added or updated stay available. No more batches will be added after stopping."
 msgstr "Puzzles already added or updated stay available. No more batches will be added after stopping."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
+#: libs/game-puzzle-client/src/puzzle-empty-pool-state.tsx
 msgid "Puzzles download the first time you open the feed. Reconnect and they will appear here."
 msgstr "Puzzles download the first time you open the feed. Reconnect and they will appear here."
 
@@ -3106,7 +3106,7 @@ msgstr "Randomize"
 msgid "Rapid"
 msgstr "Rapid"
 
-#: libs/chess-puzzle-client/src/chess-rating-history.tsx
+#: libs/game-puzzle-client/src/puzzle-rating-history.tsx
 msgid "Rating after each puzzle"
 msgstr "Rating after each puzzle"
 
@@ -3333,7 +3333,7 @@ msgstr "Resume"
 msgid "Resumed"
 msgstr "Resumed"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
+#: libs/game-puzzle-client/src/puzzle-action-bar-items.tsx
 #: pkgs/ui-root-client/src/error-state.tsx
 msgid "Retry"
 msgstr "Retry"
@@ -3574,7 +3574,7 @@ msgstr "Setup move: {side} played {0} to {1}."
 msgid "Share"
 msgstr "Share"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-share-link.tsx
+#: libs/game-puzzle-client/src/puzzle-share-link.tsx
 msgid "Share puzzle link"
 msgstr "Share puzzle link"
 
@@ -3748,11 +3748,11 @@ msgstr "Signing in…"
 msgid "Signing out…"
 msgstr "Signing out…"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
+#: libs/game-puzzle-client/src/puzzle-action-bar-items.tsx
 msgid "Skip"
 msgstr "Skip"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
+#: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Skipped"
 msgstr "Skipped"
 
@@ -3764,7 +3764,7 @@ msgstr "Slowest script"
 msgid "Snapshot (JSON)"
 msgstr "Snapshot (JSON)"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-action-bar-items.tsx
+#: libs/game-puzzle-client/src/puzzle-action-bar-items.tsx
 msgid "Solution"
 msgstr "Solution"
 
@@ -3776,10 +3776,10 @@ msgstr "Solution shown."
 msgid "Solve rated puzzles and climb the ladder"
 msgstr "Solve rated puzzles and climb the ladder"
 
-#: libs/chess-puzzle-client/src/chess-game-log-row.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-stats-cards.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
+#: libs/game-puzzle-client/src/puzzle-game-log-row.tsx
+#: libs/game-puzzle-client/src/puzzle-stats-cards.tsx
+#: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Solved"
 msgstr "Solved"
 
@@ -3893,7 +3893,7 @@ msgstr "Start loading"
 msgid "Start the game before playing."
 msgstr "Start the game before playing."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
+#: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Started"
 msgstr "Started"
 
@@ -3945,7 +3945,7 @@ msgstr "Stop<0> finding an opponent</0>"
 msgid "Stopped"
 msgstr "Stopped"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-stats-cards.tsx
+#: libs/game-puzzle-client/src/puzzle-stats-cards.tsx
 msgid "Streak"
 msgstr "Streak"
 
@@ -4153,7 +4153,7 @@ msgstr "The game choices changed. Review them and try again."
 msgid "The game ends with no result and no rating change."
 msgstr "The game ends with no result and no rating change."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
+#: libs/game-puzzle-client/src/puzzle-empty-pool-state.tsx
 msgid "The host hasn't started a puzzle yet."
 msgstr "The host hasn't started a puzzle yet."
 
@@ -4458,13 +4458,13 @@ msgstr "Unlimited access to Gamezilla servers"
 msgid "Unmute coach"
 msgstr "Unmute coach"
 
-#: libs/chess-puzzle-client/src/chess-game-log-row.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-game-log-row.tsx
 #: libs/game-session-client/src/custom-game-status.tsx
 msgid "Unrated"
 msgstr "Unrated"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-rating-delta.tsx
+#: libs/game-puzzle-client/src/puzzle-rating-delta.tsx
 msgid "Unrated · already played"
 msgstr "Unrated · already played"
 
@@ -4600,8 +4600,8 @@ msgstr "Waiting for the creator to create a game."
 msgid "Waiting for the first move"
 msgstr "Waiting for the first move"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
+#: libs/game-puzzle-client/src/puzzle-empty-pool-state.tsx
+#: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Waiting for the host"
 msgstr "Waiting for the host"
 
@@ -4732,11 +4732,11 @@ msgstr "You can take a personal-data export before deleting the account. Your pr
 msgid "You do not control that side."
 msgstr "You do not control that side."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
+#: libs/game-puzzle-client/src/puzzle-empty-pool-state.tsx
 msgid "You have no failed puzzles yet. Puzzles you fail show here to try again."
 msgstr "You have no failed puzzles yet. Puzzles you fail show here to try again."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
+#: libs/game-puzzle-client/src/puzzle-empty-pool-state.tsx
 msgid "You have played every puzzle that matches your history and theme filters. Include played puzzles or adjust the feed."
 msgstr "You have played every puzzle that matches your history and theme filters. Include played puzzles or adjust the feed."
 
@@ -4781,8 +4781,8 @@ msgstr "You'll be signed out on this device."
 msgid "You're all caught up"
 msgstr "You're all caught up"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
 #: libs/chess-puzzle-client/src/puzzle-link-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-empty-pool-state.tsx
 msgid "You're offline"
 msgstr "You're offline"
 
@@ -4912,11 +4912,11 @@ msgstr "Your rating changed by {0}{1}."
 msgid "Your ratings"
 msgstr "Your ratings"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
+#: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Your turn — find the best move for Black"
 msgstr "Your turn — find the best move for Black"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-status-header.tsx
+#: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Your turn — find the best move for White"
 msgstr "Your turn — find the best move for White"
 

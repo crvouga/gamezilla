@@ -99,7 +99,7 @@ export async function expectPlayReady(
 
 /**
  * The board frame has a measurable box. happy-dom reports 0×0, so
- * {@link ChessPuzzleBoardFrame} stays gated until `layout()` installs one.
+ * {@link PuzzleBoardFrame} stays gated until `layout()` installs one.
  * False while the frame is still gated or absent.
  */
 async function boardReadyNow(
@@ -1006,7 +1006,7 @@ export async function isGameLogEmpty(
 }
 
 /**
- * Review board sits in the same {@link ChessPuzzleBoardFrame}; happy-dom
+ * Review board sits in the same {@link PuzzleBoardFrame}; happy-dom
  * reports 0×0 so the frame stays gated until `layout()` synthesizes a box.
  */
 export async function openReviewFromGameLog(

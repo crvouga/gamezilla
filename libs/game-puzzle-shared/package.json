@@ -45,6 +45,7 @@
   },
   "category": "isomorphic",
   "gameApi": [
+    "action-bar-plan",
     "append-puzzle-interaction-mutation",
     "append-puzzle-interaction-write",
     "by-id-query",

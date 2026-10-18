@@ -1,4 +1,7 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import { PuzzleSummaryCard } from '@libs/game-puzzle-client/puzzle-summary-card';
+import { usePuzzleProfileRatings } from '@libs/game-puzzle-client/use-puzzle-profile-ratings';
+import { usePuzzleRatingAnimation } from '@libs/game-puzzle-client/use-puzzle-rating-animation';
 import type { PuzzleCompletion } from '@libs/game-puzzle-shared/completion';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
@@ -6,10 +9,7 @@ import { Button } from '@pkgs/ui-root-client/button';
 import { ChevronRightIcon } from '@pkgs/ui-root-client/icons';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
 import type { Accessor, JSX } from 'solid-js';
-import { ChessPuzzleSummaryCard } from './chess-puzzle-summary-card';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
-import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
-import { useChessPuzzleRatingAnimation } from './use-chess-puzzle-rating-animation';
 
 function useCelebrationRatingFeedback(args: {
   completion: Accessor<PuzzleCompletion>;
@@ -17,7 +17,7 @@ function useCelebrationRatingFeedback(args: {
   onDisplayRatingChange: (rating: number) => void;
 }): { displayRating: Accessor<number> } {
   const feedback = useChessPuzzleFeedback();
-  return useChessPuzzleRatingAnimation({
+  return usePuzzleRatingAnimation({
     get ratingBefore() {
       return args.completion().ratingBefore;
     },
@@ -69,7 +69,7 @@ export function ChessPuzzleCelebrationOverlay(
   props: ChessPuzzleCelebrationOverlayProps
 ): JSX.Element {
   const myId = useMyId();
-  const { provisional } = useChessPuzzleProfileRatings(myId);
+  const { provisional } = usePuzzleProfileRatings(myId);
   const ratingAnim = useCelebrationRatingFeedback({
     completion: () => props.completion,
     feedbackEnabled: props.feedbackEnabled,
@@ -87,7 +87,7 @@ export function ChessPuzzleCelebrationOverlay(
       dataSet={{ testid: Handles.chessPuzzleSummary }}
     >
       <div class="box gap-4 self-stretch min-w-0">
-        <ChessPuzzleSummaryCard
+        <PuzzleSummaryCard
           completion={props.completion}
           displayRating={ratingAnim.displayRating()}
           provisional={provisional()}

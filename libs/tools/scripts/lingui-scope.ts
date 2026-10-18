@@ -20,6 +20,7 @@ export const LINGUI_CATALOG_SOURCES = [
   'libs/game-session-client/src',
   'libs/game-matchmaking-client/src',
   'libs/chess-puzzle-client/src',
+  'libs/game-puzzle-client/src',
   'libs/chess-shared-client/src',
   'libs/friends-client/src',
   'libs/notifications-client/src',

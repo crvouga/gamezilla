@@ -2,12 +2,12 @@ import {
   CHESS_SCREEN,
   SetChessSelectedReviewPuzzle,
 } from '@libs/chess-root-shared/chess-screens';
+import { PuzzleStatsBody } from '@libs/game-puzzle-client/puzzle-stats-body';
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared/stats';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
 import type { JSX } from 'solid-js';
-import { ChessStatsBody } from './chess-stats-body';
 
 export function ChessStatsScreen(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
@@ -30,7 +30,7 @@ export function ChessStatsScreen(): JSX.Element {
   return (
     <>
       <DefineBackButton onPress={backToRoot} />
-      <ChessStatsBody onSelectEntry={openReview} />
+      <PuzzleStatsBody onSelectEntry={openReview} />
     </>
   );
 }

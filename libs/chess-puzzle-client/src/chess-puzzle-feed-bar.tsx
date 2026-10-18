@@ -1,5 +1,12 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { formatChessPuzzleThemeLabel } from '@libs/chess-puzzle-shared/chess-puzzle-theme-label';
+import { usePuzzleFeedState } from '@libs/game-puzzle-client/puzzle-feed-context';
+import { usePuzzleInteractions } from '@libs/game-puzzle-client/puzzle-play-queries';
+import { PuzzleRatingChip } from '@libs/game-puzzle-client/puzzle-rating-chip';
+import { usePuzzleAllowance } from '@libs/game-puzzle-client/use-puzzle-allowance';
+import { usePuzzleFeedPoolStats } from '@libs/game-puzzle-client/use-puzzle-feed-pool-stats';
+import { usePuzzleProfileRatings } from '@libs/game-puzzle-client/use-puzzle-profile-ratings';
+import { usePuzzleRatingEvents } from '@libs/game-puzzle-client/use-puzzle-rating-events';
 import type {
   PuzzleFeedConfig,
   PuzzleFeedHistoryFilter,
@@ -10,13 +17,6 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import { createMemo, type JSX, Show } from 'solid-js';
-import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
-import { usePuzzleInteractions } from './chess-puzzle-play-queries';
-import { ChessPuzzleRatingChip } from './chess-puzzle-rating-chip';
-import { useChessPuzzleFeedPoolStats } from './use-chess-puzzle-feed-pool-stats';
-import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
-import { useChessPuzzleRatingEvents } from './use-chess-puzzle-rating-events';
-import { usePuzzleAllowance } from './use-puzzle-allowance';
 
 /** Puzzle ratings are 400–3000: four tabular digits, padded with figure space. */
 const RATING_SLOT_DIGITS = 4;
@@ -88,7 +88,7 @@ function formatSignedDelta(delta: number): string {
  * change once its outcome is decided, or "Unrated" for a repeat (§9).
  */
 function FeedBarRatingChange(props: { puzzleId: string }): JSX.Element {
-  const events = useChessPuzzleRatingEvents();
+  const events = usePuzzleRatingEvents();
   const interactions = usePuzzleInteractions(() => props.puzzleId);
   const change = createMemo(() =>
     derivePuzzleRatingChange({
@@ -133,7 +133,7 @@ function FeedBarPuzzleFacts(props: {
   const shown = (): boolean => props.over && props.rating > 0;
   return (
     <>
-      <ChessPuzzleRatingChip
+      <PuzzleRatingChip
         rating={shown() ? props.rating : 0}
         variant="muted"
         invisible={!shown()}
@@ -190,10 +190,10 @@ export function ChessPuzzleFeedBar(
 ): JSX.Element {
   const myId = useMyId();
   const allowance = usePuzzleAllowance();
-  const { profileRating } = useChessPuzzleProfileRatings(myId);
-  const feed = useChessPuzzleFeedState();
+  const { profileRating } = usePuzzleProfileRatings(myId);
+  const feed = usePuzzleFeedState();
   const config = feed.config;
-  const pool = useChessPuzzleFeedPoolStats(config);
+  const pool = usePuzzleFeedPoolStats(config);
   const effectiveRating = createMemo(() =>
     resolveEffectivePuzzleRating({
       config: config(),

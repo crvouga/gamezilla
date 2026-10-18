@@ -1,6 +1,13 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { PUZZLE_PIECE_MOVE_MS } from '@libs/chess-puzzle-shared/chess-puzzle-opponent-stage';
 import { BOARD_THEME } from '@libs/chess-root-shared/board-theme';
+import { PuzzleBoardLoadingState } from '@libs/game-puzzle-client/puzzle-board-loading-state';
+import { PuzzleClockLabel } from '@libs/game-puzzle-client/puzzle-clock-label';
+import { PuzzleEmptyPoolState } from '@libs/game-puzzle-client/puzzle-empty-pool-state';
+import { PuzzleShareLink } from '@libs/game-puzzle-client/puzzle-share-link';
+import { PuzzleStatusHeader } from '@libs/game-puzzle-client/puzzle-status-header';
+import { PuzzleTestLoadingStatus } from '@libs/game-puzzle-client/puzzle-test-loading-status';
+import { usePuzzleFeedConfig } from '@libs/game-puzzle-client/use-puzzle-feed-config';
 import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
 import type { PuzzlePickState } from '@libs/game-puzzle-shared/pick-state';
 import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
@@ -16,17 +23,10 @@ import { SpectatorIndicator } from '@pkgs/ui-root-client/spectator-indicator';
 import { useLayoutMode } from '@pkgs/ui-root-client/use-layout-mode';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 import { ChessPuzzleAnnouncement } from './chess-puzzle-announcement';
-import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
-import { ChessPuzzleClock } from './chess-puzzle-clock';
-import { ChessPuzzleEmptyPoolState } from './chess-puzzle-empty-pool-state';
 import type { PuzzlePlayBoardChrome } from './chess-puzzle-play-layout';
 import { PuzzlePlayLayout } from './chess-puzzle-play-layout';
 import { ChessPuzzleRecommendationLegend } from './chess-puzzle-recommendation-legend';
-import { ChessPuzzleShareLink } from './chess-puzzle-share-link';
-import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import { ChessPuzzleTestHints } from './chess-puzzle-test-hints';
-import { ChessPuzzleTestLoadingStatus } from './chess-puzzle-test-loading-status';
-import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { usePuzzlePlayScreenState } from './use-puzzle-play-screen-state';
 import type { PuzzlePlayerChromeModel } from './use-puzzle-player-state';
 import { usePuzzlePlayerState } from './use-puzzle-player-state';
@@ -63,7 +63,7 @@ function PuzzleBoardSlot(props: {
   return (
     <Show
       when={props.boardFen() !== null && props.boardFen()!.length > 0}
-      fallback={<ChessPuzzleBoardLoadingState size={props.size} />}
+      fallback={<PuzzleBoardLoadingState size={props.size} />}
     >
       <ChessBoard
         theme={BOARD_THEME}
@@ -176,17 +176,17 @@ function PuzzlePlayerChrome(props: {
           data-purpose={p.assistant()?.purpose ?? ''}
           data-puzzle={p.assistant()?.puzzleId ?? ''}
           header={
-            <ChessPuzzleStatusHeader
+            <PuzzleStatusHeader
               kind={statusKind()}
               sideToMove={p.orientation()}
               trailing={
                 <>
-                  <ChessPuzzleClock elapsedMs={p.clockElapsedMs} />
+                  <PuzzleClockLabel elapsedMs={p.clockElapsedMs} />
                   <Show when={p.isSpectator()}>
                     <SpectatorIndicator />
                   </Show>
                   <Show when={!p.isSpectator() && p.puzzleId()} keyed>
-                    {(puzzleId) => <ChessPuzzleShareLink puzzleId={puzzleId} />}
+                    {(puzzleId) => <PuzzleShareLink puzzleId={puzzleId} />}
                   </Show>
                 </>
               }
@@ -288,9 +288,9 @@ function ShellBoardSlot(props: {
   includeAllPuzzles: () => void;
   startDenial: Decision | null;
 }): JSX.Element {
-  const [config] = useChessPuzzleFeedConfig();
+  const [config] = usePuzzleFeedConfig();
   return (
-    <ChessPuzzleEmptyPoolState
+    <PuzzleEmptyPoolState
       kind={props.pickState}
       size={props.size}
       config={config()}
@@ -324,9 +324,7 @@ function PuzzlePlayShell(props: {
           message={shellCoachLine(props.pickState())}
           bubbleResolving={props.pickState() === 'loading'}
           header={
-            <ChessPuzzleStatusHeader
-              kind={shellHeaderKind(props.pickState())}
-            />
+            <PuzzleStatusHeader kind={shellHeaderKind(props.pickState())} />
           }
           numberOfLines={2}
           avatarSize={avatarSize()}
@@ -336,7 +334,7 @@ function PuzzlePlayShell(props: {
         <Show
           when={boardKind()}
           keyed
-          fallback={<ChessPuzzleBoardLoadingState size={size} />}
+          fallback={<PuzzleBoardLoadingState size={size} />}
         >
           {(kind) => (
             <ShellBoardSlot
@@ -382,9 +380,7 @@ export function PuzzlePlayScreen(): JSX.Element {
     startDenial,
   } = usePuzzlePlayScreenState();
 
-  const testPickStatus = (
-    <ChessPuzzleTestLoadingStatus {...testLoadingStatus()} />
-  );
+  const testPickStatus = <PuzzleTestLoadingStatus {...testLoadingStatus()} />;
   const shellState = createMemo<ShellPickState>(() => {
     const state = pickState();
     return state === 'ready' ? 'loading' : state;

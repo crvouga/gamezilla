@@ -57,6 +57,7 @@
         "../../libs/game-matchmaking-shared/src/*"
       ],
       "@libs/chess-puzzle-client/*": ["../../libs/chess-puzzle-client/src/*"],
+      "@libs/game-puzzle-client/*": ["../../libs/game-puzzle-client/src/*"],
       "@libs/chess-puzzle-harness/*": ["../../libs/chess-puzzle-harness/src/*"],
       "@libs/chess-puzzle-server/*": ["../../libs/chess-puzzle-server/src/*"],
       "@libs/chess-puzzle-shared/*": ["../../libs/chess-puzzle-shared/src/*"],

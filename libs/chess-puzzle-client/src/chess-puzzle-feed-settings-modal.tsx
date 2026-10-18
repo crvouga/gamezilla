@@ -6,6 +6,10 @@ import {
   chessPuzzleThemesOf,
   isChessPuzzleTheme,
 } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
+import { createFeedSettingsDraft } from '@libs/game-puzzle-client/create-feed-settings-draft';
+import { usePuzzleFeedConfig } from '@libs/game-puzzle-client/use-puzzle-feed-config';
+import { usePuzzleFeedPoolStats } from '@libs/game-puzzle-client/use-puzzle-feed-pool-stats';
+import { usePuzzleProfileRatings } from '@libs/game-puzzle-client/use-puzzle-profile-ratings';
 import type {
   PuzzleAutoAdvance,
   PuzzleFeedConfig,
@@ -40,10 +44,6 @@ import { NumberStepper } from '@pkgs/ui-root-client/number-stepper';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
 import { SegmentedControl } from '@pkgs/ui-root-client/segmented-control';
 import { createEffect, createMemo, type JSX, Show } from 'solid-js';
-import { createFeedSettingsDraft } from './create-feed-settings-draft';
-import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
-import { useChessPuzzleFeedPoolStats } from './use-chess-puzzle-feed-pool-stats';
-import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 
 function feedModeCaption(mode: PuzzleFeedMode, profileCaption: string): string {
   if (mode === 'auto') {
@@ -218,7 +218,7 @@ type FeedConfigEditors = {
 
 /** One edit per field, each a patch on the persisted feed config. */
 function feedConfigEditors(
-  setConfig: ReturnType<typeof useChessPuzzleFeedConfig>[1]
+  setConfig: ReturnType<typeof usePuzzleFeedConfig>[1]
 ): FeedConfigEditors {
   return {
     onSelectMode: (mode) => setConfig((prev) => ({ ...prev, mode })),
@@ -279,15 +279,15 @@ export function ChessPuzzleFeedSettingsModal(
   props: ChessPuzzleFeedSettingsModalProps
 ): JSX.Element {
   const myId = useMyId();
-  const { profileRating } = useChessPuzzleProfileRatings(myId);
-  const [saved, setSaved] = useChessPuzzleFeedConfig();
+  const { profileRating } = usePuzzleProfileRatings(myId);
+  const [saved, setSaved] = usePuzzleFeedConfig();
   const [config, setConfig] = createFeedSettingsDraft(
     saved,
     () => props.visible
   );
   // Customizing the feed is for accounts; a guest is invited to sign in.
   const customize = useDecision(PERMISSION.puzzlesCustomizeFeed);
-  const pool = useChessPuzzleFeedPoolStats(config);
+  const pool = usePuzzleFeedPoolStats(config);
   const profileCaption = profileRating() > 0 ? String(profileRating()) : '—';
   const targetRating = createMemo(() =>
     resolveEffectivePuzzleRating({

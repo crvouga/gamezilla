@@ -1,10 +1,7 @@
-import { ChessPuzzleFeedProvider } from '@libs/chess-puzzle-client/chess-puzzle-feed-provider';
 import { PuzzlePlayScreen } from '@libs/chess-puzzle-client/chess-puzzle-play-screen';
 import { ChessPuzzleReviewScreen } from '@libs/chess-puzzle-client/chess-puzzle-review-screen';
 import { ChessStatsScreen } from '@libs/chess-puzzle-client/chess-stats-screen';
 import { PuzzleManagementScreen } from '@libs/chess-puzzle-client/puzzle-management-screen';
-import { ReconcilePuzzleResult } from '@libs/chess-puzzle-client/reconcile-puzzle-result';
-import { useIsPuzzleDriver } from '@libs/chess-puzzle-client/use-puzzle-space-role';
 import { CHESS_GAME_ID } from '@libs/chess-puzzle-shared/chess-game';
 import { CHESS_SCREEN } from '@libs/chess-root-shared/chess-screens';
 import { ChessSettingsDeveloperScreen } from '@libs/chess-shared-client/chess-settings-developer-screen';
@@ -12,6 +9,9 @@ import { ChessSettingsDeveloperUiComponentDetailScreen } from '@libs/chess-share
 import { ChessSettingsDeveloperUiComponentsScreen } from '@libs/chess-shared-client/chess-settings-developer-ui-components-screen';
 import { ChessSettingsScreen } from '@libs/chess-shared-client/chess-settings-screen';
 import { defineGameClient } from '@libs/game-menu-client/game-client';
+import { PuzzleFeedProvider } from '@libs/game-puzzle-client/puzzle-feed-provider';
+import { ReconcilePuzzleResult } from '@libs/game-puzzle-client/reconcile-puzzle-result';
+import { useIsPuzzleDriver } from '@libs/game-puzzle-client/use-puzzle-space-role';
 import { LINKED_PUZZLE_PARAM } from '@libs/game-puzzle-shared/puzzle-link';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useGameScreen } from '@libs/spaces-client/use-game-screen';
@@ -37,10 +37,10 @@ function LinkedPuzzle(): JSX.Element {
 /** Every chess screen reads the puzzle feed and honours a puzzle link. */
 function ChessFrame(props: { children: JSX.Element }): JSX.Element {
   return (
-    <ChessPuzzleFeedProvider>
+    <PuzzleFeedProvider>
       <LinkedPuzzle />
       {props.children}
-    </ChessPuzzleFeedProvider>
+    </PuzzleFeedProvider>
   );
 }
 

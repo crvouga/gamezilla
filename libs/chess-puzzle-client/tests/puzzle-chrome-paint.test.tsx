@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { afterEach, expect, test } from 'bun:test';
 import { HistoryPlyCluster } from '@libs/chess-puzzle-client/chess-puzzle-move-history-ply';
-import { ChessPuzzleRatingChip } from '@libs/chess-puzzle-client/chess-puzzle-rating-chip';
-import { ChessPuzzleStatusHeader } from '@libs/chess-puzzle-client/chess-puzzle-status-header';
+import { PuzzleRatingChip } from '@libs/game-puzzle-client/puzzle-rating-chip';
+import { PuzzleStatusHeader } from '@libs/game-puzzle-client/puzzle-status-header';
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
 import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
@@ -13,7 +13,7 @@ afterEach(cleanup);
 test('the rating chip paints its fill and color from classes, not token names', () => {
   // regression: puzzle-rating-chip-token-as-css
   const { container } = render(() => (
-    <ChessPuzzleRatingChip rating={1500} testID="chip" />
+    <PuzzleRatingChip rating={1500} testID="chip" />
   ));
   const chip = screen.getByTestId('chip');
   expect(chip.className).toContain('bg-tint-subtle');
@@ -57,7 +57,7 @@ test('a two-line status prompt grows its row instead of overlapping the coach', 
         colorScheme="dark"
         fixedLayout={{ width: 390, height: 640 }}
       >
-        <ChessPuzzleStatusHeader kind="started" sideToMove="white" />
+        <PuzzleStatusHeader kind="started" sideToMove="white" />
       </ThemeProvider>
     </I18nProvider>
   ));

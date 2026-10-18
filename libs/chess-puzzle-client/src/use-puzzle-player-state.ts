@@ -1,5 +1,17 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { isBoardSquare } from '@libs/chess-puzzle-shared/recommendation-arrows';
+import {
+  usePuzzleAllInteractions,
+  usePuzzleEntityAndInteractions,
+} from '@libs/game-puzzle-client/puzzle-play-queries';
+import { usePuzzleAutoAdvance } from '@libs/game-puzzle-client/use-puzzle-auto-advance';
+import { usePuzzleClock } from '@libs/game-puzzle-client/use-puzzle-clock';
+import { usePuzzleCompletion } from '@libs/game-puzzle-client/use-puzzle-completion';
+import { usePuzzleInteractionRecorder } from '@libs/game-puzzle-client/use-puzzle-interaction-recorder';
+import {
+  useIsPuzzleDriver,
+  usePuzzleSpaceRole,
+} from '@libs/game-puzzle-client/use-puzzle-space-role';
 import { PuzzlePlayAttr } from '@libs/game-puzzle-shared/play-attr';
 import {
   ClearPuzzleRecommendation,
@@ -23,19 +35,10 @@ import { registerFeedbackContext } from '@pkgs/feedback-shared/context';
 import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
-import {
-  useChessPuzzleAllInteractions,
-  usePuzzleEntityAndInteractions,
-} from './chess-puzzle-play-queries';
-import { useChessPuzzleCompletion } from './use-chess-puzzle-completion';
-import { useChessPuzzleInteractionRecorder } from './use-chess-puzzle-interaction-recorder';
 import { usePuzzleSolver } from './use-chess-puzzle-solver';
-import { usePuzzleAutoAdvance } from './use-puzzle-auto-advance';
-import { usePuzzleClock } from './use-puzzle-clock';
 import { usePuzzlePlayerControls } from './use-puzzle-player-controls';
 import { usePuzzlePlayerVisual } from './use-puzzle-player-visual';
 import { usePuzzleRecommendations } from './use-puzzle-recommendations';
-import { useIsPuzzleDriver, usePuzzleSpaceRole } from './use-puzzle-space-role';
 
 function useReclaimStalePuzzleHost(canDrive: Accessor<boolean>): void {
   const memberId = useMyId();
@@ -150,7 +153,7 @@ function usePuzzlePlayerModel(args: {
   const themes = createMemo(() => entity.themes);
   const interactions = createMemo(() => entity.interactions);
   const interactionsReady = createMemo(() => entity.interactionsReady);
-  const allInteractions = useChessPuzzleAllInteractions();
+  const allInteractions = usePuzzleAllInteractions();
   const startedAtMs = useSpaceRoomSelector(PuzzlePlayAttr.startedAtMs.from);
   const endedAtMs = useSpaceRoomSelector(PuzzlePlayAttr.endedAtMs.from);
   const hostIdentity = useSpaceRoomSelector(PuzzlePlayAttr.hostIdentity.from);
@@ -166,7 +169,7 @@ function usePuzzlePlayerModel(args: {
   });
   const solver = usePuzzleSolver({ puzzleId: args.puzzleId });
   const isPuzzleHost = usePuzzleHostIdentityMatch();
-  const recorder = useChessPuzzleInteractionRecorder({
+  const recorder = usePuzzleInteractionRecorder({
     puzzleId: args.puzzleId,
     puzzleRating: rating,
     puzzleRatingDeviation: ratingDeviation,
@@ -219,7 +222,7 @@ function usePuzzlePlayerUi(args: {
   m: ReturnType<typeof usePuzzlePlayerModel>;
 }) {
   const myId = useMyId();
-  const completion = useChessPuzzleCompletion({
+  const completion = usePuzzleCompletion({
     puzzleId: args.m.puzzleId,
     interactions: args.m.interactions,
     allInteractions: args.m.allInteractions,
@@ -293,7 +296,7 @@ function frozenPlayerModel(args: {
   m: ReturnType<typeof usePuzzlePlayerModel>;
   controls: ReturnType<typeof usePuzzlePlayerControls>;
   visual: ReturnType<typeof usePuzzlePlayerVisual>;
-  completion: ReturnType<typeof useChessPuzzleCompletion>;
+  completion: ReturnType<typeof usePuzzleCompletion>;
   recommendations: ReturnType<typeof usePuzzleRecommendations>;
   clock: ReturnType<typeof usePuzzleClock>;
   recommend: ReturnType<typeof usePuzzleRecommendDispatch>;

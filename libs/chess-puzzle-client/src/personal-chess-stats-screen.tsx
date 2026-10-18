@@ -1,9 +1,9 @@
+import { PuzzleFeedProvider } from '@libs/game-puzzle-client/puzzle-feed-provider';
+import { PuzzleStatsBody } from '@libs/game-puzzle-client/puzzle-stats-body';
 import { Trans } from '@lingui/solid/macro';
 import { CollectionScreen } from '@pkgs/ui-root-client/collection-screen';
 import { createSignal, type JSX, Show } from 'solid-js';
-import { ChessPuzzleFeedProvider } from './chess-puzzle-feed-provider';
 import { ChessPuzzleReviewBody } from './chess-puzzle-review-screen';
-import { ChessStatsBody } from './chess-stats-body';
 
 export function PersonalChessStatsScreen(): JSX.Element {
   const [puzzleId, setPuzzleId] = createSignal<string | null>(null);
@@ -13,7 +13,7 @@ export function PersonalChessStatsScreen(): JSX.Element {
     setPuzzleId(id);
   };
   return (
-    <ChessPuzzleFeedProvider>
+    <PuzzleFeedProvider>
       <CollectionScreen
         screenId="personal-chess-stats"
         breadcrumbs={[
@@ -33,7 +33,7 @@ export function PersonalChessStatsScreen(): JSX.Element {
           when={puzzleId()}
           keyed
           fallback={
-            <ChessStatsBody
+            <PuzzleStatsBody
               titled={false}
               onSelectEntry={(entry) => review(entry.puzzleId)}
             />
@@ -47,6 +47,6 @@ export function PersonalChessStatsScreen(): JSX.Element {
           )}
         </Show>
       </CollectionScreen>
-    </ChessPuzzleFeedProvider>
+    </PuzzleFeedProvider>
   );
 }
