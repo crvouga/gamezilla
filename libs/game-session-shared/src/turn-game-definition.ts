@@ -48,9 +48,13 @@ const TURN_GAME_SESSIONS: SharedGameModule = {
  * has its shared sessions installed and its contract checked — at type
  * checking, and at registration ({@link assertTurnGameDefinitions}).
  */
-class DefinedTurnGame implements GameDefinition {
+class DefinedTurnGame<C extends TurnGameCapabilities = TurnGameCapabilities>
+  implements GameDefinition
+{
   readonly #defined = true;
   readonly id: string;
+  /** What the game offers, as declared: its client's parts follow it. */
+  readonly capabilities: C;
   readonly turnGame: RegisteredTurnGame;
   readonly automation: GameAutomation<Driver>;
   readonly sharedModules: readonly SharedGameModule[];
@@ -59,8 +63,9 @@ class DefinedTurnGame implements GameDefinition {
   declare readonly initialState?: () => RoomState;
   readonly recoverEffects = () => [];
 
-  constructor(game: TurnGame, turnGame: RegisteredTurnGame) {
+  constructor(game: TurnGame<C>, turnGame: RegisteredTurnGame) {
     this.id = game.rules.id;
+    this.capabilities = game.capabilities;
     this.turnGame = turnGame;
     this.automation = { rules: game.rules, ...game.automation };
     // Puzzles are offered through the one puzzle session every space installs.
@@ -80,14 +85,16 @@ class DefinedTurnGame implements GameDefinition {
   }
 }
 
-export type TurnGameDefinition = DefinedTurnGame;
+export type TurnGameDefinition<
+  C extends TurnGameCapabilities = TurnGameCapabilities,
+> = DefinedTurnGame<C>;
 
 /** Everything a turn game supplies to the platform's shared lifecycles. */
-export type TurnGame = {
+export type TurnGame<C extends TurnGameCapabilities = TurnGameCapabilities> = {
   /** The game's mechanics; its `id` is the game's wire id. */
   readonly rules: GameRules;
   /** What the platform offers for the game, each with what it needs. */
-  readonly capabilities: TurnGameCapabilities;
+  readonly capabilities: C;
   /**
    * How a synthetic user and every shared suite choose an action and play it
    * on the game's board (`perform(ui, board, action)`).
@@ -135,7 +142,9 @@ function assertPuzzles(id: string, puzzles: PuzzlesCapability | undefined) {
  * shared sessions, refuses an inconsistent game when it is defined, and
  * offers exactly the capabilities the game declares.
  */
-export function defineTurnGame(game: TurnGame): TurnGameDefinition {
+export function defineTurnGame<C extends TurnGameCapabilities>(
+  game: TurnGame<C>
+): TurnGameDefinition<C> {
   const id = game.rules.id;
   if (!/^[a-z][a-z0-9-]{0,31}$/.test(id))
     throw new Error(`game id "${id}" is not a lowercase slug`);
@@ -158,7 +167,7 @@ export function defineTurnGame(game: TurnGame): TurnGameDefinition {
   };
   // Capability requirements, the clock namespace and the starting position.
   createTurnGames([turnGame]);
-  return new DefinedTurnGame(game, turnGame);
+  return new DefinedTurnGame<C>(game, turnGame);
 }
 
 /**

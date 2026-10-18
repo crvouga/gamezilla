@@ -1,39 +1,32 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  formatRecommendedMove,
+  chessPuzzleArrows,
   isBoardSquare,
-  recommendationArrows,
+  PUZZLE_SOLUTION_ARROW_ID,
 } from '@libs/chess-puzzle-shared/recommendation-arrows';
-import type { PuzzleRecommendationMap } from '@libs/game-puzzle-shared/recommendations';
-import {
-  PUZZLE_MAX_RECOMMENDATIONS,
-  recommendMove,
-} from '@libs/game-puzzle-shared/recommendations';
 
-describe('chess suggestion arrows', () => {
+describe('chess puzzle arrows', () => {
   test('a suggestion names two squares of the board', () => {
     expect(isBoardSquare('e2')).toBe(true);
     expect(isBoardSquare('z9')).toBe(false);
-    expect(formatRecommendedMove('e2', 'e4')).toBe('e2→e4');
   });
 
-  test('renders one colored arrow per member but the viewer', () => {
-    let current: PuzzleRecommendationMap = {};
-    for (let i = 0; i < PUZZLE_MAX_RECOMMENDATIONS + 1; i += 1) {
-      current = recommendMove({
-        current,
-        by: `member-${i}`,
-        from: 'e2',
-        to: 'e4',
-      });
-    }
-    const arrows = recommendationArrows({
-      recommendations: current,
-      colorFor: (memberId) => `color:${memberId}`,
-      excludeMemberId: 'member-1',
+  test('the solution arrow comes first, then one coloured arrow per suggestion', () => {
+    const arrows = chessPuzzleArrows({
+      solution: { from: 'e2', to: 'e4' },
+      suggestions: [
+        { by: 'member-0', from: 'g1', to: 'f3', color: 'color:member-0' },
+        { by: 'member-2', from: 'b1', to: 'c3', color: 'color:member-2' },
+      ],
     });
-    expect(arrows).toHaveLength(PUZZLE_MAX_RECOMMENDATIONS - 1);
-    expect(arrows[0]?.color).toMatch(/^color:/);
-    expect(arrows.some((arrow) => arrow.id === 'rec:member-1')).toBe(false);
+    expect(arrows).toEqual([
+      { from: 'e2', to: 'e4', id: PUZZLE_SOLUTION_ARROW_ID },
+      { from: 'g1', to: 'f3', color: 'color:member-0', id: 'rec:member-0' },
+      { from: 'b1', to: 'c3', color: 'color:member-2', id: 'rec:member-2' },
+    ]);
+  });
+
+  test('no arrows without a shown solution or a suggestion', () => {
+    expect(chessPuzzleArrows({ solution: null, suggestions: [] })).toEqual([]);
   });
 });

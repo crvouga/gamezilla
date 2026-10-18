@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { createChessModule } from '@libs/chess-puzzle-harness/chess-module';
-import { projectBoardFen } from '@libs/chess-puzzle-shared/solve-projection';
+import { CHESS_PUZZLE_GAME } from '@libs/chess-puzzle-shared/chess-puzzles';
 import {
   PUZZLE_PLAY_STATUS,
   PuzzlePlayAttr,
@@ -21,6 +21,7 @@ import {
   SubmitPuzzleMove,
 } from '@libs/game-puzzle-shared/play-messages';
 import { PUZZLE_MAX_RECOMMENDATIONS } from '@libs/game-puzzle-shared/recommendations';
+import { projectBoardPosition } from '@libs/game-puzzle-shared/solve-projection';
 import type { RoomCommand, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 
@@ -225,7 +226,7 @@ describe('chess puzzle play FSM — Submit', () => {
     expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.wrong);
     expect(PuzzlePlayAttr.layoutKey.from(state)).toBe(before + 1);
     // §5: the reached position is kept; the board paints the wrong move
-    // over it from `wrongUci` (`projectBoardFen`).
+    // over it from `wrongAction` (`projectBoardPosition`).
     expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(beforeFen);
     expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(1);
     expect(PuzzlePlayAttr.wrongAction.from(state)).toBe('h1h2');
@@ -268,10 +269,10 @@ describe('chess puzzle play FSM — Submit', () => {
 
   test('the board keeps a wrong move on its square until the retry', () => {
     const boardOf = (state: RoomState): string | null =>
-      projectBoardFen({
+      projectBoardPosition(CHESS_PUZZLE_GAME, {
         status: PuzzlePlayAttr.status.from(state),
-        fen: PuzzlePlayAttr.displayPosition.from(state),
-        wrongUci: PuzzlePlayAttr.wrongAction.from(state),
+        position: PuzzlePlayAttr.displayPosition.from(state),
+        wrongAction: PuzzlePlayAttr.wrongAction.from(state),
       });
     let state = startValid(ChessModule.initialState());
     const reached = PuzzlePlayAttr.displayPosition.from(state);

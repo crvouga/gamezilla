@@ -26,6 +26,58 @@ export type GameRouterEntry<TCtx, TReturn> = {
 };
 
 /**
+ * One router per namespace. A shared module and a game's own room may each
+ * handle some messages of one durable namespace (the platform's puzzle
+ * review and chess's developer tools both speak `chess-cmd`); their routers
+ * become one that hands each message to the router that handles it. Two
+ * routers handling the same message type are refused, naming it.
+ */
+export function mergeGameRouterEntries<TCtx, TReturn>(
+  entries: readonly GameRouterEntry<TCtx, TReturn>[]
+): GameRouterEntry<TCtx, TReturn>[] {
+  const byPrefix = new Map<string, GameRouterEntry<TCtx, TReturn>[]>();
+  for (const entry of entries) {
+    const group = byPrefix.get(entry.namespace.prefix) ?? [];
+    group.push(entry);
+    byPrefix.set(entry.namespace.prefix, group);
+  }
+  return [...byPrefix.values()].map((group) =>
+    group.length === 1
+      ? group[0]!
+      : {
+          namespace: group[0]!.namespace,
+          router: mergedRouter(group.map((entry) => entry.router)),
+        }
+  );
+}
+
+function mergedRouter<TCtx, TReturn>(
+  routers: readonly MessageRouter<RoomState, TCtx, TReturn>[]
+): MessageRouter<RoomState, TCtx, TReturn> {
+  const handling = (msg: Message) => {
+    const found = routers.filter((router) => router.has(msg));
+    if (found.length > 1)
+      throw new Error(
+        `${msg.type} is handled by more than one game router — one module owns each message`
+      );
+    return found[0];
+  };
+  const merged: MessageRouter<RoomState, TCtx, TReturn> = {
+    on() {
+      throw new Error('a merged game router takes no further handlers');
+    },
+    dispatch(state, ctx, msg, fallback) {
+      const router = handling(msg);
+      return router === undefined
+        ? fallback(state, ctx, msg)
+        : router.dispatch(state, ctx, msg, fallback);
+    },
+    has: (msg) => handling(msg) !== undefined,
+  };
+  return merged;
+}
+
+/**
  * Context every game command handler receives from the composed space module.
  * `identity` is the room actor id; `ts` is the server-stamped commit time of
  * the command being handled (the only deterministic time source in a handler).

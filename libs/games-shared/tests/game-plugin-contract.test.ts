@@ -53,7 +53,7 @@ describe('game plugin contract', () => {
     expect(() =>
       assertMatchingGameIds([dummyGame('a')], [dummyGame('a'), dummyGame('c')])
     ).toThrow(
-      'game registry: client "c" has no turn game — register its defineTurnGame(...) value in GAME_DEFINITIONS, or give defineGameClient the id of the game it shows'
+      'game registry: client "c" has no turn game — register its defineTurnGame(...) value in GAME_DEFINITIONS, or give its defineGameClient the shared definition of the game it shows'
     );
     expect(() =>
       assertMatchingGameIds(
@@ -62,6 +62,25 @@ describe('game plugin contract', () => {
       )
     ).toThrow(
       'game registry: GAME_CLIENT_DEFINITIONS[0] is "b" but GAME_DEFINITIONS[0] is "a" — list the clients in the order of GAME_DEFINITIONS'
+    );
+  });
+
+  test('a client has a puzzles part exactly when its game offers puzzles, saying which entry to fix', () => {
+    const offering = {
+      id: 'a',
+      turnGame: { capabilities: { puzzles: { namespace: 'a/' } } },
+    };
+    const part = { Board: () => null };
+    expect(() =>
+      assertMatchingGameIds([offering], [{ id: 'a', puzzles: part }])
+    ).not.toThrow();
+    expect(() => assertMatchingGameIds([offering], [{ id: 'a' }])).toThrow(
+      'game registry: "a" offers puzzles but GAME_CLIENT_DEFINITIONS[0] has no puzzles part — give its defineGameClient a puzzles part (its board), made with this definition as its shared'
+    );
+    expect(() =>
+      assertMatchingGameIds([dummyGame('a')], [{ id: 'a', puzzles: part }])
+    ).toThrow(
+      'game registry: GAME_CLIENT_DEFINITIONS[0] ("a") has a puzzles part but GAME_DEFINITIONS[0] offers no puzzles — register the definition its client was made with'
     );
   });
 });

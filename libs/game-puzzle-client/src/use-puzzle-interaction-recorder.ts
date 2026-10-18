@@ -60,7 +60,7 @@ function useRecordStarted(args: {
  */
 export function usePuzzleInteractionRecorder(args: InteractionRecorderArgs): {
   appendUsedHint: () => Promise<void>;
-  setLastUci: (uci: string) => void;
+  setLastAction: (uci: string) => void;
 } {
   const myId = useMyId();
   const log = useLogger('chess-puzzle-recorder');
@@ -131,7 +131,7 @@ export function usePuzzleInteractionRecorder(args: InteractionRecorderArgs): {
     prevSolveIdxRef.current = args.solveIdx();
   });
 
-  const setLastUci = (uci: string): void => {
+  const setLastAction = (uci: string): void => {
     lastUciRef.current = uci;
   };
 
@@ -142,5 +142,5 @@ export function usePuzzleInteractionRecorder(args: InteractionRecorderArgs): {
     );
   };
 
-  return { appendUsedHint, setLastUci };
+  return { appendUsedHint, setLastAction };
 }

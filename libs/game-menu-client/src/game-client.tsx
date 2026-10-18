@@ -1,5 +1,9 @@
+import type { GamePuzzlesClient } from '@libs/game-puzzle-client/puzzle-client';
+import { PuzzleSessionEffects } from '@libs/game-puzzle-client/puzzle-frame';
+import type { TurnGameDefinition } from '@libs/game-session-shared/turn-game-definition';
 import type { GameClientDefinition } from '@libs/spaces-shared/game';
 import type { GamePresentation } from '@pkgs/turn-game-shared/game-presentation';
+import type { TurnGameCapabilities } from '@pkgs/turn-game-shared/game-rules';
 import type { JSX } from 'solid-js';
 import { GameMenu } from './game-menu';
 import { assertGameScreens } from './shared-game-screens';
@@ -22,14 +26,30 @@ export type GameChoice = GameOwnScreen & {
 };
 
 /**
- * Everything a game supplies to the shared game experience. The platform
- * owns the menu, its order, the custom-game, opponent and history screens,
- * the space-wide navigation and links; a game adds only what is unique.
- * Which shared screens appear follows the capabilities the game's shared
- * registration declares, so nothing here repeats them.
+ * The puzzles part, exactly when the shared registration offers puzzles:
+ * required then, and refused for a game that offers none.
  */
-export type GameClient = {
-  readonly id: string;
+export type GameClientPuzzles<C> = 'puzzles' extends keyof C
+  ? undefined extends C['puzzles' & keyof C]
+    ? { readonly puzzles?: GamePuzzlesClient }
+    : { readonly puzzles: GamePuzzlesClient }
+  : { readonly puzzles?: never };
+
+/**
+ * Everything a game supplies to the shared game experience. The platform
+ * owns the menu, its order, the puzzle, custom-game, opponent and history
+ * screens, the space-wide navigation and links; a game adds only what is
+ * unique. Which shared screens appear follows the capabilities its shared
+ * registration declares (`shared`), and a capability whose screens show
+ * the game's own board asks for that part here (`puzzles`).
+ */
+export type GameClient<C extends TurnGameCapabilities = TurnGameCapabilities> =
+  GameClientParts & {
+    /** The game's shared registration (`defineTurnGame`): its id and what it offers. */
+    readonly shared: TurnGameDefinition<C>;
+  } & GameClientPuzzles<C>;
+
+type GameClientParts = {
   /** The game's name, in the game choice and above its own choices. */
   readonly title: string;
   /** One line under the name in the game choice. */
@@ -63,18 +83,30 @@ class DefinedGameClient implements GameClientDefinition {
   readonly caption: string;
   readonly presentation: GamePresentation<JSX.Element>;
   readonly MainMenu: GameClientDefinition['MainMenu'];
+  /** The game's puzzles part, when it offers puzzles. */
+  declare readonly puzzles?: GamePuzzlesClient;
   declare readonly SessionEffects?: () => JSX.Element;
 
   constructor(game: GameClient) {
-    this.id = game.id;
+    const id = game.shared.id;
+    this.id = id;
     this.title = game.title;
     this.caption = game.caption;
-    this.presentation = { ...game.presentation, id: game.id };
+    this.presentation = { ...game.presentation, id };
     this.MainMenu = (props) => (
       <GameMenu game={game} onBackToGames={props.onBackToGames} />
     );
-    if (game.SessionEffects !== undefined)
-      this.SessionEffects = game.SessionEffects;
+    const puzzles = game.puzzles;
+    if (puzzles !== undefined) this.puzzles = puzzles;
+    const own = game.SessionEffects;
+    if (puzzles !== undefined)
+      this.SessionEffects = () => (
+        <>
+          <PuzzleSessionEffects gameId={id} puzzles={puzzles} />
+          {own === undefined ? null : own()}
+        </>
+      );
+    else if (own !== undefined) this.SessionEffects = own;
   }
 
   /** Whether `value` was made by {@link defineGameClient}. */
@@ -85,9 +117,33 @@ class DefinedGameClient implements GameClientDefinition {
 
 export type GameClientRegistration = DefinedGameClient;
 
+/**
+ * The puzzles part agrees with the shared registration: present exactly
+ * when the game offers puzzles, with its board.
+ */
+function assertPuzzlesPart(game: GameClient): void {
+  const id = game.shared.id;
+  const offered = game.shared.turnGame.capabilities.puzzles !== undefined;
+  if (offered && game.puzzles === undefined)
+    throw new Error(
+      `${id}: the game offers puzzles (capabilities.puzzles) but its client has no puzzles part — give defineGameClient puzzles: { Board, … }`
+    );
+  if (!offered && game.puzzles !== undefined)
+    throw new Error(
+      `${id}: the client has a puzzles part but the game offers no puzzles — add capabilities.puzzles to its defineTurnGame, or leave the part out`
+    );
+  if (game.puzzles !== undefined && typeof game.puzzles.Board !== 'function')
+    throw new Error(
+      `${id}: puzzles.Board is missing — the platform's puzzle screens show the game's own board`
+    );
+}
+
 /** The one way a game joins the space's game choice. */
-export function defineGameClient(game: GameClient): GameClientRegistration {
-  assertGameScreens(game.id, [
+export function defineGameClient<C extends TurnGameCapabilities>(
+  game: GameClient<C>
+): GameClientRegistration {
+  assertPuzzlesPart(game);
+  assertGameScreens(game.shared.id, [
     ...(game.choices ?? []).map((choice) => choice.screen),
     ...(game.screens ?? []).map((screen) => screen.screen),
   ]);

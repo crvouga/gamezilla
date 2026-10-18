@@ -1,9 +1,10 @@
+import { connectFourGameShared } from '@libs/connect-four-shared/connect-four-game';
 import { defineGameClient } from '@libs/game-menu-client/game-client';
 import { Trans } from '@lingui/solid/macro';
 import { connectFourPresentation } from './connect-four-presentation';
 
 export const connectFourGameClient = defineGameClient({
-  id: 'connect-four',
+  shared: connectFourGameShared,
   title: 'Connect Four',
   caption: 'Connect four discs, play friends or bots',
   subtitle: () => (

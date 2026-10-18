@@ -1,5 +1,10 @@
 import MultiplayerScreen from '@libs/game-matchmaking-client/multiplayer-screen';
 import { LINKED_MULTIPLAYER_PARAM } from '@libs/game-matchmaking-shared/multiplayer-link';
+import type { GamePuzzlesClient } from '@libs/game-puzzle-client/puzzle-client';
+import { PuzzleFrame } from '@libs/game-puzzle-client/puzzle-frame';
+import { PuzzlePlayScreen } from '@libs/game-puzzle-client/puzzle-play-screen';
+import { PuzzleReviewScreen } from '@libs/game-puzzle-client/puzzle-review-screen';
+import { PuzzleStatsScreen } from '@libs/game-puzzle-client/puzzle-stats-screen';
 import { CustomGameScreen } from '@libs/game-session-client/custom-game-screen';
 import { GameHistory } from '@libs/game-session-client/game-history';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
@@ -17,7 +22,7 @@ import { FadeSwitch } from '@pkgs/ui-root-client/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client/main-menu-screen';
 import type { JSX } from 'solid-js';
-import { createEffect, createMemo, untrack } from 'solid-js';
+import { createEffect, createMemo, Show, untrack } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { GameChoice, GameClient, GameOwnScreen } from './game-client';
 import { SHARED_GAME_SCREEN } from './shared-game-screens';
@@ -30,17 +35,19 @@ function sharedScreens(
   navigation: GameScreen
 ): readonly GameOwnScreen[] {
   const back = navigation.showChoices;
+  const id = game.shared.id;
   const history = offers('history')
     ? { onHistory: () => navigation.show(SHARED_GAME_SCREEN.history) }
     : {};
   return [
+    ...(game.puzzles === undefined ? [] : PUZZLE_SCREENS),
     ...(offers('custom-games')
       ? [
           {
             screen: SHARED_GAME_SCREEN.customGames,
             Screen: () => (
               <CustomGameScreen
-                gameId={game.id}
+                gameId={id}
                 title={game.title}
                 onBack={back}
                 {...history}
@@ -54,11 +61,7 @@ function sharedScreens(
           {
             screen: SHARED_GAME_SCREEN.matchmaking,
             Screen: () => (
-              <MultiplayerScreen
-                gameId={game.id}
-                title={game.title}
-                onBack={back}
-              />
+              <MultiplayerScreen gameId={id} title={game.title} onBack={back} />
             ),
           },
         ]
@@ -67,16 +70,37 @@ function sharedScreens(
       ? [
           {
             screen: SHARED_GAME_SCREEN.history,
-            Screen: () => <GameHistory gameId={game.id} onBack={back} />,
+            Screen: () => <GameHistory gameId={id} onBack={back} />,
           },
         ]
       : []),
   ];
 }
 
+/** The platform's puzzle screens, for a game offering puzzles. */
+const PUZZLE_SCREENS: readonly GameOwnScreen[] = [
+  { screen: SHARED_GAME_SCREEN.puzzle, Screen: PuzzlePlayScreen },
+  { screen: SHARED_GAME_SCREEN.puzzleStats, Screen: PuzzleStatsScreen },
+  { screen: SHARED_GAME_SCREEN.puzzleReview, Screen: PuzzleReviewScreen },
+];
+
+const PUZZLE_CHOICES: readonly GameChoiceItem[] = [
+  {
+    screen: SHARED_GAME_SCREEN.puzzle,
+    title: () => <Trans>Puzzle</Trans>,
+    caption: () => <Trans>Solve rated puzzles and climb the ladder</Trans>,
+  },
+  {
+    screen: SHARED_GAME_SCREEN.puzzleStats,
+    title: () => <Trans>Puzzle stats</Trans>,
+    caption: () => <Trans>Puzzle rating trend and game log</Trans>,
+  },
+];
+
 function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
   const name = game.title;
   return [
+    ...(game.puzzles === undefined ? [] : PUZZLE_CHOICES),
     ...(offers('custom-games')
       ? [
           {
@@ -189,6 +213,30 @@ function PassThrough(props: { children: JSX.Element }): JSX.Element {
 }
 
 /**
+ * Everything around the game's screens: the platform's puzzle frame (the
+ * feed, a puzzle link) for a game offering puzzles, then the game's own.
+ */
+function GameFrame(props: {
+  game: GameClient;
+  children: JSX.Element;
+}): JSX.Element {
+  const own = (): JSX.Element => (
+    <Dynamic component={props.game.Frame ?? PassThrough}>
+      {props.children}
+    </Dynamic>
+  );
+  return (
+    <Show when={props.game.puzzles} keyed fallback={own()}>
+      {(puzzles: GamePuzzlesClient) => (
+        <PuzzleFrame gameId={props.game.shared.id} puzzles={puzzles}>
+          {own()}
+        </PuzzleFrame>
+      )}
+    </Show>
+  );
+}
+
+/**
  * The selected game in a space: its choices and every screen they open,
  * shown alike to everyone in the space. The same component serves every
  * game; the game supplies its definition and the capabilities its shared
@@ -201,7 +249,7 @@ export function GameMenu(props: {
   const navigation = useGameScreen();
   const rules = useTurnGames();
   const offers: Offers = (capability) =>
-    rules.offers(props.game.id, capability);
+    rules.offers(props.game.shared.id, capability);
   useOpenLinkedMultiplayer(navigation, () => offers('matchmaking'));
   const screens = createMemo(
     () =>
@@ -231,12 +279,12 @@ export function GameMenu(props: {
   );
   const shown = createMemo(() => screens().get(navigation.screen()) ?? choices);
   return (
-    <Dynamic component={props.game.Frame ?? PassThrough}>
+    <GameFrame game={props.game}>
       <div class="box flex-1 min-h-0 self-stretch">
         <FadeSwitch stateKey={navigation.screen()}>
           <Dynamic component={shown()} />
         </FadeSwitch>
       </div>
-    </Dynamic>
+    </GameFrame>
   );
 }

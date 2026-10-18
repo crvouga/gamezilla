@@ -1,48 +1,17 @@
-import { PuzzlePlayScreen } from '@libs/chess-puzzle-client/chess-puzzle-play-screen';
-import { ChessPuzzleReviewScreen } from '@libs/chess-puzzle-client/chess-puzzle-review-screen';
-import { ChessStatsScreen } from '@libs/chess-puzzle-client/chess-stats-screen';
+import { chessPuzzlesClient } from '@libs/chess-puzzle-client/chess-puzzles-client';
 import { PuzzleManagementScreen } from '@libs/chess-puzzle-client/puzzle-management-screen';
-import { CHESS_GAME_ID } from '@libs/chess-puzzle-shared/chess-game';
 import { CHESS_SCREEN } from '@libs/chess-root-shared/chess-screens';
 import { ChessSettingsDeveloperScreen } from '@libs/chess-shared-client/chess-settings-developer-screen';
 import { ChessSettingsDeveloperUiComponentDetailScreen } from '@libs/chess-shared-client/chess-settings-developer-ui-component-detail-screen';
 import { ChessSettingsDeveloperUiComponentsScreen } from '@libs/chess-shared-client/chess-settings-developer-ui-components-screen';
 import { ChessSettingsScreen } from '@libs/chess-shared-client/chess-settings-screen';
+import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
 import { defineGameClient } from '@libs/game-menu-client/game-client';
-import { PuzzleFeedProvider } from '@libs/game-puzzle-client/puzzle-feed-provider';
-import { ReconcilePuzzleResult } from '@libs/game-puzzle-client/reconcile-puzzle-result';
-import { useIsPuzzleDriver } from '@libs/game-puzzle-client/use-puzzle-space-role';
-import { LINKED_PUZZLE_PARAM } from '@libs/game-puzzle-shared/puzzle-link';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import { Trans } from '@lingui/solid/macro';
-import { useLocalSearchParams } from '@pkgs/ui-root-client/app-router';
 import type { JSX } from 'solid-js';
-import { createEffect, untrack } from 'solid-js';
 import { chessPresentation } from './chess-game-presentation';
-
-/** A space opened from a puzzle link goes straight to the puzzle. */
-function LinkedPuzzle(): JSX.Element {
-  const params = useLocalSearchParams<{ puzzle?: string | undefined }>();
-  const isDriver = useIsPuzzleDriver();
-  const gameScreen = useGameScreen();
-  createEffect(() => {
-    if (params()[LINKED_PUZZLE_PARAM] === undefined || !isDriver()) return;
-    if (gameScreen.screen() === CHESS_SCREEN.puzzle) return;
-    untrack(() => gameScreen.show(CHESS_SCREEN.puzzle));
-  });
-  return null;
-}
-
-/** Every chess screen reads the puzzle feed and honours a puzzle link. */
-function ChessFrame(props: { children: JSX.Element }): JSX.Element {
-  return (
-    <PuzzleFeedProvider>
-      <LinkedPuzzle />
-      {props.children}
-    </PuzzleFeedProvider>
-  );
-}
 
 function DeveloperPuzzlesScreen(): JSX.Element {
   const gameScreen = useGameScreen();
@@ -56,32 +25,24 @@ function DeveloperPuzzlesScreen(): JSX.Element {
   );
 }
 
+/**
+ * Chess's client: its board and copy, its puzzles part (board, coach,
+ * themes, notation, sounds), its settings and developer tools. The puzzle,
+ * puzzle stats, custom-game, opponent and history screens are the
+ * platform's.
+ */
 export const chessGameClient = defineGameClient({
-  id: CHESS_GAME_ID,
+  shared: chessGameShared,
   title: 'Chess',
   caption: 'Puzzles, stats, and custom games',
   subtitle: () => <Trans>Choose how you want to play.</Trans>,
   presentation: chessPresentation,
-  choices: [
-    {
-      screen: CHESS_SCREEN.puzzle,
-      title: () => <Trans>Puzzle</Trans>,
-      caption: () => <Trans>Solve rated puzzles and climb the ladder</Trans>,
-      Screen: PuzzlePlayScreen,
-    },
-    {
-      screen: CHESS_SCREEN.stats,
-      title: () => <Trans>Puzzle stats</Trans>,
-      caption: () => <Trans>Puzzle rating trend and game log</Trans>,
-      Screen: ChessStatsScreen,
-    },
-  ],
+  puzzles: chessPuzzlesClient,
   settings: {
     caption: () => <Trans>Preferences and developer tools</Trans>,
     Screen: ChessSettingsScreen,
   },
   screens: [
-    { screen: CHESS_SCREEN.statsReview, Screen: ChessPuzzleReviewScreen },
     {
       screen: CHESS_SCREEN.settingsDeveloper,
       Screen: ChessSettingsDeveloperScreen,
@@ -99,6 +60,4 @@ export const chessGameClient = defineGameClient({
       Screen: ChessSettingsDeveloperUiComponentDetailScreen,
     },
   ],
-  Frame: ChessFrame,
-  SessionEffects: ReconcilePuzzleResult,
 });

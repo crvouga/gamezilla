@@ -33,10 +33,11 @@ export function definedWith(
   client: Partial<GameClient> = {},
   adapter: Partial<Pick<HarnessGame, 'readRecord'>> = {}
 ): HarnessGame {
+  const shared = defineTurnGame({ ...COUNTING_RACE_TURN_GAME, ...turnGame });
   return {
     label: COUNTING_RACE_GAME.label,
-    shared: defineTurnGame({ ...COUNTING_RACE_TURN_GAME, ...turnGame }),
-    client: defineGameClient({ ...COUNTING_RACE_CLIENT, ...client }),
+    shared,
+    client: defineGameClient({ ...COUNTING_RACE_CLIENT, shared, ...client }),
     fixtures: COUNTING_RACE_FIXTURES,
     ...adapter,
   };

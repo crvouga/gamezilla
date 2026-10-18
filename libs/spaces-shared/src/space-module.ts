@@ -21,6 +21,7 @@ import {
   counterEvtNs,
 } from './counter';
 import type { GameCommandContext, GameDefinition } from './game';
+import { mergeGameRouterEntries } from './game';
 import { gameModules } from './game-modules';
 import {
   createGamesCommandRouter,
@@ -96,7 +97,7 @@ function buildCommandRouter(
     { namespace: spaceQuietCmdNs, router: spaceQuietCommandRouter },
     { namespace: counterCmdNs, router: counterCommandRouter },
     { namespace: gamesCmdNs, router: createGamesCommandRouter(games) },
-    ...modules.flatMap((game) => [...game.commandRouters]),
+    ...mergeGameRouterEntries(modules.flatMap((game) => game.commandRouters)),
   ]);
 }
 
@@ -114,7 +115,7 @@ function buildEventReducer(
     },
     { namespace: counterEvtNs, router: counterEventReducer },
     { namespace: gamesEvtNs, router: createGamesEventReducer() },
-    ...modules.flatMap((game) => [...game.eventRouters]),
+    ...mergeGameRouterEntries(modules.flatMap((game) => game.eventRouters)),
   ]);
 }
 

@@ -65,3 +65,17 @@ export function formatSanNotation(
   const body = lead === null ? san : `${lead}${san.slice(1)}`;
   return figurinePromotion(body);
 }
+
+/**
+ * The number written before a move played from `before`: White's moves are
+ * `<n>.`, and a line starting with Black's move opens with `<n>...`.
+ */
+export function chessMoveNumber(
+  before: string,
+  plyIndex: number
+): string | null {
+  const fields = before.split(' ');
+  const moveNumber = Number(fields[5] ?? '1');
+  if (fields[1] === 'w') return `${String(moveNumber)}.`;
+  return plyIndex === 0 ? `${String(moveNumber)}...` : null;
+}

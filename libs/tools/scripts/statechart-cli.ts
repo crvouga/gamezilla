@@ -65,7 +65,7 @@ function sourceFiles(): Map<string, string> {
       cwd: ROOT,
     }),
     'libs/chess-puzzle-client/src/personal-chess-stats-client.tsx',
-    'libs/chess-puzzle-client/src/puzzle-link-client.ts',
+    'libs/game-puzzle-client/src/puzzle-link-client.ts',
     'libs/game-puzzle-shared/src/puzzle-link.ts',
     'libs/game-matchmaking-client/src/multiplayer-link-client.tsx',
     'libs/game-matchmaking-shared/src/multiplayer-link.ts',

@@ -3,6 +3,7 @@ import {
   chessGameShared,
 } from '@libs/chess-sub-shared/chess-game';
 import type { GameCommandContext } from '@libs/spaces-shared/game';
+import { mergeGameRouterEntries } from '@libs/spaces-shared/game';
 import type { Message } from '@pkgs/message-shared/message';
 import { isMessageEnvelope } from '@pkgs/message-shared/message';
 import { createComposedMessageRouter } from '@pkgs/message-shared/router';
@@ -40,10 +41,10 @@ const commandRouter = createComposedMessageRouter<
   RoomState,
   GameCommandContext,
   HandleResult
->(modules.flatMap((module) => [...module.commandRouters]));
+>(mergeGameRouterEntries(modules.flatMap((module) => module.commandRouters)));
 
 const eventReducer = createComposedMessageRouter<RoomState, void, RoomState>(
-  modules.flatMap((module) => [...module.eventRouters])
+  mergeGameRouterEntries(modules.flatMap((module) => module.eventRouters))
 );
 
 /**

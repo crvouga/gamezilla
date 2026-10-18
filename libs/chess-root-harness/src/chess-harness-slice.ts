@@ -1,5 +1,4 @@
 import { PERSONAL_CHESS_STATS_CLIENT } from '@libs/chess-puzzle-client/personal-chess-stats-client';
-import { PUZZLE_LINK_CLIENT } from '@libs/chess-puzzle-client/puzzle-link-client';
 import { PuzzleManagementScreen } from '@libs/chess-puzzle-client/puzzle-management-screen';
 import { CHESS_HARNESS_ACTIONS } from '@libs/chess-puzzle-harness/chess-actions';
 import { seedChessPuzzlesForHarness } from '@libs/chess-puzzle-harness/chess-harness-seed';
@@ -23,7 +22,6 @@ export const CHESS_HARNESS_SLICE: HarnessSlice = {
     name: 'chess',
     routes: [
       { path: '/more/puzzles', component: PuzzleManagementScreen },
-      ...PUZZLE_LINK_CLIENT.routes,
       ...PERSONAL_CHESS_STATS_CLIENT.routes,
     ],
     ...(PERSONAL_CHESS_STATS_CLIENT.settings === undefined

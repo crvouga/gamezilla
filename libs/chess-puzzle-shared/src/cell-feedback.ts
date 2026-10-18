@@ -1,26 +1,17 @@
-import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
 import type { CellFeedback, Square } from '@pkgs/chess-board-core-shared/types';
 
-export function deriveChessPuzzleCellFeedback(args: {
-  status: SolveStatus;
-  wrongToSquare: string | null;
-  expectedFromSquare: string | null;
+/**
+ * How chess's board marks a puzzle's cells: a cross on the square a wrong
+ * move ended on (the piece is standing there), a dot on the piece a hint
+ * picks.
+ */
+export function chessPuzzleCellFeedback(marks: {
+  readonly wrong: string | null;
+  readonly hint: string | null;
 }): Partial<Record<Square, CellFeedback>> {
-  const { status, wrongToSquare, expectedFromSquare } = args;
-
   const out: Partial<Record<Square, CellFeedback>> = {};
-
-  // Only the square the wrong move ended on: the piece is standing there.
-  if (wrongToSquare !== null) {
-    out[wrongToSquare as Square] = { kind: 'cross' };
-  }
-
-  if (status === 'solving' && expectedFromSquare !== null) {
-    out[expectedFromSquare as Square] = {
-      kind: 'dot',
-      corner: 'center',
-    };
-  }
-
+  if (marks.wrong !== null) out[marks.wrong as Square] = { kind: 'cross' };
+  if (marks.hint !== null)
+    out[marks.hint as Square] = { kind: 'dot', corner: 'center' };
   return out;
 }

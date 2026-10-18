@@ -100,8 +100,10 @@ export const COUNTING_RACE_TURN_GAME: TurnGame = {
   },
 };
 
+export const COUNTING_RACE_SHARED = defineTurnGame(COUNTING_RACE_TURN_GAME);
+
 export const COUNTING_RACE_CLIENT: GameClient = {
-  id: COUNTING_RACE_RULES.id,
+  shared: COUNTING_RACE_SHARED,
   title: 'Counting race',
   caption: 'Count to seven first',
   subtitle: () => 'Take turns counting on.',
@@ -134,7 +136,7 @@ export const COUNTING_RACE_FIXTURES: GameFixtures = {
 
 export const COUNTING_RACE_GAME: HarnessGame = assertHarnessGame({
   label: 'counting race',
-  shared: defineTurnGame(COUNTING_RACE_TURN_GAME),
+  shared: COUNTING_RACE_SHARED,
   client: defineGameClient(COUNTING_RACE_CLIENT),
   fixtures: COUNTING_RACE_FIXTURES,
 });

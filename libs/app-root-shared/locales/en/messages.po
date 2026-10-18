@@ -53,7 +53,7 @@ msgstr "{0, plural, one {Hosting # space} other {Hosting # spaces}}"
 
 #. placeholder {0}: props.matched
 #. placeholder {1}: props.total
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
 msgid "{0} / {1}"
 msgstr "{0} / {1}"
 
@@ -81,7 +81,7 @@ msgstr "{0} live spaces"
 
 #. placeholder {0}: pool.matched()
 #. placeholder {1}: pool.total()
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "{0} matching · {1} local puzzles"
 msgstr "{0} matching · {1} local puzzles"
 
@@ -121,7 +121,7 @@ msgid "{0} removed"
 msgstr "{0} removed"
 
 #. placeholder {0}: themes.length
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
 msgid "{0} themes"
 msgstr "{0} themes"
 
@@ -305,8 +305,8 @@ msgstr "A person can have only one side."
 msgid "A specific legal preservation obligation may retain only the information it covers until that obligation ends. Preserved information cannot restore a profile or be used to promote the product. Any applicable obligation and its end condition will be disclosed here."
 msgstr "A specific legal preservation obligation may retain only the information it covers until that obligation ends. Preserved information cannot restore a profile or be used to promote the product. Any applicable obligation and its end condition will be disclosed here."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
 #: libs/game-puzzle-client/src/puzzle-game-log-row.tsx
+#: libs/game-puzzle-client/src/puzzle-review-screen.tsx
 msgid "Abandoned"
 msgstr "Abandoned"
 
@@ -466,7 +466,7 @@ msgstr "Administration"
 msgid "Admission limit per worker"
 msgstr "Admission limit per worker"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "After 1 s"
 msgstr "After 1 s"
 
@@ -482,7 +482,7 @@ msgstr "Agree on the lineup and clock, then get ready."
 msgid "All"
 msgstr "All"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
 msgid "All themes"
 msgstr "All themes"
 
@@ -504,12 +504,12 @@ msgstr "An upload or change is still in progress. Leaving may interrupt it."
 msgid "Another tab stopped sharing the local database. Reload this tab, or reset local data below (your account on the server is unchanged)."
 msgstr "Another tab stopped sharing the local database. Reload this tab, or reset local data below (your account on the server is unchanged)."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Any"
 msgstr "Any"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Any theme"
 msgstr "Any theme"
 
@@ -558,20 +558,20 @@ msgstr "Ask the host to add you to the allow list, or check the link."
 msgid "auto"
 msgstr "auto"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Auto"
 msgstr "Auto"
 
 #. placeholder {0}: ratingSlot(props.effectiveRating)
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
 msgid "Auto · {0}"
 msgstr "Auto · {0}"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Auto-advance"
 msgstr "Auto-advance"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
 msgid "Automatic"
 msgstr "Automatic"
 
@@ -1225,13 +1225,13 @@ msgstr "Current game"
 msgid "Current route"
 msgstr "Current route"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Custom"
 msgstr "Custom"
 
 #. placeholder {0}: ratingSlot(props.effectiveRating)
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
 msgid "Custom · {0}"
 msgstr "Custom · {0}"
 
@@ -1384,7 +1384,7 @@ msgstr "Devices"
 msgid "Devices appear here after they sign in."
 msgstr "Devices appear here after they sign in."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Difficulty mode"
 msgstr "Difficulty mode"
 
@@ -1417,7 +1417,7 @@ msgid "Dismiss"
 msgstr "Dismiss"
 
 #: libs/auth-client/src/sign-in-modal.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 #: libs/notifications-client/src/notification-card-default.tsx
 #: pkgs/ui-root-client/src/combobox-body.tsx
 #: pkgs/ui-root-client/src/game-action-button.tsx
@@ -1591,11 +1591,11 @@ msgstr "Expand all"
 msgid "Export requested"
 msgstr "Export requested"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
 #: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 #: libs/game-puzzle-client/src/puzzle-game-log-row.tsx
+#: libs/game-puzzle-client/src/puzzle-review-screen.tsx
 #: libs/game-puzzle-client/src/puzzle-status-header.tsx
 #: libs/notifications-client/src/notification-card-default.tsx
 msgid "Failed"
@@ -1615,7 +1615,7 @@ msgstr "Features"
 msgid "Fill both sides before starting."
 msgstr "Fill both sides before starting."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Filter by puzzles you have never seen, already seen, or failed."
 msgstr "Filter by puzzles you have never seen, already seen, or failed."
 
@@ -1912,7 +1912,7 @@ msgstr "Hosted spaces will end. Future membership charges will stop. If the paym
 msgid "hud"
 msgstr "hud"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-play-screen.tsx
 msgid "I can't fetch puzzles without a connection. Come back online and we'll pick up here."
 msgstr "I can't fetch puzzles without a connection. Come back online and we'll pick up here."
 
@@ -1928,7 +1928,7 @@ msgstr "Idle"
 msgid "If {address} can sign in here, a sign-in link is on its way. Paste it below."
 msgstr "If {address} can sign in here, a sign-in link is on its way. Paste it below."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Immediately"
 msgstr "Immediately"
 
@@ -1999,7 +1999,7 @@ msgstr "invites you to play {0}."
 msgid "is away. After a minute away you may claim the win."
 msgstr "is away. After a minute away you may claim the win."
 
-#: libs/chess-puzzle-client/src/puzzle-link-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-link-screen.tsx
 msgid "It was taken out of the puzzles, so its link no longer opens it."
 msgstr "It was taken out of the puzzles, so its link no longer opens it."
 
@@ -2246,7 +2246,7 @@ msgstr "Manage or cancel anytime from the billing portal"
 msgid "Manage subscription"
 msgstr "Manage subscription"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
 msgid "Manual next puzzle"
 msgstr "Manual next puzzle"
 
@@ -2254,7 +2254,7 @@ msgstr "Manual next puzzle"
 msgid "Mark all read"
 msgstr "Mark all read"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Match puzzles to your profile rating ({profileCaption}), plus an optional offset."
 msgstr "Match puzzles to your profile rating ({profileCaption}), plus an optional offset."
 
@@ -2325,7 +2325,7 @@ msgstr "Move {0} of {1}. {2}"
 msgid "Move number to review"
 msgstr "Move number to review"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Move on to the next puzzle by itself after a solve."
 msgstr "Move on to the next puzzle by itself after a solve."
 
@@ -2438,15 +2438,15 @@ msgstr "Next move"
 msgid "Next page"
 msgstr "Next page"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-celebration-overlay.tsx
+#: libs/game-puzzle-client/src/puzzle-celebration-overlay.tsx
 msgid "Next puzzle"
 msgstr "Next puzzle"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
 msgid "Next puzzle after one second"
 msgstr "Next puzzle after one second"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
 msgid "Next puzzle immediately"
 msgstr "Next puzzle immediately"
 
@@ -2519,7 +2519,7 @@ msgstr "No matching options"
 msgid "No matching styles"
 msgstr "No matching styles"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "No matching themes"
 msgstr "No matching themes"
 
@@ -2557,7 +2557,7 @@ msgstr "No people found"
 msgid "No people found for “{0}”"
 msgstr "No people found for “{0}”"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-review-screen.tsx
 msgid "No puzzle selected"
 msgstr "No puzzle selected"
 
@@ -2656,7 +2656,7 @@ msgstr "Observe and control the Synthetic Population"
 #: libs/app-config-client/src/client-config-entity-card.tsx
 #: libs/app-root-client/src/performance-screen.tsx
 #: libs/app-root-client/src/settings-screen.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Off"
 msgstr "Off"
 
@@ -2872,7 +2872,7 @@ msgstr "Permanently delete account?"
 msgid "Person"
 msgstr "Person"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Pick a fixed target rating for the puzzle feed."
 msgstr "Pick a fixed target rating for the puzzle feed."
 
@@ -2892,7 +2892,7 @@ msgstr "Pick a game to play."
 msgid "Pick fruits…"
 msgstr "Pick fruits…"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-review-screen.tsx
 msgid "Pick one from the game log."
 msgstr "Pick one from the game log."
 
@@ -2917,7 +2917,7 @@ msgstr "Play a bot"
 msgid "Play a person, choose a bot, or watch two bots"
 msgstr "Play a person, choose a bot, or watch two bots"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Play history"
 msgstr "Play history"
 
@@ -2994,24 +2994,24 @@ msgstr "Profile"
 msgid "Prove the account again to continue"
 msgstr "Prove the account again to continue"
 
-#: libs/chess-puzzle-client/src/puzzle-link-screen.tsx
-#: libs/chess-root-client/src/chess-game-client.tsx
+#: libs/game-menu-client/src/game-menu.tsx
+#: libs/game-puzzle-client/src/puzzle-link-screen.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-celebration-overlay.tsx
+#: libs/game-puzzle-client/src/puzzle-celebration-overlay.tsx
 msgid "Puzzle abandoned"
 msgstr "Puzzle abandoned"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-celebration-overlay.tsx
+#: libs/game-puzzle-client/src/puzzle-celebration-overlay.tsx
 msgid "Puzzle failed"
 msgstr "Puzzle failed"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Puzzle feed"
 msgstr "Puzzle feed"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
 msgid "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 msgstr "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 
@@ -3024,7 +3024,7 @@ msgid "Puzzle loading stopped"
 msgstr "Puzzle loading stopped"
 
 #. placeholder {0}: props.rating
-#: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-review-screen.tsx
 msgid "Puzzle rated {0}"
 msgstr "Puzzle rated {0}"
 
@@ -3032,12 +3032,12 @@ msgstr "Puzzle rated {0}"
 msgid "Puzzle rating {puzzleRating}"
 msgstr "Puzzle rating {puzzleRating}"
 
-#: libs/chess-root-client/src/chess-game-client.tsx
+#: libs/game-menu-client/src/game-menu.tsx
 msgid "Puzzle rating trend and game log"
 msgstr "Puzzle rating trend and game log"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
-#: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
+#: libs/game-puzzle-client/src/personal-puzzle-stats-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-review-screen.tsx
 msgid "Puzzle review"
 msgstr "Puzzle review"
 
@@ -3045,7 +3045,7 @@ msgstr "Puzzle review"
 msgid "Puzzle skipped."
 msgstr "Puzzle skipped."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-celebration-overlay.tsx
+#: libs/game-puzzle-client/src/puzzle-celebration-overlay.tsx
 msgid "Puzzle solved!"
 msgstr "Puzzle solved!"
 
@@ -3054,13 +3054,13 @@ msgid "Puzzle solved."
 msgstr "Puzzle solved."
 
 #: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
-#: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
-#: libs/chess-root-client/src/chess-game-client.tsx
+#: libs/game-menu-client/src/game-menu.tsx
+#: libs/game-puzzle-client/src/personal-puzzle-stats-screen.tsx
 #: libs/game-puzzle-client/src/puzzle-stats-body.tsx
 msgid "Puzzle stats"
 msgstr "Puzzle stats"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-review-screen.tsx
 msgid "Puzzle unavailable"
 msgstr "Puzzle unavailable"
 
@@ -3080,7 +3080,7 @@ msgstr "Puzzles already added or updated stay available. No more batches will be
 msgid "Puzzles download the first time you open the feed. Reconnect and they will appear here."
 msgstr "Puzzles download the first time you open the feed. Reconnect and they will appear here."
 
-#: libs/chess-puzzle-client/src/puzzle-link-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-link-screen.tsx
 msgid "Puzzles need a connection. Reconnect and open the puzzle link again."
 msgstr "Puzzles need a connection. Reconnect and open the puzzle link again."
 
@@ -3110,7 +3110,7 @@ msgstr "Rapid"
 msgid "Rating after each puzzle"
 msgstr "Rating after each puzzle"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Rating offset"
 msgstr "Rating offset"
 
@@ -3444,7 +3444,7 @@ msgstr "Search people"
 msgid "Search styles…"
 msgstr "Search styles…"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Search themes…"
 msgstr "Search themes…"
 
@@ -3483,8 +3483,8 @@ msgstr "See plans"
 msgid "Seed"
 msgstr "Seed"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Seen"
 msgstr "Seen"
 
@@ -3556,10 +3556,10 @@ msgstr "Sessions"
 #: libs/auth-client/src/account-devices-screen.tsx
 #: libs/auth-client/src/account-screen.tsx
 #: libs/billing-client/src/billing-screen-view.tsx
-#: libs/chess-puzzle-client/src/personal-chess-stats-screen.tsx
 #: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 #: libs/chess-shared-client/src/chess-settings-screen.tsx
 #: libs/game-menu-client/src/game-menu.tsx
+#: libs/game-puzzle-client/src/personal-puzzle-stats-screen.tsx
 #: libs/synthetic-population-client/src/synthetic-population-screen.tsx
 msgid "Settings"
 msgstr "Settings"
@@ -3772,12 +3772,12 @@ msgstr "Solution"
 msgid "Solution shown."
 msgstr "Solution shown."
 
-#: libs/chess-root-client/src/chess-game-client.tsx
+#: libs/game-menu-client/src/game-menu.tsx
 msgid "Solve rated puzzles and climb the ladder"
 msgstr "Solve rated puzzles and climb the ladder"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
 #: libs/game-puzzle-client/src/puzzle-game-log-row.tsx
+#: libs/game-puzzle-client/src/puzzle-review-screen.tsx
 #: libs/game-puzzle-client/src/puzzle-stats-cards.tsx
 #: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Solved"
@@ -3961,7 +3961,7 @@ msgstr "Subscribe"
 msgid "Subscribing needs a connection. Connect to the internet to start your membership."
 msgstr "Subscribing needs a connection. Connect to the internet to start your membership."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-recommendation-legend.tsx
+#: libs/game-puzzle-client/src/puzzle-recommendation-legend.tsx
 msgid "Suggested"
 msgstr "Suggested"
 
@@ -4058,12 +4058,12 @@ msgstr "Tap to copy"
 msgid "Tap to return to your space"
 msgstr "Tap to return to your space"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Target rating"
 msgstr "Target rating"
 
 #. placeholder {0}: props.targetRating
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Target rating: {0}"
 msgstr "Target rating: {0}"
 
@@ -4108,7 +4108,7 @@ msgstr "That took too long. Start again."
 msgid "That username is not allowed"
 msgstr "That username is not allowed"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-play-screen.tsx
 msgid "That's all the puzzles for now. The board opens again when your allowance resets."
 msgstr "That's all the puzzles for now. The board opens again when your allowance resets."
 
@@ -4207,7 +4207,7 @@ msgstr "The unfinished file will not become available. You can save the chosen f
 msgid "Theme"
 msgstr "Theme"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Themes"
 msgstr "Themes"
 
@@ -4315,11 +4315,11 @@ msgstr "This person cannot be invited."
 msgid "This profile is no longer available because the account was deleted."
 msgstr "This profile is no longer available because the account was deleted."
 
-#: libs/chess-puzzle-client/src/puzzle-link-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-link-screen.tsx
 msgid "This puzzle is no longer available"
 msgstr "This puzzle is no longer available"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-review-screen.tsx
 msgid "This puzzle is not in your local feed yet. Try again after sync."
 msgstr "This puzzle is not in your local feed yet. Try again after sync."
 
@@ -4458,7 +4458,7 @@ msgstr "Unlimited access to Gamezilla servers"
 msgid "Unmute coach"
 msgstr "Unmute coach"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
 #: libs/game-puzzle-client/src/puzzle-game-log-row.tsx
 #: libs/game-session-client/src/custom-game-status.tsx
 msgid "Unrated"
@@ -4472,8 +4472,8 @@ msgstr "Unrated · already played"
 msgid "Unreachable"
 msgstr "Unreachable"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-bar.tsx
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Unseen"
 msgstr "Unseen"
 
@@ -4605,7 +4605,7 @@ msgstr "Waiting for the first move"
 msgid "Waiting for the host"
 msgstr "Waiting for the host"
 
-#: libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-play-screen.tsx
 msgid "Waiting for the host to start a puzzle."
 msgstr "Waiting for the host to start a puzzle."
 
@@ -4781,8 +4781,8 @@ msgstr "You'll be signed out on this device."
 msgid "You're all caught up"
 msgstr "You're all caught up"
 
-#: libs/chess-puzzle-client/src/puzzle-link-screen.tsx
 #: libs/game-puzzle-client/src/puzzle-empty-pool-state.tsx
+#: libs/game-puzzle-client/src/puzzle-link-screen.tsx
 msgid "You're offline"
 msgstr "You're offline"
 
@@ -4802,7 +4802,7 @@ msgstr "You're signed out on this device."
 msgid "You're the host, so leaving ends the space for everyone. This cannot be undone."
 msgstr "You're the host, so leaving ends the space for everyone. This cannot be undone."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-play-screen.tsx
+#: libs/game-puzzle-client/src/puzzle-play-screen.tsx
 msgid "You've cleared everything in your feed. Widen the filters and let's keep going."
 msgstr "You've cleared everything in your feed. Widen the filters and let's keep going."
 
@@ -4894,7 +4894,7 @@ msgstr "Your puzzle rating went down by {down}, to {after}."
 msgid "Your puzzle rating went up by {delta}, to {after}."
 msgstr "Your puzzle rating went up by {delta}, to {after}."
 
-#: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
+#: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Your rating"
 msgstr "Your rating"
 

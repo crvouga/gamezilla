@@ -122,8 +122,9 @@ export function assertHarnessGame(game: HarnessGame): HarnessGame {
   assertGameClientDefinitions(`${game.label}: client`, [game.client]);
   if (game.shared.id !== game.client.id || game.shared.id !== rules.id)
     fail(
-      `its definitions name different games (defineTurnGame "${game.shared.id}", defineGameClient "${game.client.id}", rules "${rules.id}") — give defineGameClient the rules' id`
+      `its definitions name different games (defineTurnGame "${game.shared.id}", defineGameClient "${game.client.id}", rules "${rules.id}") — give defineGameClient this game's defineTurnGame value as its shared`
     );
+  assertPuzzlesAgree(game, fail);
   const { firstSideVictory, refusedOpenings } = game.fixtures;
   if (firstSideVictory.length < 2)
     fail('the first-side victory needs a move by each side');
@@ -133,15 +134,6 @@ export function assertHarnessGame(game: HarnessGame): HarnessGame {
     if (rules.play(rules.initial(), action, '', []) !== null)
       fail(`the refused opening ${action} is accepted`);
   assertMoveNamesAndRecord(game, fail);
-  if (
-    offeredCapabilities(game.shared.turnGame).includes('puzzles') !==
-    (game.fixtures.puzzle !== undefined)
-  )
-    fail(
-      game.fixtures.puzzle === undefined
-        ? 'a game offering puzzles names a known puzzle of its own (fixtures.puzzle)'
-        : 'only a game offering puzzles names a known puzzle'
-    );
   const cannotWin = game.fixtures.secondSideCannotWin;
   if (cannotWin !== undefined) assertCannotWinLine(game, cannotWin, fail);
   const drawn = game.fixtures.drawByRules;
@@ -164,6 +156,29 @@ export function assertHarnessGame(game: HarnessGame): HarnessGame {
     actions.push(action);
   }
   return game;
+}
+
+/**
+ * A game offering puzzles has a puzzles part in its client and a known
+ * puzzle among its fixtures; a game offering none has neither.
+ */
+function assertPuzzlesAgree(
+  game: HarnessGame,
+  fail: (problem: string) => void
+): void {
+  const offered = offeredCapabilities(game.shared.turnGame).includes('puzzles');
+  if (offered !== (game.client.puzzles !== undefined))
+    fail(
+      offered
+        ? 'the game offers puzzles but its client has no puzzles part — give defineGameClient puzzles: { Board, … }'
+        : 'its client has a puzzles part but the game offers no puzzles — make the client with this definition as its shared'
+    );
+  if (offered !== (game.fixtures.puzzle !== undefined))
+    fail(
+      game.fixtures.puzzle === undefined
+        ? 'a game offering puzzles names a known puzzle of its own (fixtures.puzzle)'
+        : 'only a game offering puzzles names a known puzzle'
+    );
 }
 
 /**

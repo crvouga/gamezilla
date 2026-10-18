@@ -52,13 +52,23 @@ describe('§7 figurine notation', () => {
 
 describe('notation in the puzzle prefs row', () => {
   test('defaults to SAN letters', () => {
-    expect(DEFAULT_PUZZLE_FEED_CONFIG.notation).toBe('san');
+    expect(chessMoveNotationOf(DEFAULT_PUZZLE_FEED_CONFIG.notation)).toBe(
+      'san'
+    );
   });
 
-  test('a legacy row without the field still decodes', () => {
+  test('a legacy row without the field still decodes, as SAN', () => {
     const decoded = readPuzzleFeedConfig({
       mode: 'auto',
       customRating: 1500,
+    });
+    expect(chessMoveNotationOf(decoded?.notation ?? '')).toBe('san');
+  });
+
+  test('a stored SAN preference stays SAN', () => {
+    const decoded = readPuzzleFeedConfig({
+      ...DEFAULT_PUZZLE_FEED_CONFIG,
+      notation: 'san',
     });
     expect(decoded?.notation).toBe('san');
   });
@@ -80,10 +90,12 @@ describe('notation in the puzzle prefs row', () => {
     expect(decoded).toBeDefined();
     expect(chessMoveNotationOf(decoded?.notation ?? '')).toBe('san');
     expect(
-      readPuzzleFeedConfig({
-        ...DEFAULT_PUZZLE_FEED_CONFIG,
-        notation: 'not a key',
-      })?.notation
+      chessMoveNotationOf(
+        readPuzzleFeedConfig({
+          ...DEFAULT_PUZZLE_FEED_CONFIG,
+          notation: 'not a key',
+        })?.notation ?? ''
+      )
     ).toBe('san');
   });
 });

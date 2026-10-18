@@ -6,6 +6,7 @@ import { createMultiplayerLinkClient } from '@libs/game-matchmaking-client/multi
 import { MATCHED_GAME_HARNESS_ACTIONS } from '@libs/game-matchmaking-harness/matched-game-actions';
 import { withOpponentSearchCleanup } from '@libs/game-matchmaking-harness/opponent-search-cleanup';
 import { OPPONENT_SEEKING_ACTIONS } from '@libs/game-matchmaking-harness/opponent-seeking';
+import { createPuzzleLinkClient } from '@libs/game-puzzle-client/puzzle-link-client';
 import { gamePuzzleSubs } from '@libs/game-puzzle-shared/sub';
 import { createGameSessionServer } from '@libs/game-session-server/sub-server';
 import { createGameSessionSub } from '@libs/game-session-shared/sub';
@@ -82,7 +83,11 @@ export function gameSystem(
       ],
     },
     ...gamePuzzleSubs(turnGames).map(
-      (sub): HarnessSlice => ({ name: 'game-puzzle', sub })
+      (sub): HarnessSlice => ({
+        name: 'game-puzzle',
+        sub,
+        client: createPuzzleLinkClient(turnGames),
+      })
     ),
     BILLING_HARNESS_SLICE,
     ...(options.beside ?? []),

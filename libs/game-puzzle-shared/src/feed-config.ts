@@ -69,21 +69,16 @@ function readAutoAdvance(value: unknown): PuzzleAutoAdvance {
   return value === 'after1s' || value === 'immediate' ? value : 'off';
 }
 
-/**
- * The move-list notation stored when none was chosen. The notations a
- * person chooses between are the game's own; this is only the stored
- * default every existing feed setting already carries.
- */
-export const DEFAULT_PUZZLE_MOVE_NOTATION = 'san';
-
 /** A theme or notation key: the game's own word, stored verbatim. */
 const KEY_PATTERN = /^[A-Za-z0-9]{1,32}$/;
 
-/** Unknown / legacy rows fall back to the stored default notation. */
+/**
+ * A stored notation key, or `''` — the game's own default — when none was
+ * chosen or it is unusable. The notations are the game's; it reads a key
+ * it does not offer as its default, so a stored `'san'` stays chess's SAN.
+ */
 function readMoveNotation(value: unknown): string {
-  return typeof value === 'string' && KEY_PATTERN.test(value)
-    ? value
-    : DEFAULT_PUZZLE_MOVE_NOTATION;
+  return typeof value === 'string' && KEY_PATTERN.test(value) ? value : '';
 }
 
 export type PuzzleFeedConfig = {
@@ -97,7 +92,7 @@ export type PuzzleFeedConfig = {
   readonly autoAdvance: PuzzleAutoAdvance;
   /**
    * §7 move-list rendering, synced beside `autoAdvance`: one of the game's
-   * notations.
+   * notations, or `''` for the game's default.
    */
   readonly notation: string;
 };
@@ -109,7 +104,7 @@ export const DEFAULT_PUZZLE_FEED_CONFIG: PuzzleFeedConfig = {
   themes: [],
   historyFilter: 'neverSeen',
   autoAdvance: 'off',
-  notation: DEFAULT_PUZZLE_MOVE_NOTATION,
+  notation: '',
 };
 
 export function clampPuzzleFeedRating(rating: number): number {

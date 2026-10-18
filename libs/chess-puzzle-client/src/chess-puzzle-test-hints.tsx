@@ -1,5 +1,5 @@
-import { uciToSquares } from '@libs/chess-puzzle-shared/chess-puzzle-fsm';
 import { CHESS_PUZZLE_TEST_ENABLED } from '@libs/chess-puzzle-shared/chess-puzzle-test-enabled';
+import { parseUci } from '@pkgs/chess-rules-shared/uci';
 import type { Accessor, JSX } from 'solid-js';
 
 export type ChessPuzzleTestHintsProps = {
@@ -35,7 +35,7 @@ function buildUci(from: string | null, to: string | null): string | null {
 
 function resolveSolutionUci(props: ChessPuzzleTestHintsProps): string | null {
   const solution = (props.solutionUci() ?? '').trim().toLowerCase();
-  if (solution.length >= 4 && uciToSquares(solution) !== null) {
+  if (solution.length >= 4 && parseUci(solution) !== null) {
     return solution;
   }
   return buildUci(props.expectedFromSquare(), props.expectedToSquare());

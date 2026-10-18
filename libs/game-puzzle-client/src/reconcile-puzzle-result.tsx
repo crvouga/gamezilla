@@ -1,15 +1,22 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { PuzzlePlayAttr } from '@libs/game-puzzle-shared/play-attr';
 import { PuzzleResultAttr } from '@libs/game-puzzle-shared/play-result';
+import { puzzleNamespaceOf } from '@libs/game-puzzle-shared/puzzle-namespace';
 import { useSpaceRoomSelector } from '@libs/spaces-client/use-space-room-selector';
 import { useLogger } from '@pkgs/logger-client/solid';
+import { usePuzzleGame } from './puzzle-game-context';
 import { usePuzzleEntity, usePuzzleInteractions } from './puzzle-play-queries';
 import { usePuzzleInteractionWrites } from './use-puzzle-interaction-writes';
 import { usePuzzleResultRecorder } from './use-puzzle-result-recorder';
 
-/** A result belongs to the account, even when it is viewing stats or settings. */
+/**
+ * A result belongs to the account, even when it is viewing stats or
+ * settings. Each game offering puzzles records the results of its own
+ * puzzles (those in its namespace).
+ */
 export function ReconcilePuzzleResult(): null {
   const myId = useMyId();
+  const { namespace } = usePuzzleGame();
   const log = useLogger('chess-puzzle-result');
   const puzzleId = useSpaceRoomSelector(
     (state) => PuzzlePlayAttr.puzzleId.from(state) ?? ''
@@ -35,7 +42,9 @@ export function ReconcilePuzzleResult(): null {
     recorder: {
       puzzleId,
       interactionsReady: () => interactions.ready() && entity.fen.length > 0,
-      canRecord: () => result().owner === myId(),
+      canRecord: () =>
+        result().owner === myId() &&
+        puzzleNamespaceOf(puzzleId()) === namespace,
       result,
     },
     finalize: writes.finalizePlay,
