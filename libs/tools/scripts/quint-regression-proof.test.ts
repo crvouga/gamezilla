@@ -49,6 +49,20 @@ describe('canonical Quint regression proof', () => {
     // regression: known-bug-gate-rejects-pinned-quint
     expect(gate(binding)).toEqual([]);
   });
+  test('shorthand actions register under their own names', () => {
+    // regression: known-bug-gate-rejects-shorthand-quint-actions
+    const shorthand = binding.replace(
+      'actions: { init: setup, _loseConnection: partition }',
+      'actions: { init: setup, _loseConnection }'
+    );
+    expect(gate(shorthand)).toEqual([]);
+    expect(
+      gate(shorthand.replace('_loseConnection }', 'partition }'))
+    ).not.toEqual([]);
+    expect(
+      gate(shorthand.replace('_loseConnection }', '...partition }'))
+    ).not.toEqual([]);
+  });
   test('a marker alone is not a registered regression', () => {
     expect(gate('// regression: partition-spends-time')).not.toEqual([]);
   });

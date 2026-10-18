@@ -3,6 +3,7 @@ import { decodeItfTrace } from '@pkgs/quint-shared/itf';
 import type { ProofFiles } from './goal-manifest';
 
 type Fields = ReadonlyMap<string, readonly string[]>;
+const IDENTIFIER = /^[A-Za-z_$][\w$]*$/;
 const OPEN = new Map([
   ['(', ')'],
   ['[', ']'],
@@ -50,8 +51,11 @@ function objectFields(tokens: readonly string[]): Fields | null {
   const fields = new Map<string, readonly string[]>();
   for (const field of splitFields(tokens.slice(1, -1))) {
     const name = quoted(field[0]) ?? field[0];
-    if (name === undefined || field[1] !== ':' || fields.has(name)) return null;
-    fields.set(name, field.slice(2));
+    if (name === undefined || fields.has(name)) return null;
+    // A shorthand field (`{ playMove }`) is `playMove: playMove`.
+    if (field.length === 1 && IDENTIFIER.test(name)) fields.set(name, field);
+    else if (field[1] === ':') fields.set(name, field.slice(2));
+    else return null;
   }
   return fields;
 }
