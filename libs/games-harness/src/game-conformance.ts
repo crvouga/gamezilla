@@ -179,13 +179,62 @@ export function offersAll(
   );
 }
 
-/** One shared suite: a code suite or a shared specification, and what it needs. */
+/** One shared suite: a code suite or a shared specification, and whom it binds. */
 export type ConformanceSuite = {
   /** `conformance/<area>/<file>` or `specs/games/<file>` (any kind). */
   readonly id: string;
   readonly area: ConformanceArea;
-  readonly needs: readonly (ConformanceNeed | 'rules')[];
+  /** Whether the suite requires a case of `game`. */
+  readonly binds: (game: HarnessGame) => boolean;
 };
+
+/**
+ * A code suite as planning read it: for each game its area binds (by id),
+ * whether it registers a case of that game; `null` when the file never
+ * calls `forEveryGame`, so it binds nothing.
+ */
+export type PlannedCodeSuite = {
+  readonly id: string;
+  readonly area: ConformanceArea;
+  readonly registers: Readonly<Record<string, boolean>> | null;
+};
+
+/** The planned code suites as matrix suites: each binds the games it has a case of. */
+export function codeConformanceSuites(
+  planned: readonly PlannedCodeSuite[]
+): readonly ConformanceSuite[] {
+  return planned.map((suite) => ({
+    id: suite.id,
+    area: suite.area,
+    binds: (game) => suite.registers?.[game.shared.id] === true,
+  }));
+}
+
+/**
+ * Each shared specification as a suite of every capability it shows,
+ * binding the games offering all it needs. A specification the table does
+ * not list correctly binds nothing ({@link specificationTableProblems}).
+ */
+export function specificationConformanceSuites(
+  specUris: readonly string[],
+  table: Readonly<Record<string, readonly string[]>> = SHARED_SPECIFICATIONS
+): readonly ConformanceSuite[] {
+  return specUris.flatMap((uri) => {
+    const needs = table[sharedSpecificationStem(uri)];
+    if (needs === undefined || !needs.every(isNeed)) return [];
+    return capabilitiesOf(needs).map((area) => ({
+      id: uri,
+      area,
+      binds: (game: HarnessGame) => offersAll(game, needs),
+    }));
+  });
+}
+
+function isNeed(need: string): need is ConformanceNeed {
+  return (
+    (GAME_CAPABILITIES as readonly string[]).includes(need) || isTrait(need)
+  );
+}
 
 /** A cell of the matrix: how one game stands against one area. */
 export type ConformanceCell =
@@ -193,7 +242,7 @@ export type ConformanceCell =
   | { readonly status: 'unsupported' }
   /** Offered, and these shared suites bind the game. */
   | { readonly status: 'bound'; readonly suites: readonly string[] }
-  /** Offered, but no shared suite verifies it: a failure. */
+  /** Offered, but no shared suite requires a case of it: a failure. */
   | { readonly status: 'missing' };
 
 export type ConformanceRow = {
@@ -203,8 +252,9 @@ export type ConformanceRow = {
 
 /**
  * The game × capability matrix, derived only from what each game offers and
- * which shared suites exist: adding a game adds a row, adding a suite fills
- * cells, and an offered capability no suite verifies is `missing`.
+ * which shared suites require a case of it: adding a game adds a row, adding
+ * a suite fills cells, and an offered capability no suite requires a case
+ * of is `missing` — an empty suite file binds nothing.
  */
 export function conformanceMatrix(
   games: readonly HarnessGame[],
@@ -216,7 +266,7 @@ export function conformanceMatrix(
       if (area !== 'rules' && !offered.includes(area))
         return { status: 'unsupported' };
       const bound = suites
-        .filter((suite) => suite.area === area && offersAll(game, suite.needs))
+        .filter((suite) => suite.area === area && suite.binds(game))
         .map((suite) => suite.id);
       return bound.length === 0
         ? { status: 'missing' }
@@ -229,6 +279,147 @@ export function conformanceMatrix(
       ) as Record<ConformanceArea, ConformanceCell>,
     };
   });
+}
+
+/**
+ * The registered games and the harness games must be one list: each
+ * registered game held by the shared suites with its very definition.
+ */
+export function enrollmentProblems(
+  registered: readonly { readonly id: string }[],
+  harness: readonly HarnessGame[]
+): readonly string[] {
+  const out: string[] = [];
+  const harnessIds = new Set(harness.map((game) => game.shared.id));
+  const registeredIds = new Set(registered.map((game) => game.id));
+  for (const game of registered)
+    if (!harnessIds.has(game.id))
+      out.push(
+        `"${game.id}" is in GAME_DEFINITIONS but not HARNESS_GAMES — add its HarnessGame to HARNESS_GAMES (@libs/games-harness/harness-games) so the shared suites hold it`
+      );
+  for (const game of harness)
+    if (!registeredIds.has(game.shared.id))
+      out.push(
+        `"${game.shared.id}" (${game.label}) is in HARNESS_GAMES but not GAME_DEFINITIONS — register its defineTurnGame value, or list a test-only game beside the reference game (tests/conformance-world.ts)`
+      );
+  if (out.length > 0) return out;
+  for (const [index, game] of harness.entries()) {
+    const definition = registered[index];
+    if (definition?.id !== game.shared.id)
+      out.push(
+        `HARNESS_GAMES[${String(index)}] is "${game.shared.id}" but GAME_DEFINITIONS[${String(index)}] is "${String(definition?.id)}" — list the harness games in registry order`
+      );
+    else if (definition !== game.shared)
+      out.push(
+        `"${game.shared.id}": HARNESS_GAMES holds another definition than GAME_DEFINITIONS registers — use the registered defineTurnGame value itself`
+      );
+  }
+  return out;
+}
+
+/**
+ * The table of shared specifications must list each specification of
+ * `specs/games/` once, by what it shows, and nothing else.
+ */
+export function specificationTableProblems(
+  table: Readonly<Record<string, readonly string[]>>,
+  specUris: readonly string[]
+): readonly string[] {
+  const out: string[] = [];
+  const stems = new Set(specUris.map(sharedSpecificationStem));
+  for (const uri of specUris)
+    if (table[sharedSpecificationStem(uri)] === undefined)
+      out.push(
+        `${uri}: list the capabilities it shows in SHARED_SPECIFICATIONS (@libs/games-harness/game-conformance)`
+      );
+  const traits = Object.keys(GAME_TRAITS).join(', ');
+  for (const [stem, needs] of Object.entries(table)) {
+    const entry = `SHARED_SPECIFICATIONS["${stem}"]`;
+    if (!stems.has(stem))
+      out.push(
+        `${entry} names no specification in specs/games — remove it, or restore the specification`
+      );
+    if (needs.length === 0)
+      out.push(`${entry} lists nothing — list the capabilities it shows`);
+    for (const need of needs)
+      if (!isNeed(need))
+        out.push(
+          `${entry} lists "${need}", which is neither a capability (${GAME_CAPABILITIES.join(', ')}) nor a trait (${traits})`
+        );
+    if (needs.length > 0 && capabilitiesOf(needs.filter(isNeed)).length === 0)
+      out.push(
+        `${entry} lists no capability — a specification counts toward the capabilities it shows`
+      );
+  }
+  return out;
+}
+
+/** Code suites that require no case of any game they bind. */
+export function emptySuiteProblems(
+  planned: readonly PlannedCodeSuite[]
+): readonly string[] {
+  return planned.flatMap((suite) => {
+    if (suite.registers === null)
+      return [
+        `${suite.id} never calls forEveryGame — a conformance suite registers its cases through forEveryGame(import.meta.path, …)`,
+      ];
+    const bound = Object.keys(suite.registers);
+    return bound.length > 0 &&
+      bound.every((game) => suite.registers?.[game] !== true)
+      ? [
+          `${suite.id} registers no case for any game it binds (${bound.join(', ')}) — add its tests inside forEveryGame, or delete it`,
+        ]
+      : [];
+  });
+}
+
+/** Offered areas no shared suite or specification requires a case of. */
+export function missingEvidenceProblems(
+  rows: readonly ConformanceRow[]
+): readonly string[] {
+  return rows.flatMap((row) =>
+    CONFORMANCE_AREAS.filter(
+      (area) => row.cells[area].status === 'missing'
+    ).map((area) =>
+      area === 'rules'
+        ? `${row.game} is held to no rules suite — every game is; add one under tests/conformance/rules/`
+        : `${row.game} offers ${area} but no shared suite or specification requires a case of it — add a suite under tests/conformance/${area}/ or list a specs/games specification showing it in SHARED_SPECIFICATIONS`
+    )
+  );
+}
+
+/** Everything the conformance plan is derived from. */
+export type ConformancePlan = {
+  /** `GAME_DEFINITIONS`. */
+  readonly registered: readonly { readonly id: string }[];
+  /** `HARNESS_GAMES`. */
+  readonly harness: readonly HarnessGame[];
+  /** Every game the shared suites run: the harness games and test-only ones. */
+  readonly games: readonly HarnessGame[];
+  readonly codeSuites: readonly PlannedCodeSuite[];
+  /** Every specification of `specs/games/` a game is held to. */
+  readonly specifications: readonly string[];
+  readonly table: Readonly<Record<string, readonly string[]>>;
+};
+
+/** The plan's matrix and every way it falls short, each saying what to fix. */
+export function planConformance(plan: ConformancePlan): {
+  readonly matrix: readonly ConformanceRow[];
+  readonly problems: readonly string[];
+} {
+  const matrix = conformanceMatrix(plan.games, [
+    ...codeConformanceSuites(plan.codeSuites),
+    ...specificationConformanceSuites(plan.specifications, plan.table),
+  ]);
+  return {
+    matrix,
+    problems: [
+      ...enrollmentProblems(plan.registered, plan.harness),
+      ...specificationTableProblems(plan.table, plan.specifications),
+      ...emptySuiteProblems(plan.codeSuites),
+      ...missingEvidenceProblems(matrix),
+    ],
+  };
 }
 
 /** The matrix as a table: suites bound per cell, `—` unsupported, `MISSING`. */

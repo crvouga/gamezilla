@@ -33,6 +33,21 @@ export function gamesHeldTo(specUri: string): readonly HarnessGame[] {
 }
 
 /**
+ * The runs of a shared specification, one per game it holds for: the
+ * variant id is the game's id (its evidence, `scenario:<scenario> [<id>]`,
+ * `trace:<n> [<id>]`) and the label its name (its test, `<scenario>
+ * [<label>]`), so each game's result is its own.
+ */
+export function conformanceVariants(
+  specUri: string
+): readonly { readonly id: string; readonly label: string }[] {
+  return gamesHeldTo(specUri).map((game) => ({
+    id: game.shared.id,
+    label: game.label,
+  }));
+}
+
+/**
  * The conformance game a run is for, by the variant its runner gave it (a
  * scenario's or a model trace's): `run` names it in the failure.
  */

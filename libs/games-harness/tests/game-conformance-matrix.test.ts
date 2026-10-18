@@ -1,10 +1,13 @@
 /**
  * The game × capability conformance matrix, derived from what each game
- * offers and which shared suites exist, never from a list kept by hand: a
- * code suite is a file under `tests/conformance/<area>/`, a shared
- * specification any spec of `specs/games/` — a feature, a Quint model, a
- * decision table, a structure or an objective. An offered capability no
- * suite verifies fails; an unoffered one owes nothing.
+ * offers and which shared suites require a case of it, never from a list
+ * kept by hand: a code suite is a file under `tests/conformance/<area>/`,
+ * counted for a game only when it registers a case of it (read by planning,
+ * `planCodeSuites`); a shared specification is any spec of `specs/games/` —
+ * a feature, a Quint model, a decision table, a structure or an objective.
+ * An offered capability no suite requires a case of fails; an unoffered one
+ * owes nothing. The planner's own refusals are proven in
+ * `game-conformance-plan.test.ts`.
  */
 
 import { expect, test } from 'bun:test';
@@ -15,33 +18,23 @@ import type {
 } from '@libs/games-harness/game-conformance';
 import {
   CONFORMANCE_AREAS,
-  capabilitiesOf,
+  codeConformanceSuites,
   conformanceMatrix,
   formatConformanceMatrix,
+  planConformance,
   SHARED_SPECIFICATION_KINDS,
   SHARED_SPECIFICATIONS,
   sharedSpecificationNeeds,
-  sharedSpecificationStem,
+  specificationConformanceSuites,
 } from '@libs/games-harness/game-conformance';
-import { suiteArea, suiteName } from './conformance/game-suite';
+import { HARNESS_GAMES } from '@libs/games-harness/harness-games';
+import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
+import { planCodeSuites } from './conformance/game-suite';
 import { CONFORMANCE_GAMES, gamesHeldTo } from './conformance-world';
 import { COUNTING_RACE_GAME } from './reference-game/counting-race-game';
 
 const TESTS = import.meta.dir;
 const SHARED_SPECS = join(TESTS, '../../../specs/games');
-
-function codeSuites(): readonly ConformanceSuite[] {
-  return [...new Bun.Glob('conformance/*/*.test.ts').scanSync(TESTS)]
-    .sort()
-    .map((file) => {
-      const area = suiteArea(join(TESTS, file));
-      return {
-        id: `conformance/${area}/${suiteName(file)}`,
-        area,
-        needs: [area],
-      };
-    });
-}
 
 /** Every spec a game is held to (the glossary and events are not). */
 function sharedSpecifications(): readonly string[] {
@@ -54,19 +47,34 @@ function sharedSpecifications(): readonly string[] {
     .map((file) => `specs/games/${file}`);
 }
 
-function specificationSuites(): readonly ConformanceSuite[] {
-  return sharedSpecifications().flatMap((uri) => {
-    const needs = sharedSpecificationNeeds(uri);
-    return capabilitiesOf(needs).map((area) => ({ id: uri, area, needs }));
-  });
+/** Every shared suite; planning must run inside a test. */
+async function suites(): Promise<readonly ConformanceSuite[]> {
+  return [
+    ...codeConformanceSuites(await planCodeSuites(TESTS)),
+    ...specificationConformanceSuites(sharedSpecifications()),
+  ];
 }
 
-const SUITES = [...codeSuites(), ...specificationSuites()];
+test('the conformance plan is complete: enrollment, the specification table, every suite and every offered capability', async () => {
+  const { matrix, problems } = planConformance({
+    registered: GAME_DEFINITIONS,
+    harness: HARNESS_GAMES,
+    games: CONFORMANCE_GAMES,
+    codeSuites: await planCodeSuites(TESTS),
+    specifications: sharedSpecifications(),
+    table: SHARED_SPECIFICATIONS,
+  });
+  process.stdout.write(`\n${formatConformanceMatrix(matrix)}\n\n`);
+  expect(problems).toEqual([]);
+});
 
-test('every shared specification says what it shows, and nothing else is listed', () => {
-  expect(Object.keys(SHARED_SPECIFICATIONS).sort()).toEqual(
-    [...new Set(sharedSpecifications().map(sharedSpecificationStem))].sort()
-  );
+test('every code suite is planned with a case for some game it binds', async () => {
+  const planned = await planCodeSuites(TESTS);
+  expect(planned.length).toBeGreaterThan(0);
+  for (const suite of planned) {
+    expect(suite.registers).not.toBeNull();
+    expect(Object.values(suite.registers ?? {})).toContain(true);
+  }
 });
 
 test('a model, decision table, structure and objective are listed like features', () => {
@@ -88,26 +96,14 @@ test('an unlisted shared specification fails, whatever its kind', () => {
   );
 });
 
-test('every area the platform offers has a shared suite', () => {
+test('every area the platform offers has a shared suite', async () => {
+  const all = await suites();
   for (const area of CONFORMANCE_AREAS)
-    expect(SUITES.some((suite) => suite.area === area)).toBe(true);
+    expect(all.some((suite) => suite.area === area)).toBe(true);
 });
 
-test('every game is verified for everything it offers', () => {
-  const matrix = conformanceMatrix(CONFORMANCE_GAMES, SUITES);
-  process.stdout.write(`\n${formatConformanceMatrix(matrix)}\n\n`);
-  const missing = matrix.flatMap((row) =>
-    CONFORMANCE_AREAS.filter(
-      (area) => row.cells[area].status === 'missing'
-    ).map(
-      (area) => `${row.game} offers ${area} but no shared suite verifies it`
-    )
-  );
-  expect(missing).toEqual([]);
-});
-
-test('what a game does not offer is unsupported, not untested', () => {
-  const [row] = conformanceMatrix([COUNTING_RACE_GAME], SUITES);
+test('what a game does not offer is unsupported, not untested', async () => {
+  const [row] = conformanceMatrix([COUNTING_RACE_GAME], await suites());
   const statuses = Object.fromEntries(
     CONFORMANCE_AREAS.map((area) => [area, row!.cells[area].status])
   ) as Record<ConformanceArea, string>;
@@ -119,17 +115,17 @@ test('what a game does not offer is unsupported, not untested', () => {
   });
 });
 
-test('an offered capability without a suite is missing evidence', () => {
+test('an offered capability without a suite is missing evidence', async () => {
   const [row] = conformanceMatrix(
     [COUNTING_RACE_GAME],
-    SUITES.filter((suite) => suite.area !== 'history')
+    (await suites()).filter((suite) => suite.area !== 'history')
   );
   expect(row!.cells.history.status).toBe('missing');
   expect(row!.cells.matchmaking.status).toBe('unsupported');
 });
 
-test('a shared feature binds only games offering everything it shows', () => {
-  const [row] = conformanceMatrix([COUNTING_RACE_GAME], SUITES);
+test('a shared feature binds only games offering everything it shows', async () => {
+  const [row] = conformanceMatrix([COUNTING_RACE_GAME], await suites());
   const customGames = row!.cells['custom-games'];
   expect(customGames.status).toBe('bound');
   if (customGames.status === 'bound') {
@@ -143,7 +139,7 @@ test('a shared feature binds only games offering everything it shows', () => {
   }
 });
 
-test('a specification needing a trait binds only games whose fixtures show it', () => {
+test('a specification needing a trait binds only games whose fixtures show it', async () => {
   const cannotWin = 'specs/games/custom-game-cannot-win.feature';
   expect(sharedSpecificationNeeds(cannotWin)).toContain(
     'a side that cannot win'
@@ -154,7 +150,7 @@ test('a specification needing a trait binds only games whose fixtures show it', 
     ).map((game) => game.label)
   );
   // The reference game's sides can always win, so it owes nothing here.
-  const [row] = conformanceMatrix([COUNTING_RACE_GAME], SUITES);
+  const [row] = conformanceMatrix([COUNTING_RACE_GAME], await suites());
   const customGames = row!.cells['custom-games'];
   if (customGames.status === 'bound')
     expect(customGames.suites).not.toContain(cannotWin);

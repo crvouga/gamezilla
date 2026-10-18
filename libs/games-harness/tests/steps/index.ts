@@ -19,16 +19,14 @@ import '@libs/account-privacy-harness/exports.steps';
 import type { Actor } from '@libs/harness/parameter-types';
 import { useHarnessWorld } from '@libs/harness/spec-world';
 import { defineScenarioVariants } from '@pkgs/gherkin-shared/registry';
-import { gamesHeldTo, openConformanceHarness } from '../conformance-world';
+import {
+  conformanceVariants,
+  openConformanceHarness,
+} from '../conformance-world';
 import { customGameBeforeDeletion } from './custom-game-privacy.steps';
 import { deviceOffline, playsMatchedGames } from './matched-game-connection';
 
-defineScenarioVariants((ctx) =>
-  gamesHeldTo(ctx.featureUri).map((game) => ({
-    id: game.shared.id,
-    label: game.label,
-  }))
-);
+defineScenarioVariants((ctx) => conformanceVariants(ctx.featureUri));
 
 // Every `*.steps.ts` under this folder registers itself.
 const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);

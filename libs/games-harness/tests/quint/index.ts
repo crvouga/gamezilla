@@ -7,14 +7,12 @@
 
 import { useQuintHarness } from '@libs/harness/quint-world';
 import { defineTraceVariants } from '@pkgs/quint-shared/registry';
-import { gamesHeldTo, openConformanceHarness } from '../conformance-world';
+import {
+  conformanceVariants,
+  openConformanceHarness,
+} from '../conformance-world';
 
-defineTraceVariants(({ specUri }) =>
-  gamesHeldTo(specUri).map((game) => ({
-    id: game.shared.id,
-    label: game.label,
-  }))
-);
+defineTraceVariants(({ specUri }) => conformanceVariants(specUri));
 
 // Every `*.binding.ts` under this folder registers itself; a new one
 // needs no edit here.
