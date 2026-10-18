@@ -19,7 +19,6 @@
     "@libs/auth-shared": "workspace:*",
     "@libs/chess-puzzle-server": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
-    "@libs/game-session-server": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/sub-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
