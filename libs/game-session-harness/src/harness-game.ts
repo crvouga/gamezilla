@@ -1,7 +1,9 @@
+import type { GameClientRegistration } from '@libs/game-menu-client/game-client';
+import { assertGameClientDefinitions } from '@libs/game-menu-client/game-client';
 import type { TurnGameDefinition } from '@libs/game-session-shared/turn-game-definition';
+import { assertTurnGameDefinitions } from '@libs/game-session-shared/turn-game-definition';
 import type { ProductHarness } from '@libs/harness/harness';
 import type { HarnessSlice } from '@libs/harness/slices';
-import type { GameClientDefinition } from '@libs/spaces-shared/game';
 import type { CatalogAction } from '@pkgs/harness-root-shared/effect';
 import type { GameSide } from '@pkgs/turn-game-shared/game-rules';
 import { offeredCapabilities } from '@pkgs/turn-game-shared/game-rules';
@@ -84,7 +86,7 @@ export type PlayableGame = {
  */
 export type HarnessGame = PlayableGame & {
   /** The same client definition production registers. */
-  readonly client: GameClientDefinition;
+  readonly client: GameClientRegistration;
   /** The sub only this game's screens need, beside the shared ones. */
   readonly slice?: HarnessSlice;
   /** This game's own testing-tool actions. */
@@ -104,8 +106,12 @@ export function assertHarnessGame(game: HarnessGame): HarnessGame {
   const fail = (problem: string) => {
     throw new Error(`${game.label}: ${problem}`);
   };
+  assertTurnGameDefinitions(`${game.label}: shared`, [game.shared]);
+  assertGameClientDefinitions(`${game.label}: client`, [game.client]);
   if (game.shared.id !== game.client.id || game.shared.id !== rules.id)
-    fail('shared, client and rules ids differ');
+    fail(
+      `its definitions name different games (defineTurnGame "${game.shared.id}", defineGameClient "${game.client.id}", rules "${rules.id}") — give defineGameClient the rules' id`
+    );
   const { firstSideVictory, refusedOpenings } = game.fixtures;
   if (firstSideVictory.length < 2)
     fail('the first-side victory needs a move by each side');

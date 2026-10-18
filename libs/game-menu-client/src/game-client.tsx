@@ -50,22 +50,66 @@ export type GameClient = {
   readonly SessionEffects?: () => JSX.Element;
 };
 
+/**
+ * A game's client as the client registry lists it. Only
+ * {@link defineGameClient} makes one: its private brand is not copied by a
+ * spread or met by a hand-built object, so a registered client always has
+ * its screens checked and is offered through the one `GameMenu`.
+ */
+class DefinedGameClient implements GameClientDefinition {
+  readonly #defined = true;
+  readonly id: string;
+  readonly title: string;
+  readonly caption: string;
+  readonly presentation: GamePresentation<JSX.Element>;
+  readonly MainMenu: GameClientDefinition['MainMenu'];
+  declare readonly SessionEffects?: () => JSX.Element;
+
+  constructor(game: GameClient) {
+    this.id = game.id;
+    this.title = game.title;
+    this.caption = game.caption;
+    this.presentation = { ...game.presentation, id: game.id };
+    this.MainMenu = (props) => (
+      <GameMenu game={game} onBackToGames={props.onBackToGames} />
+    );
+    if (game.SessionEffects !== undefined)
+      this.SessionEffects = game.SessionEffects;
+  }
+
+  /** Whether `value` was made by {@link defineGameClient}. */
+  static made(value: unknown): value is DefinedGameClient {
+    return typeof value === 'object' && value !== null && #defined in value;
+  }
+}
+
+export type GameClientRegistration = DefinedGameClient;
+
 /** The one way a game joins the space's game choice. */
-export function defineGameClient(game: GameClient): GameClientDefinition {
+export function defineGameClient(game: GameClient): GameClientRegistration {
   assertGameScreens(game.id, [
     ...(game.choices ?? []).map((choice) => choice.screen),
     ...(game.screens ?? []).map((screen) => screen.screen),
   ]);
-  return {
-    id: game.id,
-    title: game.title,
-    caption: game.caption,
-    presentation: { ...game.presentation, id: game.id },
-    MainMenu: (props) => (
-      <GameMenu game={game} onBackToGames={props.onBackToGames} />
-    ),
-    ...(game.SessionEffects === undefined
-      ? {}
-      : { SessionEffects: game.SessionEffects }),
-  };
+  return new DefinedGameClient(game);
+}
+
+/**
+ * Fail, naming the entry, when a registry lists a client
+ * {@link defineGameClient} did not make (a copy, a hand-built object).
+ */
+export function assertGameClientDefinitions(
+  registry: string,
+  clients: readonly unknown[]
+): void {
+  for (const [index, client] of clients.entries()) {
+    if (DefinedGameClient.made(client)) continue;
+    const id =
+      typeof client === 'object' && client !== null && 'id' in client
+        ? String(client.id)
+        : '?';
+    throw new Error(
+      `${registry}[${String(index)}] (${id}) was not made by defineGameClient — register the game's defineGameClient(...) value itself, never a copy or a hand-built client`
+    );
+  }
 }

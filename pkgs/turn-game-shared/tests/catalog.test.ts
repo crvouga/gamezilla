@@ -24,6 +24,7 @@ const notice = {
   side: (side: string) => side,
   ending: () => undefined,
 };
+const history = { record: String };
 const matchmaking = (clockNamespace: string) => ({ clockNamespace, notice });
 const registration = (
   capabilities: TurnGameCapabilities,
@@ -36,7 +37,7 @@ test('rules are explicit and unknown, duplicate or ambiguous registrations fail 
     'Duplicate'
   );
   const rules = createTurnGames([
-    registration({ matchmaking: matchmaking('counter/') }),
+    registration({ matchmaking: matchmaking('counter/'), history }),
   ]);
   expect(rules.byId('counter')).toBe(game);
   expect(rules.forPosition('counter:0')).toBe(game);
@@ -57,22 +58,48 @@ test('a capability is offered only by a game that supplies it', () => {
 });
 
 test('a clock choice belongs only to a game offering matchmaking', () => {
-  const rules = createTurnGames([
-    registration({ history: { record: String } }),
-  ]);
+  const rules = createTurnGames([registration({ history })]);
   expect(() => rules.forControl('counter/5+0')).toThrow();
 });
 
 test('clock namespaces are the game id and never shared', () => {
   expect(() =>
-    createTurnGames([registration({ matchmaking: matchmaking('other/') })])
-  ).toThrow('is not "counter/"');
-  expect(() =>
     createTurnGames([
-      registration({ matchmaking: matchmaking('') }),
-      registration({ matchmaking: matchmaking('') }, rulesOf('second')),
+      registration({ matchmaking: matchmaking('other/'), history }),
     ])
-  ).toThrow('is taken');
+  ).toThrow('clock namespace "other/" is not "counter/"');
+  const unprefixed = (rules: GameRules): RegisteredTurnGame => ({
+    ...registration({ matchmaking: matchmaking(''), history }, rules),
+    unprefixedClockNamespace: true,
+  });
+  expect(() =>
+    createTurnGames([unprefixed(game), unprefixed(rulesOf('second'))])
+  ).toThrow('second: clock namespace "" is taken');
+});
+
+test('only the game granted it keeps the unprefixed clock namespace', () => {
+  expect(() =>
+    createTurnGames([registration({ matchmaking: matchmaking(''), history })])
+  ).toThrow(
+    `counter: the unprefixed clock namespace "" belongs to the platform's durable game alone — use "counter/"`
+  );
+  const granted = createTurnGames([
+    {
+      ...registration({ matchmaking: matchmaking(''), history }),
+      unprefixedClockNamespace: true,
+    },
+  ]);
+  expect(granted.forControl('5+0')).toBe(game);
+});
+
+test('finding an opponent is refused without history, whose record every matched game offers', () => {
+  // A cast stands for JavaScript or a widened value: the type refuses it.
+  const capabilities = {
+    matchmaking: matchmaking('counter/'),
+  } as unknown as TurnGameCapabilities;
+  expect(() => createTurnGames([registration(capabilities)])).toThrow(
+    'counter: offering matchmaking needs history too (every finished matched game offers its game record) — add capabilities.history'
+  );
 });
 
 test('a game whose starting position another game claims is refused', () => {

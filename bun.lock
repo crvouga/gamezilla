@@ -1623,6 +1623,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -1675,6 +1676,7 @@
         "@libs/friends-shared": "workspace:*",
         "@libs/game-matchmaking-client": "workspace:*",
         "@libs/game-matchmaking-harness": "workspace:*",
+        "@libs/game-menu-client": "workspace:*",
         "@libs/game-session-client": "workspace:*",
         "@libs/game-session-server": "workspace:*",
         "@libs/game-session-shared": "workspace:*",
@@ -1760,6 +1762,7 @@
       "dependencies": {
         "@libs/chess-root-client": "workspace:*",
         "@libs/connect-four-client": "workspace:*",
+        "@libs/game-menu-client": "workspace:*",
         "@libs/games-shared": "workspace:*",
         "@libs/spaces-shared": "workspace:*",
       },
@@ -1803,6 +1806,7 @@
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
         "@pkgs/dmn-shared": "workspace:*",
+        "@pkgs/gherkin-server": "workspace:*",
         "@pkgs/gherkin-shared": "workspace:*",
         "@pkgs/matchmaking-sql-shared": "workspace:*",
         "@pkgs/message-shared": "workspace:*",

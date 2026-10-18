@@ -24,9 +24,15 @@ type Step = {
   readonly position: string;
   readonly label: string;
   readonly winner: string | null;
+  readonly reason: string | null;
 };
 
-function law(game: HarnessGame, name: string, check: () => void): GameLaw {
+/** A law of `game` named `name`: `check` throws when the game breaks it. */
+export function law(
+  game: HarnessGame,
+  name: string,
+  check: () => void
+): GameLaw {
   return {
     name,
     check: () => {
@@ -39,7 +45,8 @@ function law(game: HarnessGame, name: string, check: () => void): GameLaw {
   };
 }
 
-function must(holds: boolean, problem: string): void {
+/** Fail with `problem` unless the law `holds`. */
+export function must(holds: boolean, problem: string): void {
   if (!holds) throw new Error(problem);
 }
 
@@ -47,7 +54,7 @@ const same = (a: unknown, b: unknown) =>
   JSON.stringify(a) === JSON.stringify(b);
 
 /** The game from its start, taking the `picks`-th legal action each turn. */
-function walk(rules: GameRules, picks: readonly number[]) {
+export function walk(rules: GameRules, picks: readonly number[]) {
   let position = rules.initial();
   let history = '';
   const actions: string[] = [];
@@ -64,13 +71,19 @@ function walk(rules: GameRules, picks: readonly number[]) {
     actions.push(action);
     position = played!.position;
     history = played!.history;
-    steps.push({ position, label: played!.label, winner: played!.winner });
+    steps.push({
+      position,
+      label: played!.label,
+      winner: played!.winner,
+      reason: played!.reason,
+    });
     if (played!.winner !== null) break;
   }
   return { actions, steps, position, history };
 }
 
-const picks = fc.array(fc.nat(), { maxLength: WALK_PLIES });
+/** Choices of a drawn walk (`walk`): the legal action each turn takes. */
+export const picks = fc.array(fc.nat(), { maxLength: WALK_PLIES });
 const draw = fc.double({ min: 0, max: 1, maxExcluded: true, noNaN: true });
 /** Actions a person, a stale client or a hostile one might send. */
 const strangers = fc.oneof(

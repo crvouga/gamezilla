@@ -38,7 +38,7 @@ describe('game plugin contract', () => {
     ).not.toThrow();
   });
 
-  test('shared and client registries must line up by id', () => {
+  test('shared and client registries must line up by id, saying which entry to fix', () => {
     expect(() =>
       assertMatchingGameIds(
         [dummyGame('a'), dummyGame('b')],
@@ -47,9 +47,21 @@ describe('game plugin contract', () => {
     ).not.toThrow();
     expect(() =>
       assertMatchingGameIds([dummyGame('a'), dummyGame('b')], [dummyGame('a')])
-    ).toThrow('length mismatch');
+    ).toThrow(
+      'game registry: "b" is in GAME_DEFINITIONS but has no client — add its defineGameClient(...) value to GAME_CLIENT_DEFINITIONS at index 1'
+    );
     expect(() =>
-      assertMatchingGameIds([dummyGame('a')], [dummyGame('b')])
-    ).toThrow('does not match client id');
+      assertMatchingGameIds([dummyGame('a')], [dummyGame('a'), dummyGame('c')])
+    ).toThrow(
+      'game registry: client "c" has no turn game — register its defineTurnGame(...) value in GAME_DEFINITIONS, or give defineGameClient the id of the game it shows'
+    );
+    expect(() =>
+      assertMatchingGameIds(
+        [dummyGame('a'), dummyGame('b')],
+        [dummyGame('b'), dummyGame('a')]
+      )
+    ).toThrow(
+      'game registry: GAME_CLIENT_DEFINITIONS[0] is "b" but GAME_DEFINITIONS[0] is "a" — list the clients in the order of GAME_DEFINITIONS'
+    );
   });
 });

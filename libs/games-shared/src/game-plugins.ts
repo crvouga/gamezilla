@@ -1,6 +1,7 @@
 import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
 import { connectFourGameShared } from '@libs/connect-four-shared/connect-four-game';
 import type { TurnGameDefinition } from '@libs/game-session-shared/turn-game-definition';
+import { assertTurnGameDefinitions } from '@libs/game-session-shared/turn-game-definition';
 import { assertGameRegistry } from '@libs/spaces-shared/load-game-plugins';
 
 /**
@@ -15,3 +16,4 @@ export const GAME_DEFINITIONS = [
 ] as const satisfies readonly TurnGameDefinition[];
 
 assertGameRegistry(GAME_DEFINITIONS);
+assertTurnGameDefinitions('GAME_DEFINITIONS', GAME_DEFINITIONS);

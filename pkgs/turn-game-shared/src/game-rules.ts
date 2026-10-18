@@ -107,22 +107,44 @@ export type HistoryCapability = {
  * What the shared platform offers for a turn game, each with what it needs
  * from the game. A capability is offered exactly when it is present: the
  * platform shows, accepts and tests nothing for an absent one, and a game
- * never supplies a placeholder for what it does not offer.
+ * never supplies a placeholder for what it does not offer. Finding an
+ * opponent needs history: every finished matched game offers its game
+ * record, which only `history.record` writes.
  */
 export type TurnGameCapabilities = {
   readonly 'custom-games'?: CustomGamesCapability;
-  readonly matchmaking?: MatchmakingCapability;
-  readonly history?: HistoryCapability;
-};
+} & (
+  | {
+      readonly matchmaking: MatchmakingCapability;
+      readonly history: HistoryCapability;
+    }
+  | {
+      readonly matchmaking?: never;
+      readonly history?: HistoryCapability;
+    }
+);
 export type GameCapability = keyof TurnGameCapabilities;
 export const GAME_CAPABILITIES = [
   'custom-games',
   'matchmaking',
   'history',
 ] as const satisfies readonly GameCapability[];
+/**
+ * What each capability needs offered beside it: matched games offer a game
+ * record, so finding an opponent needs history.
+ */
+export const CAPABILITY_REQUIRES: Readonly<
+  Partial<Record<GameCapability, readonly GameCapability[]>>
+> = { matchmaking: ['history'] };
 export type RegisteredTurnGame = {
   readonly rules: GameRules;
   readonly capabilities: TurnGameCapabilities;
+  /**
+   * The one game whose stored clock choices, searches and ratings predate
+   * clock namespaces keeps the unprefixed namespace `''`; every other game's
+   * is `'<id>/'`. Only the composition granting it may set this.
+   */
+  readonly unprefixedClockNamespace?: true;
 };
 /** The capabilities `game` offers, in the platform's order. */
 export function offeredCapabilities(
@@ -146,19 +168,40 @@ export type TurnGames = {
     capability: C
   ) => TurnGameCapabilities[C] | undefined;
 };
+/** Fail when a game offers a capability without what it needs beside it. */
+function assertRequirements(game: RegisteredTurnGame): void {
+  for (const [capability, needs] of Object.entries(CAPABILITY_REQUIRES))
+    for (const need of needs ?? [])
+      if (
+        game.capabilities[capability as GameCapability] !== undefined &&
+        game.capabilities[need] === undefined
+      )
+        throw new Error(
+          `${game.rules.id}: offering ${capability} needs ${need} too (every finished matched game offers its game record) — add capabilities.${need}`
+        );
+}
+
+/** The clock namespace `game` may use. */
+function assertClockNamespace(game: RegisteredTurnGame, namespace: string) {
+  const id = game.rules.id;
+  if (namespace === '' && game.unprefixedClockNamespace !== true)
+    throw new Error(
+      `${id}: the unprefixed clock namespace "" belongs to the platform's durable game alone — use "${id}/"`
+    );
+  if (namespace !== '' && namespace !== `${id}/`)
+    throw new Error(`${id}: clock namespace "${namespace}" is not "${id}/"`);
+}
+
 /** Fail when the registered games cannot be told apart by id, position or clock. */
 function assertDistinct(games: readonly RegisteredTurnGame[]): void {
   if (new Set(games.map((g) => g.rules.id)).size !== games.length)
     throw new Error('Duplicate game rules');
   const namespaces = new Set<string>();
   for (const game of games) {
+    assertRequirements(game);
     const namespace = game.capabilities.matchmaking?.clockNamespace;
     if (namespace === undefined) continue;
-    // Chess keeps the unprefixed namespace of its stored searches and ratings.
-    if (namespace !== `${game.rules.id}/` && namespace !== '')
-      throw new Error(
-        `${game.rules.id}: clock namespace "${namespace}" is not "${game.rules.id}/"`
-      );
+    assertClockNamespace(game, namespace);
     if (namespaces.has(namespace))
       throw new Error(
         `${game.rules.id}: clock namespace "${namespace}" is taken`

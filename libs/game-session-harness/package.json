@@ -21,6 +21,7 @@
     "@libs/friends-shared": "workspace:*",
     "@libs/game-matchmaking-client": "workspace:*",
     "@libs/game-matchmaking-harness": "workspace:*",
+    "@libs/game-menu-client": "workspace:*",
     "@libs/game-session-client": "workspace:*",
     "@libs/game-session-server": "workspace:*",
     "@libs/game-session-shared": "workspace:*",

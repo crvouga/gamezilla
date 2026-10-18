@@ -9,9 +9,14 @@
  * unsupported capability too.
  */
 
+import type { GameClient } from '@libs/game-menu-client/game-client';
 import { defineGameClient } from '@libs/game-menu-client/game-client';
-import type { HarnessGame } from '@libs/game-session-harness/harness-game';
+import type {
+  GameFixtures,
+  HarnessGame,
+} from '@libs/game-session-harness/harness-game';
 import { assertHarnessGame } from '@libs/game-session-harness/harness-game';
+import type { TurnGame } from '@libs/game-session-shared/turn-game-definition';
 import { defineTurnGame } from '@libs/game-session-shared/turn-game-definition';
 import type { GameBoardProps } from '@pkgs/turn-game-shared/game-presentation';
 import type { GameRules } from '@pkgs/turn-game-shared/game-rules';
@@ -24,7 +29,7 @@ import type { JSX } from 'solid-js';
 const FINISH = 7;
 const count = (position: string) => Number(position.slice('race:'.length));
 
-const rules: GameRules = {
+export const COUNTING_RACE_RULES: GameRules = {
   id: 'counting-race',
   recognizes: (position) => /^race:[0-7]$/.test(position),
   initial: () => 'race:0',
@@ -74,51 +79,62 @@ function Board(props: GameBoardProps): JSX.Element {
 const sideLabel = (side: 'white' | 'black') =>
   side === 'white' ? 'Hare' : 'Tortoise';
 
+/**
+ * What the reference game hands `defineTurnGame` and `defineGameClient`:
+ * a faulty copy (`faulty-games.test.ts`) changes one part and is defined
+ * through the same constructors, as any game would be.
+ */
+export const COUNTING_RACE_TURN_GAME: TurnGame = {
+  rules: COUNTING_RACE_RULES,
+  capabilities: {
+    'custom-games': {
+      bots: { difficulties: ['easy'], choose: advance },
+    },
+    history: { record: (position) => position },
+  },
+  automation: {
+    choose: advance,
+    async perform(ui, board, action) {
+      await ui.get(`${board}-${action}`).tap();
+    },
+  },
+};
+
+export const COUNTING_RACE_CLIENT: GameClient = {
+  id: COUNTING_RACE_RULES.id,
+  title: 'Counting race',
+  caption: 'Count to seven first',
+  subtitle: () => 'Take turns counting on.',
+  presentation: {
+    canFlip: false,
+    name: () => 'Counting race',
+    Board,
+    sideLabel,
+    endingDescription: (reason) =>
+      reason === 'finish line' ? 'First to seven.' : undefined,
+    timeoutDrawDescription: () => 'Drawn on time.',
+    endingLabel: () => 'finish line',
+  },
+};
+
+export const COUNTING_RACE_FIXTURES: GameFixtures = {
+  firstSideVictory: [
+    'advance',
+    'advance',
+    'advance',
+    'advance',
+    'advance',
+    'advance',
+    'advance',
+  ],
+  // Each count is written as the step it reaches.
+  firstSideVictoryLabels: [1, 2, 3, 4, 5, 6, 7].map((step) => `step ${step}`),
+  refusedOpenings: ['retreat', ''],
+};
+
 export const COUNTING_RACE_GAME: HarnessGame = assertHarnessGame({
   label: 'counting race',
-  shared: defineTurnGame({
-    rules,
-    capabilities: {
-      'custom-games': {
-        bots: { difficulties: ['easy'], choose: advance },
-      },
-      history: { record: (position) => position },
-    },
-    automation: {
-      choose: advance,
-      async perform(ui, board, action) {
-        await ui.get(`${board}-${action}`).tap();
-      },
-    },
-  }),
-  client: defineGameClient({
-    id: rules.id,
-    title: 'Counting race',
-    caption: 'Count to seven first',
-    subtitle: () => 'Take turns counting on.',
-    presentation: {
-      canFlip: false,
-      name: () => 'Counting race',
-      Board,
-      sideLabel,
-      endingDescription: (reason) =>
-        reason === 'finish line' ? 'First to seven.' : undefined,
-      timeoutDrawDescription: () => 'Drawn on time.',
-      endingLabel: () => 'finish line',
-    },
-  }),
-  fixtures: {
-    firstSideVictory: [
-      'advance',
-      'advance',
-      'advance',
-      'advance',
-      'advance',
-      'advance',
-      'advance',
-    ],
-    // Each count is written as the step it reaches.
-    firstSideVictoryLabels: [1, 2, 3, 4, 5, 6, 7].map((step) => `step ${step}`),
-    refusedOpenings: ['retreat', ''],
-  },
+  shared: defineTurnGame(COUNTING_RACE_TURN_GAME),
+  client: defineGameClient(COUNTING_RACE_CLIENT),
+  fixtures: COUNTING_RACE_FIXTURES,
 });
