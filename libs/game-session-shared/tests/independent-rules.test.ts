@@ -149,3 +149,54 @@ test('an unrelated game uses the same configuration, bot turns, completion and r
   expect(CustomGamesAttr.from(state).current?.fen).toBe('race:0');
   expect(CustomGamesAttr.from(state).history).toEqual([game]);
 });
+
+/**
+ * Game history lists each finished game once (`useGameRecords` lists the
+ * room's history beside matched games without merging by id). A finished
+ * game leaves `current` for the history in the one transition that
+ * replaces it; a repeated or competing request for a new game finds the
+ * new one in place and is refused, so nothing is appended twice.
+ */
+test('a finished game enters the history once, however often a new game is asked for', () => {
+  const room = raceRoom({ 'custom-games': { bots } });
+  const module = room.module;
+  let state = room.state;
+  const send = (id: string, input: Record<string, unknown>, ts = 0) => {
+    const game = CustomGamesAttr.from(state).current;
+    const result = module.handle(
+      state,
+      {
+        id,
+        ts,
+        payload: ChangeCustomGame({
+          gameId: game?.id ?? null,
+          revision: game?.revision ?? 0,
+          ...input,
+        } as Parameters<typeof ChangeCustomGame>[0]),
+      },
+      'alice'
+    );
+    if (result.ok)
+      for (const event of result.events) state = module.reduce(state, event);
+    return result.ok;
+  };
+  expect(send('create-1', { operation: 'create' })).toBe(true);
+  expect(send('cancel-1', { operation: 'cancel' })).toBe(true);
+  const first = CustomGamesAttr.from(state).current!;
+  expect(first.status).toBe('cancelled');
+
+  expect(send('rematch-1', { operation: 'rematch' })).toBe(true);
+  // The same request again, and a competing one, both find the new game.
+  expect(send('rematch-1', { operation: 'rematch' })).toBe(false);
+  expect(send('create-2', { operation: 'create' })).toBe(false);
+  expect(CustomGamesAttr.from(state).history.map((g) => g.id)).toEqual([
+    first.id,
+  ]);
+
+  expect(send('cancel-2', { operation: 'cancel' })).toBe(true);
+  const second = CustomGamesAttr.from(state).current!;
+  expect(send('create-3', { operation: 'create' })).toBe(true);
+  const history = CustomGamesAttr.from(state).history.map((g) => g.id);
+  expect(history).toEqual([first.id, second.id]);
+  expect(new Set(history).size).toBe(history.length);
+});
