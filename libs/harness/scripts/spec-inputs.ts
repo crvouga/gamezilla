@@ -11,7 +11,8 @@ import {
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { quintImportPaths } from '@pkgs/quint-shared/imports';
-import { partOf, type SpecUnit, specUnits } from './spec-parts';
+import { packageSpecUnits } from './replay-plans';
+import { partOf, type SpecUnit } from './spec-parts';
 import { packageSpecs, type SpecManifest } from './spec-sources';
 
 /** Imported models participate even when they live outside the owning domain. */
@@ -92,9 +93,7 @@ function packageInputValues(dir: string, root: string): Record<string, string> {
   const count: number | undefined = manifest.specParts;
   if (!count) return {};
   const paths = packageSpecs(dir, root);
-  const units = paths.flatMap((path) =>
-    specUnits(path, readFileSync(path, 'utf8'), count)
-  );
+  const units = packageSpecUnits(dir, paths, count);
   const values: Record<string, string> = {};
   for (let index = 0; index < count; index++)
     values[`part-${index}.json`] = specInputManifest(

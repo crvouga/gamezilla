@@ -839,14 +839,18 @@ Beyond that class:
   game's. Chess keeps only its own puzzle and Lichess models; a model that
   moves takes its model-check task and its share of chess's spec parts to
   `@libs/games-harness`, which the PR runner's capacity (`ci-load.ts`)
-  needs. A suite's parts are bounded below by its models (sixteen traces
-  to a part, and chess's four to a file): chess's seven keep it at 32,
-  games' sixteen at 64, each model checked in a task of its own (seven
-  and sixteen model-check tasks, the matched-game model's sixteen phases
-  apart); the puzzle attempt model's one extra part came from billing's
-  24, which its light suite allows. The link, result-recovery and sound
-  models took eight parts more than chess gave up (241 spec tasks became
-  249), past the PR runner's estimated fit (`docs/CI_REQUIREMENTS.md`).
+  needs. Both suites plan their models' replays
+  (`tests/quint/replays.json`, written by
+  `libs/harness/scripts/model-replays.ts --write`): what each model's
+  tests replay on the pinned seed, once per game it holds for, so a part
+  is sized by the replays it runs in the pull-request gate and nightly,
+  not by a fixed count of drawn traces; a model's run fails when its draw
+  no longer matches the plan. Each suite runs in the fewest parts whose
+  replays (sixteen to a part, four to a file, four times as many nightly)
+  and scenario load (`PART_LOAD` in `libs/harness/scripts/spec-parts.ts`)
+  stay inside their caps: chess 7, games 41. Each model is still checked
+  in a task of its own (seven and sixteen model-check tasks, the
+  matched-game model's sixteen phases apart).
 - The game models follow a first-side victory of exactly seven moves
   (Connect Four's shortest), so every game supplies one; a game whose
   victories all take longer needs the models' bound raised with it. The

@@ -14,11 +14,13 @@ import { readEvidence } from '@pkgs/conformance-server/evidence-store';
 import { runQuintModel } from '@pkgs/quint-server/bun-test';
 import { simulate } from '@pkgs/quint-server/simulate';
 import {
+  replayPlanOf,
   runContext,
   runInSlice,
   runName,
   runObligation,
   runsOfTrace,
+  sliceReplays,
 } from '@pkgs/quint-server/trace-runs';
 import type { QuintBinding, TraceContext } from '@pkgs/quint-shared/registry';
 import {
@@ -153,6 +155,54 @@ describe('a model its host varies', () => {
       expect(ctx.testId.endsWith(`.${ctx.variant!.id}`)).toBe(true);
       expect(ctx.title.endsWith(`[${ctx.variant!.label}]`)).toBe(true);
     }
+  });
+});
+
+describe('the replay plan the spec parts are sized by', () => {
+  const drawn = simulate({
+    specPath: FIXTURE,
+    traces: TRACES,
+    maxSteps: MAX_STEPS,
+    outDir: join(OUT, 'plan'),
+  });
+  const plan = replayPlanOf(
+    drawn,
+    binding,
+    VARIANTS.map((variant) => ({ variant }))
+  );
+  const whole = { index: 0, count: 1 };
+
+  test('counts what the exploring run replayed, the determinism check twice', () => {
+    const ids = readEvidence(OUT)
+      .records.filter((record) => record.specUri === SPEC_URI)
+      .flatMap((record) => record.obligations.map((o) => o.id));
+    const replays =
+      ids.filter((id) => /^(trace:\d+|regression:\S+) \[/.test(id)).length +
+      2 * ids.filter((id) => id.startsWith('determinism [')).length;
+    expect(sliceReplays(plan, 'nightly', whole)).toBe(replays);
+  });
+
+  test('the gate replays the cover, each history and the determinism check per variant', () => {
+    expect(plan).toMatchObject({
+      traces: TRACES,
+      regressions: 1,
+      determinism: true,
+      variants: VARIANTS.length,
+    });
+    expect(plan.replayed).toEqual(plan.cover);
+    expect(sliceReplays(plan, 'pr', whole)).toBe(
+      VARIANTS.length * (plan.cover.length + 1 + 2)
+    );
+  });
+
+  test('every slicing deals each replay to exactly one file', () => {
+    for (const profile of ['pr', 'nightly'] as const)
+      for (let count = 1; count <= 8; count++) {
+        let sum = 0;
+        for (let index = 0; index < count; index++)
+          sum += sliceReplays(plan, profile, { index, count });
+        expect(sum).toBe(sliceReplays(plan, profile, whole));
+      }
   });
 });
 

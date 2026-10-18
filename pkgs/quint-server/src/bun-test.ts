@@ -45,9 +45,10 @@ import type { RecordObligation } from './model-evidence';
 import { decide, modelEvidence } from './model-evidence';
 import { registerRegressionTraces } from './regression-tests';
 import { simulate } from './simulate';
-import type { TraceRun, TraceSlice } from './trace-runs';
+import type { ReplayPlan, TraceRun, TraceSlice } from './trace-runs';
 import {
   ONCE,
+  replayPlanOf,
   runContext,
   runInSlice,
   runName,
@@ -81,6 +82,13 @@ export type RunModelOptions = {
    * value is the smallest selection that takes every bound action.
    */
   readonly replayTraces?: number;
+  /**
+   * The replays the package's spec parts were sized for
+   * (`tests/quint/replays.json`); `null` when the package plans its models'
+   * replays but not this one's. Slice 0 fails when the draw on the plan's
+   * seed replays otherwise, so a part's load never silently outgrows it.
+   */
+  readonly replayPlan?: ReplayPlan | null;
 };
 
 type Binding = QuintBinding<unknown>;
@@ -196,6 +204,8 @@ function registerReplays(input: {
     runs,
   };
   if (first) registerModelWide(registration);
+  if (first && options.replayPlan !== undefined)
+    registerPlanCheck(options, replayPlanOf(drawn, binding, runs));
   registerDeterminism({
     ...registration,
     // An unvaried model checks it with the draw as a whole, in slice 0.
@@ -288,6 +298,20 @@ function registerModelWide(input: Registration): void {
         return `${Object.keys(binding.actions).join(', ')} taken`;
       },
     }));
+}
+
+/** The committed plan describes this draw, unless the run drew another seed. */
+function registerPlanCheck(options: RunModelOptions, actual: ReplayPlan): void {
+  const planned = options.replayPlan;
+  if (planned !== null && planned !== undefined && planned.seed !== actual.seed)
+    return;
+  test('replays what the spec parts plan', () => {
+    if (Bun.deepEquals(planned, actual)) return;
+    const model = basename(options.specPath, '.qnt');
+    throw new Error(
+      `${options.specUri}: tests/quint/replays.json plans ${JSON.stringify(planned)} but the draw replays ${JSON.stringify(actual)} — run \`bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client/register ../../libs/harness/scripts/model-replays.ts --write\` in the package (it sets "${model}"), then re-plan its specParts`
+    );
+  });
 }
 
 /** Each run's determinism check: the longest trace replayed twice alike. */

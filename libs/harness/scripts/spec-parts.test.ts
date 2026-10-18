@@ -1,20 +1,28 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
-import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
-import { SPEC_GLOBS } from './spec-check-kinds';
+import type { ReplayPlan } from '@pkgs/quint-server/trace-runs';
+import { sliceReplays } from '@pkgs/quint-server/trace-runs';
+import { packageSpecUnits, readReplayPlans } from './replay-plans';
 import type { SpecUnit } from './spec-parts';
 import {
   CHECK_WEIGHT,
+  MODEL_FILE_REPLAYS,
   MODEL_SLICES,
   MODEL_WEIGHT,
   modelDrawBatches,
+  NIGHTLY_REPLAY_SCALE,
+  PART_LOAD,
+  PART_REPLAYS,
+  partLoad,
   partOf,
+  plannedModelUnits,
   SLICE_SCENARIOS,
   specUnits,
   specWeight,
+  TRACE_WEIGHT,
 } from './spec-parts';
+import { packageSpecs } from './spec-sources';
 
 describe('specWeight', () => {
   test('counts scenarios and outline example rows', () => {
@@ -75,6 +83,73 @@ describe('specUnits', () => {
         { path, weight: CHECK_WEIGHT },
       ]);
     }
+  });
+});
+
+describe('a planned model', () => {
+  // Three games; traces 1 and 4 of ten take every bound action; two pinned
+  // histories; a determinism check replaying its trace twice.
+  const plan: ReplayPlan = {
+    seed: '0x2a',
+    traces: 10,
+    cover: [1, 4],
+    replayed: [1, 4],
+    regressions: 2,
+    determinism: true,
+    variants: 3,
+  };
+  const sum = (units: readonly SpecUnit[], profile: 'pr' | 'nightly') =>
+    units.reduce((total, unit) => total + unit.replays![profile], 0);
+
+  test('counts the replays the gate runs for every variant, not the draw', () => {
+    // Per game: the two covering traces, the two histories, the check twice.
+    expect(sliceReplays(plan, 'pr', { index: 0, count: 1 })).toBe(3 * 6);
+    // Nightly adds the eight other traces, each for one game in turn.
+    expect(sliceReplays(plan, 'nightly', { index: 0, count: 1 })).toBe(
+      3 * 6 + 8
+    );
+  });
+
+  test('spreads them over the fewest files of at most MODEL_FILE_REPLAYS', () => {
+    const units = plannedModelUnits('specs/g/m.qnt', plan);
+    expect(sum(units, 'pr')).toBe(18);
+    expect(sum(units, 'nightly')).toBe(26);
+    expect(units.every((unit) => unit.replays!.pr <= MODEL_FILE_REPLAYS)).toBe(
+      true
+    );
+    const fewer = units.length - 1;
+    expect(
+      Array.from({ length: fewer }, (_, index) =>
+        sliceReplays(plan, 'pr', { index, count: fewer })
+      ).some((replays) => replays > MODEL_FILE_REPLAYS)
+    ).toBe(true);
+    for (const unit of units)
+      expect(unit.weight).toBe(
+        TRACE_WEIGHT *
+          Math.max(
+            unit.replays!.pr,
+            unit.replays!.nightly / NIGHTLY_REPLAY_SCALE
+          )
+      );
+  });
+
+  test('a package that plans replays sizes its models by them', () => {
+    expect(specUnits('specs/g/m.qnt', '', 64, plan)).toEqual(
+      plannedModelUnits('specs/g/m.qnt', plan)
+    );
+    // Unplanned, a model stays the fixed draw it always was.
+    expect(specUnits('specs/g/m.qnt', '', 1, null)).toEqual(
+      specUnits('specs/g/m.qnt', '', 1)
+    );
+  });
+
+  test('a part counts a gate replay as TRACE_WEIGHT scenario units', () => {
+    const units = plannedModelUnits('specs/g/m.qnt', plan);
+    expect(partLoad([...units, { path: 'a.feature', weight: 5 }])).toEqual({
+      load: 5 + TRACE_WEIGHT * 18,
+      pr: 18,
+      nightly: 26,
+    });
   });
 });
 
@@ -207,114 +282,85 @@ describe('partOf', () => {
   });
 
   /**
-   * The suites whose part counts their model traces decide: every trace of
-   * every model runs once, a part replays at most sixteen (a part of twelve
-   * took at most 332 s on the 2-core runner, Check run 38187450396, so
-   * sixteen stay near 443 s inside the 600 s cap; twenty was the miss), and
-   * a model file holds at most `unitTraces` of them. The shared games suite
-   * replays each trace for one game, and the traces taking every action for
-   * each game, in the same parts. Chess, down to its seven puzzle and
-   * Lichess models, keeps four traces to a file: sixteen to a part, as
-   * before.
+   * The suites that plan their models' replays (`tests/quint/replays.json`):
+   * every replay of every model runs in exactly one file, a file holds at
+   * most MODEL_FILE_REPLAYS gate replays, and a part at most PART_REPLAYS of
+   * them (NIGHTLY_REPLAY_SCALE times as many nightly) and PART_LOAD scenario
+   * units. Each suite runs in the fewest parts those caps allow. The shared
+   * games suite replays every model once per game it holds for, so its
+   * replays are counted per game.
    */
-  const TRACE_CAPPED_SUITES = [
-    { dir: 'libs/chess-root-harness', unitTraces: 4 },
-    { dir: 'libs/games-harness', unitTraces: 4 },
+  const PLANNED_SUITES = [
+    'libs/chess-root-harness',
+    'libs/games-harness',
   ] as const;
 
-  test.each(TRACE_CAPPED_SUITES)(
-    '$dir keeps model traces inside the 600s task cap',
-    ({ dir, unitTraces }) => {
+  test.each(PLANNED_SUITES)(
+    '%s keeps every part inside its replay and load caps',
+    (dir) => {
       // regression: chess-spec-trace-batches — 32 parts put 20 traces in one task.
       // regression: chess-spec-slice-weight
       // regression: network-model-overfills-chess-shard
-      const manifest = JSON.parse(
-        readFileSync(
-          join(import.meta.dir, '../../..', dir, 'package.json'),
-          'utf8'
-        )
-      ) as { specParts: number; specDomains: readonly string[] };
-      const parts = suiteParts(manifest.specDomains, manifest.specParts);
-      const tracesOf = modelTraces;
-      const models = [
-        ...new Set(
-          parts
-            .flat()
-            .flatMap((unit) => (unit.path.endsWith('.qnt') ? [unit.path] : []))
-        ),
-      ];
+      const { plans, specParts } = plannedSuite(dir);
+      const parts = suiteParts(dir, specParts);
+      const models = Object.keys(plans);
       expect(models.length).toBeGreaterThan(0);
-      for (const path of models) {
-        const traces = parts
+      for (const model of models) {
+        const files = parts
           .flat()
-          .filter((unit) => unit.path === path)
-          .flatMap(tracesOf);
-        expect(traces.sort((a, b) => a - b)).toEqual(
-          Array.from({ length: 64 }, (_, index) => index)
-        );
+          .filter((unit) => unit.path.endsWith(`/${model}.qnt`));
+        for (const profile of ['pr', 'nightly'] as const)
+          expect(
+            files.reduce((sum, unit) => sum + unit.replays![profile], 0)
+          ).toBe(sliceReplays(plans[model]!, profile, { index: 0, count: 1 }));
       }
-      for (const part of parts) {
-        expect(part.flatMap(tracesOf).length).toBeLessThanOrEqual(16);
-        for (const unit of part)
-          expect(tracesOf(unit).length).toBeLessThanOrEqual(unitTraces);
-      }
+      for (const part of parts) expect(withinCaps(part)).toBe(true);
     }
   );
 
-  test('the chess suite runs in the fewest parts its trace caps allow', () => {
-    const manifest = JSON.parse(
-      readFileSync(
-        join(import.meta.dir, '../../chess-root-harness/package.json'),
-        'utf8'
-      )
-    ) as { specParts: number };
-    // Sixteen traces to a part, four to a file (TRACE_CAPPED_SUITES).
-    const withinCaps = (count: number) => {
-      const parts = suiteParts(['chess'], count);
-      return (
-        parts.every((part) => part.flatMap(modelTraces).length <= 16) &&
-        parts.flat().every((unit) => modelTraces(unit).length <= 4)
-      );
-    };
-    expect(withinCaps(manifest.specParts)).toBe(true);
-    expect(withinCaps(manifest.specParts - 1)).toBe(false);
-  });
+  test.each(PLANNED_SUITES)(
+    '%s runs in the fewest parts its caps allow',
+    (dir) => {
+      const { specParts } = plannedSuite(dir);
+      for (let count = 1; count < specParts; count++)
+        expect(suiteParts(dir, count).every(withinCaps)).toBe(false);
+    }
+  );
 });
 
-/** The 64 traces a model unit stands for, sliced: none for any other spec. */
-function modelTraces(unit: SpecUnit): readonly number[] {
-  return unit.path.endsWith('.qnt')
-    ? Array.from({ length: 64 }, (_, index) => index).filter(
-        (index) => index % (unit.slice?.count ?? 1) === (unit.slice?.index ?? 0)
-      )
-    : [];
+/** Whether a part of a planned suite stays inside every cap. */
+function withinCaps(part: readonly SpecUnit[]): boolean {
+  const load = partLoad(part);
+  return (
+    load.pr <= PART_REPLAYS &&
+    load.nightly <= PART_REPLAYS * NIGHTLY_REPLAY_SCALE &&
+    load.load <= PART_LOAD &&
+    part.every((unit) => (unit.replays?.pr ?? 0) <= MODEL_FILE_REPLAYS)
+  );
 }
 
-/** A suite's assignment at `count` parts, using its domains' spec files. */
+const REPO_ROOT = join(import.meta.dir, '../../..');
+
+function plannedSuite(dir: string) {
+  const plans = readReplayPlans(join(REPO_ROOT, dir));
+  if (plans === null) throw new Error(`${dir} plans no replays`);
+  const manifest = JSON.parse(
+    readFileSync(join(REPO_ROOT, dir, 'package.json'), 'utf8')
+  ) as { specParts: number };
+  return { plans, specParts: manifest.specParts };
+}
+
+/** A package's assignment at `count` parts, as its spec runner computes it. */
 function suiteParts(
-  domains: readonly string[],
+  dir: string,
   count: number
 ): readonly (readonly SpecUnit[])[] {
-  const units = domains.flatMap((domain) => {
-    const dir = join(import.meta.dir, '../../../specs', domain);
-    const files = [
-      ...new Set(
-        SPEC_GLOBS.flatMap((glob) => [
-          ...new Bun.Glob(glob).scanSync({ cwd: dir }),
-        ])
-      ),
-    ]
-      .filter((file) => file !== 'events.qnt')
-      .sort();
-    return files.flatMap((file) => {
-      const source = readFileSync(join(dir, file), 'utf8');
-      if (file.endsWith('.feature') && isSyntheticFeatureSource(source))
-        return [];
-      if (file.endsWith('.openslo.yaml') && isLiveObjectiveSource(source))
-        return [];
-      return specUnits(join('specs', domain, file), source, count);
-    });
-  });
+  const packageDir = join(REPO_ROOT, dir);
+  const units = packageSpecUnits(
+    packageDir,
+    packageSpecs(packageDir, REPO_ROOT),
+    count
+  );
   return Array.from({ length: count }, (_, index) =>
     partOf(units, { index, count })
   );
