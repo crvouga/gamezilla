@@ -1,4 +1,4 @@
 {
   "summary": "Formation retries selected only waiting pools with a Chess prefix, so a Connect Four queue never received another expanding-range match pass when no new person joined. Select current waiting searches owned by the shared opponent-search projection, independent of game or partition naming.",
-  "regressionTest": "libs/connect-four-harness/tests/connect-four-formation-retry-regression.test.ts"
+  "regressionTest": "libs/games-harness/tests/conformance/matchmaking/finding-an-opponent.test.ts"
 }

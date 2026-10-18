@@ -1,6 +1,11 @@
 import { expect } from 'bun:test';
-import { customGameInvitationShown } from '@libs/game-session-harness/custom-game-reads';
+import { readCustomGameName } from '@libs/game-session-harness/custom-game-names';
+import {
+  customGameInvitationShown,
+  readCustomGameInvitation,
+} from '@libs/game-session-harness/custom-game-reads';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
+import { CUSTOM_GAME_SIDES } from '@libs/game-session-shared/custom-game-state';
 import { Then, When } from '@libs/harness/define';
 import {
   choose,
@@ -46,12 +51,26 @@ When(
 Then(
   "{actor} sees {actor}'s invitation to play the {gameSide}",
   async (w, person: string, creator: string, side: CustomGameSide) => {
-    expect((await current(w)).creator).toBe(await identityOf(w, creator));
+    const game = await current(w);
+    const creatorId = await identityOf(w, creator);
+    expect(game.creator).toBe(creatorId);
     expect(
       await w.s.until((s) => customGameInvitationShown(s, person, side), {
         pred: (shown) => shown,
       })
     ).toBe(true);
+    // The invitation names its creator as the creator's own seat shows them.
+    const seated = CUSTOM_GAME_SIDES.find(
+      (seat) => game[seat].person === creatorId
+    );
+    if (seated === undefined) return;
+    const name = await w.s.read(readCustomGameName, creator, seated);
+    expect(name).toBeTruthy();
+    expect(
+      await w.s.until((s) => readCustomGameInvitation(s, person, side), {
+        pred: (text) => text?.includes(String(name)) === true,
+      })
+    ).toContain(String(name));
   }
 );
 Then(
