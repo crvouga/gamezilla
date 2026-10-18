@@ -7,9 +7,9 @@
  */
 
 import {
+  clockChoiceOfSpeed,
   multiplayerClockSeconds,
   multiplayerPauseShown,
-  SHARED_CLOCK_CONTROLS,
   setMultiplayerAvailability,
 } from '@libs/game-matchmaking-harness/multiplayer-availability';
 import {
@@ -46,8 +46,7 @@ export async function prepareSharedClockGame(
   w: QuintHarnessWorld,
   speed: string
 ) {
-  const control = SHARED_CLOCK_CONTROLS[speed];
-  if (control === undefined) throw new Error(`Unknown speed ${speed}`);
+  const control = clockChoiceOfSpeed(speed);
   await prepareMatchedSpaces(w, control);
   for (const person of SPACE_HOSTS) {
     const observer = CLOCK_OBSERVERS[person];

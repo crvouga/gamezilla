@@ -13,10 +13,10 @@ import {
   resignation,
 } from '@libs/game-matchmaking-harness/matched-game-world';
 import {
+  clockChoiceOfSpeed,
   multiplayerCanLeave,
   multiplayerClockSeconds,
   multiplayerPauseShown,
-  SHARED_CLOCK_CONTROLS,
   setMultiplayerAvailability,
 } from '@libs/game-matchmaking-harness/multiplayer-availability';
 import { givenMultiplayerClock } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
@@ -61,9 +61,7 @@ async function begun(
 Given(
   '{actor} and {actor} have an unfinished {word} matched game after their first moves',
   async (w, first: string, second: string, speed: string) => {
-    const clock = SHARED_CLOCK_CONTROLS[speed];
-    if (clock === undefined) throw new Error(`Unknown speed ${speed}`);
-    await begun(w, [first, second], clock);
+    await begun(w, [first, second], clockChoiceOfSpeed(speed));
   }
 );
 Given('their clocks are paused', pause);

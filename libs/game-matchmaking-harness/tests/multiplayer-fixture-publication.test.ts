@@ -9,12 +9,13 @@ import sql from '@pkgs/sql-root-shared/sql';
 // regression: multiplayer-clock-fixture-room-stale
 test('an eleven-second clock fixture publishes its accepted position to the match room', async () => {
   const db = await openConformanceDb([...MULTIPLAYER_TABLES, outboxEvents]);
-  const fen = 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2';
+  // Any game's position after both first moves: publishing never reads it.
+  const fen = 'opaque-position-after-two-moves';
   try {
     await db.run(sql`
       INSERT INTO chess_multiplayer_games
         (id, white_id, black_id, fen, pgn, revision, turn, outcome, time_control, white_ms, black_ms, clock_at_ms)
-      VALUES (${'game'}, ${'alice'}, ${'bob'}, ${fen}, ${'1. e4 e5'}, ${2}, ${'alice'}, ${'ongoing'}, ${'2+1'}, ${11_000}, ${120_000}, ${1_000})`);
+      VALUES (${'game'}, ${'alice'}, ${'bob'}, ${fen}, ${'first second'}, ${2}, ${'alice'}, ${'ongoing'}, ${'2+1'}, ${11_000}, ${120_000}, ${1_000})`);
     expect(
       await publishMultiplayerFixture(db, 'game', {
         actorId: 'alice',

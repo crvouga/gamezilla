@@ -1,5 +1,6 @@
 import { enqueueMultiplayerAvailability } from '@libs/game-matchmaking-shared/multiplayer-availability';
 import { clockLeftMs } from '@libs/game-matchmaking-shared/multiplayer-clock';
+import type { ClockSpeed } from '@libs/game-matchmaking-shared/time-control';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
@@ -8,13 +9,27 @@ import { multiplayerFixture } from './multiplayer-fixtures';
 import { multiplayerView } from './multiplayer-reads';
 import { runScheduledSweep } from './multiplayer-time';
 
-export const SHARED_CLOCK_CONTROLS: Readonly<Record<string, string>> = {
+/**
+ * One clock choice of each speed, as every game offering finding an opponent
+ * offers it: without a game's clock namespace, which the caller adds for the
+ * game it plays.
+ */
+const CLOCK_CHOICE_OF_SPEED: Readonly<Record<ClockSpeed, string>> = {
   bullet: '1+0',
   blitz: '5+0',
   rapid: '10+0',
   classical: '30+0',
   daily: '1d',
 };
+
+/** {@link CLOCK_CHOICE_OF_SPEED} for a speed a scenario names. */
+export function clockChoiceOfSpeed(speed: string): string {
+  const found = Object.entries(CLOCK_CHOICE_OF_SPEED).find(
+    ([named]) => named === speed
+  );
+  if (found === undefined) throw new Error(`Unknown speed ${speed}`);
+  return found[1];
+}
 
 /** The trusted host fences the accepted game, using the same transaction as moves. */
 export const setMultiplayerAvailability = scenarioAction({

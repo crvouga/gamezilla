@@ -1,6 +1,7 @@
 import { timeControlKey } from '@libs/game-matchmaking-shared/time-control';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import { forgetMultiplayerReply } from './multiplayer-commands';
+import { clockChoiceOf } from './multiplayer-search-ui';
 import { openFindingAnOpponent } from './opponent-seeking';
 
 /**
@@ -13,10 +14,11 @@ export const seekOpponentWithKeyboard = scenarioAction({
   act: async (s, actor: string, gameId: string, timeControl: string) => {
     await Promise.resolve(openFindingAnOpponent.act(s, actor, gameId));
     const ui = await actorUi(s, actor);
-    const clock = timeControl.split('/').at(-1) ?? timeControl;
     forgetMultiplayerReply(s, actor);
     await ui
-      .get(`multiplayer-time-control-${timeControlKey(clock)}`)
+      .get(
+        `multiplayer-time-control-${timeControlKey(clockChoiceOf(timeControl))}`
+      )
       .key('enter');
     await ui.get('multiplayer-find').wait('enabled');
     await ui.get('multiplayer-find').key('enter');

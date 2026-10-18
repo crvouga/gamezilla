@@ -20,12 +20,14 @@ import {
   sendMultiplayerCommand,
 } from './multiplayer-commands';
 import { multiplayerView } from './multiplayer-reads';
-import { requestGameOpponent } from './multiplayer-search-ui';
+import { clockChoiceOf, requestGameOpponent } from './multiplayer-search-ui';
 import { multiplayerSpaceId } from './multiplayer-spaces';
 
 /**
  * `actor` seeks an opponent for `gameId` from their own space, through the
- * game's shared choices, whichever game it is.
+ * game's shared choices, whichever game it is, at `clockChoice` as finding an
+ * opponent offers it (with or without the game's clock namespace; the
+ * screen's default choice unless named).
  */
 export const seekGameOpponent = scenarioAction({
   name: 'seekGameOpponent',
@@ -33,7 +35,7 @@ export const seekGameOpponent = scenarioAction({
     s,
     actor: string,
     gameId: string,
-    timeControl: string = DEFAULT_TIME_CONTROL
+    clockChoice: string = DEFAULT_TIME_CONTROL
   ) => {
     await Promise.resolve(signInWithGoogle.act(s, actor));
     await Promise.resolve(backToTabs.act(s, actor));
@@ -41,7 +43,7 @@ export const seekGameOpponent = scenarioAction({
     const ui = await actorUi(s, actor);
     await ui.get(Handles.gameMenu(gameId)).tap();
     await ui.get(Handles.gameChoice('multiplayer')).tap();
-    await Promise.resolve(requestGameOpponent.act(s, actor, timeControl));
+    await Promise.resolve(requestGameOpponent.act(s, actor, clockChoice));
   },
 });
 
@@ -177,8 +179,9 @@ async function seekFromFindingAnOpponent(
   await reachFindingAnOpponent(s, actor, gameId, true);
   const ui = await actorUi(s, actor);
   if (await ui.get('multiplayer-access-denial').isVisible()) return;
-  const clock = timeControl.split('/').at(-1) ?? timeControl;
-  const choice = ui.get(`multiplayer-time-control-${timeControlKey(clock)}`);
+  const choice = ui.get(
+    `multiplayer-time-control-${timeControlKey(clockChoiceOf(timeControl))}`
+  );
   if (!(await choice.isVisible())) {
     await Promise.resolve(
       sendMultiplayerCommand.act(s, actor, {
