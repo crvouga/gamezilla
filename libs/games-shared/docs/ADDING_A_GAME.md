@@ -19,7 +19,7 @@ For a game with id `race` (a lowercase slug; it is the game's wire id):
 | `libs/race-shared` (isomorphic) | `race-rules.ts` | `GameRules`: `id`, `recognizes`, `initial`, `play`, `replay`, `legal`, `canWin`, `moves`. Positions and actions are opaque strings; `recognizes` accepts only this game's positions. |
 | | `race-game.ts` | `raceGameShared = defineTurnGame({ … })` — the registration. |
 | `libs/race-client` (client) | `race-board.tsx` | The board: renders a position, calls `onAction`, prefixes its controls with the `testId` it is given. |
-| | `race-game-client.tsx` | `raceGameClient = defineGameClient({ … })`. |
+| | `race-game-client.tsx` | `raceGameClient = defineGameClient({ shared: raceGameShared, … })`. |
 | `libs/race-harness` (harness) | `race-playable.ts`, `race-harness-game.ts` | `RACE_PLAYABLE: PlayableGame` (label, shared definition, fixtures) and `RACE_HARNESS_GAME: HarnessGame` (adds the client) — the conformance adapter. |
 | | `tests/` | The game's own rules specs and regressions. |
 | `specs/race/` | features, glossary | The game's own rules in its own words (a `spec:` commit). |
@@ -40,8 +40,10 @@ in source, tests and steps alike (the full map and the reasons are in
 | `@pkgs/turn-game-shared` | `game-rules`, `game-presentation`, `game-automation`, `game-puzzles` |
 | `@libs/game-session-shared` | `turn-game-definition` |
 | `@libs/game-menu-client` | `game-client` |
+| `@libs/game-puzzle-shared` (a game offering puzzles) | `puzzle-catalogue`, `sub`, `puzzle-link`, `completion`, `hint-stage`, `solve-status` |
+| `@libs/game-puzzle-client` (a game offering puzzles) | `puzzle-client`, `personal-puzzle-stats-screen` |
 | `@libs/spaces-shared` | `game` (only for a game with its own room behaviour) |
-| `@libs/game-session-harness` (its `-harness`) | `harness-game`, `game-system`, `game-navigation`, `space-game-choice`, `custom-game-ui`, `custom-game-controls`, `custom-game-lineup`, `custom-game-moves`, `custom-game-screen`, `custom-game-reads`, `custom-game-history` |
+| `@libs/game-session-harness` (its `-harness`) | `harness-game`, `game-system`, `game-navigation`, `space-game-choice`, `custom-game-ui`, `custom-game-controls`, `custom-game-lineup`, `custom-game-moves`, `custom-game-screen`, `custom-game-reads`, `custom-game-history`, `puzzle-session-probe`, `puzzle-fixtures` |
 | `@libs/game-matchmaking-harness` (its `-harness`) | `matched-game-world`, `matched-game-app.steps`, `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record`, `multiplayer-time`, `matched-game-fixtures` |
 
 Nothing else: not the platform's screens, consumers or storage, and never
@@ -89,13 +91,46 @@ export const raceGameShared = defineTurnGame({
 ```tsx
 // libs/race-client/src/race-game-client.tsx
 export const raceGameClient = defineGameClient({
-  id: 'race',
+  // The shared registration: its id, and which parts are asked for.
+  shared: raceGameShared,
   title: 'Race',
   caption: 'Count to five first',
   subtitle: () => <Trans>Take turns counting on.</Trans>,
   presentation: { name: () => t`Race`, canFlip: false, Board: RaceBoard, sideLabel, endingDescription, endingLabel, timeoutDrawDescription },
+  // Exactly when raceGameShared offers puzzles (a type error otherwise):
+  // puzzles: racePuzzlesClient,
 });
 ```
+
+### Offering puzzles
+
+Puzzles are offered by a part on each side, and nothing else changes:
+
+- **Shared** — `capabilities.puzzles` (above): the namespace `'race/'`,
+  `content.validate`, `marks`, `isCell`, optionally `judge` and
+  `content.positionKey`.
+- **Client** — `puzzles` in `defineGameClient`, a `GamePuzzlesClient`
+  (`@libs/game-puzzle-client/puzzle-client`): `Board(props)` draws the
+  position it is given at `props.size`, reports a move through
+  `props.onAction`, marks `props.marks` (a wrong move's cell, a hint's
+  cell, the shown solution) and draws `props.suggestions` (watchers'
+  moves, each in its colour); in `mode: 'review'` it is read-only and
+  slides only when `props.animated`. Optionally: `coach(attempt)` (the
+  line the coach says), a `Companion` (the game's own live region or
+  probes beside the board), `themes` (feed filters and their names),
+  `notation` (the move list's notations, the first the default; how a
+  move is written and numbered) and `useFeedback` (sounds and haptics).
+- **Catalogue** — the game's import writes its puzzles through
+  `admitCataloguePuzzle` and `insertNewCatalogueRows` /
+  `upsertCatalogueRows` (`@libs/game-puzzle-shared/puzzle-catalogue`),
+  with ids `race/<local id>`; a puzzle the game does not recognise or
+  validate is refused.
+- **Fixtures** — `fixtures.puzzle`: a known puzzle and a wrong move.
+
+The platform then offers Puzzle and Puzzle stats among the game's
+choices, the feed and its settings, ratings and feed settings of the
+game's own, review, watchers' suggestions, the puzzle link and the
+conformance puzzle suite.
 
 Then add one entry to each registry — the only edits outside the game's
 packages besides workspace setup (step 4):
@@ -183,8 +218,10 @@ A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
 | A duplicate bot difficulty, an id that is not a slug | `defineTurnGame`, when the module loads |
 | A clock or puzzle namespace other than `'<id>/'` (only the `GAME_PLATFORM_NAMESPACE` game keeps `''`), a starting position another game recognizes, a duplicate id | `defineTurnGame` and `createTurnGames`, at registration |
 | Puzzles without `content.validate`, `marks`, `isCell` or a namespace | type checking (`PuzzlesCapability`), and `defineTurnGame` when the module loads |
+| A game offering puzzles whose client has no `puzzles` part (with its `Board`), or a `puzzles` part for a game offering none | type checking (`GameClient`), `defineGameClient` when the module loads, `assertMatchingGameIds` and `assertHarnessGame`, each naming the fix |
+| A catalogue puzzle outside the game's namespace, in a position the game does not recognise, or refused by its `content.validate` | `admitCataloguePuzzle`, which no row skips |
 | A hand-built or copied definition or client | type checking (only `defineTurnGame` makes a `TurnGameDefinition`, only `defineGameClient` a `GameClientRegistration`), and the registries when they load |
-| A screen key that is not a slug, is declared twice or belongs to the platform | `defineGameClient` |
+| A screen key that is not a slug, is declared twice or belongs to the platform (`puzzle`, `stats`, `stats-review`, `custom-game`, `multiplayer`, `history`, `settings`, `choices`) | `defineGameClient` |
 | A client missing, extra or out of order | `assertMatchingGameIds`, naming the entry to fix |
 | A game missing from `HARNESS_GAMES` (or there but not registered) | the conformance plan (`game-conformance-matrix.test.ts`) |
 | Fixtures the game's rules contradict, ids that differ between the definitions, a game offering puzzles without a known puzzle (or naming one without offering them) | `assertHarnessGame` |

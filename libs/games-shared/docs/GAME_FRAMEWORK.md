@@ -37,9 +37,10 @@ composition roots (registries, runtime, apps)
 | `@libs/game-session-shared` | `defineTurnGame`, custom games (sides, people, bots, readiness, clocks, resignation, draws, rematches, offline solo play) and the shared session module installed once per space. |
 | `@libs/game-session-client` / `-server` | The custom-game, history and review screens; the matched-game notice, reminder and availability consumers. |
 | `@libs/game-matchmaking-shared` / `-client` | Opponent searches, matched games, ratings per speed, rematches, the multiplayer screen and link. |
-| `@libs/game-puzzle-shared` | Puzzles over any game's rules: setting a puzzle up, replaying and judging its line (`puzzle-setup`, `puzzle-judge`), the space's puzzle session (`PUZZLE_SESSIONS`: its room state, messages, router and handlers), puzzle ratings, completion, statistics, the feed and its settings, choosing the next puzzle, the puzzle tables, queries and mutations, and the puzzle link. |
+| `@libs/game-puzzle-shared` | Puzzles over any game's rules: setting a puzzle up, replaying, staging and judging its line (`puzzle-setup`, `opponent-stage`, `solve-projection`, `move-history`, `puzzle-judge`), the space's puzzle session (`PUZZLE_SESSIONS`: its room state, messages, router and handlers, and the puzzle the space reviews), puzzle ratings, completion, statistics, the feed and its settings, choosing the next puzzle, the catalogue and its namespaces (`puzzle-catalogue`, `puzzle-namespace`), the puzzle sub (`GAME_PUZZLE_SUB`: its tables, queries, mutations and erasure) and its server half, and the puzzle link. |
+| `@libs/game-puzzle-client` | The client part a game supplies (`GamePuzzlesClient`) and every puzzle screen: play, stats and review, the feed and its settings, the attempt's solver, controls, recorder and result reconciliation, the move list, the puzzle frame (`PuzzleFrame`, `PuzzleSessionEffects`), the puzzle link and the personal stats screen. |
 | `@libs/game-menu-client` | `defineGameClient` and the one `GameMenu` every game is offered through. |
-| `@libs/game-session-harness` | The conformance contract a game's harness supplies (`PlayableGame` without screens, `HarnessGame` with them, `GameFixtures`), `gameSystem` (a world of any games), shared drivers, and the rules laws (`game-rules-laws`). |
+| `@libs/game-session-harness` | The conformance contract a game's harness supplies (`PlayableGame` without screens, `HarnessGame` with them, `GameFixtures`), `gameSystem` (a world of any games, with the puzzle sub when a game offers puzzles), shared drivers (the puzzle session's commands and reads among them), and the rules laws (`game-rules-laws`). |
 | `@libs/game-matchmaking-harness` | Opponent seeking and the one matched-game scenario world. |
 | `@libs/games-harness` | `HARNESS_GAMES`, the conformance matrix, every shared suite and the steps of `specs/games/`. |
 
@@ -65,9 +66,11 @@ to change without touching a game:
   its own specifications use.
 
 **Internal implementation** is never public: stored state and its types
-(`custom-game-state`, `game-state`, the `chess_multiplayer_*` tables),
+(`custom-game-state`, `game-state`, the puzzle session's `play-attr` and
+`play-result`, the `chess_multiplayer_*` and `chess_puzzle*` tables),
 transport and mutation clients (`custom-game-commands`,
-`multiplayer-commands`), room and match-room details (`match-room`,
+`multiplayer-commands`, the puzzle session's `play-messages`, the puzzle
+queries and mutations), room and match-room details (`match-room`,
 `custom-game-handler`), screen probes (`custom-game-probe`), direct reads
 of a device's tables (`multiplayer-reads`), fixture transactions
 (`multiplayer-fixtures`), UI controllers, and the registries.
@@ -89,8 +92,8 @@ It is never a new entry for an internal module.
 | | `game-presentation` | `GamePresentation`, `GameBoardProps`: the board and the copy the shared screens show |
 | | `game-automation` | `GameAutomation`: a synthetic or scripted participant's choice and its board gesture |
 | `@libs/game-session-shared` | `turn-game-definition` | `defineTurnGame` and `TurnGame`: the registration |
-| `@libs/game-menu-client` | `game-client` | `defineGameClient`, `GameClientPresentation`, the game's own screens and choices |
-| `@libs/spaces-shared` | `game` | `GameOwnRoom`, `GameCommandContext`: a game's own room behaviour |
+| `@libs/game-menu-client` | `game-client` | `defineGameClient`, `GameClient` (its `shared` registration and, for a game offering puzzles, its `puzzles` part), `GameClientPresentation`, the game's own screens and choices |
+| `@libs/spaces-shared` | `game` | `GameOwnRoom`, `GameCommandContext`: a game's own room behaviour, and `mergeGameRouterEntries` (one router per namespace, as the space composes a shared module and a game's own room) for a game's room tests |
 | `@libs/game-session-harness` | `harness-game` | `PlayableGame`, `HarnessGame`, `GameFixtures`, `ReadGameRecord`, `assertHarnessGame`: the conformance adapter |
 | | `game-system` | `gameSystem`, `openGameHarness`: a world of any games |
 | | `game-navigation`, `space-game-choice` | Choosing a game in a space and moving between its screens |
@@ -98,10 +101,16 @@ It is never a new entry for an internal module.
 | | `custom-game-moves` | The shared board (`CUSTOM_GAME_BOARD`), `makeCustomGameMove`, `customGameBoardTakes`, `playOnCustomGameBoard` (the game's own gesture, then the product's answer) |
 | | `custom-game-screen`, `custom-game-reads` | What a person's Custom Game screen shows: a projection of the game, the refusal they were told, their clock, invitations, the move list |
 | | `custom-game-history` | Fixture: a legal earlier history played through the real move boundary |
+| | `puzzle-session-probe`, `puzzle-fixtures` | The space's puzzle session below the screens: a command as a (possibly modified) client sends it and what the session holds; the rating scale, the rated start key and the rated-result write a quota table replays |
 | `@libs/game-matchmaking-harness` | `matched-game-world`, `matched-game-app.steps` | The scenario's matched game: pairing, both boards, commands and verdicts, the game a device holds (`heldMatchedGame`) |
 | | `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record` | Finding an opponent, the board (`sendMoveFromBoard`), reviewing earlier positions, copying the game record, as a person does |
 | | `multiplayer-time`, `matched-game-fixtures` | Fixtures: time passing through the real sweep; a position or a clock set where no person could reach it in time |
-| `@libs/game-puzzle-shared` | the modules its manifest lists | Transitional: chess's puzzle screens, harness, server and sub still use the platform's puzzle session, feed, ratings and tables directly. The list shrinks to nothing as those move into the platform's puzzle screens and sub |
+| `@libs/game-puzzle-shared` | `puzzle-catalogue` | `admitCataloguePuzzle`, `CataloguePuzzle`, `CatalogueRow`, `insertNewCatalogueRows` / `upsertCatalogueRows` and the catalogue topic: a game's import pipeline writes its puzzles only through it |
+| | `sub` | `GAME_PUZZLE_SUB` (its tables, topics, reads and writes) and `gamePuzzleSubs`: what a game's import pipeline and its own tests compose beside their own tables |
+| | `puzzle-link` | The puzzle link's route, path and parsing |
+| | `completion`, `hint-stage`, `solve-status` | The attempt's vocabulary its `PuzzleAttempt` speaks: a completion and its rating change, the hint's stage, the solve status |
+| `@libs/game-puzzle-client` | `puzzle-client` | `GamePuzzlesClient`, `PuzzleBoardProps`, `PuzzleBoardMarks`, `PuzzleSuggestion`, `PuzzleAttempt`, `PuzzleCoachLine`, `PuzzleFeedback`: the client part a game offering puzzles supplies |
+| | `personal-puzzle-stats-screen` | `PersonalPuzzleStatsScreen`: a game's puzzle stats outside any space, on the game's own route (chess's `/more/chess-stats`) |
 | `@pkgs/turn-game-client`, `@libs/game-session-client`, `@libs/game-session-server`, `@libs/game-matchmaking-shared`, `@libs/game-matchmaking-client` | none | The platform's screens, consumers, commands and storage: a game never imports them |
 | `@libs/games-shared`, `@libs/games-client`, `@libs/game-catalog-shared`, `@libs/games-harness` | none | Registries: composition roots import `game-plugins`, `game-plugins.client`, `turn-games` / `game-automations` and `harness-games` / `game-conformance`; a game never depends on one (`gameViolations`) |
 
@@ -115,8 +124,12 @@ values the world returns but never imports their stored type.
    in the game's `-shared` package validates the game when its module loads
    and returns the only value the registry accepts: a `TurnGameDefinition`,
    an instance carrying a private brand that a spread copy or a hand-built
-   object lacks, so either is refused at type checking. `defineGameClient`
-   does the same for the client (`GameClientRegistration`). Neither needs a
+   object lacks, so either is refused at type checking; it carries its
+   capabilities' type. `defineGameClient` does the same for the client
+   (`GameClientRegistration`): the client names its shared registration
+   (`shared`, which gives its id), and its parts follow what that
+   registration offers — a `puzzles` part exactly when it offers puzzles, a
+   type error otherwise and a refusal when the module loads. Neither needs a
    cast.
 2. **Registration.** One entry in `GAME_DEFINITIONS`, one in
    `GAME_CLIENT_DEFINITIONS` (client bundles only), one in `HARNESS_GAMES`
@@ -124,12 +137,19 @@ values the world returns but never imports their stored type.
    made by its constructor (`assertTurnGameDefinitions`,
    `assertGameClientDefinitions`, and `assertHarnessGame` for an adapter's
    two); the client registry agrees with the turn games entry for entry
-   (`assertMatchingGameIds`, naming the entry to add, remove or reorder);
+   (`assertMatchingGameIds`, naming the entry to add, remove or reorder, and
+   a client whose `puzzles` part disagrees with what its game offers, as
+   `assertHarnessGame` does for an adapter);
    the harness games agree with the registry (the conformance plan,
    below).
 3. **Composition.** The registries are the single source of what is played:
    - the space room (`composeRoomModules`) installs each game's own room and,
-     once, every shared module bound to all registered rules;
+     once, every shared module bound to all registered rules (a shared
+     module and a game's own room may share a durable message namespace:
+     the space merges their routers, refusing a message both handle);
+   - the puzzle sub and its server half join the app exactly when a game
+     offers puzzles (`gamePuzzleSubs`, `gamePuzzleServers`, and the
+     `game-puzzle` harness slice in `gameSystem`), as does the puzzle link;
    - the sync engine's mutations and the server's consumers receive
      `TURN_GAMES` through ports;
    - the client's `TurnGamesProvider` receives every presentation, and the
@@ -156,7 +176,7 @@ Capabilities are present or absent, each with what it needs:
 | `custom-games` | Custom games with people and bots, invitations, readiness, clocks, resignation, draws, rematches, offline solo play, review | `bots: { difficulties, choose }` (no difficulties = one bot) |
 | `matchmaking` | Finding an opponent at a clock choice, matched games, ratings per speed, turn and result notices, rematches, the multiplayer link | `clockNamespace` (`'<id>/'`), `notice` copy for server-sent notices; **requires `history`** |
 | `history` | History, statistics and review of finished games; the downloadable record | `record(position, history, metadata)` |
-| `puzzles` | Puzzles from the game's positions: the catalogue, the next puzzle, setting it up, judging each move, hints, the solution, ratings, statistics and watchers | `namespace` (`'<id>/'`), `content.validate(record)` (and optionally `content.positionKey`), optionally `judge.canonical(position, action)` and `judge.samePosition(a, b)`, `marks(position, action)` (the cells a hint or a wrong move shows) and `isCell(cell)`; **requires nothing else** |
+| `puzzles` | Puzzles from the game's positions: the catalogue in the game's own namespace, the next puzzle, setting it up, judging each move, hints, the solution, ratings and feed settings per game, statistics and review, watchers' suggestions, the puzzle link, and the Puzzle and Puzzle stats screens | Shared: `namespace` (`'<id>/'`), `content.validate(record)` (and optionally `content.positionKey`), optionally `judge.canonical(position, action)` and `judge.samePosition(a, b)`, `marks(position, action)` (the cells a hint or a wrong move shows) and `isCell(cell)`. Client (`defineGameClient({ puzzles })`): `Board` (`GameBoardProps` plus size, play or review mode, marks and suggestions), optionally `coach(attempt)`, a `Companion`, feed `themes`, move `notation` (choices, the first the default; how a move is written and numbered) and `useFeedback` (sounds, haptics); **requires nothing else** |
 
 A game never supplies a placeholder for a capability it does not offer, and
 the platform shows, accepts and tests nothing for an absent one.
@@ -171,11 +191,17 @@ capabilities.history`. The requirement is `CAPABILITY_REQUIRES`. History
 alone, without matched games, is custom-game history, statistics and
 review; its record is never copied.
 
-Client extension points (`defineGameClient`): `presentation` (board, side
-names, ending copy), optional `choices` and `screens` (the game's own
+Client extension points (`defineGameClient`): `shared` (the game's
+`defineTurnGame` value: its id, and which parts are asked for),
+`presentation` (board, side names, ending copy), `puzzles` (exactly for a
+game offering puzzles), optional `choices` and `screens` (the game's own
 screens, shown space-wide), `settings`, `Frame` (data its own screens
-share) and `SessionEffects`. A game screen navigates with `useGameScreen()`;
-it never renders the platform's screens itself.
+share) and `SessionEffects`. The platform wraps a puzzle-offering game's
+frame in its puzzle frame (the feed, a puzzle link) and adds its puzzle
+session effects (result reconciliation). The screen keys `puzzle`,
+`stats` and `stats-review` are the platform's, like `custom-game`,
+`multiplayer`, `history` and `settings`. A game screen navigates with
+`useGameScreen()`; it never renders the platform's screens itself.
 
 ## Semantics
 
@@ -421,20 +447,40 @@ It does not merge by id, because no game can be in both:
   `finding-an-opponent.feature`,
   `game-matchmaking-harness/tests/opponent-search-cleanup`.
 
-### `puzzles`: setup, judge and the puzzle session
+### `puzzles`: the catalogue, the session, completion and results
 
 - **Callers.** The space's puzzle session (`PUZZLE_SESSIONS`, installed
   once by `gameModules` for the games declaring `capabilities.puzzles`,
-  `defineTurnGame` adding it to the game's shared modules), and chess's
-  review board and opponent staging until the platform's puzzle screens
-  replace them. The session finds a puzzle's game by its position
-  (`TurnGames.forPosition`): a position no game recognises starts an
-  `invalid` puzzle; one whose game offers no puzzles is refused.
-- **Inputs.** A puzzle's position and line come from the catalogue the
-  game's `content.validate` admitted; a solver's action is shape-checked
-  only (no whitespace, at most 64 characters), and `rules.play` alone
-  decides whether it is a move. A suggestion's two cells must satisfy
-  `isCell`.
+  `defineTurnGame` adding it to the game's shared modules), the
+  platform's puzzle screens (`@libs/game-puzzle-client`: the opponent
+  stager, the review board and the move list replay the line through
+  `positionAt` / `playPuzzleAction`), and the catalogue writer. The
+  session finds a puzzle's game by its position (`TurnGames.forPosition`):
+  a position no game recognises starts an `invalid` puzzle; one whose game
+  offers no puzzles is refused. The screens find it by the game they are
+  shown for (`PuzzleGameProvider`).
+- **The catalogue.** One table of every game's puzzles, each game in its
+  own namespace: a puzzle id is `<namespace><local id>` (chess's namespace
+  is `''`, and Lichess ids contain no `/`). `admitCataloguePuzzle`
+  (`puzzle-catalogue`) admits a puzzle only into the namespace of the
+  registered game offering puzzles there, only if that game recognises
+  its position and its `content.validate` accepts it, and keys
+  duplicates by its `content.positionKey`; only an admitted `CatalogueRow`
+  is written (`insertNewCatalogueRows`, `upsertCatalogueRows`). Chess's
+  Lichess pipeline writes through it. Every read filters by namespace
+  (`puzzleNamespaceCondition`: `NOT LIKE '%/%'` for `''`, a `LIKE` prefix
+  otherwise — the same in SQLite and Postgres; a namespace holds no
+  wildcard; readers filter rows a rating index already narrowed, so no
+  index of its own): the pool and nearest reads take an optional
+  `namespace` (`''` when left out), and so do the device's picks and
+  counts and a person's rating events and interactions. A person's rating
+  profile and feed settings are kept per game (`<namespace><owner id>`;
+  chess's are the owner id itself).
+- **Inputs.** A puzzle's position and line come from the catalogue; a
+  solver's action is shape-checked only (no whitespace, at most 64
+  characters), and `rules.play` alone decides whether it is a move. A
+  suggestion's two cells must satisfy `isCell` (the screens send the cells
+  `marks` names for a watcher's move; one cell names both ends).
 - **Compute only.** `setupPuzzle` plays `line[0]`; the solver is the side
   whose turn it gives (`PlayedPosition.turn`). `judgePuzzleAction`: a
   move `play` refuses is illegal; one whose result is the solver's win
@@ -445,23 +491,74 @@ It does not merge by id, because no game can be in both:
   Each action is played from the puzzle's position with no earlier
   history. A hint and a wrong move show `marks`; a move's spoken and
   listed label is `PlayedPosition.label`. The room commits the verdict's
-  events; a game function never writes.
+  events; a game function — rules, capability or client part — never
+  writes.
+- **Completion.** The room decides an attempt's result once: the move
+  that solves it, the wrong move, a shown solution or a skip ends it and
+  records the result's owner, attempt key, outcome and score
+  (`PuzzleResultAttr`, set by `play-reducer` from the router's events). The owner's device records it
+  (`ReconcilePuzzleResult`, mounted by `PuzzleSessionEffects` for the
+  whole space session of each game offering puzzles, for that game's
+  namespace): the interaction (`appendPuzzleInteraction`) and the rated
+  result (`ratePuzzleAttempt`), which derives the new rating inside the
+  mutation from the stored profile.
+- **Duplicate completion.** A result is recorded at most once and rates at
+  most once: the rating ledger row is keyed `<owner>|<puzzle>`, so a second
+  attempt, a duplicated upload or a replay finds it and leaves the rating
+  alone; the result's interaction is keyed `<owner>|<attempt key>`, and a
+  different first result for the same attempt is refused
+  (`CHESS_ATTEMPT_ALREADY_FINISHED`, in `ratePuzzleAttempt`); the
+  recorder (`usePuzzleResultRecorder`) keeps the attempts it
+  finished; two results read under one profile retry rather than lose a
+  rating (the conditional profile update).
+- **Offline result sync.** Both writes are mutations: they apply to the
+  device's database at once and replay on the server when it is back, as
+  the same idempotent definitions. A rated result needs the rated start
+  it was charged for (`requireChargedInMutation` with the rated start
+  key), so a device that skipped the start cannot record past the daily
+  limit; an interrupted rating write is finished on restore (the
+  recorder retries until it lands).
 - **Durable names.** The session's room attributes (`chess.puzzle.play/*`,
-  `chess.puzzle.result/*`), its message namespaces
-  (`chess-puzzle-play-cmd`, `chess-puzzle-play-evt`) and payload keys
+  `chess.puzzle.result/*`, the review's `chess.main-menu.selected-review-*`),
+  its message namespaces (`chess-puzzle-play-cmd`, `chess-puzzle-play-evt`,
+  and the review's `chess-cmd` / `chess-evt` messages) and payload keys
   (`fen`, `moves`, `displayFen`, `uci`, `san`, `wrongToSquare`,
   `fromSquare`, `toSquare`, `orientation`), the `chess_puzzle*` tables in
   domain `GAME_PLATFORM_NAMESPACE`, the query and mutation names, the
-  catalogue topic `system:chess_puzzles` and the route
-  `/chess/puzzle/:puzzleId` are unchanged.
+  catalogue topic `system:chess_puzzles`, the route
+  `/chess/puzzle/:puzzleId`, the screen keys and handles (`puzzle`,
+  `stats`, `stats-review`, `game-choice-puzzle`), the device's attempt
+  memory key (`chess.puzzle.attempt.*`), the telemetry events
+  (`chess.puzzle.attempted` / `completed`) and every stored id
+  (unprefixed for chess) are unchanged. A feed's stored notation is the
+  game's own key; `''` (the default stored now) reads as the game's first,
+  and a stored `'san'` stays chess's SAN.
 - **Proof.** `conformance/puzzles/puzzle-laws` (each offering game's known
   puzzle: its own namespace and content, the setup's solver, the line
   solving it, every legal move judged, its wrong move wrong, marks naming
-  cells), `game-puzzle-shared/tests/puzzle-judge` (a game the platform
-  knows nothing about), chess's `move-judge` and `mate-objective` tests,
-  `chess-puzzle-harness/tests/chess-puzzle-play` and
-  `puzzle-session-compatibility` (a chess puzzle room recorded before the
-  capability replays to the same events, refusals and state).
+  cells); `game-puzzle-shared/tests`: `puzzle-judge` and `opponent-stager`
+  (a game the platform knows nothing about), `puzzle-catalogue` (admission,
+  the namespaced reads on SQLite and Mockingbird Postgres, the per-game
+  profile and feed settings, beside a second game in `pile/`),
+  `rate-puzzle-attempt` and `puzzle-profile-query` (regressions
+  `puzzle-inconsistent-result-score`, `puzzle-profile-volatility-sync`);
+  `games-harness/tests/chess-puzzles` (the judge, mate objective, line
+  steps, the room-level session and attempt identity over chess);
+  `games-harness/tests/rated-puzzle-quota` (`rated-puzzle-quota-bypass`);
+  `game-puzzle-client/tests/interrupted-outcome`
+  (`puzzle-outcome-recorded-rating-lost`,
+  `puzzle-result-queued-without-rating`);
+  `chess-root-server/tests/rating-concurrency`
+  (`puzzle-concurrent-results-lost-rating`);
+  `chess-puzzle-server/tests/puzzle-import-batch` (a Lichess row stored
+  exactly as chess validated it); `game-menu-client/tests/game-client-contract`
+  and `games-shared/tests/game-plugin-contract` (the puzzles part);
+  `chess-puzzle-harness/tests/puzzle-session-compatibility` (a chess
+  puzzle room recorded before the capability replays to the same events,
+  refusals and state); and chess's puzzle specifications
+  (`specs/chess/puzzle-*.feature`, `puzzle-outcome-sync.feature`,
+  `puzzle-offline*.feature`, `puzzle-interruption-recovery.feature`,
+  `puzzle-attempt.qnt`, `puzzle-result-recovery.qnt`).
 
 ### Not yet proven by a test
 
@@ -546,10 +643,21 @@ behaviour for exactly what it offers:
   The planner is pure, and `tests/game-conformance-plan.test.ts` proves
   each refusal on fake registries. An unoffered capability is `—`
   (unsupported), never "not tested".
-- **Attribution and isolation.** `tests/game-result-attribution.test.ts`
-  proves, with the runners' own naming functions, that each game's run of
-  every shared specification has its own test name and evidence
-  obligation, so no game's verdict satisfies another's;
+- **Attribution and isolation.** Each game's run of a shared
+  specification is named and recorded for that game alone: its test is
+  `<scenario> [<game>]` and its evidence `scenario:<scenario> [<game id>]`
+  (`trace:<n> [<game id>]` for a model), from the runners' own naming
+  functions (`tests/game-result-attribution.test.ts`). The conformance
+  verdict then holds every game × specification cell to its own evidence:
+  `@libs/games-harness` declares, beside each spec run's evidence, which
+  games every shared specification needs (`declareRequiredGames`, through
+  `@pkgs/conformance-shared/variants`), and
+  `libs/tools/conformance/variant-evidence.ts` decides each required cell
+  from that game's verdicts alone — passed, failed, stale (its only verdict
+  is from another text of the spec), required but missing, or not
+  applicable — so one game's pass never stands for another's missing or
+  failing run, nor for the spec run once without a game
+  (`libs/tools/scripts/conformance-report-variants.test.ts`).
   `tests/game-order-isolation.test.ts` proves the plan, the matrix and the
   laws' verdicts are the same whatever order the games are listed or
   checked in.
@@ -573,7 +681,17 @@ tables `chess_multiplayer_*` and `chess_opponent_searches`, room modules
 `chess/custom` and `chess-match`, refusal codes `CHESS_*`, the seat tokens
 `white` / `black` (first and second side), the record fields `fen` / `uci` /
 `san` / `pgn` (position, action, label, history), chess's unprefixed clock
-namespace, and the space-wide game screen (`games/screen`). The unprefixed
+namespace, and the space-wide game screen (`games/screen`). Puzzles keep
+theirs too (listed with [their semantics](#puzzles-the-catalogue-the-session-completion-and-results)):
+the `chess_puzzle*` tables, the `chessPuzzle*` queries and the puzzle
+mutations (`appendPuzzleInteraction`, `ratePuzzleAttempt`,
+`savePuzzleFeedSettings`), the catalogue topic `system:chess_puzzles`,
+the session's `chess.puzzle.*` attributes and `chess-puzzle-play-*`
+messages, the review's `chess.main-menu.selected-review-*` and
+`chess-cmd` / `chess-evt` messages, the route `/chess/puzzle/:puzzleId`,
+the screen keys `puzzle`, `stats` and `stats-review`, every chess puzzle
+id, profile and feed settings id (the owner id), and the telemetry events
+`chess.puzzle.*`. The unprefixed
 namespace `''` — of clock choices and of puzzles — belongs to the game
 whose id is `GAME_PLATFORM_NAMESPACE` alone: `defineTurnGame` grants it to
 that game (`unprefixedNamespace`), and `createTurnGames` refuses it for any
@@ -601,7 +719,8 @@ Beyond that class:
   needs a per-viewer projection of the position before it can be offered.
 - **Single-player, puzzle-first** (Numberlink). Puzzles are a capability
   of a two-sided turn game: a position, the opponent's setup move and the
-  solver's line against its replies. A puzzle without an opponent, or a
+  solver's line against its replies (a game's own board, coach and
+  companion show it; the platform owns every puzzle screen). A puzzle without an opponent, or a
   game without turn rules, means widening `GAME_DEFINITIONS` from
   `TurnGameDefinition` to `GameDefinition` (the space room already composes
   such definitions) and a client without a turn-game presentation.
@@ -623,6 +742,16 @@ Beyond that class:
   features keep only chess's own rules: the board facing a colour,
   promotion, castling and en passant, algebraic notation, checkmate, drawn
   positions, the puzzle rating and a bare king's flag fall.
+- Puzzles are the platform's in code but chess's in specification: the
+  puzzle features and models (`specs/chess/puzzle-*`,
+  `puzzle-attempt.qnt`, `puzzle-feed.qnt`, `daily-puzzle-limit.dmn`, …)
+  and their steps and drivers (`@libs/chess-puzzle-harness`) still name
+  chess and its board, so only chess is held to them; the reference game
+  offers no puzzles yet. Moving them to `specs/games/` with a reference
+  game offering puzzles is the next step, after which chess's harness
+  needs no puzzle-session probe and its personal stats route
+  (`/more/chess-stats`, pinned by `specs/product.machine.json`) can become
+  the platform's.
 - The custom-game and matched-game models are every game's. Chess keeps
   only its puzzle and Lichess models; a model that moves takes its
   model-check task and its share of chess's spec parts to
