@@ -1,4 +1,4 @@
 {
   "summary": "The puzzle rating chip passed token names (tintMuted, tint) as CSS values, so it never painted its fill or color. Fixed by painting with token classes.",
-  "regressionTest": "libs/chess-puzzle-client/tests/puzzle-chrome-paint.test.tsx"
+  "regressionTest": "libs/game-puzzle-client/tests/puzzle-chrome-paint.test.tsx"
 }
