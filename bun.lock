@@ -1087,7 +1087,6 @@
         "@libs/chess-root-shared": "workspace:*",
         "@libs/chess-rules-shared": "workspace:*",
         "@libs/chess-sub-shared": "workspace:*",
-        "@libs/game-matchmaking-client": "workspace:*",
         "@libs/game-matchmaking-harness": "workspace:*",
         "@libs/game-matchmaking-shared": "workspace:*",
         "@libs/game-session-harness": "workspace:*",
@@ -1095,7 +1094,6 @@
         "@libs/harness": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@libs/spaces-harness": "workspace:*",
-        "@libs/spaces-shared": "workspace:*",
         "@libs/test-ids-shared": "workspace:*",
         "@pkgs/chess-board-core-shared": "workspace:*",
         "@pkgs/object-store-root-shared": "workspace:*",
@@ -1267,12 +1265,10 @@
       "dependencies": {
         "@libs/connect-four-client": "workspace:*",
         "@libs/connect-four-shared": "workspace:*",
-        "@libs/game-matchmaking-harness": "workspace:*",
         "@libs/game-session-harness": "workspace:*",
         "@libs/harness": "workspace:*",
       },
       "devDependencies": {
-        "@libs/game-matchmaking-harness": "workspace:*",
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/quint-shared": "workspace:*",
         "@types/bun": "catalog:",

@@ -23,12 +23,10 @@
   "dependencies": {
     "@libs/connect-four-client": "workspace:*",
     "@libs/connect-four-shared": "workspace:*",
-    "@libs/game-matchmaking-harness": "workspace:*",
     "@libs/game-session-harness": "workspace:*",
     "@libs/harness": "workspace:*"
   },
   "devDependencies": {
-    "@libs/game-matchmaking-harness": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/quint-shared": "workspace:*",
     "@types/bun": "catalog:",
