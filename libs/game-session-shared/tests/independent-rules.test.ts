@@ -48,9 +48,9 @@ const notice = {
   ending: () => undefined,
 };
 
-function raceRoom(capabilities: TurnGameCapabilities) {
+function raceRoom(capabilities: TurnGameCapabilities, gameRules = rules) {
   const definition = defineTurnGame({
-    rules,
+    rules: gameRules,
     capabilities,
     automation: { choose: () => null, perform: async () => {} },
   });
@@ -62,7 +62,7 @@ function raceRoom(capabilities: TurnGameCapabilities) {
   );
   const state = {
     ...module.initialState(),
-    ...GamesRoomAttr.selected(rules.id),
+    ...GamesRoomAttr.selected(gameRules.id),
     ...SpaceMembersRoomAttr.seats({ alice: { joinedAt: '2026-10-15' } }),
   };
   return { module, state };
@@ -148,6 +148,72 @@ test('an unrelated game uses the same configuration, bot turns, completion and r
   change({ operation: 'rematch' });
   expect(CustomGamesAttr.from(state).current?.fen).toBe('race:0');
   expect(CustomGamesAttr.from(state).history).toEqual([game]);
+});
+
+/**
+ * The rules name the winner (`PlayedPosition.winner`), and a move may lose
+ * for the side that made it: in this misère race, counting to four loses.
+ * Matched games and puzzles already credited the rules' winner; custom
+ * games credited the mover.
+ */
+test('a custom game credits the side the rules name as winner, not the mover', () => {
+  // regression: custom-game-mover-credited-win
+  const misere: GameRules = {
+    ...rules,
+    play(position, action, history, actions) {
+      const played = rules.play(position, action, history, actions);
+      return played?.winner === 'black'
+        ? { ...played, winner: 'white', reason: 'black counted to four' }
+        : played;
+    },
+  };
+  const room = raceRoom({ 'custom-games': { bots } }, misere);
+  let state = room.state;
+  let sequence = 0;
+  const change = (input: Record<string, unknown>) => {
+    const game = CustomGamesAttr.from(state).current;
+    const result = room.module.handle(
+      state,
+      {
+        id: `choice-${sequence++}`,
+        ts: 0,
+        payload: ChangeCustomGame({
+          gameId: game?.id ?? null,
+          revision: game?.revision ?? 0,
+          ...input,
+        } as Parameters<typeof ChangeCustomGame>[0]),
+      },
+      'alice'
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok)
+      for (const event of result.events)
+        state = room.module.reduce(state, event);
+  };
+  change({ operation: 'create' });
+  change({ operation: 'bot', side: 'white' });
+  change({ operation: 'bot', side: 'black' });
+  change({ operation: 'start' });
+  for (let ply = 0; ply < 4; ply++) {
+    const game = CustomGamesAttr.from(state).current!;
+    const result = room.module.handle(
+      state,
+      {
+        id: `bot-${ply}`,
+        ts: ply * 1000,
+        payload: PlayCustomGameBot({ gameId: game.id, side: game.turn, ply }),
+      },
+      ROOM_SCHEDULER_IDENTITY
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok)
+      for (const event of result.events)
+        state = room.module.reduce(state, event);
+  }
+  const game = CustomGamesAttr.from(state).current!;
+  expect(game.status).toBe('completed');
+  // Black made the last count, and lost by it.
+  expect(game.outcome).toBe('white wins by black counted to four');
 });
 
 /**

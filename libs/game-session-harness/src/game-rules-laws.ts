@@ -3,6 +3,7 @@ import { assertProperty } from '@pkgs/property-shared/assert-property';
 import type {
   BotDifficulty,
   GameRules,
+  GameSide,
 } from '@pkgs/turn-game-shared/game-rules';
 import fc from 'fast-check';
 import type { HarnessGame } from './harness-game';
@@ -22,6 +23,8 @@ const BOT_PLIES = 30;
 
 type Step = {
   readonly position: string;
+  /** The side to move after this action (`PlayedPosition.turn`). */
+  readonly turn: GameSide;
   readonly label: string;
   readonly winner: string | null;
   readonly reason: string | null;
@@ -73,6 +76,7 @@ export function walk(rules: GameRules, picks: readonly number[]) {
     history = played!.history;
     steps.push({
       position,
+      turn: played!.turn,
       label: played!.label,
       winner: played!.winner,
       reason: played!.reason,
@@ -148,6 +152,37 @@ function knownVictory(game: HarnessGame): void {
   must(
     rules.replay(actions, actions.length) === position,
     'replaying the known victory reached another position'
+  );
+}
+
+/**
+ * Sides take turns: the first side moves first, and every action of an
+ * unfinished game gives the turn to the other side. Every shared lifecycle
+ * relies on it (`specs/games/game-turns.feature`: "a participant's move
+ * passes the turn"; the custom-game and matched-game models; a matched
+ * game's abort window, `bothHaveMoved`; a puzzle line's solver and
+ * opponent moves by parity), so a game whose turns do not alternate is
+ * refused here, by name, rather than deep inside a shared specification
+ * (`tests/probes/turn-order.test.ts`).
+ */
+function takesTurns(game: HarnessGame): void {
+  const rules = game.shared.turnGame.rules;
+  assertProperty(
+    `${game.label}: sides take turns`,
+    fc.property(picks, (drawn) => {
+      const played = walk(rules, drawn);
+      let mover: GameSide = 'white';
+      for (const [ply, step] of played.steps.entries()) {
+        // A finished game has no side to move.
+        if (step.winner !== null) return;
+        const other: GameSide = mover === 'white' ? 'black' : 'white';
+        must(
+          step.turn === other,
+          `after ${mover}'s ${String(played.actions[ply])} at ply ${String(ply + 1)} it is ${String(step.turn)}'s turn, not ${other}'s`
+        );
+        mover = other;
+      }
+    })
   );
 }
 
@@ -361,6 +396,11 @@ export function gameRulesLaws(
             }
           )
         )
+    ),
+    law(
+      game,
+      'the first side moves first and every action passes the turn to the other side',
+      () => takesTurns(game)
     ),
     law(game, 'a side cannot win only where the game names a line to it', () =>
       cannotWinOnlyWhereKnown(game)

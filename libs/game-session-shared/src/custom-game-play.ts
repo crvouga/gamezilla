@@ -104,8 +104,14 @@ export function playCustomGameMove(
     },
   };
   if (move.winner === 'draw') return finishCustomGame(moved, 'draw', now);
+  // The rules name the winner: a move can lose for its mover (a misère
+  // ending), so the side that moved is not assumed to have won.
   if (move.winner !== null)
-    return finishCustomGame(moved, `${game.turn} wins by ${move.reason}`, now);
+    return finishCustomGame(
+      moved,
+      `${move.winner} wins by ${move.reason}`,
+      now
+    );
   return moved;
 }
 

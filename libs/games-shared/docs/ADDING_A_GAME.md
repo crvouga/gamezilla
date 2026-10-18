@@ -281,7 +281,7 @@ A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
 | A game missing from `HARNESS_GAMES` (or there but not registered) | the conformance plan (`game-conformance-matrix.test.ts`) |
 | Fixtures the game's rules contradict (a known puzzle's line, labels, solver, wrong, refused or opponent's move included), ids that differ between the definitions, a game offering puzzles without known puzzles (or naming them without offering them), none of two solver moves, a known puzzle outside its namespace | type checking (`GameFixtures`), and `assertHarnessGame` |
 | A puzzle its validation refuses or another game's it accepts, a line its judge does not follow to the solve, a wrong move judged otherwise, a legal move judged illegal, marks that name no cell, a board its automation cannot play the solution on | `tests/conformance/puzzles` |
-| Rules that break a shared law (replay, isolation, legality, automation, bots) | `tests/conformance/rules`, `…/custom-games` |
+| Rules that break a shared law (replay, isolation, legality, sides taking turns, automation, bots) | `tests/conformance/rules`, `…/custom-games` |
 | Endings or side names the shared screens cannot show | `tests/conformance/rules/presentation` |
 | A game record with the wrong people, result, clock or moves | `tests/conformance/history/game-record` |
 | A game depending on another game or a registry; a framework package depending on a game | the package's `lint` (`gameViolations`) |

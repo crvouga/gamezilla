@@ -175,7 +175,11 @@ values the world returns but never imports their stored type.
 `recognizes` (exactly this game's positions), `initial`, `play` (the next
 position, or `null` when refused), `replay`, `legal`, `canWin` (a flag fall
 against a side that cannot be beaten is a draw) and `moves` (the accepted
-actions, labelled).
+actions, labelled). The sides take turns: the first side moves first and
+every action passes the turn to the other (`PlayedPosition.turn`), as
+`specs/games/game-turns.feature` says of every game; a rules law holds
+each game to it. The rules name the result (`PlayedPosition.winner`), which
+need not be the side that moved.
 
 Capabilities are present or absent, each with what it needs:
 
@@ -241,6 +245,10 @@ schedules, retries or remembers anything.
   framework commits the result: the space room's command result
   (`changedCustomGames`) or the mutation transaction
   (`runGameCommand` → `MultiplayerGameRepository.save`).
+- **Result.** A move's `winner` is the result every lifecycle records:
+  `playCustomGameMove` (`<winner> wins by <reason>`), `playMultiplayerMove`
+  (`outcome`) and `judgePuzzleAction` (the solver's win). A move may lose
+  for its mover (regression `custom-game-mover-credited-win`).
 - **Refusal and errors.** `play` returning `null` is a refusal
   (`move is illegal`, `CHESS_ILLEGAL_MOVE`) and nothing changes. A throw
   fails the room command or mutation as a whole, so nothing is saved.
@@ -648,8 +656,9 @@ behaviour for exactly what it offers:
   game; otherwise the capability of that name), as `<game> › <area> › <suite>`.
   The rules laws are property tests (`assertProperty`): positions name one
   game, replay reproduces every position, the moves shown are the moves
-  played, only legal actions are accepted, and automation and bots choose
-  legally. The capability laws (`game-capability-laws`) hold every game's
+  played, only legal actions are accepted, the sides take turns, and
+  automation and bots choose legally. The capability laws
+  (`game-capability-laws`) hold every game's
   presentation to naming the game and each side apart, describing and
   labelling every ending its rules reach, and describing a draw on time
   (`conformance/rules/presentation`), and every game whose matched games
@@ -755,25 +764,46 @@ position and action already stored.
 
 ## Fit for future games
 
-The shared sessions serve **two-sided, alternating-turn, perfect-information**
-games whose state is one opaque position: chess, Connect Four, Gomoku (any
-grid, encoded in the position), Blockade (walls and steps are actions).
-Beyond that class:
+The shared lifecycles serve **two-sided, alternating-turn,
+perfect-information** games whose state is one opaque position. Each
+claim beyond that is an executable probe in
+[`libs/games-harness/tests/probes/`](../../games-harness/tests/probes/):
+the smallest game that asks the question, written as a game is (its
+definitions import only the `gameApi` modules, checked by
+[`probe-imports.test.ts`](../../games-harness/tests/probes/probe-imports.test.ts)),
+and judged by the framework's own laws and planner
+([`probe-verdict.ts`](../../games-harness/tests/probes/probe-verdict.ts)).
+A probe game is not enrolled in `CONFORMANCE_GAMES`: what it inherits is
+what the shared suites and specifications bind by its capabilities
+(`offersAll`), which run for an enrolled game offering the same ones. A
+supported probe passes every law; a limitation is pinned by the law that
+refuses it, a runtime refusal or a `@ts-expect-error`, so it fails the
+day the boundary moves.
 
-- **More than two players, simultaneous actions.** The seats are two
-  (`GameSide`), and a move passes the turn. Such a game registers its own
-  room behaviour (`GameOwnRoom`) and screens without the turn capabilities;
-  a shared multi-seat session would be a new shared module and capability.
-- **Hidden information** (Battleship). Room state is shared with everyone in
-  the space, so the shared sessions cannot keep a side's private state; it
-  needs a per-viewer projection of the position before it can be offered.
-- **Single-player, puzzle-first** (Numberlink). Puzzles are a capability
-  of a two-sided turn game: a position, the opponent's setup move and the
-  solver's line against its replies (a game's own board, coach and
-  companion show it; the platform owns every puzzle screen). A puzzle without an opponent, or a
-  game without turn rules, means widening `GAME_DEFINITIONS` from
-  `TurnGameDefinition` to `GameDefinition` (the space room already composes
-  such definitions) and a client without a turn-game presentation.
+| Probe | Outcome | Public contracts | Framework change | Shared screens, specs and suites | Boundary |
+| --- | --- | --- | --- | --- | --- |
+| [Puzzle-first](../../games-harness/tests/probes/puzzle-only.test.ts) (puzzles only: no custom games, opponent or history) | Executable: supported | `defineTurnGame({ capabilities: { puzzles } })`, `defineGameClient({ puzzles })`, `HarnessGame` with known puzzles | None | A space offers exactly Puzzle and Puzzle stats; a known puzzle is solved on the shared puzzle screen; every `specs/games` specification needing only `puzzles`, and the `rules` and `puzzles` code suites | — |
+| [Puzzle without an opponent](../../games-harness/tests/probes/puzzle-only.test.ts) (`solo-count`) | Executable: limitation | The same | Would need one | — | A puzzle's line alternates the opponent's moves with the solver's (`PuzzleRecord.line`; `solverMovesOf`, `puzzle-judge`, `opponent-stage` by parity), and sides take turns: `assertHarnessGame` refuses the solver-only line, the turn law the rules. Extending it: a line of solver moves with optional replies in `PuzzleRecord`, the judge and stager, and a single-seat turn |
+| [Turns that do not alternate](../../games-harness/tests/probes/turn-order.test.ts) (`double-turn`) | Executable: limitation | `PlayedPosition.turn` already names the side to move, and the custom-game engine seats each move by it | Would need one | — | Alternation is the platform's contract, not chess's: `specs/games/game-turns.feature` ("A participant's move passes the turn"), the custom-game and matched-game models, `bothHaveMoved` (two moves close a matched game's abort window and start its clock), move-list numbering in pairs (`multiplayer-format`) and puzzle lines by parity. The rules law "the first side moves first and every action passes the turn to the other side" refuses such a game, by name, alone. Simultaneous actions (design-only) also need a position with no single side to move |
+| [Setup phase](../../games-harness/tests/probes/setup-phase.test.ts) (`setup-race`: each side picks a stride, then races) | Executable: supported as ordinary turns | `GameRules` actions and positions | None | Every custom-game specification and suite; setup actions replay, list and are refused before play like any move | Design-only: no phase. Setup actions start and spend clocks, are numbered as moves and close a matched game's abort window; a simultaneous or hidden setup is the private-state boundary |
+| [Result the mover does not win](../../games-harness/tests/probes/results.test.ts) (`misere-tally`) | Executable: supported | `PlayedPosition.winner` | One, made: custom games credited the mover (`custom-game-mover-credited-win`) | Every custom-game specification and suite | A margin or score is only the ending's reason text (`endingDescription(reason)`) |
+| [Results beyond one winner](../../games-harness/tests/probes/results.test.ts) (shared win, ranking, score) | Executable (type-level): limitation | — | Would need one | — | `PlayedPosition.winner: GameSide \| 'draw' \| null`, `GameRecordMetadata.outcome: GameSide \| 'draw'`; stored custom and matched outcomes, Glicko-2 ratings on win/draw/loss and history's wins, losses and draws |
+| [More than two participants](../../games-harness/tests/probes/participants.test.ts) | Executable (type-level and by law): limitation; a multi-seat session is design-only | `GameOwnRoom` and a game's own `screens` only, beside the shared lifecycles | A new shared module and capability | None of the turn-game lifecycles | `GameSide` is two seats, `GameRecordMetadata.participants` a pair, and the turn law passes the turn to "the other"; behind them a custom game's two seats and clocks, a matched game's `white_id` / `black_id` and pairing |
+| [Participant-private state](../../games-harness/tests/probes/private-state.test.ts) | Executable: limitation | — | A per-viewer projection | — | Both sides and a watcher are shown the one position: the custom-game state is a room attribute shared with the space, a matched game's `fen` is read by both and by watchers, `GameBoardProps` has no viewer and `GameRules.play` / `legal` no actor. Extending it: `view(position, side)` in the rules, applied by the room, the matched-game reads, bots and the puzzle session |
+| [A surface unlike a chessboard](../../games-harness/tests/probes/play-surface.test.ts) | Executable: supported | `GamePresentation.Board`, `GamePuzzlesClient.Board`, `PuzzleMarks` | None | The reference game's board is a row of buttons and its cells counts; it runs every shared specification and suite it offers | Puzzles mark cells (`PuzzleMarks.to`, `isCell`), the board faces a side (`orientation`), and automation is one pointer gesture (see Known limits) |
+
+### Change impact
+
+What changes, verified against this branch's history:
+
+| Change | What changes | Framework | Evidence |
+| --- | --- | --- | --- |
+| A game with existing capabilities | The game's packages (`<id>-shared`: rules, `defineTurnGame`; `-client`: board, `defineGameClient`; `-harness`: `PlayableGame`, `HarnessGame`, fixtures; `specs/<id>/`); one entry each in `GAME_DEFINITIONS`, `GAME_CLIENT_DEFINITIONS`, `HARNESS_GAMES`; workspace setup ([`ADDING_A_GAME.md`](ADDING_A_GAME.md) §4: `tsconfig.base.json`, root `tsconfig.json`, registry manifests, `turbo.json`, `lingui-scope.ts`, `specs/conformance.yaml`) | None | Connect Four's registrations (no framework file names it); `dc15000ea` (the reference game takes up puzzles: its file, its faulty copies and the suites, no framework source); the puzzle-only, misère, setup and surface probes |
+| Optional configuration of a capability | The field in its public contract module (`game-puzzles.ts`, `game-rules.ts`, `harness-game.ts`), the framework code reading it, the law holding it, `GAME_TRAITS` if specifications need it, the docs; only games opting in | Contract + reader | `efa1cf428` (`secondSideCannotWin`), `cc9ea727f` (`drawByRules`): `harness-game.ts`, `game-rules-laws.ts`, `game-conformance.ts`, the steps, and only the playables opting in. Optional capability fields (`judge`, `content.positionKey`) came with the capability (`e74e57b9b`); by inspection one more touches `game-puzzles.ts` and `game-puzzle-shared` alone |
+| A specialised action or rendering component | The game's own packages: its board, its puzzles client part (`Companion`, `coach`, `notation`, `useFeedback`), its own `screens` / `choices` or `GameOwnRoom` | None | `973dd1afd` (one file, `chess-puzzle-board.tsx`) |
+| A capability for a new class of game | `pkgs/turn-game-shared` (the contract module, `GAME_CAPABILITIES`, `CAPABILITY_REQUIRES`, `gameApi`), `defineTurnGame` (installing its shared module), `defineGameClient` and `assertMatchingGameIds` (its client part), `GameFixtures` and `assertHarnessGame` (its known examples), its laws, `tests/conformance/<capability>/`, `SHARED_SPECIFICATIONS` and `specs/games/`, its sub and composition (`app-subs`, `gameSystem`), the docs | Contracts + internals | Puzzles: `e74e57b9b` (contract, no game file), `907e5d0f8` (`PUZZLE_SESSIONS`, `harness-game.ts`), `f4b73b343` (client part, `game-client.tsx`, `load-game-plugins.ts`, `app-sub-clients.ts`), `44df2e627` (fixtures, laws, suites), `3c6b2c60c` and the binding commits after it |
+| Evolving persisted state | Never a [durable name](#durable-names); a new partition in reads, not tables; a recorded session replayed to the same events; a game's own encoding kept readable by its `recognizes` / `play` / `replay` | Internals | `a72377df5` (puzzle namespaces through `puzzle-namespace.ts`, the catalogue and reads; `puzzle-tables.ts` untouched), `907e5d0f8` (`chess-puzzle-harness/tests/puzzle-session-compatibility`), `49a13b2e8` (`GAME_PLATFORM_NAMESPACE`) |
+| An internal framework change | Framework internals and their tests only | Internals | `aa2c6dcb6` (`settle-due-game.ts`), `287ba476f` (the matchmaking harness): no game file; likewise this probe work's `custom-game-play.ts` fix and turn law |
 
 ## Known limits
 
