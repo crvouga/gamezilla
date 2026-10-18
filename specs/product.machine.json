@@ -4706,8 +4706,7 @@
                     "confidence": "assumed",
                     "source": [
                       "specs/games/space-follow.qnt",
-                      "specs/chess/space-follows-the-host.feature",
-                      "specs/chess/space-host-select-game.feature",
+                      "specs/games/space-follows-the-host.feature",
                       "specs/chess/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml"
                     ],
@@ -4722,7 +4721,7 @@
                         "snapshot": "The space offers chess puzzles and the choices every game offers, according to the person’s role and permission.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/space-host-select-game.feature",
+                          "specs/games/space-follows-the-host.feature",
                           "specs/games/game-choices.feature"
                         ],
                         "events": []
@@ -4758,7 +4757,7 @@
                         "snapshot": "Only the host changes the space’s selected game.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/space-host-select-game.feature:6"
+                          "specs/games/space-follows-the-host.feature:21"
                         ],
                         "events": []
                       },
@@ -4775,7 +4774,7 @@
                         "snapshot": "The host chooses among the registered games for this space.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/space-host-select-game.feature",
+                          "specs/games/space-follows-the-host.feature",
                           "specs/games/game-choices.feature"
                         ],
                         "events": []

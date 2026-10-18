@@ -698,7 +698,9 @@ terms:
       What a person in a space is looking at: the space's game choice or the
       game's choices. What a space plays belongs to the space, so everyone in
       it sees what its host last chose, on every device they have in the
-      space; a guest's choice does nothing. Going idle does not change it.
+      space. A guest cannot change it and is told only the host chooses the
+      game; a device without a connection cannot change it either. Going
+      idle does not change it.
     avoid: [screen, page]
     model: [view]
 
