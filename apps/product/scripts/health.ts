@@ -244,6 +244,13 @@ export const HOST_LIMITS: readonly HostLimit[] = [
     why: 'with OBSERVABILITY_ENABLED=0 the environment keeps no request records',
   },
   {
+    feature: 'specs/runtime/serving-people.feature',
+    scenario:
+      'The app brings up what people saved without keeping them waiting',
+    needs: 'observability',
+    why: 'with OBSERVABILITY_ENABLED=0 the environment keeps no request records to measure',
+  },
+  {
     feature: 'specs/profile/finding-a-person.feature',
     needs: 'observability',
     why: 'with OBSERVABILITY_ENABLED=0 the environment keeps no trail of what happened to a person',
