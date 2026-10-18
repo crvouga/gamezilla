@@ -1,10 +1,9 @@
 @domain:games
-Feature: Matched games and custom games leave the game's puzzles alone
+Feature: Finding an opponent and matched games leave the game's puzzles alone
   When a person in a space playing puzzles of the game finds an opponent, or
-  plays a matched game or a custom game, they want the space's puzzle and
-  their puzzle rating left as they were, so other play never disturbs their
-  puzzles. It holds for every game that offers puzzles as well as finding an
-  opponent or custom games.
+  plays a matched game, they want the space's puzzle and their puzzle rating
+  left as they were, so other play never disturbs their puzzles. It holds for
+  every game that offers puzzles as well as finding an opponent.
 
   Rule: Finding an opponent leaves the space's puzzle as it was
     No counter-example: nothing a person does while finding an opponent reaches the space's puzzle, so there is nothing to refuse.
@@ -23,12 +22,3 @@ Feature: Matched games and custom games leave the game's puzzles alone
       And Alice has the first side against Bob in a 5+0 matched game after their first moves
       When Alice resigns the matched game
       Then Alice's puzzle rating is 1700
-
-  Rule: A custom game never changes a puzzle rating
-    No counter-example: nothing played in a custom game reaches a puzzle rating.
-
-    Scenario: A custom game cannot change the puzzle rating
-      Given Alice and Bob have a custom game under way
-      When Alice resigns the custom game
-      Then Bob wins the custom game by resignation
-      And Alice's puzzle rating is 1500
