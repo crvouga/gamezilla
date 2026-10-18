@@ -11,7 +11,7 @@ import {
   readPuzzleHeard,
   usePuzzleControlWithKeyboard,
 } from '@libs/chess-puzzle-harness/puzzle-keyboard';
-import { readShownRatingChange } from '@libs/chess-puzzle-harness/puzzle-outcome-reads';
+import { readShownRatingChange } from '@libs/game-session-harness/puzzle-screen';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';

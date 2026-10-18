@@ -1,14 +1,17 @@
 import {
   closePuzzleFeedSettings,
   openPuzzleFeedSettings,
-  openPuzzleFromSpace,
 } from '@libs/chess-puzzle-harness/chess-actions';
 import { discardFeedSettings } from '@libs/chess-puzzle-harness/chess-puzzle-feed-ui';
-import { readPuzzleControlAvailability } from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import {
   previewPuzzleFeedChoice,
   readSavedFeedChoice,
 } from '@libs/chess-puzzle-harness/puzzle-feed-model';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import {
+  openGamePuzzles,
+  readPuzzleControls,
+} from '@libs/game-session-harness/puzzle-screen';
 import {
   partition,
   restartApp,
@@ -47,9 +50,9 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(signInWithGoogle, 'alice');
       await w.s.apply(signInWithGoogleAsAccount, 'charlie', 'alice');
       await w.s.apply(createSpace, 'alice');
-      await w.s.apply(openPuzzleFromSpace, 'alice');
+      await w.s.apply(openGamePuzzles, 'alice', CHESS_GAME_ID);
       await w.s.apply(returnToOwnSpace, 'charlie');
-      await w.s.apply(openPuzzleFromSpace, 'charlie');
+      await w.s.apply(openGamePuzzles, 'charlie', CHESS_GAME_ID);
     },
     startEditingFeed: async (w) => {
       await w.s.apply(focusActor, 'alice');
@@ -62,7 +65,7 @@ bindQuintModel<QuintHarnessWorld>({
     reopenApp: async (w) => {
       await w.s.apply(restartApp, 'alice');
       await w.s.apply(returnToOwnSpace, 'alice');
-      await w.s.apply(openPuzzleFromSpace, 'alice');
+      await w.s.apply(openGamePuzzles, 'alice', CHESS_GAME_ID);
     },
     _loseConnection: (w, picks) =>
       w.s.apply(partition, String(picks['device'])),
@@ -77,8 +80,8 @@ bindQuintModel<QuintHarnessWorld>({
     await w.quiet.read(bringToFront, 'alice');
     return {
       feedChoice,
-      editing: (await w.quiet.read(readPuzzleControlAvailability, 'alice'))
-        .editingFeed,
+      editing: (await w.quiet.read(readPuzzleControls, 'alice'))
+        .feedSettingsOpen,
     };
   },
 });

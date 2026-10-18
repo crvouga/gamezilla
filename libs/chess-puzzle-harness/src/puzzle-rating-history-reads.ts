@@ -1,6 +1,6 @@
 import { PUZZLE_RATING_SCALE } from '@libs/game-session-harness/puzzle-fixtures';
+import { readStatsRatingHistory } from '@libs/game-session-harness/puzzle-records';
 import type { ProductHarness } from '@libs/harness/harness';
-import { readStatsRatingHistory } from './chess-puzzle-ui';
 
 /** The increases and decreases drawn in the actual stats history. */
 export async function readPuzzleRatingHistoryDirections(

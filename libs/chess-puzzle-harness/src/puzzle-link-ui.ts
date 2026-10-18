@@ -10,6 +10,11 @@ import {
   puzzleLinkPathOf,
 } from '@libs/game-puzzle-shared/puzzle-link';
 import {
+  isPuzzleLimitShown,
+  isPuzzleOfflineNoticeShown,
+  readPuzzleOnBoard,
+} from '@libs/game-session-harness/puzzle-screen';
+import {
   actorUi,
   ensureActor,
   pollUntil,
@@ -20,11 +25,6 @@ import { bringToFront } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { RecordingClipboard } from '@pkgs/device-shared/clipboard';
 import { hostLimit } from '@pkgs/gherkin-shared/registry';
-import {
-  isPuzzleLimitVisible,
-  isPuzzleOfflineNoticeVisible,
-  readActivePuzzleId,
-} from './chess-puzzle-ui';
 
 const WAIT_MS = 15_000;
 const POLL_MS = 100;
@@ -124,9 +124,9 @@ export async function readPuzzleLinkOutcome(
   // The opener's screen, brought in view to be read.
   await bringToFront(s, actorId);
   if (await isPuzzleLinkUnavailableVisible(s, actorId)) return 'unavailable';
-  if (await isPuzzleOfflineNoticeVisible(s, actorId)) return 'offline';
-  if (await isPuzzleLimitVisible(s, actorId)) return 'dailyLimit';
-  return (await readActivePuzzleId(s, actorId)) === puzzleId
+  if (await isPuzzleOfflineNoticeShown(s, actorId)) return 'offline';
+  if (await isPuzzleLimitShown(s, actorId)) return 'dailyLimit';
+  return (await readPuzzleOnBoard(s, actorId)) === puzzleId
     ? 'linked'
     : 'other';
 }

@@ -10,10 +10,10 @@ import {
   readAssistantAudioState,
   readPuzzleAssistant,
   readReducedMotionApplied,
-  stepPuzzlePosition,
   unmutePuzzleAssistant,
 } from '@libs/chess-puzzle-harness/puzzle-assistant-ui';
 import { deliverCompetingPuzzleMates } from '@libs/chess-puzzle-harness/puzzle-competing-mates';
+import { stepThroughPuzzleLine } from '@libs/game-session-harness/puzzle-screen';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { cutConnection, otherDevice } from '@libs/harness/platform';
@@ -131,7 +131,7 @@ Then(
 );
 
 async function earlierPosition(w: HarnessWorld, actor: Actor) {
-  await w.s.apply(stepPuzzlePosition, actor, 'back');
+  await w.s.apply(stepThroughPuzzleLine, actor, 'back');
 }
 Given(
   '{actor} is reviewing an earlier position in the puzzle',
@@ -139,7 +139,7 @@ Given(
 );
 When('{actor} steps back one move in the puzzle', earlierPosition);
 When('{actor} returns to the current puzzle move', async (w, actor: Actor) => {
-  await w.s.apply(stepPuzzlePosition, actor, 'forward');
+  await w.s.apply(stepThroughPuzzleLine, actor, 'forward');
 });
 
 Then(

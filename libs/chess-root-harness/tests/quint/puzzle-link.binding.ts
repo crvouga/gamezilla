@@ -5,21 +5,12 @@
  * device can lose its connection; the team can retire the puzzle.
  */
 
-import {
-  openPuzzleFromSpace,
-  playUntilSolved,
-  pressPuzzleNext,
-} from '@libs/chess-puzzle-harness/chess-actions';
-import {
-  ingestChessPuzzleCsv,
-  retireChessPuzzle,
-} from '@libs/chess-puzzle-harness/chess-puzzle-data';
+import { playUntilSolved } from '@libs/chess-puzzle-harness/chess-actions';
+import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness/chess-puzzle-data';
 import {
   readLocalPuzzleStartLedger,
   useUpPuzzleStartsToday,
 } from '@libs/chess-puzzle-harness/chess-puzzle-ledger-data';
-import { isPuzzleAttemptRated } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import { readPuzzleRemainingToday } from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
 import type { PuzzleLinkOutcome } from '@libs/chess-puzzle-harness/puzzle-link-ui';
 import {
@@ -29,6 +20,14 @@ import {
   readSharedPuzzleLink,
   sharePuzzleLink,
 } from '@libs/chess-puzzle-harness/puzzle-link-ui';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import { retireCataloguePuzzle } from '@libs/game-session-harness/puzzle-records';
+import {
+  isPuzzleAttemptRated,
+  moveOnToNextPuzzle,
+  openGamePuzzles,
+  readPuzzleStartsLeft,
+} from '@libs/game-session-harness/puzzle-screen';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { focusActor } from '@libs/harness/shell-actions';
@@ -70,11 +69,11 @@ async function prepareOpener(
   playedBefore: boolean
 ) {
   await w.s.apply(createSpace, OPENER);
-  await w.s.apply(openPuzzleFromSpace, OPENER);
+  await w.s.apply(openGamePuzzles, OPENER, CHESS_GAME_ID);
   if (playedBefore) {
     await openHookMate(w, OPENER);
     await w.s.apply(playUntilSolved, OPENER);
-    await w.s.apply(pressPuzzleNext, OPENER);
+    await w.s.apply(moveOnToNextPuzzle, OPENER);
   }
   const used = (await w.s.read(readLocalPuzzleStartLedger, OPENER)).length;
   await w.s.apply(useUpPuzzleStartsToday, OPENER, starts - used + 1);
@@ -85,7 +84,7 @@ function picked(picks: Picks, key: string): unknown {
 }
 
 async function startsShown(w: QuintHarnessWorld): Promise<number> {
-  const remaining = await w.quiet.read(readPuzzleRemainingToday, OPENER);
+  const remaining = await w.quiet.read(readPuzzleStartsLeft, OPENER);
   if (remaining !== null) return DAILY_PUZZLE_LIMIT - remaining;
   // Off the puzzle screen (a link that did not open), the device's own
   // count of today's starts.
@@ -140,7 +139,7 @@ bindQuintModel<QuintHarnessWorld>({
         pred: (outcome) => outcome !== 'other',
       });
     },
-    retirePuzzle: (w) => w.s.apply(retireChessPuzzle, PUZZLE.id),
+    retirePuzzle: (w) => w.s.apply(retireCataloguePuzzle, PUZZLE.id),
     _loseConnection: (w, picks) =>
       w.s.apply(partition, String(picked(picks, 'device'))),
     connectionReturns: (w, picks) =>

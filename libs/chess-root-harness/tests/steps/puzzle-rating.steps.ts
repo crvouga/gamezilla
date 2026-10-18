@@ -11,19 +11,17 @@ import {
   playUntilSolved,
   showPersonalChessStatsScreen,
 } from '@libs/chess-puzzle-harness/chess-actions';
-import {
-  isGameLogEmpty,
-  readGameLogRowTitle,
-  readStatsAccuracy,
-  readStatsElo,
-  readStatsPlayed,
-  readStatsRatingHistory,
-  readStatsRatingLabel,
-  readStatsSolved,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { seedPuzzleRating } from '@libs/chess-puzzle-harness/chess-rating-data';
 import { readPuzzleRatingHistoryDirections } from '@libs/chess-puzzle-harness/puzzle-rating-history-reads';
 import { PUZZLE_RATING_SCALE } from '@libs/game-session-harness/puzzle-fixtures';
+import {
+  isGameLogEmpty,
+  readGameLogTitle,
+  readStatsFigures,
+  readStatsPuzzleRating,
+  readStatsRatingHistory,
+  readStatsRatingLabel,
+} from '@libs/game-session-harness/puzzle-records';
 import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -64,9 +62,7 @@ async function readFigures(
   device: string
 ): Promise<Figures> {
   return {
-    played: await readStatsPlayed(s, device),
-    solved: await readStatsSolved(s, device),
-    accuracy: await readStatsAccuracy(s, device),
+    ...(await readStatsFigures(s, device)),
   };
 }
 
@@ -168,7 +164,9 @@ Then(
   "{actor}'s puzzle rating is above {int}",
   async (w, actor: Actor, rating: number) => {
     await ensureStatsOpen(w, actor);
-    expect(await w.s.read(readStatsElo, actor)).toBeGreaterThan(rating);
+    expect(await w.s.read(readStatsPuzzleRating, actor)).toBeGreaterThan(
+      rating
+    );
   }
 );
 
@@ -176,7 +174,7 @@ Then(
   "{actor}'s puzzle rating is below {int}",
   async (w, actor: Actor, rating: number) => {
     await ensureStatsOpen(w, actor);
-    expect(await w.s.read(readStatsElo, actor)).toBeLessThan(rating);
+    expect(await w.s.read(readStatsPuzzleRating, actor)).toBeLessThan(rating);
   }
 );
 
@@ -185,11 +183,11 @@ Then(
   async (w, actor: Actor, other: Actor) => {
     await ensureStatsOpen(w, other);
     const rating = required(
-      await w.s.read(readStatsElo, other),
+      await w.s.read(readStatsPuzzleRating, other),
       `${other}'s puzzle rating`
     );
     await ensureStatsOpen(w, actor);
-    await w.s.until((surf) => readStatsElo(surf, actor), {
+    await w.s.until((surf) => readStatsPuzzleRating(surf, actor), {
       maxMs: SETTLE_MS,
       pred: (shown) => shown === rating,
     });
@@ -200,7 +198,7 @@ Then(
   "{actor}'s puzzle rating is {int}",
   async (w, actor: Actor, rating: number) => {
     await ensureStatsOpen(w, actor);
-    expect(await w.s.read(readStatsElo, actor)).toBe(rating);
+    expect(await w.s.read(readStatsPuzzleRating, actor)).toBe(rating);
   }
 );
 
@@ -316,7 +314,10 @@ Then(
       ...results,
     ]);
     expect(history.at(-1)).toBe(
-      required(await w.s.read(readStatsElo, actor), `${actor}'s rating`)
+      required(
+        await w.s.read(readStatsPuzzleRating, actor),
+        `${actor}'s rating`
+      )
     );
   }
 );
@@ -337,7 +338,7 @@ Then(
     }
     await ensureStatsOpen(w, actor);
     await w.s.until(
-      (surf) => readGameLogRowTitle(surf, actor, currentPuzzle(w, actor)),
+      (surf) => readGameLogTitle(surf, actor, currentPuzzle(w, actor)),
       { maxMs: SETTLE_MS, pred: (text) => text !== null && title.test(text) }
     );
   }

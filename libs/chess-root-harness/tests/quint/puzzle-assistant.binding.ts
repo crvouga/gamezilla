@@ -8,44 +8,44 @@
  */
 
 import {
-  leaveChessMenuToGameMenu,
-  leavePuzzleToChessMenu,
-  openPuzzleFromSpace,
   playNextSolutionMove,
   playUntilSolved,
   playWrongPuzzleMove,
-  pressPuzzleNext,
-  pressPuzzleNextTwice,
-  reopenPuzzleFromChessMenu,
-  requestPuzzleHint,
-  retryPuzzle,
-  revealPuzzleSolution,
-  showPuzzleSolutionLine,
-  skipPuzzle,
   suggestNonSolutionMove,
-  tapPuzzleReviewMove,
 } from '@libs/chess-puzzle-harness/chess-actions';
-import {
-  closePuzzleSummary,
-  readActivePuzzleId,
-  readPuzzleStatus,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import {
   chooseMovablePuzzlePiece,
   mutePuzzleAssistant,
-  pressPuzzleRetryIfVisible,
   readPuzzleAssistant,
-  stepPuzzlePosition,
   unmutePuzzleAssistant,
 } from '@libs/chess-puzzle-harness/puzzle-assistant-ui';
 import {
-  readPuzzleControlAvailability,
   readPuzzleGuidance,
-  readPuzzleRemainingToday,
   readPuzzleView,
 } from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import { preparePuzzleModelPool } from '@libs/chess-puzzle-harness/puzzle-model-pool';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
 import { attemptHostPuzzleCommand } from '@libs/game-session-harness/puzzle-room-probe';
+import {
+  askForNextPuzzleTwice,
+  choosePuzzleLineMove,
+  goBackToGamePuzzles,
+  leavePuzzleForGameChoices,
+  moveOnToNextPuzzle,
+  openGamePuzzles,
+  readPuzzleControls,
+  readPuzzleOnBoard,
+  readPuzzleStartsLeft,
+  readPuzzleState,
+  retryGamePuzzle,
+  retryGamePuzzleIfOffered,
+  showPuzzleSolution,
+  skipGamePuzzle,
+  stepThroughPuzzleLine,
+  takePuzzleHint,
+  takeSecondPuzzleHint,
+} from '@libs/game-session-harness/puzzle-screen';
+import { attemptGoBackToGameChoice } from '@libs/game-session-harness/space-game-choice';
 import { partition, restartApp, restoreNetwork } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { focusActor } from '@libs/harness/shell-actions';
@@ -81,7 +81,7 @@ function seen(w: QuintHarnessWorld): readonly string[] {
 
 /** Number the puzzle now on the host's board, if it is new. */
 async function notePuzzle(w: QuintHarnessWorld): Promise<void> {
-  const id = await w.s.read(readActivePuzzleId, HOST);
+  const id = await w.s.read(readPuzzleOnBoard, HOST);
   if (id === null) throw new Error(`${HOST} has no puzzle on the board`);
   const ids = seen(w);
   if (!ids.includes(id)) w.memo.set(SEEN, [...ids, id]);
@@ -112,7 +112,7 @@ async function startsUsed(
   onBoard: boolean
 ) {
   const remaining = onBoard
-    ? await w.quiet.read(readPuzzleRemainingToday, actor)
+    ? await w.quiet.read(readPuzzleStartsLeft, actor)
     : null;
   const starts =
     remaining === null
@@ -199,34 +199,37 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(openSpaceLink, WATCHER, link);
       await w.s.apply(joinFromPrompt, WATCHER);
     },
-    openPuzzles: hostDoes((w) => w.s.apply(openPuzzleFromSpace, HOST), true),
-    goBackToPuzzles: hostDoes(
-      (w) => w.s.apply(reopenPuzzleFromChessMenu, HOST),
+    openPuzzles: hostDoes(
+      (w) => w.s.apply(openGamePuzzles, HOST, CHESS_GAME_ID),
       true
     ),
-    leavePuzzle: hostDoes((w) => w.s.apply(leavePuzzleToChessMenu, HOST)),
+    goBackToPuzzles: hostDoes(
+      (w) => w.s.apply(goBackToGamePuzzles, HOST),
+      true
+    ),
+    leavePuzzle: hostDoes((w) => w.s.apply(leavePuzzleForGameChoices, HOST)),
     backToGameChoice: hostDoes((w) =>
-      w.s.apply(leaveChessMenuToGameMenu, HOST)
+      w.s.apply(attemptGoBackToGameChoice, HOST, CHESS_GAME_ID)
     ),
     solve: hostDoes((w) => w.s.apply(playUntilSolved, HOST)),
     playWrongMove: hostDoes((w) => w.s.apply(playWrongPuzzleMove, HOST)),
     playCorrectContinuation: hostDoes((w) =>
       w.s.apply(playNextSolutionMove, HOST)
     ),
-    requestHint: hostDoes((w) => w.s.apply(requestPuzzleHint, HOST)),
-    revealSolutionMove: hostDoes((w) => w.s.apply(revealPuzzleSolution, HOST)),
+    requestHint: hostDoes((w) => w.s.apply(takePuzzleHint, HOST)),
+    revealSolutionMove: hostDoes((w) => w.s.apply(takeSecondPuzzleHint, HOST)),
     stepBackPosition: hostDoes((w) =>
-      w.s.apply(stepPuzzlePosition, HOST, 'back')
+      w.s.apply(stepThroughPuzzleLine, HOST, 'back')
     ),
     stepForwardPosition: hostDoes((w) =>
-      w.s.apply(stepPuzzlePosition, HOST, 'forward')
+      w.s.apply(stepThroughPuzzleLine, HOST, 'forward')
     ),
-    showSolution: hostDoes((w) => w.s.apply(showPuzzleSolutionLine, HOST)),
-    skip: hostDoes((w) => w.s.apply(skipPuzzle, HOST)),
-    retry: hostDoes((w) => w.s.apply(retryPuzzle, HOST)),
-    moveOn: hostDoes((w) => w.s.apply(pressPuzzleNext, HOST), true),
+    showSolution: hostDoes((w) => w.s.apply(showPuzzleSolution, HOST)),
+    skip: hostDoes((w) => w.s.apply(skipGamePuzzle, HOST)),
+    retry: hostDoes((w) => w.s.apply(retryGamePuzzle, HOST)),
+    moveOn: hostDoes((w) => w.s.apply(moveOnToNextPuzzle, HOST), true),
     moveOnTwiceAtOnce: hostDoes(
-      (w) => w.s.apply(pressPuzzleNextTwice, HOST),
+      (w) => w.s.apply(askForNextPuzzleTwice, HOST),
       true
     ),
     tryMoveAfterFinish: hostDoes((w) =>
@@ -257,7 +260,7 @@ bindQuintModel<QuintHarnessWorld>({
       w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'move')
     ),
     tryRetryWhileSolving: hostDoes((w) =>
-      w.s.apply(pressPuzzleRetryIfVisible, HOST)
+      w.s.apply(retryGamePuzzleIfOffered, HOST)
     ),
     trySolutionBeforeHint: hostDoes((w) =>
       w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'solution')
@@ -277,8 +280,7 @@ bindQuintModel<QuintHarnessWorld>({
     },
     chooseReviewPosition: async (w, picks) => {
       await w.s.apply(focusActor, HOST);
-      await w.s.read(closePuzzleSummary, HOST);
-      await w.s.apply(tapPuzzleReviewMove, HOST, Number(picks['move']) - 1);
+      await w.s.apply(choosePuzzleLineMove, HOST, Number(picks['move']));
     },
     choosePiece: hostDoes((w) => w.s.apply(chooseMovablePuzzlePiece, HOST)),
     timePasses: (w) => w.s.advanceTime(65_000),
@@ -334,18 +336,18 @@ bindQuintModel<QuintHarnessWorld>({
       puzzleState.set(
         actor,
         onBoard
-          ? ((await w.quiet.read(readPuzzleStatus, actor)) ?? 'unknown')
+          ? ((await w.quiet.read(readPuzzleState, actor)) ?? 'unknown')
           : 'none'
       );
       moveOnOffered.set(
         actor,
-        (await w.quiet.read(readPuzzleControlAvailability, actor)).moveOnOffered
+        (await w.quiet.read(readPuzzleControls, actor)).moveOnOffered
       );
       puzzle.set(
         actor,
         numberOf(
           w,
-          onBoard ? await w.quiet.read(readActivePuzzleId, actor) : null
+          onBoard ? await w.quiet.read(readPuzzleOnBoard, actor) : null
         )
       );
       puzzleStarts.set(actor, await startsUsed(w, actor, onBoard));

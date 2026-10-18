@@ -6,7 +6,7 @@
 
 import { expect } from 'bun:test';
 import { readServerPuzzles } from '@libs/chess-puzzle-harness/chess-puzzle-data';
-import { readGameLogRow } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import { readGameLogRow } from '@libs/game-session-harness/puzzle-records';
 import { Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import {

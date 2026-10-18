@@ -45,7 +45,7 @@ useHarnessWorld(openSpecHarness, (w) => ({
     });
     await w.s.apply(createSpace, actor);
     const customLink = await w.s.read(readSpaceLink, actor);
-    await w.s.apply(openPuzzleFromSpace, actor);
+    await w.s.apply(openGamePuzzles, actor, CHESS_GAME_ID);
     await w.s.apply(playUntilSolved, actor);
     // A saved custom feed target, two steps up.
     await w.s.apply(openPuzzleFeedSettings, actor);
@@ -57,8 +57,12 @@ useHarnessWorld(openSpecHarness, (w) => ({
       'deleted-feed-target',
       await w.s.read(readFeedTargetLabel, actor)
     );
-    await w.s.apply(showChessStatsScreen, actor);
-    remember(w, 'deleted-puzzle-rating', await w.s.read(readStatsElo, actor));
+    await w.s.apply(showGamePuzzleStats, actor, CHESS_GAME_ID);
+    remember(
+      w,
+      'deleted-puzzle-rating',
+      await w.s.read(readStatsPuzzleRating, actor)
+    );
     remember(
       w,
       'deleted-puzzle-label',
@@ -67,10 +71,10 @@ useHarnessWorld(openSpecHarness, (w) => ({
     remember(
       w,
       'deleted-puzzle-solved',
-      await w.s.read(readStatsSolved, actor)
+      (await w.s.read(readStatsFigures, actor)).solved
     );
     if (customLink === null) throw new Error('Deleted account has no space');
-    await w.s.apply(leaveChessStatsScreen, actor);
+    await w.s.apply(leaveGamePuzzleStats, actor);
   },
 }));
 
@@ -78,19 +82,11 @@ import { proveAccount } from '@libs/account-privacy-harness/privacy-actions';
 import {
   bumpPuzzleFeedCustomRating,
   closePuzzleFeedSettings,
-  leaveChessStatsScreen,
   openPuzzleFeedSettings,
-  openPuzzleFromSpace,
   playUntilSolved,
   setPuzzleFeedMode,
-  showChessStatsScreen,
 } from '@libs/chess-puzzle-harness/chess-actions';
 import { readFeedTargetLabel } from '@libs/chess-puzzle-harness/chess-puzzle-feed-ui';
-import {
-  readStatsElo,
-  readStatsRatingLabel,
-  readStatsSolved,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { seedPuzzleRating } from '@libs/chess-puzzle-harness/chess-rating-data';
 import { PUZZLE_RATING_SCALE } from '@libs/game-session-harness/puzzle-fixtures';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -99,6 +95,15 @@ import { remember } from '@libs/harness/spec-world';
 import './multiplayer-game.steps';
 import './multiplayer-accessibility.steps';
 import './multiplayer-policies.steps';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import {
+  leaveGamePuzzleStats,
+  readStatsFigures,
+  readStatsPuzzleRating,
+  readStatsRatingLabel,
+  showGamePuzzleStats,
+} from '@libs/game-session-harness/puzzle-records';
+import { openGamePuzzles } from '@libs/game-session-harness/puzzle-screen';
 import { createSpace } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { rememberOfflineBoard } from './multiplayer-connection';

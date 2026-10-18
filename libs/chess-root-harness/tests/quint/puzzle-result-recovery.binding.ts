@@ -1,8 +1,4 @@
-import {
-  finishPuzzleBy,
-  openPuzzleFromSpace,
-} from '@libs/chess-puzzle-harness/chess-actions';
-import { readActivePuzzleId } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import { finishPuzzleBy } from '@libs/chess-puzzle-harness/chess-actions';
 import { finishPuzzleAsAppCloses } from '@libs/chess-puzzle-harness/puzzle-close-during-finish';
 import { finishCompetingPuzzleResults } from '@libs/chess-puzzle-harness/puzzle-competing-mates';
 import {
@@ -12,6 +8,11 @@ import {
   retryFinishedPuzzle,
   viewRecoveryStats,
 } from '@libs/chess-puzzle-harness/puzzle-result-recovery';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import {
+  openGamePuzzles,
+  readPuzzleOnBoard,
+} from '@libs/game-session-harness/puzzle-screen';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import {
   signInWithGoogle,
@@ -105,13 +106,13 @@ bindQuintModel<QuintHarnessWorld>({
       w.memo.set('result-space', link.slice('/space/'.length));
       await w.s.apply(openSpaceLink, 'bob', link);
       await w.s.apply(joinFromPrompt, 'bob');
-      await w.s.apply(openPuzzleFromSpace, 'alice');
-      const puzzle = await w.s.read(readActivePuzzleId, 'alice');
+      await w.s.apply(openGamePuzzles, 'alice', CHESS_GAME_ID);
+      const puzzle = await w.s.read(readPuzzleOnBoard, 'alice');
       if (puzzle === null) throw new Error('No active puzzle');
       w.memo.set('result-puzzle', puzzle);
       // Initialization includes the watcher's cached copy before it can go offline.
       await w.s.apply(focusActor, 'bob');
-      await w.s.until((s) => readActivePuzzleId(s, 'bob'), {
+      await w.s.until((s) => readPuzzleOnBoard(s, 'bob'), {
         pred: (id) => id === puzzle,
         maxMs: 15_000,
       });

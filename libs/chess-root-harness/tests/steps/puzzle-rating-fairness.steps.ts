@@ -8,8 +8,8 @@ import {
   playUntilSolved,
   playWrongPuzzleMove,
 } from '@libs/chess-puzzle-harness/chess-actions';
-import { readStatsElo } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
+import { readStatsPuzzleRating } from '@libs/game-session-harness/puzzle-records';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -24,7 +24,7 @@ import {
 async function ratingOf(w: HarnessWorld, actor: Actor): Promise<number> {
   await ensureStatsOpen(w, actor);
   return required(
-    await w.s.until((surf) => readStatsElo(surf, actor), {
+    await w.s.until((surf) => readStatsPuzzleRating(surf, actor), {
       maxMs: SETTLE_MS,
       pred: (rating) => rating !== null,
     }),
@@ -41,7 +41,7 @@ async function untilRatingAgainst(
 ): Promise<void> {
   const others = await ratingOf(w, other);
   await ensureStatsOpen(w, actor);
-  await w.s.until((surf) => readStatsElo(surf, actor), {
+  await w.s.until((surf) => readStatsPuzzleRating(surf, actor), {
     maxMs: SETTLE_MS,
     pred: (rating) => rating !== null && holds(rating, others),
   });

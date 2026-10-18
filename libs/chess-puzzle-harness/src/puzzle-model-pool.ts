@@ -1,9 +1,6 @@
+import { retireCataloguePuzzle } from '@libs/game-session-harness/puzzle-records';
 import { scenarioAction } from '@libs/harness/actor-ui';
-import {
-  ingestChessPuzzleCsv,
-  readServerPuzzles,
-  retireChessPuzzle,
-} from './chess-puzzle-data';
+import { ingestChessPuzzleCsv, readServerPuzzles } from './chess-puzzle-data';
 
 /** Three distinct canonical mates, each with two solver moves. */
 const POOL = [
@@ -18,7 +15,7 @@ export const preparePuzzleModelPool = scenarioAction({
   act: async (s) => {
     for (const puzzle of await readServerPuzzles(s)) {
       if (puzzle.id !== '01Xbe')
-        await Promise.resolve(retireChessPuzzle.act(s, puzzle.id));
+        await Promise.resolve(retireCataloguePuzzle.act(s, puzzle.id));
     }
     await Promise.resolve(ingestChessPuzzleCsv.act(s, POOL));
   },

@@ -9,24 +9,24 @@ import { expect } from 'bun:test';
 
 import {
   playNextSolutionMove,
-  pressPuzzleNextIfVisible,
   suggestNonSolutionMove,
 } from '@libs/chess-puzzle-harness/chess-actions';
-import type { PuzzleSpectatorProbe } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import {
-  isEmptyPoolVisible,
-  isPuzzleSolved,
-  readActivePuzzleId,
-  readPuzzleDebug,
-  readPuzzlePickState,
-  readPuzzleSpectator,
-  readPuzzleStatus,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { puzzleBoardPair } from '@libs/chess-puzzle-harness/puzzle-board-pair-read';
-import { readPuzzleControlAvailability } from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import { joinSpaceFromLink } from '@libs/friends-harness/spaces.steps';
 import type { HostPuzzleCommand } from '@libs/game-session-harness/puzzle-room-probe';
 import { attemptHostPuzzleCommand } from '@libs/game-session-harness/puzzle-room-probe';
+import type { PuzzleWatchProbe } from '@libs/game-session-harness/puzzle-screen';
+import {
+  askForNextPuzzle,
+  isEmptyFeedShown,
+  isPuzzleSolved,
+  readPuzzleControls,
+  readPuzzleOnBoard,
+  readPuzzlePickState,
+  readPuzzleProbe,
+  readPuzzleState,
+  readPuzzleWatch,
+} from '@libs/game-session-harness/puzzle-screen';
 import { Given, Then, When } from '@libs/harness/define';
 import { accountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -43,14 +43,11 @@ import {
   SETTLE_MS,
 } from './puzzle-world';
 
-type Suggestions = PuzzleSpectatorProbe['recommendations'];
+type Suggestions = PuzzleWatchProbe['suggestions'];
 
 async function spectatorProbe(w: HarnessWorld, actor: Actor) {
   await w.s.apply(focusActor, actor);
-  return required(
-    await w.s.read(readPuzzleSpectator, actor),
-    `${actor}'s puzzle`
-  );
+  return required(await w.s.read(readPuzzleWatch, actor), `${actor}'s puzzle`);
 }
 
 /** Wait until `actor` sees exactly one suggestion, and it is `watcher`'s. */
@@ -61,12 +58,11 @@ async function untilOnlySuggestionBy(
 ): Promise<Suggestions> {
   const by = required(await w.s.read(accountIdOf, watcher), `${watcher}'s id`);
   await w.s.apply(focusActor, actor);
-  const probe = await w.s.until((surf) => readPuzzleSpectator(surf, actor), {
+  const probe = await w.s.until((surf) => readPuzzleWatch(surf, actor), {
     maxMs: SETTLE_MS,
-    pred: (p) =>
-      p?.recommendations.length === 1 && p.recommendations[0]?.by === by,
+    pred: (p) => p?.suggestions.length === 1 && p.suggestions[0]?.by === by,
   });
-  return probe?.recommendations ?? [];
+  return probe?.suggestions ?? [];
 }
 
 /** Wait until `watcher` is watching the puzzle now on `host`'s board. */
@@ -81,8 +77,8 @@ async function untilWatching(
   await w.s.apply(focusActor, watcher);
   await w.s.until(
     async (surf) => ({
-      probe: await readPuzzleSpectator(surf, watcher),
-      puzzle: await readActivePuzzleId(surf, watcher),
+      probe: await readPuzzleWatch(surf, watcher),
+      puzzle: await readPuzzleOnBoard(surf, watcher),
     }),
     {
       maxMs,
@@ -110,14 +106,14 @@ Given(
   "{actor} is watching {actor}'s puzzle",
   async (w, watcher: Actor, host: Actor) => {
     await w.s.apply(focusActor, watcher);
-    if ((await w.s.read(readPuzzleStatus, watcher)) === null) {
+    if ((await w.s.read(readPuzzleState, watcher)) === null) {
       // Not in the host's space yet: join it from the host's link.
       await w.s.apply(focusActor, host);
       await ensureOnPuzzle(w, host);
       const link = required(await w.s.read(readSpaceLink, host), 'a space');
       await w.s.apply(joinViaLink, watcher, link);
     }
-    await w.s.until(async (surf) => readPuzzleStatus(surf, watcher), {
+    await w.s.until(async (surf) => readPuzzleState(surf, watcher), {
       maxMs: SETTLE_MS,
       pred: (status) => status === 'solving',
     });
@@ -157,7 +153,7 @@ Then(
 async function untilHostCanMove(w: HarnessWorld, actor: Actor): Promise<void> {
   const seen = await w.s.until(
     async (surf) => {
-      if ((await readPuzzleDebug(surf, actor))?.interactive === true) {
+      if ((await readPuzzleProbe(surf, actor))?.interactive === true) {
         return 'interactive';
       }
       if (await isPuzzleSolved(surf, actor)) return 'solved';
@@ -184,7 +180,7 @@ Then(
     const probe = await spectatorProbe(w, actor);
     expect(probe.role).toBe('guest');
     expect(probe.spectating).toBe(true);
-    expect((await w.s.read(readPuzzleDebug, actor))?.interactive).toBe(false);
+    expect((await w.s.read(readPuzzleProbe, actor))?.interactive).toBe(false);
   }
 );
 
@@ -228,19 +224,17 @@ When(
     await w.s.apply(focusActor, watcher);
     // A watcher is not offered Next. Pressing it only if it is showing is
     // the attempt; a Next that advanced the host's puzzle fails the Then.
-    await w.s.apply(pressPuzzleNextIfVisible, watcher);
+    await w.s.apply(askForNextPuzzle, watcher);
   }
 );
 
 Then('{actor} is not offered a puzzle of his own', async (w, actor: Actor) => {
-  expect(await w.s.read(readActivePuzzleId, actor)).toBeNull();
-  expect(
-    (await w.s.read(readPuzzleControlAvailability, actor)).moveOnOffered
-  ).toBe(false);
-  expect(
-    (await w.s.read(readPuzzleControlAvailability, actor)).summaryMoveOnOffered
-  ).toBe(false);
-  expect(await w.s.read(isEmptyPoolVisible, actor)).toBe(false);
+  expect(await w.s.read(readPuzzleOnBoard, actor)).toBeNull();
+  expect((await w.s.read(readPuzzleControls, actor)).moveOnOffered).toBe(false);
+  expect((await w.s.read(readPuzzleControls, actor)).resultMoveOnOffered).toBe(
+    false
+  );
+  expect(await w.s.read(isEmptyFeedShown, actor)).toBe(false);
   const pick = await w.s.read(readPuzzlePickState, actor);
   expect(pick === null || pick === 'waiting').toBe(true);
 });
@@ -279,9 +273,9 @@ Then(
   '{actor} sees no suggestions within {int} seconds',
   async (w, actor: Actor, seconds: number) => {
     await w.s.apply(focusActor, actor);
-    await w.s.until((surf) => readPuzzleSpectator(surf, actor), {
+    await w.s.until((surf) => readPuzzleWatch(surf, actor), {
       maxMs: seconds * SECOND_MS,
-      pred: (probe) => probe?.recommendations.length === 0,
+      pred: (probe) => probe?.suggestions.length === 0,
     });
   }
 );

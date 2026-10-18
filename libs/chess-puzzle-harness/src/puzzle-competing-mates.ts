@@ -1,3 +1,7 @@
+import {
+  readPuzzleOnBoard,
+  readPuzzleProbe,
+} from '@libs/game-session-harness/puzzle-screen';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -5,7 +9,6 @@ import { focusActor } from '@libs/harness/shell-actions';
 import { reopenSpaceLink } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { finishPuzzleBy, playPuzzleMove } from './chess-actions';
-import { readActivePuzzleId, readPuzzleDebug } from './chess-puzzle-ui';
 import {
   readLocalPuzzleResult,
   readRecordedPuzzleResult,
@@ -14,14 +17,14 @@ import {
 async function prepareCopies(s: ProductHarness, actor: string, other: string) {
   await Promise.resolve(focusActor.act(s, actor));
   const link = await readSpaceLink(s, actor);
-  const puzzle = await readActivePuzzleId(s, actor);
+  const puzzle = await readPuzzleOnBoard(s, actor);
   if (link === null || puzzle === null) throw new Error('No active puzzle');
   await Promise.resolve(reopenSpaceLink.act(s, other, link));
   await pollUntil(
     s,
     async () =>
-      (await readActivePuzzleId(s, other)) === puzzle &&
-      (await readPuzzleDebug(s, other))?.interactive === true
+      (await readPuzzleOnBoard(s, other)) === puzzle &&
+      (await readPuzzleProbe(s, other))?.interactive === true
         ? true
         : null,
     {

@@ -7,10 +7,6 @@
 import { expect } from 'bun:test';
 import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness/chess-puzzle-data';
 import { hasPlayedPuzzle } from '@libs/chess-puzzle-harness/chess-puzzle-ledger-data';
-import {
-  isPuzzleAttemptRated,
-  readActivePuzzleId,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
 import {
   isPuzzleLinkUnavailableVisible,
@@ -19,6 +15,10 @@ import {
   readSharedPuzzleLink,
   sharePuzzleLink,
 } from '@libs/chess-puzzle-harness/puzzle-link-ui';
+import {
+  isPuzzleAttemptRated,
+  readPuzzleOnBoard,
+} from '@libs/game-session-harness/puzzle-screen';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
@@ -84,7 +84,7 @@ Given(
     if (puzzle.csv !== null) await w.s.apply(ingestChessPuzzleCsv, puzzle.csv);
     await w.s.apply(focusActor, actor);
     await w.s.apply(openPuzzleLink, actor, puzzleLinkTo(puzzle.id));
-    await w.s.until((surf) => readActivePuzzleId(surf, actor), {
+    await w.s.until((surf) => readPuzzleOnBoard(surf, actor), {
       maxMs: SETTLE_MS,
       pred: (id) => id === puzzle.id,
     });
@@ -102,7 +102,7 @@ Then(
     );
     expect(shared.link).toBe(sharedLink(w, actor));
     expect(shared.puzzleId).toBe(
-      required(await w.s.read(readActivePuzzleId, actor), 'a puzzle on board')
+      required(await w.s.read(readPuzzleOnBoard, actor), 'a puzzle on board')
     );
   }
 );
@@ -125,7 +125,7 @@ Given(
   async (w, opener: Actor, sharer: Actor) => {
     await openLink(w, opener, sharer);
     // Precondition guard: the linked puzzle is on the opener's board.
-    await w.s.until((surf) => readActivePuzzleId(surf, opener), {
+    await w.s.until((surf) => readPuzzleOnBoard(surf, opener), {
       maxMs: SETTLE_MS,
       pred: (id) => id === NAMED_PUZZLES.hookMate.id,
     });
@@ -137,7 +137,7 @@ Then(
   '{actor} has the hook-mate puzzle on their board',
   async (w, actor: Actor) => {
     await w.s.apply(focusActor, actor);
-    await w.s.until((surf) => readActivePuzzleId(surf, actor), {
+    await w.s.until((surf) => readPuzzleOnBoard(surf, actor), {
       maxMs: SETTLE_MS,
       pred: (id) => id === NAMED_PUZZLES.hookMate.id,
     });

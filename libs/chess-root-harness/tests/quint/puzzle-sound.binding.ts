@@ -1,26 +1,27 @@
 import {
   openPuzzleByTheme,
-  openPuzzleFromSpace,
-  openPuzzleReview,
   playPuzzleMove,
   playUntilSolved,
-  pressPuzzleReviewNav,
-  showChessStatsScreen,
-  tapPuzzleReviewMove,
 } from '@libs/chess-puzzle-harness/chess-actions';
 import { readPuzzleBoardSounds } from '@libs/chess-puzzle-harness/chess-board-audio';
 import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness/chess-puzzle-data';
-import {
-  readPuzzleReviewProbe,
-  readRenderedPuzzleReviewBoard,
-} from '@libs/chess-puzzle-harness/chess-puzzle-review-ui';
+import { readRenderedPuzzleReviewBoard } from '@libs/chess-puzzle-harness/chess-puzzle-review-ui';
 import { readPuzzleBoardProbe } from '@libs/chess-puzzle-harness/chess-puzzle-solve-ui';
+import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import {
+  chooseReviewMove,
+  openPuzzleReviewFromLog,
+  readPuzzleReview,
+  showGamePuzzleStats,
+  useReviewControl,
+} from '@libs/game-session-harness/puzzle-records';
 import {
   isPuzzleSolved,
-  readActivePuzzleId,
-  readPuzzleDebug,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
+  openGamePuzzles,
+  readPuzzleOnBoard,
+  readPuzzleProbe,
+} from '@libs/game-session-harness/puzzle-screen';
 import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { configureSounds, readSoundsOn } from '@libs/harness/sounds-preference';
@@ -46,13 +47,13 @@ async function prepare(w: QuintHarnessWorld, kind: string, on: boolean) {
         : NAMED_PUZZLES.fourMoveMateInTwo;
   if (puzzle.csv !== null) await w.s.apply(ingestChessPuzzleCsv, puzzle.csv);
   await w.s.apply(createSpace, ACTOR);
-  await w.s.apply(openPuzzleFromSpace, ACTOR);
+  await w.s.apply(openGamePuzzles, ACTOR, CHESS_GAME_ID);
   await w.s.apply(openPuzzleByTheme, ACTOR, puzzle.theme, puzzle.id);
   if (kind === 'review') {
     await w.s.apply(playUntilSolved, ACTOR);
-    await w.s.apply(showChessStatsScreen, ACTOR);
-    await w.s.apply(openPuzzleReview, ACTOR, puzzle.id);
-    await w.s.apply(tapPuzzleReviewMove, ACTOR, 2);
+    await w.s.apply(showGamePuzzleStats, ACTOR, CHESS_GAME_ID);
+    await w.s.apply(openPuzzleReviewFromLog, ACTOR, puzzle.id);
+    await w.s.apply(chooseReviewMove, ACTOR, 3);
     await w.s.read(readRenderedPuzzleReviewBoard, ACTOR);
   }
   await w.s.advanceTime(1000);
@@ -60,8 +61,8 @@ async function prepare(w: QuintHarnessWorld, kind: string, on: boolean) {
   w.memo.set('audio-init', w.memo.get('audio-start'));
 }
 async function observed(w: QuintHarnessWorld) {
-  const review = await w.quiet.read(readPuzzleReviewProbe, ACTOR);
-  const id = await w.quiet.read(readActivePuzzleId, ACTOR);
+  const review = await w.quiet.read(readPuzzleReview, ACTOR);
+  const id = await w.quiet.read(readPuzzleOnBoard, ACTOR);
   const kind =
     review !== null
       ? 'review'
@@ -71,7 +72,7 @@ async function observed(w: QuintHarnessWorld) {
           ? 'capture puzzle'
           : 'unknown';
   const debug =
-    review === null ? await w.quiet.read(readPuzzleDebug, ACTOR) : null;
+    review === null ? await w.quiet.read(readPuzzleProbe, ACTOR) : null;
   const start = w.memo.get('audio-start');
   if (typeof start !== 'number') throw new Error('No actual audio boundary');
   const names = await w.quiet.read(readPuzzleBoardSounds, ACTOR);
@@ -84,7 +85,7 @@ async function observed(w: QuintHarnessWorld) {
   return {
     puzzleSound: {
       kind,
-      move: review?.solveIdx ?? debug?.solveIdx ?? -1,
+      move: review?.move ?? debug?.solveIdx ?? -1,
       soundsOn: await w.quiet.read(readSoundsOn, ACTOR),
       heard: new Set(names.slice(start).map((name) => labels[name] ?? name)),
     },
@@ -100,7 +101,7 @@ bindQuintModel<QuintHarnessWorld>({
     playQuietPuzzleMove: async (w) => {
       await boundary(w);
       await w.s.apply(playPuzzleMove, ACTOR, 'a1a5');
-      await w.s.until((s) => readPuzzleDebug(s, ACTOR), {
+      await w.s.until((s) => readPuzzleProbe(s, ACTOR), {
         maxMs: 20_000,
         pred: (value) => value?.solveIdx === 3,
       });
@@ -114,7 +115,7 @@ bindQuintModel<QuintHarnessWorld>({
     },
     stepPuzzleSoundReview: async (w) => {
       await boundary(w);
-      await w.s.apply(pressPuzzleReviewNav, ACTOR, 'forward');
+      await w.s.apply(useReviewControl, ACTOR, 'forward');
       await w.s.advanceTime(1000);
     },
     configurePuzzleSounds: async (w, p) => {
@@ -125,7 +126,7 @@ bindQuintModel<QuintHarnessWorld>({
   },
   observe: observed,
   fingerprint: async (w) => {
-    const review = await w.quiet.read(readPuzzleReviewProbe, ACTOR);
+    const review = await w.quiet.read(readPuzzleReview, ACTOR);
     const board =
       review === null
         ? await w.quiet.read(readPuzzleBoardProbe, ACTOR)

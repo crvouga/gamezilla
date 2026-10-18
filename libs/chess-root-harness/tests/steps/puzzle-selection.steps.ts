@@ -4,16 +4,17 @@
  */
 
 import { expect } from 'bun:test';
-import { openPuzzleFromSpace } from '@libs/chess-puzzle-harness/chess-actions';
 import { readServerPuzzles } from '@libs/chess-puzzle-harness/chess-puzzle-data';
-import {
-  readActivePuzzleId,
-  readStatsElo,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import {
   GOOD_PUZZLE,
   retireEveryPuzzle,
 } from '@libs/chess-puzzle-harness/puzzle-pool-stock';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import { readStatsPuzzleRating } from '@libs/game-session-harness/puzzle-records';
+import {
+  openGamePuzzles,
+  readPuzzleOnBoard,
+} from '@libs/game-session-harness/puzzle-screen';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
@@ -111,7 +112,7 @@ Then(
     );
     await ensureStatsOpen(w, actor);
     const rating = required(
-      await w.s.read(readStatsElo, actor),
+      await w.s.read(readStatsPuzzleRating, actor),
       `${actor}'s puzzle rating`
     );
     expect(Math.abs(served - rating)).toBeLessThanOrEqual(within);
@@ -125,7 +126,7 @@ When('{actor} opens puzzles on their other device', async (w, actor: Actor) => {
   const link = required(await w.s.read(readSpaceLink, actor), 'a space');
   takeUpDevice(w, actor, device);
   await w.s.apply(reopenSpaceLink, device, link);
-  await w.s.apply(openPuzzleFromSpace, device);
+  await w.s.apply(openGamePuzzles, device, CHESS_GAME_ID);
 });
 
 Then(
@@ -134,10 +135,10 @@ Then(
     const played = currentPuzzle(w, actor);
     const device = otherDevice(actor);
     await w.s.apply(focusActor, device);
-    const onBoard = await w.s.until(
-      (surf) => readActivePuzzleId(surf, device),
-      { maxMs: SETTLE_MS, pred: (id) => id !== null }
-    );
+    const onBoard = await w.s.until((surf) => readPuzzleOnBoard(surf, device), {
+      maxMs: SETTLE_MS,
+      pred: (id) => id !== null,
+    });
     expect(onBoard).not.toBe(played);
   }
 );

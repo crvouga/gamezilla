@@ -11,8 +11,6 @@
 import { expect } from 'bun:test';
 import {
   playUntilSolved,
-  pressPuzzleNext,
-  pressPuzzleNextNoWait,
   sleepUntilNextUtcDay,
 } from '@libs/chess-puzzle-harness/chess-actions';
 import {
@@ -20,10 +18,12 @@ import {
   useUpPuzzleStartsToday,
 } from '@libs/chess-puzzle-harness/chess-puzzle-ledger-data';
 import {
+  isPuzzleLimitShown,
   isPuzzleLimitSignInOffered,
-  isPuzzleLimitVisible,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import { readPuzzleRemainingToday } from '@libs/chess-puzzle-harness/puzzle-control-reads';
+  moveOnToNextPuzzle,
+  moveOnWithoutWaiting,
+  readPuzzleStartsLeft,
+} from '@libs/game-session-harness/puzzle-screen';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -81,8 +81,8 @@ Given(
   "{actor} is a guest who has been shown today's puzzle limit",
   async (w, actor: Actor) => {
     await playedToday(w, actor, GUEST_DAILY_PUZZLE_STARTS);
-    await w.s.apply(pressPuzzleNextNoWait, actor);
-    await w.s.until((surf) => isPuzzleLimitVisible(surf, actor), {
+    await w.s.apply(moveOnWithoutWaiting, actor);
+    await w.s.until((surf) => isPuzzleLimitShown(surf, actor), {
       maxMs: SETTLE_MS,
     });
   }
@@ -91,7 +91,7 @@ Given(
 Given(
   '{actor} has solved the twentieth puzzle of the day',
   async (w, actor: Actor) => {
-    await w.s.apply(pressPuzzleNext, actor);
+    await w.s.apply(moveOnToNextPuzzle, actor);
     await trackPuzzle(w, actor);
     // Precondition guard: this start is the day's twentieth.
     const starts = await w.s.read(readLocalPuzzleStartLedger, actor);
@@ -101,7 +101,7 @@ Given(
 );
 
 When('{actor} asks for another puzzle', async (w, actor: Actor) => {
-  await w.s.apply(pressPuzzleNextNoWait, actor);
+  await w.s.apply(moveOnWithoutWaiting, actor);
 });
 
 Given('the next day has begun', async (w) => {
@@ -109,13 +109,13 @@ Given('the next day has begun', async (w) => {
 });
 
 Then('{actor} is not shown the puzzle limit', async (w, actor: Actor) => {
-  expect(await w.s.read(isPuzzleLimitVisible, actor)).toBe(false);
+  expect(await w.s.read(isPuzzleLimitShown, actor)).toBe(false);
 });
 
 Then(
   "{actor} is told no new puzzle can start because today's allowance is used within {int} seconds",
   async (w, actor: Actor, seconds: number) => {
-    await w.s.until((surf) => isPuzzleLimitVisible(surf, actor), {
+    await w.s.until((surf) => isPuzzleLimitShown(surf, actor), {
       maxMs: seconds * SECOND_MS,
     });
   }
@@ -131,7 +131,7 @@ Then(
 Then(
   '{actor} can read that {int} rated puzzles remain today',
   async (w, actor: Actor, remaining: number) => {
-    const shown = await w.s.until((s) => readPuzzleRemainingToday(s, actor), {
+    const shown = await w.s.until((s) => readPuzzleStartsLeft(s, actor), {
       pred: (value) => value === remaining,
       maxMs: SETTLE_MS,
     });

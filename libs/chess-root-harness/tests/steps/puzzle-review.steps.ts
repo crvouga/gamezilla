@@ -5,27 +5,22 @@
  */
 
 import { expect } from 'bun:test';
-import {
-  openPuzzleReview,
-  playUntilSolved,
-  pressPuzzleReviewNav,
-  tapPuzzleReviewMove,
-} from '@libs/chess-puzzle-harness/chess-actions';
+import { playUntilSolved } from '@libs/chess-puzzle-harness/chess-actions';
 import type { LocalPuzzleRow } from '@libs/chess-puzzle-harness/chess-puzzle-data';
-import {
-  readLocalPuzzleRow,
-  retireChessPuzzle,
-} from '@libs/chess-puzzle-harness/chess-puzzle-data';
-import {
-  readPuzzleReviewFen,
-  readPuzzleReviewMoveLabels,
-  readPuzzleReviewProbe,
-  readRenderedPuzzleReviewBoard,
-  readSelectedMoveLabel,
-  waitPuzzleReviewReady,
-} from '@libs/chess-puzzle-harness/chess-puzzle-review-ui';
+import { readLocalPuzzleRow } from '@libs/chess-puzzle-harness/chess-puzzle-data';
+import { readRenderedPuzzleReviewBoard } from '@libs/chess-puzzle-harness/chess-puzzle-review-ui';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
 import { canonicalReviewPosition } from '@libs/chess-puzzle-harness/puzzle-review-oracle';
+import {
+  chooseReviewMove,
+  openPuzzleReviewFromLog,
+  readPuzzleReview,
+  readPuzzleReviewHighlight,
+  readPuzzleReviewMoves,
+  readPuzzleReviewPosition,
+  retireCataloguePuzzle,
+  useReviewControl,
+} from '@libs/game-session-harness/puzzle-records';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -54,8 +49,7 @@ async function openReview(w: HarnessWorld, actor: Actor): Promise<void> {
   );
   remember(w, reviewedKey(actor), row);
   await ensureStatsOpen(w, actor);
-  await w.s.apply(openPuzzleReview, actor, puzzle);
-  await w.s.read(waitPuzzleReviewReady, actor);
+  await w.s.apply(openPuzzleReviewFromLog, actor, puzzle);
 }
 
 /** The position the reviewed line reaches after `move` moves. */
@@ -66,24 +60,16 @@ async function expectReviewAt(
 ): Promise<void> {
   const row = recalled<LocalPuzzleRow>(w, reviewedKey(actor));
   expect(row.moves.split(' ')).toHaveLength(at.of);
-  const probe = required(
-    await w.s.read(readPuzzleReviewProbe, actor),
-    'review probe'
-  );
-  expect(probe.solveIdx).toBe(at.move);
-  expect(probe.lastSolveIdx).toBe(at.of);
   // One move animates; a jump snaps.
-  expect(probe.animated).toBe(at.animated);
-  expect(await w.s.read(readPuzzleReviewFen, actor)).toBe(
+  expect(await w.s.read(readPuzzleReview, actor)).toEqual(at);
+  expect(await w.s.read(readPuzzleReviewPosition, actor)).toBe(
     canonicalReviewPosition(row, at.move)
   );
   expect((await w.s.read(readRenderedPuzzleReviewBoard, actor)).fen).toBe(
     canonicalReviewPosition(row, at.move)
   );
   // The current move is the highlighted one.
-  expect(await w.s.read(readSelectedMoveLabel, actor)).toStartWith(
-    `${String(at.move - 1)}|`
-  );
+  expect(await w.s.read(readPuzzleReviewHighlight, actor)).toBe(at.move);
 }
 
 When(
@@ -104,7 +90,7 @@ Given(
     const last = recalled<LocalPuzzleRow>(w, reviewedKey(actor)).moves.split(
       ' '
     ).length;
-    if (move !== last) await w.s.apply(tapPuzzleReviewMove, actor, move - 1);
+    if (move !== last) await w.s.apply(chooseReviewMove, actor, move);
     await w.s.read(readRenderedPuzzleReviewBoard, actor);
   }
 );
@@ -119,7 +105,7 @@ Then(
 Then(
   "{actor}'s review lists the moves {string}",
   async (w, actor: Actor, moves: string) => {
-    expect(await w.s.read(readPuzzleReviewMoveLabels, actor)).toEqual(
+    expect(await w.s.read(readPuzzleReviewMoves, actor)).toEqual(
       moves.split(',').map((move) => move.trim())
     );
   }
@@ -129,14 +115,14 @@ When(
   '{actor} steps {direction} one move in the review',
   async (w, actor: Actor, way: Direction) => {
     await markPuzzleSoundBoundary(w, actor);
-    await w.s.apply(pressPuzzleReviewNav, actor, way);
+    await w.s.apply(useReviewControl, actor, way);
   }
 );
 
 Given('the puzzle has since been retired', async (w) => {
   const actor = lastPlayer(w);
   const puzzle = currentPuzzle(w, actor);
-  await w.s.apply(retireChessPuzzle, puzzle);
+  await w.s.apply(retireCataloguePuzzle, puzzle);
   // Precondition guard: the retirement has reached the player's device.
   await w.s.until((surf) => readLocalPuzzleRow(surf, actor, puzzle), {
     maxMs: SETTLE_MS,

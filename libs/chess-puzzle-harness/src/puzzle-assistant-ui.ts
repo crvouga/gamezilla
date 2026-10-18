@@ -1,35 +1,13 @@
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import { Handles } from '@libs/test-ids-shared/handles';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { legalMoves } from '@pkgs/chess-rules-shared/moves';
 import {
   pickUpPuzzlePieceAt,
   readPuzzleBoardFen,
 } from './chess-puzzle-solve-ui';
-import { closePuzzleSummary } from './chess-puzzle-ui';
 
 const ASSISTANT = 'puzzle-assistant';
-
-export const stepPuzzlePosition = scenarioAction({
-  name: 'stepPuzzlePosition',
-  act: async (
-    s: ProductHarness,
-    actor: string,
-    direction: 'back' | 'forward'
-  ) => {
-    await closePuzzleSummary(s, actor);
-    const ui = await actorUi(s, actor);
-    await ui
-      .get(
-        direction === 'back'
-          ? Handles.chessPuzzleActionBack
-          : Handles.chessPuzzleActionForward
-      )
-      .tap();
-    await s.session.waitForIdle();
-  },
-});
 
 /** Reads the rendered message and its playback/position markers together. */
 export async function readPuzzleAssistant(s: ProductHarness, actor: string) {
@@ -139,14 +117,5 @@ export const chooseMovablePuzzlePiece = scenarioAction({
     if (move === undefined)
       throw new Error('No legal move on the puzzle board');
     await pickUpPuzzlePieceAt(s, actor, move.from as Square);
-  },
-});
-
-export const pressPuzzleRetryIfVisible = scenarioAction({
-  name: 'pressPuzzleRetryIfVisible',
-  act: async (s, actor: string) => {
-    const ui = await actorUi(s, actor);
-    const retry = ui.get(Handles.chessPuzzleActionRetry);
-    if (await retry.isVisible()) await retry.tap();
   },
 });

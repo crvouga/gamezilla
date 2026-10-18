@@ -4,7 +4,7 @@
  * that keeps the device.
  */
 
-import { actorUi, pollUntil } from '@libs/harness/actor-ui';
+import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
@@ -15,12 +15,9 @@ import {
   parseChessBoardPaint,
 } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type { RecordingHaptics } from '@pkgs/device-shared/haptics';
 import { Chess } from 'chess.js';
-import { readPuzzleStatus } from './chess-puzzle-ui';
 
 const WAIT_MS = 15_000;
-const POLL_MS = 100;
 
 function squaresOf(uci: string): { from: Square; to: Square } {
   const t = uci.trim().toLowerCase();
@@ -160,54 +157,4 @@ export async function pickPuzzlePromotion(
   await ui
     .get(chessBoardPromotionTestId(Handles.chessPuzzleBoard, piece))
     .tap({ timeoutMs: WAIT_MS });
-}
-
-/** §6: play the remaining line out, then review (`revealed`). */
-export async function showPuzzleSolution(
-  s: ProductHarness,
-  actorId: string
-): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  // While solving, the one hint button escalates Hint → Solution → line; after
-  // a wrong move the bar has its own Solution action.
-  const solution = ui.get(Handles.chessPuzzleActionSolution);
-  if (await solution.isVisible()) {
-    await solution.tap({ timeoutMs: WAIT_MS });
-  } else {
-    const hint = ui.get(Handles.chessPuzzleActionHint);
-    for (let press = 0; press < 3; press++) {
-      if ((await readPuzzleStatus(s, actorId)) === 'revealed') break;
-      await hint.tap({ timeoutMs: WAIT_MS });
-    }
-  }
-  await pollUntil(
-    s,
-    async () =>
-      (await readPuzzleStatus(s, actorId)) === 'revealed' ? true : null,
-    { maxMs: WAIT_MS, stepMs: POLL_MS, description: 'solution shown' }
-  );
-}
-
-/** The §5 prompt in the puzzle header ("Your turn — …"). */
-export async function readPuzzlePrompt(
-  s: ProductHarness,
-  actorId: string
-): Promise<string | null> {
-  try {
-    const ui = await actorUi(s, actorId);
-    const text = await ui.get(Handles.chessPuzzleStatusLabel).text();
-    return (text ?? '').replace(/​/g, '').trim();
-  } catch {
-    return null;
-  }
-}
-
-/** Haptic calls the actor's device recorded, in order. */
-export async function readPuzzleHaptics(
-  s: ProductHarness,
-  actorId: string
-): Promise<readonly string[]> {
-  const env = await s.harness.client(actorId);
-  const haptics = env.haptics as RecordingHaptics;
-  return [...haptics.calls];
 }

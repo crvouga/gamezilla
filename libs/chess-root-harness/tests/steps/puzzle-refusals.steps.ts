@@ -1,17 +1,17 @@
 import { expect } from 'bun:test';
-import {
-  finishPuzzleBy,
-  requestPuzzleHint,
-  revealPuzzleSolution,
-} from '@libs/chess-puzzle-harness/chess-actions';
-import { readPuzzleStatus } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import { stepPuzzlePosition } from '@libs/chess-puzzle-harness/puzzle-assistant-ui';
+import { finishPuzzleBy } from '@libs/chess-puzzle-harness/chess-actions';
 import type { HostPuzzleCommand } from '@libs/game-session-harness/puzzle-room-probe';
 import {
   attemptHostPuzzleCommand,
   readLastPuzzleCommandOutcome,
   readLastPuzzleRefusal,
 } from '@libs/game-session-harness/puzzle-room-probe';
+import {
+  readPuzzleState,
+  stepThroughPuzzleLine,
+  takePuzzleHint,
+  takeSecondPuzzleHint,
+} from '@libs/game-session-harness/puzzle-screen';
 import { restartApp } from '@libs/harness/actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor, PuzzleFinishName } from '@libs/harness/parameter-types';
@@ -26,8 +26,8 @@ Given(
 );
 
 Given('{actor} has seen the solution move', async (w, actor: Actor) => {
-  await w.s.apply(requestPuzzleHint, actor);
-  await w.s.apply(revealPuzzleSolution, actor);
+  await w.s.apply(takePuzzleHint, actor);
+  await w.s.apply(takeSecondPuzzleHint, actor);
 });
 
 When(
@@ -51,7 +51,7 @@ Then(
 Then(
   "{actor}'s puzzle remains {word}",
   async (w, actor: Actor, state: string) => {
-    expect(await w.s.read(readPuzzleStatus, actor)).toBe(state);
+    expect(await w.s.read(readPuzzleState, actor)).toBe(state);
   }
 );
 
@@ -62,7 +62,7 @@ When('{actor} reopens the app on the puzzle', async (w, actor: Actor) => {
 When(
   '{actor} steps forward one move in the puzzle',
   async (w, actor: Actor) => {
-    await w.s.apply(stepPuzzlePosition, actor, 'forward');
+    await w.s.apply(stepThroughPuzzleLine, actor, 'forward');
   }
 );
 

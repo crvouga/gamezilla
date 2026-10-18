@@ -1,3 +1,4 @@
+import { retryGamePuzzle } from '@libs/game-session-harness/puzzle-screen';
 import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import {
@@ -9,11 +10,7 @@ import { bringToFront, partitioned } from '@libs/harness/observations';
 import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
-import {
-  playUntilSolved,
-  retryPuzzle,
-  showPersonalChessStatsScreen,
-} from './chess-actions';
+import { playUntilSolved, showPersonalChessStatsScreen } from './chess-actions';
 import { readRecoveryStats } from './puzzle-recovery-stats';
 
 export const closePuzzleApp = scenarioAction({
@@ -37,7 +34,7 @@ export const reopenPuzzleApp = scenarioAction({
 export const retryFinishedPuzzle = scenarioAction({
   name: 'retryFinishedPuzzle',
   act: async (s, device: string) => {
-    await Promise.resolve(retryPuzzle.act(s, device));
+    await Promise.resolve(retryGamePuzzle.act(s, device));
     await Promise.resolve(playUntilSolved.act(s, device));
   },
 });

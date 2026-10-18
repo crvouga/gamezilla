@@ -5,13 +5,14 @@
  * solve.
  */
 
-import {
-  openPuzzleFromSpace,
-  pressPuzzleNextNoWait,
-  skipPuzzle,
-} from '@libs/chess-puzzle-harness/chess-actions';
 import { readPuzzleBoardProbe } from '@libs/chess-puzzle-harness/chess-puzzle-solve-ui';
-import { readActivePuzzleId } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import {
+  moveOnWithoutWaiting,
+  openGamePuzzles,
+  readPuzzleOnBoard,
+  skipGamePuzzle,
+} from '@libs/game-session-harness/puzzle-screen';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { createSpace } from '@libs/spaces-harness/space-actions';
 import type { Measurement } from '@pkgs/openslo-shared/evaluate';
@@ -32,18 +33,18 @@ async function nextPuzzleReadyTimes(
   await using s = await openHarness('puzzle-ready-objective');
   await s.apply(signInWithGoogle, SOLVER);
   await s.apply(createSpace, SOLVER);
-  await s.apply(openPuzzleFromSpace, SOLVER);
+  await s.apply(openGamePuzzles, SOLVER, CHESS_GAME_ID);
   const now = () => s.read((world) => world.harness.clock.now());
   const samples: { atMs: number; value: number }[] = [];
   for (let index = 0; index < MOVES_ON; index += 1) {
-    await s.apply(skipPuzzle, SOLVER);
-    const over = await s.read(readActivePuzzleId, SOLVER);
+    await s.apply(skipGamePuzzle, SOLVER);
+    const over = await s.read(readPuzzleOnBoard, SOLVER);
     const movedOnAtMs = await now();
-    await s.apply(pressPuzzleNextNoWait, SOLVER);
+    await s.apply(moveOnWithoutWaiting, SOLVER);
     let waited = 0;
     for (;;) {
       waited = (await now()) - movedOnAtMs;
-      const id = await s.read(readActivePuzzleId, SOLVER);
+      const id = await s.read(readPuzzleOnBoard, SOLVER);
       const board = await s.read(readPuzzleBoardProbe, SOLVER);
       if (id !== null && id !== over && board?.interactive === true) break;
       if (waited >= GIVE_UP_MS) break;

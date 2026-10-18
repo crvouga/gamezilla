@@ -6,6 +6,11 @@
  */
 
 import {
+  readPuzzleState,
+  waitNextPuzzle,
+  waitPuzzleHelp,
+} from '@libs/game-session-harness/puzzle-screen';
+import {
   actorPage,
   keyboardElement,
   pressTab,
@@ -18,11 +23,6 @@ import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
 import { isHiddenFromAt } from '@pkgs/a11y-shared/visibility';
 import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
 import { readPuzzleBoardProbe } from './chess-puzzle-solve-ui';
-import {
-  readPuzzleStatus,
-  settleAfterPuzzleNext,
-  waitPuzzleHintStage,
-} from './chess-puzzle-ui';
 
 const WAIT_MS = 15_000;
 const POLL_MS = 100;
@@ -57,7 +57,7 @@ async function waitStatus(
 ): Promise<void> {
   await pollUntil(
     s,
-    async () => ((await readPuzzleStatus(s, actorId)) === status ? true : null),
+    async () => ((await readPuzzleState(s, actorId)) === status ? true : null),
     { maxMs: WAIT_MS, stepMs: POLL_MS, description: `puzzle ${status}` }
   );
 }
@@ -87,7 +87,7 @@ async function showSolutionWithKeyboard(
     await pressWithKeyboard(s, actorId, Handles.chessPuzzleActionSolution);
   } else {
     for (let presses = 0; presses < 3; presses += 1) {
-      if ((await readPuzzleStatus(s, actorId)) === 'revealed') break;
+      if ((await readPuzzleState(s, actorId)) === 'revealed') break;
       await pressWithKeyboard(s, actorId, Handles.chessPuzzleActionHint);
     }
   }
@@ -113,7 +113,7 @@ async function nextWithKeyboard(
     ? Handles.chessPuzzleSummaryNext
     : Handles.chessPuzzleActionNext;
   await pressWithKeyboard(s, actorId, next);
-  await settleAfterPuzzleNext(s, actorId);
+  await waitNextPuzzle(s, actorId);
 }
 
 /** Use one puzzle control with the keyboard alone. */
@@ -122,7 +122,7 @@ export const usePuzzleControlWithKeyboard = scenarioAction({
   act: async (s, actorId: string, control: PuzzleKeyboardControl) => {
     if (control === 'hint') {
       await pressWithKeyboard(s, actorId, Handles.chessPuzzleActionHint);
-      await waitPuzzleHintStage(s, actorId, 'highlight');
+      await waitPuzzleHelp(s, actorId, 'highlight');
     } else if (control === 'skip') {
       await pressWithKeyboard(s, actorId, Handles.chessPuzzleActionSkip);
       await waitStatus(s, actorId, 'skipped');

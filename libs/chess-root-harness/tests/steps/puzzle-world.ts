@@ -4,20 +4,10 @@
  * owner, and the common ways into a puzzle. No step definitions here.
  */
 
-import {
-  openPuzzleByTheme,
-  openPuzzleFromSpace,
-  showChessStatsScreen,
-} from '@libs/chess-puzzle-harness/chess-actions';
+import { openPuzzleByTheme } from '@libs/chess-puzzle-harness/chess-actions';
 import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness/chess-puzzle-data';
 import { readPuzzlePlayerId } from '@libs/chess-puzzle-harness/chess-puzzle-ledger-data';
 import { readPuzzleBoardProbe } from '@libs/chess-puzzle-harness/chess-puzzle-solve-ui';
-import type { PuzzleTestDebug } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import {
-  isPuzzlePlayScreenVisible,
-  readActivePuzzleId,
-  readPuzzleDebug,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import type { NamedPuzzle } from '@libs/chess-puzzle-harness/puzzle-fixtures';
 import type { StockedPuzzle } from '@libs/chess-puzzle-harness/puzzle-pool-stock';
 import {
@@ -26,6 +16,15 @@ import {
   stockPuzzles,
 } from '@libs/chess-puzzle-harness/puzzle-pool-stock';
 import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import { showGamePuzzleStats } from '@libs/game-session-harness/puzzle-records';
+import type { PuzzleProbe } from '@libs/game-session-harness/puzzle-screen';
+import {
+  isPuzzleScreenShown,
+  openGamePuzzles,
+  readPuzzleOnBoard,
+  readPuzzleProbe,
+} from '@libs/game-session-harness/puzzle-screen';
 import type { Actor } from '@libs/harness/parameter-types';
 import { backToTabs, focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -86,7 +85,7 @@ export async function activePuzzle(
   actor: Actor
 ): Promise<string> {
   return required(
-    await w.s.read(readActivePuzzleId, actor),
+    await w.s.read(readPuzzleOnBoard, actor),
     `a puzzle on ${actor}'s board`
   );
 }
@@ -171,14 +170,14 @@ export async function enterPuzzles(
     await w.s.apply(backToTabs, actor);
     await w.s.apply(createSpace, actor);
   }
-  await w.s.apply(openPuzzleFromSpace, actor);
+  await w.s.apply(openGamePuzzles, actor, CHESS_GAME_ID);
   return trackPuzzle(w, actor);
 }
 
 /** Bring the puzzle feed into view for a `Then` that reads it. */
 export async function focusFeed(w: HarnessWorld, actor: Actor): Promise<void> {
   await w.s.apply(focusActor, actor);
-  if (!(await w.s.read(isPuzzlePlayScreenVisible, actor))) {
+  if (!(await w.s.read(isPuzzleScreenShown, actor))) {
     await enterPuzzles(w, actor);
   }
 }
@@ -198,11 +197,11 @@ export async function ensureOnPuzzle(
 export async function servedPuzzle(
   w: HarnessWorld,
   device: string,
-  pred: (debug: PuzzleTestDebug) => boolean = () => true
-): Promise<PuzzleTestDebug> {
+  pred: (debug: PuzzleProbe) => boolean = () => true
+): Promise<PuzzleProbe> {
   await w.s.apply(focusActor, device);
   return required(
-    await w.s.until(async (surf) => readPuzzleDebug(surf, device), {
+    await w.s.until(async (surf) => readPuzzleProbe(surf, device), {
       maxMs: SETTLE_MS,
       pred: (debug) => debug?.status === 'solving' && pred(debug),
     }),
@@ -216,7 +215,7 @@ export async function servedPuzzleId(
   device: string
 ): Promise<string> {
   await servedPuzzle(w, device);
-  return required(await w.s.read(readActivePuzzleId, device), 'a puzzle id');
+  return required(await w.s.read(readPuzzleOnBoard, device), 'a puzzle id');
 }
 
 // ------------------------------------------------------------ stocking
@@ -312,7 +311,7 @@ export async function ensureStatsOpen(
   device: string
 ): Promise<void> {
   await w.s.apply(focusActor, device);
-  await w.s.apply(showChessStatsScreen, device);
+  await w.s.apply(showGamePuzzleStats, device, CHESS_GAME_ID);
 }
 
 /** `a1-a5` → `a1a5`. */

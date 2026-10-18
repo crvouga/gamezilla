@@ -1,11 +1,11 @@
+import {
+  readGameLogTitle,
+  readStatsFigures,
+  readStatsPuzzleRating,
+  readStatsRatingHistory,
+} from '@libs/game-session-harness/puzzle-records';
 import type { ProductHarness } from '@libs/harness/harness';
 import { GLICKO2_DEFAULT, glicko2Update } from '@pkgs/glicko2-shared/glicko2';
-import {
-  readGameLogRowTitle,
-  readStatsElo,
-  readStatsPlayed,
-  readStatsRatingHistory,
-} from './chess-puzzle-ui';
 
 /** Decided import fixtures, independent of the product's result/rating code. */
 const OPPONENTS: Record<string, readonly [number, number]> = {
@@ -47,9 +47,9 @@ export async function readRecoveryStats(
   device: string,
   puzzle: string
 ) {
-  const title = await readGameLogRowTitle(s, device, puzzle);
-  const rating = await readStatsElo(s, device);
-  const played = await readStatsPlayed(s, device);
+  const title = await readGameLogTitle(s, device, puzzle);
+  const rating = await readStatsPuzzleRating(s, device);
+  const { played } = await readStatsFigures(s, device);
   const history = await readStatsRatingHistory(s, device);
   if (rating === null || played === null)
     throw new Error('Stats are not displayed');

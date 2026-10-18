@@ -1,9 +1,12 @@
 import {
   finishPuzzleBy,
-  openPuzzleFromSpace,
   playUntilSolved,
-  retryPuzzle,
 } from '@libs/chess-puzzle-harness/chess-actions';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import {
+  openGamePuzzles,
+  retryGamePuzzle,
+} from '@libs/game-session-harness/puzzle-screen';
 import { partition, restoreNetwork } from '@libs/harness/actions';
 import {
   signInWithGoogle,
@@ -24,20 +27,20 @@ const worlds = sharedWorlds('puzzle-progress', () =>
         run: async (s, capture) => {
           await s.apply(signInWithGoogle, 'alice');
           await s.apply(createSpace, 'alice');
-          await s.apply(openPuzzleFromSpace, 'alice');
+          await s.apply(openGamePuzzles, 'alice', CHESS_GAME_ID);
           await s.apply(partition, 'alice');
           await s.apply(finishPuzzleBy, 'alice', 'wrongRetrySolve');
           await capture('after the wrong move and the solved retry offline');
           await s.apply(restoreNetwork);
           await capture('after the connection returns');
-          await s.apply(retryPuzzle, 'alice');
+          await s.apply(retryGamePuzzle, 'alice');
           await s.apply(playUntilSolved, 'alice');
           await capture('after another solved retry');
           await s.apply(signInWithGoogleAsAccount, 'charlie', 'alice');
           await capture('after the account opens on another device');
           await s.apply(signInWithGoogle, 'bob');
           await s.apply(createSpace, 'bob');
-          await s.apply(openPuzzleFromSpace, 'bob');
+          await s.apply(openGamePuzzles, 'bob', CHESS_GAME_ID);
           await s.apply(playUntilSolved, 'bob');
         },
       },

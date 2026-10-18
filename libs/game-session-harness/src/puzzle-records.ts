@@ -17,6 +17,7 @@ import { ownSpaceCard, waitActiveSpace } from '@libs/spaces-harness/space-ui';
 import { Handles } from '@libs/test-ids-shared/handles';
 import sql from '@pkgs/sql-root-shared/sql';
 import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
+import { SHARED_SCREEN_MARK } from './game-navigation';
 import { closeResultPanel } from './puzzle-screen';
 
 const WAIT_MS = 15_000;
@@ -27,6 +28,17 @@ function stripProbe(text: string | null | undefined): string {
 }
 
 // ----------------------------------------------------------- puzzle stats
+
+/** Whether one of the game's shared screens (custom games, …) is shown. */
+async function sharedScreenShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  for (const mark of Object.values(SHARED_SCREEN_MARK))
+    if (await ui.get(mark).isVisible()) return true;
+  return false;
+}
 
 /** One step toward the stats from where the device is; true once shown. */
 async function stepTowardStats(
@@ -41,6 +53,9 @@ async function stepTowardStats(
     await ui.get(Handles.gameChoice('stats')).tap({ timeoutMs: WAIT_MS });
   } else if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) {
     await closeResultPanel(s, actorId);
+    await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+  } else if (await sharedScreenShown(s, actorId)) {
+    // Another of the game's screens: back to its choices.
     await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
   } else if (await ui.get(Handles.gameMenu(gameId)).isVisible()) {
     await ui.get(Handles.gameMenu(gameId)).tap({ timeoutMs: WAIT_MS });
@@ -136,6 +151,43 @@ export async function readStatsFigures(s: ProductHarness, actorId: string) {
   };
 }
 
+/** The puzzle rating as the stats label it: `1500`, or `1500?` while provisional. */
+export async function readStatsRatingLabel(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  try {
+    const ui = await actorUi(s, actorId);
+    return stripProbe(await ui.get(Handles.chessStatsElo).text());
+  } catch {
+    return null;
+  }
+}
+
+/** The rating after each of the latest rated puzzles, oldest first. */
+export async function readStatsRatingHistory(
+  s: ProductHarness,
+  actorId: string
+): Promise<readonly number[]> {
+  const ui = await actorUi(s, actorId);
+  const ratings: number[] = [];
+  for (let index = 0; ; index += 1) {
+    const point = ui.get(Handles.chessStatsRatingHistoryPoint(index));
+    if (!(await point.isVisible())) break;
+    ratings.push(Number.parseInt(stripProbe(await point.text()), 10));
+  }
+  return ratings;
+}
+
+/** Whether the game log says no puzzle was played yet. */
+export async function isGameLogEmpty(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  return ui.get(Handles.chessGameLogEmpty).isVisible();
+}
+
 /** The game log's title for `puzzleId` ("Solved · 1458"), or null. */
 export async function readGameLogTitle(
   s: ProductHarness,
@@ -150,6 +202,41 @@ export async function readGameLogTitle(
   } catch {
     return null;
   }
+}
+
+/** A game log row: its title, the puzzle's own rating and its rating change. */
+export type GameLogRow = {
+  readonly title: string;
+  /** The puzzle's own rating, from the row's title ("Solved · 1458"). */
+  readonly puzzleRating: number | null;
+  /** The row's signed rating change, or `'unrated'`. */
+  readonly change: number | 'unrated' | null;
+};
+
+/** What the game log row of `puzzleId` shows, or null when there is none. */
+export async function readGameLogRow(
+  s: ProductHarness,
+  actorId: string,
+  puzzleId: string
+): Promise<GameLogRow | null> {
+  const title = await readGameLogTitle(s, actorId, puzzleId);
+  if (title === null) return null;
+  const ui = await actorUi(s, actorId);
+  const node = ui.get(Handles.chessGameLogRowChange(puzzleId));
+  const text = (await node.isVisible()) ? stripProbe(await node.text()) : '';
+  const signed = /^([+\-−]?)(\d+)$/.exec(text);
+  const rating = /(\d{3,4})\s*$/.exec(title)?.[1];
+  return {
+    title,
+    puzzleRating: rating === undefined ? null : Number.parseInt(rating, 10),
+    change:
+      signed === null
+        ? text.length > 0
+          ? 'unrated'
+          : null
+        : (signed[1] === '+' || signed[1] === '' ? 1 : -1) *
+          Number.parseInt(signed[2] ?? '0', 10),
+  };
 }
 
 // ------------------------------------------------------------------ review

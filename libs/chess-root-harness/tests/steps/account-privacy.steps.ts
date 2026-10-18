@@ -1,12 +1,12 @@
 import { expect } from 'bun:test';
-import { showChessStatsScreen } from '@libs/chess-puzzle-harness/chess-actions';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
 import {
   isGameLogEmpty,
-  readStatsElo,
-  readStatsPlayed,
+  readStatsFigures,
+  readStatsPuzzleRating,
   readStatsRatingLabel,
-  readStatsSolved,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+  showGamePuzzleStats,
+} from '@libs/game-session-harness/puzzle-records';
 import { Given, Then } from '@libs/harness/define';
 import { localAccountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -45,12 +45,12 @@ Then(
   async (w, actor: Actor, seconds: number) => {
     const device = otherDevice(actor);
     await w.s.apply(focusActor, device);
-    await w.s.apply(showChessStatsScreen, device);
+    await w.s.apply(showGamePuzzleStats, device, CHESS_GAME_ID);
     // A new solver's stats: no rating earned, no attempt logged or counted.
     await w.s.until(
       async (surf) => ({
         label: await readStatsRatingLabel(surf, device),
-        played: await readStatsPlayed(surf, device),
+        played: (await readStatsFigures(surf, device)).played,
         empty: await isGameLogEmpty(surf, device),
       }),
       {
@@ -65,8 +65,8 @@ Then(
 Then(
   "{actor}'s puzzle rating is 1500 and has not settled",
   async (w, actor: Actor) => {
-    await w.s.apply(showChessStatsScreen, actor);
-    expect(await w.s.read(readStatsElo, actor)).toBe(1500);
+    await w.s.apply(showGamePuzzleStats, actor, CHESS_GAME_ID);
+    expect(await w.s.read(readStatsPuzzleRating, actor)).toBe(1500);
     expect(await w.s.read(readStatsRatingLabel, actor)).toContain('?');
   }
 );
@@ -88,12 +88,14 @@ Then(
       }
     );
     await w.s.apply(focusActor, actor);
-    await w.s.apply(showChessStatsScreen, actor);
+    await w.s.apply(showGamePuzzleStats, actor, CHESS_GAME_ID);
     expect(await w.s.read(isGameLogEmpty, actor)).toBe(true);
   }
 );
 Then("{actor}'s stats show 0 played and 0 solved", async (w, actor: Actor) => {
-  await w.s.apply(showChessStatsScreen, actor);
-  expect(await w.s.read(readStatsPlayed, actor)).toBe(0);
-  expect(await w.s.read(readStatsSolved, actor)).toBe(0);
+  await w.s.apply(showGamePuzzleStats, actor, CHESS_GAME_ID);
+  expect(await w.s.read(readStatsFigures, actor)).toMatchObject({
+    played: 0,
+    solved: 0,
+  });
 });

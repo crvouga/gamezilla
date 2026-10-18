@@ -1,8 +1,12 @@
+import {
+  moveOnToNextPuzzle,
+  readPuzzleOnBoard,
+  skipGamePuzzle,
+} from '@libs/game-session-harness/puzzle-screen';
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import { playUntilSolved, pressPuzzleNext, skipPuzzle } from './chess-actions';
+import { playUntilSolved } from './chess-actions';
 import { readLocalPuzzles } from './chess-puzzle-data';
-import { readActivePuzzleId } from './chess-puzzle-ui';
 
 const PASSES = new WeakMap<ProductHarness, Map<string, readonly string[]>>();
 
@@ -25,13 +29,13 @@ export const playPuzzleFeedPass = scenarioAction({
     );
     const served: string[] = [];
     for (const [index] of expected.entries()) {
-      const id = await readActivePuzzleId(s, actor);
+      const id = await readPuzzleOnBoard(s, actor);
       if (id === null) throw new Error('No puzzle was served');
       served.push(id);
       await Promise.resolve(
-        (index % 2 === 0 ? playUntilSolved : skipPuzzle).act(s, actor)
+        (index % 2 === 0 ? playUntilSolved : skipGamePuzzle).act(s, actor)
       );
-      await Promise.resolve(pressPuzzleNext.act(s, actor));
+      await Promise.resolve(moveOnToNextPuzzle.act(s, actor));
     }
     const passes = PASSES.get(s) ?? new Map<string, readonly string[]>();
     passes.set(actor, served);

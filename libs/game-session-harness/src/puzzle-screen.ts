@@ -14,6 +14,7 @@ import { bringToFront, visible } from '@libs/harness/observations';
 import { waitActiveSpace } from '@libs/spaces-harness/space-ui';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { RecordingHaptics } from '@pkgs/device-shared/haptics';
+import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared/element-not-found-error';
 
 const WAIT_MS = 15_000;
 const POLL_MS = 250;
@@ -121,13 +122,31 @@ export async function readPuzzleBoardFacing(
   }
 }
 
-/** Who watches, the header's kind and the puzzle clock, from its probe. */
+/** A watcher's suggestion: who made it, and the cells it names. */
+export type PuzzleSuggestionSeen = {
+  readonly by: string;
+  readonly from: string;
+  readonly to: string;
+};
+
+/** Who watches, the header's kind, the clock and the suggestions shown. */
 export type PuzzleWatchProbe = {
   readonly spectating: boolean;
   readonly role: 'host' | 'guest' | 'unknown';
   readonly statusKind: string;
   readonly clockMs: number | null;
+  readonly suggestions: readonly PuzzleSuggestionSeen[];
 };
+
+/** `by:fromto` pairs, comma separated, oldest first. */
+function parseSuggestions(raw: string): readonly PuzzleSuggestionSeen[] {
+  if (raw.length === 0) return [];
+  return raw.split(',').flatMap((entry) => {
+    const [by, cells] = entry.split(':');
+    if (by === undefined || cells === undefined || cells.length < 4) return [];
+    return [{ by, from: cells.slice(0, 2), to: cells.slice(2, 4) }];
+  });
+}
 
 export async function readPuzzleWatch(
   s: ProductHarness,
@@ -150,10 +169,19 @@ export async function readPuzzleWatch(
       role: role === 'host' || role === 'guest' ? role : 'unknown',
       statusKind: fields['kind'] ?? '',
       clockMs: clock !== undefined && clock !== '-' ? Number(clock) : null,
+      suggestions: parseSuggestions(fields['recs'] ?? ''),
     };
   } catch {
     return null;
   }
+}
+
+/** What the header says of the attempt (`started`, `solved`, …), or null. */
+export async function readPuzzleStatusKind(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  return (await readPuzzleWatch(s, actorId))?.statusKind ?? null;
 }
 
 async function readPickField(
@@ -183,6 +211,23 @@ export async function readPuzzleOnBoard(
     : value;
 }
 
+/** Whether the attempt on the board can still move the rating. */
+export async function isPuzzleAttemptRated(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean | null> {
+  const raw = await readPickField(s, actorId, 'rated');
+  return raw === undefined ? null : raw === '1';
+}
+
+/** Where picking a puzzle stands (`ready`, `waiting`, `offline`, …). */
+export async function readPuzzlePickState(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  return (await readPickField(s, actorId, 'pickState')) ?? null;
+}
+
 /** Whether the puzzle's result is shown: solved, its panel on the board. */
 export async function isPuzzleSolved(
   s: ProductHarness,
@@ -193,7 +238,8 @@ export async function isPuzzleSolved(
   return (await readPuzzleState(s, actorId)) === 'solved';
 }
 
-async function waitPuzzleState(
+/** Until the attempt on the actor's board is in `state`. */
+export async function waitPuzzleState(
   s: ProductHarness,
   actorId: string,
   state: string
@@ -205,7 +251,8 @@ async function waitPuzzleState(
   );
 }
 
-async function waitPuzzleHelp(
+/** Until the help on the actor's board is `help`. */
+export async function waitPuzzleHelp(
   s: ProductHarness,
   actorId: string,
   help: string
@@ -297,6 +344,43 @@ export async function isPuzzleOfflineNoticeShown(
   return ui.get(Handles.chessPuzzleOffline).isVisible();
 }
 
+/** The feed has no puzzle to place: the board says so in its place. */
+export async function isEmptyFeedShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  const frame = ui.get(Handles.chessPuzzleBoardFrame);
+  if (await frame.isVisible()) await frame.layout();
+  return ui.get(Handles.chessPuzzleEmptyPool).isVisible();
+}
+
+/** The empty feed says it is empty because nothing was ever failed. */
+export async function isEmptyFeedForNoFailedAttempts(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  if (!(await isEmptyFeedShown(s, actorId))) return false;
+  const ui = await actorUi(s, actorId);
+  return ui.get(Handles.chessPuzzleEmptyPoolNoFailed).isVisible();
+}
+
+/** Press the empty feed's own action ("Include played puzzles"). */
+export async function pressEmptyFeedAction(
+  s: ProductHarness,
+  actorId: string
+): Promise<void> {
+  await pollUntil(
+    s,
+    async () => ((await isEmptyFeedShown(s, actorId)) ? true : null),
+    { maxMs: WAIT_MS, stepMs: POLL_MS, description: 'the empty feed' }
+  );
+  const ui = await actorUi(s, actorId);
+  await ui
+    .get(`${Handles.chessPuzzleEmptyPool}-action`)
+    .tap({ timeoutMs: WAIT_MS });
+}
+
 /** The daily puzzle limit is shown in place of a puzzle. */
 export async function isPuzzleLimitShown(
   s: ProductHarness,
@@ -306,6 +390,18 @@ export async function isPuzzleLimitShown(
   const frame = ui.get(Handles.chessPuzzleBoardFrame);
   if (await frame.isVisible()) await frame.layout();
   return ui.get(Handles.chessPuzzleLimit).isVisible();
+}
+
+/** The limit invites the person to sign in for more ("Sign in"). */
+export async function isPuzzleLimitSignInOffered(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  if (!(await isPuzzleLimitShown(s, actorId))) return false;
+  const ui = await actorUi(s, actorId);
+  const action = ui.get(`${Handles.chessPuzzleLimit}-action`);
+  if (!(await action.isVisible())) return false;
+  return (await action.text())?.trim() === 'Sign in';
 }
 
 // ----------------------------------------------------- in and out of puzzles
@@ -344,6 +440,16 @@ export const openGamePuzzles = scenarioAction({
   },
 });
 
+/**
+ * Open `gameId`'s puzzles without waiting for a board: offline with no
+ * puzzle on the device, or with an empty feed, the screen says so instead.
+ */
+export const openGamePuzzlesNoWait = scenarioAction({
+  name: 'openGamePuzzlesNoWait',
+  act: (s, actorId: string, gameId: string) =>
+    openPuzzleChoice(s, actorId, gameId),
+});
+
 /** Leave the puzzle for the game's choices, as the back control does. */
 export const leavePuzzleForGameChoices = scenarioAction({
   name: 'leavePuzzleForGameChoices',
@@ -359,15 +465,19 @@ export const leavePuzzleForGameChoices = scenarioAction({
 });
 
 /**
- * Back onto the puzzles from the game's choices: the board, or what the
- * screen shows in its place (the limit, the offline notice).
+ * Back onto the puzzles: from the game's choices through Puzzle, or one step
+ * back from wherever an interruption (signing in) left the person; then the
+ * board, or what the screen shows in its place (the limit, the offline
+ * notice). An unfinished puzzle comes back as it was.
  */
 export const goBackToGamePuzzles = scenarioAction({
   name: 'goBackToGamePuzzles',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    if (!(await ui.get(Handles.chessPuzzlePlayScreen).isVisible()))
+    if (await ui.get(Handles.gameChoice('puzzle')).isVisible())
       await ui.get(Handles.gameChoice('puzzle')).tap({ timeoutMs: WAIT_MS });
+    else if (!(await ui.get(Handles.chessPuzzlePlayScreen).isVisible()))
+      await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
     await ui
       .get(Handles.chessPuzzlePlayScreen)
       .expect.visible({ timeoutMs: WAIT_MS });
@@ -497,7 +607,7 @@ export const retryGamePuzzleIfOffered = scenarioAction({
 });
 
 /** Until a puzzle is placed on the board and has finished loading. */
-async function settleAfterMovingOn(
+export async function waitNextPuzzle(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
@@ -518,8 +628,15 @@ export const moveOnToNextPuzzle = scenarioAction({
   name: 'moveOnToNextPuzzle',
   act: async (s, actorId: string) => {
     await tapControl(s, actorId, Handles.chessPuzzleActionNext);
-    await settleAfterMovingOn(s, actorId);
+    await waitNextPuzzle(s, actorId);
   },
+});
+
+/** Move on, without waiting for a puzzle: the feed may have none left. */
+export const moveOnWithoutWaiting = scenarioAction({
+  name: 'moveOnWithoutWaiting',
+  act: (s, actorId: string) =>
+    tapControl(s, actorId, Handles.chessPuzzleActionNext),
 });
 
 /** Ask for the next puzzle: press it only when the board offers it. */
@@ -547,7 +664,7 @@ export const askForNextPuzzleTwice = scenarioAction({
     await first.tap({ timeoutMs: WAIT_MS });
     const again = ui.get(Handles.chessPuzzleActionNext);
     if (await again.isVisible()) await again.tap({ timeoutMs: WAIT_MS });
-    await settleAfterMovingOn(s, actorId);
+    await waitNextPuzzle(s, actorId);
   },
 });
 
@@ -609,6 +726,7 @@ export async function readPuzzleControls(s: ProductHarness, actorId: string) {
       Handles.chessPuzzleSummaryNext,
     ]),
     resultShown: await visible(s, actorId, [Handles.chessPuzzleSummary]),
+    feedSettingsOpen: await visible(s, actorId, [Handles.chessPuzzleFeedDone]),
   };
 }
 
@@ -718,14 +836,20 @@ export async function readPuzzleStartsLeft(
   const ui = await actorUi(s, actorId);
   const node = ui.get('chess-puzzle-remaining-today');
   if (!(await node.isVisible())) return null;
-  // Reconnecting can replace the allowance after it was seen.
-  const text = await node.text().catch(() => null);
+  // Reconnecting can replace the allowance after it was seen: its absence
+  // then is a normal loading state; any other failure is one.
+  const text = await node.text().catch((error: unknown) => {
+    if (error instanceof ElementNotFoundError) return null;
+    throw error;
+  });
   const match = text?.match(/^\s*(\d+)/);
   return match === null || match === undefined ? null : Number(match[1]);
 }
 
 export const PUZZLE_SCREEN_ACTIONS = [
   openGamePuzzles,
+  openGamePuzzlesNoWait,
+  moveOnWithoutWaiting,
   leavePuzzleForGameChoices,
   goBackToGamePuzzles,
   takePuzzleHint,

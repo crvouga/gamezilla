@@ -1,9 +1,12 @@
 import { expect, test } from 'bun:test';
-import { showChessStats } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import { showGamePuzzleStats } from '@libs/game-session-harness/puzzle-records';
 import type { ProductHarness } from '@libs/harness/harness';
 import { Handles } from '@libs/test-ids-shared/handles';
 
-/** Driver fixture for immediate or pending automatic host entry. */
+/**
+ * A game's puzzle stats from outside its space, as the host's automatic
+ * entry into their space comes at once or later: a driver fixture.
+ */
 function statsSurface(entryScreen: string) {
   let screen = 'lobby';
   const taps: string[] = [];
@@ -60,7 +63,9 @@ test.each(['games', 'loading', 'join'])(
   'stats navigation when host entry initially shows %s',
   async (entryScreen) => {
     const surface = statsSurface(entryScreen);
-    await showChessStats(surface.harness, 'alice_phone');
+    await Promise.resolve(
+      showGamePuzzleStats.act(surface.harness, 'alice_phone', 'chess')
+    );
     expect(surface.statsVisible()).toBe(true);
     expect(
       surface.taps.filter((handle) => handle === Handles.spaceJoin)

@@ -11,22 +11,16 @@ import {
   closePuzzleFeedSettings,
   closePuzzleFeedSettingsNoWait,
   includePlayedPuzzles,
-  leaveChessStatsScreen,
   openPuzzleFeedSettings,
-  openPuzzleFromSpace,
-  pressPuzzleNext,
-  returnToPuzzleScreen,
   setPuzzleFeedHistory,
   setPuzzleFeedMode,
   setPuzzleFeedTheme,
-  showChessStatsScreen,
   solvePuzzlesDaily,
   solvePuzzlesInARow,
 } from '@libs/chess-puzzle-harness/chess-actions';
 import {
   ingestChessPuzzleCsv,
   readServerPuzzles,
-  retireChessPuzzle,
 } from '@libs/chess-puzzle-harness/chess-puzzle-data';
 import type { FeedHistoryFilter } from '@libs/chess-puzzle-harness/chess-puzzle-feed-ui';
 import {
@@ -40,12 +34,6 @@ import {
   readFeedTargetLabel,
 } from '@libs/chess-puzzle-harness/chess-puzzle-feed-ui';
 import {
-  isEmptyPoolVisible,
-  isPuzzleUnratedNoticeVisible,
-  readActivePuzzleId,
-  readStatsElo,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import {
   playPuzzleFeedPass,
   readExcludedFeedPassPuzzles,
   readPuzzleFeedPass,
@@ -57,6 +45,21 @@ import {
   ingestCsv,
   STANDARD_PUZZLE_IDS,
 } from '@libs/chess-puzzle-harness/puzzle-fixtures';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import {
+  leaveGamePuzzleStats,
+  readStatsPuzzleRating,
+  retireCataloguePuzzle,
+  showGamePuzzleStats,
+} from '@libs/game-session-harness/puzzle-records';
+import {
+  goBackToGamePuzzles,
+  isEmptyFeedShown,
+  isPuzzleUnratedShown,
+  moveOnToNextPuzzle,
+  openGamePuzzles,
+  readPuzzleOnBoard,
+} from '@libs/game-session-harness/puzzle-screen';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
@@ -126,7 +129,7 @@ async function untilFirstPlayedComesRound(
   maxMs: number
 ): Promise<void> {
   const first = recalled<string>(w, firstPlayedKey(actor));
-  await w.s.until(async (surf) => readActivePuzzleId(surf, actor), {
+  await w.s.until(async (surf) => readPuzzleOnBoard(surf, actor), {
     maxMs,
     pred: (id) => id === first,
   });
@@ -137,7 +140,7 @@ async function untilFirstPlayedComesRound(
 
 /** The world's feed-sized pool leaves; the three documented puzzles stay. */
 async function retireFeedPool(w: HarnessWorld): Promise<void> {
-  for (const id of FEED_POOL_IDS) await w.s.apply(retireChessPuzzle, id);
+  for (const id of FEED_POOL_IDS) await w.s.apply(retireCataloguePuzzle, id);
 }
 
 Given('the puzzle pool holds just three puzzles', async (w) => {
@@ -149,7 +152,7 @@ Given('the puzzle pool holds just three puzzles', async (w) => {
       ? [...STANDARD_PUZZLE_IDS.slice(0, 2), onBoard]
       : [...STANDARD_PUZZLE_IDS];
   for (const id of [...FEED_POOL_IDS, ...STANDARD_PUZZLE_IDS]) {
-    if (!kept.includes(id)) await w.s.apply(retireChessPuzzle, id);
+    if (!kept.includes(id)) await w.s.apply(retireCataloguePuzzle, id);
   }
   const pool = (await w.s.read(readServerPuzzles)).map((row) => row.id);
   expect(pool).toEqual(kept.sort());
@@ -222,17 +225,20 @@ Given(
 Given(
   "{actor}'s feed has come round to a puzzle they already played",
   async (w, actor: Actor) => {
-    await w.s.apply(pressPuzzleNext, actor);
+    await w.s.apply(moveOnToNextPuzzle, actor);
     await untilFirstPlayedComesRound(w, actor, SETTLE_MS);
     // The rating before the repeat, as the stats show it.
-    await w.s.apply(showChessStatsScreen, actor);
+    await w.s.apply(showGamePuzzleStats, actor, CHESS_GAME_ID);
     remember(
       w,
       ratingBeforeRepeatKey(actor),
-      required(await w.s.read(readStatsElo, actor), `${actor}'s rating`)
+      required(
+        await w.s.read(readStatsPuzzleRating, actor),
+        `${actor}'s rating`
+      )
     );
-    await w.s.apply(leaveChessStatsScreen, actor);
-    await w.s.apply(returnToPuzzleScreen, actor);
+    await w.s.apply(leaveGamePuzzleStats, actor);
+    await w.s.apply(goBackToGamePuzzles, actor);
   }
 );
 Then(
@@ -244,7 +250,7 @@ Then(
 
 Then('{actor} is told the attempt is unrated', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
-  await w.s.until((surf) => isPuzzleUnratedNoticeVisible(surf, actor), {
+  await w.s.until((surf) => isPuzzleUnratedShown(surf, actor), {
     maxMs: SETTLE_MS,
   });
 });
@@ -253,7 +259,7 @@ Then(
   "{actor}'s puzzle rating is still unchanged by the repeat because that puzzle is already rated",
   async (w, actor: Actor) => {
     await ensureStatsOpen(w, actor);
-    expect(await w.s.read(readStatsElo, actor)).toBe(
+    expect(await w.s.read(readStatsPuzzleRating, actor)).toBe(
       recalled<number>(w, ratingBeforeRepeatKey(actor))
     );
   }
@@ -324,7 +330,7 @@ Then(
     const link = required(await w.s.read(readSpaceLink, actor), 'a space');
     await w.s.apply(openSpaceLink, device, link);
     await w.s.apply(joinFromPrompt, device);
-    await w.s.apply(openPuzzleFromSpace, device);
+    await w.s.apply(openGamePuzzles, device, CHESS_GAME_ID);
     await w.s.until(async (surf) => readFeedTargetLabel(surf, device), {
       maxMs: seconds * SECOND_MS,
       pred: (label) => label?.mode === 'custom' && label.rating === rating,
@@ -427,7 +433,7 @@ Given(
     await w.s.apply(setPuzzleFeedTheme, actor, puzzleThemeNamed(name));
     await w.s.apply(closePuzzleFeedSettingsNoWait, actor);
     // Precondition guard: the filter really matches nothing.
-    await w.s.until((surf) => isEmptyPoolVisible(surf, actor), {
+    await w.s.until((surf) => isEmptyFeedShown(surf, actor), {
       maxMs: SETTLE_MS,
     });
   }
@@ -436,14 +442,14 @@ Given(
 Then(
   '{actor} is told the feed is empty within {int} seconds',
   async (w, actor: Actor, seconds: number) => {
-    await w.s.until((surf) => isEmptyPoolVisible(surf, actor), {
+    await w.s.until((surf) => isEmptyFeedShown(surf, actor), {
       maxMs: seconds * SECOND_MS,
     });
   }
 );
 
 Then('{actor} is not told the feed is empty', async (w, actor: Actor) => {
-  expect(await w.s.read(isEmptyPoolVisible, actor)).toBe(false);
+  expect(await w.s.read(isEmptyFeedShown, actor)).toBe(false);
 });
 
 When(

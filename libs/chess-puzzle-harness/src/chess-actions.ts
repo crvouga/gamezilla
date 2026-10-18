@@ -1,13 +1,22 @@
 import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
+import {
+  isEmptyFeedShown,
+  moveOnToNextPuzzle,
+  pressEmptyFeedAction,
+  readPuzzleBoardPosition,
+  readPuzzleOnBoard,
+  readPuzzleProbe,
+  retryGamePuzzle,
+  showPuzzleSolution,
+  skipGamePuzzle,
+  takePuzzleHint,
+  waitNextPuzzle,
+} from '@libs/game-session-harness/puzzle-screen';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { openSettings } from '@libs/harness/shell-actions';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type {
-  FeedAutoAdvance,
-  FeedHistoryFilter,
-  FeedMode,
-} from './chess-puzzle-feed-ui';
+import type { FeedHistoryFilter, FeedMode } from './chess-puzzle-feed-ui';
 import {
   closeFeedSettings,
   decreaseFeedCustomRating,
@@ -15,57 +24,24 @@ import {
   increaseFeedCustomRating,
   increaseFeedOffset,
   openFeedSettings,
-  selectFeedAutoAdvance,
   selectFeedHistory,
   selectFeedMode,
   selectFeedTheme,
 } from './chess-puzzle-feed-ui';
 import { readMsUntilNextUtcDay } from './chess-puzzle-ledger-data';
-import type { PuzzleNavControl } from './chess-puzzle-review-ui';
-import {
-  pressPuzzleNavControl,
-  pressPuzzleReviewKey,
-  swipePuzzleReviewBoard,
-  tapPuzzleReviewPly,
-} from './chess-puzzle-review-ui';
 import {
   dragPuzzleUci,
   pickPuzzlePromotion,
   pickUpPuzzlePieceAt,
   readPuzzleBoardProbe,
-  showPuzzleSolution,
   tapPuzzleUci,
 } from './chess-puzzle-solve-ui';
 import {
   suggestPuzzleMove as dragSuggestedMove,
   expectPlayReady,
-  isEmptyPoolVisible,
-  isPuzzleSummaryNextVisible,
-  leaveChessStats,
-  openChessStats,
-  openPuzzleFromChessMenu,
-  openPuzzlePlay,
-  openPuzzlePlayNoWait,
-  openReviewFromGameLog,
   pickWrongUci,
   playWrongMove,
-  pressChessMenuBackToGameMenu,
-  pressPuzzleBackToChessMenu,
-  pressPuzzleHint,
-  pressPuzzleRetry,
-  readActivePuzzleId,
-  readPuzzleDebug,
-  readPuzzleDisplayFen,
-  returnToPuzzles,
-  settleAfterPuzzleNext,
-  showChessStats,
   solvePuzzle,
-  tapEmptyPoolPrimaryAction,
-  pressPuzzleNext as tapPuzzleNext,
-  pressPuzzleNextIfVisible as tapPuzzleNextIfVisible,
-  skipPuzzle as tapPuzzleSkip,
-  pressPuzzleSummaryNext as tapPuzzleSummaryNext,
-  waitPuzzleHintStage,
 } from './chess-puzzle-ui';
 import {
   listenToTheApp,
@@ -73,60 +49,9 @@ import {
   usePuzzleControlWithKeyboard,
 } from './puzzle-keyboard';
 
-export const openPuzzleFromSpace = scenarioAction({
-  name: 'openPuzzleFromSpace',
-  act: openPuzzlePlay,
-});
-
-/** Open the puzzle screen without waiting for a board (the feed may be empty). */
-export const openPuzzleFromSpaceNoWait = scenarioAction({
-  name: 'openPuzzleFromSpaceNoWait',
-  act: openPuzzlePlayNoWait,
-});
-
-/** Back on the board from the chess main menu (a pending attempt is restored). */
-export const reopenPuzzleFromChessMenu = scenarioAction({
-  name: 'reopenPuzzleFromChessMenu',
-  act: openPuzzleFromChessMenu,
-});
-
-/** Back to the puzzle screen from the chess choices or an interruption. */
-export const returnToPuzzleScreen = scenarioAction({
-  name: 'returnToPuzzleScreen',
-  act: returnToPuzzles,
-});
-
 export const playUntilSolved = scenarioAction({
   name: 'playUntilSolved',
   act: solvePuzzle,
-});
-
-/**
- * Presses Next and waits until a different puzzle is active (or loading
- * finishes). The standing `nextPuzzleDifferent` property asserts the id
- * actually changed.
- */
-export const pressPuzzleNext = scenarioAction({
-  name: 'pressPuzzleNext',
-  act: async (s, actorId: string) => {
-    await tapPuzzleNext(s, actorId);
-    await settleAfterPuzzleNext(s, actorId);
-  },
-});
-
-/** Presses Next when the feed may be exhausted (does not wait for a puzzle). */
-export const pressPuzzleNextNoWait = scenarioAction({
-  name: 'pressPuzzleNextNoWait',
-  act: tapPuzzleNext,
-});
-
-/**
- * Tap the action bar's Next only when it is already on screen. Waiting would
- * be the wrong ask while a puzzle is still being solved and Next is absent.
- */
-export const pressPuzzleNextIfVisible = scenarioAction({
-  name: 'pressPuzzleNextIfVisible',
-  act: tapPuzzleNextIfVisible,
 });
 
 /** Drag a legal move that is not the solution; the attempt turns `wrong`. */
@@ -161,96 +86,10 @@ export const choosePuzzlePromotion = scenarioAction({
     pickPuzzlePromotion(s, actorId, piece),
 });
 
-/** §6 Show solution: the rest of the line plays out, then review. */
-export const showPuzzleSolutionLine = scenarioAction({
-  name: 'showPuzzleSolutionLine',
-  act: showPuzzleSolution,
-});
-
-/**
- * "Next puzzle" pressed twice back to back (§34 fast double input): the
- * result panel's CTA when it shows (after a solve), else the action bar's
- * button, then the action bar's button again. The second press is
- * best-effort — by then the chrome may already be gone.
- */
-export const pressPuzzleNextTwice = scenarioAction({
-  name: 'pressPuzzleNextTwice',
-  act: async (s, actorId: string) => {
-    const first = (await isPuzzleSummaryNextVisible(s, actorId))
-      ? tapPuzzleSummaryNext
-      : tapPuzzleNext;
-    await first(s, actorId);
-    await tapPuzzleNextIfVisible(s, actorId);
-    await settleAfterPuzzleNext(s, actorId);
-  },
-});
-
-/** Set the §5 auto-advance preference through the feed settings modal. */
-export const setPuzzleAutoAdvance = scenarioAction({
-  name: 'setPuzzleAutoAdvance',
-  act: async (s, actorId: string, setting: FeedAutoAdvance) => {
-    await openFeedSettings(s, actorId);
-    await selectFeedAutoAdvance(s, actorId, setting);
-    await closeFeedSettings(s, actorId);
-  },
-});
-
-export const retryPuzzle = scenarioAction({
-  name: 'retryPuzzle',
-  act: pressPuzzleRetry,
-});
-
-/** Skip abandons the live attempt without solving it (terminal `skipped`). */
-export const skipPuzzle = scenarioAction({
-  name: 'skipPuzzle',
-  act: tapPuzzleSkip,
-});
-
 /** A spectator drags a legal move; the room records it as a suggestion. */
 export const suggestPuzzleMove = scenarioAction({
   name: 'suggestPuzzleMove',
   act: dragSuggestedMove,
-});
-
-/** First Hint press: highlight the piece to move. */
-export const requestPuzzleHint = scenarioAction({
-  name: 'requestPuzzleHint',
-  act: async (s, actorId: string) => {
-    await pressPuzzleHint(s, actorId);
-    await waitPuzzleHintStage(s, actorId, 'highlight');
-  },
-});
-
-/** A second hint reveals the solution arrow. */
-export const revealPuzzleSolution = scenarioAction({
-  name: 'revealPuzzleSolution',
-  act: async (s, actorId: string) => {
-    await pressPuzzleHint(s, actorId);
-    await waitPuzzleHintStage(s, actorId, 'solution');
-  },
-});
-
-/** Chrome back arrow from play → chess main menu (forfeits an open attempt). */
-export const leavePuzzleToChessMenu = scenarioAction({
-  name: 'leavePuzzleToChessMenu',
-  act: pressPuzzleBackToChessMenu,
-});
-
-/** Chrome back arrow from the chess choices → the space's game menu. */
-export const leaveChessMenuToGameMenu = scenarioAction({
-  name: 'leaveChessMenuToGameMenu',
-  act: pressChessMenuBackToGameMenu,
-});
-
-export const openChessStatsScreen = scenarioAction({
-  name: 'openChessStatsScreen',
-  act: openChessStats,
-});
-
-/** The stats screen from wherever the device is (see {@link showChessStats}). */
-export const showChessStatsScreen = scenarioAction({
-  name: 'showChessStatsScreen',
-  act: showChessStats,
 });
 
 /** Personal progress is reachable from the shell even without a live space. */
@@ -265,51 +104,12 @@ export const showPersonalChessStatsScreen = scenarioAction({
   },
 });
 
-/** Back out of the stats screen to the chess main menu. */
-export const leaveChessStatsScreen = scenarioAction({
-  name: 'leaveChessStatsScreen',
-  act: leaveChessStats,
-});
-
-export const openPuzzleReview = scenarioAction({
-  name: 'openPuzzleReview',
-  act: openReviewFromGameLog,
-});
-
-/** §7 scrub control: jump to start / step back / step forward / jump to end. */
-export const pressPuzzleReviewNav = scenarioAction({
-  name: 'pressPuzzleReviewNav',
-  act: (s, actorId: string, control: PuzzleNavControl) =>
-    pressPuzzleNavControl(s, actorId, control),
-});
-
-/** §7 tappable move list: jump straight to one ply. */
-export const tapPuzzleReviewMove = scenarioAction({
-  name: 'tapPuzzleReviewMove',
-  act: (s, actorId: string, plyIndex: number) =>
-    tapPuzzleReviewPly(s, actorId, plyIndex),
-});
-
-/** §7 keyboard scrubbing: arrows step, Home / End jump. */
-export const pressPuzzleReviewArrow = scenarioAction({
-  name: 'pressPuzzleReviewArrow',
-  act: (s, actorId: string, key: 'arrowLeft' | 'arrowRight' | 'home' | 'end') =>
-    pressPuzzleReviewKey(s, actorId, key),
-});
-
-/** §7 swipe scrubbing across the review board. */
-export const swipePuzzleReview = scenarioAction({
-  name: 'swipePuzzleReview',
-  act: (s, actorId: string, direction: 'back' | 'forward') =>
-    swipePuzzleReviewBoard(s, actorId, direction),
-});
-
 /** Exhausted-feed block primary action, then wait for a placed puzzle. */
 export const includePlayedPuzzles = scenarioAction({
   name: 'includePlayedPuzzles',
   act: async (s, actorId: string) => {
-    await tapEmptyPoolPrimaryAction(s, actorId);
-    await settleAfterPuzzleNext(s, actorId);
+    await pressEmptyFeedAction(s, actorId);
+    await waitNextPuzzle(s, actorId);
   },
 });
 
@@ -392,13 +192,13 @@ export const savePuzzleFeedSettings = scenarioAction({
     await pollUntil(
       s,
       async () =>
-        (await isEmptyPoolVisible(s, actorId)) ||
-        (await readActivePuzzleId(s, actorId)) !== null
+        (await isEmptyFeedShown(s, actorId)) ||
+        (await readPuzzleOnBoard(s, actorId)) !== null
           ? true
           : null,
       { maxMs: SETTLE_MS, stepMs: POLL_MS, description: 'feed settled' }
     );
-    if (!(await isEmptyPoolVisible(s, actorId))) {
+    if (!(await isEmptyFeedShown(s, actorId))) {
       await expectPlayReady(s, actorId);
     }
   },
@@ -422,7 +222,7 @@ async function waitSolverCanMove(s: ProductHarness, actorId: string) {
 /** The next move of the line, once the solver may play it. */
 async function nextSolutionUci(s: ProductHarness, actorId: string) {
   await waitSolverCanMove(s, actorId);
-  const uci = (await readPuzzleDebug(s, actorId))?.solutionUci ?? '';
+  const uci = (await readPuzzleProbe(s, actorId))?.next ?? '';
   if (uci.length < 4) throw new Error(`${actorId} has no next solution move`);
   return uci;
 }
@@ -446,7 +246,7 @@ export const openPuzzleByTheme = scenarioAction({
     await pollUntil(
       s,
       async () =>
-        (await readActivePuzzleId(s, actorId)) === puzzleId ? true : null,
+        (await readPuzzleOnBoard(s, actorId)) === puzzleId ? true : null,
       { maxMs: SETTLE_MS, stepMs: POLL_MS, description: `puzzle ${puzzleId}` }
     );
     await waitSolverCanMove(s, actorId);
@@ -475,12 +275,12 @@ export const playNextSolutionMove = scenarioAction({
   name: 'playNextSolutionMove',
   act: async (s, actorId: string) => {
     const uci = await nextSolutionUci(s, actorId);
-    const before = await readPuzzleDisplayFen(s, actorId);
+    const before = await readPuzzleBoardPosition(s, actorId);
     await dragPuzzleUci(s, actorId, uci);
     await pollUntil(
       s,
       async () => {
-        const fen = await readPuzzleDisplayFen(s, actorId);
+        const fen = await readPuzzleBoardPosition(s, actorId);
         return fen !== null && fen !== before ? true : null;
       },
       { maxMs: SETTLE_MS, stepMs: POLL_MS, description: 'the board to move' }
@@ -492,8 +292,8 @@ export const playNextSolutionMove = scenarioAction({
 export const suggestNonSolutionMove = scenarioAction({
   name: 'suggestNonSolutionMove',
   act: async (s, actorId: string) => {
-    const solution = (await readPuzzleDebug(s, actorId))?.solutionUci ?? '';
-    const fen = await readPuzzleDisplayFen(s, actorId);
+    const solution = (await readPuzzleProbe(s, actorId))?.next ?? '';
+    const fen = await readPuzzleBoardPosition(s, actorId);
     if (fen === null) throw new Error(`${actorId} sees no board`);
     const uci = pickWrongUci(fen, solution);
     await dragSuggestedMove(
@@ -512,8 +312,7 @@ export const solvePuzzlesInARow = scenarioAction({
     for (let i = 0; i < count; i += 1) {
       await solvePuzzle(s, actorId);
       if (i < count - 1) {
-        await tapPuzzleNext(s, actorId);
-        await settleAfterPuzzleNext(s, actorId);
+        await Promise.resolve(moveOnToNextPuzzle.act(s, actorId));
       }
     }
   },
@@ -531,10 +330,9 @@ export const playPuzzleResults = scenarioAction({
         await solvePuzzle(s, actorId);
       } else {
         await playWrongMove(s, actorId);
-        await tapPuzzleSkip(s, actorId);
+        await Promise.resolve(skipGamePuzzle.act(s, actorId));
       }
-      await tapPuzzleNext(s, actorId);
-      await settleAfterPuzzleNext(s, actorId);
+      await Promise.resolve(moveOnToNextPuzzle.act(s, actorId));
     }
   },
 });
@@ -551,19 +349,17 @@ export type PuzzleFinish =
 export const finishPuzzleBy = scenarioAction({
   name: 'finishPuzzleBy',
   act: async (s, actorId: string, finish: PuzzleFinish) => {
-    if (finish === 'hintThenSolve') {
-      await pressPuzzleHint(s, actorId);
-      await waitPuzzleHintStage(s, actorId, 'highlight');
-    }
+    if (finish === 'hintThenSolve')
+      await Promise.resolve(takePuzzleHint.act(s, actorId));
     if (finish === 'wrongRetrySolve') {
       await playWrongMove(s, actorId);
-      await pressPuzzleRetry(s, actorId);
+      await Promise.resolve(retryGamePuzzle.act(s, actorId));
       await waitSolverCanMove(s, actorId);
     }
     if (finish === 'showSolution') {
-      await showPuzzleSolution(s, actorId);
+      await Promise.resolve(showPuzzleSolution.act(s, actorId));
     } else if (finish === 'skip') {
-      await tapPuzzleSkip(s, actorId);
+      await Promise.resolve(skipGamePuzzle.act(s, actorId));
     } else {
       await solvePuzzle(s, actorId);
     }
@@ -594,8 +390,7 @@ export const solvePuzzlesDaily = scenarioAction({
     for (let day = 0; day < days; day += 1) {
       if (day > 0) {
         await Promise.resolve(sleepUntilNextUtcDay.act(s));
-        await tapPuzzleNext(s, actorId);
-        await settleAfterPuzzleNext(s, actorId);
+        await Promise.resolve(moveOnToNextPuzzle.act(s, actorId));
       }
       await Promise.resolve(solvePuzzlesInARow.act(s, actorId, perDay));
     }
@@ -607,36 +402,13 @@ export const CHESS_HARNESS_ACTIONS = [
   listenToTheApp,
   playPuzzleMoveWithKeyboard,
   usePuzzleControlWithKeyboard,
-  openPuzzleFromSpace,
-  openPuzzleFromSpaceNoWait,
   playUntilSolved,
   playPuzzleMove,
   tapPuzzleMove,
   pickUpPuzzlePiece,
   choosePuzzlePromotion,
-  showPuzzleSolutionLine,
-  setPuzzleAutoAdvance,
-  pressPuzzleNextTwice,
-  reopenPuzzleFromChessMenu,
-  returnToPuzzleScreen,
-  pressPuzzleNext,
-  pressPuzzleNextNoWait,
-  pressPuzzleNextIfVisible,
   playWrongPuzzleMove,
-  retryPuzzle,
-  requestPuzzleHint,
-  revealPuzzleSolution,
-  leaveChessStatsScreen,
-  leavePuzzleToChessMenu,
-  leaveChessMenuToGameMenu,
-  openChessStatsScreen,
-  openPuzzleReview,
-  pressPuzzleReviewNav,
-  pressPuzzleReviewArrow,
-  tapPuzzleReviewMove,
-  swipePuzzleReview,
   includePlayedPuzzles,
-  skipPuzzle,
   suggestPuzzleMove,
   openPuzzleFeedSettings,
   closePuzzleFeedSettings,
@@ -656,7 +428,6 @@ export const CHESS_HARNESS_ACTIONS = [
   solvePuzzlesInARow,
   playPuzzleResults,
   finishPuzzleBy,
-  showChessStatsScreen,
   showPersonalChessStatsScreen,
   sleepUntilNextUtcDay,
   solvePuzzlesDaily,

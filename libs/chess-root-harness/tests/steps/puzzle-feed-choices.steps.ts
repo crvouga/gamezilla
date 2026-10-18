@@ -12,7 +12,6 @@ import {
   lowerPuzzleFeedOffset,
   openPuzzleByTheme,
   openPuzzleFeedSettings,
-  openPuzzleFromSpace,
   playUntilSolved,
   savePuzzleFeedSettings,
   setPuzzleFeedMode,
@@ -25,11 +24,13 @@ import {
   readFeedModalTargetRating,
   readFeedOffsetValue,
 } from '@libs/chess-puzzle-harness/chess-puzzle-feed-ui';
-import {
-  isEmptyPoolForNoFailedAttempts,
-  readActivePuzzleId,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { GOOD_PUZZLE } from '@libs/chess-puzzle-harness/puzzle-pool-stock';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import {
+  isEmptyFeedForNoFailedAttempts,
+  openGamePuzzles,
+  readPuzzleOnBoard,
+} from '@libs/game-session-harness/puzzle-screen';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
@@ -204,7 +205,7 @@ Then(
     // The other device looks at the feed in the space the account hosts.
     const link = required(await w.s.read(readSpaceLink, actor), 'a space');
     await w.s.apply(reopenSpaceLink, device, link);
-    await w.s.apply(openPuzzleFromSpace, device);
+    await w.s.apply(openGamePuzzles, device, CHESS_GAME_ID);
     await w.s.until(
       (surf) => isFeedLimitedToTheme(surf, device, puzzleThemeNamed(name)),
       { maxMs: seconds * SECOND_MS }
@@ -217,7 +218,7 @@ Then(
 When('{actor} saves the feed settings', async (w, actor: Actor) => {
   await w.s.apply(savePuzzleFeedSettings, actor);
   // An empty feed has no puzzle to note.
-  if ((await w.s.read(readActivePuzzleId, actor)) !== null) {
+  if ((await w.s.read(readPuzzleOnBoard, actor)) !== null) {
     await trackPuzzle(w, actor);
   }
 });
@@ -231,7 +232,7 @@ Then(
   '{actor} is told the feed is empty because they have no failed attempts',
   async (w, actor: Actor) => {
     await w.s.apply(focusActor, actor);
-    await w.s.until((surf) => isEmptyPoolForNoFailedAttempts(surf, actor), {
+    await w.s.until((surf) => isEmptyFeedForNoFailedAttempts(surf, actor), {
       maxMs: SETTLE_MS,
     });
   }
