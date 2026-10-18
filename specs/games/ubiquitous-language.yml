@@ -669,7 +669,9 @@ terms:
       showing the matched game as it really stands. Reviewing one is private
       to the device, makes no move and needs no connection: with none it
       uses the last known board. A move accepted meanwhile joins the move
-      list and leaves the board on the position the person chose.
+      list and leaves the board on the position the person chose. In a
+      puzzle, a solver reviewing an earlier position cannot move, take a
+      hint or show the solution until they return to the current position.
     forms: [earlier positions, step back, step forward, the start]
     avoid: [past position, old position]
     model: [earlierPosition, chooseEarlierPosition, stepBackOneMove, stepForwardOneMove, goToStart]
@@ -753,7 +755,7 @@ terms:
       puzzle has a rating of its own, which is how hard it is.
     forms: [puzzles, this puzzle, next puzzle, a different puzzle, the puzzle's]
     avoid: [problem, exercise]
-    model: [puzzle]
+    model: [puzzle, Puzzle]
 
   - term: known puzzle
     definition: >-
@@ -892,6 +894,7 @@ terms:
       watchers. The board faces the solver's side.
     forms: [solvers, the solver's side]
     avoid: [puzzler]
+    model: [Solver, solver]
 
   - term: attempt
     definition: >-
@@ -1075,6 +1078,7 @@ terms:
       puzzle, ever. A repeat of an already-played puzzle is unrated, and a
       watcher is never rated.
     forms: [rated puzzle, rated puzzles]
+    model: [RatedPuzzle]
 
   - term: puzzle stats
     definition: >-
@@ -1115,6 +1119,14 @@ terms:
       and its rating change (or that it was unrated), and each opening in
       review.
     avoid: [puzzle history]
+    model: [PlayedPuzzle]
+
+  - term: first result
+    definition: >-
+      The first solved, failed or abandoned outcome recorded for a solver's
+      puzzle. If devices act apart, the outcome that reaches the account first
+      is kept.
+    model: [Result, Solved, Failed, Abandoned]
 
   - term: retired puzzle
     definition: >-
@@ -1124,9 +1136,14 @@ terms:
 
   - term: daily puzzle limit
     definition: >-
-      The 20 rated puzzles a guest may start in a day. A puzzle served again
-      once the pool is played through is unrated and uses none.
-    forms: [daily allowance]
+      The 20 rated puzzles a guest may start in a day; free accounts and Plus
+      members have none. It is one allowance for every game offering
+      puzzles: rated puzzles a guest starts in any of them count toward the
+      same 20. A puzzle under way when it is reached can still be finished;
+      the next does not start, and the guest is invited to sign in. It holds
+      the same offline, and a new day brings a fresh allowance. A puzzle
+      served again once the pool is played through is unrated and uses none.
+    forms: [puzzle limit, daily limit, limit, allowance, daily allowance]
     avoid: [quota, cap]
 
   - term: puzzle start
@@ -1141,7 +1158,11 @@ terms:
       effect, and why: who may make it, whether the custom game allows it
       now, someone in the space they or the creator blocked (never saying
       who blocked whom), not being in the space, a missing connection, a
-      paused custom game, or a set-up that has changed since they saw it. A
+      paused custom game, or a set-up that has changed since they saw it. In
+      a puzzle, what a solver is told when a move, a hint, a skip, showing
+      the solution or reviewing is unavailable now, and why: the puzzle is
+      over, a retry is needed, the first hint is needed or already taken,
+      they are reviewing an earlier position, or the puzzle was skipped. A
       refused choice changes nothing and never happens later on its own.
     forms: [refusals]
     model: [refusal]
@@ -1228,6 +1249,9 @@ terms:
   - term: Plus member
     from: billing
 
+  - term: Plus
+    from: billing
+
   - term: block someone
     from: friends
 
@@ -1247,6 +1271,9 @@ terms:
     from: profile
 
   - term: create a space
+    from: spaces
+
+  - term: return to a space
     from: spaces
 
   - term: keyboard

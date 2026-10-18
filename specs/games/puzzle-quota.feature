@@ -1,4 +1,4 @@
-@domain:chess
+@domain:games
 Feature: The daily rated puzzle allowance
   When a guest reaches the daily puzzle limit, they want to finish the puzzle
   on the board and know how to carry on, so the limit never costs them a
@@ -41,7 +41,7 @@ Feature: The daily rated puzzle allowance
 
     Scenario: Going back to a puzzle unfinished at the limit uses no further start
       Given Alice is a guest who reached today's puzzle limit while solving a puzzle
-      And Alice has left the puzzle for the chess choices
+      And Alice has left the puzzle for the game's choices
       When Alice goes back to the puzzles
       Then Alice is on the same puzzle as before
       And Alice is still asked to find the next move
@@ -57,7 +57,7 @@ Feature: The daily rated puzzle allowance
 
     Scenario: Going back after the puzzle is over does not save a puzzle start for later
       Given Alice is a guest who has finished today's last allowed puzzle
-      And Alice has left the puzzle for the chess choices
+      And Alice has left the puzzle for the game's choices
       When Alice goes back to the puzzles
       Then Alice is told no new puzzle can start because today's allowance is used within 15 seconds
       And Alice has no puzzle on the board

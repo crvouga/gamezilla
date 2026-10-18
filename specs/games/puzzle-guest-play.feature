@@ -1,7 +1,7 @@
-@domain:chess
+@domain:games
 Feature: Puzzles without an account
-  When someone wants to try puzzles, they want to play at once, so a guest
-  hosts a space and solves puzzles without ever having to sign in.
+  When someone wants to try the game's puzzles, they want to play at once, so
+  a guest hosts a space and solves puzzles without ever having to sign in.
 
   Rule: A guest can solve puzzles and keep their game log
     No counter-example: An account is never needed to solve an allowed puzzle; the daily allowance has its own rules.

@@ -1,4 +1,6 @@
-// The puzzles a solver's game log and puzzle rating count, at one moment.
+// The puzzles a solver's game log and puzzle rating count, at one moment,
+// at one game offering puzzles; it holds for each of them, and each game's
+// game log and puzzle rating are its own.
 // Returning, retrying or watching cannot give the same solver two first
 // results for one puzzle. The rating and game log agree on that result.
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="daily-puzzle-limit-decisions" name="The daily puzzle limit" namespace="https://gamezilla.dev/decisions">
   <decision id="daily-puzzle-limit" name="May this person start another rated puzzle today?">
-    <description>A guest starts at most 20 rated puzzles a day, and the day starts again at midnight UTC; puzzles started before today never count. Free accounts and Plus members have no daily puzzle limit.</description>
+    <description>A guest starts at most 20 rated puzzles a day, and the day starts again at midnight UTC; puzzles started before today never count. The daily puzzle limit is one allowance for every game offering puzzles: rated puzzles a guest starts today in any of those games count toward the same 20. Free accounts and Plus members have no daily puzzle limit.</description>
     <decisionTable id="daily-puzzle-limit-table" hitPolicy="UNIQUE">
       <input id="who" label="who is asking">
         <inputExpression id="who-expression" typeRef="string"><text>who is asking</text></inputExpression>
@@ -22,7 +22,7 @@
         <outputValues id="reason-values"><text>"none","daily puzzle limit reached"</text></outputValues>
       </output>
       <rule id="guest-below-limit">
-        <description>A guest who started fewer than 20 rated puzzles today may start another.</description>
+        <description>A guest who started fewer than 20 rated puzzles today, across every game offering puzzles, may start another.</description>
         <inputEntry id="guest-below-limit-in-1"><text>"guest"</text></inputEntry>
         <inputEntry id="guest-below-limit-in-2"><text>&lt; 20</text></inputEntry>
         <inputEntry id="guest-below-limit-in-3"><text>-</text></inputEntry>
@@ -30,7 +30,7 @@
         <outputEntry id="guest-below-limit-out-2"><text>"none"</text></outputEntry>
       </rule>
       <rule id="guest-at-limit">
-        <description>A guest who started 20 rated puzzles today has reached the daily puzzle limit.</description>
+        <description>A guest who started 20 rated puzzles today, across every game offering puzzles, has reached the daily puzzle limit.</description>
         <inputEntry id="guest-at-limit-in-1"><text>"guest"</text></inputEntry>
         <inputEntry id="guest-at-limit-in-2"><text>&gt;= 20</text></inputEntry>
         <inputEntry id="guest-at-limit-in-3"><text>-</text></inputEntry>

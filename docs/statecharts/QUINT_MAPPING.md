@@ -101,12 +101,12 @@ These contracts constrain the capabilities and appear in their business catalog.
 | [specs/games/custom-game-access.dmn](../../specs/games/custom-game-access.dmn) | custom-game |
 | [specs/games/custom-game-delivery.openslo.yaml](../../specs/games/custom-game-delivery.openslo.yaml) | custom-game |
 | [specs/games/custom-games.als](../../specs/games/custom-games.als) | custom-game |
-| [specs/chess/daily-puzzle-limit.dmn](../../specs/chess/daily-puzzle-limit.dmn) | puzzles |
+| [specs/games/daily-puzzle-limit.dmn](../../specs/games/daily-puzzle-limit.dmn) | puzzles |
 | [specs/games/matched-games.als](../../specs/games/matched-games.als) | multiplayer |
 | [specs/games/matched-game-ready.openslo.yaml](../../specs/games/matched-game-ready.openslo.yaml) | multiplayer |
 | [specs/games/matched-game-watch-access.dmn](../../specs/games/matched-game-watch-access.dmn) | multiplayer |
 | [specs/chess/puzzle-management-access.dmn](../../specs/chess/puzzle-management-access.dmn) | puzzle-ingest |
-| [specs/chess/puzzle-progress.als](../../specs/chess/puzzle-progress.als) | puzzles |
+| [specs/games/puzzle-progress.als](../../specs/games/puzzle-progress.als) | puzzles |
 | [specs/games/puzzle-ready.openslo.yaml](../../specs/games/puzzle-ready.openslo.yaml) | puzzles |
 | [specs/games/unfinished-game-limit.dmn](../../specs/games/unfinished-game-limit.dmn) | multiplayer |
 | [specs/conformance.yaml](../../specs/conformance.yaml) | product |

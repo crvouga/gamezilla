@@ -1,4 +1,4 @@
-@domain:chess
+@domain:games
 Feature: The puzzle limit holds everywhere, and only for guests
   When people play many puzzles in a day, they want the daily puzzle limit to
   be the same wherever they play, so their allowance is predictable. Free
@@ -19,7 +19,7 @@ Feature: The puzzle limit holds everywhere, and only for guests
       Examples:
         | kind                   |
         | is signed in           |
-        | has subscribed to Plus |
+        | is a Plus member       |
 
     Scenario: A guest at the limit still gets no new puzzle while offline
       Given Alice is a guest who has finished today's last allowed puzzle

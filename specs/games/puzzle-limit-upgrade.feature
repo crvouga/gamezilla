@@ -1,4 +1,4 @@
-@domain:chess
+@domain:games
 Feature: The daily puzzle limit is an invitation
   When a guest reaches the daily puzzle limit, they want a clear invitation
   to sign in rather than an error, so they know how to keep playing: a free

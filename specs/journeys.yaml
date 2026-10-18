@@ -261,7 +261,7 @@ journeys:
     endsIn:
     - 'Puzzles: Solved'
     gherkin:
-    - specs/chess/puzzle-refusals.feature
+    - specs/games/puzzle-refusals.feature
     - specs/games/puzzle-review.feature
     tour: true
   Signing in lifts the guest puzzle limit:
@@ -281,8 +281,8 @@ journeys:
     - 'Identity: Account signed in'
     - 'Puzzles: Solving'
     gherkin:
-    - specs/chess/puzzle-quota.feature
-    - specs/chess/puzzle-limit-upgrade.feature
+    - specs/games/puzzle-quota.feature
+    - specs/games/puzzle-limit-upgrade.feature
     tour: true
   A watched board catches up then its space ends:
     description: An offline watcher keeps their board, reconnects, then sees the space end.

@@ -155,7 +155,7 @@ terms:
       checkmate, played on the board. Each
       puzzle has a rating of its own, which is how hard it is.
     avoid: [problem, exercise]
-    model: [puzzle, Puzzle, PuzzleSound, puzzleSound]
+    model: [puzzle, PuzzleSound, puzzleSound]
     published: true
 
   - term: puzzle's own rating
@@ -370,7 +370,6 @@ terms:
       The person solving the puzzle on the board: the host, when a space has
       watchers. The board faces the solver's side.
     avoid: [puzzler]
-    model: [Solver, solver]
 
   - term: attempt
     definition: >-
@@ -602,7 +601,7 @@ terms:
       puzzle, ever. A repeat of an already-played puzzle is unrated, and a
       watcher is never rated.
     forms: [rated, unrated, rated puzzle]
-    model: [RatedPuzzle, rated]
+    model: [rated]
 
   - term: stats
     definition: >-
@@ -621,7 +620,7 @@ terms:
       failed or abandoned with the puzzle's own rating and its rating change
       (or that it was unrated), and each opening in review.
     avoid: [puzzle history]
-    model: [gameLog, PlayedPuzzle]
+    model: [gameLog]
 
   - term: review
     definition: >-
@@ -1098,8 +1097,6 @@ terms:
     - resignation
     - on time
     - wins
-    model:
-    - result
   - term: draw offer
     definition: One participating person asking the other to agree to a draw in an active
       game between two people. Only the other person accepts or declines; playing a move
@@ -1214,4 +1211,4 @@ terms:
       The first solved, failed or abandoned outcome recorded for a solver's
       puzzle. If devices act apart, the outcome that reaches the account first
       is kept.
-    model: [Result, result, Solved, Failed, Abandoned]
+    model: [Result]
