@@ -73,6 +73,9 @@
     },
     "test:spec:22": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:23": {
+      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }

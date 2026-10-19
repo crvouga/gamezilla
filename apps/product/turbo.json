@@ -420,6 +420,7 @@
         "@libs/billing-harness#test:spec:20",
         "@libs/billing-harness#test:spec:21",
         "@libs/billing-harness#test:spec:22",
+        "@libs/billing-harness#test:spec:23",
         "@libs/chess-root-harness#test:spec:0",
         "@libs/chess-root-harness#test:spec:1",
         "@libs/chess-root-harness#test:spec:2",

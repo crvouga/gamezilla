@@ -7,7 +7,7 @@
   {
     "package": "@libs/billing-harness",
     "directory": "libs/billing-harness",
-    "parts": 23
+    "parts": 24
   },
   {
     "package": "@libs/chess-root-harness",
