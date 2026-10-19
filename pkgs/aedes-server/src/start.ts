@@ -9,7 +9,12 @@ import {
   type Server as TcpServer,
 } from 'node:net';
 import type { Duplex } from 'node:stream';
-import { Aedes, type PublishPacket } from 'aedes';
+import {
+  Aedes,
+  type AedesOptions,
+  type Client,
+  type PublishPacket,
+} from 'aedes';
 import websocketStreamModule from 'websocket-stream';
 
 type WebsocketServer = {
@@ -33,6 +38,8 @@ export type AedesServerHandle = {
   readonly mqttOrigin: string;
   readonly mqttUrl: string;
   readonly mqttPort: number;
+  /** Everything the broker has refused a limited client, in order. */
+  denials(): readonly Denial[];
   /** Host and port for MQTT-over-WebSocket clients. */
   readonly wsOrigin: string;
   readonly wsUrl: string;
@@ -40,7 +47,44 @@ export type AedesServerHandle = {
   stop(): Promise<void>;
 };
 
+/** What a connected client may do on the broker; each takes a broker topic. */
+export type ClientAccess = {
+  canSubscribe(topic: string): boolean;
+  canPublish(topic: string): boolean;
+  /** Whether a message on `topic` is delivered to this client. */
+  canReceive(topic: string): boolean;
+};
+
+/**
+ * What the broker does with a connecting client: let it do anything (the
+ * stack's own services), refuse it, or limit it to what a session grants.
+ */
+export type Admission =
+  | { readonly kind: 'open' }
+  | { readonly kind: 'refused' }
+  | { readonly kind: 'limited'; readonly access: ClientAccess };
+
+export type ClientCredentials = {
+  readonly clientId: string;
+  readonly username: string | undefined;
+  readonly password: string | undefined;
+};
+
+/** A request the broker refused a limited client. */
+export type Denial = {
+  readonly operation: 'connect' | 'subscribe' | 'publish';
+  readonly clientId: string;
+  /** Null for a refused connection, which names no topic. */
+  readonly topic: string | null;
+};
+
 export type StartAedesServerOptions = {
+  /**
+   * Decides every connection. Without it the broker is open, which no
+   * deployed broker is: a stack that wants to find what a real broker would
+   * refuse passes the same rules the real one runs.
+   */
+  readonly admit?: (credentials: ClientCredentials) => Admission;
   /** Bind address. Defaults to loopback so the helper is local-stack safe. */
   readonly host?: string;
   /** MQTT-over-TCP port. `0` asks the OS for an available port. */
@@ -48,6 +92,69 @@ export type StartAedesServerOptions = {
   /** MQTT-over-WebSocket port. `0` asks the OS for an available port. */
   readonly wsPort?: number;
 };
+
+/** The broker's admission and authorization, from what the caller admits. */
+function brokerRules(
+  admit: StartAedesServerOptions['admit'],
+  denials: Denial[]
+): AedesOptions {
+  const limits = new WeakMap<Client, ClientAccess>();
+  return {
+    authenticate: (client, username, password, done) => {
+      const admission = admit?.({
+        clientId: client.id,
+        username,
+        password: password?.toString('utf8'),
+      }) ?? { kind: 'open' };
+      if (admission.kind === 'refused') {
+        denials.push({
+          operation: 'connect',
+          clientId: client.id,
+          topic: null,
+        });
+        const refusal = Object.assign(new Error('not authorized'), {
+          returnCode: 5 as const,
+        });
+        done(refusal as never, null);
+        return;
+      }
+      if (admission.kind === 'limited') limits.set(client, admission.access);
+      done(null, true);
+    },
+    authorizePublish: (client, packet, done) => {
+      const access = client === null ? undefined : limits.get(client);
+      if (access === undefined || access.canPublish(packet.topic)) {
+        done(null);
+        return;
+      }
+      denials.push({
+        operation: 'publish',
+        clientId: client?.id ?? '',
+        topic: packet.topic,
+      });
+      done(new Error('not authorized'));
+    },
+    authorizeSubscribe: (client, subscription, done) => {
+      const access = limits.get(client);
+      if (access === undefined || access.canSubscribe(subscription.topic)) {
+        done(null, subscription);
+        return;
+      }
+      denials.push({
+        operation: 'subscribe',
+        clientId: client.id,
+        topic: subscription.topic,
+      });
+      done(null, null);
+    },
+    authorizeForward: (client, packet) => {
+      const access = limits.get(client);
+      return access === undefined || access.canReceive(packet.topic)
+        ? packet
+        : undefined;
+    },
+  };
+}
 
 /**
  * Start an in-memory Aedes broker with MQTT/TCP and MQTT/WebSocket listeners.
@@ -59,18 +166,8 @@ export async function startAedesServer(
   options: StartAedesServerOptions = {}
 ): Promise<AedesServerHandle> {
   const host = options.host ?? DEFAULT_HOST;
-  const broker = new Aedes({
-    authenticate: (_client, _username, _password, done) => {
-      // Local stack clients use both credentialed and anonymous MQTT clients.
-      done(null, true);
-    },
-    authorizePublish: (_client, _packet, done) => {
-      done(null);
-    },
-    authorizeSubscribe: (_client, subscription, done) => {
-      done(null, subscription);
-    },
-  });
+  const denials: Denial[] = [];
+  const broker = new Aedes(brokerRules(options.admit, denials));
 
   const mqttServer = createTcpServer((stream) => {
     broker.handle(stream);
@@ -107,6 +204,7 @@ export async function startAedesServer(
       mqttOrigin,
       mqttUrl,
       mqttPort,
+      denials: () => denials,
       wsOrigin,
       wsUrl,
       wsPort,

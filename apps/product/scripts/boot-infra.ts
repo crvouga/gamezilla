@@ -5,6 +5,12 @@
 import { join } from 'node:path';
 import { DEFAULT_TOKEN } from '@crvouga/mockingbird-service-openai';
 import { createServer as createOpenAiServer } from '@crvouga/mockingbird-service-openai/server';
+import { admitIotClient } from '@libs/infra-shared/iot-session-admission';
+import type {
+  Admission,
+  ClientCredentials,
+  Denial,
+} from '@pkgs/aedes-server/start';
 import { startAedesServer } from '@pkgs/aedes-server/start';
 import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server/start';
 import {
@@ -34,6 +40,8 @@ export type InfraHandles = {
   readonly s3Endpoint: string | null;
   readonly mqttWssUrl: string | null;
   readonly mqttUrl: string | null;
+  /** What the broker refused browsers; empty when the stack runs without one. */
+  brokerDenials(): readonly Denial[];
   readonly observabilityCollectorUrl: string | null;
   readonly observabilityTraceDir: string | null;
   readonly observabilityTempoUrl: string | null;
@@ -80,18 +88,41 @@ export async function startS3(args: { readonly port: number }): Promise<{
   return { endpoint: s3.endpoint, stop: s3.stop };
 }
 
+/** Signs the tokens the API mints and the broker admits. */
+const STACK_JWT_SECRET = 'stack-jwt-secret';
+/** The user name a browser's token connects under; the stack's services use their own. */
+const BROWSER_MQTT_USER = 'jwt';
+
+/**
+ * Browsers are admitted exactly as AWS IoT admits them (the deployed
+ * authorizer's own rules), so a topic the API never granted fails here, in
+ * the pull request, and not in the first Deploy to meet the real broker.
+ * The stack's own services and the harness keep an open connection.
+ */
+export function browserAdmission(credentials: ClientCredentials): Admission {
+  if (credentials.username !== BROWSER_MQTT_USER) return { kind: 'open' };
+  return admitIotClient({
+    tokenSecret: STACK_JWT_SECRET,
+    nowSec: Math.floor(Date.now() / 1000),
+    clientId: credentials.clientId,
+    password: credentials.password,
+  });
+}
+
 export async function startMqtt(args: {
   readonly mqttPort: number;
   readonly wsPort: number;
 }): Promise<{
   readonly wssUrl: string;
   readonly mqttUrl: string;
+  denials(): readonly Denial[];
   stop(): Promise<void>;
 }> {
-  const mqtt = await startAedesServer(args);
+  const mqtt = await startAedesServer({ ...args, admit: browserAdmission });
   return {
     wssUrl: mqtt.wsUrl,
     mqttUrl: mqtt.mqttUrl,
+    denials: mqtt.denials,
     stop: mqtt.stop,
   };
 }
@@ -129,7 +160,7 @@ export function infraEnv(infra: InfraAddresses): Record<string, string> {
             .replace(/\/mqtt$/, ''),
           EMQX_API_KEY: 'stack',
           EMQX_API_SECRET: 'stack',
-          EMQX_JWT_SECRET: 'stack-jwt-secret',
+          EMQX_JWT_SECRET: STACK_JWT_SECRET,
           EMQX_WSS_URL: infra.mqtt.wssUrl,
           EMQX_MQTT_URL: infra.mqtt.mqttUrl,
           EMQX_MQTT_USER: 'stack',
@@ -207,6 +238,7 @@ export async function bootInfra(args: {
     s3Endpoint: s3?.endpoint ?? null,
     mqttWssUrl: mqtt?.wssUrl ?? null,
     mqttUrl: mqtt?.mqttUrl ?? null,
+    brokerDenials: () => mqtt?.denials() ?? [],
     observabilityCollectorUrl: observability?.collectorUrl ?? null,
     observabilityTraceDir: observability?.traceDir ?? null,
     observabilityTempoUrl: observability?.tempoUrl ?? null,

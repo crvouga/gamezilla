@@ -1,0 +1,4 @@
+{
+  "summary": "The AWS IoT authorizer returned one session policy document that grew with every room a person was in. At five rooms it passed 2,048 characters, IoT closed the connection at connect, and the device reconnected forever, so a long-lived account (the synthetic monitor) lost live updates and every release journey after it. Grants are now packed into up to ten documents of at most 2,048 characters.",
+  "regressionTest": "libs/infra-shared/tests/iot-authorizer-contract.test.ts"
+}

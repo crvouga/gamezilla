@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { createConnection } from 'node:net';
-import { startAedesServer } from '@pkgs/aedes-server/start';
+import {
+  type AedesServerHandle,
+  startAedesServer,
+} from '@pkgs/aedes-server/start';
+import mqtt from 'mqtt';
 
 describe('startAedesServer', () => {
   test('starts isolated brokers and accepts HTTP publishes', async () => {
@@ -72,4 +76,95 @@ test('an isolated broker acknowledges a real MQTT connection', async () => {
     client.destroy();
     await broker.stop();
   }
+});
+
+// regression: ungranted-system-topic-passes-pull-request
+describe('a broker that admits clients', () => {
+  const limited = {
+    canSubscribe: (topic: string) => topic === 'user:granted',
+    canPublish: (topic: string) => topic === 'user:granted',
+    canReceive: (topic: string) => topic === 'user:granted',
+  };
+
+  async function connectAs(url: string, username: string) {
+    const client = mqtt.connect(url, {
+      username,
+      password: 'secret',
+      protocolVersion: 4,
+      reconnectPeriod: 0,
+    });
+    const { promise, resolve, reject } = Promise.withResolvers<typeof client>();
+    client.once('connect', () => resolve(client));
+    client.once('error', reject);
+    return promise;
+  }
+
+  async function withBroker(run: (broker: AedesServerHandle) => Promise<void>) {
+    const broker = await startAedesServer({
+      admit: ({ username }) =>
+        username === 'limited'
+          ? { kind: 'limited', access: limited }
+          : username === 'open'
+            ? { kind: 'open' }
+            : { kind: 'refused' },
+    });
+    try {
+      await run(broker);
+    } finally {
+      await broker.stop();
+    }
+  }
+
+  test('refuses a subscription its session does not grant, and says so', async () => {
+    await withBroker(async (broker) => {
+      const client = await connectAs(broker.mqttUrl, 'limited');
+      try {
+        const granted = await client.subscribeAsync('user:granted', { qos: 1 });
+        // The client library reports a refused grant (qos 128) as an error.
+        await expect(
+          client.subscribeAsync('system:chess_puzzles', { qos: 1 })
+        ).rejects.toThrow();
+        expect(granted[0]?.qos).toBe(1);
+        expect(broker.denials()).toEqual([
+          {
+            operation: 'subscribe',
+            clientId: expect.any(String),
+            topic: 'system:chess_puzzles',
+          },
+        ]);
+      } finally {
+        await client.endAsync(true);
+      }
+    });
+  });
+
+  test('delivers only what its session may receive', async () => {
+    await withBroker(async (broker) => {
+      const limitedClient = await connectAs(broker.mqttUrl, 'limited');
+      const openClient = await connectAs(broker.mqttUrl, 'open');
+      try {
+        const received: string[] = [];
+        limitedClient.on('message', (topic) => received.push(topic));
+        await limitedClient.subscribeAsync('user:granted', { qos: 1 });
+        await openClient.publishAsync('user:other', 'x', { qos: 1 });
+        await openClient.publishAsync('user:granted', 'x', { qos: 1 });
+        await Bun.sleep(100);
+        expect(received).toEqual(['user:granted']);
+      } finally {
+        await Promise.all([
+          limitedClient.endAsync(true),
+          openClient.endAsync(true),
+        ]);
+      }
+    });
+  });
+
+  test('refuses a client it does not admit', async () => {
+    await withBroker(async (broker) => {
+      await expect(connectAs(broker.mqttUrl, 'stranger')).rejects.toThrow();
+      expect(broker.denials()).toEqual([
+        { operation: 'connect', clientId: expect.any(String), topic: null },
+      ]);
+    });
+  });
 });
