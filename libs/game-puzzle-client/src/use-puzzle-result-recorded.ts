@@ -1,5 +1,6 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import sql from '@pkgs/sql-root-shared/sql';
+import { puzzleStores } from '@libs/game-puzzle-shared/puzzle-tables';
+import sql, { raw } from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
 
@@ -8,7 +9,7 @@ export function usePuzzleResultRecorded(puzzleId: Accessor<string | null>) {
   const myId = useMyId();
   const query = createQuery(
     () => sql<{ puzzle_id: string }>`
-      SELECT puzzle_id FROM chess_puzzle_rating_events
+      SELECT puzzle_id FROM ${raw(puzzleStores.ratingEvents)}
       WHERE owner_id = ${myId()} AND puzzle_id = ${puzzleId()}
         AND deleted_at IS NULL
       LIMIT 1

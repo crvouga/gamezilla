@@ -5,7 +5,8 @@ import type {
   PuzzleRatingEventSqlRow,
 } from '@libs/game-puzzle-shared/rating-event';
 import { ratingEventFromSql } from '@libs/game-puzzle-shared/rating-event';
-import sql from '@pkgs/sql-root-shared/sql';
+import { puzzleStores } from '@libs/game-puzzle-shared/puzzle-tables';
+import sql, { raw } from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
 import { usePuzzleGame } from './puzzle-game-context';
@@ -35,7 +36,7 @@ export function usePuzzleRatingEvents(): Accessor<
         rating_deviation_before,
         rating_deviation_after,
         at
-      FROM chess_puzzle_rating_events
+      FROM ${raw(puzzleStores.ratingEvents)}
       WHERE owner_id = ${myId()}
         AND deleted_at IS NULL
         AND ${puzzleNamespaceCondition(namespace, 'puzzle_id')}

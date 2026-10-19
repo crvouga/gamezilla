@@ -114,3 +114,13 @@ export const PUZZLE_TABLES = [
   chessPuzzleRatingEvents,
   chessPuzzleInteractions,
 ] as const;
+
+/**
+ * The puzzle stores as the framework reads them: one shared, namespace-
+ * partitioned table per concern. Framework code names a store through this
+ * binding, never by its physical table, so a game or a rename touches only
+ * this file.
+ */
+export const puzzleStores = {
+  ratingEvents: chessPuzzleRatingEvents.name,
+} as const;
