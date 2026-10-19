@@ -7,11 +7,11 @@ import fc from 'fast-check';
 
 const workflow = Bun.YAML.parse(
   readFileSync(
-    join(import.meta.dirname, '../../../.github/workflows/check-pr.yml'),
+    join(import.meta.dirname, '../../../.github/workflows/verify-pr.yml'),
     'utf8'
   )
 ) as { jobs: Record<string, { steps: { name?: string; run?: string }[] }> };
-const cleanup = workflow.jobs['check-end']!.steps.find(
+const cleanup = workflow.jobs['verify-end']!.steps.find(
   (step) => step.name === 'Delete transfer artifacts'
 )!.run!;
 
@@ -49,7 +49,7 @@ function runCleanup(ids: readonly number[], listingCode = 0, deleteCode = 0) {
   );
 }
 
-// regression: check-artifact-cleanup-partial-pagination
+// regression: verify-artifact-cleanup-partial-pagination
 test('a truncated artifact listing fails before deleting its partial results', () => {
   const result = runCleanup([12007505699], 1);
   expect(result.status).toBe(1);

@@ -6,7 +6,6 @@ import { sliceReplays } from '@pkgs/quint-server/trace-runs';
 import { packageSpecUnits, readReplayPlans } from './replay-plans';
 import type { SpecUnit } from './spec-parts';
 import {
-  CHECK_WEIGHT,
   MODEL_FILE_REPLAYS,
   MODEL_SLICES,
   MODEL_WEIGHT,
@@ -21,6 +20,7 @@ import {
   specUnits,
   specWeight,
   TRACE_WEIGHT,
+  VERIFY_WEIGHT,
 } from './spec-parts';
 import { packageSpecs } from './spec-sources';
 
@@ -80,7 +80,7 @@ describe('specUnits', () => {
   test('a decision table, structure or objective is one unit', () => {
     for (const path of ['a.dmn', 's.als', 'o.openslo.yaml']) {
       expect(specUnits(path, 'Scenario: x\n'.repeat(20))).toEqual([
-        { path, weight: CHECK_WEIGHT },
+        { path, weight: VERIFY_WEIGHT },
       ]);
     }
   });

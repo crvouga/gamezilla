@@ -15,7 +15,7 @@ test('a proof keeps its declared deadline unless the runner names a slowdown', (
   expect(verifyDeadlineMs(240_000)).toBe(240_000);
   process.env[ENV] = '';
   expect(verifyDeadlineMs(240_000)).toBe(240_000);
-  // Check run 38190147513: `username-changes.qnt` takes 133 s on a laptop
+  // Verify run 38190147513: `username-changes.qnt` takes 133 s on a laptop
   // and had no verdict within its 240 s on the 2-core runner.
   process.env[ENV] = '2';
   expect(verifyDeadlineMs(240_000)).toBe(480_000);

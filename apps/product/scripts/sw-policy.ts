@@ -9,7 +9,7 @@
  * the policy is one rule: **precache every file the wall client can load**
  * (`index.html`, its whole module graph, the URL-loaded SQL
  * workers) and nothing the harness alone reaches. `build-sw.ts` applies it
- * to Workbox's manifest; `check-offline-shell.ts` re-derives it from the
+ * to Workbox's manifest; `verify-offline-shell.ts` re-derives it from the
  * emitted `dist/sw.js` and fails on any gap or on {@link PRECACHE_BUDGET_BYTES}.
  *
  * The module graph is read from the build output itself, the way the browser

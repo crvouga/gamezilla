@@ -1,4 +1,4 @@
 {
   "summary": "With QUINT_REPLAY_TRACES=all, the cache-key regression inherited exploring depth for its supposed bounded baseline, making the two hashes identical. The baseline explicitly unsets replay depth.",
-  "regressionTest": "libs/tools/scripts/check-cache-keys.test.ts"
+  "regressionTest": "libs/tools/scripts/verify-cache-keys.test.ts"
 }

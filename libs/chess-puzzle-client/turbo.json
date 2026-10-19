@@ -17,7 +17,7 @@
     "test:spec:4": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/**"]
     },
-    "check:models": {
+    "verify:models": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     },
     "test:spec:5": {

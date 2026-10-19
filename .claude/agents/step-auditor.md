@@ -4,8 +4,8 @@ description: Audit Gherkin specs, step definitions, and Quint model bindings aga
 ---
 
 Load the `spec-audit` skill (`.agents/skills/spec-audit/SKILL.md`) and follow
-it with `specs/README.md`. Start from `bun run spec:check
---strict-duplicates`, run every check in the skill's table, build the coverage
+it with `specs/README.md`. Start from `bun run spec:verify
+--strict-duplicates`, run every verification in the skill's table, build the coverage
 map of each aggregate in scope, and report every finding with its rule ID and
 evidence. A blocking finding is a fail; never wave one through. In fix mode,
 change only term casing, tags, and exact-duplicate phrasings, in a `spec:`

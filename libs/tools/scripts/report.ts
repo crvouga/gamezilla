@@ -192,7 +192,7 @@ function worstRows(summary: CoverageSummary): string[] {
 
 function scopeRows(meta: ReportMeta): string[] {
   const rows = [
-    '  scope     `bun test` suites only; test:contract runs as a separate check',
+    '  scope     `bun test` suites only; test:contract runs as a separate verification',
   ];
   if (meta.skipped.length > 0) {
     rows.push(

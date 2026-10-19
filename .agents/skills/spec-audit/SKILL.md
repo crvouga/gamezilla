@@ -1,11 +1,11 @@
 ---
 name: spec-audit
-description: Audit Gherkin features, Quint models and step definitions against specs/README.md — every rule a named check with evidence, a report per feature, a coverage map per aggregate, and a pass/fail verdict — with a fix mode limited to safe mechanical edits. Use for spec reviews, after every spec-upsert, before merging spec changes, on spec:check failures, or to find scenarios that should be code tests.
+description: Audit Gherkin features, Quint models and step definitions against specs/README.md — every rule a named verification with evidence, a report per feature, a coverage map per aggregate, and a pass/fail verdict — with a fix mode limited to safe mechanical edits. Use for spec reviews, after every spec-upsert, before merging spec changes, on spec:verify failures, or to find scenarios that should be code tests.
 ---
 
 # Spec audit
 
-You check specs against [`specs/README.md`](../../../specs/README.md)
+You verify specs against [`specs/README.md`](../../../specs/README.md)
 and report what breaks it, with evidence. You never argue a finding away:
 a blocking finding fails the audit, whoever wrote the spec and however old
 it is. The rules and their whys are in the standard; this skill says how to
@@ -13,7 +13,7 @@ detect each one.
 
 ## Modes
 
-- **report** (default): read, check, report. Edits nothing.
+- **report** (default): read, verify, report. Edits nothing.
 - **fix**: report, then apply only the mechanical fixes in § Fix mode, in a
   `spec:` commit (P1), then re-run the audit and report again. Everything
   else stays report-only and goes to `spec-upsert` or `spec-implement`.
@@ -23,13 +23,13 @@ detect each one.
 What you were asked for: files, one context, or all of `specs/`. When run
 by `spec-upsert`, the touched files plus the full coverage map of each
 aggregate they touch. For a whole-tree audit you may compute the mechanical
-checks with a throwaway script in your scratchpad (never committed, never
+verifications with a throwaway script in your scratchpad (never committed, never
 new repo tooling).
 
 ## Procedure
 
-1. **Gate.** Run `bun run spec:check --strict-duplicates` and map every line
-   to a check ID below (the "Gate" column). Undefined steps in a
+1. **Gate.** Run `bun run spec:verify --strict-duplicates` and map every line
+   to a verification ID below (the "Gate" column). Undefined steps in a
    freshly written `spec:` commit are the implementer's handoff, not a
    finding; everything else is. First `grep -rl '^<<<<<<< ' specs`: a file
    with conflict markers makes every result unreliable — stop and report
@@ -39,14 +39,14 @@ new repo tooling).
    `ubiquitous-language.yml`, the glossaries it borrows from, and the kernel.
    Build the word list: every `term` and every `forms` entry, each with its
    glossary path.
-3. **Per feature, run every check** in the table, top to bottom. Record each
+3. **Per feature, run every verification** in the table, top to bottom. Record each
    finding with its evidence (§ Evidence).
 4. **Per aggregate, build the coverage map** (§ Coverage map).
 5. **Steps.** For each package that runs a domain in scope, run the D
-   checks over its `tests/steps/**` and `tests/quint/**`.
+   verifications over its `tests/steps/**` and `tests/quint/**`.
 6. **Report** (§ Report) and give the verdict.
 
-## Checks
+## Verifications
 
 M = mechanical (do exactly this); J = judgement (cite the evidence named).
 
@@ -72,7 +72,7 @@ M = mechanical (do exactly this); J = judgement (cite the evidence named).
 | B11 | block | M. Background has a non-`Given` step or more than 4 steps. J: a scenario that never relies on a Background step — cite it. Warn when every scenario of a rule (two or more) or of the feature opens with the same `Given`. | — |
 | B12 | block | M. Outline with more than 6 rows. J: the varied column is not a business dimension (gesture, error kind, technical failure); an ordered dimension without both sides of its boundary. | — |
 | B13 | block | M. Values matching `foo|bar|baz|lorem|test|user\d|seed`, a run of one repeated letter, or `123`/`1234` or a person not in the cast. | — |
-| B14 | block | M. Every near-duplicate `spec:check --strict-duplicates` reports; every pair of step definitions whose bodies are identical (across all packages). J: two phrasings with one meaning — cite both definitions. | warns |
+| B14 | block | M. Every near-duplicate `spec:verify --strict-duplicates` reports; every pair of step definitions whose bodies are identical (across all packages). J: two phrasings with one meaning — cite both definitions. | warns |
 | B15 | block | M. Any tag not in the B15 table. `@synthetic` is exact: `@synthetic-production` and any other suffix are not it. A `@domain` that isn't the directory. | domain, goal |
 | B16 | warn/block | M. Steps per scenario (Background included): > 5 warn, > 8 block. | > 8 |
 | B17 | block | J. A scenario whose outcome only code could observe: exact formula output, validation table, stored state, wire shape, internal counts, transport state. Cite the step and the home the policy table gives it. | — |
@@ -130,7 +130,7 @@ Write the map as the standard's table, one per aggregate, every row
 Every finding is one line:
 
 ```text
-<ID> <block|warn> specs/<domain>/<file>.feature:<line> — "<offending text>" — <what is wrong> [— checked: <glossary paths> | rule: <Rule line> | model: <file>:<line>]
+<ID> <block|warn> specs/<domain>/<file>.feature:<line> — "<offending text>" — <what is wrong> [— verified: <glossary paths> | rule: <Rule line> | model: <file>:<line>]
 ```
 
 A judgement finding also says why, in one clause ("'app is still
@@ -153,15 +153,15 @@ Verdict: FAIL (<n> blocking, <m> warnings) | INCOMPLETE (<why>) | PASS (<m> warn
 <D findings per package>
 
 ## Summary
-| Check | Blocking | Warnings | Worst file |
+| Verification | Blocking | Warnings | Worst file |
 
 ## Triage
 <per scenario with a blocking finding: rewrite | split | demote | delete, and who owns it>
 ```
 
 **Pass** means zero blocking findings in scope, including zero `MISSING`
-coverage rows and a green `spec:check --strict-duplicates`. **Incomplete**
-means a check could not run (conflict markers, a gate failure outside scope);
+coverage rows and a green `spec:verify --strict-duplicates`. **Incomplete**
+means a verification could not run (conflict markers, a gate failure outside scope);
 it is not a pass. Nothing else is
 a pass: not "pre-existing", not "out of scope for this change" when the
 file is in scope, not "the gate didn't catch it".
@@ -195,5 +195,5 @@ stays in the report.
    only in whitespace, punctuation or letter case → the catalogued phrasing.
    A dedupe that makes an old definition unused is handed to
    `spec-implement` to delete.
-After fixing: re-run `bun run spec:check --strict-duplicates` and the full
+After fixing: re-run `bun run spec:verify --strict-duplicates` and the full
 audit; the report shows before and after counts.

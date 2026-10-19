@@ -87,7 +87,7 @@ resources identify the isolate so concurrent writers do not overwrite each other
 
 Schema/privacy, cardinality, delivery, correlation, analytical calculations, financial
 reconciliation and dashboard structural checks run in existing package gates. Full
-`bun check-pr` and the required GitHub Actions infrastructure rehearsal remain release
+`bun verify` and the required GitHub Actions infrastructure rehearsal remain release
 evidence; a source declaration does not prove that dashboards are deployed or backend
 queries accepted. Never use manual dashboard inspection as verification.
 

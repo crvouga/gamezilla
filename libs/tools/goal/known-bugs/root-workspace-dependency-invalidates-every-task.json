@@ -1,4 +1,4 @@
 {
-  "summary": "The root package.json listed three workspace packages as dependencies (@crvouga/atlas, @crvouga/atlas-visualizer and @pkgs/glob-match-shared). Turborepo folds the root workspace's internal dependencies into the global hash, so every Atlas submodule bump and every edit to the glob matcher changed the hash of all 1,114 Check tasks and no passing result was reused (Check run 38187450396: 0 hits after two Atlas commits). Nothing at the root imported them; the root manifest now depends on no workspace package.",
-  "regressionTest": "libs/tools/scripts/check-cache-keys.test.ts"
+  "summary": "The root package.json listed three workspace packages as dependencies (@crvouga/atlas, @crvouga/atlas-visualizer and @pkgs/glob-match-shared). Turborepo folds the root workspace's internal dependencies into the global hash, so every Atlas submodule bump and every edit to the glob matcher changed the hash of all 1,114 Verify tasks and no passing result was reused (Verify run 38187450396: 0 hits after two Atlas commits). Nothing at the root imported them; the root manifest now depends on no workspace package.",
+  "regressionTest": "libs/tools/scripts/verify-cache-keys.test.ts"
 }

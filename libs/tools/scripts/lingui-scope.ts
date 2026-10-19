@@ -5,7 +5,7 @@
  * task hashes those trees and nothing else — a change to a package with no
  * translatable text never reruns it. A package that starts using a macro
  * without being listed would ship hashed ids in production; every package's
- * `lint` checks its own files against this list (`lint-package.ts`), and
+ * `lint` verifies its own files against this list (`lint-package.ts`), and
  * `turbo.json`'s `@libs/tools#ci:i18n` inputs are kept equal to it by a test.
  */
 export const LINGUI_CATALOG_SOURCES = [

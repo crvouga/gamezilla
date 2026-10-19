@@ -306,14 +306,14 @@ function matchesHome(
   const name = segs[k] ?? '';
   const before = segs.slice(0, k).filter(isRealSegment).at(-1);
   const after = segs[k + 1];
-  const checkAfter = isRealSegment(after) && !after.includes('*');
+  const verifyAfter = isRealSegment(after) && !after.includes('*');
   for (const home of ctx.homes.get(name) ?? []) {
     const parent = home.includes('/')
       ? home.slice(0, home.lastIndexOf('/'))
       : '';
     const parentName = parent.slice(parent.lastIndexOf('/') + 1);
     if (before !== undefined && before !== parentName) continue;
-    if (checkAfter && probe(ctx, `${home}/${after}`) === null) continue;
+    if (verifyAfter && probe(ctx, `${home}/${after}`) === null) continue;
     return true;
   }
   return false;

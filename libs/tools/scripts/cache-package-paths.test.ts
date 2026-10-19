@@ -36,7 +36,7 @@ test('model verdicts depend on the split checker and evidence implementations', 
   const config = JSON.parse(
     readFileSync(join(ROOT, 'turbo.json'), 'utf8')
   ) as Config;
-  expect(config.tasks['check:models']!.dependsOn).toEqual([
+  expect(config.tasks['verify:models']!.dependsOn).toEqual([
     '@pkgs/quint-server#src',
     '@pkgs/quint-shared#src',
     '@pkgs/conformance-server#src',

@@ -397,13 +397,13 @@ profiling/auditing until stable.
 
 # Phase 14 --- Final Verification
 
-Run all applicable checks: - `bun run spec:check --strict-duplicates`; -
+Run all applicable checks: - `bun run spec:verify --strict-duplicates`; -
 board/Chess domain specs; - Quint trace/model conformance and sufficient
 model-check depth; - property-based geometry/coordinate tests; -
 automated visual regressions; - accessibility conformance; - performance
 gates; - representative consumer integration specs; - conformance
 manifest; - `bun run spec:ownership`; - `bun run spec:catalog`; - full
-`bun check-pr`; - every affected release/conformance gate.
+`bun verify`; - every affected release/conformance gate.
 
 No skipped, unknown, stale, unbound, unsupported, or manually verified
 required obligation is acceptable.

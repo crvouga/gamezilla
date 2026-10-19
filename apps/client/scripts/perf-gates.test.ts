@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  bannedIndexHtmlScripts,
-  collectExternalScriptSrcs,
-} from './check-index-html-scripts';
-import {
   collectDynamicImports,
   collectStaticSpecifiers,
 } from './client-critical-path-imports';
+import {
+  bannedIndexHtmlScripts,
+  collectExternalScriptSrcs,
+} from './verify-index-html-scripts';
 
 describe('critical-path dynamic imports', () => {
   test('collectStaticSpecifiers still skips nested import()', () => {

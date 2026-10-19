@@ -129,13 +129,13 @@ an actual two-part file through the driver, and checks the running controls.
 - Changed-package verification: 33 tasks passed; private status fanout and
   shared permission packages: 11 tasks passed.
 - Strict duplicate spec gate and spec-commit ownership: passed.
-- Check PR on implementation commit `188805ef6`: failed in the unchanged
+- Verify PR on implementation commit `188805ef6`: failed in the unchanged
   `specs/profile/username-changes.qnt` proof. Its four-step bounded check
   returned no verdict within 240,000 ms. Two other profile proofs passed;
   Check stopped before completing the remaining tasks.
 - The whole-chess attempt reported 361 passes and one unchanged multiplayer
   regression timing out after 300,000 ms. A lower-concurrency attempt was
-  interrupted when the isolated Check acquired the workspace's command owner.
+  interrupted when the isolated Verify acquired the workspace's command owner.
   Neither attempt is reported as a green whole-context run.
 - Final post-gate focused run: **41 passed, zero failed** — all 29 loading
   scenarios, all eight generated traces, and four model checks.

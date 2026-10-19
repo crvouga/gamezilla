@@ -14,7 +14,7 @@ export const MIDDLEGAME =
 const CHECKMATED = '7k/6Q1/5K2/8/8/8/8/8 b - - 0 1';
 const STALEMATED = '7k/5K2/6Q1/8/8/8/8/8 b - - 0 1';
 const DRAWN = '4k3/8/8/8/8/8/8/4K3 w - - 0 1';
-const CHECK_IN_ONE =
+const VERIFY_IN_ONE =
   'rnbqkbnr/ppppp1pp/8/5p2/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2';
 export const MATE_IN_ONE =
   'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 4 4';
@@ -72,7 +72,7 @@ const LEGAL_CASES: readonly EmissionCase[] = [
   { name: 'passed pawn capture', fen: EN_PASSANT, from: 'e5', to: 'f6' },
   {
     name: 'checking queen',
-    fen: CHECK_IN_ONE,
+    fen: VERIFY_IN_ONE,
     from: 'd1',
     to: 'h5',
     announcement: 'Queen to h5, check',
@@ -87,7 +87,7 @@ const LEGAL_CASES: readonly EmissionCase[] = [
   { name: 'stalemating queen', fen: STALEMATE_IN_ONE, from: 'f6', to: 'f7' },
   {
     name: 'permitted check response',
-    fen: oracleAfter(CHECK_IN_ONE, 'Qh5').fen(),
+    fen: oracleAfter(VERIFY_IN_ONE, 'Qh5').fen(),
     from: 'g7',
     to: 'g6',
   },
@@ -160,7 +160,7 @@ export const SELECTION_CASES = [
   'k3r3/8/8/8/8/8/R7/4K3 w - - 0 1',
   PINNED,
   EN_PASSANT,
-  oracleAfter(CHECK_IN_ONE, 'Qh5').fen(),
+  oracleAfter(VERIFY_IN_ONE, 'Qh5').fen(),
 ];
 export const NO_EFFECT_CASES = [
   {
@@ -200,7 +200,7 @@ const REFUSAL_CASES = [
   },
   {
     name: 'non-answer to check',
-    fen: oracleAfter(CHECK_IN_ONE, 'Qh5').fen(),
+    fen: oracleAfter(VERIFY_IN_ONE, 'Qh5').fen(),
     from: 'a7',
     to: 'a6',
   },

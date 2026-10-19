@@ -24,7 +24,7 @@ bun run git-sync --message "type(scope): description"
 Read the diff, write one Conventional Commit message that describes it, and pass it with
 `--message`. Without `--message`, git-sync generates a header from the changed paths
 (`chore(pkg): update 3 files`; a tree that mixes specs with other files becomes a `spec:` commit
-plus a second commit for the rest). `bun check-pr` relies on that. If the tree
+plus a second commit for the rest). `bun verify` relies on that. If the tree
 is already clean, run `bun run git-sync` with no arguments.
 
 | Mode | Command |
@@ -63,10 +63,10 @@ around the script.
 
 ## What the script does
 
-1. **Checks that it is safe to run.** It stops on a detached HEAD, on `master` or `dev`, during a
+1. **Verifications that it is safe to run.** It stops on a detached HEAD, on `master` or `dev`, during a
    rebase, merge, cherry-pick or revert, or when there is no `origin` remote. On `main`, or with
    `--trunk-only`, it fetches `origin/main`, runs step 6 and stops.
-2. **Commits a dirty tree.** It requires `--message` and checks it against the rules above. It
+2. **Commits a dirty tree.** It requires `--message` and verifies it against the rules above. It
    refuses paths that look like secrets (`.env*` other than examples, `.cache/secrets/`,
    `*.pem`/`*.key`, SSH keys, credential JSON, `.npmrc`/`.netrc`/`.pgpass`). Then it runs
    `git add --all` and, when `gitleaks` is installed, `gitleaks protect --staged`. If gitleaks
@@ -82,7 +82,7 @@ around the script.
    `bun run git-sync`.
 5. **Pushes the merge.**
 6. **Fast-forwards local `main`** to `origin/main`, under the rules in *Isolation guarantees*.
-7. **Verifies.** It checks that local `HEAD` equals the remote branch tip (from `git ls-remote`)
+7. **Verifies.** It verifies that local `HEAD` equals the remote branch tip (from `git ls-remote`)
    and that the working tree is clean.
 
 It never touches `master` or `dev`, touches unrelated refs, pushes `main`, merges the feature

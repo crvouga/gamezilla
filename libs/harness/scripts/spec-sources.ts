@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
-import { SPEC_GLOBS } from './spec-check-kinds';
+import { SPEC_GLOBS } from './spec-verify-kinds';
 
 export type SpecManifest = { specDomains?: string[]; specParts?: number };
 

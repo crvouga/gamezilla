@@ -26,9 +26,9 @@ fingerprints.
 The production consumers are the puzzle player, puzzle review and developer board
 example in `@libs/chess`. Its wrong-move feedback uses the public sound helper.
 The reusable benchmark is explicitly silent. Consumer imports are checked by
-`@libs/chess`'s `check:board-contract` leaf. No consumer imports an internal renderer.
+`@libs/chess`'s `verify:board-contract` leaf. No consumer imports an internal renderer.
 
-Local proof commands are `@pkgs/chess-board`'s `test`, `test:spec`, `check:models`
+Local proof commands are `@pkgs/chess-board`'s `test`, `test:spec`, `verify:models`
 and `test:contract`, alongside `@pkgs/chess-board-core-shared`'s geometry and mechanical
 tests. The consumer package runs its own specs and import gate. The release
-verdict remains the repository's `bun check-pr`; this map does not substitute for it.
+verdict remains the repository's `bun verify`; this map does not substitute for it.

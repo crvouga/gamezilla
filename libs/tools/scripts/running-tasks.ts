@@ -2,7 +2,7 @@
  * Name the turbo tasks still running when the run deadline kills turbo.
  *
  * The deadline SIGKILLs the turbo process group, so turbo itself prints
- * nothing and writes no run summary; with `errors-only` output a killed Check
+ * nothing and writes no run summary; with `errors-only` output a killed Verification
  * run otherwise says only "deadline reached", and nobody can tell a wedged
  * task from a run that simply had too much to do. This snapshots the process
  * tree just before the kill: every process whose parent is the turbo binary

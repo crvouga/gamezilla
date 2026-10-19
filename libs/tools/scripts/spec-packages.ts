@@ -14,7 +14,7 @@
  * `specDomains`; a live run (`health`) runs features and objectives in
  * `liveDomains`, plus every `@synthetic` feature and every `# live`
  * objective, so a live package binds those wherever they sit.
- * Shared with `check-specs.ts`, `spec-catalog.ts` and `spec-run.ts`.
+ * Shared with `verify-specs.ts`, `spec-catalog.ts` and `spec-run.ts`.
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -49,17 +49,18 @@ const SHARED_STEPS_IMPORT = '@libs/harness/platform';
 const TIERS = ['apps', 'libs', 'pkgs'] as const;
 /** The spec runner every `test:spec` and `test:spec:<k>` script calls. */
 const SPEC_RUNNER = 'bun run ../../libs/harness/scripts/test-spec.ts';
-/** The Quint models check (`check:models`) of every package with models. */
-export const MODELS_RUNNER = 'bun run ../../libs/tools/scripts/check-models.ts';
+/** The Quint models verification (`verify:models`) of every package with models. */
+export const MODELS_RUNNER =
+  'bun run ../../libs/tools/scripts/verify-models.ts';
 /**
  * Most parts one suite may split into: root `turbo.json` defines
- * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and the sharded Check runs them.
+ * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and the sharded Verify runs them.
  */
 export const MAX_SPEC_PARTS = 84;
 /**
- * The most parts a package's models check splits into (`check:models:<k>`).
+ * The most parts a package's models verification splits into (`verify:models:<k>`).
  * `turbo.json` declares that many; one part is one runner in the sharded
- * Check, and a model's proof is the least a part can hold.
+ * Verification, and a model's proof is the least a part can hold.
  */
 export const MAX_MODEL_PARTS = 22;
 
@@ -93,19 +94,19 @@ type Manifest = {
   readonly specDomains?: readonly string[];
   /** The `specs/<domain>/` directories this package runs against a deployment. */
   readonly liveDomains?: readonly string[];
-  /** How many `test:spec:<k>` parts `bun check-pr` splits the suite into. */
+  /** How many `test:spec:<k>` parts `bun verify` splits the suite into. */
   readonly specParts?: number;
-  /** How many `check:models:<k>` parts the models check splits into. */
+  /** How many `verify:models:<k>` parts the models verification splits into. */
   readonly modelParts?: number;
   /**
    * How many proof phases the package's one model splits into.
    * `proofGroups` names each task's share (`4`, `0-3,5-11`); without it,
-   * each phase is its own `check:models:<k>`.
+   * each phase is its own `verify:models:<k>`.
    */
   readonly proofParts?: number;
   readonly proofGroups?: readonly string[];
   /**
-   * Model parts whose proof is split further (`check:models:<part>:<phase>`).
+   * Model parts whose proof is split further (`verify:models:<part>:<phase>`).
    * Keys are part indexes.
    */
   readonly phaseParts?: Readonly<Record<string, number>>;
@@ -113,9 +114,9 @@ type Manifest = {
 };
 
 /**
- * What is wrong with how a package splits its spec suite for `bun check-pr`:
+ * What is wrong with how a package splits its spec suite for `bun verify`:
  * `test:spec:<k>` for every k below `specParts`, each exactly the runner with
- * `--part k/n`, and no other part — the sharded Check runs the parts, never
+ * `--part k/n`, and no other part — the sharded Verify runs the parts, never
  * `test:spec`, so a suite without them would not gate at all.
  */
 export function specPartProblems(
@@ -132,7 +133,7 @@ export function specPartProblems(
     count > MAX_SPEC_PARTS
   ) {
     return [
-      `${dir}/package.json: specParts must be an integer from 1 to ${String(MAX_SPEC_PARTS)} — bun check-pr runs the suite as test:spec:0 … test:spec:<specParts - 1>`,
+      `${dir}/package.json: specParts must be an integer from 1 to ${String(MAX_SPEC_PARTS)} — bun verify runs the suite as test:spec:0 … test:spec:<specParts - 1>`,
     ];
   }
   const out: string[] = [];
@@ -274,7 +275,7 @@ function modelProblems(
   }
   for (const [model, files] of bindings) {
     // A package-local `@spec-meta` model is test machinery rather than a
-    // product specification. The location gate checks that distinction.
+    // product specification. The location gate verifies that distinction.
     if (existsSync(join(REPO_ROOT, quintDir, `${model}.qnt`))) continue;
     if (!stems.has(model)) {
       problems.push(
@@ -286,7 +287,7 @@ function modelProblems(
 }
 
 /**
- * The specs of `kind` a package runs: the harness runner checks every kind in
+ * The specs of `kind` a package runs: the harness runner verifies every kind in
  * `specDomains`, a live run only objectives in `liveDomains`.
  */
 function kindSpecs(
@@ -566,7 +567,7 @@ export function specsLayoutProblems(
       ...modelTaskProblems(
         pkg,
         readManifest(pkg.dir).scripts ?? {},
-        turboTasks(pkg.dir)['check:models']?.inputs,
+        turboTasks(pkg.dir)['verify:models']?.inputs,
         modelSplitOf(pkg.dir)
       )
     );
@@ -581,7 +582,7 @@ export function specsLayoutProblems(
 }
 
 /**
- * A live run checks only features and objectives, so a decision table or
+ * A live run verifies only features and objectives, so a decision table or
  * structure in a domain no package runs against the harness would never run.
  */
 function unrunKindProblems(
@@ -593,7 +594,7 @@ function unrunKindProblems(
     (kind) =>
       domainSpecPaths(domain, kind.suffix).map(
         (path) =>
-          `${path}: no package lists "${domain}" in specDomains, and live runs check no ${kind.noun}s — it would never run`
+          `${path}: no package lists "${domain}" in specDomains, and live runs verify no ${kind.noun}s — it would never run`
       )
   );
 }
@@ -638,14 +639,14 @@ function specPartInputProblems(pkg: SpecPackage): readonly string[] {
 }
 
 /**
- * What is wrong with how a package checks its Quint models: `check:models` is
+ * What is wrong with how a package verifies its Quint models: `verify:models` is
  * exactly {@link MODELS_RUNNER} when the package has models and absent when it
  * has none, and the task hashes the `.qnt` files of every domain holding one,
- * so editing a model re-checks that package's models and nothing else does.
+ * so editing a model re-verifies that package's models and nothing else does.
  *
  * A package whose proofs outlast one runner declares `modelParts` instead:
- * `check:models:<k>` for every k below it, each the runner with `--part k/n`,
- * and no unsplit `check:models`.
+ * `verify:models:<k>` for every k below it, each the runner with `--part k/n`,
+ * and no unsplit `verify:models`.
  */
 type ModelSplit = {
   readonly count: number | undefined;
@@ -655,7 +656,7 @@ type ModelSplit = {
   readonly inputsOf: (task: string) => readonly string[] | undefined;
 };
 
-const MODEL_TASK = /^check:models:\d+(?::\d+)?$/;
+const MODEL_TASK = /^verify:models:\d+(?::\d+)?$/;
 
 function modelDomains(models: readonly string[]): readonly string[] {
   return [...new Set(models.map((uri) => uri.split('/')[1] ?? ''))].sort();
@@ -672,7 +673,7 @@ function unhashedModel(
     return (taskInputs ?? []).includes(input)
       ? []
       : [
-          `${pkg.dir}/turbo.json: ${task} inputs must include "${input}" so a model change re-checks ${pkg.name}`,
+          `${pkg.dir}/turbo.json: ${task} inputs must include "${input}" so a model change re-verifies ${pkg.name}`,
         ];
   });
 }
@@ -702,7 +703,7 @@ function proofPartProblems(
   const count = parts.proofParts ?? 0;
   if (pkg.models.length !== 1) {
     return [
-      `${pkg.dir}/package.json: proofParts splits the one model this package checks — it has ${String(pkg.models.length)}`,
+      `${pkg.dir}/package.json: proofParts splits the one model this package verifications — it has ${String(pkg.models.length)}`,
     ];
   }
   if (!Number.isInteger(count) || count < 2 || count > MAX_MODEL_PARTS) {
@@ -763,13 +764,13 @@ function proofScriptProblems(input: {
   const { pkg, scripts, parts, count, groups } = input;
   const domains = modelDomains(pkg.models);
   const out: string[] = [];
-  if (scripts['check:models'] !== undefined) {
+  if (scripts['verify:models'] !== undefined) {
     out.push(
-      `${pkg.dir}/package.json: "check:models" would check every phase again — the ${String(groups.length)} tasks replace it; delete it`
+      `${pkg.dir}/package.json: "verify:models" would verify every phase again — the ${String(groups.length)} tasks replace it; delete it`
     );
   }
   for (const [index, group] of groups.entries()) {
-    const name = `check:models:${String(index)}`;
+    const name = `verify:models:${String(index)}`;
     const want = `${MODELS_RUNNER} --phase ${group}/${String(count)}`;
     if (scripts[name] !== want)
       out.push(`${pkg.dir}/package.json: "${name}" must be "${want}"`);
@@ -824,7 +825,7 @@ function oneModelPart(input: {
   const { pkg, scripts, parts, index, count, domains } = input;
   const phases = parts.phaseParts?.[String(index)];
   if (phases === undefined) {
-    const name = `check:models:${String(index)}`;
+    const name = `verify:models:${String(index)}`;
     const want = `${MODELS_RUNNER} --part ${String(index)}/${String(count)}`;
     return [
       ...(scripts[name] === want
@@ -838,11 +839,11 @@ function oneModelPart(input: {
       `${pkg.dir}/package.json: phaseParts["${String(index)}"] must be an integer of at least 2`,
     ];
   }
-  const whole = `check:models:${String(index)}`;
+  const whole = `verify:models:${String(index)}`;
   const out: string[] = [];
   if (scripts[whole] !== undefined) {
     out.push(
-      `${pkg.dir}/package.json: "${whole}" would check every phase again — the ${String(phases)} phases replace it; delete it`
+      `${pkg.dir}/package.json: "${whole}" would verify every phase again — the ${String(phases)} phases replace it; delete it`
     );
   }
   for (let phase = 0; phase < phases; phase++) {
@@ -861,16 +862,16 @@ export function modelTaskProblems(
   inputs: readonly string[] | undefined,
   parts?: ModelSplit
 ): readonly string[] {
-  const script = scripts['check:models'];
+  const script = scripts['verify:models'];
   const partNames = Object.keys(scripts).filter((name) =>
     MODEL_TASK.test(name)
   );
   if (pkg.models.length === 0) {
-    return [script === undefined ? [] : ['check:models'], partNames]
+    return [script === undefined ? [] : ['verify:models'], partNames]
       .flat()
       .map(
         (name) =>
-          `${pkg.dir}/package.json: "${name}" checks no Quint models — delete it`
+          `${pkg.dir}/package.json: "${name}" verifies no Quint models — delete it`
       );
   }
   if (parts?.proofParts !== undefined) {
@@ -886,7 +887,7 @@ export function modelTaskProblems(
   if (count === undefined) {
     if (script !== MODELS_RUNNER) {
       return [
-        `${pkg.dir}/package.json: "check:models" must be "${MODELS_RUNNER}" — it has Quint models to check`,
+        `${pkg.dir}/package.json: "verify:models" must be "${MODELS_RUNNER}" — it has Quint models to verify`,
       ];
     }
     return [
@@ -894,7 +895,7 @@ export function modelTaskProblems(
         (name) =>
           `${pkg.dir}/package.json: "${name}" is a part of no split — declare modelParts or delete it`
       ),
-      ...unhashedModel(pkg, 'check:models', inputs, domains),
+      ...unhashedModel(pkg, 'verify:models', inputs, domains),
     ];
   }
   const most = Math.min(MAX_MODEL_PARTS, pkg.models.length);
@@ -906,7 +907,7 @@ export function modelTaskProblems(
   const out: string[] = [];
   if (script !== undefined) {
     out.push(
-      `${pkg.dir}/package.json: "check:models" would check every model again — the ${String(count)} parts replace it; delete it`
+      `${pkg.dir}/package.json: "verify:models" would verify every model again — the ${String(count)} parts replace it; delete it`
     );
   }
   for (const name of partNames) {

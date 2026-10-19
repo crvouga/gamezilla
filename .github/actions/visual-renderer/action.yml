@@ -5,7 +5,7 @@ runs:
   steps:
     # GitHub-hosted Ubuntu already has these libraries. `true` runs apt-get
     # and upgrades mesa; that download stalled past the step cap
-    # (Check run 37668279155, mesa-libgallium). The action default is false.
+    # (Verify run 37668279155, mesa-libgallium). The action default is false.
     - uses: browser-actions/setup-chrome@v2
       id: chrome
       with:
@@ -19,7 +19,7 @@ runs:
     # Chrome's sandbox needs unprivileged user namespaces. Ubuntu's AppArmor
     # profile grants them to the system Chrome's path only, so the pinned
     # Chrome for Testing exits as it starts ("Chrome process closed the pipe",
-    # Check run 38197118122).
+    # Verify run 38197118122).
     - name: Allow the pinned Chrome its sandbox
       shell: bash
       run: |

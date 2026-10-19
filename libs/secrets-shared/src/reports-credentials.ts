@@ -2,7 +2,7 @@
  * Credentials for the one spec reports bucket every environment shares
  * (`libs/infra-shared/tofu/modules/report-access`). The read pair stays available to standalone
  * Atlas tooling; the write pair stays in the secrets
- * store for the Check workflow's `report-publish.ts`.
+ * store for the Verify workflow's `report-publish.ts`.
  */
 
 import { requireHttpsUrl, requireNonEmpty, Secret } from './secret';

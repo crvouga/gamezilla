@@ -30,6 +30,7 @@ const SKIP_NAMES = new Set([
   'test-results',
   'blob-report',
   'check',
+  'verify',
   '.observability',
   'ios',
   'android',

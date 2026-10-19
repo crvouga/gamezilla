@@ -28,7 +28,7 @@ test(
   'concurrent temporal checks own independent checker servers',
   async () => {
     // regression: quint-temporal-shared-port
-    // regression: check-tlc-shared-temporary-modules
+    // regression: verify-tlc-shared-temporary-modules
     const results = await Promise.all(
       ['first', 'second'].map((name) =>
         verifyTemporal({

@@ -7,7 +7,7 @@ import { join } from 'node:path';
  * branch or ref (too dynamic to scan) — and every job is named `<prefix>` or `<prefix>:<stage>` after its id
  * (`<prefix>:<env>` for a job with an env matrix, the shard appended for a
  * job with a shard matrix), so
- * the Actions run list and the PR checks box read the same everywhere.
+ * the Actions run list and the PR verifications box read the same everywhere.
  */
 const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.github/workflows');
 const SEPARATOR = ' · ';
@@ -35,20 +35,20 @@ type Workflow = {
 
 /**
  * Each workflow's display name and the prefix its jobs share. The merge
- * gate's jobs are `check:*` wherever it runs — a pull request, Deploy's
- * verification, the nightly run — so the required status `check:end` never
+ * gate's jobs are `verify:*` wherever it runs — a pull request, Deploy's
+ * verification, the nightly run — so the required status `verify:end` never
  * moves with a file name.
  */
 const WORKFLOWS: Record<string, { name: string; jobs: string }> = {
-  'check-nightly.yml': { name: 'Check Nightly', jobs: 'check-nightly' },
-  'check-pr.yml': { name: 'Check PR', jobs: 'check' },
+  'verify-nightly.yml': { name: 'Verify Nightly', jobs: 'verify-nightly' },
+  'verify-pr.yml': { name: 'Verify PR', jobs: 'verify' },
   'deploy.yml': { name: 'Deploy', jobs: 'deploy' },
   'health.yml': { name: 'Health', jobs: 'health' },
 };
 
 /** Deploy names explain the release sequence on the run page. */
 const DEPLOY_JOBS: Record<string, string> = {
-  'deploy-check': 'Verify commit',
+  'deploy-verify': 'Verify commit',
   'deploy-rehearsal': 'Preview infrastructure changes',
   'deploy-fleet': 'Deploy shared services',
   'deploy-dev': 'Deploy development',
@@ -72,12 +72,12 @@ const workflows = readdirSync(WORKFLOWS_DIR)
 
 // regression: ci-provider-native-workflows-missing-auth
 // regression: ci-provider-migration-workflow-on-feature-branch
-test('Check PR, Check Nightly, Deploy and Health have one native workflow source', () => {
+test('Verify PR, Verify Nightly, Deploy and Health have one native workflow source', () => {
   expect(workflows.map(({ file }) => file)).not.toContain(
     'temporary-ci-migration.yml'
   );
   expect(workflows.map(({ file }) => file).sort()).toEqual(
-    Object.keys(WORKFLOWS)
+    Object.keys(WORKFLOWS).sort()
   );
 });
 
@@ -116,9 +116,9 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
       const perShard = job.strategy?.matrix?.shard !== undefined;
       expect(id === prefix || id.startsWith(`${prefix}-`)).toBe(true);
       const stage = id === prefix ? '' : `:${id.slice(prefix.length + 1)}`;
-      if (id === 'check-nightly-end') {
+      if (id === 'verify-nightly-end') {
         expect(job.name).toBe(
-          "${{ inputs.group && inputs.group != 'all' && 'check-nightly:diagnostic' || 'check-nightly:end' }}"
+          "${{ inputs.group && inputs.group != 'all' && 'verify-nightly:diagnostic' || 'verify-nightly:end' }}"
         );
         continue;
       }

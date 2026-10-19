@@ -126,7 +126,7 @@ describe('client-critical-path-imports', () => {
 
 /**
  * Walks the real client import graph from disk: ~3 s idle, and several times
- * that under a loaded `bun check-pr`, past Bun's default 5 s. The timeout is ten
+ * that under a loaded `bun verify`, past Bun's default 5 s. The timeout is ten
  * times the idle cost so load cannot flip the verdict.
  */
 const CRITICAL_PATH_WALK_TIMEOUT_MS = 30_000;

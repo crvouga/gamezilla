@@ -1,10 +1,10 @@
 /**
  * A Worker's `compatibility_date` must not be newer than the date the pinned
  * workerd supports. Deploy boots the Worker under the local workerd
- * (`check:api` → `preview:serve`), which refuses a newer date, while
+ * (`verify:api` → `preview:serve`), which refuses a newer date, while
  * `wrangler deploy --dry-run` only bundles and never notices — so the date
  * once ran ahead of the pinned wrangler and every deploy failed with the gate
- * green. `check:worker-bundle` runs this check before it bundles.
+ * green. `verify:worker-bundle` runs this verification before it bundles.
  */
 
 const COMPAT_DATE_LINE = /^compatibility_date\s*=\s*"(\d{4}-\d{2}-\d{2})"/m;

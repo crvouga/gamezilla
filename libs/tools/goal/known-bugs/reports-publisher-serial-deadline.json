@@ -1,4 +1,4 @@
 {
-  "summary": "Full Check run 37745241786 prepared 214 missing sources, then synchronous per-source publication completed only about 30 sources before the 20-minute reports job was cancelled. Publish asynchronously through a bounded pool of four, releasing each source before the worker advances and draining all workers before downloading another archive.",
-  "regressionTest": "libs/tools/scripts/check-report-queue.test.ts"
+  "summary": "Full Verify run 37745241786 prepared 214 missing sources, then synchronous per-source publication completed only about 30 sources before the 20-minute reports job was cancelled. Publish asynchronously through a bounded pool of four, releasing each source before the worker advances and draining all workers before downloading another archive.",
+  "regressionTest": "libs/tools/scripts/verify-report-queue.test.ts"
 }

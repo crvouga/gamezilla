@@ -449,7 +449,7 @@ reconnect. The intended verification layer must fail.
 
 Run all applicable repository checks, including at minimum:
 
--   `bun run spec:check --strict-duplicates`;
+-   `bun run spec:verify --strict-duplicates`;
 -   affected domain spec suites;
 -   Quint trace/model conformance;
 -   Apalache/model checking;
@@ -461,7 +461,7 @@ Run all applicable repository checks, including at minimum:
 -   conformance manifest checks;
 -   `bun run spec:ownership`;
 -   `bun run spec:catalog`;
--   full `bun check-pr`;
+-   full `bun verify`;
 -   every other required release/conformance gate affected by the
     change.
 

@@ -260,7 +260,7 @@ New packages are wired like any other package; each omission fails a check:
 | `tsconfig.base.json` paths and the root `tsconfig.json` include | `tc` |
 | A client package using Lingui macros in `LINGUI_CATALOG_SOURCES` (`libs/tools/scripts/lingui-scope.ts`) and the `@libs/tools#ci:i18n` inputs | the package's `lint`, `ci-i18n.test.ts` |
 | Solid lint scope (`libs/tools/port/solid-scope.json`) | the package's `lint` |
-| `specs/race/` listed in `specs/conformance.yaml` contexts and the context map (`specs/README.md`) | `@libs/tools#ci:conformance`, `bun spec:check` |
+| `specs/race/` listed in `specs/conformance.yaml` contexts and the context map (`specs/README.md`) | `@libs/tools#ci:conformance`, `bun spec:verify` |
 | A harness running `specs/race/` declares `specDomains`, `specParts` and its parts in `apps/product/scripts/ui-quality/sources.json` | `ui-quality-graph.test.ts`, `ci-load.test.ts` |
 
 A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
@@ -294,7 +294,7 @@ A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
 bunx turbo run tc lint test --filter=@libs/race-shared --filter=@libs/race-client --filter=@libs/race-harness
 bunx turbo run test test:spec --filter=@libs/games-harness   # every shared suite, now also for race
 bunx turbo run test:spec --filter=@libs/race-harness         # the game's own rules
-bun check-pr
+bun verify
 ```
 
 `@libs/games-harness`'s `test` prints the matrix with the new row

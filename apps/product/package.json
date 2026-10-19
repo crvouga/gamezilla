@@ -21,13 +21,6 @@
   },
   "scripts": {
     "build": "vite build && bun run scripts/build-sw.ts",
-    "check:live-dist": "bun run scripts/live-bundle-guard-cli.ts check-dist",
-    "check:live-env": "bun run scripts/live-bundle-guard-cli.ts check-env",
-    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
-    "check:offline-shell": "bun run scripts/check-offline-shell.ts",
-    "check:rendered-worker": "bun run scripts/check-rendered-worker.ts",
-    "check:ui-quality": "bun run scripts/check.ts",
-    "check:worker-bundle": "bun run ../../libs/tools/scripts/check-worker-bundle.ts",
     "deploy": "bun run scripts/deploy.ts",
     "dev": "bun run scripts/dev-service.ts ready",
     "dev:billing": "bun run scripts/dev-service.ts billing",
@@ -72,7 +65,14 @@
     "test:release-journeys": "bun run scripts/test-release-journeys.ts",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
     "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1",
-    "test:stack": "bun run scripts/test-stack.ts"
+    "test:stack": "bun run scripts/test-stack.ts",
+    "verify:live-dist": "bun run scripts/live-bundle-guard-cli.ts verify-dist",
+    "verify:live-env": "bun run scripts/live-bundle-guard-cli.ts verify-env",
+    "verify:models": "bun run ../../libs/tools/scripts/verify-models.ts",
+    "verify:offline-shell": "bun run scripts/verify-offline-shell.ts",
+    "verify:rendered-worker": "bun run scripts/verify-rendered-worker.ts",
+    "verify:ui-quality": "bun run scripts/verify.ts",
+    "verify:worker-bundle": "bun run ../../libs/tools/scripts/verify-worker-bundle.ts"
   },
   "dependencies": {
     "@apps/server": "workspace:*",

@@ -1,4 +1,0 @@
-{
-  "summary": "The model discovery regression expected the old sync model list after note-refusal-recovery was added, rejecting correct discovery of the new bounded model.",
-  "regressionTest": "libs/tools/scripts/check-models.test.ts"
-}

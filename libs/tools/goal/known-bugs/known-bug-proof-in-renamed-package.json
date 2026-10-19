@@ -1,4 +1,4 @@
 {
   "summary": "Each package's lint checked the known-bug proofs inside that package, so a regressionTest path whose package had been renamed away belonged to no lint and was never read. Two entries pointed at libs/chess-server and libs/runtime for a week after those packages were split by runtime. The gate now reads every proof the register names, including those in a package that no longer exists.",
-  "regressionTest": "libs/tools/scripts/check-goals.test.ts"
+  "regressionTest": "libs/tools/scripts/verify-goals.test.ts"
 }

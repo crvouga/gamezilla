@@ -2,7 +2,7 @@
  * Every TypeScript file a package tracks is type-checked by that package's
  * `tc`, run by lint-package.ts.
  *
- * `bun test` strips types without checking them, so a test, fixture or script
+ * `bun test` strips types without verifying them, so a test, fixture or script
  * outside the `tc` tsconfig's `include` can hold any type error and still pass
  * the gate. So can a package with no `tc` script at all — turbo schedules
  * nothing for it and says nothing.
@@ -37,7 +37,7 @@ function toGlob(pattern: string): string {
   return path.includes('*') || last.includes('.') ? path : `${path}/**/*`;
 }
 
-/** The tsconfig path the `tc` script checks, relative to the package. */
+/** The tsconfig path the `tc` script verifications, relative to the package. */
 export function tcProject(tcScript: string | undefined): string | null {
   const match = tcScript === undefined ? null : TC_PROJECT.exec(tcScript);
   return match?.[1]?.replace(/^\.\//, '') ?? null;
@@ -68,7 +68,7 @@ export function tcScopeViolations(input: {
     ];
   }
   if (input.tsconfigText === null) {
-    return [`\`tc\` checks ${project}, which does not exist`];
+    return [`\`tc\` verifications ${project}, which does not exist`];
   }
   const config = parseTsConfig(input.tsconfigText);
   const include = (config.include ?? ['**/*']).map(

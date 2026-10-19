@@ -7,7 +7,7 @@
  *
  * It reads every `<package>/.cache/harness-report/<bucket>/evidence/` (the
  * `test:spec` parts) and `<package>/.cache/health-report/**` evidence (the
- * live `health` run), checks each record against the spec's current text
+ * live `health` run), verifies each record against the spec's current text
  * (another text is stale: FAIL), requires evidence for every spec a suite
  * runs (none: FAIL) — for a spec run once per variant (a shared game
  * specification, per game), a verdict of its own for every variant its host
@@ -20,9 +20,9 @@
  *
  * Not a gate task: its evidence exists only once the suites ran. Use it
  *
- *   - after `bun check-pr` (turbo runs or restores every `test:spec:<k>`
+ *   - after `bun verify` (turbo runs or restores every `test:spec:<k>`
  *     part, and each part's outputs are its `.cache/harness-report/part-<k>/`
- *     bucket), or after the restore step the Check workflow's `check:publish`
+ *     bucket), or after the restore step the Verify workflow's `verify:publish`
  *     jobs run on GitHub (`turbo-ci-run.ts --restore-outputs`), which leaves
  *     every bucket on disk;
  *   - with live evidence after `bun health:local` (SECRETS_ENV names the

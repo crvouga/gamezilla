@@ -87,7 +87,7 @@ export const globalFileSchema = z
       .strict(),
     /**
      * The one private bucket holding every commit's spec reports (fleet
-     * stack; `bun check-pr`): CI writes with, and each environment's
+     * stack; `bun verify`): CI writes with, and each environment's
      * API reads with, that environment's own credential (foundation stack).
      * CI retains the latest report per existing branch.
      */

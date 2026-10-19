@@ -22,7 +22,7 @@ export function modelShapeProblems(
   const maintenanceContexts = maintenanceVocabulary();
   for (const file of files) {
     if (file === 'events.qnt' || file.endsWith('/events.qnt')) continue;
-    // Campaign roots and imported helpers retain their own safety/temporal checks.
+    // Campaign roots and imported helpers retain their own safety/temporal verifications.
     if (campaignDomains.has(file.split('/')[0] ?? '')) continue;
     const specUri = `${SPECS_DIR}/${file}`;
     const text = readFileSync(join(REPO_ROOT, specUri), 'utf8');

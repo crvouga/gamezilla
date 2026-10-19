@@ -3,14 +3,14 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { testConcurrency } from '@pkgs/os-server/test-concurrency';
 import { specPackages } from './spec-packages';
-import { MAIN_CHECK_TASKS } from './turbo-ci-run';
+import { MAIN_VERIFY_TASKS } from './turbo-ci-run';
 
 const ROOT = join(import.meta.dir, '../../..');
 const readJson = <T>(file: string): T =>
   JSON.parse(readFileSync(join(ROOT, file), 'utf8')) as T;
 
 test('the product proof starts bounded solver workers before native replay', () => {
-  // regression: product-symbolic-worker-contention — 13 concurrent JVM checks starved whole-system at its unchanged 120s deadline.
+  // regression: product-symbolic-worker-contention — 13 concurrent JVM verifications starved whole-system at its unchanged 120s deadline.
   const pkg = readJson<{ scripts: Record<string, string> }>(
     'apps/product/package.json'
   );
@@ -37,7 +37,7 @@ test('the product proof starts bounded solver workers before native replay', () 
     expect(ceiling).toBeDefined();
     for (const limit of [undefined, '1', '2', '8']) {
       const workers = testConcurrency(
-        { CHECK_TEST_CONCURRENCY: limit },
+        { VERIFY_TEST_CONCURRENCY: limit },
         Number(ceiling)
       );
       expect(workers).toBeGreaterThan(0);
@@ -72,16 +72,16 @@ test('the visual gate consumes every product spec part and caches both verdict a
   expect(turbo.tasks['prepare:ui-quality']!.dependsOn.sort()).toEqual(
     expected.sort()
   );
-  expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain(
+  expect(turbo.tasks['verify:ui-quality']!.dependsOn).toContain(
     'prepare:ui-quality'
   );
-  expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain(
+  expect(turbo.tasks['verify:ui-quality']!.dependsOn).toContain(
     '@pkgs/ui-quality-check-server#build'
   );
-  expect(turbo.tasks['check:ui-quality']!.outputs).toContain(
+  expect(turbo.tasks['verify:ui-quality']!.outputs).toContain(
     '.cache/ui-quality/**'
   );
-  expect(turbo.tasks['check:ui-quality']!.outputs).toContain(
+  expect(turbo.tasks['verify:ui-quality']!.outputs).toContain(
     '.cache/harness-report/ui-quality/**'
   );
 });
@@ -101,12 +101,12 @@ test('explicit model setup does not submit an oversized cache artifact or downlo
   const setup = turbo.tasks['prepare:ui-quality-model']!;
   expect(setup.cache).toBe(false);
   expect(setup.outputs).toEqual([]);
-  expect(turbo.tasks['check:ui-quality']!.dependsOn).not.toContain(
+  expect(turbo.tasks['verify:ui-quality']!.dependsOn).not.toContain(
     'prepare:ui-quality-model'
   );
 });
 
-// regression: ui-quality-inference-quint-contention — the two-transition safety check exceeded 120 seconds with inference running.
+// regression: ui-quality-inference-quint-contention — the two-transition safety verification exceeded 120 seconds with inference running.
 test('native inference waits for the existing product symbolic and renderer contracts', () => {
   const turbo = readJson<{ tasks: Record<string, { dependsOn?: string[] }> }>(
     'apps/product/turbo.json'
@@ -116,22 +116,22 @@ test('native inference waits for the existing product symbolic and renderer cont
       .scripts
   ).filter((name) => /^test:contract:\d+$/.test(name));
   for (const name of parts) {
-    expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain(name);
+    expect(turbo.tasks['verify:ui-quality']!.dependsOn).toContain(name);
   }
-  expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain(
+  expect(turbo.tasks['verify:ui-quality']!.dependsOn).toContain(
     'test:contract:render'
   );
 });
 
-test('release Check and Deploy never run the visual gate or prepare its model', () => {
+test('release Verify and Deploy never run the visual gate or prepare its model', () => {
   const turbo = readJson<{ tasks: Record<string, { dependsOn?: string[] }> }>(
     'turbo.json'
   );
-  expect(MAIN_CHECK_TASKS).not.toContain('@apps/product#check:ui-quality');
+  expect(MAIN_VERIFY_TASKS).not.toContain('@apps/product#verify:ui-quality');
   expect(turbo.tasks['@apps/product#deploy']!.dependsOn).not.toContain(
-    '@apps/product#check:ui-quality'
+    '@apps/product#verify:ui-quality'
   );
-  for (const name of ['check-pr', 'deploy'])
+  for (const name of ['verify-pr', 'deploy'])
     expect(
       readFileSync(join(ROOT, '.github/workflows', `${name}.yml`), 'utf8')
     ).not.toContain('ui-quality');

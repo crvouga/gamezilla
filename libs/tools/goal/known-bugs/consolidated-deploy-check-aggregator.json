@@ -1,4 +1,0 @@
-{
-  "summary": "The consolidated application deployment depended directly on the root Check aggregator. Turbo bypassed the runner's aggregator flattening and tried to schedule missing root lint/test tasks, failing before any deployment. Keep Check in the release runner and pin the exact retirement dependency chain as a dry-run regression.",
-  "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
-}

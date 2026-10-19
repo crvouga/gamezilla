@@ -19,7 +19,7 @@ This record describes automated evidence and its limits.
 | Required adversarial source mutations | All fifteen rejected; sources restored |
 | Additional consumer sound-policy mutations | All three rejected; sources restored |
 | Additional capture-ring and coordinate-placement mutations | Both rejected; sources restored |
-| Complete repository release gate | Required `bun check-pr`; the commit report records its verdict |
+| Complete repository release gate | Required `bun verify`; the commit report records its verdict |
 
 Native checks run the compiled public example in Bun's browser backend, using
 WebKit on macOS and Chrome on Linux. Their cache is scoped by the repository's
@@ -52,4 +52,4 @@ their removal. [SPEC_AUDIT.md](SPEC_AUDIT.md) and
 
 [MUTATION_RESULTS.md](MUTATION_RESULTS.md) records each injected defect and the
 intended assertion that rejected it. No manual browser inspection contributes
-to these results. The repository's `bun check-pr` remains the release decision.
+to these results. The repository's `bun verify` remains the release decision.

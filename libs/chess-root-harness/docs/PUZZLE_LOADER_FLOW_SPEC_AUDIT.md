@@ -127,7 +127,7 @@ Automated evidence at this revision:
 - The selected-file regression reproduces the literal `network error` from a native file stream before either CSV or Zstandard upload. Bounded slice reads pass both cases, with cancellation and device-read error checks.
 - The model-task registration check first found 20 contracts assigned to 17 proof parts. All 20 parts are now registered, and the existing registration regression passes with the multiplayer budget assigned to its current index.
 - The deeper random run failed on the earlier registration count, a window-inference property timeout (seed `276816522`), and the concurrent toolchain/image version mismatch in `libs/infra-server/tests/population-release.test.ts` (seed `-638220406`). That run is not a passing nightly verdict.
-- The previous full `bun check-pr` stopped on a stale generated translation
+- The previous full `bun verify` stopped on a stale generated translation
   catalog. Focused results do not substitute for a green full gate.
 
 ## Summary

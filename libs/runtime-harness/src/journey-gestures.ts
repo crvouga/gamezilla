@@ -1,7 +1,7 @@
 /**
  * Gestures the critical journeys share. Everything here is a bare
  * {@link Driver} gesture — no harness, no session — so the same step runs on
- * pumped virtual time in `bun check-pr` and on a real browser against production.
+ * pumped virtual time in `bun verify` and on a real browser against production.
  */
 
 import {

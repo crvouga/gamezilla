@@ -14,7 +14,6 @@
     ]
   },
   "scripts": {
-    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client/register ../../libs/harness/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
@@ -28,7 +27,8 @@
     "test:spec:4": "bun run ../../libs/harness/scripts/test-spec.ts --part 4/8",
     "test:spec:5": "bun run ../../libs/harness/scripts/test-spec.ts --part 5/8",
     "test:spec:6": "bun run ../../libs/harness/scripts/test-spec.ts --part 6/8",
-    "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/8"
+    "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/8",
+    "verify:models": "bun run ../../libs/tools/scripts/verify-models.ts"
   },
   "dependencies": {
     "@lingui/core": "catalog:",

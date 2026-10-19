@@ -216,7 +216,7 @@ Ranked by player impact. Estimates assume the repo's spec-first workflow.
 - Models: `daily-game.qnt` (20 pass) and `multiplayer-own-board.qnt`
   (52 pass); `multiplayer.qnt` and `multiplayer-spaces.qnt` still pass.
 - `tc`, `lint` and `test` pass for every touched package.
-- `bun run spec:check` and `bun run spec:ownership` pass.
+- `bun run spec:verify` and `bun run spec:ownership` pass.
 - **Full chess spec suite** (all 64 parts of `@libs/chess-root-harness`, run
   after the last commit, 22 m 41 s): every feature passes and 50 parts are
   green. The 14 red parts contain 18 failing model traces and nothing else.
@@ -242,9 +242,9 @@ Also red before this work, and left alone:
 
 - `bun run ci:statecharts` fails on `personal-chess-stats-client`, a route
   module missing from its list.
-- `libs/tools/scripts/check-goals.ts` fails on
+- `libs/tools/scripts/verify-goals.ts` fails on
   `space-lobby-card-not-pressable`.
 - `bun run lint:naming` fails on `.agents/skills/ui-ux-pro-max/**`.
 
-`bun check-pr`, the full local gate across the whole repo, was not run. With
+`bun verify`, the full local gate across the whole repo, was not run. With
 the reds above it cannot be green on this branch or on `main`.

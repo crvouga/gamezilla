@@ -1,4 +1,0 @@
-{
-  "summary": "Raw Turbo summaries store failed exit codes inside execution; harvesting their elapsed time as successful history inflated estimates. Ignore failed raw execution and sanitized shard timings, and ignore invalid or zero elapsed samples.",
-  "regressionTest": "libs/tools/scripts/check-task-costs.test.ts"
-}

@@ -5,8 +5,8 @@ import {
   TURBO_TEAM,
 } from '@libs/secrets-shared/turbo-token';
 import {
-  defaultCheckConcurrency,
-  flattenCheckAggregators,
+  defaultVerifyConcurrency,
+  flattenVerifyAggregators,
   formatDurations,
   hasRemoteCreds,
   resolveCacheFlag,
@@ -40,7 +40,7 @@ describe('turbo-ci-run cache flags', () => {
     );
   });
 
-  // regression: check-cache-write-only-override
+  // regression: verify-cache-write-only-override
   test('accepts Turbo read, write, read/write and disabled modes verbatim', () => {
     for (const local of ['', 'r', 'w', 'rw']) {
       for (const remote of ['', 'r', 'w', 'rw']) {
@@ -81,7 +81,7 @@ describe('turbo-ci-run child env', () => {
   });
 
   test('an empty replay budget is no budget, and a set one is kept', () => {
-    // The Check workflow sets the variable to empty unless it explores; turbo
+    // The Verify workflow sets the variable to empty unless it explores; turbo
     // would hash that apart from a run that never set it.
     expect('QUINT_REPLAY_TRACES' in turboChildEnv({})).toBe(false);
     for (const empty of ['', '  '])
@@ -108,18 +108,18 @@ describe('turbo-ci-run aggregator flatten', () => {
     '//#deploy': { dependsOn: ['health'] },
   };
 
-  test('check expands to its leaves', () => {
-    const leaves = flattenCheckAggregators(['check'], tasks);
-    expect(leaves).toContain('@libs/tools#check:root-lint');
+  test('verification expands to its leaves', () => {
+    const leaves = flattenVerifyAggregators(['verify'], tasks);
+    expect(leaves).toContain('@libs/tools#verify:root-lint');
     expect(leaves).toContain(
-      '@apps/synthetic-population-worker#check:synthetic-population-foundation'
+      '@apps/synthetic-population-worker#verify:synthetic-population-foundation'
     );
-    expect(leaves).not.toContain('check:synthetic-population');
-    expect(leaves).not.toContain('//#check');
+    expect(leaves).not.toContain('verify:synthetic-population');
+    expect(leaves).not.toContain('//#verify');
   });
 
   test('non-aggregator args pass through', () => {
-    expect(flattenCheckAggregators(['lint', 'tc'], tasks)).toEqual([
+    expect(flattenVerifyAggregators(['lint', 'tc'], tasks)).toEqual([
       'lint',
       'tc',
     ]);
@@ -130,11 +130,11 @@ describe('turbo-ci-run aggregator flatten', () => {
       ...tasks,
       '//#deploy': { dependsOn: ['tc', 'health'] },
     };
-    expect(flattenCheckAggregators(['deploy'], withDeploy)).toEqual([
+    expect(flattenVerifyAggregators(['deploy'], withDeploy)).toEqual([
       'tc',
       'health',
     ]);
-    expect(flattenCheckAggregators(['//#deploy'], withDeploy)).toEqual([
+    expect(flattenVerifyAggregators(['//#deploy'], withDeploy)).toEqual([
       'tc',
       'health',
     ]);
@@ -155,8 +155,8 @@ describe('turbo-ci-run run mode', () => {
     expect(runModeFlags('deploy')).toEqual([]);
   });
 
-  test('check and bare tasks are plain runs', () => {
-    expect(resolveRunMode(['check'])).toBe('plain');
+  test('verification and bare tasks are plain runs', () => {
+    expect(resolveRunMode(['verify'])).toBe('plain');
     expect(resolveRunMode(['lint', 'tc'])).toBe('plain');
     expect(resolveRunMode(['constructor'])).toBe('plain');
     expect(runModeFlags('plain')).toEqual([]);
@@ -181,21 +181,21 @@ describe('turbo-ci-run durations', () => {
   });
 });
 
-// regression: local-check-thread-oversubscription
-test('local and remote checks bound nested native thread pools identically', () => {
+// regression: local-verify-thread-oversubscription
+test('local and remote verifications bound nested native thread pools identically', () => {
   const local = turboChildEnv({});
   const remote = turboChildEnv({ CI: 'true' });
   for (const key of [
     'RAYON_NUM_THREADS',
-    'CHECK_LINT_THREADS',
+    'VERIFY_LINT_THREADS',
     'GOMAXPROCS',
     'JAVA_TOOL_OPTIONS',
     'JVM_GC_ARGS',
-    'MODEL_CHECK_CONCURRENCY',
+    'MODEL_VERIFY_CONCURRENCY',
   ])
     expect(local[key]).toBe(remote[key]);
   expect(local['JAVA_TOOL_OPTIONS']).toBe('-XX:ActiveProcessorCount=2');
-  expect(local['MODEL_CHECK_CONCURRENCY']).toBe('2');
+  expect(local['MODEL_VERIFY_CONCURRENCY']).toBe('2');
   expect(local['JVM_GC_ARGS']).toBe('-XX:+UseParallelGC -Xmx4096m -Xms128m');
   expect(local['GOMAXPROCS']).toBe('1');
   expect(
@@ -205,11 +205,11 @@ test('local and remote checks bound nested native thread pools identically', () 
   ).toBe('-XX:ActiveProcessorCount=2');
 });
 
-// regression: local-check-thread-oversubscription
+// regression: local-verify-thread-oversubscription
 test('task slots reserve CPU capacity for nested native workers', () => {
-  expect(defaultCheckConcurrency(12, 4)).toBe(8);
-  expect(defaultCheckConcurrency(2, 1)).toBe(1);
-  expect(defaultCheckConcurrency(64, 4)).toBe(60);
+  expect(defaultVerifyConcurrency(12, 4)).toBe(8);
+  expect(defaultVerifyConcurrency(2, 1)).toBe(1);
+  expect(defaultVerifyConcurrency(64, 4)).toBe(60);
 });
 
 describe('turbo UI', () => {

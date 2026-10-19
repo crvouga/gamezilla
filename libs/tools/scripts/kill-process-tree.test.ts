@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
 import { descendantPids } from './kill-process-tree';
 
-test('cancellation includes detached task workers and excludes unrelated checks', () => {
-  // regression: check-deadline-detached-workers
+test('cancellation includes detached task workers and excludes unrelated verifications', () => {
+  // regression: verify-deadline-detached-workers
   const processes = [
     { pid: 43911, ppid: 100 },
     { pid: 46346, ppid: 43911 },

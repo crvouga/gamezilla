@@ -2,11 +2,11 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  LEAF_CHECK_SECONDS,
+  LEAF_VERIFY_SECONDS,
   loadReport,
   measuredSection,
-  NARROW_CHECK_SECONDS,
-  PR_CHECK_SECONDS,
+  NARROW_VERIFY_SECONDS,
+  PR_VERIFY_SECONDS,
   RUNNER_VCPU,
   readLoadInput,
   renderMeasuredLoad,
@@ -73,14 +73,14 @@ test('the measured corpus fits the self-hosted runner', () => {
   expect(report.fit.specSlots).toBeLessThanOrEqual(SPEC_WORKER_CAP);
   expect(report.fit.cores).toBeLessThanOrEqual(RUNNER_VCPU);
   expect(report.fit.makespanSeconds + WARM_START_SECONDS).toBeLessThanOrEqual(
-    PR_CHECK_SECONDS
+    PR_VERIFY_SECONDS
   );
   expect(
     report.leafPoleMax + WARM_START_SECONDS + SLACK_SECONDS
-  ).toBeLessThanOrEqual(LEAF_CHECK_SECONDS);
+  ).toBeLessThanOrEqual(LEAF_VERIFY_SECONDS);
   expect(
     report.leafPoleP90 + WARM_START_SECONDS + SLACK_SECONDS
-  ).toBeLessThanOrEqual(NARROW_CHECK_SECONDS);
+  ).toBeLessThanOrEqual(NARROW_VERIFY_SECONDS);
 });
 
 test('the requirements doc measured section matches the corpus', () => {
@@ -115,7 +115,7 @@ test('capacity stays within sixteen workers when they meet the unchanged deadlin
   expect(fit.cores).toBeLessThanOrEqual(RUNNER_VCPU);
   expect(
     fit.makespanSeconds + WARM_START_SECONDS + SLACK_SECONDS
-  ).toBeLessThanOrEqual(PR_CHECK_SECONDS);
+  ).toBeLessThanOrEqual(PR_VERIFY_SECONDS);
   expect(
     runnerFit({ ...load, specSeconds: 5000, coldSeconds: 6894 })
   ).toMatchObject({ specSlots: 16, fits: false });

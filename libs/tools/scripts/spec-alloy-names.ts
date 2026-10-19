@@ -2,7 +2,7 @@
  * The product-facing names of an Alloy structure (`specs/<domain>/*.als`):
  * its signatures and their fields. Like a Quint model's names, each must be
  * some term's `model` in the context's ubiquitous language, so
- * `spec-glossary.ts` hands them to the same check (`@pkgs/gherkin/glossary`).
+ * `spec-glossary.ts` hands them to the same verification (`@pkgs/gherkin/glossary`).
  *
  * A small regex reader, not a parser: comments are blanked (lines kept), then
  * every `[abstract|one|lone|some|var] sig A, B [extends C | in C] { … }` gives

@@ -23,7 +23,7 @@ states, invalid journeys, uncovered transitions and a changed SCXML replay.
 A truncated exploration fails with reachability marked unknown; reaching the
 configured budget does not count as completeness.
 
-The repository's Check workflow includes the `ci:statecharts` gate in both its PR and full verification task graphs. This repeats chart validation, source closure and public-route ownership automatically; new unowned contracts, forgotten screens or broken chart paths fail the gate. Route inspection uses TypeScript declarations without importing the product; missing dependencies or unresolved dynamic patterns fail rather than disappearing from the inventory. The consumer's standalone build and Atlas core's own automated checks also exercise the portable explorer, while application verification retains its separate obligations.
+The repository's Verify workflow includes the `ci:statecharts` gate in both its PR and full verification task graphs. This repeats chart validation, source closure and public-route ownership automatically; new unowned contracts, forgotten screens or broken chart paths fail the gate. Route inspection uses TypeScript declarations without importing the product; missing dependencies or unresolved dynamic patterns fail rather than disappearing from the inventory. The consumer's standalone build and Atlas core's own automated checks also exercise the portable explorer, while application verification retains its separate obligations.
 
 ```sh
 bun atlas:lint

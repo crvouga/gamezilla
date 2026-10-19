@@ -10,7 +10,7 @@ export type ReportTask = {
 };
 
 export function reportTask(taskId: string): ReportTask | null {
-  if (taskId === '@apps/product#check:ui-quality')
+  if (taskId === '@apps/product#verify:ui-quality')
     return { taskId, packageDir: 'apps/product', bucket: 'ui-quality' };
   const match = /^@(apps|libs|pkgs)\/([a-z0-9-]+)#test:spec:(\d+)$/.exec(
     taskId

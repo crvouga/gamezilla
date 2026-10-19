@@ -1,4 +1,4 @@
 {
-  "summary": "Check 37515771723 killed the chess proof task at 600 seconds. The archive only retained its published model report, losing verdicts and TLC diagnostics already written in the private model-check workspace. Retain the public evidence interface from interrupted workspaces after the supervisor stops them.",
-  "regressionTest": "libs/tools/scripts/check-interrupted-models.test.ts"
+  "summary": "Verify 37515771723 killed the chess proof task at 600 seconds. The archive only retained its published model report, losing verdicts and TLC diagnostics already written in the private model-check workspace. Retain the public evidence interface from interrupted workspaces after the supervisor stops them.",
+  "regressionTest": "libs/tools/scripts/verify-interrupted-models.test.ts"
 }

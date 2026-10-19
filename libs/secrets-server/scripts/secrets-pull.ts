@@ -1,7 +1,7 @@
 /**
  * Online step: export Infisical secrets for every environment (one per
  * `libs/infra-shared/tofu/envs/<env>.tfvars.json`) into `.cache/secrets/` so
- * `bun check-pr` can run offline-first.
+ * `bun verify` can run offline-first.
  *
  * Usage: `bun run secrets:pull`
  */
@@ -81,7 +81,7 @@ async function main(): Promise<number> {
   console.log(
     `secrets:pull: meta.pulledAt=${nowIso} (stale warn after ${String(ttlHours)}h)`
   );
-  console.log('secrets:pull: done. `bun check-pr` will use the cache offline.');
+  console.log('secrets:pull: done. `bun verify` will use the cache offline.');
   return 0;
 }
 

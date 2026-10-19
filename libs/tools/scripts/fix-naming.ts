@@ -279,10 +279,14 @@ function apply(
       { cwd: ROOT, stdio: 'inherit' }
     );
   }
-  const gate = spawnSync('bun', ['run', 'libs/tools/scripts/check-naming.ts'], {
-    cwd: ROOT,
-    stdio: 'inherit',
-  });
+  const gate = spawnSync(
+    'bun',
+    ['run', 'libs/tools/scripts/verify-naming.ts'],
+    {
+      cwd: ROOT,
+      stdio: 'inherit',
+    }
+  );
   console.log(
     gate.status === 0
       ? '\n[naming:fix] done — naming gate passes.'

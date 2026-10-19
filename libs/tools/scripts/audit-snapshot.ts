@@ -2,9 +2,9 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { redactSecrets } from './check-shard-stream';
+import { redactSecrets } from './verify-shard-stream';
 
-export const AUDIT_SNAPSHOT = '.cache/check-ci/audit.json';
+export const AUDIT_SNAPSHOT = '.cache/verify-ci/audit.json';
 // Preserve the existing policy: unpatched advisories only, no new exemptions.
 const IGNORE = ['GHSA-w3rx-r6r6-pgpr', 'GHSA-5p2g-fcmc-qvqq'];
 export type AuditSnapshot = {

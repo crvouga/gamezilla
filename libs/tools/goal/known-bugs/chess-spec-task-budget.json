@@ -1,4 +1,4 @@
 {
-  "summary": "Check run xsl3hqgb86 killed chess spec parts 3, 7, and 9 at the 600-second task cap; part 5 passed in 593 seconds with the same shape of about twenty Quint traces. The suite now splits across 64 independently cached parts, and every scenario and trace still runs once.",
+  "summary": "Verify run xsl3hqgb86 killed chess spec parts 3, 7, and 9 at the 600-second task cap; part 5 passed in 593 seconds with the same shape of about twenty Quint traces. The suite now splits across 64 independently cached parts, and every scenario and trace still runs once.",
   "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
 }

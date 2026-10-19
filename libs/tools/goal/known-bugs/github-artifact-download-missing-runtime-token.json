@@ -1,4 +1,4 @@
 {
-  "summary": "Check run 37512663922 failed in prerequisite restoration because shell steps do not receive ACTIONS_RUNTIME_TOKEN. The artifact SDK defaulted to its action-internal API. Supply the workflow's GitHub token and exact repository/run coordinates to both artifact listing and downloading through the public API.",
-  "regressionTest": "libs/tools/scripts/check-artifact-download.test.ts"
+  "summary": "Verify run 37512663922 failed in prerequisite restoration because shell steps do not receive ACTIONS_RUNTIME_TOKEN. The artifact SDK defaulted to its action-internal API. Supply the workflow's GitHub token and exact repository/run coordinates to both artifact listing and downloading through the public API.",
+  "regressionTest": "libs/tools/scripts/verify-artifact-download.test.ts"
 }

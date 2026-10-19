@@ -43,7 +43,7 @@ export type Rule =
         | 'capabilities'
         | 'permission-coverage'
         | 'adapters'
-        | 'conformance-checks';
+        | 'conformance-verifications';
     };
 
 export type LineDefinition = {
@@ -81,9 +81,9 @@ export const LINES = {
       runs: 'harness',
     }),
   },
-  'model-checking': {
+  'model-verifying': {
     section: 'specification',
-    label: 'Quint model checking',
+    label: 'Quint model verifying',
     feeds: [{ kind: 'dynamics' }],
     rule: evidence({
       kind: 'dynamics',
@@ -91,9 +91,9 @@ export const LINES = {
       runs: 'harness',
     }),
   },
-  'structure-checking': {
+  'structure-verifying': {
     section: 'specification',
-    label: 'Alloy model checking',
+    label: 'Alloy model verifying',
     feeds: [{ kind: 'structure' }],
     rule: evidence({
       kind: 'structure',
@@ -218,7 +218,7 @@ export const LINES = {
   'release-gates': {
     section: 'release',
     label: 'release engineering gates',
-    // Filled from the release gates' checks by the evidence map.
+    // Filled from the release gates' verifications by the evidence map.
     feeds: [],
     rule: { type: 'gates' },
   },
@@ -240,11 +240,11 @@ export const LINES = {
     feeds: [{ task: '@libs/tools#ci:specs' }],
     rule: { type: 'adapters' },
   },
-  'conformance-checks': {
+  'conformance-verifications': {
     section: 'completeness',
-    label: 'required conformance checks',
+    label: 'required conformance verifications',
     feeds: [{ task: '@libs/tools#ci:conformance' }],
-    rule: { type: 'conformance-checks' },
+    rule: { type: 'conformance-verifications' },
   },
 } as const satisfies Readonly<Record<string, LineDefinition>>;
 

@@ -267,7 +267,7 @@ describe('portable statechart guide integrity', () => {
     );
   });
 
-  test('checks generated paths that reach automatic completion outside every curated journey', () => {
+  test('verifications generated paths that reach automatic completion outside every curated journey', () => {
     // regression: statechart-compiled-guide-handoff
     const input = fixture();
     const alpha = input.bundle.charts[1]!.machine;

@@ -11,12 +11,12 @@
   },
   "scripts": {
     "benchmark": "bun --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/register tests/benchmark.ts",
-    "check:synthetic-population-foundation": "bun run scripts/check-synthetic-population-foundation.ts",
     "deploy": "bun run ../../libs/infra-server/scripts/publish-population.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "start": "bun --conditions=browser --conditions=development src/main.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --max-concurrency=1 --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests"
+    "test": "bun test --max-concurrency=1 --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests",
+    "verify:synthetic-population-foundation": "bun run scripts/verify-synthetic-population-foundation.ts"
   },
   "dependencies": {
     "@libs/app-root-client": "workspace:*",

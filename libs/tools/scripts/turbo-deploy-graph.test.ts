@@ -9,7 +9,7 @@ import {
   specPackages,
   specPartProblems,
 } from './spec-packages';
-import { flattenCheckAggregators } from './turbo-ci-run';
+import { flattenVerifyAggregators } from './turbo-ci-run';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -36,7 +36,7 @@ function loadRootScripts(): Readonly<Record<string, string>> {
   return pkg.scripts;
 }
 
-test('spec ownership caches the exact commit range it checks', () => {
+test('spec ownership caches the exact commit range it verifies', () => {
   // regression: spec-rulebook-commit-subject
   expect(loadTasks()['@libs/tools#ci:spec-ownership']?.env).toContain(
     SECRETS_RANGE_ENV
@@ -59,14 +59,14 @@ const SPEC_PART_TASKS = Array.from(
   (_, index) => `test:spec:${String(index)}`
 );
 
-/** A split models check's parts (`check-models.ts --part k/n`). */
+/** A split models verification's parts (`verify-models.ts --part k/n`). */
 const MODEL_PART_TASKS = Array.from(
   { length: MAX_MODEL_PARTS },
-  (_, index) => `check:models:${String(index)}`
+  (_, index) => `verify:models:${String(index)}`
 );
 
 // regression: friends-spec-task-budget — part 7 took 627s against its 600s cap.
-test('slow spec suites split into independently cached parts that all gate Check', () => {
+test('slow spec suites split into independently cached parts that all gate Verification', () => {
   // regression: spec-task-batches-over-budget — friends 1,075s; sync 635s.
   expectSpecParts('libs/friends-harness', 64, ['friends', 'spaces']);
   expectSpecParts('pkgs/sync-engine-harness', 4, ['sync-engine']);
@@ -112,7 +112,7 @@ function expectSpecParts(
   const covered = new Set<string>();
   for (let part = 0; part < count; part++) {
     const task = `test:spec:${String(part)}`;
-    expect(CHECK_LEAVES).toContain(task);
+    expect(VERIFY_LEAVES).toContain(task);
     expect(tasks[task]?.outputs).toEqual([
       `.cache/harness-report/part-${String(part)}/**`,
     ]);
@@ -134,11 +134,11 @@ function expectSpecParts(
 }
 
 /**
- * The command's Turbo task list covers package checks and explicitly scoped
- * repository checks; there are no root check tasks.
+ * The command's Turbo task list covers package verifications and explicitly scoped
+ * repository verifications; there are no root verification tasks.
  */
-const CHECK_LEAVES = [
-  '@libs/tools#check:root-lint',
+const VERIFY_LEAVES = [
+  '@libs/tools#verify:root-lint',
   '@libs/tools#ci:syncpack',
   '@libs/tools#ci:audit',
   '@libs/tools#ci:i18n',
@@ -156,23 +156,23 @@ const CHECK_LEAVES = [
   'test:contract:render',
   ...Array.from({ length: 11 }, (_, index) => `test:contract:${String(index)}`),
   ...SPEC_PART_TASKS,
-  'check:models',
+  'verify:models',
   ...MODEL_PART_TASKS,
-  '@apps/product#check:offline-shell',
+  '@apps/product#verify:offline-shell',
   '@apps/product#test:release-journeys',
-  '@apps/auth-relay#check:worker-bundle',
-  '@apps/product#check:worker-bundle',
-  '@apps/product#check:rendered-worker',
-  '@libs/runtime-server#check:schema-evolution',
-  '@libs/tools#check:actionlint',
-  '@libs/tools#check:secrets',
-  'check:board-contract',
-  '@apps/synthetic-population-worker#check:synthetic-population-foundation',
+  '@apps/auth-relay#verify:worker-bundle',
+  '@apps/product#verify:worker-bundle',
+  '@apps/product#verify:rendered-worker',
+  '@libs/runtime-server#verify:schema-evolution',
+  '@libs/tools#verify:actionlint',
+  '@libs/tools#verify:secrets',
+  'verify:board-contract',
+  '@apps/synthetic-population-worker#verify:synthetic-population-foundation',
 ];
 
-/** Deploy runs the whole check surface, then the leaves that need a live env. */
+/** Deploy runs the whole verification surface, then the leaves that need a live env. */
 const DEPLOY_ONLY = [
-  '@apps/server#check:api',
+  '@apps/server#verify:api',
   'health',
   '@libs/infra-shared#retire:workers',
 ] as const;
@@ -185,10 +185,10 @@ function configFor(tasks: Tasks, task: string): TaskConfig | undefined {
   return hash > 0 ? tasks[bare.slice(hash + 1)] : undefined;
 }
 
-/** Every task `sharded Check task list` can schedule, through `dependsOn` and `^deps`. */
-function reachableFromCheck(tasks: Tasks): ReadonlySet<string> {
+/** Every task `sharded Verify task list` can schedule, through `dependsOn` and `^deps`. */
+function reachableFromVerify(tasks: Tasks): ReadonlySet<string> {
   const seen = new Set<string>();
-  const queue = [...CHECK_LEAVES];
+  const queue = [...VERIFY_LEAVES];
   while (queue.length > 0) {
     const task = queue.pop() ?? '';
     const bare = task.startsWith('^') ? task.slice(1) : task;
@@ -231,7 +231,7 @@ function rootTaskCycles(tasks: Tasks): string[][] {
   return cycles;
 }
 
-describe('turbo check/deploy graph invariants', () => {
+describe('turbo verify/deploy graph invariants', () => {
   test('root-task cycle detection catches a self-dependent aggregator', () => {
     expect(rootTaskCycles({ '//#health': { dependsOn: ['health'] } })).toEqual([
       ['//#health', '//#health'],
@@ -244,16 +244,16 @@ describe('turbo check/deploy graph invariants', () => {
     ).toEqual([['//#a', '//#b', '//#a']]);
   });
 
-  test('sharded Check task list is exactly the check surface', () => {
+  test('sharded Verify task list is exactly the verification surface', () => {
     // regression: chessboard-consumer-gate-graph
-    // regression: check-spec-part-order
-    expect(flattenCheckAggregators(['check'], loadTasks())).toEqual(
-      CHECK_LEAVES
+    // regression: verify-spec-part-order
+    expect(flattenVerifyAggregators(['verify'], loadTasks())).toEqual(
+      VERIFY_LEAVES
     );
     expect(
       Object.keys(loadTasks()).some(
         (task) =>
-          task.startsWith('//#check') ||
+          task.startsWith('//#verify') ||
           task.startsWith('//#ci:') ||
           task.startsWith('//#lint:root')
       )
@@ -271,21 +271,21 @@ describe('turbo check/deploy graph invariants', () => {
     }
   });
 
-  test('all Check tasks cache against current inputs, including fresh advisory evidence', () => {
+  test('all Verify tasks cache against current inputs, including fresh advisory evidence', () => {
     const tasks = loadTasks();
-    const uncached = [...reachableFromCheck(tasks)].filter(
+    const uncached = [...reachableFromVerify(tasks)].filter(
       (task) => configFor(tasks, task)?.cache === false
     );
     expect(uncached).toEqual([]);
     expect(tasks['@libs/tools#ci:audit']?.inputs).toContain(
-      '$TURBO_ROOT$/.cache/check-ci/audit.json'
+      '$TURBO_ROOT$/.cache/verify-ci/audit.json'
     );
     expect(
-      readFileSync(join(REPO_ROOT, 'libs/tools/scripts/check-plan.ts'), 'utf8')
+      readFileSync(join(REPO_ROOT, 'libs/tools/scripts/verify-plan.ts'), 'utf8')
     ).toContain('captureAudit(ROOT)');
   });
 
-  // regression: check-tools-external-cache-inputs
+  // regression: verify-tools-external-cache-inputs
   test('configuration readers invalidate on their literal external inputs', () => {
     const tools = JSON.parse(
       readFileSync(join(REPO_ROOT, 'libs/tools/turbo.json'), 'utf8')
@@ -297,26 +297,26 @@ describe('turbo check/deploy graph invariants', () => {
       '$TURBO_ROOT$/libs/*/turbo.json',
     ])
       expect(tools.tasks.test.inputs).toContain(input);
-    expect(loadTasks()['@libs/tools#check:actionlint']?.inputs).toContain(
+    expect(loadTasks()['@libs/tools#verify:actionlint']?.inputs).toContain(
       '$TURBO_ROOT$/.github/actionlint.yaml'
     );
   });
 
-  // regression: check-duration-metadata-cache-input
-  test('changing check-task-costs.json belongs to planning and JSON lint, not code verdicts', () => {
+  // regression: verify-duration-metadata-cache-input
+  test('changing verify-task-costs.json belongs to planning and JSON lint, not code verdicts', () => {
     const tools = JSON.parse(
       readFileSync(join(REPO_ROOT, 'libs/tools/turbo.json'), 'utf8')
     ) as { tasks: Record<string, { inputs: string[] }> };
     for (const task of ['src', 'tc', 'test'])
       expect(tools.tasks[task]!.inputs).toContain(
-        '!scripts/check-task-costs.json'
+        '!scripts/verify-task-costs.json'
       );
     expect(tools.tasks['lint']!.inputs).not.toContain(
-      '!scripts/check-task-costs.json'
+      '!scripts/verify-task-costs.json'
     );
   });
 
-  test('package check tasks hash every file in the package', () => {
+  test('package verify tasks hash every file in the package', () => {
     // An enumerated input list is how a fixture or a tests/ tsconfig include
     // silently falls out of the hash and a stale pass gets served.
     const tasks = loadTasks();
@@ -331,7 +331,7 @@ describe('turbo check/deploy graph invariants', () => {
         (_, index) => `test:contract:${String(index)}`
       ),
       ...SPEC_PART_TASKS,
-      'check:worker-bundle',
+      'verify:worker-bundle',
     ]) {
       expect(tasks[task]?.inputs?.[0], task).toBe('$TURBO_DEFAULT$');
     }
@@ -358,10 +358,10 @@ describe('turbo check/deploy graph invariants', () => {
     }
   });
 
-  test('check:models hashes only the models and their checker', () => {
+  test('verify:models hashes only the models and their checker', () => {
     // Hash the verifier and evidence implementations, never product runtime
     // or unrelated tooling tasks such as @libs/tools#tc.
-    const task = loadTasks()['check:models'];
+    const task = loadTasks()['verify:models'];
     expect(task?.dependsOn).toEqual([
       '@pkgs/quint-server#src',
       '@pkgs/quint-shared#src',
@@ -369,7 +369,7 @@ describe('turbo check/deploy graph invariants', () => {
       '@pkgs/conformance-shared#src',
     ]);
     expect(task?.inputs).not.toContain('$TURBO_DEFAULT$');
-    // A part is the same check over a share of the models.
+    // A part is the same verification over a share of the models.
     for (const part of MODEL_PART_TASKS)
       expect(loadTasks()[part], part).toEqual(task);
     const contract = loadTasks()['test:contract'];
@@ -379,11 +379,11 @@ describe('turbo check/deploy graph invariants', () => {
     }
   });
 
-  // every check that gates a release also gates a PR merge.
-  test('deploy depends only on live-environment tasks after the Check workflow', () => {
+  // every verification that gates a release also gates a PR merge.
+  test('deploy depends only on live-environment tasks after the Verify workflow', () => {
     const tasks = loadTasks();
     expect(tasks['//#deploy']?.dependsOn).toEqual([...DEPLOY_ONLY]);
-    expect(flattenCheckAggregators(['deploy'], tasks)).toEqual([
+    expect(flattenVerifyAggregators(['deploy'], tasks)).toEqual([
       ...DEPLOY_ONLY,
     ]);
   });
@@ -392,8 +392,8 @@ describe('turbo check/deploy graph invariants', () => {
     const scripts = loadRootScripts();
     // One entry program; the profile is the only thing that differs.
     for (const profile of ['pr', 'nightly'])
-      expect(scripts[`check-${profile}`]).toBe(
-        `CHECK_PROFILE=${profile} bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-local.ts`
+      expect(scripts[profile === 'pr' ? 'verify' : 'verify-nightly']).toBe(
+        `VERIFY_PROFILE=${profile} bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/verify-local.ts`
       );
     expect(turboCiRunTaskArgs(scripts['deploy:local'] ?? '')).toEqual([
       '//#deploy',
@@ -406,10 +406,10 @@ describe('turbo check/deploy graph invariants', () => {
     expect(scripts['health:prd']).toContain('health:local');
   });
 
-  test('checks run locally while health and deploy dispatch their workflows', () => {
+  test('verifications run locally while health and deploy dispatch their workflows', () => {
     const scripts = loadRootScripts();
     const dispatch = 'libs/tools/scripts/workflow-remote.ts';
-    for (const retired of ['check', 'verify', 'check:local'])
+    for (const retired of ['check', 'check-pr', 'check-nightly', 'check:local'])
       expect(scripts[retired]).toBeUndefined();
     for (const workflow of ['health', 'deploy']) {
       // The command is a Turborepo run of the one task that dispatches.
@@ -419,17 +419,17 @@ describe('turbo check/deploy graph invariants', () => {
       );
       expect(loadTasks()[`//#task:${workflow}`]?.dependsOn).toBeUndefined();
     }
-    expect(scripts).not.toHaveProperty('check:remote');
+    expect(scripts).not.toHaveProperty('verify:remote');
   });
 
-  test('check flattens to its leaves', () => {
-    expect(flattenCheckAggregators(['check'], loadTasks())).toEqual(
-      CHECK_LEAVES
+  test('verification flattens to its leaves', () => {
+    expect(flattenVerifyAggregators(['verify'], loadTasks())).toEqual(
+      VERIFY_LEAVES
     );
   });
 
   test('bun health runs only the per-package health task', () => {
-    expect(flattenCheckAggregators(['health'], loadTasks())).toEqual([
+    expect(flattenVerifyAggregators(['health'], loadTasks())).toEqual([
       'health',
     ]);
   });
@@ -453,11 +453,11 @@ describe('turbo check/deploy graph invariants', () => {
     expect(deps).toContain('@libs/tools#install:cli');
   });
 
-  // regression: consolidated-deploy-check-aggregator — package tasks must not
-  // depend on a root check task outside the Turbo task list.
+  // regression: consolidated-deploy-verify-aggregator — package tasks must not
+  // depend on a root verification task outside the Turbo task list.
   // regression: worker-retirement-health-dependency — bare health resolved
   // to a nonexistent infra health task and allowed retirement before health.
-  // regression: tooling-check-subprocess-timeouts
+  // regression: tooling-verify-subprocess-timeouts
   test('the retirement dependency chain is a runnable Turbo graph', () => {
     const result = spawnSync(
       join(REPO_ROOT, 'node_modules/.bin/turbo'),
@@ -508,18 +508,18 @@ describe('turbo check/deploy graph invariants', () => {
     }
   });
 
-  test('one application deployment follows migration and its checks', () => {
+  test('one application deployment follows migration and its verifications', () => {
     const tasks = loadTasks();
     // regression: product-deploy-dist-race — while Wrangler uploaded
-    // apps/product/dist/assets/src-C2k0tIiA.js, a parallel Check build emptied
+    // apps/product/dist/assets/src-C2k0tIiA.js, a parallel Verify build emptied
     // dist and replaced the content-hashed asset before an upload stream read it.
     expect(tasks['@apps/product#deploy']?.dependsOn).toEqual([
       '@libs/runtime-server#migrate',
       '@libs/chess-puzzle-server#initialize:catalog',
-      '@apps/server#check:api',
-      '@apps/product#check:offline-shell',
-      '@apps/product#check:worker-bundle',
-      '@apps/product#check:rendered-worker',
+      '@apps/server#verify:api',
+      '@apps/product#verify:offline-shell',
+      '@apps/product#verify:worker-bundle',
+      '@apps/product#verify:rendered-worker',
     ]);
     expect(tasks).not.toHaveProperty('@apps/server#deploy');
     expect(tasks).not.toHaveProperty('@apps/room-server#deploy');
@@ -529,7 +529,7 @@ describe('turbo check/deploy graph invariants', () => {
     expect(tasks['@libs/infra-shared#retire:workers']?.dependsOn).toEqual([
       '@apps/product#health',
     ]);
-    expect(tasks['@apps/product#check:worker-bundle']?.dependsOn).toEqual([
+    expect(tasks['@apps/product#verify:worker-bundle']?.dependsOn).toEqual([
       '^src',
       'build',
     ]);

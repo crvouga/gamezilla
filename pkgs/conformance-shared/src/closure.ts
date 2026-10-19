@@ -173,7 +173,7 @@ export function specKindProblems(
   for (const spec of world.specs) {
     if (!spec.bound) {
       out.push(
-        `${spec.path}: not bound exactly once (bun run spec:check says why) — nothing checks it, so it cannot count`
+        `${spec.path}: not bound exactly once (bun run spec:verify says why) — nothing checks it, so it cannot count`
       );
     }
   }

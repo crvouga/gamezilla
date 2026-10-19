@@ -1,4 +1,0 @@
-{
-  "summary": "Completed local Check snapshots retained dependency copies and gigabytes of uncompressed trace reports until the disk filled and Check crashed. Archive inputs, reports and logs after each run, exclude disposable Git/dependency/cache files, and release only that run's private directory.",
-  "regressionTest": "libs/tools/scripts/check-snapshot.test.ts"
-}

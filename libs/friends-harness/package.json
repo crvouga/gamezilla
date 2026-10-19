@@ -10,7 +10,6 @@
     ]
   },
   "scripts": {
-    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client/register ../../libs/harness/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
@@ -79,7 +78,8 @@
     "test:spec:63": "bun run ../../libs/harness/scripts/test-spec.ts --part 63/64",
     "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/64",
     "test:spec:8": "bun run ../../libs/harness/scripts/test-spec.ts --part 8/64",
-    "test:spec:9": "bun run ../../libs/harness/scripts/test-spec.ts --part 9/64"
+    "test:spec:9": "bun run ../../libs/harness/scripts/test-spec.ts --part 9/64",
+    "verify:models": "bun run ../../libs/tools/scripts/verify-models.ts"
   },
   "dependencies": {
     "@libs/auth-shared": "workspace:*",

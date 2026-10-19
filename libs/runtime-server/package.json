@@ -10,14 +10,14 @@
     ]
   },
   "scripts": {
-    "check:schema-evolution": "bun run scripts/check-schema-evolution.ts",
     "db:wipe:dev": "bun run scripts/wipe-dev-db.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "migrate": "bun run scripts/migrate-cli.ts --wait",
     "schema:snapshot": "bun run scripts/schema-snapshot.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='**/*.contract.test.ts' tests",
-    "test:contract": "bun test --timeout 30000 tests/mockingbird-reconcile.contract.test.ts"
+    "test:contract": "bun test --timeout 30000 tests/mockingbird-reconcile.contract.test.ts",
+    "verify:schema-evolution": "bun run scripts/verify-schema-evolution.ts"
   },
   "dependencies": {
     "@libs/account-privacy-server": "workspace:*",

@@ -6,17 +6,17 @@ process needs a protocol endpoint. Do not patch installed dependencies or add
 consumer-side simulations of missing vendor behavior. Report gaps using the
 [Mockingbird issue guide](https://github.com/crvouga/mockingbird/blob/main/docs/REPORTING_ISSUES.md).
 
-This migration is **not ready for release**. Some checks below remain red on the
-published package versions; a green `bun check-pr` remains the release decision.
+This migration is **not ready for release**. Some verifications below remain red on the
+published package versions; a green `bun verify` remains the release decision.
 
 | Integration | Current migration state | Evidence or blocker |
 | --- | --- | --- |
-| Postgres | Native package, bootstrap/recovery code and install hooks removed; local/contract callers now use `@pkgs/postgres-mockingbird-server` and Mockingbird 2.3.0 | Startup, port isolation and orderly restart checks pass; full wire contracts fail on the gaps below |
+| Postgres | Native package, bootstrap/recovery code and install hooks removed; local/contract callers now use `@pkgs/postgres-mockingbird-server` and Mockingbird 2.3.0 | Startup, port isolation and orderly restart verifications pass; full wire contracts fail on the gaps below |
 | SQLite | Existing Mockingbird client engine retained | `@pkgs/sql-client-sqlite-root-shared` |
 | Server KV | Harness now uses the production Postgres-backed adapter over its Mockingbird database | All five KV port contract tests pass; no separate Redis service is needed |
 | OAuth / Stripe | Local Google and Stripe journeys pass against Mockingbird; Apple handoff remains blocked | [Apple form-post redirect #348](https://github.com/crvouga/mockingbird/issues/348): automatic callback consumes the response but the browser remains on the handoff page; restricted CSP is the suspected cause |
 | Paddle | Catalog uses `@crvouga/mockingbird-service-paddle` 2.1.0 for portal sessions and notification settings | [Portal sessions #327](https://github.com/crvouga/mockingbird/issues/327) and [notification settings #328](https://github.com/crvouga/mockingbird/issues/328) are served. The production client assertions stay in `pkgs/billing-paddle-harness/tests/mockingbird-gaps.test.ts` |
-| OpenAI | Harness now uses the production OpenAI adapter against Mockingbird 0.1.0; local stack starts a mock server and overrides its key/base URL | Scripted structured-response integration check passes. Configure synthetic models/scripts rather than expecting semantic inference |
+| OpenAI | Harness now uses the production OpenAI adapter against Mockingbird 0.1.0; local stack starts a mock server and overrides its key/base URL | Scripted structured-response integration verification passes. Configure synthetic models/scripts rather than expecting semantic inference |
 | S3 | Existing local Mockingbird service retained; harness routes the real S3 adapter to an isolated in-process Mockingbird runtime | Binary round-trip and isolation regression now passes under Bun browser conditions. Install generates the adapter's browser bundle; Bun selects it through conditional package exports. The production Worker and ordinary Node/Bun imports retain the source adapter |
 | MQTT / EMQX | Aedes/local EMQX and the harness bus still require replacement | No published Mockingbird MQTT package; [#316](https://github.com/crvouga/mockingbird/issues/316) specifies MQTT 5, TCP/WS, JWT ACLs and session buffering |
 | AWS IoT | Production publisher still needs a vendor-compatible mock | [#323](https://github.com/crvouga/mockingbird/issues/323) specifies SigV4 HTTP Publish and MQTT behavior |
@@ -51,7 +51,7 @@ namespace casts, statistics catalogs, and the parser consuming `SET` before
 builds retain invalid catalog entries; wire transaction errors still abort
 transactions, and snapshots preserve validity and index metadata.
 
-The upstream Postgres package's `bun run check:full` passed: format, lint,
+The upstream Postgres package's `bun run verify:full` passed: format, lint,
 typecheck, 3,563 compatibility tests, build, package validation and portability.
 Its separate wire suite passed 27 tests. The product's full reconciliation
 contract and eight pinned DDL/catalog inputs passed against the built package
@@ -72,7 +72,7 @@ This source fix has limited parity: table statistics use exact live row counts,
 index usage counts the mock's actual unique lookups, constraint-backed catalog
 indexes and complete index deparsing need more work, and late concurrent build
 interruptions are not simulated. Those gaps remain upstream work, not claims of
-full PostgreSQL fidelity or a green workspace `bun check-pr`.
+full PostgreSQL fidelity or a green workspace `bun verify`.
 
 The local adapter stores an atomic `database.pgmm` snapshot through an object
 store when stopped normally. An abrupt process exit can lose writes after the
@@ -82,8 +82,8 @@ not automatically imported; the first Mockingbird database starts fresh.
 ## Automated validation
 
 - `bun run --filter @apps/product test`: 184 passed, zero failed.
-- New Postgres listener/restart checks: two passed. The eight SQL catalog/DDL
-  regression checks remain red on Mockingbird 2.3.0.
+- New Postgres listener/restart verifies: two passed. The eight SQL catalog/DDL
+  regression verifications remain red on Mockingbird 2.3.0.
 - Postgres client tests: ten passed; typecheck and lint passed. Its wire
   contracts: eight passed, one failed on Bun startup `search_path` handling.
   `createPgPool` now installs its documented awaited `onConnect` schema pin;
@@ -92,24 +92,24 @@ not automatically imported; the first Mockingbird database starts fresh.
   Matchmaking's tests pass the schema pin and now expose `i.indisvalid` instead
   (22 passed, four failed).
 - Server KV contracts: five passed against in-process Mockingbird Postgres.
-- OpenAI and S3 adapter checks: both passed under the harness's browser conditions.
-- S3 adapter typecheck and lint passed; its six unit/property checks and ten
+- OpenAI and S3 adapter verifies: both passed under the harness's browser conditions.
+- S3 adapter typecheck and lint passed; its six unit/property verifications and ten
   wire contracts passed. The Postgres schema package's import-order lint
   failure is corrected and its lint passes.
 - Full application reconciliation and Postgres schema/index/concurrency contracts
   remain red on the documented gaps. The Paddle portal and notification-setting
-  checks pass on `@crvouga/mockingbird-service-paddle` 2.1.0.
-- Type checks passed for the new Postgres packages and the affected product,
+  verifications pass on `@crvouga/mockingbird-service-paddle` 2.1.0.
+- Type verifications passed for the new Postgres packages and the affected product,
   server, runtime, harness, SQL client, schema, index, sync harness and Paddle
-  harness packages. Package lint, naming and whitespace checks passed.
+  harness packages. Package lint, naming and whitespace verifications passed.
 
-No green full `bun check-pr` verdict is claimed. The migration cannot complete
+No green full `bun verify` verdict is claimed. The migration cannot complete
 until the missing services and wire behavior are available.
 
-## Recheck after upstream releases
+## Reverify after upstream releases
 
-Update the catalog versions and run the service's checks plus the affected
+Update the catalog versions and run the service's verifications plus the affected
 wire contracts. Keep the literal regression assertions; never skip them or
-pretend the missing SQL succeeded. Check the full application reconciliation,
+pretend the missing SQL succeeded. Verify the full application reconciliation,
 index and concurrency paths before claiming the dev/test migration is complete.
 The recorded commands and results cover automated tests only.

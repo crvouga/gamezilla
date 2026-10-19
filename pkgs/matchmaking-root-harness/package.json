@@ -10,8 +10,6 @@
     ]
   },
   "scripts": {
-    "check:models:0": "bun run ../../libs/tools/scripts/check-models.ts --phase 4/12",
-    "check:models:1": "bun run ../../libs/tools/scripts/check-models.ts --phase 0-3,5-11/12",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client/register ../../libs/harness/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
@@ -24,7 +22,9 @@
     "test:spec:4": "bun run ../../libs/harness/scripts/test-spec.ts --part 4/8",
     "test:spec:5": "bun run ../../libs/harness/scripts/test-spec.ts --part 5/8",
     "test:spec:6": "bun run ../../libs/harness/scripts/test-spec.ts --part 6/8",
-    "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/8"
+    "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/8",
+    "verify:models:0": "bun run ../../libs/tools/scripts/verify-models.ts --phase 4/12",
+    "verify:models:1": "bun run ../../libs/tools/scripts/verify-models.ts --phase 0-3,5-11/12"
   },
   "dependencies": {
     "@pkgs/assert-root-shared": "workspace:*",

@@ -18,7 +18,7 @@
  */
 import { existsSync } from 'node:fs';
 
-import { isSpecFile } from './check-spec-ownership';
+import { isSpecFile } from './verify-spec-ownership';
 
 /** Conventional Commit header: `<type>(<scope>): <summary>`, same as a PR title. */
 const TITLE_PATTERN =
@@ -176,7 +176,7 @@ export function parseGitSyncArgs(argv: readonly string[]): GitSyncOptions {
   return { message, trunkOnly, leaveConflicts };
 }
 
-/** The checked-out branch (a feature branch or `main`), after every refuse-to-run check. */
+/** The checked-out branch (a feature branch or `main`), after every refuse-to-run verify. */
 function preflight(): string {
   const branch = git(['symbolic-ref', '--short', '-q', 'HEAD']);
   if (branch.code !== 0 || branch.out.length === 0) {

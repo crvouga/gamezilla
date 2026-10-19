@@ -1,0 +1,4 @@
+{
+  "summary": "A concurrent commit changed HEAD after the local Verify snapshot had copied Git objects, leaving its spec-ownership range pointing to a missing commit. Pin HEAD, refs and index before copying the object database.",
+  "regressionTest": "libs/tools/scripts/verify-snapshot.test.ts"
+}

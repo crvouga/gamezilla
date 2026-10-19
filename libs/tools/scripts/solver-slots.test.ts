@@ -20,7 +20,7 @@ function slotsEnv(slots: number): {
   };
 }
 
-// regression: local-check-starved-by-solver-reserve
+// regression: local-verify-starved-by-solver-reserve
 test('proofs beyond the machine-wide slots wait instead of running', async () => {
   const { dir, env } = slotsEnv(2);
   let running = 0;

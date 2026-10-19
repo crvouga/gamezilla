@@ -4,7 +4,7 @@
  * the failed tests' trace queries) to `GITHUB_STEP_SUMMARY`.
  *
  * Expects:
- * - `WORKFLOW_JOB` — job label, e.g. `check` / `deploy:dev`
+ * - `WORKFLOW_JOB` — job label, e.g. `verify` / `deploy:dev`
  * - `WORKFLOW_OUTCOME` — `success` | `failure` | `cancelled` | `skipped`
  */
 // @io-wall-ok — CI entry; reads trace artifacts + writes GITHUB_STEP_SUMMARY

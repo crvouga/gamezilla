@@ -4,7 +4,7 @@
  *
  * Every deploy from PR #19 to #26 failed `@libs/db#migrate` on this: the dev
  * database's chess columns were `int4`, and reconcile treated that as drift.
- * A fresh database always passed, which is why nothing in `bun check-pr` saw it.
+ * A fresh database always passed, which is why nothing in `bun verify` saw it.
  */
 import { describe, expect, test } from 'bun:test';
 import { appPostgresDbScope } from '@libs/db-shared/scope';

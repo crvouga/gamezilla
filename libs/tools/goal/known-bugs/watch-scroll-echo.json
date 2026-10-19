@@ -1,4 +1,4 @@
 {
-  "summary": "Scrolling while bun check-pr, bun health, or bun deploy watched a GitHub run printed a stream of ^[[B. A scroll wheel sends down-arrow keys, and the watcher left the terminal echoing input, so those keys landed in the transcript. Fixed by turning echo off for the watch and discarding the keys, then restoring the terminal.",
+  "summary": "Scrolling while bun verify, bun health, or bun deploy watched a GitHub run printed a stream of ^[[B. A scroll wheel sends down-arrow keys, and the watcher left the terminal echoing input, so those keys landed in the transcript. Fixed by turning echo off for the watch and discarding the keys, then restoring the terminal.",
   "regressionTest": "libs/tools/scripts/workflow-remote.test.ts"
 }

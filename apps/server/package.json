@@ -14,7 +14,6 @@
   },
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
-    "check:api": "bun run scripts/check-api.ts",
     "contract:write": "bun run scripts/contract-manifest.ts",
     "kill": "bun run scripts/kill-dev.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -23,7 +22,8 @@
     "setup": "bun run scripts/setup-dev-vars.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='**/*.integration.test.ts'",
-    "test:integration": "bun test integration.test"
+    "test:integration": "bun test integration.test",
+    "verify:api": "bun run scripts/verify-api.ts"
   },
   "dependencies": {
     "@libs/app-root-server": "workspace:*",

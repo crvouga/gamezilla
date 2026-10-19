@@ -398,13 +398,13 @@ The appropriate verification layer must fail.
 # Phase 13 --- Final verification
 
 Run all applicable checks, including at minimum: -
-`bun run spec:check --strict-duplicates`; - Matchmaking domain specs; -
+`bun run spec:verify --strict-duplicates`; - Matchmaking domain specs; -
 affected consuming-game specs; - Quint trace/model conformance; -
 Apalache/model checking with sufficient depth; - DMN
 completeness/consistency/enforcement; - Alloy checks/snapshot
 conformance; - Gherkin acceptance; - relevant journeys; -
 accessibility; - conformance manifest; - `bun run spec:ownership`; -
-`bun run spec:catalog`; - full `bun check-pr`; - every affected
+`bun run spec:catalog`; - full `bun verify`; - every affected
 release/conformance gate.
 
 No skipped, unknown, stale, unbound, unsupported, or manually verified

@@ -411,14 +411,14 @@ search specs for unbound obligations until stable.
 
 # Phase 9 --- Final Verification
 
-Run all applicable checks: - `bun run spec:check --strict-duplicates`; -
+Run all applicable checks: - `bun run spec:verify --strict-duplicates`; -
 Chess/Puzzle domain specs; - Quint trace conformance; - Apalache/model
 checking with sufficient depth; - DMN
 completeness/consistency/enforcement; - Alloy checks/snapshot
 conformance; - property-based chess/assistant analyzers; - Gherkin
 acceptance; - accessibility conformance; - relevant journeys; -
 conformance manifest; - `bun run spec:ownership`; -
-`bun run spec:catalog`; - full `bun check-pr`; - every affected
+`bun run spec:catalog`; - full `bun verify`; - every affected
 release/conformance gate.
 
 No skipped, unknown, stale, unbound, unsupported, or manually verified

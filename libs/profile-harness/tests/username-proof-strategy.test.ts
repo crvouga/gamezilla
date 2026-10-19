@@ -53,12 +53,12 @@ test('every username invariant has one independently gated bounded proof', () =>
   ) as { tasks: Record<string, { dependsOn?: string[] }> };
   expect(pkg.modelParts).toBe(3);
   expect(pkg.phaseParts).toEqual({ '2': 11 });
-  expect(pkg.scripts['check:models']).toBeUndefined();
-  expect(pkg.scripts['check:models:2']).toBeUndefined();
-  const names = phases.map((_, index) => `check:models:2:${index}`);
-  expect(turbo.tasks['check:models:2']?.dependsOn).toEqual(names);
+  expect(pkg.scripts['verify:models']).toBeUndefined();
+  expect(pkg.scripts['verify:models:2']).toBeUndefined();
+  const names = phases.map((_, index) => `verify:models:2:${index}`);
+  expect(turbo.tasks['verify:models:2']?.dependsOn).toEqual(names);
   for (const [index, name] of names.entries())
     expect(pkg.scripts[name]).toBe(
-      `bun run ../../libs/tools/scripts/check-models.ts --part 2/3 --phase ${index}/11`
+      `bun run ../../libs/tools/scripts/verify-models.ts --part 2/3 --phase ${index}/11`
     );
 });

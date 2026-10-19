@@ -139,7 +139,7 @@ jobs:
           environment: ${{ matrix.env }}
 
       - name: health:${{ matrix.env }}
-        # Above `CI_RUN_DEADLINE_SECONDS` (libs/tools/scripts/check-budget.ts)
+        # Above `CI_RUN_DEADLINE_SECONDS` (libs/tools/scripts/verify-budget.ts)
         # on purpose: turbo-ci-run hits its own deadline first and names the
         # probe that hung, instead of GitHub cancelling the job silently.
         timeout-minutes: 25

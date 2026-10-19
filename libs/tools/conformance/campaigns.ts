@@ -9,7 +9,7 @@ import {
 } from '../scripts/spec-campaigns';
 import { REPO_ROOT } from '../scripts/spec-packages';
 
-/** Campaign modules are checked together, without claiming product conformance. */
+/** Campaign modules are verified together, without claiming product conformance. */
 export function campaignBindings(gatingTasks: ReadonlySet<string>): {
   readonly domains: ReadonlySet<string>;
   readonly specs: readonly SpecFile[];

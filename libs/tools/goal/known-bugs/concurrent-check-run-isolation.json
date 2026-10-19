@@ -1,4 +1,0 @@
-{
-  "summary": "Concurrent Check invocations shared generated files, Turbo logs, restored outputs and evidence in one checkout, while remote Check cancelled prior branch runs. Each local invocation now owns a private filesystem snapshot and Git metadata; remote runs do not cancel one another.",
-  "regressionTest": "libs/tools/scripts/check-snapshot.test.ts"
-}

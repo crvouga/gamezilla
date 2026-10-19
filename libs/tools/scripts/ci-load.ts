@@ -1,14 +1,14 @@
 // @io-wall-ok — reads the workspace graph and the measured task-cost file.
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { estimateTask } from './check-task-estimates';
+import { estimateTask } from './verify-task-estimates';
 
 /** Push to a posted verdict, including a full cold corpus. */
-export const PR_CHECK_SECONDS = 300;
+export const PR_VERIFY_SECONDS = 300;
 /** Every graph leaf, including the slowest one. */
-export const LEAF_CHECK_SECONDS = 180;
+export const LEAF_VERIFY_SECONDS = 180;
 /** Nine out of ten leaves. */
-export const NARROW_CHECK_SECONDS = 90;
+export const NARROW_VERIFY_SECONDS = 90;
 /** Fetch, plan, and cache lookup on a runner that already has the install. */
 export const WARM_START_SECONDS = 30;
 /** Post the verdict after the last task. */
@@ -42,15 +42,15 @@ const EXACT_TASKS = new Set([
   'test',
   'test:contract',
   'test:contract:render',
-  'check:models',
-  'check:worker-bundle',
-  'check:rendered-worker',
-  'check:offline-shell',
-  'check:schema-evolution',
-  'check:actionlint',
-  'check:secrets',
-  'check:board-contract',
-  'check:root-lint',
+  'verify:models',
+  'verify:worker-bundle',
+  'verify:rendered-worker',
+  'verify:offline-shell',
+  'verify:schema-evolution',
+  'verify:actionlint',
+  'verify:secrets',
+  'verify:board-contract',
+  'verify:root-lint',
   'ci:syncpack',
   'ci:audit',
   'ci:i18n',
@@ -126,12 +126,12 @@ export type LoadReport = {
   readonly fit: RunnerFit;
 };
 
-/** A package script that the Check gate schedules. */
+/** A package script that the Verify gate schedules. */
 export function isCheckTask(name: string): boolean {
   return (
     EXACT_TASKS.has(name) ||
     /^(test:spec|test:contract):\d+$/.test(name) ||
-    /^check:models:\d+(?::\d+)?$/.test(name)
+    /^verify:models:\d+(?::\d+)?$/.test(name)
   );
 }
 
@@ -184,11 +184,11 @@ function placeOnRunner(
     specSlots <= SPEC_WORKER_CAP &&
     cores <= RUNNER_VCPU &&
     memoryGib <= RUNNER_RAM_GIB &&
-    makespanSeconds + WARM_START_SECONDS + SLACK_SECONDS <= PR_CHECK_SECONDS &&
+    makespanSeconds + WARM_START_SECONDS + SLACK_SECONDS <= PR_VERIFY_SECONDS &&
     load.leafPoleMax + WARM_START_SECONDS + SLACK_SECONDS <=
-      LEAF_CHECK_SECONDS &&
+      LEAF_VERIFY_SECONDS &&
     load.leafPoleP90 + WARM_START_SECONDS + SLACK_SECONDS <=
-      NARROW_CHECK_SECONDS;
+      NARROW_VERIFY_SECONDS;
   return { specSlots, otherSlots, cores, memoryGib, makespanSeconds, fits };
 }
 
@@ -424,7 +424,7 @@ function intro(report: LoadReport): string {
   return [
     'Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds.',
     `${String(report.staleCostKeys)} cost keys name tasks outside the current graph and stay out of the cold total.`,
-    'The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `check:board-contract`, reserves 60 seconds until a cold Check is harvested.',
+    'The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `verify:board-contract`, reserves 60 seconds until a cold Verification is harvested.',
   ].join(' ');
 }
 
@@ -433,7 +433,7 @@ function summaryTable(report: LoadReport): string {
     '| | |',
     '| --- | --- |',
     row('Packages', String(report.packages)),
-    row('Check scripts', String(report.tasks)),
+    row('Verify scripts', String(report.tasks)),
     row('Measured scripts', String(report.measuredTasks)),
     row('Estimated scripts', String(report.estimatedTasks)),
     row('Stale cost keys', String(report.staleCostKeys)),
@@ -457,7 +457,7 @@ function familyTable(families: readonly FamilyLoad[]): string {
 
 function leafTable(report: LoadReport): string {
   return [
-    `${String(report.leaves.length)} leaves have check scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the ${String(WARM_START_SECONDS)} s warm start.`,
+    `${String(report.leaves.length)} leaves have verification scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the ${String(WARM_START_SECONDS)} s warm start.`,
     '',
     '| | |',
     '| --- | --- |',
@@ -537,7 +537,10 @@ export function replaceMeasuredLoad(doc: string, section: string): string {
 export function readLoadInput(root: string): LoadInput {
   const packages = TIERS.flatMap((tier) => readTier(join(root, tier)));
   const costs = JSON.parse(
-    readFileSync(join(root, 'libs/tools/scripts/check-task-costs.json'), 'utf8')
+    readFileSync(
+      join(root, 'libs/tools/scripts/verify-task-costs.json'),
+      'utf8'
+    )
   ) as Record<string, number>;
   return { packages, costs };
 }

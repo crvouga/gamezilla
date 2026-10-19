@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { runVerifyPhaseGroup } from '@pkgs/quint-server/verify-phase-pool';
 
-// regression: local-check-verifier-phase-concurrency
+// regression: local-verify-verifier-phase-concurrency
 test('one configured solver serializes all phases without dropping a proof', async () => {
   let active = 0;
   let peak = 0;

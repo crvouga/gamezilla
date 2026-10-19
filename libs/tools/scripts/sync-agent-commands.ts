@@ -213,12 +213,12 @@ function isSymlinkTo(linkPath: string, target: string): boolean {
   }
 }
 
-function syncSymlinks(check: boolean, drift: string[]): void {
+function syncSymlinks(verify: boolean, drift: string[]): void {
   for (const linkPath of SYMLINK_DIRS) {
     const target = symlinkTarget(linkPath);
     if (isSymlinkTo(linkPath, target)) continue;
     drift.push(`${linkPath} must be a symlink to ${target}`);
-    if (check) continue;
+    if (verify) continue;
     const abs = join(ROOT, linkPath);
     if (isSymlink(abs)) rmSync(abs);
     else if (existsSync(abs)) {
@@ -242,7 +242,7 @@ function isSymlink(abs: string): boolean {
 
 function syncStubs(
   files: GeneratedFile[],
-  check: boolean,
+  verify: boolean,
   drift: string[]
 ): void {
   for (const file of files) {
@@ -252,36 +252,36 @@ function syncStubs(
     drift.push(
       `${file.path} is ${current === undefined ? 'missing' : 'out of date'}`
     );
-    if (check) continue;
+    if (verify) continue;
     mkdirSync(dirname(abs), { recursive: true });
     writeFileSync(abs, file.content);
   }
   for (const stale of staleStubs(new Set(files.map((file) => file.path)))) {
     drift.push(`${stale} has no source in ${SOURCE_DIR}`);
-    if (!check) rmSync(join(ROOT, stale));
+    if (!verify) rmSync(join(ROOT, stale));
   }
 }
 
-export function syncAgentCommands(check: boolean): {
+export function syncAgentCommands(verify: boolean): {
   errors: string[];
   drift: string[];
 } {
   const errors: string[] = [];
   const drift: string[] = [];
   const commands = readCommands(errors);
-  syncSymlinks(check, drift);
-  syncStubs(renderStubs(commands), check, drift);
+  syncSymlinks(verify, drift);
+  syncStubs(renderStubs(commands), verify, drift);
   return { errors, drift };
 }
 
 if (import.meta.main) {
-  const check = process.argv.includes('--check');
-  const { errors, drift } = syncAgentCommands(check);
+  const verify = process.argv.includes('--check');
+  const { errors, drift } = syncAgentCommands(verify);
   const blocked = drift.some((line) => line.includes('is a real directory'));
-  if (errors.length > 0 || blocked || (check && drift.length > 0)) {
+  if (errors.length > 0 || blocked || (verify && drift.length > 0)) {
     console.error('agent-commands gate failed:');
     for (const line of [...errors, ...drift]) console.error(`  ${line}`);
-    if (check && !blocked) console.error(`  fix: ${SYNC_COMMAND}`);
+    if (verify && !blocked) console.error(`  fix: ${SYNC_COMMAND}`);
     process.exit(1);
   }
   for (const line of drift) console.log(`synced: ${line}`);

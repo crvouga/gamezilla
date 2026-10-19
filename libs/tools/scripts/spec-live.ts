@@ -1,7 +1,7 @@
 /**
  * `@synthetic` features and `# live` objectives run against a deployment,
  * from the package that has `liveDomains`, not on the harness — wherever
- * the file sits. See specs/README.md (live checks).
+ * the file sits. See specs/README.md (live verifications).
  */
 
 import { readdirSync, readFileSync } from 'node:fs';

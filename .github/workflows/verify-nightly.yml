@@ -1,0 +1,297 @@
+name: Verify Nightly
+
+# Run title, identical shape in every workflow (enforced by
+# libs/tools/scripts/workflow-run-names.test.ts):
+#   <Workflow> · <trigger>
+run-name: "Verify Nightly · ${{ github.event_name == 'schedule' && 'schedule' || inputs.group && inputs.group != 'all' && format('diagnostic {0}', inputs.group) || 'manual' }}"
+
+# Verify Nightly is the comprehensive run: everything the merge gate runs, at a
+# deeper budget, plus the suites too slow or too exploratory to block a merge.
+# It never gates a merge or a deploy, and no pull request waits for it.
+# `bun verify-nightly` runs the same profile on a laptop.
+#
+# One profile decides what differs from Verify PR — the tasks, their depth,
+# their budgets and whether reports are kept
+# (`libs/tools/scripts/verify-profile.ts`). No test exists only here: a suite
+# below is an existing task, and whatever it finds is pinned as a regression
+# in the suite that found it, which puts it in the merge gate.
+#
+#   verify-nightly:gate         the whole Verify PR gate through the same
+#                              sharded jobs, replaying every drawn trace of
+#                              every Quint model and five times the property
+#                              runs. Reports are published and kept.
+#   verify-nightly:random       property runs on fresh seeds, the determinism
+#                              fuzz and the scripted mutants.
+#   verify-nightly:browser      every spec suite in real browsers against a
+#                              booted localhost stack.
+#   verify-nightly:visual       UI quality of every recorded product state,
+#                              judged on the corpus the gate job produced.
+#   verify-nightly:coverage     coverage of the unit suites.
+#   verify-nightly:performance  hot-path benchmarks.
+#   verify-nightly:end          one verdict over every group. A red group never
+#                              stops another; any red group fails the run and
+#                              opens or updates the `verify-nightly` issue.
+#
+# It runs on the newest commit of `main` every night (a schedule always runs
+# the default branch) and by hand: "Run workflow", or
+# `gh workflow run verify-nightly.yml --ref <branch>` to rehearse a branch.
+#
+# Every group keeps its log, its seeds and its evidence as artifacts, on
+# failure too. Each runs with dev secrets only; nothing here reads a
+# production secret or deploys.
+
+permissions:
+  contents: read
+
+on:
+  schedule:
+    - cron: '23 8 * * *'
+  workflow_dispatch:
+    inputs:
+      group:
+        description: Diagnostic group, or all for comprehensive verification
+        type: choice
+        options: [all, gate, random, browser, visual, coverage, performance]
+        default: all
+
+env:
+  TURBO_UI: stream
+  VERIFY_PROFILE: nightly
+  SECRETS_ENV: dev
+  SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+
+# One nightly run per ref; a second waits rather than discarding a night.
+concurrency:
+  group: verify-nightly-${{ github.ref }}-${{ inputs.group || 'all' }}
+  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' && inputs.group != '' && inputs.group != 'all' }}
+
+jobs:
+  verify-nightly-gate:
+    name: verify-nightly:gate
+    if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'gate' || inputs.group == 'visual' }}
+    permissions:
+      contents: read
+      actions: write
+      id-token: write
+    uses: ./.github/workflows/verify-pr.yml
+    with:
+      profile: nightly
+
+  verify-nightly-random:
+    name: verify-nightly:random
+    if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'random' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      # The log holds every seed drawn and the replay command of a failure;
+      # `apps/product/.cache/randomized/` keeps the seeds as files.
+      - name: verify-nightly:random
+        timeout-minutes: 170
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts verify-nightly:random
+      - name: Retain seeds and the run summary
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: verify-nightly-random-${{ github.run_id }}
+          path: |
+            apps/product/.cache/randomized/
+            .turbo/runs/*.json
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 30
+
+  verify-nightly-browser:
+    name: verify-nightly:browser
+    if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'browser' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/visual-renderer
+        timeout-minutes: 2
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      - name: verify-nightly:browser
+        timeout-minutes: 320
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts verify-nightly:browser
+      # Step timelines, screenshots, recordings and traces of every scenario.
+      - name: Retain browser reports and traces
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: verify-nightly-browser-${{ github.run_id }}
+          path: |
+            .turbo/runs/*.json
+            apps/*/.cache/harness-report/
+            libs/*/.cache/harness-report/
+            pkgs/*/.cache/harness-report/
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 14
+
+  # Judges the snapshots the gate job's spec parts recorded, restored from
+  # the remote cache, so it waits for that job and runs whatever its result.
+  verify-nightly-visual:
+    name: verify-nightly:visual
+    needs: [verify-nightly-gate]
+    if: ${{ always() && !cancelled() && (github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/visual-renderer
+        timeout-minutes: 2
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      # The pinned model is larger than the remote cache's artifact limit.
+      - name: Prepare the visual model
+        timeout-minutes: 20
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts @apps/product#prepare:ui-quality-model
+      - name: verify-nightly:visual
+        timeout-minutes: 150
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts verify-nightly:visual
+      # Scores, failing screenshots and context clips.
+      - name: Retain the visual report
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: verify-nightly-visual-${{ github.run_id }}
+          path: |
+            .turbo/runs/*.json
+            apps/product/.cache/ui-quality/
+            apps/product/.cache/harness-report/ui-quality/
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 14
+
+  verify-nightly-coverage:
+    name: verify-nightly:coverage
+    if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'coverage' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      - name: verify-nightly:coverage
+        timeout-minutes: 110
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts verify-nightly:coverage
+      - name: Retain the coverage report
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: verify-nightly-coverage-${{ github.run_id }}
+          path: |
+            .cache/coverage/
+            .turbo/runs/*.json
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 30
+
+  verify-nightly-performance:
+    name: verify-nightly:performance
+    if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'performance' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      # The log is the result: each benchmark prints its own measurements,
+      # and nothing else in this step prints, so the log is kept as a file.
+      - name: verify-nightly:performance
+        timeout-minutes: 50
+        env:
+          TURBO_OUTPUT_LOGS: full
+        run: |
+          set -o pipefail
+          mkdir -p .cache/verify-nightly
+          bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts verify-nightly:performance 2>&1 | tee .cache/verify-nightly/performance.log
+      - name: Retain the benchmark results
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: verify-nightly-performance-${{ github.run_id }}
+          path: |
+            .cache/verify-nightly/performance.log
+            .turbo/runs/*.json
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 30
+
+  # The ending word. Every group ran to its own result; any group that did
+  # not succeed fails the night, and the failure is filed where people look.
+  verify-nightly-end:
+    name: ${{ inputs.group && inputs.group != 'all' && 'verify-nightly:diagnostic' || 'verify-nightly:end' }}
+    needs:
+      - verify-nightly-gate
+      - verify-nightly-random
+      - verify-nightly-browser
+      - verify-nightly-visual
+      - verify-nightly-coverage
+      - verify-nightly-performance
+    if: always() && !cancelled()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      NEEDS: ${{ toJSON(needs) }}
+      NIGHTLY_GROUP: ${{ github.event_name == 'schedule' && 'all' || inputs.group || 'all' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+        with:
+          tools: bun gh
+      - name: verify-nightly:end
+        run: bun run libs/tools/scripts/verify-nightly-verdict.ts

@@ -12,12 +12,12 @@ import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 const productRoot = join(fileURLToPath(import.meta.url), '..', '..');
 const fs = wallNodeFs();
 
-const USAGE = `usage: live-bundle-guard-cli.ts <check-env|check-dist>
+const USAGE = `usage: live-bundle-guard-cli.ts <verify-env|verify-dist>
 
-  check-env [--expected-origin=<url>]
+  verify-env [--expected-origin=<url>]
                      Assert VITE_API_URL is the deployed environment's API
                      origin (default: production).
-  check-dist [--expected-origin=<url>]
+  verify-dist [--expected-origin=<url>]
                      Assert apps/product/dist inlines that API origin
                      (default: production).
 `;
@@ -40,13 +40,13 @@ if (subcommand === undefined) {
 }
 
 switch (subcommand) {
-  case 'check-env': {
+  case 'verify-env': {
     const expected = expectedOrigin();
     assertLiveClientBuildEnv(process.env, expected);
     process.stdout.write(`[live-bundle-guard] VITE_API_URL=${expected}\n`);
     break;
   }
-  case 'check-dist':
+  case 'verify-dist':
     await new LiveBundleGuard(
       dirStore(join(productRoot, 'dist')),
       expectedOrigin()

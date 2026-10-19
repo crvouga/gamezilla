@@ -62,8 +62,8 @@ export function reachableTasks(
   return seen;
 }
 
-/** Every task the sharded Check schedules from its package-owned task list. */
-export function reachableCheckTasks(
+/** Every task the sharded Verification schedules from its package-owned task list. */
+export function reachableVerifyTasks(
   tasks: TurboTasks,
   scripts: PackageScripts,
   roots: readonly string[]

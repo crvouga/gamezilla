@@ -20,7 +20,7 @@ obligations below must be closed before that claim. No manual testing counts.
 | [index-interruption.qnt](../../../specs/db-indexes/index-interruption.qnt) | Interrupted builds and conditional recovery |
 
 Features and implementation replay run in `test:spec`; exhaustive bounded
-verification runs in `check:models`. The normal package `test` also requires
+verification runs in `verify:models`. The normal package `test` also requires
 dangerous-transition coverage from the same models. Features are discovered automatically; a
 model without an implementation binding fails inventory. Missing/ambiguous steps,
 missing pinned checker, violated invariant, unexercised action, and missing
@@ -85,7 +85,7 @@ known-bug entry under [the regression policy](./TESTING.md#adding-a-regression).
 
 This ledger is an implementation handoff, not a machine-enforced gate for S1–S10.
 A green core suite does not close these rows. The release verdict remains
-`bun check-pr`; neither this document nor a local package run claims that verdict.
+`bun verify`; neither this document nor a local package run claims that verdict.
 
 ## Audit and commit boundary
 
@@ -105,7 +105,7 @@ prior `65a065351` feature commit because its subject starts with `test:`.
 No local package run establishes the release verdict, and the unproven
 production obligations above remain open.
 
-The [ownership gate](../../../libs/tools/scripts/check-spec-ownership.ts) keeps
+The [ownership gate](../../../libs/tools/scripts/verify-spec-ownership.ts) keeps
 root specifications separate from implementation commits. Commit features,
 models, glossary and rulebook changes with a `spec(db-indexes):` subject;
 commit bindings, runners, harness code and package documentation separately.

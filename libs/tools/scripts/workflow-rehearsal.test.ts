@@ -20,14 +20,14 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
     >;
   };
   expect(workflow.on.workflow_dispatch.inputs.rehearsal.default).toBe(false);
-  // One Check serves both paths; only the release path is switched off.
-  expect(workflow.jobs['deploy-check']).toMatchObject({
-    uses: './.github/workflows/check-pr.yml',
+  // One Verification serves both paths; only the release path is switched off.
+  expect(workflow.jobs['deploy-verify']).toMatchObject({
+    uses: './.github/workflows/verify-pr.yml',
   });
-  expect(workflow.jobs['deploy-check']?.if).toBeUndefined();
+  expect(workflow.jobs['deploy-verify']?.if).toBeUndefined();
   expect(workflow.jobs['deploy-rehearsal']).toMatchObject({
     if: '${{ inputs.rehearsal }}',
-    needs: 'deploy-check',
+    needs: 'deploy-verify',
   });
   // regression: rehearsal-uses-main-only-aws-role
   expect(workflow.jobs['deploy-rehearsal']).toMatchObject({
@@ -44,14 +44,14 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
   expect(source).not.toContain('deploy-guard:');
   expect(source).not.toContain('/pulls');
   expect(source).not.toContain('pull-requests:');
-  expect(workflow.jobs['deploy-check']?.needs).toBeUndefined();
-  expect(workflow.jobs['deploy-check']).toHaveProperty(
+  expect(workflow.jobs['deploy-verify']?.needs).toBeUndefined();
+  expect(workflow.jobs['deploy-verify']).toHaveProperty(
     'with.require-main',
     '${{ !inputs.rehearsal }}'
   );
-  const check = Bun.YAML.parse(
+  const verify = Bun.YAML.parse(
     readFileSync(
-      join(import.meta.dirname, '../../../.github/workflows/check-pr.yml'),
+      join(import.meta.dirname, '../../../.github/workflows/verify-pr.yml'),
       'utf8'
     )
   ) as {
@@ -60,9 +60,11 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
       { steps: { name?: string; if?: string; run?: string }[] }
     >;
   };
-  expect(check.jobs['check-start']?.steps[0]).toMatchObject({
+  expect(verify.jobs['verify-start']?.steps[0]).toMatchObject({
     name: 'Validate release branch',
     if: '${{ inputs.require-main }}',
   });
-  expect(check.jobs['check-start']?.steps[0]?.run).toContain('refs/heads/main');
+  expect(verify.jobs['verify-start']?.steps[0]?.run).toContain(
+    'refs/heads/main'
+  );
 });

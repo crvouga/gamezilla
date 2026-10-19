@@ -1,0 +1,4 @@
+{
+  "summary": "Concurrent local Verifies each prepared private dependency snapshots and launched host-sized task pools, multiplying memory pressure across worktrees. Queue complete local runs before snapshot preparation using a host-wide OS lock, and default local tasks and model solvers to one without changing CI or verify coverage.",
+  "regressionTest": "libs/tools/scripts/local-verify-queue.test.ts"
+}

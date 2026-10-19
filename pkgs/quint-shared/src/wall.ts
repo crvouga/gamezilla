@@ -56,7 +56,7 @@ export function quintReplayBudget(): number {
 /**
  * A proof's wall-clock allowance on this machine. A deadline is declared for
  * a developer laptop; a runner slower by a known factor names that factor in
- * `QUINT_VERIFY_TIME_SCALE`, as the Check shards do for their 2-core runners.
+ * `QUINT_VERIFY_TIME_SCALE`, as the Verify shards do for their 2-core runners.
  * It bounds how long a proof may take, never what it proves: a proof that
  * ends inside the allowance is the same verdict on every machine.
  */

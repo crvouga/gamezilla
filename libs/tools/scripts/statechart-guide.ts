@@ -42,7 +42,7 @@ export function productGuide(
       contracts: catalog,
     };
   }
-  // Existing check titles are traceability labels, not screen assertions.
+  // Existing verification titles are traceability labels, not screen assertions.
   for (const { node } of walkStates(machine)) {
     if (node.meta) {
       delete node.meta.checks;
@@ -70,7 +70,7 @@ export function chartSources(machine: MachineConfig): Set<string> {
 
 function productEventKinds(bundle: SpecBundle): Record<string, string> {
   const kinds: Record<string, string> = {};
-  // The modules own their events; check disagreements before adding root-only events.
+  // The modules own their events; verification disagreements before adding root-only events.
   for (const chart of bundle.charts.filter(
     (chart) => chart.machine.id !== bundle.root
   )) {

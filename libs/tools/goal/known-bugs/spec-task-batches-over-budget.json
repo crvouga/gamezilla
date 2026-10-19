@@ -1,4 +1,4 @@
 {
-  "summary": "Check run 36974271617 exceeded the 600s task cap: friends part 8 took 1,075s for two eight-trace model slices, while sync-engine part 0 took 635s for its entire suite. Split the same 64 traces per model into two-trace files, distribute friends across 64 cached parts and sync across four, and retain every trace exactly once.",
+  "summary": "Verify run 36974271617 exceeded the 600s task cap: friends part 8 took 1,075s for two eight-trace model slices, while sync-engine part 0 took 635s for its entire suite. Split the same 64 traces per model into two-trace files, distribute friends across 64 cached parts and sync across four, and retain every trace exactly once.",
   "regressionTest": "libs/harness/scripts/spec-parts.test.ts"
 }

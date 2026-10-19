@@ -6,7 +6,7 @@ import { formatRunningTasks, parsePs, runningTasks } from './running-tasks';
 // task's own children (bun test workers) are not tasks.
 const PS = `
     1     0 10-02:00:00 /sbin/launchd
-   50     1    20:05 bun run libs/tools/scripts/turbo-ci-run.ts check
+   50     1    20:05 bun run libs/tools/scripts/turbo-ci-run.ts verify
   100    50    20:00 node /repo/node_modules/.bin/turbo run @libs/chess#test:spec @apps/client#build
   101   100    19:59 /repo/node_modules/turbo-linux-64/bin/turbo run @libs/chess#test:spec @apps/client#build
   200   101    18:40 bun run test:spec
@@ -16,7 +16,7 @@ const PS = `
 `;
 
 describe('running-tasks', () => {
-  // regression: check-deadline-kill-silent
+  // regression: verify-deadline-kill-silent
   test('names the children of the turbo binary, not their workers or strangers', () => {
     expect(runningTasks(parsePs(PS), 100)).toEqual([
       { pid: 200, elapsed: '18:40', command: 'bun run test:spec' },

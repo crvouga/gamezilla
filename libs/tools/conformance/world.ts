@@ -1,10 +1,10 @@
 // @io-wall-ok — reads specs/, the manifest, package manifests and turbo.json for the conformance gate and report.
 /**
- * The facts the closed-world check decides over, read from the repository:
+ * The facts the closed-world verification decides over, read from the repository:
  * the manifest, every spec file with where it runs and whether it is bound
  * (`spec-packages.ts`, the same discovery as `@libs/tools#ci:specs`), every decision
  * table's capability values (`@pkgs/dmn`), every objective's service
- * (`@pkgs/openslo`) and the package tasks in `MAIN_CHECK_TASKS`. What cannot be read
+ * (`@pkgs/openslo`) and the package tasks in `MAIN_VERIFY_TASKS`. What cannot be read
  * (a manifest, decision table or objective file that does not parse) is a
  * problem, never skipped.
  */
@@ -25,11 +25,11 @@ import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
 import { parseOpenSlo } from '@pkgs/openslo-shared/parse';
 import type { SpecPackage } from '../scripts/spec-packages';
 import { REPO_ROOT, SPECS_DIR, specPackages } from '../scripts/spec-packages';
-import { MAIN_CHECK_TASKS } from '../scripts/turbo-ci-run';
+import { MAIN_VERIFY_TASKS } from '../scripts/turbo-ci-run';
 import { campaignBindings } from './campaigns';
 import { EVIDENCE_MAP } from './evidence-map';
 import type { PackageScripts, TurboTasks } from './gating-tasks';
-import { reachableCheckTasks } from './gating-tasks';
+import { reachableVerifyTasks } from './gating-tasks';
 
 export const MANIFEST_PATH = `${SPECS_DIR}/conformance.yaml`;
 /** The task that runs a package's live domains against a deployment. */
@@ -112,7 +112,7 @@ function specFile(input: {
     synthetic || liveObjective
       ? []
       : input.packages.filter((pkg) => pkg.specDomains.includes(input.context));
-  // A live run checks features and objectives only (spec-packages.ts).
+  // A live run verifications features and objectives only (spec-packages.ts).
   const liveKinds: readonly SpecFileKind[] = ['behavior', 'objectives'];
   const live = liveKinds.includes(kindName)
     ? input.packages.filter((pkg) =>
@@ -147,7 +147,7 @@ export function specFiles(
 ): readonly SpecFile[] {
   const liveTask = Object.hasOwn(tasks, LIVE_TASK);
   const campaigns = campaignBindings(
-    reachableCheckTasks(tasks, packageScripts(), MAIN_CHECK_TASKS)
+    reachableVerifyTasks(tasks, packageScripts(), MAIN_VERIFY_TASKS)
   );
   return [
     ...campaigns.specs,
@@ -264,7 +264,7 @@ export type ConformanceWorld = {
   readonly problems: readonly string[];
 };
 
-/** Read everything the closed-world check needs. */
+/** Read everything the closed-world verification needs. */
 export function readConformanceWorld(): ConformanceWorld {
   const problems: string[] = [];
   const parsed = parseManifest(read(MANIFEST_PATH));
@@ -274,10 +274,10 @@ export function readConformanceWorld(): ConformanceWorld {
     );
   const packages = specPackages();
   const tasks = turboTasks();
-  const gatingTasks = reachableCheckTasks(
+  const gatingTasks = reachableVerifyTasks(
     tasks,
     packageScripts(),
-    MAIN_CHECK_TASKS
+    MAIN_VERIFY_TASKS
   );
   const campaigns = campaignBindings(gatingTasks);
   problems.push(...campaigns.problems);

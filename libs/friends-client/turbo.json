@@ -30,7 +30,7 @@
         "$TURBO_ROOT$/specs/spaces/**"
       ]
     },
-    "check:models": {
+    "verify:models": {
       "inputs": [
         "$TURBO_EXTENDS$",
         "$TURBO_ROOT$/specs/friends/*.qnt",

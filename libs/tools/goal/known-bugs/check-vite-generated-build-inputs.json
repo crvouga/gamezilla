@@ -1,4 +1,0 @@
-{
-  "summary": "Broad build input globs included node_modules/.vite/deps/_metadata.json and package.json, hashing generated optimizer metadata with timestamps and absolute paths. Exclude dependency install trees while retaining lockfile, source, environment and dependency hashes.",
-  "regressionTest": "libs/tools/scripts/check-cache-keys.test.ts"
-}

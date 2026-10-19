@@ -18,7 +18,7 @@ const modelOutputs = (
   JSON.parse(
     readFileSync(join(import.meta.dirname, '../../../turbo.json'), 'utf8')
   ) as { tasks: Record<string, { outputs: string[] }> }
-).tasks['check:models']!.outputs;
+).tasks['verify:models']!.outputs;
 
 function fixture(root: string): void {
   writeFileSync(
@@ -117,8 +117,8 @@ async function hashes(
 }
 
 // regression: nested-turbo-cache-isolation
-// regression: check-cache-write-only-override
-// regression: check-model-cache-runtime-artifacts
+// regression: verify-cache-write-only-override
+// regression: verify-model-cache-runtime-artifacts
 test('real Turbo restores remote outputs and invalidates only changed inputs and dependents', async () => {
   const root = mkdtempSync(join(tmpdir(), 'turbo-cache-'));
   const artifacts = new Map<string, Uint8Array>();

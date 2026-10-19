@@ -1,4 +1,4 @@
-// @io-wall-ok — pure gate over current registry evidence injected by Check/Deploy.
+// @io-wall-ok — pure gate over current registry evidence injected by Verify/Deploy.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { AuditSnapshot } from './audit-snapshot';

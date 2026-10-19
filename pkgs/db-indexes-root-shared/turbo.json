@@ -8,7 +8,7 @@
     "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/db-indexes/**"]
     },
-    "check:models": {
+    "verify:models": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/db-indexes/*.qnt"]
     }
   }

@@ -544,7 +544,7 @@ beforeAll(() => {
     readonly diagnostics: readonly Diagnostic[];
   };
   diagnostics = report.diagnostics.filter((d) => d.category === 'plugin');
-  // One Biome run over the probes; a loaded check run can take seconds.
+  // One Biome run over the probes; a loaded verification run can take seconds.
 }, 60_000);
 
 afterAll(() => {

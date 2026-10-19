@@ -174,7 +174,7 @@ async function runSelectedPhases(input: {
     const failure = await runVerifyPhaseGroup(
       input.phases.filter((phase) => phase.name === name),
       runPhase,
-      process.env['MODEL_CHECK_CONCURRENCY']
+      process.env['MODEL_VERIFY_CONCURRENCY']
     );
     if (failure !== undefined) return failure;
   }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // @io-wall-ok — check CLI entry root (scripts/**).
 /**
- * `check:patterns`: the independent pass over one package's own files.
+ * `verify:patterns`: the independent pass over one package's own files.
  *
  * Run from a package directory. It parses that package and nothing else, so
  * the task runner caches it per package. `--json` prints the findings for
