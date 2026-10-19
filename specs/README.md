@@ -1052,7 +1052,7 @@ the authority; a composition may not silently become another product definition.
 Its `@spec-meta` modules supply finite bounds or diagnostic checks.
 
 A package registers these composed models through `quintCampaignDomains`.
-Its `test` and `test:contract` Check leaves run the campaign and hash both
+Its `test` and `test:contract` Verify leaves run the campaign and hash both
 the campaign directory and every declared source domain. Campaigns check all
 modules through their import roots, exercise safety and temporal obligations,
 and test fault sensitivity; they do not require aggregate replay bindings or
@@ -1260,7 +1260,7 @@ How a model runs in the package's `test:spec`:
 
 1. The model's shape is checked (`@pkgs/quint/shape`): the rules above, before
    any trace is drawn. A failure names the line. The same check runs in
-   `bun run spec:check` and before Apalache, which is not started on a model
+   `bun run spec:verify` and before Apalache, which is not started on a model
    that fails it.
 2. Quint draws traces (`quint run --mbt`, bundled, no network) from the
    property seed `FC_SEED` (default `424242`), so the verdict is a function of
@@ -1275,7 +1275,7 @@ How a model runs in the package's `test:spec`:
 4. One more test fails when no trace takes some bound action.
 5. On the first slice only, Quint type checks the model.
 
-Separately, each package's models check (`check:models`) has Apalache
+Separately, each package's models check (`verify:models`) has Apalache
 (pinned in `mise.toml`, never downloaded) model-check every invariant over
 every interleaving up to the binding's `verifySteps` steps (default 4). The
 verdict depends on the model's text alone, so it runs apart from the suite and
@@ -1609,7 +1609,7 @@ or seed values. A number is fine when the rule turns on it (100% accuracy,
 Before writing a new step, search the context's features and the step
 catalogs ([index](../docs/STEPS_CATALOG.md)). If a phrasing already means it, use it
 verbatim. A new phrasing with the meaning of an existing one — including
-every near-duplicate `spec:check --strict-duplicates` reports — is an error.
+every near-duplicate `spec:verify --strict-duplicates` reports — is an error.
 Two definitions with the same body have one meaning. "X" and "X within N
 seconds" are different claims (at once vs eventually) and may both exist. A
 near-duplicate with a truly different meaning is reworded until the gate
@@ -1807,7 +1807,7 @@ the `spec:` commit that removes it.
 
 ### The gate
 
-`bun run spec:check` automates a subset of these rules, some with looser
+`bun run spec:verify` automates a subset of these rules, some with looser
 thresholds (it allows up to three `When`s; B5 allows one); `spec-audit`
 checks the rest. It fails on:
 
@@ -1863,7 +1863,7 @@ or used in another sense, is the auditor's to catch (A1, A3).
 1. **Discover** (`spec-upsert`): rules, one concrete example per rule, open
    questions answered by a person, not guessed.
 2. **Formulate**: read the catalogs and the glossary, write scenarios or a
-   model, run `bun run spec:check` (undefined steps and unbound models are the
+   model, run `bun run spec:verify` (undefined steps and unbound models are the
    handoff; nothing else may fail) and `spec-audit` until it passes. A new
    domain needs a package to claim it in `specDomains`. Commit with a `spec:`
    subject (P1).
@@ -1884,7 +1884,7 @@ bun run spec specs/friends/friend-block.feature
 bun run spec specs/spaces/space-hosting.qnt
 bun run spec --package @libs/friends -t 'ends the friendship'
 bun run spec:catalog
-bun run spec:check [--strict-duplicates]
+bun run spec:verify [--strict-duplicates]
 bun run spec:ownership
 ```
 
