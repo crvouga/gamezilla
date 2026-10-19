@@ -27,7 +27,7 @@ export function reportBuckets(repoRoot: string): readonly string[] {
   return [
     ...['apps', 'libs', 'pkgs'].flatMap((tier) =>
       subdirs(join(repoRoot, tier)).flatMap((pkg) => [
-        // Only the gate's buckets (`test:spec:<k>`, `check:models`); an
+        // Only the gate's buckets (`test:spec:<k>`, `verify:models`); an
         // ad-hoc `bun run spec` writes `all/`, from whatever implementation
         // was on disk then.
         ...subdirs(join(pkg, '.cache/harness-report')).filter((bucket) =>

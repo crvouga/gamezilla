@@ -2,10 +2,10 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "check:models:0": {
+    "verify:models:0": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/matchmaking/*.qnt"]
     },
-    "check:models:1": {
+    "verify:models:1": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/matchmaking/*.qnt"]
     },
     "test:spec:0": {

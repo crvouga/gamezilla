@@ -23,7 +23,7 @@ describe('WORKFLOW_DISPATCH', () => {
   });
 
   // regression: watch-scroll-echo
-  // regression: check-tty-exit-before-output
+  // regression: verify-tty-exit-before-output
   test('scroll keys are not echoed while the watch holds the tty', async () => {
     const chunks: Uint8Array[] = [];
     let signalReady!: () => void;
@@ -75,7 +75,7 @@ describe('WORKFLOW_DISPATCH', () => {
     expect(deploy).toContain('require-main: ${{ !inputs.rehearsal }}');
   });
 
-  test('Deploy runs on every merge to main and ships only what the full Check verified', () => {
+  test('Deploy runs on every merge to main and ships only what the full Verify verified', () => {
     const deploy = Bun.YAML.parse(
       readFileSync(join(WORKFLOWS, 'deploy.yml'), 'utf8')
     ) as {
@@ -87,15 +87,15 @@ describe('WORKFLOW_DISPATCH', () => {
     };
     expect(Object.keys(deploy.on)).toEqual(['push', 'workflow_dispatch']);
     expect(deploy.on['push']).toEqual({ branches: ['main'] });
-    expect(deploy.jobs['deploy-check']).toMatchObject({
-      uses: './.github/workflows/check-pr.yml',
+    expect(deploy.jobs['deploy-verify']).toMatchObject({
+      uses: './.github/workflows/verify-pr.yml',
     });
-    expect(deploy.jobs['deploy-check']).toHaveProperty(
+    expect(deploy.jobs['deploy-verify']).toHaveProperty(
       'with.require-main',
       '${{ !inputs.rehearsal }}'
     );
-    // Check, then the fleet, then dev, then production, then the release.
-    expect(deploy.jobs['deploy-fleet']!.needs).toBe('deploy-check');
+    // Verification, then the fleet, then dev, then production, then the release.
+    expect(deploy.jobs['deploy-fleet']!.needs).toBe('deploy-verify');
     expect(deploy.jobs['deploy-dev']!.needs).toBe('deploy-fleet');
     expect(deploy.jobs['deploy-prd']!.needs).toBe('deploy-dev');
     expect(deploy.jobs['deploy-release']!.needs).toBe('deploy-prd');

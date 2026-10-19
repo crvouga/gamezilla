@@ -1,9 +1,9 @@
-export interface CheckHealStep {
+export interface VerifyHealStep {
   readonly stepId: string;
   readonly bunScript: string;
 }
 
-/** The check surface is exactly `bun check-pr` — one step, run here so its output can be captured. */
-export const CHECK_HEAL_STEPS: ReadonlyArray<CheckHealStep> = [
-  { stepId: 'check', bunScript: 'check-pr' },
+/** The verification surface is exactly `bun verify` — one step, run here so its output can be captured. */
+export const VERIFY_HEAL_STEPS: ReadonlyArray<VerifyHealStep> = [
+  { stepId: 'verify', bunScript: 'verify' },
 ];

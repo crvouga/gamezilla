@@ -1,0 +1,4 @@
+{
+  "summary": "Verify run 38239315522 warned that shard estimates ran from 9s to 354s, that the heaviest shard was far above the average, and that unknown-duration tasks sat on the packed shards. Those short shards were dedicated proof runners, one model each, so a timeout cannot drop the work queued behind a proof. The pack beside them was already even. Balance warnings now compare that pack only.",
+  "regressionTest": "libs/tools/scripts/verify-shards.test.ts"
+}

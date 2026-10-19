@@ -36,7 +36,7 @@ test('api GET /health returns ok when preview is already running', async () => {
         `Probe failed: ${healthUrl}`,
         `Last error: ${lastErr}`,
         '',
-        'Start the stack first:\n  bun preview\n\nOr use the orchestrator:\n  bun run --filter @apps/server check:api',
+        'Start the stack first:\n  bun preview\n\nOr use the orchestrator:\n  bun run --filter @apps/server verify:api',
         '',
       ].join('\n')
     );

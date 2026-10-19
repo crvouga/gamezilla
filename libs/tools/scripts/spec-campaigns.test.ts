@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { TASK_BUDGET_SECONDS } from './check-budget';
 import {
   campaignOwnershipProblems,
   campaignProblems,
@@ -9,7 +8,8 @@ import {
   specCampaigns,
 } from './spec-campaigns';
 import { REPO_ROOT } from './spec-packages';
-import { MAIN_CHECK_TASKS } from './turbo-ci-run';
+import { MAIN_VERIFY_TASKS } from './turbo-ci-run';
+import { TASK_BUDGET_SECONDS } from './verify-budget';
 
 describe('Quint spec campaigns', () => {
   const campaign = { dir: 'apps/product', domain: 'system' };
@@ -23,7 +23,7 @@ describe('Quint spec campaigns', () => {
   ];
   const tasks = { test: { inputs }, 'test:contract': { inputs } };
 
-  test('both Check leaves hash the composed models and their authority', () => {
+  test('both Verify leaves hash the composed models and their authority', () => {
     expect(
       campaignTaskProblems({
         ...campaign,
@@ -105,7 +105,7 @@ describe('Quint spec campaigns', () => {
         `CONTRACT_PART=${String(index)}/${String(models.length)}`
       );
       expect(script).toContain('tests/quint/model-checks.test.ts');
-      expect(MAIN_CHECK_TASKS).toContain(name);
+      expect(MAIN_VERIFY_TASKS).toContain(name);
       expect(TASK_BUDGET_SECONDS[`@apps/product#${name}`]).toBe(420);
     }
     expect(manifest.scripts['test:contract']).toBeUndefined();

@@ -4,10 +4,10 @@ import { join } from 'node:path';
 
 const root = join(import.meta.dirname, '../../..');
 
-// regression: check-cache-write-only-override
-test('Check enforces read/write after secrets injection', () => {
+// regression: verify-cache-write-only-override
+test('Verification enforces read/write after secrets injection', () => {
   const workflow = readFileSync(
-    join(root, '.github/workflows/check-pr.yml'),
+    join(root, '.github/workflows/verify-pr.yml'),
     'utf8'
   );
   expect(workflow).toContain(
@@ -61,7 +61,7 @@ test('setup installs frozen dependencies whether or not the dependency cache ans
     "hashFiles('bun.lock', 'mise.toml', '.github/actions/setup/action.yml')"
   );
   expect(save.with!['path']).toBe(restore.with!['path']!);
-  // Restored before the install checks the trees, saved after it built them.
+  // Restored before the install verifies the trees, saved after it built them.
   expect(steps.indexOf(restore)).toBeLessThan(install);
   expect(steps.indexOf(save)).toBeGreaterThan(install);
   expect(save.if).toBe("steps.dependencies.outputs.cache-hit != 'true'");
@@ -111,7 +111,7 @@ test('build hashes its toolchain, shared compiler configs and output-affecting e
     globalDependencies: string[];
     tasks: {
       build: { env: string[]; inputs: string[] };
-      '@apps/product#check:offline-shell': {
+      '@apps/product#verify:offline-shell': {
         inputs: string[];
         dependsOn: string[];
       };
@@ -132,10 +132,10 @@ test('build hashes its toolchain, shared compiler configs and output-affecting e
   for (const input of ['**/*.po', '**/*.mts', '.env.local']) {
     expect(turbo.tasks.build.inputs).toContain(input);
   }
-  expect(turbo.tasks['@apps/product#check:offline-shell'].dependsOn).toContain(
+  expect(turbo.tasks['@apps/product#verify:offline-shell'].dependsOn).toContain(
     '@apps/product#build'
   );
-  expect(turbo.tasks['@apps/product#check:offline-shell'].inputs).not.toContain(
-    'dist/**'
-  );
+  expect(
+    turbo.tasks['@apps/product#verify:offline-shell'].inputs
+  ).not.toContain('dist/**');
 });

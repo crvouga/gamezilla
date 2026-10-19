@@ -4,7 +4,7 @@ description: mise-pinned tools (Bun, Node, CLIs), cached dependency trees and fr
 
 inputs:
   tools:
-    description: Pinned mise tools to install; empty installs the full check toolchain
+    description: Pinned mise tools to install; empty installs the full verify toolchain
     required: false
     default: ''
 
@@ -15,7 +15,7 @@ runs:
     # backend CLI, EMQX — at the version pinned in the repo's mise.toml, the
     # same file a laptop runs `mise install` against. Installs are cached on
     # a key over mise.toml; the action puts the tools on PATH for later steps.
-    # Later steps (check:actionlint, check:secrets) `mise exec` against the
+    # Later steps (verify:actionlint, verify:secrets) `mise exec` against the
     # same file, so trust the checkout for the whole job.
     - name: Trust mise.toml
       shell: bash
@@ -26,15 +26,15 @@ runs:
       with:
         version: 2026.9.13
         # jdx/mise-action defaults to `bun opentofu` when this is blank. The
-        # full Check jobs need every tool pinned in mise.toml, including the
-        # lazy tools used by model and security checks. Callers that need a
+        # full Verify jobs need every tool pinned in mise.toml, including the
+        # lazy tools used by model and security verifications. Callers that need a
         # smaller toolchain pass an explicit list (for example `bun gh`).
         install_args: ${{ inputs.tools || '--include-lazy' }}
 
     # The installed trees, shared by every job of every workflow. One extract
-    # of them leaves the frozen install below a no-op check: 291 MB restored
-    # in 9 s (Check run 36783674561) against a 15-20 s install from the
-    # registry (Check run 38198242466). The key is content alone — the
+    # of them leaves the frozen install below a no-op verification: 291 MB restored
+    # in 9 s (Verify run 36783674561) against a 15-20 s install from the
+    # registry (Verify run 38198242466). The key is content alone — the
     # lockfile, the pinned tools and this file — and exact, so a tree never
     # answers for another lockfile. The frozen install runs whether or not
     # the cache answers.
@@ -74,7 +74,7 @@ runs:
         path: .cache/setup-generation
         key: ${{ steps.generation.outputs.cache-primary-key }}
 
-    # Saved here, not when the job ends: `check:plan` misses first and every
+    # Saved here, not when the job ends: `verify:plan` misses first and every
     # shard behind it restores, whatever the rest of this job does.
     - name: Save installed dependencies
       if: steps.dependencies.outputs.cache-hit != 'true'

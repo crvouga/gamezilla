@@ -2,5 +2,5 @@ language js
 
 `<Text>$children</Text>` as $el where {
   not $el <: contains `label=$any`,
-  register_diagnostic(span=$el, message="Use the `label` prop on `<Text>` instead of children (renamed imports like `<T>` are not checked).", severity="error")
+  register_diagnostic(span=$el, message="Use the `label` prop on `<Text>` instead of children (renamed imports like `<T>` are not verified).", severity="error")
 }

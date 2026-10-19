@@ -66,7 +66,7 @@ function listingStore(keys: readonly string[], holdChildren = false) {
   return { store, peak: () => peak, requests: () => requests };
 }
 
-// regression: check-report-cleanup-serial-commit-listing
+// regression: verify-report-cleanup-serial-commit-listing
 // regression: s3-listing-concurrency-browser-signing
 test('lists a 56,999-object commit through its child directories concurrently', async () => {
   const sha = '075ee6c683761e1b2173d33aa0d0ccfebdb404ea';
@@ -80,7 +80,7 @@ test('lists a 56,999-object commit through its child directories concurrently', 
   expect(fixture.peak()).toBeLessThanOrEqual(16);
 });
 
-// regression: check-report-cleanup-serial-commit-listing
+// regression: verify-report-cleanup-serial-commit-listing
 test('reads a small snapshot subtree in one page regardless of its folder depth', async () => {
   const keys = Array.from(
     { length: 128 },

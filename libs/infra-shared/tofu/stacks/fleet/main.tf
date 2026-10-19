@@ -53,7 +53,7 @@ module "auth_relay_edge" {
   }
 }
 
-# The spec reports of every commit (`bun check-pr` publishes; layout in
+# The spec reports of every commit (`bun verify` publishes; layout in
 # `@crvouga/atlas/reports`): CI writes `spec-reports/commits/<sha>/…`, and every
 # Atlas host reads it with its configured credential (the foundation stack's
 # `report_access`). Private: no public
@@ -69,6 +69,6 @@ resource "cloudflare_r2_bucket_lifecycle" "reports" {
   bucket_name = cloudflare_r2_bucket.reports.name
 
   # Age-based expiry can delete a branch's current report. Cleanup is driven
-  # by GitHub branch state in Check, Deploy and scheduled Health instead.
+  # by GitHub branch state in Verify, Deploy and scheduled Health instead.
   rules = []
 }

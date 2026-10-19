@@ -1,7 +1,7 @@
 language js
 
-// A gate leaf must reach the same verdict on every machine: a green `bun check-pr`
-// has to mean a green Check workflow. Wired to `scripts/check-*.ts` (`biome.json`
+// A gate leaf must reach the same verdict on every machine: a green `bun verify`
+// has to mean a green Verify workflow. Wired to `scripts/verify-*.ts` (`biome.json`
 // plugin `includes`); a script that reads CI only to change how it reports is
 // exempted there by path, with the reason in a comment beside the read.
 // Perf: a whole-file substring test gates the tree walk. Every match must
@@ -23,6 +23,6 @@ file($body) where {
     `process.env.CI`,
     `process.env.GITHUB_ACTIONS`
   } as $read where {
-    register_diagnostic(span=$read, message="A check script may not branch on CI / GITHUB_ACTIONS — that is how a laptop reports green over a check CI fails. Adapt resources (concurrency, log order) in turbo-ci-run instead.", severity="error")
+    register_diagnostic(span=$read, message="A verification script may not branch on CI / GITHUB_ACTIONS — that is how a laptop reports green over a verification CI fails. Adapt resources (concurrency, log order) in turbo-ci-run instead.", severity="error")
   }
 }

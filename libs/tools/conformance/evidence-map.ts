@@ -1,15 +1,15 @@
 /**
  * What proves each entry of `specs/conformance.yaml` — binding-side
  * knowledge the manifest may not name (specs/README.md D1). The manifest says
- * *what* must be proven; this says *which* spec files, checks and report lines
- * prove it. `@libs/tools#ci:conformance` (`check-conformance.ts`) requires the two to
+ * *what* must be proven; this says *which* spec files, verifications and report lines
+ * prove it. `@libs/tools#ci:conformance` (`verify-conformance.ts`) requires the two to
  * name exactly the same ids and every proof here to be automated: a spec that
- * exists and is bound, a package task in the Check task list runs, a live spec `health` runs, a
+ * exists and is bound, a package task in the Verify task list runs, a live spec `health` runs, a
  * report line that is fed.
  *
- *   { spec }  a spec file a package runs against its harness in `bun check-pr`
+ *   { spec }  a spec file a package runs against its harness in `bun verify`
  *   { live }  a spec file `@apps/product`'s `health` runs against a deployment
- *   { task }  a package-scoped Turbo task in the Check task list
+ *   { task }  a package-scoped Turbo task in the Verify task list
  *   { kind }  every spec of a kind — at least one, each bound
  *   { line }  a line of `bun run conformance`'s pipeline (`lines.ts`)
  */
@@ -26,7 +26,7 @@ import { LINES } from './lines';
 const ENVIRONMENTS: ProofTable = {
   "a phone's web browser": [
     // The critical journeys in a real browser against the deployment, and
-    // every behavior spec against the assembled app in `bun check-pr`.
+    // every behavior spec against the assembled app in `bun verify`.
     { live: 'specs/journeys/critical-journeys.feature' },
     { spec: 'specs/journeys/critical-journeys.feature' },
     { kind: 'behavior' },
@@ -117,12 +117,12 @@ const PUBLIC_CONTRACTS: ProofTable = {
     { spec: 'specs/chess/puzzle-sound.qnt' },
     { task: '@pkgs/chess-board-root-client#test' },
     { task: '@pkgs/chess-board-root-harness#test:contract' },
-    { task: '@pkgs/chess-board-root-harness#check:models' },
+    { task: '@pkgs/chess-board-root-harness#verify:models' },
     { task: '@pkgs/chess-board-core-shared#test' },
-    { task: '@libs/chess-shared-client#check:board-contract' },
-    { task: '@libs/game-session-client#check:board-contract' },
-    { task: '@libs/game-matchmaking-client#check:board-contract' },
-    { task: '@libs/chess-puzzle-client#check:board-contract' },
+    { task: '@libs/chess-shared-client#verify:board-contract' },
+    { task: '@libs/game-session-client#verify:board-contract' },
+    { task: '@libs/game-matchmaking-client#verify:board-contract' },
+    { task: '@libs/chess-puzzle-client#verify:board-contract' },
   ],
   'account privacy': [
     { spec: 'specs/profile/account-deletion.feature' },
@@ -155,11 +155,11 @@ const PUBLIC_CONTRACTS: ProofTable = {
   ],
 };
 
-/** Evidence about how the product is built: each an existing, gating check. */
+/** Evidence about how the product is built: each an existing, gating verification. */
 const RELEASE_GATES: ProofTable = {
   'dependency vulnerabilities': [{ task: '@libs/tools#ci:audit' }],
   'dependency consistency': [{ task: '@libs/tools#ci:syncpack' }],
-  'leaked secrets': [{ task: '@libs/tools#check:secrets' }],
+  'leaked secrets': [{ task: '@libs/tools#verify:secrets' }],
   // The secrets registry agrees with what the infrastructure writes, and a
   // live environment has what it needs to use every outside service.
   'settings the app needs': [
@@ -167,18 +167,18 @@ const RELEASE_GATES: ProofTable = {
     { live: 'specs/runtime/connected-services.feature' },
   ],
   'release artifact limits': [
-    { task: '@apps/auth-relay#check:worker-bundle' },
-    { task: '@apps/product#check:worker-bundle' },
+    { task: '@apps/auth-relay#verify:worker-bundle' },
+    { task: '@apps/product#verify:worker-bundle' },
   ],
-  'offline start': [{ task: '@apps/product#check:offline-shell' }],
+  'offline start': [{ task: '@apps/product#verify:offline-shell' }],
   'database evolution': [
-    { task: '@libs/runtime-server#check:schema-evolution' },
+    { task: '@libs/runtime-server#verify:schema-evolution' },
   ],
   // `lint-tofu.ts`: tofu validate, tflint and the policy's conftest suite.
   'infrastructure policy': [{ task: '@libs/infra-shared#lint' }],
-  'workflow validity': [{ task: '@libs/tools#check:actionlint' }],
+  'workflow validity': [{ task: '@libs/tools#verify:actionlint' }],
   'type safety': [{ task: 'tc' }],
-  lint: [{ task: 'lint' }, { task: '@libs/tools#check:root-lint' }],
+  lint: [{ task: 'lint' }, { task: '@libs/tools#verify:root-lint' }],
 };
 
 const line = (id: keyof typeof LINES): Proof => ({ line: id });
@@ -188,8 +188,8 @@ const PRODUCTION_READINESS: ProofTable = {
   'specification validity': [
     line('manifest'),
     line('decision-analysis'),
-    line('model-checking'),
-    line('structure-checking'),
+    line('model-verifying'),
+    line('structure-verifying'),
     line('objective-validity'),
   ],
   'implementation conformance': [
@@ -210,7 +210,7 @@ const PRODUCTION_READINESS: ProofTable = {
     line('capabilities'),
     line('permission-coverage'),
     line('adapters'),
-    line('conformance-checks'),
+    line('conformance-verifications'),
   ],
 };
 
@@ -220,7 +220,7 @@ const ACCESSIBILITY: readonly string[] = [
   'specs/chess/puzzle-assistant-accessibility.feature',
 ];
 
-/** Every release gate's checks, as one list (what the release-gates line reads). */
+/** Every release gate's verifications, as one list (what the release-gates line reads). */
 export const RELEASE_GATE_TASKS: readonly string[] = [
   ...new Set(
     Object.values(RELEASE_GATES).flatMap((proofs) =>

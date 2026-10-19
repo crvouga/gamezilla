@@ -1,7 +1,7 @@
 /**
  * The environment file (`tofu/envs/<env>.tfvars.json`): the only place an
  * environment's identity lives. Both stacks read it as a `-var-file`; this
- * schema mirrors their `variables.tf` so `bun check-pr` can validate every env
+ * schema mirrors their `variables.tf` so `bun verify` can validate every env
  * file — and the invariants OpenTofu cannot express across files — without
  * credentials.
  */

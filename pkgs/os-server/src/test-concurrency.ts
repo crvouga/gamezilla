@@ -13,17 +13,17 @@ const WORKER_CAP = 16;
 export function testConcurrency(env: NodeJS.ProcessEnv, fallback = 20): number {
   if (!Number.isSafeInteger(fallback) || fallback < 1)
     throw new Error('Test concurrency ceiling must be a positive integer');
-  const value = env['CHECK_TEST_CONCURRENCY']?.trim();
+  const value = env['VERIFY_TEST_CONCURRENCY']?.trim();
   if (!value) return fallback;
   const count = Number(value);
   if (!Number.isSafeInteger(count) || count < 1)
-    throw new Error('CHECK_TEST_CONCURRENCY must be a positive integer');
+    throw new Error('VERIFY_TEST_CONCURRENCY must be a positive integer');
   return Math.min(fallback, count);
 }
 
 /**
  * How many spec workers this machine can hold. Each worker is one product
- * world. Two cores stay free for Quint and the OS. `CHECK_TEST_CONCURRENCY`
+ * world. Two cores stay free for Quint and the OS. `VERIFY_TEST_CONCURRENCY`
  * can only lower the result.
  */
 export function specWorkerCeiling(cpus: number, totalBytes: number): number {

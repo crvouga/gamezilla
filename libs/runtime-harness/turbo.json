@@ -2,7 +2,7 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "check:models": {
+    "verify:models": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/runtime/*.qnt"]
     },
     "test:spec:0": {

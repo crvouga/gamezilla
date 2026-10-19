@@ -88,7 +88,7 @@ function reportTestId(testId: string, callSite: TestCallSite | null): string {
 
 /**
  * Open a reported product harness. Every run writes its report into the
- * package's `.cache/harness-report`, UI frames included; `bun check-pr` publishes
+ * package's `.cache/harness-report`, UI frames included; `bun verify` publishes
  * every package's bucket for Atlas.
  */
 export async function openHarness(

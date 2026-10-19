@@ -1,10 +1,10 @@
 # Web build check outputs
-.check-dist-dev/
+.verify-dist-dev/
 public/sql-workers/**/*.js
 public/sql-workers/**/*.html
 
 test-results/
-.check-dist-prodcheck
+.verify-dist-prodcheck
 
 # @pkgs/sql-client build-web-workers outputs (extensionless classic worker + wasm)
 public/sql-workers/worker

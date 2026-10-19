@@ -3,7 +3,7 @@
  * (README.md, "One example app per
  * package"):
  *
- * - A test that acts as a person would and checks what they see is a
+ * - A test that acts as a person would and verifications what they see is a
  *   scenario or a Quint model in `specs/<domain>/`, bound through the
  *   package's harness. `tests/harness/` holds only the harness composition
  *   (`support/`), so a `*.test.ts(x)` there is a behavior test that escaped
@@ -18,7 +18,7 @@
  *   harness (`.explore(`, `randomActions(`) in a test is a behavior model
  *   that escaped the specs: it is a Quint model in `specs/<domain>/`,
  *   replayed through `tests/quint/` (`randomWalkViolations`, run by
- *   `check-specs.ts`).
+ *   `verify-specs.ts`).
  *
  * Pure over the package's tracked files (and, for random walks, their
  * text), so it runs inside the package's cached `lint` and the spec gate.

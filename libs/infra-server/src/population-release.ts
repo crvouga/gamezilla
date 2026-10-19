@@ -22,7 +22,7 @@ export const POPULATION_NODE_VERSION = '26.12.0';
  * The Dockerfile Railway builds from the uploaded source. Railway resolves
  * this service to its Dockerfile builder whatever the uploaded config file
  * says, and builds with one whenever the archive has one, so the archive
- * carries it. The image is built by Railway; Check builds none.
+ * carries it. The image is built by Railway; Verify builds none.
  */
 export function populationDockerfile(): string {
   return `${[

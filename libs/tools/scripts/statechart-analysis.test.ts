@@ -310,7 +310,7 @@ describe('statechart structural analysis', () => {
     );
   });
 
-  test('checks guest and deleted identities against paid access across parallel regions', () => {
+  test('verifications guest and deleted identities against paid access across parallel regions', () => {
     const bundle: SpecBundle = {
       directory: 'fixtures',
       root: 'parallel',

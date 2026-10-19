@@ -8,7 +8,7 @@
 | Model-based (index tuning) | `../db-indexes-harness/tests/index-tuning.property.test.ts` | `bun run test` |
 | Gherkin maintenance specifications | `specs/db-indexes/*.feature`, `../db-indexes-harness/tests/steps` | `bun run test:spec` |
 | Quint implementation replay | `specs/db-indexes/*.qnt`, `../db-indexes-harness/tests/quint` | `bun run test:spec` |
-| Bounded exhaustive model checks | `specs/db-indexes/*.qnt` | `bun run check:models` |
+| Bounded exhaustive model checks | `specs/db-indexes/*.qnt` | `bun run verify:models` |
 | Documentation syntax and bounded Quint reference validity, without adapter replay | `../db-indexes-harness/tests/quint/index-contracts.test.ts` | `bun test pkgs/db-indexes-root-harness/tests/quint/index-contracts.test.ts` |
 | Generators | `tests/generators` | imported by the property tests |
 | Mutants | `tests` | `bun run mutants` |

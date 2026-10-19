@@ -11,11 +11,11 @@
     ]
   },
   "scripts": {
-    "check:worker-bundle": "bun run ../../libs/tools/scripts/check-worker-bundle.ts",
     "deploy": "bun run scripts/deploy.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "test": "bun test",
+    "verify:worker-bundle": "bun run ../../libs/tools/scripts/verify-worker-bundle.ts"
   },
   "dependencies": {
     "@pkgs/auth-inhouse-server": "workspace:*",

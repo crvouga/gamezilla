@@ -63,7 +63,7 @@ rules as they are (see constraints below).
 1. **Never soft-deprecate.** Delete old APIs and update every call site in
    the same change.
 2. **Never fake the gates.** Don't satisfy the critical-path gate with
-   eager `import()` or disabled checks. If a gate looks wrong, stop and
+   eager `import()` or disabled verifications. If a gate looks wrong, stop and
    report it using the failure template.
 
 ## The load-bearing test
@@ -84,7 +84,7 @@ before touching it:
 
 **Whatever survives this test still has to respect
 `prefers-reduced-motion`.** Removing decorative motion doesn't remove the
-need to check that what's left honors the user's OS-level preference —
+need to verify that what's left honors the user's OS-level preference —
 verify it's actually wired up, don't assume it is.
 
 ## Design principles
@@ -110,7 +110,7 @@ verify it's actually wired up, don't assume it is.
 
 ## Cross-cutting risks beyond motion
 
-Check these separately — they won't show up as CSS/animation hits, and
+Verify these separately — they won't show up as CSS/animation hits, and
 several bite hardest exactly at the worst-case cell (low-end Android ×
 Capacitor):
 
@@ -216,7 +216,7 @@ End with:
 
 - What became instant / static / direct (1–3 bullets)
 - Packages touched
-- Checks run, and which matrix cell(s) — device tier × runtime — they
+- Verifications run, and which matrix cell(s) — device tier × runtime — they
   actually covered (real device/build vs. simulated)
 - Any remaining jank, memory, or re-render risk you didn't fix, tagged by
   which matrix cell(s) it affects, including anything flagged as

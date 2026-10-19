@@ -93,7 +93,7 @@ async function buildProductWeb(
 
   await runAsync(
     'bun',
-    ['run', 'check:live-env', '--', `--expected-origin=${apiUrl}`],
+    ['run', 'verify:live-env', '--', `--expected-origin=${apiUrl}`],
     {
       cwd: productDir,
       label: 'product-worker: live build env gate',
@@ -111,7 +111,7 @@ async function buildProductWeb(
 
   await runAsync(
     'bun',
-    ['run', 'check:live-dist', '--', `--expected-origin=${apiUrl}`],
+    ['run', 'verify:live-dist', '--', `--expected-origin=${apiUrl}`],
     {
       cwd: productDir,
       label: 'product-worker: live web dist API URL gate',

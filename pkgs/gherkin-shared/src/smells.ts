@@ -2,7 +2,7 @@
  * BDD smells: patterns that usually mean a scenario is a script, a bundle of
  * rules, or a test of internals rather than one example of one behavior.
  * Unlike the spec check these are judgment calls, so they are warnings; the
- * caller decides whether to fail on them (`spec:check --strict-smells`).
+ * caller decides whether to fail on them (`spec:verify --strict-smells`).
  */
 
 import type { SpecFeature, SpecScenario } from './parse';

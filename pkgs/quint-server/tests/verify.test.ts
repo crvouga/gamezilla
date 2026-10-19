@@ -11,7 +11,7 @@ const OUT = join(import.meta.dir, '../.cache/test-verify');
  * A check starts a JVM (Apalache): ~4 s idle on the door, far more under a
  * loaded gate. A limit near that would let machine load decide the verdict.
  */
-const CHECK_TIMEOUT_MS = 120_000;
+const VERIFY_TIMEOUT_MS = 120_000;
 
 describe('verify', () => {
   test.concurrent(
@@ -23,14 +23,14 @@ describe('verify', () => {
         invariants: ['invKnownState'],
         maxSteps: 4,
         outDir,
-        timeoutMs: CHECK_TIMEOUT_MS,
+        timeoutMs: VERIFY_TIMEOUT_MS,
       });
       expect(result).toMatchObject({ ok: true });
       // Apalache worked in the check's own directory, not the caller's.
       expect(existsSync(join(outDir, '_apalache-out'))).toBe(true);
       expect(existsSync(join(import.meta.dir, '../_apalache-out'))).toBe(false);
     },
-    CHECK_TIMEOUT_MS
+    VERIFY_TIMEOUT_MS
   );
 
   test.concurrent(
@@ -41,7 +41,7 @@ describe('verify', () => {
         invariants: ['invNeverOpen'],
         maxSteps: 4,
         outDir: join(OUT, 'broken'),
-        timeoutMs: CHECK_TIMEOUT_MS,
+        timeoutMs: VERIFY_TIMEOUT_MS,
       });
       expect(result.ok).toBe(false);
       if (result.ok) return;
@@ -49,7 +49,7 @@ describe('verify', () => {
       expect(result.output).toContain('found a counterexample');
       expect(result.output).toContain('[State 1] { state: "open" }');
     },
-    CHECK_TIMEOUT_MS
+    VERIFY_TIMEOUT_MS
   );
 
   test.concurrent(
@@ -60,14 +60,14 @@ describe('verify', () => {
         invariants: ['invCountsFromOne'],
         maxSteps: 2,
         outDir: join(OUT, 'unbounded'),
-        timeoutMs: CHECK_TIMEOUT_MS,
+        timeoutMs: VERIFY_TIMEOUT_MS,
       });
       expect(result.ok).toBe(false);
       if (result.ok) return;
       expect(result.output).toContain('Expected a constant integer');
       expect(result.output).not.toMatch(/ I@\d/);
     },
-    CHECK_TIMEOUT_MS
+    VERIFY_TIMEOUT_MS
   );
 
   test('a model with no invariant fails without running the checker', async () => {
@@ -76,7 +76,7 @@ describe('verify', () => {
       invariants: [],
       maxSteps: 4,
       outDir: join(OUT, 'none'),
-      timeoutMs: CHECK_TIMEOUT_MS,
+      timeoutMs: VERIFY_TIMEOUT_MS,
     });
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -94,7 +94,7 @@ describe('verify', () => {
         separateInduction: true,
         maxSteps: 4,
         outDir: join(OUT, 'invalid-initial-induction'),
-        timeoutMs: CHECK_TIMEOUT_MS,
+        timeoutMs: VERIFY_TIMEOUT_MS,
       });
       expect(result.ok).toBe(false);
       if (result.ok) return;
@@ -102,7 +102,7 @@ describe('verify', () => {
       expect(result.output).toContain('found a counterexample');
       expect(result.output).toContain('[State 0] { state: "open" }');
     },
-    CHECK_TIMEOUT_MS
+    VERIFY_TIMEOUT_MS
   );
 
   test.concurrent.each([1, 8])(
@@ -120,14 +120,14 @@ describe('verify', () => {
           OUT,
           `invalid-later-induction-choice-${inductionCaseGroupSize}`
         ),
-        timeoutMs: CHECK_TIMEOUT_MS,
+        timeoutMs: VERIFY_TIMEOUT_MS,
       });
       expect(result.ok).toBe(false);
       if (result.ok) return;
       expect(result.output).toContain('found a counterexample');
       expect(result.output).toContain('[State 1] { state: "open" }');
     },
-    CHECK_TIMEOUT_MS
+    VERIFY_TIMEOUT_MS
   );
 
   test.concurrent.each(['invKnownState', 'invNeverOpen'])(
@@ -141,12 +141,12 @@ describe('verify', () => {
         separateInduction: true,
         maxSteps: 4,
         outDir: join(OUT, `separate-implication-${invariant}`),
-        timeoutMs: CHECK_TIMEOUT_MS,
+        timeoutMs: VERIFY_TIMEOUT_MS,
       });
       expect(result.ok).toBe(invariant === 'invKnownState');
       if (!result.ok) expect(result.output).toContain('; implication)');
     },
-    CHECK_TIMEOUT_MS
+    VERIFY_TIMEOUT_MS
   );
 
   test.concurrent(
@@ -159,13 +159,13 @@ describe('verify', () => {
         inductiveInvariant: '_notInductive',
         maxSteps: 4,
         outDir: join(OUT, 'false-induction'),
-        timeoutMs: CHECK_TIMEOUT_MS,
+        timeoutMs: VERIFY_TIMEOUT_MS,
       });
       expect(result.ok).toBe(false);
       if (result.ok) return;
       expect(result.output).toContain('_notInductive');
     },
-    CHECK_TIMEOUT_MS
+    VERIFY_TIMEOUT_MS
   );
 
   test.concurrent(
@@ -178,12 +178,12 @@ describe('verify', () => {
         inductiveInvariant: '_inductive',
         maxSteps: 4,
         outDir: join(OUT, 'false-implication'),
-        timeoutMs: CHECK_TIMEOUT_MS,
+        timeoutMs: VERIFY_TIMEOUT_MS,
       });
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.output).toContain('invNeverOpen');
     },
-    CHECK_TIMEOUT_MS
+    VERIFY_TIMEOUT_MS
   );
 
   test.concurrent(
@@ -197,7 +197,7 @@ describe('verify', () => {
         inductiveInvariant: 'invNeverOpen',
         maxSteps: 4,
         outDir,
-        timeoutMs: CHECK_TIMEOUT_MS,
+        timeoutMs: VERIFY_TIMEOUT_MS,
       });
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.output).toContain('invNeverOpen');
@@ -207,7 +207,7 @@ describe('verify', () => {
         checker: { tuning: { 'search.invariant.mode': 'before' } },
       });
     },
-    CHECK_TIMEOUT_MS
+    VERIFY_TIMEOUT_MS
   );
 
   test.concurrent(
@@ -219,11 +219,11 @@ describe('verify', () => {
         inductiveInvariant: '_inductive',
         maxSteps: 4,
         outDir: join(OUT, 'induction'),
-        timeoutMs: CHECK_TIMEOUT_MS,
+        timeoutMs: VERIFY_TIMEOUT_MS,
       });
       expect(result).toMatchObject({ ok: true });
     },
-    CHECK_TIMEOUT_MS
+    VERIFY_TIMEOUT_MS
   );
 });
 

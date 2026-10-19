@@ -5,7 +5,7 @@ Lichess file glossary entry, and the existing puzzle-loading contract.
 
 Contract review: no blocking language or coverage findings. All five new
 scenarios first failed on their missing steps, then passed through the
-implemented UI. `bun run spec:check` passes with every binding present.
+implemented UI. `bun run spec:verify` passes with every binding present.
 The strict duplicate check also passes through the package-owned task:
 `bunx turbo run @libs/tools#ci:specs -- --strict-duplicates`.
 

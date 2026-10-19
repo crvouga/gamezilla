@@ -1,0 +1,4 @@
+{
+  "summary": "The previous CI provider attempt 8zdp3vll5k printed command finished with error, but continuing without the task command, elapsed time or failing stderr. Structured shard diagnostics identify the failure immediately, and the result manifest rejects incomplete or failed verifications.",
+  "regressionTest": "libs/tools/scripts/verify-shards.test.ts"
+}

@@ -78,7 +78,7 @@ export type PackageInfo = {
 /**
  * Like {@link discoverPackages} but also reports each package's tier (from its
  * parent folder) and its full scoped name. Tier is the source of truth for
- * dependency-direction checks; mismatches between folder and scope are caught
+ * dependency-direction verifications; mismatches between folder and scope are caught
  * here too.
  */
 export function discoverPackagesWithTier(): Map<PackageName, PackageInfo> {

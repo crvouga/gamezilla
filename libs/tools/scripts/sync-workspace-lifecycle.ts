@@ -85,7 +85,7 @@ export function renderConfigs(
   }));
 }
 
-function checkHookScripts(errors: string[]): void {
+function verifyHookScripts(errors: string[]): void {
   for (const hook of HOOKS) {
     const path = hookCommand(hook).slice('./'.length);
     try {
@@ -96,13 +96,13 @@ function checkHookScripts(errors: string[]): void {
   }
 }
 
-export function syncWorkspaceLifecycle(check: boolean): {
+export function syncWorkspaceLifecycle(verify: boolean): {
   errors: string[];
   drift: string[];
 } {
   const errors: string[] = [];
   const drift: string[] = [];
-  checkHookScripts(errors);
+  verifyHookScripts(errors);
   for (const file of renderConfigs()) {
     const abs = join(ROOT, file.path);
     const current = existsSync(abs) ? readFileSync(abs, 'utf8') : undefined;
@@ -110,7 +110,7 @@ export function syncWorkspaceLifecycle(check: boolean): {
     drift.push(
       `${file.path} is ${current === undefined ? 'missing' : 'out of date'}`
     );
-    if (check) continue;
+    if (verify) continue;
     mkdirSync(dirname(abs), { recursive: true });
     writeFileSync(abs, file.content);
   }
@@ -118,12 +118,12 @@ export function syncWorkspaceLifecycle(check: boolean): {
 }
 
 if (import.meta.main) {
-  const check = process.argv.includes('--check');
-  const { errors, drift } = syncWorkspaceLifecycle(check);
-  if (errors.length > 0 || (check && drift.length > 0)) {
+  const verify = process.argv.includes('--check');
+  const { errors, drift } = syncWorkspaceLifecycle(verify);
+  if (errors.length > 0 || (verify && drift.length > 0)) {
     console.error('workspace-lifecycle gate failed:');
     for (const line of [...errors, ...drift]) console.error(`  ${line}`);
-    if (check && drift.length > 0) console.error(`  fix: ${SYNC_COMMAND}`);
+    if (verify && drift.length > 0) console.error(`  fix: ${SYNC_COMMAND}`);
     process.exit(1);
   }
   for (const line of drift) console.log(`synced: ${line}`);

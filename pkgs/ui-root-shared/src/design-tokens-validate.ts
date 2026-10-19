@@ -80,7 +80,9 @@ function isFontFamily(value: unknown): boolean {
   );
 }
 
-const VALUE_CHECKS: Readonly<Record<TokenType, (value: unknown) => boolean>> = {
+const VALUE_VERIFICATIONS: Readonly<
+  Record<TokenType, (value: unknown) => boolean>
+> = {
   color: isColor,
   dimension: (value) => isQuantity(value, ['px', 'rem']),
   fontFamily: isFontFamily,
@@ -194,7 +196,7 @@ export function validateDesignTokens(tree: unknown): readonly TokenIssue[] {
         path: token.path,
         message: `no resolvable $type (${String(resolved.type)})`,
       });
-    } else if (!VALUE_CHECKS[resolved.type](resolved.value)) {
+    } else if (!VALUE_VERIFICATIONS[resolved.type](resolved.value)) {
       issues.push({
         path: token.path,
         message: `$value is not a ${resolved.type}`,

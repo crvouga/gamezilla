@@ -10,7 +10,7 @@ Treat the supplied goal as an assignment to finish, not a request for a plan. Wo
 
 - Read the applicable repository instructions and inspect existing work before editing. Preserve unrelated changes.
 - Derive observable completion criteria from the goal and existing requirements. When details are missing, choose the smallest reasonable interpretation consistent with the user's intent; record the assumption and proceed without a clarification question.
-- Record the authorized scope, acceptance checks, and any explicit resource limits. An unattended run authorizes routine decisions needed for that goal; it does not grant unrelated permissions.
+- Record the authorized scope, acceptance verifications, and any explicit resource limits. An unattended run authorizes routine decisions needed for that goal; it does not grant unrelated permissions.
 - When native persistent-goal tools are available, inspect the current goal and create the requested goal if none is active. Include completion criteria and the checkpoint path in its objective. Reuse a matching active goal; do not overwrite an unrelated unfinished goal. Follow the tools' documented status and budget rules. Editing or discussing this skill is not itself a request to start a goal.
 - If persistent-goal tools are unavailable, keep working in the current session. Do not claim automatic continuation or restart support, invent a scheduler, or change approval settings to enable it.
 
@@ -20,7 +20,7 @@ Maintain a short queue of unmet completion criteria. Select the next useful acti
 
 Do not end a turn with a plan, a partial milestone, an offer to continue, or a question while useful authorized work remains. Routine choices about implementation, naming, test selection, and reversible fixes are yours to make. Do not use question or approval tools for those choices. Give brief progress updates under the host's communication rules without waiting for replies.
 
-If an approach fails, inspect available diagnostics and change the hypothesis or method. Break difficult work into smaller verifiable steps. Continue despite complexity, slow checks, or context compaction. Do not lower the target, weaken checks, fabricate evidence, or substitute unrelated improvements for the requested outcome.
+If an approach fails, inspect available diagnostics and change the hypothesis or method. Break difficult work into smaller verifiable steps. Continue despite complexity, slow verifications, or context compaction. Do not lower the target, weaken verifications, fabricate evidence, or substitute unrelated improvements for the requested outcome.
 
 Inspect a failure before rerunning it. Repeat failed operations only when evidence suggests a transient condition or a relevant input has changed, and only where repository policy permits. Avoid duplicate external writes and unchanged retry loops. Await legitimate in-flight work using the runtime's supported waits; obey rate limits and explicit budgets.
 
@@ -47,7 +47,7 @@ Only treat the goal as blocked when all useful authorized paths are exhausted an
 
 ## Complete with evidence
 
-Check each completion criterion against the final artifacts and the repository's required automated gates. Repair failures caused by the work and run the affected checks again. A test that could not run is missing evidence, not a pass. Keep attestations truthful; leave unsupported claims unchecked and identify the missing proof.
+Verify each completion criterion against the final artifacts and the repository's required automated gates. Repair failures caused by the work and run the affected verifications again. A test that could not run is missing evidence, not a pass. Keep attestations truthful; leave unsupported claims unchecked and identify the missing proof.
 
 Mark a persistent goal complete only when the requested outcome is achieved and no required work remains. Otherwise preserve the accurate incomplete status and checkpoint when a hard runtime limit forces interruption.
 

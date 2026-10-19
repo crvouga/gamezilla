@@ -9,7 +9,7 @@
  *   shape            specification    static shape (`./shape`), before any trace
  *   typecheck        specification    `quint typecheck`
  *   verify           specification    Apalache, every invariant up to the bound
- *                                     (recorded by the package's `check:models`)
+ *                                     (recorded by the package's `verify:models`)
  *   temporal:<name>  specification    TLC, complete finite graph and cycles
  *   simulate         specification    every invariant held while drawing traces;
  *                                     no invariant is a failure

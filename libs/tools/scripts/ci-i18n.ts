@@ -23,9 +23,9 @@ import { join } from 'node:path';
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const PO_REL = 'libs/app-root-shared/locales/en/messages.po';
 /**
- * Scratch catalog the check regenerates into. The real catalogs are never
+ * Scratch catalog the verification regenerates into. The real catalogs are never
  * rewritten: `tc` of every package that imports them runs beside this
- * check, and a catalog half-written in place fails it ("is not a module").
+ * verification, and a catalog half-written in place fails it ("is not a module").
  */
 const SCRATCH_REL = '.cache/ci-i18n';
 const SCRATCH_CONFIG_REL = `${SCRATCH_REL}/lingui.config.ts`;
@@ -94,7 +94,7 @@ function assertCatalogsFresh(): void {
   writeScratchConfig();
   const config = ['--config', SCRATCH_CONFIG_REL];
   // One process, no worker pool: the pool costs ~2.5x the CPU for a few
-  // hundred ms of wall, and under a loaded `bun check-pr` its workers failed to
+  // hundred ms of wall, and under a loaded `bun verify` its workers failed to
   // init ("Did not receive an init message from worker").
   run('bunx', [
     '--bun',

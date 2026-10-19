@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runQuint } from '@pkgs/quint-server/run-quint';
 
-// regression: check-quint-silent-exit
+// regression: verify-quint-silent-exit
 test('a checker terminated after the JVM notice retains its exit signal and stderr', async () => {
   const cwd = mkdtempSync(join(tmpdir(), 'quint-signal-'));
   try {

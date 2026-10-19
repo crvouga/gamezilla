@@ -723,8 +723,8 @@ behaviour for exactly what it offers:
   `tests/game-order-isolation.test.ts` proves the plan, the matrix and the
   laws' verdicts are the same whatever order the games are listed or
   checked in.
-- **Depth.** The same suites run in both check profiles; `bun check-nightly`
-  replays more property runs and Quint traces (`check-profile.ts`).
+- **Depth.** The same suites run in both check profiles; `bun verify-nightly`
+  replays more property runs and Quint traces (`verify-profile.ts`).
 
 The matrix today:
 

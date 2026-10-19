@@ -23,7 +23,7 @@ export const AFTER_BLACK_REPLY =
   'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2';
 export const PINNED_KNIGHT = 'k3r3/8/8/8/8/8/4N3/4K3 w - - 0 1';
 export const ROOK_CHECK = 'k3r3/8/8/8/8/8/R7/4K3 w - - 0 1';
-export const CHECK_IN_ONE = '4k3/8/8/8/8/8/R7/K7 w - - 0 1';
+export const VERIFY_IN_ONE = '4k3/8/8/8/8/8/R7/K7 w - - 0 1';
 export const MATE_IN_ONE = '7k/8/5KQ1/8/8/8/8/8 w - - 0 1';
 export const MATING_CAPTURE = '7k/6r1/5KQ1/8/8/8/8/8 w - - 0 1';
 export const STALEMATE_IN_ONE = '7k/5K2/8/5Q2/8/8/8/8 w - - 0 1';

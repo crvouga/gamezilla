@@ -10,10 +10,10 @@
     ]
   },
   "scripts": {
-    "check:collector-configs": "bun run scripts/validate-collector-configs.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test tests"
+    "test": "bun test tests",
+    "verify:collector-configs": "bun run scripts/validate-collector-configs.ts"
   },
   "dependencies": {
     "@opentelemetry/api": "catalog:",

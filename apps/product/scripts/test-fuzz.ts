@@ -49,7 +49,7 @@ function collectHarnessTests(): string[] {
 }
 
 // `--seed-count=` wins; `HARNESS_FUZZ_SEEDS` is the budget a check profile
-// sets (`libs/tools/scripts/check-profile.ts`).
+// sets (`libs/tools/scripts/verify-profile.ts`).
 const seedCount = Number(
   process.argv
     .find((a) => a.startsWith('--seed-count='))

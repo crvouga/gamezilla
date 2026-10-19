@@ -1,5 +1,5 @@
 /**
- * Shared Turbo flags for CI / local `check` / `deploy`.
+ * Shared Turbo flags for CI / local `verify` / `deploy`.
  *
  * - Cache is `local:rw,remote:rw` (self-hosted remote at
  *   `https://turborepo.chrisvouga.dev`) when `TURBO_TOKEN` is present
@@ -7,7 +7,7 @@
  *   Local disk under `.turbo` is ephemeral in CI. `TURBO_CACHE` may tighten local/remote modes but cannot
  *   drop `remote:` when creds are present.
  * - CI requires `TURBO_TOKEN`. Locally, a missing token (Infisical
- *   login/network fallback) use `local:rw` so `bun check-pr` still runs.
+ *   login/network fallback) use `local:rw` so `bun verify` still runs.
  * - Disables framework inference so only explicit `turbo.json` `env` /
  *   `globalEnv` enter the hash. Builds explicitly hash public `VITE_*` inputs.
  * - Ensures `TURBO_API` points at the self-hosted cache origin (defaults when
@@ -16,7 +16,7 @@
  *   unchanged package is a cache hit, which is the same saving without a
  *   second notion of "what changed" to keep correct. The one input turbo
  *   cannot see — which commits a change adds — is exported as
- *   `CHECK_SECRETS_RANGE` (`<merge-base>..<head>`) for `check:secrets`.
+ *   `VERIFY_SECRETS_RANGE` (`<merge-base>..<head>`) for `verify:secrets`.
  * - Plan first (`turbo-preflight.ts`): `--dry=json` asks the local cache
  *   about every task (~4s), then the remote about the local misses only, in
  *   parallel. All hits → the gate already passed for these inputs, so
@@ -30,7 +30,7 @@
  * - Log order: `auto` locally; `grouped` in CI, which turbo renders as one
  *   collapsible `::group::` per failing task on GitHub Actions. Grouped holds
  *   a task's output until it finishes, so a heartbeat prints every 2 min.
- *   Override with `TURBO_LOG_ORDER`. `check` expands to package-owned task
+ *   Override with `TURBO_LOG_ORDER`. `verify` expands to package-owned task
  *   names; deploy expands its dependencies so Turbo runs leaf tasks.
  * - Output logs: `errors-only` — a task's output is printed only when that
  *   task fails, so a green gate prints the plan, the heartbeat and the
@@ -42,8 +42,8 @@
  *   started from inside a task always streams: its terminal is that task's
  *   pane.
  * - Time limits: the run is killed at a hard wall-clock deadline, and every
- *   task that executed is checked against its per-task budget once the run
- *   finishes. Both live in `check-budget.ts`.
+ *   task that executed is verified against its per-task budget once the run
+ *   finishes. Both live in `verify-budget.ts`.
  * - Durations: every exit prints the run's wall time and each phase's share
  *   (plan, prefetch, turbo), cache-hit-only runs included.
  * - `--restore-outputs`: leave every task's cached outputs on disk. A plain run skips turbo when everything
@@ -53,7 +53,7 @@
  *   suite reports.
  * - `--publish-reports`: restore assigned cached spec parts and publish each
  *   completed part from Turbo's structured stream. Uploads have their own
- *   bounded pool, overlap checks, and must finish before the gate passes.
+ *   bounded pool, overlap verifications, and must finish before the gate passes.
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';
@@ -68,27 +68,6 @@ import {
 import { capture } from '@pkgs/os-server/command';
 import { killOrphanEsbuildServices } from '@pkgs/os-server/kill-orphan-esbuild';
 import { captureAudit } from './audit-snapshot';
-import {
-  DEADLINE_FLUSH_MS,
-  findBudgetOverruns,
-  formatBudgetOverruns,
-  gateExitCode,
-  RUN_DEADLINE_ENV,
-  readLatestRunSummary,
-  resolveRunDeadlineSeconds,
-  slowCiRunner,
-  slowestExecuted,
-} from './check-budget';
-import { checkCacheConcurrency } from './check-cache-concurrency';
-import {
-  activeProfile,
-  applyProfileEnv,
-  checkAggregatorTasks,
-  suiteDeadlineSeconds,
-} from './check-profile';
-import { completeReports, prepareReports } from './check-report-lifecycle';
-import { observeReportOutput } from './check-report-run';
-import type { ReportTaskIdentity } from './check-report-stream';
 import { killProcessTree } from './kill-process-tree';
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
@@ -106,11 +85,32 @@ import {
   restoreSelectedReports,
   wallRemoteHas,
 } from './turbo-preflight';
+import {
+  DEADLINE_FLUSH_MS,
+  findBudgetOverruns,
+  formatBudgetOverruns,
+  gateExitCode,
+  RUN_DEADLINE_ENV,
+  readLatestRunSummary,
+  resolveRunDeadlineSeconds,
+  slowCiRunner,
+  slowestExecuted,
+} from './verify-budget';
+import { verifyCacheConcurrency } from './verify-cache-concurrency';
+import {
+  activeProfile,
+  applyProfileEnv,
+  suiteDeadlineSeconds,
+  verifyAggregatorTasks,
+} from './verify-profile';
+import { completeReports, prepareReports } from './verify-report-lifecycle';
+import { observeReportOutput } from './verify-report-run';
+import type { ReportTaskIdentity } from './verify-report-stream';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const DEPLOY_AGGREGATOR = '//#deploy';
-export const MAIN_CHECK_TASKS = [
-  '@libs/tools#check:root-lint',
+export const MAIN_VERIFY_TASKS = [
+  '@libs/tools#verify:root-lint',
   '@libs/tools#ci:syncpack',
   '@libs/tools#ci:audit',
   '@libs/tools#ci:i18n',
@@ -132,26 +132,26 @@ export const MAIN_CHECK_TASKS = [
     { length: MAX_SPEC_PARTS },
     (_, index) => `test:spec:${String(index)}`
   ),
-  'check:models',
-  // The parts of a split models check (`MAX_MODEL_PARTS` in spec-packages).
+  'verify:models',
+  // The parts of a split models verification (`MAX_MODEL_PARTS` in spec-packages).
   ...Array.from(
     { length: MAX_MODEL_PARTS },
-    (_, index) => `check:models:${String(index)}`
+    (_, index) => `verify:models:${String(index)}`
   ),
-  '@apps/product#check:offline-shell',
+  '@apps/product#verify:offline-shell',
   '@apps/product#test:release-journeys',
-  '@apps/auth-relay#check:worker-bundle',
-  '@apps/product#check:worker-bundle',
-  '@apps/product#check:rendered-worker',
-  '@libs/runtime-server#check:schema-evolution',
-  '@libs/tools#check:actionlint',
-  '@libs/tools#check:secrets',
-  'check:board-contract',
-  '@apps/synthetic-population-worker#check:synthetic-population-foundation',
+  '@apps/auth-relay#verify:worker-bundle',
+  '@apps/product#verify:worker-bundle',
+  '@apps/product#verify:rendered-worker',
+  '@libs/runtime-server#verify:schema-evolution',
+  '@libs/tools#verify:actionlint',
+  '@libs/tools#verify:secrets',
+  'verify:board-contract',
+  '@apps/synthetic-population-worker#verify:synthetic-population-foundation',
 ] as const;
 
 /**
- * The live health checks and critical journeys (`@apps/product#health`,
+ * The live health verifications and critical journeys (`@apps/product#health`,
  * `@synthetic` features + `specs/journeys/`). Deliberately no `//#health` root
  * task: the root `health` script would make a bare `health` dependency
  * resolve to that root task itself, a cycle turbo refuses to plan.
@@ -164,7 +164,7 @@ const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
  * The most traces of one Quint model a run replays through the product
  * (`@pkgs/quint-shared/wall`). The `pr` profile leaves it unset, which is
  * the smallest bounded selection; the `nightly` profile sets `all`
- * (`check-profile.ts`).
+ * (`verify-profile.ts`).
  */
 export const REPLAY_BUDGET_ENV = 'QUINT_REPLAY_TRACES';
 
@@ -235,7 +235,7 @@ export function resolveRunMode(rawTaskArgs: readonly string[]): RunMode {
  * deploy chain, and `--continue` lets every probe report instead of stopping at
  * the first failure (probes are independent and deploy nothing). Deploy keeps
  * turbo's stop-on-first-failure: some deploy steps do not depend on the full
- * check surface, so continuing past a failed check could ship.
+ * verification surface, so continuing past a failed verification could ship.
  */
 export function runModeFlags(mode: RunMode): readonly string[] {
   return mode === 'health'
@@ -292,7 +292,7 @@ export function resolveCacheFlag(
  * Every core but one per solver slot runs a task; the solvers gate themselves
  * machine-wide (`solver-slots.ts`). Nearly every task is one core of work.
  */
-export function defaultCheckConcurrency(
+export function defaultVerifyConcurrency(
   cpus: number,
   slots: number = solverSlots(process.env, cpus)
 ): number {
@@ -302,7 +302,7 @@ export function defaultCheckConcurrency(
 function resolveConcurrency(): string {
   const fromEnv = process.env['TURBO_CONCURRENCY']?.trim();
   if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
-  return String(defaultCheckConcurrency(availableParallelism()));
+  return String(defaultVerifyConcurrency(availableParallelism()));
 }
 
 /** The `--ui` to force; undefined leaves the choice to `turbo.json`. */
@@ -330,9 +330,9 @@ export function turboChildEnv(
   const env: NodeJS.ProcessEnv = {
     TURBO_TELEMETRY_DISABLED: '1',
     RAYON_NUM_THREADS: '1',
-    CHECK_LINT_THREADS: '1',
+    VERIFY_LINT_THREADS: '1',
     GOMAXPROCS: '1',
-    MODEL_CHECK_CONCURRENCY: '2',
+    MODEL_VERIFY_CONCURRENCY: '2',
     JAVA_TOOL_OPTIONS: '-XX:ActiveProcessorCount=2',
     JVM_GC_ARGS: '-XX:+UseParallelGC -Xmx4096m -Xms128m',
     ...source,
@@ -370,11 +370,11 @@ function taskDependsOn(tasks: TurboTasks, taskName: string): string[] {
 }
 
 /**
- * Expand the check command to package tasks; recursively expand deploy's
+ * Expand the verification command to package tasks; recursively expand deploy's
  * package dependencies to leaf turbo tasks.
  * Dedupes while preserving first-seen order.
  */
-export function flattenCheckAggregators(
+export function flattenVerifyAggregators(
   taskArgs: readonly string[],
   tasks: TurboTasks = loadTurboTasks()
 ): string[] {
@@ -390,11 +390,11 @@ export function flattenCheckAggregators(
   // Bare script names are command aliases only here. In Turbo's graph they
   // remain package tasks with their package-scoped meaning.
   function expand(arg: string, commandLine: boolean): void {
-    const checks = commandLine
-      ? checkAggregatorTasks(arg, MAIN_CHECK_TASKS)
+    const verifications = commandLine
+      ? verifyAggregatorTasks(arg, MAIN_VERIFY_TASKS)
       : null;
-    if (checks !== null) {
-      for (const task of checks) pushLeaf(task);
+    if (verifications !== null) {
+      for (const task of verifications) pushLeaf(task);
       return;
     }
     const isAlias = Object.hasOwn(AGGREGATOR_ALIASES, arg);
@@ -495,7 +495,7 @@ function turboCiFlags(
     process.env['TURBO_OUTPUT_LOGS']?.trim() || 'errors-only';
   const TURBO_CI_FLAGS = [
     `--concurrency=${resolveConcurrency()}`,
-    `--cache-workers=${String(checkCacheConcurrency(process.env, CACHE_WORKERS))}`,
+    `--cache-workers=${String(verifyCacheConcurrency(process.env, CACHE_WORKERS))}`,
     `--cache=${cache}`,
     '--framework-inference=false',
     '--summarize',
@@ -583,7 +583,7 @@ async function main(): Promise<void> {
     planOrNull(fullRunArgs, cache, env)
   );
   if (publishReports && planned === null)
-    throw new Error('Check report publication requires an exact gate plan');
+    throw new Error('Verify report publication requires an exact gate plan');
   const restore = restoreOutputs;
   const { plan, missingReports } = await prepareRunPlan({
     planned,
@@ -638,7 +638,7 @@ function runDeadlineSeconds(
 }
 
 /**
- * A run of nightly suites has their deadline; `CHECK_DEADLINE_SECONDS` still
+ * A run of nightly suites has their deadline; `VERIFY_DEADLINE_SECONDS` still
  * outranks it, as it does every default.
  */
 function deadlineFor(
@@ -659,7 +659,7 @@ function deadlineFor(
 }
 
 function prepareTaskArgs(raw: readonly string[]): string[] {
-  const args = flattenCheckAggregators(raw);
+  const args = flattenVerifyAggregators(raw);
   if (args.includes('@libs/tools#ci:audit')) captureAudit(REPO_ROOT);
   return args;
 }
@@ -672,7 +672,7 @@ async function prepareRunPlan(args: {
 }): Promise<{ plan: RunPlan | null; missingReports: readonly string[] }> {
   if (args.publishReports) {
     if (args.planned === null)
-      throw new Error('Check report publication requires an exact gate plan');
+      throw new Error('Verify report publication requires an exact gate plan');
     const missingReports = await timed('report-prepare', () =>
       prepareReports(args.planned!, args.env)
     );
@@ -857,7 +857,7 @@ function enforceTaskBudgets(slowRunner: boolean): number {
   const summary = readLatestRunSummary(REPO_ROOT);
   if (summary === null) {
     console.warn(
-      'turbo-ci-run: no turbo run summary found; per-task budgets not checked.'
+      'turbo-ci-run: no turbo run summary found; per-task budgets not verified.'
     );
     return 0;
   }
@@ -927,7 +927,7 @@ function armDeadline(
       console.error(
         'turbo-ci-run: tasks that finished before the kill are cached, so a ' +
           'rerun resumes from here. Fix a wedged task, or raise the deadline in ' +
-          'libs/tools/scripts/check-budget.ts with the measurement.'
+          'libs/tools/scripts/verify-budget.ts with the measurement.'
       );
       killTree(child, 'SIGKILL');
       stopReports();

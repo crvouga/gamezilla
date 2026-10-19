@@ -2,8 +2,8 @@
  * Reads every bounded context's ubiquitous language (`specs/ubiquitous-language.yml`,
  * the shared kernel, and `specs/<domain>/ubiquitous-language.yml`) with the prose of
  * its features and the names of its Quint specs and Alloy structures (sigs
- * and fields, `spec-alloy-names.ts`, checked like Quint names), and holds the
- * specs to it (`@pkgs/gherkin/glossary`). Part of `check-specs.ts`.
+ * and fields, `spec-alloy-names.ts`, verified like Quint names), and holds the
+ * specs to it (`@pkgs/gherkin/glossary`). Part of `verify-specs.ts`.
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';

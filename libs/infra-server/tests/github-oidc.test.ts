@@ -42,7 +42,7 @@ test('CI trust matches the transferred repository immutable OIDC subject', () =>
   const aws = read('modules/aws-ci-identity/main.tf');
   expect(aws).toContain('"${var.github_subject_prefix}:ref:refs/heads/main"');
   expect(aws).toContain('"${var.github_subject_prefix}:ref:refs/heads/*"');
-  // Check PR plans the foundation stack with the read-only role.
+  // Verify PR plans the foundation stack with the read-only role.
   expect(aws).toContain('"${var.github_subject_prefix}:pull_request"');
   expect(aws).toContain(
     '"${var.github_subject_prefix}:environment:production"'

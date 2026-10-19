@@ -5,8 +5,8 @@ const ROOT = `${import.meta.dir}/../../..`;
 type Job = { readonly needs?: string | readonly string[] };
 
 function needsCheck(needs: Job['needs']): boolean {
-  if (needs === 'deploy-check') return true;
-  return Array.isArray(needs) && needs.includes('deploy-check');
+  if (needs === 'deploy-verify') return true;
+  return Array.isArray(needs) && needs.includes('deploy-verify');
 }
 
 /** Facts read from the shipped preparation and release definitions. */
@@ -15,7 +15,7 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
     `${ROOT}/.github/workflows/deploy.yml`
   ).text();
   const checkText = await Bun.file(
-    `${ROOT}/.github/workflows/check-pr.yml`
+    `${ROOT}/.github/workflows/verify-pr.yml`
   ).text();
   const preparation = await Bun.file(
     `${ROOT}/libs/tools/workspace/run.sh`

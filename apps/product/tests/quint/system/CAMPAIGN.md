@@ -10,7 +10,7 @@ the modules does not change their modeled behavior.
 
 The campaign is repeatable. `test:quint-system` checks type correctness, seeded
 traces, literal adversarial paths and fault sensitivity. `test:contract` checks
-bounded symbolic safety and the finite temporal model; both participate in Check.
+bounded symbolic safety and the finite temporal model; both participate in Verify PR.
 `explore:quint-system` runs the extended campaign using the already installed,
 pinned Rust evaluator. It refuses to download tools. Run these from `apps/product`.
 
@@ -250,6 +250,6 @@ implementation bindings conform, or that the production application is correct.
 The broader spec audit already has unbound privacy/deletion/retention/layout
 behaviors and an unowned developer-tools domain. Those failures predate this
 campaign and still prevent treating a model pass as a release decision. No remote
-Check verdict for these uncommitted changes is claimed: `bun check-pr` invokes the
+Verify verdict for these uncommitted changes is claimed: `bun verify` invokes the
 repository's commit/push/trunk-sync flow, and this shared checkout contains other
-in-progress work. The full local Check result is recorded with the measurements. The source-backed privacy audit gaps are reported separately from the local Check failure, which stopped in the existing room tally model on a timeout and a task-budget overrun.
+in-progress work. The full local Verify result is recorded with the measurements. The source-backed privacy audit gaps are reported separately from the local Verify failure, which stopped in the existing room tally model on a timeout and a task-budget overrun.

@@ -74,7 +74,7 @@ function writePackageInputs(dir: string, root: string): void {
     writeChanged(join(inputs, file), value);
 }
 
-/** A stale or absent fingerprint must never establish a complete Check verdict. */
+/** A stale or absent fingerprint must never establish a complete Verify verdict. */
 export function specInputProblems(dir: string, root: string): string[] {
   return Object.entries(packageInputValues(dir, root)).flatMap(
     ([file, value]) => {

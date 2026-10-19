@@ -24,7 +24,7 @@
         "$TURBO_ROOT$/specs/**",
         "$TURBO_ROOT$/pkgs/equal-shared/**",
         "$TURBO_ROOT$/pkgs/assert-root-shared/**",
-        "!scripts/check-task-costs.json",
+        "!scripts/verify-task-costs.json",
         "$TURBO_ROOT$/apps/product/scripts/ui-quality/sources.json",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/apps/*/src/**",
@@ -48,10 +48,10 @@
       ]
     },
     "src": {
-      "inputs": ["$TURBO_EXTENDS$", "!scripts/check-task-costs.json"]
+      "inputs": ["$TURBO_EXTENDS$", "!scripts/verify-task-costs.json"]
     },
     "tc": {
-      "inputs": ["$TURBO_EXTENDS$", "!scripts/check-task-costs.json"]
+      "inputs": ["$TURBO_EXTENDS$", "!scripts/verify-task-costs.json"]
     }
   }
 }

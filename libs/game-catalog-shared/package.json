@@ -25,6 +25,6 @@
     "typescript": "catalog:"
   },
   "category": "isomorphic",
-  "gameRegistry": true,
-  "gameApi": []
+  "gameApi": [],
+  "gameRegistry": true
 }

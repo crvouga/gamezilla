@@ -47,8 +47,8 @@ export const ROOT_TERMINAL_COMMANDS: Readonly<Record<string, string>> = {
 export const TURBO_ENTRY_PROGRAMS = [
   // Plans against the cache, then runs only the misses.
   'libs/tools/scripts/turbo-ci-run.ts',
-  // The same, in a private snapshot holding the machine-wide check slot.
-  'libs/tools/scripts/check-local.ts',
+  // The same, in a private snapshot holding the machine-wide verification slot.
+  'libs/tools/scripts/verify-local.ts',
   // `turbo run @apps/product#dev` as the checkout's one supervised boot.
   'apps/product/scripts/dev-run.ts',
 ] as const;
@@ -60,7 +60,7 @@ const LAUNCHER_PREFIXES = [
 ] as const;
 
 /** Named for what they collect; turbo-ci-run expands them, never runs them. */
-const AGGREGATORS = new Set(['//#check']);
+const AGGREGATORS = new Set(['//#verify']);
 
 /** Hooks the package manager runs itself; a script cannot depend on them. */
 const PACKAGE_MANAGER_HOOKS = new Set([

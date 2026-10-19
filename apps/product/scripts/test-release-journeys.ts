@@ -162,7 +162,7 @@ try {
   if (!options.keepData)
     rmSync(stack.manifest.dataDir, { recursive: true, force: true });
   rmSync(DIST, { recursive: true, force: true });
-  if (process.env['CHECK_PROFILE'] !== 'nightly') {
+  if (process.env['VERIFY_PROFILE'] !== 'nightly') {
     rmSync(join(PACKAGE_DIR, '.cache/release-report'), {
       recursive: true,
       force: true,

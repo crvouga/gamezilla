@@ -1,7 +1,7 @@
 <!--
 Keep every `##` section with real content; the HTML comments are guidance.
 Stay high level: everything above the checklist fits in ~120 words.
-Check a box only when it is true.
+Verify a box only when it is true.
 -->
 
 ## Summary
@@ -19,7 +19,7 @@ Check a box only when it is true.
 ## Verification
 
 <!--
-One line: the automated checks exercised and their result (`check:end` →
+One line: the automated verifications exercised and their result (`verify:end` →
 green). Never a manual step — we do not test by hand.
 One line — required: what this PR does NOT prove.
 -->
@@ -40,8 +40,8 @@ must decide before merging.
 
 ## Checklist
 
-- [ ] CI (`check:end`) is green on this PR.
-- [ ] No check was weakened: no deleted or skipped tests, no loosened assertion, no `@ts-ignore`, no disabled lint rule.
+- [ ] CI (`verify:end`) is green on this PR.
+- [ ] No verification was weakened: no deleted or skipped tests, no loosened assertion, no `@ts-ignore`, no disabled lint rule.
 - [ ] Changed behavior is covered by a property- or model-based test; every bug fixed has an example regression test (`// regression: <id>`) registered as `libs/tools/goal/known-bugs/<id>.json`. Nothing was verified by hand.
 - [ ] No deprecated code left behind: replaced APIs are deleted and every call site migrated here.
 - [ ] Nondeterministic I/O stays injected (Clock/Timers/http/createId/random); no bare `Date.now`, `setTimeout`, `fetch`, or `crypto.randomUUID` in product code.
@@ -51,4 +51,4 @@ must decide before merging.
 - [ ] Any new secret is registered in `@libs/secrets` and either seeded for every environment or written by OpenTofu (`libs/infra-shared/tofu/stacks/foundation/secrets.json`).
 - [ ] Docs updated wherever behavior, conventions, or operations changed.
 - [ ] No long-running local process still holds a machine-wide singleton port (EMQX `1883`/`8083`/`18083`, wrangler `8788`).
-- [ ] Merged by a human only once every check is green; never `--admin` or merge queue. Merging deploys.
+- [ ] Merged by a human only once every verification is green; never `--admin` or merge queue. Merging deploys.

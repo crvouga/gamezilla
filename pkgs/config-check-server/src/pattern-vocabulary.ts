@@ -1,6 +1,6 @@
 /**
  * The words the pattern pass refuses, kept apart from the lint presets on
- * purpose: `check:patterns` is the second, independent reading of a package,
+ * purpose: `verify:patterns` is the second, independent reading of a package,
  * so it shares no list with `@pkgs/config-lint-server`. Weakening one leaves
  * the other standing.
  */

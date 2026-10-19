@@ -1,0 +1,4 @@
+{
+  "summary": "Private Verification placed TMPDIR under the snapshot's ignored .cache directory. Nested Turbo fixture repositories without their own Git metadata inherited the parent Git ignore rules, dropping source inputs and scanning the wrong workspace. Place temporary files beside the private workspace, outside its Git root.",
+  "regressionTest": "libs/tools/scripts/verify-snapshot.test.ts"
+}

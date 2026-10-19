@@ -10,13 +10,6 @@
     ]
   },
   "scripts": {
-    "check:models:0": "bun run ../../libs/tools/scripts/check-models.ts --part 0/7",
-    "check:models:1": "bun run ../../libs/tools/scripts/check-models.ts --part 1/7",
-    "check:models:2": "bun run ../../libs/tools/scripts/check-models.ts --part 2/7",
-    "check:models:3": "bun run ../../libs/tools/scripts/check-models.ts --part 3/7",
-    "check:models:4": "bun run ../../libs/tools/scripts/check-models.ts --part 4/7",
-    "check:models:5": "bun run ../../libs/tools/scripts/check-models.ts --part 5/7",
-    "check:models:6": "bun run ../../libs/tools/scripts/check-models.ts --part 6/7",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client/register ../../libs/harness/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
@@ -28,7 +21,14 @@
     "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/7",
     "test:spec:4": "bun run ../../libs/harness/scripts/test-spec.ts --part 4/7",
     "test:spec:5": "bun run ../../libs/harness/scripts/test-spec.ts --part 5/7",
-    "test:spec:6": "bun run ../../libs/harness/scripts/test-spec.ts --part 6/7"
+    "test:spec:6": "bun run ../../libs/harness/scripts/test-spec.ts --part 6/7",
+    "verify:models:0": "bun run ../../libs/tools/scripts/verify-models.ts --part 0/7",
+    "verify:models:1": "bun run ../../libs/tools/scripts/verify-models.ts --part 1/7",
+    "verify:models:2": "bun run ../../libs/tools/scripts/verify-models.ts --part 2/7",
+    "verify:models:3": "bun run ../../libs/tools/scripts/verify-models.ts --part 3/7",
+    "verify:models:4": "bun run ../../libs/tools/scripts/verify-models.ts --part 4/7",
+    "verify:models:5": "bun run ../../libs/tools/scripts/verify-models.ts --part 5/7",
+    "verify:models:6": "bun run ../../libs/tools/scripts/verify-models.ts --part 6/7"
   },
   "dependencies": {
     "@libs/account-privacy-harness": "workspace:*",

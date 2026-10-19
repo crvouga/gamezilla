@@ -381,7 +381,7 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "check:models": {
+    "verify:models": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/developer-tools/*.qnt"]
     },
     "test:spec:0": {
@@ -586,7 +586,7 @@
       "outputs": [".cache/ui-quality-inputs/**"],
       "outputLogs": "errors-only"
     },
-    "check:ui-quality": {
+    "verify:ui-quality": {
       "dependsOn": [
         "tc",
         "test:contract:0",

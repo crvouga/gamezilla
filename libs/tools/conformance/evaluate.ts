@@ -68,7 +68,7 @@ export type ReportInput = {
     readonly decision: string;
     readonly specUri: string;
   }[];
-  /** The release gates' checks, and what the build cache says of each. */
+  /** The release gates' verifications, and what the build cache says of each. */
   readonly gateTasks: readonly string[];
   readonly gates: ReadonlyMap<string, TaskVerdict>;
 };
@@ -303,8 +303,8 @@ function capabilityLine(input: ReportInput, index: Index): Tally {
           `capability "${capability.id}": ${absent(capability.specUri, index.get(capability.specUri))}`,
         ];
       }
-      return ['complete', 'consistent'].flatMap((check) => {
-        const id = `${check}:${capability.decision}`;
+      return ['complete', 'consistent'].flatMap((verify) => {
+        const id = `${verify}:${capability.decision}`;
         const found = obligations.find((o) => o.id === id);
         if (found === undefined) {
           return [
@@ -341,7 +341,7 @@ function coverageLine(input: ReportInput, index: Index): Tally {
         );
       if (!agreements.some((o) => SERVER_AGREEMENT.test(o.id))) {
         out.push(
-          `capability "${capability.id}": no server enforcement of "${capability.decision}" was checked`
+          `capability "${capability.id}": no server enforcement of "${capability.decision}" was verified`
         );
       }
       return out;
@@ -360,7 +360,7 @@ function gatesLine(input: ReportInput): Tally {
   );
 }
 
-function checksLine(input: ReportInput, index: Index): Tally {
+function verificationsLine(input: ReportInput, index: Index): Tally {
   const run = input.specs.filter(
     (spec) =>
       spec.harness || spec.live || (spec.kind === 'dynamics' && spec.bound)
@@ -401,14 +401,14 @@ function ruleTally(rule: Rule, input: ReportInput, index: Index): Tally {
       input.specs.map((spec) =>
         spec.bound
           ? []
-          : [`${spec.path}: not bound exactly once — nothing checks it`]
+          : [`${spec.path}: not bound exactly once — nothing verifies it`]
       )
     );
   }
-  return checksLine(input, index);
+  return verificationsLine(input, index);
 }
 
-/** Every pipeline line, in order. A line with nothing to check fails. */
+/** Every pipeline line, in order. A line with nothing to verify fails. */
 export function evaluateLines(input: ReportInput): readonly LineResult[] {
   const index = indexEvidence(input.specs, input.records);
   return (Object.keys(LINES) as LineId[]).map((id) => {

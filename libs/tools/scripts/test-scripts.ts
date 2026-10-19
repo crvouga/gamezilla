@@ -1,10 +1,10 @@
 /**
  * The rules a package's test scripts obey, run by lint-package.ts.
  *
- * `bun check-pr` runs a package's `test`, `test:contract`,
+ * `bun verify` runs a package's `test`, `test:contract`,
  * `test:contract:render` and `test:spec` scripts (the last as its
  * `test:spec:<k>` parts, which spec-packages.ts holds to exactly `test:spec`
- * split; deploy's `check:api` runs `test:integration`). A green check is only
+ * split; deploy's `verify:api` runs `test:integration`). A green verification is only
  * worth something if those scripts ran every test the package owns, every
  * time, the same way:
  *
@@ -16,7 +16,7 @@
  *   proves nothing.
  * - The harness spec runner also runs the specs (features and Quint models) of
  *   the domains the package lists in `specDomains`, so a `test:spec` with no
- *   `tests/harness/` file is fine when it runs specs; `spec:check` proves those
+ *   `tests/harness/` file is fine when it runs specs; `spec:verify` proves those
  *   domains exist.
  *
  * Pure over the manifest's scripts and the package's tracked files, so it
@@ -155,7 +155,7 @@ export function testScriptViolations(input: {
     const files = filesRunBy(script, testFiles);
     if (files === null) {
       out.push(
-        `"${name}" is not \`bun test …\` or the harness spec runner, so which tests it runs cannot be checked`
+        `"${name}" is not \`bun test …\` or the harness spec runner, so which tests it runs cannot be verified`
       );
       continue;
     }

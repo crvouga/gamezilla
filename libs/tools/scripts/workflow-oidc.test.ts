@@ -21,7 +21,7 @@ function steps(): Step[] {
 // regression: workflow-oidc-test-stdout-socket
 test.each([
   'https://example.test/token',
-  'https://example.test/token?job=check',
+  'https://example.test/token?job=verify',
   'https://example.test/token?',
 ])('Infisical requests the trusted audience from %s', (requestUrl) => {
   const sequence = steps();

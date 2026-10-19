@@ -30,7 +30,7 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { checkCacheConcurrency } from './check-cache-concurrency';
+import { verifyCacheConcurrency } from './verify-cache-concurrency';
 
 /** Task with a real script; `<NONEXISTENT>` placeholders are dropped. */
 export type PlannedTask = {
@@ -39,7 +39,7 @@ export type PlannedTask = {
   readonly hit: boolean;
   /** Where the HIT lives; `null` for a MISS. */
   readonly source: 'LOCAL' | 'REMOTE' | null;
-  /** Live-data checks must execute even when an old artifact exists. */
+  /** Live-data verifications must execute even when an old artifact exists. */
   readonly cacheable?: boolean;
   /** Direct `dependsOn` task ids (placeholders included). */
   readonly dependencies: readonly string[];
@@ -385,7 +385,7 @@ export async function prefetchRemoteHits(
     plan.remoteHits.map((task) => task.hash),
     cacheDir,
     wallPrefetchIo(env, cacheDir),
-    checkCacheConcurrency(env, PREFETCH_CONCURRENCY)
+    verifyCacheConcurrency(env, PREFETCH_CONCURRENCY)
   );
   console.log(
     `turbo-ci-run: prefetched ${String(result.fetched)} remote cache hit(s) into ${cacheDir}` +

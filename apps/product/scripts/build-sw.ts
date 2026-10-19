@@ -80,7 +80,7 @@ export async function buildServiceWorker(distDir: string): Promise<void> {
      * load, including the complete eager entry graph, and drop what only the
      * harness reaches.
      * No per-file cap below the total budget, so Workbox never silently skips
-     * a large chunk; `check:offline-shell` enforces the budget on the result.
+     * a large chunk; `verify:offline-shell` enforces the budget on the result.
      */
     maximumFileSizeToCacheInBytes: PRECACHE_BUDGET_BYTES,
     globPatterns: [...PRECACHE_GLOB_PATTERNS],

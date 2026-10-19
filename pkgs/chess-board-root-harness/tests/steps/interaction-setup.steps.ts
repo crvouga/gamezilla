@@ -8,7 +8,6 @@ import {
 } from '@pkgs/chess-board-root-harness/chess-board';
 import type { PieceName } from '@pkgs/chess-board-root-harness/interaction-fixtures';
 import {
-  CHECK_IN_ONE,
   CHECKMATED,
   MATE_IN_ONE,
   MATING_CAPTURE,
@@ -17,6 +16,7 @@ import {
   ROOK_CHECK,
   STALEMATE_IN_ONE,
   STALEMATED,
+  VERIFY_IN_ONE,
 } from '@pkgs/chess-board-root-harness/interaction-fixtures';
 import { readPiece } from '@pkgs/chess-board-root-harness/interaction-reads';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
@@ -50,7 +50,7 @@ Given(
 );
 Given(
   'Alice has a chessboard ready for White to check Black by moving the rook from a2 to e2',
-  (w) => w.apply(setupBoard, { fen: CHECK_IN_ONE })
+  (w) => w.apply(setupBoard, { fen: VERIFY_IN_ONE })
 );
 Given(
   'Alice has a chessboard ready for White to checkmate Black by moving the queen from g6 to g7',

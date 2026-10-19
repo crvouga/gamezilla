@@ -21,7 +21,7 @@ legacy file. The harness stays the engine, and only the test's surface changes.
 
 The policy lives in [`specs/README.md`](../../../specs/README.md).
 Its "What belongs in a spec" table decides every destination, and
-`bun run spec:check` enforces it. This skill is the **porting procedure** on
+`bun run spec:verify` enforces it. This skill is the **porting procedure** on
 top of three role skills. Load each one when its phase starts:
 
 | Phase | Skill |
@@ -50,7 +50,7 @@ Sort every legacy `test(...)` into exactly one destination:
 | One `test` that runs several phases (act → assert → act → assert) | **Several scenarios**, one per rule. Earlier phases become `Given` facts |
 | `test.each` over seeds, seed loops, `randomActions`, `explore`, walks or "monkeys" | **Quint model.** Seeds never go in Gherkin. Quint draws the walks from `FC_SEED` |
 | Stateful internals: convergence, exactly-once, idempotent replay, rebase order, fault recovery, fanout caps | **Quint model** in `specs/<domain>/`, over the package's public observables (see step 2) |
-| Standing `defineProperty` checks on the system | **Stay on `defineSystem`** (they run under every scenario and trace). Mirror them as `val inv<Name>` when a model observes that state |
+| Standing `defineProperty` verifications on the system | **Stay on `defineSystem`** (they run under every scenario and trace). Mirror them as `val inv<Name>` when a model observes that state |
 | Same-seed-twice determinism of a product harness | **The model's `fingerprint`** in its Quint binding: the runner replays the longest trace twice and compares |
 | Hash canonicality, `@pkgs/harness-root-shared` / `harness-report` / `sql-client-harness` self-tests | **Stay code tests**, as framework contracts |
 | Storage rows, wire frames, error codes (`NO_HARD_DELETE`, malformed frames) | **Contract test** asserting through the package's reads ([`README.md`](../../../README.md#correctness-machinery)) |
@@ -67,7 +67,7 @@ Every legacy claim lands somewhere, or is dropped with a stated reason.
 
 ## 2. Where framework-package specs go
 
-`pkgs/*` must stay app-agnostic, and `spec:check` bans architecture words
+`pkgs/*` must stay app-agnostic, and `spec:verify` bans architecture words
 ("server", "client", "harness") and implementation words in step text. So:
 
 - **Behavior a person could observe** gets a Gherkin feature in
@@ -99,7 +99,7 @@ Work from the claims, never from the legacy code: a line-by-line port
 reproduces the imperative script that BDD exists to remove.
 
 For models, follow [`references/QUINT_STYLE.md`](references/QUINT_STYLE.md).
-Run `quint typecheck` and `bun run spec:check`, then commit specs, glossary,
+Run `quint typecheck` and `bun run spec:verify`, then commit specs, glossary,
 and docs alone, with a `spec:` subject.
 
 ## 4. Implement
@@ -116,7 +116,7 @@ pass.**
 
 1. `bun run spec --package <workspace>` (and the package's `test` for its
    local models) runs green.
-2. **Sabotage check**, once per feature and model: temporarily break the
+2. **Sabotage verification**, once per feature and model: temporarily break the
    behavior it claims (skip the retry dedup, drop the tombstone merge). The
    new spec must fail with a readable message. Then revert. A spec that
    still passes proves nothing, so fix the step or the binding.
@@ -125,8 +125,8 @@ pass.**
    package `test*` scripts, the turbo inputs and the READMEs that named the
    old files.
 4. Load `spec-audit` and audit the new features and steps. Then run
-   `bun run spec:catalog`, `bun run spec:check`, the package's `tc` / `test`,
-   and `bun check-pr`. Show the output, and never claim green without it.
+   `bun run spec:catalog`, `bun run spec:verify`, the package's `tc` / `test`,
+   and `bun verify`. Show the output, and never claim green without it.
 
 ## Fan-out for a whole wave
 
@@ -144,6 +144,6 @@ legacy tests, before starting the next.
 - [ ] No ported legacy file remains, and no script references one.
 - [ ] Every former seed sweep or walk is a Quint model whose traces take
       every bound action.
-- [ ] A sabotage check failed each new feature and model.
+- [ ] A sabotage verification failed each new feature and model.
 - [ ] Spec changes are in `spec:` commits, separate from the implementation.
-- [ ] `spec:check` and `bun check-pr` are green (output shown).
+- [ ] `spec:verify` and `bun verify` are green (output shown).

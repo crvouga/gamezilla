@@ -93,7 +93,7 @@ describe('evaluateLines', () => {
       path: 'specs/chess/assistant-observation.dmn',
       context: 'chess',
     };
-    const checked = input({
+    const verified = input({
       specs: [DECISIONS, semantic],
       records: [
         record(DECISIONS, [
@@ -107,23 +107,23 @@ describe('evaluateLines', () => {
         ]),
       ],
     });
-    expect(line(checked, 'permission-enforcement')).toMatchObject({
+    expect(line(verified, 'permission-enforcement')).toMatchObject({
       status: 'pass',
       total: 1,
     });
-    expect(line(checked, 'decision-conformance')).toMatchObject({
+    expect(line(verified, 'decision-conformance')).toMatchObject({
       status: 'pass',
       total: 2,
     });
     expect(
       line(
-        { ...checked, records: checked.records.slice(0, 1) },
+        { ...verified, records: verified.records.slice(0, 1) },
         'decision-conformance'
       ).status
     ).toBe('fail');
     expect(
       line(
-        { ...checked, records: checked.records.slice(1) },
+        { ...verified, records: verified.records.slice(1) },
         'permission-enforcement'
       ).status
     ).toBe('fail');
@@ -139,14 +139,14 @@ describe('evaluateLines', () => {
       scenarios: [],
     };
     const missing = input({ specs: [model], records: [] });
-    expect(line(missing, 'model-checking').status).toBe('fail');
+    expect(line(missing, 'model-verifying').status).toBe('fail');
     expect(line(missing, 'trace-conformance').total).toBe(0);
-    const checked = input({
+    const verified = input({
       specs: [model],
       records: [record(model, [pass('campaign-symbolic', 'specification')])],
     });
-    expect(line(checked, 'model-checking').status).toBe('pass');
-    expect(line(checked, 'conformance-checks').status).toBe('pass');
+    expect(line(verified, 'model-verifying').status).toBe('pass');
+    expect(line(verified, 'conformance-verifications').status).toBe('pass');
   });
   test('a safety verdict cannot stand in for a declared progress obligation', () => {
     // regression: quint-temporal-obligations-unchecked
@@ -159,7 +159,7 @@ describe('evaluateLines', () => {
     };
     const safety = record(model, [pass('verify', 'specification')]);
     expect(
-      line(input({ specs: [model], records: [safety] }), 'model-checking')
+      line(input({ specs: [model], records: [safety] }), 'model-verifying')
         .status
     ).toBe('fail');
     const oneProperty = record(model, [
@@ -168,7 +168,7 @@ describe('evaluateLines', () => {
     expect(
       line(
         input({ specs: [model], records: [safety, oneProperty] }),
-        'model-checking'
+        'model-verifying'
       ).status
     ).toBe('fail');
     const allProperties = record(model, [
@@ -180,7 +180,7 @@ describe('evaluateLines', () => {
           specs: [model],
           records: [safety, oneProperty, allProperties],
         }),
-        'model-checking'
+        'model-verifying'
       ).status
     ).toBe('pass');
   });
@@ -292,7 +292,7 @@ describe('evaluateLines', () => {
     const without = input({ records: [record(DECISIONS, application)] });
     expect(line(without, 'permission-enforcement').status).toBe('fail');
     expect(line(without, 'permission-coverage').problems).toEqual([
-      'capability "host another open space": no server enforcement of "hosting-limit" was checked',
+      'capability "host another open space": no server enforcement of "hosting-limit" was verified',
     ]);
     expect(line(without, 'capabilities').status).toBe('pass');
     const withServer = input({
@@ -307,15 +307,15 @@ describe('evaluateLines', () => {
     expect(line(withServer, 'permission-coverage').status).toBe('pass');
   });
 
-  test('a line with nothing to check fails as missing automation', () => {
-    expect(line(input({}), 'model-checking')).toMatchObject({
+  test('a line with nothing to verify fails as missing automation', () => {
+    expect(line(input({}), 'model-verifying')).toMatchObject({
       status: 'fail',
       total: 0,
       problems: ['missing automation — nothing feeds this line'],
     });
   });
 
-  test('a release gate without a cached pass fails, and malformed evidence fails the checks line', () => {
+  test('a release gate without a cached pass fails, and malformed evidence fails the verifications line', () => {
     const report = input({
       gateTasks: ['tc', 'lint'],
       malformed: ['/r/evidence/x.json'],
@@ -323,7 +323,7 @@ describe('evaluateLines', () => {
     expect(line(report, 'release-gates').problems).toEqual([
       'lint: not run — no verdict for these inputs',
     ]);
-    expect(line(report, 'conformance-checks').problems[0]).toBe(
+    expect(line(report, 'conformance-verifications').problems[0]).toBe(
       '/r/evidence/x.json: malformed evidence'
     );
   });

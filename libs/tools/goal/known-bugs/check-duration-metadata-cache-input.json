@@ -1,4 +1,0 @@
-{
-  "summary": "Changing check-task-costs.json from one measured duration to another invalidated tooling source hashes and downstream check verdicts, although the checks themselves never read those observations. Exclude duration telemetry from source, type-check and test inputs; preserve JSON formatting validation in lint and always read current costs in the uncached planner.",
-  "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
-}

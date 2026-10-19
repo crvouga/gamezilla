@@ -1,6 +1,6 @@
 language js
 
-// a green check means every test ran, and ran the same way
+// a green verification means every test ran, and ran the same way
 // on every machine. Wired to test files only (`biome.json` plugin
 // `includes`), so it runs in each package's `lint`.
 or {
@@ -18,7 +18,7 @@ or {
       `$_.skipIf`,
       `$_.todoIf`
     },
-    register_diagnostic(span=$call, message="Skipped tests are banned — a green check must mean every test ran. Delete the test, fix it, or fail loudly when its dependency is missing.", severity="error")
+    register_diagnostic(span=$call, message="Skipped tests are banned — a green verification must mean every test ran. Delete the test, fix it, or fail loudly when its dependency is missing.", severity="error")
   },
   `$call($args)` where {
     $call <: or {

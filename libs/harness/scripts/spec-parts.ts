@@ -10,7 +10,7 @@
  * scenarios, a Quint model into {@link MODEL_SLICES} files of traces. Then
  * `--part k/n` takes its share of the units. Every other spec kind — a DMN
  * decision table, an Alloy structure, an OpenSLO objective — checks in one
- * file and is one unit of {@link CHECK_WEIGHT}.
+ * file and is one unit of {@link VERIFY_WEIGHT}.
  *
  * A model its package plans (`tests/quint/replays.json`, see
  * `model-replays.ts`) is sized by the replays its tests run — every variant's,
@@ -47,14 +47,14 @@ export const MODEL_SLICES = 8;
  */
 export const MODEL_WEIGHT = 128;
 /** A decision table, structure or objective: one static check, one unit. */
-export const CHECK_WEIGHT = 1;
+export const VERIFY_WEIGHT = 1;
 /** Scenario units one replayed whole-world trace costs (as in MODEL_WEIGHT). */
 export const TRACE_WEIGHT = 2;
 /** Most pull-request replays one planned model file holds: they run in order. */
 export const MODEL_FILE_REPLAYS = 4;
 /**
  * The nightly profile's per-task budget over the gate's (`taskBudgetScale`
- * in `libs/tools/scripts/check-profile.ts`): a part may replay this many
+ * in `libs/tools/scripts/verify-profile.ts`): a part may replay this many
  * times its gate load when the run explores.
  */
 export const NIGHTLY_REPLAY_SCALE = 4;
@@ -62,7 +62,7 @@ export const NIGHTLY_REPLAY_SCALE = 4;
 const MAX_MODEL_FILES = 64;
 /**
  * Most pull-request replays one part runs: a part of twelve took at most
- * 332 s on the 2-core runner replaying every one (Check run 38187450396), so
+ * 332 s on the 2-core runner replaying every one (Verify run 38187450396), so
  * sixteen stay near 443 s inside the 600 s cap; twenty was the miss. A
  * nightly part may run {@link NIGHTLY_REPLAY_SCALE} times as many.
  */
@@ -82,7 +82,7 @@ function isFeature(path: string): boolean {
 
 export function specWeight(path: string, source: string): number {
   if (path.endsWith('.qnt')) return MODEL_WEIGHT;
-  if (!isFeature(path)) return CHECK_WEIGHT;
+  if (!isFeature(path)) return VERIFY_WEIGHT;
   let weight = 0;
   let inExamples = false;
   let headerSeen = false;

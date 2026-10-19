@@ -1,4 +1,0 @@
-{
-  "summary": "A diagnostic Check override used local:w,remote:w, which disables cache reads. Enforce local:rw,remote:rw after secrets injection for normal checks and verify actual Turbo remote restoration and write-only bypass.",
-  "regressionTest": "libs/tools/scripts/turbo-cache-integration.test.ts"
-}

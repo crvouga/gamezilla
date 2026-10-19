@@ -3,7 +3,7 @@
 /**
  * Publish this commit's spec reports to the shared reports store (one R2
  * bucket every environment's API reads, keyed by commit sha; layout in
- * `@pkgs/harness-report`). The Check workflow runs it in three steps:
+ * `@pkgs/harness-report`). The Verify workflow runs it in three steps:
  *
  *   report-publish.ts prepare          open the attempt, reuse complete
  *                                       cached sources, plan missing outputs
@@ -14,7 +14,7 @@
  * (in the standalone Atlas explorer) shows the run filling in. A package
  * whose suite records no harness timeline publishes nothing and is named.
  * The commit is the pull request's head, not the merge commit Actions checks
- * out, so the Atlas revision is the sha `bun check-pr` printed.
+ * out, so the Atlas revision is the sha `bun verify` printed.
  *
  * Needs `REPORTS_BUCKET`, `REPORTS_ENDPOINT`, `REPORTS_WRITE_ACCESS_KEY_ID`
  * and `REPORTS_WRITE_SECRET_ACCESS_KEY` (written by OpenTofu; `secrets-run`
@@ -142,9 +142,9 @@ async function main(argv: readonly string[]): Promise<void> {
   const store = reportsStore();
   const sha = headSha();
   const publicationRun = `${process.env['GITHUB_RUN_ID'] ?? 'local'}:${process.env['GITHUB_RUN_ATTEMPT'] ?? '1'}`;
-  const planPath = process.env['CHECK_REPORT_PLAN_PATH'];
+  const planPath = process.env['VERIFY_REPORT_PLAN_PATH'];
   if (planPath === undefined)
-    throw new Error('CHECK_REPORT_PLAN_PATH is required');
+    throw new Error('VERIFY_REPORT_PLAN_PATH is required');
   const plan = readReportPlan(planPath);
   if (command === 'prepare') {
     await prepareReport({ store, sha, runId: publicationRun, planPath, plan });

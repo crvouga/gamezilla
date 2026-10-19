@@ -36,13 +36,13 @@ The stack creates local coordination secrets and connects workers to its local
 API. `--synthetic-population-workers 0` disables the sidecars. Production hosting
 is declared in [the Railway module](../../libs/infra-shared/tofu/modules/synthetic-population-service/)
 and composed into the existing foundation stack. Deploy uploads the commit with a
-generated Dockerfile and Railway builds and runs the worker with Bun. Check runs
+generated Dockerfile and Railway builds and runs the worker with Bun. Verify runs
 the package `test` script on the host and validates the OpenTofu module. It does
 not build an image. The Observatory uses the main
 frontend and backend deployments. SQL names, environment bindings and OpenTofu
 state addresses stay stable across the source-file rename.
 
-Automated verification is `bun check-pr`. The sub's focused gates are the
+Automated verification is `bun verify`. The sub's focused gates are the
 `test`, `tc` and `lint` scripts in its shared/server packages, `test:spec` in
 `@libs/synthetic-population-harness`, and `test` in
 `@apps/synthetic-population-worker`. Native realm tests cover session replacement,
@@ -51,7 +51,7 @@ OTLP collector with bounded labels; instance identities remain resource attribut
 
 [Measured capacity and its limits](PERFORMANCE.md) keep the Railway default at
 one Synthetic User per replica. Production readiness still requires a successful
-full Check and a GitHub Actions infrastructure/deployment rehearsal. The current
+full Verify and a GitHub Actions infrastructure/deployment rehearsal. The current
 tests do not cover every requested simultaneous-failure and rapid-release scenario.
 Automated alert provisioning, a sustained production soak, and the complete
 failure matrix remain outstanding. These limitations are release blockers for

@@ -1,4 +1,0 @@
-{
-  "summary": "Local Check sized Turbo's one --concurrency for model proofs (cpus / 6), so a 12-core machine ran 560 single-core lint, typecheck and spec tasks two at a time and hit the 600 s deadline. Proofs now take machine-wide solver slots and Turbo runs every remaining core.",
-  "regressionTest": "libs/tools/scripts/solver-slots.test.ts"
-}

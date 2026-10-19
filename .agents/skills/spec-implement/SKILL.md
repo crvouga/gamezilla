@@ -18,7 +18,7 @@ P1–P4); test rules are [`README.md`](../../../README.md#correctness-machinery)
   no harness action can honestly perform — stop and hand it back (§ Hand back).
 - **Red before green** (P3). No step body or product code before you have
   seen the scenario fail for the right reason.
-- **Never weaken a check to go green.** A failing scenario means the product
+- **Never weaken a verification to go green.** A failing scenario means the product
   or the harness is wrong; find which (`debug-trace` skill).
 - **Bind through the harness only** (D2). The harness is this repo's port: steps
   call exported `harness/` actions and reads; selectors, test IDs, DOM, HTTP and
@@ -40,7 +40,7 @@ P1–P4); test rules are [`README.md`](../../../README.md#correctness-machinery)
    timeout is **not** red: fix the scaffolding (never the scenario) and
    re-run until the failure is one of the two above.
 4. A scenario that **passes** before you write anything: either an existing
-   definition already covers it (fine — say so) or it checks nothing. If a
+   definition already covers it (fine — say so) or it verifies nothing. If a
    deliberately broken product (invert the key read locally) still passes
    it, hand it back.
 
@@ -123,9 +123,9 @@ steps never call other steps.
 
 1. Run **every** spec of the bounded context, not only the new ones:
    `bun run spec --package <workspace>` (it runs all its `specDomains`).
-2. `bun run spec:catalog`, then `bun run spec:check --strict-duplicates`.
+2. `bun run spec:catalog`, then `bun run spec:verify --strict-duplicates`.
    Delete definitions nothing uses.
-3. `bun run spec:ownership`, then `bun check-pr`.
+3. `bun run spec:ownership`, then `bun verify`.
 4. Commit separately from the `spec:` commit (P1).
 
 ## Demote a scenario (when `spec-audit` says B17)
@@ -162,5 +162,5 @@ skips the scenario.
 - [ ] Every definition: harness calls only (D2), no product logic (D3), Given
       builds / When acts / Then asserts, virtual time only (D5).
 - [ ] No duplicate or unused definitions; catalogs regenerated.
-- [ ] The whole context's specs, `spec:check --strict-duplicates`,
-      `spec:ownership` and `bun check-pr` are green.
+- [ ] The whole context's specs, `spec:verify --strict-duplicates`,
+      `spec:ownership` and `bun verify` are green.

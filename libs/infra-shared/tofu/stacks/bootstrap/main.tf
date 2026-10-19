@@ -106,7 +106,7 @@ module "repository" {
     AWS_ROLE_ARN        = module.aws_ci.role_arn
     AWS_HEALTH_ROLE_ARN = module.aws_ci.health_role_arn
     # Set by the same apply that lets the read-only AWS role trust pull
-    # requests: until then Check PR cannot plan the foundation stack.
+    # requests: until then Verify PR cannot plan the foundation stack.
     INFRA_PLAN_ON_PULL_REQUEST = "true"
   }
 }

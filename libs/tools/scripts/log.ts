@@ -3,7 +3,7 @@ function timestamp(): string {
 }
 
 export function healLog(message: string): void {
-  process.stderr.write(`[check:heal ${timestamp()}] ${message}\n`);
+  process.stderr.write(`[verify:heal ${timestamp()}] ${message}\n`);
 }
 
 export function formatDuration(ms: number): string {

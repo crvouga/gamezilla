@@ -11,7 +11,7 @@
     "test:spec:2": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
-    "check:models": {
+    "verify:models": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/*.qnt"]
     },
     "test:spec:3": {

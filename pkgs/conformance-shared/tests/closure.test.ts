@@ -94,7 +94,7 @@ describe('closureProblems', () => {
       );
     expect(closureProblems({ ...world, specs })).toEqual([
       'conformance "structure": required, but there is no structure spec',
-      'specs/spaces/model.qnt: not bound exactly once (bun run spec:check says why) — nothing checks it, so it cannot count',
+      'specs/spaces/model.qnt: not bound exactly once (bun run spec:verify says why) — nothing checks it, so it cannot count',
     ]);
   });
 

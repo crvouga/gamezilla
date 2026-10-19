@@ -1,6 +1,6 @@
 import type { StateMeta } from '@crvouga/atlas';
 
-/** Make statically checked app addresses readable in Atlas's standard detail panel. */
+/** Make statically verified app addresses readable in Atlas's standard detail panel. */
 export function withRouteHints(meta: StateMeta): StateMeta {
   const hints = meta['hints'];
   if (

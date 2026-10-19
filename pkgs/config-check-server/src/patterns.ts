@@ -1,7 +1,7 @@
 /**
  * The forbidden patterns of each package kind, read straight from syntax.
  *
- * This is the second, independent reading behind `check:patterns`: it parses
+ * This is the second, independent reading behind `verify:patterns`: it parses
  * a package's own files and nothing else, uses no type information, honors no
  * comment, and shares no rule list with the lint presets. A lint preset that
  * is weakened, or a directive that silences it, leaves every finding here.

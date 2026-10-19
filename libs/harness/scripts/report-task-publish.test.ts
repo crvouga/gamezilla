@@ -10,7 +10,7 @@ const sha = 'a'.repeat(40);
 const identity = { taskHash: '0123456789abcdef', generation: 0 };
 
 describe('report completion receipts', () => {
-  // regression: check-report-concurrent-run-receipt
+  // regression: verify-report-concurrent-run-receipt
   test('accepts an explicitly completed empty part and rejects missing or stale publications', async () => {
     const repoRoot = mkdtempSync(join(tmpdir(), 'report-publication-'));
     const store = new ObjectStoreImplInMemory();

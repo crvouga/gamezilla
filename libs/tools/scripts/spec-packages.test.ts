@@ -34,7 +34,7 @@ describe('specPartProblems', () => {
     expect(
       specPartProblems('libs/a', { scripts: { 'test:spec': RUNNER } })
     ).toEqual([
-      `libs/a/package.json: specParts must be an integer from 1 to ${String(MAX_SPEC_PARTS)} — bun check-pr runs the suite as test:spec:0 … test:spec:<specParts - 1>`,
+      `libs/a/package.json: specParts must be an integer from 1 to ${String(MAX_SPEC_PARTS)} — bun verify runs the suite as test:spec:0 … test:spec:<specParts - 1>`,
     ]);
   });
 
@@ -62,60 +62,64 @@ describe('modelTaskProblems', () => {
     name: '@libs/a',
     models: ['specs/a/door.qnt', 'specs/b/lock.qnt'],
   };
-  const scripts = { 'check:models': MODELS_RUNNER };
+  const scripts = { 'verify:models': MODELS_RUNNER };
   const inputs = [
     '$TURBO_EXTENDS$',
     '$TURBO_ROOT$/specs/a/*.qnt',
     '$TURBO_ROOT$/specs/b/*.qnt',
   ];
 
-  test("a package checking its models, hashing only their domains' models, is clean", () => {
+  test("a package verifying its models, hashing only their domains' models, is clean", () => {
     expect(modelTaskProblems(pkg, scripts, inputs)).toEqual([]);
   });
 
-  test('a package with models must check them', () => {
+  test('a package with models must verify them', () => {
     expect(modelTaskProblems(pkg, {}, inputs)).toEqual([
-      `libs/a/package.json: "check:models" must be "${MODELS_RUNNER}" — it has Quint models to check`,
+      `libs/a/package.json: "verify:models" must be "${MODELS_RUNNER}" — it has Quint models to verify`,
     ]);
   });
 
-  test('a package without models has no models check', () => {
+  test('a package without models has no models verification', () => {
     expect(
       modelTaskProblems({ ...pkg, models: [] }, scripts, undefined)
     ).toEqual([
-      'libs/a/package.json: "check:models" checks no Quint models — delete it',
+      'libs/a/package.json: "verify:models" verifies no Quint models — delete it',
     ]);
     expect(modelTaskProblems({ ...pkg, models: [] }, {}, undefined)).toEqual(
       []
     );
   });
 
-  test('a split models check has every part, each hashing the models, and no whole check', () => {
+  test('a split models verification has every part, each hashing the models, and no whole verification', () => {
     const part = (index: number) =>
       `${MODELS_RUNNER} --part ${String(index)}/2`;
-    const split = { 'check:models:0': part(0), 'check:models:1': part(1) };
+    const split = { 'verify:models:0': part(0), 'verify:models:1': part(1) };
     const parts = { count: 2, inputsOf: () => inputs };
     expect(modelTaskProblems(pkg, split, undefined, parts)).toEqual([]);
     expect(
       modelTaskProblems(
         pkg,
-        { ...split, 'check:models': MODELS_RUNNER, 'check:models:2': part(2) },
+        {
+          ...split,
+          'verify:models': MODELS_RUNNER,
+          'verify:models:2': part(2),
+        },
         undefined,
         parts
       )
     ).toEqual([
-      'libs/a/package.json: "check:models" would check every model again — the 2 parts replace it; delete it',
-      'libs/a/package.json: "check:models:2" is past modelParts (2) — delete it',
+      'libs/a/package.json: "verify:models" would verify every model again — the 2 parts replace it; delete it',
+      'libs/a/package.json: "verify:models:2" is past modelParts (2) — delete it',
     ]);
     expect(
-      modelTaskProblems(pkg, { 'check:models:0': part(0) }, undefined, {
+      modelTaskProblems(pkg, { 'verify:models:0': part(0) }, undefined, {
         count: 2,
         inputsOf: (task) =>
-          task === 'check:models:0' ? inputs : inputs.slice(0, 2),
+          task === 'verify:models:0' ? inputs : inputs.slice(0, 2),
       })
     ).toEqual([
-      `libs/a/package.json: "check:models:1" must be "${part(1)}"`,
-      'libs/a/turbo.json: check:models:1 inputs must include "$TURBO_ROOT$/specs/b/*.qnt" so a model change re-checks @libs/a',
+      `libs/a/package.json: "verify:models:1" must be "${part(1)}"`,
+      'libs/a/turbo.json: verify:models:1 inputs must include "$TURBO_ROOT$/specs/b/*.qnt" so a model change re-verifies @libs/a',
     ]);
     // A part holds at least one model, and a part needs a declared split.
     expect(
@@ -126,12 +130,12 @@ describe('modelTaskProblems', () => {
     expect(
       modelTaskProblems(
         pkg,
-        { ...scripts, 'check:models:0': part(0) },
+        { ...scripts, 'verify:models:0': part(0) },
         inputs,
         { count: undefined, inputsOf: () => inputs }
       )
     ).toEqual([
-      'libs/a/package.json: "check:models:0" is a part of no split — declare modelParts or delete it',
+      'libs/a/package.json: "verify:models:0" is a part of no split — declare modelParts or delete it',
     ]);
   });
 
@@ -139,8 +143,8 @@ describe('modelTaskProblems', () => {
     const one = { ...pkg, models: ['specs/a/door.qnt'] };
     const inputsOf = () => ['$TURBO_ROOT$/specs/a/*.qnt'];
     const grouped = {
-      'check:models:0': `${MODELS_RUNNER} --phase 1/3`,
-      'check:models:1': `${MODELS_RUNNER} --phase 0,2/3`,
+      'verify:models:0': `${MODELS_RUNNER} --phase 1/3`,
+      'verify:models:1': `${MODELS_RUNNER} --phase 0,2/3`,
     };
     expect(
       modelTaskProblems(one, grouped, undefined, {
@@ -153,7 +157,7 @@ describe('modelTaskProblems', () => {
     expect(
       modelTaskProblems(
         one,
-        { ...grouped, 'check:models:2': `${MODELS_RUNNER} --phase 0/3` },
+        { ...grouped, 'verify:models:2': `${MODELS_RUNNER} --phase 0/3` },
         undefined,
         {
           count: undefined,
@@ -166,7 +170,7 @@ describe('modelTaskProblems', () => {
     expect(
       modelTaskProblems(
         pkg,
-        { 'check:models:1:0': `${MODELS_RUNNER}` },
+        { 'verify:models:1:0': `${MODELS_RUNNER}` },
         undefined,
         {
           count: 2,
@@ -174,15 +178,15 @@ describe('modelTaskProblems', () => {
         }
       )
     ).toEqual([
-      'libs/a/package.json: "check:models:1:0" is a phase of no split — declare phaseParts or delete it',
-      `libs/a/package.json: "check:models:0" must be "${MODELS_RUNNER} --part 0/2"`,
-      `libs/a/package.json: "check:models:1" must be "${MODELS_RUNNER} --part 1/2"`,
+      'libs/a/package.json: "verify:models:1:0" is a phase of no split — declare phaseParts or delete it',
+      `libs/a/package.json: "verify:models:0" must be "${MODELS_RUNNER} --part 0/2"`,
+      `libs/a/package.json: "verify:models:1" must be "${MODELS_RUNNER} --part 1/2"`,
     ]);
   });
 
   test("the task must hash every domain's models, or an edit is served stale", () => {
     expect(modelTaskProblems(pkg, scripts, inputs.slice(0, 2))).toEqual([
-      'libs/a/turbo.json: check:models inputs must include "$TURBO_ROOT$/specs/b/*.qnt" so a model change re-checks @libs/a',
+      'libs/a/turbo.json: verify:models inputs must include "$TURBO_ROOT$/specs/b/*.qnt" so a model change re-verifies @libs/a',
     ]);
   });
 });

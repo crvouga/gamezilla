@@ -5,9 +5,9 @@
  * - Every other file and every directory: `lower-kebab-case`, with a
  *   lowercase extension chain (`foo-bar.test.ts`, `icon@2x.png`).
  *
- * The check (`libs/tools/scripts/check-naming.ts`) and the codemod
+ * The verification (`libs/tools/scripts/verify-naming.ts`) and the codemod
  * (`libs/tools/scripts/fix-naming.ts`) share these rules so the codemod always
- * produces names the check accepts.
+ * produces names the verification accepts.
  */
 
 /** Names mandated by external tools, and trees whose names are not ours. */

@@ -1,0 +1,4 @@
+{
+  "summary": "The pull-request Verification installed Chrome with install-dependencies true, so setup-chrome ran apt-get and upgraded mesa. That download stalled past the 2-minute renderer cap (run 37668279155, mesa-libgallium) and the gate never started. GitHub-hosted Ubuntu already has the libraries; the action keeps install-dependencies false.",
+  "regressionTest": "libs/tools/scripts/verify-budget.test.ts"
+}

@@ -5,9 +5,9 @@ import { testConcurrency } from '@pkgs/os-server/test-concurrency';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import { $ } from 'bun';
 import fc from 'fast-check';
-import { localCheckEnv } from './local-check-queue';
+import { localVerifyEnv } from './local-verify-queue';
 
-// regression: local-check-product-contract-concurrency
+// regression: local-verify-product-contract-concurrency
 test('product model and rendering contracts respect local test concurrency', async () => {
   const manifest = JSON.parse(
     readFileSync(
@@ -40,7 +40,7 @@ test('product model and rendering contracts respect local test concurrency', asy
     '../../../pkgs/os-server/src/test-concurrency.ts'
   );
   const local = await $`printf %s $(bun ${cli} 2)`
-    .env(localCheckEnv({}))
+    .env(localVerifyEnv({}))
     .quiet();
   expect(local.stdout.toString()).toBe('1');
   expect(testConcurrency({}, 2)).toBe(2);
@@ -57,23 +57,23 @@ test('product model and rendering contracts respect local test concurrency', asy
     expect(manifest.scripts['test']).toContain('test-concurrency.ts)');
   }
   expect(testConcurrency({})).toBe(20);
-  expect(testConcurrency(localCheckEnv({}))).toBe(1);
+  expect(testConcurrency(localVerifyEnv({}))).toBe(1);
 });
 
 test('explicit concurrency lowers but never raises the existing test ceilings', () => {
   assertProperty(
     'explicit-test-concurrency',
     fc.property(fc.integer({ min: 1, max: 100 }), (count) => {
-      expect(testConcurrency({ CHECK_TEST_CONCURRENCY: String(count) })).toBe(
+      expect(testConcurrency({ VERIFY_TEST_CONCURRENCY: String(count) })).toBe(
         Math.min(20, count)
       );
       expect(
-        testConcurrency({ CHECK_TEST_CONCURRENCY: String(count) }, 2)
+        testConcurrency({ VERIFY_TEST_CONCURRENCY: String(count) }, 2)
       ).toBe(Math.min(2, count));
     })
   );
   for (const value of ['0', '-1', '1.5', 'Infinity', 'bad'])
-    expect(() => testConcurrency({ CHECK_TEST_CONCURRENCY: value })).toThrow(
+    expect(() => testConcurrency({ VERIFY_TEST_CONCURRENCY: value })).toThrow(
       'positive integer'
     );
 });

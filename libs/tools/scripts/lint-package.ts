@@ -14,7 +14,7 @@
  * `tc` in turbo.json). Each tool runs from the repo root so it resolves the
  * one root config exactly as a whole-repo run would.
  *
- * Run from the repo root itself (`@libs/tools#check:root-lint`) it covers the paths that
+ * Run from the repo root itself (`@libs/tools#verify:root-lint`) it covers the paths that
  * belong to no package: root config files, editor and agent settings.
  */
 import { spawn, spawnSync } from 'node:child_process';
@@ -262,7 +262,7 @@ async function oxlintOk(
     writeFileSync(local, JSON.stringify({ extends: `./${project}` }));
   }
   try {
-    const threads = process.env['CHECK_LINT_THREADS'];
+    const threads = process.env['VERIFY_LINT_THREADS'];
     return await run('oxlint', [
       '--deny-warnings',
       ...(threads ? [`--threads=${threads}`] : []),
@@ -303,7 +303,7 @@ async function lintPackage(pkg: string): Promise<boolean> {
     ),
     clean(
       pkg,
-      "declares workspace dependencies nothing in it uses — each reruns this package's checks on every change to it; remove them",
+      "declares workspace dependencies nothing in it uses — each reruns this package's verifications on every change to it; remove them",
       files === null
         ? []
         : unusedWorkspaceDependencies(join(REPO_ROOT, pkg), pkgFiles)

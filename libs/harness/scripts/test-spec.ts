@@ -13,11 +13,11 @@
  * (`specs/<domain>/*.qnt`, its traces replayed through `tests/quint/index.ts`),
  * and each decision table, structure and objective (`*.dmn`, `*.als`,
  * `*.openslo.yaml`, checked through `tests/{dmn,alloy,openslo}/index.ts`;
- * see `spec-check-kinds.ts`) — runs `bun test --parallel` over those stubs plus `tests/harness` (or the
+ * see `spec-verify-kinds.ts`) — runs `bun test --parallel` over those stubs plus `tests/harness` (or the
  * paths given) with a JUnit report written into the bucket, and exits with
  * the runner's status. Every harness writes its step timeline into the bucket and
  * every model its traces, and turbo caches the bucket with the verdict, so
- * `bun check-pr` publishes the last run of this exact code; every step also
+ * `bun verify` publishes the last run of this exact code; every step also
  * records its UI frames.
  *
  *   test:spec                                        everything
@@ -29,7 +29,7 @@
  *   test:spec tests/harness/critical-journeys.test.tsx   one code test
  *   test:spec --part 2/5                             one of five parts
  *
- * `bun check-pr` runs a suite in parts (`test:spec:<k>` = `--part k/n`, n the
+ * `bun verify` runs a suite in parts (`test:spec:<k>` = `--part k/n`, n the
  * package's `specParts`), so one package's suite spreads over several CI
  * shards instead of setting the whole run's wall time. {@link partOf} splits
  * by weight read from the specs alone, so every part — on any machine —
@@ -61,10 +61,10 @@ import {
   replayPlanFor,
 } from './replay-plans';
 import { completedOrigin, reportOrigin } from './report-origin';
-import { CHECK_KINDS, isSpecPath } from './spec-check-kinds';
 import type { Part, SpecUnit } from './spec-parts';
 import { partOf } from './spec-parts';
 import { packageSpecDomains, packageSpecs } from './spec-sources';
+import { isSpecPath, VERIFY_KINDS } from './spec-verify-kinds';
 
 const PACKAGE_DIR = process.cwd();
 const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/index.ts');
@@ -74,7 +74,7 @@ const TEST_PACKAGE_NAME = process.env['npm_package_name'] ?? 'unknown';
 const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-spec`;
 /**
  * Per test, a wall clock. A scenario costs 2–5 s idle, but under a full
- * `bun check-pr` (every package's spec plus the Quint models at once) chess
+ * `bun verify` (every package's spec plus the Quint models at once) chess
  * scenarios measured 60–95 s, past the old 90 s. 240 s is over twice that
  * loaded cost, so load cannot flip a verdict; the per-task budget still
  * bounds a hang. A live browser (`HARNESS_MODE=real|stack`) gets the same.
@@ -248,7 +248,7 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
 
 /** Stubs for the decision tables, structures and objectives among `units`. */
 function writeCheckStubs(units: readonly SpecUnit[]): readonly string[] {
-  return CHECK_KINDS.flatMap((kind) => {
+  return VERIFY_KINDS.flatMap((kind) => {
     const specs = units.filter((unit) => unit.path.endsWith(kind.suffix));
     if (specs.length === 0) return [];
     const entry = join(PACKAGE_DIR, 'tests', kind.dir, 'index.ts');
@@ -344,7 +344,7 @@ const result = spawnSync(
     '--timeout',
     String(TIMEOUT_MS),
     // One product world per worker (~2GB). The ceiling follows CPUs and RAM;
-    // CHECK_TEST_CONCURRENCY can only lower it. Frames still go to the report.
+    // VERIFY_TEST_CONCURRENCY can only lower it. Frames still go to the report.
     `--parallel=${String(specParallelism(process.env))}`,
     '--no-isolate',
     '--reporter=junit',

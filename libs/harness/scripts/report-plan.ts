@@ -23,7 +23,7 @@ export function readReportPlan(path: string): ReportPlan {
     !Number.isSafeInteger(plan.generation) ||
     plan.generation < 0
   )
-    throw new Error('Invalid Check report plan');
+    throw new Error('Invalid Verify report plan');
   const seen = new Set<string>();
   for (const task of plan.tasks) {
     if (
@@ -33,7 +33,7 @@ export function readReportPlan(path: string): ReportPlan {
       typeof task.hit !== 'boolean' ||
       seen.has(task.taskId)
     )
-      throw new Error('Invalid Check task identity');
+      throw new Error('Invalid Verify task identity');
     seen.add(task.taskId);
   }
   return plan;
@@ -69,7 +69,7 @@ export async function finishReport(args: {
 export function taskIdentity(plan: ReportPlan, taskId: string): SourceIdentity {
   const task = plan.tasks.find((task) => task.taskId === taskId);
   if (task === undefined)
-    throw new Error(`Task absent from Check report plan: ${taskId}`);
+    throw new Error(`Task absent from Verify report plan: ${taskId}`);
   return { taskHash: task.hash, generation: plan.generation };
 }
 

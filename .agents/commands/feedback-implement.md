@@ -1,5 +1,5 @@
 ---
-description: Find the feedback report that best matches a title or body excerpt, then implement it completely with regression coverage and a green Check
+description: Find the feedback report that best matches a title or body excerpt, then implement it completely with regression coverage and a green Verification
 ---
 
 # /feedback-implement
@@ -75,9 +75,9 @@ entry.
 ## Finish
 
 Run focused format, lint, type-check, tests, and specs while iterating. Then run
-`bun check-pr` and stay with it until the authoritative verdict is green. Commit and
+`bun verify` and stay with it until the authoritative verdict is green. Commit and
 push through the repository's normal workflow, but never merge.
 
 Report the matched feedback id/title, the implemented behavior, regression/spec
-coverage, final commit, and Check/report links. Mention blockers only when they
+coverage, final commit, and Verify/report links. Mention blockers only when they
 require authority or information the command did not grant.

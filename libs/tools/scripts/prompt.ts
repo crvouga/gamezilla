@@ -1,5 +1,5 @@
 /**
- * The fix prompt `check:heal` hands its agent: every failing step's captured
+ * The fix prompt `verify:heal` hands its agent: every failing step's captured
  * output, cleaned of ANSI colour and CI timestamps and trimmed to its head and
  * tail, under the repo's non-negotiable constraints.
  */
@@ -34,17 +34,17 @@ function trimBlock(block: string): string {
   ].join('\n');
 }
 
-/** Plain-text prompt body for the `check:heal` agent loop. */
-export function buildCheckHealPromptBody(
+/** Plain-text prompt body for the `verify:heal` agent loop. */
+export function buildVerifyHealPromptBody(
   failures: ReadonlyArray<{ readonly stepId: string; readonly output: string }>
 ): string {
   if (failures.length === 0) return '';
   const lines = [
-    '# Fix `bun check-pr` failures',
+    '# Fix `bun verify` failures',
     '',
-    'The `bun check-pr` gates failed when run locally via `bun run check:heal`.',
+    'The `bun verify` gates failed when run locally via `bun run verify:heal`.',
     '',
-    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run check:heal` (or `bun check-pr`) to verify.',
+    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run verify:heal` (or `bun verify`) to verify.',
     '',
     'Constraints:',
     ...CONSTRAINTS.map((c) => `- ${c}`),

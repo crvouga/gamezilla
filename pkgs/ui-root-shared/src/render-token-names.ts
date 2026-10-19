@@ -5,7 +5,7 @@
  * Every visual prop of the design system is typed as one of these unions, so
  * a component can be handed a token name and nothing else. Pure; the
  * generator script (`pkgs/ui-root-client/scripts/generate-tokens-css.ts`)
- * writes the result and `tokens:check` fails when the file is stale.
+ * writes the result and `tokens:verify` fails when the file is stale.
  */
 
 import { tokenNames } from './design-tokens';

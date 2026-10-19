@@ -6,7 +6,7 @@ name: Deploy
 run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 
 # Verify the exact commit, deploy shared services, then development and
-# production, then publish a release. A rehearsal checks and plans only.
+# production, then publish a release. A rehearsal verifies and plans only.
 # Environment deployment steps are defined once and reused below.
 
 permissions:
@@ -20,7 +20,7 @@ on:
   workflow_dispatch:
     inputs:
       rehearsal:
-        description: Check this branch and plan fleet and dev's foundation, without applying or deploying
+        description: Verify this branch and plan fleet and dev's foundation, without applying or deploying
         type: boolean
         required: false
         default: false
@@ -34,16 +34,16 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy-check:
+  deploy-verify:
     name: Verify commit
-    uses: ./.github/workflows/check-pr.yml
+    uses: ./.github/workflows/verify-pr.yml
     with:
       require-main: ${{ !inputs.rehearsal }}
 
   deploy-rehearsal:
     name: Preview infrastructure changes
     if: ${{ inputs.rehearsal }}
-    needs: deploy-check
+    needs: deploy-verify
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -69,7 +69,7 @@ jobs:
   deploy-fleet:
     name: Deploy shared services
     if: ${{ !inputs.rehearsal }}
-    needs: deploy-check
+    needs: deploy-verify
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -112,7 +112,7 @@ jobs:
           fetch-depth: 0
       - id: setup
         uses: ./.github/actions/setup
-      # Check fingerprints this Chrome into the cache key of every test, so
+      # Verification fingerprints this Chrome into the cache key of every test, so
       # without it each task reruns here instead of restoring.
       - uses: ./.github/actions/visual-renderer
       - uses: ./.github/actions/secrets-auth

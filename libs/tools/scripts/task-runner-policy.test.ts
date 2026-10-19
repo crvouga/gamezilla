@@ -21,7 +21,7 @@ describe('root scripts', () => {
   const tasks: TurboTasks = {
     '//#task:report': TOOL,
     '//#ci:audit': { inputs: [], outputs: [] },
-    '//#check': { outputs: [] },
+    '//#verify': { outputs: [] },
     '@libs/runtime-server#migrate': TOOL,
     lint: { inputs: [], outputs: [] },
   };
@@ -43,7 +43,7 @@ describe('root scripts', () => {
         'db:migrate':
           'SECRETS_ENV=dev bun run libs/secrets-server/scripts/secrets-run.ts -- turbo run @libs/runtime-server#migrate --only --',
         lint: 'bun run libs/tools/scripts/turbo-ci-run.ts lint //#lint:root',
-        check: 'bun run lint',
+        verify: 'bun run lint',
       })
     ).toEqual([]);
   });
@@ -133,7 +133,7 @@ describe('package scripts', () => {
   });
 
   test('only the root starts turbo', () => {
-    expect(pkg({ check: 'turbo run lint' })).toEqual([
+    expect(pkg({ verify: 'turbo run lint' })).toEqual([
       expect.stringContaining('starts turbo'),
     ]);
   });
@@ -145,7 +145,7 @@ describe('task caching', () => {
       taskCachingViolations({
         '//#task:report': { cache: false },
         '//#task:i18n:compile': { inputs: ['a.po'], outputs: ['a.ts'] },
-        '//#check': { outputs: [] },
+        '//#verify': { outputs: [] },
       })
     ).toEqual([]);
     expect(taskCachingViolations({ build: { outputs: ['dist/**'] } })).toEqual([

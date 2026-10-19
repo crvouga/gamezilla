@@ -11,7 +11,7 @@
  * traceability addresses rather than product prose; the statechart gate
  * validates those addresses separately.
  *
- * Pure over the files' text, so `check-specs.ts` runs it in milliseconds.
+ * Pure over the files' text, so `verify-specs.ts` runs it in milliseconds.
  */
 
 /** The only tags a feature may carry: product-level traceability. */

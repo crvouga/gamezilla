@@ -4,9 +4,6 @@
   "private": true,
   "scripts": {
     "build": "vite build && bun run scripts/build-sw.ts",
-    "check:live-dist": "bun run scripts/live-bundle-guard-cli.ts check-dist",
-    "check:live-env": "bun run scripts/live-bundle-guard-cli.ts check-env",
-    "check:production-compression": "bun run scripts/check-production-compression.ts",
     "dev": "bun run scripts/dev.ts",
     "kill": "bun run scripts/kill-dev.ts",
     "kill-dev": "bun run scripts/kill-dev.ts",
@@ -15,7 +12,10 @@
     "pwa:generate": "bun run scripts/generate-pwa-assets.ts",
     "setup": "bun run --silent scripts/setup-env.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p tsconfig.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload",
+    "verify:live-dist": "bun run scripts/live-bundle-guard-cli.ts verify-dist",
+    "verify:live-env": "bun run scripts/live-bundle-guard-cli.ts verify-env",
+    "verify:production-compression": "bun run scripts/verify-production-compression.ts"
   },
   "dependencies": {
     "@libs/app-root-client": "workspace:*",

@@ -130,15 +130,15 @@ describe('generateCommitMessage', () => {
     expect(generateCommitMessage(['libs/x/tests/a.test.ts'])).toBe(
       'test(x): update a.test.ts'
     );
-    expect(generateCommitMessage(['.github/workflows/check.yml'])).toBe(
-      'ci(.github): update check.yml'
+    expect(generateCommitMessage(['.github/workflows/verify.yml'])).toBe(
+      'ci(.github): update verify.yml'
     );
   });
 
   // regression: ci-provider-native-ci-commit-classification
   test('classifies GitHub Actions workflows as CI changes', () => {
-    expect(generateCommitMessage(['.github/workflows/check.yml'])).toBe(
-      'ci(.github): update check.yml'
+    expect(generateCommitMessage(['.github/workflows/verify.yml'])).toBe(
+      'ci(.github): update verify.yml'
     );
   });
 

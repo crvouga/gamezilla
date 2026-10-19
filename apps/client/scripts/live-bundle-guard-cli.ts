@@ -12,10 +12,10 @@ import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 const clientRoot = join(fileURLToPath(import.meta.url), '..', '..');
 const fs = wallNodeFs();
 
-const USAGE = `usage: live-bundle-guard-cli.ts <check-env|check-dist>
+const USAGE = `usage: live-bundle-guard-cli.ts <verify-env|verify-dist>
 
-  check-env          Assert VITE_API_URL is the production API origin.
-  check-dist         Scan apps/client/dist for a loopback inlined API URL.
+  verify-env          Assert VITE_API_URL is the production API origin.
+  verify-dist         Scan apps/client/dist for a loopback inlined API URL.
 `;
 
 function dirStore(dir: string) {
@@ -29,13 +29,13 @@ if (subcommand === undefined) {
 }
 
 switch (subcommand) {
-  case 'check-env':
+  case 'verify-env':
     assertLiveClientBuildEnv();
     process.stdout.write(
       `[live-bundle-guard] VITE_API_URL=${productionClientApiOrigin()}\n`
     );
     break;
-  case 'check-dist':
+  case 'verify-dist':
     await new LiveBundleGuard(dirStore(join(clientRoot, 'dist'))).assert(
       'live web dist'
     );

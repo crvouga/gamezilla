@@ -1,6 +1,6 @@
 ---
 name: spec-upsert
-description: Write or change Gherkin features and Quint models in specs/<domain>/ — product behavior only, in the bounded context's ubiquitous language, checked against specs/README.md and a per-aggregate coverage map. Use for any new or changed .feature or .qnt file, scenario, health check, or critical journey. To audit existing specs use spec-audit; to bind steps use spec-implement.
+description: Write or change Gherkin features and Quint models in specs/<domain>/ — product behavior only, in the bounded context's ubiquitous language, verified against specs/README.md and a per-aggregate coverage map. Use for any new or changed .feature or .qnt file, scenario, health verification, or critical journey. To audit existing specs use spec-audit; to bind steps use spec-implement.
 ---
 
 # Spec upsert
@@ -108,11 +108,11 @@ Write one feature per capability in `specs/<domain>/<capability>.feature`,
 one `Rule:` per rule from step 2, one scenario per example. Reuse catalogued
 phrasings verbatim (B14).
 
-### 5. Self-check — fill this in and show it before writing files
+### 5. Self-verify — fill this in and show it before writing files
 
 ```text
 Feature: specs/<domain>/<file>.feature
-[ ] A1 every domain word resolves       — words checked: <list, or "all in glossary">
+[ ] A1 every domain word resolves       — words verified: <list, or "all in glossary">
 [ ] A2 no avoid-list synonym
 [ ] A3 new terms confirmed by the person — <terms, or "none">
 [ ] A4 foreign terms borrowed + published — <terms, or "none">
@@ -135,10 +135,10 @@ Coverage map (C1–C6) for <model>: <table>, gaps left: <list, or "none">
 A box you cannot tick is a finding: fix the draft and redo the box. A
 coverage gap you are not closing now is listed, not hidden.
 
-### 6. Write and check
+### 6. Write and verify
 
 1. Write the feature, model and glossary changes.
-2. Run `bun run spec:check`. Undefined steps and unbound models are the
+2. Run `bun run spec:verify`. Undefined steps and unbound models are the
    implementer's handoff. Every other error is yours.
 3. Run `spec-audit` in report-only mode on the touched files and the
    aggregate's coverage map. Fix every blocking finding, then re-run until

@@ -1,5 +1,5 @@
 # Spec audit — ChessBoard and consumer sounds — 2026-10-02
-Verdict: PASS for feature/model/binding audit (0 author blockers, complete coverage, all final bound/model/spec gates green). Full mission native closure and repository Check remain parent-owned release obligations.
+Verdict: PASS for feature/model/binding audit (0 author blockers, complete coverage, all final bound/model/spec gates green). Full mission native closure and repository Verify remain parent-owned release obligations.
 
 Independent read-only final author audit of14 ChessBoard features/seven models/glossary plus Chess puzzle-sound feature/model and published Runtime sounds/control lenders. The final author freeze is1e1f01ac5; previous freezes479f632eb/90db3ffc9 remain incorporated. No product/spec/test file was changed by this auditor; only /tmp reports/scripts. No manual QA or board test process was run.
 
@@ -460,6 +460,6 @@ Consumer sound actions operate real solve/review/wrong-legal-move UI plus inject
 
 - Writer: final source prose/model freeze author-cleared; no text correction requested.
 - Binder/root: final public default/focus/appearance/cancel/history reads, exact action parameters/projections, strict wording/catalog/ownership, all seven bound/formal models and narrow canonical capture fact are green. No binding/spec blocker remains. Root may retire legacy files against the completed102-case proof ledger.
-- Root: consumer no-repeat/mute/delayed exact counts/public seam/import+authority conformance scopePASS. Mechanical75ms/zero/low-end/capability/identifier parity closed. Complete native capture-ring/label-edge/resize-orient→newer history proof and fresh affected gates, then full repository Check. These mission obligations are independent of feature/model audit and legacy parity PASS.
+- Root: consumer no-repeat/mute/delayed exact counts/public seam/import+authority conformance scopePASS. Mechanical75ms/zero/low-end/capability/identifier parity closed. Complete native capture-ring/label-edge/resize-orient→newer history proof and fresh affected gates, then full repository Verify. These mission obligations are independent of feature/model audit and legacy parity PASS.
 
-No human clarification is needed: the mission and parent provide author intent. Feature/model/binding and legacy parity PASS are not a release verdict; full mission native closure and repository Check remain required.
+No human clarification is needed: the mission and parent provide author intent. Feature/model/binding and legacy parity PASS are not a release verdict; full mission native closure and repository Verify remain required.

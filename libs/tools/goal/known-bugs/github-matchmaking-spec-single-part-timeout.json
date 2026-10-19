@@ -1,4 +1,4 @@
 {
-  "summary": "GitHub Check 37513527564 exceeded the 600-second task limit replaying all 128 matchmaking traces in one spec part. Split the unchanged eight model slices across eight parts, preserving every trace and model-wide obligation.",
+  "summary": "GitHub Verify 37513527564 exceeded the 600-second task limit replaying all 128 matchmaking traces in one spec part. Split the unchanged eight model slices across eight parts, preserving every trace and model-wide obligation.",
   "regressionTest": "libs/harness/scripts/spec-parts.test.ts"
 }

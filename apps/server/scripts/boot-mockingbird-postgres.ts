@@ -1,6 +1,6 @@
 // @io-wall-ok
 /**
- * Hang with Mockingbird Postgres + product migrate/seed for CI (`check:api`).
+ * Hang with Mockingbird Postgres + product migrate/seed for CI (`verify:api`).
  */
 
 import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server/start';

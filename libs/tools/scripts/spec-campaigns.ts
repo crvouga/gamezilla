@@ -83,14 +83,14 @@ function campaignInputLists(
   return parts.map((name) => tasks[name]?.inputs);
 }
 
-/** Preserve simulation, fault sensitivity, symbolic checks and cache invalidation. */
+/** Preserve simulation, fault sensitivity, symbolic verifications and cache invalidation. */
 export function campaignTaskProblems(input: CampaignTasks): readonly string[] {
   const problems: string[] = [];
-  const checks = {
+  const verifications = {
     test: ['simulation.test.ts', 'effectiveness.test.ts'],
     'test:contract': ['model-checks.test.ts'],
   };
-  for (const [task, files] of Object.entries(checks)) {
+  for (const [task, files] of Object.entries(verifications)) {
     for (const file of files) {
       const path = `tests/quint/${file}`;
       if (!runsCampaignFile(input.scripts, task, path)) {
@@ -129,7 +129,7 @@ export function specCampaigns(root: string): readonly SpecCampaign[] {
   );
 }
 
-/** Both cached Check leaves must run and hash every campaign's source set. */
+/** Both cached Verify leaves must run and hash every campaign's source set. */
 export function campaignProblems(
   root: string,
   campaigns: readonly SpecCampaign[]

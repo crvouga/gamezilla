@@ -1,7 +1,7 @@
 /**
  * The offline-shell analysis over built output: what the wall client can load
  * (static, lazy and preload edges from `index.html`, never entering the
- * harness boot) must all be in the Workbox precache. `check:offline-shell`
+ * harness boot) must all be in the Workbox precache. `verify:offline-shell`
  * runs the same analysis against the real `dist/`.
  */
 import { describe, expect, test } from 'bun:test';

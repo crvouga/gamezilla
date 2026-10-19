@@ -9,8 +9,8 @@
 - A claim phrased "no matter the order", "under any interleaving", or
   "never".
 
-A random walk that only checks "didn't crash" or the standing
-`defineProperty` checks becomes a model whose `observe` compares the
+A random walk that only verifies "didn't crash" or the standing
+`defineProperty` verifications becomes a model whose `observe` compares the
 product's state to the model's after **every** step. That makes it a much
 stronger test than the one it replaces.
 

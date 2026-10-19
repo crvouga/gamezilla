@@ -1,6 +1,6 @@
 /**
  * Swift projection of the design-token document. Pure: the generator writes
- * `design-system/swift/design-tokens.swift` and `tokens:check` fails when
+ * `design-system/swift/design-tokens.swift` and `tokens:verify` fails when
  * that file is stale. Values are resolved, so Swift does not follow aliases.
  */
 

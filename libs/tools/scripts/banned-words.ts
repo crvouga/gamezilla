@@ -1,6 +1,6 @@
 /**
  * Words the repo no longer uses, run by lint-package.ts over a package's
- * paths and text (and by `@libs/tools#check:root-lint` over the rest).
+ * paths and text (and by `@libs/tools#verify:root-lint` over the rest).
  *
  * A banned word is jargon that names a mechanism instead of the thing: a
  * behavior test is a *spec* (`specs/<domain>/`, run by `test:spec`), its

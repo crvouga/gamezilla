@@ -1,0 +1,4 @@
+{
+  "summary": "Private local verifications excluded every ignored .cache input, including the explicitly prepared visual model that the offline quality checker requires. Copy that installed dependency privately without reusing stale reports, and exclude its large binary files from the diagnostics archive.",
+  "regressionTest": "libs/tools/scripts/verify-prepared-model.contract.test.ts"
+}

@@ -11,7 +11,7 @@
 | Weeks-behind client worlds | `specs/sync-engine/notes-across-app-updates.feature` | `bun run spec specs/sync-engine/notes-across-app-updates.feature` |
 | Schema safety model (no dangerous edit, no lost or rewritten value, tombstones permanent) | `pkgs/db-schema-root-harness/tests/quint/schema-safety.qnt` | `bun test pkgs/db-schema-root-harness/tests/quint/schema-safety.test.ts` |
 | Transaction/rebuild reference validity, without adapter replay | `../db-schema-harness/tests/quint/reconciliation-contracts.test.ts` | `bun test pkgs/db-schema-root-harness/tests/quint/reconciliation-contracts.test.ts` |
-| Evolution gate (CI) | `libs/runtime-server/scripts/check-schema-evolution.ts` | `bun run --filter @libs/runtime-server check:schema-evolution` |
+| Evolution gate (CI) | `libs/runtime-server/scripts/verify-schema-evolution.ts` | `bun run --filter @libs/runtime-server verify:schema-evolution` |
 | Append-only names (CI) | `apps/server/tests/contract-manifest.test.ts` | `bun run --filter @apps/server test` |
 
 ## Invariants (oracles)
@@ -47,7 +47,7 @@ to `[]` on engines without `pg_index` (mockingbird-postgres).
 
 ```bash
 bun run --filter @libs/runtime-server schema:snapshot     # writes release N+1
-bun run --filter @libs/runtime-server check:schema-evolution
+bun run --filter @libs/runtime-server verify:schema-evolution
 ```
 
 `schema:snapshot` refuses to write an illegal evolution, so regeneration cannot

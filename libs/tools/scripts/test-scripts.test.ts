@@ -48,7 +48,7 @@ describe('testScriptViolations', () => {
         scripts: { test: 'bun run scripts/my-runner.ts' },
         files: ['tests/a.test.ts'],
       }).join('\n')
-    ).toContain('cannot be checked');
+    ).toContain('cannot be verified');
   });
 
   test('spec split: test ignores tests/harness, the harness runner picks it up', () => {

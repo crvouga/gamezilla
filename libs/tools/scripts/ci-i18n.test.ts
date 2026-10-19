@@ -48,7 +48,7 @@ describe('lingui catalog scope', () => {
   });
 });
 
-test('the freshness check regenerates into scratch, never the committed catalog', () => {
+test('the freshness verification regenerates into scratch, never the committed catalog', () => {
   // regression: ci-i18n-rewrites-committed-catalog
   const source = scratchConfigSource('/repo');
   expect(source).toContain(

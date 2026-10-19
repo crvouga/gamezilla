@@ -49,10 +49,10 @@ describe('specs/ layout', () => {
     );
   });
 
-  test('grammars and schemas are refused until a runner checks them', () => {
+  test('grammars and schemas are refused until a runner verifies them', () => {
     for (const name of ['query.ebnf', 'invoice.schema.json']) {
       expect(contextEntryProblem('billing', name, false)).toContain(
-        'no runner checks'
+        'no runner verifications'
       );
     }
   });

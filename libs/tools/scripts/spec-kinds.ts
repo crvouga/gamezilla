@@ -80,7 +80,7 @@ export function contextEntryProblem(
   }
   const unrun = UNRUN_SUFFIXES.find((suffix) => name.endsWith(suffix));
   if (unrun !== undefined) {
-    return `${path}: no runner checks *${unrun} specs yet — an unrun spec would be a false green; add its runner before the spec`;
+    return `${path}: no runner verifications *${unrun} specs yet — an unrun spec would be a false green; add its runner before the spec`;
   }
   if (
     name === 'ubiquitous-language.yml' ||

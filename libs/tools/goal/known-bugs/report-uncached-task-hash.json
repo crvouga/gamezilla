@@ -1,4 +1,4 @@
 {
-  "summary": "A full Check with cache reads disabled ran all 489 tasks successfully but failed report publication. The stream verified task hashes only for Turbo's cache hit and miss messages, ignoring cache bypass, force executing. Recognize bypass messages while preserving exact planned-hash verification and waiting for completion before uploading.",
-  "regressionTest": "libs/tools/scripts/check-report-stream.test.ts"
+  "summary": "A full Verify with cache reads disabled ran all 489 tasks successfully but failed report publication. The stream verified task hashes only for Turbo's cache hit and miss messages, ignoring cache bypass, force executing. Recognize bypass messages while preserving exact planned-hash verification and waiting for completion before uploading.",
+  "regressionTest": "libs/tools/scripts/verify-report-stream.test.ts"
 }

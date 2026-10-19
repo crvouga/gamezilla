@@ -1195,9 +1195,9 @@
     {
       "path": "./libs/tools/biome-plugins/no-ci-verdict.grit",
       "includes": [
-        "**/scripts/**/check-*.ts",
+        "**/scripts/**/verify-*.ts",
         "!**/*.test.ts",
-        "!**/apps/client/scripts/check-production-compression.ts"
+        "!**/apps/client/scripts/verify-production-compression.ts"
       ]
     },
     {

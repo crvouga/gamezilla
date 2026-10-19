@@ -75,8 +75,8 @@ apps/client/android/
 # DuckDB inspect UI local database
 .local/
 
-# Local preview-stack log from check:api
-.check-*
+# Local preview-stack log from verify:api
+.verify-*
 
 # Local observability span export (opt-in dev debugging)
 .observability/
@@ -97,7 +97,7 @@ apps/client/android/
 turbo-platform-key.json
 
 
-# Check artifacts (reports, traces, videos)
+# Verify artifacts (reports, traces, videos)
 /check/
 **/atlas-runs/
 **/test-results/

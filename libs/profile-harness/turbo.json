@@ -68,36 +68,36 @@
     "test:spec:21": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
-    "check:models:0": {
+    "verify:models:0": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/*.qnt"]
     },
-    "check:models:1": {
+    "verify:models:1": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/*.qnt"]
     },
-    "check:models:2": {
+    "verify:models:2": {
       "dependsOn": [
-        "check:models:2:0",
-        "check:models:2:1",
-        "check:models:2:2",
-        "check:models:2:3",
-        "check:models:2:4",
-        "check:models:2:5",
-        "check:models:2:6",
-        "check:models:2:7",
-        "check:models:2:8",
-        "check:models:2:9",
-        "check:models:2:10"
+        "verify:models:2:0",
+        "verify:models:2:1",
+        "verify:models:2:2",
+        "verify:models:2:3",
+        "verify:models:2:4",
+        "verify:models:2:5",
+        "verify:models:2:6",
+        "verify:models:2:7",
+        "verify:models:2:8",
+        "verify:models:2:9",
+        "verify:models:2:10"
       ],
       "cache": false
     },
-    "check:models:2:0": {
+    "verify:models:2:0": {
       "inputs": [
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
@@ -119,14 +119,14 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:2:1": {
+    "verify:models:2:1": {
       "inputs": [
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
@@ -148,14 +148,14 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:2:2": {
+    "verify:models:2:2": {
       "inputs": [
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
@@ -177,14 +177,14 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:2:3": {
+    "verify:models:2:3": {
       "inputs": [
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
@@ -206,14 +206,14 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:2:4": {
+    "verify:models:2:4": {
       "inputs": [
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
@@ -235,14 +235,14 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:2:5": {
+    "verify:models:2:5": {
       "inputs": [
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
@@ -264,14 +264,14 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:2:6": {
+    "verify:models:2:6": {
       "inputs": [
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
@@ -293,14 +293,14 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:2:7": {
+    "verify:models:2:7": {
       "inputs": [
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
@@ -322,14 +322,14 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:2:8": {
+    "verify:models:2:8": {
       "inputs": [
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
@@ -351,14 +351,14 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:2:9": {
+    "verify:models:2:9": {
       "inputs": [
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
@@ -380,14 +380,14 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:2:10": {
+    "verify:models:2:10": {
       "inputs": [
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",

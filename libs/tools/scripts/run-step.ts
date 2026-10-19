@@ -2,7 +2,7 @@ import type { Writable } from 'node:stream';
 import { withForcedColorEnv } from '@pkgs/os-shared/force-color-env';
 import { combineStreams } from './combine-streams';
 import { formatDuration, healLog } from './log';
-import type { CheckHealStep } from './steps';
+import type { VerifyHealStep } from './steps';
 
 export interface RunStepResult {
   readonly stepId: string;
@@ -43,7 +43,7 @@ function concatChunks(chunks: ReadonlyArray<Uint8Array>): Uint8Array {
 }
 
 export async function runStep(
-  step: CheckHealStep,
+  step: VerifyHealStep,
   repoRoot: string
 ): Promise<RunStepResult> {
   healLog(`step ${step.stepId}: starting \`bun run ${step.bunScript}\``);

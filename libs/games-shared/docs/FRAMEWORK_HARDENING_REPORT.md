@@ -336,10 +336,10 @@ bare `bun test <file>` fails 13 of 16 files on `react/jsx-dev-runtime`.
   - "won another way".
 - **Durable chess-named stores serve every game.** These include `GAME_PLATFORM_NAMESPACE = 'chess'`, the tables `chess_multiplayer_*`, `chess_opponent_searches` and `chess_puzzle*`, the catalogue topic `system:chess_puzzles`, the room attributes `chess.puzzle.*`, the messages `chess-puzzle-play-*` and `chess-cmd`, the refusal codes `CHESS_*` and the route `/chess/puzzle/:puzzleId`. They are deliberately never renamed, because renaming would break stored histories and queued mutations (GAME_FRAMEWORK.md § Durable names). For a reader they remain a naming debt.
 - **The billing spec-part change is reverted.** `3c6b2c60c` lowered `@libs/billing-harness` from 24 to 23 spec parts to keep the total at 241 spec tasks; once `303e7b499` sized parts by the replays each model actually runs (games 64 → 41, chess 32 → 7), billing went back to `main`'s 24 and `docs/CI_REQUIREMENTS.md` still reads "Fits: yes".
-- **`--strict-duplicates` fails.** `check-specs.ts --strict-duplicates` exits 1 with 9 near-duplicate step pairs, all in step definitions outside `specs/`. Seven differ only by case ("Custom Game" vs "custom game") between `chess-root-harness` or `runtime-harness` and `games-harness`. The others are one `friends-harness` pair and one `games-harness` pair. It is not a gate: `@libs/tools#ci:specs` runs `check-specs.ts` without the flag, and that exits 0 with 9 wording warnings. All nine phrasings are used by feature files (`specs/chess`, `specs/journeys`, `specs/spaces`, `specs/games`). Removing the pairs therefore means unifying the wording in a `spec:` commit, for example "Custom Game" against "custom game".
+- **`--strict-duplicates` fails.** `verify-specs.ts --strict-duplicates` exits 1 with 9 near-duplicate step pairs, all in step definitions outside `specs/`. Seven differ only by case ("Custom Game" vs "custom game") between `chess-root-harness` or `runtime-harness` and `games-harness`. The others are one `friends-harness` pair and one `games-harness` pair. It is not a gate: `@libs/tools#ci:specs` runs `verify-specs.ts` without the flag, and that exits 0 with 9 wording warnings. All nine phrasings are used by feature files (`specs/chess`, `specs/journeys`, `specs/spaces`, `specs/games`). Removing the pairs therefore means unifying the wording in a `spec:` commit, for example "Custom Game" against "custom game".
 - **Another session's uncommitted edits break `@libs/game-puzzle-client#lint`.** The files are `use-puzzle-rating-events.ts`, `use-puzzle-result-recorded.ts` and `game-puzzle-shared/src/puzzle-tables.ts`. Biome reports `use-puzzle-rating-events.ts:1:1 assist/source/organizeImports`. HEAD's committed tree passes (§10, A/B check).
-- **`@libs/games-harness#check:models:10` ran over budget.** This task is `puzzle-attempt.qnt`. It took 303 s against a 300 s budget in the cold gate run, on a shared machine at load 9–17 with three solver tasks beside it. Moving it from chess shrank the model (+22/−95 lines) and left its bounds alone (`maxSteps 64`, `verifySteps 8`). Re-timed alone at load ~9, it took 10 s (a complete finite graph of 17,626 states in 9.2 s). Likewise `test:spec:20` took 310 s at load 23–25 against 113 s alone (90 pass). Both overruns were contention on a shared machine, so no budget was raised.
-- **Spec scenarios share one process per part, and earlier worlds shift ids.** The spec runner uses `--no-isolate`, and with `CHECK_TEST_CONCURRENCY=1` every file in a part runs in one process. What a world derives can therefore depend on which files ran before. Measured here: the feed's first pick, seeded by `${myId}-${attemptSeed}` through `resolvePuzzlePickOffset`, served `leap-past-four` after `matched-game-cannot-win` but `either-order` alone. `7e70d865e` fixed the one scenario this exposed. The order dependence itself remains a harness property: a step whose premise holds for only some picks will pass alone and fail in the gate.
+- **`@libs/games-harness#verify:models:10` ran over budget.** This task is `puzzle-attempt.qnt`. It took 303 s against a 300 s budget in the cold gate run, on a shared machine at load 9–17 with three solver tasks beside it. Moving it from chess shrank the model (+22/−95 lines) and left its bounds alone (`maxSteps 64`, `verifySteps 8`). Re-timed alone at load ~9, it took 10 s (a complete finite graph of 17,626 states in 9.2 s). Likewise `test:spec:20` took 310 s at load 23–25 against 113 s alone (90 pass). Both overruns were contention on a shared machine, so no budget was raised.
+- **Spec scenarios share one process per part, and earlier worlds shift ids.** The spec runner uses `--no-isolate`, and with `VERIFY_TEST_CONCURRENCY=1` every file in a part runs in one process. What a world derives can therefore depend on which files ran before. Measured here: the feed's first pick, seeded by `${myId}-${attemptSeed}` through `resolvePuzzlePickOffset`, served `leap-past-four` after `matched-game-cannot-win` but `either-order` alone. `7e70d865e` fixed the one scenario this exposed. The order dependence itself remains a harness property: a step whose premise holds for only some picks will pass alone and fail in the gate.
 - **Limits carried from GAME_FRAMEWORK.md and the probes:**
   - Turns must alternate.
   - There are exactly two seats.
@@ -370,18 +370,18 @@ All commands ran in this session from the worktree (at `7455fc070` unless a row 
 | `cd libs/games-harness && bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --preload @libs/harness/preload <file>` for `game-conformance-matrix` (10/0), `game-conformance-plan` (12/0), `game-result-attribution` (4/0), `game-order-isolation` (4/0), `game-enrollment` (5/0), `reference-game/*` (1, 8, 17, 4 /0), `probes/*` (8 files, 20/0) | §5–§7 | all pass |
 | `cd libs/tools && bun test scripts/conformance-report-variants.test.ts` (11/0), `scripts/package-boundaries.test.ts` (25/0) | §2, §6 | pass |
 | `bun test` in `libs/game-session-shared` (`turn-game-contract` 8/0, `independent-rules` 4/0), `libs/game-menu-client` (`game-client-contract` 4/0), `libs/games-shared` (`game-plugin-contract` 4/0), `pkgs/turn-game-shared` (`catalog` 9/0) | §2 | pass |
-| `bun run libs/tools/scripts/check-specs.ts` / `… --strict-duplicates` | §9 | exit 0 (9 warnings) / exit 1 (9 pairs) |
+| `bun run libs/tools/scripts/verify-specs.ts` / `… --strict-duplicates` | §9 | exit 0 (9 warnings) / exit 1 (9 pairs) |
 | `cd libs/game-puzzle-client && bun run lint` | working tree | exit 1: `use-puzzle-rating-events.ts` organizeImports |
 | `git archive HEAD biome.json libs/tools/biome-plugins libs/game-puzzle-client libs/game-puzzle-shared \| tar -x -C /tmp/fhr/{clean,dirty}`; copy the three working-tree files into `dirty`; `biome check libs/game-puzzle-client libs/game-puzzle-shared` in each | lint attribution, without a git worktree (AGENTS.md forbids agents adding one) | clean: exit 0, 187 files; dirty: exit 1, 1 error |
-| `TURBO_CONCURRENCY=3 bun check-pr [--continue=dependencies-successful]`, detached, `uptime` load 6–25 | full PR gate, 1198 tasks | see below |
-| `CHECK_TEST_CONCURRENCY=1 bun run test:spec:22`; `bun test --parallel=1 --no-isolate <file> <feed slice>` | bisecting the spec:22 failure | see the fixes below |
-| `bun run check:models:10`; `CHECK_TEST_CONCURRENCY=1 bun run test:spec:20` in `libs/games-harness` | re-timing the budget overruns | 10 s; 113 s (90/0) |
+| `TURBO_CONCURRENCY=3 bun verify [--continue=dependencies-successful]`, detached, `uptime` load 6–25 | full PR gate, 1198 tasks | see below |
+| `VERIFY_TEST_CONCURRENCY=1 bun run test:spec:22`; `bun test --parallel=1 --no-isolate <file> <feed slice>` | bisecting the spec:22 failure | see the fixes below |
+| `bun run verify:models:10`; `VERIFY_TEST_CONCURRENCY=1 bun run test:spec:20` in `libs/games-harness` | re-timing the budget overruns | 10 s; 113 s (90/0) |
 
 ### The PR gate
 
-`bun check-pr` ran with the secrets cache available offline (`secrets-run`)
+`bun verify` ran with the secrets cache available offline (`secrets-run`)
 and `TURBO_CONCURRENCY=3`. No gate was weakened:
-- The local 600 s run deadline (`check-budget.ts`) stayed as it is. A cold run of 1198 tasks at concurrency 3 cannot finish inside it, so the gate was re-run unchanged. Each run published its finished tasks to the turbo cache (`publishCheckArtifacts`), and the next run executed only what remained.
+- The local 600 s run deadline (`verify-budget.ts`) stayed as it is. A cold run of 1198 tasks at concurrency 3 cannot finish inside it, so the gate was re-run unchanged. Each run published its finished tasks to the turbo cache (`publishCheckArtifacts`), and the next run executed only what remained.
 - From run 4 on, `--continue=dependencies-successful` let every task report past the known lint failure. The gate still exits non-zero on any failure.
 
 | Runs | HEAD | Tasks successful | Failures | Cause |
@@ -390,12 +390,12 @@ and `TURBO_CONCURRENCY=3`. No gate was weakened:
 | 3 | `7455fc070` | 84 of 114 started | `@libs/permissions-harness#test` (5 tests, ENOENT `specs/chess/daily-puzzle-limit.dmn`) | **This branch.** `73a546c62` moved the table, and the package's test task declared no spec inputs. Fixed in `720ce4b76`. |
 | 4–7 | `720ce4b76` | 1080 → 1185 of 1198 | `@libs/game-puzzle-client#lint`; `@libs/games-harness#test:spec:22` | lint: **the other session's uncommitted files** (A/B above). spec:22: **this branch**, fixed in `7e70d865e` |
 | 8 | `720ce4b76` | void | `No space left on device` | A shared disk filled up. I removed only my own run snapshots. |
-| 9 | `720ce4b76` | 1196 of 1198 | the same two | as above; spec:22 also reproduced locally with `CHECK_TEST_CONCURRENCY=1` |
+| 9 | `720ce4b76` | 1196 of 1198 | the same two | as above; spec:22 also reproduced locally with `VERIFY_TEST_CONCURRENCY=1` |
 | 10–14 | `7e70d865e` | **1197 of 1198** (run 14: 1189 cached + 8 executed) | `@libs/game-puzzle-client#lint` only | the other session's uncommitted files |
 
 **Gate outcome by task family at `7e70d865e`:**
 - `lint`: everything passes except `@libs/game-puzzle-client`, which fails only with the three uncommitted files present (HEAD's tree passes Biome).
-- Every other task of the 1198 passes: `tc`, `test`, `test:spec:*`, `test:contract:*`, `check:models*`, the `@libs/tools` gates, builds and bundles.
+- Every other task of the 1198 passes: `tc`, `test`, `test:spec:*`, `test:contract:*`, `verify:models*`, the `@libs/tools` gates, builds and bundles.
 
 **Fixes made during validation**, each committed separately with a regression test:
 1. **`720ce4b76`** `fix(permissions)`:
@@ -414,5 +414,5 @@ fixed failures were caused by this branch's changes. The permissions
 package's missing spec inputs predate the branch (no `turbo.json` on
 `main`), but the branch's spec move is what exposed them.
 
-**Not run:** `bun check-nightly` (deeper property and trace budgets); the
-Check PR workflow on GitHub.
+**Not run:** `bun verify-nightly` (deeper property and trace budgets); the
+Verify PR workflow on GitHub.

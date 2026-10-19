@@ -60,7 +60,7 @@ export async function resumeMonitors(
       const next = await m.property.check(surface, m.model, action);
       if (next !== undefined) m.model = next;
     } catch (e) {
-      // A throwing check leaves the stored model untouched.
+      // A throwing verify leaves the stored model untouched.
       m.closed = true;
       violations.push(
         e instanceof PropertyViolation
