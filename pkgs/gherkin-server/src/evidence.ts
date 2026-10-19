@@ -1,6 +1,7 @@
 /**
  * Behavior evidence: each scenario a run decides is one obligation of its
- * feature, `scenario:<scenario name>`, recorded through
+ * feature, `scenario:<scenario name>` — or, run per variant, one per variant,
+ * `scenario:<scenario name> [<variant id>]` — recorded through
  * `@pkgs/conformance/evidence-store` into the run's report bucket. A harness
  * run proves the `system` layer; a live run against a deployment proves
  * `release`. The bun test stays the gate — evidence is the record of it.
@@ -20,12 +21,19 @@ export type ScenarioVerdict = {
   readonly featureSource: string;
   readonly layer: Layer;
   readonly scenarioName: string;
+  /** The variant the run was for (a game, …), when the host runs one per variant. */
+  readonly variant?: string | undefined;
   readonly status: 'pass' | 'fail';
   readonly detail?: string | undefined;
 };
 
-export function scenarioObligationId(scenarioName: string): string {
-  return `scenario:${scenarioName}`;
+export function scenarioObligationId(
+  scenarioName: string,
+  variant?: string
+): string {
+  return variant === undefined
+    ? `scenario:${scenarioName}`
+    : `scenario:${scenarioName} [${variant}]`;
 }
 
 /** Record one decided scenario as an obligation of its feature. */
@@ -37,7 +45,7 @@ export function recordScenario(verdict: ScenarioVerdict): void {
     packageName: verdict.packageName,
     obligations: [
       {
-        id: scenarioObligationId(verdict.scenarioName),
+        id: scenarioObligationId(verdict.scenarioName, verdict.variant),
         layer: verdict.layer,
         status: verdict.status,
         ...(verdict.detail === undefined ? {} : { detail: verdict.detail }),

@@ -1,34 +1,23 @@
 /**
- * The puzzle's live region: everything the board shows about the puzzle,
- * said in words for someone listening to the app — the setup move and whose
- * move it is, each opponent reply, a wrong move, the piece a hint picks, the
- * result and the rating change.
+ * Chess's live region: the moves the board shows, said in words for someone
+ * listening to the app — the setup move and whose move it is, each opponent
+ * reply and the piece a hint picks. The results are the platform's region.
  */
 
-import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
-import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
 import {
   type PuzzleAnnouncementPart,
   type PuzzleSide,
   puzzleAnnouncement,
   spokenPiece,
 } from '@libs/chess-puzzle-shared/puzzle-announcement';
-import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
+import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
+import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { t } from '@lingui/core/macro';
 import { type Accessor, createMemo, type JSX } from 'solid-js';
 
 function sideWord(side: PuzzleSide): string {
   return side === 'white' ? t`White` : t`Black`;
-}
-
-function ratingWords(delta: number, after: number): string {
-  if (delta > 0) return t`Your puzzle rating went up by ${delta}, to ${after}.`;
-  if (delta < 0) {
-    const down = -delta;
-    return t`Your puzzle rating went down by ${down}, to ${after}.`;
-  }
-  return t`Your puzzle rating stayed at ${after}.`;
 }
 
 function partWords(part: PuzzleAnnouncementPart): string {
@@ -45,17 +34,9 @@ function partWords(part: PuzzleAnnouncementPart): string {
     const side = sideWord(part.side);
     return t`${side} to move. Find the best move.`;
   }
-  if (part.kind === 'wrong') return t`Wrong move. That is not the solution.`;
-  if (part.kind === 'hint') {
-    const side = sideWord(part.side);
-    const piece = spokenPiece(part.piece);
-    return t`Hint: move the ${side} ${piece} on ${part.square}.`;
-  }
-  if (part.kind === 'solved') return t`Puzzle solved.`;
-  if (part.kind === 'revealed') return t`Solution shown.`;
-  if (part.kind === 'skipped') return t`Puzzle skipped.`;
-  if (part.kind === 'unrated') return t`This attempt was unrated.`;
-  return ratingWords(part.delta, part.ratingAfter);
+  const side = sideWord(part.side);
+  const piece = spokenPiece(part.piece);
+  return t`Hint: move the ${side} ${piece} on ${part.square}.`;
 }
 
 export function ChessPuzzleAnnouncement(props: {
@@ -66,7 +47,6 @@ export function ChessPuzzleAnnouncement(props: {
   readonly hintStage: Accessor<HintStage>;
   readonly fen: Accessor<string | null>;
   readonly hintSquare: Accessor<string | null>;
-  readonly completion: Accessor<PuzzleCompletion | null>;
 }): JSX.Element {
   const words = createMemo(() =>
     puzzleAnnouncement({
@@ -77,7 +57,6 @@ export function ChessPuzzleAnnouncement(props: {
       hintStage: props.hintStage(),
       fen: props.fen(),
       hintSquare: props.hintSquare(),
-      completion: props.completion(),
     })
       .map(partWords)
       .join(' ')

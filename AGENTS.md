@@ -325,11 +325,16 @@ each probed in `libs/tools/scripts/import-boundaries.test.ts`, plus
   behind injected ports and `@api-wall-ok` modules;
 - libs and pkgs never import `@apps/*`.
 
-**Games.** A game is a sub package modeled on `@libs/chess`: a
-`RoomModule` in `shared/` with `hash(state)`
-([`README.md`](README.md#correctness-machinery)), its `*GameShared` definition
-appended to `GAME_DEFINITIONS` in `libs/games-shared/src/game-plugins.ts`, and its
-`src/` added to the Lingui catalogs (`LINGUI_CATALOG_SOURCES`, `libs/tools/scripts/lingui-scope.ts`).
+**Games.** Gamezilla is a game framework with pluggable games
+([`GAME_FRAMEWORK.md`](libs/games-shared/docs/GAME_FRAMEWORK.md)). A game
+supplies only its rules, board, copy, board gesture and known examples
+(`defineTurnGame`, `defineGameClient`, a `HarnessGame` with `fixtures`); the
+framework owns every shared screen, lifecycle, spec and suite. Follow
+[`ADDING_A_GAME.md`](libs/games-shared/docs/ADDING_A_GAME.md). Games never
+import each other or a registry; only `"gameRegistry"` packages compose
+games, and platform code never spells a game id (`package-boundaries.ts`).
+Behaviour every game shares is specified once in `specs/games/` and runs per
+game; shared code suites live in `libs/games-harness/tests/conformance/<area>/`.
 **Billing providers** each export one `MembershipProviderModule`;
 `@pkgs/billing-providers-server` is the single list composition roots iterate —
 never name a provider elsewhere (`import-billing-vendor.grit`).

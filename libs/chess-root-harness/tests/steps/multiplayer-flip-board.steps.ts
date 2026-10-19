@@ -1,12 +1,13 @@
 import { expect } from 'bun:test';
+import { flipMultiplayerBoard } from '@libs/chess-root-harness/chess-multiplayer-board';
 import {
-  flipMultiplayerBoard,
-  nearestMultiplayerSeat,
-} from '@libs/chess-matchmaking-harness/multiplayer-own-board';
+  bothBoards,
+  ownerOf,
+} from '@libs/game-matchmaking-harness/matched-game-world';
+import { nearestMultiplayerSeat } from '@libs/game-matchmaking-harness/multiplayer-review';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { ownBoardSeen } from './multiplayer-own-board-world';
-import { bothBoards, ownerOf } from './multiplayer-world';
 
 /** `White` or `Black`, as a scenario names the side a board faces. */
 function sideNamed(name: string): 'white' | 'black' {

@@ -1,6 +1,6 @@
 # Multiplayer shared availability
 
-The contract is [shared-game-interruption](../../specs/chess/shared-game-interruption.feature).
+The contract is [matched-game-interruption](../../specs/games/matched-game-interruption.feature).
 Trusted hosts enqueue `MultiplayerAvailability` with `enqueueMultiplayerAvailability`;
 the registered server consumer applies it under the same owner locks as moves.
 This is a server outbox event, never a client mutation. As with the

@@ -25,7 +25,6 @@ import {
 } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useSpaceRoomSelector } from '@libs/spaces-client/use-space-room-selector';
-import { GamesRoomAttr } from '@libs/spaces-shared/games';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import type {
@@ -88,7 +87,6 @@ function useMoves(
 
 export function useMultiplayerControls(data: MultiplayerData) {
   const rules = useTurnGames();
-  const selectedGame = useSpaceRoomSelector(GamesRoomAttr.selected.from);
   const client = useMutationClient();
   const createId = useCreateId();
   const beginDecision = useDecision(PERMISSION.matchmakingUse);
@@ -122,13 +120,11 @@ export function useMultiplayerControls(data: MultiplayerData) {
       refusals.setDenial(decision);
       return;
     }
-    const registration = rules.games.find(
-      (game) => game.rules.id === selectedGame()
-    );
-    if (registration === undefined)
+    const matchmaking = rules.capability(data.gameId(), 'matchmaking');
+    if (matchmaking === undefined)
       throw new Error('The selected game does not support matchmaking');
     await run(findOpponentMutation, {
-      timeControl: registration.controlPrefix + timeControl,
+      timeControl: matchmaking.clockNamespace + timeControl,
     });
   };
   const stop = () =>

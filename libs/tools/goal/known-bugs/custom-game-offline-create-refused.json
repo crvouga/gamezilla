@@ -1,4 +1,4 @@
 {
   "summary": "A host could create a space offline but could not create or configure its solo Custom Game.",
-  "regressionTest": "specs/chess/custom-game-connection.feature"
+  "regressionTest": "specs/games/custom-game-offline.feature"
 }

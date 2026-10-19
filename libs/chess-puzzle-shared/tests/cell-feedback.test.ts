@@ -1,40 +1,21 @@
 import { describe, expect, test } from 'bun:test';
 
-import { deriveChessPuzzleCellFeedback } from '@libs/chess-puzzle-shared/cell-feedback';
+import { chessPuzzleCellFeedback } from '@libs/chess-puzzle-shared/cell-feedback';
 
-describe('deriveChessPuzzleCellFeedback', () => {
-  const none = {
-    status: 'solving' as const,
-    wrongToSquare: null,
-    expectedFromSquare: null,
-  };
-
+describe('chessPuzzleCellFeedback', () => {
   test('empty when nothing to show', () => {
-    expect(deriveChessPuzzleCellFeedback(none)).toEqual({});
+    expect(chessPuzzleCellFeedback({ wrong: null, hint: null })).toEqual({});
   });
 
   test('wrong move: cross only on the square the move ended on', () => {
-    expect(
-      deriveChessPuzzleCellFeedback({
-        ...none,
-        status: 'wrong',
-        wrongToSquare: 'e5',
-      })
-    ).toEqual({
+    expect(chessPuzzleCellFeedback({ wrong: 'e5', hint: null })).toEqual({
       e5: { kind: 'cross' },
     });
   });
 
-  test('hint dot only while solving', () => {
-    expect(
-      deriveChessPuzzleCellFeedback({ ...none, expectedFromSquare: 'g1' })
-    ).toEqual({ g1: { kind: 'dot', corner: 'center' } });
-    expect(
-      deriveChessPuzzleCellFeedback({
-        ...none,
-        status: 'wrong',
-        expectedFromSquare: 'g1',
-      })
-    ).toEqual({});
+  test('a hint dots the piece it picks', () => {
+    expect(chessPuzzleCellFeedback({ wrong: null, hint: 'g1' })).toEqual({
+      g1: { kind: 'dot', corner: 'center' },
+    });
   });
 });

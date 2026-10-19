@@ -11,7 +11,14 @@
  * `--part k/n` takes its share of the units. Every other spec kind — a DMN
  * decision table, an Alloy structure, an OpenSLO objective — checks in one
  * file and is one unit of {@link CHECK_WEIGHT}.
+ *
+ * A model its package plans (`tests/quint/replays.json`, see
+ * `model-replays.ts`) is sized by the replays its tests run — every variant's,
+ * in each check profile — rather than by a fixed count of drawn traces.
  */
+
+import type { ReplayPlan } from '@pkgs/quint-server/trace-runs';
+import { sliceReplays } from '@pkgs/quint-server/trace-runs';
 
 export type Part = { readonly index: number; readonly count: number };
 export type Slice = { readonly index: number; readonly count: number };
@@ -21,7 +28,12 @@ export type SpecUnit = {
   readonly path: string;
   readonly slice?: Slice | undefined;
   readonly weight: number;
+  /** A planned model file's trace replays in each check profile. */
+  readonly replays?: ModelReplays | undefined;
 };
+
+/** Trace replays under the pull-request gate and under the nightly run. */
+export type ModelReplays = { readonly pr: number; readonly nightly: number };
 
 /** Scenarios per feature slice. */
 export const SLICE_SCENARIOS = 6;
@@ -36,6 +48,33 @@ export const MODEL_SLICES = 8;
 export const MODEL_WEIGHT = 128;
 /** A decision table, structure or objective: one static check, one unit. */
 export const CHECK_WEIGHT = 1;
+/** Scenario units one replayed whole-world trace costs (as in MODEL_WEIGHT). */
+export const TRACE_WEIGHT = 2;
+/** Most pull-request replays one planned model file holds: they run in order. */
+export const MODEL_FILE_REPLAYS = 4;
+/**
+ * The nightly profile's per-task budget over the gate's (`taskBudgetScale`
+ * in `libs/tools/scripts/check-profile.ts`): a part may replay this many
+ * times its gate load when the run explores.
+ */
+export const NIGHTLY_REPLAY_SCALE = 4;
+/** Most files one planned model is spread over. */
+const MAX_MODEL_FILES = 64;
+/**
+ * Most pull-request replays one part runs: a part of twelve took at most
+ * 332 s on the 2-core runner replaying every one (Check run 38187450396), so
+ * sixteen stay near 443 s inside the 600 s cap; twenty was the miss. A
+ * nightly part may run {@link NIGHTLY_REPLAY_SCALE} times as many.
+ */
+export const PART_REPLAYS = 16;
+/**
+ * Most scenario units (feature scenarios plus {@link TRACE_WEIGHT} a gate
+ * replay) one part of a planned suite runs: the heaviest part the shared
+ * games suite ran at 64 parts (50 units, 109 s locally, under the 240 s
+ * long-pole budget), so re-planning never makes a part heavier than one the
+ * gate already runs.
+ */
+export const PART_LOAD = 50;
 
 function isFeature(path: string): boolean {
   return path.endsWith('.feature');
@@ -74,8 +113,11 @@ export function specWeight(path: string, source: string): number {
 export function specUnits(
   path: string,
   source: string,
-  partCount = 1
+  partCount = 1,
+  plan?: ReplayPlan | null
 ): readonly SpecUnit[] {
+  if (path.endsWith('.qnt') && plan !== undefined && plan !== null)
+    return plannedModelUnits(path, plan);
   const weight = specWeight(path, source);
   if (!isFeature(path) && !path.endsWith('.qnt')) return [{ path, weight }];
   const count = path.endsWith('.qnt')
@@ -92,6 +134,65 @@ export function specUnits(
       ? 2 * (Math.floor(64 / count) + (index < 64 % count ? 1 : 0))
       : weight / count,
   }));
+}
+
+/**
+ * A planned model's files: the fewest whose every file holds at most
+ * {@link MODEL_FILE_REPLAYS} gate replays, each weighed by the heavier of its
+ * gate load and its nightly load over the nightly budget.
+ */
+export function plannedModelUnits(
+  path: string,
+  plan: ReplayPlan
+): readonly SpecUnit[] {
+  const count = plannedModelFiles(plan);
+  return Array.from({ length: count }, (_, index) => {
+    const slice = { index, count };
+    const replays = {
+      pr: sliceReplays(plan, 'pr', slice),
+      nightly: sliceReplays(plan, 'nightly', slice),
+    };
+    return {
+      path,
+      ...(count === 1 ? {} : { slice }),
+      weight:
+        TRACE_WEIGHT *
+        Math.max(replays.pr, replays.nightly / NIGHTLY_REPLAY_SCALE),
+      replays,
+    };
+  });
+}
+
+function plannedModelFiles(plan: ReplayPlan): number {
+  for (let count = 1; count < MAX_MODEL_FILES; count++) {
+    const heaviest = Math.max(
+      ...Array.from({ length: count }, (_, index) =>
+        sliceReplays(plan, 'pr', { index, count })
+      )
+    );
+    if (heaviest <= MODEL_FILE_REPLAYS) return count;
+  }
+  return MAX_MODEL_FILES;
+}
+
+/** A part's scenario units and its trace replays in each check profile. */
+export function partLoad(units: readonly SpecUnit[]): {
+  readonly load: number;
+  readonly pr: number;
+  readonly nightly: number;
+} {
+  let load = 0;
+  let pr = 0;
+  let nightly = 0;
+  for (const unit of units) {
+    if (unit.replays === undefined) {
+      load += unit.weight;
+      continue;
+    }
+    pr += unit.replays.pr;
+    nightly += unit.replays.nightly;
+  }
+  return { load: load + TRACE_WEIGHT * pr, pr, nightly };
 }
 
 function unitKey(unit: SpecUnit): string {

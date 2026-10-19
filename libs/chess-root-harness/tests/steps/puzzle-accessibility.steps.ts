@@ -9,20 +9,12 @@ import {
   listenToTheApp,
   playPuzzleMoveWithKeyboard,
   readPuzzleHeard,
-  usePuzzleControlWithKeyboard,
 } from '@libs/chess-puzzle-harness/puzzle-keyboard';
-import { readShownRatingChange } from '@libs/chess-puzzle-harness/puzzle-outcome-reads';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import {
-  required,
-  SETTLE_MS,
-  trackPuzzle,
-  uciOf,
-  waitSolverToMove,
-} from './puzzle-world';
+import { SETTLE_MS, uciOf, waitSolverToMove } from './puzzle-world';
 
 /** What the actor hears once it says `words` (every one of them). */
 async function hears(
@@ -73,40 +65,11 @@ Then(
 );
 
 Then(
-  '{actor} hears in words that the move was wrong',
-  async (w, actor: Actor) => {
-    await hears(w, actor, ['Wrong move']);
-  }
-);
-
-Then('{actor} hears the puzzle is solved', async (w, actor: Actor) => {
-  await hears(w, actor, ['Puzzle solved']);
-});
-
-Then(
   '{actor} hears the hint names the {word} on {word}',
   async (w, actor: Actor, piece: string, square: string) => {
     await hears(w, actor, ['Hint', `${piece} on ${square}`]);
   }
 );
-
-Then('{actor} hears their rating change', async (w, actor: Actor) => {
-  await w.s.apply(focusActor, actor);
-  const shown = required(
-    await w.s.until((surf) => readShownRatingChange(surf, actor), {
-      maxMs: SETTLE_MS,
-      pred: (change) => change !== null,
-    }),
-    `${actor}'s rating change`
-  );
-  const said = {
-    raised: 'went up by',
-    lowered: 'went down by',
-    unchanged: 'stayed at',
-    unrated: 'unrated',
-  } as const;
-  await hears(w, actor, [said[shown]]);
-});
 
 // ---------------------------------------------------------------- keyboard
 
@@ -123,35 +86,5 @@ When(
   async (w, actor: Actor, move: string) => {
     await waitSolverToMove(w, actor);
     await w.s.apply(playPuzzleMoveWithKeyboard, actor, uciOf(move));
-  }
-);
-
-When('{actor} asks for a hint with the keyboard', async (w, actor: Actor) => {
-  await w.s.apply(usePuzzleControlWithKeyboard, actor, 'hint');
-});
-
-When(
-  '{actor} retries the puzzle with the keyboard',
-  async (w, actor: Actor) => {
-    await w.s.apply(usePuzzleControlWithKeyboard, actor, 'retry');
-  }
-);
-
-When(
-  '{actor} shows the solution with the keyboard',
-  async (w, actor: Actor) => {
-    await w.s.apply(usePuzzleControlWithKeyboard, actor, 'solution');
-  }
-);
-
-When('{actor} skips the puzzle with the keyboard', async (w, actor: Actor) => {
-  await w.s.apply(usePuzzleControlWithKeyboard, actor, 'skip');
-});
-
-When(
-  '{actor} moves on to the next puzzle with the keyboard',
-  async (w, actor: Actor) => {
-    await w.s.apply(usePuzzleControlWithKeyboard, actor, 'next');
-    await trackPuzzle(w, actor);
   }
 );

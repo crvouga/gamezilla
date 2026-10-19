@@ -119,8 +119,12 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
       data-testid="multiplayer-game"
       data-game-id={props.game.id}
       data-can-move={String(canMove())}
+      data-board-takes-moves={String(
+        canMove() && props.view.earlier() === null
+      )}
       data-revision={props.game.revision}
       data-fen={props.game.fen}
+      data-shown-position={props.view.earlier()?.fen ?? props.game.fen}
       data-outcome={props.game.outcome}
       data-reason={props.game.reason ?? ''}
     >

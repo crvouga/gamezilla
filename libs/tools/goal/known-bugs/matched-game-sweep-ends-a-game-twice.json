@@ -1,0 +1,4 @@
+{
+  "summary": "The matched-game deadline sweep (settleDueGame) read and wrote the game without the owners' lock every command takes, so a resignation, move or agreement committed while it ran could be overwritten by a flag fall and the game rated, freed and announced twice. The sweep now takes both owners' lock and re-reads the game before settling it.",
+  "regressionTest": "libs/game-matchmaking-shared/tests/settle-due-game.test.ts"
+}

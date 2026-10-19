@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@libs/game-matchmaking-shared": "workspace:*",
+    "@libs/game-puzzle-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
     "@libs/sub-shared": "workspace:*",
@@ -25,6 +26,7 @@
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/turn-game-shared": "workspace:*",
+    "@pkgs/ui-testing-root-shared": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -33,5 +35,8 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "isomorphic"
+  "category": "isomorphic",
+  "gameApi": [
+    "turn-game-definition"
+  ]
 }

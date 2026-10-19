@@ -1,4 +1,4 @@
 {
   "summary": "Optimistic host leave removed the host permission while confirmation was loading, remounting a fresh idle non-host dialog and losing the mutation outcome. Retain the confirmed operation kind until dismissal, while keeping the unconfirmed choice reactive.",
-  "regressionTest": "libs/chess-root-harness/tests/quint/custom-game.binding.ts"
+  "regressionTest": "libs/games-harness/tests/quint/custom-game.binding.ts"
 }

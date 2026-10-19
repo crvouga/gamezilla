@@ -1,68 +1,24 @@
-import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy-harness/account-privacy-harness-slice';
-import { BILLING_HARNESS_SLICE } from '@libs/billing-harness/billing-harness-slice';
-import { customGameBotRoomNode } from '@libs/chess-custom-game-harness/custom-game-bot-choice';
 import { seedChessPuzzlesForHarness } from '@libs/chess-puzzle-harness/chess-harness-seed';
 import {
   HARNESS_CHESS_FEED_POOL_KEY,
   seedHarnessChessPuzzles,
 } from '@libs/chess-puzzle-harness/seed-harness-chess-puzzles';
-import { chessGameClient } from '@libs/chess-root-client/chess-game-def';
+import { CHESS_HARNESS_GAME } from '@libs/chess-root-harness/chess-harness-game';
 import { CHESS_HARNESS_SLICE } from '@libs/chess-root-harness/chess-harness-slice';
-import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
-import { connectFourGameClient } from '@libs/connect-four-root-client/connect-four-game-def';
-import { connectFourGameShared } from '@libs/connect-four-shared/connect-four-game';
-import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-slice';
-import { FRIENDS_BLOCK_RELATION } from '@libs/friends-shared/block-relation';
-import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
-import { withOpponentSearchCleanup } from '@libs/game-matchmaking-harness/opponent-search-cleanup';
-import { createGameSessionServer } from '@libs/game-session-server/sub-server';
-import { createGameSessionSub } from '@libs/game-session-shared/sub';
-import { defineProductSystem } from '@libs/harness/define-product-system';
+import {
+  gameSystem,
+  openGameHarness,
+} from '@libs/game-session-harness/game-system';
 import type { OpenHarnessOptions } from '@libs/harness/mode';
 import type { OpenHarness } from '@libs/harness/open-harness';
 import { openHarness as openSystemHarness } from '@libs/harness/open-harness';
-import type { HarnessSlice } from '@libs/harness/slices';
-import { composeHarnessSlices } from '@libs/harness/slices';
-import { NOTIFICATIONS_HARNESS_SLICE } from '@libs/notifications-harness/notifications-harness-slice';
-import { PROFILE_HARNESS_SLICE } from '@libs/profile-harness/profile-harness-slice';
-import { SEARCH_HARNESS_SLICE } from '@libs/search-harness/search-harness-slice';
-import { spacesHarnessSlice } from '@libs/spaces-harness/spaces-harness-slice';
 
 /**
- * Chess puzzles and what they cross: a puzzle opens in a space hosting only
- * chess, profile owns the signed-in identity, and friends watch a puzzle live
- * — so the befriending path (search finds a person, notifications deliver the
- * request) is in too. Billing is in because permissions reads its
- * `billing_subscriptions` rows directly, and its plans are where the guest
- * puzzle limit sends you.
+ * Chess's own suites: chess as the only game, with its puzzles, the people
+ * and friends who watch them, and the shared custom-game and opponent
+ * sessions every game has.
  */
-function chessSystem(chess: HarnessSlice) {
-  const spaces = spacesHarnessSlice({
-    games: [chessGameShared, connectFourGameShared],
-    clients: [chessGameClient, connectFourGameClient],
-    blocks: FRIENDS_BLOCK_RELATION,
-  });
-  if (spaces.roomNode === undefined) throw new Error('Chess needs a room node');
-  return defineProductSystem(
-    composeHarnessSlices('chess', [
-      ACCOUNT_PRIVACY_HARNESS_SLICE,
-      PROFILE_HARNESS_SLICE,
-      { ...spaces, roomNode: customGameBotRoomNode(spaces.roomNode) },
-      FRIENDS_HARNESS_SLICE,
-      NOTIFICATIONS_HARNESS_SLICE,
-      SEARCH_HARNESS_SLICE,
-      {
-        name: 'game-session',
-        sub: createGameSessionSub(TURN_GAMES.games),
-        server: (deps) => createGameSessionServer(deps.rooms, TURN_GAMES),
-      },
-      chess,
-      BILLING_HARNESS_SLICE,
-    ])
-  );
-}
-
-const CHESS_SYSTEM = chessSystem(CHESS_HARNESS_SLICE);
+const CHESS_SYSTEM = gameSystem('chess', [CHESS_HARNESS_GAME]);
 
 /**
  * The world the chess scenarios run in: the same system, with a feed-sized
@@ -70,15 +26,19 @@ const CHESS_SYSTEM = chessSystem(CHESS_HARNESS_SLICE);
  * way a real catalog gives a device far more puzzles than a day's play (a
  * scenario that needs just the three retires the rest first).
  */
-const CHESS_SPEC_SYSTEM = chessSystem({
-  ...CHESS_HARNESS_SLICE,
-  seedServer: async (sqlClient) => {
-    await seedChessPuzzlesForHarness(sqlClient);
-    await seedHarnessChessPuzzles({
-      sqlClient,
-      loadFileKey: HARNESS_CHESS_FEED_POOL_KEY,
-    });
-  },
+const CHESS_SPEC_SYSTEM = gameSystem('chess', [CHESS_HARNESS_GAME], {
+  slices: [
+    {
+      ...CHESS_HARNESS_SLICE,
+      seedServer: async (sqlClient) => {
+        await seedChessPuzzlesForHarness(sqlClient);
+        await seedHarnessChessPuzzles({
+          sqlClient,
+          loadFileKey: HARNESS_CHESS_FEED_POOL_KEY,
+        });
+      },
+    },
+  ],
 });
 
 export function openHarness(
@@ -89,11 +49,9 @@ export function openHarness(
 }
 
 /** {@link openHarness} for the chess scenarios (see {@link CHESS_SPEC_SYSTEM}). */
-export async function openSpecHarness(
+export function openSpecHarness(
   testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return withOpponentSearchCleanup(
-    await openSystemHarness(CHESS_SPEC_SYSTEM, testId, options)
-  );
+  return openGameHarness(CHESS_SPEC_SYSTEM, testId, options);
 }

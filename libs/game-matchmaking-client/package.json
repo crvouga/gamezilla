@@ -12,7 +12,8 @@
   "scripts": {
     "check:board-contract": "bun run ../tools/scripts/check-board-contract.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
   },
   "dependencies": {
     "@libs/auth-client": "workspace:*",
@@ -24,7 +25,6 @@
     "@libs/permissions-shared": "workspace:*",
     "@libs/profile-client": "workspace:*",
     "@libs/spaces-client": "workspace:*",
-    "@libs/spaces-shared": "workspace:*",
     "@libs/sub-client": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
@@ -53,5 +53,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "client"
+  "category": "client",
+  "gameApi": []
 }

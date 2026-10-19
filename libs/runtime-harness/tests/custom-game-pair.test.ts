@@ -37,7 +37,7 @@ function pair() {
       isVisible: async () => true,
       text: async () => 'TotalDonkey649',
       tap: async () => {
-        if (id === 'chess-custom-ready') {
+        if (id === 'custom-game-ready') {
           if (actor === 'alice' && !accepted)
             throw new Error('choices changed');
           ready.add(actor);
@@ -49,7 +49,7 @@ function pair() {
         text: async (text) => {
           if (
             actor === 'alice' &&
-            id === 'chess-custom-black-person' &&
+            id === 'custom-game-black-person' &&
             text === 'TotalDonkey649'
           ) {
             waiting();

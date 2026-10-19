@@ -325,12 +325,15 @@ export const Handles = {
   notificationsFriendAcceptedCard: (username: string) =>
     `notifications-friend-accepted-card-${username}`,
 
-  // chess / spaces games
-  gameMenuChess: 'game-menu-chess',
+  // spaces games
+  /** A game offered in the space's game choice. */
+  gameMenu: (gameId: string) => `game-menu-${gameId}`,
+  /** One of the selected game's choices, by the screen it opens. */
+  gameChoice: (screen: string) => `game-choice-${screen}`,
+  /** The board of a matched game, whichever game it is. */
+  multiplayerBoard: 'multiplayer-board',
   /** A person who is not the host is told that the host chooses the game. */
   spaceHostChoosesGame: 'space-host-chooses-game',
-  chessMenuPuzzle: 'chess-menu-puzzle',
-  chessMenuStats: 'chess-menu-stats',
   chessPuzzlePlayScreen: 'chess-puzzle-play-screen',
   chessPuzzleBoardFrame: 'chess-puzzle-board-frame',
   chessPuzzleBoard: 'chess-puzzle-board',
@@ -412,6 +415,8 @@ export const Handles = {
   chessPuzzleRecommendationClear: 'chess-puzzle-recommendation-clear',
   chessPuzzleWaitingForHost: 'chess-puzzle-waiting-for-host',
   chessStatsElo: 'chess-stats-elo',
+  /** Settings' way to a game's puzzle stats outside any space. */
+  settingsPuzzleStats: (gameId: string) => `settings-${gameId}-stats`,
   /** §15 P0 tiles: total solved and overall accuracy. */
   chessStatsSolved: 'chess-stats-solved',
   chessStatsAccuracy: 'chess-stats-accuracy',
@@ -441,8 +446,14 @@ export const Handles = {
   chessPuzzleFeedRatingChange: 'chess-puzzle-feed-rating-change',
   /** The feed bar's themes of the puzzle on the board, once it is over. */
   chessPuzzleFeedPuzzleThemes: 'chess-puzzle-feed-puzzle-themes',
-  /** The puzzle's live region: what someone listening to the app hears. */
+  /** Chess's live region: what someone listening hears of a puzzle's moves. */
   chessPuzzleAnnouncement: 'chess-puzzle-announcement',
+  /**
+   * Every game's live region about a puzzle attempt's results: what someone
+   * listening hears of a wrong move, a solve, the solution shown, a skip
+   * and the rating change.
+   */
+  puzzleResultAnnouncement: 'puzzle-result-announcement',
   /** "Share puzzle link" on the puzzle screen. */
   chessPuzzleShareLink: 'chess-puzzle-share-link',
   /** A puzzle link's screen while it opens, or why it cannot. */

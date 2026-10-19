@@ -14,8 +14,8 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@pkgs/turn-game-shared": "workspace:*",
-    "@libs/games-shared": "workspace:*"
+    "@libs/games-shared": "workspace:*",
+    "@pkgs/turn-game-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
@@ -24,5 +24,7 @@
     "fast-check": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "isomorphic"
+  "category": "isomorphic",
+  "gameRegistry": true,
+  "gameApi": []
 }

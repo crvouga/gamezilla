@@ -1,15 +1,17 @@
+import {
+  moveOnToNextPuzzle,
+  readPuzzleOnBoard,
+} from '@libs/game-session-harness/puzzle-screen';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorIds } from '@libs/harness/observations';
 import { defineProperty } from '@pkgs/harness-root-shared/define-property';
-import { pressPuzzleNext } from './chess-actions';
-import { readActivePuzzleId } from './chess-puzzle-ui';
 
 type NextPuzzleModel = {
   readonly previousIdByActorId: Readonly<Record<string, string>>;
 };
 
 /**
- * After `pressPuzzleNext`, the active puzzle id must differ from the
+ * After `moveOnToNextPuzzle`, the active puzzle id must differ from the
  * pre-update model. Other checkpoints only refresh the model from SoT.
  */
 export const nextPuzzleDifferent = defineProperty({
@@ -18,10 +20,10 @@ export const nextPuzzleDifferent = defineProperty({
   check: async (s: ProductHarness, model, action) => {
     const previousIdByActorId = { ...model.previousIdByActorId };
 
-    if (pressPuzzleNext.is(action)) {
+    if (moveOnToNextPuzzle.is(action)) {
       const actorId = action.args[0];
       if (typeof actorId === 'string') {
-        const puzzleId = await readActivePuzzleId(s, actorId);
+        const puzzleId = await readPuzzleOnBoard(s, actorId);
         if (puzzleId !== null) {
           const previous = model.previousIdByActorId[actorId];
           if (previous !== undefined && puzzleId === previous) {
@@ -34,7 +36,7 @@ export const nextPuzzleDifferent = defineProperty({
     }
 
     for (const actorId of actorIds(s)) {
-      const puzzleId = await readActivePuzzleId(s, actorId);
+      const puzzleId = await readPuzzleOnBoard(s, actorId);
       if (puzzleId !== null) previousIdByActorId[actorId] = puzzleId;
     }
     return { previousIdByActorId };

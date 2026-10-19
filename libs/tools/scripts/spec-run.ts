@@ -3,7 +3,7 @@
 /**
  * Run specs — Gherkin features, Quint models, decision tables, structures and
  * objectives — across every package that runs `specs/<domain>/` domains
- * against the harness. A spec path (`specs/chess/puzzle-play.feature`,
+ * against the harness. A spec path (`specs/games/puzzle-play.feature`,
  * `specs/spaces/space-hosting.qnt`, `specs/billing/access.dmn`) goes
  * only to the package whose `specDomains` lists its domain. Live domains
  * (`liveDomains`) run through `bun run health`, never here.

@@ -15,19 +15,15 @@
   },
   "dependencies": {
     "@libs/chess-puzzle-client": "workspace:*",
-    "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-root-shared": "workspace:*",
     "@libs/chess-shared-client": "workspace:*",
-    "@libs/game-matchmaking-client": "workspace:*",
-    "@libs/game-matchmaking-shared": "workspace:*",
-    "@libs/game-session-client": "workspace:*",
+    "@libs/chess-sub-shared": "workspace:*",
+    "@libs/game-menu-client": "workspace:*",
     "@libs/spaces-client": "workspace:*",
-    "@libs/spaces-shared": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/chess-board-root-client": "workspace:*",
     "@pkgs/turn-game-shared": "workspace:*",
-    "@pkgs/ui-root-client": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {
@@ -36,5 +32,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "client"
+  "category": "client",
+  "game": "chess"
 }

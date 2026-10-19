@@ -1,6 +1,5 @@
 import { expect } from 'bun:test';
-import { openPuzzleFromSpace } from '@libs/chess-puzzle-harness/chess-actions';
-import { readPuzzleStatus } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
 import {
   otherPuzzleEnvironmentUnchanged,
   prepareOtherPuzzleEnvironment,
@@ -22,6 +21,10 @@ import {
   readImportPool,
 } from '@libs/chess-root-harness/puzzle-import-world';
 import { followPuzzleStopChoice } from '@libs/chess-root-harness/puzzle-stop-choice';
+import {
+  openGamePuzzles,
+  readPuzzleState,
+} from '@libs/game-session-harness/puzzle-screen';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
@@ -303,8 +306,8 @@ Then('the puzzles already added remain available to solvers', async (w) => {
     'alice',
     String(w.memo.get('puzzle-management:solver-space'))
   );
-  await w.s.apply(openPuzzleFromSpace, 'alice');
-  expect(await w.s.read(readPuzzleStatus, 'alice')).toBe('solving');
+  await w.s.apply(openGamePuzzles, 'alice', CHESS_GAME_ID);
+  expect(await w.s.read(readPuzzleState, 'alice')).toBe('solving');
 });
 
 Then('a solver can still play from the earlier puzzle pool', async (w) => {
@@ -313,8 +316,8 @@ Then('a solver can still play from the earlier puzzle pool', async (w) => {
     'alice',
     String(w.memo.get('puzzle-management:solver-space'))
   );
-  await w.s.apply(openPuzzleFromSpace, 'alice');
-  expect(await w.s.read(readPuzzleStatus, 'alice')).toBe('solving');
+  await w.s.apply(openGamePuzzles, 'alice', CHESS_GAME_ID);
+  expect(await w.s.read(readPuzzleState, 'alice')).toBe('solving');
 });
 
 Given('another environment has its own puzzle pool', async (w) => {

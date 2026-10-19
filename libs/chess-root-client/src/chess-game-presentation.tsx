@@ -1,10 +1,8 @@
 import { BOARD_THEME } from '@libs/chess-root-shared/board-theme';
+import type { GameClientPresentation } from '@libs/game-menu-client/game-client';
 import { t } from '@lingui/core/macro';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
-import type {
-  GameBoardProps,
-  GamePresentation,
-} from '@pkgs/turn-game-shared/game-presentation';
+import type { GameBoardProps } from '@pkgs/turn-game-shared/game-presentation';
 import type { JSX } from 'solid-js';
 
 function ChessGameBoard(props: GameBoardProps): JSX.Element {
@@ -28,8 +26,7 @@ function ChessGameBoard(props: GameBoardProps): JSX.Element {
     />
   );
 }
-export const chessPresentation: GamePresentation<JSX.Element> = {
-  id: 'chess',
+export const chessPresentation: GameClientPresentation = {
   canFlip: true,
   name: () => t`chess`,
   Board: ChessGameBoard,

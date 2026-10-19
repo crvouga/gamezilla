@@ -1,3 +1,4 @@
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 /**
  * Puzzle-content stimuli and reads for the §4 / §23 ingest scenarios: ingest
  * a CSV into the harness server through the real load-file seeder (validation +
@@ -6,12 +7,10 @@
  */
 
 import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzle-load-file-seeder';
-import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared/topic-map';
-import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
+import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql } from '@libs/harness/identity';
 import { writeServerFixture } from '@libs/harness/write-server-fixture';
-import { Handles } from '@libs/test-ids-shared/handles';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
@@ -46,7 +45,7 @@ export const ingestChessPuzzleCsv = scenarioAction({
       createId: s.harness.server.createId,
       now,
     });
-    await writeServerFixture(s, CHESS_TOPIC_MAP, (sqlClient) =>
+    await writeServerFixture(s, GAME_PUZZLE_SUB.topicMap, (sqlClient) =>
       seeder.seed({
         sqlClient,
         logger: createLogger({ name: 'harness:ingest', level: 'silent', now }),
@@ -81,48 +80,11 @@ export async function readLocalPuzzles(
   return db === null ? [] : selectPuzzles(db);
 }
 
-/** Orientation probe of the puzzle board (`white` / `black`), or null. */
-export async function readPuzzleBoardOrientation(
-  s: ProductHarness,
-  actorId: string
-): Promise<'white' | 'black' | null> {
-  try {
-    const ui = await actorUi(s, actorId);
-    const text = (
-      (await ui.get(Handles.chessPuzzleBoardOrientation).text()) ?? ''
-    )
-      .replace(/\u200b/g, '')
-      .trim();
-    return text === 'white' || text === 'black' ? text : null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * §34 "puzzle retired after being prefetched". Retirement is a soft delete on
- * the catalog row (domain rows are never hard-deleted), which takes the
- * puzzle out of every feed and pick read. The tombstone reaches the client
- * through the ordinary push-triggered snapshot path.
- */
-export const retireChessPuzzle = scenarioAction({
-  name: 'retireChessPuzzle',
-  act: async (s, puzzleId: string) => {
-    await writeServerFixture(s, CHESS_TOPIC_MAP, async (db) => {
-      await db.run(sql`
-      UPDATE chess_puzzles
-      SET deleted_at = ${new Date(s.harness.clock.now()).toISOString()}
-      WHERE id = ${puzzleId}
-      `);
-    });
-  },
-});
-
 /** §34 "puzzle edited after being prefetched": the catalog rating moves. */
 export const editChessPuzzleRating = scenarioAction({
   name: 'editChessPuzzleRating',
   act: async (s, puzzleId: string, rating: number) => {
-    await writeServerFixture(s, CHESS_TOPIC_MAP, async (db) => {
+    await writeServerFixture(s, GAME_PUZZLE_SUB.topicMap, async (db) => {
       await db.run(sql`
       UPDATE chess_puzzles
       SET rating = ${rating}

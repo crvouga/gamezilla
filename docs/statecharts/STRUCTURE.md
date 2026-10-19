@@ -73,7 +73,7 @@ flowchart TD
 | privacy | profile | A person proves their account before exporting personal data or confirming permanent deletion. |
 | product | system | Explore the whole product from one chart: the current person and this device’s place change together. |
 | profile | profile | The person edits their public profile while refused edits leave the saved profile intact. |
-| puzzle-feed | chess | Feed edits preview eligible choices; saving applies them and cancelling keeps the saved feed. |
+| puzzle-feed | games | Feed edits preview eligible choices; saving applies them and cancelling keeps the saved feed. |
 | puzzle-history | chess | Puzzle history and statistics show the person’s recorded attempts and skill without changing earlier outcomes. |
 | puzzle-ingest | chess | An allowed person adds puzzle material and sees accepted and broken items or a retryable failure. |
 | puzzle-links | chess | A shared puzzle link opens that puzzle with the permitted rated or practice behavior. |

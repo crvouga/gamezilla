@@ -43,7 +43,7 @@ const TABLES = [billingSubscriptionsFixture];
 const ACCESS = ['billing/access.dmn', 'access'] as const;
 const SPACE_ROLES = ['spaces/space-roles.dmn', 'space-roles'] as const;
 const HOSTING = ['spaces/hosting-limit.dmn', 'hosting-limit'] as const;
-const DAILY = ['chess/daily-puzzle-limit.dmn', 'daily-puzzle-limit'] as const;
+const DAILY = ['games/daily-puzzle-limit.dmn', 'daily-puzzle-limit'] as const;
 
 type Table = readonly [string, string];
 

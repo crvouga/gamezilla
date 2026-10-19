@@ -1,3 +1,4 @@
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
 import { restartApp } from '@libs/harness/actions';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -45,7 +46,7 @@ export const reopenSyntheticApp = scenarioAction({
 });
 export const givenFinishedSyntheticGame = scenarioAction({
   name: 'givenFinishedSyntheticGame',
-  act: async (s, name: string, game: string = 'chess') => {
+  act: async (s, name: string, game?: string) => {
     await Promise.resolve(givenSyntheticUser.act(s, name, true, game));
     await Promise.resolve(completePausedGame.act(s));
     await pollUntil(
@@ -64,7 +65,7 @@ export const givenFinishedSyntheticGame = scenarioAction({
 });
 export const givenSyntheticContinuity = scenarioAction({
   name: 'givenSyntheticContinuity',
-  act: async (s, activity: string, game: string = 'chess') => {
+  act: async (s, activity: string, game?: string) => {
     if (activity === 'Finished')
       await Promise.resolve(givenFinishedSyntheticGame.act(s, 'Cedar', game));
     else
@@ -97,9 +98,7 @@ export async function observeSyntheticContinuity(
       gameId === null
         ? ''
         : gameId === initial.board.gameId
-          ? initial.board.position?.startsWith('c4:')
-            ? 'friday-connect-four'
-            : 'friday-chess'
+          ? `friday-${TURN_GAMES.forPosition(initial.board.position ?? '').id}`
           : gameId,
   };
 }

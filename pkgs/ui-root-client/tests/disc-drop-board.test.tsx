@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client/render';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
@@ -76,5 +77,17 @@ test('focus and pointer previews identify the landing cell; navigation wraps and
   expect(
     (JSON.parse(requiredAttribute(board, 'data-cells')) as number[])[1]
   ).toBe(0);
+  view.unmount();
+});
+
+test("a column control's own text says nothing its name leaves out", () => {
+  // regression: disc-drop-board-label-not-in-name
+  const view = example();
+  const board = view.getByRole('group', { name: 'Drop board' });
+  expect(
+    auditTree(board)
+      .map(formatFailure)
+      .filter((failure) => failure.startsWith('2ee8b8'))
+  ).toEqual([]);
   view.unmount();
 });

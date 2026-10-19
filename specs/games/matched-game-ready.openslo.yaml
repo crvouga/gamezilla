@@ -1,0 +1,45 @@
+# Two compatible accounts seeking an opponent for the same game at the same
+# clock choice should quickly be able to play the same matched game.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: matched-game-ready-time
+  displayName: Time until a compatible pair can play
+spec:
+  description: >-
+    The time from the second compatible person beginning to seek an opponent
+    for the same game at the same clock choice until both online people see
+    their one matched game ready to play, in every game that offers finding
+    an opponent.
+  thresholdMetric:
+    metricSource:
+      type: product
+      spec:
+        measures: >-
+          The time, in thousandths of a second, between two compatible
+          accounts being available for a matched game of the same game at the
+          same clock choice and both seeing that matched game's board, their
+          sides, their opponent and rating, the clock choice, both clocks and
+          the first turn.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: matched-games-become-ready-quickly
+  displayName: Matched games become ready quickly
+spec:
+  description: >-
+    At least 99 in every 100 compatible pairs of online people can play
+    their matched game within five seconds, judged over four weeks.
+    The concrete journey's five-second example illustrates this promise.
+  service: games
+  indicatorRef: matched-game-ready-time
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: Nearly every compatible pair can play within five seconds
+      op: lte
+      value: 5000
+      target: 0.99

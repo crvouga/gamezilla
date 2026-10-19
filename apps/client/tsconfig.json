@@ -47,25 +47,21 @@
       "@libs/billing-shared/*": ["../../libs/billing-shared/src/*"],
       "@libs/chess-root-client/*": ["../../libs/chess-root-client/src/*"],
       "@libs/game-session-client/*": ["../../libs/game-session-client/src/*"],
-      "@libs/chess-custom-game-harness/*": [
-        "../../libs/chess-custom-game-harness/src/*"
-      ],
       "@libs/game-session-shared/*": ["../../libs/game-session-shared/src/*"],
       "@libs/chess-sub-shared/*": ["../../libs/chess-sub-shared/src/*"],
       "@libs/chess-root-harness/*": ["../../libs/chess-root-harness/src/*"],
       "@libs/game-matchmaking-client/*": [
         "../../libs/game-matchmaking-client/src/*"
       ],
-      "@libs/chess-matchmaking-harness/*": [
-        "../../libs/chess-matchmaking-harness/src/*"
-      ],
       "@libs/game-matchmaking-shared/*": [
         "../../libs/game-matchmaking-shared/src/*"
       ],
       "@libs/chess-puzzle-client/*": ["../../libs/chess-puzzle-client/src/*"],
+      "@libs/game-puzzle-client/*": ["../../libs/game-puzzle-client/src/*"],
       "@libs/chess-puzzle-harness/*": ["../../libs/chess-puzzle-harness/src/*"],
       "@libs/chess-puzzle-server/*": ["../../libs/chess-puzzle-server/src/*"],
       "@libs/chess-puzzle-shared/*": ["../../libs/chess-puzzle-shared/src/*"],
+      "@libs/game-puzzle-shared/*": ["../../libs/game-puzzle-shared/src/*"],
       "@libs/chess-root-server/*": ["../../libs/chess-root-server/src/*"],
       "@libs/chess-shared-client/*": ["../../libs/chess-shared-client/src/*"],
       "@libs/chess-root-shared/*": ["../../libs/chess-root-shared/src/*"],

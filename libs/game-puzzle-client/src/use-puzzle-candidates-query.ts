@@ -1,0 +1,72 @@
+import type { PuzzleFeedHistoryFilter } from '@libs/game-puzzle-shared/feed-config';
+import type {
+  PuzzleCandidateRow,
+  PuzzleExhaustedCandidateRow,
+} from '@libs/game-puzzle-shared/next-puzzle-selection';
+import {
+  buildExhaustedPuzzleCandidatesSql,
+  buildPuzzleCandidatesSql,
+} from '@libs/game-puzzle-shared/next-puzzle-selection';
+import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
+import type { Accessor } from 'solid-js';
+import { usePuzzleGame } from './puzzle-game-context';
+
+export type PuzzleCandidatesQueryArgs = {
+  readonly rating: Accessor<number>;
+  readonly ownerId: Accessor<string>;
+  readonly currentPuzzleId: Accessor<string | null>;
+  readonly historyFilter: Accessor<PuzzleFeedHistoryFilter>;
+  readonly themes: Accessor<readonly string[]>;
+  /** §9 half-window around the rating; null reads the whole catalog. */
+  readonly halfWindow: Accessor<number | null>;
+  readonly pickOffset?: Accessor<number>;
+};
+
+export function usePuzzleCandidatesQuery(args: PuzzleCandidatesQueryArgs): {
+  readonly rows: Accessor<readonly PuzzleCandidateRow[]>;
+  readonly isLoading: Accessor<boolean>;
+} {
+  const { namespace } = usePuzzleGame();
+  const query = createQuery(() =>
+    buildPuzzleCandidatesSql({
+      namespace,
+      rating: args.rating(),
+      halfWindow: args.halfWindow(),
+      ownerId: args.ownerId(),
+      historyFilter: args.historyFilter(),
+      themes: args.themes(),
+      currentPuzzleId: args.currentPuzzleId(),
+      pickOffset: args.pickOffset?.() ?? 0,
+    })
+  );
+  return {
+    rows: query.rows,
+    isLoading: query.isLoading,
+  };
+}
+
+/** §9 exhausted pool: already-attempted puzzles, oldest attempt first. */
+export function useExhaustedPuzzleCandidatesQuery(args: {
+  readonly ownerId: Accessor<string>;
+  readonly themes: Accessor<readonly string[]>;
+  readonly currentPuzzleId: Accessor<string | null>;
+  /** Off unless the feed is hiding played puzzles (the default). */
+  readonly enabled: Accessor<boolean>;
+}): {
+  readonly rows: Accessor<readonly PuzzleExhaustedCandidateRow[]>;
+  readonly isLoading: Accessor<boolean>;
+} {
+  const { namespace } = usePuzzleGame();
+  const query = createQuery(() =>
+    buildExhaustedPuzzleCandidatesSql({
+      namespace,
+      ownerId: args.enabled() ? args.ownerId() : '',
+      themes: args.themes(),
+      currentPuzzleId: args.currentPuzzleId(),
+    })
+  );
+  return {
+    rows: () => (args.enabled() ? query.rows() : []),
+    isLoading: query.isLoading,
+  };
+}

@@ -16,8 +16,7 @@
   },
   "dependencies": {
     "@libs/game-session-shared": "workspace:*",
-    "@pkgs/turn-game-shared": "workspace:*",
-    "@pkgs/ui-testing-root-shared": "workspace:*"
+    "@pkgs/turn-game-shared": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/property-shared": "workspace:*",
@@ -28,5 +27,6 @@
     "fast-check": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "isomorphic"
+  "category": "isomorphic",
+  "game": "connect-four"
 }

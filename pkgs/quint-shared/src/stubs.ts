@@ -20,6 +20,12 @@ export type ModelStubInput = {
   readonly reportDir: string;
   /** One slice of the model's traces (`RunModelOptions.slice`). */
   readonly slice?: ModelStubSlice | undefined;
+  /**
+   * The model's committed replay plan (`RunModelOptions.replayPlan`): `null`
+   * when its package plans replays but not this model's, absent when the
+   * package plans none.
+   */
+  readonly replayPlan?: object | null | undefined;
 };
 
 export type ModelStubSlice = { readonly index: number; readonly count: number };
@@ -45,7 +51,7 @@ export function modelStubSource(input: ModelStubInput): string {
     `import ${q(input.quintEntry)};`,
     `import { runQuintModel } from ${q(input.bridge)};`,
     '',
-    `runQuintModel({ packageName: ${q(input.packageName)}, specPath: ${q(input.specPath)}, specUri: ${q(input.specUri)}, reportDir: ${q(input.reportDir)}${input.slice === undefined ? '' : `, slice: ${q(input.slice)}`} });`,
+    `runQuintModel({ packageName: ${q(input.packageName)}, specPath: ${q(input.specPath)}, specUri: ${q(input.specUri)}, reportDir: ${q(input.reportDir)}${input.slice === undefined ? '' : `, slice: ${q(input.slice)}`}${input.replayPlan === undefined ? '' : `, replayPlan: ${q(input.replayPlan)}`} });`,
     '',
   ].join('\n');
 }

@@ -17,6 +17,7 @@
   "dependencies": {
     "@libs/chess-sub-shared": "workspace:*",
     "@libs/connect-four-shared": "workspace:*",
+    "@libs/game-session-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*"
   },
   "devDependencies": {
@@ -24,5 +25,7 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "isomorphic"
+  "category": "isomorphic",
+  "gameRegistry": true,
+  "gameApi": []
 }

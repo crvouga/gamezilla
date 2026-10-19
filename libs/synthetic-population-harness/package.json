@@ -18,19 +18,14 @@
     "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
   },
   "dependencies": {
-    "@libs/account-privacy-harness": "workspace:*",
     "@libs/app-config-shared": "workspace:*",
-    "@libs/billing-harness": "workspace:*",
-    "@libs/chess-root-client": "workspace:*",
-    "@libs/chess-root-harness": "workspace:*",
-    "@libs/chess-sub-shared": "workspace:*",
-    "@libs/friends-harness": "workspace:*",
     "@libs/game-catalog-shared": "workspace:*",
+    "@libs/game-matchmaking-harness": "workspace:*",
+    "@libs/game-session-harness": "workspace:*",
+    "@libs/games-harness": "workspace:*",
     "@libs/harness": "workspace:*",
-    "@libs/notifications-harness": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/profile-harness": "workspace:*",
-    "@libs/search-harness": "workspace:*",
     "@libs/spaces-harness": "workspace:*",
     "@libs/sub-shared": "workspace:*",
     "@libs/synthetic-population-client": "workspace:*",
@@ -43,21 +38,17 @@
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-server": "workspace:*",
     "hono": "catalog:",
-    "solid-js": "catalog:",
-    "@libs/connect-four-shared": "workspace:*",
-    "@libs/connect-four-root-client": "workspace:*",
-    "@libs/game-matchmaking-harness": "workspace:*"
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:",
-    "@libs/game-session-server": "workspace:*",
-    "@libs/game-session-shared": "workspace:*"
+    "typescript": "catalog:"
   },
   "category": "harness",
+  "gameRegistry": true,
   "specDomains": [
     "synthetic-population"
   ],

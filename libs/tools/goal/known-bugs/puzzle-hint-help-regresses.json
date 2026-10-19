@@ -1,4 +1,4 @@
 {
   "summary": "Repeating the first-hint command either restarted the same help or replaced a solution arrow with a highlight. The first hint is available only before help; later help cannot be overwritten by that earlier command.",
-  "regressionTest": "specs/chess/puzzle-refusals.feature"
+  "regressionTest": "specs/games/puzzle-refusals.feature"
 }

@@ -56,7 +56,7 @@ const ENVIRONMENTS: ProofTable = {
     { spec: 'specs/sync-engine/notes-offline.feature' },
     { spec: 'specs/sync-engine/a-long-time-offline.feature' },
     { spec: 'specs/sync-engine/online-only-actions.feature' },
-    { spec: 'specs/chess/puzzle-offline.feature' },
+    { spec: 'specs/games/puzzle-offline.feature' },
     { spec: 'specs/billing/billing-offline-grace.feature' },
     { spec: 'specs/profile/offline-sign-in.feature' },
     { spec: 'specs/friends/social-needs-connection.feature' },
@@ -69,8 +69,8 @@ const ENVIRONMENTS: ProofTable = {
   // Every message the app shows is in its one catalog (the i18n gate).
   English: [{ task: '@libs/tools#ci:i18n' }],
   UTC: [
-    { spec: 'specs/chess/daily-puzzle-limit.dmn' },
-    { spec: 'specs/chess/puzzle-limits-by-kind.feature' },
+    { spec: 'specs/games/daily-puzzle-limit.dmn' },
+    { spec: 'specs/games/puzzle-limits-by-kind.feature' },
   ],
 };
 
@@ -83,12 +83,13 @@ const PUBLIC_CONTRACTS: ProofTable = {
     { spec: 'specs/matchmaking/competing-waits.feature' },
     { spec: 'specs/matchmaking/matching.qnt' },
   ],
-  'private multiplayer games': [
-    { spec: 'specs/chess/play-multiplayer-chess.feature' },
-    { spec: 'specs/chess/multiplayer-recovery-and-privacy.feature' },
-    { spec: 'specs/chess/multiplayer-games.als' },
-    { spec: 'specs/chess/multiplayer.qnt' },
-    { spec: 'specs/chess/multiplayer-ready.openslo.yaml' },
+  'private matched games': [
+    { spec: 'specs/games/matched-game-turns.feature' },
+    { spec: 'specs/games/matched-game-recovery.feature' },
+    { spec: 'specs/games/matched-game-ownership.feature' },
+    { spec: 'specs/games/matched-games.als' },
+    { spec: 'specs/games/matched-game.qnt' },
+    { spec: 'specs/games/matched-game-ready.openslo.yaml' },
   ],
   'reusable chessboard': [
     { spec: 'specs/chess-board/board-authority.feature' },

@@ -1,31 +1,27 @@
 /**
  * What the chess steps share: the puzzle each actor is on (and the one
- * before it), the puzzles a pass through the pool served, the actor's puzzle
- * owner, and the common ways into a puzzle. No step definitions here.
+ * before it), the puzzles a pass through the pool served, a pool stocked
+ * with chosen puzzles, and the common ways into a puzzle. No step
+ * definitions here.
  */
 
-import {
-  openPuzzleByTheme,
-  openPuzzleFromSpace,
-  showChessStatsScreen,
-} from '@libs/chess-puzzle-harness/chess-actions';
+import { openPuzzleByTheme } from '@libs/chess-puzzle-harness/chess-actions';
 import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness/chess-puzzle-data';
-import { readPuzzlePlayerId } from '@libs/chess-puzzle-harness/chess-puzzle-ledger-data';
 import { readPuzzleBoardProbe } from '@libs/chess-puzzle-harness/chess-puzzle-solve-ui';
-import type { PuzzleTestDebug } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import {
-  isPuzzlePlayScreenVisible,
-  readActivePuzzleId,
-  readPuzzleDebug,
-} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import type { NamedPuzzle } from '@libs/chess-puzzle-harness/puzzle-fixtures';
 import type { StockedPuzzle } from '@libs/chess-puzzle-harness/puzzle-pool-stock';
 import {
-  GOOD_PUZZLE,
   stockedPuzzleId,
   stockPuzzles,
 } from '@libs/chess-puzzle-harness/puzzle-pool-stock';
-import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
+import { showGamePuzzleStats } from '@libs/game-session-harness/puzzle-records';
+import type { PuzzleProbe } from '@libs/game-session-harness/puzzle-screen';
+import {
+  openGamePuzzles,
+  readPuzzleOnBoard,
+  readPuzzleProbe,
+} from '@libs/game-session-harness/puzzle-screen';
 import type { Actor } from '@libs/harness/parameter-types';
 import { backToTabs, focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -59,25 +55,10 @@ export function recalledOr<T>(w: HarnessWorld, key: string, fallback: T): T {
   return w.memo.has(key) ? (w.memo.get(key) as T) : fallback;
 }
 
-// ------------------------------------------------------------ the device
-
-const deviceKey = (actor: Actor) => `deviceInHand:${actor}`;
-
-/** Note that the actor now uses `device` (theirs, or their other device). */
-export function takeUpDevice(w: HarnessWorld, actor: Actor, device: string) {
-  remember(w, deviceKey(actor), device);
-}
-
-/** The device the actor last acted on: their own unless a step moved them. */
-export function deviceInHand(w: HarnessWorld, actor: Actor): string {
-  return recalledOr<string>(w, deviceKey(actor), actor);
-}
-
 // ------------------------------------------------------------ the puzzle on
 
 const currentKey = (actor: Actor) => `puzzle:${actor}`;
 const previousKey = (actor: Actor) => `previousPuzzle:${actor}`;
-const LAST_PUZZLE = 'lastPuzzle';
 const LAST_PLAYER = 'lastPlayer';
 
 /** The puzzle on the actor's board right now; fails when there is none. */
@@ -86,7 +67,7 @@ export async function activePuzzle(
   actor: Actor
 ): Promise<string> {
   return required(
-    await w.s.read(readActivePuzzleId, actor),
+    await w.s.read(readPuzzleOnBoard, actor),
     `a puzzle on ${actor}'s board`
   );
 }
@@ -106,7 +87,6 @@ export async function trackPuzzle(
     recalledOr<string | null>(w, currentKey(actor), null)
   );
   remember(w, currentKey(actor), id);
-  remember(w, LAST_PUZZLE, id);
   remember(w, LAST_PLAYER, actor);
   return id;
 }
@@ -126,39 +106,6 @@ export function lastPlayer(w: HarnessWorld): Actor {
   return recalled<Actor>(w, LAST_PLAYER);
 }
 
-/** The puzzle last seen on anyone's board, or null before any was. */
-export function puzzleOnBoard(w: HarnessWorld): string | null {
-  return recalledOr<string | null>(w, LAST_PUZZLE, null);
-}
-
-/** The puzzle a step names without naming whose it is. */
-export function lastPuzzle(w: HarnessWorld): string {
-  return recalled<string>(w, LAST_PUZZLE);
-}
-
-/** Memo key: the puzzles the actor failed, in the order played. */
-export const failedPuzzlesKey = (actor: Actor) => `failedPuzzles:${actor}`;
-
-// ------------------------------------------------------------------ owners
-
-const ownerKey = (actor: Actor) => `puzzleOwner:${actor}`;
-
-/**
- * Whose puzzle progress the actor's device records, fixed the first time a
- * step asks (a guest's device owner stays the answer after sign-in).
- */
-export async function puzzleOwner(
-  w: HarnessWorld,
-  actor: Actor
-): Promise<string> {
-  if (w.memo.has(ownerKey(actor))) return recalled<string>(w, ownerKey(actor));
-  const owner = required(
-    await w.s.read(readPuzzlePlayerId, actor),
-    `${actor}'s puzzle owner`
-  );
-  return remember(w, ownerKey(actor), owner);
-}
-
 // --------------------------------------------------------- into the puzzle
 
 /** Open puzzles in the actor's space, creating one when they have none. */
@@ -171,16 +118,8 @@ export async function enterPuzzles(
     await w.s.apply(backToTabs, actor);
     await w.s.apply(createSpace, actor);
   }
-  await w.s.apply(openPuzzleFromSpace, actor);
+  await w.s.apply(openGamePuzzles, actor, CHESS_GAME_ID);
   return trackPuzzle(w, actor);
-}
-
-/** Bring the puzzle feed into view for a `Then` that reads it. */
-export async function focusFeed(w: HarnessWorld, actor: Actor): Promise<void> {
-  await w.s.apply(focusActor, actor);
-  if (!(await w.s.read(isPuzzlePlayScreenVisible, actor))) {
-    await enterPuzzles(w, actor);
-  }
 }
 
 /**
@@ -198,11 +137,11 @@ export async function ensureOnPuzzle(
 export async function servedPuzzle(
   w: HarnessWorld,
   device: string,
-  pred: (debug: PuzzleTestDebug) => boolean = () => true
-): Promise<PuzzleTestDebug> {
+  pred: (debug: PuzzleProbe) => boolean = () => true
+): Promise<PuzzleProbe> {
   await w.s.apply(focusActor, device);
   return required(
-    await w.s.until(async (surf) => readPuzzleDebug(surf, device), {
+    await w.s.until(async (surf) => readPuzzleProbe(surf, device), {
       maxMs: SETTLE_MS,
       pred: (debug) => debug?.status === 'solving' && pred(debug),
     }),
@@ -210,31 +149,9 @@ export async function servedPuzzle(
   );
 }
 
-/** The id of the puzzle the feed puts on `device`'s board. */
-export async function servedPuzzleId(
-  w: HarnessWorld,
-  device: string
-): Promise<string> {
-  await servedPuzzle(w, device);
-  return required(await w.s.read(readActivePuzzleId, device), 'a puzzle id');
-}
-
 // ------------------------------------------------------------ stocking
 
 const STOCKED_COUNT = 'stockedPuzzleCount';
-
-/**
- * Themes no seeded puzzle carries, one per stocked puzzle a scenario opens
- * by theme, so narrowing the feed to it serves exactly that puzzle.
- */
-const OPENING_THEMES: readonly ChessPuzzleTheme[] = [
-  'xRayAttack',
-  'interference',
-  'attraction',
-  'deflection',
-  'capturingDefender',
-  'intermezzo',
-];
 
 /** Stock `puzzles` after any stocked earlier in the scenario; their ids. */
 export async function stock(
@@ -245,21 +162,6 @@ export async function stock(
   await w.s.apply(stockPuzzles, puzzles, first);
   remember(w, STOCKED_COUNT, first + puzzles.length);
   return puzzles.map((_, i) => stockedPuzzleId(first + i));
-}
-
-/** Stock one good puzzle rated `rating` and put it on the actor's board. */
-export async function enterStockedPuzzle(
-  w: HarnessWorld,
-  actor: Actor,
-  rating: number
-): Promise<string> {
-  const index = recalledOr<number>(w, STOCKED_COUNT, 0);
-  const theme = required(OPENING_THEMES[index], 'a theme to open it by');
-  const [id = ''] = await stock(w, [
-    { ...GOOD_PUZZLE, rating, themes: [theme] },
-  ]);
-  await enterNamedPuzzle(w, actor, { id, theme, csv: null });
-  return id;
 }
 
 // ------------------------------------------------------- the board before
@@ -312,7 +214,7 @@ export async function ensureStatsOpen(
   device: string
 ): Promise<void> {
   await w.s.apply(focusActor, device);
-  await w.s.apply(showChessStatsScreen, device);
+  await w.s.apply(showGamePuzzleStats, device, CHESS_GAME_ID);
 }
 
 /** `a1-a5` → `a1a5`. */

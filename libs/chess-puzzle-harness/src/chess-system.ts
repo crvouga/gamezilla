@@ -1,4 +1,4 @@
-import { createChessModule } from '@libs/chess-puzzle-shared/chess-module';
+import { createChessModule } from '@libs/chess-puzzle-harness/chess-module';
 import { defineSystem } from '@pkgs/harness-root-shared/define-system';
 import type { RoomArgs } from '@pkgs/room-root-harness/args';
 import { ROOM_ARGS, ROOM_DRAW } from '@pkgs/room-root-harness/args';

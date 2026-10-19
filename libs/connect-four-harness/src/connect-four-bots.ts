@@ -34,25 +34,13 @@ export const establishConnectFourBotPosition = scenarioAction({
   },
 });
 
-export const playConnectFourBots = scenarioAction({
-  name: 'playConnectFourBots',
-  act: async (s) => {
-    for (let turn = 0; turn < 42; turn++) {
-      const view = await connectFourView(s);
-      if (view.current?.status !== 'active') return;
-      await s.session.advanceTime(1000);
-    }
-  },
-});
+/** Whether the bot left the opponent an immediate victory. */
 export async function connectFourBotTactics(s: ProductHarness) {
   const view = await connectFourView(s);
   return {
     result: view.game.result,
     immediateOpponentWin: legalColumns(view.game).some(
       (column) => dropDisc(view.game, column)?.result === view.game.turn
-    ),
-    gravity: view.board.every(
-      (disc, index) => disc === 0 || index < 7 || view.board[index - 7] !== 0
     ),
   };
 }

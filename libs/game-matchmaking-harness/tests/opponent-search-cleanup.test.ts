@@ -37,7 +37,9 @@ test('owned search cancellation reaches the server before its browser is dispose
       waitForIdle: async () => {},
     },
   } as unknown as ProductHarness;
-  await Promise.resolve(requestGameOpponent.act(harness, 'alice', '5+0'));
+  await Promise.resolve(
+    requestGameOpponent.act(harness, 'alice', 'counting/5+0')
+  );
   const run = withOpponentSearchCleanup({
     apply: async (action: { act(s: ProductHarness): unknown }) => {
       await Promise.resolve(action.act(harness));

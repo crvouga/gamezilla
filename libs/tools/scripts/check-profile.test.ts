@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { NIGHTLY_REPLAY_SCALE } from '@libs/harness/spec-parts';
 import { CI_RUN_DEADLINE_SECONDS, taskBudgetSeconds } from './check-budget';
 import {
   failedGroups,
@@ -158,6 +159,13 @@ describe('check profiles', () => {
       'check-nightly:random',
       'check-nightly:coverage',
     ]);
+  });
+
+  test('a planned spec part may replay nightly what its nightly budget allows', () => {
+    // The spec split caps a part's nightly replays at the gate's cap times
+    // NIGHTLY_REPLAY_SCALE: the scale of the nightly per-task budget.
+    expect(NIGHTLY_REPLAY_SCALE).toBe(activeProfile(NIGHTLY).taskBudgetScale);
+    expect(activeProfile({}).taskBudgetScale).toBe(1);
   });
 
   test('nightly budgets are bounded, and wider than the gate', () => {

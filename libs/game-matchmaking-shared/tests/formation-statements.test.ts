@@ -8,9 +8,30 @@ import {
   type RegisteredTurnGame,
 } from '@pkgs/turn-game-shared/game-rules';
 
-const game = (id: string, controlPrefix: string): RegisteredTurnGame =>
-  ({ controlPrefix, rules: { id }, notice: undefined }) as never;
-const rules = createTurnGames([game('chess', ''), game('connect-four', 'c4/')]);
+/**
+ * Two games offering finding an opponent: the platform's durable game, whose
+ * clock choices are unprefixed, and another in its own `<id>/` namespace.
+ * Formation reads only their clock namespaces, so their rules only tell
+ * their own starting positions apart.
+ */
+function game(id: string, unprefixed: boolean): RegisteredTurnGame {
+  return {
+    rules: {
+      id,
+      initial: () => `${id}:start`,
+      recognizes: (position: string) => position.startsWith(`${id}:`),
+    } as never,
+    capabilities: {
+      matchmaking: {
+        clockNamespace: unprefixed ? '' : `${id}/`,
+        notice: {} as never,
+      },
+      history: { record: () => '' },
+    } as never,
+    ...(unprefixed ? { unprefixedNamespace: true as const } : {}),
+  };
+}
+const rules = createTurnGames([game('first', true), game('second', false)]);
 
 /** A transaction that only counts statements, where each costs a database round trip. */
 function recordingTx(waitingPools: readonly string[]) {
@@ -55,7 +76,7 @@ test('a formation pass costs nothing for time controls nobody is waiting in', as
 test('a formation pass runs only for the pools that have people waiting', async () => {
   const waiting = recordingTx([
     opponentPool('5+0', rules),
-    opponentPool('c4/3+0', rules),
+    opponentPool('second/3+0', rules),
   ]);
   await formGameMatches(waiting.tx, ports, rules);
   expect(waiting.passes()).toBe(2);

@@ -15,10 +15,10 @@ export type UnfinishedGames = {
 };
 
 /**
- * `specs/chess/unfinished-game-limit.dmn`: the unfinished multiplayer game
- * limit decides first; within it, a participant of an active Custom Game must
- * finish that game before seeking another (`restricted`, with its own unlock
- * copy under the same limit).
+ * `specs/games/unfinished-game-limit.dmn`: the unfinished matched game
+ * limit decides first; within it, a participant of a custom game under way
+ * must finish that game before seeking another (`restricted`, with its own
+ * unlock copy under the same limit).
  */
 export function decideUnfinishedGames(
   limitDecision: Decision,

@@ -16,26 +16,8 @@ Feature: Drop discs and connect four
       Then Alice is told that Connect Four column is full
       And the Connect Four board and turn are unchanged
 
-  Rule: Only the player with the turn may drop a disc
-
-    Scenario: The next player continues the game
-      Given Alice and Bob have a Connect Four game after Red's first drop
-      When Bob drops into Connect Four column 3
-      Then Red has the Connect Four turn
-
-    Scenario: A player cannot take the opponent's turn
-      Given Alice and Bob have a new Connect Four game
-      When Bob drops into Connect Four column 3
-      Then Bob is told it is the other player's Connect Four turn
-      And the Connect Four board and turn are unchanged
-
-    Scenario: A missing connection prevents shared play
-      Given Alice and Bob have a new Connect Four game without a connection
-      When Alice drops into Connect Four column 4
-      Then Alice is told Connect Four needs a connection
-      And the Connect Four board and turn are unchanged
-
   Rule: A winning alignment ends the game immediately
+    No counter-example: a finished game takes no more drops, as every game refuses a move once it is finished.
 
     Scenario Outline: A winning alignment awards the victory
       Given Alice has a Connect Four game one drop before a <direction> winning alignment
@@ -49,12 +31,6 @@ Feature: Drop discs and connect four
         | vertical   |
         | ascending diagonal |
         | descending diagonal |
-
-    Scenario: A completed game refuses another drop
-      Given Alice has a completed Connect Four game
-      When Alice drops into Connect Four column 7
-      Then Alice is told the Connect Four game is finished
-      And the Connect Four board and turn are unchanged
 
   Rule: A full board without a winning alignment is a draw
     No counter-example: an alignment on the last drop is a victory under the preceding rule.

@@ -8,6 +8,7 @@
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import type { CatalogueRow } from '@libs/game-puzzle-shared/puzzle-catalogue';
 import { isProductionEnv } from '@libs/infra-shared/env-file';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import { wallClock } from '@pkgs/clock-shared/wall';
@@ -23,7 +24,6 @@ import {
   CHESS_PUZZLES_LOAD_EXPORT_SQL,
 } from './load-file-constants';
 import { PuzzleIngestTally } from './puzzle-ingest';
-import type { PuzzleTableRow } from './row';
 import { resolveToolingDatabaseUrl } from './tooling-database-url';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -70,7 +70,7 @@ function cellToCsv(value: unknown): string {
   return csvEscape(JSON.stringify(value));
 }
 
-function rowsToCsv(rows: readonly PuzzleTableRow[]): string {
+function rowsToCsv(rows: readonly CatalogueRow[]): string {
   const header = CHESS_PUZZLES_LOAD_CSV_COLUMNS.join(',');
   const lines = rows.map((row) =>
     CHESS_PUZZLES_LOAD_CSV_COLUMNS.map((col) => cellToCsv(row[col])).join(',')

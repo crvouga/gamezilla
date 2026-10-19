@@ -91,6 +91,16 @@ export function timeControlOf(
     : found;
 }
 
+/** The rating speed of `speed` in a game's clock namespace (`''` or `<id>/`). */
+export function gameSpeed(
+  controlPrefix: string,
+  speed: MultiplayerSpeed
+): MultiplayerSpeed {
+  return controlPrefix === ''
+    ? speed
+    : (`${controlPrefix.slice(0, -1)}:${speed}` as MultiplayerSpeed);
+}
+
 export function startingMs(id: string | null | undefined): number {
   return (timeControlOf(id)?.minutes ?? 0) * 60_000;
 }
@@ -114,11 +124,14 @@ export function timeControlKey(id: string): string {
   return id.replace('+', '-');
 }
 
-/** Offered controls are configured by the injected game registrations. */
+/** The clock choices of every registered game offering matchmaking. */
 export function offeredTimeControls(rules: TurnGames): readonly TimeControl[] {
-  return rules.games.flatMap((game) =>
-    TIME_CONTROLS.map(
-      (control) => timeControlOf(game.controlPrefix + control.id)!
-    )
-  );
+  return rules.games.flatMap((game) => {
+    const matchmaking = game.capabilities.matchmaking;
+    return matchmaking === undefined
+      ? []
+      : TIME_CONTROLS.map(
+          (control) => timeControlOf(matchmaking.clockNamespace + control.id)!
+        );
+  });
 }

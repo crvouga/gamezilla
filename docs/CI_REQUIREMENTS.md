@@ -99,31 +99,31 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 | | |
 | --- | --- |
-| Packages | 327 |
-| Check scripts | 1218 |
+| Packages | 328 |
+| Check scripts | 1195 |
 | Measured scripts | 190 |
-| Estimated scripts | 1028 |
+| Estimated scripts | 1005 |
 | Stale cost keys | 538 |
-| Cold CPU | 7532 s |
-| Spec parts | 3972 s across 235 tasks |
+| Cold CPU | 7011 s |
+| Spec parts | 3411 s across 202 tasks |
 | Longest task | @apps/product#test:contract:render 60 s |
 
 ### Families
 
 | Family | Tasks | CPU |
 | --- | --- | --- |
-| test:spec | 235 | 3972 s |
-| check:models:10 | 16 | 960 s |
+| test:spec | 202 | 3411 s |
+| check:models:9 | 16 | 960 s |
 | check:models:2 | 11 | 660 s |
-| check:models | 35 | 567 s |
-| lint | 326 | 351 s |
-| tc | 326 | 340 s |
-| test | 226 | 273 s |
+| check:models | 37 | 599 s |
+| lint | 327 | 352 s |
+| tc | 327 | 341 s |
+| test | 232 | 279 s |
 | check:board-contract | 4 | 240 s |
 
 ### Leaves
 
-48 leaves have check scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
+47 leaves have check scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
 
 | | |
 | --- | --- |
@@ -146,9 +146,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 263 | 7372 s | @apps/product#test:contract:render 60 s |
-| @pkgs/clock-shared | 229 | 7273 s | @apps/product#test:contract:render 60 s |
-| @pkgs/assert-root-shared | 224 | 7255 s | @apps/product#test:contract:render 60 s |
+| @pkgs/property-shared | 264 | 6851 s | @apps/product#test:contract:render 60 s |
+| @pkgs/clock-shared | 230 | 6752 s | @apps/product#test:contract:render 60 s |
+| @pkgs/assert-root-shared | 225 | 6734 s | @apps/product#test:contract:render 60 s |
 
 ### Runner
 
@@ -156,11 +156,11 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 
 | | |
 | --- | --- |
-| Spec slots | 16 |
-| Other slots | 14 |
+| Spec slots | 15 |
+| Other slots | 15 |
 | Cores required | 32 |
-| Memory required | 40 GiB |
-| Estimated makespan | 255 s |
+| Memory required | 38 GiB |
+| Estimated makespan | 240 s |
 | Provision | 2 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->

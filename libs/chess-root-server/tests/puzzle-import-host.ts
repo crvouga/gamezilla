@@ -8,6 +8,7 @@ import { puzzleSourcePartKey } from '@libs/chess-puzzle-shared/puzzle-load-job';
 import { puzzleImportConsumer } from '@libs/chess-root-server/puzzle-import-consumer';
 import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared/topic-map';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
 import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared/permission-policy';
 import { uniqueTables } from '@libs/permissions-shared/world';
@@ -38,7 +39,13 @@ export async function openPuzzleImportHost() {
   try {
     await reconcilePostgresSchema(
       postgres.admin,
-      registerTables(uniqueTables([...BILLING_TABLES, ...CHESS_TABLES])),
+      registerTables(
+        uniqueTables([
+          ...BILLING_TABLES,
+          ...GAME_PUZZLE_SUB.tables,
+          ...CHESS_TABLES,
+        ])
+      ),
       postgres.dbScope
     );
     await reconcilePostgresSchema(
@@ -98,7 +105,7 @@ function importHost(
         clock,
         createId,
         consumerRegistry: registry,
-        topicMap: CHESS_TOPIC_MAP,
+        topicMap: { ...GAME_PUZZLE_SUB.topicMap, ...CHESS_TOPIC_MAP },
         objectStore: store,
         pubsub: {
           publish: async (topic, data) => {

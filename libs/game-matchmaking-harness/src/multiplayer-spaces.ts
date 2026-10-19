@@ -36,3 +36,35 @@ export async function multiplayerSpaceId(
     path
   );
 }
+
+/**
+ * Whether the person's account has ever hosted or joined a space, even one
+ * that has since ended or that they left.
+ */
+export async function everInASpace(
+  s: ProductHarness,
+  actor: string
+): Promise<boolean> {
+  const id = await signedInAccountOf(s, actor);
+  if (id === null) return false;
+  const rows = await s.harness.serverSql.sqlClient.query(sql<{
+    id: string;
+  }>`SELECT s.id FROM spaces AS s
+    LEFT JOIN spaces_users AS u ON u.space_id = s.id AND u.user_id = ${id}
+    WHERE s.host_member_id = ${id} OR u.id IS NOT NULL LIMIT 1`);
+  return rows.length > 0;
+}
+
+/** The open space the person hosts, if any. */
+export async function hostedSpaceId(
+  s: ProductHarness,
+  actor: string
+): Promise<string | null> {
+  const id = await signedInAccountOf(s, actor);
+  if (id === null) return null;
+  const rows = await s.harness.serverSql.sqlClient.query(sql<{
+    id: string;
+  }>`SELECT id FROM spaces WHERE host_member_id = ${id}
+    AND ended_at IS NULL AND deleted_at IS NULL ORDER BY id LIMIT 1`);
+  return rows[0]?.id ?? null;
+}

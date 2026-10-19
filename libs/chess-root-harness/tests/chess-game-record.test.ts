@@ -1,51 +1,36 @@
 import { describe, expect, test } from 'bun:test';
-import { chessRules } from '@libs/chess-rules-shared/chess-rules';
-import { gameRecord } from '@libs/game-matchmaking-shared/game-record';
-import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
-import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
+import { chessTurnGame } from '@libs/chess-sub-shared/chess-game';
+import type { GameRecordMetadata } from '@pkgs/turn-game-shared/game-rules';
 import { Chess } from 'chess.js';
 
-const TURN_GAMES = createTurnGames([{ rules: chessRules, controlPrefix: '' }]);
+/** Chess's game record, as the framework asks for it (`history.record`). */
+const record = chessTurnGame.capabilities.history!.record;
 
-const NAMES = { white: 'alice', black: 'bob' } as const;
+const FIVE_MINUTES = { minutes: 5, incrementSeconds: 0, daysPerMove: 0 };
 
-/** A stored game after these moves, ended as named. */
-function stored(
+/** A finished game after these moves, as the framework describes it. */
+function written(
   moves: readonly string[],
-  patch: Partial<MultiplayerGame> = {}
-): MultiplayerGame {
+  patch: Partial<GameRecordMetadata> = {}
+): string {
   const board = new Chess();
   for (const move of moves) board.move(move);
-  return {
-    id: 'game-1',
-    white_id: 'white-user',
-    black_id: 'black-user',
-    fen: board.fen(),
-    pgn: board.pgn(),
-    revision: moves.length,
-    turn: '',
+  return record(board.fen(), board.pgn(), {
+    participants: [
+      { name: 'alice', rating: '1500?' },
+      { name: 'bob', rating: '1482' },
+    ],
     outcome: 'white',
     reason: 'resignation',
-    time_control: '5+0',
-    white_ms: 300_000,
-    black_ms: 300_000,
-    clock_at_ms: 0,
-    paused_at_ms: null,
-    draw_offer_by: null,
-    rematch_offer_by: null,
-    rematch_of: null,
-    white_rating: '1500?',
-    black_rating: '1482',
-    white_rating_diff: null,
-    black_rating_diff: null,
+    timeControl: FIVE_MINUTES,
     ...patch,
-  };
+  });
 }
 
 /** The record as another chess program reads it. */
-function opened(record: string | null) {
+function opened(text: string) {
   const board = new Chess();
-  board.loadPgn(record ?? '', { strict: true });
+  board.loadPgn(text, { strict: true });
   return { moves: board.history(), tags: board.getHeaders() };
 }
 
@@ -58,19 +43,16 @@ describe('the game record of a finished multiplayer game', () => {
     'a game that ended as %s reads back with the result %s',
     (outcome, result) => {
       const moves = ['e4', 'e5', 'Nf3', 'Nc6', 'Bb5', 'a6'];
-      const record = gameRecord(stored(moves, { outcome }), NAMES, TURN_GAMES);
-      const read = opened(record);
+      const text = written(moves, { outcome });
+      const read = opened(text);
       expect(read.moves).toEqual(moves);
       expect(read.tags['Result']).toBe(result);
-      expect(record?.trimEnd().endsWith(` ${result}`)).toBe(true);
+      expect(text.trimEnd().endsWith(` ${result}`)).toBe(true);
     }
   );
 
   test('it names both people, the time control and their ratings', () => {
-    const { tags } = opened(
-      gameRecord(stored(['e4', 'e5']), NAMES, TURN_GAMES)
-    );
-    expect(tags).toMatchObject({
+    expect(opened(written(['e4', 'e5'])).tags).toMatchObject({
       Event: 'Multiplayer chess',
       White: 'alice',
       Black: 'bob',
@@ -83,46 +65,46 @@ describe('the game record of a finished multiplayer game', () => {
   });
 
   test.each([
-    ['2+1', '120+1'],
-    ['30+20', '1800+20'],
-    ['1d', '1/86400'],
-    ['3d', '1/259200'],
+    [{ minutes: 2, incrementSeconds: 1, daysPerMove: 0 }, '120+1'],
+    [{ minutes: 30, incrementSeconds: 20, daysPerMove: 0 }, '1800+20'],
+    [{ minutes: 1440, incrementSeconds: 0, daysPerMove: 1 }, '1/86400'],
+    [{ minutes: 4320, incrementSeconds: 0, daysPerMove: 3 }, '1/259200'],
     [null, '?'],
-  ])('the time control %s is written %s', (timeControl, written) => {
-    const game = stored(['e4', 'e5'], { time_control: timeControl });
+  ])('the time control %o is written %s', (timeControl, text) => {
     expect(
-      opened(gameRecord(game, NAMES, TURN_GAMES)).tags['TimeControl']
-    ).toBe(written);
+      opened(written(['e4', 'e5'], { timeControl })).tags['TimeControl']
+    ).toBe(text);
   });
 
   test('a game lost on time says so', () => {
-    const game = stored(['e4', 'e5'], { outcome: 'black', reason: 'timeout' });
-    expect(
-      opened(gameRecord(game, NAMES, TURN_GAMES)).tags['Termination']
-    ).toBe('time forfeit');
+    const text = written(['e4', 'e5'], { outcome: 'black', reason: 'timeout' });
+    expect(opened(text).tags['Termination']).toBe('time forfeit');
   });
 
   test('a name is written so the record still opens', () => {
-    const names = { white: 'Deleted account', black: 'say "hi" \\ bye' };
-    const read = opened(gameRecord(stored(['e4', 'e5']), names, TURN_GAMES));
+    const read = opened(
+      written(['e4', 'e5'], {
+        participants: [
+          { name: 'Deleted account', rating: null },
+          { name: 'say "hi" \\ bye', rating: null },
+        ],
+      })
+    );
     expect(read.tags['White']).toBe('Deleted account');
     expect(read.tags['Black']).toBe("say 'hi' / bye");
     expect(read.moves).toEqual(['e4', 'e5']);
   });
 
   test('a person without a rating on the game has no rating tag', () => {
-    const game = stored(['e4', 'e5'], { white_rating: null, black_rating: '' });
-    const { tags } = opened(gameRecord(game, NAMES, TURN_GAMES));
+    const { tags } = opened(
+      written(['e4', 'e5'], {
+        participants: [
+          { name: 'alice', rating: null },
+          { name: 'bob', rating: '' },
+        ],
+      })
+    );
     expect(tags['WhiteElo']).toBeUndefined();
     expect(tags['BlackElo']).toBeUndefined();
   });
-
-  test.each(['ongoing', 'aborted'] as const)(
-    'a game that is %s has no game record',
-    (outcome) => {
-      expect(
-        gameRecord(stored(['e4'], { outcome }), NAMES, TURN_GAMES)
-      ).toBeNull();
-    }
-  );
 });

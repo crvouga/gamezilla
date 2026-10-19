@@ -1,4 +1,8 @@
-import type { GameRules } from '@pkgs/turn-game-shared/game-rules';
+import type {
+  GameBots,
+  GameRecordMetadata,
+  GameRules,
+} from '@pkgs/turn-game-shared/game-rules';
 import {
   decodeConnectFour,
   dropDisc,
@@ -13,7 +17,6 @@ export function parseConnectFourColumn(action: string): number | null {
   return action.length === 1 && /^[0-6]$/.test(action) ? Number(action) : null;
 }
 export const connectFourRules: GameRules = {
-  botDifficulties: BOT_DIFFICULTIES,
   id: 'connect-four',
   recognizes: (position) => position.startsWith('c4:'),
   initial: () => encodeConnectFour(newConnectFour()),
@@ -54,14 +57,6 @@ export const connectFourRules: GameRules = {
   },
   legal: (position) => legalColumns(decodeConnectFour(position)).map(String),
   canWin: () => true,
-  choose(position, difficulty, random) {
-    const column = chooseConnectFourColumn(
-      decodeConnectFour(position),
-      difficulty,
-      random
-    );
-    return column === null ? null : String(column);
-  },
   moves(position) {
     const drops = decodeConnectFour(position).moves;
     return drops.map((column, index) => ({
@@ -70,12 +65,29 @@ export const connectFourRules: GameRules = {
       after: encodeConnectFour(replayConnectFour(drops.slice(0, index + 1))),
     }));
   },
-  record: (position, _history, metadata) =>
-    JSON.stringify({
-      game: 'connect-four',
-      ruleset: 'classic-7x6-v1',
-      metadata,
-      position,
-      columns: decodeConnectFour(position).moves.map((c) => c + 1),
-    }),
 };
+export const connectFourBots: GameBots = {
+  difficulties: BOT_DIFFICULTIES,
+  choose(position, difficulty, random) {
+    const column = chooseConnectFourColumn(
+      decodeConnectFour(position),
+      difficulty,
+      random
+    );
+    return column === null ? null : String(column);
+  },
+};
+/** The downloaded record: its ruleset, the finished game and its columns. */
+export function connectFourRecord(
+  position: string,
+  _history: string,
+  metadata: GameRecordMetadata
+): string {
+  return JSON.stringify({
+    game: 'connect-four',
+    ruleset: 'classic-7x6-v1',
+    metadata,
+    position,
+    columns: decodeConnectFour(position).moves.map((c) => c + 1),
+  });
+}

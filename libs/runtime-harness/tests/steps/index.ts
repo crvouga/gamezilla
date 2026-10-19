@@ -1,4 +1,4 @@
-import '@libs/runtime-harness/connect-four-journey.steps';
+import '@libs/runtime-harness/game-journey.steps';
 import '@libs/account-privacy-harness/privacy.steps';
 /**
  * Steps entry for the `specs/<domain>/` features this package runs

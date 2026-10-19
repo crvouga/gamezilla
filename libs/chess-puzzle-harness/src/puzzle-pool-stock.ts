@@ -5,10 +5,7 @@
  * seeder's position dedupe never drops a stocked puzzle.
  */
 
-import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared/topic-map';
 import { scenarioAction } from '@libs/harness/actor-ui';
-import { writeServerFixture } from '@libs/harness/write-server-fixture';
-import sql from '@pkgs/sql-root-shared/sql';
 import { ingestChessPuzzleCsv } from './chess-puzzle-data';
 import { POSITION_BANK_CSV } from './puzzle-fixtures';
 
@@ -78,19 +75,5 @@ export const stockPuzzles = scenarioAction({
     await Promise.resolve(
       ingestChessPuzzleCsv.act(s, [HEADER, ...lines].join('\n'))
     );
-  },
-});
-
-/** Retire every puzzle in the pool, so only what a scenario stocks is served. */
-export const retireEveryPuzzle = scenarioAction({
-  name: 'retireEveryPuzzle',
-  act: async (s) => {
-    await writeServerFixture(s, CHESS_TOPIC_MAP, async (db) => {
-      await db.run(sql`
-      UPDATE chess_puzzles
-      SET deleted_at = ${new Date(s.harness.clock.now()).toISOString()}
-      WHERE deleted_at IS NULL
-      `);
-    });
   },
 });

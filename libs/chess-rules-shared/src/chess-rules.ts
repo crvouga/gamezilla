@@ -1,5 +1,7 @@
 import { canCheckmate } from '@pkgs/chess-rules-shared/mating-material';
 import type {
+  GameBots,
+  GameRecordMetadata,
   GameRules,
   PlayedPosition,
 } from '@pkgs/turn-game-shared/game-rules';
@@ -41,14 +43,22 @@ function result(board: Chess): Pick<PlayedPosition, 'winner' | 'reason'> {
     };
   return { winner: null, reason: null };
 }
+/** Every legal move of `board`, spelled as an action (`e2e4`, `e7e8q`). */
+function legalActions(board: Chess): readonly string[] {
+  return board
+    .moves({ verbose: true })
+    .map((m) => m.from + m.to + (m.promotion ?? ''));
+}
 export const chessRules: GameRules = {
-  botDifficulties: [],
   id: 'chess',
   recognizes: (position) => validateFen(position).ok,
   initial: () => DEFAULT_POSITION,
   play(position, action, history, actions) {
     const board = boardFrom(position, history, actions);
     if (board.isGameOver()) return null;
+    // Only the canonical spelling of a legal move enters the accepted history:
+    // chess.js would otherwise take `b2b3a` as b2b3, or `e7e8` as a queen.
+    if (!legalActions(board).includes(action)) return null;
     try {
       const move = board.move(chessMoveInput(action));
       return {
@@ -64,16 +74,9 @@ export const chessRules: GameRules = {
   },
   replay: (actions, ply) =>
     boardFrom(DEFAULT_POSITION, '', actions.slice(0, ply)).fen(),
-  legal: (position) =>
-    new Chess(position)
-      .moves({ verbose: true })
-      .map((m) => m.from + m.to + (m.promotion ?? '')),
+  legal: (position) => legalActions(new Chess(position)),
   canWin: (position, side) =>
     canCheckmate(new Chess(position), side === 'white' ? 'w' : 'b'),
-  choose(position, _difficulty, random) {
-    const legal = chessRules.legal(position);
-    return legal[Math.floor(random() * legal.length)] ?? null;
-  },
   moves: (position, history, actions) =>
     boardFrom(position, history, actions)
       .history({ verbose: true })
@@ -82,6 +85,20 @@ export const chessRules: GameRules = {
         before: move.before,
         after: move.after,
       })),
-  record: (position, history, metadata) =>
-    chessRecord(boardFrom(position, history), metadata),
 };
+/** Chess offers one bot, which plays any legal move. */
+export const chessBots: GameBots = {
+  difficulties: [],
+  choose(position, _difficulty, random) {
+    const legal = chessRules.legal(position);
+    return legal[Math.floor(random() * legal.length)] ?? null;
+  },
+};
+/** The downloaded record of a finished game (PGN). */
+export function chessGameRecord(
+  position: string,
+  history: string,
+  metadata: GameRecordMetadata
+): string {
+  return chessRecord(boardFrom(position, history), metadata);
+}

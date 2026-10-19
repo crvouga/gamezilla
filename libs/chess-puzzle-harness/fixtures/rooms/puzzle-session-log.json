@@ -1,0 +1,2862 @@
+{
+  "initial": {
+    "chess.puzzle.play/display-fen": null,
+    "chess.puzzle.play/ended-at-ms": null,
+    "chess.puzzle.play/expected-from-square": null,
+    "chess.puzzle.play/expected-to-square": null,
+    "chess.puzzle.play/fen": "",
+    "chess.puzzle.play/furthest-solve-idx": 0,
+    "chess.puzzle.play/host-identity": null,
+    "chess.puzzle.play/layout-key": 0,
+    "chess.puzzle.play/moves": "",
+    "chess.puzzle.play/orientation": "white",
+    "chess.puzzle.play/puzzle-id": null,
+    "chess.puzzle.play/recommendations": {},
+    "chess.puzzle.play/solution-revealed": 0,
+    "chess.puzzle.play/solve-idx": 0,
+    "chess.puzzle.play/started-at-ms": null,
+    "chess.puzzle.play/status": "idle",
+    "chess.puzzle.play/wrong-to-square": null,
+    "chess.puzzle.play/wrong-uci": null,
+    "chess.puzzle.result/attempt": null,
+    "chess.puzzle.result/outcome": null,
+    "chess.puzzle.result/owner": null,
+    "chess.puzzle.result/score": null,
+    "chess.puzzle.result/used-hint": false
+  },
+  "log": [
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-1",
+        "ts": 1700000001000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/start",
+          "payload": {
+            "puzzleId": "solveTR2",
+            "fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+            "moves": "a7a6 a1a5 h7h6 h1h5"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/started",
+            "payload": {
+              "puzzleId": "solveTR2",
+              "fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+              "moves": "a7a6 a1a5 h7h6 h1h5",
+              "hostIdentity": "alice",
+              "displayFen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+              "orientation": "white",
+              "status": "solving",
+              "solveIdx": 1,
+              "startedAtMs": 1700000001000,
+              "attemptId": "command-1"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "a7a6 a1a5 h7h6 h1h5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-2",
+        "ts": 1700000002000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "a1a5"
+          }
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/unauthorized",
+          "reason": "only the puzzle host may submit moves"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "a7a6 a1a5 h7h6 h1h5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-3",
+        "ts": 1700000003000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/recommend-move",
+          "payload": {
+            "from": "e1",
+            "to": "e2"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/move-recommended",
+            "payload": {
+              "by": "bob",
+              "from": "e1",
+              "to": "e2"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "a7a6 a1a5 h7h6 h1h5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {
+          "bob": {
+            "from": "e1",
+            "to": "e2",
+            "seq": 1
+          }
+        },
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-4",
+        "ts": 1700000004000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/request-hint",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/hint-revealed",
+            "payload": {
+              "fromSquare": "a1",
+              "toSquare": "a5",
+              "layoutKey": 1
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": "a1",
+        "chess.puzzle.play/expected-to-square": "a5",
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "a7a6 a1a5 h7h6 h1h5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {
+          "bob": {
+            "from": "e1",
+            "to": "e2",
+            "seq": 1
+          }
+        },
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-5",
+        "ts": 1700000005000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/request-hint",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/conflict",
+          "reason": "the first hint is already taken"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": "a1",
+        "chess.puzzle.play/expected-to-square": "a5",
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "a7a6 a1a5 h7h6 h1h5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {
+          "bob": {
+            "from": "e1",
+            "to": "e2",
+            "seq": 1
+          }
+        },
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-6",
+        "ts": 1700000006000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/reveal-solution",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/solution-revealed",
+            "payload": {}
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": "a1",
+        "chess.puzzle.play/expected-to-square": "a5",
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "a7a6 a1a5 h7h6 h1h5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {
+          "bob": {
+            "from": "e1",
+            "to": "e2",
+            "seq": 1
+          }
+        },
+        "chess.puzzle.play/solution-revealed": 1,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-7",
+        "ts": 1700000007000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "e1e2"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/move-rejected",
+            "payload": {
+              "uci": "e1e2",
+              "san": "Ke2",
+              "layoutKey": 2,
+              "wrongToSquare": "e2"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 2,
+        "chess.puzzle.play/moves": "a7a6 a1a5 h7h6 h1h5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {
+          "bob": {
+            "from": "e1",
+            "to": "e2",
+            "seq": 1
+          }
+        },
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "wrong",
+        "chess.puzzle.play/wrong-to-square": "e2",
+        "chess.puzzle.play/wrong-uci": "e1e2",
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-8",
+        "ts": 1700000008000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "a1a5"
+          }
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/conflict",
+          "reason": "cannot submit move while status is wrong"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 2,
+        "chess.puzzle.play/moves": "a7a6 a1a5 h7h6 h1h5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {
+          "bob": {
+            "from": "e1",
+            "to": "e2",
+            "seq": 1
+          }
+        },
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "wrong",
+        "chess.puzzle.play/wrong-to-square": "e2",
+        "chess.puzzle.play/wrong-uci": "e1e2",
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-9",
+        "ts": 1700000009000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/reset",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/reset",
+            "payload": {
+              "displayFen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+              "solveIdx": 1,
+              "furthestSolveIdx": 1,
+              "status": "solving",
+              "layoutKey": 3
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 3,
+        "chess.puzzle.play/moves": "a7a6 a1a5 h7h6 h1h5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {
+          "bob": {
+            "from": "e1",
+            "to": "e2",
+            "seq": 1
+          }
+        },
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-10",
+        "ts": 1700000010000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "a1a8"
+          }
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/invalid-command",
+          "reason": "illegal move for current position"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 3,
+        "chess.puzzle.play/moves": "a7a6 a1a5 h7h6 h1h5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {
+          "bob": {
+            "from": "e1",
+            "to": "e2",
+            "seq": 1
+          }
+        },
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-11",
+        "ts": 1700000011000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "H1H5"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/move-accepted",
+            "payload": {
+              "uci": "h1h5",
+              "san": "Rh5",
+              "moves": "a7a6 h1h5 h7h6 a1a5",
+              "displayFen": "6k1/8/p6p/7R/8/8/8/R3K3 w - - 0 3",
+              "solveIdx": 3,
+              "status": "solving",
+              "endedAtMs": null
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/8/p6p/7R/8/8/8/R3K3 w - - 0 3",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 3,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 3,
+        "chess.puzzle.play/moves": "a7a6 h1h5 h7h6 a1a5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 3,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-12",
+        "ts": 1700000012000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/step-back",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/stepped",
+            "payload": {
+              "displayFen": "6k1/7p/p7/7R/8/8/8/R3K3 b - - 1 2",
+              "solveIdx": 2,
+              "status": "solving",
+              "layoutKey": 4
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/7R/8/8/8/R3K3 b - - 1 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 3,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 4,
+        "chess.puzzle.play/moves": "a7a6 h1h5 h7h6 a1a5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 2,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-13",
+        "ts": 1700000013000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "a1a5"
+          }
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/conflict",
+          "reason": "return to the current position before submitting a move"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/7R/8/8/8/R3K3 b - - 1 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 3,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 4,
+        "chess.puzzle.play/moves": "a7a6 h1h5 h7h6 a1a5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 2,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-14",
+        "ts": 1700000014000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/step-forward",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/stepped",
+            "payload": {
+              "displayFen": "6k1/8/p6p/7R/8/8/8/R3K3 w - - 0 3",
+              "solveIdx": 3,
+              "status": "solving",
+              "layoutKey": 5
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/8/p6p/7R/8/8/8/R3K3 w - - 0 3",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 3,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 5,
+        "chess.puzzle.play/moves": "a7a6 h1h5 h7h6 a1a5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 3,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-15",
+        "ts": 1700000015000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/step-forward",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/conflict",
+          "reason": "already at furthest"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/8/p6p/7R/8/8/8/R3K3 w - - 0 3",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 3,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 5,
+        "chess.puzzle.play/moves": "a7a6 h1h5 h7h6 a1a5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 3,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-16",
+        "ts": 1700000016000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/seek",
+          "payload": {
+            "solveIdx": 1
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/stepped",
+            "payload": {
+              "displayFen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+              "solveIdx": 1,
+              "status": "solving",
+              "layoutKey": 6
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/7p/p7/8/8/8/8/R3K2R w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 3,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 6,
+        "chess.puzzle.play/moves": "a7a6 h1h5 h7h6 a1a5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-17",
+        "ts": 1700000017000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/seek",
+          "payload": {
+            "solveIdx": 3
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/stepped",
+            "payload": {
+              "displayFen": "6k1/8/p6p/7R/8/8/8/R3K3 w - - 0 3",
+              "solveIdx": 3,
+              "status": "solving",
+              "layoutKey": 7
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/8/p6p/7R/8/8/8/R3K3 w - - 0 3",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 3,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 7,
+        "chess.puzzle.play/moves": "a7a6 h1h5 h7h6 a1a5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 3,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-18",
+        "ts": 1700000018000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/recommend-move",
+          "payload": {
+            "from": "a1",
+            "to": "a5"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/move-recommended",
+            "payload": {
+              "by": "bob",
+              "from": "a1",
+              "to": "a5"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/8/p6p/7R/8/8/8/R3K3 w - - 0 3",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 3,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 7,
+        "chess.puzzle.play/moves": "a7a6 h1h5 h7h6 a1a5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {
+          "bob": {
+            "from": "a1",
+            "to": "a5",
+            "seq": 1
+          }
+        },
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 3,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-19",
+        "ts": 1700000019000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "a1a5"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/move-accepted",
+            "payload": {
+              "uci": "a1a5",
+              "san": "Raa5",
+              "moves": "a7a6 h1h5 h7h6 a1a5",
+              "displayFen": "6k1/8/p6p/R6R/8/8/8/4K3 b - - 1 3",
+              "solveIdx": 4,
+              "status": "solved",
+              "endedAtMs": 1700000019000
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/8/p6p/R6R/8/8/8/4K3 b - - 1 3",
+        "chess.puzzle.play/ended-at-ms": 1700000019000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 4,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 7,
+        "chess.puzzle.play/moves": "a7a6 h1h5 h7h6 a1a5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 4,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solved",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-20",
+        "ts": 1700000020000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/step-back",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/stepped",
+            "payload": {
+              "displayFen": "6k1/8/p6p/7R/8/8/8/R3K3 w - - 0 3",
+              "solveIdx": 3,
+              "status": "solved",
+              "layoutKey": 8
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/8/p6p/7R/8/8/8/R3K3 w - - 0 3",
+        "chess.puzzle.play/ended-at-ms": 1700000019000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 4,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 8,
+        "chess.puzzle.play/moves": "a7a6 h1h5 h7h6 a1a5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 3,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solved",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-21",
+        "ts": 1700000021000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/clear-recommendation",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/conflict",
+          "reason": "caller has no suggestion to clear"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/8/p6p/7R/8/8/8/R3K3 w - - 0 3",
+        "chess.puzzle.play/ended-at-ms": 1700000019000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 4,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 8,
+        "chess.puzzle.play/moves": "a7a6 h1h5 h7h6 a1a5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 3,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solved",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-22",
+        "ts": 1700000022000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/clear",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/unauthorized",
+          "reason": "only the puzzle host may clear"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "6k1/8/p6p/7R/8/8/8/R3K3 w - - 0 3",
+        "chess.puzzle.play/ended-at-ms": 1700000019000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "6k1/p6p/8/8/8/8/8/R3K2R b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 4,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 8,
+        "chess.puzzle.play/moves": "a7a6 h1h5 h7h6 a1a5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveTR2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 3,
+        "chess.puzzle.play/started-at-ms": 1700000001000,
+        "chess.puzzle.play/status": "solved",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-1",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-23",
+        "ts": 1700000023000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/clear",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/cleared",
+            "payload": {}
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": null,
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "",
+        "chess.puzzle.play/furthest-solve-idx": 0,
+        "chess.puzzle.play/host-identity": null,
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": null,
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 0,
+        "chess.puzzle.play/started-at-ms": null,
+        "chess.puzzle.play/status": "idle",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": null,
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": null,
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-24",
+        "ts": 1700000024000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/start",
+          "payload": {
+            "puzzleId": "solveMM2",
+            "fen": "7k/RR6/8/p7/8/8/8/6K1 b - - 0 1",
+            "moves": "a5a4 b7c7 a4a3 c7c8"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/started",
+            "payload": {
+              "puzzleId": "solveMM2",
+              "fen": "7k/RR6/8/p7/8/8/8/6K1 b - - 0 1",
+              "moves": "a5a4 b7c7 a4a3 c7c8",
+              "hostIdentity": "alice",
+              "displayFen": "7k/RR6/8/8/p7/8/8/6K1 w - - 0 2",
+              "orientation": "white",
+              "status": "solving",
+              "solveIdx": 1,
+              "startedAtMs": 1700000024000,
+              "attemptId": "command-24"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "7k/RR6/8/8/p7/8/8/6K1 w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "7k/RR6/8/p7/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "a5a4 b7c7 a4a3 c7c8",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveMM2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000024000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-24",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-25",
+        "ts": 1700000025000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/reclaim",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/host-reclaimed",
+            "payload": {
+              "hostIdentity": "bob"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "7k/RR6/8/8/p7/8/8/6K1 w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "7k/RR6/8/p7/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "bob",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "a5a4 b7c7 a4a3 c7c8",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveMM2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000024000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-24",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-26",
+        "ts": 1700000026000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "b7c7"
+          }
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/unauthorized",
+          "reason": "only the puzzle host may submit moves"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "7k/RR6/8/8/p7/8/8/6K1 w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "7k/RR6/8/p7/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "bob",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "a5a4 b7c7 a4a3 c7c8",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveMM2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000024000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-24",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-27",
+        "ts": 1700000027000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "b7b8"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/move-accepted",
+            "payload": {
+              "uci": "b7b8",
+              "san": "Rb8#",
+              "moves": "a5a4 b7b8",
+              "displayFen": "1R5k/R7/8/8/p7/8/8/6K1 b - - 1 2",
+              "solveIdx": 2,
+              "status": "solved",
+              "endedAtMs": 1700000027000
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "1R5k/R7/8/8/p7/8/8/6K1 b - - 1 2",
+        "chess.puzzle.play/ended-at-ms": 1700000027000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "7k/RR6/8/p7/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 2,
+        "chess.puzzle.play/host-identity": "bob",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "a5a4 b7b8",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveMM2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 2,
+        "chess.puzzle.play/started-at-ms": 1700000024000,
+        "chess.puzzle.play/status": "solved",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-24",
+        "chess.puzzle.result/outcome": "solved",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 1000,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-28",
+        "ts": 1700000028000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/reset",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/reset",
+            "payload": {
+              "displayFen": "7k/RR6/8/8/p7/8/8/6K1 w - - 0 2",
+              "solveIdx": 1,
+              "furthestSolveIdx": 1,
+              "status": "solving",
+              "layoutKey": 1
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "7k/RR6/8/8/p7/8/8/6K1 w - - 0 2",
+        "chess.puzzle.play/ended-at-ms": 1700000027000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "7k/RR6/8/p7/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "bob",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "a5a4 b7b8",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveMM2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000024000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-24",
+        "chess.puzzle.result/outcome": "solved",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 1000,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-29",
+        "ts": 1700000029000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "a7a8"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/move-accepted",
+            "payload": {
+              "uci": "a7a8",
+              "san": "Ra8#",
+              "moves": "a5a4 a7a8",
+              "displayFen": "R6k/1R6/8/8/p7/8/8/6K1 b - - 1 2",
+              "solveIdx": 2,
+              "status": "solved",
+              "endedAtMs": 1700000029000
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "R6k/1R6/8/8/p7/8/8/6K1 b - - 1 2",
+        "chess.puzzle.play/ended-at-ms": 1700000029000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "7k/RR6/8/p7/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 2,
+        "chess.puzzle.play/host-identity": "bob",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "a5a4 a7a8",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveMM2",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 2,
+        "chess.puzzle.play/started-at-ms": 1700000024000,
+        "chess.puzzle.play/status": "solved",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-24",
+        "chess.puzzle.result/outcome": "solved",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 1000,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-30",
+        "ts": 1700000030000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/clear",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/cleared",
+            "payload": {}
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": null,
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "",
+        "chess.puzzle.play/furthest-solve-idx": 0,
+        "chess.puzzle.play/host-identity": null,
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": null,
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 0,
+        "chess.puzzle.play/started-at-ms": null,
+        "chess.puzzle.play/status": "idle",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": null,
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": null,
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-31",
+        "ts": 1700000031000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/start",
+          "payload": {
+            "puzzleId": "solveCAS1",
+            "fen": "4k3/p7/8/8/8/8/8/4K2R b K - 0 1",
+            "moves": "a7a6 e1g1"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/started",
+            "payload": {
+              "puzzleId": "solveCAS1",
+              "fen": "4k3/p7/8/8/8/8/8/4K2R b K - 0 1",
+              "moves": "a7a6 e1g1",
+              "hostIdentity": "bob",
+              "displayFen": "4k3/8/p7/8/8/8/8/4K2R w K - 0 2",
+              "orientation": "white",
+              "status": "solving",
+              "solveIdx": 1,
+              "startedAtMs": 1700000031000,
+              "attemptId": "command-31"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "4k3/8/p7/8/8/8/8/4K2R w K - 0 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "4k3/p7/8/8/8/8/8/4K2R b K - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "bob",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "a7a6 e1g1",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveCAS1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000031000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-31",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "bob",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-32",
+        "ts": 1700000032000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "e1h1"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/move-accepted",
+            "payload": {
+              "uci": "e1g1",
+              "san": "O-O",
+              "moves": "a7a6 e1g1",
+              "displayFen": "4k3/8/p7/8/8/8/8/5RK1 b - - 1 2",
+              "solveIdx": 2,
+              "status": "solved",
+              "endedAtMs": 1700000032000
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "4k3/8/p7/8/8/8/8/5RK1 b - - 1 2",
+        "chess.puzzle.play/ended-at-ms": 1700000032000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "4k3/p7/8/8/8/8/8/4K2R b K - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 2,
+        "chess.puzzle.play/host-identity": "bob",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "a7a6 e1g1",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveCAS1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 2,
+        "chess.puzzle.play/started-at-ms": 1700000031000,
+        "chess.puzzle.play/status": "solved",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-31",
+        "chess.puzzle.result/outcome": "solved",
+        "chess.puzzle.result/owner": "bob",
+        "chess.puzzle.result/score": 1000,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-33",
+        "ts": 1700000033000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/clear",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/cleared",
+            "payload": {}
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": null,
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "",
+        "chess.puzzle.play/furthest-solve-idx": 0,
+        "chess.puzzle.play/host-identity": null,
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": null,
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 0,
+        "chess.puzzle.play/started-at-ms": null,
+        "chess.puzzle.play/status": "idle",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": null,
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": null,
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-34",
+        "ts": 1700000034000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/start",
+          "payload": {
+            "puzzleId": "01Xbe",
+            "fen": "8/3R3p/6pk/3p4/2p1b1P1/6KP/r7/4R3 w - - 0 41",
+            "moves": "g3h4 g6g5 h4g3 a2g2"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/started",
+            "payload": {
+              "puzzleId": "01Xbe",
+              "fen": "8/3R3p/6pk/3p4/2p1b1P1/6KP/r7/4R3 w - - 0 41",
+              "moves": "g3h4 g6g5 h4g3 a2g2",
+              "hostIdentity": "alice",
+              "displayFen": "8/3R3p/6pk/3p4/2p1b1PK/7P/r7/4R3 b - - 1 41",
+              "orientation": "black",
+              "status": "solving",
+              "solveIdx": 1,
+              "startedAtMs": 1700000034000,
+              "attemptId": "command-34"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/3R3p/6pk/3p4/2p1b1PK/7P/r7/4R3 b - - 1 41",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "8/3R3p/6pk/3p4/2p1b1P1/6KP/r7/4R3 w - - 0 41",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "g3h4 g6g5 h4g3 a2g2",
+        "chess.puzzle.play/orientation": "black",
+        "chess.puzzle.play/puzzle-id": "01Xbe",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000034000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-34",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-35",
+        "ts": 1700000035000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/start",
+          "payload": {
+            "puzzleId": "solveCAS1",
+            "fen": "4k3/p7/8/8/8/8/8/4K2R b K - 0 1",
+            "moves": "a7a6 e1g1"
+          }
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/conflict",
+          "reason": "puzzle play already started; clear first"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/3R3p/6pk/3p4/2p1b1PK/7P/r7/4R3 b - - 1 41",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "8/3R3p/6pk/3p4/2p1b1P1/6KP/r7/4R3 w - - 0 41",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "g3h4 g6g5 h4g3 a2g2",
+        "chess.puzzle.play/orientation": "black",
+        "chess.puzzle.play/puzzle-id": "01Xbe",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000034000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-34",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-36",
+        "ts": 1700000036000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/request-hint",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/hint-revealed",
+            "payload": {
+              "fromSquare": "g6",
+              "toSquare": "g5",
+              "layoutKey": 1
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/3R3p/6pk/3p4/2p1b1PK/7P/r7/4R3 b - - 1 41",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": "g6",
+        "chess.puzzle.play/expected-to-square": "g5",
+        "chess.puzzle.play/fen": "8/3R3p/6pk/3p4/2p1b1P1/6KP/r7/4R3 w - - 0 41",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "g3h4 g6g5 h4g3 a2g2",
+        "chess.puzzle.play/orientation": "black",
+        "chess.puzzle.play/puzzle-id": "01Xbe",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000034000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-34",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-37",
+        "ts": 1700000037000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/show-solution",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/solution-shown",
+            "payload": {
+              "displayFen": "8/3R3p/7k/3p2p1/2p1b1P1/6KP/6r1/4R3 w - - 2 43",
+              "solveIdx": 4,
+              "endedAtMs": 1700000037000
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/3R3p/7k/3p2p1/2p1b1P1/6KP/6r1/4R3 w - - 2 43",
+        "chess.puzzle.play/ended-at-ms": 1700000037000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "8/3R3p/6pk/3p4/2p1b1P1/6KP/r7/4R3 w - - 0 41",
+        "chess.puzzle.play/furthest-solve-idx": 4,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "g3h4 g6g5 h4g3 a2g2",
+        "chess.puzzle.play/orientation": "black",
+        "chess.puzzle.play/puzzle-id": "01Xbe",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 4,
+        "chess.puzzle.play/started-at-ms": 1700000034000,
+        "chess.puzzle.play/status": "revealed",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-34",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 0,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-38",
+        "ts": 1700000038000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/step-back",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/stepped",
+            "payload": {
+              "displayFen": "8/3R3p/7k/3p2p1/2p1b1P1/6KP/r7/4R3 b - - 1 42",
+              "solveIdx": 3,
+              "status": "revealed",
+              "layoutKey": 2
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/3R3p/7k/3p2p1/2p1b1P1/6KP/r7/4R3 b - - 1 42",
+        "chess.puzzle.play/ended-at-ms": 1700000037000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "8/3R3p/6pk/3p4/2p1b1P1/6KP/r7/4R3 w - - 0 41",
+        "chess.puzzle.play/furthest-solve-idx": 4,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 2,
+        "chess.puzzle.play/moves": "g3h4 g6g5 h4g3 a2g2",
+        "chess.puzzle.play/orientation": "black",
+        "chess.puzzle.play/puzzle-id": "01Xbe",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 3,
+        "chess.puzzle.play/started-at-ms": 1700000034000,
+        "chess.puzzle.play/status": "revealed",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-34",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 0,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-39",
+        "ts": 1700000039000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/step-back",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/stepped",
+            "payload": {
+              "displayFen": "8/3R3p/7k/3p2p1/2p1b1PK/7P/r7/4R3 w - - 0 42",
+              "solveIdx": 2,
+              "status": "revealed",
+              "layoutKey": 3
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/3R3p/7k/3p2p1/2p1b1PK/7P/r7/4R3 w - - 0 42",
+        "chess.puzzle.play/ended-at-ms": 1700000037000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "8/3R3p/6pk/3p4/2p1b1P1/6KP/r7/4R3 w - - 0 41",
+        "chess.puzzle.play/furthest-solve-idx": 4,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 3,
+        "chess.puzzle.play/moves": "g3h4 g6g5 h4g3 a2g2",
+        "chess.puzzle.play/orientation": "black",
+        "chess.puzzle.play/puzzle-id": "01Xbe",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 2,
+        "chess.puzzle.play/started-at-ms": 1700000034000,
+        "chess.puzzle.play/status": "revealed",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-34",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 0,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-40",
+        "ts": 1700000040000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/skip",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/conflict",
+          "reason": "cannot skip while status is revealed"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/3R3p/7k/3p2p1/2p1b1PK/7P/r7/4R3 w - - 0 42",
+        "chess.puzzle.play/ended-at-ms": 1700000037000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "8/3R3p/6pk/3p4/2p1b1P1/6KP/r7/4R3 w - - 0 41",
+        "chess.puzzle.play/furthest-solve-idx": 4,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 3,
+        "chess.puzzle.play/moves": "g3h4 g6g5 h4g3 a2g2",
+        "chess.puzzle.play/orientation": "black",
+        "chess.puzzle.play/puzzle-id": "01Xbe",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 2,
+        "chess.puzzle.play/started-at-ms": 1700000034000,
+        "chess.puzzle.play/status": "revealed",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-34",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 0,
+        "chess.puzzle.result/used-hint": true
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-41",
+        "ts": 1700000041000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/clear",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/cleared",
+            "payload": {}
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": null,
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "",
+        "chess.puzzle.play/furthest-solve-idx": 0,
+        "chess.puzzle.play/host-identity": null,
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": null,
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 0,
+        "chess.puzzle.play/started-at-ms": null,
+        "chess.puzzle.play/status": "idle",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": null,
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": null,
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-42",
+        "ts": 1700000042000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/start",
+          "payload": {
+            "puzzleId": "solveUP1",
+            "fen": "2q5/4P1k1/8/8/8/8/8/6K1 b - - 0 1",
+            "moves": "c8c7 e7e8n"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/started",
+            "payload": {
+              "puzzleId": "solveUP1",
+              "fen": "2q5/4P1k1/8/8/8/8/8/6K1 b - - 0 1",
+              "moves": "c8c7 e7e8n",
+              "hostIdentity": "alice",
+              "displayFen": "8/2q1P1k1/8/8/8/8/8/6K1 w - - 1 2",
+              "orientation": "white",
+              "status": "solving",
+              "solveIdx": 1,
+              "startedAtMs": 1700000042000,
+              "attemptId": "command-42"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/2q1P1k1/8/8/8/8/8/6K1 w - - 1 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "2q5/4P1k1/8/8/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "c8c7 e7e8n",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveUP1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000042000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-42",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-43",
+        "ts": 1700000043000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "e7e8q"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/move-rejected",
+            "payload": {
+              "uci": "e7e8q",
+              "san": "e8=Q",
+              "layoutKey": 1,
+              "wrongToSquare": "e8"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/2q1P1k1/8/8/8/8/8/6K1 w - - 1 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "2q5/4P1k1/8/8/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "c8c7 e7e8n",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveUP1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000042000,
+        "chess.puzzle.play/status": "wrong",
+        "chess.puzzle.play/wrong-to-square": "e8",
+        "chess.puzzle.play/wrong-uci": "e7e8q",
+        "chess.puzzle.result/attempt": "command-42",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-44",
+        "ts": 1700000044000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/show-solution",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/solution-shown",
+            "payload": {
+              "displayFen": "4N3/2q3k1/8/8/8/8/8/6K1 b - - 0 2",
+              "solveIdx": 2,
+              "endedAtMs": 1700000044000
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "4N3/2q3k1/8/8/8/8/8/6K1 b - - 0 2",
+        "chess.puzzle.play/ended-at-ms": 1700000044000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "2q5/4P1k1/8/8/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 2,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "c8c7 e7e8n",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveUP1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 2,
+        "chess.puzzle.play/started-at-ms": 1700000042000,
+        "chess.puzzle.play/status": "revealed",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-42",
+        "chess.puzzle.result/outcome": "failed",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 500,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-45",
+        "ts": 1700000045000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/clear",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/cleared",
+            "payload": {}
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": null,
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "",
+        "chess.puzzle.play/furthest-solve-idx": 0,
+        "chess.puzzle.play/host-identity": null,
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": null,
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 0,
+        "chess.puzzle.play/started-at-ms": null,
+        "chess.puzzle.play/status": "idle",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": null,
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": null,
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-46",
+        "ts": 1700000046000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/start",
+          "payload": {
+            "puzzleId": "solveUP1",
+            "fen": "2q5/4P1k1/8/8/8/8/8/6K1 b - - 0 1",
+            "moves": "c8c7 e7e8n"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/started",
+            "payload": {
+              "puzzleId": "solveUP1",
+              "fen": "2q5/4P1k1/8/8/8/8/8/6K1 b - - 0 1",
+              "moves": "c8c7 e7e8n",
+              "hostIdentity": "alice",
+              "displayFen": "8/2q1P1k1/8/8/8/8/8/6K1 w - - 1 2",
+              "orientation": "white",
+              "status": "solving",
+              "solveIdx": 1,
+              "startedAtMs": 1700000046000,
+              "attemptId": "command-46"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/2q1P1k1/8/8/8/8/8/6K1 w - - 1 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "2q5/4P1k1/8/8/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "c8c7 e7e8n",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveUP1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000046000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-46",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "bob",
+      "command": {
+        "id": "command-47",
+        "ts": 1700000047000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/recommend-move",
+          "payload": {
+            "from": "e7",
+            "to": "e8"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/move-recommended",
+            "payload": {
+              "by": "bob",
+              "from": "e7",
+              "to": "e8"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/2q1P1k1/8/8/8/8/8/6K1 w - - 1 2",
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "2q5/4P1k1/8/8/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "c8c7 e7e8n",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveUP1",
+        "chess.puzzle.play/recommendations": {
+          "bob": {
+            "from": "e7",
+            "to": "e8",
+            "seq": 1
+          }
+        },
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000046000,
+        "chess.puzzle.play/status": "solving",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-46",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-48",
+        "ts": 1700000048000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/skip",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/skipped",
+            "payload": {
+              "endedAtMs": 1700000048000
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/2q1P1k1/8/8/8/8/8/6K1 w - - 1 2",
+        "chess.puzzle.play/ended-at-ms": 1700000048000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "2q5/4P1k1/8/8/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "c8c7 e7e8n",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveUP1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000046000,
+        "chess.puzzle.play/status": "skipped",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-46",
+        "chess.puzzle.result/outcome": "abandoned",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 0,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-49",
+        "ts": 1700000049000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/step-back",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/conflict",
+          "reason": "cannot step while status is skipped"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": "8/2q1P1k1/8/8/8/8/8/6K1 w - - 1 2",
+        "chess.puzzle.play/ended-at-ms": 1700000048000,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "2q5/4P1k1/8/8/8/8/8/6K1 b - - 0 1",
+        "chess.puzzle.play/furthest-solve-idx": 1,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "c8c7 e7e8n",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "solveUP1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 1,
+        "chess.puzzle.play/started-at-ms": 1700000046000,
+        "chess.puzzle.play/status": "skipped",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-46",
+        "chess.puzzle.result/outcome": "abandoned",
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": 0,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-50",
+        "ts": 1700000050000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/clear",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/cleared",
+            "payload": {}
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": null,
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "",
+        "chess.puzzle.play/furthest-solve-idx": 0,
+        "chess.puzzle.play/host-identity": null,
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": null,
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 0,
+        "chess.puzzle.play/started-at-ms": null,
+        "chess.puzzle.play/status": "idle",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": null,
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": null,
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-51",
+        "ts": 1700000051000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/start",
+          "payload": {
+            "puzzleId": "broken1",
+            "fen": "not a position",
+            "moves": "e2e4 e7e5"
+          }
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/started",
+            "payload": {
+              "puzzleId": "broken1",
+              "fen": "not a position",
+              "moves": "e2e4 e7e5",
+              "hostIdentity": "alice",
+              "displayFen": null,
+              "orientation": "white",
+              "status": "invalid",
+              "solveIdx": 0,
+              "startedAtMs": 1700000051000,
+              "attemptId": "command-51"
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": null,
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "not a position",
+        "chess.puzzle.play/furthest-solve-idx": 0,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "e2e4 e7e5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "broken1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 0,
+        "chess.puzzle.play/started-at-ms": 1700000051000,
+        "chess.puzzle.play/status": "invalid",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-51",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-52",
+        "ts": 1700000052000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/reset",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/reset",
+            "payload": {
+              "displayFen": null,
+              "solveIdx": 0,
+              "furthestSolveIdx": 0,
+              "status": "invalid",
+              "layoutKey": 1
+            }
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": null,
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "not a position",
+        "chess.puzzle.play/furthest-solve-idx": 0,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "e2e4 e7e5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "broken1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 0,
+        "chess.puzzle.play/started-at-ms": 1700000051000,
+        "chess.puzzle.play/status": "invalid",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-51",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-53",
+        "ts": 1700000053000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/submit-move",
+          "payload": {
+            "uci": "e2e4"
+          }
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/conflict",
+          "reason": "cannot submit move while status is invalid"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": null,
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "not a position",
+        "chess.puzzle.play/furthest-solve-idx": 0,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "e2e4 e7e5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "broken1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 0,
+        "chess.puzzle.play/started-at-ms": 1700000051000,
+        "chess.puzzle.play/status": "invalid",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-51",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-54",
+        "ts": 1700000054000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/request-hint",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/conflict",
+          "reason": "cannot request hint while status is invalid"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": null,
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "not a position",
+        "chess.puzzle.play/furthest-solve-idx": 0,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "e2e4 e7e5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "broken1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 0,
+        "chess.puzzle.play/started-at-ms": 1700000051000,
+        "chess.puzzle.play/status": "invalid",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-51",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-55",
+        "ts": 1700000055000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/show-solution",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": false,
+        "error": {
+          "type": "room.error/conflict",
+          "reason": "cannot show the solution while status is invalid"
+        }
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": null,
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "not a position",
+        "chess.puzzle.play/furthest-solve-idx": 0,
+        "chess.puzzle.play/host-identity": "alice",
+        "chess.puzzle.play/layout-key": 1,
+        "chess.puzzle.play/moves": "e2e4 e7e5",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": "broken1",
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 0,
+        "chess.puzzle.play/started-at-ms": 1700000051000,
+        "chess.puzzle.play/status": "invalid",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": "command-51",
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": "alice",
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    },
+    {
+      "identity": "alice",
+      "command": {
+        "id": "command-56",
+        "ts": 1700000056000,
+        "payload": {
+          "type": "chess-puzzle-play-cmd/clear",
+          "payload": {}
+        }
+      },
+      "result": {
+        "ok": true,
+        "events": [
+          {
+            "type": "chess-puzzle-play-evt/cleared",
+            "payload": {}
+          }
+        ]
+      },
+      "state": {
+        "chess.puzzle.play/display-fen": null,
+        "chess.puzzle.play/ended-at-ms": null,
+        "chess.puzzle.play/expected-from-square": null,
+        "chess.puzzle.play/expected-to-square": null,
+        "chess.puzzle.play/fen": "",
+        "chess.puzzle.play/furthest-solve-idx": 0,
+        "chess.puzzle.play/host-identity": null,
+        "chess.puzzle.play/layout-key": 0,
+        "chess.puzzle.play/moves": "",
+        "chess.puzzle.play/orientation": "white",
+        "chess.puzzle.play/puzzle-id": null,
+        "chess.puzzle.play/recommendations": {},
+        "chess.puzzle.play/solution-revealed": 0,
+        "chess.puzzle.play/solve-idx": 0,
+        "chess.puzzle.play/started-at-ms": null,
+        "chess.puzzle.play/status": "idle",
+        "chess.puzzle.play/wrong-to-square": null,
+        "chess.puzzle.play/wrong-uci": null,
+        "chess.puzzle.result/attempt": null,
+        "chess.puzzle.result/outcome": null,
+        "chess.puzzle.result/owner": null,
+        "chess.puzzle.result/score": null,
+        "chess.puzzle.result/used-hint": false
+      }
+    }
+  ]
+}

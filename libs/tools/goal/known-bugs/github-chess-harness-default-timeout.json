@@ -1,4 +1,4 @@
 {
   "summary": "On the loaded two-core GitHub runner, the offline White multiplayer harness test took 5002ms and failed on Bun's 5000ms default timeout; locally the file runs in 4s. Its harness siblings already declare the suite's 120000ms harness timeout; these two tests now do too, with assertions unchanged.",
-  "regressionTest": "libs/chess-root-harness/tests/multiplayer-search-regression.test.ts"
+  "regressionTest": "libs/games-harness/tests/matched-game-connection-regression.test.ts"
 }

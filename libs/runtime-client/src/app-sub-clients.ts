@@ -13,11 +13,11 @@ import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
 import { ACCOUNT_PRIVACY_CLIENT } from '@libs/account-privacy-client/sub-client';
 import { BILLING_CLIENT } from '@libs/billing-client/sub-client';
 import { PERSONAL_CHESS_STATS_CLIENT } from '@libs/chess-puzzle-client/personal-chess-stats-client';
-import { PUZZLE_LINK_CLIENT } from '@libs/chess-puzzle-client/puzzle-link-client';
 import { PuzzleManagementScreen } from '@libs/chess-puzzle-client/puzzle-management-screen';
 import { PuzzleManagementSettings } from '@libs/chess-puzzle-client/puzzle-management-settings';
 import { FRIENDS_CLIENT } from '@libs/friends-client/sub-client';
 import { createMultiplayerLinkClient } from '@libs/game-matchmaking-client/multiplayer-link-client';
+import { createPuzzleLinkClient } from '@libs/game-puzzle-client/puzzle-link-client';
 import { GAME_CLIENT_DEFINITIONS } from '@libs/games-client/game-plugins.client';
 import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
 import { NOTIFICATIONS_CLIENT } from '@libs/notifications-client/sub-client';
@@ -55,7 +55,7 @@ export const APP_SUB_CLIENTS: readonly SubClient[] = [
   PROFILE_CLIENT,
   ACCOUNT_PRIVACY_CLIENT,
   SPACES_CLIENT,
-  PUZZLE_LINK_CLIENT,
+  createPuzzleLinkClient(TURN_GAMES),
   createMultiplayerLinkClient(TURN_GAMES),
   PERSONAL_CHESS_STATS_CLIENT,
   // Friends registers a notification source, so it mounts above the inbox

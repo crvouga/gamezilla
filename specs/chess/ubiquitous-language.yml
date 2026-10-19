@@ -11,15 +11,10 @@ purpose: >-
 terms:
   - term: pair people up
     from: matchmaking
-  - term: matchmaking match
-    from: matchmaking
-    model: [matchFormed, MatchmakingMatch, matchedPeople, fromMatch]
   - term: person
     from: kernel
-    model: [PlayPerson, currentPlay]
   - term: device
     from: kernel
-    model: [PlayDevice]
   - term: connection
     from: kernel
     model: [online, loseConnection, comeBackOnline, connectionReturns]
@@ -29,34 +24,18 @@ terms:
     from: friends
   - term: account deletion
     from: profile
-    model: [deletePlayAccount]
-  - term: recently proven account
-    from: profile
   # --- Borrowed -------------------------------------------------------------
 
   - term: guest
     from: profile
   - term: account
     from: profile
-  - term: sign out
-    from: profile
-  - term: username
-    from: profile
-  - term: rename themselves
-    from: profile
-  - term: friends list
-    from: friends
-  - term: inbox
-    from: friends
   - term: leave
     from: spaces
-    model: [leaveSpace]
   - term: end a space
     from: spaces
   - term: sign in
     from: profile
-  - term: paid access
-    from: billing
   - term: control
     from: runtime
   - term: Plus
@@ -67,13 +46,10 @@ terms:
     from: billing
   - term: space
     from: spaces
-    model: [Space, space]
   - term: host
     from: spaces
-    model: [spaceHost]
   - term: join
     from: spaces
-    model: [joinSpace]
   - term: space link
     from: spaces
   - term: lobby
@@ -84,7 +60,6 @@ terms:
     from: spaces
   - term: idle
     from: spaces
-    model: [goQuiet, idle]
   - term: friend
     from: friends
   - term: Google
@@ -92,12 +67,11 @@ terms:
   - term: sounds
     from: runtime
     forms: [sound, silence, silent, turned sounds off, turned sounds on, turns sounds off, turns sounds on]
-    model: [configurePuzzleSounds]
 
   # The shared kernel's "the app", named in this context's model.
   - term: the app
     from: kernel
-    model: [reopenApp, closeApp]
+    model: [reopenApp]
 
   # --- Where a person is in a space ------------------------------------------
 
@@ -108,7 +82,6 @@ terms:
       have in the space. A guest cannot choose a different one. A later
       choice by the host replaces the earlier one everywhere in the space.
       Chess is one.
-    model: [pickChess]
     published: true
 
   - term: chess
@@ -116,7 +89,6 @@ terms:
       The game whose puzzles this context is about. In a space, chess offers
       its chess choices; playing puzzles is one of them. The host picks chess
       for the space; a guest cannot.
-    model: [pickChess]
     published: true
 
   - term: space view
@@ -148,7 +120,7 @@ terms:
       puzzle's state; a watcher's board agrees with the host's. In a Custom
       Game each participant's board faces their own side, and everyone
       else's board faces White.
-    model: [Board, playShown, boardFacing]
+    model: [Board]
     published: true
 
   - term: play puzzles
@@ -182,7 +154,7 @@ terms:
       checkmate, played on the board. Each
       puzzle has a rating of its own, which is how hard it is.
     avoid: [problem, exercise]
-    model: [puzzle, Puzzle, PuzzleSound, puzzleSound]
+    model: [puzzle, PuzzleSound, puzzleSound]
     published: true
 
   - term: puzzle's own rating
@@ -303,28 +275,9 @@ terms:
 
   - term: retired puzzle
     definition: >-
-      A puzzle taken out of the puzzle feed. It is never served again and its
-      puzzle link no longer opens it, but it stays in the game log and still
-      opens in review.
+      A puzzle taken out of the puzzle feed. It is never served again, but
+      it stays in the game log and still opens in review.
     forms: [retired]
-    model: [retirePuzzle]
-
-  - term: puzzle link
-    definition: >-
-      A link to one puzzle that a solver can share from the puzzle on their
-      board, finished or not. Opening it puts that exact puzzle on the
-      person's board: rated if they have never played it, unrated if they
-      have. For a guest a rated one uses a puzzle start. A retired puzzle's
-      link no longer opens it, and the person is told the puzzle is no longer
-      available.
-    forms:
-      - puzzle links
-      - puzzle link's
-      - shares a puzzle link
-      - shared a puzzle link
-      - opens a puzzle link
-    avoid: [puzzle address, permalink, deep link, puzzle URL]
-    model: [sharePuzzleLink, openPuzzleLink, linkShared, linkRefusal]
 
   - term: puzzle feed
     definition: >-
@@ -336,7 +289,6 @@ terms:
       attempted longest ago, unrated.
     forms: [feed, feed's]
     avoid: [queue, playlist]
-    model: [feedChoice]
 
   - term: feed settings
     definition: >-
@@ -346,7 +298,6 @@ terms:
       their other devices. Editing previews choices; saving applies them.
       Closing without saving keeps the saved choices.
     forms: [feed choices, unsaved feed settings]
-    model: [feedChoice, editing, startEditingFeed, previewFeedChoice, saveFeedChoices, discardFeedChoices]
 
   - term: history filter
     definition: >-
@@ -399,7 +350,6 @@ terms:
       The person solving the puzzle on the board: the host, when a space has
       watchers. The board faces the solver's side.
     avoid: [puzzler]
-    model: [Solver, solver]
 
   - term: attempt
     definition: >-
@@ -408,7 +358,6 @@ terms:
       continues the same attempt. Leaving the puzzle or closing the app does
       not end it.
     avoid: [session]
-    model: [finish, finishAsAppCloses, finishAlongsideOtherDevice, Unfinished]
 
   - term: puzzle state
     definition: >-
@@ -456,7 +405,7 @@ terms:
       Finish a puzzle with the solution or any legal checkmate. A solved puzzle is over, and
       its pieces can no longer be moved.
     forms: [solves, solved, solving]
-    model: [solve, CleanSolve]
+    model: [solve]
     published: true
 
   - term: wrong move
@@ -466,14 +415,14 @@ terms:
       retry. It earns half credit, like a hint.
     forms: [wrong]
     avoid: [mistake, blunder]
-    model: [playWrongMove, WrongMove]
+    model: [playWrongMove]
 
   - term: hint
     definition: >-
       Help while solving: the first highlights the piece to move, the second
       shows the solution move. A puzzle solved after a hint earns half credit.
     forms: [asks for a hint, asks for another hint, asked for a hint]
-    model: [HintedSolve, requestHint, help, tryHintAfterFinish, tryHintFromReview, tryHintBeforeRetry, tryEarlierHint]
+    model: [requestHint, help, tryHintAfterFinish, tryHintFromReview, tryHintBeforeRetry, tryEarlierHint]
 
   - term: half credit
     definition: >-
@@ -486,7 +435,7 @@ terms:
       solve, a shown solution or a skip, play the same puzzle from its start.
       It continues the same attempt, so its first outcome does not change.
     forms: [retries the puzzle, retried the puzzle, retrying the puzzle]
-    model: [retry, retryAndSolve, tryRetryWhileSolving]
+    model: [retry, tryRetryWhileSolving]
 
   - term: show the solution
     definition: >-
@@ -500,14 +449,14 @@ terms:
       - revealed
       - revealed solution
       - revealed line
-    model: [showSolution, ShownSolution, tryShowSolutionAfterFinish, tryShowSolutionFromReview]
+    model: [showSolution, tryShowSolutionAfterFinish, tryShowSolutionFromReview]
 
   - term: skip
     definition: >-
       Give up on a puzzle being solved. It is over, and the attempt is
       abandoned.
     forms: [skips, skipped, skipping]
-    model: [skip, Skipped, trySkipAfterFinish]
+    model: [skip, trySkipAfterFinish]
 
   - term: failed attempt
     definition: >-
@@ -567,7 +516,6 @@ terms:
       review an earlier position on their own device, which changes nobody
       else's board.
     forms: [watch, watches, watched, watching]
-    model: [shownMoves, shownWinner, canMove]
     avoid: [spectator, viewer, observer]
 
   - term: suggestion
@@ -589,7 +537,6 @@ terms:
       it.
     forms: [rating, rating gain, puzzle ratings]
     avoid: [score, elo]
-    model: [ratedResult]
 
   - term: seed rating
     definition: The puzzle rating every solver starts at, 1500.
@@ -632,7 +579,6 @@ terms:
       puzzle, ever. A repeat of an already-played puzzle is unrated, and a
       watcher is never rated.
     forms: [rated, unrated, rated puzzle]
-    model: [RatedPuzzle, rated]
 
   - term: stats
     definition: >-
@@ -640,7 +586,6 @@ terms:
       the rating moved over time. They count each puzzle's rated attempt
       only.
     avoid: [statistics, scoreboard]
-    model: [readStats, readStatsOnOtherDevice]
 
   - term: accuracy
     definition: The share of rated attempts solved, as a whole percentage.
@@ -651,7 +596,6 @@ terms:
       failed or abandoned with the puzzle's own rating and its rating change
       (or that it was unrated), and each opening in review.
     avoid: [puzzle history]
-    model: [gameLog, PlayedPuzzle]
 
   - term: review
     definition: >-
@@ -663,7 +607,7 @@ terms:
       device.
     forms: [reviews, reviewing, reviewed]
     avoid: [replay, analysis]
-    model: [stepBackPosition, stepForwardPosition, position, chooseReviewPosition, tryReviewBeforeRetry, stepPuzzleSoundReview]
+    model: [stepBackPosition, stepForwardPosition, position, chooseReviewPosition, tryReviewBeforeRetry]
 
   # --- The daily puzzle limit --------------------------------------------------
 
@@ -687,7 +631,7 @@ terms:
   - term: move
     source: FIDE Laws of Chess, Article 3 (the moves of the pieces)
     forms: [moves, moved, moving, plays]
-    model: [playCustomMove, moves, ply, sideToMove, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, playQuietPuzzleMove, playCapturePuzzleMove]
+    model: [playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, playCapturePuzzleMove]
   - term: capture
     source: FIDE Laws of Chess, Article 3.1.1 (removing an opposing piece as part of a move)
     forms: [captures, captured]
@@ -726,11 +670,6 @@ terms:
   - term: keyboard
     from: runtime
     forms: [left arrow, right arrow]
-  - term: stand-in name
-    from: profile
-  - term: stop allowing
-    from: profile
-
   # --- Multiplayer chess -------------------------------------------------------
 
   - term: multiplayer chess
@@ -750,14 +689,7 @@ terms:
       Copying the game record from either space, or from another device,
       copies that one game.
     forms: [multiplayer game, multiplayer games, multiplayer board, multiplayer boards]
-    model: [PlayGame, PlayWorld, playNumber, playSide, whiteSide, blackSide, playBoard, PlayBoard]
     published: true
-
-  - term: matched
-    definition: >-
-      Given a multiplayer opponent by a matchmaking match. A matched person
-      sees their multiplayer opponent, the time control and their colour.
-    forms: [matched with, being matched]
 
   - term: multiplayer opponent
     definition: >-
@@ -785,15 +717,6 @@ terms:
       - day per move
       - days per move
     avoid: [time format, game mode, pace]
-    model: [TimeControl, timeControl]
-
-  - term: speed
-    definition: >-
-      The family a time control belongs to: bullet, blitz, rapid, classical
-      or daily, as the time control lists them. Each speed has its own
-      multiplayer rating.
-    forms: [speeds, bullet, blitz, rapid, classical, daily]
-    model: [speed]
 
   - term: find a chess opponent
     definition: >-
@@ -818,34 +741,6 @@ terms:
       - chess opponent search
       - opponent search
       - search
-    model: [findOpponent, lookingForOpponent, lookingSeconds]
-
-  - term: find a new opponent
-    definition: >-
-      From a multiplayer game that is over or aborted, look for a chess
-      opponent again at that game's time control, in one step. It ends any
-      waiting multiplayer rematch offer. During an unfinished game it is
-      refused like any other search.
-    forms: [finds a new opponent, found a new opponent, finding a new opponent]
-    model: [findNewOpponent]
-
-  - term: stop finding a chess opponent
-    definition: >-
-      Stop the person's current matchmaking wait, keeping any multiplayer
-      game already formed. A person without a wait has nothing to stop.
-    forms: [stops finding a chess opponent, stopped finding a chess opponent]
-    model: [stopFindingOpponent]
-
-  - term: open multiplayer chess
-    definition: >-
-      Within a space, see the person's current opponent search or most
-      recent multiplayer game. A space can watch its host's multiplayer
-      game, including a game against someone in another space. Coming back
-      or opening it on another device never starts a second game. After a
-      game is over or aborted, the person may find a new opponent, and after
-      a result they may offer a multiplayer rematch.
-    forms: [opens multiplayer chess, returns to multiplayer chess]
-    model: [openMultiplayer]
 
   - term: colour balance
     definition: >-
@@ -868,7 +763,6 @@ terms:
       last accepted board and cannot send a move, resignation, abort or offer
       for later.
     forms: [turn, turns, plays a multiplayer move, repeats a multiplayer move, plays, repeats that multiplayer move]
-    model: [playMove, playCurrentMove, moveCount, turn]
 
   - term: multiplayer move list
     definition: >-
@@ -876,7 +770,6 @@ terms:
       people and every watcher and kept with its result. Choosing a move in
       it shows the earlier position after that move.
     forms: [multiplayer move lists]
-    model: [chooseEarlierPosition, stepBackOneMove, stepForwardOneMove, goToStart]
 
   - term: multiplayer clock
     definition: >-
@@ -908,7 +801,6 @@ terms:
       - day has passed in multiplayer chess
       - days have passed in multiplayer chess
     avoid: [timer]
-    model: [whiteClock, blackClock, multiplayerTimePasses, clocksPaused, timeLeft]
 
   - term: run out of time
     definition: >-
@@ -919,35 +811,6 @@ terms:
       In a daily game this holds once both people have made their first
       move; before that, the time running out is missing the first move.
     forms: [runs out of time, ran out of time, running out of time, has run out]
-
-  - term: miss the first move
-    definition: >-
-      Not make one's first move in time: White within 30 seconds of the
-      multiplayer game's start, and Black within 30 seconds of White's first
-      move. In a daily game each has the time control's days instead of 30
-      seconds. It aborts the game, so nobody loses a game they never began,
-      even when they were matched while away.
-    forms: [misses the first move, missed the first move, missing the first move]
-
-  - term: abort the multiplayer game
-    definition: >-
-      End a multiplayer game before both people have made their first move.
-      It has no winner, moves nobody's multiplayer rating, and frees both
-      people to find a chess opponent again; it has no rematch. Either person
-      may abort until both have moved, and only afterwards may resign.
-      Missing the first move, or confirming account deletion before both
-      people have moved, aborts the game too.
-    forms:
-      - aborts the multiplayer game
-      - aborted the multiplayer game
-      - multiplayer game was aborted
-      - aborted multiplayer game
-      - aborted
-      - aborts
-      - abort
-      - can no longer be aborted
-    avoid: [void]
-    model: [abortPlay, AbortedPlay, AbortedGame]
 
   - term: multiplayer result
     definition: >-
@@ -961,37 +824,7 @@ terms:
       disconnected person's multiplayer clock keeps running on their turn.
       An aborted game is over without a result.
     forms: [multiplayer game is over, multiplayer draw, multiplayer win, drawn, drawn by agreement, finished multiplayer game]
-    model: [PlayOutcome, NoPlay, OngoingPlay, WonPlay, DrawnPlay, playOutcome, PlayState, UnfinishedPlay, WonGame, DrawnGame, playState, winner]
     published: true
-
-  - term: offer a multiplayer draw
-    definition: >-
-      One person in an unfinished multiplayer game asking the other to agree
-      to a draw. Only the other person may accept or decline it, and offering
-      a draw back accepts it. A move by the person offered declines it; a
-      move by the person who offered keeps it. A game that is over takes no
-      offer.
-    forms:
-      - offers a multiplayer draw
-      - offered a multiplayer draw
-      - offered someone a multiplayer draw
-      - multiplayer draw offer
-      - multiplayer draw offers
-    model: [offerPlayDraw, drawOffer]
-
-  - term: accept the multiplayer draw
-    definition: >-
-      The person offered a multiplayer draw agreeing to it. The game is drawn
-      by agreement and rated as a draw.
-    forms: [accepts the multiplayer draw, accepted the multiplayer draw]
-    model: [acceptPlayDraw]
-
-  - term: decline the multiplayer draw
-    definition: >-
-      The person offered a multiplayer draw turning it down. The game goes
-      on and nobody is offered a draw.
-    forms: [declines the multiplayer draw, declined the multiplayer draw]
-    model: [declinePlayDraw]
 
   - term: offer a multiplayer rematch
     definition: >-
@@ -1007,21 +840,12 @@ terms:
       - offered someone a multiplayer rematch
       - multiplayer rematch
       - multiplayer rematch offer
-    model: [offerRematch, rematchOffer, rematchOf]
 
   - term: accept the multiplayer rematch
     definition: >-
       The person offered a multiplayer rematch agreeing to it, which starts
       the new multiplayer game at once.
     forms: [accepts the multiplayer rematch, accepted the multiplayer rematch]
-    model: [acceptRematch]
-
-  - term: decline the multiplayer rematch
-    definition: >-
-      The person offered a multiplayer rematch turning it down. The offer
-      ends.
-    forms: [declines the multiplayer rematch, declined the multiplayer rematch]
-    model: [declineRematch]
 
   - term: resign multiplayer chess
     definition: >-
@@ -1033,7 +857,6 @@ terms:
       unfinished game, or aborts it if both people have not yet moved, and
       stops their opponent search before their account disappears.
     forms: [resigns multiplayer chess, resigned multiplayer chess]
-    model: [resignPlay]
 
   - term: multiplayer rating
     definition: >-
@@ -1061,110 +884,11 @@ terms:
       - daily ratings
     avoid: [elo, ladder points]
 
-  - term: rated multiplayer game
-    definition: >-
-      A multiplayer game that finished with a win or a draw. It counts once
-      toward both people's multiplayer rating for its speed, and each person
-      sees how many rated multiplayer games they have played at each speed.
-      An aborted game is not rated.
-    forms: [rated multiplayer games]
-    model: [ratedGames]
-
   - term: last known multiplayer board
     definition: >-
       The accepted board, multiplayer clocks, offers and result shown before
       a device went offline. They stay visible until a connection brings the
       accepted outcome back.
-    model: [LastKnownPlay]
-
-  - term: unfinished multiplayer game limit
-    definition: >-
-      Every account has at most one unfinished multiplayer game. Before
-      seeking a new opponent, the person finishes that game, and also any
-      active Custom Game they are a participant of. A game that is over or
-      aborted no longer counts. Free accounts and Plus members have the same
-      allowance.
-
-  - term: daily game
-    definition: >-
-      A multiplayer game played at a daily time control, so each person has
-      1, 3 or 7 days for every move. It lasts across days: leaving or ending
-      a space, closing the app or using another device never ends or pauses
-      it, the time of the person whose turn it is keeps running, and the
-      game is there when they come back. A pause of shared play is the
-      exception: those days are kept just like every other multiplayer clock.
-      Everything else about it is
-      ordinary multiplayer chess, and it counts as the person's one
-      unfinished multiplayer game.
-    forms: [daily games, daily game's]
-    avoid: [correspondence, turn-based game, slow game]
-    model: [DailyGame]
-
-  - term: turn notice
-    definition: >-
-      An inbox item telling a person it is their turn in their daily game
-      and naming their multiplayer opponent. White has one when the daily
-      game starts; after that a person gets one each time their multiplayer
-      opponent's move is accepted and the game is still unfinished. It is
-      unread until the person opens it, and it leaves the inbox as soon as
-      the person's own move is accepted, or the daily game is over or
-      aborted. A person has one turn notice for a daily game, never more:
-      their next turn brings it back unread, and so does becoming low on
-      time before they have moved, which makes it a turn reminder. Opening
-      it takes the person to
-      multiplayer chess in their own space, creating a space when they host
-      none; with no connection it shows the last known multiplayer board
-      and stays as it was. Only the two people of a daily game get one: a
-      watcher never does, and no other multiplayer game brings one.
-    forms: [turn notices, unread turn notice, unread]
-    avoid: [notification, alert, ping]
-    model: [turnNotice, openTurnNotice]
-
-  - term: result notice
-    definition: >-
-      An inbox item telling one of a daily game's two people how it ended
-      for them: won, lost or drawn, with the reason the multiplayer result
-      gives, or aborted. Both people get one when their daily game is over
-      or aborted, and each keeps theirs until they dismiss it, which needs
-      a connection. Opening it never dismisses it and takes the person to
-      multiplayer chess in their own space, creating a space when they host
-      none; with no connection it shows the last known multiplayer board. A
-      watcher never gets one, and no other multiplayer game brings one.
-    forms: [result notices, dismiss, dismisses, dismissed, dismissing]
-    model: [resultNotice, openResultNotice, dismissResultNotice]
-
-  - term: low on time
-    definition: >-
-      Said of a running multiplayer clock that is nearly used up: it has no
-      more than 10 seconds left at bullet, 20 seconds at blitz, 30 seconds
-      at rapid or 60 seconds at classical; in a daily game, 6 hours or less
-      at 1 day per move, and 1 day or less at 3 or 7 days per move. Both
-      people and every watcher see that clock shown as low on time, and a
-      person listening to the app is told so with the time left. The person
-      whose clock it is hears the low on time warning, a sound, once per
-      game, when their clock first becomes low on time. Nobody else hears
-      it, nobody hears it with sounds turned off, and a daily game gives
-      none. A clock that is not running is never low on time: before both
-      people have moved outside a daily game, and once the game is over or
-      aborted. An increment that lifts a clock back above that time shows
-      it as not low on time again, and the warning is not repeated.
-    forms: [low on time warning, not low on time]
-    avoid: [time trouble, time pressure, flagging soon]
-
-  - term: turn reminder
-    definition: >-
-      What a person's turn notice becomes when their multiplayer clock is
-      low on time in a daily game and they have not moved: it comes back
-      unread and tells them they are low on time and how long they have
-      left. A person gets one turn reminder per turn, for their first move
-      too. It is still their one turn notice, never a second inbox item, so
-      it leaves the inbox as a turn notice does, and a person who was not
-      using the app finds it when they are back. A person who moved in time
-      gets none, a daily game that is over or aborted gives none, and no
-      other multiplayer game gives one.
-    forms: [turn reminders, unread turn reminder]
-    avoid: [nudge, ping, alert]
-    model: [turnReminder]
 
   - term: earlier position
     definition: >-
@@ -1183,7 +907,6 @@ terms:
       the app is told which earlier position they are reviewing.
     forms: [earlier positions]
     avoid: [past position, old position]
-    model: [earlierPosition]
 
   - term: current position
     definition: >-
@@ -1197,7 +920,6 @@ terms:
       - returning to the current position
       - final position
     avoid: [live position, latest position]
-    model: [returnToCurrentPosition]
 
   - term: game record
     definition: >-
@@ -1215,7 +937,6 @@ terms:
     source: Portable Game Notation for the game record and Forsyth-Edwards Notation for the final position
     forms: [game records, copy the game record, copies the game record, copy the final position, copies the final position, copied]
     avoid: [PGN, download]
-    model: [gameRecordOffered, copyGameRecord, copyFinalPosition]
 
   - term: flip the board
     definition: >-
@@ -1229,7 +950,6 @@ terms:
       whose turn it is, and needs no connection.
     forms: [flips the board, flipped the board, flipping the board, flipping, flipped]
     avoid: [rotate, switch sides]
-    model: [flipBoard]
 
   # --- Custom Games --------------------------------------------------------
 
@@ -1244,44 +964,7 @@ terms:
     forms:
     - Custom Games
     - Custom Game's
-    model:
-    - CustomGame
-    - black
-    - blackShown
-    - createGame
-    - creator
-    - creatorShown
-    - customGame
-    - drawOfferedByShown
-    - gameShown
-    - incrementShown
-    - minutesShown
-    - outcomeShown
-    - ready
-    - readyShown
-    - startsShown
-    - status
-    - statusShown
-    - white
-    - whiteShown
-    - controllers
-    - controlledStatus
-    - controlledPly
-    - controlledTurn
-    - controlledOutcome
-    - controlledShown
-    - playControlledMove
-    - resignControlledGame
-    - cancelControlledGame
-    - current
     published: true
-  - term: creator
-    definition: The host whose Custom Game it is. Only the creator creates, configures, starts,
-      cancels or makes a rematch, including when watching two other participants; the one
-      exception is that either participant of a game between two people may cancel it until
-      each side has moved. Leaving the space ends it and cancels unfinished games.
-    model:
-    - creator
   - term: side
     definition: White or Black in a Custom Game or a multiplayer game. In a Custom Game each
       has one choice of participant, and one person cannot be accepted or invited on both sides.
@@ -1289,45 +972,17 @@ terms:
     - sides
     - White
     - Black
-    model:
-    - Side
-    - Color
-    - color
-    - White
-    - Black
-    - white
-    - black
   - term: participant
     definition: A person who accepted one side, or a bot chosen for one side. The creator
       is a participant only when accepted on a side. Watching never gives control of a participant.
     forms:
     - participants
-    model:
-    - Participant
-    - ParticipantKind
-    - PersonSide
-    - BotSide
-    - kind
-    - person
   - term: bot
     definition: A chess opponent that plays legal moves by itself for its own side. Either
       or both sides may be bots, including identical bots. There are no strength or personality
       choices. A bot stops when the game ends.
     forms:
     - bots
-    model:
-    - botPlays
-  - term: open place
-    definition: An unoccupied side anybody already in the space may claim before start, except
-      someone who has blocked the creator or whom the creator has blocked; they are only told the
-      side is not available to them. Competing claims leave exactly one accepted person; either
-      may win. A person must confirm readiness after claiming.
-    forms:
-    - open places
-    model:
-    - OpenPlace
-    - openSide
-    - claimSide
   - term: closed side
     definition: An unoccupied side nobody may claim until the creator opens it or chooses
       a participant. A closed side prevents starting.
@@ -1335,9 +990,6 @@ terms:
     - closed sides
     - closed
     - closes
-    model:
-    - ClosedSide
-    - closeSide
   - term: invitation
     definition: A side reserved by the creator for a person already in the space, who alone
       may accept or decline it before start. The invited person is shown it; nobody outside
@@ -1352,20 +1004,12 @@ terms:
     - reserved
     - revoked
     - revokes
-    model:
-    - InvitedSide
-    - invite
-    - acceptSide
-    - declineSide
-    - revokeSide
   - term: take a side
     definition: The creator choosing themselves for one side before start. Replacing a choice
       clears readiness; taking the same accepted side again changes nothing.
     forms:
     - takes
     - take
-    model:
-    - takeSide
   - term: assign a bot
     definition: The creator choosing a bot for one side before start. Replacing any earlier
       choice removes it and clears people's readiness; choosing the same bot again changes
@@ -1375,16 +1019,6 @@ terms:
     - assigned
     - replaced
     - replaces
-    model:
-    - assignBot
-  - term: release a side
-    definition: An accepted person giving up their own side before start. It becomes an open
-      place. After start leaving the space resigns instead of releasing.
-    forms:
-    - releases
-    - released
-    model:
-    - releaseSide
   - term: readiness
     definition: A participating person agreeing to the current sides and time choice before
       start. Every changed choice clears all people's readiness. Bots need no confirmation.
@@ -1395,10 +1029,6 @@ terms:
     - becomes ready
     - become ready
     - no longer ready
-    model:
-    - ready
-    - becomeReady
-    - becomeUnready
   - term: swap sides
     definition: The creator exchanging all of White's and Black's choices before start. Any
       people must become ready again.
@@ -1406,8 +1036,6 @@ terms:
     - swaps
     - swapped
     - swapping
-    model:
-    - swapSides
   - term: Custom Game status
     definition: Whether a Custom Game is configuring, active, completed or cancelled. A new
       game follows a terminal game without reviving it.
@@ -1419,15 +1047,6 @@ terms:
     - started
     - finished
     - startable
-    model:
-    - status
-    - CustomGameStatus
-    - Configuring
-    - Active
-    - Completed
-    - Cancelled
-    - startGame
-    - cancelGame
   - term: Custom Game choices
     definition: The sides and time choice agreed before start. Start requires two participants
       and every person ready. Starting freezes these choices. Choices that have since changed
@@ -1435,8 +1054,6 @@ terms:
     forms:
     - choices
     - earlier choices
-    model:
-    - started
   - term: time choice
     definition: An untimed game, or the same whole number of minutes from 1 to 180 for both
       sides with a whole number of seconds increment from 0 to 60. Untimed games have no
@@ -1444,11 +1061,6 @@ terms:
     forms:
     - untimed
     - timed
-    model:
-    - chooseClock
-    - clockLeft
-    - customTimePasses
-    - clocksPaused
   - term: Custom Game outcome
     definition: 'The final result: White wins, Black wins, a draw or cancellation with no
       winner. Wins say checkmate, resignation, time, or the other participant staying away.
@@ -1460,11 +1072,6 @@ terms:
     - resignation
     - on time
     - wins
-    model:
-    - resignGame
-    - resignCustomGame
-    - cancelCustomGame
-    - result
   - term: draw offer
     definition: One participating person asking the other to agree to a draw in an active
       game between two people. Only the other person accepts or declines; playing a move
@@ -1475,10 +1082,6 @@ terms:
     - offers a draw
     - accepts the draw
     - declines the draw
-    model:
-    - offerDraw
-    - acceptDraw
-    - declineDraw
   - term: rematch
     definition: A separate configuring Custom Game after completion or cancellation, with
       accepted participants swapped and the same time choice. Invitations are not inherited
@@ -1486,8 +1089,6 @@ terms:
       its outcome and move list.
     forms:
     - rematches
-    model:
-    - rematch
   - term: Custom Game refusal
     definition: 'Why a person''s choice cannot take effect: authority, lifecycle, participant
       relationship, a block, readiness, time choice, a draw offer just declined, an opponent
@@ -1495,8 +1096,6 @@ terms:
       never says who blocked whom. No refused choice changes a side, starts play or happens
       later on its own.'
     forms:
-    - refusal
-    model:
     - refusal
   - term: Custom Game move list
     definition: The moves of one game in algebraic notation, kept with its final outcome.
@@ -1506,28 +1105,6 @@ terms:
     - move list
     published: true
 
-  - term: away
-    definition: A participant of an active Custom Game who has no device with a connection in
-      that game. Being away never gives up the game on its own, and a timed game's clock keeps
-      running for them. A pause of shared play is not either participant
-      staying away, and cannot permit an away win. Coming back before anyone
-      claims the win continues the game as it is.
-    forms:
-    - stayed away
-    - stays away
-
-  - term: claim the win
-    definition: In an active Custom Game between two people, a participant ending the game
-      because the other participant has been away for 60 seconds. The claimant wins because
-      the other participant stayed away, or draws when the claimant cannot mate with the
-      remaining material. Earlier, the claimant is told the other participant may still
-      return. Watchers cannot claim the win.
-    forms:
-    - claims the win
-    - claimed the win
-    model:
-    - claimWin
-
   - term: side control
     definition: Who may move for a side in a Custom Game, exclusively its accepted person
       or chosen bot.
@@ -1535,21 +1112,8 @@ terms:
     - control
     - controls
     - controller
-  - term: people in the space
-    definition: The people who already belong to the Custom Game's space; only they may be
-      invited or claim a side.
-    model:
-    - peopleInSpace
   - term: listen to the app
     from: runtime
-  - term: watch a Custom Game
-    definition: A person already in the space following its game without controlling a side.
-      Outside the space the game is unavailable.
-    forms:
-    - watches the Custom Game
-    - watching the Custom Game
-    - listens to the Custom Game
-    - reviews
   - term: repetition
     definition: The same position with the same side to move and the same rights appearing
       again. The third appearance completes a Custom Game as a draw.
@@ -1557,10 +1121,6 @@ terms:
     - repeated
     - second repetition
     - third repetition
-  - term: personal-data export
-    from: profile
-  - term: personal data
-    from: profile
   - term: stalemate
     definition: The side to move is not in check but has no legal move. The Custom Game ends
       as a draw.
@@ -1624,6 +1184,5 @@ terms:
   - term: first result
     definition: >-
       The first solved, failed or abandoned outcome recorded for a solver's
-      puzzle. If devices act apart, the outcome that reaches the account first
-      is kept.
-    model: [Result, result, Solved, Failed, Abandoned]
+      puzzle. If devices act apart, the outcome counted first is kept, and
+      every device of the account shows it.

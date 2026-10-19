@@ -10,6 +10,7 @@ import { Select } from '@pkgs/ui-root-client/select';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
+import { customGameCanMove } from './custom-game-can-move';
 import { CustomGameError } from './custom-game-error';
 import { CustomGameSeat } from './custom-game-side';
 import type { CustomGameReview } from './use-custom-game-review';
@@ -29,7 +30,7 @@ function ReviewSteps(props: BoardProps): JSX.Element {
         intent="neutral"
         disabled={props.review.displayedPly() === 0}
         onClick={() => props.review.seek(props.review.displayedPly() - 1)}
-        dataSet={{ testid: 'chess-custom-review-back' }}
+        dataSet={{ testid: 'custom-game-review-back' }}
       />
       <Button
         title={<Trans>Next move</Trans>}
@@ -42,14 +43,14 @@ function ReviewSteps(props: BoardProps): JSX.Element {
           (props.review.game()?.moves.length ?? 0)
         }
         onClick={() => props.review.seek(props.review.displayedPly() + 1)}
-        dataSet={{ testid: 'chess-custom-review-forward' }}
+        dataSet={{ testid: 'custom-game-review-forward' }}
       />
       <Button
         title={<Trans>Return to current position</Trans>}
         size="sm"
         variant="ghost"
         onClick={props.review.returnLive}
-        dataSet={{ testid: 'chess-custom-review-live' }}
+        dataSet={{ testid: 'custom-game-review-live' }}
       />
     </GameActions>
   );
@@ -66,7 +67,7 @@ function ReviewJump(props: BoardProps): JSX.Element {
           label={<Trans>Move number to review</Trans>}
           value={jump()}
           onChangeText={setJump}
-          dataSet={{ testid: 'chess-custom-review-ply' }}
+          dataSet={{ testid: 'custom-game-review-ply' }}
         />
       </div>
       <Button
@@ -74,7 +75,7 @@ function ReviewJump(props: BoardProps): JSX.Element {
         variant="outline"
         intent="neutral"
         onClick={() => props.review.seek(Number(jump()))}
-        dataSet={{ testid: 'chess-custom-review-seek' }}
+        dataSet={{ testid: 'custom-game-review-seek' }}
       />
     </div>
   );
@@ -105,7 +106,7 @@ function ReviewMoves(props: BoardProps): JSX.Element {
                 }
                 intent="neutral"
                 onClick={() => props.review.seek(index() + 1)}
-                dataSet={{ testid: `chess-custom-review-move-${index() + 1}` }}
+                dataSet={{ testid: `custom-game-review-move-${index() + 1}` }}
               />
             </li>
           )}
@@ -135,7 +136,7 @@ export function CustomGameRecord(props: BoardProps): JSX.Element {
           options={options()}
           value={props.review.selection()}
           onValueChange={(value) => props.review.select(String(value))}
-          dataSet={{ testid: 'chess-custom-history' }}
+          dataSet={{ testid: 'custom-game-history' }}
         />
       </Show>
       <ReviewMoves {...props} />
@@ -164,12 +165,7 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
   const near = () => props.model.mySide() ?? 'white';
   const seated = (): boolean => props.model.current()?.status !== 'configuring';
   const interactive = (): boolean =>
-    props.review.live() &&
-    props.model.current()?.status === 'active' &&
-    props.model.mySide() === props.model.current()?.turn &&
-    props.model.canPlay() &&
-    !props.model.submitting() &&
-    props.model.canSubmit();
+    customGameCanMove(props.model, props.review);
   const presentation = useGamePresentation();
   const move = async (action: string): Promise<void> => {
     try {
@@ -194,7 +190,9 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
       }
       bottom={
         seated() ? (
-          <CustomGameSeat model={props.model} side={near()} />
+          <div data-testid="custom-game-seat-near">
+            <CustomGameSeat model={props.model} side={near()} />
+          </div>
         ) : undefined
       }
     >
@@ -205,7 +203,7 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
         interactive={interactive()}
         sound={!sounds.muted()}
         syncKey={reset()}
-        testId="chess-custom-board"
+        testId="custom-game-board"
         onAction={(action: string) => {
           void move(action);
         }}

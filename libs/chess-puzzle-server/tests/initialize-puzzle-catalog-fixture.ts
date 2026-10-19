@@ -1,8 +1,8 @@
 import { beforeAll } from 'bun:test';
 import { InitializePuzzleCatalog } from '@libs/chess-puzzle-server/initialize-puzzle-catalog';
 import { CHESS_PUZZLES_LOAD_FILE_RELATIVE } from '@libs/chess-puzzle-server/load-file-constants';
-import { chessPuzzles } from '@libs/chess-puzzle-shared/puzzle-tables';
-import { chessPuzzlesTopic } from '@libs/chess-root-shared/sync-topics';
+import { puzzleCatalogueTopic } from '@libs/game-puzzle-shared/puzzle-catalogue';
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { createLogger } from '@pkgs/logger-shared/logger';
@@ -19,7 +19,7 @@ beforeAll(async () => {
   try {
     await reconcileSqliteSchema(
       db,
-      registerTables([chessPuzzles, syncEngineTopicSeq]),
+      registerTables([...GAME_PUZZLE_SUB.tables, syncEngineTopicSeq]),
       { ownership: 'declared-only' }
     );
     emptyCatalog = await db.exportDatabaseBytes();
@@ -42,7 +42,7 @@ export async function openCatalog(csv: string) {
   });
   const pubsub = createInMemoryPubSub({ logger });
   const pushes: unknown[] = [];
-  pubsub.subscribe(chessPuzzlesTopic(), (push) => pushes.push(push));
+  pubsub.subscribe(puzzleCatalogueTopic(), (push) => pushes.push(push));
   let id = 0;
   const initialize = new InitializePuzzleCatalog(db, {
     loadFileStore: store,

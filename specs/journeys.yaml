@@ -13,7 +13,7 @@ journeys:
     endsIn:
     - 'Multiplayer: Playing multiplayer'
     gherkin:
-    - specs/chess/multiplayer-draw-offers.feature
+    - specs/games/matched-game-draw-offers.feature
   Offering the multiplayer draw back accepts it:
     description: The recipient's reciprocal draw offer ends the game as an agreed draw.
     events:
@@ -26,7 +26,7 @@ journeys:
     endsIn:
     - 'Multiplayer: Drawn result'
     gherkin:
-    - specs/chess/multiplayer-draw-offers.feature
+    - specs/games/matched-game-draw-offers.feature
   A Custom Game draw refusal needs the sender's next move:
     description: A declined offer cannot be repeated until its sender makes the next legal move.
     events:
@@ -42,7 +42,7 @@ journeys:
     endsIn:
     - 'Custom Game: Draw offered'
     gherkin:
-    - specs/chess/custom-game-draws.feature
+    - specs/games/custom-game-draw-offers.feature
   A Custom Game clock needs mating material for a win:
     description: A waiting draw offer does not stop the clock; expiration against a side unable to mate produces a draw.
     events:
@@ -56,6 +56,7 @@ journeys:
     - 'Custom Game: Drawn result'
     gherkin:
     - specs/chess/custom-game-material.feature
+    - specs/games/custom-game-cannot-win.feature
   Returning to a puzzle observes the saved wrong-move result:
     description: Leaving for Profile and returning opens the saved attempt; retry remains an explicit choice.
     events:
@@ -73,7 +74,7 @@ journeys:
     endsIn:
     - 'Puzzles: Wrong move'
     gherkin:
-    - specs/chess/puzzle-attempt-resume.feature
+    - specs/games/puzzle-attempt-resume.feature
   Plus credit pays before an expired card:
     description: Unused yearly value becomes Plus credit on the monthly plan and a covered renewal remains active.
     events:
@@ -238,7 +239,7 @@ journeys:
     - 'Puzzles: Solving'
     gherkin:
     - specs/journeys/critical-journeys.feature
-    - specs/chess/puzzle-attempt-resume.feature
+    - specs/games/puzzle-attempt-resume.feature
     tour: true
   Hints, wrong moves and review keep one attempt:
     description: A wrong move needs retry; hints and review stay attached to the same puzzle.
@@ -260,8 +261,8 @@ journeys:
     endsIn:
     - 'Puzzles: Solved'
     gherkin:
-    - specs/chess/puzzle-refusals.feature
-    - specs/chess/puzzle-review.feature
+    - specs/games/puzzle-refusals.feature
+    - specs/games/puzzle-review.feature
     tour: true
   Signing in lifts the guest puzzle limit:
     description: At the allowance, the published sign-in result both changes identity and enables a fresh start.
@@ -280,8 +281,8 @@ journeys:
     - 'Identity: Account signed in'
     - 'Puzzles: Solving'
     gherkin:
-    - specs/chess/puzzle-quota.feature
-    - specs/chess/puzzle-limit-upgrade.feature
+    - specs/games/puzzle-quota.feature
+    - specs/games/puzzle-limit-upgrade.feature
     tour: true
   A watched board catches up then its space ends:
     description: An offline watcher keeps their board, reconnects, then sees the space end.
@@ -299,8 +300,8 @@ journeys:
     endsIn:
     - 'Spaces: Lobby'
     gherkin:
-    - specs/chess/puzzle-offline.feature
-    - specs/chess/puzzle-late-watcher.feature
+    - specs/games/puzzle-offline.feature
+    - specs/games/puzzle-late-watcher.feature
     - specs/spaces/space-end.feature
     tour: true
   Preview and save a puzzle feed then keep playing:
@@ -327,8 +328,8 @@ journeys:
     endsIn:
     - 'Puzzles: Solving'
     gherkin:
-    - specs/chess/puzzle-feed.feature
-    - specs/chess/puzzle-feed-sticks.feature
+    - specs/games/puzzle-feed.feature
+    - specs/games/puzzle-feed-sticks.feature
     tour: true
   A shared puzzle opens in practice without another rated start:
     description: An already played linked puzzle opens for practice and reaches that puzzle’s board.
@@ -343,7 +344,7 @@ journeys:
     endsIn:
     - 'Puzzles: Solving'
     gherkin:
-    - specs/chess/puzzle-link.feature
+    - specs/games/puzzle-link.feature
     tour: true
   Puzzle results remain reviewable:
     description: A finished puzzle leads to the owned history, a recorded attempt and its unchanged result.
@@ -362,8 +363,8 @@ journeys:
     endsIn:
     - 'Puzzle History: Puzzle results'
     gherkin:
-    - specs/chess/puzzle-stats.feature
-    - specs/chess/puzzle-review.feature
+    - specs/games/puzzle-stats.feature
+    - specs/games/puzzle-review.feature
     tour: true
   Plus unlocks another hosted space:
     description: An account sees the hosting denial, completes checkout, then uses the current permission to create
@@ -503,7 +504,7 @@ journeys:
     - 'Multiplayer: Multiplayer account required'
     gherkin:
     - specs/journeys/multiplayer-game.feature
-    - specs/chess/find-an-opponent.feature
+    - specs/games/finding-an-opponent.feature
     tour: true
   Multiplayer search, game and rematch form one journey:
     description: Two accounts are matched, play, finish, agree on a rematch and play with swapped colours.
@@ -529,7 +530,7 @@ journeys:
     - 'Multiplayer: Playing multiplayer'
     gherkin:
     - specs/journeys/multiplayer-game.feature
-    - specs/chess/multiplayer-rematch.feature
+    - specs/games/matched-game-rematch.feature
     tour: true
   Returning to multiplayer sees the completed outcome:
     description: Connection loss keeps the old board; returning shows the durable finished game.
@@ -554,7 +555,7 @@ journeys:
     - 'Multiplayer: Finished multiplayer'
     gherkin:
     - specs/journeys/multiplayer-game.feature
-    - specs/chess/multiplayer-offline.feature
+    - specs/games/matched-game-offline.feature
     tour: true
   A Custom Game with a bot uses the same readiness and play flow:
     description: A guest configures the sides, becomes ready, starts, plays and resigns.
@@ -578,7 +579,7 @@ journeys:
     - 'Custom Game: Finished'
     gherkin:
     - specs/journeys/custom-game.feature
-    - specs/chess/custom-game-creation.feature
+    - specs/games/custom-game-creation.feature
     tour: true
   An invited participant agrees to the current Custom Game:
     description: An invited person accepts their reserved side; readiness permits the creator to start.
@@ -598,8 +599,8 @@ journeys:
     - 'Custom Game: Playing'
     gherkin:
     - specs/journeys/custom-game.feature
-    - specs/chess/custom-game-invitations.feature
-    - specs/chess/custom-game-readiness.feature
+    - specs/games/custom-game-invitations.feature
+    - specs/games/custom-game-readiness.feature
     tour: true
   An early away claim cannot steal a Custom Game:
     description: The active game survives an early claim, and a later permitted claim finishes it.
@@ -620,7 +621,7 @@ journeys:
     endsIn:
     - 'Custom Game: Finished'
     gherkin:
-    - specs/chess/custom-game-away.feature
+    - specs/games/custom-game-away.feature
     tour: true
   Feedback retry preserves writing and the recording:
     description: A failed send keeps its writing and recording, then succeeds on another attempt.
@@ -776,7 +777,7 @@ journeys:
     - 'Multiplayer: Playing multiplayer'
     gherkin:
     - specs/matchmaking/complete-groups.feature
-    - specs/chess/multiplayer-being-matched.feature
+    - specs/games/finding-an-opponent.feature
     tour: true
   Board gestures, promotion and personal marks stay on their board:
     description: The board example rejects an illegal drag, offers promotion and preserves personal marks separately.

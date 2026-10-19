@@ -7,7 +7,7 @@ export const CHESS_PUZZLES_LOAD_EXPORT_LIMIT = 2000;
 
 /**
  * Source-of-truth Postgres query for the committed load file.
- * Columns match {@link PuzzleTableRow} / the bulk INSERT path.
+ * Columns match {@link CatalogueRow} / the bulk INSERT path.
  */
 export const CHESS_PUZZLES_LOAD_EXPORT_SQL = `
 SELECT

@@ -3,7 +3,12 @@
  * any trace reaches the product, a test that the model type checks; then one
  * `test` per trace Quint draws from it, one that
  * fails when the traces never take a bound action, and (with a fingerprint)
- * one that a trace replayed twice ends the same. Every trace is drawn and
+ * one that a trace replayed twice ends the same. A host that varies the model
+ * (`defineTraceVariants`: one variant per game it holds for, say) replays it
+ * per variant, each run its own test in a fresh world named `[<label>]`
+ * with its own verdict: every variant replays the traces that take every
+ * bound action, its regressions and the determinism check, and the rest of
+ * an exploring run's traces are dealt out among the variants in turn. Every trace is drawn and
  * judged; the ones replayed are the selection of
  * `@pkgs/quint-shared/replay-budget` — by default the fewest that take every
  * bound action, and all of them when the run explores
@@ -23,6 +28,7 @@ import {
   DEFAULT_TRACES,
   quintBinding,
   quintWorld,
+  traceVariants,
 } from '@pkgs/quint-shared/registry';
 import {
   describeStep,
@@ -30,7 +36,7 @@ import {
   replayTraceTwice,
   untakenActions,
 } from '@pkgs/quint-shared/replay';
-import { replaySelection } from '@pkgs/quint-shared/replay-budget';
+import { replayCover, replaySelection } from '@pkgs/quint-shared/replay-budget';
 import { modelShapeIssues } from '@pkgs/quint-shared/shape';
 import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
 import { quintReplayBudget } from '@pkgs/quint-shared/wall';
@@ -39,6 +45,16 @@ import type { RecordObligation } from './model-evidence';
 import { decide, modelEvidence } from './model-evidence';
 import { registerRegressionTraces } from './regression-tests';
 import { simulate } from './simulate';
+import type { ReplayPlan, TraceRun, TraceSlice } from './trace-runs';
+import {
+  ONCE,
+  replayPlanOf,
+  runContext,
+  runInSlice,
+  runName,
+  runObligation,
+  runsOfTrace,
+} from './trace-runs';
 
 export type RunModelOptions = {
   readonly packageName: string;
@@ -53,9 +69,11 @@ export type RunModelOptions = {
   readonly reportDir: string;
   /**
    * Replay only every `count`-th trace from `index`, so one model's traces
-   * run as several test files in parallel. Every slice draws the same traces
-   * (the draw is a function of the model and the seed) into its own
-   * `quint/<model>@<k>of<n>/`; slice 0 also runs the model-wide tests.
+   * run as several test files in parallel; a varied model deals out every
+   * run of its traces, pinned histories and determinism check instead
+   * (`runInSlice`). Every slice draws the same traces (the draw is a function
+   * of the model and the seed) into its own `quint/<model>@<k>of<n>/`; slice
+   * 0 also runs the model-wide tests.
    */
   readonly slice?: { readonly index: number; readonly count: number };
   /**
@@ -64,6 +82,13 @@ export type RunModelOptions = {
    * value is the smallest selection that takes every bound action.
    */
   readonly replayTraces?: number;
+  /**
+   * The replays the package's spec parts were sized for
+   * (`tests/quint/replays.json`); `null` when the package plans its models'
+   * replays but not this one's. Slice 0 fails when the draw on the plan's
+   * seed replays otherwise, so a part's load never silently outgrows it.
+   */
+  readonly replayPlan?: ReplayPlan | null;
 };
 
 type Binding = QuintBinding<unknown>;
@@ -88,7 +113,6 @@ export function runQuintModel(options: RunModelOptions): void {
       ? model
       : `${model}@${String(slice.index)}of${String(slice.count)}`
   );
-  const mine = (i: number): boolean => i % slice.count === slice.index;
   const record = modelEvidence(options);
   describe(options.specUri, () => {
     const binding = boundModel(model);
@@ -132,31 +156,85 @@ export function runQuintModel(options: RunModelOptions): void {
         }));
       return;
     }
-    const replayed = replaySelection(
-      drawn.traces,
-      Object.keys(binding.actions),
-      options.replayTraces ?? quintReplayBudget()
-    );
-    writeSummary(outDir, options, drawn, replayed);
-    if (slice.index === 0) {
-      registerModelWide({ options, model, drawn, binding, record, replayed });
-    }
-    registerTraces({
-      options,
-      model,
-      drawn,
-      binding,
-      mine: (i) => mine(i) && replayed.has(i),
-      record,
-      replayed,
-    });
-    registerRegressionTraces({
-      options,
-      binding,
-      mine: (i) => mine(drawn.traces.length + i),
-      record,
-    });
+    registerReplays({ options, model, drawn, binding, record, outDir, slice });
   });
+}
+
+/** The drawn traces' tests: what is replayed, for which runs, in this slice. */
+function registerReplays(input: {
+  readonly options: RunModelOptions;
+  readonly model: string;
+  readonly drawn: Drawn;
+  readonly binding: Binding;
+  readonly record: RecordObligation;
+  readonly outDir: string;
+  /** The file of the model's tests this run registers. */
+  readonly slice: TraceSlice;
+}): void {
+  const { options, model, drawn, binding, record, slice } = input;
+  const first = slice.index === 0;
+  const replayed = replaySelection(
+    drawn.traces,
+    Object.keys(binding.actions),
+    options.replayTraces ?? quintReplayBudget()
+  );
+  writeSummary(input.outDir, options, drawn, replayed);
+  const runs = modelRuns(options, model);
+  if (runs.length === 0) {
+    if (first)
+      test('replays for a variant of the model', () => {
+        throw new Error(
+          `${options.specUri}: no variant the host registers offers what this model shows`
+        );
+      });
+    return;
+  }
+  const cover = replayCover(drawn.traces, Object.keys(binding.actions));
+  // Run `run` of test `test` (the traces, the pinned histories, then the
+  // determinism check) is this slice's to register.
+  const mine = (test: number, run: TraceRun): boolean =>
+    runInSlice(test, runs.indexOf(run), runs.length, slice);
+  const registration = {
+    options,
+    model,
+    drawn,
+    binding,
+    record,
+    replayed,
+    runs,
+  };
+  if (first) registerModelWide(registration);
+  if (first && options.replayPlan !== undefined)
+    registerPlanCheck(options, replayPlanOf(drawn, binding, runs));
+  registerDeterminism({
+    ...registration,
+    // An unvaried model checks it with the draw as a whole, in slice 0.
+    mine: (run) =>
+      runs.length <= 1
+        ? first
+        : mine(drawn.traces.length + (binding.regressions?.length ?? 0), run),
+  });
+  registerTraces({
+    ...registration,
+    mine: (i, run) => replayed.has(i) && mine(i, run),
+    runsOf: (i) => runsOfTrace(i, runs, cover),
+  });
+  registerRegressionTraces({
+    options,
+    binding,
+    mine: (i, run) => mine(drawn.traces.length + i, run),
+    record,
+    runs,
+  });
+}
+
+/** The model's runs: once, or once per variant its host defines. */
+function modelRuns(
+  options: RunModelOptions,
+  model: string
+): readonly TraceRun[] {
+  const variants = traceVariants({ model, specUri: options.specUri });
+  return variants === null ? ONCE : variants.map((variant) => ({ variant }));
 }
 
 type Registration = {
@@ -167,6 +245,8 @@ type Registration = {
   readonly record: RecordObligation;
   /** Positions in the draw this run replays through the product. */
   readonly replayed: ReadonlySet<number>;
+  /** The model's runs: one, or one per variant. */
+  readonly runs: readonly TraceRun[];
 };
 
 /**
@@ -218,55 +298,88 @@ function registerModelWide(input: Registration): void {
         return `${Object.keys(binding.actions).join(', ')} taken`;
       },
     }));
+}
 
+/** The committed plan describes this draw, unless the run drew another seed. */
+function registerPlanCheck(options: RunModelOptions, actual: ReplayPlan): void {
+  const planned = options.replayPlan;
+  if (planned !== null && planned !== undefined && planned.seed !== actual.seed)
+    return;
+  test('replays what the spec parts plan', () => {
+    if (Bun.deepEquals(planned, actual)) return;
+    const model = basename(options.specPath, '.qnt');
+    throw new Error(
+      `${options.specUri}: tests/quint/replays.json plans ${JSON.stringify(planned)} but the draw replays ${JSON.stringify(actual)} — run \`bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client/register ../../libs/harness/scripts/model-replays.ts --write\` in the package (it sets "${model}"), then re-plan its specParts`
+    );
+  });
+}
+
+/** Each run's determinism check: the longest trace replayed twice alike. */
+function registerDeterminism(
+  input: Registration & {
+    /** Whether `run`'s check belongs to this slice. */
+    readonly mine: (run: TraceRun) => boolean;
+  }
+): void {
+  const { drawn, binding, record } = input;
   if (binding.fingerprint !== undefined && drawn.traces.length > 0) {
     const longest = longestTrace(input);
-    const replayTwice = () =>
-      decide({
-        record,
-        id: 'determinism',
-        layer: 'implementation',
-        body: async () => {
-          await replayTraceTwice({
-            ctx: longest.ctx,
-            trace: longest.trace,
-            world: quintWorld(),
-            binding,
-          });
-          return `trace ${String(longest.ctx.trace)} replayed twice to the same end state`;
-        },
-      });
-    const name = `trace ${String(longest.ctx.trace)} replays to the same end state`;
-    if (binding.timeoutMs === undefined) test(name, replayTwice);
-    else test(name, replayTwice, binding.timeoutMs * 2);
+    for (const run of input.runs) {
+      if (!input.mine(run)) continue;
+      const replayTwice = () =>
+        decide({
+          record,
+          id: runObligation('determinism', run),
+          layer: 'implementation',
+          body: async () => {
+            await replayTraceTwice({
+              ctx: runContext(longest.ctx, run),
+              trace: longest.trace,
+              world: quintWorld(),
+              binding,
+            });
+            return `trace ${String(longest.ctx.trace)} replayed twice to the same end state`;
+          },
+        });
+      const name = runName(
+        `trace ${String(longest.ctx.trace)} replays to the same end state`,
+        run
+      );
+      if (binding.timeoutMs === undefined) test(name, replayTwice);
+      else test(name, replayTwice, binding.timeoutMs * 2);
+    }
   }
 }
 
 function registerTraces(
   input: Registration & {
-    /** Whether trace `i` (0-based) belongs to this slice. */
-    readonly mine: (i: number) => boolean;
+    /** Whether `run` of trace `i` (0-based) belongs to this slice. */
+    readonly mine: (i: number, run: TraceRun) => boolean;
+    /** The runs trace `i` is replayed for. */
+    readonly runsOf: (i: number) => readonly TraceRun[];
   }
 ): void {
   const { options, model, drawn, binding, mine, record } = input;
   for (const [i, trace] of drawn.traces.entries()) {
-    if (!mine(i)) continue;
     const n = i + 1;
-    const ctx = traceContext(options, model, drawn.seed, n);
     const steps = `${String(trace.states.length - 1)} steps`;
-    const body = () =>
-      decide({
-        record,
-        id: `trace:${String(n)}`,
-        layer: 'implementation',
-        body: async () => {
-          await replayTrace({ ctx, trace, world: quintWorld(), binding });
-          return `the product agreed with the model at every step (${steps}, seed ${drawn.seed})`;
-        },
-      });
-    const name = `trace ${String(n)} (${steps})`;
-    if (binding.timeoutMs === undefined) test(name, body);
-    else test(name, body, binding.timeoutMs);
+    for (const run of input.runsOf(i)) {
+      if (!mine(i, run)) continue;
+      const ctx = runContext(traceContext(options, model, drawn.seed, n), run);
+      const body = () =>
+        decide({
+          record,
+          id: runObligation(`trace:${String(n)}`, run),
+          layer: 'implementation',
+          body: async () => {
+            await replayTrace({ ctx, trace, world: quintWorld(), binding });
+            return `the product agreed with the model at every step (${steps}, seed ${drawn.seed})`;
+          },
+        });
+      const name = runName(`trace ${String(n)} (${steps})`, run);
+      if (binding.timeoutMs === undefined) test(name, body);
+      else test(name, body, binding.timeoutMs);
+    }
   }
 }
 

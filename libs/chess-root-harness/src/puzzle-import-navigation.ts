@@ -1,18 +1,19 @@
 import {
-  leavePuzzleToChessMenu,
-  openPuzzleFromSpace,
-} from '@libs/chess-puzzle-harness/chess-actions';
+  leavePuzzleForGameChoices,
+  openGamePuzzles,
+} from '@libs/game-session-harness/puzzle-screen';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import { reopenSpaceLink } from '@libs/spaces-harness/space-actions';
+import { CHESS_GAME_ID } from './chess-playable';
 import { readPuzzleSource, saveLichessFile } from './puzzle-source-ui';
 
 export const openChessPuzzleDeveloperSettings = scenarioAction({
   name: 'openChessPuzzleDeveloperSettings',
   act: async (s, actor: string) => {
-    await Promise.resolve(openPuzzleFromSpace.act(s, actor));
-    await Promise.resolve(leavePuzzleToChessMenu.act(s, actor));
+    await Promise.resolve(openGamePuzzles.act(s, actor, CHESS_GAME_ID));
+    await Promise.resolve(leavePuzzleForGameChoices.act(s, actor));
     const ui = await actorUi(s, actor);
-    await ui.get('chess-menu-settings').tap();
+    await ui.get('game-choice-settings').tap();
     await ui.get('chess-settings-developer').tap();
   },
 });

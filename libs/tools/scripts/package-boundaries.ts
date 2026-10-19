@@ -29,6 +29,7 @@
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import ts from 'typescript';
 import { sourceImports } from './source-imports';
 
 export const CATEGORIES = [
@@ -146,6 +147,16 @@ export function familyMayDependOn(family: string, dependency: string): boolean {
 type Manifest = {
   readonly name?: string;
   readonly category?: string;
+  /** The one game this package implements (`chess`, `connect-four`, …). */
+  readonly game?: string;
+  /** This package composes concrete games: a game registry or composition root. */
+  readonly gameRegistry?: boolean;
+  /**
+   * A game framework package's public modules: the `src/<module>` files a
+   * game package may import. Every other module is the framework's own
+   * implementation.
+   */
+  readonly gameApi?: readonly string[];
   readonly dependencies?: Record<string, string>;
   readonly devDependencies?: Record<string, string>;
 };
@@ -251,6 +262,186 @@ export function categoryViolations(
 }
 
 /**
+ * Games are isolated by construction. A game package (`"game": "<id>"`)
+ * depends on no other game; a package that is not a game depends on a game
+ * only when it declares itself a game registry (`"gameRegistry": true`) — the
+ * few composition roots that list every game. A registry composes every
+ * game, so depending on one makes a package a registry too, and a game is
+ * never one: no game reaches its siblings through a registry. A package
+ * named for a game (`@libs/<id>-…`) declares that game, so a new package
+ * cannot slip past.
+ */
+export function gameViolations(
+  manifest: Manifest,
+  workspace: ReadonlyMap<string, Manifest>
+): readonly string[] {
+  const name = manifest.name ?? '';
+  const games = new Set(
+    [...workspace.values()].flatMap((other) =>
+      other.game === undefined ? [] : [other.game]
+    )
+  );
+  const out: string[] = [];
+  for (const game of games)
+    if (name.startsWith(`@libs/${game}-`) && manifest.game !== game)
+      out.push(
+        `${name} is named for the game ${game}; declare "game": "${game}"`
+      );
+  const declared = [
+    ...Object.keys(manifest.dependencies ?? {}),
+    ...Object.keys(manifest.devDependencies ?? {}),
+  ];
+  if (manifest.game !== undefined && manifest.gameRegistry === true)
+    out.push(
+      `${name} is a game of ${manifest.game} and a game registry: a game never composes the others`
+    );
+  for (const dep of declared) {
+    if (workspace.get(dep)?.gameRegistry === true) {
+      if (manifest.game !== undefined)
+        out.push(
+          `game ${manifest.game} depends on ${dep}, a game registry: through it the game would know every other game; take its own rules from its own packages`
+        );
+      else if (manifest.gameRegistry !== true)
+        out.push(
+          `${dep} composes every game: a package depending on it composes games too; declare "gameRegistry": true, or receive the games through ports`
+        );
+    }
+    const game = workspace.get(dep)?.game;
+    if (game === undefined || game === manifest.game) continue;
+    if (manifest.game !== undefined)
+      out.push(
+        `game ${manifest.game} depends on ${dep} of game ${game}: games never know each other; a game registry composes them`
+      );
+    else if (manifest.gameRegistry !== true)
+      out.push(
+        `${dep} implements the game ${game}: only a game registry ("gameRegistry": true) composes concrete games; receive the game through the registry's ports`
+      );
+  }
+  return out;
+}
+
+/**
+ * A game depends on what the framework promises, never on how it is built.
+ * A framework package declares its public modules (`"gameApi"`); a game
+ * package — its source, tests and steps alike — imports only those from it.
+ * Framework packages keep using each other's modules freely; the list
+ * binds games alone. A framework package lists only modules it has, and is
+ * never a game itself.
+ */
+export function gameApiViolations(
+  manifest: Manifest,
+  options: {
+    readonly workspace: ReadonlyMap<string, Manifest>;
+    readonly modules: ReadonlySet<string>;
+    readonly sources: readonly {
+      readonly path: string;
+      readonly text: string;
+    }[];
+  }
+): readonly string[] {
+  const name = manifest.name ?? '';
+  const out: string[] = [];
+  if (manifest.gameApi !== undefined) {
+    if (manifest.game !== undefined)
+      out.push(
+        `${name} is a game of ${manifest.game} and declares a game API: only framework packages offer one`
+      );
+    for (const module of manifest.gameApi)
+      if (!options.modules.has(module))
+        out.push(
+          `gameApi lists "${module}", which ${name} does not have (src/${module}.ts): list only modules a game may import`
+        );
+  }
+  if (manifest.game === undefined) return out;
+  for (const file of options.sources)
+    for (const reference of sourceImports(file.text)) {
+      const match = /^(@(?:libs|pkgs)\/[^/]+)\/(.+)$/.exec(reference.specifier);
+      if (match === null) continue;
+      const [, dependency = '', module = ''] = match;
+      const api = options.workspace.get(dependency)?.gameApi;
+      if (api === undefined || api.includes(module)) continue;
+      out.push(
+        `${file.path}: imports ${reference.specifier}, which is ${dependency}'s own implementation, not its game API (${api.length === 0 ? 'it offers games none' : api.join(', ')}). A game depends on what the framework promises: use a public module, add a focused read, action or fixture helper to one, or move a test of the framework's own behaviour into the framework`
+      );
+    }
+  return out;
+}
+
+/** A game's id in a platform package's own source: the line marks a durable name. */
+const DURABLE_NAME = '@durable-name';
+
+/**
+ * Platform source never spells a game: outside a game's own packages and
+ * the registries, no string literal equals a registered game id, so no
+ * shared code can branch on, route to or special-case one game. A durable
+ * stored name that predates the platform is declared once, on a line marked
+ * `@durable-name`. Comments are not code and do not count.
+ */
+export function gameIdentityViolations(
+  manifest: Manifest,
+  options: {
+    readonly gameIds: ReadonlySet<string>;
+    readonly sources: readonly {
+      readonly path: string;
+      readonly text: string;
+    }[];
+  }
+): readonly string[] {
+  if (manifest.game !== undefined || manifest.gameRegistry === true) return [];
+  const out: string[] = [];
+  for (const file of options.sources) {
+    const lines = file.text.split('\n');
+    for (const literal of stringLiterals(file.text)) {
+      if (!options.gameIds.has(literal.text)) continue;
+      if (lines[literal.line]?.includes(DURABLE_NAME)) continue;
+      out.push(
+        `${file.path}:${String(literal.line + 1)} spells the game '${literal.text}': platform code receives games through the registry's ports and never names one`
+      );
+    }
+  }
+  return out;
+}
+
+function stringLiterals(
+  text: string
+): readonly { readonly text: string; readonly line: number }[] {
+  const file = ts.createSourceFile(
+    'source.tsx',
+    text,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX
+  );
+  const out: { text: string; line: number }[] = [];
+  const visit = (node: ts.Node): void => {
+    if (ts.isStringLiteralLike(node))
+      out.push({
+        text: node.text,
+        line: file.getLineAndCharacterOfPosition(node.getStart(file)).line,
+      });
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  return out;
+}
+
+function workspaceManifests(pkgDir: string): ReadonlyMap<string, Manifest> {
+  const root = join(pkgDir, '..', '..');
+  const out = new Map<string, Manifest>();
+  for (const tier of ['apps', 'libs', 'pkgs']) {
+    const dir = join(root, tier);
+    if (!existsSync(dir)) continue;
+    for (const entry of readdirSync(dir)) {
+      const file = join(dir, entry, 'package.json');
+      if (!existsSync(file)) continue;
+      const other = JSON.parse(readFileSync(file, 'utf8')) as Manifest;
+      if (other.name !== undefined) out.set(other.name, other);
+    }
+  }
+  return out;
+}
+
+/**
  * Every boundary the package at `pkgDir` breaks, as printable lines. Empty for
  * a package that keeps them all.
  */
@@ -259,6 +450,7 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
     readFileSync(join(pkgDir, 'package.json'), 'utf8')
   ) as Manifest;
   const srcDir = join(pkgDir, 'src');
+  const workspace = workspaceManifests(pkgDir);
   const sources = sourceFiles(srcDir).filter((f) => !/\.test\.tsx?$/.test(f));
   const out: string[] = [
     ...categoryViolations(manifest, {
@@ -269,6 +461,37 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
         text: readFileSync(path, 'utf8'),
       })),
     }),
+    ...gameViolations(manifest, workspace),
+    ...gameApiViolations(manifest, {
+      workspace,
+      modules: new Set(
+        sourceFiles(srcDir).map((path) =>
+          path.slice(srcDir.length + 1).replace(/\.(ts|tsx)$/, '')
+        )
+      ),
+      sources: ['src', 'tests', 'scripts']
+        .flatMap((dir) => sourceFiles(join(pkgDir, dir)))
+        .map((path) => ({
+          path: path.slice(pkgDir.length + 1),
+          text: readFileSync(path, 'utf8'),
+        })),
+    }),
+    ...(pkgDir.split('/').at(-2) === 'libs'
+      ? gameIdentityViolations(manifest, {
+          gameIds: new Set(
+            [...workspace.values()].flatMap((other) =>
+              other.game === undefined ? [] : [other.game]
+            )
+          ),
+          sources: [
+            ...sourceFiles(srcDir),
+            ...sourceFiles(join(pkgDir, 'tests')),
+          ].map((path) => ({
+            path: path.slice(pkgDir.length + 1),
+            text: readFileSync(path, 'utf8'),
+          })),
+        })
+      : []),
   ];
   const family = familyOf(manifest.name ?? '');
   const rule = family === undefined ? undefined : RULES.get(family);

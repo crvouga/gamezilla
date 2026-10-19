@@ -46,7 +46,7 @@ export function CustomGameError(props: { reason: string }): JSX.Element {
       <ErrorState
         variant="compact"
         title={errorText(props.reason)}
-        dataSet={{ testid: 'chess-custom-error' }}
+        dataSet={{ testid: 'custom-game-error' }}
       />
     </Show>
   );

@@ -1,0 +1,4 @@
+{
+  "summary": "The step \"the puzzle pool holds puzzles with and without a theme of the game's known puzzle\" gave the pool two puzzles with the theme. When the feed's first pick, served before the feed was limited, was one of them, limiting put the other on the board, and after skipping it no puzzle with the theme was left: \"A puzzle without the chosen theme is not offered\" timed out on \"No puzzles left\". The first pick hashes the person's id, so it failed only when earlier scenarios in the same test process shifted the ids (spec part 22 run serially in the gate, for chess and the counting race). Every known puzzle now has the theme and one of the game's more puzzles has not.",
+  "regressionTest": "libs/games-harness/tests/puzzle-theme-pool.test.ts"
+}

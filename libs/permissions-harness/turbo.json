@@ -1,0 +1,13 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/conformance.yaml",
+        "$TURBO_ROOT$/specs/*/*.dmn"
+      ]
+    }
+  }
+}

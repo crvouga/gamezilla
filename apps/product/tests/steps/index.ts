@@ -1,4 +1,4 @@
-import '@libs/runtime-harness/connect-four-journey.steps';
+import '@libs/runtime-harness/game-journey.steps';
 
 // The one registration entry selects the runner's injected world.
 // Live checks use server ports without loading the in-process browser app.

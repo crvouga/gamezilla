@@ -1,3 +1,4 @@
+import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared/durable-names';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared/space-members-messages';
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
 import type { RoomState } from '@pkgs/room-root-shared/types';
@@ -17,7 +18,7 @@ export const customGameAbsenceSchema = z
     ),
   })
   .strict();
-const ns = createAttrNamespace('chess', 'custom');
+const ns = createAttrNamespace(GAME_PLATFORM_NAMESPACE, 'custom');
 export const CustomGameAbsenceAttr = ns.json('absence-pause', (value) =>
   value === undefined
     ? { pausedAt: null, shifts: {} }

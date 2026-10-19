@@ -1,0 +1,1347 @@
+context: Games
+purpose: >-
+  What every game a space can play offers the same way, whichever game it
+  is: the game's choices, custom games with people and bots, turns, finding
+  an opponent and the matched games it starts, puzzles, history and review. Each game adds only its own rules and
+  board; a scenario here holds for every game that offers what it shows.
+terms:
+  - term: game
+    definition: >-
+      Something a space plays together, chosen by its host, such as chess or
+      Connect Four. Every game offers its choices, custom games, turns,
+      opponents, history and review the same way; its rules decide which
+      moves are possible and how it is won or drawn. "The game" in a
+      scenario is each game in turn; "another game" is any other one.
+    forms: [games, another game, the game's]
+    published: true
+    model: [pickGame]
+
+  - term: the game's choices
+    definition: >-
+      Where a game starts in a space: what the game offers of its own, then
+      custom games, finding an opponent, its puzzles when it offers them,
+      and its history. Everyone in the space is shown the choice anyone in
+      it opens, on every device. A solver steps back here from a puzzle's
+      board, and goes back to the puzzles from here.
+    forms: [the game's custom games]
+    avoid: [menu, screen]
+    published: true
+    model: [GameChoices]
+
+  - term: custom game
+    definition: >-
+      One game of the game whose creator chooses a person or a bot for each
+      side and the clock, before every person in it is ready and it starts.
+      A finished custom game keeps its participants, moves and result.
+    forms:
+      - custom games
+      - creator
+      - participant
+      - participants
+      - create a custom game
+      - creates a custom game
+    avoid: [match, room, lobby]
+    published: true
+    model:
+      - CustomGame
+      - customGame
+      - gameShown
+      - createGame
+      - status
+      - statusShown
+      - creator
+      - creatorShown
+      - Participant
+      - ParticipantKind
+      - PersonSide
+      - participants
+      - kind
+      - person
+      - current
+      - CustomGameStatus
+
+  - term: set up
+    definition: >-
+      Choose a custom game's sides and clock choice before it starts. Only
+      its creator sets it up, and a custom game is set up until it starts or
+      is cancelled. Its set-up is the sides and clock choice it has now; a
+      choice made for an earlier set-up is refused.
+    forms: [sets up, setting up, being set up, set-up]
+    model: [SettingUp]
+
+  - term: ready
+    definition: >-
+      A person in a custom game agreeing to its current set-up before it
+      starts. Any change to the sides or the clock choice leaves every
+      person not ready; a bot needs no agreement. A person may withdraw
+      readiness until the custom game starts.
+    forms:
+      - readiness
+      - not ready
+      - no longer ready
+      - becomes ready
+      - become ready
+      - withdraws readiness
+    model: [ready, readyShown, becomeReady, becomeUnready]
+
+  - term: start
+    definition: >-
+      Begin a custom game once both sides have a participant and every
+      person in it is ready, which only its creator does. It starts from the
+      game's starting position with the first side to move, and it starts
+      once however often the creator asks; a start for an earlier set-up is
+      refused.
+    forms: [starts, started, starting, startable, can start, cannot start]
+    model: [startGame, started, startsShown]
+
+  - term: under way
+    definition: >-
+      A custom game that has started and is not finished yet. Its sides and
+      clock choice can no longer change, and nobody may take or give up a
+      side.
+    forms: [remains under way]
+    model: [UnderWay]
+
+  - term: cancelled
+    definition: >-
+      A custom game called off before it finished. It has no result, takes
+      no more moves and cannot start; a new custom game may follow it. Its
+      creator may cancel it until it is finished; either participant of a
+      custom game between two people may also cancel it until each side has
+      moved, and must resign instead from then on. Ending its space cancels
+      an unfinished custom game.
+    forms: [cancel, cancels, cancelling, cancellation]
+    model: [cancelGame, cancelCustomGame, Cancelled]
+
+  - term: starting position
+    definition: >-
+      The board as the game's own rules set it out before anyone has moved.
+    forms: [the game's starting position]
+
+  - term: open a side
+    definition: >-
+      The creator making a side open again before the custom game starts,
+      removing the person, bot or invitation chosen for it.
+    forms: [opens the first side, opens the second side, opened the first side, opened the second side]
+    model: [openSide]
+
+  - term: close a side
+    definition: >-
+      The creator keeping an unoccupied side from being claimed until they
+      open it or choose someone for it. A closed side keeps the custom game
+      from starting.
+    forms: [closes, closed]
+    model: [closeSide, ClosedSide]
+
+  - term: take a side
+    definition: >-
+      The creator choosing themselves for a side before the custom game
+      starts. One person takes at most one side.
+    forms: [takes the first side, takes the second side, take both sides]
+    model: [takeSide]
+
+  - term: assign a bot
+    definition: >-
+      The creator choosing a bot for a side before the custom game starts,
+      in place of whatever was chosen for it before.
+    forms: [assigns a bot, assigned a bot, assigned bots, replaced by a bot]
+    model: [assignBot]
+
+  - term: claim a side
+    definition: >-
+      Someone in the space taking an open side for themselves before the
+      custom game starts. When people claim the same side at once, exactly
+      one of them gets it.
+    forms: [claims, claim, claimant]
+    model: [claimSide]
+
+  - term: release a side
+    definition: >-
+      A participant giving up their own side before the custom game starts,
+      which leaves it open. Nobody else may release it. Leaving the space
+      before the start releases their side too.
+    forms: [releases, released, releasing]
+    model: [releaseSide]
+
+  - term: invitation
+    definition: >-
+      A side the creator reserves for someone in the space, who alone may
+      accept or decline it before the custom game starts. They are shown
+      it, and nobody outside the space is. Accepting makes them its
+      participant; declining or revoking it, or choosing someone else for
+      the side, leaves no invitation to accept.
+    forms: [invitations, invite, invites, invited, reserved, revoke, revokes, revoked]
+    model: [invite, acceptSide, declineSide, revokeSide, InvitedSide]
+
+  - term: nearest
+    definition: >-
+      Where a person sees each side sit around the board: their own side
+      nearest them, and the first side nearest anyone without one.
+    model: [nearestSide]
+
+  - term: side
+    definition: >-
+      One of a game's two places to play from. The first side moves first;
+      a side is open until a person or a bot takes it.
+    forms:
+      - sides
+      - first side
+      - second side
+      - open side
+      - both sides
+      - sides swapped
+      - swaps the sides
+      - swapped the sides
+      - swapping the sides
+    model:
+      - Side
+      - OpenSide
+      - firstSide
+      - secondSide
+      - firstSideShown
+      - secondSideShown
+      - swapSides
+
+  - term: bot
+    definition: An automated participant that makes legal moves at its turn.
+    forms: [bots, the bots]
+    model: [botPlays, BotSide]
+
+  - term: move
+    definition: >-
+      One action on the board on a participant's turn, as the game's own
+      rules allow it. A move the game's rules do not allow is refused and
+      changes nothing; in a puzzle it is no move at all and is never held
+      against the solver. Each side's first move is its first move of the game.
+      A custom game takes moves only while it is under way.
+    forms:
+      - moves
+      - makes a move
+      - makes her move
+      - makes his move
+      - made
+      - first move
+      - first moves
+      - makes her first move
+      - makes his first move
+      - has made her first move
+      - has made his first move
+      - made her first move
+      - move played
+      - moves played
+    avoid: [command, action]
+    model: [playCustomMove, movesPlayed, movesShown, playMove, playCurrentMove, moveCount, moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, tryIllegalMove, playPuzzleMove]
+
+  - term: turn
+    definition: The participant who may make the next move.
+    forms: [turns, Alice's turn, Bob's turn, the other player's turn, to move]
+    model: [sideToMove, turn]
+
+  - term: move list
+    definition: >-
+      The moves of a game in the order they were made, each as the game
+      writes it, kept with its result.
+
+  - term: board
+    definition: >-
+      What a game is played on, as that game draws it. Everyone in the space
+      sees the same board. A puzzle's board faces the solver's side, shows
+      the last move and shows the puzzle's state; a watcher's board agrees
+      with the host's.
+    model: [playShown, PlayBoard, playBoard, Board]
+
+  - term: finished
+    definition: >-
+      A custom game or matched game that has a result: a victory or a draw.
+      A finished game takes no more moves. A game without a result yet is
+      unfinished. A puzzle is finished once it is over; one still being
+      solved, or waiting for a retry after a wrong move, is unfinished.
+    forms: [finish, finishes, unfinished]
+    model: [Finished]
+
+  - term: end
+    definition: >-
+      What happens to a rematch offer once it is declined or someone finds a
+      new opponent: nobody is offered the rematch any more, and it can no
+      longer be accepted.
+    forms: [ends, ended]
+
+  - term: result
+    definition: >-
+      How a finished game came out: a victory or a draw. Both people see the
+      same result, kept with the moves. An aborted matched game has none.
+    forms: [results]
+    model: [result, resultShown, PlayOutcome, NoPlay, OngoingPlay, WonPlay, DrawnPlay, playOutcome, PlayState, UnfinishedPlay, WonGame, DrawnGame, playState, winner]
+
+  - term: over
+    definition: >-
+      A matched game that is finished or was aborted. It takes no more
+      moves, resignations, aborts or draw offers; only a rematch, after a
+      result, or finding a new opponent can follow it.
+    forms: [is over, not over yet]
+
+  - term: victory
+    definition: >-
+      The result that gives a participant the game, by the game's own rules
+      or because the opponent resigns. In a custom game it may also come on
+      time or because the opponent stayed away. A victory, once reached, is
+      never replaced.
+    forms: [victories, wins, won]
+
+  - term: draw
+    definition: >-
+      A finished game that nobody wins. A matched game whose draw offer is
+      accepted is drawn by agreement; so is a custom game. A move after
+      which the game's own rules allow nobody a victory draws the game by
+      those rules at once: it is the drawing move, and both people see the
+      same draw.
+    forms: [draws, drawn, drawn by agreement, drawn by the game's own rules, drawing move]
+    model: [drawByAgreement]
+
+  - term: resign
+    definition: >-
+      Give up a game under way, which gives the opponent the victory. In a
+      matched game, resigning is refused until both people have made their
+      first move, and the person is told to abort instead; from then on
+      either person may resign, whoever's turn it is, and resigning again
+      keeps the result. Leaving the space resigns a participant's side of a
+      custom game under way, and a finished custom game takes no
+      resignation.
+    forms: [resigns, resigned, resigning, resignation]
+    avoid: [forfeit, concede, quit]
+    model: [resignGame, resignCustomGame]
+
+  - term: matched game
+    definition: >-
+      A game of the game between two people who were paired as opponents at
+      the clock choice they both chose. Each is given a side, both see the
+      same board, moves and result, and only those two people may move,
+      resign, abort it or offer a draw. A person has at most one unfinished
+      matched game.
+    forms: [matched games, matched game's]
+    avoid: [multiplayer game, online game, found-opponent game]
+    model: [PlayGame, PlayWorld, playNumber, playSide]
+
+  - term: abort
+    definition: >-
+      Stop a matched game before both people have made their first move.
+      Either person may abort until then. An aborted matched game is over
+      with no result, changes nobody's rating, has no rematch, and frees both
+      people to seek an opponent again; aborting it again changes nothing.
+    forms: [aborts, aborted, aborting, can no longer be aborted]
+    avoid: [void]
+    model: [abortGame, AbortedPlay, AbortedGame]
+
+  - term: miss the first move
+    definition: >-
+      Not make one's first move in a matched game in time: the first side
+      within 30 seconds of the matched game's start, the second side within
+      30 seconds of the first side's first move. Missing it aborts the
+      matched game, so nobody loses a game they never began, even when they
+      were paired while offline. A clock choice that gives days for each
+      move gives those days instead of the 30 seconds.
+    forms: [misses the first move, missed the first move, missing the first move]
+
+  - term: draw offer
+    definition: >-
+      One person in an unfinished matched game, or a participant in a
+      custom game under way between two people, asking the other to agree
+      to a draw. Only the other person may accept or decline it. Accepting
+      draws the game by agreement; declining lets the game go on. In a
+      matched game, offering a draw back accepts it, a move by the person
+      offered declines it, a move by the person who made the draw offer
+      keeps it, offering again keeps one draw offer, and a matched game that
+      is over takes no draw offer. In a custom game, a bot is never offered
+      a draw, any move clears it, and after a declined draw offer the person
+      who offered may offer again only after their next move.
+    forms:
+      - draw offers
+      - offer a draw
+      - offers a draw
+      - offered a draw
+      - offered someone a draw
+      - offering a draw
+      - accept the draw
+      - accepts the draw
+      - decline the draw
+      - declines the draw
+    model: [offerDraw, acceptDraw, declineDraw, drawOfferedByShown, drawOffer]
+
+  - term: accept
+    definition: >-
+      Say yes to a draw offer, a rematch offer or an invitation, which takes
+      effect at once. Only the person offered may accept.
+    forms: [accepts, accepted, accepting]
+
+  - term: decline
+    definition: >-
+      Say no to a draw offer, a rematch offer or an invitation. Only the
+      person offered may decline.
+    forms: [declines, declined, declining]
+
+  - term: rematch
+    definition: >-
+      A new game between the same two people with the sides swapped, after
+      their game is finished. A custom game's rematch keeps the earlier one
+      in the history. After a finished matched game either person may offer
+      a rematch: a new matched game at the same clock choice, without
+      seeking an opponent again. Offering one back accepts it. It is refused
+      while either person plays another unfinished matched game or seeks an
+      opponent, and an aborted matched game has none. The offer ends when
+      either person declines it or finds a new opponent.
+    forms:
+      - rematches
+      - asks for a rematch
+      - rematch offer
+      - offer a rematch
+      - offers a rematch
+      - offered a rematch
+      - offered someone a rematch
+      - offering a rematch
+      - accept the rematch
+      - accepts the rematch
+      - accepting the rematch
+      - decline the rematch
+      - declines the rematch
+    model: [rematch, offerRematch, acceptRematch, declineRematch, rematchOffer, rematchOf]
+
+  - term: find a new opponent
+    definition: >-
+      From a matched game that is over, seek an opponent again at that
+      game's clock choice, in one step. It ends any rematch offer. During an
+      unfinished matched game, or while already seeking, it is refused like
+      any other search.
+    forms: [finds a new opponent, found a new opponent, finding a new opponent]
+    model: [findNewOpponent]
+
+  - term: opponent
+    definition: >-
+      The other participant. One found for a person seeks the same game at
+      the same clock choice. In a puzzle, the side the solver plays against:
+      its setup move and its replies play by themselves.
+    forms: [opponents, the opponent's side]
+
+  - term: finding an opponent
+    definition: >-
+      The game's choice where a person seeks an opponent. It shows their
+      current search, or their latest matched game, unfinished or over, the
+      same on every device.
+    forms: [opens finding an opponent]
+    model: [openFindingAnOpponent]
+
+  - term: seek an opponent
+    definition: >-
+      Wait to be paired with an opponent for the game at a clock choice. A
+      person seeks for one game at a time and may stop seeking. Someone
+      seeking an opponent cannot offer a rematch.
+    forms: [seeking, seeks, stops seeking, waiting for an opponent, began seeking]
+    model: [seekOpponent, stopSeeking, seeking, seekingSeconds]
+
+  - term: search
+    definition: >-
+      A person's wait for an opponent for the game at one clock choice,
+      showing that clock choice and how long it has run. A person has at
+      most one search, whichever game it is for, and it follows them to
+      every device and space; another device cannot start a second one. It
+      ends when they are paired, which turns it into their matched game, or
+      when they stop seeking; once paired there is no search left to stop.
+    forms: [searches]
+
+  - term: clock choice
+    definition: >-
+      How much time each participant has to play, written as the minutes
+      each side starts with plus the seconds each move adds, such as 5+0. A
+      matched game's clock choice belongs to one speed. Finding an opponent
+      offers 1+0 and 2+1 (bullet); 3+0, 3+2, 5+0 and 5+3 (blitz); 10+0, 10+5
+      and 15+10 (rapid); 30+0 and 30+20 (classical); and 1 day, 3 days or 7
+      days per move (daily); any other is not offered. A custom game may
+      instead be untimed, which it is until its creator chooses a clock; a
+      timed one gives each side from 1 to 180 minutes and adds from 0 to 60
+      seconds a move, and any other is not offered. Its creator may change
+      it only before the custom game starts.
+    forms: [clock choices, played at, untimed, timed, offered clock choice, daily clock choice, daily clock choices]
+    model: [chooseClock, minutesShown, incrementShown, ClockChoice, clockChoice]
+
+  - term: clock
+    definition: >-
+      The time each side has left in a timed custom game or a matched game,
+      shown to both people and every watcher. Only the side whose turn it is
+      spends it, and the clock choice's seconds are added to it by that
+      side's move, never by a move out of turn. It keeps running while a
+      participant is away or without a connection. Outside a daily game,
+      neither clock of a matched game runs until both people have made their
+      first move.
+    forms: [clocks]
+    model: [clockLeft, clocksPaused, firstSideClock, secondSideClock, timeLeft]
+
+  - term: run out of time
+    definition: >-
+      A side's clock reaching nothing left, which finishes the custom game
+      or matched game with a victory on time for the other side, or a draw
+      when that side cannot win. A move arriving at that moment is too late.
+      In a daily game this holds once both people have made their first
+      move; before that, running out is missing the first move.
+    forms: [runs out of time, has run out of time, running out of time, on time]
+
+  - term: seconds pass
+    definition: >-
+      Time going by in a matched game or a custom game while nobody makes a
+      move.
+    forms: [second passes, seconds have passed]
+    model: [customTimePasses, secondsPass]
+
+  - term: away
+    definition: >-
+      A participant of a custom game under way who has no connection to it.
+      Being away never gives up the custom game on its own, and a timed
+      custom game's clock keeps running for them. Coming back before anyone
+      claims the win continues the custom game as it is.
+    forms: [stays away, stayed away]
+
+  - term: claim the win
+    definition: >-
+      In a custom game under way between two people, a participant finishing
+      it with a victory because the other participant has been away for 60
+      seconds. Earlier, they are told the other participant may still
+      return. Watchers cannot claim the win, and a finished custom game
+      keeps its result.
+    forms: [claims the win, claimed the win]
+    model: [claimWin]
+
+  - term: paused
+    definition: >-
+      A custom game under way between two people, or an unfinished matched
+      game, that neither of its people can play for now. Its clocks stop and
+      spend nothing, at every speed and before the first moves too; nobody is
+      away, nobody may claim the win, and a move or resignation is refused
+      with the person told so. It resumes as it stood, with the same board
+      and the time that remained, once they can play again, and it is rated
+      only once it is finished. One device without a connection pauses
+      nothing.
+    forms: [is paused, are paused, resume, resumes, resumed, resuming]
+
+  - term: cannot win
+    definition: >-
+      A side the game's own rules leave no way to win from where the board
+      stands. Running out of time, the other side's resignation or a claim
+      of the win that would give that side the victory is a draw instead;
+      the other side, which can still win, wins as usual.
+    forms: [can win, can still win, the side that can win]
+
+  - term: speed
+    definition: >-
+      The family a clock choice belongs to: bullet, blitz, rapid, classical
+      or daily. Each speed has its own rating.
+    forms: [speeds, bullet, blitz, rapid, classical, daily]
+    model: [speed]
+
+  - term: rating
+    definition: >-
+      A person's strength at one speed of the game. Each starts at 1500 and
+      is shown with a "?" until it settles. Finding an opponent pairs people
+      up by their rating for the chosen clock choice's speed, and each
+      paired person sees their opponent's. A finished matched game is a
+      rated matched game: it changes both people's rating for its speed
+      exactly once, however often it is resigned, and never the rating of
+      another speed; an aborted matched game changes none. A custom game is
+      unrated: it changes nobody's rating.
+    forms: [ratings, bullet rating, blitz rating, rapid rating, classical rating, daily rating, unrated, rated matched game, rated matched games]
+    model: [ratedGames]
+
+  - term: settle
+    definition: >-
+      What a rating does once enough rated matched games have been played at
+      its speed, and a puzzle rating once enough rated attempts have been
+      played: it then loses its "?".
+    forms: [settles, settled, settling]
+
+  - term: side balance
+    definition: >-
+      How many more of their finished matched games a person has played on
+      the first side than on the second; aborted matched games do not count.
+      Of two people paired up, the one with the greater side balance gets
+      the second side; when the balances are equal, either may get the first
+      side. A rematch swaps the sides instead.
+    forms: [side balances]
+
+  - term: unfinished matched game limit
+    definition: >-
+      Every account has at most one unfinished matched game, whichever game
+      it is. Before seeking an opponent again, the person finishes it, and
+      any custom game under way they are a participant of. A matched game
+      that is over no longer counts. Free accounts and Plus members have
+      the same allowance.
+
+  - term: pairing
+    definition: >-
+      Two people seeking an opponent for the same game at the same clock
+      choice whom matchmaking paired up. Each pairing gives them exactly one
+      matched game, however often the game is told about it.
+    forms: [pairings]
+    model: [Pairing, pairedPeople, fromPairing]
+
+  - term: last known board
+    definition: >-
+      The board, clocks, offers, search and result a device showed before it
+      lost its connection. They stay on it, and it can make no move,
+      resignation, abort or offer, until the connection brings back the
+      matched game as it now stands.
+    model: [LastKnownPlay]
+
+  - term: daily game
+    definition: >-
+      A matched game played at a clock choice that gives each person 1, 3 or
+      7 days for every move. It lasts across days: leaving or ending a
+      space, closing the app or using another device never ends or pauses
+      it, the time of the person whose turn it is keeps running, and the
+      daily game is there when they come back. A move hands the other person
+      their full days, and unused days are never saved up. Everything else
+      about it is an ordinary matched game, and it counts as the person's
+      one unfinished matched game.
+    forms: [daily games, daily game's, days per move, day per move]
+    avoid: [correspondence, turn-based game, slow game]
+    model: [DailyGame, daysPass]
+
+  - term: turn notice
+    definition: >-
+      An item in a person's inbox telling them it is their turn in their
+      daily game and naming their opponent. The first side has one when the
+      daily game starts; after that a person gets one each time their
+      opponent's move is accepted and the daily game is still unfinished. It
+      is unread until the person opens it, and it leaves the inbox as soon
+      as the person's own move is accepted, or the daily game is over. A
+      person has one turn notice for a daily game, never more: their next
+      turn brings it back unread, and so does becoming low on time before
+      they have moved, which makes it a turn reminder. Opening it shows the
+      person their daily game; with no connection it shows the last known
+      board and stays as it was. Only the two people of a daily game get
+      one.
+    forms: [turn notices, unread turn notice, unread, opened]
+    avoid: [notification, alert, ping]
+    model: [turnNotice, openTurnNotice]
+
+  - term: result notice
+    definition: >-
+      An item in the inbox of each of a daily game's two people telling them
+      how it ended for them: won, lost or drawn, with the reason, or
+      aborted. Both people get one when their daily game is over, and each
+      keeps theirs until they dismiss it, which needs a connection. Opening
+      it never dismisses it and shows the person their daily game; with no
+      connection it shows the last known board. A watcher never gets one.
+    forms: [result notices, dismiss, dismisses, dismissed, dismissing]
+    model: [resultNotice, openResultNotice, dismissResultNotice]
+
+  - term: low on time
+    definition: >-
+      Said of a running clock that is nearly used up: no more than 10
+      seconds left at bullet, 20 seconds at blitz, 30 seconds at rapid or 60
+      seconds at classical; in a daily game, 6 hours or less at 1 day per
+      move and one day or less at 3 or 7 days per move. Both people and
+      every watcher see it, and a person listening to the app is told so
+      with the time left. The person whose clock it is hears the low on time
+      warning, a sound, once per matched game, when their clock first
+      becomes low on time; nobody else hears it, nobody hears it with sounds
+      turned off, and a daily game gives none. A clock that is not running
+      is never low on time, and seconds a move adds that lift it back above
+      that time show it as not low on time again.
+    forms: [not low on time, low on time warning]
+    avoid: [time trouble, time pressure, flagging soon]
+
+  - term: turn reminder
+    definition: >-
+      What a person's turn notice becomes when their clock is low on time in
+      a daily game and they have not moved: it comes back unread and tells
+      them they are low on time. A person gets one turn reminder per turn,
+      for their first move too. It is still their one turn notice, never a
+      second item, so it leaves the inbox as a turn notice does.
+    forms: [turn reminders, unread turn reminder]
+    avoid: [nudge]
+    model: [turnReminder]
+
+  - term: earlier position
+    definition: >-
+      A position a game was in before its latest move. In a matched game,
+      whether unfinished or over, each of its people and every watcher can
+      review any earlier position on their own device: choose a move in the
+      move list, step back or forward one move, or go to the start. Their
+      board then shows that position, marked as an earlier position, and no
+      move can be made on it; their clocks, turn, offers and result keep
+      showing the matched game as it really stands. Reviewing one is private
+      to the device, makes no move and needs no connection: with none it
+      uses the last known board. A move accepted meanwhile joins the move
+      list and leaves the board on the position the person chose. In a
+      puzzle, a solver reviewing an earlier position cannot move, take a
+      hint or show the solution until they return to the current position.
+    forms: [earlier positions, step back, step forward, the start]
+    avoid: [past position, old position]
+    model: [earlierPosition, chooseEarlierPosition, stepBackOneMove, stepForwardOneMove, goToStart]
+
+  - term: current position
+    definition: >-
+      The position after a game's latest accepted move: the game as it
+      really stands. A board shows it unless its person is reviewing an
+      earlier position, and one step returns them to it. Once the game is
+      over it is the final position.
+    forms: [return to the current position, final position]
+    avoid: [live position, latest position]
+    model: [returnToCurrentPosition]
+
+  - term: game record
+    definition: >-
+      A finished matched game written out in its game's own notation, with
+      both people's names, the result, the clock choice and every move. Once
+      a matched game is over with a result, each of its people and anyone
+      watching can copy its game record, or copy just its final position;
+      copying changes nothing. A watcher in either space, and either person
+      on another device, copies that same one. An unfinished or aborted
+      matched game offers neither.
+    forms: [game records, copy the game record, copy the final position, copied]
+    model: [gameRecordOffered, copyGameRecord, copyFinalPosition]
+
+  - term: game choice
+    definition: >-
+      Where a space's host picks the game the space plays, and where everyone
+      in the space starts. Going back from the game's choices returns there.
+    model: [GameChoice, backToGameChoice]
+
+  - term: space view
+    definition: >-
+      What a person in a space is looking at: the space's game choice, the
+      game's choices, or a puzzle's board. What a space plays belongs to the space, so everyone in
+      it sees what its host last chose, on every device they have in the
+      space. A guest cannot change it and is told only the host chooses the
+      game; a device without a connection cannot change it either. Going
+      idle does not change it.
+    avoid: [screen, page]
+    model: [View, view, Elsewhere]
+
+  - term: pair people up
+    from: matchmaking
+    forms: [paired, are paired, paired up, are paired up]
+    model: [pairPeopleUp]
+
+  - term: history
+    definition: >-
+      A game's finished custom games and matched games, with their
+      participants, moves and results, for people allowed to watch them.
+
+  - term: review
+    definition: >-
+      See the board after any move that was played, without changing the
+      game. A played puzzle's review steps through its whole line from the
+      game log: it opens on the final position, stepping one move animates
+      and jumping snaps straight to a position, and the current move is the
+      highlighted one in the review's move list, written as the game writes
+      it. A retired puzzle still opens in review. While a puzzle is on the
+      board, the solver can also look back at a position the line already
+      reached, without changing the attempt; after a wrong move or a skip
+      that needs a retry first.
+    forms: [reviews, reviewed, reviewing]
+    avoid: [replay, analysis]
+    model: [stepBackPosition, stepForwardPosition, position, chooseReviewPosition, tryReviewBeforeRetry, stepPuzzleSoundReview]
+
+  - term: statistics
+    definition: >-
+      Victories, losses and draws of one game alone; another game's results
+      never count.
+
+  # --- Puzzles, for every game that offers them -------------------------------
+
+  - term: puzzle
+    definition: >-
+      A position of the game, with a line to find, that a solver plays on
+      the game's board in their space. Only some games offer puzzles; a
+      game that offers them offers them among the game's choices. Each
+      puzzle has a rating of its own, which is how hard it is.
+    forms: [puzzles, this puzzle, next puzzle, a different puzzle, the puzzle's]
+    avoid: [problem, exercise]
+    model: [puzzle, Puzzle, PuzzleSound, puzzleSound]
+
+  - term: known puzzle
+    definition: >-
+      A puzzle written by hand for a game that offers puzzles, so its every
+      move is known in advance: its own rating, its themes and its
+      popularity, the side the solver plays, the line and its solution, how
+      the game writes each move, a wrong move, and a move the game's rules do
+      not allow. "The game's known puzzle" in a scenario is that game's one
+      whose line is four moves long: the setup move, the solver's move, the
+      opponent's reply and the solver's last move. A scenario's puzzle pool
+      holds the game's known puzzles, or puzzles made from them with the
+      ratings and popularity the scenario states.
+    forms: [known puzzles, the game's known puzzle]
+
+  - term: play puzzles
+    definition: >-
+      Solve puzzles of the game from the puzzle feed on the board in a
+      space. A person opens puzzles from the game choice, and goes back to
+      the puzzles from the game's choices, finding any unfinished puzzle as
+      they left it.
+    forms:
+      - plays puzzles
+      - playing puzzles
+      - open puzzles
+      - opens puzzles
+      - opened puzzles
+      - go back to the puzzles
+      - goes back to the puzzles
+    model: [openPuzzles, goBackToPuzzles]
+
+  - term: leave the puzzle
+    definition: >-
+      Step back from the board to the game's choices. An unfinished puzzle
+      waits, as it was, for the solver to go back to the puzzles; a finished
+      one does not, and going back starts the next puzzle.
+    forms: [leaves the puzzle, left the puzzle, leaving the puzzle]
+    model: [leavePuzzle]
+
+  - term: puzzle pool
+    definition: >-
+      Every puzzle of the game that can be served. The puzzle feed chooses
+      from it.
+    forms: [pool]
+
+  - term: puzzle feed
+    definition: >-
+      The endless run of puzzles of the game a solver plays in their space:
+      finish one and the next is ready at once, never the one just played.
+      It serves unplayed puzzles in the rating window first, then the
+      unplayed puzzle nearest the feed target, and never a low-quality
+      puzzle; a puzzle played on one of the solver's devices is not served
+      on another. Once every puzzle is played it comes round to the one
+      played longest ago, unrated.
+    forms: [feed, feed's, come round]
+    avoid: [queue, playlist]
+
+  - term: feed settings
+    definition: >-
+      A solver's choices for their puzzle feed of the game: the history
+      filter, a puzzle theme, the feed target and auto-advance. Each game's
+      feed settings are its own. Only a person with an account can change
+      them; saved choices stick after the app closes and follow the person
+      to their other devices. Editing previews choices; saving applies
+      them. Closing without saving keeps the saved choices.
+    forms: [feed choices, unsaved feed settings, saved feed]
+    model: [feedChoice, editing, startEditingFeed, previewFeedChoice, saveFeedChoices, discardFeedChoices]
+
+  - term: history filter
+    definition: >-
+      Which puzzles the feed may serve by whether the solver has played them:
+      "Unseen" (the default), "Any", "Seen" for played puzzles, or "Failed"
+      for puzzles whose first attempt failed. "Failed" puzzles come back
+      unrated; with no failed attempt the feed is empty and the solver is
+      told why.
+    forms: [feed history]
+
+  - term: feed target
+    definition: >-
+      The rating the puzzle feed serves puzzles near. It is automatic (the
+      puzzle rating after the last result, plus the rating offset) or custom
+      (a fixed rating from 400 to 3000, in steps of 50). These bounds are
+      the same in every game that offers puzzles.
+    forms:
+      - target
+      - feed targets
+      - automatic target
+      - custom target
+      - custom feed target
+    avoid: [difficulty]
+
+  - term: rating offset
+    definition: >-
+      How far above or below the puzzle rating an automatic feed target
+      sits, in steps of 50, from −400 to +400, in every game that offers
+      puzzles.
+    forms: [feed rating offset]
+
+  - term: rating window
+    definition: >-
+      The ratings around the feed target the feed serves unplayed puzzles
+      from: within 100 of the feed target once the puzzle rating has
+      settled, within 200 while it is provisional. With no unplayed puzzle
+      in it, the unplayed puzzle nearest the feed target comes next.
+    avoid: [band]
+
+  - term: popularity
+    definition: >-
+      How much the people who played a puzzle liked it. A puzzle needs a
+      popularity of at least 50 to be served.
+
+  - term: low-quality puzzle
+    definition: >-
+      A puzzle below the quality bar: a popularity below 50, or played fewer
+      than 5 times. The puzzle feed never serves one; a puzzle with a
+      popularity of exactly 50 that was played exactly 5 times is served.
+    forms: [quality bar, low-quality]
+
+  - term: puzzle's own rating
+    definition: >-
+      How hard a puzzle is, as a rating on the same scale as the puzzle
+      rating. It is hidden while the puzzle is being solved, shows once the
+      puzzle is over, and shows beside the puzzle in the game log.
+    forms: [own rating]
+
+  - term: puzzle theme
+    definition: >-
+      A kind of puzzle, as its game names it. A puzzle has one or more
+      themes; they are hidden while it is being solved and show once it is
+      over. Limiting the feed to a theme serves only puzzles with it, sticks
+      like other feed choices, and empties the feed when no puzzle fits.
+    forms: [theme, themes, puzzle's themes, theme filter]
+
+  - term: solver
+    definition: >-
+      The person solving the puzzle on the board: the host, when a space has
+      watchers. The board faces the solver's side.
+    forms: [solvers, the solver's side]
+    avoid: [puzzler]
+    model: [Solver, solver]
+
+  - term: attempt
+    definition: >-
+      One play of one puzzle, from its start until it is solved, failed or
+      abandoned. The first wrong move is the attempt's outcome, and a retry
+      continues the same attempt. Leaving the puzzle or closing the app does
+      not end it.
+    forms: [attempts, attempt's]
+    avoid: [session]
+    model: [finish, finishAsAppCloses, finishAlongsideOtherDevice, Unfinished]
+
+  - term: puzzle state
+    definition: >-
+      Where the puzzle on a board stands, as the board tells it: being solved
+      (the solver is asked to find the next move), a wrong move played,
+      solved, skipped, or its solution shown.
+    model: [puzzleState]
+
+  - term: line
+    definition: >-
+      A puzzle's whole sequence of moves, from the opponent's setup move to
+      its end. "Move N of the line" is the position after its Nth move.
+    forms: [the line's]
+
+  - term: setup move
+    definition: >-
+      The opponent's first move of the line, already played when the puzzle
+      opens.
+
+  - term: prompt
+    definition: >-
+      What the board asks the solver: to find the next move for the
+      solver's side. While the puzzle is being solved, the solver is asked
+      to find the next move.
+    forms: [prompted, asked to find the next move]
+
+  - term: solution
+    definition: >-
+      The solver's moves in the line. Every way to finish that the game's
+      rules count as the same win counts: another winning last move, a
+      faster win, or the same moves in another order.
+    forms: [the last move of the solution, the next move of the solution]
+
+  - term: won another way
+    definition: >-
+      Said of a known puzzle whose last solver move can be made another way
+      that the game's rules count as the same win, though it is not in the
+      puzzle's line, and of a puzzle the solver finishes that way. Making
+      it solves the puzzle, as the line's own last move would. Only a game
+      whose known puzzles include such a puzzle shows it.
+    forms:
+      - can be won another way
+      - the other winning last move
+      - won the puzzle another way
+      - won the puzzle a different way
+      - winning the puzzle different ways
+    model: [solve]
+
+  - term: solution move
+    definition: The next move of the solution, from where the board stands.
+    model: [revealSolutionMove, trySolutionBeforeHint]
+
+  - term: solve
+    definition: >-
+      Finish a puzzle with its solution. A solved puzzle is over, and no
+      more moves can be made in it.
+    forms: [solves, solved, solving, solving it cleanly]
+    model: [solve, CleanSolve]
+
+  - term: wrong move
+    definition: >-
+      A move the game's rules allow that is not the solution. The solver is
+      told at once, the attempt is failed from then on, and no move can be
+      made until a retry.
+    forms: [wrong]
+    avoid: [mistake, blunder]
+    model: [playWrongMove, WrongMove]
+
+  - term: hint
+    definition: >-
+      Help while solving: the first highlights where the solution move
+      starts, the second shows the solution move. Help cannot skip the
+      first stage, repeat it, or be asked for after a wrong move before a
+      retry, or once the puzzle is over. A puzzle solved after a hint earns
+      half credit.
+    forms: [hints, asks for a hint, asks for another hint, taken a hint, taken two hints]
+    model: [HintedSolve, requestHint, help, tryHintAfterFinish, tryHintFromReview, tryHintBeforeRetry, tryEarlierHint]
+
+  - term: retry the puzzle
+    definition: >-
+      After a wrong move, continue at the position already reached. After a
+      solve, a shown solution or a skip, play the same puzzle from its
+      start. It continues the same attempt, so its first outcome does not
+      change. It is not offered while the puzzle is being solved.
+    forms: [retry, retries the puzzle, retried, retried the puzzle, retrying the puzzle, retrying]
+    model: [retry, retryAndSolve, tryRetryWhileSolving]
+
+  - term: show the solution
+    definition: >-
+      Have the rest of the line play out on the board (the revealed
+      solution). The puzzle is over and the attempt is failed.
+    forms:
+      - shows the solution
+      - shown the solution
+      - showing the solution
+      - shown solution
+      - revealed
+      - revealed solution
+      - revealed line
+    model: [showSolution, ShownSolution, tryShowSolutionAfterFinish, tryShowSolutionFromReview]
+
+  - term: skip
+    definition: >-
+      Give up on a puzzle being solved. It is over, and the attempt is
+      abandoned.
+    forms: [skips, skipped, skipping, skipping it]
+    model: [skip, Skipped, trySkipAfterFinish]
+
+  - term: failed attempt
+    definition: >-
+      An attempt's outcome once a wrong move was played or the solution was
+      shown, however the puzzle ends afterwards.
+    forms: [failed]
+    avoid: [loss]
+
+  - term: abandoned attempt
+    definition: An attempt's outcome when the puzzle was skipped.
+    forms: [abandoned]
+
+  - term: puzzle is over
+    definition: >-
+      A puzzle is over once it is solved, skipped or its solution shown. No
+      more moves can be made in it, and the host may move on.
+    model: [isOver]
+
+  - term: move on
+    definition: >-
+      Go from a puzzle that is over to the next puzzle in the feed, never the
+      one just played. Only the host is offered it; asking twice at once
+      still moves on one puzzle, and it works offline.
+    forms:
+      - moves on
+      - moved on
+      - moving on
+      - asks for the next puzzle
+      - asking for the next puzzle
+    model: [moveOn, moveOnTwiceAtOnce, moveOnOffered]
+
+  - term: auto-advance
+    definition: >-
+      A solver's setting to move on by itself a set time after a solve.
+    forms: [advance]
+
+  - term: puzzle clock
+    definition: >-
+      How long the current attempt has run. It runs while the puzzle is being
+      solved and stops when the puzzle is over.
+    model: [timePasses]
+
+  - term: haptic
+    definition: >-
+      A buzz the solver feels from their device: the success haptic on a
+      solve, the error haptic on a wrong move.
+    forms: [success haptic, error haptic]
+
+  - term: suggestion
+    definition: >-
+      A move a watcher proposes in a puzzle. The host and every watcher see
+      it; it does not move the puzzle, and the host's next move clears it.
+    forms: [suggest, suggests, suggested]
+    model: [suggestMove]
+
+  - term: puzzle rating
+    definition: >-
+      A solver's running rating at the game's puzzles, moved by every rated
+      attempt, online or offline; each game's puzzle rating is its own, and
+      every device shows the same one. A new solver starts at 1500,
+      provisional. Solving a puzzle whose own rating is above the solver's
+      gains more than solving an easier one; failing an easier puzzle costs
+      more than failing a harder one. It stays between the rating floor and
+      the rating ceiling. Time taken never changes it.
+    forms: [puzzle ratings]
+    avoid: [score, elo]
+    model: [ratedResult]
+
+  - term: rating change
+    definition: >-
+      How much one rated attempt moved the solver's puzzle rating. It shows
+      as soon as the attempt's outcome is decided: raised after a solve,
+      lowered after a wrong move, a skip or a shown solution. An unrated
+      attempt shows that it is unrated instead, and a watcher sees none.
+    forms: [rating changes]
+    avoid: [delta, rating diff, rating difference]
+
+  - term: rated attempt
+    definition: >-
+      An attempt that moves the puzzle rating: a solver's first attempt at a
+      puzzle, ever. A repeat of an already-played puzzle is unrated, and a
+      watcher is never rated.
+    forms: [rated, rated puzzle, rated puzzles]
+    model: [RatedPuzzle, rated]
+
+  - term: puzzle stats
+    definition: >-
+      A solver's puzzle rating, puzzles played and solved, accuracy, and how
+      the puzzle rating moved over time, at the game's puzzles. They count
+      each puzzle's rated attempt only.
+    forms: [stats]
+    model: [readStats, readStatsOnOtherDevice]
+
+  - term: rating floor
+    definition: >-
+      400, the lowest a puzzle rating goes, in every game that offers
+      puzzles. Failing at the rating floor leaves the puzzle rating at 400.
+
+  - term: rating ceiling
+    definition: >-
+      3000, the highest a puzzle rating goes, in every game that offers
+      puzzles. Solving at the rating ceiling leaves the puzzle rating at
+      3000.
+
+  - term: provisional
+    definition: >-
+      A rating or puzzle rating that has not yet settled, shown with a
+      trailing "?" (for example "1500?"). A provisional puzzle rating moves
+      further for each puzzle than a settled one does.
+
+  - term: half credit
+    definition: >-
+      What a solve after a hint earns toward the puzzle rating: the same
+      rating change as a wrong move, and less than a clean solve.
+
+  - term: accuracy
+    definition: The share of rated attempts solved, as a whole percentage.
+
+  - term: game log
+    definition: >-
+      A solver's list of every puzzle of the game they played, each
+      recorded as solved, failed or abandoned with the puzzle's own rating
+      and its rating change (or that it was unrated), and each opening in
+      review.
+    avoid: [puzzle history]
+    model: [PlayedPuzzle, gameLog]
+
+  - term: first result
+    definition: >-
+      The first solved, failed or abandoned outcome recorded for a solver's
+      puzzle. If devices act apart, the outcome counted first is kept, and
+      every device of the account shows it.
+    model: [Result, Solved, Failed, Abandoned]
+
+  - term: retired puzzle
+    definition: >-
+      A puzzle taken out of the puzzle feed. It is never served again and its
+      puzzle link no longer opens it, but it stays in the game log and still
+      opens in review.
+    forms: [retired]
+    model: [retirePuzzle]
+
+  - term: puzzle link
+    definition: >-
+      A link to one puzzle of the game that a solver can share from the
+      puzzle on their board, finished or not. Opening it puts that exact
+      puzzle on the person's board, in its game: rated if they have never
+      played it, unrated if they have. For a guest a rated one uses a puzzle
+      start. A retired puzzle's link no longer opens it, and the person is
+      told the puzzle is no longer available.
+    forms:
+      - puzzle links
+      - puzzle link's
+      - shares a puzzle link
+      - shared a puzzle link
+      - opens a puzzle link
+    avoid: [puzzle address, permalink, deep link, puzzle URL]
+    model: [sharePuzzleLink, openPuzzleLink, linkShared, linkRefusal]
+
+  - term: daily puzzle limit
+    definition: >-
+      The 20 rated puzzles a guest may start in a day; free accounts and Plus
+      members have none. It is one allowance for every game offering
+      puzzles: rated puzzles a guest starts in any of them count toward the
+      same 20. A puzzle under way when it is reached can still be finished;
+      the next does not start, and the guest is invited to sign in. It holds
+      the same offline, and a new day brings a fresh allowance. A puzzle
+      served again once the pool is played through is unrated and uses none.
+    forms: [puzzle limit, daily limit, limit, allowance, daily allowance]
+    avoid: [quota, cap]
+
+  - term: puzzle start
+    definition: >-
+      One use of a guest's daily puzzle limit, spent when a rated puzzle
+      first starts. Going back to a puzzle already started spends none.
+    model: [puzzleStarts]
+
+  - term: refusal
+    definition: >-
+      What a person is told when their choice in a custom game cannot take
+      effect, and why: who may make it, whether the custom game allows it
+      now, someone in the space they or the creator blocked (never saying
+      who blocked whom), not being in the space, a missing connection, a
+      paused custom game, or a set-up that has changed since they saw it. In
+      a puzzle, what a solver is told when a move, a hint, a skip, showing
+      the solution or reviewing is unavailable now, and why: the puzzle is
+      over, a retry is needed, the first hint is needed or already taken,
+      they are reviewing an earlier position, or the puzzle was skipped. A
+      refused choice changes nothing and never happens later on its own.
+    forms: [refusals]
+    model: [refusal]
+
+  - term: watcher
+    definition: >-
+      Someone in the space who has no side in the custom game, or a guest in
+      the space of one of a matched game's people, who makes no move in it;
+      or someone in a space watching the host's puzzle, whose board agrees
+      with the host's, who may make a suggestion but never drives the puzzle
+      and is never rated for it.
+      Only people in the space may watch it: anyone else cannot see it, even
+      a finished one. A watcher sees the same board and clocks as its
+      people.
+    forms: [watch, watched, watching, watches]
+    model: [shownMoves, shownWinner, canMove]
+
+  - term: space
+    from: spaces
+    model: [Space, space, peopleInSpace]
+
+  - term: host
+    from: spaces
+    model: [spaceHost]
+
+  - term: join
+    from: spaces
+    model: [joinSpace]
+
+  - term: idle
+    from: spaces
+    model: [idle, goQuiet]
+
+  - term: leave
+    from: spaces
+    model: [leaveSpace]
+
+  - term: end a space
+    from: spaces
+
+  - term: space link
+    from: spaces
+
+  - term: free account
+    from: billing
+
+  - term: guest
+    from: profile
+
+  - term: sign in
+    from: profile
+
+  - term: sign out
+    from: profile
+
+  - term: account
+    from: profile
+
+  - term: recently proven account
+    from: profile
+
+  - term: Google
+    from: profile
+
+  - term: username
+    from: profile
+
+  - term: rename themselves
+    from: profile
+
+  - term: account deletion
+    from: profile
+    model: [deleteAccount]
+
+  - term: personal data
+    from: profile
+
+  - term: personal-data export
+    from: profile
+
+  - term: paid access
+    from: billing
+
+  - term: Plus member
+    from: billing
+
+  - term: Plus
+    from: billing
+
+  - term: block someone
+    from: friends
+
+  - term: friend
+    from: friends
+
+  - term: friends list
+    from: friends
+
+  - term: inbox
+    from: friends
+
+  - term: stand-in name
+    from: profile
+
+  - term: stop allowing
+    from: profile
+
+  - term: create a space
+    from: spaces
+
+  - term: return to a space
+    from: spaces
+
+  - term: keyboard
+    from: runtime
+    forms: [left arrow, right arrow]
+
+  - term: control
+    from: runtime
+
+  - term: listen to the app
+    from: runtime
+    forms: [listens to the custom game, hears, is listening to, listening to]
+
+  - term: sounds
+    from: runtime
+    forms: [sound, silence, silent, turned sounds on, turned sounds off, turns sounds on, turns sounds off]
+    model: [configurePuzzleSounds]
+
+  - term: the app
+    from: kernel
+    forms: [closed the app, has closed the app]
+    model: [reopenApp, closeApp]
+
+  - term: person
+    from: kernel
+    model: [currentPlay]
+
+  - term: device
+    from: kernel
+    model: [PlayDevice]
+
+  - term: connection
+    from: kernel
+    model: [loseConnection, comeBackOnline, connectionReturns]

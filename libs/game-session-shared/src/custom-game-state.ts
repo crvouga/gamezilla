@@ -1,4 +1,6 @@
+import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared/durable-names';
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
+import type { BotDifficulty } from '@pkgs/turn-game-shared/game-rules';
 import { z } from 'zod';
 
 export const CUSTOM_GAME_SIDES = ['white', 'black'] as const;
@@ -82,9 +84,11 @@ function parseCustomGames(value: unknown): CustomGames {
     ? EMPTY_CUSTOM_GAMES
     : customGamesSchema.parse(value);
 }
-const ns = createAttrNamespace('chess', 'custom');
+const ns = createAttrNamespace(GAME_PLATFORM_NAMESPACE, 'custom');
 export const CustomGamesAttr = ns.json('games', parseCustomGames);
 
+/** A bot's strength until someone chooses one (a game with one bot ignores it). */
+export const DEFAULT_BOT_DIFFICULTY = 'medium' satisfies BotDifficulty;
 export function newCustomGame(
   id: string,
   creator: string,
@@ -99,7 +103,10 @@ export function newCustomGame(
     ready: [],
     minutes: 0,
     increment: 0,
-    difficulty: { white: 'medium', black: 'medium' },
+    difficulty: {
+      white: DEFAULT_BOT_DIFFICULTY,
+      black: DEFAULT_BOT_DIFFICULTY,
+    },
     revision: 0,
     startedAt: null,
     endedAt: null,

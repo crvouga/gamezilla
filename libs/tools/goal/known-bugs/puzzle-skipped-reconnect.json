@@ -1,4 +1,4 @@
 {
   "summary": "An origin recovery wait inside the mutation upload loop error handler rejected during disposal and escaped the owned loop. Consume intentional HTTP cancellation at that wait while preserving unrelated errors and queued mutations.",
-  "regressionTest": "libs/chess-root-harness/tests/quint/puzzle-attempt.binding.ts"
+  "regressionTest": "libs/chess-root-harness/tests/quint/puzzle-assistant.binding.ts"
 }

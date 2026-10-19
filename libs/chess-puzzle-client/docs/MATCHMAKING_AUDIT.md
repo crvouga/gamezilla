@@ -59,7 +59,7 @@ model's four ratings do not replace these numeric obligations.
 | Growing radius | 50 initially, 60 at one second, 400 at 35 seconds | Beyond either person's contemporaneous radius | rating-ranges, `invGrowingBoundaries` |
 | Range choice | New choice, retaining age | Earlier replay overwrites newer choice | changing-ranges; change identity |
 | Availability | All eligible at formation | One unavailable before formation | `invFormationApproved`, `invAvailableWaits` |
-| Pair restriction | Unrestricted pair | Restriction in either direction | pair-restrictions, chess-opponent-policies |
+| Pair restriction | Unrestricted pair | Restriction in either direction | pair-restrictions, matched-game-blocking |
 | Selection | Earlier complete compatible opportunity | Incompatible elder preventing younger complete group | competing-waits; `pairUp` |
 | Exact simultaneous tie | Either complete legal group | Partial/overlapping/incompatible group | Model permits accepted ordering either way; no nearest-rating promise |
 
@@ -68,7 +68,7 @@ model's four ratings do not replace these numeric obligations.
 Each row is an interleaving obligation of `matching.qnt`; device-visible results
 are compared after every action. Simultaneous operations linearize to a legal
 ordering, with no intermediate partial match observable. The assembled game
-additionally binds `multiplayer.qnt` at the same transaction boundary.
+additionally binds `games/matched-game.qnt` at the same transaction boundary.
 
 | Race | Classification and coverage |
 | --- | --- |
@@ -78,17 +78,17 @@ additionally binds `multiplayer.qnt` at the same transaction boundary.
 | Two match attempts sharing a person | One complete assignment for each reference; `invExactlyOneAssignment`, `invTerminalWaits` |
 | A/B versus A/C with B/D | Earliest complete opportunity first; two disjoint groups where possible; four-person model |
 | Eligibility change/match | Check facts at formation; earlier unavailability stops wait, later change preserves match; availability-and-details |
-| Block/match | Earlier block vetoes pairing, later block keeps game; pair-restrictions, chess-opponent-policies |
+| Block/match | Earlier block vetoes pairing, later block keeps game; pair-restrictions, matched-game-blocking |
 | Widen or narrow/match | Accepted range at formation; later command cannot change match; changing-ranges, rating-ranges |
 | Disconnect/match | Offline cached wait; remote match durable; reconnect converges; waits-after-time-away |
 | Reconnect/cancel | Accepted stop reflected without new request; waits-after-time-away |
 | Stale stop/new begin | Older identity never changes newer wait; search-identity |
 | Stale range change/new begin | Older identity never changes newer range; changing-ranges |
-| Handoff/cancel | Atomic accepted match and game; stop cannot undo formed game; find-an-opponent |
-| Formation retry | Same match and one game, fixed sides; lasting-outcomes, find-an-opponent |
-| Move/move from two devices | One accepted revision; stale revision refused; play-multiplayer-chess |
-| Resign/move; resign/resign | Legal ordering, immutable terminal outcome; multiplayer.qnt, play-multiplayer-chess |
-| Account deletion/formation or move | No new deleted participant; unfinished game resigned, historical result retained; multiplayer-recovery-and-privacy |
+| Handoff/cancel | Atomic accepted match and game; stop cannot undo formed game; finding-an-opponent |
+| Formation retry | Same match and one game, fixed sides; lasting-outcomes, finding-an-opponent |
+| Move/move from two devices | One accepted revision; stale revision refused; matched-game-turns |
+| Resign/move; resign/resign | Legal ordering, immutable terminal outcome; matched-game.qnt, matched-game-turns, matched-game-over |
+| Account deletion/formation or move | No new deleted participant; unfinished game resigned, historical result retained; matched-game-ownership |
 
 ## Aggregate coverage
 
@@ -98,14 +98,14 @@ additionally binds `multiplayer.qnt` at the same transaction boundary.
 | All connection/time/world events | waits-after-time-away, rating-ranges, lasting-outcomes, availability-and-details, pair-restrictions |
 | Search identity, terminal states, exactly-once outcome | matching.qnt invariants and searches.als |
 | Accepted outcomes and per-device convergence | matching.qnt `invAcknowledgedOutcomes`, `invReturningAgrees`, `invOfflineKeepsKnown` |
-| Match-formed event consumed by game | events.qnt publication, multiplayer.qnt `matchFormed`, find-an-opponent |
-| Play actions and strongest refusals | play-multiplayer-chess; multiplayer.qnt `playMove`, `resignPlay` |
-| Game continuity, privacy, account reaction | multiplayer-recovery-and-privacy, multiplayer-account-and-space |
-| Game ownership, fixed sides, one unfinished game | multiplayer-games.als; multiplayer.qnt safety invariants |
-| Upstream permission and usage policies | billing/access.dmn; chess/unfinished-game-limit.dmn; conformance capabilities |
-| Upstream blocks, paid access, spaces, friends, usernames | chess-opponent-policies, multiplayer-account-and-space |
-| Keyboard and listener access | multiplayer-accessibility; real rendered control checks required |
-| Match ready latency and reliability | multiplayer-ready.openslo.yaml; multiplayer-game journey |
+| Match-formed event consumed by game | events.qnt publication, matched-game.qnt `pairPeopleUp`, finding-an-opponent |
+| Play actions and strongest refusals | matched-game-turns, matched-game-abort, matched-game-draw-offers, matched-game-rematch, matched-game-over; matched-game.qnt `playMove`, `resignGame` |
+| Game continuity, privacy, account reaction | matched-game-recovery, matched-game-ownership |
+| Game ownership, fixed sides, one unfinished game | matched-games.als; matched-game.qnt safety invariants |
+| Upstream permission and usage policies | billing/access.dmn; games/unfinished-game-limit.dmn; conformance capabilities |
+| Upstream blocks, paid access, spaces, friends, usernames | matched-game-blocking, finding-an-opponent, matched-game-ownership |
+| Keyboard and listener access | matched-game-accessibility (a keyboard move by its squares: chess's multiplayer-accessibility); real rendered control checks required |
+| Match ready latency and reliability | matched-game-ready.openslo.yaml; multiplayer-game journey |
 | Critical assembled flow | journeys/multiplayer-game.feature |
 | Model-only bookkeeping | Bounded example identifiers, counters, received facts and sequence choices; comments in models justify the finite projection |
 | Published versus private language | Context map and each context's ubiquitous-language.yml; no Chess vocabulary in generic Matchmaking |
@@ -137,12 +137,14 @@ existing scenarios were preserved, rather than rewritten to fit the package.
 
 | Feature | Rules | Scenarios | Review |
 | --- | ---: | ---: | --- |
-| `specs/chess/chess-opponent-policies.feature` | 3 | 7 | A/B/C reviewed; D/P required |
-| `specs/chess/find-an-opponent.feature` | 5 | 11 | A/B/C reviewed; D/P required |
-| `specs/chess/multiplayer-accessibility.feature` | 2 | 4 | A/B/C reviewed; D/P required |
-| `specs/chess/multiplayer-account-and-space.feature` | 3 | 5 | A/B/C reviewed; D/P required |
-| `specs/chess/multiplayer-recovery-and-privacy.feature` | 3 | 9 | A/B/C reviewed; D/P required |
-| `specs/chess/play-multiplayer-chess.feature` | 5 | 14 | A/B/C reviewed; D/P required |
+| `specs/chess/chess-opponent-policies.feature` | 1 | 2 | A/B/C reviewed; D/P required |
+| `specs/games/finding-an-opponent.feature` | 8 | 15 | A/B/C reviewed; D/P required |
+| `specs/games/finding-an-opponent-devices.feature` | 3 | 6 | A/B/C reviewed; D/P required |
+| `specs/games/matched-game-blocking.feature` | 2 | 3 | A/B/C reviewed; D/P required |
+| `specs/games/matched-game-accessibility.feature` | 2 | 12 | A/B/C reviewed; D/P required |
+| `specs/games/matched-game-ownership.feature` | 4 | 8 | A/B/C reviewed; D/P required |
+| `specs/games/matched-game-recovery.feature` | 2 | 6 | A/B/C reviewed; D/P required |
+| `specs/games/matched-game-turns.feature` | 4 | 10 | A/B/C reviewed; D/P required |
 | `specs/journeys/multiplayer-game.feature` | 1 | 3 | A/B/C reviewed; D/P required |
 | `specs/matchmaking/availability-and-details.feature` | 4 | 10 | A/B/C reviewed; D/P required |
 | `specs/matchmaking/being-matched.feature` | 2 | 7 | A/B/C reviewed; D/P required |

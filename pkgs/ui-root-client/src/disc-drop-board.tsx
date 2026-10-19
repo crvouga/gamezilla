@@ -17,10 +17,8 @@ export type DiscDropBoardProps = {
   readonly interactive: boolean;
   readonly lastCell?: number | undefined;
   readonly label: string;
-  readonly emptyLabel: string;
   readonly testId: string;
   readonly columnTestId: (column: number) => string;
-  readonly identities: readonly [string, string];
   readonly cellLabel: (column: number, row: number, disc: number) => string;
   readonly columnLabel: (
     column: number,
@@ -65,12 +63,6 @@ function DiscCell(props: {
     >
       <span class={styles['disc']} aria-hidden="true">
         {marker()}
-      </span>
-      <span class={styles['hidden']}>
-        {disc() === 0
-          ? props.board.emptyLabel
-          : props.board.identities[disc() === 1 ? 0 : 1]}{' '}
-        — {props.row + 1}
       </span>
     </span>
   );

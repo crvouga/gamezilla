@@ -4,6 +4,7 @@ import type { RoomState } from '@pkgs/room-root-shared/types';
 import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import type { CustomGameChoice } from './custom-game-choice';
 import { PlayCustomGameBot } from './custom-game-commands';
+import { customGameBotMove } from './custom-game-position';
 import type { CustomGame } from './custom-game-state';
 import { CustomGamesAttr } from './custom-game-state';
 
@@ -41,9 +42,7 @@ export function prepareLocalCustomGameCommand(
     game.id !== payload.payload.gameId
   )
     return payload;
-  const move = rules
-    .forPosition(game.fen)
-    .choose(game.fen, game.difficulty[game.turn], random);
+  const move = customGameBotMove(game, rules, random);
   if (move === null) throw new Error('active bot game has no legal move');
   return PlayCustomGameBot({ ...payload.payload, at, move });
 }

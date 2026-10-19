@@ -5,11 +5,12 @@ import {
 } from '@pkgs/message-shared/message';
 import { insertOutboxEvent } from '@pkgs/outbox-shared/outbox';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import { GAME_PLATFORM_NAMESPACE } from './durable-names';
 import type { MultiplayerGame } from './game-state';
 import { lowOnTimeAtMs } from './multiplayer-clock';
 import { isDailyTimeControl } from './time-control';
 
-const messages = createMessageNamespace('chess', 'outbox');
+const messages = createMessageNamespace(GAME_PLATFORM_NAMESPACE, 'outbox');
 
 /** A daily game's turn or result changed: its people's inboxes follow it. */
 export const MultiplayerNoticesDue = messages(
@@ -36,7 +37,7 @@ export const MultiplayerTurnReminderDue = messages(
     Number.isInteger(value['revision'])
 );
 
-export const MULTIPLAYER_NOTICE_NAMESPACE = 'chess';
+export const MULTIPLAYER_NOTICE_NAMESPACE = GAME_PLATFORM_NAMESPACE;
 export const MULTIPLAYER_TURN_NOTICE = 'multiplayer-turn';
 export const MULTIPLAYER_RESULT_NOTICE = 'multiplayer-result';
 /** The one thing a person can do to a result notice from its inbox card. */

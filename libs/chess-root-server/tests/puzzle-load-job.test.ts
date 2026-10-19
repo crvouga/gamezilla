@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import { chessPuzzleImport } from '@libs/chess-puzzle-shared/puzzle-import-query';
 import { puzzleSourcePartKey } from '@libs/chess-puzzle-shared/puzzle-load-job';
 import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared/topic-map';
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import sql, { type Sql } from '@pkgs/sql-root-shared/sql';
 import { partitionFanoutRowsByTopic } from '@pkgs/sync-engine-shared/partition-fanout-rows';
 import { HEADER, openPuzzleImportHost, SAMPLE } from './puzzle-import-host';
@@ -158,7 +159,7 @@ test('load status row images reach the management audience without entering the 
   const job = await host.job();
   if (!job) throw new Error('Import did not start');
   const fanout = await partitionFanoutRowsByTopic({
-    topicMap: CHESS_TOPIC_MAP,
+    topicMap: { ...GAME_PUZZLE_SUB.topicMap, ...CHESS_TOPIC_MAP },
     ctx: {
       actorId: 'manager',
       accountId: 'manager',

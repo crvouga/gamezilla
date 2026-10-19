@@ -19,8 +19,7 @@
     "@libs/auth-shared": "workspace:*",
     "@libs/chess-puzzle-server": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
-    "@libs/chess-root-shared": "workspace:*",
-    "@libs/game-session-server": "workspace:*",
+    "@libs/game-puzzle-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/sub-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
@@ -34,6 +33,7 @@
     "@libs/app-root-server": "workspace:*",
     "@libs/billing-shared": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
+    "@libs/chess-root-shared": "workspace:*",
     "@libs/chess-sub-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@pkgs/db-schema-postgres-shared": "workspace:*",
@@ -48,5 +48,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "server"
+  "category": "server",
+  "game": "chess"
 }

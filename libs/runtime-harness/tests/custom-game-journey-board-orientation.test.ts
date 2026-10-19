@@ -33,8 +33,8 @@ function productionBoard(side: 'white' | 'black' | null): Driver {
         if (name !== 'style') return unused();
         if (
           ![
-            'chess-custom-board-square-a1',
-            'chess-custom-board-square-h8',
+            'custom-game-board-square-a1',
+            'custom-game-board-square-h8',
           ].includes(id)
         )
           return unused();

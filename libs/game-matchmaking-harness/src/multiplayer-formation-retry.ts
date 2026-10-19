@@ -1,4 +1,7 @@
-import { scheduleFormationRetry } from '@libs/game-matchmaking-shared/formation-retry';
+import {
+  FORMATION_RETRY_EVENT_PREFIX,
+  scheduleFormationRetry,
+} from '@libs/game-matchmaking-shared/formation-retry';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import sql from '@pkgs/sql-root-shared/sql';
@@ -14,7 +17,7 @@ export const retryWaitingOpponents = scenarioAction({
 export async function opponentRetryDelays(s: ProductHarness) {
   const rows = await s.harness.serverSql.sqlClient.query(
     sql<{ available_at: string }>`SELECT available_at FROM outbox_events
-      WHERE id LIKE ${'chess.opponent-requested:retry:%'} AND deleted_at IS NULL`
+      WHERE id LIKE ${`${FORMATION_RETRY_EVENT_PREFIX}%`} AND deleted_at IS NULL`
   );
   return rows.map(
     (row) => new Date(row.available_at).getTime() - s.harness.clock.now()

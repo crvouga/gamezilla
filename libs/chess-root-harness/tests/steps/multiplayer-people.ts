@@ -1,5 +1,7 @@
-import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
 import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
+import { givenGameSpace } from '@libs/game-matchmaking-harness/opponent-seeking';
+import { attemptPickGame } from '@libs/game-session-harness/space-game-choice';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { signedInAccountOf } from '@libs/harness/identity';
 import { backToTabs } from '@libs/harness/shell-actions';
@@ -34,6 +36,7 @@ export async function multiplayerPeople(
     const given = w.memo.get(usernameKey(person));
     if (typeof given === 'string') await accountNamed(w, person, given);
     else await prepareNamedFriend(w.s, person);
-    await w.s.apply(givenMultiplayerSpace, person);
+    await w.s.apply(givenGameSpace, person);
+    await w.s.apply(attemptPickGame, person, CHESS_GAME_ID);
   }
 }

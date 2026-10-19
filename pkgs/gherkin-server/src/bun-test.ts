@@ -1,6 +1,7 @@
 /**
  * Run a feature under `bun test`: one `describe` per feature, one `test` per
- * scenario, the registered world opened before and disposed after each.
+ * scenario — or per variant of it the host defines (`<scenario> [<label>]`)
+ * — the registered world opened before and disposed after each.
  *
  * The runner-generated stub (`.cache/spec/<name>.feature.test.ts`) imports the
  * package's steps entry, reads the feature, and calls {@link runFeature}.
@@ -18,10 +19,15 @@ import {
 } from '@pkgs/gherkin-shared/failure';
 import type { SpecScenario, SpecStep } from '@pkgs/gherkin-shared/parse';
 import { parseFeature } from '@pkgs/gherkin-shared/parse';
-import type { ScenarioContext, StepMatch } from '@pkgs/gherkin-shared/registry';
+import type {
+  ScenarioContext,
+  ScenarioVariant,
+  StepMatch,
+} from '@pkgs/gherkin-shared/registry';
 import {
   isHostLimit,
   matchStep,
+  scenarioVariants,
   worldLifecycle,
 } from '@pkgs/gherkin-shared/registry';
 import { tagFilter } from '@pkgs/gherkin-shared/tags';
@@ -141,10 +147,26 @@ async function recordStep(
   }
 }
 
-/** Runs the scenario; false when a host limit ended it undecided. */
-async function runScenario(run: ScenarioRun): Promise<boolean> {
+/** The scenario's name as a failure reports it, naming its variant. */
+function runName(scenario: SpecScenario, ctx: ScenarioContext): string {
+  return ctx.variant === undefined
+    ? scenario.name
+    : `${scenario.name} [${ctx.variant.label}]`;
+}
+
+/** The scenario's context for one variant of it, its test id naming the variant. */
+function variantContext(
+  base: ScenarioContext,
+  variant: ScenarioVariant
+): ScenarioContext {
+  return { ...base, variant, testId: `${base.testId}.${slug(variant.id)}` };
+}
+
+async function runScenario(
+  run: ScenarioRun,
+  ctx: ScenarioContext
+): Promise<boolean> {
   const { options, scenario } = run;
-  const ctx = scenarioContext(run);
   const lifecycle = worldLifecycle(ctx);
   const reporter = createFeatureReporter(
     ctx,
@@ -166,13 +188,13 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
           hostLimited = true;
           const skipped = scenario.steps.length - index - 1;
           console.warn(
-            `${options.featureUri}:${String(step.line)} ${scenario.name}: ${(cause as Error).message} — ${String(skipped)} later step(s) skipped`
+            `${options.featureUri}:${String(step.line)} ${runName(scenario, ctx)}: ${(cause as Error).message} — ${String(skipped)} later step(s) skipped`
           );
           return false;
         }
         await lifecycle.failed?.(world, cause).catch((error: unknown) => {
           console.warn(
-            `${options.featureUri}:${String(step.line)} ${scenario.name}: capturing failure evidence failed: ${String(error)}`
+            `${options.featureUri}:${String(step.line)} ${runName(scenario, ctx)}: capturing failure evidence failed: ${String(error)}`
           );
         });
         const failing = outcome(step, 'failed');
@@ -184,7 +206,7 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
             packageName: options.packageName,
             featureUri: options.featureUri,
             featureName: run.featureName,
-            scenarioName: scenario.name,
+            scenarioName: runName(scenario, ctx),
             scenarioLine: scenario.line,
             steps: [...outcomes, failing, ...rest],
             failingStep: failing,
@@ -217,7 +239,11 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
  * verdict. A scenario a host limit cut short proved nothing and records
  * nothing, like one the host skips.
  */
-async function scenarioTest(run: ScenarioRun, source: string): Promise<void> {
+async function scenarioTest(
+  run: ScenarioRun,
+  ctx: ScenarioContext,
+  source: string
+): Promise<void> {
   const { options } = run;
   const record = (status: 'pass' | 'fail', detail?: string) => {
     if (options.reportDir === undefined) return;
@@ -228,13 +254,14 @@ async function scenarioTest(run: ScenarioRun, source: string): Promise<void> {
       featureSource: source,
       layer: options.layer ?? 'system',
       scenarioName: run.scenario.name,
+      variant: ctx.variant?.id,
       status,
       detail,
     });
   };
   let completed: boolean;
   try {
-    completed = await runScenario(run);
+    completed = await runScenario(run, ctx);
   } catch (cause) {
     record('fail', failureDetail(cause));
     throw cause;
@@ -260,13 +287,42 @@ export function runFeature(source: string, options: RunFeatureOptions): void {
     for (const [ordinal, scenario] of feature.scenarios.entries()) {
       if (ordinal % slice.count !== slice.index) continue;
       if (!selected(scenario.tags) || skipped.has(scenario.name)) continue;
-      const body = () =>
-        scenarioTest({ options, featureName: feature.name, scenario }, source);
-      if (options.timeoutMs === undefined) {
-        test(scenario.name, body);
-      } else {
-        test(scenario.name, body, options.timeoutMs);
-      }
+      const run = { options, featureName: feature.name, scenario };
+      for (const { name, ctx } of scenarioRuns(run))
+        test(
+          name,
+          () =>
+            ctx instanceof Error
+              ? Promise.reject(ctx)
+              : scenarioTest(run, ctx, source),
+          options.timeoutMs
+        );
     }
+  });
+}
+
+/**
+ * The scenario's runs: once, or once per variant the host defines for it,
+ * each its own test so a failure names its variant. A host offering no
+ * variant for the scenario is a failing run, never a silent skip.
+ */
+function scenarioRuns(
+  run: ScenarioRun
+): readonly { name: string; ctx: ScenarioContext | Error }[] {
+  const base = scenarioContext(run);
+  const variants = scenarioVariants(base);
+  if (variants === null) return [{ name: run.scenario.name, ctx: base }];
+  if (variants.length === 0)
+    return [
+      {
+        name: run.scenario.name,
+        ctx: new Error(
+          `${run.options.featureUri}:${String(run.scenario.line)} ${run.scenario.name}: no variant the host registers offers what this scenario shows`
+        ),
+      },
+    ];
+  return variants.map((variant) => {
+    const ctx = variantContext(base, variant);
+    return { name: runName(run.scenario, ctx), ctx };
   });
 }

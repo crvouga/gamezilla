@@ -116,7 +116,7 @@ export function CustomGameClock(props: {
         }
         label={gameSideLabel(props.game.fen, props.side)}
         value={clockLabel(seconds())}
-        dataSet={{ testid: `chess-custom-${props.side}-clock` }}
+        dataSet={{ testid: `custom-game-${props.side}-clock` }}
         ariaLabel={gameSideLabel(props.game.fen, props.side)}
       />
     </Show>
@@ -191,7 +191,7 @@ export function CustomGameStatus(props: {
         <VisuallyHidden
           role="status"
           aria-live="polite"
-          testId="chess-custom-status"
+          testId="custom-game-status"
         >
           <Trans>No Custom Game.</Trans>
         </VisuallyHidden>
@@ -201,7 +201,7 @@ export function CustomGameStatus(props: {
         <GameStatus
           live
           tone={statusTone(game(), props.model.mySide())}
-          dataSet={{ testid: 'chess-custom-status' }}
+          dataSet={{ testid: 'custom-game-status' }}
           title={
             <>
               <VisuallyHidden>{lineup()} </VisuallyHidden>
@@ -218,7 +218,7 @@ export function CustomGameStatus(props: {
               <Badge
                 intent="neutral"
                 label={<Trans>Unrated</Trans>}
-                dataSet={{ testid: 'chess-custom-unrated' }}
+                dataSet={{ testid: 'custom-game-unrated' }}
               />
               <TimeControlBadge game={game()} />
             </div>
@@ -236,7 +236,7 @@ export function CustomGameConnectionNotice(props: {
     <Show when={!props.model.connected()}>
       <Notice
         icon={WifiOffIcon}
-        dataSet={{ testid: 'chess-custom-connection-needed' }}
+        dataSet={{ testid: 'custom-game-connection-needed' }}
       >
         <span role="status">
           <Show

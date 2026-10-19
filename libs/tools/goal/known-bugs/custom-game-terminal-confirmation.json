@@ -1,4 +1,4 @@
 {
   "summary": "The harness treated an unavailable cancel or resign control as usable and waited for a confirmation modal that could not open. Attempt unavailable choices through the acknowledged refusal path and use the modal only when its control is enabled.",
-  "regressionTest": "libs/chess-root-harness/tests/quint/custom-game-control.binding.ts"
+  "regressionTest": "libs/games-harness/tests/quint/custom-game-control.binding.ts"
 }

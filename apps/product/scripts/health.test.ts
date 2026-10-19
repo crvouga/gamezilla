@@ -318,7 +318,7 @@ describe('health runs features, health --objectives runs objectives', () => {
 
   test('objectives take no tags, and named specs must be live', () => {
     expect(select(['--objectives', '--tags', '@synthetic']).ok).toBe(false);
-    expect(select(['specs/chess/puzzle-play.feature']).ok).toBe(false);
+    expect(select(['specs/games/puzzle-play.feature']).ok).toBe(false);
   });
 });
 

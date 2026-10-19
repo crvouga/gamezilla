@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="custom-game-decisions" name="Custom game access" namespace="https://gamezilla.dev/decisions">
+  <decision id="custom-game-access" name="May this person do this in the custom game?">
+    <description>Guests, free accounts and Plus members have the same custom games, in every game that offers them. The host creates and sets them up; everybody already in the space may join a side, watch, play and cancel as the custom game allows (a participant may cancel only a custom game between two people, until each side has moved). People outside the space have no access. Choices involving another person need a connection. A host can create, set up and play their own custom game without another person while they have no connection.</description>
+    <decisionTable id="custom-game-access-table" hitPolicy="UNIQUE">
+      <input id="who-is-asking" label="who is asking">
+        <inputExpression id="who-is-asking-expression" typeRef="string"><text>who is asking</text></inputExpression>
+        <inputValues id="who-is-asking-values"><text>"guest","free account","Plus member"</text></inputValues>
+      </input>
+      <input id="their-place-in-the-space" label="their place in the space">
+        <inputExpression id="their-place-in-the-space-expression" typeRef="string"><text>their place in the space</text></inputExpression>
+        <inputValues id="their-place-in-the-space-values"><text>"host","joined","not in it"</text></inputValues>
+      </input>
+      <input id="what-they-want-to-do" label="what they want to do">
+        <inputExpression id="what-they-want-to-do-expression" typeRef="string"><text>what they want to do</text></inputExpression>
+        <inputValues id="what-they-want-to-do-values"><text>"create a custom game","configure a custom game","invite a custom game participant","configure a custom game bot","start a custom game","cancel a custom game","join a custom game","watch a custom game","play a custom game"</text></inputValues>
+      </input>
+      <output id="answer" name="answer" typeRef="string"><outputValues><text>"yes","no"</text></outputValues></output>
+      <rule id="host-all">
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>"host"</text></inputEntry>
+        <inputEntry><text>"create a custom game","configure a custom game","invite a custom game participant","configure a custom game bot","start a custom game","cancel a custom game","join a custom game","watch a custom game","play a custom game"</text></inputEntry>
+        <outputEntry><text>"yes"</text></outputEntry>
+      </rule>
+      <rule id="member-play">
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>"joined"</text></inputEntry>
+        <inputEntry><text>"join a custom game","watch a custom game","play a custom game","cancel a custom game"</text></inputEntry>
+        <outputEntry><text>"yes"</text></outputEntry>
+      </rule>
+      <rule id="member-management">
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>"joined"</text></inputEntry>
+        <inputEntry><text>"create a custom game","configure a custom game","invite a custom game participant","configure a custom game bot","start a custom game"</text></inputEntry>
+        <outputEntry><text>"no"</text></outputEntry>
+      </rule>
+      <rule id="outsider">
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>"not in it"</text></inputEntry>
+        <inputEntry><text>"create a custom game","configure a custom game","invite a custom game participant","configure a custom game bot","start a custom game","cancel a custom game","join a custom game","watch a custom game","play a custom game"</text></inputEntry>
+        <outputEntry><text>"no"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

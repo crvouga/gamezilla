@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="matched-game-watch-decisions" name="Watching a matched game" namespace="https://gamezilla.dev/decisions">
+  <decision id="matched-game-watch-access" name="May this person watch a matched game?">
+    <description>Guests, free accounts and Plus members may watch the host's matched game, in every game that offers finding an opponent, while they are in the space. People outside the space cannot watch it.</description>
+    <decisionTable id="matched-game-watch-access-table" hitPolicy="UNIQUE">
+      <input id="who-is-asking" label="who is asking">
+        <inputExpression id="who-is-asking-expression" typeRef="string"><text>who is asking</text></inputExpression>
+        <inputValues id="who-is-asking-values"><text>"guest","free account","Plus member"</text></inputValues>
+      </input>
+      <input id="their-place-in-the-space" label="their place in the space">
+        <inputExpression id="their-place-in-the-space-expression" typeRef="string"><text>their place in the space</text></inputExpression>
+        <inputValues id="their-place-in-the-space-values"><text>"host","joined","not in it"</text></inputValues>
+      </input>
+      <output id="answer" name="answer" typeRef="string"><outputValues><text>"yes","no"</text></outputValues></output>
+      <rule id="inside">
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>"host","joined"</text></inputEntry>
+        <outputEntry><text>"yes"</text></outputEntry>
+      </rule>
+      <rule id="outside">
+        <inputEntry><text>-</text></inputEntry>
+        <inputEntry><text>"not in it"</text></inputEntry>
+        <outputEntry><text>"no"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

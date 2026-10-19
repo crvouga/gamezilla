@@ -1053,11 +1053,12 @@
         "$TURBO_ROOT$/libs/auth-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/billing-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/chess-root-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/connect-four-board-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/connect-four-root-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/connect-four-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/game-menu-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-session-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-matchmaking-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/chess-puzzle-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/game-puzzle-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/chess-shared-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/friends-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/notifications-client/src/**/*.{ts,tsx}",
@@ -2716,8 +2717,9 @@
         "$TURBO_ROOT$/libs/app-root-client/src/route-table.ts",
         "$TURBO_ROOT$/libs/runtime-client/src/app-sub-clients.ts",
         "$TURBO_ROOT$/libs/*-client/src/sub-client.{ts,tsx}",
-        "$TURBO_ROOT$/libs/chess-puzzle-client/src/puzzle-link-client.ts",
-        "$TURBO_ROOT$/libs/chess-puzzle-shared/src/puzzle-link.ts",
+        "$TURBO_ROOT$/libs/chess-puzzle-client/src/personal-chess-stats-client.tsx",
+        "$TURBO_ROOT$/libs/game-puzzle-client/src/puzzle-link-client.ts",
+        "$TURBO_ROOT$/libs/game-puzzle-shared/src/puzzle-link.ts",
         "$TURBO_ROOT$/libs/game-matchmaking-client/src/multiplayer-link-client.tsx",
         "$TURBO_ROOT$/libs/game-matchmaking-shared/src/multiplayer-link.ts",
         "$TURBO_ROOT$/apps/product/src/main.tsx",
@@ -3650,7 +3652,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:0": {
+    "check:models:9:0": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3678,7 +3680,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:1": {
+    "check:models:9:1": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3706,7 +3708,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:2": {
+    "check:models:9:2": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3734,7 +3736,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:3": {
+    "check:models:9:3": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3762,7 +3764,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:4": {
+    "check:models:9:4": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3790,7 +3792,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:5": {
+    "check:models:9:5": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3818,7 +3820,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:6": {
+    "check:models:9:6": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3846,7 +3848,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:7": {
+    "check:models:9:7": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3874,7 +3876,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:8": {
+    "check:models:9:8": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3902,7 +3904,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:9": {
+    "check:models:9:9": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3930,7 +3932,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:10": {
+    "check:models:9:10": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3958,7 +3960,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:11": {
+    "check:models:9:11": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -3986,7 +3988,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:12": {
+    "check:models:9:12": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -4014,7 +4016,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:13": {
+    "check:models:9:13": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -4042,7 +4044,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:14": {
+    "check:models:9:14": {
       "inputs": [
         "package.json",
         "tests/quint/**",
@@ -4070,7 +4072,7 @@
         "@pkgs/conformance-shared#src"
       ]
     },
-    "check:models:10:15": {
+    "check:models:9:15": {
       "inputs": [
         "package.json",
         "tests/quint/**",

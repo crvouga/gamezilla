@@ -1,11 +1,12 @@
-import {
-  establishCustomGame,
-  openCustomGame,
-} from '@libs/chess-custom-game-harness/custom-game-actions';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
 import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
-import { readCustomGameProbe } from '@libs/game-session-harness/custom-game-ui';
-import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
-import type { CustomGame } from '@libs/game-session-shared/custom-game-state';
+import type {
+  CustomGameAction,
+  CustomGameShown,
+} from '@libs/game-session-harness/custom-game-screen';
+import { readCustomGameScreen } from '@libs/game-session-harness/custom-game-screen';
+import { configureCustomGameChoice } from '@libs/game-session-harness/custom-game-ui';
+import { openCustomGames } from '@libs/game-session-harness/game-navigation';
 import type { ProductHarness } from '@libs/harness/harness';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -27,7 +28,7 @@ export function customHost(w: CustomWorld): string {
   );
 }
 /** The people this scenario put in the space. */
-export function customMembers(w: CustomWorld): Set<string> {
+function customMembers(w: CustomWorld): Set<string> {
   const members = w.memo.get('custom-members');
   if (members instanceof Set) return members as Set<string>;
   const created = new Set<string>();
@@ -76,18 +77,18 @@ export async function customSpace(
   w.memo.set('custom-link', link);
   w.memo.set('spaceHost', host);
   w.memo.set('spaceLink', link);
-  await w.s.apply(openCustomGame, host);
-  const hostProbe = await w.s.read(readCustomGameProbe, host);
+  await w.s.apply(openCustomGames, host, CHESS_GAME_ID);
+  const hostProbe = await w.s.read(readCustomGameScreen, host);
   if (hostProbe === null) throw new Error(`${host} has no game screen`);
-  customPeople(w).set(host, hostProbe.myId);
+  customPeople(w).set(host, hostProbe.me);
   customMembers(w).add(host);
   for (const other of others) {
     await arrive(w, other, options.guests === true);
     await w.s.apply(joinViaLink, other, link);
-    await w.s.apply(openCustomGame, other);
-    const probe = await w.s.read(readCustomGameProbe, other);
+    await w.s.apply(openCustomGames, other, CHESS_GAME_ID);
+    const probe = await w.s.read(readCustomGameScreen, other);
     if (probe === null) throw new Error(`${other} has no game screen`);
-    customPeople(w).set(other, probe.myId);
+    customPeople(w).set(other, probe.me);
     customMembers(w).add(other);
   }
 }
@@ -95,19 +96,19 @@ export async function customSpace(
 export async function customFact(
   w: CustomWorld,
   actor: string,
-  input: CustomGameInput
+  input: CustomGameAction
 ): Promise<void> {
-  await w.s.apply(establishCustomGame, actor, input);
+  await w.s.apply(configureCustomGameChoice, actor, input);
   if (input.operation === 'create')
     w.memo.set('custom-created-id', (await customGame(w)).id);
 }
 export async function customGame(
   w: CustomWorld,
   actor?: string
-): Promise<CustomGame> {
+): Promise<CustomGameShown> {
   const person = actor ?? customHost(w);
   await customScreen(w, person);
-  const game = (await w.s.read(readCustomGameProbe, person))?.current;
+  const game = (await w.s.read(readCustomGameScreen, person))?.current;
   if (game === null || game === undefined)
     throw new Error(`${actor} sees no game`);
   return game;
@@ -119,13 +120,10 @@ export function customPerson(w: CustomWorld, actor: string): string {
   return id;
 }
 
-export async function customScreen(
-  w: CustomWorld,
-  actor: string
-): Promise<void> {
-  if ((await w.s.read(readCustomGameProbe, actor)) !== null) return;
+async function customScreen(w: CustomWorld, actor: string): Promise<void> {
+  if ((await w.s.read(readCustomGameScreen, actor)) !== null) return;
   await w.s.apply(reopenSpaceLink, actor, String(w.memo.get('custom-link')));
-  await w.s.apply(openCustomGame, actor);
+  await w.s.apply(openCustomGames, actor, CHESS_GAME_ID);
 }
 
 export async function customDefault(

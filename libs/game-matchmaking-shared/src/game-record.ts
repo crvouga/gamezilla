@@ -15,7 +15,11 @@ type RecordFields = Pick<
   | 'white_rating'
   | 'black_rating'
 >;
-/** Each registered game owns its notation and export format. */
+/**
+ * The finished game's portable record, in its game's own format; `null`
+ * while it is unfinished. Every game offering matchmaking offers history
+ * (`TurnGameCapabilities`), so a finished matched game always has one.
+ */
 export function gameRecord(
   game: RecordFields,
   names: GameRecordNames,
@@ -27,7 +31,13 @@ export function gameRecord(
     game.outcome !== 'draw'
   )
     return null;
-  return rules.forPosition(game.fen).record(game.fen, game.pgn, {
+  const id = rules.forPosition(game.fen).id;
+  const history = rules.capability(id, 'history');
+  if (history === undefined)
+    throw new Error(
+      `${id}: a finished matched game's record needs history, yet the game offers matchmaking without it — define it with defineTurnGame, which refuses that`
+    );
+  return history.record(game.fen, game.pgn, {
     participants: [
       { name: names.white, rating: game.white_rating },
       { name: names.black, rating: game.black_rating },

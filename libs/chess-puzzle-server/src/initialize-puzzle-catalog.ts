@@ -1,4 +1,4 @@
-import { chessPuzzlesChannels } from '@libs/chess-root-shared/sync-topics';
+import { puzzleCatalogueChannels } from '@libs/game-puzzle-shared/puzzle-catalogue';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
@@ -48,7 +48,7 @@ export class InitializePuzzleCatalog {
       await notifyChannels({
         sql: this.db,
         pubsub: this.ports.pubsub,
-        topics: chessPuzzlesChannels(),
+        topics: puzzleCatalogueChannels(),
         tables: ['chess_puzzles'],
         now: this.ports.clock.now,
         label: 'initialize-puzzle-catalog',

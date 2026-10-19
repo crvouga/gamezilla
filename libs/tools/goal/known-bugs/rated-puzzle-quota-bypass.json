@@ -1,4 +1,4 @@
 {
   "summary": "ratePuzzleAttempt recorded a rated result without checking the rated-puzzle quota ledger, so a guest past the 20-a-day limit (a client that skipped or replayed past the refused consume) still got rated results recorded on the server. Fixed with requireChargedInMutation: a rated result needs a charged start unless the person has no limit. Found by the daily-puzzle-limit decision table.",
-  "regressionTest": "libs/chess-puzzle-harness/tests/rated-puzzle-quota.test.ts"
+  "regressionTest": "libs/games-harness/tests/rated-puzzle-quota.test.ts"
 }

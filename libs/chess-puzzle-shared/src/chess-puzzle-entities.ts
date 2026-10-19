@@ -1,6 +1,5 @@
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
-
-import { compareCodeUnit } from './code-unit-compare';
+import { compareCodeUnit } from './code-unit-order';
 
 /** Sync entity type for a Lichess puzzle row (static reference data). */
 export const CHESS_PUZZLE_ENTITY_TYPE = 'chess.puzzle';

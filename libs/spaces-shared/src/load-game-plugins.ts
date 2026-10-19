@@ -20,25 +20,49 @@ export function assertGameRegistry(
   }
 }
 
-/** Keep shared and client registries aligned (same ids, same order). */
+/** What the client registry checks of a turn game: its id and what it offers. */
+type RegisteredShared = {
+  readonly id: string;
+  readonly turnGame?: { readonly capabilities: { readonly puzzles?: unknown } };
+};
+
+/**
+ * Keep the client registry in step with the turn games: one client per
+ * game, the same id, the same order, and a puzzles part exactly for a game
+ * offering puzzles. Each failure says which entry to fix.
+ */
 export function assertMatchingGameIds(
-  shared: readonly { readonly id: string }[],
-  client: readonly { readonly id: string }[]
+  shared: readonly RegisteredShared[],
+  client: readonly { readonly id: string; readonly puzzles?: unknown }[]
 ): void {
-  if (shared.length !== client.length) {
-    throw new Error(
-      `game registry: shared (${shared.length}) and client (${client.length}) length mismatch`
-    );
-  }
-  for (let i = 0; i < shared.length; i += 1) {
-    const s = shared[i];
-    const c = client[i];
-    if (s === undefined || c === undefined) continue;
-    if (s.id !== c.id) {
+  const clientIds = new Set(client.map((c) => c.id));
+  const sharedIds = new Set(shared.map((s) => s.id));
+  for (const [index, game] of shared.entries())
+    if (!clientIds.has(game.id))
       throw new Error(
-        `game registry: shared id "${s.id}" does not match client id "${c.id}" at index ${i}`
+        `game registry: "${game.id}" is in GAME_DEFINITIONS but has no client — add its defineGameClient(...) value to GAME_CLIENT_DEFINITIONS at index ${String(index)}`
       );
-    }
+  for (const game of client)
+    if (!sharedIds.has(game.id))
+      throw new Error(
+        `game registry: client "${game.id}" has no turn game — register its defineTurnGame(...) value in GAME_DEFINITIONS, or give its defineGameClient the shared definition of the game it shows`
+      );
+  for (const [index, game] of shared.entries()) {
+    const shown = client[index];
+    if (shown !== undefined && shown.id !== game.id)
+      throw new Error(
+        `game registry: GAME_CLIENT_DEFINITIONS[${String(index)}] is "${shown.id}" but GAME_DEFINITIONS[${String(index)}] is "${game.id}" — list the clients in the order of GAME_DEFINITIONS`
+      );
+    if (shown === undefined) continue;
+    const offered = game.turnGame?.capabilities.puzzles !== undefined;
+    if (offered && shown.puzzles === undefined)
+      throw new Error(
+        `game registry: "${game.id}" offers puzzles but GAME_CLIENT_DEFINITIONS[${String(index)}] has no puzzles part — give its defineGameClient a puzzles part (its board), made with this definition as its shared`
+      );
+    if (!offered && shown.puzzles !== undefined)
+      throw new Error(
+        `game registry: GAME_CLIENT_DEFINITIONS[${String(index)}] ("${game.id}") has a puzzles part but GAME_DEFINITIONS[${String(index)}] offers no puzzles — register the definition its client was made with`
+      );
   }
 }
 

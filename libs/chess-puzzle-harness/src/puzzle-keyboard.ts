@@ -1,31 +1,20 @@
 /**
- * Puzzles with the keyboard alone and by listening: Tab reaches each puzzle
- * control and Enter presses it; the arrow keys walk the board and Enter
- * picks a piece up and puts it down; the puzzle's live region is what
- * someone listening to the app hears.
+ * Chess puzzles with the keyboard alone and by listening: the arrow keys
+ * walk the board and Enter picks a piece up and puts it down; chess's live
+ * region is what someone listening to the app hears of the moves. The
+ * puzzle controls with the keyboard, and the results heard, are every
+ * game's (`@libs/game-session-harness/puzzle-listening`).
  */
 
-import {
-  actorPage,
-  keyboardElement,
-  pressTab,
-  tabTo,
-} from '@libs/harness/actor-page';
-import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
+import { actorPage, keyboardElement, pressTab } from '@libs/harness/actor-page';
+import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
 import { isHiddenFromAt } from '@pkgs/a11y-shared/visibility';
 import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
 import { readPuzzleBoardProbe } from './chess-puzzle-solve-ui';
-import {
-  readPuzzleStatus,
-  settleAfterPuzzleNext,
-  waitPuzzleHintStage,
-} from './chess-puzzle-ui';
 
-const WAIT_MS = 15_000;
-const POLL_MS = 100;
 /** More arrow presses than any walk across the board takes. */
 const MAX_ARROWS = 16;
 
@@ -39,102 +28,6 @@ async function press(
   await ui.key(key);
   await s.session.waitForIdle();
 }
-
-/** Tab to the control and press Enter on it. */
-async function pressWithKeyboard(
-  s: ProductHarness,
-  actorId: string,
-  testId: string
-): Promise<void> {
-  await tabTo(s, actorId, testId);
-  await press(s, actorId, 'enter');
-}
-
-async function waitStatus(
-  s: ProductHarness,
-  actorId: string,
-  status: string
-): Promise<void> {
-  await pollUntil(
-    s,
-    async () => ((await readPuzzleStatus(s, actorId)) === status ? true : null),
-    { maxMs: WAIT_MS, stepMs: POLL_MS, description: `puzzle ${status}` }
-  );
-}
-
-async function visible(
-  s: ProductHarness,
-  actorId: string,
-  testId: string
-): Promise<boolean> {
-  return (await actorUi(s, actorId)).get(testId).isVisible();
-}
-
-export type PuzzleKeyboardControl =
-  | 'hint'
-  | 'retry'
-  | 'solution'
-  | 'skip'
-  | 'next';
-
-async function showSolutionWithKeyboard(
-  s: ProductHarness,
-  actorId: string
-): Promise<void> {
-  // After a wrong move the bar has its own Solution action; while solving
-  // the one hint button escalates Hint → Solution → the whole line.
-  if (await visible(s, actorId, Handles.chessPuzzleActionSolution)) {
-    await pressWithKeyboard(s, actorId, Handles.chessPuzzleActionSolution);
-  } else {
-    for (let presses = 0; presses < 3; presses += 1) {
-      if ((await readPuzzleStatus(s, actorId)) === 'revealed') break;
-      await pressWithKeyboard(s, actorId, Handles.chessPuzzleActionHint);
-    }
-  }
-  await waitStatus(s, actorId, 'revealed');
-}
-
-async function retryWithKeyboard(
-  s: ProductHarness,
-  actorId: string
-): Promise<void> {
-  if (await visible(s, actorId, Handles.chessPuzzleSummary)) {
-    await pressWithKeyboard(s, actorId, Handles.chessPuzzleSummaryClose);
-  }
-  await pressWithKeyboard(s, actorId, Handles.chessPuzzleActionRetry);
-  await waitStatus(s, actorId, 'solving');
-}
-
-async function nextWithKeyboard(
-  s: ProductHarness,
-  actorId: string
-): Promise<void> {
-  const next = (await visible(s, actorId, Handles.chessPuzzleSummaryNext))
-    ? Handles.chessPuzzleSummaryNext
-    : Handles.chessPuzzleActionNext;
-  await pressWithKeyboard(s, actorId, next);
-  await settleAfterPuzzleNext(s, actorId);
-}
-
-/** Use one puzzle control with the keyboard alone. */
-export const usePuzzleControlWithKeyboard = scenarioAction({
-  name: 'usePuzzleControlWithKeyboard',
-  act: async (s, actorId: string, control: PuzzleKeyboardControl) => {
-    if (control === 'hint') {
-      await pressWithKeyboard(s, actorId, Handles.chessPuzzleActionHint);
-      await waitPuzzleHintStage(s, actorId, 'highlight');
-    } else if (control === 'skip') {
-      await pressWithKeyboard(s, actorId, Handles.chessPuzzleActionSkip);
-      await waitStatus(s, actorId, 'skipped');
-    } else if (control === 'solution') {
-      await showSolutionWithKeyboard(s, actorId);
-    } else if (control === 'retry') {
-      await retryWithKeyboard(s, actorId);
-    } else {
-      await nextWithKeyboard(s, actorId);
-    }
-  },
-});
 
 // ------------------------------------------------------------- the board
 

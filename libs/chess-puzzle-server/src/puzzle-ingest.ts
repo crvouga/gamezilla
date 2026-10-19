@@ -7,7 +7,7 @@
 import { validatePuzzleRecord } from '@libs/chess-puzzle-shared/puzzle-records';
 import type { PuzzleRejectionReason } from '@libs/chess-puzzle-shared/puzzle-validation';
 import { PUZZLE_REJECTION_REASONS } from '@libs/chess-puzzle-shared/puzzle-validation';
-import type { PuzzleTableRow } from './row';
+import type { CatalogueRow } from '@libs/game-puzzle-shared/puzzle-catalogue';
 import { puzzleTableRowOf } from './row';
 
 export const PUZZLE_DUPLICATE_REASONS = [
@@ -31,7 +31,7 @@ export type ExistingPuzzleKey = {
 };
 
 export type PuzzleBatchPartition = {
-  readonly novel: readonly PuzzleTableRow[];
+  readonly novel: readonly CatalogueRow[];
   readonly duplicateId: number;
   readonly duplicatePosition: number;
 };
@@ -42,7 +42,7 @@ export type PuzzleBatchPartition = {
  * same source is not a content duplicate).
  */
 export function partitionPuzzleBatch(
-  rows: readonly PuzzleTableRow[],
+  rows: readonly CatalogueRow[],
   existing: readonly ExistingPuzzleKey[]
 ): PuzzleBatchPartition {
   const ids = new Set(existing.map((row) => row.id));
@@ -51,7 +51,7 @@ export function partitionPuzzleBatch(
       row.position_key === null ? [] : [row.position_key]
     )
   );
-  const novel: PuzzleTableRow[] = [];
+  const novel: CatalogueRow[] = [];
   let duplicateId = 0;
   let duplicatePosition = 0;
   for (const row of rows) {
@@ -77,7 +77,7 @@ export class PuzzleIngestTally {
   readonly #skipped = new Map<PuzzleSkipReason, number>();
 
   /** Validates one CSV / stored record; the table row, or null when rejected. */
-  accept(record: Readonly<Record<string, unknown>>): PuzzleTableRow | null {
+  accept(record: Readonly<Record<string, unknown>>): CatalogueRow | null {
     const result = validatePuzzleRecord(record);
     if (!result.ok) {
       this.#skip(result.reason, 1);

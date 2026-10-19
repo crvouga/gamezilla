@@ -1,4 +1,3 @@
-import { readCustomGameTime } from '@libs/chess-custom-game-harness/custom-game-clocks';
 import {
   CUSTOM_GAME_BEFORE_CASTLING,
   CUSTOM_GAME_BEFORE_EN_PASSANT,
@@ -9,14 +8,15 @@ import {
   CUSTOM_GAME_MATERIAL,
   CUSTOM_GAME_REPETITION,
   CUSTOM_GAME_STALEMATE,
-} from '@libs/chess-custom-game-harness/custom-game-histories';
-import { playCustomGameHistory } from '@libs/chess-custom-game-harness/custom-game-history';
-import { customGameTimeLeft } from '@libs/game-session-shared/custom-game-state';
+} from '@libs/chess-root-harness/custom-game-histories';
+import { playCustomGameHistory } from '@libs/game-session-harness/custom-game-history';
+import { customGameTimeLeftMs } from '@libs/game-session-harness/custom-game-screen';
 import { Given } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
   customFact,
   customGame,
+  customHost,
   customHumans,
   customPeople,
   customStart,
@@ -50,14 +50,6 @@ async function historicalGame(
 }
 
 Given(
-  "{actor} has an active Custom Game after White's e4",
-  async (w, host: string) => historicalGame(w, host, ['e2e4'])
-);
-Given(
-  "{actor} has an active Custom Game after White's e4 and Black's e5",
-  async (w, host: string) => historicalGame(w, host, ['e2e4', 'e7e5'])
-);
-Given(
   '{actor} has an active Custom Game one move before White promotes on e8',
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_BEFORE_PROMOTION)
@@ -78,21 +70,9 @@ Given(
     historicalGame(w, host, CUSTOM_GAME_CASTLING_THROUGH_CHECK)
 );
 Given(
-  "{actor} has a completed Custom Game after White's e4",
-  async (w, host: string) => {
-    await historicalGame(w, host, ['e2e4']);
-    await customFact(w, host, { operation: 'resign' });
-    w.memo.set('custom-completed', await customGame(w));
-  }
-);
-Given(
   "{actor} has an active Custom Game one move before Black's checkmate",
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_FOOLS_MATE.slice(0, 3))
-);
-Given(
-  "{actor} has a Custom Game completed by Black's checkmate",
-  async (w, host: string) => historicalGame(w, host, CUSTOM_GAME_FOOLS_MATE)
 );
 Given(
   '{actor} has a Custom Game one move before the third repetition',
@@ -125,20 +105,6 @@ Given(
     historicalGame(w, host, CUSTOM_GAME_FIFTY.slice(0, 98))
 );
 Given(
-  "{actor} has an active Custom Game with a queen against {actor}'s bare king",
-  async (w, host: string, black: string) => {
-    await customHumans(w, { host, white: host, black, active: true });
-    await history(w, CUSTOM_GAME_MATERIAL.slice(0, 52));
-  }
-);
-Given(
-  "{actor} hosts an active Custom Game with {actor}'s queen against {actor}'s bare king",
-  async (w, host: string, white: string, black: string) => {
-    await customHumans(w, { host, white, black, active: true });
-    await history(w, CUSTOM_GAME_MATERIAL.slice(0, 52));
-  }
-);
-Given(
   "{actor} has a timed Custom Game with a queen against {actor}'s bare king",
   async (w, host: string, black: string) => {
     await customHumans(w, { host, white: host, black });
@@ -151,10 +117,9 @@ Given(
   '{word} has one second left in the Custom Game',
   async (w, side: string) => {
     if (side === 'Black') await history(w, ['h6f6']);
-    const game = await customGame(w);
+    await customGame(w);
     await w.s.advanceTime(
-      customGameTimeLeft(game, game.turn, await w.s.read(readCustomGameTime)) -
-        1000
+      (await w.s.read(customGameTimeLeftMs, customHost(w))) - 1000
     );
   }
 );

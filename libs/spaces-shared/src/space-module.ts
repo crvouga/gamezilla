@@ -21,6 +21,7 @@ import {
   counterEvtNs,
 } from './counter';
 import type { GameCommandContext, GameDefinition } from './game';
+import { mergeGameRouterEntries } from './game';
 import { gameModules } from './game-modules';
 import {
   createGamesCommandRouter,
@@ -96,12 +97,11 @@ function buildCommandRouter(
     { namespace: spaceQuietCmdNs, router: spaceQuietCommandRouter },
     { namespace: counterCmdNs, router: counterCommandRouter },
     { namespace: gamesCmdNs, router: createGamesCommandRouter(games) },
-    ...modules.flatMap((game) => [...game.commandRouters]),
+    ...mergeGameRouterEntries(modules.flatMap((game) => game.commandRouters)),
   ]);
 }
 
 function buildEventReducer(
-  games: readonly GameDefinition[],
   now: () => number,
   modules: readonly GameDefinition[]
 ) {
@@ -114,8 +114,8 @@ function buildEventReducer(
       router: createSpaceMembersEventReducer(now),
     },
     { namespace: counterEvtNs, router: counterEventReducer },
-    { namespace: gamesEvtNs, router: createGamesEventReducer(games) },
-    ...modules.flatMap((game) => [...game.eventRouters]),
+    { namespace: gamesEvtNs, router: createGamesEventReducer() },
+    ...mergeGameRouterEntries(modules.flatMap((game) => game.eventRouters)),
   ]);
 }
 
@@ -180,7 +180,7 @@ export function createSpaceModule(
   assertUniqueGameIds(definitions);
   const games = gameModules(definitions);
   const commandRouter = buildCommandRouter(definitions, games);
-  const eventReducer = buildEventReducer(definitions, now, games);
+  const eventReducer = buildEventReducer(now, games);
   const reduce = (state: RoomState, event: Message): RoomState =>
     eventReducer.dispatch(state, undefined, event, (s) => s);
 

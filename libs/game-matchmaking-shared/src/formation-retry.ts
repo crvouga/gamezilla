@@ -1,10 +1,17 @@
 import { insertOutboxEvent } from '@pkgs/outbox-shared/outbox';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
+import { GAME_PLATFORM_NAMESPACE } from './durable-names';
 import { OpponentRequested } from './opponent-requested';
 
 /** How soon a pool with people still waiting is paired again. */
 export const FORMATION_RETRY_MS = 5_000;
+
+/**
+ * Every formation retry's outbox id starts with this, in the platform's
+ * durable namespace, followed by the retry's slot.
+ */
+export const FORMATION_RETRY_EVENT_PREFIX = `${GAME_PLATFORM_NAMESPACE}.opponent-requested:retry:`;
 
 /**
  * Ranges grow while people wait, so a pool that still has waiting people
@@ -23,7 +30,7 @@ export async function scheduleFormationRetry(
   if (first === undefined) return;
   const at = nowMs + FORMATION_RETRY_MS;
   await insertOutboxEvent(tx, {
-    id: `chess.opponent-requested:retry:${String(Math.floor(at / FORMATION_RETRY_MS))}`,
+    id: `${FORMATION_RETRY_EVENT_PREFIX}${String(Math.floor(at / FORMATION_RETRY_MS))}`,
     message: OpponentRequested({ ownerId: first.owner_id }),
     nowIso: new Date(nowMs).toISOString(),
     availableAt: new Date(at),

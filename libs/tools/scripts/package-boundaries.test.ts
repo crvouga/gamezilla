@@ -4,6 +4,9 @@ import {
   categoryViolations,
   familyMayDependOn,
   familyOf,
+  gameApiViolations,
+  gameIdentityViolations,
+  gameViolations,
 } from './package-boundaries';
 
 const lib = { tier: 'libs', hasSrc: true, sources: [] };
@@ -230,4 +233,216 @@ test('Hono RPC contracts cross the client boundary through erased types only', (
       }
     )
   ).toEqual([]);
+});
+
+describe('game isolation', () => {
+  const workspace = new Map([
+    [
+      '@libs/chess-rules-shared',
+      { name: '@libs/chess-rules-shared', game: 'chess' },
+    ],
+    ['@libs/race-shared', { name: '@libs/race-shared', game: 'race' }],
+    ['@libs/game-session-shared', { name: '@libs/game-session-shared' }],
+    ['@libs/games-shared', { name: '@libs/games-shared', gameRegistry: true }],
+  ]);
+  test('a game may use the shared platform and its own packages', () => {
+    expect(
+      gameViolations(
+        {
+          name: '@libs/race-client',
+          game: 'race',
+          dependencies: {
+            '@libs/race-shared': 'workspace:*',
+            '@libs/game-session-shared': 'workspace:*',
+          },
+        },
+        workspace
+      )
+    ).toEqual([]);
+  });
+  test('a game never depends on another game', () => {
+    expect(
+      gameViolations(
+        {
+          name: '@libs/race-client',
+          game: 'race',
+          dependencies: { '@libs/chess-rules-shared': 'workspace:*' },
+        },
+        workspace
+      )
+    ).toHaveLength(1);
+  });
+  test('only a game registry composes concrete games', () => {
+    const platform = {
+      name: '@libs/game-session-client',
+      devDependencies: { '@libs/race-shared': 'workspace:*' },
+    };
+    expect(gameViolations(platform, workspace)).toHaveLength(1);
+    expect(
+      gameViolations({ ...platform, gameRegistry: true }, workspace)
+    ).toEqual([]);
+  });
+  test('depending on a registry composes every game, so only a registry may', () => {
+    const catalog = {
+      name: '@libs/game-catalog-shared',
+      dependencies: { '@libs/games-shared': 'workspace:*' },
+    };
+    expect(gameViolations(catalog, workspace)).toHaveLength(1);
+    expect(
+      gameViolations({ ...catalog, gameRegistry: true }, workspace)
+    ).toEqual([]);
+  });
+  test('a game never reaches its siblings through a registry', () => {
+    expect(
+      gameViolations(
+        {
+          name: '@libs/race-harness',
+          game: 'race',
+          devDependencies: { '@libs/games-shared': 'workspace:*' },
+        },
+        workspace
+      )
+    ).toHaveLength(1);
+    expect(
+      gameViolations(
+        { name: '@libs/race-harness', game: 'race', gameRegistry: true },
+        workspace
+      )
+    ).toHaveLength(1);
+  });
+  test('a package named for a game declares it', () => {
+    expect(gameViolations({ name: '@libs/race-harness' }, workspace)).toEqual([
+      '@libs/race-harness is named for the game race; declare "game": "race"',
+    ]);
+  });
+});
+
+describe('the game API', () => {
+  const workspace = new Map([
+    [
+      '@libs/game-session-shared',
+      {
+        name: '@libs/game-session-shared',
+        gameApi: ['turn-game-definition'],
+      },
+    ],
+    [
+      '@libs/game-session-server',
+      { name: '@libs/game-session-server', gameApi: [] },
+    ],
+    ['@libs/race-shared', { name: '@libs/race-shared', game: 'race' }],
+    ['@pkgs/sql-root-shared', { name: '@pkgs/sql-root-shared' }],
+  ]);
+  const race = { name: '@libs/race-harness', game: 'race' };
+  const imports = (text: string, manifest: object = race) =>
+    gameApiViolations(manifest, {
+      workspace,
+      modules: new Set(),
+      sources: [{ path: 'tests/race.test.ts', text }],
+    });
+
+  test('a game imports the framework through its public modules', () => {
+    expect(
+      imports(
+        [
+          "import { defineTurnGame } from '@libs/game-session-shared/turn-game-definition';",
+          "import { raceRules } from '@libs/race-shared/race-rules';",
+          "import sql from '@pkgs/sql-root-shared/sql';",
+        ].join('\n')
+      )
+    ).toEqual([]);
+  });
+
+  test('a game never imports a framework internal, in source, tests or types', () => {
+    for (const text of [
+      "import { newCustomGame } from '@libs/game-session-shared/custom-game-state';",
+      "import type { CustomGame } from '@libs/game-session-shared/custom-game-state';",
+      "export { newCustomGame } from '@libs/game-session-shared/custom-game-state';",
+      "const state = await import('@libs/game-session-shared/custom-game-state');",
+    ])
+      expect(imports(text)).toEqual([
+        "tests/race.test.ts: imports @libs/game-session-shared/custom-game-state, which is @libs/game-session-shared's own implementation, not its game API (turn-game-definition). A game depends on what the framework promises: use a public module, add a focused read, action or fixture helper to one, or move a test of the framework's own behaviour into the framework",
+      ]);
+  });
+
+  test('a framework package offering games nothing refuses every import', () => {
+    expect(
+      imports(
+        "import { createGameSessionServer } from '@libs/game-session-server/sub-server';"
+      )
+    ).toEqual([
+      "tests/race.test.ts: imports @libs/game-session-server/sub-server, which is @libs/game-session-server's own implementation, not its game API (it offers games none). A game depends on what the framework promises: use a public module, add a focused read, action or fixture helper to one, or move a test of the framework's own behaviour into the framework",
+    ]);
+  });
+
+  test('the framework itself may use its own internals', () => {
+    expect(
+      imports(
+        "import { newCustomGame } from '@libs/game-session-shared/custom-game-state';",
+        { name: '@libs/games-harness', gameRegistry: true }
+      )
+    ).toEqual([]);
+  });
+
+  test('a framework package lists only modules it has and is never a game', () => {
+    expect(
+      gameApiViolations(
+        { name: '@libs/game-menu-client', gameApi: ['game-client', 'gone'] },
+        { workspace, modules: new Set(['game-client']), sources: [] }
+      )
+    ).toEqual([
+      'gameApi lists "gone", which @libs/game-menu-client does not have (src/gone.ts): list only modules a game may import',
+    ]);
+    expect(
+      gameApiViolations(
+        { name: '@libs/race-shared', game: 'race', gameApi: [] },
+        { workspace, modules: new Set(), sources: [] }
+      )
+    ).toEqual([
+      '@libs/race-shared is a game of race and declares a game API: only framework packages offer one',
+    ]);
+  });
+});
+
+describe('game identity', () => {
+  const gameIds = new Set(['chess', 'race']);
+  const scan = (
+    text: string,
+    manifest = { name: '@libs/game-session-shared' }
+  ) =>
+    gameIdentityViolations(manifest, {
+      gameIds,
+      sources: [{ path: 'src/a.ts', text }],
+    });
+  test('platform code never spells a game id', () => {
+    expect(scan("if (game.id === 'race') return null;")).toEqual([
+      "src/a.ts:1 spells the game 'race': platform code receives games through the registry's ports and never names one",
+    ]);
+    expect(scan('const name = `chess`;')).toHaveLength(1);
+  });
+  test('comments, longer names and the marked durable name are allowed', () => {
+    expect(
+      scan(
+        [
+          "// a game such as 'chess'",
+          "const table = 'chess_multiplayer_games';",
+          "export const NAMESPACE = 'chess'; // @durable-name",
+        ].join('\n')
+      )
+    ).toEqual([]);
+  });
+  test('a game and a registry may name games', () => {
+    expect(
+      scan("const id = 'chess';", {
+        name: '@libs/chess-rules-shared',
+        game: 'chess',
+      } as never)
+    ).toEqual([]);
+    expect(
+      scan("const id = 'race';", {
+        name: '@libs/games-shared',
+        gameRegistry: true,
+      } as never)
+    ).toEqual([]);
+  });
 });

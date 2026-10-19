@@ -1,4 +1,4 @@
 {
   "summary": "Editing the puzzle feed wrote each preview directly to synced account settings, so closing without saving retained an unconfirmed offset. Keep a local draft and persist it only on save; pool previews use the draft.",
-  "regressionTest": "specs/chess/puzzle-feed.feature"
+  "regressionTest": "specs/games/puzzle-feed.feature"
 }

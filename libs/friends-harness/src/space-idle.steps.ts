@@ -56,7 +56,8 @@ async function ensureOtherDevice(w: HarnessWorld, actor: Actor): Promise<void> {
   await w.s.apply(returnToTabs, device);
 }
 
-async function putOtherDeviceInSpace(
+/** Put `actor`'s other device, signed in to their account, in their space. */
+export async function putOtherDeviceInSpace(
   w: HarnessWorld,
   actor: Actor
 ): Promise<void> {

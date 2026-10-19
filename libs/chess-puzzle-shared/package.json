@@ -16,33 +16,30 @@
   },
   "dependencies": {
     "@libs/chess-root-shared": "workspace:*",
-    "@libs/observability-shared": "workspace:*",
+    "@libs/chess-rules-shared": "workspace:*",
+    "@libs/game-puzzle-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
     "@pkgs/attribute-shared": "workspace:*",
     "@pkgs/chess-board-core-shared": "workspace:*",
     "@pkgs/chess-rules-shared": "workspace:*",
-    "@pkgs/clock-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
-    "@pkgs/glicko2-shared": "workspace:*",
     "@pkgs/message-shared": "workspace:*",
-    "@pkgs/observability-root-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
     "@pkgs/room-root-shared": "workspace:*",
-    "@pkgs/sql-client-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
-    "@pkgs/uuid-shared": "workspace:*",
+    "@pkgs/turn-game-shared": "workspace:*",
     "chess.js": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/property-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "isomorphic"
+  "category": "isomorphic",
+  "game": "chess"
 }

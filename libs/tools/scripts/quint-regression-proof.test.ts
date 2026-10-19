@@ -2,9 +2,9 @@ import { describe, expect, test } from 'bun:test';
 import { validateGoalGate } from '../goal/goal-manifest';
 
 const bindingPath =
-  'libs/chess-root-harness/tests/quint/custom-game-play.binding.ts';
+  'libs/games-harness/tests/quint/custom-game-play.binding.ts';
 const fixturePath =
-  'libs/chess-root-harness/tests/quint/fixtures/partition.itf.json';
+  'libs/games-harness/tests/quint/fixtures/partition.itf.json';
 const binding = `
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import trace from './fixtures/partition.itf.json';
@@ -48,6 +48,20 @@ describe('canonical Quint regression proof', () => {
   test('a registered literal history guards the concrete failing input', () => {
     // regression: known-bug-gate-rejects-pinned-quint
     expect(gate(binding)).toEqual([]);
+  });
+  test('shorthand actions register under their own names', () => {
+    // regression: known-bug-gate-rejects-shorthand-quint-actions
+    const shorthand = binding.replace(
+      'actions: { init: setup, _loseConnection: partition }',
+      'actions: { init: setup, _loseConnection }'
+    );
+    expect(gate(shorthand)).toEqual([]);
+    expect(
+      gate(shorthand.replace('_loseConnection }', 'partition }'))
+    ).not.toEqual([]);
+    expect(
+      gate(shorthand.replace('_loseConnection }', '...partition }'))
+    ).not.toEqual([]);
   });
   test('a marker alone is not a registered regression', () => {
     expect(gate('// regression: partition-spends-time')).not.toEqual([]);

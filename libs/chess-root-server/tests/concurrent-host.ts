@@ -1,6 +1,6 @@
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import { uniqueTables } from '@libs/permissions-shared/world';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
@@ -63,7 +63,13 @@ export async function openConcurrentHost(driver: ConcurrentDriver) {
     await reconcilePostgresSchema(admin, syncEngineServerSchema, dbScope);
     await reconcilePostgresSchema(
       admin,
-      registerTables(uniqueTables([...BILLING_TABLES, ...CHESS_TABLES])),
+      registerTables(
+        uniqueTables([
+          ...BILLING_TABLES,
+          ...GAME_PUZZLE_SUB.tables,
+          ...CHESS_TABLES,
+        ])
+      ),
       dbScope
     );
     await db.run(sql`
@@ -81,7 +87,7 @@ export async function openConcurrentHost(driver: ConcurrentDriver) {
       }),
       getSql: () => overlap,
       queries: {},
-      mutations: mutationRegistry([ratePuzzleAttemptMutation]),
+      mutations: mutationRegistry([...(await GAME_PUZZLE_SUB.mutations())]),
       now: () => Date.parse(AT),
       createId: () => `server-${++id}`,
     });

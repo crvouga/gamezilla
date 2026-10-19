@@ -1,51 +1,24 @@
-import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy-harness/account-privacy-harness-slice';
-import { BILLING_HARNESS_SLICE } from '@libs/billing-harness/billing-harness-slice';
-import { chessGameClient } from '@libs/chess-root-client/chess-game-def';
-import { CHESS_HARNESS_SLICE } from '@libs/chess-root-harness/chess-harness-slice';
-import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
-import { connectFourGameClient } from '@libs/connect-four-root-client/connect-four-game-def';
-import { connectFourGameShared } from '@libs/connect-four-shared/connect-four-game';
-import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-slice';
-import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
-import { createGameSessionServer } from '@libs/game-session-server/sub-server';
-import { createGameSessionSub } from '@libs/game-session-shared/sub';
-import { defineProductSystem } from '@libs/harness/define-product-system';
+import { gameSystem } from '@libs/game-session-harness/game-system';
+import { HARNESS_GAMES } from '@libs/games-harness/harness-games';
 import type { OpenHarnessOptions } from '@libs/harness/mode';
 import { openHarness as openSystemHarness } from '@libs/harness/open-harness';
-import { composeHarnessSlices } from '@libs/harness/slices';
-import { NOTIFICATIONS_HARNESS_SLICE } from '@libs/notifications-harness/notifications-harness-slice';
-import { PROFILE_HARNESS_SLICE } from '@libs/profile-harness/profile-harness-slice';
-import { SEARCH_HARNESS_SLICE } from '@libs/search-harness/search-harness-slice';
-import { spacesHarnessSlice } from '@libs/spaces-harness/spaces-harness-slice';
 import { SYNTHETIC_POPULATION_HARNESS_SLICE } from '@libs/synthetic-population-harness/synthetic-population-harness-slice';
 
-const SYNTHETIC_POPULATION_SYSTEM = defineProductSystem(
-  composeHarnessSlices('synthetic-population', [
-    ACCOUNT_PRIVACY_HARNESS_SLICE,
-    PROFILE_HARNESS_SLICE,
-    BILLING_HARNESS_SLICE,
-    spacesHarnessSlice({
-      games: [chessGameShared, connectFourGameShared],
-      clients: [chessGameClient, connectFourGameClient],
-    }),
-    FRIENDS_HARNESS_SLICE,
-    NOTIFICATIONS_HARNESS_SLICE,
-    SEARCH_HARNESS_SLICE,
-    CHESS_HARNESS_SLICE,
-    {
-      name: 'game-session',
-      sub: createGameSessionSub(TURN_GAMES.games),
-      server: (deps) => createGameSessionServer(deps.rooms, TURN_GAMES),
-    },
-    SYNTHETIC_POPULATION_HARNESS_SLICE,
-  ]),
+/** Synthetic users play every registered game, as production offers them. */
+const SYNTHETIC_POPULATION_SYSTEM = gameSystem(
+  'synthetic-population',
+  HARNESS_GAMES,
   {
-    secretValues: {
-      POPULATION_WORKER_TOKEN:
-        'synthetic-population-spec-worker-token-0123456789abcdef',
+    beside: [SYNTHETIC_POPULATION_HARNESS_SLICE],
+    product: {
+      secretValues: {
+        POPULATION_WORKER_TOKEN:
+          'synthetic-population-spec-worker-token-0123456789abcdef',
+      },
     },
   }
 );
+
 export function openHarness(testId: string, options?: OpenHarnessOptions) {
   return openSystemHarness(SYNTHETIC_POPULATION_SYSTEM, testId, options);
 }

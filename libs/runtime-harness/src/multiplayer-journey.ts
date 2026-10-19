@@ -1,3 +1,4 @@
+import { TURN_GAMES } from '@libs/game-catalog-shared/turn-games';
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import {
   atTabShell,
@@ -13,21 +14,33 @@ import {
 } from './multiplayer-search-recovery';
 import { chooseMultiplayerTimeControl } from './multiplayer-time-control-gesture';
 
+/** The device shows a matched game of a registered game other than chess. */
+async function showsAnotherGame(ui: Driver): Promise<boolean> {
+  if (!(await ui.get('multiplayer-game').isVisible())) return false;
+  const position = await ui.get('multiplayer-game').attribute('data-fen');
+  return TURN_GAMES.games.some(
+    (game) =>
+      game.rules.id !== 'chess' &&
+      position !== null &&
+      game.rules.recognizes(position)
+  );
+}
+
 export async function openMultiplayerJourney(ui: Driver): Promise<void> {
   // A parked device reads as blank until its chrome is in front. Deciding
   // from that blank read hosts a new space and waits for a control the open
   // game does not have.
   await atTabShell(ui);
   if (
-    (await ui.get('connect-four-board').isVisible()) ||
-    (!(await ui.get('chess-menu-multiplayer').isVisible()) &&
+    (await showsAnotherGame(ui)) ||
+    (!(await ui.get('game-choice-multiplayer').isVisible()) &&
       !(await ui.get('multiplayer-game').isVisible()))
   ) {
     await hostSpace(ui);
     await tap(ui, 'game-menu-chess');
   }
-  if (await ui.get('chess-menu-multiplayer').isVisible())
-    await tap(ui, 'chess-menu-multiplayer');
+  if (await ui.get('game-choice-multiplayer').isVisible())
+    await tap(ui, 'game-choice-multiplayer');
 }
 
 const SURFACE_POLLS = 10;

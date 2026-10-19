@@ -1,11 +1,13 @@
 import type { GameRules } from './game-rules';
 
-/** A game's ordinary controls and legal decisions, independent of the UI driver. */
+/**
+ * A game's legal decisions and its board gesture, independent of the UI
+ * driver. Where the game is chosen and which board it is played on are the
+ * platform's controls; the game only says how one action is performed there.
+ */
 export type GameAutomation<Ui> = {
   readonly rules: GameRules;
-  readonly selectControl: string;
-  readonly multiplayerControl: string;
-  readonly boardControl: string;
   readonly choose: (position: string, random: () => number) => string | null;
-  readonly perform: (ui: Ui, action: string) => Promise<void>;
+  /** Perform `action` on the game's board identified by `board`. */
+  readonly perform: (ui: Ui, board: string, action: string) => Promise<void>;
 };

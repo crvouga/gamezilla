@@ -10,9 +10,12 @@ import { MultiplayerLinkScreen } from './multiplayer-link-screen';
 
 function RegisteredGameLink(props: { rules: TurnGames }): JSX.Element {
   const params = useLocalSearchParams<{ gameId?: string }>();
-  const gameId = () =>
-    props.rules.games.find((game) => game.rules.id === params().gameId)?.rules
-      .id;
+  const gameId = () => {
+    const id = params().gameId;
+    return id !== undefined && props.rules.offers(id, 'matchmaking')
+      ? id
+      : undefined;
+  };
   return (
     <Show
       when={gameId()}
@@ -27,7 +30,7 @@ function RegisteredGameLink(props: { rules: TurnGames }): JSX.Element {
     </Show>
   );
 }
-/** One route keeps existing game links stable and admits only registered games. */
+/** One route keeps existing game links stable and admits only games offering matchmaking. */
 export function createMultiplayerLinkClient(rules: TurnGames) {
   return defineSubClient({
     name: 'multiplayer-link',

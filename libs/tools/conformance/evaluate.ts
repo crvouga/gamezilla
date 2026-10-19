@@ -7,6 +7,12 @@
  * and a spec with none is missing — both fail. Fresh records of one spec from
  * several report buckets are merged; when two disagree on one obligation the
  * failure wins, since nothing records which ran last.
+ *
+ * A spec its host runs once per variant (a shared game specification, once
+ * per game) is held to a verdict of its own for every variant the host
+ * declared it needs (`variant-evidence.ts`): one variant's verdict never
+ * decides another's, and a variant verdict without a declaration decides
+ * nothing.
  */
 
 import type {
@@ -15,9 +21,17 @@ import type {
   Obligation,
   SpecKind,
 } from '@pkgs/conformance-shared/evidence';
+import type { SpecVariants } from '@pkgs/conformance-shared/variants';
 
 import type { EvidenceRule, LineId, Rule } from './lines';
 import { LINES, SERVER_AGREEMENT } from './lines';
+import type { VariantCell, VariantEvidence } from './variant-evidence';
+import {
+  key,
+  variantCells,
+  variantLayer,
+  variantProblems,
+} from './variant-evidence';
 
 export type ReportSpec = {
   readonly path: string;
@@ -45,6 +59,8 @@ export type ReportInput = {
   readonly records: readonly EvidenceRecord[];
   /** Evidence files that did not parse. */
   readonly malformed: readonly string[];
+  /** Spec path → the variants its host declared it needs, for a varied spec. */
+  readonly variants: ReadonlyMap<string, SpecVariants>;
   /** What `@libs/tools#ci:conformance` finds wrong (empty: the world is closed). */
   readonly closure: readonly string[];
   readonly capabilities: readonly {
@@ -67,13 +83,11 @@ export type LineResult = {
   readonly problems: readonly string[];
 };
 
-type SpecEvidence = {
+type SpecEvidence = VariantEvidence & {
   /** `<layer>\n<id>` → the merged obligation; null when nothing is fresh. */
   readonly fresh: ReadonlyMap<string, Obligation> | null;
   readonly stale: number;
 };
-
-const key = (layer: Layer, id: string): string => `${layer}\n${id}`;
 
 function merge(into: Map<string, Obligation>, obligation: Obligation): void {
   const k = key(obligation.layer, obligation.id);
@@ -92,21 +106,41 @@ export function indexEvidence(
   for (const spec of specs) {
     let fresh: Map<string, Obligation> | null = null;
     let stale = 0;
+    const staleIds = new Set<string>();
     for (const record of records) {
       if (record.specUri !== spec.path) continue;
       if (record.specSha256 !== spec.sha256) {
         stale++;
+        for (const o of record.obligations) staleIds.add(key(o.layer, o.id));
         continue;
       }
       fresh ??= new Map();
       for (const obligation of record.obligations) merge(fresh, obligation);
     }
-    out.set(spec.path, { fresh, stale });
+    out.set(spec.path, { fresh, stale, staleIds });
   }
   return out;
 }
 
 type Index = ReadonlyMap<string, SpecEvidence>;
+
+/**
+ * Why scenario `name` of an unvaried spec is undecided, or null when it has
+ * its verdict. Verdicts per variant decide it only through the variants its
+ * host declared (`variant-evidence.ts`), never on their own.
+ */
+function undecided(
+  path: string,
+  fresh: ReadonlyMap<string, Obligation>,
+  layer: Layer,
+  name: string
+): string | null {
+  if (fresh.has(key(layer, `scenario:${name}`))) return null;
+  const variant = key(layer, `scenario:${name} [`);
+  return [...fresh.keys()].some((id) => id.startsWith(variant))
+    ? `${path}: not run — scenario "${name}" ran per variant, but its host declared no variant it needs`
+    : `${path}: not run — scenario "${name}" has no ${layer} verdict`;
+}
 
 function absent(path: string, evidence: SpecEvidence | undefined): string {
   return (evidence?.stale ?? 0) > 0
@@ -136,10 +170,62 @@ function selects(rule: EvidenceRule, spec: ReportSpec): boolean {
   return true;
 }
 
+/** The spec's per-variant problems for `rule`, or null when it runs once. */
+function variedProblems(
+  rule: EvidenceRule,
+  spec: ReportSpec,
+  index: Index,
+  requirement: SpecVariants | undefined
+): readonly string[] | null {
+  if (requirement === undefined || variantLayer(spec.kind) !== rule.layer)
+    return null;
+  if (spec.kind === 'behavior' && rule.everyScenario !== true) return null;
+  return variantProblems({
+    path: spec.path,
+    layer: rule.layer,
+    scenarios: spec.kind === 'behavior' ? spec.scenarios : null,
+    evidence: index.get(spec.path),
+    requirement,
+  });
+}
+
+/**
+ * What the spec's evidence leaves undecided: a varied spec's cells, or every
+ * scenario of an unvaried feature.
+ */
+/** An obligation recorded for one variant (`trace:3 [chess]`). */
+const VARIANT_TAG = / \[[^\]]+\]$/;
+
+function coverageProblems(
+  rule: EvidenceRule,
+  spec: ReportSpec,
+  index: Index,
+  variants: ReportInput['variants']
+): readonly string[] {
+  const varied = variedProblems(rule, spec, index, variants.get(spec.path));
+  if (varied !== null) return varied;
+  const fresh = index.get(spec.path)?.fresh;
+  if (fresh == null) return [];
+  if (spec.kind === 'dynamics' && variantLayer(spec.kind) === rule.layer)
+    return [...fresh.values()].some(
+      (o) => o.layer === rule.layer && VARIANT_TAG.test(o.id)
+    )
+      ? [
+          `${spec.path}: not run — it ran per variant, but its host declared no variant it needs`,
+        ]
+      : [];
+  if (rule.everyScenario !== true) return [];
+  return spec.scenarios.flatMap((name) => {
+    const why = undecided(spec.path, fresh, rule.layer, name);
+    return why === null ? [] : [why];
+  });
+}
+
 function specProblems(
   rule: EvidenceRule,
   spec: ReportSpec,
-  index: Index
+  index: Index,
+  variants: ReportInput['variants']
 ): readonly string[] {
   const evidence = index.get(spec.path);
   if (evidence?.fresh == null) return [absent(spec.path, evidence)];
@@ -155,15 +241,7 @@ function specProblems(
         : ` matching ${String(rule.obligation)}`;
     out.push(`${spec.path}: not run — no ${rule.layer} obligation${which}`);
   }
-  if (rule.everyScenario === true) {
-    for (const name of spec.scenarios) {
-      if (!fresh.has(key(rule.layer, `scenario:${name}`))) {
-        out.push(
-          `${spec.path}: not run — scenario "${name}" has no ${rule.layer} verdict`
-        );
-      }
-    }
-  }
+  out.push(...coverageProblems(rule, spec, index, variants));
   if (spec.kind === 'dynamics' && rule.layer === 'specification') {
     for (const property of spec.temporalProperties) {
       if (!fresh.has(key('specification', `temporal:${property}`))) {
@@ -204,7 +282,7 @@ function evidenceLine(
             (capability) => capability.specUri === spec.path
           )
       )
-      .map((spec) => specProblems(rule, spec, index))
+      .map((spec) => specProblems(rule, spec, index, input.variants))
   );
 }
 
@@ -349,5 +427,24 @@ export function evaluateLines(input: ReportInput): readonly LineResult[] {
       total: counted.total,
       problems,
     };
+  });
+}
+
+/** Every cell of every varied spec, for the report and its log. */
+export function evaluateVariantCells(
+  input: ReportInput
+): readonly VariantCell[] {
+  const index = indexEvidence(input.specs, input.records);
+  return input.specs.flatMap((spec) => {
+    const requirement = input.variants.get(spec.path);
+    return requirement === undefined
+      ? []
+      : variantCells({
+          path: spec.path,
+          kind: spec.kind,
+          scenarios: spec.scenarios,
+          evidence: index.get(spec.path),
+          requirement,
+        });
   });
 }

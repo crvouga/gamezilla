@@ -1,0 +1,63 @@
+import { customGameLegalMoves } from '@libs/game-session-shared/custom-game-position';
+import { scenarioAction } from '@libs/harness/actor-ui';
+import type {
+  HarnessComposition,
+  HarnessRoomNode,
+} from '@libs/harness/composition';
+import type { ProductHarness } from '@libs/harness/harness';
+import { readCustomGameProbe } from './custom-game-probe';
+
+const choices = new WeakMap<HarnessRoomNode, { next: number | null }>();
+
+/** Inject a documented allowed legal choice through the room's random port. */
+export function customGameBotRoomNode(
+  createNode: NonNullable<HarnessComposition['roomNode']>
+): NonNullable<HarnessComposition['roomNode']> {
+  return (env, gateway) => {
+    const choice = { next: null as number | null };
+    const random = (): number => {
+      const next = choice.next;
+      choice.next = null;
+      return next ?? env.random();
+    };
+    const node = Object.assign(createNode({ ...env, random }, gateway), {
+      clientRandom: random,
+    });
+    choices.set(node, choice);
+    return node;
+  };
+}
+
+/** The next bot move is `action`, one of the position's legal moves. */
+export const chooseCustomGameBotMove = scenarioAction({
+  name: 'chooseCustomGameBotMove',
+  act: async (s, observer: string, action: string) => {
+    const game = (await readCustomGameProbe(s, observer))?.current;
+    if (game === null || game === undefined)
+      throw new Error('No Custom Game to follow');
+    const moves = customGameLegalMoves(
+      game,
+      s.harness.composition.app.turnGames
+    );
+    const index = moves.indexOf(action);
+    if (index === -1) throw new Error(`${action} is not a legal bot choice`);
+    const choice = choices.get(s.harness.roomNode);
+    if (choice === undefined)
+      throw new Error('Room random choice was not injected');
+    choice.next = (index + 0.5) / moves.length;
+  },
+});
+
+/** Let scheduled bot turns run until the custom game is no longer active. */
+export const playCustomGameBots = scenarioAction<
+  [observer?: string, turns?: number]
+>({
+  name: 'playCustomGameBots',
+  act: async (s: ProductHarness, observer = 'alice', turns = 600) => {
+    for (let turn = 0; turn < turns; turn++) {
+      const game = (await readCustomGameProbe(s, observer))?.current;
+      if (game?.status !== 'active') return;
+      await s.session.advanceTime(1000);
+    }
+  },
+});

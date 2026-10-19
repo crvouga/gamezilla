@@ -1,4 +1,4 @@
 {
   "summary": "The first isolated feed draft saved only changes included in the puzzle-selection fingerprint, dropping auto-advance preferences. Persist every changed choice while selecting a different puzzle only for selection changes. The literal failing trace is pinned.",
-  "regressionTest": "specs/chess/puzzle-feed.feature"
+  "regressionTest": "specs/games/puzzle-feed.feature"
 }

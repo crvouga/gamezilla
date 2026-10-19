@@ -1,9 +1,9 @@
 import {
   CHESS_SCREEN,
-  SetChessMainMenuScreen,
   SetChessSelectedUiComponent,
-} from '@libs/chess-root-shared/chess-main-menu';
+} from '@libs/chess-root-shared/chess-screens';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
+import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
 import { ExplorerList } from '@pkgs/ui-root-client/explorer-list';
 import type { JSX } from 'solid-js';
@@ -11,20 +11,15 @@ import { CHESS_COMPONENT_ENTRIES } from './chess-board-register-example';
 
 export function ChessSettingsDeveloperUiComponentsScreen(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
+  const gameScreen = useGameScreen();
 
   const back = (): void => {
-    dispatch(
-      SetChessMainMenuScreen({ screen: CHESS_SCREEN.settingsDeveloper })
-    );
+    gameScreen.show(CHESS_SCREEN.settingsDeveloper);
   };
 
   const onSelect = (id: string): void => {
     dispatch(SetChessSelectedUiComponent({ name: id }));
-    dispatch(
-      SetChessMainMenuScreen({
-        screen: CHESS_SCREEN.settingsDeveloperUiDetail,
-      })
-    );
+    gameScreen.show(CHESS_SCREEN.settingsDeveloperUiDetail);
   };
 
   return (

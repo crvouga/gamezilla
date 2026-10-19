@@ -1,4 +1,4 @@
 {
   "summary": "A watcher's personal puzzle stats were mounted only inside the host's space and disappeared when the host disconnected. Personal progress must remain readable independently of space availability.",
-  "regressionTest": "specs/chess/puzzle-stats-summary.feature"
+  "regressionTest": "specs/games/puzzle-stats-summary.feature"
 }

@@ -1,6 +1,6 @@
+import { givenMultiplayerPosition } from '@libs/game-matchmaking-harness/matched-game-fixtures';
 import {
   awaitGameMatch,
-  givenMultiplayerPosition,
   givenOpponentSearch,
 } from '@libs/game-matchmaking-harness/multiplayer-fixtures';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
@@ -17,7 +17,7 @@ import { givenDesiredSyntheticPopulation } from './observatory-actions';
 import {
   givenSyntheticGameSpace,
   openSyntheticGame,
-  syntheticGameAdapter,
+  syntheticGame,
   syntheticGameView,
 } from './synthetic-game-actions';
 import {
@@ -77,9 +77,18 @@ export const givenLeasedSyntheticUser = scenarioAction({
     );
   },
 });
+/** The clock namespace of the synthetic game's opponent searches. */
+function syntheticClockNamespace(game: string): string {
+  const matchmaking =
+    syntheticGame(game).shared.turnGame.capabilities.matchmaking;
+  if (matchmaking === undefined)
+    throw new Error(`${game} offers no matchmaking to play`);
+  return matchmaking.clockNamespace;
+}
 export const givenSyntheticUser = scenarioAction({
   name: 'givenSyntheticUser',
-  act: async (s, name: string, playing: boolean, game: string = 'chess') => {
+  act: async (s, name: string, playing: boolean, game?: string) => {
+    const label = syntheticGame(game).label;
     await Promise.resolve(givenLeasedSyntheticUser.act(s, name));
     const db = s.harness.serverSql.sqlClient;
     const user = await syntheticUserSignIn(s, name);
@@ -109,35 +118,36 @@ export const givenSyntheticUser = scenarioAction({
     );
     await configureUsername(await actorUi(s, 'bob'), 'bob');
     for (const actor of ['cedar', 'bob']) {
-      await Promise.resolve(givenSyntheticGameSpace.act(s, actor, game));
+      await Promise.resolve(givenSyntheticGameSpace.act(s, actor, label));
       await Promise.resolve(
         givenOpponentSearch.act(
           s,
           actor,
-          syntheticGameAdapter(game).rules.id === 'chess'
-            ? '5+0'
-            : `${syntheticGameAdapter(game).rules.id}/5+0`
+          `${syntheticClockNamespace(label)}5+0`
         )
       );
     }
-    await Promise.resolve(awaitGameMatch.act(s, 'cedar', 'bob', false));
-    await Promise.resolve(openSyntheticGame.act(s, 'cedar', game));
+    // Cedar plays the first side, from one move before the game's known
+    // victory, so its next move can finish the game.
+    await Promise.resolve(awaitGameMatch.act(s, 'cedar', 'bob', true));
+    await Promise.resolve(openSyntheticGame.act(s, 'cedar', label));
     const gameId = await pollUntil(
       s,
       async () => (await syntheticGameView(s, 'cedar')).gameId,
       { maxMs: 10_000, description: 'Cedar sees the assigned multiplayer game' }
     );
-    const fen =
-      game === 'chess'
-        ? 'rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq g3 0 2'
-        : 'c4:1:1010203';
+    const victory = syntheticGame(label).fixtures.firstSideVictory;
+    const fen = syntheticGame(label).shared.turnGame.rules.replay(
+      victory,
+      victory.length - 1
+    );
     await Promise.resolve(
       givenMultiplayerPosition.act(s, 'cedar', {
         gameId,
         fen,
       })
     );
-    await Promise.resolve(openSyntheticGame.act(s, 'cedar', game));
+    await Promise.resolve(openSyntheticGame.act(s, 'cedar', label));
     await (await actorUi(s, 'cedar')).get('multiplayer-game').expect.visible();
     await pollUntil(
       s,

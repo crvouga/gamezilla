@@ -64,6 +64,7 @@ function input(overrides: Partial<ReportInput>): ReportInput {
     specs: [FEATURE, DECISIONS],
     records: [],
     malformed: [],
+    variants: new Map(),
     closure: [],
     capabilities: [
       {
@@ -213,6 +214,34 @@ describe('evaluateLines', () => {
     ];
     expect(line(input({ records }), 'acceptance').problems).toEqual([
       `${FEATURE.path}: not run — scenario "A member creates a space" has no system verdict`,
+    ]);
+  });
+
+  test('a scenario run per game is decided by its per-game verdicts, and a failing game is named', () => {
+    const variants = new Map([
+      [
+        FEATURE.path,
+        {
+          required: ['chess', 'connect-four'],
+          variants: ['chess', 'connect-four'],
+        },
+      ],
+    ]);
+    const records = [
+      record(FEATURE, [
+        pass('scenario:A guest creates a space [chess]', 'system'),
+        {
+          id: 'scenario:A guest creates a space [connect-four]',
+          layer: 'system',
+          status: 'fail',
+          detail: 'no board',
+        },
+        pass('scenario:A member creates a space [chess]', 'system'),
+        pass('scenario:A member creates a space [connect-four]', 'system'),
+      ]),
+    ];
+    expect(line(input({ records, variants }), 'acceptance').problems).toEqual([
+      `${FEATURE.path}: scenario:A guest creates a space [connect-four] failed — no board`,
     ]);
   });
 

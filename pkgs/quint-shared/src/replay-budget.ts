@@ -56,6 +56,17 @@ function cover(
 }
 
 /**
+ * The 0-based positions of the traces that between them take every bound
+ * action the draw takes: what every subject of a varied model replays.
+ */
+export function replayCover(
+  traces: readonly ItfTrace[],
+  boundActions: readonly string[]
+): ReadonlySet<number> {
+  return new Set(cover(traces, new Set(boundActions)));
+}
+
+/**
  * The 0-based positions, in draw order, of the traces to replay. An infinite
  * budget replays every trace. A cover larger than the budget is kept whole:
  * the budget bounds exploration, never the bindings exercised.
@@ -69,7 +80,7 @@ export function replaySelection(
   if (!Number.isSafeInteger(budget) || budget < 1) {
     throw new Error('quint: a replay budget is a whole number of traces');
   }
-  const selected = new Set(cover(traces, new Set(boundActions)));
+  const selected = new Set(replayCover(traces, boundActions));
   for (const index of traces.keys()) {
     if (selected.size >= budget) break;
     selected.add(index);

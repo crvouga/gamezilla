@@ -1,0 +1,65 @@
+{
+  "lichess-file-leaving": {
+    "seed": "0x67932",
+    "traces": 32,
+    "cover": [3, 17],
+    "replayed": [3, 17],
+    "regressions": 0,
+    "determinism": false,
+    "variants": 1
+  },
+  "lichess-file-preparation": {
+    "seed": "0x67932",
+    "traces": 96,
+    "cover": [2, 11, 16, 31],
+    "replayed": [2, 11, 16, 31],
+    "regressions": 3,
+    "determinism": false,
+    "variants": 1
+  },
+  "puzzle-assistant": {
+    "seed": "0x67932",
+    "traces": 64,
+    "cover": [0, 6, 19, 40, 56],
+    "replayed": [0, 6, 19, 40, 56],
+    "regressions": 8,
+    "determinism": false,
+    "variants": 1
+  },
+  "puzzle-loading": {
+    "seed": "0x67932",
+    "traces": 24,
+    "cover": [15],
+    "replayed": [15],
+    "regressions": 1,
+    "determinism": false,
+    "variants": 1
+  },
+  "puzzle-loading-choices": {
+    "seed": "0x67932",
+    "traces": 48,
+    "cover": [1, 8, 10],
+    "replayed": [1, 8, 10],
+    "regressions": 1,
+    "determinism": false,
+    "variants": 1
+  },
+  "puzzle-sound": {
+    "seed": "0x67932",
+    "traces": 8,
+    "cover": [0],
+    "replayed": [0],
+    "regressions": 0,
+    "determinism": false,
+    "variants": 1
+  },
+  "puzzle-source": {
+    "seed": "0x67932",
+    "traces": 6,
+    "cover": [2],
+    "replayed": [2],
+    "regressions": 0,
+    "determinism": false,
+    "variants": 1
+  }
+}

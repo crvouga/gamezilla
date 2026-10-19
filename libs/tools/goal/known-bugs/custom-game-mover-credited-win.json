@@ -1,0 +1,4 @@
+{
+  "summary": "A custom game ended by the rules credited the side that made the last move (`<mover> wins by <reason>`), ignoring `PlayedPosition.winner`, so a move that loses for its mover (a misère ending) showed the loser as the winner; matched games and puzzles already credited the rules' winner. Found by the extensibility probes (libs/games-harness/tests/probes).",
+  "regressionTest": "libs/game-session-shared/tests/independent-rules.test.ts"
+}

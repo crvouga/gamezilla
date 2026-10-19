@@ -55,10 +55,15 @@ import { wallClock } from '@pkgs/clock-shared/wall';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared/stubs';
 import { specParallelism } from '@pkgs/os-server/test-concurrency';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint-shared/stubs';
+import {
+  packageSpecUnits,
+  readReplayPlans,
+  replayPlanFor,
+} from './replay-plans';
 import { completedOrigin, reportOrigin } from './report-origin';
 import { CHECK_KINDS, isSpecPath } from './spec-check-kinds';
 import type { Part, SpecUnit } from './spec-parts';
-import { partOf, specUnits } from './spec-parts';
+import { partOf } from './spec-parts';
 import { packageSpecDomains, packageSpecs } from './spec-sources';
 
 const PACKAGE_DIR = process.cwd();
@@ -134,9 +139,7 @@ function parsePart(value: string | undefined): Part {
 
 /** The test files of `specs` (absolute paths), long specs sliced. */
 function unitsOf(specs: readonly string[], partCount = 1): readonly SpecUnit[] {
-  return specs.flatMap((path) =>
-    specUnits(path, readFileSync(path, 'utf8'), partCount)
-  );
+  return packageSpecUnits(PACKAGE_DIR, specs, partCount);
 }
 
 /** Test files to run: the specs named, else all (or one part's share). */
@@ -217,6 +220,7 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
     );
     out.push(`./${relative(PACKAGE_DIR, file)}`);
   }
+  const plans = readReplayPlans(PACKAGE_DIR);
   const quintBridge = Bun.resolveSync(
     '@pkgs/quint-server/bun-test',
     import.meta.dir
@@ -234,6 +238,7 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
         bridge: quintBridge,
         reportDir: REPORT_DIR,
         slice,
+        replayPlan: replayPlanFor(plans, specPath),
       })
     );
     out.push(`./${relative(PACKAGE_DIR, file)}`);

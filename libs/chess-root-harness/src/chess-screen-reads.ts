@@ -1,11 +1,11 @@
+import { openFindingAnOpponentIfAny } from '@libs/game-matchmaking-harness/opponent-seeking';
 import {
   readCustomGameAlert,
   readCustomGameScreenText,
-} from '@libs/chess-custom-game-harness/custom-game-play-reads';
-import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { multiplayerText } from '@libs/game-matchmaking-harness/multiplayer-reads';
-import { scenarioAction } from '@libs/harness/actor-ui';
+} from '@libs/game-session-harness/custom-game-reads';
+import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { CHESS_GAME_ID } from './chess-playable';
 
 /**
  * Bring the chess screen a person was told something on into view: the
@@ -15,7 +15,9 @@ export const focusChessScreen = scenarioAction({
   name: 'focusChessScreen',
   act: async (s, actor: string) => {
     if ((await readCustomGameScreenText(s, actor)) !== null) return;
-    await Promise.resolve(openMultiplayerChess.act(s, actor));
+    await Promise.resolve(
+      openFindingAnOpponentIfAny.act(s, actor, CHESS_GAME_ID)
+    );
   },
 });
 
@@ -27,8 +29,8 @@ export async function readChessToldText(
   s: ProductHarness,
   actor: string
 ): Promise<string | null> {
-  return (
-    (await readCustomGameAlert(s, actor)) ??
-    (await multiplayerText(s, actor, 'multiplayer-waiting'))
-  );
+  const alert = await readCustomGameAlert(s, actor);
+  if (alert !== null) return alert;
+  const waiting = (await actorUi(s, actor)).get('multiplayer-waiting');
+  return (await waiting.isVisible()) ? await waiting.text() : null;
 }

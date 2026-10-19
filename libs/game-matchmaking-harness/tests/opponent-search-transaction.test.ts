@@ -49,7 +49,9 @@ test('search setup resolves the actor and space before opening its write transac
     },
   } as unknown as ProductHarness;
   await expect(
-    Promise.resolve(givenOpponentSearch.act(s, 'alice', '5+0', 'search'))
+    Promise.resolve(
+      givenOpponentSearch.act(s, 'alice', 'counting/5+0', 'search')
+    )
   ).rejects.toThrow('mutation uses transaction');
   expect(reads).toBe(3);
 });

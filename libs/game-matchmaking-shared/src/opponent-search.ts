@@ -27,14 +27,14 @@ import {
 } from './search-config';
 import { projectOpponentSearch } from './search-projection';
 import type { TimeControl } from './time-control';
-import { timeControlOf } from './time-control';
+import { offeredTimeControls } from './time-control';
 
 export function requireOfferedTimeControl(
   id: string,
   rules: TurnGames
 ): TimeControl {
-  rules.forControl(id);
-  const control = timeControlOf(id);
+  const control =
+    offeredTimeControls(rules).find((offered) => offered.id === id) ?? null;
   if (control === null)
     throw new MutationError(
       'CHESS_TIME_CONTROL_NOT_OFFERED',

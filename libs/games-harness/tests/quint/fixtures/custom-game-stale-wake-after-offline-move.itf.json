@@ -1,0 +1,590 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "specs/games/custom-game-control.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Wed Oct 14 2026 12:36:31 GMT+0000 (Coordinated Universal Time)",
+    "timestamp": 1791981391276
+  },
+  "vars": [
+    "_finished",
+    "participants",
+    "_previousMoves",
+    "status",
+    "_cutOff",
+    "_previousSide",
+    "movesPlayed",
+    "playShown",
+    "_sealed",
+    "sideToMove",
+    "_movingParticipant",
+    "_offline",
+    "result",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": { "index": 0 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": [] },
+      "_previousMoves": { "#bigint": "0" },
+      "_previousSide": "first",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "0" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "first",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "None", "value": { "#tup": [] } },
+        "secondSideBot": { "tag": "Some", "value": false },
+        "side": { "tag": "None", "value": { "#tup": [] } },
+        "firstSideBot": { "tag": "Some", "value": true }
+      }
+    },
+    {
+      "#meta": { "index": 1 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "bot",
+      "_offline": { "#set": [] },
+      "_previousMoves": { "#bigint": "0" },
+      "_previousSide": "first",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "1" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "1" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "1" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "second",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "botPlays",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "first" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 2 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": [] },
+      "_previousMoves": { "#bigint": "1" },
+      "_previousSide": "second",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "1" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "1" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "1" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "second",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "_wrongBot",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "first" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 3 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "bob",
+      "_offline": { "#set": [] },
+      "_previousMoves": { "#bigint": "1" },
+      "_previousSide": "second",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "2" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "first",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "playCustomMove",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "second" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 4 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "2" },
+      "_previousSide": "first",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "2" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "first",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "first" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 5 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "2" },
+      "_previousSide": "first",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "2" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "first",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "resignCustomGame",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "first" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 6 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "2" },
+      "_previousSide": "first",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "2" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "first",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "playCustomMove",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "second" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 7 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "2" },
+      "_previousSide": "first",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "2" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "first",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "resignCustomGame",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "first" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 8 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "2" },
+      "_previousSide": "first",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "2" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "first",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "cancelCustomGame",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "second" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 9 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "2" },
+      "_previousSide": "first",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "2" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "first",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "playCustomMove",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "first" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 10 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "bot",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "2" },
+      "_previousSide": "first",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "3" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "3" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "second",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "botPlays",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "first" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 11 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "3" },
+      "_previousSide": "second",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "3" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "3" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "second",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "playCustomMove",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "second" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 12 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "3" },
+      "_previousSide": "second",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "3" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "3" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "second",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "cancelCustomGame",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "first" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 13 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "3" },
+      "_previousSide": "second",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "3" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "3" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "second",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "playCustomMove",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "second" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 14 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "3" },
+      "_previousSide": "second",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "3" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "3" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "second",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "playCustomMove",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "first" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 15 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "3" },
+      "_previousSide": "second",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "3" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "3" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "second",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "resignCustomGame",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "second" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 16 },
+      "_cutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "2" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_finished": { "#tup": ["active", { "#bigint": "0" }, ""] },
+      "_movingParticipant": "",
+      "_offline": { "#set": ["alice"] },
+      "_previousMoves": { "#bigint": "3" },
+      "_previousSide": "second",
+      "_sealed": false,
+      "result": "",
+      "movesPlayed": { "#bigint": "3" },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "3" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "2" }, ""] }]
+        ]
+      },
+      "status": "active",
+      "sideToMove": "second",
+      "participants": { "#map": [["second", "bob"], ["first", "bot"]] },
+      "mbt::actionTaken": "_staleBot",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "bob" },
+        "secondSideBot": { "tag": "None", "value": { "#tup": [] } },
+        "side": { "tag": "Some", "value": "first" },
+        "firstSideBot": { "tag": "None", "value": { "#tup": [] } }
+      }
+    }
+  ]
+}

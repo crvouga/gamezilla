@@ -239,27 +239,6 @@ export const endSpace = scenarioAction({
   },
 });
 
-export const selectChessGame = scenarioAction({
-  name: 'selectChessGame',
-  act: async (s, actorId: string) => {
-    const ui = await actorUi(s, actorId);
-    if (!(await ui.get(Handles.gameMenuChess).isVisible())) return;
-    await ui.get(Handles.gameMenuChess).tap({ timeoutMs: SPACE_WAIT_MS });
-    const outcome = await waitForOneOf(
-      s,
-      actorId,
-      [
-        Handles.chessMenuPuzzle,
-        Handles.gameChoiceRefused,
-        Handles.connectionMissing,
-        Handles.statusConnectionMissing,
-      ],
-      'chess, or why the choice was refused'
-    );
-    if (outcome !== Handles.chessMenuPuzzle) return;
-  },
-});
-
 export const openSpaceMembers = scenarioAction({
   name: 'openSpaceMembers',
   act: async (s, actorId: string) => {
@@ -437,7 +416,6 @@ export const SPACES_HARNESS_ACTIONS = [
   joinFromLobby,
   reenterActiveSpace,
   endSpace,
-  selectChessGame,
   openSpaceMembers,
   closeSpaceMembers,
   leaveSpace,

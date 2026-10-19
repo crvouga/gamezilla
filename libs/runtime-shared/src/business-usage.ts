@@ -1,8 +1,8 @@
-import { puzzleAttemptedEvent } from '@libs/chess-puzzle-shared/telemetry';
 import {
   gameCompletedEvent,
   gameStartedEvent,
 } from '@libs/game-matchmaking-shared/telemetry';
+import { puzzleAttemptedEvent } from '@libs/game-puzzle-shared/telemetry';
 import {
   playerJoinedEvent,
   spaceCreatedEvent,

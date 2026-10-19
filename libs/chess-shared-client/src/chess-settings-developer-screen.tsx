@@ -1,11 +1,8 @@
-import {
-  CHESS_SCREEN,
-  SetChessMainMenuScreen,
-} from '@libs/chess-root-shared/chess-main-menu';
+import { CHESS_SCREEN } from '@libs/chess-root-shared/chess-screens';
 import { useCan } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
-import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
+import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import { Trans } from '@lingui/solid/macro';
 import type { MainMenuItem } from '@pkgs/ui-root-client/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client/main-menu-screen';
@@ -13,14 +10,12 @@ import type { JSX } from 'solid-js';
 
 export function ChessSettingsDeveloperScreen(): JSX.Element {
   const canManage = useCan(PERMISSION.puzzlesManage);
-  const dispatch = useSpaceRoomDispatch();
+  const gameScreen = useGameScreen();
   const backToSettings = (): void => {
-    dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.settings }));
+    gameScreen.show(CHESS_SCREEN.settings);
   };
   const openUiComponents = (): void => {
-    dispatch(
-      SetChessMainMenuScreen({ screen: CHESS_SCREEN.settingsDeveloperUi })
-    );
+    gameScreen.show(CHESS_SCREEN.settingsDeveloperUi);
   };
 
   const items = (): readonly MainMenuItem[] => [
@@ -36,11 +31,7 @@ export function ChessSettingsDeveloperScreen(): JSX.Element {
             ),
             dataSet: { testid: 'chess-developer-puzzles' },
             onClick: () =>
-              dispatch(
-                SetChessMainMenuScreen({
-                  screen: CHESS_SCREEN.settingsDeveloperPuzzles,
-                })
-              ),
+              gameScreen.show(CHESS_SCREEN.settingsDeveloperPuzzles),
           },
         ]
       : []),

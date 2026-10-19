@@ -1,6 +1,8 @@
 import { expect, test } from 'bun:test';
 import { importPuzzleCsvBatch } from '@libs/chess-puzzle-server/puzzle-import-batch';
+import { puzzlePositionKey } from '@libs/chess-puzzle-shared/puzzle-validation';
 import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
@@ -16,9 +18,13 @@ function csv(id: string, rating: number): string {
 async function database() {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
-  await reconcileSqliteSchema(db, registerTables([...CHESS_TABLES]), {
-    ownership: 'declared-only',
-  });
+  await reconcileSqliteSchema(
+    db,
+    registerTables([...GAME_PUZZLE_SUB.tables, ...CHESS_TABLES]),
+    {
+      ownership: 'declared-only',
+    }
+  );
   let id = 0;
   const wrapped = wrapMutationDb(db, {
     actorId: 'manager',
@@ -80,6 +86,39 @@ test('invalid CSV never partially applies a source part', async () => {
     expect(
       await db.query(sql<{ id: string }>`SELECT id FROM chess_puzzles`)
     ).toEqual([]);
+  } finally {
+    await db.disconnect();
+  }
+});
+
+test('a Lichess puzzle is stored through the catalogue exactly as chess validated it', async () => {
+  const { db, tx } = await database();
+  try {
+    await importPuzzleCsvBatch(
+      tx,
+      `${HEADER}\nab12C,${FEN},d2c3 d4g1,1500,80,95,1234,mateIn1 mate short,https://lichess.org/abcdefgh#63,Sicilian_Defense_Najdorf Sicilian_Defense,\n`
+    );
+    expect(
+      await db.query(sql<Record<string, unknown>>`
+        SELECT id, fen, moves, rating, rating_deviation, popularity, nb_plays,
+          themes, game_url, opening_tags, position_key
+        FROM chess_puzzles
+      `)
+    ).toEqual([
+      {
+        id: 'ab12C',
+        fen: FEN,
+        moves: 'd2c3 d4g1',
+        rating: 1500,
+        rating_deviation: 80,
+        popularity: 95,
+        nb_plays: 1234,
+        themes: '["mate","mateIn1","short"]',
+        game_url: 'https://lichess.org/abcdefgh#63',
+        opening_tags: '["Sicilian_Defense","Sicilian_Defense_Najdorf"]',
+        position_key: puzzlePositionKey(FEN.split(' '), ['d2c3', 'd4g1']),
+      },
+    ]);
   } finally {
     await db.disconnect();
   }

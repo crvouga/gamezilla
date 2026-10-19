@@ -1,18 +1,16 @@
-import type { GameAutomation } from '@pkgs/turn-game-shared/game-automation';
-import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
-import { connectFourRules, parseConnectFourColumn } from './connect-four-rules';
+import type { TurnGame } from '@libs/game-session-shared/turn-game-definition';
+import { connectFourBots, parseConnectFourColumn } from './connect-four-rules';
 
-export const connectFourAutomation: GameAutomation<Driver> = {
-  rules: connectFourRules,
-  selectControl: 'game-menu-connect-four',
-  multiplayerControl: 'connect-four-multiplayer',
-  boardControl: 'connect-four-board',
+export const connectFourAutomation: TurnGame['automation'] = {
   choose: (position, random) =>
-    connectFourRules.choose(position, 'medium', random),
-  async perform(ui, action) {
+    connectFourBots.choose(position, 'medium', random),
+  async perform(ui, board, action) {
     const column = parseConnectFourColumn(action);
     if (column === null)
       throw new Error('Invalid automated Connect Four action');
-    await ui.get(`connect-four-column-${column + 1}`).key('enter');
+    const target = ui.get(`${board}-column-${column + 1}`);
+    // regression: connect-four-journey-pending-column
+    await target.wait('enabled');
+    await target.key('enter');
   },
 };

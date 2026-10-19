@@ -1,4 +1,5 @@
 import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared/game-automations';
+import { HARNESS_GAMES } from '@libs/games-harness/harness-games';
 import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { backToTabs } from '@libs/harness/shell-actions';
@@ -55,11 +56,10 @@ export async function syntheticGameChoice(s: ProductHarness) {
     ? await ui.get('multiplayer-waiting').text()
     : null;
   return {
-    chosenGame: text?.includes('Connect Four')
-      ? 'Connect Four'
-      : text?.toLowerCase().includes('chess')
-        ? 'chess'
-        : '',
+    chosenGame:
+      HARNESS_GAMES.find((game) =>
+        text?.toLowerCase().includes(game.label.toLowerCase())
+      )?.label ?? '',
     seekingOpponent,
   };
 }

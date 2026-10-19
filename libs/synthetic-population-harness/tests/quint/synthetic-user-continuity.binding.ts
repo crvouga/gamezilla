@@ -20,7 +20,8 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(
         givenSyntheticContinuity,
         renderQuint(picks['initialActivity']!),
-        picks['gameChoice'] === 'friday-connect-four' ? 'Connect Four' : 'chess'
+        // The model names each game's Friday game `friday-<game id>`.
+        String(picks['gameChoice']).replace(/^friday-/, '')
       );
       w.memo.set(
         'synthetic-population:continuity',

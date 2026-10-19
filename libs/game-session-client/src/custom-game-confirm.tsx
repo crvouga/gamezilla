@@ -41,7 +41,7 @@ export function CustomGameConfirm(props: {
           intent="danger"
           variant="ghost"
           onClick={() => setDialogSession((current) => current + 1)}
-          dataSet={{ testid: `chess-custom-${props.operation}` }}
+          dataSet={{ testid: `custom-game-${props.operation}` }}
         />
       </Show>
       <Show when={dialogSession()} keyed>
@@ -60,9 +60,9 @@ export function CustomGameConfirm(props: {
             variant="destructive"
             successTitle={<Trans>Game finished</Trans>}
             submitDataSet={{
-              testid: `chess-custom-${props.operation}-confirm`,
+              testid: `custom-game-${props.operation}-confirm`,
             }}
-            dismissDataSet={{ testid: `chess-custom-${props.operation}-done` }}
+            dismissDataSet={{ testid: `custom-game-${props.operation}-done` }}
           />
         )}
       </Show>

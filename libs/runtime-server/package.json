@@ -29,6 +29,7 @@
     "@libs/friends-server": "workspace:*",
     "@libs/friends-shared": "workspace:*",
     "@libs/game-catalog-shared": "workspace:*",
+    "@libs/game-puzzle-shared": "workspace:*",
     "@libs/game-session-server": "workspace:*",
     "@libs/infra-shared": "workspace:*",
     "@libs/notifications-server": "workspace:*",
@@ -70,5 +71,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "server"
+  "category": "server",
+  "gameRegistry": true
 }

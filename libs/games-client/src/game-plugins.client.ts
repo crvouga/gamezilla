@@ -1,7 +1,8 @@
-import { chessGameClient } from '@libs/chess-root-client/chess-game-def';
-import { connectFourGameClient } from '@libs/connect-four-root-client/connect-four-game-def';
+import { chessGameClient } from '@libs/chess-root-client/chess-game-client';
+import { connectFourGameClient } from '@libs/connect-four-client/connect-four-game-client';
+import type { GameClientRegistration } from '@libs/game-menu-client/game-client';
+import { assertGameClientDefinitions } from '@libs/game-menu-client/game-client';
 import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
-import type { GameClientDefinition } from '@libs/spaces-shared/game';
 import {
   assertGameRegistry,
   assertMatchingGameIds,
@@ -14,7 +15,8 @@ import {
 export const GAME_CLIENT_DEFINITIONS = [
   chessGameClient,
   connectFourGameClient,
-] as const satisfies readonly GameClientDefinition[];
+] as const satisfies readonly GameClientRegistration[];
 
 assertGameRegistry(GAME_CLIENT_DEFINITIONS);
+assertGameClientDefinitions('GAME_CLIENT_DEFINITIONS', GAME_CLIENT_DEFINITIONS);
 assertMatchingGameIds(GAME_DEFINITIONS, GAME_CLIENT_DEFINITIONS);

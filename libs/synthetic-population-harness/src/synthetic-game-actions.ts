@@ -1,4 +1,6 @@
 import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared/game-automations';
+import type { HarnessGame } from '@libs/game-session-harness/harness-game';
+import { HARNESS_GAMES } from '@libs/games-harness/harness-games';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { backToTabs } from '@libs/harness/shell-actions';
@@ -8,16 +10,27 @@ import {
 } from '@libs/spaces-harness/space-actions';
 import { openMultiplayer } from '@libs/synthetic-population-shared/game-automation';
 
-export function syntheticGameAdapter(name: string) {
-  const id =
-    name === 'chess'
-      ? 'chess'
-      : name === 'Connect Four'
-        ? 'connect-four'
-        : name;
-  const game = GAME_AUTOMATIONS.find((entry) => entry.rules.id === id);
-  if (game === undefined) throw new Error(`Unknown game ${name}`);
+/**
+ * The registered game a synthetic-population spec names, by the name its
+ * harness gives it ("chess", "Connect Four"); unnamed, the first registered
+ * game offering matchmaking, which synthetic users play.
+ */
+export function syntheticGame(name?: string): HarnessGame {
+  const game =
+    name === undefined
+      ? HARNESS_GAMES.find(
+          (candidate) =>
+            candidate.shared.turnGame.capabilities.matchmaking !== undefined
+        )
+      : HARNESS_GAMES.find(
+          (candidate) =>
+            candidate.label === name || candidate.shared.id === name
+        );
+  if (game === undefined) throw new Error(`Unknown game ${String(name)}`);
   return game;
+}
+export function syntheticGameAdapter(name?: string) {
+  return syntheticGame(name).shared.automation;
 }
 export const givenSyntheticGameSpace = scenarioAction({
   name: 'givenSyntheticGameSpace',

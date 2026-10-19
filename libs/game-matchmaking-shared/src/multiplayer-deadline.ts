@@ -4,10 +4,11 @@ import {
 } from '@pkgs/message-shared/message';
 import { insertOutboxEvent } from '@pkgs/outbox-shared/outbox';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import { GAME_PLATFORM_NAMESPACE } from './durable-names';
 import type { MultiplayerGame } from './game-state';
 import { multiplayerDeadlineMs } from './multiplayer-clock';
 
-const messages = createMessageNamespace('chess', 'outbox');
+const messages = createMessageNamespace(GAME_PLATFORM_NAMESPACE, 'outbox');
 
 /** A game may end by itself at this time: a missed first move or a flag. */
 export const MultiplayerDeadline = messages(

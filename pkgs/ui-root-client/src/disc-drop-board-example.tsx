@@ -29,8 +29,6 @@ export function DiscDropBoardExample(): JSX.Element {
         interactive={interactive()}
         lastCell={last()}
         label="Drop board"
-        emptyLabel="Empty"
-        identities={['Circle', 'Diamond']}
         testId="arena-disc-board"
         columnTestId={(column) => `arena-column-${column + 1}`}
         cellLabel={(column, row, disc) =>

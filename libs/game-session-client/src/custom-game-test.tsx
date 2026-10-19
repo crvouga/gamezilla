@@ -1,6 +1,7 @@
 import { TEST_HOOKS_ENABLED } from '@libs/app-config-shared/test-hooks';
 import { customGameChoiceSchema } from '@libs/game-session-shared/custom-game-choice';
 import { createSignal, type JSX, Show } from 'solid-js';
+import { customGameCanMove } from './custom-game-can-move';
 import type { CustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
@@ -37,7 +38,7 @@ export function CustomGameTest(props: {
           onInput={(event) => setRequest(event.currentTarget.value)}
           aria-label="Custom Game conformance command"
           tabIndex={-1}
-          data-testid="chess-custom-command-input"
+          data-testid="custom-game-command-input"
         />
         <button
           type="button"
@@ -45,11 +46,11 @@ export function CustomGameTest(props: {
           onClick={() => {
             void attempt();
           }}
-          data-testid="chess-custom-command-send"
+          data-testid="custom-game-command-send"
         >
           Send game choice
         </button>
-        <pre data-testid="chess-custom-debug">
+        <pre data-testid="custom-game-debug">
           {JSON.stringify({
             ...props.model.games(),
             error: props.model.error() || props.review.error(),
@@ -72,6 +73,7 @@ export function CustomGameTest(props: {
               join: props.model.canJoin(),
               watch: props.model.watchDecision().allowed,
               play: props.model.canPlay(),
+              move: customGameCanMove(props.model, props.review),
             },
           })}
         </pre>

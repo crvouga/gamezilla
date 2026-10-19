@@ -76,6 +76,12 @@ async function startRematch(
   game: MultiplayerGame,
   nowMs: number
 ): Promise<MultiplayerGame> {
+  const rules = requireTurnGames(ctx.env);
+  if (!rules.offers(rules.forPosition(game.fen).id, 'matchmaking'))
+    throw new MutationError(
+      'CHESS_TIME_CONTROL_NOT_OFFERED',
+      'The game no longer offers finding an opponent.'
+    );
   await createMultiplayerGame(
     ctx.tx,
     {
@@ -87,7 +93,7 @@ async function startRematch(
       nowMs,
       createId: ctx.env.createId,
     },
-    requireTurnGames(ctx.env)
+    rules
   );
   return { ...game, rematch_offer_by: '' };
 }

@@ -24,6 +24,7 @@ import {
   playCustomGameChoice,
   playCustomGameMove,
 } from './custom-game-play';
+import { customGameBotMove, customGameBots } from './custom-game-position';
 import { customGameRefusal } from './custom-game-refusal';
 import type { CustomGame, CustomGames } from './custom-game-state';
 import { CustomGamesAttr, newCustomGame } from './custom-game-state';
@@ -44,15 +45,33 @@ export function changedCustomGames(
   };
 }
 
-function initialPositionForChoice(
-  state: RoomState,
-  choice: CustomGameChoice,
-  rules: TurnGames
-): string {
+/** The game a new custom game is of: the one asked for, else the space's. */
+function gameForChoice(state: RoomState, choice: CustomGameChoice): string {
   const explicit = choice.operation === 'create' ? choice.game : undefined;
-  return rules
-    .byId(explicit ?? GamesRoomAttr.selected.from(state) ?? '')
-    .initial();
+  return explicit ?? GamesRoomAttr.selected.from(state) ?? '';
+}
+
+/** A rematch of the current game, or a new one of a game offering Custom Games. */
+function createdCustomGame(
+  state: RoomState,
+  ctx: GameCommandContext,
+  choice: CustomGameChoice,
+  context: {
+    readonly game: CustomGame | null;
+    readonly members: readonly string[];
+    readonly rules: TurnGames;
+  }
+): CustomGame | null {
+  const { game, members, rules } = context;
+  const id =
+    choice.operation === 'rematch' && game !== null
+      ? rules.forPosition(game.fen).id
+      : gameForChoice(state, choice);
+  // A game no longer offering custom games is refused, rematches included.
+  if (!rules.offers(id, 'custom-games')) return null;
+  if (choice.operation === 'rematch' && game !== null)
+    return rematchCustomGame(game, ctx.commandId, members, rules);
+  return newCustomGame(ctx.commandId, ctx.identity, rules.byId(id).initial());
 }
 
 export function handleCustomGameChoice(
@@ -84,14 +103,13 @@ export function handleCustomGameChoice(
   });
   if (reason !== '') return refuseCustomGame(reason);
   if (choice.operation === 'create' || choice.operation === 'rematch') {
-    const created =
-      choice.operation === 'rematch' && game !== null
-        ? rematchCustomGame(game, ctx.commandId, members, rules)
-        : newCustomGame(
-            ctx.commandId,
-            ctx.identity,
-            initialPositionForChoice(state, choice, rules)
-          );
+    const created = createdCustomGame(state, ctx, choice, {
+      game,
+      members,
+      rules,
+    });
+    if (created === null)
+      return refuseCustomGame('the game offers no Custom Games');
     return changedCustomGames(
       {
         current: created,
@@ -103,7 +121,7 @@ export function handleCustomGameChoice(
   if (game === null) return refuseCustomGame('no Custom Game');
   if (
     choice.operation === 'difficulty' &&
-    !rules.forPosition(game.fen).botDifficulties.includes(choice.difficulty)
+    !customGameBots(game, rules).difficulties.includes(choice.difficulty)
   )
     return refuseCustomGame('difficulty not offered');
   const configured = configureCustomGame(game, choice, ctx.identity);
@@ -164,11 +182,7 @@ export function handleCustomGameWake(
   if (!bot || game[game.turn].kind !== 'bot')
     return changedCustomGames(games, ctx);
   const move =
-    'move' in wake
-      ? wake.move
-      : rules
-          .forPosition(game.fen)
-          .choose(game.fen, game.difficulty[game.turn], ctx.random);
+    'move' in wake ? wake.move : customGameBotMove(game, rules, ctx.random);
   if (move === null) throw new Error('active bot game has no legal move');
   const next = playCustomGameMove(game, move, at, rules);
   if (next === null) return refuseCustomGame('move is illegal');

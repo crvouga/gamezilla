@@ -1,7 +1,9 @@
 import { isProvisional } from '@libs/game-matchmaking-shared/multiplayer-rating';
-import { MULTIPLAYER_SPEEDS } from '@libs/game-matchmaking-shared/time-control';
-import { useSpaceRoomSelector } from '@libs/spaces-client/use-space-room-selector';
-import { GamesRoomAttr } from '@libs/spaces-shared/games';
+import type { MultiplayerSpeed } from '@libs/game-matchmaking-shared/time-control';
+import {
+  gameSpeed,
+  MULTIPLAYER_SPEEDS,
+} from '@libs/game-matchmaking-shared/time-control';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { useTurnGames } from '@pkgs/turn-game-client/turn-games-context';
 import { GameSection } from '@pkgs/ui-root-client/game-section';
@@ -14,19 +16,15 @@ const NEW_RATING = { rating: 1500, games: 0 };
 
 /** The person's own multiplayer rating and rated games at every speed. */
 export function MultiplayerRatings(props: {
+  readonly gameId: string;
   readonly ratings: readonly MultiplayerRatingRow[];
 }): JSX.Element {
   const rules = useTurnGames();
-  const selectedGame = useSpaceRoomSelector(GamesRoomAttr.selected.from);
-  const ratingOf = (speed: string) =>
-    props.ratings.find(
-      (row) =>
-        row.speed ===
-        (rules.games.find((game) => game.rules.id === selectedGame())
-          ?.controlPrefix
-          ? `${selectedGame()}:${speed}`
-          : speed)
-    ) ?? NEW_RATING;
+  const prefix = () =>
+    rules.capability(props.gameId, 'matchmaking')?.clockNamespace ?? '';
+  const ratingOf = (speed: MultiplayerSpeed) =>
+    props.ratings.find((row) => row.speed === gameSpeed(prefix(), speed)) ??
+    NEW_RATING;
   return (
     <GameSection title={<Trans>Your ratings</Trans>}>
       <div class="grid grid-cols-2 gap-x-4 gap-y-5">

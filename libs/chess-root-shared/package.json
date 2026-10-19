@@ -14,13 +14,12 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
+    "@libs/permissions-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
     "@pkgs/attribute-shared": "workspace:*",
     "@pkgs/message-shared": "workspace:*",
-    "@pkgs/pubsub-root-shared": "workspace:*",
     "@pkgs/room-root-shared": "workspace:*",
-    "@pkgs/sync-engine-shared": "workspace:*",
-    "@libs/permissions-shared": "workspace:*"
+    "@pkgs/sync-engine-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
@@ -28,5 +27,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "isomorphic"
+  "category": "isomorphic",
+  "game": "chess"
 }

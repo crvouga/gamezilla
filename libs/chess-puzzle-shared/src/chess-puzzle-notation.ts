@@ -14,6 +14,11 @@ export type ChessMoveNotation = (typeof CHESS_MOVE_NOTATIONS)[number];
 
 export const DEFAULT_CHESS_MOVE_NOTATION: ChessMoveNotation = 'san';
 
+/** A stored feed notation as chess draws it; anything else reads as SAN. */
+export function chessMoveNotationOf(value: string): ChessMoveNotation {
+  return isChessMoveNotation(value) ? value : DEFAULT_CHESS_MOVE_NOTATION;
+}
+
 export function isChessMoveNotation(
   value: unknown
 ): value is ChessMoveNotation {
@@ -59,4 +64,18 @@ export function formatSanNotation(
   const lead = glyphOf(san[0]);
   const body = lead === null ? san : `${lead}${san.slice(1)}`;
   return figurinePromotion(body);
+}
+
+/**
+ * The number written before a move played from `before`: White's moves are
+ * `<n>.`, and a line starting with Black's move opens with `<n>...`.
+ */
+export function chessMoveNumber(
+  before: string,
+  plyIndex: number
+): string | null {
+  const fields = before.split(' ');
+  const moveNumber = Number(fields[5] ?? '1');
+  if (fields[1] === 'w') return `${String(moveNumber)}.`;
+  return plyIndex === 0 ? `${String(moveNumber)}...` : null;
 }

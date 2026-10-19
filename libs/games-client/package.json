@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "@libs/chess-root-client": "workspace:*",
-    "@libs/connect-four-root-client": "workspace:*",
+    "@libs/connect-four-client": "workspace:*",
+    "@libs/game-menu-client": "workspace:*",
     "@libs/games-shared": "workspace:*",
     "@libs/spaces-shared": "workspace:*"
   },
@@ -24,5 +25,7 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "client"
+  "category": "client",
+  "gameRegistry": true,
+  "gameApi": []
 }
