@@ -1,11 +1,11 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { puzzleNamespaceCondition } from '@libs/game-puzzle-shared/puzzle-namespace';
+import { puzzleStores } from '@libs/game-puzzle-shared/puzzle-tables';
 import type {
   PuzzleRatingEvent,
   PuzzleRatingEventSqlRow,
 } from '@libs/game-puzzle-shared/rating-event';
 import { ratingEventFromSql } from '@libs/game-puzzle-shared/rating-event';
-import { puzzleStores } from '@libs/game-puzzle-shared/puzzle-tables';
 import sql, { raw } from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
