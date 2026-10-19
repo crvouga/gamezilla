@@ -1,6 +1,7 @@
 // @io-wall-ok — isolated CI shard process composition root.
 
 import {
+  appendFileSync,
   cpSync,
   existsSync,
   mkdirSync,
@@ -18,6 +19,9 @@ import { preserveInterruptedReports } from './verify-interrupted-reports';
 import { copyModelEvidence } from './verify-model-evidence';
 import { packPlan } from './verify-plan-transfer';
 import { activeProfile } from './verify-profile';
+import type { Diagnosis } from './verify-shard-diagnosis';
+import { diagnoseShard } from './verify-shard-diagnosis';
+import type { ShardExecution } from './verify-shard-process';
 import { executeShard } from './verify-shard-process';
 import type { Result } from './verify-shard-results';
 import { collectResults } from './verify-shard-results';
@@ -30,6 +34,15 @@ const ROOT = join(import.meta.dirname, '../../..');
 const DIRECTORY = join(ROOT, '.cache/verify-ci');
 /** `@pkgs/quint-shared/wall` scales a proof's declared deadline by it. */
 const VERIFY_TIME_SCALE_ENV = 'QUINT_VERIFY_TIME_SCALE';
+
+const NOTHING_TO_EXECUTE: ShardExecution = {
+  status: 0,
+  stop: null,
+  stream: { running: [], finished: [], failed: [], overBudget: [] },
+};
+
+const describeTask = (task: { taskId: string; hash: string }): string =>
+  `${task.taskId} (${task.hash})`;
 
 export async function runShard(index: number): Promise<number> {
   const start = process.hrtime.bigint();
@@ -54,7 +67,7 @@ export async function runShard(index: number): Promise<number> {
   );
   for (const task of missing)
     console.error(
-      `Missing prerequisite artifact: ${task.taskId} (${task.hash}); dependent tasks fail without duplicate execution`
+      `Missing prerequisite artifact: ${describeTask(task)}; dependent tasks fail without duplicate execution`
     );
   const needed = new Set(dependencies.map((task) => task.taskId));
   const execute = misses
@@ -62,12 +75,13 @@ export async function runShard(index: number): Promise<number> {
     .map((task) => task.taskId);
   const prefetchMs = Number(process.hrtime.bigint() - prefetchStart) / 1e6;
   const executionStart = process.hrtime.bigint();
-  const status = execute.length
+  const execution = execute.length
     ? await executeShard(execute, env, [...shard.tasks, ...dependencies])
-    : 0;
+    : NOTHING_TO_EXECUTE;
+  const { status } = execution;
   const executionMs = Number(process.hrtime.bigint() - executionStart) / 1e6;
   const summary = execute.length ? readLatestRunSummary(ROOT) : null;
-  const { results, verdict } = collectResults({
+  const { results, verdict, budgetOverruns } = collectResults({
     plan,
     shard,
     summary,
@@ -76,27 +90,89 @@ export async function runShard(index: number): Promise<number> {
     env,
   });
   const actualMs = Number(process.hrtime.bigint() - start) / 1e6;
-  mkdirSync(join(DIRECTORY, 'results'), { recursive: true });
-  const result = {
+  // A red shard says why, once, in plain words, as the last thing in its log.
+  const diagnosis =
+    verdict === 0
+      ? null
+      : diagnoseShard({
+          index,
+          stop: execution.stop,
+          planned: shard.tasks,
+          estimatedSeconds: shard.seconds,
+          actualSeconds: actualMs / 1000,
+          stream: execution.stream,
+          summaryFailures: failedVerdicts(results),
+          missingPrerequisites: missing.map(describeTask),
+          budgetOverruns,
+        });
+  const hits = writeResult({
     index,
-    taskCount: shard.tasks.length,
-    estimatedSeconds: shard.seconds,
-    actualMs,
-    prefetchMs,
-    executionMs,
+    shard,
+    results,
     verdict,
-    hits: results.filter((task) => task.cache === 'HIT').length,
-    tasks: results,
-  };
-  writeFileSync(
-    join(DIRECTORY, 'results', `shard-${index}.json`),
-    JSON.stringify(result)
-  );
+    diagnosis,
+    timings: { actualMs, prefetchMs, executionMs },
+  });
   transferEvidence(index, results, env, verdict !== 0);
   console.log(
-    `shard ${index}: ${shard.tasks.length} tasks; estimated ${shard.seconds.toFixed(1)} task-seconds; actual ${(actualMs / 1000).toFixed(3)}s; ${result.hits} hits; ${misses.length} planned misses; prefetch ${prefetchMs.toFixed(0)}ms`
+    `shard ${index}: ${shard.tasks.length} tasks; estimated ${shard.seconds.toFixed(1)} task-seconds; actual ${(actualMs / 1000).toFixed(3)}s; ${hits} hits; ${misses.length} planned misses; prefetch ${prefetchMs.toFixed(0)}ms`
   );
+  if (diagnosis) announceFailure(index, diagnosis, env);
   return verdict;
+}
+
+/** Records the shard's verdict for `verify:end`; returns its cache hits. */
+function writeResult(args: {
+  index: number;
+  shard: VerifyPlan['shards'][number];
+  results: readonly Result[];
+  verdict: number;
+  diagnosis: Diagnosis | null;
+  timings: { actualMs: number; prefetchMs: number; executionMs: number };
+}): number {
+  const { index, shard, results, verdict, diagnosis, timings } = args;
+  const hits = results.filter((task) => task.cache === 'HIT').length;
+  mkdirSync(join(DIRECTORY, 'results'), { recursive: true });
+  writeFileSync(
+    join(DIRECTORY, 'results', `shard-${index}.json`),
+    JSON.stringify({
+      index,
+      taskCount: shard.tasks.length,
+      estimatedSeconds: shard.seconds,
+      ...timings,
+      verdict,
+      ...(diagnosis
+        ? { failure: { kind: diagnosis.kind, headline: diagnosis.headline } }
+        : {}),
+      hits,
+      tasks: results,
+    })
+  );
+  return hits;
+}
+
+/** Tasks Turbo itself recorded as failed, as opposed to ones cut off. */
+function failedVerdicts(
+  results: readonly Result[]
+): { taskId: string; exitCode: number }[] {
+  return results
+    .filter((task) => !task.passed && !task.interrupted)
+    .map((task) => ({ taskId: task.taskId, exitCode: task.exitCode }));
+}
+
+/** The report in the job log, an error annotation, and the run summary page. */
+function announceFailure(
+  index: number,
+  diagnosis: Diagnosis,
+  env: NodeJS.ProcessEnv
+): void {
+  console.error(redactSecrets(diagnosis.text, env));
+  console.error(
+    `::error title=Verify shard ${index} — ${diagnosis.kind}::${redactSecrets(diagnosis.headline, env).replaceAll('\n', ' ')}`
+  );
+  const summary = env['GITHUB_STEP_SUMMARY'];
+  if (summary)
+    appendFileSync(summary, `${redactSecrets(diagnosis.markdown, env)}\n`);
 }
 
 function transferEvidence(

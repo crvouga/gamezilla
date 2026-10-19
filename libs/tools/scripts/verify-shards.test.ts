@@ -652,3 +652,26 @@ test('an unmeasured spec part is estimated from its own suite before the family'
     durationSource: 'fallback',
   });
 });
+
+// regression: verify-failed-task-reported-as-timeout
+test('a task whose script exited non-zero is over, not "running" until its budget', () => {
+  let now = 0;
+  const logs: string[] = [];
+  const stream = taskStream([task('@libs/tools#ci:x')], (l) => logs.push(l), {
+    now: () => now,
+    completed: () => false,
+  });
+  const send = (text: string, level = 'info') =>
+    stream(JSON.stringify({ source: '@libs/tools#ci:x', text, level }));
+  send('cache miss, executing 0123456789abcdef');
+  now = 40;
+  send('spec ownership verification failed: ...');
+  send('error: script "ci:x" exited with code 1');
+  now = 1_000_000;
+  expect(stream.tick()).toEqual([]);
+  expect(logs.join('\n')).not.toContain('TIMEOUT');
+  expect(stream.snapshot().running).toEqual([]);
+  expect(stream.snapshot().failed.map((failed) => failed.taskId)).toEqual([
+    '@libs/tools#ci:x',
+  ]);
+});

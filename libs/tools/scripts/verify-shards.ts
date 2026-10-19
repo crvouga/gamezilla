@@ -213,20 +213,31 @@ export function validateShardResult(
     readonly taskId: string;
     readonly hash: string;
     readonly passed: boolean;
+    readonly interrupted?: boolean;
+    readonly exitCode?: number;
   }[]
 ): void {
   const expected = new Map(shard.tasks.map((task) => [task.taskId, task.hash]));
   const seen = new Set<string>();
   for (const task of results) {
-    if (
-      seen.has(task.taskId) ||
-      expected.get(task.taskId) !== task.hash ||
-      !task.passed
-    )
-      throw new Error(`Failed, duplicated or changed task: ${task.taskId}`);
+    if (seen.has(task.taskId))
+      throw new Error(`Task ${task.taskId} was reported twice`);
+    if (expected.get(task.taskId) !== task.hash)
+      throw new Error(
+        `Task ${task.taskId} ran with hash ${task.hash}, but the plan expected ${expected.get(task.taskId) ?? '(it is not in this shard)'}`
+      );
+    if (!task.passed)
+      throw new Error(
+        task.interrupted
+          ? `Task ${task.taskId} never finished: the shard was stopped first`
+          : `Task ${task.taskId} failed with exit code ${task.exitCode ?? 'unknown'}`
+      );
     seen.add(task.taskId);
   }
-  if (seen.size !== expected.size) throw new Error('Incomplete shard result');
+  if (seen.size !== expected.size)
+    throw new Error(
+      `Incomplete shard result: ${expected.size - seen.size} planned task(s) have no result`
+    );
 }
 
 /** Cache verdicts consume no execution slots; restore time is reported separately. */

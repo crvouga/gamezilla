@@ -4,6 +4,7 @@ import {
   formatJunit,
   formatMarkdown,
   formatTable,
+  shardFailureLines,
   suiteOf,
   summarize,
 } from './verify-verdict';
@@ -120,4 +121,16 @@ describe('verify verdict', () => {
     );
     expect(junit).toContain('name="@a/x#test"');
   });
+});
+
+test('verify:end says why each red shard is red, in shard order, and skips green ones', () => {
+  const shard = (index: number, headline?: string) => ({
+    index,
+    verdict: headline ? 124 : 0,
+    tasks: [],
+    ...(headline ? { failure: { kind: 'shard-deadline', headline } } : {}),
+  });
+  expect(
+    shardFailureLines([shard(63, 'late'), shard(1), shard(7, 'early')])
+  ).toEqual(['early', 'late']);
 });

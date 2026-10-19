@@ -37,7 +37,19 @@ export type ShardResult = {
   readonly index: number;
   readonly verdict: number;
   readonly tasks: readonly Result[];
+  /** Why the shard went red, in one line (`verify-shard-diagnosis.ts`). */
+  readonly failure?: { readonly kind: string; readonly headline: string };
 };
+
+/** One line per red shard saying why: a timeout is not a failing test. */
+export function shardFailureLines(
+  shards: readonly ShardResult[]
+): readonly string[] {
+  return [...shards]
+    .filter((shard) => shard.failure)
+    .sort((a, b) => a.index - b.index)
+    .map((shard) => shard.failure!.headline);
+}
 
 export type FailedTask = {
   readonly taskId: string;
@@ -289,7 +301,8 @@ function main(env: NodeJS.ProcessEnv): number {
   });
   const runUrl = `${env['GITHUB_SERVER_URL'] ?? 'https://github.com'}/${env['GITHUB_REPOSITORY'] ?? ''}/actions/runs/${env['GITHUB_RUN_ID'] ?? ''}`;
   const reports = activeProfile(env).reports;
-  const markdown = formatMarkdown(verdict, runUrl, reports);
+  const why = shardFailureLines(shards);
+  const markdown = `${why.length ? `## Why shards failed\n\n${why.map((line) => `- ${line}`).join('\n')}\n\n` : ''}${formatMarkdown(verdict, runUrl, reports)}`;
   mkdirSync(DIRECTORY, { recursive: true });
   // Report files are the nightly profile's; the `pr` profile's verdict is
   // the job log and the run summary.
@@ -312,6 +325,11 @@ function main(env: NodeJS.ProcessEnv): number {
     );
   if (env['GITHUB_STEP_SUMMARY'])
     appendFileSync(env['GITHUB_STEP_SUMMARY'], markdown);
+  if (why.length)
+    console.log(
+      `\n${'!'.repeat(78)}\nWHY THIS RUN IS RED\n${why.map((line) => `  - ${line}`).join('\n')}\n${'!'.repeat(78)}\n`
+    );
+  for (const line of why) console.log(`::error title=Verify::${line}`);
   console.log(formatTable(verdict));
   for (const suite of verdict.suites)
     for (const task of suite.failed)

@@ -36,6 +36,17 @@ export function completeResults(
       })),
   ];
 }
+function reportOverruns(
+  summary: ReturnType<typeof readLatestRunSummary>
+): string {
+  if (!summary) return '';
+  const overruns = findBudgetOverruns(summary, true);
+  if (overruns.length === 0) return '';
+  const text = formatBudgetOverruns(overruns);
+  console.error(text);
+  return text;
+}
+
 export function collectResults(args: {
   plan: VerifyPlan;
   shard: VerifyPlan['shards'][number];
@@ -43,7 +54,7 @@ export function collectResults(args: {
   needed: ReadonlySet<string>;
   status: number;
   env: NodeJS.ProcessEnv;
-}): { results: Result[]; verdict: number } {
+}): { results: Result[]; verdict: number; budgetOverruns: string } {
   const { plan, shard, summary, needed, status, env } = args;
   const results: Result[] = shard.tasks
     .filter(
@@ -110,15 +121,13 @@ export function collectResults(args: {
   try {
     validateShardResult(shard, complete);
   } catch (error) {
-    console.error(error);
+    // One line: the full explanation is the shard's diagnosis report.
+    console.error(
+      `Shard result check: ${error instanceof Error ? error.message : String(error)}`
+    );
     verdict = status || 1;
   }
-  if (summary) {
-    const overruns = findBudgetOverruns(summary, true);
-    if (overruns.length) {
-      console.error(formatBudgetOverruns(overruns));
-      verdict = 1;
-    }
-  }
-  return { results: complete, verdict };
+  const budgetOverruns = reportOverruns(summary);
+  if (budgetOverruns) verdict = 1;
+  return { results: complete, verdict, budgetOverruns };
 }
