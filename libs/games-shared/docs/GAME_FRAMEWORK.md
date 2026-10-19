@@ -5,7 +5,10 @@ framework owns every lifecycle a person meets around a game — choosing it in
 a space, custom games, finding an opponent, matched games, turns, clocks,
 results, notices, ratings, history and review — and invokes each game only
 through small, typed contracts. A game supplies its mechanics, its board and
-its copy. Adding one is [`ADDING_A_GAME.md`](ADDING_A_GAME.md).
+its copy. Adding one is [`ADDING_A_GAME.md`](ADDING_A_GAME.md). What
+the framework guarantees, the evidence behind each guarantee, and what is
+still open are in
+[`FRAMEWORK_HARDENING_REPORT.md`](FRAMEWORK_HARDENING_REPORT.md).
 
 ## Dependency direction
 
