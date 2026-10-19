@@ -1,4 +1,5 @@
 import { shippedModerationRules } from '@libs/moderation-shared/moderation-rules';
+import { canSubscribeToTopic } from '@libs/sub-shared/sync';
 import {
   LOCAL_CALL_DEADLINE_MS,
   openMainSqlClient,
@@ -127,6 +128,7 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     events: createInMemoryPubSub({ logger: pubsubLogger }),
     createPubSub: (options) =>
       options.url.length === 0 ? null : createClientPubSub(options),
+    canSubscribe: canSubscribeToTopic,
     openSqlClient: async (openArgs) => {
       return openMainSqlClient(
         openArgs?.userId ?? 'pending',

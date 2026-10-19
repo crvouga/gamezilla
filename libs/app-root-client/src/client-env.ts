@@ -8,7 +8,11 @@
 
 import type { DevMenuPort } from '@libs/app-root-shared/ports';
 import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
-import type { OpenSqlClient, ServerHttp } from '@libs/sub-shared/sync';
+import type {
+  ChannelsCtx,
+  OpenSqlClient,
+  ServerHttp,
+} from '@libs/sub-shared/sync';
 import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { ClipboardPort } from '@pkgs/device-shared/clipboard';
@@ -18,6 +22,7 @@ import type { NetworkStatePort } from '@pkgs/device-shared/network-state';
 import type { Kv } from '@pkgs/kv-root-shared/interface';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import type { ClientTransport } from '@pkgs/room-root-shared/transport';
 import type { SecureStorageStore } from '@pkgs/secure-storage-root-shared/secure-storage-store';
 import type { AudioPlaybackPort } from '@pkgs/sounds-shared/ports';
@@ -68,6 +73,12 @@ export type ClientEnv = {
    * broker factory, using the URL from synced `client_config`.
    */
   readonly createPubSub: (args: ClientPubSubArgs) => PubSub | null;
+  /**
+   * Whether the broker can ever grant this person `topic`. The wall's token
+   * broker grants only their own user topic and their rooms, so it sets this;
+   * the harness's in-memory bus grants everything and leaves it out.
+   */
+  readonly canSubscribe?: (topic: Topic, ctx: ChannelsCtx) => boolean;
   readonly openSqlClient: OpenSqlClient;
   /** Harness may shorten the sync safety-net interval. Wall uses the engine default. */
   readonly reconcileIntervalMs?: number;

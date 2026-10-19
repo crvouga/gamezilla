@@ -36,8 +36,25 @@ test('a person or room a fresh token granted is waited for, not failed', () => {
   ).toBe(true);
 });
 
-test('one refusal still standing when the run ends may only be the last stale token', () => {
-  expect(brokerVerdict([refused('subscribe', 'room:new-space')]).ok).toBe(true);
+test('a room still refused when the run ends may only be a membership still uploading', () => {
+  expect(
+    brokerVerdict([
+      refused('subscribe', 'room:new-space'),
+      refused('subscribe', 'room:new-space'),
+      refused('subscribe', 'room:new-space'),
+      refused('subscribe', 'room:new-space'),
+      refused('subscribe', 'room:new-space'),
+    ]).ok
+  ).toBe(true);
+});
+
+test('a person refused twice may only be signing in', () => {
+  expect(
+    brokerVerdict([
+      refused('subscribe', 'user:signing-in'),
+      refused('subscribe', 'user:signing-in'),
+    ]).ok
+  ).toBe(true);
 });
 
 // regression: push-subscribes-to-other-peoples-user-topics
@@ -53,12 +70,13 @@ test("another person's topic no token granted fails the run once the device asks
   expect(verdict.violations[0]).toContain('3 time(s)');
 });
 
-test('two devices each refused once are not a loop', () => {
+test('two devices each refused twice are not a loop', () => {
+  const twice = (clientId: string) => [
+    refused('subscribe', 'user:alice', { clientId }),
+    refused('subscribe', 'user:alice', { clientId }),
+  ];
   expect(
-    brokerVerdict([
-      refused('subscribe', 'room:new-space', { clientId: 'alice-phone' }),
-      refused('subscribe', 'room:new-space', { clientId: 'bob-phone' }),
-    ]).ok
+    brokerVerdict([...twice('alice-phone'), ...twice('bob-phone')]).ok
   ).toBe(true);
 });
 
