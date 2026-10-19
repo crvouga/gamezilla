@@ -84,7 +84,9 @@ function collectDesiredTopics(bag: PushSubscriptions): Map<Topic, Set<string>> {
     const rowDerived = bag.scopeRowTopics.get(sub.scope) ?? [];
     // rowDerived already includes entry when refreshHeldRowTopics ran; union
     // entry again so cold start (empty scopeRowTopics) still wakes.
-    const channels = [...entry, ...rowDerived];
+    const channels = [...entry, ...rowDerived].filter(
+      (topic) => bag.options.canSubscribe?.(topic, ctx) ?? true
+    );
     for (const topic of channels) {
       let scopes = desired.get(topic);
       if (scopes === undefined) {

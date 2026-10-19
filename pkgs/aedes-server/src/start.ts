@@ -76,7 +76,32 @@ export type Denial = {
   readonly clientId: string;
   /** Null for a refused connection, which names no topic. */
   readonly topic: string | null;
+  /**
+   * The same client was later let through the same operation on this topic:
+   * what refused it was a stale session, and a new one cured it.
+   */
+  readonly cured: boolean;
 };
+
+type RecordedDenial = { -readonly [K in keyof Denial]: Denial[K] };
+
+/** Mark what a client was refused earlier as cured now that it is let through. */
+function cure(
+  denials: readonly RecordedDenial[],
+  operation: Denial['operation'],
+  clientId: string,
+  topic: string
+): void {
+  for (const denial of denials) {
+    if (
+      denial.operation === operation &&
+      denial.clientId === clientId &&
+      denial.topic === topic
+    ) {
+      denial.cured = true;
+    }
+  }
+}
 
 export type StartAedesServerOptions = {
   /**
@@ -96,7 +121,7 @@ export type StartAedesServerOptions = {
 /** The broker's admission and authorization, from what the caller admits. */
 function brokerRules(
   admit: StartAedesServerOptions['admit'],
-  denials: Denial[]
+  denials: RecordedDenial[]
 ): AedesOptions {
   const limits = new WeakMap<Client, ClientAccess>();
   return {
@@ -111,6 +136,7 @@ function brokerRules(
           operation: 'connect',
           clientId: client.id,
           topic: null,
+          cured: false,
         });
         const refusal = Object.assign(new Error('not authorized'), {
           returnCode: 5 as const,
@@ -124,6 +150,7 @@ function brokerRules(
     authorizePublish: (client, packet, done) => {
       const access = client === null ? undefined : limits.get(client);
       if (access === undefined || access.canPublish(packet.topic)) {
+        if (client !== null) cure(denials, 'publish', client.id, packet.topic);
         done(null);
         return;
       }
@@ -131,12 +158,14 @@ function brokerRules(
         operation: 'publish',
         clientId: client?.id ?? '',
         topic: packet.topic,
+        cured: false,
       });
       done(new Error('not authorized'));
     },
     authorizeSubscribe: (client, subscription, done) => {
       const access = limits.get(client);
       if (access === undefined || access.canSubscribe(subscription.topic)) {
+        cure(denials, 'subscribe', client.id, subscription.topic);
         done(null, subscription);
         return;
       }
@@ -144,6 +173,7 @@ function brokerRules(
         operation: 'subscribe',
         clientId: client.id,
         topic: subscription.topic,
+        cured: false,
       });
       done(null, null);
     },
@@ -166,7 +196,7 @@ export async function startAedesServer(
   options: StartAedesServerOptions = {}
 ): Promise<AedesServerHandle> {
   const host = options.host ?? DEFAULT_HOST;
-  const denials: Denial[] = [];
+  const denials: RecordedDenial[] = [];
   const broker = new Aedes(brokerRules(options.admit, denials));
 
   const mqttServer = createTcpServer((stream) => {

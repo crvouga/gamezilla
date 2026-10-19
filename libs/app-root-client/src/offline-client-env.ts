@@ -23,6 +23,9 @@ import {
   setOriginAvailability,
 } from './origin-availability-for-env';
 
+/** How long a sign-in callback waits for the server's first answer. */
+const CALLBACK_CONNECT_WAIT_MS = 15_000;
+
 export type OfflineClientEnv = {
   readonly env: ClientEnv;
   readonly offline: OfflineNetworkController;
@@ -63,7 +66,8 @@ export function createOfflineClientEnv(
       (auth ??= createOfflineAuthClient(
         offline,
         source.createAuthClient(server),
-        () => originAvailabilityFor(source).getSnapshot().phase === 'available'
+        () => originAvailabilityFor(source).getSnapshot().phase === 'available',
+        () => waitForServer(source)
       )),
     openExternalUrl: async (url) => {
       if (offline.isOffline()) throw offlineNetworkError();
@@ -89,4 +93,18 @@ function configuredOfflinePubSub(
   }
   const initial = open();
   return initial === null ? null : createOfflinePubSub(offline, open, initial);
+}
+
+/** Resolves when the server has answered; gives up after the callback's wait. */
+async function waitForServer(source: ClientEnv): Promise<void> {
+  const abort = new AbortController();
+  const timer = source.timers.setTimeout(
+    () => abort.abort(),
+    CALLBACK_CONNECT_WAIT_MS
+  );
+  try {
+    await originAvailabilityFor(source).waitUntilAvailable(abort.signal);
+  } finally {
+    source.timers.clearTimeout(timer);
+  }
 }

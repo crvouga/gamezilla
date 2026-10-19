@@ -19,11 +19,16 @@ function offlineSession(
   };
 }
 
-/** Auth SDKs own hidden HTTP and provider navigation, so gate their whole port. */
+/**
+ * Auth SDKs own hidden HTTP and provider navigation, so gate their whole port.
+ * `waitUntilConnectable` resolves once the server has answered (or rejects when
+ * it will not); the sign-in callback waits on it.
+ */
 export function createOfflineAuthClient(
   offline: OfflineNetworkController,
   inner: AuthClientPort,
-  canConnect: () => boolean
+  canConnect: () => boolean,
+  waitUntilConnectable: () => Promise<void>
 ): AuthClientPort {
   const requireOnline = async <T>(work: () => Promise<T>): Promise<T> => {
     if (offline.isOffline()) throw offlineNetworkError();
@@ -61,8 +66,18 @@ export function createOfflineAuthClient(
     ...(inner.completeHostedAuthRedirect === undefined
       ? {}
       : {
-          completeHostedAuthRedirect: () =>
-            requireOnline(() => inner.completeHostedAuthRedirect!()),
+          // The callback screen opens before the first health probe has
+          // answered, so `canConnect()` is false on a cold start. Refusing
+          // there would drop the person's one-time code and leave them signed
+          // out with no error. Wait for the server, then exchange the code;
+          // a server that never answers fails the exchange itself, which the
+          // auth session publishes.
+          completeHostedAuthRedirect: async () => {
+            if (offline.isOffline()) throw offlineNetworkError();
+            if (!canConnect())
+              await waitUntilConnectable().catch(() => undefined);
+            return await inner.completeHostedAuthRedirect!();
+          },
         }),
   };
   // A signup handle left with the wrapped client is this client's to take.

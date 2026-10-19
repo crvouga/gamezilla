@@ -130,6 +130,7 @@ describe('a broker that admits clients', () => {
             operation: 'subscribe',
             clientId: expect.any(String),
             topic: 'system:chess_puzzles',
+            cured: false,
           },
         ]);
       } finally {
@@ -163,8 +164,57 @@ describe('a broker that admits clients', () => {
     await withBroker(async (broker) => {
       await expect(connectAs(broker.mqttUrl, 'stranger')).rejects.toThrow();
       expect(broker.denials()).toEqual([
-        { operation: 'connect', clientId: expect.any(String), topic: null },
+        {
+          operation: 'connect',
+          clientId: expect.any(String),
+          topic: null,
+          cured: false,
+        },
       ]);
     });
+  });
+
+  // regression: push-subscribes-to-other-peoples-user-topics
+  test('marks a refusal cured once the same client is let through, and not before', async () => {
+    let granted = false;
+    const broker = await startAedesServer({
+      admit: () => ({
+        kind: 'limited',
+        access: {
+          canSubscribe: (topic) => topic === 'room:new' && granted,
+          canPublish: () => false,
+          canReceive: () => true,
+        },
+      }),
+    });
+    try {
+      const connect = () => {
+        const client = mqtt.connect(broker.mqttUrl, {
+          clientId: 'bob-phone',
+          username: 'x',
+          password: 'secret',
+          protocolVersion: 4,
+          reconnectPeriod: 0,
+        });
+        const { promise, resolve, reject } =
+          Promise.withResolvers<typeof client>();
+        client.once('connect', () => resolve(client));
+        client.once('error', reject);
+        return promise;
+      };
+      const stale = await connect();
+      await expect(
+        stale.subscribeAsync('room:new', { qos: 1 })
+      ).rejects.toThrow();
+      expect(broker.denials().map((d) => d.cured)).toEqual([false]);
+      await stale.endAsync(true);
+      granted = true;
+      const fresh = await connect();
+      await fresh.subscribeAsync('room:new', { qos: 1 });
+      expect(broker.denials().map((d) => d.cured)).toEqual([true]);
+      await fresh.endAsync(true);
+    } finally {
+      await broker.stop();
+    }
   });
 });

@@ -16,6 +16,7 @@ import { defaultEntryChannel } from '@libs/sub-shared/sync';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import { createFailoverSqlClient } from '@pkgs/sql-client-root-shared/failover-sql-client';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { WebSqlClient } from '@pkgs/sql-client-sqlite-web-client/web-sql-client';
@@ -72,6 +73,10 @@ export type CreateAppLocalSyncEngineArgs = {
   /** Harness override; defaults to EMQX from client_config URL. */
   readonly createPubSub?:
     | ((args: ClientPubSubArgs) => PubSub | null)
+    | undefined;
+  /** See `ClientEnv.canSubscribe`. */
+  readonly canSubscribe?:
+    | ((topic: Topic, ctx: ChannelsCtx) => boolean)
     | undefined;
   readonly waitUntilAvailable?:
     | ((signal?: AbortSignal | null) => Promise<void>)
@@ -158,6 +163,9 @@ function pushOptions(
       rowImageFanout: true,
       topicMap: app.topicMap,
       defaultEntryChannel,
+      ...(args.canSubscribe !== undefined
+        ? { canSubscribe: args.canSubscribe }
+        : {}),
     },
   };
 }
