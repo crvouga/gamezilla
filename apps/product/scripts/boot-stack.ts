@@ -19,6 +19,7 @@ import {
   type StripeServer,
 } from '@crvouga/mockingbird-service-stripe/server';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
+import type { Denial } from '@pkgs/aedes-server/start';
 import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers-server/billing-providers';
 import { membershipCallbackPath } from '@pkgs/billing-root-shared/providers';
 import { STRIPE_MEMBERSHIP_PROVIDER } from '@pkgs/billing-stripe-server/provider-module';
@@ -86,6 +87,8 @@ export type LocalhostStack = {
   readonly manifestPath: string;
   /** What the API's requests asked of the database; null when it had a direct address. */
   readonly databaseLink: DatabaseLink | null;
+  /** What the broker refused browsers, as AWS IoT would. */
+  brokerDenials(): readonly Denial[];
   stop(): Promise<void>;
 };
 
@@ -552,6 +555,16 @@ function stackManifest(args: {
   };
 }
 
+/** What a run reads back from the backing services once it is over. */
+function stackProbes(
+  infra: InfraHandles
+): Pick<LocalhostStack, 'databaseLink' | 'brokerDenials'> {
+  return {
+    databaseLink: infra.databaseLink,
+    brokerDenials: infra.brokerDenials,
+  };
+}
+
 export async function bootLocalhostStack(
   options: StackOptions,
   externalWeb = false,
@@ -632,7 +645,7 @@ export async function bootLocalhostStack(
   return {
     manifest,
     manifestPath: writeManifest(REPO_ROOT, manifest),
-    databaseLink: infra.databaseLink,
+    ...stackProbes(infra),
     async stop() {
       await stopClients();
       await Promise.all(api.children.map((child) => stopChild(child)));

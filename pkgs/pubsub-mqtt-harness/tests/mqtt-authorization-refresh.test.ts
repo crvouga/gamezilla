@@ -40,7 +40,11 @@ async function settle() {
   for (let turn = 0; turn < 32; turn++) await Promise.resolve();
 }
 
-function connection(refusals = 1, refusalCode = 135) {
+function connection(
+  refusals = 1,
+  refusalCode = 135,
+  random: () => number = () => 0
+) {
   const clock = createHarnessClock();
   const brokers: Broker[] = [];
   let authCalls = 0;
@@ -48,7 +52,7 @@ function connection(refusals = 1, refusalCode = 135) {
     url: 'wss://broker.example/mqtt',
     clientIdPrefix: 'device',
     timers: clock.timers,
-    random: () => 0,
+    random,
     logger: createNoopLogger(),
     auth: async () => ({ username: 'jwt', password: `grant-${++authCalls}` }),
     connectFn: () => {
@@ -129,6 +133,26 @@ test('a rejected publish fails honestly and refreshes credentials for subsequent
     await settle();
     expect(c.authCalls()).toBe(2);
     await c.pubsub.publish('room:new-space', { revision: 2 });
+  } finally {
+    c.pubsub.close();
+  }
+});
+
+// regression: mqtt-ungranted-topic-reconnect-loop
+test('a topic no token grants backs reconnects off instead of retrying at the shortest delay', async () => {
+  const c = connection(Number.MAX_SAFE_INTEGER, 135, () => 0.999);
+  try {
+    await settle();
+    c.pubsub.subscribe('system:never-granted', () => {});
+    c.clock.clock.advance(499);
+    await settle();
+    expect(c.authCalls()).toBe(2);
+    c.clock.clock.advance(500);
+    await settle();
+    expect(c.authCalls()).toBe(2);
+    c.clock.clock.advance(500);
+    await settle();
+    expect(c.authCalls()).toBe(3);
   } finally {
     c.pubsub.close();
   }

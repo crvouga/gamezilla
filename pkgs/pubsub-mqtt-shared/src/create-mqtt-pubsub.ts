@@ -204,7 +204,6 @@ class MqttPubSub implements PubSub {
   private wireClient(client: MqttClient): void {
     client.on('connect', () => {
       if (this.closed || this.client !== client) return;
-      this.reconnectAttempt = 0;
       this.pendingSubscriptions.clear();
       this.subscribeTopics(client, [...this.topics.keys()]);
     });
@@ -276,6 +275,10 @@ class MqttPubSub implements PubSub {
       this.reconnectTimer !== null
     )
       return;
+    // Only a session the broker accepted whole starts the backoff over. One
+    // that connects and has a topic refused would otherwise retry at the
+    // shortest delay forever.
+    this.reconnectAttempt = 0;
     // A connected signal must follow SUBACK, so consumers can repair a
     // snapshot read before the broker began delivering the desired topics.
     this.setStatus('connected');

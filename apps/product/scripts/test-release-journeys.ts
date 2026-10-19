@@ -2,10 +2,12 @@
 import { execFileSync, spawn } from 'node:child_process';
 import { mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import type { Denial } from '@pkgs/aedes-server/start';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { build } from 'vite';
 import { bootLocalhostStack } from './boot-stack';
+import { brokerVerdict } from './broker-denials';
 import type { DatabaseLink } from './database-link';
 import {
   healthTestArguments,
@@ -122,6 +124,16 @@ function databaseExitCode(booted: {
   return verdict.ok ? 0 : 1;
 }
 
+/** A device AWS IoT would have dropped has not passed, whatever its screens showed. */
+function brokerExitCode(booted: {
+  brokerDenials(): readonly Denial[];
+}): number {
+  const verdict = brokerVerdict(booted.brokerDenials());
+  for (const violation of verdict.violations)
+    console.error(`broker: ${violation}`);
+  return verdict.ok ? 0 : 1;
+}
+
 const stack = await bootLocalhostStack(options, true, 'isolated');
 let server: ReturnType<typeof serveRelease> | undefined;
 try {
@@ -141,7 +153,8 @@ try {
     })
   );
   const databaseCode = databaseExitCode(stack);
-  process.exitCode = code === 0 ? databaseCode : code;
+  const brokerCode = brokerExitCode(stack);
+  process.exitCode = code === 0 ? databaseCode || brokerCode : code;
 } finally {
   await server?.stop(true);
   await stack.stop();
