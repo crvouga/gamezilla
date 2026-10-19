@@ -31,6 +31,14 @@ export type AttachPushOptions = {
     params: unknown,
     ctx: QueryChannelsCtx
   ) => readonly Topic[];
+  /**
+   * Whether the broker can ever grant this person `topic`. A held row names
+   * every topic its change is published to, including other people's; a
+   * broker refuses those on every connect, and a session with one refused
+   * topic never settles. Omitted: every topic a row or query names is
+   * subscribed.
+   */
+  readonly canSubscribe?: (topic: Topic, ctx: QueryChannelsCtx) => boolean;
 };
 
 export type PushSubscriptions = {

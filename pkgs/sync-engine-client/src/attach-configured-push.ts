@@ -35,6 +35,8 @@ export type SyncEnginePushOptions = {
     params: unknown,
     ctx: QueryChannelsCtx
   ) => readonly Topic[];
+  /** See `AttachPushOptions.canSubscribe`. */
+  readonly canSubscribe?: (topic: Topic, ctx: QueryChannelsCtx) => boolean;
 };
 
 type PushAttachState = {
@@ -121,6 +123,9 @@ function bindConfiguredPush(
     ...(topicMap !== undefined ? { topicMap } : {}),
     ...(push.defaultEntryChannel !== undefined
       ? { defaultEntryChannel: push.defaultEntryChannel }
+      : {}),
+    ...(push.canSubscribe !== undefined
+      ? { canSubscribe: push.canSubscribe }
       : {}),
     timers: state.options.timers,
     onTablesChanged: (listener) => state.bus.subscribe(listener),

@@ -55,6 +55,15 @@ export function userTopic(actorId: string): Topic {
   return `user:${actorId}`;
 }
 
+/**
+ * A person's own topic is granted to them alone (the pubsub token carries it
+ * for `actorId` only), so a user topic that is not theirs can never be
+ * subscribed, however many of that person's rows they hold.
+ */
+export function canSubscribeToTopic(topic: Topic, ctx: ChannelsCtx): boolean {
+  return !topic.startsWith('user:') || topic === userTopic(ctx.actorId);
+}
+
 export function userChannels(ctx: ChannelsCtx): Topic[] {
   return [userTopic(ctx.actorId)];
 }

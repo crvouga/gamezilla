@@ -12,7 +12,10 @@ import type { ConfigService } from '@libs/auth-shared/config-service-types';
 import type { ModerationRules } from '@libs/moderation-shared/moderation-rules';
 import type { ComposedSubs } from '@libs/sub-shared/compose';
 import type { ChannelsCtx, OpenSqlClient } from '@libs/sub-shared/sync';
-import { defaultEntryChannel } from '@libs/sub-shared/sync';
+import {
+  canSubscribeToTopic,
+  defaultEntryChannel,
+} from '@libs/sub-shared/sync';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
@@ -158,6 +161,7 @@ function pushOptions(
       rowImageFanout: true,
       topicMap: app.topicMap,
       defaultEntryChannel,
+      canSubscribe: canSubscribeToTopic,
     },
   };
 }
