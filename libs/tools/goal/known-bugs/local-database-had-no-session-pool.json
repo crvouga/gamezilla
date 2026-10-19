@@ -1,0 +1,4 @@
+{
+  "summary": "The local stack's Postgres had no round trip and no session pool, so a request that sent 200 statements, or held a pooled session for 34 consecutive ones, cost nothing in Check PR and starved Hyperdrive's 10 sessions in Deploy. The journeys now reach Postgres through a link with production's round trip, transaction-mode pool and per-request bill, and fail when a request exceeds its budget.",
+  "regressionTest": "apps/product/scripts/database-link.contract.test.ts"
+}

@@ -19,6 +19,7 @@
   "@apps/client#test": 1,
   "@apps/product#build": 8,
   "@apps/product#check:offline-shell": 1,
+  "@apps/product#check:rendered-worker": 6,
   "@apps/product#check:worker-bundle": 3,
   "@apps/product#lint": 7,
   "@apps/product#publish:spec:0": 4,

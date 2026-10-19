@@ -162,6 +162,7 @@ const CHECK_LEAVES = [
   '@apps/product#test:release-journeys',
   '@apps/auth-relay#check:worker-bundle',
   '@apps/product#check:worker-bundle',
+  '@apps/product#check:rendered-worker',
   '@libs/runtime-server#check:schema-evolution',
   '@libs/tools#check:actionlint',
   '@libs/tools#check:secrets',
@@ -518,6 +519,7 @@ describe('turbo check/deploy graph invariants', () => {
       '@apps/server#check:api',
       '@apps/product#check:offline-shell',
       '@apps/product#check:worker-bundle',
+      '@apps/product#check:rendered-worker',
     ]);
     expect(tasks).not.toHaveProperty('@apps/server#deploy');
     expect(tasks).not.toHaveProperty('@apps/room-server#deploy');

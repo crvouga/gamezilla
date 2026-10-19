@@ -33,9 +33,12 @@ locals {
     "${var.github_subject_prefix}:environment:production",
   ]
   # Health is branch-addressable, so every branch in this repository may
-  # inspect the AWS resources. The role below has no mutation actions.
+  # inspect the AWS resources. A pull request's checks plan the foundation
+  # stack against the real state, and their subject is `pull_request`, not a
+  # ref. The role below has no mutation actions.
   health_subjects = [
     "${var.github_subject_prefix}:ref:refs/heads/*",
+    "${var.github_subject_prefix}:pull_request",
     "${var.github_subject_prefix}:environment:production",
   ]
 }

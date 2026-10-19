@@ -44,6 +44,7 @@ const EXACT_TASKS = new Set([
   'test:contract:render',
   'check:models',
   'check:worker-bundle',
+  'check:rendered-worker',
   'check:offline-shell',
   'check:schema-evolution',
   'check:actionlint',

@@ -6,6 +6,7 @@ import type {
   MatchFormation,
 } from '@pkgs/matchmaking-sql-shared/match-pass';
 import { formMatches } from '@pkgs/matchmaking-sql-shared/match-pass';
+import { waitingPartitions } from '@pkgs/matchmaking-sql-shared/waiting-partitions';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
 import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
@@ -99,7 +100,11 @@ export async function acceptGameMatch(
     await projectOpponentSearch(tx, person.ownerId, ports.nowMs);
 }
 
-/** One formation pass per time control's pool; people meet only within one. */
+/**
+ * One formation pass per time control's pool; people meet only within one.
+ * A pass costs several statements and a deployment offers dozens of pools, so
+ * only the pools that have someone waiting get one.
+ */
 export async function formGameMatches(
   tx: SqlTx,
   ports: {
@@ -110,11 +115,14 @@ export async function formGameMatches(
   rules: TurnGames
 ): Promise<readonly string[]> {
   const owners: string[] = [];
-  for (const control of offeredTimeControls(rules))
+  const waiting = await waitingPartitions(tx, 2);
+  for (const control of offeredTimeControls(rules)) {
+    const pool = opponentPool(control.id, rules);
+    if (!waiting.has(pool)) continue;
     await formMatches(tx, {
       nowMs: ports.nowMs,
       createId: ports.createId,
-      partitionSignature: opponentPool(control.id, rules),
+      partitionSignature: pool,
       groupSize: 2,
       maxPairsPerPass: 500,
       radius: OPPONENT_SEARCH_RADIUS,
@@ -133,5 +141,6 @@ export async function formGameMatches(
         owners.push(...fact.participants.map((person) => person.ownerId));
       },
     });
+  }
   return owners;
 }

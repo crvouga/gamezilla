@@ -2,10 +2,13 @@
 import { execFileSync, spawn } from 'node:child_process';
 import { mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import type { Denial } from '@pkgs/aedes-server/start';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { build } from 'vite';
 import { bootLocalhostStack } from './boot-stack';
+import { brokerVerdict } from './broker-denials';
+import type { DatabaseLink } from './database-link';
 import {
   healthTestArguments,
   parseCli,
@@ -14,6 +17,7 @@ import {
 } from './health';
 import { LOCAL_MONITOR_TOKEN } from './local-api-env';
 import { removeManifest } from './manifest';
+import { databaseVerdict, profileOf } from './production-database';
 import { releaseJourneySpecs } from './release-journey-selection';
 import { specProcessExit } from './spec-process';
 import { parseStackOptions } from './stack-options';
@@ -21,7 +25,12 @@ import { parseStackOptions } from './stack-options';
 const PACKAGE_DIR = join(import.meta.dir, '..');
 const REPO_ROOT = join(PACKAGE_DIR, '../..');
 const DIST = join(PACKAGE_DIR, '.cache/release-web');
-const options = parseStackOptions(['--synthetic-population-workers=0']);
+// The journeys reach Postgres as the deployed API does (round trip, session
+// pool, per-request cost), because they decide whether a change can deploy.
+const options = parseStackOptions([
+  '--synthetic-population-workers=0',
+  '--production-database',
+]);
 const cli = parseCli(process.argv.slice(2));
 
 async function buildRelease(apiOrigin: string): Promise<void> {
@@ -98,6 +107,33 @@ function journeyStubs(): readonly string[] {
   );
 }
 
+/** A run whose requests cost more than the deployed database allows has not passed. */
+function databaseExitCode(booted: {
+  readonly databaseLink: DatabaseLink | null;
+}): number {
+  if (booted.databaseLink === null) return 0;
+  const summary = booted.databaseLink.summary();
+  const verdict = databaseVerdict(summary);
+  console.log(
+    `database link: ${String(summary.connections)} requests, at most ${String(summary.peakSessions)} pooled sessions at once; costliest:\n  ${verdict.costliest.join('\n  ')}`
+  );
+  if (process.env['STACK_DATABASE_PROFILE'] === '1')
+    console.log(`database link profile:\n${profileOf(summary)}`);
+  for (const violation of verdict.violations)
+    console.error(`database link: ${violation}`);
+  return verdict.ok ? 0 : 1;
+}
+
+/** A device AWS IoT would have dropped has not passed, whatever its screens showed. */
+function brokerExitCode(booted: {
+  brokerDenials(): readonly Denial[];
+}): number {
+  const verdict = brokerVerdict(booted.brokerDenials());
+  for (const violation of verdict.violations)
+    console.error(`broker: ${violation}`);
+  return verdict.ok ? 0 : 1;
+}
+
 const stack = await bootLocalhostStack(options, true, 'isolated');
 let server: ReturnType<typeof serveRelease> | undefined;
 try {
@@ -116,7 +152,9 @@ try {
       },
     })
   );
-  process.exitCode = code;
+  const databaseCode = databaseExitCode(stack);
+  const brokerCode = brokerExitCode(stack);
+  process.exitCode = code === 0 ? databaseCode || brokerCode : code;
 } finally {
   await server?.stop(true);
   await stack.stop();

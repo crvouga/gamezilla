@@ -1,0 +1,4 @@
+{
+  "summary": "Every successful mutation drained the outbox in a transaction that sent one SELECT per registered consumer (33 on dev). At about 240 ms per round trip to the database that held one of Hyperdrive's 10 pooled sessions for about 8.6 s, so the browser journeys in Deploy and Health starved the pool, waited 15 s for a session and failed with 'Timed out while waiting for an open slot in the pool'. A local database has no round-trip latency, so the Check PR gate never saw it. Deliveries for every consumer are now made in one statement.",
+  "regressionTest": "pkgs/outbox-harness/tests/drain-statements.test.ts"
+}

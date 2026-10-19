@@ -18,3 +18,9 @@ Feature: Serving people
 
     Scenario: The app has every setting it needs
       Then the app is given every setting it needs
+
+  Rule: The app brings up what people saved without keeping them waiting
+    No counter-example: the team checks this from outside, and nothing a person does is refused.
+
+    Scenario: The app brings up what people saved without keeping them waiting
+      Then the app brings up what people saved without keeping them waiting

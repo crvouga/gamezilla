@@ -342,6 +342,25 @@ jobs:
       - name: Run fan-in consumers
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-consumers.ts
+      # What Deploy would apply, planned against the real state for this merge
+      # result. Some configuration errors only a plan finds (a `removed` block
+      # whose resource is still in state, a project the provider cannot find);
+      # each failed Deploy after the pull request had passed. Read-only: the
+      # plan applies nothing and the AWS role it uses cannot mutate. They run
+      # after the fan-in consumers so those still report, and each runs when
+      # the other failed so one red plan does not hide the other.
+      - name: Plan the fleet stack
+        if: always() && !cancelled() && github.event_name == 'pull_request'
+        timeout-minutes: 15
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:fleet
+      # Foundation also reads AWS. Bootstrap sets the variable in the same
+      # apply that lets the read-only role trust a pull request.
+      - name: Plan dev's foundation stack
+        if: always() && !cancelled() && github.event_name == 'pull_request' && vars.INFRA_PLAN_ON_PULL_REQUEST == 'true'
+        timeout-minutes: 15
+        env:
+          AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:foundation
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.CHECK_PROFILE == 'nightly'
         uses: actions/upload-artifact@v6

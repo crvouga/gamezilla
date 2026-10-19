@@ -19,6 +19,7 @@ import {
   type StripeServer,
 } from '@crvouga/mockingbird-service-stripe/server';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
+import type { Denial } from '@pkgs/aedes-server/start';
 import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers-server/billing-providers';
 import { membershipCallbackPath } from '@pkgs/billing-root-shared/providers';
 import { STRIPE_MEMBERSHIP_PROVIDER } from '@pkgs/billing-stripe-server/provider-module';
@@ -31,6 +32,7 @@ import { createLogger } from '@pkgs/logger-shared/logger';
 import { spawnOwned as spawn } from '@pkgs/os-server/dev-owner-spawn';
 import type { InfraHandles } from './boot-infra';
 import { bootInfra } from './boot-infra';
+import type { DatabaseLink } from './database-link';
 import type { PortReservation } from './free-port';
 import {
   plannedPort,
@@ -83,6 +85,10 @@ const PRODUCT_DEV_ARGS = [
 export type LocalhostStack = {
   readonly manifest: StackManifest;
   readonly manifestPath: string;
+  /** What the API's requests asked of the database; null when it had a direct address. */
+  readonly databaseLink: DatabaseLink | null;
+  /** What the broker refused browsers, as AWS IoT would. */
+  brokerDenials(): readonly Denial[];
   stop(): Promise<void>;
 };
 
@@ -282,6 +288,8 @@ export async function startApiTier(args: {
   readonly webOrigin: string | null;
   /** How the nodes reach the backing services (`infraEnv`). */
   readonly infraEnv: Readonly<Record<string, string>>;
+  /** Where the nodes reach Postgres when that is not `infraEnv`'s direct address. */
+  readonly nodeDatabaseUrl?: string | undefined;
   readonly syntheticPopulationSecrets: Readonly<Record<string, string>>;
   /** Planned ports, one per node; without them each asks the OS for its own. */
   readonly ports?: readonly number[] | undefined;
@@ -316,6 +324,9 @@ export async function startApiTier(args: {
           ...args.syntheticPopulationSecrets,
           ...adminEnv,
           ...sharedDataEnv,
+          ...(args.nodeDatabaseUrl === undefined
+            ? {}
+            : { DATABASE_URL: args.nodeDatabaseUrl }),
         },
         roomServiceToken,
       })
@@ -427,6 +438,7 @@ async function startBillingAndApi(args: {
       },
       webOrigin: args.webOrigin,
       infraEnv: args.infra.env,
+      nodeDatabaseUrl: args.infra.databaseLink?.url,
       syntheticPopulationSecrets: args.syntheticPopulationSecrets,
     });
     return { billing, api };
@@ -517,6 +529,42 @@ function sharedSourceOptions(
     : {};
 }
 
+function stackManifest(args: {
+  readonly options: StackOptions;
+  readonly dataDir: string;
+  readonly api: ApiTier;
+  readonly infra: InfraHandles;
+  readonly origins: {
+    readonly api: string;
+    readonly web: string;
+    readonly billing: string;
+    readonly google: string;
+    readonly apple: string;
+  };
+}): StackManifest {
+  return {
+    instanceId: args.options.instanceId,
+    startedAtMs: Date.now(),
+    apiOrigin: args.origins.api,
+    apiNodes: args.api.backends,
+    webOrigin: args.origins.web,
+    idpOrigins: { google: args.origins.google, apple: args.origins.apple },
+    billingOrigin: args.origins.billing,
+    ...backingServiceManifest(args.infra),
+    dataDir: args.dataDir,
+  };
+}
+
+/** What a run reads back from the backing services once it is over. */
+function stackProbes(
+  infra: InfraHandles
+): Pick<LocalhostStack, 'databaseLink' | 'brokerDenials'> {
+  return {
+    databaseLink: infra.databaseLink,
+    brokerDenials: infra.brokerDenials,
+  };
+}
+
 export async function bootLocalhostStack(
   options: StackOptions,
   externalWeb = false,
@@ -581,23 +629,23 @@ export async function bootLocalhostStack(
     throw error;
   });
 
-  const manifest: StackManifest = {
-    instanceId: options.instanceId,
-    startedAtMs: Date.now(),
-    apiOrigin: balancer.origin,
-    apiNodes: api.backends,
-    webOrigin: webOrigin ?? '',
-    idpOrigins: {
+  const manifest = stackManifest({
+    options,
+    dataDir,
+    api,
+    infra,
+    origins: {
+      api: balancer.origin,
+      web: webOrigin ?? '',
+      billing: billingOrigin,
       google: loopback(idpReservations.google.port),
       apple: loopback(idpReservations.apple.port),
     },
-    billingOrigin,
-    ...backingServiceManifest(infra),
-    dataDir,
-  };
+  });
   return {
     manifest,
     manifestPath: writeManifest(REPO_ROOT, manifest),
+    ...stackProbes(infra),
     async stop() {
       await stopClients();
       await Promise.all(api.children.map((child) => stopChild(child)));

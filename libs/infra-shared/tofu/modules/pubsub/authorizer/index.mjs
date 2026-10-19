@@ -64,58 +64,108 @@ function topicArn(region, accountId, kind, topic) {
   return `arn:aws:iot:${region}:${accountId}:${kind}/${topic}`;
 }
 
-function policyDocument(payload, region, accountId, clientId) {
-  const subscribe = [];
-  const receive = [];
-  const publish = [];
+/**
+ * AWS IoT accepts at most this many session policy documents, each at most
+ * this many characters (whitespace excluded). A connection whose policy
+ * breaks either is terminated, so grants are packed into documents instead
+ * of one that grows with every room a person is in.
+ */
+export const MAX_POLICY_DOCUMENTS = 10;
+export const MAX_POLICY_CHARACTERS = 2048;
+
+function renderDocument(draft) {
+  const statements = [];
+  if (draft.connect !== null) {
+    statements.push({
+      Effect: 'Allow',
+      Action: 'iot:Connect',
+      Resource: draft.connect,
+    });
+  }
+  for (const [action, resource] of [
+    ['iot:Subscribe', draft.subscribe],
+    ['iot:Receive', draft.receive],
+    ['iot:Publish', draft.publish],
+  ]) {
+    if (resource.length > 0) {
+      statements.push({ Effect: 'Allow', Action: action, Resource: resource });
+    }
+  }
+  return { Version: '2012-10-17', Statement: statements };
+}
+
+function documentSize(draft) {
+  return JSON.stringify(renderDocument(draft)).replace(/\s/g, '').length;
+}
+
+function emptyDraft(connect) {
+  return { connect, subscribe: [], receive: [], publish: [] };
+}
+
+function topicGrants(payload, region, accountId) {
+  const grants = new Map();
   const rules = Array.isArray(payload.acl) ? payload.acl : [];
   for (const rule of rules) {
     if (rule?.permission !== 'allow' || typeof rule.topic !== 'string')
       continue;
     const wire = iotWireTopic(rule.topic);
     if (!/^[A-Za-z0-9_/-]+$/.test(wire)) continue;
-    const filter = topicArn(region, accountId, 'topicfilter', wire);
-    const topic = topicArn(region, accountId, 'topic', wire);
-    if (rule.action === 'subscribe' || rule.action === 'all') {
-      subscribe.push(filter);
-      receive.push(topic);
+    const grant = grants.get(wire) ?? { subscribe: false, publish: false };
+    if (rule.action === 'subscribe' || rule.action === 'all')
+      grant.subscribe = true;
+    if (rule.action === 'publish' || rule.action === 'all')
+      grant.publish = true;
+    grants.set(wire, grant);
+  }
+  return [...grants].map(([wire, grant]) => ({
+    filter: grant.subscribe
+      ? topicArn(region, accountId, 'topicfilter', wire)
+      : null,
+    topic: topicArn(region, accountId, 'topic', wire),
+    subscribe: grant.subscribe,
+    publish: grant.publish,
+  }));
+}
+
+/**
+ * Every grant in token order, packed greedily. The first topics (the
+ * actor's own, then the runtime config) are never the ones dropped; when the
+ * documents run out, the rooms last in order lose their live updates and
+ * are reported in `dropped`.
+ */
+function policyDocuments(payload, region, accountId, clientId) {
+  const documents = [];
+  let draft = emptyDraft(topicArn(region, accountId, 'client', clientId));
+  let dropped = 0;
+  for (const grant of topicGrants(payload, region, accountId)) {
+    const add = (target) => {
+      if (grant.subscribe) {
+        target.subscribe.push(grant.filter);
+        target.receive.push(grant.topic);
+      }
+      if (grant.publish) target.publish.push(grant.topic);
+    };
+    const grown = structuredClone(draft);
+    add(grown);
+    if (documentSize(grown) <= MAX_POLICY_CHARACTERS) {
+      draft = grown;
+      continue;
     }
-    if (rule.action === 'publish' || rule.action === 'all') publish.push(topic);
+    if (documents.length + 1 >= MAX_POLICY_DOCUMENTS) {
+      dropped += 1;
+      continue;
+    }
+    documents.push(renderDocument(draft));
+    draft = emptyDraft(null);
+    add(draft);
   }
-  const statements = [
-    {
-      Effect: 'Allow',
-      Action: 'iot:Connect',
-      Resource: topicArn(region, accountId, 'client', clientId),
-    },
-  ];
-  if (subscribe.length > 0) {
-    statements.push({
-      Effect: 'Allow',
-      Action: 'iot:Subscribe',
-      Resource: subscribe,
-    });
-  }
-  if (receive.length > 0) {
-    statements.push({
-      Effect: 'Allow',
-      Action: 'iot:Receive',
-      Resource: receive,
-    });
-  }
-  if (publish.length > 0) {
-    statements.push({
-      Effect: 'Allow',
-      Action: 'iot:Publish',
-      Resource: publish,
-    });
-  }
-  return { Version: '2012-10-17', Statement: statements };
+  documents.push(renderDocument(draft));
+  return { documents, dropped };
 }
 
 /**
  * @param {unknown} event
- * @param {{ tokenSecret: string, region: string, accountId: string, nowSec: number }} config
+ * @param {{ tokenSecret: string, region: string, accountId: string, nowSec: number, warn?: (message: string) => void }} config
  */
 export function authorize(event, config) {
   if (config.tokenSecret.length === 0) return deny();
@@ -141,6 +191,13 @@ export function authorize(event, config) {
     MAX_DISCONNECT_SEC,
     Math.floor(remaining)
   );
+  const { documents, dropped } = policyDocuments(
+    payload,
+    config.region,
+    config.accountId,
+    clientId
+  );
+  if (dropped > 0) config.warn?.(`policy full: ${dropped} topics not granted`);
   return {
     isAuthenticated: true,
     // IoT accepts only alphanumeric principals (UUID hyphens are invalid).
@@ -148,9 +205,7 @@ export function authorize(event, config) {
     principalId: createHash('sha256').update(payload.sub).digest('hex'),
     disconnectAfterInSeconds,
     refreshAfterInSeconds: 300,
-    policyDocuments: [
-      policyDocument(payload, config.region, config.accountId, clientId),
-    ],
+    policyDocuments: documents,
   };
 }
 
@@ -160,5 +215,6 @@ export async function handler(event) {
     region: process.env.AWS_REGION ?? '',
     accountId: process.env.AWS_ACCOUNT_ID ?? '',
     nowSec: Math.floor(Date.now() / 1000),
+    warn: console.warn,
   });
 }
