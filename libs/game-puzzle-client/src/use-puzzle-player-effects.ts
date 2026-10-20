@@ -11,11 +11,11 @@ export function usePuzzlePlayerEffects(args: {
   status: Accessor<PuzzlePlayStatus | 'loading'>;
 }): void {
   const feedback = usePuzzleFeedback();
-  const prevSolveIdxRef: { current: number } = { current: 0 };
+  const prevSolveIdxRef: { current: number | null } = { current: null };
 
   createEffect(() => {
     void args.puzzleId();
-    prevSolveIdxRef.current = 0;
+    prevSolveIdxRef.current = null;
   });
 
   usePuzzleStatusFeedback({
@@ -29,8 +29,8 @@ export function usePuzzlePlayerEffects(args: {
     const status = args.status();
     if (
       status !== PUZZLE_PLAY_STATUS.solving ||
-      solveIdx <= prevSolveIdxRef.current ||
-      prevSolveIdxRef.current <= 0
+      prevSolveIdxRef.current === null ||
+      solveIdx <= prevSolveIdxRef.current
     ) {
       prevSolveIdxRef.current = solveIdx;
       return;

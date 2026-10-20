@@ -61,8 +61,8 @@ export function definedWith(
 
 /**
  * Foreign inputs belong to test-owned consumers, even when production has
- * no games. The solo probe supplies a foreign position and puzzle only;
- * its unsupported line is not installed or claimed as conforming here.
+ * no games. These independently authored inputs share no concrete plugin
+ * fixture, position namespace or rules implementation.
  */
 const FOREIGN_INPUTS = [SETUP_RACE_GAME, SOLO_COUNT_GAME];
 

@@ -9,6 +9,7 @@
 
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import type { HarnessGame } from './harness-game';
 import { harnessGameOf } from './harness-game-of';
 import type { PuzzleFixture, PuzzleFixtureMove } from './known-puzzles';
@@ -30,16 +31,17 @@ export function knownPuzzlesOf(game: HarnessGame): readonly PuzzleFixture[] {
 }
 
 /**
- * "The game's known puzzle": its first known puzzle whose line is four
- * moves long — the setup move, the solver's move, the opponent's reply and
- * the solver's last move.
+ * "The game's known puzzle": its first known puzzle of two solver moves.
  */
 export function theKnownPuzzle(game: HarnessGame): PuzzleFixture {
+  const puzzles = game.shared.turnGame.capabilities.puzzles;
+  if (puzzles === undefined) throw new Error(`${game.label} offers no puzzles`);
+  const layout = puzzleLineLayout(puzzles);
   const fixture = knownPuzzlesOf(game).find(
-    (known) => known.record.line.length === 4
+    (known) => known.record.line.length === layout.start + layout.solverStep + 1
   );
   if (fixture === undefined)
-    throw new Error(`${game.label}: name a known puzzle of four moves`);
+    throw new Error(`${game.label}: name a known puzzle of two solver moves`);
   return fixture;
 }
 
@@ -112,11 +114,11 @@ async function reachMove(
         const after = await readPuzzleProbe(s, actorId);
         if (after === null) return null;
         if (after.status !== 'solving') return true;
-        return after.solveIdx > probe.solveIdx + 1 && after.interactive
+        return after.solveIdx > probe.solveIdx && after.interactive
           ? true
           : null;
       },
-      { maxMs: WAIT_MS, stepMs: POLL_MS, description: "the opponent's reply" }
+      { maxMs: WAIT_MS, stepMs: POLL_MS, description: 'the next solver move' }
     );
   }
 }
@@ -153,14 +155,22 @@ export const solveKnownPuzzle = scenarioAction({
   },
 });
 
-/** Play the next move of the solution and wait for the opponent's reply. */
+/** Play the next move of the solution and wait until play can continue. */
 export const playNextKnownMove = scenarioAction({
   name: 'playNextKnownMove',
   act: async (s, actorId: string, gameId: string) => {
     const game = harnessGameOf(s, gameId);
     const fixture = await knownPuzzleOnBoard(s, actorId, game);
     const { solveIdx } = await waitSolverMayMove(s, actorId);
-    await reachMove(s, actorId, { game, fixture }, solveIdx + 2);
+    const puzzles = game.shared.turnGame.capabilities.puzzles;
+    if (puzzles === undefined)
+      throw new Error(`${game.label} offers no puzzles`);
+    await reachMove(
+      s,
+      actorId,
+      { game, fixture },
+      solveIdx + puzzleLineLayout(puzzles).solverStep
+    );
   },
 });
 
@@ -212,7 +222,12 @@ export const reachKnownOpponentMove = scenarioAction({
   act: async (s, actorId: string, gameId: string) => {
     const game = harnessGameOf(s, gameId);
     const fixture = await knownPuzzleOnBoard(s, actorId, game);
-    await reachMove(s, actorId, { game, fixture }, fixture.opponentMove.at);
+    await reachMove(
+      s,
+      actorId,
+      { game, fixture },
+      knownOpponentMove(fixture).at
+    );
   },
 });
 
@@ -220,8 +235,14 @@ export const reachKnownOpponentMove = scenarioAction({
 export const tryKnownOpponentMove = scenarioAction({
   name: 'tryKnownOpponentMove',
   act: (s, actorId: string, gameId: string) =>
-    playFixtureMove(s, actorId, gameId, (fixture) => fixture.opponentMove),
+    playFixtureMove(s, actorId, gameId, knownOpponentMove),
 });
+
+function knownOpponentMove(fixture: PuzzleFixture): PuzzleFixtureMove {
+  if (fixture.opponentMove === undefined)
+    throw new Error(`${fixture.record.id} has no opponent move`);
+  return fixture.opponentMove;
+}
 
 /**
  * A wrong move wherever the solver is to move: the known wrong move there,

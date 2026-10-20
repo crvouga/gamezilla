@@ -54,7 +54,7 @@ test('every probe game imports only the framework public game API', async () => 
     'probe-parts.tsx',
     'puzzle-only-game.ts',
     'setup-race-game.ts',
-    'solo-count-game.ts',
+    'solo-count-game.tsx',
   ]);
   const violations: string[] = [];
   for (const file of games) {

@@ -328,6 +328,8 @@ export const Handles = {
   // spaces games
   /** A game offered in the space's game choice. */
   gameMenu: (gameId: string) => `game-menu-${gameId}`,
+  /** The selected game's menu, including games without custom games. */
+  gameChoices: 'game-choices',
   /** One of the selected game's choices, by the screen it opens. */
   gameChoice: (screen: string) => `game-choice-${screen}`,
   /** The board of a matched game, whichever game it is. */

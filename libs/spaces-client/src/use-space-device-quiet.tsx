@@ -1,4 +1,4 @@
-import { MarkQuiet } from '@libs/spaces-shared/space-quiet';
+import { MarkQuiet, SpaceQuietRoomAttr } from '@libs/spaces-shared/space-quiet';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
@@ -13,7 +13,10 @@ import {
 
 import { noteSpaceQuiet, registerSpaceQuiet } from './space-quiet-registry';
 import { useSpaceRoomClientId } from './space-room-context';
-import { useSpaceRoomDispatch } from './use-space-room-selector';
+import {
+  useSpaceRoomDispatch,
+  useSpaceRoomSelector,
+} from './use-space-room-selector';
 
 /** Two minutes with nothing done is idle. One minute is not. */
 const QUIET_MS = 120_000;
@@ -37,6 +40,7 @@ export function SpaceQuietHost(props: {
 }): JSX.Element {
   const clientId = useSpaceRoomClientId();
   const dispatch = useSpaceRoomDispatch();
+  const quietMarks = useSpaceRoomSelector(SpaceQuietRoomAttr.quiet.from);
   const timers = useTimers();
   const engine = useSyncEngine();
   const pending = {
@@ -48,6 +52,7 @@ export function SpaceQuietHost(props: {
     const id = clientId();
     if (id === null || id.length === 0) return;
     noteSpaceQuiet(id, quiet);
+    if ((quietMarks()[id] === true) === quiet) return;
     dispatch(MarkQuiet({ clientId: id, quiet }));
   };
 

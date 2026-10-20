@@ -6,11 +6,8 @@
  * offered exactly Puzzle and Puzzle stats in a space, and plays a known
  * puzzle to its solve through the platform's shared puzzle screen.
  *
- * Limitation (executable): a puzzle without an opponent. A puzzle's line
- * alternates the opponent's moves with the solver's (`PuzzleRecord.line`:
- * `line[0]` the opponent's setup, the solver `line[1]`, `line[3]`, …), and
- * sides take turns (the rules law), so a puzzle whose every move is the
- * solver's is refused by both.
+ * A solver-only game is checked without inventing an opponent or a setup
+ * move; its first line action is the person's first move.
  */
 
 import { expect, test } from 'bun:test';
@@ -35,7 +32,6 @@ import {
   areasOf,
   inheritedCodeSuites,
   inheritedSpecifications,
-  TAKES_TURNS_LAW,
 } from './probe-verdict';
 import { PUZZLE_ONLY_GAME } from './puzzle-only-game';
 import { SOLO_COUNT_GAME } from './solo-count-game';
@@ -75,17 +71,10 @@ test('a space offers a puzzle-only game exactly its puzzles, played on the share
   ]);
 }, 120_000);
 
-test('a puzzle with no opponent is refused: its line must alternate solver and opponent', () => {
-  // As its author means it: both moves of the line are the solver's.
-  expect(() => assertHarnessGame(SOLO_COUNT_GAME)).toThrow(
-    "the known puzzle solo-count/two-twos's solution is not its line's solver moves"
-  );
+test('a puzzle with no opponent is checked with every line move belonging to its solver', () => {
+  expect(() => assertHarnessGame(SOLO_COUNT_GAME)).not.toThrow();
 });
 
-test('rules where only one side ever moves break the turn law', () => {
-  const refused = refusals(SOLO_COUNT_GAME);
-  expect([...refused.keys()]).toContain(TAKES_TURNS_LAW);
-  expect(refused.get(TAKES_TURNS_LAW)).toContain(
-    "it is white's turn, not black's"
-  );
+test('a one-person puzzle keeps every applicable law', () => {
+  expect([...refusals(SOLO_COUNT_GAME).keys()]).toEqual([]);
 });

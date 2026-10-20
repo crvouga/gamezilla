@@ -59,6 +59,27 @@ describe('taskBudgetSeconds', () => {
     );
   });
 
+  // regression: game-conformance-serial-task-budget
+  test('the 492-second combined game suite exceeds the unchanged budget of every contract part', () => {
+    expect(
+      findBudgetOverruns(
+        { tasks: [task('@libs/games-harness#test', 492)] },
+        false,
+        {}
+      )
+    ).toEqual([
+      { taskId: '@libs/games-harness#test', seconds: 492, budgetSeconds: 300 },
+    ]);
+    for (let part = 0; part < 5; part += 1)
+      expect(
+        taskBudgetSeconds(
+          `@libs/games-harness#test:contract:${part}`,
+          false,
+          {}
+        )
+      ).toBe(300);
+  });
+
   test('split multiplayer proofs retain their existing allowance', () => {
     // regression: multiplayer-bounded-proof-timeout
     const withinAllowance = Array.from({ length: 16 }, () => 419);

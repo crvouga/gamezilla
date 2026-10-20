@@ -24,7 +24,7 @@ tests and types alike. The table was read with `jq .gameApi` on each manifest.
 | --- | --- | --- |
 | Core contracts | `@pkgs/turn-game-shared` | `game-rules` (`GameRules`, `TurnGameCapabilities`, `GameBots`, `MatchmakingCapability`, `HistoryCapability`, `GameSide`, `createTurnGames`), `game-presentation`, `game-automation` |
 | Capability contracts | `@pkgs/turn-game-shared` | `game-puzzles` (`PuzzlesCapability`, `PuzzleRecord`, `PuzzleMarks`); the other capability contracts live in `game-rules` |
-| | `@libs/game-puzzle-client` | `puzzle-client` (`GamePuzzlesClient`, `PuzzleBoardProps`, `PuzzleAttempt`, …), `personal-puzzle-stats-screen` |
+| | `@libs/game-puzzle-client` | `puzzle-client` (`GamePuzzlesClient`, `PuzzleBoardProps`, `PuzzleAttempt`, …); personal stats are registered by framework composition |
 | | `@libs/game-puzzle-shared` | `puzzle-catalogue`, `sub`, `puzzle-link`, `completion`, `hint-stage`, `solve-status` |
 | Extension points (composition) | `@libs/game-session-shared` | `turn-game-definition` (`defineTurnGame`) |
 | | `@libs/game-menu-client` | `game-client` (`defineGameClient`: `shared`, `presentation`, `puzzles`, `choices`, `screens`, `settings`, `Frame`, `SessionEffects`) |

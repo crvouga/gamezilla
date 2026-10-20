@@ -2,12 +2,13 @@
  * `specs/games/puzzle-sound.qnt` on the product, for each conformance game
  * offering puzzles: a signed-in solver, the app's sounds on or off, is
  * solving the game's known puzzle (alone in the pool) at its first move, or
- * reviewing it solved at move 3. What she heard is what her device's audio
+ * reviewing it solved before the last move. What she heard is what her device's audio
  * actually played since the last action, each sound as the game names it
  * (`HarnessGame.puzzleSounds`); a capture, check or castling is a move.
  */
 
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
+import { knownPuzzleLinePoint } from '@libs/game-session-harness/puzzle-line-layout';
 import {
   playNextKnownMove,
   solveKnownPuzzle,
@@ -35,8 +36,6 @@ import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import { conformanceGameOf } from '../conformance-world';
 
 const SOLVER = 'alice';
-/** The review is opened at this move, before the line's last. */
-const REVIEW_MOVE = 3;
 /** How long a sound already due has to play. */
 const SOUND_MS = 1_000;
 /** Memo key: how many puzzle sounds were played before the last action. */
@@ -85,7 +84,12 @@ async function prepare(
     await w.s.apply(solveKnownPuzzle, SOLVER, gameId(w));
     await w.s.apply(showGamePuzzleStats, SOLVER, gameId(w));
     await w.s.apply(openPuzzleReviewFromLog, SOLVER, known);
-    await w.s.apply(chooseReviewMove, SOLVER, REVIEW_MOVE);
+    const game = gameOfTrace(w);
+    await w.s.apply(
+      chooseReviewMove,
+      SOLVER,
+      knownPuzzleLinePoint(game, theKnownPuzzle(game), 'before-last').move
+    );
   }
   await w.s.advanceTime(SOUND_MS);
   await noteHeard(w);

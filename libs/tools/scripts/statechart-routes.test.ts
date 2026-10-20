@@ -113,6 +113,70 @@ describe('declared product route closure', () => {
     ).toBe(true);
   });
 
+  // regression: statechart-mapped-client-route-family
+  test('finds the route family returned by a composed client-array factory', () => {
+    const files = sources();
+    files.set(
+      PRODUCT_ROUTE_ROOTS[1],
+      `
+      import { createClients } from '@libs/example-client/sub-client';
+      export const APP_SUB_CLIENTS = [...createClients(registeredClients)];
+    `
+    );
+    files.set(
+      'libs/example-client/src/sub-client.tsx',
+      `
+      import { defineSubClient } from '@libs/sub-client/client';
+      function statsClient(game) {
+        const path = \`/more/\${game.id}-stats\`;
+        return defineSubClient({ name: 'stats', routes: [{ path }] });
+      }
+      export function createClients(games) {
+        return games.flatMap((game) => game.puzzles === undefined ? [] : [statsClient(game)]);
+      }
+    `
+    );
+    const routes = declaredProductRoutes(files);
+    expect(routes).toContainEqual({
+      path: '/more/:id-stats',
+      source: 'libs/example-client/src/sub-client.tsx',
+    });
+    const detail = {
+      meta: { routes: ['/more/:id-stats', '/*all', '/harness'] },
+    };
+    const owned = { ...chart(), states: { ...chart().states, Detail: detail } };
+    expect(routeCoverageProblems(owned, routes)).toEqual([]);
+    detail.meta.routes = ['/more/example-stats', '/*all', '/harness'];
+    expect(
+      routeCoverageProblems(owned, routes).some((issue) =>
+        issue.message.includes('no chart state owns')
+      )
+    ).toBe(true);
+    const factory = files.get('libs/example-client/src/sub-client.tsx')!;
+    files.set(
+      'libs/example-client/src/sub-client.tsx',
+      factory.replaceAll('game', 'client')
+    );
+    expect(declaredProductRoutes(files)).toEqual(routes);
+    files.set(
+      'libs/example-client/src/sub-client.tsx',
+      factory.replace('game.id', 'process.env.ROUTE')
+    );
+    expect(() => declaredProductRoutes(files)).toThrow('static pattern');
+  });
+
+  test('rejects cyclic client-array factories', () => {
+    const files = sources();
+    files.set(
+      PRODUCT_ROUTE_ROOTS[1],
+      `
+      function createClients() { return createClients(); }
+      export const APP_SUB_CLIENTS = [...createClients()];
+    `
+    );
+    expect(() => declaredProductRoutes(files)).toThrow('Cyclic route factory');
+  });
+
   test('rejects a dynamic route instead of treating a template as a complete declaration', () => {
     const files = sources();
     files.set(

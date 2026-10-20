@@ -1,0 +1,4 @@
+{
+  "summary": "The shared puzzle room and board suites assume every first solver index is one and every solver action advances two entries, blocking automatic solo conformance.",
+  "regressionTest": "libs/games-harness/tests/conformance/puzzles/puzzle-session.test.ts"
+}

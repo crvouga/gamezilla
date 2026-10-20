@@ -51,56 +51,81 @@ async function execute(args: readonly string[]) {
   }
 }
 
-function sharedFeatures(directory: string): readonly string[] {
-  return ['custom-games', 'game-turns'].map((name) => {
-    const featureUri = `specs/games/${name}.feature`;
-    const path = join(directory, `${name}.test.ts`);
-    writeFileSync(
-      path,
-      stubSource({
-        packageName: '@libs/games-harness',
-        featurePath: join(ROOT, featureUri),
-        featureUri,
-        stepsEntry: join(import.meta.dir, 'steps/index.ts'),
-        bridge: '@pkgs/gherkin-server/bun-test',
-      })
-    );
-    return path;
-  });
+function sharedFeature(directory: string, name: string): string {
+  const featureUri = `specs/games/${name}.feature`;
+  const path = join(directory, `${name}.test.ts`);
+  writeFileSync(
+    path,
+    stubSource({
+      packageName: '@libs/games-harness',
+      featurePath: join(ROOT, featureUri),
+      featureUri,
+      stepsEntry: join(import.meta.dir, 'steps/index.ts'),
+      bridge: '@pkgs/gherkin-server/bun-test',
+    })
+  );
+  return path;
 }
 
-test('shared client/server suites and canonical features execute with only independent test consumers', async () => {
-  const cache = join(PACKAGE, '.cache');
-  mkdirSync(cache, { recursive: true });
-  const directory = mkdtempSync(join(cache, 'independence-'));
-  try {
-    const result = await execute([
-      'test',
-      ...PRELOADS,
-      // The same scenario timeout used by the repository's spec runner.
-      '--timeout',
-      '240000',
-      'tests/conformance',
-      'tests/game-conformance-matrix.test.ts',
-      'tests/reference-game',
-      ...sharedFeatures(directory),
-    ]);
-    expect(result.code, result.output).toBe(0);
-    expect(result.output).toContain('setup race › rules');
-    expect(result.output).toContain('counting race › rules');
-    expect(result.output).toContain('[setup race]');
-    expect(result.output).toContain('0 fail');
-    const checks = /^\s*(\d+) pass\s*\n\s*0 fail/m.exec(result.output);
-    expect(checks).not.toBeNull();
-    process.stdout.write(
-      `framework independence: ${checks?.[1]} checks passed in the test-only composition\n`
-    );
-    for (const game of HARNESS_GAMES)
-      expect(result.output).not.toContain(`${game.label} ›`);
-  } finally {
-    rmSync(directory, { recursive: true, force: true });
+function assertIndependent(
+  result: Awaited<ReturnType<typeof execute>>,
+  names: readonly string[]
+): void {
+  expect(result.code, result.output).toBe(0);
+  for (const name of names) expect(result.output).toContain(name);
+  expect(result.output).toContain('0 fail');
+  const checks = /^\s*(\d+) pass\s*\n\s*0 fail/m.exec(result.output);
+  expect(checks).not.toBeNull();
+  process.stdout.write(
+    `framework independence: ${checks?.[1]} checks passed in the test-only composition\n`
+  );
+  for (const game of HARNESS_GAMES) {
+    expect(result.output).not.toContain(`${game.label} ›`);
+    expect(result.output).not.toContain(`[${game.label}]`);
   }
+}
+
+// regression: isolated-framework-combined-run-timeout
+test('shared client/server suites execute with only independent test consumers', async () => {
+  const result = await execute([
+    'test',
+    ...PRELOADS,
+    '--timeout',
+    '240000',
+    'tests/conformance',
+    'tests/game-conformance-matrix.test.ts',
+    'tests/reference-game',
+  ]);
+  assertIndependent(result, [
+    'setup race › rules',
+    'counting race › rules',
+    'solo count › rules',
+    'solo count › puzzles',
+  ]);
 }, 180_000);
+
+test.each(['custom-games', 'game-turns'])(
+  '%s executes with only independent test consumers',
+  async (name) => {
+    const cache = join(PACKAGE, '.cache');
+    mkdirSync(cache, { recursive: true });
+    const directory = mkdtempSync(join(cache, 'independence-'));
+    try {
+      const result = await execute([
+        'test',
+        ...PRELOADS,
+        // The same scenario timeout used by the repository's spec runner.
+        '--timeout',
+        '240000',
+        sharedFeature(directory, name),
+      ]);
+      assertIndependent(result, ['[setup race]', '[counting race]']);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  },
+  180_000
+);
 
 test('isolation rejects a hidden concrete-game source before loading it', async () => {
   const manifests = [

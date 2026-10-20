@@ -1,0 +1,4 @@
+{
+  "summary": "The shared sound scenario requires two movement sounds even when a solo continuation has no opponent reply.",
+  "regressionTest": "libs/games-harness/tests/probes/solo-puzzle-feedback.test.ts"
+}

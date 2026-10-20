@@ -24,7 +24,7 @@ const SOLO_CASE: ReviewCase = {
   lineMode: 'solver-only',
 };
 
-/** A controller probe, independent of the still-unenrolled consumer's fixture catalogue. */
+/** A controller probe, independent of the consumer's fixture catalogue. */
 function openReview(initial: number | null = 2, probe: ReviewCase = SOLO_CASE) {
   const registered = probe.game.shared.turnGame;
   const puzzles = registered.capabilities.puzzles;

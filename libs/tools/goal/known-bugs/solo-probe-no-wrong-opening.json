@@ -1,0 +1,4 @@
+{
+  "summary": "The solo probe's one-two opening has only correct legal moves, so the shared attempt model cannot exercise a wrong opening (seed 0x67932, trace 44, step 2).",
+  "regressionTest": "libs/games-harness/tests/probes/solo-puzzle-conformance.test.ts"
+}

@@ -55,7 +55,7 @@ export type PuzzleBoardProps = GameBoardProps & {
 export type PuzzleAttempt = {
   readonly puzzleId: Accessor<string>;
   readonly status: Accessor<SolveStatus>;
-  /** The stored line: the setup move, then the solver's and replies. */
+  /** The stored actions in the game's declared puzzle line layout. */
   readonly line: Accessor<string>;
   readonly solveIdx: Accessor<number>;
   /** Bumps each time the board is laid out again (a retry, a new puzzle). */

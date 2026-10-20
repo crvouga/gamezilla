@@ -489,8 +489,12 @@ Given(
     rememberThemed(w, [known.record.id]);
     // Served it by limiting the feed to the theme, solved, and the feed
     // widened back to every theme.
-    await limitToTheme(w, actor);
-    await servedPuzzle(w, actor, (id) => id === known.record.id);
+    // regression: themed-pool-already-current-puzzle
+    // solo-count/two-twos may already be the initially served puzzle.
+    if ((await w.s.read(readPuzzleOnBoard, actor)) !== known.record.id) {
+      await limitToTheme(w, actor);
+      await servedPuzzle(w, actor, (id) => id === known.record.id);
+    }
     await w.s.apply(solveKnownPuzzle, actor, puzzleGameId(w));
     await w.s.apply(openPuzzleFeedSettings, actor);
     await w.s.apply(clearPuzzleFeedTheme, actor, puzzleGameId(w), theme);

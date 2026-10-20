@@ -27,7 +27,7 @@ export const pickGame = scenarioAction({
     await bringToFront(s, actor);
     await ui.get(Handles.gameMenu(gameId)).expect.visible();
     await ui.get(Handles.gameMenu(gameId)).tap();
-    await ui.get(Handles.gameChoice('custom-game')).expect.visible();
+    await ui.get(Handles.gameChoices).expect.visible();
   },
 });
 
@@ -82,11 +82,7 @@ export async function showsGameScreen(
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
   return ui
-    .get(
-      screen === null
-        ? Handles.gameChoice('custom-game')
-        : SHARED_SCREEN_MARK[screen]
-    )
+    .get(screen === null ? Handles.gameChoices : SHARED_SCREEN_MARK[screen])
     .isVisible();
 }
 

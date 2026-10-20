@@ -49,6 +49,7 @@ async function drawn(
 
 forEveryGame(import.meta.path, (game) => {
   const c = puzzleCase(game);
+  const { layout } = c;
 
   test('the automated participant plays each solution move on the puzzle board', async () => {
     for (const fixture of c.known) {
@@ -57,7 +58,7 @@ forEveryGame(import.meta.path, (game) => {
         const played: string[] = [];
         const driver = await mount(
           game,
-          { position: trail[2 * index + 1] ?? '' },
+          { position: trail[layout.start + layout.solverStep * index] ?? '' },
           played
         );
         await game.shared.automation.perform(driver, BOARD, action);
@@ -71,7 +72,7 @@ forEveryGame(import.meta.path, (game) => {
 
   test('the board shows a wrong move, a hint and the shown solution', async () => {
     const fixture = c.long;
-    const position = c.trail(fixture)[1] ?? '';
+    const position = c.trail(fixture)[layout.start] ?? '';
     const solution = c.puzzles.marks(position, fixture.solution[0] ?? '');
     if (solution === null) throw new Error('the solution move names no cells');
     const plain = await drawn(game, { position });
@@ -95,7 +96,7 @@ forEveryGame(import.meta.path, (game) => {
     const driver = await mount(
       game,
       {
-        position: c.trail(fixture)[1] ?? '',
+        position: c.trail(fixture)[layout.start] ?? '',
         mode: 'review',
         interactive: false,
       },

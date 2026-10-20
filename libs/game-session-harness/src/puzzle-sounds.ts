@@ -7,8 +7,23 @@
 
 import type { ProductHarness } from '@libs/harness/harness';
 import type { InMemoryAudioPlaybackPort } from '@pkgs/sounds-shared/in-memory-audio-playback-port';
-import type { PuzzleSoundKind } from './harness-game';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
+import type { HarnessGame, PuzzleSoundKind } from './harness-game';
 import { harnessGameOf } from './harness-game-of';
+
+/** The declared continuation: the correct cue, the solver's move and any reply. */
+export function puzzleContinuationSounds(
+  game: HarnessGame
+): readonly PuzzleSoundKind[] {
+  const puzzles = game.shared.turnGame.capabilities.puzzles;
+  if (puzzles === undefined) throw new Error(`${game.label} offers no puzzles`);
+  return [
+    'correct move',
+    ...Array<PuzzleSoundKind>(puzzleLineLayout(puzzles).solverStep).fill(
+      'move'
+    ),
+  ];
+}
 
 /** Every puzzle sound `gameId`'s puzzles played on the device, oldest first. */
 export async function readPuzzleSoundsPlayed(

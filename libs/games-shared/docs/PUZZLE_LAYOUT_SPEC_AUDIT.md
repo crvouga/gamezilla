@@ -248,6 +248,22 @@ This closes the client bounds/cursor gap. Solver-only fixture checking,
 board feedback, shared-suite enrollment, C4, strict wording and complete P3
 evidence remain open. The verdict is still INCOMPLETE.
 
+## Consumer enrollment execution checkpoint
+
+The solo consumer is checked and enrolled in the common composition, with
+three known puzzles and thirty more, real marks and audio, and no fabricated
+opponent input. Fixture and conformance indices follow the declared layout;
+head-to-head turn and victory obligations remain enforced for the relevant
+capabilities. The first shared puzzle suite run failed 13 checks; its
+parameterized follow-up passed all 197. Both common layout models then
+passed all 29 checks with the solo implementation included, not merely an
+abstract constant assignment. Literal regressions pin the first correct cue,
+zero selection and puzzle-only menu recognition failures those runs found.
+
+The broader inherited feature/model run and final package, isolation and
+repository checks are pending. C4, strict wording and complete P3 evidence
+remain open; this checkpoint does not change the INCOMPLETE verdict.
+
 The navigation checkpoint's full `bun verify` again failed on the unchanged
 deploy YAML alias (`verify-run-GfskPh/diagnostics.tar.gz`). It is not a full
 green verdict.

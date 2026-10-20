@@ -43,7 +43,7 @@ in source, tests and steps alike (the full map and the reasons are in
 | `@libs/game-session-shared` | `turn-game-definition` |
 | `@libs/game-menu-client` | `game-client` |
 | `@libs/game-puzzle-shared` (a game offering puzzles) | `puzzle-catalogue`, `sub`, `puzzle-link`, `completion`, `hint-stage`, `solve-status` |
-| `@libs/game-puzzle-client` (a game offering puzzles) | `puzzle-client`, `personal-puzzle-stats-screen` |
+| `@libs/game-puzzle-client` (a game offering puzzles) | `puzzle-client` |
 | `@libs/spaces-shared` | `game` (only for a game with its own room behaviour) |
 | `@libs/game-session-harness` (its `-harness`) | `harness-game`, `known-puzzles`, `game-system`, `game-navigation`, `space-game-choice`, `custom-game-ui`, `custom-game-controls`, `custom-game-lineup`, `custom-game-moves`, `custom-game-screen`, `custom-game-reads`, `custom-game-history`, `puzzle-session-probe`, `puzzle-fixtures`, `puzzle-screen`, `puzzle-records`, `puzzle-moves`, `puzzle-room-probe`, `puzzle-link`, `puzzle-finishes`, `puzzle-result-recovery`, `puzzle-listening`, `puzzle-sounds` |
 | `@libs/game-matchmaking-harness` (its `-harness`) | `matched-game-world`, `matched-game-app.steps`, `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record`, `multiplayer-time`, `matched-game-fixtures` |
@@ -160,11 +160,10 @@ Puzzles are offered by a part on each side, and nothing else changes:
   orchestration and assertions and the faulty copies that prove them are
   the framework's.
 
-A game offering puzzles also wires its puzzle stats outside any space,
-as chess's `personal-chess-stats-client` does: a route rendering
-`PersonalPuzzleStatsScreen` and a Settings row marked
-`Handles.settingsPuzzleStats(<game id>)` (a watcher reads their own stats
-there whatever the host's connection).
+A puzzle game's personal stats are registered by the client composition,
+through `createPersonalPuzzleStatsClients`. Games supply no route or settings
+wrapper. The shared `/more/<game id>-stats` screen shows the person's own
+rating, log and reviews, regardless of the space host's connection.
 
 The platform then offers Puzzle and Puzzle stats among the game's
 choices, the feed and its settings, ratings and feed settings of the
@@ -206,7 +205,7 @@ export const RACE_PLAYABLE: PlayableGame = {
     refusedOpenings: ['back', ''],
     // Only for a game with positions where a side cannot win (chess's bare
     // king): a line to one, ending with the first side's move. Without it
-    // the rules laws check that both sides can always win.
+    // the head-to-head rules laws check that both sides can always win.
     // secondSideCannotWin: [...],
     // Only for a game its rules can draw (chess's repetition, Connect
     // Four's full board): a line the rules draw on its last move. Without
@@ -236,6 +235,13 @@ export const RACE_HARNESS_GAME: HarnessGame = assertHarnessGame({
   // readRecord: readRaceRecord,
 });
 ```
+
+For puzzles without an opponent, declare `puzzles.lineMode: 'solver-only'`.
+Every recorded action belongs to the solver, starting at index zero in the
+supplied position. Include every action in the fixture's `solution` and omit
+`opponentMove`; the default opponent layout still requires that refused
+opponent input. The test-only `solo-count` consumer demonstrates checked
+fixtures, board gestures, marks and audio through the same shared suites.
 
 That is all. The game is now enrolled automatically:
 
@@ -296,7 +302,9 @@ A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
 
 ```sh
 bunx turbo run tc lint test --filter=@libs/race-shared --filter=@libs/race-client --filter=@libs/race-harness
-bunx turbo run test test:contract test:spec --filter=@libs/games-harness   # shared suites and isolation proof
+bunx turbo run test test:contract test:contract:0 test:contract:1 \
+  test:contract:2 test:contract:3 test:contract:4 test:spec \
+  --filter=@libs/games-harness                              # shared suites and isolation proof
 bunx turbo run test:spec --filter=@libs/race-harness         # the game's own rules
 bun verify
 ```

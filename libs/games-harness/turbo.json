@@ -11,6 +11,91 @@
         "$TURBO_ROOT$/pkgs/*/package.json"
       ]
     },
+    "test:contract:0": {
+      "inputs": [
+        "src/**",
+        "tests/conformance-world.ts",
+        "tests/conformance/game-suite.ts",
+        "tests/conformance/rules/**",
+        "tests/reference-game/**",
+        "tests/probes/**",
+        "!tests/reference-game/**/*.test.ts",
+        "!tests/probes/**/*.test.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/**",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/package.json"
+      ]
+    },
+    "test:contract:1": {
+      "inputs": [
+        "src/**",
+        "tests/conformance-world.ts",
+        "tests/conformance/game-suite.ts",
+        "tests/conformance/custom-games/**",
+        "tests/reference-game/**",
+        "tests/probes/**",
+        "!tests/reference-game/**/*.test.ts",
+        "!tests/probes/**/*.test.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/**",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/package.json"
+      ]
+    },
+    "test:contract:2": {
+      "inputs": [
+        "src/**",
+        "tests/conformance-world.ts",
+        "tests/conformance/game-suite.ts",
+        "tests/conformance/matchmaking/**",
+        "tests/reference-game/**",
+        "tests/probes/**",
+        "!tests/reference-game/**/*.test.ts",
+        "!tests/probes/**/*.test.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/**",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/package.json"
+      ]
+    },
+    "test:contract:3": {
+      "inputs": [
+        "src/**",
+        "tests/conformance-world.ts",
+        "tests/conformance/game-suite.ts",
+        "tests/conformance/history/**",
+        "tests/reference-game/**",
+        "tests/probes/**",
+        "!tests/reference-game/**/*.test.ts",
+        "!tests/probes/**/*.test.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/**",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/package.json"
+      ]
+    },
+    "test:contract:4": {
+      "inputs": [
+        "src/**",
+        "tests/conformance-world.ts",
+        "tests/conformance/game-suite.ts",
+        "tests/conformance/puzzles/**",
+        "tests/reference-game/**",
+        "tests/probes/**",
+        "!tests/reference-game/**/*.test.ts",
+        "!tests/probes/**/*.test.ts",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/specs/games/**",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/package.json"
+      ]
+    },
     "verify:models:0": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
     },

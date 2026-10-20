@@ -8,6 +8,7 @@ import {
   setupPuzzle,
 } from '@libs/game-puzzle-shared/puzzle-setup';
 import type { PuzzleRecord } from '@pkgs/turn-game-shared/game-puzzles';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import type { GameRules } from '@pkgs/turn-game-shared/game-rules';
 import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
 import type { GameLaw } from './game-rules-laws';
@@ -271,8 +272,9 @@ function solutionFollows(puzzleGame: PuzzleGame, fixture: PuzzleFixture): void {
     `${record.id} is solved by ${setup.solverSide}, not ${fixture.solverSide}`
   );
   const trail = rulesTrail(puzzleGame.rules, record);
+  const layout = puzzleLineLayout(puzzleGame.puzzles);
   for (const [index, action] of fixture.solution.entries()) {
-    const at = 2 * index + 1;
+    const at = layout.start + layout.solverStep * index;
     const verdict = judged(puzzleGame, fixture, { at, action });
     const last = at === record.line.length - 1;
     const followed =
@@ -301,7 +303,12 @@ function solutionFollows(puzzleGame: PuzzleGame, fixture: PuzzleFixture): void {
 /** Every move its rules allow at each solver move of the line is judged. */
 function legalJudged(puzzleGame: PuzzleGame, fixture: PuzzleFixture): void {
   const trail = rulesTrail(puzzleGame.rules, fixture.record);
-  for (let at = 1; at < fixture.record.line.length; at += 2)
+  const layout = puzzleLineLayout(puzzleGame.puzzles);
+  for (
+    let at = layout.start;
+    at < fixture.record.line.length;
+    at += layout.solverStep
+  )
     for (const action of puzzleGame.rules.legal(trail[at] ?? ''))
       must(
         judged(puzzleGame, fixture, { at, action }).kind !== 'illegal',
@@ -332,10 +339,16 @@ function wonAnotherWay(
  * other than the line's wins for the solver: a game naming no puzzle won
  * another way has none among its known puzzles.
  */
-function winsOnlyByLine(rules: GameRules, fixture: PuzzleFixture): void {
+function winsOnlyByLine(puzzleGame: PuzzleGame, fixture: PuzzleFixture): void {
+  const { rules } = puzzleGame;
+  const layout = puzzleLineLayout(puzzleGame.puzzles);
   const trail = rulesTrail(rules, fixture.record);
   for (const [index, lineMove] of fixture.record.line.entries()) {
-    if (index % 2 !== 1) continue;
+    if (
+      index < layout.start ||
+      (index - layout.start) % layout.solverStep !== 0
+    )
+      continue;
     const position = trail[index] ?? '';
     for (const action of rules.legal(position))
       must(
@@ -359,10 +372,8 @@ function transposes(
     `${fixture.record.id}: the transposition ${move.action} is judged ${kindOf(verdict)}`
   );
   const line = [...fixture.record.line];
-  [line[move.at], line[move.at + 2]] = [
-    line[move.at + 2] ?? '',
-    line[move.at] ?? '',
-  ];
+  const later = move.at + puzzleLineLayout(puzzleGame.puzzles).solverStep;
+  [line[move.at], line[later]] = [line[later] ?? '', line[move.at] ?? ''];
   must(
     verdict.kind === 'correct' &&
       JSON.stringify(verdict.line) === JSON.stringify(line),
@@ -430,10 +441,16 @@ export function gamePuzzleJudgeLaws(game: HarnessGame): readonly GameLaw[] {
       game,
       "its refused move and its opponent's move are no move",
       each((fixture) => {
+        must(
+          puzzleLineLayout(puzzleGame.puzzles).solverStep === 1 ||
+            fixture.opponentMove !== undefined,
+          `${fixture.record.id}: no opponent move is named`
+        );
         for (const [name, move] of [
           ['refused move', fixture.refusedMove],
           ["opponent's move", fixture.opponentMove],
         ] as const) {
+          if (move === undefined) continue;
           const verdict = judged(puzzleGame, fixture, move);
           must(
             verdict.kind === 'illegal',
@@ -453,7 +470,7 @@ export function gamePuzzleJudgeLaws(game: HarnessGame): readonly GameLaw[] {
           law(
             game,
             'with no known puzzle won another way, its rules win each known puzzle only by its line',
-            each((fixture) => winsOnlyByLine(puzzleGame.rules, fixture))
+            each((fixture) => winsOnlyByLine(puzzleGame, fixture))
           ),
         ]),
     ...traitLaws(game, known, [
@@ -499,6 +516,7 @@ export function gamePuzzlePlaybackLaws(game: HarnessGame): readonly GameLaw[] {
   const of = puzzlesOf(game);
   if (of === null) return [];
   const { puzzleGame, known } = of;
+  const layout = puzzleLineLayout(puzzleGame.puzzles);
   return [
     law(game, 'the line replays as its rules play it', () => {
       for (const { record } of known) {
@@ -514,7 +532,8 @@ export function gamePuzzlePlaybackLaws(game: HarnessGame): readonly GameLaw[] {
           `${record.id} replays to other positions`
         );
         must(
-          positionAt(puzzleGame, record.position, record.line, 1) === trail[1],
+          positionAt(puzzleGame, record.position, record.line, layout.start) ===
+            trail[layout.start],
           `${record.id} is not set up at its setup move`
         );
       }
@@ -526,7 +545,11 @@ export function gamePuzzlePlaybackLaws(game: HarnessGame): readonly GameLaw[] {
         for (const fixture of known) {
           const trail = rulesTrail(puzzleGame.rules, fixture.record);
           for (const [index, action] of fixture.solution.entries())
-            namesCells(puzzleGame, trail[2 * index + 1] ?? '', action);
+            namesCells(
+              puzzleGame,
+              trail[layout.start + layout.solverStep * index] ?? '',
+              action
+            );
           namesCells(
             puzzleGame,
             trail[fixture.wrongMove.at] ?? '',

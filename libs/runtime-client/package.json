@@ -22,6 +22,7 @@
     "@libs/friends-client": "workspace:*",
     "@libs/game-catalog-shared": "workspace:*",
     "@libs/game-matchmaking-client": "workspace:*",
+    "@libs/game-menu-client": "workspace:*",
     "@libs/game-puzzle-client": "workspace:*",
     "@libs/games-client": "workspace:*",
     "@libs/games-shared": "workspace:*",

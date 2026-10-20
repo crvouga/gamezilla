@@ -30,7 +30,8 @@ const FEATURE = `Feature: A shared list
 
 describe('source-derived statechart guide', () => {
   // regression: puzzle-contract-statechart-ownership
-  test('the puzzle import guide includes the new load and saved-source contracts', () => {
+  // regression: puzzle-opponent-statechart-ownership
+  test('the puzzle guide owns imported sources and opponent-only contracts', () => {
     const root = join(import.meta.dir, '../../..');
     const paths = [
       'specs/chess/puzzle-load-controls.feature',
@@ -38,6 +39,7 @@ describe('source-derived statechart guide', () => {
       'specs/chess/puzzle-load-updates.feature',
       'specs/chess/puzzle-source.qnt',
       'specs/chess/saved-puzzles.feature',
+      'specs/games/puzzle-opponent.feature',
     ];
     const machine = JSON.parse(
       readFileSync(join(root, 'specs/product.machine.json'), 'utf8')

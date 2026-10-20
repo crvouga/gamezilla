@@ -5,11 +5,10 @@
  * tests) are written as games, from the public game API alone
  * (`probe-imports.test.ts`); only the framework's side judges them.
  *
- * A probe game is not enrolled in `CONFORMANCE_GAMES`, so the shared
- * specifications and code suites are not run for it here: what it inherits
+ * A probe need not be enrolled in `CONFORMANCE_GAMES`: what it inherits
  * is what they bind by its capabilities and traits, exactly as they bind
- * an enrolled game (`offersAll`), and each of those suites runs for an
- * enrolled game offering the same capabilities.
+ * an enrolled game (`offersAll`). The solo-count consumer is also enrolled
+ * there, so it executes the suites whose enrollment is inspected here.
  */
 
 import { join } from 'node:path';
@@ -24,7 +23,7 @@ import { offeredCapabilities } from '@pkgs/turn-game-shared/game-rules';
 import { planCodeSuites } from '../conformance/game-suite';
 import { sharedSpecifications } from '../conformance-world';
 
-/** The rules law every turn game keeps: sides take turns. */
+/** The turn order promised by the current head-to-head specifications. */
 export const TAKES_TURNS_LAW =
   'the first side moves first and every action passes the turn to the other side';
 

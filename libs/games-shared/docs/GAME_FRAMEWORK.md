@@ -127,7 +127,7 @@ It is never a new entry for an internal module.
 | | `puzzle-link` | The puzzle link's route, path and parsing |
 | | `completion`, `hint-stage`, `solve-status` | The attempt's vocabulary its `PuzzleAttempt` speaks: a completion and its rating change, the hint's stage, the solve status |
 | `@libs/game-puzzle-client` | `puzzle-client` | `GamePuzzlesClient`, `PuzzleBoardProps`, `PuzzleBoardMarks`, `PuzzleSuggestion`, `PuzzleAttempt`, `PuzzleCoachLine`, `PuzzleFeedback`: the client part a game offering puzzles supplies |
-| | `personal-puzzle-stats-screen` | `PersonalPuzzleStatsScreen`: a game's puzzle stats outside any space, on the game's own route (chess's `/more/chess-stats`), reached from a Settings row marked `Handles.settingsPuzzleStats(<game id>)` |
+| | Personal puzzle stats | Framework-owned: composition derives each registered puzzle game's settings entry and `/more/<game id>-stats` route; no game-owned wrapper or additional public game API |
 | `@pkgs/turn-game-client`, `@libs/game-session-client`, `@libs/game-session-server`, `@libs/game-matchmaking-shared`, `@libs/game-matchmaking-client` | none | The platform's screens, consumers, commands and storage: a game never imports them |
 | `@libs/games-shared`, `@libs/games-client`, `@libs/game-catalog-shared`, `@libs/games-harness` | none | Registries: composition roots import `game-plugins`, `game-plugins.client`, `turn-games` / `game-automations` and `harness-games` / `game-conformance`; a game never depends on one (`gameViolations`) |
 
@@ -678,6 +678,10 @@ behaviour for exactly what it offers:
   names those requirements as its third argument: for example, a copied
   game record needs `['matchmaking']` beside `history`. Every game meeting
   those requirements must register a case of its own.
+  The package's `test:contract:0` through `:4` run rules, custom games,
+  matchmaking, history and puzzles respectively. `test` owns the ordinary
+  checks and matrix; `test:contract` owns the isolated composition. The full
+  gate enumerates all parts, with the same task budgets as other packages.
 - **Independent oracles.** Expected outcomes come from each game's
   `fixtures` — a known first-side victory, known refused openings and, for
   a game that has one, a known line to a position its second side cannot
@@ -806,12 +810,14 @@ definitions import only the `gameApi` modules, checked by
 [`probe-imports.test.ts`](../../games-harness/tests/probes/probe-imports.test.ts)),
 and judged by the framework's own laws and planner
 ([`probe-verdict.ts`](../../games-harness/tests/probes/probe-verdict.ts)).
-A probe game is not enrolled in `CONFORMANCE_GAMES`: what it inherits is
+A probe need not be enrolled in `CONFORMANCE_GAMES`: what it inherits is
 what the shared suites and specifications bind by its capabilities
 (`offersAll`), which run for an enrolled game offering the same ones. A
 supported probe passes every law; a limitation is pinned by the law that
 refuses it, a runtime refusal or a `@ts-expect-error`, so it fails the
 day the boundary moves.
+The solver-only consumer is enrolled alongside the reference game and
+production games; it executes the shared rules and puzzle suites and specs.
 The isolated composition also executes setup-race through every applicable
 code suite and the shared custom-game and turn features, rather than
 relying on its planned enrollment alone.
@@ -819,7 +825,7 @@ relying on its planned enrollment alone.
 | Probe | Outcome | Public contracts | Framework change | Shared screens, specs and suites | Boundary |
 | --- | --- | --- | --- | --- | --- |
 | [Puzzle-first](../../games-harness/tests/probes/puzzle-only.test.ts) (puzzles only: no custom games, opponent or history) | Executable: supported | `defineTurnGame({ capabilities: { puzzles } })`, `defineGameClient({ puzzles })`, `HarnessGame` with known puzzles | None | A space offers exactly Puzzle and Puzzle stats; a known puzzle is solved on the shared puzzle screen; every `specs/games` specification needing only `puzzles`, and the `rules` and `puzzles` code suites | — |
-| [Puzzle without an opponent](../../games-harness/tests/probes/puzzle-only.test.ts) (`solo-count`) | Executable: limitation | The same | Would need one | — | A puzzle's line alternates the opponent's moves with the solver's (`PuzzleRecord.line`; `solverMovesOf`, `puzzle-judge`, `opponent-stage` by parity), and sides take turns: `assertHarnessGame` refuses the solver-only line, the turn law the rules. Extending it: a line of solver moves with optional replies in `PuzzleRecord`, the judge and stager, and a single-seat turn |
+| [Puzzle without an opponent](../../games-harness/tests/probes/puzzle-only.test.ts) (`solo-count`) | Executable: enrolled; broader verification in progress | `PuzzlesCapability.lineMode: 'solver-only'`, the existing definitions and checked harness adapter | Shared layout, navigation, fixture checks and model input binding | Every applicable rules and puzzle suite is automatically enrolled; both attempt and sound models have passing solo replays | A test-only one-person consumer; it advertises no custom games, matchmaking or history. Full verification evidence is tracked in the audit |
 | [Turns that do not alternate](../../games-harness/tests/probes/turn-order.test.ts) (`double-turn`) | Executable: limitation | `PlayedPosition.turn` already names the side to move, and the custom-game engine seats each move by it | Would need one | — | Alternation is the platform's contract, not chess's: `specs/games/game-turns.feature` ("A participant's move passes the turn"), the custom-game and matched-game models, `bothHaveMoved` (two moves close a matched game's abort window and start its clock), move-list numbering in pairs (`multiplayer-format`) and puzzle lines by parity. The rules law "the first side moves first and every action passes the turn to the other side" refuses such a game, by name, alone. Simultaneous actions (design-only) also need a position with no single side to move |
 | [Setup phase](../../games-harness/tests/probes/setup-phase.test.ts) (`setup-race`: each side picks a stride, then races) | Executable: supported as ordinary turns | `GameRules` actions and positions | None | Every custom-game specification and suite; setup actions replay, list and are refused before play like any move | Design-only: no phase. Setup actions start and spend clocks, are numbered as moves and close a matched game's abort window; a simultaneous or hidden setup is the private-state boundary |
 | [Result the mover does not win](../../games-harness/tests/probes/results.test.ts) (`misere-tally`) | Executable: supported | `PlayedPosition.winner` | One, made: custom games credited the mover (`custom-game-mover-credited-win`) | Every custom-game specification and suite | A margin or score is only the ending's reason text (`endingDescription(reason)`) |
@@ -841,7 +847,7 @@ What changes, verified against this branch's history:
 | Evolving persisted state | Never a [durable name](#durable-names); a new partition in reads, not tables; a recorded session replayed to the same events; a game's own encoding kept readable by its `recognizes` / `play` / `replay` | Internals | `a72377df5` (puzzle namespaces through `puzzle-namespace.ts`, the catalogue and reads; `puzzle-tables.ts` untouched), `907e5d0f8` (`chess-puzzle-harness/tests/puzzle-session-compatibility`), `49a13b2e8` (`GAME_PLATFORM_NAMESPACE`) |
 | An internal framework change | Framework internals and their tests only | Internals | `aa2c6dcb6` (`settle-due-game.ts`), `287ba476f` (the matchmaking harness): no game file; likewise this probe work's `custom-game-play.ts` fix and turn law |
 
-## Solver-only puzzle work in progress
+## Solver-only puzzle integration
 
 `PuzzlesCapability.lineMode` defaults to `opponent-replies`; `solver-only`
 means that every line entry is a solver action, with no automatic setup or
@@ -854,9 +860,13 @@ are unchanged.
 Client navigation and review now use the declared starting index. Review
 distinguishes an unset cursor from an explicit zero, and both common model
 instances have executable proof. This is not yet a complete integration
-path: checked solo fixtures, real board feedback and full shared-suite
-enrollment remain open. The existing unchecked
-solo probe is not evidence that the new mode conforms. Follow
+path until all inherited checks pass. The solo consumer now has three checked
+known puzzles, thirty further distinct puzzles, a real board and audio
+feedback, and automatic shared-suite enrollment. The attempt and sound
+models replay both layouts, with independent action covers and evidence.
+The general rules laws require alternation and a chance to win for both sides
+only for consumers offering head-to-head play. Opponent puzzle fixtures
+still require an opponent input; solver-only fixtures must omit it. Follow
 [`FINAL_HARDENING_AUDIT.md`](FINAL_HARDENING_AUDIT.md) for current evidence;
 no production game advertises the new mode.
 

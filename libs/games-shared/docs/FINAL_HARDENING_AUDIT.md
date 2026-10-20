@@ -371,3 +371,155 @@ The navigation checkpoint's fresh full `bun verify` again stopped at the
 unchanged deploy YAML alias at lines 160/170. Its complete diagnostic archive
 is `verify-run-GfskPh/diagnostics.tar.gz`. Targeted successes above do not
 clear that full-gate failure.
+
+## Solver-only consumer enrollment checkpoint
+
+The test-only `solo-count` consumer now declares `solver-only` and passes
+`assertHarnessGame`, with three known two-action puzzles and thirty further
+distinct puzzles. It has no second participant or recognized second-side
+positions. Its board exposes real gestures and marks, and its registered
+audio cues are actually emitted through the audio port. A deliberate legal
+`stay` action provides a wrong move even where the three advancing actions
+are all correct; seed `0x67932`, attempt trace 44, step 2 exposed that missing
+probe input. Its literal opening is pinned separately.
+
+Fixture checks, judge/playback laws, room and board suites, action helpers,
+and transposition expectations now use the declared layout. Opponent input
+remains mandatory for opponent fixtures and is forbidden for solo fixtures.
+The first focused shared puzzle run had 13 failures; after parameterizing
+the expectations, all 197 checks passed. Alternation and the opportunity for
+both sides to win are still mandatory for head-to-head capabilities, with
+the nonalternating duel retained as a refusing control.
+
+The solo consumer is enrolled once in `CONFORMANCE_GAMES`, inheriting the
+rules and puzzle matrix without per-suite registrations. Its attempt cover
+is `[21, 38, 43]`, its sound cover `[0, 6]`, with assignment-specific evidence
+and unchanged trace budgets. Actual shared attempt and sound replay passed
+all 29 checks in 58.83 seconds, including both layouts. The complete command
+took 62.309 seconds. Neither a capability refusal nor planned enrollment is
+being counted as an execution result.
+
+Those traces also exposed a silent first correct move, selection of a
+nonexistent negative ply for position zero, and a game-menu observer tied to
+the presence of custom games. Each has a literal failing example and its
+own bug-register entry. Feedback now distinguishes uninitialized progress
+from zero; zero selection uses the existing start control and leaves an
+already selected position alone; the menu exposes its own stable identifier.
+The focused audio and navigation regressions pass. Full inherited feature
+and remaining model execution, refreshed package checks, the isolated build
+and the repository gate are pending at this checkpoint. The larger mission
+and spec audit remain INCOMPLETE.
+
+The first broad run selected all 32 `puzzle-*.feature` files plus feed, link
+and result-recovery models. It stopped with 292 passes and ten failures
+(302 checks executed, 342.10 seconds); it is not a green inherited-spec
+verdict. Failures exposed a finish-on-close helper's stride, a hearing
+assertion that demanded an absent opponent reply, an incomplete probe theme
+menu, a themed-pool precondition that discarded the puzzle already on the
+board, and game-owned personal-stat wrappers. The longer offline catalogue
+sequence exposed the redundant presence commands described below.
+
+Personal stats are now derived in the framework from registered puzzle
+clients. The Chess and reference wrappers were deleted; production retains
+the same Chess route, screen and sub-client names. The solo consumer's
+focused test opens personal stats with no game-owned slice and reviews a
+completed puzzle at its end. It found and pinned one more zero/unset cursor
+failure in the personal surface, now corrected. Focused personal stats,
+finish-on-close and two longer offline-line checks passed (three checks in
+8.34 seconds). Final broader verification remains pending. Type/lint checks
+also found and removed the now-unused Chess sub-client dependency.
+
+The thirty-puzzle, three-day offline example filled the unchanged
+256-command queue with redundant `mark-quiet(false)` commands sent for every
+pointer gesture. The presence host now sends a quiet mark only when that
+device's room mark changes, while still updating its local mark and resetting
+the activity timer. The literal two-line queue example and complete
+thirty-puzzle sequence pass; no queue limit or time budget increased.
+Positive idle/wake behavior still requires the existing presence specs.
+
+The ordinary game-harness run passed all 446 checks across 59 files with
+6,158 assertions. Its measured 491.91 seconds exceed the gate's unchanged
+300-second task budget, so this success alone cannot clear the gate.
+The same shared contracts now have five existing numeric contract-task
+slots, one per conformance area, beside ordinary tests and the independent
+composition check. Every eligible game remains enrolled in each applicable
+suite. These tasks retain the inherited task budgets; their execution and
+coverage checks are pending. Their cache inputs include shared fixtures,
+composition, ownership manifests and their own area. Per-game dependency
+invalidation remains open.
+
+Personal-stat registration also exposed a static-route inspection limit.
+The verifier now follows explicit client-array factories and local route
+constants without importing product code. It requires chart ownership of
+the generic route family and still rejects dynamic paths and cycles.
+The separate spec commits `ae7064e5b` and `8eb60b721` map that family and the
+previously orphaned opponent-only contract. Statechart and ordinary spec
+verification passed together. The strict check still reports the same nine
+wording pairs; it is not green.
+
+The UI detector found no issues in the changed shared menu, stats, feedback
+and presence files. The pinned action linter and its actual entrypoint pass
+all four workflow sources directly. The previously recorded frozen full-gate
+failure needs a fresh frozen run; it is no longer assumed to prove that the
+workflow source itself is rejected. Full inherited specs, isolated execution,
+split package tasks and the repository gate remain pending.
+
+The split execution preserves all 446 checks: ordinary tests 140, rules 59,
+custom games 27, matchmaking 18, history 5 and puzzles 197. The completed
+area tasks took 35.19–81.18 seconds, and ordinary tests took 164.39 seconds,
+all below 300 seconds. The tooling run passed 776 tests at local Verify's
+single-task concurrency after regenerating the CI task-count section.
+An earlier broad parallel run had two five-second source-scan timeouts and
+the expected stale-document failure; it is not a passing result.
+
+The larger isolated consumer run hit its original 150-second child lifetime
+near the end of the shared turn examples. Separating code checks from
+features passed 233 isolated code checks, 48 feature examples and the
+hidden-dependency negative control, with explicit solo rules/puzzle output
+assertions. The feature worker took 141.69 seconds; each canonical feature
+now gets its own bounded worker. Both child and task deadlines are unchanged.
+The final partitioned proof passed: 233 code checks in 14.72 seconds,
+24 custom-game examples in 100.40 seconds, 24 turn examples in 115.87
+seconds and the hidden-dependency refusal in 0.22 seconds. Its complete
+task took 236.09 seconds, below 300. The two packages' six final type,
+lint and test tasks passed in 258.33 seconds without cache hits.
+
+The production-toolchain proof now also requires personal-stat registration
+and its shared account screen in the actual emitted chunks. That stronger
+check failed against the old isolated entry because registration was absent.
+Exporting the common factory from that zero-game entry then passed all 15
+client tests, including both forbidden-source build controls. No production
+game or registry source is permitted to load for this build.
+
+The complete selection of 43 puzzle contracts plus two presence features
+started at the unsplit CLI's ten-worker default. The presence portion passed
+all 18 checks. At cancellation the invocation had 61 passing checks and
+four timeouts: the 64-step solo attempt trace 39 (180 seconds), opponent
+sound trace 1 (240 seconds), the pinned quota-publication link history
+(180 seconds), and the Chess repeat-puzzle rating example (240 seconds).
+Simple process/file reads also stalled under this invocation. It was stopped
+through `bun run stop` and is not a passing complete-spec result. Follow-up
+runs use local Verify's documented `VERIFY_TEST_CONCURRENCY=1`, retaining
+the same traces, properties and deadlines. Idle/wake, multi-device and
+reconnection features require their own execution, beyond presence navigation.
+
+The single-worker follow-up passed all 27 idle/wake, multi-device,
+connection-loss/return and host-departure scenarios in 84.83 seconds.
+The first fresh full gate then stopped at the stale translation catalog
+(`verify-run-j1cllL/diagnostics.tar.gz`): moving the common stats removed an
+unused title and changed macro origins. Extraction, compilation and the
+catalog verification pass after refreshing the tracked `.po`; generated
+TypeScript remains ignored.
+
+The old workflow-alias failure is now explained by a proven tool-selection
+defect. In the verification environment `mise exec` ran actionlint 1.7.7,
+while `mise which` selected the declared 1.7.12. Commit `4524d7866` resolves
+and runs that absolute executable, rejecting failed or relative selections.
+Three actual launcher tests failed against the old adapter and pass after
+the repair. All six tooling tasks then passed under the gate's secret-loaded
+environment, including the real four-workflow lint, goal-register validation,
+catalog validation, type/lint checks and all 779 unit tests. No workflow,
+tool-version pin, dependency or linter rule changed.
+
+The next full `bun verify` owns snapshot `verify-run-T3oVQm`; its verdict is
+pending. Full puzzle/context execution and the broader mission remain open.

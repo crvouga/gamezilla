@@ -25,6 +25,7 @@ import {
   ROOM_WIRE_KIND,
   WIRE_VERSION,
 } from '@pkgs/room-root-shared/wire';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import { harnessGameOf } from './harness-game-of';
 import { sleepUntilNextUtcDay } from './puzzle-allowance';
 import {
@@ -93,6 +94,9 @@ function finishCommands(
     return [puzzleSessionCommand({ kind: 'show-line' })];
   const game = harnessGameOf(s, gameId);
   const fixture = knownPuzzle(game, puzzleId);
+  const puzzles = game.shared.turnGame.capabilities.puzzles;
+  if (puzzles === undefined) throw new Error(`${game.label} offers no puzzles`);
+  const layout = puzzleLineLayout(puzzles);
   const { line, solveIdx } = readPuzzleSession(state);
   const commands: RoomCommandPayload[] = [];
   if (finish === 'hintThenSolve')
@@ -105,8 +109,7 @@ function finishCommands(
       }),
       puzzleSessionCommand({ kind: 'retry' })
     );
-  const first = finish === 'wrongRetrySolve' ? 1 : solveIdx;
-  for (let index = first; index < line.length; index += 2) {
+  for (let index = solveIdx; index < line.length; index += layout.solverStep) {
     const action = line[index];
     if (action === undefined)
       throw new Error(`${puzzleId} has no move ${index}`);

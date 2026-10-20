@@ -49,20 +49,24 @@ const errorOf = (result: ReturnType<typeof send>) =>
 
 forEveryGame(import.meta.path, (game) => {
   const c = puzzleCase(game);
-  const { long } = c;
+  const { long, layout } = c;
   const first = long.solution[0] ?? '';
   const trail = c.trail(long);
   const wrong = { ...long.wrongMove };
   /** `long` with the line followed up to `at`, by the host. */
   const followedTo = (at: number): RoomState => {
     let state = started(long);
-    for (const action of long.solution.slice(0, (at - 1) / 2))
+    for (const action of long.solution.slice(
+      0,
+      (at - layout.start) / layout.solverStep
+    ))
       state = apply(state, SubmitPuzzleMove({ uci: action }));
     return state;
   };
   const move = (action: string) => SubmitPuzzleMove({ uci: action });
 
   describe('starting a puzzle', () => {
+    // regression: solver-only-shared-suite-parity
     test('a puzzle starts with its host solving it from the setup position', () => {
       for (const fixture of c.known) {
         const state = started(fixture);
@@ -71,16 +75,16 @@ forEveryGame(import.meta.path, (game) => {
         );
         expect(PuzzlePlayAttr.hostIdentity.from(state)).toBe(HOST);
         expect(PuzzlePlayAttr.puzzleId.from(state)).toBe(fixture.record.id);
-        expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(1);
+        expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(layout.start);
         expect(PuzzlePlayAttr.layoutKey.from(state)).toBe(0);
         expect(PuzzlePlayAttr.solverSide.from(state)).toBe(fixture.solverSide);
         expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(
-          c.trail(fixture)[1] ?? null
+          c.trail(fixture)[layout.start] ?? null
         );
       }
     });
 
-    test('a line of its setup move alone is solved at once', () => {
+    test('a one-action line is solved only when its action is setup', () => {
       const state = apply(
         idleSession(),
         StartPuzzlePlay({
@@ -89,8 +93,12 @@ forEveryGame(import.meta.path, (game) => {
           moves: long.record.line[0] ?? '',
         })
       );
-      expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solved);
-      expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(1);
+      expect(PuzzlePlayAttr.status.from(state)).toBe(
+        layout.start === 1
+          ? PUZZLE_PLAY_STATUS.solved
+          : PUZZLE_PLAY_STATUS.solving
+      );
+      expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(layout.start);
     });
 
     test('a position no game recognises, or a setup move its rules refuse, starts an invalid puzzle with its host', () => {
@@ -143,14 +151,18 @@ forEveryGame(import.meta.path, (game) => {
       };
       expect(accepted.payload).toMatchObject({
         uci: first,
-        san: long.labels[1],
+        san: long.labels[layout.start],
       });
       const state = committed(started(long), result);
       expect(PuzzlePlayAttr.status.from(state)).toBe(
         PUZZLE_PLAY_STATUS.solving
       );
-      expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(3);
-      expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(trail[3] ?? null);
+      expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(
+        layout.start + layout.solverStep
+      );
+      expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(
+        trail[layout.start + layout.solverStep] ?? null
+      );
     });
 
     test('the last solution move solves the puzzle', () => {
@@ -232,10 +244,13 @@ forEveryGame(import.meta.path, (game) => {
       expect(PuzzlePlayAttr.status.from(state)).toBe(
         PUZZLE_PLAY_STATUS.solving
       );
-      state = apply(state, move(long.solution[(wrong.at - 1) / 2] ?? ''));
+      state = apply(
+        state,
+        move(long.solution[(wrong.at - layout.start) / layout.solverStep] ?? '')
+      );
       // Past the line's reply, or at its end when that move solves it.
       expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(
-        Math.min(wrong.at + 2, long.record.line.length)
+        Math.min(wrong.at + layout.solverStep, long.record.line.length)
       );
     });
 
@@ -256,7 +271,7 @@ forEveryGame(import.meta.path, (game) => {
     test("a hint shows the cells of the line's next move; the solution follows it", () => {
       const state = started(long);
       const hinted = apply(state, RequestPuzzleHint({}));
-      const marks = c.puzzles.marks(trail[1] ?? '', first);
+      const marks = c.puzzles.marks(trail[layout.start] ?? '', first);
       expect(PuzzlePlayAttr.hintFrom.from(hinted)).toBe(
         marks?.from ?? marks?.to ?? null
       );
@@ -292,7 +307,10 @@ forEveryGame(import.meta.path, (game) => {
       );
       const { at, action } = deep.wrongMove;
       let state = started(deep);
-      for (const solved of deep.solution.slice(0, (at - 1) / 2))
+      for (const solved of deep.solution.slice(
+        0,
+        (at - layout.start) / layout.solverStep
+      ))
         state = apply(state, move(solved));
       state = apply(apply(state, move(action)), ResetPuzzlePlay({}));
       expect(PuzzlePlayAttr.status.from(state)).toBe(
@@ -307,8 +325,10 @@ forEveryGame(import.meta.path, (game) => {
     test("the host's retry while solving returns to the setup position", () => {
       const start = started(long);
       const state = apply(apply(start, move(first)), ResetPuzzlePlay({}));
-      expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(1);
-      expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(trail[1] ?? null);
+      expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(layout.start);
+      expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(
+        trail[layout.start] ?? null
+      );
       expect(PuzzlePlayAttr.layoutKey.from(state)).toBeGreaterThan(
         PuzzlePlayAttr.layoutKey.from(start)
       );
@@ -373,31 +393,36 @@ forEveryGame(import.meta.path, (game) => {
     test('stepping walks every move, replies included, and seeking jumps to one reached', () => {
       let state = apply(started(long), move(first));
       const reached = PuzzlePlayAttr.displayPosition.from(state);
-      state = apply(state, StepBackPuzzlePlay({}));
-      expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(2);
-      expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(trail[2] ?? null);
-      state = apply(state, StepBackPuzzlePlay({}));
-      expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(1);
+      const frontier = layout.start + layout.solverStep;
+      for (let at = frontier - 1; at >= layout.start; at -= 1) {
+        state = apply(state, StepBackPuzzlePlay({}));
+        expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(at);
+        expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(
+          trail[at] ?? null
+        );
+      }
       expect(errorOf(send(state, StepBackPuzzlePlay({})))).toBe(
         ROOM_ERROR_TYPE.conflict
       );
-      state = apply(
-        apply(state, StepForwardPuzzlePlay({})),
-        StepForwardPuzzlePlay({})
-      );
-      expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(3);
+      for (let at = layout.start + 1; at <= frontier; at += 1) {
+        state = apply(state, StepForwardPuzzlePlay({}));
+        expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(at);
+        expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(
+          trail[at] ?? null
+        );
+      }
       expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(reached);
-      state = apply(state, SeekPuzzlePlay({ solveIdx: 1 }));
-      expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(1);
-      expect(PuzzlePlayAttr.furthestSolveIdx.from(state)).toBe(3);
-      state = apply(state, SeekPuzzlePlay({ solveIdx: 3 }));
+      state = apply(state, SeekPuzzlePlay({ solveIdx: layout.start }));
+      expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(layout.start);
+      expect(PuzzlePlayAttr.furthestSolveIdx.from(state)).toBe(frontier);
+      state = apply(state, SeekPuzzlePlay({ solveIdx: frontier }));
       expect(PuzzlePlayAttr.displayPosition.from(state)).toBe(reached);
     });
   });
 
   describe('watchers', () => {
     const solutionCells = () => {
-      const marks = c.puzzles.marks(trail[1] ?? '', first);
+      const marks = c.puzzles.marks(trail[layout.start] ?? '', first);
       if (marks === null) throw new Error(`${first} names no cells`);
       return { from: marks.from ?? marks.to, to: marks.to };
     };
@@ -410,7 +435,7 @@ forEveryGame(import.meta.path, (game) => {
         RevealPuzzleSolution({}),
         StepBackPuzzlePlay({}),
         StepForwardPuzzlePlay({}),
-        SeekPuzzlePlay({ solveIdx: 1 }),
+        SeekPuzzlePlay({ solveIdx: layout.start }),
         ResetPuzzlePlay({}),
         ClearPuzzlePlay({}),
         SkipPuzzlePlay({}),

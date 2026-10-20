@@ -100,11 +100,11 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 328 |
-| Verify scripts | 1196 |
+| Verify scripts | 1201 |
 | Measured scripts | 190 |
-| Estimated scripts | 1006 |
+| Estimated scripts | 1011 |
 | Stale cost keys | 538 |
-| Cold CPU | 7012 s |
+| Cold CPU | 7017 s |
 | Spec parts | 3411 s across 202 tasks |
 | Longest task | @apps/product#test:contract:render 60 s |
 
@@ -146,9 +146,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 264 | 6852 s | @apps/product#test:contract:render 60 s |
-| @pkgs/clock-shared | 230 | 6753 s | @apps/product#test:contract:render 60 s |
-| @pkgs/assert-root-shared | 225 | 6735 s | @apps/product#test:contract:render 60 s |
+| @pkgs/property-shared | 264 | 6857 s | @apps/product#test:contract:render 60 s |
+| @pkgs/clock-shared | 230 | 6758 s | @apps/product#test:contract:render 60 s |
+| @pkgs/assert-root-shared | 225 | 6740 s | @apps/product#test:contract:render 60 s |
 
 ### Runner
 

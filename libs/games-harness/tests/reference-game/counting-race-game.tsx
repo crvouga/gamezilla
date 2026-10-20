@@ -15,7 +15,6 @@
 
 import type { GameClient } from '@libs/game-menu-client/game-client';
 import { defineGameClient } from '@libs/game-menu-client/game-client';
-import { PersonalPuzzleStatsScreen } from '@libs/game-puzzle-client/personal-puzzle-stats-screen';
 import type {
   PuzzleBoardProps,
   PuzzleFeedback,
@@ -31,7 +30,6 @@ import type {
 } from '@libs/game-session-harness/known-puzzles';
 import type { TurnGame } from '@libs/game-session-shared/turn-game-definition';
 import { defineTurnGame } from '@libs/game-session-shared/turn-game-definition';
-import { Handles } from '@libs/test-ids-shared/handles';
 import {
   createAudioPlayer,
   createPlayFromStartHandles,
@@ -50,9 +48,6 @@ import type {
   PlayedPosition,
   TurnGameCapabilities,
 } from '@pkgs/turn-game-shared/game-rules';
-import { useRouter } from '@pkgs/ui-root-client/app-router';
-import { MenuRow } from '@pkgs/ui-root-client/menu-row';
-import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import { createEffect, For, type JSX, on } from 'solid-js';
 
 /**
@@ -655,35 +650,6 @@ export const COUNTING_RACE_FIXTURES: GameFixtures<typeof CAPABILITIES> = {
   morePuzzles: moreRacePuzzles(KNOWN_RACE_PUZZLES),
 };
 
-const COUNTING_RACE_STATS_PATH = '/more/counting-race-stats';
-
-/** The race's puzzle stats outside any space, from Settings, as chess's. */
-function CountingRaceStatsSettings(): JSX.Element {
-  const router = useRouter();
-  return (
-    <MenuSection title="Counting race">
-      <MenuRow
-        title="Puzzle stats"
-        caption="Your rating and game log, available offline"
-        onClick={() => router.push(COUNTING_RACE_STATS_PATH)}
-        dataSet={{
-          testid: Handles.settingsPuzzleStats(COUNTING_RACE_SHARED.id),
-        }}
-      />
-    </MenuSection>
-  );
-}
-
-function CountingRaceStatsScreen(): JSX.Element {
-  return (
-    <PersonalPuzzleStatsScreen
-      gameId={COUNTING_RACE_SHARED.id}
-      puzzles={COUNTING_RACE_CLIENT.puzzles}
-      screenId="personal-counting-race-stats"
-    />
-  );
-}
-
 export const COUNTING_RACE_GAME: HarnessGame = assertHarnessGame({
   label: 'counting race',
   shared: COUNTING_RACE_SHARED,
@@ -694,15 +660,5 @@ export const COUNTING_RACE_GAME: HarnessGame = assertHarnessGame({
     [COUNTING_RACE_SOUNDS.finish]: 'end',
     [COUNTING_RACE_SOUNDS.rightCount]: 'correct move',
     [COUNTING_RACE_SOUNDS.wrongCount]: 'wrong move',
-  },
-  slice: {
-    name: 'game:counting-race',
-    client: {
-      name: 'counting-race-stats',
-      routes: [
-        { path: COUNTING_RACE_STATS_PATH, component: CountingRaceStatsScreen },
-      ],
-      settings: CountingRaceStatsSettings,
-    },
   },
 });

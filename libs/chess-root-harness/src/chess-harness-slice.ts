@@ -1,4 +1,3 @@
-import { PERSONAL_CHESS_STATS_CLIENT } from '@libs/chess-puzzle-client/personal-chess-stats-client';
 import { PuzzleManagementScreen } from '@libs/chess-puzzle-client/puzzle-management-screen';
 import { CHESS_HARNESS_ACTIONS } from '@libs/chess-puzzle-harness/chess-actions';
 import { seedChessPuzzlesForHarness } from '@libs/chess-puzzle-harness/chess-harness-seed';
@@ -20,13 +19,7 @@ export const CHESS_HARNESS_SLICE: HarnessSlice = {
   sub: CHESS_SUB,
   client: {
     name: 'chess',
-    routes: [
-      { path: '/more/puzzles', component: PuzzleManagementScreen },
-      ...PERSONAL_CHESS_STATS_CLIENT.routes,
-    ],
-    ...(PERSONAL_CHESS_STATS_CLIENT.settings === undefined
-      ? {}
-      : { settings: PERSONAL_CHESS_STATS_CLIENT.settings }),
+    routes: [{ path: '/more/puzzles', component: PuzzleManagementScreen }],
   },
   server: () => createChessServer(),
   seedServer: seedChessPuzzlesForHarness,

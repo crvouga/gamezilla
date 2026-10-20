@@ -1,6 +1,17 @@
 import { type MachineConfig, walkStates } from '@crvouga/atlas';
 import ts from 'typescript';
 import type { AnalysisIssue } from './statechart-composition';
+import {
+  binding,
+  factoryReturn,
+  fail,
+  type Location,
+  parameterInScope,
+  parsed,
+  type RouteSources,
+  resolved,
+  unwrapped,
+} from './statechart-route-source';
 
 export type ProductRoute = { path: string; source: string };
 
@@ -10,130 +21,6 @@ export const PRODUCT_ROUTE_ROOTS = [
   'apps/product/src/main.tsx',
   'apps/product/src/console-nav-real.ts',
 ] as const;
-
-type Location = { file: ts.SourceFile; node: ts.Node };
-type RouteSources = ReadonlyMap<string, string>;
-
-function fail(location: Location, message: string): never {
-  const line =
-    location.file.getLineAndCharacterOfPosition(
-      location.node.getStart(location.file)
-    ).line + 1;
-  throw new Error(`${location.file.fileName}:${line}: ${message}`);
-}
-
-function parsed(path: string, sources: RouteSources): ts.SourceFile {
-  const text = sources.get(path);
-  if (text === undefined) throw new Error(`Missing route source: ${path}`);
-  const diagnostics =
-    ts.transpileModule(text, {
-      fileName: path,
-      reportDiagnostics: true,
-      compilerOptions: { jsx: ts.JsxEmit.Preserve },
-    }).diagnostics ?? [];
-  if (
-    diagnostics.some((issue) => issue.category === ts.DiagnosticCategory.Error)
-  )
-    throw new Error(`Invalid route source syntax: ${path}`);
-  return ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
-}
-
-function unwrapped(node: ts.Node): ts.Node {
-  if (
-    ts.isAsExpression(node) ||
-    ts.isSatisfiesExpression(node) ||
-    ts.isParenthesizedExpression(node) ||
-    ts.isNonNullExpression(node)
-  )
-    return unwrapped(node.expression);
-  return node;
-}
-
-function modulePath(
-  file: string,
-  specifier: string,
-  sources: RouteSources
-): string {
-  const segments = specifier.startsWith('@libs/')
-    ? [
-        'libs',
-        specifier.split('/')[1]!,
-        'src',
-        ...specifier.split('/').slice(2),
-      ]
-    : [...file.split('/').slice(0, -1), ...specifier.split('/')];
-  const normalized: string[] = [];
-  for (const segment of segments) {
-    if (segment === '..') normalized.pop();
-    else if (segment !== '.') normalized.push(segment);
-  }
-  const base = normalized.join('/');
-  const path = [base, `${base}.ts`, `${base}.tsx`].find((name) =>
-    sources.has(name)
-  );
-  if (!path)
-    throw new Error(`Missing route dependency: ${file} → ${specifier}`);
-  return path;
-}
-
-function binding(
-  file: ts.SourceFile,
-  name: string,
-  sources: RouteSources,
-  trail: string[] = []
-): Location {
-  const key = `${file.fileName}:${name}`;
-  if (trail.includes(key)) throw new Error(`Cyclic route binding: ${key}`);
-  for (const statement of file.statements) {
-    if (ts.isVariableStatement(statement)) {
-      for (const declaration of statement.declarationList.declarations)
-        if (
-          ts.isIdentifier(declaration.name) &&
-          declaration.name.text === name &&
-          declaration.initializer
-        )
-          return { file, node: declaration.initializer };
-    }
-    if (ts.isFunctionDeclaration(statement) && statement.name?.text === name)
-      return { file, node: statement };
-    if (
-      !ts.isImportDeclaration(statement) ||
-      !ts.isStringLiteral(statement.moduleSpecifier)
-    )
-      continue;
-    const imports = statement.importClause?.namedBindings;
-    if (!imports || !ts.isNamedImports(imports)) continue;
-    const imported = imports.elements.find((entry) => entry.name.text === name);
-    if (!imported) continue;
-    const path = modulePath(
-      file.fileName,
-      statement.moduleSpecifier.text,
-      sources
-    );
-    return binding(
-      parsed(path, sources),
-      imported.propertyName?.text ?? name,
-      sources,
-      [...trail, key]
-    );
-  }
-  throw new Error(`${key}: Unresolved route binding`);
-}
-
-function resolved(
-  location: Location,
-  sources: RouteSources,
-  trail: string[] = []
-): Location {
-  const node = unwrapped(location.node);
-  if (!ts.isIdentifier(node)) return { ...location, node };
-  const key = `${location.file.fileName}:${node.text}`;
-  if (trail.includes(key)) fail(location, 'Cyclic route expression');
-  return resolved(binding(location.file, node.text, sources), sources, [
-    ...trail,
-    key,
-  ]);
-}
 
 function namedProperty(
   location: Location,
@@ -149,22 +36,80 @@ function namedProperty(
     if (!key || (!ts.isIdentifier(key) && !ts.isStringLiteral(key)))
       fail(location, 'Computed route properties are unsupported');
     if (key.text !== name) continue;
-    if (!ts.isPropertyAssignment(property) || value)
-      fail(location, `Ambiguous route property: ${name}`);
-    value = property.initializer;
+    if (value) fail(location, `Ambiguous route property: ${name}`);
+    if (ts.isPropertyAssignment(property)) value = property.initializer;
+    else if (
+      ts.isShorthandPropertyAssignment(property) &&
+      !property.objectAssignmentInitializer
+    )
+      value = property.name;
+    else fail(location, `Ambiguous route property: ${name}`);
   }
   return value;
 }
 
-function arrayEntries(location: Location, sources: RouteSources): Location[] {
+function arrayEntries(
+  location: Location,
+  sources: RouteSources,
+  trail: readonly string[] = []
+): Location[] {
   const value = resolved(location, sources);
+  if (ts.isConditionalExpression(value.node))
+    return [value.node.whenTrue, value.node.whenFalse].flatMap((node) =>
+      arrayEntries({ ...value, node }, sources, trail)
+    );
+  if (ts.isCallExpression(value.node)) {
+    const key = `${value.file.fileName}:${value.node.getStart(value.file)}`;
+    if (trail.includes(key)) fail(value, 'Cyclic route factory');
+    const next = [...trail, key];
+    if (ts.isPropertyAccessExpression(value.node.expression))
+      return mappedEntries(value, sources, next);
+    return arrayEntries(factoryReturn(value, sources), sources, next);
+  }
   if (!ts.isArrayLiteralExpression(value.node))
     fail(value, 'Expected a static route composition array');
   return value.node.elements.flatMap((node) =>
     ts.isSpreadElement(node)
-      ? arrayEntries({ ...value, node: node.expression }, sources)
+      ? arrayEntries({ ...value, node: node.expression }, sources, trail)
       : [{ ...value, node }]
   );
+}
+
+/** A mapped factory declares a route family, independent of how many games supply its parameters. */
+function mappedEntries(
+  location: Location,
+  sources: RouteSources,
+  trail: readonly string[]
+): Location[] {
+  const node = location.node;
+  if (
+    !ts.isCallExpression(node) ||
+    !ts.isPropertyAccessExpression(node.expression)
+  )
+    fail(location, 'Expected a mapped route factory');
+  const method = node.expression.name.text;
+  const receiver = node.expression.expression;
+  if (
+    (method !== 'map' && method !== 'flatMap') ||
+    !ts.isIdentifier(receiver) ||
+    !parameterInScope(receiver, receiver.text)
+  )
+    fail(
+      location,
+      'Expected a static route composition array or a mapped factory parameter'
+    );
+  const mapper = node.arguments[0];
+  if (node.arguments.length !== 1 || !mapper || !ts.isArrowFunction(mapper))
+    fail(location, 'Mapped route factory needs one explicit mapper');
+  let body: ts.Node = mapper.body;
+  if (ts.isBlock(body)) {
+    const returns = body.statements.filter(ts.isReturnStatement);
+    if (returns.length !== 1 || !returns[0]?.expression)
+      fail(location, 'Mapped route factory must return one declaration');
+    body = returns[0].expression;
+  }
+  const mapped = { ...location, node: body };
+  return method === 'map' ? [mapped] : arrayEntries(mapped, sources, trail);
 }
 
 function routeText(
@@ -183,12 +128,21 @@ function routeText(
     for (const span of value.node.templateSpans) {
       const expression = unwrapped(span.expression);
       text +=
-        ts.isIdentifier(expression) && parameters.has(expression.text)
+        ts.isIdentifier(expression) &&
+        (parameters.has(expression.text) ||
+          parameterInScope(expression, expression.text))
           ? `:${expression.text}`
           : routeText({ ...value, node: expression }, sources);
       text += span.literal.text;
     }
     return text;
+  }
+  if (
+    ts.isPropertyAccessExpression(value.node) &&
+    ts.isIdentifier(value.node.expression) &&
+    parameterInScope(value.node, value.node.expression.text)
+  ) {
+    return `:${value.node.name.text}`;
   }
   if (
     ts.isBinaryExpression(value.node) &&
@@ -232,13 +186,7 @@ function subObject(location: Location, sources: RouteSources): Location {
       fail(value, 'Sub definition must have one static object');
     return resolved({ ...value, node: value.node.arguments[0]! }, sources);
   }
-  const factory = binding(value.file, callName, sources);
-  if (!ts.isFunctionDeclaration(factory.node) || !factory.node.body)
-    fail(factory, 'Sub factory must have a static declaration');
-  const returns = factory.node.body.statements.filter(ts.isReturnStatement);
-  if (returns.length !== 1 || !returns[0]!.expression)
-    fail(factory, 'Sub factory must return one static definition');
-  return subObject({ ...factory, node: returns[0]!.expression! }, sources);
+  return subObject(factoryReturn(value, sources), sources);
 }
 
 function routesInArray(

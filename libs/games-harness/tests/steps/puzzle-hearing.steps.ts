@@ -12,12 +12,16 @@ import {
   usePuzzleControlWithKeyboard,
 } from '@libs/game-session-harness/puzzle-listening';
 import { readShownRatingChange } from '@libs/game-session-harness/puzzle-screen';
-import { readPuzzleSoundsPlayed } from '@libs/game-session-harness/puzzle-sounds';
+import {
+  puzzleContinuationSounds,
+  readPuzzleSoundsPlayed,
+} from '@libs/game-session-harness/puzzle-sounds';
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
 import { configureSounds, readSoundsOn } from '@libs/harness/sounds-preference';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { gameOf } from './game-world';
 import {
   focusPuzzle,
   noteSoundsSoFar,
@@ -88,13 +92,13 @@ Then("{actor}'s sounds are on", async (w, actor: Actor) => {
 });
 
 Then("{actor} hears the puzzle's move sounds", async (w, actor: Actor) => {
-  // Their move, the cue that it was right, and the opponent's reply.
+  // regression: solver-only-hearing-requires-reply
+  // solo-count:3w, [two, two] has one move sound, without an opponent reply.
+  const expected = puzzleContinuationSounds(gameOf(w));
   await untilHeard(
     w,
     actor,
-    (sounds) =>
-      JSON.stringify(sorted(sounds)) ===
-      JSON.stringify(['correct move', 'move', 'move'])
+    (sounds) => JSON.stringify(sorted(sounds)) === JSON.stringify(expected)
   );
 });
 
