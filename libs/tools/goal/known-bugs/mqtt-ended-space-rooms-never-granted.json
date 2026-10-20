@@ -1,0 +1,4 @@
+{
+  "summary": "The client subscribed to `room:<id>` for every live membership row, including memberships in ended spaces, but the IoT authorizer grants a room only while its space is live. One production account held 33 memberships in ended spaces and 1 in a live one: every connect had 33 subscriptions refused, the session never settled (so the one live room never reached 'connected'), and the console filled with a warning per room on every retry. A membership now consults the held `spaces` rows and subscribes to no ended room.",
+  "regressionTest": "pkgs/sync-engine-client/tests/held-row-topics.test.ts"
+}

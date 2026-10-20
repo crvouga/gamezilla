@@ -83,6 +83,36 @@ test('a background error is searchable as a trace with its redacted stack', asyn
   await runtime.shutdown();
 });
 
+// regression: warnings-invisible-to-trace-search
+test('a warning is searchable as a trace without being a failure', async () => {
+  const exporter = new InMemorySpanExporter();
+  const runtime = createWorkerTelemetry({
+    serviceName: 'example-worker',
+    serviceVersion: '1',
+    environment: 'test',
+    buildSha: 'abc',
+    exporter,
+  });
+  recordStructuredLog({
+    severity: 'warn',
+    message: 'subscription rejected; refreshing authorization',
+    loggerName: 'pubsub',
+  });
+  await runtime.forceFlush();
+  const warning = exporter
+    .getFinishedSpans()
+    .find((span) => span.name === 'runtime.warning');
+  expect(warning?.status.code).toBe(0);
+  expect(warning?.attributes[ATTR.APP_LOG_MESSAGE]).toBe(
+    'subscription rejected; refreshing authorization'
+  );
+  expect(warning?.events).toEqual([]);
+  expect(
+    exporter.getFinishedSpans().some((span) => span.name === 'runtime.error')
+  ).toBe(false);
+  await runtime.shutdown();
+});
+
 // regression: incoming-unsampled-context-hides-server-error
 test('an incoming unsampled trace cannot hide a server exception by default', async () => {
   const exporter = new InMemorySpanExporter();

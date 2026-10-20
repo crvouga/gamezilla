@@ -1,0 +1,4 @@
+{
+  "summary": "A saved session's identity refresh at page load runs before the first health probe has made the origin available, so it fails with 'The connection is currently unavailable.' by design, and was logged as an error (`auth/refresh failed`) on every cold load. Session revalidation already retries it; the deferral is now an info line, not an error.",
+  "regressionTest": "libs/auth-client/tests/auth-bridge-refresh.test.ts"
+}

@@ -38,28 +38,38 @@ export function diagnosticAttributes(event: DiagnosticLog) {
   });
 }
 
-/** A log without a request still needs a finished trace the investigation CLI can find. */
-export function recordDiagnosticFailure(event: DiagnosticLog): void {
-  if (event.severity !== 'error') return;
+/**
+ * A warning or error without a request still needs a finished trace the
+ * investigation CLI can find: it reads traces, not the log signal. Errors are
+ * `runtime.error`; warnings are `runtime.warning`, searchable but not failures.
+ */
+export function recordDiagnosticSpan(event: DiagnosticLog): void {
+  if (event.severity !== 'error' && event.severity !== 'warn') return;
   const attributes = diagnosticAttributes(event);
   const span = trace
     .getTracer('@pkgs/observability')
-    .startSpan('runtime.error', { attributes }, context.active());
-  span.setStatus({
-    code: SpanStatusCode.ERROR,
-    message: String(
-      attributes[ATTR.EXCEPTION_MESSAGE] ?? attributes[ATTR.APP_LOG_MESSAGE]
-    ),
-  });
-  span.addEvent('exception', {
-    [ATTR.EXCEPTION_TYPE]: attributes[ATTR.EXCEPTION_TYPE] ?? 'Error',
-    [ATTR.EXCEPTION_MESSAGE]:
-      attributes[ATTR.EXCEPTION_MESSAGE] ?? event.message,
-    ...(attributes[ATTR.EXCEPTION_STACKTRACE] === undefined
-      ? {}
-      : {
-          [ATTR.EXCEPTION_STACKTRACE]: attributes[ATTR.EXCEPTION_STACKTRACE],
-        }),
-  });
+    .startSpan(
+      event.severity === 'error' ? 'runtime.error' : 'runtime.warning',
+      { attributes },
+      context.active()
+    );
+  if (event.severity === 'error') {
+    span.setStatus({
+      code: SpanStatusCode.ERROR,
+      message: String(
+        attributes[ATTR.EXCEPTION_MESSAGE] ?? attributes[ATTR.APP_LOG_MESSAGE]
+      ),
+    });
+    span.addEvent('exception', {
+      [ATTR.EXCEPTION_TYPE]: attributes[ATTR.EXCEPTION_TYPE] ?? 'Error',
+      [ATTR.EXCEPTION_MESSAGE]:
+        attributes[ATTR.EXCEPTION_MESSAGE] ?? event.message,
+      ...(attributes[ATTR.EXCEPTION_STACKTRACE] === undefined
+        ? {}
+        : {
+            [ATTR.EXCEPTION_STACKTRACE]: attributes[ATTR.EXCEPTION_STACKTRACE],
+          }),
+    });
+  }
   span.end();
 }

@@ -127,6 +127,13 @@ export class AuthBridgeRefresh {
         await this.handleSignedOut({ rotateAccount: true });
         return;
       }
+      // The origin is unavailable until the first health probe lands, so a
+      // saved session's refresh at boot fails here by design. Session
+      // revalidation retries it once the connection is back.
+      if (e instanceof HttpNetworkError) {
+        this.deps.log.info('auth/refresh deferred; connection unavailable');
+        return;
+      }
       this.deps.log.error('auth/refresh failed', {
         error: e instanceof Error ? e.message : String(e),
       });

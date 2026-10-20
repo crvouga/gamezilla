@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, mock, test } from 'bun:test';
 import type { AuthBridgeRefreshDeps } from '@libs/auth-client/auth-bridge-refresh';
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import type { Timers } from '@pkgs/clock-shared/types';
+import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
 import type { SecureStorage } from '@pkgs/secure-storage-root-shared/interface';
 import { createSecureStorageStore } from '@pkgs/secure-storage-root-shared/secure-storage-store';
@@ -147,6 +148,34 @@ describe('AuthBridgeRefresh unauthorized recovery', () => {
     expect(calls.every((u) => u.includes('/identity/refresh'))).toBe(true);
     expect(new SessionCapabilityStore(store).readToken()).toBe('maybe-live');
     expect(store.getValue(LAST_LOCAL_ACCOUNT_ID_KEY)).toBeNull();
+  });
+
+  // regression: auth-refresh-boot-unavailable-logged-as-error
+  test('a refresh while the connection is unavailable is deferred, not an error', async () => {
+    const store = createSecureStorageStore(new InMemorySecureStorage());
+    const deps = makeDeps(store, async () => {
+      throw new HttpNetworkError('The connection is currently unavailable.');
+    });
+    const errors: string[] = [];
+    deps.log.error = (message) => {
+      errors.push(message);
+    };
+
+    await new SessionCapabilityStore(store).write({
+      token: 'saved-session',
+      expiresAt: null,
+      externalUserId: null,
+    });
+
+    await new AuthBridgeRefresh(deps).runRefresh({
+      token: 'saved-session',
+      expiresAt: null,
+      externalUserId: null,
+      force: true,
+    });
+
+    expect(errors).toEqual([]);
+    expect(new SessionCapabilityStore(store).readToken()).toBe('saved-session');
   });
 });
 
