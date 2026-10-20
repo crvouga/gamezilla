@@ -100,11 +100,11 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 328 |
-| Verify scripts | 1195 |
+| Verify scripts | 1196 |
 | Measured scripts | 190 |
-| Estimated scripts | 1005 |
+| Estimated scripts | 1006 |
 | Stale cost keys | 538 |
-| Cold CPU | 7011 s |
+| Cold CPU | 7012 s |
 | Spec parts | 3411 s across 202 tasks |
 | Longest task | @apps/product#test:contract:render 60 s |
 
@@ -146,9 +146,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 264 | 6851 s | @apps/product#test:contract:render 60 s |
-| @pkgs/clock-shared | 230 | 6752 s | @apps/product#test:contract:render 60 s |
-| @pkgs/assert-root-shared | 225 | 6734 s | @apps/product#test:contract:render 60 s |
+| @pkgs/property-shared | 264 | 6852 s | @apps/product#test:contract:render 60 s |
+| @pkgs/clock-shared | 230 | 6753 s | @apps/product#test:contract:render 60 s |
+| @pkgs/assert-root-shared | 225 | 6735 s | @apps/product#test:contract:render 60 s |
 
 ### Runner
 
@@ -160,7 +160,7 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 | Other slots | 15 |
 | Cores required | 32 |
 | Memory required | 38 GiB |
-| Estimated makespan | 240 s |
+| Estimated makespan | 241 s |
 | Provision | 2 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->
