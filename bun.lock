@@ -1885,6 +1885,7 @@
         "@pkgs/sync-engine-client": "workspace:*",
         "@pkgs/sync-engine-server": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
+        "@pkgs/turn-game-client": "workspace:*",
         "@pkgs/turn-game-shared": "workspace:*",
         "@pkgs/ui-root-client": "workspace:*",
         "@pkgs/ui-testing-root-shared": "workspace:*",

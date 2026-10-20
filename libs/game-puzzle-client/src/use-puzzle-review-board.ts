@@ -3,14 +3,14 @@ import { buildPuzzleMoveHistory } from '@libs/game-puzzle-shared/move-history';
 import type { PuzzleNavIntent } from '@libs/game-puzzle-shared/puzzle-nav';
 import {
   isPuzzleSeekAnimated,
-  PUZZLE_FIRST_SOLVE_IDX,
   resolvePuzzleNavTarget,
 } from '@libs/game-puzzle-shared/puzzle-nav';
 import { positionAt, setupPuzzle } from '@libs/game-puzzle-shared/puzzle-setup';
 import { lineActions, lineLength } from '@libs/game-puzzle-shared/step';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import type { GameSide } from '@pkgs/turn-game-shared/game-rules';
 import type { Accessor } from 'solid-js';
-import { createEffect, createMemo, createSignal } from 'solid-js';
+import { createMemo, createSignal } from 'solid-js';
 import { usePuzzleGame } from './puzzle-game-context';
 
 export type PuzzleReviewBoardModel = {
@@ -29,7 +29,7 @@ export type PuzzleReviewBoardModel = {
 };
 
 export type PuzzleReviewCursor = {
-  readonly solveIdx: Accessor<number>;
+  readonly solveIdx: Accessor<number | null>;
   readonly seek: (index: number) => void;
 };
 
@@ -39,20 +39,20 @@ export function usePuzzleReviewBoard(
   cursor: PuzzleReviewCursor
 ): PuzzleReviewBoardModel {
   const { game } = usePuzzleGame();
+  const firstSolveIdx = puzzleLineLayout(game.puzzles).start;
   const setup = createMemo(() => setupPuzzle(game, fen, lineActions(moves)));
   const tokensLength = createMemo(() => lineLength(moves));
   // The board snaps unless the seek that produced this position was one ply.
   const [animated, setAnimated] = createSignal(false);
 
-  createEffect(() => {
-    if (tokensLength() <= 0) return;
-    if (cursor.solveIdx() !== 0) return;
-    cursor.seek(tokensLength());
+  const solveIdx = createMemo(() => {
+    const selected = cursor.solveIdx();
+    return selected !== null &&
+      selected >= firstSolveIdx &&
+      selected <= tokensLength()
+      ? selected
+      : tokensLength();
   });
-
-  const solveIdx = createMemo(() =>
-    cursor.solveIdx() > 0 ? cursor.solveIdx() : tokensLength()
-  );
 
   const plies = createMemo(() =>
     buildPuzzleMoveHistory(game, {
@@ -78,11 +78,11 @@ export function usePuzzleReviewBoard(
     () => setup().kind === 'ready' && displayPosition().length > 0
   );
 
-  const canGoBack = createMemo(() => solveIdx() > PUZZLE_FIRST_SOLVE_IDX);
+  const canGoBack = createMemo(() => solveIdx() > firstSolveIdx);
   const canGoForward = createMemo(() => solveIdx() < tokensLength());
 
   const onSeek = (targetSolveIdx: number): void => {
-    if (targetSolveIdx < PUZZLE_FIRST_SOLVE_IDX) return;
+    if (targetSolveIdx < firstSolveIdx) return;
     if (targetSolveIdx > tokensLength()) return;
     const current = solveIdx();
     if (targetSolveIdx === current) return;
@@ -95,6 +95,7 @@ export function usePuzzleReviewBoard(
       intent,
       solveIdx: solveIdx(),
       furthestSolveIdx: tokensLength(),
+      firstSolveIdx,
     });
     if (target === null) return;
     onSeek(target);

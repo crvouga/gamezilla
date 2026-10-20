@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import type { PuzzleNavIntent } from '@libs/game-puzzle-shared/puzzle-nav';
 import {
   isPuzzleSeekAnimated,
-  PUZZLE_FIRST_SOLVE_IDX,
   PUZZLE_NAV_INTENT,
   PUZZLE_SWIPE_THRESHOLD_PX,
   puzzleNavIntentFromKey,
@@ -59,15 +58,13 @@ describe('§7 swipe map', () => {
 
 describe('§7 seek targets', () => {
   test('start and end land on the ends of the reached line', () => {
-    const at = { solveIdx: 3, furthestSolveIdx: 5 };
-    expect(resolvePuzzleNavTarget({ intent: 'start', ...at })).toBe(
-      PUZZLE_FIRST_SOLVE_IDX
-    );
+    const at = { solveIdx: 3, furthestSolveIdx: 5, firstSolveIdx: 1 as const };
+    expect(resolvePuzzleNavTarget({ intent: 'start', ...at })).toBe(1);
     expect(resolvePuzzleNavTarget({ intent: 'end', ...at })).toBe(5);
   });
 
   test('steps move exactly one ply', () => {
-    const at = { solveIdx: 3, furthestSolveIdx: 5 };
+    const at = { solveIdx: 3, furthestSolveIdx: 5, firstSolveIdx: 1 as const };
     expect(resolvePuzzleNavTarget({ intent: 'back', ...at })).toBe(2);
     expect(resolvePuzzleNavTarget({ intent: 'forward', ...at })).toBe(4);
   });
@@ -75,13 +72,15 @@ describe('§7 seek targets', () => {
   test('an intent that is already satisfied is a no-op', () => {
     expect(
       resolvePuzzleNavTarget({
+        firstSolveIdx: 1,
         intent: 'start',
-        solveIdx: PUZZLE_FIRST_SOLVE_IDX,
+        solveIdx: 1,
         furthestSolveIdx: 5,
       })
     ).toBeNull();
     expect(
       resolvePuzzleNavTarget({
+        firstSolveIdx: 1,
         intent: 'end',
         solveIdx: 5,
         furthestSolveIdx: 5,
@@ -89,13 +88,15 @@ describe('§7 seek targets', () => {
     ).toBeNull();
     expect(
       resolvePuzzleNavTarget({
+        firstSolveIdx: 1,
         intent: 'back',
-        solveIdx: PUZZLE_FIRST_SOLVE_IDX,
+        solveIdx: 1,
         furthestSolveIdx: 5,
       })
     ).toBeNull();
     expect(
       resolvePuzzleNavTarget({
+        firstSolveIdx: 1,
         intent: 'forward',
         solveIdx: 5,
         furthestSolveIdx: 5,
@@ -106,6 +107,7 @@ describe('§7 seek targets', () => {
   test('nothing reached yet means nothing to seek', () => {
     expect(
       resolvePuzzleNavTarget({
+        firstSolveIdx: 1,
         intent: 'end',
         solveIdx: 0,
         furthestSolveIdx: 0,
@@ -123,18 +125,20 @@ describe('§7 seek targets', () => {
     assertProperty(
       'a target never leaves the reached line (seeded)',
       fc.property(
+        fc.constantFrom<0 | 1>(0, 1),
         fc.constantFrom(...intents),
         fc.integer({ min: 0, max: 40 }),
         fc.integer({ min: 0, max: 40 }),
-        (intent, solveIdx, furthestSolveIdx) => {
+        (firstSolveIdx, intent, solveIdx, furthestSolveIdx) => {
           const target = resolvePuzzleNavTarget({
+            firstSolveIdx,
             intent,
             solveIdx,
             furthestSolveIdx,
           });
           if (target === null) return true;
           return (
-            target >= PUZZLE_FIRST_SOLVE_IDX &&
+            target >= firstSolveIdx &&
             target <= furthestSolveIdx &&
             target !== solveIdx
           );

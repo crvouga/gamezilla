@@ -13,6 +13,7 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import { createMemo, type JSX } from 'solid-js';
 import { usePuzzleGame } from './puzzle-game-context';
 import { PuzzleMoveHistory } from './puzzle-move-history';
@@ -21,6 +22,7 @@ import { usePuzzleMoveWriting } from './use-puzzle-notation';
 export function PuzzleMoveHistoryBar(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
   const { game } = usePuzzleGame();
+  const firstSolveIdx = puzzleLineLayout(game.puzzles).start;
   const writing = usePuzzleMoveWriting();
   const fen = useSpaceRoomSelector(PuzzlePlayAttr.position.from);
   const moves = useSpaceRoomSelector(PuzzlePlayAttr.line.from);
@@ -50,6 +52,7 @@ export function PuzzleMoveHistoryBar(): JSX.Element {
       status: status(),
       solveIdx: solveIdx(),
       furthestSolveIdx: furthestSolveIdx(),
+      firstSolveIdx,
       moves: moves(),
     })
   );
@@ -63,6 +66,7 @@ export function PuzzleMoveHistoryBar(): JSX.Element {
       intent,
       solveIdx: solveIdx(),
       furthestSolveIdx: furthestSolveIdx(),
+      firstSolveIdx,
     });
     if (target === null) return;
     onSeek(target);

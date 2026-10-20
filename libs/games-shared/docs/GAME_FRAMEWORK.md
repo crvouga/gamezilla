@@ -851,9 +851,11 @@ Its judge and solution staging use the same declared layout. Existing
 production games retain the default, and their durable messages and names
 are unchanged.
 
-This is not yet a complete integration path. Client navigation/review bounds,
-checked fixtures, the full shared suite enrollment and executable instances
-of the common models are still being implemented. The existing unchecked
+Client navigation and review now use the declared starting index. Review
+distinguishes an unset cursor from an explicit zero, and both common model
+instances have executable proof. This is not yet a complete integration
+path: checked solo fixtures, real board feedback and full shared-suite
+enrollment remain open. The existing unchecked
 solo probe is not evidence that the new mode conforms. Follow
 [`FINAL_HARDENING_AUDIT.md`](FINAL_HARDENING_AUDIT.md) for current evidence;
 no production game advertises the new mode.

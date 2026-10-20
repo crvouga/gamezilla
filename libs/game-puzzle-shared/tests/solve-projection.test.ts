@@ -165,7 +165,13 @@ describe('puzzleNavFromState', () => {
   test('loading / wrong: pinned to frontier with no nav', () => {
     for (const status of ['loading', 'wrong', 'invalid'] as const) {
       expect(
-        puzzleNavFromState({ status, solveIdx: 2, furthestSolveIdx: 3, moves })
+        puzzleNavFromState({
+          firstSolveIdx: 1,
+          status,
+          solveIdx: 2,
+          furthestSolveIdx: 3,
+          moves,
+        })
       ).toEqual({ atFrontier: true, canGoBack: false, canGoForward: false });
     }
   });
@@ -173,6 +179,7 @@ describe('puzzleNavFromState', () => {
   test('solving at the post-opening start cannot go back', () => {
     expect(
       puzzleNavFromState({
+        firstSolveIdx: 1,
         status: 'solving',
         solveIdx: 1,
         furthestSolveIdx: 1,
@@ -184,6 +191,7 @@ describe('puzzleNavFromState', () => {
   test('scrubbed back: can step both ways, not at frontier', () => {
     expect(
       puzzleNavFromState({
+        firstSolveIdx: 1,
         status: 'solving',
         solveIdx: 2,
         furthestSolveIdx: 3,
@@ -195,6 +203,7 @@ describe('puzzleNavFromState', () => {
   test('solved at the end: back only', () => {
     expect(
       puzzleNavFromState({
+        firstSolveIdx: 1,
         status: 'solved',
         solveIdx: 4,
         furthestSolveIdx: 4,

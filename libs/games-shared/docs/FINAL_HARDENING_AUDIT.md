@@ -324,3 +324,50 @@ four-package follow-up passed all twelve tasks with no cache hits in
 131.065 seconds: 637 tests total (157 Quint server, 37 Quint shared, 346
 game harness, 97 harness). These targeted results are not a full repository
 verdict.
+
+## Solver-only navigation checkpoint
+
+Two literal controller failures are now pinned:
+`solo-puzzle-navigation-excludes-start` (index one cannot go back to zero)
+and `solo-puzzle-review-cursor-zero-unset` (`solo-count:3w`, `two two`, cursor
+zero jumps to the end). The first focused run had three failures and one
+pass; the room projection distinction also failed separately before repair.
+
+Navigation requires the declared `firstSolveIdx`; the universal constant was
+deleted and all callers updated. Play controls, history and review use the
+same capability layout. The existing selection message still uses integer
+zero to request the end, and seek messages retain their integer payloads.
+Its derived room cursor is now nullable so an unset selection and a sought
+zero differ. Review displays the end for null without publishing a seek.
+An older opponent cursor at zero still displays the end. Controller tests
+cover mounting, shared cursor updates, Home, Forward and that legacy case.
+No database rows or recorded message shapes changed.
+
+All nine affected package tasks passed (six exact-input cache hits) in
+74.269 seconds: 240 shared puzzle, five client and 351 game-harness tests.
+The seven shared feature files plus the two common models passed all 154
+checks in 70.85 seconds. The UI detector reported no findings. The isolated
+framework contract passed again in 66.594 seconds, including 202 checks in
+the test-only composition and the hidden-concrete-source negative control.
+
+`bun verify-nightly random` found a tooling property timeout, seed
+419327699 at 200 cases, reported shrunk input `[]`. It started Bash for each
+sample. The corrected test reuses one owned shell, preserves both assertions
+and the five-second deadline, pins `[]`, and still executes the actual
+workflow script. The original seed passed 200 cases, with the property
+finishing in 0.29 seconds. Tooling type/lint/test checks passed all 773
+tests, also catching and correcting one missed import of the moved Quint
+module-name helper and regenerating the stale measured CI section.
+
+The failed nightly run was stopped through `bun run stop`; its longer fuzz
+and mutant tasks are not claimed as completed. The corrected fresh-seed
+property task then passed all 155 files at 200 runs per property, seed
+1032991361, in 16.2 seconds. This is a passing property task, not a passing
+whole nightly group. Solo fixture validation, truthful board feedback and
+automatic shared-suite enrollment remain required; the larger audit stays
+INCOMPLETE.
+
+The navigation checkpoint's fresh full `bun verify` again stopped at the
+unchanged deploy YAML alias at lines 160/170. Its complete diagnostic archive
+is `verify-run-GfskPh/diagnostics.tar.gz`. Targeted successes above do not
+clear that full-gate failure.

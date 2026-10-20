@@ -228,3 +228,26 @@ or solver-only consumer enrollment. The verdict remains INCOMPLETE.
 A fresh full `bun verify` again stopped at the unchanged deploy YAML alias
 at lines 160/170 (`verify-run-JwHcDg/diagnostics.tar.gz`). Preparation and
 spec ownership passed; this is not a full green verdict.
+
+## Navigation execution checkpoint
+
+The shared navigation functions and client controllers now use the declared
+starting index. A review cursor can remain at zero; null means the initial
+end view. Existing selection and seek message payloads remain integers, and
+an older opponent review at zero still displays the end. Literal failures
+for disabled Back and zero being overwritten are in the bug register.
+
+Nine affected package tasks passed, including 596 tests, and the selected
+seven features plus both models passed 154 checks for the existing enrolled
+consumers. The isolated framework contract also passed its 202 internal
+checks. The fresh-seed property task passed 155 files at the deeper 200-case
+budget after repairing its Bash startup timeout. The whole nightly group
+was stopped after that failure and is not green evidence.
+
+This closes the client bounds/cursor gap. Solver-only fixture checking,
+board feedback, shared-suite enrollment, C4, strict wording and complete P3
+evidence remain open. The verdict is still INCOMPLETE.
+
+The navigation checkpoint's full `bun verify` again failed on the unchanged
+deploy YAML alias (`verify-run-GfskPh/diagnostics.tar.gz`). It is not a full
+green verdict.

@@ -14,6 +14,7 @@ export function puzzleNavFromState(args: {
   solveIdx: number;
   furthestSolveIdx: number;
   moves: string;
+  firstSolveIdx: 0 | 1;
 }): PuzzleNavModel {
   const { status, solveIdx, furthestSolveIdx, moves } = args;
   const scrubbing =
@@ -24,7 +25,7 @@ export function puzzleNavFromState(args: {
     return { atFrontier: true, canGoBack: false, canGoForward: false };
   }
   const tokensLength = lineLength(moves);
-  const canGoBack = prevSolveIdx(solveIdx) !== null;
+  const canGoBack = prevSolveIdx(solveIdx, args.firstSolveIdx) !== null;
   const canGoForward =
     nextForwardSolveIdx({
       solveIdx,
@@ -51,9 +52,6 @@ export const PUZZLE_NAV_INTENT = {
 
 export type PuzzleNavIntent =
   (typeof PUZZLE_NAV_INTENT)[keyof typeof PUZZLE_NAV_INTENT];
-
-/** First position a scrub can reach: after the opponent's setup move (§5). */
-export const PUZZLE_FIRST_SOLVE_IDX = 1;
 
 /**
  * §7 keyboard map: the arrows step one ply, Home / End jump to the ends.
@@ -98,32 +96,31 @@ export function puzzleNavIntentFromSwipe(args: {
 
 /**
  * Absolute seek target for an intent inside the reached line
- * `[PUZZLE_FIRST_SOLVE_IDX, furthestSolveIdx]`. `null` = the intent is a
+ * `[firstSolveIdx, furthestSolveIdx]`. `null` = the intent is a
  * no-op (already at that end, or nothing reached yet).
  */
 export function resolvePuzzleNavTarget(args: {
   intent: PuzzleNavIntent;
   solveIdx: number;
   furthestSolveIdx: number;
+  firstSolveIdx: 0 | 1;
 }): number | null {
-  const { intent, solveIdx, furthestSolveIdx } = args;
-  if (furthestSolveIdx < PUZZLE_FIRST_SOLVE_IDX) return null;
-  const target = navTarget(intent, solveIdx, furthestSolveIdx);
-  const clamped = Math.min(
-    Math.max(target, PUZZLE_FIRST_SOLVE_IDX),
-    furthestSolveIdx
-  );
+  const { intent, solveIdx, furthestSolveIdx, firstSolveIdx } = args;
+  if (furthestSolveIdx < firstSolveIdx) return null;
+  const target = navTarget(intent, solveIdx, furthestSolveIdx, firstSolveIdx);
+  const clamped = Math.min(Math.max(target, firstSolveIdx), furthestSolveIdx);
   return clamped === solveIdx ? null : clamped;
 }
 
 function navTarget(
   intent: PuzzleNavIntent,
   solveIdx: number,
-  furthestSolveIdx: number
+  furthestSolveIdx: number,
+  firstSolveIdx: 0 | 1
 ): number {
   switch (intent) {
     case PUZZLE_NAV_INTENT.start:
-      return PUZZLE_FIRST_SOLVE_IDX;
+      return firstSolveIdx;
     case PUZZLE_NAV_INTENT.end:
       return furthestSolveIdx;
     case PUZZLE_NAV_INTENT.back:
