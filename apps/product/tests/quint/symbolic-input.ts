@@ -9,9 +9,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { cacheValueParameters } from '@pkgs/quint-server/cache-value-parameters';
 import { MODEL_DIR, REPORT_DIR } from './campaign-config';
-import { campaignImports } from './campaign-imports';
 import { sourceDigest } from './source-digest';
 
 const REDUCED = new Set([
@@ -38,15 +36,14 @@ export async function withSymbolicInput<T>(
       throw new Error('Unexpected device universe.');
     if (REDUCED.has(name))
       writeFileSync(path, source.replace(original, 'Set(0, 1, 2)'));
-    for (const imported of campaignImports(name)) {
-      const input = join(dir, `${imported}.qnt`);
-      writeFileSync(input, cacheValueParameters(readFileSync(input, 'utf8')));
-    }
+    // regression: product-whole-system-proof-exceeds-leaf-target
+    // The verifier caches value parameters once across this import graph.
+    // Transforming here too duplicates LET bindings before every proof.
     const sha = sourceDigest(dir);
     const clients = REDUCED.has(name)
       ? 'Three symbolic clients: two for actor zero, one for actor one; any can sign into actor two.'
       : 'Original actor/client bounds.';
-    const bound = `${clients} All three actors, two spaces, three puzzles and all transitions remain. Value parameters and repeated record fields use equivalent cached LET bindings. Symbolic source-set SHA256: ${sha}.`;
+    const bound = `${clients} All three actors, two spaces, three puzzles and all transitions remain. The verifier caches value parameters and repeated record fields when preparing this bounded source set. Bounded source-set SHA256: ${sha}.`;
     mkdirSync(reportDir, { recursive: true });
     writeFileSync(
       join(reportDir, `${name}.symbolic-bound.json`),
