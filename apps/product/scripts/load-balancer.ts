@@ -13,6 +13,9 @@
  * `idFromName(topic)` does in production.
  */
 
+import type { EdgeLatency, Lagged } from './edge-latency';
+import { lagged, NO_EDGE_LATENCY } from './edge-latency';
+
 export type Backend = {
   readonly id: string;
   readonly origin: string;
@@ -39,6 +42,8 @@ type SocketPair = {
   readonly target: string;
   upstream: WebSocket | null;
   queue: Frame[];
+  readonly toBackend: Lagged;
+  readonly toPerson: Lagged;
 };
 
 function forwardUrl(backend: Backend, request: Request): string {
@@ -63,37 +68,86 @@ function pipeUpstream(args: {
     args.pair.queue.length = 0;
   });
   upstream.addEventListener('message', (event: MessageEvent) => {
-    args.ws.send(
-      typeof event.data === 'string' ? event.data : (event.data as ArrayBuffer)
+    args.pair.toPerson.inOrder(() =>
+      args.ws.send(
+        typeof event.data === 'string'
+          ? event.data
+          : (event.data as ArrayBuffer)
+      )
     );
   });
   upstream.addEventListener('close', () => {
-    args.ws.close();
+    args.pair.toPerson.inOrder(() => args.ws.close());
   });
   upstream.addEventListener('error', () => {
-    args.ws.close();
+    args.pair.toPerson.inOrder(() => args.ws.close());
   });
+}
+
+/** Where each request goes: round-robin, except a room, which hashes its topic. */
+function backendPicker(backends: readonly Backend[]): {
+  next(): Backend;
+  forTopic(topic: string): Backend;
+} {
+  let cursor = 0;
+  return {
+    next() {
+      const backend = backends[cursor % backends.length];
+      cursor += 1;
+      if (backend === undefined) throw new Error('load balancer: no backends');
+      return backend;
+    },
+    forTopic(topic) {
+      const backend =
+        backends[hashTopic(topic) % backends.length] ?? backends[0];
+      if (backend === undefined) throw new Error('load balancer: no backends');
+      return backend;
+    },
+  };
+}
+
+/** What the balancer does with the frames and the end of one room socket. */
+function socketHandlers(): Bun.WebSocketHandler<SocketPair> {
+  return {
+    open(ws) {
+      pipeUpstream({
+        ws,
+        pair: ws.data,
+        target: ws.data.target,
+        protocol: null,
+      });
+    },
+    message(ws, message) {
+      const payload: Frame =
+        typeof message === 'string'
+          ? message
+          : (message.buffer.slice(
+              message.byteOffset,
+              message.byteOffset + message.byteLength
+            ) as ArrayBuffer);
+      ws.data.toBackend.inOrder(() => {
+        if (ws.data.upstream === null) {
+          ws.data.queue.push(payload);
+          return;
+        }
+        ws.data.upstream.send(payload);
+      });
+    },
+    close(ws) {
+      ws.data.toBackend.inOrder(() => ws.data.upstream?.close());
+    },
+  };
 }
 
 export function startLoadBalancer(args: {
   readonly port: number;
   readonly backends: readonly Backend[];
+  /** The network in front of the API; none unless given. */
+  readonly latency?: EdgeLatency;
 }): LoadBalancerHandle {
-  let cursor = 0;
-  const nextBackend = (): Backend => {
-    const backend = args.backends[cursor % args.backends.length];
-    cursor += 1;
-    if (backend === undefined) throw new Error('load balancer: no backends');
-    return backend;
-  };
-
-  const backendForTopic = (topic: string): Backend => {
-    const backend =
-      args.backends[hashTopic(topic) % args.backends.length] ??
-      args.backends[0];
-    if (backend === undefined) throw new Error('load balancer: no backends');
-    return backend;
-  };
+  const latency = args.latency ?? NO_EDGE_LATENCY;
+  const picker = backendPicker(args.backends);
+  const lag = lagged(latency);
 
   const server = Bun.serve<SocketPair, string>({
     port: args.port,
@@ -104,12 +158,14 @@ export function startLoadBalancer(args: {
       const isUpgrade =
         (request.headers.get('upgrade') ?? '').toLowerCase() === 'websocket';
       if (isUpgrade) {
-        const topic = url.searchParams.get('topic') ?? '';
-        const backend = backendForTopic(topic);
+        const backend = picker.forTopic(url.searchParams.get('topic') ?? '');
+        await lag.after();
         const pair: SocketPair = {
           target: forwardUrl(backend, request),
           upstream: null,
           queue: [],
+          toBackend: lagged(latency),
+          toPerson: lagged(latency),
         };
         if (
           server.upgrade(request, {
@@ -123,12 +179,15 @@ export function startLoadBalancer(args: {
       }
       const backend =
         url.pathname === '/__room-service'
-          ? backendForTopic(url.searchParams.get('topic') ?? '')
-          : nextBackend();
+          ? picker.forTopic(url.searchParams.get('topic') ?? '')
+          : picker.next();
       const forwarded = new Request(forwardUrl(backend, request), request);
       forwarded.headers.set('x-lb-backend', backend.id);
+      await lag.after();
       try {
-        return await fetch(forwarded, { redirect: 'manual' });
+        const response = await fetch(forwarded, { redirect: 'manual' });
+        await lag.after();
+        return response;
       } catch {
         // A node that is stopping resets what it was serving. That is the
         // caller's retry to handle: an uncaught rejection here is reported by
@@ -139,33 +198,7 @@ export function startLoadBalancer(args: {
         });
       }
     },
-    websocket: {
-      open(ws) {
-        pipeUpstream({
-          ws,
-          pair: ws.data,
-          target: ws.data.target,
-          protocol: null,
-        });
-      },
-      message(ws, message) {
-        const payload: Frame =
-          typeof message === 'string'
-            ? message
-            : (message.buffer.slice(
-                message.byteOffset,
-                message.byteOffset + message.byteLength
-              ) as ArrayBuffer);
-        if (ws.data.upstream === null) {
-          ws.data.queue.push(payload);
-          return;
-        }
-        ws.data.upstream.send(payload);
-      },
-      close(ws) {
-        ws.data.upstream?.close();
-      },
-    },
+    websocket: socketHandlers(),
   });
 
   return {

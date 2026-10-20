@@ -18,7 +18,7 @@ import {
 import { LOCAL_MONITOR_TOKEN } from './local-api-env';
 import { removeManifest } from './manifest';
 import { databaseVerdict, profileOf } from './production-database';
-import { releaseJourneySpecs } from './release-journey-selection';
+import { RELEASE_ENVIRONMENT, releaseSpecs } from './release-selection';
 import { specProcessExit } from './spec-process';
 import { parseStackOptions } from './stack-options';
 
@@ -26,10 +26,12 @@ const PACKAGE_DIR = join(import.meta.dir, '..');
 const REPO_ROOT = join(PACKAGE_DIR, '../..');
 const DIST = join(PACKAGE_DIR, '.cache/release-web');
 // The journeys reach Postgres as the deployed API does (round trip, session
-// pool, per-request cost), because they decide whether a change can deploy.
+// pool, per-request cost) and over a network with a round trip, because they
+// decide whether a change can deploy.
 const options = parseStackOptions([
   '--synthetic-population-workers=0',
   '--production-database',
+  '--edge-latency-ms=50',
 ]);
 const cli = parseCli(process.argv.slice(2));
 
@@ -91,7 +93,7 @@ function serveRelease(origin: string): ReturnType<typeof Bun.serve> {
 }
 
 function journeyStubs(): readonly string[] {
-  const selection = selectSpecs({ all: releaseJourneySpecs(), cli });
+  const selection = selectSpecs({ all: releaseSpecs(), cli });
   if (!selection.ok) throw new Error(selection.error);
   const dirs = {
     stubDir: join(PACKAGE_DIR, '.cache/spec-release'),
@@ -100,7 +102,7 @@ function journeyStubs(): readonly string[] {
   rmSync(dirs.stubDir, { recursive: true, force: true });
   mkdirSync(dirs.stubDir, { recursive: true });
   return writeFeatureStubs(
-    { production: false, observability: false },
+    RELEASE_ENVIRONMENT,
     selection.specs,
     dirs,
     join(PACKAGE_DIR, 'tests/steps/release-index.ts')

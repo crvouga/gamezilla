@@ -51,3 +51,22 @@ describe('localhost stack options', () => {
     );
   });
 });
+
+describe('edge latency', () => {
+  test('there is none unless asked', () => {
+    expect(parseStackOptions([]).edgeLatencyMs).toBe(0);
+  });
+
+  test('--edge-latency-ms sets the one-way delay', () => {
+    expect(parseStackOptions(['--edge-latency-ms=100']).edgeLatencyMs).toBe(
+      100
+    );
+  });
+
+  test('it must be a whole number of milliseconds up to two seconds', () => {
+    for (const ms of ['-1', '2001', '1.5', 'slow'])
+      expect(() => parseStackOptions([`--edge-latency-ms=${ms}`])).toThrow(
+        '--edge-latency-ms must be a whole number'
+      );
+  });
+});

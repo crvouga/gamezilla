@@ -50,11 +50,34 @@ export async function expectCustomGameReady(ui: Driver): Promise<void> {
   check(box !== null && box.width > 0 && box.height > 0, 'board has no size');
 }
 
+const MOVE_ATTEMPTS = 6;
+const MOVE_SETTLE_MS = JOURNEY_WAIT_MS / MOVE_ATTEMPTS;
+
+/**
+ * White plays e2-e4 on their own board. The board takes no move while the
+ * person's earlier choice, such as starting the game, still waits for the
+ * room to confirm it, and over a real network that takes several round
+ * trips. A person sees the board ignore them and plays again, so this does.
+ */
 export async function playCustomGameE4(ui: Driver): Promise<void> {
-  await ui.get('custom-game-board').layout();
-  // White's board: e2 and e4, at the centres of their squares.
-  await ui.get('custom-game-board').tapAt({ xRatio: 4.5 / 8, yRatio: 6.5 / 8 });
-  await ui.get('custom-game-board').tapAt({ xRatio: 4.5 / 8, yRatio: 4.5 / 8 });
+  const board = ui.get('custom-game-board');
+  for (let attempt = 0; attempt < MOVE_ATTEMPTS; attempt += 1) {
+    await board.layout();
+    // White's board: e2 and e4, at the centres of their squares.
+    await board.tapAt({ xRatio: 4.5 / 8, yRatio: 6.5 / 8 });
+    await board.tapAt({ xRatio: 4.5 / 8, yRatio: 4.5 / 8 });
+    try {
+      await ui
+        .get('custom-game-review-move-1')
+        .expect.text('e4', { exact: true, timeoutMs: MOVE_SETTLE_MS });
+      return;
+    } catch {
+      // The board was not taking moves yet; play it again.
+    }
+  }
+  await ui
+    .get('custom-game-review-move-1')
+    .expect.text('e4', { exact: true, timeoutMs: MOVE_SETTLE_MS });
 }
 
 export async function expectCustomGameBotReply(ui: Driver): Promise<void> {
