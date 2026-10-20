@@ -1,6 +1,6 @@
 ---
 name: overnight
-description: "Only when the user explicitly invokes /overnight or $overnight. Autonomous overnight improvement run. Hunts product defects and gaps across every bounded context in specs/, reproduces each one as a failing spec or test before touching product code, fixes the highest-impact ones as small revertible commits, and leaves one draft PR plus a morning report. Use when kicking off an unattended run."
+description: "Only when the user explicitly invokes /overnight or $overnight. Autonomous overnight improvement run with zero human interaction. Finds defects and rough edges in the product's existing features across every bounded context in specs/, reproduces each as a failing spec or test, fixes the highest-impact ones, and opens one labelled pull request per improvement with screenshots, recordings, charts and a plain explanation of why it is better. Improves what exists; never adds or changes features. Use when kicking off an unattended run."
 ---
 
 <!-- generated from .agents/commands by `bun run agents:sync` — do not edit -->
