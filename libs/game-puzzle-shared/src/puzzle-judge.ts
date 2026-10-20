@@ -16,6 +16,7 @@
  * - `wrong`: accepted by the game but none of the above.
  */
 
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import type { GameSide } from '@pkgs/turn-game-shared/game-rules';
 import type { PuzzleGame } from './puzzle-setup';
 import { canonicalAction, playPuzzleAction } from './puzzle-setup';
@@ -59,7 +60,7 @@ function playLine(
   return current;
 }
 
-/** The line with the solver moves at `idx` and `idx + 2` swapped, when that transposes. */
+/** The line with successive solver moves swapped, preserving any reply between them. */
 function transposedLine(args: {
   readonly game: PuzzleGame;
   readonly position: string;
@@ -68,21 +69,21 @@ function transposedLine(args: {
   readonly played: string;
 }): readonly string[] | null {
   const { game, position, line, idx, played } = args;
+  const stride = puzzleLineLayout(game.puzzles).solverStep;
   const expected = line[idx];
-  const reply = line[idx + 1];
-  const later = line[idx + 2];
-  if (expected === undefined || reply === undefined || later === undefined)
-    return null;
+  const between = line.slice(idx + 1, idx + stride);
+  const later = line[idx + stride];
+  if (expected === undefined || later === undefined) return null;
   if (played !== later) return null;
-  const stored = playLine(game, position, [expected, reply, later]);
-  const swapped = playLine(game, position, [later, reply, expected]);
+  const stored = playLine(game, position, [expected, ...between, later]);
+  const swapped = playLine(game, position, [later, ...between, expected]);
   if (stored === null || swapped === null) return null;
   const same =
     game.puzzles.judge?.samePosition ?? ((a: string, b: string) => a === b);
   if (!same(stored, swapped)) return null;
   const transposed = [...line];
   transposed[idx] = later;
-  transposed[idx + 2] = expected;
+  transposed[idx + stride] = expected;
   return transposed;
 }
 
@@ -90,7 +91,7 @@ export function judgePuzzleAction(args: {
   readonly game: PuzzleGame;
   /** The position the solver moved from. */
   readonly position: string;
-  /** The line being followed (`line[0]` is the setup move). */
+  /** The line being followed, in the capability's declared layout. */
   readonly line: readonly string[];
   /** Index of the expected solver move in `line`. */
   readonly idx: number;

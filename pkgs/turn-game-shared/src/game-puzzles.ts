@@ -1,6 +1,6 @@
 /**
  * Puzzles: a position from a game and the line that solves it, played
- * against the line's own replies. The platform owns the whole lifecycle —
+ * with the line's own replies when it has an opponent. The platform owns the whole lifecycle —
  * the catalogue, choosing the next puzzle, setting it up, judging each
  * move, hints, the solution, ratings, statistics and watchers — over the
  * game's `GameRules`. A game supplies only what its positions and actions
@@ -17,11 +17,12 @@
 export type PuzzleRecord = {
   /** `<namespace><local id>`: the catalogue's key. */
   readonly id: string;
-  /** The position before the opponent's setup move. */
+  /** The supplied position, before any opponent setup or solver move. */
   readonly position: string;
   /**
-   * `line[0]` is the opponent's setup move; the solver then plays
-   * `line[1]`, the opponent answers `line[2]`, and so on.
+   * In opponent-replies mode, `line[0]` is setup; the solver plays
+   * `line[1]`, the opponent answers `line[2]`, and so on. In solver-only
+   * mode every entry is a solver move, beginning with `line[0]`.
    */
   readonly line: readonly string[];
   readonly rating: number;
@@ -45,6 +46,12 @@ export type PuzzleMarks = {
 
 /** What a game supplies to be offered puzzles. */
 export type PuzzlesCapability = {
+  /**
+   * With opponent replies (the default), line[0] is setup and odd entries
+   * are solver moves. In solver-only lines every entry is a solver move:
+   * play starts at the supplied position, with no automatic action.
+   */
+  readonly lineMode?: 'opponent-replies' | 'solver-only';
   /**
    * The game's share of the puzzle catalogue, its puzzle profiles and its
    * feed settings (`<id>/`); only the platform's durable game keeps `''`.
@@ -76,3 +83,13 @@ export type PuzzlesCapability = {
   /** Whether `cell` is a cell of the board (a watcher's suggestion names two). */
   readonly isCell: (cell: string) => boolean;
 };
+
+/** Counts of recorded actions, never inferred from a game's position syntax. */
+export function puzzleLineLayout(
+  puzzles: Pick<PuzzlesCapability, 'lineMode'>
+): { readonly start: 0 | 1; readonly solverStep: 1 | 2 } {
+  if (puzzles.lineMode === 'solver-only') return { start: 0, solverStep: 1 };
+  if (puzzles.lineMode === undefined || puzzles.lineMode === 'opponent-replies')
+    return { start: 1, solverStep: 2 };
+  throw new Error('Puzzle lineMode must be opponent-replies or solver-only');
+}

@@ -16,6 +16,7 @@ The implementation map remains [`GAME_FRAMEWORK.md`](GAME_FRAMEWORK.md).
 | Proven defect: lower-level concrete engines unclassified | Five `pkgs/chess-*` manifests lacked game ownership, bypassing the manifest game-isolation guard. | Mark all five as Chess-owned; require ownership for game-named packages in both tiers. `concrete-engine-game-ownership`, pinned in `tools/scripts/game-dependency-graph.test.ts`. |
 | Missing independence evidence | Existing reference-game execution did not build with production imports prohibited. | The core bundle rejects concrete sources and registries. `games-harness/tests/framework-independence.contract.test.ts` additionally executes client/server checks using only test-owned consumers, with production source loading prohibited. Its negative check must reject an attempted concrete import. `apps/client/tests/framework-build.test.ts` compiles the actual shared screens with the production Vite configuration and rejects both game and registry sources before transformation. |
 | Proven defect: namespace authority inferred from concrete identity | `turn-game-definition.ts` compared the game id to `GAME_PLATFORM_NAMESPACE` to grant legacy unprefixed namespaces. | Use an explicit grant and enforce its owner at production composition. `game-registration-implicit-legacy-id` pins the old implicit privilege and a differently named granted consumer; the registry refuses another definition's claim. Stored identities remain unchanged. |
+| Proven gate defect: package-owned audit docs rejected | The full gate rejected spec commit `e0d7afbda3` solely for `libs/games-shared/docs/PUZZLE_LAYOUT_SPEC_AUDIT.md`. | `spec-ownership-package-audit-docs` pins that commit input. The gate accepts Markdown only in root or declared package docs directories; source paths and non-Markdown files remain forbidden. All 14 ownership checks and the actual history gate pass after `15e5950cc`. |
 | Proven remaining shape limits | `GameSide`, participant tuples, result types, shared room positions, and existing probe refusals require two alternating participants with public state. | Open. A refusal probe documents a limitation; it does not satisfy the requested support for meaningfully different shapes. |
 | Proven defect: missing suite wrapper represented as empty enrollment | The real loader returned `{}` rather than `null` for a suite never calling `forEveryGame`, hiding the structural error when no game was eligible. | `game-conformance-unregistered-suite` creates that literal module and tests the actual loader; it failed before the repair. Unsupported capabilities legitimately require no cases, while an unregistered suite still fails. |
 | Proven defect: faulty-consumer tests required Chess | The isolated run passed 199 checks but failed two falsification checks because their foreign examples came from Chess. | `game-conformance-fault-probes-production-default` uses independent test-owned foreign positions and puzzles, excludes the game under test, and retains assertions naming the exact rejected input. |
@@ -206,3 +207,74 @@ the foreign-input repair: setup-race was compared against itself. The
 fixture now excludes matching game ids, and the setup and faulty-consumer
 checks pass together (20 tests). The complete affected-package rerun after
 this fix and task separation passed, as recorded above.
+
+## Solver-only puzzles: implementation in progress
+
+`e0d7afbda` is the spec-first change for solver-only puzzles. Common
+progress and review now refer to the solver's moves. One shared
+`puzzle-opponent.feature` retains the setup, automatic reply and refused
+opponent input obligations only where an opponent exists. The known puzzle
+still has two solver moves. The two existing models use a boolean
+`OPPONENT` constant; executable instantiation of that constant remains open.
+The detailed source audit is [`PUZZLE_LAYOUT_SPEC_AUDIT.md`](PUZZLE_LAYOUT_SPEC_AUDIT.md),
+which explicitly remains incomplete, including full status coverage and the
+nine strict wording collisions.
+
+The initial scenario command failed during enrollment of the new feature;
+that was scaffolding, not valid red evidence. After enrollment, the seven
+changed features executed 96 checks: 58 passed and 38 failed on undefined
+replacement steps. The subsequent rebound run exposed six failures from a
+new binding reading a nonexistent probe field. It now captures the visible
+current position before review instead of inventing a hidden frontier read.
+
+The focused core counterexample uses `pile:4:white`, `take2 take2`, with one
+solver throughout. All three initial setup/staging checks failed before
+repair. A separate room example first passed normal start and completion,
+then failed stepping from the first move back to the supplied position as
+`already at puzzle start`. Both bugs have their own register entries and
+literal examples. The core package's 237 checks subsequently passed,
+including start at zero, two explicit solver moves, one clean solved result,
+review back to zero, and complete solution animation from zero.
+
+The public capability now declares `lineMode` with the existing
+`opponent-replies` default and a `solver-only` alternative. Setup, room
+progress, seeking, transposition stride and staging use its declared layout;
+no game id or position syntax selects a branch. This is not yet full
+single-player support. Client navigation and review bounds, fixture and
+rules conformance, a truthful solver-only board/feedback consumer, automatic
+suite enrollment and both model instances remain required. No production
+game advertises the new mode. Existing durable event shapes and names are
+retained; the new setup result reports its actual starting index.
+
+One package run completed 16 of 17 tasks and found a planner error-message
+expectation missing the new opponent trait. The expectation was corrected.
+A stale subsequent run was stopped through the documented supervisor stop
+entry point before its verdict could be used; it is not verification proof.
+The next run uses settled source inputs.
+
+After the planner expectation and review binding fixes, all 17 affected
+`tc lint test` tasks passed (14 exact-input cache hits) in 76.986 seconds.
+The seven changed feature files then passed all 134 checks for Chess and
+the counting reference consumer in 79.89 seconds. The earlier red run's
+first-error stopping policy ended after 96 checks; it does not claim that
+all 134 had executed red. These feature results establish the rebound
+existing consumers, not an enrolled solo consumer or the parameterized
+models. The core package ran 237 checks and the shared code harness 346.
+
+The ordinary `bun run spec:verify` passed after catalog regeneration. Its
+strict form still fails on exactly the nine previously recorded wording
+pairs, with no new pair from these bindings. All 64 dependency, boundary,
+task-policy, test-ownership and regression-register checks passed.
+An explicit run of the two changed models type-checked and passed shape
+checks, but trace generation failed with `QNT500: Uninitialized const
+OPPONENT`. This is the concrete remaining model execution gap; the seven
+passing feature files do not substitute for it.
+
+The first full gate of this implementation checkpoint stopped at that
+package-doc ownership defect (`verify-run-10YGkt/diagnostics.tar.gz`).
+After the pinned repair in `15e5950cc`, tooling type checking, lint and the
+history ownership task all passed. All six policy test files then passed
+78 tests, including the 14 ownership checks. A fresh `bun verify` stopped
+again at the unchanged deploy YAML alias at lines 160 and 170
+(`verify-run-AiVT29/diagnostics.tar.gz`). Neither full run is green, and
+neither establishes parameterized model or full-context behavioral success.

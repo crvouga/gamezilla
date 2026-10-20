@@ -3,6 +3,7 @@
  * replies, and a shown solution, play out one at a time over the game's
  * own rules (`positionAt`), so a person sees each move happen.
  */
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import type { PuzzleGame } from './puzzle-setup';
 import { positionAt } from './puzzle-setup';
 import { lineActions } from './step';
@@ -82,6 +83,7 @@ function hasNewProgress(args: StageArgs): boolean {
 }
 
 function planOpeningAnimate(args: StageArgs): OpponentStagePlan | null {
+  if (puzzleLineLayout(args.game.puzzles).solverStep === 1) return null;
   if (!isFreshOpening(args) || wasAlreadyAtOpening(args)) return null;
   if (
     args.startPosition.length === 0 ||
@@ -99,6 +101,7 @@ function planOpeningAnimate(args: StageArgs): OpponentStagePlan | null {
 }
 
 function planReplyAnimate(args: StageArgs): OpponentStagePlan | null {
+  if (puzzleLineLayout(args.game.puzzles).solverStep === 1) return null;
   if (args.revealed || !hasNewProgress(args)) return null;
   if (args.solveIdx !== args.prevSolveIdx + 2) return null;
   const fromPosition = positionAtSolveIdx(args.game, {
@@ -118,7 +121,11 @@ function planReplyAnimate(args: StageArgs): OpponentStagePlan | null {
 /** Every remaining ply of the line, one per {@link PUZZLE_SOLUTION_STEP_MS}. */
 function planSolutionAnimate(args: StageArgs): OpponentStagePlan | null {
   if (!args.revealed || !hasNewProgress(args)) return null;
-  if (args.prevSolveIdx < 1 || args.prevSolveIdx >= args.solveIdx) return null;
+  if (
+    args.prevSolveIdx < puzzleLineLayout(args.game.puzzles).start ||
+    args.prevSolveIdx >= args.solveIdx
+  )
+    return null;
   const reachedAt = (solveIdx: number): string | null =>
     positionAtSolveIdx(args.game, {
       position: args.startPosition,

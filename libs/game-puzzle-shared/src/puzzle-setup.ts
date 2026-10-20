@@ -5,6 +5,7 @@
  */
 
 import type { PuzzlesCapability } from '@pkgs/turn-game-shared/game-puzzles';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import type {
   GameRules,
   GameSide,
@@ -48,17 +49,19 @@ export function playPuzzleAction(
 export type PuzzleSetup =
   | {
       readonly kind: 'ready';
-      /** The position after the opponent's setup move: the solver's to play. */
+      /** Recorded actions already applied at the solver's starting position. */
+      readonly solveIdx: 0 | 1;
+      /** The solver's starting position, after setup only when there is an opponent. */
       readonly displayPosition: string;
-      /** The side the solver plays: whose turn the setup move gives. */
+      /** The side the solver plays throughout the line. */
       readonly solverSide: GameSide;
-      /** `'solved'` when the line is only the setup move. */
+      /** Solved only when no solver move remains after setup. */
       readonly status: 'solving' | 'solved';
     }
   | { readonly kind: 'invalid' };
 
 /**
- * Play the line's setup move from the puzzle's position. Anything the game
+ * Validate the first action and apply it only for an opponent setup. Anything the game
  * refuses makes the puzzle `invalid`, one terminal status every device
  * shows alike.
  */
@@ -72,11 +75,13 @@ export function setupPuzzle(
     return { kind: 'invalid' };
   const played = playPuzzleAction(game, position, setup);
   if (played === null) return { kind: 'invalid' };
+  const layout = puzzleLineLayout(game.puzzles);
   return {
     kind: 'ready',
-    displayPosition: played.played.position,
+    solveIdx: layout.start,
+    displayPosition: layout.start === 0 ? position : played.played.position,
     solverSide: played.played.turn,
-    status: line.length <= 1 ? 'solved' : 'solving',
+    status: line.length <= layout.start ? 'solved' : 'solving',
   };
 }
 
@@ -105,7 +110,8 @@ export function positionTrail(
 
 /**
  * The position after `solveIdx` actions of the line (as far as the game
- * plays it), or `null` when not even the setup move plays.
+ * plays it). Index zero is the supplied position for solver-only puzzles;
+ * an unavailable position is `null`.
  */
 export function positionAt(
   game: PuzzleGame,
@@ -113,5 +119,11 @@ export function positionAt(
   line: readonly string[],
   solveIdx: number
 ): string | null {
+  if (
+    solveIdx === 0 &&
+    puzzleLineLayout(game.puzzles).start === 0 &&
+    game.rules.recognizes(position)
+  )
+    return position;
   return positionTrail(game, position, line, solveIdx).at(-1) ?? null;
 }

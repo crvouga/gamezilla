@@ -25,7 +25,10 @@ import {
   leavePuzzleForGameChoices,
   openGamePuzzles,
 } from '@libs/game-session-harness/puzzle-screen';
-import { sharedSpecificationNeeds } from '@libs/games-harness/game-conformance';
+import {
+  capabilitiesOf,
+  sharedSpecificationNeeds,
+} from '@libs/games-harness/game-conformance';
 import { createSpace } from '@libs/spaces-harness/space-actions';
 import { refusals } from '../reference-game/faulty-game';
 import {
@@ -49,7 +52,7 @@ test('a game offering only puzzles keeps every law and is bound for rules and pu
   expect(specifications).toContain('specs/games/puzzle-play.feature');
   expect(specifications).toContain('specs/games/puzzle-attempt.qnt');
   for (const uri of specifications)
-    expect(sharedSpecificationNeeds(uri)).toEqual(['puzzles']);
+    expect(capabilitiesOf(sharedSpecificationNeeds(uri))).toEqual(['puzzles']);
   const suites = await inheritedCodeSuites(GAME);
   expect(suites).toContain('conformance/puzzles/puzzle-session');
   expect(suites).toContain('conformance/rules/game-rules');

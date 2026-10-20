@@ -13,6 +13,7 @@ import {
   readLastPuzzleRefusal,
 } from '@libs/game-session-harness/puzzle-room-probe';
 import {
+  readPuzzleProbe,
   stepThroughPuzzleLine,
   takePuzzleHint,
   takeSecondPuzzleHint,
@@ -22,10 +23,13 @@ import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
-import { ensureOnPuzzle } from './puzzle-world';
+import { ensureOnPuzzle, puzzlePositionBeforeReviewKey } from './puzzle-world';
 
 async function stepBack(w: HarnessWorld, actor: Actor): Promise<void> {
   await w.s.apply(focusActor, actor);
+  const before = await w.s.read(readPuzzleProbe, actor);
+  if (before === null) throw new Error(`${actor} has no puzzle to review`);
+  w.memo.set(puzzlePositionBeforeReviewKey(actor), before.solveIdx);
   await w.s.apply(stepThroughPuzzleLine, actor, 'back');
 }
 

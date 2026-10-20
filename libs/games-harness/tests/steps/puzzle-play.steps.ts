@@ -31,7 +31,6 @@ import {
   readPuzzleHelp,
   readPuzzleHighlightedMove,
   readPuzzleOnBoard,
-  readPuzzleProbe,
   readPuzzlePrompt,
   readPuzzleState,
   readPuzzleWatch,
@@ -215,21 +214,6 @@ Then(
   }
 );
 
-Then(
-  '{actor} is solving the puzzle at move {int} of the line',
-  async (w, actor: Actor, move: number) => {
-    await focusPuzzle(w, actor);
-    const probe = await w.s.until((surf) => readPuzzleProbe(surf, actor), {
-      maxMs: SETTLE_MS,
-      pred: (seen) => seen?.status === 'solving' && seen.interactive,
-    });
-    expect(probe?.solveIdx).toBe(move);
-    expect(await w.s.read(readPuzzleBoardPosition, actor)).toBe(
-      lineOf(w, puzzleOn(w, actor))[move] ?? null
-    );
-  }
-);
-
 // ------------------------------------------------------------ wrong moves
 
 When('{actor} plays a wrong move', async (w, actor: Actor) => {
@@ -386,24 +370,6 @@ Then(
   "{actor}'s puzzle shows the revealed solution within {int} seconds",
   async (w, actor: Actor, seconds: number) => {
     await untilState(w, actor, 'revealed', seconds * SECOND_MS);
-  }
-);
-
-Then(
-  "{actor}'s board is at move {int} of the line within {int} seconds",
-  async (w, actor: Actor, move: number, seconds: number) => {
-    await focusPuzzle(w, actor);
-    const at = lineOf(w, puzzleOn(w, actor))[move];
-    await w.s.until(
-      async (surf) => ({
-        move: (await readPuzzleProbe(surf, actor))?.solveIdx,
-        position: await readPuzzleBoardPosition(surf, actor),
-      }),
-      {
-        maxMs: seconds * SECOND_MS,
-        pred: (shown) => shown.move === move && shown.position === at,
-      }
-    );
   }
 );
 

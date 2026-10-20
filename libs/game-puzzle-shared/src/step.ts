@@ -7,8 +7,11 @@
  * Rewind one ply along the solution line (player or opponent).
  * Returns `null` at the post-opening start (`solveIdx <= 1`).
  */
-export function prevSolveIdx(solveIdx: number): number | null {
-  if (solveIdx <= 1) return null;
+export function prevSolveIdx(
+  solveIdx: number,
+  firstSolveIdx: 0 | 1 = 1
+): number | null {
+  if (solveIdx <= firstSolveIdx) return null;
   return solveIdx - 1;
 }
 
@@ -36,9 +39,14 @@ export function resolveSeekSolveIdx(args: {
   solveIdx: number;
   furthestSolveIdx: number;
   targetSolveIdx: number;
+  firstSolveIdx?: 0 | 1;
 }): number | null {
   const { solveIdx, furthestSolveIdx, targetSolveIdx } = args;
-  if (targetSolveIdx < 1 || targetSolveIdx > furthestSolveIdx) return null;
+  if (
+    targetSolveIdx < (args.firstSolveIdx ?? 1) ||
+    targetSolveIdx > furthestSolveIdx
+  )
+    return null;
   if (targetSolveIdx === solveIdx) return null;
   return targetSolveIdx;
 }

@@ -167,3 +167,39 @@ Next: run the changed scenarios red, bind named positions through public
 harness reads/actions, instantiate and verify both boolean model cases,
 then implement solver-only puzzles through the existing shared lifecycle.
 No single-player support or completed-spec-audit claim is made here.
+
+## Implementation checkpoint
+
+The replacement definitions are bound, and all six unused numeric
+expressions were deleted. Named destinations are translated by a shared
+harness helper over the consumer's authored fixture and declared layout.
+The seven feature files passed 134 checks for Chess and the counting race
+reference. Before rebinding, 38 checks failed on undefined steps and 58
+passed; the runner stopped early, so this is not a claim that every one of
+the 134 had executed red. Completing P3 evidence for every rewritten
+example remains part of the final audit.
+
+The first rebound run found six failures in the new review observation,
+which referenced a nonexistent probe field. That observation now uses the
+visible position captured before the review action. The subsequent full
+selected-feature run passed. All 17 affected package type/lint/test tasks
+also passed. Solver-only core setup, staged solution, completion and review
+now have focused example coverage, but client navigation, fixtures, shared
+suite enrollment and executable model constant instantiation remain open.
+This checkpoint does not change the INCOMPLETE verdict above.
+
+The ordinary `bun run spec:verify` passed after catalog regeneration. Its
+strict form still fails on exactly the nine previously recorded wording
+pairs, with no new pair from these bindings. All 64 dependency, boundary,
+task-policy, test-ownership and regression-register checks passed.
+An explicit run of the two changed models type-checked and passed shape
+checks, but trace generation failed with `QNT500: Uninitialized const
+OPPONENT`. This is the concrete remaining model execution gap; the seven
+passing feature files do not substitute for it.
+
+The full gate also exposed a verifier mismatch: it rejected this package's
+Markdown audit document beside specs. `15e5950cc` corrects the documentation
+path rule, with the literal commit/path pinned and negative source-file
+controls retained. All 14 ownership checks and the actual history gate
+pass. The subsequent full repository gate again stops on the unchanged
+deploy YAML alias; this does not clear the independent model and audit gaps.

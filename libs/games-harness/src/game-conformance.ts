@@ -1,4 +1,5 @@
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import type { GameCapability } from '@pkgs/turn-game-shared/game-rules';
 import {
   GAME_CAPABILITIES,
@@ -28,6 +29,11 @@ export type ConformanceArea = (typeof CONFORMANCE_AREAS)[number];
  * needing it holds for exactly the games whose rules have it.
  */
 export const GAME_TRAITS = {
+  /** A puzzle line whose opponent supplies setup and automatic replies. */
+  'a puzzle opponent': (game: HarnessGame) => {
+    const puzzles = game.shared.turnGame.capabilities.puzzles;
+    return puzzles !== undefined && puzzleLineLayout(puzzles).solverStep === 2;
+  },
   /** A position where the second side cannot win (`secondSideCannotWin`). */
   'a side that cannot win': (game: HarnessGame) =>
     game.fixtures.secondSideCannotWin !== undefined,
@@ -140,6 +146,7 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'unfinished-game-limit': ['matchmaking', 'custom-games'],
   'matched-game-ready': ['matchmaking'],
   'puzzle-play': ['puzzles'],
+  'puzzle-opponent': ['puzzles', 'a puzzle opponent'],
   'solve-flow': ['puzzles'],
   'solve-move-rules': ['puzzles'],
   'solve-show-solution': ['puzzles'],

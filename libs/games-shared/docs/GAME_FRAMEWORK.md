@@ -841,6 +841,23 @@ What changes, verified against this branch's history:
 | Evolving persisted state | Never a [durable name](#durable-names); a new partition in reads, not tables; a recorded session replayed to the same events; a game's own encoding kept readable by its `recognizes` / `play` / `replay` | Internals | `a72377df5` (puzzle namespaces through `puzzle-namespace.ts`, the catalogue and reads; `puzzle-tables.ts` untouched), `907e5d0f8` (`chess-puzzle-harness/tests/puzzle-session-compatibility`), `49a13b2e8` (`GAME_PLATFORM_NAMESPACE`) |
 | An internal framework change | Framework internals and their tests only | Internals | `aa2c6dcb6` (`settle-due-game.ts`), `287ba476f` (the matchmaking harness): no game file; likewise this probe work's `custom-game-play.ts` fix and turn law |
 
+## Solver-only puzzle work in progress
+
+`PuzzlesCapability.lineMode` defaults to `opponent-replies`; `solver-only`
+means that every line entry is a solver action, with no automatic setup or
+reply. The core room now starts that mode at its supplied position (index
+zero), waits for each solver move, and permits review back to that position.
+Its judge and solution staging use the same declared layout. Existing
+production games retain the default, and their durable messages and names
+are unchanged.
+
+This is not yet a complete integration path. Client navigation/review bounds,
+checked fixtures, the full shared suite enrollment and executable instances
+of the common models are still being implemented. The existing unchecked
+solo probe is not evidence that the new mode conforms. Follow
+[`FINAL_HARDENING_AUDIT.md`](FINAL_HARDENING_AUDIT.md) for current evidence;
+no production game advertises the new mode.
+
 ## Known limits
 
 - The shared suites live in one package, so changing any game reruns every

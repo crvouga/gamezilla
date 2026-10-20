@@ -1,3 +1,4 @@
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import type { TurnGameCapabilities } from '@pkgs/turn-game-shared/game-rules';
 import {
   BOT_DIFFICULTIES,
@@ -69,6 +70,7 @@ export function assertTurnGameCapabilities(
   }
   const puzzles = capabilities.puzzles;
   if (puzzles === undefined) return;
+  puzzleLineLayout(puzzles);
   assertFunctions(id, 'puzzles', {
     'content.validate': puzzles.content?.validate,
     marks: puzzles.marks,

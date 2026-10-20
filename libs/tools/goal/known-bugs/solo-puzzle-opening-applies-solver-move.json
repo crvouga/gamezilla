@@ -1,0 +1,4 @@
+{
+  "summary": "A solver-only puzzle starting at pile:4:white with take2 take2 applied the first solver move as an opponent setup, opening at pile:2:white and consuming that move. The same fixed opening index animated the first solver move as an automatic setup and omitted solution animation from index zero.",
+  "regressionTest": "libs/game-puzzle-shared/tests/solver-only.test.ts"
+}
