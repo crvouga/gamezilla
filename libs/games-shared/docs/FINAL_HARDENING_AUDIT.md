@@ -521,5 +521,21 @@ environment, including the real four-workflow lint, goal-register validation,
 catalog validation, type/lint checks and all 779 unit tests. No workflow,
 tool-version pin, dependency or linter rule changed.
 
-The next full `bun verify` owns snapshot `verify-run-T3oVQm`; its verdict is
-pending. Full puzzle/context execution and the broader mission remain open.
+The next full `bun verify` stopped at its unchanged 600-second deadline
+with `@libs/games-harness#verify:models:3` running for 43 seconds. It reported
+no assertion failure, but no Turbo summary survived the kill, so per-task
+budgets were not verified. Diagnostics are
+`verify-run-T3oVQm/diagnostics.tar.gz`; this is not a green full gate.
+The continuation uses two task/solver slots and one product-test worker,
+retaining all bounds and deadlines. Full puzzle/context execution and the
+broader mission remain open.
+
+The two-slot continuation (`verify-run-SYF9l8`) completed 106 successful
+tasks, including three restored verdicts, before the same 600-second run
+deadline. Turbo retained a summary; no assertion failure was reported.
+Completed proofs included the formerly interrupted game model part 3 and
+both matchmaking proof parts. The full gate still exited 124. The subsequent
+ownership baseline passed six Chess board/material examples and 48 shared
+side-selection examples (54 checks total). Seat placement is absent before
+start by design, so it cannot replace the draft board-orientation assertion;
+that guarantee must remain until a suitable shared board contract owns it.
