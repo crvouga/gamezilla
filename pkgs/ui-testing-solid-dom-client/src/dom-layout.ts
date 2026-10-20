@@ -51,7 +51,22 @@ export const synthesizeLayout: LayoutProvider = (element) => {
   return { x: 0, y: 0, width, height };
 };
 
-function installRect(element: Element, layout: ElementLayout): void {
+const installedLayouts = new WeakMap<Element, ElementLayout>();
+
+/** Publish changed geometry once, as a browser's measurement observer does. */
+export function installElementLayout(
+  element: Element,
+  layout: ElementLayout
+): void {
+  const previous = installedLayouts.get(element);
+  if (
+    previous?.x === layout.x &&
+    previous.y === layout.y &&
+    previous.width === layout.width &&
+    previous.height === layout.height
+  )
+    return;
+  installedLayouts.set(element, { ...layout });
   const rect: DOMRect = {
     x: layout.x,
     y: layout.y,
@@ -96,15 +111,14 @@ export function ensureElementLayout(
       width: inline.width,
       height: inline.height,
     };
-    installRect(element, layout);
+    installElementLayout(element, layout);
     return layout;
   }
   if (measured !== null && measured.width > 0 && measured.height > 0) {
-    // Re-install so ELEMENT_LAYOUT_EVENT fires for size listeners.
-    installRect(element, measured);
+    installElementLayout(element, measured);
     return measured;
   }
-  installRect(element, syn);
+  installElementLayout(element, syn);
   return syn;
 }
 
