@@ -63,6 +63,14 @@ Feature: Review earlier positions in a matched game
       When Bob returns to the current position
       Then Bob's board shows the current position with Alice's next move
 
+  Rule: A listener hears which earlier position they are reviewing, by its move
+    No counter-example: an earlier position is always described for a listener, as well as shown on the board.
+
+    Scenario: A listener hears the move their earlier position follows
+      Given Alice is listening to her 5+0 matched game with Bob after their first moves
+      When Alice chooses the first move in the move list
+      Then Alice hears she is reviewing the earlier position after the first move
+
   Rule: Reviewing an earlier position needs no connection
     No counter-example: reviewing an earlier position uses only the last known board the device already shows.
 

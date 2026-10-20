@@ -6424,7 +6424,6 @@
                       "specs/games/matched-games.als",
                       "specs/games/matched-game-watchers.feature",
                       "specs/games/matched-game-low-on-time.feature",
-                      "specs/chess/multiplayer-move-list-review.feature",
                       "specs/games/matched-game-review.feature",
                       "specs/games/matched-game-offline.feature",
                       "specs/games/matched-game-own-board.qnt",
