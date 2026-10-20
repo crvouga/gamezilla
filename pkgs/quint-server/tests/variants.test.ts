@@ -22,7 +22,11 @@ import {
   runsOfTrace,
   sliceReplays,
 } from '@pkgs/quint-server/trace-runs';
-import type { QuintBinding, TraceContext } from '@pkgs/quint-shared/registry';
+import type {
+  QuintBinding,
+  TraceContext,
+  TraceVariant,
+} from '@pkgs/quint-shared/registry';
 import {
   bindQuintModel,
   defineTraceVariants,
@@ -30,6 +34,7 @@ import {
 } from '@pkgs/quint-shared/registry';
 import { replayCover } from '@pkgs/quint-shared/replay-budget';
 import lockedDoorTrace from './fixtures/door-locked.itf.json';
+import { registerParameterizedReplays } from './parameterized-replay';
 
 type Door = {
   state: string;
@@ -46,6 +51,23 @@ const VARIANTS = [
   { id: 'first', label: 'the first subject' },
   { id: 'second', label: 'the second subject' },
 ] as const;
+
+const PARAM_MODEL = 'parameterized-door';
+const PARAM_VARIANTS = [
+  {
+    id: 'closed-first',
+    label: 'first closed subject',
+    parameters: { LOCKED: false },
+  },
+  {
+    id: 'closed-second',
+    label: 'second closed subject',
+    parameters: { LOCKED: false },
+  },
+  { id: 'open', label: 'open subject', parameters: { LOCKED: true } },
+];
+let parameterSubjects: readonly TraceVariant[] = PARAM_VARIANTS;
+type ParameterDoor = { locked: boolean; online: boolean };
 
 const who = (picks: Readonly<Record<string, unknown>>) => String(picks['who']);
 const act =
@@ -81,14 +103,24 @@ const binding: QuintBinding<Door> = {
 };
 
 const worlds: TraceContext[] = [];
-setQuintWorld<Door>({
+setQuintWorld<Door | ParameterDoor>({
   create: async (ctx) => {
     worlds.push(ctx);
+    if (ctx.model === PARAM_MODEL) {
+      const locked = ctx.variant?.parameters?.['LOCKED'];
+      if (locked === undefined) throw new Error('Missing LOCKED model input');
+      return { locked, online: true };
+    }
     return { state: 'closed', lastBy: '', ctx };
   },
   dispose: async () => {},
 });
-defineTraceVariants(({ model }) => (model === MODEL ? VARIANTS : null));
+defineTraceVariants(({ model, parameters }) => {
+  if (model === MODEL) return VARIANTS;
+  if (model !== PARAM_MODEL) return null;
+  expect(parameters).toEqual(['LOCKED']);
+  return parameterSubjects;
+});
 bindQuintModel(binding);
 
 const OUT = mkdtempSync(join(tmpdir(), 'quint-variants-'));
@@ -101,6 +133,14 @@ runQuintModel({
   specUri: SPEC_URI,
   reportDir: OUT,
   replayTraces: Number.POSITIVE_INFINITY,
+});
+
+registerParameterizedReplays({
+  variants: PARAM_VARIANTS,
+  worlds,
+  setVariants: (variants) => {
+    parameterSubjects = variants;
+  },
 });
 
 describe('a model its host varies', () => {

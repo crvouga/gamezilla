@@ -215,7 +215,7 @@ progress and review now refer to the solver's moves. One shared
 `puzzle-opponent.feature` retains the setup, automatic reply and refused
 opponent input obligations only where an opponent exists. The known puzzle
 still has two solver moves. The two existing models use a boolean
-`OPPONENT` constant; executable instantiation of that constant remains open.
+`OPPONENT` constant; its execution is now verified as recorded below.
 The detailed source audit is [`PUZZLE_LAYOUT_SPEC_AUDIT.md`](PUZZLE_LAYOUT_SPEC_AUDIT.md),
 which explicitly remains incomplete, including full status coverage and the
 nine strict wording collisions.
@@ -242,7 +242,7 @@ progress, seeking, transposition stride and staging use its declared layout;
 no game id or position syntax selects a branch. This is not yet full
 single-player support. Client navigation and review bounds, fixture and
 rules conformance, a truthful solver-only board/feedback consumer, automatic
-suite enrollment and both model instances remain required. No production
+suite enrollment and solver-only implementation replay remain required. No production
 game advertises the new mode. Existing durable event shapes and names are
 retained; the new setup result reports its actual starting index.
 
@@ -267,8 +267,8 @@ pairs, with no new pair from these bindings. All 64 dependency, boundary,
 task-policy, test-ownership and regression-register checks passed.
 An explicit run of the two changed models type-checked and passed shape
 checks, but trace generation failed with `QNT500: Uninitialized const
-OPPONENT`. This is the concrete remaining model execution gap; the seven
-passing feature files do not substitute for it.
+OPPONENT`. This identified the runner gap subsequently closed below; the
+seven passing feature files did not substitute for model execution.
 
 The first full gate of this implementation checkpoint stopped at that
 package-doc ownership defect (`verify-run-10YGkt/diagnostics.tar.gz`).
@@ -278,3 +278,49 @@ history ownership task all passed. All six policy test files then passed
 again at the unchanged deploy YAML alias at lines 160 and 170
 (`verify-run-AiVT29/diagnostics.tar.gz`). Neither full run is green, and
 neither establishes parameterized model or full-context behavioral success.
+
+## Fixed model inputs: execution checkpoint
+
+The Quint runner now accepts fixed boolean inputs declared in the main
+module. Each trace variant assigns every declared input. Games derive
+`OPPONENT` from their declared puzzle layout in the harness composition
+entry, without a model copy or a concrete-game branch in the runner.
+Private compiler inputs close constants as literal pure values while
+preserving imports, action definitions and the authored source. A native
+Quint module-instantiation comparison checks that transformation.
+
+Assignments have separate trace cache keys and replay plans; unparameterized
+models retain their existing cache identity. Subjects sharing an assignment
+share a draw, but each receives its own action cover, pinned histories,
+determinism check and implementation evidence. A two-slice, three-subject
+probe checks actual replay counts and evidence for both input values.
+Missing assignments, unknown inputs, wrong types and duplicate subject ids
+fail. `quint-uninitialized-model-constant` retains the original executable
+runner failure in the bug register.
+
+Both proof paths enumerate every boolean combination, including values
+without a registered product consumer, within the existing total deadline.
+`verify:models:10` passed the attempt model's two complete TLC graphs:
+14,422 states for `OPPONENT=false`, 17,626 for `true`, each with depth 20
+(18.8 seconds combined). `verify:models:14` passed every sound invariant
+within the existing four-step bound for both values (12.5 seconds combined).
+The two tasks completed in 19.576 seconds. No proof budget was raised.
+
+Regenerating all sixteen game replay plans changed only the two newly
+parameterized entries. Existing puzzle trace covers and replay counts are
+unchanged. Running both models through `bun run spec` then passed all 20
+checks in 49.17 seconds for Chess and the counting reference consumer.
+These consumers both declare the opponent layout. This is not solver-only
+product replay: client navigation, fixture and rules checks, a real solo
+board with feedback, and its automatic shared-suite enrollment remain open.
+The source/spec audit also remains INCOMPLETE.
+
+The affected four packages' twelve type, lint and test tasks passed during
+implementation, including 157 Quint checks, 346 game-harness checks and 97
+harness checks. A fresh `bun verify` passed preparation and stopped on the
+same unchanged deploy YAML alias at lines 160/170. Diagnostics are archived
+in `verify-run-JwHcDg/diagnostics.tar.gz`; the gate is not green. The final
+four-package follow-up passed all twelve tasks with no cache hits in
+131.065 seconds: 637 tests total (157 Quint server, 37 Quint shared, 346
+game harness, 97 harness). These targeted results are not a full repository
+verdict.

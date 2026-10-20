@@ -33,6 +33,23 @@ state machines without app devices. The default profile remains offline-first.
 Both profiles require initialized state, reachable actions and invariants that
 constrain every observable variable; unknown or duplicate profiles fail.
 
+A main module may declare fixed boolean inputs as `const NAME: bool`.
+`verify` and `verifyTemporal` check every combination, including combinations
+without a registered implementation, within one shared proof deadline. A
+success requires every case; temporal state counts sum the separate complete
+graphs, and search depth is their maximum. Other constant types are rejected.
+
+For implementation replay, `defineTraceVariants` receives the declared
+parameter names. Each subject assigns all of them through
+`TraceVariant.parameters`, for example `{ LOCKED: false }`. Missing, unknown
+and non-boolean assignments fail. Subjects with identical assignments share
+a draw, while each receives its own action cover, regressions, determinism
+check and evidence. Distinct assignments have separate trace cache keys and
+replay plans. Direct `simulate` calls pass the same `parameters` map.
+Constants become literal pure values only in private compiler inputs; imports
+and the authored model remain intact. This retains the main module's
+structure for induction and temporal planning.
+
 | Module | What it does |
 | --- | --- |
 | `shape` | Static shape of an aggregate, before any trace or Apalache run: an invariant that can fail and names some state, every action reached from `init` or `step`, every variable set in `init`, every observable variable named by an invariant, and an offline-first connection (one device starts connected, can lose the connection and get it back, and some invariant says what that changes). `events.qnt` is not an aggregate. |

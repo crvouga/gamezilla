@@ -91,12 +91,22 @@
   },
   "puzzle-attempt": {
     "seed": "0x67932",
-    "traces": 64,
-    "cover": [0, 8, 31],
-    "replayed": [0, 8, 31],
-    "regressions": 0,
-    "determinism": false,
-    "variants": 2
+    "instances": [
+      {
+        "parameters": {
+          "OPPONENT": true
+        },
+        "plan": {
+          "seed": "0x67932",
+          "traces": 64,
+          "cover": [0, 8, 31],
+          "replayed": [0, 8, 31],
+          "regressions": 0,
+          "determinism": false,
+          "variants": 2
+        }
+      }
+    ]
   },
   "puzzle-feed": {
     "seed": "0x67932",
@@ -127,12 +137,22 @@
   },
   "puzzle-sound": {
     "seed": "0x67932",
-    "traces": 24,
-    "cover": [0, 6],
-    "replayed": [0, 6],
-    "regressions": 0,
-    "determinism": false,
-    "variants": 2
+    "instances": [
+      {
+        "parameters": {
+          "OPPONENT": true
+        },
+        "plan": {
+          "seed": "0x67932",
+          "traces": 24,
+          "cover": [0, 6],
+          "replayed": [0, 6],
+          "regressions": 0,
+          "determinism": false,
+          "variants": 2
+        }
+      }
+    ]
   },
   "space-follow": {
     "seed": "0x67932",

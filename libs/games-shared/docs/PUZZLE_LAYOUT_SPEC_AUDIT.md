@@ -154,7 +154,7 @@ OPPONENT values still need executable model and implementation evidence.
 `bun run spec:verify` finds undefined replacement steps and six retired
 numeric definitions. It reports no new vocabulary, shape or prose failure.
 The six definitions must be removed while rebinding, not retained as aliases.
-The full model-parameter execution path is not implemented yet.
+At the authoring checkpoint the model-parameter execution path was not implemented.
 
 The documented strict flag cannot pass through the root wrapper: it reaches
 Turbo as its own option. The equivalent package-owned task was run as
@@ -194,8 +194,8 @@ pairs, with no new pair from these bindings. All 64 dependency, boundary,
 task-policy, test-ownership and regression-register checks passed.
 An explicit run of the two changed models type-checked and passed shape
 checks, but trace generation failed with `QNT500: Uninitialized const
-OPPONENT`. This is the concrete remaining model execution gap; the seven
-passing feature files do not substitute for it.
+OPPONENT`. This identified the runner gap closed in the checkpoint below;
+the seven passing feature files did not substitute for it.
 
 The full gate also exposed a verifier mismatch: it rejected this package's
 Markdown audit document beside specs. `15e5950cc` corrects the documentation
@@ -203,3 +203,28 @@ path rule, with the literal commit/path pinned and negative source-file
 controls retained. All 14 ownership checks and the actual history gate
 pass. The subsequent full repository gate again stops on the unchanged
 deploy YAML alias; this does not clear the independent model and audit gaps.
+
+## Model execution checkpoint
+
+The runner now closes declared boolean constants in private compiler inputs
+and groups implementation variants by their complete assignment. Trace
+cache identity, action covers and replay plans distinguish assignments.
+Both proof paths check every combination within the existing overall
+deadline, independent of which games are currently registered.
+
+Both attempt-model instances passed complete TLC verification: 14,422
+states without an opponent, 17,626 with one, depth 20 for each. Both sound
+instances passed every invariant at the existing four-step bound. The
+actual shared-model replay command passed 20 checks for the currently
+enrolled Chess and counting reference consumers, both with an opponent.
+Native fixture checks also cover both assignments, cache separation,
+equivalence to native Quint instantiation, variant attribution, slicing,
+and counterexamples found only in the second assignment.
+
+This closes the uninitialized-constant execution gap. It does not complete
+C4, the strict wording audit, every scenario's P3 evidence, client navigation
+or solver-only consumer enrollment. The verdict remains INCOMPLETE.
+
+A fresh full `bun verify` again stopped at the unchanged deploy YAML alias
+at lines 160/170 (`verify-run-JwHcDg/diagnostics.tar.gz`). Preparation and
+spec ownership passed; this is not a full green verdict.
