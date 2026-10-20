@@ -321,6 +321,7 @@ describe('partOf', () => {
   test.each(PLANNED_SUITES)(
     '%s runs in the fewest parts its caps allow',
     (dir) => {
+      // regression: games-spec-parts-exceed-capacity-pole
       const { specParts } = plannedSuite(dir);
       for (let count = 1; count < specParts; count++)
         expect(suiteParts(dir, count).every(withinCaps)).toBe(false);

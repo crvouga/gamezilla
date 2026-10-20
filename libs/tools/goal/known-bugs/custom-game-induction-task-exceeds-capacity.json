@@ -1,0 +1,4 @@
+{
+  "summary": "The custom-game induction task took 290 seconds on Verify run 39473315608, exceeding the unchanged five-minute warm target after startup and verdict. Gate its six existing proof phases independently without changing the induction candidate, transitions or targets.",
+  "regressionTest": "libs/tools/scripts/model-phase-graph.test.ts"
+}

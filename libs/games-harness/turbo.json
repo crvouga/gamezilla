@@ -106,7 +106,15 @@
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
     },
     "verify:models:3": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+      "dependsOn": [
+        "verify:models:3:0",
+        "verify:models:3:1",
+        "verify:models:3:2",
+        "verify:models:3:3",
+        "verify:models:3:4",
+        "verify:models:3:5"
+      ],
+      "cache": false
     },
     "verify:models:4": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
@@ -423,11 +431,44 @@
     "test:spec:77": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
-    "test:spec:78": {
-      "inputs": ["$TURBO_EXTENDS$"]
+    "verify:models:3:0": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
     },
-    "test:spec:79": {
-      "inputs": ["$TURBO_EXTENDS$"]
+    "verify:models:3:1": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+    },
+    "verify:models:3:2": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+    },
+    "verify:models:3:3": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+    },
+    "verify:models:3:4": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+    },
+    "verify:models:3:5": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/games/*.qnt"]
+    },
+    "verify:models:9": {
+      "dependsOn": [
+        "verify:models:9:0",
+        "verify:models:9:1",
+        "verify:models:9:2",
+        "verify:models:9:3",
+        "verify:models:9:4",
+        "verify:models:9:5",
+        "verify:models:9:6",
+        "verify:models:9:7",
+        "verify:models:9:8",
+        "verify:models:9:9",
+        "verify:models:9:10",
+        "verify:models:9:11",
+        "verify:models:9:12",
+        "verify:models:9:13",
+        "verify:models:9:14",
+        "verify:models:9:15"
+      ],
+      "cache": false
     }
   }
 }

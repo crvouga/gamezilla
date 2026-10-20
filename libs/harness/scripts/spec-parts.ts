@@ -68,13 +68,12 @@ const MAX_MODEL_FILES = 64;
  */
 export const PART_REPLAYS = 16;
 /**
- * Most scenario units (feature scenarios plus {@link TRACE_WEIGHT} a gate
- * replay) one part of a planned suite runs: the heaviest part the shared
- * games suite ran at 64 parts (50 units, 109 s locally, under the 240 s
- * long-pole budget), so re-planning never makes a part heavier than one the
- * gate already runs.
+ * Most scenario units per planned part. A 50-unit shared-game part took
+ * 360 seconds on Verify run 39467547837. Thirty keeps the same scenarios
+ * and replays in smaller tasks, leaving startup and verdict time inside
+ * the unchanged five-minute target. Every planned suite uses this cap.
  */
-export const PART_LOAD = 50;
+export const PART_LOAD = 30;
 
 function isFeature(path: string): boolean {
   return path.endsWith('.feature');
