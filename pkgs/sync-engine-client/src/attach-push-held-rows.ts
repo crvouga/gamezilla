@@ -103,13 +103,15 @@ export async function deriveScopeRowTopics(args: {
   };
 
   const subTables = subscribeTables(args.topicMap);
-  const hydrateTables = collectSubscribeHydrates(
+  const driving = collectSubscribeHydrates(
     args.active,
     args.queryRegistry,
     subTables
   );
+  // A row may defer to another held table (a membership to its room's row),
+  // so every subscription-driving table is read, not just the active hydrates.
   const allLive =
-    hydrateTables.length > 0 ? await loadLiveRows(args.db, hydrateTables) : {};
+    driving.length > 0 ? await loadLiveRows(args.db, [...subTables]) : {};
 
   for (const sub of args.active) {
     const query = args.queryRegistry[sub.name];
@@ -122,6 +124,7 @@ export async function deriveScopeRowTopics(args: {
       topicsFromHeldRows({
         topicMap: args.topicMap,
         liveRowsByTable: liveRowsForQuery(query.hydrates, subTables, allLive),
+        held: allLive,
         entryTopics: entryTopicsForSub({
           query,
           params: sub.params,

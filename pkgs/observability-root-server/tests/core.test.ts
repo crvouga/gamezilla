@@ -197,7 +197,9 @@ describe('OTel core', () => {
       });
     });
     await runtime.forceFlush();
-    const event = exporter.getFinishedSpans()[0]?.events[0];
+    const event = exporter
+      .getFinishedSpans()
+      .find((span) => span.name === 'test.log')?.events[0];
     expect(event?.name).toBe(EVENT.LOG_EMITTED);
     expect(event?.attributes?.[ATTR.APP_LOG_SEVERITY]).toBe('warn');
     expect(event?.attributes?.[ATTR.APP_LOG_MESSAGE]).toBe('correlated');

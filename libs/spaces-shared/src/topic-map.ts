@@ -1,7 +1,7 @@
 import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import sql from '@pkgs/sql-root-shared/sql';
 import type { MutationDb } from '@pkgs/sync-engine-shared/mutations-types';
-import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';
+import type { HeldRows, TopicMap } from '@pkgs/sync-engine-shared/topic-map';
 
 function hostTopics(row: Record<string, unknown>): Topic[] {
   const out: Topic[] = [];
@@ -81,6 +81,16 @@ async function hostFriendTopics(
   return topics;
 }
 
+/**
+ * The broker grants a room only while its space is live, so a membership in an
+ * ended space must not subscribe to it: the refusal never settles the session.
+ */
+function spaceHasEnded(held: HeldRows, spaceId: string): boolean {
+  return (held['spaces'] ?? []).some(
+    (space) => space['id'] === spaceId && space['ended_at'] != null
+  );
+}
+
 export const SPACES_TOPIC_MAP = {
   spaces: {
     async topics(row, ctx, db) {
@@ -104,6 +114,10 @@ export const SPACES_TOPIC_MAP = {
       }
       return [...new Set([...base, ...friendTopics])];
     },
+    // Held so `spaces_users` can tell an ended room; it subscribes to nothing.
+    subscribeTopics() {
+      return [];
+    },
   },
   spaces_users: {
     topics(row) {
@@ -115,10 +129,11 @@ export const SPACES_TOPIC_MAP = {
       return out;
     },
     // Held-row subscribe: only the actor's membership rows drive room topics.
-    subscribeTopics(row, ctx) {
+    subscribeTopics(row, ctx, held) {
       if (row['user_id'] !== ctx.actorId) return [];
       const spaceId = String(row['space_id'] ?? '');
-      return spaceId.length > 0 ? [`room:${spaceId}` as Topic] : [];
+      if (spaceId.length === 0 || spaceHasEnded(held, spaceId)) return [];
+      return [`room:${spaceId}` as Topic];
     },
   },
   spaces_open_sessions: {
