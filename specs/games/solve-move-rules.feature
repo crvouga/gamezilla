@@ -13,10 +13,10 @@ Feature: Who may move, and when
       Given Alice is signed in
       And Alice is solving the game's known puzzle
 
-    Scenario: The opponent's side cannot be moved
-      When Alice tries to make a move for the opponent's side
-      Then Alice is still asked to find the next move
-      And Alice's board is unchanged
+    Scenario: A correct continuation leaves the next solution move for the solver
+      When Alice plays the next move of the solution
+      Then it is Alice's turn
+      And Alice is solving the puzzle after the first move of the solution
 
     Scenario: A move the game's rules do not allow is refused and not held against the solver
       When Alice tries a move the game's rules do not allow

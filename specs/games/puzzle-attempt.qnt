@@ -36,6 +36,14 @@
 // uses at most three puzzle starts, and never reaches the daily puzzle limit
 // — the limit itself is shown by its own examples, not by this model.
 module puzzle_attempt {
+  /// The known puzzle has two solver moves. With an opponent, the start,
+  /// correct continuation and end are moves 1, 3 and 4 of the line.
+  /// Without an opponent they are positions 0, 1 and 2: zero is before any move.
+  const OPPONENT: bool
+  pure val OPENING: int = if (OPPONENT) 1 else 0
+  pure val CONTINUATION: int = if (OPPONENT) 3 else 1
+  pure val END: int = if (OPPONENT) 4 else 2
+
   type Person = str
 
   /// The host, who drives the puzzle.
@@ -166,13 +174,13 @@ module puzzle_attempt {
         stage, hints, shown,
       )
 
-  /// New puzzles and practice after finishing start at the setup move.
+  /// New puzzles and practice after finishing start before the first solver move.
   /// A wrong move was never applied, so retry keeps the reached position.
   action _follow(newAt: View, newAttempt: str, newServed: int): bool = {
     val restart = newServed != _served or (newAttempt == "solving" and
       _attempt != "solving" and _attempt != "wrong")
     val finished = newAttempt != _attempt and Set("solved", "revealed").contains(newAttempt)
-    val stage = if (restart) 1 else if (finished) 4 else _stage
+    val stage = if (restart) OPENING else if (finished) END else _stage
     val changed = restart or newAttempt != _attempt
     _followPosition(newAt, newAttempt, newServed, stage,
       if (changed) 0 else _help, if (restart or finished) stage else _shown)
@@ -234,10 +242,10 @@ module puzzle_attempt {
     _followPosition(Board, "wrong", _served, _stage, 0, _shown)
   }
 
-  /// A correct first move is answered by the opponent before the next move.
+  /// A correct first solver move, and any reply, reaches the next solver move.
   action playCorrectContinuation: bool = all {
-    _at == Board, _attempt == "solving", _stage == 1, _shown == 1,
-    _followPosition(Board, "solving", _served, 3, 0, 3),
+    _at == Board, _attempt == "solving", _stage == OPENING, _shown == OPENING,
+    _followPosition(Board, "solving", _served, CONTINUATION, 0, CONTINUATION),
   }
 
   /// The first hint highlights the piece to move.
@@ -254,7 +262,7 @@ module puzzle_attempt {
 
   /// Examine an earlier reached position without reopening a finished puzzle.
   action stepBackPosition: bool = all {
-    _at == Board, Set("solving", "solved", "revealed").contains(_attempt), _shown > 1,
+    _at == Board, Set("solving", "solved", "revealed").contains(_attempt), _shown > OPENING,
     _followPosition(Board, _attempt, _served, _stage, 0, _shown - 1),
   }
 
@@ -329,7 +337,7 @@ module puzzle_attempt {
     _followPosition(_at, _attempt, _served, _stage, _help, _shown),
   }
 
-  /// Help concerns the current solving position, never a past opponent turn.
+  /// Help concerns the current solving position, never an earlier position.
   action tryHintFromReview: bool = all {
     _at == Board, _attempt == "solving", _shown < _stage, _offline == Set(),
     _followPosition(_at, _attempt, _served, _stage, _help, _shown),
@@ -393,7 +401,7 @@ module puzzle_attempt {
   /// Choose a reached position directly; choosing the current one changes nothing.
   action chooseReviewPosition(move: int): bool = all {
     _at == Board, Set("solving", "solved", "revealed").contains(_attempt),
-    1 <= move, move <= _stage,
+    OPENING <= move, move <= _stage,
     _followPosition(_at, _attempt, _served, _stage,
       if (move == _shown) _help else 0, move),
   }
@@ -436,7 +444,7 @@ module puzzle_attempt {
 
   action step = {
     nondet person = PEOPLE.oneOf()
-    nondet move = 1.to(4).oneOf()
+    nondet move = OPENING.to(END).oneOf()
     any {
       openPuzzles,
       goBackToPuzzles,
@@ -500,7 +508,7 @@ module puzzle_attempt {
     )
   /// Examining a position cannot go beyond the moves reached on that puzzle.
   val invOnlyReachedPositions = position == (if (_at == Board) _shown else 0) and
-    _shown <= _stage and _shown >= 0 and _stage <= 4
+    _shown <= _stage and _shown >= 0 and _stage <= END
 
   /// Help belongs to the board being examined; off the board it is absent.
   val invHelpBelongsToPosition = Set("none", "highlight", "solution").contains(help) and

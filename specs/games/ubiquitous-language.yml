@@ -8,9 +8,10 @@ terms:
   - term: game
     definition: >-
       Something a space plays together, chosen by its host, such as chess or
-      Connect Four. Every game offers its choices, custom games, turns,
-      opponents, history and review the same way; its rules decide which
-      moves are possible and how it is won or drawn. "The game" in a
+      Connect Four. Shared experiences such as custom games, turns,
+      opponents, puzzles, history and review work the same way whenever a
+      game offers them; its rules decide which moves are possible and how
+      it finishes. "The game" in a
       scenario is each game in turn; "another game" is any other one.
     forms: [games, another game, the game's]
     published: true
@@ -417,8 +418,9 @@ terms:
   - term: opponent
     definition: >-
       The other participant. One found for a person seeks the same game at
-      the same clock choice. In a puzzle, the side the solver plays against:
-      its setup move and its replies play by themselves.
+      the same clock choice. In a puzzle with an opponent, the side the
+      solver plays against: its setup move and replies play by themselves.
+      A puzzle without an opponent has neither of those moves.
     forms: [opponents, the opponent's side]
 
   - term: finding an opponent
@@ -764,8 +766,9 @@ terms:
       popularity, the side the solver plays, the line and its solution, how
       the game writes each move, a wrong move, and a move the game's rules do
       not allow. "The game's known puzzle" in a scenario is that game's one
-      whose line is four moves long: the setup move, the solver's move, the
-      opponent's reply and the solver's last move. A scenario's puzzle pool
+      with two moves for the solver, together with any setup move and reply
+      its opponent makes. Without an opponent its line has just the solver's
+      two moves. A scenario's puzzle pool
       holds the game's known puzzles, or puzzles made from them with the
       ratings and popularity the scenario states.
     forms: [known puzzles, the game's known puzzle]
@@ -915,14 +918,18 @@ terms:
 
   - term: line
     definition: >-
-      A puzzle's whole sequence of moves, from the opponent's setup move to
-      its end. "Move N of the line" is the position after its Nth move.
+      A puzzle's whole sequence of moves. With an opponent, it starts with
+      the opponent's setup move and alternates solver moves and replies.
+      Without an opponent, every move is the solver's. The start is the
+      position before the solver's first move: after the setup move when
+      there is one, otherwise the supplied position. "Move N of the line"
+      is the position after its Nth move.
     forms: [the line's]
 
   - term: setup move
     definition: >-
-      The opponent's first move of the line, already played when the puzzle
-      opens.
+      The opponent's first move of the line, already played when a puzzle
+      with an opponent opens. A puzzle without an opponent has no setup move.
 
   - term: prompt
     definition: >-

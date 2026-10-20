@@ -13,7 +13,7 @@ Feature: Showing the solution
 
     Scenario: The rest of the line plays out to its end
       When Alice shows the solution
-      Then Alice's board is at move 4 of the line within 20 seconds
+      Then Alice's board shows the end of the line within 20 seconds
 
     Scenario: Showing the solution stops play
       When Alice shows the solution
