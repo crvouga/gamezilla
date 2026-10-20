@@ -107,6 +107,23 @@ jobs:
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
     steps: &deploy-environment
+      # A Health check already running journeys as the synthetic accounts, or
+      # planning this environment's OpenTofu state, would take this deploy's
+      # matches and state lock. health.yml yields to a deploy; this waits out
+      # one that started first.
+      - name: Wait for a running Health check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for _ in $(seq 1 60); do
+            running=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow health.yml \
+              --json status --jq '[.[] | select(.status == "in_progress")] | length')
+            [ "$running" = "0" ] && exit 0
+            echo "A Health check is running ($running); waiting for it to finish."
+            sleep 30
+          done
+          echo "::error::A Health check is still running after 30 minutes."
+          exit 1
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0

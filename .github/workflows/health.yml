@@ -34,6 +34,7 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 
 permissions:
   contents: read
+  actions: read
   id-token: write
 
 on:
@@ -96,6 +97,7 @@ jobs:
     outputs:
       production: ${{ steps.envs.outputs.production }}
       all: ${{ steps.envs.outputs.all }}
+      idle: ${{ steps.deploying.outputs.idle }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -106,10 +108,31 @@ jobs:
         id: envs
         run: bun run libs/infra-shared/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
 
+      # Deploy and Health run the same journeys, as the same synthetic
+      # accounts, against the same environment, and both plan the same
+      # OpenTofu state. Run together they take each other's matches and
+      # state lock, and a deploy fails for what the other was doing. A
+      # scheduled check yields to a deploy under way; the next one runs.
+      # Deploy waits out a check that is already running (deploy.yml).
+      - name: deploying
+        id: deploying
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_EVENT: ${{ github.event_name }}
+        run: |
+          active=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy.yml \
+            --json status --jq '[.[] | select(.status != "completed")] | length')
+          if [ "$GH_EVENT" = "schedule" ] && [ "$active" != "0" ]; then
+            echo "A deploy is under way ($active run(s)); this scheduled check yields to it." >> "$GITHUB_STEP_SUMMARY"
+            echo "idle=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "idle=true" >> "$GITHUB_OUTPUT"
+          fi
+
   health-env:
     name: health:${{ matrix.env }}
     needs: health-matrix
-    if: needs.health-matrix.outputs.all != '[]'
+    if: needs.health-matrix.outputs.all != '[]' && needs.health-matrix.outputs.idle == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     # No GitHub environment ('') for a standard env.
