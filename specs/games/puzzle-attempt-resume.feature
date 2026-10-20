@@ -30,6 +30,15 @@ Feature: A puzzle attempt survives leaving the puzzle and closing the app
       Then Alice is solving a different puzzle than the one before
       And Alice is not offered the puzzle that is over
 
+    @regression:puzzle-solved-review-resumes
+    Scenario: Returning from an earlier position of a solved puzzle starts the next one
+      Given Alice has solved the puzzle
+      And Alice is reviewing an earlier position in the puzzle
+      And Alice has left the puzzle for the game's choices
+      When Alice goes back to the puzzles
+      Then Alice is solving a different puzzle than the one before
+      And Alice is not offered the puzzle that is over
+
   Rule: Moving on advances exactly one puzzle and works with no connection
     No counter-example: moving on before the puzzle is over is refused by play as a feed.
 

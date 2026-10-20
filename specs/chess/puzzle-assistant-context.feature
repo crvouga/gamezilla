@@ -56,17 +56,6 @@ Feature: Commentary follows the current puzzle
       When Alice returns to the current puzzle move
       Then Alice's assistant explains that the solution is shown
 
-    @regression:puzzle-solved-review-resumes
-    Scenario: Reviewing an earlier position cannot reopen a finished puzzle on return
-      Given Alice is signed in
-      And Alice is playing puzzles in their space
-      And Alice has solved the puzzle
-      And Alice is reviewing an earlier position in the puzzle
-      And Alice has left the puzzle for the chess choices
-      When Alice goes back to the puzzles
-      Then Alice is solving a different puzzle than the one before
-      And Alice is not offered the puzzle that is over
-
     @regression:puzzle-solved-review-forward
     Scenario: Returning to the solved position restores checkmate guidance
       Given Alice is signed in

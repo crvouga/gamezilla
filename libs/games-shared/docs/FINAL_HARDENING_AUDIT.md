@@ -539,3 +539,32 @@ ownership baseline passed six Chess board/material examples and 48 shared
 side-selection examples (54 checks total). Seat placement is absent before
 start by design, so it cannot replace the draft board-orientation assertion;
 that guarantee must remain until a suitable shared board contract owns it.
+
+## Review ownership follow-up
+
+The matched-game listener example is now specified once in Games. Its
+original Chess example selected `e4` after `e4, e5`; the common example
+selects each game's known first move and requires hearing that move in the
+earlier-position description. Binding and sensitivity evidence remain open
+in [`MATCHED_REVIEW_OWNERSHIP_AUDIT.md`](MATCHED_REVIEW_OWNERSHIP_AUDIT.md).
+
+The `puzzle-solved-review-resumes` scenario also belongs to Games: none of
+its observations mentions the assistant, Chess pieces or notation. Its
+exact command sequence is retained: solve, review an earlier position,
+leave for the game's choices, return; the earlier puzzle must not be
+offered again. The shared attempt-resume feature now owns the original
+regression tag. The existing parameterized room-session example retains
+its literal regression marker and solved-status assertions. Updating the
+register's proof pointer and executing the promoted feature for every
+puzzle consumer remain implementation work.
+
+The promotion adds no term, command, status or model guard. All step
+phrases already exist in Games. `puzzle-attempt.qnt` remains the aggregate;
+the existing finished-return transition is exercised with its viewed
+position behind the solved frontier. The Rule's unfinished-return example
+still proves the counter-case. Language and feature checks A0–A6,
+B1–B17 and D1 retain the same findings as the puzzle-layout audit: this
+example is eight steps including its factual Background, a length warning
+whose extra setup preserves the original bug mechanism. The full C4 map,
+strict duplicates and execution obligations are still open. This is an
+ownership correction, not a completed audit verdict.
