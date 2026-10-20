@@ -4879,6 +4879,7 @@
                       "specs/games/puzzle-offline.feature",
                       "specs/games/puzzle-outcome-sync.feature",
                       "specs/games/puzzle-play.feature",
+                      "specs/games/puzzle-opponent.feature",
                       "specs/games/puzzle-progress.als",
                       "specs/games/puzzle-quota.feature",
                       "specs/games/puzzle-ready.openslo.yaml",
