@@ -1,60 +1,74 @@
 import { expect, test } from 'bun:test';
-import { openWithE4AndE5 } from '@libs/runtime-harness/multiplayer-journey';
+import { PLAY_E5 } from '@libs/runtime-harness/multiplayer-journey';
 import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
 
-function device(white: boolean) {
-  let previousArrived = white;
-  const actions: string[] = [];
+/**
+ * A board that takes no move until it has been asked `ignoredPairs` times,
+ * the way the shipped board ignores a person while the opponent's move or
+ * their own earlier choice still settles.
+ */
+function boardIgnoring(ignoredPairs: number): {
+  readonly ui: Driver;
+  readonly pairs: () => number;
+} {
+  let taps = 0;
   const unused = (): never => {
-    throw new Error('unexpected gesture');
+    throw new Error('not part of this example');
   };
+  const moved = (): boolean => taps / 2 > ignoredPairs;
+  const node = (id: string): DriverNode => ({
+    get: unused,
+    attribute: unused,
+    tapAt: async () => {
+      taps += 1;
+    },
+    drag: unused,
+    selectFile: unused,
+    input: unused,
+    clear: unused,
+    key: unused,
+    scroll: unused,
+    wait: unused,
+    isVisible: unused,
+    text: unused,
+    tap: unused,
+    layout: async () => ({ x: 0, y: 0, width: 400, height: 400 }),
+    expect: {
+      visible: async () => {},
+      hidden: unused,
+      text: async (expected) => {
+        if (id !== 'multiplayer-move-list') return unused();
+        if (expected === '1. e4') return;
+        if (!moved())
+          throw new Error('Timed out waiting for text contains "1. e4 e5"');
+      },
+    },
+  });
   const ui: Driver = {
-    kind: 'delayed-opponent',
+    kind: 'board-example',
     launch: unused,
     close: unused,
     key: unused,
     snapshotHtml: unused,
-    get: (id): DriverNode => ({
-      get: unused,
-      attribute: unused,
-      tap: unused,
-      input: unused,
-      clear: unused,
-      key: unused,
-      scroll: unused,
-      wait: unused,
-      drag: unused,
-      selectFile: unused,
-      isVisible: unused,
-      text: async () => (white ? 'White' : 'Black'),
-      layout: async () => null,
-      tapAt: async () => {
-        if (!previousArrived)
-          throw new Error('e4 has not arrived on Black device');
-        actions.push('tap');
-      },
-      expect: {
-        hidden: unused,
-        visible: async () => {},
-        text: async (value) => {
-          if (id === 'multiplayer-move-list' && value === '1. e4') {
-            previousArrived = true;
-            actions.push('observe-e4');
-          }
-        },
-      },
-    }),
+    get: node,
   };
-  return { ui, actions };
+  return { ui, pairs: () => taps / 2 };
 }
 
-// regression: multiplayer-journey-moves-before-opponent-update
-test('Black observes the accepted e2-e4 before tapping e7-e5', async () => {
-  const white = device(true);
-  const black = device(false);
-  await openWithE4AndE5({
-    act: async (_name, gesture) => gesture(white.ui),
-    actAsGuest: async (_name, gesture) => gesture(black.ui),
-  });
-  expect(black.actions).toEqual(['observe-e4', 'tap', 'tap']);
+// regression: multiplayer-move-lost-before-board-takes-input
+test('Black plays e7-e5 again when the board did not take the first try', async () => {
+  const { ui, pairs } = boardIgnoring(2);
+  await PLAY_E5(ui);
+  expect(pairs()).toBe(3);
+});
+
+test('Black plays e7-e5 once when the board takes it at once', async () => {
+  const { ui, pairs } = boardIgnoring(0);
+  await PLAY_E5(ui);
+  expect(pairs()).toBe(1);
+});
+
+test('a board that never takes the move fails the step', async () => {
+  const { ui } = boardIgnoring(Number.POSITIVE_INFINITY);
+  await expect(PLAY_E5(ui)).rejects.toThrow('waiting for text');
 });
