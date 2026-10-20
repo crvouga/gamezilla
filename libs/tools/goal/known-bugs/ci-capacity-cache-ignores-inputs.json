@@ -1,0 +1,4 @@
+{
+  "summary": "The tools test verdict reads verify-task-costs.json and docs/CI_REQUIREMENTS.md, but its cache excluded costs and omitted the document. Adding the 394-second games spec-part measurement could reuse a capacity pass for different inputs.",
+  "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+}

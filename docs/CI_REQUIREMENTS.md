@@ -101,18 +101,18 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | --- | --- |
 | Packages | 328 |
 | Verify scripts | 1201 |
-| Measured scripts | 190 |
-| Estimated scripts | 1011 |
+| Measured scripts | 231 |
+| Estimated scripts | 970 |
 | Stale cost keys | 538 |
-| Cold CPU | 7017 s |
-| Spec parts | 3411 s across 202 tasks |
-| Longest task | @apps/product#test:contract:render 60 s |
+| Cold CPU | 14397 s |
+| Spec parts | 10791 s across 202 tasks |
+| Longest task | @libs/games-harness#test:spec:26 394 s |
 
 ### Families
 
 | Family | Tasks | CPU |
 | --- | --- | --- |
-| test:spec | 202 | 3411 s |
+| test:spec | 202 | 10791 s |
 | verify:models:9 | 16 | 960 s |
 | verify:models:2 | 11 | 660 s |
 | verify:models | 37 | 599 s |
@@ -128,15 +128,15 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Leaf CPU, median | 3 s |
-| Leaf CPU, 90th percentile | 35 s |
-| Longest leaf task, 90th percentile | 17 s |
+| Leaf CPU, 90th percentile | 41 s |
+| Longest leaf task, 90th percentile | 23 s |
 | Longest leaf task | 60 s |
 
 | Package | CPU | Longest task |
 | --- | --- | --- |
-| @pkgs/matchmaking-root-harness | 161 s | @pkgs/matchmaking-root-harness#test:spec:1 17 s |
+| @pkgs/chess-board-root-harness | 204 s | @pkgs/chess-board-root-harness#test:spec:0 23 s |
+| @pkgs/matchmaking-root-harness | 203 s | @pkgs/matchmaking-root-harness#test:spec:1 23 s |
 | @apps/product | 156 s | @apps/product#test:contract:render 60 s |
-| @pkgs/chess-board-root-harness | 156 s | @pkgs/chess-board-root-harness#test:spec:0 17 s |
 | @libs/tools | 88 s | @libs/tools#ci:statecharts 60 s |
 | @pkgs/auth-root-harness | 45 s | @pkgs/auth-root-harness#verify:models 21 s |
 
@@ -146,9 +146,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 264 | 6857 s | @apps/product#test:contract:render 60 s |
-| @pkgs/clock-shared | 230 | 6758 s | @apps/product#test:contract:render 60 s |
-| @pkgs/assert-root-shared | 225 | 6740 s | @apps/product#test:contract:render 60 s |
+| @pkgs/property-shared | 264 | 14237 s | @libs/games-harness#test:spec:26 394 s |
+| @pkgs/clock-shared | 230 | 14138 s | @libs/games-harness#test:spec:26 394 s |
+| @pkgs/assert-root-shared | 225 | 14120 s | @libs/games-harness#test:spec:26 394 s |
 
 ### Runner
 
@@ -156,11 +156,11 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 
 | | |
 | --- | --- |
-| Spec slots | 15 |
-| Other slots | 15 |
-| Cores required | 32 |
-| Memory required | 38 GiB |
-| Estimated makespan | 241 s |
+| Spec slots | 16 |
+| Other slots | 16 |
+| Cores required | 34 |
+| Memory required | 40 GiB |
+| Estimated makespan | 675 s |
 | Provision | 2 × 32 vCPU, 64 GB, Linux x64 |
-| Fits | yes |
+| Fits | no |
 <!-- ci-load:end -->

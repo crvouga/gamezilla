@@ -303,16 +303,23 @@ describe('turbo verify/deploy graph invariants', () => {
   });
 
   // regression: verify-duration-metadata-cache-input
-  test('changing verify-task-costs.json belongs to planning and JSON lint, not code verdicts', () => {
+  // regression: ci-capacity-cache-ignores-inputs
+  test('duration metadata invalidates capacity checks without invalidating product code', () => {
     const tools = JSON.parse(
       readFileSync(join(REPO_ROOT, 'libs/tools/turbo.json'), 'utf8')
     ) as { tasks: Record<string, { inputs: string[] }> };
-    for (const task of ['src', 'tc', 'test'])
+    for (const task of ['src', 'tc'])
       expect(tools.tasks[task]!.inputs).toContain(
         '!scripts/verify-task-costs.json'
       );
     expect(tools.tasks['lint']!.inputs).not.toContain(
       '!scripts/verify-task-costs.json'
+    );
+    expect(tools.tasks['test']!.inputs).not.toContain(
+      '!scripts/verify-task-costs.json'
+    );
+    expect(tools.tasks['test']!.inputs).toContain(
+      '$TURBO_ROOT$/docs/CI_REQUIREMENTS.md'
     );
   });
 
