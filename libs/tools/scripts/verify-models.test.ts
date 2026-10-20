@@ -2,7 +2,8 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import { modelInvariants, quintModuleName } from '@pkgs/quint-server/simulate';
+import { quintModuleName } from '@pkgs/quint-server/model-source';
+import { modelInvariants } from '@pkgs/quint-server/simulate';
 import { verifyPhases } from '@pkgs/quint-server/verify-phases';
 import {
   DEFAULT_VERIFY_STEPS,
