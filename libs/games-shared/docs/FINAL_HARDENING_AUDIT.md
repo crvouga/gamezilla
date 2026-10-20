@@ -14,7 +14,7 @@ The implementation map remains [`GAME_FRAMEWORK.md`](GAME_FRAMEWORK.md).
 | Proven defect: execution can omit registered games | A plan with matching production and harness registries and `games: []` returned no problems. | Compare execution against enrollment; reject duplicate identities and substituted definitions. `game-conformance-execution-omission`, pinned in `games-harness/tests/game-conformance-plan.test.ts`. |
 | Proven defect: incomplete suite can borrow capability coverage | An empty newly added rules suite passed planning when another rules suite covered the game. Misattributed cases also passed. | Require a case in every eligible suite, with additional capability requirements declared explicitly. `game-conformance-partial-suite`, pinned in the same planner test. |
 | Proven defect: lower-level concrete engines unclassified | Five `pkgs/chess-*` manifests lacked game ownership, bypassing the manifest game-isolation guard. | Mark all five as Chess-owned; require ownership for game-named packages in both tiers. `concrete-engine-game-ownership`, pinned in `tools/scripts/game-dependency-graph.test.ts`. |
-| Missing independence evidence | Existing reference-game execution did not build with production imports prohibited. | The core bundle rejects concrete sources and registries. `games-harness/tests/framework-independence.contract.test.ts` additionally executes 201 client/server checks using only test-owned consumers, with production source loading prohibited. Its negative check must reject an attempted concrete import. A separate shipping-client bundle proof remains open. |
+| Missing independence evidence | Existing reference-game execution did not build with production imports prohibited. | The core bundle rejects concrete sources and registries. `games-harness/tests/framework-independence.contract.test.ts` additionally executes client/server checks using only test-owned consumers, with production source loading prohibited. Its negative check must reject an attempted concrete import. `apps/client/tests/framework-build.test.ts` compiles the actual shared screens with the production Vite configuration and rejects both game and registry sources before transformation. |
 | Proven defect: namespace authority inferred from concrete identity | `turn-game-definition.ts` compared the game id to `GAME_PLATFORM_NAMESPACE` to grant legacy unprefixed namespaces. | Use an explicit grant and enforce its owner at production composition. `game-registration-implicit-legacy-id` pins the old implicit privilege and a differently named granted consumer; the registry refuses another definition's claim. Stored identities remain unchanged. |
 | Proven remaining shape limits | `GameSide`, participant tuples, result types, shared room positions, and existing probe refusals require two alternating participants with public state. | Open. A refusal probe documents a limitation; it does not satisfy the requested support for meaningfully different shapes. |
 | Proven defect: missing suite wrapper represented as empty enrollment | The real loader returned `{}` rather than `null` for a suite never calling `forEveryGame`, hiding the structural error when no game was eligible. | `game-conformance-unregistered-suite` creates that literal module and tests the actual loader; it failed before the repair. Unsupported capabilities legitimately require no cases, while an unregistered suite still fails. |
@@ -55,16 +55,16 @@ Source counts before these repairs, unchanged by them:
 | Connect Four | 4 | 10 | 1 |
 
 There were 19 authored shared code suites: rules 2, custom games 5,
-matchmaking 2, history 2, puzzles 8. There are now 22, with three added or
+matchmaking 2, history 2, puzzles 8. There are now 23, with four added or
 promoted puzzle suites. The planner check produced this actual
 enrollment matrix (counts include shared specification files and code
 suites, **not executed scenario verdicts**):
 
 | Consumer | Rules | Custom games | Matchmaking | History | Puzzles |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Chess | 2 | 41 | 44 | 9 | 54 |
+| Chess | 2 | 41 | 44 | 9 | 55 |
 | Connect Four | 2 | 39 | 42 | 9 | unsupported |
-| Counting race, test-only | 2 | 37 | unsupported | 2 | 52 |
+| Counting race, test-only | 2 | 37 | unsupported | 2 | 53 |
 
 The independently executed planner, attribution and isolation checks
 passed 34 tests. The dependency and package-boundary checks passed 29
@@ -81,6 +81,7 @@ These targeted results do not establish the full matrix's behavioral pass.
 | `chess-puzzle-duplicate-rating-feedback` | Repeated fresh objects with equivalent completion values must emit one rating cue. The shared completion-feedback suite runs this for each puzzle consumer; Chess's original en-passant sound scenario remains. |
 | `chess-puzzle-rating-feedback-late` | An initial unrated completion followed by its rated result must update the displayed rating and emit the late cue once. Repeated delivery must not emit it again. Both puzzle consumers pass; Chess's resumed en-passant scenario remains. |
 | `chess-stats-host-auto-entry` | The original `games`, `loading` and `join` entry states remain. The driver regression now runs for every puzzle-capable game rather than hardcoding a Chess menu. |
+| `puzzle-stored-mate-continues` | The original `7k/RR6/8/8/p7/8/8/6K1 w - - 0 2`, `b7b8`, and contradictory trailing `a4a3 b8c8` remain in the Chess check. The shared `terminal-objective` suite applies the same malformed continuation to every consumer’s known puzzle endings: a plugin’s winning result outranks a matching stored move with another reply. A non-winning move follows the stored continuation. No alternate-win trait is required. |
 
 The shared feedback implementation now has one small reactive owner; its
 unused animation wrapper and Chess-named props type were deleted without
@@ -93,7 +94,7 @@ preserved. No shared test now imports that setup from a concrete game.
 The working inventory at `.cache/game-framework-hardening/inventory.json`
 lists 328 package manifests, 185 specifications across games, Chess,
 Chess board and Connect Four, and 192 related regression records at that
-checkpoint. All proof paths existed. Four historical regressions were
+checkpoint. All proof paths existed. Five historical regressions were
 individually reviewed in this continuation; file presence is not proof
 that the remaining records exercise their original failure mechanisms.
 
@@ -106,7 +107,7 @@ change inside a suite or a screen. The full shared code-suite directory,
 faulty reference consumers, matrix checks, and the canonical
 `custom-games.feature` and `game-turns.feature` execute with production
 game source loading forbidden. The counting reference consumer remains
-beside it. The successful run executed 201 checks, including 48 shared
+beside it. The latest successful run executed 202 checks, including 48 shared
 feature instances. Unsupported matchmaking requires no cases in this
 composition.
 
@@ -120,6 +121,21 @@ included in both verification profiles. Scratch feature stubs use the
 standard Gherkin bridge and are removed; no feature copy or new retained
 report is added. Complete replay of every applicable shared model and
 feature for this extra consumer remains open.
+
+The web build proof uses `apps/client/vite.config.mts`, including the real
+Solid and localization transforms, to bundle the public `GameMenu` and
+`defineGameClient` with an empty `createTurnGames([])` catalog. It asserts
+that menu, custom-game, history, matchmaking, puzzle-play, puzzle-review
+and puzzle-stats source modules occur in the emitted chunks. A Vite load
+guard resolves source ownership from manifests and refuses every concrete
+game or registry before transformation and tree-shaking. The application
+package's one test entry is the only exception; application production
+sources remain forbidden. Two negative builds exercise a concrete source
+chosen by ownership metadata and the real client registry. Bundles stay in
+memory; this runs no browser, server or manual verification. This proves the
+shared client implementation under the shipping toolchain, not an empty
+version of the whole product application: runtime composition still owns
+its production games and their additional product-specific subs.
 
 ## Compatibility, cost and outstanding acceptance work
 
@@ -153,13 +169,20 @@ Latest package verification:
 | Zero-production-game execution | 201 child checks and both parent isolation checks passed. |
 | Latest affected-package type checking and lint | All 12 tasks passed after task separation and the foreign-peer fix. |
 | Latest `test test:contract` across games harness, puzzle client, Chess harness/server and SQL harness | All six tasks passed. The shared harness ran 344 ordinary checks and the isolated composition ran 201 checks within its two parent contract checks. Four unchanged tasks restored exact-input cache entries. |
+| Latest `tc lint test test:contract` for games harness and web client | All seven tasks passed (three exact-input cache hits), in 87.662 seconds. The shared harness ran 346 checks, the isolated composition ran 202 checks within its two parent contract checks, and the web client ran 15 checks including three production-toolchain build checks. |
+| `bun verify` after the shared-client build and terminal-result promotion | Failed again on the unchanged deploy YAML alias at lines 160 and 170; all five preparation tasks passed and the full gate stopped in actionlint. This snapshot contains the new tests. Diagnostics: `verify-run-odo1oO/diagnostics.tar.gz` in the local temporary directory. |
 | Concrete engine/board package lint | All five tasks passed after declaring game ownership. |
-| Dependency graph, boundaries, task-runner policy, test ownership and regression-register checks | 64 tests passed. |
+| Dependency graph, boundaries, task-runner policy, test ownership and regression-register checks | All 64 tests passed again after the web-client dependencies, cache inputs and regression pointer changed. |
 
 An initial broader check found a test fixture violating TypeScript's exact
 optional-property rules. The fixture now removes the field rather than
 assigning `undefined`; its package type check passed in the subsequent
 10-task partial run.
+
+The web client test hashes every ownership manifest, so reclassifying a
+package cannot reuse an earlier isolation verdict. Its complete 15-check
+task took 5.15 seconds; the positive shared-screen bundle took 3.01 seconds.
+No runtime dispatch, storage schema or UI flow changed for this build proof.
 
 The core test's cache key additionally includes the negative builder's
 registry manifest and entrypoint. The tooling graph test hashes workspace
@@ -173,7 +196,7 @@ ownership cannot reuse an unrelated earlier pass.
 The full PR gate is `bun verify`, and nightly is `bun verify-nightly`, as
 defined by the current repository. Full verification, deeper applicable
 verification, an independently reviewed spec/regression ownership ledger,
-the separate shipping-client zero-game build, the distinct game-shape
+the distinct game-shape
 contracts and privacy guarantees, and the final requirement-by-requirement
 acceptance audit remain necessary. This document makes no completion,
 Swift parity, production readiness or full conformance claim.

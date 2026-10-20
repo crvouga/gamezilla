@@ -59,6 +59,7 @@
       "devDependencies": {
         "@libs/app-config-shared": "workspace:*",
         "@libs/auth-shared": "workspace:*",
+        "@libs/game-menu-client": "workspace:*",
         "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@lingui/conf": "catalog:",
         "@pkgs/assert-root-shared": "workspace:*",
@@ -71,6 +72,7 @@
         "@pkgs/os-server": "workspace:*",
         "@pkgs/secret-store-shared": "workspace:*",
         "@pkgs/sql-client-sqlite-web-server": "workspace:*",
+        "@pkgs/turn-game-shared": "workspace:*",
         "@pkgs/vite-workspace-resolver-server": "workspace:*",
         "@tailwindcss/vite": "catalog:",
         "@types/bun": "catalog:",

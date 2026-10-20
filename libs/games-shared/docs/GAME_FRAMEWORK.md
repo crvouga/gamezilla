@@ -725,8 +725,13 @@ behaviour for exactly what it offers:
   canonical custom-game and turn features execute in that composition.
   An attempted hidden concrete import must fail. The core shared package
   separately bundles and executes empty composition and its counting
-  consumer with concrete sources and registries forbidden. These checks
-  do not replace any production game's own required evidence.
+  consumer with concrete sources and registries forbidden. The web client's
+  `tests/framework-build.test.ts` additionally compiles the actual shared
+  screens with the production Vite configuration and an empty catalog;
+  both a concrete implementation and a registry must fail its load guard
+  before tree-shaking. This is a shared-client build, not an empty build of
+  the whole application. These checks do not replace any production game's
+  own required evidence.
 - **Attribution and isolation.** Each game's run of a shared
   specification is named and recorded for that game alone: its test is
   `<scenario> [<game>]` and its evidence `scenario:<scenario> [<game id>]`

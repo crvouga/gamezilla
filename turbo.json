@@ -232,6 +232,20 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
+    "@apps/client#test": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/package.json",
+        "$TURBO_ROOT$/apps/*/package.json"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
     "@libs/game-session-shared#test": {
       "dependsOn": ["^src"],
       "inputs": [
