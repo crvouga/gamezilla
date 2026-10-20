@@ -67,6 +67,19 @@ async function guestInvited(ui: Driver): Promise<boolean> {
   return ui.get('multiplayer-access-denial-action').isVisible();
 }
 
+/**
+ * Find an opponent once the app has the connection a server-decided command
+ * needs. A device that has only just opened has not finished its first sync,
+ * and the app refuses the command until it has; over a real network that
+ * takes several round trips, and a person waits for the notice to go.
+ */
+export async function tapFindOpponent(ui: Driver): Promise<void> {
+  await ui.get('multiplayer-offline').expect.hidden({
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+  await tap(ui, 'multiplayer-find');
+}
+
 /** Choose the time control (`5+0`), then find an opponent at it. */
 export function startMultiplayerSearch(
   timeControl: string
@@ -77,7 +90,7 @@ export function startMultiplayerSearch(
     // The permission surface is the guest's invitation; no command is offered.
     if (await guestInvited(ui)) return;
     await chooseMultiplayerTimeControl(ui, timeControl);
-    await tap(ui, 'multiplayer-find');
+    await tapFindOpponent(ui);
   };
 }
 

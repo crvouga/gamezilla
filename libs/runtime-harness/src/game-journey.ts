@@ -7,6 +7,7 @@ import {
   expectMultiplayerLoss,
   expectMultiplayerWin,
   expectSharedMultiplayerGame,
+  tapFindOpponent,
 } from './multiplayer-journey';
 import {
   endMultiplayerSpace,
@@ -22,7 +23,7 @@ function findOpponent(game: PlayableGame): (ui: Driver) => Promise<void> {
     await tap(ui, Handles.gameChoice('multiplayer'));
     await retirePreviousMultiplayer(ui);
     await chooseMultiplayerTimeControl(ui, '5+0');
-    await tap(ui, 'multiplayer-find');
+    await tapFindOpponent(ui);
   };
 }
 
