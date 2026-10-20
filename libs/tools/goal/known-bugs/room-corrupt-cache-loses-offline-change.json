@@ -1,0 +1,4 @@
+{
+  "summary": "Reopening a room with a noncontiguous committed cache cleared its independent durable outbound queue, permanently losing valid offline choices. Reset only committed history and rebase the retained commands with their original identities.",
+  "regressionTest": "pkgs/room-root-harness/tests/room-cache-recovery.contract.test.ts"
+}
