@@ -44,7 +44,7 @@ export async function inheritedCodeSuites(
 ): Promise<readonly string[]> {
   const planned = await planCodeSuites(join(import.meta.dir, '..'));
   return planned
-    .filter((suite) => offersAll(game, [suite.area]))
+    .filter((suite) => offersAll(game, [suite.area, ...(suite.needs ?? [])]))
     .map((suite) => suite.id);
 }
 

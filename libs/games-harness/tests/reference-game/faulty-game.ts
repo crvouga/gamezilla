@@ -20,7 +20,8 @@ import {
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
 import type { TurnGame } from '@libs/game-session-shared/turn-game-definition';
 import { defineTurnGame } from '@libs/game-session-shared/turn-game-definition';
-import { HARNESS_GAMES } from '@libs/games-harness/harness-games';
+import { SETUP_RACE_GAME } from '../probes/setup-race-game';
+import { SOLO_COUNT_GAME } from '../probes/solo-count-game';
 import {
   COUNTING_RACE_CLIENT,
   COUNTING_RACE_FIXTURES,
@@ -58,14 +59,24 @@ export function definedWith(
   };
 }
 
-/** Every shared law a game is held to, among the registered games. */
+/**
+ * Foreign inputs belong to test-owned consumers, even when production has
+ * no games. The solo probe supplies a foreign position and puzzle only;
+ * its unsupported line is not installed or claimed as conforming here.
+ */
+const FOREIGN_INPUTS = [SETUP_RACE_GAME, SOLO_COUNT_GAME];
+
+/** Every shared law a game is held to, against independent foreign inputs. */
 function lawsOf(game: HarnessGame): readonly GameLaw[] {
+  const others = FOREIGN_INPUTS.filter(
+    (other) => other.shared.id !== game.shared.id
+  );
   return [
-    ...gameRulesLaws(game, HARNESS_GAMES),
+    ...gameRulesLaws(game, others),
     ...gameBotLaws(game),
     ...gamePresentationLaws(game),
     ...gameRecordLaws(game),
-    ...gamePuzzleLaws(game, HARNESS_GAMES),
+    ...gamePuzzleLaws(game, others),
   ];
 }
 

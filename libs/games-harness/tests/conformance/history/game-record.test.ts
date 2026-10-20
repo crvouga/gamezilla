@@ -12,6 +12,10 @@ import { test } from 'bun:test';
 import { gameRecordLaws } from '@libs/game-session-harness/game-capability-laws';
 import { forEveryGame } from '../game-suite';
 
-forEveryGame(import.meta.path, (game) => {
-  for (const law of gameRecordLaws(game)) test(law.name, law.check, 60_000);
-});
+forEveryGame(
+  import.meta.path,
+  (game) => {
+    for (const law of gameRecordLaws(game)) test(law.name, law.check, 60_000);
+  },
+  ['matchmaking']
+);

@@ -4,6 +4,10 @@ import {
   GAME_CAPABILITIES,
   offeredCapabilities,
 } from '@pkgs/turn-game-shared/game-rules';
+import {
+  executionGameProblems,
+  suiteCaseProblems,
+} from './conformance-enrollment';
 
 /**
  * What the shared conformance suites are organised by: `rules`, which every
@@ -279,6 +283,8 @@ export type ConformanceSuite = {
 export type PlannedCodeSuite = {
   readonly id: string;
   readonly area: ConformanceArea;
+  /** Additional capabilities or traits required beside the directory's area. */
+  readonly needs?: readonly ConformanceNeed[];
   readonly registers: Readonly<Record<string, boolean>> | null;
 };
 
@@ -498,8 +504,19 @@ export function planConformance(plan: ConformancePlan): {
     matrix,
     problems: [
       ...enrollmentProblems(plan.registered, plan.harness),
+      ...executionGameProblems(plan.harness, plan.games),
       ...specificationTableProblems(plan.table, plan.specifications),
       ...emptySuiteProblems(plan.codeSuites),
+      ...plan.codeSuites.flatMap((suite) =>
+        suiteCaseProblems(
+          suite,
+          plan.games
+            .filter((game) =>
+              offersAll(game, [suite.area, ...(suite.needs ?? [])])
+            )
+            .map((game) => game.shared.id)
+        )
+      ),
       ...missingEvidenceProblems(matrix),
     ],
   };

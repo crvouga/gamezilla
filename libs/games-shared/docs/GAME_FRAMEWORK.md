@@ -9,6 +9,8 @@ its copy. Adding one is [`ADDING_A_GAME.md`](ADDING_A_GAME.md). What
 the framework guarantees, the evidence behind each guarantee, and what is
 still open are in
 [`FRAMEWORK_HARDENING_REPORT.md`](FRAMEWORK_HARDENING_REPORT.md).
+The independent follow-up and its remaining acceptance work are tracked in
+[`FINAL_HARDENING_AUDIT.md`](FINAL_HARDENING_AUDIT.md).
 
 ## Dependency direction
 
@@ -24,6 +26,10 @@ composition roots (registries, runtime, apps)
   one (`gameViolations`, `gameIdentityViolations`, `import-game-implementation.grit`).
 - A game imports the framework and its own packages only; never a sibling
   game and never a registry (a registry would hand it every sibling).
+  Game-specific engines and boards under `pkgs/` declare `"game"` too;
+  a reusable Chess engine remains concrete game code. The workspace graph
+  check in `libs/tools/scripts/game-dependency-graph.test.ts` follows both
+  production and development dependencies, including cycles and intermediaries.
 - Only packages declaring `"gameRegistry": true` compose games, and anything
   depending on a registry is one itself. Today: `@libs/games-shared`,
   `@libs/games-client`, `@libs/game-catalog-shared`, `@libs/games-harness`,
@@ -668,7 +674,10 @@ behaviour for exactly what it offers:
   offer a record to writing both people on their sides, the result, the
   clock choice and this game's moves, as its `readRecord` reads them
   (`conformance/history/game-record`). A suite registers its tests inside
-  `forEveryGame`.
+  `forEveryGame`. A suite needing more than its directory's capability
+  names those requirements as its third argument: for example, a copied
+  game record needs `['matchmaking']` beside `history`. Every game meeting
+  those requirements must register a case of its own.
 - **Independent oracles.** Expected outcomes come from each game's
   `fixtures` — a known first-side victory, known refused openings and, for
   a game that has one, a known line to a position its second side cannot
@@ -694,7 +703,8 @@ behaviour for exactly what it offers:
   `planConformance` (`@libs/games-harness/game-conformance`) finds, each
   saying what to fix: a game in `GAME_DEFINITIONS` but not `HARNESS_GAMES`
   or the reverse, out of order or with another definition; a code suite
-  that registers no case for any game it binds, or never calls
+  missing a case for any eligible game, claiming a case for an ineligible
+  game, registering no cases, or never calling
   `forEveryGame`; an offered capability no suite or specification requires
   a case of; a specification of `specs/games/` without a
   `SHARED_SPECIFICATIONS` entry, an entry without a specification, listing
@@ -705,6 +715,18 @@ behaviour for exactly what it offers:
   The planner is pure, and `tests/game-conformance-plan.test.ts` proves
   each refusal on fake registries. An unoffered capability is `—`
   (unsupported), never "not tested".
+  Agreement between the registries is insufficient: each harness game
+  must also appear in the execution world with its registered definition.
+  Duplicate execution ids and labels fail rather than sharing evidence.
+- **Isolated composition.** The package's `test:contract` installs only the
+  setup-race and counting reference consumers at the normal registry
+  boundaries and rejects loading any production game source. Every shared
+  code suite, the reference falsification cases, the matrix and the
+  canonical custom-game and turn features execute in that composition.
+  An attempted hidden concrete import must fail. The core shared package
+  separately bundles and executes empty composition and its counting
+  consumer with concrete sources and registries forbidden. These checks
+  do not replace any production game's own required evidence.
 - **Attribution and isolation.** Each game's run of a shared
   specification is named and recorded for that game alone: its test is
   `<scenario> [<game>]` and its evidence `scenario:<scenario> [<game id>]`
@@ -754,10 +776,13 @@ messages, the review's `chess.main-menu.selected-review-*` and
 the screen keys `puzzle`, `stats` and `stats-review`, every chess puzzle
 id, profile and feed settings id (the owner id), and the telemetry events
 `chess.puzzle.*`. The unprefixed
-namespace `''` — of clock choices and of puzzles — belongs to the game
-whose id is `GAME_PLATFORM_NAMESPACE` alone: `defineTurnGame` grants it to
-that game (`unprefixedNamespace`), and `createTurnGames` refuses it for any
-other (`<id>: the unprefixed clock namespace "" belongs to the platform's
+namespace `''` — of clock choices and of puzzles — belongs to the legacy
+definition explicitly selected by the composition root. Its registration
+supplies `unprefixedNamespace: true`; `GAME_DEFINITIONS` checks that grant
+with `assertGameNamespaceOwner(GAME_DEFINITIONS, chessGameShared)`.
+`defineTurnGame` never infers privileges from a game id. `createTurnGames`
+refuses an unprefixed namespace without the explicit grant
+(`<id>: the unprefixed clock namespace "" belongs to the platform's
 durable game alone — use "<id>/"`, and likewise for the puzzle
 namespace). Renaming any of
 them would change stored histories, pending offline mutations or queued
@@ -782,6 +807,9 @@ what the shared suites and specifications bind by its capabilities
 supported probe passes every law; a limitation is pinned by the law that
 refuses it, a runtime refusal or a `@ts-expect-error`, so it fails the
 day the boundary moves.
+The isolated composition also executes setup-race through every applicable
+code suite and the shared custom-game and turn features, rather than
+relying on its planned enrollment alone.
 
 | Probe | Outcome | Public contracts | Framework change | Shared screens, specs and suites | Boundary |
 | --- | --- | --- | --- | --- | --- |

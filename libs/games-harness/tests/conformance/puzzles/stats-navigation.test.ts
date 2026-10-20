@@ -2,12 +2,13 @@ import { expect, test } from 'bun:test';
 import { showGamePuzzleStats } from '@libs/game-session-harness/puzzle-records';
 import type { ProductHarness } from '@libs/harness/harness';
 import { Handles } from '@libs/test-ids-shared/handles';
+import { forEveryGame } from '../game-suite';
 
 /**
  * A game's puzzle stats from outside its space, as the host's automatic
  * entry into their space comes at once or later: a driver fixture.
  */
-function statsSurface(entryScreen: string) {
+function statsSurface(entryScreen: string, gameId: string) {
   let screen = 'lobby';
   const taps: string[] = [];
   const card = Handles.spaceCard('alice');
@@ -18,9 +19,9 @@ function statsSurface(entryScreen: string) {
     }
     if (screen === 'join') return handle === Handles.spaceJoin;
     if (screen === 'games') {
-      return [Handles.spaceClose, Handles.gameMenu('chess')].includes(handle);
+      return [Handles.spaceClose, Handles.gameMenu(gameId)].includes(handle);
     }
-    if (screen === 'chess') return handle === Handles.gameChoice('stats');
+    if (screen === 'game-menu') return handle === Handles.gameChoice('stats');
     return screen === 'stats' && handle === Handles.chessStatsElo;
   };
   const ui = {
@@ -40,7 +41,7 @@ function statsSurface(entryScreen: string) {
         taps.push(handle);
         if (handle === card) {
           screen = entryScreen;
-        } else if (handle === Handles.gameMenu('chess')) screen = 'chess';
+        } else if (handle === Handles.gameMenu(gameId)) screen = 'game-menu';
         else if (handle === Handles.gameChoice('stats')) screen = 'stats';
       },
     }),
@@ -58,17 +59,19 @@ function statsSurface(entryScreen: string) {
   return { harness, taps, statsVisible: () => visible(Handles.chessStatsElo) };
 }
 
-// regression: chess-stats-host-auto-entry
-test.each(['games', 'loading', 'join'])(
-  'stats navigation when host entry initially shows %s',
-  async (entryScreen) => {
-    const surface = statsSurface(entryScreen);
-    await Promise.resolve(
-      showGamePuzzleStats.act(surface.harness, 'alice_phone', 'chess')
-    );
-    expect(surface.statsVisible()).toBe(true);
-    expect(
-      surface.taps.filter((handle) => handle === Handles.spaceJoin)
-    ).toHaveLength(0);
-  }
-);
+forEveryGame(import.meta.path, (game) => {
+  // regression: chess-stats-host-auto-entry
+  test.each(['games', 'loading', 'join'])(
+    'stats navigation when host entry initially shows %s',
+    async (entryScreen) => {
+      const surface = statsSurface(entryScreen, game.shared.id);
+      await Promise.resolve(
+        showGamePuzzleStats.act(surface.harness, 'alice_phone', game.shared.id)
+      );
+      expect(surface.statsVisible()).toBe(true);
+      expect(
+        surface.taps.filter((handle) => handle === Handles.spaceJoin)
+      ).toHaveLength(0);
+    }
+  );
+});

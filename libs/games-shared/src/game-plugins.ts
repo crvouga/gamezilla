@@ -3,6 +3,7 @@ import { connectFourGameShared } from '@libs/connect-four-shared/connect-four-ga
 import type { TurnGameDefinition } from '@libs/game-session-shared/turn-game-definition';
 import { assertTurnGameDefinitions } from '@libs/game-session-shared/turn-game-definition';
 import { assertGameRegistry } from '@libs/spaces-shared/load-game-plugins';
+import { assertGameNamespaceOwner } from './game-namespace-owner';
 
 /**
  * Every game the product offers, in the order the game choice shows them:
@@ -17,3 +18,4 @@ export const GAME_DEFINITIONS = [
 
 assertGameRegistry(GAME_DEFINITIONS);
 assertTurnGameDefinitions('GAME_DEFINITIONS', GAME_DEFINITIONS);
+assertGameNamespaceOwner(GAME_DEFINITIONS, chessGameShared);

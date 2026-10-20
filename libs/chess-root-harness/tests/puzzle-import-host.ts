@@ -19,6 +19,7 @@ import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import { drainOutbox } from '@pkgs/outbox-shared/drain';
 import { reconcileOutboxPostgres } from '@pkgs/outbox-shared/reconcile';
+import { openConcurrentPostgres } from '@pkgs/sql-client-root-harness/open-concurrent-postgres';
 import sql from '@pkgs/sql-root-shared/sql';
 import type {
   Mutation,
@@ -26,7 +27,6 @@ import type {
 } from '@pkgs/sync-engine-shared/mutations-types';
 import { syncEngineServerSchema } from '@pkgs/sync-engine-shared/tables';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
-import { openConcurrentPostgres } from './concurrent-postgres';
 
 const AT = '2026-10-14T12:00:00.000Z';
 export const HEADER =

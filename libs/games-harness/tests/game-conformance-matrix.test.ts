@@ -20,6 +20,7 @@ import {
   codeConformanceSuites,
   conformanceMatrix,
   formatConformanceMatrix,
+  offersAll,
   planConformance,
   SHARED_SPECIFICATION_KINDS,
   SHARED_SPECIFICATIONS,
@@ -58,12 +59,19 @@ test('the conformance plan is complete: enrollment, the specification table, eve
   expect(problems).toEqual([]);
 });
 
-test('every code suite is planned with a case for some game it binds', async () => {
+test('every code suite registers every eligible game, with unsupported areas owing no cases', async () => {
   const planned = await planCodeSuites(TESTS);
   expect(planned.length).toBeGreaterThan(0);
   for (const suite of planned) {
     expect(suite.registers).not.toBeNull();
-    expect(Object.values(suite.registers ?? {})).toContain(true);
+    const eligible = CONFORMANCE_GAMES.filter((game) =>
+      offersAll(game, [suite.area, ...(suite.needs ?? [])])
+    );
+    expect(Object.keys(suite.registers ?? {}).sort()).toEqual(
+      eligible.map((game) => game.shared.id).sort()
+    );
+    for (const game of eligible)
+      expect(suite.registers?.[game.shared.id]).toBe(true);
   }
 });
 

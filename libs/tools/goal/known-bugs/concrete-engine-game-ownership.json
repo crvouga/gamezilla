@@ -1,0 +1,4 @@
+{
+  "summary": "Concrete Chess engine and board packages were unclassified, allowing shared framework packages to depend on them without the game-isolation manifest guard detecting it.",
+  "regressionTest": "libs/tools/scripts/game-dependency-graph.test.ts"
+}

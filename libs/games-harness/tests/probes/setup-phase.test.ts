@@ -20,6 +20,7 @@ import { refusals } from '../reference-game/faulty-game';
 import { areasOf, inheritedSpecifications } from './probe-verdict';
 import { SETUP_RACE_GAME, SETUP_RACE_RULES } from './setup-race-game';
 
+// regression: game-conformance-fault-probes-production-default
 test('a game opening with a setup phase keeps every law', () => {
   expect([...refusals(SETUP_RACE_GAME).keys()]).toEqual([]);
 });

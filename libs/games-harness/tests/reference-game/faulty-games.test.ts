@@ -67,12 +67,13 @@ test('a game whose replay forgets the actions is refused', () => {
   ).toContain('reached another position');
 });
 
+// regression: game-conformance-fault-probes-production-default
 test("a game claiming another game's positions is refused", () => {
   expect(
     refusals(faulty({ recognizes: () => true })).get(
       'every position a game reaches is recognized as this game alone'
     )
-  ).toContain('it claims chess');
+  ).toContain("it claims setup race's setup-race:__:00w");
 });
 
 test('a game showing moves other than those played is refused', () => {
@@ -275,6 +276,7 @@ test('a puzzle board whose marks name no cells of the board is refused', () => {
   );
 });
 
+// regression: game-conformance-fault-probes-production-default
 test("a puzzle validation accepting another game's position is refused", () => {
   const lenient = faultyPuzzles({
     content: { validate: () => ({ ok: true }) },
@@ -282,7 +284,7 @@ test("a puzzle validation accepting another game's position is refused", () => {
   expectRefusedBy(
     lenient,
     "its content validation refuses every other game's known puzzle",
-    "it accepts chess's known puzzle 01Xbe as its own"
+    "it accepts solo count's known puzzle solo-count/two-twos as its own"
   );
 });
 

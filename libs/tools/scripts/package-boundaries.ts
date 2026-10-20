@@ -283,7 +283,11 @@ export function gameViolations(
   );
   const out: string[] = [];
   for (const game of games)
-    if (name.startsWith(`@libs/${game}-`) && manifest.game !== game)
+    if (
+      (name.startsWith(`@libs/${game}-`) ||
+        name.startsWith(`@pkgs/${game}-`)) &&
+      manifest.game !== game
+    )
       out.push(
         `${name} is named for the game ${game}; declare "game": "${game}"`
       );
@@ -342,6 +346,10 @@ export function gameApiViolations(
   const name = manifest.name ?? '';
   const out: string[] = [];
   if (manifest.gameApi !== undefined) {
+    if (manifest.gameRegistry === true && manifest.gameApi.length > 0)
+      out.push(
+        `${name} offers a game API and composes concrete games: framework contracts must receive games through ports, never a registry`
+      );
     if (manifest.game !== undefined)
       out.push(
         `${name} is a game of ${manifest.game} and declares a game API: only framework packages offer one`

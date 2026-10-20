@@ -1,9 +1,10 @@
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import { CHESS_TABLES } from '@libs/chess-sub-shared/chess-tables';
 import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared/sub';
 import { uniqueTables } from '@libs/permissions-shared/world';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
+import type { ConcurrentDriver } from '@pkgs/sql-client-root-harness/open-concurrent-postgres';
+import { openConcurrentPostgres } from '@pkgs/sql-client-root-harness/open-concurrent-postgres';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
 import { createSyncApp } from '@pkgs/sync-engine-server/create-sync-app';
@@ -13,8 +14,6 @@ import {
   SYNC_PROTOCOL_HEADER,
   SYNC_PROTOCOL_VERSION,
 } from '@pkgs/sync-engine-shared/v2';
-import type { ConcurrentDriver } from './concurrent-postgres';
-import { openConcurrentPostgres } from './concurrent-postgres';
 
 const AT = '2026-10-01T12:00:00.000Z';
 
@@ -56,7 +55,10 @@ function overlapProfileReads(db: SqlClient): SqlClient {
   };
 }
 
-export async function openConcurrentHost(driver: ConcurrentDriver) {
+export async function openConcurrentHost(
+  driver: ConcurrentDriver,
+  profileId: string
+) {
   const postgres = await openConcurrentPostgres(driver);
   try {
     const { db, admin, dbScope } = postgres;
@@ -64,18 +66,14 @@ export async function openConcurrentHost(driver: ConcurrentDriver) {
     await reconcilePostgresSchema(
       admin,
       registerTables(
-        uniqueTables([
-          ...BILLING_TABLES,
-          ...GAME_PUZZLE_SUB.tables,
-          ...CHESS_TABLES,
-        ])
+        uniqueTables([...BILLING_TABLES, ...GAME_PUZZLE_SUB.tables])
       ),
       dbScope
     );
     await db.run(sql`
     INSERT INTO chess_puzzle_profiles (id, owner_id, rating, rating_deviation,
       volatility_micros, created_at, updated_at, deleted_at)
-    VALUES (${'alice'}, ${'alice'}, ${1500}, ${350}, ${60000}, ${AT}, ${AT}, ${null})
+    VALUES (${profileId}, ${'alice'}, ${1500}, ${350}, ${60000}, ${AT}, ${AT}, ${null})
   `);
     let id = 0;
     const app = createSyncApp({

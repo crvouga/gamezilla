@@ -1,4 +1,4 @@
 {
   "summary": "Import status mutations put their source filenames, upload IDs and requester IDs on the public puzzle catalog topic. Status snapshots and row-image fanout must use the configured management audience\u2019s private user topics.",
-  "regressionTest": "libs/chess-root-server/tests/puzzle-load-job.test.ts"
+  "regressionTest": "libs/chess-root-harness/tests/puzzle-load-job.contract.test.ts"
 }

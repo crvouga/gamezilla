@@ -1,0 +1,4 @@
+{
+  "summary": "The conformance plan accepted agreeing production and harness registries while omitting their games from the execution world entirely.",
+  "regressionTest": "libs/games-harness/tests/game-conformance-plan.test.ts"
+}

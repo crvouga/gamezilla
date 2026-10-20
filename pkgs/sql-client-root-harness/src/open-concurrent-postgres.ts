@@ -1,7 +1,4 @@
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { freePostgresPort } from '@pkgs/postgres-mockingbird-server/free-port';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server/start';
 import {
   createPgPool,
@@ -39,10 +36,9 @@ function perRequestSessions(
 }
 
 export async function openConcurrentPostgres(driver: ConcurrentDriver) {
-  const dataDir = mkdtempSync(join(tmpdir(), 'chess-concurrent-'));
   const pg = await startMockingbirdPostgres({
-    port: await freePostgresPort(),
-    dataDir,
+    port: 0,
+    store: new ObjectStoreImplInMemory(),
   });
   const dbScope = createPostgresDbScope('concurrent_rating');
   const { pool, sqlClient: admin } = createPgPool({
@@ -61,11 +57,7 @@ export async function openConcurrentPostgres(driver: ConcurrentDriver) {
       if (driver === 'bun') await db.disconnect();
       await pool.end();
     } finally {
-      try {
-        await pg.stop();
-      } finally {
-        rmSync(dataDir, { recursive: true, force: true });
-      }
+      await pg.stop();
     }
   };
   try {

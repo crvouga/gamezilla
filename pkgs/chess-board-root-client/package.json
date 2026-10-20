@@ -41,5 +41,6 @@
     "fast-check": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "client"
+  "category": "client",
+  "game": "chess"
 }
