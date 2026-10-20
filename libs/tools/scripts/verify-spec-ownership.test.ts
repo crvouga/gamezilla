@@ -10,6 +10,40 @@ import {
 } from './verify-spec-ownership';
 
 describe('spec ownership', () => {
+  // regression: spec-ownership-package-audit-docs
+  test('spec authors may keep Markdown audit evidence in the owning package docs', () => {
+    const commit = {
+      sha: 'e0d7afbda3',
+      subject: 'spec(games): allow puzzles without opponents',
+      files: [
+        'specs/games/puzzle-attempt.qnt',
+        'specs/games/puzzle-opponent.feature',
+        'specs/games/puzzle-refusals.feature',
+        'specs/games/puzzle-review.feature',
+        'specs/games/puzzle-sound.feature',
+        'specs/games/puzzle-sound.qnt',
+        'specs/games/solve-flow.feature',
+        'specs/games/solve-move-rules.feature',
+        'specs/games/solve-show-solution.feature',
+        'specs/games/ubiquitous-language.yml',
+        'libs/games-shared/docs/PUZZLE_LAYOUT_SPEC_AUDIT.md',
+      ],
+    };
+    expect(ownershipViolations([commit])).toEqual([]);
+    expect(stagedViolations(commit.files)).toEqual([]);
+    for (const file of [
+      'pkgs/turn-game-shared/docs/CONTRACT_AUDIT.md',
+      'apps/client/docs/BUILD_AUDIT.md',
+    ])
+      expect(stagedViolations([...commit.files, file])).toEqual([]);
+    for (const file of [
+      'libs/games-shared/src/docs/CONTRACT_AUDIT.md',
+      'libs/games-shared/docs/runtime.ts',
+      'libs/games-shared/docs/CONTRACT_AUDIT.md.ts',
+    ])
+      expect(stagedViolations([...commit.files, file])).toHaveLength(1);
+  });
+
   test('historical spec commits may include generated step catalogs', () => {
     // regression: spec-ownership-generated-step-catalogs
     const commit = {
