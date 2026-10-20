@@ -38,8 +38,8 @@ import { envFile } from '@libs/infra-shared/envs';
 import type { PlanJson } from '@libs/infra-shared/plan-policy';
 import { evaluatePlanPolicy } from '@libs/infra-shared/plan-policy';
 import {
-  planFailureIsTransient,
   planReadFailed,
+  providerFailureIsTransient,
 } from '@libs/infra-shared/plan-retry';
 import { redactInfraOutput } from '@libs/infra-shared/redact-output';
 import type { Stack, Target } from '@libs/infra-shared/tofu-command';
@@ -173,7 +173,7 @@ async function planTarget(
       process.stdout.write(output.endsWith('\n') ? output : `${output}\n`);
     }
     if (!planReadFailed(result.status)) return result.status;
-    const retry = planFailureIsTransient(output) && attempt < PLAN_ATTEMPTS;
+    const retry = providerFailureIsTransient(output) && attempt < PLAN_ATTEMPTS;
     if (!retry) break;
     console.error(
       `[infra] ${target.stack}: plan read failed, retrying (${String(attempt)})`
@@ -224,7 +224,20 @@ function teardownOf(target: Target, cli: Cli): Teardown {
   return { protection: envFile(name).protection };
 }
 
-async function run(cli: Cli, target: Target, firstRun: boolean): Promise<void> {
+const APPLY_ATTEMPTS = 3;
+/** A provider API that timed out is often still finishing the call. */
+const APPLY_RETRY_WAIT_MS = 30_000;
+
+/**
+ * Plan, policy, backup, apply. An apply that fails on a transient provider
+ * error returns `retry`: the saved plan is stale once part of it ran, so the
+ * caller plans again against what the failed call left behind.
+ */
+async function runOnce(
+  cli: Cli,
+  target: Target,
+  firstRun: boolean
+): Promise<'done' | 'retry'> {
   const { command } = cli;
   const env = await toolEnvironment(target, cli);
   const label = `${target.stack}/${target.env ?? cli.env ?? 'global'}`;
@@ -233,19 +246,43 @@ async function run(cli: Cli, target: Target, firstRun: boolean): Promise<void> {
   checkPolicy(target, env, teardown, cli.recoverCiIdentity);
   if (status === 0) {
     console.log(`[infra] ${label}: no changes`);
-    return;
+    return 'done';
   }
   if (command === 'drift')
     fail(`${label}: live infrastructure drifted from libs/infra-shared/tofu`);
-  if (command === 'plan') return;
+  if (command === 'plan') return 'done';
 
   if (!firstRun) await backupState({ target, env });
-  const applied = tofu(applyArgs(PATHS, target), env) === 0;
+  const result = spawnTool('tofu', applyArgs(PATHS, target), { env });
+  const applied = result.status === 0;
   // A partial first-run apply still created things; its state must reach the
   // bucket (or stay local for the next run) before this process exits.
   if (firstRun) await migrateToBucket(PATHS, target, env);
-  if (!applied) fail(`${label}: tofu apply failed`);
-  console.log(`[infra] ${label}: applied`);
+  if (applied) {
+    console.log(`[infra] ${label}: applied`);
+    return 'done';
+  }
+  if (
+    !firstRun &&
+    providerFailureIsTransient(`${result.stdout}${result.stderr}`)
+  )
+    return 'retry';
+  fail(`${label}: tofu apply failed`);
+}
+
+async function run(cli: Cli, target: Target, firstRun: boolean): Promise<void> {
+  for (let attempt = 1; attempt <= APPLY_ATTEMPTS; attempt += 1) {
+    if ((await runOnce(cli, target, firstRun)) === 'done') return;
+    if (attempt < APPLY_ATTEMPTS) {
+      console.error(
+        `[infra] ${target.stack}: apply hit a transient provider error, planning again (${String(attempt)})`
+      );
+      await Bun.sleep(APPLY_RETRY_WAIT_MS);
+    }
+  }
+  fail(
+    `${target.stack}: tofu apply failed after ${String(APPLY_ATTEMPTS)} attempts`
+  );
 }
 
 async function main(): Promise<void> {
