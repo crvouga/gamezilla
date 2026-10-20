@@ -7,7 +7,7 @@ export function browserFailureSummary(html: string): string {
     .filter((tag) => !omit.test(tag))
     .map((tag) =>
       tag.match(
-        /data-(?:testid|game-id|outcome|revision|reason|phase)="[^"]*"/g
+        /data-(?:testid|game-id|outcome|revision|reason|phase|can-move|board-takes-moves)="[^"]*"/g
       )
     );
   const waiting = html

@@ -114,7 +114,15 @@ async function playsWhite(ui: Driver): Promise<boolean> {
   return ((await ui.get('multiplayer-colour').text()) ?? '').includes('White');
 }
 
-/** A move by tapping its two squares, at their centres on this board. */
+const MOVE_ATTEMPTS = 6;
+const MOVE_SETTLE_MS = JOURNEY_WAIT_MS / MOVE_ATTEMPTS;
+
+/**
+ * A move by tapping its two squares, at their centres on this board. The
+ * board takes no move while the person's earlier choice, or the opponent's
+ * move, still settles, and over a real network that takes several round
+ * trips. A person sees the board ignore them and plays again, so this does.
+ */
 function tapMove(
   from: { readonly x: number; readonly y: number },
   to: { readonly x: number; readonly y: number },
@@ -127,23 +135,32 @@ function tapMove(
         exact: false,
         timeoutMs: JOURNEY_WAIT_MS,
       });
-    await ui.get('multiplayer-board').layout();
-    await ui
-      .get('multiplayer-board')
-      .tapAt({ xRatio: from.x / 8, yRatio: from.y / 8 });
-    await ui
-      .get('multiplayer-board')
-      .tapAt({ xRatio: to.x / 8, yRatio: to.y / 8 });
-    await ui.get('multiplayer-move-list').expect.text(expectedMoves, {
+    const board = ui.get('multiplayer-board');
+    const moveList = ui.get('multiplayer-move-list');
+    for (let attempt = 0; attempt < MOVE_ATTEMPTS; attempt += 1) {
+      await board.layout();
+      await board.tapAt({ xRatio: from.x / 8, yRatio: from.y / 8 });
+      await board.tapAt({ xRatio: to.x / 8, yRatio: to.y / 8 });
+      try {
+        await moveList.expect.text(expectedMoves, {
+          exact: false,
+          timeoutMs: MOVE_SETTLE_MS,
+        });
+        return;
+      } catch {
+        // The board was not taking moves yet; play it again.
+      }
+    }
+    await moveList.expect.text(expectedMoves, {
       exact: false,
-      timeoutMs: JOURNEY_WAIT_MS,
+      timeoutMs: MOVE_SETTLE_MS,
     });
   };
 }
 
 /** White's board: e2 to e4. Black's board is turned round: e7 to e5. */
-const PLAY_E4 = tapMove({ x: 4.5, y: 6.5 }, { x: 4.5, y: 4.5 }, '1. e4');
-const PLAY_E5 = tapMove(
+export const PLAY_E4 = tapMove({ x: 4.5, y: 6.5 }, { x: 4.5, y: 4.5 }, '1. e4');
+export const PLAY_E5 = tapMove(
   { x: 3.5, y: 6.5 },
   { x: 3.5, y: 4.5 },
   '1. e4 e5',

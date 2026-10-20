@@ -60,7 +60,23 @@ test('main still measures after live probes finish and branch probes remain enab
     'health-env',
   ]);
   expect(workflow.jobs['health-env']!.if).toBe(
-    "needs.health-matrix.outputs.all != '[]'"
+    "needs.health-matrix.outputs.all != '[]' && needs.health-matrix.outputs.idle == 'true'"
   );
   expect(runsObjective('refs/heads/main')).toBe(true);
+});
+
+// regression: deploy-and-health-share-the-environment
+test('a scheduled check yields to a deploy and a deploy waits out a running check', () => {
+  const health = readFileSync(
+    join(import.meta.dirname, '../../../.github/workflows/health.yml'),
+    'utf8'
+  );
+  const deploy = readFileSync(
+    join(import.meta.dirname, '../../../.github/workflows/deploy.yml'),
+    'utf8'
+  );
+  expect(health).toContain('--workflow deploy.yml');
+  expect(health).toContain('"$GH_EVENT" = "schedule"');
+  expect(deploy).toContain('--workflow health.yml');
+  expect(deploy).toContain('name: Wait for a running Health check');
 });

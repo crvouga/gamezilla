@@ -9,6 +9,7 @@ import {
   type LiveDevices,
   openGuestDevice,
   requireDevice,
+  runLiveCleanups,
 } from '@apps/product/live-journey-devices';
 // @io-wall-ok — live health: the world every `liveDomains` scenario runs in.
 /**
@@ -203,6 +204,38 @@ function liveJourneyHost(
   };
 }
 
+/**
+ * Print what each open device shows, its geometry, requests and console. A
+ * failure that reaches the log without this leaves no way to say why.
+ */
+async function printBrowserState(devices: LiveDevices): Promise<void> {
+  for (const [name, current] of [
+    ['host', devices.host],
+    ['peer', devices.guest],
+  ] as const) {
+    const layout = await current?.view
+      .evaluate(BROWSER_FAILURE_LAYOUT)
+      .catch(() => null);
+    if (layout !== null && layout !== undefined)
+      console.error(`browser failure geometry (${name}): ${String(layout)}`);
+    const html = await current?.driver.snapshotHtml().catch(() => null);
+    if (typeof html === 'string')
+      console.error(
+        `browser failure state (${name}): ${browserFailureSummary(html)}`
+      );
+    if (current !== null) {
+      const transport = [...current.network];
+      const responses = await readSyncResponseEvidence(current.view, transport);
+      console.error(
+        `browser failure transport (${name}): ${[...transport, ...responses].join('\n')}`
+      );
+      console.error(
+        `browser failure console (${name}): ${current.console.slice(-40).join('\n')}`
+      );
+    }
+  }
+}
+
 async function closeBrowsing(
   devices: LiveDevices,
   cleanups: Map<string, JourneyGestures>,
@@ -212,11 +245,13 @@ async function closeBrowsing(
   try {
     const host = devices.host;
     if (host !== null) {
-      for (const cleanup of cleanups.values()) {
-        await cleanup(host.driver).catch((error: unknown) => {
-          failure ??= error;
-        });
-      }
+      failure = await runLiveCleanups(devices, cleanups, (key, error) => {
+        console.error(`cleanup ${key} failed: ${String(error)}`);
+      });
+      // A cleanup that fails after every step passed has no step failure to
+      // print the devices; they close next.
+      if (failure !== null && !failureFlag.failed)
+        await printBrowserState(devices).catch(() => undefined);
       await host.close();
     }
   } finally {
@@ -237,36 +272,7 @@ function browsing(target: LiveTarget): Browsing {
     host: liveJourneyHost(target, devices, cleanups),
     evidence: async (id, cause) => {
       failureFlag.failed = true;
-      for (const [name, current] of [
-        ['host', devices.host],
-        ['peer', devices.guest],
-      ] as const) {
-        const layout = await current?.view
-          .evaluate(BROWSER_FAILURE_LAYOUT)
-          .catch(() => null);
-        if (layout !== null && layout !== undefined)
-          console.error(
-            `browser failure geometry (${name}): ${String(layout)}`
-          );
-        const html = await current?.driver.snapshotHtml().catch(() => null);
-        if (typeof html === 'string')
-          console.error(
-            `browser failure state (${name}): ${browserFailureSummary(html)}`
-          );
-        if (current !== null) {
-          const transport = [...current.network];
-          const responses = await readSyncResponseEvidence(
-            current.view,
-            transport
-          );
-          console.error(
-            `browser failure transport (${name}): ${[...transport, ...responses].join('\n')}`
-          );
-          console.error(
-            `browser failure console (${name}): ${current.console.slice(-40).join('\n')}`
-          );
-        }
-      }
+      await printBrowserState(devices);
       const device = devices.shown ?? devices.host;
       return device === null
         ? Promise.resolve(null)
