@@ -94,11 +94,11 @@ A foundational package such as `@pkgs/property-shared` misses almost the whole c
 
 ## Measured load
 
-The sizing corpus was refreshed from the structured per-task results of [Verify run 39467547837](https://github.com/crvouga/gamezilla/actions/runs/39467547837), whose branch head was `a0561b4fc`. All 41 shared-game parts passed. Using those timings and the existing family estimates, the sizing model totaled 16,877 task-seconds, including 10,467 spec-seconds; a shared-game part took 360 s and the product code-test task took 201 s. These measurements require both a wider proposed pool and smaller indivisible tasks. The shared game suite now has 78 parts, the fewest allowed by the tighter 30-unit part cap and product code tests have three disjoint Bun shards, with the same scenarios, traces and source files.
+The final corpus overlays the passing structured results from [Verify run 39476195748](https://github.com/crvouga/gamezilla/actions/runs/39476195748) and then [Verify run 39479183963](https://github.com/crvouga/gamezilla/actions/runs/39479183963), whose code head was `ec9e6e6c5`. Later measurements replace earlier measurements; cache hits retain history. The final run passed every code check, including all 78 shared-game parts and all sixteen matched-game proof phases. Its only failing check used the old committed capacity data, refreshed below.
 
-The next harvest, [Verify run 39473315608](https://github.com/crvouga/gamezilla/actions/runs/39473315608) at `081cb462b`, passed all 80 shared-game parts, with the longest at 232 seconds. The product code-test shard took 132 seconds; the whole-system proof took 139 seconds and custom-game induction took 290 seconds. The current changes tighten the part cap, split the existing induction phases and remove duplicate symbolic-input preparation. Their fresh timings must be harvested before the sizing check can pass.
+The longest shared-game part took 213 seconds. Device agreement fell from 267 to 197 seconds with the same invariant and two-step exhaustive bound; the unchanged whole-system proof recorded 119 seconds after duplicate input preparation was removed. The 30-unit part cap retains the fewest-part rule and every scenario and replay; all visual inputs and declared proof phases remain gated.
 
-The five-minute, three-minute leaf and ninety-second percentile targets, the 16-worker cap, and each machine's 32 vCPU / 64 GB shape stay fixed. This is a sizing forecast; the hosted run remains the evidence of actual execution.
+The generated sizing model totals 17,071 task-seconds, including 9,493 spec-seconds, using the harvested timings, retained history and family estimates. The five-minute, three-minute leaf and ninety-second percentile targets, the 16-worker cap, and each machine's 32 vCPU / 64 GB shape stay fixed. This is a sizing forecast; the hosted run remains the evidence of actual execution. The proposed pool changes no deployed infrastructure.
 
 <!-- ci-load:start -->
 Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 556 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `verify:board-contract`, reserves 60 seconds until a cold Verification is harvested.
@@ -107,25 +107,25 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | --- | --- |
 | Packages | 328 |
 | Verify scripts | 1251 |
-| Measured scripts | 915 |
-| Estimated scripts | 336 |
+| Measured scripts | 944 |
+| Estimated scripts | 307 |
 | Stale cost keys | 556 |
-| Cold CPU | 16304 s |
-| Spec parts | 9511 s across 245 tasks |
-| Longest task | @libs/games-harness#test:spec:22 232 s |
+| Cold CPU | 17071 s |
+| Spec parts | 9493 s across 245 tasks |
+| Longest task | @libs/games-harness#test:spec:49 213 s |
 
 ### Families
 
 | Family | Tasks | CPU |
 | --- | --- | --- |
-| test:spec | 245 | 9511 s |
-| lint | 327 | 1205 s |
-| test:contract | 26 | 1123 s |
-| verify:models:9 | 16 | 960 s |
-| test | 232 | 888 s |
-| verify:models | 36 | 698 s |
+| test:spec | 245 | 9493 s |
+| verify:models:9 | 16 | 1914 s |
+| lint | 327 | 1211 s |
+| test:contract | 26 | 1019 s |
+| test | 232 | 893 s |
 | verify:models:2 | 11 | 660 s |
-| tc | 327 | 510 s |
+| verify:models | 36 | 618 s |
+| tc | 327 | 511 s |
 
 ### Leaves
 
@@ -134,17 +134,17 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Leaf CPU, median | 4 s |
-| Leaf CPU, 90th percentile | 93 s |
+| Leaf CPU, 90th percentile | 92 s |
 | Longest leaf task, 90th percentile | 33 s |
-| Longest leaf task | 139 s |
+| Longest leaf task | 132 s |
 
 | Package | CPU | Longest task |
 | --- | --- | --- |
-| @apps/product | 1140 s | @apps/product#test:contract:8 139 s |
-| @pkgs/chess-board-root-harness | 193 s | @pkgs/chess-board-root-harness#test:contract 52 s |
+| @apps/product | 1049 s | @apps/product#test 132 s |
+| @pkgs/chess-board-root-harness | 192 s | @pkgs/chess-board-root-harness#test:contract 52 s |
 | @apps/synthetic-population-worker | 110 s | @apps/synthetic-population-worker#test 79 s |
-| @pkgs/matchmaking-root-harness | 108 s | @pkgs/matchmaking-root-harness#test:spec:4 33 s |
-| @libs/synthetic-population-harness | 100 s | @libs/synthetic-population-harness#test:spec:0 59 s |
+| @pkgs/matchmaking-root-harness | 106 s | @pkgs/matchmaking-root-harness#test:spec:4 33 s |
+| @libs/synthetic-population-harness | 103 s | @libs/synthetic-population-harness#test:spec:0 60 s |
 
 ### Widest dependency cones
 
@@ -152,9 +152,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 264 | 16101 s | @libs/games-harness#test:spec:22 232 s |
-| @pkgs/clock-shared | 230 | 15983 s | @libs/games-harness#test:spec:22 232 s |
-| @pkgs/assert-root-shared | 225 | 15935 s | @libs/games-harness#test:spec:22 232 s |
+| @pkgs/property-shared | 264 | 16868 s | @libs/games-harness#test:spec:49 213 s |
+| @pkgs/clock-shared | 230 | 16750 s | @libs/games-harness#test:spec:49 213 s |
+| @pkgs/assert-root-shared | 225 | 16702 s | @libs/games-harness#test:spec:49 213 s |
 
 ### Runner
 
@@ -164,10 +164,10 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 | --- | --- |
 | Runners per verification | 3 |
 | Spec slots per runner | 14 |
-| Other slots per runner | 10 |
-| Cores required per runner | 26 |
+| Other slots per runner | 11 |
+| Cores required per runner | 27 |
 | Memory required per runner | 36 GiB |
-| Estimated makespan | 232 s |
+| Estimated makespan | 230 s |
 | Provision | 6 × 32 vCPU, 64 GB, Linux x64 |
-| Fits | no |
+| Fits | yes |
 <!-- ci-load:end -->
