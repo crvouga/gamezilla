@@ -124,6 +124,12 @@ libs/infra-shared/tofu/stacks/*/*_override.tf
 # Repository-local feedback reports
 /.feedback/
 
+# `/overnight` run records (baseline, findings, evidence, report)
+/.overnight/
+
+# Worktrees made by worktree-isolated subagents
+/.claude/worktrees/
+
 # Existing reports retained after the feedback rename.
 .bugs/
 
