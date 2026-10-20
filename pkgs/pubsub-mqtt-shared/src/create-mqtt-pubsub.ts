@@ -254,9 +254,14 @@ class MqttPubSub implements PubSub {
         )
           return;
         if (error || !grants?.every((grant) => grant.qos < 128)) {
-          this.logger.warn('subscription rejected; refreshing authorization', {
-            topic,
-          });
+          // The refusal ends the session, so the rest of its batch fails with
+          // it: say so once per attempt, not once per topic.
+          if (this.reconnectTimer === null) {
+            this.logger.warn(
+              'subscription rejected; refreshing authorization',
+              { topic, pending: this.pendingSubscriptions.size }
+            );
+          }
           this.scheduleReconnect();
           return;
         }

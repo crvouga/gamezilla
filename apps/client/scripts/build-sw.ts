@@ -7,6 +7,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createLogger } from '@pkgs/logger-shared/logger';
+import { SQLITE_WORKER_URL_PARAMS } from '@pkgs/sql-client-sqlite-web-server/worker-url-params';
 
 const require = createRequire(import.meta.url);
 
@@ -59,6 +60,8 @@ const { count, size, warnings } = await generateSW({
   maximumFileSizeToCacheInBytes: 16 * 1024 * 1024,
   globPatterns: ['**/*.{html,js,css,wasm,ttf,woff2,svg,ico,webmanifest,json}'],
   globIgnores: ['**/apple-splash-*.png', '**/generated/**', '**/*.map'],
+  // Workbox's defaults, plus the switches the SQLite worker is spawned with.
+  ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, SQLITE_WORKER_URL_PARAMS],
   navigateFallback: '/index.html',
   // Keep SharedWorker + OPFS wipe assets as real static files (not the SPA shell).
   navigateFallbackDenylist: [/^\/api\//, /^\/sql-workers\//],

@@ -2,10 +2,7 @@ import { context } from '@opentelemetry/api';
 import { logs, SeverityNumber } from '@opentelemetry/api-logs';
 import { ATTR } from './attributes';
 import type { DiagnosticLog } from './diagnostic-log';
-import {
-  diagnosticAttributes,
-  recordDiagnosticFailure,
-} from './diagnostic-log';
+import { diagnosticAttributes, recordDiagnosticSpan } from './diagnostic-log';
 import { addEvent, EVENT } from './events';
 import { allowlistedAttributes } from './redaction';
 import { activeSpan } from './span';
@@ -73,7 +70,7 @@ export function recordStructuredError(
 
 /** Records a log on the active span. Startup/no-context calls are no-ops. */
 export function recordLogEvent(event: CorrelatedLogEvent): void {
-  recordDiagnosticFailure(event);
+  recordDiagnosticSpan(event);
   const span = activeSpan();
   if (span === undefined) return;
   const attributes = diagnosticAttributes(event);

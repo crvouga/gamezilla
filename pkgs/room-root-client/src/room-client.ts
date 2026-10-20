@@ -46,7 +46,6 @@ import {
   applyWelcome,
 } from './room-client-wire';
 import { OptimisticEffectSession } from './room-optimistic-effects';
-import { wipeLocalRoomCache } from './wipe-local-cache';
 
 export type RoomClientConfig<
   S extends RoomState,
@@ -125,7 +124,8 @@ export class RoomClient<
       await r.hydrateLocal();
     } catch {
       try {
-        await wipeLocalRoomCache(config.storage);
+        // Committed history can be fetched again; unsent choices cannot.
+        await config.storage.resetCommitted();
         await r.hydrateLocal();
       } catch {
         r.resetToEmptyLocalState();

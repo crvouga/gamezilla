@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { EventEmitter } from 'node:events';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import { createNoopLogger } from '@pkgs/logger-shared/logger';
+import { createNoopLogger, type Logger } from '@pkgs/logger-shared/logger';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import { createMqttPubSub } from '@pkgs/pubsub-mqtt-shared/create-mqtt-pubsub';
 import fc from 'fast-check';
@@ -43,7 +43,8 @@ async function settle() {
 function connection(
   refusals = 1,
   refusalCode = 135,
-  random: () => number = () => 0
+  random: () => number = () => 0,
+  logger: Logger = createNoopLogger()
 ) {
   const clock = createHarnessClock();
   const brokers: Broker[] = [];
@@ -53,7 +54,7 @@ function connection(
     clientIdPrefix: 'device',
     timers: clock.timers,
     random,
-    logger: createNoopLogger(),
+    logger,
     auth: async () => ({ username: 'jwt', password: `grant-${++authCalls}` }),
     connectFn: () => {
       const broker = new Broker();
@@ -153,6 +154,30 @@ test('a topic no token grants backs reconnects off instead of retrying at the sh
     c.clock.clock.advance(500);
     await settle();
     expect(c.authCalls()).toBe(3);
+  } finally {
+    c.pubsub.close();
+  }
+});
+
+// regression: mqtt-refusal-warned-once-per-topic
+test('a refused batch of topics warns once per attempt, not once per topic', async () => {
+  const warnings: string[] = [];
+  const logger: Logger = {
+    ...createNoopLogger(),
+    warn: (message) => {
+      warnings.push(message);
+    },
+  };
+  const c = connection(Number.MAX_SAFE_INTEGER, 135, () => 0, logger);
+  try {
+    await settle();
+    for (let room = 0; room < 33; room++) {
+      c.pubsub.subscribe(`room:space-${room}`, () => {});
+    }
+    await settle();
+    expect(warnings).toEqual([
+      'subscription rejected; refreshing authorization',
+    ]);
   } finally {
     c.pubsub.close();
   }

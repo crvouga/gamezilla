@@ -10,6 +10,7 @@ import { wallClock } from '@pkgs/clock-shared/wall';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
+import { SQLITE_WORKER_URL_PARAMS } from '@pkgs/sql-client-sqlite-web-server/worker-url-params';
 
 import { readDistGraph } from './dist-graph';
 import {
@@ -92,6 +93,12 @@ export async function buildServiceWorker(distDir: string): Promise<void> {
         ),
         warnings: [],
       }),
+    ],
+    // Workbox's defaults, plus the switches the SQLite worker is spawned with.
+    ignoreURLParametersMatching: [
+      /^utm_/,
+      /^fbclid$/,
+      SQLITE_WORKER_URL_PARAMS,
     ],
     navigateFallback: '/index.html',
     // Keep SharedWorker + OPFS wipe assets as real static files (not the SPA shell).

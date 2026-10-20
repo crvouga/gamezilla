@@ -1,0 +1,4 @@
+{
+  "summary": "A refused subscription batch ended the session, and each of its topics then logged its own `subscription rejected` warning: 33 console warnings per reconnect attempt. It now warns once per attempt.",
+  "regressionTest": "pkgs/pubsub-mqtt-harness/tests/mqtt-authorization-refresh.test.ts"
+}

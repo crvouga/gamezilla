@@ -25,6 +25,9 @@ export type TopicMapRowImageGuard = {
   ) => boolean;
 };
 
+/** Live rows of every subscription-driving table, by table name. */
+export type HeldRows = Readonly<Record<string, readonly QueryRow[]>>;
+
 export type TopicMapEntry = {
   /**
    * Derive topics from a post-image row. Async + db requires a
@@ -40,10 +43,13 @@ export type TopicMapEntry = {
    * When defined, local writes to this table resync subscriptions and each
    * live row is projected. When omitted, the table never drives subscriptions
    * (entry channel only) — publish still uses `topics`.
+   * `held` lets a row defer to another held table, such as a membership row
+   * that must not subscribe to a room its parent row says has ended.
    */
   readonly subscribeTopics?: (
     row: QueryRow,
-    ctx: TopicMapCtx
+    ctx: TopicMapCtx,
+    held: HeldRows
   ) => readonly Topic[];
   /** Used when the table was touched but no row images/ids were captured. */
   readonly fallbackTopics?: (ctx: TopicMapCtx) => readonly Topic[];
@@ -122,10 +128,13 @@ export async function topicsFromWriteCapture(args: {
  */
 export function topicsFromHeldRows(args: {
   readonly topicMap: TopicMap;
-  readonly liveRowsByTable: Readonly<Record<string, readonly QueryRow[]>>;
+  readonly liveRowsByTable: HeldRows;
+  /** Every held subscription-driving table; defaults to `liveRowsByTable`. */
+  readonly held?: HeldRows;
   readonly entryTopics: readonly Topic[];
   readonly ctx: TopicMapCtx;
 }): Topic[] {
+  const held = args.held ?? args.liveRowsByTable;
   const seen = new Set<Topic>();
   const out: Topic[] = [];
   const add = (topics: readonly Topic[]) => {
@@ -140,7 +149,7 @@ export function topicsFromHeldRows(args: {
     const entry = args.topicMap[table];
     if (entry === undefined || entry.subscribeTopics === undefined) continue;
     for (const row of rows) {
-      add(entry.subscribeTopics(row, args.ctx));
+      add(entry.subscribeTopics(row, args.ctx, held));
     }
   }
   return out.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));

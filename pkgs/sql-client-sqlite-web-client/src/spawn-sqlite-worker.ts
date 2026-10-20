@@ -1,7 +1,9 @@
 // @io-wall-ok
-import type { SqliteWorkerHandle } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-sql-owner';
 
-export const DEFAULT_SQLITE_WORKER_URL = '/sql-workers/sqlite-worker.js';
+import type { SqliteWorkerHandle } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-sql-owner';
+import { SQLITE_WORKER_URL } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-url';
+
+export const DEFAULT_SQLITE_WORKER_URL = SQLITE_WORKER_URL;
 
 /** Assets are emitted by the `sqliteWebAssets` Vite plugin, not the app bundle. */
 export function spawnSqliteWorker(
