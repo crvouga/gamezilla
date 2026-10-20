@@ -591,3 +591,32 @@ reported; Tools tests and Chess shared lint were interrupted. Diagnostics
 were archived and a Turbo summary retained. This is still not a complete
 green gate or evidence for the subsequent ownership commits. Draft PR #216
 provides a CI checkpoint; it remains draft while the full mission is open.
+
+## CI preparation for fixed model inputs
+
+Verify PR run `39455128606` exposed an omitted caller of the parameterized
+simulator: `prepare-spec.ts` still drew a model without assigning its
+declared Boolean constants. `puzzle-attempt` and `puzzle-sound` refused the
+unbound `OPPONENT` input. The 41 dependent Games spec shards could not start
+because preparation supplied no artifact; those were not scenario verdicts.
+
+`quint-preparation-unbound-constants` pins both actual model paths through
+the CLI worker. Both cases failed with the same missing-input diagnostic,
+and a small Boolean fixture failed too; an ordinary model already passed.
+Preparation now enumerates the existing parser's complete Boolean cases,
+passing each assignment to `simulate` under its canonical case directory.
+Unparameterized draws retain their original directory and cache identity.
+No input is guessed and no required assignment check is relaxed.
+
+All five preparation checks pass, including the original unbound-model and
+worker-lifetime regression, which remains unchanged in its original file.
+The affected five package tasks pass in 34.118 seconds without cache hits:
+the actual Games preparation, harness type/lint checks, all 101 harness
+tests (598 assertions), and the bug-register gate. Actual preparation logs
+both assignments of both puzzle models. The full gate must run again.
+
+The preceding frozen local gate (`verify-run-tirSY1`, head `935291820`)
+reached its unchanged 600-second deadline after 1,043 successful tasks,
+including 868 cache hits. Friends spec parts 1 and 6 were interrupted;
+diagnostics and a Turbo summary were retained. This is not a green result
+and predates the preparation repair.
