@@ -36,6 +36,8 @@ bindQuintModel<PlayTrace>({
   verifySteps: 2,
   // regression: multiplayer-bounded-proof-timeout
   boundedInvariantGroupSize: 1,
+  // Both schedules prove every successor; check the invariant before advancing.
+  invariantMode: 'before',
   verifyTimeoutMs: 480_000,
   // The model counts seconds (searching, clocks, the first-move wait):
   // settling in 100 ms steps would let the product's time run past it.

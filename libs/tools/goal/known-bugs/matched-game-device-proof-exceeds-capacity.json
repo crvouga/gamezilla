@@ -1,0 +1,4 @@
+{
+  "summary": "The online-device agreement phase of the matched-game proof passed in 267 seconds on Verify run 39476195748, exceeding the 255-second work allowance. Use before-transition invariant scheduling while retaining every invariant, transition and the two-step bound.",
+  "regressionTest": "libs/games-harness/tests/probes/matched-game-proof-strategy.test.ts"
+}
