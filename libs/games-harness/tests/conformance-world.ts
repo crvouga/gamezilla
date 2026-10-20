@@ -19,11 +19,13 @@ import { HARNESS_GAMES } from '@libs/games-harness/harness-games';
 import type { OpenHarnessOptions } from '@libs/harness/mode';
 import type { OpenHarness } from '@libs/harness/open-harness';
 import { recordVariantRequirements } from '@pkgs/conformance-server/evidence-store';
+import { SOLO_COUNT_GAME } from './probes/solo-count-game';
 import { COUNTING_RACE_GAME } from './reference-game/counting-race-game';
 
 export const CONFORMANCE_GAMES: readonly HarnessGame[] = [
   ...HARNESS_GAMES,
   COUNTING_RACE_GAME,
+  SOLO_COUNT_GAME,
 ];
 
 /**

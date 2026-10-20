@@ -8,7 +8,7 @@
  * writer. An implementer never edits a spec, so a commit that touches one is a spec commit and nothing else: its
  * subject starts with `spec:` (or `spec(scope):`) or the Conventional Commit
  * equivalent `docs(specs):` (except the rulebook, which requires `spec:`), and it changes only specs
- * and docs (`docs/*.md` and generated `STEPS_CATALOG.md` files). A commit that mixes a spec change with
+ * and docs (root or package `docs/*.md` and historical generated catalogs). A commit that mixes a spec change with
  * code is refused — the roles cannot be told apart in it.
  *
  *   verify-spec-ownership.ts             commits in PR_BASE..PR_HEAD (CI) or
@@ -30,7 +30,11 @@ const SPEC_FILE = /\.feature$|^specs\//;
 const SPEC_SUBJECT = /^(?:spec(\([^)]*\))?|docs\(specs\))!?:/;
 /** What a spec commit may touch besides specs. */
 // Catalogs are now gitignored, but older commits still contain generated docs.
-const SPEC_SIDE_FILES = [/^docs\/.*\.md$/, /(?:^|\/)STEPS_CATALOG\.md$/];
+const SPEC_SIDE_FILES = [
+  /^docs\/.*\.md$/,
+  /^(?:apps|libs|pkgs)\/[^/]+\/docs\/.*\.md$/,
+  /(?:^|\/)STEPS_CATALOG\.md$/,
+];
 
 export function isSpecFile(path: string): boolean {
   return SPEC_FILE.test(path);

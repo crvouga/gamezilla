@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { assertGameNamespaceOwner } from '@libs/games-shared/game-namespace-owner';
 
 import type { GameDefinition } from '@libs/spaces-shared/game';
 import {
@@ -13,6 +14,23 @@ function dummyGame(id: string): GameDefinition {
 }
 
 describe('game plugin contract', () => {
+  test('composition reserves legacy namespaces for its one designated definition', () => {
+    const owner = {
+      id: 'legacy',
+      turnGame: { unprefixedNamespace: true as const },
+    };
+    const other = { id: 'other', turnGame: {} };
+    expect(() => assertGameNamespaceOwner([owner, other], owner)).not.toThrow();
+    expect(() =>
+      assertGameNamespaceOwner(
+        [owner, { ...other, turnGame: { unprefixedNamespace: true } }],
+        owner
+      )
+    ).toThrow('"other" claims the unprefixed namespace owned by "legacy"');
+    expect(() => assertGameNamespaceOwner([{ ...owner }], owner)).toThrow(
+      'claims the unprefixed namespace'
+    );
+  });
   test('the space module composes an additional game without product changes', () => {
     const games = [dummyGame('first'), dummyGame('second')];
     const module = composeSpaceRoomModule(

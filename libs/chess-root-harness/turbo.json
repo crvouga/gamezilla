@@ -43,6 +43,24 @@
     },
     "test:spec:6": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:7": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:8": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:9": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:10": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:11": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:12": {
+      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }

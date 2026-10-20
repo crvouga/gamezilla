@@ -811,10 +811,6 @@ msgstr "checkmate"
 msgid "chess"
 msgstr "chess"
 
-#: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
-msgid "Chess"
-msgstr "Chess"
-
 #: libs/synthetic-population-client/src/synthetic-user-replay.tsx
 msgid "Choice reproduced"
 msgstr "Choice reproduced"
@@ -3053,8 +3049,8 @@ msgstr "Puzzle solved!"
 msgid "Puzzle solved."
 msgstr "Puzzle solved."
 
-#: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
 #: libs/game-menu-client/src/game-menu.tsx
+#: libs/game-menu-client/src/personal-puzzle-stats-clients.tsx
 #: libs/game-puzzle-client/src/personal-puzzle-stats-screen.tsx
 #: libs/game-puzzle-client/src/puzzle-stats-body.tsx
 msgid "Puzzle stats"
@@ -4898,7 +4894,7 @@ msgstr "Your puzzle rating went up by {delta}, to {after}."
 msgid "Your rating"
 msgstr "Your rating"
 
-#: libs/chess-puzzle-client/src/personal-chess-stats-client.tsx
+#: libs/game-menu-client/src/personal-puzzle-stats-clients.tsx
 msgid "Your rating and game log, available offline"
 msgstr "Your rating and game log, available offline"
 

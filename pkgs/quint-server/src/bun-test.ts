@@ -23,13 +23,7 @@ import { describe, test } from 'bun:test';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import type { QuintBinding, TraceContext } from '@pkgs/quint-shared/registry';
-import {
-  DEFAULT_MAX_STEPS,
-  DEFAULT_TRACES,
-  quintBinding,
-  quintWorld,
-  traceVariants,
-} from '@pkgs/quint-shared/registry';
+import { quintBinding, quintWorld } from '@pkgs/quint-shared/registry';
 import {
   describeStep,
   replayTrace,
@@ -43,12 +37,16 @@ import { quintReplayBudget } from '@pkgs/quint-shared/wall';
 import { registerModelChecks } from './model-checks';
 import type { RecordObligation } from './model-evidence';
 import { decide, modelEvidence } from './model-evidence';
+import {
+  type DrawnInstance,
+  drawModelInstances,
+  instancesReplayPlan,
+} from './model-instances';
+import { modelParameterId } from './model-parameters';
 import { registerRegressionTraces } from './regression-tests';
-import { simulate } from './simulate';
+import type { SimulateResult } from './simulate';
 import type { ReplayPlan, TraceRun, TraceSlice } from './trace-runs';
 import {
-  ONCE,
-  replayPlanOf,
   runContext,
   runInSlice,
   runName,
@@ -92,7 +90,7 @@ export type RunModelOptions = {
 };
 
 type Binding = QuintBinding<unknown>;
-type Drawn = ReturnType<typeof simulate>;
+type Drawn = SimulateResult;
 
 function boundModel(model: string): Binding | Error {
   try {
@@ -135,15 +133,10 @@ export function runQuintModel(options: RunModelOptions): void {
       }
       return;
     }
-    let drawn: Drawn;
+    let instances: readonly DrawnInstance[];
     try {
       if (binding instanceof Error) throw binding;
-      drawn = simulate({
-        specPath: options.specPath,
-        traces: binding.traces ?? DEFAULT_TRACES,
-        maxSteps: binding.maxSteps ?? DEFAULT_MAX_STEPS,
-        outDir,
-      });
+      instances = drawModelInstances({ ...options, model, binding, outDir });
     } catch (cause) {
       test('draws traces from the model', () =>
         decide({
@@ -156,8 +149,42 @@ export function runQuintModel(options: RunModelOptions): void {
         }));
       return;
     }
-    registerReplays({ options, model, drawn, binding, record, outDir, slice });
+    registerInstances({ options, model, slice, record, binding, instances });
   });
+}
+
+function registerInstances(input: {
+  readonly options: RunModelOptions;
+  readonly model: string;
+  readonly slice: TraceSlice;
+  readonly record: RecordObligation;
+  readonly binding: Binding;
+  readonly instances: readonly DrawnInstance[];
+}): void {
+  const { options, model, slice, record, binding, instances } = input;
+  if (slice.index === 0 && options.replayPlan !== undefined)
+    registerPlanCheck(options, instancesReplayPlan(instances, binding));
+  for (const instance of instances) {
+    const id = modelParameterId(instance.parameters);
+    const register = () =>
+      registerReplays({
+        options,
+        model,
+        ...instance,
+        binding,
+        slice,
+        record: (obligation) =>
+          record({
+            ...obligation,
+            id:
+              id === '' || obligation.layer === 'implementation'
+                ? obligation.id
+                : `${obligation.id} (${id})`,
+          }),
+      });
+    if (id === '') register();
+    else describe(id, register);
+  }
 }
 
 /** The drawn traces' tests: what is replayed, for which runs, in this slice. */
@@ -170,6 +197,7 @@ function registerReplays(input: {
   readonly outDir: string;
   /** The file of the model's tests this run registers. */
   readonly slice: TraceSlice;
+  readonly runs: readonly TraceRun[];
 }): void {
   const { options, model, drawn, binding, record, slice } = input;
   const first = slice.index === 0;
@@ -179,16 +207,7 @@ function registerReplays(input: {
     options.replayTraces ?? quintReplayBudget()
   );
   writeSummary(input.outDir, options, drawn, replayed);
-  const runs = modelRuns(options, model);
-  if (runs.length === 0) {
-    if (first)
-      test('replays for a variant of the model', () => {
-        throw new Error(
-          `${options.specUri}: no variant the host registers offers what this model shows`
-        );
-      });
-    return;
-  }
+  const runs = input.runs;
   const cover = replayCover(drawn.traces, Object.keys(binding.actions));
   // Run `run` of test `test` (the traces, the pinned histories, then the
   // determinism check) is this slice's to register.
@@ -204,8 +223,6 @@ function registerReplays(input: {
     runs,
   };
   if (first) registerModelWide(registration);
-  if (first && options.replayPlan !== undefined)
-    registerPlanCheck(options, replayPlanOf(drawn, binding, runs));
   registerDeterminism({
     ...registration,
     // An unvaried model checks it with the draw as a whole, in slice 0.
@@ -226,15 +243,6 @@ function registerReplays(input: {
     record,
     runs,
   });
-}
-
-/** The model's runs: once, or once per variant its host defines. */
-function modelRuns(
-  options: RunModelOptions,
-  model: string
-): readonly TraceRun[] {
-  const variants = traceVariants({ model, specUri: options.specUri });
-  return variants === null ? ONCE : variants.map((variant) => ({ variant }));
 }
 
 type Registration = {
@@ -403,7 +411,7 @@ function traceContext(
 function writeSummary(
   outDir: string,
   options: RunModelOptions,
-  drawn: ReturnType<typeof simulate>,
+  drawn: SimulateResult,
   replayed: ReadonlySet<number>
 ): void {
   mkdirSync(outDir, { recursive: true });

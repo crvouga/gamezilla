@@ -1,6 +1,6 @@
 # CI requirements
 
-Capacity contract for self-hosted pull-request verifications. The measured section is generated from [`libs/tools/scripts/verify-task-costs.json`](../libs/tools/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools/scripts/ci-load.test.ts`](../libs/tools/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
+Capacity plan for proposed self-hosted pull-request verifications. The current workflow uses GitHub-hosted shards; this document sizes a warm pool and does not provision infrastructure. The measured section is generated from [`libs/tools/scripts/verify-task-costs.json`](../libs/tools/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools/scripts/ci-load.test.ts`](../libs/tools/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
 
 Refresh after a cold Verify harvest:
 
@@ -9,7 +9,7 @@ bun run libs/tools/scripts/verify-task-costs.ts --harvest <run id>
 bun run libs/tools/scripts/ci-load.ts --write
 ```
 
-Commit the cost file and this document together. The budgets live in [`libs/tools/scripts/ci-load.ts`](../libs/tools/scripts/ci-load.ts). A task that no longer fits is split, or the runner constants change in that same commit with the measurement that justifies them. The five-minute promise stays.
+Commit the cost file and this document together. The budgets live in [`libs/tools/scripts/ci-runner-capacity.ts`](../libs/tools/scripts/ci-runner-capacity.ts). A task that no longer fits is split, or the runner constants change in that same commit with the measurement that justifies them. The five-minute promise stays.
 
 ## Promises
 
@@ -21,7 +21,7 @@ Wall clock is from the push to a posted verdict, on a warm runner that is free w
 | Any graph leaf (nothing else depends on the changed packages) | under 3 minutes |
 | Nine out of ten leaves | under 90 seconds |
 
-The pool has two runners, so one in-flight verification does not spend the other's budget. A third concurrent verification waits, and that wait sits outside the promise. A newer push to the same pull request cancels the older run.
+The proposed pool has six runners: up to three cooperating machines per verification, with capacity reserved for two simultaneous verifications. A small corpus uses fewer machines; the fit calculation chooses the smallest width that meets every deadline. A third concurrent verification waits, and that wait sits outside the promise. A newer push to the same pull request cancels the older run.
 
 Release verification, deploy, health, and the nightly run have their own deadlines. They are not these promises. The nightly run is the `nightly` profile in [`libs/tools/scripts/verify-profile.ts`](../libs/tools/scripts/verify-profile.ts); it never gates a merge.
 
@@ -35,7 +35,7 @@ Health, deploy, and `@apps/product#verify:ui-quality` stay on the release path. 
 
 ## Hosted load this replaces
 
-`main` runs Verify PR only as the release gate inside Deploy. Pull-request branches that still declare `on: pull_request` run the sharded hosted workflow. That workflow is the load below. Verify run [38104005459](https://github.com/crvouga/gamezilla/actions/runs/38104005459) (2026-10-11, pull request 176) is a run that actually executed the shards. It failed, so a green shard that finishes its work is at least this long.
+The [repository briefing](../README.md#correctness-machinery) defines the current hosted workflows. Their task timings are the load this plan must accommodate. Verify run [38104005459](https://github.com/crvouga/gamezilla/actions/runs/38104005459) (2026-10-11, pull request 176) is a run that actually executed the shards. It failed, so a green shard that finishes its work is at least this long.
 
 The runner is GitHub-hosted `ubuntu-24.04`: 2 cores, about 7 GB, 32 shards, `VERIFY_CONCURRENCY=1`, `VERIFY_TEST_CONCURRENCY=1`, `GOMAXPROCS=1`, `RAYON_NUM_THREADS=1`.
 
@@ -49,11 +49,11 @@ The runner is GitHub-hosted `ubuntu-24.04`: 2 cores, about 7 GB, 32 shards, `VER
 
 Other runs that week sat in the hosted queue for 10 to 30 minutes before a job started. Several posted a green `verify` job while the plan and shard jobs were skipped. That green is an empty status, not a finished corpus.
 
-The structure sets a floor near five minutes before any uncached test runs: a plan job, a per-machine install on every shard, a barrier on the slowest shard, and an artifact fan-in. Adding shards does not remove that floor. The five-minute promise needs a warm checkout and one schedule on the machine below.
+The structure sets a floor near five minutes before any uncached test runs: a plan job, a per-machine install on every shard, a barrier on the slowest shard, and an artifact fan-in. Adding shards does not remove that floor. The five-minute promise needs warm checkouts and one schedule across the allocated machines below.
 
 ## Runner
 
-Two warm Linux x64 machines. Linux x64 matches the release runner's platform cache key (operating system, architecture, Bun, Chrome), so a remote cache hit is the same verdict. A macOS result stays a different key.
+Six proposed warm Linux x64 machines, grouped into two verification allocations of up to three machines each. Linux x64 matches the release runner's platform cache key (operating system, architecture, Bun, Chrome), so a remote cache hit is the same verdict. A macOS result stays a different key.
 
 Each machine:
 
@@ -62,17 +62,17 @@ Each machine:
 - Chrome kept installed. The plan fingerprints the renderer, and browser shards must match it.
 - The same workload identity the Verify workflow already uses for secrets.
 
-Per-task thread caps stay at one (`GOMAXPROCS`, `RAYON_NUM_THREADS`, lint threads). Sixteen spec workers on one machine, each taking every core, would oversubscribe it. Turbo's slot count is the "Other slots" plus "Spec slots" in the measured section. `VERIFY_TEST_CONCURRENCY` stays unset, so `specWorkerCeiling` can open up to 16 spec workers (2 GB each, 8 GB reserved, two cores left for the solver and the OS). `VERIFY_SOLVER_SLOTS` stays 1.
+Per-task thread caps stay at one (`GOMAXPROCS`, `RAYON_NUM_THREADS`, lint threads). Allocate the measured spec and other slots on each cooperating machine. Set `VERIFY_TEST_CONCURRENCY=1` so a task admitted into one slot cannot expand into another sixteen workers. Each machine admits at most sixteen spec workers at 2 GB each, reserves 8 GB, and leaves two cores for the solver and OS. `VERIFY_SOLVER_SLOTS` stays 1.
 
 The warm-start budget is 30 seconds. A `bun install` on every job is outside that budget.
 
 ## Schedule
 
-One process on the runner owns the verification. Prerequisites, package tasks, and fan-in consumers share the local disk cache. They do not upload artifacts to each other.
+One coordinator owns the verification and distributes duration-balanced work across its allocated warm machines. Prerequisites finish before dependent tasks; completed outputs use the existing exact-hash cache. Each worker keeps its checkout and local disk cache warm. The capacity model shares aggregate work across machines while retaining the full duration of every indivisible task and every leaf.
 
 Only cache misses are scheduled. A shard whose tasks are all cache hits is omitted.
 
-Packing stays duration-balanced. The bins are slots on this runner. The long pole is a single task: a task longer than the 240 second work budget misses the promise at any width, and the test fails. Split that task.
+Packing stays duration-balanced. The bins are slots on the allocated warm machines. An indivisible task keeps its entire measured duration at every pool width. Split a long task when it breaks the promise; increasing width cannot hide it.
 
 A newer push cancels the previous run for the same pull request.
 
@@ -80,9 +80,9 @@ A newer push cancels the previous run for the same pull request.
 
 A leaf has no workspace dependents, so a change there reruns that package's own verification scripts. The warm runner runs those scripts together. The wall clock is the longest of them plus the warm start, not their sum.
 
-The slow leaf is the product contract test, on the order of a minute and a half. That is why every leaf is promised in under three minutes, and why ninety seconds is the promise for nine out of ten leaves rather than for the product app.
+The measured section identifies the slowest leaf. Every indivisible leaf task must fit within 135 seconds, leaving the same 30-second warm start and 15-second verdict allowance inside the three-minute promise.
 
-A foundational package such as `@pkgs/property-shared` misses almost the whole corpus, because most packages depend on it. The slots in the measured section keep that cone inside five minutes. Dependents wait on `src`, so the cone's wall clock stays the longest task in it, and the other tasks fill the remaining slots.
+A foundational package such as `@pkgs/property-shared` misses almost the whole corpus, because most packages depend on it. The allocated machines and their per-machine slots must keep that cone inside five minutes. Dependents wait on `src`, so the cone's wall clock stays the longest task in it, and the other tasks fill the remaining slots.
 
 ## Outside this verification
 
@@ -94,32 +94,38 @@ A foundational package such as `@pkgs/property-shared` misses almost the whole c
 
 ## Measured load
 
+The final corpus overlays the passing structured results from [Verify run 39476195748](https://github.com/crvouga/gamezilla/actions/runs/39476195748) and then [Verify run 39479183963](https://github.com/crvouga/gamezilla/actions/runs/39479183963), whose code head was `ec9e6e6c5`. Later measurements replace earlier measurements; cache hits retain history. The final run passed every code check, including all 78 shared-game parts and all sixteen matched-game proof phases. Its only failing check used the old committed capacity data, refreshed below.
+
+The longest shared-game part took 213 seconds. Device agreement fell from 267 to 197 seconds with the same invariant and two-step exhaustive bound; the unchanged whole-system proof recorded 119 seconds after duplicate input preparation was removed. The 30-unit part cap retains the fewest-part rule and every scenario and replay; all visual inputs and declared proof phases remain gated.
+
+The generated sizing model totals 17,071 task-seconds, including 9,493 spec-seconds, using the harvested timings, retained history and family estimates. The five-minute, three-minute leaf and ninety-second percentile targets, the 16-worker cap, and each machine's 32 vCPU / 64 GB shape stay fixed. This is a sizing forecast; the hosted run remains the evidence of actual execution. The proposed pool changes no deployed infrastructure.
+
 <!-- ci-load:start -->
-Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 538 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `verify:board-contract`, reserves 60 seconds until a cold Verification is harvested.
+Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 556 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `verify:board-contract`, reserves 60 seconds until a cold Verification is harvested.
 
 | | |
 | --- | --- |
 | Packages | 328 |
-| Verify scripts | 1195 |
-| Measured scripts | 190 |
-| Estimated scripts | 1005 |
-| Stale cost keys | 538 |
-| Cold CPU | 7011 s |
-| Spec parts | 3411 s across 202 tasks |
-| Longest task | @apps/product#test:contract:render 60 s |
+| Verify scripts | 1251 |
+| Measured scripts | 944 |
+| Estimated scripts | 307 |
+| Stale cost keys | 556 |
+| Cold CPU | 17071 s |
+| Spec parts | 9493 s across 245 tasks |
+| Longest task | @libs/games-harness#test:spec:49 213 s |
 
 ### Families
 
 | Family | Tasks | CPU |
 | --- | --- | --- |
-| test:spec | 202 | 3411 s |
-| verify:models:9 | 16 | 960 s |
+| test:spec | 245 | 9493 s |
+| verify:models:9 | 16 | 1914 s |
+| lint | 327 | 1211 s |
+| test:contract | 26 | 1019 s |
+| test | 232 | 893 s |
 | verify:models:2 | 11 | 660 s |
-| verify:models | 37 | 599 s |
-| lint | 327 | 352 s |
-| tc | 327 | 341 s |
-| test | 232 | 279 s |
-| verify:board-contract | 4 | 240 s |
+| verify:models | 36 | 618 s |
+| tc | 327 | 511 s |
 
 ### Leaves
 
@@ -127,18 +133,18 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 | | |
 | --- | --- |
-| Leaf CPU, median | 3 s |
-| Leaf CPU, 90th percentile | 35 s |
-| Longest leaf task, 90th percentile | 17 s |
-| Longest leaf task | 60 s |
+| Leaf CPU, median | 4 s |
+| Leaf CPU, 90th percentile | 92 s |
+| Longest leaf task, 90th percentile | 33 s |
+| Longest leaf task | 132 s |
 
 | Package | CPU | Longest task |
 | --- | --- | --- |
-| @pkgs/matchmaking-root-harness | 161 s | @pkgs/matchmaking-root-harness#test:spec:1 17 s |
-| @apps/product | 156 s | @apps/product#test:contract:render 60 s |
-| @pkgs/chess-board-root-harness | 156 s | @pkgs/chess-board-root-harness#test:spec:0 17 s |
-| @libs/tools | 88 s | @libs/tools#ci:statecharts 60 s |
-| @pkgs/auth-root-harness | 45 s | @pkgs/auth-root-harness#verify:models 21 s |
+| @apps/product | 1049 s | @apps/product#test 132 s |
+| @pkgs/chess-board-root-harness | 192 s | @pkgs/chess-board-root-harness#test:contract 52 s |
+| @apps/synthetic-population-worker | 110 s | @apps/synthetic-population-worker#test 79 s |
+| @pkgs/matchmaking-root-harness | 106 s | @pkgs/matchmaking-root-harness#test:spec:4 33 s |
+| @libs/synthetic-population-harness | 103 s | @libs/synthetic-population-harness#test:spec:0 60 s |
 
 ### Widest dependency cones
 
@@ -146,21 +152,22 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 264 | 6851 s | @apps/product#test:contract:render 60 s |
-| @pkgs/clock-shared | 230 | 6752 s | @apps/product#test:contract:render 60 s |
-| @pkgs/assert-root-shared | 225 | 6734 s | @apps/product#test:contract:render 60 s |
+| @pkgs/property-shared | 264 | 16868 s | @libs/games-harness#test:spec:49 213 s |
+| @pkgs/clock-shared | 230 | 16750 s | @libs/games-harness#test:spec:49 213 s |
+| @pkgs/assert-root-shared | 225 | 16702 s | @libs/games-harness#test:spec:49 213 s |
 
 ### Runner
 
-Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers stay at or under 16.
+Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers stay at or under 16 per runner.
 
 | | |
 | --- | --- |
-| Spec slots | 15 |
-| Other slots | 15 |
-| Cores required | 32 |
-| Memory required | 38 GiB |
-| Estimated makespan | 240 s |
-| Provision | 2 × 32 vCPU, 64 GB, Linux x64 |
+| Runners per verification | 3 |
+| Spec slots per runner | 14 |
+| Other slots per runner | 11 |
+| Cores required per runner | 27 |
+| Memory required per runner | 36 GiB |
+| Estimated makespan | 230 s |
+| Provision | 6 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->

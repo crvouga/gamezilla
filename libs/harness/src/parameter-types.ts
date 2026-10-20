@@ -44,6 +44,17 @@ export const ACTOR_IDS = {
 export type ActorName = keyof typeof ACTOR_IDS;
 export type Actor = (typeof ACTOR_IDS)[ActorName];
 
+export const PUZZLE_POSITIONS = {
+  'the start': 'start',
+  'the start of the puzzle': 'start',
+  'the end of the line': 'end',
+  'the position before the last move': 'before-last',
+  'the first move of the line': 'first',
+} as const;
+export type PuzzleLinePoint =
+  | (typeof PUZZLE_POSITIONS)[keyof typeof PUZZLE_POSITIONS]
+  | 'continuation';
+
 export function actorId(name: string): Actor {
   const id = (ACTOR_IDS as Partial<Record<string, Actor>>)[name];
   if (id === undefined) {
@@ -75,6 +86,23 @@ export function puzzleFinish(text: string): PuzzleFinishName {
 }
 
 export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
+  {
+    name: 'puzzleAnimation',
+    regexp: /with animation|without animation/,
+    transformer: (text: string) => text === 'with animation',
+  },
+  {
+    name: 'puzzleProgress',
+    regexp: /before|after/,
+    transformer: (text: string) =>
+      text === 'before' ? 'start' : 'continuation',
+  },
+  {
+    name: 'puzzlePosition',
+    regexp: new RegExp(Object.keys(PUZZLE_POSITIONS).join('|')),
+    transformer: (text: string) =>
+      PUZZLE_POSITIONS[text as keyof typeof PUZZLE_POSITIONS],
+  },
   {
     name: 'usernameRefusal',
     regexp:

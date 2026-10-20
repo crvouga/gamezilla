@@ -35,8 +35,13 @@ import {
   createPostgresDbScope,
   quotePgIdent,
 } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import { createStatementCache } from '@pkgs/sql-client-root-shared/statement-cache';
 import type { Sql, Value } from '@pkgs/sql-root-shared/sql';
 import { mockingbirdSession } from './mockingbird-session';
+
+const mockingbirdStatement = createStatementCache(
+  (db: Database, text: string) => db.prepare(text)
+);
 
 type MockingbirdPostgresBind =
   | string
@@ -97,9 +102,8 @@ function execOnDb(
     /^\s*(select|with|show|values)\b/i.test(trimmed) ||
     /\breturning\b/i.test(trimmed);
   if (isSelect) {
-    const rows = db.query<Record<string, unknown>>(
-      text,
-      toBinds(vals as Value[])
+    const rows = mockingbirdStatement(db, text).all<Record<string, unknown>>(
+      ...toBinds(vals as Value[])
     );
     return { rows: normalizePgInt8Rows(rows), rowCount: rows.length };
   }
@@ -108,7 +112,9 @@ function execOnDb(
     db.exec(text);
     return { rows: [], rowCount: db.changes };
   }
-  const result = db.prepare(text).run(...toBinds(vals as Value[]));
+  const result = mockingbirdStatement(db, text).run(
+    ...toBinds(vals as Value[])
+  );
   return { rows: [], rowCount: result.rowCount };
 }
 

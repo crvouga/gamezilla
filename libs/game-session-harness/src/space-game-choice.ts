@@ -11,8 +11,8 @@ import { bringToFront, visible } from '@libs/harness/observations';
 import { SPACE_WAIT_MS, waitForOneOf } from '@libs/spaces-harness/space-ui';
 import { Handles } from '@libs/test-ids-shared/handles';
 
-/** The handle the game's choices are known by: their custom games choice. */
-const GAME_CHOICES = Handles.gameChoice('custom-game');
+/** The menu itself identifies the selected game, independent of its choices. */
+const GAME_CHOICES = Handles.gameChoices;
 
 /** What a device in a space shows: the space view. */
 export type SpaceView = 'choice' | 'game' | 'host offline' | 'elsewhere';

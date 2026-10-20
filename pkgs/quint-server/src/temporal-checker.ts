@@ -3,8 +3,9 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { wallStopwatch } from '@pkgs/quint-shared/wall';
 import { APALACHE_VERSION, freePort } from './apalache';
+import { quintModuleName } from './model-source';
 import { runQuint } from './run-quint';
-import { QUINT_CLI, quintModuleName } from './simulate';
+import { QUINT_CLI } from './simulate';
 import type { TemporalOptions } from './temporal';
 import { temporalStep } from './temporal-step';
 

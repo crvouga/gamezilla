@@ -52,6 +52,19 @@ const game = (capabilities: TurnGameCapabilities, id = 'race'): TurnGame => ({
 const unchecked = (capabilities: object) =>
   capabilities as TurnGameCapabilities;
 
+// regression: game-registration-implicit-legacy-id
+test('legacy namespace authority is explicit and independent of a concrete game id', () => {
+  const capabilities = { matchmaking: { clockNamespace: '', notice }, history };
+  expect(() =>
+    defineTurnGame(game(capabilities, GAME_PLATFORM_NAMESPACE))
+  ).toThrow('unprefixed clock namespace');
+  const granted = {
+    ...game(capabilities, 'independent-legacy'),
+    unprefixedNamespace: true as const,
+  };
+  expect(() => defineTurnGame(granted)).not.toThrow();
+});
+
 test('a capability declared without what it needs is refused at type checking', () => {
   const capabilities: TurnGameCapabilities = {
     // @ts-expect-error: custom games need their bots.
@@ -115,12 +128,13 @@ test('only the platform’s durable game keeps the unprefixed clock namespace', 
   ).toThrow(
     `race: the unprefixed clock namespace "" belongs to the platform's durable game alone — use "race/"`
   );
-  const durable = defineTurnGame(
-    game(
+  const durable = defineTurnGame({
+    ...game(
       { matchmaking: { clockNamespace: '', notice }, history },
       GAME_PLATFORM_NAMESPACE
-    )
-  );
+    ),
+    unprefixedNamespace: true,
+  });
   expect(durable.turnGame.unprefixedNamespace).toBe(true);
   expect(
     defineTurnGame(
@@ -182,7 +196,7 @@ test('puzzles declared without what they need are refused at type checking and w
   expect(() =>
     defineTurnGame(game(unchecked({ puzzles: withoutMarks })))
   ).toThrow(
-    'race: offering puzzles needs capabilities.puzzles.marks — the platform judges and shows a puzzle only through it'
+    'race: offering puzzles needs capabilities.puzzles.marks — supply its implementation'
   );
   expect(() =>
     defineTurnGame(game(unchecked({ puzzles: { ...puzzles, content: {} } })))
@@ -209,8 +223,48 @@ test('puzzles need no other capability, and only the platform’s durable game k
     defineTurnGame(game({ puzzles: { ...puzzles, namespace: 'other/' } }))
   ).toThrow('race: puzzle namespace "other/" is not "race/"');
   expect(
-    defineTurnGame(
-      game({ puzzles: { ...puzzles, namespace: '' } }, GAME_PLATFORM_NAMESPACE)
-    ).turnGame.unprefixedNamespace
+    defineTurnGame({
+      ...game(
+        { puzzles: { ...puzzles, namespace: '' } },
+        GAME_PLATFORM_NAMESPACE
+      ),
+      unprefixedNamespace: true,
+    }).turnGame.unprefixedNamespace
   ).toBe(true);
+});
+
+// regression: game-capability-missing-implementation
+test.each([
+  [{ history: {} }, 'history.record'],
+  [{ history: { record: 'placeholder' } }, 'history.record'],
+  [{ 'custom-games': {} }, 'custom-games.bots.choose'],
+  [
+    { 'custom-games': { bots: { difficulties: [] } } },
+    'custom-games.bots.choose',
+  ],
+  [
+    { matchmaking: { clockNamespace: 'race/' }, history },
+    'matchmaking.notice.timeoutDraw',
+  ],
+  [
+    { matchmaking: { clockNamespace: 'race/', notice: {} }, history },
+    'matchmaking.notice.timeoutDraw',
+  ],
+] as const)(
+  'an incomplete capability %j fails when defined, naming %s',
+  (capabilities, missing) => {
+    expect(() => defineTurnGame(game(unchecked(capabilities)))).toThrow(
+      `race: offering ${missing.split('.')[0]} needs capabilities.${missing}`
+    );
+  }
+);
+
+test.each([
+  { choose: () => null },
+  { choose: () => null, difficulties: 'easy' },
+  { choose: () => null, difficulties: ['unavailable'] },
+])('invalid bot choices %j fail at registration', (bots) => {
+  expect(() =>
+    defineTurnGame(game(unchecked({ 'custom-games': { bots } })))
+  ).toThrow('race: capabilities.custom-games.bots.difficulties');
 });

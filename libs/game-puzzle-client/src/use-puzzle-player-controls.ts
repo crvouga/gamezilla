@@ -2,7 +2,9 @@ import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
 import { hintStageFromRoom } from '@libs/game-puzzle-shared/hint-stage';
 import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared/play-attr';
 import { puzzleNavFromState } from '@libs/game-puzzle-shared/puzzle-nav';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import { type Accessor, createMemo } from 'solid-js';
+import { usePuzzleGame } from './puzzle-game-context';
 import { usePuzzlePlayerEffects } from './use-puzzle-player-effects';
 import { usePuzzlePlayerHandlers } from './use-puzzle-player-handlers';
 
@@ -35,6 +37,7 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
   onNext: () => void;
   backToRoot: () => void;
 } {
+  const firstSolveIdx = puzzleLineLayout(usePuzzleGame().game.puzzles).start;
   usePuzzlePlayerEffects({
     puzzleId: args.puzzleId,
     solveIdx: args.solveIdx,
@@ -53,6 +56,7 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
       solveIdx: args.solveIdx(),
       furthestSolveIdx: args.furthestSolveIdx(),
       moves: args.moves(),
+      firstSolveIdx,
     })
   );
   const handlers = usePuzzlePlayerHandlers({

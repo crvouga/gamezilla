@@ -17,6 +17,7 @@ import { chessAutomation } from './chess-automation';
  */
 export const chessGameShared = defineTurnGame({
   rules: chessRules,
+  unprefixedNamespace: true,
   capabilities: {
     'custom-games': { bots: chessBots },
     matchmaking: { clockNamespace: '', notice: chessNoticeText },

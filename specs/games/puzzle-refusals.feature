@@ -73,10 +73,10 @@ Feature: Refused puzzle choices keep the position and result
       And Alice is reviewing an earlier position in the puzzle
       When Alice tries a move from that earlier position
       Then Alice's choice is refused because they are reviewing an earlier position
-      And Alice's board is at move 2 of the line within 20 seconds
+      And Alice is reviewing the position one move before the current position
 
     @regression:puzzle-history-command-accepted
-    Scenario: An earlier position cannot offer a hint for the opponent's move
+    Scenario: An earlier position cannot offer a hint for the current move
       Given Alice has played the next move of the solution
       And Alice is reviewing an earlier position in the puzzle
       When Alice tries a hint from that earlier position
@@ -148,7 +148,7 @@ Feature: Refused puzzle choices keep the position and result
       Given Alice has played the next move of the solution
       And Alice has played a wrong move and retried
       When Alice steps back one move in the puzzle
-      Then Alice's board is at move 2 of the line within 20 seconds
+      Then Alice is reviewing the position one move before the current position
 
     Scenario: A wrong move cannot start reviewing before a retry
       Given Alice has played the next move of the solution

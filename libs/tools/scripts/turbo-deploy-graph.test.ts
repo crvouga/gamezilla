@@ -9,7 +9,7 @@ import {
   specPackages,
   specPartProblems,
 } from './spec-packages';
-import { flattenVerifyAggregators } from './turbo-ci-run';
+import { flattenVerifyAggregators, MAIN_VERIFY_TASKS } from './turbo-ci-run';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -75,8 +75,9 @@ test('slow spec suites split into independently cached parts that all gate Verif
   // suite, and their parts with them. Both suites plan their models'
   // replays (tests/quint/replays.json) and run in the fewest parts whose
   // replays and load stay inside the caps of libs/harness/scripts/spec-parts.ts.
-  expectSpecParts('libs/chess-root-harness', 7, ['chess']);
-  expectSpecParts('libs/games-harness', 41, ['games']);
+  expectSpecParts('libs/chess-root-harness', 13, ['chess']);
+  // regression: games-spec-parts-exceed-capacity-pole
+  expectSpecParts('libs/games-harness', 78, ['games']);
 });
 
 // regression: ci-chess-board-omits-inherited-spec-inputs
@@ -158,6 +159,8 @@ const VERIFY_LEAVES = [
   ...SPEC_PART_TASKS,
   'verify:models',
   ...MODEL_PART_TASKS,
+  'test:unit:1',
+  'test:unit:2',
   '@apps/product#verify:offline-shell',
   '@apps/product#test:release-journeys',
   '@apps/auth-relay#verify:worker-bundle',
@@ -303,16 +306,23 @@ describe('turbo verify/deploy graph invariants', () => {
   });
 
   // regression: verify-duration-metadata-cache-input
-  test('changing verify-task-costs.json belongs to planning and JSON lint, not code verdicts', () => {
+  // regression: ci-capacity-cache-ignores-inputs
+  test('duration metadata invalidates capacity checks without invalidating product code', () => {
     const tools = JSON.parse(
       readFileSync(join(REPO_ROOT, 'libs/tools/turbo.json'), 'utf8')
     ) as { tasks: Record<string, { inputs: string[] }> };
-    for (const task of ['src', 'tc', 'test'])
+    for (const task of ['src', 'tc'])
       expect(tools.tasks[task]!.inputs).toContain(
         '!scripts/verify-task-costs.json'
       );
     expect(tools.tasks['lint']!.inputs).not.toContain(
       '!scripts/verify-task-costs.json'
+    );
+    expect(tools.tasks['test']!.inputs).not.toContain(
+      '!scripts/verify-task-costs.json'
+    );
+    expect(tools.tasks['test']!.inputs).toContain(
+      '$TURBO_ROOT$/docs/CI_REQUIREMENTS.md'
     );
   });
 
@@ -534,4 +544,20 @@ describe('turbo verify/deploy graph invariants', () => {
       'build',
     ]);
   });
+});
+
+// regression: product-code-task-exceeds-leaf-target
+test('all three product code-test shards keep the same complete scope in the gate', () => {
+  const scripts = JSON.parse(
+    readFileSync(join(REPO_ROOT, 'apps/product/package.json'), 'utf8')
+  ) as { scripts: Record<string, string> };
+  const first = scripts.scripts['test']!;
+  expect(first).toContain('--shard=1/3');
+  for (const part of [1, 2]) {
+    const task = `test:unit:${part}`;
+    const body = scripts.scripts[task]!;
+    expect(body).toContain(`--shard=${part + 1}/3`);
+    expect(body.replace(`--shard=${part + 1}/3`, '--shard=1/3')).toBe(first);
+    expect(MAIN_VERIFY_TASKS).toContain(task);
+  }
 });

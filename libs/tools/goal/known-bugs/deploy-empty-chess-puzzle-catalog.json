@@ -1,4 +1,4 @@
 {
   "summary": "An empty environment could leave solvers without a puzzle catalog. An authorized manager can load a staged Lichess CSV into the environment through durable batches that validate complete solutions, upsert existing puzzle IDs, skip duplicate positions, and retain committed progress after a stop or source failure.",
-  "regressionTest": "libs/chess-root-server/tests/puzzle-load-job.test.ts"
+  "regressionTest": "libs/chess-root-harness/tests/puzzle-load-job.contract.test.ts"
 }

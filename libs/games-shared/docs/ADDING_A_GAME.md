@@ -26,7 +26,9 @@ For a game with id `race` (a lowercase slug; it is the game's wire id):
 
 Every package declares `"game": "race"` in its `package.json`; it may
 depend on the framework and its own packages, never on another game or a
-registry.
+registry. This also applies to reusable game-specific engines or boards
+under `pkgs/`: generic framework code cannot depend on a concrete game's
+engine through an unclassified helper package.
 
 ### What a game may import
 
@@ -41,7 +43,7 @@ in source, tests and steps alike (the full map and the reasons are in
 | `@libs/game-session-shared` | `turn-game-definition` |
 | `@libs/game-menu-client` | `game-client` |
 | `@libs/game-puzzle-shared` (a game offering puzzles) | `puzzle-catalogue`, `sub`, `puzzle-link`, `completion`, `hint-stage`, `solve-status` |
-| `@libs/game-puzzle-client` (a game offering puzzles) | `puzzle-client`, `personal-puzzle-stats-screen` |
+| `@libs/game-puzzle-client` (a game offering puzzles) | `puzzle-client` |
 | `@libs/spaces-shared` | `game` (only for a game with its own room behaviour) |
 | `@libs/game-session-harness` (its `-harness`) | `harness-game`, `known-puzzles`, `game-system`, `game-navigation`, `space-game-choice`, `custom-game-ui`, `custom-game-controls`, `custom-game-lineup`, `custom-game-moves`, `custom-game-screen`, `custom-game-reads`, `custom-game-history`, `puzzle-session-probe`, `puzzle-fixtures`, `puzzle-screen`, `puzzle-records`, `puzzle-moves`, `puzzle-room-probe`, `puzzle-link`, `puzzle-finishes`, `puzzle-result-recovery`, `puzzle-listening`, `puzzle-sounds` |
 | `@libs/game-matchmaking-harness` (its `-harness`) | `matched-game-world`, `matched-game-app.steps`, `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record`, `multiplayer-time`, `matched-game-fixtures` |
@@ -158,11 +160,10 @@ Puzzles are offered by a part on each side, and nothing else changes:
   orchestration and assertions and the faulty copies that prove them are
   the framework's.
 
-A game offering puzzles also wires its puzzle stats outside any space,
-as chess's `personal-chess-stats-client` does: a route rendering
-`PersonalPuzzleStatsScreen` and a Settings row marked
-`Handles.settingsPuzzleStats(<game id>)` (a watcher reads their own stats
-there whatever the host's connection).
+A puzzle game's personal stats are registered by the client composition,
+through `createPersonalPuzzleStatsClients`. Games supply no route or settings
+wrapper. The shared `/more/<game id>-stats` screen shows the person's own
+rating, log and reviews, regardless of the space host's connection.
 
 The platform then offers Puzzle and Puzzle stats among the game's
 choices, the feed and its settings, ratings and feed settings of the
@@ -204,7 +205,7 @@ export const RACE_PLAYABLE: PlayableGame = {
     refusedOpenings: ['back', ''],
     // Only for a game with positions where a side cannot win (chess's bare
     // king): a line to one, ending with the first side's move. Without it
-    // the rules laws check that both sides can always win.
+    // the head-to-head rules laws check that both sides can always win.
     // secondSideCannotWin: [...],
     // Only for a game its rules can draw (chess's repetition, Connect
     // Four's full board): a line the rules draw on its last move. Without
@@ -234,6 +235,13 @@ export const RACE_HARNESS_GAME: HarnessGame = assertHarnessGame({
   // readRecord: readRaceRecord,
 });
 ```
+
+For puzzles without an opponent, declare `puzzles.lineMode: 'solver-only'`.
+Every recorded action belongs to the solver, starting at index zero in the
+supplied position. Include every action in the fixture's `solution` and omit
+`opponentMove`; the default opponent layout still requires that refused
+opponent input. The test-only `solo-count` consumer demonstrates checked
+fixtures, board gestures, marks and audio through the same shared suites.
 
 That is all. The game is now enrolled automatically:
 
@@ -270,8 +278,9 @@ A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
 | Mistake | Fails at |
 | --- | --- |
 | A capability without what it needs, an unknown capability, a placeholder (`history: undefined`) for one not offered, finding an opponent without history | type checking (`TurnGameCapabilities`), and `defineTurnGame` when the module loads |
+| Missing or non-function bot, notice, history or puzzle implementations; missing, malformed or unknown bot difficulties | `defineTurnGame`, naming the required capability member before installing its sessions |
 | A duplicate bot difficulty, an id that is not a slug | `defineTurnGame`, when the module loads |
-| A clock or puzzle namespace other than `'<id>/'` (only the `GAME_PLATFORM_NAMESPACE` game keeps `''`), a starting position another game recognizes, a duplicate id | `defineTurnGame` and `createTurnGames`, at registration |
+| A clock or puzzle namespace other than `'<id>/'`, a starting position another game recognizes, a duplicate id | `defineTurnGame` and `createTurnGames`, at registration; composition alone grants the legacy definition `unprefixedNamespace: true` and refuses another definition claiming it |
 | Puzzles without `content.validate`, `marks`, `isCell` or a namespace | type checking (`PuzzlesCapability`), and `defineTurnGame` when the module loads |
 | A game offering puzzles whose client has no `puzzles` part (with its `Board`), or a `puzzles` part for a game offering none | type checking (`GameClient`), `defineGameClient` when the module loads, `assertMatchingGameIds` and `assertHarnessGame`, each naming the fix |
 | A catalogue puzzle outside the game's namespace, in a position the game does not recognise, or refused by its `content.validate` | `admitCataloguePuzzle`, which no row skips |
@@ -279,6 +288,7 @@ A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
 | A screen key that is not a slug, is declared twice or belongs to the platform (`puzzle`, `stats`, `stats-review`, `custom-game`, `multiplayer`, `history`, `settings`, `choices`) | `defineGameClient` |
 | A client missing, extra or out of order | `assertMatchingGameIds`, naming the entry to fix |
 | A game missing from `HARNESS_GAMES` (or there but not registered) | the conformance plan (`game-conformance-matrix.test.ts`) |
+| A harness game omitted from execution; duplicate execution identities; a suite missing any eligible game's case or claiming another game's case | the conformance plan; another suite's pass cannot fill the missing case |
 | Fixtures the game's rules contradict (a known puzzle's line, labels, solver, wrong, refused or opponent's move included), ids that differ between the definitions, a game offering puzzles without known puzzles (or naming them without offering them), none of two solver moves, a known puzzle outside its namespace | type checking (`GameFixtures`), and `assertHarnessGame` |
 | A puzzle its validation refuses or another game's it accepts, a line its judge does not follow to the solve, a wrong move judged otherwise, a legal move judged illegal, marks that name no cell, a board its automation cannot play the solution on | `tests/conformance/puzzles` |
 | Rules that break a shared law (replay, isolation, legality, sides taking turns, automation, bots) | `tests/conformance/rules`, `…/custom-games` |
@@ -292,7 +302,9 @@ A game's own Gherkin parameter types join `libs/harness/src/parameter-types.ts`.
 
 ```sh
 bunx turbo run tc lint test --filter=@libs/race-shared --filter=@libs/race-client --filter=@libs/race-harness
-bunx turbo run test test:spec --filter=@libs/games-harness   # every shared suite, now also for race
+bunx turbo run test test:contract test:contract:0 test:contract:1 \
+  test:contract:2 test:contract:3 test:contract:4 test:spec \
+  --filter=@libs/games-harness                              # shared suites and isolation proof
 bunx turbo run test:spec --filter=@libs/race-harness         # the game's own rules
 bun verify
 ```

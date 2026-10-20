@@ -18,7 +18,8 @@
         "$TURBO_ROOT$/specs/room/**",
         "$TURBO_ROOT$/specs/spaces/**",
         "$TURBO_ROOT$/specs/sync-engine/**",
-        "$TURBO_ROOT$/specs/system/**"
+        "$TURBO_ROOT$/specs/system/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
       ]
     },
     "health:objectives": {
@@ -428,6 +429,12 @@
         "@libs/chess-root-harness#test:spec:4",
         "@libs/chess-root-harness#test:spec:5",
         "@libs/chess-root-harness#test:spec:6",
+        "@libs/chess-root-harness#test:spec:7",
+        "@libs/chess-root-harness#test:spec:8",
+        "@libs/chess-root-harness#test:spec:9",
+        "@libs/chess-root-harness#test:spec:10",
+        "@libs/chess-root-harness#test:spec:11",
+        "@libs/chess-root-harness#test:spec:12",
         "@libs/connect-four-harness#test:spec:0",
         "@libs/connect-four-harness#test:spec:1",
         "@libs/connect-four-harness#test:spec:2",
@@ -536,6 +543,43 @@
         "@libs/games-harness#test:spec:38",
         "@libs/games-harness#test:spec:39",
         "@libs/games-harness#test:spec:40",
+        "@libs/games-harness#test:spec:41",
+        "@libs/games-harness#test:spec:42",
+        "@libs/games-harness#test:spec:43",
+        "@libs/games-harness#test:spec:44",
+        "@libs/games-harness#test:spec:45",
+        "@libs/games-harness#test:spec:46",
+        "@libs/games-harness#test:spec:47",
+        "@libs/games-harness#test:spec:48",
+        "@libs/games-harness#test:spec:49",
+        "@libs/games-harness#test:spec:50",
+        "@libs/games-harness#test:spec:51",
+        "@libs/games-harness#test:spec:52",
+        "@libs/games-harness#test:spec:53",
+        "@libs/games-harness#test:spec:54",
+        "@libs/games-harness#test:spec:55",
+        "@libs/games-harness#test:spec:56",
+        "@libs/games-harness#test:spec:57",
+        "@libs/games-harness#test:spec:58",
+        "@libs/games-harness#test:spec:59",
+        "@libs/games-harness#test:spec:60",
+        "@libs/games-harness#test:spec:61",
+        "@libs/games-harness#test:spec:62",
+        "@libs/games-harness#test:spec:63",
+        "@libs/games-harness#test:spec:64",
+        "@libs/games-harness#test:spec:65",
+        "@libs/games-harness#test:spec:66",
+        "@libs/games-harness#test:spec:67",
+        "@libs/games-harness#test:spec:68",
+        "@libs/games-harness#test:spec:69",
+        "@libs/games-harness#test:spec:70",
+        "@libs/games-harness#test:spec:71",
+        "@libs/games-harness#test:spec:72",
+        "@libs/games-harness#test:spec:73",
+        "@libs/games-harness#test:spec:74",
+        "@libs/games-harness#test:spec:75",
+        "@libs/games-harness#test:spec:76",
+        "@libs/games-harness#test:spec:77",
         "@libs/profile-harness#test:spec:0",
         "@libs/profile-harness#test:spec:1",
         "@libs/profile-harness#test:spec:2",
@@ -610,6 +654,40 @@
         ".cache/harness-report/ui-quality/**"
       ],
       "outputLogs": "errors-only"
+    },
+    "test:unit:1": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ]
+    },
+    "test:unit:2": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ]
     }
   }
 }

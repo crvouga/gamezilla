@@ -6,6 +6,7 @@
  */
 
 import { expect } from 'bun:test';
+import { knownPuzzleLinePoint } from '@libs/game-session-harness/puzzle-line-layout';
 import { solveKnownPuzzle } from '@libs/game-session-harness/puzzle-moves';
 import type { ReviewControl } from '@libs/game-session-harness/puzzle-records';
 import {
@@ -22,9 +23,10 @@ import {
   useReviewControl,
 } from '@libs/game-session-harness/puzzle-records';
 import { Given, Then, When } from '@libs/harness/define';
-import type { Actor } from '@libs/harness/parameter-types';
+import type { Actor, PuzzleLinePoint } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { gameOf } from './game-world';
 import {
   currentPuzzle,
   enterKnownPuzzle,
@@ -48,23 +50,27 @@ async function openReview(w: HarnessWorld, actor: Actor): Promise<void> {
   await w.s.apply(openPuzzleReviewFromLog, actor, currentPuzzle(w, actor));
 }
 
-/** The review shows move `move` of `of`, reached as said, and highlights it. */
+/** The review shows the authored point and highlights its move, when one exists. */
 async function expectReviewAt(
   w: HarnessWorld,
   actor: Actor,
-  at: { move: number; of: number; animated: boolean }
+  point: PuzzleLinePoint,
+  animated: boolean
 ): Promise<void> {
+  const at = knownPuzzleLinePoint(gameOf(w), puzzleOn(w, actor), point);
   const line = lineOf(w, puzzleOn(w, actor));
   expect(line).toHaveLength(at.of + 1);
   expect(await w.s.read(readPuzzleReview, actor)).toEqual({
     move: at.move,
     of: at.of,
-    animated: at.animated,
+    animated,
   });
   expect(await w.s.read(readPuzzleReviewPosition, actor)).toBe(
     line[at.move] ?? null
   );
-  expect(await w.s.read(readPuzzleReviewHighlight, actor)).toBe(at.move);
+  expect(await w.s.read(readPuzzleReviewHighlight, actor)).toBe(
+    at.move === 0 ? null : at.move
+  );
 }
 
 When(
@@ -75,30 +81,23 @@ When(
 );
 
 Given(
-  '{actor} is reviewing the solved puzzle at move {int}',
-  async (w, actor: Actor, move: number) => {
+  '{actor} is reviewing the solved puzzle at {puzzlePosition}',
+  async (w, actor: Actor, point: PuzzleLinePoint) => {
     // Onto the game's known puzzle first, unless already on a puzzle.
     if (!playsPuzzles(w, actor)) await enterKnownPuzzle(w, actor);
     await w.s.apply(focusActor, actor);
     await w.s.apply(solveKnownPuzzle, actor, puzzleGameId(w));
     await openReview(w, actor);
-    // The review opens on the last move; any other is chosen from the list.
-    if (move !== puzzleOn(w, actor).record.line.length)
-      await w.s.apply(chooseReviewMove, actor, move);
+    const at = knownPuzzleLinePoint(gameOf(w), puzzleOn(w, actor), point);
+    if (point === 'start') await w.s.apply(useReviewControl, actor, 'start');
+    else if (point !== 'end') await w.s.apply(chooseReviewMove, actor, at.move);
   }
 );
 
 Then(
-  "{actor}'s review is at move {int} of {int}, reached with animation",
-  async (w, actor: Actor, move: number, of: number) => {
-    await expectReviewAt(w, actor, { move, of, animated: true });
-  }
-);
-
-Then(
-  "{actor}'s review is at move {int} of {int}, reached without animation",
-  async (w, actor: Actor, move: number, of: number) => {
-    await expectReviewAt(w, actor, { move, of, animated: false });
+  "{actor}'s review is at {puzzlePosition}, reached {puzzleAnimation}",
+  async (w, actor: Actor, point: PuzzleLinePoint, animated: boolean) => {
+    await expectReviewAt(w, actor, point, animated);
   }
 );
 
@@ -153,9 +152,9 @@ When(
 );
 
 When(
-  "{actor} chooses move {int} from the review's move list",
-  async (w, actor: Actor, move: number) => {
-    await w.s.apply(chooseReviewMove, actor, move);
+  "{actor} chooses the first move from the review's move list",
+  async (w, actor: Actor) => {
+    await w.s.apply(chooseReviewMove, actor, 1);
   }
 );
 

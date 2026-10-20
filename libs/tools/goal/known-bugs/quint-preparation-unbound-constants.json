@@ -1,0 +1,4 @@
+{
+  "summary": "Verify PR 39455128606 could not prepare puzzle-attempt.qnt or puzzle-sound.qnt because prepare-spec called simulate without assigning their OPPONENT Boolean. Every dependent shared Games spec shard then lacked its prerequisite artifact. Warm every declared Boolean assignment separately, preserving unparameterized draws and their cache identities.",
+  "regressionTest": "libs/harness/tests/prepare-spec-parameters.test.ts"
+}

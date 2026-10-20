@@ -49,7 +49,7 @@ const resultOf = (state: RoomState) => ({
 
 forEveryGame(import.meta.path, (game) => {
   const c = puzzleCase(game);
-  const { long } = c;
+  const { long, layout } = c;
   const first = long.solution[0] ?? '';
   /** `long` solved by the host, each move a tick later. */
   const solved = (from: RoomState = started(long)): RoomState =>
@@ -60,7 +60,10 @@ forEveryGame(import.meta.path, (game) => {
   /** `long` with its wrong move played, the line followed up to it. */
   const wronged = (): RoomState => {
     let state = started(long);
-    for (const action of long.solution.slice(0, (long.wrongMove.at - 1) / 2))
+    for (const action of long.solution.slice(
+      0,
+      (long.wrongMove.at - layout.start) / layout.solverStep
+    ))
       state = apply(state, move(action));
     return apply(state, move(long.wrongMove.action));
   };
@@ -164,7 +167,9 @@ forEveryGame(import.meta.path, (game) => {
         score: 500,
       });
       let state = apply(wronged(), ResetPuzzlePlay({}));
-      for (const action of long.solution.slice((long.wrongMove.at - 1) / 2))
+      for (const action of long.solution.slice(
+        (long.wrongMove.at - layout.start) / layout.solverStep
+      ))
         state = apply(state, move(action));
       expect(PuzzlePlayAttr.status.from(state)).toBe(PUZZLE_PLAY_STATUS.solved);
       expect(resultOf(state)).toEqual({
@@ -213,14 +218,26 @@ forEveryGame(import.meta.path, (game) => {
       for (const fixture of transposing) {
         const { at, action } = fixture.transposition!;
         let state = started(fixture);
-        for (const solvedMove of fixture.solution.slice(0, (at - 1) / 2))
+        for (const solvedMove of fixture.solution.slice(
+          0,
+          (at - layout.start) / layout.solverStep
+        ))
           state = apply(state, move(solvedMove));
         state = apply(state, move(action));
         const line = [...fixture.record.line];
-        [line[at], line[at + 2]] = [line[at + 2] ?? '', line[at] ?? ''];
+        [line[at], line[at + layout.solverStep]] = [
+          line[at + layout.solverStep] ?? '',
+          line[at] ?? '',
+        ];
         expect(lineActions(PuzzlePlayAttr.line.from(state))).toEqual(line);
-        expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(at + 2);
-        for (let idx = at + 2; idx < line.length; idx += 2)
+        expect(PuzzlePlayAttr.solveIdx.from(state)).toBe(
+          at + layout.solverStep
+        );
+        for (
+          let idx = at + layout.solverStep;
+          idx < line.length;
+          idx += layout.solverStep
+        )
           state = apply(state, move(line[idx] ?? ''));
         expect(PuzzlePlayAttr.status.from(state)).toBe(
           PUZZLE_PLAY_STATUS.solved
@@ -237,7 +254,10 @@ forEveryGame(import.meta.path, (game) => {
       for (const fixture of winningOff) {
         const { at, action } = fixture.wonAnotherWay!;
         let state = started(fixture);
-        for (const solvedMove of fixture.solution.slice(0, (at - 1) / 2))
+        for (const solvedMove of fixture.solution.slice(
+          0,
+          (at - layout.start) / layout.solverStep
+        ))
           state = apply(state, move(solvedMove));
         state = apply(state, move(action));
         expect(PuzzlePlayAttr.status.from(state)).toBe(

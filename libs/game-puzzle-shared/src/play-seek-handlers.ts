@@ -1,10 +1,11 @@
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import { PUZZLE_PLAY_STATUS, PuzzlePlayAttr } from './play-attr';
 import { PuzzlePlayStepped } from './play-messages';
 import type { PuzzleGameLookup } from './puzzle-game-lookup';
 import { gameInPlay } from './puzzle-game-lookup';
-import { positionAt } from './puzzle-setup';
+import { type PuzzleGame, positionAt } from './puzzle-setup';
 import {
   lineActions,
   nextForwardSolveIdx,
@@ -51,18 +52,14 @@ function assertCanSeekLine(
 function emitSeekToSolveIdx(
   state: RoomState,
   nextIdx: number,
-  lookup: PuzzleGameLookup
+  game: PuzzleGame
 ): HandleResult {
-  const game = gameInPlay(state, lookup);
-  const displayFen =
-    game === null
-      ? null
-      : positionAt(
-          game,
-          PuzzlePlayAttr.position.from(state),
-          lineActions(PuzzlePlayAttr.line.from(state)),
-          nextIdx
-        );
+  const displayFen = positionAt(
+    game,
+    PuzzlePlayAttr.position.from(state),
+    lineActions(PuzzlePlayAttr.line.from(state)),
+    nextIdx
+  );
   if (displayFen === null) {
     return internal('could not rebuild the position for stepped solve index');
   }
@@ -88,12 +85,14 @@ export function handleStepSeek(
 ): HandleResult {
   const denied = assertCanSeekLine(state, identity);
   if (denied !== null) return denied;
+  const game = gameInPlay(state, lookup);
+  if (game === null) return internal('the puzzle in play names no game');
   const solveIdx = PuzzlePlayAttr.solveIdx.from(state);
   const furthest = PuzzlePlayAttr.furthestSolveIdx.from(state);
   const tokensLength = lineActions(PuzzlePlayAttr.line.from(state)).length;
   const nextIdx =
     direction === 'back'
-      ? prevSolveIdx(solveIdx)
+      ? prevSolveIdx(solveIdx, puzzleLineLayout(game.puzzles).start)
       : nextForwardSolveIdx({
           solveIdx,
           furthestSolveIdx: furthest,
@@ -104,7 +103,7 @@ export function handleStepSeek(
       direction === 'back' ? 'already at puzzle start' : 'already at furthest'
     );
   }
-  return emitSeekToSolveIdx(state, nextIdx, lookup);
+  return emitSeekToSolveIdx(state, nextIdx, game);
 }
 
 export function handleSeek(
@@ -115,13 +114,16 @@ export function handleSeek(
 ): HandleResult {
   const denied = assertCanSeekLine(state, identity);
   if (denied !== null) return denied;
+  const game = gameInPlay(state, lookup);
+  if (game === null) return internal('the puzzle in play names no game');
   const nextIdx = resolveSeekSolveIdx({
     solveIdx: PuzzlePlayAttr.solveIdx.from(state),
     furthestSolveIdx: PuzzlePlayAttr.furthestSolveIdx.from(state),
     targetSolveIdx,
+    firstSolveIdx: puzzleLineLayout(game.puzzles).start,
   });
   if (nextIdx === null) {
     return conflict('seek target is out of range or already current');
   }
-  return emitSeekToSolveIdx(state, nextIdx, lookup);
+  return emitSeekToSolveIdx(state, nextIdx, game);
 }

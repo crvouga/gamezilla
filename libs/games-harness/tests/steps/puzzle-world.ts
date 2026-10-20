@@ -57,6 +57,10 @@ export const SECOND_MS = 1_000;
 /** How long a puzzle screen may take to settle when a step names no time. */
 export const SETTLE_MS = 20_000;
 
+/** The visible current position before the scenario chooses an earlier one. */
+export const puzzlePositionBeforeReviewKey = (actor: string): string =>
+  `puzzle-position-before-review:${actor}`;
+
 /** The run's game's id, as its puzzles and choices are found by. */
 export function puzzleGameId(w: HarnessWorld): string {
   return gameOf(w).shared.id;

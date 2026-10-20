@@ -743,13 +743,18 @@ export const stepThroughPuzzleLine = scenarioAction({
   },
 });
 
-/** Choose a move of the line from the board's move list (`move` from 1). */
+/** Choose a reached position: a recorded move, or the supplied solo position at zero. */
 export const choosePuzzleLineMove = scenarioAction({
   name: 'choosePuzzleLineMove',
   act: async (s, actorId: string, move: number) => {
     await closeResultPanel(s, actorId);
+    if ((await readPuzzleProbe(s, actorId))?.solveIdx === move) return;
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.chessPuzzleMovePly(move - 1)).tap({
+    const target =
+      move === 0
+        ? Handles.chessPuzzleMoveNav('start')
+        : Handles.chessPuzzleMovePly(move - 1);
+    await ui.get(target).tap({
       timeoutMs: WAIT_MS,
     });
     await s.session.waitForIdle();

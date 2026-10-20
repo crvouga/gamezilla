@@ -67,5 +67,6 @@
   "specDomains": [
     "chess-board"
   ],
-  "specParts": 8
+  "specParts": 8,
+  "game": "chess"
 }

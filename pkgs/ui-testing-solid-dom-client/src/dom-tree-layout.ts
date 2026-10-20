@@ -6,7 +6,7 @@
 
 import type { ElementLayout } from '@pkgs/ui-testing-root-shared/driver';
 import { MULTI_APP_ACTOR_FRAME } from '@pkgs/ui-testing-solid-dom-shared/snapshot-frame';
-import { ELEMENT_LAYOUT_EVENT } from './dom-layout';
+import { installElementLayout } from './dom-layout';
 
 export type TreeLayoutFrame = {
   readonly width: number;
@@ -30,31 +30,6 @@ const COMPONENT_SIZE: Record<string, { w?: number; h?: number }> = {
   Button: { h: DEFAULT_ROW },
   AppTabButton: { h: 56 },
 };
-
-function dispatchLayoutEvent(element: Element): void {
-  const view = element.ownerDocument.defaultView;
-  const EventCtor = view?.Event ?? Event;
-  element.dispatchEvent(new EventCtor(ELEMENT_LAYOUT_EVENT));
-}
-
-function installRect(element: Element, layout: ElementLayout): void {
-  const rect: DOMRect = {
-    x: layout.x,
-    y: layout.y,
-    width: layout.width,
-    height: layout.height,
-    left: layout.x,
-    top: layout.y,
-    right: layout.x + layout.width,
-    bottom: layout.y + layout.height,
-    toJSON: () => layout,
-  };
-  Object.defineProperty(element, 'getBoundingClientRect', {
-    configurable: true,
-    value: () => rect,
-  });
-  dispatchLayoutEvent(element);
-}
 
 function isHtml(el: Element): el is HTMLElement {
   // Avoid `instanceof HTMLElement` — happy-dom elements are from a different realm.
@@ -206,7 +181,7 @@ function layoutAbsolute(
         width: parent.width,
         height: parent.height,
       };
-      installRect(el, box);
+      installElementLayout(el, box);
       layoutFlow(el, box, frame);
       return;
     }
@@ -216,7 +191,7 @@ function layoutAbsolute(
     if (left !== undefined) x = parent.x + left;
   }
   const box = { x, y, width, height };
-  installRect(el, box);
+  installElementLayout(el, box);
   layoutFlow(el, box, frame);
 }
 
@@ -316,7 +291,7 @@ function layoutRow(
       const h = estimateFlowHeight(child) ?? hintSize(child).h ?? box.height;
       const y = box.y + Math.max(0, (box.height - h) / 2);
       const childBox = { x, y, width: w, height: h };
-      installRect(child, childBox);
+      installElementLayout(child, childBox);
       layoutFlow(child, childBox, frame);
       x += w + between;
     });
@@ -328,7 +303,7 @@ function layoutRow(
     const h = estimateFlowHeight(child) ?? hintSize(child).h ?? box.height;
     const y = box.y + Math.max(0, (box.height - h) / 2);
     const childBox = { x, y, width: w, height: h };
-    installRect(child, childBox);
+    installElementLayout(child, childBox);
     layoutFlow(child, childBox, frame);
     x += w + gap;
   });
@@ -362,7 +337,7 @@ function layoutColumn(
       width: w > 0 ? w : box.width,
       height: Math.max(0, h),
     };
-    installRect(child, childBox);
+    installElementLayout(child, childBox);
     layoutFlow(child, childBox, frame);
     y += h + gap;
   });
@@ -394,6 +369,6 @@ export function layoutDomTree(
     width: frame.width,
     height: frame.height,
   };
-  installRect(root, box);
+  installElementLayout(root, box);
   layoutFlow(root, box, frame);
 }

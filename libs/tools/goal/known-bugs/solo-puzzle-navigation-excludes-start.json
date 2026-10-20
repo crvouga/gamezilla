@@ -1,0 +1,4 @@
+{
+  "summary": "Puzzle navigation disables Back and clamps Home to one after the first solver-only action, excluding the supplied position at zero.",
+  "regressionTest": "libs/game-puzzle-shared/tests/solver-only-navigation.test.ts"
+}

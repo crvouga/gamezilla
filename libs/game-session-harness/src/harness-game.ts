@@ -21,7 +21,7 @@ import { assertKnownPuzzles, assertMorePuzzles } from './known-puzzles';
  */
 type RulesFixtures = {
   /**
-   * Actions, alternating from the first side, after which the first side
+   * Actions from the starting position, after which the first side
    * has won; only the last one wins.
    */
   readonly firstSideVictory: readonly string[];
@@ -261,7 +261,7 @@ function assertPuzzlesAgree(
   if (known !== undefined && puzzles !== undefined) {
     const facts = {
       rules: game.shared.turnGame.rules,
-      namespace: puzzles.namespace,
+      puzzles,
     };
     assertKnownPuzzles(facts, known, fail);
     if (more !== undefined) assertMorePuzzles(facts, known, more, fail);

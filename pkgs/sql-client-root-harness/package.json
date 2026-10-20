@@ -21,6 +21,7 @@
     "@pkgs/harness-root-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
     "@pkgs/object-store-root-shared": "workspace:*",
+    "@pkgs/postgres-mockingbird-server": "workspace:*",
     "@pkgs/sql-client-postgres-server": "workspace:*",
     "@pkgs/sql-client-postgres-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",

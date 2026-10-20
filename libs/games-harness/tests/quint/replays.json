@@ -91,12 +91,36 @@
   },
   "puzzle-attempt": {
     "seed": "0x67932",
-    "traces": 64,
-    "cover": [0, 8, 31],
-    "replayed": [0, 8, 31],
-    "regressions": 0,
-    "determinism": false,
-    "variants": 2
+    "instances": [
+      {
+        "parameters": {
+          "OPPONENT": false
+        },
+        "plan": {
+          "seed": "0x67932",
+          "traces": 64,
+          "cover": [21, 38, 43],
+          "replayed": [21, 38, 43],
+          "regressions": 0,
+          "determinism": false,
+          "variants": 1
+        }
+      },
+      {
+        "parameters": {
+          "OPPONENT": true
+        },
+        "plan": {
+          "seed": "0x67932",
+          "traces": 64,
+          "cover": [0, 8, 31],
+          "replayed": [0, 8, 31],
+          "regressions": 0,
+          "determinism": false,
+          "variants": 2
+        }
+      }
+    ]
   },
   "puzzle-feed": {
     "seed": "0x67932",
@@ -105,7 +129,7 @@
     "replayed": [0],
     "regressions": 1,
     "determinism": false,
-    "variants": 2
+    "variants": 3
   },
   "puzzle-link": {
     "seed": "0x67932",
@@ -114,7 +138,7 @@
     "replayed": [2],
     "regressions": 2,
     "determinism": false,
-    "variants": 2
+    "variants": 3
   },
   "puzzle-result-recovery": {
     "seed": "0x67932",
@@ -123,16 +147,40 @@
     "replayed": [1, 8, 17],
     "regressions": 4,
     "determinism": false,
-    "variants": 2
+    "variants": 3
   },
   "puzzle-sound": {
     "seed": "0x67932",
-    "traces": 24,
-    "cover": [0, 6],
-    "replayed": [0, 6],
-    "regressions": 0,
-    "determinism": false,
-    "variants": 2
+    "instances": [
+      {
+        "parameters": {
+          "OPPONENT": false
+        },
+        "plan": {
+          "seed": "0x67932",
+          "traces": 24,
+          "cover": [0, 6],
+          "replayed": [0, 6],
+          "regressions": 0,
+          "determinism": false,
+          "variants": 1
+        }
+      },
+      {
+        "parameters": {
+          "OPPONENT": true
+        },
+        "plan": {
+          "seed": "0x67932",
+          "traces": 24,
+          "cover": [0, 6],
+          "replayed": [0, 6],
+          "regressions": 0,
+          "determinism": false,
+          "variants": 2
+        }
+      }
+    ]
   },
   "space-follow": {
     "seed": "0x67932",

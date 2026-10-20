@@ -1,9 +1,14 @@
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import type { GameCapability } from '@pkgs/turn-game-shared/game-rules';
 import {
   GAME_CAPABILITIES,
   offeredCapabilities,
 } from '@pkgs/turn-game-shared/game-rules';
+import {
+  executionGameProblems,
+  suiteCaseProblems,
+} from './conformance-enrollment';
 
 /**
  * What the shared conformance suites are organised by: `rules`, which every
@@ -24,6 +29,11 @@ export type ConformanceArea = (typeof CONFORMANCE_AREAS)[number];
  * needing it holds for exactly the games whose rules have it.
  */
 export const GAME_TRAITS = {
+  /** A puzzle line whose opponent supplies setup and automatic replies. */
+  'a puzzle opponent': (game: HarnessGame) => {
+    const puzzles = game.shared.turnGame.capabilities.puzzles;
+    return puzzles !== undefined && puzzleLineLayout(puzzles).solverStep === 2;
+  },
   /** A position where the second side cannot win (`secondSideCannotWin`). */
   'a side that cannot win': (game: HarnessGame) =>
     game.fixtures.secondSideCannotWin !== undefined,
@@ -136,6 +146,7 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'unfinished-game-limit': ['matchmaking', 'custom-games'],
   'matched-game-ready': ['matchmaking'],
   'puzzle-play': ['puzzles'],
+  'puzzle-opponent': ['puzzles', 'a puzzle opponent'],
   'solve-flow': ['puzzles'],
   'solve-move-rules': ['puzzles'],
   'solve-show-solution': ['puzzles'],
@@ -279,6 +290,8 @@ export type ConformanceSuite = {
 export type PlannedCodeSuite = {
   readonly id: string;
   readonly area: ConformanceArea;
+  /** Additional capabilities or traits required beside the directory's area. */
+  readonly needs?: readonly ConformanceNeed[];
   readonly registers: Readonly<Record<string, boolean>> | null;
 };
 
@@ -498,8 +511,19 @@ export function planConformance(plan: ConformancePlan): {
     matrix,
     problems: [
       ...enrollmentProblems(plan.registered, plan.harness),
+      ...executionGameProblems(plan.harness, plan.games),
       ...specificationTableProblems(plan.table, plan.specifications),
       ...emptySuiteProblems(plan.codeSuites),
+      ...plan.codeSuites.flatMap((suite) =>
+        suiteCaseProblems(
+          suite,
+          plan.games
+            .filter((game) =>
+              offersAll(game, [suite.area, ...(suite.needs ?? [])])
+            )
+            .map((game) => game.shared.id)
+        )
+      ),
       ...missingEvidenceProblems(matrix),
     ],
   };

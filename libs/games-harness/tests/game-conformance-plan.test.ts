@@ -56,6 +56,66 @@ test('a complete plan has no problems', () => {
   expect(planConformance(SOUND).problems).toEqual([]);
 });
 
+// regression: game-conformance-execution-omission
+test('registry agreement cannot hide a production game omitted from execution', () => {
+  const plan = planConformance({
+    ...SOUND,
+    registered: [RACE.shared],
+    harness: [RACE],
+    games: [],
+  });
+  expect(plan.problems).toContain(
+    'counting-race: HARNESS_GAMES has no execution game — enroll its HarnessGame in the shared conformance world'
+  );
+});
+
+// regression: game-conformance-partial-suite
+test('another passing suite cannot stand in for an omitted eligible game', () => {
+  const plan = planConformance({
+    ...SOUND,
+    codeSuites: [
+      ...SOUND.codeSuites,
+      { ...RULES_SUITE, id: 'conformance/rules/new-regression', registers: {} },
+    ],
+  });
+  expect(plan.problems).toContain(
+    'conformance/rules/new-regression [counting-race]: missing required case — register its tests inside forEveryGame'
+  );
+});
+
+test('suite evidence attributed to a game outside its requirements fails', () => {
+  const plan = planConformance({
+    ...SOUND,
+    codeSuites: [
+      ...SOUND.codeSuites,
+      {
+        id: 'conformance/matchmaking/leaked',
+        area: 'matchmaking',
+        registers: { 'counting-race': true },
+      },
+    ],
+  });
+  expect(plan.problems).toContain(
+    'conformance/matchmaking/leaked [counting-race]: unexpected case — evidence belongs only to an eligible execution game'
+  );
+});
+
+test('duplicate execution ids and a different shared definition fail', () => {
+  expect(planConformance({ ...SOUND, games: [RACE, RACE] }).problems).toContain(
+    'counting-race: duplicate execution game id — every game must have its own evidence'
+  );
+  expect(
+    planConformance({
+      ...SOUND,
+      registered: [RACE.shared],
+      harness: [RACE],
+      games: [{ ...RACE, shared: { ...RACE.shared } as typeof RACE.shared }],
+    }).problems
+  ).toContain(
+    'counting-race: execution holds another shared definition — use the HarnessGame registered in HARNESS_GAMES'
+  );
+});
+
 test('a registered game missing from the harness games fails, naming where to add it', () => {
   expect(
     enrollmentProblems(GAME_DEFINITIONS, HARNESS_GAMES.slice(0, 1))
@@ -142,7 +202,7 @@ test('a specification table listing an unknown capability, nothing, or only a tr
       uris
     )
   ).toEqual([
-    'SHARED_SPECIFICATIONS["a"] lists "tournaments", which is neither a capability (custom-games, matchmaking, history, puzzles) nor a trait (a side that cannot win, a draw by the game\'s own rules, a known puzzle won another way)',
+    'SHARED_SPECIFICATIONS["a"] lists "tournaments", which is neither a capability (custom-games, matchmaking, history, puzzles) nor a trait (a puzzle opponent, a side that cannot win, a draw by the game\'s own rules, a known puzzle won another way)',
     'SHARED_SPECIFICATIONS["b"] lists nothing — list the capabilities it shows',
     'SHARED_SPECIFICATIONS["c"] lists no capability — a specification counts toward the capabilities it shows',
   ]);

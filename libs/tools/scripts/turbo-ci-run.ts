@@ -138,6 +138,8 @@ export const MAIN_VERIFY_TASKS = [
     { length: MAX_MODEL_PARTS },
     (_, index) => `verify:models:${String(index)}`
   ),
+  'test:unit:1',
+  'test:unit:2',
   '@apps/product#verify:offline-shell',
   '@apps/product#test:release-journeys',
   '@apps/auth-relay#verify:worker-bundle',

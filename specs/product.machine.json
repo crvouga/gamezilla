@@ -4879,6 +4879,7 @@
                       "specs/games/puzzle-offline.feature",
                       "specs/games/puzzle-outcome-sync.feature",
                       "specs/games/puzzle-play.feature",
+                      "specs/games/puzzle-opponent.feature",
                       "specs/games/puzzle-progress.als",
                       "specs/games/puzzle-quota.feature",
                       "specs/games/puzzle-ready.openslo.yaml",
@@ -6300,7 +6301,7 @@
                           "specs/games/puzzle-stats.feature:11"
                         ],
                         "events": [],
-                        "routes": ["/more/chess-stats"]
+                        "routes": ["/more/:id-stats"]
                       },
                       "on": {
                         "Opens a recorded puzzle attempt": {
@@ -6423,7 +6424,6 @@
                       "specs/games/matched-games.als",
                       "specs/games/matched-game-watchers.feature",
                       "specs/games/matched-game-low-on-time.feature",
-                      "specs/chess/multiplayer-move-list-review.feature",
                       "specs/games/matched-game-review.feature",
                       "specs/games/matched-game-offline.feature",
                       "specs/games/matched-game-own-board.qnt",

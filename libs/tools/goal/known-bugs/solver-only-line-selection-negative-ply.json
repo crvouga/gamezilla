@@ -1,0 +1,4 @@
+{
+  "summary": "Selecting index zero in a solver-only puzzle seeks nonexistent ply -1 instead of the supplied position (seed 0x67932, attempt trace 39 step 18).",
+  "regressionTest": "libs/games-harness/tests/probes/solo-puzzle-navigation.test.ts"
+}

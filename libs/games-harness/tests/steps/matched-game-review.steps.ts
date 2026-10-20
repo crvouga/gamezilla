@@ -23,6 +23,7 @@ import {
   reviewMultiplayerMoves,
   shownBoardPosition,
   shownEarlierPosition,
+  shownReviewDescription,
 } from '@libs/game-matchmaking-harness/multiplayer-review';
 import { Given, Then, When } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -138,6 +139,18 @@ When('{actor} returns to the current position', (w, person: string) =>
 Then(
   "{actor}'s board (still )shows the earlier position after the first move",
   (w, person: string) => afterFirstMoveSeen(w, person)
+);
+Then(
+  '{actor} hears she is reviewing the earlier position after the first move',
+  async (w, person: string) => {
+    const device = viewerOf(w, person);
+    const move = gameOf(w).fixtures.firstSideVictoryLabels[0];
+    if (move === undefined) throw new Error('The game names no first move');
+    await openOn(w, device);
+    expect(await w.s.read(shownReviewDescription, device)).toContain(
+      `You are reviewing an earlier position, after 1. ${move}.`
+    );
+  }
 );
 Then(
   "{actor}'s board shows the earlier position at the start of the game",

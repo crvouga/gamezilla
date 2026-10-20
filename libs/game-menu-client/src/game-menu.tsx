@@ -172,6 +172,7 @@ function GameChoices(props: {
       <DefineBackButton onPress={props.onBackToGames} />
       <MainMenuScreen
         screenId="game-choices"
+        dataSet={{ testid: Handles.gameChoices }}
         title={props.game.title}
         subtitle={<Dynamic component={props.game.subtitle} />}
         items={items()}

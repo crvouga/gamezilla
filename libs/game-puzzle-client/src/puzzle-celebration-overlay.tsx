@@ -9,33 +9,7 @@ import type { Accessor, JSX } from 'solid-js';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
 import { usePuzzleFeedback } from './use-puzzle-feedback';
 import { usePuzzleProfileRatings } from './use-puzzle-profile-ratings';
-import { usePuzzleRatingAnimation } from './use-puzzle-rating-animation';
-
-function useCelebrationRatingFeedback(args: {
-  completion: Accessor<PuzzleCompletion>;
-  feedbackEnabled: Accessor<boolean>;
-  onDisplayRatingChange: (rating: number) => void;
-}): { displayRating: Accessor<number> } {
-  const feedback = usePuzzleFeedback();
-  return usePuzzleRatingAnimation({
-    get ratingBefore() {
-      return args.completion().ratingBefore;
-    },
-    get ratingAfter() {
-      return args.completion().ratingAfter;
-    },
-    get animationKey() {
-      const completion = args.completion();
-      return `${completion.outcome}-${completion.ratingBefore}-${completion.ratingAfter}-${completion.rated}`;
-    },
-    enabled: true,
-    onComplete: () => {
-      const completion = args.completion();
-      args.onDisplayRatingChange(completion.ratingAfter);
-      if (args.feedbackEnabled()) feedback.onRatingComplete(completion.delta);
-    },
-  });
-}
+import { usePuzzleRatingFeedback } from './use-puzzle-rating-feedback';
 
 function celebrationTitle(outcome: PuzzleCompletion['outcome']): JSX.Element {
   if (outcome === 'solved') {
@@ -55,7 +29,7 @@ function celebrationTitle(outcome: PuzzleCompletion['outcome']): JSX.Element {
   return <Trans>Puzzle abandoned</Trans>;
 }
 
-export type ChessPuzzleCelebrationOverlayProps = {
+export type PuzzleCelebrationOverlayProps = {
   completion: PuzzleCompletion;
   feedbackEnabled: Accessor<boolean>;
   visible: boolean;
@@ -66,14 +40,16 @@ export type ChessPuzzleCelebrationOverlayProps = {
 };
 
 export function PuzzleCelebrationOverlay(
-  props: ChessPuzzleCelebrationOverlayProps
+  props: PuzzleCelebrationOverlayProps
 ): JSX.Element {
   const myId = useMyId();
   const { provisional } = usePuzzleProfileRatings(myId);
-  const ratingAnim = useCelebrationRatingFeedback({
+  const feedback = usePuzzleFeedback();
+  const ratingAnim = usePuzzleRatingFeedback({
     completion: () => props.completion,
     feedbackEnabled: props.feedbackEnabled,
     onDisplayRatingChange: props.onDisplayRatingChange,
+    onRatingComplete: feedback.onRatingComplete,
   });
 
   return (

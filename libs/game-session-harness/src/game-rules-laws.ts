@@ -157,12 +157,11 @@ function knownVictory(game: HarnessGame): void {
 
 /**
  * Sides take turns: the first side moves first, and every action of an
- * unfinished game gives the turn to the other side. Every shared lifecycle
- * relies on it (`specs/games/game-turns.feature`: "a participant's move
- * passes the turn"; the custom-game and matched-game models; a matched
- * game's abort window, `bothHaveMoved`; a puzzle line's solver and
- * opponent moves by parity), so a game whose turns do not alternate is
- * refused here, by name, rather than deep inside a shared specification
+ * unfinished duel gives the turn to the other side. Custom and matched
+ * games require it (`specs/games/game-turns.feature` and the matched-game
+ * models). Puzzle-only consumers are held to their declared line layout
+ * by the puzzle laws. A duel whose turns do not alternate is refused here
+ * rather than deep inside a shared specification
  * (`tests/probes/turn-order.test.ts`).
  */
 function takesTurns(game: HarnessGame): void {
@@ -184,6 +183,26 @@ function takesTurns(game: HarnessGame): void {
       }
     })
   );
+}
+
+/** Only experiences whose shared specifications promise alternating participants. */
+function duelRulesLaws(game: HarnessGame): readonly GameLaw[] {
+  const offered = game.shared.turnGame.capabilities;
+  if (
+    offered['custom-games'] === undefined &&
+    offered.matchmaking === undefined
+  )
+    return [];
+  return [
+    law(
+      game,
+      'the first side moves first and every action passes the turn to the other side',
+      () => takesTurns(game)
+    ),
+    law(game, 'a side cannot win only where the game names a line to it', () =>
+      cannotWinOnlyWhereKnown(game)
+    ),
+  ];
 }
 
 /**
@@ -397,14 +416,7 @@ export function gameRulesLaws(
           )
         )
     ),
-    law(
-      game,
-      'the first side moves first and every action passes the turn to the other side',
-      () => takesTurns(game)
-    ),
-    law(game, 'a side cannot win only where the game names a line to it', () =>
-      cannotWinOnlyWhereKnown(game)
-    ),
+    ...duelRulesLaws(game),
     law(game, 'its rules draw it only where the game names a line to it', () =>
       drawnOnlyWhereKnown(game)
     ),

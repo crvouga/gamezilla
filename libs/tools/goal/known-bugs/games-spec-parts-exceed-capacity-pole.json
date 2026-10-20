@@ -1,0 +1,4 @@
+{
+  "summary": "The 41-part shared-game suite placed 360 seconds in spec part 25 on Verify run 39467547837, exceeding the warm pool's unchanged five-minute target before startup. Partition the same scenarios and replays into smaller independently gated tasks.",
+  "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+}

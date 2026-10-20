@@ -22,6 +22,7 @@ const models = modelsForContractPart(
   contractPart(process.env['CONTRACT_PART'] ?? '')
 );
 
+// regression: product-whole-system-proof-exceeds-leaf-target
 // regression: product-symbolic-model-compilation-timeout
 // regression: product-symbolic-type-inference-timeout
 for (const model of models) {

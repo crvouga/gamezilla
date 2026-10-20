@@ -60,7 +60,6 @@
   },
   "category": "client",
   "gameApi": [
-    "personal-puzzle-stats-screen",
     "puzzle-client"
   ]
 }

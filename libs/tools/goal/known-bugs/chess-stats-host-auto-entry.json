@@ -1,4 +1,4 @@
 {
   "summary": "Opening chess stats on a host's second device tapped Join while the eager space screen was already admitting the host. The transient prompt could disappear before the tap. Wait for the host's automatic entry instead.",
-  "regressionTest": "libs/games-harness/tests/puzzle-stats-navigation.test.ts"
+  "regressionTest": "libs/games-harness/tests/conformance/puzzles/stats-navigation.test.ts"
 }

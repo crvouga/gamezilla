@@ -25,23 +25,21 @@ import {
   readFileSync,
   rmSync,
 } from 'node:fs';
-import { basename, join } from 'node:path';
+import { join } from 'node:path';
 import type { ItfTrace } from '@pkgs/quint-shared/itf';
 import { decodeItfTrace, renderQuint } from '@pkgs/quint-shared/itf';
+import type { ModelParameters } from '@pkgs/quint-shared/registry';
 import { quintSeed } from '@pkgs/quint-shared/wall';
 import { cachedQuintDir } from './draw-cache';
-import { modelSourceKey } from './model-source';
+import { instantiatedModelInput } from './model-input';
+import { instantiateModel, modelParameterId } from './model-parameters';
+import { modelSourceKey, quintModuleName } from './model-source';
 
 /** The Quint CLI that ships in the npm package, run under Bun. */
 export const QUINT_CLI = Bun.resolveSync(
   '@informalsystems/quint/dist/src/cli.js',
   import.meta.dir
 );
-
-/** `space-hosting.qnt` → `space_hosting`, the module Quint runs. */
-export function quintModuleName(specPath: string): string {
-  return basename(specPath, '.qnt').replaceAll('-', '_');
-}
 
 export type SimulateOptions = {
   /** Absolute path of the `.qnt` model. */
@@ -54,6 +52,8 @@ export type SimulateOptions = {
   readonly outDir: string;
   /** Default: {@link quintSeed}. */
   readonly seed?: string;
+  /** Exact assignments for every bool constant declared by the main module. */
+  readonly parameters?: ModelParameters;
 };
 
 export type SimulateResult = {
@@ -84,13 +84,21 @@ export function simulate(options: SimulateOptions): SimulateResult {
   const seed = options.seed ?? quintSeed();
   const source = readFileSync(options.specPath, 'utf8');
   const invariants = modelInvariants(source);
+  const parameters = options.parameters ?? {};
+  instantiateModel(source, quintModuleName(options.specPath), parameters);
+  const sourceKey = modelSourceKey(options.specPath);
+  const parameterKey = modelParameterId(parameters);
   const itfDir = cachedQuintDir({
-    source: modelSourceKey(options.specPath),
+    source: parameterKey === '' ? sourceKey : `${sourceKey}\0${parameterKey}`,
     seed,
     traces: options.traces,
     maxSteps: options.maxSteps,
     produce: (dir) => {
-      runQuint(options, seed, invariants, dir);
+      const specPath =
+        Object.keys(parameters).length === 0
+          ? options.specPath
+          : instantiatedModelInput(options.specPath, dir, parameters);
+      runQuint({ ...options, specPath }, seed, invariants, dir);
       loadTraces(dir, options.specPath);
     },
   });

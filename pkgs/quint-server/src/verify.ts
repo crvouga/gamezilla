@@ -28,9 +28,11 @@ import {
   resolveApalache,
   verifyEnv,
 } from './apalache';
-import { cachedVerifyInput } from './cached-verify-input';
+import { cachedVerifyInput, instantiatedModelInput } from './model-input';
+import { modelParameterCases, modelParameterId } from './model-parameters';
+import { quintModuleName } from './model-source';
 import { runQuint } from './run-quint';
-import { QUINT_CLI, quintModuleName } from './simulate';
+import { QUINT_CLI } from './simulate';
 import { runVerifyPhaseGroup } from './verify-phase-pool';
 import type { PhaseSelection, VerifyPhase } from './verify-phases';
 import { selectVerifyPhase, verifyPhases } from './verify-phases';
@@ -93,14 +95,28 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
     quintHome: linkQuintHome(options.outDir, apalache.home),
   });
   const elapsed = wallStopwatch();
-  const failure = await runSelectedPhases({
-    options,
-    phases,
-    env,
-    deadlineMs: verifyDeadlineMs(options.timeoutMs),
-    elapsed,
-  });
-  if (failure !== undefined) return failure;
+  const deadlineMs = verifyDeadlineMs(options.timeoutMs);
+  const cases = modelParameterCases(
+    readFileSync(options.specPath, 'utf8'),
+    quintModuleName(options.specPath)
+  );
+  for (const parameters of cases) {
+    const id = modelParameterId(parameters);
+    const outDir = id === '' ? options.outDir : join(options.outDir, id);
+    mkdirSync(outDir, { recursive: true });
+    const specPath =
+      id === ''
+        ? options.specPath
+        : instantiatedModelInput(options.specPath, outDir, parameters);
+    const failure = await runSelectedPhases({
+      options: { ...options, specPath, outDir },
+      phases,
+      env,
+      deadlineMs,
+      elapsed,
+    });
+    if (failure !== undefined) return failure;
+  }
   return {
     ok: true,
     durationMs: elapsed(),

@@ -23,9 +23,9 @@ function readSelectedReviewPuzzleId(v: unknown): string | null {
   return t.length > 0 ? t : null;
 }
 
-function readNonNegativeInteger(v: unknown): number {
+function readReviewIndex(v: unknown): number | null {
   if (typeof v === 'number' && Number.isInteger(v) && v >= 0) return v;
-  return 0;
+  return null;
 }
 
 function isNonNegativeInteger(v: unknown): v is number {
@@ -40,15 +40,16 @@ export const PuzzleReviewAttr = {
     'selected-review-puzzle-id',
     readSelectedReviewPuzzleId
   ),
-  /** Review timeline cursor; `0` means unset (jump-to-end pending). */
-  selectedReviewSolveIdx: reviewNs.integer(
+  /** Null displays the line's end; zero is a selected supplied position. */
+  selectedReviewSolveIdx: reviewNs.integerOrNull(
     'selected-review-solve-idx',
-    readNonNegativeInteger
+    readReviewIndex
   ),
 } as const;
 
 export type SelectReviewPuzzlePayload = {
   puzzleId: string | null;
+  /** The established selection message uses zero to request the line's end. */
   solveIdx: number;
 };
 
@@ -118,7 +119,9 @@ export const puzzleReviewEventReducer = createMessageRouter<
   .on(ReviewPuzzleSelected, (state, _identity, ev) => ({
     ...state,
     ...PuzzleReviewAttr.selectedReviewPuzzleId(ev.payload.puzzleId),
-    ...PuzzleReviewAttr.selectedReviewSolveIdx(ev.payload.solveIdx),
+    ...PuzzleReviewAttr.selectedReviewSolveIdx(
+      ev.payload.solveIdx === 0 ? null : ev.payload.solveIdx
+    ),
   }))
   .on(PuzzleReviewSought, (state, _identity, ev) => ({
     ...state,

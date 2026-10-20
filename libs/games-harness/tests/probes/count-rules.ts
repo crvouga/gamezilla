@@ -17,6 +17,8 @@ export type CountGame = {
   /** How far each action counts on. */
   readonly steps: Readonly<Record<string, number>>;
   readonly finish: number;
+  /** A bounded one-person probe has no second side or positions for it. */
+  readonly singlePlayer?: boolean;
   /** Who moves once `mover` has brought the count to `count`. */
   readonly next: (count: number, mover: GameSide) => GameSide;
   /** Who wins when `mover` reaches the finish, and the ending's reason. */
@@ -36,6 +38,7 @@ export function countRules(game: CountGame): GameRules {
     const count = Number(match?.[1]);
     if (match === null || count > game.finish) return null;
     const mover: GameSide = match[2] === 'w' ? 'white' : 'black';
+    if (game.singlePlayer && mover === 'black') return null;
     return { count, mover };
   };
   const show = (count: number, mover: GameSide) =>
@@ -85,7 +88,7 @@ export function countRules(game: CountGame): GameRules {
     replay: (actions, ply) =>
       trail(actions.slice(0, ply)).at(-1)?.position ?? initial,
     legal,
-    canWin: () => true,
+    canWin: (_position, side) => !game.singlePlayer || side === 'white',
     moves: (_position, _history, actions) =>
       trail(actions).map((played, ply, all) => ({
         label: played.label,

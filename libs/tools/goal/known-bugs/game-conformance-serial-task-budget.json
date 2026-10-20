@@ -1,0 +1,4 @@
+{
+  "summary": "One game harness test task executes ordinary checks and every shared contract serially: 446 passing tests take 491.91 seconds, exceeding the unchanged 300-second task budget.",
+  "regressionTest": "libs/tools/scripts/verify-budget.test.ts"
+}

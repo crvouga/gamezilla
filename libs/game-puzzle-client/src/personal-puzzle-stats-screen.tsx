@@ -17,9 +17,9 @@ export function PersonalPuzzleStatsScreen(props: {
   readonly screenId: string;
 }): JSX.Element {
   const [puzzleId, setPuzzleId] = createSignal<string | null>(null);
-  const [solveIdx, setSolveIdx] = createSignal(0);
+  const [solveIdx, setSolveIdx] = createSignal<number | null>(null);
   const review = (id: string): void => {
-    setSolveIdx(0);
+    setSolveIdx(null);
     setPuzzleId(id);
   };
   return (

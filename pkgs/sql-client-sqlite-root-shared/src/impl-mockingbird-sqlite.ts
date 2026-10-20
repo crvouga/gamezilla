@@ -12,6 +12,7 @@ import type {
   RunResult,
   SqlClient,
 } from '@pkgs/sql-client-root-shared/interface';
+import { createStatementCache } from '@pkgs/sql-client-root-shared/statement-cache';
 import type { Sql, Value } from '@pkgs/sql-root-shared/sql';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 
@@ -21,6 +22,10 @@ const SQLM_MAGIC2 = 0x4c;
 const SQLM_MAGIC3 = 0x4d;
 
 const SNAPSHOT_KIND = 'mockingbird-sqlite';
+
+const mockingbirdStatement = createStatementCache(
+  (db: Database, text: string) => db.prepare(text)
+);
 
 type MockingbirdSqliteBind =
   | string
@@ -236,14 +241,17 @@ export class SqlClientImplMockingbirdSqlite implements SqlClient {
 
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
     const sqlText = adaptSql(query.sql);
-    const rows = this.requireDb().query<T>(sqlText, toBinds(query.values));
+    const rows = mockingbirdStatement(this.requireDb(), sqlText).all<T>(
+      ...toBinds(query.values)
+    );
     return Promise.resolve(patchTableInfoRows(sqlText, rows));
   }
 
   run(query: Sql<unknown>): Promise<RunResult> {
-    const result = this.requireDb()
-      .prepare(adaptSql(query.sql))
-      .run(...toBinds(query.values));
+    const result = mockingbirdStatement(
+      this.requireDb(),
+      adaptSql(query.sql)
+    ).run(...toBinds(query.values));
     return Promise.resolve(toRunResult(result));
   }
 
@@ -251,7 +259,7 @@ export class SqlClientImplMockingbirdSqlite implements SqlClient {
     query: Sql<T>
   ): PreparedStatement<T> {
     const sqlText = adaptSql(query.sql);
-    const stmt = this.requireDb().prepare(sqlText);
+    const stmt = mockingbirdStatement(this.requireDb(), sqlText);
     return {
       query: (params?: Value[]) => {
         const rows = stmt.all<T>(...toBinds(params ?? []));

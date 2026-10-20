@@ -1,4 +1,3 @@
-import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared/durable-names';
 import { matchRoomModule } from '@libs/game-matchmaking-shared/match-room';
 import { PUZZLE_SESSIONS } from '@libs/game-puzzle-shared/puzzle-sessions';
 import type {
@@ -8,18 +7,15 @@ import type {
 } from '@libs/spaces-shared/game';
 import type { RoomState } from '@pkgs/room-root-shared/types';
 import type { GameAutomation } from '@pkgs/turn-game-shared/game-automation';
-import type { PuzzlesCapability } from '@pkgs/turn-game-shared/game-puzzles';
 import type {
   GameRules,
   RegisteredTurnGame,
   TurnGameCapabilities,
 } from '@pkgs/turn-game-shared/game-rules';
-import {
-  createTurnGames,
-  GAME_CAPABILITIES,
-} from '@pkgs/turn-game-shared/game-rules';
+import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { withCustomGames } from './custom-game-definition';
+import { assertTurnGameCapabilities } from './turn-game-capabilities';
 
 /**
  * The turn-game session engine: one per space, bound to every registered
@@ -90,52 +86,20 @@ export type TurnGameDefinition<
 > = DefinedTurnGame<C>;
 
 /** Everything a turn game supplies to the platform's shared lifecycles. */
-export type TurnGame<C extends TurnGameCapabilities = TurnGameCapabilities> = {
-  /** The game's mechanics; its `id` is the game's wire id. */
-  readonly rules: GameRules;
-  /** What the platform offers for the game, each with what it needs. */
-  readonly capabilities: C;
-  /**
-   * How a synthetic user and every shared suite choose an action and play it
-   * on the game's board (`perform(ui, board, action)`).
-   */
-  readonly automation: Omit<GameAutomation<Driver>, 'rules'>;
-  /** Room behaviour of the game's own screens, beside the shared ones. */
-  readonly own?: GameOwnRoom;
-};
-
-/** Refuse capabilities the platform does not offer, and placeholders. */
-function assertCapabilityKeys(id: string, capabilities: object): void {
-  for (const [key, value] of Object.entries(capabilities)) {
-    if (!(GAME_CAPABILITIES as readonly string[]).includes(key))
-      throw new Error(
-        `${id}: "${key}" is not a capability the platform offers (${GAME_CAPABILITIES.join(', ')})`
-      );
-    if (value === undefined || value === null)
-      throw new Error(
-        `${id}: capabilities.${key} is a placeholder — leave out a capability the game does not offer`
-      );
-  }
-}
-
-/** What puzzles need from the game, for what a type cannot see. */
-function assertPuzzles(id: string, puzzles: PuzzlesCapability | undefined) {
-  if (puzzles === undefined) return;
-  const needs = {
-    'content.validate': puzzles.content?.validate,
-    marks: puzzles.marks,
-    isCell: puzzles.isCell,
+export type TurnGame<C extends TurnGameCapabilities = TurnGameCapabilities> =
+  Pick<RegisteredTurnGame, 'unprefixedNamespace'> & {
+    /** The game's mechanics; its `id` is the game's wire id. */
+    readonly rules: GameRules;
+    /** What the platform offers for the game, each with what it needs. */
+    readonly capabilities: C;
+    /**
+     * How a synthetic user and every shared suite choose an action and play it
+     * on the game's board (`perform(ui, board, action)`).
+     */
+    readonly automation: Omit<GameAutomation<Driver>, 'rules'>;
+    /** Room behaviour of the game's own screens, beside the shared ones. */
+    readonly own?: GameOwnRoom;
   };
-  for (const [name, value] of Object.entries(needs))
-    if (typeof value !== 'function')
-      throw new Error(
-        `${id}: offering puzzles needs capabilities.puzzles.${name} — the platform judges and shows a puzzle only through it`
-      );
-  if (typeof puzzles.namespace !== 'string')
-    throw new Error(
-      `${id}: offering puzzles needs capabilities.puzzles.namespace ("${id}/")`
-    );
-}
 
 /**
  * The one way a turn game joins the platform. The platform installs the
@@ -148,20 +112,12 @@ export function defineTurnGame<C extends TurnGameCapabilities>(
   const id = game.rules.id;
   if (!/^[a-z][a-z0-9-]{0,31}$/.test(id))
     throw new Error(`game id "${id}" is not a lowercase slug`);
-  assertCapabilityKeys(id, game.capabilities);
-  assertPuzzles(id, game.capabilities.puzzles);
-  const difficulties = game.capabilities['custom-games']?.bots.difficulties;
-  if (
-    difficulties !== undefined &&
-    new Set(difficulties).size !== difficulties.length
-  )
-    throw new Error(`${id}: a bot difficulty is offered twice`);
+  assertTurnGameCapabilities(id, game.capabilities);
   const turnGame: RegisteredTurnGame = {
     rules: game.rules,
     capabilities: game.capabilities,
-    // Its stored clock choices and puzzles predate namespaces
-    // (GAME_PLATFORM_NAMESPACE).
-    ...(id === GAME_PLATFORM_NAMESPACE
+    // Compatibility ownership is granted explicitly and checked by composition.
+    ...(game.unprefixedNamespace === true
       ? { unprefixedNamespace: true as const }
       : {}),
   };

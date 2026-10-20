@@ -13,6 +13,7 @@ describe('a puzzle of a game the platform knows nothing about', () => {
   test('the setup move gives the solver the turn, and replay follows the line', () => {
     expect(setupPuzzle(game, 'pile:7:black', ['take1', 'take2'])).toEqual({
       kind: 'ready',
+      solveIdx: 1,
       displayPosition: 'pile:6:white',
       solverSide: 'white',
       status: 'solving',

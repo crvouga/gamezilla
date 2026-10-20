@@ -22,6 +22,7 @@ import type {
   RoomState,
 } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
 import { CONFORMANCE_GAMES } from '../../conformance-world';
 
@@ -151,6 +152,7 @@ export function puzzleCase(game: HarnessGame) {
     rules,
     puzzles,
     puzzleGame,
+    layout: puzzleLineLayout(puzzles),
     /** The positions of `fixture`'s line, by the game's rules alone. */
     trail: (fixture: PuzzleFixture) => rulesTrail(rules, fixture.record),
     /** How the game's rules name `action` at `position`. */

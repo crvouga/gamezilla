@@ -6,12 +6,17 @@
  * suites' and laws' business; here only the game's own rules are asked.
  */
 
-import type { PuzzleRecord } from '@pkgs/turn-game-shared/game-puzzles';
-import type { GameRules, GameSide } from '@pkgs/turn-game-shared/game-rules';
+import type { PuzzleGame } from '@libs/game-puzzle-shared/puzzle-setup';
+import {
+  type PuzzleRecord,
+  type PuzzlesCapability,
+  puzzleLineLayout,
+} from '@pkgs/turn-game-shared/game-puzzles';
+import type { GameSide } from '@pkgs/turn-game-shared/game-rules';
 
 /**
  * A solver move of a known puzzle: the line is followed up to `at` (the
- * index of a solver move in `record.line`, so odd), and `action` is played
+ * index of a solver move in `record.line` under its declared layout), and `action` is played
  * there instead of the line's move.
  */
 export type PuzzleFixtureMove = {
@@ -26,11 +31,11 @@ export type PuzzleFixtureMove = {
 export type PuzzleFixture = {
   /** The stored puzzle, its id in the game's namespace. */
   readonly record: PuzzleRecord;
-  /** Whose turn the setup move (`line[0]`) gives: the side the solver plays. */
+  /** The side the solver plays at the declared starting position. */
   readonly solverSide: GameSide;
-  /** The solver's moves of the line, in order (`line[1]`, `line[3]`, …). */
+  /** The solver's moves, including every entry of a solver-only line. */
   readonly solution: readonly string[];
-  /** How the game's rules name each action of the line, its setup move first. */
+  /** How the game's rules name each recorded action, in order. */
   readonly labels: readonly string[];
   /** A move its rules accept that neither follows the line nor wins: wrong. */
   readonly wrongMove: PuzzleFixtureMove;
@@ -41,7 +46,7 @@ export type PuzzleFixture = {
    * made on the board as the game lets a person try one: its rules refuse
    * it, so it is no move at all.
    */
-  readonly opponentMove: PuzzleFixtureMove;
+  readonly opponentMove?: PuzzleFixtureMove;
   /**
    * Only for a puzzle the game's rules let the solver win off the line: a
    * winning move other than the line's, which solves it at once.
@@ -58,17 +63,18 @@ export type PuzzleFixture = {
 /** At least one known puzzle. */
 export type KnownPuzzles = readonly [PuzzleFixture, ...PuzzleFixture[]];
 
-/** The game a known puzzle belongs to: its rules and its puzzle namespace. */
-type PuzzleGameFacts = {
-  readonly rules: GameRules;
-  readonly namespace: string;
-};
-
 type Fail = (problem: string) => void;
 
-/** The solver moves of `line`: `line[1]`, `line[3]`, … */
-export function solverMovesOf(line: readonly string[]): readonly string[] {
-  return line.filter((_action, index) => index % 2 === 1);
+/** The actions the person supplies, according to the declared line layout. */
+export function solverMovesOf(
+  line: readonly string[],
+  puzzles: Pick<PuzzlesCapability, 'lineMode'>
+): readonly string[] {
+  const layout = puzzleLineLayout(puzzles);
+  return line.filter(
+    (_action, index) =>
+      index >= layout.start && (index - layout.start) % layout.solverStep === 0
+  );
 }
 
 /** Every fixture move of `fixture`, named for a failure. */
@@ -89,27 +95,42 @@ export function fixtureMovesOf(
 
 /** The fixture's shape alone: ids, namespace, solution, labels, indices. */
 function assertShape(
-  game: PuzzleGameFacts,
+  game: PuzzleGame,
   fixture: PuzzleFixture,
   fail: Fail
 ): void {
   const { id, line } = fixture.record;
+  const { namespace } = game.puzzles;
+  const layout = puzzleLineLayout(game.puzzles);
   const named =
-    game.namespace === ''
+    namespace === ''
       ? id !== '' && !id.includes('/')
-      : id.startsWith(game.namespace) && id.length > game.namespace.length;
+      : id.startsWith(namespace) && id.length > namespace.length;
   if (!named)
-    fail(`the known puzzle ${id} is not in the namespace "${game.namespace}"`);
-  if (line.length < 2)
-    fail(`the known puzzle ${id} has no solver move after its setup move`);
-  if (JSON.stringify(fixture.solution) !== JSON.stringify(solverMovesOf(line)))
+    fail(`the known puzzle ${id} is not in the namespace "${namespace}"`);
+  if (line.length <= layout.start)
+    fail(
+      `the known puzzle ${id} has no solver move${layout.start === 1 ? ' after its setup move' : ''}`
+    );
+  if (
+    JSON.stringify(fixture.solution) !==
+    JSON.stringify(solverMovesOf(line, game.puzzles))
+  )
     fail(`the known puzzle ${id}'s solution is not its line's solver moves`);
   if (fixture.labels.length !== line.length)
     fail(
       `the known puzzle ${id} names ${fixture.labels.length} of its ${line.length} line moves`
     );
+  if (layout.solverStep === 2 && fixture.opponentMove === undefined)
+    fail(`the known puzzle ${id} has no opponent move`);
+  if (layout.solverStep === 1 && fixture.opponentMove !== undefined)
+    fail(`the known puzzle ${id} has an opponent move without an opponent`);
   for (const [name, move] of fixtureMovesOf(fixture))
-    if (move.at % 2 !== 1 || move.at >= line.length)
+    if (
+      move.at < layout.start ||
+      (move.at - layout.start) % layout.solverStep !== 0 ||
+      move.at >= line.length
+    )
       fail(
         `the known puzzle ${id}'s ${name} is not at a solver move of its line`
       );
@@ -117,7 +138,7 @@ function assertShape(
 
 /** The positions of the line, its starting position first, by the rules. */
 function assertLine(
-  game: PuzzleGameFacts,
+  game: PuzzleGame,
   fixture: PuzzleFixture,
   fail: Fail
 ): readonly string[] {
@@ -148,7 +169,7 @@ function assertLine(
 
 /** Each fixture move as its rules take it: refused, accepted, winning. */
 function assertMoves(
-  game: PuzzleGameFacts,
+  game: PuzzleGame,
   fixture: PuzzleFixture,
   positions: readonly string[],
   fail: Fail
@@ -160,7 +181,7 @@ function assertMoves(
     fail(
       `the known puzzle ${id}'s refused move ${fixture.refusedMove.action} is accepted`
     );
-  if (play(fixture.opponentMove) !== null)
+  if (fixture.opponentMove !== undefined && play(fixture.opponentMove) !== null)
     fail(
       `the known puzzle ${id}'s opponent's move ${fixture.opponentMove.action} is accepted`
     );
@@ -182,7 +203,7 @@ function assertMoves(
  * contradict or that leave the game's namespace.
  */
 export function assertKnownPuzzles(
-  game: PuzzleGameFacts,
+  game: PuzzleGame,
   known: KnownPuzzles,
   fail: Fail
 ): void {
@@ -205,7 +226,7 @@ export function assertKnownPuzzles(
  * line with another, known or more.
  */
 export function assertMorePuzzles(
-  game: PuzzleGameFacts,
+  game: PuzzleGame,
   known: KnownPuzzles,
   more: readonly PuzzleFixture[],
   fail: Fail

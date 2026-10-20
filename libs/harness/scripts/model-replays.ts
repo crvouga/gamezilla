@@ -11,15 +11,12 @@
 
 import { existsSync, writeFileSync } from 'node:fs';
 import { basename, join, relative, resolve } from 'node:path';
-import { simulate } from '@pkgs/quint-server/simulate';
-import type { ReplayPlan, TraceRun } from '@pkgs/quint-server/trace-runs';
-import { ONCE, replayPlanOf } from '@pkgs/quint-server/trace-runs';
 import {
-  DEFAULT_MAX_STEPS,
-  DEFAULT_TRACES,
-  quintBinding,
-  traceVariants,
-} from '@pkgs/quint-shared/registry';
+  drawModelInstances,
+  instancesReplayPlan,
+} from '@pkgs/quint-server/model-instances';
+import type { ReplayPlan } from '@pkgs/quint-server/trace-runs';
+import { quintBinding } from '@pkgs/quint-shared/registry';
 import type { ReplayPlans } from './replay-plans';
 import { REPLAY_PLAN_PATH } from './replay-plans';
 import { packageSpecs } from './spec-sources';
@@ -46,16 +43,14 @@ async function writePlans(dir: string): Promise<void> {
     const model = basename(specPath, '.qnt');
     const specUri = relative(root, specPath);
     const binding = quintBinding(model);
-    const variants = traceVariants({ model, specUri });
-    const runs: readonly TraceRun[] =
-      variants === null ? ONCE : variants.map((variant) => ({ variant }));
-    const drawn = simulate({
+    const instances = drawModelInstances({
       specPath,
-      traces: binding.traces ?? DEFAULT_TRACES,
-      maxSteps: binding.maxSteps ?? DEFAULT_MAX_STEPS,
+      specUri,
+      model,
+      binding,
       outDir: join(dir, '.cache/replay-plan', model),
     });
-    plans[model] = replayPlanOf(drawn, binding, runs);
+    plans[model] = instancesReplayPlan(instances, binding);
     console.log(`quint: planned ${model}`);
   }
   writeFileSync(join(dir, REPLAY_PLAN_PATH), formatReplayPlans(plans));

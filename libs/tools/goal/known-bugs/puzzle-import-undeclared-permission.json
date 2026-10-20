@@ -1,4 +1,4 @@
 {
   "summary": "Starting an uploaded puzzle CSV was rejected as undeclared_action because start and stop were absent from the central mutation permission registry.",
-  "regressionTest": "libs/chess-root-server/tests/puzzle-load-job.test.ts"
+  "regressionTest": "libs/chess-root-harness/tests/puzzle-load-job.contract.test.ts"
 }

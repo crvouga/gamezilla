@@ -1,0 +1,4 @@
+{
+  "summary": "The finish-on-close helper sends only every second solo action, leaving a clean two-action puzzle unfinished after the app closes.",
+  "regressionTest": "libs/games-harness/tests/probes/solo-puzzle-finish.test.ts"
+}

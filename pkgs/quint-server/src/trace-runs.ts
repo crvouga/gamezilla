@@ -5,7 +5,11 @@
  */
 
 import type { ItfTrace } from '@pkgs/quint-shared/itf';
-import type { TraceContext, TraceVariant } from '@pkgs/quint-shared/registry';
+import type {
+  ModelParameters,
+  TraceContext,
+  TraceVariant,
+} from '@pkgs/quint-shared/registry';
 import { replayCover, replaySelection } from '@pkgs/quint-shared/replay-budget';
 import { DEFAULT_REPLAY_TRACES } from '@pkgs/quint-shared/wall';
 
@@ -73,7 +77,17 @@ export function runInSlice(
  * sized by the replays that run, not by the draw. The model's run checks the
  * plan against its own draw (`runQuintModel`'s `replayPlan`).
  */
-export type ReplayPlan = {
+export type ReplayPlan =
+  | ReplayDrawPlan
+  | {
+      readonly seed: string;
+      readonly instances: readonly {
+        readonly parameters: ModelParameters;
+        readonly plan: ReplayDrawPlan;
+      }[];
+    };
+
+export type ReplayDrawPlan = {
   /** The draw the plan describes; another seed's run does not check it. */
   readonly seed: string;
   /** Traces drawn. */
@@ -103,6 +117,11 @@ export function sliceReplays(
   profile: ReplayProfile,
   slice: TraceSlice
 ): number {
+  if ('instances' in plan)
+    return plan.instances.reduce(
+      (count, instance) => count + sliceReplays(instance.plan, profile, slice),
+      0
+    );
   const runs: readonly TraceRun[] =
     plan.variants <= 1
       ? ONCE
@@ -121,7 +140,7 @@ export function sliceReplays(
 type Mine = (test: number, run: TraceRun) => boolean;
 
 function tracesInSlice(
-  plan: ReplayPlan,
+  plan: ReplayDrawPlan,
   profile: ReplayProfile,
   runs: readonly TraceRun[],
   mine: Mine
@@ -137,7 +156,7 @@ function tracesInSlice(
 }
 
 function historiesInSlice(
-  plan: ReplayPlan,
+  plan: ReplayDrawPlan,
   runs: readonly TraceRun[],
   mine: Mine
 ): number {
@@ -149,7 +168,7 @@ function historiesInSlice(
 
 /** An unvaried model checks determinism in slice 0; a varied one deals it out. */
 function determinismInSlice(
-  plan: ReplayPlan,
+  plan: ReplayDrawPlan,
   runs: readonly TraceRun[],
   mine: Mine,
   slice: TraceSlice
@@ -172,7 +191,7 @@ export function replayPlanOf(
     readonly fingerprint?: unknown;
   },
   runs: readonly TraceRun[]
-): ReplayPlan {
+): ReplayDrawPlan {
   const actions = Object.keys(binding.actions);
   const sorted = (positions: ReadonlySet<number>) =>
     [...positions].sort((a, b) => a - b);

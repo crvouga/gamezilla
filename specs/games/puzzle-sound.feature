@@ -7,22 +7,22 @@ Feature: Respect the app's sounds while solving and reviewing
   Rule: Puzzle moves follow the app's sounds preference
 
     @regression:merge-puzzle-move-wording
-    Scenario: Enabled sounds accompany a puzzle move and its opponent reply
+    Scenario: Enabled sounds accompany a correct puzzle continuation
       Given Alice is signed in
       And Alice has turned sounds on
       And Alice is solving the game's known puzzle
       When Alice plays the next move of the solution
       Then Alice hears the puzzle's move sounds
-      And Alice is solving the puzzle at move 3 of the line
+      And Alice is solving the puzzle after the first move of the solution
 
     @regression:chess-puzzle-muted-feedback
-    Scenario: Disabled sounds keep a puzzle move and its opponent reply silent
+    Scenario: Disabled sounds keep a correct puzzle continuation silent
       Given Alice is signed in
       And Alice has turned sounds off
       And Alice is solving the game's known puzzle
       When Alice plays the next move of the solution
       Then Alice cannot hear puzzle sounds while the app's sounds are off
-      And Alice is solving the puzzle at move 3 of the line
+      And Alice is solving the puzzle after the first move of the solution
 
     Scenario: Enabled sounds accompany a wrong puzzle move
       Given Alice is signed in
@@ -42,6 +42,7 @@ Feature: Respect the app's sounds while solving and reviewing
       And Alice cannot hear puzzle sounds while the app's sounds are off
 
   Rule: Sound changes preserve the puzzle and apply to its next move
+    No counter-example: Sound changes always preserve puzzle progress and never repeat feedback that is over.
 
     Scenario: Turning sounds off preserves the unfinished puzzle
       Given Alice is signed in
@@ -49,7 +50,7 @@ Feature: Respect the app's sounds while solving and reviewing
       And Alice is solving the game's known puzzle
       When Alice turns sounds off
       Then Alice's sounds are off
-      And Alice is solving the puzzle at move 1 of the line
+      And Alice is solving the puzzle before the first move of the solution
 
     Scenario: A puzzle already open follows a later silence choice
       Given Alice is signed in
@@ -57,7 +58,7 @@ Feature: Respect the app's sounds while solving and reviewing
       And Alice has since turned sounds off and returned to that unfinished puzzle
       When Alice plays the next move of the solution
       Then Alice cannot hear puzzle sounds while the app's sounds are off
-      And Alice is solving the puzzle at move 3 of the line
+      And Alice is solving the puzzle after the first move of the solution
 
     Scenario: Turning sounds on preserves the unfinished puzzle
       Given Alice is signed in
@@ -65,16 +66,16 @@ Feature: Respect the app's sounds while solving and reviewing
       And Alice is solving the game's known puzzle
       When Alice turns sounds on
       Then Alice's sounds are on
-      And Alice is solving the puzzle at move 1 of the line
+      And Alice is solving the puzzle before the first move of the solution
 
     @regression:chess-puzzle-replayed-feedback
-    Scenario: Enabling sounds keeps the puzzle at its start without repeating the setup move's sound
+    Scenario: Enabling sounds keeps the puzzle at its start without repeating earlier feedback
       Given Alice is signed in
       And Alice has turned sounds off
       And Alice is solving the game's known puzzle
       When Alice turns sounds on
       Then Alice hears no new puzzle feedback
-      And Alice is solving the puzzle at move 1 of the line
+      And Alice is solving the puzzle before the first move of the solution
 
     @regression:chess-puzzle-replayed-feedback
     Scenario: Enabling sounds after a silent solve does not repeat solved feedback
@@ -90,15 +91,15 @@ Feature: Respect the app's sounds while solving and reviewing
     Scenario: An enabled review sounds its next move
       Given Alice is signed in
       And Alice has turned sounds on
-      And Alice is reviewing the solved puzzle at move 3
+      And Alice is reviewing the solved puzzle at the position before the last move
       When Alice steps forward one move in the review
       Then Alice hears the review's move sound
-      And Alice's review is at move 4 of 4, reached with animation
+      And Alice's review is at the end of the line, reached with animation
 
     Scenario: A muted review remains silent while its position changes
       Given Alice is signed in
       And Alice has turned sounds off
-      And Alice is reviewing the solved puzzle at move 3
+      And Alice is reviewing the solved puzzle at the position before the last move
       When Alice steps forward one move in the review
       Then Alice cannot hear puzzle sounds while the app's sounds are off
-      And Alice's review is at move 4 of 4, reached with animation
+      And Alice's review is at the end of the line, reached with animation

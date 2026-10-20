@@ -24,8 +24,16 @@ export type TraceContext = {
   readonly variant?: TraceVariant;
 };
 
+/** Finite inputs held fixed for a whole model history. */
+export type ModelParameters = Readonly<Record<string, boolean>>;
+
 /** One subject a model holds for (a game, …), as reports name it. */
-export type TraceVariant = { readonly id: string; readonly label: string };
+export type TraceVariant = {
+  readonly id: string;
+  readonly label: string;
+  /** Fixed inputs for this subject's model; assign every declared bool constant. */
+  readonly parameters?: ModelParameters;
+};
 
 /** The model a host is asked to vary. */
 export type VariedModel = {
@@ -33,6 +41,8 @@ export type VariedModel = {
   readonly model: string;
   /** Repo-relative model path. */
   readonly specUri: string;
+  /** Main-module bool constants the host must assign for each variant. */
+  readonly parameters?: readonly string[];
 };
 
 /**

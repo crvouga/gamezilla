@@ -2,20 +2,23 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  LEAF_VERIFY_SECONDS,
   loadReport,
   measuredSection,
-  NARROW_VERIFY_SECONDS,
-  PR_VERIFY_SECONDS,
-  RUNNER_VCPU,
   readLoadInput,
   renderMeasuredLoad,
   replaceMeasuredLoad,
+} from './ci-load';
+import {
+  LEAF_VERIFY_SECONDS,
+  NARROW_VERIFY_SECONDS,
+  PR_VERIFY_SECONDS,
+  RUNNER_VCPU,
   runnerFit,
+  runnerPoolFit,
   SLACK_SECONDS,
   SPEC_WORKER_CAP,
   WARM_START_SECONDS,
-} from './ci-load';
+} from './ci-runner-capacity';
 
 const ROOT = join(import.meta.dirname, '../../..');
 
@@ -138,4 +141,30 @@ test('the existing runner fits the expanded corpus within its unchanged deadline
     fits: true,
   });
   expect(runnerFit({ ...load, coldSeconds: 7543 }).fits).toBe(false);
+});
+
+test('the bounded pool shares compute while retaining every per-runner limit', () => {
+  expect(
+    runnerPoolFit({
+      coldSeconds: 16877,
+      specSeconds: 10467,
+      poleSeconds: 200,
+      leafPoleMax: 60,
+      leafPoleP90: 33,
+    })
+  ).toMatchObject({ runners: 3, fits: true, specSlots: 15, otherSlots: 9 });
+});
+
+test('pool width cannot hide an indivisible long task or a slow leaf', () => {
+  const load = {
+    coldSeconds: 16877,
+    specSeconds: 10467,
+    poleSeconds: 360,
+    leafPoleMax: 60,
+    leafPoleP90: 33,
+  };
+  expect(runnerPoolFit(load).fits).toBe(false);
+  expect(
+    runnerPoolFit({ ...load, poleSeconds: 200, leafPoleMax: 201 }).fits
+  ).toBe(false);
 });

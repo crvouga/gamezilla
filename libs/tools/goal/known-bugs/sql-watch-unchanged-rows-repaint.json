@@ -1,0 +1,4 @@
+{
+  "summary": "A people-table notification reread the same Alice row with value 7 but published a fresh array and woke all subscribing UI. Initial empty hydration and actual value or row-order changes must still notify.",
+  "regressionTest": "pkgs/sync-engine-client/tests/sql-watch-distinct.test.ts"
+}

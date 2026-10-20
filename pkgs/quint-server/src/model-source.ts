@@ -1,7 +1,12 @@
 // @io-wall-ok — fingerprints the complete deterministic input to the Quint CLI.
 import { readFileSync } from 'node:fs';
-import { dirname, relative, resolve } from 'node:path';
+import { basename, dirname, relative, resolve } from 'node:path';
 import { quintImportPaths } from '@pkgs/quint-shared/imports';
+
+/** `space-hosting.qnt` → `space_hosting`, the module Quint runs. */
+export function quintModuleName(specPath: string): string {
+  return basename(specPath, '.qnt').replaceAll('-', '_');
+}
 
 export function modelSourceKey(specPath: string): string {
   const files = new Map<string, string>();

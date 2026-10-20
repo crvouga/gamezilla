@@ -1,0 +1,4 @@
+{
+  "summary": "The themed-pool setup filters away its only matching puzzle when that puzzle is already on the board instead of completing it first.",
+  "regressionTest": "libs/games-harness/tests/probes/solo-puzzle-feed.test.ts"
+}

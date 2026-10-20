@@ -7,6 +7,7 @@ import type {
   RoomState,
 } from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
+import { puzzleLineLayout } from '@pkgs/turn-game-shared/game-puzzles';
 import type { PuzzlePlayStatus } from './play-attr';
 import { PUZZLE_PLAY_STATUS, PuzzlePlayAttr } from './play-attr';
 import { handleRequestHint, handleRevealSolution } from './play-hint-handlers';
@@ -93,13 +94,18 @@ function acceptedMovePayload(args: {
   };
   const replyIdx = idx + 1;
   const reply = accepted.line[replyIdx];
-  if (accepted.ends || reply === undefined) {
+  if (
+    accepted.ends ||
+    reply === undefined ||
+    puzzleLineLayout(game.puzzles).solverStep === 1
+  ) {
+    const solved = accepted.ends || reply === undefined;
     return {
       ...base,
       displayFen: accepted.position,
       solveIdx: replyIdx,
-      status: PUZZLE_PLAY_STATUS.solved,
-      endedAtMs: ts,
+      status: solved ? PUZZLE_PLAY_STATUS.solved : PUZZLE_PLAY_STATUS.solving,
+      endedAtMs: solved ? ts : null,
     };
   }
   const replied = playPuzzleAction(game, accepted.position, reply);
@@ -258,7 +264,7 @@ function handleStart(
         displayFen: setup.displayPosition,
         orientation: setup.solverSide,
         status: setup.status,
-        solveIdx: 1,
+        solveIdx: setup.solveIdx,
       }),
     ],
   };
@@ -323,8 +329,8 @@ function handleReset(
     events: [
       PuzzlePlayResetEvt({
         displayFen: setup.displayPosition,
-        solveIdx: 1,
-        furthestSolveIdx: 1,
+        solveIdx: setup.solveIdx,
+        furthestSolveIdx: setup.solveIdx,
         status: setup.status,
         layoutKey,
       }),

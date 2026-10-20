@@ -9,6 +9,8 @@ its copy. Adding one is [`ADDING_A_GAME.md`](ADDING_A_GAME.md). What
 the framework guarantees, the evidence behind each guarantee, and what is
 still open are in
 [`FRAMEWORK_HARDENING_REPORT.md`](FRAMEWORK_HARDENING_REPORT.md).
+The independent follow-up and its remaining acceptance work are tracked in
+[`FINAL_HARDENING_AUDIT.md`](FINAL_HARDENING_AUDIT.md).
 
 ## Dependency direction
 
@@ -24,6 +26,10 @@ composition roots (registries, runtime, apps)
   one (`gameViolations`, `gameIdentityViolations`, `import-game-implementation.grit`).
 - A game imports the framework and its own packages only; never a sibling
   game and never a registry (a registry would hand it every sibling).
+  Game-specific engines and boards under `pkgs/` declare `"game"` too;
+  a reusable Chess engine remains concrete game code. The workspace graph
+  check in `libs/tools/scripts/game-dependency-graph.test.ts` follows both
+  production and development dependencies, including cycles and intermediaries.
 - Only packages declaring `"gameRegistry": true` compose games, and anything
   depending on a registry is one itself. Today: `@libs/games-shared`,
   `@libs/games-client`, `@libs/game-catalog-shared`, `@libs/games-harness`,
@@ -121,7 +127,7 @@ It is never a new entry for an internal module.
 | | `puzzle-link` | The puzzle link's route, path and parsing |
 | | `completion`, `hint-stage`, `solve-status` | The attempt's vocabulary its `PuzzleAttempt` speaks: a completion and its rating change, the hint's stage, the solve status |
 | `@libs/game-puzzle-client` | `puzzle-client` | `GamePuzzlesClient`, `PuzzleBoardProps`, `PuzzleBoardMarks`, `PuzzleSuggestion`, `PuzzleAttempt`, `PuzzleCoachLine`, `PuzzleFeedback`: the client part a game offering puzzles supplies |
-| | `personal-puzzle-stats-screen` | `PersonalPuzzleStatsScreen`: a game's puzzle stats outside any space, on the game's own route (chess's `/more/chess-stats`), reached from a Settings row marked `Handles.settingsPuzzleStats(<game id>)` |
+| | Personal puzzle stats | Framework-owned: composition derives each registered puzzle game's settings entry and `/more/<game id>-stats` route; no game-owned wrapper or additional public game API |
 | `@pkgs/turn-game-client`, `@libs/game-session-client`, `@libs/game-session-server`, `@libs/game-matchmaking-shared`, `@libs/game-matchmaking-client` | none | The platform's screens, consumers, commands and storage: a game never imports them |
 | `@libs/games-shared`, `@libs/games-client`, `@libs/game-catalog-shared`, `@libs/games-harness` | none | Registries: composition roots import `game-plugins`, `game-plugins.client`, `turn-games` / `game-automations` and `harness-games` / `game-conformance`; a game never depends on one (`gameViolations`) |
 
@@ -668,7 +674,14 @@ behaviour for exactly what it offers:
   offer a record to writing both people on their sides, the result, the
   clock choice and this game's moves, as its `readRecord` reads them
   (`conformance/history/game-record`). A suite registers its tests inside
-  `forEveryGame`.
+  `forEveryGame`. A suite needing more than its directory's capability
+  names those requirements as its third argument: for example, a copied
+  game record needs `['matchmaking']` beside `history`. Every game meeting
+  those requirements must register a case of its own.
+  The package's `test:contract:0` through `:4` run rules, custom games,
+  matchmaking, history and puzzles respectively. `test` owns the ordinary
+  checks and matrix; `test:contract` owns the isolated composition. The full
+  gate enumerates all parts, with the same task budgets as other packages.
 - **Independent oracles.** Expected outcomes come from each game's
   `fixtures` — a known first-side victory, known refused openings and, for
   a game that has one, a known line to a position its second side cannot
@@ -694,7 +707,8 @@ behaviour for exactly what it offers:
   `planConformance` (`@libs/games-harness/game-conformance`) finds, each
   saying what to fix: a game in `GAME_DEFINITIONS` but not `HARNESS_GAMES`
   or the reverse, out of order or with another definition; a code suite
-  that registers no case for any game it binds, or never calls
+  missing a case for any eligible game, claiming a case for an ineligible
+  game, registering no cases, or never calling
   `forEveryGame`; an offered capability no suite or specification requires
   a case of; a specification of `specs/games/` without a
   `SHARED_SPECIFICATIONS` entry, an entry without a specification, listing
@@ -705,6 +719,23 @@ behaviour for exactly what it offers:
   The planner is pure, and `tests/game-conformance-plan.test.ts` proves
   each refusal on fake registries. An unoffered capability is `—`
   (unsupported), never "not tested".
+  Agreement between the registries is insufficient: each harness game
+  must also appear in the execution world with its registered definition.
+  Duplicate execution ids and labels fail rather than sharing evidence.
+- **Isolated composition.** The package's `test:contract` installs only the
+  setup-race and counting reference consumers at the normal registry
+  boundaries and rejects loading any production game source. Every shared
+  code suite, the reference falsification cases, the matrix and the
+  canonical custom-game and turn features execute in that composition.
+  An attempted hidden concrete import must fail. The core shared package
+  separately bundles and executes empty composition and its counting
+  consumer with concrete sources and registries forbidden. The web client's
+  `tests/framework-build.test.ts` additionally compiles the actual shared
+  screens with the production Vite configuration and an empty catalog;
+  both a concrete implementation and a registry must fail its load guard
+  before tree-shaking. This is a shared-client build, not an empty build of
+  the whole application. These checks do not replace any production game's
+  own required evidence.
 - **Attribution and isolation.** Each game's run of a shared
   specification is named and recorded for that game alone: its test is
   `<scenario> [<game>]` and its evidence `scenario:<scenario> [<game id>]`
@@ -754,10 +785,13 @@ messages, the review's `chess.main-menu.selected-review-*` and
 the screen keys `puzzle`, `stats` and `stats-review`, every chess puzzle
 id, profile and feed settings id (the owner id), and the telemetry events
 `chess.puzzle.*`. The unprefixed
-namespace `''` — of clock choices and of puzzles — belongs to the game
-whose id is `GAME_PLATFORM_NAMESPACE` alone: `defineTurnGame` grants it to
-that game (`unprefixedNamespace`), and `createTurnGames` refuses it for any
-other (`<id>: the unprefixed clock namespace "" belongs to the platform's
+namespace `''` — of clock choices and of puzzles — belongs to the legacy
+definition explicitly selected by the composition root. Its registration
+supplies `unprefixedNamespace: true`; `GAME_DEFINITIONS` checks that grant
+with `assertGameNamespaceOwner(GAME_DEFINITIONS, chessGameShared)`.
+`defineTurnGame` never infers privileges from a game id. `createTurnGames`
+refuses an unprefixed namespace without the explicit grant
+(`<id>: the unprefixed clock namespace "" belongs to the platform's
 durable game alone — use "<id>/"`, and likewise for the puzzle
 namespace). Renaming any of
 them would change stored histories, pending offline mutations or queued
@@ -776,17 +810,22 @@ definitions import only the `gameApi` modules, checked by
 [`probe-imports.test.ts`](../../games-harness/tests/probes/probe-imports.test.ts)),
 and judged by the framework's own laws and planner
 ([`probe-verdict.ts`](../../games-harness/tests/probes/probe-verdict.ts)).
-A probe game is not enrolled in `CONFORMANCE_GAMES`: what it inherits is
+A probe need not be enrolled in `CONFORMANCE_GAMES`: what it inherits is
 what the shared suites and specifications bind by its capabilities
 (`offersAll`), which run for an enrolled game offering the same ones. A
 supported probe passes every law; a limitation is pinned by the law that
 refuses it, a runtime refusal or a `@ts-expect-error`, so it fails the
 day the boundary moves.
+The solver-only consumer is enrolled alongside the reference game and
+production games; it executes the shared rules and puzzle suites and specs.
+The isolated composition also executes setup-race through every applicable
+code suite and the shared custom-game and turn features, rather than
+relying on its planned enrollment alone.
 
 | Probe | Outcome | Public contracts | Framework change | Shared screens, specs and suites | Boundary |
 | --- | --- | --- | --- | --- | --- |
 | [Puzzle-first](../../games-harness/tests/probes/puzzle-only.test.ts) (puzzles only: no custom games, opponent or history) | Executable: supported | `defineTurnGame({ capabilities: { puzzles } })`, `defineGameClient({ puzzles })`, `HarnessGame` with known puzzles | None | A space offers exactly Puzzle and Puzzle stats; a known puzzle is solved on the shared puzzle screen; every `specs/games` specification needing only `puzzles`, and the `rules` and `puzzles` code suites | — |
-| [Puzzle without an opponent](../../games-harness/tests/probes/puzzle-only.test.ts) (`solo-count`) | Executable: limitation | The same | Would need one | — | A puzzle's line alternates the opponent's moves with the solver's (`PuzzleRecord.line`; `solverMovesOf`, `puzzle-judge`, `opponent-stage` by parity), and sides take turns: `assertHarnessGame` refuses the solver-only line, the turn law the rules. Extending it: a line of solver moves with optional replies in `PuzzleRecord`, the judge and stager, and a single-seat turn |
+| [Puzzle without an opponent](../../games-harness/tests/probes/puzzle-only.test.ts) (`solo-count`) | Executable: enrolled; broader verification in progress | `PuzzlesCapability.lineMode: 'solver-only'`, the existing definitions and checked harness adapter | Shared layout, navigation, fixture checks and model input binding | Every applicable rules and puzzle suite is automatically enrolled; both attempt and sound models have passing solo replays | A test-only one-person consumer; it advertises no custom games, matchmaking or history. Full verification evidence is tracked in the audit |
 | [Turns that do not alternate](../../games-harness/tests/probes/turn-order.test.ts) (`double-turn`) | Executable: limitation | `PlayedPosition.turn` already names the side to move, and the custom-game engine seats each move by it | Would need one | — | Alternation is the platform's contract, not chess's: `specs/games/game-turns.feature` ("A participant's move passes the turn"), the custom-game and matched-game models, `bothHaveMoved` (two moves close a matched game's abort window and start its clock), move-list numbering in pairs (`multiplayer-format`) and puzzle lines by parity. The rules law "the first side moves first and every action passes the turn to the other side" refuses such a game, by name, alone. Simultaneous actions (design-only) also need a position with no single side to move |
 | [Setup phase](../../games-harness/tests/probes/setup-phase.test.ts) (`setup-race`: each side picks a stride, then races) | Executable: supported as ordinary turns | `GameRules` actions and positions | None | Every custom-game specification and suite; setup actions replay, list and are refused before play like any move | Design-only: no phase. Setup actions start and spend clocks, are numbered as moves and close a matched game's abort window; a simultaneous or hidden setup is the private-state boundary |
 | [Result the mover does not win](../../games-harness/tests/probes/results.test.ts) (`misere-tally`) | Executable: supported | `PlayedPosition.winner` | One, made: custom games credited the mover (`custom-game-mover-credited-win`) | Every custom-game specification and suite | A margin or score is only the ending's reason text (`endingDescription(reason)`) |
@@ -807,6 +846,29 @@ What changes, verified against this branch's history:
 | A capability for a new class of game | `pkgs/turn-game-shared` (the contract module, `GAME_CAPABILITIES`, `CAPABILITY_REQUIRES`, `gameApi`), `defineTurnGame` (installing its shared module), `defineGameClient` and `assertMatchingGameIds` (its client part), `GameFixtures` and `assertHarnessGame` (its known examples), its laws, `tests/conformance/<capability>/`, `SHARED_SPECIFICATIONS` and `specs/games/`, its sub and composition (`app-subs`, `gameSystem`), the docs | Contracts + internals | Puzzles: `e74e57b9b` (contract, no game file), `907e5d0f8` (`PUZZLE_SESSIONS`, `harness-game.ts`), `f4b73b343` (client part, `game-client.tsx`, `load-game-plugins.ts`, `app-sub-clients.ts`), `44df2e627` (fixtures, laws, suites), `3c6b2c60c` and the binding commits after it |
 | Evolving persisted state | Never a [durable name](#durable-names); a new partition in reads, not tables; a recorded session replayed to the same events; a game's own encoding kept readable by its `recognizes` / `play` / `replay` | Internals | `a72377df5` (puzzle namespaces through `puzzle-namespace.ts`, the catalogue and reads; `puzzle-tables.ts` untouched), `907e5d0f8` (`chess-puzzle-harness/tests/puzzle-session-compatibility`), `49a13b2e8` (`GAME_PLATFORM_NAMESPACE`) |
 | An internal framework change | Framework internals and their tests only | Internals | `aa2c6dcb6` (`settle-due-game.ts`), `287ba476f` (the matchmaking harness): no game file; likewise this probe work's `custom-game-play.ts` fix and turn law |
+
+## Solver-only puzzle integration
+
+`PuzzlesCapability.lineMode` defaults to `opponent-replies`; `solver-only`
+means that every line entry is a solver action, with no automatic setup or
+reply. The core room now starts that mode at its supplied position (index
+zero), waits for each solver move, and permits review back to that position.
+Its judge and solution staging use the same declared layout. Existing
+production games retain the default, and their durable messages and names
+are unchanged.
+
+Client navigation and review now use the declared starting index. Review
+distinguishes an unset cursor from an explicit zero, and both common model
+instances have executable proof. This is not yet a complete integration
+path until all inherited checks pass. The solo consumer now has three checked
+known puzzles, thirty further distinct puzzles, a real board and audio
+feedback, and automatic shared-suite enrollment. The attempt and sound
+models replay both layouts, with independent action covers and evidence.
+The general rules laws require alternation and a chance to win for both sides
+only for consumers offering head-to-head play. Opponent puzzle fixtures
+still require an opponent input; solver-only fixtures must omit it. Follow
+[`FINAL_HARDENING_AUDIT.md`](FINAL_HARDENING_AUDIT.md) for current evidence;
+no production game advertises the new mode.
 
 ## Known limits
 

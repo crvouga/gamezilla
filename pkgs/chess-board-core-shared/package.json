@@ -27,5 +27,6 @@
     "fast-check": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "isomorphic"
+  "category": "isomorphic",
+  "game": "chess"
 }

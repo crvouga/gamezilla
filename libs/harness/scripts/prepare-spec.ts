@@ -1,6 +1,11 @@
 // @io-wall-ok — prepares one immutable model draw for all of a package's spec workers.
-import { rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
+import {
+  modelParameterCases,
+  modelParameterId,
+} from '@pkgs/quint-server/model-parameters';
+import { quintModuleName } from '@pkgs/quint-server/model-source';
 import { simulate } from '@pkgs/quint-server/simulate';
 import {
   DEFAULT_MAX_STEPS,
@@ -72,13 +77,21 @@ async function main(): Promise<void> {
 function drawBatch(draws: readonly ModelDraw[]): void {
   const output = join(process.cwd(), '.cache/prepared-spec-traces');
   for (const draw of draws) {
-    console.log(`quint: preparing ${basename(draw.path)}`);
-    simulate({
-      specPath: draw.path,
-      traces: draw.traces,
-      maxSteps: draw.maxSteps,
-      outDir: join(output, basename(draw.path, '.qnt')),
-    });
+    const source = readFileSync(draw.path, 'utf8');
+    const cases = modelParameterCases(source, quintModuleName(draw.path));
+    for (const parameters of cases) {
+      const id = modelParameterId(parameters);
+      console.log(
+        `quint: preparing ${basename(draw.path)}${id === '' ? '' : ` [${id}]`}`
+      );
+      simulate({
+        specPath: draw.path,
+        parameters,
+        traces: draw.traces,
+        maxSteps: draw.maxSteps,
+        outDir: join(output, basename(draw.path, '.qnt'), id),
+      });
+    }
   }
 }
 

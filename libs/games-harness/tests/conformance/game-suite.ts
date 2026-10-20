@@ -15,6 +15,7 @@ import { basename, dirname, join } from 'node:path';
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
 import type {
   ConformanceArea,
+  ConformanceNeed,
   PlannedCodeSuite,
 } from '@libs/games-harness/game-conformance';
 import {
@@ -44,7 +45,10 @@ export function suiteId(suiteFile: string): string {
 }
 
 /** While planning, whether each suite registers a case, per game id. */
-let planning: Map<string, Record<string, boolean>> | null = null;
+let planning: Map<
+  string,
+  Pick<PlannedCodeSuite, 'registers' | 'needs'>
+> | null = null;
 
 /** `bun:test`'s refusal of a test registered while another test runs. */
 const REFUSED_INSIDE_A_TEST = /inside a test/;
@@ -73,17 +77,18 @@ function registersCase(
 /** Register `suite` once for every conformance game its area binds. */
 export function forEveryGame(
   suiteFile: string,
-  suite: (game: HarnessGame) => void
+  suite: (game: HarnessGame) => void,
+  needs: readonly ConformanceNeed[] = []
 ): void {
   const area = suiteArea(suiteFile);
   const bound = CONFORMANCE_GAMES.filter((candidate) =>
-    offersAll(candidate, [area])
+    offersAll(candidate, [area, ...needs])
   );
   if (planning !== null) {
     const registers: Record<string, boolean> = {};
     for (const game of bound)
       registers[game.shared.id] = registersCase(suiteFile, game, suite);
-    planning.set(suiteId(suiteFile), registers);
+    planning.set(suiteId(suiteFile), { registers, needs });
     return;
   }
   for (const game of bound)
@@ -124,7 +129,10 @@ async function readPlan(tests: string): Promise<readonly PlannedCodeSuite[]> {
   const files = [
     ...new Bun.Glob('conformance/*/*.test.{ts,tsx}').scanSync(tests),
   ].sort();
-  const plans = new Map<string, Record<string, boolean>>();
+  const plans = new Map<
+    string,
+    Pick<PlannedCodeSuite, 'registers' | 'needs'>
+  >();
   planning = plans;
   try {
     for (const file of files) await import(`${join(tests, file)}?plan`);
@@ -136,7 +144,8 @@ async function readPlan(tests: string): Promise<readonly PlannedCodeSuite[]> {
     return {
       id: suiteId(path),
       area: suiteArea(path),
-      registers: plans.get(suiteId(path)) ?? {},
+      ...plans.get(suiteId(path)),
+      registers: plans.get(suiteId(path))?.registers ?? null,
     };
   });
 }
