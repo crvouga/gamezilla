@@ -12,10 +12,20 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 
 /**
- * Wall-time budget for one step against production (network round trips,
- * cold Worker). Virtual time in the harness makes it free there.
+ * Wall-time budget for one step. Pumped virtual time in `bun verify` makes
+ * it free there. The `release` world's simulated edge latency is a fixed
+ * 50 ms one-way over a localhost stack; a real deployed environment
+ * (`SPEC_WORLD=live`, dev or prd) pays real round trips, cold Workers,
+ * cross-region AWS IoT and a Cloudflare Durable Object, which this budget
+ * has timed out under before. Only `live` pays that cost, so only it gets
+ * the wider budget.
  */
-export const JOURNEY_WAIT_MS = 20_000;
+const LOCAL_JOURNEY_WAIT_MS = 20_000;
+const LIVE_JOURNEY_WAIT_MS = 40_000;
+export const JOURNEY_WAIT_MS =
+  process.env['SPEC_WORLD'] === 'live'
+    ? LIVE_JOURNEY_WAIT_MS
+    : LOCAL_JOURNEY_WAIT_MS;
 /** A modal's submit hides once the mutation settles. */
 const MUTATION_SETTLE_MS = 10_000;
 
