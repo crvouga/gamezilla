@@ -31,7 +31,7 @@ const DIST = join(PACKAGE_DIR, '.cache/release-web');
 const options = parseStackOptions([
   '--synthetic-population-workers=0',
   '--production-database',
-  '--edge-latency-ms=100',
+  '--edge-latency-ms=50',
 ]);
 const cli = parseCli(process.argv.slice(2));
 
