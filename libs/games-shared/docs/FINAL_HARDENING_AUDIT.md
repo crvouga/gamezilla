@@ -568,3 +568,26 @@ example is eight steps including its factual Background, a length warning
 whose extra setup preserves the original bug mechanism. The full C4 map,
 strict duplicates and execution obligations are still open. This is an
 ownership correction, not a completed audit verdict.
+
+Both promoted features now pass: 58 shared checks and 258 assertions in
+97.83 seconds. The solved-review return runs for Chess, counting race and
+solo count; the existing lower-level regression still runs in the shared
+room suite. Its bug-register pointer now names the canonical Games feature.
+Four Chess-only puzzle step definitions became unused and are deleted,
+along with the three retired matched-review definitions and unused move
+label table. Ordinary spec, product-map and bug-register gates pass;
+ownership history and all six affected type/lint tasks also pass.
+
+Type checking caught a scaffolding error in the extra-catalogue law check:
+it supplied a general array where `KnownPuzzles` requires a nonempty tuple.
+`aee31a42b` checks the first fixture and constructs that tuple without a
+cast or relaxing the contract. All seven law checks, including the faulty
+correct-as-wrong control, and the affected type check pass afterward.
+
+The next frozen full gate (`verify-run-0D3DjP`, before these ownership
+promotions) completed 891 of 913 tasks, including 574 exact-input cache
+hits, before the unchanged 600-second deadline. No assertion failure was
+reported; Tools tests and Chess shared lint were interrupted. Diagnostics
+were archived and a Turbo summary retained. This is still not a complete
+green gate or evidence for the subsequent ownership commits. Draft PR #216
+provides a CI checkpoint; it remains draft while the full mission is open.

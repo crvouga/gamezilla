@@ -1,6 +1,6 @@
 # Matched review ownership audit
 
-Date: 2026-10-20. Status: **INCOMPLETE — implementation handoff**.
+Date: 2026-10-20. Status: **INCOMPLETE — full aggregate audit remains open**.
 Scope: moving the spoken earlier-position example from Chess into the
 canonical matched-game review feature. This is not a whole-framework audit
 verdict; outstanding acceptance work remains in
@@ -37,9 +37,9 @@ interoperable records retain their separate Chess-specific contracts.
 | B4 | Description is always available for a position that can be reviewed; the Rule states why no separate refusal exists. The existing empty-game example refuses an unavailable earlier position. |
 | B5–B9 | One factual Given, one choice, one audible result. No quoted application copy or repeated action in the specification. |
 | B10–B13 | Outcome title, no Background, outline or artificial data. |
-| B14 | Listening and choosing reuse catalogued phrasings. The new Then names the first move rather than a Chess move. Delete the retired Chess-only bindings after the scenario is bound. The repository-wide nine near-duplicate pairs still require resolution. |
+| B14 | Listening and choosing reuse catalogued phrasings. The new Then names the first move rather than a Chess move. All three retired Chess-only definitions are deleted. The repository-wide nine near-duplicate pairs still require resolution. |
 | B15–B17, D1 | Existing domain tag; three steps; a person can hear the outcome under any implementation. No new implementation-detail scenario. |
-| D2–D6, P3 | The authoring gate reports the new Then undefined. Actual scenario red, harness binding, a wrong-description negative control and both production executions remain pending. |
+| D2–D6, P3 | The actual scenario failed on its undefined Then after setup and move selection passed. The binding reads the rendered review description through the harness, comparing the independently supplied first-move label. Both production consumers pass; a deliberately wrong spoken move number fails the Then. No new model binding or I/O. |
 | P1–P2 | Specification and source-ownership metadata changes precede the separate binding change. |
 
 ## Aggregate coverage delta
@@ -57,17 +57,27 @@ The product map already owns `matched-game-review.feature` at the matched
 game. Remove the old Chess feature reference there; no route or product
 state changes.
 
-## Handoff
+## Implementation and evidence
 
 New phrasing: Alice hears she is reviewing the earlier position after the
 first move. Existing listening setup and first-move selection are reused.
-The shared expected move must come from each game's checked fixture labels,
-never the product's displayed text. Preserve a genuine rendered-text read
-and remove all three obsolete Chess-only definitions (listening setup,
-move selection and spoken observation). There is no internal case
+The shared expected move comes from each game's checked fixture labels,
+never the product's displayed text. The harness reads the rendered review
+description, and all three obsolete Chess-only definitions (listening setup,
+move selection and spoken observation) and their unused label table are
+deleted. There is no internal case
 to demote and no historical regression tag on the removed feature.
 
-The strict authoring gate also found stale generated spec inputs for Chess
-part 4 and Games parts 26 and 27. Refresh these ignored outputs before
-rechecking. The three unused Chess definitions are the implementation
-handoff, not evidence that another feature lost a binding.
+The complete shared matched-review and puzzle-attempt-resume features pass
+58 checks, with 258 assertions, in 97.83 seconds. The new listener example
+passes for Chess and Connect Four. Chess's checked first two actions remain
+`e2e4, e7e5`, labelled `e4, e5`, preserving the original input. Changing the
+product's spoken move number from 1 to 9 fails the new Then with received
+`after 9. e4` versus expected `after 1. e4`. Restoring the product passes
+both listener checks again. The deliberate fault is not retained.
+
+Generated catalogs and spec-input manifests were refreshed. Ordinary spec,
+product-map and bug-register gates pass together. All six affected type and
+lint tasks pass. The ownership-history gate passes. The full repository
+gate and the nine strict wording findings remain outstanding; these
+targeted passes do not establish a complete aggregate audit.

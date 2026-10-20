@@ -45,6 +45,16 @@ export async function shownEarlierPosition(
   }
 }
 
+/** The description a listener hears of the position being reviewed. */
+export async function shownReviewDescription(
+  s: ProductHarness,
+  actor: string
+): Promise<string | null> {
+  await bringToFront(s, actor);
+  const description = (await actorUi(s, actor)).get('multiplayer-reviewing');
+  return (await description.isVisible()) ? await description.text() : null;
+}
+
 /** Where a person takes their own board in the move list. */
 export type MultiplayerReviewStep =
   | 'start'

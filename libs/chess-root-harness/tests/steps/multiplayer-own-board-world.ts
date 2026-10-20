@@ -41,10 +41,3 @@ export async function ownBoardSeen(
   expect(shown).toMatchObject(wanted);
   return shown;
 }
-
-/** How the screen names each of those moves by itself. */
-export const MOVE_NAMED: Readonly<Record<string, string>> = {
-  e4: '1. e4',
-  e5: '1... e5',
-  Nf3: '2. Nf3',
-};

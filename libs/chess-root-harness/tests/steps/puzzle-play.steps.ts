@@ -25,14 +25,11 @@ import {
 } from '@libs/chess-root-harness/chess-board-reads';
 import { CHESS_GAME_ID } from '@libs/chess-root-harness/chess-playable';
 import {
-  goBackToGamePuzzles,
   isPuzzleSolved,
   leavePuzzleForGameChoices,
   moveOnToNextPuzzle,
   openGamePuzzlesNoWait,
-  readPuzzleControls,
   readPuzzleHelp,
-  readPuzzleOnBoard,
   readPuzzleProbe,
   readPuzzlePrompt,
   readPuzzleState,
@@ -50,13 +47,11 @@ import { remember } from '@libs/harness/spec-world';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { markPuzzleSoundBoundary } from './puzzle-sound-evidence';
 import {
-  activePuzzle,
   boardBefore,
   ensureOnPuzzle,
   enterNamedPuzzle,
   enterPuzzles,
   lastMoveKey,
-  previousPuzzle,
   promotionPiece,
   recalled,
   rememberBoard,
@@ -421,34 +416,7 @@ When('{actor} moves on to the next puzzle', async (w, actor: Actor) => {
   await trackPuzzle(w, actor);
 });
 
-Then(
-  '{actor} is solving a different puzzle than the one before',
-  async (w, actor: Actor) => {
-    const before = required(previousPuzzle(w, actor), 'a puzzle before');
-    expect(await activePuzzle(w, actor)).not.toBe(before);
-    expect(await w.s.read(readPuzzleState, actor)).toBe('solving');
-  }
-);
-
-Then(
-  '{actor} is not offered the puzzle that is over',
-  async (w, actor: Actor) => {
-    // trackPuzzle on the way back moved the finished puzzle to "the one before".
-    const over = required(previousPuzzle(w, actor), 'the puzzle that is over');
-    expect(await w.s.read(readPuzzleOnBoard, actor)).not.toBe(over);
-    expect(await w.s.read(isPuzzleSolved, actor)).toBe(false);
-    expect((await w.s.read(readPuzzleControls, actor)).resultShown).toBe(false);
-  }
-);
-
 // ------------------------------------------------ leaving and coming back
-
-Given(
-  '{actor} has left the puzzle for the chess choices',
-  async (w, actor: Actor) => {
-    await w.s.apply(leavePuzzleForGameChoices, actor);
-  }
-);
 
 When(
   '{actor} leaves the puzzle for the chess choices',
@@ -456,14 +424,5 @@ When(
     await w.s.apply(leavePuzzleForGameChoices, actor);
   }
 );
-
-When('{actor} goes back to the puzzles', async (w, actor: Actor) => {
-  await w.s.apply(goBackToGamePuzzles, actor);
-  // A puzzle on the board replaces the one tracked before the return.
-  // The limit screen has none: do not invent one.
-  if ((await w.s.read(readPuzzleOnBoard, actor)) !== null) {
-    await trackPuzzle(w, actor);
-  }
-});
 
 // ------------------------------------------------------------------ account
