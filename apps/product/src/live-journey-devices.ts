@@ -37,3 +37,28 @@ export async function actOnLiveDevice(
   await device.view.cdp('Page.bringToFront', {});
   await gestures(device.driver);
 }
+
+/**
+ * Run the due cleanups on the host's activated page, as a step's gestures
+ * run: a cleanup that follows the peer's last gesture would otherwise read a
+ * parked page. One cleanup failing does not skip the rest; the first failure
+ * is returned for the caller to raise once the devices are closed.
+ */
+export async function runLiveCleanups(
+  devices: LiveDevices,
+  cleanups: ReadonlyMap<string, (ui: Driver) => Promise<void>>,
+  report: (key: string, error: unknown) => void
+): Promise<unknown> {
+  const host = devices.host;
+  if (host === null) return null;
+  let failure: unknown = null;
+  for (const [key, cleanup] of cleanups) {
+    try {
+      await actOnLiveDevice(devices, host, cleanup);
+    } catch (error) {
+      report(key, error);
+      failure ??= error;
+    }
+  }
+  return failure;
+}

@@ -9,6 +9,7 @@ import {
   type LiveDevices,
   openGuestDevice,
   requireDevice,
+  runLiveCleanups,
 } from '@apps/product/live-journey-devices';
 // @io-wall-ok — live health: the world every `liveDomains` scenario runs in.
 /**
@@ -244,12 +245,9 @@ async function closeBrowsing(
   try {
     const host = devices.host;
     if (host !== null) {
-      for (const [key, cleanup] of cleanups) {
-        await cleanup(host.driver).catch((error: unknown) => {
-          console.error(`cleanup ${key} failed: ${String(error)}`);
-          failure ??= error;
-        });
-      }
+      failure = await runLiveCleanups(devices, cleanups, (key, error) => {
+        console.error(`cleanup ${key} failed: ${String(error)}`);
+      });
       // A cleanup that fails after every step passed has no step failure to
       // print the devices; they close next.
       if (failure !== null && !failureFlag.failed)

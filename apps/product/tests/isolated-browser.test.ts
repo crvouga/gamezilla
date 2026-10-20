@@ -4,6 +4,7 @@ import {
   actOnLiveDevice,
   type LiveDevices,
   openGuestDevice,
+  runLiveCleanups,
 } from '@apps/product/live-journey-devices';
 import type { BrowserCall } from '@apps/product/remote-browser-driver';
 import type { IsolatedWorker } from '@pkgs/os-server/wall-isolated-worker';
@@ -202,4 +203,56 @@ test('every device switch activates the selected person before reading their pag
       }
     )
   );
+});
+
+// regression: live-cleanup-on-background-device
+test('cleanups after the peer acted last run on the activated host page', async () => {
+  let active = 1;
+  let reads = 0;
+  const workers = [0, 1].map((id) =>
+    controlled({
+      activate: () => {
+        active = id;
+      },
+      interact: () => {
+        expect(active).toBe(id);
+        reads++;
+      },
+    })
+  );
+  const target = {
+    webOrigin: 'https://web.example',
+    apiOrigin: 'https://api.example',
+  };
+  const host = await openIsolatedDevice(target, () => workers[0]!.process);
+  const peer = await openIsolatedDevice(target, () => workers[1]!.process);
+  const devices: LiveDevices = { host, guest: peer, shown: peer };
+  const failures: string[] = [];
+  try {
+    const failure = await runLiveCleanups(
+      devices,
+      new Map([
+        [
+          'first',
+          async (ui) => {
+            await ui.get('multiplayer-game').text();
+            throw new Error('first cleanup failed');
+          },
+        ],
+        [
+          'second',
+          async (ui) => {
+            await ui.get('multiplayer-game').text();
+          },
+        ],
+      ]),
+      (key) => failures.push(key)
+    );
+    expect(reads).toBe(2);
+    expect(failures).toEqual(['first']);
+    expect(String(failure)).toContain('first cleanup failed');
+  } finally {
+    await host.close();
+    await peer.close();
+  }
 });
