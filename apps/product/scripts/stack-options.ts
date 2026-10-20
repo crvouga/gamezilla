@@ -40,6 +40,14 @@ export type StackOptions = {
    */
   readonly productionDatabase: boolean;
   /**
+   * One-way delay the balancer adds to every request, response and socket
+   * frame, as the network between a person and the deployed API does. Zero
+   * for development; where a run decides whether a change can deploy it is
+   * what a real round trip costs, because loopback hides every ordering race
+   * a delay opens.
+   */
+  readonly edgeLatencyMs: number;
+  /**
    * `memory` (default) — the IdP's SQLite lives in the child's memory.
    * `instance` — `<instance data dir>/idp.sqlite`, wiped with the instance
    *   unless `--keep-data`, then lasting across restarts.
@@ -89,6 +97,16 @@ function parseIdpState(argv: readonly string[]): {
     );
   }
   return { mode: raw, path };
+}
+
+function parseEdgeLatency(argv: readonly string[]): number {
+  const raw = value(argv, 'edge-latency-ms') ?? '0';
+  const ms = Number(raw);
+  if (!Number.isInteger(ms) || ms < 0 || ms > 2_000)
+    throw new Error(
+      `--edge-latency-ms must be a whole number of milliseconds from 0 to 2000 (got '${raw}')`
+    );
+  return ms;
 }
 
 function parseWebPort(argv: readonly string[]): number | null {
@@ -146,6 +164,7 @@ export function parseStackOptions(argv: readonly string[]): StackOptions {
     testHooks: flag(argv, 'test-hooks'),
     keepData: flag(argv, 'keep-data'),
     productionDatabase: flag(argv, 'production-database'),
+    edgeLatencyMs: parseEdgeLatency(argv),
     idpStateMode: idpState.mode,
     idpStatePath: idpState.path,
   };

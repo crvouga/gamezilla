@@ -555,6 +555,28 @@ function stackManifest(args: {
   };
 }
 
+/**
+ * The balancer in front of the API nodes, over the network `options` asks
+ * for, on the port it was holding.
+ */
+async function startIngress(
+  reservation: PortReservation,
+  backends: Parameters<typeof startLoadBalancer>[0]['backends'],
+  options: StackOptions
+): Promise<ReturnType<typeof startLoadBalancer>> {
+  await reservation.release();
+  const balancer = startLoadBalancer({
+    port: reservation.port,
+    backends,
+    latency: {
+      ms: options.edgeLatencyMs,
+      sleep: (ms) => Bun.sleep(ms),
+    },
+  });
+  await waitForHttp(`${balancer.origin}/api/health`);
+  return balancer;
+}
+
 /** What a run reads back from the backing services once it is over. */
 function stackProbes(
   infra: InfraHandles
@@ -606,12 +628,7 @@ export async function bootLocalhostStack(
       await infra.stop();
     },
   });
-  await lbReservation.release();
-  const balancer = startLoadBalancer({
-    port: lbReservation.port,
-    backends: api.backends,
-  });
-  await waitForHttp(`${balancer.origin}/api/health`);
+  const balancer = await startIngress(lbReservation, api.backends, options);
   const stopClients = await startApplicationClients({
     dataDir,
     options,

@@ -262,6 +262,9 @@ function browsing(target: LiveTarget): Browsing {
           console.error(
             `browser failure transport (${name}): ${[...transport, ...responses].join('\n')}`
           );
+          console.error(
+            `browser failure console (${name}): ${current.console.slice(-40).join('\n')}`
+          );
         }
       }
       const device = devices.shown ?? devices.host;

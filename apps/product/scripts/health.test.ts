@@ -23,26 +23,49 @@ import {
   selectSpecs,
   targetEnv,
 } from './health';
-import { releaseJourneySpecs } from './release-journey-selection';
+import { RELEASE_ENVIRONMENT, releaseSpecs } from './release-selection';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 
 const PRODUCTION: Environment = {
   production: true,
   observability: true,
+  deployment: true,
 };
 const STANDARD: Environment = {
   production: false,
   observability: true,
+  deployment: true,
 };
 
 // regression: deploy-missing-multiplayer-release-journeys
-test('the release bundle checks Connect Four and multiplayer as well as space journeys', () => {
-  const paths = releaseJourneySpecs().map((path) => relative(REPO_ROOT, path));
+// regression: deploy-health-escaped-pull-request
+test('the release bundle checks every health journey the localhost stack can run', () => {
+  const paths = releaseSpecs().map((path) => relative(REPO_ROOT, path));
   expect(paths).toContain('specs/journeys/connect-four-game.feature');
   expect(paths).toContain('specs/journeys/multiplayer-game.feature');
   expect(paths).toContain('specs/journeys/custom-game.feature');
   expect(paths).toContain('specs/journeys/join-and-offline.feature');
+  expect(paths).toContain('specs/connect-four/connect-four-health.feature');
+});
+
+test('a health spec stays out of the release bundle only for something the localhost stack lacks', () => {
+  const left = allSpecs()
+    .filter((path) => path.endsWith('.feature'))
+    .filter((path) => !releaseSpecs().includes(path));
+  expect(left.length).toBeGreaterThan(0);
+  for (const path of left) {
+    const uri = relative(REPO_ROOT, path);
+    const limit = HOST_LIMITS.find(
+      (entry) => entry.feature === uri && entry.scenario === undefined
+    );
+    expect(
+      limit,
+      `${uri} is left out of the release bundle without a reason`
+    ).toBeDefined();
+    expect(RELEASE_ENVIRONMENT[limit?.needs ?? 'deployment']).toBe(false);
+    expect(limit?.why.length).toBeGreaterThan(0);
+  }
 });
 
 // regression: live-connect-four-journey-unbound

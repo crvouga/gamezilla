@@ -1,0 +1,4 @@
+{
+  "summary": "The journey tapped White's first move while the board still ignored input, because the start choice awaited the room's confirmation, so the move never happened on a network with a real round trip.",
+  "regressionTest": "libs/runtime-harness/tests/custom-game-journey-move.test.ts"
+}

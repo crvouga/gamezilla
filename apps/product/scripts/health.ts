@@ -212,6 +212,13 @@ export function selectSpecs(input: {
 export type Environment = {
   readonly production: boolean;
   readonly observability: boolean;
+  /**
+   * Its own addresses, certificates, cloud account, secret store and
+   * infrastructure. The localhost stack that gates a change before it merges
+   * has none of them, so what only a deployed environment can answer waits
+   * for the deploy.
+   */
+  readonly deployment: boolean;
 };
 
 /**
@@ -254,6 +261,51 @@ export const HOST_LIMITS: readonly HostLimit[] = [
     feature: 'specs/profile/finding-a-person.feature',
     needs: 'observability',
     why: 'with OBSERVABILITY_ENABLED=0 the environment keeps no trail of what happened to a person',
+  },
+  {
+    feature: 'specs/auth/sign-in.feature',
+    needs: 'deployment',
+    why: "it reads the deployed environment's sign-in settings from its secret store",
+  },
+  {
+    feature: 'specs/billing/payments.feature',
+    needs: 'deployment',
+    why: "it reads the deployed environment's billing mode from its secret store",
+  },
+  {
+    feature: 'specs/runtime/declared-environment.feature',
+    needs: 'deployment',
+    why: "it compares the deployed environment's infrastructure with what the team declared",
+  },
+  {
+    feature: 'specs/runtime/serving-people.feature',
+    needs: 'deployment',
+    why: "it checks the deployed environment's database and settings through its secret store",
+  },
+  {
+    feature: 'specs/runtime/stored-files.feature',
+    needs: 'deployment',
+    why: "it reads the deployed environment's bucket from its secret store",
+  },
+  {
+    feature: 'specs/runtime/reaching-the-app.feature',
+    needs: 'deployment',
+    why: "it checks the deployed environment's addresses and certificates",
+  },
+  {
+    feature: 'specs/runtime/connected-services.feature',
+    needs: 'deployment',
+    why: "it checks the deployed environment's credentials with each outside service",
+  },
+  {
+    feature: 'specs/spaces/spaces.feature',
+    needs: 'deployment',
+    why: "it reads the deployed environment's Cloudflare account",
+  },
+  {
+    feature: 'specs/spaces/live-updates.feature',
+    needs: 'deployment',
+    why: "it reads the deployed environment's database and broker from its secret store",
   },
 ];
 
@@ -359,6 +411,7 @@ function environmentOffers(): {
       production: isProductionEnv(env),
       observability:
         (process.env['OBSERVABILITY_ENABLED'] ?? '').trim() !== '0',
+      deployment: true,
     },
   };
 }
