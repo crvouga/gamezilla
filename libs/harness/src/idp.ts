@@ -191,7 +191,13 @@ function createHarnessIdp(
   >
 ): HarnessIdp {
   const origin = ORIGINS[provider];
-  const runtime = createRuntime({ provider, issuer: origin, ...options });
+  const runtime = createRuntime({
+    provider,
+    issuer: origin,
+    seed: `harness-idp:${provider}`,
+    deterministicCredentials: true,
+    ...options,
+  });
   return {
     provider,
     origin,
