@@ -1,3 +1,4 @@
+import { isEqual } from '@pkgs/equal-shared/is-equal';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { Sql } from '@pkgs/sql-root-shared/sql';
 
@@ -79,9 +80,19 @@ export function createSqlWatch<T extends Record<string, unknown>>(args: {
     }
     reading = true;
     try {
-      snapshot = await args.db.query(args.query);
-      hydrated = true;
-      notify();
+      const next = await args.db.query(args.query);
+      let changed = !hydrated || snapshot.length !== next.length;
+      const shared = next.map((row, index) => {
+        const previous = snapshot[index];
+        if (previous !== undefined && isEqual(previous, row)) return previous;
+        changed = true;
+        return row;
+      });
+      if (changed) {
+        snapshot = shared;
+        hydrated = true;
+        notify();
+      }
     } finally {
       reading = false;
       if (pending) {

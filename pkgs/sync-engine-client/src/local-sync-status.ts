@@ -12,6 +12,13 @@ export function createLocalSyncStatusStore(): LocalSyncStatusStore {
   const listeners = new Set<(status: SyncEngineStatus) => void>();
 
   const publish = (next: SyncEngineStatus): void => {
+    const current: Readonly<Record<string, unknown>> = snapshot;
+    if (
+      Object.entries(next).every(([key, value]) =>
+        Object.is(current[key], value)
+      )
+    )
+      return;
     snapshot = next;
     for (const listener of listeners) listener(snapshot);
   };

@@ -1,0 +1,4 @@
+{
+  "summary": "Changing Alice's projected value from 8 to 10 rebuilt the unchanged Bob row with value 9. Solid lists keyed by row identity recreated unaffected neighbors after each SQL refresh.",
+  "regressionTest": "pkgs/sync-engine-client/tests/sql-watch-distinct.test.ts"
+}
