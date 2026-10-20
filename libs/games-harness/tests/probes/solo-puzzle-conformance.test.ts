@@ -17,9 +17,11 @@ const fail = (problem: string): never => {
 };
 
 function wrongMoveLaw(fixtures: readonly PuzzleFixture[]) {
+  const [first, ...rest] = fixtures;
+  if (first === undefined) throw new Error('Missing puzzle for wrong-move law');
   const wrong = gamePuzzleJudgeLaws({
     ...SOLO_COUNT_GAME,
-    fixtures: { ...SOLO_COUNT_GAME.fixtures, puzzles: fixtures },
+    fixtures: { ...SOLO_COUNT_GAME.fixtures, puzzles: [first, ...rest] },
   }).find((entry) => entry.name === 'its wrong move is judged wrong');
   if (wrong === undefined) throw new Error('Missing wrong-move law');
   return wrong.check;
