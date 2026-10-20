@@ -94,6 +94,27 @@ test('Home and forward review the supplied position and the next solo action', (
   }
 });
 
+// regression: puzzle-review-adjacent-list-jump-animates
+test('selecting move one on the two-move solo line snaps, while stepping animates', () => {
+  const review = openReview();
+  try {
+    review.model.onSeek(1);
+    expect(review.model.solveIdx()).toBe(1);
+    expect(review.model.displayPosition()).toBe('solo-count:5w');
+    expect(review.model.animated()).toBe(false);
+    review.model.onNavigate('forward');
+    expect(review.model.solveIdx()).toBe(2);
+    expect(review.model.animated()).toBe(true);
+    review.model.onSeek(1);
+    expect(review.model.animated()).toBe(false);
+    review.model.onNavigate('start');
+    expect(review.model.solveIdx()).toBe(0);
+    expect(review.model.animated()).toBe(false);
+  } finally {
+    review.dispose();
+  }
+});
+
 test('a newly mounted review preserves a selected zero without publishing another cursor', () => {
   const review = openReview(0);
   try {

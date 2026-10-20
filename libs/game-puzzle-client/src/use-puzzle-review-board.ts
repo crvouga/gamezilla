@@ -42,7 +42,7 @@ export function usePuzzleReviewBoard(
   const firstSolveIdx = puzzleLineLayout(game.puzzles).start;
   const setup = createMemo(() => setupPuzzle(game, fen, lineActions(moves)));
   const tokensLength = createMemo(() => lineLength(moves));
-  // The board snaps unless the seek that produced this position was one ply.
+  // Only step controls animate. Selecting a move or either end snaps.
   const [animated, setAnimated] = createSignal(false);
 
   const solveIdx = createMemo(() => {
@@ -81,14 +81,16 @@ export function usePuzzleReviewBoard(
   const canGoBack = createMemo(() => solveIdx() > firstSolveIdx);
   const canGoForward = createMemo(() => solveIdx() < tokensLength());
 
-  const onSeek = (targetSolveIdx: number): void => {
+  const seek = (targetSolveIdx: number, animate: boolean): void => {
     if (targetSolveIdx < firstSolveIdx) return;
     if (targetSolveIdx > tokensLength()) return;
     const current = solveIdx();
     if (targetSolveIdx === current) return;
-    setAnimated(isPuzzleSeekAnimated(current, targetSolveIdx));
+    setAnimated(animate);
     cursor.seek(targetSolveIdx);
   };
+
+  const onSeek = (targetSolveIdx: number): void => seek(targetSolveIdx, false);
 
   const onNavigate = (intent: PuzzleNavIntent): void => {
     const target = resolvePuzzleNavTarget({
@@ -98,7 +100,11 @@ export function usePuzzleReviewBoard(
       firstSolveIdx,
     });
     if (target === null) return;
-    onSeek(target);
+    seek(
+      target,
+      (intent === 'back' || intent === 'forward') &&
+        isPuzzleSeekAnimated(solveIdx(), target)
+    );
   };
 
   return {

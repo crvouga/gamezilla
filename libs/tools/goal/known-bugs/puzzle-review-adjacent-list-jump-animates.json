@@ -1,0 +1,4 @@
+{
+  "summary": "Selecting move one from the end of the two-move solo-count:3w line two two animated the adjacent jump. Move-list and start/end jumps must snap; only step controls animate.",
+  "regressionTest": "libs/games-harness/tests/probes/solo-review-cursor.test.ts"
+}
