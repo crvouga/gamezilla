@@ -1,0 +1,4 @@
+{
+  "summary": "The artifact cleanup property timed out after five seconds at nightly seed 419327699, 200 cases, with reported shrunk input []. Each sample started Bash; reuse one owned shell while retaining the property budget and literal empty-list example.",
+  "regressionTest": "libs/tools/scripts/workflow-artifact-cleanup.test.ts"
+}
