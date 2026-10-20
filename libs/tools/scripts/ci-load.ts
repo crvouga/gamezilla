@@ -1,32 +1,19 @@
 // @io-wall-ok — reads the workspace graph and the measured task-cost file.
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import {
+  RUNNER_COUNT,
+  RUNNER_RAM_GIB,
+  RUNNER_VCPU,
+  type RunnerFit,
+  type RunnerLoad,
+  runnerPoolFit,
+  SLACK_SECONDS,
+  SPEC_WORKER_CAP,
+  WARM_START_SECONDS,
+  WORK_BUDGET_SECONDS,
+} from './ci-runner-capacity';
 import { estimateTask } from './verify-task-estimates';
-
-/** Push to a posted verdict, including a full cold corpus. */
-export const PR_VERIFY_SECONDS = 300;
-/** Every graph leaf, including the slowest one. */
-export const LEAF_VERIFY_SECONDS = 180;
-/** Nine out of ten leaves. */
-export const NARROW_VERIFY_SECONDS = 90;
-/** Fetch, plan, and cache lookup on a runner that already has the install. */
-export const WARM_START_SECONDS = 30;
-/** Post the verdict after the last task. */
-export const SLACK_SECONDS = 15;
-/** Conservative slot-allocation target; the hard deadline also reserves slack. */
-export const WORK_BUDGET_SECONDS = 240;
-/** Same cap as `specWorkerCeiling` in `@pkgs/os-server`. */
-export const SPEC_WORKER_CAP = 16;
-/** Two cores stay free for the model solver and the OS. */
-export const RESERVED_CORES = 2;
-/** One product world, rounded up from the measured 1.7 GB. */
-export const SPEC_WORKER_GIB = 2;
-/** RAM left for the OS, the solver, and the report writer. */
-export const RESERVE_GIB = 8;
-/** Provisioned shape. The fit test fails when the corpus needs more. */
-export const RUNNER_VCPU = 32;
-export const RUNNER_RAM_GIB = 64;
-export const RUNNER_COUNT = 2;
 
 const START = '<!-- ci-load:start -->';
 const END = '<!-- ci-load:end -->';
@@ -96,32 +83,18 @@ export type ConeLoad = {
   readonly poleTask: string;
 };
 
-export type RunnerFit = {
-  readonly specSlots: number;
-  readonly otherSlots: number;
-  readonly cores: number;
-  readonly memoryGib: number;
-  readonly makespanSeconds: number;
-  readonly fits: boolean;
-};
-
-export type LoadReport = {
+export type LoadReport = RunnerLoad & {
   readonly packages: number;
   readonly tasks: number;
   readonly measuredTasks: number;
   readonly estimatedTasks: number;
   readonly staleCostKeys: number;
-  readonly coldSeconds: number;
   readonly specTasks: number;
-  readonly specSeconds: number;
-  readonly poleSeconds: number;
   readonly poleTask: string;
   readonly families: readonly FamilyLoad[];
   readonly leaves: readonly PackageLoad[];
   readonly leafOwnP50: number;
   readonly leafOwnP90: number;
-  readonly leafPoleP90: number;
-  readonly leafPoleMax: number;
   readonly cones: readonly ConeLoad[];
   readonly fit: RunnerFit;
 };
@@ -130,7 +103,7 @@ export type LoadReport = {
 export function isCheckTask(name: string): boolean {
   return (
     EXACT_TASKS.has(name) ||
-    /^(test:spec|test:contract):\d+$/.test(name) ||
+    /^(test:spec|test:contract|test:unit):\d+$/.test(name) ||
     /^verify:models:\d+(?::\d+)?$/.test(name)
   );
 }
@@ -143,63 +116,6 @@ export function percentile(values: readonly number[], p: number): number {
     Math.floor((sorted.length - 1) * p)
   );
   return sorted[index] ?? 0;
-}
-
-type RunnerLoad = Pick<
-  LoadReport,
-  'specSeconds' | 'coldSeconds' | 'poleSeconds' | 'leafPoleMax' | 'leafPoleP90'
->;
-
-/** Slots and memory the warm runner needs for this corpus. */
-export function runnerFit(load: RunnerLoad): RunnerFit {
-  const specSlots = Math.min(SPEC_WORKER_CAP, slotsFor(load.specSeconds));
-  const otherSlots = slotsFor(Math.max(0, load.coldSeconds - load.specSeconds));
-  const preferred = placeOnRunner(load, specSlots, otherSlots);
-  if (preferred.fits) return preferred;
-  const available = Math.max(0, RUNNER_VCPU - RESERVED_CORES - specSlots);
-  const bounded = placeOnRunner(
-    load,
-    specSlots,
-    Math.min(otherSlots, available)
-  );
-  return bounded.fits ? bounded : preferred;
-}
-
-function placeOnRunner(
-  load: RunnerLoad,
-  specSlots: number,
-  otherSlots: number
-): RunnerFit {
-  const otherSeconds = Math.max(0, load.coldSeconds - load.specSeconds);
-  const cores = specSlots + RESERVED_CORES + otherSlots;
-  const memoryGib = specSlots * SPEC_WORKER_GIB + RESERVE_GIB;
-  const makespanSeconds = Math.ceil(
-    Math.max(
-      load.poleSeconds,
-      span(load.specSeconds, specSlots),
-      span(otherSeconds, otherSlots)
-    )
-  );
-  const fits =
-    specSlots <= SPEC_WORKER_CAP &&
-    cores <= RUNNER_VCPU &&
-    memoryGib <= RUNNER_RAM_GIB &&
-    makespanSeconds + WARM_START_SECONDS + SLACK_SECONDS <= PR_VERIFY_SECONDS &&
-    load.leafPoleMax + WARM_START_SECONDS + SLACK_SECONDS <=
-      LEAF_VERIFY_SECONDS &&
-    load.leafPoleP90 + WARM_START_SECONDS + SLACK_SECONDS <=
-      NARROW_VERIFY_SECONDS;
-  return { specSlots, otherSlots, cores, memoryGib, makespanSeconds, fits };
-}
-
-function slotsFor(seconds: number): number {
-  if (seconds <= 0) return 0;
-  return Math.ceil(seconds / WORK_BUDGET_SECONDS);
-}
-
-function span(seconds: number, slots: number): number {
-  if (slots <= 0) return seconds > 0 ? Number.POSITIVE_INFINITY : 0;
-  return seconds / slots;
 }
 
 export function loadReport(input: LoadInput): LoadReport {
@@ -250,7 +166,7 @@ export function loadReport(input: LoadInput): LoadReport {
     ),
     cones,
   };
-  return { ...report, fit: runnerFit(report) };
+  return { ...report, fit: runnerPoolFit(report) };
 }
 
 type Totals = {
@@ -493,14 +409,15 @@ function coneTable(cones: readonly ConeLoad[]): string {
 
 function fitTable(fit: RunnerFit): string {
   return [
-    `Slot allocation target ${String(WORK_BUDGET_SECONDS)} s. Warm start ${String(WARM_START_SECONDS)} s. Verdict slack ${String(SLACK_SECONDS)} s. Spec workers stay at or under ${String(SPEC_WORKER_CAP)}.`,
+    `Slot allocation target ${String(WORK_BUDGET_SECONDS)} s. Warm start ${String(WARM_START_SECONDS)} s. Verdict slack ${String(SLACK_SECONDS)} s. Spec workers stay at or under ${String(SPEC_WORKER_CAP)} per runner.`,
     '',
     '| | |',
     '| --- | --- |',
-    row('Spec slots', String(fit.specSlots)),
-    row('Other slots', String(fit.otherSlots)),
-    row('Cores required', String(fit.cores)),
-    row('Memory required', `${String(fit.memoryGib)} GiB`),
+    row('Runners per verification', String(fit.runners)),
+    row('Spec slots per runner', String(fit.specSlots)),
+    row('Other slots per runner', String(fit.otherSlots)),
+    row('Cores required per runner', String(fit.cores)),
+    row('Memory required per runner', `${String(fit.memoryGib)} GiB`),
     row('Estimated makespan', seconds(fit.makespanSeconds)),
     row(
       'Provision',
