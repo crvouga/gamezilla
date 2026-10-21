@@ -2,6 +2,7 @@ import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choi
 import { customGameStartable } from '@libs/game-session-shared/custom-game-state';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { controlIsEnabled } from '@pkgs/ui-testing-root-shared/control-is-enabled';
 import type { CustomGameProbe } from './custom-game-probe';
 import { readCustomGameProbe } from './custom-game-probe';
 import {
@@ -11,6 +12,7 @@ import {
 } from './custom-game-ui';
 import { showCustomGames } from './game-navigation';
 import { harnessGameAt } from './harness-game-of';
+import { keepsOwnPrivateSetup } from './own-private-setups';
 
 /** The custom-game control a person uses for `input`. */
 export function customGameControl(
@@ -120,6 +122,14 @@ async function controlUsable(
 ): Promise<boolean> {
   const ui = await actorUi(s, actor);
   if (!(await ui.get(target).isVisible())) return false;
+  // A disabled control takes no choice (a private setup still incomplete).
+  if (
+    !controlIsEnabled(
+      await ui.get(target).attribute('disabled'),
+      await ui.get(target).attribute('aria-disabled')
+    )
+  )
+    return false;
   // A control still showing its last success takes no new choice yet.
   const button = (await ui.snapshotHtml())?.match(
     new RegExp(`<button[^>]*data-testid="${target}"[^>]*>`)
@@ -137,7 +147,12 @@ async function arrangeSetup(
   input: CustomGameInput,
   probe: CustomGameProbe
 ): Promise<void> {
-  if (input.operation !== 'ready' || probe.current === null) return;
+  if (
+    input.operation !== 'ready' ||
+    probe.current === null ||
+    keepsOwnPrivateSetup(s, actor)
+  )
+    return;
   const ready = await withKnownSetup(s, actor, input);
   const setup = ready.operation === 'ready' ? ready.setup : undefined;
   const arrange = harnessGameAt(s, probe.current.fen).shared.automation.arrange;

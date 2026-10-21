@@ -91,12 +91,15 @@ export const SECRET_PICK_RULES: GameRules = {
   replay,
   legal,
   canWin: (position) => !over(actionsOf(position) ?? []),
-  moves: (_position, _history, actions) =>
-    actions.map((action, i) => ({
-      label: step(actions.slice(0, i), action)?.label ?? action,
-      before: replay(actions, i),
-      after: replay(actions, i + 1),
-    })),
+  // The position holds every guess so far, as a matched game's list reads it.
+  moves: (position, _history, actions) => {
+    const played = actionsOf(position) ?? actions;
+    return played.map((action, i) => ({
+      label: step(played.slice(0, i), action)?.label ?? action,
+      before: replay(played, i),
+      after: replay(played, i + 1),
+    }));
+  },
   setup: {
     accept: (setup) => (/^n[2-9]$/.test(setup) ? setup : null),
     random: (random) => `n${String(2 + Math.floor(random() * 8))}`,

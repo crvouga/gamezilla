@@ -7,6 +7,7 @@ import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
 import { readCustomGameProbe } from './custom-game-probe';
 import { harnessGameAt, knownSetupAt } from './harness-game-of';
+import { keepsOwnPrivateSetup } from './own-private-setups';
 
 export async function customGameReference(s: ProductHarness, actor: string) {
   const probe = await readCustomGameProbe(s, actor);
@@ -61,6 +62,8 @@ export async function sendCustomGameChoice(
     const probe = await readCustomGameProbe(s, actor);
     if (probe?.receipt.request === raw && !probe.receipt.pending)
       return probe.receipt.reason;
+    // A move made with no connection waits for it, still unanswered.
+    if (probe?.receipt.request === raw && probe.waiting) return '';
     await s.session.advanceTime(0);
     await s.harness.drainServerFetch();
   }
@@ -72,7 +75,9 @@ export async function sendCustomGameChoice(
 /**
  * `input`, with the actor side's known private setup when they become ready
  * in a game that has one and the scenario names none: the setup a person
- * readies with is the game's own known one.
+ * readies with is the game's own known one. A person arranging their own
+ * (`keepOwnPrivateSetup`) readies with what their setup board holds, if
+ * anything.
  */
 export async function withKnownSetup(
   s: ProductHarness,
@@ -82,7 +87,9 @@ export async function withKnownSetup(
   if (input.operation !== 'ready' || input.setup !== undefined) return input;
   const probe = await readCustomGameProbe(s, actor);
   if (probe?.current == null || probe.mySide === null) return input;
-  const setup = knownSetupAt(s, probe.current.fen, probe.mySide);
+  const setup = keepsOwnPrivateSetup(s, actor)
+    ? probe.privateSetup?.arranged || undefined
+    : knownSetupAt(s, probe.current.fen, probe.mySide);
   return setup === undefined ? input : { ...input, setup };
 }
 
@@ -116,6 +123,8 @@ export async function waitCustomGameSettled(
   for (let turn = 0; turn < 1_000; turn += 1) {
     const probe = await readCustomGameProbe(s, actor);
     if (probe !== null && probe.settled > before) return probe.error;
+    // A move made with no connection waits for it, still unanswered.
+    if (probe?.waiting === true) return '';
     await s.session.advanceTime(0);
     await s.harness.drainServerFetch();
   }
