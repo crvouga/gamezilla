@@ -1,0 +1,4 @@
+{
+  "summary": "A production startup failure replaced the spinner with 'Vite may still be preparing the page.' and 'Unknown startup error', with no reference. Production now shows plain advice (check the connection, reload; what is saved on this device is kept), a short reference (build + random id) and Reload; the Vite hint and error message stay development-only.",
+  "regressionTest": "libs/app-root-client/tests/start-browser-application.test.ts"
+}
