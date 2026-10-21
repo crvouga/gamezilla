@@ -1,3 +1,4 @@
+import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import type { Accessor, JSX } from 'solid-js';
 import { PUZZLE_TEST_ENABLED } from './puzzle-test-enabled';
 
@@ -17,26 +18,12 @@ export type PuzzleReviewTestProps = {
  */
 export function PuzzleReviewTest(props: PuzzleReviewTestProps): JSX.Element {
   if (!PUZZLE_TEST_ENABLED) return <></>;
-  const hintStyle = {
-    position: 'absolute' as const,
-    width: '1px',
-    height: '1px',
-    opacity: 0.01,
-  };
   return (
     <>
-      <p
-        class="text textBody"
-        style={hintStyle}
-        data-testid="chess-puzzle-review-test"
-      >{`${props.solveIdx()}|${props.lastSolveIdx()}|${props.animated() ? '1' : '0'}|${props.notation()}`}</p>
-      <p
-        class="text textBody"
-        style={hintStyle}
-        data-testid="chess-puzzle-review-test-fen"
-      >
+      <VisuallyHidden testId="chess-puzzle-review-test">{`${props.solveIdx()}|${props.lastSolveIdx()}|${props.animated() ? '1' : '0'}|${props.notation()}`}</VisuallyHidden>
+      <VisuallyHidden testId="chess-puzzle-review-test-fen">
         {props.displayPosition()}
-      </p>
+      </VisuallyHidden>
     </>
   );
 }

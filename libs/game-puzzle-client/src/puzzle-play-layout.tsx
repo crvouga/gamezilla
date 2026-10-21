@@ -2,6 +2,8 @@ import type { PuzzleCompletion } from '@libs/game-puzzle-shared/completion';
 import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
 import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
+import { Handles } from '@libs/test-ids-shared/handles';
+import { BoardFit } from '@pkgs/ui-root-client/board-fit';
 import { PuzzleScreen } from '@pkgs/ui-root-client/puzzle-screen';
 import {
   type Accessor,
@@ -12,7 +14,6 @@ import {
 } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
 import { PuzzleAllowance } from './puzzle-allowance';
-import { PuzzleBoardFrame } from './puzzle-board-frame';
 import { PuzzleCelebrationOverlay } from './puzzle-celebration-overlay';
 import { PuzzleFeedBar } from './puzzle-feed-bar';
 import { PuzzleFeedSettingsModal } from './puzzle-feed-settings-modal';
@@ -116,9 +117,9 @@ function PuzzlePlayBoard(props: {
   chrome: PuzzlePlayBoardChrome;
 }): JSX.Element {
   return (
-    <PuzzleBoardFrame>
+    <BoardFit testId={Handles.chessPuzzleBoardFrame}>
       {(size) => props.boardSlot(size, props.chrome)}
-    </PuzzleBoardFrame>
+    </BoardFit>
   );
 }
 

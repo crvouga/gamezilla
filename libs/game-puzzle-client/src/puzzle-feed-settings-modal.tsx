@@ -24,6 +24,8 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { Combobox } from '@pkgs/ui-root-client/combobox';
+import { FormField } from '@pkgs/ui-root-client/form-field';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import {
   ModalBody,
   ModalButton,
@@ -32,9 +34,12 @@ import {
 import { NumberStepper } from '@pkgs/ui-root-client/number-stepper';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
 import { SegmentedControl } from '@pkgs/ui-root-client/segmented-control';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { createEffect, createMemo, type JSX, Show } from 'solid-js';
 import { createFeedSettingsDraft } from './create-feed-settings-draft';
 import type { GamePuzzlesClient } from './puzzle-client';
+import { usePuzzleFeedState } from './puzzle-feed-context';
 import { usePuzzleGame } from './puzzle-game-context';
 import { usePuzzleFeedConfig } from './use-puzzle-feed-config';
 import { usePuzzleFeedPoolStats } from './use-puzzle-feed-pool-stats';
@@ -57,18 +62,21 @@ function PuzzleFeedModeSection(props: {
     { key: 'custom', label: t`Custom` },
   ];
   return (
-    <div class="box gap-2">
-      <label class="text textLabel">{t`Difficulty mode`}</label>
-      <SegmentedControl
-        segments={modeSegments}
-        selected={props.config.mode}
-        onSelect={props.onSelectMode}
-        dataSet={{ testid: 'chess-puzzle-feed-mode' }}
-      />
-      <p class="text textCaption">
-        {feedModeCaption(props.config.mode, props.profileCaption)}
-      </p>
-    </div>
+    <FormField
+      label={t`Difficulty mode`}
+      help={feedModeCaption(props.config.mode, props.profileCaption)}
+      group
+    >
+      {() => (
+        <SegmentedControl
+          segments={modeSegments}
+          selected={props.config.mode}
+          onSelect={props.onSelectMode}
+          aria-label={t`Difficulty mode`}
+          dataSet={{ testid: 'chess-puzzle-feed-mode' }}
+        />
+      )}
+    </FormField>
   );
 }
 
@@ -86,16 +94,21 @@ function PuzzleFeedHistorySection(props: {
     { key: 'failed', label: t`Failed` },
   ];
   return (
-    <div class="box gap-2">
-      <label class="text textLabel">{t`Play history`}</label>
-      <SegmentedControl
-        segments={segments}
-        selected={props.historyFilter}
-        onSelect={props.onSelect}
-        dataSet={{ testid: 'chess-puzzle-feed-history' }}
-      />
-      <p class="text textCaption">{t`Filter by puzzles you have never seen, already seen, or failed.`}</p>
-    </div>
+    <FormField
+      label={t`Play history`}
+      help={t`Filter by puzzles you have never seen, already seen, or failed.`}
+      group
+    >
+      {() => (
+        <SegmentedControl
+          segments={segments}
+          selected={props.historyFilter}
+          onSelect={props.onSelect}
+          aria-label={t`Play history`}
+          dataSet={{ testid: 'chess-puzzle-feed-history' }}
+        />
+      )}
+    </FormField>
   );
 }
 
@@ -109,16 +122,21 @@ function PuzzleAutoAdvanceSection(props: {
     { key: 'immediate', label: t`Immediately` },
   ];
   return (
-    <div class="box gap-2">
-      <label class="text textLabel">{t`Auto-advance`}</label>
-      <SegmentedControl
-        segments={segments}
-        selected={props.autoAdvance}
-        onSelect={props.onSelect}
-        dataSet={{ testid: 'chess-puzzle-feed-auto-advance' }}
-      />
-      <p class="text textCaption">{t`Move on to the next puzzle by itself after a solve.`}</p>
-    </div>
+    <FormField
+      label={t`Auto-advance`}
+      help={t`Move on to the next puzzle by itself after a solve.`}
+      group
+    >
+      {() => (
+        <SegmentedControl
+          segments={segments}
+          selected={props.autoAdvance}
+          onSelect={props.onSelect}
+          aria-label={t`Auto-advance`}
+          dataSet={{ testid: 'chess-puzzle-feed-auto-advance' }}
+        />
+      )}
+    </FormField>
   );
 }
 
@@ -182,7 +200,7 @@ function PuzzleFeedRatingSection(props: {
         />
       }
     >
-      <div class="box gap-2">
+      <StackVertical gap="sm">
         <NumberStepper
           label={t`Rating offset`}
           value={props.config.autoOffset}
@@ -192,10 +210,10 @@ function PuzzleFeedRatingSection(props: {
           step={PUZZLE_FEED_AUTO_OFFSET_STEP}
           dataSet={{ testid: 'chess-puzzle-feed-offset' }}
         />
-        <p class="text textCaption" data-testid="chess-puzzle-feed-target">
+        <P variant="caption" testId="chess-puzzle-feed-target">
           {<Trans>Target rating: {props.targetRating}</Trans>}
-        </p>
-      </div>
+        </P>
+      </StackVertical>
     </Show>
   );
 }
@@ -286,6 +304,7 @@ export function PuzzleFeedSettingsModal(
   const myId = useMyId();
   const { profileRating } = usePuzzleProfileRatings(myId);
   const [saved, setSaved] = usePuzzleFeedConfig();
+  const feed = usePuzzleFeedState();
   const [config, setConfig] = createFeedSettingsDraft(
     saved,
     () => props.visible
@@ -344,25 +363,32 @@ export function PuzzleFeedSettingsModal(
             />
           }
         >
-          <div class="box gap-4">
-            <p class="text textCaption" data-testid="chess-puzzle-feed-pool">
-              {
-                <Trans>
-                  {pool.matched()} matching · {pool.total()} local puzzles
-                </Trans>
-              }
-            </p>
-            <div class="box gap-1">
-              <label class="text textLabel">{t`Your rating`}</label>
-              <p class="text textBodyBold">{profileCaption}</p>
-            </div>
-            <PuzzleFeedSections
-              config={config()}
-              profileCaption={profileCaption}
-              targetRating={targetRating()}
-              editors={editors}
-            />
-          </div>
+          <Show
+            when={feed.configReady()}
+            fallback={<LoadingState variant="compact" />}
+          >
+            <StackVertical gap="lg">
+              <P variant="caption" testId="chess-puzzle-feed-pool">
+                {
+                  <Trans>
+                    {pool.matched()} matching · {pool.total()} local puzzles
+                  </Trans>
+                }
+              </P>
+              <StackVertical gap="xs">
+                <P variant="caption">{t`Your rating`}</P>
+                <P variant="bodyBold" numeral>
+                  {profileCaption}
+                </P>
+              </StackVertical>
+              <PuzzleFeedSections
+                config={config()}
+                profileCaption={profileCaption}
+                targetRating={targetRating()}
+                editors={editors}
+              />
+            </StackVertical>
+          </Show>
         </Show>
       </ModalBody>
       <ModalFooter>

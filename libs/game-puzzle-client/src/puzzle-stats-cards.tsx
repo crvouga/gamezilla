@@ -1,25 +1,16 @@
 import type { PuzzleStats } from '@libs/game-puzzle-shared/stats';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
+import { MetricStrip } from '@pkgs/ui-root-client/metric-strip';
+import { Text } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 
-type StatTileProps = {
-  label: JSX.Element;
-  value: string;
-  /** Set on the §15 P0 figures so scenarios can read them by name. */
-  testId?: string;
-};
-
-function StatTile(props: StatTileProps): JSX.Element {
+/** A total, named by test id on the §15 P0 figures so scenarios can read it. */
+function StatValue(props: { value: string; testId?: string }): JSX.Element {
   return (
-    <div class="box min-w-0 gap-1">
-      <p class="text textCaption line-clamp-1">{props.label}</p>
-      <p
-        class="text textSubtitle textNumeral line-clamp-1"
-        data-testid={props.testId}
-      >
-        {props.value}
-      </p>
-    </div>
+    <Text variant="inherit" testId={props.testId}>
+      {props.value}
+    </Text>
   );
 }
 
@@ -27,33 +18,48 @@ export type PuzzleStatsCardsProps = {
   stats: PuzzleStats;
 };
 
-/** The player's totals, in one panel like every other group on the screen. */
+/** The player's totals, as one quiet strip of figures. */
 export function PuzzleStatsCards(props: PuzzleStatsCardsProps): JSX.Element {
   return (
-    <div class="card grid grid-cols-3 gap-x-4 gap-y-5 p-4">
-      <StatTile
-        label={<Trans>Played</Trans>}
-        value={String(props.stats.totalPlayed)}
-        testId="chess-stats-played"
-      />
-      <StatTile
-        label={<Trans>Solved</Trans>}
-        value={String(props.stats.totalSolved)}
-        testId="chess-stats-solved"
-      />
-      <StatTile
-        label={<Trans>Accuracy</Trans>}
-        value={`${props.stats.accuracy}%`}
-        testId="chess-stats-accuracy"
-      />
-      <StatTile
-        label={<Trans>Best streak</Trans>}
-        value={String(props.stats.bestStreak)}
-      />
-      <StatTile
-        label={<Trans>Streak</Trans>}
-        value={String(props.stats.currentStreak)}
-      />
-    </div>
+    <MetricStrip
+      aria-label={t`Puzzle totals`}
+      metrics={[
+        {
+          label: <Trans>Played</Trans>,
+          value: (
+            <StatValue
+              value={String(props.stats.totalPlayed)}
+              testId="chess-stats-played"
+            />
+          ),
+        },
+        {
+          label: <Trans>Solved</Trans>,
+          value: (
+            <StatValue
+              value={String(props.stats.totalSolved)}
+              testId="chess-stats-solved"
+            />
+          ),
+        },
+        {
+          label: <Trans>Accuracy</Trans>,
+          value: (
+            <StatValue
+              value={`${props.stats.accuracy}%`}
+              testId="chess-stats-accuracy"
+            />
+          ),
+        },
+        {
+          label: <Trans>Best streak</Trans>,
+          value: <StatValue value={String(props.stats.bestStreak)} />,
+        },
+        {
+          label: <Trans>Streak</Trans>,
+          value: <StatValue value={String(props.stats.currentStreak)} />,
+        },
+      ]}
+    />
   );
 }

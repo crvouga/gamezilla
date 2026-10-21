@@ -3,6 +3,8 @@ import { Trans } from '@lingui/solid/macro';
 import { CircleCheckIcon, XIcon } from '@pkgs/ui-root-client/icons';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client/relative-time';
+import { Text } from '@pkgs/ui-root-client/text';
+import type { ColorTone } from '@pkgs/ui-root-shared/token-names';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 
 function formatSignedDelta(delta: number): string {
@@ -25,22 +27,25 @@ function GameLogOutcome(props: {
   );
 }
 
+function changeTone(entry: PuzzleGameLogEntry): ColorTone {
+  if (!entry.rated || entry.delta === 0) return 'secondary';
+  return entry.delta > 0 ? 'success' : 'destructive';
+}
+
 /** The rating change the puzzle made, in the colour of its direction. */
 function GameLogChange(props: { entry: PuzzleGameLogEntry }): JSX.Element {
   return (
-    <span
-      class="text textLabel textNumeral shrink-0"
-      classList={{
-        'text-success': props.entry.rated && props.entry.delta > 0,
-        'text-destructive': props.entry.rated && props.entry.delta < 0,
-        'text-text-secondary': !props.entry.rated || props.entry.delta === 0,
-      }}
-      data-testid={`chess-game-log-row-${props.entry.puzzleId}-change`}
+    <Text
+      variant="label"
+      numeral
+      wrap="nowrap"
+      tone={changeTone(props.entry)}
+      testId={`chess-game-log-row-${props.entry.puzzleId}-change`}
     >
       <Show when={props.entry.rated} fallback={<Trans>Unrated</Trans>}>
         {formatSignedDelta(props.entry.delta)}
       </Show>
-    </span>
+    </Text>
   );
 }
 
@@ -70,12 +75,15 @@ export function PuzzleGameLogRow(props: PuzzleGameLogRowProps): JSX.Element {
       }
       title={
         // The puzzle's own rating follows the outcome, a tone quieter.
-        <span data-testid={`chess-game-log-row-${props.entry.puzzleId}-title`}>
+        <Text
+          variant="inherit"
+          testId={`chess-game-log-row-${props.entry.puzzleId}-title`}
+        >
           <GameLogOutcome outcome={props.entry.outcome} />{' '}
-          <span class="textNumeral text-text-secondary">
+          <Text variant="inherit" numeral tone="secondary">
             {props.entry.puzzleRating}
-          </span>
-        </span>
+          </Text>
+        </Text>
       }
       caption={timeLabel()}
       value={<GameLogChange entry={props.entry} />}

@@ -7,12 +7,14 @@ import type { Decision } from '@pkgs/permissions-shared/decision';
 import { Button } from '@pkgs/ui-root-client/button';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { ClockIcon, SearchIcon, WifiOffIcon } from '@pkgs/ui-root-client/icons';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { Surface } from '@pkgs/ui-root-client/surface';
+import { Text } from '@pkgs/ui-root-client/text';
 import { type JSX, Show } from 'solid-js';
 
 export type PuzzleEmptyPoolStateProps = {
   /** `'empty'`, `'offline'`, `'limited'` or `'waiting'`; `loading` never renders. */
   kind: Exclude<PuzzlePickState, 'ready' | 'loading'>;
-  size: number;
   config: PuzzleFeedConfig;
   /** Drop history / theme filters so every synced puzzle is eligible. */
   onIncludeAllPuzzles: () => void;
@@ -61,12 +63,12 @@ function ExhaustedBody(props: { config: PuzzleFeedConfig }): JSX.Element {
     <Show
       when={!isEmptyForNoFailedAttempts(props.config)}
       fallback={
-        <span data-testid="chess-puzzle-empty-pool-no-failed">
+        <Text variant="inherit" testId="chess-puzzle-empty-pool-no-failed">
           <Trans>
             You have no failed puzzles yet. Puzzles you fail show here to try
             again.
           </Trans>
-        </span>
+        </Text>
       }
     >
       <Show
@@ -94,7 +96,7 @@ function ExhaustedBlock(props: {
 }): JSX.Element {
   const canWiden = () => puzzleFeedHasNarrowingFilters(props.config);
   return (
-    <div class="box items-center gap-3">
+    <StackVertical align="center" gap="md">
       <EmptyState
         icon={SearchIcon}
         title={<Trans>No puzzles match your feed</Trans>}
@@ -121,7 +123,7 @@ function ExhaustedBlock(props: {
           dataSet={{ testid: 'chess-puzzle-empty-pool-adjust' }}
         />
       </Show>
-    </div>
+    </StackVertical>
   );
 }
 
@@ -130,9 +132,13 @@ export function PuzzleEmptyPoolState(
   props: PuzzleEmptyPoolStateProps
 ): JSX.Element {
   return (
-    <div
-      class="box self-center bg-surface items-center justify-center overflow-hidden"
-      style={{ width: `${props.size}px`, height: `${props.size}px` }}
+    <Surface
+      tone="surface"
+      width="full"
+      height="full"
+      align="center"
+      justify="center"
+      overflow="hidden"
     >
       <Show
         when={props.kind === 'empty'}
@@ -162,6 +168,6 @@ export function PuzzleEmptyPoolState(
           onOpenFeedSettings={props.onOpenFeedSettings}
         />
       </Show>
-    </div>
+    </Surface>
   );
 }

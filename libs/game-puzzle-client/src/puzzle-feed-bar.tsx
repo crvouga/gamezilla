@@ -8,12 +8,16 @@ import { puzzleNamespaceOf } from '@libs/game-puzzle-shared/puzzle-namespace';
 import { derivePuzzleRatingChange } from '@libs/game-puzzle-shared/rating-change';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client/badge';
+import { Pressable } from '@pkgs/ui-root-client/pressable';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { P } from '@pkgs/ui-root-client/text';
+import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { usePuzzleFeedState } from './puzzle-feed-context';
 import { usePuzzleGame } from './puzzle-game-context';
 import { usePuzzleInteractions } from './puzzle-play-queries';
-import { PuzzleRatingChip } from './puzzle-rating-chip';
+import { PuzzleRatingBadge } from './puzzle-rating-badge';
 import { usePuzzleAllowance } from './use-puzzle-allowance';
 import { usePuzzleFeedPoolStats } from './use-puzzle-feed-pool-stats';
 import { usePuzzleProfileRatings } from './use-puzzle-profile-ratings';
@@ -21,6 +25,9 @@ import { usePuzzleRatingEvents } from './use-puzzle-rating-events';
 
 /** Puzzle ratings are 400–3000: four tabular digits, padded with figure space. */
 const RATING_SLOT_DIGITS = 4;
+
+/** A short puzzle id's width in the mono face, held before the id is known. */
+const EMPTY_ID_SLOT = '\u2007'.repeat(5);
 
 export type PuzzleFeedBarProps = {
   puzzleId?: string | undefined;
@@ -89,9 +96,17 @@ function ratingSlot(rating: number): string {
 }
 
 /** Each fact is its own quiet tag, so the strip needs no separators. */
-const LABEL =
-  'text textFootnote line-clamp-1 shrink-0 whitespace-nowrap rounded-full bg-surface-muted px-2.5 py-1';
-const NUMERIC_LABEL = `${LABEL} textNumeral`;
+function FeedTag(props: { label: JSX.Element; testId?: string }): JSX.Element {
+  return (
+    <Badge
+      intent="neutral"
+      label={props.label}
+      dataSet={
+        props.testId === undefined ? undefined : { testid: props.testId }
+      }
+    />
+  );
+}
 
 function formatSignedDelta(delta: number): string {
   return delta > 0 ? `+${delta}` : String(delta);
@@ -118,20 +133,17 @@ function FeedBarRatingChange(props: { puzzleId: string }): JSX.Element {
   return (
     <>
       <Show when={change().kind === 'unrated'}>
-        <p class={LABEL} data-testid="chess-puzzle-feed-unrated-label">
-          {<Trans>Unrated</Trans>}
-        </p>
+        <FeedTag
+          label={<Trans>Unrated</Trans>}
+          testId="chess-puzzle-feed-unrated-label"
+        />
       </Show>
       <Show when={delta()} keyed>
         {(value) => (
-          <>
-            <p
-              class={NUMERIC_LABEL}
-              data-testid="chess-puzzle-feed-rating-change"
-            >
-              {formatSignedDelta(value)}
-            </p>
-          </>
+          <FeedTag
+            label={formatSignedDelta(value)}
+            testId="chess-puzzle-feed-rating-change"
+          />
         )}
       </Show>
     </>
@@ -148,16 +160,16 @@ function FeedBarPuzzleFacts(props: {
   const shown = (): boolean => props.over && props.rating > 0;
   return (
     <>
-      <PuzzleRatingChip
+      <PuzzleRatingBadge
         rating={shown() ? props.rating : 0}
-        variant="muted"
         invisible={!shown()}
-        testID="chess-puzzle-board-elo"
+        testId="chess-puzzle-board-elo"
       />
       <Show when={props.over && props.themes.length > 0}>
-        <p class={LABEL} data-testid="chess-puzzle-feed-puzzle-themes">
-          {props.themes.map(themeLabel).join(', ')}
-        </p>
+        <FeedTag
+          label={props.themes.map(themeLabel).join(', ')}
+          testId="chess-puzzle-feed-puzzle-themes"
+        />
       </Show>
     </>
   );
@@ -183,20 +195,22 @@ function FeedBarFilters(props: {
     );
   return (
     <>
-      <p class={NUMERIC_LABEL} data-testid="chess-puzzle-feed-target-label">
-        {modeLabel()}
-      </p>
-      <p class={LABEL} data-testid="chess-puzzle-feed-history-label">
-        {historyFilterLabel(props.config.historyFilter)}
-      </p>
-      <p class={LABEL} data-testid="chess-puzzle-feed-themes-label">
-        {themesSummary(props.config.themes, themeLabel)}
-      </p>
-      <p class={NUMERIC_LABEL}>
-        <Trans>
-          {props.matched} / {props.total}
-        </Trans>
-      </p>
+      <FeedTag label={modeLabel()} testId="chess-puzzle-feed-target-label" />
+      <FeedTag
+        label={historyFilterLabel(props.config.historyFilter)}
+        testId="chess-puzzle-feed-history-label"
+      />
+      <FeedTag
+        label={themesSummary(props.config.themes, themeLabel)}
+        testId="chess-puzzle-feed-themes-label"
+      />
+      <FeedTag
+        label={
+          <Trans>
+            {props.matched} / {props.total}
+          </Trans>
+        }
+      />
     </>
   );
 }
@@ -222,18 +236,16 @@ export function PuzzleFeedBar(props: PuzzleFeedBarProps): JSX.Element {
       : '';
 
   return (
-    <button
-      class="clickable clickableTint self-stretch min-w-0 shrink-0"
-      data-testid="chess-puzzle-feed-summary"
-      type="button"
-      onClick={props.onOpenFeedSettings}
-      role="button"
+    <Pressable
+      self="stretch"
+      testId="chess-puzzle-feed-summary"
+      onPress={props.onOpenFeedSettings}
     >
       {/* The whole feed in words; the visible labels follow it, so the
           button's name says everything the bar shows (WCAG 2.5.3). */}
-      <span class="sr-only" data-testid="chess-puzzle-feed-description">
+      <VisuallyHidden testId="chess-puzzle-feed-description">
         {`${feedAccessibleLabel(config(), effectiveRating(), themeLabel)} ${allowance.label()}`.trim()}
-      </span>
+      </VisuallyHidden>
       <ScrollView
         horizontal
         flushEdge={false}
@@ -246,9 +258,9 @@ export function PuzzleFeedBar(props: PuzzleFeedBarProps): JSX.Element {
         dataSet={{ testid: 'chess-puzzle-board-elo-bar' }}
       >
         {/* A fixed slot keeps every short puzzle id the same width. */}
-        <p class="text textMono shrink-0 w-12 overflow-hidden whitespace-nowrap">
-          {idLabel()}
-        </p>
+        <P variant="mono" wrap="nowrap">
+          {idLabel().length > 0 ? idLabel() : EMPTY_ID_SLOT}
+        </P>
         <FeedBarPuzzleFacts
           rating={props.rating ?? 0}
           themes={props.themes ?? []}
@@ -265,11 +277,12 @@ export function PuzzleFeedBar(props: PuzzleFeedBarProps): JSX.Element {
           />
         </Show>
         <Show when={allowance.remaining() !== null}>
-          <p class={NUMERIC_LABEL} data-testid="chess-puzzle-remaining-today">
-            {allowance.label()}
-          </p>
+          <FeedTag
+            label={allowance.label()}
+            testId="chess-puzzle-remaining-today"
+          />
         </Show>
       </ScrollView>
-    </button>
+    </Pressable>
   );
 }

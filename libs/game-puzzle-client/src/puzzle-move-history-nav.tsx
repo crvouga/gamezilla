@@ -8,6 +8,8 @@ import {
   ChevronsLeftIcon,
   ChevronsRightIcon,
 } from '@pkgs/ui-root-client/icons';
+import { Pressable } from '@pkgs/ui-root-client/pressable';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
 import { For, type JSX } from 'solid-js';
 
 const ICON_SIZE = 14;
@@ -70,17 +72,18 @@ function NavButton(props: {
 }): JSX.Element {
   const Icon = props.slot.icon;
   return (
-    <button
-      class="clickable clickableTint shrink-0 grow-0 px-1 py-0.5 rounded-sm"
-      style={{ opacity: props.slot.disabled ? 0.4 : 1 }}
-      type="button"
+    <Pressable
+      align="center"
+      justify="center"
+      paddingX="xs"
+      radius="sm"
       disabled={props.slot.disabled}
       aria-label={props.slot.label}
-      data-testid={`chess-puzzle-move-nav-${props.slot.intent}`}
-      onClick={() => props.onNavigate(props.slot.intent)}
+      testId={`chess-puzzle-move-nav-${props.slot.intent}`}
+      onPress={() => props.onNavigate(props.slot.intent)}
     >
       <Icon size={ICON_SIZE} />
-    </button>
+    </Pressable>
   );
 }
 
@@ -103,10 +106,10 @@ export function PuzzleMoveNav(props: {
     });
   };
   return (
-    <div class="box flex-row items-center shrink-0 grow-0">
+    <StackHorizontal align="center">
       <For each={slots()}>
         {(slot) => <NavButton slot={slot} onNavigate={props.nav.onNavigate} />}
       </For>
-    </div>
+    </StackHorizontal>
   );
 }

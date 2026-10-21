@@ -8,6 +8,7 @@ import type { PuzzleResultPart } from '@libs/game-puzzle-shared/puzzle-result-an
 import { puzzleResultAnnouncement } from '@libs/game-puzzle-shared/puzzle-result-announcement';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { t } from '@lingui/core/macro';
+import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import { createMemo, type JSX } from 'solid-js';
 import type { PuzzleAttempt } from './puzzle-client';
 
@@ -41,14 +42,13 @@ export function PuzzleResultAnnouncement(props: {
       .join(' ')
   );
   return (
-    <div
-      class="sr-only"
+    <VisuallyHidden
       role="status"
       aria-live="polite"
-      aria-atomic="true"
-      data-testid={Handles.puzzleResultAnnouncement}
+      aria-atomic
+      testId={Handles.puzzleResultAnnouncement}
     >
       {words()}
-    </div>
+    </VisuallyHidden>
   );
 }

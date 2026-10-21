@@ -1,5 +1,6 @@
 import type { PuzzlePickSource } from '@libs/game-puzzle-shared/next-puzzle-selection';
 import type { PuzzlePickState } from '@libs/game-puzzle-shared/pick-state';
+import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import type { JSX } from 'solid-js';
 import { PUZZLE_TEST_ENABLED } from './puzzle-test-enabled';
 
@@ -40,11 +41,8 @@ export function PuzzleTestLoadingStatus(
 ): JSX.Element {
   if (!PUZZLE_TEST_ENABLED) return <></>;
   return (
-    <p
-      class="text textBody absolute w-0.25 h-0.25 opacity-0"
-      data-testid="chess-puzzle-pick-status"
-    >
+    <VisuallyHidden testId="chess-puzzle-pick-status">
       {pickStatusLabel(props)}
-    </p>
+    </VisuallyHidden>
   );
 }

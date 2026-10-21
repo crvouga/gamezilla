@@ -5,7 +5,9 @@ import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
 import { EmbeddedScreen } from '@pkgs/ui-root-client/embedded-screen';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import { Notice } from '@pkgs/ui-root-client/notice';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { type JSX, Show } from 'solid-js';
 import { PuzzleImportStatus } from './puzzle-import-status';
@@ -36,18 +38,20 @@ function PuzzleManagementContent(): JSX.Element {
     },
   });
   return (
-    <div class="box gap-4" data-testid="puzzle-load-content">
+    <StackVertical gap="lg" testId="puzzle-load-content">
       <Show
         when={state.decision().allowed}
         fallback={
           <DenialSurface decision={state.decision()} variant="compact" />
         }
       >
-        <MenuRow
-          title={<Trans>Available puzzles</Trans>}
-          value={state.job()?.pool_rows ?? '—'}
-          dataSet={{ testid: 'puzzle-load-pool' }}
-        />
+        <MenuSection role="group">
+          <MenuRow
+            title={<Trans>Available puzzles</Trans>}
+            value={state.job()?.pool_rows ?? '—'}
+            dataSet={{ testid: 'puzzle-load-pool' }}
+          />
+        </MenuSection>
         <PuzzleSourceControls state={state} />
         <Show when={!state.ready()}>
           <LoadingState
@@ -66,13 +70,13 @@ function PuzzleManagementContent(): JSX.Element {
         <Show when={start.error()} keyed>
           {(error) => <Notice tone="error">{error.message}</Notice>}
         </Show>
-        <div class="box flex-row flex-wrap gap-3">
+        <StackHorizontal wrap gap="md">
           <Button
             {...start.buttonProps}
             dataSet={{ testid: 'puzzle-load-start' }}
           />
           <PuzzleImportStop state={state} running={running()} />
-        </div>
+        </StackHorizontal>
         <Show when={state.job()} keyed>
           {(job) => <PuzzleImportStatus job={job} />}
         </Show>
@@ -83,7 +87,7 @@ function PuzzleManagementContent(): JSX.Element {
           </Trans>
         </Notice>
       </Show>
-    </div>
+    </StackVertical>
   );
 }
 

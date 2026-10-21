@@ -1,31 +1,30 @@
 import type { PuzzleCompletion } from '@libs/game-puzzle-shared/completion';
 import { Trans } from '@lingui/solid/macro';
-import type { JSX } from 'solid-js';
+import { Badge } from '@pkgs/ui-root-client/badge';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
+import { type JSX, Show } from 'solid-js';
 import { PuzzleRatingDelta } from './puzzle-rating-delta';
 
-function StreakBadge(props: { streak: number }): JSX.Element {
-  return (
-    <div class="box px-3 py-1 rounded-full bg-success-surface">
-      <p class="text textBodyBold text-success">
-        {<Trans>{props.streak} puzzle streak</Trans>}
-      </p>
-    </div>
-  );
-}
-
 function SummaryMeta(props: { completion: PuzzleCompletion }): JSX.Element {
-  const streak = props.completion.streak;
-  const puzzleRating = props.completion.puzzleRating;
   return (
-    <div class="box gap-2 items-center">
-      {streak > 1 ? <StreakBadge streak={streak} /> : null}
-      <p
-        class="text textCaption text-text-secondary"
-        data-testid="chess-puzzle-summary-puzzle-rating"
+    <StackVertical gap="sm" align="center">
+      <Show when={props.completion.streak > 1}>
+        <StackHorizontal>
+          <Badge
+            intent="success"
+            label={<Trans>{props.completion.streak} puzzle streak</Trans>}
+          />
+        </StackHorizontal>
+      </Show>
+      <P
+        variant="caption"
+        tone="secondary"
+        testId="chess-puzzle-summary-puzzle-rating"
       >
-        {<Trans>Puzzle rating {puzzleRating}</Trans>}
-      </p>
-    </div>
+        {<Trans>Puzzle rating {props.completion.puzzleRating}</Trans>}
+      </P>
+    </StackVertical>
   );
 }
 
@@ -38,7 +37,7 @@ export type PuzzleSummaryCardProps = {
 /** Body for the celebration modal (title lives on {@link ResponsiveSurface}). */
 export function PuzzleSummaryCard(props: PuzzleSummaryCardProps): JSX.Element {
   return (
-    <div class="box gap-3 items-center self-stretch min-w-0">
+    <StackVertical gap="md" align="center" self="stretch">
       <PuzzleRatingDelta
         ratingBefore={props.completion.ratingBefore}
         ratingAfter={props.completion.ratingAfter}
@@ -48,6 +47,6 @@ export function PuzzleSummaryCard(props: PuzzleSummaryCardProps): JSX.Element {
         provisional={props.provisional}
       />
       <SummaryMeta completion={props.completion} />
-    </div>
+    </StackVertical>
   );
 }

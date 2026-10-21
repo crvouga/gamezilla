@@ -1,12 +1,13 @@
 import { puzzleNavIntentFromKey } from '@libs/game-puzzle-shared/puzzle-nav';
 import { puzzleSwipeHandlers } from '@libs/game-puzzle-shared/puzzle-swipe-handlers';
+import { Handles } from '@libs/test-ids-shared/handles';
 import { registerFeedbackContext } from '@pkgs/feedback-shared/context';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
+import { BoardFit } from '@pkgs/ui-root-client/board-fit';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { useDocumentShortcuts } from '@pkgs/ui-root-client/use-document-shortcuts';
 import { type JSX, onCleanup, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { PuzzleBoardFrame } from './puzzle-board-frame';
-import { PuzzleBoardLoadingState } from './puzzle-board-loading-state';
 import type { PuzzleBoardMarks } from './puzzle-client';
 import { usePuzzleGame } from './puzzle-game-context';
 import { PuzzleMoveHistory } from './puzzle-move-history';
@@ -24,44 +25,30 @@ const ignoreAction = (): void => {};
 
 function ReviewBoardSurface(props: {
   model: PuzzleReviewBoardModel;
+  size: number;
 }): JSX.Element {
   const sounds = useSoundsPreference();
   const { client } = usePuzzleGame();
   const model = props.model;
-  const swipe = puzzleSwipeHandlers(model.onNavigate);
   return (
-    <div
-      class="box self-stretch flex-1 min-h-0 min-w-0"
-      onPointerDown={swipe.onPointerDown}
-      onPointerUp={swipe.onPointerUp}
-      onPointerCancel={swipe.onPointerCancel}
-    >
-      <PuzzleBoardFrame>
-        {(size) => (
-          <Show
-            when={model.ready()}
-            fallback={<PuzzleBoardLoadingState size={size} />}
-          >
-            <Dynamic
-              component={client.Board}
-              mode="review"
-              testId="chess-puzzle-review-board"
-              size={size}
-              position={model.displayPosition()}
-              orientation={model.orientation()}
-              interactive={false}
-              sound={!sounds.muted()}
-              syncKey={model.solveIdx()}
-              animated={model.animated()}
-              moveMs={null}
-              marks={NO_MARKS}
-              suggestions={[]}
-              onAction={ignoreAction}
-            />
-          </Show>
-        )}
-      </PuzzleBoardFrame>
-    </div>
+    <Show when={model.ready()} fallback={<LoadingState size="lg" />}>
+      <Dynamic
+        component={client.Board}
+        mode="review"
+        testId="chess-puzzle-review-board"
+        size={props.size}
+        position={model.displayPosition()}
+        orientation={model.orientation()}
+        interactive={false}
+        sound={!sounds.muted()}
+        syncKey={model.solveIdx()}
+        animated={model.animated()}
+        moveMs={null}
+        marks={NO_MARKS}
+        suggestions={[]}
+        onAction={ignoreAction}
+      />
+    </Show>
   );
 }
 
@@ -100,32 +87,39 @@ export function PuzzleReviewBoard(props: {
     },
   });
 
+  // One recognizer for the board's lifetime: it remembers where a press began.
+  const swipe = puzzleSwipeHandlers(model.onNavigate);
   return (
-    <div
-      class="box self-stretch gap-2 min-w-0"
-      style={{ height: 'min(70vh, 480px)' }}
+    <BoardFit
+      height="bounded"
+      testId={Handles.chessPuzzleBoardFrame}
+      pointer={swipe}
+      footer={
+        <>
+          <PuzzleMoveHistory
+            plies={model.plies()}
+            selectedSolveIdx={model.solveIdx()}
+            interactive={model.ready()}
+            writing={writing}
+            onSeek={model.onSeek}
+            nav={{
+              canGoBack: model.canGoBack(),
+              canGoForward: model.canGoForward(),
+              showStepControls: true,
+              onNavigate: model.onNavigate,
+            }}
+          />
+          <PuzzleReviewTest
+            solveIdx={model.solveIdx}
+            lastSolveIdx={model.lastSolveIdx}
+            animated={model.animated}
+            notation={writing.notation}
+            displayPosition={model.displayPosition}
+          />
+        </>
+      }
     >
-      <ReviewBoardSurface model={model} />
-      <PuzzleMoveHistory
-        plies={model.plies()}
-        selectedSolveIdx={model.solveIdx()}
-        interactive={model.ready()}
-        writing={writing}
-        onSeek={model.onSeek}
-        nav={{
-          canGoBack: model.canGoBack(),
-          canGoForward: model.canGoForward(),
-          showStepControls: true,
-          onNavigate: model.onNavigate,
-        }}
-      />
-      <PuzzleReviewTest
-        solveIdx={model.solveIdx}
-        lastSolveIdx={model.lastSolveIdx}
-        animated={model.animated}
-        notation={writing.notation}
-        displayPosition={model.displayPosition}
-      />
-    </div>
+      {(size) => <ReviewBoardSurface model={model} size={size} />}
+    </BoardFit>
   );
 }

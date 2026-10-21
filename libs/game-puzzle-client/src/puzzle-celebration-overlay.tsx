@@ -5,28 +5,32 @@ import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
 import { ChevronRightIcon } from '@pkgs/ui-root-client/icons';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
-import type { Accessor, JSX } from 'solid-js';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { Text } from '@pkgs/ui-root-client/text';
+import { type Accessor, type JSX, Match, Switch } from 'solid-js';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
 import { usePuzzleFeedback } from './use-puzzle-feedback';
 import { usePuzzleProfileRatings } from './use-puzzle-profile-ratings';
 import { usePuzzleRatingFeedback } from './use-puzzle-rating-feedback';
 
-function celebrationTitle(outcome: PuzzleCompletion['outcome']): JSX.Element {
-  if (outcome === 'solved') {
-    return (
-      <span class="text-success">
-        <Trans>Puzzle solved!</Trans>
-      </span>
-    );
-  }
-  if (outcome === 'failed') {
-    return (
-      <span class="text-destructive">
-        <Trans>Puzzle failed</Trans>
-      </span>
-    );
-  }
-  return <Trans>Puzzle abandoned</Trans>;
+/** Solved in the success tone, failed in the destructive one. */
+function CelebrationTitle(props: {
+  outcome: PuzzleCompletion['outcome'];
+}): JSX.Element {
+  return (
+    <Switch fallback={<Trans>Puzzle abandoned</Trans>}>
+      <Match when={props.outcome === 'solved'}>
+        <Text variant="inherit" tone="success">
+          <Trans>Puzzle solved!</Trans>
+        </Text>
+      </Match>
+      <Match when={props.outcome === 'failed'}>
+        <Text variant="inherit" tone="destructive">
+          <Trans>Puzzle failed</Trans>
+        </Text>
+      </Match>
+    </Switch>
+  );
 }
 
 export type PuzzleCelebrationOverlayProps = {
@@ -56,13 +60,13 @@ export function PuzzleCelebrationOverlay(
     <ResponsiveSurface
       visible={props.visible}
       onClose={props.onClose}
-      title={celebrationTitle(props.completion.outcome)}
+      title={<CelebrationTitle outcome={props.completion.outcome} />}
       presentation="modal"
       size="small"
       closeDataSet={{ testid: Handles.chessPuzzleSummaryClose }}
       dataSet={{ testid: Handles.chessPuzzleSummary }}
     >
-      <div class="box gap-4 self-stretch min-w-0">
+      <StackVertical gap="lg" self="stretch">
         <PuzzleSummaryCard
           completion={props.completion}
           displayRating={ratingAnim.displayRating()}
@@ -77,7 +81,7 @@ export function PuzzleCelebrationOverlay(
           onClick={props.onNext}
           dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
         />
-      </div>
+      </StackVertical>
     </ResponsiveSurface>
   );
 }

@@ -14,6 +14,7 @@ import type { HintStage } from '@libs/game-puzzle-shared/hint-stage';
 import type { SolveStatus } from '@libs/game-puzzle-shared/solve-status';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { t } from '@lingui/core/macro';
+import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import { type Accessor, createMemo, type JSX } from 'solid-js';
 
 function sideWord(side: PuzzleSide): string {
@@ -62,14 +63,13 @@ export function ChessPuzzleAnnouncement(props: {
       .join(' ')
   );
   return (
-    <div
-      class="sr-only"
+    <VisuallyHidden
       role="status"
       aria-live="polite"
-      aria-atomic="true"
-      data-testid={Handles.chessPuzzleAnnouncement}
+      aria-atomic
+      testId={Handles.chessPuzzleAnnouncement}
     >
       {words()}
-    </div>
+    </VisuallyHidden>
   );
 }
