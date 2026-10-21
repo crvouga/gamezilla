@@ -7,6 +7,10 @@ import {
   roomAttrNamespace,
 } from '@pkgs/room-root-client/room-meta';
 import type { RoomServer } from '@pkgs/room-root-server/room-server';
+import {
+  entriesFor,
+  RoomEventWithheld,
+} from '@pkgs/room-root-shared/private-events';
 import type {
   RoomCommandPayload,
   RoomEvent,
@@ -83,6 +87,29 @@ export async function serverDomainHash<
   readonly topic: string;
 }): Promise<string> {
   const state = await foldServerDomainState(args);
+  return args.module.hash(state);
+}
+
+/**
+ * The domain hash of the log as `viewer` receives it: what a client of that
+ * actor must converge to when the module keeps some events private.
+ */
+export async function viewerDomainHash<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+>(args: {
+  readonly module: RoomModule<S, C, E, string>;
+  readonly storage: InMemoryRoomStorage;
+  readonly topic: string;
+  readonly viewer: string;
+}): Promise<string> {
+  const entries = await args.storage.loadEventsAfter(args.topic, 0);
+  let state = args.module.initialState();
+  for (const e of entriesFor(args.module, entries, args.viewer)) {
+    if (!RoomEventWithheld.is(e.event))
+      state = args.module.reduce(state, e.event as E);
+  }
   return args.module.hash(state);
 }
 
@@ -244,7 +271,16 @@ export async function checkRoomConverged<
   for (const slot of ctx.clients.values()) {
     if (slot.room === null) return false;
     if (!RoomMetaAttr.isSynced.from(slot.room.getSnapshot())) return false;
-    if (clientDomainHash(ctx.module, slot.room) !== serverHash) return false;
+    const expected =
+      ctx.module.audience === undefined
+        ? serverHash
+        : await viewerDomainHash({
+            module: ctx.module,
+            storage: ctx.storage,
+            topic: ctx.topic,
+            viewer: slot.identity,
+          });
+    if (clientDomainHash(ctx.module, slot.room) !== expected) return false;
     if (slot.room.getLastSeq() !== serverTip) return false;
     const memory = slot.room.getPendingQueueIds();
     const durable = await slot.clientStorage.loadQueued();
