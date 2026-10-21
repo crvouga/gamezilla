@@ -262,6 +262,7 @@ For each reproducible bug fixed:
 Do not weaken assertions, remove failing tests, or mock away the failure merely to obtain a green suite.
 
 Use the cheapest reliable test layer for each behavior:
+
 - Unit and property tests for rules and invariants.
 - Integration tests for persistence, permissions, and provider boundaries.
 - End-to-end tests for critical user journeys.
@@ -298,6 +299,7 @@ Integrate enforceable requirements into tests and CI where practical. Documentat
 Do not generate a large collection of redundant policy documents. Keep standards concise, discoverable, and tied to actual behavior.
 
 Track a small number of useful support-prevention indicators using existing tooling where possible, such as:
+
 - Critical-journey completion and failure rates.
 - New-user completion of the first useful task.
 - Repeated retries or validation failures.
@@ -339,3 +341,112 @@ At the end, provide:
 Do not finish with recommendations in place of work that you could have performed.
 
 Begin by inspecting the repository and running the product. Then implement, verify, and continue until the completion criteria are met or only genuine external blockers remain.
+
+## EXECUTION MODEL — SINGLE BRANCH, SINGLE WORKTREE, SINGLE PR
+
+This is one cohesive, repository-wide engineering initiative. Execute the entire assignment within **one Git branch, one Git worktree, and one pull request**.
+
+These constraints are non-negotiable.
+
+### Git and workspace constraints
+
+- Create or reuse exactly one dedicated feature branch for this initiative.
+- Perform all implementation work in the same Git worktree.
+- Produce exactly one pull request containing the complete initiative.
+- Do not create additional feature branches, Git worktrees, stacked PRs, or separate PRs for individual workstreams.
+- Do not split the initiative into independently merged changes.
+- Do not merge the PR yourself unless explicitly authorized.
+- Preserve unrelated existing changes and respect the repository's Git conventions.
+- Commit incrementally within the same branch so progress is recoverable and changes remain reviewable.
+- Do not force-push, reset, or overwrite work belonging to another agent or developer.
+
+### Subagent orchestration
+
+You are strongly encouraged to delegate work to specialized subagents where doing so improves speed, coverage, or quality.
+
+Suitable workstreams include:
+
+- Product UX and accessibility
+- Error handling and self-service recovery
+- Authentication, account management, and billing
+- Reliability, resilience, and data protection
+- Observability and production health
+- Automated testing and executable specifications
+- Deployment safety and scalability
+- Documentation and permanent quality standards
+
+Subagents must follow the same mission, constraints, and definition of done as the primary agent.
+
+**All subagents must operate within the same branch and worktree.**
+
+Do not allow subagents to create their own branches, worktrees, or pull requests.
+
+### Parallel execution and conflict prevention
+
+Parallelize independent research, audits, test planning, and implementation tasks whenever safe.
+
+Before delegating implementation:
+
+1. Identify bounded workstreams and their dependencies.
+2. Assign explicit file or module ownership to each subagent.
+3. Avoid overlapping write access to the same files.
+4. Designate the primary agent as the integration owner.
+5. Coordinate changes to shared configuration, dependencies, routing, design-system components, database schemas, and CI workflows.
+
+Subagents may inspect the entire repository, but they must only modify files within their assigned ownership boundaries unless the primary agent approves a change in ownership.
+
+If two tasks require changes to the same files, serialize those edits or assign them to one agent. Never rely on concurrent Git operations to resolve shared-worktree conflicts.
+
+Only the primary agent should perform branch management, shared Git index operations, commits, rebases, pushes, and PR creation or updates. Subagents should communicate completion and evidence without independently manipulating Git state.
+
+Use parallelism aggressively for independent work, but prioritize repository integrity over maximum concurrency.
+
+### Continuous integration
+
+The primary agent is responsible for integrating all subagent contributions into one coherent product.
+
+After each substantial workstream:
+
+- Review the changes against the overall mission.
+- Verify that they reuse existing architecture and conventions.
+- Run relevant focused tests.
+- Resolve conflicts or inconsistencies.
+- Commit verified progress to the shared branch.
+
+After implementation:
+
+1. Run the complete applicable validation suite.
+2. Verify critical end-to-end user journeys.
+3. Verify cross-workstream integration.
+4. Resolve regressions and failing checks.
+5. Update the readiness matrix and permanent product-quality standard.
+6. Push the single branch.
+7. Create or update the single PR.
+
+Do not open the PR as a substitute for completing the implementation. If a draft PR is useful for CI or review, it may be opened early, but all subsequent work must continue in that same PR.
+
+### Pull request requirements
+
+The single PR must contain:
+
+- A concise executive summary of the initiative.
+- The major support dependencies eliminated.
+- The UX, reliability, recovery, and self-service improvements implemented.
+- Existing capabilities strengthened rather than duplicated.
+- Automated test coverage and verification results.
+- Screenshots or videos demonstrating significant UI improvements where applicable.
+- Any infrastructure or deployment changes.
+- Remaining limitations, risks, and external blockers.
+- A link to the canonical `self-service-product-standard.md` document.
+
+The PR must represent one integrated, verified initiative—not a collection of unrelated, partially completed experiments.
+
+### Autonomy and completion
+
+Do not stop after the initial audit, planning, or first implementation milestone.
+
+Continue coordinating subagents, integrating changes, running tests, and addressing failures until the entire initiative satisfies its definition of done or only genuine external blockers remain.
+
+Do not ask for permission to make ordinary engineering decisions. Use the existing architecture, established conventions, and mission requirements to make those decisions autonomously.
+
+**Final invariant: One branch. One worktree. One PR. Unlimited coordinated subagents. One integrated outcome.**
