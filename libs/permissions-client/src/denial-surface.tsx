@@ -18,12 +18,26 @@ export type DenialSurfaceProps = {
   readonly testId?: string;
 };
 
+export type DenialContent = {
+  readonly icon: () => IconComponent;
+  readonly title: () => string;
+  readonly body: () => string | undefined;
+  /** The configured way forward, or undefined when the denial unlocks nothing. */
+  readonly action: () =>
+    | { readonly label: string; readonly run: () => void }
+    | undefined;
+  readonly dataSet: () => Record<string, string>;
+};
+
 /**
- * The one denial / unlock surface (§22.5): renders a `Decision` by resolving
- * its `unlockRef` to config copy and CTA. The only place upsell or sign-in
- * copy renders, so a denied sub shows this and nothing of its own.
+ * Resolves a `Decision` to what every denial surface shows: its `unlockRef`'s
+ * config copy, the CTA, and the handles a spec reads.
  */
-export function DenialSurface(props: DenialSurfaceProps): JSX.Element {
+export function useDenialContent(props: {
+  readonly decision: Decision;
+  readonly icon?: IconComponent | undefined;
+  readonly testId?: string | undefined;
+}): DenialContent {
   const permissions = usePermissions();
   const unlock = useUnlock();
   const clock = useClock();
@@ -39,44 +53,57 @@ export function DenialSurface(props: DenialSurfaceProps): JSX.Element {
   const action = createMemo(() => {
     const label = unlock.label(props.decision);
     if (label === undefined) return undefined;
-    return {
-      label: <>{label}</>,
-      onClick: () => unlock.run(props.decision),
-    };
+    return { label, run: () => unlock.run(props.decision) };
   });
-  const icon = createMemo(
-    () =>
+  return {
+    icon: () =>
       props.icon ??
-      (props.decision.reason === 'quota_exhausted' ? ClockIcon : KeyRoundIcon)
-  );
-  const title = createMemo(
-    () =>
-      unlockCopy(entry()?.titleKey) ?? denialReasonTitle(props.decision.reason)
-  );
-  const dataSet = () => ({
-    testid: props.testId ?? 'permission-denial',
-    reason: props.decision.reason ?? 'not_granted',
-    policyVersion: props.decision.policyVersion,
-  });
+      (props.decision.reason === 'quota_exhausted' ? ClockIcon : KeyRoundIcon),
+    title: () =>
+      unlockCopy(entry()?.titleKey) ?? denialReasonTitle(props.decision.reason),
+    body,
+    action,
+    dataSet: () => ({
+      testid: props.testId ?? 'permission-denial',
+      reason: props.decision.reason ?? 'not_granted',
+      policyVersion: props.decision.policyVersion,
+    }),
+  };
+}
+
+/**
+ * The one denial / unlock surface (§22.5): renders a `Decision` by resolving
+ * its `unlockRef` to config copy and CTA. The only place upsell or sign-in
+ * copy renders (with `DenialModal`, its modal form), so a denied sub shows
+ * this and nothing of its own.
+ */
+export function DenialSurface(props: DenialSurfaceProps): JSX.Element {
+  const content = useDenialContent(props);
+  const action = () => {
+    const forward = content.action();
+    return forward === undefined
+      ? undefined
+      : { label: <>{forward.label}</>, onClick: forward.run };
+  };
   return (
     <Show
       when={props.variant === 'compact'}
       fallback={
         <EmptyState
-          icon={icon()}
-          title={title()}
-          body={body()}
+          icon={content.icon()}
+          title={content.title()}
+          body={content.body()}
           action={action()}
-          dataSet={dataSet()}
+          dataSet={content.dataSet()}
         />
       }
     >
       <ActionNotice
-        icon={icon()}
-        title={title()}
-        body={body()}
+        icon={content.icon()}
+        title={content.title()}
+        body={content.body()}
         action={action()}
-        dataSet={dataSet()}
+        dataSet={content.dataSet()}
       />
     </Show>
   );

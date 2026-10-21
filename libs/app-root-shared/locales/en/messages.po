@@ -2767,6 +2767,10 @@ msgstr "Not connected"
 msgid "Not found"
 msgstr "Not found"
 
+#: libs/permissions-client/src/denial-modal.tsx
+msgid "Not now"
+msgstr "Not now"
+
 #: libs/synthetic-population-client/src/synthetic-user-details.tsx
 msgid "Not registered"
 msgstr "Not registered"
@@ -2832,6 +2836,10 @@ msgstr "offline"
 #: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Offline"
 msgstr "Offline"
+
+#: libs/permissions-client/src/denial-modal.tsx
+msgid "OK"
+msgstr "OK"
 
 #: libs/app-config-client/src/client-config-entity-card.tsx
 #: libs/app-root-client/src/app-header-global-menu.tsx

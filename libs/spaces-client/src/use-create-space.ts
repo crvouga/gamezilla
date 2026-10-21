@@ -33,7 +33,7 @@ export function useCreateSpace(): () => Promise<CreateSpaceResult> {
   return async () => {
     const known = limit();
     if (!known.allowed) {
-      invite.note(known);
+      invite.offer(known);
       return { kind: 'limited', decision: known };
     }
     const spaceId = createId();
@@ -47,7 +47,7 @@ export function useCreateSpace(): () => Promise<CreateSpaceResult> {
     }
     const decision = denialOf(result.failures[0]?.meta);
     if (decision !== null && !decision.allowed) {
-      invite.note(decision);
+      invite.offer(decision);
       return { kind: 'limited', decision };
     }
     throw new Error(result.failures[0]?.message);
