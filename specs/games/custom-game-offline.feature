@@ -1,6 +1,6 @@
 @domain:games
 Feature: Play a custom game on the host's device without a connection
-  When a host plays without anyone else taking part, they want the board, bots and clock to work on their device, so shared play being unavailable never stops their own custom game.
+  When a host plays without anyone else taking part, they want the board, bots and clock to work on their device, so shared play being unavailable never stops their own custom game. It holds for every game without a private setup; a custom game of a game with one needs the connection for its moves to count.
 
   Rule: The host can create a custom game and choose a bot without another person while offline
     No counter-example: being offline never stops the host's choices involving no other person.

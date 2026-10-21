@@ -75,7 +75,11 @@ terms:
       A person in a custom game agreeing to its current set-up before it
       starts. Any change to the sides or the clock choice leaves every
       person not ready; a bot needs no agreement. A person may withdraw
-      readiness until the custom game starts.
+      readiness until the custom game starts. In a game with a private
+      setup, becoming ready also needs a complete private setup and confirms
+      it: while the person is ready it cannot change, and withdrawing
+      readiness lets them change it again. In a matched game of such a game,
+      a person is ready once they choose their private setup.
     forms:
       - readiness
       - not ready
@@ -84,6 +88,81 @@ terms:
       - become ready
       - withdraws readiness
     model: [ready, readyShown, becomeReady, becomeUnready]
+
+  - term: private setup
+    definition: >-
+      What each side of some games prepares in secret before play begins,
+      by the game's own rules, as in Battleship. It is
+      complete once it has everything those rules require, and incomplete
+      until then. Only its own person sees it: never the other participant,
+      the creator, a watcher or anyone else, while the game is set up or
+      played, nor afterwards in its history and review, where each person
+      still sees only their own and what play revealed. Everyone sees
+      whether its person is ready. A bot arranges its own when the custom
+      game starts, and a rematch starts with none. A game without a private
+      setup has nothing of the kind. It is a different thing from a custom
+      game's set-up, which everyone in it sees.
+    forms:
+      - private setups
+      - complete private setup
+      - incomplete private setup
+      - a game with a private setup
+      - a game without a private setup
+      - her private setup
+      - his private setup
+      - their private setups
+      - either private setup
+    avoid: [hidden setup, secret setup]
+    model: [privateSetup, privateSetupShown]
+
+  - term: change a private setup
+    definition: >-
+      Prepare or rearrange one's own private setup, while the custom game is
+      set up or the matched game's private setups are being chosen, and only
+      while one is not ready. A change while ready is refused and keeps the
+      private setup as it was.
+    forms:
+      - changes her private setup
+      - changes his private setup
+      - changed her private setup
+      - changed his private setup
+    model: [changePrivateSetup]
+
+  - term: choose a private setup
+    definition: >-
+      In a matched game of a game with a private setup, a person confirming
+      their complete private setup, which makes them ready. A chosen private
+      setup is final: it cannot change, and readiness cannot be withdrawn.
+      Only a complete private setup can be chosen, and choosing needs a
+      connection.
+    forms:
+      - chooses her private setup
+      - chooses his private setup
+      - chose her private setup
+      - chose his private setup
+      - has chosen her private setup
+      - has chosen his private setup
+      - chose their private setups
+      - have chosen their private setups
+      - chosen private setup
+      - awaiting both private setups
+    model: [choosePrivateSetup]
+
+  - term: private setup time
+    definition: >-
+      The 2 minutes from pairing in which both people of a matched game with
+      a private setup must choose their private setups; in a daily game, the
+      days each move is given instead. When it runs out before both have
+      chosen, the matched game is aborted: it has no result and changes
+      nobody's rating.
+    model: [setupSeconds]
+
+  - term: reveal
+    definition: >-
+      What a move shows of the other side's private setup by the game's own
+      rules, such as what each turn of Battleship finds. Both people and every watcher see it, and nothing else
+      of the private setup; a refused move reveals nothing.
+    forms: [reveals, revealed, what play revealed]
 
   - term: start
     definition: >-
@@ -231,7 +310,7 @@ terms:
       - move played
       - moves played
     avoid: [command, action]
-    model: [playCustomMove, movesPlayed, movesShown, playMove, playCurrentMove, moveCount, moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, tryIllegalMove, playPuzzleMove]
+    model: [playCustomMove, movesPlayed, moveWaiting, movesShown, playMove, playCurrentMove, moveCount, moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, tryIllegalMove, playPuzzleMove]
 
   - term: turn
     definition: The participant who may make the next move.
@@ -340,8 +419,11 @@ terms:
       30 seconds of the first side's first move. Missing it aborts the
       matched game, so nobody loses a game they never began, even when they
       were paired while offline. A clock choice that gives days for each
-      move gives those days instead of the 30 seconds.
+      move gives those days instead of the 30 seconds. In a game with a
+      private setup, the first side's 30 seconds begin once both people have
+      chosen their private setups, not at pairing.
     forms: [misses the first move, missed the first move, missing the first move]
+    model: [firstMoveSeconds]
 
   - term: draw offer
     definition: >-

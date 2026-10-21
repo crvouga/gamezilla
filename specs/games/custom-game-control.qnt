@@ -5,7 +5,9 @@
 // allows is intentionally not promised; the custom game here is one allowed
 // choice. The game's own rules belong to the game itself.
 // People lose their connection independently. Bots keep playing their own
-// turns on the host's device, including with no connection. The host keeps
+// turns on the host's device, including with no connection, in a game
+// without a private setup; one with a private setup needs the connection for
+// its moves to count. The host keeps
 // seeing those moves. A guest sees them while both have a connection, and
 // keeps the board they already had while the host has none or their own
 // connection is gone.
