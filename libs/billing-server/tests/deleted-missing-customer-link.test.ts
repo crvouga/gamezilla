@@ -20,6 +20,7 @@ function provider(canceled: string[]): MembershipBilling {
   return {
     provider: 'stub',
     startCheckout: async () => ({
+      kind: 'checkout',
       customerId: 'cus_x',
       url: 'https://pay.test',
     }),
@@ -29,6 +30,7 @@ function provider(canceled: string[]): MembershipBilling {
     },
     refundPayment: async () => {},
     readCallback: async () => ({ kind: 'ignored' }),
+    readMembership: async () => null,
     readPayments: async () => [],
   };
 }
