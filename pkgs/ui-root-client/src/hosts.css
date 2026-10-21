@@ -24,14 +24,14 @@
     padding: 0;
     border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
-    background: var(--ui-color-background);
+    background: var(--ui-color-surface);
   }
 
-  /* A panel groups related rows: the canvas fill inside one hairline, the
-     card radius, and hairlines between items inset to the text column. Rows
-     inside never carry their own radius or border; the panel clips their
-     press tint. Lists, menus, settings and game pickers all use it, so every
-     list reads the same. */
+  /* A panel groups related rows: a sheet of paper (the surface tone) inside
+     one hairline, the card radius, and hairlines between items inset to the
+     text column. Rows inside never carry their own radius or border; the
+     panel clips their press tint. Lists, menus, settings and game pickers
+     all use it, so every list reads the same. */
   .panel {
     display: flex;
     flex-direction: column;
@@ -41,7 +41,7 @@
     overflow: hidden;
     border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
-    background: var(--ui-color-background);
+    background: var(--ui-color-surface);
   }
 
   .panelItem {
@@ -366,7 +366,7 @@
     font: inherit;
     color: var(--ui-color-text);
     caret-color: var(--ui-color-text);
-    background: var(--ui-color-surface);
+    background: var(--ui-color-background);
     border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-control);
     transition:

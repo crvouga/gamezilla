@@ -86,7 +86,7 @@
 
 [data-theme="light"] {
   --ui-color-background: hsla(0, 0%, 100%, 1);
-  --ui-color-surface: hsla(0, 0%, 98%, 1);
+  --ui-color-surface: hsla(0, 0%, 97%, 1);
   --ui-color-surface-muted: hsla(0, 0%, 94%, 1);
   --ui-color-surface-elevated: hsla(0, 0%, 100%, 1);
   --ui-color-surface-overlay: hsla(0, 0%, 100%, 1);

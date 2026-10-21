@@ -35,7 +35,7 @@ public enum DesignTokens {
     public enum Color {
         public enum Light {
             public static let background = ColorValue(hue: 0, saturation: 0, lightness: 100, alpha: 1, red: 1, green: 1, blue: 1)
-            public static let surface = ColorValue(hue: 0, saturation: 0, lightness: 98, alpha: 1, red: 0.98, green: 0.98, blue: 0.98)
+            public static let surface = ColorValue(hue: 0, saturation: 0, lightness: 97, alpha: 1, red: 0.97, green: 0.97, blue: 0.97)
             public static let surfaceMuted = ColorValue(hue: 0, saturation: 0, lightness: 94, alpha: 1, red: 0.94, green: 0.94, blue: 0.94)
             public static let surfaceElevated = ColorValue(hue: 0, saturation: 0, lightness: 100, alpha: 1, red: 1, green: 1, blue: 1)
             public static let surfaceOverlay = ColorValue(hue: 0, saturation: 0, lightness: 100, alpha: 1, red: 1, green: 1, blue: 1)
@@ -121,7 +121,7 @@ public enum DesignTokens {
         }
         public enum Surface {
             public static let background = ColorValue(hue: 0, saturation: 0, lightness: 100, alpha: 1, red: 1, green: 1, blue: 1)
-            public static let surface = ColorValue(hue: 0, saturation: 0, lightness: 98, alpha: 1, red: 0.98, green: 0.98, blue: 0.98)
+            public static let surface = ColorValue(hue: 0, saturation: 0, lightness: 97, alpha: 1, red: 0.97, green: 0.97, blue: 0.97)
             public static let muted = ColorValue(hue: 0, saturation: 0, lightness: 94, alpha: 1, red: 0.94, green: 0.94, blue: 0.94)
             public static let elevated = ColorValue(hue: 0, saturation: 0, lightness: 100, alpha: 1, red: 1, green: 1, blue: 1)
             public static let overlay = ColorValue(hue: 0, saturation: 0, lightness: 100, alpha: 1, red: 1, green: 1, blue: 1)

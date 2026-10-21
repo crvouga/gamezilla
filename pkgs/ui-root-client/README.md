@@ -14,7 +14,7 @@ a person asked.
 | Token | Role |
 | --- | --- |
 | `background` | the canvas: white / true black |
-| `surface` | one step off the canvas (#FAFAFA / #121212): wells and input fill, never a page tone |
+| `surface` | paper, one step off the canvas (#F7F7F7 / #121212): cards and list panels, never a page tone |
 | `surface-muted` | tags, segmented tracks, secondary buttons (#EFEFEF / #262626) |
 | `surface-elevated` / `surface-overlay` | dialogs and sheets / menus, popovers, toasts |
 | `text` / `text-secondary` | near-black or near-white, and its gray partner |
@@ -55,8 +55,8 @@ why the blue sits at the lightness where a white label still passes.
 3. **One face.** The platform system stack carries everything. Mono is for
    code and identifiers, never for numbers or labels.
 4. **Lists are panels.** Group rows in a `MenuSection` / `MenuList` (or
-   `MainMenuScreen` for destinations): the canvas inside one hairline, the
-   card radius, hairlines between rows inset to the text column. A row never
+   `MainMenuScreen` for destinations): paper (`surface`) inside one hairline,
+   the card radius, hairlines between rows inset to the text column. A row never
    paints its own radius or border. Never stack separate cards to make a list.
 4a. **Nobody is an icon.** A person without a picture is the `Avatar`
    placeholder, never an outlined glyph in a ring. `icon` on an `Avatar` is

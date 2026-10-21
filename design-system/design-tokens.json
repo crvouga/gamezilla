@@ -13,10 +13,10 @@
         }
       },
       "surface": {
-        "$description": "One step off the canvas: wells, a selected row, the wide-shell backdrop.",
+        "$description": "Paper: cards and list panels, one step off the canvas.",
         "$value": {
           "colorSpace": "hsl",
-          "components": [0, 0, 98],
+          "components": [0, 0, 97],
           "alpha": 1
         }
       },
@@ -269,7 +269,7 @@
         }
       },
       "surface": {
-        "$description": "One step off the canvas: wells, a selected row, the wide-shell backdrop.",
+        "$description": "Paper: cards and list panels, one step off the canvas.",
         "$value": {
           "colorSpace": "hsl",
           "components": [0, 0, 7],
