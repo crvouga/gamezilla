@@ -725,6 +725,31 @@
         "typescript": "catalog:",
       },
     },
+    "libs/battleship-client": {
+      "name": "@libs/battleship-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/battleship-shared": "workspace:*",
+        "@libs/game-menu-client": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@pkgs/turn-game-shared": "workspace:*",
+        "@pkgs/ui-root-client": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
+        "@pkgs/clock-client": "workspace:*",
+        "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/ui-testing-solid-dom-client": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@testing-library/user-event": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/battleship-shared": {
       "name": "@libs/battleship-shared",
       "version": "0.0.0",
@@ -7437,6 +7462,8 @@
     "@libs/auth-server": ["@libs/auth-server@workspace:libs/auth-server"],
 
     "@libs/auth-shared": ["@libs/auth-shared@workspace:libs/auth-shared"],
+
+    "@libs/battleship-client": ["@libs/battleship-client@workspace:libs/battleship-client"],
 
     "@libs/battleship-shared": ["@libs/battleship-shared@workspace:libs/battleship-shared"],
 

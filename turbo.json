@@ -1111,6 +1111,7 @@
         "$TURBO_ROOT$/libs/billing-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/chess-root-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/connect-four-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/battleship-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-menu-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-session-client/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-matchmaking-client/src/**/*.{ts,tsx}",

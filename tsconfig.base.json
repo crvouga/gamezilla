@@ -442,6 +442,7 @@
       ],
       "@libs/connect-four-shared/*": ["./libs/connect-four-shared/src/*"],
       "@libs/battleship-shared/*": ["./libs/battleship-shared/src/*"],
+      "@libs/battleship-client/*": ["./libs/battleship-client/src/*"],
       "@libs/connect-four-client/*": ["./libs/connect-four-client/src/*"],
       "@libs/game-menu-client/*": ["./libs/game-menu-client/src/*"],
       "@libs/games-harness/*": ["./libs/games-harness/src/*"],
