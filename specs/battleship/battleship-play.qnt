@@ -8,9 +8,8 @@
 // a ship's last cell sinks it and names it. The 17th hit sinks the fifth ship
 // and wins at once, and the game is over. A refused shot changes nothing and
 // keeps the turn.
-// A game can be followed from its start, or from one hit before the first
-// player's victory. Placing the fleets and starting are in
-// battleship-fleet-setup.qnt.
+// Here a game begins at its start, or one hit before the first player's
+// victory. Placing the fleets and the start are a separate model.
 // A player whose device has no connection keeps seeing their last boards and
 // cannot shoot; a refused shot does not happen later. Alice hosts the space
 // the game is played in: while she has no connection, Bob cannot shoot either

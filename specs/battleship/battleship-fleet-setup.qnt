@@ -4,14 +4,15 @@
 // another of its player's ships; ships may touch. A player may place, rotate
 // and replace their ships with a random fleet until they are ready, and can
 // become ready only with a complete fleet. Once both players are ready, Alice
-// starts the game. A refused placing, rotation, readiness or start changes
-// nothing.
-// A setup can be followed from its beginning, once both players have arranged
-// a fleet, or once both are ready.
-// A player whose device has no connection cannot become ready or start.
-// Alice hosts the space the game is played in: while she has no connection,
-// Bob cannot become ready either.
-// The shots that follow the start are in battleship-play.qnt.
+// starts the game. A shot before the start is refused. A refused placing,
+// rotation, readiness, start or shot changes nothing.
+// Here a setup begins with no ship placed, with both fleets placed and nobody
+// ready, or with both players ready.
+// A player's ships stay where they are while their device has no
+// connection: they cannot place, rotate or replace them, become ready or
+// start. Alice hosts the space the game is played in: while she has no
+// connection, Bob cannot become ready either.
+// The shots after the start are a separate model.
 module battleship_fleet_setup {
   pure val PLAYERS = Set(1, 2)
   pure val SHIPS = Set("carrier", "battleship", "cruiser", "submarine", "destroyer")
@@ -40,7 +41,7 @@ module battleship_fleet_setup {
   var online: int -> bool
   var _refused: bool
   var _before: (int -> (str -> (int, int, bool)), int -> bool, str)
-  var _atCut: int -> (int -> bool, str)
+  var _atCut: int -> (int -> (str -> (int, int, bool)), int -> bool, str)
 
   pure def _length(ship: str): int =
     if (ship == "carrier") 5 else if (ship == "battleship") 4 else if (ship == "destroyer") 2 else 3
@@ -71,7 +72,7 @@ module battleship_fleet_setup {
     fleet' = f, ready' = r, phase' = stage, online' = o,
     _refused' = refused,
     _before' = (fleet, ready, phase),
-    _atCut' = PLAYERS.mapBy(p => if (online.get(p) and not(o.get(p))) (r, stage) else _atCut.get(p)),
+    _atCut' = PLAYERS.mapBy(p => if (online.get(p) and not(o.get(p))) (f, r, stage) else _atCut.get(p)),
   }
   action _hold = _update(fleet, ready, phase, online, true)
 
@@ -86,25 +87,25 @@ module battleship_fleet_setup {
       online' = PLAYERS.mapBy(_ => true),
       _refused' = false,
       _before' = (f, r, "setup"),
-      _atCut' = PLAYERS.mapBy(_ => (r, "setup")),
+      _atCut' = PLAYERS.mapBy(_ => (f, r, "setup")),
     }
   }
-  /// Place a ship from a cell, horizontally or vertically, or keep every ship where it was if it cannot go there.
+  /// Place a ship from a cell, horizontally or vertically, or keep every ship where it was if it cannot go there or the device has no connection.
   action placeShip(p: int, ship: str, row: int, column: int, horizontal: bool): bool =
-    if (phase == "setup" and not(ready.get(p)) and _fits(fleet.get(p), ship, (row, column, horizontal)))
+    if (phase == "setup" and online.get(p) and not(ready.get(p)) and _fits(fleet.get(p), ship, (row, column, horizontal)))
       _update(fleet.set(p, fleet.get(p).set(ship, (row, column, horizontal))), ready, phase, online, false)
     else _hold
   /// Turn a placed ship between horizontal and vertical from its first cell, or keep it where it was.
   action rotateShip(p: int, ship: str): bool = {
     val at = fleet.get(p).get(ship)
     val turned = (at._1, at._2, not(at._3))
-    if (phase == "setup" and not(ready.get(p)) and _placed(at) and _fits(fleet.get(p), ship, turned))
+    if (phase == "setup" and online.get(p) and not(ready.get(p)) and _placed(at) and _fits(fleet.get(p), ship, turned))
       _update(fleet.set(p, fleet.get(p).set(ship, turned)), ready, phase, online, false)
     else _hold
   }
-  /// Replace a player's ships with a complete random fleet during setup.
+  /// Replace a player's ships with a complete random fleet during setup, which needs a connection.
   action randomFleet(p: int, layout: str -> (int, int, bool)): bool =
-    if (phase == "setup" and not(ready.get(p)))
+    if (phase == "setup" and online.get(p) and not(ready.get(p)))
       _update(fleet.set(p, layout), ready, phase, online, false)
     else _hold
   /// Confirm a complete fleet, which needs a connection.
@@ -112,6 +113,8 @@ module battleship_fleet_setup {
     if (phase == "setup" and online.get(p) and online.get(1) and not(ready.get(p)) and _complete(fleet.get(p)))
       _update(fleet, ready.set(p, true), phase, online, false)
     else _hold
+  /// A shot before the start is refused.
+  action shoot(p: int, cell: int): bool = all { phase == "setup", _hold }
   /// Alice starts the game once both players are ready.
   action startGame: bool =
     if (phase == "setup" and online.get(1) and PLAYERS.forall(q => ready.get(q)))
@@ -141,6 +144,7 @@ module battleship_fleet_setup {
     { nondet p = PLAYERS.oneOf() nondet layout = RANDOM_FLEETS.oneOf() randomFleet(p, layout) },
     { nondet p = PLAYERS.oneOf() becomeReady(p) },
     startGame,
+    { nondet p = PLAYERS.oneOf() nondet cell = 0.to(99).oneOf() shoot(p, cell) },
     { nondet p = PLAYERS.oneOf() loseConnection(p) },
     { nondet p = PLAYERS.oneOf() connectionReturns(p) },
   }
@@ -152,11 +156,11 @@ module battleship_fleet_setup {
     PLAYERS.forall(p => ready.get(p) implies _complete(fleet.get(p))),
     phase != "setup" implies PLAYERS.forall(p => ready.get(p)),
   }
-  /// A refused placing, rotation, readiness or start changes no fleet, readiness or part of the game.
+  /// A refused placing, rotation, readiness, start or shot changes no fleet, readiness or part of the game.
   val invRejection = _refused implies (fleet, ready, phase) == _before
-  /// A player with no connection does not become ready; while Alice has none, nobody becomes ready and the game does not start.
+  /// A player with no connection keeps their ships and does not become ready; while Alice has none, nobody becomes ready and the game does not start.
   val invOffline = and {
-    PLAYERS.forall(p => not(online.get(p)) implies ready.get(p) == _atCut.get(p)._1.get(p)),
-    not(online.get(1)) implies (ready, phase) == _atCut.get(1),
+    PLAYERS.forall(p => not(online.get(p)) implies (fleet.get(p), ready.get(p)) == (_atCut.get(p)._1.get(p), _atCut.get(p)._2.get(p))),
+    not(online.get(1)) implies (ready, phase) == (_atCut.get(1)._2, _atCut.get(1)._3),
   }
 }
