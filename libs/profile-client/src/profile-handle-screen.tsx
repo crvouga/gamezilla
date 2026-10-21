@@ -1,6 +1,10 @@
 import { useModeration } from '@libs/moderation-client/moderation-context';
 import { claimUsernameMutation } from '@libs/profile-shared/claim-username-mutation';
 import type { ProfileRow } from '@libs/profile-shared/profile-row-sql';
+import {
+  USERNAME_MAX_LENGTH,
+  USERNAME_MIN_LENGTH,
+} from '@libs/profile-shared/username';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
@@ -8,6 +12,7 @@ import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-cont
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { FormScreen } from '@pkgs/ui-root-client/form-screen';
 import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { Accessor, JSX } from 'solid-js';
@@ -89,6 +94,12 @@ function ProfileHandleScreenBody(props: {
         autocorrect="off"
         dataSet={{ testid: Handles.profileUsernameInput }}
       />
+      <P variant="caption" testId="profile-username-rules">
+        <Trans>
+          {USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} letters, numbers or _.
+          Saved in lowercase.
+        </Trans>
+      </P>
       <UsernameChangeFeedback />
     </StackVertical>
   );

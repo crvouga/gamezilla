@@ -56,6 +56,7 @@ export function slo(
     timeWindow: window ?? { duration: '1h', isRolling: true, calendar: null },
     budgetingMethod: 'Occurrences',
     objectives: [],
+    alertPolicies: [],
     ...rest,
   };
 }

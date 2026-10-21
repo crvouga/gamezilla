@@ -40,3 +40,10 @@ export const LAST_LOCAL_ACCOUNT_ID_KEY = 'lastLocalAccountId';
  * the session resolves.
  */
 export const SIGN_IN_PENDING_KEY = 'signInPending';
+
+/**
+ * JSON `{ "unshared": <count> }` recorded when this device learns its sign-in
+ * ended without the person asking here (signed out everywhere, or lapsed).
+ * Kept until they dismiss the notice or sign in again, across app restarts.
+ */
+export const SIGNED_OUT_NOTICE_KEY = 'signedOutNotice';

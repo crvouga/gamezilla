@@ -13,6 +13,7 @@ import {
 import { createServer } from '@libs/app-root-server/create-server';
 import { createApiObjectStore } from '@libs/app-root-server/object-store';
 import { openRequestDb } from '@libs/app-root-server/open-request-db-postgres';
+import { observeScheduledOutboxDrain } from '@libs/app-root-server/outbox-health';
 import type { ApiWorkerEnv } from '@libs/app-root-shared/env';
 import {
   assertSecretsEnvBinding,
@@ -67,6 +68,7 @@ import {
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { deploymentTelemetryEnvironment } from '@pkgs/observability-root-shared/deployment-environment';
 import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
+import { pipelineHeartbeatContract } from '@pkgs/observability-root-shared/pipeline-metrics';
 import { withSpan } from '@pkgs/observability-root-shared/span';
 import { isSecretStoreError } from '@pkgs/secret-store-shared/is-secret-store-error';
 import { InMemoryTtsProvider } from '@pkgs/tts-root-server/in-memory-tts-provider';
@@ -476,28 +478,26 @@ const workerImplementation = {
     const environment = deploymentTelemetryEnvironment(
       env.DEPLOYMENT_ENVIRONMENT
     );
-    createMetric({
-      name: 'telemetry.pipeline.heartbeat',
-      description: 'Scheduled server telemetry heartbeat',
-      type: 'counter',
-      unit: '{beat}',
-      dimensions: { [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: [environment] },
-    })(1, { [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: environment });
+    // The heartbeat says only that the schedule fired and telemetry flows, so
+    // it stays ahead of the drain: a broken drain must not read as a broken
+    // pipeline. Whether the drain works is its own count, `outbox.drain.runs`.
+    createMetric(pipelineHeartbeatContract(environment))(1, {
+      [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: environment,
+    });
     try {
       await withSpan(
         'outbox.drain',
         async () => {
-          // A scheduled event may be this isolate's first invocation.
-          if ((await ensureApp(env)) === null)
-            throw new ConfigurationError(
-              'Cannot drain outbox: application boot failed'
+          const processed = await observeScheduledOutboxDrain(async () => {
+            // A scheduled event may be this isolate's first invocation.
+            if ((await ensureApp(env)) === null)
+              throw new ConfigurationError(
+                'Cannot drain outbox: application boot failed'
+              );
+            return drainOutboxOnCron(env, workerHttp, wallClock, () =>
+              crypto.randomUUID()
             );
-          const processed = await drainOutboxOnCron(
-            env,
-            workerHttp,
-            wallClock,
-            () => crypto.randomUUID()
-          );
+          });
           if (processed > 0) log.info('outbox cron drained', { processed });
         },
         {

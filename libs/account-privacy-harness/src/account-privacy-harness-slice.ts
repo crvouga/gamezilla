@@ -7,10 +7,12 @@ import {
   cancelDeletion,
   completeExport,
   confirmDeletion,
+  confirmExportReplacement,
   openExportAddress,
   openPrivacy,
   privacyTimePasses,
   proveAccount,
+  requestExport,
   reviewDeletion,
   runPrivacyJobs,
 } from './privacy-actions';
@@ -35,6 +37,8 @@ export const ACCOUNT_PRIVACY_HARNESS_SLICE: HarnessSlice = {
     runPrivacyJobs,
     privacyTimePasses,
     completeExport,
+    confirmExportReplacement,
+    requestExport,
     openExportAddress,
   ],
   server: (deps) =>

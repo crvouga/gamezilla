@@ -1,6 +1,9 @@
 import { zValidator } from '@hono/zod-validator';
 import type { BillingRouteDeps } from '@libs/billing-shared/billing-route-deps';
-import { billingNotConfigured } from '@libs/billing-shared/billing-route-deps';
+import {
+  billingNotConfigured,
+  billingProviderUnavailable,
+} from '@libs/billing-shared/billing-route-deps';
 import { CustomerLinks } from '@libs/billing-shared/customer-links';
 import { MembershipRepository } from '@libs/billing-shared/membership-repository';
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
@@ -60,11 +63,20 @@ async function handleBillingPortal(
   if (found === null || billing === undefined) {
     return c.json({ error: 'No billing customer for this account' }, 404);
   }
-  const portal = await billing.openPortal({
-    accountId: auth.accountId,
-    customerId: found.customerId,
-    returnUrl: body.returnUrl,
-  });
+  let portal: { readonly url: string };
+  try {
+    portal = await billing.openPortal({
+      accountId: auth.accountId,
+      customerId: found.customerId,
+      returnUrl: body.returnUrl,
+    });
+  } catch (error) {
+    return billingProviderUnavailable(c, deps.log, {
+      provider: billing.provider,
+      operation: 'portal',
+      error,
+    });
+  }
   if (portal.url.length === 0) {
     return c.json({ error: 'Billing portal URL missing' }, 502);
   }

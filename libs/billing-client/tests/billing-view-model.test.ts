@@ -278,6 +278,11 @@ const arbInput: fc.Arbitrary<BillingViewInput> = fc.record({
   graceMs: fc.constantFrom(0, 7 * DAY),
   confirmedAtMs: fc.option(fc.constantFrom(NOW, NOW - 8 * DAY), { nil: null }),
   online: fc.boolean(),
+  loading: fc.boolean(),
+  checkoutReturnedAtMs: fc.option(
+    fc.constantFrom(NOW, NOW - 60_000, NOW - 10 * 60_000),
+    { nil: null }
+  ),
 });
 
 describe('billing view: properties over arbitrary rows', () => {
@@ -401,7 +406,9 @@ describe('billing view: properties over arbitrary rows', () => {
           'ended',
         ];
         if (!known.includes(input.row?.status ?? '')) {
-          expect(view.state).toBe('none');
+          const unknownYet =
+            input.loading && input.canManage && input.row === null;
+          expect(view.state).toBe(unknownYet ? 'loading' : 'none');
           expect(view.periodEndMs).toBeNull();
           expect(view.priceKey).toBeNull();
         }

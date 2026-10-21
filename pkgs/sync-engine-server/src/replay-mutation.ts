@@ -5,6 +5,7 @@ import {
   deserializeTraceContext,
 } from '@pkgs/observability-root-shared/correlation';
 import { EVENT, events } from '@pkgs/observability-root-shared/events';
+import { createMutationReplayMetric } from '@pkgs/observability-root-shared/mutation-metrics';
 import { withSpan } from '@pkgs/observability-root-shared/span';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
@@ -309,6 +310,22 @@ async function replayMutationCore(
   }
 }
 
+/** Replay once and count what became of it; a throw is a `failed` replay. */
+async function replayCounted(
+  deps: ReplayMutationDeps,
+  m: MutationRow
+): Promise<ReplayOutcome> {
+  const count = createMutationReplayMetric();
+  try {
+    const outcome = await replayMutationCore(deps, m);
+    count(outcome.status);
+    return outcome;
+  } catch (error) {
+    count('failed');
+    throw error;
+  }
+}
+
 export function replayMutation(
   deps: ReplayMutationDeps,
   m: MutationRow
@@ -317,7 +334,7 @@ export function replayMutation(
   return withSpan(
     'mutation.replay',
     async (span) => {
-      const outcome = await replayMutationCore(deps, m);
+      const outcome = await replayCounted(deps, m);
       if (outcome.status === 'applied') {
         events.mutationPersisted(span, m.id);
       } else if (outcome.status === 'rejected') {
@@ -331,6 +348,7 @@ export function replayMutation(
     },
     {
       [ATTR.APP_MUTATION_ID]: m.id,
+      [ATTR.APP_MUTATION_NAME]: m.name,
       [ATTR.USER_ID]: deps.auth.accountId ?? deps.auth.actorId,
       [ATTR.APP_DEVICE_ID]: deps.auth.deviceId,
       ...(m.correlation === undefined

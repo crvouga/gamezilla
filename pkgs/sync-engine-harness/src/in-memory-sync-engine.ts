@@ -20,6 +20,7 @@ import type {
   SyncStatusSubscription,
 } from '@pkgs/sync-engine-client/sync-status';
 import { INITIAL_SYNC_STATUS } from '@pkgs/sync-engine-client/sync-status';
+import type { WriteRefusal } from '@pkgs/sync-engine-client/write-outcome-reads';
 
 function createStatusStore(): {
   readonly status: SyncStatusSubscription;
@@ -232,6 +233,10 @@ export async function createInMemorySyncEngine(
         sql<MutationFeedback>`SELECT NULL AS "mutationId" WHERE false`
       ),
     listRejections: async () => [],
+    unheardRefusals: () =>
+      watchRegistry.watch(
+        sql<WriteRefusal>`SELECT NULL AS "mutationId" WHERE false`
+      ),
     pendingMutationCount: async () => 0,
     wakeUploads: () => undefined,
     notifyLocalMutation: () => undefined,

@@ -23,10 +23,11 @@ export function createProviderConfig(
   exportMode: 'batch' | 'flush'
 ): TracerConfig {
   if (options.registerGlobal !== false) installLogEventBridge();
-  const processors: SpanProcessor[] = [];
-  if (options.identity !== undefined) {
-    processors.push(new IdentitySpanProcessor(options.identity));
-  }
+  // Always installed: a server has no process-wide identity, only the scope
+  // each request binds.
+  const processors: SpanProcessor[] = [
+    new IdentitySpanProcessor(options.identity),
+  ];
   processors.push(...(options.spanProcessors ?? []));
   processors.push(
     new RedactingSpanProcessor(options.redact ?? createAllowlistRedactor())

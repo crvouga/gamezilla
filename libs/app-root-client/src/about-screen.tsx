@@ -12,6 +12,7 @@ import {
   getCommitHash,
   getShortCommitHash,
   hasCommitProvenance,
+  SECURITY_CONTACT,
 } from '@libs/app-root-shared/app-metadata';
 import { writeClipboardText } from '@libs/app-root-shared/write-clipboard-text';
 import { Handles } from '@libs/test-ids-shared/handles';
@@ -96,6 +97,15 @@ export function AboutScreen(): JSX.Element {
       </MenuSection>
 
       <BuildSection provenance={provenance()} />
+
+      <MenuSection title={<Trans>Security</Trans>}>
+        <MenuRow
+          title={t`Report a security problem`}
+          value={SECURITY_CONTACT}
+          href={`mailto:${SECURITY_CONTACT}`}
+          dataSet={{ testid: Handles.aboutSecurityContact }}
+        />
+      </MenuSection>
 
       <Show when={provenance()}>
         {(p) => (

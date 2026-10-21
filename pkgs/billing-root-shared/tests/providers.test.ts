@@ -19,6 +19,7 @@ function adapter(provider: string): MembershipBilling {
     startCheckout: unused,
     openPortal: unused,
     readCallback: unused,
+    readMembership: unused,
   };
 }
 

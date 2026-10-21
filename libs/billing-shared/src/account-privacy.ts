@@ -11,7 +11,12 @@ type CloseAccount = {
   readonly accountId: string;
   readonly provider: string;
   readonly subscriptionId: string;
-  readonly customerId: string;
+  /**
+   * The provider customer whose payments are settled after deletion; `null`
+   * when the account's link to it is missing. Cancelling still goes ahead;
+   * the payments cannot be checked, so the closure stays pending.
+   */
+  readonly customerId: string | null;
 };
 export const closeAccountMembership = createMessageNamespace(
   'billing',
@@ -20,9 +25,10 @@ export const closeAccountMembership = createMessageNamespace(
   'close-membership',
   (value): value is CloseAccount =>
     isPlainRecord(value) &&
-    ['accountId', 'provider', 'subscriptionId', 'customerId'].every(
+    ['accountId', 'provider', 'subscriptionId'].every(
       (field) => typeof value[field] === 'string'
-    )
+    ) &&
+    (typeof value['customerId'] === 'string' || value['customerId'] === null)
 );
 
 export const BILLING_PRIVACY: AccountPrivacyContribution = {
@@ -47,12 +53,12 @@ export const BILLING_PRIVACY: AccountPrivacyContribution = {
       }>`SELECT provider, provider_subscription_id FROM billing_subscriptions WHERE account_id = ${ctx.env.actorId} AND deleted_at IS NULL`
     );
     for (const row of rows) {
+      // A missing link never blocks deletion: the membership is still
+      // cancelled, and its closure stays pending (see the close consumer).
       const customerId = await new CustomerLinks(ctx.tx).customerOf(
         ctx.env.actorId,
         row.provider
       );
-      if (customerId === null)
-        throw new Error('Membership customer link missing');
       await ctx.tx.run(
         sql`INSERT INTO billing_account_closures (id, account_id, provider, subscription_id, customer_id, confirmed_at, cancellation_status) VALUES (${`${row.provider}:${row.provider_subscription_id}`}, ${ctx.env.actorId}, ${row.provider}, ${row.provider_subscription_id}, ${customerId}, ${(ctx.env.serverNow ?? ctx.env.now)().toISOString()}, ${'pending'}) ON CONFLICT (provider, subscription_id) DO NOTHING`
       );

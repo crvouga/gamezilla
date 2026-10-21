@@ -55,7 +55,6 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
             <JoinPromptFooter
               spaceId={props.spaceId}
               hostOffline={connection() === 'host-offline'}
-              joinable={snapshot().joinable}
               onOffline={() => setJoinOffline(true)}
             />
           </Show>
@@ -84,7 +83,6 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
 function JoinPromptFooter(props: {
   readonly spaceId: string;
   readonly hostOffline: boolean;
-  readonly joinable: boolean;
   readonly onOffline: () => void;
 }): JSX.Element {
   const canLeave = useSpaceCan(() => props.spaceId, PERMISSION.spacesLeave);
@@ -96,7 +94,6 @@ function JoinPromptFooter(props: {
         fallback={
           <SpaceJoinButton
             spaceId={props.spaceId}
-            joinable={props.joinable}
             flex={1}
             onOffline={props.onOffline}
           />
@@ -132,10 +129,10 @@ function JoinPromptBody(props: {
       <Match when={props.snapshot().status === 'unavailable'}>
         <EmptyState
           icon={Gamepad2Icon}
-          title={t`Space not available`}
-          body={t`Ask the host to add you to the allow list, or check the link.`}
+          title={t`You can't join this space`}
+          body={t`Only the host's friends and people the host adds can join it. Ask the host to add you, or check that the link is right.`}
           action={{
-            label: t`Back to spaces`,
+            label: t`Back to Spaces`,
             onClick: nav('/'),
           }}
         />

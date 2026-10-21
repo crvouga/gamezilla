@@ -8,13 +8,25 @@ import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 import { createSignal, type JSX } from 'solid-js';
 
 import { useAuthClientPort } from './auth-client-provider';
+import { useSignOutIntent } from './sign-out-intent';
 
 const ICON_SIZE = 16;
 
 export function SignOutEverywhereButton(): JSX.Element {
   const { t } = useLingui();
   const port = useAuthClientPort();
+  const intent = useSignOutIntent();
   const [open, setOpen] = createSignal(false);
+  // This device asked: its own sign-out is no news to the person here.
+  const signOutEverywhere = async (): Promise<void> => {
+    intent.expect();
+    try {
+      await port.signOutEverywhere();
+    } catch (error) {
+      intent.cancel();
+      throw error;
+    }
+  };
   return (
     <>
       <Button
@@ -37,7 +49,7 @@ export function SignOutEverywhereButton(): JSX.Element {
         }
         submitLabel={<Trans>Sign out everywhere</Trans>}
         variant="destructive"
-        operation={() => port.signOutEverywhere()}
+        operation={signOutEverywhere}
         loadingLabel={<Trans>Signing out…</Trans>}
         successTitle={<Trans>Signed out everywhere</Trans>}
         errorTitle={<Trans>Couldn't sign out everywhere</Trans>}

@@ -191,6 +191,40 @@ export class ExternalAccountRepository {
     return ownerId;
   }
 
+  /**
+   * Inserts a link unless any unique key is taken — the identity by another
+   * account, or this account's one link at `provider` by another identity.
+   * Never steals or replaces a link. The caller reads back who holds what.
+   */
+  async insertExternalAccountIfAbsent(
+    args: ExternalAccountWriteArgs
+  ): Promise<void> {
+    const id = `${args.provider}:${args.externalId}`;
+    const managed = managedInsertColumns(args.createId, args.now, id);
+    const metadataJson = JSON.stringify(args.metadata ?? {});
+    await this.db.run(sql<void>`
+      INSERT INTO auth_external_accounts (
+        id,
+        created_at,
+        updated_at,
+        user_id,
+        provider,
+        external_id,
+        metadata
+      )
+      VALUES (
+        ${managed.id},
+        ${managed.created_at},
+        ${managed.updated_at},
+        ${args.userId},
+        ${args.provider},
+        ${args.externalId},
+        ${metadataJson}
+      )
+      ON CONFLICT DO NOTHING
+    `);
+  }
+
   async findUserIdByPrimaryAuthExternalId(
     primaryAuthProvider: string,
     externalUserId: string

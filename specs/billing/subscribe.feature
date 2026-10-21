@@ -16,3 +16,19 @@ Feature: Subscribe to Plus
       When Alice subscribes to Plus
       Then Alice has paid access
       And Alice's membership is trialing on the monthly plan
+
+  Rule: A person is charged for one membership however often they subscribe
+
+    @regression:billing-checkout-left-still-payable
+    Scenario: Subscribing after leaving checkout continues the same checkout
+      Given Alice is signed in with Google
+      And Alice has left checkout without paying
+      When Alice subscribes to Plus
+      Then Alice has paid access
+      And Alice's earlier checkout can no longer take a payment
+
+    @regression:billing-second-checkout-before-webhook
+    Scenario: Subscribing again before the payment is confirmed takes no second payment
+      Given Alice has paid at checkout and the payment provider has not yet confirmed it
+      When Alice tries to subscribe to Plus again
+      Then Alice is charged for only one membership

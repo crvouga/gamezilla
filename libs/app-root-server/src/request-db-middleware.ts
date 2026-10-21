@@ -17,7 +17,8 @@ import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { KvImplPostgres } from '@pkgs/kv-postgres-shared/impl-postgres';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
-import { activeSpan, withSpan } from '@pkgs/observability-root-shared/span';
+import { bindIdentity } from '@pkgs/observability-root-shared/identity-scope';
+import { withSpan } from '@pkgs/observability-root-shared/span';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
@@ -86,8 +87,10 @@ class ObservedSessionAuth extends SessionAuth {
     const context = await super.resolveAuthContext(db, request);
     const auth = appAuth(context);
     if (auth !== null) {
-      activeSpan()?.setAttribute(ATTR.USER_ID, auth.accountId ?? auth.myId);
-      activeSpan()?.setAttribute(ATTR.APP_DEVICE_ID, auth.deviceId);
+      bindIdentity({
+        userId: auth.accountId ?? auth.myId,
+        deviceId: auth.deviceId,
+      });
     }
     return context;
   }

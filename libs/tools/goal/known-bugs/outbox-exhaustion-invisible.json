@@ -1,0 +1,4 @@
+{
+  "summary": "An outbox delivery parked after its last attempt was only logged: no metric or alert told the team that its effect would never happen.",
+  "regressionTest": "libs/app-root-server/tests/outbox-health.test.ts"
+}

@@ -38,6 +38,13 @@ export function registerBillingPrivacyConsumers(
       if (rows[0] === undefined)
         throw new Error('Confirmed account withdrawal missing');
       await provider.cancelMembership(payload.subscriptionId);
+      // Without the customer link the payments taken after deletion cannot
+      // be read, so nothing may be called settled: the closure stays pending
+      // (the person is told so) and the exhausted delivery alerts the team.
+      if (payload.customerId === null)
+        throw new Error(
+          'Membership customer link missing; payments cannot be checked, so cancellation is still pending.'
+        );
       await settleDeletedAccountPayments({
         tx: ctx.tx,
         provider,

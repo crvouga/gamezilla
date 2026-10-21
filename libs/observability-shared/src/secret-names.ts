@@ -14,8 +14,19 @@ export const ObservabilitySecretName = {
   tempoUrl: 'OBS_TEMPO_URL',
   /** Tempo Basic-auth user (Grafana Cloud Tempo instance id). */
   tempoUser: 'OBS_TEMPO_USER',
-  /** Read-only `traces:read` token. */
+  /**
+   * The stack's read-only token: `traces:read`, `logs:read` and `metrics:read`.
+   * It authenticates Tempo, Loki and Mimir; only the Basic-auth user differs.
+   */
   tempoToken: 'OBS_TEMPO_TOKEN',
+  /** Loki query origin (business events and diagnostics). */
+  lokiUrl: 'OBS_LOKI_URL',
+  /** Loki Basic-auth user (Grafana Cloud Loki instance id). */
+  lokiUser: 'OBS_LOKI_USER',
+  /** Mimir Prometheus-API origin, ending `/api/prom` (SLO and alert queries). */
+  prometheusUrl: 'OBS_PROMETHEUS_URL',
+  /** Mimir Basic-auth user (Grafana Cloud Prometheus instance id). */
+  prometheusUser: 'OBS_PROMETHEUS_USER',
   /** SELECT-only Postgres URL for resolving a person's name. Never the owner URL. */
   readonlyDatabaseUrl: 'OBS_READONLY_DATABASE_URL',
 } as const;

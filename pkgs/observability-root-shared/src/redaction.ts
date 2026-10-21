@@ -32,9 +32,7 @@ type SafeScalar = string | number | boolean;
  * values as `unknown`; log records require the narrower `AnyValue`, so the
  * redacted map is typed to fit both.
  */
-export type SafeAttributeValue =
-  | SafeScalar
-  | (SafeScalar | null | undefined)[];
+export type SafeAttributeValue = SafeScalar | (SafeScalar | null | undefined)[];
 
 export type SafeAttributes = Record<string, SafeAttributeValue>;
 

@@ -2,7 +2,8 @@ import type { Clock } from '@pkgs/clock-shared/types';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client-root-shared/interface';
-import sql, { join } from '@pkgs/sql-root-shared/sql';
+import { isTransientConflict } from '@pkgs/sql-client-root-shared/transient-conflict';
+import sql, { join, raw } from '@pkgs/sql-root-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 import type { OutboxConsumerRegistry } from './define-consumer';
@@ -30,6 +31,8 @@ export type DrainOutboxDeps = {
   readonly limit?: number;
   /** Optional queue partition selected by the worker. */
   readonly eventIds?: readonly string[];
+  /** Records each delivery; absent in hosts that keep no telemetry. */
+  readonly observeDelivery?: ObserveDelivery;
   /** Host capture / managed-row wrapper for consumer domain writes. */
   readonly wrapConsumerTx?: (tx: SqlTx) => SqlTx;
   readonly objectStore?: ObjectStore;
@@ -37,6 +40,12 @@ export type DrainOutboxDeps = {
 
 export type DrainOutboxResult = {
   readonly processed: number;
+  /**
+   * Deliveries this pass gave up on: their last attempt failed (or the payload
+   * could never be read), so they are parked and will not run again without
+   * reconciliation. Hosts count these; a log line alone goes unseen.
+   */
+  readonly exhausted: number;
   readonly notifyUserIds: readonly string[];
 };
 
@@ -54,13 +63,13 @@ export async function drainOutbox(
   });
   const notifyUserIds = new Set<string>();
 
-  const processed = await deps.db.transaction(async (tx) => {
+  const { processed, exhausted } = await deps.db.transaction(async (tx) => {
     await ensureDeliveries(tx, deps.registry, deps.clock);
     const claims = await claimDueDeliveries(tx, { ...deps, limit });
     return processClaims({ deps, tx, claims, log, notifyUserIds });
   });
 
-  return { processed, notifyUserIds: [...notifyUserIds].sort() };
+  return { processed, exhausted, notifyUserIds: [...notifyUserIds].sort() };
 }
 
 async function processClaims(args: {
@@ -69,9 +78,10 @@ async function processClaims(args: {
   claims: readonly ClaimRow[];
   log: ReturnType<typeof createLogger>;
   notifyUserIds: Set<string>;
-}): Promise<number> {
+}): Promise<{ processed: number; exhausted: number }> {
   const { deps, tx, claims, log, notifyUserIds } = args;
   let count = 0;
+  let exhausted = 0;
   for (const claim of claims) {
     const consumer = deps.registry.get(claim.consumer_id);
     if (consumer === undefined) {
@@ -87,26 +97,32 @@ async function processClaims(args: {
       count += 1;
       continue;
     }
-    const result = await runDelivery({
-      tx: deps.wrapConsumerTx?.(tx) ?? tx,
-      clock: deps.clock,
-      createId: deps.createId,
-      ...(deps.objectStore === undefined
-        ? {}
-        : { objectStore: deps.objectStore }),
-      consumer,
-      event,
-      claim,
-      log,
-    });
+    const result = await observeDelivery(
+      {
+        tx: deps.wrapConsumerTx?.(tx) ?? tx,
+        transaction: tx,
+        clock: deps.clock,
+        createId: deps.createId,
+        ...(deps.objectStore === undefined
+          ? {}
+          : { objectStore: deps.objectStore }),
+        consumer,
+        event,
+        claim,
+        log,
+      },
+      deps.observeDelivery
+    );
     if (result.ok) {
       count += 1;
       for (const id of result.notifyUserIds) {
         if (id.length > 0) notifyUserIds.add(id);
       }
+    } else if (result.parked) {
+      exhausted += 1;
     }
   }
-  return count;
+  return { processed: count, exhausted };
 }
 
 /** Events given a delivery per consumer in one pass. */
@@ -193,8 +209,63 @@ async function loadEvent(
   return rows[0] ?? null;
 }
 
+export type DeliveryResult = {
+  readonly ok: boolean;
+  /** The delivery spent its last attempt (or can never run) and is parked. */
+  readonly parked: boolean;
+  readonly notifyUserIds: readonly string[];
+  readonly failure?: string;
+};
+
+/** What a host needs to name one delivery in its telemetry. */
+export type DeliveryInfo = {
+  readonly consumerId: string;
+  readonly eventType: string;
+  readonly eventId: string;
+  /** 1 for the first try. */
+  readonly attempt: number;
+};
+
+/**
+ * Wraps one delivery so the host can record it. A failed delivery becomes a
+ * scheduled retry, not an exception, so `failure` is how the host learns of it.
+ */
+export type ObserveDelivery = (
+  info: DeliveryInfo,
+  run: () => Promise<DeliveryResult>
+) => Promise<DeliveryResult>;
+
+function observeDelivery(
+  args: Parameters<typeof runDelivery>[0],
+  observe: ObserveDelivery | undefined
+): Promise<DeliveryResult> {
+  const run = () => runDelivery(args);
+  if (observe === undefined) return run();
+  return observe(
+    {
+      consumerId: args.consumer.id,
+      eventType: args.event.type,
+      eventId: args.claim.event_id,
+      attempt: args.claim.attempts + 1,
+    },
+    run
+  );
+}
+
+/**
+ * A consumer runs inside a savepoint. When it throws, the database has aborted
+ * the whole transaction (Postgres refuses every later statement), so recording
+ * the failure needs the transaction back first. Without the savepoint, one
+ * failed consumer made the retry bookkeeping fail too and rolled back the entire
+ * pass, so the same delivery failed on every run and held up every other one.
+ */
+const DELIVERY_SAVEPOINT = 'outbox_delivery';
+
 async function runDelivery(args: {
+  /** The consumer's view of the transaction: capture wrappers included. */
   readonly tx: SqlTx;
+  /** The drain's own transaction, for savepoints. */
+  readonly transaction: SqlTx;
   readonly clock: Clock;
   readonly createId: CreateId;
   readonly objectStore?: ObjectStore;
@@ -202,8 +273,9 @@ async function runDelivery(args: {
   readonly event: PendingEventRow;
   readonly claim: ClaimRow;
   readonly log: ReturnType<typeof createLogger>;
-}): Promise<{ ok: boolean; notifyUserIds: readonly string[] }> {
-  const { tx, clock, createId, consumer, event, claim, log } = args;
+}): Promise<DeliveryResult> {
+  const { tx, transaction, clock, createId, consumer, event, claim, log } =
+    args;
   const policy = resolveRetryPolicy(consumer);
   let payload: unknown;
   try {
@@ -214,31 +286,40 @@ async function runDelivery(args: {
         ? (JSON.parse(event.payload) as unknown)
         : event.payload;
   } catch (error: unknown) {
-    await failDelivery({
-      tx,
-      clock,
-      claim,
-      policy,
-      error: error instanceof Error ? error.message : String(error),
-      log,
-      permanent: true,
-    });
-    return { ok: false, notifyUserIds: [] };
+    return {
+      ok: false,
+      parked: await failDelivery({
+        tx,
+        clock,
+        claim,
+        policy,
+        error: error instanceof Error ? error.message : String(error),
+        log,
+        permanent: true,
+      }),
+      notifyUserIds: [],
+      failure: 'payload is not valid JSON',
+    };
   }
 
   if (!consumer.on.validatePayload(payload)) {
-    await failDelivery({
-      tx,
-      clock,
-      claim,
-      policy,
-      error: `invalid payload for ${event.type}`,
-      log,
-      permanent: true,
-    });
-    return { ok: false, notifyUserIds: [] };
+    return {
+      ok: false,
+      parked: await failDelivery({
+        tx,
+        clock,
+        claim,
+        policy,
+        error: `invalid payload for ${event.type}`,
+        log,
+        permanent: true,
+      }),
+      notifyUserIds: [],
+      failure: `invalid payload for ${event.type}`,
+    };
   }
 
+  await transaction.run(raw(`SAVEPOINT ${DELIVERY_SAVEPOINT}`));
   try {
     const result = await consumer.handler(
       {
@@ -254,19 +335,23 @@ async function runDelivery(args: {
     await markProcessed(tx, claim, clock);
     return {
       ok: true,
+      parked: false,
       notifyUserIds: result?.notifyUserIds ?? [],
     };
   } catch (error: unknown) {
-    await failDelivery({
+    await transaction.run(raw(`ROLLBACK TO SAVEPOINT ${DELIVERY_SAVEPOINT}`));
+    const message = error instanceof Error ? error.message : String(error);
+    const parked = await failDelivery({
       tx,
       clock,
       claim,
       policy,
-      error: error instanceof Error ? error.message : String(error),
+      error: message,
       log,
       permanent: false,
+      conflict: isTransientConflict(error),
     });
-    return { ok: false, notifyUserIds: [] };
+    return { ok: false, parked, notifyUserIds: [], failure: message };
   }
 }
 
@@ -285,6 +370,7 @@ async function markProcessed(
   `);
 }
 
+/** Schedules a retry, or parks a spent delivery and returns true. */
 async function failDelivery(args: {
   readonly tx: SqlTx;
   readonly clock: Clock;
@@ -293,11 +379,16 @@ async function failDelivery(args: {
   readonly error: string;
   readonly log: ReturnType<typeof createLogger>;
   readonly permanent: boolean;
-}): Promise<void> {
+  /** The database aborted this attempt in a race; the work itself is not at fault. */
+  readonly conflict?: boolean;
+}): Promise<boolean> {
   const { tx, clock, claim, policy, error, log, permanent } = args;
-  const attempts = claim.attempts + 1;
+  const conflict = args.conflict === true && !permanent;
+  // A lost race costs no attempt: spending the retry budget on contention would
+  // eventually park a healthy delivery for a year.
+  const attempts = conflict ? claim.attempts : claim.attempts + 1;
   const nowMs = clock.now();
-  if (permanent || attempts >= policy.maxAttempts) {
+  if (!conflict && (permanent || attempts >= policy.maxAttempts)) {
     log.error('outbox delivery exhausted', {
       eventId: claim.event_id,
       consumerId: claim.consumer_id,
@@ -313,11 +404,12 @@ async function failDelivery(args: {
        WHERE event_id = ${claim.event_id}
          AND consumer_id = ${claim.consumer_id}
     `);
-    return;
+    return true;
   }
   const backoff =
-    policy.backoffMs[Math.min(attempts - 1, policy.backoffMs.length - 1)] ??
-    60_000;
+    policy.backoffMs[
+      Math.max(0, Math.min(attempts - 1, policy.backoffMs.length - 1))
+    ] ?? 60_000;
   const availableAt = new Date(nowMs + backoff).toISOString();
   log.warn('outbox delivery failed; retry scheduled', {
     eventId: claim.event_id,
@@ -334,4 +426,5 @@ async function failDelivery(args: {
      WHERE event_id = ${claim.event_id}
        AND consumer_id = ${claim.consumer_id}
   `);
+  return false;
 }

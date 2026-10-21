@@ -217,7 +217,15 @@ async function launchSolid(
   const { viewport, changeViewport } = reactiveViewport(runFor);
   const setViewport = changeViewport;
   const localSql = () => args.harness.clientSql(args.id)?.sqlClient ?? null;
-  const closeResources = () => Promise.resolve();
+  // A provider sending the browser back lands on that address in the app, as
+  // the web app's full-page return does.
+  const stopReturns = args.harness
+    .browser(args.id)
+    .onReturnToApp((path) => history.set({ value: path, replace: true }));
+  const closeResources = () => {
+    stopReturns();
+    return Promise.resolve();
+  };
   const raw = await createSolidDomClientDriver({
     harness: args.harness,
     id: args.id,

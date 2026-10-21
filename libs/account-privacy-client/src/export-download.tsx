@@ -11,6 +11,7 @@ import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { P } from '@pkgs/ui-root-client/text';
 import { TextLink } from '@pkgs/ui-root-client/text-link';
 import { createEffect, createMemo, type JSX, onCleanup, Show } from 'solid-js';
+import { exportDownloadable } from './privacy-dates';
 import type { AccountPrivacyRow } from './use-account-privacy';
 
 export function ExportDownload(props: {
@@ -23,9 +24,7 @@ export function ExportDownload(props: {
   const access = useDecision(PERMISSION.profileExportData);
   const decision = () =>
     decidePrivacyExportOwner(access(), myId(), props.ownerId);
-  const fresh = () =>
-    props.row?.ready_at != null &&
-    clock.now() - Date.parse(props.row.ready_at) < 7 * 86_400_000;
+  const fresh = () => exportDownloadable(props.row?.ready_at, clock.now());
   const downloadAccount = createMemo(() =>
     decision().allowed && props.row?.export_status === 'Ready' && fresh()
       ? props.ownerId

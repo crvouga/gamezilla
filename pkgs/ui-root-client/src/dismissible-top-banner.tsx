@@ -147,6 +147,8 @@ export type DismissibleBannerProps = {
   actionLabel?: JSX.Element | undefined;
   /** Handler for {@link actionLabel}. */
   onActionClick?: (() => void) | undefined;
+  /** DOM `data-*` identifiers for the action control. */
+  actionDataSet?: ComponentDataSet | undefined;
   /** Edge the banner attaches to; also controls safe-area padding. */
   position?: DismissibleBannerPosition | undefined;
   /**
@@ -172,6 +174,7 @@ function DismissibleBannerPromptBody(props: {
   subtitle: JSX.Element | undefined;
   actionLabel: JSX.Element | undefined;
   onActionClick: (() => void) | undefined;
+  actionDataSet: ComponentDataSet | undefined;
 }): JSX.Element {
   return (
     <div class="box flex-1 min-w-0 flex-row items-center gap-2 flex-wrap">
@@ -196,6 +199,7 @@ function DismissibleBannerPromptBody(props: {
           size="sm"
           title={props.actionLabel}
           onClick={() => props.onActionClick?.()}
+          dataSet={props.actionDataSet}
         />
       </Show>
     </div>
@@ -263,6 +267,7 @@ function DismissibleBannerFrame(
           subtitle={props.subtitle}
           actionLabel={props.actionLabel}
           onActionClick={props.onActionClick}
+          actionDataSet={props.actionDataSet}
         />
         <IconButton
           onClick={props.dismiss}

@@ -14,7 +14,7 @@ import { P } from '@pkgs/ui-root-client/text';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 import { BillingBenefits, BillingPricing } from './billing-offer-sections';
-import type { BillingActions } from './billing-plan-card';
+import type { BillingActions } from './billing-plan-actions';
 import { BillingPlanCard } from './billing-plan-card';
 import type { BillingView } from './billing-view-model';
 import { formatMinorUnits, summarizeOffer } from './billing-view-model';

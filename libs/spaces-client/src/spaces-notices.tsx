@@ -25,14 +25,19 @@ export function SpacesNeedConnectionNotice(): JSX.Element {
   );
 }
 
-/** A lobby has answered only once its local hosting count has hydrated. */
+/**
+ * A lobby has answered only once its local hosting count and its list of
+ * spaces have both hydrated.
+ */
 export function SpacesLobbyContent(props: {
+  /** The lobby's list of spaces has not answered yet. */
+  readonly listLoading: boolean;
   readonly children: JSX.Element;
 }): JSX.Element {
   const hosted = useHostedSpaceCount();
   return (
     <Show
-      when={!hosted.isLoading()}
+      when={!hosted.isLoading() && !props.listLoading}
       fallback={
         <StackVertical grow gap="md">
           <LoadingState />

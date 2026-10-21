@@ -3,6 +3,7 @@ import {
   ConfigurationError,
   readDeploymentProtection,
 } from '@libs/app-root-shared/env';
+import { SERVER_SERVICE_NAME } from '@libs/observability-shared/service-names';
 import type { Timers } from '@pkgs/clock-shared/types';
 import { wallTimers } from '@pkgs/clock-shared/wall';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
@@ -29,7 +30,7 @@ export function businessEventDeliveryOptions(
   const logsUrl = env.OBSERVABILITY_LOGS_URL?.trim();
   const deliverBusinessEvent = createBusinessEventDelivery(
     {
-      serviceName: 'gamezilla-server',
+      serviceName: SERVER_SERVICE_NAME,
       serviceVersion: env.BUILD_SHA?.trim() || 'development',
       buildSha: env.BUILD_SHA?.trim() || 'development',
       environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
@@ -89,7 +90,7 @@ export function ensureWorkerTelemetry(
     http,
     timers: wallTimers,
     instanceId: createId(),
-    serviceName: 'gamezilla-server',
+    serviceName: SERVER_SERVICE_NAME,
     serviceVersion: buildSha,
     environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
     buildSha,

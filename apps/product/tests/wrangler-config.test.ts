@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { SECURITY_CONTACT } from '@libs/app-root-shared/app-metadata';
 import { WEB_CLIENT_ORIGIN_BINDING } from '@libs/app-root-shared/auth-provider';
 import {
   BILLING_PROVIDER_BINDING,
@@ -266,5 +267,27 @@ describe('wrangler.toml', () => {
       ).toEqual([{ binding: HYPERDRIVE_BINDING, id: hyperdriveId }]);
       expect(renderWranglerConfig(base, env)['hyperdrive']).toBe(undefined);
     }
+  });
+});
+
+describe('security.txt', () => {
+  // regression: security-report-route-missing
+  test('the shipped assets name the security contact (RFC 9116)', () => {
+    const text = readFileSync(
+      join(import.meta.dirname, '../public/.well-known/security.txt'),
+      'utf8'
+    );
+    const fields = new Map(
+      text
+        .trim()
+        .split('\n')
+        .map((line) => {
+          const at = line.indexOf(': ');
+          return [line.slice(0, at), line.slice(at + 2)] as const;
+        })
+    );
+    expect(fields.get('Contact')).toBe(`mailto:${SECURITY_CONTACT}`);
+    const expires = fields.get('Expires') ?? '';
+    expect(new Date(expires).toISOString()).toBe(expires);
   });
 });

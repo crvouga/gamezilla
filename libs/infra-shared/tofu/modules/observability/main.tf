@@ -111,6 +111,25 @@ output "tempo_user" {
   value = tostring(data.grafana_cloud_stack.this.traces_user_id)
 }
 
+# The read policy already carries logs:read and metrics:read, so the one read
+# token authenticates all three backends; only the Basic-auth user differs.
+output "loki_url" {
+  value = trimsuffix(data.grafana_cloud_stack.this.logs_url, "/")
+}
+
+output "loki_user" {
+  value = tostring(data.grafana_cloud_stack.this.logs_user_id)
+}
+
+# Mimir's Prometheus API: append `/api/v1/query` or `/api/v1/query_range`.
+output "prometheus_url" {
+  value = "${trimsuffix(trimsuffix(data.grafana_cloud_stack.this.prometheus_url, "/"), "/api/prom")}/api/prom"
+}
+
+output "prometheus_user" {
+  value = tostring(data.grafana_cloud_stack.this.prometheus_user_id)
+}
+
 output "tempo_token" {
   value     = grafana_cloud_access_policy_token.read.token
   sensitive = true

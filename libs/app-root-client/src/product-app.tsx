@@ -12,12 +12,14 @@
  * registry — is its `chrome` contribution, mounted by `AppProvidersSession`.
  */
 
+import { openAppAt } from '@libs/app-root-shared/reload-app';
 import { OriginAvailabilityProvider } from '@pkgs/http-client-client/solid';
 import { AppFrame } from '@pkgs/ui-root-client/app-frame';
 import { AppFrameChromeProvider } from '@pkgs/ui-root-client/app-frame-chrome';
 import { AppRouterProvider } from '@pkgs/ui-root-client/app-router';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { StackHorizontal } from '@pkgs/ui-root-client/stack';
+import { useNavigate } from '@solidjs/router';
 import { type JSX, onCleanup, onMount, Show, Suspense } from 'solid-js';
 import { AppHeaderGlobalMenu } from './app-header-global-menu';
 import { AppHeaderIslandHost } from './app-header-island';
@@ -44,6 +46,17 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
   const env = useClientEnv();
   const subs = useAppSubs();
   const availability = originAvailabilityFor(env);
+  const navigate = useNavigate();
+  // A fresh page leaves the crash behind. Embedded Apps share one page, so
+  // they move their own in-memory router and re-render instead.
+  const goToSpaces = (reset: () => void): void => {
+    if (!props.embedded) {
+      openAppAt('/');
+      return;
+    }
+    navigate('/');
+    reset();
+  };
   onMount(() => {
     availability.start();
     onCleanup(() => availability.stop());
@@ -51,7 +64,10 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
   return (
     <OriginAvailabilityProvider value={availability}>
       <AppThemeProvider kv={env.kv} motion={env.motion}>
-        <RootErrorBoundary copyError={env.clipboard.writeText}>
+        <RootErrorBoundary
+          copyError={env.clipboard.writeText}
+          goToSpaces={goToSpaces}
+        >
           <AppRouterProvider>
             <AppProvidersOuter embedded={props.embedded}>
               <Show when={props.embedded}>

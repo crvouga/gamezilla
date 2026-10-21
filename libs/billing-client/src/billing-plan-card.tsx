@@ -5,27 +5,20 @@
  */
 
 import { Handles } from '@libs/test-ids-shared/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans } from '@lingui/solid/macro';
 import type { BadgeIntent } from '@pkgs/ui-root-client/badge';
 import { Badge } from '@pkgs/ui-root-client/badge';
-import { Button } from '@pkgs/ui-root-client/button';
 import { Card } from '@pkgs/ui-root-client/card';
 import { H2 } from '@pkgs/ui-root-client/heading';
-import { CreditCardIcon, KeyRoundIcon } from '@pkgs/ui-root-client/icons';
 import { Notice } from '@pkgs/ui-root-client/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import { P, Text } from '@pkgs/ui-root-client/text';
-import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 
+import type { BillingActions } from './billing-plan-actions';
+import { BillingPlanActions } from './billing-plan-actions';
+import { BillingStatusLine } from './billing-status-line';
 import type { BillingTier, BillingView } from './billing-view-model';
-
-export type BillingActions = {
-  readonly subscribe: () => Promise<void>;
-  readonly manage: () => Promise<void>;
-  /** Runs the subscribe denial's unlock (the permission system's CTA). */
-  readonly unlock: () => void;
-};
 
 type PlanCardProps = {
   readonly view: BillingView;
@@ -70,54 +63,6 @@ function PlanTitle(props: { readonly tier: BillingTier }): JSX.Element {
         <Trans>Free plan</Trans>
       </Match>
     </Switch>
-  );
-}
-
-/** One line on where the membership stands, with its date. */
-function StatusLine(props: {
-  readonly view: BillingView;
-  readonly formatDate: (ms: number) => string;
-}): JSX.Element {
-  const date = (): string =>
-    props.view.periodEndMs === null
-      ? ''
-      : props.formatDate(props.view.periodEndMs);
-  const days = (): number => props.view.daysLeft ?? 0;
-  const marks = (): Record<string, string> =>
-    props.view.periodEndMs === null
-      ? { state: props.view.state }
-      : {
-          state: props.view.state,
-          'period-end': new Date(props.view.periodEndMs).toISOString(),
-        };
-  return (
-    <P tone="secondary" testId={Handles.billingStatus} dataSet={marks()}>
-      <Switch>
-        <Match when={props.view.state === 'trialing'}>
-          <Trans>
-            Free trial · ends {date()} ({days()} days left)
-          </Trans>
-        </Match>
-        <Match when={props.view.state === 'active'}>
-          <Trans>Active · renews {date()}</Trans>
-        </Match>
-        <Match when={props.view.state === 'canceling'}>
-          <Trans>Canceled · access until {date()}</Trans>
-        </Match>
-        <Match when={props.view.state === 'delinquent'}>
-          <Trans>Payment failed · access until {date()}</Trans>
-        </Match>
-        <Match when={props.view.state === 'ended'}>
-          <Trans>Membership ended {date()}</Trans>
-        </Match>
-        <Match when={props.view.state === 'incomplete'}>
-          <Trans>Finishing checkout…</Trans>
-        </Match>
-        <Match when={props.view.state === 'none'}>
-          <Trans>No membership yet.</Trans>
-        </Match>
-      </Switch>
-    </P>
   );
 }
 
@@ -168,6 +113,18 @@ function PlanNotice(props: { readonly view: BillingView }): JSX.Element {
             <Match when={notice() === 'unavailable'}>
               <Trans>Memberships aren't available right now.</Trans>
             </Match>
+            <Match when={notice() === 'confirming'}>
+              <Trans>
+                Confirming your payment… Your membership shows here as soon as
+                the payment provider confirms it.
+              </Trans>
+            </Match>
+            <Match when={notice() === 'unconfirmed'}>
+              <Trans>
+                Your payment isn't confirmed yet, but it may have gone through.
+                Check again before paying again.
+              </Trans>
+            </Match>
           </Switch>
         </Notice>
       )}
@@ -175,94 +132,29 @@ function PlanNotice(props: { readonly view: BillingView }): JSX.Element {
   );
 }
 
-function PlanActions(props: {
-  readonly view: BillingView;
-  readonly trialDays: number;
-  readonly actions: BillingActions;
-}): JSX.Element {
-  const { t } = useLingui();
-  const subscribe = useMutationButton({
-    operation: () => props.actions.subscribe(),
-    get disabled() {
-      return props.view.notice === 'offline';
-    },
-    labels: {
-      get idle() {
-        return props.trialDays > 0
-          ? t`Start ${props.trialDays}-day free trial`
-          : t`Subscribe`;
-      },
-      loading: t`Opening…`,
-      success: t`Opening…`,
-      error: t`Couldn't open checkout`,
-    },
-  });
-  const manage = useMutationButton({
-    operation: () => props.actions.manage(),
-    labels: {
-      get idle() {
-        return props.view.state === 'delinquent'
-          ? t`Update payment method`
-          : t`Manage subscription`;
-      },
-      loading: t`Opening…`,
-      success: t`Opening…`,
-      error: t`Couldn't open billing`,
-    },
-  });
-  return (
-    <StackVertical gap="sm">
-      <Show when={props.view.primary === 'subscribe'}>
-        <Button
-          {...subscribe.buttonProps}
-          fullWidth
-          dataSet={{ testid: Handles.billingSubscribe }}
-        />
-      </Show>
-      <Show when={props.view.primary === 'unlock' && props.view.unlockLabel}>
-        {(label) => (
-          <Button
-            title={label()}
-            icon={KeyRoundIcon}
-            fullWidth
-            onClick={() => props.actions.unlock()}
-            dataSet={{ testid: Handles.billingUnlock }}
-          />
-        )}
-      </Show>
-      <Show when={props.view.manage}>
-        <Button
-          {...manage.buttonProps}
-          icon={CreditCardIcon}
-          intent={props.view.state === 'delinquent' ? 'primary' : 'neutral'}
-          variant={props.view.state === 'delinquent' ? 'solid' : 'outline'}
-          fullWidth
-          dataSet={{ testid: Handles.billingManage }}
-        />
-      </Show>
-    </StackVertical>
-  );
-}
-
 export function BillingPlanCard(props: PlanCardProps): JSX.Element {
   return (
     <Card>
-      <StackHorizontal align="start" gap="md">
-        <StackVertical grow>
-          <H2 size="heading">
-            <PlanTitle tier={props.view.tier} />
-          </H2>
-        </StackVertical>
-        <TierChip tier={props.view.tier} />
-      </StackHorizontal>
-      <StatusLine view={props.view} formatDate={props.formatDate} />
+      {/* Until the membership is known, no plan is named: "Free plan" for a
+          member would be wrong, and so would the checkout it implies. */}
+      <Show when={props.view.state !== 'loading'}>
+        <StackHorizontal align="start" gap="md">
+          <StackVertical grow>
+            <H2 size="heading">
+              <PlanTitle tier={props.view.tier} />
+            </H2>
+          </StackVertical>
+          <TierChip tier={props.view.tier} />
+        </StackHorizontal>
+      </Show>
+      <BillingStatusLine view={props.view} formatDate={props.formatDate} />
       <Show when={props.creditAmount}>
         {(amount) => (
           <CreditLine cents={props.view.creditCents} amount={amount()} />
         )}
       </Show>
       <PlanNotice view={props.view} />
-      <PlanActions
+      <BillingPlanActions
         view={props.view}
         trialDays={props.trialDays}
         actions={props.actions}

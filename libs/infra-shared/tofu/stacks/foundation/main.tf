@@ -82,6 +82,10 @@ module "secrets" {
     OBS_TEMPO_URL                   = module.observability.tempo_url
     OBS_TEMPO_USER                  = module.observability.tempo_user
     OBS_TEMPO_TOKEN                 = module.observability.tempo_token
+    OBS_LOKI_URL                    = module.observability.loki_url
+    OBS_LOKI_USER                   = module.observability.loki_user
+    OBS_PROMETHEUS_URL              = module.observability.prometheus_url
+    OBS_PROMETHEUS_USER             = module.observability.prometheus_user
     OBS_READONLY_DATABASE_URL       = module.database.obs_readonly_database_url
   }
 }

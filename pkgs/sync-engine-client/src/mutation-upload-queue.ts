@@ -16,7 +16,9 @@ import type {
   MutationRequestItem,
   MutationVerdict,
 } from '@pkgs/sync-engine-shared/v2';
+import { fitUploadBatch, oversizedVerdict } from './mutation-upload-batch';
 import { clearOptimisticRowsForMutation } from './optimistic-own-rows';
+import { SyncHttpPayloadTooLargeError } from './sync-http-payload-too-large-error';
 import { parseRateLimitRetryMs } from './sync-http-rate-limit-error';
 import type { TableChangeBus } from './table-change-bus';
 
@@ -92,7 +94,8 @@ function toWireRow(row: StoredMutation): MutationUploadRow {
 
 async function readPending(
   db: SqlClient,
-  clientId: string
+  clientId: string,
+  limit: number
 ): Promise<readonly StoredMutation[]> {
   const rows = await db.query(sql<StoredMutation>`
     SELECT id, name, args, client_id, seq, created_at, origin_traceparent,
@@ -101,7 +104,7 @@ async function readPending(
     WHERE client_id = ${clientId}
       AND deleted_at IS NULL
     ORDER BY seq ASC
-    LIMIT ${BATCH_LIMIT}
+    LIMIT ${limit}
   `);
   for (const row of rows) {
     assert.ok(row.id.length > 0, 'sync_engine_mutations id must be non-empty');
@@ -285,6 +288,8 @@ export class MutationUploadQueue {
   private pendingWake = false;
   private availabilityAbort: AbortController | null = null;
   private errorAttempts = 0;
+  /** Lowered when the server refuses a batch as too large; reset on success. */
+  private batchLimit = BATCH_LIMIT;
   private readonly timers: Timers;
   private readonly now: () => number;
   private readonly random: () => number;
@@ -348,13 +353,45 @@ export class MutationUploadQueue {
     return Math.floor(capped + jitter);
   }
 
+  /**
+   * A batch over the upload's byte cap would be refused on every retry and
+   * hold every later write behind it: split it, and give up a single write
+   * that can never fit, recording it as refused like any server refusal.
+   */
+  private async refuseTooLarge(
+    pending: readonly StoredMutation[]
+  ): Promise<boolean> {
+    if (pending.length > 1) {
+      this.batchLimit = Math.max(1, Math.floor(pending.length / 2));
+      return true;
+    }
+    const [row] = pending;
+    assert.defined(row, 'oversized mutation batch is empty');
+    const verdicts = [oversizedVerdict(row.id)];
+    const ack = { ok: true as const, serverTimeMs: this.now(), verdicts };
+    await applyUploadResult(
+      this.options,
+      [row],
+      { ...ack, ackSeq: 0 },
+      this.now
+    );
+    return true;
+  }
+
   private async drainOnce(): Promise<boolean> {
-    const pending = await readPending(this.options.db, this.options.clientId());
+    const queued = await readPending(
+      this.options.db,
+      this.options.clientId(),
+      this.batchLimit
+    );
     assert.ok(
-      pending.length <= BATCH_LIMIT,
+      queued.length <= BATCH_LIMIT,
       'pending mutation batch read bound'
     );
-    if (!this.running || pending.length === 0) return false;
+    if (!this.running || queued.length === 0) return false;
+    const wire = fitUploadBatch(queued.map(toWireRow));
+    if (wire.length === 0) return this.refuseTooLarge(queued.slice(0, 1));
+    const pending = queued.slice(0, wire.length);
     await this.options.waitUntilAvailable?.(this.availabilityAbort?.signal);
     if (!this.running) return false;
     const links = pending.flatMap((row) => {
@@ -371,9 +408,14 @@ export class MutationUploadQueue {
       async (span) => {
         for (const row of pending) events.mutationSent(span, row.id);
         const result = await raceUntilAborted(
-          this.options.postBatch(pending.map(toWireRow)),
+          this.options.postBatch(wire),
           this.availabilityAbort?.signal ?? null
-        );
+        ).catch((error: unknown) => {
+          if (error instanceof SyncHttpPayloadTooLargeError)
+            return 'too_large' as const;
+          throw error;
+        });
+        if (result === 'too_large') return this.refuseTooLarge(pending);
         if (result === null || !this.running) return false;
         await applyUploadResult(this.options, pending, result, this.now);
         events.syncClockSkewObserved(span, result.serverTimeMs - this.now());
@@ -382,6 +424,7 @@ export class MutationUploadQueue {
         }
         events.syncBatchFlushed(span, pending.length);
         this.errorAttempts = 0;
+        this.batchLimit = BATCH_LIMIT;
         return true;
       },
       { [ATTR.APP_SYNC_BATCH_SIZE]: pending.length },

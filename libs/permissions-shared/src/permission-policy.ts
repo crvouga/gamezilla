@@ -9,7 +9,7 @@ import type {
 import { ACTION, LIMIT, PERMISSION, ROLE } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-10-05.2';
+export const PERMISSION_POLICY_VERSION = '2026-10-20.1';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -63,7 +63,12 @@ const PRIVACY_UNLOCK = {
   ...SIGN_UP_UNLOCK,
   requires_recent_proof: {
     titleKey: 'unlock.privacy.proof.title',
+    bodyKey: 'unlock.privacy.proof.body',
     ctaTarget: 'signup',
+  },
+  requires_connection: {
+    titleKey: 'unlock.privacy.connection.title',
+    bodyKey: 'unlock.privacy.connection.body',
   },
 } as const;
 

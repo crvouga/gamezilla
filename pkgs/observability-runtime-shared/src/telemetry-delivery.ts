@@ -1,6 +1,18 @@
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 
+/**
+ * The collector refused the batch itself (too large, or a shape it will never
+ * accept). Sending the same bytes again cannot succeed, so the sender drops
+ * the batch instead of holding every later batch behind it.
+ */
+export class TelemetryBatchRefused extends Error {
+  override readonly name = 'TelemetryBatchRefused';
+}
+
+/** 413 Payload Too Large and 422 Unprocessable Content refuse the batch, not the moment. */
+const REFUSED_BATCH_STATUSES = new Set([413, 422]);
+
 /** A bounded upload requires a complete acknowledgement before deleting local evidence. */
 export async function deliverTelemetry(args: {
   readonly http: HttpClient;
@@ -39,6 +51,10 @@ async function requestAcknowledgement(
   });
   if (!response.ok) {
     await response.body?.cancel();
+    if (REFUSED_BATCH_STATUSES.has(response.status))
+      throw new TelemetryBatchRefused(
+        `Telemetry batch refused (${response.status})`
+      );
     throw new Error('Telemetry delivery rejected');
   }
   const text = await response.text();

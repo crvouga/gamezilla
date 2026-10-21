@@ -1,0 +1,4 @@
+{
+  "summary": "An export still being prepared after its promised 24 hours kept saying it would be ready within 24 hours, with no sign it was late. Past its promised time it now says the export is late and offers asking again.",
+  "regressionTest": "specs/profile/personal-data-export.feature"
+}

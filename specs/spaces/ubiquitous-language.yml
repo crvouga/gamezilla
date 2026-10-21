@@ -214,8 +214,10 @@ terms:
   - term: rename a space
     definition: >-
       The host gives their space a new name. Everyone in the space, and every
-      friend whose lobby lists it, sees the new name.
-    forms: [renames the space, renamed the space, rename the space, clears the space name, cleared the space name]
+      friend whose lobby lists it, sees the new name. A rename made offline
+      that is refused once the connection comes back is undone, and the host
+      is told why.
+    forms: [renames the space, renamed the space, rename the space, renaming the space, clears the space name, cleared the space name]
     model: [rename, lastRename, RenameResult, NoRename, NameSaved, NameNotAllowed]
 
   - term: space name
