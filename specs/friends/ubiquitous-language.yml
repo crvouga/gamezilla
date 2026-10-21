@@ -168,7 +168,8 @@ terms:
       Finding another signed-in person by the start of their username, in
       any letter case. It never shows the person searching, nor a blocker,
       and it gives an answer ("nobody" at worst) rather than searching
-      forever. "Search" for short. It needs an account and a connection.
+      forever. "Search" for short. It needs an account. Without a connection
+      it still finds friends; finding anyone else needs one.
     forms: [people searches, Search, search]
     avoid: [user search, user lookup, directory]
     published: true
