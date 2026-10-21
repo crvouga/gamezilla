@@ -14,7 +14,7 @@ a person asked.
 | Token | Role |
 | --- | --- |
 | `background` | the canvas: white / true black |
-| `surface` | one step off the canvas (#FAFAFA / #121212): wells, the wide backdrop, input fill |
+| `surface` | one step off the canvas (#FAFAFA / #121212): wells and input fill, never a page tone |
 | `surface-muted` | tags, segmented tracks, secondary buttons (#EFEFEF / #262626) |
 | `surface-elevated` / `surface-overlay` | dialogs and sheets / menus, popovers, toasts |
 | `text` / `text-secondary` | near-black or near-white, and its gray partner |
@@ -46,6 +46,7 @@ why the blue sits at the lightness where a white label still passes.
 1. **Blue means do or chosen.** `tint-active` fills only primary buttons,
    the FAB, selected chips, a checked switch, box or radio, and the current
    price. Never decoration. The active tab is full text color, not blue.
+   The one exception is the brand: the `AppLogo` wordmark is `tint`.
 2. **Pick a role, never a size.** Text is `P` / `Text` with a `variant`
    (`body`, `bodyBold`, `label`, `caption`, `footnote`, `mono`) or `H1`–`H6`
    with a `size` (`title` 32, `heading` 24, `subtitle` 20,
@@ -132,9 +133,17 @@ protocol. Import each from its matching kebab-case module export.
 | `CollectionScreen` | Fixed search / filters / notices, independently scrolling content | Spaces, friends, search, inbox |
 | `ContentScreen` | Readable scrolling details, documents or state explanations | Privacy, billing, link outcomes, administration |
 
-`ScreenColumn` gives routed reading bodies and form footers the same width
-and section rhythm. It follows the header's left edge. Embedded templates
-keep their reading or stage measure on the host header's left edge too. `GameLayout` stacks
+Every page sits on one canvas, `background`, edge to edge at every width;
+only wells (inputs, tags, notices) take a `surface` tone. Each family has one
+measure (`screen-measure.ts`): `menu` (480px) for `MenuScreen`, `FormScreen`,
+`ProfileScreenLayout`, `MainMenuScreen`, `GameHistoryScreen` and the
+component explorer; `prose` (640px) for `ContentScreen`; `full` for
+`CollectionScreen` and game stages with a rail. On wide layouts a capped
+column is centered in the frame and its title block (the wide page header,
+or `ScreenIntro`) sits in the same column, so the title lines up with the
+content. Compact layouts keep every column on the 16px page edge.
+`ScreenColumn` gives routed reading bodies and form footers that measure and
+section rhythm. `GameLayout` stacks
 the stage before the rail on phones and places the rail beside it on wide
 screens; without a rail, the stage uses the full width. Toggling the rail
 does not remount the play surface.

@@ -8,7 +8,10 @@
  * Navigation items are buttons in a `navigation` landmark, not ARIA tabs (no
  * panels, no arrow-key roving). The current one is `aria-current="page"`,
  * drawn in full text color, semibold, with a 2px underline that sits on the
- * header's hairline; the rest are secondary. No colored pills.
+ * header's hairline; the rest are secondary. No colored pills. Every label
+ * box is held at its semibold width (`reserveBold`), so selecting an item
+ * never shifts the row. The hairline runs the full viewport width while the
+ * row stays on the wide column.
  *
  * @example
  * ```tsx
@@ -53,13 +56,19 @@ function HeaderNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
         color={props.item.active ? 'text' : 'textSecondary'}
       />
       <span
-        class="text line-clamp-1"
-        classList={{
-          'textBodyBold text-text': props.item.active,
-          'textBody text-text-secondary': !props.item.active,
-        }}
+        class="text textBody reserveBold"
+        data-label={props.item.label}
+        data-slot="label"
       >
-        {props.item.label}
+        <span
+          class="text line-clamp-1"
+          classList={{
+            'textBodyBold text-text': props.item.active,
+            'textBody text-text-secondary': !props.item.active,
+          }}
+        >
+          {props.item.label}
+        </span>
       </span>
     </button>
   );
@@ -84,10 +93,17 @@ export function AppHeaderIsland(props: AppHeaderIslandProps): JSX.Element {
   const trailing = (): JSX.Element => props.trailing ?? globalTrailing();
   return (
     <header
-      class="box shrink-0 bg-transparent border-b border-border overflow-hidden"
+      class="box shrink-0 bg-transparent border-b border-border"
       {...dataAttrs({ component: 'AppHeaderIsland', ...props.dataSet })}
     >
-      <div class="box flex-row items-center gap-4 h-13">
+      {/* The hairline runs edge to edge of the viewport, over the header's
+          own border, while the row below stays on the wide column. */}
+      <span
+        class="box absolute -bottom-px left-1/2 w-screen h-px -translate-x-1/2 bg-border pointer-events-none"
+        aria-hidden="true"
+        data-slot="hairline"
+      />
+      <div class="box flex-row items-center gap-4 h-13 overflow-hidden">
         {/* Clips rather than spills: in a narrow window the brand yields to
             the navigation instead of sliding under it. */}
         <div class="box flex-1 min-w-0 overflow-hidden flex-row items-center justify-start">

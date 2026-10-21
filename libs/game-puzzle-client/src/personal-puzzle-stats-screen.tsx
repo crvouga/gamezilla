@@ -28,6 +28,7 @@ export function PersonalPuzzleStatsScreen(props: {
       <PuzzleFeedProvider>
         <ContentScreen
           screenId={props.screenId}
+          width="menu"
           breadcrumbs={[
             { name: <Trans>Settings</Trans>, href: '/more' },
             {

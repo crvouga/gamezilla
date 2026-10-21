@@ -105,7 +105,7 @@ export function TopBar(props: TopBarProps): JSX.Element {
     props.centerPosition !== 'flex';
   return (
     <header
-      class="box shrink-0 bg-background border-b border-border"
+      class="box shrink-0 border-b border-border"
       classList={{
         safeTop: props.safeAreaTop !== false,
       }}

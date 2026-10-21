@@ -10,10 +10,12 @@
  *
  * Every in-host template composes this one, so they share the same edge
  * padding, width and title treatment: `MainMenuScreen` (a menu of
- * destinations) and `GameScreen` (a game). The body starts at the host
- * header's left content edge: 16px in from the screen edge in a compact
- * host (the `TopBar` inset), flush with the frame in a wide one (the wide
- * header has no inset of its own).
+ * destinations) and `GameScreen` (a game). The body is one column at the
+ * screen's measure (`menu` unless the template asks for `full`), its title
+ * block inside it. In a compact host it starts on the 16px page edge (the
+ * `TopBar` inset). In a wide host a capped column is centered in the frame,
+ * title included, and a `full` one spans it, flush with the host header's
+ * left edge.
  *
  * @example
  * ```tsx
@@ -28,7 +30,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { type JSX, Show } from 'solid-js';
 import { useScreenFocus } from './screen-focus';
 import { ScreenIntro } from './screen-intro';
-import type { ScreenMeasure } from './screen-measure';
+import { type ScreenMeasure, useScreenMeasureCentered } from './screen-measure';
 import { ScrollView } from './scroll-view';
 import { useLayoutMode } from './use-layout-mode';
 
@@ -39,7 +41,7 @@ export type EmbeddedScreenProps = {
   title?: JSX.Element | undefined;
   /** One quiet line under the title. */
   subtitle?: JSX.Element | undefined;
-  /** Content width cap. Defaults to `reading`. */
+  /** The body column's measure. Defaults to `menu`. */
   width?: ScreenMeasure | undefined;
   /**
    * The host already scrolls and pads this body (a routed `ContentScreen`):
@@ -62,6 +64,7 @@ export type EmbeddedScreenProps = {
 export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
   const mode = useLayoutMode();
   const inset = (): boolean => mode() !== 'wide';
+  const centered = useScreenMeasureCentered();
   let root: HTMLDivElement | undefined;
   useScreenFocus(
     () => root,
@@ -95,6 +98,7 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
       <ScrolledEmbeddedScreen
         {...props}
         inset={inset()}
+        centered={centered()}
         setRoot={(el) => {
           root = el;
         }}
@@ -106,6 +110,7 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
 function ScrolledEmbeddedScreen(
   props: EmbeddedScreenProps & {
     inset: boolean;
+    centered: boolean;
     setRoot: (el: HTMLDivElement) => void;
   }
 ): JSX.Element {
@@ -126,7 +131,8 @@ function ScrolledEmbeddedScreen(
       paddingTop="sm"
       paddingBottom="2xl"
       gap="lg"
-      measure={props.width ?? 'reading'}
+      measure={props.width ?? 'menu'}
+      measureAlign={props.centered ? 'center' : 'start'}
     >
       <ScreenIntro title={props.title} subtitle={props.subtitle} />
       {props.children}

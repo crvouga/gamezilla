@@ -4,6 +4,7 @@ import type { JSX } from 'solid-js';
 import type { ActionBarOverflowPolicy } from './action-bar-logic';
 import type { IconComponent } from './create-icon';
 import type { OverflowMenuRenderProps } from './overflow-menu-button';
+import type { ScreenMeasure } from './screen-measure';
 import type { MutationButtonLabels } from './use-mutation-button';
 import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
 
@@ -108,6 +109,13 @@ export type ScreenBaseProps = {
    * under the footer; on compact it also absorbs the bottom safe-area inset.
    */
   bottomBar?: JSX.Element | undefined;
+  /**
+   * The measure of the body's column (`ScreenColumn`). On wide layouts the
+   * page header (breadcrumb trail, actions) is held to the same centered
+   * column so the title lines up with the content. Omit, or `full`, for a
+   * body that spans the frame column (collections, workspaces).
+   */
+  measure?: ScreenMeasure | undefined;
   /** Primary screen action rendered as a floating action button. */
   primaryAction?: ScreenBasePrimaryAction | undefined;
   /** Extra bottom inset for the primary-action FAB above the tab bar. */

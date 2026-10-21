@@ -37,10 +37,12 @@
     color: var(--ui-color-text);
   }
 
+  /* The brand wordmark is the one blue that is not an action: `tint`, the
+     blue that already reads as text at AA in both schemes. */
   .text.appLogo {
     font-weight: var(--ui-font-weight-bold);
     letter-spacing: -0.03em;
-    color: var(--ui-color-text);
+    color: var(--ui-color-tint);
   }
 
   /* Doubled with `.clickable` so the host reset (`border: 0`, later in the

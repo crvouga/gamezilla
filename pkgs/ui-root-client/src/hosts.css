@@ -147,6 +147,28 @@
     font-weight: var(--ui-font-weight-semibold);
   }
 
+  /* A navigation label that is semibold only while current. The box is
+     always as wide as the semibold label (an invisible semibold copy from
+     `data-label` sizes it), so selecting an item never moves its
+     neighbours. The visible label is the inner `.text`. */
+  .text.reserveBold {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    white-space: nowrap;
+  }
+
+  .text.reserveBold::after {
+    content: attr(data-label);
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    font-weight: var(--ui-font-weight-semibold);
+    user-select: none;
+    pointer-events: none;
+  }
+
   .textCaption {
     font-size: var(--ui-font-size-sm);
     line-height: var(--ui-leading-sm);

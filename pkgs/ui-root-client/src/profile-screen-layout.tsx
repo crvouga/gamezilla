@@ -38,6 +38,7 @@ export function ProfileScreenLayout(
       screenId={props.screenId}
       breadcrumbs={props.breadcrumbs}
       actions={props.actions}
+      width="menu"
       dataSet={{ component: 'ProfileScreenLayout', ...props.dataSet }}
     >
       <ProfileIdentity

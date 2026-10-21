@@ -71,7 +71,7 @@ test('false reactive slots do not reserve rails, footer chrome or setup actions'
 });
 
 // regression: ui-screen-empty-reactive-slots
-test('a review with an empty reactive rail keeps the reading measure', () => {
+test('a review with an empty reactive rail keeps the menu measure', () => {
   const [visible, setVisible] = createSignal(false);
   renderUi(() => (
     <GameReviewScreen
@@ -85,7 +85,7 @@ test('a review with an empty reactive rail keeps the reading measure', () => {
     mustQuery('[data-component="ScrollViewContent"]') as HTMLElement;
   expect(content().style.maxWidth).toBe('480px');
   setVisible(true);
-  expect(content().style.maxWidth).toBe('1120px');
+  expect(content().style.maxWidth).toBe('100%');
   setVisible(false);
   expect(content().style.maxWidth).toBe('480px');
 });

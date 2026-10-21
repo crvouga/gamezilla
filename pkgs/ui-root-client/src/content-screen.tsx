@@ -16,12 +16,18 @@ export type ContentScreenProps = Pick<
   | 'renderActionsMenu'
 > & {
   children: JSX.Element;
-  width?: ScreenMeasure | 'full' | undefined;
+  /**
+   * The column's measure. Defaults to `prose`; menus, forms and profiles
+   * pass `menu`. On wide layouts the column and the page title center
+   * together.
+   */
+  width?: ScreenMeasure | undefined;
 };
 
 /** Readable details, notices, and documents with one whole-body scroller. */
 export function ContentScreen(props: ContentScreenProps): JSX.Element {
   const footer = createScreenSlot(() => props.footer);
+  const width = (): ScreenMeasure => props.width ?? 'prose';
   return (
     <ScreenBase
       screenId={props.screenId}
@@ -29,15 +35,16 @@ export function ContentScreen(props: ContentScreenProps): JSX.Element {
       actions={props.actions}
       leading={props.leading}
       renderActionsMenu={props.renderActionsMenu}
+      measure={width()}
       footer={
         footer.present() ? (
-          <ScreenColumn width={props.width}>{footer.content()}</ScreenColumn>
+          <ScreenColumn width={width()}>{footer.content()}</ScreenColumn>
         ) : undefined
       }
       dataSet={{ component: 'ContentScreen', ...props.dataSet }}
       scroll
       content={() => (
-        <ScreenColumn width={props.width}>{props.children}</ScreenColumn>
+        <ScreenColumn width={width()}>{props.children}</ScreenColumn>
       )}
     />
   );

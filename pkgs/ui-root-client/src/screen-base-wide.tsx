@@ -2,8 +2,12 @@
 /**
  * Wide `ScreenBase`: page header row (breadcrumb trail + `ActionBar` +
  * primary `Button`, at least 52px) and a flat canvas body whose left edge is
- * the page header's, so content lines up under the title. Lives inside
- * `AppFrame`, which owns the global header island.
+ * the page header's, so content lines up under the title. A screen with a
+ * `measure` holds its header to that centered column too: a scrolling body
+ * centers its `ScreenColumn` inside a scroller that still spans the frame
+ * (the scrollbar stays at the edge); a fixed body is itself held to the
+ * column. Lives inside `AppFrame`, which owns the global
+ * header island.
  */
 
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
@@ -26,12 +30,21 @@ import {
 import type { ScreenBaseProps } from './screen-base-types';
 import { ScreenBreadcrumbTrail } from './screen-breadcrumb-trail';
 import { useScreenFocus } from './screen-focus';
+import { SCREEN_MAX_WIDTH } from './screen-measure';
 import { ScreenTitleProvider } from './screen-title-context';
 import { ScrollView } from './scroll-view';
 
-type BodyProps = Pick<ScreenBaseProps, 'content' | 'footer' | 'bottomBar'> & {
+type BodyProps = Pick<
+  ScreenBaseProps,
+  'content' | 'footer' | 'bottomBar' | 'measure'
+> & {
   scroll: boolean;
 };
+
+/** The measure is a CSS width, not a token class: a dynamic value. */
+function measureWidth(measure: ScreenBaseProps['measure']): string | undefined {
+  return measure === undefined ? undefined : SCREEN_MAX_WIDTH[measure];
+}
 
 function WidePageHeader(
   props: ScreenBaseProps & {
@@ -42,9 +55,12 @@ function WidePageHeader(
   const partition = createMemo(() =>
     partitionScreenBaseActions(props.actions ?? [])
   );
+  const measure = (): string | undefined => measureWidth(props.measure);
   return (
     <header
       class="box flex-row items-center gap-3 shrink-0 min-h-13 py-2"
+      classList={{ 'w-full mx-auto': measure() !== undefined }}
+      style={{ 'max-width': measure() }}
       data-component="ScreenBaseHeader"
     >
       {props.leading}
@@ -104,7 +120,15 @@ function WideCanvasBody(props: BodyProps): JSX.Element {
   return (
     <Show
       when={props.scroll}
-      fallback={<div class="box flex-1 min-h-0 gap-2">{inner}</div>}
+      fallback={
+        <div
+          class="box flex-1 min-h-0 gap-2"
+          classList={{ 'w-full mx-auto': props.measure !== undefined }}
+          style={{ 'max-width': measureWidth(props.measure) }}
+        >
+          {inner}
+        </div>
+      }
     >
       <ScrollView
         grow
@@ -129,6 +153,7 @@ function WideShell(
       content={props.content}
       footer={props.footer}
       bottomBar={props.bottomBar}
+      measure={props.measure}
     />
   );
   let root: HTMLDivElement | undefined;

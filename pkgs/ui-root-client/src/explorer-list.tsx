@@ -95,6 +95,7 @@ export function ExplorerList(props: ExplorerListProps): JSX.Element {
         <ScreenBase
           screenId={props.screenId ?? 'ui-explorer'}
           breadcrumbs={breadcrumbs()}
+          measure="menu"
           dataSet={{ component: 'ExplorerList', ...props.dataSet }}
           content={list}
         />

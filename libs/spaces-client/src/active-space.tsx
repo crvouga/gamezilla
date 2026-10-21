@@ -1,5 +1,5 @@
 import { useRouter } from '@pkgs/ui-root-client/app-router';
-import { Surface } from '@pkgs/ui-root-client/surface';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { createSignal } from 'solid-js';
 import { ActiveSpaceBody } from './active-space-body';
@@ -30,7 +30,7 @@ export function ActiveSpace(props: ActiveSpaceProps): JSX.Element {
   };
 
   return (
-    <Surface tone="background" grow>
+    <StackVertical grow>
       <ActiveSpaceBody
         spaceId={props.spaceId}
         onRequestEnd={() => requestEndSpace(props.spaceId)}
@@ -43,6 +43,6 @@ export function ActiveSpace(props: ActiveSpaceProps): JSX.Element {
         visible={renameOpen()}
         onClose={() => setRenameOpen(false)}
       />
-    </Surface>
+    </StackVertical>
   );
 }

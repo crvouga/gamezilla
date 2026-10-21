@@ -20,7 +20,7 @@ export function GameScreen(props: {
       screenId={props.screenId}
       title={props.title}
       subtitle={props.subtitle}
-      width="stage"
+      width="full"
       dataSet={{ component: 'GameScreen' }}
     >
       {props.children}

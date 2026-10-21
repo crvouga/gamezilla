@@ -5,12 +5,13 @@
  * The scroller takes the layout item props (`grow`, `self`, `width`,
  * `height`, `maxWidth`, `minHeight`), a `maxHeight` cap and a surface `tone`;
  * the content takes the spacing props (`gap`, `padding*`), `align` and
- * `fill`, and a leading-edge screen `measure`. Inside a padded shell the scroller bleeds under the shell's edge
- * padding (`flushEdge`) so the scrollbar sits flush with the frame.
+ * `fill`, and a screen `measure` (on the leading edge, or centered with
+ * `measureAlign="center"`). Inside a padded shell the scroller bleeds under
+ * the shell's edge padding (`flushEdge`) so the scrollbar sits flush with the
+ * frame.
  */
 
 import { componentDataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { cssPx } from '@pkgs/ui-root-shared/css-px';
 import { type JSX, Show } from 'solid-js';
 import { useContentEdgePadding } from './content-edge-padding';
 import { flexContainerClass, spaced } from './layout-classes';
@@ -29,17 +30,27 @@ export type ScrollViewProps = ScrollFrameProps &
     align?: Align | undefined;
     /** Grow the content to at least the scroller height (pins a footer). */
     fill?: boolean | undefined;
-    /**
-     * Cap the content at a screen measure (`reading` / `stage`), on the
-     * leading edge so it lines up with the header above it.
-     */
+    /** Cap the content at a screen measure (`menu` / `prose` / `full`). */
     measure?: ScreenMeasure | undefined;
+    /**
+     * Where a measured content column sits: on the leading edge (default)
+     * or centered in the scroller, the scrollbar still at the frame edge.
+     */
+    measureAlign?: 'start' | 'center' | undefined;
     /** Scroll along the x axis instead. */
     horizontal?: boolean | undefined;
     /** Hide the scrollbar (still scrollable). */
     hideScrollbar?: boolean | undefined;
     children?: JSX.Element | undefined;
   };
+
+function measureClass(
+  measure: ScrollViewProps['measure'],
+  align: ScrollViewProps['measureAlign']
+): string | undefined {
+  if (measure === undefined) return undefined;
+  return align === 'center' ? 'w-full mx-auto' : 'self-start w-full';
+}
 
 export function ScrollView(props: ScrollViewProps): JSX.Element {
   const edge = useContentEdgePadding();
@@ -59,13 +70,13 @@ export function ScrollView(props: ScrollViewProps): JSX.Element {
       spacingClass(props),
       flexContainerClass({ align: props.align }),
       props.fill === true ? 'grow' : undefined,
-      props.measure === undefined ? undefined : 'self-start w-full',
+      measureClass(props.measure, props.measureAlign),
     ]);
-  // The measure is a pixel width, not a token: a dynamic value.
+  // The measure is a CSS width, not a token class: a dynamic value.
   const contentStyle = (): JSX.CSSProperties | undefined =>
     props.measure === undefined
       ? undefined
-      : { 'max-width': cssPx(SCREEN_MAX_WIDTH[props.measure]) };
+      : { 'max-width': SCREEN_MAX_WIDTH[props.measure] };
   const scroller = (
     <div
       ref={props.ref}

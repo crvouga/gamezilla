@@ -22,7 +22,7 @@ export function GameReviewScreen(props: GameReviewScreenProps): JSX.Element {
       title={props.title}
       subtitle={props.subtitle}
       nested={props.nested}
-      width={aside.present() ? 'stage' : 'reading'}
+      width={aside.present() ? 'full' : 'menu'}
       dataSet={{ component: 'GameReviewScreen', ...props.dataSet }}
     >
       <GameSessionLayout

@@ -114,7 +114,7 @@ function CatalogDetailBottomBar(props: {
 
   return (
     <div
-      class="box bg-surface border-border border-t py-1"
+      class="box border-border border-t py-1"
       style={{
         ...(flush()
           ? {

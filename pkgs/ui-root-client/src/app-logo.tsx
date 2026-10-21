@@ -1,11 +1,12 @@
 /** @jsxImportSource solid-js */
 /**
- * `AppLogo` -- in-house brand wordmark in the display face, in the text
- * color by default: blue is kept for what a person can do or has chosen.
+ * `AppLogo` -- in-house brand wordmark in the display face, in the brand
+ * blue (`tint`) by default: the one blue that marks the product rather than
+ * an action. Flat, no gradient, legible at AA in both schemes.
  *
  * @example
  * ```tsx
- * <AppLogo />                  // theme text color
+ * <AppLogo />                  // brand blue (`tint`)
  * <AppLogo size={48} />        // larger for splash / hero
  * ```
  */
@@ -21,7 +22,7 @@ export type AppLogoProps = {
   size?: number | undefined;
   /** Kept for API parity; the wordmark is always rendered. */
   wordmark?: boolean | undefined;
-  /** Color token or raw color for the wordmark. Defaults to `text`. */
+  /** Color token or raw color for the wordmark. Defaults to `tint`. */
   color?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
@@ -33,7 +34,7 @@ export function AppLogo(props: AppLogoProps): JSX.Element {
   const tokens = useThemeTokens();
   const size = () => props.size ?? 28;
   const fill = () =>
-    resolveColor(props.color, tokens.colors) ?? tokens.colors.text;
+    resolveColor(props.color, tokens.colors) ?? tokens.colors.tint;
   const fontSize = () => Math.round(size() * WORDMARK_HEIGHT_RATIO);
   return (
     <div

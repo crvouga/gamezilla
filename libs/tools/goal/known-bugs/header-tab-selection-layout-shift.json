@@ -1,0 +1,4 @@
+{
+  "summary": "Selecting a navigation item in the wide header (and the compact tab bar) switched its label from regular to semibold, widening it and shifting the neighbouring items; every label box now reserves its semibold width.",
+  "regressionTest": "pkgs/ui-root-harness/tests/nav-selection-regression.test.tsx"
+}

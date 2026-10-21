@@ -7,7 +7,9 @@
  *   bottom safe-area inset below. Icons are 24px outlines with a 12px label
  *   under them. The current item is drawn in full text color with a heavier
  *   stroke and a semibold label; the rest are secondary. No blue, no
- *   indicator pill: the convention of the big social apps.
+ *   indicator pill: the convention of the big social apps. Each label box
+ *   is held at its semibold width (`reserveBold`), so selection never
+ *   reflows the labels.
  * - **Meaning.** A `navigation` landmark of links or buttons, never an ARIA
  *   `tablist`: that role needs `tab` children, panels and arrow-key roving,
  *   and a listener would hear an empty tab list (ACT bc4a75). The current
@@ -106,13 +108,19 @@ function TabBarItemFace(props: { item: TabBarItem }): JSX.Element {
         </Show>
       </span>
       <span
-        class="text textFootnote line-clamp-1 max-w-full transition-colors"
-        classList={{
-          'text-text font-semibold': props.item.current,
-          'text-text-secondary': !props.item.current,
-        }}
+        class="text textFootnote reserveBold"
+        data-label={props.item.label}
+        data-slot="label"
       >
-        {props.item.label}
+        <span
+          class="text textFootnote line-clamp-1 max-w-full transition-colors"
+          classList={{
+            'text-text font-semibold': props.item.current,
+            'text-text-secondary': !props.item.current,
+          }}
+        >
+          {props.item.label}
+        </span>
       </span>
     </>
   );

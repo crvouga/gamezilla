@@ -60,7 +60,9 @@ function SpaceActiveLayoutWide(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <StackVertical grow overflow="hidden" gap="sm">
+    // No clipping here: the header's hairline runs past this column to the
+    // viewport edges. The body below clips its own overflow.
+    <StackVertical grow gap="sm">
       <AppHeaderIsland
         leading={
           <StackHorizontal grow align="center" gap="lg">

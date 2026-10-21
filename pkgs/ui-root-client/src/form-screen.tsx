@@ -42,6 +42,7 @@ export function FormScreen(props: FormScreenProps): JSX.Element {
       <ContentScreen
         screenId={props.screenId}
         breadcrumbs={props.breadcrumbs}
+        width="menu"
         dataSet={{ component: 'FormScreen', ...props.dataSet }}
         footer={
           <FormActionsFooterView

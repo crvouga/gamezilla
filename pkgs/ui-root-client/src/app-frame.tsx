@@ -1,7 +1,9 @@
 /** @jsxImportSource solid-js */
 /**
  * `AppFrame` -- the root shell. Mobile-first: compact is the full-bleed
- * column; wide is a centered column on the `surface` backdrop.
+ * column; wide is a centered column. One canvas everywhere: the frame paints
+ * `background` edge to edge at every width, and nothing inside it (header,
+ * top bar, screen bodies) paints a second page tone. `surface` is for wells.
  *
  * Regions, top to bottom (`data-region` on each box AppFrame draws):
  *
@@ -62,7 +64,7 @@ function AppFrameWideColumn(props: AppFrameProps): JSX.Element {
 function AppFrameWide(props: AppFrameProps): JSX.Element {
   return (
     <main
-      class="box flex-1 min-h-0 min-w-0 w-full max-w-full bg-surface overflow-clip"
+      class="box flex-1 min-h-0 min-w-0 w-full max-w-full bg-background overflow-clip"
       data-component="AppFrame"
       data-mode="wide"
     >
