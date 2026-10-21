@@ -1,13 +1,22 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { Button } from '@pkgs/ui-root-client/button';
+import { ErrorState } from '@pkgs/ui-root-client/error-state';
+import { H2 } from '@pkgs/ui-root-client/heading';
 import { ProfileScreenLayout } from '@pkgs/ui-root-client/profile-screen-layout';
+import { Skeleton } from '@pkgs/ui-root-client/skeleton';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
+import { Match, Switch } from 'solid-js';
+import { useProfileRow } from './claim-username-use-profile-row';
 import { MyProfileAvatar } from './my-profile-avatar';
 import { MyUsername } from './my-username';
 import { ProfileAvatarFigure } from './profile-avatar-figure';
+import { useMyProfileId } from './public-use-my-profile-id';
 import { StandInNotice } from './stand-in-notice';
+import { useFirstSyncError } from './use-first-sync-error';
 import { UsernameChangeFeedback } from './username-change-feedback';
 
 export type ProfileScreenProps = {
@@ -16,6 +25,33 @@ export type ProfileScreenProps = {
   /** Second action pill beside Edit profile (e.g. Find friends). */
   readonly friendsActions?: JSX.Element | undefined;
 };
+
+/** The name under the avatar: a placeholder while loading, an explanation when it cannot arrive. */
+function ProfileName(): JSX.Element {
+  const engine = useSyncEngine();
+  const { row, isLoading } = useProfileRow(useMyProfileId());
+  const firstSyncError = useFirstSyncError();
+  return (
+    <Switch
+      fallback={
+        <MyUsername variant="heading" numberOfLines={1} align="center" />
+      }
+    >
+      <Match when={!engine.paintReady() || (isLoading() && row() === null)}>
+        <Skeleton width="40%" height={28} />
+      </Match>
+      <Match when={row() === null && firstSyncError()}>
+        <ErrorState
+          variant="compact"
+          title={<Trans>Your profile could not be loaded</Trans>}
+          body={<Trans>Check your connection and try again.</Trans>}
+          retry={{ onClick: () => void engine.refreshQueries() }}
+          dataSet={{ testid: 'profile-load-error' }}
+        />
+      </Match>
+    </Switch>
+  );
+}
 
 export function ProfileScreen(props: ProfileScreenProps): JSX.Element {
   const { t } = useLingui();
@@ -29,7 +65,7 @@ export function ProfileScreen(props: ProfileScreenProps): JSX.Element {
           <ProfileAvatarFigure>
             <MyProfileAvatar size={96} />
           </ProfileAvatarFigure>
-          <MyUsername variant="heading" numberOfLines={1} class="text-center" />
+          <ProfileName />
           <StandInNotice />
           <UsernameChangeFeedback
             onChoose={() => router.push('/profile/handle')}
@@ -47,15 +83,15 @@ export function ProfileScreen(props: ProfileScreenProps): JSX.Element {
         />
       }
     >
-      <div class="box gap-3 self-stretch">
-        <h2 class="text textSubtitle">
+      <StackVertical gap="md" self="stretch">
+        <H2 size="subtitle">
           <Trans>Friends</Trans>
-        </h2>
+        </H2>
         {props.friendsStats}
-        <div class="box flex-row flex-wrap gap-2 min-w-0">
+        <StackHorizontal wrap gap="sm">
           {props.friendsActions}
-        </div>
-      </div>
+        </StackHorizontal>
+      </StackVertical>
     </ProfileScreenLayout>
   );
 }

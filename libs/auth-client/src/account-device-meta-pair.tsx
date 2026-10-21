@@ -7,8 +7,8 @@ export type AccountDeviceMetaPairProps = {
   valueAtom: JSX.Element;
 };
 
-/** Cap so a long value never crowds the label out of the row. */
-const VALUE_MAX_WIDTH = '55%';
+/** Long values (timestamps, versions) wrap instead of ending at one line. */
+const VALUE_LINES = 4;
 
 /** Detail row — label on the left, atom-rendered value right-aligned. */
 export function AccountDeviceMetaPair(
@@ -17,14 +17,8 @@ export function AccountDeviceMetaPair(
   return (
     <MenuRow
       title={props.label}
-      trailing={
-        <div
-          class="box items-end"
-          style={{ 'max-width': `${VALUE_MAX_WIDTH}px` }}
-        >
-          {props.valueAtom}
-        </div>
-      }
+      value={props.valueAtom}
+      valueLines={VALUE_LINES}
     />
   );
 }

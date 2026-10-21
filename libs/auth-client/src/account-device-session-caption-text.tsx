@@ -1,4 +1,5 @@
 import { useLingui } from '@lingui/solid/macro';
+import { P } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { formatTimestamp } from './device-parsers';
@@ -22,5 +23,5 @@ export function AccountDeviceSessionCaptionText(
       ? t`No active session`
       : t`${active()} active, expires ${latestExpires}`;
   });
-  return <p class="text textCaption text-text-secondary">{label()}</p>;
+  return <P variant="inherit">{label()}</P>;
 }

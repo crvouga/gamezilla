@@ -6,6 +6,8 @@ import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import { BrandIcon } from '@pkgs/ui-root-client/brand-icon';
 import { Button } from '@pkgs/ui-root-client/button';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { type JSX, Show } from 'solid-js';
 
@@ -33,7 +35,11 @@ function AddressCaption(props: {
   );
 }
 
-function ConnectButton(props: {
+/**
+ * A provider not yet on the account: "Not connected" and a Connect button.
+ * A failed connect says why under the caption, so the row keeps its shape.
+ */
+function ConnectableMethodRow(props: {
   readonly provider: OauthProviderId;
 }): JSX.Element {
   const { i18n, t } = useLingui();
@@ -55,21 +61,63 @@ function ConnectButton(props: {
     },
   });
   return (
-    <div class="box items-end gap-1">
-      <Button
-        {...connect.buttonProps}
-        variant="outline"
-        size="sm"
-        dataSet={{ testid: Handles.accountLinkProvider(props.provider) }}
-      />
-      <Show when={connect.error()}>
-        {(error) => (
-          <p class="text textCaption text-destructive max-w-55 text-right">
-            {error().message}
-          </p>
-        )}
-      </Show>
-    </div>
+    <MenuRow
+      title={providerName(i18n(), props.provider)}
+      caption={
+        <StackVertical gap="xs">
+          <P variant="inherit">
+            <Trans>Not connected</Trans>
+          </P>
+          <Show when={connect.error()}>
+            {(error) => (
+              <P variant="inherit" tone="destructive" role="alert">
+                {error().message}
+              </P>
+            )}
+          </Show>
+        </StackVertical>
+      }
+      leading={<BrandIcon name={props.provider} size={ICON_SIZE} />}
+      hideChevron
+      trailing={
+        <Button
+          {...connect.buttonProps}
+          variant="outline"
+          size="sm"
+          dataSet={{ testid: Handles.accountLinkProvider(props.provider) }}
+        />
+      }
+      dataSet={{ testid: Handles.accountSignInMethod(props.provider) }}
+    />
+  );
+}
+
+function LinkedMethodRow(props: {
+  readonly provider: OauthProviderId;
+  readonly identity: LinkedIdentity;
+  readonly removable: boolean;
+  readonly onRemove: (provider: OauthProviderId) => void;
+}): JSX.Element {
+  const { i18n, t } = useLingui();
+  return (
+    <MenuRow
+      title={providerName(i18n(), props.provider)}
+      caption={<AddressCaption identity={props.identity} />}
+      leading={<BrandIcon name={props.provider} size={ICON_SIZE} />}
+      hideChevron
+      trailing={
+        <Button
+          title={t`Remove`}
+          variant="ghost"
+          intent="danger"
+          size="sm"
+          disabled={!props.removable}
+          onClick={() => props.onRemove(props.provider)}
+          dataSet={{ testid: Handles.accountUnlinkProvider(props.provider) }}
+        />
+      }
+      dataSet={{ testid: Handles.accountSignInMethod(props.provider) }}
+    />
   );
 }
 
@@ -80,34 +128,19 @@ export function SignInMethodRow(props: {
   readonly removable: boolean;
   readonly onRemove: (provider: OauthProviderId) => void;
 }): JSX.Element {
-  const { i18n, t } = useLingui();
   return (
-    <MenuRow
-      title={providerName(i18n(), props.provider)}
-      caption={
-        <Show when={props.identity} fallback={<Trans>Not connected</Trans>}>
-          {(identity) => <AddressCaption identity={identity()} />}
-        </Show>
-      }
-      leading={<BrandIcon name={props.provider} size={ICON_SIZE} />}
-      hideChevron
-      trailing={
-        <Show
-          when={props.identity !== null}
-          fallback={<ConnectButton provider={props.provider} />}
-        >
-          <Button
-            title={t`Remove`}
-            variant="ghost"
-            intent="danger"
-            size="sm"
-            disabled={!props.removable}
-            onClick={() => props.onRemove(props.provider)}
-            dataSet={{ testid: Handles.accountUnlinkProvider(props.provider) }}
-          />
-        </Show>
-      }
-      dataSet={{ testid: Handles.accountSignInMethod(props.provider) }}
-    />
+    <Show
+      when={props.identity}
+      fallback={<ConnectableMethodRow provider={props.provider} />}
+    >
+      {(identity) => (
+        <LinkedMethodRow
+          provider={props.provider}
+          identity={identity()}
+          removable={props.removable}
+          onRemove={props.onRemove}
+        />
+      )}
+    </Show>
   );
 }

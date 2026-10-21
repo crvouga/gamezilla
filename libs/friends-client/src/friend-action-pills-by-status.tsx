@@ -1,5 +1,6 @@
 import type { FriendActionMutations } from '@libs/friends-shared/friend-action-types';
 import type { FriendshipStatus } from '@libs/friends-shared/friends-types';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type { Accessor, JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { renderFriendActionPillsForStatus } from './friend-action-status-renderers';
@@ -29,7 +30,7 @@ export function FriendActionPillsForStatus(props: {
       username: props.username,
     });
     if (status === 'blocked_by_them') {
-      return <div class="box self-stretch">{pills}</div>;
+      return <StackVertical self="stretch">{pills}</StackVertical>;
     }
     return pills;
   });

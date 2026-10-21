@@ -19,29 +19,23 @@ import {
   Trash2Icon,
 } from '@pkgs/ui-root-client/icons';
 import type { MutationStateTransition } from '@pkgs/ui-root-client/mutation-lifecycle';
+import { Pressable } from '@pkgs/ui-root-client/pressable';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client/relative-time';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { useTheme } from '@pkgs/ui-root-client/theme-context';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { createMemo, For, type JSX, Match, Show, Switch } from 'solid-js';
 
 import { InboxArchiveButton } from './inbox-archive-button';
 import { displayNotification } from './notification-display';
 
-const ROW_VERTICAL_PADDING = 4;
 const LEADING_SIZE = 48;
 
 /** What a person can see: still waiting to be opened, or already opened. */
-function cardData(
-  testID: string | undefined,
-  unread: boolean
-): ComponentDataSet | undefined {
-  if (testID === undefined) return undefined;
-  return {
-    testid: testID,
-    'inbox-state': unread ? 'waiting' : 'opened',
-  };
+function cardState(unread: boolean): ComponentDataSet {
+  return { 'inbox-state': unread ? 'waiting' : 'opened' };
 }
 
 type NotificationActionButtonProps = {
@@ -169,44 +163,19 @@ function InteractionRowText(props: {
     )
   );
   return (
-    <div class="box flex-1 min-w-0 gap-1">
-      <p
-        class="text textBody line-clamp-3"
-        classList={{
-          textBodyBold:
-            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
-            'bodyBold',
-          textCaption:
-            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
-            'caption',
-          textLabel:
-            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
-            'label',
-          textTitle:
-            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
-            'title',
-          textSubtitle:
-            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
-            'subtitle',
-          textHeading:
-            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
-            'heading',
-          textNavigationTitle:
-            String(props.interaction.isUnread ? 'bodyBold' : 'body') ===
-            'navigationTitle',
-          textLink:
-            String(props.interaction.isUnread ? 'bodyBold' : 'body') === 'link',
-          textMono:
-            String(props.interaction.isUnread ? 'bodyBold' : 'body') === 'mono',
-        }}
-      >
+    <StackVertical grow gap="xs">
+      <P variant={props.interaction.isUnread ? 'bodyBold' : 'body'} lines={3}>
         {props.interaction.title}
-      </p>
-      <p class="text textCaption">{relative()}</p>
+      </P>
+      <P variant="caption">{relative()}</P>
       <For each={detailParts()}>
-        {(part) => <p class="text textCaption line-clamp-2">{part}</p>}
+        {(part) => (
+          <P variant="caption" lines={2}>
+            {part}
+          </P>
+        )}
       </For>
-    </div>
+    </StackVertical>
   );
 }
 
@@ -225,7 +194,7 @@ function InteractionRowTrailing(props: {
       <Match
         when={props.showInlineActions && props.interaction.actions.length > 0}
       >
-        <div class="box flex-row items-center gap-0.5">
+        <StackHorizontal align="center" gap="xs">
           <For each={props.interaction.actions}>
             {(action) => (
               <NotificationActionButton
@@ -236,7 +205,7 @@ function InteractionRowTrailing(props: {
               />
             )}
           </For>
-        </div>
+        </StackHorizontal>
       </Match>
       <Match when={props.showChevron}>
         <ChevronRightIcon size={18} color={theme.colors.icon} />
@@ -295,13 +264,7 @@ export function NotificationCardDefault(
   );
 
   const main = (): JSX.Element => (
-    <div
-      class="box flex-row items-center gap-3"
-      style={{
-        'padding-top': `${ROW_VERTICAL_PADDING * 4}px`,
-        'padding-bottom': `${ROW_VERTICAL_PADDING * 4}px`,
-      }}
-    >
+    <StackHorizontal align="center" gap="md" paddingY="lg">
       {props.leading ?? <DefaultLeading interaction={shown()} />}
       <Show
         when={textPress()}
@@ -309,18 +272,15 @@ export function NotificationCardDefault(
         fallback={<InteractionRowText interaction={shown()} />}
       >
         {(press) => (
-          <button
-            class="clickable clickableTint flex-1 min-w-0"
-            type="button"
-            onClick={press}
-            {...dataAttrs(
-              props.testID !== undefined
-                ? { testid: `${props.testID}-open` }
-                : undefined
-            )}
+          <Pressable
+            grow
+            onPress={press}
+            testId={
+              props.testID !== undefined ? `${props.testID}-open` : undefined
+            }
           >
             <InteractionRowText interaction={shown()} />
-          </button>
+          </Pressable>
         )}
       </Show>
       <InteractionRowTrailing
@@ -330,7 +290,7 @@ export function NotificationCardDefault(
         showChevron={rowPress() !== undefined}
         actionTestID={props.actionTestID}
       />
-    </div>
+    </StackHorizontal>
   );
 
   const archive = (testID: string): JSX.Element => (
@@ -345,36 +305,31 @@ export function NotificationCardDefault(
   return (
     <Switch>
       <Match when={rowPress() !== undefined && props.testID !== undefined}>
-        <div class="box flex-row items-center">
-          <button
-            class="clickable clickableTint flex-1 min-w-0"
-            {...dataAttrs(cardData(props.testID, props.interaction.isUnread))}
-            type="button"
-            onClick={() => rowPress()?.()}
+        <StackHorizontal align="center">
+          <Pressable
+            grow
+            testId={props.testID}
+            dataSet={cardState(props.interaction.isUnread)}
+            onPress={() => rowPress()?.()}
           >
             {main()}
-          </button>
+          </Pressable>
           {archive(props.testID ?? '')}
-        </div>
+        </StackHorizontal>
       </Match>
       <Match when={rowPress() !== undefined}>
-        <button
-          class="clickable clickableTint"
-          type="button"
-          onClick={() => rowPress()?.()}
-        >
-          {main()}
-        </button>
+        <Pressable onPress={() => rowPress()?.()}>{main()}</Pressable>
       </Match>
       <Match when={props.testID} keyed>
         {(testID) => (
-          <div
-            class="box flex-row items-center"
-            {...dataAttrs(cardData(testID, props.interaction.isUnread))}
+          <StackHorizontal
+            align="center"
+            testId={testID}
+            dataSet={cardState(props.interaction.isUnread)}
           >
             {main()}
             {archive(testID)}
-          </div>
+          </StackHorizontal>
         )}
       </Match>
       <Match when={true}>{main()}</Match>

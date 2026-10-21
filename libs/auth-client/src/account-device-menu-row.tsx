@@ -1,6 +1,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { ChevronRightIcon, SmartphoneIcon } from '@pkgs/ui-root-client/icons';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListCaptionText } from './account-device-list-caption-text';
@@ -20,29 +21,19 @@ export function AccountDeviceMenuRow(
 ): JSX.Element {
   return (
     <MenuRow
-      title={
-        <AccountDeviceListTitleText
-          deviceId={props.deviceId}
-          numberOfLines={1}
-        />
-      }
+      title={<AccountDeviceListTitleText deviceId={props.deviceId} lines={1} />}
       caption={
-        <div class="box gap-0.5">
-          <AccountDeviceListCaptionText
-            deviceId={props.deviceId}
-            variant="caption"
-            numberOfLines={1}
-            class="text-text-secondary"
-          />
+        <StackVertical>
+          <AccountDeviceListCaptionText deviceId={props.deviceId} lines={1} />
           <AccountDeviceSessionCaptionText deviceId={props.deviceId} />
-        </div>
+        </StackVertical>
       }
       leading={<SmartphoneIcon size={ROW_ICON_SIZE} color="icon" />}
       trailing={
-        <div class="box flex-row items-center gap-2">
+        <StackHorizontal align="center" gap="sm">
           <AccountDeviceCurrentBadge deviceId={props.deviceId} />
-          <ChevronRightIcon size={20} color="icon" />
-        </div>
+          <ChevronRightIcon size={ROW_ICON_SIZE} color="icon" />
+        </StackHorizontal>
       }
       onClick={() => props.onOpenDevice(props.deviceId)}
       dataSet={{ testid: Handles.accountDevice(props.deviceId) }}

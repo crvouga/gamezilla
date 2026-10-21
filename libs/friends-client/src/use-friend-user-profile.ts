@@ -21,6 +21,7 @@ export function useFriendUserProfile(userId: Accessor<string>): {
   readonly profile: Accessor<FriendProfile>;
   readonly refreshProfile: () => void;
   readonly unavailable: Accessor<boolean>;
+  readonly loading: Accessor<boolean>;
 } {
   const router = useRouter();
   const myProfileId = useMyProfileId();
@@ -51,6 +52,7 @@ export function useFriendUserProfile(userId: Accessor<string>): {
   return {
     profile,
     unavailable: () => !local.isLoading() && local.row() === null,
+    loading: () => local.isLoading() && local.row() === null,
     refreshProfile,
   };
 }

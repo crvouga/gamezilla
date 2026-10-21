@@ -54,7 +54,13 @@ function toIdentity(row: Row): LinkedIdentity | null {
   };
 }
 
-export function useLinkedIdentities(): Accessor<readonly LinkedIdentity[]> {
+export type LinkedIdentities = {
+  readonly identities: Accessor<readonly LinkedIdentity[]>;
+  /** True until the local read has hydrated. */
+  readonly isLoading: Accessor<boolean>;
+};
+
+export function useLinkedIdentities(): LinkedIdentities {
   const hasSession = useHasAuthSession();
   const userId = useMyId();
   const watchId = createMemo(() =>
@@ -70,10 +76,11 @@ export function useLinkedIdentities(): Accessor<readonly LinkedIdentity[]> {
     ORDER BY provider
   `
   );
-  return createMemo(() =>
+  const identities = createMemo(() =>
     rows
       .rows()
       .map(toIdentity)
       .filter((row): row is LinkedIdentity => row !== null)
   );
+  return { identities, isLoading: rows.isLoading };
 }

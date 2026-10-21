@@ -11,12 +11,15 @@ import type { AuthLinkRequiredError } from '@pkgs/auth-root-client/auth-link-req
 import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import { Button } from '@pkgs/ui-root-client/button';
+import { H2 } from '@pkgs/ui-root-client/heading';
 import {
   ModalBody,
   ModalButton,
   ModalFooter,
 } from '@pkgs/ui-root-client/modal-parts';
 import { SocialSignInButton } from '@pkgs/ui-root-client/social-sign-in-button';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { For, type JSX, Show } from 'solid-js';
 import { providerName } from './auth-flow-messages';
 import { ContinueWithEmailButton } from './continue-with-email-button';
@@ -33,13 +36,13 @@ export function SignInLinkRequiredContent(props: {
   return (
     <>
       <ModalBody>
-        <div class="box gap-3" data-testid={Handles.authLinkRequired}>
-          <h2 class="text textBodyBold">
+        <StackVertical gap="md" testId={Handles.authLinkRequired}>
+          <H2 size="label">
             <Trans>Connect your accounts?</Trans>
-          </h2>
-          <p class="text textBody text-text-secondary">
+          </H2>
+          <P tone="secondary">
             {t`An account already uses ${props.link.email}. Sign in to it to add ${newProvider()} as another way to sign in, or keep a separate account.`}
-          </p>
+          </P>
           <Show when={props.link.providers.includes('email')}>
             <ContinueWithEmailButton onClick={props.onContinueWithEmail} />
           </Show>
@@ -61,7 +64,7 @@ export function SignInLinkRequiredContent(props: {
             onClick={() => props.onSeparate()}
             dataSet={{ testid: Handles.authLinkSeparate }}
           />
-        </div>
+        </StackVertical>
       </ModalBody>
       <ModalFooter>
         <ModalButton

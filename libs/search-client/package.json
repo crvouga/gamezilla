@@ -25,7 +25,6 @@
     "@pkgs/kv-root-shared": "workspace:*",
     "@pkgs/solid-context-client": "workspace:*",
     "@pkgs/ui-root-client": "workspace:*",
-    "@pkgs/ui-root-shared": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

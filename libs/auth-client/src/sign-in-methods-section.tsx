@@ -13,8 +13,10 @@ import type {
 } from '@pkgs/auth-root-shared/sign-in-method';
 import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import { Button } from '@pkgs/ui-root-client/button';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import {
   createMemo,
   createSignal,
@@ -24,15 +26,16 @@ import {
   Show,
 } from 'solid-js';
 
+import { AccountSyncErrorNotice } from './account-sync-error-notice';
 import { useAuthClientPort } from './auth-client-provider';
 import { providerName } from './auth-flow-messages';
 import { useSignInCapabilities } from './sign-in-capabilities-context';
 import { SignInMethodRow } from './sign-in-method-row';
 import { UnlinkMethodModal } from './unlink-method-modal';
+import type { LinkedIdentity } from './use-linked-identities';
 import { useLinkedIdentities } from './use-linked-identities';
 
 export function SignInMethodsSection(): JSX.Element {
-  const { i18n, t } = useLingui();
   const capabilities = useSignInCapabilities();
   const port = useAuthClientPort();
   const linked = useLinkedIdentities();
@@ -43,7 +46,8 @@ export function SignInMethodsSection(): JSX.Element {
       ...(capabilities.apple ? (['apple'] as const) : []),
     ];
     // A method linked earlier stays listed even if its provider is now off.
-    const extra = linked()
+    const extra = linked
+      .identities()
       .map((row) => row.provider)
       .filter(isOauthProviderId)
       .filter((provider) => !enabled.includes(provider));
@@ -55,49 +59,81 @@ export function SignInMethodsSection(): JSX.Element {
     void port.prepareLink().catch(() => undefined);
   });
   return (
-    <div class="box" data-testid={Handles.accountSignInMethods}>
-      <MenuSection title={<Trans>Sign-in methods</Trans>}>
-        {/* Only a Synthetic User's account ever holds an email method. */}
-        <Show when={linked().find((row) => row.provider === 'email')}>
-          {(identity) => (
-            <MenuRow
-              title={providerName(i18n(), 'email')}
-              caption={identity().email ?? ''}
-              hideChevron
-              trailing={
-                <Button
-                  title={t`Remove`}
-                  variant="ghost"
-                  intent="danger"
-                  size="sm"
-                  disabled={linked().length <= 1}
-                  onClick={() => setRemoving('email')}
-                  dataSet={{
-                    testid: Handles.accountUnlinkProvider('email'),
-                  }}
-                />
-              }
-              dataSet={{ testid: Handles.accountSignInMethod('email') }}
-            />
-          )}
-        </Show>
-        <For each={providers()}>
-          {(provider) => (
-            <SignInMethodRow
-              provider={provider}
-              identity={
-                linked().find((row) => row.provider === provider) ?? null
-              }
-              removable={linked().length > 1}
-              onRemove={setRemoving}
-            />
-          )}
-        </For>
-      </MenuSection>
+    <StackVertical gap="md" testId={Handles.accountSignInMethods}>
+      <AccountSyncErrorNotice>
+        <Trans>
+          Couldn't reach the server yet, so your sign-in methods may be missing.
+        </Trans>
+      </AccountSyncErrorNotice>
+      <Show
+        when={!linked.isLoading()}
+        fallback={
+          <LoadingState
+            variant="compact"
+            caption={<Trans>Loading sign-in methods…</Trans>}
+          />
+        }
+      >
+        <MenuSection title={<Trans>Sign-in methods</Trans>}>
+          {/* Only a Synthetic User's account ever holds an email method. */}
+          <Show
+            when={linked.identities().find((row) => row.provider === 'email')}
+          >
+            {(identity) => (
+              <EmailMethodRow
+                identity={identity()}
+                removable={linked.identities().length > 1}
+                onRemove={() => setRemoving('email')}
+              />
+            )}
+          </Show>
+          <For each={providers()}>
+            {(provider) => (
+              <SignInMethodRow
+                provider={provider}
+                identity={
+                  linked
+                    .identities()
+                    .find((row) => row.provider === provider) ?? null
+                }
+                removable={linked.identities().length > 1}
+                onRemove={setRemoving}
+              />
+            )}
+          </For>
+        </MenuSection>
+      </Show>
       <UnlinkMethodModal
         provider={removing()}
         onClose={() => setRemoving(null)}
       />
-    </div>
+    </StackVertical>
+  );
+}
+
+function EmailMethodRow(props: {
+  readonly identity: LinkedIdentity;
+  readonly removable: boolean;
+  readonly onRemove: () => void;
+}): JSX.Element {
+  const { i18n, t } = useLingui();
+  return (
+    <MenuRow
+      title={providerName(i18n(), 'email')}
+      caption={props.identity.email ?? ''}
+      hideChevron
+      trailing={
+        <Button
+          title={t`Remove`}
+          variant="ghost"
+          intent="danger"
+          size="sm"
+          disabled={!props.removable}
+          onClick={props.onRemove}
+          dataSet={{ testid: Handles.accountUnlinkProvider('email') }}
+        />
+      }
+      dataSet={{ testid: Handles.accountSignInMethod('email') }}
+    />
   );
 }

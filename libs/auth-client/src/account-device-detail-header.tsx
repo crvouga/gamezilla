@@ -1,3 +1,5 @@
+import { H2 } from '@pkgs/ui-root-client/heading';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';
@@ -11,13 +13,11 @@ export function AccountDeviceDetailHeader(
   props: AccountDeviceDetailHeaderProps
 ): JSX.Element {
   return (
-    <div class="box flex-row flex-wrap items-center gap-2">
-      <AccountDeviceListTitleText
-        deviceId={props.deviceId}
-        variant="heading"
-        numberOfLines={2}
-      />
+    <StackHorizontal wrap align="center" gap="sm">
+      <H2 size="heading" lines={2}>
+        <AccountDeviceListTitleText deviceId={props.deviceId} />
+      </H2>
       <AccountDeviceCurrentBadge deviceId={props.deviceId} />
-    </div>
+    </StackHorizontal>
   );
 }

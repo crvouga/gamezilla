@@ -170,6 +170,16 @@ export function useDebouncedUserSearchEffect(
     get needsConnection() {
       return canSearch() && awaitingSync() && !online();
     },
+    /**
+     * The sync engine reported why the server could not answer this search
+     * (as opposed to the device simply being offline).
+     */
+    get failed() {
+      const error = engine.status().lastError;
+      return (
+        canSearch() && awaitingSync() && error !== null && error.length > 0
+      );
+    },
     get canSearch() {
       return canSearch();
     },

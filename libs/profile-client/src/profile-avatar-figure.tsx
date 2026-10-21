@@ -5,6 +5,7 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 
 export function ProfileAvatarFigure(props: {
@@ -12,8 +13,8 @@ export function ProfileAvatarFigure(props: {
 }): JSX.Element {
   const { t } = useLingui();
   return (
-    <span class="box" role="img" aria-label={t`Your avatar`}>
+    <StackVertical role="img" aria-label={t`Your avatar`}>
       {props.children}
-    </span>
+    </StackVertical>
   );
 }

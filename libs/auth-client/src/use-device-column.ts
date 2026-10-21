@@ -72,3 +72,17 @@ export function useDeviceColumn(
     return typeof value === 'string' ? value : null;
   });
 }
+
+export type DeviceRowState = {
+  /** True until the local read of the device row has hydrated. */
+  readonly isLoading: Accessor<boolean>;
+  /** Whether this copy holds the device row at all. */
+  readonly found: Accessor<boolean>;
+};
+
+/** Whether the device row is still loading, or missing from this copy. */
+export function useDeviceRowState(deviceId: Accessor<string>): DeviceRowState {
+  const query = createQuery(() => deviceRowByIdSql(deviceId()));
+  const found = createMemo(() => query.rows().length > 0);
+  return { isLoading: query.isLoading, found };
+}

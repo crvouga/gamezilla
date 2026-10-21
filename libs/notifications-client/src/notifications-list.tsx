@@ -5,9 +5,11 @@ import type {
   NotificationSection,
 } from '@libs/notifications-shared/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared/notification-action';
+import { H2 } from '@pkgs/ui-root-client/heading';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client/screen-body-virtual-list';
-import { createMemo, type JSX, Show } from 'solid-js';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { createMemo, type JSX, Match, Switch } from 'solid-js';
 import { NotificationCard } from './notification-card';
 import { NotificationsEmptyState } from './notifications-empty-state';
 
@@ -32,10 +34,8 @@ type ListRow =
   | { readonly kind: 'loading'; readonly key: 'loading' };
 
 export function NotificationsList(props: NotificationsListProps): JSX.Element {
-  const empty = createMemo(
-    () =>
-      !props.isLoading &&
-      props.sections.every((section) => section.items.length === 0)
+  const noItems = createMemo(() =>
+    props.sections.every((section) => section.items.length === 0)
   );
 
   const rows = createMemo((): ListRow[] => {
@@ -59,7 +59,13 @@ export function NotificationsList(props: NotificationsListProps): JSX.Element {
 
   const renderItem = (row: ListRow): JSX.Element => {
     if (row.kind === 'header') {
-      return <h2 class="text textCaption pb-1 pt-3">{row.title}</h2>;
+      return (
+        <StackVertical paddingTop="lg" paddingBottom="xs">
+          <H2 size="label" tone="secondary">
+            {row.title}
+          </H2>
+        </StackVertical>
+      );
     }
     if (row.kind === 'loading') {
       return <LoadingState variant="compact" size="sm" />;
@@ -70,20 +76,24 @@ export function NotificationsList(props: NotificationsListProps): JSX.Element {
   };
 
   return (
-    <Show
-      when={!empty()}
+    <Switch
       fallback={
-        <div class="box flex-1">
-          <NotificationsEmptyState filter={props.filter} />
-        </div>
+        <ScreenBodyVirtualList
+          items={rows()}
+          keyExtractor={(row) => row.key}
+          estimateSize={88}
+          renderItem={renderItem}
+        />
       }
     >
-      <ScreenBodyVirtualList
-        items={rows()}
-        keyExtractor={(row) => row.key}
-        estimateSize={88}
-        renderItem={renderItem}
-      />
-    </Show>
+      <Match when={noItems() && props.isLoading}>
+        <LoadingState />
+      </Match>
+      <Match when={noItems()}>
+        <StackVertical grow>
+          <NotificationsEmptyState filter={props.filter} />
+        </StackVertical>
+      </Match>
+    </Switch>
   );
 }

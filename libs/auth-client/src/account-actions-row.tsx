@@ -2,6 +2,7 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
 import { LogInIcon, LogOutIcon } from '@pkgs/ui-root-client/icons';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import { useHasAuthSession } from './access-facts';
@@ -17,7 +18,7 @@ export function AccountActionsRow(): JSX.Element {
   const { open: openSignOutConfirm } = useSignOutModal();
 
   return (
-    <div class="box self-stretch">
+    <StackVertical self="stretch">
       <Show
         when={isSignedIn()}
         fallback={
@@ -42,6 +43,6 @@ export function AccountActionsRow(): JSX.Element {
           dataSet={{ testid: Handles.accountSignOut }}
         />
       </Show>
-    </div>
+    </StackVertical>
   );
 }

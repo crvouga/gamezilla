@@ -8,6 +8,7 @@ import type { UserSearchResult } from '@libs/user-search-shared/user-search-type
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { CollectionScreen } from '@pkgs/ui-root-client/collection-screen';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { SearchIcon, UsersIcon } from '@pkgs/ui-root-client/icons';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client/screen-body-virtual-list';
@@ -23,6 +24,7 @@ function SearchResults(props: {
   query: string;
   searching: boolean;
   needsConnection: boolean;
+  failed: boolean;
   results: readonly UserSearchResult[];
 }): JSX.Element {
   const { t } = useLingui();
@@ -34,6 +36,19 @@ function SearchResults(props: {
     });
   return (
     <Switch>
+      <Match when={phase() === 'needs-connection' && props.failed}>
+        <ErrorState
+          variant="compact"
+          title={<Trans>Search needs a connection</Trans>}
+          body={
+            <Trans>
+              We couldn't reach the server. Search again once you're back
+              online.
+            </Trans>
+          }
+          dataSet={{ testid: Handles.searchNeedsConnection }}
+        />
+      </Match>
       <Match when={phase() === 'needs-connection'}>
         <EmptyState
           variant="compact"
@@ -140,6 +155,7 @@ export function SearchScreen(): JSX.Element {
           query={trimmed()}
           searching={state.searching}
           needsConnection={state.needsConnection}
+          failed={state.failed}
           results={state.results}
         />
       </Show>

@@ -8,6 +8,7 @@ import {
   ShuffleIcon,
 } from '@pkgs/ui-root-client/icons';
 import { PickerSection } from '@pkgs/ui-root-client/picker-section';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import type { JSX } from 'solid-js';
 import { createEffect, createSignal, onCleanup } from 'solid-js';
@@ -39,8 +40,8 @@ export function AvatarEditorSeedField(props: {
 
   return (
     <PickerSection label={<Trans>Seed</Trans>}>
-      <div class="box flex-row gap-2 items-end">
-        <div class="box flex-1">
+      <StackHorizontal gap="sm" align="end">
+        <StackVertical grow>
           <TextInput
             value={props.seed}
             placeholder={t`Empty: your default look`}
@@ -51,7 +52,7 @@ export function AvatarEditorSeedField(props: {
             disabled={props.disabled === true}
             dataSet={{ testid: Handles.profileAvatarSeed }}
           />
-        </div>
+        </StackVertical>
         <IconButton
           size={44}
           background="surface"
@@ -70,7 +71,7 @@ export function AvatarEditorSeedField(props: {
         >
           {copied() ? <CircleCheckIcon size={20} /> : <CopyIcon size={20} />}
         </IconButton>
-      </div>
+      </StackHorizontal>
     </PickerSection>
   );
 }

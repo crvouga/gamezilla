@@ -1,3 +1,4 @@
+import { Text } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { formatTimestamp } from './device-parsers';
@@ -13,5 +14,5 @@ export function AccountDeviceCreatedText(
 ): JSX.Element {
   const createdAt = useDeviceColumn(() => props.deviceId, 'createdAt');
   const label = createMemo(() => formatTimestamp(createdAt()));
-  return <p class="text textBody line-clamp-4">{label()}</p>;
+  return <Text variant="inherit">{label()}</Text>;
 }
