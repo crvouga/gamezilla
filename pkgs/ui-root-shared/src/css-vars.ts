@@ -173,7 +173,7 @@ function semanticScaleLines(): string[] {
 export function renderTokensCss(): string {
   return (
     [
-      '/* GENERATED from design-system/design-tokens.json — do not edit. */',
+      '/* GENERATED from pkgs/ui-root-shared/src/design-tokens.json — do not edit. */',
       scaleBlock(),
       schemeBlock('light'),
       schemeBlock('dark'),

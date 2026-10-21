@@ -24,9 +24,9 @@ a person asked.
 | `tint` | blue as text: links, focus and selection |
 | `destructive`, `success`, `warning`, `info` | status, each with a `*-surface` wash |
 
-Values live in `design-system/design-tokens.json`. CSS variables, the
-TypeScript token names and Swift are generated from it
-(`bun run --filter @pkgs/ui-root-client tokens:generate`); light and dark are
+Values live in `pkgs/ui-root-shared/src/design-tokens.json`. CSS variables and
+TypeScript token names are generated from it
+(`bunx turbo run tokens:generate --filter=@pkgs/ui-root-client`); light and dark are
 one variable swap on `[data-theme]`, never two sets of classes.
 `palette-contrast.test.ts` holds every text/fill pair to WCAG AA, which is
 why the blue sits at the lightness where a white label still passes.

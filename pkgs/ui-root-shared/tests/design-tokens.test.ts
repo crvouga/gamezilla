@@ -1,8 +1,7 @@
 /**
- * `design-system/design-tokens.json` is the single source of every visual
- * value. It must be a valid W3C Design Tokens tree, and the TypeScript copy,
- * `token-names.ts`, `tokens.css` and the Swift projection must be what the
- * tree renders today.
+ * The package's `src/design-tokens.json` is the source of every visual value.
+ * It must be a valid W3C Design Tokens tree, and `token-names.ts` and
+ * `tokens.css` must be what the tree renders today.
  */
 
 import { describe, expect, test } from 'bun:test';
@@ -10,7 +9,6 @@ import { join } from 'node:path';
 import { breakpoint } from '@pkgs/ui-root-shared/breakpoints';
 import { COLOR_PALETTE } from '@pkgs/ui-root-shared/color-palette';
 import { renderTokensCss } from '@pkgs/ui-root-shared/css-vars';
-import { isTokenTree } from '@pkgs/ui-root-shared/design-tokens';
 import {
   designTokenPaths,
   validateDesignTokens,
@@ -18,10 +16,6 @@ import {
 import { fonts } from '@pkgs/ui-root-shared/fonts';
 import { layer } from '@pkgs/ui-root-shared/layers';
 import { duration, easing } from '@pkgs/ui-root-shared/motion';
-import {
-  hslToSrgb,
-  renderSwiftTokens,
-} from '@pkgs/ui-root-shared/render-swift-tokens';
 import {
   renderTokenNamesTs,
   tokenScales,
@@ -44,9 +38,7 @@ import {
 import { surfaceToneColor, textToneColor } from '@pkgs/ui-root-shared/tones';
 
 const SRC = join(import.meta.dir, '..', 'src');
-const REPO = join(import.meta.dir, '..', '..', '..');
-const CANONICAL = join(REPO, 'design-system', 'design-tokens.json');
-const SWIFT = join(REPO, 'design-system', 'swift', 'design-tokens.swift');
+const CANONICAL = join(SRC, 'design-tokens.json');
 
 async function readTokens(): Promise<unknown> {
   return JSON.parse(await Bun.file(CANONICAL).text());
@@ -196,27 +188,6 @@ describe('values derived from the tokens', () => {
 });
 
 describe('generated files', () => {
-  test('the TypeScript copy matches the source document', async () => {
-    const source = await Bun.file(CANONICAL).text();
-    const copy = await Bun.file(join(SRC, 'design-tokens.json')).text();
-    expect(copy).toBe(source);
-  });
-
-  test('design-tokens.swift is what the document renders today', async () => {
-    const tree = await readTokens();
-    if (!isTokenTree(tree)) throw new Error('design tokens are not an object');
-    const current = await Bun.file(SWIFT).text();
-    expect(current).toBe(renderSwiftTokens(tree));
-    expect(current).toContain('static let `default`');
-    expect(current).toContain('static let float = Shadow(color: ColorValue(');
-  });
-
-  test('hsl white, black and red become sRGB', () => {
-    expect(hslToSrgb(0, 0, 100)).toEqual([1, 1, 1]);
-    expect(hslToSrgb(0, 0, 0)).toEqual([0, 0, 0]);
-    expect(hslToSrgb(0, 100, 50)).toEqual([1, 0, 0]);
-  });
-
   test('token-names.ts is what the tokens render today', async () => {
     const current = await Bun.file(join(SRC, 'token-names.ts')).text();
     expect(current).toBe(renderTokenNamesTs());
@@ -239,7 +210,11 @@ describe('generated files', () => {
 
   test('tokens.css carries a variable for every semantic scale name', () => {
     const css = renderTokensCss();
-    expect(css.startsWith('/* GENERATED from design-system/')).toBe(true);
+    expect(
+      css.startsWith(
+        '/* GENERATED from pkgs/ui-root-shared/src/design-tokens.json'
+      )
+    ).toBe(true);
     for (const name of SPACE_TOKENS) {
       expect(css).toContain(`  --ui-space-${name}: ${spaceSize[name]}px;`);
     }

@@ -1,4 +1,4 @@
-// GENERATED from design-system/design-tokens.json — do not edit.
+// GENERATED from pkgs/ui-root-shared/src/design-tokens.json — do not edit.
 
 /** Gap and padding steps (`--ui-space-<name>`). */
 export const SPACE_TOKENS = [

@@ -1,6 +1,6 @@
 /* Design tokens → Tailwind v4 `@theme`. The only utilities that exist are the
  * ones named here, and every one reads a `--ui-*` variable from `tokens.css`
- * (generated from `design-system/design-tokens.json`).
+ * (generated from `pkgs/ui-root-shared/src/design-tokens.json`).
  *
  * Pulled in from `@pkgs/tailwind-shared/tailwind.css` via `@import` so the
  * Tailwind compiler emits utilities. Do not import this file alone from app
