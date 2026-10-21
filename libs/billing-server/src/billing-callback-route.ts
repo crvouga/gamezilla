@@ -4,6 +4,8 @@ import { CustomerLinks } from '@libs/billing-shared/customer-links';
 import { recordPaymentEvidence } from '@libs/billing-shared/payment-evidence';
 import type { MembershipBilling } from '@pkgs/billing-root-shared/membership';
 import type { Logger } from '@pkgs/logger-shared/logger';
+import type { BillingCallbackOutcome } from '@pkgs/observability-root-shared/billing-metrics';
+import { BILLING_CALLBACKS_METRIC } from '@pkgs/observability-root-shared/billing-metrics';
 import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import statement from '@pkgs/sql-root-shared/sql';
@@ -12,29 +14,14 @@ import { Hono } from 'hono';
 import { applyMembershipChange } from './apply-membership-change';
 import { settleDeletedAccountPayments } from './settle-deleted-payments';
 
-type CallbackOutcome =
-  | 'accepted'
-  | 'unverified'
-  | 'unknown_provider'
-  | 'failed';
-
 /**
  * Every provider callback, by how it ended. A refused signature answers 400,
  * which the server-error burn never counts, so this is how the team learns
  * that payment changes stopped arriving. Created per call: the Worker installs
  * its meter provider after this module loads.
  */
-function countCallback(outcome: CallbackOutcome): void {
-  createMetric({
-    name: 'billing.callbacks',
-    description: 'Billing provider callbacks, by outcome',
-    type: 'counter',
-    unit: '{callback}',
-    dimensions: {
-      'app.outcome': ['accepted', 'unverified', 'unknown_provider', 'failed'],
-    },
-    environmentScoped: true,
-  })(1, { 'app.outcome': outcome });
+function countCallback(outcome: BillingCallbackOutcome): void {
+  createMetric(BILLING_CALLBACKS_METRIC)(1, { 'app.outcome': outcome });
 }
 
 async function settleIfClosed(

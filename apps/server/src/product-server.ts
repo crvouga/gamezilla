@@ -68,6 +68,7 @@ import {
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { deploymentTelemetryEnvironment } from '@pkgs/observability-root-shared/deployment-environment';
 import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
+import { pipelineHeartbeatContract } from '@pkgs/observability-root-shared/pipeline-metrics';
 import { withSpan } from '@pkgs/observability-root-shared/span';
 import { isSecretStoreError } from '@pkgs/secret-store-shared/is-secret-store-error';
 import { InMemoryTtsProvider } from '@pkgs/tts-root-server/in-memory-tts-provider';
@@ -480,13 +481,9 @@ const workerImplementation = {
     // The heartbeat says only that the schedule fired and telemetry flows, so
     // it stays ahead of the drain: a broken drain must not read as a broken
     // pipeline. Whether the drain works is its own count, `outbox.drain.runs`.
-    createMetric({
-      name: 'telemetry.pipeline.heartbeat',
-      description: 'Scheduled server telemetry heartbeat',
-      type: 'counter',
-      unit: '{beat}',
-      dimensions: { [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: [environment] },
-    })(1, { [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: environment });
+    createMetric(pipelineHeartbeatContract(environment))(1, {
+      [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: environment,
+    });
     try {
       await withSpan(
         'outbox.drain',

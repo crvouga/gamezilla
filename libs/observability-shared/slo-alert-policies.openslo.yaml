@@ -1,0 +1,591 @@
+apiVersion: openslo/v1
+kind: AlertNotificationTarget
+metadata:
+  name: health-job-failure
+spec:
+  description: "The hourly Health run fails its objectives job, and GitHub notifies the people watching the repository. Works with no dashboard service."
+  target: github-actions
+---
+apiVersion: openslo/v1
+kind: AlertNotificationTarget
+metadata:
+  name: grafana-notification-policy
+spec:
+  description: "Grafana raises the alert through the stack's existing notification policy while its instance is active."
+  target: grafana
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-answers-people-quickly-fast-burn-over-1h
+spec:
+  description: "The budget burns at 14.4x or more over the last 1h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 14.4
+    lookbackWindow: 1h
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-answers-people-quickly-fast-burn-over-5m
+spec:
+  description: "The budget burns at 14.4x or more over the last 5m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 14.4
+    lookbackWindow: 5m
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-answers-people-quickly-slow-burn-over-6h
+spec:
+  description: "The budget burns at 6x or more over the last 6h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 6
+    lookbackWindow: 6h
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-answers-people-quickly-slow-burn-over-30m
+spec:
+  description: "The budget burns at 6x or more over the last 30m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 6
+    lookbackWindow: 30m
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-answers-people-quickly-budget-drift-over-3d
+spec:
+  description: "The budget burns at 1x or more over the last 3d."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: 3d
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-answers-people-quickly-budget-drift-over-6h
+spec:
+  description: "The budget burns at 1x or more over the last 6h."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: 6h
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-never-leaves-people-waiting-fast-burn-over-1h
+spec:
+  description: "The budget burns at 14.4x or more over the last 1h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 14.4
+    lookbackWindow: 1h
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-never-leaves-people-waiting-fast-burn-over-5m
+spec:
+  description: "The budget burns at 14.4x or more over the last 5m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 14.4
+    lookbackWindow: 5m
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-never-leaves-people-waiting-slow-burn-over-6h
+spec:
+  description: "The budget burns at 6x or more over the last 6h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 6
+    lookbackWindow: 6h
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-never-leaves-people-waiting-slow-burn-over-30m
+spec:
+  description: "The budget burns at 6x or more over the last 30m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 6
+    lookbackWindow: 30m
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-never-leaves-people-waiting-budget-drift-over-3d
+spec:
+  description: "The budget burns at 1x or more over the last 3d."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: 3d
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-never-leaves-people-waiting-budget-drift-over-6h
+spec:
+  description: "The budget burns at 1x or more over the last 6h."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: 6h
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-serves-people-fast-burn-over-1h
+spec:
+  description: "The budget burns at 14.4x or more over the last 1h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 14.4
+    lookbackWindow: 1h
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-serves-people-fast-burn-over-5m
+spec:
+  description: "The budget burns at 14.4x or more over the last 5m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 14.4
+    lookbackWindow: 5m
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-serves-people-slow-burn-over-6h
+spec:
+  description: "The budget burns at 6x or more over the last 6h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 6
+    lookbackWindow: 6h
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-serves-people-slow-burn-over-30m
+spec:
+  description: "The budget burns at 6x or more over the last 30m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 6
+    lookbackWindow: 30m
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-serves-people-budget-drift-over-3d
+spec:
+  description: "The budget burns at 1x or more over the last 3d."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: 3d
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: the-app-serves-people-budget-drift-over-6h
+spec:
+  description: "The budget burns at 1x or more over the last 6h."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: 6h
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: changes-are-saved-fast-burn-over-1h
+spec:
+  description: "The budget burns at 14.4x or more over the last 1h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 14.4
+    lookbackWindow: 1h
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: changes-are-saved-fast-burn-over-5m
+spec:
+  description: "The budget burns at 14.4x or more over the last 5m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 14.4
+    lookbackWindow: 5m
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: changes-are-saved-slow-burn-over-6h
+spec:
+  description: "The budget burns at 6x or more over the last 6h."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 6
+    lookbackWindow: 6h
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: changes-are-saved-slow-burn-over-30m
+spec:
+  description: "The budget burns at 6x or more over the last 30m."
+  severity: page
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 6
+    lookbackWindow: 30m
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: changes-are-saved-budget-drift-over-3d
+spec:
+  description: "The budget burns at 1x or more over the last 3d."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: 3d
+---
+apiVersion: openslo/v1
+kind: AlertCondition
+metadata:
+  name: changes-are-saved-budget-drift-over-6h
+spec:
+  description: "The budget burns at 1x or more over the last 6h."
+  severity: ticket
+  condition:
+    kind: burnrate
+    op: gte
+    threshold: 1
+    lookbackWindow: 6h
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: the-app-answers-people-quickly-fast-burn
+  displayName: "The app answers people quickly: fast-burn"
+  labels:
+    slo:
+      - the-app-answers-people-quickly
+    severity:
+      - page
+spec:
+  description: "page: The app answers people quickly is spending its error budget at a rate that ends it within hours: \"At least 19 in every 20 requests people wait on are answered within half a second\" burns at 14.4x or more over 1h and over 5m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: the-app-answers-people-quickly-fast-burn-over-1h
+    - conditionRef: the-app-answers-people-quickly-fast-burn-over-5m
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-notification-policy
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: the-app-answers-people-quickly-slow-burn
+  displayName: "The app answers people quickly: slow-burn"
+  labels:
+    slo:
+      - the-app-answers-people-quickly
+    severity:
+      - page
+spec:
+  description: "page: The app answers people quickly is spending its error budget steadily enough to end it within days: \"At least 19 in every 20 requests people wait on are answered within half a second\" burns at 6x or more over 6h and over 30m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: the-app-answers-people-quickly-slow-burn-over-6h
+    - conditionRef: the-app-answers-people-quickly-slow-burn-over-30m
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-notification-policy
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: the-app-answers-people-quickly-budget-drift
+  displayName: "The app answers people quickly: budget-drift"
+  labels:
+    slo:
+      - the-app-answers-people-quickly
+    severity:
+      - ticket
+spec:
+  description: "ticket: The app answers people quickly is spending its error budget faster than the window renews it: \"At least 19 in every 20 requests people wait on are answered within half a second\" burns at 1x or more over 3d and over 6h."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: the-app-answers-people-quickly-budget-drift-over-3d
+    - conditionRef: the-app-answers-people-quickly-budget-drift-over-6h
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-notification-policy
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: the-app-never-leaves-people-waiting-fast-burn
+  displayName: "The app never leaves people waiting: fast-burn"
+  labels:
+    slo:
+      - the-app-never-leaves-people-waiting
+    severity:
+      - page
+spec:
+  description: "page: The app never leaves people waiting is spending its error budget at a rate that ends it within hours: \"At least 99 in every 100 requests people wait on are answered within two and a half seconds\" burns at 14.4x or more over 1h and over 5m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: the-app-never-leaves-people-waiting-fast-burn-over-1h
+    - conditionRef: the-app-never-leaves-people-waiting-fast-burn-over-5m
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-notification-policy
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: the-app-never-leaves-people-waiting-slow-burn
+  displayName: "The app never leaves people waiting: slow-burn"
+  labels:
+    slo:
+      - the-app-never-leaves-people-waiting
+    severity:
+      - page
+spec:
+  description: "page: The app never leaves people waiting is spending its error budget steadily enough to end it within days: \"At least 99 in every 100 requests people wait on are answered within two and a half seconds\" burns at 6x or more over 6h and over 30m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: the-app-never-leaves-people-waiting-slow-burn-over-6h
+    - conditionRef: the-app-never-leaves-people-waiting-slow-burn-over-30m
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-notification-policy
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: the-app-never-leaves-people-waiting-budget-drift
+  displayName: "The app never leaves people waiting: budget-drift"
+  labels:
+    slo:
+      - the-app-never-leaves-people-waiting
+    severity:
+      - ticket
+spec:
+  description: "ticket: The app never leaves people waiting is spending its error budget faster than the window renews it: \"At least 99 in every 100 requests people wait on are answered within two and a half seconds\" burns at 1x or more over 3d and over 6h."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: the-app-never-leaves-people-waiting-budget-drift-over-3d
+    - conditionRef: the-app-never-leaves-people-waiting-budget-drift-over-6h
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-notification-policy
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: the-app-serves-people-fast-burn
+  displayName: "The app serves people: fast-burn"
+  labels:
+    slo:
+      - the-app-serves-people
+    severity:
+      - page
+spec:
+  description: "page: The app serves people is spending its error budget at a rate that ends it within hours: \"At least 999 in every 1000 requests from people are answered without a failure\" burns at 14.4x or more over 1h and over 5m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: the-app-serves-people-fast-burn-over-1h
+    - conditionRef: the-app-serves-people-fast-burn-over-5m
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-notification-policy
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: the-app-serves-people-slow-burn
+  displayName: "The app serves people: slow-burn"
+  labels:
+    slo:
+      - the-app-serves-people
+    severity:
+      - page
+spec:
+  description: "page: The app serves people is spending its error budget steadily enough to end it within days: \"At least 999 in every 1000 requests from people are answered without a failure\" burns at 6x or more over 6h and over 30m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: the-app-serves-people-slow-burn-over-6h
+    - conditionRef: the-app-serves-people-slow-burn-over-30m
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-notification-policy
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: the-app-serves-people-budget-drift
+  displayName: "The app serves people: budget-drift"
+  labels:
+    slo:
+      - the-app-serves-people
+    severity:
+      - ticket
+spec:
+  description: "ticket: The app serves people is spending its error budget faster than the window renews it: \"At least 999 in every 1000 requests from people are answered without a failure\" burns at 1x or more over 3d and over 6h."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: the-app-serves-people-budget-drift-over-3d
+    - conditionRef: the-app-serves-people-budget-drift-over-6h
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-notification-policy
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: changes-are-saved-fast-burn
+  displayName: "Changes are saved: fast-burn"
+  labels:
+    slo:
+      - changes-are-saved
+    severity:
+      - page
+spec:
+  description: "page: Changes are saved is spending its error budget at a rate that ends it within hours: \"At least 999 in every 1000 attempts to save a change are decided without a failure\" burns at 14.4x or more over 1h and over 5m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: changes-are-saved-fast-burn-over-1h
+    - conditionRef: changes-are-saved-fast-burn-over-5m
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-notification-policy
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: changes-are-saved-slow-burn
+  displayName: "Changes are saved: slow-burn"
+  labels:
+    slo:
+      - changes-are-saved
+    severity:
+      - page
+spec:
+  description: "page: Changes are saved is spending its error budget steadily enough to end it within days: \"At least 999 in every 1000 attempts to save a change are decided without a failure\" burns at 6x or more over 6h and over 30m."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: changes-are-saved-slow-burn-over-6h
+    - conditionRef: changes-are-saved-slow-burn-over-30m
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-notification-policy
+---
+apiVersion: openslo/v1
+kind: AlertPolicy
+metadata:
+  name: changes-are-saved-budget-drift
+  displayName: "Changes are saved: budget-drift"
+  labels:
+    slo:
+      - changes-are-saved
+    severity:
+      - ticket
+spec:
+  description: "ticket: Changes are saved is spending its error budget faster than the window renews it: \"At least 999 in every 1000 attempts to save a change are decided without a failure\" burns at 1x or more over 3d and over 6h."
+  alertWhenNoData: false
+  alertWhenResolved: true
+  alertWhenBreaching: true
+  conditions:
+    - conditionRef: changes-are-saved-budget-drift-over-3d
+    - conditionRef: changes-are-saved-budget-drift-over-6h
+  notificationTargets:
+    - targetRef: health-job-failure
+    - targetRef: grafana-notification-policy

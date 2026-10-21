@@ -1,5 +1,4 @@
-import { ATTR } from '@pkgs/observability-root-shared/attributes';
-import { activeSpan } from '@pkgs/observability-root-shared/span';
+import { bindIdentity } from '@pkgs/observability-root-shared/identity-scope';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
@@ -259,9 +258,10 @@ export function mountMutationsRoute(
     if (isAuthErrorBody(auth)) {
       return c.json(auth, 401);
     }
-    const requestSpan = activeSpan();
-    requestSpan?.setAttribute(ATTR.USER_ID, auth.accountId ?? auth.actorId);
-    requestSpan?.setAttribute(ATTR.APP_DEVICE_ID, auth.deviceId);
+    bindIdentity({
+      userId: auth.accountId ?? auth.actorId,
+      deviceId: auth.deviceId,
+    });
     const parsed = parseMutationsBatchBody(await c.req.json());
     if (parsed === null) {
       return c.json({ error: 'invalid_batch' }, 400);

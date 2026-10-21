@@ -1148,7 +1148,14 @@
         "$TURBO_ROOT$/.gemini/commands/**",
         "$TURBO_ROOT$/.github/prompts/**",
         "$TURBO_ROOT$/.windsurf/workflows/**",
-        "$TURBO_ROOT$/libs/tools/scripts/sync-agent-commands.ts"
+        "$TURBO_ROOT$/.mcp.json",
+        "$TURBO_ROOT$/.codex/config.toml",
+        "$TURBO_ROOT$/.cursor/mcp.json",
+        "$TURBO_ROOT$/.gemini/settings.json",
+        "$TURBO_ROOT$/.vscode/mcp.json",
+        "$TURBO_ROOT$/opencode.json",
+        "$TURBO_ROOT$/libs/tools/scripts/sync-agent-commands.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/sync-agent-mcp.ts"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -2830,6 +2837,10 @@
       "passThroughEnv": ["*"]
     },
     "//#task:infra:destroy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:graphify:install": {
       "cache": false,
       "passThroughEnv": ["*"]
     },

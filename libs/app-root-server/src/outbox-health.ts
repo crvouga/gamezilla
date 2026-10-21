@@ -1,4 +1,8 @@
 import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
+import {
+  OUTBOX_DELIVERIES_EXHAUSTED_METRIC,
+  OUTBOX_DRAIN_RUNS_METRIC,
+} from '@pkgs/observability-root-shared/outbox-metrics';
 
 /**
  * Outbox health the team sees without reading logs. Both counters are created
@@ -7,26 +11,10 @@ import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
  */
 export function countExhaustedOutboxDeliveries(count: number): void {
   if (count <= 0) return;
-  createMetric({
-    name: 'outbox.deliveries.exhausted',
-    description:
-      'Outbox deliveries parked after their last attempt; each needs reconciliation',
-    type: 'counter',
-    unit: '{delivery}',
-    dimensions: {},
-    environmentScoped: true,
-  })(count, {});
+  createMetric(OUTBOX_DELIVERIES_EXHAUSTED_METRIC)(count, {});
 }
 
-const drainRuns = () =>
-  createMetric({
-    name: 'outbox.drain.runs',
-    description: 'Scheduled outbox drains, by whether the drain completed',
-    type: 'counter',
-    unit: '{run}',
-    dimensions: { 'app.outcome': ['success', 'failure'] },
-    environmentScoped: true,
-  });
+const drainRuns = () => createMetric(OUTBOX_DRAIN_RUNS_METRIC);
 
 /**
  * Run the scheduled drain and count how it ended. The telemetry heartbeat

@@ -11,6 +11,12 @@ import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { writeFeatureStubs, writeSloStubs } from '@apps/product/scripts/health';
 import { parseFeature } from '@pkgs/gherkin-shared/parse';
+import { bindingIssues, checkObjectiveSpec } from '@pkgs/openslo-shared/check';
+import { parseOpenSlo } from '@pkgs/openslo-shared/parse';
+import {
+  objectiveSpecStem,
+  objectivesBinding,
+} from '@pkgs/openslo-shared/registry';
 import type { Environment } from './health';
 import {
   allSpecs,
@@ -358,6 +364,8 @@ describe('synthetic discovery', () => {
     expect(specs).toContain('specs/spaces/live-updates.feature');
     expect(specs).toContain('specs/profile/finding-a-person.feature');
     expect(specs).toContain('specs/runtime/availability.openslo.yaml');
+    expect(specs).toContain('specs/runtime/request-success.openslo.yaml');
+    expect(specs).toContain('specs/runtime/request-speed.openslo.yaml');
     expect(specs.some((path) => path.startsWith('specs/health/'))).toBe(false);
   });
 
@@ -405,4 +413,54 @@ test('live health avoids local UI steps while local specs preload the macro load
   expect(live).toContain('useLiveWorld()');
   expect(live).not.toContain('@pkgs/bun-test-solid-client/preload');
   expect(live).not.toContain('@libs/harness/');
+});
+
+describe('the live objectives', () => {
+  const objectives = () =>
+    allSpecs().filter((path) => path.endsWith('.openslo.yaml'));
+
+  test('each has a binding that measures exactly its indicators', async () => {
+    await import('./../tests/openslo/index');
+    expect(objectives().length).toBeGreaterThanOrEqual(3);
+    for (const path of objectives()) {
+      const parsed = parseOpenSlo(readFileSync(path, 'utf8'));
+      if (!parsed.ok) throw new Error(parsed.issues.join('\n'));
+      expect(
+        bindingIssues(parsed.doc, objectivesBinding(objectiveSpecStem(path)))
+      ).toEqual([]);
+    }
+  });
+
+  // regression: availability-objective-measured-from-ci-history-only
+  test('a deployment whose metrics cannot be read fails every objective by name, never passes', async () => {
+    await import('./../tests/openslo/index');
+    const names = [
+      'OBS_PROMETHEUS_URL',
+      'OBS_PROMETHEUS_USER',
+      'OBS_TEMPO_TOKEN',
+    ] as const;
+    const kept = names.map((name) => [name, process.env[name]] as const);
+    for (const name of names) delete process.env[name];
+    try {
+      for (const stem of ['request-success', 'request-speed']) {
+        const path = join(REPO_ROOT, `specs/runtime/${stem}.openslo.yaml`);
+        const checked = await checkObjectiveSpec({
+          text: readFileSync(path, 'utf8'),
+          binding: objectivesBinding(stem),
+        });
+        expect(checked.issues).toEqual([]);
+        expect(checked.results.length).toBeGreaterThan(0);
+        for (const result of checked.results) {
+          expect(result.evaluation.met).toBe(false);
+          expect(result.evaluation.detail).toContain(
+            'OBS_PROMETHEUS_URL, OBS_PROMETHEUS_USER, OBS_TEMPO_TOKEN are not set'
+          );
+        }
+      }
+    } finally {
+      for (const [name, value] of kept) {
+        if (value !== undefined) process.env[name] = value;
+      }
+    }
+  });
 });

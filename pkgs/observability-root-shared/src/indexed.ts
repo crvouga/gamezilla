@@ -1,7 +1,17 @@
 import { ATTR } from './attributes';
 import type { NarrateSpan } from './narrate';
+import {
+  adjacentOf,
+  compareCodeUnit,
+  shapeRefs,
+  traceRefOf,
+  traceRefsOf,
+  tracesWithAttribute,
+} from './span-index';
 import type {
   AdjacentActivity,
+  RecentOptions,
+  SearchOptions,
   TimeRange,
   Trace,
   TraceIdentifierKind,
@@ -17,55 +27,9 @@ const KEYS = {
   test: ATTR.APP_TEST_ID,
   user: ATTR.USER_ID,
   device: ATTR.APP_DEVICE_ID,
-} as const;
+} as const satisfies Record<Exclude<TraceIdentifierKind, 'trace'>, string>;
 
-function compare(a: string, b: string): number {
-  return a < b ? -1 : a > b ? 1 : 0;
-}
-
-function ref(traceId: string, spans: readonly NarrateSpan[]): TraceRef {
-  const ordered = [...spans].sort((a, b) => a.startTimeMs - b.startTimeMs);
-  const start = ordered[0]?.startTimeMs ?? 0;
-  const end = ordered.reduce(
-    (latest, span) => Math.max(latest, span.startTimeMs + span.durationMs),
-    start
-  );
-  const root =
-    ordered.find((span) => span.parentSpanId === undefined) ?? ordered[0];
-  return {
-    traceId,
-    startedAtMs: start,
-    durationMs: end - start,
-    spanCount: spans.length,
-    errorCount: spans.filter((span) => span.status === 'error').length,
-    rootName: root?.name ?? 'unknown',
-  };
-}
-
-function refs(spans: readonly NarrateSpan[]): TraceRef[] {
-  const traces = new Map<string, NarrateSpan[]>();
-  for (const span of spans) {
-    const values = traces.get(span.traceId) ?? [];
-    values.push(span);
-    traces.set(span.traceId, values);
-  }
-  return [...traces.entries()]
-    .map(([traceId, values]) => ref(traceId, values))
-    .sort(
-      (a, b) => b.startedAtMs - a.startedAtMs || compare(a.traceId, b.traceId)
-    );
-}
-
-function matches(span: NarrateSpan, key: string, value: string): boolean {
-  const isValue = (attribute: NarrateSpan['attributes'][string]) =>
-    Array.isArray(attribute)
-      ? attribute.some((item) => String(item) === value)
-      : attribute !== undefined && String(attribute) === value;
-  return (
-    isValue(span.attributes[key]) ||
-    (span.events?.some((event) => isValue(event.attributes?.[key])) ?? false)
-  );
-}
+type Kind = Exclude<TraceIdentifierKind, 'trace'>;
 
 export class IndexedTraceStore implements TraceStore {
   constructor(
@@ -77,82 +41,79 @@ export class IndexedTraceStore implements TraceStore {
     return this.load();
   }
 
-  async recent(window: TimeRange): Promise<readonly TraceRef[]> {
-    return refs(
+  async recent(
+    window: TimeRange,
+    options?: RecentOptions
+  ): Promise<readonly TraceRef[]> {
+    const refs = traceRefsOf(
       (await this.all()).filter(
         (span) =>
           span.startTimeMs >= window.startMs && span.startTimeMs <= window.endMs
       )
-    );
+    ).filter((ref) => options?.errorsOnly !== true || ref.errorCount > 0);
+    return shapeRefs(refs, 'recent', options);
   }
 
   async adjacent(window: TimeRange): Promise<AdjacentActivity> {
-    const ordered = refs(await this.all());
-    const before = ordered.find((item) => item.startedAtMs < window.startMs);
-    const after = [...ordered]
-      .reverse()
-      .find((item) => item.startedAtMs > window.endMs);
-    const midpoint = window.startMs + (window.endMs - window.startMs) / 2;
-    const nearby = ordered
-      .filter(
-        (item) =>
-          item.startedAtMs >= window.startMs && item.startedAtMs <= window.endMs
-      )
-      .sort(
-        (a, b) =>
-          Math.abs(a.startedAtMs - midpoint) -
-          Math.abs(b.startedAtMs - midpoint)
-      )[0];
-    return {
-      ...(after === undefined ? {} : { after }),
-      ...(before === undefined ? {} : { before }),
-      ...(nearby === undefined ? {} : { nearby }),
-    };
+    return adjacentOf(traceRefsOf(await this.all()), window);
   }
 
-  private async by(key: string, value: string): Promise<TraceRef[]> {
-    const all = await this.all();
-    const ids = new Set(
-      all
-        .filter((span) => matches(span, key, value))
-        .map((span) => span.traceId)
-    );
-    return refs(all.filter((span) => ids.has(span.traceId)));
+  private async by(
+    kind: Kind,
+    value: string,
+    scope: { readonly window?: TimeRange; readonly options?: SearchOptions }
+  ): Promise<TraceRef[]> {
+    const refs = tracesWithAttribute(await this.all(), {
+      key: KEYS[kind],
+      value,
+      ...(scope.window === undefined ? {} : { window: scope.window }),
+    });
+    return shapeRefs(refs, `${KEYS[kind]} = ${value}`, scope.options);
   }
 
-  async findByUser(
+  findByUser(
     userId: string,
-    window: TimeRange
+    window: TimeRange,
+    options?: SearchOptions
   ): Promise<readonly TraceRef[]> {
-    return (await this.by(KEYS.user, userId)).filter(
-      (item) =>
-        item.startedAtMs >= window.startMs && item.startedAtMs <= window.endMs
-    );
+    return this.by('user', userId, scopeOf(window, options));
   }
-
-  findBySession(value: string): Promise<readonly TraceRef[]> {
-    return this.by(KEYS.session, value);
+  findBySession(
+    sessionId: string,
+    window: TimeRange,
+    options?: SearchOptions
+  ): Promise<readonly TraceRef[]> {
+    return this.by('session', sessionId, scopeOf(window, options));
   }
   findByMutation(value: string): Promise<readonly TraceRef[]> {
-    return this.by(KEYS.mutation, value);
+    return this.by('mutation', value, {});
   }
   findByTest(value: string): Promise<readonly TraceRef[]> {
-    return this.by(KEYS.test, value);
+    return this.by('test', value, {});
   }
-  findByDevice(value: string): Promise<readonly TraceRef[]> {
-    return this.by(KEYS.device, value);
+  findByDevice(
+    deviceId: string,
+    window: TimeRange,
+    options?: SearchOptions
+  ): Promise<readonly TraceRef[]> {
+    return this.by('device', deviceId, scopeOf(window, options));
   }
 
   async find(value: string, window: TimeRange): Promise<TraceMatch | null> {
     const direct = await this.getTrace(value);
     if (direct !== null)
-      return { kind: 'trace', value, traces: [ref(value, direct.spans)] };
-    const kinds = Object.keys(KEYS) as Exclude<TraceIdentifierKind, 'trace'>[];
+      return {
+        kind: 'trace',
+        value,
+        traces: [traceRefOf(value, direct.spans)],
+      };
+    const kinds = Object.keys(KEYS) as Kind[];
     for (const kind of kinds) {
-      const found =
-        kind === 'user'
-          ? await this.findByUser(value, window)
-          : await this.by(KEYS[kind], value);
+      const found = await this.by(
+        kind,
+        value,
+        kind === 'user' ? { window } : {}
+      );
       if (found.length > 0) return { kind, value, traces: found };
     }
     return null;
@@ -168,13 +129,22 @@ export class IndexedTraceStore implements TraceStore {
     return {
       attributeNames: [
         ...new Set(spans.flatMap((span) => Object.keys(span.attributes))),
-      ].sort(compare),
+      ].sort(compareCodeUnit),
       eventNames: [
         ...new Set(
           spans.flatMap((span) => span.events?.map((event) => event.name) ?? [])
         ),
-      ].sort(compare),
-      spanNames: [...new Set(spans.map((span) => span.name))].sort(compare),
+      ].sort(compareCodeUnit),
+      spanNames: [...new Set(spans.map((span) => span.name))].sort(
+        compareCodeUnit
+      ),
     };
   }
+}
+
+function scopeOf(
+  window: TimeRange,
+  options: SearchOptions | undefined
+): { readonly window: TimeRange; readonly options?: SearchOptions } {
+  return options === undefined ? { window } : { window, options };
 }

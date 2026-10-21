@@ -1,4 +1,8 @@
 import { stampConnectionPlace } from '@libs/app-root-shared/stamp-connection-place';
+import {
+  ROUTE_GROUPS,
+  routeGroupOf,
+} from '@libs/observability-shared/route-groups';
 import { context, SpanKind, SpanStatusCode } from '@opentelemetry/api';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import {
@@ -6,6 +10,7 @@ import {
   deserializeTraceContext,
 } from '@pkgs/observability-root-shared/correlation';
 import { createHttpMetrics } from '@pkgs/observability-root-shared/http-metrics';
+import { withIdentityScope } from '@pkgs/observability-root-shared/identity-scope';
 import { withSpan } from '@pkgs/observability-root-shared/span';
 import type { MiddlewareHandler } from 'hono';
 import { routePath } from 'hono/route';
@@ -23,7 +28,7 @@ export function takeRequestTraceId(request: Request): string | undefined {
 export function createRequestTelemetryMiddleware(
   now: () => number
 ): MiddlewareHandler {
-  const record = createHttpMetrics();
+  const record = createHttpMetrics(ROUTE_GROUPS);
   return async (c, next) => {
     const started = now();
     const traceparent = c.req.header('traceparent');
@@ -56,9 +61,18 @@ export function createRequestTelemetryMiddleware(
         { kind: SpanKind.SERVER }
       );
     try {
-      return await (parent === undefined ? run() : context.with(parent, run));
+      // The scope opens inside the extracted parent: that context replaces the
+      // active one, so a scope opened outside it would be lost.
+      return await (parent === undefined
+        ? withIdentityScope(run)
+        : context.with(parent, () => withIdentityScope(run)));
     } finally {
-      record(c.req.method, c.res.status, now() - started);
+      record({
+        method: c.req.method,
+        status: c.res.status,
+        durationMs: now() - started,
+        routeGroup: routeGroupOf(routePath(c)),
+      });
     }
   };
 }

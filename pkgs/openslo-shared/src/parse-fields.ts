@@ -4,6 +4,8 @@
  * and returns `null`. Nothing here throws.
  */
 
+import { parseDuration } from './window';
+
 export type Mapping = Readonly<Record<string, unknown>>;
 
 /** Where a reader is (`SLO note-delivery`) and the issues found so far. */
@@ -129,4 +131,20 @@ export function readMetadata(
     return report(at, `metadata.name "${name}" must be kebab-case`);
   }
   return { name, displayName };
+}
+
+export function readDuration(
+  at: Cursor,
+  from: Mapping,
+  field: string
+): string | null {
+  const text = readString(at, from, field);
+  if (text === null) return null;
+  if (parseDuration(text) === null) {
+    return report(
+      at,
+      `${field} "${text}" must be a positive whole number of s, m, h, d or w (28d)`
+    );
+  }
+  return text;
 }

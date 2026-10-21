@@ -1,0 +1,109 @@
+# live
+# What people ask of the app, the app answers; what people change, the app
+# saves. Both are counted from the requests people's devices really make to
+# the live app, not from the team's own checks, so a bad hour for real people
+# shows even when every check passes.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: people-requests-served
+  displayName: Requests from people the app answers without failing
+spec:
+  description: >-
+    Of everything people's devices ask of the live app (opening their
+    spaces, reading and saving their changes, signing in, joining a room,
+    paying), the share the app answers without failing on its own side. An
+    answer that refuses what the person is not allowed to do, or says what
+    they asked for is not there, is a correct answer and counts as good.
+    Requests that machines make (the team's own checks, the synthetic
+    population, usage reports sent by the browser) are not people's and are
+    not counted.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Requests from people's devices that the app answered, including
+            answers that refuse what the person is not allowed to do.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every request from people's devices to the live app.
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: changes-saved-first-time
+  displayName: Attempts to save a change the app decides without failing
+spec:
+  description: >-
+    Each time the app tries to save a change a person made, it either decides
+    (it saves the change, sees that it already saved it, or turns it down for
+    good because the rules do not allow it) or fails on its own side and has
+    to try again later. This is the share of attempts the app decides. A
+    change the rules turn down is a correct decision, never a failure.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Attempts to save a person's change in which the app saved it,
+            found it already saved, or turned it down because the rules do
+            not allow it.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every attempt by the app to save a change a person made.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: the-app-serves-people
+  displayName: The app serves people
+spec:
+  description: >-
+    At least 999 in every 1000 requests from people are answered without the
+    app failing, judged over the last four weeks. A visit to the app is
+    around a hundred requests, so this keeps about nine visits in ten free of
+    any failure; a looser rate would let most visits meet one. Nothing about
+    this rate or this stretch of time is written in Reaching the app or
+    Serving people, which say only that the app answers right now.
+  service: runtime
+  indicatorRef: people-requests-served
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: At least 999 in every 1000 requests from people are answered without a failure
+      target: 0.999
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: changes-are-saved
+  displayName: Changes are saved
+spec:
+  description: >-
+    At least 999 in every 1000 attempts to save a person's change end with
+    the app deciding it, rather than failing and trying again later, judged
+    over the last four weeks. A failed attempt is retried, so a change is
+    not lost, but the person waits longer to see it on their other devices,
+    and a change that keeps failing is a change that never arrives.
+  service: runtime
+  indicatorRef: changes-saved-first-time
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: At least 999 in every 1000 attempts to save a change are decided without a failure
+      target: 0.999

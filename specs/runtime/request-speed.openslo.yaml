@@ -1,0 +1,103 @@
+# live
+# The app answers people quickly. Measured from the requests people's devices
+# really make to the live app, so it is the wait people live with, not the
+# wait on a quiet day in the team's own checks.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: people-requests-answered-within-half-a-second
+  displayName: Requests from people answered within half a second
+spec:
+  description: >-
+    Of the requests people's devices make that they wait on (opening
+    their spaces, reading and saving their changes, signing in, joining a
+    room, paying), the share the app answers within half a second. Spoken
+    words and other generated answers take seconds by nature and are left out,
+    as are requests that machines make.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Requests people wait on that the app answered within half a
+            second.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every request people wait on, other than generated speech and
+            text.
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: people-requests-answered-within-two-and-a-half-seconds
+  displayName: Requests from people answered within two and a half seconds
+spec:
+  description: >-
+    The same requests, counted by the share the app answers within two and a
+    half seconds. It is the slowest answer a person still waits for rather
+    than tapping again or giving up.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Requests people wait on that the app answered within two and a
+            half seconds.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every request people wait on, other than generated speech and
+            text.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: the-app-answers-people-quickly
+  displayName: The app answers people quickly
+spec:
+  description: >-
+    At least 19 in every 20 requests people wait on are answered within half
+    a second, judged over the last four weeks. Within about half a second a
+    tap feels immediate; each tenth of a second beyond it is a pause people
+    notice, and a visit is many requests, so the usual one has to be quick,
+    not just the average.
+  service: runtime
+  indicatorRef: people-requests-answered-within-half-a-second
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: At least 19 in every 20 requests people wait on are answered within half a second
+      target: 0.95
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: the-app-never-leaves-people-waiting
+  displayName: The app never leaves people waiting
+spec:
+  description: >-
+    At least 99 in every 100 requests people wait on are answered within two
+    and a half seconds, judged over the last four weeks. Past that a person
+    assumes something is broken, taps again, or leaves, so the slowest
+    requests are held to a promise of their own rather than hidden inside an
+    average.
+  service: runtime
+  indicatorRef: people-requests-answered-within-two-and-a-half-seconds
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: At least 99 in every 100 requests people wait on are answered within two and a half seconds
+      target: 0.99

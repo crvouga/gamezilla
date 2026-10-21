@@ -18,3 +18,13 @@ export function deploymentTelemetryEnvironment(
   const name = deployment?.trim() ?? '';
   return name.length > 0 ? name : 'local';
 }
+
+/**
+ * What a browser reports before the server restates it. The telemetry ingress
+ * replaces it with the deployment's own name, so a span that reaches the trace
+ * store still carrying this one skipped the ingress.
+ */
+export const UNSTATED_ENVIRONMENT = 'unstated';
+
+/** Spans a health check plants to prove the trail can be followed. Not activity. */
+export const PROBE_ENVIRONMENT = 'health-probe';

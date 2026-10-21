@@ -24,13 +24,19 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # can run (`HOST_LIMITS` in apps/product/scripts/health.ts) skip elsewhere.
 #
 # On main, health:objectives checks each environment's service level objectives
-# (specs/health/*.openslo.yaml, `health:objectives` in @apps/product), such as
-# "at least 99 in every 100 of the team's checks find the app answering":
-# measured over the last 28 days of the health:<env> jobs above, read back
-# from the GitHub Actions API. Objectives never run inside
-# `health`, which gates every deploy: a bad month must not block a fix.
-# Branch Health runs verify current probes without attaching that historical
-# deficit to the fix's PR. Scheduled and manual main runs retain the objective.
+# (the `# live` files in specs/, `health:objectives` in @apps/product): that the
+# team's checks find the app answering, read back from the GitHub Actions API,
+# and that the requests people really make succeed and are answered quickly,
+# counted by the server's own metrics (Grafana Cloud's Prometheus API, opened
+# with the environment's read secrets). Each objective is judged over its last
+# 28 days and by its burn-rate alert policies; a policy that fires fails this
+# job with the owner, runbook and `bun obs` command in the log, which is how an
+# alert reaches people while no Grafana instance is active
+# (libs/observability-shared/README.md, "Service level objectives"). Objectives
+# never run inside `health`, which gates every deploy: a bad month must not
+# block a fix. Branch Health runs verify current probes without attaching that
+# historical deficit to the fix's PR. Scheduled and manual main runs retain the
+# objective.
 
 permissions:
   contents: read

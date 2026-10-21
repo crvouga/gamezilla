@@ -16,7 +16,7 @@ analytics vendor or persistent service is introduced. Framework API usage is in
 | Puzzles | Deterministic interaction mutations | Attempt/completion events without puzzle positions or raw player identifiers |
 | Billing | Reconciled payment evidence and durable subscription projections | Authoritative reconciliation/projection snapshot events; exact currency-separated settled cash/refund report |
 | Customer experience | Browser exceptions, navigation/interaction traces and performance HUD | Independent exception logs and final INP/LCP/CLS observations; restricted server-side browser ingestion |
-| Reliability | Transactional outbox, scheduled jobs, deterministic harness and existing OpenSLO approach | Export acknowledgement, retries, schema violation counters, pipeline heartbeat, declarative dashboards and four alert rules |
+| Reliability | Transactional outbox, scheduled jobs, deterministic harness and existing OpenSLO approach | Export acknowledgement, retries, schema violation counters, pipeline heartbeat, declarative dashboards, generated alert rules and objectives measured from the server's own metrics |
 | Infrastructure | Protected Grafana stack, OpenTofu, secret store and deploy gates | Three-signal credential scopes; stack-scoped management identity; per-environment dashboard folder and alerts |
 
 ## Contracts and reliable delivery
@@ -72,15 +72,11 @@ log bodies; product counts require `event_synthetic="false"` and deduplicate eve
 Long windows with many logical IDs can reach Loki query series limits; use bounded
 windows and authoritative reporting rather than interpreting a failed query as zero.
 
-Seven owner/severity/runbook-tagged alert rules cover a provisional 99% API availability
-fast burn (5-minute and 1-hour windows with a traffic floor), repeated reliable export
-failures, contract violations, a missing scheduled heartbeat, and the three in
-[alert runbooks](#alert-runbooks). Delivery destinations
+Every alert rule is generated, not typed: see
+[Service level objectives](#service-level-objectives). Delivery destinations
 inherit the stack's existing notification policy; no new contact channel is created.
-Additional business SLOs require owned objectives and compatible existing bindings.
-Each rule is one series per environment, so it raises one alert however many events
-cross its threshold. `sync_query_truncations_total` counts query snapshots clipped to
-their row limit (query name in the warning log, never row content); it has no alert.
+`sync_query_truncations_total` counts query snapshots clipped to their row limit
+(query name in the warning log, never row content); it has no alert.
 
 OpenTofu foundation manages per-environment writer/read policies, dashboard folders,
 service accounts and alerts. Workers receive ingestion credentials only. Browser exports persist redacted OTLP trace and log batches in the injected local object store before acknowledging the SDK. Delivery uses the injected offline-aware HTTP and timers, retries after outages and reopening, and keeps a complete batch on partial rejection. Pending batches expire after 30 days. Browser persistence is not a guarantee against a hard page termination before the local write finishes. Browser logs
@@ -95,9 +91,69 @@ reconciliation and dashboard structural checks run in existing package gates. Fu
 evidence; a source declaration does not prove that dashboards are deployed or backend
 queries accepted. Never use manual dashboard inspection as verification.
 
+## Service level objectives
+
+What people experience is promised in `specs/<context>/*.openslo.yaml`, in their
+words (`# live` files are measured against a deployment). This package binds each
+indicator to the instrument that counts it and derives everything else.
+
+| Objective | Indicator | Target, 28 days |
+| --- | --- | --- |
+| The app serves people | people's requests not failing (no 5xx) | 99.9% |
+| Changes are saved | server replays of queued writes not failed | 99.9% |
+| The app answers people quickly | people's requests within 0.5 s | 95% |
+| The app never leaves people waiting | people's requests within 2.5 s | 99% |
+| The app answers people | the team's hourly checks pass (GitHub Actions history) | 99% |
+
+"People's requests" are the route groups in `route-groups.ts` that people cause
+and wait on; the metrics carry `app.http.route_group`, derived from the route, so
+machine traffic (health probes, the synthetic population worker, telemetry
+uploads) never counts. A route no rule names counts as people's until a rule says
+otherwise, and `apps/server/tests/route-groups.test.ts` fails until it has one.
+Speed leaves out generated speech and text (`media`), which takes seconds by nature.
+
+**Alerts.** Each metric-backed objective gets the standard multi-window,
+multi-burn-rate policies, generated from its own target (`@pkgs/openslo-shared`,
+`alert-policy`): page at 14.4x over 1 h and 5 m, page at 6x over 6 h and 30 m,
+ticket at 1x over 3 d and 6 h. At a 28-day window they spend 2.1%, 5.4% and 10.7%
+of the budget (the workbook's 2, 5 and 10% are for 30 days). A policy fires when
+all its windows burn at least that fast and the longest window saw enough traffic
+to judge (`minimumEventsPerHour`). Every alert names its owner, runbook, objective
+and the exact `bun obs` command (`errors` or `slow`, `--source prod`).
+
+An alert reaches a person by two paths from the same policies:
+
+1. **Health job.** The hourly `health:objectives` job on `main` measures each
+   environment through `OBS_PROMETHEUS_URL`, `OBS_PROMETHEUS_USER` and the read
+   token `OBS_TEMPO_TOKEN`, judges the 28-day objective and every policy, and fails
+   with the owner, runbook, burn rate, remaining budget and command when one
+   fires. It needs no dashboard service. No data, an unreachable backend or missing
+   credentials fail it with the reason; they never pass.
+2. **Grafana.** While the instance is active, OpenTofu creates the rules in
+   `alert-rules.generated.json` (also the telemetry pipeline alerts) in
+   `libs/infra-shared/tofu/modules/observability-views`. The rule shows its
+   threshold, the budget that burn spends and the current burn rate; the exact
+   remaining budget is printed by the Health job.
+
+**Add an objective.** Write the `SLI` and `SLO` in a `# live` spec file (a `spec:`
+commit), add one entry to `INDICATORS` in `slo-indicators.ts`, add the file to the
+product binding (`apps/product/tests/openslo/`, `liveMetricBinding`), then run
+`bun run libs/observability-shared/scripts/slo-generate.ts` and commit the two
+generated files. Policies, rules, hourly evaluation and these checks follow:
+every live indicator is bound and every binding used; instruments, labels and
+values exist; a latency bound is a histogram bucket edge; rules carry owner,
+severity, runbook, command and select their environment; generated files equal
+their generator; every dashboard and alert expression selects only emitted series.
+
+Metric names are derived from the instrument contracts (`emitted-metrics.ts`,
+`prometheusSeries`), never typed. One caveat for operators: queries use
+`increase()` over cumulative counters, so a series' first export counts only from
+its second sample; compare a window's count with traces if a total looks low.
+
 ## Alert runbooks
 
-These counters carry `deployment_environment_name` on each point, because a
+These rules are pipeline alerts in `src/pipeline-alerts.ts`, generated with the
+rest. Their counters carry `deployment_environment_name` on each point, because a
 Worker isolate's resource information goes stale soon after the isolate ends.
 Inspect production read-only (`bun obs … --source prod`, `OBS_READONLY_DATABASE_URL`);
 never write to a production database by hand. Each alert clears on its own once

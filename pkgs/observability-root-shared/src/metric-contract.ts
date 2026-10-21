@@ -7,12 +7,27 @@ export const METRIC_DIMENSION_KEYS = [
   'app.outcome',
   'http.request.method',
   'app.http.status_class',
+  'app.http.route_group',
+  'app.mutation.outcome',
   'error.type',
   'game.mode',
   'app.room.module',
   'app.room.outcome',
   'web_vital.name',
 ] as const;
+
+/**
+ * Where the SDK cuts every histogram, in the instrument's own unit (seconds
+ * for durations). A latency objective can only count "at most X" when X is
+ * one of these, so the runtime and the objectives read the same list.
+ */
+export const HISTOGRAM_BOUNDARIES: readonly number[] = [
+  0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10,
+  25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000,
+];
+
+/** The most label combinations one instrument may produce. */
+export const SERIES_BUDGET = 256;
 
 export type MetricContract = {
   readonly name: string;
@@ -61,7 +76,7 @@ export function createMetric(contract: MetricContract) {
     (total, values) => total * values.length,
     1
   );
-  if (combinations < 1 || combinations > 256)
+  if (combinations < 1 || combinations > SERIES_BUDGET)
     throw new Error('Metric dimensions exceed the series budget');
   const meter = metrics.getMeter('@pkgs/observability');
   const instrument =

@@ -1,4 +1,5 @@
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
+import { PROBE_ENVIRONMENT } from '@pkgs/observability-root-shared/deployment-environment';
 import { parseLocalClock } from '@pkgs/observability-root-shared/local-clock';
 import { splitPlace } from '@pkgs/observability-root-shared/place';
 
@@ -82,7 +83,13 @@ function placeAttributes(
 function resourceSpan(input: ResourceSpanInput): unknown {
   const start = String(input.instantMs * 1_000_000);
   return {
-    resource: { attributes: [attribute(ATTR.SERVICE_NAME, input.service)] },
+    resource: {
+      attributes: [
+        attribute(ATTR.SERVICE_NAME, input.service),
+        // Planted next to real traces: say so, or the crash reads as an incident.
+        attribute(ATTR.DEPLOYMENT_ENVIRONMENT_NAME, PROBE_ENVIRONMENT),
+      ],
+    },
     scopeSpans: [
       {
         spans: [

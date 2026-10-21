@@ -38,7 +38,12 @@ export const ATTR = {
   HTTP_ROUTE: ATTR_HTTP_ROUTE,
   HTTP_RESPONSE_STATUS_CODE: ATTR_HTTP_RESPONSE_STATUS_CODE,
   APP_MUTATION_ID: 'app.mutation.id',
+  APP_MUTATION_NAME: 'app.mutation.name',
   APP_MUTATION_ORIGIN_TIME_MS: 'app.mutation.origin_time_ms',
+  APP_OUTBOX_ATTEMPT: 'app.outbox.attempt',
+  APP_OUTBOX_CONSUMER: 'app.outbox.consumer',
+  APP_OUTBOX_EVENT_ID: 'app.outbox.event_id',
+  APP_OUTBOX_EVENT_TYPE: 'app.outbox.event_type',
   APP_DEVICE_ID: 'app.device.id',
   APP_DEVICE_TIMEZONE: 'app.device.timezone',
   APP_CLIENT_CITY: 'app.client.city',
@@ -95,7 +100,12 @@ export type AttrValue = {
   'http.route': string;
   'http.response.status_code': number;
   'app.mutation.id': string;
+  'app.mutation.name': string;
   'app.mutation.origin_time_ms': number;
+  'app.outbox.attempt': number;
+  'app.outbox.consumer': string;
+  'app.outbox.event_id': string;
+  'app.outbox.event_type': string;
   'app.device.id': string;
   'app.device.timezone': string;
   'app.client.city': string;

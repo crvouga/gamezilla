@@ -18,7 +18,9 @@ import {
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { installStructuredLogBridge } from '@pkgs/observability-root-shared/log';
 import {
+  HISTOGRAM_BOUNDARIES,
   METRIC_DIMENSION_KEYS,
+  SERIES_BUDGET,
   setMetricEnvironment,
 } from '@pkgs/observability-root-shared/metric-contract';
 import { FlushLogProcessor } from './flush-log-processor';
@@ -92,7 +94,7 @@ function createMeter(
         ],
         views: Object.values(InstrumentType).map((instrumentType) => ({
           instrumentType,
-          aggregationCardinalityLimit: 256,
+          aggregationCardinalityLimit: SERIES_BUDGET,
           attributesProcessors: [
             createAllowListAttributesProcessor([...METRIC_DIMENSION_KEYS]),
           ],
@@ -101,11 +103,7 @@ function createMeter(
                 aggregation: {
                   type: AggregationType.EXPLICIT_BUCKET_HISTOGRAM,
                   options: {
-                    boundaries: [
-                      0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75,
-                      1, 2.5, 5, 7.5, 10, 25, 50, 75, 100, 250, 500, 750, 1000,
-                      2500, 5000, 7500, 10000,
-                    ],
+                    boundaries: [...HISTOGRAM_BOUNDARIES],
                   },
                 },
               }

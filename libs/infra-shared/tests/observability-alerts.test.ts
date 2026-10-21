@@ -1,18 +1,14 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { evaluate } from '@libs/infra-shared/hcl-eval';
-import { parseConfig } from '@libs/infra-shared/hcl-parse';
-import type { Value } from '@libs/infra-shared/hcl-value';
-import { sourceFiles } from '@libs/infra-shared/infra-source';
 
-type Alert = {
-  readonly name: string;
+type Rule = {
+  readonly key: string;
   readonly expr: string;
   readonly owner: string;
   readonly severity: string;
   readonly summary: string;
-  readonly runbook: string;
+  readonly runbook_url: string;
 };
 
 const MODULE = join(import.meta.dirname, '../tofu/modules/observability-views');
@@ -22,18 +18,18 @@ const README = join(
 );
 
 /** The module's alert rules as OpenTofu renders them for one environment. */
-function renderedAlerts(environment: string): Record<string, Alert> {
-  const body = parseConfig(readFileSync(join(MODULE, 'alerts.tf'), 'utf8'));
-  const block = body.blocks.find((b) => b.type === 'locals');
-  if (block === undefined) throw new Error('alerts.tf declares no locals');
-  const local: Record<string, Value> = {};
-  for (const [name, expr] of block.body.attributes) {
-    local[name] = evaluate(expr, {
-      names: { var: { environment }, local },
-      files: sourceFiles(new Map()),
-    });
-  }
-  return local['alert_queries'] as unknown as Record<string, Alert>;
+function renderedAlerts(environment: string): Record<string, Rule> {
+  const artifact = JSON.parse(
+    readFileSync(join(MODULE, 'alert-rules.generated.json'), 'utf8')
+  ) as { groups: { rules: Rule[] }[] };
+  return Object.fromEntries(
+    artifact.groups
+      .flatMap((group) => group.rules)
+      .map((rule) => [
+        rule.key,
+        { ...rule, expr: rule.expr.replaceAll('__ENVIRONMENT__', environment) },
+      ])
+  );
 }
 
 /** GitHub's heading anchors: lower case, punctuation dropped, spaces to dashes. */
@@ -55,7 +51,7 @@ test('every alert names its owner, severity and a runbook section that exists', 
     expect(alert.owner.length).toBeGreaterThan(0);
     expect(['warning', 'critical']).toContain(alert.severity);
     expect(alert.summary.length).toBeGreaterThan(0);
-    const [page, anchor] = alert.runbook.split('#');
+    const [page, anchor] = alert.runbook_url.split('#');
     expect(page).toStartWith('https://github.com/crvouga/gamezilla/blob/main/');
     if (page?.endsWith('libs/observability-shared/README.md'))
       expect(sections).toContain(anchor ?? '');
@@ -65,14 +61,14 @@ test('every alert names its owner, severity and a runbook section that exists', 
 test('parked deliveries, a failing drain and refused billing callbacks each raise one alert per environment', () => {
   const alerts = renderedAlerts('example');
   const expectations = {
-    outbox_exhausted: ['outbox_deliveries_exhausted_total', '[1h]', '> 0'],
-    outbox_drain_failing: [
+    'outbox-exhausted': ['outbox_deliveries_exhausted_total', '[1h]', '> 0'],
+    'outbox-drain-failing': [
       'outbox_drain_runs_total',
       'app_outcome="failure"',
       '[15m]',
       '>= 3',
     ],
-    billing_callbacks_refused: [
+    'billing-callbacks-refused': [
       'billing_callbacks_total',
       'app_outcome=~"unverified|failed"',
       '[1h]',
