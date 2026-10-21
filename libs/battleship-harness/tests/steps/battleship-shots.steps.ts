@@ -222,7 +222,7 @@ Then(
   }
 );
 Then(
-  "{actor}'s own board does not show {actor}'s shot at {word} until the connection comes back",
+  "{actor}'s own board does not show {actor}'s shot at {word}",
   async (w, actor: string, _shooter: string, cell: string) => {
     const at = cellNamed(cell);
     // The shot reaches every connected device well within this wait.
