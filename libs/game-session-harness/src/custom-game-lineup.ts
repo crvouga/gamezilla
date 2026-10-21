@@ -34,6 +34,8 @@ export type CustomGameLineup = {
   readonly active?: boolean;
   /** Moves played from the start, alternating sides. */
   readonly moves?: readonly string[];
+  /** A side's private setup other than the game's known one, for a game with private setups. */
+  readonly setups?: Partial<Record<CustomGameSide, string>>;
 };
 
 const SIDES: readonly CustomGameSide[] = ['white', 'black'];
@@ -155,6 +157,22 @@ export const returnToCustomGames = scenarioAction({
   },
 });
 
+/** Every person seated agrees, each with the setup the lineup names, if any. */
+async function readyEveryPerson(
+  s: ProductHarness,
+  seats: Record<CustomGameSide, CustomGameSeat>,
+  lineup: CustomGameLineup
+): Promise<void> {
+  for (const side of SIDES) {
+    if (!isPerson(seats[side])) continue;
+    const setup = lineup.setups?.[side];
+    await configureCustomGame(s, seats[side], {
+      operation: 'ready',
+      ...(setup === undefined ? {} : { setup }),
+    });
+  }
+}
+
 /** Preconditions use ordinary space and game choices, never inject a board or a winner. */
 export const establishCustomGame = scenarioAction({
   name: 'establishCustomGame',
@@ -193,10 +211,7 @@ export const establishCustomGame = scenarioAction({
         ...lineup.clock,
       });
     // Changing either side withdraws all readiness, so agree to the final lineup.
-    if (lineup.ready !== false)
-      for (const side of SIDES)
-        if (isPerson(seats[side]))
-          await configureCustomGame(s, seats[side], { operation: 'ready' });
+    if (lineup.ready !== false) await readyEveryPerson(s, seats, lineup);
     if (lineup.active !== false)
       await configureCustomGame(s, host, { operation: 'start' });
     await playCustomGameMoves(s, host, seats, lineup.moves ?? []);
