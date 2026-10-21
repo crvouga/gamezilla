@@ -8,6 +8,7 @@ import type { FriendshipStatus } from '@libs/friends-shared/friends-types';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds-shared/sound-id';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type { Accessor, JSX } from 'solid-js';
 import {
   ConfirmDeletePills,
@@ -137,7 +138,7 @@ function renderNone(
   const { t } = useLingui();
   const sendFailureLabel = useSendFailureLabel();
   return (
-    <div class="box gap-1">
+    <StackVertical gap="xs">
       <SingleActionPill
         operation={wrap(mutations.addFriend)}
         idle={<Trans>Add Friend</Trans>}
@@ -152,7 +153,7 @@ function renderNone(
           ? { testID: Handles.friendAdd(username) }
           : {})}
       />
-    </div>
+    </StackVertical>
   );
 }
 

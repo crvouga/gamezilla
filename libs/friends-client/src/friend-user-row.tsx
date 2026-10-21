@@ -3,7 +3,9 @@ import { useModeration } from '@libs/moderation-client/moderation-context';
 import { usernameLabel, usernameText } from '@libs/moderation-shared/display';
 import type { AppModeration } from '@libs/moderation-shared/policy';
 import { Handles } from '@libs/test-ids-shared/handles';
-import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
+import { Pressable } from '@pkgs/ui-root-client/pressable';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
@@ -36,11 +38,11 @@ function FriendUserRowIdentity(props: {
   return (
     <>
       <FriendProfileAvatar profile={props.profile} size={44} />
-      <div class="box flex-1 min-w-0 gap-0.5">
-        <p class="text textBodyBold line-clamp-1">
+      <StackVertical grow>
+        <P variant="bodyBold" lines={1}>
           {profileLabel(moderation(), props.profile)}
-        </p>
-      </div>
+        </P>
+      </StackVertical>
     </>
   );
 }
@@ -56,42 +58,45 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
       : props.pressTestID
   );
 
-  const rowAttrs = () => {
-    const id = rowTestID();
-    return id !== undefined ? dataAttrs({ testid: id }) : {};
-  };
-
   const trailing = () => (
     <Show when={props.trailing !== undefined}>
-      <div class="box shrink-0">{props.trailing}</div>
+      <StackVertical>{props.trailing}</StackVertical>
     </Show>
   );
 
   return (
     <Show
-      when={props.onPress !== undefined}
+      when={props.onPress}
       fallback={
-        <div
-          class="box flex-row items-center gap-2 py-2 min-w-0 self-stretch"
-          {...rowAttrs()}
+        <StackHorizontal
+          align="center"
+          gap="sm"
+          paddingY="sm"
+          self="stretch"
+          testId={rowTestID()}
         >
           <FriendUserRowIdentity profile={props.profile} />
           {trailing()}
-        </div>
+        </StackHorizontal>
       }
     >
-      <div class="box flex-row items-center gap-2 py-2 min-w-0 self-stretch">
-        {/* The handle marks what a person presses, so a driver's tap lands. */}
-        <button
-          class="clickable clickableTint box flex-1 flex-row items-center gap-2 min-w-0"
-          type="button"
-          onClick={() => props.onPress?.()}
-          {...rowAttrs()}
-        >
-          <FriendUserRowIdentity profile={props.profile} />
-        </button>
-        {trailing()}
-      </div>
+      {(onPress) => (
+        <StackHorizontal align="center" gap="sm" paddingY="sm" self="stretch">
+          {/* The handle marks what a person presses, so a driver's tap lands. */}
+          <Pressable
+            onPress={() => onPress()()}
+            direction="horizontal"
+            align="center"
+            gap="sm"
+            grow
+            radius="control"
+            testId={rowTestID()}
+          >
+            <FriendUserRowIdentity profile={props.profile} />
+          </Pressable>
+          {trailing()}
+        </StackHorizontal>
+      )}
     </Show>
   );
 }

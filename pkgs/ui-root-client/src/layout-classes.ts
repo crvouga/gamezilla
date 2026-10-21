@@ -64,6 +64,7 @@ const MIN_HEIGHT: Readonly<Record<MinHeight, string>> = {
   none: 'min-h-0',
   control: 'min-h-ui-control-md',
   row: 'min-h-ui-control-lg',
+  state: 'min-h-50',
   screen: 'min-h-dvh',
 };
 
@@ -80,7 +81,6 @@ const SURFACE: Readonly<Record<SurfaceTone, string>> = {
   background: 'bg-background',
   surface: 'bg-surface',
   muted: 'bg-surface-muted',
-  sunken: 'bg-surface-sunken',
   elevated: 'bg-surface-elevated',
   overlay: 'bg-surface-overlay',
   'tint-subtle': 'bg-tint-subtle',

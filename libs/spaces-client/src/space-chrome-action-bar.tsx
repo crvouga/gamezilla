@@ -16,6 +16,7 @@ import {
   SquarePenIcon,
   XIcon,
 } from '@pkgs/ui-root-client/icons';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal } from 'solid-js';
 import { useSpaceMembersDialog } from './space-members-dialog-context';
@@ -51,7 +52,6 @@ function buildLeadingItems(args: {
     {
       id: 'home',
       label: close,
-      shortLabel: close,
       icon: DoorOpenIcon,
       onClick: callbacks.onPressHome,
       overflow: 'never',
@@ -65,7 +65,6 @@ function buildLeadingItems(args: {
     items.push({
       id: 'back',
       label: back,
-      shortLabel: back,
       icon: ChevronLeftIcon,
       onClick: callbacks.onPressBack,
       overflow: 'never',
@@ -84,7 +83,6 @@ function leaveItem(
   return {
     id: 'leave-space',
     label: leave,
-    shortLabel: leave,
     icon: LogOutIcon,
     onClick: callbacks.onPressLeave,
     overflow,
@@ -109,7 +107,6 @@ function exitItems(args: {
     {
       id: 'end-space',
       label: args.end,
-      shortLabel: args.end,
       icon: XIcon,
       onClick: args.callbacks.onPressEnd,
       overflow: 'never',
@@ -127,7 +124,6 @@ function buildTrailingItems(args: {
   avatarSize: number;
   labels: {
     members: JSX.Element;
-    membersShort: JSX.Element;
     invite: JSX.Element;
     rename: JSX.Element;
     end: JSX.Element;
@@ -142,21 +138,19 @@ function buildTrailingItems(args: {
       id: 'members',
       variant: 'avatar',
       label: labels.members,
-      shortLabel: labels.membersShort,
       onClick: callbacks.onPressMembers,
       overflow: 'never',
       priority: 90,
       dataSet: { testid: Handles.spaceMembersButton },
       children: (
-        <div data-testid={Handles.spacePresenceStrip}>
+        <StackHorizontal align="center" testId={Handles.spacePresenceStrip}>
           <SpacePresenceStrip spaceId={spaceId} size={avatarSize} />
-        </div>
+        </StackHorizontal>
       ),
     },
     {
       id: 'share',
       label: labels.invite,
-      shortLabel: labels.invite,
       icon: ShareIcon,
       onClick: callbacks.onPressShare,
       overflow: 'always',
@@ -169,7 +163,6 @@ function buildTrailingItems(args: {
     items.push({
       id: 'rename',
       label: labels.rename,
-      shortLabel: labels.rename,
       icon: SquarePenIcon,
       onClick: callbacks.onPressRename,
       overflow: 'always',
@@ -211,8 +204,6 @@ export function SpaceChromeLeadingActionBar(): JSX.Element {
       overflow="never"
       buttonSize={chrome().buttonSize}
       gap={chrome().gap}
-      slotWidth={chrome().slotWidth}
-      showInlineLabels={chrome().showInlineLabels}
     />
   );
 }
@@ -262,7 +253,6 @@ export function SpaceChromeTrailingActionBar(): JSX.Element {
       avatarSize: avatarSize(),
       labels: {
         members: <Trans>People in this space</Trans>,
-        membersShort: <Trans>People</Trans>,
         invite: <Trans>Share</Trans>,
         rename: <Trans>Rename</Trans>,
         end: <Trans>End space</Trans>,
@@ -278,8 +268,6 @@ export function SpaceChromeTrailingActionBar(): JSX.Element {
         items={items()}
         buttonSize={chrome().buttonSize}
         gap={chrome().gap}
-        slotWidth={chrome().slotWidth}
-        showInlineLabels={chrome().showInlineLabels}
         overflowDataSet={{ testid: Handles.spaceChromeOverflow }}
       />
       <SpaceMembersListModal

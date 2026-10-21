@@ -6,6 +6,9 @@
  * Unknown ids render an {@link EmptyState} "Component not found" body. Pass
  * `onNavigate(id)` or `hrefFor(id)` to enable prev / next across the entry
  * list; pass `listHref` / `onBack` so the "Components" breadcrumb can go back.
+ * Pass `embedded` inside a host that already draws the top bar: the example
+ * renders as an {@link EmbeddedScreen} titled with the entry, prev / next in
+ * its own pinned bar.
  */
 
 import { useLingui } from '@lingui/solid/macro';
@@ -22,6 +25,7 @@ import {
   registryEntries,
   toCatalogItems,
 } from './component-registry';
+import { EmbeddedScreen } from './embedded-screen';
 import { EmptyState } from './empty-state';
 import { ScreenBase } from './screen-base';
 import type { ScreenBaseBreadcrumb } from './screen-base-types';
@@ -43,6 +47,12 @@ export type ExplorerDetailProps = {
   listTitle?: JSX.Element | undefined;
   /** `data-screen` identifier. Defaults to `ui-explorer-detail`. */
   screenId?: string | undefined;
+  /**
+   * The host already owns the top bar and back (a space, a tab shell):
+   * render as an {@link EmbeddedScreen} with no bar of its own. The
+   * breadcrumb props are ignored.
+   */
+  embedded?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -92,38 +102,54 @@ export function ExplorerDetail(props: ExplorerDetailProps): JSX.Element {
     },
     { name: entry()?.title ?? props.componentId },
   ];
-  return (
-    <ScreenBase
-      screenId={props.screenId ?? 'ui-explorer-detail'}
-      breadcrumbs={breadcrumbs()}
-      dataSet={{ component: 'ExplorerDetail', ...props.dataSet }}
-      content={() => (
-        <Show
-          when={entry()}
-          fallback={<NotFound componentId={props.componentId} />}
+  const example = (onNavigate?: (id: string) => void): JSX.Element => (
+    <Show
+      when={entry()}
+      fallback={<NotFound componentId={props.componentId} />}
+    >
+      {(found) => (
+        <CatalogDetail
+          items={items()}
+          currentId={props.componentId}
+          screenBodyBleed
+          onNavigate={onNavigate}
         >
-          {(found) => (
-            <CatalogDetail
-              items={items()}
-              currentId={props.componentId}
-              screenBodyBleed
-            >
-              <Dynamic component={found().Example} />
-            </CatalogDetail>
-          )}
-        </Show>
+          <Dynamic component={found().Example} />
+        </CatalogDetail>
       )}
-      footer={
-        navigate === undefined ? undefined : (
-          <Show when={entry() !== undefined}>
-            <CatalogDetailNav
-              items={items()}
-              currentId={props.componentId}
-              onNavigate={navigate}
-            />
-          </Show>
-        )
+    </Show>
+  );
+  return (
+    <Show
+      when={props.embedded === true}
+      fallback={
+        <ScreenBase
+          screenId={props.screenId ?? 'ui-explorer-detail'}
+          breadcrumbs={breadcrumbs()}
+          dataSet={{ component: 'ExplorerDetail', ...props.dataSet }}
+          content={() => example()}
+          footer={
+            navigate === undefined ? undefined : (
+              <Show when={entry() !== undefined}>
+                <CatalogDetailNav
+                  items={items()}
+                  currentId={props.componentId}
+                  onNavigate={navigate}
+                />
+              </Show>
+            )
+          }
+        />
       }
-    />
+    >
+      <EmbeddedScreen
+        fill
+        screenId={props.screenId ?? 'ui-explorer-detail'}
+        title={entry()?.title ?? props.componentId}
+        dataSet={{ component: 'ExplorerDetail', ...props.dataSet }}
+      >
+        {example(navigate)}
+      </EmbeddedScreen>
+    </Show>
   );
 }

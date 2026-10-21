@@ -64,7 +64,6 @@
     "lint": "bun run libs/tools/scripts/turbo-ci-run.ts lint @libs/tools#verify:root-lint",
     "lint:naming": "turbo run //#task:lint:naming --",
     "lint:root": "bun run libs/tools/scripts/turbo-ci-run.ts @libs/tools#verify:root-lint",
-    "migrate-to-tailwind": "turbo run @pkgs/ui-root-client#codemod --only -- --write",
     "naming:fix": "turbo run //#task:naming:fix --",
     "obs": "bun run libs/secrets-server/scripts/obs.ts",
     "own": "bun run libs/tools/scripts/owned-command.ts",

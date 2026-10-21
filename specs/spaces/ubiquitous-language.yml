@@ -126,6 +126,21 @@ terms:
     model: [returnToSpace]
     published: true
 
+  - term: a space that no longer exists
+    definition: >-
+      A space that is gone although a person's lobby still lists it.
+      Returning to it says it can't be reached right now.
+    forms: [no longer exists, missing space]
+    model: [spaceNoLongerExists]
+    published: true
+
+  - term: try again
+    definition: >-
+      Ask once more for what the app could not do a moment ago, such as
+      reaching a space.
+    forms: [tries again, tried again, trying again]
+    model: [tryAgain]
+
   - term: step out
     definition: >-
       Go from a space back to the lobby without leaving it. The space stays

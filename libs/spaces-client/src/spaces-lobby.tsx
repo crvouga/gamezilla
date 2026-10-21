@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/solid/macro';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { Gamepad2Icon } from '@pkgs/ui-root-client/icons';
+import { List } from '@pkgs/ui-root-client/list';
 import { ScreenBodyScrollView } from '@pkgs/ui-root-client/screen-body-scroll-view';
 import type { JSX } from 'solid-js';
 import { createMemo, For, Show } from 'solid-js';
@@ -55,20 +56,17 @@ export function SpacesLobby(props: {
   );
 
   return (
-    <SpacesLobbyContent
-      class="box flex-1 min-h-0 gap-3"
-      listLoading={joinable.isLoading()}
-    >
+    <SpacesLobbyContent listLoading={joinable.isLoading()}>
       <Show
         when={orderedIds().length > 0}
         fallback={<SpacesEmptyState onCreateSpace={props.onCreateSpace} />}
       >
-        <ScreenBodyScrollView contentClass="pb-6">
-          <div class="panel">
+        <ScreenBodyScrollView paddingBottom="xl">
+          <List>
             <For each={orderedIds()}>
               {(spaceId) => <SpaceCard spaceId={spaceId} />}
             </For>
-          </div>
+          </List>
         </ScreenBodyScrollView>
       </Show>
     </SpacesLobbyContent>

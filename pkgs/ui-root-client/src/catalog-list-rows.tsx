@@ -1,6 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
- * Category-grouped rows for {@link CatalogList}.
+ * Category-grouped rows for {@link CatalogList}: the settings idiom, one
+ * {@link MenuSection} (caption title, hairline panel) of {@link MenuRow}s
+ * per category.
  */
 
 import { useLingui } from '@lingui/solid/macro';
@@ -8,6 +10,8 @@ import type { CatalogItem } from '@pkgs/ui-root-shared/catalog-item';
 import { groupCatalogItems } from '@pkgs/ui-root-shared/catalog-item';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 import { EmptyState } from './empty-state';
+import { MenuRow } from './menu-row';
+import { MenuSection } from './menu-section';
 
 export type CatalogListRowsProps = {
   items: readonly CatalogItem[];
@@ -47,37 +51,12 @@ function CatalogGroupBlock(props: {
   onSelect: (id: string) => void;
 }): JSX.Element {
   return (
-    <section class="box gap-1 mb-4">
-      <Show when={props.category !== null}>
-        <h3 class="text textLabel text-text-secondary">{props.category}</h3>
-      </Show>
-      <ul class="box gap-1">
-        <For each={props.items}>
-          {(item) => (
-            <li class="box">
-              <CatalogRow item={item} onSelect={props.onSelect} />
-            </li>
-          )}
-        </For>
-      </ul>
-    </section>
-  );
-}
-
-function CatalogRow(props: {
-  item: CatalogItem;
-  onSelect: (id: string) => void;
-}): JSX.Element {
-  return (
-    <button
-      class="clickable clickableTint py-3 px-4 min-h-11 bg-surface rounded-control flex-row justify-between items-center text-left"
-      type="button"
-      onClick={() => props.onSelect(props.item.id)}
-    >
-      <p class="text">{props.item.label}</p>
-      <p class="text textCaption" aria-hidden="true">
-        {'›'}
-      </p>
-    </button>
+    <MenuSection title={props.category ?? undefined}>
+      <For each={props.items}>
+        {(item) => (
+          <MenuRow title={item.label} onClick={() => props.onSelect(item.id)} />
+        )}
+      </For>
+    </MenuSection>
   );
 }

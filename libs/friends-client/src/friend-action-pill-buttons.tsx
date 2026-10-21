@@ -4,6 +4,7 @@ import type { SoundId } from '@pkgs/sounds-shared/sound-id';
 import { Sounds } from '@pkgs/sounds-shared/sound-id';
 import { Button } from '@pkgs/ui-root-client/button';
 import type { MutationStateTransition } from '@pkgs/ui-root-client/mutation-lifecycle';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import type { JSX } from 'solid-js';
 
@@ -50,8 +51,8 @@ export function ConfirmDeletePills(props: {
     successHoldMs: 0,
   });
   return (
-    <div class="box flex-row gap-2 self-stretch">
-      <div class="box flex-1">
+    <StackHorizontal gap="sm" self="stretch">
+      <StackVertical grow>
         <Button
           variant="solid"
           {...confirm.buttonProps}
@@ -59,8 +60,8 @@ export function ConfirmDeletePills(props: {
             ? { dataSet: { testid: props.confirmTestID } }
             : {})}
         />
-      </div>
-      <div class="box flex-1">
+      </StackVertical>
+      <StackVertical grow>
         <Button
           variant="outline"
           {...del.buttonProps}
@@ -68,8 +69,8 @@ export function ConfirmDeletePills(props: {
             ? { dataSet: { testid: props.deleteTestID } }
             : {})}
         />
-      </div>
-    </div>
+      </StackVertical>
+    </StackHorizontal>
   );
 }
 

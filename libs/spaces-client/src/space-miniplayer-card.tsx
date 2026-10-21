@@ -1,22 +1,18 @@
 import { Handles } from '@libs/test-ids-shared/handles';
+import { MiniPlayerBar } from '@pkgs/ui-root-client/mini-player';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 import type { RequestEndSpaceOptions } from './end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from './leave-space-modal-provider';
-import { MiniplayerHostNameLine } from './miniplayer-host-name-line';
 import { MiniplayerLiveBadge } from './miniplayer-live-badge';
-import { MiniplayerMemberCountText } from './miniplayer-member-count-text';
 import { MiniplayerOpenSpacePressable } from './miniplayer-open-space-pressable';
-import { MiniplayerSpaceTitle } from './miniplayer-space-title';
-import { SpaceCardSurface } from './space-card-surface';
+import { MiniplayerSpaceSummary } from './miniplayer-space-summary';
 import { SpaceEndOrLeaveButton } from './space-end-or-leave-button';
-import { SpaceHostAvatar } from './space-host-avatar';
 import { SpaceField, useSpaceColumn } from './use-space-column';
 
 export type SpaceMiniplayerCardProps = {
   spaceId: string;
-  /** Corner radius — `0` for the compact full-bleed strip, card radius on wide. */
-  borderRadius: number;
   requestEndSpace: (spaceId: string, options?: RequestEndSpaceOptions) => void;
   requestLeaveSpace: (
     spaceId: string,
@@ -36,32 +32,19 @@ export function SpaceMiniplayerCard(
   });
   return (
     <Show when={live()}>
-      <SpaceCardSurface
-        dataSet={{ testid: Handles.spaceMiniplayer }}
-        class="overflow-hidden flex-row items-center gap-2 min-h-18"
-        style={{ 'border-radius': `${props.borderRadius}px` }}
-      >
-        <MiniplayerOpenSpacePressable spaceId={props.spaceId}>
-          <div class="box p-3 flex-row items-center gap-3 flex-1 min-w-0 self-stretch">
-            <SpaceHostAvatar spaceId={props.spaceId} size={40} vividBackdrop />
-            <div class="box flex-1 min-w-0 gap-0.5">
-              <MiniplayerSpaceTitle spaceId={props.spaceId} />
-              <div class="box flex-row items-center gap-1.5 min-w-0">
-                <MiniplayerHostNameLine spaceId={props.spaceId} />
-                <MiniplayerMemberCountText spaceId={props.spaceId} />
-              </div>
-            </div>
-          </div>
+      <MiniPlayerBar testId={Handles.spaceMiniplayer}>
+        <MiniplayerOpenSpacePressable spaceId={props.spaceId} paddingStart="md">
+          <MiniplayerSpaceSummary spaceId={props.spaceId} />
           <MiniplayerLiveBadge />
         </MiniplayerOpenSpacePressable>
-        <div class="box pr-3">
+        <StackVertical paddingEnd="md">
           <SpaceEndOrLeaveButton
             spaceId={props.spaceId}
             requestEndSpace={props.requestEndSpace}
             requestLeaveSpace={props.requestLeaveSpace}
           />
-        </div>
-      </SpaceCardSurface>
+        </StackVertical>
+      </MiniPlayerBar>
     </Show>
   );
 }

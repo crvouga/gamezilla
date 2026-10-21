@@ -1,13 +1,17 @@
 /** @jsxImportSource solid-js */
 /**
  * `Checkbox` -- checked / unchecked / indeterminate control.
+ *
+ * A 20px box with the small radius and an outline border (`skin.css`
+ * `.checkboxBox`); checked or mixed is the blue fill with an on-primary
+ * check or dash. The whole row (box and label) is the hit area, at least
+ * 44px tall, with the hover tint, the keyboard focus ring and the disabled
+ * opacity.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { colorVar } from '@pkgs/ui-root-shared/css-vars';
 import { type JSX, Show } from 'solid-js';
-import { useThemeTokens } from './theme-context';
 
 export type CheckboxProps = {
   checked: boolean;
@@ -22,72 +26,53 @@ export type CheckboxProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-const BOX_SIZE = 20;
+function CheckboxGlyph(props: { indeterminate: boolean }): JSX.Element {
+  return (
+    <svg class="size-4" viewBox="0 0 16 16" aria-hidden="true">
+      <Show
+        when={!props.indeterminate}
+        fallback={
+          <rect x="3" y="7" width="10" height="2" rx="1" fill="currentColor" />
+        }
+      >
+        <path
+          d="M3.5 8.5 L6.5 11.5 L12.5 4.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </Show>
+    </svg>
+  );
+}
 
 export function Checkbox(props: CheckboxProps): JSX.Element {
-  const tokens = useThemeTokens();
   const indeterminate = () => props.indeterminate ?? false;
   const filled = () => props.checked || indeterminate();
   return (
     <button
-      class="clickable clickableTint rounded-xs flex-row items-center gap-2 min-h-11"
+      class="clickable clickableTint rounded-sm flex-row items-center gap-3 min-h-11"
+      classList={{ 'opacity-disabled': props.disabled === true }}
       {...dataAttrs({ component: 'Checkbox', ...props.dataSet })}
       type="button"
-      style={{ opacity: props.disabled ? 0.5 : 1 }}
       role="checkbox"
       aria-checked={indeterminate() ? 'mixed' : props.checked}
       aria-label={props['aria-label']}
       disabled={props.disabled}
       onClick={() => props.onToggle(indeterminate() ? true : !props.checked)}
     >
-      <div
-        class="box rounded-xs border-solid items-center justify-center"
-        style={{
-          width: `${BOX_SIZE}px`,
-          height: `${BOX_SIZE}px`,
-          'border-width': '1.5px',
-          'border-color': filled()
-            ? colorVar('tintActive')
-            : colorVar('outline'),
-          'background-color': filled()
-            ? colorVar('tintActive')
-            : colorVar('surface'),
-        }}
+      <span
+        class="checkboxBox flex size-5 shrink-0 rounded-sm items-center justify-center"
+        data-filled={filled() ? 'true' : 'false'}
       >
         <Show when={filled()}>
-          <svg
-            width={BOX_SIZE - 4}
-            height={BOX_SIZE - 4}
-            viewBox="0 0 16 16"
-            aria-hidden="true"
-          >
-            <Show
-              when={!indeterminate()}
-              fallback={
-                <rect
-                  x="3"
-                  y="7"
-                  width="10"
-                  height="2"
-                  rx="1"
-                  fill={tokens.colors.onPrimary}
-                />
-              }
-            >
-              <path
-                d="M3.5 8.5 L6.5 11.5 L12.5 4.5"
-                fill="none"
-                stroke={tokens.colors.onPrimary}
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </Show>
-          </svg>
+          <CheckboxGlyph indeterminate={indeterminate()} />
         </Show>
-      </div>
+      </span>
       <Show when={props.label !== undefined}>
-        <p class="text text-text">{props.label}</p>
+        <p class="text textBody">{props.label}</p>
       </Show>
     </button>
   );

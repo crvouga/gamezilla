@@ -77,7 +77,7 @@ export function useGameRecords(gameId: () => string) {
     ] satisfies readonly GameHistoryRecord[];
   });
   const statistics = createMemo(() => countResults(records(), myId()));
-  return { records, statistics };
+  return { records, statistics, isLoading: matches.isLoading };
 }
 
 /** The space's finished custom games of the game, each with the viewer's own setup. */

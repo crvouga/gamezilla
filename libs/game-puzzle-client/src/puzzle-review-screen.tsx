@@ -13,6 +13,7 @@ import {
 import { Trans } from '@lingui/solid/macro';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { GameReviewScreen } from '@pkgs/ui-root-client/game-review-screen';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import { useReviewPuzzleEntity } from './puzzle-play-queries';
 import { PuzzleReviewBoard } from './puzzle-review-board';
@@ -56,6 +57,8 @@ function findLogEntry(
 export function PuzzleReviewBody(props: {
   puzzleId: string;
   cursor: PuzzleReviewCursor;
+  /** The host already scrolls and pads the page (the personal stats route). */
+  nested?: boolean;
 }): JSX.Element {
   const entity = useReviewPuzzleEntity(() => props.puzzleId);
   const history = usePuzzleHistory();
@@ -67,6 +70,7 @@ export function PuzzleReviewBody(props: {
   return (
     <GameReviewScreen
       screenId="chess-stats-review"
+      nested={props.nested}
       title={<ReviewTitle entry={entry()} />}
       subtitle={
         entity.rating > 0 ? (
@@ -116,7 +120,7 @@ export function PuzzleReviewScreen(): JSX.Element {
   };
 
   return (
-    <div class="box flex-1 min-h-0 min-w-0 self-stretch overflow-hidden">
+    <StackVertical grow self="stretch" overflow="hidden">
       <DefineBackButton onPress={backToStats} />
       <Show
         when={puzzleId() !== null}
@@ -129,6 +133,6 @@ export function PuzzleReviewScreen(): JSX.Element {
       >
         <PuzzleReviewBody puzzleId={puzzleId()!} cursor={cursor} />
       </Show>
-    </div>
+    </StackVertical>
   );
 }

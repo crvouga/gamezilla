@@ -9,6 +9,8 @@ import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { Button } from '@pkgs/ui-root-client/button';
 import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { createSignal, type JSX, Show } from 'solid-js';
 import {
@@ -87,28 +89,28 @@ function ExportStatus(props: {
   return (
     <>
       <Show when={props.phase === 'preparing'}>
-        <p class="text textBody" data-testid="privacy-export-preparing">
+        <P testId="privacy-export-preparing">
           <Trans>
             Your personal-data export is being prepared. It will be ready within
             24 hours of asking.
           </Trans>
-        </p>
-        <p class="text textBody" data-testid="privacy-export-deadline">
+        </P>
+        <P tone="secondary" testId="privacy-export-deadline">
           {t`Ready by ${readyBy()}`}
-        </p>
+        </P>
       </Show>
       <Show when={props.phase === 'overdue'}>
-        <p class="text textBody" data-testid="privacy-export-overdue">
+        <P tone="destructive" testId="privacy-export-overdue">
           {t`Your export is late: it was due by ${readyBy()}. You can ask again, which starts a new export.`}
-        </p>
+        </P>
       </Show>
       <Show when={props.row?.export_status === 'ExportFailed'}>
-        <p class="text textBody" data-testid="privacy-export-failed">
+        <P tone="destructive" testId="privacy-export-failed">
           <Trans>
             The export failed. You can ask again. No incomplete export is
             available.
           </Trans>
-        </p>
+        </P>
       </Show>
     </>
   );
@@ -138,7 +140,7 @@ export function ExportChoice(props: {
     },
   });
   return (
-    <div class="box gap-3">
+    <StackVertical gap="md">
       <Show
         when={phase() === 'readyToReplace'}
         fallback={
@@ -175,6 +177,6 @@ export function ExportChoice(props: {
         submitDataSet={{ testid: 'privacy-export-replace-confirm' }}
         dataSet={{ testid: 'privacy-export-replace-modal' }}
       />
-    </div>
+    </StackVertical>
   );
 }

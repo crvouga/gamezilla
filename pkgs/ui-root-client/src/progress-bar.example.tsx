@@ -17,26 +17,27 @@ function DeterminateDemo(): JSX.Element {
   onCleanup(() => timers.clearInterval(id));
 
   return (
-    <>
-      <label class="text textLabel">{`Determinate (${Math.round(progress() * 100)}%)`}</label>
-      <ProgressBar progress={progress()} />
-    </>
+    <ProgressBar
+      label="Uploading file"
+      progress={progress()}
+      description="Keep this screen open until the upload finishes."
+    />
   );
 }
 
 export default function ProgressBarExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <div class="box flex-col gap-3">
+      <div class="box flex-col gap-6">
         <DeterminateDemo />
-
-        <label class="text textLabel">{'Indeterminate'}</label>
-        <ProgressBar indeterminate />
-
-        <label class="text textLabel">{'Custom color & height'}</label>
-        <ProgressBar progress={0.7} color="success" height={8} />
-        <ProgressBar progress={0.3} color="warning" height={8} />
-        <ProgressBar progress={0.9} color="destructive" height={8} />
+        <ProgressBar
+          label="Preparing file"
+          description="The amount of work is not known yet."
+        />
+        <ProgressBar label="Upload complete" progress={1} tone="success" />
+        <ProgressBar label="Upload failed" progress={0.6} tone="destructive" />
+        <ProgressBar progress={0.3} size="sm" />
+        <ProgressBar size="sm" />
       </div>
     </ExampleRoot>
   );

@@ -1,7 +1,9 @@
 /** @jsxImportSource solid-js */
 /**
- * Shared header row for {@link ResponsiveSurface} (optional title + close).
- * The title carries the surface title id so the dialog is named by it.
+ * Shared header row for {@link ResponsiveSurface}: an optional `textSubtitle`
+ * title, left-aligned, and the close control on the right, in a row at least
+ * 44px tall. The title carries the surface title id so the dialog is named
+ * by it.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
@@ -33,13 +35,16 @@ export function ResponsiveSurfaceHeader(
   return (
     <Show when={showHeader()}>
       <div
-        class="box flex-row items-center mb-3 gap-2"
+        class="box flex-row items-center mb-3 gap-2 min-h-11"
+        classList={{
+          'justify-between': hasTitle(),
+          'justify-end': !hasTitle(),
+        }}
         data-component="ResponsiveSurfaceHeader"
-        style={{ 'justify-content': hasTitle() ? 'space-between' : 'flex-end' }}
       >
         <Show when={hasTitle()}>
           <h2
-            class="text textSubtitle line-clamp-1 flex-1 mr-2 text-text"
+            class="text textSubtitle line-clamp-1 flex-1 min-w-0 text-text"
             id={titleId}
           >
             {props.title}

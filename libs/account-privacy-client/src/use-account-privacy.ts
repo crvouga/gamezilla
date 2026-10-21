@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
-import { createMemo } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 
 export type AccountPrivacyRow = {
   readonly owner_id: string;
@@ -17,11 +17,21 @@ export type AccountPrivacyRow = {
   readonly legal_end_condition: string | null;
 };
 
-export function useAccountPrivacy() {
+export type AccountPrivacy = {
+  /** The caller's privacy row, `null` when there is none. */
+  readonly row: Accessor<AccountPrivacyRow | null>;
+  /** True until the local read has answered once. */
+  readonly isLoading: Accessor<boolean>;
+};
+
+export function useAccountPrivacy(): AccountPrivacy {
   const myId = useMyId();
   const query = createQuery(
     () =>
       sql<AccountPrivacyRow>`SELECT * FROM profile_account_privacy WHERE owner_id = ${myId()} AND deleted_at IS NULL`
   );
-  return createMemo(() => query.rows()[0] ?? null);
+  return {
+    row: createMemo(() => query.rows()[0] ?? null),
+    isLoading: query.isLoading,
+  };
 }

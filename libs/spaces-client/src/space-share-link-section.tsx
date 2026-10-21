@@ -1,5 +1,7 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
+import { H3 } from '@pkgs/ui-root-client/heading';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import type { JSX } from 'solid-js';
 
@@ -27,9 +29,11 @@ export function SpaceShareLinkSection(props: {
     },
   });
   return (
-    <div class="box gap-2">
-      <label class="text textLabel">{<Trans>Link</Trans>}</label>
+    <StackVertical gap="sm">
+      <H3 size="label">
+        <Trans>Link</Trans>
+      </H3>
       <Button {...copyButton.buttonProps} />
-    </div>
+    </StackVertical>
   );
 }

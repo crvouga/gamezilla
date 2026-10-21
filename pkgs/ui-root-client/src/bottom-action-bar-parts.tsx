@@ -29,7 +29,7 @@ export function BottomActionBarAction(props: {
     (typeof props.item.label === 'string' ? props.item.label : undefined);
   return (
     <button
-      class="clickable clickableTint flex-1 rounded-control items-center justify-center min-w-0 min-h-11 py-1 gap-0.5"
+      class="clickable clickableTint flex-1 rounded-control items-center justify-center min-w-0 min-h-11 py-1 gap-1"
       {...dataAttrs({
         component: 'BottomActionBarAction',
         ...props.item.dataSet,

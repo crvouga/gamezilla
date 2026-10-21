@@ -1,9 +1,8 @@
 /**
  * Readers for the design-token document (W3C Design Tokens format:
  * `$value` / `$type` / `$description`, groups, and `{group.token}` aliases).
- * The source is `design-system/design-tokens.json`. This package's copy is
- * generated from it, and so are `tokens.css`, `token-names.ts` and the Swift
- * projection.
+ * The source is this package's `src/design-tokens.json`.
+ * `tokens.css` and `token-names.ts` are generated from it.
  *
  * Every TypeScript constant (`spacing`, `COLOR_PALETTE`, `duration`, …) is
  * derived through these functions, so a value exists once: in that document.

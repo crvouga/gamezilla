@@ -1,4 +1,3 @@
-/** @jsxImportSource solid-js */
 /**
  * What the person is told when a change they made was refused after it had
  * already shown on their device. Keyed by mutation name, a stable wire
@@ -6,54 +5,82 @@
  * an honest generic line; the server's own message is never shown.
  */
 
-import { Trans } from '@lingui/solid/macro';
-import type { JSX } from 'solid-js';
+import { useLingui } from '@lingui/solid/macro';
 
-type Copy = () => JSX.Element;
+/**
+ * The changes told where they live (the space, the lobby, friends, the
+ * profile, puzzle settings). Every other refused change is told on
+ * Settings › Sync.
+ */
+export const REFUSED_CHANGES_TOLD_IN_CONTEXT = [
+  'renameSpace',
+  'endSpace',
+  'leaveSpace',
+  'createSpace',
+  'addSpaceUser',
+  'removeSpaceUser',
+  'blockUser',
+  'unblockUser',
+  'removeFriend',
+  'cancelFriendRequest',
+  'declineFriendRequest',
+  'patchAvatar',
+  'savePuzzleFeedSettings',
+] as const;
 
-const WHAT_WAS_NOT_SAVED: Readonly<Record<string, Copy>> = {
-  renameSpace: () => <Trans>Your space wasn't renamed</Trans>,
-  endSpace: () => <Trans>Your space wasn't ended</Trans>,
-  leaveSpace: () => <Trans>You didn't leave the space</Trans>,
-  createSpace: () => <Trans>Your new space wasn't created</Trans>,
-  addSpaceUser: () => <Trans>That person wasn't added to the space</Trans>,
-  removeSpaceUser: () => (
-    <Trans>That person wasn't removed from the space</Trans>
-  ),
-  blockUser: () => <Trans>That person wasn't blocked</Trans>,
-  unblockUser: () => <Trans>That person wasn't unblocked</Trans>,
-  removeFriend: () => <Trans>That friend wasn't removed</Trans>,
-  cancelFriendRequest: () => (
-    <Trans>Your friend request wasn't cancelled</Trans>
-  ),
-  declineFriendRequest: () => (
-    <Trans>That friend request wasn't declined</Trans>
-  ),
-  patchAvatar: () => <Trans>Your avatar change wasn't saved</Trans>,
-  savePuzzleFeedSettings: () => (
-    <Trans>Your puzzle settings weren't saved</Trans>
-  ),
-};
+export type RefusedChangeToldInContext =
+  (typeof REFUSED_CHANGES_TOLD_IN_CONTEXT)[number];
 
-const WHY: Readonly<Record<string, Copy>> = {
-  SPACE_TITLE_NOT_ALLOWED: () => <Trans>That space name is not allowed.</Trans>,
-};
+const TOLD_IN_CONTEXT: ReadonlySet<string> = new Set(
+  REFUSED_CHANGES_TOLD_IN_CONTEXT
+);
 
-/** The headline: which change did not go through. */
-export function refusedChangeTitle(mutationName: string | null): JSX.Element {
-  const copy =
-    mutationName === null ? undefined : WHAT_WAS_NOT_SAVED[mutationName];
-  return copy === undefined ? <Trans>A change wasn't saved</Trans> : copy();
+/** Whether a refused change is told where it lives rather than on Sync. */
+export function isRefusedChangeToldInContext(
+  name: string | null
+): name is RefusedChangeToldInContext {
+  return name !== null && TOLD_IN_CONTEXT.has(name);
 }
 
-/** Why, when the reason is one people can act on, then that it was undone. */
-export function refusedChangeDetail(code: string): JSX.Element {
-  const why = WHY[code];
-  return why === undefined ? (
-    <Trans>It could not be saved, so it was undone on this device.</Trans>
-  ) : (
-    <>
-      {why()} <Trans>The change was undone.</Trans>
-    </>
-  );
+export type RefusedChangeCopy = {
+  /** The headline: which change did not go through. */
+  readonly title: (mutationName: string | null, code: string) => string;
+  /** The refusal reason and next action, without promising a restored row. */
+  readonly detail: (code: string) => string;
+};
+
+export function useRefusedChangeCopy(): RefusedChangeCopy {
+  const { t } = useLingui();
+  const whatWasNotSaved = (name: string): string | undefined => {
+    const copy: Readonly<Record<RefusedChangeToldInContext, () => string>> = {
+      renameSpace: () => t`Your space wasn't renamed`,
+      endSpace: () => t`Your space wasn't ended`,
+      leaveSpace: () => t`You didn't leave the space`,
+      createSpace: () => t`Your new space wasn't created`,
+      addSpaceUser: () => t`That person wasn't added to the space`,
+      removeSpaceUser: () => t`That person wasn't removed from the space`,
+      blockUser: () => t`That person wasn't blocked`,
+      unblockUser: () => t`That person wasn't unblocked`,
+      removeFriend: () => t`That friend wasn't removed`,
+      cancelFriendRequest: () => t`Your friend request wasn't cancelled`,
+      declineFriendRequest: () => t`That friend request wasn't declined`,
+      patchAvatar: () => t`Your avatar change wasn't saved`,
+      savePuzzleFeedSettings: () => t`Your puzzle settings weren't saved`,
+    };
+    return isRefusedChangeToldInContext(name) ? copy[name]() : undefined;
+  };
+  return {
+    title: (mutationName, code) =>
+      code === 'SPACE_NOT_FOUND'
+        ? t`That space could not be found`
+        : ((mutationName === null
+            ? undefined
+            : whatWasNotSaved(mutationName)) ?? t`A change wasn't saved`),
+    detail: (code) =>
+      code === 'SPACE_NOT_FOUND'
+        ? t`This request could not be applied. Dismiss this notice and choose another space from the lobby.`
+        : code === 'SPACE_TITLE_NOT_ALLOWED'
+          ? t`That space name is not allowed. The change was undone.`
+          : t`This request was not saved. Check the current details before trying again.`,
+  };
 }

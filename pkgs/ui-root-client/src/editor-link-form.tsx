@@ -25,7 +25,7 @@ export function EditorLinkForm(props: {
         placeholder={asLocalized('https://…')}
         value={href()}
         onChangeText={setHref}
-        class="flex-1 min-w-0"
+        grow
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
             event.preventDefault();

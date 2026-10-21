@@ -1,0 +1,4 @@
+{
+  "summary": "Disposing a space connection during its WebSocket handshake aborts the connection with a browser console error.",
+  "regressionTest": "pkgs/room-adapter-web-shared/tests/websocket-teardown.test.ts"
+}

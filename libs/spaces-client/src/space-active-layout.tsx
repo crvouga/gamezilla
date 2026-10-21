@@ -4,9 +4,10 @@ import {
   useSetAppFrameHeader,
 } from '@pkgs/ui-root-client/app-frame-chrome';
 import { AppHeaderIsland } from '@pkgs/ui-root-client/app-header-island';
+import { ChromeTitle } from '@pkgs/ui-root-client/chrome-title';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import { TopBar } from '@pkgs/ui-root-client/top-bar';
 import { useLayoutMode } from '@pkgs/ui-root-client/use-layout-mode';
-import { ISLAND_GAP_STEP } from '@pkgs/ui-root-shared/layout';
 import type { JSX, ParentProps } from 'solid-js';
 import { Show } from 'solid-js';
 import {
@@ -14,6 +15,7 @@ import {
   SpaceChromeTrailingActionBar,
 } from './space-chrome-action-bar';
 import { SpaceHostConnectionStatus } from './space-host-connection-status';
+import { SpaceRefusedChangeNotice } from './space-refused-change-notice';
 import { useSpaceSessionUi } from './space-session-ui-context';
 import { SpaceTitleText } from './space-title-text';
 
@@ -23,36 +25,33 @@ export type SpaceActiveLayoutProps = ParentProps<{
 
 function SpaceChromeTitle(props: {
   readonly spaceId: string;
-  readonly variant: 'subtitle' | 'navigationTitle';
+  readonly size: 'subtitle' | 'navigationTitle';
 }): JSX.Element {
   return (
-    <div class="box shrink min-w-0" data-testid={Handles.spaceTitle}>
-      <SpaceTitleText
-        spaceId={props.spaceId}
-        variant={props.variant}
-        numberOfLines={1}
-      />
-    </div>
+    <StackVertical shrink testId={Handles.spaceTitle}>
+      <ChromeTitle size={props.size}>
+        <SpaceTitleText spaceId={props.spaceId} />
+      </ChromeTitle>
+    </StackVertical>
   );
 }
 
 /**
- * Space ActionBar owns a real width budget (a content-sized slot collapses
- * every action into a lone More menu), then the global avatar menu sits at
- * the far edge — same on wide header trailing and compact TopBar trailing.
+ * Space actions, the host status, then the global avatar menu at the far
+ * edge — same on wide header trailing and compact TopBar trailing. They are
+ * the bar's own row items (no wrapper), so the ActionBar sizes itself
+ * against the title and collapses into its More menu when the row is short.
  */
 function SpaceTrailingWithGlobal(props: {
   readonly hostOffline: boolean;
 }): JSX.Element {
   const globalTrailing = useAppFrameGlobalTrailing();
   return (
-    <div class="box flex-1 min-w-0 flex-row items-center gap-2">
-      <div class="box flex-1 min-w-0">
-        <SpaceChromeTrailingActionBar />
-      </div>
+    <>
+      <SpaceChromeTrailingActionBar />
       <SpaceHostConnectionStatus offline={props.hostOffline} />
       {globalTrailing()}
-    </div>
+    </>
   );
 }
 
@@ -62,23 +61,23 @@ function SpaceActiveLayoutWide(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <div
-      class="box flex-1 min-h-0 min-w-0 overflow-hidden"
-      style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
-    >
+    // No clipping here: the header's hairline runs past this column to the
+    // viewport edges. The body below clips its own overflow.
+    <StackVertical grow gap="sm">
       <AppHeaderIsland
         leading={
-          <div class="box flex-1 min-w-0 flex-row items-center gap-4">
+          <StackHorizontal grow align="center" gap="lg">
             <SpaceChromeLeadingActionBar />
-            <SpaceChromeTitle spaceId={props.spaceId} variant="subtitle" />
-          </div>
+            <SpaceChromeTitle spaceId={props.spaceId} size="subtitle" />
+          </StackHorizontal>
         }
         trailing={<SpaceTrailingWithGlobal hostOffline={props.hostOffline} />}
       />
-      <div class="box flex-1 min-h-0 min-w-0 overflow-hidden">
+      <SpaceRefusedChangeNotice />
+      <StackVertical grow overflow="hidden">
         {props.children}
-      </div>
-    </div>
+      </StackVertical>
+    </StackVertical>
   );
 }
 
@@ -88,19 +87,20 @@ function SpaceActiveLayoutCompact(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <div class="box flex-1 min-h-0">
+    <StackVertical grow>
       <TopBar
         leading={<SpaceChromeLeadingActionBar />}
         center={
-          <SpaceChromeTitle spaceId={props.spaceId} variant="navigationTitle" />
+          <SpaceChromeTitle spaceId={props.spaceId} size="navigationTitle" />
         }
         trailing={<SpaceTrailingWithGlobal hostOffline={props.hostOffline} />}
         centerPosition="flex"
       />
-      <div class="box flex-1 min-h-0 min-w-0 overflow-hidden">
+      <SpaceRefusedChangeNotice />
+      <StackVertical grow overflow="hidden">
         {props.children}
-      </div>
-    </div>
+      </StackVertical>
+    </StackVertical>
   );
 }
 

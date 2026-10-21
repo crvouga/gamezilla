@@ -11,7 +11,7 @@ export default function MarkdownEditorExample() {
   return (
     <ExampleRoot>
       <SchemePreview>
-        <div class="box h-96 rounded-xl border border-border overflow-hidden">
+        <div class="box h-96 rounded-card border border-border overflow-hidden">
           <MarkdownEditor
             value={value()}
             onChange={setValue}

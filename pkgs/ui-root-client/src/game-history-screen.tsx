@@ -3,7 +3,7 @@ import { EmbeddedScreen, type EmbeddedScreenProps } from './embedded-screen';
 
 export type GameHistoryScreenProps = Pick<
   EmbeddedScreenProps,
-  'screenId' | 'title' | 'subtitle' | 'dataSet'
+  'screenId' | 'title' | 'subtitle' | 'dataSet' | 'nested'
 > & {
   summary?: JSX.Element | undefined;
   trend?: JSX.Element | undefined;
@@ -19,6 +19,7 @@ export function GameHistoryScreen(props: GameHistoryScreenProps): JSX.Element {
       screenId={props.screenId}
       title={props.title}
       subtitle={props.subtitle}
+      nested={props.nested}
       dataSet={{ component: 'GameHistoryScreen', ...props.dataSet }}
     >
       {props.summary}

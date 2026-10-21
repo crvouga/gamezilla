@@ -239,7 +239,8 @@
 }
 
 /* Touch: the finger hides the square, so mark it with a halo twice its
-   size (painted once; moving it is a transform). */
+   size (painted once; moving it is a transform), in the board theme's own
+   dark wash (the legal-move dot's), so a themed board themes it too. */
 .hoverTouch {
   box-shadow: none;
 }
@@ -249,7 +250,7 @@
   position: absolute;
   inset: -50%;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.14);
+  background-color: var(--chess-legal-dot);
 }
 
 .coords {
@@ -278,7 +279,7 @@
 }
 
 .square:focus-visible {
-  outline: 3px solid var(--ui-color-focusRing, #3a8cff);
+  outline: 3px solid var(--ui-color-focus-ring);
   outline-offset: -3px;
   border-radius: 2px;
 }

@@ -1,11 +1,11 @@
 import type { HarnessChromeKind } from '@pkgs/harness-console-shared/node';
 import type { HarnessConsolePorts } from '@pkgs/harness-console-shared/ports';
+import { Surface } from '@pkgs/ui-root-client/surface';
 import type { JSX } from 'solid-js';
 import { ClientLayoutPreferenceProvider } from './client-layout-preference';
 import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
 import { NotebookStoreProvider } from './notebook-store-context';
 import { ProductHarnessScreen } from './product-harness-screen';
-import { appShellSx } from './tokens';
 import { useProductHarnessSession } from './use-product-harness-session';
 
 /**
@@ -43,7 +43,7 @@ export function HarnessConsoleApp(props: {
           ? { store: props.ports.notebookStore }
           : {})}
       >
-        <div class="box" style={appShellSx}>
+        <Surface tone="background" grow>
           <ProductHarnessScreen
             state={session.state}
             kind={props.kind}
@@ -55,7 +55,7 @@ export function HarnessConsoleApp(props: {
             onReload={session.reboot}
             onExit={props.onExit}
           />
-        </div>
+        </Surface>
       </NotebookStoreProvider>
     </ClientLayoutPreferenceProvider>
   );

@@ -1,7 +1,11 @@
 import type { ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
 import { Button } from '@pkgs/ui-root-client/button';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { Notice } from '@pkgs/ui-root-client/notice';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { Surface } from '@pkgs/ui-root-client/surface';
+import { P } from '@pkgs/ui-root-client/text';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { For, Show } from 'solid-js';
 
@@ -14,10 +18,12 @@ export function ProductHarnessCommandsPane(props: {
   const commands = () => props.session.listCommands();
 
   return (
-    <ScrollView class="flex-1 min-h-0" contentClass="p-[6px] gap-3">
-      <p class="text textCaption text-text-secondary">
-        {'Faults / partitions / skew / snapshots → command palette (⌘K).'}
-      </p>
+    <ScrollView grow padding="md" gap="md">
+      <Notice>
+        {
+          'Faults, partitions, clock skew and snapshots live in the command palette (⌘K).'
+        }
+      </Notice>
       <Show
         when={commands().length > 0}
         fallback={
@@ -60,12 +66,24 @@ function CommandRow(props: {
   });
 
   return (
-    <div class="box gap-1.5 p-[3px] border border-border rounded-md bg-surface">
-      <p class="text text-text text-[13px] font-semibold">{props.label}</p>
-      <p class="text textCaption text-text-secondary [font-family:mono]">
-        {props.commandId}
-      </p>
-      <Button size="sm" {...mutation.buttonProps} />
-    </div>
+    <Surface
+      tone="surface"
+      radius="control"
+      border
+      direction="horizontal"
+      align="center"
+      gap="md"
+      padding="md"
+    >
+      <StackVertical grow gap="xs">
+        <P variant="label" lines={1}>
+          {props.label}
+        </P>
+        <P variant="mono" tone="secondary" lines={1}>
+          {props.commandId}
+        </P>
+      </StackVertical>
+      <Button size="sm" variant="outline" {...mutation.buttonProps} />
+    </Surface>
   );
 }

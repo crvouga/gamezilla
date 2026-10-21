@@ -2,7 +2,7 @@
 import type { JSX } from 'solid-js';
 import { EmptyState } from './empty-state';
 import { ExampleRoot } from './example-root';
-import { HouseIcon } from './icons';
+import { HouseIcon, SearchIcon, UsersIcon } from './icons';
 import { SchemePreview } from './scheme-preview';
 
 export default function EmptyStateExample(): JSX.Element {
@@ -23,10 +23,42 @@ export default function EmptyStateExample(): JSX.Element {
       <div class="divider" role="separator" />
 
       <label class="text textLabel text-text-secondary">
+        {'Fill, no action'}
+      </label>
+      <SchemePreview>
+        <div class="box h-70">
+          <EmptyState
+            icon={UsersIcon}
+            title="No friends yet"
+            body="People you add show up here."
+          />
+        </div>
+      </SchemePreview>
+
+      <div class="divider" role="separator" />
+
+      <label class="text textLabel text-text-secondary">
+        {'Compact with icon and action'}
+      </label>
+      <SchemePreview>
+        <div class="panel">
+          <EmptyState
+            variant="compact"
+            icon={SearchIcon}
+            title="No results"
+            body="Try a different search term."
+            action={{ label: 'Clear search', onClick: () => undefined }}
+          />
+        </div>
+      </SchemePreview>
+
+      <div class="divider" role="separator" />
+
+      <label class="text textLabel text-text-secondary">
         {'Compact, no icon'}
       </label>
       <SchemePreview>
-        <div class="card">
+        <div class="panel">
           <EmptyState
             variant="compact"
             title="No matching commands"
@@ -41,7 +73,7 @@ export default function EmptyStateExample(): JSX.Element {
         {'Title only (list footer)'}
       </label>
       <SchemePreview>
-        <div class="card">
+        <div class="panel">
           <EmptyState variant="compact" title="No rows match filter." />
         </div>
       </SchemePreview>

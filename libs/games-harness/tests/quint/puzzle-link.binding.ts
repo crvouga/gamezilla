@@ -9,6 +9,7 @@
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
 import {
   readLocalPuzzleStartLedger,
+  startUnnamedPuzzle,
   useUpPuzzleStartsToday,
 } from '@libs/game-session-harness/puzzle-allowance';
 import type { PuzzleLinkOutcome } from '@libs/game-session-harness/puzzle-link';
@@ -27,7 +28,6 @@ import { retireCataloguePuzzle } from '@libs/game-session-harness/puzzle-records
 import {
   isPuzzleAttemptRated,
   moveOnToNextPuzzle,
-  openGamePuzzles,
   readPuzzleStartsLeft,
 } from '@libs/game-session-harness/puzzle-screen';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
@@ -82,7 +82,7 @@ async function prepareOpener(
 ) {
   const gameId = gameOfTrace(w).shared.id;
   await w.s.apply(createSpace, OPENER);
-  await w.s.apply(openGamePuzzles, OPENER, gameId);
+  await w.s.apply(startUnnamedPuzzle, OPENER, gameId);
   if (playedBefore) {
     await openKnownPuzzle(w, OPENER);
     await w.s.apply(solveKnownPuzzle, OPENER, gameId);

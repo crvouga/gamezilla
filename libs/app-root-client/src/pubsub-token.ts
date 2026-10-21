@@ -8,7 +8,12 @@ import { SyncApiAuthError } from '@pkgs/sync-engine-client/sync-http-client';
 
 export type SyncApiFetch = SyncHttpFetch;
 
-type PubSubTokenCreds = { username: string; password: string };
+type PubSubTokenCreds = {
+  username: string;
+  password: string;
+  /** The topics the token grants; absent from an older server. */
+  topics?: readonly string[] | undefined;
+};
 
 async function resolveSessionToken(args: {
   readonly auth: SyncClientAuth;
@@ -38,9 +43,10 @@ function parsePubSubTokenBody(body: unknown): PubSubTokenCreds {
   if (typeof body !== 'object' || body === null) {
     throw new Error('pubsub token response invalid');
   }
-  const { username, password } = body as {
+  const { username, password, topics } = body as {
     username?: unknown;
     password?: unknown;
+    topics?: unknown;
   };
   if (
     typeof username !== 'string' ||
@@ -49,7 +55,12 @@ function parsePubSubTokenBody(body: unknown): PubSubTokenCreds {
   ) {
     throw new Error('pubsub token response invalid');
   }
-  return { username, password };
+  const granted =
+    Array.isArray(topics) &&
+    topics.every((topic): topic is string => typeof topic === 'string')
+      ? topics
+      : undefined;
+  return { username, password, topics: granted };
 }
 
 export async function fetchPubSubToken(args: {

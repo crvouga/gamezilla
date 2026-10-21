@@ -1,22 +1,20 @@
 /** @jsxImportSource solid-js */
 /**
- * `TopBar` -- header row with leading / center / trailing slots.
+ * `TopBar` -- header row with leading / center / trailing slots: one 52px
+ * row on the canvas over a hairline, at every breakpoint, with 16px edges.
+ * Titles sit left, after the back control (`TopBarTitle`); icon buttons in
+ * the side slots keep their own 40px+ hit areas.
  *
  * `centerAlign="center"` overlays the center slot across the full width so a
  * title stays visually centered regardless of side-slot widths; pass
- * `centerPosition="flex"` to keep it in flow instead.
+ * `centerPosition="flex"` to keep it in flow instead. In flow, the title
+ * keeps the room first: trailing actions collapse into their More menu
+ * before it truncates, and nothing ever paints over it.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { type JSX, Show } from 'solid-js';
-import {
-  getTopBarContentHeight,
-  TOP_BAR_CONTENT_HEIGHT_MOBILE,
-} from './action-bar-chrome';
-import { useThemeLayout } from './theme-context';
-
-export const TOP_BAR_CONTENT_HEIGHT = TOP_BAR_CONTENT_HEIGHT_MOBILE;
 
 export type TopBarCenterAlign = 'start' | 'center' | 'end';
 export type TopBarCenterPosition = 'absolute' | 'flex';
@@ -34,12 +32,6 @@ export type TopBarProps = {
   centerPosition?: TopBarCenterPosition | undefined;
   /** Pad the top by `env(safe-area-inset-top)`. Default `true`. */
   safeAreaTop?: boolean | undefined;
-  /**
-   * `fill` (default) gives the trailing slot up to half the row, the width
-   * budget an `ActionBar` measures. `fit` sizes it to its content (an avatar
-   * alone), so the title keeps the rest of the row.
-   */
-  trailingSize?: 'fill' | 'fit' | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -57,14 +49,18 @@ const SIDE_SLOT_CLASS =
 
 type SlotsProps = Pick<
   TopBarProps,
-  | 'leading'
-  | 'center'
-  | 'trailing'
-  | 'centerAlign'
-  | 'centerPosition'
-  | 'trailingSize'
+  'leading' | 'center' | 'trailing' | 'centerAlign' | 'centerPosition'
 >;
 
+/**
+ * In flow, the trailing content is laid out as items of the row itself (no
+ * wrapper), so the room is shared in one place. The center has a 96px basis
+ * and takes all the room left over, so a long title truncates first; below
+ * that basis an `ActionBar` in the trailing content gives up room (it
+ * shrinks 1000x faster, collapsing into its More menu), and only then does
+ * the title shrink further. Leading and fixed trailing controls never
+ * shrink, so nothing overlaps.
+ */
 function FlexLayout(props: SlotsProps): JSX.Element {
   return (
     <>
@@ -73,31 +69,15 @@ function FlexLayout(props: SlotsProps): JSX.Element {
           {props.leading}
         </div>
       </Show>
-      <Show when={props.center !== undefined && props.center !== null}>
-        <div
-          class="box flex-1 min-w-0 flex-row items-center"
-          classList={{
-            [ALIGN_CLASS[props.centerAlign ?? 'start']]: true,
-          }}
-        >
-          {props.center}
-        </div>
-      </Show>
-      <Show when={props.trailing !== undefined && props.trailing !== null}>
-        {/*
-          Cap trailing so ActionBar still gets a measurable width budget while
-          the center title/event-log keeps at least half the row on narrow hosts.
-        */}
-        <div
-          class="box min-w-0 max-w-1/2 self-stretch flex-row items-center justify-end gap-2"
-          classList={{
-            'flex-1': props.trailingSize !== 'fit',
-            'shrink-0': props.trailingSize === 'fit',
-          }}
-        >
-          {props.trailing}
-        </div>
-      </Show>
+      <div
+        class="box grow shrink basis-24 min-w-0 flex-row items-center"
+        classList={{
+          [ALIGN_CLASS[props.centerAlign ?? 'start']]: true,
+        }}
+      >
+        {props.center}
+      </div>
+      {props.trailing}
     </>
   );
 }
@@ -118,8 +98,6 @@ function AbsoluteCenterLayout(props: SlotsProps): JSX.Element {
 }
 
 export function TopBar(props: TopBarProps): JSX.Element {
-  const layout = useThemeLayout();
-  const contentHeight = () => getTopBarContentHeight(layout.breakpoint());
   const useAbsoluteCenter = () =>
     props.centerAlign === 'center' &&
     props.center !== undefined &&
@@ -127,19 +105,13 @@ export function TopBar(props: TopBarProps): JSX.Element {
     props.centerPosition !== 'flex';
   return (
     <header
-      class="box bg-transparent"
+      class="box shrink-0 border-b border-border"
       classList={{
         safeTop: props.safeAreaTop !== false,
       }}
       {...dataAttrs({ component: 'TopBar', ...props.dataSet })}
     >
-      <div
-        class="box flex-row items-center gap-2 px-4 w-full"
-        style={{
-          height: `${contentHeight()}px`,
-          'min-height': `${contentHeight()}px`,
-        }}
-      >
+      <div class="box flex-row items-center gap-2 px-4 w-full h-13">
         <Show when={useAbsoluteCenter()} fallback={<FlexLayout {...props} />}>
           <AbsoluteCenterLayout {...props} />
         </Show>

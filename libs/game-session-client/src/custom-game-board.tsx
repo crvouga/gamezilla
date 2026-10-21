@@ -7,6 +7,9 @@ import { GameBoardStage } from '@pkgs/ui-root-client/game-board-stage';
 import { GameActions, GameSection } from '@pkgs/ui-root-client/game-section';
 import { ChevronLeftIcon, ChevronRightIcon } from '@pkgs/ui-root-client/icons';
 import { Select } from '@pkgs/ui-root-client/select';
+import { ListEntry, OrderedList } from '@pkgs/ui-root-client/semantic-list';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
@@ -60,8 +63,8 @@ function ReviewSteps(props: BoardProps): JSX.Element {
 function ReviewJump(props: BoardProps): JSX.Element {
   const [jump, setJump] = createSignal('0');
   return (
-    <div class="box flex-row items-end gap-2">
-      <div class="box flex-1 min-w-0">
+    <StackHorizontal align="end" gap="sm">
+      <StackVertical grow>
         <TextInput
           type="number"
           label={<Trans>Move number to review</Trans>}
@@ -69,7 +72,7 @@ function ReviewJump(props: BoardProps): JSX.Element {
           onChangeText={setJump}
           dataSet={{ testid: 'custom-game-review-ply' }}
         />
-      </div>
+      </StackVertical>
       <Button
         title={<Trans>Review position</Trans>}
         variant="outline"
@@ -77,7 +80,7 @@ function ReviewJump(props: BoardProps): JSX.Element {
         onClick={() => props.review.seek(Number(jump()))}
         dataSet={{ testid: 'custom-game-review-seek' }}
       />
-    </div>
+    </StackHorizontal>
   );
 }
 
@@ -87,31 +90,33 @@ function ReviewMoves(props: BoardProps): JSX.Element {
     <Show
       when={moves().length > 0}
       fallback={
-        <p class="text textCaption">
+        <P variant="caption" tone="secondary">
           <Trans>No moves yet.</Trans>
-        </p>
+        </P>
       }
     >
-      <ol class="box flex-row flex-wrap gap-1" aria-label={t`Moves played`}>
-        <For each={moves()}>
-          {(move, index) => (
-            <li>
-              <Button
-                title={move.san}
-                size="sm"
-                variant={
-                  props.review.displayedPly() === index() + 1
-                    ? 'solid'
-                    : 'ghost'
-                }
-                intent="neutral"
-                onClick={() => props.review.seek(index() + 1)}
-                dataSet={{ testid: `custom-game-review-move-${index() + 1}` }}
-              />
-            </li>
-          )}
-        </For>
-      </ol>
+      <StackHorizontal wrap gap="xs">
+        <OrderedList aria-label={t`Moves played`}>
+          <For each={moves()}>
+            {(move, index) => (
+              <ListEntry>
+                <Button
+                  title={move.san}
+                  size="sm"
+                  variant={
+                    props.review.displayedPly() === index() + 1
+                      ? 'solid'
+                      : 'ghost'
+                  }
+                  intent="neutral"
+                  onClick={() => props.review.seek(index() + 1)}
+                  dataSet={{ testid: `custom-game-review-move-${index() + 1}` }}
+                />
+              </ListEntry>
+            )}
+          </For>
+        </OrderedList>
+      </StackHorizontal>
     </Show>
   );
 }
@@ -190,9 +195,9 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
       }
       bottom={
         seated() ? (
-          <div data-testid="custom-game-seat-near">
+          <StackVertical testId="custom-game-seat-near">
             <CustomGameSeat model={props.model} side={near()} />
-          </div>
+          </StackVertical>
         ) : undefined
       }
     >

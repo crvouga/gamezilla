@@ -9,12 +9,13 @@ import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { createSpeak } from '@pkgs/tts-root-client/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client/turn-games-context';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { SpeakingAvatar } from '@pkgs/ui-root-client/speaking-avatar';
 import { SpectatorIndicator } from '@pkgs/ui-root-client/spectator-indicator';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client/use-layout-mode';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { PuzzleBoardLoadingState } from './puzzle-board-loading-state';
 import { PuzzleClockLabel } from './puzzle-clock-label';
 import { PuzzleEmptyPoolState } from './puzzle-empty-pool-state';
 import { usePuzzleGame } from './puzzle-game-context';
@@ -54,7 +55,7 @@ function PuzzlePlayerBoardSlot(props: {
   return (
     <Show
       when={p.boardPosition() !== null && p.boardPosition()!.length > 0}
-      fallback={<PuzzleBoardLoadingState size={props.size} />}
+      fallback={<LoadingState size="lg" />}
     >
       <Dynamic
         component={client.Board}
@@ -225,7 +226,6 @@ function shellCoachLine(state: ShellPickState): string {
 }
 
 function ShellBoardSlot(props: {
-  size: number;
   chrome: PuzzlePlayBoardChrome;
   pickState: ShellBoardPickState;
   includeAllPuzzles: () => void;
@@ -235,7 +235,6 @@ function ShellBoardSlot(props: {
   return (
     <PuzzleEmptyPoolState
       kind={props.pickState}
-      size={props.size}
       config={config()}
       onIncludeAllPuzzles={props.includeAllPuzzles}
       onOpenFeedSettings={props.chrome.openFeedSettings}
@@ -273,15 +272,10 @@ function PuzzlePlayShell(props: {
           avatarSize={avatarSize()}
         />
       }
-      boardSlot={(size, chrome) => (
-        <Show
-          when={boardKind()}
-          keyed
-          fallback={<PuzzleBoardLoadingState size={size} />}
-        >
+      boardSlot={(_size, chrome) => (
+        <Show when={boardKind()} keyed fallback={<LoadingState size="lg" />}>
           {(kind) => (
             <ShellBoardSlot
-              size={size}
               chrome={chrome}
               pickState={kind}
               includeAllPuzzles={props.includeAllPuzzles}
@@ -330,10 +324,7 @@ export function PuzzlePlayScreen(): JSX.Element {
   });
 
   return (
-    <div
-      class="box flex-1 min-h-0 self-stretch"
-      data-testid="chess-puzzle-play-screen"
-    >
+    <StackVertical grow self="stretch" testId="chess-puzzle-play-screen">
       <Show
         when={activePuzzleId() !== null}
         fallback={
@@ -357,6 +348,6 @@ export function PuzzlePlayScreen(): JSX.Element {
           onFeedConfigApplied={reselectActivePuzzleFromFeed}
         />
       </Show>
-    </div>
+    </StackVertical>
   );
 }

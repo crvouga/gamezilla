@@ -2,8 +2,11 @@
 
 /**
  * One row of `MainMenuScreen`: title, optional caption, and a trailing
- * chevron / selection check. Same anatomy as `MenuRow`, a little taller
- * because each row is a destination; the screen's panel owns the surface.
+ * chevron / selection check. Same anatomy as `MenuRow` (16px insets, 20px
+ * secondary chevron, 150ms hover / press tint, focus ring inside the panel),
+ * a little taller and with a `textLabel` title because each row is a
+ * destination; the screen's panel owns the surface. A disabled row fades to
+ * the disabled opacity and moves its caption to the trailing edge.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
@@ -64,10 +67,10 @@ function ItemBody(props: {
     disabled() && props.item.caption !== undefined;
   return (
     <div
-      class="box flex-row items-center gap-3 px-4 py-4 min-h-18"
-      classList={{ 'opacity-50': disabled() }}
+      class="box flex-row items-center gap-3 px-4 py-3 min-h-14"
+      classList={{ 'opacity-disabled': disabled() }}
     >
-      <div class="box flex-1 min-w-0 gap-0.5 items-start">
+      <div class="box flex-1 min-w-0 items-start">
         <p class="text textLabel">{props.item.title}</p>
         <Show when={props.item.caption !== undefined && !captionInTrailing()}>
           <p class="text textCaption">{props.item.caption}</p>

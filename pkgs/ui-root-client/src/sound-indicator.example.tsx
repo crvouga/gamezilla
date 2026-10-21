@@ -14,10 +14,10 @@ const STATE_SEGMENTS: readonly {
   { key: 'muted', label: 'Muted' },
 ];
 
-const LIGHT_OVERRIDES = {
-  backgroundColor: '#ffffff',
-  color: '#111111',
-  mutedColor: '#888888',
+const TINT_OVERRIDES = {
+  backgroundColor: 'tintSubtle',
+  color: 'tint',
+  mutedColor: 'textSecondary',
 };
 
 function StaticRows(): JSX.Element {
@@ -40,11 +40,11 @@ function StaticRows(): JSX.Element {
         <SoundIndicator state="playing" size={32} />
       </div>
 
-      <p class="text textCaption">{'Always-light callout (color overrides)'}</p>
+      <p class="text textCaption">{'Color overrides (token names)'}</p>
       <div class="box flex-row gap-3 items-center">
-        <SoundIndicator state="idle" {...LIGHT_OVERRIDES} />
-        <SoundIndicator state="playing" {...LIGHT_OVERRIDES} />
-        <SoundIndicator state="muted" {...LIGHT_OVERRIDES} />
+        <SoundIndicator state="idle" {...TINT_OVERRIDES} />
+        <SoundIndicator state="playing" {...TINT_OVERRIDES} />
+        <SoundIndicator state="muted" {...TINT_OVERRIDES} />
       </div>
     </>
   );

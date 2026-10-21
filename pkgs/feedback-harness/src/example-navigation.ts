@@ -44,17 +44,17 @@ export function createExampleNavigation(session: Session) {
       );
       const icons = [
         ...document.querySelectorAll<HTMLButtonElement>(
-          '[data-component="FeedbackPanel"] button[aria-label]'
+          '[data-testid="feedback-panel"] button[aria-label]'
         ),
       ];
       return {
         widgetClass: widget?.className,
-        listClass: list?.className,
+        listComponent: list?.getAttribute('data-component'),
         listFocusable: list?.getAttribute('tabindex'),
         activeLabel: document.activeElement?.getAttribute('aria-label'),
         directActions: [
           ...document.querySelectorAll(
-            '[data-component="FeedbackActions"] button'
+            '[data-testid="feedback-issue-actions"] button'
           ),
         ].map((node) => node.getAttribute('aria-label')),
         menu:

@@ -24,6 +24,7 @@ export function MenuScreen(props: MenuScreenProps): JSX.Element {
       actions={props.actions}
       leading={props.leading}
       renderActionsMenu={props.renderActionsMenu}
+      width="menu"
       dataSet={{ component: 'MenuScreen', ...props.dataSet }}
     >
       {props.children}

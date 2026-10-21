@@ -4,8 +4,8 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: var(--ui-color-background, hsla(0, 0%, 0%, 1));
-  color: var(--ui-color-text, hsla(210, 16%, 97%, 1));
+  background: var(--ui-color-background);
+  color: var(--ui-color-text);
 }
 
 body {

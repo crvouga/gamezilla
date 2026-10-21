@@ -12,7 +12,7 @@ export default function LoadingStateExample(): JSX.Element {
       </label>
       <SchemePreview>
         <div class="box h-60">
-          <LoadingState size="large" />
+          <LoadingState size="lg" />
         </div>
       </SchemePreview>
 
@@ -31,7 +31,7 @@ export default function LoadingStateExample(): JSX.Element {
         {'Compact (inside a card)'}
       </label>
       <SchemePreview>
-        <div class="card">
+        <div class="panel">
           <LoadingState
             variant="compact"
             caption="Waiting for metrics from server…"

@@ -15,11 +15,6 @@ import { ModalBody, ModalButton, ModalFooter } from './modal-parts';
 import { MutationOutcomeUnknownError } from './mutation-outcome-unknown-error';
 import { SuccessState } from './success-state';
 
-/** Fixed so loading / success / error share one state band (no grow). */
-export const MUTATION_STATE_AREA_HEIGHT = 200;
-/** Matches `Button` `md` minHeight -- loading reserves the same footer band. */
-const FOOTER_ACTION_MIN_HEIGHT = 40;
-
 export type MutationModalLabels = {
   submitLabel: JSX.Element;
   cancelLabel: JSX.Element | undefined;
@@ -37,6 +32,13 @@ export type MutationModalIds = {
   successDataSet: ComponentDataSet | undefined;
   dismissDataSet: ComponentDataSet | undefined;
 };
+
+/**
+ * Fixed so loading / success / error share one state band (no grow). An
+ * inline length, not `h-50`: the band's height is the budget the error's
+ * retry is measured against (`feedback.test.tsx`).
+ */
+const MUTATION_STATE_AREA_HEIGHT = 200;
 
 function StateArea(props: { children: JSX.Element }): JSX.Element {
   return (
@@ -58,10 +60,8 @@ function FooterSlot(props: {
       <Show
         when={props.children !== undefined}
         fallback={
-          <div
-            class="box"
-            style={{ 'min-height': cssPx(FOOTER_ACTION_MIN_HEIGHT) }}
-          />
+          // Reserves one `Button` `md` row (44px) so phases never jump.
+          <div class="box min-h-11" />
         }
       >
         {props.children}

@@ -46,9 +46,7 @@ function SchemePane(props: {
       data-scheme={props.scheme}
       data-theme={props.scheme}
     >
-      <p class="text textCaption text-text-secondary">
-        {props.label.toUpperCase()}
-      </p>
+      <p class="text textFootnote text-text-secondary">{props.label}</p>
       {props.children}
     </div>
   );

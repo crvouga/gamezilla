@@ -50,6 +50,34 @@ export default function ErrorStateExample(): JSX.Element {
 
       <div class="divider" role="separator" />
 
+      <SectionLabel label="Fill with retry and a second recovery" />
+      <SchemePreview>
+        <div class="box h-80">
+          <ErrorState
+            title="Couldn't load your spaces"
+            body="Check your connection and try again."
+            retry={{ label: 'Try again', onClick: () => undefined }}
+            secondary={{ label: 'Go home', onClick: () => undefined }}
+          />
+        </div>
+      </SchemePreview>
+
+      <div class="divider" role="separator" />
+
+      <SectionLabel label="Band (fixed-height slot)" />
+      <SchemePreview>
+        <div class="box h-40 panel">
+          <ErrorState
+            variant="band"
+            title="Could not save"
+            body="The write did not land."
+            retry={{ label: 'Try again', onClick: () => undefined }}
+          />
+        </div>
+      </SchemePreview>
+
+      <div class="divider" role="separator" />
+
       <SectionLabel label="Compact with retry" />
       <SchemePreview>
         <ErrorState

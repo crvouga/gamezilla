@@ -57,7 +57,7 @@ function ConfirmationModalBody(props: {
     <Show when={hasError()} fallback={<ModalBody message={props.message} />}>
       <ModalBody>
         <div class="box gap-2">
-          <p class="text text-text">{props.message}</p>
+          <p class="text textBody text-text-secondary">{props.message}</p>
           <p class="text textCaption text-destructive">{props.confirmError}</p>
         </div>
       </ModalBody>

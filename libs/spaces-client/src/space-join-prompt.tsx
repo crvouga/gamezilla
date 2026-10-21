@@ -2,10 +2,11 @@ import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
+import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { Gamepad2Icon } from '@pkgs/ui-root-client/icons';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
-import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
 import { createSignal, Match, Show, Switch } from 'solid-js';
@@ -40,19 +41,12 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
       when={snapshot().status !== 'ended'}
       fallback={<SpaceEndedScreen spaceId={props.spaceId} />}
     >
-      <ScreenBase
+      <ContentScreen
         screenId="space-join"
         dataSet={{ testid: Handles.spaceJoinPrompt }}
         breadcrumbs={[
           { name: <Trans>Spaces</Trans>, onClick: nav('/') },
-          {
-            name: (
-              <SpaceTitleText
-                spaceId={props.spaceId}
-                variant="navigationTitle"
-              />
-            ),
-          },
+          { name: <SpaceTitleText spaceId={props.spaceId} /> },
         ]}
         footer={
           <Show
@@ -65,24 +59,23 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
             />
           </Show>
         }
-        content={({ bodyClass }) => (
-          <div class={`box gap-3 ${bodyClass}`}>
-            <Show when={joinOffline() || connection() === 'offline'}>
-              <SpacesNeedConnectionNotice />
-            </Show>
-            <Show
-              when={
-                snapshot().status === 'live' && connection() === 'host-offline'
-              }
-              fallback={
-                <JoinPromptBody spaceId={props.spaceId} snapshot={snapshot} />
-              }
-            >
-              <SpaceHostOfflineNotice />
-            </Show>
-          </div>
-        )}
-      />
+      >
+        <StackVertical grow gap="md">
+          <Show when={joinOffline() || connection() === 'offline'}>
+            <SpacesNeedConnectionNotice />
+          </Show>
+          <Show
+            when={
+              snapshot().status === 'live' && connection() === 'host-offline'
+            }
+            fallback={
+              <JoinPromptBody spaceId={props.spaceId} snapshot={snapshot} />
+            }
+          >
+            <SpaceHostOfflineNotice />
+          </Show>
+        </StackVertical>
+      </ContentScreen>
     </Show>
   );
 }
@@ -95,7 +88,7 @@ function JoinPromptFooter(props: {
   const canLeave = useSpaceCan(() => props.spaceId, PERMISSION.spacesLeave);
   const requestLeave = useRequestLeaveSpace();
   return (
-    <div class="box flex-row">
+    <StackHorizontal>
       <Show
         when={props.hostOffline}
         fallback={
@@ -117,7 +110,7 @@ function JoinPromptFooter(props: {
           />
         </Show>
       </Show>
-    </div>
+    </StackHorizontal>
   );
 }
 

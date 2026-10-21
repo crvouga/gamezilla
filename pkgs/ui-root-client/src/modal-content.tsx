@@ -1,10 +1,11 @@
 /** @jsxImportSource solid-js */
 /**
- * `ModalContent` -- card-like container for modal body.
+ * `ModalContent` -- the dialog sheet.
  *
- * Always uses the `surfaceOverlay` token (the highest tier in the surface
- * hierarchy) so the modal reads consistently in both schemes. A 1px border
- * keeps the edge crisp on top of the scrim.
+ * Flat: the `surface-elevated` fill, the sheet radius (12) and one hairline
+ * that keeps the edge crisp on the scrim in dark mode. No shadow -- the scrim
+ * already lifts it. Enters with a 250ms fade and slight scale
+ * (`.dialogEnter`), still under reduced motion.
  *
  * Width is controlled only via {@link ModalSize} buckets (see
  * {@link resolveModalLayoutWidth}), clamped to the layout width. The card
@@ -26,7 +27,7 @@ import { ContentEdgePaddingProvider } from './content-edge-padding';
 import { OnColorReset } from './on-color-context';
 import { useThemeLayout } from './theme-context';
 
-/** Spacing-scale step for default {@link ModalContent} padding (`p: 5` → 20px). */
+/** Spacing-scale step for default {@link ModalContent} padding (`p-5` → 20px). */
 export const MODAL_CONTENT_PADDING_STEP = 5;
 
 export type ModalContentProps = {
@@ -71,18 +72,17 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
       marginPx
     );
   const maxHeightPx = useModalContentMaxHeight(() => props.maxHeight);
-  const padPx = spacing[MODAL_CONTENT_PADDING_STEP];
   return (
     <OnColorReset>
       <div
-        class="box rounded-sheet w-full self-center overflow-hidden bg-surface-overlay border border-border"
+        class="box dialogEnter rounded-sheet w-full self-center overflow-hidden bg-surface-elevated border border-border"
+        classList={{ 'p-5': padded() }}
         {...dataAttrs({
           component: 'ModalContent',
           size: props.size ?? 'medium',
           ...props.dataSet,
         })}
         style={{
-          ...(padded() ? { padding: `${padPx}px` } : {}),
           'max-width': `${maxWidthPx()}px`,
           'max-height': `${maxHeightPx()}px`,
         }}

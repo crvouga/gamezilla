@@ -12,7 +12,7 @@
 }
 
 .content {
-  padding-left: var(--ui-flush-edge-x, 0px);
-  padding-right: var(--ui-flush-edge-x, 0px);
+  padding-left: var(--ui-flush-inset-x, 0px);
+  padding-right: var(--ui-flush-inset-x, 0px);
   padding-bottom: var(--ui-flush-edge-b, 0px);
 }

@@ -69,7 +69,7 @@ const allowedClasses = fc.array(fc.constantFrom(...ALLOWED), {
 const screen = fc.array(
   fc.record({
     classes: allowedClasses,
-    filler: fc.constantFrom('', 'const x = 1;', '<div>'),
+    filler: fc.constantFrom('', 'const x = 1; ', 'export '),
   }),
   { minLength: 1, maxLength: 6 }
 );
@@ -78,7 +78,7 @@ function render(
   lines: readonly { classes: readonly string[]; filler: string }[]
 ) {
   return lines.map(
-    (line) => `${line.filler}<p class="${line.classes.join(' ')}" />`
+    (line) => `${line.filler}const c = '${line.classes.join(' ')}';`
   );
 }
 
@@ -89,7 +89,7 @@ describe('designVocabularyViolations', () => {
       fc.property(screen, (lines) => {
         const text = render(lines).join('\n');
         expect(
-          designVocabularyViolations([{ path: 'src/a.tsx', text }])
+          designVocabularyViolations([{ path: 'src/a.ts', text }])
         ).toEqual([]);
       })
     );
@@ -111,10 +111,10 @@ describe('designVocabularyViolations', () => {
           const rendered = render(lines);
           rendered[index] = render([{ ...target, classes }])[0]!;
           const out = designVocabularyViolations([
-            { path: 'src/a.tsx', text: rendered.join('\n') },
+            { path: 'src/a.ts', text: rendered.join('\n') },
           ]);
           expect(out).toHaveLength(1);
-          expect(out[0]).toContain(`src/a.tsx:${index + 1}:`);
+          expect(out[0]).toContain(`src/a.ts:${index + 1}:`);
           expect(out[0]).toContain(`"${banned}"`);
         }
       )
@@ -130,7 +130,7 @@ describe('designVocabularyViolations', () => {
           { path: 'src/a.tsx', wrap: (w: string) => `// "${w}"` },
           { path: 'src/a.tsx', wrap: (w: string) => ` * "${w}"` },
           { path: 'tests/a.tsx', wrap: (w: string) => `<p class="${w}" />` },
-          { path: 'src/a.ts', wrap: (w: string) => `const c = '${w}';` }
+          { path: 'src/a.md', wrap: (w: string) => `\`${w}\`` }
         ),
         (banned, source) => {
           expect(

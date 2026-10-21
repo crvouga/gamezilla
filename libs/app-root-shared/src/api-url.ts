@@ -7,7 +7,6 @@
 
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app-config-shared/local-preview-api-origin';
 import { APP_IDENTITY } from '@libs/auth-shared/app-identity';
-import { normalizeLoopbackOriginToLocalhost } from '@libs/auth-shared/local-api-origin';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 
 type ViteEnv = {
@@ -76,9 +75,7 @@ export function getServerBaseUrl(): string {
     );
     return fallback;
   }
-  const origin = normalizeLoopbackOriginToLocalhost(
-    coerceDevBundleApiOrigin(parseOrigin(raw))
-  );
+  const origin = coerceDevBundleApiOrigin(parseOrigin(raw));
   assert.ok(
     viteEnv().DEV !== true ||
       productionApiUrlTigerExceptionEnabled() ||

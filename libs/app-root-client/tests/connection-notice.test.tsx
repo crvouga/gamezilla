@@ -33,7 +33,7 @@ test('connection loss changes only the contents of a reserved header slot', () =
   // regression: space-connection-banner-layout-shift
   const view = mountIndicator('connected');
   const slot = view.container.querySelector(
-    '[data-component="ConnectionStatus"]'
+    '[data-component="StatusIconSlot"]'
   );
   expect(slot?.classList.contains('h-8')).toBe(true);
   expect(slot?.classList.contains('w-8')).toBe(true);
@@ -41,14 +41,14 @@ test('connection loss changes only the contents of a reserved header slot', () =
   expect(slot?.children.length).toBe(0);
   view.setCause('deviceOffline');
   expect(
-    view.container.querySelector('[data-component="ConnectionStatus"]')
+    view.container.querySelector('[data-component="StatusIconSlot"]')
   ).toBe(slot);
   expect(view.noticeText()).toContain('kept on this device');
   expect(view.container.querySelector('[role="alert"]')).toBeNull();
   expect(view.container.querySelector('[data-component="Notice"]')).toBeNull();
   view.setCause('connected');
   expect(
-    view.container.querySelector('[data-component="ConnectionStatus"]')
+    view.container.querySelector('[data-component="StatusIconSlot"]')
   ).toBe(slot);
   expect(slot?.children.length).toBe(0);
 });

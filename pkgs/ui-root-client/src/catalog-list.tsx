@@ -41,22 +41,15 @@ export function CatalogList(props: CatalogListProps): JSX.Element {
   return (
     <div
       class="box flex-1 min-h-0 gap-3"
+      classList={{ 'p-4': !bleed() }}
       {...dataAttrs({ component: 'CatalogList', ...props.dataSet })}
-      style={bleed() ? undefined : { padding: '16px' }}
     >
       <CatalogListSearch
         value={query()}
         onChangeText={setQuery}
         placeholder={props.searchPlaceholder ?? t`Search…`}
       />
-      <ScrollView
-        class="flex-1"
-        flushEdge={bleed()}
-        contentStyle={{
-          gap: 'var(--ui-space-6)',
-          'padding-bottom': 'var(--ui-space-16)',
-        }}
-      >
+      <ScrollView grow flushEdge={bleed()} gap="xl" paddingBottom="3xl">
         <CatalogListRows items={filtered()} onSelect={props.onSelect} />
       </ScrollView>
     </div>

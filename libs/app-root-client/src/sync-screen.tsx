@@ -2,6 +2,8 @@
 /**
  * `/more/sync` — local database + sync engine state from the shell's
  * `SyncStatusContext`; "Retry sync" re-runs the engine's query refresh.
+ * Refused changes no screen tells where they live are listed here, each
+ * dismissible.
  */
 
 import { Trans, useLingui } from '@lingui/solid/macro';
@@ -12,10 +14,14 @@ import { RefreshCwIcon } from '@pkgs/ui-root-client/icons';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
+import { Notice } from '@pkgs/ui-root-client/notice';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type { StatusDotStatus } from '@pkgs/ui-root-client/status-dot';
 import { StatusDot } from '@pkgs/ui-root-client/status-dot';
+import { P } from '@pkgs/ui-root-client/text';
 import { type Accessor, type JSX, Show } from 'solid-js';
 
+import { OtherRefusedChanges } from './refused-change-notice';
 import { useSyncStatus } from './sync-status-context';
 
 const STATUS_DOT_SIZE = 12;
@@ -62,12 +68,11 @@ function StateSection(props: {
       footer={
         <Show when={lastError()}>
           {(err) => (
-            <p
-              class="text textCaption text-destructive select-text"
-              data-testid="sync-last-error"
-            >
-              {err()}
-            </p>
+            <Notice tone="error" dataSet={{ testid: 'sync-last-error' }}>
+              <P variant="inherit" tone="inherit" selectable>
+                {err()}
+              </P>
+            </Notice>
           )}
         </Show>
       }
@@ -129,7 +134,8 @@ export function SyncScreen(): JSX.Element {
         />
       </MenuSection>
       <StateSection status={status()} />
-      <div class="box self-stretch">
+      <OtherRefusedChanges />
+      <StackVertical>
         <Button
           title={t`Retry sync`}
           intent="neutral"
@@ -138,7 +144,7 @@ export function SyncScreen(): JSX.Element {
           onClick={onRetry}
           dataSet={{ testid: 'sync-retry' }}
         />
-      </div>
+      </StackVertical>
     </MenuScreen>
   );
 }

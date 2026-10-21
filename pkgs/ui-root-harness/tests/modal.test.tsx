@@ -170,6 +170,35 @@ describe('ModalContent', () => {
     expect(screen.getByTestId('m')).toHaveAttribute('data-size', 'medium');
   });
 
+  test('the dialog sheet is flat: elevated fill, sheet radius, no shadow', () => {
+    renderUi(() => <ModalContent dataSet={{ testid: 'm' }} />);
+    const sheet = screen.getByTestId('m');
+    expect(sheet.className).toMatch(/\bbg-surface-elevated\b/);
+    expect(sheet.className).toMatch(/\brounded-sheet\b/);
+    expect(sheet.className).not.toMatch(/shadow/);
+    expect(sheet.className).toMatch(/\bp-5\b/);
+  });
+
+  test('footer stacks full width on compact and is one row on wide', () => {
+    const footer = (): JSX.Element => (
+      <ModalFooter dataSet={{ testid: 'footer' }}>
+        <ModalButton label="Go" onClick={() => {}} />
+        <ModalButton label="Nah" variant="cancel" onClick={() => {}} />
+      </ModalFooter>
+    );
+    const compact = renderUi(footer, { width: 400, height: 800 });
+    expect(screen.getByTestId('footer').className).toMatch(/\bflex-col\b/);
+    expect(screen.getByTestId('footer').className).toMatch(/\bitems-stretch\b/);
+    compact.unmount();
+    renderUi(footer, { width: 1200, height: 800 });
+    // Primary first in tab order, drawn rightmost.
+    expect(screen.getByTestId('footer').className).toMatch(
+      /\bflex-row-reverse\b/
+    );
+    const names = screen.getAllByRole('button').map((b) => b.textContent);
+    expect(names).toEqual(['Go', 'Nah']);
+  });
+
   test('ModalButton maps variants onto Button intents', () => {
     renderUi(() => (
       <ModalFooter>

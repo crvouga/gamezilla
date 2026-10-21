@@ -19,6 +19,7 @@ export const TOKEN_TYPES = [
   'duration',
   'cubicBezier',
   'number',
+  'shadow',
 ] as const;
 export type TokenType = (typeof TOKEN_TYPES)[number];
 
@@ -80,6 +81,18 @@ function isFontFamily(value: unknown): boolean {
   );
 }
 
+/** A W3C shadow: a color (or `{alias}` to one) and four px dimensions. */
+function isShadow(value: unknown): boolean {
+  if (!isTokenTree(value)) return false;
+  const color = value['color'];
+  return (
+    (isColor(color) || aliasPath(color) !== undefined) &&
+    ['offsetX', 'offsetY', 'blur', 'spread'].every((key) =>
+      isQuantity(value[key], ['px', 'rem'])
+    )
+  );
+}
+
 const VALUE_VERIFICATIONS: Readonly<
   Record<TokenType, (value: unknown) => boolean>
 > = {
@@ -92,6 +105,7 @@ const VALUE_VERIFICATIONS: Readonly<
   duration: (value) => isQuantity(value, ['ms', 's']),
   cubicBezier: isCubicBezier,
   number: isNumber,
+  shadow: isShadow,
 };
 
 function isTokenType(type: string | undefined): type is TokenType {

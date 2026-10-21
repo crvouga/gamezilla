@@ -1,0 +1,4 @@
+{
+  "summary": "OAuth launch rewrote the configured 127.0.0.1 API host to localhost, crossing cookie jars and exposing navigation to unrelated localhost cookies and HTTP 431 failures.",
+  "regressionTest": "libs/app-root-shared/tests/local-oauth-origin.test.ts"
+}

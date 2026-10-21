@@ -134,6 +134,12 @@ export const Handles = {
   spaceNotFound: 'space-not-found',
   /** Its way back to Spaces (the EmptyState action of `spaceNotFound`). */
   spaceNotFoundBack: 'space-not-found-action',
+  /** A space the app can't reach right now (its room never answered). */
+  spaceUnreachable: 'space-unreachable',
+  /** Its Try again. */
+  spaceUnreachableRetry: 'space-unreachable-retry',
+  /** Its way back to Spaces. */
+  spaceUnreachableBack: 'space-unreachable-back',
   /** The space's name in its chrome. */
   spaceTitle: 'space-title',
   /** Rename action in the space chrome (host only). */

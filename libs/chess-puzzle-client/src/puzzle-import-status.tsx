@@ -3,6 +3,7 @@ import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import { Notice } from '@pkgs/ui-root-client/notice';
 import { ProgressBar } from '@pkgs/ui-root-client/progress-bar';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { type JSX, Show } from 'solid-js';
 import type { PuzzleImportRow } from './use-puzzle-import';
 
@@ -18,15 +19,15 @@ export function PuzzleImportStatus(props: {
       stopped: t`Stopped`,
     })[props.job.status] ?? t`Ready`;
   return (
-    <div class="box gap-4" data-testid="puzzle-load-result">
-      <div
+    <StackVertical gap="lg" testId="puzzle-load-result">
+      <StackVertical
         role="status"
         aria-live="polite"
-        aria-atomic="true"
-        data-testid="puzzle-load-status"
+        aria-atomic
+        testId="puzzle-load-status"
       >
         <Notice>{status()}</Notice>
-      </div>
+      </StackVertical>
       <ProgressBar
         label={t`Puzzles processed`}
         progress={
@@ -34,7 +35,6 @@ export function PuzzleImportStatus(props: {
             ? props.job.completed_chunks / props.job.total_chunks
             : 0
         }
-        color="info"
       />
       <MenuSection title={<Trans>Latest load</Trans>} role="group">
         <MenuRow title={<Trans>Source</Trans>} caption={props.job.cursor} />
@@ -74,9 +74,9 @@ export function PuzzleImportStatus(props: {
       </MenuSection>
       <Show when={props.job.error} keyed>
         {(error) => (
-          <div data-testid="puzzle-load-error">
-            <Notice tone="error">{error}</Notice>
-          </div>
+          <Notice tone="error" dataSet={{ testid: 'puzzle-load-error' }}>
+            {error}
+          </Notice>
         )}
       </Show>
       <Show when={props.job.status === 'stopped'}>
@@ -87,6 +87,6 @@ export function PuzzleImportStatus(props: {
           </Trans>
         </Notice>
       </Show>
-    </div>
+    </StackVertical>
   );
 }

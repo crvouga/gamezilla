@@ -24,8 +24,8 @@ export function MyUsername(props: MyUsernameProps): JSX.Element {
           <UserUsername
             profileId={id}
             variant={props.variant}
-            class={props.class}
             numberOfLines={props.numberOfLines}
+            align={props.align}
             withAt={props.withAt}
             dataSet={{ testid: Handles.profileDisplayUsername }}
           />

@@ -1,15 +1,13 @@
 /**
  * Motion design tokens, read from `design-tokens.json`. Durations are short
- * and CSS-driven (compositor transitions only — no JS-thread animation),
+ * and CSS-driven (compositor transitions only, no JS-thread animation),
  * exposed as `--ui-duration-*` / `--ui-easing-*` in `tokens.css`.
  *
- * - `instant` immediate ack (focus rings, pressed tints); `fast` most
- *   micro-interactions (hover, press, switch thumb); `normal` layout-affecting
- *   transitions (menu open, tab change); `slow` modal / overlay entrance and
- *   dismissal; `slower` splash and large-area shimmer cycles.
- * - `standard` decelerates into rest; `decelerate` for elements entering the
- *   screen; `accelerate` for elements leaving; `inOut` for shimmer / pulse
- *   loops; `playful` a slight overshoot for compositor-only presses.
+ * - `instant` is no motion; `fast` (150ms) hover, press and focus feedback;
+ *   `normal` (200ms) a control changing state (switch, tab, segment);
+ *   `slow` (250ms) a surface entering or leaving (dialog, sheet).
+ * - `standard` is the one curve: ease-out into rest.
+ * - `prefers-reduced-motion` turns every transition off (`skin.css`).
  */
 
 import { readCubicBezier, readGroup, readMs } from './design-tokens';

@@ -1,3 +1,4 @@
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { SpaceHostAvatar } from './space-host-avatar';
 import { SpaceHostNameText } from './space-host-name-text';
@@ -15,28 +16,27 @@ export function SpaceSummaryHeader(
   props: SpaceSummaryHeaderProps
 ): JSX.Element {
   return (
-    <div class="box flex-row justify-between">
-      <div class="box flex-row items-center gap-2 flex-1">
+    <StackHorizontal justify="between" gap="sm">
+      <StackHorizontal grow align="center" gap="sm">
         <SpaceHostAvatar
           spaceId={props.spaceId}
           size={props.hostAvatarSize ?? DEFAULT_HOST_AVATAR_SIZE}
           vividBackdrop
         />
-        <div class="box flex-1 gap-0.5">
+        <StackVertical grow>
           <SpaceTitleText
             spaceId={props.spaceId}
             variant="bodyBold"
-            numberOfLines={1}
+            lines={1}
           />
           <SpaceHostNameText
             spaceId={props.spaceId}
             variant="caption"
-            class="text-text-secondary"
             numberOfLines={1}
           />
-        </div>
-      </div>
+        </StackVertical>
+      </StackHorizontal>
       <SpaceLiveBadge spaceId={props.spaceId} />
-    </div>
+    </StackHorizontal>
   );
 }

@@ -1,13 +1,16 @@
 /** @jsxImportSource solid-js */
-import { cssPx } from '@pkgs/ui-root-shared/css-px';
-
 /**
  * `SegmentedControl` -- horizontal tab-like mode switcher.
  *
  * A row of segments (`role="radiogroup"` / `role="radio"`); exactly one is
- * selected at a time. The active indicator is a CSS-positioned pill sized as
- * a fraction of the track (`width: calc(100% / n)`, `left` offset by index)
- * and snaps instantly — no measurement or transition.
+ * selected at a time. The track is `surface-muted` with the control radius
+ * and a 4px inset; the selected segment is the canvas inside a hairline,
+ * in full text color, with the others secondary. The indicator is sized as
+ * a fraction of the track (`width: calc(100% / n)`, `left` offset by index),
+ * so it needs no measurement, and slides in 200ms (`skin.css`
+ * `.segmentIndicator`; reduced motion snaps it). Unselected segments take
+ * the hover / press tint; every segment shows the focus ring; `disabled`
+ * fades the whole control.
  *
  * @example
  * ```tsx
@@ -42,9 +45,10 @@ export type SegmentedControlProps<K extends string = string> = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** Inset between track edge and the selected pill (and segment row). */
+/** Inset between track edge and the selected pill (`p-1`). */
 const CONTAINER_PADDING = 4;
-const SEGMENT_GAP = 2;
+/** Gap between segments (`gap-1`). */
+const SEGMENT_GAP = 4;
 
 /** CSS geometry for the sliding indicator (pure; exported for tests). */
 export function segmentIndicatorCss(
@@ -74,7 +78,7 @@ function SegmentButton<K extends string>(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable rounded-sm flex-1 items-center py-3 px-3.5 bg-transparent relative z-1"
+      class="clickable segment rounded-sm flex-1 items-center justify-center py-2 px-3 bg-transparent relative z-1"
       classList={{
         clickableTint: !props.isActive,
       }}
@@ -88,7 +92,7 @@ function SegmentButton<K extends string>(props: {
       disabled={props.disabled}
     >
       <label
-        class="text textLabel whitespace-nowrap"
+        class="text textBodyBold whitespace-nowrap"
         classList={{
           'text-text': props.isActive,
           'text-text-secondary': !props.isActive,
@@ -112,25 +116,17 @@ export function SegmentedControl<K extends string = string>(
     segmentIndicatorCss(selectedIndex(), props.segments.length);
   return (
     <div
-      class="box flex-row bg-surface-muted rounded-control border border-border relative"
+      class="box flex-row p-1 gap-1 bg-surface-muted rounded-control relative"
+      classList={{ 'opacity-disabled': props.disabled === true }}
       {...dataAttrs({ component: 'SegmentedControl', ...props.dataSet })}
-      style={{
-        padding: cssPx(CONTAINER_PADDING),
-        gap: `${(SEGMENT_GAP / 4) * 4}px`,
-      }}
       role="radiogroup"
       aria-label={props['aria-label']}
     >
       <Show when={props.segments.length > 0}>
         <div
-          class="box absolute rounded-sm bg-surface-elevated border border-border pointer-events-none"
+          class="box segmentIndicator absolute top-1 bottom-1 rounded-sm bg-background border border-border pointer-events-none"
           data-component="SegmentIndicator"
-          style={{
-            top: cssPx(CONTAINER_PADDING),
-            bottom: cssPx(CONTAINER_PADDING),
-            left: cssPx(indicator().left),
-            width: cssPx(indicator().width),
-          }}
+          style={{ left: indicator().left, width: indicator().width }}
           aria-hidden="true"
         />
       </Show>

@@ -10,36 +10,59 @@ import type {
   ProductHarnessSession,
   ProductHarnessSqlNode,
 } from '@pkgs/harness-console-shared/ports';
-import { Match, Show, Switch } from 'solid-js';
-import { ActorUrlFrame } from './actor-url-frame';
+import { EmbeddedFrame } from '@pkgs/ui-root-client/embedded-frame';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { Surface } from '@pkgs/ui-root-client/surface';
+import { type JSX, Match, Show, Switch } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
 import { ProductHarnessCommandsPane } from './product-harness-commands-pane';
 import { ProductHarnessLoadBalancerPane } from './product-harness-lb-pane';
 import { ProductHarnessLogsPane } from './product-harness-logs-pane';
 import { ProductHarnessPubSubTopicsPane } from './product-harness-pubsub-topics-pane';
 import { ProductHarnessRoomDbPane } from './product-harness-room-db-pane';
-import { SolidActorHost } from './solid-actor-host';
 import { SqlNotebookPane } from './sql-notebook-pane';
 
-function hiddenWhen(active: boolean): string {
-  return active ? 'flex' : 'none';
+/** One view of a node: kept mounted, shown only while its tab is picked. */
+function ViewSlot(props: {
+  readonly active: boolean;
+  readonly children: JSX.Element;
+}) {
+  return (
+    <StackVertical grow hidden={!props.active}>
+      {props.children}
+    </StackVertical>
+  );
+}
+
+/** Every node panel: fills its column on the canvas fill and clips. */
+function NodePanel(props: { readonly children: JSX.Element }) {
+  return (
+    <Surface tone="background" grow overflow="hidden">
+      {props.children}
+    </Surface>
+  );
 }
 
 function ActorView(props: { readonly actor: ProductHarnessActor }) {
   return (
     <Switch>
       <Match when={props.actor.view.kind === 'url' ? props.actor.view : false}>
-        {(view) => <ActorUrlFrame title={props.actor.id} url={view().url} />}
+        {(view) => <EmbeddedFrame title={props.actor.id} src={view().url} />}
       </Match>
       <Match
         when={props.actor.view.kind === 'solid' ? props.actor.view : false}
       >
         {(view) => (
-          <SolidActorHost
-            title={props.actor.id}
-            App={view().App}
-            history={view().history}
-          />
+          // `history` is owned by the session actor so the MemoryRouter
+          // location survives `snapshotEpoch` remounts.
+          <EmbeddedFrame title={props.actor.id}>
+            <Dynamic
+              component={view().App}
+              embedded={true}
+              history={view().history}
+            />
+          </EmbeddedFrame>
         )}
       </Match>
     </Switch>
@@ -75,16 +98,16 @@ export function ClientProductHarnessPanel(props: {
   void props.reloadToken;
 
   return (
-    <div
-      class="box flex-1 min-w-0 min-h-0 overflow-hidden flex-col bg-surface"
-      data-debuggerClient={props.actor.address}
+    <Surface
+      tone="surface"
+      grow
+      overflow="hidden"
+      dataSet={{ 'debugger-client': props.actor.address }}
     >
-      <div class="box flex-1 min-h-0 overflow-hidden relative bg-surface">
-        <Show when={productKey()} keyed>
-          {(_key: string) => <ActorView actor={props.actor} />}
-        </Show>
-      </div>
-    </div>
+      <Show when={productKey()} keyed>
+        {(_key: string) => <ActorView actor={props.actor} />}
+      </Show>
+    </Surface>
   );
 }
 
@@ -100,11 +123,8 @@ export function ServerProductHarnessPanel(props: {
   const pane = () => resolvePane(props.pane, 'server');
   const tab = () => pane().view;
   return (
-    <div class="box flex-1 min-w-0 min-h-0 overflow-hidden flex-col bg-background">
-      <div
-        class="box flex-1 min-h-0 min-w-0 bg-background"
-        style={{ display: hiddenWhen(tab() === 'db') }}
-      >
+    <NodePanel>
+      <ViewSlot active={tab() === 'db'}>
         <SqlNotebookPane
           sqlClient={props.node.sqlClient}
           nodeId={props.node.id}
@@ -114,20 +134,14 @@ export function ServerProductHarnessPanel(props: {
             props.session.subscribeDomainWake(listener)
           }
         />
-      </div>
-      <div
-        class="box flex-1 min-h-0 min-w-0 bg-background"
-        style={{ display: hiddenWhen(tab() === 'events') }}
-      >
+      </ViewSlot>
+      <ViewSlot active={tab() === 'events'}>
         <ProductHarnessLogsPane logs={props.node.logs} />
-      </div>
-      <div
-        class="box flex-1 min-h-0 min-w-0 bg-background"
-        style={{ display: hiddenWhen(tab() === 'commands') }}
-      >
+      </ViewSlot>
+      <ViewSlot active={tab() === 'commands'}>
         <ProductHarnessCommandsPane session={props.session} />
-      </div>
-    </div>
+      </ViewSlot>
+    </NodePanel>
   );
 }
 
@@ -139,23 +153,17 @@ export function LoadBalancerProductHarnessPanel(props: {
   const pane = () => resolvePane(props.pane, 'lb');
   const tab = () => pane().view;
   return (
-    <div class="box flex-1 min-w-0 min-h-0 overflow-hidden flex-col bg-background">
-      <div
-        class="box flex-1 min-h-0 min-w-0 bg-background"
-        style={{ display: hiddenWhen(tab() === 'routes') }}
-      >
+    <NodePanel>
+      <ViewSlot active={tab() === 'routes'}>
         <ProductHarnessLoadBalancerPane
           loadBalancer={props.loadBalancer}
           subscribe={props.session.subscribe}
         />
-      </div>
-      <div
-        class="box flex-1 min-h-0 min-w-0 bg-background"
-        style={{ display: hiddenWhen(tab() === 'events') }}
-      >
+      </ViewSlot>
+      <ViewSlot active={tab() === 'events'}>
         <ProductHarnessLogsPane logs={props.loadBalancer.logs} />
-      </div>
-    </div>
+      </ViewSlot>
+    </NodePanel>
   );
 }
 
@@ -167,23 +175,17 @@ export function PubSubProductHarnessPanel(props: {
   const pane = () => resolvePane(props.pane, 'events');
   const tab = () => pane().view;
   return (
-    <div class="box flex-1 min-w-0 min-h-0 overflow-hidden flex-col bg-background">
-      <div
-        class="box flex-1 min-h-0 min-w-0 bg-background"
-        style={{ display: hiddenWhen(tab() === 'events') }}
-      >
+    <NodePanel>
+      <ViewSlot active={tab() === 'events'}>
         <ProductHarnessLogsPane logs={props.pubsub.logs} />
-      </div>
-      <div
-        class="box flex-1 min-h-0 min-w-0 bg-background"
-        style={{ display: hiddenWhen(tab() === 'topics') }}
-      >
+      </ViewSlot>
+      <ViewSlot active={tab() === 'topics'}>
         <ProductHarnessPubSubTopicsPane
           pubsub={props.pubsub}
           subscribe={props.session.subscribe}
         />
-      </div>
-    </div>
+      </ViewSlot>
+    </NodePanel>
   );
 }
 
@@ -195,22 +197,16 @@ export function RoomProductHarnessPanel(props: {
   const pane = () => resolvePane(props.pane, 'room');
   const tab = () => pane().view;
   return (
-    <div class="box flex-1 min-w-0 min-h-0 overflow-hidden flex-col bg-background">
-      <div
-        class="box flex-1 min-h-0 min-w-0 bg-background"
-        style={{ display: hiddenWhen(tab() === 'db') }}
-      >
+    <NodePanel>
+      <ViewSlot active={tab() === 'db'}>
         <ProductHarnessRoomDbPane
           room={props.room}
           subscribe={props.session.subscribe}
         />
-      </div>
-      <div
-        class="box flex-1 min-h-0 min-w-0 bg-background"
-        style={{ display: hiddenWhen(tab() === 'events') }}
-      >
+      </ViewSlot>
+      <ViewSlot active={tab() === 'events'}>
         <ProductHarnessLogsPane logs={props.room.logs} />
-      </div>
-    </div>
+      </ViewSlot>
+    </NodePanel>
   );
 }

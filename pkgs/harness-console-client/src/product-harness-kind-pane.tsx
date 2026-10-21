@@ -12,6 +12,8 @@ import type {
   ProductHarnessSqlNode,
 } from '@pkgs/harness-console-shared/ports';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { Surface } from '@pkgs/ui-root-client/surface';
 import { For, type JSX, type ParentComponent, Show } from 'solid-js';
 import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
 import { DebuggerColumn, DebuggerColumns } from './debugger-columns';
@@ -33,18 +35,16 @@ export type ProductHarnessClientColumnShellProps = {
 export type ProductHarnessClientColumnShell =
   ParentComponent<ProductHarnessClientColumnShellProps>;
 
-const kindFillSx = {
-  flex: 1,
-  'min-width': 0,
-  'min-height': 0,
-} as const;
-
-function kindVisibilitySx(active: boolean) {
-  return {
-    ...kindFillSx,
-    display: active ? ('flex' as const) : ('none' as const),
-    pointerEvents: active ? ('auto' as const) : ('none' as const),
-  };
+/** One kind's panel: kept mounted, shown only while its kind is picked. */
+function KindSlot(props: {
+  readonly active: boolean;
+  readonly children: JSX.Element;
+}): JSX.Element {
+  return (
+    <StackVertical grow hidden={!props.active}>
+      {props.children}
+    </StackVertical>
+  );
 }
 
 export function productHarnessInstancesForKind(
@@ -143,7 +143,7 @@ export function ProductHarnessKindPane(props: {
 
   return (
     <>
-      <div class="box" style={kindVisibilitySx(props.kind === 'client')}>
+      <KindSlot active={props.kind === 'client'}>
         <ClientLiveColumns
           session={props.session}
           clients={props.clients}
@@ -160,15 +160,15 @@ export function ProductHarnessKindPane(props: {
             ? { clientColumnShell: props.clientColumnShell }
             : {})}
         />
-      </div>
-      <div class="box" style={kindVisibilitySx(props.kind === 'lb')}>
+      </KindSlot>
+      <KindSlot active={props.kind === 'lb'}>
         <LoadBalancerProductHarnessPanel
           session={props.session}
           loadBalancer={props.session.loadBalancer}
           pane={resolveProductHarnessPane(props.panes, 'lb', 'lb')}
         />
-      </div>
-      <div class="box" style={kindVisibilitySx(props.kind === 'server')}>
+      </KindSlot>
+      <KindSlot active={props.kind === 'server'}>
         <Show
           when={server()}
           fallback={<EmptyKind body="No server instances in this session." />}
@@ -188,8 +188,8 @@ export function ProductHarnessKindPane(props: {
             />
           )}
         </Show>
-      </div>
-      <div class="box" style={kindVisibilitySx(props.kind === 'events')}>
+      </KindSlot>
+      <KindSlot active={props.kind === 'events'}>
         <PubSubProductHarnessPanel
           session={props.session}
           pubsub={props.session.pubsub}
@@ -199,8 +199,8 @@ export function ProductHarnessKindPane(props: {
             'events'
           )}
         />
-      </div>
-      <div class="box" style={kindVisibilitySx(props.kind === 'room')}>
+      </KindSlot>
+      <KindSlot active={props.kind === 'room'}>
         <Show
           when={room()}
           fallback={<EmptyKind body="No room instances in this session." />}
@@ -217,7 +217,7 @@ export function ProductHarnessKindPane(props: {
             />
           )}
         </Show>
-      </div>
+      </KindSlot>
     </>
   );
 }
@@ -326,12 +326,9 @@ function ClientLiveColumns(props: {
               <Show
                 when={layout.multiClientColumns}
                 fallback={
-                  <div
-                    class="box flex-1 min-w-0 min-h-0 flex-col"
-                    style={{ display: visible() ? 'flex' : 'none' }}
-                  >
+                  <StackVertical grow hidden={!visible()}>
                     {body()}
-                  </div>
+                  </StackVertical>
                 }
               >
                 {body()}
@@ -346,13 +343,19 @@ function ClientLiveColumns(props: {
 
 function EmptyKind(props: { readonly body: string }) {
   return (
-    <div class="box flex-1 items-center justify-center bg-background p-[4px]">
+    <Surface
+      tone="background"
+      grow
+      align="center"
+      justify="center"
+      padding="lg"
+    >
       <EmptyState
         variant="compact"
         title="Nothing selected"
         body={props.body}
       />
-    </div>
+    </Surface>
   );
 }
 

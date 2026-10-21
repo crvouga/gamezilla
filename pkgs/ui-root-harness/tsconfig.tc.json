@@ -9,7 +9,6 @@
     "../ui-root-client/src/css-modules.d.ts",
     "../ui-root-client/src/lingui-augmentation.ts",
     "../bun-test-solid-client/src/jest-dom.d.ts",
-    "../ui/codemod/**/*.ts",
     "./tests/**/*.ts",
     "./tests/**/*.tsx"
   ],

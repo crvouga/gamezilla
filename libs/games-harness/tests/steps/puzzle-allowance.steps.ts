@@ -29,7 +29,7 @@ import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
-  enterPuzzles,
+  enterUnnamedPuzzle,
   focusPuzzle,
   puzzleGameId,
   SECOND_MS,
@@ -46,7 +46,7 @@ async function afterStartsToday(
   actor: Actor,
   starts: number
 ): Promise<void> {
-  await enterPuzzles(w, actor);
+  await enterUnnamedPuzzle(w, actor);
   await w.s.apply(useUpPuzzleStartsToday, actor, starts);
 }
 

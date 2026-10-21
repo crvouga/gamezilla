@@ -1,3 +1,4 @@
+import { observeElementResize } from './observe-element-resize';
 /**
  * Floor-rounded live width of a DOM element (via `ResizeObserver`). Falls
  * back to a one-shot `getBoundingClientRect` where observers are missing
@@ -18,10 +19,7 @@ export function createElementWidth(
       setWidth((prev) => (prev === next ? prev : next));
     };
     apply();
-    if (typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(apply);
-    ro.observe(node);
-    onCleanup(() => ro.disconnect());
+    onCleanup(observeElementResize(node, apply));
   });
   return width;
 }

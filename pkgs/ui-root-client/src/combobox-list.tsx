@@ -23,8 +23,6 @@ import { VirtualList } from './virtual-list';
 export const COMBOBOX_OPTION_MIN_HEIGHT = 44;
 /** Estimated row height handed to the virtualizer. */
 export const COMBOBOX_OPTION_ESTIMATE = 50;
-/** Max height of the option scroller before it scrolls internally. */
-export const COMBOBOX_LIST_MAX_HEIGHT = 360;
 
 export function comboboxOptionId(listboxId: string, index: number): string {
   return `${listboxId}-opt-${index}`;
@@ -148,8 +146,8 @@ export function ComboboxList<T extends ComboboxValue>(
       renderItem={renderRow}
       estimateSize={COMBOBOX_OPTION_ESTIMATE}
       fixedViewport={props.viewport}
-      class="flex-1 min-h-0"
-      style={{ 'max-height': `${COMBOBOX_LIST_MAX_HEIGHT}px` }}
+      grow
+      maxHeight="md"
       dataSet={{ component: 'ComboboxList' }}
     />
   );

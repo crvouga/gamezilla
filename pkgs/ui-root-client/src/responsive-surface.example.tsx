@@ -8,16 +8,16 @@ import { ResponsiveSurface } from './responsive-surface';
 
 const SIZES: readonly ModalSize[] = ['small', 'medium', 'large', 'fullWidth'];
 
-type OpenSurface = ModalSize | 'untitled';
+type OpenSurface = ModalSize | 'untitled' | 'locked';
 
 export default function ResponsiveSurfaceExample(): JSX.Element {
   const [openSize, setOpenSize] = createSignal<OpenSurface | null>(null);
 
   return (
     <ExampleRoot>
-      <p class="text textCaption opacity-75">
+      <p class="text textCaption">
         {
-          'On mobile: bottom sheet. On tablet/desktop: centered modal with a width bucket. Every surface shows a top-right close control.'
+          'Compact: a bottom sheet with a 12px top radius, a grab handle and the safe-area inset. Wide: a centered dialog on the scrim, one hairline, no shadow.'
         }
       </p>
       <div class="box flex-col gap-2">
@@ -31,7 +31,13 @@ export default function ResponsiveSurfaceExample(): JSX.Element {
         </For>
         <Button
           title="Open — untitled (close only)"
+          intent="neutral"
           onClick={() => setOpenSize('untitled')}
+        />
+        <Button
+          title="Open — not closable"
+          intent="neutral"
+          onClick={() => setOpenSize('locked')}
         />
       </div>
       <For each={SIZES}>
@@ -58,6 +64,19 @@ export default function ResponsiveSurfaceExample(): JSX.Element {
         <p class="text">
           {'Untitled surface — close control only in the header.'}
         </p>
+      </ResponsiveSurface>
+      <ResponsiveSurface
+        visible={openSize() === 'locked'}
+        onClose={() => setOpenSize(null)}
+        title="Finishing up"
+        closable={false}
+      >
+        <div class="box gap-4">
+          <p class="text textBody text-text-secondary">
+            {'No close control, scrim or Escape dismissal; the app closes it.'}
+          </p>
+          <Button title="Done" onClick={() => setOpenSize(null)} />
+        </div>
       </ResponsiveSurface>
     </ExampleRoot>
   );

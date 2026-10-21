@@ -1,9 +1,8 @@
 /** @jsxImportSource solid-js */
 
-import { cssPx } from '@pkgs/ui-root-shared/css-px';
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
-import { MenuIcon, SettingsIcon, UserIcon } from './icons';
+import { LogOutIcon, MenuIcon, SettingsIcon, UserIcon } from './icons';
 import type { OverflowMenuAction } from './overflow-menu-button';
 import { OverflowMenuButton } from './overflow-menu-button';
 
@@ -22,15 +21,29 @@ const DEMO_ACTIONS: readonly OverflowMenuAction[] = [
     icon: SettingsIcon,
     onClick: () => undefined,
   },
+  {
+    id: 'export',
+    label: 'Export (unavailable)',
+    icon: SettingsIcon,
+    disabled: true,
+    onClick: () => undefined,
+    endsGroup: true,
+  },
+  {
+    id: 'sign-out',
+    label: 'Sign out',
+    icon: LogOutIcon,
+    onClick: () => undefined,
+  },
 ];
 
-function AvatarDisc(props: { size: number; iconSize: number }): JSX.Element {
+function AvatarDisc(props: { large?: boolean }): JSX.Element {
   return (
     <div
-      class="box rounded-full bg-tint items-center justify-center"
-      style={{ width: cssPx(props.size), height: cssPx(props.size) }}
+      class="box rounded-full bg-surface-muted items-center justify-center"
+      classList={{ 'size-10': props.large === true, 'size-8': !props.large }}
     >
-      <UserIcon size={props.iconSize} color="onPrimary" />
+      <UserIcon size={props.large === true ? 24 : 20} color="icon" />
     </div>
   );
 }
@@ -39,7 +52,9 @@ export default function OverflowMenuButtonExample(): JSX.Element {
   return (
     <ExampleRoot>
       <p class="text textCaption text-text-secondary">
-        {'Default IconButton trigger and custom avatar trigger.'}
+        {
+          'Default icon trigger (40px, 24px glyph), a compact 32px trigger, and a custom avatar trigger. Menus float with one hairline and the float shadow.'
+        }
       </p>
       <div class="box flex-row gap-4 items-center">
         <OverflowMenuButton
@@ -50,13 +65,19 @@ export default function OverflowMenuButtonExample(): JSX.Element {
         />
         <OverflowMenuButton
           actions={DEMO_ACTIONS}
+          header={{ title: 'More' }}
+          aria-label="More actions (compact)"
+          size={32}
+        />
+        <OverflowMenuButton
+          actions={DEMO_ACTIONS}
           header={{
             title: 'Account',
             subtitle: 'Guest',
-            avatar: <AvatarDisc size={40} iconSize={20} />,
+            avatar: <AvatarDisc large />,
           }}
           aria-label="Account menu"
-          trigger={<AvatarDisc size={32} iconSize={16} />}
+          trigger={<AvatarDisc />}
         />
       </div>
     </ExampleRoot>

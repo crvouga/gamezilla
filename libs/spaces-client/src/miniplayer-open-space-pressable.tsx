@@ -1,6 +1,8 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { Pressable } from '@pkgs/ui-root-client/pressable';
+import type { SpaceToken } from '@pkgs/ui-root-shared/token-names';
 import type { JSX } from 'solid-js';
 
 import { openSpaceDetail } from './space-routes';
@@ -8,6 +10,8 @@ import { openSpaceDetail } from './space-routes';
 export type MiniplayerOpenSpacePressableProps = {
   spaceId: string;
   children: JSX.Element;
+  /** Inset before the content: the bar's edge, or the sheet list's. */
+  paddingStart: SpaceToken;
   /** Optional hook after navigation is triggered (e.g. close a sheet). */
   onAfterOpen?: () => void;
 };
@@ -19,18 +23,22 @@ export function MiniplayerOpenSpacePressable(
   const router = useRouter();
   const { t } = useLingui();
   return (
-    <button
-      class="clickable clickableTint flex-1 self-stretch flex-row items-center gap-2 min-w-0"
-      data-testid={Handles.spaceMiniplayerOpen(props.spaceId)}
-      type="button"
-      onClick={() => {
+    <Pressable
+      grow
+      self="stretch"
+      direction="horizontal"
+      align="center"
+      gap="sm"
+      paddingY="md"
+      paddingStart={props.paddingStart}
+      testId={Handles.spaceMiniplayerOpen(props.spaceId)}
+      onPress={() => {
         openSpaceDetail(router, props.spaceId);
         props.onAfterOpen?.();
       }}
-      role="button"
       aria-label={t`Tap to return to your space`}
     >
       {props.children}
-    </button>
+    </Pressable>
   );
 }

@@ -12,10 +12,12 @@
  * recovery stays an outline. Copy stays outline too.
  *
  * Variants:
- *   - `'fill'`    (default) -- centered failure inside `flex: 1`. Use for
- *                              boot failures and full-screen errors.
- *   - `'compact'` -- destructive-tinted card with a left-aligned icon row,
- *                    sized to inline content (replaces ad-hoc ErrorCards).
+ *   - `'fill'`    (default) -- centered failure: the glyph in a hairline
+ *                              disc, a plain title, the detail in secondary
+ *                              text. Use for boot failures and full-screen
+ *                              errors.
+ *   - `'compact'` -- a `destructive-surface` wash with a left-aligned icon
+ *                    row, sized to inline content (replaces ad-hoc ErrorCards).
  *   - `'band'`    -- fills a fixed-height parent. The message shrinks and
  *                    clips; the retry stays fully inside the band.
  *
@@ -31,6 +33,7 @@ import { useTimers } from '@pkgs/clock-client/solid';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { cssGap, cssPx } from '@pkgs/ui-root-shared/css-px';
+import { iconSize } from '@pkgs/ui-root-shared/sizes';
 import {
   type Accessor,
   createEffect,
@@ -45,7 +48,7 @@ import { BUTTON_SIZES, type ButtonSize } from './button-parts';
 import type { IconComponent } from './create-icon';
 import { XIcon } from './icons';
 import type { StateBlockVariant } from './state-block';
-import { StateBlock } from './state-block';
+import { StateBlock, StateBlockIcon } from './state-block';
 
 export type ErrorStateRetry = {
   dataSet?: ComponentDataSet | undefined;
@@ -56,6 +59,8 @@ export type ErrorStateRetry = {
 export type ErrorStateSecondary = {
   label: JSX.Element;
   onClick: () => void;
+  /** DOM `data-*` identifiers for the button (a test handle). */
+  dataSet?: ComponentDataSet | undefined;
 };
 
 /** Injected clipboard sink (never a bare `navigator.clipboard`). */
@@ -81,9 +86,7 @@ export type ErrorStateProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-const ICON_SIZE_FILL = 32;
-const ICON_SIZE_COMPACT = 20;
-const BAND_ICON_SIZE = 20;
+/** The band is a fixed-height slot, so its insets are pinned as lengths. */
 const BAND_PAD = 12;
 
 export type ErrorStateLayout = StateBlockVariant | 'band';
@@ -165,7 +168,8 @@ function ErrorActionRow(props: {
       classList={{
         'justify-center': props.align === 'center',
         'justify-start': props.align === 'start',
-        'mt-1': props.flush !== true,
+        'mt-2': props.flush !== true && props.align === 'center',
+        'mt-1': props.flush !== true && props.align === 'start',
       }}
     >
       {props.children}
@@ -201,6 +205,7 @@ function SecondaryRecovery(props: {
       variant="outline"
       size={props.size}
       onClick={() => props.action.onClick()}
+      dataSet={props.action.dataSet}
     />
   );
 }
@@ -304,16 +309,10 @@ function ErrorStateFill(props: ErrorStateProps): JSX.Element {
       role="alert"
       dataSet={{ component: 'ErrorState', ...props.dataSet }}
     >
-      <Dynamic
-        component={props.icon ?? XIcon}
-        size={ICON_SIZE_FILL}
-        color="destructive"
-      />
-      <h1 class="text textHeading text-destructive text-center w-full">
-        {props.title}
-      </h1>
+      <StateBlockIcon icon={props.icon ?? XIcon} tone="destructive" />
+      <h1 class="text textSubtitle text-center w-full">{props.title}</h1>
       <Show when={props.body !== undefined && props.body !== null}>
-        <p class="text textBody text-text-secondary text-center">
+        <p class="text textBody text-text-secondary text-center w-full">
           {props.body}
         </p>
       </Show>
@@ -333,18 +332,18 @@ function ErrorStateFill(props: ErrorStateProps): JSX.Element {
 function ErrorStateCompact(props: ErrorStateProps): JSX.Element {
   return (
     <div
-      class="box flex-row items-start gap-3 p-3 border border-destructive bg-destructive-surface rounded-control"
+      class="box flex-row items-start gap-3 px-4 py-3 bg-destructive-surface rounded-control"
       {...dataAttrs({ component: 'ErrorState', ...props.dataSet })}
       role="alert"
     >
-      <div class="box pt-0.5">
+      <div class="box h-6 shrink-0 justify-center">
         <Dynamic
           component={props.icon ?? XIcon}
-          size={ICON_SIZE_COMPACT}
+          size={iconSize.md}
           color="destructive"
         />
       </div>
-      <div class="box flex-1 gap-1">
+      <div class="box flex-1 min-w-0 gap-1">
         <p class="text textBodyBold text-destructive">{props.title}</p>
         <Show when={props.body !== undefined && props.body !== null}>
           <p class="text textCaption text-destructive">{props.body}</p>
@@ -421,10 +420,10 @@ function BandMessage(props: ErrorStateProps): JSX.Element {
     >
       <Dynamic
         component={props.icon ?? XIcon}
-        size={BAND_ICON_SIZE}
+        size={iconSize.md}
         color="destructive"
       />
-      <p class="text textBodyBold text-destructive text-center line-clamp-2 w-full">
+      <p class="text textBodyBold text-center line-clamp-2 w-full">
         {props.title}
       </p>
       <Show when={props.body !== undefined && props.body !== null}>

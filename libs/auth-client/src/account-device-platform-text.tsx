@@ -1,3 +1,4 @@
+import { Text } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { EM_DASH } from './device-parsers';
@@ -13,5 +14,5 @@ export function AccountDevicePlatformText(
 ): JSX.Element {
   const platform = useDeviceColumn(() => props.deviceId, 'platform');
   const label = createMemo(() => platform() ?? EM_DASH);
-  return <p class="text textBody line-clamp-4">{label()}</p>;
+  return <Text variant="inherit">{label()}</Text>;
 }

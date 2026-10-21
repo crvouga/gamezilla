@@ -1,29 +1,63 @@
 import { useModeration } from '@libs/moderation-client/moderation-context';
 import { usernameLabel } from '@libs/moderation-shared/display';
-import type { TextVariant } from '@pkgs/ui-root-client/text';
+import type { HeadingSize } from '@pkgs/ui-root-client/heading';
+import { H2 } from '@pkgs/ui-root-client/heading';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
+import type { TextRole } from '@pkgs/ui-root-client/text';
+import { P, Text } from '@pkgs/ui-root-client/text';
+import type { TextAlign, TextLines } from '@pkgs/ui-root-client/text-classes';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
-import { createMemo, Show } from 'solid-js';
+import { createMemo, Match, Show, Switch } from 'solid-js';
 
 import { AccountAutomationLabel } from './account-automation-label';
 import { useProfileColumn } from './use-profile-column';
 
+/** A text role, or a display size when the name is a profile's heading. */
+export type UsernameRole = TextRole | Exclude<HeadingSize, 'label'>;
+
 export type UserUsernameProps = {
   /** Profile entity id (account or install id). `null` renders nothing. */
   profileId: string | null;
-  variant?: TextVariant | undefined;
-  class?: string | undefined;
-  numberOfLines?: number | undefined;
+  /** Default `body`. A display size renders the name as the identity heading. */
+  variant?: UsernameRole | undefined;
+  /** Clamp to this many lines; a clamped name is a block, otherwise inline. */
+  numberOfLines?: TextLines | undefined;
+  align?: TextAlign | undefined;
   /** When true, prefix with `@` (never on a masked alias). Default true. */
   withAt?: boolean | undefined;
+  /** Only `testid` is written (as `data-testid` on the name). */
   dataSet?: ComponentDataSet | undefined;
 };
+
+const HEADING_SIZES: ReadonlySet<UsernameRole> = new Set<UsernameRole>([
+  'title',
+  'heading',
+  'subtitle',
+  'navigationTitle',
+]);
+
+function headingSize(role: UsernameRole | undefined): HeadingSize | null {
+  return role !== undefined && HEADING_SIZES.has(role)
+    ? (role as HeadingSize)
+    : null;
+}
+
+function textRole(role: UsernameRole | undefined): TextRole {
+  return role === undefined || HEADING_SIZES.has(role)
+    ? 'body'
+    : (role as TextRole);
+}
+
+function testIdOf(dataSet: ComponentDataSet | undefined): string | undefined {
+  const testid = dataSet?.['testid'];
+  return typeof testid === 'string' ? testid : undefined;
+}
 
 /**
  * Renders the persisted username for a profile id from SQLite, as the
  * moderation policy lets others see it (a masked name shows its alias).
- * Returns `null` when no profile id is supplied; renders an empty `Text` when
+ * Returns `null` when no profile id is supplied; renders an empty text when
  * the row hasn't synced (so layout positioning stays stable).
  */
 export function UserUsername(props: UserUsernameProps): JSX.Element {
@@ -35,8 +69,8 @@ export function UserUsername(props: UserUsernameProps): JSX.Element {
           profileId={id}
           withAt={props.withAt ?? true}
           variant={props.variant}
-          class={props.class}
           numberOfLines={props.numberOfLines}
+          align={props.align}
           dataSet={props.dataSet}
         />
       )}
@@ -44,14 +78,12 @@ export function UserUsername(props: UserUsernameProps): JSX.Element {
   );
 }
 
-function UserUsernameInner(props: {
+type InnerProps = Omit<UserUsernameProps, 'profileId' | 'withAt'> & {
   profileId: string;
   withAt: boolean;
-  variant?: TextVariant | undefined;
-  class?: string | undefined;
-  numberOfLines?: number | undefined;
-  dataSet?: ComponentDataSet | undefined;
-}): JSX.Element {
+};
+
+function UserUsernameInner(props: InnerProps): JSX.Element {
   const username = useProfileColumn(() => props.profileId, 'username');
   const moderation = useModeration();
   const label = createMemo(() =>
@@ -59,38 +91,46 @@ function UserUsernameInner(props: {
       withAt: props.withAt,
     })
   );
+  const testId = () => testIdOf(props.dataSet);
   return (
-    <div class="inline-flex min-w-0 items-center gap-1">
-      <p
-        class="text textBody min-w-0"
-        classList={{
-          textBodyBold: String(props.variant) === 'bodyBold',
-          textCaption: String(props.variant) === 'caption',
-          textLabel: String(props.variant) === 'label',
-          textTitle: String(props.variant) === 'title',
-          textSubtitle: String(props.variant) === 'subtitle',
-          textHeading: String(props.variant) === 'heading',
-          textNavigationTitle: String(props.variant) === 'navigationTitle',
-          textLink: String(props.variant) === 'link',
-          textMono: String(props.variant) === 'mono',
-          'line-clamp-1': props.numberOfLines === 1,
-          [String(props.class)]: true,
-        }}
-        style={
-          props.numberOfLines !== undefined && props.numberOfLines > 1
-            ? {
-                display: '-webkit-box',
-                '-webkit-box-orient': 'vertical',
-                '-webkit-line-clamp': props.numberOfLines,
-                overflow: 'hidden',
-              }
-            : undefined
-        }
-        {...dataAttrs(props.dataSet)}
-      >
-        {label()}
-      </p>
-      <AccountAutomationLabel profileId={props.profileId} />
-    </div>
+    <Switch
+      fallback={
+        <>
+          <Text variant={textRole(props.variant)} testId={testId()}>
+            {label()}
+          </Text>
+          <AccountAutomationLabel profileId={props.profileId} />
+        </>
+      }
+    >
+      <Match when={headingSize(props.variant)}>
+        {(size) => (
+          <StackHorizontal align="center" justify="center" gap="xs">
+            <H2
+              size={size()}
+              lines={props.numberOfLines}
+              align={props.align}
+              testId={testId()}
+            >
+              {label()}
+            </H2>
+            <AccountAutomationLabel profileId={props.profileId} />
+          </StackHorizontal>
+        )}
+      </Match>
+      <Match when={props.numberOfLines !== undefined}>
+        <StackHorizontal align="center" gap="xs">
+          <P
+            variant={textRole(props.variant)}
+            lines={props.numberOfLines}
+            align={props.align}
+            testId={testId()}
+          >
+            {label()}
+          </P>
+          <AccountAutomationLabel profileId={props.profileId} />
+        </StackHorizontal>
+      </Match>
+    </Switch>
   );
 }

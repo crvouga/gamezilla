@@ -1,0 +1,32 @@
+/* Determinate fill eases to each new value. Indeterminate work sweeps a
+   partial fill across the track; reduced motion holds it still at the start,
+   which still reads as "working" without anything moving. */
+
+.fill {
+  transition: width var(--ui-duration-normal) var(--ui-easing-standard);
+}
+
+.sweep {
+  width: 40%;
+  animation: ui-progress-sweep calc(var(--ui-duration-slow) * 6)
+    var(--ui-easing-standard) infinite;
+}
+
+@keyframes ui-progress-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+  }
+
+  .sweep {
+    animation: none;
+  }
+}

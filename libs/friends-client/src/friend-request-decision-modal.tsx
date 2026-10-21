@@ -13,10 +13,11 @@ import { ModalBody, ModalFooter } from '@pkgs/ui-root-client/modal-parts';
 import type { MutationStateTransition } from '@pkgs/ui-root-client/mutation-lifecycle';
 import { useConfirmNavigation } from '@pkgs/ui-root-client/pending-navigation';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import type { JSX } from 'solid-js';
 import { createMemo, Show, untrack } from 'solid-js';
-
 import { FriendProfileAvatar } from './friend-profile-avatar';
 import { profileFromFriendRequestNotification } from './friend-request-notification-profile';
 
@@ -188,12 +189,14 @@ export function FriendRequestDecisionModal(
       size="medium"
     >
       <ModalBody>
-        <div class="box items-center gap-2">
+        <StackVertical align="center" gap="sm">
           <Show when={profile().userId.length > 0}>
             <FriendProfileAvatar profile={profile()} size={64} />
           </Show>
-          <p class="text textBodyBold text-center">{title()}</p>
-        </div>
+          <P variant="bodyBold" align="center">
+            {title()}
+          </P>
+        </StackVertical>
       </ModalBody>
       <ModalFooter>
         <AcceptButton

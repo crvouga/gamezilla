@@ -8,6 +8,7 @@
 import { expect } from 'bun:test';
 import { rulesTrail } from '@libs/game-session-harness/game-puzzle-laws';
 import type { PuzzleFixture } from '@libs/game-session-harness/known-puzzles';
+import { startUnnamedPuzzle } from '@libs/game-session-harness/puzzle-allowance';
 import { chosenFeedTheme } from '@libs/game-session-harness/puzzle-feed-choices';
 import {
   knownPuzzle,
@@ -179,6 +180,20 @@ export async function enterPuzzles(
 ): Promise<string> {
   await intoSpace(w, actor);
   await w.s.apply(openGamePuzzles, actor, puzzleGameId(w));
+  return trackPuzzle(w, actor);
+}
+
+/**
+ * Into `actor`'s space and onto a puzzle the scenario does not name, its
+ * start charged: never the game's known puzzle while the game knows
+ * another (`startUnnamedPuzzle`).
+ */
+export async function enterUnnamedPuzzle(
+  w: HarnessWorld,
+  actor: string
+): Promise<string> {
+  await intoSpace(w, actor);
+  await w.s.apply(startUnnamedPuzzle, actor, puzzleGameId(w));
   return trackPuzzle(w, actor);
 }
 

@@ -51,6 +51,13 @@ function sortDeviceIds(
   });
 }
 
+export type AccountDeviceIds = {
+  /** The listed device ids, current device first. */
+  readonly ids: Accessor<string[]>;
+  /** True until the local copy may paint and both reads have hydrated. */
+  readonly isLoading: Accessor<boolean>;
+};
+
 /**
  * Device ids for the given account, plus the current install row when
  * signed in. Sorted with the current device first, then by `last_seen_at`
@@ -58,7 +65,7 @@ function sortDeviceIds(
  */
 export function useAccountDeviceIds(
   accountId: Accessor<string | null>
-): Accessor<string[]> {
+): AccountDeviceIds {
   const { paintReady } = useSyncEngine();
   const currentDeviceId = useMyDeviceId();
   const scopedAccountId = createMemo(() => (paintReady() ? accountId() : null));
@@ -90,7 +97,7 @@ export function useAccountDeviceIds(
   `
   );
 
-  return createMemo(() => {
+  const ids = createMemo(() => {
     if (!paintReady()) return [];
     return sortDeviceIds(
       buildLastSeenMap({
@@ -101,4 +108,8 @@ export function useAccountDeviceIds(
       currentDeviceId()
     );
   });
+  const isLoading = createMemo(
+    () => !paintReady() || localRows.isLoading() || remoteRows.isLoading()
+  );
+  return { ids, isLoading };
 }

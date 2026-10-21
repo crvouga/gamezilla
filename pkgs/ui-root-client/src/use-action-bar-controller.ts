@@ -15,12 +15,14 @@ import type {
 import {
   ACTION_BAR_DEFAULT_GAP,
   actionBarHasContent,
+  actionBarRowWidth,
   partitionActionBarItems,
   partitionTextActions,
   resolveCombinedOverflow,
 } from './action-bar-logic';
 import { collectOverflowActions } from './action-bar-overflow';
 import { createElementWidth } from './create-element-width';
+import { createKeyedWidths, type KeyedWidths } from './create-keyed-widths';
 import type { OverflowMenuAction } from './overflow-menu-button';
 import type { AnchoredMenuController } from './use-anchored-menu';
 import { useAnchoredMenu } from './use-anchored-menu';
@@ -39,6 +41,7 @@ export type ActionBarControllerInput = {
   buttonSize?: number | undefined;
   gap?: number | undefined;
   slotWidth?: number | undefined;
+  showInlineLabels?: boolean | undefined;
 };
 
 export type ResolvedActionBarProps = {
@@ -54,10 +57,13 @@ export function resolveActionBarProps(
   input: ActionBarControllerInput
 ): ResolvedActionBarProps {
   const buttonSize = input.buttonSize ?? DEFAULT_BUTTON_SIZE;
+  // An icon-only control is its hit target wide; a labeled one is `slotWidth`.
+  const labeled =
+    input.showInlineLabels === true ? (input.slotWidth ?? buttonSize) : 0;
   return {
     buttonSize,
     gap: input.gap ?? ACTION_BAR_DEFAULT_GAP,
-    slotWidth: input.slotWidth ?? Math.max(buttonSize, MIN_SLOT_WIDTH),
+    slotWidth: Math.max(buttonSize, labeled, MIN_SLOT_WIDTH),
     overflow: input.overflow ?? 'auto',
     align: input.align ?? 'end',
     textActions: input.textActions ?? [],
@@ -70,11 +76,15 @@ export type ActionBarLayout = {
   overflowActions: OverflowMenuAction[];
 };
 
+/** Key for the More trigger in the measured widths. */
+export const ACTION_BAR_MORE_KEY = 'more';
+
 function computeLayout(args: {
   items: readonly ActionBarItem[];
   resolved: ResolvedActionBarProps;
   containerWidth: number;
   reservedWidth: number;
+  widths: KeyedWidths;
   onClose: () => void;
 }): ActionBarLayout {
   const { resolved } = args;
@@ -88,6 +98,8 @@ function computeLayout(args: {
           slotWidth: resolved.slotWidth,
           gap: resolved.gap,
           reservedWidth: args.reservedWidth,
+          itemWidth: (item) => args.widths.width(itemKey(item.id)),
+          moreWidth: moreWidth(args.widths, resolved),
         });
   const combined = resolveCombinedOverflow(icons, text);
   return {
@@ -102,6 +114,55 @@ function computeLayout(args: {
   };
 }
 
+/** Key for an icon item in the measured widths. */
+export function itemKey(id: string): string {
+  return `item:${id}`;
+}
+
+/** Key for a text action in the measured widths. */
+export function textKey(id: string): string {
+  return `text:${id}`;
+}
+
+function moreWidth(
+  widths: KeyedWidths,
+  resolved: ResolvedActionBarProps
+): number {
+  return widths.width(ACTION_BAR_MORE_KEY) ?? resolved.slotWidth;
+}
+
+/** Inline text actions, with the gap that separates them from the icons. */
+function textRowWidth(
+  widths: KeyedWidths,
+  inlineText: readonly ActionBarTextAction[],
+  gap: number
+): number {
+  const known = inlineText.map((a) => widths.width(textKey(a.id)) ?? 0);
+  const row = actionBarRowWidth(known, gap);
+  return row > 0 ? row + gap : 0;
+}
+
+/**
+ * Width of the bar with every action inline (the More trigger only for
+ * `always` items): the room it asks for before anything collapses.
+ */
+function naturalWidth(args: {
+  items: readonly ActionBarItem[];
+  resolved: ResolvedActionBarProps;
+  widths: KeyedWidths;
+  reservedWidth: number;
+}): number {
+  const { resolved, widths } = args;
+  const inline = args.items.filter((item) => item.overflow !== 'always');
+  const icons = inline.map(
+    (item) => widths.width(itemKey(item.id)) ?? resolved.slotWidth
+  );
+  if (inline.length < args.items.length) {
+    icons.push(moreWidth(widths, resolved));
+  }
+  return actionBarRowWidth(icons, resolved.gap) + args.reservedWidth;
+}
+
 export type ActionBarController = {
   menu: AnchoredMenuController;
   resolved: Accessor<ResolvedActionBarProps>;
@@ -111,6 +172,12 @@ export type ActionBarController = {
   measures: Accessor<boolean>;
   setContainer: (el: HTMLElement) => void;
   setEndSlot: (el: HTMLElement) => void;
+  /** Measured widths of inline items, text actions and the More trigger. */
+  widths: KeyedWidths;
+  /** Room the bar asks for with every action inline. */
+  naturalWidth: Accessor<number>;
+  /** Room the bar never gives up: the More trigger. */
+  minWidth: Accessor<number>;
 };
 
 export function useActionBarController(
@@ -122,18 +189,35 @@ export function useActionBarController(
   const [endSlotEl, setEndSlot] = createSignal<HTMLElement | null>(null);
   const containerWidth = createElementWidth(container);
   const endSlotWidth = createElementWidth(endSlotEl);
+  const widths = createKeyedWidths();
   const measures = (): boolean => resolved().overflow !== 'never';
-  const reservedWidth = (): number =>
+  const endReserve = (): number =>
     input.hasEndSlot && endSlotWidth() > 0
       ? endSlotWidth() + resolved().gap
       : 0;
+  const textReserve = (): number =>
+    textRowWidth(
+      widths,
+      partitionTextActions(resolved().textActions, resolved().overflow).inline,
+      resolved().gap
+    );
+  const reservedWidth = (): number => endReserve() + textReserve();
   const layout = createMemo(() =>
     computeLayout({
       items: input.items,
       resolved: resolved(),
       containerWidth: measures() ? containerWidth() : 0,
       reservedWidth: reservedWidth(),
+      widths,
       onClose: menu.close,
+    })
+  );
+  const natural = createMemo(() =>
+    naturalWidth({
+      items: input.items,
+      resolved: resolved(),
+      widths,
+      reservedWidth: reservedWidth(),
     })
   );
   const hasContent = (): boolean =>
@@ -151,5 +235,8 @@ export function useActionBarController(
     measures,
     setContainer: (el) => setContainer(el),
     setEndSlot: (el) => setEndSlot(el),
+    widths,
+    naturalWidth: natural,
+    minWidth: () => moreWidth(widths, resolved()),
   };
 }

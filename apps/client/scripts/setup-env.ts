@@ -9,7 +9,6 @@ import {
   PRODUCTION_API_HTTP_HOSTNAMES,
   productionApiUrlTigerExceptionEnabled,
 } from '@libs/app-root-shared/api-servers';
-import { normalizeLoopbackOriginToLocalhost } from '@libs/auth-shared/local-api-origin';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 import {
   assertCommitDateIso,
@@ -200,7 +199,6 @@ async function main(): Promise<void> {
     { value: raw }
   );
 
-  origin = normalizeLoopbackOriginToLocalhost(origin);
 
   assertTigerPolicyForResolvedApiOrigin(origin, 'forbid-prod-on-this-machine');
 

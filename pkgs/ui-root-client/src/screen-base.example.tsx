@@ -5,7 +5,7 @@ import { ScreenBase } from './screen-base';
 
 export default function ScreenBaseExample(): JSX.Element {
   return (
-    <ExampleRoot class="flex-1 min-h-100">
+    <ExampleRoot grow minHeight="lg">
       <ScreenBase
         screenId="screen-base-example"
         breadcrumbs={[

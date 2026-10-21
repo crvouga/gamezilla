@@ -2,111 +2,106 @@
 /**
  * `ScrollView` -- overflow-auto scroller with a flex content container.
  *
- * Frame styling uses `class` / `classList` / `style`; content styling uses
- * `contentClass` / `contentClassList` / `contentStyle`. Inside a padded shell
- * the scroller bleeds under the shell's edge padding (`flushEdge`) so the
- * scrollbar sits flush with the frame.
+ * The scroller takes the layout item props (`grow`, `self`, `width`,
+ * `height`, `maxWidth`, `minHeight`), a `maxHeight` cap and a surface `tone`;
+ * the content takes the spacing props (`gap`, `padding*`), `align` and
+ * `fill`, and a screen `measure` (on the leading edge, or centered with
+ * `measureAlign="center"`). Inside a padded shell the scroller bleeds under
+ * the shell's edge padding (`flushEdge`) so the scrollbar sits flush with the
+ * frame.
  */
 
-import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { componentDataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { type JSX, Show, splitProps } from 'solid-js';
-import {
-  requestsFlexFill,
-  resolveFlushEdgeStyles,
-  useContentEdgePadding,
-} from './content-edge-padding';
+import { type JSX, Show } from 'solid-js';
+import { useContentEdgePadding } from './content-edge-padding';
+import { flexContainerClass, spaced } from './layout-classes';
+import type { Align } from './layout-props';
+import { SCREEN_MAX_WIDTH, type ScreenMeasure } from './screen-measure';
+import type { ScrollFrameProps } from './scroll-frame';
+import { scrollFlush, scrollFrameClass, scrollHandlers } from './scroll-frame';
+import type { SpacingProps } from './space-classes';
+import { spacingClass } from './space-classes';
 
-export type ScrollViewProps = Omit<
-  JSX.HTMLAttributes<HTMLDivElement>,
-  'children' | 'ref'
-> & {
-  /** Extra classes on the content container. */
-  contentClass?: string | undefined;
-  /** Solid `classList` on the content container. */
-  contentClassList?: Record<string, boolean | undefined> | undefined;
-  /** Inline styles on the content container. */
-  contentStyle?: JSX.CSSProperties | undefined;
-  /** Scroll along the x axis instead. */
-  horizontal?: boolean | undefined;
-  /** Hide the scrollbar (still scrollable). */
-  hideScrollbar?: boolean | undefined;
-  /**
-   * When inside a padded shell, cancel edge padding so the scrollbar is flush.
-   * Default `true`.
-   */
-  flushEdge?: boolean | undefined;
-  /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
-  dataSet?: ComponentDataSet | undefined;
-  /** Scroller element ref (call `scrollTo` / read `scrollTop`). */
-  ref?: ((el: HTMLDivElement) => void) | undefined;
-  children?: JSX.Element | undefined;
-};
+export type { ScrollMaxHeight, ScrollRole } from './scroll-frame';
+
+export type ScrollViewProps = ScrollFrameProps &
+  SpacingProps & {
+    /** Cross-axis alignment of the content. Default `stretch`. */
+    align?: Align | undefined;
+    /** Grow the content to at least the scroller height (pins a footer). */
+    fill?: boolean | undefined;
+    /** Cap the content at a screen measure (`menu` / `prose` / `full`). */
+    measure?: ScreenMeasure | undefined;
+    /**
+     * Where a measured content column sits: on the leading edge (default)
+     * or centered in the scroller, the scrollbar still at the frame edge.
+     */
+    measureAlign?: 'start' | 'center' | undefined;
+    /** Scroll along the x axis instead. */
+    horizontal?: boolean | undefined;
+    /** Hide the scrollbar (still scrollable). */
+    hideScrollbar?: boolean | undefined;
+    children?: JSX.Element | undefined;
+  };
+
+function measureClass(
+  measure: ScrollViewProps['measure'],
+  align: ScrollViewProps['measureAlign']
+): string | undefined {
+  if (measure === undefined) return undefined;
+  return align === 'center' ? 'w-full mx-auto' : 'self-start w-full';
+}
 
 export function ScrollView(props: ScrollViewProps): JSX.Element {
   const edge = useContentEdgePadding();
-  const [local, rest] = splitProps(props, [
-    'contentClass',
-    'contentClassList',
-    'contentStyle',
-    'horizontal',
-    'hideScrollbar',
-    'flushEdge',
-    'dataSet',
-    'class',
-    'classList',
-    'children',
-  ]);
-  const flush = () => resolveFlushEdgeStyles(edge, local.flushEdge ?? true);
-  const flexFill = () => requestsFlexFill(local.class, local.classList);
+  const flush = () => scrollFlush(edge, props);
   const scrollerClass = () =>
-    [
+    spaced([
       'scroll',
-      local.horizontal ? 'scrollHorizontal' : undefined,
-      local.hideScrollbar ? 'scrollHideBar' : undefined,
-      local.class,
-    ]
-      .filter(Boolean)
-      .join(' ');
+      props.horizontal === true ? 'scrollHorizontal' : undefined,
+      props.hideScrollbar === true ? 'scrollHideBar' : undefined,
+      scrollFrameClass(props),
+    ]);
   const contentClass = () =>
-    [
+    spaced([
       'scrollContent',
-      local.horizontal ? 'scrollContentHorizontal' : undefined,
+      props.horizontal === true ? 'scrollContentHorizontal' : undefined,
       flush().contentClass,
-      local.contentClass,
-    ]
-      .filter(Boolean)
-      .join(' ');
+      spacingClass(props),
+      flexContainerClass({ align: props.align }),
+      props.fill === true ? 'grow' : undefined,
+      measureClass(props.measure, props.measureAlign),
+    ]);
+  // The measure is a CSS width, not a token class: a dynamic value.
+  const contentStyle = (): JSX.CSSProperties | undefined =>
+    props.measure === undefined
+      ? undefined
+      : { 'max-width': SCREEN_MAX_WIDTH[props.measure] };
   const scroller = (
     <div
+      ref={props.ref}
       class={scrollerClass()}
-      classList={local.classList}
-      {...componentDataAttrs('ScrollView', local.dataSet)}
-      {...rest}
+      {...componentDataAttrs('ScrollView', props.dataSet)}
+      id={props.id}
+      role={props.role}
+      aria-label={props['aria-label']}
+      aria-labelledby={props['aria-labelledby']}
+      tabIndex={props.tabIndex}
+      {...scrollHandlers(props)}
     >
       <div
         class={contentClass()}
-        classList={local.contentClassList}
-        style={local.contentStyle}
+        style={contentStyle()}
         data-component="ScrollViewContent"
       >
-        {local.children}
+        {props.children}
       </div>
     </div>
   );
   return (
     <Show when={flush().wrapperClass} fallback={scroller}>
       {(wrapperClass) => (
-        <div
-          class={[
-            wrapperClass(),
-            // Fill a flex parent and pass that definite height to `.scroll`.
-            flexFill() ? 'flex-1 min-h-0' : undefined,
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          style={flush().contentStyle}
-        >
+        <div class={wrapperClass()} style={flush().wrapperStyle}>
           {scroller}
         </div>
       )}

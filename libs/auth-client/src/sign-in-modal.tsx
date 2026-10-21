@@ -23,6 +23,7 @@ import { FadeSwitch } from '@pkgs/ui-root-client/fade-switch';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { ModalButton, ModalFooter } from '@pkgs/ui-root-client/modal-parts';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { SuccessState } from '@pkgs/ui-root-client/success-state';
 import {
   type Accessor,
@@ -60,8 +61,6 @@ export type SignInModalProps = {
   onCreateSeparate: (pendingLinkToken: string) => Promise<void>;
   onError?: ((error: Error) => void) | undefined;
 };
-
-const STATE_AREA_MIN_HEIGHT = 200;
 
 function useResetOnClose(args: {
   visible: () => boolean;
@@ -282,7 +281,7 @@ function SignInErrorContent(props: {
     return error === null ? null : authFlowErrorMessage(i18n(), error);
   };
   return (
-    <div class="box" data-testid={Handles.authSignInFailed}>
+    <StackVertical testId={Handles.authSignInFailed}>
       <StateArea outcome>
         <ErrorState
           title={t`Sign-in failed`}
@@ -297,7 +296,7 @@ function SignInErrorContent(props: {
           onClick={props.onClose}
         />
       </ModalFooter>
-    </div>
+    </StackVertical>
   );
 }
 
@@ -306,12 +305,13 @@ function StateArea(props: {
   outcome?: boolean;
 }): JSX.Element {
   return (
-    <div
-      class="box justify-center"
-      data-testid={props.outcome ? Handles.authSignInOutcome : undefined}
-      style={{ 'min-height': `${STATE_AREA_MIN_HEIGHT}px` }}
+    // The floor keeps the dialog's height across loading and outcome.
+    <StackVertical
+      justify="center"
+      minHeight="state"
+      testId={props.outcome ? Handles.authSignInOutcome : undefined}
     >
       {props.children}
-    </div>
+    </StackVertical>
   );
 }

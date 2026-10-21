@@ -2,9 +2,15 @@
 
 import type { FeedbackDocument } from '@pkgs/feedback-shared/workspace';
 import { asLocalized } from '@pkgs/i18n-shared/localized-string';
-import { ChevronRightIcon, SearchIcon } from '@pkgs/ui-root-client/icons';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import {
+  ChevronRightIcon,
+  SearchIcon,
+  SquarePenIcon,
+} from '@pkgs/ui-root-client/icons';
 import { List, ListItem } from '@pkgs/ui-root-client/list';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { type Accessor, createMemo, For, Show } from 'solid-js';
 import type { FeedbackController, FeedbackState } from './controller';
@@ -34,10 +40,12 @@ export function FeedbackManagement(props: {
     });
   });
   return (
-    <div
-      class="box flex-1 min-h-0 shrink gap-3 overflow-hidden"
-      data-component="FeedbackManagement"
-      data-testid="feedback-management"
+    <StackVertical
+      grow
+      shrink
+      gap="md"
+      overflow="hidden"
+      testId="feedback-management"
     >
       <TextInput
         type="search"
@@ -51,13 +59,21 @@ export function FeedbackManagement(props: {
       <Show
         when={documents().length}
         fallback={
-          <div class="box items-center px-4 py-8">
-            <p class="text textCaption">No feedback yet.</p>
-          </div>
+          <EmptyState
+            variant="compact"
+            icon={SquarePenIcon}
+            title={search().trim() ? 'No matching feedback' : 'No feedback yet'}
+            body={
+              search().trim()
+                ? 'Try another word from the title or description.'
+                : 'Issues you write or send appear here.'
+            }
+          />
         }
       >
         <ScrollView
-          class="box flex-1 min-h-0 shrink overflow-y-auto overscroll-contain"
+          grow
+          shrink
           role="region"
           aria-label="Issues"
           tabIndex={0}
@@ -78,7 +94,7 @@ export function FeedbackManagement(props: {
           </List>
         </ScrollView>
       </Show>
-    </div>
+    </StackVertical>
   );
 }
 

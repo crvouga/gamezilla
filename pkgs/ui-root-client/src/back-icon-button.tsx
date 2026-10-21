@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
- * `BackIconButton` -- icon button rendering a mirrored chevron, unfilled so
- * the header stays quiet; the press tint shows the hit target.
+ * `BackIconButton` -- icon button rendering a left chevron: a 24px outline
+ * glyph in text color in a 40px disc, unfilled so the header stays quiet;
+ * the hover / press tint shows the hit target.
  *
  * Centralizes the "back" affordance so every screen uses the same icon,
  * size, hit target, and accessible name.
@@ -22,7 +23,7 @@ export type BackIconButtonProps = {
   onClick: () => void;
   /** Diameter in pixels. Defaults to 40. */
   size?: number | undefined;
-  /** Background color token or raw color. Defaults to transparent. */
+  /** Plate color token. Defaults to none (transparent). */
   background?: string | undefined;
   /** Label override. Defaults to localized "Back". */
   label?: string | undefined;
@@ -30,7 +31,8 @@ export type BackIconButtonProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-const ICON_SIZE_RATIO = 0.5;
+/** 24px glyph in the default 40px disc, the header icon size. */
+const ICON_SIZE_RATIO = 0.6;
 
 export function BackIconButton(props: BackIconButtonProps): JSX.Element {
   const { t } = useLingui();

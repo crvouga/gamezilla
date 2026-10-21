@@ -87,7 +87,7 @@ export function CatalogDetailNav(props: CatalogDetailNavProps): JSX.Element {
         target={neighbor().prev}
         onNavigate={props.onNavigate}
       />
-      <div class="box flex-1 items-center gap-0.5">
+      <div class="box flex-1 items-center gap-1">
         <label class="text textLabel">{label()}</label>
         <p class="text textCaption text-text-secondary">{position()}</p>
       </div>

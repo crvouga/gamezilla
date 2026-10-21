@@ -11,6 +11,7 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { createAsync } from '@pkgs/async-root-client/solid';
 import { Combobox } from '@pkgs/ui-root-client/combobox';
 import { usePendingOperation } from '@pkgs/ui-root-client/pending-navigation';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type { ComboboxOption } from '@pkgs/ui-root-shared/combobox-types';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, Show } from 'solid-js';
@@ -81,7 +82,7 @@ export function SpaceShareAddPeople(props: {
   });
 
   return (
-    <div class="box gap-2">
+    <StackVertical gap="sm">
       <Combobox
         label={<Trans>Add people</Trans>}
         surfaceTitle={<Trans>Add people</Trans>}
@@ -102,6 +103,6 @@ export function SpaceShareAddPeople(props: {
         <UserSearchDenied />
       </Show>
       <SpaceAdditionState addition={addition} lastPick={lastPick} />
-    </div>
+    </StackVertical>
   );
 }

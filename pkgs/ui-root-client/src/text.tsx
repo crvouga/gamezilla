@@ -27,7 +27,8 @@
  * ```
  */
 
-import { componentId } from '@pkgs/ui-root-shared/component-id';
+import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
+import { componentId, dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
 import { spaced } from './layout-classes';
 import type { TextStyleProps } from './text-classes';
@@ -88,6 +89,11 @@ export type TextProps = TextStyleProps & {
   id?: string | undefined;
   /** Rendered as `data-testid`. */
   testId?: string | undefined;
+  /**
+   * Machine-readable marks for tests and harnesses, written as
+   * `data-<key>` (a state, an instant, an amount in cents).
+   */
+  dataSet?: ComponentDataSet | undefined;
   role?: TextAriaRole | undefined;
   'aria-label'?: string | undefined;
   'aria-describedby'?: string | undefined;
@@ -146,6 +152,7 @@ function textClass(kind: TextHostKind, text: TextProps): string {
 export function P(props: TextProps): JSX.Element {
   return (
     <p
+      {...dataAttrs(props.dataSet)}
       class={textClass(KIND.P, props)}
       id={props.id}
       data-testid={props.testId}
@@ -166,6 +173,7 @@ export function P(props: TextProps): JSX.Element {
 export function Text(props: TextProps): JSX.Element {
   return (
     <span
+      {...dataAttrs(props.dataSet)}
       class={textClass(KIND.Text, props)}
       id={props.id}
       data-testid={props.testId}
@@ -186,6 +194,7 @@ export function Text(props: TextProps): JSX.Element {
 export function Strong(props: TextProps): JSX.Element {
   return (
     <strong
+      {...dataAttrs(props.dataSet)}
       class={textClass(KIND.Strong, props)}
       id={props.id}
       data-testid={props.testId}
@@ -206,6 +215,7 @@ export function Strong(props: TextProps): JSX.Element {
 export function Em(props: TextProps): JSX.Element {
   return (
     <em
+      {...dataAttrs(props.dataSet)}
       class={textClass(KIND.Em, props)}
       id={props.id}
       data-testid={props.testId}
@@ -226,6 +236,7 @@ export function Em(props: TextProps): JSX.Element {
 export function Code(props: TextProps): JSX.Element {
   return (
     <code
+      {...dataAttrs(props.dataSet)}
       class={textClass(KIND.Code, props)}
       id={props.id}
       data-testid={props.testId}
@@ -246,6 +257,7 @@ export function Code(props: TextProps): JSX.Element {
 export function Time(props: TimeProps): JSX.Element {
   return (
     <time
+      {...dataAttrs(props.dataSet)}
       class={textClass(KIND.Time, props)}
       id={props.id}
       dateTime={props.dateTime}

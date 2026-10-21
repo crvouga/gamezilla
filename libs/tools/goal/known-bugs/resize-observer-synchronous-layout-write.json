@@ -1,0 +1,4 @@
+{
+  "summary": "ResizeObserver measurements synchronously change reactive layout during resize delivery, producing undelivered notification errors.",
+  "regressionTest": "pkgs/ui-root-client/tests/resize-delivery.test.ts"
+}

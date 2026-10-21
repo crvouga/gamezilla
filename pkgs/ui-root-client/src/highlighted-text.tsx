@@ -7,14 +7,16 @@
 import type { MatchRange } from '@pkgs/ui-root-shared/fuzzy-match';
 import { mergeRanges } from '@pkgs/ui-root-shared/fuzzy-match';
 import { createMemo, For, type JSX, Show } from 'solid-js';
-import type { TextVariant } from './text';
+import type { TextRole } from './text';
 
 export type HighlightedTextProps = {
   text: string;
   /** Inclusive index ranges to emphasise inside `text`. */
   ranges: readonly MatchRange[];
-  variant?: TextVariant | undefined;
-  boldVariant?: TextVariant | undefined;
+  /** Role of the plain runs. Default `body`. */
+  variant?: TextRole | undefined;
+  /** Role of the matched runs. Default `bodyBold`. */
+  boldVariant?: TextRole | undefined;
   numberOfLines?: number | undefined;
 };
 
@@ -40,23 +42,22 @@ export function highlightSegments(
   return segments;
 }
 
-function variantClassList(variant: TextVariant): Record<string, boolean> {
-  return {
-    textBodyBold: variant === 'bodyBold',
-    textCaption: variant === 'caption',
-    textLabel: variant === 'label',
-    textTitle: variant === 'title',
-    textSubtitle: variant === 'subtitle',
-    textHeading: variant === 'heading',
-    textNavigationTitle: variant === 'navigationTitle',
-    textLink: variant === 'link',
-    textMono: variant === 'mono',
-  };
+const ROLE_CLASS: Readonly<Record<TextRole, string>> = {
+  body: 'textBody',
+  bodyBold: 'textBodyBold',
+  label: 'textLabel',
+  caption: 'textCaption',
+  footnote: 'textFootnote',
+  mono: 'textMono',
+};
+
+function variantClassList(variant: TextRole): Record<string, boolean> {
+  return { [ROLE_CLASS[variant]]: true };
 }
 
 export function HighlightedText(props: HighlightedTextProps): JSX.Element {
-  const variant = (): TextVariant => props.variant ?? 'body';
-  const boldVariant = (): TextVariant => props.boldVariant ?? 'bodyBold';
+  const variant = (): TextRole => props.variant ?? 'body';
+  const boldVariant = (): TextRole => props.boldVariant ?? 'bodyBold';
   const segments = createMemo(() =>
     highlightSegments(props.text, props.ranges)
   );

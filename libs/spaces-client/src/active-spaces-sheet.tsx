@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
+import { List } from '@pkgs/ui-root-client/list';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import type { JSX } from 'solid-js';
@@ -32,17 +33,19 @@ export function ActiveSpacesSheet(props: ActiveSpacesSheetProps): JSX.Element {
       stackId="active-spaces-sheet"
       scroll={false}
     >
-      <ScrollView class="max-h-105" contentClass="px-0">
-        <For each={props.spaceIds}>
-          {(spaceId) => (
-            <ActiveSpaceSheetRow
-              spaceId={spaceId}
-              onOpen={props.onClose}
-              requestEndSpace={props.requestEndSpace}
-              requestLeaveSpace={props.requestLeaveSpace}
-            />
-          )}
-        </For>
+      <ScrollView maxHeight="lg">
+        <List>
+          <For each={props.spaceIds}>
+            {(spaceId) => (
+              <ActiveSpaceSheetRow
+                spaceId={spaceId}
+                onOpen={props.onClose}
+                requestEndSpace={props.requestEndSpace}
+                requestLeaveSpace={props.requestLeaveSpace}
+              />
+            )}
+          </For>
+        </List>
       </ScrollView>
     </ResponsiveSurface>
   );

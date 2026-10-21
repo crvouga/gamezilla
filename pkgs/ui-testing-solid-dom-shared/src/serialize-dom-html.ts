@@ -59,12 +59,6 @@ function escapeAttr(value: string): string {
     .replace(/'/g, '&#39;');
 }
 
-const FONT_LINKS = [
-  '<link rel="preconnect" href="https://fonts.googleapis.com" />',
-  '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
-  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@24,500..800&display=swap" />',
-];
-
 /**
  * Serialize the actor's rendered DOM (container plus body-level portal nodes
  * it owns) into a standalone HTML document for simulation reports.
@@ -86,7 +80,6 @@ export function serializeDomHtml(
     '<meta name="viewport" content="width=device-width, initial-scale=1" />',
     '<meta name="color-scheme" content="dark" />',
     '<title>UI snapshot</title>',
-    ...FONT_LINKS,
     styleBlock,
     '</head>',
     `<body><div class="dom-root">${body}</div></body>`,

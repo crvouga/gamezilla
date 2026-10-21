@@ -1,11 +1,17 @@
 /** @jsxImportSource solid-js */
 
-import { describe, expect, mock, test } from 'bun:test';
+import { afterEach, describe, expect, mock, spyOn, test } from 'bun:test';
 import { ActionBar } from '@pkgs/ui-root-client/action-bar';
 import { ACTION_BAR_FEEDBACK_RESET_MS } from '@pkgs/ui-root-client/action-bar-icon-button';
 import { ActionBarLabeledControl } from '@pkgs/ui-root-client/action-bar-labeled-control';
 import { BottomActionBar } from '@pkgs/ui-root-client/bottom-action-bar';
-import { PlusIcon, SettingsIcon, ShareIcon } from '@pkgs/ui-root-client/icons';
+import {
+  PlusIcon,
+  SettingsIcon,
+  ShareIcon,
+  UsersIcon,
+  XIcon,
+} from '@pkgs/ui-root-client/icons';
 import type { OverflowMenuRenderProps } from '@pkgs/ui-root-client/overflow-menu-button';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
@@ -144,6 +150,110 @@ describe('ActionBar', () => {
     expect(cssOf(btn)).toContain('min-height:44px');
     fireEvent.click(btn);
     expect(onClick).toHaveBeenCalledTimes(1);
+  });
+});
+
+// regression: space-header-actions-overlap-title
+describe('ActionBar in a box too narrow for its actions', () => {
+  afterEach(() => {
+    mock.restore();
+  });
+
+  /** Lay out every `ActionBar` box `width` px wide; nothing else is measured. */
+  function layOutBarsAt(width: number): void {
+    const original = HTMLElement.prototype.getBoundingClientRect;
+    spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(
+      function (this: HTMLElement) {
+        if (this.dataset['component'] === 'ActionBar') {
+          return new DOMRect(0, 0, width, 44);
+        }
+        return original.call(this);
+      }
+    );
+  }
+
+  function SpaceLikeBar(props: {
+    renderMenu: (menu: OverflowMenuRenderProps) => JSX.Element;
+  }): JSX.Element {
+    return (
+      <ActionBar
+        buttonSize={40}
+        renderMenu={props.renderMenu}
+        overflowDataSet={{ testid: 'bar-more' }}
+        items={[
+          {
+            id: 'members',
+            variant: 'avatar',
+            label: 'People in this space',
+            onClick: () => {},
+            overflow: 'never',
+            priority: 90,
+            children: <UsersIcon size={24} />,
+          },
+          {
+            id: 'end',
+            label: 'End space',
+            icon: XIcon,
+            onClick: () => {},
+            overflow: 'never',
+            priority: 95,
+          },
+          {
+            id: 'share',
+            label: 'Share',
+            icon: ShareIcon,
+            onClick: () => {},
+            overflow: 'always',
+          },
+        ]}
+      />
+    );
+  }
+
+  test.each([1, 43, 44, 60, 95])(
+    'a %ipx box shows only the More trigger, and More holds every action',
+    (width) => {
+      layOutBarsAt(width);
+      const renderMenu = mock<(menu: OverflowMenuRenderProps) => JSX.Element>(
+        () => null
+      );
+      renderUi(() => <SpaceLikeBar renderMenu={renderMenu} />, { width: 320 });
+      const bar = mustQuery('[data-component="ActionBar"]');
+      // Inline controls, More included, must fit the box: one 44px slot.
+      expect(bar.querySelectorAll('button')).toHaveLength(1);
+      expect(
+        screen.queryByRole('button', { name: 'People in this space' })
+      ).toBeNull();
+      expect(screen.queryByRole('button', { name: 'End space' })).toBeNull();
+      fireEvent.click(screen.getByTestId('bar-more'));
+      const last = renderMenu.mock.calls.at(-1)?.[0];
+      expect(last?.content.rows.map((r) => r.id)).toEqual([
+        'members',
+        'end',
+        'share',
+      ]);
+    }
+  );
+
+  test('the bar asks for its full row but gives it up down to the More trigger', () => {
+    layOutBarsAt(60);
+    renderUi(() => <SpaceLikeBar renderMenu={() => null} />, { width: 320 });
+    const css = cssOf(mustQuery('[data-component="ActionBar"]'));
+    // members 44 + end 44 + More 44, 8px apart.
+    expect(css).toContain('width:148px');
+    expect(css).toContain('max-width:100%');
+    expect(css).toContain('min-width:44px');
+    expect(css).toContain('flex-shrink:1000');
+  });
+
+  test('a box with room for everything shows every action inline', () => {
+    layOutBarsAt(148);
+    renderUi(() => <SpaceLikeBar renderMenu={() => null} />, { width: 320 });
+    const bar = mustQuery('[data-component="ActionBar"]');
+    expect(bar.querySelectorAll('button')).toHaveLength(3);
+    // A lone overflow action takes the More trigger's place when it fits.
+    expect(screen.getByRole('button', { name: 'Share' })).toBeInTheDocument();
+    expect(screen.queryByTestId('bar-more')).toBeNull();
   });
 });
 

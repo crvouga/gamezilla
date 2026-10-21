@@ -1,6 +1,8 @@
 /** @jsxImportSource solid-js */
 import { Handles } from '@libs/test-ids-shared/handles';
+import type { IconComponent } from '@pkgs/ui-root-client/create-icon';
 import { ServerIcon, WifiOffIcon } from '@pkgs/ui-root-client/icons';
+import { StatusIconSlot } from '@pkgs/ui-root-client/status-icon-slot';
 import { type JSX, Show } from 'solid-js';
 import type { ConnectionCause } from './connection-cause';
 import {
@@ -24,27 +26,18 @@ export function ConnectionStatusIndicator(props: {
   const label = useConnectionNoticeLabel();
   const unreachable = (): boolean =>
     props.cause === 'unreachable' || props.cause === 'checking';
+  /** Follows the cause while shown, so the slot itself never remounts. */
+  const CauseIcon: IconComponent = (iconProps) => (
+    <Show when={unreachable()} fallback={<WifiOffIcon {...iconProps} />}>
+      <ServerIcon {...iconProps} />
+    </Show>
+  );
   return (
-    <div
-      class="box h-8 w-8 shrink-0 items-center justify-center"
-      data-component="ConnectionStatus"
-    >
-      <Show when={props.cause !== 'connected'}>
-        <span
-          role="status"
-          aria-live="polite"
-          title={label(props.cause)}
-          data-testid={Handles.statusConnectionMissing}
-        >
-          <Show
-            when={unreachable()}
-            fallback={<WifiOffIcon size={20} color="icon" />}
-          >
-            <ServerIcon size={20} color="icon" />
-          </Show>
-          <span class="sr-only">{label(props.cause)}</span>
-        </span>
-      </Show>
-    </div>
+    <StatusIconSlot
+      shown={props.cause !== 'connected'}
+      icon={CauseIcon}
+      label={label(props.cause)}
+      testId={Handles.statusConnectionMissing}
+    />
   );
 }

@@ -8,7 +8,6 @@
  * scroller bleeds under the shell edge padding like `ScrollView`.
  */
 
-import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { componentDataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { VirtualListViewport } from '@pkgs/ui-root-shared/virtual-list-types';
 import {
@@ -16,18 +15,14 @@ import {
   type VirtualItem,
   type Virtualizer,
 } from '@tanstack/solid-virtual';
-import { createMemo, For, type JSX, Show, splitProps, untrack } from 'solid-js';
-import {
-  requestsFlexFill,
-  resolveFlushEdgeStyles,
-  useContentEdgePadding,
-} from './content-edge-padding';
+import { createMemo, For, type JSX, Show, untrack } from 'solid-js';
+import { useContentEdgePadding } from './content-edge-padding';
+import { spaced } from './layout-classes';
+import type { ScrollFrameProps } from './scroll-frame';
+import { scrollFlush, scrollFrameClass, scrollHandlers } from './scroll-frame';
 import { useTestViewport } from './test-viewport';
 
-export type VirtualListProps<ItemT> = Omit<
-  JSX.HTMLAttributes<HTMLDivElement>,
-  'children' | 'ref'
-> & {
+export type VirtualListProps<ItemT> = ScrollFrameProps & {
   items: readonly ItemT[];
   /** Stable key per item (used for row identity + measurement cache). */
   keyExtractor: (item: ItemT, index: number) => string;
@@ -44,22 +39,13 @@ export type VirtualListProps<ItemT> = Omit<
   footer?: JSX.Element | undefined;
   /** Rendered instead of rows when `items` is empty. */
   empty?: JSX.Element | undefined;
-  /** Extra classes on the content container. */
-  contentClass?: string | undefined;
-  /** Solid `classList` on the content container. */
-  contentClassList?: Record<string, boolean | undefined> | undefined;
-  /** Inline styles on the content container. */
-  contentStyle?: JSX.CSSProperties | undefined;
-  /** Cancel shell edge padding so the scrollbar is flush. Default `true`. */
-  flushEdge?: boolean | undefined;
   /**
    * Fixed scroller size for environments without layout (tests). When set the
    * scroller box is not observed.
    */
   fixedViewport?: VirtualListViewport | undefined;
-  /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
-  dataSet?: ComponentDataSet | undefined;
-  ref?: ((el: HTMLDivElement) => void) | undefined;
+  /** A `listbox` that allows more than one selected option. */
+  'aria-multiselectable'?: boolean | undefined;
 };
 
 const DEFAULT_ESTIMATE = 56;
@@ -148,6 +134,7 @@ function createListVirtualizer<ItemT>(
       return local.gap ?? 0;
     },
     getScrollElement,
+    useAnimationFrameWithResizeObserver: true,
     estimateSize: estimate,
     getItemKey: (index) => {
       const item = local.items[index];
@@ -164,91 +151,56 @@ function createListVirtualizer<ItemT>(
   });
 }
 
-function mergeStyle(
-  a: JSX.CSSProperties | string | undefined,
-  b: JSX.CSSProperties | string | undefined
-): JSX.CSSProperties | string | undefined {
-  if (a === undefined || a === '') return b;
-  if (b === undefined || b === '') return a;
-  if (typeof a === 'string' || typeof b === 'string') {
-    return [a, b].filter((x): x is string => typeof x === 'string').join(';');
-  }
-  return { ...a, ...b };
-}
-
 function fixedScrollerStyle(
-  fixedHeight: number | undefined,
-  style: JSX.CSSProperties | string | undefined
-): JSX.CSSProperties | string | undefined {
-  if (fixedHeight === undefined) return style;
-  return mergeStyle({ height: `${fixedHeight}px` }, style);
+  fixedHeight: number | undefined
+): JSX.CSSProperties | undefined {
+  return fixedHeight === undefined ? undefined : { height: `${fixedHeight}px` };
 }
 
 export function VirtualList<ItemT>(
   props: VirtualListProps<ItemT>
 ): JSX.Element {
   const edge = useContentEdgePadding();
-  const [local, rest] = splitProps(props, [
-    'items',
-    'keyExtractor',
-    'renderItem',
-    'estimateSize',
-    'overscan',
-    'gap',
-    'header',
-    'footer',
-    'empty',
-    'contentClass',
-    'contentClassList',
-    'contentStyle',
-    'flushEdge',
-    'fixedViewport',
-    'dataSet',
-    'class',
-    'classList',
-    'style',
-    'ref',
-  ]);
   let scroller: HTMLDivElement | undefined;
   const testViewport = useTestViewport();
   const virtualizer = createListVirtualizer(
-    local,
+    props,
     () => scroller ?? null,
     testViewport
   );
-  const flush = () => resolveFlushEdgeStyles(edge, local.flushEdge ?? true);
-  const flexFill = () => requestsFlexFill(local.class, local.classList);
-  const fixedHeight = untrack(() => local.fixedViewport?.height);
+  const flush = () => scrollFlush(edge, props);
+  const fixedHeight = untrack(() => props.fixedViewport?.height);
 
   const list = (
     <div
       ref={(el) => {
         scroller = el;
-        local.ref?.(el);
+        props.ref?.(el);
       }}
-      class={['scroll', local.class].filter(Boolean).join(' ')}
-      classList={local.classList}
-      style={fixedScrollerStyle(fixedHeight, local.style)}
-      {...componentDataAttrs('VirtualList', local.dataSet)}
-      {...rest}
+      class={spaced(['scroll', scrollFrameClass(props)])}
+      style={fixedScrollerStyle(fixedHeight)}
+      {...componentDataAttrs('VirtualList', props.dataSet)}
+      id={props.id}
+      role={props.role}
+      aria-label={props['aria-label']}
+      aria-labelledby={props['aria-labelledby']}
+      aria-multiselectable={props['aria-multiselectable']}
+      tabIndex={props.tabIndex}
+      {...scrollHandlers(props)}
     >
       <div
-        class={['scrollContent', flush().contentClass, local.contentClass]
-          .filter(Boolean)
-          .join(' ')}
-        classList={local.contentClassList}
-        style={local.contentStyle}
+        class={spaced(['scrollContent', flush().contentClass])}
         data-component="VirtualListContent"
       >
-        {local.header}
-        <Show when={local.items.length > 0} fallback={local.empty}>
+        {props.header}
+        <Show when={props.items.length > 0} fallback={props.empty}>
           <VirtualRows
             virtualizer={virtualizer}
-            items={local.items}
-            renderItem={local.renderItem}
+            items={props.items}
+            renderItem={props.renderItem}
           />
         </Show>
-        {local.footer}
+        {props.footer}
       </div>
     </div>
   );
@@ -256,16 +208,7 @@ export function VirtualList<ItemT>(
   return (
     <Show when={flush().wrapperClass} fallback={list}>
       {(wrapperClass) => (
-        <div
-          class={[
-            wrapperClass(),
-            // Match ScrollView: fill flex parent and pass height to `.scroll`.
-            flexFill() ? 'flex-1 min-h-0' : undefined,
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          style={flush().contentStyle}
-        >
+        <div class={wrapperClass()} style={flush().wrapperStyle}>
           {list}
         </div>
       )}

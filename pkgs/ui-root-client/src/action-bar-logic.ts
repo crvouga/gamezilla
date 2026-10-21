@@ -72,13 +72,22 @@ export type ActionBarPartition = {
 export type PartitionActionBarLayout = {
   containerWidth: number;
   buttonSize: number;
-  /** Horizontal budget per inline slot; defaults to `buttonSize`. */
+  /** Width of an item that has not been measured yet; defaults to `buttonSize`. */
   slotWidth?: number | undefined;
   gap?: number | undefined;
   reservedWidth?: number | undefined;
+  /** Rendered width of an item, when it has been measured. */
+  itemWidth?: ((item: ActionBarItem) => number | undefined) | undefined;
+  /** Width of the More trigger; defaults to `slotWidth`. */
+  moreWidth?: number | undefined;
 };
 
 export const ACTION_BAR_DEFAULT_GAP = 8;
+
+/** Glyph size for a control `buttonSize` across: 24px in the 40px disc. */
+export function actionBarGlyphSize(buttonSize: number): number {
+  return Math.round(buttonSize * 0.6);
+}
 
 export function isActionBarAvatarItem(
   item: ActionBarItem
@@ -86,112 +95,34 @@ export function isActionBarAvatarItem(
   return item.variant === 'avatar';
 }
 
-function itemSets(items: readonly ActionBarItem[]): {
-  always: Set<string>;
-  never: Set<string>;
-} {
-  const always = new Set<string>();
-  const never = new Set<string>();
-  for (const item of items) {
-    if (item.overflow === 'always') always.add(item.id);
-    if (item.overflow === 'never') never.add(item.id);
-  }
-  return { always, never };
-}
-
-type AssignmentState = {
-  visibleIds: Set<string>;
-  overflowIds: Set<string>;
-  maxVisible: number;
-};
-
-function placeItem(itemId: string, state: AssignmentState): void {
-  if (state.visibleIds.size < state.maxVisible) state.visibleIds.add(itemId);
-  else state.overflowIds.add(itemId);
-}
-
-function isPlaced(id: string, state: AssignmentState): boolean {
-  return state.visibleIds.has(id) || state.overflowIds.has(id);
-}
-
-function pickVisibleIds(
-  items: readonly ActionBarItem[],
-  maxVisible: number,
-  sets: { always: Set<string>; never: Set<string> }
-): { visibleIds: Set<string>; overflowIds: Set<string> } {
-  const state: AssignmentState = {
-    visibleIds: new Set<string>(),
-    overflowIds: new Set<string>(sets.always),
-    maxVisible,
-  };
-  // 1. `never` items claim slots first.
-  for (const item of items) {
-    if (sets.never.has(item.id) && !sets.always.has(item.id)) {
-      placeItem(item.id, state);
-    }
-  }
-  // 2. `auto` items by descending priority.
-  const auto = items.filter(
-    (item) => !sets.never.has(item.id) && !sets.always.has(item.id)
+function alwaysIds(items: readonly ActionBarItem[]): Set<string> {
+  return new Set(
+    items.filter((item) => item.overflow === 'always').map((item) => item.id)
   );
-  for (const item of [...auto].sort(
-    (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
-  )) {
-    if (!isPlaced(item.id, state)) placeItem(item.id, state);
-  }
-  // 3. Anything left, in source order.
-  for (const item of items) {
-    if (!isPlaced(item.id, state)) placeItem(item.id, state);
-  }
-  return { visibleIds: state.visibleIds, overflowIds: state.overflowIds };
 }
 
-function partitionByVisibleCount(
-  items: readonly ActionBarItem[],
-  maxVisible: number
-): ActionBarPartition {
-  if (maxVisible <= 0) return { visible: [], overflow: [...items] };
-  const { visibleIds, overflowIds } = pickVisibleIds(
-    items,
-    maxVisible,
-    itemSets(items)
-  );
-  return {
-    visible: items.filter((item) => visibleIds.has(item.id)),
-    overflow: items.filter((item) => overflowIds.has(item.id)),
-  };
-}
-
-/** Prefer no More menu when overflow would hold fewer than two actions. */
-function expandSingletonOverflow(
-  partition: ActionBarPartition
-): ActionBarPartition {
-  if (partition.overflow.length !== 1) return partition;
-  return {
-    visible: [...partition.visible, ...partition.overflow],
-    overflow: [],
-  };
+/**
+ * The order items claim room in: `never` items first (source order), then
+ * `auto` items by descending priority. `always` items never claim room.
+ */
+function placementOrder(items: readonly ActionBarItem[]): ActionBarItem[] {
+  const pinned = items.filter((item) => item.overflow === 'never');
+  const auto = items
+    .filter((item) => item.overflow !== 'never' && item.overflow !== 'always')
+    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+  return [...pinned, ...auto];
 }
 
 /** Before the first layout pass, budget is unknown — keep inline items visible. */
 function partitionBeforeMeasure(
   items: readonly ActionBarItem[]
 ): ActionBarPartition {
-  const { always } = itemSets(items);
-  return expandSingletonOverflow({
-    visible: items.filter((item) => !always.has(item.id)),
-    overflow: items.filter((item) => always.has(item.id)),
-  });
-}
-
-export function maxIconSlots(
-  availableWidth: number,
-  slotWidth: number,
-  gap: number = ACTION_BAR_DEFAULT_GAP
-): number {
-  const slotStride = slotWidth + gap;
-  if (slotStride <= 0) return 0;
-  return Math.floor(availableWidth / slotStride);
+  const always = alwaysIds(items);
+  const visible = items.filter((item) => !always.has(item.id));
+  const overflow = items.filter((item) => always.has(item.id));
+  // Prefer no More menu when it would hold a single action.
+  if (overflow.length === 1) return { visible: [...items], overflow: [] };
+  return { visible, overflow };
 }
 
 /** Width left for icon slots after reserving fixed trailing chrome. */
@@ -202,6 +133,51 @@ export function actionBarBudgetWidth(
   return Math.max(0, containerWidth - reservedWidth);
 }
 
+/** Total width of `widths` laid out in a row `gap` apart. */
+export function actionBarRowWidth(
+  widths: readonly number[],
+  gap: number
+): number {
+  if (widths.length === 0) return 0;
+  return widths.reduce((sum, w) => sum + w, 0) + gap * (widths.length - 1);
+}
+
+/** The longest prefix of `order` whose row fits in `budget`. */
+function fittingPrefix(
+  order: readonly ActionBarItem[],
+  widthOf: (item: ActionBarItem) => number,
+  budget: number,
+  gap: number
+): Set<string> {
+  const fitted = new Set<string>();
+  let used = 0;
+  for (const item of order) {
+    const next = used + (fitted.size > 0 ? gap : 0) + widthOf(item);
+    if (next > budget) break;
+    fitted.add(item.id);
+    used = next;
+  }
+  return fitted;
+}
+
+function splitByIds(
+  items: readonly ActionBarItem[],
+  visibleIds: Set<string>
+): ActionBarPartition {
+  return {
+    visible: items.filter((item) => visibleIds.has(item.id)),
+    overflow: items.filter((item) => !visibleIds.has(item.id)),
+  };
+}
+
+/**
+ * Which items render inline and which collapse into the More menu. The inline
+ * row, More trigger included, always fits `containerWidth - reservedWidth`:
+ * an item that does not fit collapses, whatever its policy or priority, so
+ * the bar never paints outside its box. A budget too small for any item
+ * yields the More trigger alone. `containerWidth <= 0` means "not measured
+ * yet" and keeps every non-`always` item inline.
+ */
 export function partitionActionBarItems(
   items: readonly ActionBarItem[],
   layout: PartitionActionBarLayout
@@ -211,21 +187,29 @@ export function partitionActionBarItems(
 
   const gap = layout.gap ?? ACTION_BAR_DEFAULT_GAP;
   const slotWidth = layout.slotWidth ?? layout.buttonSize;
+  const moreWidth = layout.moreWidth ?? slotWidth;
+  const widthOf = (item: ActionBarItem): number =>
+    layout.itemWidth?.(item) ?? slotWidth;
   const budget = actionBarBudgetWidth(
     layout.containerWidth,
     layout.reservedWidth ?? 0
   );
-  const slots = maxIconSlots(budget, slotWidth, gap);
+  const order = placementOrder(items);
 
-  const fitted = partitionByVisibleCount(items, slots);
-  if (fitted.overflow.length === 0) return fitted;
+  const withoutMore = fittingPrefix(order, widthOf, budget, gap);
+  if (withoutMore.size === items.length) return splitByIds(items, withoutMore);
 
-  // Reserve a More slot only when at least two actions would overflow.
-  if (slots > 0) {
-    const withTrigger = partitionByVisibleCount(items, slots - 1);
-    if (withTrigger.overflow.length >= 2) return withTrigger;
+  const withMore = fittingPrefix(order, widthOf, budget - moreWidth - gap, gap);
+  const partition = splitByIds(items, withMore);
+  // A lone overflow item takes the More trigger's place when it fits there.
+  const everything = items.map(widthOf);
+  if (
+    partition.overflow.length === 1 &&
+    actionBarRowWidth(everything, gap) <= budget
+  ) {
+    return { visible: [...items], overflow: [] };
   }
-  return expandSingletonOverflow(fitted);
+  return partition;
 }
 
 export type ScreenBaseActionLike = {
@@ -282,33 +266,24 @@ export type CombinedOverflow = {
   overflowText: ActionBarTextAction[];
 };
 
-/** Expand a combined one-item overflow so More never holds a single action. */
+/**
+ * Pull a lone overflow text action back inline so More never holds a single
+ * text action. Icon overflow is already width-resolved by
+ * {@link partitionActionBarItems} and is kept as is: pulling an icon back
+ * inline could push the row outside its box.
+ */
 export function resolveCombinedOverflow(
   iconPartition: ActionBarPartition,
   text: TextActionPartition
 ): CombinedOverflow {
-  const total = iconPartition.overflow.length + text.overflow.length;
-  if (total !== 1) {
-    return {
-      partition: iconPartition,
-      inlineText: [...text.inline],
-      overflowText: [...text.overflow],
-    };
-  }
-  if (iconPartition.overflow.length === 1) {
-    return {
-      partition: {
-        visible: [...iconPartition.visible, ...iconPartition.overflow],
-        overflow: [],
-      },
-      inlineText: [...text.inline],
-      overflowText: [],
-    };
-  }
+  const lonelyText =
+    iconPartition.overflow.length === 0 && text.overflow.length === 1;
   return {
     partition: iconPartition,
-    inlineText: [...text.inline, ...text.overflow],
-    overflowText: [],
+    inlineText: lonelyText
+      ? [...text.inline, ...text.overflow]
+      : [...text.inline],
+    overflowText: lonelyText ? [] : [...text.overflow],
   };
 }
 

@@ -1,6 +1,7 @@
 import type { Inspection } from '@libs/synthetic-population-shared/inspection';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
+import { CodeBlock } from '@pkgs/ui-root-client/code-block';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
@@ -51,12 +52,9 @@ export function SyntheticUserDom(props: {
                 />
               )}
             </For>
-            <pre
-              class="text textMono overflow-auto"
-              data-testid="synthetic-population-dom"
-            >
+            <CodeBlock framed={false} testId="synthetic-population-dom">
               {view.html}
-            </pre>
+            </CodeBlock>
           </>
         )}
       </Show>

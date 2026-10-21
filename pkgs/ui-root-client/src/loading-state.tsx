@@ -2,8 +2,8 @@
 /**
  * `LoadingState` -- canonical async loading block.
  *
- * Reach for this anywhere you would have hand-rolled a `<SpinnerBox flex:1 />`
- * with an optional caption underneath. Two variants:
+ * The one block a screen, section or sheet shows while it waits: the
+ * `Spinner` with an optional caption underneath. Two variants:
  *   - `'fill'`    (default) -- centered Spinner inside `flex: 1`. Use for
  *                              full-screen Suspense fallbacks and screen-level
  *                              loads.
@@ -12,7 +12,7 @@
  *
  * @example
  * ```tsx
- * <Suspense fallback={<LoadingState size="large" />}>{children}</Suspense>
+ * <Suspense fallback={<LoadingState size="lg" />}>{children}</Suspense>
  * <LoadingState caption={t`Loading entity…`} />
  * <LoadingState variant="compact" caption={t`Waiting for metrics…`} />
  * ```
@@ -30,7 +30,7 @@ export type LoadingStateProps = {
   caption?: JSX.Element | undefined;
   /** Layout density. Defaults to `'fill'`. */
   variant?: StateBlockVariant | undefined;
-  /** Spinner size preset. Defaults to `'medium'`. */
+  /** Spinner size. Defaults to `md`, `lg` for a whole screen. */
   size?: SpinnerProps['size'];
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
@@ -42,11 +42,9 @@ export function LoadingState(props: LoadingStateProps): JSX.Element {
       variant={props.variant}
       dataSet={{ component: 'LoadingState', ...props.dataSet }}
     >
-      <Spinner size={props.size ?? 'medium'} />
+      <Spinner size={props.size ?? 'md'} />
       <Show when={props.caption !== undefined && props.caption !== null}>
-        <p class="text textCaption text-text-secondary text-center">
-          {props.caption}
-        </p>
+        <p class="text textCaption text-center">{props.caption}</p>
       </Show>
     </StateBlock>
   );

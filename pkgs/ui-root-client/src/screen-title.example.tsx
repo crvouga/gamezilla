@@ -7,7 +7,7 @@ const LINES = Array.from({ length: 12 }, (_, i) => i + 1);
 
 export default function ScreenTitleExample(): JSX.Element {
   return (
-    <ExampleRoot class="flex-1 min-h-100">
+    <ExampleRoot grow minHeight="lg">
       <ScreenBase
         screenId="screen-title-example"
         largeTitle

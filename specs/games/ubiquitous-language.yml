@@ -1402,6 +1402,9 @@ terms:
   - term: return to a space
     from: spaces
 
+  - term: a space that no longer exists
+    from: spaces
+
   - term: keyboard
     from: runtime
     forms: [left arrow, right arrow]

@@ -16,7 +16,7 @@ export default function CopyToClipboardFieldExample(): JSX.Element {
     return Promise.resolve();
   };
   return (
-    <ExampleRoot class="gap-6">
+    <ExampleRoot gap="xl">
       <CopyToClipboardField
         label={<Trans>Commit hash</Trans>}
         helperText={t`Tap the field or icon to copy`}

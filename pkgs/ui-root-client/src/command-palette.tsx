@@ -119,8 +119,8 @@ function PaletteCard(props: {
       class="box rounded-sheet border border-border overflow-hidden bg-surface-overlay"
       data-component="CommandPaletteCard"
     >
-      <Show when={running()} fallback={<div class="box h-0.5" />}>
-        <ProgressBar indeterminate height={2} color="tint" />
+      <Show when={running()} fallback={<div class="box h-1" />}>
+        <ProgressBar size="sm" />
       </Show>
       <div class="box px-3 py-2">
         <CommandPaletteInput

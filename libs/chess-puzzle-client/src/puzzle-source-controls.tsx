@@ -1,10 +1,11 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
 import { FilePicker } from '@pkgs/ui-root-client/file-picker';
-import { LinearProgress } from '@pkgs/ui-root-client/linear-progress';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { Notice } from '@pkgs/ui-root-client/notice';
+import { ProgressBar } from '@pkgs/ui-root-client/progress-bar';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { createEffect, on, Show } from 'solid-js';
 import type { usePuzzleImport } from './use-puzzle-import';
@@ -133,8 +134,8 @@ export function PuzzleSourceControls(props: {
         )}
       </Show>
       <Show when={props.state.uploading()}>
-        <div role="status" data-testid="puzzle-source-saving">
-          <LinearProgress
+        <StackVertical role="status" testId="puzzle-source-saving">
+          <ProgressBar
             label={t`Uploading Lichess file`}
             progress={props.state.uploadProgress()}
             dataSet={{ testid: 'puzzle-source-progress' }}
@@ -145,7 +146,7 @@ export function PuzzleSourceControls(props: {
               </Trans>
             }
           />
-        </div>
+        </StackVertical>
       </Show>
     </>
   );

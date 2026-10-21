@@ -1,5 +1,7 @@
 import { formatPuzzleClock } from '@libs/game-puzzle-shared/puzzle-clock';
 import { ClockIcon } from '@pkgs/ui-root-client/icons';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import type { Accessor, JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -9,15 +11,10 @@ export function PuzzleClockLabel(props: {
 }): JSX.Element {
   return (
     <Show when={props.elapsedMs() !== null}>
-      <p
-        class="box flex-row items-center gap-1 shrink-0"
-        data-testid="chess-puzzle-clock"
-      >
+      <StackHorizontal align="center" gap="xs" testId="chess-puzzle-clock">
         <ClockIcon size={14} color="textSecondary" />
-        <span class="text textNumeral">
-          {formatPuzzleClock(props.elapsedMs() ?? 0)}
-        </span>
-      </p>
+        <P numeral>{formatPuzzleClock(props.elapsedMs() ?? 0)}</P>
+      </StackHorizontal>
     </Show>
   );
 }

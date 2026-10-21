@@ -5,6 +5,7 @@
  */
 
 import type { MaxWidthToken } from '@pkgs/ui-root-shared/token-names';
+import type { DataSetProps } from './data-set-binding';
 
 /** Cross-axis alignment of the children. */
 export type Align = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
@@ -26,9 +27,10 @@ export type Direction = 'vertical' | 'horizontal';
 
 /**
  * Floor on the box height: `control` is a primary control (48), `row` a list
- * row (56), `screen` the viewport.
+ * row (56), `state` a loading / outcome block in a dialog (200, so the dialog
+ * keeps its height across phases), `screen` the viewport.
  */
-export type MinHeight = 'none' | 'control' | 'row' | 'screen';
+export type MinHeight = 'none' | 'control' | 'row' | 'state' | 'screen';
 
 /** How the box sits in its parent. */
 export type FlexItemProps = {
@@ -103,4 +105,4 @@ export type RegionProps = {
   inert?: boolean | undefined;
   /** Render nothing visible and expose nothing (the `hidden` attribute). */
   hidden?: boolean | undefined;
-};
+} & DataSetProps;

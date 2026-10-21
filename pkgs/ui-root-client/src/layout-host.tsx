@@ -11,6 +11,7 @@ import type {
   SurfaceTone,
 } from '@pkgs/ui-root-shared/token-names';
 import type { JSX } from 'solid-js';
+import { bindDataSet } from './data-set-binding';
 import type { ElementTargetProps } from './element-targets';
 import { bindElementTargets } from './element-targets';
 import {
@@ -92,6 +93,7 @@ export function LayoutHost(props: LayoutHostProps): JSX.Element {
     <div
       ref={(element) => {
         bindElementTargets(element, props.of);
+        bindDataSet(element, props.of);
       }}
       class={hostClass(props)}
       id={props.of.id}

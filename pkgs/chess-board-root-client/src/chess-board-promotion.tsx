@@ -71,7 +71,7 @@ function CancelChip(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable clickableTint items-center justify-center font-bold w-full"
+      class="clickable clickableTint items-center justify-center text textBodyBold w-full"
       style={{
         'background-color': props.theme.promotion.cancel,
         color: props.theme.promotion.ink,

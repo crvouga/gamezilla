@@ -14,6 +14,7 @@
 
 import { componentId } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
+import { bindDataSet } from './data-set-binding';
 import type { ElementTargetProps } from './element-targets';
 import { bindElementTargets } from './element-targets';
 import { flexItemClass, spaced } from './layout-classes';
@@ -71,6 +72,7 @@ export function Grid(props: GridProps): JSX.Element {
     <div
       ref={(element) => {
         bindElementTargets(element, props);
+        bindDataSet(element, props);
       }}
       class={gridClass(props)}
       id={props.id}

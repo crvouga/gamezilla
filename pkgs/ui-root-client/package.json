@@ -15,10 +15,9 @@
     "./*.css": "./src/*.css"
   },
   "scripts": {
-    "codemod": "bun run codemod/cli-io.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts && bun run scripts/generate-tokens-css.ts --check",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --parallel tests codemod/tests",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --parallel tests",
     "tokens:generate": "bun run scripts/generate-tokens-css.ts",
     "tokens:verify": "bun run scripts/generate-tokens-css.ts --check"
   },
@@ -48,10 +47,8 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/property-shared": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

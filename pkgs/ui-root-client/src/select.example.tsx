@@ -1,7 +1,27 @@
 /** @jsxImportSource solid-js */
+import type { SelectOption } from '@pkgs/ui-root-shared/select-types';
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
 import { Select } from './select';
+
+const SWATCH = {
+  tint: 'bg-tint',
+  success: 'bg-success',
+  warning: 'bg-warning',
+} as const;
+
+function Swatch(props: { tone: keyof typeof SWATCH }): JSX.Element {
+  return <div class={`box h-7 w-7 rounded-sm ${SWATCH[props.tone]}`} />;
+}
+
+/** Built inside the component: `preview` is JSX and needs the theme context. */
+function previewOptions(): readonly SelectOption[] {
+  return [
+    { value: 'a', label: 'Alpha', preview: <Swatch tone="tint" /> },
+    { value: 'b', label: 'Bravo', preview: <Swatch tone="success" /> },
+    { value: 'c', label: 'Charlie', preview: <Swatch tone="warning" /> },
+  ];
+}
 
 const FRUITS = [
   { label: 'Apple', value: 'apple' },
@@ -20,6 +40,8 @@ const DELAYS = [
 export default function SelectExample(): JSX.Element {
   const [fruit, setFruit] = createSignal('banana');
   const [delay, setDelay] = createSignal(50);
+  const [preview, setPreview] = createSignal('a');
+  const PREVIEWS = previewOptions();
 
   return (
     <ExampleRoot>
@@ -36,6 +58,21 @@ export default function SelectExample(): JSX.Element {
           options={DELAYS}
           value={delay()}
           onValueChange={setDelay}
+        />
+
+        <Select
+          label="With preview thumbs"
+          options={PREVIEWS}
+          value={preview()}
+          onValueChange={setPreview}
+        />
+
+        <Select
+          label="Searchable"
+          options={FRUITS}
+          value={fruit()}
+          onValueChange={setFruit}
+          searchable
         />
 
         <p class="text textCaption text-text-secondary">

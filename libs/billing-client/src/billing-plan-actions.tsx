@@ -14,6 +14,8 @@ import {
   KeyRoundIcon,
   RefreshCwIcon,
 } from '@pkgs/ui-root-client/icons';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import {
   type UseMutationButtonResult,
   useMutationButton,
@@ -45,11 +47,12 @@ function ActionFailure(props: {
   readonly opening: 'checkout' | 'portal';
 }): JSX.Element {
   return (
-    <p
-      class="text textCaption text-text-secondary"
+    <P
+      variant="caption"
+      tone="secondary"
       role="status"
-      data-testid={Handles.billingActionFailure}
-      data-failure={props.failure}
+      testId={Handles.billingActionFailure}
+      dataSet={{ failure: props.failure }}
     >
       <Switch>
         <Match when={props.failure === 'has_membership'}>
@@ -76,7 +79,7 @@ function ActionFailure(props: {
           </Trans>
         </Match>
       </Switch>
-    </p>
+    </P>
   );
 }
 
@@ -146,7 +149,7 @@ export function BillingPlanActions(props: {
   const manage = useManageButton(props);
   const delinquent = (): boolean => props.view.state === 'delinquent';
   return (
-    <div class="box gap-2">
+    <StackVertical gap="sm">
       <Show when={props.view.checkAgain}>
         <Button
           title={t`Check again`}
@@ -192,6 +195,6 @@ export function BillingPlanActions(props: {
           {(failure) => <ActionFailure failure={failure()} opening="portal" />}
         </Show>
       </Show>
-    </div>
+    </StackVertical>
   );
 }

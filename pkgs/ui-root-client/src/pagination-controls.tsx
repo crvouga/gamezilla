@@ -59,7 +59,7 @@ function circleStyle(size: number, active: boolean): JSX.CSSProperties {
     'border-radius': '9999px',
     'align-items': 'center',
     'justify-content': 'center',
-    'background-color': active ? colorVar('tintMuted') : colorVar('surface'),
+    'background-color': active ? colorVar('tintSubtle') : colorVar('surface'),
   };
 }
 

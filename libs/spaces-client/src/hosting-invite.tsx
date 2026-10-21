@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { DenialSurface } from '@libs/permissions-client/denial-surface';
+import { DenialModal } from '@libs/permissions-client/denial-modal';
 import { useLimitDecision } from '@libs/permissions-client/use-can';
 import { LIMIT } from '@libs/permissions-shared/permission-catalog';
 import { endSpaceMutation } from '@libs/spaces-shared/end-space-mutation';
@@ -19,9 +19,11 @@ import {
   createSignal,
   type JSX,
   Show,
+  untrack,
   useContext,
 } from 'solid-js';
 
+import { SpaceProbe } from './space-probe';
 import { openSpaceDetail, useSpaceRouteId } from './space-routes';
 import { useHostedSpaceCount } from './use-hosted-space-count';
 
@@ -44,7 +46,18 @@ function spacesFromAnotherDevice(
 
 type HostingInviteApi = {
   readonly decision: Accessor<Decision | null>;
+  /**
+   * The person asked for another space and was refused: the invitation
+   * stands and its modal opens, however often they ask.
+   */
+  readonly offer: (decision: Decision) => void;
+  /**
+   * The app found the person over their limit on its own: the invitation
+   * stands, and its modal opens only when the invitation is new, so a modal
+   * the person closed stays closed.
+   */
   readonly note: (decision: Decision) => void;
+  /** Ending a space or completing checkout answers the invitation. */
   readonly clear: () => void;
 };
 
@@ -55,6 +68,7 @@ export function useHostingInvite(): HostingInviteApi {
   if (ctx !== null) return ctx;
   return {
     decision: () => null,
+    offer: () => undefined,
     note: () => undefined,
     clear: () => undefined,
   };
@@ -150,32 +164,39 @@ export function HostingAccount(props: {
 }): JSX.Element {
   const spaces = useHostedSpaceIds();
   const [decision, setDecision] = createSignal<Decision | null>(null);
+  const [showing, setShowing] = createSignal(false);
+  const offer = (next: Decision): void => {
+    setDecision(next);
+    setShowing(true);
+  };
   const note = (next: Decision): void => {
+    // Read without tracking: callers run inside effects that must not
+    // subscribe to the invitation they are writing.
+    if (untrack(decision) === null) setShowing(true);
     setDecision(next);
   };
   const clear = (): void => {
     setDecision(null);
+    setShowing(false);
   };
   // Ending a space or completing checkout answers the invitation explicitly.
   // Reconnecting can temporarily change the permission facts; it does not
-  // answer a refusal. This provider is its only presentation owner.
-  const api: HostingInviteApi = { decision, note, clear };
+  // answer a refusal; closing the modal does not either. This provider is
+  // its only presentation owner.
+  const api: HostingInviteApi = { decision, offer, note, clear };
 
   return (
     <HostingInviteContext.Provider value={api}>
       <HostingCollapse note={note} />
-      <span
-        data-testid={Handles.spacesHostedProbe}
-        class="hidden"
-        aria-hidden="true"
-      >
+      <SpaceProbe testId={Handles.spacesHostedProbe}>
         {spaces.ids().join('\n')}
-      </span>
+      </SpaceProbe>
       <Show when={decision()}>
         {(shown) => (
-          <DenialSurface
+          <DenialModal
             decision={shown()}
-            variant="compact"
+            visible={showing()}
+            onDismiss={() => setShowing(false)}
             testId={Handles.spacesHostingLimit}
           />
         )}

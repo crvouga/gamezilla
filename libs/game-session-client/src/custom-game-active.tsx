@@ -3,6 +3,8 @@ import { UserUsername } from '@libs/profile-client/user-username';
 import { Trans } from '@lingui/solid/macro';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
 import { Notice } from '@pkgs/ui-root-client/notice';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P, Text } from '@pkgs/ui-root-client/text';
 import { type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
@@ -21,12 +23,12 @@ function CustomGameAway(props: { model: CustomGameScreenModel }): JSX.Element {
   return (
     <Show when={props.model.sharedAvailable() && awayOpponent(props.model)}>
       {(person) => (
-        <div class="box gap-3" data-testid="custom-game-away">
+        <StackVertical gap="md" testId="custom-game-away">
           <Notice>
-            <span role="status">
+            <Text variant="inherit" role="status">
               <UserUsername profileId={person()} withAt={false} />{' '}
               <Trans>is away. After a minute away you may claim the win.</Trans>
-            </span>
+            </Text>
           </Notice>
           <Show when={props.model.canPlay()}>
             <GameActionButton
@@ -36,7 +38,7 @@ function CustomGameAway(props: { model: CustomGameScreenModel }): JSX.Element {
               operation={() => props.model.choose({ operation: 'claimWin' })}
             />
           </Show>
-        </div>
+        </StackVertical>
       )}
     </Show>
   );
@@ -60,9 +62,9 @@ export function CustomGameActiveNotices(props: ActiveProps): JSX.Element {
     <>
       <Show when={drawOffer(props.model) !== ''}>
         <Notice>
-          <span role="status">
+          <Text variant="inherit" role="status">
             <Trans>A draw has been offered.</Trans>
-          </span>
+          </Text>
         </Notice>
       </Show>
       <CustomGameAway model={props.model} />
@@ -74,9 +76,9 @@ export function CustomGameActiveNotices(props: ActiveProps): JSX.Element {
           declinedDraw(props.model)
         }
       >
-        <p class="text textCaption">
+        <P variant="caption" tone="secondary">
           <Trans>You may offer a draw again after your next move.</Trans>
-        </p>
+        </P>
       </Show>
     </>
   );

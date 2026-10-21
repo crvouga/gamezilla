@@ -23,16 +23,47 @@ export type AttributeRedactor = (
   value: AttributeValue
 ) => AttributeValue | undefined;
 
+/** A primitive an attribute may carry, or one slot of an array value. */
+type SafeScalar = string | number | boolean;
+
+/**
+ * An attribute value every OTel signal accepts: a primitive or a
+ * homogeneous-enough array of them. `@opentelemetry/api` types attribute
+ * values as `unknown`; log records require the narrower `AnyValue`, so the
+ * redacted map is typed to fit both.
+ */
+export type SafeAttributeValue = SafeScalar | (SafeScalar | null | undefined)[];
+
+export type SafeAttributes = Record<string, SafeAttributeValue>;
+
+function isSafeScalar(value: unknown): value is SafeScalar {
+  return (
+    typeof value === 'string' ||
+    typeof value === 'boolean' ||
+    (typeof value === 'number' && Number.isFinite(value))
+  );
+}
+
+function isSafeAttributeValue(value: unknown): value is SafeAttributeValue {
+  if (isSafeScalar(value)) return true;
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) => item === null || item === undefined || isSafeScalar(item)
+    )
+  );
+}
+
 export function allowlistedAttributes(
   attributes: Attributes,
   additionalKeys: ReadonlySet<string> = new Set()
-): Attributes {
-  const redacted: Attributes = {};
+): SafeAttributes {
+  const redacted: SafeAttributes = {};
   const redact = createAllowlistRedactor(additionalKeys);
   for (const [key, value] of Object.entries(attributes)) {
     if (value === undefined) continue;
     const replacement = redact(key, value);
-    if (replacement !== undefined) redacted[key] = replacement;
+    if (isSafeAttributeValue(replacement)) redacted[key] = replacement;
   }
   return redacted;
 }

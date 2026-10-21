@@ -9,7 +9,6 @@
  * positioned in those gutters so they do not shift the text.
  */
 
-import { spacingScale } from '@pkgs/ui-root-shared/scale';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { ButtonFeedback } from './button-face';
@@ -20,52 +19,55 @@ import { Spinner } from './spinner';
 
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
+/**
+ * Icon geometry per size, on the 4px grid. Paint (height, radius, padding,
+ * type) lives in `skin.css` under `.btn[data-size]`; this is only what the
+ * label row needs to place its icons. Classes are literal so Tailwind sees
+ * them.
+ */
 export type ButtonSizeSpec = {
-  py: number;
-  px: number;
-  borderRadius: number;
+  /** Control height in px (`--ui-control-size-*`): 32 / 44 / 52. */
   minHeight: number;
-  text: {
-    fontSize: number;
-    lineHeight: number;
-    fontWeight: '600' | '700' | '800';
-  };
+  /** Icon glyph size in px: 16 / 20 / 20. */
   iconSize: number;
   iconStrokeWidth: number;
-  iconGap: number;
+  /** Gap between icon and label: 4px (`gap-1`) or 8px (`gap-2`). */
+  gapClass: string;
+  /** Icon slot height, equal to `iconSize` (`h-4` / `h-5`). */
+  slotClass: string;
+  /** Icon rail width, equal to `iconSize` (`w-4` / `w-5`). */
+  railClass: string;
+  /** Equal side gutters, icon + gap (`px-5` = 20px, `px-7` = 28px). */
+  gutterClass: string;
 };
 
-/** Icon geometry. Paint (radius, padding, type) lives in `skin.css`. */
 export const BUTTON_SIZES: Record<ButtonSize, ButtonSizeSpec> = {
   sm: {
-    py: 1.5,
-    px: 3.5,
-    borderRadius: 16,
-    minHeight: 36,
-    text: { fontSize: 15, lineHeight: 20, fontWeight: '700' },
-    iconSize: 18,
-    iconStrokeWidth: 2.25,
-    iconGap: 1.5,
+    minHeight: 32,
+    iconSize: 16,
+    iconStrokeWidth: 2,
+    gapClass: 'gap-1',
+    slotClass: 'h-4',
+    railClass: 'w-4',
+    gutterClass: 'px-5',
   },
   md: {
-    py: 2.5,
-    px: 4.5,
-    borderRadius: 22,
     minHeight: 44,
-    text: { fontSize: 16, lineHeight: 22, fontWeight: '700' },
     iconSize: 20,
-    iconStrokeWidth: 2.25,
-    iconGap: 2,
+    iconStrokeWidth: 2,
+    gapClass: 'gap-2',
+    slotClass: 'h-5',
+    railClass: 'w-5',
+    gutterClass: 'px-7',
   },
   lg: {
-    py: 3,
-    px: 5.5,
-    borderRadius: 28,
     minHeight: 52,
-    text: { fontSize: 17, lineHeight: 24, fontWeight: '800' },
-    iconSize: 22,
-    iconStrokeWidth: 2.25,
-    iconGap: 2,
+    iconSize: 20,
+    iconStrokeWidth: 2,
+    gapClass: 'gap-2',
+    slotClass: 'h-5',
+    railClass: 'w-5',
+    gutterClass: 'px-7',
   },
 };
 
@@ -100,21 +102,13 @@ function rowClass(): string {
   return 'flex-row items-center justify-center';
 }
 
-/** Equal gutter on each side so an icon on one side does not shift the label. */
-function iconSidePad(size: ButtonSizeSpec): number {
-  return size.iconSize + spacingScale(size.iconGap);
-}
-
 export function ButtonLabelText(props: { label: JSX.Element }): JSX.Element {
   return <p class="text textBodyBold whitespace-nowrap">{props.label}</p>;
 }
 
 function IconSlot(props: { size: ButtonSizeSpec; children: JSX.Element }) {
   return (
-    <div
-      class="box items-center justify-center"
-      style={{ height: `${props.size.iconSize}px` }}
-    >
+    <div class={`box items-center justify-center ${props.size.slotClass}`}>
       {props.children}
     </div>
   );
@@ -128,12 +122,11 @@ function IconRail(props: {
 }): JSX.Element {
   return (
     <div
-      class="box absolute inset-y-0 flex-row items-center justify-center"
+      class={`box absolute inset-y-0 flex-row items-center justify-center ${props.size.railClass}`}
       classList={{
         'left-0': props.side === 'start',
         'right-0': props.side === 'end',
       }}
-      style={{ width: `${props.size.iconSize}px` }}
     >
       {props.children}
     </div>
@@ -147,14 +140,10 @@ function CenteredLabelRow(props: {
   trailing?: JSX.Element | undefined;
   children: JSX.Element;
 }): JSX.Element {
-  const pad = (): number => (props.padded ? iconSidePad(props.size) : 0);
   return (
     <div
       class={`box ${rowClass()}`}
-      style={{
-        'padding-left': `${pad()}px`,
-        'padding-right': `${pad()}px`,
-      }}
+      classList={{ [props.size.gutterClass]: props.padded }}
     >
       {props.leading}
       {props.children}
@@ -184,10 +173,7 @@ function ButtonIdleContent(props: ButtonContentProps): JSX.Element {
     props.icon !== undefined || props.startIcon !== undefined;
   const hasTrailing = (): boolean => props.endIcon !== undefined;
   return (
-    <div
-      class={`box ${rowClass()}`}
-      style={{ gap: `${spacingScale(props.size.iconGap)}px` }}
-    >
+    <div class={`box ${rowClass()} ${props.size.gapClass}`}>
       <Show when={hasLeading()}>
         <SizedLeadingIcon {...props} />
         <Show when={props.startIcon !== undefined}>
@@ -218,7 +204,7 @@ function StatusGlyph(props: {
         />
       }
     >
-      <Spinner decorative color="currentColor" size={props.size.iconSize} />
+      <Spinner decorative color="current" size="sm" />
     </Show>
   );
 }

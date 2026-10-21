@@ -11,6 +11,8 @@ import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { FormScreen } from '@pkgs/ui-root-client/form-screen';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { Accessor, JSX } from 'solid-js';
@@ -79,7 +81,7 @@ function ProfileHandleScreenBody(props: {
 }): JSX.Element {
   const { t } = useLingui();
   return (
-    <div class="box gap-4">
+    <StackVertical gap="lg">
       <TextInput
         label={<Trans>Username</Trans>}
         aria-label={t`Username`}
@@ -92,14 +94,14 @@ function ProfileHandleScreenBody(props: {
         autocorrect="off"
         dataSet={{ testid: Handles.profileUsernameInput }}
       />
-      <p class="text textCaption" data-testid="profile-username-rules">
+      <P variant="caption" testId="profile-username-rules">
         <Trans>
           {USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} letters, numbers or _.
           Saved in lowercase.
         </Trans>
-      </p>
+      </P>
       <UsernameChangeFeedback />
-    </div>
+    </StackVertical>
   );
 }
 

@@ -31,6 +31,7 @@ import {
   spaceSize,
   spacing,
 } from './scale';
+import { shadowCss } from './shadows';
 import { controlSize, iconSize, maxWidth } from './sizes';
 
 const COLOR_TOKEN_NAMES = Object.keys(COLOR_PALETTE.light) as ColorTokenName[];
@@ -83,6 +84,11 @@ function schemeBlock(scheme: ColorScheme): string {
   }
   for (const level of ELEVATION_LEVELS) {
     lines.push(`  --color-elevation-${level}: var(--ui-elevation-${level});`);
+  }
+  // The shadow names `--ui-color-shadow-color`, so it is bound on the scheme
+  // host too: a nested theme recomputes it with its own shadow color.
+  for (const [name, value] of Object.entries(shadowCss)) {
+    lines.push(`  --ui-shadow-${name}: ${value};`);
   }
   // Default on-color cascade for icons/text outside an OnColorProvider.
   lines.push('  --ui-on-fg: var(--ui-color-text);');
@@ -167,7 +173,7 @@ function semanticScaleLines(): string[] {
 export function renderTokensCss(): string {
   return (
     [
-      '/* GENERATED from design-system/design-tokens.json — do not edit. */',
+      '/* GENERATED from pkgs/ui-root-shared/src/design-tokens.json — do not edit. */',
       scaleBlock(),
       schemeBlock('light'),
       schemeBlock('dark'),

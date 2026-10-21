@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 import { afterEach, expect, test } from 'bun:test';
 import { HistoryPlyCluster } from '@libs/game-puzzle-client/puzzle-move-history-ply';
-import { PuzzleRatingChip } from '@libs/game-puzzle-client/puzzle-rating-chip';
+import { PuzzleRatingBadge } from '@libs/game-puzzle-client/puzzle-rating-badge';
 import { PuzzleStatusHeader } from '@libs/game-puzzle-client/puzzle-status-header';
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
@@ -10,17 +10,16 @@ import { cleanup, render, screen } from '@solidjs/testing-library';
 
 afterEach(cleanup);
 
-test('the rating chip paints its fill and color from classes, not token names', () => {
+test('the rating badge paints from its intent, not token names', () => {
   // regression: puzzle-rating-chip-token-as-css
-  const { container } = render(() => (
-    <PuzzleRatingChip rating={1500} testID="chip" />
+  render(() => (
+    <PuzzleRatingBadge rating={1500} intent="brand" testId="chip" />
   ));
   const chip = screen.getByTestId('chip');
-  expect(chip.className).toContain('bg-tint-subtle');
+  expect(chip.getAttribute('data-component')).toBe('Badge');
+  expect(chip.getAttribute('data-intent')).toBe('brand');
   expect(chip.getAttribute('style') ?? '').not.toContain('tint');
-  const label = container.querySelector('p');
-  expect(label?.className).toContain('text-tint');
-  expect(label?.getAttribute('style') ?? '').not.toContain('tint');
+  expect(chip.textContent).toBe('1500');
 });
 
 test('the current move is highlighted by classes, not token names', () => {
@@ -44,8 +43,10 @@ test('the current move is highlighted by classes, not token names', () => {
     />
   ));
   const chip = screen.getByTestId('chess-puzzle-move-ply-0');
-  expect(chip.className).toContain('bg-success-surface');
-  expect(chip.getAttribute('style') ?? '').not.toContain('success');
+  expect(chip.getAttribute('aria-pressed')).toBe('true');
+  const fill = chip.querySelector('.bg-success-surface');
+  expect(fill).not.toBeNull();
+  expect(fill?.getAttribute('style') ?? '').not.toContain('success');
   const san = chip.querySelector('code');
   expect(san?.className).toContain('text-success');
   expect(san?.getAttribute('style') ?? '').not.toContain('success');
@@ -64,8 +65,11 @@ test('a two-line status prompt grows its row instead of overlapping the coach', 
       </ThemeProvider>
     </I18nProvider>
   ));
-  const row = screen.getByTestId('chess-puzzle-status-label').parentElement;
-  const style = row?.getAttribute('style') ?? '';
-  expect(style).toContain('min-height');
-  expect(style).not.toMatch(/(^|;)\s*height:/);
+  // The row sizes to its content: no fixed height can clip a second line.
+  const row = screen.getByTestId('chess-puzzle-status-row');
+  expect(row.contains(screen.getByTestId('chess-puzzle-status-label'))).toBe(
+    true
+  );
+  expect(row.getAttribute('style') ?? '').not.toMatch(/(^|;)\s*height:/);
+  expect(row.className).not.toMatch(/(^|\s)h-/);
 });

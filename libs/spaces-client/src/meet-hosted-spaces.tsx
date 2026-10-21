@@ -7,6 +7,7 @@ import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { usePathname, useRouter } from '@pkgs/ui-root-client/app-router';
 import { type Accessor, createEffect, createMemo, type JSX } from 'solid-js';
 import { useHostingInvite } from './hosting-invite';
+import { SpaceProbe } from './space-probe';
 import { spaceDetailHref } from './space-routes';
 
 type IdRow = { readonly id: string };
@@ -133,14 +134,8 @@ export function MeetHostedSpaces(): JSX.Element {
   });
 
   return (
-    <>
-      <span
-        data-testid={Handles.spacesHostingLive}
-        class="hidden"
-        aria-hidden="true"
-      >
-        {live().join(' ')}
-      </span>
-    </>
+    <SpaceProbe testId={Handles.spacesHostingLive}>
+      {live().join(' ')}
+    </SpaceProbe>
   );
 }

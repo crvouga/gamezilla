@@ -6,6 +6,7 @@ import type { HarnessConsolePorts } from '@pkgs/harness-console-shared/ports';
 import { HttpClientProvider } from '@pkgs/http-client-client/solid';
 import { DismissibleBannerPortalProvider } from '@pkgs/ui-root-client/dismissible-top-banner';
 import { OverlayPortalProvider } from '@pkgs/ui-root-client/overlay-portal';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
 import {
@@ -61,9 +62,9 @@ function ConsoleShell(props: {
         <OverlayPortalProvider>
           <SurfaceStackProvider>
             <DismissibleBannerPortalProvider>
-              <div class="box flex-1 min-h-0 min-w-0">
+              <StackVertical grow>
                 <ConsoleBody ports={props.ports} />
-              </div>
+              </StackVertical>
             </DismissibleBannerPortalProvider>
           </SurfaceStackProvider>
         </OverlayPortalProvider>

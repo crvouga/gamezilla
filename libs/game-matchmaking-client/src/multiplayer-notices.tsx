@@ -3,6 +3,7 @@ import { Trans } from '@lingui/solid/macro';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { WifiOffIcon } from '@pkgs/ui-root-client/icons';
 import { Notice } from '@pkgs/ui-root-client/notice';
+import { Text } from '@pkgs/ui-root-client/text';
 import { type JSX, Show } from 'solid-js';
 import type { MultiplayerControlsModel } from './use-multiplayer-controls';
 
@@ -32,12 +33,12 @@ export function MultiplayerNotices(props: {
       </Show>
       <Show when={!props.online}>
         <Notice icon={WifiOffIcon} dataSet={{ testid: 'multiplayer-offline' }}>
-          <span role="status">
+          <Text variant="inherit" role="status">
             <Trans>
               Multiplayer commands need a connection. Your accepted game stays
               here.
             </Trans>
-          </span>
+          </Text>
         </Notice>
       </Show>
     </>

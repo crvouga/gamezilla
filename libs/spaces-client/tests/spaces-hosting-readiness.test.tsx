@@ -88,6 +88,11 @@ function mountLobby() {
   };
 }
 
+function hostingCountText(count: number): string | null {
+  if (count === 0) return null;
+  return count === 1 ? 'Hosting 1 space' : `Hosting ${String(count)} spaces`;
+}
+
 /** Lets the stored identity resolve, as it does before a lobby paints. */
 async function identityResolved(): Promise<void> {
   for (let turn = 0; turn < 10; turn += 1) await Promise.resolve();
@@ -139,9 +144,7 @@ test('an answered lobby reflects every hosting count, including zero', async () 
         lobby.answerHosted(count);
         expect(screen.getByTestId(Handles.spacesListReady)).toBeVisible();
         const hosting = screen.queryByTestId(Handles.spacesHostingCount);
-        expect(hosting?.getAttribute('data-count') ?? null).toBe(
-          count > 0 ? String(count) : null
-        );
+        expect(hosting?.textContent ?? null).toBe(hostingCountText(count));
       } finally {
         lobby.dispose();
       }

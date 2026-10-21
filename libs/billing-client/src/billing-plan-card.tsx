@@ -8,7 +8,11 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import type { BadgeIntent } from '@pkgs/ui-root-client/badge';
 import { Badge } from '@pkgs/ui-root-client/badge';
+import { Card } from '@pkgs/ui-root-client/card';
+import { H2 } from '@pkgs/ui-root-client/heading';
 import { Notice } from '@pkgs/ui-root-client/notice';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
+import { P, Text } from '@pkgs/ui-root-client/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 
 import type { BillingActions } from './billing-plan-actions';
@@ -40,7 +44,11 @@ function TierChip(props: { readonly tier: BillingTier }): JSX.Element {
       intent={TIER_INTENT[props.tier]}
       tone={props.tier === 'paid' ? 'solid' : 'subtle'}
       dataSet={{ testid: Handles.billingTier }}
-      label={<span class="capitalize">{props.tier}</span>}
+      label={
+        <Text variant="inherit" capitalize>
+          {props.tier}
+        </Text>
+      }
     />
   );
 }
@@ -65,13 +73,13 @@ function CreditLine(props: {
 }): JSX.Element {
   const amount = (): string => props.amount;
   return (
-    <p
-      class="text textBody text-text-secondary"
-      data-testid={Handles.billingCredit}
-      data-credit-cents={String(props.cents)}
+    <P
+      tone="secondary"
+      testId={Handles.billingCredit}
+      dataSet={{ 'credit-cents': String(props.cents) }}
     >
       <Trans>Plus credit · {amount()} left from your yearly plan</Trans>
-    </p>
+    </P>
   );
 }
 
@@ -126,16 +134,18 @@ function PlanNotice(props: { readonly view: BillingView }): JSX.Element {
 
 export function BillingPlanCard(props: PlanCardProps): JSX.Element {
   return (
-    <section class="panel gap-4 p-5">
+    <Card>
       {/* Until the membership is known, no plan is named: "Free plan" for a
           member would be wrong, and so would the checkout it implies. */}
       <Show when={props.view.state !== 'loading'}>
-        <div class="box flex-row items-start gap-3">
-          <h2 class="text textHeading min-w-0 flex-1">
-            <PlanTitle tier={props.view.tier} />
-          </h2>
+        <StackHorizontal align="start" gap="md">
+          <StackVertical grow>
+            <H2 size="heading">
+              <PlanTitle tier={props.view.tier} />
+            </H2>
+          </StackVertical>
           <TierChip tier={props.view.tier} />
-        </div>
+        </StackHorizontal>
       </Show>
       <BillingStatusLine view={props.view} formatDate={props.formatDate} />
       <Show when={props.creditAmount}>
@@ -149,6 +159,6 @@ export function BillingPlanCard(props: PlanCardProps): JSX.Element {
         trialDays={props.trialDays}
         actions={props.actions}
       />
-    </section>
+    </Card>
   );
 }

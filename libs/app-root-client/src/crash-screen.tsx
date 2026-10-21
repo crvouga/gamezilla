@@ -9,9 +9,16 @@ import {
 import { reloadApp } from '@libs/app-root-shared/reload-app';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
+import { CodeBlock } from '@pkgs/ui-root-client/code-block';
+import { Collapsible } from '@pkgs/ui-root-client/collapsible';
+import { Divider } from '@pkgs/ui-root-client/divider';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { CircleAlertIcon, RefreshCwIcon } from '@pkgs/ui-root-client/icons';
+import { Main } from '@pkgs/ui-root-client/landmarks';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
+import { Surface } from '@pkgs/ui-root-client/surface';
+import { P } from '@pkgs/ui-root-client/text';
 import {
   createSignal,
   type JSX,
@@ -42,24 +49,24 @@ function buildVersion(): string {
 function CrashDetails(props: { readonly message: string }): JSX.Element {
   const { t } = useLingui();
   return (
-    <details class="w-full min-w-0 border-t border-border pt-5">
-      <summary class="text textBodyBold cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-focus-ring">
-        <Trans>Error details</Trans>
-      </summary>
-      <div class="box gap-3 mt-3 p-4 rounded-xl bg-surface-sunken">
-        <ScrollView
-          class="max-h-48"
-          flushEdge={false}
-          role="region"
-          tabindex="0"
-          aria-label={t`Error message`}
-        >
-          <pre class="text textMono m-0 break-words select-text">
-            {props.message}
-          </pre>
-        </ScrollView>
-      </div>
-    </details>
+    <StackVertical width="full" gap="lg">
+      <Divider />
+      <Collapsible title={t`Error details`}>
+        <Surface tone="muted" radius="card" padding="lg" gap="md">
+          <ScrollView
+            maxHeight="sm"
+            flushEdge={false}
+            role="region"
+            tabIndex={0}
+            aria-label={t`Error message`}
+          >
+            <CodeBlock wrap framed={false}>
+              {props.message}
+            </CodeBlock>
+          </ScrollView>
+        </Surface>
+      </Collapsible>
+    </StackVertical>
   );
 }
 
@@ -104,49 +111,53 @@ export function CrashScreen(props: CrashScreenProps): JSX.Element {
   const message = (): string =>
     props.error.message.trim() || String(props.error);
   return (
-    <main
-      class="box flex-1 min-h-0 overflow-auto bg-background"
-      data-component="RootErrorBoundary"
-    >
-      <ErrorState
-        icon={CircleAlertIcon}
-        title={title()}
-        body={t`This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces.`}
-        retry={{ label: t`Try again`, onClick: () => props.reset() }}
-        secondary={{
-          label: t`Go to Spaces`,
-          onClick: () => props.goToSpaces(props.reset),
-        }}
-        details={
-          <>
-            <Show when={traceId()}>
-              {(reference) => (
-                <p class="text textCaption break-all select-text">
-                  <Trans>Reference: {reference()}</Trans>
-                </p>
-              )}
-            </Show>
-            <div class="box flex-row flex-wrap items-start gap-2">
-              <Button
-                title={t`Reload app`}
-                intent="neutral"
-                variant="ghost"
-                startIcon={<RefreshCwIcon size={BUTTON_ICON_SIZE} />}
-                onClick={reloadApp}
-              />
-              <CrashCopyButton
-                text={crashCopyText({
-                  title: title(),
-                  message: message(),
-                  reference: traceId(),
-                })}
-                copy={props.copyError}
-              />
-            </div>
-            <CrashDetails message={message()} />
-          </>
-        }
-      />
-    </main>
+    <Main>
+      <ScrollView
+        grow
+        tone="background"
+        flushEdge={false}
+        dataSet={{ component: 'RootErrorBoundary' }}
+      >
+        <ErrorState
+          icon={CircleAlertIcon}
+          title={title()}
+          body={t`This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces.`}
+          retry={{ label: t`Try again`, onClick: () => props.reset() }}
+          secondary={{
+            label: t`Go to Spaces`,
+            onClick: () => props.goToSpaces(props.reset),
+          }}
+          details={
+            <>
+              <Show when={traceId()}>
+                {(reference) => (
+                  <P variant="caption" wrap="break" selectable>
+                    <Trans>Reference: {reference()}</Trans>
+                  </P>
+                )}
+              </Show>
+              <StackHorizontal wrap align="start" gap="sm">
+                <Button
+                  title={t`Reload app`}
+                  intent="neutral"
+                  variant="ghost"
+                  startIcon={<RefreshCwIcon size={BUTTON_ICON_SIZE} />}
+                  onClick={reloadApp}
+                />
+                <CrashCopyButton
+                  text={crashCopyText({
+                    title: title(),
+                    message: message(),
+                    reference: traceId(),
+                  })}
+                  copy={props.copyError}
+                />
+              </StackHorizontal>
+              <CrashDetails message={message()} />
+            </>
+          }
+        />
+      </ScrollView>
+    </Main>
   );
 }

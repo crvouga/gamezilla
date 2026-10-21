@@ -4,6 +4,7 @@ import type { JSX } from 'solid-js';
 import type { ActionBarOverflowPolicy } from './action-bar-logic';
 import type { IconComponent } from './create-icon';
 import type { OverflowMenuRenderProps } from './overflow-menu-button';
+import type { ScreenMeasure } from './screen-measure';
 import type { MutationButtonLabels } from './use-mutation-button';
 import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
 
@@ -64,9 +65,6 @@ export type ScreenBasePrimaryAction = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** Wide-layout body surface: one card vs screen-composed islands. */
-export type ScreenBaseSurface = 'island' | 'canvas';
-
 export type ScreenBaseProps = {
   /** Stable screen identifier for DOM `data-screen` (spec / dev tooling). */
   screenId: string;
@@ -79,12 +77,6 @@ export type ScreenBaseProps = {
   breadcrumbs: readonly ScreenBaseBreadcrumb[];
   actions?: readonly ScreenBaseAction[] | undefined;
   content: (p: BodyContentProps) => JSX.Element;
-  /**
-   * Wide-only body surface. `'island'` (default) wraps content in one flat
-   * section. `'canvas'` leaves content unwrapped so the screen composes
-   * `Island` / `IslandGrid`. Ignored on compact.
-   */
-  surface?: ScreenBaseSurface | undefined;
   /**
    * When true, the body scrolls as a whole with padding inside the scroller
    * (scrollbar flush with the screen edge). When false (default), the body
@@ -117,6 +109,13 @@ export type ScreenBaseProps = {
    * under the footer; on compact it also absorbs the bottom safe-area inset.
    */
   bottomBar?: JSX.Element | undefined;
+  /**
+   * The measure of the body's column (`ScreenColumn`). On wide layouts the
+   * page header (breadcrumb trail, actions) is held to the same centered
+   * column so the title lines up with the content. Omit, or `full`, for a
+   * body that spans the frame column (collections, workspaces).
+   */
+  measure?: ScreenMeasure | undefined;
   /** Primary screen action rendered as a floating action button. */
   primaryAction?: ScreenBasePrimaryAction | undefined;
   /** Extra bottom inset for the primary-action FAB above the tab bar. */

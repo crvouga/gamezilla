@@ -1,5 +1,4 @@
 /** @jsxImportSource solid-js */
-import { cssPx } from '@pkgs/ui-root-shared/css-px';
 /**
  * Field row for {@link Combobox}: selected chips (multi), the opener button
  * (`role="combobox"`, `aria-expanded`, `aria-controls`), and a clear
@@ -19,13 +18,8 @@ import { ComboboxChips } from './combobox-chips';
 import { IconButton } from './icon-button';
 import { ChevronDownIcon, XIcon } from './icons';
 
-/** Minimum pointer target for the opener button. */
-export const COMBOBOX_TRIGGER_MIN_HEIGHT = 44;
-
 export function ComboboxLabel(props: { label: JSX.Element }): JSX.Element {
-  return (
-    <p class="text textCaption mb-0.5 text-text-secondary">{props.label}</p>
-  );
+  return <p class="text textCaption mb-1 text-text-secondary">{props.label}</p>;
 }
 
 export type ComboboxTriggerProps<T extends ComboboxValue> = {
@@ -54,7 +48,7 @@ function SingleSummary<T extends ComboboxValue>(props: {
         <div class="box shrink-0">{props.selected?.preview}</div>
       </Show>
       <label
-        class="text textLabel line-clamp-1 flex-1 min-w-0"
+        class="text textBody line-clamp-1 flex-1 min-w-0"
         classList={{
           'text-text': props.selected !== undefined,
           'text-text-secondary': props.selected === undefined,
@@ -75,12 +69,9 @@ export function ComboboxTrigger<T extends ComboboxValue>(
   const showClear = (): boolean => props.onClear !== undefined && hasChips();
   return (
     <div
-      class="box flex-row items-center gap-2 rounded-control border border-outline bg-surface-muted"
+      class="input box flex-row items-center gap-2"
+      classList={{ 'ps-2': hasChips(), 'opacity-disabled': props.disabled }}
       data-component="ComboboxField"
-      style={{
-        'padding-left': cssPx(hasChips() ? 8 : 0),
-        opacity: props.disabled ? 0.4 : 1,
-      }}
     >
       <Show when={hasChips()}>
         <ComboboxChips
@@ -90,10 +81,9 @@ export function ComboboxTrigger<T extends ComboboxValue>(
         />
       </Show>
       <button
-        class="clickable clickableTint flex-1 min-w-0 flex-row items-center gap-2.5 px-3 py-2.5 rounded-control text-left"
+        class="clickable clickableTint flex-1 min-w-0 min-h-ui-control-md flex-row items-center gap-3 px-4 py-2 rounded-control text-left"
         {...dataAttrs({ component: 'ComboboxTrigger', ...props.dataSet })}
         type="button"
-        style={{ 'min-height': cssPx(COMBOBOX_TRIGGER_MIN_HEIGHT) }}
         role="combobox"
         aria-expanded={props.open}
         aria-controls={props.listboxId}
@@ -111,11 +101,11 @@ export function ComboboxTrigger<T extends ComboboxValue>(
             />
           }
         >
-          <label class="text textLabel line-clamp-1 flex-1 min-w-0 text-text-secondary">
+          <label class="text textBody line-clamp-1 flex-1 min-w-0 text-text-secondary">
             {hasChips() ? t`Add…` : props.placeholder}
           </label>
         </Show>
-        <ChevronDownIcon size={18} color="textSecondary" />
+        <ChevronDownIcon size={20} color="icon" />
       </button>
       <Show when={showClear()}>
         <div class="box pr-1">

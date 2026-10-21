@@ -6,6 +6,8 @@ import { useGameSideLabel } from '@pkgs/turn-game-client/use-game-side-label';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
 import { GameActions } from '@pkgs/ui-root-client/game-section';
 import { Select } from '@pkgs/ui-root-client/select';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import { CustomGameDifficulty } from './custom-game-difficulty';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
@@ -17,13 +19,9 @@ export function CustomGameInvitation(props: SideProps): JSX.Element {
   const mine = (): boolean =>
     props.model.current()?.[props.side].person === props.model.myId();
   return (
-    <div class="box gap-3">
+    <StackVertical gap="md">
       <Show when={mine()}>
-        <p
-          class="text textBody flex flex-row flex-wrap gap-x-1"
-          role="status"
-          data-testid={`custom-game-${props.side}-invitation`}
-        >
+        <P role="status" testId={`custom-game-${props.side}-invitation`}>
           <UserUsername
             profileId={props.model.current()?.creator ?? ''}
             withAt={false}
@@ -33,7 +31,7 @@ export function CustomGameInvitation(props: SideProps): JSX.Element {
             invites you to play{' '}
             {gameSideLabel(props.model.current()?.fen ?? '', props.side)}.
           </Trans>
-        </p>
+        </P>
       </Show>
       <GameActions>
         <Show when={mine() && props.model.canJoin()}>
@@ -63,7 +61,7 @@ export function CustomGameInvitation(props: SideProps): JSX.Element {
           />
         </Show>
       </GameActions>
-    </div>
+    </StackVertical>
   );
 }
 
@@ -86,7 +84,7 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
     })
   );
   return (
-    <div class="box gap-3">
+    <StackVertical gap="md">
       <GameActions>
         <GameActionButton
           title={<Trans>Take this side</Trans>}
@@ -145,6 +143,6 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
           }
         />
       </Show>
-    </div>
+    </StackVertical>
   );
 }

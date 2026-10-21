@@ -1,71 +1,26 @@
 import type { AvatarConfig } from '@libs/profile-shared/avatar-config';
-import type { SchemaField } from '@libs/profile-shared/dicebear-schema';
-import type { StyleKey } from '@libs/profile-shared/dicebear-styles';
-import {
-  isStyleKey,
-  STYLE_KEYS,
-  styleLabel,
-} from '@libs/profile-shared/dicebear-styles';
 import { Handles } from '@libs/test-ids-shared/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans } from '@lingui/solid/macro';
 import { AvatarHero } from '@pkgs/ui-root-client/avatar-hero';
-import { Combobox } from '@pkgs/ui-root-client/combobox';
 import { ConfirmationModal } from '@pkgs/ui-root-client/confirmation-modal';
 import { FormScreen } from '@pkgs/ui-root-client/form-screen';
-import { MultiSelectSwatchGrid } from '@pkgs/ui-root-client/multi-select-swatch-grid';
-import { PickerSection } from '@pkgs/ui-root-client/picker-section';
 import { Skeleton } from '@pkgs/ui-root-client/skeleton';
-import type { ComboboxOption } from '@pkgs/ui-root-shared/combobox-types';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { createMemo, For, Show } from 'solid-js';
-import { AvatarEditorSeedField } from './avatar-editor-seed-field';
 import {
-  buildThumbnailEnumOptions,
-  humanizeOptionKey,
-  selectedVariantForField,
-} from './option-helpers';
+  BackgroundColorPicker,
+  StyleCombobox,
+  TraitCombobox,
+} from './avatar-editor-pickers';
+import { AvatarEditorSeedField } from './avatar-editor-seed-field';
+import { AvatarRefusedChangeNotice } from './avatar-refused-change-notice';
+import { selectedVariantForField } from './option-helpers';
 import { ProfileDiceBearAvatar } from './patch-avatar-profile-dicebear-avatar';
 import type { UseAvatarEditor } from './use-avatar-editor';
 import { useAvatarEditor } from './use-avatar-editor';
 
-type EnumField = Extract<SchemaField, { kind: 'enum' }>;
-type ColorField = Extract<SchemaField, { kind: 'color' }>;
-
 const HERO_SIZE = 160;
-const PREVIEW_SIZE = 32;
-const RANDOM = '__random__' as const;
-
-function BackgroundColorPicker(props: {
-  field: ColorField;
-  editor: UseAvatarEditor;
-}): JSX.Element {
-  const current = (): string[] => {
-    const value = props.editor.draft.options[props.field.key];
-    return Array.isArray(value) ? (value as string[]) : props.field.default;
-  };
-  const palette = (): string[] => [
-    ...new Set([...props.field.default, ...current()]),
-  ];
-  return (
-    <PickerSection label={humanizeOptionKey(props.field.key)}>
-      <MultiSelectSwatchGrid
-        label={null}
-        palette={palette()}
-        defaultPalette={props.field.default}
-        value={current()}
-        allowTransparent
-        allowCustomEntry={false}
-        onChange={(next) => {
-          const key = props.field.key;
-          props.editor.updateOptions((o) => ({
-            ...o,
-            [key]: next.length <= 1 ? next : [next[next.length - 1]!],
-          }));
-        }}
-      />
-    </PickerSection>
-  );
-}
 
 function AvatarPreviewSlot(props: {
   ready: boolean;
@@ -76,11 +31,7 @@ function AvatarPreviewSlot(props: {
     <Show
       when={props.ready}
       fallback={
-        <Skeleton
-          width={HERO_SIZE}
-          height={HERO_SIZE}
-          borderRadius={HERO_SIZE / 2}
-        />
+        <Skeleton width={HERO_SIZE} height={HERO_SIZE} shape="circle" />
       }
     >
       <ProfileDiceBearAvatar
@@ -89,120 +40,6 @@ function AvatarPreviewSlot(props: {
         size={HERO_SIZE}
       />
     </Show>
-  );
-}
-
-function StyleCombobox(props: {
-  styleKey: StyleKey;
-  seed: string;
-  seedFallback: string;
-  onChange: (key: StyleKey) => void;
-}): JSX.Element {
-  const { t } = useLingui();
-  const options = createMemo((): ComboboxOption<StyleKey>[] =>
-    STYLE_KEYS.map((key) => {
-      const option: ComboboxOption<StyleKey> = {
-        value: key,
-        label: styleLabel(key),
-        searchText: styleLabel(key),
-        dataSet: { testid: Handles.profileAvatarStyleOption(key) },
-        preview: (
-          <ProfileDiceBearAvatar
-            config={{ style: key, seed: props.seed, options: {} }}
-            fallbackSeed={props.seedFallback}
-            size={PREVIEW_SIZE}
-          />
-        ),
-      };
-      return option;
-    })
-  );
-
-  return (
-    <Combobox
-      label={<Trans>Style</Trans>}
-      options={options()}
-      value={props.styleKey}
-      onValueChange={(key) => {
-        if (isStyleKey(key)) props.onChange(key);
-      }}
-      placeholder={t`Select style…`}
-      searchPlaceholder={t`Search styles…`}
-      emptyMessage={t`No matching styles`}
-      surfaceTitle={<Trans>Style</Trans>}
-      triggerDataSet={{ testid: Handles.profileAvatarStyle }}
-      searchDataSet={{ testid: Handles.profileAvatarStyleSearch }}
-    />
-  );
-}
-
-function TraitCombobox(props: {
-  field: EnumField;
-  styleKey: StyleKey;
-  seed: string;
-  options: Record<string, unknown>;
-  selectedVariant: string | null;
-  seedFallback: string;
-  triggerTestId: string | null;
-  onSelect: (variant: string | null) => void;
-}): JSX.Element {
-  const { t } = useLingui();
-  const comboboxOptions = createMemo((): ComboboxOption<string>[] => {
-    const random: ComboboxOption<string> = {
-      value: RANDOM,
-      label: t`Random`,
-      searchText: t`Random`,
-      preview: (
-        <div
-          class="box items-center justify-center"
-          style={{ width: `${PREVIEW_SIZE}px`, height: `${PREVIEW_SIZE}px` }}
-        >
-          <p class="text textCaption">{<Trans>?</Trans>}</p>
-        </div>
-      ),
-    };
-    const variants = props.field.values.map((variant) => ({
-      value: variant,
-      label: variant.replace(/^variant/i, ''),
-      searchText: variant,
-      preview: (
-        <ProfileDiceBearAvatar
-          config={{
-            style: props.styleKey,
-            seed: props.seed,
-            options: buildThumbnailEnumOptions(
-              props.styleKey,
-              props.field.key,
-              variant,
-              props.options
-            ),
-          }}
-          fallbackSeed={props.seedFallback}
-          size={PREVIEW_SIZE}
-        />
-      ),
-    }));
-    return [random, ...variants];
-  });
-
-  return (
-    <Combobox
-      label={humanizeOptionKey(props.field.key)}
-      options={comboboxOptions()}
-      value={props.selectedVariant ?? RANDOM}
-      onValueChange={(value) => {
-        props.onSelect(value === RANDOM ? null : value);
-      }}
-      placeholder={t`Select…`}
-      searchPlaceholder={t`Search…`}
-      emptyMessage={t`No matching options`}
-      surfaceTitle={humanizeOptionKey(props.field.key)}
-      triggerDataSet={
-        props.triggerTestId !== null
-          ? { testid: props.triggerTestId }
-          : undefined
-      }
-    />
   );
 }
 
@@ -263,7 +100,7 @@ function EditorContent(props: { editor: UseAvatarEditor }): JSX.Element {
   }));
 
   return (
-    <div class="box gap-2 pb-4">
+    <StackVertical gap="sm" paddingBottom="lg">
       <AvatarHero size={HERO_SIZE}>
         <AvatarPreviewSlot
           ready={props.editor.ready}
@@ -271,8 +108,9 @@ function EditorContent(props: { editor: UseAvatarEditor }): JSX.Element {
           seedFallback={props.editor.seedFallback}
         />
       </AvatarHero>
+      <AvatarRefusedChangeNotice />
       <Show when={props.editor.ready}>
-        <div class="box gap-2">
+        <StackVertical gap="sm">
           <AvatarEditorSeedField
             seed={props.editor.draft.seed}
             onSeedChange={props.editor.setSeed}
@@ -280,9 +118,9 @@ function EditorContent(props: { editor: UseAvatarEditor }): JSX.Element {
             onCopy={props.editor.copySeed}
           />
           <StyleAndTraits editor={props.editor} seed={seed()} />
-        </div>
+        </StackVertical>
       </Show>
-    </div>
+    </StackVertical>
   );
 }
 

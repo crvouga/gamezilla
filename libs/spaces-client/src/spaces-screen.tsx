@@ -7,6 +7,7 @@ import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import type { ScreenBasePrimaryAction } from '@pkgs/ui-root-client/screen-base-types';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
+import { LobbyRefusedChangeNotice } from './space-refused-change-notice';
 import { openSpaceDetail } from './space-routes';
 import { SpacesLobby } from './spaces-lobby';
 import { useCreateSpace } from './use-create-space';
@@ -55,6 +56,7 @@ export function SpacesScreen(): JSX.Element {
       screenId="spaces"
       breadcrumbs={[{ name: <Trans>Spaces</Trans> }]}
       primaryAction={primaryAction()}
+      controls={<LobbyRefusedChangeNotice />}
     >
       <Show when={listReady()} fallback={<LoadingState />}>
         <SpacesLobby onCreateSpace={onCreateSpace} />

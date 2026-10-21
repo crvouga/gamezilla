@@ -10,6 +10,7 @@
  */
 
 import { usePathname, useRouter } from '@pkgs/ui-root-client/app-router';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client/use-layout-mode';
 import type { RouteSectionProps } from '@solidjs/router';
 import { For, type JSX, Show, Suspense } from 'solid-js';
@@ -23,8 +24,8 @@ export function TabsLayout(props: RouteSectionProps): JSX.Element {
   const router = useRouter();
   const subs = useAppSubs();
   return (
-    <div class="box flex-1 min-h-0" data-component="TabsLayout">
-      <div class="box flex-1 min-h-0">{props.children}</div>
+    <StackVertical grow>
+      <StackVertical grow>{props.children}</StackVertical>
       <Suspense fallback={null}>
         <For each={subs.tabsDocks}>
           {(Dock) => <Dynamic component={Dock} />}
@@ -38,6 +39,6 @@ export function TabsLayout(props: RouteSectionProps): JSX.Element {
           }}
         />
       </Show>
-    </div>
+    </StackVertical>
   );
 }

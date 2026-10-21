@@ -1,24 +1,26 @@
 import { Trans } from '@lingui/solid/macro';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 
 export function PrivacyExplanation(): JSX.Element {
   return (
-    <div class="box gap-3" data-testid="privacy-consequences">
-      <p class="text textBody">
+    <StackVertical gap="md" testId="privacy-consequences">
+      <P>
         <Trans>
           Account deletion is permanent. Every device will be signed out,
           including offline devices when they reconnect. Signing in later starts
           a new account.
         </Trans>
-      </p>
-      <p class="text textBody">
+      </P>
+      <P>
         <Trans>
           You can take a personal-data export before deleting the account. Your
           profile, friends, progress and preferences will be erased within 30
           days.
         </Trans>
-      </p>
-      <p class="text textBody">
+      </P>
+      <P>
         <Trans>
           Hosted spaces will end. If you have Plus, Plus ends at once: the
           remaining paid time and Plus credit are not refunded. Future
@@ -26,16 +28,16 @@ export function PrivacyExplanation(): JSX.Element {
           confirmed cancellation yet, we will say so. Any membership payment
           taken after confirmed deletion will be refunded in full.
         </Trans>
-      </p>
-      <div class="box gap-2" data-testid="privacy-retention">
-        <p class="text textBody">
+      </P>
+      <StackVertical gap="sm" testId="privacy-retention">
+        <P tone="secondary">
           <Trans>
             We retain only minimum payment evidence for accounting and disputes
             for 7 years after payment. It cannot restore your account or
             membership.
           </Trans>
-        </p>
-        <p class="text textBody">
+        </P>
+        <P tone="secondary">
           <Trans>
             A specific legal preservation obligation may retain only the
             information it covers until that obligation ends. Preserved
@@ -43,14 +45,14 @@ export function PrivacyExplanation(): JSX.Element {
             product. Any applicable obligation and its end condition will be
             disclosed here.
           </Trans>
-        </p>
-        <p class="text textBody">
+        </P>
+        <P tone="secondary">
           <Trans>
             There is no legal preservation obligation on this account unless one
             is listed below.
           </Trans>
-        </p>
-      </div>
-    </div>
+        </P>
+      </StackVertical>
+    </StackVertical>
   );
 }

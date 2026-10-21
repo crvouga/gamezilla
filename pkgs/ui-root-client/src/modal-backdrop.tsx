@@ -8,14 +8,15 @@
  * is a non-focusable, `aria-hidden` layer -- keyboard users dismiss with
  * Escape through the surrounding {@link FocusTrap}.
  *
+ * The scrim fades in over 250ms (`.scrimEnter`); the content keeps the
+ * 16px modal margin (`MODAL_CONTENT_MARGIN_STEP`, `p-4`) from every edge.
+ *
  * Relies on a sized ancestor (the {@link ModalRoot} focus trap fills the
  * surface layer) so this fill expands to the viewport.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { cssGap } from '@pkgs/ui-root-shared/css-px';
-import { MODAL_CONTENT_MARGIN_STEP } from '@pkgs/ui-root-shared/modal-size';
 import type { JSX } from 'solid-js';
 
 export type ModalBackdropProps = {
@@ -38,15 +39,14 @@ export function ModalBackdrop(props: ModalBackdropProps): JSX.Element {
       {...dataAttrs({ component: 'ModalBackdrop', ...props.dataSet })}
     >
       <div
-        class="box absolute inset-0 bg-scrim"
+        class="box scrimEnter absolute inset-0 bg-scrim"
         data-component="ModalScrim"
         aria-hidden="true"
         onClick={onScrimClick}
       />
       <div
-        class="box flex-1 w-full h-full justify-center items-center"
+        class="box flex-1 w-full h-full justify-center items-center p-4"
         classList={{ boxNone: true }}
-        style={{ padding: cssGap(MODAL_CONTENT_MARGIN_STEP) }}
       >
         {props.children}
       </div>

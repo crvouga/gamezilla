@@ -20,9 +20,7 @@ export function SpaceEndedScreen(props: SpaceEndedScreenProps): JSX.Element {
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, onClick: nav('/') },
         {
-          name: (
-            <SpaceTitleText spaceId={props.spaceId} variant="navigationTitle" />
-          ),
+          name: <SpaceTitleText spaceId={props.spaceId} />,
         },
       ]}
       dataSet={{ testid: Handles.spaceEnded }}

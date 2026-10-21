@@ -11,8 +11,6 @@ import { CommandPaletteRow } from './command-palette-row';
 import { CommandPaletteSection } from './command-palette-section';
 import { ScrollView } from './scroll-view';
 
-export const COMMAND_PALETTE_LIST_MAX_HEIGHT = 320;
-
 export function commandPaletteRowId(
   listboxId: string,
   commandId: string
@@ -63,9 +61,7 @@ export function CommandPaletteList(
     })
   );
   return (
-    <ScrollView
-      style={{ 'max-height': `${COMMAND_PALETTE_LIST_MAX_HEIGHT}px` }}
-    >
+    <ScrollView maxHeight="md">
       <div
         class="box"
         data-component="CommandPaletteList"

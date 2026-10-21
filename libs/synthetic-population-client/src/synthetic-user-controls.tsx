@@ -3,6 +3,7 @@ import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
 import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { createSignal, type JSX, Show } from 'solid-js';
 
@@ -22,7 +23,7 @@ export function SyntheticUserControls(props: {
   });
   return (
     <Show when={control()}>
-      <div class="box flex-row flex-wrap gap-3">
+      <StackHorizontal wrap gap="md">
         <Button
           {...pause.buttonProps}
           dataSet={{ testid: 'synthetic-population-pause' }}
@@ -36,7 +37,7 @@ export function SyntheticUserControls(props: {
           onClick={() => setRestart(true)}
           dataSet={{ testid: 'synthetic-population-restart' }}
         />
-      </div>
+      </StackHorizontal>
       <MutationModal
         visible={restart()}
         onClose={() => setRestart(false)}

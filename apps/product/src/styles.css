@@ -12,8 +12,8 @@ body,
 
 body {
   overflow: hidden;
-  /* Avoid white flash before ThemeProvider paints (console chrome is dark). */
-  background: var(--ui-color-background, hsla(0, 0%, 0%, 1));
+  /* The design tokens paint the page background once their stylesheet loads. */
+  background: var(--ui-color-background);
 }
 
 #root {

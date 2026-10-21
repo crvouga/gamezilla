@@ -1,3 +1,5 @@
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { Show } from 'solid-js';
 import { usePuzzleAllowance } from './use-puzzle-allowance';
 
@@ -5,12 +7,15 @@ export function PuzzleAllowance() {
   const allowance = usePuzzleAllowance();
   return (
     <Show when={allowance.remaining() !== null}>
-      <p
-        class="text textCaption text-text-secondary px-3 py-1"
-        data-testid="chess-puzzle-remaining-today"
-      >
-        {allowance.label()}
-      </p>
+      <StackVertical paddingX="md" paddingY="xs">
+        <P
+          variant="caption"
+          tone="secondary"
+          testId="chess-puzzle-remaining-today"
+        >
+          {allowance.label()}
+        </P>
+      </StackVertical>
     </Show>
   );
 }

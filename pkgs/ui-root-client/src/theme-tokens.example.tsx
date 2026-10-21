@@ -31,7 +31,6 @@ const COLOR_GROUPS: readonly ColorGroup[] = [
     tokens: [
       'background',
       'surface',
-      'surfaceSunken',
       'surfaceMuted',
       'surfaceElevated',
       'surfaceOverlay',
@@ -40,14 +39,7 @@ const COLOR_GROUPS: readonly ColorGroup[] = [
   { title: 'Foreground', tokens: ['text', 'textSecondary', 'icon'] },
   {
     title: 'Brand / interactive',
-    tokens: [
-      'tint',
-      'tintHover',
-      'tintActive',
-      'tintSubtle',
-      'tintMuted',
-      'tintHighlight',
-    ],
+    tokens: ['tint', 'tintHover', 'tintActive', 'tintSubtle'],
   },
   {
     title: 'On-color foregrounds',
@@ -72,7 +64,6 @@ const COLOR_GROUPS: readonly ColorGroup[] = [
     ],
   },
   { title: 'States / shadow', tokens: ['disabled', 'shadowColor'] },
-  { title: 'Tabs', tokens: ['tabIconDefault', 'tabIconSelected'] },
 ];
 
 const ELEVATION_LEVELS: readonly ElevationLevel[] = [0, 1, 2, 3, 4, 5];
@@ -86,7 +77,7 @@ const EASINGS = Object.entries(easing);
 
 export default function ThemeTokensExample(): JSX.Element {
   return (
-    <ExampleRoot class="gap-5">
+    <ExampleRoot gap="xl">
       <SectionTitle title="Colors" />
       <SchemePreview>
         <ColorGroups />
@@ -124,7 +115,7 @@ function ColorGroups(): JSX.Element {
     <div class="box gap-4">
       <For each={COLOR_GROUPS}>
         {(group) => (
-          <div class="box gap-1.5">
+          <div class="box gap-2">
             <label class="text textLabel text-text-secondary">
               {group.title}
             </label>
@@ -183,13 +174,13 @@ function RadiusSample(props: { radiusKey: BorderRadiusKey }): JSX.Element {
 
 function SpacingRow(): JSX.Element {
   return (
-    <div class="box gap-1.5">
+    <div class="box gap-2">
       <For each={SPACING_ENTRIES}>
         {(entry) => (
           <div class="box flex-row items-center gap-2">
             <p class="text textCaption text-text-secondary w-8">{entry.key}</p>
             <div
-              class="box h-2.5 bg-tint rounded-xs"
+              class="box h-3 bg-tint rounded-sm"
               style={{ width: cssPx(Math.max(entry.value, 1)) }}
             />
             <p class="text textCaption text-text-secondary">{`${entry.value}px`}</p>

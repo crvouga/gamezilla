@@ -16,6 +16,17 @@ export default function SwitchExample(): JSX.Element {
           <Switch label="Notifications" value={a()} onValueChange={setA} />
           <Switch label="Dark mode (on)" value={b()} onValueChange={setB} />
           <Switch label="Disabled" value={c()} onValueChange={setC} disabled />
+          <Switch
+            label="Disabled · on"
+            value
+            onValueChange={() => undefined}
+            disabled
+          />
+          <Switch
+            aria-label="Without a visible label"
+            value={a()}
+            onValueChange={setA}
+          />
         </div>
       </SchemePreview>
     </ExampleRoot>

@@ -10,6 +10,7 @@
 
 import type { CatalogItem } from '@pkgs/ui-root-shared/catalog-item';
 import type { ComponentEntry } from '@pkgs/ui-root-shared/component-entry';
+import { ADDITION_ENTRIES } from './registry-entries-additions';
 import { CORE_ENTRIES } from './registry-entries-core';
 import { DISPLAY_ENTRIES } from './registry-entries-display';
 import { PRIMITIVE_ENTRIES } from './registry-entries-primitives';
@@ -22,6 +23,7 @@ const ENTRIES: readonly ComponentEntry[] = [
   ...PRIMITIVE_ENTRIES,
   ...DISPLAY_ENTRIES,
   ...SCREEN_ENTRIES,
+  ...ADDITION_ENTRIES,
 ];
 
 /** Built-in explorer entries keyed by `id`, in display order. */

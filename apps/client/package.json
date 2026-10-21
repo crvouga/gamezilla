@@ -45,6 +45,7 @@
     "@pkgs/secret-store-shared": "workspace:*",
     "@pkgs/sql-client-sqlite-web-server": "workspace:*",
     "@pkgs/turn-game-shared": "workspace:*",
+    "@pkgs/ui-root-shared": "workspace:*",
     "@pkgs/vite-workspace-resolver-server": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",

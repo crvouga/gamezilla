@@ -295,7 +295,7 @@ describe('IconButton family', () => {
 });
 
 describe('FloatingActionButton', () => {
-  test('round FAB is ≥56px and extended FAB shows its label', () => {
+  test('round FAB is the 52px control disc and extended FAB shows its label', () => {
     const onClick = mock();
     renderUi(() => (
       <>
@@ -304,7 +304,13 @@ describe('FloatingActionButton', () => {
       </>
     ));
     const fab = screen.getByRole('button', { name: 'New' });
-    expect(cssOf(fab)).toContain('min-height:56px');
+    // `skin.css` `.fab[data-extended="false"]`: a --ui-control-size-lg disc.
+    expect(fab.className).toContain('fab');
+    expect(fab).toHaveAttribute('data-extended', 'false');
+    expect(screen.getByRole('button', { name: 'Compose' })).toHaveAttribute(
+      'data-extended',
+      'true'
+    );
     fireEvent.click(fab);
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('button', { name: 'Compose' })).toHaveTextContent(

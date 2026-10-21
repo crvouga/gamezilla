@@ -1,7 +1,7 @@
 /**
  * Class tables for the `SpaceToken` props (`gap`, `padding*`). Every utility
  * is `<property>-ui-<token>`, bound to `--ui-space-<token>` by the theme
- * (`codemod/theme.css`), so a spacing prop renders the token and nothing
+ * (`theme.css`), so a spacing prop renders the token and nothing
  * else. Rows are written out in full for the stylesheet scanner.
  */
 
@@ -29,7 +29,6 @@ export type SpacingProps = {
 
 const GAP = responsiveTable<SpaceToken>({
   none: 'gap-ui-none sm:gap-ui-none md:gap-ui-none lg:gap-ui-none xl:gap-ui-none',
-  '2xs': 'gap-ui-2xs sm:gap-ui-2xs md:gap-ui-2xs lg:gap-ui-2xs xl:gap-ui-2xs',
   xs: 'gap-ui-xs sm:gap-ui-xs md:gap-ui-xs lg:gap-ui-xs xl:gap-ui-xs',
   sm: 'gap-ui-sm sm:gap-ui-sm md:gap-ui-sm lg:gap-ui-sm xl:gap-ui-sm',
   md: 'gap-ui-md sm:gap-ui-md md:gap-ui-md lg:gap-ui-md xl:gap-ui-md',
@@ -41,7 +40,6 @@ const GAP = responsiveTable<SpaceToken>({
 
 const PADDING = responsiveTable<SpaceToken>({
   none: 'p-ui-none sm:p-ui-none md:p-ui-none lg:p-ui-none xl:p-ui-none',
-  '2xs': 'p-ui-2xs sm:p-ui-2xs md:p-ui-2xs lg:p-ui-2xs xl:p-ui-2xs',
   xs: 'p-ui-xs sm:p-ui-xs md:p-ui-xs lg:p-ui-xs xl:p-ui-xs',
   sm: 'p-ui-sm sm:p-ui-sm md:p-ui-sm lg:p-ui-sm xl:p-ui-sm',
   md: 'p-ui-md sm:p-ui-md md:p-ui-md lg:p-ui-md xl:p-ui-md',
@@ -53,7 +51,6 @@ const PADDING = responsiveTable<SpaceToken>({
 
 const PADDING_X = responsiveTable<SpaceToken>({
   none: 'px-ui-none sm:px-ui-none md:px-ui-none lg:px-ui-none xl:px-ui-none',
-  '2xs': 'px-ui-2xs sm:px-ui-2xs md:px-ui-2xs lg:px-ui-2xs xl:px-ui-2xs',
   xs: 'px-ui-xs sm:px-ui-xs md:px-ui-xs lg:px-ui-xs xl:px-ui-xs',
   sm: 'px-ui-sm sm:px-ui-sm md:px-ui-sm lg:px-ui-sm xl:px-ui-sm',
   md: 'px-ui-md sm:px-ui-md md:px-ui-md lg:px-ui-md xl:px-ui-md',
@@ -65,7 +62,6 @@ const PADDING_X = responsiveTable<SpaceToken>({
 
 const PADDING_Y = responsiveTable<SpaceToken>({
   none: 'py-ui-none sm:py-ui-none md:py-ui-none lg:py-ui-none xl:py-ui-none',
-  '2xs': 'py-ui-2xs sm:py-ui-2xs md:py-ui-2xs lg:py-ui-2xs xl:py-ui-2xs',
   xs: 'py-ui-xs sm:py-ui-xs md:py-ui-xs lg:py-ui-xs xl:py-ui-xs',
   sm: 'py-ui-sm sm:py-ui-sm md:py-ui-sm lg:py-ui-sm xl:py-ui-sm',
   md: 'py-ui-md sm:py-ui-md md:py-ui-md lg:py-ui-md xl:py-ui-md',
@@ -77,7 +73,6 @@ const PADDING_Y = responsiveTable<SpaceToken>({
 
 const PADDING_TOP = responsiveTable<SpaceToken>({
   none: 'pt-ui-none sm:pt-ui-none md:pt-ui-none lg:pt-ui-none xl:pt-ui-none',
-  '2xs': 'pt-ui-2xs sm:pt-ui-2xs md:pt-ui-2xs lg:pt-ui-2xs xl:pt-ui-2xs',
   xs: 'pt-ui-xs sm:pt-ui-xs md:pt-ui-xs lg:pt-ui-xs xl:pt-ui-xs',
   sm: 'pt-ui-sm sm:pt-ui-sm md:pt-ui-sm lg:pt-ui-sm xl:pt-ui-sm',
   md: 'pt-ui-md sm:pt-ui-md md:pt-ui-md lg:pt-ui-md xl:pt-ui-md',
@@ -89,7 +84,6 @@ const PADDING_TOP = responsiveTable<SpaceToken>({
 
 const PADDING_BOTTOM = responsiveTable<SpaceToken>({
   none: 'pb-ui-none sm:pb-ui-none md:pb-ui-none lg:pb-ui-none xl:pb-ui-none',
-  '2xs': 'pb-ui-2xs sm:pb-ui-2xs md:pb-ui-2xs lg:pb-ui-2xs xl:pb-ui-2xs',
   xs: 'pb-ui-xs sm:pb-ui-xs md:pb-ui-xs lg:pb-ui-xs xl:pb-ui-xs',
   sm: 'pb-ui-sm sm:pb-ui-sm md:pb-ui-sm lg:pb-ui-sm xl:pb-ui-sm',
   md: 'pb-ui-md sm:pb-ui-md md:pb-ui-md lg:pb-ui-md xl:pb-ui-md',
@@ -101,7 +95,6 @@ const PADDING_BOTTOM = responsiveTable<SpaceToken>({
 
 const PADDING_START = responsiveTable<SpaceToken>({
   none: 'ps-ui-none sm:ps-ui-none md:ps-ui-none lg:ps-ui-none xl:ps-ui-none',
-  '2xs': 'ps-ui-2xs sm:ps-ui-2xs md:ps-ui-2xs lg:ps-ui-2xs xl:ps-ui-2xs',
   xs: 'ps-ui-xs sm:ps-ui-xs md:ps-ui-xs lg:ps-ui-xs xl:ps-ui-xs',
   sm: 'ps-ui-sm sm:ps-ui-sm md:ps-ui-sm lg:ps-ui-sm xl:ps-ui-sm',
   md: 'ps-ui-md sm:ps-ui-md md:ps-ui-md lg:ps-ui-md xl:ps-ui-md',
@@ -113,7 +106,6 @@ const PADDING_START = responsiveTable<SpaceToken>({
 
 const PADDING_END = responsiveTable<SpaceToken>({
   none: 'pe-ui-none sm:pe-ui-none md:pe-ui-none lg:pe-ui-none xl:pe-ui-none',
-  '2xs': 'pe-ui-2xs sm:pe-ui-2xs md:pe-ui-2xs lg:pe-ui-2xs xl:pe-ui-2xs',
   xs: 'pe-ui-xs sm:pe-ui-xs md:pe-ui-xs lg:pe-ui-xs xl:pe-ui-xs',
   sm: 'pe-ui-sm sm:pe-ui-sm md:pe-ui-sm lg:pe-ui-sm xl:pe-ui-sm',
   md: 'pe-ui-md sm:pe-ui-md md:pe-ui-md lg:pe-ui-md xl:pe-ui-md',

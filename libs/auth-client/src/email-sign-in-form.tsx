@@ -1,6 +1,9 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
+import { H2 } from '@pkgs/ui-root-client/heading';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import type { EmailSignInForm as EmailSignInFormState } from './use-email-sign-in';
@@ -10,7 +13,7 @@ export function EmailSignInForm(props: {
   form: EmailSignInFormState;
 }): JSX.Element {
   return (
-    <div class="box gap-3" data-component="EmailSignInForm">
+    <StackVertical gap="md">
       <Switch>
         <Match when={props.form.step() === 'address'}>
           <EmailAddressStep form={props.form} />
@@ -19,7 +22,7 @@ export function EmailSignInForm(props: {
           <EmailLinkStep form={props.form} />
         </Match>
       </Switch>
-    </div>
+    </StackVertical>
   );
 }
 
@@ -41,9 +44,9 @@ function EmailAddressStep(props: { form: EmailSignInFormState }): JSX.Element {
       />
       <Show when={props.form.request.error()}>
         {(error) => (
-          <p class="text textCaption text-destructive" role="alert">
+          <P variant="caption" tone="destructive" role="alert">
             {error().message}
-          </p>
+          </P>
         )}
       </Show>
     </>
@@ -59,10 +62,10 @@ function EmailLinkStep(props: { form: EmailSignInFormState }): JSX.Element {
   };
   return (
     <>
-      <h2 class="text textBodyBold">
+      <H2 size="label">
         <Trans>Check your email</Trans>
-      </h2>
-      <p class="text textBody text-text-secondary">{checkYourEmail()}</p>
+      </H2>
+      <P tone="secondary">{checkYourEmail()}</P>
       <TextInput
         label={t`Sign-in link`}
         value={props.form.link()}

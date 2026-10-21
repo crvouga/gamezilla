@@ -3,10 +3,13 @@
  * `MenuRow` -- a tappable navigation row with title, optional caption, and a
  * trailing disclosure chevron.
  *
- * One anatomy for every row in the product: a 28px leading slot, a title in
- * the display face, an optional caption, an optional right-aligned value,
- * and a trailing chevron. Rows live inside a panel (`MenuList`), which owns
+ * One anatomy for every row in the product: at least 52px tall with 16px
+ * insets, a 24px leading slot (icons in the `icon` tone), a `textBody`
+ * title, an optional caption, an optional right-aligned secondary value, and
+ * a 20px trailing chevron. Rows live inside a panel (`MenuList`), which owns
  * the surface, the radius and the hairlines; a row never paints its own.
+ * Hover and press fade a tint in over 150ms, keyboard focus draws the ring
+ * inside the panel, and a disabled row fades to the disabled opacity.
  *
  * Interactive rows (`onClick`) are `Clickable`s with `role="menuitem"` (host
  * them inside `MenuList`, which is `role="menu"`); hover / press tints come
@@ -35,6 +38,8 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ChevronRightIcon } from './icons';
+import type { TextLines } from './text-classes';
+import { textStyleClass } from './text-classes';
 
 export type MenuRowSubmit = {
   readonly name: string;
@@ -51,12 +56,23 @@ export type MenuRowProps = {
    * `1.2.0`). Use for key/value detail rows and current-choice rows.
    */
   value?: JSX.Element | undefined;
+  /**
+   * Lines the `value` may wrap to before it ends in an ellipsis. Default
+   * `1`; a detail row whose value is a timestamp or a version takes more.
+   */
+  valueLines?: TextLines | undefined;
   /** Replace the default trailing chevron with custom content. */
   trailing?: JSX.Element | undefined;
   /** Hide the trailing disclosure chevron. Defaults to `false`. */
   hideChevron?: boolean | undefined;
   /** Render the row in its "current selection" state. */
   selected?: boolean | undefined;
+  /**
+   * Announce a static row as the current item of its set
+   * (`aria-current="true"`), e.g. the plan a person is on. Interactive rows
+   * announce `selected` instead.
+   */
+  current?: boolean | undefined;
   onClick?: (() => void) | undefined;
   /** Render as a link to this URL. */
   href?: string | undefined;
@@ -71,11 +87,9 @@ export type MenuRowProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** Cap so a long value never crowds the title out of the row. */
-const MENU_ROW_VALUE_MAX_WIDTH = '45%';
-
 function MenuRowTrailing(props: {
   value: JSX.Element | undefined;
+  valueLines: TextLines | undefined;
   trailing: JSX.Element | undefined;
   hideChevron: boolean;
   selected: boolean;
@@ -100,11 +114,11 @@ function MenuRowTrailing(props: {
       when={props.value !== undefined && props.value !== null}
       fallback={end()}
     >
-      <div
-        class="box flex-row items-center gap-2"
-        style={{ 'max-width': MENU_ROW_VALUE_MAX_WIDTH }}
-      >
-        <div class="text line-clamp-1 text-text-secondary text-right shrink">
+      {/* Capped so a long value never crowds the title out of the row. */}
+      <div class="box flex-row items-center gap-2 max-w-9/20">
+        <div
+          class={`text textCaption text-right shrink ${textStyleClass({ lines: props.valueLines ?? 1 })}`}
+        >
           {props.value}
         </div>
         {end()}
@@ -119,20 +133,20 @@ function MenuRowBody(
   const selected = () => props.selected === true;
   return (
     <div
-      class="box flex-row items-center px-4 py-3 gap-3 min-h-14"
+      class="box flex-row items-center px-4 py-3 gap-3 min-h-13"
       classList={{ panelLeading: props.leading !== undefined }}
     >
       <Show when={props.leading !== undefined}>
-        <div class="box items-center justify-center w-7 shrink-0">
+        <div class="box items-center justify-center min-w-6 shrink-0">
           {props.leading}
         </div>
       </Show>
-      <div class="box flex-1 min-w-0 gap-0.5 items-start">
+      <div class="box flex-1 min-w-0 items-start">
         {/* `div`, not `p`: callers pass their own text blocks, and a `p`
             may not contain one. */}
         <div
-          class="text textLabel text-text"
-          classList={{ 'text-tint': selected() }}
+          class="text textBody"
+          classList={{ 'text-tint': selected(), 'text-text': !selected() }}
         >
           {props.title}
         </div>
@@ -142,6 +156,7 @@ function MenuRowBody(
       </div>
       <MenuRowTrailing
         value={props.value}
+        valueLines={props.valueLines}
         trailing={props.trailing}
         hideChevron={props.hideChevron === true || !props.interactive}
         selected={selected()}
@@ -196,7 +211,7 @@ function MenuRowButton(props: MenuRowProps): JSX.Element {
       disabled={props.disabled === true}
       aria-label={props['aria-label']}
       aria-current={props.selected === true ? true : undefined}
-      style={{ opacity: props.disabled === true ? 0.5 : 1 }}
+      classList={{ 'opacity-disabled': props.disabled === true }}
     >
       <MenuRowBody {...props} interactive />
     </button>
@@ -223,6 +238,7 @@ export function MenuRow(props: MenuRowProps): JSX.Element {
           class={`box ${rowClass(props.selected === true)}`}
           {...dataAttrs({ component: 'MenuRow', ...props.dataSet })}
           aria-label={props['aria-label']}
+          aria-current={props.current === true ? 'true' : undefined}
         >
           <MenuRowBody {...props} interactive={false} />
         </div>

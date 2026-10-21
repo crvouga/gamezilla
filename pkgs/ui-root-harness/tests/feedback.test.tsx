@@ -10,10 +10,8 @@ import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { MutationError } from '@pkgs/ui-root-client/mutation-modal-parts';
-import { ProgressBar } from '@pkgs/ui-root-client/progress-bar';
 import { Skeleton } from '@pkgs/ui-root-client/skeleton';
 import { Spinner } from '@pkgs/ui-root-client/spinner';
-import { SpinnerBox } from '@pkgs/ui-root-client/spinner-box';
 import {
   SPIN_DURATION_MS,
   SpinnerProvider,
@@ -154,13 +152,35 @@ function mustParent(el: Element): HTMLElement {
 }
 
 describe('Spinner', () => {
-  test('renders role=status with a live label and sized svg', () => {
-    renderUi(() => <Spinner size="small" data-testid="s" />);
+  test('renders role=status with a live label and twelve petals', () => {
+    renderUi(() => <Spinner size="sm" />);
     const el = screen.getByRole('status');
     expect(el).toHaveAttribute('aria-live', 'polite');
     expect(el).toHaveAttribute('aria-label', 'Loading…');
-    expect(el.querySelector('svg')).not.toBeNull();
-    expect(cssOf(el)).toContain('width:24px');
+    expect(el).toHaveAttribute('data-size', 'sm');
+    expect(el.classList.contains('size-4')).toBe(true);
+    const petals = [...el.querySelectorAll('rect')];
+    expect(petals).toHaveLength(12);
+    const opacities = petals.map((petal) =>
+      Number(petal.getAttribute('opacity'))
+    );
+    expect(opacities[0]).toBe(1);
+    expect(opacities).toEqual([...opacities].sort((a, b) => b - a));
+  });
+
+  test('defaults to md in the secondary text tone, and labels itself', () => {
+    renderUi(() => <Spinner label="Loading puzzles" />);
+    const el = screen.getByRole('status', { name: 'Loading puzzles' });
+    expect(el.classList.contains('size-6')).toBe(true);
+    expect(el.classList.contains('text-text-secondary')).toBe(true);
+  });
+
+  test('a decorative spinner is hidden from assistive tech', () => {
+    renderUi(() => <Spinner decorative color="current" size="lg" />);
+    expect(screen.queryByRole('status')).toBeNull();
+    const el = mustQuery('[data-component="Spinner"]');
+    expect(el).toHaveAttribute('aria-hidden', 'true');
+    expect(el.classList.contains('size-10')).toBe(true);
   });
 
   test('shares rotation phase through SpinnerProvider via animation-delay', () => {
@@ -179,41 +199,28 @@ describe('Spinner', () => {
     });
     clock.advance(300);
     fireEvent.click(screen.getByText('add'));
-    const el = screen.getByRole('status');
-    expect(cssOf(el)).toContain(`animation-delay:-${300 % SPIN_DURATION_MS}ms`);
-  });
-
-  test('SpinnerBox centers a spinner with optional caption', () => {
-    renderUi(() => (
-      <SpinnerBox dataSet={{ testid: 'box' }}>
-        <span>Loading entity…</span>
-      </SpinnerBox>
-    ));
-    expect(screen.getByRole('status')).toBeInTheDocument();
-    expect(screen.getByText('Loading entity…')).toBeInTheDocument();
+    const svg = screen.getByRole('status').querySelector('svg');
+    if (svg === null) throw new Error('spinner has no svg');
+    expect(cssOf(svg)).toContain(
+      `animation-delay:-${300 % SPIN_DURATION_MS}ms`
+    );
   });
 });
 
-describe('Skeleton + ProgressBar', () => {
+describe('Skeleton', () => {
   test('Skeleton is decorative and sized', () => {
     renderUi(() => <Skeleton width={120} height={12} />);
     const el = mustQuery('[data-component="Skeleton"]');
     expect(el).toHaveAttribute('aria-hidden', 'true');
     expect(cssOf(el)).toContain('width:120px');
+    expect(el).toHaveClass('skeleton', 'bg-surface-muted', 'rounded-sm');
   });
 
-  test('ProgressBar exposes progressbar semantics and clamps', () => {
-    renderUi(() => <ProgressBar progress={1.4} label="Upload" />);
-    const bar = screen.getByRole('progressbar', { name: 'Upload' });
-    expect(bar).toHaveAttribute('aria-valuenow', '1');
-    expect(bar).toHaveAttribute('aria-valuemin', '0');
-    expect(bar).toHaveAttribute('aria-valuemax', '1');
-  });
-
-  test('indeterminate ProgressBar omits aria-valuenow', () => {
-    renderUi(() => <ProgressBar indeterminate label="Busy" />);
-    const bar = screen.getByRole('progressbar', { name: 'Busy' });
-    expect(bar).not.toHaveAttribute('aria-valuenow');
+  test('Skeleton shape picks a radius token, never a length', () => {
+    renderUi(() => <Skeleton width={48} height={48} shape="circle" />);
+    const el = mustQuery('[data-component="Skeleton"]');
+    expect(el).toHaveClass('rounded-full');
+    expect(cssOf(el)).not.toContain('border-radius');
   });
 });
 
@@ -231,8 +238,10 @@ describe('State blocks', () => {
     ));
     const fill = mustQuery('[data-testid="fill"]');
     const compact = mustQuery('[data-testid="compact"]');
-    expect(cssOf(fill)).toContain('flex-grow:1');
-    expect(cssOf(compact)).not.toContain('flex-grow:1');
+    expect(fill).toHaveClass('flex-1');
+    expect(fill).toHaveAttribute('data-variant', 'fill');
+    expect(compact).not.toHaveClass('flex-1');
+    expect(compact).toHaveAttribute('data-variant', 'compact');
   });
 
   test('LoadingState renders spinner + caption', () => {
@@ -310,7 +319,7 @@ describe('State blocks', () => {
     expect(secondary).toHaveAttribute('data-face', 'neutral-outline');
     expect(secondary).toHaveAttribute('data-intent', 'neutral');
     expect(screen.getByRole('heading', { name: 'Could not save' })).toHaveClass(
-      'textHeading'
+      'textSubtitle'
     );
   });
 
@@ -456,8 +465,8 @@ describe('DismissibleBanner', () => {
     const banner = screen.getByRole('status');
     expect(banner).toHaveTextContent('Update available');
     // Full-bleed sheet; content row is max-width constrained on wide layouts.
-    expect(banner.innerHTML).toMatch(/bg-surface-overlay/);
-    expect(banner.innerHTML).toMatch(/max-width/);
+    expect(banner.innerHTML).toMatch(/bg-surface[\s"]/);
+    expect(banner.innerHTML).toMatch(/max-w-ui-wide/);
     const host = banner.closest(
       '[data-component="DismissibleBannerPortalHost"]'
     );

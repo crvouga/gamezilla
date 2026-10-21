@@ -1,8 +1,13 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
+import { Badge } from '@pkgs/ui-root-client/badge';
 import { Button } from '@pkgs/ui-root-client/button';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { H3 } from '@pkgs/ui-root-client/heading';
+import { List } from '@pkgs/ui-root-client/list';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, For, Show } from 'solid-js';
 import { RemoveSpacePersonModal } from './remove-space-person-modal';
@@ -22,20 +27,18 @@ export function SpaceSharePeopleList(props: {
 
   return (
     <>
-      <div class="box gap-2">
-        <label class="text textLabel">
-          {<Trans>People with access</Trans>}
-        </label>
-        <p class="text textCaption text-text-secondary">
-          {
-            <Trans>
-              Added people find this space in their lobby and choose Join.
-              Anyone with the space link can also join.
-            </Trans>
-          }
-        </p>
+      <StackVertical gap="sm">
+        <H3 size="label">
+          <Trans>People with access</Trans>
+        </H3>
+        <P variant="caption">
+          <Trans>
+            Added people find this space in their lobby and choose Join. Anyone
+            with the space link can also join.
+          </Trans>
+        </P>
         <Show when={isLoading()}>
-          <LoadingState size="small" />
+          <LoadingState variant="compact" size="sm" />
         </Show>
         <Show when={!isLoading() && entries().length === 0}>
           <EmptyState
@@ -43,18 +46,22 @@ export function SpaceSharePeopleList(props: {
             title={<Trans>No one added yet</Trans>}
           />
         </Show>
-        <For each={entries()}>
-          {(entry) => (
-            <PeopleAccessRow
-              spaceId={props.spaceId}
-              entry={entry}
-              isHost={hostProfileId() === entry.userId}
-              canManage={props.canManage}
-              onRemove={() => setRemoving(entry)}
-            />
-          )}
-        </For>
-      </div>
+        <Show when={entries().length > 0}>
+          <List>
+            <For each={entries()}>
+              {(entry) => (
+                <PeopleAccessRow
+                  spaceId={props.spaceId}
+                  entry={entry}
+                  isHost={hostProfileId() === entry.userId}
+                  canManage={props.canManage}
+                  onRemove={() => setRemoving(entry)}
+                />
+              )}
+            </For>
+          </List>
+        </Show>
+      </StackVertical>
       <Show when={removing()} keyed>
         {(person) => (
           <RemoveSpacePersonModal
@@ -96,9 +103,12 @@ function PeopleAccessRow(props: {
       <SpaceShareUserRow
         userId={props.entry.userId}
         trailing={
-          <p class="text textCaption text-text-secondary">
-            {<Trans>Host</Trans>}
-          </p>
+          <Badge
+            label={<Trans>Host</Trans>}
+            intent="brand"
+            tone="subtle"
+            size="sm"
+          />
         }
       />
     </Show>

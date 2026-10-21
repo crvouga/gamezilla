@@ -1,5 +1,6 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
+import { P } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -21,12 +22,13 @@ export function StandInNotice(): JSX.Element {
   return (
     <Show when={standIn()}>
       {(alias) => (
-        <p
-          class="text textCaption text-center"
-          data-testid={Handles.profileStandInNotice}
+        <P
+          variant="caption"
+          align="center"
+          testId={Handles.profileStandInNotice}
         >
           {notice(alias())}
-        </p>
+        </P>
       )}
     </Show>
   );

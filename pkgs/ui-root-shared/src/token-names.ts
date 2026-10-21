@@ -1,9 +1,8 @@
-// GENERATED from design-system/design-tokens.json — do not edit.
+// GENERATED from pkgs/ui-root-shared/src/design-tokens.json — do not edit.
 
 /** Gap and padding steps (`--ui-space-<name>`). */
 export const SPACE_TOKENS = [
   'none',
-  '2xs',
   'xs',
   'sm',
   'md',
@@ -44,7 +43,6 @@ export const SURFACE_TONES = [
   'background',
   'surface',
   'muted',
-  'sunken',
   'elevated',
   'overlay',
   'tint-subtle',
@@ -79,23 +77,11 @@ export const MAX_WIDTH_TOKENS = [
 export type MaxWidthToken = (typeof MAX_WIDTH_TOKENS)[number];
 
 /** Transition durations (`--ui-duration-<name>`). */
-export const DURATION_TOKENS = [
-  'instant',
-  'fast',
-  'normal',
-  'slow',
-  'slower',
-] as const;
+export const DURATION_TOKENS = ['instant', 'fast', 'normal', 'slow'] as const;
 export type DurationToken = (typeof DURATION_TOKENS)[number];
 
 /** Transition curves (`--ui-easing-<name>`). */
-export const EASING_TOKENS = [
-  'standard',
-  'decelerate',
-  'accelerate',
-  'inOut',
-  'playful',
-] as const;
+export const EASING_TOKENS = ['standard'] as const;
 export type EasingToken = (typeof EASING_TOKENS)[number];
 
 /** Stacking layers, lowest first (`--ui-layer-<name>`). */

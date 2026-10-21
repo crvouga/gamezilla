@@ -13,6 +13,7 @@ import {
 } from '@pkgs/ui-root-client/game-player-bar';
 import { GameSection } from '@pkgs/ui-root-client/game-section';
 import { BotIcon } from '@pkgs/ui-root-client/icons';
+import { Text } from '@pkgs/ui-root-client/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { CustomGamePerson } from './custom-game-person';
 import {
@@ -85,9 +86,9 @@ export function CustomGameSeat(props: SideProps): JSX.Element {
     <GamePlayerBar
       dataSet={{ testid: `custom-game-${props.side}` }}
       name={
-        <span data-testid={`custom-game-${props.side}-person`}>
+        <Text variant="inherit" testId={`custom-game-${props.side}-person`}>
           <CustomGamePerson participant={props.model.current()![props.side]} />
-        </span>
+        </Text>
       }
       avatar={<SeatAvatar {...props} />}
       tags={<SeatTags {...props} />}

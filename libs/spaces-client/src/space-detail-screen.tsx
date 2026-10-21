@@ -7,6 +7,7 @@ import { SpaceDetailInitialLoading } from './space-detail-initial-loading';
 import { SpaceEndedScreen } from './space-ended-screen';
 import { SpaceJoinPrompt } from './space-join-prompt';
 import { SpaceMembersDialogProvider } from './space-members-dialog-context';
+import { ReachableSpace } from './space-reachability';
 import { SpaceRoomProvider } from './space-room-context';
 import { useSpaceRouteId } from './space-routes';
 import { SpacesNavProvider } from './spaces-nav-context';
@@ -51,7 +52,9 @@ function SpaceDetailBody(props: { readonly spaceId: string }): JSX.Element {
         <SpaceDetailInitialLoading spaceId={props.spaceId} />
       </Match>
       <Match when={presence().status === 'active'}>
-        <ActiveSpace spaceId={props.spaceId} />
+        <ReachableSpace spaceId={props.spaceId}>
+          <ActiveSpace spaceId={props.spaceId} />
+        </ReachableSpace>
       </Match>
       <Match when={joinedEnded()}>
         <SpaceEndedScreen spaceId={props.spaceId} />

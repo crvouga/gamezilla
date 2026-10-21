@@ -1,0 +1,4 @@
+{
+  "summary": "Capped menu columns were left aligned in compact hosts with spare horizontal space.",
+  "regressionTest": "pkgs/ui-root-harness/tests/wide-layout-regression.test.tsx"
+}

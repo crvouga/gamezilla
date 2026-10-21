@@ -1,12 +1,23 @@
 import { transform } from 'lightningcss';
 
+/**
+ * lightningcss's class-name pattern, from its placeholders. Absolute worktree
+ * paths must never affect snapshots or report replay, so the name is the
+ * file's base name, a content hash and the local class.
+ */
+const CLASS_NAME_PATTERN = [
+  'harness',
+  '[name]',
+  '[content-hash]',
+  '[local]',
+].join('-');
+
 /** CSS module names shared by the DOM preload and offline report compiler. */
 export function compileCssModule(filename: string, source: string) {
   const result = transform({
     filename,
     code: Buffer.from(source),
-    // Absolute worktree paths must never affect snapshots or report replay.
-    cssModules: { pattern: 'harness-[name]-[content-hash]-[local]' },
+    cssModules: { pattern: CLASS_NAME_PATTERN },
   });
   const classes: Record<string, string> = {};
   for (const [name, value] of Object.entries(result.exports ?? {})) {

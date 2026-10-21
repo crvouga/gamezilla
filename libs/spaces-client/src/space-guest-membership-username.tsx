@@ -1,13 +1,13 @@
 import { UserUsername } from '@libs/profile-client/user-username';
-import type { TextVariant } from '@pkgs/ui-root-client/text';
+import type { TextRole } from '@pkgs/ui-root-client/text';
+import type { TextLines } from '@pkgs/ui-root-client/text-classes';
 import type { JSX } from 'solid-js';
 
 export type SpaceGuestMembershipUsernameProps = {
   /** Guest member / account id (also the profile id). */
   membershipId: string;
-  variant?: TextVariant;
-  class?: string;
-  numberOfLines?: number;
+  variant?: TextRole;
+  numberOfLines?: TextLines;
 };
 
 export function SpaceGuestMembershipUsername(
@@ -18,7 +18,6 @@ export function SpaceGuestMembershipUsername(
       profileId={props.membershipId}
       withAt={false}
       variant={props.variant}
-      class={props.class}
       numberOfLines={props.numberOfLines}
     />
   );

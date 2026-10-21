@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import type { EvidenceFile } from '@pkgs/feedback-shared/types';
+import { FileTrigger } from '@pkgs/ui-root-client/file-trigger';
 import { IconButton } from '@pkgs/ui-root-client/icon-button';
 import {
   MonitorPlayIcon,
@@ -8,6 +9,8 @@ import {
   Trash2Icon,
   XIcon,
 } from '@pkgs/ui-root-client/icons';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { Show } from 'solid-js';
 import type { FeedbackController } from './controller';
 import { useFeedbackState, useRecordingState } from './use-feedback-state';
@@ -15,7 +18,6 @@ import { useFeedbackState, useRecordingState } from './use-feedback-state';
 export function EvidenceControls(props: { controller: FeedbackController }) {
   const recording = useRecordingState(() => props.controller);
   const state = useFeedbackState(() => props.controller);
-  let chooser: HTMLInputElement | undefined;
   const busy = () =>
     state().phase === 'sending' ||
     recording().phase === 'starting' ||
@@ -23,9 +25,11 @@ export function EvidenceControls(props: { controller: FeedbackController }) {
   const attachmentLabel = () =>
     `${state().files.length} ${state().files.length === 1 ? 'attachment' : 'attachments'}`;
   return (
-    <div
-      class="box flex-row flex-wrap items-center gap-1"
-      data-component="FeedbackEvidenceControls"
+    <StackHorizontal
+      wrap
+      align="center"
+      gap="xs"
+      testId="feedback-evidence-controls"
     >
       <IconButton
         tooltip="default"
@@ -57,32 +61,32 @@ export function EvidenceControls(props: { controller: FeedbackController }) {
           <Trash2Icon size={18} />
         </Show>
       </IconButton>
-      <input
-        ref={chooser}
-        type="file"
+      <FileTrigger
+        label="Attach a screenshot or video"
         accept="image/png,image/jpeg,image/webp,video/webm,video/mp4,video/quicktime"
-        class="hidden"
-        aria-label="Attach a screenshot or video"
-        onChange={(event) => {
-          const file = event.currentTarget.files?.[0];
-          if (file) void attachFile(props.controller, file);
-          event.currentTarget.value = '';
+        onSelect={(file) => {
+          void attachFile(props.controller, file);
         }}
-      />
-      <IconButton
-        label="Attach screenshot or video"
-        tooltip="default"
-        tooltipFloating
-        tooltipPlacement="top-start"
-        size={32}
-        disabled={state().phase === 'sending'}
-        onClick={() => chooser?.click()}
-        dataSet={{ testid: 'feedback-attach' }}
       >
-        <PaperclipIcon size={18} />
-      </IconButton>
+        {(open) => (
+          <IconButton
+            label="Attach screenshot or video"
+            tooltip="default"
+            tooltipFloating
+            tooltipPlacement="top-start"
+            size={32}
+            disabled={state().phase === 'sending'}
+            onClick={open}
+            dataSet={{ testid: 'feedback-attach' }}
+          >
+            <PaperclipIcon size={18} />
+          </IconButton>
+        )}
+      </FileTrigger>
       <Show when={state().files.length > 0}>
-        <p class="text textCaption whitespace-nowrap">{attachmentLabel()}</p>
+        <P variant="caption" wrap="nowrap">
+          {attachmentLabel()}
+        </P>
         <IconButton
           label="Remove latest attachment"
           tooltip="default"
@@ -97,14 +101,16 @@ export function EvidenceControls(props: { controller: FeedbackController }) {
         </IconButton>
       </Show>
       <Show when={recording().phase === 'ready'}>
-        <p class="text textCaption whitespace-nowrap">Reproduction ready</p>
+        <P variant="caption" wrap="nowrap">
+          Reproduction ready
+        </P>
       </Show>
       <Show when={recording().notice}>
-        <p class="text textCaption" role="status">
+        <P variant="caption" role="status">
           {recording().notice}
-        </p>
+        </P>
       </Show>
-    </div>
+    </StackHorizontal>
   );
 }
 

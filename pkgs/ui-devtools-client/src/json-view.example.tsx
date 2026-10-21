@@ -121,7 +121,7 @@ export default function JsonViewExample(): JSX.Element {
         <JsonView
           value={SAMPLE_PAYLOAD}
           initialExpandDepth={3}
-          maxHeight={220}
+          maxHeight="sm"
           copy={copy}
         />
       </Section>

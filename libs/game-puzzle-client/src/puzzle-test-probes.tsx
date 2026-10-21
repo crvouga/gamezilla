@@ -1,13 +1,7 @@
+import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import type { JSX } from 'solid-js';
 import type { PuzzleAttempt } from './puzzle-client';
 import { PUZZLE_TEST_ENABLED } from './puzzle-test-enabled';
-
-const HIDDEN = {
-  position: 'absolute' as const,
-  width: '1px',
-  height: '1px',
-  opacity: 0.01,
-};
 
 function watchProbe(attempt: PuzzleAttempt): string {
   return [
@@ -34,39 +28,19 @@ export function PuzzleTestProbes(props: {
   const next = (): string => a.nextAction() ?? '';
   return (
     <>
-      <p
-        class="text textBody"
-        style={HIDDEN}
-        data-testid="chess-puzzle-board-orientation"
-      >
+      <VisuallyHidden testId="chess-puzzle-board-orientation">
         {a.solverSide()}
-      </p>
-      <p
-        class="text textBody"
-        style={HIDDEN}
-        data-testid="chess-puzzle-expected-uci"
-      >
+      </VisuallyHidden>
+      <VisuallyHidden testId="chess-puzzle-expected-uci">
         {a.interactive() ? next() : ''}
-      </p>
-      <p
-        class="text textBody"
-        style={HIDDEN}
-        data-testid="chess-puzzle-test-debug"
-      >{`${a.status()}|${a.interactive() ? '1' : '0'}|${a.solveIdx()}|${a.line()}|${next()}|${a.hintStage()}|${a.rating()}|${a.themes().join(',')}`}</p>
-      <p
-        class="text textBody"
-        style={HIDDEN}
-        data-testid="chess-puzzle-test-fen"
-      >
+      </VisuallyHidden>
+      <VisuallyHidden testId="chess-puzzle-test-debug">{`${a.status()}|${a.interactive() ? '1' : '0'}|${a.solveIdx()}|${a.line()}|${next()}|${a.hintStage()}|${a.rating()}|${a.themes().join(',')}`}</VisuallyHidden>
+      <VisuallyHidden testId="chess-puzzle-test-fen">
         {a.position() ?? ''}
-      </p>
-      <p
-        class="text textBody"
-        style={HIDDEN}
-        data-testid="chess-puzzle-test-spectator"
-      >
+      </VisuallyHidden>
+      <VisuallyHidden testId="chess-puzzle-test-spectator">
         {watchProbe(a)}
-      </p>
+      </VisuallyHidden>
     </>
   );
 }

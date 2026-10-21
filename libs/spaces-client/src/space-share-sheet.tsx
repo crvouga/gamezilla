@@ -33,7 +33,7 @@ export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
       scroll={false}
       closeDataSet={{ testid: Handles.spaceShareClose }}
     >
-      <ScrollView class="max-h-120" contentClass="px-0 gap-3">
+      <ScrollView maxHeight="lg" gap="md">
         <SpaceShareLinkSection spaceId={props.spaceId} />
         <Show when={canManageMembers()}>
           <SpaceShareAddPeople

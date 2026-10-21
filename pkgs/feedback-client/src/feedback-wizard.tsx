@@ -1,10 +1,15 @@
 /** @jsxImportSource solid-js */
 import { Button } from '@pkgs/ui-root-client/button';
 import { CloseIconButton } from '@pkgs/ui-root-client/close-icon-button';
+import {
+  FloatingPanel,
+  FloatingPanelHeader,
+} from '@pkgs/ui-root-client/floating-panel';
+import { observeElementResize } from '@pkgs/ui-root-client/observe-element-resize';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
+import { P } from '@pkgs/ui-root-client/text';
 import { useThemeLayout } from '@pkgs/ui-root-client/theme-context';
 import { useLayoutMode } from '@pkgs/ui-root-client/use-layout-mode';
-import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { onCleanup, onMount, Show } from 'solid-js';
 import type { FeedbackController } from './controller';
 import { FeedbackPanel } from './feedback-panel';
@@ -25,7 +30,7 @@ function DesktopWidget(props: { controller: FeedbackController }) {
     return props.controller.workspace.state().position;
   };
   const previous = document.activeElement;
-  let resizeObserver: ResizeObserver | undefined;
+  let stopResize: (() => void) | undefined;
   const escape = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       event.stopPropagation();
@@ -36,58 +41,42 @@ function DesktopWidget(props: { controller: FeedbackController }) {
     frame?.querySelector<HTMLInputElement>('input')?.focus();
     frame?.addEventListener('keydown', escape);
     window.addEventListener('resize', drag.clamp);
-    if (frame && typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(drag.clamp);
-      resizeObserver.observe(frame);
-    }
+    if (frame) stopResize = observeElementResize(frame, drag.clamp);
     drag.clamp();
   });
   onCleanup(() => {
     frame?.removeEventListener('keydown', escape);
     window.removeEventListener('resize', drag.clamp);
-    resizeObserver?.disconnect();
+    stopResize?.();
     if (previous instanceof HTMLElement) previous.focus();
   });
   return (
-    <section
-      ref={frame}
-      role="dialog"
-      aria-modal="false"
-      aria-label="Feedback"
-      class="box fixed right-4 bottom-4 w-128 h-160 max-w-full rounded-2xl border border-border bg-surface pointer-events-auto overflow-hidden"
-      style={{
-        transform: `translate(${position().x}px, ${position().y}px)`,
-        'max-height': `${Math.max(0, layout.layout().height - 48)}px`,
+    <FloatingPanel
+      label="Feedback"
+      size="window"
+      offset={position()}
+      maxHeight={layout.layout().height - 48}
+      panelRef={(element) => {
+        frame = element;
       }}
-      {...dataAttrs({ component: 'FeedbackWidget', testid: 'feedback-widget' })}
-    >
-      <div class="box flex-row items-center gap-2 border-b border-border px-4 py-3">
-        <button
-          type="button"
-          class="text flex-1 text-left cursor-grab touch-none font-semibold"
-          aria-label="Move feedback widget; use arrow keys"
-          onPointerDown={drag.down}
-          onPointerMove={drag.move}
-          onPointerUp={drag.up}
-          onPointerCancel={drag.up}
-          onKeyDown={drag.key}
-          data-testid="feedback-drag"
-          {...dataAttrs({ component: 'FeedbackWidgetHandle' })}
-        >
-          <span class="text-tint mr-2" aria-hidden="true">
-            ⠿
-          </span>
-          Feedback
-        </button>
-        <CloseIconButton
-          onClick={props.controller.close}
-          dataSet={{ testid: 'feedback-close' }}
+      testId="feedback-widget"
+      header={
+        <FloatingPanelHeader
+          title="Feedback"
+          handleLabel="Move feedback widget; use arrow keys"
+          handleTestId="feedback-drag"
+          drag={drag}
+          trailing={
+            <CloseIconButton
+              onClick={props.controller.close}
+              dataSet={{ testid: 'feedback-close' }}
+            />
+          }
         />
-      </div>
-      <div class="box flex-1 min-h-0 shrink overflow-hidden">
-        <FeedbackPanel controller={props.controller} />
-      </div>
-    </section>
+      }
+    >
+      <FeedbackPanel controller={props.controller} />
+    </FloatingPanel>
   );
 }
 export function FeedbackWizard(props: { controller: FeedbackController }) {
@@ -98,13 +87,14 @@ export function FeedbackWizard(props: { controller: FeedbackController }) {
   return (
     <>
       <Show when={recording().phase === 'recording'}>
-        <div
-          class="box fixed bottom-6 right-4 rounded-xl border border-border bg-surface p-3 gap-2 pointer-events-auto"
-          data-component="FeedbackRecordingControls"
+        <FloatingPanel
+          label="Recording"
+          role="region"
+          testId="feedback-recording-controls"
         >
-          <p class="text textCaption" role="status">
+          <P variant="caption" role="status">
             Recording reproduction…
-          </p>
+          </P>
           <Button
             title="Stop recording"
             onClick={() => {
@@ -112,7 +102,7 @@ export function FeedbackWizard(props: { controller: FeedbackController }) {
             }}
             dataSet={{ testid: 'feedback-stop' }}
           />
-        </div>
+        </FloatingPanel>
       </Show>
       <Show when={state().visible}>
         <Show

@@ -1,6 +1,7 @@
 import { inspectionSchema } from '@libs/synthetic-population-shared/inspection';
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import { type Accessor, createMemo, createResource } from 'solid-js';
+import { resourceValue } from './resource-value';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 import { useSyntheticPopulationUpdates } from './use-synthetic-population-updates';
 
@@ -13,7 +14,7 @@ export function useSyntheticUser(id: Accessor<string>) {
   }));
   useSyntheticPopulationUpdates(() => refetch());
   const snapshot = createMemo(() => {
-    let raw: unknown = record()?.user.inspection;
+    let raw: unknown = resourceValue(record)?.user.inspection;
     if (typeof raw === 'string') {
       try {
         raw = JSON.parse(raw);
@@ -23,7 +24,7 @@ export function useSyntheticUser(id: Accessor<string>) {
     }
     const parsed = inspectionSchema.safeParse(raw);
     return parsed.success &&
-      parsed.data.generation === record()?.user.generation
+      parsed.data.generation === resourceValue(record)?.user.generation
       ? parsed.data
       : null;
   });

@@ -36,9 +36,9 @@ export function GameStatus(props: {
       {...dataAttrs({ component: 'GameStatus' })}
     >
       <span class={styles['statusMark']} aria-hidden="true" />
-      <div class="box min-w-0 flex-1 gap-0.5">
+      <div class="box min-w-0 flex-1 gap-1">
         <div
-          class="box min-w-0 gap-0.5"
+          class="box min-w-0 gap-1"
           role={props.live === true ? 'status' : undefined}
           aria-live={props.live === true ? 'polite' : undefined}
           aria-atomic={props.live === true ? 'true' : undefined}

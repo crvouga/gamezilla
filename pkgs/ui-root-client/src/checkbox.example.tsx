@@ -21,6 +21,17 @@ export default function CheckboxExample(): JSX.Element {
           />
           <Checkbox label="Disabled" checked={c()} onToggle={setC} disabled />
           <Checkbox
+            label="Disabled · checked"
+            checked
+            onToggle={() => undefined}
+            disabled
+          />
+          <Checkbox
+            aria-label="Without a visible label"
+            checked={a()}
+            onToggle={setA}
+          />
+          <Checkbox
             label="Indeterminate (partial)"
             checked={false}
             indeterminate

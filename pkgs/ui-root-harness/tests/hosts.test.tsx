@@ -3,14 +3,13 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { Checkbox } from '@pkgs/ui-root-client/checkbox';
 import { ContentEdgePaddingProvider } from '@pkgs/ui-root-client/content-edge-padding';
-import { GradientBox } from '@pkgs/ui-root-client/gradient-box';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import { Switch } from '@pkgs/ui-root-client/switch';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { VirtualList } from '@pkgs/ui-root-client/virtual-list';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
-import { cssOf, renderUi } from './render';
+import { renderUi } from './render';
 
 describe('Clickable', () => {
   test('renders a real button with tint feedback and forwards clicks', () => {
@@ -156,32 +155,24 @@ describe('TextInput', () => {
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 
-  test('multiline renders a textarea and masks secure entry', () => {
+  test('masks secure entry', () => {
     renderUi(() => (
-      <>
-        <TextInput value="" onChangeText={() => {}} multiline rows={4} />
-        <TextInput
-          value=""
-          onChangeText={() => {}}
-          secureTextEntry
-          aria-label={'pw' as never}
-        />
-      </>
+      <TextInput
+        value=""
+        onChangeText={() => {}}
+        secureTextEntry
+        aria-label={'pw' as never}
+      />
     ));
-    expect(screen.getByRole('textbox').tagName).toBe('TEXTAREA');
     expect(screen.getByLabelText('pw')).toHaveAttribute('type', 'password');
   });
 });
 
 describe('ScrollView', () => {
-  test('styles frame and content separately and bleeds under shell padding', () => {
+  test('takes frame and content props separately and bleeds under shell padding', () => {
     renderUi(() => (
       <ContentEdgePaddingProvider step={4}>
-        <ScrollView
-          data-testid="sv"
-          class="flex-1"
-          contentStyle={{ gap: 'var(--ui-space-2)' }}
-        >
+        <ScrollView dataSet={{ testid: 'sv' }} grow gap="sm" maxHeight="lg">
           <p class="text">{'row'}</p>
         </ScrollView>
       </ContentEdgePaddingProvider>
@@ -189,8 +180,9 @@ describe('ScrollView', () => {
     const frame = screen.getByTestId('sv');
     expect(frame.className).toMatch(/scroll/);
     expect(frame.className).toMatch(/flex-1/);
+    expect(frame.className).toMatch(/max-h-120/);
     const content = frame.firstElementChild as HTMLElement;
-    expect(cssOf(content)).toContain('gap:var(--ui-space-2)');
+    expect(content.className).toMatch(/gap-ui-sm/);
     const wrapper = frame.parentElement;
     if (wrapper === null) throw new Error('wrapper missing');
     expect(wrapper.className).toMatch(/flex-1/);
@@ -203,7 +195,7 @@ describe('VirtualList', () => {
     const items = Array.from({ length: 200 }, (_, i) => ({ id: `r${i}` }));
     renderUi(() => (
       <VirtualList
-        data-testid="vl"
+        dataSet={{ testid: 'vl' }}
         items={items}
         keyExtractor={(it) => it.id}
         renderItem={(it) => <p class="text">{it.id}</p>}
@@ -230,21 +222,5 @@ describe('VirtualList', () => {
       />
     ));
     expect(screen.getByText('nothing')).toBeInTheDocument();
-  });
-});
-
-describe('GradientBox', () => {
-  test('paints a linear gradient', () => {
-    renderUi(() => (
-      <GradientBox data-testid="g" colors={['#000000', '#111111']}>
-        <p class="text" data-testid="t">
-          {'on gradient'}
-        </p>
-      </GradientBox>
-    ));
-    expect(cssOf(screen.getByTestId('g'))).toContain(
-      'background-image:linear-gradient(90deg,#000000,#111111)'
-    );
-    expect(screen.getByTestId('t')).toHaveTextContent('on gradient');
   });
 });

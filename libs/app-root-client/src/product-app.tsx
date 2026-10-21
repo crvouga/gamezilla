@@ -17,8 +17,10 @@ import { OriginAvailabilityProvider } from '@pkgs/http-client-client/solid';
 import { AppFrame } from '@pkgs/ui-root-client/app-frame';
 import { AppFrameChromeProvider } from '@pkgs/ui-root-client/app-frame-chrome';
 import { AppRouterProvider } from '@pkgs/ui-root-client/app-router';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
 import { useNavigate } from '@solidjs/router';
-import { type JSX, onCleanup, onMount, Show } from 'solid-js';
+import { type JSX, onCleanup, onMount, Show, Suspense } from 'solid-js';
 import { AppHeaderGlobalMenu } from './app-header-global-menu';
 import { AppHeaderIslandHost } from './app-header-island';
 import { AppProvidersOuter, AppProvidersSession } from './app-providers';
@@ -76,16 +78,19 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                   <subs.Chrome>
                     <AppFrameChromeProvider
                       globalTrailing={
-                        <div class="flex items-center gap-2">
+                        <StackHorizontal align="center" gap="sm">
                           <WorkOfflineStatus />
                           <ConnectionNotice />
                           <AppHeaderGlobalMenu />
-                        </div>
+                        </StackHorizontal>
                       }
                     >
                       <AppFrame header={<AppHeaderIslandHost />}>
                         <AppProvidersSession>
-                          {props.children}
+                          {/* Lazy routes load their chunk behind one loading state. */}
+                          <Suspense fallback={<LoadingState size="lg" />}>
+                            {props.children}
+                          </Suspense>
                         </AppProvidersSession>
                       </AppFrame>
                     </AppFrameChromeProvider>

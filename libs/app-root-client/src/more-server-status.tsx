@@ -18,6 +18,7 @@ import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import { Notice } from '@pkgs/ui-root-client/notice';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type { StatusDotStatus } from '@pkgs/ui-root-client/status-dot';
 import { StatusDot } from '@pkgs/ui-root-client/status-dot';
 import type { JSX } from 'solid-js';
@@ -103,7 +104,7 @@ export default function MoreServerStatusScreen(): JSX.Element {
           and playing someone online need a connection.
         </Trans>
       </Notice>
-      <div class="box self-stretch">
+      <StackVertical self="stretch">
         <Button
           title={t`Check again`}
           intent="neutral"
@@ -115,7 +116,7 @@ export default function MoreServerStatusScreen(): JSX.Element {
           }}
           dataSet={{ testid: 'connection-check-again' }}
         />
-      </div>
+      </StackVertical>
     </MenuScreen>
   );
 }

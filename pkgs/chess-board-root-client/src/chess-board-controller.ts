@@ -1,3 +1,4 @@
+import { observeElementResize } from '@pkgs/ui-root-client/observe-element-resize';
 /**
  * Wiring for {@link ChessBoard}: the rules model, the motion policy, piece
  * placement / drag, and the pointer + keyboard input. Solid owns only what
@@ -95,21 +96,19 @@ function useBoardPx(
     const apply = (width: number): void => {
       setMeasured(normalizeBoardSize(width));
     };
-    const ro = new ResizeObserver((entries) => {
-      const entry = entries[0];
+    apply(node.offsetWidth || node.getBoundingClientRect().width);
+    const onLayout = (): void => {
+      apply(node.offsetWidth || node.getBoundingClientRect().width);
+    };
+    const stopResize = observeElementResize(node, (entry) => {
       apply(
         entry?.borderBoxSize[0]?.inlineSize ??
           (entry?.contentRect.width ?? 0) + 2 * node.clientLeft
       );
     });
-    ro.observe(node);
-    apply(node.offsetWidth || node.getBoundingClientRect().width);
-    const onLayout = (): void => {
-      apply(node.offsetWidth || node.getBoundingClientRect().width);
-    };
     node.addEventListener(ELEMENT_LAYOUT_EVENT, onLayout);
     onCleanup(() => {
-      ro.disconnect();
+      stopResize();
       node.removeEventListener(ELEMENT_LAYOUT_EVENT, onLayout);
     });
   });

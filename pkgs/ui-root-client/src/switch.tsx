@@ -1,6 +1,12 @@
 /** @jsxImportSource solid-js */
 /**
  * `Switch` -- on/off toggle rendered as `<button role="switch">`.
+ *
+ * A 48x28 track with a 24px thumb (`skin.css` `.switchTrack`): the blue
+ * fill with an on-primary thumb when on, the muted track inside an outline
+ * hairline with a secondary thumb when off, so the thumb always contrasts.
+ * The thumb slides in 200ms; reduced motion snaps it. The button keeps a 44px-tall hit area around the track, shows the focus
+ * ring on keyboard focus, and fades to the disabled opacity when disabled.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
@@ -18,61 +24,42 @@ export type SwitchProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-const TRACK_WIDTH = 44;
-const TRACK_HEIGHT = 26;
-const THUMB = 22;
-const THUMB_INSET = 2;
-const THUMB_TRAVEL = TRACK_WIDTH - THUMB - THUMB_INSET * 2;
-
 export function Switch(props: SwitchProps): JSX.Element {
   return (
-    <div class="box flex-row items-center gap-2 shrink-0">
+    <div class="box flex-row items-center gap-3 shrink-0">
       {/* The identifiers name the control a person presses, so a driver that
           taps by test id toggles it (the wrapper would swallow the click). */}
       <button
-        class="clickable flex-row items-center justify-center min-h-11 bg-transparent shrink-0"
+        class="clickable flex-row items-center justify-center min-h-11 w-12 shrink-0 rounded-full"
+        classList={{ 'opacity-disabled': props.disabled === true }}
         {...dataAttrs({ component: 'Switch', ...props.dataSet })}
         type="button"
-        style={{
-          width: `${TRACK_WIDTH}px`,
-          height: `${Math.max(TRACK_HEIGHT, 44)}px`,
-          opacity: props.disabled ? 0.5 : 1,
-        }}
         role="switch"
         aria-checked={props.value}
         aria-label={props['aria-label']}
         disabled={props.disabled}
         onClick={() => props.onValueChange(!props.value)}
       >
-        <div
-          class="flex flex-row items-center rounded-full shrink-0 self-center border border-solid"
+        <span
+          class="switchTrack flex flex-row items-center w-12 h-7 rounded-full shrink-0"
           classList={{
-            'bg-tint-active border-tint-active': props.value,
-            'bg-surface-muted border-outline': !props.value,
+            'bg-tint-active': props.value,
+            'bg-surface-muted': !props.value,
           }}
-          style={{
-            width: `${TRACK_WIDTH}px`,
-            height: `${TRACK_HEIGHT}px`,
-            padding: `${THUMB_INSET}px`,
-            'box-sizing': 'border-box',
-          }}
+          data-on={props.value ? 'true' : 'false'}
+          aria-hidden="true"
         >
-          <div
-            class="rounded-full shrink-0 self-center"
+          <span
+            class="switchThumb block size-6 rounded-full shrink-0"
             classList={{
-              'bg-on-primary': props.value,
+              'bg-on-primary translate-x-5': props.value,
               'bg-text-secondary': !props.value,
             }}
-            style={{
-              width: `${THUMB}px`,
-              height: `${THUMB}px`,
-              transform: `translateX(${props.value ? THUMB_TRAVEL : 0}px)`,
-            }}
           />
-        </div>
+        </span>
       </button>
       <Show when={props.label !== undefined}>
-        <p class="text textCaption shrink-0">{props.label}</p>
+        <p class="text textBody shrink-0">{props.label}</p>
       </Show>
     </div>
   );

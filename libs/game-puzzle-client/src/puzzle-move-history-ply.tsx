@@ -1,4 +1,10 @@
 import type { PuzzleHistoryPly } from '@libs/game-puzzle-shared/move-history';
+import { Pressable } from '@pkgs/ui-root-client/pressable';
+import type { ScrollTarget } from '@pkgs/ui-root-client/scroll';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
+import { Surface } from '@pkgs/ui-root-client/surface';
+import { Code, P } from '@pkgs/ui-root-client/text';
+import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import { PUZZLE_TEST_ENABLED } from './puzzle-test-enabled';
 import type { PuzzleMoveWriting } from './use-puzzle-notation';
@@ -12,32 +18,43 @@ type HistoryPlyChipProps = {
 };
 
 function MoveNumberLabel(props: { label: string }): JSX.Element {
-  return <p class="text textCaption textNumeral pr-1">{props.label}</p>;
+  return (
+    <P variant="caption" numeral>
+      {props.label}
+    </P>
+  );
 }
 
 function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
+  // The current move is already shown: pressing it again does nothing.
   const handlePress = (): void => {
+    if (props.selected) return;
     props.onSeek(props.ply.solveIdxAfter);
   };
   return (
-    <button
-      class="clickable px-2 py-0.5 rounded-sm"
-      classList={{ 'bg-success-surface': props.selected }}
-      data-testid={`chess-puzzle-move-ply-${props.ply.plyIndex}`}
-      type="button"
-      disabled={!props.interactive || props.selected}
-      onClick={handlePress}
-      role="button"
-      aria-pressed={props.selected}
+    <Pressable
+      radius="sm"
+      tint={!props.selected}
+      testId={`chess-puzzle-move-ply-${props.ply.plyIndex}`}
+      disabled={!props.interactive}
+      onPress={handlePress}
+      pressed={props.selected}
       aria-label={props.ply.label}
     >
-      <code
-        class="text textLabel textNumeral"
-        classList={{ 'text-success': props.selected }}
+      <Surface
+        tone={props.selected ? 'success' : 'transparent'}
+        radius="sm"
+        paddingX="sm"
       >
-        {props.writing.format(props.ply.label)}
-      </code>
-    </button>
+        <Code
+          variant="label"
+          numeral
+          tone={props.selected ? 'success' : undefined}
+        >
+          {props.writing.format(props.ply.label)}
+        </Code>
+      </Surface>
+    </Pressable>
   );
 }
 
@@ -53,9 +70,9 @@ function SelectedPlyProbe(props: {
   if (!PUZZLE_TEST_ENABLED) return <></>;
   return (
     <Show when={props.selected}>
-      <span class="sr-only" data-testid="chess-puzzle-move-ply-selected">
+      <VisuallyHidden testId="chess-puzzle-move-ply-selected">
         {`${props.ply.plyIndex}|${props.ply.label}`}
-      </span>
+      </VisuallyHidden>
     </Show>
   );
 }
@@ -66,14 +83,12 @@ export function HistoryPlyCluster(props: {
   interactive: boolean;
   writing: PuzzleMoveWriting;
   onSeek: (solveIdx: number) => void;
-  selectedRef?: (el: HTMLElement) => void;
+  /** The move list's scroll target, given to the cluster it should reveal. */
+  scrollTarget?: ScrollTarget | undefined;
 }): JSX.Element {
   const prefix = props.writing.moveNumber(props.ply.before, props.ply.plyIndex);
   return (
-    <div
-      class="box flex-row items-center gap-1 shrink-0 grow-0"
-      ref={props.selectedRef}
-    >
+    <StackHorizontal align="center" gap="xs" scrollTarget={props.scrollTarget}>
       {prefix !== null ? <MoveNumberLabel label={prefix} /> : null}
       <HistoryPlyChip
         ply={props.ply}
@@ -86,6 +101,6 @@ export function HistoryPlyCluster(props: {
         ply={props.ply}
         selected={props.ply.solveIdxAfter === props.selectedSolveIdx}
       />
-    </div>
+    </StackHorizontal>
   );
 }

@@ -5,7 +5,7 @@ import { createScreenSlot } from './screen-slot';
 
 export type GameReviewScreenProps = Pick<
   EmbeddedScreenProps,
-  'screenId' | 'title' | 'subtitle' | 'dataSet'
+  'screenId' | 'title' | 'subtitle' | 'dataSet' | 'nested'
 > & {
   children: JSX.Element;
   timeline?: JSX.Element | undefined;
@@ -21,7 +21,8 @@ export function GameReviewScreen(props: GameReviewScreenProps): JSX.Element {
       screenId={props.screenId}
       title={props.title}
       subtitle={props.subtitle}
-      width={aside.present() ? 'stage' : 'reading'}
+      nested={props.nested}
+      width={aside.present() ? 'full' : 'menu'}
       dataSet={{ component: 'GameReviewScreen', ...props.dataSet }}
     >
       <GameSessionLayout

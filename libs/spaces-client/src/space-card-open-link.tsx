@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
-import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
+import { Pressable } from '@pkgs/ui-root-client/pressable';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { useSpacePresence } from './public-use-space-presence';
@@ -36,16 +36,15 @@ export function SpaceCardOpenLink(props: SpaceCardOpenLinkProps): JSX.Element {
     return host !== null ? Handles.spaceCard(host) : null;
   });
   return (
-    <button
-      class="clickable clickableTint w-full text-left"
-      {...dataAttrs(testId() !== null ? { testid: testId() ?? '' } : undefined)}
-      type="button"
-      onClick={() => {
+    <Pressable
+      width="full"
+      testId={testId() ?? undefined}
+      onPress={() => {
         openSpaceDetail(router, props.spaceId);
       }}
       aria-label={accessibilityLabel()}
     >
       {props.children}
-    </button>
+    </Pressable>
   );
 }

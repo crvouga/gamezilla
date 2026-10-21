@@ -45,13 +45,6 @@ export type TabStripProps = {
   readonly dataSet?: ComponentDataSet | undefined;
 };
 
-const tabsContentStyle = {
-  'flex-direction': 'row',
-  'align-items': 'flex-end',
-  gap: '2px',
-  height: '100%',
-} as const;
-
 /** Roving arrow-key navigation inside the tablist (WAI-ARIA tabs pattern). */
 function tablistArrowKey(
   key: string,
@@ -68,6 +61,19 @@ function tablistArrowKey(
   const cur = items.findIndex((i) => i.id === selectedId);
   const next = cur < 0 ? 0 : (cur + delta + items.length) % items.length;
   return items[next]?.id ?? null;
+}
+
+/** Arrow keys select and focus the neighbouring tab. */
+function moveTabFocus(
+  ev: KeyboardEvent,
+  props: TabStripProps,
+  tabEls: ReadonlyMap<string, HTMLElement>
+): void {
+  const next = tablistArrowKey(ev.key, props.items, props.selectedId);
+  if (next === null) return;
+  ev.preventDefault();
+  props.onSelect(next);
+  tabEls.get(next)?.querySelector<HTMLElement>('[role="tab"]')?.focus();
 }
 
 export function TabStrip(props: TabStripProps): JSX.Element {
@@ -107,13 +113,13 @@ export function TabStrip(props: TabStripProps): JSX.Element {
 
   return (
     <div
-      class="box grow-0 shrink-0 flex-row items-end gap-2 px-1.5 pt-1 pb-0 border-b border-border bg-surface-muted"
+      class="box grow-0 shrink-0 flex-row items-end gap-2 px-2 pt-1 pb-0 border-b border-border bg-surface-muted"
       {...dataAttrs({ component: 'TabStrip', ...props.dataSet })}
       style={{ height: `${TAB_MIN_HEIGHT + 4}px` }}
     >
       <Show when={props.leading !== undefined && props.leading !== null}>
         <div
-          class="box shrink-0 px-0.5 self-end justify-center"
+          class="box shrink-0 px-1 self-end justify-center"
           style={{ height: `${TAB_MIN_HEIGHT}px` }}
         >
           {props.leading}
@@ -122,17 +128,14 @@ export function TabStrip(props: TabStripProps): JSX.Element {
       <ScrollView
         horizontal
         hideScrollbar
-        class="flex-1 min-w-0 self-stretch"
-        contentStyle={tabsContentStyle}
+        grow
+        self="stretch"
+        fill
+        align="end"
+        gap="xs"
         role="tablist"
         aria-label={props['aria-label']}
-        onKeyDown={(ev) => {
-          const next = tablistArrowKey(ev.key, props.items, props.selectedId);
-          if (next === null) return;
-          ev.preventDefault();
-          props.onSelect(next);
-          tabEls.get(next)?.querySelector<HTMLElement>('[role="tab"]')?.focus();
-        }}
+        onKeyDown={(ev) => moveTabFocus(ev, props, tabEls)}
       >
         <Index each={props.items}>
           {(item, index) => {
@@ -163,7 +166,7 @@ export function TabStrip(props: TabStripProps): JSX.Element {
       </Show>
       <Show when={showStandaloneAdd()}>
         <button
-          class="clickable clickableTint px-1.5 py-0.5 items-center justify-center rounded-tl-lg rounded-tr-lg overflow-hidden self-end"
+          class="clickable clickableTint px-2 py-1 items-center justify-center rounded-tl-lg rounded-tr-lg overflow-hidden self-end"
           data-component="TabStripAdd"
           type="button"
           style={{ height: `${TAB_MIN_HEIGHT}px` }}

@@ -2,10 +2,13 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createResource, createSignal, For, type JSX, Show } from 'solid-js';
+import { resourceValue } from './resource-value';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 
 export function SyntheticPopulationUsers(props: {
@@ -22,7 +25,7 @@ export function SyntheticPopulationUsers(props: {
     (input) => api.directory(input.q, input.cursor)
   );
   return (
-    <div class="box gap-3" data-testid="synthetic-population-users">
+    <StackVertical gap="md" testId="synthetic-population-users">
       <TextInput
         label={t`Find Synthetic Users`}
         value={filter()}
@@ -34,7 +37,7 @@ export function SyntheticPopulationUsers(props: {
         dataSet={{ testid: 'synthetic-population-search' }}
       />
       <MenuSection title={<Trans>Synthetic Users</Trans>}>
-        <For each={page()?.users ?? []}>
+        <For each={resourceValue(page)?.users ?? []}>
           {(user) => (
             <MenuRow
               title={user.username}
@@ -47,7 +50,19 @@ export function SyntheticPopulationUsers(props: {
             />
           )}
         </For>
-        <Show when={!page.loading && !page.error && page()?.users.length === 0}>
+        <Show when={page.loading && resourceValue(page) === undefined}>
+          <LoadingState
+            variant="compact"
+            caption={<Trans>Reading Synthetic Users…</Trans>}
+          />
+        </Show>
+        <Show
+          when={
+            !page.loading &&
+            !page.error &&
+            resourceValue(page)?.users.length === 0
+          }
+        >
           <EmptyState
             variant="compact"
             title={t`No Synthetic Users found`}
@@ -61,7 +76,7 @@ export function SyntheticPopulationUsers(props: {
           title={<Trans>Synthetic User directory could not be loaded.</Trans>}
         />
       </Show>
-      <div class="box flex-row gap-3">
+      <StackHorizontal gap="md">
         <Show when={cursor() !== null}>
           <Button
             title={t`First page`}
@@ -70,7 +85,7 @@ export function SyntheticPopulationUsers(props: {
             onClick={() => setCursor(null)}
           />
         </Show>
-        <Show when={page()?.nextCursor}>
+        <Show when={resourceValue(page)?.nextCursor}>
           {(next) => (
             <Button
               title={t`Next page`}
@@ -79,7 +94,7 @@ export function SyntheticPopulationUsers(props: {
             />
           )}
         </Show>
-      </div>
-    </div>
+      </StackHorizontal>
+    </StackVertical>
   );
 }

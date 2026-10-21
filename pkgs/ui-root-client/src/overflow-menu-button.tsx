@@ -103,8 +103,6 @@ export type OverflowMenuButtonProps = {
   header: OverflowMenuHeader;
   /** Trigger diameter in px. Defaults to 40. Ignored when `trigger` is set. */
   size?: number | undefined;
-  /** Trigger background token. Defaults to `'surface'`. Ignored when `trigger`. */
-  background?: string | undefined;
   /** Trigger icon. Defaults to the hamburger `MenuIcon`. Ignored when `trigger`. */
   icon?: IconComponent | undefined;
   /**
@@ -132,6 +130,12 @@ export type OverflowMenuButtonProps = {
 };
 
 const DEFAULT_ACTION_ICON = EllipsisIcon;
+
+/** The trigger glyph on the icon scale: 24 on the 40px disc, smaller below. */
+function triggerIconSize(size: number): number {
+  if (size >= 40) return 24;
+  return size >= 32 ? 20 : 16;
+}
 
 /** Pure: turn `actions` into menu rows, closing the menu before each `onClick`. */
 export function buildOverflowMenuContent(
@@ -183,7 +187,6 @@ export function renderDefaultOverflowMenu(
 function TriggerFace(props: {
   menu: AnchoredMenuController;
   size: number;
-  background: string;
   icon: IconComponent;
   trigger: JSX.Element | undefined;
   'aria-label': string;
@@ -197,7 +200,6 @@ function TriggerFace(props: {
       fallback={
         <IconButton
           size={props.size}
-          background={props.background}
           onClick={props.onOpen}
           label={props['aria-label']}
           aria-label={props['aria-label']}
@@ -208,7 +210,7 @@ function TriggerFace(props: {
         >
           <Dynamic
             component={props.icon}
-            size={Math.round(props.size * 0.5)}
+            size={triggerIconSize(props.size)}
             color="icon"
           />
         </IconButton>
@@ -250,7 +252,6 @@ export function OverflowMenuButton(
         <TriggerFace
           menu={menu}
           size={props.size ?? 40}
-          background={props.background ?? 'surface'}
           icon={props.icon ?? MenuIcon}
           trigger={props.trigger}
           aria-label={props['aria-label']}

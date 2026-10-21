@@ -96,7 +96,7 @@ describe('ExplorerList', () => {
     expect(
       screen.getByRole('heading', { name: 'Group B' })
     ).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /Gamma/ }));
+    fireEvent.click(screen.getByRole('menuitem', { name: /Gamma/ }));
     expect(onSelect).toHaveBeenCalledWith('gamma');
   });
 
@@ -174,5 +174,20 @@ describe('SchemePreview', () => {
     expect(light?.textContent).toContain('preview child');
     expect(dark?.textContent).toContain('preview child');
     expect(screen.getAllByText('preview child')).toHaveLength(2);
+  });
+
+  // regression: scheme-preview-all-caps-labels
+  test('labels each pane in sentence case in the footnote role', () => {
+    renderUi(() => (
+      <SchemePreview>
+        <p class="text">{'preview child'}</p>
+      </SchemePreview>
+    ));
+    for (const name of ['Light', 'Dark']) {
+      const label = screen.getByText(name);
+      expect(label.textContent).toBe(name);
+      expect(label.className).toMatch(/\btextFootnote\b/);
+      expect(label.className).not.toMatch(/uppercase|tracking/);
+    }
   });
 });

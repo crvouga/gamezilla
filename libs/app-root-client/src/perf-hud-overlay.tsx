@@ -7,11 +7,22 @@
 
 import type { PerfSnapshot } from '@libs/app-root-shared/types';
 import { InFlowBanner } from '@pkgs/ui-root-client/dismissible-top-banner';
+import { Divider } from '@pkgs/ui-root-client/divider';
+import { Pressable } from '@pkgs/ui-root-client/pressable';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
+import type { ColorTone } from '@pkgs/ui-root-shared/token-names';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { usePerfHudPreference } from './perf-hud-preference';
 import { createPerfSnapshot } from './perf-sampler-context';
 
 type MetricTone = 'good' | 'fair' | 'poor';
+
+const TONE: Readonly<Record<MetricTone, ColorTone>> = {
+  good: 'success',
+  fair: 'warning',
+  poor: 'destructive',
+};
 
 function fpsTone(fps: number): MetricTone {
   if (fps >= 58) return 'good';
@@ -25,19 +36,16 @@ function MetricChip(props: {
   readonly tone?: MetricTone | undefined;
 }): JSX.Element {
   return (
-    <div class="box flex-row gap-1 items-baseline shrink-0">
-      <p class="text textFootnote">{props.label}</p>
-      <p
-        class="text textFootnote textNumeral text-text"
-        classList={{
-          'text-success': props.tone === 'good',
-          'text-warning': props.tone === 'fair',
-          'text-destructive': props.tone === 'poor',
-        }}
+    <StackHorizontal gap="xs" align="baseline">
+      <P variant="footnote">{props.label}</P>
+      <P
+        variant="footnote"
+        numeral
+        tone={props.tone === undefined ? 'default' : TONE[props.tone]}
       >
         {props.value}
-      </p>
-    </div>
+      </P>
+    </StackHorizontal>
   );
 }
 
@@ -48,30 +56,41 @@ function ExpandedMetrics(props: {
   const heapLabel = () =>
     props.snap.heapMb === null ? '—' : `${String(props.snap.heapMb)}MB`;
   return (
-    <div class="box gap-1 px-3 pb-2 border-t border-border">
-      <div class="box flex-row flex-wrap gap-x-3 gap-y-0.5 pt-1.5">
-        <MetricChip label="slow%" value={String(props.snap.slowFramePct)} />
-        <MetricChip label="LTn" value={String(props.snap.longTaskCount)} />
-        <MetricChip label="heap" value={heapLabel()} />
-      </div>
-      <Show when={props.snap.longestScript}>
-        {(script) => (
-          <p class="text textFootnote line-clamp-2 text-text">{script()}</p>
-        )}
-      </Show>
-      <Show when={props.snap.inpTarget}>
-        {(target) => <p class="text textFootnote line-clamp-2">{target()}</p>}
-      </Show>
-      <button
-        class="clickable clickableTint self-start py-0.5"
-        data-testid="perf-hud-hide"
-        type="button"
-        onClick={() => props.onHide()}
-        aria-label="Hide performance monitor"
-      >
-        <p class="text textFootnote text-tint">{'Hide'}</p>
-      </button>
-    </div>
+    <StackVertical>
+      <Divider />
+      <StackVertical gap="xs" paddingX="md" paddingTop="sm" paddingBottom="sm">
+        <StackHorizontal wrap gap="sm">
+          <MetricChip label="slow%" value={String(props.snap.slowFramePct)} />
+          <MetricChip label="LTn" value={String(props.snap.longTaskCount)} />
+          <MetricChip label="heap" value={heapLabel()} />
+        </StackHorizontal>
+        <Show when={props.snap.longestScript}>
+          {(script) => (
+            <P variant="footnote" tone="default" lines={2}>
+              {script()}
+            </P>
+          )}
+        </Show>
+        <Show when={props.snap.inpTarget}>
+          {(target) => (
+            <P variant="footnote" lines={2}>
+              {target()}
+            </P>
+          )}
+        </Show>
+        <Pressable
+          self="start"
+          paddingY="xs"
+          testId="perf-hud-hide"
+          onPress={() => props.onHide()}
+          aria-label="Hide performance monitor"
+        >
+          <P variant="footnote" tone="tint">
+            {'Hide'}
+          </P>
+        </Pressable>
+      </StackVertical>
+    </StackVertical>
   );
 }
 
@@ -86,32 +105,35 @@ export function PerfHudOverlay(): JSX.Element {
     snap().maxLongTaskMs === 0 ? '—' : `${String(snap().maxLongTaskMs)}ms`;
 
   return (
-    <InFlowBanner position="top" visible={enabled()}>
-      <div
-        class="box bg-surface-sunken border-b border-border"
-        style={{ 'padding-top': 'env(safe-area-inset-top, 0px)' }}
-        data-component="PerfHudOverlay"
-        data-testid="perf-hud"
+    <InFlowBanner
+      position="top"
+      visible={enabled()}
+      sheet="paper"
+      testId="perf-hud"
+    >
+      <Pressable
+        tint={false}
+        direction="horizontal"
+        align="center"
+        gap="md"
+        paddingX="md"
+        paddingY="xs"
+        width="full"
+        onPress={() => setExpanded((v) => !v)}
+        aria-label="Performance monitor"
+        aria-expanded={expanded()}
       >
-        <button
-          class="clickable flex-row items-center gap-3 px-3 py-1 w-full"
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          aria-label="Performance monitor"
-          aria-expanded={expanded()}
-        >
-          <MetricChip
-            label="FPS"
-            value={String(snap().fps)}
-            tone={fpsTone(snap().fps)}
-          />
-          <MetricChip label="INP" value={inpLabel()} />
-          <MetricChip label="maxLT" value={maxLtLabel()} />
-        </button>
-        <Show when={expanded()}>
-          <ExpandedMetrics snap={snap()} onHide={() => setEnabled(false)} />
-        </Show>
-      </div>
+        <MetricChip
+          label="FPS"
+          value={String(snap().fps)}
+          tone={fpsTone(snap().fps)}
+        />
+        <MetricChip label="INP" value={inpLabel()} />
+        <MetricChip label="maxLT" value={maxLtLabel()} />
+      </Pressable>
+      <Show when={expanded()}>
+        <ExpandedMetrics snap={snap()} onHide={() => setEnabled(false)} />
+      </Show>
     </InFlowBanner>
   );
 }

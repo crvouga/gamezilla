@@ -10,6 +10,7 @@ import { useTimers } from '@pkgs/clock-client/solid';
 import { useClipboard } from '@pkgs/device-client/solid';
 import { IconButton } from '@pkgs/ui-root-client/icon-button';
 import { ShareIcon } from '@pkgs/ui-root-client/icons';
+import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import { createSignal, type JSX, onCleanup } from 'solid-js';
 
 /** How long "Puzzle link copied" stays before the button resets. */
@@ -66,9 +67,9 @@ export function PuzzleShareLink(props: {
       >
         <ShareIcon size={ICON_SIZE} />
       </IconButton>
-      <span class="sr-only" role="status" aria-live="polite">
+      <VisuallyHidden role="status" aria-live="polite">
         {state() === 'idle' ? '' : label()}
-      </span>
+      </VisuallyHidden>
     </>
   );
 }

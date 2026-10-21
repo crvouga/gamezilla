@@ -6,6 +6,7 @@ import {
 } from '@pkgs/turn-game-client/turn-games-context';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
 import { GameSearchState } from '@pkgs/ui-root-client/game-search-state';
+import { P, Text } from '@pkgs/ui-root-client/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import type { JSX } from 'solid-js';
 import { timeControlText } from './time-control-name';
@@ -41,16 +42,18 @@ export function MultiplayerWaiting(props: {
     <GameSearchState
       title={<Trans>Finding an opponent</Trans>}
       description={
-        <p data-testid="multiplayer-waiting">
+        <P variant="inherit" testId="multiplayer-waiting">
           <Trans>
             Looking for a {timeControlText(props.search.time_control)}{' '}
             {gameName()} opponent.
           </Trans>
-        </p>
+        </P>
       }
       elapsed={
         <>
-          <span data-testid="multiplayer-waiting-seconds">{seconds()}</span>{' '}
+          <Text variant="inherit" testId="multiplayer-waiting-seconds">
+            {seconds()}
+          </Text>{' '}
           <Trans>seconds</Trans>
         </>
       }

@@ -16,7 +16,7 @@ import { color } from './design-tokens.json';
  *   Solid fills use `tintActive`, never `tint`.
  * - Surfaces are pure neutrals: no tinted grays, no gradients.
  *
- * Retune `design-system/design-tokens.json`, then
+ * Retune `pkgs/ui-root-shared/src/design-tokens.json`, then
  * `bun run --filter @pkgs/ui-root-client tokens:generate`.
  * `tests/palette-contrast.test.ts` holds every text/fill pair to WCAG AA.
  */

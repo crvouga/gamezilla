@@ -1,6 +1,8 @@
 import { formatPuzzleRating } from '@libs/game-puzzle-shared/rating';
 import { Trans } from '@lingui/solid/macro';
-import { useTheme } from '@pkgs/ui-root-client/theme-context';
+import { H3 } from '@pkgs/ui-root-client/heading';
+import { P } from '@pkgs/ui-root-client/text';
+import type { ColorTone } from '@pkgs/ui-root-shared/token-names';
 import type { JSX } from 'solid-js';
 
 function formatSignedDelta(delta: number): string {
@@ -19,40 +21,39 @@ export type PuzzleRatingDeltaProps = {
   provisional: boolean;
 };
 
+/** Up is success, down destructive, flat or unrated a quiet secondary. */
+function deltaTone(props: PuzzleRatingDeltaProps): ColorTone {
+  if (!props.rated || props.delta === 0) return 'secondary';
+  return props.delta > 0 ? 'success' : 'destructive';
+}
+
 export function PuzzleRatingDelta(props: PuzzleRatingDeltaProps): JSX.Element {
-  const theme = useTheme();
-
-  const deltaColor = (): string =>
-    props.delta > 0
-      ? theme.colors.success
-      : props.delta < 0
-        ? theme.colors.destructive
-        : theme.colors.textSecondary;
-
   return (
     <>
-      <h3
-        class="text textHeading text-text text-center"
-        data-testid="chess-puzzle-summary-rating"
+      <H3
+        size="heading"
+        align="center"
+        numeral
+        testId="chess-puzzle-summary-rating"
       >
         {formatPuzzleRating({
           rating: props.displayRating,
           provisional: props.provisional,
         })}
-      </h3>
-      <p
-        class="text textBodyBold text-center"
-        style={{
-          color: props.rated ? deltaColor() : theme.colors.textSecondary,
-        }}
-        data-testid="chess-puzzle-summary-delta"
+      </H3>
+      <P
+        variant="bodyBold"
+        align="center"
+        numeral
+        tone={deltaTone(props)}
+        testId="chess-puzzle-summary-delta"
       >
         {props.rated ? (
           formatSignedDelta(props.delta)
         ) : (
           <Trans>Unrated · already played</Trans>
         )}
-      </p>
+      </P>
     </>
   );
 }

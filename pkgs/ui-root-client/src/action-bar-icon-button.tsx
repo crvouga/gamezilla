@@ -10,6 +10,7 @@ import { createSignal, type JSX, onCleanup, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { ActionBarLabeledControl } from './action-bar-labeled-control';
 import type { ActionBarIconItem } from './action-bar-logic';
+import { actionBarGlyphSize } from './action-bar-logic';
 import type { IconComponent } from './create-icon';
 import { IconButton } from './icon-button';
 import { CircleCheckIcon } from './icons';
@@ -79,7 +80,7 @@ export function ActionBarIconButton(
     <div class="box items-center justify-center">
       <Dynamic
         component={presentation().icon}
-        size={Math.round(props.buttonSize * 0.55)}
+        size={actionBarGlyphSize(props.buttonSize)}
         color={presentation().color}
       />
     </div>

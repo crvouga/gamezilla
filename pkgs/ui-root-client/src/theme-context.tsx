@@ -1,3 +1,4 @@
+import { observeElementResize } from './observe-element-resize';
 /** @jsxImportSource solid-js */
 /**
  * Theme context and provider.
@@ -108,7 +109,6 @@ function themeFontStyle(
   if (overrides === undefined) return undefined;
   return {
     '--ui-font-sans': merged.sans,
-    '--ui-font-display': merged.display,
     '--ui-font-mono': merged.mono,
   };
 }
@@ -134,9 +134,7 @@ function createHostLayout(
       );
     };
     apply();
-    const ro = new ResizeObserver(apply);
-    ro.observe(el);
-    onCleanup(() => ro.disconnect());
+    onCleanup(observeElementResize(el, apply));
   });
   return layout;
 }

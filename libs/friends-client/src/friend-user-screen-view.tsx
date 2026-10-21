@@ -1,17 +1,24 @@
 import { useModeration } from '@libs/moderation-client/moderation-context';
+import { useFirstSyncError } from '@libs/profile-client/use-first-sync-error';
 import { Trans } from '@lingui/solid/macro';
 import {
   useLocalSearchParams,
   useRouter,
 } from '@pkgs/ui-root-client/app-router';
-import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
+import { ProfileScreenLayout } from '@pkgs/ui-root-client/profile-screen-layout';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client/screen-base-types';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, Show } from 'solid-js';
-import { FriendRequestFeedback } from './friend-request-feedback';
-import { createFriendUserDangerHandlers } from './friend-user-danger-modals';
-import { FriendUserScreenContent } from './friend-user-screen-content';
+import {
+  createFriendUserDangerHandlers,
+  FriendUserDangerModals,
+} from './friend-user-danger-modals';
+import type { FriendUserPresence } from './friend-user-screen-content';
+import {
+  FriendUserIdentity,
+  FriendUserIdentityActions,
+} from './friend-user-screen-content';
 import { FriendsPermissionGate } from './friends-permission-gate';
 import { useBlockUser } from './use-block-user';
 import { useFriendRequestIdsForUser } from './use-friend-request-ids';
@@ -43,37 +50,49 @@ function useFriendUserBreadcrumbs(
   ]);
 }
 
-function FriendUserScreenBody(props: { userId: string }): JSX.Element {
+/** Loading, unreachable (never synced), withdrawn, or shown. */
+function useFriendUserPresence(
+  userProfile: ReturnType<typeof useFriendUserProfile>
+): () => FriendUserPresence {
+  const firstSyncError = useFirstSyncError();
+  return () => {
+    if (userProfile.loading()) return 'loading';
+    if (!userProfile.unavailable()) return 'shown';
+    return firstSyncError() ? 'unreachable' : 'unavailable';
+  };
+}
+
+function useFriendUserDanger(userId: () => string) {
   const router = useRouter();
-  const userId = () => props.userId;
-  const status = useFriendshipStatus(userId);
-  const requestIds = useFriendRequestIdsForUser(userId);
-  const userProfile = useFriendUserProfile(userId);
   const [removeOpen, setRemoveOpen] = createSignal(false);
   const [blockOpen, setBlockOpen] = createSignal(false);
   const removeFriend = useRemoveFriend();
   const blockUser = useBlockUser();
-  const removeFriendForUser = async () => {
-    await removeFriend(props.userId);
-  };
-  const blockUserForUser = async () => {
-    await blockUser(props.userId);
-  };
-  const dangerHandlers = createFriendUserDangerHandlers({
-    removeFriend: removeFriendForUser,
-    blockUser: blockUserForUser,
+  const handlers = createFriendUserDangerHandlers({
+    removeFriend: () => removeFriend(userId()),
+    blockUser: () => blockUser(userId()),
     setRemoveOpen,
     setBlockOpen,
     routerBack: () => router.back(),
   });
+  return { removeOpen, setRemoveOpen, blockOpen, setBlockOpen, handlers };
+}
+
+function FriendUserScreenBody(props: { userId: string }): JSX.Element {
+  const userId = () => props.userId;
+  const status = useFriendshipStatus(userId);
+  const requestIds = useFriendRequestIdsForUser(userId);
+  const userProfile = useFriendUserProfile(userId);
+  const presence = useFriendUserPresence(userProfile);
+  const danger = useFriendUserDanger(userId);
   const menuActions = useFriendUserOverflowMenu(
     status,
-    () => setRemoveOpen(true),
-    () => setBlockOpen(true),
+    () => danger.setRemoveOpen(true),
+    () => danger.setBlockOpen(true),
     () => userProfile.profile().username
   );
   const headerActions = createMemo((): ScreenBaseAction[] => {
-    if (userProfile.unavailable()) return [];
+    if (presence() !== 'shown') return [];
     return menuActions().map((action) => ({
       type: 'default' as const,
       label: action.label,
@@ -86,42 +105,42 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
   const breadcrumbs = useFriendUserBreadcrumbs(userProfile, userId);
 
   return (
-    <ContentScreen
+    <ProfileScreenLayout
       screenId="friend-user"
       breadcrumbs={breadcrumbs()}
       actions={headerActions()}
-    >
-      <FriendRequestFeedback
-        userId={props.userId}
-        outgoingRequestId={requestIds.outgoingRequestId()}
-      />
-      <Show
-        when={!userProfile.unavailable()}
-        fallback={
-          <p class="text textBody" data-testid="friend-profile-unavailable">
-            <Trans>
-              This profile is no longer available because the account was
-              deleted.
-            </Trans>
-          </p>
-        }
-      >
-        <FriendUserScreenContent
+      identity={
+        <FriendUserIdentity
+          presence={presence()}
           profile={userProfile.profile()}
-          userId={props.userId}
-          status={status()}
-          incomingRequestId={requestIds.incomingRequestId()}
           outgoingRequestId={requestIds.outgoingRequestId()}
-          onChanged={userProfile.refreshProfile}
-          removeOpen={removeOpen()}
-          blockOpen={blockOpen()}
-          onCloseRemove={() => setRemoveOpen(false)}
-          onCloseBlock={() => setBlockOpen(false)}
-          onRemove={dangerHandlers.onRemove}
-          onBlock={dangerHandlers.onBlock}
+          onRetry={userProfile.refreshProfile}
+        />
+      }
+      identityActions={
+        <Show when={presence() === 'shown'}>
+          <FriendUserIdentityActions
+            profile={userProfile.profile()}
+            status={status()}
+            incomingRequestId={requestIds.incomingRequestId()}
+            outgoingRequestId={requestIds.outgoingRequestId()}
+            onChanged={userProfile.refreshProfile}
+          />
+        </Show>
+      }
+    >
+      <Show when={presence() === 'shown'}>
+        <FriendUserDangerModals
+          username={userProfile.profile().username}
+          removeOpen={danger.removeOpen()}
+          blockOpen={danger.blockOpen()}
+          onCloseRemove={() => danger.setRemoveOpen(false)}
+          onCloseBlock={() => danger.setBlockOpen(false)}
+          onRemove={danger.handlers.onRemove}
+          onBlock={danger.handlers.onBlock}
         />
       </Show>
-    </ContentScreen>
+    </ProfileScreenLayout>
   );
 }
 

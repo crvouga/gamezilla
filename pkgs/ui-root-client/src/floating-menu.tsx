@@ -1,6 +1,11 @@
 /** @jsxImportSource solid-js */
 /**
- * `FloatingMenu` -- anchored popover panel (surface-stack layer + scrim).
+ * `FloatingMenu` -- anchored popover panel (surface-stack layer + an
+ * invisible outside-click layer).
+ *
+ * Floats above the content without dimming it: the `surface-overlay` fill,
+ * one hairline, the card radius (12) and the one `shadow-float`. It fades in
+ * and settles over 250ms (`.surfaceEnter`); reduced motion shows it at once.
  *
  * Content is prop-driven via {@link FloatingMenuContent}. The anchor is a
  * window-space rect (or the trigger element, measured on open) converted to
@@ -176,7 +181,7 @@ function FloatingMenuPanel(props: {
     >
       <OnColorReset>
         <div
-          class="box rounded-card border border-border py-2 bg-surface-overlay"
+          class="box surfaceEnter rounded-card border border-border py-2 bg-surface-overlay shadow-float"
           ref={(el) => {
             hostEl = el;
           }}
@@ -253,7 +258,7 @@ export function FloatingMenu(props: FloatingMenuProps): JSX.Element {
             {...dataAttrs({ component: 'FloatingMenu', ...props.dataSet })}
           >
             <div
-              class="box absolute inset-0 bg-scrim"
+              class="box absolute inset-0 bg-transparent"
               data-component="FloatingMenuBackdrop"
               aria-hidden="true"
               onClick={() => props.onClose()}

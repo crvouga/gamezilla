@@ -1,8 +1,7 @@
 /**
- * `design-system/design-tokens.json` is the single source of every visual
- * value. It must be a valid W3C Design Tokens tree, and the TypeScript copy,
- * `token-names.ts`, `tokens.css` and the Swift projection must be what the
- * tree renders today.
+ * The package's `src/design-tokens.json` is the source of every visual value.
+ * It must be a valid W3C Design Tokens tree, and `token-names.ts` and
+ * `tokens.css` must be what the tree renders today.
  */
 
 import { describe, expect, test } from 'bun:test';
@@ -10,7 +9,6 @@ import { join } from 'node:path';
 import { breakpoint } from '@pkgs/ui-root-shared/breakpoints';
 import { COLOR_PALETTE } from '@pkgs/ui-root-shared/color-palette';
 import { renderTokensCss } from '@pkgs/ui-root-shared/css-vars';
-import { isTokenTree } from '@pkgs/ui-root-shared/design-tokens';
 import {
   designTokenPaths,
   validateDesignTokens,
@@ -19,15 +17,14 @@ import { fonts } from '@pkgs/ui-root-shared/fonts';
 import { layer } from '@pkgs/ui-root-shared/layers';
 import { duration, easing } from '@pkgs/ui-root-shared/motion';
 import {
-  hslToSrgb,
-  renderSwiftTokens,
-} from '@pkgs/ui-root-shared/render-swift-tokens';
-import {
   renderTokenNamesTs,
   tokenScales,
 } from '@pkgs/ui-root-shared/render-token-names';
 import {
   borderRadius,
+  fontLeading,
+  fontSize,
+  fontWeight,
   radiusRole,
   spaceSize,
   spacing,
@@ -41,9 +38,7 @@ import {
 import { surfaceToneColor, textToneColor } from '@pkgs/ui-root-shared/tones';
 
 const SRC = join(import.meta.dir, '..', 'src');
-const REPO = join(import.meta.dir, '..', '..', '..');
-const CANONICAL = join(REPO, 'design-system', 'design-tokens.json');
-const SWIFT = join(REPO, 'design-system', 'swift', 'design-tokens.swift');
+const CANONICAL = join(SRC, 'design-tokens.json');
 
 async function readTokens(): Promise<unknown> {
   return JSON.parse(await Bun.file(CANONICAL).text());
@@ -63,7 +58,7 @@ describe('design-tokens.json', () => {
       'tone.surface.muted',
       'space.scale.4',
       'space.size.md',
-      'font.family.display',
+      'shadow.float',
       'font.size.base',
       'font.leading.base',
       'font.lineHeight.normal',
@@ -117,7 +112,6 @@ describe('values derived from the tokens', () => {
   test('the t-shirt spacing scale sits on the 4px grid', () => {
     expect(spaceSize).toEqual({
       none: 0,
-      '2xs': 2,
       xs: 4,
       sm: 8,
       md: 12,
@@ -126,8 +120,22 @@ describe('values derived from the tokens', () => {
       '2xl': 32,
       '3xl': 48,
     });
-    expect(spacing['0-5']).toBe(2);
+    expect(Object.values(spacing).every((px) => px % 4 === 0)).toBe(true);
     expect(spacing[4]).toBe(16);
+  });
+
+  test('the type scale is 12, 14, 16, 20, 24, 32 on 4px leading', () => {
+    expect(Object.values(fontSize)).toEqual([12, 14, 16, 20, 24, 32]);
+    expect(Object.values(fontLeading).every((px) => px % 4 === 0)).toBe(true);
+    expect(Object.values(fontWeight)).toEqual([400, 600, 700]);
+  });
+
+  test('radii are 4, 8, 12 and round', () => {
+    expect(borderRadius).toEqual({ none: 0, sm: 4, md: 8, lg: 12, full: 9999 });
+  });
+
+  test('motion stays between 150 and 250ms', () => {
+    expect(duration).toEqual({ instant: 0, fast: 150, normal: 200, slow: 250 });
   });
 
   test('radius roles are the hierarchy steps', () => {
@@ -136,7 +144,7 @@ describe('values derived from the tokens', () => {
       sm: borderRadius.sm,
       control: borderRadius.md,
       card: borderRadius.lg,
-      sheet: borderRadius.xl,
+      sheet: borderRadius.lg,
       full: borderRadius.full,
     });
   });
@@ -150,7 +158,7 @@ describe('values derived from the tokens', () => {
       xl: 32,
       '2xl': 48,
     });
-    expect(controlSize.md).toBe(48);
+    expect(controlSize.md).toBe(44);
     expect(maxWidth.wide).toBe(1200);
     expect(breakpoint).toEqual({ sm: 640, md: 768, lg: 1024, xl: 1280 });
     expect(layer.tooltip).toBeGreaterThan(layer.overlay);
@@ -159,12 +167,10 @@ describe('values derived from the tokens', () => {
 
   test('colors, fonts and motion render as the CSS they always were', () => {
     expect(COLOR_PALETTE.light.background).toBe('hsla(0, 0%, 100%, 1)');
-    expect(COLOR_PALETTE.light.tintSubtle).toBe('hsla(204, 88%, 53%, 0.10)');
+    expect(COLOR_PALETTE.light.tintSubtle).toBe('hsla(204, 100%, 48%, 0.10)');
     expect(COLOR_PALETTE.dark.scrim).toBe('hsla(0, 0%, 0%, 0.72)');
-    expect(fonts.display.startsWith('"Bricolage Grotesque", system-ui')).toBe(
-      true
-    );
-    expect(duration.fast).toBe(120);
+    expect(fonts.sans.startsWith('system-ui')).toBe(true);
+    expect(duration.fast).toBe(150);
     expect(easing.standard).toBe('cubic-bezier(0.2, 0, 0, 1)');
   });
 
@@ -182,29 +188,6 @@ describe('values derived from the tokens', () => {
 });
 
 describe('generated files', () => {
-  test('the TypeScript copy matches the source document', async () => {
-    const source = await Bun.file(CANONICAL).text();
-    const copy = await Bun.file(join(SRC, 'design-tokens.json')).text();
-    expect(copy).toBe(source);
-  });
-
-  test('design-tokens.swift is what the document renders today', async () => {
-    const tree = await readTokens();
-    if (!isTokenTree(tree)) throw new Error('design tokens are not an object');
-    const current = await Bun.file(SWIFT).text();
-    expect(current).toBe(renderSwiftTokens(tree));
-    expect(current).toContain('static let `default`');
-    expect(current).toContain(
-      'static let n0_5 = Quantity(value: 2, unit: "px")'
-    );
-  });
-
-  test('hsl white, black and red become sRGB', () => {
-    expect(hslToSrgb(0, 0, 100)).toEqual([1, 1, 1]);
-    expect(hslToSrgb(0, 0, 0)).toEqual([0, 0, 0]);
-    expect(hslToSrgb(0, 100, 50)).toEqual([1, 0, 0]);
-  });
-
   test('token-names.ts is what the tokens render today', async () => {
     const current = await Bun.file(join(SRC, 'token-names.ts')).text();
     expect(current).toBe(renderTokenNamesTs());
@@ -227,11 +210,18 @@ describe('generated files', () => {
 
   test('tokens.css carries a variable for every semantic scale name', () => {
     const css = renderTokensCss();
-    expect(css.startsWith('/* GENERATED from design-system/')).toBe(true);
+    expect(
+      css.startsWith(
+        '/* GENERATED from pkgs/ui-root-shared/src/design-tokens.json'
+      )
+    ).toBe(true);
     for (const name of SPACE_TOKENS) {
       expect(css).toContain(`  --ui-space-${name}: ${spaceSize[name]}px;`);
     }
-    expect(css).toContain('  --ui-radius-control: 12px;');
+    expect(css).toContain('  --ui-radius-control: 8px;');
+    expect(css).toContain(
+      '  --ui-shadow-float: 0px 4px 16px 0px var(--ui-color-shadow-color);'
+    );
     expect(css).toContain('  --ui-max-width-prose: 640px;');
     expect(css).toContain('  --ui-layer-overlay: 1000000;');
     expect(css).toContain('  --ui-opacity-muted: 55%;');

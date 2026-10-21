@@ -3,6 +3,8 @@ import { useTimers } from '@pkgs/clock-client/solid';
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
 import { FloatingActionButton } from './floating-action-button';
+import { PlusIcon, SquarePenIcon } from './icons';
+import { SchemePreview } from './scheme-preview';
 import { useMutationButton } from './use-mutation-button';
 
 const DEMO_MS = 900;
@@ -33,17 +35,47 @@ function FabDemo(): JSX.Element {
   });
 
   return (
-    <div class="box flex-row gap-4 items-center">
-      <FloatingActionButton {...succeed.fabProps} />
-      <FloatingActionButton {...fail.fabProps} />
+    <div class="box gap-2">
+      <p class="text textFootnote">
+        {'Feedback: tap to run (loading → success / error)'}
+      </p>
+      <div class="box flex-row flex-wrap gap-4 items-center">
+        <FloatingActionButton {...succeed.fabProps} />
+        <FloatingActionButton {...fail.fabProps} />
+      </div>
+    </div>
+  );
+}
+
+function FabStates(): JSX.Element {
+  return (
+    <div class="box gap-2">
+      <p class="text textFootnote">
+        {'Round 52px, extended, loading, disabled'}
+      </p>
+      <div class="box flex-row flex-wrap gap-4 items-center">
+        <FloatingActionButton aria-label="New" icon={PlusIcon} />
+        <FloatingActionButton
+          aria-label="Compose"
+          icon={SquarePenIcon}
+          label="Compose"
+        />
+        <FloatingActionButton aria-label="Saving" loading />
+        <FloatingActionButton aria-label="New" disabled />
+      </div>
     </div>
   );
 }
 
 export default function FloatingActionButtonExample(): JSX.Element {
   return (
-    <ExampleRoot class="min-h-50">
-      <FabDemo />
+    <ExampleRoot>
+      <SchemePreview>
+        <div class="box gap-4">
+          <FabStates />
+          <FabDemo />
+        </div>
+      </SchemePreview>
     </ExampleRoot>
   );
 }

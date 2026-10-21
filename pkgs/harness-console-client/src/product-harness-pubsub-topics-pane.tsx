@@ -2,7 +2,10 @@ import { useTimers } from '@pkgs/clock-client/solid';
 import type { ProductHarnessPubSubNode } from '@pkgs/harness-console-shared/ports';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
+import { InspectorRow, InspectorSection } from './inspector-row';
 
 /**
  * Live pubsub topic inventory across in-memory bus peers.
@@ -30,27 +33,35 @@ export function ProductHarnessPubSubTopicsPane(props: {
     <Show
       when={stats().length > 0}
       fallback={
-        <div class="box flex-1 min-h-0 p-[8px]">
+        <StackVertical grow padding="sm">
           <EmptyState
             variant="compact"
             title="No topics"
             body="Subscribed topics across pubsub peers will appear here."
           />
-        </div>
+        </StackVertical>
       }
     >
-      <ScrollView class="flex-1 min-h-0" contentClass="p-[6px] gap-1">
-        <For each={stats()}>
-          {(row) => (
-            <div class="box flex-row items-center gap-2 [padding-top:1.5px;padding-bottom:1.5px] border-b border-border">
-              <p class="text flex-1 text-text text-xs [font-family:mono]">
-                {row.topic}
-              </p>
-              <p class="text textCaption text-text-secondary">{`${row.subscriberCount} sub`}</p>
-              <p class="text textCaption text-text-secondary">{`${row.instanceCount} peer`}</p>
-            </div>
-          )}
-        </For>
+      <ScrollView grow padding="md">
+        <InspectorSection title="Topics">
+          <For each={stats()}>
+            {(row) => (
+              <InspectorRow
+                label={row.topic}
+                trailing={
+                  <>
+                    <P variant="footnote" numeral>
+                      {`${row.subscriberCount} sub`}
+                    </P>
+                    <P variant="footnote" numeral>
+                      {`${row.instanceCount} peer`}
+                    </P>
+                  </>
+                }
+              />
+            )}
+          </For>
+        </InspectorSection>
       </ScrollView>
     </Show>
   );

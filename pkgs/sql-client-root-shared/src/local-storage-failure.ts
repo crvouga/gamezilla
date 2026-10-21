@@ -20,12 +20,31 @@ const STORAGE_FAILURE =
 const STATEMENT_FAILURE =
   /SQLITE_(?:CONSTRAINT|ERROR|MISMATCH|RANGE|MISUSE|AUTH|TOOBIG)|constraint failed|syntax error|no such (?:table|column|function|index|savepoint)|datatype mismatch|no tables specified|incomplete input|already exists|has no column named|too many SQL variables/iu;
 
+/**
+ * The wording of any thrown value. Anything may be thrown, including values
+ * that refuse to become text (`[{ toString: 0 }]`, `Object.create(null)`, a
+ * throwing getter); those have no wording, so they read as empty instead of
+ * making the classifier throw in place of the failure it describes.
+ */
+function textOf(value: unknown): string {
+  if (typeof value === 'string') return value;
+  try {
+    return String(value);
+  } catch {
+    return '';
+  }
+}
+
 function describe(error: unknown): string {
   if (error instanceof Error) {
-    const code = (error as Error & { code?: unknown }).code;
-    return `${error.name} ${typeof code === 'string' ? code : ''} ${error.message}`;
+    try {
+      const code = (error as Error & { code?: unknown }).code;
+      return `${textOf(error.name)} ${typeof code === 'string' ? code : ''} ${textOf(error.message)}`;
+    } catch {
+      return '';
+    }
   }
-  return String(error);
+  return textOf(error);
 }
 
 export function classifyLocalStorageFailure(

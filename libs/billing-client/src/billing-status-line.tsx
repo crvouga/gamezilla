@@ -8,12 +8,21 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Plural, Trans } from '@lingui/solid/macro';
+import { P } from '@pkgs/ui-root-client/text';
 import { type JSX, Match, Switch } from 'solid-js';
 
 import type { BillingView } from './billing-view-model';
 
-function isoOf(ms: number | null): string | undefined {
-  return ms === null ? undefined : new Date(ms).toISOString();
+/** The line's machine-readable marks: its state and any dates, as ISO. */
+function marksOf(view: BillingView): Record<string, string> {
+  const marks: Record<string, string> = { state: view.state };
+  if (view.periodEndMs !== null) {
+    marks['period-end'] = new Date(view.periodEndMs).toISOString();
+  }
+  if (view.accessEndsMs !== null) {
+    marks['access-end'] = new Date(view.accessEndsMs).toISOString();
+  }
+  return marks;
 }
 
 type LineProps = {
@@ -73,12 +82,10 @@ export function BillingStatusLine(props: LineProps): JSX.Element {
   const days = (): number => props.view.daysLeft ?? 0;
   const state = (): BillingView['state'] => props.view.state;
   return (
-    <p
-      class="text textBody text-text-secondary"
-      data-testid={Handles.billingStatus}
-      data-state={state()}
-      data-period-end={isoOf(props.view.periodEndMs)}
-      data-access-end={isoOf(props.view.accessEndsMs)}
+    <P
+      tone="secondary"
+      testId={Handles.billingStatus}
+      dataSet={marksOf(props.view)}
     >
       <Switch>
         <Match when={state() === 'loading'}>
@@ -109,6 +116,6 @@ export function BillingStatusLine(props: LineProps): JSX.Element {
           <Trans>No membership yet.</Trans>
         </Match>
       </Switch>
-    </p>
+    </P>
   );
 }

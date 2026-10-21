@@ -18,9 +18,7 @@ import {
   type JSX,
   onCleanup,
   Show,
-  splitProps,
 } from 'solid-js';
-import type { DivBoxProps } from './box';
 import { CircleCheckIcon, CopyIcon } from './icons';
 
 export const DEFAULT_COPIED_RESET_MS = 2000;
@@ -29,7 +27,7 @@ const ICON_SIZE = 22;
 /** Injected clipboard sink. */
 export type ClipboardCopy = (text: string) => Promise<void>;
 
-export type CopyToClipboardFieldProps = Omit<DivBoxProps, 'children'> & {
+export type CopyToClipboardFieldProps = {
   /** String written to the clipboard on click. */
   value: string;
   /** Clipboard sink (injected from the composition root). */
@@ -55,34 +53,23 @@ export function CopyToClipboardField(
 ): JSX.Element {
   const { t } = useLingui();
   const timers = useTimers();
-  const [local, rest] = splitProps(props, [
-    'value',
-    'copy',
-    'label',
-    'helperText',
-    'copiedLabel',
-    'copiedResetMs',
-    'selectable',
-    'class',
-    'dataSet',
-    'triggerDataSet',
-  ]);
+
   const [copied, setCopied] = createSignal(false);
   const copiedLabel = (): LocalizedString =>
-    local.copiedLabel ?? t`Copied to clipboard`;
+    props.copiedLabel ?? t`Copied to clipboard`;
 
   createEffect(() => {
     if (!copied()) return;
     const id = timers.setTimeout(
       () => setCopied(false),
-      local.copiedResetMs ?? DEFAULT_COPIED_RESET_MS
+      props.copiedResetMs ?? DEFAULT_COPIED_RESET_MS
     );
     onCleanup(() => timers.clearTimeout(id));
   });
 
   const onCopy = async (): Promise<void> => {
     try {
-      await local.copy(local.value);
+      await props.copy(props.value);
     } catch {
       return;
     }
@@ -92,18 +79,16 @@ export function CopyToClipboardField(
   return (
     <div
       class="box gap-1"
-      classList={{ [String(local.class)]: true }}
-      {...dataAttrs({ component: 'CopyToClipboardField', ...local.dataSet })}
-      {...rest}
+      {...dataAttrs({ component: 'CopyToClipboardField', ...props.dataSet })}
     >
-      <Show when={local.label !== undefined}>
-        <label class="text textLabel">{local.label}</label>
+      <Show when={props.label !== undefined}>
+        <label class="text textLabel">{props.label}</label>
       </Show>
       <button
-        class="clickable clickableOpacity flex-row items-center gap-2 border border-outline rounded-control bg-surface-muted py-2.5 px-3 text-left"
+        class="clickable clickableOpacity flex-row items-center gap-2 border border-outline rounded-control bg-surface-muted py-3 px-3 text-left"
         {...dataAttrs({
           component: 'CopyToClipboardTrigger',
-          ...local.triggerDataSet,
+          ...props.triggerDataSet,
         })}
         data-copied={String(copied())}
         type="button"
@@ -115,11 +100,12 @@ export function CopyToClipboardField(
         <div class="box flex-1 min-w-0">
           <p
             class="text"
-            style={{
-              'user-select': local.selectable === false ? 'none' : 'text',
+            classList={{
+              'select-none': props.selectable === false,
+              'select-text': props.selectable !== false,
             }}
           >
-            {local.value}
+            {props.value}
           </p>
         </div>
         <div class="box items-center justify-center">
@@ -131,12 +117,12 @@ export function CopyToClipboardField(
           </Show>
         </div>
       </button>
-      <div class="box min-h-4.5" role="status" aria-live="polite">
+      <div class="box min-h-5" role="status" aria-live="polite">
         <Show
           when={copied()}
           fallback={
-            <Show when={local.helperText !== undefined}>
-              <p class="text textCaption">{local.helperText}</p>
+            <Show when={props.helperText !== undefined}>
+              <p class="text textCaption">{props.helperText}</p>
             </Show>
           }
         >

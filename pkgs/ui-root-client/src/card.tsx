@@ -28,8 +28,6 @@ export type CardProps = {
   as?: CardElement | undefined;
   id?: string | undefined;
   tabIndex?: number | undefined;
-  /** Merged over the default padding / gap. */
-  class?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -40,7 +38,6 @@ export function Card(props: CardProps): JSX.Element {
       id={props.id}
       tabIndex={props.tabIndex}
       class="box gap-4 rounded-card border border-border bg-surface px-5 py-6 outline-none sm:px-8 sm:pt-8 sm:pb-7"
-      classList={{ [String(props.class)]: props.class !== undefined }}
       {...dataAttrs({ component: 'Card', ...props.dataSet })}
     >
       {props.children}

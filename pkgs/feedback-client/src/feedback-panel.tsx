@@ -1,6 +1,10 @@
 /** @jsxImportSource solid-js */
 import { Button } from '@pkgs/ui-root-client/button';
-import { Match, Show, Switch } from 'solid-js';
+import { H2 } from '@pkgs/ui-root-client/heading';
+import { Notice } from '@pkgs/ui-root-client/notice';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
+import { Text } from '@pkgs/ui-root-client/text';
+import { createUniqueId, Match, Show, Switch } from 'solid-js';
 import type { FeedbackController } from './controller';
 import { FeedbackDetail } from './feedback-detail';
 import { FeedbackForm } from './feedback-form';
@@ -10,7 +14,7 @@ import { useFeedbackState } from './use-feedback-state';
 
 export function FeedbackPanel(props: { controller: FeedbackController }) {
   const state = useFeedbackState(() => props.controller);
-  let host: HTMLDivElement | undefined;
+  const hostId = createUniqueId();
   const workspace = () => {
     state();
     return props.controller.workspace.state();
@@ -20,7 +24,7 @@ export function FeedbackPanel(props: { controller: FeedbackController }) {
     return props.controller.workspace.warning;
   };
   useStageFocus(
-    () => host,
+    () => document.getElementById(hostId) ?? undefined,
     () => workspace().stage
   );
   const title = () => {
@@ -29,31 +33,39 @@ export function FeedbackPanel(props: { controller: FeedbackController }) {
     return props.controller.editorTitle();
   };
   return (
-    <div
-      ref={host}
-      class="box flex-1 h-full min-h-0 shrink gap-4 p-4 overflow-hidden"
-      data-component="FeedbackPanel"
+    <StackVertical
+      id={hostId}
+      grow
+      shrink
+      height="full"
+      gap="lg"
+      padding="lg"
+      overflow="hidden"
+      testId="feedback-panel"
     >
-      <div class="box flex-row items-center justify-between gap-3">
-        <h2 class="text font-semibold">{title()}</h2>
+      <StackHorizontal align="center" justify="between" gap="md">
+        <H2 size="subtitle" lines={1}>
+          {title()}
+        </H2>
         <StageAction controller={props.controller} stage={workspace().stage} />
-      </div>
+      </StackHorizontal>
       <Show when={warning()}>
-        <div
-          class="box gap-2 rounded-lg border border-destructive p-3"
-          role="alert"
-        >
-          <p class="text text-sm text-destructive">{warning()}</p>
-          <Button
-            title="Try saving again"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              props.controller.workspace.retrySave();
-              props.controller.setStage(workspace().stage);
-            }}
-          />
-        </div>
+        {(message) => (
+          <Notice tone="error">
+            <StackVertical gap="sm" align="start">
+              <Text variant="inherit">{message()}</Text>
+              <Button
+                title="Try saving again"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  props.controller.workspace.retrySave();
+                  props.controller.setStage(workspace().stage);
+                }}
+              />
+            </StackVertical>
+          </Notice>
+        )}
       </Show>
       <Switch>
         <Match when={workspace().stage === 'manage'}>
@@ -66,7 +78,7 @@ export function FeedbackPanel(props: { controller: FeedbackController }) {
           <FeedbackForm controller={props.controller} state={state} />
         </Match>
       </Switch>
-    </div>
+    </StackVertical>
   );
 }
 

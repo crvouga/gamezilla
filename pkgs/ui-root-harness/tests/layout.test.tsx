@@ -6,12 +6,10 @@ import {
   AppFrameChromeProvider,
   useSetAppFrameHeader,
 } from '@pkgs/ui-root-client/app-frame-chrome';
-import { Island } from '@pkgs/ui-root-client/island';
-import { IslandGrid } from '@pkgs/ui-root-client/island-grid';
 import { TopBar } from '@pkgs/ui-root-client/top-bar';
 import { TopBarTitle } from '@pkgs/ui-root-client/top-bar-title';
 import { screen } from '@solidjs/testing-library';
-import { cssOf, renderUi } from './render';
+import { renderUi } from './render';
 
 describe('layout host classes', () => {
   test('Center / Spacer / Divider / Card class contracts', () => {
@@ -33,52 +31,8 @@ describe('layout host classes', () => {
   });
 });
 
-describe('Island + IslandGrid', () => {
-  test('compact mode is a pass-through stack', () => {
-    renderUi(
-      () => (
-        <IslandGrid columns={2} dataSet={{ testid: 'grid' }}>
-          <Island title="Ignored on compact" dataSet={{ testid: 'i' }}>
-            <p class="text">{'body'}</p>
-          </Island>
-        </IslandGrid>
-      ),
-      { width: 400 }
-    );
-    expect(cssOf(screen.getByTestId('grid'))).not.toContain('display:grid');
-    expect(screen.queryByText('Ignored on compact')).toBeNull();
-    expect(screen.getByText('body')).toBeInTheDocument();
-  });
-
-  test('wide mode renders a CSS grid with spanning titled islands', () => {
-    renderUi(
-      () => (
-        <IslandGrid columns={3} dataSet={{ testid: 'grid' }}>
-          <Island
-            title="Stats"
-            caption="Today"
-            span={2}
-            dataSet={{ testid: 'i' }}
-          >
-            <p class="text">{'body'}</p>
-          </Island>
-        </IslandGrid>
-      ),
-      { width: 1280 }
-    );
-    expect(cssOf(screen.getByTestId('grid'))).toContain(
-      'grid-template-columns:repeat(3,minmax(0,1fr))'
-    );
-    const island = screen.getByTestId('i');
-    expect(island.tagName).toBe('SECTION');
-    expect(cssOf(island)).toContain('grid-column:span2');
-    expect(screen.getByRole('heading', { name: 'Stats' })).toBeInTheDocument();
-    expect(screen.getByText('Today')).toBeInTheDocument();
-  });
-});
-
 describe('TopBar', () => {
-  test('slots, safe-area padding and breakpoint height', () => {
+  test('slots, safe-area padding, hairline and one row height at every breakpoint', () => {
     renderUi(
       () => (
         <TopBar
@@ -94,9 +48,10 @@ describe('TopBar', () => {
     const bar = screen.getByTestId('tb');
     expect(bar.tagName).toBe('HEADER');
     expect(bar.className).toMatch(/safeTop/);
+    expect(bar.className).toMatch(/\bborder-b\b/);
     const row = bar.firstElementChild;
     if (row === null) throw new Error('missing row');
-    expect(cssOf(row)).toContain('height:72px');
+    expect(row.className).toMatch(/\bh-13\b/);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       'Title'
     );
@@ -104,7 +59,7 @@ describe('TopBar', () => {
     expect(screen.getByText('R')).toBeInTheDocument();
   });
 
-  test('flex center/trailing share the row with a trailing max-width cap', () => {
+  test('in flow, the title keeps a basis and truncates; trailing items share its row', () => {
     renderUi(
       () => (
         <TopBar
@@ -120,10 +75,11 @@ describe('TopBar', () => {
     const bar = screen.getByTestId('tb-flex');
     const row = bar.firstElementChild;
     if (row === null) throw new Error('missing row');
-    const trailing = row.lastElementChild;
-    if (trailing === null) throw new Error('missing trailing');
-    expect(trailing.className).toMatch(/max-w-1\/2/);
-    expect(trailing.className).toMatch(/min-w-0/);
+    expect(row.lastElementChild).toBe(screen.getByText('R'));
+    const center = row.children[1];
+    if (center === undefined) throw new Error('missing center');
+    expect(center.className).toMatch(/\bmin-w-0\b/);
+    expect(center.className).toMatch(/\bshrink\b/);
     expect(screen.getByRole('heading', { level: 1 }).className).toMatch(
       /line-clamp-1/
     );
@@ -149,7 +105,12 @@ describe('AppFrame', () => {
     );
     expect(screen.getByText('override header')).toBeInTheDocument();
     expect(screen.queryByText('default header')).toBeNull();
-    expect(screen.getByRole('main')).toHaveAttribute('data-mode', 'wide');
+    const main = screen.getByRole('main');
+    expect(main).toHaveAttribute('data-mode', 'wide');
+    const header = main.querySelector('[data-region="header"]');
+    const content = main.querySelector('[data-region="content"]');
+    expect(header).toHaveTextContent('override header');
+    expect(content).toHaveTextContent('screen');
   });
 
   test('compact frame ignores the header', () => {
@@ -185,7 +146,7 @@ describe('AppFrame', () => {
     expect(topHost.compareDocumentPosition(body)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     );
-    const column = body.closest('div[style*="max-width"]');
+    const column = body.closest('[data-region="column"]');
     expect(column).not.toBeNull();
     expect(column?.contains(topHost)).toBe(false);
   });

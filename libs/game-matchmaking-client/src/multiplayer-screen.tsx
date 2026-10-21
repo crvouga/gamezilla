@@ -6,7 +6,9 @@ import { Trans } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { GameScreen } from '@pkgs/ui-root-client/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client/game-session-layout';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { Notice } from '@pkgs/ui-root-client/notice';
+import { Text } from '@pkgs/ui-root-client/text';
 import { type JSX, Show } from 'solid-js';
 import { MultiplayerBoard } from './multiplayer-board';
 import { MultiplayerControls } from './multiplayer-controls';
@@ -56,18 +58,23 @@ function MultiplayerStage(props: ScreenProps): JSX.Element {
           />
         )}
       </Show>
-      <Show
-        when={
-          props.data.game() === null &&
-          props.data.search() === null &&
-          !props.data.loading()
-        }
-      >
-        <Notice dataSet={{ testid: 'multiplayer-unavailable' }}>
-          <span role="status">
-            <Trans>No multiplayer game is available to you.</Trans>
-          </span>
-        </Notice>
+      <Show when={props.data.game() === null && props.data.search() === null}>
+        <Show
+          when={!props.data.loading()}
+          fallback={
+            <LoadingState
+              variant="compact"
+              caption={<Trans>Loading the game…</Trans>}
+              dataSet={{ testid: 'multiplayer-loading' }}
+            />
+          }
+        >
+          <Notice dataSet={{ testid: 'multiplayer-unavailable' }}>
+            <Text variant="inherit" role="status">
+              <Trans>No multiplayer game is available to you.</Trans>
+            </Text>
+          </Notice>
+        </Show>
       </Show>
       <MultiplayerControls data={props.data} controls={props.controls} />
     </>
@@ -101,11 +108,13 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
         <DenialSurface decision={access()} testId="multiplayer-access-denial" />
       }
     >
-      <MultiplayerNotices
-        controls={props.controls}
-        online={sync.status().online}
-      />
       <GameSessionLayout
+        notices={
+          <MultiplayerNotices
+            controls={props.controls}
+            online={sync.status().online}
+          />
+        }
         aside={
           <>
             <Show when={props.data.game()}>

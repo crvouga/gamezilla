@@ -24,7 +24,7 @@ export default function IconExample(): JSX.Element {
           <StackHorizontal gap="md" align="end">
             <For each={ICON_SIZE_TOKENS}>
               {(size) => (
-                <StackVertical gap="2xs" align="center">
+                <StackVertical gap="xs" align="center">
                   <Icon icon={ClockIcon} size={size} />
                   <Text variant="footnote">{size}</Text>
                 </StackVertical>
@@ -37,7 +37,7 @@ export default function IconExample(): JSX.Element {
             <Icon icon={BellIcon} />
             <For each={COLOR_TONES}>
               {(tone) => (
-                <StackVertical gap="2xs" align="center">
+                <StackVertical gap="xs" align="center">
                   <Icon icon={BellIcon} tone={tone} />
                   <Text variant="footnote">{tone}</Text>
                 </StackVertical>

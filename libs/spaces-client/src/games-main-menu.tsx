@@ -8,7 +8,7 @@ import { useLocalSearchParams } from '@pkgs/ui-root-client/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client/main-menu-screen';
-import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
+import { P } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 import {
   createEffect,
@@ -27,12 +27,9 @@ import { useSpaceRoomSelector } from './use-space-room-selector';
 
 function HostChoosesNotice(): JSX.Element {
   return (
-    <p
-      class="text textCaption"
-      {...dataAttrs({ testid: Handles.spaceHostChoosesGame })}
-    >
+    <P variant="caption" testId={Handles.spaceHostChoosesGame}>
       <Trans>The host picks the game for this space.</Trans>
-    </p>
+    </P>
   );
 }
 

@@ -4,6 +4,8 @@ import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { ModalBody } from '@pkgs/ui-root-client/modal-parts';
 import { SocialSignInButton } from '@pkgs/ui-root-client/social-sign-in-button';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 import { For, Show } from 'solid-js';
 import { ContinueWithEmailButton } from './continue-with-email-button';
@@ -32,15 +34,15 @@ export function SignInModalBody(props: {
 
   return (
     <ModalBody>
-      <div class="box mt-0.75 self-stretch gap-2">
+      <StackVertical self="stretch" gap="sm" paddingTop="xs">
         <Show when={methodsLoading()}>
           <LoadingState caption={<Trans>Loading sign-in methods…</Trans>} />
         </Show>
 
         <Show when={anyMethod()}>
-          <p class="text textCaption text-text-secondary">
+          <P variant="caption">
             <Trans>Choose a sign-in method</Trans>
-          </p>
+          </P>
         </Show>
 
         <ContinueWithEmailButton onClick={props.onContinueWithEmail} />
@@ -60,13 +62,13 @@ export function SignInModalBody(props: {
         </Show>
 
         <Show when={!methodsLoading() && !anyMethod()}>
-          <p class="text textCaption text-text-secondary">
+          <P variant="caption">
             {props.signInUnavailableReason ?? (
               <Trans>Sign-in is not available.</Trans>
             )}
-          </p>
+          </P>
         </Show>
-      </div>
+      </StackVertical>
     </ModalBody>
   );
 }

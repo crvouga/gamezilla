@@ -2,23 +2,8 @@ import { describe, expect, it } from 'bun:test';
 
 import {
   isSpaceMiniplayerHidden,
-  resolveMiniplayerFrame,
   resolveMiniplayerMode,
 } from '@libs/spaces-client/space-miniplayer-layout';
-
-describe('resolveMiniplayerFrame', () => {
-  it('spans full width with square corners on compact', () => {
-    expect(resolveMiniplayerFrame('compact')).toEqual({
-      rounded: false,
-    });
-  });
-
-  it('spans the AppFrame column with soft corners on wide', () => {
-    expect(resolveMiniplayerFrame('wide')).toEqual({
-      rounded: true,
-    });
-  });
-});
 
 describe('isSpaceMiniplayerHidden', () => {
   it('hides when there are no active spaces', () => {

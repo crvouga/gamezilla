@@ -5,7 +5,7 @@ import { ExampleRoot } from './example-root';
 
 export default function CollapsibleExample(): JSX.Element {
   return (
-    <ExampleRoot class="gap-2">
+    <ExampleRoot gap="sm">
       <Collapsible title="Default (closed)">
         <p class="text">
           {

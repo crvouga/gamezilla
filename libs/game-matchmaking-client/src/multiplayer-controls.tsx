@@ -29,6 +29,33 @@ function ConfirmMessage(props: { readonly kind: Confirm | null }): JSX.Element {
   );
 }
 
+/**
+ * What comes after a game, or before the first: the search under way, or
+ * the choice of a time control for a new one. A watcher is offered neither.
+ */
+function MultiplayerNextGame(props: {
+  readonly controls: MultiplayerControlsModel;
+  readonly data: MultiplayerData;
+}): JSX.Element {
+  const waiting = () =>
+    props.data.search()?.standing === 'waiting' ? props.data.search() : null;
+  const mayFind = () =>
+    (props.data.participant() || props.data.hostId() === props.data.myId()) &&
+    props.data.game()?.outcome !== 'ongoing';
+  return (
+    <Switch>
+      <Match when={waiting()}>
+        {(search) => (
+          <MultiplayerWaiting search={search()} onStop={props.controls.stop} />
+        )}
+      </Match>
+      <Match when={mayFind()}>
+        <MultiplayerFindPanel controls={props.controls} />
+      </Match>
+    </Switch>
+  );
+}
+
 export function MultiplayerControls(props: {
   readonly controls: MultiplayerControlsModel;
   readonly data: MultiplayerData;
@@ -53,25 +80,7 @@ export function MultiplayerControls(props: {
           />
         )}
       </Show>
-      <Show
-        when={looking() ? props.data.search() : null}
-        fallback={
-          <Show
-            when={
-              props.data.participant() ||
-              props.data.hostId() === props.data.myId()
-                ? props.data.game()?.outcome !== 'ongoing'
-                : false
-            }
-          >
-            <MultiplayerFindPanel controls={props.controls} />
-          </Show>
-        }
-      >
-        {(search) => (
-          <MultiplayerWaiting search={search()} onStop={props.controls.stop} />
-        )}
-      </Show>
+      <MultiplayerNextGame data={props.data} controls={props.controls} />
       <MutationModal
         visible={confirm() !== null}
         onClose={() => setConfirm(null)}

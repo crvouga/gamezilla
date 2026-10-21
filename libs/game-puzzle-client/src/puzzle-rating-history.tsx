@@ -1,6 +1,10 @@
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared/stats';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
+import { Surface } from '@pkgs/ui-root-client/surface';
+import { P } from '@pkgs/ui-root-client/text';
+import type { ColorTone } from '@pkgs/ui-root-shared/token-names';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 
 /** How many of the latest rated puzzles the history lists. */
@@ -10,28 +14,35 @@ function signedDelta(delta: number): string {
   return delta > 0 ? `+${delta}` : String(delta);
 }
 
+function deltaTone(delta: number): ColorTone | undefined {
+  if (delta > 0) return 'success';
+  if (delta < 0) return 'destructive';
+  return undefined;
+}
+
 function HistoryPoint(props: {
   readonly entry: PuzzleGameLogEntry;
   readonly index: number;
 }): JSX.Element {
   return (
-    <div class="box items-center gap-0.5 px-2 py-1 rounded-sm bg-surface-muted">
-      <p
-        class="text textLabel textNumeral"
-        data-testid={Handles.chessStatsRatingHistoryPoint(props.index)}
+    <Surface
+      tone="muted"
+      radius="sm"
+      align="center"
+      paddingX="sm"
+      paddingY="xs"
+    >
+      <P
+        variant="label"
+        numeral
+        testId={Handles.chessStatsRatingHistoryPoint(props.index)}
       >
         {props.entry.ratingAfter}
-      </p>
-      <p
-        class="text textFootnote textNumeral"
-        classList={{
-          'text-success': props.entry.delta > 0,
-          'text-destructive': props.entry.delta < 0,
-        }}
-      >
+      </P>
+      <P variant="footnote" numeral tone={deltaTone(props.entry.delta)}>
         {signedDelta(props.entry.delta)}
-      </p>
-    </div>
+      </P>
+    </Surface>
   );
 }
 
@@ -56,16 +67,16 @@ export function PuzzleRatingHistory(
   );
   return (
     <Show when={latest().length > 0}>
-      <div class="box gap-2 self-stretch">
-        <p class="text textCaption">
+      <StackVertical gap="sm" self="stretch">
+        <P variant="caption">
           <Trans>Rating after each puzzle</Trans>
-        </p>
-        <div class="box flex-row flex-wrap gap-2">
+        </P>
+        <StackHorizontal wrap gap="sm">
           <For each={latest()}>
             {(entry, index) => <HistoryPoint entry={entry} index={index()} />}
           </For>
-        </div>
-      </div>
+        </StackHorizontal>
+      </StackVertical>
     </Show>
   );
 }

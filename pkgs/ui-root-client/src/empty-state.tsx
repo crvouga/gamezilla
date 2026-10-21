@@ -20,13 +20,11 @@
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
-import { cssPx } from '@pkgs/ui-root-shared/css-px';
 import { type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import { Button } from './button';
 import type { IconComponent } from './create-icon';
 import type { StateBlockVariant } from './state-block';
-import { StateBlock } from './state-block';
+import { StateBlock, StateBlockActions, StateBlockIcon } from './state-block';
 
 export type EmptyStateAction = {
   label: JSX.Element;
@@ -34,7 +32,7 @@ export type EmptyStateAction = {
 };
 
 export type EmptyStateProps = {
-  /** Optional icon rendered above the title. Tinted with `textSecondary`. */
+  /** Optional outline icon in a hairline disc above the title. */
   icon?: IconComponent | undefined;
   title: JSX.Element;
   body?: JSX.Element | undefined;
@@ -47,29 +45,6 @@ export type EmptyStateProps = {
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
-
-const FILL_ICON_SIZE = 36;
-const COMPACT_ICON_SIZE = 24;
-/** Keeps body copy to a readable measure on wide layouts. */
-const BODY_MAX_WIDTH = 360;
-
-function EmptyStateIcon(props: {
-  icon: IconComponent;
-  variant: StateBlockVariant;
-}): JSX.Element {
-  return (
-    <div
-      class="box items-center"
-      classList={{ 'mb-1': props.variant === 'fill' }}
-    >
-      <Dynamic
-        component={props.icon}
-        size={props.variant === 'fill' ? FILL_ICON_SIZE : COMPACT_ICON_SIZE}
-        color="textSecondary"
-      />
-    </div>
-  );
-}
 
 /** `<root testid>-action` so spec can tap the primary action (undefined otherwise). */
 export function emptyStateActionDataSet(
@@ -91,32 +66,25 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
       dataSet={{ component: 'EmptyState', ...props.dataSet }}
     >
       <Show when={props.icon}>
-        {(icon) => <EmptyStateIcon icon={icon()} variant={variant()} />}
+        {(icon) => <StateBlockIcon icon={icon()} variant={variant()} />}
       </Show>
       <p
-        class={
-          isFill()
-            ? 'text textHeading text-center w-full'
-            : 'text textLabel text-center w-full'
-        }
+        class="text text-center w-full"
+        classList={{ textSubtitle: isFill(), textLabel: !isFill() }}
       >
         {props.title}
       </p>
       <Show when={props.body !== undefined && props.body !== null}>
         <p
-          class={
-            isFill()
-              ? 'text textBody text-text-secondary text-center w-full'
-              : 'text textCaption text-center w-full'
-          }
-          style={{ 'max-width': cssPx(BODY_MAX_WIDTH) }}
+          class="text text-text-secondary text-center w-full"
+          classList={{ textBody: isFill(), textCaption: !isFill() }}
         >
           {props.body}
         </p>
       </Show>
       <Show when={props.action}>
         {(action) => (
-          <div class="box mt-3 items-center">
+          <StateBlockActions>
             <Button
               title={action().label}
               intent="primary"
@@ -124,7 +92,7 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
               onClick={() => action().onClick()}
               dataSet={emptyStateActionDataSet(props.dataSet)}
             />
-          </div>
+          </StateBlockActions>
         )}
       </Show>
     </StateBlock>

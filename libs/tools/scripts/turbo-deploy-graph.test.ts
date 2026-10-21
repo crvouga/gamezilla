@@ -350,9 +350,10 @@ describe('turbo verify/deploy graph invariants', () => {
   test('every package lint task hashes the shared design-system rules and presets', () => {
     const sharedInputs = [
       '$TURBO_ROOT$/libs/tools/scripts/design-vocabulary.ts',
+      '$TURBO_ROOT$/libs/tools/scripts/design-composition.ts',
       '$TURBO_ROOT$/pkgs/tailwind-shared/src/lint.css',
       '$TURBO_ROOT$/pkgs/tailwind-shared/src/tailwind.css',
-      '$TURBO_ROOT$/pkgs/ui-root-client/codemod/theme.css',
+      '$TURBO_ROOT$/pkgs/ui-root-client/src/theme.css',
       '$TURBO_ROOT$/pkgs/ui-root-client/src/hosts.css',
     ];
     const tasks = loadTasks();

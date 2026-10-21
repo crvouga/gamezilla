@@ -13,7 +13,6 @@ import {
 import {
   bodyNeedsSafeBottom,
   buildBodyContentProps,
-  SCREEN_SCROLL_BOTTOM_PADDING,
 } from './screen-base-logic';
 import type { ScreenBasePrimaryActionRender } from './screen-base-primary-action';
 import {
@@ -25,11 +24,8 @@ import { ScreenLargeTitle } from './screen-large-title';
 import { ScrollView } from './scroll-view';
 import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
 
-/** Spacing-scale steps (1 = 4px): body gap 12px. */
-const BODY_GAP_STEP = 3;
+/** The FAB's inset from the body's bottom-end corner (px), above any bar. */
 const FLOATING_ACTION_MARGIN = 16;
-const FLOATING_ACTION_Z_INDEX = 10;
-const BODY_PAD_PX = SCREEN_BODY_PADDING_STEP * 4;
 
 export type ScreenBaseCompactBodyProps = {
   scroll: boolean;
@@ -52,19 +48,14 @@ function BodyInner(props: {
       step={SCREEN_BODY_PADDING_STEP}
       bottomStep={SCREEN_BODY_PADDING_STEP}
     >
+      {/* 16px page edge (`CONTENT_EDGE_PADDING_STEP`), 12px between
+          sections; a large title brings its own top space. */}
       <div
-        class="box"
+        class="box gap-3 px-4 pb-4"
         data-component="ScreenBody"
-        classList={{ 'flex-1 min-h-0': !props.scroll }}
-        style={{
-          gap: `${BODY_GAP_STEP * 4}px`,
-          ...(props.largeTitle
-            ? {
-                'padding-left': `${BODY_PAD_PX}px`,
-                'padding-right': `${BODY_PAD_PX}px`,
-                'padding-bottom': `${BODY_PAD_PX}px`,
-              }
-            : { padding: `${BODY_PAD_PX}px` }),
+        classList={{
+          'flex-1 min-h-0': !props.scroll,
+          'pt-4': !props.largeTitle,
         }}
       >
         {props.children}
@@ -84,17 +75,7 @@ function PinnedFooter(props: {
       classList={{ safeBottom: props.safeBottom }}
       data-component="ScreenFooter"
     >
-      <div
-        class="box"
-        style={{
-          'padding-left': `${BODY_PAD_PX}px`,
-          'padding-right': `${BODY_PAD_PX}px`,
-          'padding-top': `${BODY_GAP_STEP * 4}px`,
-          'padding-bottom': `${BODY_GAP_STEP * 4}px`,
-        }}
-      >
-        {props.children}
-      </div>
+      <div class="box px-4 py-3">{props.children}</div>
     </div>
   );
 }
@@ -105,11 +86,9 @@ function FloatingActionHost(props: {
 }): JSX.Element {
   return (
     <div
-      class="box absolute"
+      class="box absolute right-4 z-10"
       style={{
-        right: `${FLOATING_ACTION_MARGIN}px`,
         bottom: `${FLOATING_ACTION_MARGIN + props.extraBottomInset}px`,
-        'z-index': FLOATING_ACTION_Z_INDEX,
       }}
     >
       {props.children}
@@ -156,11 +135,9 @@ function ScrollableBody(props: ScreenBaseCompactBodyProps): JSX.Element {
       }
     >
       <ScrollView
-        class="flex-1"
-        contentStyle={{
-          'flex-grow': 1,
-          'padding-bottom': `${SCREEN_SCROLL_BOTTOM_PADDING}px`,
-        }}
+        grow
+        fill
+        paddingBottom="xl"
         onScroll={props.titleScroll?.onScroll}
         dataSet={{ component: 'ScreenBodyScroll' }}
       >

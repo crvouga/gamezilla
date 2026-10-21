@@ -8,6 +8,8 @@ import { Plural, Trans } from '@lingui/solid/macro';
 import { useTurnGames } from '@pkgs/turn-game-client/turn-games-context';
 import { GameSection } from '@pkgs/ui-root-client/game-section';
 import { GameStat } from '@pkgs/ui-root-client/game-stat';
+import { Grid } from '@pkgs/ui-root-client/grid';
+import { Text } from '@pkgs/ui-root-client/text';
 import { For, type JSX } from 'solid-js';
 import { SpeedName } from './speed-name';
 import type { MultiplayerRatingRow } from './use-multiplayer-data';
@@ -27,31 +29,37 @@ export function MultiplayerRatings(props: {
     NEW_RATING;
   return (
     <GameSection title={<Trans>Your ratings</Trans>}>
-      <div class="grid grid-cols-2 gap-x-4 gap-y-5">
+      <Grid columns={2} gap="lg">
         <For each={MULTIPLAYER_SPEEDS}>
           {(speed) => (
             <GameStat
               dataSet={{ testid: `multiplayer-rating-${speed}` }}
               label={<SpeedName speed={speed} />}
               value={
-                <span data-testid={`multiplayer-rating-${speed}-value`}>
+                <Text
+                  variant="inherit"
+                  testId={`multiplayer-rating-${speed}-value`}
+                >
                   {ratingOf(speed).rating}
                   {isProvisional(ratingOf(speed)) ? '?' : ''}
-                </span>
+                </Text>
               }
               detail={
-                <span data-testid={`multiplayer-rating-${speed}-games`}>
+                <Text
+                  variant="inherit"
+                  testId={`multiplayer-rating-${speed}-games`}
+                >
                   <Plural
                     value={ratingOf(speed).games}
                     one="# rated game"
                     other="# rated games"
                   />
-                </span>
+                </Text>
               }
             />
           )}
         </For>
-      </div>
+      </Grid>
     </GameSection>
   );
 }

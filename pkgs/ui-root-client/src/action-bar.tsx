@@ -20,6 +20,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
+import { cssPx } from '@pkgs/ui-root-shared/css-px';
 import { type JSX, Show } from 'solid-js';
 import type {
   ActionBarAlign,
@@ -43,7 +44,12 @@ import {
   renderDefaultOverflowMenu,
 } from './overflow-menu-button';
 import type { ActionBarController } from './use-action-bar-controller';
-import { useActionBarController } from './use-action-bar-controller';
+import {
+  ACTION_BAR_MORE_KEY,
+  itemKey,
+  textKey,
+  useActionBarController,
+} from './use-action-bar-controller';
 
 export type ActionBarProps = {
   items: readonly ActionBarItem[];
@@ -64,7 +70,7 @@ export type ActionBarProps = {
   overflowMenuHeader?: OverflowMenuHeader | undefined;
   buttonSize?: number | undefined;
   gap?: number | undefined;
-  /** Horizontal budget per inline slot; defaults to `max(buttonSize, 44)`. */
+  /** Width of a labeled inline control (`showInlineLabels`); never below 44. */
   slotWidth?: number | undefined;
   /** When true, shows a caption under each inline action. */
   showInlineLabels?: boolean | undefined;
@@ -94,18 +100,25 @@ function ActionBarItemsRow(props: {
       class="box flex-row items-center min-w-0"
       style={{ gap: `${(props.bar.resolved().gap / 4) * 4}px` }}
     >
-      <ActionBarTextItems actions={props.bar.layout().inlineText} />
+      <ActionBarTextItems
+        actions={props.bar.layout().inlineText}
+        track={(id, el) => props.bar.widths.track(textKey(id), el)}
+      />
       <ActionBarIconItems
         items={props.bar.layout().partition.visible}
         buttonSize={props.bar.resolved().buttonSize}
         showInlineLabels={props.showInlineLabels}
         slotWidth={props.bar.resolved().slotWidth}
+        track={(id, el) => props.bar.widths.track(itemKey(id), el)}
       />
       <Show when={props.bar.layout().overflowActions.length > 0}>
         <ActionBarOverflowTrigger
           buttonSize={props.bar.resolved().buttonSize}
           onOpen={onOpen}
-          setTrigger={props.bar.menu.setTrigger}
+          setTrigger={(el) => {
+            props.bar.menu.setTrigger(el);
+            props.bar.widths.track(ACTION_BAR_MORE_KEY, el);
+          }}
           open={props.bar.menu.open()}
           overflowTrigger={props.overflowTrigger}
           showInlineLabels={props.showInlineLabels}
@@ -173,6 +186,9 @@ export function ActionBar(props: ActionBarProps): JSX.Element {
     get slotWidth() {
       return props.slotWidth;
     },
+    get showInlineLabels() {
+      return props.showInlineLabels;
+    },
   });
 
   return (
@@ -181,12 +197,17 @@ export function ActionBar(props: ActionBarProps): JSX.Element {
         class="box flex-row items-center"
         {...dataAttrs({ component: 'ActionBar', ...props.dataSet })}
         style={{
+          // A measuring bar asks for its full row and gives room up before
+          // its row-mates do (shrink 1000), down to the More trigger. Its
+          // size never depends on what it renders, so collapsing is stable.
           ...(bar.measures()
             ? {
-                flex: 1,
-                'min-width': 0,
-                alignSelf: 'stretch',
-                width: '100%',
+                width: cssPx(bar.naturalWidth()),
+                'max-width': '100%',
+                'min-width': cssPx(bar.minWidth()),
+                'flex-grow': 0,
+                'flex-shrink': 1000,
+                'align-self': 'stretch',
               }
             : {}),
           'justify-content':

@@ -1,4 +1,4 @@
-import type { TextVariant } from '@pkgs/ui-root-client/text';
+import { P, type TextProps } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { formatDeviceListCaption } from './device-parsers';
@@ -6,9 +6,8 @@ import { useDeviceColumn } from './use-device-column';
 
 export type AccountDeviceListCaptionTextProps = {
   deviceId: string;
-  variant?: TextVariant | undefined;
-  numberOfLines?: number | undefined;
-  class?: string | undefined;
+  /** Clamp to this many lines; the surrounding row sets the type. */
+  lines?: TextProps['lines'];
 };
 
 /** Secondary line for device list rows (OS + last seen). */
@@ -28,28 +27,8 @@ export function AccountDeviceListCaptionText(
     })
   );
   return (
-    <p
-      class="text textBody"
-      classList={{
-        textBodyBold: String(props.variant) === 'bodyBold',
-        textCaption: String(props.variant) === 'caption',
-        textLabel: String(props.variant) === 'label',
-        textTitle: String(props.variant) === 'title',
-        textSubtitle: String(props.variant) === 'subtitle',
-        textHeading: String(props.variant) === 'heading',
-        textNavigationTitle: String(props.variant) === 'navigationTitle',
-        textLink: String(props.variant) === 'link',
-        textMono: String(props.variant) === 'mono',
-        [String(props.class)]: true,
-      }}
-      style={{
-        display: '-webkit-box',
-        '-webkit-box-orient': 'vertical',
-        '-webkit-line-clamp': props.numberOfLines,
-        overflow: 'hidden',
-      }}
-    >
+    <P variant="inherit" lines={props.lines}>
       {label()}
-    </p>
+    </P>
   );
 }

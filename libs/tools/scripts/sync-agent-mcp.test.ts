@@ -47,7 +47,13 @@ describe('renderJson', () => {
       other: 1,
       mcpServers: { Sentry: { url: 'https://example.test/mcp' } },
     });
-    const next = JSON.parse(renderJson(existing, target));
+    const next = JSON.parse(renderJson(existing, target)) as {
+      other: number;
+      mcpServers: {
+        Sentry: { url: string };
+        serena: { command: string };
+      };
+    };
     expect(next.other).toBe(1);
     expect(next.mcpServers.Sentry).toEqual({ url: 'https://example.test/mcp' });
     expect(next.mcpServers.serena.command).toBe('mise');
