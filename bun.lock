@@ -725,6 +725,23 @@
         "typescript": "catalog:",
       },
     },
+    "libs/battleship-shared": {
+      "name": "@libs/battleship-shared",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-session-shared": "workspace:*",
+        "@pkgs/turn-game-shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared": "workspace:*",
+        "@pkgs/uuid-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/billing-client": {
       "name": "@libs/billing-client",
       "version": "0.0.0",
@@ -7420,6 +7437,8 @@
     "@libs/auth-server": ["@libs/auth-server@workspace:libs/auth-server"],
 
     "@libs/auth-shared": ["@libs/auth-shared@workspace:libs/auth-shared"],
+
+    "@libs/battleship-shared": ["@libs/battleship-shared@workspace:libs/battleship-shared"],
 
     "@libs/billing-client": ["@libs/billing-client@workspace:libs/billing-client"],
 
