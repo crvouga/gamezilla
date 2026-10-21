@@ -1156,6 +1156,7 @@ Developer tools ──► App (the testing tool)
 Friends, Spaces ──► Developer tools (friend, space)
 Matchmaking ──► Chess (a complete matchmaking match), Games (pair people up)
 Chess    ──► Journeys (a game of chess, a puzzle, multiplayer chess, a Custom Game)
+Battleship ──► Journeys (Battleship)
 Games    ──► Connect Four (game), Battleship (game, custom game)
 Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
 Database indexing: stands alone; publishes no product terms or events

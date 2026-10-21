@@ -85,3 +85,6 @@ terms:
 
   - term: Connect Four
     from: connect-four
+
+  - term: Battleship
+    from: battleship
