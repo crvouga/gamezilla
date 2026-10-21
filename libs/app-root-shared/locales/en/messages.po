@@ -3372,6 +3372,10 @@ msgstr "Replay decisions"
 msgid "Replays recorded choices and random inputs. Application timing and external services are not replayed."
 msgstr "Replays recorded choices and random inputs. Application timing and external services are not replayed."
 
+#: libs/app-root-client/src/about-screen.tsx
+msgid "Report a security problem"
+msgstr "Report a security problem"
+
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "Request personal-data export"
 msgstr "Request personal-data export"
@@ -3587,6 +3591,7 @@ msgstr "seconds"
 msgid "Seconds added after a move"
 msgstr "Seconds added after a move"
 
+#: libs/app-root-client/src/about-screen.tsx
 #: libs/auth-client/src/account-screen.tsx
 msgid "Security"
 msgstr "Security"

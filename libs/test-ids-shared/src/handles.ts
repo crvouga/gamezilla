@@ -38,6 +38,7 @@ export const Handles = {
   themeOption: (key: 'light' | 'dark' | 'system') => `theme-option-${key}`,
   soundEffectsSwitch: 'sound-effects-switch',
   /** Version row on the About screen. */
+  aboutSecurityContact: 'about-security-contact',
   aboutVersion: 'about-version',
   /** "Connection" row in Settings (→ the connection status screen). */
   settingsConnection: 'settings-server-status',
