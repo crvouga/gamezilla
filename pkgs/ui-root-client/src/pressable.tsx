@@ -31,6 +31,8 @@
 import { componentId } from '@pkgs/ui-root-shared/component-id';
 import type { RadiusToken } from '@pkgs/ui-root-shared/token-names';
 import { type JSX, Show } from 'solid-js';
+import type { DataSetProps } from './data-set-binding';
+import { bindDataSet } from './data-set-binding';
 import type { ElementTargetProps } from './element-targets';
 import { bindElementTargets } from './element-targets';
 import {
@@ -52,7 +54,8 @@ export type PressablePopup = 'menu' | 'listbox' | 'dialog' | 'tree' | 'grid';
 
 export type PressableProps = SpacingProps &
   FlexItemProps &
-  ElementTargetProps & {
+  ElementTargetProps &
+  DataSetProps & {
     children?: JSX.Element | undefined;
     /** Runs on click, tap and keyboard activation. */
     onPress?: (() => void) | undefined;
@@ -137,6 +140,7 @@ function PressableLink(props: PressableProps): JSX.Element {
     <a
       ref={(element) => {
         bindElementTargets(element, props);
+        bindDataSet(element, props);
       }}
       class={pressableClass(props)}
       href={props.disabled === true ? undefined : props.href}
@@ -166,6 +170,7 @@ function PressableButton(props: PressableProps): JSX.Element {
     <button
       ref={(element) => {
         bindElementTargets(element, props);
+        bindDataSet(element, props);
       }}
       class={pressableClass(props)}
       type={props.type ?? 'button'}

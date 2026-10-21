@@ -36,6 +36,11 @@ export type FormProps = {
   gap?: Responsive<SpaceToken> | undefined;
   /** Skip the browser's constraint validation. */
   noValidate?: boolean | undefined;
+  /**
+   * Fill the room the parent leaves and clip to it, so a field inside can
+   * grow and scroll (a composer whose editor takes the panel height).
+   */
+  grow?: boolean | undefined;
   id?: string | undefined;
   'aria-label'?: string | undefined;
   'aria-labelledby'?: string | undefined;
@@ -47,7 +52,11 @@ export type FormProps = {
 export function Form(props: FormProps): JSX.Element {
   return (
     <form
-      class={spaced(['box', spacingClass({ gap: props.gap ?? 'lg' })])}
+      class={spaced([
+        'box',
+        spacingClass({ gap: props.gap ?? 'lg' }),
+        props.grow === true ? 'flex-1 shrink overflow-hidden' : undefined,
+      ])}
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('Form')}

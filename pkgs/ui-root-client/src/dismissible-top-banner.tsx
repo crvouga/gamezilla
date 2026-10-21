@@ -85,7 +85,30 @@ export type InFlowBannerProps = {
   position?: DismissibleBannerPosition | undefined;
   /** When false, nothing is rendered (missing portal is ignored). Default true. */
   visible?: boolean | undefined;
+  /**
+   * Paint the banner sheet around the children, as `DismissibleBanner` does:
+   * the tone's fill, a hairline on the content side and the safe area on the
+   * edge. Unset, the children paint themselves.
+   */
+  sheet?: DismissibleBannerTone | undefined;
+  /** Rendered as `data-testid` on the sheet. */
+  testId?: string | undefined;
 };
+
+function InFlowBannerSheet(props: InFlowBannerProps): JSX.Element {
+  return (
+    <Show when={props.sheet} fallback={props.children}>
+      {(tone) => (
+        <div
+          class={sheetClass(props.position ?? 'top', tone())}
+          data-testid={props.testId}
+        >
+          {props.children}
+        </div>
+      )}
+    </Show>
+  );
+}
 
 /** Portal arbitrary chrome into an in-flow banner host (pushes app content). */
 export function InFlowBanner(props: InFlowBannerProps): JSX.Element {
@@ -103,7 +126,7 @@ export function InFlowBanner(props: InFlowBannerProps): JSX.Element {
         <Portal mount={host()}>
           <Show when={visible()}>
             <div class="box w-full overflow-hidden shrink-0">
-              {props.children}
+              <InFlowBannerSheet {...props} />
             </div>
           </Show>
         </Portal>

@@ -21,7 +21,8 @@
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
-import type { JSX } from 'solid-js';
+import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
+import { type JSX, Show } from 'solid-js';
 import { useScreenFocus } from './screen-focus';
 import { ScreenIntro } from './screen-intro';
 import type { ScreenMeasure } from './screen-measure';
@@ -36,6 +37,19 @@ export type EmbeddedScreenProps = {
   subtitle?: JSX.Element | undefined;
   /** Content width cap. Defaults to `reading`. */
   width?: ScreenMeasure | undefined;
+  /**
+   * The host already scrolls and pads this body (a routed `ContentScreen`):
+   * render the title block and the sections only, with no scroller and no
+   * edge padding of its own, so the page has one scroller and one edge.
+   */
+  nested?: boolean | undefined;
+  /**
+   * The children scroll themselves (a list under a pinned search field, a
+   * detail over a pinned footer): the screen is a fixed frame that fills
+   * the host, with the same edge padding and title block and no scroller of
+   * its own, so the page still has one scroller.
+   */
+  fill?: boolean | undefined;
   children: JSX.Element;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
@@ -48,9 +62,46 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
     () => props.screenId
   );
   return (
+    <Show
+      when={props.nested !== true && props.fill !== true}
+      fallback={
+        <div
+          ref={(el) => {
+            root = el;
+          }}
+          class={
+            props.fill === true
+              ? 'box flex-1 min-h-0 self-stretch min-w-0 gap-ui-lg px-ui-lg pt-ui-sm'
+              : 'box self-stretch min-w-0 gap-4'
+          }
+          {...dataAttrs({
+            component: 'EmbeddedScreen',
+            ...props.dataSet,
+            screen: props.screenId,
+          })}
+        >
+          <ScreenIntro title={props.title} subtitle={props.subtitle} />
+          {props.children}
+        </div>
+      }
+    >
+      <ScrolledEmbeddedScreen
+        {...props}
+        setRoot={(el) => {
+          root = el;
+        }}
+      />
+    </Show>
+  );
+}
+
+function ScrolledEmbeddedScreen(
+  props: EmbeddedScreenProps & { setRoot: (el: HTMLDivElement) => void }
+): JSX.Element {
+  return (
     <ScrollView
       ref={(el) => {
-        root = el;
+        props.setRoot(el);
       }}
       grow
       self="stretch"

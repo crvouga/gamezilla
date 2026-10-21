@@ -16,7 +16,6 @@ import { COLOR_PALETTE } from './color-palette';
 import type { ColorScheme, ColorTokenName, ColorTokens } from './colors-types';
 import { fonts } from './fonts';
 import { layer } from './layers';
-import { shadowCss } from './shadows';
 import { duration, easing } from './motion';
 import type { ElevationLevel, ElevationStyle } from './scale';
 import {
@@ -32,6 +31,7 @@ import {
   spaceSize,
   spacing,
 } from './scale';
+import { shadowCss } from './shadows';
 import { controlSize, iconSize, maxWidth } from './sizes';
 
 const COLOR_TOKEN_NAMES = Object.keys(COLOR_PALETTE.light) as ColorTokenName[];

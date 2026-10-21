@@ -1,0 +1,5 @@
+/* `BoardFit` `bounded`: a board that sits in a scroller has no height to
+   fill, so it takes most of the viewport, capped for wide screens. */
+.bounded {
+  height: min(70vh, 480px);
+}

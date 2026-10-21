@@ -38,6 +38,8 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ChevronRightIcon } from './icons';
+import type { TextLines } from './text-classes';
+import { textStyleClass } from './text-classes';
 
 export type MenuRowSubmit = {
   readonly name: string;
@@ -54,12 +56,23 @@ export type MenuRowProps = {
    * `1.2.0`). Use for key/value detail rows and current-choice rows.
    */
   value?: JSX.Element | undefined;
+  /**
+   * Lines the `value` may wrap to before it ends in an ellipsis. Default
+   * `1`; a detail row whose value is a timestamp or a version takes more.
+   */
+  valueLines?: TextLines | undefined;
   /** Replace the default trailing chevron with custom content. */
   trailing?: JSX.Element | undefined;
   /** Hide the trailing disclosure chevron. Defaults to `false`. */
   hideChevron?: boolean | undefined;
   /** Render the row in its "current selection" state. */
   selected?: boolean | undefined;
+  /**
+   * Announce a static row as the current item of its set
+   * (`aria-current="true"`), e.g. the plan a person is on. Interactive rows
+   * announce `selected` instead.
+   */
+  current?: boolean | undefined;
   onClick?: (() => void) | undefined;
   /** Render as a link to this URL. */
   href?: string | undefined;
@@ -76,6 +89,7 @@ export type MenuRowProps = {
 
 function MenuRowTrailing(props: {
   value: JSX.Element | undefined;
+  valueLines: TextLines | undefined;
   trailing: JSX.Element | undefined;
   hideChevron: boolean;
   selected: boolean;
@@ -102,7 +116,9 @@ function MenuRowTrailing(props: {
     >
       {/* Capped so a long value never crowds the title out of the row. */}
       <div class="box flex-row items-center gap-2 max-w-9/20">
-        <div class="text textCaption line-clamp-1 text-right shrink">
+        <div
+          class={`text textCaption text-right shrink ${textStyleClass({ lines: props.valueLines ?? 1 })}`}
+        >
           {props.value}
         </div>
         {end()}
@@ -140,6 +156,7 @@ function MenuRowBody(
       </div>
       <MenuRowTrailing
         value={props.value}
+        valueLines={props.valueLines}
         trailing={props.trailing}
         hideChevron={props.hideChevron === true || !props.interactive}
         selected={selected()}
@@ -221,6 +238,7 @@ export function MenuRow(props: MenuRowProps): JSX.Element {
           class={`box ${rowClass(props.selected === true)}`}
           {...dataAttrs({ component: 'MenuRow', ...props.dataSet })}
           aria-label={props['aria-label']}
+          aria-current={props.current === true ? 'true' : undefined}
         >
           <MenuRowBody {...props} interactive={false} />
         </div>

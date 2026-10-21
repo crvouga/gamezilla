@@ -47,10 +47,8 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/property-shared": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

@@ -64,6 +64,7 @@ const MIN_HEIGHT: Readonly<Record<MinHeight, string>> = {
   none: 'min-h-0',
   control: 'min-h-ui-control-md',
   row: 'min-h-ui-control-lg',
+  state: 'min-h-50',
   screen: 'min-h-dvh',
 };
 

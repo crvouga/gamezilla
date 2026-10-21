@@ -37,6 +37,12 @@ export default function BadgeExample(): JSX.Element {
             <Badge label="Updated" intent="info" />
           </div>
 
+          <label class="text textFootnote">{'Status dot (live)'}</label>
+          <div class="box flex-row gap-2 items-center">
+            <Badge label="Live" intent="neutral" dot="online" />
+            <Badge label="Away" intent="neutral" dot="offline" />
+          </div>
+
           <label class="text textFootnote">
             {'Notification count (brand solid)'}
           </label>

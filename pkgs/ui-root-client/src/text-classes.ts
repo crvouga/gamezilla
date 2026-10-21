@@ -31,6 +31,11 @@ export type TextStyleProps = {
   wrap?: TextWrap | undefined;
   /** `true` lets the text be selected, `false` forbids it. */
   selectable?: boolean | undefined;
+  /**
+   * Show each word with a capital first letter while the text itself keeps
+   * its case (an id like `free` reads `Free`).
+   */
+  capitalize?: boolean | undefined;
 };
 
 const TONE: Readonly<Record<ColorTone, string>> = {
@@ -83,5 +88,6 @@ export function textStyleClass(style: TextStyleProps): string {
     style.numeral === true ? 'textNumeral' : undefined,
     style.wrap === undefined ? undefined : WRAP[style.wrap],
     selectClass(style.selectable),
+    style.capitalize === true ? 'capitalize' : undefined,
   ]);
 }

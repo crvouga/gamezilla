@@ -3,63 +3,81 @@
 The design system: every component, type role, surface and color the product
 paints. Screens compose it and arrange it; they never paint around it.
 
-## The look: neutral and blue
+## The look: quiet, hairline, one blue
 
-The proven look of the big social apps: white and true black, gray text
-tiers, and one blue for what to do or what is chosen. Nothing themed,
-nothing decorative.
+Clean and consistent in the manner of the big photo-social apps: a white or
+true-black canvas, near-black text with one gray partner, hairline dividers,
+generous whitespace, a strong type hierarchy, and one blue for what to do or
+what is chosen. Nothing themed, nothing decorative, nothing that moves unless
+a person asked.
 
 | Token | Role |
 | --- | --- |
 | `background` | the canvas: white / true black |
-| `surface` | panels and cards, one step off the canvas |
-| `surface-muted` | inputs, tags, segmented tracks, coach bubbles |
+| `surface` | one step off the canvas (#FAFAFA / #121212): wells, the wide backdrop, input fill |
+| `surface-muted` | tags, segmented tracks, secondary buttons (#EFEFEF / #262626) |
+| `surface-elevated` / `surface-overlay` | dialogs and sheets / menus, popovers, toasts |
 | `text` / `text-secondary` | near-black or near-white, and its gray partner |
+| `border` | the hairline (#DBDBDB / #333) on panels, cards, rows and bars |
+| `outline` | control boundaries that must read at 3:1 |
 | `tint-active` + `on-primary` | the blue fill with a white label, in both schemes |
-| `tint` | blue as text, links, focus and selection |
+| `tint` | blue as text: links, focus and selection |
 | `destructive`, `success`, `warning`, `info` | status, each with a `*-surface` wash |
 
-Values live in `design-system/design-tokens.json`. TypeScript and Swift are
-generated from it (`bun run --filter @pkgs/ui-root-client tokens:generate`).
-`palette-contrast.test.ts` holds every text/fill pair to WCAG AA, so a retune
-that loses contrast fails.
+Values live in `design-system/design-tokens.json`. CSS variables, the
+TypeScript token names and Swift are generated from it
+(`bun run --filter @pkgs/ui-root-client tokens:generate`); light and dark are
+one variable swap on `[data-theme]`, never two sets of classes.
+`palette-contrast.test.ts` holds every text/fill pair to WCAG AA, which is
+why the blue sits at the lightness where a white label still passes.
+
+| Scale | Steps |
+| --- | --- |
+| Type | 12 / 14 / 16 / 20 / 24 / 32, leading on the 4px grid, weights 400 / 600 / 700, one system face |
+| Space | the 4px grid only: `none xs sm md lg xl 2xl 3xl` = 0 4 8 12 16 24 32 48 |
+| Radius | 4 (`sm`), 8 (`control`), 12 (`card`, `sheet`), `full` |
+| Control height | 32 / 44 / 52 |
+| Shadow | one: `shadow-float`, for what floats above content |
+| Motion | 150 / 200 / 250ms, one ease-out curve; off under reduced motion |
+| Breakpoints | sm 640, md 768, lg 1024, xl 1280 |
 
 ## Rules
 
 1. **Blue means do or chosen.** `tint-active` fills only primary buttons,
-   the FAB, selected chips, a checked switch or box, and the current price.
-   Never decoration. On the blue fill the label is `on-primary`. The active
-   tab is full text color, not blue.
-2. **Pick a role, never a size.** Text is `text` plus one role:
-   `textTitle` (36), `textHeading` (24), `textSubtitle` (21),
-   `textNavigationTitle` (18), `textLabel` (16, display face), `textBody` /
-   `textBodyBold` (16), `textCaption` (14, secondary), `textFootnote` (12,
-   secondary), `textMono` (code only). Add `textNumeral` to ratings, clocks,
-   prices and counts. Nothing renders below 12px.
-3. **Two faces, two jobs.** Bricolage Grotesque (display) carries titles,
-   row titles, buttons and numbers. The platform face carries body copy. Mono
-   is for code and identifiers, never for numbers or labels.
+   the FAB, selected chips, a checked switch, box or radio, and the current
+   price. Never decoration. The active tab is full text color, not blue.
+2. **Pick a role, never a size.** Text is `P` / `Text` with a `variant`
+   (`body`, `bodyBold`, `label`, `caption`, `footnote`, `mono`) or `H1`–`H6`
+   with a `size` (`title` 32, `heading` 24, `subtitle` 20,
+   `navigationTitle` 16 bold, `label`). `numeral` for ratings, clocks, prices
+   and counts. Nothing renders below 12px.
+3. **One face.** The platform system stack carries everything. Mono is for
+   code and identifiers, never for numbers or labels.
 4. **Lists are panels.** Group rows in a `MenuSection` / `MenuList` (or
-   `MainMenuScreen` for destinations): one `surface` panel, the panel radius,
-   hairlines inset to the text column. A row never paints its own radius or
-   border. Never stack separate cards to make a list.
+   `MainMenuScreen` for destinations): the canvas inside one hairline, the
+   card radius, hairlines between rows inset to the text column. A row never
+   paints its own radius or border. Never stack separate cards to make a list.
 4a. **Nobody is an icon.** A person without a picture is the `Avatar`
-   placeholder (a filled head and shoulders on a quiet plate), never an
-   outlined glyph in a ring. `icon` on an `Avatar` is for things that are not
-   people: a bot, a game, a device.
-5. **Radius encodes hierarchy.** `rounded-sm` marks and inline chips,
-   `rounded-control` (12) buttons, inputs and rows, `rounded-card` (20)
-   panels, `rounded-sheet` (28) sheets and dialogs. `rounded-full` only for
-   round things: avatars, pills, tags, the FAB, dots.
-6. **No shadows, no gradients.** Surfaces step up in tone instead. That is
-   also what a low-end phone can paint at 60fps.
+   placeholder, never an outlined glyph in a ring. `icon` on an `Avatar` is
+   for things that are not people: a bot, a game, a device.
+5. **Radius encodes hierarchy.** `rounded-sm` marks and inline tags,
+   `rounded-control` buttons, inputs and rows, `rounded-card` cards and
+   panels, `rounded-sheet` dialogs and sheets. `rounded-full` only for round
+   things: avatars, pills, the FAB, dots.
+6. **Flat.** Hairlines separate, tone steps raise. The one shadow,
+   `shadow-float`, is for menus, popovers, tooltips, toasts and the FAB.
+   No gradients.
 7. **Left-aligned.** Header titles sit after the back control and line up
-   with the body. Only identity heroes (the profile avatar) and full-screen
-   empty states center.
-8. **Each fact is its own tag.** Metadata strips are rows of `textFootnote`
-   pills on `surface-muted`, never strings joined with `·`.
-9. **Motion answers a person.** Press is a tone shift and a 0.97 scale.
-   Nothing bounces, and `prefers-reduced-motion` turns transitions off.
+   with the body. Only identity heroes and full-screen empty states center.
+8. **Each fact is its own tag.** Metadata strips are rows of `Badge`s, never
+   strings joined with `·`.
+9. **Motion answers a person.** Hover and press fade in 150ms, a control
+   changes state in 200ms, a surface enters in 250ms. Press is a tone shift
+   and a 0.97 scale; nothing bounces. `prefers-reduced-motion` (and the app's
+   reduced-motion setting) turns it all off.
+10. **One activity indicator.** Every wait shows `Spinner` (twelve petals,
+    stepping once a second): alone, in `LoadingState`, inside a loading
+    `Button`, and on the boot screen in `index.html`.
 
 ## Composition
 
@@ -168,7 +186,7 @@ Patterns follow the open spec for that control: the HTML button, the
 fieldset and radio group, the WAI-ARIA switch, checkbox, dialog and
 disclosure, and CSS custom properties for every token. Contrast is WCAG 2.2
 AA (`palette-contrast.test.ts`). Pointer targets stay at least 24px, and a
-primary control is 48px. Color never carries a state alone: a chosen control
+primary control is 44px. Color never carries a state alone: a chosen control
 is also `aria-current`, `aria-pressed`, or a checked radio.
 
 ## Guard rails
@@ -186,14 +204,23 @@ the warning and allows the requested departure.
 
 The rules are enforced, so the easy path is the right one:
 
-- The Tailwind theme (`codemod/theme.css`) is locked to these tokens. Stock
-  colors (`text-red-500`), sizes, radii and shadows do not exist, and the
+- The Tailwind theme (`src/theme.css`) is locked to these tokens: the stock
+  palette, type scale, weights, leading, tracking, radii, shadows, easings,
+  animations, measures and breakpoints are cleared, so `text-red-500`,
+  `font-black`, `rounded-3xl`, `shadow-lg` and `2xl:` do not exist, and the
   shadcn lint (`no-unknown-classes`) rejects them.
-- The monorepo's design-vocabulary lint fails any product client package
-  that writes a font size, weight, leading, tracking, `uppercase`, shadow,
-  arbitrary value (`w-[37px]`) or raw color. Layout utilities (`flex-row`,
-  `gap-3`, `p-4`) stay free.
-- `palette-contrast.test.ts` fails a palette that drops below AA.
+- The monorepo's design-vocabulary lint (`libs/tools/scripts/design-vocabulary.ts`)
+  fails every UI package that writes an arbitrary value (`w-[37px]`), a raw
+  color (TS, TSX or CSS), a step off the 4px grid (`gap-1.5`) or `dark:`.
+  Component packages also may not pick type or shadows.
+- Product packages (`libs/*-client`, the apps, the feedback and harness
+  consoles) may not write a DOM element or a `class` / `classList` / `style`
+  attribute at all (`design-composition.ts`): a screen is a composition of
+  these components, and a look it needs is a variant here.
+- `palette-contrast.test.ts` fails a palette that drops below AA;
+  `theme-artifacts.test.ts` fails a theme that drifts from the tokens; each
+  app's `startup-shell.test.ts` fails a boot screen that is not the tokens and
+  the activity indicator.
 
 ## A new screen
 
@@ -203,7 +230,7 @@ The rules are enforced, so the easy path is the right one:
   breadcrumbs={[{ name: <Trans>Settings</Trans>, href: '/more' }, { name: <Trans>Table</Trans> }]}
 >
   <MenuSection title={<Trans>Table</Trans>} footer={<Trans>Applies to every space you host.</Trans>}>
-    <MenuRow leading={<ClockIcon size={20} color="icon" />} title={t`Clock`} value={t`5 min`} onClick={openClock} />
+    <MenuRow leading={<ClockIcon size={24} color="icon" />} title={t`Clock`} value={t`5 min`} onClick={openClock} />
     <MenuRow title={t`Sounds`} trailing={<Switch value={on()} onValueChange={setOn} aria-label={t`Sounds`} />} />
   </MenuSection>
   <EmptyState variant="compact" title={t`No guests yet`} body={t`Share the space link to invite people.`} />

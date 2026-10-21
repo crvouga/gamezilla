@@ -6,14 +6,16 @@
  * App-agnostic navigation: pass `onSelect(id)` to handle row activation
  * yourself, or `hrefFor(id)` to push the detail route through the ambient
  * `AppRouterProvider`. Pass `entries` to render a caller-owned list instead of
- * the built-in registry.
+ * the built-in registry. Pass `embedded` inside a host that already draws
+ * the top bar (a space, a tab shell): the list renders as an
+ * {@link EmbeddedScreen} with no bar of its own.
  */
 
 import { useLingui } from '@lingui/solid/macro';
 import type { ComponentEntry } from '@pkgs/ui-root-shared/component-entry';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import type { Href } from '@pkgs/ui-root-shared/href';
-import { createMemo, type JSX, untrack } from 'solid-js';
+import { createMemo, type JSX, Show, untrack } from 'solid-js';
 import { useRouter } from './app-router';
 import { CatalogList } from './catalog-list';
 import {
@@ -21,6 +23,7 @@ import {
   registryEntries,
   toCatalogItems,
 } from './component-registry';
+import { EmbeddedScreen } from './embedded-screen';
 import { ScreenBase } from './screen-base';
 import type { ScreenBaseBreadcrumb } from './screen-base-types';
 
@@ -41,6 +44,12 @@ export type ExplorerListProps = {
   title?: JSX.Element | undefined;
   /** `data-screen` identifier. Defaults to `ui-explorer`. */
   screenId?: string | undefined;
+  /**
+   * The host already owns the top bar and back (a space, a tab shell):
+   * render as an {@link EmbeddedScreen} titled `title`, with no bar of its
+   * own. `breadcrumbs` is ignored.
+   */
+  embedded?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -70,19 +79,35 @@ export function ExplorerList(props: ExplorerListProps): JSX.Element {
   const breadcrumbs = (): readonly ScreenBaseBreadcrumb[] =>
     props.breadcrumbs ?? [{ name: props.title ?? t`Components` }];
 
-  return (
-    <ScreenBase
-      screenId={props.screenId ?? 'ui-explorer'}
-      breadcrumbs={breadcrumbs()}
-      dataSet={{ component: 'ExplorerList', ...props.dataSet }}
-      content={() => (
-        <CatalogList
-          items={items()}
-          onSelect={select}
-          screenBodyBleed
-          searchPlaceholder={t`Search components…`}
-        />
-      )}
+  const list = (): JSX.Element => (
+    <CatalogList
+      items={items()}
+      onSelect={select}
+      screenBodyBleed
+      searchPlaceholder={t`Search components…`}
     />
+  );
+
+  return (
+    <Show
+      when={props.embedded === true}
+      fallback={
+        <ScreenBase
+          screenId={props.screenId ?? 'ui-explorer'}
+          breadcrumbs={breadcrumbs()}
+          dataSet={{ component: 'ExplorerList', ...props.dataSet }}
+          content={list}
+        />
+      }
+    >
+      <EmbeddedScreen
+        fill
+        screenId={props.screenId ?? 'ui-explorer'}
+        title={props.title ?? t`Components`}
+        dataSet={{ component: 'ExplorerList', ...props.dataSet }}
+      >
+        {list()}
+      </EmbeddedScreen>
+    </Show>
   );
 }
