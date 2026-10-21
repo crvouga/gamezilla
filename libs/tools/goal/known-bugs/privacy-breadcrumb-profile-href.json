@@ -1,0 +1,4 @@
+{
+  "summary": "The account privacy screen's \"Profile\" breadcrumb pointed at `/` (Spaces) instead of the profile tab at `/profile`, so going back up the trail left the profile. Fixed in PrivacyScreenLayout.",
+  "regressionTest": "libs/account-privacy-client/tests/privacy-screen-layout.test.tsx"
+}
