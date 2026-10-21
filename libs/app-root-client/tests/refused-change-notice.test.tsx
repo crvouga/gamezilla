@@ -82,7 +82,9 @@ function renderNotices(engine: SyncEngine) {
         <SyncEngineProvider value={engine}>
           <MutationClientContext.Provider value={client}>
             <StackVertical testId="place-space">
-              <RefusedChangeNotice mutations={['renameSpace']} />
+              <RefusedChangeNotice
+                mutations={['renameSpace', 'endSpace', 'leaveSpace']}
+              />
             </StackVertical>
             <StackVertical testId="place-sync">
               <OtherRefusedChanges />
@@ -140,7 +142,7 @@ test('a refused change is told inline where it lives, says what and why, and sta
   });
   // The next one takes its place at once, before the acknowledgement lands.
   expect(noticesIn('space').map((n) => n.textContent ?? '')).toEqual([
-    expect.stringContaining('It could not be saved, so it was undone'),
+    expect.stringContaining('This request was not saved.'),
   ]);
 
   set([RENAME_AGAIN_REFUSED, AVATAR_REFUSED, UNKNOWN_REFUSED]);
@@ -148,7 +150,7 @@ test('a refused change is told inline where it lives, says what and why, and sta
   // An avatar change is told on the profile; only the unknown one is on Sync.
   expect(sync).toEqual([expect.stringContaining("A change wasn't saved")]);
   expect(sync.join(' ')).toContain(
-    'It could not be saved, so it was undone on this device.'
+    'This request was not saved. Check the current details before trying again.'
   );
   // The server's own words are never shown.
   expect(sync.join(' ')).not.toContain('policy denied');
@@ -158,3 +160,33 @@ test('a refused change is told inline where it lives, says what and why, and sta
   });
   expect(noticesIn('sync')).toHaveLength(0);
 });
+
+// regression: missing-space-refusal-claims-restoration
+test.each(['endSpace', 'leaveSpace', 'renameSpace'])(
+  'a missing space refusal for %s never claims the space was restored',
+  (mutationName) => {
+    const { engine } = refusalsEngine([
+      {
+        mutationId: '01a15f12-f11a-777a-bce2-f15100106781',
+        mutationName,
+        code: 'SPACE_NOT_FOUND',
+        message: 'Space not found.',
+      },
+    ]);
+    const { mutate } = renderNotices(engine);
+    const [notice] = noticesIn('space');
+    expect(notice?.textContent).toContain('That space could not be found');
+    expect(notice?.textContent).toContain(
+      'choose another space from the lobby'
+    );
+    expect(notice?.textContent).not.toContain('undone');
+    expect(notice?.textContent).not.toContain("wasn't ended");
+    expect(notice?.textContent).not.toContain("didn't leave");
+    expect(noticesIn('sync')).toHaveLength(0);
+    dismiss(notice);
+    expect(noticesIn('space')).toHaveLength(0);
+    expect(mutate).toHaveBeenCalledWith(acknowledgeWriteRejectionMutation, {
+      mutationId: '01a15f12-f11a-777a-bce2-f15100106781',
+    });
+  }
+);

@@ -2094,10 +2094,6 @@ msgstr "invites you to play {0}."
 msgid "is away. After a minute away you may claim the win."
 msgstr "is away. After a minute away you may claim the win."
 
-#: libs/app-root-client/src/refused-change-copy.tsx
-msgid "It could not be saved, so it was undone on this device."
-msgstr "It could not be saved, so it was undone on this device."
-
 #: libs/auth-client/src/account-device-detail-screen.tsx
 msgid "It may have signed out, or it hasn't synced to this device yet."
 msgstr "It may have signed out, or it hasn't synced to this device yet."
@@ -4319,6 +4315,10 @@ msgstr "That side is no longer open."
 msgid "That side is not available to you."
 msgstr "That side is not available to you."
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That space could not be found"
+msgstr "That space could not be found"
+
 #: libs/spaces-client/src/rename-space-modal.tsx
 msgid "That space name is not allowed"
 msgstr "That space name is not allowed"
@@ -4589,6 +4589,14 @@ msgstr "This puzzle is no longer available"
 #: libs/game-puzzle-client/src/puzzle-review-screen.tsx
 msgid "This puzzle is not in your local feed yet. Try again after sync."
 msgstr "This puzzle is not in your local feed yet. Try again after sync."
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "This request could not be applied. Dismiss this notice and choose another space from the lobby."
+msgstr "This request could not be applied. Dismiss this notice and choose another space from the lobby."
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "This request was not saved. Check the current details before trying again."
+msgstr "This request was not saved. Check the current details before trying again."
 
 #: libs/app-root-client/src/route-stub.tsx
 msgid "This screen has not been ported to the web app yet."

@@ -81,7 +81,7 @@ export function RefusedChangeCard(props: {
       }}
     >
       <P variant="label" tone="inherit">
-        {copy.title(props.refusal.mutationName)}
+        {copy.title(props.refusal.mutationName, props.refusal.code)}
       </P>
       <P variant="inherit" tone="inherit">
         {copy.detail(props.refusal.code)}

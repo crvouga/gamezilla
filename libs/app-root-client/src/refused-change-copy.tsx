@@ -44,8 +44,8 @@ export function isRefusedChangeToldInContext(
 
 export type RefusedChangeCopy = {
   /** The headline: which change did not go through. */
-  readonly title: (mutationName: string | null) => string;
-  /** Why, when the reason is one people can act on, then that it was undone. */
+  readonly title: (mutationName: string | null, code: string) => string;
+  /** The refusal reason and next action, without promising a restored row. */
   readonly detail: (code: string) => string;
 };
 
@@ -70,12 +70,17 @@ export function useRefusedChangeCopy(): RefusedChangeCopy {
     return isRefusedChangeToldInContext(name) ? copy[name]() : undefined;
   };
   return {
-    title: (mutationName) =>
-      (mutationName === null ? undefined : whatWasNotSaved(mutationName)) ??
-      t`A change wasn't saved`,
+    title: (mutationName, code) =>
+      code === 'SPACE_NOT_FOUND'
+        ? t`That space could not be found`
+        : ((mutationName === null
+            ? undefined
+            : whatWasNotSaved(mutationName)) ?? t`A change wasn't saved`),
     detail: (code) =>
-      code === 'SPACE_TITLE_NOT_ALLOWED'
-        ? t`That space name is not allowed. The change was undone.`
-        : t`It could not be saved, so it was undone on this device.`,
+      code === 'SPACE_NOT_FOUND'
+        ? t`This request could not be applied. Dismiss this notice and choose another space from the lobby.`
+        : code === 'SPACE_TITLE_NOT_ALLOWED'
+          ? t`That space name is not allowed. The change was undone.`
+          : t`This request was not saved. Check the current details before trying again.`,
   };
 }
