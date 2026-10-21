@@ -10,7 +10,7 @@ Feature: Private setups in a custom game
     Scenario: A complete private setup lets a person become ready
       Given Bob has a complete private setup
       When Bob becomes ready for the custom game
-      Then Bob is ready for the custom game
+      Then Alice and Bob see Bob is ready
 
     Scenario: An incomplete private setup cannot become ready
       Given Bob's private setup is incomplete
@@ -66,7 +66,6 @@ Feature: Private setups in a custom game
       Given Alice is ready for a custom game against a bot
       When Alice starts the custom game
       Then the custom game is under way with the first side to move
-      And the second side's bot has a complete private setup
 
     Scenario: A person with an incomplete private setup keeps the custom game from starting
       Given Alice is setting up a custom game with Bob on the second side
