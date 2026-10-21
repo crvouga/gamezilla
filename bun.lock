@@ -2579,6 +2579,7 @@
       "dependencies": {
         "@libs/account-privacy-harness": "workspace:*",
         "@libs/app-root-shared": "workspace:*",
+        "@libs/battleship-harness": "workspace:*",
         "@libs/billing-harness": "workspace:*",
         "@libs/billing-shared": "workspace:*",
         "@libs/chess-puzzle-harness": "workspace:*",
@@ -2599,6 +2600,7 @@
         "@pkgs/gherkin-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
         "@pkgs/ui-testing-root-shared": "workspace:*",
+        "@pkgs/uuid-shared": "workspace:*",
         "chess.js": "catalog:",
       },
       "devDependencies": {
