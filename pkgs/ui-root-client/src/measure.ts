@@ -1,3 +1,4 @@
+import { observeElementResize } from './observe-element-resize';
 /**
  * Reading a component's rendered size without a DOM `ref`.
  *
@@ -51,14 +52,10 @@ export function createMeasure(): Measure {
     };
     read();
     element.addEventListener(ELEMENT_LAYOUT_EVENT, read);
-    const observer =
-      typeof ResizeObserver === 'undefined'
-        ? undefined
-        : new ResizeObserver(read);
-    observer?.observe(element);
+    const stop = observeElementResize(element, read);
     onCleanup(() => {
       element.removeEventListener(ELEMENT_LAYOUT_EVENT, read);
-      observer?.disconnect();
+      stop();
     });
   });
   return { target: source.handle, width, height };

@@ -134,6 +134,7 @@ function createListVirtualizer<ItemT>(
       return local.gap ?? 0;
     },
     getScrollElement,
+    useAnimationFrameWithResizeObserver: true,
     estimateSize: estimate,
     getItemKey: (index) => {
       const item = local.items[index];

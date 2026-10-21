@@ -5,6 +5,7 @@ import {
   FloatingPanel,
   FloatingPanelHeader,
 } from '@pkgs/ui-root-client/floating-panel';
+import { observeElementResize } from '@pkgs/ui-root-client/observe-element-resize';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
 import { P } from '@pkgs/ui-root-client/text';
 import { useThemeLayout } from '@pkgs/ui-root-client/theme-context';
@@ -29,7 +30,7 @@ function DesktopWidget(props: { controller: FeedbackController }) {
     return props.controller.workspace.state().position;
   };
   const previous = document.activeElement;
-  let resizeObserver: ResizeObserver | undefined;
+  let stopResize: (() => void) | undefined;
   const escape = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       event.stopPropagation();
@@ -40,16 +41,13 @@ function DesktopWidget(props: { controller: FeedbackController }) {
     frame?.querySelector<HTMLInputElement>('input')?.focus();
     frame?.addEventListener('keydown', escape);
     window.addEventListener('resize', drag.clamp);
-    if (frame && typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(drag.clamp);
-      resizeObserver.observe(frame);
-    }
+    if (frame) stopResize = observeElementResize(frame, drag.clamp);
     drag.clamp();
   });
   onCleanup(() => {
     frame?.removeEventListener('keydown', escape);
     window.removeEventListener('resize', drag.clamp);
-    resizeObserver?.disconnect();
+    stopResize?.();
     if (previous instanceof HTMLElement) previous.focus();
   });
   return (

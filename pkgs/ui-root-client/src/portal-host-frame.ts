@@ -1,3 +1,4 @@
+import { observeElementResize } from './observe-element-resize';
 /**
  * Window-space frame of a portal host plus a Solid signal that tracks it via
  * `ResizeObserver` (falls back to a one-shot measure when unavailable).
@@ -68,10 +69,7 @@ export function createHostFrame(
     if (el === undefined) return;
     const measure = () => setFrame(measureHostFrame(el));
     measure();
-    if (typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    onCleanup(() => observer.disconnect());
+    onCleanup(observeElementResize(el, measure));
   });
   return frame;
 }

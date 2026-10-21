@@ -1,3 +1,4 @@
+import { observeElementResize } from './observe-element-resize';
 /** @jsxImportSource solid-js */
 /**
  * Theme context and provider.
@@ -133,9 +134,7 @@ function createHostLayout(
       );
     };
     apply();
-    const ro = new ResizeObserver(apply);
-    ro.observe(el);
-    onCleanup(() => ro.disconnect());
+    onCleanup(observeElementResize(el, apply));
   });
   return layout;
 }

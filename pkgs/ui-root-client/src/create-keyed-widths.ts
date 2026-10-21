@@ -1,3 +1,4 @@
+import { createFrameResizeObserver } from './observe-element-resize';
 /**
  * Live widths of a changing set of DOM elements, keyed by id (one
  * `ResizeObserver` for all of them). A key keeps its last width after its
@@ -35,16 +36,17 @@ export function createKeyedWidths(): KeyedWidths {
       return copy;
     });
   };
-  const observer =
-    typeof ResizeObserver === 'undefined'
-      ? null
-      : new ResizeObserver((entries) => {
-          for (const entry of entries) record(entry.target);
-        });
+  let observer: ReturnType<typeof createFrameResizeObserver>;
   onCleanup(() => observer?.disconnect());
   return {
     track: (key, el) => {
       keys.set(el, key);
+      const view = el.ownerDocument.defaultView;
+      if (observer === undefined && view !== null) {
+        observer = createFrameResizeObserver(view, (entries) => {
+          for (const entry of entries) record(entry.target);
+        });
+      }
       observer?.observe(el);
       onMount(() => record(el));
       onCleanup(() => {
