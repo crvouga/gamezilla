@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { Button } from '@pkgs/ui-root-client/button';
 import { CopyIcon } from '@pkgs/ui-root-client/icons';
@@ -14,6 +15,7 @@ export function CrashCopyButton(props: {
   readonly text: string;
   readonly copy: (text: string) => Promise<void>;
 }): JSX.Element {
+  const { t } = useLingui();
   const timers = useTimers();
   const [phase, setPhase] = createSignal<
     'idle' | 'pending' | 'copied' | 'error'
@@ -39,7 +41,7 @@ export function CrashCopyButton(props: {
   return (
     <div class="box items-start gap-2" data-component="CrashCopyButton">
       <Button
-        title={phase() === 'copied' ? 'Copied' : 'Copy error'}
+        title={phase() === 'copied' ? t`Copied` : t`Copy error`}
         icon={CopyIcon}
         intent="neutral"
         variant="ghost"
@@ -50,9 +52,11 @@ export function CrashCopyButton(props: {
       />
       <p class="text textCaption" role="status" aria-live="polite">
         <Show when={phase() === 'error'}>
-          Couldn’t copy. Try again, or select the error details.
+          <Trans>Couldn’t copy. Try again, or select the error details.</Trans>
         </Show>
-        <Show when={phase() === 'copied'}>Error details copied.</Show>
+        <Show when={phase() === 'copied'}>
+          <Trans>Error details copied.</Trans>
+        </Show>
       </p>
     </div>
   );

@@ -4,6 +4,7 @@ import { AppThemeProvider } from '@libs/app-root-client/app-theme-provider';
 import { RootErrorBoundary } from '@libs/app-root-client/root-error-boundary';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
+import { type Tracer, trace } from '@opentelemetry/api';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
@@ -22,6 +23,7 @@ afterEach(cleanup);
 
 function mountCrash(copy?: (text: string) => Promise<void>) {
   const harness = createHarnessClock();
+  const departures: (() => void)[] = [];
   const clipboard = createRecordingClipboard();
   const [broken, setBroken] = createSignal(true);
   let setTheme: (scheme: 'light' | 'dark') => void = () => {
@@ -30,7 +32,10 @@ function mountCrash(copy?: (text: string) => Promise<void>) {
   function Contents(): JSX.Element {
     setTheme = useThemePreference().setPreference;
     return (
-      <RootErrorBoundary copyError={copy ?? clipboard.writeText}>
+      <RootErrorBoundary
+        copyError={copy ?? clipboard.writeText}
+        goToSpaces={(reset) => departures.push(reset)}
+      >
         {(() => {
           if (broken()) throw new Error(FAILURE);
           return <p>Recovered screen</p>;
@@ -52,7 +57,7 @@ function mountCrash(copy?: (text: string) => Promise<void>) {
       </ClockProvider>
     </I18nProvider>
   ));
-  return { ...view, harness, clipboard, setBroken, setTheme };
+  return { ...view, harness, clipboard, departures, setBroken, setTheme };
 }
 
 // regression: crash-screen-hardcoded-theme
@@ -74,7 +79,7 @@ test.each(['light', 'dark'] as const)(
     expect(details?.open).toBe(false);
     expect(details?.textContent).toContain(FAILURE);
     expect(screen.getByRole('button', { name: 'Reload app' })).toBeTruthy();
-    expect(screen.queryByText(/^Trace:/)).toBeNull();
+    expect(screen.queryByText(/^Reference:/)).toBeNull();
     view.setBroken(false);
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(screen.queryByRole('alert')).toBeNull();
@@ -87,8 +92,9 @@ test('copies diagnostic text and releases its feedback timer when recovered', as
   const view = mountCrash();
   fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
   await Promise.resolve();
-  expect(view.clipboard.last()).toContain(FAILURE);
-  expect(view.clipboard.last()).toContain('Error:');
+  expect(view.clipboard.last()).toBe(
+    `Something went wrong\n\n${FAILURE}\n\nVersion: 1.0.0`
+  );
   expect(screen.getByRole('button', { name: 'Copied' })).toBeTruthy();
   expect(auditTree(document.body).map(formatFailure)).toEqual([]);
   view.harness.clock.advance(2000);
@@ -150,4 +156,50 @@ test('a clipboard write settling after recovery leaves no feedback timer', async
   await pending.promise;
   expect(view.harness.clock.pendingOneShotCount()).toBe(0);
   expect(screen.getByText('Recovered screen')).toBeTruthy();
+});
+
+// regression: crash-screen-no-way-out
+test('a screen that crashes again on Try again still offers a way to Spaces', () => {
+  const view = mountCrash();
+  expect(screen.getByRole('alert').textContent).toContain(
+    'Anything already saved on this device is kept'
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+  expect(screen.getByRole('alert')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Go to Spaces' }));
+  expect(view.departures).toHaveLength(1);
+  view.setBroken(false);
+  view.departures[0]?.();
+  expect(screen.getByText('Recovered screen')).toBeTruthy();
+});
+
+const TRACE_ID = '4bf92f3577b34da6a3ce929d0e0e4736';
+
+/** A tracer whose every span carries {@link TRACE_ID}, as a live exporter would. */
+function installTracer(): void {
+  const span = () =>
+    trace.wrapSpanContext({
+      traceId: TRACE_ID,
+      spanId: '00f067aa0ba902b7',
+      traceFlags: 1,
+    });
+  const tracer = { startSpan: span } as unknown as Tracer;
+  trace.setGlobalTracerProvider({ getTracer: () => tracer });
+}
+
+// regression: crash-screen-no-way-out
+test('the crash reference is visible and the copied text carries it without the stack', async () => {
+  installTracer();
+  try {
+    const view = mountCrash();
+    const reference = screen.getByText(`Reference: ${TRACE_ID}`);
+    expect(reference.closest('details')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
+    await Promise.resolve();
+    expect(view.clipboard.last()).toBe(
+      `Something went wrong\n\n${FAILURE}\n\nReference: ${TRACE_ID}\n\nVersion: 1.0.0`
+    );
+  } finally {
+    trace.disable();
+  }
 });

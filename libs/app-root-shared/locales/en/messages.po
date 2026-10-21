@@ -1078,6 +1078,7 @@ msgstr "Continue with Google"
 msgid "Controls in-app sound effects only. Your device volume is not affected."
 msgstr "Controls in-app sound effects only. Your device volume is not affected."
 
+#: libs/app-root-client/src/crash-copy-button.tsx
 #: libs/profile-client/src/avatar-editor-seed-field.tsx
 #: libs/spaces-client/src/space-share-link-section.tsx
 #: pkgs/ui-root-client/src/error-state.tsx
@@ -1092,6 +1093,7 @@ msgstr "Copied to clipboard"
 msgid "Copy"
 msgstr "Copy"
 
+#: libs/app-root-client/src/crash-copy-button.tsx
 #: pkgs/ui-root-client/src/error-state.tsx
 msgid "Copy error"
 msgstr "Copy error"
@@ -1151,6 +1153,10 @@ msgstr "Couldn't copy"
 #: libs/game-puzzle-client/src/puzzle-share-link.tsx
 msgid "Couldn't copy the puzzle link"
 msgstr "Couldn't copy the puzzle link"
+
+#: libs/app-root-client/src/crash-copy-button.tsx
+msgid "Couldn’t copy. Try again, or select the error details."
+msgstr "Couldn’t copy. Try again, or select the error details."
 
 #: libs/friends-client/src/friend-request-decision-modal.tsx
 msgid "Couldn't decline"
@@ -1553,6 +1559,18 @@ msgstr "Enter a valid desired synthetic population."
 msgid "Environment"
 msgstr "Environment"
 
+#: libs/app-root-client/src/crash-screen.tsx
+msgid "Error details"
+msgstr "Error details"
+
+#: libs/app-root-client/src/crash-copy-button.tsx
+msgid "Error details copied."
+msgstr "Error details copied."
+
+#: libs/app-root-client/src/crash-screen.tsx
+msgid "Error message"
+msgstr "Error message"
+
 #: pkgs/ui-root-client/src/text-input.example.tsx
 msgid "Error state"
 msgstr "Error state"
@@ -1850,6 +1868,7 @@ msgstr "Give your space a name"
 msgid "Go to {0}"
 msgstr "Go to {0}"
 
+#: libs/app-root-client/src/crash-screen.tsx
 #: libs/app-root-client/src/route-stub.tsx
 msgid "Go to Spaces"
 msgstr "Go to Spaces"
@@ -3186,6 +3205,11 @@ msgstr "Red circle"
 msgid "Red circles play first, then Yellow diamonds. Choose a column to drop into its lowest empty place. Four in a row, column, or diagonal wins. A full board without four is a draw."
 msgstr "Red circles play first, then Yellow diamonds. Choose a column to drop into its lowest empty place. Four in a row, column, or diagonal wins. A full board without four is a draw."
 
+#. placeholder {0}: reference()
+#: libs/app-root-client/src/crash-screen.tsx
+msgid "Reference: {0}"
+msgstr "Reference: {0}"
+
 #: libs/synthetic-population-client/src/synthetic-population-screen.tsx
 #: libs/synthetic-population-client/src/synthetic-user-screen.tsx
 msgid "Refresh"
@@ -3208,6 +3232,7 @@ msgid "Reload"
 msgstr "Reload"
 
 #: libs/app-root-client/src/boot-error-screen.tsx
+#: libs/app-root-client/src/crash-screen.tsx
 #: libs/app-root-client/src/identity-boot-pending.tsx
 msgid "Reload app"
 msgstr "Reload app"
@@ -3798,6 +3823,7 @@ msgstr "Solve rated puzzles and climb the ladder"
 msgid "Solved"
 msgstr "Solved"
 
+#: libs/app-root-client/src/crash-screen.tsx
 #: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "Something went wrong"
 msgstr "Something went wrong"
@@ -4355,6 +4381,10 @@ msgstr "This puzzle is not in your local feed yet. Try again after sync."
 msgid "This screen has not been ported to the web app yet."
 msgstr "This screen has not been ported to the web app yet."
 
+#: libs/app-root-client/src/crash-screen.tsx
+msgid "This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces."
+msgstr "This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces."
+
 #: libs/spaces-client/src/space-join-prompt.tsx
 msgid "This space can't be found"
 msgstr "This space can't be found"
@@ -4402,6 +4432,7 @@ msgid "Try a different search term."
 msgstr "Try a different search term."
 
 #: libs/account-privacy-client/src/export-choice.tsx
+#: libs/app-root-client/src/crash-screen.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
 #: libs/auth-client/src/use-email-sign-in.tsx
 #: libs/synthetic-population-client/src/synthetic-user-controls.tsx

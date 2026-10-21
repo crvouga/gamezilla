@@ -6,6 +6,8 @@ import { CrashScreen } from './crash-screen';
 export function RootErrorBoundary(props: {
   readonly children: JSX.Element;
   readonly copyError: (text: string) => Promise<void>;
+  /** The way out of a screen that crashes again on Try again. */
+  readonly goToSpaces: (reset: () => void) => void;
 }): JSX.Element {
   return (
     <ErrorBoundary
@@ -23,6 +25,7 @@ export function RootErrorBoundary(props: {
           <CrashScreen
             error={normalized}
             reset={reset}
+            goToSpaces={props.goToSpaces}
             copyError={props.copyError}
           />
         );
