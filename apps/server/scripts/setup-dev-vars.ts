@@ -4,7 +4,6 @@ import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app-config-shared/local-preview-api-origin';
-import { normalizeLoopbackOriginToLocalhost } from '@libs/auth-shared/local-api-origin';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/db-server/database-url-policy-tooling';
 import { PRODUCTION_ENV_NAMES } from '@libs/infra-shared/envs';
 import { getApiWorkerSecrets } from '@libs/secrets-server/registry';
@@ -73,11 +72,11 @@ const OPTIONAL_FEATURE_WORKER_SECRETS: ReadonlySet<string> = new Set([
 function readApiUrlForDevVars(): string {
   const localPreview = process.env['LOCAL_PREVIEW_API_ORIGIN']?.trim() ?? '';
   if (localPreview.length > 0) {
-    return normalizeLoopbackOriginToLocalhost(localPreview);
+    return localPreview;
   }
   const vite = process.env['VITE_API_URL']?.trim() ?? '';
   if (vite.length > 0 && /127\.0\.0\.1|localhost/i.test(vite)) {
-    return normalizeLoopbackOriginToLocalhost(vite);
+    return vite;
   }
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }

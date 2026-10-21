@@ -1,6 +1,5 @@
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app-config-shared/local-preview-api-origin';
 import { APP_IDENTITY } from '@libs/auth-shared/app-identity';
-import { normalizeLoopbackOriginToLocalhost } from '@libs/auth-shared/local-api-origin';
 import { assert } from '@pkgs/assert-root-shared/singleton';
 
 /**
@@ -96,7 +95,6 @@ function readViteApiUrlOrigin(): string {
     { raw }
   );
   origin = coerceDevBundleApiOrigin(origin);
-  origin = normalizeLoopbackOriginToLocalhost(origin);
   assertTigerPolicyForResolvedApiOrigin(origin, 'forbid-prod-in-dev-bundle');
   return origin;
 }
