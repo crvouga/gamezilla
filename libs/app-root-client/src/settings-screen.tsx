@@ -155,10 +155,10 @@ function useStatusGroup(): Accessor<SettingsGroup> {
     rows: [
       {
         title: t`Connection`,
-        caption: t`Network reachability and server health`,
+        caption: t`Whether the app is connected, and what works without it`,
         icon: WifiIcon,
         href: '/more/server-status',
-        testid: 'settings-server-status',
+        testid: Handles.settingsConnection,
       },
       {
         title: t`Sync`,

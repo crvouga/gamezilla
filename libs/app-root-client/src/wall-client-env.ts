@@ -69,6 +69,9 @@ function readBrowserOrigin(): string | undefined {
   return origin.length > 0 ? origin : undefined;
 }
 
+/** The browser's id mint, for roots that run before a client env exists. */
+export const wallCreateId = (): string => crypto.randomUUID();
+
 export type WallClientEnvArgs = {
   readonly serverUrl?: string | undefined;
   readonly offline: OfflineNetworkController;
@@ -121,7 +124,7 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     ),
     clock: wallClock,
     timers: wallTimers,
-    createId: () => crypto.randomUUID(),
+    createId: wallCreateId,
     random: () => Math.random(),
     seed: mintWallSeed(),
     server,

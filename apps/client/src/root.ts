@@ -3,8 +3,12 @@
 import {
   showBrowserStartupFailure,
   startBrowserApplication,
+  startupFailureReference,
 } from '@libs/app-root-client/start-browser-application';
-import { createWallOfflineHttp } from '@libs/app-root-client/wall-client-env';
+import {
+  createWallOfflineHttp,
+  wallCreateId,
+} from '@libs/app-root-client/wall-client-env';
 import { wallOfflineNetworkController } from '@libs/app-root-client/wall-offline-network';
 import { feedbackEndpoint } from '@pkgs/feedback-client/endpoint';
 import { bootBrowserFeedback } from '@pkgs/feedback-client/wall';
@@ -28,6 +32,11 @@ function startApplication(): Promise<void> {
       showBrowserStartupFailure({
         document,
         reload: () => location.reload(),
+        development: import.meta.env.DEV,
+        reference: startupFailureReference(
+          import.meta.env.VITE_COMMIT_HASH ?? '',
+          wallCreateId
+        ),
         ...(import.meta.env.DEV ? { error } : {}),
       }),
   });

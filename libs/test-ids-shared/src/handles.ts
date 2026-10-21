@@ -39,6 +39,13 @@ export const Handles = {
   soundEffectsSwitch: 'sound-effects-switch',
   /** Version row on the About screen. */
   aboutVersion: 'about-version',
+  /** "Connection" row in Settings (→ the connection status screen). */
+  settingsConnection: 'settings-server-status',
+  /** Connection status screen: whether the app is connected right now. */
+  connectionState: (state: 'connected' | 'missing' | 'checking') =>
+    `connection-state-${state}`,
+  /** Connection status screen: what still works without a connection. */
+  connectionWithoutConnection: 'connection-without-connection',
   navBack: 'nav-back',
   tabProfile: 'tab-profile',
   tabSearch: 'tab-search',

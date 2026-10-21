@@ -70,3 +70,16 @@ Feature: Keep using the app while a connection is missing
       When Alice chooses the light theme
       Then Alice's app is light
       And Alice is not asked to wait for a connection
+
+  Rule: Connection in Settings says whether the app is connected and what still works without a connection
+
+    @regression:server-status-placeholder-shipped
+    Scenario: Connection in Settings shows a connected app
+      When Alice opens Connection in Settings
+      Then Connection in Settings shows Alice the app is connected
+
+    Scenario: Connection in Settings explains a missing connection and what still works
+      Given Alice is offline
+      When Alice opens Connection in Settings
+      Then Connection in Settings shows Alice the connection is missing
+      And Connection in Settings shows Alice what still works without a connection
