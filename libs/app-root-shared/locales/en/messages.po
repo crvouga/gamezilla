@@ -1191,6 +1191,10 @@ msgstr "Couldn't open billing"
 msgid "Couldn't open checkout"
 msgstr "Couldn't open checkout"
 
+#: libs/game-matchmaking-client/src/multiplayer-link-screen.tsx
+msgid "Couldn’t open multiplayer"
+msgstr "Couldn’t open multiplayer"
+
 #: libs/auth-client/src/unlink-method-modal.tsx
 msgid "Couldn't remove it"
 msgstr "Couldn't remove it"
@@ -1870,6 +1874,7 @@ msgstr "Go to {0}"
 
 #: libs/app-root-client/src/crash-screen.tsx
 #: libs/app-root-client/src/route-stub.tsx
+#: libs/game-matchmaking-client/src/multiplayer-link-screen.tsx
 msgid "Go to Spaces"
 msgstr "Go to Spaces"
 
@@ -4435,6 +4440,7 @@ msgstr "Try a different search term."
 #: libs/app-root-client/src/crash-screen.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
 #: libs/auth-client/src/use-email-sign-in.tsx
+#: libs/game-matchmaking-client/src/multiplayer-link-screen.tsx
 #: libs/synthetic-population-client/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client/src/synthetic-user-dom.tsx
 #: libs/synthetic-population-client/src/synthetic-user-replay.tsx
@@ -4994,6 +5000,10 @@ msgstr "Your rating changed by {0}{1}."
 #: libs/game-matchmaking-client/src/multiplayer-ratings.tsx
 msgid "Your ratings"
 msgstr "Your ratings"
+
+#: libs/game-matchmaking-client/src/multiplayer-link-screen.tsx
+msgid "Your space didn’t open this time. Nothing you had is lost. Try again, or go to Spaces."
+msgstr "Your space didn’t open this time. Nothing you had is lost. Try again, or go to Spaces."
 
 #: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Your turn — find the best move for {side}"
