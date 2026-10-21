@@ -1,77 +1,124 @@
 /** @jsxImportSource solid-js */
-import { cssPx } from '@pkgs/ui-root-shared/css-px';
-
 /**
- * `ProgressBar` -- determinate or indeterminate progress indicator.
+ * `ProgressBar` -- the one progress indicator. Pass a fraction from zero to
+ * one, or omit `progress` while the amount of work is unknown: the bar then
+ * sweeps a partial fill (held still under `prefers-reduced-motion`) and
+ * claims no value.
  *
+ * With a `label` the bar is named, shows the percentage beside the label and
+ * an optional `description` below it. Without one it is the bare track.
  * Exposes `role="progressbar"` with `aria-valuenow` (omitted while
- * indeterminate, per WAI-ARIA). The fill width snaps instantly;
- * indeterminate shows a static partial fill.
+ * indeterminate, per WAI-ARIA). Announce completion only after the operation
+ * succeeds.
  *
  * @example
  * ```tsx
- * <ProgressBar progress={0.6} />
- * <ProgressBar indeterminate />
+ * <ProgressBar label={t`Uploading file`} progress={0.6} />
+ * <ProgressBar size="sm" />
  * ```
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { resolveColor } from '@pkgs/ui-root-shared/resolve-color';
-import type { JSX } from 'solid-js';
-import { useThemeTokens } from './theme-context';
+import { type JSX, Show } from 'solid-js';
+import { spaced } from './layout-classes';
+import styles from './progress-bar.module.css';
+
+/** Fill color: `tint` for work in progress, or a finished outcome. */
+export type ProgressBarTone = 'tint' | 'success' | 'destructive';
+
+/** Track height: `sm` (4px) inside chrome, `md` (8px, default) on its own. */
+export type ProgressBarSize = 'sm' | 'md';
 
 export type ProgressBarProps = {
-  /** Value between 0 and 1. Ignored when `indeterminate` is true. */
+  /** Fraction completed, 0..1. Omit when the total is not known. */
   progress?: number | undefined;
-  /** Shows a partial fill (static) instead of a value. */
-  indeterminate?: boolean | undefined;
-  /** Color token or raw color. Defaults to `"tint"`. */
-  color?: string | undefined;
-  /** Track height in pixels. Defaults to 4. */
-  height?: number | undefined;
-  /** Accessible name for the bar. */
+  /** Accessible name; when set it is shown with the percentage. */
   label?: string | undefined;
+  /** Supporting copy under a labelled bar. */
+  description?: JSX.Element | undefined;
+  /** Default `tint`. */
+  tone?: ProgressBarTone | undefined;
+  /** Default `md`. */
+  size?: ProgressBarSize | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
 
-export function clamp01(v: number): number {
+const TONE: Readonly<Record<ProgressBarTone, string>> = {
+  tint: 'bg-tint',
+  success: 'bg-success',
+  destructive: 'bg-destructive',
+};
+
+const SIZE: Readonly<Record<ProgressBarSize, string>> = {
+  sm: 'h-1',
+  md: 'h-2',
+};
+
+function clamp01(v: number): number {
   return Number.isNaN(v) ? 0 : Math.min(Math.max(v, 0), 1);
 }
 
-const INDETERMINATE_FILL = '40%';
-
-export function ProgressBar(props: ProgressBarProps): JSX.Element {
-  const tokens = useThemeTokens();
-  const height = (): number => props.height ?? 4;
-  const indeterminate = (): boolean => props.indeterminate === true;
-  const value = (): number => clamp01(props.progress ?? 0);
-  const fillColor = (): string =>
-    resolveColor(props.color ?? 'tint', tokens.colors) ?? tokens.colors.tint;
-  const widthPct = (): string =>
-    indeterminate() ? INDETERMINATE_FILL : `${value() * 100}%`;
+function ProgressTrack(props: {
+  known: boolean;
+  value: number;
+  label: string | undefined;
+  tone: ProgressBarTone;
+  size: ProgressBarSize;
+}): JSX.Element {
   return (
     <div
-      class="box bg-outline overflow-hidden"
-      {...dataAttrs({ component: 'ProgressBar', ...props.dataSet })}
-      style={{ 'border-radius': cssPx(height() / 2), height: cssPx(height()) }}
+      class={`box w-full overflow-hidden rounded-full bg-surface-muted ${SIZE[props.size]}`}
       role="progressbar"
       aria-label={props.label}
       aria-valuemin={0}
       aria-valuemax={1}
-      aria-valuenow={indeterminate() ? undefined : value()}
-      aria-busy={indeterminate() ? true : undefined}
+      aria-valuenow={props.known ? props.value : undefined}
+      aria-busy={props.known ? undefined : true}
     >
       <div
-        class="box"
-        style={{
-          'border-radius': cssPx(height() / 2),
-          'background-color': fillColor(),
-          height: cssPx(height()),
-          width: widthPct(),
-        }}
+        class={spaced([
+          'box h-full rounded-full',
+          TONE[props.tone],
+          props.known ? styles['fill'] : styles['sweep'],
+        ])}
+        style={props.known ? { width: `${props.value * 100}%` } : undefined}
       />
+    </div>
+  );
+}
+
+export function ProgressBar(props: ProgressBarProps): JSX.Element {
+  const known = (): boolean => props.progress !== undefined;
+  const value = (): number => clamp01(props.progress ?? 0);
+  return (
+    <div
+      class="box w-full min-w-0 gap-2"
+      {...dataAttrs({ component: 'ProgressBar', ...props.dataSet })}
+    >
+      <Show when={props.label}>
+        {(label) => (
+          <div class="box flex-row items-baseline justify-between gap-3">
+            <span class="text textLabel">{label()}</span>
+            <Show when={known()}>
+              <span class="text textCaption textNumeral">
+                {Math.floor(value() * 100)}%
+              </span>
+            </Show>
+          </div>
+        )}
+      </Show>
+      <ProgressTrack
+        known={known()}
+        value={value()}
+        label={props.label}
+        tone={props.tone ?? 'tint'}
+        size={props.size ?? 'md'}
+      />
+      <Show when={props.label !== undefined && props.description}>
+        <div class="text textCaption">{props.description}</div>
+      </Show>
     </div>
   );
 }

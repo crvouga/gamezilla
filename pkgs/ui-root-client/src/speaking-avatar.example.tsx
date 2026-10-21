@@ -32,7 +32,7 @@ function RotatingMessage(): JSX.Element {
 
 export default function SpeakingAvatarExample(): JSX.Element {
   return (
-    <ExampleRoot class="gap-6">
+    <ExampleRoot gap="xl">
       <p class="text textCaption">{'Static message'}</p>
       <SpeakingAvatar message="Hello! I'm your puzzle coach." speak={false} />
 

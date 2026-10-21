@@ -3,7 +3,11 @@
  * `TextInput` -- styled text field with label, error, and helper text.
  *
  * Flat surface field; focus renders a tint ring via `:focus-visible`, errors
- * switch the border to `destructive`. `multiline` renders a `<textarea>`.
+ * switch the border to `destructive`. Multi-line text is `Textarea`.
+ *
+ * - `variant="embedded"`: no border, fill or radius, emphasized text; for a
+ *   field set into a composed editor (a title above the body).
+ * - `grow`: claim the leftover width of a horizontal row.
  */
 
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
@@ -14,13 +18,23 @@ import {
 } from '@pkgs/ui-root-shared/component-id';
 import { spacingScale } from '@pkgs/ui-root-shared/scale';
 import { createUniqueId, type JSX, Show, splitProps } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import { bindElementTargets } from './element-targets';
 import type { FocusTarget } from './focus';
+import { spaced } from './layout-classes';
+
+/** `default` is the outlined field; `embedded` sits flush in a composed editor. */
+export type TextInputVariant = 'default' | 'embedded';
 
 export type TextInputProps = Omit<
   JSX.InputHTMLAttributes<HTMLInputElement>,
-  'style' | 'placeholder' | 'aria-label' | 'value' | 'onInput' | 'children'
+  | 'class'
+  | 'classList'
+  | 'style'
+  | 'placeholder'
+  | 'aria-label'
+  | 'value'
+  | 'onInput'
+  | 'children'
 > & {
   value: string;
   /** Fires on every keystroke with the new value. */
@@ -41,10 +55,6 @@ export type TextInputProps = Omit<
   helperText?: LocalizedString | undefined;
   placeholder?: LocalizedString | undefined;
   'aria-label'?: LocalizedString | undefined;
-  /** Render a resizable `<textarea>`. */
-  multiline?: boolean | undefined;
-  /** Initial textarea rows. */
-  rows?: number | undefined;
   /** Mask the value (`type="password"`). */
   secureTextEntry?: boolean | undefined;
   /**
@@ -52,17 +62,13 @@ export type TextInputProps = Omit<
    * non-interactive; the text inset grows to make room.
    */
   startAdornment?: JSX.Element | undefined;
-  /** Extra classes on the outer wrapper. */
-  class?: string | undefined;
-  /** Inline styles on the outer wrapper. */
-  style?: JSX.CSSProperties | undefined;
-  /** Extra classes on the field itself. */
-  fieldClass?: string | undefined;
-  /** Inline styles on the field itself. */
-  fieldStyle?: JSX.CSSProperties | undefined;
+  /** Default `default`. */
+  variant?: TextInputVariant | undefined;
+  /** Claim the leftover width of a horizontal row. */
+  grow?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
-  ref?: ((el: HTMLInputElement | HTMLTextAreaElement) => void) | undefined;
+  ref?: ((el: HTMLInputElement) => void) | undefined;
   /** From `createFocusTarget()`: lets the screen move focus to the field. */
   focusTarget?: FocusTarget | undefined;
 };
@@ -106,19 +112,15 @@ type FieldLocal = Pick<
   | 'onSubmitEditing'
   | 'placeholder'
   | 'aria-label'
-  | 'multiline'
-  | 'rows'
   | 'secureTextEntry'
-  | 'fieldClass'
-  | 'fieldStyle'
+  | 'variant'
   | 'ref'
   | 'focusTarget'
   | 'type'
   | 'onKeyDown'
 > & { hasError: boolean; hasAdornment: boolean };
 
-function fieldType(local: FieldLocal): string | undefined {
-  if (local.multiline) return undefined;
+function fieldType(local: FieldLocal): string {
   if (local.secureTextEntry) return 'password';
   return local.type ?? 'text';
 }
@@ -134,7 +136,6 @@ function Field(
     'padding-right': `${spacingScale(FIELD_PX_STEP)}px`,
     'font-size': 'var(--ui-font-size-base)',
     'line-height': '24px',
-    ...props.fieldStyle,
   });
   const onKeyDown = (event: KeyboardEvent): void => {
     const handler = props.onKeyDown;
@@ -142,35 +143,29 @@ function Field(
       (handler as (e: KeyboardEvent) => void)(event);
     }
     if (event.key !== 'Enter' || props.onSubmitEditing === undefined) return;
-    if (props.multiline && !(event.metaKey || event.ctrlKey)) return;
     event.preventDefault();
     props.onSubmitEditing();
   };
   return (
-    <Dynamic
-      component={props.multiline ? 'textarea' : 'input'}
-      ref={(element: HTMLInputElement | HTMLTextAreaElement) => {
+    <input
+      ref={(element) => {
         bindElementTargets(element, props);
         props.ref?.(element);
       }}
-      class={[
+      class={spaced([
         'input',
         props.hasError ? 'inputError' : undefined,
-        props.multiline ? 'inputTextarea' : undefined,
-        props.fieldClass,
-      ]
-        .filter(Boolean)
-        .join(' ')}
+        props.variant === 'embedded'
+          ? 'border-0 rounded-none bg-transparent textBodyBold'
+          : undefined,
+      ])}
       style={fieldStyle()}
       type={fieldType(props)}
-      rows={props.multiline ? (props.rows ?? 3) : undefined}
       value={props.value}
       placeholder={props.placeholder}
       aria-label={props['aria-label']}
       aria-invalid={props.hasError || undefined}
-      onInput={(event: InputEvent) =>
-        props.onChangeText((event.currentTarget as HTMLInputElement).value)
-      }
+      onInput={(event) => props.onChangeText(event.currentTarget.value)}
       onKeyDown={onKeyDown}
       {...componentDataAttrs('TextInputField', undefined)}
       {...props.rest}
@@ -200,8 +195,7 @@ export function TextInput(props: TextInputProps): JSX.Element {
       'invalid',
       'helperText',
       'startAdornment',
-      'class',
-      'style',
+      'grow',
       'dataSet',
     ],
     [
@@ -210,11 +204,8 @@ export function TextInput(props: TextInputProps): JSX.Element {
       'onSubmitEditing',
       'placeholder',
       'aria-label',
-      'multiline',
-      'rows',
       'secureTextEntry',
-      'fieldClass',
-      'fieldStyle',
+      'variant',
       'ref',
       'focusTarget',
       'type',
@@ -225,9 +216,12 @@ export function TextInput(props: TextInputProps): JSX.Element {
     local.startAdornment !== undefined && local.startAdornment !== null;
   return (
     <div
-      class={['box gap-1', local.class].filter(Boolean).join(' ')}
+      class={spaced([
+        'box',
+        field.variant === 'embedded' ? undefined : 'gap-1',
+        local.grow === true ? 'flex-1 min-w-0' : undefined,
+      ])}
       {...dataAttrs({ component: 'TextInput', ...local.dataSet })}
-      style={local.style}
     >
       <Show when={local.label !== undefined}>
         <label id={labelId} class="text textLabel">

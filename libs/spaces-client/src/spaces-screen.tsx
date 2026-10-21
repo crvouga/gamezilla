@@ -62,7 +62,7 @@ function SpacesList(props: {
       when={orderedIds().length > 0}
       fallback={<SpacesEmptyState onCreateSpace={props.onCreateSpace} />}
     >
-      <ScreenBodyScrollView contentClass="pb-6">
+      <ScreenBodyScrollView paddingBottom="xl">
         <div class="panel">
           <For each={orderedIds()}>
             {(spaceId) => <SpaceCard spaceId={spaceId} />}

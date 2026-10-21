@@ -34,7 +34,6 @@ export function PuzzleImportStatus(props: {
             ? props.job.completed_chunks / props.job.total_chunks
             : 0
         }
-        color="info"
       />
       <MenuSection title={<Trans>Latest load</Trans>} role="group">
         <MenuRow title={<Trans>Source</Trans>} caption={props.job.cursor} />

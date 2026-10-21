@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 /**
- * Option list for {@link Picker}: a `role="listbox"` of `role="option"`
+ * Option list for {@link Select}: a `role="listbox"` of `role="option"`
  * buttons (≥44px) with `aria-selected`, arrow / Home / End roving focus and
  * single-character type-ahead. Focus lands on the selected option when the
  * list mounts (unless a search box owns focus).
@@ -8,33 +8,28 @@
 
 import { useTimers } from '@pkgs/clock-client/solid';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { colorVar } from '@pkgs/ui-root-shared/css-vars';
 import {
   isTypeAheadKey,
-  nextPickerOptionIndex,
+  nextSelectOptionIndex,
   typeAheadIndex,
-} from '@pkgs/ui-root-shared/picker-logic';
+} from '@pkgs/ui-root-shared/select-logic';
 import type {
-  PickerOption,
-  PickerRenderOption,
-  PickerValue,
-} from '@pkgs/ui-root-shared/picker-types';
+  SelectOption,
+  SelectRenderOption,
+  SelectValue,
+} from '@pkgs/ui-root-shared/select-types';
 import { createSignal, Index, type JSX, onMount, Show } from 'solid-js';
 import { CheckIcon } from './icons';
 import { ScrollView } from './scroll-view';
 
-/** Every option row is at least this tall (pointer target). */
-export const PICKER_OPTION_MIN_HEIGHT = 44;
-/** Max height of the option scroller before it scrolls internally. */
-export const PICKER_OPTIONS_MAX_HEIGHT = 360;
 /** Idle time after which the type-ahead buffer resets. */
-export const PICKER_TYPE_AHEAD_RESET_MS = 500;
+export const SELECT_TYPE_AHEAD_RESET_MS = 500;
 
-export type PickerOptionsProps<T extends PickerValue> = {
-  options: readonly PickerOption<T>[];
+export type SelectOptionsProps<T extends SelectValue> = {
+  options: readonly SelectOption<T>[];
   value: T;
   onPick: (next: T) => void;
-  renderOption: PickerRenderOption<T> | undefined;
+  renderOption: SelectRenderOption<T> | undefined;
   /** Move focus to the selected (or first enabled) option on mount. */
   focusOnMount: boolean;
   /** Accessible name for the listbox. */
@@ -69,12 +64,12 @@ function createListboxKeyboard(): (
     resetHandle = timers.setTimeout(() => {
       setBuffer('');
       resetHandle = undefined;
-    }, PICKER_TYPE_AHEAD_RESET_MS);
+    }, SELECT_TYPE_AHEAD_RESET_MS);
   };
   return (host, ev) => {
     const items = optionElements(host);
     const current = focusedIndex(items);
-    const next = nextPickerOptionIndex({
+    const next = nextSelectOptionIndex({
       key: ev.key,
       current,
       count: items.length,
@@ -97,24 +92,18 @@ function createListboxKeyboard(): (
   };
 }
 
-function DefaultOptionRow<T extends PickerValue>(props: {
-  option: PickerOption<T>;
+function DefaultOptionRow<T extends SelectValue>(props: {
+  option: SelectOption<T>;
   selected: boolean;
   onPick: () => void;
 }): JSX.Element {
   const disabled = (): boolean => props.option.disabled === true;
   return (
     <button
-      class="clickable clickableTint w-full flex-row items-center gap-3 py-3 px-4 text-left"
-      {...dataAttrs({ component: 'PickerOption', ...props.option.dataSet })}
+      class="clickable clickableTint w-full min-h-11 flex-row items-center gap-3 py-3 px-4 text-left disabled:opacity-disabled"
+      classList={{ 'bg-tint-subtle': props.selected }}
+      {...dataAttrs({ component: 'SelectOption', ...props.option.dataSet })}
       type="button"
-      style={{
-        'background-color': props.selected
-          ? colorVar('tintSubtle')
-          : 'transparent',
-        'min-height': `${PICKER_OPTION_MIN_HEIGHT}px`,
-        opacity: disabled() ? 0.4 : 1,
-      }}
       role="option"
       aria-selected={props.selected}
       disabled={disabled()}
@@ -136,21 +125,19 @@ function OptionSeparator(): JSX.Element {
 }
 
 /** Custom rows get the listbox semantics from a focusable shell. */
-function CustomOptionRow<T extends PickerValue>(props: {
-  option: PickerOption<T>;
+function CustomOptionRow<T extends SelectValue>(props: {
+  option: SelectOption<T>;
   selected: boolean;
   onPick: () => void;
-  render: PickerRenderOption<T>;
+  render: SelectRenderOption<T>;
 }): JSX.Element {
   return (
     <div
       class="box min-w-0"
-      {...dataAttrs({ component: 'PickerOption', ...props.option.dataSet })}
-      style={
-        props.selected && props.option.disabled !== true
-          ? { 'background-color': colorVar('tintSubtle') }
-          : undefined
-      }
+      classList={{
+        'bg-tint-subtle': props.selected && props.option.disabled !== true,
+      }}
+      {...dataAttrs({ component: 'SelectOption', ...props.option.dataSet })}
       role="option"
       tabIndex={-1}
       aria-selected={props.selected}
@@ -161,11 +148,11 @@ function CustomOptionRow<T extends PickerValue>(props: {
   );
 }
 
-function PickerOptionEntry<T extends PickerValue>(props: {
-  option: PickerOption<T>;
+function SelectOptionEntry<T extends SelectValue>(props: {
+  option: SelectOption<T>;
   selected: boolean;
   last: boolean;
-  renderOption: PickerRenderOption<T> | undefined;
+  renderOption: SelectRenderOption<T> | undefined;
   onPick: () => void;
 }): JSX.Element {
   return (
@@ -196,9 +183,9 @@ function PickerOptionEntry<T extends PickerValue>(props: {
   );
 }
 
-function focusInitial<T extends PickerValue>(
+function focusInitial<T extends SelectValue>(
   host: HTMLElement,
-  options: readonly PickerOption<T>[],
+  options: readonly SelectOption<T>[],
   value: T
 ): void {
   const items = optionElements(host);
@@ -208,12 +195,12 @@ function focusInitial<T extends PickerValue>(
   (items[selectedIndex] ?? items[0])?.focus();
 }
 
-export function PickerOptions<T extends PickerValue>(
-  props: PickerOptionsProps<T>
+export function SelectOptions<T extends SelectValue>(
+  props: SelectOptionsProps<T>
 ): JSX.Element {
   let hostEl: HTMLElement | undefined;
   const onKeyDown = createListboxKeyboard();
-  const pickIfEnabled = (option: PickerOption<T>): void => {
+  const pickIfEnabled = (option: SelectOption<T>): void => {
     if (option.disabled === true) return;
     props.onPick(option.value);
   };
@@ -223,10 +210,10 @@ export function PickerOptions<T extends PickerValue>(
     }
   });
   return (
-    <ScrollView style={{ 'max-height': `${PICKER_OPTIONS_MAX_HEIGHT}px` }}>
+    <ScrollView maxHeight="md">
       <div
         class="box"
-        data-component="PickerOptions"
+        data-component="SelectOptions"
         ref={(el) => {
           hostEl = el;
         }}
@@ -240,7 +227,7 @@ export function PickerOptions<T extends PickerValue>(
             click, and a new node would drop the choice. */}
         <Index each={props.options}>
           {(option, index) => (
-            <PickerOptionEntry
+            <SelectOptionEntry
               option={option()}
               selected={option().value === props.value}
               last={index === props.options.length - 1}

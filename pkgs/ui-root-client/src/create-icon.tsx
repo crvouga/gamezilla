@@ -20,8 +20,6 @@ export type IconProps = {
   /** Color token name or CSS color. When omitted, uses `var(--ui-on-icon)`. */
   color?: string | undefined;
   strokeWidth?: number | undefined;
-  class?: string | undefined;
-  style?: JSX.CSSProperties | undefined;
   /** Accessible name; omitted icons are `aria-hidden` (decorative). */
   label?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
@@ -51,11 +49,9 @@ export function createIcon(LucideIcon: LucideIconLike): IconComponent {
     return (
       <span
         class="box inline-flex items-center justify-center shrink-0"
-        classList={{ [String(props.class)]: true }}
         role={props.label === undefined ? undefined : 'img'}
         aria-label={props.label}
         aria-hidden={props.label === undefined ? true : undefined}
-        style={props.style}
         {...componentDataAttrs('Icon', props.dataSet)}
       >
         <LucideIcon

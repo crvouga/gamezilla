@@ -3,21 +3,21 @@
   grid-template-columns: repeat(var(--disc-columns), minmax(0, 1fr));
   width: 100%;
   max-width: 38rem;
-  gap: 0.125rem;
-  padding: 0.5rem;
-  border-radius: var(--radius-card, 1.25rem);
-  background: var(--color-surface-muted);
-  color: var(--color-text);
+  gap: var(--ui-space-hairline);
+  padding: var(--ui-space-2);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface-muted);
+  color: var(--ui-color-text);
   overflow: hidden;
 }
 .column {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0.25rem;
-  padding: 0.125rem;
+  gap: var(--ui-space-1);
+  padding: var(--ui-space-hairline);
   border: none;
-  border-radius: var(--radius-control, 0.75rem);
+  border-radius: var(--ui-radius-control);
   background: transparent;
   color: inherit;
   cursor: pointer;
@@ -27,23 +27,23 @@
   cursor: default;
 }
 .column[data-full="true"] {
-  opacity: 0.6;
+  opacity: var(--ui-opacity-muted);
 }
 .column:focus-visible {
-  outline: 2px solid var(--color-tint);
+  outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: -2px;
 }
 .number {
   font: inherit;
-  min-height: 1.5rem;
+  min-height: var(--ui-space-6);
 }
 .cell {
   display: grid;
   place-items: center;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: var(--color-background);
-  border: 2px solid var(--color-surface);
+  background: var(--ui-color-background);
+  border: 2px solid var(--ui-color-surface);
   overflow: visible;
 }
 .disc {
@@ -52,27 +52,27 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  font-size: clamp(1rem, 4vw, 2rem);
+  font-size: var(--ui-font-size-xl);
   line-height: 1;
 }
 .cell[data-disc="1"] .disc {
-  background: var(--color-destructive);
-  color: var(--color-on-destructive, white);
+  background: var(--ui-color-destructive);
+  color: var(--ui-color-on-destructive);
 }
 .cell[data-disc="2"] .disc {
-  background: var(--color-warning);
-  color: var(--color-text);
+  background: var(--ui-color-warning);
+  color: var(--ui-color-on-warning);
 }
 .cell[data-preview="true"] {
-  outline: 2px dashed var(--color-tint);
+  outline: 2px dashed var(--ui-color-tint);
   outline-offset: -3px;
 }
 .cell[data-winning="true"] {
-  outline: 3px solid var(--color-tint);
+  outline: 3px solid var(--ui-color-tint);
   outline-offset: 1px;
 }
 .cell[data-last="true"] .disc {
-  animation: disc-drop 180ms ease-out;
+  animation: disc-drop var(--ui-duration-normal) var(--ui-easing-standard);
 }
 .hidden {
   position: absolute;

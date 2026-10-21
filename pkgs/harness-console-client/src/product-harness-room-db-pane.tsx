@@ -47,7 +47,7 @@ export function ProductHarnessRoomDbPane(props: {
       }
     >
       {(current) => (
-        <ScrollView class="flex-1 min-h-0" contentClass="p-[6px] gap-3">
+        <ScrollView grow padding="xs" gap="md">
           <Section title="Topic" body={current().topic} />
           <Section title={`Roster (${current().roster.length})`}>
             <Show

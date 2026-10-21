@@ -76,11 +76,7 @@ function AvatarPreviewSlot(props: {
     <Show
       when={props.ready}
       fallback={
-        <Skeleton
-          width={HERO_SIZE}
-          height={HERO_SIZE}
-          borderRadius={HERO_SIZE / 2}
-        />
+        <Skeleton width={HERO_SIZE} height={HERO_SIZE} shape="circle" />
       }
     >
       <ProfileDiceBearAvatar

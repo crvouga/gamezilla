@@ -4,6 +4,7 @@ import { executeSqlStatements } from '@pkgs/sql-client-root-shared/statements';
 import { IconButton } from '@pkgs/ui-root-client/icon-button';
 import {
   ChevronDownIcon,
+  ChevronUpIcon,
   CopyIcon,
   PlayIcon,
   PlusIcon,
@@ -190,11 +191,7 @@ function CellChrome(props: {
         tooltip="hover"
         onClick={() => props.onMove(-1)}
       >
-        <ChevronDownIcon
-          size={12}
-          color="icon"
-          style={{ transform: 'rotate(180deg)' }}
-        />
+        <ChevronUpIcon size={12} color="icon" />
       </IconButton>
       <IconButton
         label="Move down"

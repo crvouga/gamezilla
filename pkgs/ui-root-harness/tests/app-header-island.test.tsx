@@ -12,7 +12,7 @@ import { mustQuery, renderUi } from './render';
 const WIDE = { width: 1280, height: 900 };
 
 describe('AppHeaderIsland', () => {
-  test('renders leading, tabs (aria-selected) and explicit trailing', async () => {
+  test('renders leading, a navigation of current-page buttons and explicit trailing', async () => {
     const user = userEvent.setup();
     const onHome = mock();
     const onSettings = mock();
@@ -45,17 +45,21 @@ describe('AppHeaderIsland', () => {
     expect(root.tagName).toBe('HEADER');
     expect(screen.getByText('Logo')).toBeTruthy();
     expect(screen.getByText('Avatar')).toBeTruthy();
-    expect(screen.getByRole('tablist')).toBeTruthy();
-    const tabs = screen.getAllByRole('tab');
-    expect(tabs).toHaveLength(2);
-    expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');
-    expect(tabs[1]?.getAttribute('aria-selected')).toBe('false');
-    await user.click(screen.getByRole('tab', { name: 'Settings' }));
+    expect(root.className).toMatch(/\bborder-b\b/);
+    const nav = screen.getByRole('navigation', { name: 'Navigation' });
+    expect(screen.queryByRole('tablist')).toBeNull();
+    const items = Array.from(nav.querySelectorAll('button'));
+    expect(items).toHaveLength(2);
+    expect(items[0]?.getAttribute('aria-current')).toBe('page');
+    expect(items[1]?.hasAttribute('aria-current')).toBe(false);
+    expect(items[0]?.className).toMatch(/\bborder-b-text\b/);
+    expect(items[1]?.className).toMatch(/\bborder-b-transparent\b/);
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
     expect(onSettings).toHaveBeenCalledTimes(1);
     expect(onHome).not.toHaveBeenCalled();
   });
 
-  test('omits the tablist without items and falls back to AppFrame global trailing', () => {
+  test('omits the navigation without items and falls back to AppFrame global trailing', () => {
     renderUi(
       () => (
         <AppFrameChromeProvider globalTrailing={<p class="text">{'Global'}</p>}>
@@ -68,7 +72,7 @@ describe('AppHeaderIsland', () => {
       ),
       WIDE
     );
-    expect(screen.queryByRole('tablist')).toBeNull();
+    expect(screen.queryByRole('navigation')).toBeNull();
     expect(screen.getByText('Global')).toBeTruthy();
     expect(mustQuery('[data-component="AppHeaderIsland"]')).toBeTruthy();
   });

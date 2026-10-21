@@ -28,17 +28,15 @@ export type FocusTrapProps = {
   labelledBy?: string | undefined;
   /**
    * - `cover` (default): absolute-fill for full-screen modal backdrops.
-   * - `sheet`: in-flow stretch for bottom sheets.
+   * - `sheet`: in-flow stretch for bottom sheets; it may shrink and clips
+   *   its content so the sheet's own scroller engages.
    */
   layout?: 'cover' | 'sheet' | undefined;
-  /** Extra classes on the host (merged after layout defaults). */
-  class?: string | undefined;
-  style?: JSX.CSSProperties | undefined;
   children?: JSX.Element | undefined;
 };
 
 const COVER_HOST_CLASS = 'absolute inset-0 flex-1';
-const SHEET_HOST_CLASS = 'w-full grow';
+const SHEET_HOST_CLASS = 'w-full grow shrink min-h-0 overflow-hidden';
 
 function focusInto(host: HTMLElement): void {
   const first = collectTabbable(host)[0];
@@ -94,7 +92,7 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
     props.layout === 'sheet' ? SHEET_HOST_CLASS : COVER_HOST_CLASS;
   return (
     <div
-      class={`box ${layoutClass()}${props.class ? ` ${props.class}` : ''}`}
+      class={`box ${layoutClass()}`}
       data-component="FocusTrap"
       ref={(el) => {
         hostEl = el;
@@ -104,7 +102,6 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
       aria-label={props.label}
       aria-labelledby={props.labelledBy}
       tabIndex={-1}
-      style={props.style}
     >
       {props.children}
     </div>

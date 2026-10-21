@@ -5,8 +5,8 @@
  * One surface with the panel radius, hairlines between rows inset to the
  * text column (`.panel` / `.panelItem` in `hosts.css`). It sits inside the
  * screen's edge padding like every other block, so a list lines up with the
- * copy around it. Pass `class` / `style` to forward screen-body layout (e.g.
- * `flex-1`).
+ * copy around it. `grow` lets the panel claim a screen body's leftover
+ * height.
  *
  * @example
  * ```tsx
@@ -30,10 +30,8 @@ export type MenuListProps = {
   children: JSX.Element;
   /** Mixed links and form controls are a group, not an ARIA command menu. */
   role?: 'menu' | 'group' | undefined;
-  /** Extra classes on the menu host (e.g. `flex-1`). */
-  class?: string | undefined;
-  /** Inline styles on the menu host. */
-  style?: JSX.CSSProperties | undefined;
+  /** Claim the leftover height of a flex column (a screen body). */
+  grow?: boolean | undefined;
   /** Hairline separators between rows. Defaults to `true`. */
   separator?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -52,11 +50,10 @@ export function MenuList(props: MenuListProps): JSX.Element {
       class="panel"
       classList={{
         panelPlain: props.separator === false,
-        [String(props.class)]: props.class !== undefined,
+        'flex-1': props.grow === true,
       }}
       {...dataAttrs({ component: 'MenuList', ...props.dataSet })}
       role={props.role ?? 'menu'}
-      style={props.style}
     >
       <For each={rows()}>{(child) => <div class="panelItem">{child}</div>}</For>
     </div>

@@ -1,13 +1,13 @@
 /**
- * Framework-free helpers for {@link Picker}: option filtering, listbox
+ * Framework-free helpers for {@link Select}: option filtering, listbox
  * roving-focus math, and type-ahead matching.
  */
 
-import type { PickerOption, PickerValue } from './picker-types';
+import type { SelectOption, SelectValue } from './select-types';
 
 /** Text an option is matched against (search box + type-ahead). */
-export function pickerOptionText<T extends PickerValue>(
-  option: PickerOption<T>
+export function selectOptionText<T extends SelectValue>(
+  option: SelectOption<T>
 ): string {
   if (option.searchText !== undefined) return option.searchText;
   if (typeof option.label === 'string') return option.label;
@@ -16,17 +16,17 @@ export function pickerOptionText<T extends PickerValue>(
 }
 
 /**
- * Case-insensitive `includes` on {@link pickerOptionText}. Options without
+ * Case-insensitive `includes` on {@link selectOptionText}. Options without
  * any text always pass so custom-labelled rows never vanish.
  */
-export function filterPickerOptions<T extends PickerValue>(
-  options: readonly PickerOption<T>[],
+export function filterSelectOptions<T extends SelectValue>(
+  options: readonly SelectOption<T>[],
   query: string
-): PickerOption<T>[] {
+): SelectOption<T>[] {
   const q = query.trim().toLowerCase();
   if (q === '') return [...options];
   return options.filter((option) => {
-    const text = pickerOptionText(option);
+    const text = selectOptionText(option);
     if (text === '') return true;
     return text.toLowerCase().includes(q);
   });
@@ -36,7 +36,7 @@ export function filterPickerOptions<T extends PickerValue>(
  * Index of the option to focus after `key` in a `role="listbox"`:
  * arrows wrap, Home / End jump. `null` when the key is not a navigation key.
  */
-export function nextPickerOptionIndex(args: {
+export function nextSelectOptionIndex(args: {
   key: string;
   /** Currently focused option index, or `-1` when focus is elsewhere. */
   current: number;

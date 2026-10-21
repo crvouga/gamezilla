@@ -62,7 +62,7 @@ export function NotificationsList(props: NotificationsListProps): JSX.Element {
       return <h2 class="text textCaption pb-1 pt-3">{row.title}</h2>;
     }
     if (row.kind === 'loading') {
-      return <LoadingState variant="compact" size="small" />;
+      return <LoadingState variant="compact" size="sm" />;
     }
     return (
       <NotificationCard interaction={row.interaction} actions={props.actions} />

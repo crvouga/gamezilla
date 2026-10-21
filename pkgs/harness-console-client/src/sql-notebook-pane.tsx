@@ -263,10 +263,7 @@ function NotebookCells(props: {
 }): JSX.Element {
   const cellIds = createMemo(() => props.doc().cells.map((c) => c.id));
   return (
-    <ScrollView
-      class="flex-1 min-h-0 bg-background"
-      contentClass="gap-2 p-[2px]"
-    >
+    <ScrollView grow tone="background" gap="sm" padding="xs">
       <For each={cellIds()}>
         {(id) => {
           const cell = () =>

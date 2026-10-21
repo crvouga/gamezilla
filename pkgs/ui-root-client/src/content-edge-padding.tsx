@@ -58,43 +58,40 @@ export function useContentEdgePaddingStep(): number | null {
   return useContentEdgePadding()?.horizontalStep ?? null;
 }
 
+/** What a flush-edge scroller needs: content padding and the bleed wrapper. */
 export type FlushEdgeStyles = {
   contentClass?: string | undefined;
   contentStyle?: JSX.CSSProperties | undefined;
   wrapperClass?: string | undefined;
 };
 
+export type FlushEdgeOptions = {
+  /** Cancel the shell's edge padding at all. */
+  flushEdge: boolean;
+  /** Re-apply the side padding inside the scroller (else rows run edge to edge). */
+  inset: boolean;
+};
+
 /** Content + wrapper classes so a scroller bleeds under shell edge padding. */
 export function resolveFlushEdgeStyles(
   edge: ContentEdgePadding | null,
-  flushEdge: boolean
+  options: FlushEdgeOptions
 ): FlushEdgeStyles {
-  if (!flushEdge || edge === null) {
+  if (!options.flushEdge || edge === null) {
     return {};
   }
   const { horizontalStep, bottomStep } = edge;
   if (horizontalStep === 0 && bottomStep === 0) {
     return {};
   }
+  const edgeX = `${spacingScale(horizontalStep)}px`;
   return {
     contentClass: styles['content'],
     contentStyle: {
-      '--ui-flush-edge-x': `${spacingScale(horizontalStep)}px`,
+      '--ui-flush-edge-x': edgeX,
+      '--ui-flush-inset-x': options.inset ? edgeX : '0px',
       '--ui-flush-edge-b': `${spacingScale(bottomStep)}px`,
     },
     wrapperClass: styles['wrapper'],
   };
-}
-
-/** True when the frame requests flex fill via a `flex-1` utility class. */
-export function requestsFlexFill(
-  className: string | undefined,
-  classList: Record<string, boolean | undefined> | undefined
-): boolean {
-  if (className !== undefined) {
-    for (const part of className.split(/\s+/)) {
-      if (part === 'flex-1') return true;
-    }
-  }
-  return classList?.['flex-1'] === true;
 }

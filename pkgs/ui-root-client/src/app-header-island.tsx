@@ -1,11 +1,14 @@
 /** @jsxImportSource solid-js */
-import { cssPx } from '@pkgs/ui-root-shared/css-px';
-
 /**
- * `AppHeaderIsland` -- wide-only top chrome: logo | pill tabs | trailing.
- * Mounted via `AppFrame` `header`; not used on compact layouts. Flat hairline
- * bar (no elevated card). The trailing slot falls back to the
+ * `AppHeaderIsland` -- wide-only top chrome: logo | navigation | actions, one
+ * 52px row over a hairline. Mounted via `AppFrame` `header`; compact layouts
+ * use `TabBar` instead. The trailing slot falls back to the
  * `AppFrameChromeProvider` global chrome (avatar menu).
+ *
+ * Navigation items are buttons in a `navigation` landmark, not ARIA tabs (no
+ * panels, no arrow-key roving). The current one is `aria-current="page"`,
+ * drawn in full text color, semibold, with a 2px underline that sits on the
+ * header's hairline; the rest are secondary. No colored pills.
  *
  * @example
  * ```tsx
@@ -15,96 +18,85 @@ import { cssPx } from '@pkgs/ui-root-shared/css-px';
  * ```
  */
 
+import { useLingui } from '@lingui/solid/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { getTopBarContentHeight } from './action-bar-chrome';
 import { useAppFrameGlobalTrailing } from './app-frame-chrome';
 import type {
   AppHeaderIslandItem,
   AppHeaderIslandProps,
 } from './app-header-island-types';
-import { useThemeLayout } from './theme-context';
 
-/** Pills keep a legal pointer target even though the caption is compact. */
-const PILL_MIN_HEIGHT = 44;
-const PILL_ICON_SIZE = 18;
+const NAV_ICON_SIZE = 24;
+const STROKE_CURRENT = 2.5;
+const STROKE_DEFAULT = 2;
 
-function HeaderPill(props: { item: AppHeaderIslandItem }): JSX.Element {
-  const color = (): 'text' | 'textSecondary' =>
-    props.item.active ? 'text' : 'textSecondary';
+function HeaderNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
   return (
     <button
-      class="clickable clickableTint flex-row items-center gap-1.5 px-3 rounded-full"
+      class="clickable clickableTint flex-row items-center gap-2 px-3 h-13 border-y-2 border-t-transparent transition-colors"
       classList={{
-        'bg-surface-muted': props.item.active,
-        'bg-transparent': !props.item.active,
+        'border-b-text': props.item.active,
+        'border-b-transparent': !props.item.active,
       }}
       {...dataAttrs({ component: 'AppHeaderIslandTab', ...props.item.dataSet })}
       type="button"
-      style={{ 'min-height': cssPx(PILL_MIN_HEIGHT) }}
-      role="tab"
-      aria-selected={props.item.active}
       aria-label={props.item.label}
+      aria-current={props.item.active ? 'page' : undefined}
       onClick={() => props.item.onClick()}
     >
       <Dynamic
         component={props.item.icon}
-        size={PILL_ICON_SIZE}
-        color={color()}
+        size={NAV_ICON_SIZE}
+        strokeWidth={props.item.active ? STROKE_CURRENT : STROKE_DEFAULT}
+        color={props.item.active ? 'text' : 'textSecondary'}
       />
-      <label
-        class="text textLabel"
+      <span
+        class="text line-clamp-1"
         classList={{
-          'text-text': props.item.active,
-          'text-text-secondary': !props.item.active,
+          'textBodyBold text-text': props.item.active,
+          'textBody text-text-secondary': !props.item.active,
         }}
       >
         {props.item.label}
-      </label>
+      </span>
     </button>
   );
 }
 
-function HeaderPillGroup(props: {
+function HeaderNav(props: {
   items: readonly AppHeaderIslandItem[];
 }): JSX.Element {
+  const { t } = useLingui();
   return (
-    <div class="box flex-row items-center gap-1" role="tablist">
-      <For each={props.items}>{(item) => <HeaderPill item={item} />}</For>
-    </div>
+    <nav
+      class="box shrink-0 flex-row items-stretch gap-1"
+      aria-label={t`Navigation`}
+    >
+      <For each={props.items}>{(item) => <HeaderNavItem item={item} />}</For>
+    </nav>
   );
 }
 
 export function AppHeaderIsland(props: AppHeaderIslandProps): JSX.Element {
-  const layout = useThemeLayout();
   const globalTrailing = useAppFrameGlobalTrailing();
-  const contentHeight = (): number =>
-    getTopBarContentHeight(layout.breakpoint());
   const trailing = (): JSX.Element => props.trailing ?? globalTrailing();
   return (
     <header
-      class="box bg-transparent overflow-hidden"
+      class="box shrink-0 bg-transparent border-b border-border overflow-hidden"
       {...dataAttrs({ component: 'AppHeaderIsland', ...props.dataSet })}
     >
-      <div
-        class="box flex-row items-center gap-2 px-1"
-        style={{
-          height: cssPx(contentHeight()),
-          'min-height': cssPx(contentHeight()),
-        }}
-      >
+      <div class="box flex-row items-center gap-4 h-13">
         {/* Clips rather than spills: in a narrow window the brand yields to
-            the tabs instead of sliding under them. */}
+            the navigation instead of sliding under it. */}
         <div class="box flex-1 min-w-0 overflow-hidden flex-row items-center justify-start">
           {props.leading}
         </div>
         <Show when={(props.items?.length ?? 0) > 0}>
-          <div class="box shrink-0">
-            <HeaderPillGroup items={props.items ?? []} />
-          </div>
+          <HeaderNav items={props.items ?? []} />
         </Show>
-        <div class="box flex-1 min-w-0 max-w-9/20 flex-row items-center justify-end">
+        <div class="box flex-1 min-w-0 max-w-9/20 flex-row items-center justify-end gap-2">
           {trailing()}
         </div>
       </div>

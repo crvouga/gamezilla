@@ -31,7 +31,10 @@ import {
 } from '@pkgs/ui-devtools-shared/json-view-logic';
 import type { IconComponent } from '@pkgs/ui-root-client/create-icon';
 import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-root-client/icons';
-import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import {
+  type ScrollMaxHeight,
+  ScrollView,
+} from '@pkgs/ui-root-client/scroll-view';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { createMemo, createSignal, type JSX, Show, splitProps } from 'solid-js';
@@ -60,8 +63,8 @@ export type JsonViewProps = {
    * (the design system never touches `navigator.clipboard` directly).
    */
   copy?: JsonViewCopy | undefined;
-  /** Cap on inner scroll height (px). When omitted the tree grows naturally. */
-  maxHeight?: number | undefined;
+  /** Cap on inner scroll height. When omitted the tree grows naturally. */
+  maxHeight?: ScrollMaxHeight | undefined;
   class?: string | undefined;
   style?: JSX.CSSProperties | string | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -155,18 +158,10 @@ export function JsonView(props: JsonViewProps): JSX.Element {
       <ScrollView
         role="tree"
         flushEdge={false}
-        style={{
-          background: 'var(--ui-color-surface)',
-          ...(local.maxHeight !== undefined
-            ? { 'max-height': `${local.maxHeight}px` }
-            : {}),
-        }}
-        contentStyle={{
-          'padding-top': 'var(--ui-space-2)',
-          'padding-bottom': 'var(--ui-space-2)',
-          'padding-left': 'var(--ui-space-3)',
-          'padding-right': 'var(--ui-space-3)',
-        }}
+        tone="surface"
+        maxHeight={local.maxHeight}
+        paddingY="sm"
+        paddingX="md"
       >
         <JsonViewNode
           nodeKey={null}

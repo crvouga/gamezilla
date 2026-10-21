@@ -45,13 +45,6 @@ export type TabStripProps = {
   readonly dataSet?: ComponentDataSet | undefined;
 };
 
-const tabsContentStyle = {
-  'flex-direction': 'row',
-  'align-items': 'flex-end',
-  gap: '2px',
-  height: '100%',
-} as const;
-
 /** Roving arrow-key navigation inside the tablist (WAI-ARIA tabs pattern). */
 function tablistArrowKey(
   key: string,
@@ -68,6 +61,19 @@ function tablistArrowKey(
   const cur = items.findIndex((i) => i.id === selectedId);
   const next = cur < 0 ? 0 : (cur + delta + items.length) % items.length;
   return items[next]?.id ?? null;
+}
+
+/** Arrow keys select and focus the neighbouring tab. */
+function moveTabFocus(
+  ev: KeyboardEvent,
+  props: TabStripProps,
+  tabEls: ReadonlyMap<string, HTMLElement>
+): void {
+  const next = tablistArrowKey(ev.key, props.items, props.selectedId);
+  if (next === null) return;
+  ev.preventDefault();
+  props.onSelect(next);
+  tabEls.get(next)?.querySelector<HTMLElement>('[role="tab"]')?.focus();
 }
 
 export function TabStrip(props: TabStripProps): JSX.Element {
@@ -122,17 +128,14 @@ export function TabStrip(props: TabStripProps): JSX.Element {
       <ScrollView
         horizontal
         hideScrollbar
-        class="flex-1 min-w-0 self-stretch"
-        contentStyle={tabsContentStyle}
+        grow
+        self="stretch"
+        fill
+        align="end"
+        gap="xs"
         role="tablist"
         aria-label={props['aria-label']}
-        onKeyDown={(ev) => {
-          const next = tablistArrowKey(ev.key, props.items, props.selectedId);
-          if (next === null) return;
-          ev.preventDefault();
-          props.onSelect(next);
-          tabEls.get(next)?.querySelector<HTMLElement>('[role="tab"]')?.focus();
-        }}
+        onKeyDown={(ev) => moveTabFocus(ev, props, tabEls)}
       >
         <Index each={props.items}>
           {(item, index) => {

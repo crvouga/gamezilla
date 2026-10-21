@@ -2,24 +2,23 @@
 
 import { describe, expect, mock, test } from 'bun:test';
 import { asLocalized } from '@pkgs/i18n-shared/localized-string';
-import { Picker } from '@pkgs/ui-root-client/picker';
 import { PickerSection } from '@pkgs/ui-root-client/picker-section';
 import { Select } from '@pkgs/ui-root-client/select';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client/surface-stack';
 import {
-  filterPickerOptions,
+  filterSelectOptions,
   isTypeAheadKey,
-  nextPickerOptionIndex,
-  pickerOptionText,
+  nextSelectOptionIndex,
+  selectOptionText,
   typeAheadIndex,
-} from '@pkgs/ui-root-shared/picker-logic';
-import type { PickerOption } from '@pkgs/ui-root-shared/picker-types';
+} from '@pkgs/ui-root-shared/select-logic';
+import type { SelectOption } from '@pkgs/ui-root-shared/select-types';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, type JSX } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
-const FRUIT: PickerOption[] = [
+const FRUIT: SelectOption[] = [
   { value: 'apple', label: 'Apple' },
   { value: 'banana', label: 'Banana' },
   { value: 'cherry', label: 'Cherry', disabled: true },
@@ -35,7 +34,7 @@ function Harness(props: {
   const [value, setValue] = createSignal(props.initial ?? 'banana');
   return (
     <SurfaceStackProvider>
-      <Picker
+      <Select
         label={props.label ?? 'Fruit'}
         options={FRUIT}
         value={value()}
@@ -49,40 +48,40 @@ function Harness(props: {
   );
 }
 
-describe('picker logic', () => {
-  test('pickerOptionText prefers searchText, then string label; JSX labels are opaque', () => {
-    expect(pickerOptionText({ value: 'a', label: 'Apple' })).toBe('Apple');
+describe('select logic', () => {
+  test('selectOptionText prefers searchText, then string label; JSX labels are opaque', () => {
+    expect(selectOptionText({ value: 'a', label: 'Apple' })).toBe('Apple');
     expect(
-      pickerOptionText({ value: 'a', label: 'Apple', searchText: 'Fuji' })
+      selectOptionText({ value: 'a', label: 'Apple', searchText: 'Fuji' })
     ).toBe('Fuji');
-    expect(pickerOptionText({ value: 42, label: <b>x</b> })).toBe('');
+    expect(selectOptionText({ value: 42, label: <b>x</b> })).toBe('');
     // Opaque rows never vanish from a filtered list.
     expect(
-      filterPickerOptions([{ value: 42, label: <b>x</b> }], 'zzz')
+      filterSelectOptions([{ value: 42, label: <b>x</b> }], 'zzz')
     ).toHaveLength(1);
   });
 
-  test('filterPickerOptions is case-insensitive and keeps everything on empty query', () => {
-    expect(filterPickerOptions(FRUIT, '')).toHaveLength(4);
-    expect(filterPickerOptions(FRUIT, 'AN').map((o) => o.value)).toEqual([
+  test('filterSelectOptions is case-insensitive and keeps everything on empty query', () => {
+    expect(filterSelectOptions(FRUIT, '')).toHaveLength(4);
+    expect(filterSelectOptions(FRUIT, 'AN').map((o) => o.value)).toEqual([
       'banana',
     ]);
-    expect(filterPickerOptions(FRUIT, 'zzz')).toEqual([]);
+    expect(filterSelectOptions(FRUIT, 'zzz')).toEqual([]);
   });
 
-  test('nextPickerOptionIndex wraps arrows and jumps Home / End', () => {
+  test('nextSelectOptionIndex wraps arrows and jumps Home / End', () => {
     const count = 3;
-    expect(nextPickerOptionIndex({ key: 'ArrowDown', current: 2, count })).toBe(
+    expect(nextSelectOptionIndex({ key: 'ArrowDown', current: 2, count })).toBe(
       0
     );
-    expect(nextPickerOptionIndex({ key: 'ArrowUp', current: 0, count })).toBe(
+    expect(nextSelectOptionIndex({ key: 'ArrowUp', current: 0, count })).toBe(
       2
     );
-    expect(nextPickerOptionIndex({ key: 'Home', current: 2, count })).toBe(0);
-    expect(nextPickerOptionIndex({ key: 'End', current: 0, count })).toBe(2);
-    expect(nextPickerOptionIndex({ key: 'a', current: 0, count })).toBeNull();
+    expect(nextSelectOptionIndex({ key: 'Home', current: 2, count })).toBe(0);
+    expect(nextSelectOptionIndex({ key: 'End', current: 0, count })).toBe(2);
+    expect(nextSelectOptionIndex({ key: 'a', current: 0, count })).toBeNull();
     expect(
-      nextPickerOptionIndex({ key: 'ArrowDown', current: 0, count: 0 })
+      nextSelectOptionIndex({ key: 'ArrowDown', current: 0, count: 0 })
     ).toBeNull();
   });
 
@@ -112,7 +111,7 @@ describe('PickerSection', () => {
   });
 });
 
-describe('Picker', () => {
+describe('Select', () => {
   test('trigger shows the selected label and listbox popup semantics', () => {
     renderUi(() => <Harness />);
     const trigger = screen.getByRole('button', { name: 'Fruit' });
@@ -200,7 +199,7 @@ describe('Picker', () => {
     expect(screen.getByRole('option', { name: 'Date' })).toHaveFocus();
   });
 
-  test('searchable picker filters the listbox from the search field', async () => {
+  test('searchable select filters the listbox from the search field', async () => {
     const user = userEvent.setup();
     renderUi(() => <Harness searchable />, { width: 1200 });
     fireEvent.click(screen.getByRole('button', { name: 'Fruit' }));
@@ -216,7 +215,7 @@ describe('Picker', () => {
   test('disabled trigger does not open; placeholder shows when nothing matches', () => {
     renderUi(() => (
       <SurfaceStackProvider>
-        <Picker
+        <Select
           options={FRUIT}
           value="nope"
           onValueChange={() => {}}
@@ -232,10 +231,7 @@ describe('Picker', () => {
     fireEvent.click(trigger);
     expect(screen.queryByRole('dialog')).toBeNull();
   });
-});
-
-describe('Select', () => {
-  test('is a Picker tagged as Select and picks a value', () => {
+  test('tags its root as Select and picks a value', () => {
     const onChange = mock();
     renderUi(
       () => (

@@ -22,8 +22,8 @@ export type IslandProps = {
   actions?: JSX.Element | undefined;
   /** Columns spanned inside an `IslandGrid` (wide only). Defaults to 1. */
   span?: IslandSpan | undefined;
-  class?: string | undefined;
-  style?: JSX.CSSProperties | undefined;
+  /** Claim the leftover height of a flex column (a screen body). */
+  grow?: boolean | undefined;
   children?: JSX.Element | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
@@ -35,7 +35,7 @@ function IslandTitleRow(props: {
 }): JSX.Element {
   return (
     <div class="box flex-row items-center gap-2 mb-3">
-      <div class="box flex-1 min-w-0 gap-0.5">
+      <div class="box flex-1 min-w-0 gap-1">
         <h2 class="text textSubtitle">{props.title}</h2>
         <Show when={props.caption !== undefined && props.caption !== null}>
           <p class="text textCaption text-text-secondary">{props.caption}</p>
@@ -51,12 +51,11 @@ function IslandWide(props: IslandProps): JSX.Element {
   return (
     <section
       class="box bg-transparent overflow-hidden"
-      classList={{ [String(props.class)]: true }}
+      classList={{ 'flex-1 min-h-0': props.grow === true }}
       {...dataAttrs({ component: 'Island', ...props.dataSet })}
       style={{
         padding: `${spacingScale(ISLAND_PADDING_STEP)}px`,
         'grid-column': `span ${props.span ?? 1}`,
-        ...props.style,
       }}
     >
       <ContentEdgePaddingProvider step={ISLAND_PADDING_STEP}>
@@ -80,8 +79,7 @@ export function Island(props: IslandProps): JSX.Element {
     'caption',
     'actions',
     'span',
-    'class',
-    'style',
+    'grow',
     'children',
     'dataSet',
   ]);
@@ -91,9 +89,8 @@ export function Island(props: IslandProps): JSX.Element {
       fallback={
         <div
           class="box"
-          classList={{ [String(local.class)]: true }}
+          classList={{ 'flex-1 min-h-0': local.grow === true }}
           {...dataAttrs({ component: 'Island', ...local.dataSet })}
-          style={local.style}
         >
           {local.children}
         </div>

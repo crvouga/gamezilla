@@ -98,7 +98,7 @@ export function ProductHarnessLoadBalancerPane(props: {
   const recent = () => [...snapshot().recentRoutes].reverse();
 
   return (
-    <ScrollView class="flex-1 min-h-0" contentClass="p-[6px] gap-2">
+    <ScrollView grow padding="xs" gap="sm">
       <BalancerSummary snapshot={snapshot()} />
       <Show
         when={snapshot().backends.length > 0}

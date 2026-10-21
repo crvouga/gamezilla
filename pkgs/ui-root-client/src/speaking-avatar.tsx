@@ -74,7 +74,7 @@ export type SpeakingAvatarSpeaker = (
 
 export type SpeakingAvatarProps = Omit<
   JSX.HTMLAttributes<HTMLDivElement>,
-  'children'
+  'children' | 'class' | 'classList' | 'style'
 > & {
   message: string;
   /** Cancels old speech when the described position changes, even for identical text. */
@@ -175,7 +175,6 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
     'seed',
     'speak',
     'numberOfLines',
-    'class',
     'dataSet',
   ]);
   // Audio wiring is composition-level configuration: read once.
@@ -207,7 +206,6 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
   return (
     <div
       class="box flex-row items-center px-2 gap-1 min-w-0"
-      classList={{ [String(local.class)]: true }}
       {...dataAttrs({ component: 'SpeakingAvatar', ...local.dataSet })}
       {...rest}
       data-muted={muted()}

@@ -7,6 +7,7 @@ import { Button } from '@pkgs/ui-root-client/button';
 import { SendIcon } from '@pkgs/ui-root-client/icons';
 import { MarkdownEditor } from '@pkgs/ui-root-client/markdown-editor';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
+import { Textarea } from '@pkgs/ui-root-client/textarea';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import type { MarkdownEditorCommand } from '@pkgs/ui-root-shared/markdown-editor-types';
 import { type Accessor, type JSX, Show } from 'solid-js';
@@ -93,17 +94,15 @@ export function FeedbackForm(props: {
             Recovery data
           </summary>
           <div class="box mt-2">
-            <TextInput
-              multiline
+            <Textarea
               rows={5}
               readOnly
               aria-label={asLocalized('Machine-readable recovery data')}
               value={props.controller.emergencyCopy()}
-              onChangeText={() => {
+              onValueChange={() => {
                 /* Read-only recovery text. */
               }}
-              fieldClass="font-mono text-xs"
-              dataSet={{ testid: 'feedback-emergency' }}
+              testId="feedback-emergency"
             />
           </div>
         </details>
@@ -131,8 +130,7 @@ function FeedbackEditor(props: {
         value={props.state().draft.title}
         onChangeText={(title) => props.controller.setDraft({ title })}
         disabled={props.state().phase === 'sending'}
-        class="gap-0"
-        fieldClass="border-0 rounded-none bg-transparent font-semibold"
+        variant="embedded"
         dataSet={{ testid: 'feedback-title' }}
       />
       <MarkdownEditor

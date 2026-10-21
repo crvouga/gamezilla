@@ -14,7 +14,7 @@ export function ProductHarnessCommandsPane(props: {
   const commands = () => props.session.listCommands();
 
   return (
-    <ScrollView class="flex-1 min-h-0" contentClass="p-[6px] gap-3">
+    <ScrollView grow padding="xs" gap="md">
       <p class="text textCaption text-text-secondary">
         {'Faults / partitions / skew / snapshots → command palette (⌘K).'}
       </p>

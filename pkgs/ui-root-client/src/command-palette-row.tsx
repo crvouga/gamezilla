@@ -35,7 +35,7 @@ export type CommandPaletteRowProps = {
 
 function RowIcon(props: { icon: IconComponent | undefined }): JSX.Element {
   return (
-    <Show when={props.icon} fallback={<div class="box w-4.5" />}>
+    <Show when={props.icon} fallback={<div class="box w-5" />}>
       {(icon) => {
         const Icon = icon();
         return <Icon size={18} color="icon" />;

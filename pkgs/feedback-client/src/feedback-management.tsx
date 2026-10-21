@@ -57,7 +57,8 @@ export function FeedbackManagement(props: {
         }
       >
         <ScrollView
-          class="box flex-1 min-h-0 shrink overflow-y-auto overscroll-contain"
+          grow
+          shrink
           role="region"
           aria-label="Issues"
           tabIndex={0}

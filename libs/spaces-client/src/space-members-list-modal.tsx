@@ -84,7 +84,7 @@ export function SpaceMembersListModal(
       scroll={false}
       closeDataSet={{ testid: Handles.spaceMembersClose }}
     >
-      <ScrollView class="max-h-105" contentClass="px-0">
+      <ScrollView maxHeight="lg">
         <Show
           when={titledRows().length > 0}
           fallback={<Trans>No one connected yet</Trans>}

@@ -67,10 +67,7 @@ function SearchResults(props: {
           items={props.results}
           keyExtractor={(user) => user.userId}
           estimateSize={60}
-          contentStyle={{
-            'padding-left': '0',
-            'padding-right': '0',
-          }}
+          edgeInset={false}
           renderItem={(user) => <SearchUserResultRow user={user} />}
         />
       </Match>

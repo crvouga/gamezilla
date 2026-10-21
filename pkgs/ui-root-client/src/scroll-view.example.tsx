@@ -9,12 +9,7 @@ export default function ScrollViewExample(): JSX.Element {
   return (
     <ExampleRoot>
       <div class="box h-50 border border-solid border-border rounded-sm">
-        <ScrollView
-          contentStyle={{
-            padding: 'var(--ui-space-3)',
-            gap: 'var(--ui-space-2)',
-          }}
-        >
+        <ScrollView padding="md" gap="sm">
           <For each={ITEMS}>
             {(n) => (
               <div class="box p-3 bg-surface rounded-sm">

@@ -39,7 +39,7 @@ export function ProductHarnessPubSubTopicsPane(props: {
         </div>
       }
     >
-      <ScrollView class="flex-1 min-h-0" contentClass="p-[6px] gap-1">
+      <ScrollView grow padding="xs" gap="xs">
         <For each={stats()}>
           {(row) => (
             <div class="box flex-row items-center gap-2 [padding-top:1.5px;padding-bottom:1.5px] border-b border-border">

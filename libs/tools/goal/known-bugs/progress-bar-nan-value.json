@@ -1,4 +1,4 @@
 {
   "summary": "A NaN progress input produced an invalid ARIA value and fill width instead of a finite empty progress bar.",
-  "regressionTest": "pkgs/ui-root-harness/tests/linear-progress.test.tsx"
+  "regressionTest": "pkgs/ui-root-harness/tests/progress-bar.test.tsx"
 }

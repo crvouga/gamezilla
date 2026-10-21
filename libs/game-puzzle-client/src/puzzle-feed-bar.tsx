@@ -238,8 +238,11 @@ export function PuzzleFeedBar(props: PuzzleFeedBarProps): JSX.Element {
         horizontal
         flushEdge={false}
         hideScrollbar
-        class="self-stretch min-w-0"
-        contentClass="box flex-row flex-nowrap items-center justify-start gap-1.5 px-4 py-2"
+        self="stretch"
+        align="center"
+        gap="sm"
+        paddingX="lg"
+        paddingY="sm"
         dataSet={{ testid: 'chess-puzzle-board-elo-bar' }}
       >
         {/* A fixed slot keeps every short puzzle id the same width. */}

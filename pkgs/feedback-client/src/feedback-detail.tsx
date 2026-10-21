@@ -4,6 +4,7 @@ import { SquarePenIcon, Trash2Icon } from '@pkgs/ui-root-client/icons';
 import { MarkdownContent } from '@pkgs/ui-root-client/markdown-content';
 import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { Surface } from '@pkgs/ui-root-client/surface';
 import { type Accessor, createSignal, Show } from 'solid-js';
 import type { FeedbackController, FeedbackState } from './controller';
 
@@ -60,19 +61,28 @@ export function FeedbackDetail(props: {
               </IconButton>
             </div>
           </div>
-          <ScrollView
-            class="flex-1 min-h-0 shrink overflow-y-auto overscroll-contain rounded-xl border border-border"
-            contentClass="p-4"
-            flushEdge={false}
-            role="region"
-            aria-label="Issue description"
-            tabIndex={0}
+          <Surface
+            grow
+            shrink
+            tone="transparent"
+            radius="card"
+            border
+            overflow="hidden"
           >
-            <MarkdownContent
-              value={doc().body}
-              dataSet={{ testid: 'feedback-markdown-preview' }}
-            />
-          </ScrollView>
+            <ScrollView
+              grow
+              padding="lg"
+              flushEdge={false}
+              role="region"
+              aria-label="Issue description"
+              tabIndex={0}
+            >
+              <MarkdownContent
+                value={doc().body}
+                dataSet={{ testid: 'feedback-markdown-preview' }}
+              />
+            </ScrollView>
+          </Surface>
           <Show when={doc().issue?.url}>
             <a
               class="text text-sm text-tint"

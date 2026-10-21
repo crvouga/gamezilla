@@ -173,9 +173,9 @@ is also `aria-current`, `aria-pressed`, or a checked radio.
 
 ## Guard rails
 
-`LinearProgress` combines a named progress bar, percentage and optional
-description. Pass a fraction from zero to one, or omit `progress` while the
-amount of work is unknown. Announce completion only after the operation succeeds.
+`ProgressBar` is the one progress indicator: with a `label` it shows the
+name, percentage and optional description. Pass a fraction from zero to one,
+or omit `progress` while the amount of work is unknown. Announce completion only after the operation succeeds.
 
 `AppRouterProvider` guards navigation and browser reloads while shared mutation
 controls are loading. Mount `PendingNavigationConfirmation` inside the app's

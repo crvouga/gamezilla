@@ -35,7 +35,7 @@ export function SpaceSharePeopleList(props: {
           }
         </p>
         <Show when={isLoading()}>
-          <LoadingState size="small" />
+          <LoadingState size="sm" />
         </Show>
         <Show when={!isLoading() && entries().length === 0}>
           <EmptyState

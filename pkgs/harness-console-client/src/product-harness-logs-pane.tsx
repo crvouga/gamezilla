@@ -36,10 +36,7 @@ export function ProductHarnessLogsPane(props: {
         </div>
       }
     >
-      <ScrollView
-        class="flex-1 min-h-0 bg-background"
-        contentClass="p-[6px] gap-1"
-      >
+      <ScrollView grow tone="background" padding="xs" gap="xs">
         <For each={newestFirst()}>{(entry) => <LogRow entry={entry} />}</For>
       </ScrollView>
     </Show>
