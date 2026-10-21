@@ -98,7 +98,7 @@ export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
         );
     },
     actAsGuest: async (name, gestures) => {
-      await w.s.apply(spawnActor, GUEST);
+      // Focusing the guest opens their device on the first call.
       await w.s.apply(focusActor, GUEST);
       await w.s.apply(journeyGestures, GUEST, name, gestures);
     },

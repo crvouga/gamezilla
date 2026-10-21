@@ -56,7 +56,6 @@
     "@pkgs/gherkin-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/ui-testing-root-shared": "workspace:*",
-    "@pkgs/uuid-shared": "workspace:*",
     "chess.js": "catalog:"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 import type { PlayableGame } from '@libs/game-session-harness/harness-game';
+import { playedRules } from '@libs/game-session-harness/played-rules';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
-import { createSeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import { check, hostSpace, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 import {
@@ -28,26 +28,6 @@ function findOpponent(game: PlayableGame): (ui: Driver) => Promise<void> {
   };
 }
 
-/**
- * Ready a private setup with the setup panel's own controls: a random
- * setup, then choose it, as a person who does not place each piece would.
- * A fresh device knows no setup of its own, so the journey arranges none.
- */
-async function readyRandomSetup(ui: Driver): Promise<void> {
-  await tap(ui, 'multiplayer-setup-random');
-  const choose = ui.get('multiplayer-setup-choose');
-  await choose.wait('enabled', { timeoutMs: JOURNEY_WAIT_MS });
-  await choose.tap({ timeoutMs: JOURNEY_WAIT_MS });
-  await choose.expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
-}
-
-/** Both setups are chosen: the panel waiting for them has gone. */
-async function setupsChosen(ui: Driver): Promise<void> {
-  await ui
-    .get('multiplayer-setup-status')
-    .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
-}
-
 /** Whether this device plays the first side: it may move before anyone has. */
 async function playsFirst(ui: Driver): Promise<boolean> {
   await ui
@@ -58,91 +38,111 @@ async function playsFirst(ui: Driver): Promise<boolean> {
   );
 }
 
-/** What a move of a journey is: an action, or one chosen from the board shown. */
-export type JourneyAction = string | ((position: string) => string);
+const SIDES = ['white', 'black'] as const;
+type Side = (typeof SIDES)[number];
+
+/**
+ * The side this device's person prepares a private setup for: the one
+ * whose name, as the panel lists who is ready, their own seat says they play.
+ */
+async function setupSide(ui: Driver): Promise<Side> {
+  const colour = ui.get('multiplayer-colour');
+  await colour.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  const playing = (await colour.text()) ?? '';
+  for (const side of SIDES) {
+    const listed = ui.get(`multiplayer-setup-readiness-${side}`);
+    await listed.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+    const name = ((await listed.text()) ?? '')
+      .replace(/(Getting ready|Ready)\s*$/, '')
+      .trim();
+    if (name !== '' && playing.includes(name)) return side;
+  }
+  throw new Error(
+    'The matched game does not say which side this person sets up'
+  );
+}
+
+/**
+ * Arrange this person's side's known setup on the setup board of their
+ * matched game, as they would place it, and choose it; resolves the side.
+ */
+function readyKnownSetup(
+  game: PlayableGame,
+  found: (side: Side) => unknown
+): (ui: Driver) => Promise<void> {
+  return async (ui) => {
+    const { arrange } = game.shared.automation;
+    const setups = game.fixtures.setups;
+    if (arrange === undefined || setups === undefined)
+      throw new Error(`${game.label} has no known setups to arrange`);
+    const side = await setupSide(ui);
+    await arrange(ui, 'multiplayer-setup', setups[side]);
+    const choose = ui.get('multiplayer-setup-choose');
+    await choose.wait('enabled', { timeoutMs: JOURNEY_WAIT_MS });
+    await choose.tap({ timeoutMs: JOURNEY_WAIT_MS });
+    await choose.expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
+    found(side);
+  };
+}
+
+/** Both setups are chosen: the panel waiting for them has gone. */
+async function setupsChosen(ui: Driver): Promise<void> {
+  await ui
+    .get('multiplayer-setup-status')
+    .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
+}
+
+/**
+ * Both people ready their side's known setup, so the authority resolves the
+ * known victory's proposals against them. Whether the person who opened the
+ * app plays the first side.
+ */
+async function readyKnownSetups(
+  host: JourneyHost,
+  game: PlayableGame
+): Promise<boolean> {
+  const hostSides: Side[] = [];
+  await host.act(
+    'readyPrivateSetup',
+    readyKnownSetup(game, (side) => hostSides.push(side))
+  );
+  await host.actAsGuest(
+    'readyPrivateSetup',
+    readyKnownSetup(game, () => undefined)
+  );
+  await host.act('awaitPrivateSetups', setupsChosen);
+  await host.actAsGuest('awaitPrivateSetups', setupsChosen);
+  return hostSides[0] === 'white';
+}
 
 /**
  * Make the `ply`-th move of a matched game on its board, once the
- * opponent's previous move has arrived, and wait for it to be accepted. A
- * chosen move is chosen from the position the board shows by then.
+ * opponent's previous move has arrived, and wait for it to be accepted.
  */
 export async function playJourneyMove(
   ui: Driver,
   game: PlayableGame,
-  action: JourneyAction,
+  action: string,
   ply: number
 ): Promise<void> {
   if (ply > 1)
     await ui
       .get(`multiplayer-move-${ply - 1}`)
       .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-  const played =
-    typeof action === 'string'
-      ? action
-      : action((await ui.get('multiplayer-game').attribute('data-fen')) ?? '');
-  await game.shared.automation.perform(ui, Handles.multiplayerBoard, played);
+  await game.shared.automation.perform(ui, Handles.multiplayerBoard, action);
   await ui
     .get(`multiplayer-move-${ply}`)
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
 }
 
 /**
- * The longest game a journey plays before it gives up: Battleship's, where
- * each side may shoot each of its rival's 100 cells once.
- */
-const JOURNEY_MOVE_LIMIT = 200;
-
-/**
- * How the journey plays `game`: its known victory, or — for a game with
- * private setups, where no fresh device knows the setups that victory needs —
- * the game's automation's choices from each board, to whatever finish.
- */
-function journeyLine(
-  host: JourneyHost,
-  game: PlayableGame
-): (ply: number) => JourneyAction | null {
-  if (game.shared.turnGame.rules.setup === undefined)
-    return (ply) => game.fixtures.firstSideVictory[ply - 1] ?? null;
-  const random = createSeededRng(`${host.runId}:${game.shared.id}`).random;
-  return () => (position) => {
-    const chosen = game.shared.automation.choose(position, random);
-    if (chosen === null)
-      throw new Error(`${game.label} offers no move in an unfinished game`);
-    return chosen;
-  };
-}
-
-/** A matched game a journey played to its finish. */
-export type JourneyGame = {
-  /** Whether the person who opened the app played the first side. */
-  readonly first: boolean;
-  /** The side that won, or `draw`. */
-  readonly outcome: string;
-  /** The finished position, as the last mover's board showed it. */
-  readonly finished: string;
-};
-
-/** The {@link JourneyGame} a journey's `When` remembered, or a refusal. */
-export function playedJourneyGame(value: unknown, label: string): JourneyGame {
-  if (
-    typeof value !== 'object' ||
-    value === null ||
-    !('first' in value) ||
-    !('outcome' in value) ||
-    !('finished' in value)
-  )
-    throw new Error(`${label} did not start`);
-  return value as JourneyGame;
-}
-
-/**
- * Two people find each other for `game`, ready their private setups if it
- * has them, and play it to its finish.
+ * Two people find each other for `game`, ready their sides' known setups if
+ * it has private setups, and play its known victory to the end.
  */
 export async function playGameJourney(
   host: JourneyHost,
   game: PlayableGame
-): Promise<JourneyGame> {
+): Promise<boolean> {
   const id = game.shared.id;
   await host.open('signed-in');
   await host.openPeer('signed-in');
@@ -153,61 +153,40 @@ export async function playGameJourney(
   await host.act('findGameOpponent', findOpponent(game));
   await host.actAsGuest('findGameOpponent', findOpponent(game));
   await expectSharedMultiplayerGame(host, JOURNEY_WAIT_MS);
-  if (game.shared.turnGame.rules.setup !== undefined) {
-    await host.act('readyPrivateSetup', readyRandomSetup);
-    await host.actAsGuest('readyPrivateSetup', readyRandomSetup);
-    await host.act('awaitPrivateSetups', setupsChosen);
-    await host.actAsGuest('awaitPrivateSetups', setupsChosen);
-  }
   let first = false;
-  await host.act('readGameSide', async (ui) => {
-    first = await playsFirst(ui);
-  });
+  if (game.fixtures.setups === undefined)
+    await host.act('readGameSide', async (ui) => {
+      first = await playsFirst(ui);
+    });
+  else first = await readyKnownSetups(host, game);
   const [mover, opponent] = first
     ? [host.act, host.actAsGuest]
     : [host.actAsGuest, host.act];
-  const line = journeyLine(host, game);
-  let outcome = 'ongoing';
-  let finished = '';
-  for (let ply = 1; outcome === 'ongoing'; ply += 1) {
-    const action = line(ply);
-    check(
-      action !== null && ply <= JOURNEY_MOVE_LIMIT,
-      `${game.label} did not finish after ${String(ply - 1)} moves`
+  for (const [index, action] of game.fixtures.firstSideVictory.entries())
+    await (index % 2 === 0 ? mover : opponent)('playJourneyMove', (ui) =>
+      playJourneyMove(ui, game, action, index + 1)
     );
-    await (ply % 2 === 1 ? mover : opponent)('playJourneyMove', async (ui) => {
-      await playJourneyMove(ui, game, action, ply);
-      const board = ui.get('multiplayer-game');
-      outcome = (await board.attribute('data-outcome')) ?? 'ongoing';
-      finished = (await board.attribute('data-fen')) ?? '';
-    });
-  }
-  return { first, outcome, finished };
+  return first;
 }
 
 /** Both people see the same finished game: one won, the other lost. */
 export async function observeGameJourney(
   host: JourneyHost,
   game: PlayableGame,
-  played: JourneyGame
+  first: boolean
 ): Promise<void> {
-  check(played.outcome !== 'draw', `${game.label} ended in a draw`);
-  const victory = game.fixtures.firstSideVictory;
-  if (game.shared.turnGame.rules.setup === undefined)
-    check(
-      played.finished ===
-        game.shared.turnGame.rules.replay(victory, victory.length),
-      'The finished game lost a move'
-    );
-  const firstWon = played.outcome === 'white';
-  const [winner, loser] =
-    played.first === firstWon
-      ? [host.act, host.actAsGuest]
-      : [host.actAsGuest, host.act];
+  const [winner, loser] = first
+    ? [host.act, host.actAsGuest]
+    : [host.actAsGuest, host.act];
+  // A game with private setups resolves the victory's proposals against them.
+  const { setups, firstSideVictory: victory } = game.fixtures;
+  const rules = game.shared.turnGame.rules;
+  const finished = (
+    setups === undefined ? rules : playedRules(rules, setups)
+  ).replay(victory, victory.length);
   const sameGame = async (ui: Driver) => {
     check(
-      (await ui.get('multiplayer-game').attribute('data-fen')) ===
-        played.finished,
+      (await ui.get('multiplayer-game').attribute('data-fen')) === finished,
       'The finished game lost a move'
     );
   };
