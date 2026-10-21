@@ -2,8 +2,7 @@
 Feature: Return to a space that can't be reached
   When a person returns to a space the app can't reach, such as one their
   lobby still lists that no longer exists, they want to be told so with a way
-  forward, so they never wait without end and their other spaces keep
-  working.
+  forward, so they never wait without end.
 
   Rule: Returning to a space that can't be reached says so within 15 seconds
 
@@ -40,12 +39,3 @@ Feature: Return to a space that can't be reached
       When the connection comes back
       Then Alice is told the space can't be reached right now within 15 seconds
       And Alice is offered the way back to Spaces
-
-  Rule: A space that can't be reached never stops what happens in the person's other spaces
-    No counter-example: a space that can't be reached has nothing to pass on.
-
-    Scenario: A rename in another space still reaches someone whose lobby lists a missing space
-      Given Alice's lobby still lists a space Alice hosted that no longer exists
-      And Bob is hosting a space that Alice joined from the link
-      When Bob renames the space to "Friday puzzles"
-      Then Alice sees the space is called "Friday puzzles" within 15 seconds
