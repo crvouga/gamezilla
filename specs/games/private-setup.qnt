@@ -22,8 +22,10 @@
 // second side's 30 seconds once the first side has moved. Either person may
 // abort until both have made their first move.
 // A device with no connection keeps showing who it last saw ready, and its
-// person cannot become ready, start, abort, resign or move, except for the
-// waiting move above.
+// person cannot change their private setup, become ready, start, abort,
+// resign or move, except for the waiting move above. In a custom game the
+// choices of anyone but Alice also need Alice's connection, and while she has
+// none everyone else keeps seeing who they last saw ready.
 module private_setup {
   pure val PEOPLE = Set("alice", "bob", "carol")
   /// What a person's private setup can be: incomplete, or one of two complete choices.
@@ -73,7 +75,7 @@ module private_setup {
     kind' = kind, participants' = participants, status' = newStatus,
     privateSetup' = setups, ready' = r,
     readyShown' = PEOPLE.mapBy(v =>
-      if (offline.contains(v)) readyShown.get(v)
+      if (offline.contains(v) or (kind == "custom" and v != "alice" and offline.contains("alice"))) readyShown.get(v)
       else if (newStatus == "setting up") _readySet(r) else Set()),
     privateSetupShown' = PEOPLE.mapBy(v => if (_persons.contains(v)) Set(v) else Set()),
     setupSeconds' = setupTime, firstMoveSeconds' = moveTime,
@@ -102,19 +104,20 @@ module private_setup {
   }
   /// Change one's own private setup, or keep it if one is ready or the game is no longer being set up.
   action changePrivateSetup(actor: str, setup: str): bool =
-    if (status == "setting up" and _persons.contains(actor) and not(ready.get(actor)))
+    if (status == "setting up" and _persons.contains(actor) and not(ready.get(actor)) and not(_offline.contains(actor)))
       _update(status, privateSetup.set(actor, setup), ready, setupSeconds, firstMoveSeconds, movesPlayed, moveWaiting, _offline, _confirmed)
     else _hold
   /// In a custom game, agree to start with one's complete private setup, which confirms it.
   action becomeReady(actor: str): bool =
     if (kind == "custom" and status == "setting up" and _persons.contains(actor) and not(ready.get(actor))
-        and _complete(privateSetup.get(actor)) and not(_offline.contains(actor)))
+        and _complete(privateSetup.get(actor)) and not(_offline.contains(actor)) and not(_offline.contains("alice")))
       _update(status, privateSetup, ready.set(actor, true), setupSeconds, firstMoveSeconds, movesPlayed, moveWaiting, _offline,
         _confirmed.set(actor, privateSetup.get(actor)))
     else _hold
   /// In a custom game, withdraw readiness before the start, which lets the private setup change again.
   action becomeUnready(actor: str): bool =
-    if (kind == "custom" and status == "setting up" and _persons.contains(actor) and ready.get(actor) and not(_offline.contains(actor)))
+    if (kind == "custom" and status == "setting up" and _persons.contains(actor) and ready.get(actor)
+        and not(_offline.contains(actor)) and not(_offline.contains("alice")))
       _update(status, privateSetup, ready.set(actor, false), setupSeconds, firstMoveSeconds, movesPlayed, moveWaiting, _offline, _confirmed)
     else _hold
   /// In a matched game, choose one's complete private setup once; play can begin when both have.
@@ -202,8 +205,9 @@ module private_setup {
   val invOwnPrivateSetupOnly = PEOPLE.forall(v => privateSetupShown.get(v).subseteq(Set(v)))
   /// Only a complete private setup is ready, and it cannot change while ready.
   val invReadySetupLocked = _persons.forall(p => ready.get(p) implies (_complete(privateSetup.get(p)) and privateSetup.get(p) == _confirmed.get(p)))
-  /// Everyone with a connection sees exactly who is ready while the game is being set up, and nobody once it is not.
-  val invReadinessShown = PEOPLE.forall(v => not(_offline.contains(v)) implies
+  /// Everyone with a connection (in a custom game, while Alice has hers too) sees exactly who is ready while the game is being set up, and nobody once it is not.
+  val invReadinessShown = PEOPLE.forall(v =>
+    (not(_offline.contains(v)) and (kind == "matched" or v == "alice" or not(_offline.contains("alice")))) implies
     readyShown.get(v) == (if (status == "setting up") _readySet(ready) else Set()))
   /// Play needs every person ready with a complete private setup.
   val invPlayNeedsReady = Set("under way", "finished").contains(status) implies _persons.forall(p => ready.get(p))
