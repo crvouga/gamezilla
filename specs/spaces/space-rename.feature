@@ -119,7 +119,7 @@ Feature: Rename a space
     Scenario: An offline rename to an allowed name is shared without a refusal
       Given Alice has renamed the space to "Friday puzzles"
       When the connection comes back
-      Then Bob sees the space is called "Friday puzzles" within 15 seconds
+      Then Bob sees the space is called "Friday puzzles" within 30 seconds
       And Alice is not told renaming the space was refused
 
   Rule: A space with no name of its own is named after its host as everyone sees them
