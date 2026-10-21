@@ -8,6 +8,7 @@
  */
 
 import type { Measurement } from './evaluate';
+import type { AlertPolicy, Slo } from './model';
 
 /** What a measure is asked for: the window of the SLO it is measured for. */
 export type MeasureContext = {
@@ -27,6 +28,32 @@ export type Measure = (context: MeasureContext) => Promise<Measurement>;
 
 export type ObjectivesLayer = 'implementation' | 'release';
 
+/** What a person needs to act on an alert, in the product's own terms. */
+export type AlertResponse = {
+  readonly owner: string;
+  readonly runbook: string;
+  /** The exact command that starts the investigation. */
+  readonly command: string;
+};
+
+/**
+ * Turns on burn-rate alerting for the file's SLOs: each is judged by its
+ * own policies (its `alertPolicies`, else the standard ones in
+ * `alert-policy`), and a firing policy fails its test with the response.
+ * The measures are asked for each lookback window, so they must answer
+ * with `totals` (or events) for any window they are given.
+ */
+export type AlertingBinding = {
+  /** Fewest events per hour a window needs before its burn rate means anything. */
+  readonly minimumEventsPerHour: (slo: Slo) => number;
+  readonly respond: (input: {
+    readonly slo: Slo;
+    readonly policy: AlertPolicy;
+    /** The longest window the policy looks back over (`1h`). */
+    readonly lookbackWindow: string;
+  }) => AlertResponse;
+};
+
 export type ObjectivesBinding = {
   /** The objective file this binds: its stem (`note-delivery`). */
   readonly spec: string;
@@ -36,6 +63,8 @@ export type ObjectivesBinding = {
   readonly measure: Readonly<Record<string, Measure>>;
   /** The evaluation moment. Default: the latest `atMs` measured. */
   readonly nowMs?: () => number;
+  /** Burn-rate alerting for the file's SLOs. Requires `nowMs`. */
+  readonly alerting?: AlertingBinding;
   /** Per-objective test timeout (a harness-run measure can be slow). Default: the runner's. */
   readonly timeoutMs?: number;
 };

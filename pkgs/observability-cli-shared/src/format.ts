@@ -38,16 +38,25 @@ export function noResults(
     readonly source: string;
     readonly window: string;
     readonly range?: TimeRange;
+    /** An identifier can be found by `find`; a kind of activity is `last`. */
+    readonly searched?: 'identifier' | 'activity';
   }
 ): string {
+  const activity = args.searched === 'activity';
   return [
     FORMAT_HEADER,
     `source: ${args.source}`,
     ...(args.range === undefined
       ? []
       : [`utc-range: ${formatRange(args.range)}`]),
-    `No traces matched ${JSON.stringify(subject)}.`,
-    `next: bun obs find ${JSON.stringify(subject)} --window ${args.window}`,
+    activity
+      ? `No ${subject} in this range.`
+      : `No traces matched ${JSON.stringify(subject)}.`,
+    ...(activity
+      ? []
+      : [
+          `next: bun obs find ${JSON.stringify(subject)} --window ${args.window}`,
+        ]),
     `next: bun obs last --window ${args.window}`,
   ].join('\n');
 }

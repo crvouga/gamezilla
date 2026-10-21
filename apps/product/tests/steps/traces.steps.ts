@@ -2,6 +2,7 @@
 /** `specs/runtime/request-records.feature` (skipped with `OBSERVABILITY_ENABLED=0`). */
 
 import { expect } from 'bun:test';
+import { ENV_FILES } from '@libs/infra-shared/envs';
 import { workerName } from '@libs/infra-shared/wrangler';
 import {
   appTraceIsReadable,
@@ -11,6 +12,13 @@ import {
   probeIngest,
   probeQuery,
 } from '@libs/observability-server/grafana-probes';
+import {
+  backgroundWork,
+  newestTrailAgeMs,
+  signedInRequests,
+  trailEnvironments,
+  unknownEnvironments,
+} from '@libs/observability-server/trail-probes';
 import { ObservabilitySecretName as Name } from '@libs/observability-shared/secret-names';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { readCloudflareErrors } from '@pkgs/observability-cli-shared/cloudflare-errors';
@@ -103,3 +111,95 @@ Then(
     ).toBe(true);
   }
 );
+
+/** The scheduled drain runs every minute; five missed ones is a stopped trail. */
+const TRAIL_STALE_MS = 5 * 60 * 1000;
+/** Short, so records written before the last deploy do not decide it. */
+const RECENT_MS = 5 * 60 * 1000;
+
+function trailAccess() {
+  return {
+    tempoUrl: foundationSecret(Name.tempoUrl),
+    tempoUser: foundationSecret(Name.tempoUser),
+    tempoToken: foundationSecret(Name.tempoToken),
+  };
+}
+
+/** The app writes the trail on its own clock, so silence means it stopped. */
+Then('the trail is up to date', async (w) => {
+  let ageMs: number | null = null;
+  const fresh = await eventually(
+    async () => {
+      ageMs = await newestTrailAgeMs(w.http, trailAccess(), {
+        environment: w.env.env,
+        nowMs: wallClock.now(),
+        lookbackMs: TRAIL_STALE_MS,
+      });
+      return ageMs !== null;
+    },
+    { maxWaitMs: TOKEN_WARMUP_MS, retryMs: RETRY_MS, ...wallWait }
+  );
+  expect(
+    fresh,
+    `nothing was written to the trail for ${w.env.env} in the last ${String(TRAIL_STALE_MS / 60_000)} minutes`
+  ).toBe(true);
+});
+
+/** A record under a name no environment owns is missed by every query that names one. */
+Then(
+  'every record in the trail comes from an environment of the app',
+  async (w) => {
+    const deployed = Object.values(ENV_FILES).map((file) => file.env);
+    const found = await trailEnvironments(w.http, trailAccess(), {
+      nowMs: wallClock.now(),
+      lookbackMs: RECENT_MS,
+    });
+    expect(
+      unknownEnvironments(found, deployed),
+      'records name an environment no deployment owns'
+    ).toEqual([]);
+  }
+);
+
+/** Without it the team cannot go from a person to what happened to them. */
+Then('a request that needs an account says whose it was', async (w) => {
+  const seen = await signedInRequests(w.http, trailAccess(), {
+    environment: w.env.env,
+    nowMs: wallClock.now(),
+    lookbackMs: RECENT_MS,
+  });
+  if (seen.answered === 0) return;
+  expect(
+    seen.nameless,
+    `${String(seen.nameless)} of ${String(seen.answered)} recent requests that need an account do not say whose they were`
+  ).toBe(0);
+});
+
+/** A few runs, short enough that a fix just deployed is judged by its own. */
+const WORK_WINDOW_MS = 3 * 60 * 1000;
+/** Contention happens; a drain failing one run in four is something else. */
+const WORK_FAILURE_LIMIT = 0.25;
+
+/** The drain delivers everything the app does after answering a person. */
+Then('the app finishes the work it does after answering people', async (w) => {
+  let seen = { runs: 0, failed: 0 };
+  const succeeded = await eventually(
+    async () => {
+      seen = await backgroundWork(w.http, trailAccess(), {
+        environment: w.env.env,
+        nowMs: wallClock.now(),
+        lookbackMs: WORK_WINDOW_MS,
+      });
+      return seen.runs > 0 && seen.failed / seen.runs <= WORK_FAILURE_LIMIT;
+    },
+    {
+      maxWaitMs: TOKEN_WARMUP_MS + WORK_WINDOW_MS,
+      retryMs: RETRY_MS,
+      ...wallWait,
+    }
+  );
+  expect(
+    succeeded,
+    `${String(seen.failed)} of ${String(seen.runs)} scheduled outbox drains in the last ${String(WORK_WINDOW_MS / 60_000)} minutes failed`
+  ).toBe(true);
+});

@@ -67,6 +67,7 @@ import {
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { deploymentTelemetryEnvironment } from '@pkgs/observability-root-shared/deployment-environment';
 import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
+import { pipelineHeartbeatContract } from '@pkgs/observability-root-shared/pipeline-metrics';
 import { withSpan } from '@pkgs/observability-root-shared/span';
 import { isSecretStoreError } from '@pkgs/secret-store-shared/is-secret-store-error';
 import { InMemoryTtsProvider } from '@pkgs/tts-root-server/in-memory-tts-provider';
@@ -476,13 +477,9 @@ const workerImplementation = {
     const environment = deploymentTelemetryEnvironment(
       env.DEPLOYMENT_ENVIRONMENT
     );
-    createMetric({
-      name: 'telemetry.pipeline.heartbeat',
-      description: 'Scheduled server telemetry heartbeat',
-      type: 'counter',
-      unit: '{beat}',
-      dimensions: { [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: [environment] },
-    })(1, { [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: environment });
+    createMetric(pipelineHeartbeatContract(environment))(1, {
+      [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: environment,
+    });
     try {
       await withSpan(
         'outbox.drain',

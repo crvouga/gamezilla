@@ -6,6 +6,7 @@ import {
 import { createBrowserTelemetry } from '@pkgs/observability-root-client/browser';
 import { createHttpSpanExporter } from '@pkgs/observability-root-client/http-span-exporter';
 import { installMainThreadStallWatch } from '@pkgs/observability-root-client/main-thread-stall';
+import { UNSTATED_ENVIRONMENT } from '@pkgs/observability-root-shared/deployment-environment';
 import { AcknowledgedLogExporter } from '@pkgs/observability-runtime-shared/acknowledged-log-exporter';
 import { TelemetryOutbox } from '@pkgs/observability-runtime-shared/telemetry-outbox';
 import { setMutationCorrelationIdentity } from '@pkgs/sync-engine-shared/interaction-correlation';
@@ -30,7 +31,6 @@ export type BrowserObservabilityBoot = {
 export type BrowserObservabilityArgs = {
   readonly env: ClientEnv;
   readonly offline: OfflineNetworkController;
-  readonly dev: boolean;
   readonly timeOriginMs: number;
 };
 
@@ -93,7 +93,8 @@ function openTelemetry(
   return createBrowserTelemetry({
     serviceName: 'gamezilla-client',
     serviceVersion: APP_VERSION,
-    environment: args.dev ? 'local' : 'prod',
+    // The server's ingress states the deployment; the page cannot know it.
+    environment: UNSTATED_ENVIRONMENT,
     buildSha,
     identity: browserObservabilityIdentity,
     document,

@@ -14,10 +14,12 @@ import type {
   TimeWindow,
 } from './model';
 import { BUDGETING_METHODS, OPERATORS } from './model';
+import { readRefs } from './parse-alert';
 import type { Cursor, Mapping } from './parse-fields';
 import {
   isMapping,
   readBoolean,
+  readDuration,
   readFraction,
   readMapping,
   readMetadata,
@@ -27,7 +29,7 @@ import {
   report,
 } from './parse-fields';
 import { readSli } from './parse-sli';
-import { parseDuration, parseStartTime, UTC_ZONES } from './window';
+import { parseStartTime, UTC_ZONES } from './window';
 
 export type ReadSlo = { readonly slo: Slo; readonly inlineSli: Sli | null };
 
@@ -50,7 +52,16 @@ export function readSlo(at: Cursor, from: Mapping): ReadSlo | null {
     budgetingMethod === null
       ? null
       : readObjectives(here, spec, budgetingMethod);
+  const alertPolicies =
+    spec['alertPolicies'] === undefined
+      ? []
+      : readRefs(here, {
+          from: spec,
+          field: 'alertPolicies',
+          refField: 'alertPolicyRef',
+        });
   if (
+    alertPolicies === null ||
     service === null ||
     indicator === null ||
     timeWindow === null ||
@@ -69,6 +80,7 @@ export function readSlo(at: Cursor, from: Mapping): ReadSlo | null {
       timeWindow,
       budgetingMethod,
       objectives,
+      alertPolicies,
     },
     inlineSli: indicator.inline,
   };
@@ -131,18 +143,6 @@ function readTimeWindow(at: Cursor, spec: Mapping): TimeWindow | null {
     );
   }
   return { duration, isRolling, calendar: { startTime, timeZone } };
-}
-
-function readDuration(at: Cursor, from: Mapping, field: string): string | null {
-  const text = readString(at, from, field);
-  if (text === null) return null;
-  if (parseDuration(text) === null) {
-    return report(
-      at,
-      `${field} "${text}" must be a positive whole number of s, m, h, d or w (28d)`
-    );
-  }
-  return text;
 }
 
 function readObjectives(

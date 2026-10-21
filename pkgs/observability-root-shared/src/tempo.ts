@@ -1,8 +1,13 @@
 import { ATTR } from './attributes';
 import type { QueryFetch } from './local-explorer';
+import type { NarrateSpan } from './narrate';
 import { spansFromDocument } from './normalize';
+import type { SearchHit } from './tempo-search';
+import { PAGE_SIZE, pageRange } from './tempo-search';
 import type {
   AdjacentActivity,
+  RecentOptions,
+  SearchOptions,
   TimeRange,
   Trace,
   TraceIdentifierKind,
@@ -13,7 +18,12 @@ import type {
 } from './types';
 
 const LOOKBACK_MS = 72 * 60 * 60 * 1000;
-const RESULT_LIMIT = 50;
+/** Traces a search reads before it says it stopped. */
+const SEARCH_LIMIT = 200;
+/** Traces `recent` reads for each of errors and newest activity. */
+const RECENT_LIMIT = 50;
+const ERRORS_QUERY = '{ status = error }';
+const ANY_QUERY = '{ true }';
 const TRACE_ID = /^[0-9a-f]{32}$/i;
 const KEYS = {
   session: ATTR.SESSION_ID,
@@ -52,12 +62,15 @@ export class TempoTraceStore implements TraceStore {
     return { startMs: endMs - LOOKBACK_MS, endMs };
   }
 
-  private async search(query: string, range: TimeRange): Promise<TraceRef[]> {
+  private async fetchPage(
+    query: string,
+    range: TimeRange
+  ): Promise<SearchHit[]> {
     const params = new URLSearchParams({
       q: query,
       start: String(Math.floor(range.startMs / 1000)),
       end: String(Math.ceil(range.endMs / 1000)),
-      limit: String(RESULT_LIMIT),
+      limit: String(PAGE_SIZE),
     });
     const response = await this.options.fetch(
       `${this.options.baseUrl}/api/search?${params.toString()}`,
@@ -65,56 +78,88 @@ export class TempoTraceStore implements TraceStore {
     );
     if (!response.ok)
       throw new Error(`Tempo search failed (${String(response.status)})`);
-    const refs = traceRefs(await response.json());
-    const hydrated: TraceRef[] = [];
+    return searchHits(await response.json());
+  }
+
+  private async search(
+    query: string,
+    range: TimeRange,
+    options?: SearchOptions,
+    label = query
+  ): Promise<TraceRef[]> {
+    const order = options?.order ?? 'newest';
+    const paged = await pageRange(
+      (part) => this.fetchPage(query, part),
+      range,
+      { limit: options?.limit ?? SEARCH_LIMIT, order }
+    );
     // Tempo search metadata has no errorCount or spanCount. Read the bounded
     // result set before judging it; do not report unknown counts as zero.
-    for (let offset = 0; offset < refs.length; offset += 8) {
+    const hydrated: TraceRef[] = [];
+    for (let offset = 0; offset < paged.hits.length; offset += 8) {
       const traces = await Promise.all(
-        refs.slice(offset, offset + 8).map((ref) => this.getTrace(ref.traceId))
+        paged.hits
+          .slice(offset, offset + 8)
+          .map((hit) => this.getTrace(hit.traceId))
       );
       for (const trace of traces) {
-        if (
-          trace !== null &&
-          trace.spans.some(
-            (span) =>
-              span.startTimeMs >= range.startMs &&
-              span.startTimeMs <= range.endMs
-          )
-        )
+        if (trace?.spans.some((span) => startsIn(span, range)) === true)
           hydrated.push(traceRef(trace));
       }
     }
-    return hydrated;
-  }
-
-  recent(
-    window: TimeRange,
-    options?: { readonly errorsOnly?: boolean }
-  ): Promise<readonly TraceRef[]> {
-    return this.search(
-      options?.errorsOnly === true ? '{ status = error }' : '{ true }',
-      window
+    if (paged.truncated !== undefined) {
+      options?.onTruncated?.({
+        search: label,
+        kept: hydrated.length,
+        reason: paged.truncated,
+      });
+    }
+    return hydrated.sort(
+      (a, b) =>
+        (order === 'newest'
+          ? b.startedAtMs - a.startedAtMs
+          : a.startedAtMs - b.startedAtMs) || compareId(a.traceId, b.traceId)
     );
   }
+
+  /**
+   * Every error trace, then the newest activity. Tempo returns an arbitrary
+   * page for `{ true }`, so each part is paged to completeness by time.
+   */
+  async recent(
+    window: TimeRange,
+    options?: RecentOptions
+  ): Promise<readonly TraceRef[]> {
+    const shared = { limit: RECENT_LIMIT, ...options };
+    const errors = await this.search(ERRORS_QUERY, window, shared);
+    if (options?.errorsOnly === true) return errors;
+    const newest = await this.search(ANY_QUERY, window, shared);
+    const merged = new Map(errors.map((ref) => [ref.traceId, ref]));
+    for (const ref of newest) merged.set(ref.traceId, ref);
+    return [...merged.values()].sort(
+      (a, b) =>
+        Number(b.errorCount > 0) - Number(a.errorCount > 0) ||
+        b.startedAtMs - a.startedAtMs ||
+        compareId(a.traceId, b.traceId)
+    );
+  }
+
   async adjacent(window: TimeRange): Promise<AdjacentActivity> {
     const [beforeRefs, nearbyRefs, afterRefs] = await Promise.all([
-      this.search('{ true }', {
-        startMs: window.startMs - LOOKBACK_MS,
-        endMs: window.startMs - 1,
-      }),
-      this.search('{ true }', window),
-      this.search('{ true }', {
-        startMs: window.endMs + 1,
-        endMs: window.endMs + LOOKBACK_MS,
-      }),
+      this.search(
+        ANY_QUERY,
+        { startMs: window.startMs - LOOKBACK_MS, endMs: window.startMs - 1 },
+        { limit: 1, order: 'newest' }
+      ),
+      this.search(ANY_QUERY, window, { limit: RECENT_LIMIT }),
+      this.search(
+        ANY_QUERY,
+        { startMs: window.endMs + 1, endMs: window.endMs + LOOKBACK_MS },
+        { limit: 1, order: 'oldest' }
+      ),
     ]);
-    const before = [...beforeRefs].sort(
-      (a, b) => b.startedAtMs - a.startedAtMs
-    )[0];
-    const after = [...afterRefs].sort(
-      (a, b) => a.startedAtMs - b.startedAtMs
-    )[0];
+    const before = beforeRefs[0];
+    const after = afterRefs[0];
     const midpoint = window.startMs + (window.endMs - window.startMs) / 2;
     const nearby = [...nearbyRefs].sort(
       (a, b) =>
@@ -126,11 +171,19 @@ export class TempoTraceStore implements TraceStore {
       ...(nearby === undefined ? {} : { nearby }),
     };
   }
-  findByUser(value: string, window: TimeRange): Promise<readonly TraceRef[]> {
-    return this.byAttribute(KEYS.user, value, window);
+  findByUser(
+    value: string,
+    window: TimeRange,
+    options?: SearchOptions
+  ): Promise<readonly TraceRef[]> {
+    return this.byAttribute(KEYS.user, value, window, options);
   }
-  findBySession(value: string): Promise<readonly TraceRef[]> {
-    return this.byAttribute(KEYS.session, value, this.defaultRange());
+  findBySession(
+    value: string,
+    window: TimeRange,
+    options?: SearchOptions
+  ): Promise<readonly TraceRef[]> {
+    return this.byAttribute(KEYS.session, value, window, options);
   }
   findByMutation(value: string): Promise<readonly TraceRef[]> {
     return this.byAttribute(KEYS.mutation, value, this.defaultRange());
@@ -138,20 +191,27 @@ export class TempoTraceStore implements TraceStore {
   findByTest(value: string): Promise<readonly TraceRef[]> {
     return this.byAttribute(KEYS.test, value, this.defaultRange());
   }
-  findByDevice(value: string): Promise<readonly TraceRef[]> {
-    return this.byAttribute(KEYS.device, value, this.defaultRange());
+  findByDevice(
+    value: string,
+    window: TimeRange,
+    options?: SearchOptions
+  ): Promise<readonly TraceRef[]> {
+    return this.byAttribute(KEYS.device, value, window, options);
   }
 
   private byAttribute(
     key: string,
     value: string,
-    range: TimeRange
+    range: TimeRange,
+    options?: SearchOptions
   ): Promise<TraceRef[]> {
     const attribute = JSON.stringify(key);
     const expected = JSON.stringify(value);
     return this.search(
       `{ span.${attribute} = ${expected} || resource.${attribute} = ${expected} || event.${attribute} = ${expected} }`,
-      range
+      range,
+      options,
+      `${key} = ${value}`
     );
   }
 
@@ -196,7 +256,7 @@ export class TempoTraceStore implements TraceStore {
         `${this.options.baseUrl}/api/v2/search/tags?scope=span`,
         { headers: this.headers() }
       ),
-      this.recent(this.defaultRange()),
+      this.recent(this.defaultRange(), { limit: 25 }),
     ]);
     if (!response.ok)
       throw new Error(
@@ -223,7 +283,7 @@ function unique(values: readonly string[]): string[] {
   return [...new Set(values)].sort();
 }
 
-function traceRefs(body: unknown): TraceRef[] {
+function searchHits(body: unknown): SearchHit[] {
   if (body === null || typeof body !== 'object') return [];
   const traces = (body as Record<string, unknown>)['traces'];
   if (!Array.isArray(traces)) return [];
@@ -234,20 +294,20 @@ function traceRefs(body: unknown): TraceRef[] {
     if (typeof traceId !== 'string') return [];
     return [
       {
-        traceId,
+        // Tempo drops leading zeros from the ids it lists.
+        traceId: traceId.padStart(32, '0'),
         startedAtMs: Number(item['startTimeUnixNano'] ?? 0) / 1_000_000,
-        durationMs: Number(
-          item['durationMs'] ?? Number(item['durationNanos'] ?? 0) / 1_000_000
-        ),
-        spanCount: Number(item['spanCount'] ?? 0),
-        errorCount: Number(item['errorCount'] ?? 0),
-        rootName:
-          typeof item['rootTraceName'] === 'string'
-            ? item['rootTraceName']
-            : 'unknown',
       },
     ];
   });
+}
+
+function startsIn(span: NarrateSpan, range: TimeRange): boolean {
+  return span.startTimeMs >= range.startMs && span.startTimeMs <= range.endMs;
+}
+
+function compareId(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
 }
 
 function traceRef(trace: Trace): TraceRef {

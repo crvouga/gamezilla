@@ -24,3 +24,9 @@ Feature: Serving people
 
     Scenario: The app brings up what people saved without keeping them waiting
       Then the app brings up what people saved without keeping them waiting
+
+  Rule: The app finishes the work it does after answering people
+    No counter-example: the team checks this from outside, and nothing a person does is refused.
+
+    Scenario: The app finishes the work it does after answering people
+      Then the app finishes the work it does after answering people

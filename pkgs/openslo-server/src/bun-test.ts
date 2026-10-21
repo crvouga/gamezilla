@@ -21,6 +21,8 @@ import {
   measureSlo,
   objectiveId,
 } from '@pkgs/openslo-shared/check';
+import type { AlertResult } from '@pkgs/openslo-shared/check-alerts';
+import { bundleFor, measureAlerts } from '@pkgs/openslo-shared/check-alerts';
 import type { Objective, OpenSloDoc, Slo } from '@pkgs/openslo-shared/model';
 import { parseOpenSlo } from '@pkgs/openslo-shared/parse';
 import type { ObjectivesBinding } from '@pkgs/openslo-shared/registry';
@@ -72,11 +74,12 @@ export function runObjectiveSpec(options: RunObjectiveOptions): void {
       }
     });
     if (!parsed.ok) return;
-    registerObjectives({
-      doc: parsed.doc,
-      stem: objectiveSpecStem(options.specPath),
-      record,
-    });
+    const stem = objectiveSpecStem(options.specPath);
+    registerObjectives({ doc: parsed.doc, stem, record });
+    const binding = lookup(stem);
+    if (!(binding instanceof Error)) {
+      registerAlerts({ doc: parsed.doc, binding, record });
+    }
   });
 }
 
@@ -147,6 +150,40 @@ function registerObjectives(input: {
         binding instanceof Error ? undefined : binding.timeoutMs;
       if (timeoutMs === undefined) test(name, body);
       else test(name, body, timeoutMs);
+    }
+  }
+}
+
+function registerAlerts(input: {
+  readonly doc: OpenSloDoc;
+  readonly binding: ObjectivesBinding;
+  readonly record: RecordObligation;
+}): void {
+  const { doc, binding, record } = input;
+  if (binding.alerting === undefined) return;
+  const layer = binding.layer ?? 'implementation';
+  for (const slo of doc.slos) {
+    let measured: Promise<readonly AlertResult[]> | undefined;
+    const bundle = bundleFor(doc, slo);
+    for (const policy of bundle.policies) {
+      const severity =
+        bundle.conditions.find((c) => c.name === policy.conditions[0])
+          ?.severity ?? 'alert';
+      const body = async () => {
+        measured ??= measureAlerts({ doc, slo, binding });
+        const found = (await measured).find((r) => r.policy === policy.name);
+        const detail = found?.detail ?? 'not evaluated';
+        record({
+          id: `alert:${slo.name}:${policy.name}`,
+          layer,
+          status: found?.ok === true ? 'pass' : 'fail',
+          detail,
+        });
+        if (found?.ok !== true) throw new Error(detail);
+      };
+      const name = `${slo.name} raises no ${severity} alert: ${policy.name}`;
+      if (binding.timeoutMs === undefined) test(name, body);
+      else test(name, body, binding.timeoutMs);
     }
   }
 }
