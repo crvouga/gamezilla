@@ -26,7 +26,7 @@ module space_unreachable {
 
   /// Where Alice is: one of PLACES.
   var whereabouts: str
-  /// Whether Alice's lobby lists the space she hosted.
+  /// Whether Alice's lobby lists the space she hosted, while she is in it.
   var lobby: bool
   /// Whether Alice's space still exists.
   var _exists: bool
@@ -42,7 +42,7 @@ module space_unreachable {
 
   action _become(where: str, present: bool, offline: Set[Person]): bool = all {
     whereabouts' = where,
-    lobby' = lobby,
+    lobby' = where == "lobby",
     _exists' = present,
     _offline' = offline,
   }
@@ -64,7 +64,6 @@ module space_unreachable {
   /// Alice returns to the space her lobby lists.
   action returnToSpace = all {
     whereabouts == "lobby",
-    lobby,
     _become(_arrival(_exists, _offline), _exists, _offline),
   }
 
@@ -116,6 +115,6 @@ module space_unreachable {
   val invToldOnlyWhenUnreachable =
     whereabouts == "can't be reached" implies not(_exists)
 
-  /// Alice's lobby keeps listing her space.
-  val invLobbyKeepsListing = lobby
+  /// Alice's lobby keeps listing her space whenever she is in it.
+  val invLobbyKeepsListing = whereabouts == "lobby" implies lobby
 }
