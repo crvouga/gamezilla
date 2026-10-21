@@ -39,6 +39,9 @@ jobs:
     uses: ./.github/workflows/verify-pr.yml
     with:
       require-main: ${{ !inputs.rehearsal }}
+      # The pull request already enforced advisories on this code. A registry
+      # that moved since then must not fail a deploy of a verified commit.
+      advisories: report
 
   deploy-rehearsal:
     name: Preview infrastructure changes

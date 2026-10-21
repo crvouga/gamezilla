@@ -11,7 +11,9 @@ export function auditVerdict(json: string): AuditSnapshot {
     !Number.isSafeInteger(snapshot.status) ||
     snapshot.status < 0 ||
     snapshot.status > 255 ||
-    !('advisories' in snapshot)
+    !('advisories' in snapshot) ||
+    (snapshot.reported !== undefined &&
+      !Number.isSafeInteger(snapshot.reported))
   )
     throw new Error('Invalid current advisory evidence');
   return snapshot;
@@ -22,6 +24,10 @@ if (import.meta.main) {
     process.argv[2] ?? join(import.meta.dirname, '../../..', AUDIT_SNAPSHOT);
   const snapshot = auditVerdict(readFileSync(path, 'utf8'));
   if (snapshot.error) console.error(snapshot.error);
+  if (snapshot.reported !== undefined)
+    console.error(
+      `Reported, not enforced: the registry's advisories exit ${snapshot.reported} (VERIFY_ADVISORIES=report)`
+    );
   console.log(JSON.stringify(snapshot.advisories));
   process.exit(snapshot.status);
 }
