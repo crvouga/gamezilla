@@ -78,7 +78,13 @@ export function createChessModule(
       }
       return commandRouter.dispatch(
         state,
-        { identity, ts: command.ts, commandId: command.id, random },
+        {
+          identity,
+          ts: command.ts,
+          commandId: command.id,
+          random,
+          authority: true,
+        },
         msg,
         (_s, _c, m) =>
           reject({

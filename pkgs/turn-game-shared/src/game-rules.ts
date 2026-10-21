@@ -31,6 +31,31 @@ export type GameRecordMetadata = {
     readonly daysPerMove: number;
   } | null;
 };
+/** Both sides' private setups, as only the authority holds them together. */
+export type GameSetups = Readonly<Record<GameSide, string>>;
+/**
+ * Private setups: before the first action each side prepares a setup only
+ * that side and the authority may know (a hidden fleet). Every position
+ * stays public. The authority resolves each proposed action with both
+ * setups into the public action it records, so `play`, `replay` and
+ * `moves` take public actions and never see a setup, while `legal`, bots
+ * and automation propose from the public position alone.
+ */
+export type PrivateSetupRules = {
+  /** The setup as the game stores it, or `null` unless it is one complete legal setup. */
+  readonly accept: (setup: string) => string | null;
+  /** A complete legal setup drawn with `random`. */
+  readonly random: (random: () => number) => string;
+  /**
+   * The public action `proposal` by the side to move resolves to, or `null`
+   * when it is refused. Called only by the authority.
+   */
+  readonly resolve: (
+    position: string,
+    proposal: string,
+    setups: GameSetups
+  ) => string | null;
+};
 /**
  * A two-sided turn game's mechanics: what every shared lifecycle needs to
  * hold, check and show a game. Positions and actions are opaque strings the
@@ -38,6 +63,11 @@ export type GameRecordMetadata = {
  * positions, so a position always names exactly one game.
  */
 export type GameRules = {
+  /**
+   * Present for a game whose sides prepare private setups before play; its
+   * `legal` actions are proposals and the rest take resolved public actions.
+   */
+  readonly setup?: PrivateSetupRules;
   readonly id: string;
   readonly recognizes: (position: string) => boolean;
   readonly initial: () => string;
@@ -173,8 +203,31 @@ export type TurnGames = {
     capability: C
   ) => TurnGameCapabilities[C] | undefined;
 };
+/**
+ * The public action an accepted proposal is recorded as: for a game with
+ * private setups, resolved with both of them (`null` when refused); for any
+ * other game, the proposal itself.
+ */
+export function publicAction(
+  rules: GameRules,
+  position: string,
+  proposal: string,
+  setups: GameSetups | null
+): string | null {
+  if (rules.setup === undefined) return proposal;
+  if (setups === null)
+    throw new Error(
+      `${rules.id}: only the authority holding both setups resolves an action`
+    );
+  return rules.setup.resolve(position, proposal, setups);
+}
+
 /** Fail when a game offers a capability without what it needs beside it. */
 function assertRequirements(game: RegisteredTurnGame): void {
+  if (game.rules.setup !== undefined && game.capabilities.puzzles !== undefined)
+    throw new Error(
+      `${game.rules.id}: a puzzle shows its whole position to the solver, so a game with private setups offers no puzzles — remove capabilities.puzzles`
+    );
   for (const [capability, needs] of Object.entries(CAPABILITY_REQUIRES))
     for (const need of needs ?? [])
       if (

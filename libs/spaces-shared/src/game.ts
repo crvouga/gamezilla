@@ -88,6 +88,12 @@ export type GameCommandContext = {
   /** Stable command identity, retained when delivery repeats. */
   readonly commandId: string;
   readonly random: Random;
+  /**
+   * Whether the handler decides as the room's authority. A device predicting
+   * its own command is not: a decision that needs what only the authority
+   * holds (another person's private setup) waits for the room's answer.
+   */
+  readonly authority: boolean;
 };
 
 /**
@@ -145,6 +151,11 @@ export type GameDefinition = GameOwnRoom & {
     now: number,
     random: Random
   ) => Message;
+  /**
+   * Who may read one of the definition's events (`RoomModule.audience`):
+   * `null` for everyone in the space, else the people it is private to.
+   */
+  readonly audience?: (event: Message) => readonly string[] | null;
   /** Recover idempotent effects from committed game state after a room restart. */
   readonly recoverEffects: (state: RoomState) => readonly RoomEffect[];
   /** Trusted room-host availability, distinct from participant presence. */

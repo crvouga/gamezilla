@@ -25,8 +25,7 @@ function raceRoom(capabilities: TurnGameCapabilities, gameRules = rules) {
   const module = createSpaceModule(
     assertRoomModuleName('race-room'),
     [definition],
-    () => 0,
-    () => 0
+    { now: () => 0, random: () => 0, authority: true }
   );
   const state = {
     ...module.initialState(),

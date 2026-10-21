@@ -31,11 +31,12 @@ export function GamesBootstrapFromPlugins(
   // Composition-root configuration: read once, not tracked.
   const games = untrack(() => props.games);
   const clients = untrack(() => props.clients);
-  const spaceRoomModule: SpaceRoomModule = composeSpaceRoomModule(
-    games,
-    clock.now,
-    random
-  );
+  // A device predicts; only the room decides what needs a private setup.
+  const spaceRoomModule: SpaceRoomModule = composeSpaceRoomModule(games, {
+    now: clock.now,
+    random,
+    authority: false,
+  });
 
   return (
     <SpaceModuleProvider value={spaceRoomModule}>

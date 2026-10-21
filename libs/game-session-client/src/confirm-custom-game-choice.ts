@@ -18,6 +18,7 @@ import type {
   RoomEvent,
   RoomState,
 } from '@pkgs/room-root-shared/types';
+import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 
 type CustomGameRoom = RoomClient<
   RoomState,
@@ -32,6 +33,8 @@ type ConfirmationArgs = {
   clock: Clock;
   canHost: boolean;
   pending: Set<() => void>;
+  /** The registered games: a game with private setups never chooses on the device. */
+  rules: TurnGames;
 };
 
 function confirmLocalChoice(
@@ -44,7 +47,8 @@ function confirmLocalChoice(
     args.canHost &&
     localCustomGameChoiceAllowed(
       CustomGamesAttr.from(room.getSnapshot()).current,
-      choice
+      choice,
+      args.rules
     )
   ) {
     const id = room.dispatch(

@@ -19,7 +19,6 @@ export const customGameChoiceSchema = z.discriminatedUnion('operation', [
       ...reference,
       operation: z.enum([
         'rematch',
-        'ready',
         'unready',
         'swap',
         'start',
@@ -31,6 +30,14 @@ export const customGameChoiceSchema = z.discriminatedUnion('operation', [
         'untimed',
         'claimWin',
       ]),
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
+      operation: z.literal('ready'),
+      /** The side's private setup, for a game whose sides prepare one. */
+      setup: z.string().min(1).max(512).optional(),
     })
     .strict(),
   z

@@ -83,6 +83,7 @@ export function sendAs(
       ts: command.ts,
       commandId: command.id,
       random: () => 0,
+      authority: true,
     },
     payload,
     (_state, _ctx, message) => ({

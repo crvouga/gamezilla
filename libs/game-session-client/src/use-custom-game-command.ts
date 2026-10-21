@@ -15,6 +15,7 @@ import { SPACE_ROOM_NAME } from '@libs/spaces-client/use-space-room-selector';
 import { useClock, useTimers } from '@pkgs/clock-client/solid';
 import { useNamedRoomRoster } from '@pkgs/room-root-client/room-clients-context';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import { useTurnGames } from '@pkgs/turn-game-client/turn-games-context';
 import { createSignal, onCleanup } from 'solid-js';
 import { confirmCustomGameChoice } from './confirm-custom-game-choice';
 
@@ -23,6 +24,7 @@ export function useCustomGameCommand() {
   const spaceId = useSpaceRoomSessionId();
   const timers = useTimers();
   const clock = useClock();
+  const rules = useTurnGames();
   const canHost = useSpaceCan(
     () => spaceId() ?? '',
     PERMISSION.gameCustomCreate
@@ -73,6 +75,7 @@ export function useCustomGameCommand() {
           clock,
           canHost: canHost(),
           pending,
+          rules,
         },
         choice
       );

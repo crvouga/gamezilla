@@ -7,6 +7,7 @@ import type { ProductHarness } from '@libs/harness/harness';
 import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
 import { roomHistoryDisclosed } from '@libs/spaces-harness/room-history-observation';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
+import { createTurnGames } from '@pkgs/turn-game-shared/game-rules';
 import { readCustomGameIdentity } from './custom-game-identity';
 
 type Reply = { readonly reason: string; readonly disclosed: boolean };
@@ -28,7 +29,15 @@ async function disconnectedReason(
 ): Promise<string> {
   try {
     await confirmCustomGameChoice(
-      { room: undefined, timers, clock, canHost: false, pending: new Set() },
+      {
+        room: undefined,
+        timers,
+        clock,
+        canHost: false,
+        pending: new Set(),
+        // No room on the device: no choice is local, whatever the games.
+        rules: createTurnGames([]),
+      },
       choice ?? { operation: 'create', gameId: null, revision: 0 }
     );
   } catch (failure) {

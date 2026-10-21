@@ -21,9 +21,15 @@ import {
 import {
   handleCustomGameChoice,
   handleCustomGameWake,
-  refuseCustomGame,
 } from './custom-game-handler';
 import { localCustomGameChoiceAllowed } from './custom-game-local';
+import { refuseCustomGame } from './custom-game-result';
+import {
+  CustomGameSetupChosen,
+  CustomGameSetupsAttr,
+  keptCustomGameSetups,
+  reduceCustomGameSetup,
+} from './custom-game-setup';
 import { CustomGamesAttr, EMPTY_CUSTOM_GAMES } from './custom-game-state';
 
 const noticeSchema = z
@@ -44,7 +50,8 @@ export function createCustomGameCommandRouter(rules: TurnGames) {
     .on(ChangeLocalCustomGame, (state, ctx, command) =>
       localCustomGameChoiceAllowed(
         CustomGamesAttr.from(state).current,
-        command.payload.choice
+        command.payload.choice,
+        rules
       )
         ? handleCustomGameChoice(
             state,
@@ -85,14 +92,22 @@ export const customGameEventReducer = createMessageRouter<
   void,
   RoomState
 >(customGameEvtNs)
-  .on(CustomGamesChanged, (state, _ctx, event) => ({
-    ...state,
-    ...CustomGamesAttr(event.payload.games),
-    ...CustomGameNoticeAttr({
-      commandId: event.payload.commandId,
-      reason: event.payload.reason,
-    }),
-  }))
+  .on(CustomGamesChanged, (state, _ctx, event) =>
+    keptCustomGameSetups(
+      {
+        ...state,
+        ...CustomGamesAttr(event.payload.games),
+        ...CustomGameNoticeAttr({
+          commandId: event.payload.commandId,
+          reason: event.payload.reason,
+        }),
+      },
+      event.payload.games
+    )
+  )
+  .on(CustomGameSetupChosen, (state, _ctx, event) =>
+    reduceCustomGameSetup(state, event.payload)
+  )
   .on(CustomGameAvailabilityChanged, (state, _ctx, event) => ({
     ...state,
     ...CustomGameAvailableAttr(event.payload.available),
@@ -103,5 +118,6 @@ export function customGameInitialAttrs(): RoomState {
   return {
     ...CustomGamesAttr(EMPTY_CUSTOM_GAMES),
     ...CustomGameNoticeAttr({ commandId: '', reason: '' }),
+    ...CustomGameSetupsAttr({}),
   };
 }

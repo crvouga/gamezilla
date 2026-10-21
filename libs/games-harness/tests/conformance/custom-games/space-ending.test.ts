@@ -49,6 +49,7 @@ forEveryGame(import.meta.path, (game) => {
         ts: 10_000,
         commandId: 'space-ending',
         random: () => 0,
+        authority: true,
       },
       SpaceEnded({})
     );

@@ -63,6 +63,7 @@ export function useCustomGameScreen(
   openHistory?: () => void
 ) {
   const myId = useMyId();
+  const rules = useTurnGames();
   const spaceId = useSpaceRoomSessionId();
   const scope = (): string => spaceId() ?? '';
   const roomGames = useSpaceRoomSelector(CustomGamesAttr.from);
@@ -88,7 +89,7 @@ export function useCustomGameScreen(
       connected() ||
       (canCreate() &&
         current()?.creator === myId() &&
-        soloCustomGame(current()))
+        soloCustomGame(current(), rules))
   );
   const command = useCustomGameCommand();
   const choose = (input: CustomGameInput): Promise<void> =>

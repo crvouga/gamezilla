@@ -3,6 +3,7 @@ import {
   ScheduleEffect,
 } from '@pkgs/room-root-shared/builtin';
 import type { RoomEffect } from '@pkgs/room-root-shared/types';
+import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import {
   EndCustomGameOnTime,
   EndLocalCustomGameOnTime,
@@ -16,19 +17,22 @@ const CLOCK_SCHEDULE = 'chess-custom:clock';
 export const CUSTOM_GAME_BOT_DELAY_MS = 1000;
 
 export function customGameEffects(
-  game: CustomGame | null
+  game: CustomGame | null,
+  rules: TurnGames
 ): readonly RoomEffect[] {
-  return schedules(game, false);
+  return schedules(game, rules, false);
 }
 
 export function localCustomGameEffects(
-  game: CustomGame | null
+  game: CustomGame | null,
+  rules: TurnGames
 ): readonly RoomEffect[] {
-  return schedules(game, true);
+  return schedules(game, rules, true);
 }
 
 function schedules(
   game: CustomGame | null,
+  rules: TurnGames,
   local: boolean
 ): readonly RoomEffect[] {
   const effects: RoomEffect[] = [
@@ -37,7 +41,8 @@ function schedules(
   ];
   if (game?.status !== 'active' || game.turnStartedAt === null) return effects;
   const wake = { gameId: game.id, ply: game.moves.length, side: game.turn };
-  if (game.minutes > 0 && soloCustomGame(game) === local)
+  const solo = soloCustomGame(game, rules);
+  if (game.minutes > 0 && solo === local)
     effects.push(
       ScheduleEffect({
         id: CLOCK_SCHEDULE,
@@ -50,7 +55,7 @@ function schedules(
           : EndCustomGameOnTime(wake),
       })
     );
-  if ((local || !soloCustomGame(game)) && game[game.turn].kind === 'bot')
+  if ((local || !solo) && game[game.turn].kind === 'bot')
     effects.push(
       ScheduleEffect({
         id: BOT_SCHEDULE,
