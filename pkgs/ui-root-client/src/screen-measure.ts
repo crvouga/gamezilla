@@ -7,13 +7,10 @@
  * - `full`: the whole frame column — collections, explorers and game stages
  *   with a side rail.
  *
- * On wide layouts a capped column is centered in the frame, and the page's
+ * A capped column is centered in the frame at every width, and the page's
  * title block sits in the same column so the title lines up with the
- * content. Compact layouts keep every column on the 16px page edge.
+ * content. Narrow layouts retain the 16px page inset.
  */
-
-import type { Accessor } from 'solid-js';
-import { useLayoutMode } from './use-layout-mode';
 
 export type ScreenMeasure = 'menu' | 'prose' | 'full';
 
@@ -22,9 +19,3 @@ export const SCREEN_MAX_WIDTH: Readonly<Record<ScreenMeasure, string>> = {
   prose: '640px',
   full: '100%',
 };
-
-/** Whether a capped column centers here: on wide layouts only. */
-export function useScreenMeasureCentered(): Accessor<boolean> {
-  const mode = useLayoutMode();
-  return () => mode() === 'wide';
-}

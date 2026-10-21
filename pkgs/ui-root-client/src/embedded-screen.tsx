@@ -12,10 +12,9 @@
  * padding, width and title treatment: `MainMenuScreen` (a menu of
  * destinations) and `GameScreen` (a game). The body is one column at the
  * screen's measure (`menu` unless the template asks for `full`), its title
- * block inside it. In a compact host it starts on the 16px page edge (the
- * `TopBar` inset). In a wide host a capped column is centered in the frame,
- * title included, and a `full` one spans it, flush with the host header's
- * left edge.
+ * block inside it. A capped column is centered in every host, title included,
+ * retaining the 16px page inset on narrow screens. A `full` column spans
+ * the frame.
  *
  * @example
  * ```tsx
@@ -30,7 +29,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { type JSX, Show } from 'solid-js';
 import { useScreenFocus } from './screen-focus';
 import { ScreenIntro } from './screen-intro';
-import { type ScreenMeasure, useScreenMeasureCentered } from './screen-measure';
+import type { ScreenMeasure } from './screen-measure';
 import { ScrollView } from './scroll-view';
 import { useLayoutMode } from './use-layout-mode';
 
@@ -64,7 +63,6 @@ export type EmbeddedScreenProps = {
 export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
   const mode = useLayoutMode();
   const inset = (): boolean => mode() !== 'wide';
-  const centered = useScreenMeasureCentered();
   let root: HTMLDivElement | undefined;
   useScreenFocus(
     () => root,
@@ -98,7 +96,6 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
       <ScrolledEmbeddedScreen
         {...props}
         inset={inset()}
-        centered={centered()}
         setRoot={(el) => {
           root = el;
         }}
@@ -110,7 +107,6 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
 function ScrolledEmbeddedScreen(
   props: EmbeddedScreenProps & {
     inset: boolean;
-    centered: boolean;
     setRoot: (el: HTMLDivElement) => void;
   }
 ): JSX.Element {
@@ -132,7 +128,7 @@ function ScrolledEmbeddedScreen(
       paddingBottom="2xl"
       gap="lg"
       measure={props.width ?? 'menu'}
-      measureAlign={props.centered ? 'center' : 'start'}
+      measureAlign="center"
     >
       <ScreenIntro title={props.title} subtitle={props.subtitle} />
       {props.children}

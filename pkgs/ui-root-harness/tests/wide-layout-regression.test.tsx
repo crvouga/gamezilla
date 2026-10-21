@@ -16,7 +16,6 @@ import type { JSX } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 const WIDE = { width: 1440, height: 900 };
-const COMPACT = { width: 390, height: 800 };
 
 function framed(screen: () => JSX.Element): () => JSX.Element {
   return () => (
@@ -87,36 +86,44 @@ describe('wide layout canvas and centered measure', () => {
   });
 
   // regression: wide-layout-canvas-and-centered-measure
-  test('an embedded main menu centers its column with its title inside it', () => {
-    renderUi(
-      () => (
-        <MainMenuScreen
-          screenId="games"
-          title="Games"
-          items={[{ key: 'chess', title: 'Chess' }]}
-        />
-      ),
-      WIDE
-    );
-    const column = mustQuery('[data-component="ScrollViewContent"]');
-    expect(column.className).toMatch(/\bmx-auto\b/);
-    expect((column as HTMLElement).style.maxWidth).toBe(SCREEN_MAX_WIDTH.menu);
-    expect(column.querySelector('[data-component="ScreenIntro"]')).not.toBe(
-      null
-    );
-  });
+  // regression: compact-menus-not-centered
+  test.each([390, 768, 1024, 1440])(
+    'an embedded menu centers its title and rows at width %i',
+    (width) => {
+      renderUi(
+        () => (
+          <MainMenuScreen
+            screenId="games"
+            title="Games"
+            items={[{ key: 'chess', title: 'Chess' }]}
+          />
+        ),
+        { width, height: 900 }
+      );
+      const column = mustQuery('[data-component="ScrollViewContent"]');
+      expect(column.className).toMatch(/\bmx-auto\b/);
+      expect((column as HTMLElement).style.maxWidth).toBe(
+        SCREEN_MAX_WIDTH.menu
+      );
+      expect(column.querySelector('[data-component="ScreenIntro"]')).not.toBe(
+        null
+      );
+    }
+  );
 
-  test('compact keeps the column on the page edge', () => {
-    renderUi(
-      framed(() => (
-        <MenuScreen screenId="settings" breadcrumbs={[{ name: 'Settings' }]}>
-          <p class="text">{'rows'}</p>
-        </MenuScreen>
-      )),
-      COMPACT
-    );
-    expect(classes('[data-component="ScreenColumn"]')).not.toMatch(
-      /\bmx-auto\b/
-    );
-  });
+  // regression: compact-menus-not-centered
+  test.each([390, 768, 1024])(
+    'a routed menu centers its column at width %i',
+    (width) => {
+      renderUi(
+        framed(() => (
+          <MenuScreen screenId="settings" breadcrumbs={[{ name: 'Settings' }]}>
+            <p class="text">{'rows'}</p>
+          </MenuScreen>
+        )),
+        { width, height: 800 }
+      );
+      expect(classes('[data-component="ScreenColumn"]')).toMatch(/\bmx-auto\b/);
+    }
+  );
 });

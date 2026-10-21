@@ -145,10 +145,10 @@ only wells (inputs, tags, notices) take a `surface` tone. Each family has one
 measure (`screen-measure.ts`): `menu` (480px) for `MenuScreen`, `FormScreen`,
 `ProfileScreenLayout`, `MainMenuScreen`, `GameHistoryScreen` and the
 component explorer; `prose` (640px) for `ContentScreen`; `full` for
-`CollectionScreen` and game stages with a rail. On wide layouts a capped
+`CollectionScreen` and game stages with a rail. At every width a capped
 column is centered in the frame and its title block (the wide page header,
 or `ScreenIntro`) sits in the same column, so the title lines up with the
-content. Compact layouts keep every column on the 16px page edge.
+content. Narrow layouts retain the 16px page inset.
 `ScreenColumn` gives routed reading bodies and form footers that measure and
 section rhythm. `GameLayout` stacks
 the stage before the rail on phones and places the rail beside it on wide
