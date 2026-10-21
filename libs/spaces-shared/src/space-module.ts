@@ -68,6 +68,33 @@ export type SpaceModule = RoomModule<RoomState, Message, Message, string> & {
   ) => Message;
 };
 
+/** What a space module is built with. */
+export type SpaceModulePorts = {
+  readonly now: () => number;
+  readonly random: Random;
+  /** Whether the module decides as the room's authority (the room itself, not a device). */
+  readonly authority: boolean;
+};
+
+/** Who may read an event, when some game keeps events private. */
+function composedAudience(
+  games: readonly GameDefinition[]
+): Pick<RoomModule<RoomState, Message, Message, string>, 'audience'> {
+  const deciders = games.flatMap((game) =>
+    game.audience === undefined ? [] : [game.audience]
+  );
+  if (deciders.length === 0) return {};
+  return {
+    audience: (event) => {
+      for (const decide of deciders) {
+        const audience = decide(event);
+        if (audience !== null) return audience;
+      }
+      return null;
+    },
+  };
+}
+
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
 }
@@ -174,9 +201,9 @@ function appendGameReactions(input: {
 export function createSpaceModule(
   name: RoomModuleName,
   definitions: readonly GameDefinition[],
-  now: () => number,
-  random: Random
+  ports: SpaceModulePorts
 ): SpaceModule {
+  const { now, random, authority } = ports;
   assertUniqueGameIds(definitions);
   const games = gameModules(definitions);
   const commandRouter = buildCommandRouter(definitions, games);
@@ -186,6 +213,7 @@ export function createSpaceModule(
 
   return {
     name,
+    ...composedAudience(games),
     connectionView: (grants) => {
       if (grants.includes(PERMISSION.spacesSelectGame))
         return { mode: 'authority' };
@@ -232,7 +260,13 @@ export function createSpaceModule(
           reason: 'not a message envelope',
         });
       }
-      const ctx = { identity, ts: command.ts, commandId: command.id, random };
+      const ctx = {
+        identity,
+        ts: command.ts,
+        commandId: command.id,
+        random,
+        authority,
+      };
       const result = commandRouter.dispatch(state, ctx, msg, (_s, _c, m) =>
         reject({
           type: ROOM_ERROR_TYPE.invalidCommand,

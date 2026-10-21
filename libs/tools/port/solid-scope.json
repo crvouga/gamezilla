@@ -31,6 +31,7 @@
     "pkgs/feedback-harness/src",
     "pkgs/feedback-server/src",
     "libs/connect-four-client/src",
+    "libs/battleship-client/src",
     "libs/game-menu-client/src"
   ],
   "files": [
@@ -215,6 +216,7 @@
     "libs/permissions-harness/src",
     "libs/permissions-server/src",
     "libs/connect-four-client/src",
+    "libs/battleship-client/src",
     "libs/game-menu-client/src"
   ],
   "noDestructureDirs": [
@@ -238,6 +240,7 @@
     "libs/chess-puzzle-client",
     "libs/game-puzzle-client",
     "libs/connect-four-client/src",
+    "libs/battleship-client/src",
     "libs/game-menu-client/src"
   ]
 }

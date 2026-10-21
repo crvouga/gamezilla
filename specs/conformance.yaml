@@ -11,6 +11,7 @@ product:
   # Every bounded context, one per folder beside this file.
   contexts:
     - auth
+    - battleship
     - billing
     - feedback
     - chess

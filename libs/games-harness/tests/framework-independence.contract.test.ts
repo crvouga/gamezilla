@@ -73,9 +73,23 @@ function assertIndependent(
 ): void {
   expect(result.code, result.output).toBe(0);
   for (const name of names) expect(result.output).toContain(name);
+  assertChecked(result);
+}
+
+/** A run restricted to one consumer's scenarios ran some, and they passed. */
+function assertConsumerRan(result: Awaited<ReturnType<typeof execute>>): void {
+  expect(result.code, result.output).toBe(0);
+  expect(result.output).toContain('filtered out');
+  assertChecked(result);
+}
+
+function assertChecked(result: Awaited<ReturnType<typeof execute>>): void {
   expect(result.output).toContain('0 fail');
-  const checks = /^\s*(\d+) pass\s*\n\s*0 fail/m.exec(result.output);
-  expect(checks).not.toBeNull();
+  const checks =
+    /^\s*(\d+) pass\s*\n(?:\s*\d+ filtered out\s*\n)?\s*0 fail/m.exec(
+      result.output
+    );
+  expect(Number(checks?.[1] ?? 0)).toBeGreaterThan(0);
   process.stdout.write(
     `framework independence: ${checks?.[1]} checks passed in the test-only composition\n`
   );
@@ -104,9 +118,19 @@ test('shared client/server suites execute with only independent test consumers',
   ]);
 }, 180_000);
 
-test.each(['custom-games', 'game-turns'])(
-  '%s executes with only independent test consumers',
-  async (name) => {
+/**
+ * Each canonical feature runs once per independent consumer, in a run of
+ * its own, so every consumer added keeps each run inside its time.
+ */
+const ISOLATED_RUNS = ['custom-games', 'game-turns'].flatMap((name) =>
+  ['setup race', 'counting race', 'secret pick'].map(
+    (consumer) => [name, consumer] as const
+  )
+);
+
+test.each(ISOLATED_RUNS)(
+  '%s executes for %s with only independent test consumers',
+  async (name, consumer) => {
     const cache = join(PACKAGE, '.cache');
     mkdirSync(cache, { recursive: true });
     const directory = mkdtempSync(join(cache, 'independence-'));
@@ -117,9 +141,12 @@ test.each(['custom-games', 'game-turns'])(
         // The same scenario timeout used by the repository's spec runner.
         '--timeout',
         '240000',
+        '--test-name-pattern',
+        `\\[${consumer}\\]`,
         sharedFeature(directory, name),
       ]);
-      assertIndependent(result, ['[setup race]', '[counting race]']);
+      // Only the consumer's scenarios match the pattern: any that pass are its.
+      assertConsumerRan(result);
     } finally {
       rmSync(directory, { recursive: true, force: true });
     }

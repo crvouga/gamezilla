@@ -1,16 +1,21 @@
 /**
  * Probe: participant-specific private state.
  *
- * Limitation (executable). A game's whole state is one opaque position,
- * and every participant and watcher is given the same one: the custom-game
- * state is a room attribute shared with everyone in the space, a matched
- * game's `fen` is read by both people and its watchers, and a board is
- * given that position with no viewer (`GameBoardProps`), as the rules
- * decide and list actions with no actor (`GameRules.play`, `legal`). A
- * hand of cards or a hidden fleet would be seen by everyone. Extending it
- * means a per-viewer projection of the position in the rules contract
- * (`view(position, side)`), applied by the room before a position leaves
- * it, by the matched-game reads, and to bots and the puzzle session.
+ * Supported as private setups (`GameRules.setup`): each side prepares a
+ * setup only it and the authority hold — a hidden fleet — and every
+ * position stays public, because the authority resolves each proposal
+ * with both setups into the public action it records. The room withholds a
+ * setup from everyone but its person, a matched game's setups sync only to
+ * their owner, a board is given only its viewer's own setup, and bots choose
+ * from the public position alone. The test-only consumer secret pick and
+ * Battleship are held to it (the `private-setup-privacy` suites of
+ * custom games and finding an opponent, and the shared private-setup
+ * specifications).
+ *
+ * Still a limitation (executable below): a position that differs per
+ * viewer as play goes on — a hand of cards drawn during play, a fog that
+ * lifts — since the shared position is one public string, the board takes
+ * no per-viewer position, and rules decide with no actor.
  */
 
 import { expect, test } from 'bun:test';

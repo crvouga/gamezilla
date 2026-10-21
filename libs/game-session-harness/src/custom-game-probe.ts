@@ -13,6 +13,17 @@ import { bringToFront } from '@libs/harness/observations';
 export type CustomGameProbe = CustomGames & {
   readonly myId: string;
   readonly mySide: 'white' | 'black' | null;
+  /** A move made with no connection waits for it, showing no result. */
+  readonly waiting: boolean;
+  /**
+   * For a game with private setups, the person's own as the screen shows
+   * it: what their setup board holds, and the confirmed one their game
+   * board draws; `null` for any other game.
+   */
+  readonly privateSetup: {
+    readonly arranged: string;
+    readonly own: string | null;
+  } | null;
   /** People in the space who are away, each with since when (room time). */
   readonly away: Readonly<Record<string, number>>;
   readonly error: string;

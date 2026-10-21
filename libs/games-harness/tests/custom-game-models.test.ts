@@ -7,6 +7,10 @@
 import { expect, test } from 'bun:test';
 import { join } from 'node:path';
 import {
+  playedRulesOf,
+  recordedLine,
+} from '@libs/game-session-harness/played-rules';
+import {
   offersAll,
   sharedSpecificationNeeds,
 } from '@libs/games-harness/game-conformance';
@@ -48,7 +52,29 @@ test('every game offering custom games shows a victory the models can follow', (
   for (const game of CONFORMANCE_GAMES.filter((candidate) =>
     offersAll(candidate, ['custom-games'])
   ))
+    expect(victoryOf(game).length).toBeGreaterThanOrEqual(VICTORY_MOVES);
+  // The whole-victory models follow exactly the seven moves.
+  for (const game of CONFORMANCE_GAMES.filter((candidate) =>
+    offersAll(candidate, ['custom-games', 'a seven-move victory'])
+  ))
     expect(victoryOf(game)).toHaveLength(VICTORY_MOVES);
+});
+
+// regression: private-setup-model-victory-as-proposed
+test('the models compare moves with the victory as the game records it', () => {
+  for (const game of CONFORMANCE_GAMES.filter((candidate) =>
+    offersAll(candidate, ['custom-games'])
+  )) {
+    const victory = victoryOf(game);
+    const recorded = recordedLine(game, victory);
+    const rules = game.shared.turnGame.rules;
+    // Played as recorded, the line is the victory its authority plays.
+    expect(rules.replay(recorded, recorded.length)).toBe(
+      playedRulesOf(game).replay([...victory], victory.length)
+    );
+    if (rules.setup === undefined) expect(recorded).toEqual([...victory]);
+    else expect(recorded).not.toEqual([...victory]);
+  }
 });
 
 test('a victory of another length is refused with what the models need', () => {
@@ -62,7 +88,7 @@ test('a victory of another length is refused with what the models need', () => {
     },
   };
   expect(() => victoryOf(shorter)).toThrow(
-    `follow a first-side victory of exactly ${String(VICTORY_MOVES)} moves`
+    `follow a first-side victory of at least ${String(VICTORY_MOVES)} moves`
   );
 });
 

@@ -1,5 +1,8 @@
-import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
-import type { MultiplayerSide } from '@libs/game-matchmaking-shared/multiplayer-clock';
+import type {
+  MultiplayerGame,
+  MultiplayerSide,
+} from '@libs/game-matchmaking-shared/game-state';
+import { awaitingSetups } from '@libs/game-matchmaking-shared/game-state';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client/turn-games-context';
 import { GameBoardStage } from '@pkgs/ui-root-client/game-board-stage';
@@ -25,6 +28,8 @@ type BoardProps = {
   readonly syncKey: number;
   readonly view: OwnBoard;
   readonly onMove: (uci: string) => Promise<void>;
+  /** The viewer's own private setup in this game, if it has one. */
+  readonly ownSetup: string | null;
 };
 
 /**
@@ -74,6 +79,7 @@ function BoardStage(
         sound={!sounds.muted()}
         syncKey={props.syncKey}
         testId="multiplayer-board"
+        setup={props.ownSetup}
         onAction={(action: string) => {
           void props.onMove(action);
         }}
@@ -97,6 +103,7 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
     !props.moving &&
     props.game.outcome === 'ongoing' &&
     props.game.paused_at_ms === null &&
+    !awaitingSetups(props.game) &&
     props.game.turn === props.myId;
   // A watcher sees the board from White's side.
   const white = () => props.game.white_id === props.myId || !participant();

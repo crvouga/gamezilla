@@ -4,7 +4,11 @@ import { assertRoomModuleName } from '@pkgs/room-root-shared/types';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 import type { GameDefinition } from './game';
 import { gameModules } from './game-modules';
-import { createSpaceModule, type SpaceModule } from './space-module';
+import {
+  createSpaceModule,
+  type SpaceModule,
+  type SpaceModulePorts,
+} from './space-module';
 import { SPACE_ROOM_MODULE_NAME } from './space-room-module-name';
 
 /** Fail fast when the composition-root registry has duplicate game ids. */
@@ -71,20 +75,19 @@ export function assertMatchingGameIds(
  */
 export function composeSpaceRoomModule(
   games: readonly GameDefinition[],
-  now: () => number,
-  random: Random
+  ports: SpaceModulePorts
 ): SpaceModule {
   return createSpaceModule(
     assertRoomModuleName(SPACE_ROOM_MODULE_NAME),
     games,
-    now,
-    random
+    ports
   );
 }
 
 /**
  * Convenience for the Durable Object adapter: returns the module list passed
- * to `createDurableObjectAdapter({ modules })`.
+ * to `createDurableObjectAdapter({ modules })`. The room decides as the
+ * authority; a device composes its prediction with `composeSpaceRoomModule`.
  */
 export function composeRoomModules(
   games: readonly GameDefinition[],
@@ -92,7 +95,7 @@ export function composeRoomModules(
   random: Random
 ): readonly RoomModule<RoomState, Message, Message, string>[] {
   return [
-    composeSpaceRoomModule(games, now, random),
+    composeSpaceRoomModule(games, { now, random, authority: true }),
     ...gameModules(games).flatMap((game) => game.matchRooms ?? []),
   ];
 }

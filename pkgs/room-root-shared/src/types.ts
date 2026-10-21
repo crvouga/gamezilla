@@ -139,6 +139,13 @@ export type RoomModule<
     identity: Identity
   ): HandleResult<E>;
   reduce(state: S, event: E): S;
+  /**
+   * Who may read an event: `null` for everyone the room serves, else the
+   * actor ids whose connections receive it. Every other connection receives
+   * the entry withheld (`RoomEventWithheld`), before it is serialized, so a
+   * private event never leaves the room for anyone outside its audience.
+   */
+  audience?(event: E): readonly string[] | null;
   /** Restore idempotent effects from committed state, preserving original deadlines. */
   recoverEffects(state: S): readonly RoomEffect[];
   /**

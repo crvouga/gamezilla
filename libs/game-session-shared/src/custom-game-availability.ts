@@ -29,7 +29,11 @@ export function createCustomGameAvailabilityChange(
     if (CustomGameAvailableAttr.from(state) === available) return null;
     const games = CustomGamesAttr.from(state);
     let game = games.current;
-    if (game !== null && game.status === 'active' && !soloCustomGame(game)) {
+    if (
+      game !== null &&
+      game.status === 'active' &&
+      !soloCustomGame(game, rules)
+    ) {
       game = expireCustomGame(game, now, rules);
       if (game.status === 'active')
         game = {
@@ -53,7 +57,7 @@ export function createCustomGameAvailabilityChange(
           reason: '',
         }),
       ],
-      effects: customGameEffects(game),
+      effects: customGameEffects(game, rules),
     };
   };
 }

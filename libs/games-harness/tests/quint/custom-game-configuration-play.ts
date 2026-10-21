@@ -5,6 +5,7 @@ import {
   makeCustomGameMove,
 } from '@libs/game-session-harness/custom-game-moves';
 import { readStoredCustomGames } from '@libs/game-session-harness/custom-game-stored';
+import { recordedLine } from '@libs/game-session-harness/played-rules';
 import type {
   CustomGame,
   CustomGameSide,
@@ -18,9 +19,13 @@ import {
 } from './custom-game-configuration-world';
 import { modelGameOf, victoryOf } from './model-game';
 
-/** Whether the custom game's moves are still the first moves of the victory. */
+/**
+ * Whether the custom game's moves are still the first moves of the victory,
+ * as the game records them (a game with private setups records each move
+ * resolved).
+ */
 export function onVictoryLine(w: QuintHarnessWorld, game: CustomGame): boolean {
-  const victory = victoryOf(modelGameOf(w));
+  const victory = recordedLine(modelGameOf(w), victoryOf(modelGameOf(w)));
   return game.moves.every((move, ply) => move.uci === victory[ply]);
 }
 

@@ -55,6 +55,15 @@ export function CustomGameTest(props: {
           reviewPly: props.review.displayedPly(),
           live: props.review.live(),
           mySide: props.model.mySide(),
+          waiting: props.model.waiting(),
+          // The person's own private setup as the screen shows it: what
+          // their setup board holds and what their game board draws.
+          privateSetup: props.model.privateSetup.has()
+            ? {
+                arranged: props.model.privateSetup.draft(),
+                own: props.model.privateSetup.own(),
+              }
+            : null,
           away: props.model.away(),
           gates: {
             create: props.model.canCreate(),

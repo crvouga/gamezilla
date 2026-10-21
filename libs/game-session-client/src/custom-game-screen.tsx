@@ -16,6 +16,7 @@ import {
 import { CustomGameBoard, CustomGameRecord } from './custom-game-board';
 import { CustomGameConfiguration } from './custom-game-configuration';
 import { CustomGameError } from './custom-game-error';
+import { CustomGamePrivateSetup } from './custom-game-private-setup';
 import { CustomGameSeats } from './custom-game-side';
 import {
   CustomGameConnectionNotice,
@@ -55,6 +56,7 @@ function CustomGameContent(props: ModelProps): JSX.Element {
           >
             <Show when={props.model.current()?.status === 'configuring'}>
               <CustomGameSeats model={props.model} />
+              <CustomGamePrivateSetup model={props.model} />
               <CustomGameConfiguration model={props.model} />
             </Show>
           </Show>

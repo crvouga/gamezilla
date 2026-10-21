@@ -1,0 +1,4 @@
+{
+  "summary": "The custom-game play model showed a guest who returned while the host was still offline the move they missed; the product keeps the board the guest had until the host returns, as the custom-game control model and its regression decide. The play model now keeps that board until a result.",
+  "regressionTest": "libs/games-harness/tests/quint/custom-game-play.binding.ts"
+}

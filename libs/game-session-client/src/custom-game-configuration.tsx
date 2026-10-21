@@ -99,8 +99,15 @@ export function CustomGameConfiguration(props: {
             }
             dataSet={{ testid: 'custom-game-ready' }}
             variant={ready() ? 'outline' : 'solid'}
+            disabled={
+              !ready() &&
+              props.model.privateSetup.has() &&
+              !props.model.privateSetup.complete()
+            }
             operation={() =>
-              props.model.choose({ operation: ready() ? 'unready' : 'ready' })
+              ready()
+                ? props.model.choose({ operation: 'unready' })
+                : props.model.ready()
             }
           />
         </Show>

@@ -2,6 +2,7 @@ import { expect } from 'bun:test';
 import { firstLegalMove } from '@libs/game-session-harness/custom-game-moves';
 import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import { readCustomGameMoveList } from '@libs/game-session-harness/custom-game-reads';
+import { recordedMove } from '@libs/game-session-harness/played-rules';
 import { Given, Then } from '@libs/harness/define';
 import { chosen, current, toldOf } from './custom-game-set-up-world';
 import {
@@ -29,7 +30,11 @@ Then("the move list shows {actor}'s move", async (w, _mover: string) => {
   // The move made is the first the game's rules allow from where it stood.
   expect(game.moves.map((move) => move.uci)).toEqual([
     ...earlier.moves.map((move) => move.uci),
-    firstLegalMove(gameOf(w), earlier.fen),
+    recordedMove(
+      gameOf(w),
+      earlier.fen,
+      firstLegalMove(gameOf(w), earlier.fen)
+    ),
   ]);
   expect(await w.s.read(readCustomGameMoveList, hostOf(w))).toEqual(
     game.moves.map((move) => move.san)
@@ -47,8 +52,10 @@ Then(
     });
     const moves = seen.current?.moves.map((move) => move.uci) ?? [];
     expect(moves).toHaveLength(2);
+    // The reply as recorded is a move the rules accept from where it was made.
     const rules = gameOf(w).shared.turnGame.rules;
-    expect(rules.legal(positionAfter(w, moves, 1))).toContain(moves[1]!);
+    const before = positionAfter(w, moves, 1);
+    expect(rules.play(before, moves[1]!, '', moves.slice(0, 1))).not.toBeNull();
   }
 );
 Then(

@@ -53,6 +53,8 @@ test('the release bundle checks every health journey the localhost stack can run
   expect(paths).toContain('specs/journeys/custom-game.feature');
   expect(paths).toContain('specs/journeys/join-and-offline.feature');
   expect(paths).toContain('specs/connect-four/connect-four-health.feature');
+  expect(paths).toContain('specs/journeys/battleship-game.feature');
+  expect(paths).toContain('specs/battleship/battleship-health.feature');
 });
 
 test('a health spec stays out of the release bundle only for something the localhost stack lacks', () => {
@@ -86,6 +88,30 @@ test('the live entry binds the literal Connect Four journey steps', () => {
     for (const text of [
       'Alice and Bob play Connect Four from fresh devices',
       'Alice and Bob see the same completed Connect Four game'
+    ]) {
+      if (matchStep(text).kind !== 'match') throw new Error('unbound: ' + text);
+    }
+  `,
+    ],
+    { cwd: resolve(import.meta.dir, '..'), encoding: 'utf8' }
+  );
+  expect(result.status, result.stdout + result.stderr).toBe(0);
+});
+
+test('the live entry binds the Battleship journey and health steps', () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      '-e',
+      `
+    await import('./tests/steps/live-index.ts');
+    const { matchStep } = await import('@pkgs/gherkin-shared/registry');
+    for (const text of [
+      'Alice and Bob play Battleship from fresh devices',
+      'Alice and Bob see the same completed Battleship game',
+      'the team checks Battleship in this environment',
+      'two people can find each other and play Battleship to a victory they both see',
+      "neither person saw the other's fleet beyond what their shots showed"
     ]) {
       if (matchStep(text).kind !== 'match') throw new Error('unbound: ' + text);
     }

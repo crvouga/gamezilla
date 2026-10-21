@@ -15,6 +15,7 @@ test('resending activity preserves its original time instead of waking a quiet d
       ts: 120000,
       commandId: 'activity',
       random: () => 0.5,
+      authority: true,
     },
     NoteActivity({ clientId: 'alice-phone', at: 1000 }),
     () => ({
@@ -34,6 +35,7 @@ test('resending activity preserves its original time instead of waking a quiet d
       ts: 120000,
       commandId: 'older',
       random: () => 0.5,
+      authority: true,
     },
     NoteActivity({ clientId: 'alice-phone', at: 1000 }),
     () => ({

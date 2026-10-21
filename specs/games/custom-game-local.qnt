@@ -5,6 +5,8 @@
 // keeps the number of moves they already saw while the host has none. This
 // small custom game follows the first four moves of the game's own rules; how
 // a custom game is won belongs to the play models.
+// It holds for every game without a private setup; a custom game of a game
+// with one needs the connection for its moves to count.
 module custom_game_local {
   pure val PEOPLE = Set("alice", "bob")
   /// The host's current custom game, including when their device has no connection.

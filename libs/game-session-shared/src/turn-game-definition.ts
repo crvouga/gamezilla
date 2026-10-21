@@ -113,6 +113,13 @@ export function defineTurnGame<C extends TurnGameCapabilities>(
   if (!/^[a-z][a-z0-9-]{0,31}$/.test(id))
     throw new Error(`game id "${id}" is not a lowercase slug`);
   assertTurnGameCapabilities(id, game.capabilities);
+  const setups = game.rules.setup !== undefined;
+  if (setups !== (game.automation.arrange !== undefined))
+    throw new Error(
+      setups
+        ? `${id}: its sides prepare private setups (rules.setup) — give its automation arrange(ui, board, setup), the gesture that enters a setup on its setup board`
+        : `${id}: automation.arrange is only for a game with private setups (rules.setup)`
+    );
   const turnGame: RegisteredTurnGame = {
     rules: game.rules,
     capabilities: game.capabilities,

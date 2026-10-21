@@ -1,6 +1,10 @@
 import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
-import type { MultiplayerGame } from './game-state';
-import { bothHaveMoved, endMultiplayerGame } from './game-state';
+import type { MultiplayerGame, MultiplayerSide } from './game-state';
+import {
+  awaitingSetups,
+  bothHaveMoved,
+  endMultiplayerGame,
+} from './game-state';
 import type { ClockSpeed } from './time-control';
 import {
   incrementMs,
@@ -15,7 +19,11 @@ import {
  */
 export const FIRST_MOVE_MS = 30_000;
 
-export type MultiplayerSide = 'white' | 'black';
+/**
+ * Both sides of a game with private setups have this long from the start to
+ * choose them; a daily game gives its time control's days instead.
+ */
+export const SETUP_MS = 120_000;
 
 type ClockFields = Pick<
   MultiplayerGame,
@@ -29,6 +37,7 @@ type ClockFields = Pick<
   | 'black_ms'
   | 'clock_at_ms'
   | 'paused_at_ms'
+  | 'setup_ready'
 >;
 
 export function sideToMove(
@@ -55,6 +64,11 @@ function firstMoveMs(game: Pick<MultiplayerGame, 'time_control'>): number {
   return daily(game) ? startingMs(game.time_control) : FIRST_MOVE_MS;
 }
 
+/** How long both sides have to choose their private setups. */
+function setupMs(game: Pick<MultiplayerGame, 'time_control'>): number {
+  return daily(game) ? startingMs(game.time_control) : SETUP_MS;
+}
+
 /**
  * Whether the side to move is spending time right now. A daily game's clock
  * runs from the start; any other waits until both people have moved.
@@ -64,6 +78,7 @@ export function clockRunning(game: ClockFields): boolean {
     game.outcome === 'ongoing' &&
     game.paused_at_ms === null &&
     timed(game) &&
+    !awaitingSetups(game) &&
     (bothHaveMoved(game) || daily(game))
   );
 }
@@ -78,6 +93,7 @@ export function clockLeftMs(
   if (
     game.outcome !== 'ongoing' ||
     !timed(game) ||
+    awaitingSetups(game) ||
     (!bothHaveMoved(game) && !daily(game)) ||
     sideToMove(game) !== side
   )
@@ -94,6 +110,7 @@ export function multiplayerDeadlineMs(game: ClockFields): number | null {
   if (game.outcome !== 'ongoing' || game.paused_at_ms !== null || !timed(game))
     return null;
   const startedAt = game.clock_at_ms ?? 0;
+  if (awaitingSetups(game)) return startedAt + setupMs(game);
   if (!bothHaveMoved(game)) return startedAt + firstMoveMs(game);
   const side = sideToMove(game);
   return startedAt + ((side === 'white' ? game.white_ms : game.black_ms) ?? 0);
@@ -163,6 +180,8 @@ export function settleMultiplayerClock(
 ): MultiplayerGame {
   const deadline = multiplayerDeadlineMs(game);
   if (deadline === null || nowMs < deadline) return game;
+  if (awaitingSetups(game))
+    return endMultiplayerGame(game, 'aborted', 'setup missed');
   if (!bothHaveMoved(game))
     return endMultiplayerGame(game, 'aborted', 'first move missed');
   const flagged = sideToMove(game);

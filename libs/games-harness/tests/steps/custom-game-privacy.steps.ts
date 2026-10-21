@@ -6,6 +6,7 @@
 
 import { expect } from 'bun:test';
 import { readExportedCustomGames } from '@libs/game-session-harness/custom-game-export';
+import { recordedLine } from '@libs/game-session-harness/played-rules';
 import type { CustomGame } from '@libs/game-session-shared/custom-game-state';
 import { Given, Then } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -75,7 +76,7 @@ Then(
       })
     );
     expect(game.moves.map((move) => move.uci)).toEqual(
-      gameOf(w).fixtures.firstSideVictory.slice(0, 1)
+      recordedLine(gameOf(w), gameOf(w).fixtures.firstSideVictory.slice(0, 1))
     );
   }
 );

@@ -33,16 +33,16 @@ describe('game plugin contract', () => {
   });
   test('the space module composes an additional game without product changes', () => {
     const games = [dummyGame('first'), dummyGame('second')];
-    const module = composeSpaceRoomModule(
-      games,
-      () => 0,
-      () => 0
-    );
-    const again = composeSpaceRoomModule(
-      [...games],
-      () => 0,
-      () => 0
-    );
+    const module = composeSpaceRoomModule(games, {
+      now: () => 0,
+      random: () => 0,
+      authority: true,
+    });
+    const again = composeSpaceRoomModule([...games], {
+      now: () => 0,
+      random: () => 0,
+      authority: true,
+    });
     expect(again.name).toBe(module.name);
     expect(module.initialState()).toBeDefined();
   });

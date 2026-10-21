@@ -1,5 +1,5 @@
 {
-  "release": 15,
+  "release": 16,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -82,6 +82,7 @@
         "rematch_of": "text",
         "rematch_offer_by": "text",
         "revision": "integer",
+        "setup_ready": "text",
         "time_control": "text",
         "turn": "text",
         "white_id": "text",
@@ -100,6 +101,12 @@
         "rating_deviation": "integer",
         "speed": "text",
         "volatility_micros": "integer"
+      },
+      "chess_multiplayer_setups": {
+        "game_id": "text",
+        "owner_id": "text",
+        "setup": "text",
+        "side": "text"
       },
       "chess_opponent_searches": {
         "formulas": "json",
@@ -377,6 +384,7 @@
       ["billing_subscriptions", "account_id"],
       ["chess_multiplayer_games", "black_id"],
       ["chess_multiplayer_games", "white_id"],
+      ["chess_multiplayer_setups", "owner_id"],
       ["chess_puzzle_rating_events", "owner_id"],
       ["chess_puzzles", "popularity"],
       ["chess_puzzles", "rating"],
@@ -398,6 +406,7 @@
       ["chess_multiplayer_games", "match_id"],
       ["chess_multiplayer_players", "owner_id"],
       ["chess_multiplayer_ratings", "owner_id", "speed"],
+      ["chess_multiplayer_setups", "game_id", "side"],
       ["chess_opponent_searches", "owner_id"],
       ["chess_puzzles", "position_key"],
       ["friends_blocks", "blocker_id", "blocked_id"],

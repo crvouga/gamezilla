@@ -138,11 +138,27 @@ function assertPuzzlesPart(game: GameClient): void {
     );
 }
 
+/** A game with private setups shows its own setup board; no other game has one. */
+function assertSetupBoard(game: GameClient): void {
+  const id = game.shared.id;
+  const setups = game.shared.turnGame.rules.setup !== undefined;
+  const board = game.presentation.SetupBoard;
+  if (setups && typeof board !== 'function')
+    throw new Error(
+      `${id}: its sides prepare private setups (rules.setup) but its presentation has no SetupBoard — the shared screens show the game's own setup board`
+    );
+  if (!setups && board !== undefined)
+    throw new Error(
+      `${id}: the presentation has a SetupBoard but its rules have no private setup — add rules.setup, or leave the board out`
+    );
+}
+
 /** The one way a game joins the space's game choice. */
 export function defineGameClient<C extends TurnGameCapabilities>(
   game: GameClient<C>
 ): GameClientRegistration {
   assertPuzzlesPart(game);
+  assertSetupBoard(game);
   assertGameScreens(game.shared.id, [
     ...(game.choices ?? []).map((choice) => choice.screen),
     ...(game.screens ?? []).map((screen) => screen.screen),

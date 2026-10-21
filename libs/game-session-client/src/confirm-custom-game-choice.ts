@@ -7,6 +7,7 @@ import {
 import { localCustomGameChoiceAllowed } from '@libs/game-session-shared/custom-game-local';
 import { CustomGameNoticeAttr } from '@libs/game-session-shared/custom-game-router';
 import { CustomGamesAttr } from '@libs/game-session-shared/custom-game-state';
+import { customGameChoiceWaits } from '@libs/game-session-shared/custom-game-waiting-move';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type {
   RoomClient,
@@ -18,6 +19,7 @@ import type {
   RoomEvent,
   RoomState,
 } from '@pkgs/room-root-shared/types';
+import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 
 type CustomGameRoom = RoomClient<
   RoomState,
@@ -32,6 +34,10 @@ type ConfirmationArgs = {
   clock: Clock;
   canHost: boolean;
   pending: Set<() => void>;
+  /** The registered games: a game with private setups never chooses on the device. */
+  rules: TurnGames;
+  /** Told when the choice waits for the connection before it is sent. */
+  onWaiting?: () => void;
 };
 
 function confirmLocalChoice(
@@ -44,7 +50,8 @@ function confirmLocalChoice(
     args.canHost &&
     localCustomGameChoiceAllowed(
       CustomGamesAttr.from(room.getSnapshot()).current,
-      choice
+      choice,
+      args.rules
     )
   ) {
     const id = room.dispatch(
@@ -68,6 +75,26 @@ function confirmLocalChoice(
   return null;
 }
 
+function roomOnline(room: CustomGameRoom): boolean {
+  return (
+    RoomMetaAttr.isConnected.from(room.getSnapshot()) &&
+    RoomMetaAttr.isSynced.from(room.getSnapshot())
+  );
+}
+
+/** Whether `choice`, made with no connection, is sent once it returns. */
+function waitsForConnection(
+  room: CustomGameRoom,
+  choice: CustomGameChoice,
+  rules: TurnGames
+): boolean {
+  return customGameChoiceWaits(
+    CustomGamesAttr.from(room.getSnapshot()).current,
+    choice,
+    rules
+  );
+}
+
 /** Solo choices are durable locally; choices with others await agreement. */
 export function confirmCustomGameChoice(
   args: ConfirmationArgs,
@@ -76,27 +103,38 @@ export function confirmCustomGameChoice(
   const room = args.room;
   const local = confirmLocalChoice(args, choice);
   if (local !== null) return local;
-  if (
-    room === undefined ||
-    !RoomMetaAttr.isConnected.from(room.getSnapshot()) ||
-    !RoomMetaAttr.isSynced.from(room.getSnapshot())
-  )
-    return Promise.reject(new Error('connection needed'));
+  if (room === undefined) return Promise.reject(new Error('connection needed'));
+  const online = (): boolean => roomOnline(room);
+  if (!online()) {
+    if (!waitsForConnection(room, choice, args.rules))
+      return Promise.reject(new Error('connection needed'));
+    args.onWaiting?.();
+  }
   return new Promise<void>((resolve, reject) => {
     let commandId: string | null = null;
     let result: RoomCommandResult | null = null;
     let done = false;
+    let deadline: ReturnType<typeof args.timers.setTimeout> | null = null;
     const finish = (reason: string): void => {
       if (done) return;
       done = true;
       unsubscribe();
       unsubscribeResult();
-      args.timers.clearTimeout(deadline);
+      if (deadline !== null) args.timers.clearTimeout(deadline);
       args.pending.delete(cancel);
       if (reason === '') resolve();
       else reject(new Error(reason));
     };
+    // A choice waiting for the connection is answered once it is sent.
+    const awaitAnswer = (): void => {
+      if (deadline !== null || done || !online()) return;
+      deadline = args.timers.setTimeout(
+        () => finish('confirmation did not arrive'),
+        15_000
+      );
+    };
     const inspect = (): void => {
+      awaitAnswer();
       if (commandId === null) return;
       if (result?.commandId === commandId && !result.ok) {
         const fault = result.error;
@@ -122,10 +160,7 @@ export function confirmCustomGameChoice(
       result = next;
       inspect();
     });
-    const deadline = args.timers.setTimeout(
-      () => finish('confirmation did not arrive'),
-      15_000
-    );
+    awaitAnswer();
     args.pending.add(cancel);
     commandId = room.dispatch(ChangeCustomGame(choice));
     if (commandId === null)

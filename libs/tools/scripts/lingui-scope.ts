@@ -16,6 +16,7 @@ export const LINGUI_CATALOG_SOURCES = [
   'libs/billing-client/src',
   'libs/chess-root-client/src',
   'libs/connect-four-client/src',
+  'libs/battleship-client/src',
   'libs/game-menu-client/src',
   'libs/game-session-client/src',
   'libs/game-matchmaking-client/src',

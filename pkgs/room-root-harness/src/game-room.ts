@@ -31,6 +31,12 @@ import {
   turnStartedAtAttr,
   whiteMsAttr,
 } from './game-room-clock';
+import {
+  handleNote,
+  initialNotes,
+  noteAudience,
+  reduceNote,
+} from './game-room-notes';
 
 /**
  * The example app every test of the room framework drives: a game room
@@ -42,7 +48,9 @@ import {
  *   unauthorized;
  * - a **timed match** between the identities `white` and `black`: starting
  *   it arms a scheduled "ran out of time" for the player to move, each move
- *   re-arms it for the opponent, and the room ends the match when it fires.
+ *   re-arms it for the opponent, and the room ends the match when it fires;
+ * - **sealed notes**: a note sealed for one person reaches only them
+ *   (`game-room-notes`), the room's private events.
  *
  * One kitchen-sink module on purpose: a new room capability grows this app
  * instead of adding another fixture (README.md, "One example app per
@@ -334,6 +342,7 @@ export const gameRoomModule: RoomModule<RoomState, Message, Message, string> = {
       ...turnStartedAtAttr(0),
       ...clocksPausedAttr(0),
       ...winnerAttr(null),
+      ...initialNotes(),
     };
   },
 
@@ -354,13 +363,18 @@ export const gameRoomModule: RoomModule<RoomState, Message, Message, string> = {
       return { ok: true, events: [TallyChanged({ by: -1 })] };
     }
     return (
+      handleNote(msg) ??
       handleOwnership(state, msg, identity) ??
       handleMatch(state, command, msg, identity) ??
       invalid(String(msg.type))
     );
   },
 
+  audience: noteAudience,
+
   reduce(state: RoomState, event: Message): RoomState {
+    const noted = reduceNote(state, event);
+    if (noted !== null) return noted;
     if (ClockAvailabilityChanged.is(event))
       return reduceClockAvailability(state, event);
     if (TallyChanged.is(event)) {

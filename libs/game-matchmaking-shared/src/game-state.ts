@@ -33,6 +33,12 @@ export type MultiplayerGame = {
   readonly black_rating: string | null;
   readonly white_rating_diff: number | null;
   readonly black_rating_diff: number | null;
+  /**
+   * For a game whose sides prepare private setups, the sides whose setup is
+   * chosen (`''`, `'white'`, `'black'` or `'white,black'`); `null` for any
+   * other game. Readiness is public; the setups themselves are not.
+   */
+  readonly setup_ready: string | null;
 };
 
 export const MULTIPLAYER_GAME_COLUMNS = [
@@ -57,7 +63,32 @@ export const MULTIPLAYER_GAME_COLUMNS = [
   'black_rating',
   'white_rating_diff',
   'black_rating_diff',
+  'setup_ready',
 ] as const;
+
+export type MultiplayerSide = 'white' | 'black';
+
+/** The sides whose private setup is chosen. */
+export function setupReadySides(
+  game: Pick<MultiplayerGame, 'setup_ready'>
+): readonly MultiplayerSide[] {
+  return (game.setup_ready ?? '')
+    .split(',')
+    .filter(
+      (side): side is MultiplayerSide => side === 'white' || side === 'black'
+    );
+}
+
+/** Whether the game still waits for a side's private setup before its first move. */
+export function awaitingSetups(
+  game: Pick<MultiplayerGame, 'setup_ready' | 'outcome'>
+): boolean {
+  return (
+    game.outcome === 'ongoing' &&
+    game.setup_ready !== null &&
+    setupReadySides(game).length < 2
+  );
+}
 
 /** Both people have made their first move: clocks run, aborting ends. */
 export function bothHaveMoved(

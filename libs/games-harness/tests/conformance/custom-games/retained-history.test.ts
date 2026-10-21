@@ -8,6 +8,7 @@
  */
 
 import { expect, test } from 'bun:test';
+import { playedRulesOf } from '@libs/game-session-harness/played-rules';
 import { playCustomGameMove } from '@libs/game-session-shared/custom-game-play';
 import { customGamePositionAt } from '@libs/game-session-shared/custom-game-position';
 import { newCustomGame } from '@libs/game-session-shared/custom-game-state';
@@ -19,7 +20,7 @@ forEveryGame(import.meta.path, (game) => {
   test('a retained first move cannot be silently paired with an empty action history', () => {
     const rules = createTurnGames([game.shared.turnGame]);
     const [opening, reply] = game.fixtures.firstSideVictory;
-    const afterOpening = game.shared.turnGame.rules.replay([opening!], 1);
+    const afterOpening = playedRulesOf(game).replay([opening!], 1);
     const retained = {
       ...newCustomGame('retained-match', 'alice', afterOpening),
       status: 'active' as const,

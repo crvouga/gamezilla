@@ -27,6 +27,7 @@ const game: MultiplayerGame = {
   black_rating: null,
   white_rating_diff: null,
   black_rating_diff: null,
+  setup_ready: null,
 };
 
 test.each(['5+0', 'connect-four/5+0'])(
@@ -78,3 +79,46 @@ test.each(['5+0', 'connect-four/5+0'])(
     }
   }
 );
+
+test('a chosen private setup is observed by which sides are ready, never by the setup', async () => {
+  const db = SqlClientImplBunSqlite.open(':memory:');
+  await db.connect();
+  try {
+    await reconcileOutbox(db);
+    const setup =
+      'fleet:carrier@a1h;battleship@a3h;cruiser@a5h;submarine@a7h;destroyer@a9h';
+    const paired = { ...game, revision: 0, setup_ready: '' };
+    const white = { ...paired, setup_ready: 'white' };
+    const both = { ...paired, setup_ready: 'white,black' };
+    await db.transaction(async (tx) => {
+      await recordGameTransition(tx, {
+        before: paired,
+        after: white,
+        nowMs: 1000,
+      });
+      await recordGameTransition(tx, {
+        before: white,
+        after: both,
+        nowMs: 2000,
+      });
+      await recordGameTransition(tx, {
+        before: white,
+        after: both,
+        nowMs: 2000,
+      });
+    });
+    const rows = await db.query(
+      sql<{
+        type: string;
+        payload: string;
+      }>`SELECT type, payload FROM outbox_events ORDER BY created_at`
+    );
+    expect(rows.filter((row) => row.type.includes('setup'))).toHaveLength(2);
+    const serialized = JSON.stringify(rows);
+    expect(serialized).toContain('white,black');
+    expect(serialized).not.toContain(setup);
+    expect(serialized).not.toContain('white-user');
+  } finally {
+    await db.disconnect();
+  }
+});

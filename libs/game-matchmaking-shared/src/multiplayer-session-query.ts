@@ -26,9 +26,14 @@ export const multiplayerSessionQuery = defineQuery({
     const ratings = await ctx.db.query(
       sql`SELECT * FROM chess_multiplayer_ratings WHERE owner_id = ${ctx.env.actorId}`
     );
+    // A person's own private setups, and nobody else's.
+    const setups = await ctx.db.query(
+      sql`SELECT * FROM chess_multiplayer_setups WHERE owner_id = ${ctx.env.actorId}`
+    );
     return {
       ...profiles,
       chess_multiplayer_ratings: ratings,
+      chess_multiplayer_setups: setups,
       chess_multiplayer_players: players,
       chess_multiplayer_games: games,
       chess_opponent_searches: searches,

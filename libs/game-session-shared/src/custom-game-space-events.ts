@@ -5,12 +5,12 @@ import type { Message } from '@pkgs/message-shared/message';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import { replaceCustomGameSide } from './custom-game-configuration';
-import { changedCustomGames } from './custom-game-handler';
 import {
   customGameWinOrDraw,
   expireCustomGame,
   finishCustomGame,
 } from './custom-game-play';
+import { changedCustomGames } from './custom-game-result';
 import type { CustomGame } from './custom-game-state';
 import {
   CUSTOM_GAME_SIDES,
@@ -64,12 +64,12 @@ export function reactCustomGameToSpaceEvent(
   if (game === null || customGameTerminal(game)) return null;
   let next = expireCustomGame(game, ctx.ts, rules);
   if (customGameTerminal(next))
-    return changedCustomGames({ ...games, current: next }, ctx);
+    return changedCustomGames({ ...games, current: next }, ctx, rules);
   if (SpaceEnded.is(event)) next = finishCustomGame(next, 'cancelled', ctx.ts);
   else if (SpaceSeatLeft.is(event))
     next = departingCustomGame(next, event.payload.memberId, ctx.ts, rules);
   else return null;
   return next === game
     ? null
-    : changedCustomGames({ ...games, current: next }, ctx);
+    : changedCustomGames({ ...games, current: next }, ctx, rules);
 }

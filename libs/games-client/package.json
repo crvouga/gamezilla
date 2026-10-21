@@ -14,6 +14,7 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
+    "@libs/battleship-client": "workspace:*",
     "@libs/chess-root-client": "workspace:*",
     "@libs/connect-four-client": "workspace:*",
     "@libs/game-menu-client": "workspace:*",

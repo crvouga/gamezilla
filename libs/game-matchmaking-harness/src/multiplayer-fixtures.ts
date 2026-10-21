@@ -1,11 +1,7 @@
-import { drainAndNotifyOutbox } from '@libs/app-root-server/outbox-drain';
-import { accountMutationEnv } from '@libs/auth-shared/account-mutation-env';
 import { findOpponentMutation } from '@libs/game-matchmaking-shared/find-opponent-mutation';
 import { MultiplayerGameRepository } from '@libs/game-matchmaking-shared/game-repository';
 import { formGameMatches } from '@libs/game-matchmaking-shared/match-handoff';
-import { MultiplayerGameChanged } from '@libs/game-matchmaking-shared/match-room';
 import { scheduleMultiplayerDeadline } from '@libs/game-matchmaking-shared/multiplayer-deadline';
-import { MultiplayerNoticesDue } from '@libs/game-matchmaking-shared/multiplayer-notices';
 import { publishMatchGame } from '@libs/game-matchmaking-shared/publish-match-game';
 import { MultiplayerRatingRepository } from '@libs/game-matchmaking-shared/rating-repository';
 import { OPPONENT_SEARCH_RADIUS } from '@libs/game-matchmaking-shared/search-config';
@@ -14,91 +10,12 @@ import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { signedInAccountOf } from '@libs/harness/identity';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
-import sql, { join } from '@pkgs/sql-root-shared/sql';
-import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
 import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
-import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
+import { multiplayerFixture } from './multiplayer-fixtures-core';
+import { chooseKnownSetups } from './multiplayer-setups';
 import { multiplayerSpaceId } from './multiplayer-spaces';
 
 /** Fixture writes are actual mutation bodies, with normal captured sync pushes. */
-export async function multiplayerFixture(
-  s: ProductHarness,
-  actor: string,
-  run: (tx: SqlTx, env: MutationEnv) => Promise<readonly string[]>
-): Promise<void> {
-  const owner = await signedInAccountOf(s, actor);
-  if (owner === null) throw new Error(`Missing ${actor}'s account`);
-  await multiplayerTransaction(s, owner, run);
-}
-
-/** Both people of every game written, as the production topic map wakes them. */
-function gamePlayers(
-  images: Readonly<Record<string, readonly Record<string, unknown>[]>>
-): string[] {
-  return (images['chess_multiplayer_games'] ?? []).flatMap((row) =>
-    [row['white_id'], row['black_id']].filter(
-      (id): id is string => typeof id === 'string' && id.length > 0
-    )
-  );
-}
-
-/**
- * What a game write sets off at once in production, where the request that
- * wrote it drains them: the room's board and a daily game's notices.
- */
-const DELIVERED_AT_ONCE = [
-  MultiplayerGameChanged.type,
-  MultiplayerNoticesDue.type,
-] as const;
-
-/** A server event's trusted subject; independent of a device session. */
-export async function multiplayerTransaction(
-  s: ProductHarness,
-  owner: string,
-  run: (tx: SqlTx, env: MutationEnv) => Promise<readonly string[]>
-): Promise<void> {
-  const base = accountMutationEnv(owner, s.harness.server);
-  const env = {
-    ...base,
-    serverNow: base.now,
-    turnGames: s.harness.composition.app.turnGames,
-  };
-  let tables: readonly string[] = [];
-  const owners = await s.harness.serverSql.sqlClient.transaction(async (tx) => {
-    const wrapped = wrapMutationDb(tx, env);
-    const affected = await run(wrapped.tx, env);
-    const capture = wrapped.getCapture();
-    tables = capture.tables;
-    return [...new Set([...affected, ...gamePlayers(capture.images)])];
-  });
-  const pubsub = s.harness.server.events;
-  if (pubsub === null)
-    throw new Error('Multiplayer fixture requires the composed pubsub');
-  const matchEvents = await s.harness.serverSql.sqlClient.query(
-    sql<{
-      id: string;
-    }>`SELECT id FROM outbox_events WHERE type IN (${join([...DELIVERED_AT_ONCE])}) AND deleted_at IS NULL`
-  );
-  if (matchEvents.length > 0)
-    await drainAndNotifyOutbox({
-      db: s.harness.serverSql.sqlClient,
-      clock: s.harness.clock,
-      createId: s.session.ports.createId,
-      pubsub,
-      objectStore: s.harness.server.blob,
-      consumerRegistry: s.harness.outboxConsumers(),
-      eventIds: matchEvents.map((event) => event.id),
-    });
-  await notifyChannels({
-    pubsub,
-    sql: s.harness.serverSql.sqlClient,
-    tables,
-    topics: owners.map((id) => `user:${id}`),
-    label: 'multiplayer-fixture',
-    now: s.harness.clock.now,
-  });
-}
-
 export const givenOpponentSearch = scenarioAction<
   [actor: string, timeControl: string, requestId?: string]
 >({
@@ -128,9 +45,11 @@ export const pairGameOpponents = scenarioAction<
   [actor?: string, firstIsWhite?: boolean]
 >({
   name: 'pairGameOpponents',
-  act: (s, actor = 'alice', firstIsWhite?: boolean) =>
-    multiplayerFixture(s, actor, (tx) =>
-      formGameMatches(
+  act: async (s, actor = 'alice', firstIsWhite?: boolean) => {
+    // The pass may run again after its first attempt: keep everyone it formed.
+    const formed = new Set<string>();
+    await multiplayerFixture(s, actor, async (tx) => {
+      const pass = await formGameMatches(
         tx,
         {
           nowMs: s.harness.clock.now(),
@@ -140,8 +59,13 @@ export const pairGameOpponents = scenarioAction<
             : { tieBreak: () => firstIsWhite }),
         },
         s.harness.composition.app.turnGames
-      )
-    ),
+      );
+      for (const owner of pass) formed.add(owner);
+      return pass;
+    });
+    // Whoever was paired is in a new matched game, its private setups chosen.
+    await Promise.resolve(chooseKnownSetups.act(s, [...s.actors.keys()]));
+  },
 });
 
 /** The changed game keeps its deadline for the scheduled sweep, as every write does. */
@@ -161,6 +85,28 @@ export const awaitGameMatch = scenarioAction<
 >({
   name: 'awaitGameMatch',
   act: async (s, first: string, second: string, firstIsWhite?: boolean) => {
+    await formMatchOf(s, [first, second], firstIsWhite);
+    // A new matched game is ready to play: private setups are chosen.
+    await Promise.resolve(chooseKnownSetups.act(s, [first, second]));
+  },
+});
+
+/** The match forms as for {@link awaitGameMatch}, its private setups still to choose. */
+export const awaitGameMatchChoosingSetups = scenarioAction<
+  [first: string, second: string, firstIsWhite?: boolean]
+>({
+  name: 'awaitGameMatchChoosingSetups',
+  act: async (s, first: string, second: string, firstIsWhite?: boolean) =>
+    formMatchOf(s, [first, second], firstIsWhite),
+});
+
+async function formMatchOf(
+  s: ProductHarness,
+  pair: readonly [string, string],
+  firstIsWhite?: boolean
+): Promise<void> {
+  const [first, second] = pair;
+  {
     const people = [
       await signedInAccountOf(s, first),
       await signedInAccountOf(s, second),
@@ -185,8 +131,8 @@ export const awaitGameMatch = scenarioAction<
       await s.session.advanceTime(1000);
     }
     throw new Error(`No game match formed for ${first} and ${second}`);
-  },
-});
+  }
+}
 
 /** Deliver a fixture's accepted board and clocks through the production outbox. */
 export async function publishMultiplayerFixture(
