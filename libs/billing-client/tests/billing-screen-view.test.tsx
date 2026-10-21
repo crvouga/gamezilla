@@ -180,49 +180,7 @@ const STILL_ROUTER: AppRouter = {
   canGoBack: () => false,
 };
 
-function renderLayout(loading: boolean) {
-  const harness = createHarnessClock();
-  const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
-  const view = buildBillingView(inputFor('guest', 'none', true, false));
-  return render(() => (
-    <I18nProvider i18n={i18n}>
-      <ClockProvider clock={harness.clock} timers={harness.timers}>
-        <ThemeProvider
-          colorScheme="light"
-          fixedLayout={{ width: 390, height: 640 }}
-        >
-          <StaticAppRouterProvider router={STILL_ROUTER}>
-            <BillingScreenLayout
-              loading={loading}
-              view={view}
-              offer={PLUS_MEMBERSHIP_OFFER}
-              locale="en-US"
-              formatDate={(ms) => new Date(ms).toISOString().slice(0, 10)}
-              actions={NO_ACTIONS}
-            />
-          </StaticAppRouterProvider>
-        </ThemeProvider>
-      </ClockProvider>
-    </I18nProvider>
-  ));
-}
-
 describe('billing screen layout', () => {
-  test('shows the loading state until the membership row is read', () => {
-    renderLayout(true);
-    expect(
-      document.querySelector('[data-component="LoadingState"]')
-    ).not.toBeNull();
-    expect(screen.queryByTestId(Handles.billingScreen)).toBeNull();
-    cleanup();
-    renderLayout(false);
-    expect(
-      document.querySelector('[data-component="LoadingState"]')
-    ).toBeNull();
-    expect(screen.getByTestId(Handles.billingScreen)).toBeTruthy();
-    cleanup();
-  });
-
   test('the whole body scrolls, so a short phone never clips the plans', () => {
     // regression: billing-screen-clips-on-short-phone
     const harness = createHarnessClock();

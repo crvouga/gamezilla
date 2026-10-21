@@ -8,7 +8,6 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
-import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { P } from '@pkgs/ui-root-client/text';
 import { createMemo, type JSX, Show } from 'solid-js';
@@ -65,18 +64,13 @@ export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
   );
 }
 
-export type BillingScreenLayoutProps = BillingScreenViewProps & {
-  /** The membership row has not been read yet. */
-  readonly loading?: boolean | undefined;
-};
-
 /**
- * The billing screen's shell around its body: the Settings breadcrumb, the
- * loading state until the membership row is read, and a whole-body scroll,
- * so the plan, pricing and benefits never clip on a short phone.
+ * The billing screen's shell around its body: the Settings breadcrumb and a
+ * whole-body scroll, so the plan, pricing and benefits never clip on a short
+ * phone. While the membership is being checked the plan card says so.
  */
 export function BillingScreenLayout(
-  props: BillingScreenLayoutProps
+  props: BillingScreenViewProps
 ): JSX.Element {
   return (
     <ContentScreen
@@ -87,15 +81,13 @@ export function BillingScreenLayout(
         { name: <Trans>Billing</Trans> },
       ]}
     >
-      <Show when={props.loading !== true} fallback={<LoadingState size="lg" />}>
-        <BillingScreenView
-          view={props.view}
-          offer={props.offer}
-          locale={props.locale}
-          formatDate={props.formatDate}
-          actions={props.actions}
-        />
-      </Show>
+      <BillingScreenView
+        view={props.view}
+        offer={props.offer}
+        locale={props.locale}
+        formatDate={props.formatDate}
+        actions={props.actions}
+      />
     </ContentScreen>
   );
 }
