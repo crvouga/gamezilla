@@ -103,7 +103,9 @@ describe('development client startup', () => {
       const html = source(`apps/${app}/index.html`);
       expect(html).toContain('class="startup-shell"');
       expect(html).not.toContain('startup-shell-caption');
-      expect(html).toContain('background: #000000');
+      expect(html).toContain(
+        'background: var(--ui-color-background, hsla(0, 0%, 0%, 1));'
+      );
       expect(html).toContain('prefers-reduced-motion: reduce');
     }
   });
