@@ -1,3 +1,4 @@
+import { BATTLESHIP_HARNESS_GAME } from '@libs/battleship-harness/battleship-harness-game';
 import { CHESS_HARNESS_GAME } from '@libs/chess-root-harness/chess-harness-game';
 import { CONNECT_FOUR_HARNESS_GAME } from '@libs/connect-four-harness/connect-four-harness-game';
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
@@ -11,4 +12,5 @@ import type { HarnessGame } from '@libs/game-session-harness/harness-game';
 export const HARNESS_GAMES: readonly HarnessGame[] = [
   CHESS_HARNESS_GAME,
   CONNECT_FOUR_HARNESS_GAME,
+  BATTLESHIP_HARNESS_GAME,
 ];

@@ -1,3 +1,4 @@
+import { battleshipGameClient } from '@libs/battleship-client/battleship-game-client';
 import { chessGameClient } from '@libs/chess-root-client/chess-game-client';
 import { connectFourGameClient } from '@libs/connect-four-client/connect-four-game-client';
 import type { GameClientRegistration } from '@libs/game-menu-client/game-client';
@@ -15,6 +16,7 @@ import {
 export const GAME_CLIENT_DEFINITIONS = [
   chessGameClient,
   connectFourGameClient,
+  battleshipGameClient,
 ] as const satisfies readonly GameClientRegistration[];
 
 assertGameRegistry(GAME_CLIENT_DEFINITIONS);

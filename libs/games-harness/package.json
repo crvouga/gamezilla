@@ -137,6 +137,7 @@
     "verify:models:3:5": "bun run ../../libs/tools/scripts/verify-models.ts --part 3/16 --phase 5/6"
   },
   "dependencies": {
+    "@libs/battleship-harness": "workspace:*",
     "@libs/chess-root-harness": "workspace:*",
     "@libs/connect-four-harness": "workspace:*",
     "@libs/game-session-harness": "workspace:*",

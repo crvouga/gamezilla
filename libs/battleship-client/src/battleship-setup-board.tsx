@@ -64,7 +64,10 @@ function SetupCommands(props: {
         size="sm"
         disabled={props.locked || selected() === null}
         onClick={props.setup.rotate}
-        dataSet={{ testid: `${props.testId}-rotate` }}
+        dataSet={{
+          testid: `${props.testId}-rotate`,
+          orientation: props.setup.orientation(),
+        }}
       />
       <Button
         title={t`Remove`}

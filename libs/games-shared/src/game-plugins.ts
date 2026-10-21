@@ -1,3 +1,4 @@
+import { battleshipGameShared } from '@libs/battleship-shared/battleship-game';
 import { chessGameShared } from '@libs/chess-sub-shared/chess-game';
 import { connectFourGameShared } from '@libs/connect-four-shared/connect-four-game';
 import type { TurnGameDefinition } from '@libs/game-session-shared/turn-game-definition';
@@ -14,6 +15,7 @@ import { assertGameNamespaceOwner } from './game-namespace-owner';
 export const GAME_DEFINITIONS = [
   chessGameShared,
   connectFourGameShared,
+  battleshipGameShared,
 ] as const satisfies readonly TurnGameDefinition[];
 
 assertGameRegistry(GAME_DEFINITIONS);

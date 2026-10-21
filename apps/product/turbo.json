@@ -398,6 +398,9 @@
     "prepare:ui-quality": {
       "dependsOn": [
         "@apps/product#test:spec:0",
+        "@libs/battleship-harness#test:spec:0",
+        "@libs/battleship-harness#test:spec:1",
+        "@libs/battleship-harness#test:spec:2",
         "@libs/billing-harness#test:spec:0",
         "@libs/billing-harness#test:spec:1",
         "@libs/billing-harness#test:spec:2",
