@@ -2,10 +2,13 @@ import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  AGENT_SKILLS,
   BREW_ENV,
   brewUpgradeCommand,
+  graphifyInstallCommand,
   miseInstallCommand,
   miseUpgradeCommand,
+  skillsUpdateCommand,
 } from './install-system';
 
 // regression: install-system-tui-prompt
@@ -56,4 +59,13 @@ test('the Infisical CLI names its release asset per platform', () => {
     'linux-arm64': 'cli_{{ version }}_linux_arm64.tar.gz',
     'linux-x64': 'cli_{{ version }}_linux_amd64.tar.gz',
   });
+});
+
+test('a tool bump refreshes the agent skills built from it', () => {
+  expect(graphifyInstallCommand().join(' ')).toBe(
+    'mise exec -- bun run libs/tools/scripts/graphify-install.ts'
+  );
+  expect(skillsUpdateCommand(AGENT_SKILLS).join(' ')).toBe(
+    'mise exec -- bunx skills update ast-grep ast-grep-outline -p -y'
+  );
 });

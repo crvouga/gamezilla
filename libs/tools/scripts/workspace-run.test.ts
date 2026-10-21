@@ -40,6 +40,7 @@ const GIT_HOOK_NAMES = new Set([
 ]);
 const DEV = 'bun run --silent dev -- --web-port 5800';
 const INSTALL = 'bun install';
+const GRAPHIFY = 'bun run graphify:install';
 
 const checkouts: string[] = [];
 afterEach(() => {
@@ -172,6 +173,7 @@ test('Run starts dev in the terminal UI even when the parent asked for stream', 
   expect(cold.status).toBe(0);
   expect(cold.calls).toEqual([
     'bun install TURBO_UI=false',
+    'bun run graphify:install TURBO_UI=false',
     `${DEV} TURBO_UI=true`,
   ]);
   expect(run(env).calls).toEqual([`${DEV} TURBO_UI=true`]);
@@ -189,7 +191,7 @@ test('Run launches dev directly on the workspace port', () => {
 test('Run installs first in a checkout that has no turbo to run dev with', () => {
   const { dir, run } = checkout();
   const first = run();
-  expect(first.calls).toEqual([INSTALL, DEV]);
+  expect(first.calls).toEqual([INSTALL, GRAPHIFY, DEV]);
   expect(first.stdout).toBe(
     ['==> mise install', '==> bun install', ''].join('\n')
   );
@@ -205,7 +207,12 @@ test('Run launches dev on an incomplete install and retries it next time', () =>
   const first = run({ WORKSPACE_RUN_TEST_INSTALL: 'fail' });
   expect(first.status).toBe(0);
   expect(first.stdout).toContain('launching dev on an incomplete install');
-  expect(first.calls).toEqual(failing);
+  expect(first.calls).toEqual([
+    INSTALL,
+    'bun install --ignore-scripts',
+    GRAPHIFY,
+    DEV,
+  ]);
   expect(run({ WORKSPACE_RUN_TEST_INSTALL: 'fail' }).calls).toEqual(failing);
   expect(run().calls).toEqual([INSTALL, DEV]);
 });
@@ -299,7 +306,7 @@ test('Run installs and activates system tools before app dependencies on cold an
   ];
   const cold = run(env);
   expect(cold.status).toBe(0);
-  expect(cold.calls).toEqual([...system, INSTALL, DEV]);
+  expect(cold.calls).toEqual([...system, INSTALL, GRAPHIFY, DEV]);
   // The old warm marker must not hide pins introduced by a pull.
   writeFileSync(join(dir, 'mise.toml'), '[tools]\nbun = "1.4.4"\n');
   const warm = run(env);
@@ -329,10 +336,11 @@ test('Run bootstraps mise without a shell profile and reuses its user installati
     'mise install --yes',
     'mise env --shell bash',
     INSTALL,
+    GRAPHIFY,
     DEV,
   ]);
   expect(existsSync(join(dir, 'home/.local/bin/mise'))).toBe(true);
-  expect(run(env).calls).toEqual(cold.calls.slice(1, -2).concat(DEV));
+  expect(run(env).calls).toEqual(cold.calls.slice(1, -3).concat(DEV));
 });
 
 test('Run retries failed system setup in a warm workspace and still attempts dev', () => {
