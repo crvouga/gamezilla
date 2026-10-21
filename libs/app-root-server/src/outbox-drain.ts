@@ -15,6 +15,7 @@ import {
 } from '@pkgs/sync-engine-shared/topic-map';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
+import { countExhaustedOutboxDeliveries } from './outbox-health';
 import { outboxNotificationTopics } from './outbox-notification-topics';
 
 let registry: OutboxConsumerRegistry | null = null;
@@ -96,6 +97,7 @@ export async function drainAndNotifyOutbox(args: {
     },
     args.maxPasses
   );
+  countExhaustedOutboxDeliveries(result.exhausted);
 
   const store = apiRequestAsyncLocalStorage.getStore();
   const topics = await outboxNotificationTopics({
@@ -139,11 +141,13 @@ export async function drainAndNotifyOutbox(args: {
 async function drainDueOutbox(deps: DrainOutboxDeps, maxPasses = 8) {
   const notifyUserIds = new Set<string>();
   let processed = 0;
+  let exhausted = 0;
   for (let pass = 0; pass < maxPasses; pass++) {
     const result = await drainOutbox(deps);
     processed += result.processed;
+    exhausted += result.exhausted;
     for (const id of result.notifyUserIds) notifyUserIds.add(id);
     if (result.processed === 0) break;
   }
-  return { processed, notifyUserIds: [...notifyUserIds] };
+  return { processed, exhausted, notifyUserIds: [...notifyUserIds] };
 }

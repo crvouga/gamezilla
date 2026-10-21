@@ -57,6 +57,7 @@
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/message-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",
     "@pkgs/sql-client-sqlite-root-server": "workspace:*",
     "@types/bun": "catalog:",

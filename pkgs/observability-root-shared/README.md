@@ -67,6 +67,11 @@ This API does not automatically discover a repository-wide schema baseline.
 Unknown values, extra dimensions, negative/nonfinite measurements and more
 than 256 vocabulary combinations are rejected. SDK views enforce the same
 dimension allowlist and a series cap. Identifiers stay out of metrics.
+A counter an alert selects sets `environmentScoped: true`: each point then
+carries the runtime's `deployment.environment.name` (set by the telemetry
+runtime that installs the global meter provider), because a Worker isolate's
+resource information goes stale soon after it ends. Its outcome vocabulary uses
+the `app.outcome` dimension.
 
 `logicalEvents` deduplicates records, rejects conflicting copies, includes only explicitly real activity, excludes unknown and
 synthetic activity and selects event time in explicit half-open UTC windows.
