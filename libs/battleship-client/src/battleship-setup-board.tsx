@@ -85,7 +85,9 @@ function SetupCommands(props: {
 /**
  * Where a side arranges its hidden fleet: choose a ship, turn it, and press
  * the cell for its bow. A placement off the board or over another ship is
- * refused with the reason and leaves the fleet as it was.
+ * refused with the reason and leaves the fleet as it was. Its progress is
+ * `<testId>-progress`: the screen hosting it keeps `<testId>-status` for
+ * its own word on the setup.
  */
 export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
   const setup = createSetupController(props);
@@ -97,7 +99,7 @@ export function BattleshipSetupBoard(props: GameSetupBoardProps): JSX.Element {
         variant="caption"
         role="status"
         aria-live="polite"
-        testId={`${props.testId}-status`}
+        testId={`${props.testId}-progress`}
       >
         {setup.status()}
       </P>

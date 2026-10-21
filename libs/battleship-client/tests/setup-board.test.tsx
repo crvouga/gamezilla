@@ -29,7 +29,9 @@ const tone = (id: string) => cell(id).getAttribute('data-tone');
 
 test('pressing a cell places the selected ship with its bow there, across by default', () => {
   const board = setupBoard();
-  expect(byTestId('setup-status').textContent).toContain('0 of 5 ships placed');
+  expect(byTestId('setup-progress').textContent).toContain(
+    '0 of 5 ships placed'
+  );
   fireEvent.click(cell('a1'));
   expect(board.setup()).toBe('fleet:carrier@a1h');
   for (const id of ['a1', 'b1', 'c1', 'd1', 'e1'])
@@ -37,8 +39,10 @@ test('pressing a cell places the selected ship with its bow there, across by def
   expect(tone('f1')).toBe('open');
   expect(cell('a1').getAttribute('aria-label')).toBe('A1: Carrier');
   expect(cell('a1').textContent).toBe('■');
-  expect(byTestId('setup-status').textContent).toContain('1 of 5 ships placed');
-  expect(byTestId('setup-status').getAttribute('aria-live')).toBe('polite');
+  expect(byTestId('setup-progress').textContent).toContain(
+    '1 of 5 ships placed'
+  );
+  expect(byTestId('setup-progress').getAttribute('aria-live')).toBe('polite');
 });
 
 test('rotate turns the next placement down, and the five ships make the canonical fleet', () => {
@@ -55,7 +59,7 @@ test('rotate turns the next placement down, and the five ships make the canonica
     'fleet:carrier@a1h;battleship@a3v;cruiser@c3v;submarine@e3v;destroyer@g3v'
   );
   expect(acceptFleet(board.setup())).toBe(board.setup());
-  expect(byTestId('setup-status').textContent).toBe(
+  expect(byTestId('setup-progress').textContent).toBe(
     'All five ships placed. Your fleet is ready.'
   );
 });
@@ -155,4 +159,11 @@ test('a locked setup disables every control and says why', () => {
   fireEvent.keyDown(cell('a5'), { key: 'r' });
   expect(board.setup()).toBe('fleet:carrier@a1h');
   expect(board.changes).toEqual([]);
+});
+
+test("the placing progress has its own id, leaving `<testId>-status` to the screen's private-setup status", () => {
+  // regression: battleship-setup-status-test-id-collision
+  setupBoard();
+  expect(document.querySelector('[data-testid="setup-status"]')).toBeNull();
+  expect(byTestId('setup-progress').getAttribute('role')).toBe('status');
 });
