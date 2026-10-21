@@ -115,6 +115,7 @@ function stubBilling(
     startCheckout: (input) => {
       world.providerCalls.push(`checkout:${String(input.customerId)}`);
       return answer({
+        kind: 'checkout' as const,
         customerId: input.customerId ?? 'cus_new',
         url: session === 'empty_url' ? '' : 'https://pay.test/cs_1',
       });
@@ -232,7 +233,8 @@ function expectedCheckout(caller: Caller, session: SessionAnswer): Outcome {
   if (caller === 'anonymous') return { status: 401, ...NONE };
   const customer = caller === 'customer' ? 'cus_linked' : 'null';
   const providerCalls = [`checkout:${customer}`];
-  if (session === 'throws') return { status: 500, ...NONE, providerCalls };
+  // An outage is a plain 503 the app can explain, never a bare 500.
+  if (session === 'throws') return { status: 503, ...NONE, providerCalls };
   // A new customer is linked (and pushed) even when the provider sent no url.
   const linked = caller === 'no_customer';
   return {
@@ -247,7 +249,8 @@ function expectedPortal(caller: Caller, session: SessionAnswer): Outcome {
   if (caller === 'anonymous') return { status: 401, ...NONE };
   if (caller === 'no_customer') return { status: 404, ...NONE };
   const providerCalls = ['portal:cus_linked'];
-  if (session === 'throws') return { status: 500, ...NONE, providerCalls };
+  // An outage is a plain 503 the app can explain, never a bare 500.
+  if (session === 'throws') return { status: 503, ...NONE, providerCalls };
   return { status: session === 'ok' ? 200 : 502, ...NONE, providerCalls };
 }
 

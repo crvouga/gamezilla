@@ -119,7 +119,15 @@ class OtherProviderBilling implements MembershipBilling {
 
   startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
     const customerId = input.customerId ?? this.world.newHolder();
+    const live = [...this.world.plans.values()].some(
+      (plan) =>
+        plan.holder === customerId &&
+        ['trialing', 'active', 'delinquent'].includes(STATUS_OF[plan.phase])
+    );
+    if (live) return Promise.resolve({ kind: 'live_membership', customerId });
+    // One open checkout per holder: the same page until it is paid.
     return Promise.resolve({
+      kind: 'checkout',
       customerId,
       url: `https://other.test/pay?holder=${customerId}`,
     });

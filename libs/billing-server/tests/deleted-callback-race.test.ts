@@ -47,6 +47,7 @@ test('deletion committed after a callback reads the account prevents revival', a
     const provider: MembershipBilling = {
       provider: 'stub',
       startCheckout: async () => ({
+        kind: 'checkout',
         customerId: 'cus_alice',
         url: 'https://pay.test',
       }),

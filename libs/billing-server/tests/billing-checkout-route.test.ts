@@ -36,6 +36,7 @@ class StubBilling implements MembershipBilling {
   startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
     this.calls.push(input);
     return Promise.resolve({
+      kind: 'checkout',
       customerId: input.customerId ?? 'cus_new',
       url: this.url,
     });

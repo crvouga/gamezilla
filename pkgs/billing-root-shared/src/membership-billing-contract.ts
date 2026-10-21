@@ -15,7 +15,11 @@ import {
   CONTRACT_PERIOD_END_MS,
   CONTRACT_SITUATIONS,
 } from './contract-fixtures';
-import type { MembershipBilling, ReadCallbackInput } from './membership';
+import type {
+  MembershipBilling,
+  ReadCallbackInput,
+  StartCheckoutResult,
+} from './membership';
 import { isMembershipProviderId } from './providers';
 
 /** One subscription as the harness's provider will report it. */
@@ -99,6 +103,14 @@ async function changeOf(
   return result;
 }
 
+/** The checkout a start opened (or handed back); fails on any other answer. */
+function opened(result: StartCheckoutResult) {
+  if (result.kind !== 'checkout') {
+    throw new Error(`expected a checkout, got ${result.kind}`);
+  }
+  return result;
+}
+
 function describeSessions(
   open: () => Promise<MembershipBillingContractHarness>
 ): void {
@@ -109,7 +121,9 @@ function describeSessions(
 
   test('checkout mints a customer when the account has none', async () => {
     const { billing } = await open();
-    const result = await billing.startCheckout(checkoutInput('acct-1', null));
+    const result = opened(
+      await billing.startCheckout(checkoutInput('acct-1', null))
+    );
     expect(result.customerId.length).toBeGreaterThan(0);
     assertAbsoluteUrl(result.url);
   });
@@ -139,6 +153,61 @@ function describeSessions(
       returnUrl: RETURN_URL,
     });
     assertAbsoluteUrl(portal.url);
+  });
+}
+
+/** A customer has at most one checkout that can take a payment. */
+function describeOneCheckout(
+  open: () => Promise<MembershipBillingContractHarness>
+): void {
+  test('checkout again while one is open hands back that checkout', async () => {
+    const { billing } = await open();
+    const first = opened(
+      await billing.startCheckout(checkoutInput('acct-1', null))
+    );
+    const again = opened(
+      await billing.startCheckout(checkoutInput('acct-1', first.customerId))
+    );
+    expect(again.url).toBe(first.url);
+  });
+
+  test('checkout for a customer with a live membership opens none', async () => {
+    const harness = await open();
+    const first = await harness.billing.startCheckout(
+      checkoutInput('acct-1', null)
+    );
+    harness.setSubscription({
+      ...SUBSCRIPTION,
+      id: 'sub_paid_unconfirmed',
+      customerId: first.customerId,
+      situation: 'trialing',
+    });
+    const again = await harness.billing.startCheckout(
+      checkoutInput('acct-1', first.customerId)
+    );
+    expect(again).toEqual({
+      kind: 'live_membership',
+      customerId: first.customerId,
+    });
+  });
+
+  test('an ended membership does not stop a new checkout', async () => {
+    const harness = await open();
+    const first = await harness.billing.startCheckout(
+      checkoutInput('acct-1', null)
+    );
+    harness.setSubscription({
+      ...SUBSCRIPTION,
+      id: 'sub_ended',
+      customerId: first.customerId,
+      situation: 'canceled_immediately',
+    });
+    const again = opened(
+      await harness.billing.startCheckout(
+        checkoutInput('acct-1', first.customerId)
+      )
+    );
+    assertAbsoluteUrl(again.url);
   });
 }
 
@@ -355,6 +424,7 @@ export function describeMembershipBillingContract(
 ): void {
   describe(`${name} satisfies the membership contract`, () => {
     describe('sessions', () => describeSessions(open));
+    describe('one checkout at a time', () => describeOneCheckout(open));
     describe('authenticity', () => describeAuthenticity(open));
     describe('projection', () =>
       describeProjection(open, options.unreachable ?? {}));

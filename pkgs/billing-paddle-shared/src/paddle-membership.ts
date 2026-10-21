@@ -16,6 +16,7 @@ import type {
   StartCheckoutResult,
 } from '@pkgs/billing-root-shared/membership';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
+import { isMembershipLive } from '@pkgs/billing-root-shared/precedence';
 
 import {
   PADDLE_MEMBERSHIP_CALLBACK_EVENTS,
@@ -261,7 +262,50 @@ export class PaddleMembershipBilling implements MembershipBilling {
     return url.toString();
   }
 
+  /** Whether Paddle holds a live membership for `customerId`. */
+  private async hasLiveMembership(customerId: string): Promise<boolean> {
+    const query = new URLSearchParams({
+      customer_id: customerId,
+      status: 'active,trialing,past_due',
+      per_page: '200',
+    });
+    const live = await this.api.list<PaddleSubscription>(
+      `/subscriptions?${query.toString()}`
+    );
+    return live.some((subscription) =>
+      isMembershipLive(membershipStatusOf(subscription.status))
+    );
+  }
+
+  /**
+   * The customer's newest checkout that can still take a payment. Paddle's
+   * hosted checkout has no return URL of its own, so any open one will do.
+   */
+  private async openCheckout(
+    customerId: string
+  ): Promise<PaddleTransaction | null> {
+    const query = new URLSearchParams({
+      customer_id: customerId,
+      status: 'ready',
+      per_page: '200',
+    });
+    const ready = await this.api.list<PaddleTransaction>(
+      `/transactions?${query.toString()}`
+    );
+    return ready.at(-1) ?? null;
+  }
+
   async startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
+    if (input.customerId !== null) {
+      const customerId = input.customerId;
+      if (await this.hasLiveMembership(customerId)) {
+        return { kind: 'live_membership', customerId };
+      }
+      const open = await this.openCheckout(customerId);
+      if (open !== null) {
+        return { kind: 'checkout', customerId, url: this.checkoutLink(open) };
+      }
+    }
     const customer = input.customerId ?? (await this.mintCustomer(input));
     const { offer } = this.options;
     const spec = offer.prices[offer.defaultPriceKey];
@@ -283,7 +327,11 @@ export class PaddleMembershipBilling implements MembershipBilling {
         custom_data: { [PADDLE_CUSTOM_DATA.accountId]: input.accountId },
       }
     );
-    return { customerId: customer, url: this.checkoutLink(transaction) };
+    return {
+      kind: 'checkout',
+      customerId: customer,
+      url: this.checkoutLink(transaction),
+    };
   }
 
   async openPortal(input: OpenPortalInput): Promise<{ readonly url: string }> {

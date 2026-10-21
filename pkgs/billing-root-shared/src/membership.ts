@@ -60,12 +60,29 @@ export type StartCheckoutInput = {
   readonly returnUrl: string;
 };
 
-export type StartCheckoutResult = {
-  /** The provider customer to remember for this account. */
-  readonly customerId: string;
-  /** Where to send the person; non-empty on success. */
-  readonly url: string;
-};
+/**
+ * A person pays for one membership however often they press subscribe, so a
+ * customer has at most one checkout that can take a payment:
+ *
+ * - `checkout` — where to send the person. A checkout the customer already
+ *   has open for the same return URL is handed back rather than a second one
+ *   opened; any other open checkout of theirs is closed first.
+ * - `live_membership` — the provider already holds a live membership for the
+ *   customer (they paid, and the news has not reached the app yet), so no
+ *   checkout is opened.
+ */
+export type StartCheckoutResult =
+  | {
+      readonly kind: 'checkout';
+      /** The provider customer to remember for this account. */
+      readonly customerId: string;
+      /** Where to send the person; non-empty on success. */
+      readonly url: string;
+    }
+  | {
+      readonly kind: 'live_membership';
+      readonly customerId: string;
+    };
 
 export type OpenPortalInput = {
   readonly accountId: string;

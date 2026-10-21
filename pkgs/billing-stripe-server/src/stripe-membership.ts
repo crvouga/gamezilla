@@ -16,6 +16,10 @@ import {
   STRIPE_PORTAL_CONFIGURATION_METADATA_KEY,
 } from '@pkgs/billing-stripe-shared/offer-reconcile';
 import Stripe from 'stripe';
+import {
+  hasLiveStripeMembership,
+  reusableStripeCheckout,
+} from './stripe-checkout-reuse';
 
 /** The adapter's id: it keys stored data, so it never changes. */
 export const STRIPE_PROVIDER = 'stripe';
@@ -211,6 +215,18 @@ export class StripeMembershipBilling implements MembershipBilling {
   }
 
   async startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
+    if (input.customerId !== null) {
+      const customerId = input.customerId;
+      if (await hasLiveStripeMembership(this.stripe, customerId)) {
+        return { kind: 'live_membership', customerId };
+      }
+      const url = await reusableStripeCheckout(this.stripe, {
+        customer: customerId,
+        returnUrl: input.returnUrl,
+        nowMs: this.now(),
+      });
+      if (url !== null) return { kind: 'checkout', customerId, url };
+    }
     const customer =
       input.customerId ??
       (
@@ -255,7 +271,7 @@ export class StripeMembershipBilling implements MembershipBilling {
       success_url: input.returnUrl,
       cancel_url: input.returnUrl,
     });
-    return { customerId: customer, url: session.url ?? '' };
+    return { kind: 'checkout', customerId: customer, url: session.url ?? '' };
   }
 
   async openPortal(input: OpenPortalInput): Promise<{ readonly url: string }> {

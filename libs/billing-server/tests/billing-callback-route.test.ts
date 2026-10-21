@@ -29,7 +29,11 @@ class StubBilling implements MembershipBilling {
   constructor(private readonly result: CallbackResult) {}
 
   startCheckout(_input: StartCheckoutInput): Promise<StartCheckoutResult> {
-    return Promise.resolve({ customerId: 'cus_new', url: 'https://pay.test' });
+    return Promise.resolve({
+      kind: 'checkout',
+      customerId: 'cus_new',
+      url: 'https://pay.test',
+    });
   }
 
   openPortal(_input: OpenPortalInput): Promise<{ readonly url: string }> {

@@ -1,0 +1,4 @@
+{
+  "summary": "The checkout route refused only when a live membership row existed, and that row appears only once the provider's webhook lands. A person who paid and pressed subscribe again before then got a fresh checkout and was charged for a second membership. Fixed by the membership port reporting live_membership when the provider already holds a live subscription for the customer; the route answers 409 { code: 'membership_pending' } and opens no checkout.",
+  "regressionTest": "specs/billing/subscribe.feature"
+}
