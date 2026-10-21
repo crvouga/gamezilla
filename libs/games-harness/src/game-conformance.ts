@@ -151,7 +151,10 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'matched-game-accessibility': ['matchmaking'],
   'matched-game-interruption': ['matchmaking', 'history'],
   'game-history': ['custom-games', 'history'],
-  'custom-game': ['custom-games'],
+  // The model's host makes choices alone with no connection: a game played
+  // on the host's device alone. A game with a private setup is held to the
+  // same lifecycle by the custom-game features and private-setup.qnt.
+  'custom-game': ['custom-games', 'every position public'],
   'custom-game-play': ['custom-games'],
   'custom-game-control': [
     'custom-games',

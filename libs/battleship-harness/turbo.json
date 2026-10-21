@@ -13,6 +13,27 @@
     },
     "test:spec:2": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:3": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:4": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:5": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:6": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:7": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:8": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:9": {
+      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }

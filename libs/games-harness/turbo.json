@@ -469,6 +469,57 @@
         "verify:models:9:15"
       ],
       "cache": false
+    },
+    "test:spec:78": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:79": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:80": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:81": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:82": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:83": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:84": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:85": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:86": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:87": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:88": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:89": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:90": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:91": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:92": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:93": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:94": {
+      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }
