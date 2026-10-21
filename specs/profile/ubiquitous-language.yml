@@ -147,8 +147,11 @@ terms:
   - term: sign out everywhere
     definition: >-
       Sign an account out on every device at once, for when a device is lost.
-      A device that is offline shows it once it is back online.
-    forms: [signs out everywhere, signed out everywhere]
+      A device that is offline shows it once it is back online. Each device
+      signed out this way, other than the one it was done from, tells the
+      person they were signed out and offers to sign in again; changes it
+      had not shared yet are not kept, and it says so.
+    forms: [signs out everywhere, signed out everywhere, signing out everywhere]
     avoid: [end sessions, revoke sessions, log out everywhere]
     model: [signOutEverywhere]
 
