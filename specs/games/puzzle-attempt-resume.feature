@@ -88,3 +88,13 @@ Feature: A puzzle attempt survives leaving the puzzle and closing the app
       Given Alice has played a wrong move
       When Alice reopens the app on the puzzle
       Then Alice's puzzle remains wrong
+
+  Rule: A puzzle in a space that can't be reached never keeps the solver waiting
+    No counter-example: while the space can be reached, the first rule's puzzle is waiting on return.
+
+    Scenario: A puzzle left in a space that no longer exists never keeps the solver waiting
+      Given Alice's space no longer exists
+      And Alice has closed and reopened the app
+      When Alice returns to their space
+      Then Alice is told the space can't be reached right now within 15 seconds
+      And Alice is offered the way back to Spaces

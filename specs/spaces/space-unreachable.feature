@@ -20,13 +20,6 @@ Feature: Return to a space that can't be reached
       And Alice is offered to try again
       And Alice is offered the way back to Spaces
 
-    Scenario: A puzzle left in a space that no longer exists never keeps the host waiting
-      Given Alice's lobby still lists a space Alice hosted that no longer exists
-      And Alice was playing a puzzle in that space
-      When Alice returns to their space
-      Then Alice is told the space can't be reached right now within 15 seconds
-      And Alice is offered the way back to Spaces
-
     Scenario: Trying again while the space still can't be reached says so again
       Given Alice's lobby still lists a space Alice hosted that no longer exists
       And Alice has been told the space can't be reached right now

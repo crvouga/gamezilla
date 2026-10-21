@@ -132,6 +132,7 @@ terms:
       Returning to it says it can't be reached right now.
     forms: [no longer exists, missing space]
     model: [spaceNoLongerExists]
+    published: true
 
   - term: try again
     definition: >-
@@ -324,8 +325,6 @@ terms:
   - term: friend
     from: friends
     model: [friend]
-  - term: puzzle
-    from: chess
   - term: username
     from: profile
   - term: profile
