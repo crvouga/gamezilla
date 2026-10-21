@@ -2875,10 +2875,6 @@ msgid "Payments are processed securely by our billing provider. We never see you
 msgstr "Payments are processed securely by our billing provider. We never see your card details."
 
 #: libs/spaces-client/src/space-chrome-action-bar.tsx
-msgid "People"
-msgstr "People"
-
-#: libs/spaces-client/src/space-chrome-action-bar.tsx
 #: libs/spaces-client/src/space-members-list-modal.tsx
 msgid "People in this space"
 msgstr "People in this space"
