@@ -163,6 +163,7 @@ terms:
       their next renewals before their card is charged. It is never below
       nothing.
     model: [credit]
+    published: true
 
   - term: card
     definition: >-
