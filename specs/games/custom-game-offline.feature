@@ -28,6 +28,13 @@ Feature: Play a custom game on the host's device without a connection
       Then the bot replies with a legal move within 5 seconds
       And it is Alice's turn
 
+    @regression:custom-game-offline-bot-stops
+    Scenario: The offline host's move receives the bot's reply
+      Given Alice has a custom game under way against a bot while offline
+      When Alice makes her move on the board
+      Then the bot replies with a legal move within 5 seconds
+      And it is Alice's turn
+
     Scenario: A host can finish their bot game without a connection
       Given Alice has a custom game under way against a bot
       And Alice is offline
