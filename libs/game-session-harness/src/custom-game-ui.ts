@@ -4,7 +4,7 @@ import type {
 } from '@libs/game-session-shared/custom-game-choice';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import { bringToFront } from '@libs/harness/observations';
+import { bringToFront, partitioned } from '@libs/harness/observations';
 import { readCustomGameProbe } from './custom-game-probe';
 import { harnessGameAt, knownSetupAt } from './harness-game-of';
 import { keepsOwnPrivateSetup } from './own-private-setups';
@@ -32,6 +32,9 @@ async function awaitOnlineSpace(
 ): Promise<void> {
   const probe = await readCustomGameProbe(s, actor);
   if (probe?.current == null || probe.connected) return;
+  // A device cut off from the server is refused at once: waiting would only
+  // spend time on the clocks of everyone still playing.
+  if (partitioned(s).some((pair) => pair.split('|').includes(actor))) return;
   if (
     harnessGameAt(s, probe.current.fen).shared.turnGame.rules.setup ===
     undefined
