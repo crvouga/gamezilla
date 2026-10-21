@@ -10,6 +10,7 @@ import type {
   MutationRegistry,
 } from '@pkgs/sync-engine-shared/mutations-types';
 import { partitionFanoutRowsByTopic } from '@pkgs/sync-engine-shared/partition-fanout-rows';
+import { filterPublishableImages } from '@pkgs/sync-engine-shared/row-image-guard';
 import {
   fanoutRowsWithinCap,
   mergeAffectedRows,
@@ -180,11 +181,20 @@ async function prepareMutationNotify(
       createId: deps.createId,
     });
     const tables = merged.tables;
-    const rows = await buildFanoutRows({
+    // A batch writing rows that may not travel as images (`rowImage.publish`)
+    // sends none at all: every reader is woken and reads again through its
+    // own authorized queries, so no such row ever leaves in a push.
+    const built = await buildFanoutRows({
       db: nested,
       capture: merged,
       rowImageFanout: deps.rowImageFanout === true,
     });
+    const rows =
+      built === undefined ||
+      filterPublishableImages(built, deps.topicMap, topicMapCtxFromEnv(env)) !==
+        built
+        ? undefined
+        : built;
     const rowsByTopic =
       rows !== undefined && deps.topicMap !== undefined
         ? await partitionFanoutRowsByTopic({

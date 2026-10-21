@@ -26,6 +26,7 @@ import {
   arrangeMatchedPrivateSetup,
   chooseMatchedPrivateSetup,
   matchedPrivateSetupStatus,
+  ownMatchedPrivateSetup,
 } from '@libs/game-session-harness/matched-game-private-setup';
 import { playedRulesOf } from '@libs/game-session-harness/played-rules';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -155,6 +156,10 @@ export async function chosenSetup(w: HarnessWorld, actor: string) {
   await arrangeKnownSetup(w, actor);
   await w.s.apply(chooseMatchedPrivateSetup, actor);
   await shownReady(w, actor);
+  // Their device reads their own chosen setup back, as their screen shows it.
+  await w.s.until((world) => ownMatchedPrivateSetup(world, actor), {
+    pred: (own) => own !== null,
+  });
 }
 
 /** A new matched game of the run's game, its private setups still to choose. */

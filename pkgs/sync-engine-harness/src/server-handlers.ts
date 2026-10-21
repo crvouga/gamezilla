@@ -15,6 +15,7 @@ import type {
 } from '@pkgs/sync-engine-shared/mutations-types';
 import { partitionFanoutRowsByTopic } from '@pkgs/sync-engine-shared/partition-fanout-rows';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
+import { filterPublishableImages } from '@pkgs/sync-engine-shared/row-image-guard';
 import {
   fanoutRowsWithinCap,
   mergeAffectedRows,
@@ -142,11 +143,17 @@ async function notifyApplied(args: {
           ctx: mapCtx,
           db: args.ctx.db,
         });
-  const rows = await buildFanoutRows(
+  const built = await buildFanoutRows(
     args.ctx.db,
     merged,
     args.ctx.rowImageFanout
   );
+  // As production: a batch with rows that may not travel as images sends none.
+  const rows =
+    built === undefined ||
+    filterPublishableImages(built, args.ctx.topicMap, mapCtx) !== built
+      ? undefined
+      : built;
   const rowsByTopic =
     rows !== undefined && args.ctx.topicMap !== undefined
       ? await partitionFanoutRowsByTopic({
