@@ -45,7 +45,7 @@ than restating it.
 
 - **Domain rows are soft-delete only.** Removal sets managed `deleted_at`, never `DELETE FROM` a domain table (mutation `tx` rejects it: `NO_HARD_DELETE`). `defineQuery` snapshots include tombstones; UI reads filter `deleted_at IS NULL`. Merge upserts snapshot rows verbatim and rebases pending `sync_engine_mutations` on top — no absence GC. Unsubscribe / denied only clears `sync_engine_scope_meta`. Framework tables (`sync_engine_*`) may hard-delete.
 
-- **Style with Solid builtins via `@pkgs/ui`.** `class` / `classList` for layout and tokens; `style` only for dynamic values classes cannot express. No `sx` / `frameSx` / `fieldSx`, no class-merge helpers (`joinClass` / `cn` / `clsx` / `twMerge`). Scroll/list hosts take frame `class` / `style` and content `contentClass` / `contentStyle`. CI: `no-inline-style-prop.grit`.
+- **Screens compose `@pkgs/ui`; only the design system styles.** Product packages (`libs/*-client`, `apps/client`, `apps/product`, the feedback and harness-console clients) write no DOM elements and no `class` / `classList` / `style`: layout is `Stack*` / `Grid` / `Layer` props, text is `P` / `Text` / `H1`–`H6`, paint is `Surface` or a component variant. Inside `@pkgs/ui-root-client` (and component packages such as the chess board) style with Solid builtins: `class` / `classList` for token utilities, `style` only for dynamic values classes cannot express. Component props are closed (token names and keywords): no `class` / `style` / `contentClass` escape hatch, no `sx` / `frameSx` / `fieldSx`, no class-merge helpers (`joinClass` / `cn` / `clsx` / `twMerge` / `cva`). CI: `design-vocabulary.ts` + `design-composition.ts` (every UI package's `lint`), `no-inline-style-prop.grit`.
 
 - **Three-layer DI.** Only `SqlClient` and the injected ports are long-lived. Use-case classes take `(db, ports)` and open transactions for writes (reads pass `db` as `SqlTx`). Repositories / services / publishers / handlers take `SqlTx` (`Pick` of `query` / `run`) plus ports and are constructed on demand inside the use case. Factory functions `(tx, ports) => …` are the wiring escape hatch; no `*Container` or registry classes (`no-di-container.grit`). `defineMutation` / `defineQuery` handlers and Solid hooks stay as they are.
 
@@ -115,15 +115,20 @@ from '@pkgs/ui-root-client/button'`). No adapter layer, no third-party UI librar
 **How it looks** is decided once, in
 [`pkgs/ui-root-client/README.md`](pkgs/ui-root-client/README.md): the
 palette, the type roles, panels for lists, radius by hierarchy, blue only
-for what is chosen. Screens compose components and arrange them with layout
-utilities; they never pick a font size, weight, shadow, arbitrary value or
-raw color (`design-vocabulary.ts` in each product client's `lint`, plus the
-locked Tailwind theme). A need the components cannot express becomes a new
-component, not classes in a screen.
+for what is chosen, one activity indicator. Screens are compositions of
+components and set only their props; they never write markup, classes or
+styles, and nothing anywhere picks an arbitrary value, a raw color, a step
+off the 4px grid or a `dark:` variant (`design-vocabulary.ts` in every UI
+package's `lint`, plus the locked Tailwind theme `src/theme.css`). A need the
+components cannot express becomes a new component or variant, never markup in
+a screen.
 
 **Adding a component:** `pkgs/ui-root-client/src/<name>.tsx`, exported through the
-package's `./*` mapping; style with `class` / `classList` / `style`; set
-`data-*` on the root via `dataAttrs({ component: '<PascalName>', ... })`.
+package's `./*` mapping; closed, typed props (token names and variants,
+never `class` / `style`); style with `class` / `classList` / `style`
+internally; set `data-*` on the root via `dataAttrs({ component:
+'<PascalName>', ... })`; add a `<name>.example.tsx` showing every variant and
+state to the explorer registry (`/ui`) and a harness test.
 
 **DOM identifiers:** every host exposes `data-component="<Name>"`, and
 `ScreenBase` requires `screenId` (`data-screen`); both are stripped from
