@@ -8,7 +8,7 @@
  */
 
 import { deviceMutationEnv } from '@libs/auth-shared/device-mutation-env';
-import { scenarioAction } from '@libs/harness/actor-ui';
+import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql } from '@libs/harness/identity';
 import { ACTION } from '@libs/permissions-shared/permission-catalog';
@@ -21,11 +21,22 @@ import {
   topicsFromWriteCapture,
 } from '@pkgs/sync-engine-shared/topic-map';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
+import type { HarnessGame } from './harness-game';
+import { harnessGameOf } from './harness-game-of';
+import { openPuzzleLink, puzzleLinkTo } from './puzzle-link';
+import { knownPuzzlesOf, theKnownPuzzle } from './puzzle-moves';
+import {
+  openGamePuzzles,
+  readPuzzleOnBoard,
+  readPuzzleProbe,
+} from './puzzle-screen';
 
 /** The quota a rated puzzle start consumes, whichever game it is of. */
 const PUZZLE_START_QUOTA = ACTION.puzzleRatedSolve;
 
 const DAY_MS = 86_400_000;
+const WAIT_MS = 20_000;
+const POLL_MS = 100;
 
 export type PuzzleStartLedgerRow = {
   readonly id: string;
@@ -52,6 +63,56 @@ export function readLocalPuzzleStartLedger(
     ORDER BY consumed_at ASC, id ASC
   `);
 }
+
+/**
+ * A known puzzle of `game` other than "the game's known puzzle", or null
+ * when the game knows no other.
+ */
+export function unnamedKnownPuzzleId(game: HarnessGame): string | null {
+  const named = theKnownPuzzle(game).record.id;
+  return (
+    knownPuzzlesOf(game).find((fixture) => fixture.record.id !== named)?.record
+      .id ?? null
+  );
+}
+
+/**
+ * The day's first rated puzzle start on a puzzle a scenario does not name:
+ * a known puzzle of `gameId` other than "the game's known puzzle", opened
+ * from its puzzle link (a first attempt, so it uses a puzzle start as a
+ * feed's puzzle does). The feed would serve any puzzle, the named one
+ * included, which a scenario naming it later must find unplayed. Done once
+ * the puzzle is on the board, the solver to move and the start charged. A
+ * game knowing no other puzzle gets the feed's, in the space the actor
+ * hosts.
+ */
+export const startUnnamedPuzzle = scenarioAction({
+  name: 'startUnnamedPuzzle',
+  act: async (s, actorId: string, gameId: string) => {
+    const puzzleId = unnamedKnownPuzzleId(harnessGameOf(s, gameId));
+    if (puzzleId === null) {
+      await Promise.resolve(openGamePuzzles.act(s, actorId, gameId));
+      return;
+    }
+    await Promise.resolve(
+      openPuzzleLink.act(s, actorId, puzzleLinkTo(puzzleId))
+    );
+    await pollUntil(
+      s,
+      async () =>
+        (await readPuzzleOnBoard(s, actorId)) === puzzleId &&
+        (await readPuzzleProbe(s, actorId))?.interactive === true &&
+        (await readLocalPuzzleStartLedger(s, actorId)).length > 0
+          ? true
+          : null,
+      {
+        maxMs: WAIT_MS,
+        stepMs: POLL_MS,
+        description: `${puzzleId} on the board, its start charged`,
+      }
+    );
+  },
+});
 
 /**
  * Earlier starts on the same day as the device's first one, on the server
