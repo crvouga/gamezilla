@@ -2,6 +2,7 @@
  * What a Stripe checkout may hand back instead of opening another: a person
  * pays for one membership however often they press subscribe.
  */
+import { paidCheckoutReturnUrl } from '@pkgs/billing-root-shared/checkout-return';
 import { isMembershipLive } from '@pkgs/billing-root-shared/precedence';
 import { membershipStatusOf } from '@pkgs/billing-stripe-shared/membership-status';
 import type Stripe from 'stripe';
@@ -29,7 +30,8 @@ export async function liveStripeSubscription(
 
 /**
  * The URL of the customer's open subscription checkout for `returnUrl`, if
- * any. Every other open checkout of theirs is expired, so only one can take a
+ * any. A checkout's success address is `returnUrl` marked as paid
+ * ({@link paidCheckoutReturnUrl}), so that is the address it is matched by. Every other open checkout of theirs is expired, so only one can take a
  * payment.
  */
 export async function reusableStripeCheckout(
@@ -46,12 +48,13 @@ export async function reusableStripeCheckout(
     limit: 100,
   });
   const nowS = args.nowMs / 1000;
+  const successUrl = paidCheckoutReturnUrl(args.returnUrl);
   const reusable = [...open.data]
     .sort((a, b) => b.created - a.created)
     .find(
       (session) =>
         session.mode === 'subscription' &&
-        session.success_url === args.returnUrl &&
+        session.success_url === successUrl &&
         (session.url ?? '').length > 0 &&
         session.expires_at - CHECKOUT_REUSE_MARGIN_S > nowS
     );
