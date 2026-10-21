@@ -5,6 +5,7 @@ import type {
   ClientTransportHandlers,
 } from '@pkgs/room-root-shared/transport';
 import type { Random } from '@pkgs/uuid-shared/create-id';
+import { closeRoomSocket } from './close-room-socket';
 import type { HeartbeatTimers } from './heartbeat';
 import {
   clearHeartbeatTimers,
@@ -152,7 +153,7 @@ export class WebSocketRoomTransport implements ClientTransport {
     clearHeartbeatTimers(this.heartbeat, this.timers);
     if (this.socket !== null) {
       try {
-        this.socket.close(1000, 'reconnect now');
+        closeRoomSocket(this.socket, 'reconnect now');
       } catch {
         // already closing
       }
@@ -201,7 +202,7 @@ export class WebSocketRoomTransport implements ClientTransport {
       this.reconnectTimer = null;
     }
     if (this.socket !== null) {
-      this.socket.close(1000, 'transport destroyed');
+      closeRoomSocket(this.socket, 'transport destroyed');
       this.socket = null;
     }
     this.messageHandlers.clear();
@@ -231,7 +232,7 @@ export class WebSocketRoomTransport implements ClientTransport {
     clearHeartbeatTimers(this.heartbeat, this.timers);
     if (this.socket !== null) {
       try {
-        this.socket.close(1000, 'heartbeat missed');
+        closeRoomSocket(this.socket, 'heartbeat missed');
       } catch {
         // already closing
       }
