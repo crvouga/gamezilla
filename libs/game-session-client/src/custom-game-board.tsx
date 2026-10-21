@@ -204,6 +204,7 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
         sound={!sounds.muted()}
         syncKey={reset()}
         testId="custom-game-board"
+        setup={props.model.privateSetup.own()}
         onAction={(action: string) => {
           void move(action);
         }}

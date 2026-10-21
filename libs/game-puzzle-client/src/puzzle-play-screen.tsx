@@ -67,6 +67,7 @@ function PuzzlePlayerBoardSlot(props: {
           p.status() === 'solving' && p.atFrontier() && !p.opponentAnimating()
         }
         sound={!sounds.muted()}
+        setup={null}
         syncKey={p.layoutKey() + p.recommendBump()}
         animated
         moveMs={PUZZLE_PIECE_MOVE_MS}

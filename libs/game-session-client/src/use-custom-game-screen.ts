@@ -22,6 +22,7 @@ import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import { useTurnGames } from '@pkgs/turn-game-client/turn-games-context';
 import { type Accessor, createMemo } from 'solid-js';
 import { useCustomGameCommand } from './use-custom-game-command';
+import { useCustomGamePrivateSetup } from './use-custom-game-private-setup';
 import { useVisibleCustomGames } from './use-visible-custom-games';
 
 function useSelectedCustomGames(
@@ -53,6 +54,27 @@ function useAwayParticipants() {
       ])
     )
   );
+}
+
+/** Becoming ready, with the person's private setup for a game that has one. */
+function readyChoices(
+  choose: (input: CustomGameInput) => Promise<void>,
+  privateSetup: ReturnType<typeof useCustomGamePrivateSetup>
+) {
+  const ready = (): Promise<void> =>
+    choose(
+      privateSetup.has()
+        ? { operation: 'ready', setup: privateSetup.draft() }
+        : { operation: 'ready' }
+    );
+  const playBot = async (): Promise<void> => {
+    await choose({ operation: 'create' });
+    await choose({ operation: 'bot', side: 'black' });
+    if (privateSetup.has() && !privateSetup.complete()) privateSetup.random();
+    await ready();
+    await choose({ operation: 'start' });
+  };
+  return { ready, playBot };
 }
 
 export type CustomGameScreenModel = ReturnType<typeof useCustomGameScreen>;
@@ -99,12 +121,8 @@ export function useCustomGameScreen(
       gameId: visible().current?.id ?? null,
       revision: visible().current?.revision ?? 0,
     });
-  const playBot = async (): Promise<void> => {
-    await choose({ operation: 'create' });
-    await choose({ operation: 'bot', side: 'black' });
-    await choose({ operation: 'ready' });
-    await choose({ operation: 'start' });
-  };
+  const privateSetup = useCustomGamePrivateSetup(current, myId);
+  const { ready, playBot } = readyChoices(choose, privateSetup);
   return {
     myId,
     games,
@@ -114,6 +132,8 @@ export function useCustomGameScreen(
     canSubmit,
     sharedAvailable,
     choose,
+    ready,
+    privateSetup,
     playBot,
     attempt: command.send,
     error: command.error,

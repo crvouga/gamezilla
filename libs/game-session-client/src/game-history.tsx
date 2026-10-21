@@ -1,3 +1,4 @@
+import { useMyId } from '@libs/auth-client/use-current-user';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
@@ -25,6 +26,13 @@ function RecordReview(props: {
   const recordLabel = useGameRecordLabel();
   const [ply, setPly] = createSignal(props.record.moves.length);
   const presentation = useGamePresentation();
+  const myId = useMyId();
+  // A game with a private setup faces the viewer's side, showing only their
+  // own setup; every other game's review faces the first side as before.
+  const side = () =>
+    props.record.setup !== null && props.record.second === myId()
+      ? 'black'
+      : 'white';
   const position = () =>
     ply() === 0
       ? (props.record.moves[0]?.before ?? props.record.position)
@@ -61,12 +69,13 @@ function RecordReview(props: {
         <Dynamic
           component={presentation(position()).Board}
           position={position()}
-          orientation="white"
+          orientation={side()}
           interactive={false}
           sound={false}
           syncKey={0}
           onAction={() => {}}
           testId="game-history-board"
+          setup={props.record.setup}
         />
       </GameReviewScreen>
     </>

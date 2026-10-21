@@ -60,6 +60,7 @@ export function puzzleBoardDriver(
                   orientation="white"
                   interactive
                   sound={false}
+                  setup={null}
                   syncKey={0}
                   size={320}
                   mode="play"

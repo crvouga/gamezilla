@@ -1,4 +1,5 @@
 import { abortMultiplayerMutation } from '@libs/game-matchmaking-shared/abort-multiplayer-mutation';
+import { chooseMultiplayerSetupMutation } from '@libs/game-matchmaking-shared/choose-multiplayer-setup-mutation';
 import { findNewOpponentMutation } from '@libs/game-matchmaking-shared/find-new-opponent-mutation';
 import { findOpponentMutation } from '@libs/game-matchmaking-shared/find-opponent-mutation';
 import {
@@ -135,6 +136,11 @@ export function useMultiplayerControls(data: MultiplayerData) {
     ...useMoves(data, run),
     begin,
     stop,
+    chooseSetup: (setup: string) =>
+      run(chooseMultiplayerSetupMutation, {
+        gameId: data.game()?.id ?? 'no-game',
+        setup,
+      }),
     newOpponent: onGame(findNewOpponentMutation),
     resign: onGame(resignMultiplayerMutation),
     abort: onGame(abortMultiplayerMutation),
