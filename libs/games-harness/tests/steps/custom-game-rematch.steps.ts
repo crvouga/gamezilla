@@ -1,5 +1,6 @@
 import { expect } from 'bun:test';
 import { customGameView } from '@libs/game-session-harness/custom-game-probe';
+import { recordedLine } from '@libs/game-session-harness/played-rules';
 import type { CustomGameSide } from '@libs/game-session-shared/custom-game-state';
 import { Given, Then } from '@libs/harness/define';
 import {
@@ -55,7 +56,7 @@ Then(
     const history = (await w.s.read(customGameView, hostOf(w))).history;
     const game = history.find((candidate) => candidate.id === earlier?.id);
     expect(game?.moves.map((move) => move.uci)).toEqual(
-      gameOf(w).fixtures.firstSideVictory.slice(0, 1)
+      recordedLine(gameOf(w), gameOf(w).fixtures.firstSideVictory.slice(0, 1))
     );
     expect(game?.outcome).toBe(String(w.memo.get('custom-game-resigned')));
   }

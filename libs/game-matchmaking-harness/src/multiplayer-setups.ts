@@ -6,6 +6,7 @@ import type {
 import { setupReadySides } from '@libs/game-matchmaking-shared/game-state';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { HarnessComposition } from '@libs/harness/composition';
+import { signedInAccountOf } from '@libs/harness/identity';
 import sql from '@pkgs/sql-root-shared/sql';
 import { multiplayerFixture } from './multiplayer-fixtures-core';
 import { multiplayerSpaceId } from './multiplayer-spaces';
@@ -30,7 +31,7 @@ export function registerKnownSetups(
  * Each named person still choosing a private setup in their unfinished
  * matched game chooses their side's known one, through the real choice: a
  * new matched game in a scenario is ready to play. Nothing happens for a
- * person without such a game.
+ * person without such a game, or without a signed-in account.
  */
 export const chooseKnownSetups = scenarioAction({
   name: 'chooseKnownSetups',
@@ -38,6 +39,8 @@ export const chooseKnownSetups = scenarioAction({
     const lookup = known.get(s.harness.composition);
     if (lookup === undefined) return;
     for (const actor of people) {
+      // A person signed out, or whose account is deleted, has no game to ready.
+      if ((await signedInAccountOf(s, actor)) === null) continue;
       const spaceId = await multiplayerSpaceId(s, actor);
       await multiplayerFixture(s, actor, async (tx, env) => {
         const games = await tx.query(sql<
