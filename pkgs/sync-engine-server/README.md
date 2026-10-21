@@ -68,7 +68,9 @@ Adapted from [TigerBeetle Tiger Style](https://github.com/tigerbeetle/tigerbeetl
 | Constant | Value | Enforced emit | Enforced receive |
 |----------|------:|---------------|------------------|
 | `MAX_QUERY_BATCH` | 64 | `parseQueryBatchBody` | `postQueryBatch` chunks client POST |
+| `MAX_QUERY_BODY_BYTES` | 256KiB | route 413 `payload_too_large` | `postQueryBatch` chunks by bytes |
 | `MAX_MUTATIONS_BATCH` | 64 | route + parser | upload `LIMIT` + verdict pairing |
+| `MAX_MUTATIONS_BODY_BYTES` | 1MiB | route 413 `payload_too_large` | upload splits; one over-cap write is refused locally |
 | `MAX_FANOUT_ROWS` / `MAX_FANOUT_BYTES` | 64 / 32KiB | server fanout emit | push receive drops over-cap `rows` |
 
 **Harness invariants** (`queries/shared/tiger-invariants.ts` + `harness/invariants.ts`):
@@ -430,8 +432,12 @@ push may also carry post-replay **row images** (size-capped). Replay + fanout
 SELECT + pushSeq allocate share **one Postgres transaction**. Wire envelopes
 stay on the current protocol (derivation did not need leaner payloads).
 
-Bad body → 400 `{ error: 'invalid_batch' }`; oversized → 413
-`{ error: 'batch_too_large' }`.
+Bad body → 400 `{ error: 'invalid_batch' }`; more than 64 mutations → 413
+`{ error: 'batch_too_large' }`; a body over `MAX_MUTATIONS_BODY_BYTES` → 413
+`{ error: 'payload_too_large', maxBytes }`, before auth or parsing. The client
+splits a batch the server refuses as too large and records a single write that
+can never fit as a local refusal with code `payload_too_large`, so it never holds
+later writes behind it.
 
 ### Pubsub push
 

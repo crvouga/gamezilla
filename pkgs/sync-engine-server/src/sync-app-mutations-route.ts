@@ -23,6 +23,7 @@ import {
 import type { AuthErrorBody, QueryRow } from '@pkgs/sync-engine-shared/v2';
 import {
   MAX_MUTATIONS_BATCH,
+  MAX_MUTATIONS_BODY_BYTES,
   SYNC_PROTOCOL_VERSION,
 } from '@pkgs/sync-engine-shared/v2';
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
@@ -31,6 +32,7 @@ import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { Hono } from 'hono';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
+import { syncBodyCap } from './body-cap';
 import { mutationSavepointClient } from './mutation-savepoint-client';
 import { publishPushMessages } from './notify-channels';
 import { parseMutationsBatchBody } from './parse-batch-body';
@@ -249,7 +251,7 @@ export function mountMutationsRoute(
   app: Hono<{ Variables: SyncSqlVariables }>,
   deps: MountMutationsRouteDeps
 ): void {
-  app.post('/mutations', async (c) => {
+  app.post('/mutations', syncBodyCap(MAX_MUTATIONS_BODY_BYTES), async (c) => {
     const db = resolveRequestSql(c, deps.getSql);
     const protocolErr = assertSyncProtocol(c.req.raw);
     if (protocolErr !== null) return c.json(protocolErr, 401);

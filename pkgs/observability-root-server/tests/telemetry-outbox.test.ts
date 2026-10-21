@@ -9,6 +9,7 @@ function setup() {
   let nextId = 0;
   let status = 503;
   let acknowledgement = '{}';
+  const statuses: number[] = [];
   const sent: string[] = [];
   const options = {
     ...time,
@@ -21,7 +22,9 @@ function setup() {
     http: {
       async fetch(_input: RequestInfo | URL, init?: RequestInit) {
         sent.push(String(init?.body));
-        return new Response(acknowledgement, { status });
+        return new Response(acknowledgement, {
+          status: statuses.shift() ?? status,
+        });
       },
     },
   };
@@ -31,6 +34,9 @@ function setup() {
     store,
     accept: () => {
       status = 200;
+    },
+    answerNext: (next: number) => {
+      statuses.push(next);
     },
     rejectRecords: () => {
       status = 200;
@@ -109,4 +115,25 @@ test('routine browser evidence expires after thirty days without uploading', asy
   expect(s.sent).toHaveLength(0);
   expect(await s.store.listKeys()).toHaveLength(0);
   reopened.stop();
+});
+
+// regression: browser-telemetry-refused-batch-blocks-queue
+test('a batch the collector refuses as too large is dropped and later batches still arrive', async () => {
+  const s = setup();
+  s.accept();
+  s.answerNext(413);
+  const outbox = new TelemetryOutbox(s.options);
+  await outbox.http.fetch(s.options.endpoints.traces, {
+    method: 'POST',
+    body: '{"oversized":true}',
+  });
+  s.options.clock.advance(1);
+  await outbox.http.fetch(s.options.endpoints.logs, {
+    method: 'POST',
+    body: '{"later":true}',
+  });
+  await outbox.flush();
+  expect(s.sent.slice(-2)).toEqual(['{"oversized":true}', '{"later":true}']);
+  expect(await s.store.listKeys()).toHaveLength(0);
+  outbox.stop();
 });

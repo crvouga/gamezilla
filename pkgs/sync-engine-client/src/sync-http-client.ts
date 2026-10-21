@@ -11,6 +11,7 @@ import type {
 import { postQueryBatch } from './post-query-batch';
 import { validateWireQueryBatch } from './query-wire-validation';
 import type { QueryRequest } from './subscription-runtime';
+import { SyncHttpPayloadTooLargeError } from './sync-http-payload-too-large-error';
 import { SyncHttpRateLimitError } from './sync-http-rate-limit-error';
 
 export type SyncHttpFetch = (
@@ -194,6 +195,46 @@ function postJson(args: PostJsonArgs): Promise<Response> {
   });
 }
 
+/** Maps a refused sync response to the error its caller acts on. */
+async function throwForFailure(response: Response, path: string) {
+  if (response.status === 401) {
+    // Malformed 401 bodies still map to auth errors (operating, not programmer).
+    const json = (await response.json().catch(() => ({}))) as {
+      readonly reason?: unknown;
+      readonly message?: unknown;
+    };
+    if (json.reason === 'upgrade_required') {
+      throw new SyncApiAuthError('upgrade_required');
+    }
+    throw new SyncApiAuthError(
+      json.reason === 'revoked' ? 'revoked' : 'expired',
+      typeof json.message === 'string' ? json.message : undefined
+    );
+  }
+  if (response.status === 429) {
+    const retryHeader = response.headers.get('Retry-After');
+    const retryAfterMs =
+      retryHeader !== null && /^\d+$/.test(retryHeader)
+        ? Number(retryHeader) * 1_000
+        : 2_000;
+    throw new SyncHttpRateLimitError(retryAfterMs);
+  }
+  if (response.status === 413) {
+    const json = (await response.json().catch(() => ({}))) as {
+      readonly maxBytes?: unknown;
+    };
+    throw new SyncHttpPayloadTooLargeError(
+      typeof json.maxBytes === 'number' ? json.maxBytes : null
+    );
+  }
+  if (!response.ok) {
+    const text = await response.text().catch(() => '');
+    throw new Error(
+      `${path} failed (${response.status})${text.length > 0 ? `: ${text}` : ''}`
+    );
+  }
+}
+
 async function postAuthedJson(
   options: CreateSyncHttpClientOptions,
   anonIdHeader: string,
@@ -246,34 +287,7 @@ async function postAuthedJson(
       deviceId,
     });
   }
-  if (response.status === 401) {
-    // Malformed 401 bodies still map to auth errors (operating, not programmer).
-    const json = (await response.json().catch(() => ({}))) as {
-      readonly reason?: unknown;
-      readonly message?: unknown;
-    };
-    if (json.reason === 'upgrade_required') {
-      throw new SyncApiAuthError('upgrade_required');
-    }
-    throw new SyncApiAuthError(
-      json.reason === 'revoked' ? 'revoked' : 'expired',
-      typeof json.message === 'string' ? json.message : undefined
-    );
-  }
-  if (response.status === 429) {
-    const retryHeader = response.headers.get('Retry-After');
-    const retryAfterMs =
-      retryHeader !== null && /^\d+$/.test(retryHeader)
-        ? Number(retryHeader) * 1_000
-        : 2_000;
-    throw new SyncHttpRateLimitError(retryAfterMs);
-  }
-  if (!response.ok) {
-    const text = await response.text().catch(() => '');
-    throw new Error(
-      `${path} failed (${response.status})${text.length > 0 ? `: ${text}` : ''}`
-    );
-  }
+  await throwForFailure(response, path);
   return response.json();
 }
 

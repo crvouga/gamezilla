@@ -40,6 +40,17 @@ export type RunQueryDeps = {
    * silently truncating (harness + non-production deployments).
    */
   readonly strictQueryLimits?: boolean;
+  /**
+   * Told whenever a snapshot is clipped to its query limit, so a host can
+   * count truncation it would otherwise serve silently. Never sees rows.
+   */
+  readonly onTruncated?: (clip: QueryTruncation) => void;
+};
+
+/** A snapshot clipped to its limit: which query, and the limit it hit. */
+export type QueryTruncation = {
+  readonly queryName: string;
+  readonly limit: number;
 };
 
 export class QueryLimitExceeded extends Error {
@@ -76,7 +87,8 @@ function enforceReadSql(query: Sql<unknown>, limit: number): Sql<QueryRow> {
       'defineQuery.run must not include inline LIMIT; use the query limit field'
     );
   }
-  next = sql<QueryRow>`${next} LIMIT ${limit}`;
+  // One row past the limit tells a clipped snapshot from one that fits exactly.
+  next = sql<QueryRow>`${next} LIMIT ${limit + 1}`;
   return next;
 }
 
@@ -158,12 +170,11 @@ async function runDefinedQuery(
   for (const rows of Object.values(tables)) {
     total += rows.length;
   }
-  if (
-    deps.strictQueryLimits === true &&
-    def.limitIsDefault === true &&
-    total > limit
-  ) {
-    throw new QueryLimitExceeded(def.name, limit);
+  if (total > limit) {
+    if (deps.strictQueryLimits === true && def.limitIsDefault === true) {
+      throw new QueryLimitExceeded(def.name, limit);
+    }
+    deps.onTruncated?.({ queryName: def.name, limit });
   }
   const limited = applyHardLimit(tables, limit);
   const hash = hashQueryTables(limited);

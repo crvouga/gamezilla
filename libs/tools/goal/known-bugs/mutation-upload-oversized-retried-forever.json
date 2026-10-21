@@ -1,0 +1,4 @@
+{
+  "summary": "A mutation upload the server refused with 413 was retried unchanged forever, holding every later write behind it.",
+  "regressionTest": "pkgs/sync-engine-client/tests/mutation-upload-size.test.ts"
+}
