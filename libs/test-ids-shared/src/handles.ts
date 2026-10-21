@@ -190,6 +190,10 @@ export const Handles = {
   billingSubscribe: 'billing-subscribe',
   billingManage: 'billing-manage',
   billingUnlock: 'billing-unlock',
+  /** Look again for the membership a paid checkout should have made. */
+  billingCheckAgain: 'billing-check-again',
+  /** Why opening checkout or the billing portal failed, with `data-failure`. */
+  billingActionFailure: 'billing-action-failure',
   billingStatus: 'billing-status',
   /** Plus credit left on the billing screen, with `data-credit-cents`. */
   billingCredit: 'billing-credit',

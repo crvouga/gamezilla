@@ -360,6 +360,16 @@ export async function providerTrialEndMs(
   return trial_end === null ? null : trial_end * 1000;
 }
 
+/** When the customer's latest membership's period ends at the provider, in ms. */
+export async function providerPeriodEndMs(
+  s: ProductHarness,
+  accountId: string
+): Promise<number> {
+  return periodEndMs(
+    await latestSubscription(await atMembershipProvider(s, accountId))
+  );
+}
+
 /** Which earlier news a provider repeats about a customer's memberships. */
 export type EarlierNews = {
   /** The news `back` pieces before its latest (0 = the latest; clamped). */

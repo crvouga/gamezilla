@@ -1,0 +1,4 @@
+{
+  "summary": "When starting checkout failed, the billing screen left its checkout-under-way flag set, so paid access arriving later by any route cleared a hosting invitation no checkout had answered. A checkout that never opened now clears the flag.",
+  "regressionTest": "libs/billing-client/tests/billing-request-error.test.ts"
+}

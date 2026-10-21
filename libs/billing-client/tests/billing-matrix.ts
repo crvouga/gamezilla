@@ -74,5 +74,7 @@ export function inputFor(
     graceMs: 0,
     confirmedAtMs: null,
     online: true,
+    loading: false,
+    checkoutReturnedAtMs: null,
   };
 }

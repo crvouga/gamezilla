@@ -1,0 +1,4 @@
+{
+  "summary": "Canceled and delinquent memberships showed the provider's period end as \"access until\", though paid access lasts through 7 days of grace after it, and an ended membership inside grace showed a Plus chip with no date for when access stops. The status line now tells the last day of paid access: the period end plus grace, from the same precedence rule access uses.",
+  "regressionTest": "specs/billing/billing-plans-details.feature"
+}

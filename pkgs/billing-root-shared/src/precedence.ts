@@ -83,6 +83,18 @@ export type AccessMoment = {
   readonly confirmedAtMs: number | null;
 };
 
+/**
+ * The last instant of member access a period end leaves once the membership
+ * does not renew there (canceled, delinquent or ended): the period end plus
+ * grace. What a screen telling someone when their paid access stops shows.
+ */
+export function paidAccessEndsAtMs(
+  periodEndMs: number,
+  graceMs: number
+): number {
+  return periodEndMs + graceMs;
+}
+
 /** The instant access runs out by itself, or `null` when time alone never ends it. */
 function accessRunsOutAtMs(
   standing: MembershipStanding,
@@ -94,7 +106,7 @@ function accessRunsOutAtMs(
   const periodAfter =
     live || standing.periodEndMs === null
       ? null
-      : standing.periodEndMs + at.graceMs;
+      : paidAccessEndsAtMs(standing.periodEndMs, at.graceMs);
   if (unconfirmedAfter === null) return periodAfter;
   if (periodAfter === null) return unconfirmedAfter;
   return Math.min(unconfirmedAfter, periodAfter);

@@ -1,3 +1,4 @@
+import { paidCheckoutReturnUrl } from '@pkgs/billing-root-shared/checkout-return';
 import type {
   CallbackResult,
   Membership,
@@ -252,7 +253,8 @@ export class StripeMembershipBilling implements MembershipBilling {
           : {}),
       },
       line_items: [{ price: price.id, quantity: 1 }],
-      success_url: input.returnUrl,
+      // Only a paid return is marked, so the app can tell the two apart.
+      success_url: paidCheckoutReturnUrl(input.returnUrl),
       cancel_url: input.returnUrl,
     });
     return { customerId: customer, url: session.url ?? '' };

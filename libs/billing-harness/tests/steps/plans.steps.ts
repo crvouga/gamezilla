@@ -13,13 +13,18 @@ import {
 } from '@libs/billing-harness/billing-actions';
 import type { PlanShown } from '@libs/billing-harness/billing-plans-reads';
 import {
+  dayAfterPeriodEnd,
   freeTrialEndDay,
   freeTrialOffered,
   freeTrialShown,
   offeredNewCard,
+  paidAccessLastDayShown,
   planShown,
 } from '@libs/billing-harness/billing-plans-reads';
-import { billingNotice } from '@libs/billing-harness/billing-reads';
+import {
+  billingNotice,
+  membershipShown,
+} from '@libs/billing-harness/billing-reads';
 import { Given, Then } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -138,6 +143,32 @@ Then(
     expect(await w.s.read(planShown, actor, YEARLY)).toMatchObject({
       current: false,
     });
+  }
+);
+
+// ------------------------------------------------------------ last day of paid access
+
+Then(
+  '{actor} sees their paid access lasts until {int} days after the period end',
+  async (w, actor: Actor, days: number) => {
+    const expected = await w.s.read(dayAfterPeriodEnd, actor, days);
+    expect(expected).not.toBeNull();
+    const shown = await w.s.until(
+      (harness) => paidAccessLastDayShown(harness, actor),
+      { ...SHOWN_WAIT, pred: (day) => day === expected }
+    );
+    expect(shown).toBe(expected);
+  }
+);
+
+Then(
+  '{actor} is not told a last day of paid access',
+  async (w, actor: Actor) => {
+    await w.s.until((harness) => membershipShown(harness, actor), {
+      ...SHOWN_WAIT,
+      pred: (shown) => shown !== null && shown.state !== 'loading',
+    });
+    expect(await w.s.read(paidAccessLastDayShown, actor)).toBeNull();
   }
 );
 

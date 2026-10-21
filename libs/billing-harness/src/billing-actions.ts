@@ -9,12 +9,13 @@ import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offe
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
-import { nodeText } from '@libs/harness/observations';
+import { nodeText, partitioned } from '@libs/harness/observations';
 import {
   HARNESS_FIRST_BILLING_PROVIDER,
   HARNESS_SERVER_URL,
 } from '@libs/sub-shared/harness-constants';
 import { Handles } from '@libs/test-ids-shared/handles';
+import { paidCheckoutReturnUrl } from '@pkgs/billing-root-shared/checkout-return';
 import type {
   BillingObserveKind,
   EarlierNews,
@@ -111,10 +112,59 @@ export const openBilling = scenarioAction({
   },
 });
 
+/** Each payment provider's link to the app, as the network names its ends. */
+function confirmationLinks(
+  s: ProductHarness
+): readonly (readonly [string, string])[] {
+  return billingProviders(s)
+    .all()
+    .map((provider) => [provider.netNode, s.harness.loadBalancer.id] as const);
+}
+
+/**
+ * Whether the payment providers' news cannot reach the app right now, so a
+ * paid checkout returns before its membership does.
+ */
+export function paymentConfirmationsHeld(s: ProductHarness): boolean {
+  const cut = new Set(partitioned(s));
+  return confirmationLinks(s).some(
+    ([a, b]) => cut.has(`${a}|${b}`) || cut.has(`${b}|${a}`)
+  );
+}
+
+/**
+ * The payment providers are slow to confirm payments: their news (signed
+ * webhooks) stops reaching the app, and waits at the provider, which keeps
+ * retrying it. Checkout, the portal and the provider's own pages still work.
+ */
+export const holdPaymentConfirmations = scenarioAction({
+  name: 'holdPaymentConfirmations',
+  act: (s) => {
+    for (const [provider, app] of confirmationLinks(s)) {
+      s.session.network.partition(provider, app);
+      s.harness.partition(provider, app);
+    }
+  },
+});
+
+/** The payment providers' news reaches the app again, on their next retry. */
+export const releasePaymentConfirmations = scenarioAction({
+  name: 'releasePaymentConfirmations',
+  act: async (s) => {
+    for (const [provider, app] of confirmationLinks(s)) {
+      s.session.network.heal(provider, app);
+      s.harness.heal(provider, app);
+    }
+    await s.session.waitForIdle();
+  },
+});
+
 /**
  * Subscribe to plus: the app hands off to the provider's hosted checkout in
  * the actor's browser, the person types a card there and pays, and the
- * checkout returns to the app. Then wait for the tier to read `paid`.
+ * checkout returns to the app. Then wait for the tier to read `paid` — or,
+ * while the providers' news is held, for the billing screen the paid
+ * checkout returns to.
  */
 export const subscribeToPlus = scenarioAction({
   name: 'subscribeToPlus',
@@ -128,6 +178,17 @@ export const subscribeToPlus = scenarioAction({
     await ui.get(STRIPE_PAGE.checkoutCvc).input(TEST_CARD.cvc);
     await ui.get(STRIPE_PAGE.checkoutZip).input(TEST_CARD.zip);
     await ui.get(STRIPE_PAGE.checkoutPay).tap({ timeoutMs: WAIT_MS });
+    // The paid checkout sends the person back to the billing screen.
+    await pollUntil(
+      s,
+      () =>
+        Promise.resolve(
+          s.harness.browser(actorId).address() === null ? true : null
+        ),
+      { maxMs: WAIT_MS, description: 'back in the app from checkout' }
+    );
+    await ui.get(Handles.billingScreen).expect.visible({ timeoutMs: WAIT_MS });
+    if (paymentConfirmationsHeld(s)) return;
     await pollUntil(
       s,
       async () =>
@@ -344,7 +405,7 @@ export const checkoutPlusAtProvider = scenarioAction({
       customer: await customerOf(s, accountId, provider),
       client_reference_id: accountId,
       line_items: [{ price, quantity: 1 }],
-      success_url: returnUrl,
+      success_url: paidCheckoutReturnUrl(returnUrl),
       cancel_url: returnUrl,
       subscription_data: {
         metadata: { accountId },
@@ -430,4 +491,6 @@ export const BILLING_HARNESS_ACTIONS = [
   switchPaymentProvider,
   repeatProviderNews,
   advanceBillingClock,
+  holdPaymentConfirmations,
+  releasePaymentConfirmations,
 ];

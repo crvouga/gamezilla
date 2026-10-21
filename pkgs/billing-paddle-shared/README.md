@@ -49,7 +49,7 @@ set. The key's prefix picks sandbox (`pdl_sdbx_…`) or live (`pdl_live_…`).
 | --- | --- |
 | `PADDLE_API_KEY` | server-side API key |
 | `PADDLE_WEBHOOK_SECRET` | the notification destination's secret (`pdl_ntfset_…`); without it callbacks fail closed |
-| `PADDLE_CHECKOUT_URL` | a hosted checkout link (`https://pay.paddle.io/hsc_…`); set its success redirect to the app's billing screen in the dashboard |
+| `PADDLE_CHECKOUT_URL` | a hosted checkout link (`https://pay.paddle.io/hsc_…`); set its success redirect in the dashboard to the app's billing screen marked as a paid return (`?checkout=paid`, see `@pkgs/billing-root-shared/checkout-return`), so a person back from paying is told their payment is being confirmed |
 
 With Stripe also configured, set `BILLING_PROVIDER` on the API Worker to the
 one new checkouts go to; members of the other keep being served there.
