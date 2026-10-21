@@ -4858,6 +4858,7 @@
                           "specs/battleship/battleship-fleet-placement.feature",
                           "specs/battleship/battleship-health.feature",
                           "specs/battleship/battleship-hidden-fleets.feature",
+                          "specs/battleship/battleship-fleet-setup.qnt",
                           "specs/battleship/battleship-play.qnt",
                           "specs/battleship/battleship-shots.feature",
                           "specs/battleship/battleship-sinking.feature",
