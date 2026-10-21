@@ -4,10 +4,12 @@ import { CustomGameAvailableAttr } from '@libs/game-session-shared/custom-game-a
 import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
 import { soloCustomGame } from '@libs/game-session-shared/custom-game-local';
 import {
+  type CustomGame,
   type CustomGames,
   CustomGamesAttr,
   customGamePersonSide,
 } from '@libs/game-session-shared/custom-game-state';
+import { customGameChoiceWaits } from '@libs/game-session-shared/custom-game-waiting-move';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useSyncedProfiles } from '@libs/profile-client/use-synced-profiles';
 import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
@@ -77,6 +79,19 @@ function readyChoices(
   return { ready, playBot };
 }
 
+/** Whether a move made now, with no connection, would wait for it. */
+function useMovesWait(
+  connected: Accessor<boolean>,
+  current: Accessor<CustomGame | null>
+): Accessor<boolean> {
+  const rules = useTurnGames();
+  return createMemo(
+    () =>
+      !connected() &&
+      customGameChoiceWaits(current(), { operation: 'move' }, rules)
+  );
+}
+
 export type CustomGameScreenModel = ReturnType<typeof useCustomGameScreen>;
 
 export function useCustomGameScreen(
@@ -139,6 +154,10 @@ export function useCustomGameScreen(
     error: command.error,
     settled: command.settled,
     submitting: command.submitting,
+    /** Whether a move made with no connection waits for it to return. */
+    waiting: command.waiting,
+    /** Whether a move made now, with no connection, would wait for it. */
+    movesWait: useMovesWait(connected, current),
     mySide: createMemo(() => {
       const game = current();
       return game === null ? null : customGamePersonSide(game, myId());

@@ -240,12 +240,21 @@ export function CustomGameConnectionNotice(props: {
       >
         <span role="status">
           <Show
-            when={props.model.canSubmit()}
+            when={!props.model.waiting()}
             fallback={
-              <Trans>Connection needed to change or play this game.</Trans>
+              <Trans>
+                Your move will be played when the connection returns.
+              </Trans>
             }
           >
-            <Trans>You are offline. Your local game can continue.</Trans>
+            <Show
+              when={props.model.canSubmit()}
+              fallback={
+                <Trans>Connection needed to change or play this game.</Trans>
+              }
+            >
+              <Trans>You are offline. Your local game can continue.</Trans>
+            </Show>
           </Show>
         </span>
       </Notice>

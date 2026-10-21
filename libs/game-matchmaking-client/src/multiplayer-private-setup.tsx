@@ -2,15 +2,19 @@ import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { awaitingSetups } from '@libs/game-matchmaking-shared/game-state';
 import { Trans } from '@lingui/solid/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client/turn-games-context';
+import { Badge } from '@pkgs/ui-root-client/badge';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
 import { GameActions, GameSection } from '@pkgs/ui-root-client/game-section';
-import { type JSX, Show } from 'solid-js';
+import { For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { MultiplayerPrivateSetup } from './use-multiplayer-private-setup';
 
+const SIDES = ['white', 'black'] as const;
+
 /**
  * While a matched game waits for private setups: the person's own setup
- * board until they choose it (once, for good), and who is ready.
+ * board until they choose it (once, for good), whether it is complete, and
+ * who is ready, which the other person and every watcher see too.
  */
 export function MultiplayerPrivateSetupPanel(props: {
   readonly game: MultiplayerGame;
@@ -71,7 +75,14 @@ export function MultiplayerPrivateSetupPanel(props: {
           >
             <Show
               when={props.setup.ready(side())}
-              fallback={<Trans>Choose your private setup.</Trans>}
+              fallback={
+                <Show
+                  when={props.setup.complete()}
+                  fallback={<Trans>Your private setup is incomplete.</Trans>}
+                >
+                  <Trans>Your private setup is complete.</Trans>
+                </Show>
+              }
             >
               <Show
                 when={props.setup.ready(other())}
@@ -84,6 +95,35 @@ export function MultiplayerPrivateSetupPanel(props: {
             </Show>
           </Show>
         </p>
+        <ul
+          class="box flex-row flex-wrap items-center gap-2"
+          data-testid="multiplayer-setup-readiness"
+        >
+          <For each={SIDES}>
+            {(which) => (
+              <li
+                class="box flex-row items-center gap-1"
+                data-testid={`multiplayer-setup-readiness-${which}`}
+              >
+                <Badge
+                  intent="neutral"
+                  label={presentation(props.game.fen).sideLabel(which)}
+                />
+                <Show
+                  when={props.setup.ready(which)}
+                  fallback={
+                    <Badge
+                      intent="neutral"
+                      label={<Trans>Getting ready</Trans>}
+                    />
+                  }
+                >
+                  <Badge intent="success" label={<Trans>Ready</Trans>} />
+                </Show>
+              </li>
+            )}
+          </For>
+        </ul>
       </GameSection>
     </Show>
   );

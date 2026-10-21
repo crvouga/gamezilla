@@ -44,7 +44,12 @@ function RecordReview(props: {
         screenId="game-history-review"
         title={<Trans>Game replay</Trans>}
         timeline={
-          <p class="text textCaption" role="status">
+          <p
+            class="text textCaption"
+            role="status"
+            data-testid="game-history-review-move"
+            data-shown-position={position()}
+          >
             <Trans>
               Move {ply()} of {props.record.moves.length}.{' '}
               {recordLabel(props.record)}

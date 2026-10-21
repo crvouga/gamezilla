@@ -12,6 +12,6 @@ export function customGameCanMove(
     model.mySide() === model.current()?.turn &&
     model.canPlay() &&
     !model.submitting() &&
-    model.canSubmit()
+    (model.canSubmit() || model.movesWait())
   );
 }

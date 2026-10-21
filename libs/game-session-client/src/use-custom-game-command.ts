@@ -37,6 +37,7 @@ export function useCustomGameCommand() {
   const [error, setError] = createSignal('');
   const [settled, setSettled] = createSignal(0);
   const [submitting, setSubmitting] = createSignal(false);
+  const [waiting, setWaiting] = createSignal(false);
   const pending = new Set<() => void>();
   onCleanup(() => {
     for (const cancel of pending) cancel();
@@ -76,6 +77,7 @@ export function useCustomGameCommand() {
           canHost: canHost(),
           pending,
           rules,
+          onWaiting: () => setWaiting(true),
         },
         choice
       );
@@ -83,9 +85,11 @@ export function useCustomGameCommand() {
       setError(cause instanceof Error ? cause.message : 'choice failed');
       throw cause;
     } finally {
+      setWaiting(false);
       setSubmitting(false);
       setSettled((value) => value + 1);
     }
   };
-  return { send, error, settled, submitting };
+  /** Whether a move made with no connection waits for it to return. */
+  return { send, error, settled, submitting, waiting };
 }
