@@ -4,10 +4,16 @@ import { FEEDBACK_TEMPLATES } from '@pkgs/feedback-shared/templates';
 import type { FeedbackKind } from '@pkgs/feedback-shared/types';
 import { asLocalized } from '@pkgs/i18n-shared/localized-string';
 import { Button } from '@pkgs/ui-root-client/button';
+import { Collapsible } from '@pkgs/ui-root-client/collapsible';
+import { Form } from '@pkgs/ui-root-client/form';
 import { SendIcon } from '@pkgs/ui-root-client/icons';
 import { MarkdownEditor } from '@pkgs/ui-root-client/markdown-editor';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
+import { Surface } from '@pkgs/ui-root-client/surface';
+import { P } from '@pkgs/ui-root-client/text';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { Textarea } from '@pkgs/ui-root-client/textarea';
+import { Toolbar } from '@pkgs/ui-root-client/toolbar';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import type { MarkdownEditorCommand } from '@pkgs/ui-root-shared/markdown-editor-types';
 import { type Accessor, type JSX, Show } from 'solid-js';
@@ -51,12 +57,12 @@ export function FeedbackForm(props: {
     workspace().documents.find((doc) => doc.id === workspace().activeId)
       ?.report !== null;
   return (
-    <form
-      class="box flex-1 min-h-0 shrink gap-3 overflow-hidden"
-      data-testid="feedback-form"
-      data-component="FeedbackForm"
-      onSubmit={(event) => {
-        event.preventDefault();
+    <Form
+      grow
+      gap="md"
+      aria-label="Feedback"
+      testId="feedback-form"
+      onSubmit={() => {
         void mutation.run();
       }}
     >
@@ -80,20 +86,19 @@ export function FeedbackForm(props: {
         }
       />
       <Show when={props.state().message}>
-        <p class="text text-sm text-warning" role="alert">
-          {props.state().message}
-        </p>
+        {(message) => (
+          <P variant="caption" tone="warning" role="alert">
+            {message()}
+          </P>
+        )}
       </Show>
       <Show
         when={
           props.state().phase === 'failed' || props.controller.workspace.warning
         }
       >
-        <details class="box rounded-xl border border-border px-3 py-2">
-          <summary class="text text-sm font-medium cursor-pointer select-none py-1">
-            Recovery data
-          </summary>
-          <div class="box mt-2">
+        <Surface tone="transparent" radius="card" border paddingX="md">
+          <Collapsible title="Recovery data">
             <Textarea
               rows={5}
               readOnly
@@ -104,10 +109,10 @@ export function FeedbackForm(props: {
               }}
               testId="feedback-emergency"
             />
-          </div>
-        </details>
+          </Collapsible>
+        </Surface>
       </Show>
-    </form>
+    </Form>
   );
 }
 
@@ -118,9 +123,14 @@ function FeedbackEditor(props: {
   submit: JSX.Element;
 }) {
   return (
-    <div
-      class="box flex-1 min-h-0 shrink overflow-hidden rounded-xl border border-border bg-surface"
-      data-component="FeedbackEditor"
+    <Surface
+      grow
+      shrink
+      tone="surface"
+      radius="card"
+      border
+      overflow="hidden"
+      testId="feedback-editor"
     >
       <TextInput
         name="title"
@@ -152,17 +162,17 @@ function FeedbackEditor(props: {
         invalid={props.state().errors.body !== undefined}
         dataSet={{ testid: 'feedback-body' }}
       />
-      <div class="box flex-row items-center justify-between gap-2 border-t border-border px-2 py-2">
+      <Toolbar edge="top" tone="surface" justify="between" wrap>
         <EvidenceControls controller={props.controller} />
-        <div class="box flex-row items-center gap-2">
+        <StackHorizontal align="center" gap="sm">
           <Show when={props.state().draft.body.length >= 28_000}>
-            <p class="text textCaption">
+            <P variant="caption" numeral>
               {props.state().draft.body.length.toString()} / 32,000
-            </p>
+            </P>
           </Show>
           {props.submit}
-        </div>
-      </div>
-    </div>
+        </StackHorizontal>
+      </Toolbar>
+    </Surface>
   );
 }

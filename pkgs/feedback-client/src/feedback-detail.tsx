@@ -1,10 +1,15 @@
 /** @jsxImportSource solid-js */
+
+import { H3 } from '@pkgs/ui-root-client/heading';
 import { IconButton } from '@pkgs/ui-root-client/icon-button';
 import { SquarePenIcon, Trash2Icon } from '@pkgs/ui-root-client/icons';
 import { MarkdownContent } from '@pkgs/ui-root-client/markdown-content';
 import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import { Surface } from '@pkgs/ui-root-client/surface';
+import { P } from '@pkgs/ui-root-client/text';
+import { TextLink } from '@pkgs/ui-root-client/text-link';
 import { type Accessor, createSignal, Show } from 'solid-js';
 import type { FeedbackController, FeedbackState } from './controller';
 
@@ -20,24 +25,25 @@ export function FeedbackDetail(props: {
   return (
     <Show when={document()}>
       {(doc) => (
-        <div
-          class="box flex-1 min-h-0 shrink gap-4 overflow-hidden"
-          data-component="FeedbackDetail"
+        <StackVertical
+          grow
+          shrink
+          gap="lg"
+          overflow="hidden"
+          testId="feedback-detail"
         >
-          <div class="box flex-row items-start justify-between gap-3">
-            <div class="box min-w-0 gap-1">
-              <h3 class="text text-lg font-semibold break-words">
-                {doc().title || 'Untitled issue'}
-              </h3>
-              <p class="text textCaption">
+          <StackHorizontal align="start" justify="between" gap="md">
+            <StackVertical shrink gap="xs">
+              <H3 size="subtitle">{doc().title || 'Untitled issue'}</H3>
+              <P variant="caption">
                 {doc().report ? 'Reported issue' : 'Draft'}
-              </p>
-            </div>
-            <div
-              class="box flex-row gap-1"
+              </P>
+            </StackVertical>
+            <StackHorizontal
+              gap="xs"
               role="group"
               aria-label="Issue actions"
-              data-component="FeedbackActions"
+              testId="feedback-issue-actions"
             >
               <IconButton
                 label="Edit issue"
@@ -59,8 +65,8 @@ export function FeedbackDetail(props: {
               >
                 <Trash2Icon size={18} />
               </IconButton>
-            </div>
-          </div>
+            </StackHorizontal>
+          </StackHorizontal>
           <Surface
             grow
             shrink
@@ -84,14 +90,11 @@ export function FeedbackDetail(props: {
             </ScrollView>
           </Surface>
           <Show when={doc().issue?.url}>
-            <a
-              class="text text-sm text-tint"
-              href={doc().issue?.url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open external report ↗
-            </a>
+            {(url) => (
+              <TextLink href={url()} external variant="standalone">
+                Open external report
+              </TextLink>
+            )}
           </Show>
           <MutationModal
             visible={deleting()}
@@ -107,7 +110,7 @@ export function FeedbackDetail(props: {
             dismissDataSet={{ testid: 'feedback-delete-done' }}
             dataSet={{ testid: 'feedback-delete-dialog' }}
           />
-        </div>
+        </StackVertical>
       )}
     </Show>
   );

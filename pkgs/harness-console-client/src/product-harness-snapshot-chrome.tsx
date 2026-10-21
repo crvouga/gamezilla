@@ -1,10 +1,4 @@
-import type {
-  ProductHarnessSession,
-  ProductHarnessSnapshotInfo,
-} from '@pkgs/harness-console-shared/ports';
-import { Button } from '@pkgs/ui-root-client/button';
-import { Checkbox } from '@pkgs/ui-root-client/checkbox';
-import { CONTENT_EDGE_PADDING_STEP } from '@pkgs/ui-root-client/content-edge-padding';
+import type { ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
 import { IconButton } from '@pkgs/ui-root-client/icon-button';
 import {
   Columns2Icon,
@@ -16,274 +10,20 @@ import {
   Trash2Icon,
 } from '@pkgs/ui-root-client/icons';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
-import { SegmentedControl } from '@pkgs/ui-root-client/segmented-control';
-import { Select } from '@pkgs/ui-root-client/select';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import { useCommandPalette } from '@pkgs/ui-root-client/use-command-palette';
-import { createSignal, Show } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { useClientLayoutPreference } from './client-layout-preference';
 import type { ClientLayoutMode } from './layout';
-import {
-  formatSnapshotAge,
-  formatSnapshotBytes,
-  formatSnapshotTitle,
-} from './product-harness-snapshot-format';
 import { SnapshotChromeModals } from './product-harness-snapshot-modals';
+import { SnapshotSelect } from './product-harness-snapshot-select';
 import { useHarnessConsoleLayout } from './use-harness-console-layout';
 import { useProductHarnessSnapshots } from './use-product-harness-snapshots';
-import type { SortKey } from './use-snapshot-chrome-state';
 import { useSnapshotChromeState } from './use-snapshot-chrome-state';
 
 const ICON_SIZE = 32;
 const GLYPH_SIZE = 16;
-const SELECT_WIDTH = 150;
 type SnapshotListApi = ReturnType<typeof useProductHarnessSnapshots>;
-function SnapshotRowMeta(props: {
-  readonly snap: ProductHarnessSnapshotInfo;
-  readonly nowMs: number;
-}) {
-  return (
-    <div class="box flex-row items-center gap-1 flex-wrap">
-      <p class="text textCaption">
-        {formatSnapshotAge(props.snap.createdAtMs, props.nowMs)}
-      </p>
-      {props.snap.totalBytes !== undefined ? (
-        <p class="text textCaption">{`· ${formatSnapshotBytes(props.snap.totalBytes)}`}</p>
-      ) : null}
-      {props.snap.compatible ? null : (
-        <p class="text textCaption text-warning">{'· outdated'}</p>
-      )}
-    </div>
-  );
-}
-function SnapshotOptionRow(props: {
-  readonly snap: ProductHarnessSnapshotInfo;
-  readonly nowMs: number;
-  readonly selected: boolean;
-  readonly outdated: boolean;
-  readonly busy: boolean;
-  readonly checked: boolean;
-  readonly onToggleChecked: (next: boolean) => void;
-  readonly onPick: () => void;
-}) {
-  const body = (
-    <div class="box flex-1 min-w-0 py-3 gap-0.5">
-      <p class="text text-text">
-        {formatSnapshotTitle(props.snap.createdAtMs)}
-      </p>
-      <SnapshotRowMeta snap={props.snap} nowMs={props.nowMs} />
-    </div>
-  );
-  return (
-    <div
-      class="box flex-row items-center gap-3 min-w-0"
-      style={{
-        ...(props.selected && !props.outdated
-          ? {}
-          : { 'padding-right': `${CONTENT_EDGE_PADDING_STEP * 4}px` }),
-        opacity: props.outdated ? 0.55 : 1,
-      }}
-    >
-      <div
-        class="box"
-        style={{ 'padding-left': `${CONTENT_EDGE_PADDING_STEP * 4}px` }}
-      >
-        <Checkbox
-          checked={props.checked}
-          onToggle={props.onToggleChecked}
-          disabled={props.busy}
-        />
-      </div>
-      {props.outdated ? (
-        body
-      ) : (
-        <button
-          class="clickable clickableTint flex-1 min-w-0"
-          type="button"
-          onClick={props.onPick}
-        >
-          {body}
-        </button>
-      )}
-      {props.selected && !props.outdated ? (
-        <div
-          class="box"
-          style={{ 'padding-right': `${CONTENT_EDGE_PADDING_STEP * 4}px` }}
-        >
-          <label class="text textLabel text-tint">{'✓'}</label>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-function SnapshotSurfaceExtra(props: {
-  readonly sort: SortKey;
-  readonly onSort: (sort: SortKey) => void;
-  readonly allChecked: boolean;
-  readonly someChecked: boolean;
-  readonly checkedCount: number;
-  readonly busy: boolean;
-  readonly onToggleAll: (next: boolean) => void;
-  readonly onDeleteChecked: () => void;
-}) {
-  return (
-    <div class="box gap-1.5">
-      <SegmentedControl
-        segments={[
-          { key: 'newest', label: 'Newest' },
-          { key: 'oldest', label: 'Oldest' },
-        ]}
-        selected={props.sort}
-        onSelect={props.onSort}
-      />
-      <div class="box flex-row items-center justify-between gap-1">
-        <Checkbox
-          label={props.allChecked ? 'Clear' : 'Select all'}
-          checked={props.allChecked || props.someChecked}
-          onToggle={props.onToggleAll}
-          disabled={props.busy}
-        />
-        <Button
-          size="sm"
-          intent="danger"
-          title={
-            props.checkedCount === 0
-              ? 'Delete'
-              : `Delete ${String(props.checkedCount)}`
-          }
-          disabled={props.busy || props.checkedCount === 0}
-          onClick={props.onDeleteChecked}
-        />
-      </div>
-    </div>
-  );
-}
-function SnapshotSelect(props: {
-  readonly list: SnapshotListApi;
-  readonly sortedSnaps: readonly ProductHarnessSnapshotInfo[];
-  readonly snapById: ReadonlyMap<string, ProductHarnessSnapshotInfo>;
-  readonly selectValue: string;
-  readonly sort: SortKey;
-  readonly nowMs: number;
-  readonly checkedIds: ReadonlySet<string>;
-  readonly compact: boolean;
-  readonly onSelectId: (id: string) => void;
-  readonly onSort: (sort: SortKey) => void;
-  readonly onToggleChecked: (id: string, next: boolean) => void;
-  readonly onToggleAll: (next: boolean) => void;
-  readonly onDeleteChecked: () => void;
-}) {
-  const allChecked = () =>
-    props.sortedSnaps.length > 0 &&
-    props.sortedSnaps.every((s) => props.checkedIds.has(s.id));
-  const someChecked = () =>
-    props.sortedSnaps.some((s) => props.checkedIds.has(s.id));
-  return (
-    <div class="box" style={props.compact ? selectCompactSx : selectDesktopSx}>
-      <Select
-        size="sm"
-        options={props.sortedSnaps.map((s) => ({
-          value: s.id,
-          label: formatSnapshotAge(s.createdAtMs, props.nowMs),
-          disabled: !s.compatible,
-        }))}
-        value={props.selectValue}
-        onValueChange={(id) => {
-          const snap = props.snapById.get(id);
-          if (snap === undefined || !snap.compatible) return;
-          props.onSelectId(id);
-          void props.list.onLoad(id).catch(() => undefined);
-        }}
-        surfaceTitle="Snapshots"
-        surfaceExtra={
-          <SnapshotSurfaceExtra
-            sort={props.sort}
-            onSort={props.onSort}
-            allChecked={allChecked()}
-            someChecked={someChecked()}
-            checkedCount={props.checkedIds.size}
-            busy={props.list.busy}
-            onToggleAll={props.onToggleAll}
-            onDeleteChecked={props.onDeleteChecked}
-          />
-        }
-        loading={props.list.busy}
-        error={props.list.error}
-        renderOption={(option, selected, onPick) => (
-          <SnapshotSelectOption
-            snap={props.snapById.get(option.value)}
-            nowMs={props.nowMs}
-            selected={selected}
-            busy={props.list.busy}
-            checked={
-              props.snapById.get(option.value) !== undefined &&
-              props.checkedIds.has(option.value)
-            }
-            onToggleChecked={(next) =>
-              props.onToggleChecked(option.value, next)
-            }
-            onPick={onPick}
-          />
-        )}
-      />
-    </div>
-  );
-}
-function SnapshotSelectOption(props: {
-  readonly snap: ProductHarnessSnapshotInfo | undefined;
-  readonly nowMs: number;
-  readonly selected: boolean;
-  readonly busy: boolean;
-  readonly checked: boolean;
-  readonly onToggleChecked: (next: boolean) => void;
-  readonly onPick: () => void;
-}) {
-  return (
-    <Show when={props.snap}>
-      {(snap) => (
-        <SnapshotOptionRow
-          snap={snap()}
-          nowMs={props.nowMs}
-          selected={props.selected}
-          outdated={!snap().compatible}
-          busy={props.busy}
-          checked={props.checked}
-          onToggleChecked={props.onToggleChecked}
-          onPick={props.onPick}
-        />
-      )}
-    </Show>
-  );
-}
-const selectCompactSx = {
-  flex: 1,
-  'min-width': 0,
-  'align-self': 'center',
-} as const;
-const selectDesktopSx = {
-  width: `${SELECT_WIDTH}px`,
-  'flex-shrink': 0,
-  'min-width': 0,
-  'align-self': 'center',
-} as const;
-const chromeRowCompactSx = {
-  'flex-direction': 'row',
-  'align-items': 'center',
-  'justify-content': 'flex-start',
-  gap: '2px',
-  'flex-shrink': 1,
-  flex: 1,
-  'min-width': 0,
-  'align-self': 'stretch',
-} as const;
-const chromeRowDesktopSx = {
-  'flex-direction': 'row',
-  'align-items': 'center',
-  'justify-content': 'flex-end',
-  gap: '2px',
-  'flex-shrink': 0,
-  'min-width': 0,
-  'align-self': 'stretch',
-} as const;
 function SnapshotChromeActions(props: {
   readonly list: SnapshotListApi;
   readonly hasCompatibleSelection: boolean;
@@ -346,7 +86,7 @@ function ClientLayoutToggle(props: {
   readonly onSelect: (mode: ClientLayoutMode) => void;
 }) {
   return (
-    <div class="box flex-row items-center gap-px shrink-0">
+    <StackHorizontal align="center">
       <IconButton
         label="Tab clients"
         size={ICON_SIZE}
@@ -369,7 +109,7 @@ function ClientLayoutToggle(props: {
       >
         <Columns2Icon size={GLYPH_SIZE} color="icon" />
       </IconButton>
-    </div>
+    </StackHorizontal>
   );
 }
 /** Snapshot Select + save / reload / palette icon buttons. */
@@ -388,9 +128,11 @@ export function ProductHarnessSnapshotChrome(props: {
     return props.session.clock.now();
   };
   return (
-    <div
-      class="box"
-      style={layout.compactChrome ? chromeRowCompactSx : chromeRowDesktopSx}
+    <StackHorizontal
+      grow={layout.compactChrome}
+      align="center"
+      justify={layout.compactChrome ? 'start' : 'end'}
+      gap="xs"
     >
       {layout.compactChrome ? (
         <IconButton
@@ -447,7 +189,7 @@ export function ProductHarnessSnapshotChrome(props: {
         />
       )}
       <SnapshotChromeModals state={state} />
-    </div>
+    </StackHorizontal>
   );
 }
 function CompactSnapshotSurface(props: {
@@ -468,7 +210,7 @@ function CompactSnapshotSurface(props: {
       size="small"
       stackId="product-harness-snapshot-controls"
     >
-      <div class="box gap-3">
+      <StackVertical gap="lg">
         <ClientLayoutToggle
           preference={props.preference.preference}
           onSelect={props.preference.setPreference}
@@ -499,7 +241,7 @@ function CompactSnapshotSurface(props: {
           onPurge={() => props.state.setPurgeOpen(true)}
           openPalette={props.palette.open}
         />
-      </div>
+      </StackVertical>
     </ResponsiveSurface>
   );
 }

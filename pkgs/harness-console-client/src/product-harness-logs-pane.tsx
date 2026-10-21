@@ -1,9 +1,8 @@
-import type {
-  ProductHarnessLogBuffer,
-  ProductHarnessLogEntry,
-} from '@pkgs/harness-console-shared/ports';
+import type { ProductHarnessLogBuffer } from '@pkgs/harness-console-shared/ports';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { LogLine } from '@pkgs/ui-root-client/log-line';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 
 /**
@@ -27,38 +26,27 @@ export function ProductHarnessLogsPane(props: {
     <Show
       when={entries().length > 0}
       fallback={
-        <div class="box flex-1 min-h-0 p-[8px] bg-background">
+        <StackVertical grow padding="sm">
           <EmptyState
             variant="compact"
             title="No logs yet"
             body="HTTP traffic for this node will appear here."
           />
-        </div>
+        </StackVertical>
       }
     >
-      <ScrollView grow tone="background" padding="xs" gap="xs">
-        <For each={newestFirst()}>{(entry) => <LogRow entry={entry} />}</For>
+      <ScrollView grow tone="background" paddingX="sm">
+        <For each={newestFirst()}>
+          {(entry) => (
+            <LogLine
+              level={entry.level}
+              time={formatTime(entry.at)}
+              message={entry.msg}
+            />
+          )}
+        </For>
       </ScrollView>
     </Show>
-  );
-}
-
-function LogRow(props: { readonly entry: ProductHarnessLogEntry }) {
-  const { entry } = props;
-  const levelClass = (): string => {
-    if (entry.level === 'error') return 'text-destructive';
-    if (entry.level === 'warn') return 'text-warning';
-    if (entry.level === 'info') return 'text-tint';
-    return 'text-text-secondary';
-  };
-  return (
-    <div class="box flex-row gap-2 [padding-top:3px;padding-bottom:3px] border-b border-border items-start">
-      <p class={`text textFootnote w-10 shrink-0 ${levelClass()}`}>
-        {entry.level.toUpperCase()}
-      </p>
-      <p class="text textFootnote w-18 shrink-0">{formatTime(entry.at)}</p>
-      <p class="text text-text text-[11px] flex-1">{entry.msg}</p>
-    </div>
   );
 }
 

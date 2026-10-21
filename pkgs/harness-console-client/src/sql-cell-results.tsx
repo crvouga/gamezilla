@@ -2,7 +2,12 @@ import { asLocalized } from '@pkgs/i18n-shared/localized-string';
 import { DataTable } from '@pkgs/ui-devtools-client/data-table';
 import { createMemoryPageLoader } from '@pkgs/ui-devtools-shared/create-memory-page-loader';
 import type { DataTableColumn } from '@pkgs/ui-devtools-shared/data-table-types';
+import { Divider } from '@pkgs/ui-root-client/divider';
+import { Notice } from '@pkgs/ui-root-client/notice';
 import { OverflowMenuButton } from '@pkgs/ui-root-client/overflow-menu-button';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { writeClipboard } from './copy-to-clipboard';
 import type { SqlStatementResult } from './run-sql-cell';
@@ -18,13 +23,14 @@ export function SqlCellResults(props: {
     <Show
       when={props.error() == null}
       fallback={
-        <div class="box px-2 py-1">
-          <p class="text text-destructive text-xs">{props.error()}</p>
-        </div>
+        <StackVertical paddingX="sm" paddingBottom="sm">
+          <Notice tone="error">{props.error()}</Notice>
+        </StackVertical>
       }
     >
       <Show when={props.results().length > 0}>
-        <div class="box gap-1 border-t border-outline">
+        <StackVertical gap="xs">
+          <Divider />
           <ResultsHeader
             results={props.results}
             durationMs={props.durationMs}
@@ -34,7 +40,7 @@ export function SqlCellResults(props: {
           <Show when={!collapsed()}>
             <ResultsList results={props.results} />
           </Show>
-        </div>
+        </StackVertical>
       </Show>
     </Show>
   );
@@ -48,8 +54,12 @@ function ResultsHeader(props: {
 }): JSX.Element {
   const status = () => summarize(props.results(), props.durationMs());
   return (
-    <div class="box flex-row items-center gap-1 px-2 py-0.5">
-      <p class="text flex-1 text-[11px] text-text-secondary">{status()}</p>
+    <StackHorizontal align="center" gap="xs" paddingX="sm">
+      <StackHorizontal grow>
+        <P variant="footnote" numeral lines={1}>
+          {status()}
+        </P>
+      </StackHorizontal>
       <OverflowMenuButton
         size={24}
         header={{ title: 'Results' }}
@@ -77,7 +87,7 @@ function ResultsHeader(props: {
           },
         ]}
       />
-    </div>
+    </StackHorizontal>
   );
 }
 
@@ -97,44 +107,67 @@ function StatementResult(props: {
   readonly result: SqlStatementResult;
   readonly index: number;
 }): JSX.Element {
-  const { result, index } = props;
-  if (result.kind === 'changes') {
-    return (
-      <div class="box px-2 py-1">
-        <p class="text text-xs text-success">{`#${index + 1} · ${result.changes} change${result.changes === 1 ? '' : 's'}`}</p>
-      </div>
-    );
-  }
-  return <RowsResult result={result} index={index} />;
+  return (
+    <Show
+      when={props.result.kind === 'rows' ? props.result : null}
+      fallback={
+        <StackVertical paddingX="sm" paddingBottom="sm">
+          <P variant="footnote" tone="success" numeral>
+            {changesLabel(props.result, props.index)}
+          </P>
+        </StackVertical>
+      }
+    >
+      {(rows) => <RowsResult result={rows()} index={props.index} />}
+    </Show>
+  );
 }
 
 function RowsResult(props: {
   readonly result: Extract<SqlStatementResult, { kind: 'rows' }>;
   readonly index: number;
 }): JSX.Element {
-  const { result, index } = props;
-  const columns = createMemo(() => buildColumns(result.columns));
-  const loadPage = createMemo(() => createMemoryPageLoader(() => result.rows));
-  const note = result.truncated ? ` (truncated at ${result.rows.length})` : '';
-  return (
-    <div class="box gap-0.5 min-h-0">
-      <p class="text px-2 text-[11px] text-text-secondary">{`#${index + 1} · ${result.rows.length} row${result.rows.length === 1 ? '' : 's'}${note}`}</p>
-      {result.columns.length === 0 ? (
-        <p class="text px-2 py-1 text-xs text-text-secondary">{'0 rows'}</p>
-      ) : (
-        <DataTable
-          class="border-0 rounded-none max-h-60"
-          columns={columns()}
-          loadPage={loadPage()}
-          getRowId={(_row, i) => `${index}-${i}`}
-          sourceKey={`${index}:${result.rows.length}:${result.columns.join(',')}`}
-          pageSize={50}
-          emptyTitle="0 rows"
-          density="compact"
-        />
-      )}
-    </div>
+  const columns = createMemo(() => buildColumns(props.result.columns));
+  const loadPage = createMemo(() =>
+    createMemoryPageLoader(() => props.result.rows)
   );
+  return (
+    <StackVertical gap="xs" paddingX="sm" paddingBottom="sm">
+      <P variant="footnote" numeral>
+        {rowsLabel(props.result, props.index)}
+      </P>
+      <Show
+        when={props.result.columns.length > 0}
+        fallback={<P variant="caption">{'0 rows'}</P>}
+      >
+        <ScrollView maxHeight="md">
+          <DataTable
+            columns={columns()}
+            loadPage={loadPage()}
+            getRowId={(_row, i) => `${props.index}-${i}`}
+            sourceKey={`${props.index}:${props.result.rows.length}:${props.result.columns.join(',')}`}
+            pageSize={50}
+            emptyTitle="0 rows"
+            density="compact"
+          />
+        </ScrollView>
+      </Show>
+    </StackVertical>
+  );
+}
+
+function changesLabel(result: SqlStatementResult, index: number): string {
+  const changes = result.kind === 'changes' ? result.changes : 0;
+  return `#${index + 1} · ${changes} change${changes === 1 ? '' : 's'}`;
+}
+
+function rowsLabel(
+  result: Extract<SqlStatementResult, { kind: 'rows' }>,
+  index: number
+): string {
+  const count = result.rows.length;
+  const note = result.truncated ? ` (truncated at ${count})` : '';
+  return `#${index + 1} · ${count} row${count === 1 ? '' : 's'}${note}`;
 }
 
 function buildColumns(

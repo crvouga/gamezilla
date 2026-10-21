@@ -2,6 +2,9 @@ import { asLocalized } from '@pkgs/i18n-shared/localized-string';
 import { IconButton } from '@pkgs/ui-root-client/icon-button';
 import { PlayIcon, PlusIcon } from '@pkgs/ui-root-client/icons';
 import { OverflowMenuButton } from '@pkgs/ui-root-client/overflow-menu-button';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
+import { Toolbar } from '@pkgs/ui-root-client/toolbar';
 import type { Accessor, JSX } from 'solid-js';
 
 import type { SqlDialect } from './sql-dialect';
@@ -14,25 +17,26 @@ export function SqlNotebookToolbar(props: {
   readonly onClearNotebook: () => void;
   readonly onExport: () => void;
 }): JSX.Element {
-  const {
-    dialect,
-    onRunAll,
-    onAddCell,
-    onClearResults,
-    onClearNotebook,
-    onExport,
-  } = props;
   return (
-    <div class="box flex-row items-center gap-1 px-2 py-1 border-b border-outline bg-surface">
-      <p class="text textCaption text-text-secondary flex-1">{`SQL notebook · ${dialect()} · debug writes bypass sync mutations`}</p>
-      <IconButton label="Run all" size={28} tooltip="hover" onClick={onRunAll}>
+    <Toolbar tone="surface" aria-label="SQL notebook">
+      <StackHorizontal grow>
+        <P variant="footnote" lines={1}>
+          {`SQL notebook · ${props.dialect()} · debug writes bypass sync mutations`}
+        </P>
+      </StackHorizontal>
+      <IconButton
+        label="Run all"
+        size={28}
+        tooltip="hover"
+        onClick={() => props.onRunAll()}
+      >
         <PlayIcon size={14} color="icon" />
       </IconButton>
       <IconButton
         label="Add cell"
         size={28}
         tooltip="hover"
-        onClick={onAddCell}
+        onClick={() => props.onAddCell()}
       >
         <PlusIcon size={14} color="icon" />
       </IconButton>
@@ -44,21 +48,21 @@ export function SqlNotebookToolbar(props: {
           {
             id: 'clear-results',
             label: 'Clear results',
-            onClick: onClearResults,
+            onClick: () => props.onClearResults(),
           },
           {
             id: 'clear-notebook',
             label: 'Clear notebook',
-            onClick: onClearNotebook,
+            onClick: () => props.onClearNotebook(),
             endsGroup: true,
           },
           {
             id: 'export',
             label: 'Copy notebook JSON',
-            onClick: onExport,
+            onClick: () => props.onExport(),
           },
         ]}
       />
-    </div>
+    </Toolbar>
   );
 }

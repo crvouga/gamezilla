@@ -4,6 +4,8 @@ import { executeSqlStatements } from '@pkgs/sql-client-root-shared/statements';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { Surface } from '@pkgs/ui-root-client/surface';
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import {
   type Accessor,
@@ -77,17 +79,17 @@ export function SqlNotebookPane(props: {
   };
 
   return (
-    <div class="box flex-1 min-h-0">
+    <StackVertical grow>
       <Switch>
         <Match when={state().status === 'loading'}>
-          <div class="box bg-background" style={fillSx}>
+          <NotebookStatus>
             <LoadingState variant="compact" caption="Loading notebook…" />
-          </div>
+          </NotebookStatus>
         </Match>
         <Match when={errorMessage() != null}>
-          <div class="box bg-background" style={fillSx}>
+          <NotebookStatus>
             <ErrorState title="Notebook error" body={errorMessage() ?? ''} />
-          </div>
+          </NotebookStatus>
         </Match>
       </Switch>
       <Show when={readyDoc()}>
@@ -105,16 +107,18 @@ export function SqlNotebookPane(props: {
           />
         )}
       </Show>
-    </div>
+    </StackVertical>
   );
 }
 
-const fillSx = {
-  flex: 1,
-  'min-height': 0,
-  padding: '32px',
-  gap: '8px',
-} as const;
+/** Loading / error block in place of the notebook. */
+function NotebookStatus(props: { readonly children: JSX.Element }) {
+  return (
+    <Surface tone="background" grow padding="2xl" gap="sm">
+      {props.children}
+    </Surface>
+  );
+}
 
 function ReadyNotebook(props: {
   readonly doc: Accessor<SqlNotebookDoc>;
@@ -159,10 +163,7 @@ function ReadyNotebook(props: {
   });
 
   return (
-    <div
-      class="box flex-1 min-h-0 min-w-0 bg-background"
-      data-component="SqlNotebookPane"
-    >
+    <Surface tone="background" grow testId="sql-notebook">
       <SqlNotebookToolbar dialect={props.dialect} {...actions.toolbar} />
       <NotebookCells
         doc={props.doc}
@@ -178,7 +179,7 @@ function ReadyNotebook(props: {
         insertApi={insertApi}
       />
       <SqlSchemaDrawer schema={props.schema} {...actions.schema} />
-    </div>
+    </Surface>
   );
 }
 
@@ -263,7 +264,7 @@ function NotebookCells(props: {
 }): JSX.Element {
   const cellIds = createMemo(() => props.doc().cells.map((c) => c.id));
   return (
-    <ScrollView grow tone="background" gap="sm" padding="xs">
+    <ScrollView grow tone="background" gap="md" padding="sm">
       <For each={cellIds()}>
         {(id) => {
           const cell = () =>

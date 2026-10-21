@@ -3,6 +3,8 @@ import type { ProductHarnessRoomNode } from '@pkgs/harness-console-shared/ports'
 import { JsonView } from '@pkgs/ui-devtools-client/json-view';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import {
   createEffect,
   createSignal,
@@ -37,24 +39,22 @@ export function ProductHarnessRoomDbPane(props: {
     <Show
       when={snap()}
       fallback={
-        <div class="box flex-1 min-h-0 p-[8px]">
+        <StackVertical grow padding="sm">
           <EmptyState
             variant="compact"
             title="Room gone"
             body="This room topic is no longer live."
           />
-        </div>
+        </StackVertical>
       }
     >
       {(current) => (
-        <ScrollView grow padding="xs" gap="md">
+        <ScrollView grow padding="md" gap="lg">
           <Section title="Topic" body={current().topic} />
           <Section title={`Roster (${current().roster.length})`}>
             <Show
               when={current().roster.length > 0}
-              fallback={
-                <p class="text textCaption text-text-secondary">{'Empty'}</p>
-              }
+              fallback={<P variant="caption">{'Empty'}</P>}
             >
               <JsonView value={current().roster} initialExpandDepth={1} />
             </Show>
@@ -64,11 +64,7 @@ export function ProductHarnessRoomDbPane(props: {
           >
             <Show
               when={current().entries.length > 0}
-              fallback={
-                <p class="text textCaption text-text-secondary">
-                  {'No events'}
-                </p>
-              }
+              fallback={<P variant="caption">{'No events'}</P>}
             >
               <JsonView value={current().entries} initialExpandDepth={2} />
             </Show>
@@ -88,14 +84,14 @@ function Section(props: {
   readonly children?: JSX.Element;
 }) {
   return (
-    <div class="box gap-1">
-      <p class="text text-text-secondary text-[11px] font-semibold">
-        {props.title}
-      </p>
+    <StackVertical gap="xs">
+      <P variant="footnote">{props.title}</P>
       {props.body !== undefined ? (
-        <p class="text text-text text-xs [font-family:mono]">{props.body}</p>
+        <P variant="mono" wrap="break" selectable>
+          {props.body}
+        </P>
       ) : null}
       {props.children}
-    </div>
+    </StackVertical>
   );
 }

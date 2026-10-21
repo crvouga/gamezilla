@@ -11,6 +11,8 @@ import { KeyboardShortcutScope } from '@pkgs/ui-root-client/keyboard-shortcut-sc
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { OverlayPortalProvider } from '@pkgs/ui-root-client/overlay-portal';
 import { RegisterCommand } from '@pkgs/ui-root-client/register-command';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
+import { Surface } from '@pkgs/ui-root-client/surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client/surface-stack';
 import {
   createEffect,
@@ -72,7 +74,7 @@ export function ProductHarnessScreen(props: {
   return (
     <Switch>
       <Match when={props.state.status === 'error'}>
-        <div class="box" style={centerSx}>
+        <CenteredState>
           <ErrorState
             title="Failed to boot harness"
             body={props.state.status === 'error' ? props.state.error : ''}
@@ -80,12 +82,12 @@ export function ProductHarnessScreen(props: {
               ? { retry: { label: 'Reload', onClick: props.onReload } }
               : {})}
           />
-        </div>
+        </CenteredState>
       </Match>
       <Match when={readyState() === null}>
-        <div class="box" style={centerSx}>
+        <CenteredState>
           <LoadingState caption="Booting harness…" />
-        </div>
+        </CenteredState>
       </Match>
       <Match when={readyState()}>
         {(state) => (
@@ -108,6 +110,21 @@ export function ProductHarnessScreen(props: {
         )}
       </Match>
     </Switch>
+  );
+}
+
+/** Boot status block, centered on the canvas fill. */
+function CenteredState(props: { readonly children: JSX.Element }) {
+  return (
+    <Surface
+      tone="background"
+      grow
+      align="center"
+      justify="center"
+      padding="lg"
+    >
+      {props.children}
+    </Surface>
   );
 }
 
@@ -278,10 +295,7 @@ function ReadyProductHarnessScreen(props: ReadyScreenProps) {
     props.onFocusedClientIdChange(null);
   };
   return (
-    <div
-      class="box flex-1 min-h-0 min-w-0 bg-background"
-      style={{ overflow: 'clip' }}
-    >
+    <Surface tone="background" grow overflow="hidden">
       <ProductHarnessPaletteRegistrations commands={model.paletteCommands()} />
       <ProductHarnessDebuggerShell
         session={props.session}
@@ -312,7 +326,7 @@ function ReadyProductHarnessScreen(props: ReadyScreenProps) {
         onFocusedClientIdChange={props.onFocusedClientIdChange}
         clearClientFocus={clearClientFocus}
       />
-    </div>
+    </Surface>
   );
 }
 
@@ -342,11 +356,11 @@ function ProductHarnessDebuggerShell(props: {
     <DebuggerShell
       onChromePointerDown={props.clearClientFocus}
       kindTrailing={
-        <div class="box flex-row items-center gap-1 min-w-0">
+        <StackHorizontal align="center" gap="xs">
           <ProductHarnessTopologyChrome session={props.session} />
           <ProductHarnessSnapshotChrome session={props.session} />
           <ProductHarnessExitButton onExit={props.onExit} />
-        </div>
+        </StackHorizontal>
       }
       kind={props.kind()}
       onKindChange={props.chrome.onKindChange}
@@ -399,11 +413,3 @@ function ProductHarnessPaletteRegistrations(props: {
     </For>
   );
 }
-
-const centerSx = {
-  flex: 1,
-  'align-items': 'center',
-  'justify-content': 'center',
-  background: 'var(--ui-color-background)',
-  padding: '16px',
-} as const;

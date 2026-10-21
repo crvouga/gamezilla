@@ -8,8 +8,11 @@ import {
   ServerIcon,
   XIcon,
 } from '@pkgs/ui-root-client/icons';
+import { Notice } from '@pkgs/ui-root-client/notice';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
+import { InspectorRow } from './inspector-row';
 
 const ICON_SIZE = 32;
 const GLYPH_SIZE = 16;
@@ -26,25 +29,27 @@ function NodeRowView(props: {
   readonly onRemove: (row: NodeRow) => void;
 }) {
   return (
-    <div class="box flex-row items-center gap-2 min-w-0">
-      <Show
-        when={props.row.kind === 'client'}
-        fallback={<ServerIcon size={GLYPH_SIZE} color="icon" />}
-      >
-        <MonitorIcon size={GLYPH_SIZE} color="icon" />
-      </Show>
-      <p class="text flex-1 min-w-0 text-text text-xs [font-family:mono]">
-        {props.row.id}
-      </p>
-      <IconButton
-        label={`Remove ${props.row.id}`}
-        size={ICON_SIZE}
-        disabled={props.busy || !props.row.removable}
-        onClick={() => props.onRemove(props.row)}
-      >
-        <XIcon size={GLYPH_SIZE} color="icon" />
-      </IconButton>
-    </div>
+    <InspectorRow
+      label={props.row.id}
+      leading={
+        <Show
+          when={props.row.kind === 'client'}
+          fallback={<ServerIcon size={GLYPH_SIZE} color="icon" />}
+        >
+          <MonitorIcon size={GLYPH_SIZE} color="icon" />
+        </Show>
+      }
+      trailing={
+        <IconButton
+          label={`Remove ${props.row.id}`}
+          size={ICON_SIZE}
+          disabled={props.busy || !props.row.removable}
+          onClick={() => props.onRemove(props.row)}
+        >
+          <XIcon size={GLYPH_SIZE} color="icon" />
+        </IconButton>
+      }
+    />
   );
 }
 
@@ -123,8 +128,8 @@ export function ProductHarnessTopologyChrome(props: {
         size="small"
         stackId="product-harness-topology"
       >
-        <div class="box gap-3">
-          <div class="box flex-row items-center gap-2">
+        <StackVertical gap="lg">
+          <StackHorizontal align="center" gap="sm">
             <Button
               size="sm"
               title="Add client"
@@ -137,11 +142,9 @@ export function ProductHarnessTopologyChrome(props: {
               disabled={busy()}
               onClick={() => run(() => props.session.addServer())}
             />
-          </div>
+          </StackHorizontal>
           <Show when={error()}>
-            {(message) => (
-              <p class="text textCaption text-destructive">{message()}</p>
-            )}
+            {(message) => <Notice tone="error">{message()}</Notice>}
           </Show>
           <Show
             when={rows().length > 0}
@@ -153,15 +156,15 @@ export function ProductHarnessTopologyChrome(props: {
               />
             }
           >
-            <div class="box gap-1.5">
+            <StackVertical>
               <For each={rows()}>
                 {(row) => (
                   <NodeRowView row={row} busy={busy()} onRemove={remove} />
                 )}
               </For>
-            </div>
+            </StackVertical>
           </Show>
-        </div>
+        </StackVertical>
       </ResponsiveSurface>
     </>
   );

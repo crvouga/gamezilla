@@ -1,5 +1,6 @@
 import { asLocalized } from '@pkgs/i18n-shared/localized-string';
 import { CodeEditor } from '@pkgs/ui-root-client/code-editor';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type {
   CodeSelection,
   CodeToken,
@@ -25,7 +26,7 @@ export function SqlCellEditor(props: {
   readonly run: (andNext: boolean) => Promise<void>;
 }): JSX.Element {
   return (
-    <div class="box px-1 pb-1">
+    <StackVertical paddingX="sm" paddingBottom="sm">
       <CodeEditor
         value={props.sql()}
         onChangeText={(v) => {
@@ -70,7 +71,7 @@ export function SqlCellEditor(props: {
           );
         })()}
       />
-    </div>
+    </StackVertical>
   );
 }
 

@@ -1,4 +1,5 @@
-import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
+import { Pane } from '@pkgs/ui-root-client/pane';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
 import { createEffect, type JSX, onCleanup } from 'solid-js';
 
 /** Stable web `id` for {@link DebuggerColumns} — used for outside-pointer hit tests. */
@@ -17,9 +18,13 @@ export function DebuggerColumns(props: {
 }): JSX.Element {
   useOutsideClientPanelsPointerDown(() => props.onOutsidePointerDown?.());
   return (
-    <div class="box" style={rowSx} id={DEBUGGER_CLIENT_PANELS_NATIVE_ID}>
+    <StackHorizontal
+      grow
+      overflow="hidden"
+      id={DEBUGGER_CLIENT_PANELS_NATIVE_ID}
+    >
       {props.children}
-    </div>
+    </StackHorizontal>
   );
 }
 
@@ -29,20 +34,13 @@ export function DebuggerColumn(props: {
   readonly onActivate?: () => void;
 }): JSX.Element {
   return (
-    <div
-      class="box flex-1 min-w-0 min-h-0 border border-solid"
-      classList={{
-        'border-border': props.focused !== true,
-        'border-tint': props.focused === true,
-      }}
-      style={{ 'flex-basis': '0', overflow: 'clip' }}
-      {...dataAttrs({ debuggerColumnFocused: '1' })}
-      {...(props.onActivate !== undefined
-        ? { onPointerDown: props.onActivate }
-        : {})}
+    <Pane
+      border
+      focused={props.focused === true}
+      onActivate={() => props.onActivate?.()}
     >
       {props.children}
-    </div>
+    </Pane>
   );
 }
 
@@ -66,12 +64,3 @@ function useOutsideClientPanelsPointerDown(onOutside?: () => void): void {
     );
   });
 }
-
-const rowSx = {
-  flex: 1,
-  'min-height': 0,
-  'min-width': 0,
-  'flex-direction': 'row',
-  'align-items': 'stretch',
-  overflow: 'clip',
-} as const;

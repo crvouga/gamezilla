@@ -24,7 +24,7 @@ test('issues scroll in a fixed-height widget and stages move keyboard focus', as
   await session.apply(wizardAction, { type: 'manage' });
   const list = await session.read(readNavigationView);
   expect(list.widgetClass).toContain('h-160');
-  expect(list.listClass).toContain('overflow-y-auto');
+  expect(list.listComponent).toBe('ScrollView');
   expect(list.listFocusable).toBe('0');
   expect(list.activeLabel).toBe('Search feedback');
   await session.apply(navigationAction, {

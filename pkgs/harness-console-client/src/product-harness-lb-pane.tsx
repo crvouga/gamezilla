@@ -4,28 +4,30 @@ import type {
   ProductHarnessLoadBalancerRoute,
   ProductHarnessLoadBalancerSnapshot,
 } from '@pkgs/harness-console-shared/ports';
+import { Badge } from '@pkgs/ui-root-client/badge';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
 import { StatusDot } from '@pkgs/ui-root-client/status-dot';
+import { P } from '@pkgs/ui-root-client/text';
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
+import { InspectorRow, InspectorSection } from './inspector-row';
 
 function BalancerSummary(props: {
   readonly snapshot: ProductHarnessLoadBalancerSnapshot;
 }) {
   return (
-    <div class="box flex-row items-center gap-2 flex-wrap">
-      <p class="text textCaption text-text-secondary">
-        {props.snapshot.algorithm}
-      </p>
-      <p class="text textCaption text-text-secondary">
-        {`· ${String(props.snapshot.requests)} routed`}
-      </p>
+    <StackHorizontal align="center" gap="sm" wrap>
+      <Badge label={props.snapshot.algorithm} intent="neutral" size="sm" />
+      <P variant="footnote" numeral>
+        {`${String(props.snapshot.requests)} routed`}
+      </P>
       <Show when={props.snapshot.rejected > 0}>
-        <p class="text textCaption text-warning">
-          {`· ${String(props.snapshot.rejected)} rejected`}
-        </p>
+        <P variant="footnote" tone="warning" numeral>
+          {`${String(props.snapshot.rejected)} rejected`}
+        </P>
       </Show>
-    </div>
+    </StackHorizontal>
   );
 }
 
@@ -36,39 +38,43 @@ function BackendRow(props: {
   readonly next: boolean;
 }) {
   return (
-    <div class="box flex-row items-center gap-2 [padding-top:1.5px;padding-bottom:1.5px] border-b border-border">
-      <StatusDot
-        status={props.reachable ? 'online' : 'offline'}
-        size={8}
-        label={props.reachable ? 'reachable' : 'unreachable'}
-      />
-      <p class="text flex-1 text-text text-xs [font-family:mono]">{props.id}</p>
-      <Show when={props.next}>
-        <p class="text textCaption text-tint">{'next'}</p>
-      </Show>
-      <p class="text textCaption text-text-secondary">
-        {`${String(props.requests)} req`}
-      </p>
-    </div>
+    <InspectorRow
+      label={props.id}
+      leading={
+        <StatusDot
+          status={props.reachable ? 'online' : 'offline'}
+          size={8}
+          label={props.reachable ? 'reachable' : 'unreachable'}
+        />
+      }
+      trailing={
+        <>
+          <Show when={props.next}>
+            <Badge label="next" intent="brand" size="sm" />
+          </Show>
+          <P variant="footnote" numeral>
+            {`${String(props.requests)} req`}
+          </P>
+        </>
+      }
+    />
   );
 }
 
 function RouteRow(props: { readonly route: ProductHarnessLoadBalancerRoute }) {
   return (
-    <div class="box flex-row items-center gap-2 [padding-top:1.5px;padding-bottom:1.5px]">
-      <p class="text flex-1 min-w-0 text-text-secondary text-xs [font-family:mono]">
-        {`${props.route.method} ${props.route.path}`}
-      </p>
-      <p
-        class="text textCaption [font-family:mono]"
-        classList={{
-          'text-warning': props.route.to === null,
-          'text-text-secondary': props.route.to !== null,
-        }}
-      >
-        {`${props.route.from} → ${props.route.to ?? 'none'}`}
-      </p>
-    </div>
+    <InspectorRow
+      secondary
+      label={`${props.route.method} ${props.route.path}`}
+      trailing={
+        <P
+          variant="mono"
+          tone={props.route.to === null ? 'warning' : 'secondary'}
+        >
+          {`${props.route.from} → ${props.route.to ?? 'none'}`}
+        </P>
+      }
+    />
   );
 }
 
@@ -98,7 +104,7 @@ export function ProductHarnessLoadBalancerPane(props: {
   const recent = () => [...snapshot().recentRoutes].reverse();
 
   return (
-    <ScrollView grow padding="xs" gap="sm">
+    <ScrollView grow padding="md" gap="lg">
       <BalancerSummary snapshot={snapshot()} />
       <Show
         when={snapshot().backends.length > 0}
@@ -110,8 +116,7 @@ export function ProductHarnessLoadBalancerPane(props: {
           />
         }
       >
-        <div class="box gap-0.5">
-          <p class="text textLabel text-text-secondary">{'Backends'}</p>
+        <InspectorSection title="Backends">
           <For each={snapshot().backends}>
             {(backend, index) => (
               <BackendRow
@@ -122,13 +127,12 @@ export function ProductHarnessLoadBalancerPane(props: {
               />
             )}
           </For>
-        </div>
+        </InspectorSection>
       </Show>
       <Show when={recent().length > 0}>
-        <div class="box gap-0.5">
-          <p class="text textLabel text-text-secondary">{'Recent routes'}</p>
+        <InspectorSection title="Recent routes">
           <For each={recent()}>{(route) => <RouteRow route={route} />}</For>
-        </div>
+        </InspectorSection>
       </Show>
     </ScrollView>
   );

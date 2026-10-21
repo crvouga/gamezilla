@@ -1,45 +1,59 @@
 import { Collapsible } from '@pkgs/ui-root-client/collapsible';
-import { For, type JSX, Show } from 'solid-js';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { Notice } from '@pkgs/ui-root-client/notice';
+import { Pressable } from '@pkgs/ui-root-client/pressable';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P, Text } from '@pkgs/ui-root-client/text';
+import { Toolbar } from '@pkgs/ui-root-client/toolbar';
+import { For, type JSX, Match, Switch } from 'solid-js';
 
 import type { SchemaIndex } from './use-schema-index';
 
+/** Collapsible table / column list under the notebook; a press inserts. */
 export function SqlSchemaDrawer(props: {
   readonly schema: SchemaIndex;
   readonly onInsertTable: (table: string) => void;
   readonly onInsertColumn: (column: string) => void;
 }): JSX.Element {
-  const { schema, onInsertTable, onInsertColumn } = props;
   return (
-    <div class="box border-t border-outline bg-surface max-h-55 overflow-hidden">
-      <Collapsible title="Schema" defaultOpen={false}>
-        <div class="box px-2 pb-2 gap-1 max-h-45 overflow-scroll">
-          <Show when={schema.status() === 'loading'}>
-            <p class="text text-text-secondary text-xs">{'Loading schema…'}</p>
-          </Show>
-          <Show when={schema.status() === 'error'}>
-            <p class="text text-destructive text-xs">
-              {schema.error() ?? 'Schema error'}
-            </p>
-          </Show>
-          <For each={schema.tables()}>
-            {(t) => (
-              <TableBlock
-                name={t.name}
-                type={t.type}
-                columns={() => schema.columnsByTable()[t.name] ?? []}
-                onInsertTable={onInsertTable}
-                onInsertColumn={onInsertColumn}
-              />
-            )}
-          </For>
-          <Show
-            when={schema.status() === 'ready' && schema.tables().length === 0}
-          >
-            <p class="text text-text-secondary text-xs">{'No tables yet.'}</p>
-          </Show>
-        </div>
-      </Collapsible>
-    </div>
+    <Toolbar edge="top" tone="surface" aria-label="Schema">
+      <StackVertical grow>
+        <Collapsible title="Schema" defaultOpen={false}>
+          <ScrollView maxHeight="sm" gap="sm" paddingEnd="sm">
+            <Switch>
+              <Match when={props.schema.status() === 'loading'}>
+                <LoadingState variant="compact" caption="Loading schema…" />
+              </Match>
+              <Match when={props.schema.status() === 'error'}>
+                <Notice tone="error">
+                  {props.schema.error() ?? 'Schema error'}
+                </Notice>
+              </Match>
+              <Match
+                when={
+                  props.schema.status() === 'ready' &&
+                  props.schema.tables().length === 0
+                }
+              >
+                <P variant="caption">{'No tables yet.'}</P>
+              </Match>
+            </Switch>
+            <For each={props.schema.tables()}>
+              {(t) => (
+                <TableBlock
+                  name={t.name}
+                  type={t.type}
+                  columns={() => props.schema.columnsByTable()[t.name] ?? []}
+                  onInsertTable={props.onInsertTable}
+                  onInsertColumn={props.onInsertColumn}
+                />
+              )}
+            </For>
+          </ScrollView>
+        </Collapsible>
+      </StackVertical>
+    </Toolbar>
   );
 }
 
@@ -51,32 +65,36 @@ function TableBlock(props: {
   readonly onInsertColumn: (column: string) => void;
 }): JSX.Element {
   return (
-    <div class="box gap-0.5">
-      <button
-        class="clickable clickableTint flex-row items-center gap-2 py-0.5"
-        type="button"
-        onClick={() => props.onInsertTable(props.name)}
+    <StackVertical gap="xs">
+      <Pressable
+        direction="horizontal"
+        align="center"
+        gap="sm"
+        radius="sm"
+        aria-label={`Insert query for ${props.name}`}
+        onPress={() => props.onInsertTable(props.name)}
       >
-        <code class="text textMono text-xs text-tint font-semibold">
+        <Text variant="mono" tone="tint">
           {props.name}
-        </code>
-        <p class="text textFootnote">{props.type}</p>
-      </button>
-      <div class="box pl-3 gap-0.5">
+        </Text>
+        <Text variant="footnote">{props.type}</Text>
+      </Pressable>
+      <StackVertical paddingStart="md" gap="xs">
         <For each={props.columns()}>
           {(col) => (
-            <button
-              class="clickable clickableTint"
-              type="button"
-              onClick={() => props.onInsertColumn(col)}
+            <Pressable
+              radius="sm"
+              self="start"
+              aria-label={`Insert column ${col}`}
+              onPress={() => props.onInsertColumn(col)}
             >
-              <code class="text textMono text-[11px] text-text-secondary">
+              <Text variant="mono" tone="secondary">
                 {col}
-              </code>
-            </button>
+              </Text>
+            </Pressable>
           )}
         </For>
-      </div>
-    </div>
+      </StackVertical>
+    </StackVertical>
   );
 }

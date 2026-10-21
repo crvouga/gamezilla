@@ -3,6 +3,9 @@ import type { HarnessChromeKind } from '@pkgs/harness-console-shared/node';
 import { coerceHarnessChromeKind } from '@pkgs/harness-console-shared/node';
 import { TabStrip } from '@pkgs/ui-devtools-client/tab-strip';
 import type { TabStripItem } from '@pkgs/ui-devtools-client/tab-strip-types';
+import { Pane } from '@pkgs/ui-root-client/pane';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { Toolbar } from '@pkgs/ui-root-client/toolbar';
 import { type JSX, mergeProps } from 'solid-js';
 import {
   DEBUGGER_KIND_TABS,
@@ -54,15 +57,17 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
     });
 
   return (
-    <div class="box" style={shellSx}>
+    <StackVertical grow>
       {props.header}
-      <div class="box" onPointerDown={() => props.onChromePointerDown?.()}>
+      <Pane
+        grow={false}
+        clip={false}
+        onActivate={() => props.onChromePointerDown?.()}
+      >
         {layout.compactChrome &&
         props.kindTrailing !== undefined &&
         props.unifiedNodes === undefined ? (
-          <div class="box flex-row items-center px-4 py-2 border-b border-border bg-surface-muted min-w-0">
-            {props.kindTrailing}
-          </div>
+          <ChromeTrailingBar>{props.kindTrailing}</ChromeTrailingBar>
         ) : null}
         {props.unifiedNodes !== undefined ? (
           <TabStrip
@@ -103,14 +108,18 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
             onSelect={(id) => props.onViewChange(id as DebuggerViewId)}
           />
         ) : null}
-      </div>
-      <div
-        class="box flex-1 min-h-0 min-w-0 bg-background"
-        style={{ overflow: 'clip' }}
-      >
-        {props.children}
-      </div>
-    </div>
+      </Pane>
+      <Pane tone="background">{props.children}</Pane>
+    </StackVertical>
+  );
+}
+
+/** Kind-strip trailing chrome when there is no tab strip to carry it. */
+function ChromeTrailingBar(props: { readonly children: JSX.Element }) {
+  return (
+    <Toolbar density="regular" aria-label="Harness controls">
+      {props.children}
+    </Toolbar>
   );
 }
 
@@ -133,16 +142,8 @@ function KindChrome(props: {
           trailing={props.kindTrailing}
         />
       ) : props.kindTrailing === undefined ? null : (
-        <div class="box flex-row items-center px-4 py-2 border-b border-border bg-surface-muted min-w-0">
-          {props.kindTrailing}
-        </div>
+        <ChromeTrailingBar>{props.kindTrailing}</ChromeTrailingBar>
       )}
     </>
   );
 }
-
-const shellSx = {
-  flex: 1,
-  'flex-direction': 'column',
-  'min-height': 0,
-} as const;
