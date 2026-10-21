@@ -1,0 +1,121 @@
+# Self-service readiness
+
+Gamezilla runs without a support team. A person — usually on a phone's
+Chrome, often a guest, rarely technical — must be able to understand what to
+do, finish it, see what happened, and recover from expected problems without
+contacting anyone. This file is the one product-quality standard for
+person-facing changes and the maintained readiness matrix behind it. The
+brief that produced it is
+[`SELF_SERVICE_PRODUCT_STANDARD.md`](SELF_SERVICE_PRODUCT_STANDARD.md).
+Product truth stays in [`specs/`](../specs/); this file links to it and never
+restates it.
+
+`libs/tools/scripts/self-service-readiness.test.ts` keeps this file honest:
+every path in the matrix exists, every critical journey has a row, every
+pinned bug id is registered, and no product copy sends a person to support.
+
+## Definition of done for a person-facing change
+
+A change that a person can see is done when each applicable line has
+evidence in the same pull request. "Not applicable" is a decision you state
+in the PR body, not an omission.
+
+| Requirement | Evidence that counts |
+| --- | --- |
+| Clear intent and next action: what the screen is for, what to do, what happens on acting | A scenario in the owning `specs/<context>/` feature, or a code test of the copy when a scenario cannot observe it |
+| Loading, empty, success, invalid input and failure are different states | Tests that assert each state separately; "no data" is never shown while loading |
+| A person's work survives a failed save, a refusal and leaving | A failure-path test; refused changes are explained (refused-change notice), never silently undone |
+| Access and account boundaries unchanged | Decisions only through `@libs/permissions`; existing permission specs stay green |
+| Retries and interruptions are safe | Double press, two tabs, lost answer and return-after-redirect are covered where the action has consequences (payments, deletion, hosting) |
+| Recovery is self-service | Every error names a next action: correct the input, check again, sign in, retry, or go back to Spaces; no "contact support" |
+| Unexpected failures are observable | The failure reaches telemetry through the existing boundaries; a sustained failure has an alert with a runbook section |
+| Automated acceptance and regression | Every bug fixed has a `// regression: <id>` test and `libs/tools/goal/known-bugs/<id>.json` |
+| Compatible deployment and data lifecycle | Schema reconciliation stays additive; an older app keeps working until it is told to update |
+
+`bun verify` (the `verify:end` gate) is the only release decision. A
+walkthrough by an agent or a person is not evidence and is not usability
+research.
+
+## Readiness matrix
+
+Each row: what the person expects, what goes wrong or confuses them, what
+the product did before this pass, what it does now, the evidence, and what is
+still limited. "Existing" means the behavior was already specified and
+verified before this pass; it was inspected, not changed.
+
+### Opening and staying connected
+
+| Journey | Expected outcome | Failure or confusion | Before | Resolution | Evidence | Remaining limitation |
+| --- | --- | --- | --- | --- | --- | --- |
+| Open the app | Lands on the tabs, also offline | Startup bundle fails | Production showed a developer hint and "Unknown startup error" | Plain copy, Reload, short reference (build + random id) | `libs/app-root-client/tests/start-browser-application.test.ts` (`startup-failure-dev-copy-in-production`); journey "The app opens past its opening screen onto the tabs" | The reference is not recorded in telemetry: telemetry has not loaded when startup fails |
+| A screen crashes | Way out without help | Try again and Reload reopen the same crashing screen | Two buttons, reference hidden, stack trace in copied text | "Go to Spaces", visible reference, saved data stated as kept, no stack in copy | `libs/app-root-client/tests/root-error-boundary.test.tsx` (`crash-screen-no-way-out`) | — |
+| Connection trouble | Tell "my device is offline" from "Gamezilla is unreachable" | Same "Connection unavailable" for both; Settings › Connection was an unported placeholder | Placeholder screen shipped | Real Connection screen (state, last contact, version, what works offline, Check again); header notice names the cause | `specs/runtime/connection-continuity.feature`; `libs/app-root-client/tests/connection-notice.test.tsx` (`server-status-placeholder-shipped`) | No operator-published incident message; an outage is inferred from reachability only |
+| Old app version | Told to update, nothing lost | — | Existing | — | `specs/runtime/app-updates.feature` | — |
+
+### Identity and account
+
+| Journey | Expected outcome | Failure or confusion | Before | Resolution | Evidence | Remaining limitation |
+| --- | --- | --- | --- | --- | --- | --- |
+| Sign in with Google | Signed in, or back in the app with nothing changed | Provider trouble, matching account | Existing | — | `specs/auth/`; journey "Signing in with Google hands the person to Google with the way back" | Apple-only accounts whose Apple ID is gone cannot be reached by their owner: exceptional, no self-service path |
+| Sign out | Signed out on this device, also offline | — | Existing | — | journey "A signed-in person can sign out"; `specs/profile/offline-sign-in.feature` | — |
+| Sign-in lapses or is ended elsewhere | Told it happened and what was lost | Device silently became a guest; unsent changes vanished unannounced | Silent | Persistent notice: signed out on this device, unsent changes not kept (only when there were any), Sign in | `specs/profile/sessions.feature`; `libs/auth-client/tests/signed-out-elsewhere.test.ts` (`involuntary-sign-out-silent`) | Discarding unsent changes is policy (`specs/sync-engine/note-conflicts.feature`); the count includes background setup writes |
+| A change the server refuses | Told what was undone and why | Instant changes (rename, end, leave, block, avatar…) were silently reverted; refusals never acknowledged or pruned | Silent | Refused-change notice with plain copy; dismissing acknowledges it on device and server | `specs/spaces/space-rename.feature`; `pkgs/sync-engine-harness/tests/write-refusal-acknowledgement.test.ts` (`refused-instant-write-silently-undone`, `write-rejections-never-acknowledged`); `libs/app-root-client/tests/refused-change-notice.test.tsx` | Copy per change lives in the shell rather than in each sub |
+| Edit username | Know the rules before failing | Limits shown only after failure, without numbers | After failure only | Rules visible up front; refusals state the limits | `specs/profile/username-rules.feature` (`username-limits-not-stated`) | — |
+| Edit avatar | Change kept | — | Existing | — | journey "A person changes their avatar and the change is kept" | Save failures still read "Couldn't save" without a reason |
+| Export personal data | Ask, wait, download | "Ready by" raw timestamp; preparation could look pending forever; asking again silently replaced a ready export | Partly | Readable dates, overdue state with ask again, warning before replacing | `specs/profile/personal-data-export.feature` (`privacy-dates-raw-iso`, `export-overdue-unexplained`, `export-reask-replaces-ready-silently`) | — |
+| Delete account | Know the consequences, finish without help | Plus loss unstated; refusal notice hidden behind the dialog; a missing billing link blocked deletion entirely | Blocking defect | Consequences include Plus loss; refusals close the dialog and explain the next step; deletion proceeds and reports billing as pending | `specs/profile/account-deletion.feature` (`deletion-omits-plus-loss`, `deletion-permission-notice-hidden-by-dialog`); `libs/billing-server/tests/deleted-missing-customer-link.test.ts` (`deletion-blocked-by-missing-customer-link`) | With a missing customer link, payments taken after deletion cannot be read automatically; the cancellation job fails loudly for the team |
+| Find export and deletion | Reachable from Settings | Only via Profile › Edit profile | Hidden | "Account privacy" row in Settings › Account | `specs/profile/account-deletion.feature` | — |
+
+### Spaces, games and people
+
+| Journey | Expected outcome | Failure or confusion | Before | Resolution | Evidence | Remaining limitation |
+| --- | --- | --- | --- | --- | --- | --- |
+| Host a space and end it | Space opens, ends on request | Lobby said "No spaces yet" while loading | Empty state flashed | Lobby waits for its list | journey "A person hosts a space and ends it"; `libs/spaces-client/tests/spaces-hosting-readiness.test.tsx` (`lobby-empty-while-loading`) | — |
+| Join from a link | Joined, or told why not | Disabled Join next to an invitation to join | No reason | "You can't join this space", who can, way back | `specs/journeys/join-and-offline.feature`; `libs/spaces-shared/tests/resolve-space-join-snapshot.test.ts` (`join-disabled-without-reason`) | — |
+| Open a multiplayer link | Arrive in a space or see what failed | Endless spinner when creation threw or returned nothing | Unbounded | Ends within 10 s in the space, the hosting limit, or Try again / Go to Spaces; no duplicate space | `libs/game-matchmaking-client/tests/multiplayer-link-attempt.test.ts` (`multiplayer-link-spins-forever`) | — |
+| A guest tries to change the game | Told the host chooses | Nothing happened offline; the note never cleared online | Silent offline | Told on- and offline; note clears when the game changes | `specs/games/space-follows-the-host.feature` (`guest-offline-back-silent`) | — |
+| Play puzzles | A puzzle is ready, results count once | — | Existing | — | journeys "A chess puzzle started in a space is ready to play", "A guest solves a puzzle and the next one is ready"; `specs/chess/` | — |
+| Search for people | An answer, also offline for people already known | Offline search hid known friends behind "needs a connection" | Hid results | Known people shown offline with a note that more may appear online | journey "Searching for people finishes with an answer"; `specs/friends/social-needs-connection.feature` (`offline-search-hides-known-people`) | — |
+| Inbox actions | Know whether mark read / archive worked | Every failure called "The connection is missing." | One message | Offline, refused and unexplained failures told apart | `libs/notifications-client/tests/inbox-choice-failure.test.ts` (`notifications-refusal-called-connection-missing`) | — |
+
+### Plus membership
+
+| Journey | Expected outcome | Failure or confusion | Before | Resolution | Evidence | Remaining limitation |
+| --- | --- | --- | --- | --- | --- | --- |
+| See what Plus offers | Plans and current state | Members briefly saw "Free plan" and Start trial | Flash invited a second checkout | "Checking your membership…" with no plan actions until known | journey "A signed-in person can see what Plus offers"; `libs/billing-client/tests/billing-screen-states.test.tsx` (`billing-free-plan-flash-before-membership-loads`, `billing-trial-days-left-plural`) | — |
+| Subscribe | Charged once however often they press Subscribe | Two tabs, or a return before confirmation, created a second payable checkout or subscription; concurrent first checkouts gave a 500 | Double charge possible | One open checkout per person is handed back; a paid-but-unconfirmed membership answers `membership_pending` and is recorded at once | `specs/billing/subscribe.feature`; `libs/billing-server/tests/checkout-safeguards.test.ts` (`billing-second-checkout-before-webhook`, `billing-checkout-left-still-payable`, `billing-concurrent-first-checkout-500`) | Paddle: extra ready transactions are not closed; the losing concurrent request leaves an unused customer at the provider |
+| Return from checkout | Know the payment is being confirmed | Screen said "No membership yet." with Subscribe enabled | Misleading | "Confirming your payment…", then after 2 minutes "may have gone through — check again before paying again" | `specs/billing/billing-plans.feature` (`billing-checkout-return-shows-no-membership`, `billing-checkout-failure-keeps-awaiting-flag`) | Paddle's success redirect is dashboard configuration (`pkgs/billing-paddle-shared/README.md`) |
+| Provider unavailable | Told nothing was charged, try again | Bare 500, generic "Couldn't open checkout" | Generic | 503 `provider_unavailable`; copy separates "already a member" (409) from "provider can't be reached" | `libs/billing-server/tests/checkout-safeguards.test.ts` (`billing-provider-outage-500`); `libs/billing-client/tests/billing-request-error.test.ts` (`billing-checkout-failure-generic-copy`) | — |
+| Cancel, switch plan, payment method, invoices | Done in the provider's portal; app shows when access ends | Dates omitted the 7-day grace | Understated access | "Plus access until {period end + grace}" for canceled, failed and ended-in-grace | `specs/billing/billing-plans-details.feature` (`billing-access-date-omits-grace`); `specs/billing/` portal, cancel, failed-payment features | Consequences of cancel and switch are explained by the provider's portal, not the app |
+| A provider's news never arrives | Membership state still converges | A webhook the provider stopped retrying left the row stale forever | No reconciliation | Each live membership is re-read a day after its period end through the outbox | `libs/billing-server/tests/membership-recheck.test.ts` (`billing-subscription-never-reconciled`) | Disputes and chargebacks are not subscribed events: handled in the provider dashboard (exceptional) |
+
+### Detection, limits and release
+
+| Journey | Expected outcome | Failure or confusion | Before | Resolution | Evidence | Remaining limitation |
+| --- | --- | --- | --- | --- | --- | --- |
+| Background deliveries (billing, privacy, notices) | Failures seen without a report | Exhausted deliveries only logged; a broken drain looked healthy | Invisible | `outbox.deliveries.exhausted` and `outbox.drain.runs` with alerts and runbooks | `libs/app-root-server/tests/outbox-health.test.ts` (`outbox-exhaustion-invisible`, `drain-failure-masked-by-heartbeat`); `libs/infra-shared/tests/observability-alerts.test.ts` | No replay command for a parked delivery; alerts are not applied until an infrastructure rehearsal and deploy |
+| Provider callbacks | Sustained rejection seen | 400s escaped the 5xx alert | Invisible | `billing.callbacks` by outcome, alert on sustained `unverified` / `failed` | `libs/billing-server/tests/billing-callback-route.test.ts` (`billing-callback-rejections-uncounted`) | Same rehearsal requirement |
+| Oversized or abusive requests | Bounded cost; a person's queue never jams | Unbounded bodies; an oversized batch retried forever and blocked later writes | Unbounded | 1 MiB mutations / 256 KiB queries → 413; client splits batches and records an unfittable write as a refusal; refused telemetry batches dropped | `pkgs/sync-engine-server/tests/request-body-cap.test.ts` (`mutation-body-unbounded`, `query-body-unbounded`); `pkgs/sync-engine-client/tests/mutation-upload-size.test.ts` (`mutation-upload-oversized-retried-forever`); `pkgs/observability-root-server/tests/telemetry-outbox.test.ts` (`browser-telemetry-refused-batch-blocks-queue`) | No per-account rate limit; the telemetry relay's Origin check is spoofable |
+| Large reads | Truncation seen | Results clipped silently at the row limit | Undetectable | One row past the limit is read; truncation counted and logged without content | `pkgs/sync-engine-server/tests/query-truncation.test.ts` (`query-truncation-silent`) | — |
+| Critical journeys in production | A broken journey is found by the team first | — | Existing: hourly Health runs `specs/journeys/critical-journeys.feature` | — | `.github/workflows/health.yml` | Journeys run on production after it serves traffic; no automatic rollback; synthetic monitor accounts accumulate (no safe retirement path yet) |
+
+## Support-prevention indicators
+
+Measured today (existing tooling, synthetic traffic excluded): critical
+journey pass/fail per Health run, API 5xx burn rate, and from this pass
+`outbox.deliveries.exhausted`, `outbox.drain.runs`, `billing.callbacks` and
+`sync.query.truncations`. Proposed, not yet measured: refused changes per
+day (`sync_engine_write_rejections`), checkout returns still unconfirmed after
+two minutes, and involuntary sign-outs with unsent changes. There are no
+production baselines here; none are claimed. An absence of reports does not
+mean an absence of problems.
+
+## External blockers and exceptional cases
+
+| Item | Impact | Action needed | Blocks release? |
+| --- | --- | --- | --- |
+| Security report route | No published way to report a vulnerability | The owner chooses a monitored contact; then add `/.well-known/security.txt` | Yes, for public launch |
+| Backups and restore | Recovery point and time unknown; no restore drill | Confirm PlanetScale backup schedule and retention, exercise a restore into an isolated branch, record RPO/RTO here | Yes |
+| Alert delivery | Alert receivers are inherited from the Grafana stack and unverified | Rehearse the alert changes in GitHub Actions, confirm a contact point receives a test alert | No, but detection is unproven until done |
+| Rollback | Deploys send all traffic to the new Worker; forward-fix only | Decide on gradual Worker versions with automatic revert | No |
+| Disputes, refunds outside deletion, Apple-only lockout | Need a person at the provider or cannot be self-served | Handled by the team as exceptional cases | No |
