@@ -92,6 +92,7 @@ Feature: A puzzle attempt survives leaving the puzzle and closing the app
   Rule: A puzzle in a space that can't be reached never keeps the solver waiting
     No counter-example: while the space can be reached, the first rule's puzzle is waiting on return.
 
+    @regression:puzzle-unreachable-space-endless-loading
     Scenario: A puzzle left in a space that no longer exists never keeps the solver waiting
       Given Alice's space no longer exists
       And Alice has closed and reopened the app
