@@ -25,6 +25,27 @@ describe('people search result phase', () => {
     ).toBe('searching');
   });
 
+  // regression: offline-search-hides-known-people
+  test('offline, a friend already on this device is still a result', () => {
+    expect(
+      searchResultPhase({
+        searching: false,
+        needsConnection: true,
+        resultCount: 1,
+      })
+    ).toBe('results');
+  });
+
+  test('offline, finding nobody on this device says search needs a connection', () => {
+    expect(
+      searchResultPhase({
+        searching: false,
+        needsConnection: true,
+        resultCount: 0,
+      })
+    ).toBe('needs-connection');
+  });
+
   // regression: people-search-stale-results-look-settled
   test('the list shell is not a settled search', () => {
     expect(peopleSearchShowsAnswer(hidden)).toBe(false);

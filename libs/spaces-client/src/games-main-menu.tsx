@@ -4,7 +4,6 @@ import type { SelectedGameId } from '@libs/spaces-shared/games';
 import { GamesRoomAttr } from '@libs/spaces-shared/games';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
-import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useLocalSearchParams } from '@pkgs/ui-root-client/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client/main-menu-item-row';
@@ -15,6 +14,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  on,
   Show,
   untrack,
 } from 'solid-js';
@@ -110,7 +110,6 @@ function GameListMenu(props: {
 /** FadeSwitch key when no game is selected (not user-facing copy). */
 const GAMES_LIST_FADE_KEY = 'games-list';
 
-/** What this device shows before the space has accepted it. */
 /**
  * Top-level games menu for a space. Routes to the selected game's main menu
  * (via {@link GameClientDefinition.MainMenu}) or shows the game list when no
@@ -122,17 +121,19 @@ export function GamesMainMenu(): JSX.Element {
   const selectedGame = useSpaceRoomSelector(GamesRoomAttr.selected.from);
   const { shownGame, chooseGame, showList } =
     useOfflineGameBrowse(selectedGame);
-  const engine = useSyncEngine();
   const { spaceId } = useSpaceSessionUi();
   const canSelectGame = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
   const [hostChooses, setHostChooses] = createSignal(false);
+  // A guest is told why going back did nothing, connected or not: only the
+  // host moves the space. The answer belongs to the game it was given on.
   const onBackToGames = (): void => {
     if (!canSelectGame()) {
-      if (engine.status().online) setHostChooses(true);
+      setHostChooses(true);
       return;
     }
     showList();
   };
+  createEffect(on(shownGame, () => setHostChooses(false), { defer: true }));
   const fadeKey = createMemo(() => shownGame() ?? GAMES_LIST_FADE_KEY);
   const selectedMenu = createMemo(
     () => games.find((g) => g.id === shownGame()) ?? null

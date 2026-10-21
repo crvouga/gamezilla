@@ -54,21 +54,6 @@ export async function hostedSpaceIds(
   );
 }
 
-export async function connectionMissingShown(
-  s: ProductHarness,
-  actorId: string
-): Promise<boolean> {
-  if (await visible(s, actorId, [Handles.connectionMissing])) return true;
-  return visible(s, actorId, [Handles.statusConnectionMissing]);
-}
-
-export function gameChoiceRefusedShown(
-  s: ProductHarness,
-  actorId: string
-): Promise<boolean> {
-  return visible(s, actorId, [Handles.gameChoiceRefused]);
-}
-
 export function spaceBackOffered(
   s: ProductHarness,
   actorId: string

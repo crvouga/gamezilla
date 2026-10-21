@@ -1,0 +1,4 @@
+{
+  "summary": "Without a connection, people search said it needed one even for a friend already on the device. Fixed: offline it shows the people the device has, with a note that more may show up once back online, and says search needs a connection only when it found nobody.",
+  "regressionTest": "specs/friends/social-needs-connection.feature"
+}

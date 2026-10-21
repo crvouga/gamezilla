@@ -8,8 +8,9 @@ import type { UserSearchResult } from '@libs/user-search-shared/user-search-type
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { CollectionScreen } from '@pkgs/ui-root-client/collection-screen';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
-import { SearchIcon, UsersIcon } from '@pkgs/ui-root-client/icons';
+import { SearchIcon, UsersIcon, WifiOffIcon } from '@pkgs/ui-root-client/icons';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { Notice } from '@pkgs/ui-root-client/notice';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client/screen-body-virtual-list';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
@@ -62,6 +63,18 @@ function SearchResults(props: {
         />
       </Match>
       <Match when={phase() === 'results'}>
+        <Show when={props.needsConnection}>
+          <Notice
+            tone="info"
+            icon={WifiOffIcon}
+            dataSet={{ testid: Handles.searchOfflineResults }}
+          >
+            <Trans>
+              You're offline, so some people may not show up until you're back
+              online.
+            </Trans>
+          </Notice>
+        </Show>
         <ScreenBodyVirtualList
           dataSet={{ testid: Handles.searchResults }}
           items={props.results}

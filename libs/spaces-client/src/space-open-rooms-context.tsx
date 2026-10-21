@@ -132,7 +132,7 @@ function SpaceRoomCandidate(props: {
       when={
         (props.isOpen && host() === myId()) ||
         (rooms.viewingIds().has(props.spaceId) &&
-          (props.isOpen || (preview().status === 'live' && preview().joinable)))
+          (props.isOpen || preview().status === 'live'))
       }
     >
       <Show

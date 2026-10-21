@@ -23,9 +23,15 @@ import {
   createMemo,
   createSignal,
   type JSX,
+  Match,
   onMount,
   Show,
+  Switch,
 } from 'solid-js';
+import {
+  type InboxChoiceFailure,
+  inboxChoiceFailure,
+} from './inbox-choice-failure';
 import { NotificationsFilterBar } from './notifications-filter-bar';
 import { NotificationsList } from './notifications-list';
 import { useNotifications } from './use-notifications';
@@ -66,22 +72,19 @@ function NotificationsPermissionGate(props: {
   );
 }
 
-/**
- * The inbox. Marking everything read is a screen action, so it is handed to
- * the header rather than squeezed beside the filters.
- */
-/** A failed inbox choice says the connection is missing; success clears that. */
+/** A failed inbox choice says why by its outcome; success clears that. */
 function reportingActions(
   raw: NotificationCardActions,
-  report: (missing: boolean) => void
+  report: (failure: InboxChoiceFailure | null) => void,
+  online: () => boolean
 ): NotificationCardActions {
   const settle = (run: () => Promise<void>): Promise<void> =>
     run().then(
       () => {
-        report(false);
+        report(null);
       },
-      () => {
-        report(true);
+      (error: unknown) => {
+        report(inboxChoiceFailure(error, online()));
       }
     );
   // A refusal the server explained stays on the control. Calling it a
@@ -89,11 +92,11 @@ function reportingActions(
   const performAction = (id: string, actionId: string): Promise<void> =>
     raw.performAction(id, actionId).then(
       () => {
-        report(false);
+        report(null);
       },
       (error: unknown) => {
         if (error instanceof InboxRefusal) throw error;
-        report(true);
+        report(inboxChoiceFailure(error, online()));
       }
     );
   return {
@@ -103,6 +106,47 @@ function reportingActions(
   };
 }
 
+/** What the person is told when an inbox choice did not happen. */
+function InboxChoiceFailureNotice(props: {
+  readonly failure: InboxChoiceFailure;
+}): JSX.Element {
+  return (
+    <Switch>
+      <Match when={props.failure === 'connection-missing'}>
+        <Notice
+          tone="error"
+          icon={WifiOffIcon}
+          dataSet={{ testid: Handles.notificationsConnectionMissing }}
+        >
+          <Trans>The connection is missing.</Trans>
+        </Notice>
+      </Match>
+      <Match when={props.failure === 'refused'}>
+        <Notice
+          tone="error"
+          dataSet={{ testid: Handles.notificationsChoiceRefused }}
+        >
+          <Trans>
+            That change wasn't made. The item may no longer be in your inbox.
+          </Trans>
+        </Notice>
+      </Match>
+      <Match when={props.failure === 'failed'}>
+        <Notice
+          tone="error"
+          dataSet={{ testid: Handles.notificationsChoiceFailed }}
+        >
+          <Trans>That change wasn't made. Try again in a moment.</Trans>
+        </Notice>
+      </Match>
+    </Switch>
+  );
+}
+
+/**
+ * The inbox. Marking everything read is a screen action, so it is handed to
+ * the header rather than squeezed beside the filters.
+ */
 function NotificationsScreenBody(props: {
   readonly initialFilter?: NotificationFilter | undefined;
 }): JSX.Element {
@@ -114,16 +158,17 @@ function NotificationsScreenBody(props: {
     },
   });
   const rawActions = useNotificationsActions();
-  const [missing, setMissing] = createSignal(false);
+  const [failure, setFailure] = createSignal<InboxChoiceFailure | null>(null);
   const [marking, setMarking] = createSignal(false);
-  const actions = reportingActions(rawActions, setMissing);
+  const online = (): boolean => sync.getStatus().online;
+  const actions = reportingActions(rawActions, setFailure, online);
   const markAllRead = async (): Promise<void> => {
     setMarking(true);
     try {
       await rawActions.markAllRead();
-      setMissing(false);
-    } catch {
-      setMissing(true);
+      setFailure(null);
+    } catch (error: unknown) {
+      setFailure(inboxChoiceFailure(error, online()));
     } finally {
       setMarking(false);
     }
@@ -140,7 +185,7 @@ function NotificationsScreenBody(props: {
     }
     if (sawOffline) {
       sawOffline = false;
-      setMissing(false);
+      if (failure() === 'connection-missing') setFailure(null);
     }
   });
   const headerActions = createMemo((): readonly ScreenBaseAction[] =>
@@ -168,14 +213,8 @@ function NotificationsScreenBody(props: {
       actions={headerActions()}
       controls={
         <>
-          <Show when={missing()}>
-            <Notice
-              tone="error"
-              icon={WifiOffIcon}
-              dataSet={{ testid: Handles.notificationsConnectionMissing }}
-            >
-              <Trans>The connection is missing.</Trans>
-            </Notice>
+          <Show when={failure()} keyed>
+            {(current) => <InboxChoiceFailureNotice failure={current} />}
           </Show>
           <NotificationsFilterBar
             filter={inbox.filter()}
