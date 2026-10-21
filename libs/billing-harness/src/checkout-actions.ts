@@ -6,6 +6,7 @@
  * payment, and how many memberships they are charged for.
  */
 
+import { letTimePass } from '@libs/harness/actions';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { HARNESS_LOAD_BALANCER_ID } from '@libs/harness/load-balancer';
@@ -22,7 +23,11 @@ import {
   customerAt,
   subscriptionsEverywhere,
 } from './billing-provider-driver';
-import { billingButtonVisible, subscribeButtonPhase } from './billing-reads';
+import {
+  billingButtonEnabled,
+  billingButtonVisible,
+  subscribeButtonPhase,
+} from './billing-reads';
 
 /** Whether the actor is looking at a provider checkout that takes a card. */
 export async function onCheckout(
@@ -102,15 +107,42 @@ export const payAtCheckoutUnconfirmed = scenarioAction({
   },
 });
 
+/** How long a person waits, at most, for the screen to offer subscribe again. */
+const SUBSCRIBE_AGAIN_PATIENCE_MS = 5 * 60_000;
+const SUBSCRIBE_AGAIN_HOP_MS = 30_000;
+
+/**
+ * Wait, as a person does, while the billing screen is confirming a payment
+ * and offers no subscribe button: once the confirmation window passes, the
+ * screen offers subscribing again (warning to check first).
+ */
+async function waitForSubscribeOffer(
+  s: ProductHarness,
+  actorId: string
+): Promise<void> {
+  for (
+    let waitedMs = 0;
+    waitedMs < SUBSCRIBE_AGAIN_PATIENCE_MS;
+    waitedMs += SUBSCRIBE_AGAIN_HOP_MS
+  ) {
+    if (await billingButtonEnabled(s, actorId, 'subscribe')) return;
+    if (await billingButtonVisible(s, actorId, 'manage')) return;
+    await Promise.resolve(letTimePass.act(s, SUBSCRIBE_AGAIN_HOP_MS));
+  }
+}
+
 /**
  * Press subscribe again, as a person unsure the first payment went through
- * does: when the app opens a checkout, pay it with the working card; when it
- * refuses, the button says it could not open one (or the app, having
- * learned of the membership meanwhile, offers to manage it).
+ * does: wait for the screen to offer it, then when the app opens a checkout,
+ * pay it with the working card; when it refuses, the button says it could
+ * not open one (or the app, having learned of the membership meanwhile,
+ * offers to manage it).
  */
 export const trySubscribingAgain = scenarioAction({
   name: 'trySubscribingAgain',
   act: async (s, actorId: string) => {
+    await waitForSubscribeOffer(s, actorId);
+    if (await billingButtonVisible(s, actorId, 'manage')) return;
     await pressBillingButton(s, actorId, 'subscribe');
     const outcome = await pollUntil(
       s,
