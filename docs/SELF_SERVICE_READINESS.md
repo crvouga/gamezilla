@@ -3,16 +3,17 @@
 Gamezilla runs without a support team. A person — usually on a phone's
 Chrome, often a guest, rarely technical — must be able to understand what to
 do, finish it, see what happened, and recover from expected problems without
-contacting anyone. This file is the one product-quality standard for
-person-facing changes and the maintained readiness matrix behind it. The
-brief that produced it is
-[`SELF_SERVICE_PRODUCT_STANDARD.md`](SELF_SERVICE_PRODUCT_STANDARD.md).
+contacting anyone. The canonical standard is
+[`SELF_SERVICE_PRODUCT_STANDARD.md`](SELF_SERVICE_PRODUCT_STANDARD.md); this
+file is its enforced definition of done for person-facing changes and the
+maintained readiness matrix that records where the product stands against it.
 Product truth stays in [`specs/`](../specs/); this file links to it and never
 restates it.
 
-`libs/tools/scripts/self-service-readiness.test.ts` keeps this file honest:
-every path in the matrix exists, every critical journey has a row, every
-pinned bug id is registered, and no product copy sends a person to support.
+`@libs/tools#ci:goals` (`libs/tools/goal/self-service-readiness.ts`) keeps
+this file honest on every pull request: every path in the matrix exists,
+every critical journey has a row, every pinned bug id is registered, the
+agent briefing links here, and no product copy sends a person to support.
 
 ## Definition of done for a person-facing change
 
