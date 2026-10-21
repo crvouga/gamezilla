@@ -22,7 +22,7 @@ import {
   customerAt,
   subscriptionsEverywhere,
 } from './billing-provider-driver';
-import { subscribeButtonPhase } from './billing-reads';
+import { billingButtonVisible, subscribeButtonPhase } from './billing-reads';
 
 /** Whether the actor is looking at a provider checkout that takes a card. */
 export async function onCheckout(
@@ -105,7 +105,8 @@ export const payAtCheckoutUnconfirmed = scenarioAction({
 /**
  * Press subscribe again, as a person unsure the first payment went through
  * does: when the app opens a checkout, pay it with the working card; when it
- * refuses, the button says it could not open one.
+ * refuses, the button says it could not open one (or the app, having
+ * learned of the membership meanwhile, offers to manage it).
  */
 export const trySubscribingAgain = scenarioAction({
   name: 'trySubscribingAgain',
@@ -115,7 +116,12 @@ export const trySubscribingAgain = scenarioAction({
       s,
       async () => {
         if (await onCheckout(s, actorId)) return 'checkout';
-        return (await subscribeButtonPhase(s, actorId)) === 'error'
+        // Refused: the button says it could not open a checkout, or the app
+        // has meanwhile learned of the membership and offers to manage it.
+        if ((await subscribeButtonPhase(s, actorId)) === 'error') {
+          return 'refused';
+        }
+        return (await billingButtonVisible(s, actorId, 'manage'))
           ? 'refused'
           : null;
       },

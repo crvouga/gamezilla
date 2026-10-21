@@ -44,6 +44,17 @@ function openWorld(caller: Caller): World {
   return { links, runs: [], providerCalls: [], notified: [] };
 }
 
+/** What an outbox insert is for: the projection's telemetry or its re-check. */
+function outboxRun(query: {
+  readonly sql: string;
+  readonly values: unknown[];
+}): string {
+  if (!query.sql.includes('INSERT INTO outbox_events')) return 'other';
+  return String(query.values[0]).startsWith('billing-recheck:')
+    ? 'recheck:scheduled'
+    : 'telemetry:subscription';
+}
+
 function worldSql(world: World): SqlClient {
   const sql = {
     query: (query: { readonly sql: string; readonly values: unknown[] }) => {
@@ -69,11 +80,7 @@ function worldSql(world: World): SqlClient {
       } else if (text.startsWith('INSERT INTO billing_subscriptions')) {
         world.runs.push(`project:${String(query.values[8])}`);
       } else {
-        world.runs.push(
-          query.sql.includes('INSERT INTO outbox_events')
-            ? 'telemetry:subscription'
-            : 'other'
-        );
+        world.runs.push(outboxRun(query));
       }
       return Promise.resolve({ changes: 1 });
     },
@@ -126,6 +133,7 @@ function stubBilling(
         url: session === 'empty_url' ? '' : 'https://pay.test/p_1',
       });
     },
+    readMembership: () => Promise.resolve(null),
     readCallback: () => {
       world.providerCalls.push('callback');
       const results: Record<
@@ -263,7 +271,9 @@ function expectedCallback(caller: Caller, callback: CallbackAnswer): Outcome {
   return {
     status: 200,
     providerCalls,
-    runs: projects ? ['project:active', 'telemetry:subscription'] : [],
+    runs: projects
+      ? ['project:active', 'telemetry:subscription', 'recheck:scheduled']
+      : [],
     notified: projects ? ['acc_1:billing_subscriptions'] : [],
   };
 }

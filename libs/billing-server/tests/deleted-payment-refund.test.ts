@@ -40,6 +40,7 @@ test('a partial or pending refund does not complete withdrawal', async () => {
       refundPayment: async () => {
         refunds++;
       },
+      readMembership: async () => null,
       readCallback: async () => ({
         kind: 'payments',
         provider: 'stub',

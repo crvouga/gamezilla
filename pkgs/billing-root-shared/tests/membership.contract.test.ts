@@ -14,6 +14,7 @@ import {
 import type {
   CallbackResult,
   MembershipBilling,
+  MembershipChange,
   MembershipStatus,
   OpenPortalInput,
   ReadCallbackInput,
@@ -119,12 +120,18 @@ class OtherProviderBilling implements MembershipBilling {
 
   startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
     const customerId = input.customerId ?? this.world.newHolder();
-    const live = [...this.world.plans.values()].some(
+    const live = [...this.world.plans.values()].find(
       (plan) =>
         plan.holder === customerId &&
         ['trialing', 'active', 'delinquent'].includes(STATUS_OF[plan.phase])
     );
-    if (live) return Promise.resolve({ kind: 'live_membership', customerId });
+    if (live !== undefined) {
+      return Promise.resolve({
+        kind: 'live_membership',
+        customerId,
+        change: this.changeOf(live, false),
+      });
+    }
     // One open checkout per holder: the same page until it is paid.
     return Promise.resolve({
       kind: 'checkout',
@@ -160,15 +167,28 @@ class OtherProviderBilling implements MembershipBilling {
     }
     const plan = this.world.plans.get(event.ref);
     if (plan === undefined) return Promise.resolve({ kind: 'ignored' });
+    return Promise.resolve({
+      kind: 'membership',
+      ...this.changeOf(plan, event.topic === 'plan.subscription_ended'),
+    });
+  }
+
+  readMembership(ref: string): Promise<MembershipChange | null> {
+    if (this.world.down) {
+      return Promise.reject(new Error('other provider: 503'));
+    }
+    const plan = this.world.plans.get(ref);
+    return Promise.resolve(
+      plan === undefined ? null : this.changeOf(plan, false)
+    );
+  }
+
+  private changeOf(plan: Plan, ended: boolean): MembershipChange {
     const offerKey = Object.values(CONTRACT_OFFER.prices).find(
       (price) => price.catalogPriceId === plan.sku
     )?.key;
-    const status =
-      event.topic === 'plan.subscription_ended'
-        ? 'ended'
-        : STATUS_OF[plan.phase];
-    return Promise.resolve({
-      kind: 'membership',
+    const status = ended ? 'ended' : STATUS_OF[plan.phase];
+    return {
       provider: this.provider,
       customerId: plan.holder,
       subscriptionId: plan.ref,
@@ -178,7 +198,7 @@ class OtherProviderBilling implements MembershipBilling {
         periodEndMs: plan.stoppedAt ?? plan.paidThrough,
         endsAtPeriodEnd: status !== 'ended' && plan.phase === 'stopping',
       },
-    });
+    };
   }
 }
 

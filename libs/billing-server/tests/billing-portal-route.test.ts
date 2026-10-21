@@ -40,6 +40,10 @@ class StubBilling implements MembershipBilling {
     return Promise.resolve({ url: this.url });
   }
 
+  readMembership(): Promise<null> {
+    return Promise.resolve(null);
+  }
+
   readCallback(_input: ReadCallbackInput): Promise<CallbackResult> {
     return Promise.resolve({ kind: 'unverified' });
   }

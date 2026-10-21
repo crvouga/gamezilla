@@ -262,8 +262,10 @@ export class PaddleMembershipBilling implements MembershipBilling {
     return url.toString();
   }
 
-  /** Whether Paddle holds a live membership for `customerId`. */
-  private async hasLiveMembership(customerId: string): Promise<boolean> {
+  /** The subscription Paddle holds for `customerId` that is live, if any. */
+  private async liveSubscription(
+    customerId: string
+  ): Promise<PaddleSubscription | null> {
     const query = new URLSearchParams({
       customer_id: customerId,
       status: 'active,trialing,past_due',
@@ -272,8 +274,10 @@ export class PaddleMembershipBilling implements MembershipBilling {
     const live = await this.api.list<PaddleSubscription>(
       `/subscriptions?${query.toString()}`
     );
-    return live.some((subscription) =>
-      isMembershipLive(membershipStatusOf(subscription.status))
+    return (
+      live.find((subscription) =>
+        isMembershipLive(membershipStatusOf(subscription.status))
+      ) ?? null
     );
   }
 
@@ -298,8 +302,10 @@ export class PaddleMembershipBilling implements MembershipBilling {
   async startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
     if (input.customerId !== null) {
       const customerId = input.customerId;
-      if (await this.hasLiveMembership(customerId)) {
-        return { kind: 'live_membership', customerId };
+      const live = await this.liveSubscription(customerId);
+      const change = live === null ? null : this.changeOf(live, false);
+      if (change !== null) {
+        return { kind: 'live_membership', customerId, change };
       }
       const open = await this.openCheckout(customerId);
       if (open !== null) {
@@ -413,18 +419,37 @@ export class PaddleMembershipBilling implements MembershipBilling {
     // a cancellation is final, whatever a lagging read still says.
     const subscription = await this.current(id);
     if (subscription === null) return { kind: 'ignored' };
+    const change = this.changeOf(
+      subscription,
+      event.event_type === PADDLE_SUBSCRIPTION_ENDED_EVENT
+    );
+    return change === null
+      ? { kind: 'ignored' }
+      : { kind: 'membership', ...change };
+  }
+
+  async readMembership(subscriptionId: string) {
+    const subscription = await this.current(subscriptionId);
+    return subscription === null ? null : this.changeOf(subscription, false);
+  }
+
+  /**
+   * What a subscription as Paddle reports it now means for the membership —
+   * the one reading every callback, re-check and checkout shares. `null`
+   * when it names no customer.
+   */
+  private changeOf(
+    subscription: PaddleSubscription,
+    ended: boolean
+  ): MembershipChange | null {
     const customerId = readString(subscription.customer_id);
-    if (customerId === null) return { kind: 'ignored' };
-    const change: MembershipChange = {
+    if (customerId === null) return null;
+    return {
       provider: this.provider,
       customerId,
       subscriptionId: subscription.id,
       offerPriceKey: this.offerPriceKey(subscription),
-      membership: toMembership(
-        subscription,
-        event.event_type === PADDLE_SUBSCRIPTION_ENDED_EVENT
-      ),
+      membership: toMembership(subscription, ended),
     };
-    return { kind: 'membership', ...change };
   }
 }

@@ -185,9 +185,13 @@ function describeOneCheckout(
     const again = await harness.billing.startCheckout(
       checkoutInput('acct-1', first.customerId)
     );
-    expect(again).toEqual({
-      kind: 'live_membership',
+    if (again.kind !== 'live_membership') throw new Error(again.kind);
+    expect(again.customerId).toBe(first.customerId);
+    expect(again.change).toMatchObject({
+      provider: harness.billing.provider,
       customerId: first.customerId,
+      subscriptionId: 'sub_paid_unconfirmed',
+      membership: CONTRACT_EXPECTED.trialing,
     });
   });
 
@@ -403,6 +407,33 @@ function describeDelivery(
   });
 }
 
+function describeRecheck(
+  open: () => Promise<MembershipBillingContractHarness>
+): void {
+  test('a re-check reports what a callback about it reports', async () => {
+    const harness = await open();
+    const change = await changeOf(harness, SUBSCRIPTION);
+    const { kind: _kind, ...reported } = change;
+    expect(await harness.billing.readMembership(SUBSCRIPTION.id)).toEqual(
+      reported
+    );
+  });
+
+  test('a re-check of a subscription the provider does not know is null', async () => {
+    const harness = await open();
+    expect(await harness.billing.readMembership('sub_unknown')).toBeNull();
+  });
+
+  test('a re-check while the provider is unreachable throws', async () => {
+    const harness = await open();
+    harness.setSubscription(SUBSCRIPTION);
+    harness.setUnavailable(true);
+    await expect(
+      harness.billing.readMembership(SUBSCRIPTION.id)
+    ).rejects.toThrow();
+  });
+}
+
 /**
  * Situations a provider's object model cannot express, each with the reason
  * (Paddle creates a subscription only once its first payment settles, so it
@@ -429,5 +460,6 @@ export function describeMembershipBillingContract(
     describe('projection', () =>
       describeProjection(open, options.unreachable ?? {}));
     describe('delivery', () => describeDelivery(open));
+    describe('re-check', () => describeRecheck(open));
   });
 }

@@ -19,6 +19,7 @@ import {
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { z } from 'zod';
+import { applyMembershipChange } from './apply-membership-change';
 
 const checkoutBodySchema = z.object({
   returnUrl: z.url(),
@@ -98,6 +99,41 @@ async function linkFirstCustomer(
 }
 
 /**
+ * The provider already took the payment and its news has not reached the
+ * app: project it now, through the same reading a callback gets, and open no
+ * second checkout.
+ */
+async function membershipPending(
+  c: Context,
+  deps: CheckoutDeps,
+  accountId: string,
+  checkout: Extract<StartCheckoutResult, { kind: 'live_membership' }>
+): Promise<Response> {
+  const { change } = checkout;
+  if (
+    change.provider === deps.provider.provider &&
+    change.customerId === checkout.customerId &&
+    (await applyMembershipChange({
+      sql: deps.getSqlClient(),
+      clock: deps.clock,
+      accountId,
+      change,
+    }))
+  ) {
+    await deps.notifyUser(accountId, 'billing:membership', [
+      'billing_subscriptions',
+    ]);
+  }
+  return c.json(
+    {
+      error: 'A membership payment is still being confirmed',
+      code: 'membership_pending',
+    },
+    409
+  );
+}
+
+/**
  * Starts a membership at the provider new checkouts go to. An account that
  * is already a member — at any provider — manages that membership instead:
  * two live memberships would bill one person twice. So would a second
@@ -147,13 +183,7 @@ async function handleBillingCheckout(
       : started.result;
   if (checkout instanceof Response) return checkout;
   if (checkout.kind === 'live_membership') {
-    return c.json(
-      {
-        error: 'A membership payment is still being confirmed',
-        code: 'membership_pending',
-      },
-      409
-    );
+    return await membershipPending(c, deps, auth.accountId, checkout);
   }
   if (checkout.url.length === 0) {
     return c.json({ error: 'Billing checkout URL missing' }, 502);

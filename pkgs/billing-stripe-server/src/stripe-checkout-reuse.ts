@@ -12,18 +12,19 @@ import type Stripe from 'stripe';
  */
 const CHECKOUT_REUSE_MARGIN_S = 10 * 60;
 
-/** Whether Stripe holds a live membership for `customer`. */
-export async function hasLiveStripeMembership(
+/** The subscription Stripe holds for `customer` that is live, if any. */
+export async function liveStripeSubscription(
   stripe: Stripe,
   customer: string
-): Promise<boolean> {
+): Promise<Record<string, unknown> | null> {
   const subscriptions = await stripe.subscriptions.list({
     customer,
     limit: 100,
   });
-  return subscriptions.data.some((subscription) =>
+  const live = subscriptions.data.find((subscription) =>
     isMembershipLive(membershipStatusOf(subscription.status))
   );
+  return live === undefined ? null : { ...live };
 }
 
 /**

@@ -54,6 +54,7 @@ test('deletion committed after a callback reads the account prevents revival', a
       openPortal: async () => ({ url: 'https://pay.test' }),
       cancelMembership: async () => {},
       refundPayment: async () => {},
+      readMembership: async () => null,
       readCallback: async () => ({
         kind: 'membership',
         provider: 'stub',

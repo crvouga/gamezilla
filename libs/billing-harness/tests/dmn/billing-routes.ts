@@ -57,6 +57,7 @@ const stubProvider: MembershipBilling = {
     }),
   openPortal: () => Promise.resolve({ url: 'https://pay.test/portal' }),
   readCallback: () => Promise.resolve({ kind: 'ignored' }),
+  readMembership: () => Promise.resolve(null),
 };
 
 function providersFor(c: ServerCase): MembershipProviders | null {

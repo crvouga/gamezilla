@@ -69,7 +69,8 @@ export type StartCheckoutInput = {
  *   opened; any other open checkout of theirs is closed first.
  * - `live_membership` — the provider already holds a live membership for the
  *   customer (they paid, and the news has not reached the app yet), so no
- *   checkout is opened.
+ *   checkout is opened. `change` is that membership as a callback about it
+ *   would report it, so the app can project it without waiting.
  */
 export type StartCheckoutResult =
   | {
@@ -82,6 +83,7 @@ export type StartCheckoutResult =
   | {
       readonly kind: 'live_membership';
       readonly customerId: string;
+      readonly change: MembershipChange;
     };
 
 export type OpenPortalInput = {
@@ -147,4 +149,11 @@ export interface MembershipBilling {
    * reached, so the delivery is retried.
    */
   readCallback(input: ReadCallbackInput): Promise<CallbackResult>;
+  /**
+   * The subscription's current state, exactly as a verified callback about
+   * it would report it — for re-checking a membership whose news may never
+   * have arrived. `null` when the provider does not know it; throws when the
+   * provider cannot be reached, so the re-check is retried.
+   */
+  readMembership(subscriptionId: string): Promise<MembershipChange | null>;
 }

@@ -18,6 +18,7 @@ import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
+import { outboxDeliveries, outboxEvents } from '@pkgs/outbox-shared/tables';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
 import sql from '@pkgs/sql-root-shared/sql';
@@ -44,7 +45,12 @@ async function openDb(): Promise<SqlClient> {
   await db.connect();
   await reconcileSqliteSchema(
     db,
-    registerTables([...AUTH_TABLES, ...BILLING_TABLES])
+    registerTables([
+      ...AUTH_TABLES,
+      ...BILLING_TABLES,
+      outboxEvents,
+      outboxDeliveries,
+    ])
   );
   return db;
 }
@@ -63,6 +69,7 @@ function stubProvider(
     cancelMembership: async () => {},
     refundPayment: async () => {},
     readCallback: async () => ({ kind: 'ignored' }),
+    readMembership: async () => null,
     readPayments: async () => [],
     ...overrides,
   };
@@ -168,9 +175,20 @@ describe('a payment the provider has not confirmed to the app yet', () => {
     try {
       await linkCustomer(db, 'cus_paid');
       const provider = stubProvider({
-        startCheckout: async (input) => ({
+        startCheckout: async () => ({
           kind: 'live_membership',
-          customerId: input.customerId ?? 'cus_paid',
+          customerId: 'cus_paid',
+          change: {
+            provider: 'stub',
+            customerId: 'cus_paid',
+            subscriptionId: 'sub_paid',
+            offerPriceKey: 'subscription_monthly',
+            membership: {
+              status: 'trialing',
+              periodEndMs: 1_900_000_000_000,
+              endsAtPeriodEnd: false,
+            },
+          },
         }),
       });
       const response = await post(appFor(db, provider), '/billing/checkout');
@@ -178,6 +196,14 @@ describe('a payment the provider has not confirmed to the app yet', () => {
       expect(await response.json()).toMatchObject({
         code: 'membership_pending',
       });
+      // The payment the provider already took is projected without waiting.
+      expect(
+        await db.query(
+          sql<{
+            status: string;
+          }>`SELECT status FROM billing_subscriptions WHERE account_id = ${ACCOUNT}`
+        )
+      ).toEqual([{ status: 'trialing' }]);
     } finally {
       await db.disconnect();
     }
