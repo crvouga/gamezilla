@@ -45,7 +45,7 @@ When(
     const [notice] = await w.s.read(rejections, actor);
     if (notice === undefined) throw new Error(`${actor} has no notice`);
     await w.s.apply(mutate, actor, acknowledgeWriteRejectionMutation, {
-      rejectionId: notice.id,
+      mutationId: notice.mutationId,
     });
   }
 );

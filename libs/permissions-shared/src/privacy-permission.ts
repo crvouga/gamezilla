@@ -28,6 +28,9 @@ export function decidePrivacyAccess(
       ...accountDecision,
       allowed: false,
       reason: 'requires_connection',
+      ...(evidence.action === undefined
+        ? {}
+        : { unlockRef: `${evidence.action}#requires_connection` }),
     };
   }
   const age =

@@ -158,6 +158,13 @@ terms:
   - term: About in Settings
     definition: The part of Settings that shows which version of the app a person has.
 
+  - term: Connection in Settings
+    definition: >-
+      The part of Settings that shows whether the app is connected right now,
+      when it last was, which version of the app a person has, and what still
+      works without a connection.
+    avoid: [server status, network status, server health]
+
   - term: control
     definition: >-
       Anything in the app a person acts on to do something, such as going to

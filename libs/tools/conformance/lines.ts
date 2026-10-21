@@ -212,7 +212,11 @@ export const LINES = {
   'live-objectives': {
     section: 'release',
     label: 'OpenSLO readiness policy',
-    feeds: [{ live: 'specs/runtime/availability.openslo.yaml' }],
+    feeds: [
+      { live: 'specs/runtime/availability.openslo.yaml' },
+      { live: 'specs/runtime/request-speed.openslo.yaml' },
+      { live: 'specs/runtime/request-success.openslo.yaml' },
+    ],
     rule: evidence({ kind: 'objectives', layer: 'release', runs: 'live' }),
   },
   'release-gates': {

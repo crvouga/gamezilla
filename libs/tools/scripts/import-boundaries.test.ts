@@ -146,6 +146,21 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
+    path: 'libs/zz/src/stamp-user.ts',
+    source: 'span.setAttribute(ATTR.USER_ID, id);',
+    message: 'Bind identity with bindIdentity()',
+  },
+  {
+    path: 'libs/zz/src/stamp-device.ts',
+    source: 'activeSpan()?.setAttribute(ATTR.APP_DEVICE_ID, id);',
+    message: 'Bind identity with bindIdentity()',
+  },
+  {
+    path: 'libs/zz/src/bind-user.ts',
+    source: 'bindIdentity({ userId: id });',
+    message: null,
+  },
+  {
     path: 'apps/zz/src/console.ts',
     source: "console.log('temporary debug');",
     message: 'structured observability instead of console.log',

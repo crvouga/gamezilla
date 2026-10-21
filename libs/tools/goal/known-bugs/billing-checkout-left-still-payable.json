@@ -1,0 +1,4 @@
+{
+  "summary": "A person who went back from checkout and pressed subscribe again got a second checkout while the first stayed open and payable, so paying in both (two tabs, or an old tab) started two memberships. Fixed by the membership port: a start for a linked customer hands back their open checkout for the same return URL and expires any other open one, so only one checkout can take a payment.",
+  "regressionTest": "specs/billing/subscribe.feature"
+}

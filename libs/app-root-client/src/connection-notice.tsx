@@ -1,42 +1,48 @@
 /** @jsxImportSource solid-js */
 import { Handles } from '@libs/test-ids-shared/handles';
-import { useLingui } from '@lingui/solid/macro';
-import { createOriginAvailabilitySnapshot } from '@pkgs/http-client-client/solid';
-import { WifiOffIcon } from '@pkgs/ui-root-client/icons';
+import { ServerIcon, WifiOffIcon } from '@pkgs/ui-root-client/icons';
 import { type JSX, Show } from 'solid-js';
-import { useOfflinePreference } from './offline-preference';
-import { createNetworkOnline } from './use-connectivity';
+import type { ConnectionCause } from './connection-cause';
+import {
+  createConnectionCause,
+  useConnectionNoticeLabel,
+} from './connection-copy';
 
 /** A reserved header slot keeps content still as connectivity changes. */
 export function ConnectionNotice(): JSX.Element {
-  const online = createNetworkOnline();
-  const origin = createOriginAvailabilitySnapshot();
-  const { offline } = useOfflinePreference();
-  const missing = (): boolean =>
-    offline() || !online() || origin().phase !== 'available';
-  return <ConnectionStatusIndicator missing={missing()} />;
+  const cause = createConnectionCause();
+  return <ConnectionStatusIndicator cause={cause()} />;
 }
 
+/**
+ * Says which part is missing: the person's own choice or device ("You're
+ * offline") versus Gamezilla being out of reach, which is not their doing.
+ */
 export function ConnectionStatusIndicator(props: {
-  readonly missing: boolean;
+  readonly cause: ConnectionCause;
 }): JSX.Element {
-  const { t } = useLingui();
-  const label = () =>
-    t`Connection unavailable. Saved content and local games remain available. Shared changes will reconnect automatically.`;
+  const label = useConnectionNoticeLabel();
+  const unreachable = (): boolean =>
+    props.cause === 'unreachable' || props.cause === 'checking';
   return (
     <div
       class="box h-8 w-8 shrink-0 items-center justify-center"
       data-component="ConnectionStatus"
     >
-      <Show when={props.missing}>
+      <Show when={props.cause !== 'connected'}>
         <span
           role="status"
           aria-live="polite"
-          title={label()}
+          title={label(props.cause)}
           data-testid={Handles.statusConnectionMissing}
         >
-          <WifiOffIcon size={20} color="icon" />
-          <span class="sr-only">{label()}</span>
+          <Show
+            when={unreachable()}
+            fallback={<WifiOffIcon size={20} color="icon" />}
+          >
+            <ServerIcon size={20} color="icon" />
+          </Show>
+          <span class="sr-only">{label(props.cause)}</span>
         </span>
       </Show>
     </div>

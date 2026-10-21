@@ -187,8 +187,8 @@ const cases: readonly (readonly [string, readonly Doc[], string])[] = [
   ],
   [
     'an unknown kind',
-    [{ ...ratioSli(), kind: 'AlertPolicy' }, ratioSli(), slo()],
-    'document 1: kind "AlertPolicy" is not supported (SLI, SLO)',
+    [{ ...ratioSli(), kind: 'DataSource' }, ratioSli(), slo()],
+    'document 1: kind "DataSource" is not supported (SLI, SLO, AlertPolicy, AlertCondition, AlertNotificationTarget)',
   ],
   [
     'another apiVersion',

@@ -141,7 +141,8 @@ export function useDebouncedUserSearchEffect(
     });
   });
 
-  const { rows } = createQuery(() => searchHitsSql(myId(), debouncedQuery()));
+  const local = createQuery(() => searchHitsSql(myId(), debouncedQuery()));
+  const rows = local.rows;
   // A username that is no longer allowed is never found: the person is not
   // searchable by it, on any device, the moment the team stops allowing it.
   const results = createMemo(() =>
@@ -163,10 +164,16 @@ export function useDebouncedUserSearchEffect(
       const trimmed = query().trim();
       if (!canSearch() || trimmed.length === 0) return false;
       if (trimmed !== debouncedQuery()) return true;
+      // The people already on this device are part of every answer.
+      if (local.isLoading()) return true;
       // Offline the server cannot answer: not "Searching…" forever.
       return awaitingSync() && online();
     },
-    /** The search went out offline and is waiting on a server it cannot reach. */
+    /**
+     * The search went out offline and is waiting on a server it cannot
+     * reach. Results shown meanwhile are only the people already on this
+     * device.
+     */
     get needsConnection() {
       return canSearch() && awaitingSync() && !online();
     },

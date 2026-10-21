@@ -5,21 +5,41 @@ import type {
   SpanProcessor,
 } from '@opentelemetry/sdk-trace-base';
 
-import type { IdentitySource } from '@pkgs/observability-root-shared/identity';
+import type {
+  IdentitySource,
+  ObservabilityIdentity,
+} from '@pkgs/observability-root-shared/identity';
 import { stampIdentity } from '@pkgs/observability-root-shared/identity';
+import type { IdentityScope } from '@pkgs/observability-root-shared/identity-scope';
+import { scopeOf } from '@pkgs/observability-root-shared/identity-scope';
 
+/**
+ * Gives every span the identity of the work it belongs to: the process-wide
+ * source (a browser has one person) and the ambient scope (a server handles
+ * many people at once, so each request binds its own).
+ */
 export class IdentitySpanProcessor implements SpanProcessor {
-  readonly #identity: IdentitySource;
+  readonly #identity: IdentitySource | undefined;
+  readonly #scopes = new WeakMap<object, IdentityScope>();
 
-  constructor(identity: IdentitySource) {
+  constructor(identity?: IdentitySource) {
     this.#identity = identity;
   }
 
-  onStart(span: SdkSpan, _parentContext: Context): void {
-    stampIdentity(span, this.#identity());
+  onStart(span: SdkSpan, parentContext: Context): void {
+    const fixed: ObservabilityIdentity = this.#identity?.() ?? {};
+    stampIdentity(span, fixed);
+    const scope = scopeOf(parentContext);
+    if (scope === undefined) return;
+    stampIdentity(span, scope.identity);
+    scope.open.add(span);
+    this.#scopes.set(span, scope);
   }
 
-  onEnd(_span: ReadableSpan): void {}
+  onEnd(span: ReadableSpan): void {
+    this.#scopes.get(span)?.open.delete(span as unknown as SdkSpan);
+    this.#scopes.delete(span);
+  }
 
   forceFlush(): Promise<void> {
     return Promise.resolve();

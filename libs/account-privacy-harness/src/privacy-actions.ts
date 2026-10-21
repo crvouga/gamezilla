@@ -57,18 +57,28 @@ export const reviewDeletion = scenarioAction({
 export const confirmDeletion = scenarioAction({
   name: 'confirmDeletion',
   act: async (s, actor: string) => {
-    await Promise.resolve(reviewDeletion.act(s, actor));
+    await ensureActor(s, actor);
     const ui = await actorUi(s, actor);
+    // A confirmation already open is confirmed as it stands.
+    if (!(await ui.get('privacy-delete-confirm').isVisible()))
+      await Promise.resolve(reviewDeletion.act(s, actor));
     if (!(await ui.get('privacy-delete-confirm').isVisible())) return;
     await ui.get('privacy-delete-confirm').tap();
     await pollUntil(
       s,
       async () => {
         if (await ui.get('privacy-deletion-outcome').isVisible()) return true;
+        if (
+          !(await ui.get('privacy-delete-modal').isVisible()) &&
+          (await ui.get('privacy-delete-denial').isVisible())
+        )
+          return true;
         const modal = (await ui.get('privacy-delete-modal').isVisible())
           ? await ui.get('privacy-delete-modal').text()
           : null;
-        return modal?.includes('failed') ? true : null;
+        return modal?.includes('failed') || modal?.includes('Try again')
+          ? true
+          : null;
       },
       { maxMs: 20_000, description: 'account deletion outcome' }
     );
@@ -88,6 +98,30 @@ export const askForExport = scenarioAction({
     await Promise.resolve(openPrivacy.act(s, actor));
     await (await actorUi(s, actor)).get('privacy-export-request').tap();
     await s.session.waitForIdle();
+  },
+});
+
+/** Answer the warning before a ready export is replaced: ask for a new one. */
+export const confirmExportReplacement = scenarioAction({
+  name: 'confirmExportReplacement',
+  act: async (s, actor: string) => {
+    const ui = await actorUi(s, actor);
+    await ui.get('privacy-export-replace-confirm').tap();
+    await s.session.waitForIdle();
+  },
+});
+
+/**
+ * Ask for an export and see the request through: a ready export's
+ * replacement warning is answered by asking for the new one.
+ */
+export const requestExport = scenarioAction({
+  name: 'requestExport',
+  act: async (s, actor: string) => {
+    await Promise.resolve(askForExport.act(s, actor));
+    const ui = await actorUi(s, actor);
+    if (await ui.get('privacy-export-replace-confirm').isVisible())
+      await Promise.resolve(confirmExportReplacement.act(s, actor));
   },
 });
 

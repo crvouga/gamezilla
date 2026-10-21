@@ -24,6 +24,20 @@ export const GYM_IDS = {
   failingTest: '70000000000000000000000000000007',
 } as const;
 
+/** One evening of a synthetic person: a crash before sign-in, then use. */
+export const GYM_PERSON = {
+  name: 'Gym Person',
+  userId: 'gym-user-1',
+  /** 05:00 MST is 12:00 UTC, the gym's start. */
+  at: '5:00am MST',
+  ids: {
+    crash: '80000000000000000000000000000001',
+    route: '80000000000000000000000000000002',
+    request: '80000000000000000000000000000003',
+    rejected: '80000000000000000000000000000004',
+  },
+} as const;
+
 export const GYM_MUTATION_ID = 'mutation-offline-001';
 export const GYM_TEST_ID = 'offline edits converge';
 
@@ -325,6 +339,85 @@ function recordFailingTest(tracer: OtelTracer): void {
   );
 }
 
+const PERSON_SESSION = {
+  [ATTR.SESSION_ID]: 'gym-session-1',
+  [ATTR.APP_DEVICE_ID]: 'gym-device-1',
+} as const;
+const PERSON_ATTRIBUTES = {
+  ...PERSON_SESSION,
+  [ATTR.USER_ID]: GYM_PERSON.userId,
+  [ATTR.APP_BUILD_SHA]: 'gym-build',
+} as const;
+
+function recordPersonCrash(tracer: OtelTracer): void {
+  emitSpan(
+    tracer,
+    {
+      name: 'client.error',
+      status: 'error',
+      startTimeMs: START_MS + 5_000,
+      durationMs: 2,
+      attributes: PERSON_SESSION,
+    },
+    (span) => {
+      span.recordException(
+        { message: 'Failed to fetch', name: 'TypeError' },
+        START_MS + 5_001
+      );
+    }
+  );
+}
+
+function recordPersonRoute(tracer: OtelTracer): void {
+  emitSpan(tracer, {
+    name: 'route.change',
+    startTimeMs: START_MS + 20_000,
+    durationMs: 1,
+    attributes: {
+      ...PERSON_ATTRIBUTES,
+      [ATTR.APP_INTERACTION_TARGET]: 'window:history',
+    },
+  });
+}
+
+function recordPersonRequest(tracer: OtelTracer): void {
+  emitSpan(tracer, {
+    name: 'http.server.request',
+    startTimeMs: START_MS + 30_000,
+    durationMs: 85,
+    attributes: {
+      ...PERSON_ATTRIBUTES,
+      [ATTR.HTTP_REQUEST_METHOD]: 'POST',
+      [ATTR.HTTP_ROUTE]: '/api/mutations',
+      [ATTR.HTTP_RESPONSE_STATUS_CODE]: 200,
+    },
+  });
+}
+
+function recordPersonRejection(tracer: OtelTracer): void {
+  emitSpan(
+    tracer,
+    {
+      name: 'mutation.replay',
+      status: 'error',
+      startTimeMs: START_MS + 31_000,
+      durationMs: 12,
+      attributes: {
+        ...PERSON_ATTRIBUTES,
+        [ATTR.APP_MUTATION_ID]: 'gym-mutation-rejected',
+      },
+    },
+    (span) => {
+      addEvent(
+        span,
+        EVENT.MUTATION_REJECTED,
+        { [ATTR.APP_MUTATION_ID]: 'gym-mutation-rejected' },
+        START_MS + 31_005
+      );
+    }
+  );
+}
+
 export async function createGymFixtures(): Promise<
   Readonly<Record<string, string>>
 > {
@@ -372,6 +465,30 @@ export async function createGymFixtures(): Promise<
       GYM_IDS.failingTest,
       ['7000000000000001'],
       recordFailingTest,
+    ],
+    [
+      'person-crash.ndjson',
+      GYM_PERSON.ids.crash,
+      ['8000000000000001'],
+      recordPersonCrash,
+    ],
+    [
+      'person-route.ndjson',
+      GYM_PERSON.ids.route,
+      ['8000000000000002'],
+      recordPersonRoute,
+    ],
+    [
+      'person-request.ndjson',
+      GYM_PERSON.ids.request,
+      ['8000000000000003'],
+      recordPersonRequest,
+    ],
+    [
+      'person-rejected.ndjson',
+      GYM_PERSON.ids.rejected,
+      ['8000000000000004'],
+      recordPersonRejection,
     ],
   ] as const;
   for (const [key, traceId, spanIds, record] of definitions) {

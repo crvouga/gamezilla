@@ -8,6 +8,12 @@ import {
 /** Human-facing product name shown on the About screen. */
 export const APP_NAME: string = APP_IDENTITY.displayName;
 
+/**
+ * Where a security problem is reported. Published at
+ * `/.well-known/security.txt` (`apps/product/public`) and on the About screen.
+ */
+export const SECURITY_CONTACT = 'crvouga@gmail.com';
+
 /** Marketing version (mirrors `apps/client/package.json` `version`). */
 export const APP_VERSION = '1.0.0';
 

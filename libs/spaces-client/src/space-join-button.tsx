@@ -12,7 +12,6 @@ import { useJoinSpace } from './use-join-space';
 
 export type SpaceJoinButtonProps = {
   spaceId: string;
-  joinable: boolean;
   /** Stretch within a footer row (matches FormActionsFooter submit). */
   flex?: number;
   /** Joining needs the server; called instead of joining without one. */
@@ -23,7 +22,7 @@ export function SpaceJoinButton(props: SpaceJoinButtonProps): JSX.Element {
   const { t } = useLingui();
   const joinSpace = useJoinSpace();
   const checkConnection = useCheckConnection();
-  const disabled = (): boolean => !props.joinable || props.spaceId.length === 0;
+  const disabled = (): boolean => props.spaceId.length === 0;
   const engine = useOptionalSoundEngine();
   const persisted = useMutationFeedback('joinSpace', () => ({
     spaceId: props.spaceId,

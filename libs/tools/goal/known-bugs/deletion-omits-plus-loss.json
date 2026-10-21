@@ -1,0 +1,4 @@
+{
+  "summary": "Account deletion ends Plus at once and keeps no refund for the remaining paid time or Plus credit, but the consequences and the final confirmation only said future membership charges would stop. Both now state that Plus ends at once and what is not refunded.",
+  "regressionTest": "specs/profile/account-deletion.feature"
+}

@@ -106,11 +106,11 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 331 |
-| Verify scripts | 1297 |
+| Verify scripts | 1298 |
 | Measured scripts | 947 |
-| Estimated scripts | 350 |
+| Estimated scripts | 351 |
 | Stale cost keys | 554 |
-| Cold CPU | 18288 s |
+| Cold CPU | 18289 s |
 | Spec parts | 10192 s across 272 tasks |
 | Longest task | @libs/games-harness#test:spec:49 213 s |
 
@@ -122,7 +122,7 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | verify:models:9 | 16 | 1914 s |
 | lint | 330 | 1217 s |
 | test:contract | 26 | 1019 s |
-| test | 235 | 896 s |
+| test | 236 | 897 s |
 | verify:models:2 | 11 | 660 s |
 | verify:models | 38 | 644 s |
 | tc | 330 | 514 s |
@@ -152,9 +152,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 267 | 18085 s | @libs/games-harness#test:spec:49 213 s |
-| @pkgs/clock-shared | 233 | 17967 s | @libs/games-harness#test:spec:49 213 s |
-| @pkgs/assert-root-shared | 228 | 17919 s | @libs/games-harness#test:spec:49 213 s |
+| @pkgs/property-shared | 267 | 18086 s | @libs/games-harness#test:spec:49 213 s |
+| @pkgs/clock-shared | 233 | 17968 s | @libs/games-harness#test:spec:49 213 s |
+| @pkgs/assert-root-shared | 228 | 17920 s | @libs/games-harness#test:spec:49 213 s |
 
 ### Runner
 

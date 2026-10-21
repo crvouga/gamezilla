@@ -55,7 +55,6 @@ function AppBoot(): JSX.Element {
   bootBrowserObservability({
     env,
     offline,
-    dev: import.meta.env.DEV === true,
     timeOriginMs: performance.timeOrigin,
   });
   const client = createClient(env, {

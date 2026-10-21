@@ -7,6 +7,7 @@ import { Trans } from '@lingui/solid/macro';
 import { useClock } from '@pkgs/clock-client/solid';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { createEffect, createMemo, type JSX, onCleanup, Show } from 'solid-js';
+import { exportDownloadable } from './privacy-dates';
 import type { AccountPrivacyRow } from './use-account-privacy';
 
 export function ExportDownload(props: {
@@ -19,9 +20,7 @@ export function ExportDownload(props: {
   const access = useDecision(PERMISSION.profileExportData);
   const decision = () =>
     decidePrivacyExportOwner(access(), myId(), props.ownerId);
-  const fresh = () =>
-    props.row?.ready_at != null &&
-    clock.now() - Date.parse(props.row.ready_at) < 7 * 86_400_000;
+  const fresh = () => exportDownloadable(props.row?.ready_at, clock.now());
   const downloadAccount = createMemo(() =>
     decision().allowed && props.row?.export_status === 'Ready' && fresh()
       ? props.ownerId

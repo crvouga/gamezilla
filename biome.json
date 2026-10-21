@@ -1685,6 +1685,7 @@
         "!**/libs/app-root-server/src/create-server.ts",
         "!**/libs/app-root-server/src/browser-telemetry-ingress.ts",
         "!**/libs/app-root-server/src/request-db-middleware.ts",
+        "!**/libs/app-root-server/src/outbox-drain.ts",
         "!**/libs/app-root-server/src/request-telemetry.ts",
         "!**/libs/app-root-shared/src/stamp-connection-place.ts",
         "!**/libs/app-root-shared/src/wrap-sql-client.ts",
@@ -1777,6 +1778,16 @@
         "!**/pkgs/room-adapter-durable-object-server/src/observability.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/observability-identity-via-scope.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/pkgs/observability-root-shared/src/identity.ts",
+        "!**/pkgs/observability-root-shared/src/identity-scope.ts"
       ]
     },
     {

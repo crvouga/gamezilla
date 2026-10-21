@@ -18,15 +18,11 @@ import '@pkgs/ui-root-client/hosts.css';
 import '@pkgs/ui-root-client/tokens.css';
 import { render } from 'solid-js/web';
 
-const telemetryEnv = import.meta.env as {
-  readonly DEV?: boolean;
-};
 const offline = wallOfflineNetworkController();
 const clientEnv = wallClientEnv({ room: wallSpaceRoomTransport, offline });
 bootBrowserObservability({
   env: clientEnv,
   offline,
-  dev: telemetryEnv.DEV === true,
   timeOriginMs: performance.timeOrigin,
 });
 

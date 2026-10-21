@@ -98,7 +98,14 @@ describe('NDJSON TraceStore', () => {
       errorCount: 1,
       rootName: 'mutation.apply',
     });
-    expect((await store.findBySession('session-1'))[0]?.traceId).toBe(TRACE_ID);
+    expect(
+      (
+        await store.findBySession('session-1', {
+          startMs: 1_790_078_399_000,
+          endMs: 1_790_078_401_000,
+        })
+      )[0]?.traceId
+    ).toBe(TRACE_ID);
   });
 
   test('finds a mutation id carried only by a lifecycle event', async () => {

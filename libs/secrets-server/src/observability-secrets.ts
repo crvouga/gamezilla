@@ -119,9 +119,41 @@ export const OBS_TEMPO_USER = new Secret({
   validate: (i) => validateNonEmpty(i, Name.tempoUser),
 });
 
+export const OBS_LOKI_URL = new Secret({
+  name: Name.lokiUrl,
+  hint: `Loki query origin for business events and diagnostics. ${PROVISIONED}`,
+  optional: true,
+  managedBy: 'tofu',
+  validate: async (i) => requireHttpsUrl(i.secretValue, Name.lokiUrl),
+});
+
+export const OBS_LOKI_USER = new Secret({
+  name: Name.lokiUser,
+  hint: `Grafana Cloud Loki instance id (query Basic-auth user). ${PROVISIONED}`,
+  optional: true,
+  managedBy: 'tofu',
+  validate: (i) => validateNonEmpty(i, Name.lokiUser),
+});
+
+export const OBS_PROMETHEUS_URL = new Secret({
+  name: Name.prometheusUrl,
+  hint: `Mimir Prometheus-API origin (…/api/prom) for SLO queries. ${PROVISIONED}`,
+  optional: true,
+  managedBy: 'tofu',
+  validate: async (i) => requireHttpsUrl(i.secretValue, Name.prometheusUrl),
+});
+
+export const OBS_PROMETHEUS_USER = new Secret({
+  name: Name.prometheusUser,
+  hint: `Grafana Cloud Prometheus instance id (query Basic-auth user). ${PROVISIONED}`,
+  optional: true,
+  managedBy: 'tofu',
+  validate: (i) => validateNonEmpty(i, Name.prometheusUser),
+});
+
 export const OBS_TEMPO_TOKEN = new Secret({
   name: Name.tempoToken,
-  hint: `Read-only traces:read token for agent queries. ${PROVISIONED}`,
+  hint: `Read-only token (traces, logs and metrics) for agent and health queries. ${PROVISIONED}`,
   optional: true,
   managedBy: 'tofu',
   validate: (i) => validateNonEmpty(i, Name.tempoToken),

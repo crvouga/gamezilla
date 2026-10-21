@@ -1,0 +1,4 @@
+{
+  "summary": "The scheduled telemetry heartbeat was recorded before the outbox drain and a failing drain only logged, so a broken drain looked healthy.",
+  "regressionTest": "libs/app-root-server/tests/outbox-health.test.ts"
+}

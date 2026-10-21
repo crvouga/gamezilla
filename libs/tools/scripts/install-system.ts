@@ -23,6 +23,9 @@
  * 6. npm tooling (turbo, wrangler, biome, …) updated across every workspace
  *    to the newest release its range allows (`bun update --recursive`), then
  *    `bun install`.
+ * 7. What the bumped tools generate or ship for coding agents: the Graphify
+ *    skill is rewritten by the release `mise` now pins, and the ast-grep
+ *    skills are updated from `ast-grep/agent-skill` (`skills-lock.json`).
  *
  * The bumps land in `mise.toml`, `package.json` files and `bun.lock` — commit
  * them so CI (`jdx/mise-action`, `bun install`) runs the same versions.
@@ -45,6 +48,36 @@ const HELD: Record<string, string> = {
   'github:emqx/emqx':
     'kept in step with the version pin (libs/pubsub-shared/emqx-deploy/Dockerfile)',
 };
+
+/** Skills from `ast-grep/agent-skill`, refreshed with the ast-grep pin. */
+export const AGENT_SKILLS: readonly string[] = ['ast-grep', 'ast-grep-outline'];
+
+export function skillsUpdateCommand(
+  skills: readonly string[]
+): readonly string[] {
+  return [
+    'mise',
+    'exec',
+    '--',
+    'bunx',
+    'skills',
+    'update',
+    ...skills,
+    '-p',
+    '-y',
+  ];
+}
+
+export function graphifyInstallCommand(): readonly string[] {
+  return [
+    'mise',
+    'exec',
+    '--',
+    'bun',
+    'run',
+    'libs/tools/scripts/graphify-install.ts',
+  ];
+}
 
 /**
  * Homebrew's upgrade ask is on by default and ignores `NONINTERACTIVE`.
@@ -170,7 +203,9 @@ if (import.meta.main) {
   updateInfisicalCli();
   run(['mise', 'exec', '--', 'bun', 'update', '--recursive']);
   run(['mise', 'exec', '--', 'bun', 'install']);
+  run(graphifyInstallCommand());
+  run(skillsUpdateCommand(AGENT_SKILLS));
   console.log(
-    'install-system: done — commit mise.toml, package.json files and bun.lock'
+    'install-system: done — commit mise.toml, package.json files, bun.lock and skills-lock.json'
   );
 }

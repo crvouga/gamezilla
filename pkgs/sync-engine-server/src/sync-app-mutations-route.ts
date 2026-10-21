@@ -1,5 +1,4 @@
-import { ATTR } from '@pkgs/observability-root-shared/attributes';
-import { activeSpan } from '@pkgs/observability-root-shared/span';
+import { bindIdentity } from '@pkgs/observability-root-shared/identity-scope';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
@@ -24,6 +23,7 @@ import {
 import type { AuthErrorBody, QueryRow } from '@pkgs/sync-engine-shared/v2';
 import {
   MAX_MUTATIONS_BATCH,
+  MAX_MUTATIONS_BODY_BYTES,
   SYNC_PROTOCOL_VERSION,
 } from '@pkgs/sync-engine-shared/v2';
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
@@ -32,6 +32,7 @@ import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { Hono } from 'hono';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
+import { syncBodyCap } from './body-cap';
 import { mutationSavepointClient } from './mutation-savepoint-client';
 import { publishPushMessages } from './notify-channels';
 import { parseMutationsBatchBody } from './parse-batch-body';
@@ -259,7 +260,7 @@ export function mountMutationsRoute(
   app: Hono<{ Variables: SyncSqlVariables }>,
   deps: MountMutationsRouteDeps
 ): void {
-  app.post('/mutations', async (c) => {
+  app.post('/mutations', syncBodyCap(MAX_MUTATIONS_BODY_BYTES), async (c) => {
     const db = resolveRequestSql(c, deps.getSql);
     const protocolErr = assertSyncProtocol(c.req.raw);
     if (protocolErr !== null) return c.json(protocolErr, 401);
@@ -267,9 +268,10 @@ export function mountMutationsRoute(
     if (isAuthErrorBody(auth)) {
       return c.json(auth, 401);
     }
-    const requestSpan = activeSpan();
-    requestSpan?.setAttribute(ATTR.USER_ID, auth.accountId ?? auth.actorId);
-    requestSpan?.setAttribute(ATTR.APP_DEVICE_ID, auth.deviceId);
+    bindIdentity({
+      userId: auth.accountId ?? auth.actorId,
+      deviceId: auth.deviceId,
+    });
     const parsed = parseMutationsBatchBody(await c.req.json());
     if (parsed === null) {
       return c.json({ error: 'invalid_batch' }, 400);

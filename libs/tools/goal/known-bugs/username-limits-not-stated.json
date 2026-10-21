@@ -1,0 +1,4 @@
+{
+  "summary": "Username refusals said only \"too short\" or \"too long\", and the rules were shown only after a failed save. The refusals now state the 3 and 32 character limits and the editor shows the rules up front, both derived from the shared constants.",
+  "regressionTest": "specs/profile/username-rules.feature"
+}

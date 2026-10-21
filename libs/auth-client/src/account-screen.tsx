@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
-import { SmartphoneIcon } from '@pkgs/ui-root-client/icons';
+import { DatabaseIcon, SmartphoneIcon } from '@pkgs/ui-root-client/icons';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
@@ -55,6 +55,17 @@ export function AccountScreen(props: AccountScreenProps): JSX.Element {
           dataSet={{ testid: Handles.accountDevices }}
         />
       </MenuSection>
+      <Show when={signedIn()}>
+        <MenuSection title={<Trans>Your data</Trans>}>
+          <MenuRow
+            title={t`Account privacy`}
+            caption={t`Take a personal-data export or delete your account`}
+            leading={<DatabaseIcon size={ROW_ICON_SIZE} color="icon" />}
+            onClick={() => router.push('/profile/privacy')}
+            dataSet={{ testid: 'account-privacy' }}
+          />
+        </MenuSection>
+      </Show>
       <AccountActionsRow />
       <Show when={signedIn()}>
         <SignOutEverywhereButton />

@@ -72,8 +72,10 @@ function creditCentsIn(html: string): number {
 export type MembershipShown = {
   /** `none` | `incomplete` | `trialing` | `active` | `canceling` | `delinquent` | `ended`. */
   readonly state: string;
-  /** The date the status line names (trial end, renewal, access end), in ms. */
+  /** The date the status line names (trial end, renewal, end), in ms. */
   readonly periodEndMs: number | null;
+  /** The last day of paid access the status line tells, in ms, if any. */
+  readonly accessEndMs: number | null;
   /** Plus credit the screen shows, in cents. `0` when the line is absent. */
   readonly creditCents: number;
 };
@@ -87,9 +89,11 @@ export async function membershipShown(
   const tag = html === null ? null : openingTag(html, Handles.billingStatus);
   if (html === null || tag === null) return null;
   const end = attribute(tag, 'data-period-end');
+  const accessEnd = attribute(tag, 'data-access-end');
   return {
     state: attribute(tag, 'data-state') ?? 'none',
     periodEndMs: end === null ? null : Date.parse(end),
+    accessEndMs: accessEnd === null ? null : Date.parse(accessEnd),
     creditCents: creditCentsIn(html),
   };
 }
@@ -111,7 +115,8 @@ export async function currentPlan(
 
 /**
  * Which notice the billing screen shows (`offline`, `delinquent`,
- * `incomplete`, `unavailable`), or `null` for none.
+ * `incomplete`, `unavailable`, `confirming`, `unconfirmed`), or `null` for
+ * none.
  */
 export async function billingNotice(
   s: ProductHarness,
@@ -125,13 +130,14 @@ export async function billingNotice(
 export async function billingButtonVisible(
   s: ProductHarness,
   actorId: string,
-  which: 'subscribe' | 'manage' | 'unlock'
+  which: 'subscribe' | 'manage' | 'unlock' | 'checkAgain'
 ): Promise<boolean> {
   const ui = await actorUi(s, actorId);
   const handle = {
     subscribe: Handles.billingSubscribe,
     manage: Handles.billingManage,
     unlock: Handles.billingUnlock,
+    checkAgain: Handles.billingCheckAgain,
   }[which];
   return await ui.get(handle).isVisible();
 }
@@ -154,6 +160,19 @@ export async function billingButtonEnabled(
   }[which];
   const tag = html === null ? null : openingTag(html, handle);
   return tag !== null && !/\sdisabled(?:[\s=>]|$)/.test(tag);
+}
+
+/**
+ * The face the billing screen's subscribe button shows (`idle`, `loading`,
+ * `success`, `error`), or `null` while it is not on screen.
+ */
+export async function subscribeButtonPhase(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  const html = await actorHtml(s, actorId);
+  const tag = html === null ? null : openingTag(html, Handles.billingSubscribe);
+  return tag === null ? null : attribute(tag, 'data-phase');
 }
 
 export async function membershipRow(

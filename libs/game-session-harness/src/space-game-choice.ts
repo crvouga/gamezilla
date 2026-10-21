@@ -91,9 +91,7 @@ export const attemptPickGame = scenarioAction({
       [
         GAME_CHOICES,
         Handles.spaceHostChoosesGame,
-        Handles.gameChoiceRefused,
         Handles.statusConnectionMissing,
-        Handles.connectionMissing,
       ],
       'the game, or why not'
     );

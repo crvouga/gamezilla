@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

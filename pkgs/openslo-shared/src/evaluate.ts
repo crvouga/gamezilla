@@ -13,6 +13,9 @@
  *   start; a slice with events is good when its own ratio ≥
  *   `timeSliceTarget`; good slices / slices ≥ target. Empty slices count
  *   neither way.
+ * - A `totals` measurement is a ratio already counted over the window by
+ *   the backend that holds the events (28 days of requests are not fetched
+ *   one by one): Occurrences only, since slices need the events' times.
  * - No events in the window is no evidence: not met.
  */
 
@@ -34,6 +37,12 @@ export type Measurement =
         readonly atMs: number;
         readonly value: number;
       }[];
+    }
+  | {
+      readonly kind: 'totals';
+      /** Events that were good, among `total`, counted over the SLO's window. */
+      readonly good: number;
+      readonly total: number;
     };
 
 export type Evaluation = {
@@ -75,6 +84,7 @@ export function compare(op: Operator, left: number, right: number): boolean {
 
 export function evaluateObjective(input: EvaluateInput): Evaluation {
   const { objective } = input;
+  if (input.measurement.kind === 'totals') return evaluateTotals(input);
   const outcomes = toOutcomes(input);
   if (typeof outcomes === 'string') {
     return notMet(objective, 0, outcomes);
@@ -104,8 +114,55 @@ export function evaluateObjective(input: EvaluateInput): Evaluation {
   };
 }
 
+/** A pre-counted ratio: good / total against the target. */
+function evaluateTotals(input: EvaluateInput): Evaluation {
+  const { objective, sli, slo, measurement } = input;
+  if (measurement.kind !== 'totals') return notMet(objective, 0, 'not totals');
+  if (sli.metric.kind !== 'ratio') {
+    return notMet(
+      objective,
+      0,
+      `SLI ${sli.name} is a threshold indicator and is measured as samples, but the measure returned totals`
+    );
+  }
+  if (slo.budgetingMethod !== 'Occurrences') {
+    return notMet(
+      objective,
+      0,
+      `totals can only be judged by Occurrences; SLO ${slo.name} is budgeted by ${slo.budgetingMethod}, which needs the events' times`
+    );
+  }
+  const { good, total } = measurement;
+  const span = describeBounds(windowBounds(slo, input.nowMs));
+  if (
+    !Number.isFinite(good) ||
+    !Number.isFinite(total) ||
+    good < 0 ||
+    good > total
+  ) {
+    return notMet(
+      objective,
+      0,
+      `invalid totals: ${String(good)} good of ${String(total)}`
+    );
+  }
+  if (total === 0) {
+    return notMet(objective, 0, `no evidence: no events in the window ${span}`);
+  }
+  const observed = good / total;
+  const met = observed + EPSILON >= objective.target;
+  return {
+    met,
+    observed,
+    target: objective.target,
+    considered: total,
+    detail: `observed ${formatRatio(observed)} (${String(good)}/${String(total)} good events) vs target ${formatRatio(objective.target)} over ${span}: ${met ? 'met' : 'not met'}`,
+  };
+}
+
 function toOutcomes(input: EvaluateInput): readonly Outcome[] | string {
   const { sli, objective, measurement } = input;
+  if (measurement.kind === 'totals') return 'totals are judged separately';
   if (sli.metric.kind === 'ratio') {
     if (measurement.kind !== 'events') {
       return `SLI ${sli.name} is a ratio indicator and is measured as events, but the measure returned ${measurement.kind}`;

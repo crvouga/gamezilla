@@ -3,8 +3,19 @@ import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { ATTR } from './attributes';
 import type { NarrateSpan } from './narrate';
 import { spansFromDocument } from './normalize';
+import {
+  adjacentOf,
+  compareCodeUnit,
+  shapeRefs,
+  spanOrder,
+  traceRefOf,
+  traceRefsOf,
+  tracesWithAttribute,
+} from './span-index';
 import type {
   AdjacentActivity,
+  RecentOptions,
+  SearchOptions,
   TimeRange,
   Trace,
   TraceIdentifierKind,
@@ -21,10 +32,6 @@ const ATTRIBUTE_KEYS = {
   user: ATTR.USER_ID,
   device: ATTR.APP_DEVICE_ID,
 } as const satisfies Record<Exclude<TraceIdentifierKind, 'trace'>, string>;
-
-function compareCodeUnit(a: string, b: string): number {
-  return a < b ? -1 : a > b ? 1 : 0;
-}
 
 function* parseText(text: string): Generator<NarrateSpan> {
   try {
@@ -46,63 +53,6 @@ function* parseText(text: string): Generator<NarrateSpan> {
       // Collector files can be appended while queried; ignore an incomplete tail.
     }
   }
-}
-
-function spanOrder(a: NarrateSpan, b: NarrateSpan): number {
-  return a.startTimeMs - b.startTimeMs || compareCodeUnit(a.spanId, b.spanId);
-}
-
-function traceRef(traceId: string, spans: readonly NarrateSpan[]): TraceRef {
-  const ordered = [...spans].sort(spanOrder);
-  const first = ordered[0];
-  const startedAtMs = first?.startTimeMs ?? 0;
-  const endedAtMs = ordered.reduce(
-    (latest, span) => Math.max(latest, span.startTimeMs + span.durationMs),
-    startedAtMs
-  );
-  const root = ordered.find((span) => span.parentSpanId === undefined) ?? first;
-  return {
-    traceId,
-    startedAtMs,
-    durationMs: endedAtMs - startedAtMs,
-    spanCount: spans.length,
-    errorCount: spans.filter((span) => span.status === 'error').length,
-    rootName: root?.name ?? 'unknown',
-  };
-}
-
-function references(spans: readonly NarrateSpan[]): TraceRef[] {
-  const grouped = new Map<string, NarrateSpan[]>();
-  for (const span of spans) {
-    const trace = grouped.get(span.traceId) ?? [];
-    trace.push(span);
-    grouped.set(span.traceId, trace);
-  }
-  return [...grouped.entries()]
-    .map(([traceId, traceSpans]) => traceRef(traceId, traceSpans))
-    .sort(
-      (a, b) =>
-        b.startedAtMs - a.startedAtMs || compareCodeUnit(a.traceId, b.traceId)
-    );
-}
-
-function attributeMatches(
-  span: NarrateSpan,
-  key: string,
-  value: string
-): boolean {
-  const matches = (attribute: NarrateSpan['attributes'][string]) =>
-    Array.isArray(attribute)
-      ? attribute.some((item) => String(item) === value)
-      : attribute !== undefined && String(attribute) === value;
-  return (
-    matches(span.attributes[key]) ||
-    (span.events?.some((event) => matches(event.attributes?.[key])) ?? false)
-  );
-}
-
-function inRange(span: NarrateSpan, range: TimeRange): boolean {
-  return span.startTimeMs >= range.startMs && span.startTimeMs <= range.endMs;
 }
 
 export class NdjsonTraceStore implements TraceStore {
@@ -136,84 +86,76 @@ export class NdjsonTraceStore implements TraceStore {
     return [...spans.values()].sort(spanOrder);
   }
 
-  async recent(window: TimeRange): Promise<readonly TraceRef[]> {
-    return references(
-      (await this.spans()).filter((span) => inRange(span, window))
-    );
+  async recent(
+    window: TimeRange,
+    options?: RecentOptions
+  ): Promise<readonly TraceRef[]> {
+    const refs = traceRefsOf(
+      (await this.spans()).filter(
+        (span) =>
+          span.startTimeMs >= window.startMs && span.startTimeMs <= window.endMs
+      )
+    ).filter((ref) => options?.errorsOnly !== true || ref.errorCount > 0);
+    return shapeRefs(refs, 'recent', options);
   }
 
   async adjacent(window: TimeRange): Promise<AdjacentActivity> {
-    const ordered = references(await this.spans());
-    const before = ordered.find((item) => item.startedAtMs < window.startMs);
-    const after = [...ordered]
-      .reverse()
-      .find((item) => item.startedAtMs > window.endMs);
-    const midpoint = window.startMs + (window.endMs - window.startMs) / 2;
-    const nearby = ordered
-      .filter(
-        (item) =>
-          item.startedAtMs >= window.startMs && item.startedAtMs <= window.endMs
-      )
-      .sort(
-        (a, b) =>
-          Math.abs(a.startedAtMs - midpoint) -
-          Math.abs(b.startedAtMs - midpoint)
-      )[0];
-    return {
-      ...(after === undefined ? {} : { after }),
-      ...(before === undefined ? {} : { before }),
-      ...(nearby === undefined ? {} : { nearby }),
-    };
+    return adjacentOf(traceRefsOf(await this.spans()), window);
   }
 
-  private async byAttribute(key: string, value: string): Promise<TraceRef[]> {
-    const all = await this.spans();
-    const traceIds = new Set(
-      all
-        .filter((span) => attributeMatches(span, key, value))
-        .map((span) => span.traceId)
-    );
-    return references(all.filter((span) => traceIds.has(span.traceId)));
-  }
-
-  private async byAttributeInRange(
-    key: string,
+  private async by(
+    kind: Exclude<TraceIdentifierKind, 'trace'>,
     value: string,
-    window: TimeRange
+    scope: { readonly window?: TimeRange; readonly options?: SearchOptions }
   ): Promise<TraceRef[]> {
-    return (await this.byAttribute(key, value)).filter(
-      (ref) =>
-        ref.startedAtMs >= window.startMs && ref.startedAtMs <= window.endMs
-    );
+    const key = ATTRIBUTE_KEYS[kind];
+    const refs = tracesWithAttribute(await this.spans(), {
+      key,
+      value,
+      ...(scope.window === undefined ? {} : { window: scope.window }),
+    });
+    return shapeRefs(refs, `${key} = ${value}`, scope.options);
   }
 
-  findByUser(userId: string, window: TimeRange): Promise<readonly TraceRef[]> {
-    return this.byAttributeInRange(ATTRIBUTE_KEYS.user, userId, window);
+  findByUser(
+    userId: string,
+    window: TimeRange,
+    options?: SearchOptions
+  ): Promise<readonly TraceRef[]> {
+    return this.by('user', userId, { window, ...optionsOf(options) });
   }
 
-  findBySession(sessionId: string): Promise<readonly TraceRef[]> {
-    return this.byAttribute(ATTRIBUTE_KEYS.session, sessionId);
+  findBySession(
+    sessionId: string,
+    window: TimeRange,
+    options?: SearchOptions
+  ): Promise<readonly TraceRef[]> {
+    return this.by('session', sessionId, { window, ...optionsOf(options) });
   }
 
   findByMutation(mutationId: string): Promise<readonly TraceRef[]> {
-    return this.byAttribute(ATTRIBUTE_KEYS.mutation, mutationId);
+    return this.by('mutation', mutationId, {});
   }
 
   findByTest(testId: string): Promise<readonly TraceRef[]> {
-    return this.byAttribute(ATTRIBUTE_KEYS.test, testId);
+    return this.by('test', testId, {});
   }
 
-  findByDevice(deviceId: string): Promise<readonly TraceRef[]> {
-    return this.byAttribute(ATTRIBUTE_KEYS.device, deviceId);
+  findByDevice(
+    deviceId: string,
+    window: TimeRange,
+    options?: SearchOptions
+  ): Promise<readonly TraceRef[]> {
+    return this.by('device', deviceId, { window, ...optionsOf(options) });
   }
 
   async find(anything: string, window: TimeRange): Promise<TraceMatch | null> {
-    if ((await this.getTrace(anything)) !== null) {
-      const spans = (await this.getTrace(anything))?.spans ?? [];
+    const direct = await this.getTrace(anything);
+    if (direct !== null) {
       return {
         kind: 'trace',
         value: anything,
-        traces: [traceRef(anything, spans)],
+        traces: [traceRefOf(anything, direct.spans)],
       };
     }
     const kinds = Object.keys(ATTRIBUTE_KEYS) as Exclude<
@@ -221,11 +163,11 @@ export class NdjsonTraceStore implements TraceStore {
       'trace'
     >[];
     for (const kind of kinds) {
-      const key = ATTRIBUTE_KEYS[kind];
-      const traces =
-        kind === 'user'
-          ? await this.byAttributeInRange(key, anything, window)
-          : await this.byAttribute(key, anything);
+      const traces = await this.by(
+        kind,
+        anything,
+        kind === 'user' ? { window } : {}
+      );
       if (traces.length > 0) return { kind, value: anything, traces };
     }
     return null;
@@ -254,4 +196,10 @@ export class NdjsonTraceStore implements TraceStore {
       ),
     };
   }
+}
+
+function optionsOf(options: SearchOptions | undefined): {
+  readonly options?: SearchOptions;
+} {
+  return options === undefined ? {} : { options };
 }

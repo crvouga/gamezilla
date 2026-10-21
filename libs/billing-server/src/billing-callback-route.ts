@@ -4,12 +4,25 @@ import { CustomerLinks } from '@libs/billing-shared/customer-links';
 import { recordPaymentEvidence } from '@libs/billing-shared/payment-evidence';
 import type { MembershipBilling } from '@pkgs/billing-root-shared/membership';
 import type { Logger } from '@pkgs/logger-shared/logger';
+import type { BillingCallbackOutcome } from '@pkgs/observability-root-shared/billing-metrics';
+import { BILLING_CALLBACKS_METRIC } from '@pkgs/observability-root-shared/billing-metrics';
+import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import statement from '@pkgs/sql-root-shared/sql';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { applyMembershipChange } from './apply-membership-change';
 import { settleDeletedAccountPayments } from './settle-deleted-payments';
+
+/**
+ * Every provider callback, by how it ended. A refused signature answers 400,
+ * which the server-error burn never counts, so this is how the team learns
+ * that payment changes stopped arriving. Created per call: the Worker installs
+ * its meter provider after this module loads.
+ */
+function countCallback(outcome: BillingCallbackOutcome): void {
+  createMetric(BILLING_CALLBACKS_METRIC)(1, { 'app.outcome': outcome });
+}
 
 async function settleIfClosed(
   sql: SqlClient,
@@ -56,6 +69,7 @@ async function handleBillingCallback(
     log.warn('billing callback: signature verification failed', {
       provider: provider.provider,
     });
+    countCallback('unverified');
     return c.json({ error: 'Invalid callback signature' }, 400);
   }
   if (result.kind === 'ignored') {
@@ -118,9 +132,18 @@ export class BillingCallbackRoutes {
       if (deps.billing === null) return billingNotConfigured(c);
       const provider = deps.billing.byId.get(c.req.param('provider'));
       if (provider === undefined) {
+        countCallback('unknown_provider');
         return c.json({ error: 'Unknown billing provider' }, 404);
       }
-      return await handleBillingCallback(c, { ...deps, provider }, log);
+      let response: Response;
+      try {
+        response = await handleBillingCallback(c, { ...deps, provider }, log);
+      } catch (error: unknown) {
+        countCallback('failed');
+        throw error;
+      }
+      if (response.ok) countCallback('accepted');
+      return response;
     });
   }
 }

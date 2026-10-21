@@ -5,6 +5,7 @@ import type {
 } from '@opentelemetry/sdk-logs';
 import type { EventContract } from '@pkgs/observability-root-shared/event-contract';
 import { validateEvent } from '@pkgs/observability-root-shared/event-contract';
+import { SCHEMA_VIOLATIONS_METRIC } from '@pkgs/observability-root-shared/pipeline-metrics';
 import { allowlistedAttributes } from '@pkgs/observability-root-shared/redaction';
 
 const ENVELOPE_KEYS = new Set([
@@ -27,13 +28,10 @@ export class GuardedLogExporter implements LogRecordExporter {
     meter?: Meter
   ) {
     this.#exporter = exporter;
-    this.#violations = meter?.createCounter(
-      'telemetry.logs.schema_violations',
-      {
-        description: 'Log records rejected by the schema guard',
-        unit: '{record}',
-      }
-    );
+    this.#violations = meter?.createCounter(SCHEMA_VIOLATIONS_METRIC.name, {
+      description: SCHEMA_VIOLATIONS_METRIC.description,
+      unit: SCHEMA_VIOLATIONS_METRIC.unit,
+    });
     this.#contracts = new Map(
       contracts.map((contract) => [contract.name, contract])
     );

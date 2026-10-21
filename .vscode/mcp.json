@@ -1,0 +1,22 @@
+{
+  "servers": {
+    "serena": {
+      "type": "stdio",
+      "command": "mise",
+      "args": [
+        "-C",
+        "${workspaceFolder}",
+        "exec",
+        "--",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "vscode",
+        "--project",
+        "${workspaceFolder}",
+        "--open-web-dashboard",
+        "false"
+      ]
+    }
+  }
+}

@@ -94,6 +94,11 @@ describe('WORKFLOW_DISPATCH', () => {
       'with.require-main',
       '${{ !inputs.rehearsal }}'
     );
+    // A pull request enforced the advisories; Deploy reports what moved since.
+    expect(deploy.jobs['deploy-verify']).toHaveProperty(
+      'with.advisories',
+      'report'
+    );
     // Verification, then the fleet, then dev, then production, then the release.
     expect(deploy.jobs['deploy-fleet']!.needs).toBe('deploy-verify');
     expect(deploy.jobs['deploy-dev']!.needs).toBe('deploy-fleet');

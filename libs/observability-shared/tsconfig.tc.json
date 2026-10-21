@@ -8,6 +8,7 @@
     "../../pkgs/ts-reset-shared/src/ts-reset.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
+    "./scripts/**/*.ts",
     "./tests/**/*.ts"
   ],
   "exclude": ["node_modules"]

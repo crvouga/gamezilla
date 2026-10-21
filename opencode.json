@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "serena": {
+      "type": "local",
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide",
+        "--project-from-cwd",
+        "--open-web-dashboard",
+        "false"
+      ],
+      "enabled": true
+    }
+  }
+}

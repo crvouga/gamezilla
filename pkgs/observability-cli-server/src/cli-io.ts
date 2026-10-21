@@ -7,7 +7,10 @@ import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import { parseArgs } from '@pkgs/observability-cli-shared/args';
 import { runCommand } from '@pkgs/observability-cli-shared/commands';
-import { peopleByName } from '@pkgs/observability-cli-shared/person-directory';
+import {
+  peopleByEmail,
+  peopleByName,
+} from '@pkgs/observability-cli-shared/person-directory';
 import { discoverLatestLocalTraceSource } from '@pkgs/observability-cli-shared/source-discovery';
 import { SqlMutationTraceIndex } from '@pkgs/observability-cli-shared/sql-mutation-trace-index';
 import { SqlPgStatsSource } from '@pkgs/observability-cli-shared/sql-pg-stats';
@@ -104,16 +107,7 @@ async function openReadOnlyDatabase(): Promise<{
         `);
         return rows[0]?.id ?? null;
       },
-      async byEmail(value) {
-        const rows = await opened.sqlClient.query(sql<IdentityRow>`
-          SELECT id
-          FROM idp_users
-          WHERE lower(email) = ${value}
-            AND deleted_at IS NULL
-          LIMIT 1
-        `);
-        return rows[0]?.id ?? null;
-      },
+      byEmail: peopleByEmail(opened.sqlClient),
       byName: peopleByName(opened.sqlClient),
     }),
   };

@@ -8,10 +8,14 @@ import type { TraceStore } from '@pkgs/observability-root-shared/types';
 
 type TraceIdInput = { readonly traceId: string };
 type TestIdInput = { readonly testId: string };
-type UserActivityInput = {
+type Range = { readonly startMs: number; readonly endMs: number };
+type UserActivityInput = Range & { readonly userId: string };
+type SessionActivityInput = Range & { readonly sessionId: string };
+type DeviceActivityInput = Range & { readonly deviceId: string };
+type RecentInput = Range & { readonly errorsOnly?: boolean };
+type PersonInput = Range & {
   readonly userId: string;
-  readonly startMs: number;
-  readonly endMs: number;
+  readonly place?: string;
 };
 
 function objectSchema<T>(
@@ -38,6 +42,30 @@ const userActivityInput = objectSchema<UserActivityInput>(
   },
   ['userId', 'startMs', 'endMs']
 );
+const range = {
+  startMs: { type: 'number' },
+  endMs: { type: 'number' },
+} as const;
+const sessionActivityInput = objectSchema<SessionActivityInput>(
+  { sessionId: { type: 'string', minLength: 1 }, ...range },
+  ['sessionId', 'startMs', 'endMs']
+);
+const deviceActivityInput = objectSchema<DeviceActivityInput>(
+  { deviceId: { type: 'string', minLength: 1 }, ...range },
+  ['deviceId', 'startMs', 'endMs']
+);
+const recentInput = objectSchema<RecentInput>(
+  { errorsOnly: { type: 'boolean' }, ...range },
+  ['startMs', 'endMs']
+);
+const personInput = objectSchema<PersonInput>(
+  {
+    userId: { type: 'string', minLength: 1 },
+    place: { type: 'string', minLength: 1 },
+    ...range,
+  },
+  ['userId', 'startMs', 'endMs']
+);
 const testIdInput = objectSchema<TestIdInput>(
   { testId: { type: 'string', minLength: 1 } },
   ['testId']
@@ -60,6 +88,46 @@ export function createObservabilityMcpServer(store: TraceStore): McpServer {
       annotations: { readOnlyHint: true },
     },
     (input) => tools.find_user_activity(input)
+  );
+  server.registerTool(
+    'find_session_activity',
+    {
+      description:
+        'Find traces for a session id in an explicit UTC range, including spans without a user id.',
+      inputSchema: sessionActivityInput,
+      annotations: { readOnlyHint: true },
+    },
+    (input) => tools.find_session_activity(input)
+  );
+  server.registerTool(
+    'find_device_activity',
+    {
+      description:
+        'Find traces for a device id in an explicit UTC range, including anonymous use before sign-in.',
+      inputSchema: deviceActivityInput,
+      annotations: { readOnlyHint: true },
+    },
+    (input) => tools.find_device_activity(input)
+  );
+  server.registerTool(
+    'recent_activity',
+    {
+      description:
+        'Newest traces in an explicit UTC range, errors first; set errorsOnly for failures only (bun obs last, bun obs errors).',
+      inputSchema: recentInput,
+      annotations: { readOnlyHint: true },
+    },
+    (input) => tools.recent_activity(input)
+  );
+  server.registerTool(
+    'person_timeline',
+    {
+      description:
+        'Everything one account did in a UTC range, problems first and then a timeline, joining the sessions and devices seen on its traces (bun obs person).',
+      inputSchema: personInput,
+      annotations: { readOnlyHint: true },
+    },
+    (input) => tools.person_timeline(input)
   );
   server.registerTool(
     'get_trace',

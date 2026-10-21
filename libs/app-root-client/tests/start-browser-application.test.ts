@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   showBrowserStartupFailure,
   startBrowserApplication,
+  startupFailureReference,
 } from '@libs/app-root-client/start-browser-application';
 
 function starter(overrides: {
@@ -54,7 +55,7 @@ describe('browser application startup', () => {
     expect(setup.events).toEqual(['clear']);
   });
 
-  test('replaces the spinner with a reloadable failure', () => {
+  test('replaces the spinner with a reloadable failure in development', () => {
     const shell = document.createElement('div');
     shell.dataset['startupShell'] = '';
     document.body.append(shell);
@@ -65,13 +66,55 @@ describe('browser application startup', () => {
       reload: () => {
         reloads += 1;
       },
+      development: true,
+      reference: 'c361365-1f0e8a2b',
       error: new TypeError('module import failed'),
     });
 
     expect(shell.getAttribute('aria-label')).toBe('Gamezilla failed to start');
+    expect(shell.textContent).toContain(
+      'Vite may still be preparing the page.'
+    );
     expect(shell.textContent).toContain('module import failed');
     shell.querySelector<HTMLButtonElement>('button')?.click();
     expect(reloads).toBe(1);
     shell.remove();
+  });
+
+  // regression: startup-failure-dev-copy-in-production
+  test('a production failure gives plain advice, a reference and Reload', () => {
+    const shell = document.createElement('div');
+    shell.dataset['startupShell'] = '';
+    document.body.append(shell);
+    let reloads = 0;
+
+    showBrowserStartupFailure({
+      document,
+      reload: () => {
+        reloads += 1;
+      },
+      development: false,
+      reference: startupFailureReference(
+        'c361365e5a1b2c3d4e5f60718293a4b5c6d7e8f9',
+        () => '1f0e8a2b-7c3d-4e5f-9a1b-2c3d4e5f6a7b'
+      ),
+    });
+
+    expect(shell.textContent).not.toContain('Vite');
+    expect(shell.textContent).not.toContain('Unknown startup error');
+    expect(shell.textContent).toContain('Gamezilla couldn’t open');
+    expect(shell.textContent).toContain(
+      'Anything already saved on this device is kept.'
+    );
+    expect(shell.textContent).toContain('Reference: c361365-1f0e8a2b');
+    shell.querySelector<HTMLButtonElement>('button')?.click();
+    expect(reloads).toBe(1);
+    shell.remove();
+  });
+
+  test('a build without a commit still yields a reference', () => {
+    expect(startupFailureReference('', () => 'abcdef12-3456')).toBe(
+      'unknown-abcdef12'
+    );
   });
 });

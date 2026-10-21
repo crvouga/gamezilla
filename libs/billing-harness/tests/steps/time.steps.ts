@@ -13,9 +13,14 @@ import { focusActor } from '@libs/harness/shell-actions';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SECOND_MS = 1_000;
+const MINUTE_MS = 60 * SECOND_MS;
 
 When('{int} days pass', async (w, days: number) => {
   await w.s.apply(letTimePass, days * DAY_MS);
+});
+
+When('{int} minutes pass', async (w, minutes: number) => {
+  await w.s.apply(letTimePass, minutes * MINUTE_MS);
 });
 
 Given(

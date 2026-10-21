@@ -5,6 +5,7 @@ Feature: Take a private copy of personal data
 
   Rule: Only the recently proven account can ask for its export
 
+    @regression:privacy-dates-raw-iso
     Scenario: A person requests their own export
       Given Alice has a recently proven account
       When Alice asks for a personal-data export
@@ -15,6 +16,7 @@ Feature: Take a private copy of personal data
       Given Alice completed signing in more than 10 minutes ago
       When Alice asks for a personal-data export
       Then Alice is told to prove the account again before exporting personal data
+      And Alice is told export and deletion need a sign-in from the last 10 minutes
 
     Scenario: An offline request is refused plainly
       Given Alice has a recently proven account
@@ -41,6 +43,27 @@ Feature: Take a private copy of personal data
       When Alice's personal-data export fails
       Then Alice is told the export failed and can ask again
       And Alice is not offered an incomplete export as a complete answer
+
+    @regression:export-overdue-unexplained
+    Scenario: An export still not ready after 24 hours can be asked for again
+      Given Alice has asked for a personal-data export
+      And Alice's personal-data export is still being prepared 24 hours later
+      When Alice checks on the personal-data export
+      Then Alice is told the export is late and can ask again
+
+  Rule: Asking again while an export is ready warns before replacing it
+
+    @regression:export-reask-replaces-ready-silently
+    Scenario: Asking again while an export is ready keeps it until Alice confirms
+      Given Alice's personal-data export is ready
+      When Alice asks for a personal-data export
+      Then Alice is warned that asking again replaces her ready export
+      And Alice receives her personal-data export
+
+    Scenario: Confirming the warning prepares a new export
+      Given Alice has been warned that asking again replaces her ready export
+      When Alice confirms asking for a new personal-data export
+      Then Alice sees that the export is being prepared
 
   Rule: Downloads belong to the proven account and expire after 7 days
 

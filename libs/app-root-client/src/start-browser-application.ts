@@ -26,10 +26,41 @@ export async function startBrowserApplication(
   }
 }
 
-/** Replaces an indefinitely spinning bootstrap shell with an actionable error. */
+/**
+ * A short reference a person can quote: the build that failed plus a random
+ * id for this one failure. Telemetry has not loaded at this layer, so the
+ * build is what identifies the release; the id tells two reports apart.
+ */
+export function startupFailureReference(
+  build: string,
+  createId: () => string
+): string {
+  const release = build.length > 0 ? build.slice(0, 7) : 'unknown';
+  return `${release}-${createId().replaceAll('-', '').slice(0, 8)}`;
+}
+
+function element<K extends keyof HTMLElementTagNameMap>(
+  document: Document,
+  tag: K,
+  className: string,
+  text: string
+): HTMLElementTagNameMap[K] {
+  const node = document.createElement(tag);
+  node.className = className;
+  node.textContent = text;
+  return node;
+}
+
+/**
+ * Replaces an indefinitely spinning bootstrap shell with an actionable error.
+ * Plain DOM in English: the app bundle (and its translations) failed to load.
+ * Development names the Vite cause and the error; production says what to do.
+ */
 export function showBrowserStartupFailure(args: {
   readonly document: Document;
   readonly reload: () => void;
+  readonly development: boolean;
+  readonly reference: string;
   readonly error?: unknown;
 }): void {
   const shell = args.document.querySelector<HTMLElement>(
@@ -40,30 +71,52 @@ export function showBrowserStartupFailure(args: {
   shell.setAttribute('aria-label', 'Gamezilla failed to start');
   shell.classList.add('startup-shell-failed');
 
-  const mark = args.document.createElement('span');
-  mark.className = 'startup-shell-mark';
+  const mark = element(args.document, 'span', 'startup-shell-mark', '!');
   mark.setAttribute('aria-hidden', 'true');
-  mark.textContent = '!';
-
-  const title = args.document.createElement('strong');
-  title.textContent = 'Gamezilla could not start';
-
-  const guidance = args.document.createElement('span');
-  guidance.className = 'startup-shell-guidance';
-  guidance.textContent = 'Vite may still be preparing the page.';
-
-  const detail = args.document.createElement('code');
-  detail.className = 'startup-shell-detail';
-  detail.textContent =
-    args.error instanceof Error
-      ? args.error.message
-      : String(args.error ?? 'Unknown startup error');
-
-  const reload = args.document.createElement('button');
-  reload.className = 'startup-shell-reload';
+  const title = element(
+    args.document,
+    'strong',
+    '',
+    args.development ? 'Gamezilla could not start' : 'Gamezilla couldn’t open'
+  );
+  const guidance = element(
+    args.document,
+    'span',
+    'startup-shell-guidance',
+    args.development
+      ? 'Vite may still be preparing the page.'
+      : 'Something stopped the app from loading. Check your connection, then reload. Anything already saved on this device is kept.'
+  );
+  const parts: HTMLElement[] = [mark, title, guidance];
+  if (args.development) {
+    parts.push(
+      element(
+        args.document,
+        'code',
+        'startup-shell-detail',
+        args.error instanceof Error
+          ? args.error.message
+          : String(args.error ?? 'Unknown startup error')
+      )
+    );
+  }
+  parts.push(
+    element(
+      args.document,
+      'code',
+      'startup-shell-detail',
+      `Reference: ${args.reference}`
+    )
+  );
+  const reload = element(
+    args.document,
+    'button',
+    'startup-shell-reload',
+    'Reload'
+  );
   reload.type = 'button';
-  reload.textContent = 'Reload';
   reload.addEventListener('click', args.reload);
+  parts.push(reload);
 
-  shell.replaceChildren(mark, title, guidance, detail, reload);
+  shell.replaceChildren(...parts);
 }

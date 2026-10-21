@@ -1,0 +1,32 @@
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: requests-answered
+spec:
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: requests answered without a failure
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: every request
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: requests-are-answered
+spec:
+  service: runtime
+  indicatorRef: requests-answered
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: nearly every request is answered
+      target: 0.999

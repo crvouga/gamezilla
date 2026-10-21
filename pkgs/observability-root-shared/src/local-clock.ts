@@ -49,7 +49,7 @@ const ZONES: Readonly<Record<string, string>> = {
 };
 
 const CLOCK =
-  /^(\d{1,2})(?::(\d{2}))?\s*(am|pm|in the morning|in the afternoon|in the evening)?(?:\s+(.+))?$/i;
+  /^(?:(\d{4})-(\d{2})-(\d{2})\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm|in the morning|in the afternoon|in the evening)?(?:\s+(.+))?$/i;
 
 export type LocalClock = {
   readonly instantMs: number;
@@ -57,6 +57,8 @@ export type LocalClock = {
   readonly offsetMinutes: number;
   /** IANA zone of the person's own clock. */
   readonly timeZone: string;
+  /** How the person named the zone, for example `MST`. */
+  readonly zoneLabel: string;
 };
 
 type LocalDate = {
@@ -72,35 +74,62 @@ export function parseLocalClock(
 ): LocalClock | undefined {
   const match = CLOCK.exec(text.trim());
   if (match === null) return undefined;
-  const zone = (match[4] ?? '').trim().toLowerCase();
+  const zone = (match[7] ?? '').trim().toLowerCase();
   const offset = OFFSETS[zone];
   const timeZone = ZONES[zone];
-  const hour = clockHour(Number(match[1]), (match[3] ?? '').toLowerCase());
-  const minute = Number(match[2] ?? '0');
+  const hour = clockHour(Number(match[4]), (match[6] ?? '').toLowerCase());
+  const minute = Number(match[5] ?? '0');
   if (
     offset === undefined ||
     timeZone === undefined ||
     hour === undefined ||
-    minute > 59
+    minute > 59 ||
+    (match[1] !== undefined && namedDate(match) === undefined)
   ) {
     return undefined;
   }
-  const today = localDate(nowMs, offset);
+  const named = namedDate(match);
+  const today = named ?? localDate(nowMs, offset);
   let instantMs = instantAt(today, hour, minute, offset);
-  if (instantMs > nowMs + FUTURE_SLACK_MS) {
+  if (named === undefined && instantMs > nowMs + FUTURE_SLACK_MS) {
     instantMs = instantAt(previousDay(today), hour, minute, offset);
   }
   return {
     instantMs,
     offsetMinutes: offset,
     timeZone,
+    zoneLabel: zoneLabel(zone),
     label: `${pad(hour)}:${pad(minute)} ${zoneLabel(zone)} (UTC${formatOffset(offset)})`,
+  };
+}
+
+/** A clock that reads UTC, for callers that have an instant and no person. */
+export function utcClock(instantMs: number): LocalClock {
+  const at = new Date(instantMs);
+  return {
+    instantMs,
+    offsetMinutes: 0,
+    timeZone: 'UTC',
+    zoneLabel: 'UTC',
+    label: `${pad(at.getUTCHours())}:${pad(at.getUTCMinutes())} UTC (UTC+00:00)`,
   };
 }
 
 export function clockWindow(clock: LocalClock, windowMs: number): TimeRange {
   const half = Math.floor(windowMs / 2);
   return { startMs: clock.instantMs - half, endMs: clock.instantMs + half };
+}
+
+/** `2026-09-26 18:33 MST` names its day; a bare clock means today. */
+function namedDate(match: RegExpExecArray): LocalDate | undefined {
+  if (match[1] === undefined) return undefined;
+  const year = Number(match[1]);
+  const month = Number(match[2]) - 1;
+  const day = Number(match[3]);
+  const real = new Date(Date.UTC(year, month, day));
+  return real.getUTCMonth() === month && real.getUTCDate() === day
+    ? { year, month, day }
+    : undefined;
 }
 
 function clockHour(hour: number, meridiem: string): number | undefined {

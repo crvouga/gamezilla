@@ -1,10 +1,10 @@
 import {
-  askForExport,
   completeExport,
   confirmDeletion,
   openExportAddress,
   privacyTimePasses,
   proveAccount,
+  requestExport,
   runPrivacyJobs,
 } from '@libs/account-privacy-harness/privacy-actions';
 import { privacyStatus } from '@libs/account-privacy-harness/privacy-reads';
@@ -62,7 +62,7 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(confirmDeletion, actor(p));
       await w.s.apply(runPrivacyJobs, false);
     },
-    requestExport: (w, p) => w.s.apply(askForExport, actor(p)),
+    requestExport: (w, p) => w.s.apply(requestExport, actor(p)),
     exportReady: (w, p) => w.s.apply(completeExport, String(p['p'])),
     exportFails: (w, p) => w.s.apply(completeExport, String(p['p']), true),
     downloadExport: (w, p) =>

@@ -1,0 +1,4 @@
+{
+  "summary": "The Spaces lobby said 'No spaces yet' and offered to start one while its list of spaces was still loading, because it waited only for the hosting count. Fixed: the lobby keeps loading until both the hosting count and the list of spaces have answered.",
+  "regressionTest": "libs/spaces-client/tests/spaces-hosting-readiness.test.tsx"
+}

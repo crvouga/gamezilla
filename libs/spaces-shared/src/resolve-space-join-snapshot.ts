@@ -3,8 +3,10 @@ import { parseSpaceVisibility } from './space-visibility';
 
 export type SpaceJoinSnapshotStatus =
   | 'loading'
+  /** An open space the viewer may join. */
   | 'live'
   | 'ended'
+  /** The viewer may not join this space: they are told so, never a dead Join. */
   | 'unavailable'
   /** The server answered for the link and there is no such space. */
   | 'missing'
@@ -13,7 +15,6 @@ export type SpaceJoinSnapshotStatus =
 
 export type SpaceJoinSnapshot = {
   readonly status: SpaceJoinSnapshotStatus;
-  readonly joinable: boolean;
 };
 
 export type SpaceJoinLocalRow = {
@@ -57,7 +58,7 @@ function snapshotFromLiveRow(
     hasSpaceUser: input.hasSpaceUser,
     isFriendOfHost: input.isFriendOfHost,
   });
-  return { status: 'live', joinable: decision.allowed };
+  return { status: decision.allowed ? 'live' : 'unavailable' };
 }
 
 function snapshotFromResolvedRow(
@@ -65,10 +66,10 @@ function snapshotFromResolvedRow(
   input: ResolveSpaceJoinSnapshotInput
 ): SpaceJoinSnapshot {
   if (row.host_id === null || row.host_id.length === 0) {
-    return { status: 'unavailable', joinable: false };
+    return { status: 'unavailable' };
   }
   if (row.ended_at !== null) {
-    return { status: 'ended', joinable: false };
+    return { status: 'ended' };
   }
   return snapshotFromLiveRow(row, input);
 }
@@ -83,10 +84,10 @@ export function resolveSpaceJoinSnapshot(
   input: ResolveSpaceJoinSnapshotInput
 ): SpaceJoinSnapshot {
   if (!input.enabled) {
-    return { status: 'unavailable', joinable: false };
+    return { status: 'unavailable' };
   }
   if (input.rowLoading) {
-    return { status: 'loading', joinable: false };
+    return { status: 'loading' };
   }
   const row = input.row;
   const tombstoned =
@@ -94,7 +95,7 @@ export function resolveSpaceJoinSnapshot(
   if (row !== null && !tombstoned) {
     return snapshotFromResolvedRow(row, input);
   }
-  if (input.linkAnswered) return { status: 'missing', joinable: false };
-  if (!input.online) return { status: 'offline', joinable: false };
-  return { status: 'loading', joinable: false };
+  if (input.linkAnswered) return { status: 'missing' };
+  if (!input.online) return { status: 'offline' };
+  return { status: 'loading' };
 }

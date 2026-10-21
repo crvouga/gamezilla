@@ -1,7 +1,7 @@
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
-import { deliverTelemetry } from './telemetry-delivery';
+import { deliverTelemetry, TelemetryBatchRefused } from './telemetry-delivery';
 
 type Signal = 'traces' | 'logs';
 type Batch = {
@@ -112,12 +112,16 @@ export class TelemetryOutbox {
       await this.options.store.delete(key);
       return;
     }
-    await deliverTelemetry({
-      http: this.options.http,
-      timers: this.options.timers,
-      url: this.options.endpoints[batch.signal],
-      body: batch.body,
-    });
+    try {
+      await deliverTelemetry({
+        http: this.options.http,
+        timers: this.options.timers,
+        url: this.options.endpoints[batch.signal],
+        body: batch.body,
+      });
+    } catch (error: unknown) {
+      if (!(error instanceof TelemetryBatchRefused)) throw error;
+    }
     await this.options.store.delete(key);
   }
 
