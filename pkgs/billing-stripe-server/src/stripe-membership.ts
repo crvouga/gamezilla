@@ -10,12 +10,25 @@ import type {
 } from '@pkgs/billing-root-shared/membership';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import { STRIPE_MEMBERSHIP_CALLBACK_EVENTS } from '@pkgs/billing-stripe-shared/callback-events';
-import { membershipStatusOf } from '@pkgs/billing-stripe-shared/membership-status';
 import {
   STRIPE_PORTAL_CONFIGURATION_ID,
   STRIPE_PORTAL_CONFIGURATION_METADATA_KEY,
 } from '@pkgs/billing-stripe-shared/offer-reconcile';
 import Stripe from 'stripe';
+import {
+  liveStripeSubscription,
+  reusableStripeCheckout,
+} from './stripe-checkout-reuse';
+import type { UnknownRecord } from './stripe-subscription-fields';
+import {
+  asRecord,
+  creditCentsFromCustomer,
+  readId,
+  readNumber,
+  readOfferPriceKey,
+  readString,
+  toMembership,
+} from './stripe-subscription-fields';
 
 /** The adapter's id: it keys stored data, so it never changes. */
 export const STRIPE_PROVIDER = 'stripe';
@@ -32,111 +45,6 @@ export type StripeMembershipTransport = {
     init?: RequestInit
   ) => Promise<Response>;
 };
-
-type UnknownRecord = Record<string, unknown>;
-
-function asRecord(value: unknown): UnknownRecord | null {
-  return value !== null && typeof value === 'object'
-    ? (value as UnknownRecord)
-    : null;
-}
-
-function readString(record: UnknownRecord, key: string): string | null {
-  const value = record[key];
-  return typeof value === 'string' && value.length > 0 ? value : null;
-}
-
-function readBoolean(record: UnknownRecord, key: string): boolean {
-  return record[key] === true;
-}
-
-function readNumber(record: UnknownRecord | null, key: string): number | null {
-  if (record === null) return null;
-  const value = record[key];
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
-/** A field holding an id, or the expanded object when a caller expanded it. */
-function readId(record: UnknownRecord, key: string): string | null {
-  const value = record[key];
-  if (typeof value === 'string') return value.length > 0 ? value : null;
-  const expanded = asRecord(value);
-  return expanded === null ? null : readString(expanded, 'id');
-}
-
-function firstItem(subscription: UnknownRecord): UnknownRecord | null {
-  const items = asRecord(subscription['items']);
-  return Array.isArray(items?.['data']) ? asRecord(items['data'][0]) : null;
-}
-
-/** Reads whichever of the (API-version dependent) period-end fields exists. */
-function readPeriodEndMs(subscription: UnknownRecord): number | null {
-  const seconds =
-    readNumber(firstItem(subscription), 'current_period_end') ??
-    readNumber(subscription, 'current_period_end');
-  return seconds === null ? null : seconds * 1000;
-}
-
-/** Which of our offer prices the subscription's first item is charged at. */
-function readOfferPriceKey(
-  subscription: UnknownRecord,
-  offer: PlusMembershipOffer
-): string | null {
-  const price = asRecord(firstItem(subscription)?.['price']);
-  const catalogPriceId =
-    price === null ? null : readString(price, 'lookup_key');
-  if (catalogPriceId === null) return null;
-  for (const [key, spec] of Object.entries(offer.prices)) {
-    if (spec.catalogPriceId === catalogPriceId) return key;
-  }
-  return null;
-}
-
-/**
- * When access runs out. A subscription canceled immediately keeps its
- * `current_period_end` in the future, so an ended one ends at `ended_at` when
- * that came first — the paid period it lost is not a period it still has.
- */
-function accessEndMs(
-  subscription: UnknownRecord,
-  ended: boolean
-): number | null {
-  const periodEndMs = readPeriodEndMs(subscription);
-  const endedAtS = readNumber(subscription, 'ended_at');
-  if (!ended || endedAtS === null) return periodEndMs;
-  const endedAtMs = endedAtS * 1000;
-  return periodEndMs === null ? endedAtMs : Math.min(periodEndMs, endedAtMs);
-}
-
-/**
- * Stripe's customer balance is negative when the customer has credit. The
- * port's credit is that amount in cents, and never below nothing. A payload
- * that is not a customer (or has no balance) is unread.
- */
-function creditCentsFromCustomer(
-  record: UnknownRecord | null
-): number | undefined {
-  if (record === null || record['object'] !== 'customer') return undefined;
-  if (record['deleted'] === true) return 0;
-  const balance = readNumber(record, 'balance');
-  if (balance === null) return undefined;
-  return Math.max(0, -Math.trunc(balance));
-}
-
-function toMembership(
-  subscription: UnknownRecord,
-  forcedEnded: boolean
-): Membership {
-  const status = forcedEnded
-    ? 'ended'
-    : membershipStatusOf(readString(subscription, 'status') ?? '');
-  return {
-    status,
-    periodEndMs: accessEndMs(subscription, status === 'ended'),
-    endsAtPeriodEnd:
-      status !== 'ended' && readBoolean(subscription, 'cancel_at_period_end'),
-  };
-}
 
 /**
  * Stripe adapter for the membership port. The only file that knows a Stripe
@@ -211,6 +119,20 @@ export class StripeMembershipBilling implements MembershipBilling {
   }
 
   async startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
+    if (input.customerId !== null) {
+      const customerId = input.customerId;
+      const live = await liveStripeSubscription(this.stripe, customerId);
+      const change = live === null ? null : await this.changeOf(live, false);
+      if (change !== null) {
+        return { kind: 'live_membership', customerId, change };
+      }
+      const url = await reusableStripeCheckout(this.stripe, {
+        customer: customerId,
+        returnUrl: input.returnUrl,
+        nowMs: this.now(),
+      });
+      if (url !== null) return { kind: 'checkout', customerId, url };
+    }
     const customer =
       input.customerId ??
       (
@@ -255,7 +177,7 @@ export class StripeMembershipBilling implements MembershipBilling {
       success_url: input.returnUrl,
       cancel_url: input.returnUrl,
     });
-    return { customerId: customer, url: session.url ?? '' };
+    return { kind: 'checkout', customerId: customer, url: session.url ?? '' };
   }
 
   async openPortal(input: OpenPortalInput): Promise<{ readonly url: string }> {
@@ -413,22 +335,43 @@ export class StripeMembershipBilling implements MembershipBilling {
     // a deletion is final, whatever a lagging read still says.
     const subscription = await this.current(id);
     if (subscription === null) return { kind: 'ignored' };
-    const customerId = readId(subscription, 'customer');
-    if (customerId === null) return { kind: 'ignored' };
+    const change = await this.changeOf(
+      subscription,
+      event.type === 'customer.subscription.deleted'
+    );
+    return change === null
+      ? { kind: 'ignored' }
+      : { kind: 'membership', ...change };
+  }
 
+  async readMembership(subscriptionId: string) {
+    const subscription = await this.current(subscriptionId);
+    return subscription === null
+      ? null
+      : await this.changeOf(subscription, false);
+  }
+
+  /**
+   * What a subscription as Stripe reports it now means for the membership —
+   * the one reading every callback, re-check and checkout shares. `null`
+   * when it names no customer.
+   */
+  private async changeOf(
+    subscription: UnknownRecord,
+    deleted: boolean
+  ): Promise<MembershipChange | null> {
+    const subscriptionId = readString(subscription, 'id');
+    const customerId = readId(subscription, 'customer');
+    if (subscriptionId === null || customerId === null) return null;
     const creditCents = await this.creditCentsOf(customerId);
-    const change: MembershipChange = {
+    return {
       provider: this.provider,
       customerId,
-      subscriptionId: id,
+      subscriptionId,
       offerPriceKey: readOfferPriceKey(subscription, this.offer),
-      membership: await this.membershipOf(
-        subscription,
-        event.type === 'customer.subscription.deleted'
-      ),
+      membership: await this.membershipOf(subscription, deleted),
       ...(creditCents === undefined ? {} : { creditCents }),
     };
-    return { kind: 'membership', ...change };
   }
 
   /**

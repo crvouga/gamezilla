@@ -3,6 +3,11 @@ import { ExternalAccountRepository } from '@libs/auth-shared/external-account-re
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
+export type CustomerLinkOutcome =
+  | { readonly kind: 'linked' }
+  | { readonly kind: 'taken' }
+  | { readonly kind: 'already'; readonly customerId: string };
+
 /**
  * The account ↔ provider-customer links, one per provider. A customer id is
  * only ever looked up under the provider that minted it.
@@ -29,23 +34,44 @@ export class CustomerLinks {
   }
 
   /**
-   * Links a freshly minted customer. Returns the account that owns it — not
-   * `accountId` when the provider handed back a customer another account
-   * already holds, which the caller must refuse.
+   * Links a freshly minted customer, unless something already holds a link:
+   * - `linked` — the account now holds `customerId` (or already did);
+   * - `taken` — another account holds `customerId`, which the caller must
+   *   refuse: paying through it would credit that account;
+   * - `already` — the account already holds another customer at this
+   *   provider (a concurrent first checkout linked it first), which the
+   *   caller uses instead.
    */
-  link(args: {
+  async link(args: {
     readonly accountId: string;
     readonly provider: string;
     readonly customerId: string;
     readonly now: () => number;
     readonly createId: CreateId;
-  }): Promise<string> {
-    return this.accounts.insertExternalAccountOrGet({
+  }): Promise<CustomerLinkOutcome> {
+    const provider = billingCustomerLinkProvider(args.provider);
+    await this.accounts.insertExternalAccountIfAbsent({
       userId: args.accountId,
-      provider: billingCustomerLinkProvider(args.provider),
+      provider,
       externalId: args.customerId,
       now: args.now,
       createId: args.createId,
     });
+    const owner = await this.accounts.findUserIdByProviderExternalId(
+      provider,
+      args.customerId
+    );
+    if (owner === args.accountId) return { kind: 'linked' };
+    if (owner !== null) return { kind: 'taken' };
+    const held = await this.accounts.readExternalAccountId(
+      args.accountId,
+      provider
+    );
+    if (held === null) {
+      throw new Error(
+        `billing: customer link missing after insert (${args.provider})`
+      );
+    }
+    return { kind: 'already', customerId: held };
   }
 }

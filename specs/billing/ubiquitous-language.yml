@@ -103,7 +103,11 @@ terms:
   - term: checkout
     definition: >-
       Where a signed-in person pays to subscribe. Leaving it without paying
-      changes nothing.
+      changes nothing. A person has one checkout open at a time: subscribing
+      again while one is open continues it, and once they have paid, no
+      checkout takes a second payment while the payment provider confirms
+      the first.
+    forms: [checkouts, paid at checkout]
 
   - term: billing plans
     definition: >-
@@ -266,7 +270,7 @@ terms:
     definition: >-
       Going back from checkout without paying. Nothing changes: the person
       still has free access and is still offered to subscribe.
-    forms: [leaves checkout, leaving checkout]
+    forms: [leaves checkout, leaving checkout, has left checkout]
 
   - term: cancel immediately
     definition: >-

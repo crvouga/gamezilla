@@ -38,6 +38,8 @@ export type FakePaddleTransaction = {
   readonly customerId: string | null;
   readonly priceId: string;
   readonly customData: Readonly<Record<string, unknown>> | null;
+  /** `ready` (its checkout can take a payment) until a test settles it. */
+  readonly status: string;
 };
 
 export type FakePaddleFetch = (
@@ -236,14 +238,49 @@ export class FakePaddle {
       customerId,
       priceId,
       customData: (body['custom_data'] as Json | undefined) ?? null,
+      status: 'ready',
     });
-    return ok(
-      {
-        id,
-        checkout: { url: `https://pay.example.test/checkout?_ptxn=${id}` },
-      },
-      201
-    );
+    return ok(this.transactionJson(id), 201);
+  }
+
+  private transactionJson(id: string) {
+    return {
+      id,
+      checkout: { url: `https://pay.example.test/checkout?_ptxn=${id}` },
+    };
+  }
+
+  /** `?customer_id=` and a comma-separated `?status=`, as Paddle filters. */
+  private listFilter(url: URL) {
+    const customerId = url.searchParams.get('customer_id');
+    const statuses = url.searchParams.get('status')?.split(',') ?? null;
+    return (item: { readonly customerId: string | null; status: string }) =>
+      (customerId === null || item.customerId === customerId) &&
+      (statuses === null || statuses.includes(item.status));
+  }
+
+  /** `GET /transactions` and `GET /subscriptions`, filtered. */
+  private lists(method: string, url: URL): Response | null {
+    if (method !== 'GET') return null;
+    if (url.pathname === '/transactions') return this.listTransactions(url);
+    if (url.pathname === '/subscriptions') return this.listSubscriptions(url);
+    return null;
+  }
+
+  private listTransactions(url: URL): Response {
+    const keep = this.listFilter(url);
+    const all = this.transactions
+      .filter(keep)
+      .map((transaction) => this.transactionJson(transaction.id));
+    return this.page(url, all, (transaction) => transaction.id);
+  }
+
+  private listSubscriptions(url: URL): Response {
+    const keep = this.listFilter(url);
+    const all = [...this.subscriptions.values()]
+      .filter(keep)
+      .map((subscription) => this.subscriptionJson(subscription));
+    return this.page(url, all, (subscription) => subscription.id);
   }
 
   private upsert<T extends { readonly id: string }>(
@@ -374,7 +411,11 @@ export class FakePaddle {
         ? error(404, 'not_found', 'Entity not found')
         : ok(this.subscriptionJson(found));
     }
-    return this.catalog(method, url, body) ?? error(404, 'not_found', path);
+    return (
+      this.lists(method, url) ??
+      this.catalog(method, url, body) ??
+      error(404, 'not_found', path)
+    );
   }
 
   readonly fetch: FakePaddleFetch = async (input, init) => {

@@ -1,0 +1,4 @@
+{
+  "summary": "Nothing ever re-read a membership from its provider outside callbacks (billing:sync only reconciles the catalog, portal and webhooks), so a webhook the provider stopped retrying left the billing_subscriptions row stale forever. Fixed by scheduling one outbox re-check per projected live membership, due a day after its period end (at most daily), which the cron outbox drain runs in bounded batches through MembershipBilling.readMembership — the same reading callbacks use.",
+  "regressionTest": "libs/billing-server/tests/membership-recheck.test.ts"
+}

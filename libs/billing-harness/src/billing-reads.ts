@@ -156,6 +156,19 @@ export async function billingButtonEnabled(
   return tag !== null && !/\sdisabled(?:[\s=>]|$)/.test(tag);
 }
 
+/**
+ * The face the billing screen's subscribe button shows (`idle`, `loading`,
+ * `success`, `error`), or `null` while it is not on screen.
+ */
+export async function subscribeButtonPhase(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  const html = await actorHtml(s, actorId);
+  const tag = html === null ? null : openingTag(html, Handles.billingSubscribe);
+  return tag === null ? null : attribute(tag, 'data-phase');
+}
+
 export async function membershipRow(
   s: ProductHarness,
   actorId: string

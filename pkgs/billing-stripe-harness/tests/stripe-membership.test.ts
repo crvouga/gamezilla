@@ -94,6 +94,7 @@ describe('StripeMembershipBilling', () => {
       email: 'person@people.test',
       returnUrl: RETURN_URL,
     });
+    if (result.kind !== 'checkout') throw new Error(result.kind);
     const customer = await stripe.stripe.customers.retrieve(result.customerId);
     expect(customer.deleted).toBeUndefined();
     if (customer.deleted === true) throw new Error('unreachable');
@@ -130,6 +131,7 @@ describe('StripeMembershipBilling', () => {
       email: null,
       returnUrl: RETURN_URL,
     });
+    if (result.kind !== 'checkout') throw new Error(result.kind);
     expect(result.customerId).toBe(existing.id);
     const customers = await stripe.stripe.customers.list();
     expect(customers.data.map((c) => c.id)).toEqual([existing.id]);
@@ -180,6 +182,7 @@ describe('StripeMembershipBilling', () => {
       email: 'person@people.test',
       returnUrl: RETURN_URL,
     });
+    if (result.kind !== 'checkout') throw new Error(result.kind);
     const [session] = (await stripe.stripe.checkout.sessions.list()).data;
     await stripe.completeCheckout(session?.id ?? '');
     const [subscription] = (
