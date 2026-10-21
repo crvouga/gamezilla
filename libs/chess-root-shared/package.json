@@ -28,5 +28,6 @@
     "typescript": "catalog:"
   },
   "category": "isomorphic",
-  "game": "chess"
+  "game": "chess",
+  "language": "typescript"
 }

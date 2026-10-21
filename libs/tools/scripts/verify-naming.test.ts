@@ -41,6 +41,17 @@ describe('naming rules', () => {
     ['docs/Low-End.md', false],
     ['.agents/commands/PR_READY.md', false],
     ['sounds/marimba a3 80.m4a', false],
+    // Native ecosystem names (docs/POLYGLOT.md).
+    ['pkgs/clock-shared-swift/Package.swift', true],
+    ['pkgs/clock-shared-swift/Package.resolved', true],
+    ['apps/a-swift/Info.plist', true],
+    ['apps/a-swift/apple-client.xcodeproj/project.pbxproj', true],
+    ['apps/a-swift/assets.xcassets/app-icon.appiconset/Contents.json', true],
+    ['apps/a-swift/src/root-view.swift', true],
+    ['apps/a-swift/Gamezilla.xcodeproj/project.pbxproj', false],
+    ['apps/a-swift/src/RootView.swift', false],
+    ['apps/a-swift/src/Contents.json', false],
+    ['apps/a-swift/src/my.xcodeproj.d/a.ts', false],
   ])('%s → ok=%p', (path, ok) => {
     expect(findNamingViolations([path]).length === 0).toBe(ok);
   });

@@ -58,6 +58,16 @@ const BANNED_FLAGS: readonly { readonly flag: string; readonly why: string }[] =
 
 const TEST_FILE = /\.(test|spec)\.(ts|tsx)$/;
 
+/**
+ * Native test runners (`docs/POLYGLOT.md`): each runs every native test file
+ * in its package's `tests/`, and fails itself when none ran.
+ */
+const NATIVE_RUNNERS = [
+  'libs/tools/scripts/swift-task.ts test',
+  'libs/tools/scripts/xcode-task.ts test',
+] as const;
+const NATIVE_TEST_FILE = /^tests\/.*\.swift$/;
+
 type ParsedBunTest = {
   readonly filters: readonly string[];
   readonly ignores: readonly string[];
@@ -112,6 +122,9 @@ function filesRunBy(
   if (script.includes(SPEC_RUNNER)) {
     return testFiles.filter((file) => file.startsWith(HARNESS_DIR));
   }
+  if (NATIVE_RUNNERS.some((runner) => script.endsWith(runner))) {
+    return testFiles.filter((file) => NATIVE_TEST_FILE.test(file));
+  }
   const parsed = parseBunTest(script);
   if (parsed === null) return null;
   return testFiles.filter(
@@ -134,7 +147,9 @@ export function testScriptViolations(input: {
 }): readonly string[] {
   const out: string[] = [];
   const testFiles = input.files.filter(
-    (file) => TEST_FILE.test(file) && !file.startsWith('node_modules/')
+    (file) =>
+      (TEST_FILE.test(file) || NATIVE_TEST_FILE.test(file)) &&
+      !file.startsWith('node_modules/')
   );
   for (const [name, script] of Object.entries(input.scripts)) {
     if (!name.startsWith('test')) continue;
@@ -155,7 +170,7 @@ export function testScriptViolations(input: {
     const files = filesRunBy(script, testFiles);
     if (files === null) {
       out.push(
-        `"${name}" is not \`bun test …\` or the harness spec runner, so which tests it runs cannot be verified`
+        `"${name}" is not \`bun test …\`, the harness spec runner or a native test runner, so which tests it runs cannot be verified`
       );
       continue;
     }

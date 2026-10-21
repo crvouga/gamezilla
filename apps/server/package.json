@@ -86,5 +86,6 @@
     "wrangler": "catalog:"
   },
   "category": "server",
-  "gameRegistry": true
+  "gameRegistry": true,
+  "language": "typescript"
 }

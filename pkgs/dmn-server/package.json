@@ -26,5 +26,6 @@
     "fast-check": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "server"
+  "category": "server",
+  "language": "typescript"
 }

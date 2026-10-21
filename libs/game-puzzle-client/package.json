@@ -62,5 +62,6 @@
   "category": "client",
   "gameApi": [
     "puzzle-client"
-  ]
+  ],
+  "language": "typescript"
 }

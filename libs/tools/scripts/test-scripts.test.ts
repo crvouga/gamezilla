@@ -42,6 +42,31 @@ describe('testScriptViolations', () => {
     ).toContain('"test" runs no test files');
   });
 
+  test('a native test runner owns every Swift file in tests/', () => {
+    const swift = 'bun run ../../libs/tools/scripts/swift-task.ts test';
+    expect(
+      testScriptViolations({
+        scripts: { test: swift },
+        files: ['Package.swift', 'src/a.swift', 'tests/a-tests.swift'],
+      })
+    ).toEqual([]);
+    expect(
+      testScriptViolations({
+        scripts: { test: swift },
+        files: ['Package.swift', 'src/a.swift'],
+      })
+    ).toEqual([
+      '"test" runs no test files — delete the script, or fix its path filter',
+    ]);
+    // Swift tests no gate script runs never execute.
+    expect(
+      testScriptViolations({
+        scripts: {},
+        files: ['src/a.swift', 'tests/a-tests.swift'],
+      })
+    ).toEqual([expect.stringContaining('test files no gate script runs')]);
+  });
+
   test('a custom runner is reported, not trusted', () => {
     expect(
       testScriptViolations({

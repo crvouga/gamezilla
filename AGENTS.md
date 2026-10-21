@@ -21,6 +21,8 @@ than restating it.
 
 - **One naming convention.** Markdown docs are `SCREAMING_SNAKE_CASE.md`; every other file and directory is `lower-kebab-case` with a lowercase extension chain. The repo briefing is `README.md`. A package may keep its own `README.md` and `<pkg>/docs/`. `docs/` at the repo root holds the generated (gitignored) step-catalog index. Tool-mandated names are the only exemptions, listed in `NAMING_EXEMPT` (`libs/tools/naming/naming-rules.ts`). Verify: `bun run lint:naming`; fix: `bun run naming:fix` (dry run) then `--write`, which also rewrites every reference.
 
+- **Every package declares its language.** `package.json` carries `"language"` (`typescript`, `swift`, or `neutral` for specs, schemas and data) beside `category`, and native packages declare `"platforms"`. A new package's name ends in its language suffix (`@pkgs/clock-shared-swift`, `@libs/<slice>-client-ts`); only the frozen `libs/tools/scripts/legacy-package-names.json` may omit it, and it only shrinks. Implementations in different languages meet only through neutral packages, and native manifests (`Package.swift`, the Xcode project) name exactly the workspace dependencies `package.json` does. Native tools build; Turborepo runs them through the thin wrappers in `libs/tools/scripts/` (`swift-task.ts`, `xcode-task.ts`). Toolchains are pinned in `mise.toml`, and an Apple build that did not happen is never a pass. Guide: [`docs/POLYGLOT.md`](docs/POLYGLOT.md). CI: `language-boundaries.ts` in every package's `lint`.
+
 - **Own every long-lived command.** Use the launch and cleanup entry points in [`README.md`](README.md#laptop). Never start an unmanaged background server, watcher, compiler, database, browser, simulator, or media worker.
 
 - **Turborepo is the only task runner.** Every root script is `turbo run <tasks>` (its own body is the root task `task:<command>`), an alias of one, or a task body declared in `turbo.json`. No script runs another script (`bun run <script>`, `--filter`, `--cwd`, `pre`/`post` hooks) or backgrounds a process (`&`): order is `dependsOn`, side by side is `with`. Every task is `cache: false` or declares `inputs` and `outputs`. `lint` fails on anything else; the rule and its few named exceptions are [`libs/tools/scripts/task-runner-policy.ts`](libs/tools/scripts/task-runner-policy.ts).
@@ -206,10 +208,14 @@ Four workflows, one contract each. Details:
 - **A nightly finding is promoted.** Pin the failing trace in the model
   binding's `regressions`, or the shrunk input as a `// regression: <bug-id>`
   example, so the `pr` profile replays it from then on.
-- **The required status is `verify:end`.** Verify PR is three jobs
-  (`verify:start`, `verify:shards (N)`, `verify:end`). They keep the `verify:`
-  prefix wherever the gate runs (a pull request, Deploy's verification, the
-  nightly run). The ruleset on `main` does not require that verification before a push.
+- **The required status is `verify:end`.** Verify PR is four jobs
+  (`verify:start`, `verify:shards (N)`, `verify:apple`, `verify:end`). They
+  keep the `verify:` prefix wherever the gate runs (a pull request, Deploy's
+  verification, the nightly run). `verify:apple` is the macOS gate for packages
+  that build for Apple platforms; it is skipped only when the plan finds its
+  tasks cached, and anything else it does decides the verdict
+  ([`docs/POLYGLOT.md`](docs/POLYGLOT.md#ci)). The ruleset on `main` does not
+  require that verification before a push.
 - **Every gate is a package-owned Turbo task.** The task list in
   `libs/tools/scripts/turbo-ci-run.ts` runs every gate through Turbo. There
   are no root `//#verify`, `//#ci:*`, or root lint verifications: each gate has
@@ -344,7 +350,9 @@ test:max`: sidecars from `@pkgs/postgres-mockingbird-server`, `@pkgs/s3-server`,
 | Pkgs | `pkgs/` (`@pkgs/`) | agnostic utilities, frameworks, dev infra | pkgs only |
 
 `pkgs/` must work in any monorepo: no `gamezilla`, `@libs/*` or product
-references, in code, comments or defaults. How subs, shells and the
+references, in code, comments or defaults. The tiers hold in every language;
+how a Swift (or later Rust, Kotlin) package joins them is
+[`docs/POLYGLOT.md`](docs/POLYGLOT.md). How subs, shells and the
 composition root (`@libs/runtime`, the one package that knows every sub)
 fit together, and how to add a sub, is
 [`README.md`](README.md#repository).

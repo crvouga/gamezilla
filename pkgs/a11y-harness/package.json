@@ -18,5 +18,6 @@
     "happy-dom": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "harness"
+  "category": "harness",
+  "language": "typescript"
 }

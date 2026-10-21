@@ -1,2 +1,5 @@
 self-hosted-runner:
-  labels: []
+  # GitHub-hosted labels newer than the pinned actionlint knows. `xcode-27` is
+  # the image with the Xcode `mise.toml` pins (`verify:apple`,
+  # libs/tools/scripts/package-hosts.ts); drop it once actionlint lists it.
+  labels: [xcode-27]

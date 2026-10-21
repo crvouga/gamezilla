@@ -44,5 +44,6 @@
   "engines": {
     "node": ">=22"
   },
-  "category": "server"
+  "category": "server",
+  "language": "typescript"
 }

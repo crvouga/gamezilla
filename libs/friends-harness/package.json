@@ -116,6 +116,7 @@
     "typescript": "catalog:"
   },
   "category": "harness",
+  "language": "typescript",
   "specDomains": [
     "friends",
     "spaces"

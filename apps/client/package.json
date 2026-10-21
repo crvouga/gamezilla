@@ -57,5 +57,6 @@
     "workbox-build": "catalog:"
   },
   "category": "client",
-  "gameRegistry": true
+  "gameRegistry": true,
+  "language": "typescript"
 }

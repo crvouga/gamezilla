@@ -87,5 +87,6 @@
     "puzzle-listening",
     "puzzle-sounds",
     "puzzle-result-recovery"
-  ]
+  ],
+  "language": "typescript"
 }

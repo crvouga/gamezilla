@@ -28,5 +28,6 @@
   },
   "category": "client",
   "gameApi": [],
-  "gameRegistry": true
+  "gameRegistry": true,
+  "language": "typescript"
 }

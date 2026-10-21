@@ -29,5 +29,6 @@
     "typescript": "catalog:",
     "wrangler": "catalog:"
   },
-  "category": "server"
+  "category": "server",
+  "language": "typescript"
 }

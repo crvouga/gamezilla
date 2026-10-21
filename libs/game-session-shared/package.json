@@ -38,5 +38,6 @@
   "category": "isomorphic",
   "gameApi": [
     "turn-game-definition"
-  ]
+  ],
+  "language": "typescript"
 }

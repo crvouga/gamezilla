@@ -60,5 +60,6 @@
     "typescript": "catalog:"
   },
   "category": "server",
-  "game": "chess"
+  "game": "chess",
+  "language": "typescript"
 }

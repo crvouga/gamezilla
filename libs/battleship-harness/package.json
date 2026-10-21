@@ -52,12 +52,13 @@
   },
   "category": "harness",
   "game": "battleship",
-  "specDomains": [
-    "battleship"
-  ],
+  "language": "typescript",
   "modelParts": 2,
   "phaseParts": {
     "1": 8
   },
+  "specDomains": [
+    "battleship"
+  ],
   "specParts": 10
 }

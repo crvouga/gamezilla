@@ -49,6 +49,7 @@
   },
   "category": "harness",
   "gameRegistry": true,
+  "language": "typescript",
   "specDomains": [
     "synthetic-population"
   ],

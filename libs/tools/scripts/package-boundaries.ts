@@ -25,11 +25,25 @@
  * The category is spelled in the package name, so a dependency's category is
  * read from its name and each rule reads only its own package — which is what
  * lets it run inside that package's cached `lint`.
+ *
+ * Every package also declares its `language` (`languages.ts`), spelled last
+ * in its name (`-swift`, `-ts`), and the TypeScript packages named before that
+ * rule are frozen in `legacy-package-names.json`. A production dependency
+ * stays inside one language or reaches a language-neutral package; the
+ * native manifests (`Package.swift`, the Xcode project) name exactly the
+ * workspace packages `package.json` does, so Turborepo's graph and the
+ * native one never disagree.
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import ts from 'typescript';
+import {
+  languageViolations,
+  nativeGraphViolations,
+  nativeSourceViolations,
+} from './language-boundaries';
+import { withoutLanguageSuffix } from './languages';
 import { sourceImports } from './source-imports';
 
 export const CATEGORIES = [
@@ -54,9 +68,12 @@ const ALLOWED: Readonly<Record<Category, readonly Category[]>> = {
   harness: ['harness', 'client', 'server', 'isomorphic'],
 };
 
-/** The category a workspace package name spells, or undefined. */
+/**
+ * The category a workspace package name spells, or undefined. The language
+ * suffix comes after it: `@pkgs/clock-shared-swift` is isomorphic.
+ */
 export function categoryOfName(name: string): Category | undefined {
-  const last = name.split('/').pop() ?? '';
+  const last = withoutLanguageSuffix(name).split('/').pop() ?? '';
   const suffix = last.match(/(?:^|-)(client|server|shared|harness)$/)?.[1];
   return suffix === undefined ? undefined : SUFFIX[suffix];
 }
@@ -147,6 +164,10 @@ export function familyMayDependOn(family: string, dependency: string): boolean {
 type Manifest = {
   readonly name?: string;
   readonly category?: string;
+  /** `languages.ts`: the implementation language, or `neutral`. */
+  readonly language?: string;
+  /** `package-hosts.ts`: what the package builds for. */
+  readonly platforms?: unknown;
   /** The one game this package implements (`chess`, `connect-four`, …). */
   readonly game?: string;
   /** This package composes concrete games: a game registry or composition root. */
@@ -433,9 +454,14 @@ function stringLiterals(
   return out;
 }
 
-function workspaceManifests(pkgDir: string): ReadonlyMap<string, Manifest> {
+/** Every workspace manifest by name, and each package's name by directory. */
+function workspaceManifests(pkgDir: string): {
+  readonly byName: ReadonlyMap<string, Manifest>;
+  readonly byDir: ReadonlyMap<string, string>;
+} {
   const root = join(pkgDir, '..', '..');
-  const out = new Map<string, Manifest>();
+  const byName = new Map<string, Manifest>();
+  const byDir = new Map<string, string>();
   for (const tier of ['apps', 'libs', 'pkgs']) {
     const dir = join(root, tier);
     if (!existsSync(dir)) continue;
@@ -443,10 +469,67 @@ function workspaceManifests(pkgDir: string): ReadonlyMap<string, Manifest> {
       const file = join(dir, entry, 'package.json');
       if (!existsSync(file)) continue;
       const other = JSON.parse(readFileSync(file, 'utf8')) as Manifest;
-      if (other.name !== undefined) out.set(other.name, other);
+      if (other.name === undefined) continue;
+      byName.set(other.name, other);
+      byDir.set(`${tier}/${entry}`, other.name);
     }
   }
+  return { byName, byDir };
+}
+
+/** Build output and editor state, never a package's own files. */
+const NOT_OWNED = new Set([
+  'node_modules',
+  '.cache',
+  '.turbo',
+  '.build',
+  'xcuserdata',
+]);
+
+function packageFiles(dir: string, prefix = ''): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(join(dir, prefix), { withFileTypes: true })) {
+    if (NOT_OWNED.has(entry.name)) continue;
+    const path = prefix === '' ? entry.name : `${prefix}/${entry.name}`;
+    if (entry.isDirectory()) out.push(...packageFiles(dir, path));
+    else out.push(path);
+  }
   return out;
+}
+
+/** The TypeScript packages named before the language suffix rule. */
+export function legacyPackageNames(): ReadonlySet<string> {
+  return new Set(
+    JSON.parse(
+      readFileSync(
+        join(import.meta.dirname, 'legacy-package-names.json'),
+        'utf8'
+      )
+    ) as string[]
+  );
+}
+
+function languageAndNativeViolations(
+  pkgDir: string,
+  manifest: Manifest,
+  workspace: ReturnType<typeof workspaceManifests>
+): readonly string[] {
+  const tier = pkgDir.split('/').at(-2) ?? '';
+  const native = {
+    dir: `${tier}/${pkgDir.split('/').at(-1) ?? ''}`,
+    files: manifest.language === 'typescript' ? [] : packageFiles(pkgDir),
+    read: (path: string) => readFileSync(join(pkgDir, path), 'utf8'),
+    packagesByDir: workspace.byDir,
+  };
+  return [
+    ...languageViolations(manifest, {
+      tier,
+      workspace: workspace.byName,
+      legacy: legacyPackageNames(),
+    }),
+    ...nativeGraphViolations(manifest, native),
+    ...nativeSourceViolations(manifest, native),
+  ];
 }
 
 /**
@@ -458,7 +541,8 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
     readFileSync(join(pkgDir, 'package.json'), 'utf8')
   ) as Manifest;
   const srcDir = join(pkgDir, 'src');
-  const workspace = workspaceManifests(pkgDir);
+  const manifests = workspaceManifests(pkgDir);
+  const workspace = manifests.byName;
   const sources = sourceFiles(srcDir).filter((f) => !/\.test\.tsx?$/.test(f));
   const out: string[] = [
     ...categoryViolations(manifest, {
@@ -469,6 +553,7 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
         text: readFileSync(path, 'utf8'),
       })),
     }),
+    ...languageAndNativeViolations(pkgDir, manifest, manifests),
     ...gameViolations(manifest, workspace),
     ...gameApiViolations(manifest, {
       workspace,

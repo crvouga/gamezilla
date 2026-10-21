@@ -35,5 +35,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "server"
+  "category": "server",
+  "language": "typescript"
 }

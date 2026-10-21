@@ -15,5 +15,6 @@
   },
   "dependencies": {},
   "devDependencies": {},
-  "category": "client"
+  "category": "client",
+  "language": "typescript"
 }

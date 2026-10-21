@@ -40,5 +40,6 @@
     "typescript": "catalog:",
     "vite": "catalog:"
   },
-  "category": "client"
+  "category": "client",
+  "language": "typescript"
 }

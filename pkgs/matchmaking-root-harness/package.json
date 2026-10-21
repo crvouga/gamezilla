@@ -52,6 +52,7 @@
     "typescript": "catalog:"
   },
   "category": "harness",
+  "language": "typescript",
   "proofGroups": [
     "4",
     "0-3,5-11"

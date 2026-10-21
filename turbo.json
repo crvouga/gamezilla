@@ -168,6 +168,10 @@
     "//#fmt:package-json": {
       "cache": false
     },
+    "//#fmt:swift": {
+      "cache": false,
+      "passThroughEnv": ["DEVELOPER_DIR", "HOME"]
+    },
     "kill": {
       "cache": false
     },
@@ -217,6 +221,13 @@
         "$TURBO_ROOT$/libs/tools/scripts/test-scripts.ts",
         "$TURBO_ROOT$/libs/tools/scripts/unused-dependencies.ts",
         "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/languages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/language-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/legacy-package-names.json",
+        "$TURBO_ROOT$/libs/tools/scripts/package-hosts.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/swift-format.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/native-toolchain.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/swift-task.ts",
         "$TURBO_ROOT$/libs/tools/naming/**"
       ],
       "outputLogs": "errors-only",

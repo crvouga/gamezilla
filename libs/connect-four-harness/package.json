@@ -37,6 +37,7 @@
   },
   "category": "harness",
   "game": "connect-four",
+  "language": "typescript",
   "specDomains": [
     "connect-four"
   ],

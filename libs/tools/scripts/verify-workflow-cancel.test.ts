@@ -41,6 +41,7 @@ describe('Verify workflow cancellation', () => {
     const start = workflow.jobs['verify-start'];
     expect(start.outputs).toEqual({
       shards: '${{ steps.plan.outputs.shards }}',
+      apple: '${{ steps.plan.outputs.apple }}',
     });
     expect(start.steps.find((step) => step.id === 'plan')?.run).toContain(
       'verify-plan.ts'
@@ -200,14 +201,28 @@ describe('Verify workflow cancellation', () => {
       branches: ['main'],
       types: ['opened', 'reopened', 'synchronize'],
     });
-    // Three jobs: the start, the shards and the ending word.
+    // Four jobs: the start, the shards, the Apple-only gate and the ending
+    // word.
     expect(Object.keys(workflow.jobs)).toEqual([
       'verify-start',
       'verify-shards',
+      'verify-apple',
       'verify-end',
     ]);
+    const apple = workflow.jobs['verify-apple']!;
+    expect(apple.needs).toEqual(['verify-start']);
+    // Fail-safe: only an explicit `false` from the plan skips it.
+    expect(apple.if).toBe("needs.verify-start.outputs.apple != 'false'");
+    expect(apple['continue-on-error']).toBeUndefined();
+    expect(
+      apple.steps.find((candidate) => candidate.name === 'verify')?.run
+    ).toContain('turbo-ci-run.ts verify:macos');
     const end = workflow.jobs['verify-end']!;
-    expect(end.needs).toEqual(['verify-start', 'verify-shards']);
+    expect(end.needs).toEqual([
+      'verify-start',
+      'verify-shards',
+      'verify-apple',
+    ]);
     expect(end.if).toBe('always() && !cancelled()');
     expect(end['continue-on-error']).toBeUndefined();
     expect(workflow.jobs['verify-start']!.if).toBeUndefined();
@@ -227,6 +242,8 @@ describe('Verify workflow cancellation', () => {
       env: {
         START_RESULT: '${{ needs.verify-start.result }}',
         SHARD_RESULT: '${{ needs.verify-shards.result }}',
+        APPLE_RESULT: '${{ needs.verify-apple.result }}',
+        APPLE_SCHEDULED: '${{ needs.verify-start.outputs.apple }}',
       },
     });
     expect(end.steps[verdict]!['continue-on-error']).toBeUndefined();

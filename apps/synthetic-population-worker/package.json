@@ -62,5 +62,6 @@
     "typescript": "catalog:"
   },
   "category": "harness",
-  "gameRegistry": true
+  "gameRegistry": true,
+  "language": "typescript"
 }

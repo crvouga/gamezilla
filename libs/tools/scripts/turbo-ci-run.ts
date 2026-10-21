@@ -69,6 +69,13 @@ import { capture } from '@pkgs/os-server/command';
 import { killOrphanEsbuildServices } from '@pkgs/os-server/kill-orphan-esbuild';
 import { captureAudit } from './audit-snapshot';
 import { killProcessTree } from './kill-process-tree';
+import {
+  hostFilters,
+  isDefaultHost,
+  isHost,
+  workspaceManifests,
+  writeHostKey,
+} from './package-hosts';
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import { solverSlots } from './solver-slots';
@@ -178,9 +185,12 @@ export const REPLAY_BUDGET_ENV = 'QUINT_REPLAY_TRACES';
  * reuse each other's verdicts. Portable tc/lint tasks can still share a
  * cache across machines. Written on every run: absent
  * (a bare `turbo run`) hashes differently, which costs a cache miss, never
- * correctness.
+ * correctness. Native (Swift) tasks hash only the operating system and CPU
+ * (`turbo-host-key.json`, `package-hosts.ts`), so the Linux plan can predict
+ * the Apple job's hashes without knowing that runner's browser.
  */
 export function writePlatformCacheKey(): void {
+  writeHostKey(REPO_ROOT);
   const key = {
     platform: process.platform,
     arch: process.arch,
@@ -371,6 +381,26 @@ function taskDependsOn(tasks: TurboTasks, taskName: string): string[] {
   return deps.filter((dep): dep is string => typeof dep === 'string');
 }
 
+/** `verify:linux`, `verify:macos`: the gate on one host's packages. */
+const HOST_AGGREGATOR = /^verify:([a-z]+)$/;
+
+/**
+ * The gate as one host runs it (`package-hosts.ts`): the gate tasks over the
+ * packages that host verifies. The gates one named package owns
+ * (`@libs/tools#ci:*`) are the default host's alone.
+ */
+export function hostVerifyArgs(
+  host: Parameters<typeof hostFilters>[1],
+  manifests = workspaceManifests(REPO_ROOT)
+): readonly string[] {
+  return [
+    ...MAIN_VERIFY_TASKS.filter(
+      (task) => isDefaultHost(host) || !task.includes('#')
+    ),
+    ...hostFilters(manifests, host),
+  ];
+}
+
 /**
  * Expand the verification command to package tasks; recursively expand deploy's
  * package dependencies to leaf turbo tasks.
@@ -392,6 +422,11 @@ export function flattenVerifyAggregators(
   // Bare script names are command aliases only here. In Turbo's graph they
   // remain package tasks with their package-scoped meaning.
   function expand(arg: string, commandLine: boolean): void {
+    const host = commandLine ? HOST_AGGREGATOR.exec(arg)?.[1] : undefined;
+    if (host !== undefined && isHost(host)) {
+      for (const leaf of hostVerifyArgs(host)) pushLeaf(leaf);
+      return;
+    }
     const verifications = commandLine
       ? verifyAggregatorTasks(arg, MAIN_VERIFY_TASKS)
       : null;

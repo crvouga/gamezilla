@@ -36,9 +36,11 @@ import {
   workspaceDeps,
 } from './biome-scope';
 import { designProfile, designVocabularyViolations } from './design-vocabulary';
+import { isSourceOf } from './languages';
 import { macrosOutsideCatalog } from './lingui-scope';
 import { packageBoundaryViolations } from './package-boundaries';
 import { spawnedCliViolations } from './spawned-clis';
+import { swiftFormatOk } from './swift-format';
 import {
   packageScriptViolations,
   rootScriptViolations,
@@ -226,8 +228,15 @@ async function biomeOk(
   }
 }
 
-/** Biome and, over the Solid scope, oxlint — run concurrently. */
-function externalTools(pkg: string): Promise<boolean>[] {
+/**
+ * Biome and, over the Solid scope, oxlint — run concurrently. A Swift
+ * package adds `swift format` over its Swift files and `Package.swift`.
+ */
+function externalTools(
+  pkg: string,
+  language: string | undefined,
+  files: readonly string[]
+): Promise<boolean>[] {
   const tools = [
     biomeOk(
       pkg.replaceAll('/', '-'),
@@ -237,6 +246,13 @@ function externalTools(pkg: string): Promise<boolean>[] {
   ];
   const solid = solidTargets(pkg);
   if (solid.length > 0) tools.push(oxlintOk(pkg, solid));
+  if (language === 'swift')
+    tools.push(
+      swiftFormatOk(
+        pkg,
+        files.filter((path) => isSourceOf('swift', path))
+      )
+    );
   return tools;
 }
 
@@ -277,9 +293,31 @@ async function oxlintOk(
   }
 }
 
+/**
+ * Workspace dependencies the package's TypeScript never imports. A native
+ * package's dependencies are read from its native manifests instead
+ * (`language-boundaries.ts`).
+ */
+function unusedDependenciesOk(
+  pkg: string,
+  language: string | undefined,
+  pkgFiles: readonly string[] | null
+): boolean {
+  return clean(
+    pkg,
+    "declares workspace dependencies nothing in it uses — each reruns this package's verifications on every change to it; remove them",
+    pkgFiles === null || language !== 'typescript'
+      ? []
+      : unusedWorkspaceDependencies(join(REPO_ROOT, pkg), pkgFiles)
+  );
+}
+
 async function lintPackage(pkg: string): Promise<boolean> {
   const files = listFiles(['--', pkg]);
-  const tools = externalTools(pkg);
+  const language = readJson<{ language?: string }>(
+    `${pkg}/package.json`
+  ).language;
+  const tools = externalTools(pkg, language, files ?? []);
   const pkgFiles = (files ?? []).map((path) => path.slice(pkg.length + 1));
   const read = (path: string) => ({
     path,
@@ -305,13 +343,7 @@ async function lintPackage(pkg: string): Promise<boolean> {
         sources.map((s) => ({ path: `${pkg}/${s.path}`, text: s.text }))
       )
     ),
-    clean(
-      pkg,
-      "declares workspace dependencies nothing in it uses — each reruns this package's verifications on every change to it; remove them",
-      files === null
-        ? []
-        : unusedWorkspaceDependencies(join(REPO_ROOT, pkg), pkgFiles)
-    ),
+    unusedDependenciesOk(pkg, language, files === null ? null : pkgFiles),
     clean(
       pkg,
       "every TypeScript file is type-checked by the package's `tc`",

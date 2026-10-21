@@ -1,0 +1,29 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "lint": {
+      "inputs": ["$TURBO_EXTENDS$"],
+      "passThroughEnv": ["DEVELOPER_DIR", "HOME"]
+    },
+    "build": {
+      "dependsOn": ["^src"],
+      "cache": false,
+      "passThroughEnv": ["DEVELOPER_DIR", "HOME"]
+    },
+    "test": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-host-key.json",
+        "$TURBO_ROOT$/libs/tools/scripts/native-toolchain.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/package-hosts.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/swift-task.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/xcode-task.ts"
+      ],
+      "env": [],
+      "passThroughEnv": ["DEVELOPER_DIR", "HOME"],
+      "outputs": []
+    }
+  }
+}

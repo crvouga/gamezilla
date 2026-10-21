@@ -29,5 +29,6 @@
     "typescript": "catalog:"
   },
   "category": "client",
-  "game": "connect-four"
+  "game": "connect-four",
+  "language": "typescript"
 }

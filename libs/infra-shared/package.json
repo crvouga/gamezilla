@@ -29,5 +29,6 @@
     "typescript": "catalog:",
     "wrangler": "catalog:"
   },
-  "category": "isomorphic"
+  "category": "isomorphic",
+  "language": "typescript"
 }

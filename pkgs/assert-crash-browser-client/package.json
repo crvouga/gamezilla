@@ -19,5 +19,6 @@
     "@pkgs/clock-shared": "workspace:*"
   },
   "devDependencies": {},
-  "category": "client"
+  "category": "client",
+  "language": "typescript"
 }

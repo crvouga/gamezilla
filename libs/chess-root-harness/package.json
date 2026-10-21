@@ -17,6 +17,9 @@
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
     "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/13",
     "test:spec:1": "bun run ../../libs/harness/scripts/test-spec.ts --part 1/13",
+    "test:spec:10": "bun run ../../libs/harness/scripts/test-spec.ts --part 10/13",
+    "test:spec:11": "bun run ../../libs/harness/scripts/test-spec.ts --part 11/13",
+    "test:spec:12": "bun run ../../libs/harness/scripts/test-spec.ts --part 12/13",
     "test:spec:2": "bun run ../../libs/harness/scripts/test-spec.ts --part 2/13",
     "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/13",
     "test:spec:4": "bun run ../../libs/harness/scripts/test-spec.ts --part 4/13",
@@ -25,9 +28,6 @@
     "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/13",
     "test:spec:8": "bun run ../../libs/harness/scripts/test-spec.ts --part 8/13",
     "test:spec:9": "bun run ../../libs/harness/scripts/test-spec.ts --part 9/13",
-    "test:spec:10": "bun run ../../libs/harness/scripts/test-spec.ts --part 10/13",
-    "test:spec:11": "bun run ../../libs/harness/scripts/test-spec.ts --part 11/13",
-    "test:spec:12": "bun run ../../libs/harness/scripts/test-spec.ts --part 12/13",
     "verify:models:0": "bun run ../../libs/tools/scripts/verify-models.ts --part 0/7",
     "verify:models:1": "bun run ../../libs/tools/scripts/verify-models.ts --part 1/7",
     "verify:models:2": "bun run ../../libs/tools/scripts/verify-models.ts --part 2/7",
@@ -83,6 +83,7 @@
   },
   "category": "harness",
   "game": "chess",
+  "language": "typescript",
   "modelParts": 7,
   "specDomains": [
     "chess"

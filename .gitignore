@@ -7,6 +7,11 @@ web-build/
 
 # Native
 .kotlin/
+# Xcode and SwiftPM per-user state (docs/POLYGLOT.md); build output lives in
+# each package's `.cache/`.
+xcuserdata/
+IDEWorkspaceChecks.plist
+.swiftpm/
 *.orig.*
 *.jks
 *.p8
@@ -95,6 +100,7 @@ apps/client/android/
 # Platform cache key written by libs/tools/scripts/turbo-ci-run.ts (Turbo's hash has
 # no OS notion; the scoped test:contract leaves hash this file).
 turbo-platform-key.json
+turbo-host-key.json
 
 
 # Verify artifacts (reports, traces, videos)

@@ -19,5 +19,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:"
   },
-  "category": "server"
+  "category": "server",
+  "language": "typescript"
 }

@@ -51,5 +51,6 @@
     "typescript": "catalog:"
   },
   "category": "harness",
-  "game": "chess"
+  "game": "chess",
+  "language": "typescript"
 }

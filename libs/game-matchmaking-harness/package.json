@@ -55,5 +55,6 @@
     "multiplayer-review",
     "multiplayer-time",
     "opponent-seeking"
-  ]
+  ],
+  "language": "typescript"
 }

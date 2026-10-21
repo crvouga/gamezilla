@@ -41,5 +41,6 @@
     "typescript": "catalog:"
   },
   "category": "server",
-  "gameApi": []
+  "gameApi": [],
+  "language": "typescript"
 }

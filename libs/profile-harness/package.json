@@ -85,6 +85,7 @@
     "typescript": "catalog:"
   },
   "category": "harness",
+  "language": "typescript",
   "modelParts": 3,
   "phaseParts": {
     "2": 11

@@ -47,6 +47,8 @@ const REPO_ROOT = join(import.meta.dirname, '../../..');
 const HELD: Record<string, string> = {
   'github:emqx/emqx':
     'kept in step with the version pin (libs/pubsub-shared/emqx-deploy/Dockerfile)',
+  swift:
+    'kept equal to the Swift the pinned Xcode ships ([vars] xcode_version, docs/POLYGLOT.md)',
 };
 
 /** Skills from `ast-grep/agent-skill`, refreshed with the ast-grep pin. */

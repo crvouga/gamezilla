@@ -57,5 +57,6 @@
     "puzzle-link",
     "solve-status",
     "sub"
-  ]
+  ],
+  "language": "typescript"
 }

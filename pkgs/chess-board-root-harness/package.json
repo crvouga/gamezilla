@@ -64,9 +64,10 @@
     "vite-plugin-solid": "catalog:"
   },
   "category": "harness",
+  "game": "chess",
+  "language": "typescript",
   "specDomains": [
     "chess-board"
   ],
-  "specParts": 8,
-  "game": "chess"
+  "specParts": 8
 }

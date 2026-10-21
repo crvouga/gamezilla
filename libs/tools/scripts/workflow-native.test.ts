@@ -5,6 +5,7 @@ import {
   specParallelism,
   testConcurrency,
 } from '@pkgs/os-server/test-concurrency';
+import { HOSTS } from './package-hosts';
 
 const ROOT = join(import.meta.dirname, '../../..');
 
@@ -42,6 +43,7 @@ test('only GitHub Actions owns the Verify, Deploy and Health triggers', () => {
     'verify-nightly.yml',
     'verify-pr.yml',
   ]);
+  const runners: string[] = [];
   for (const file of readdirSync(join(ROOT, '.github/workflows'))) {
     const workflow = Bun.YAML.parse(
       readFileSync(join(ROOT, '.github/workflows', file), 'utf8')
@@ -54,9 +56,14 @@ test('only GitHub Actions owns the Verify, Deploy and Health triggers', () => {
         expect(job.uses).toBe('./.github/workflows/verify-pr.yml');
         continue;
       }
-      expect(job['runs-on']).toBe('ubuntu-24.04');
+      runners.push(job['runs-on'] ?? '');
     }
   }
+  // Every job runs on a host's runner (package-hosts.ts): Linux, except the
+  // one Apple-only gate on macOS.
+  expect(runners.filter((runner) => runner !== HOSTS.linux.runner)).toEqual([
+    HOSTS.macos.runner,
+  ]);
 });
 
 // regression: ci-provider-native-ci-missing-local-action

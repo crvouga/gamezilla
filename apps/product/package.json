@@ -201,6 +201,7 @@
   },
   "category": "harness",
   "gameRegistry": true,
+  "language": "typescript",
   "liveDomains": [
     "journeys"
   ],

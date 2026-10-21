@@ -105,12 +105,12 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 | | |
 | --- | --- |
-| Packages | 332 |
-| Verify scripts | 1303 |
+| Packages | 334 |
+| Verify scripts | 1308 |
 | Measured scripts | 947 |
-| Estimated scripts | 356 |
+| Estimated scripts | 361 |
 | Stale cost keys | 554 |
-| Cold CPU | 18295 s |
+| Cold CPU | 18302 s |
 | Spec parts | 10192 s across 272 tasks |
 | Longest task | @libs/games-harness#test:spec:49 213 s |
 
@@ -120,16 +120,16 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | --- | --- | --- |
 | test:spec | 272 | 10192 s |
 | verify:models:9 | 16 | 1914 s |
-| lint | 331 | 1219 s |
+| lint | 333 | 1223 s |
 | test:contract | 26 | 1019 s |
-| test | 239 | 900 s |
+| test | 241 | 902 s |
 | verify:models:2 | 11 | 660 s |
 | verify:models | 38 | 644 s |
-| tc | 331 | 515 s |
+| tc | 332 | 516 s |
 
 ### Leaves
 
-48 leaves have verification scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
+49 leaves have verification scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
 
 | | |
 | --- | --- |

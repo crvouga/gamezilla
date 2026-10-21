@@ -44,5 +44,6 @@
   "category": "isomorphic",
   "gameApi": [
     "game"
-  ]
+  ],
+  "language": "typescript"
 }

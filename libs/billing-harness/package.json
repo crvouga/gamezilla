@@ -80,6 +80,7 @@
     "typescript": "catalog:"
   },
   "category": "harness",
+  "language": "typescript",
   "specDomains": [
     "billing"
   ],

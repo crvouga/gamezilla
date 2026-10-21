@@ -24,7 +24,28 @@ export const NAMING_EXEMPT = {
     '__snapshots__',
     '__mocks__',
     '.super.engineering',
+    // SwiftPM and Xcode (docs/POLYGLOT.md).
+    'Package.swift',
+    'Package.resolved',
+    'Info.plist',
   ]),
+  /**
+   * Native bundle directories: the extension is the tool's, the stem is
+   * ours and stays kebab-case (`apple-client.xcodeproj`).
+   */
+  bundleDirExtensions: new Set([
+    'xcodeproj',
+    'xcworkspace',
+    'xcassets',
+    'appiconset',
+    'colorset',
+    'imageset',
+    'lproj',
+  ]),
+  /** Basenames a tool requires only inside its own bundle directory. */
+  bundleBasenames: { 'Contents.json': '.xcassets/' } as Readonly<
+    Record<string, string>
+  >,
   /** Path prefixes skipped entirely (tool-managed content). */
   prefixes: [
     '.superset/attachments/',
@@ -123,9 +144,19 @@ export function convertSegment(
   path: string
 ): string {
   if (NAMING_EXEMPT.basenames.has(name)) return name;
+  const bundle = NAMING_EXEMPT.bundleBasenames[name];
+  if (bundle !== undefined && path.includes(bundle)) return name;
   if (kind === 'dir') {
     const dot = name.startsWith('.') ? '.' : '';
     const body = name.slice(dot.length);
+    const extension = body.split('.').at(-1) ?? '';
+    if (
+      body.includes('.') &&
+      NAMING_EXEMPT.bundleDirExtensions.has(extension)
+    ) {
+      const stem = body.slice(0, -(extension.length + 1));
+      return KEBAB.test(stem) ? name : `${dot}${toKebab(stem)}.${extension}`;
+    }
     return KEBAB.test(body) ? name : `${dot}${toKebab(body)}`;
   }
   const parts = splitFile(name);

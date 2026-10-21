@@ -36,5 +36,6 @@
     "typescript": "catalog:"
   },
   "category": "client",
-  "game": "battleship"
+  "game": "battleship",
+  "language": "typescript"
 }

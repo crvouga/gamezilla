@@ -23,5 +23,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "client"
+  "category": "client",
+  "language": "typescript"
 }

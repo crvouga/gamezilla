@@ -28,5 +28,6 @@
     "typescript": "catalog:"
   },
   "category": "isomorphic",
-  "game": "battleship"
+  "game": "battleship",
+  "language": "typescript"
 }

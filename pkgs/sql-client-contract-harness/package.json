@@ -28,5 +28,6 @@
     "fast-check": "catalog:",
     "typescript": "catalog:"
   },
-  "category": "harness"
+  "category": "harness",
+  "language": "typescript"
 }

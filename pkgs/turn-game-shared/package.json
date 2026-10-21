@@ -26,5 +26,6 @@
     "game-presentation",
     "game-puzzles",
     "game-rules"
-  ]
+  ],
+  "language": "typescript"
 }

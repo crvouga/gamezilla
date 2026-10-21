@@ -26,6 +26,13 @@
         "typescript": "catalog:",
       },
     },
+    "apps/apple-client-swift": {
+      "name": "@apps/apple-client-swift",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/clock-shared-swift": "workspace:*",
+      },
+    },
     "apps/auth-relay": {
       "name": "@apps/auth-relay",
       "version": "0.0.0",
@@ -3823,6 +3830,10 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/clock-shared-swift": {
+      "name": "@pkgs/clock-shared-swift",
+      "version": "0.0.0",
+    },
     "pkgs/collab-root-shared": {
       "name": "@pkgs/collab-root-shared",
       "version": "0.0.0",
@@ -6924,6 +6935,8 @@
 
     "@apideck/better-ajv-errors": ["@apideck/better-ajv-errors@0.3.7", "", { "dependencies": { "jsonpointer": "^5.0.1", "leven": "^3.1.0" }, "peerDependencies": { "ajv": ">=8" } }, "sha512-TajUJwGWbDwkCx/CZi7tRE8PVB7simCvKJfHUsSdvps+aTM/PDPP4gkLmKnc+x3CE//y9i/nj74GqdL/hwk7Iw=="],
 
+    "@apps/apple-client-swift": ["@apps/apple-client-swift@workspace:apps/apple-client-swift"],
+
     "@apps/auth-relay": ["@apps/auth-relay@workspace:apps/auth-relay"],
 
     "@apps/client": ["@apps/client@workspace:apps/client"],
@@ -7997,6 +8010,8 @@
     "@pkgs/clock-client": ["@pkgs/clock-client@workspace:pkgs/clock-client"],
 
     "@pkgs/clock-shared": ["@pkgs/clock-shared@workspace:pkgs/clock-shared"],
+
+    "@pkgs/clock-shared-swift": ["@pkgs/clock-shared-swift@workspace:pkgs/clock-shared-swift"],
 
     "@pkgs/collab-root-shared": ["@pkgs/collab-root-shared@workspace:pkgs/collab-root-shared"],
 

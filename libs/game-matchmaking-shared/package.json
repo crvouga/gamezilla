@@ -46,5 +46,6 @@
     "typescript": "catalog:"
   },
   "category": "isomorphic",
-  "gameApi": []
+  "gameApi": [],
+  "language": "typescript"
 }

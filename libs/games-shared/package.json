@@ -28,5 +28,6 @@
   },
   "category": "isomorphic",
   "gameApi": [],
-  "gameRegistry": true
+  "gameRegistry": true,
+  "language": "typescript"
 }

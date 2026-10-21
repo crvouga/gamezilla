@@ -33,5 +33,6 @@
     "typescript": "catalog:"
   },
   "category": "client",
-  "game": "chess"
+  "game": "chess",
+  "language": "typescript"
 }
