@@ -15,12 +15,12 @@ import type { WatchSqlHandle } from '@pkgs/sync-engine-client/shared-watch-regis
 import { createSharedWatchRegistry } from '@pkgs/sync-engine-client/shared-watch-registry';
 import { createSubscribeQueries } from '@pkgs/sync-engine-client/subscribe-queries';
 import type { SyncEngine } from '@pkgs/sync-engine-client/sync-engine-port';
-import type { WriteRefusal } from '@pkgs/sync-engine-client/write-outcome-reads';
 import type {
   SyncEngineStatus,
   SyncStatusSubscription,
 } from '@pkgs/sync-engine-client/sync-status';
 import { INITIAL_SYNC_STATUS } from '@pkgs/sync-engine-client/sync-status';
+import type { WriteRefusal } from '@pkgs/sync-engine-client/write-outcome-reads';
 
 function createStatusStore(): {
   readonly status: SyncStatusSubscription;
