@@ -46,7 +46,7 @@ describe('a name spells runtime, then language', () => {
     expect(check(pkg('clock-shared-swift', 'isomorphic', 'swift'))).toEqual([]);
     expect(check(pkg('sync-contracts', 'isomorphic', 'neutral'))).toEqual([]);
     // Apps name a product surface, not a runtime.
-    expect(check(pkg('apple-client-swift', 'client', 'swift', 'apps'))).toEqual(
+    expect(check(pkg('client-swift', 'client', 'swift', 'apps'))).toEqual(
       []
     );
     expect(check(pkg('product-ts', 'harness', 'typescript', 'apps'))).toEqual(

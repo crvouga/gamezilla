@@ -143,7 +143,7 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 | `@apps/server-ts` | API and room modules, plus local API preview. Source is isomorphic; `pg` and `node:*` only behind ports in modules marked `@api-wall-ok`. |
 | `@apps/product-ts` | Application Worker (client assets, API, schedules and rooms); web app, harness, simulator and localhost stack. |
 | `@apps/auth-relay-ts` | Global OAuth callback Worker at `auth.<zone>`. |
-| `@apps/apple-client-swift` | Native SwiftUI iOS shell: the product name on an empty screen, linking `@pkgs/clock-shared-swift`. No product features yet ([`docs/POLYGLOT.md`](docs/POLYGLOT.md)). |
+| `@apps/client-swift` | Native SwiftUI iOS shell: the product name on an empty screen, linking `@pkgs/clock-shared-swift`. No product features yet ([`docs/POLYGLOT.md`](docs/POLYGLOT.md)). |
 
 | Platform lib | Role |
 | --- | --- |

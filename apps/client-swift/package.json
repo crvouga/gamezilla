@@ -1,5 +1,5 @@
 {
-  "name": "@apps/apple-client-swift",
+  "name": "@apps/client-swift",
   "version": "0.0.0",
   "private": true,
   "scripts": {

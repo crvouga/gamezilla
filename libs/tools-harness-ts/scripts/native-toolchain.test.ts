@@ -137,7 +137,7 @@ describe('verification hosts', () => {
       '--filter=./apps/*',
       '--filter=./libs/*',
       '--filter=./pkgs/*',
-      '--filter=!@apps/apple-client-swift',
+      '--filter=!@apps/client-swift',
     ]);
   });
 
@@ -147,7 +147,7 @@ describe('verification hosts', () => {
     expect(args).toContain('test');
     expect(args).toContain('lint');
     expect(hostFilters(manifests, 'macos')).toEqual([
-      '--filter=@apps/apple-client-swift',
+      '--filter=@apps/client-swift',
       '--filter=@pkgs/clock-shared-swift',
     ]);
   });

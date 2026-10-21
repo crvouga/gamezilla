@@ -156,7 +156,7 @@ const APPLE_ONLY =
 const UI_FRAMEWORK = /^(SwiftUI|UIKit|AppKit|WatchKit|Cocoa)$/;
 
 export type NativeFiles = {
-  /** Repo-relative path of the package, e.g. `apps/apple-client-swift`. */
+  /** Repo-relative path of the package, e.g. `apps/client-swift`. */
   readonly dir: string;
   /** Package-relative paths of the package's tracked files. */
   readonly files: readonly string[];

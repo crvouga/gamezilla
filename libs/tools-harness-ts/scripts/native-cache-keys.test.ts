@@ -13,7 +13,7 @@ import { dirname, join } from 'node:path';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const LIB = 'pkgs/clock-shared-swift';
-const APP = 'apps/apple-client-swift';
+const APP = 'apps/client-swift';
 
 type DryTask = { taskId: string; hash: string; command: string };
 
@@ -126,7 +126,7 @@ test('a native library change reruns its app, a test change does not, and other 
   const root = fixture();
   try {
     const base = hashes(root);
-    expect(base.has('@apps/apple-client-swift#test')).toBe(true);
+    expect(base.has('@apps/client-swift#test')).toBe(true);
     // The unrelated TypeScript package is in the plan, so staying out of
     // every `changed` list below means it stayed cached.
     expect(base.has('@pkgs/other-shared-ts#test')).toBe(true);
@@ -137,7 +137,7 @@ test('a native library change reruns its app, a test change does not, and other 
     );
     const source = hashes(root);
     expect(changed(base, source)).toEqual([
-      '@apps/apple-client-swift#test',
+      '@apps/client-swift#test',
       '@pkgs/clock-shared-swift#tc',
       '@pkgs/clock-shared-swift#test',
     ]);
@@ -159,7 +159,7 @@ test('a native verdict never answers for another host or toolchain', () => {
   const root = fixture();
   try {
     const native = [
-      '@apps/apple-client-swift#test',
+      '@apps/client-swift#test',
       '@pkgs/clock-shared-swift#tc',
       '@pkgs/clock-shared-swift#test',
     ];
