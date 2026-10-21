@@ -137,3 +137,15 @@ libs/infra-shared/tofu/stacks/*/*_override.tf
 # concurrent worktrees cannot conflict on them.
 STEPS_CATALOG.md
 libs/app-root-shared/locales/*/messages.ts
+
+# Graphify: the knowledge graph, and the project skill the pinned release
+# writes (`bun run graphify:install`)
+graphify-out/
+/.agents/skills/graphify/
+/.claude/skills/graphify
+
+# Serena: per-machine state; `.serena/project.yml` is the committed project
+.serena/cache/
+.serena/logs/
+.serena/memories/
+.serena/project.local.yml

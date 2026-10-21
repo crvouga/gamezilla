@@ -18,6 +18,7 @@
  *   agent at the source file.
  *
  * Generated stubs carry {@link GENERATED_MARKER}; stale stubs are removed.
+ * The same run writes each harness's MCP server entry (`./sync-agent-mcp.ts`).
  * `--check` writes nothing and fails on any drift.
  */
 import {
@@ -32,6 +33,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { syncAgentMcp } from './sync-agent-mcp';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const SOURCE_DIR = '.agents/commands';
@@ -277,6 +279,7 @@ export function syncAgentCommands(verify: boolean): {
 if (import.meta.main) {
   const verify = process.argv.includes('--check');
   const { errors, drift } = syncAgentCommands(verify);
+  drift.push(...syncAgentMcp(verify));
   const blocked = drift.some((line) => line.includes('is a real directory'));
   if (errors.length > 0 || blocked || (verify && drift.length > 0)) {
     console.error('agent-commands gate failed:');
@@ -285,5 +288,7 @@ if (import.meta.main) {
     process.exit(1);
   }
   for (const line of drift) console.log(`synced: ${line}`);
-  console.log(`ok: agent commands in sync with ${SOURCE_DIR}`);
+  console.log(
+    `ok: agent commands in sync with ${SOURCE_DIR}, MCP servers in every harness`
+  );
 }

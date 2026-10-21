@@ -1,0 +1,17 @@
+# Graphify indexes the product, not the agent tooling that reads the graph.
+# Same syntax as .gitignore; .gitignore is honored too (graphify-out/, caches).
+.agents/
+.claude/
+.cursor/
+.gemini/
+.opencode/
+.windsurf/
+.super.engineering/
+.superset/
+bun.lock
+skills-lock.json
+.codex/
+.serena/
+.vscode/
+.mcp.json
+opencode.json

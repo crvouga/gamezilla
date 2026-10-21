@@ -30,6 +30,8 @@ workspace_cold() {
   workspace_install ||
     echo "!!! launching dev on an incomplete install"
   "$STEP" local-files || echo "!!! workspace:local-files is unfinished"
+  TURBO_UI=false bun run graphify:install ||
+    echo "!!! graphify:install is unfinished; run it in this workspace"
   mkdir -p .cache
   printf 'warm\n' >"$WARM_MARK"
 }
