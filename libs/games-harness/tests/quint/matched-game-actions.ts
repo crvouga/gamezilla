@@ -20,6 +20,7 @@ import {
   multiplayerView,
   storedMultiplayerSnapshot,
 } from '@libs/game-matchmaking-harness/multiplayer-reads';
+import { chooseKnownSetups } from '@libs/game-matchmaking-harness/multiplayer-setups';
 import { passMultiplayerTime } from '@libs/game-matchmaking-harness/multiplayer-time';
 import {
   givenGameSpace,
@@ -88,11 +89,16 @@ export const declineDraw = onGame(
   'answerNumber'
 );
 export const offerRematch = onGame('offerMultiplayerRematch');
-export const acceptRematch = onGame(
+const answerRematch = onGame(
   'acceptMultiplayerRematch',
   'answerDevice',
   'answerNumber'
 );
+/** An accepted rematch is a new matched game, ready to play like any pairing's. */
+export async function acceptRematch(w: PlayTrace, picks: Picks) {
+  await answerRematch(w, picks);
+  await w.s.apply(chooseKnownSetups, PLAY_PEOPLE);
+}
 export const declineRematch = onGame(
   'declineMultiplayerRematch',
   'answerDevice',

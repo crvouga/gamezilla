@@ -1,6 +1,7 @@
 import { acceptGameMatch } from '@libs/game-matchmaking-shared/match-handoff';
 import { OpponentRequested } from '@libs/game-matchmaking-shared/opponent-requested';
 import { scenarioAction } from '@libs/harness/actor-ui';
+import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
 import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
 import type { MatchFormation } from '@pkgs/matchmaking-sql-shared/match-pass';
@@ -14,6 +15,7 @@ import {
   multiplayerFixture,
   multiplayerTransaction,
 } from './multiplayer-fixtures-core';
+import { chooseKnownSetups } from './multiplayer-setups';
 import { multiplayerSpaceId } from './multiplayer-spaces';
 
 /**
@@ -74,13 +76,28 @@ export const controlledMultiplayerCommand = scenarioAction({
 /**
  * A published upstream fact, delivered to the production handoff handler,
  * which gives the matched game to the game its clock choice belongs to.
+ * Like every pairing, it hands over a game ready to play: its people's
+ * private setups are chosen.
  */
 export const receiveMultiplayerMatch = scenarioAction<
   [fact: MatchFormation, firstIsWhite?: boolean]
 >({
   name: 'receiveMultiplayerMatch',
-  act: (s, fact: MatchFormation, firstIsWhite = true) =>
-    multiplayerTransaction(s, fact.participants[0]!.ownerId, async (tx) => {
+  act: async (s, fact: MatchFormation, firstIsWhite = true) => {
+    await receiveMatch(s, fact, firstIsWhite);
+    await Promise.resolve(chooseKnownSetups.act(s, [...s.actors.keys()]));
+  },
+});
+
+function receiveMatch(
+  s: ProductHarness,
+  fact: MatchFormation,
+  firstIsWhite: boolean
+) {
+  return multiplayerTransaction(
+    s,
+    fact.participants[0]!.ownerId,
+    async (tx) => {
       await acceptGameMatch(
         tx,
         fact,
@@ -92,8 +109,9 @@ export const receiveMultiplayerMatch = scenarioAction<
         s.harness.composition.app.turnGames
       );
       return fact.participants.map((p) => p.ownerId);
-    }),
-});
+    }
+  );
+}
 
 /** Translate people and accepted references only; never select opponents. */
 export async function multiplayerMatchFact(
