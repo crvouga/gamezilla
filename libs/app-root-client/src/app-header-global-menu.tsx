@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
  * Global dropdown mounted as `AppFrameChromeProvider` `globalTrailing` so
- * every top bar shares it. Rows: Settings, Connectivity, Server, Account,
- * Theme, Sound. Header shows `@username` and an email when one is published
+ * every top bar shares it. Rows: Settings, Connectivity (→ Connection in
+ * Settings), Account, Theme, Sound. Header shows `@username` and an email when one is published
  * (bridged from the sync tree via {@link useGlobalMenuIdentity}). Trigger face
  * is the current user's avatar when available. The chrome shows identity only:
  * it knows nothing of sign-in state or membership, so it cannot branch on them.
@@ -15,7 +15,6 @@ import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { Avatar } from '@pkgs/ui-root-client/avatar';
 import {
   PaintbrushIcon,
-  ServerIcon,
   SettingsIcon,
   UserIcon,
   Volume2Icon,
@@ -101,17 +100,13 @@ function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
       endsGroup: true,
       dataSet: { testid: Handles.globalMenuSettings },
     },
-    connectivityMenuAction({
-      label: t`Connectivity`,
-      status: connectivity.status(),
-      statusLabel: connectivityStatusLabel(connectivity.status()),
-      onClick: go('/more/sync'),
-    }),
     {
-      id: 'server',
-      label: t`Server`,
-      icon: ServerIcon,
-      onClick: go('/more/server-status'),
+      ...connectivityMenuAction({
+        label: t`Connectivity`,
+        status: connectivity.status(),
+        statusLabel: connectivityStatusLabel(connectivity.status()),
+        onClick: go('/more/server-status'),
+      }),
       endsGroup: true,
     },
     {

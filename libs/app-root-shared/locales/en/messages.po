@@ -527,6 +527,10 @@ msgstr "App"
 msgid "App failed to start"
 msgstr "App failed to start"
 
+#: libs/app-root-client/src/more-server-status.tsx
+msgid "App version"
+msgstr "App version"
+
 #: libs/app-root-client/src/app-commands.tsx
 #: libs/app-root-client/src/settings-screen.tsx
 #: libs/app-root-client/src/theme-screen.tsx
@@ -734,6 +738,10 @@ msgstr "By stalemate."
 msgid "By the fifty-move rule."
 msgstr "By the fifty-move rule."
 
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "Can’t reach Gamezilla"
+msgstr "Can’t reach Gamezilla"
+
 #: libs/auth-client/src/sign-in-link-required.tsx
 #: libs/profile-client/src/avatar-editor-screen.tsx
 #: libs/profile-client/src/profile-handle-screen.tsx
@@ -783,6 +791,7 @@ msgstr "Change participant"
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
 
+#: libs/app-root-client/src/more-server-status.tsx
 #: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "Check again"
 msgstr "Check again"
@@ -802,6 +811,14 @@ msgstr "Check your email"
 #: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
 msgid "Checking for the saved Lichess file…"
 msgstr "Checking for the saved Lichess file…"
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "Checking whether Gamezilla can be reached."
+msgstr "Checking whether Gamezilla can be reached."
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "Checking…"
+msgstr "Checking…"
 
 #: libs/chess-root-client/src/chess-game-presentation.tsx
 msgid "checkmate"
@@ -1007,6 +1024,7 @@ msgstr "Connect Four board, seven columns and six rows"
 msgid "Connect your accounts?"
 msgstr "Connect your accounts?"
 
+#: libs/app-root-client/src/connection-copy.tsx
 #: libs/app-root-client/src/sync-screen.tsx
 #: libs/auth-client/src/sign-in-method-row.tsx
 msgid "Connected"
@@ -1024,6 +1042,7 @@ msgstr "Connecting to puzzle status…"
 msgid "Connecting…"
 msgstr "Connecting…"
 
+#: libs/app-root-client/src/more-server-status.tsx
 #: libs/app-root-client/src/settings-screen.tsx
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "Connection"
@@ -1032,10 +1051,6 @@ msgstr "Connection"
 #: libs/game-session-client/src/custom-game-status.tsx
 msgid "Connection needed to change or play this game."
 msgstr "Connection needed to change or play this game."
-
-#: libs/app-root-client/src/connection-notice.tsx
-msgid "Connection unavailable. Saved content and local games remain available. Shared changes will reconnect automatically."
-msgstr "Connection unavailable. Saved content and local games remain available. Shared changes will reconnect automatically."
 
 #: libs/app-root-client/src/app-commands.tsx
 #: libs/app-root-client/src/app-header-global-menu.tsx
@@ -1805,6 +1820,14 @@ msgstr "Game replay"
 msgid "Games"
 msgstr "Games"
 
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "Gamezilla can be reached. What you do is shared with everyone else."
+msgstr "Gamezilla can be reached. What you do is shared with everyone else."
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "Gamezilla can’t be reached right now. This isn’t something you did. What you do here is kept on this device and shared when Gamezilla is back."
+msgstr "Gamezilla can’t be reached right now. This isn’t something you did. What you do here is kept on this device and shared when Gamezilla is back."
+
 #: libs/app-root-client/src/boot-error-screen.tsx
 msgid "Gamezilla is open in another tab"
 msgstr "Gamezilla is open in another tab"
@@ -2062,6 +2085,10 @@ msgstr "Knight"
 #: libs/chess-puzzle-client/src/puzzle-import-status.tsx
 msgid "Last activity"
 msgstr "Last activity"
+
+#: libs/app-root-client/src/more-server-status.tsx
+msgid "Last connected"
+msgstr "Last connected"
 
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "Last error"
@@ -2397,10 +2424,6 @@ msgstr "Neither side can checkmate."
 msgid "network"
 msgstr "network"
 
-#: libs/app-root-client/src/settings-screen.tsx
-msgid "Network reachability and server health"
-msgstr "Network reachability and server health"
-
 #: libs/game-matchmaking-client/src/multiplayer-find-panel.tsx
 #: libs/game-session-client/src/custom-game-screen.tsx
 msgid "New game"
@@ -2622,6 +2645,10 @@ msgstr "Not set"
 #: libs/synthetic-population-client/src/synthetic-user-details.tsx
 msgid "Not started"
 msgstr "Not started"
+
+#: libs/app-root-client/src/more-server-status.tsx
+msgid "Not yet"
+msgstr "Not yet"
 
 #: libs/notifications-client/src/notifications-empty-state.tsx
 msgid "Nothing archived"
@@ -3516,14 +3543,6 @@ msgstr "Sending…"
 msgid "Sent"
 msgstr "Sent"
 
-#: libs/app-root-client/src/app-header-global-menu.tsx
-msgid "Server"
-msgstr "Server"
-
-#: libs/app-root-client/src/more-server-status.tsx
-msgid "Server status"
-msgstr "Server status"
-
 #: libs/synthetic-population-client/src/synthetic-population-configuration.tsx
 msgid "Session duration (milliseconds)"
 msgstr "Session duration (milliseconds)"
@@ -3831,6 +3850,7 @@ msgstr "Space renamed"
 #: libs/app-root-client/src/about-screen.tsx
 #: libs/app-root-client/src/client-events.tsx
 #: libs/app-root-client/src/client-sql.tsx
+#: libs/app-root-client/src/more-server-status.tsx
 #: libs/app-root-client/src/performance-screen.tsx
 #: libs/app-root-client/src/settings-screen.tsx
 #: libs/app-root-client/src/sound-screen.tsx
@@ -4259,6 +4279,18 @@ msgstr "This choice needs a connection"
 msgid "This device"
 msgstr "This device"
 
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "This device has no internet connection. Check Wi-Fi or mobile data. The app keeps trying on its own."
+msgstr "This device has no internet connection. Check Wi-Fi or mobile data. The app keeps trying on its own."
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "This device is offline"
+msgstr "This device is offline"
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "This device is online, but Gamezilla can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
+msgstr "This device is online, but Gamezilla can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
+
 #: libs/account-privacy-client/src/export-download.tsx
 msgid "This export belongs to another account and cannot be downloaded."
 msgstr "This export belongs to another account and cannot be downloaded."
@@ -4618,6 +4650,10 @@ msgstr "We retain only minimum payment evidence for accounting and disputes for 
 msgid "What Plus includes"
 msgstr "What Plus includes"
 
+#: libs/app-root-client/src/settings-screen.tsx
+msgid "Whether the app is connected, and what works without it"
+msgstr "Whether the app is connected, and what works without it"
+
 #: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
 #: libs/chess-root-client/src/chess-game-presentation.tsx
 msgid "White"
@@ -4630,6 +4666,10 @@ msgstr "Wins"
 #: libs/game-session-client/src/custom-game-configuration.tsx
 msgid "Withdraw readiness"
 msgstr "Withdraw readiness"
+
+#: libs/app-root-client/src/more-server-status.tsx
+msgid "Without a connection, your spaces, games on this device and preferences keep working. What you do is kept on this device and shared once the connection is back. Signing in, searching for people and playing someone online need a connection."
+msgstr "Without a connection, your spaces, games on this device and preferences keep working. What you do is kept on this device and shared once the connection is back. Signing in, searching for people and playing someone online need a connection."
 
 #: libs/app-root-client/src/app-commands.tsx
 #: libs/app-root-client/src/settings-screen.tsx
@@ -4648,6 +4688,10 @@ msgstr "Worker Lease"
 #: libs/synthetic-population-client/src/synthetic-population-configuration.tsx
 msgid "Worker Lease duration (milliseconds)"
 msgstr "Worker Lease duration (milliseconds)"
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "Working offline"
+msgstr "Working offline"
 
 #: libs/notifications-client/src/notification-card-default.tsx
 #: pkgs/ui-root-client/src/game-action-button.tsx
@@ -4724,6 +4768,10 @@ msgstr "You can rejoin from the invite link if the space is still live."
 msgid "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
 msgstr "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
 
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "You chose to work offline. Turn off Work offline in Settings to share what you do."
+msgstr "You chose to work offline. Turn off Work offline in Settings to share what you do."
+
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "You do not control that side."
 msgstr "You do not control that side."
@@ -4786,6 +4834,10 @@ msgstr "You're offline"
 msgid "You're offline. Search again once you're back online."
 msgstr "You're offline. Search again once you're back online."
 
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "You’re offline. What you do is kept on this device and shared when you’re back online."
+msgstr "You’re offline. What you do is kept on this device and shared when you’re back online."
+
 #: libs/auth-client/src/sign-in-modal.tsx
 msgid "You're signed in on this device."
 msgstr "You're signed in on this device."
@@ -4797,6 +4849,10 @@ msgstr "You're signed out on this device."
 #: libs/spaces-client/src/leave-space-confirm-modal.tsx
 msgid "You're the host, so leaving ends the space for everyone. This cannot be undone."
 msgstr "You're the host, so leaving ends the space for everyone. This cannot be undone."
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "You’re working offline. What you do is kept on this device and shared when you work online again."
+msgstr "You’re working offline. What you do is kept on this device and shared when you work online again."
 
 #: libs/game-puzzle-client/src/puzzle-play-screen.tsx
 msgid "You've cleared everything in your feed. Widen the filters and let's keep going."

@@ -8,7 +8,7 @@ import { chooseOfflineCommand } from '@libs/harness/offline-gestures';
 import { APP_VERSION } from '@libs/app-root-shared/app-metadata';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import { actorHtml, nodeText } from '@libs/harness/observations';
+import { actorHtml, nodeText, visible } from '@libs/harness/observations';
 import { backToTabs, openSettings } from '@libs/harness/shell-actions';
 import { Handles } from '@libs/test-ids-shared/handles';
 
@@ -169,4 +169,35 @@ export async function versionShownInAbout(
   actorId: string
 ): Promise<string | null> {
   return nodeText(s, actorId, [Handles.aboutVersion]);
+}
+
+/** Settings → Connection: whether the app is connected and what works without it. */
+export const openConnectionInSettings = scenarioAction({
+  name: 'openConnectionInSettings',
+  act: async (s, actorId: string) => {
+    await openSettingsFromAnywhere(s, actorId);
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.settingsConnection).tap({ timeoutMs: WAIT_MS });
+    await s.session.waitForIdle();
+  },
+});
+
+/** Which connection state Connection in Settings shows, or `null` off it. */
+export async function connectionStateShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<'connected' | 'missing' | 'checking' | null> {
+  for (const state of ['connected', 'missing', 'checking'] as const) {
+    if (await visible(s, actorId, [Handles.connectionState(state)]))
+      return state;
+  }
+  return null;
+}
+
+/** What Connection in Settings says still works without a connection. */
+export function withoutConnectionShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  return nodeText(s, actorId, [Handles.connectionWithoutConnection]);
 }
