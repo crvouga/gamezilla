@@ -1,4 +1,5 @@
 import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { Surface } from '@pkgs/ui-root-client/surface';
 import type { JSX } from 'solid-js';
 import { createSignal } from 'solid-js';
 import { ActiveSpaceBody } from './active-space-body';
@@ -29,21 +30,19 @@ export function ActiveSpace(props: ActiveSpaceProps): JSX.Element {
   };
 
   return (
-    <div class="box flex-1 bg-background">
-      <div class="box flex-1 min-h-0">
-        <ActiveSpaceBody
-          spaceId={props.spaceId}
-          onRequestEnd={() => requestEndSpace(props.spaceId)}
-          onRequestLeave={() => requestLeaveSpace(props.spaceId)}
-          onRequestRename={() => setRenameOpen(true)}
-          onPressHome={onPressHome}
-        />
-        <RenameSpaceModal
-          spaceId={props.spaceId}
-          visible={renameOpen()}
-          onClose={() => setRenameOpen(false)}
-        />
-      </div>
-    </div>
+    <Surface tone="background" grow>
+      <ActiveSpaceBody
+        spaceId={props.spaceId}
+        onRequestEnd={() => requestEndSpace(props.spaceId)}
+        onRequestLeave={() => requestLeaveSpace(props.spaceId)}
+        onRequestRename={() => setRenameOpen(true)}
+        onPressHome={onPressHome}
+      />
+      <RenameSpaceModal
+        spaceId={props.spaceId}
+        visible={renameOpen()}
+        onClose={() => setRenameOpen(false)}
+      />
+    </Surface>
   );
 }

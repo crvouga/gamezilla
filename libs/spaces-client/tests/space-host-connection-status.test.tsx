@@ -19,24 +19,22 @@ test('host connection changes keep their header slot and never add a notice', ()
       <SpaceHostConnectionStatus offline={offline()} />
     </ThemeProvider>
   ));
-  const slot = container.querySelector(
-    '[data-component="SpaceHostConnectionStatus"]'
-  );
+  const slot = container.querySelector('[data-component="StatusIconSlot"]');
   expect(slot?.classList.contains('h-8')).toBe(true);
   expect(slot?.classList.contains('w-8')).toBe(true);
   expect(slot?.classList.contains('shrink-0')).toBe(true);
   setOffline(true);
-  expect(
-    container.querySelector('[data-component="SpaceHostConnectionStatus"]')
-  ).toBe(slot);
+  expect(container.querySelector('[data-component="StatusIconSlot"]')).toBe(
+    slot
+  );
   expect(
     container.querySelector(`[data-testid="${Handles.spaceHostOffline}"]`)
       ?.textContent
   ).toContain('The host is offline');
   expect(container.querySelector('[data-component="Notice"]')).toBeNull();
   setOffline(false);
-  expect(
-    container.querySelector('[data-component="SpaceHostConnectionStatus"]')
-  ).toBe(slot);
+  expect(container.querySelector('[data-component="StatusIconSlot"]')).toBe(
+    slot
+  );
   expect(slot?.children.length).toBe(0);
 });

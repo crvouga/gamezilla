@@ -1,16 +1,14 @@
-import { useModeration } from '@libs/moderation-client/moderation-context';
-import { spaceTitleText } from '@libs/moderation-shared/display';
-import type { TextVariant } from '@pkgs/ui-root-client/text';
+import type { TextRole } from '@pkgs/ui-root-client/text';
+import { Text } from '@pkgs/ui-root-client/text';
+import type { TextLines } from '@pkgs/ui-root-client/text-classes';
 import type { JSX } from 'solid-js';
-import { createMemo, Show } from 'solid-js';
-import { SpaceHostFallbackTitle } from './space-host-fallback-title';
-import { SpaceField, useSpaceColumn } from './use-space-column';
+import { useSpaceDisplayTitle } from './use-space-display-title';
 
 export type SpaceTitleTextProps = {
   spaceId: string;
-  variant?: TextVariant;
-  class?: string;
-  numberOfLines?: number;
+  /** Type role; default `inherit` takes the surrounding title's type. */
+  variant?: TextRole | 'inherit' | undefined;
+  lines?: TextLines | undefined;
 };
 
 /**
@@ -19,53 +17,10 @@ export type SpaceTitleTextProps = {
  * moderation policy masks it.
  */
 export function SpaceTitleText(props: SpaceTitleTextProps): JSX.Element {
-  const storedTitle = useSpaceColumn(props.spaceId, SpaceField.title);
-  const moderation = useModeration();
-  const customTitle = createMemo(() =>
-    spaceTitleText(moderation(), storedTitle(), props.spaceId)
-  );
+  const title = useSpaceDisplayTitle(() => props.spaceId);
   return (
-    <Show
-      when={customTitle()}
-      fallback={
-        <SpaceHostFallbackTitle
-          spaceId={props.spaceId}
-          {...(props.variant !== undefined ? { variant: props.variant } : {})}
-          {...(props.class !== undefined ? { class: props.class } : {})}
-          {...(props.numberOfLines !== undefined
-            ? { numberOfLines: props.numberOfLines }
-            : {})}
-        />
-      }
-    >
-      <p
-        class="text textBody min-w-0"
-        classList={{
-          textBodyBold: String(props.variant) === 'bodyBold',
-          textCaption: String(props.variant) === 'caption',
-          textLabel: String(props.variant) === 'label',
-          textTitle: String(props.variant) === 'title',
-          textSubtitle: String(props.variant) === 'subtitle',
-          textHeading: String(props.variant) === 'heading',
-          textNavigationTitle: String(props.variant) === 'navigationTitle',
-          textLink: String(props.variant) === 'link',
-          textMono: String(props.variant) === 'mono',
-          'line-clamp-1': props.numberOfLines === 1,
-          [String(props.class)]: true,
-        }}
-        style={
-          props.numberOfLines !== undefined && props.numberOfLines > 1
-            ? {
-                display: '-webkit-box',
-                '-webkit-box-orient': 'vertical',
-                '-webkit-line-clamp': props.numberOfLines,
-                overflow: 'hidden',
-              }
-            : undefined
-        }
-      >
-        {customTitle() ?? ''}
-      </p>
-    </Show>
+    <Text variant={props.variant ?? 'inherit'} lines={props.lines}>
+      {title()}
+    </Text>
   );
 }

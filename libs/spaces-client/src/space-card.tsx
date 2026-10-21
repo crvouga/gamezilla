@@ -1,4 +1,5 @@
 import { Handles } from '@libs/test-ids-shared/handles';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import { SpaceCardOpenLink } from './space-card-open-link';
@@ -15,17 +16,16 @@ export function SpaceCard(props: SpaceCardProps): JSX.Element {
   const endedAt = useSpaceColumn(() => props.spaceId, SpaceField.endedAt);
   return (
     <Show when={endedAt() === null}>
-      <div class="panelItem">
-        <SpaceCardOpenLink spaceId={props.spaceId}>
-          <div
-            class="box p-4"
-            data-testid={Handles.spaceLobbyCard(props.spaceId)}
-          >
-            <SpaceSummaryHeader spaceId={props.spaceId} />
-            <SpaceGuestSection spaceId={props.spaceId} />
-          </div>
-        </SpaceCardOpenLink>
-      </div>
+      <SpaceCardOpenLink spaceId={props.spaceId}>
+        <StackVertical
+          padding="lg"
+          gap="md"
+          testId={Handles.spaceLobbyCard(props.spaceId)}
+        >
+          <SpaceSummaryHeader spaceId={props.spaceId} />
+          <SpaceGuestSection spaceId={props.spaceId} />
+        </StackVertical>
+      </SpaceCardOpenLink>
     </Show>
   );
 }

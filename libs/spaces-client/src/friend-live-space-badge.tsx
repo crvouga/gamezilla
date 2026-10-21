@@ -1,5 +1,6 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { Pressable } from '@pkgs/ui-root-client/pressable';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import { SpaceLiveBadge } from './space-live-badge';
@@ -19,16 +20,14 @@ export function FriendLiveSpaceBadge(
   return (
     <Show when={spaceId()} keyed>
       {(space) => (
-        <button
-          class="clickable clickableTint"
-          type="button"
-          data-testid={Handles.friendLiveSpace(props.hostAccountId)}
-          onClick={() => openSpaceDetail(router, space)}
+        <Pressable
+          testId={Handles.friendLiveSpace(props.hostAccountId)}
+          onPress={() => openSpaceDetail(router, space)}
+          paddingX="xs"
+          radius="full"
         >
-          <div class="box px-1">
-            <SpaceLiveBadge spaceId={space} />
-          </div>
-        </button>
+          <SpaceLiveBadge spaceId={space} />
+        </Pressable>
       )}
     </Show>
   );

@@ -22,6 +22,7 @@ import {
   useContext,
 } from 'solid-js';
 
+import { SpaceProbe } from './space-probe';
 import { openSpaceDetail, useSpaceRouteId } from './space-routes';
 import { useHostedSpaceCount } from './use-hosted-space-count';
 
@@ -164,13 +165,9 @@ export function HostingAccount(props: {
   return (
     <HostingInviteContext.Provider value={api}>
       <HostingCollapse note={note} />
-      <span
-        data-testid={Handles.spacesHostedProbe}
-        class="hidden"
-        aria-hidden="true"
-      >
+      <SpaceProbe testId={Handles.spacesHostedProbe}>
         {spaces.ids().join('\n')}
-      </span>
+      </SpaceProbe>
       <Show when={decision()}>
         {(shown) => (
           <DenialSurface

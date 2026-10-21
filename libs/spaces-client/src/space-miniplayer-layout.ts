@@ -42,23 +42,3 @@ export function resolveMiniplayerMode(
     primarySpaceId,
   };
 }
-
-export type MiniplayerLayoutMode = 'compact' | 'wide';
-
-export type MiniplayerFrame = {
-  /**
-   * Soft top corners on wide (still a dock, not a floating pill);
-   * full-bleed strip above the tab bar on compact.
-   */
-  readonly rounded: boolean;
-};
-
-/** Frame the miniplayer takes for a layout mode; pinned to the bottom in both. */
-export function resolveMiniplayerFrame(
-  mode: MiniplayerLayoutMode
-): MiniplayerFrame {
-  if (mode === 'wide') {
-    return { rounded: true };
-  }
-  return { rounded: false };
-}

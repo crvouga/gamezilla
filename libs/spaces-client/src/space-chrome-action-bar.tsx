@@ -16,6 +16,7 @@ import {
   SquarePenIcon,
   XIcon,
 } from '@pkgs/ui-root-client/icons';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal } from 'solid-js';
 import { useSpaceMembersDialog } from './space-members-dialog-context';
@@ -148,9 +149,9 @@ function buildTrailingItems(args: {
       priority: 90,
       dataSet: { testid: Handles.spaceMembersButton },
       children: (
-        <div data-testid={Handles.spacePresenceStrip}>
+        <StackHorizontal align="center" testId={Handles.spacePresenceStrip}>
           <SpacePresenceStrip spaceId={spaceId} size={avatarSize} />
-        </div>
+        </StackHorizontal>
       ),
     },
     {

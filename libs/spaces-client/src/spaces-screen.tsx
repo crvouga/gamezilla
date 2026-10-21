@@ -4,6 +4,7 @@ import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { CollectionScreen } from '@pkgs/ui-root-client/collection-screen';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { Gamepad2Icon, PlusIcon } from '@pkgs/ui-root-client/icons';
+import { List } from '@pkgs/ui-root-client/list';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import type { ScreenBasePrimaryAction } from '@pkgs/ui-root-client/screen-base-types';
 import { ScreenBodyScrollView } from '@pkgs/ui-root-client/screen-body-scroll-view';
@@ -63,11 +64,11 @@ function SpacesList(props: {
       fallback={<SpacesEmptyState onCreateSpace={props.onCreateSpace} />}
     >
       <ScreenBodyScrollView paddingBottom="xl">
-        <div class="panel">
+        <List>
           <For each={orderedIds()}>
             {(spaceId) => <SpaceCard spaceId={spaceId} />}
           </For>
-        </div>
+        </List>
       </ScreenBodyScrollView>
     </Show>
   );
@@ -118,7 +119,7 @@ export function SpacesScreen(): JSX.Element {
       primaryAction={primaryAction()}
     >
       <Show when={listReady()} fallback={<LoadingState />}>
-        <SpacesLobbyContent class="box flex-1 min-h-0 gap-3">
+        <SpacesLobbyContent>
           <SpacesList onCreateSpace={onCreateSpace} />
         </SpacesLobbyContent>
       </Show>

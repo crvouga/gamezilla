@@ -37,9 +37,7 @@ function mountLobby() {
       <ThemeProvider colorScheme="light">
         <SecureStorageStoreProvider value={store}>
           <SyncEngineProvider value={engine}>
-            <SpacesLobbyContent class="box">
-              <div>Spaces</div>
-            </SpacesLobbyContent>
+            <SpacesLobbyContent>Spaces</SpacesLobbyContent>
           </SyncEngineProvider>
         </SecureStorageStoreProvider>
       </ThemeProvider>
@@ -53,6 +51,11 @@ function mountLobby() {
       for (const listener of listeners) listener();
     },
   };
+}
+
+function hostingCountText(count: number): string | null {
+  if (count === 0) return null;
+  return count === 1 ? 'Hosting 1 space' : `Hosting ${String(count)} spaces`;
 }
 
 // regression: journey-hosting-count-hydration-race
@@ -79,9 +82,7 @@ test('an answered lobby reflects every hosting count, including zero', () => {
         lobby.answer(count);
         expect(screen.getByTestId(Handles.spacesListReady)).toBeVisible();
         const hosting = screen.queryByTestId(Handles.spacesHostingCount);
-        expect(hosting?.getAttribute('data-count') ?? null).toBe(
-          count > 0 ? String(count) : null
-        );
+        expect(hosting?.textContent ?? null).toBe(hostingCountText(count));
       } finally {
         lobby.dispose();
       }

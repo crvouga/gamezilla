@@ -19,6 +19,7 @@ import {
 } from 'solid-js';
 
 import { useSpaceOpenRoomEntries } from './space-open-rooms-store';
+import { SpaceProbe } from './space-probe';
 
 type HostRow = { readonly id: string; readonly host_member_id: string | null };
 
@@ -126,20 +127,12 @@ export function SpacePresenceProbes(): JSX.Element {
 
   return (
     <>
-      <span
-        data-testid={Handles.spacePresencePeople}
-        class="hidden"
-        aria-hidden="true"
-      >
+      <SpaceProbe testId={Handles.spacePresencePeople}>
         {reading().people}
-      </span>
-      <span
-        data-testid={Handles.spacePresenceIdle}
-        class="hidden"
-        aria-hidden="true"
-      >
+      </SpaceProbe>
+      <SpaceProbe testId={Handles.spacePresenceIdle}>
         {reading().idle}
-      </span>
+      </SpaceProbe>
     </>
   );
 }

@@ -1,5 +1,6 @@
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client/button';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import type { RequestEndSpaceOptions } from './end-space-modal-provider';
@@ -35,20 +36,16 @@ export function SpaceEndOrLeaveButton(
   };
 
   return (
-    <button
-      class="clickable clickableTint py-2 px-4 bg-surface-muted rounded-full"
-      type="button"
+    <Button
+      size="sm"
+      intent="neutral"
       onClick={onPress}
-      role="button"
       aria-label={canEndSpace() ? t`End space` : t`Leave space`}
-    >
-      <p class="text textFootnote">
-        {
-          <Show when={canEndSpace()} fallback={<Trans>Leave</Trans>}>
-            <Trans>End</Trans>
-          </Show>
-        }
-      </p>
-    </button>
+      title={
+        <Show when={canEndSpace()} fallback={<Trans>Leave</Trans>}>
+          <Trans>End</Trans>
+        </Show>
+      }
+    />
   );
 }

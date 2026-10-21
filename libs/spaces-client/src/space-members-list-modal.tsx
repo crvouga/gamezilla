@@ -7,10 +7,13 @@ import type { PresenceRosterRow } from '@pkgs/collab-ui-client/presence-roster-l
 import { PresenceRosterList } from '@pkgs/collab-ui-client/presence-roster-list';
 import type { RoomActor } from '@pkgs/room-root-shared/types';
 import { Badge } from '@pkgs/ui-root-client/badge';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { createEffect, createMemo, Show } from 'solid-js';
+import { SpaceProbe } from './space-probe';
 import { useSpaceRoomClientId } from './space-room-context';
 import { useMemberRole } from './use-member-role';
 import { useOpenSpacePresence } from './use-open-space-presence';
@@ -87,7 +90,12 @@ export function SpaceMembersListModal(
       <ScrollView maxHeight="lg">
         <Show
           when={titledRows().length > 0}
-          fallback={<Trans>No one connected yet</Trans>}
+          fallback={
+            <EmptyState
+              variant="compact"
+              title={<Trans>No one connected yet</Trans>}
+            />
+          }
         >
           <PresenceRosterList
             rows={titledRows()}
@@ -97,13 +105,9 @@ export function SpaceMembersListModal(
             )}
           />
         </Show>
-        <span
-          data-testid={Handles.spacePresenceCount}
-          class="hidden"
-          aria-hidden="true"
-        >
+        <SpaceProbe testId={Handles.spacePresenceCount}>
           {titledRows().length}
-        </span>
+        </SpaceProbe>
       </ScrollView>
     </ResponsiveSurface>
   );
@@ -118,7 +122,7 @@ function SpaceMemberBadges(props: {
 }): JSX.Element {
   const role = useMemberRole(props.spaceId, props.memberId);
   return (
-    <div class="box flex-row gap-1 items-center">
+    <StackHorizontal align="center" gap="xs">
       <Show when={props.idle}>
         <Badge
           label={<Trans>Idle</Trans>}
@@ -152,6 +156,6 @@ function SpaceMemberBadges(props: {
           size="sm"
         />
       </Show>
-    </div>
+    </StackHorizontal>
   );
 }

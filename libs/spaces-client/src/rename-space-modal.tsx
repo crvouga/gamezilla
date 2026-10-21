@@ -2,6 +2,7 @@ import { useModeration } from '@libs/moderation-client/moderation-context';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
+import { P } from '@pkgs/ui-root-client/text';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import {
   createEffect,
@@ -74,13 +75,14 @@ export function RenameSpaceModal(props: RenameSpaceModalProps): JSX.Element {
         dataSet={{ testid: Handles.spaceRenameInput }}
       />
       <Show when={refused()}>
-        <p
-          class="text textCaption text-destructive"
+        <P
+          variant="caption"
+          tone="destructive"
           role="alert"
-          data-testid={Handles.spaceRenameNotAllowed}
+          testId={Handles.spaceRenameNotAllowed}
         >
           <Trans>That space name is not allowed</Trans>
-        </p>
+        </P>
       </Show>
     </MutationModal>
   );
