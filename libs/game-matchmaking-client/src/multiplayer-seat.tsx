@@ -10,6 +10,7 @@ import {
   GAME_PLAYER_AVATAR_SIZE,
   GamePlayerBar,
 } from '@pkgs/ui-root-client/game-player-bar';
+import { Text } from '@pkgs/ui-root-client/text';
 import { type JSX, Show } from 'solid-js';
 import { MultiplayerClock } from './multiplayer-clocks';
 
@@ -39,9 +40,9 @@ function SeatName(props: {
       when={!props.own}
       fallback={<UserUsername profileId={props.profileId} withAt={false} />}
     >
-      <span data-testid="multiplayer-opponent">
+      <Text variant="inherit" testId="multiplayer-opponent">
         {props.viewer.opponentName} ({props.viewer.opponentRating})
-      </span>
+      </Text>
     </Show>
   );
 }
@@ -69,11 +70,11 @@ function SeatTags(props: {
         <Badge
           intent="neutral"
           label={
-            <span data-testid="multiplayer-colour">
+            <Text variant="inherit" testId="multiplayer-colour">
               <Trans>
                 You play {gameSideLabel(props.position, props.side)}
               </Trans>
-            </span>
+            </Text>
           }
         />
       </Show>

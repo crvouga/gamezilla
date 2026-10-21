@@ -4,6 +4,7 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { useClipboard } from '@pkgs/device-client/solid';
 import { useTurnGames } from '@pkgs/turn-game-client/turn-games-context';
 import { CopyToClipboardField } from '@pkgs/ui-root-client/copy-to-clipboard-field';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { type JSX, Show } from 'solid-js';
 import { useShownName } from './use-shown-name';
 
@@ -26,7 +27,7 @@ export function MultiplayerGameRecord(props: {
   return (
     <Show when={record()}>
       {(text) => (
-        <div class="box gap-3">
+        <StackVertical gap="md">
           <CopyToClipboardField
             label={<Trans>Game record</Trans>}
             helperText={t`Copy the complete game record.`}
@@ -44,7 +45,7 @@ export function MultiplayerGameRecord(props: {
             dataSet={{ testid: 'multiplayer-final-position' }}
             triggerDataSet={{ testid: 'multiplayer-copy-final-position' }}
           />
-        </div>
+        </StackVertical>
       )}
     </Show>
   );

@@ -6,13 +6,17 @@ import { useSpaceDecision } from '@libs/spaces-client/use-space-decision';
 import { Trans } from '@lingui/solid/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client/turn-games-context';
 import { Button } from '@pkgs/ui-root-client/button';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { GameHistoryScreen } from '@pkgs/ui-root-client/game-history-screen';
 import { GameReviewScreen } from '@pkgs/ui-root-client/game-review-screen';
 import { GameActions } from '@pkgs/ui-root-client/game-section';
 import { GameStat } from '@pkgs/ui-root-client/game-stat';
+import { Grid } from '@pkgs/ui-root-client/grid';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { MainMenuItemRow } from '@pkgs/ui-root-client/main-menu-item-row';
 import { MenuList } from '@pkgs/ui-root-client/menu-list';
-import { createSignal, For, type JSX, Show } from 'solid-js';
+import { P } from '@pkgs/ui-root-client/text';
+import { createSignal, For, type JSX, Match, Show, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { GameHistoryParticipant } from './game-history-participant';
 import { useGameRecordLabel } from './game-record-label';
@@ -36,12 +40,12 @@ function RecordReview(props: {
         screenId="game-history-review"
         title={<Trans>Game replay</Trans>}
         timeline={
-          <p class="text textCaption" role="status">
+          <P variant="caption" role="status">
             <Trans>
               Move {ply()} of {props.record.moves.length}.{' '}
               {recordLabel(props.record)}
             </Trans>
-          </p>
+          </P>
         }
         actions={
           <GameActions>
@@ -72,11 +76,68 @@ function RecordReview(props: {
     </>
   );
 }
+/** The finished games, or why there are none to show yet. */
+function GameHistoryRecords(props: {
+  records: readonly GameHistoryRecord[];
+  loading: boolean;
+  onSelect: (record: GameHistoryRecord) => void;
+}): JSX.Element {
+  const recordLabel = useGameRecordLabel();
+  return (
+    <Switch
+      fallback={
+        <MenuList role="group" dataSet={{ testid: 'game-history-records' }}>
+          <For each={props.records}>
+            {(record) => (
+              <MainMenuItemRow
+                item={{
+                  key: record.id,
+                  title: (
+                    <>
+                      <GameHistoryParticipant
+                        id={record.first}
+                        bot={record.firstBot}
+                      />{' '}
+                      /{' '}
+                      <GameHistoryParticipant
+                        id={record.second}
+                        bot={record.secondBot}
+                      />
+                    </>
+                  ),
+                  caption: recordLabel(record),
+                  dataSet: { testid: 'game-history-record' },
+                  onClick: () => props.onSelect(record),
+                }}
+              />
+            )}
+          </For>
+        </MenuList>
+      }
+    >
+      <Match when={props.records.length === 0 && props.loading}>
+        <LoadingState
+          variant="compact"
+          caption={<Trans>Loading games…</Trans>}
+          dataSet={{ testid: 'game-history-loading' }}
+        />
+      </Match>
+      <Match when={props.records.length === 0}>
+        <EmptyState
+          variant="compact"
+          title={<Trans>No completed games yet.</Trans>}
+          body={<Trans>Finished games will appear here.</Trans>}
+          dataSet={{ testid: 'game-history-empty' }}
+        />
+      </Match>
+    </Switch>
+  );
+}
+
 function AllowedGameHistory(props: {
   gameId: string;
   onBack: () => void;
 }): JSX.Element {
-  const recordLabel = useGameRecordLabel();
   const model = useGameRecords(() => props.gameId);
   const [selected, select] = createSignal<GameHistoryRecord | null>(null);
   return (
@@ -96,12 +157,15 @@ function AllowedGameHistory(props: {
               </Trans>
             }
             statistics={
-              <div
-                class="grid grid-cols-3 gap-3"
-                data-testid="game-history-statistics"
-                data-wins={model.statistics().wins}
-                data-losses={model.statistics().losses}
-                data-draws={model.statistics().draws}
+              <Grid
+                columns={3}
+                gap="md"
+                testId="game-history-statistics"
+                dataSet={{
+                  wins: String(model.statistics().wins),
+                  losses: String(model.statistics().losses),
+                  draws: String(model.statistics().draws),
+                }}
               >
                 <GameStat
                   label={<Trans>Wins</Trans>}
@@ -118,48 +182,14 @@ function AllowedGameHistory(props: {
                   value={model.statistics().draws}
                   detail={null}
                 />
-              </div>
+              </Grid>
             }
           >
-            <Show
-              when={model.records().length > 0}
-              fallback={
-                <p class="text textCaption">
-                  <Trans>No completed games yet.</Trans>
-                </p>
-              }
-            >
-              <MenuList
-                role="group"
-                dataSet={{ testid: 'game-history-records' }}
-              >
-                <For each={model.records()}>
-                  {(record) => (
-                    <MainMenuItemRow
-                      item={{
-                        key: record.id,
-                        title: (
-                          <>
-                            <GameHistoryParticipant
-                              id={record.first}
-                              bot={record.firstBot}
-                            />{' '}
-                            /{' '}
-                            <GameHistoryParticipant
-                              id={record.second}
-                              bot={record.secondBot}
-                            />
-                          </>
-                        ),
-                        caption: recordLabel(record),
-                        dataSet: { testid: 'game-history-record' },
-                        onClick: () => select(record),
-                      }}
-                    />
-                  )}
-                </For>
-              </MenuList>
-            </Show>
+            <GameHistoryRecords
+              records={model.records()}
+              loading={model.isLoading()}
+              onSelect={select}
+            />
           </GameHistoryScreen>
         </>
       }

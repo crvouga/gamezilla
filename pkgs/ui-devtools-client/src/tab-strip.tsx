@@ -113,13 +113,13 @@ export function TabStrip(props: TabStripProps): JSX.Element {
 
   return (
     <div
-      class="box grow-0 shrink-0 flex-row items-end gap-2 px-1.5 pt-1 pb-0 border-b border-border bg-surface-muted"
+      class="box grow-0 shrink-0 flex-row items-end gap-2 px-2 pt-1 pb-0 border-b border-border bg-surface-muted"
       {...dataAttrs({ component: 'TabStrip', ...props.dataSet })}
       style={{ height: `${TAB_MIN_HEIGHT + 4}px` }}
     >
       <Show when={props.leading !== undefined && props.leading !== null}>
         <div
-          class="box shrink-0 px-0.5 self-end justify-center"
+          class="box shrink-0 px-1 self-end justify-center"
           style={{ height: `${TAB_MIN_HEIGHT}px` }}
         >
           {props.leading}
@@ -166,7 +166,7 @@ export function TabStrip(props: TabStripProps): JSX.Element {
       </Show>
       <Show when={showStandaloneAdd()}>
         <button
-          class="clickable clickableTint px-1.5 py-0.5 items-center justify-center rounded-tl-lg rounded-tr-lg overflow-hidden self-end"
+          class="clickable clickableTint px-2 py-1 items-center justify-center rounded-tl-lg rounded-tr-lg overflow-hidden self-end"
           data-component="TabStripAdd"
           type="button"
           style={{ height: `${TAB_MIN_HEIGHT}px` }}

@@ -3,6 +3,7 @@ import { isFinished } from '@libs/game-matchmaking-shared/game-state';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client/turn-games-context';
+import { ArrowKeyGroup } from '@pkgs/ui-root-client/arrow-key-group';
 import { Button } from '@pkgs/ui-root-client/button';
 import { GameActions, GameSection } from '@pkgs/ui-root-client/game-section';
 import {
@@ -12,6 +13,9 @@ import {
   ChevronsRightIcon,
   RefreshCwIcon,
 } from '@pkgs/ui-root-client/icons';
+import { ListEntry, OrderedList } from '@pkgs/ui-root-client/semantic-list';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
+import { P, Text } from '@pkgs/ui-root-client/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import { For, type JSX, Show } from 'solid-js';
 import type { MultiplayerMove } from './multiplayer-format';
@@ -26,21 +30,25 @@ function MoveChoice(
 ): JSX.Element {
   const shown = () => props.view.shownPly() === props.move.ply;
   return (
-    <li class="box flex-row items-center gap-1">
-      <Show when={props.move.numbering !== ''}>
-        <span class="text textCaption textNumeral">{props.move.numbering}</span>
-      </Show>{' '}
-      <Button
-        title={props.move.san}
-        size="sm"
-        variant={shown() ? 'solid' : 'ghost'}
-        intent="neutral"
-        aria-label={t`Show the position after ${props.move.name}`}
-        aria-current={shown()}
-        onClick={() => props.view.chooseMove(props.move.ply)}
-        dataSet={{ testid: `multiplayer-move-${String(props.move.ply)}` }}
-      />{' '}
-    </li>
+    <ListEntry>
+      <StackHorizontal align="center" gap="xs">
+        <Show when={props.move.numbering !== ''}>
+          <Text variant="caption" numeral>
+            {props.move.numbering}
+          </Text>
+        </Show>{' '}
+        <Button
+          title={props.move.san}
+          size="sm"
+          variant={shown() ? 'solid' : 'ghost'}
+          intent="neutral"
+          aria-label={t`Show the position after ${props.move.name}`}
+          aria-current={shown()}
+          onClick={() => props.view.chooseMove(props.move.ply)}
+          dataSet={{ testid: `multiplayer-move-${String(props.move.ply)}` }}
+        />{' '}
+      </StackHorizontal>
+    </ListEntry>
   );
 }
 
@@ -48,19 +56,20 @@ function MoveChoice(
 function MoveList(props: MovesProps): JSX.Element {
   return (
     <>
-      <ol
-        class="box flex-row flex-wrap items-center gap-x-2 gap-y-1"
-        aria-label={t`Moves played`}
-        data-testid="multiplayer-move-list"
-      >
-        <For each={props.view.moves()}>
-          {(move) => <MoveChoice view={props.view} move={move} />}
-        </For>
-      </ol>
+      <StackHorizontal wrap align="center" gap="sm">
+        <OrderedList
+          aria-label={t`Moves played`}
+          testId="multiplayer-move-list"
+        >
+          <For each={props.view.moves()}>
+            {(move) => <MoveChoice view={props.view} move={move} />}
+          </For>
+        </OrderedList>
+      </StackHorizontal>
       <Show when={props.view.moves().length === 0}>
-        <p class="text textCaption">
+        <P variant="caption" tone="secondary">
           <Trans>No moves yet.</Trans>
-        </p>
+        </P>
       </Show>
     </>
   );
@@ -161,12 +170,6 @@ export function MultiplayerMoves(props: {
   readonly view: OwnBoard;
 }): JSX.Element {
   const presentation = useGamePresentation();
-  const onKeyDown = (event: KeyboardEvent): void => {
-    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-    event.preventDefault();
-    if (event.key === 'ArrowLeft') props.view.stepBack();
-    else props.view.stepForward();
-  };
   return (
     <GameSection
       title={<Trans>Moves</Trans>}
@@ -176,13 +179,11 @@ export function MultiplayerMoves(props: {
         ) : undefined
       }
     >
-      <div
-        class="box gap-4"
-        role="group"
-        tabIndex={0}
+      <ArrowKeyGroup
         aria-label={t`Moves. The left and right arrow keys step through them.`}
-        onKeyDown={onKeyDown}
-        data-testid="multiplayer-moves"
+        onPrevious={props.view.stepBack}
+        onNext={props.view.stepForward}
+        testId="multiplayer-moves"
       >
         <MoveList view={props.view} />
         <GameActions>
@@ -191,7 +192,7 @@ export function MultiplayerMoves(props: {
             <FlipBoard view={props.view} />
           </Show>
         </GameActions>
-      </div>
+      </ArrowKeyGroup>
     </GameSection>
   );
 }

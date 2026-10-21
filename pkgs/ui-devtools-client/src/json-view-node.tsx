@@ -27,6 +27,7 @@ import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-root-client/icons';
 import type { ColorTokenName } from '@pkgs/ui-root-shared/colors-types';
 import { colorVar } from '@pkgs/ui-root-shared/css-vars';
 import { createMemo, For, type JSX, Show } from 'solid-js';
+import styles from './json-view.module.css';
 
 const INDENT_PX = 14;
 const ROW_PAD_Y = 2;
@@ -209,10 +210,9 @@ function Chevron(props: {
   expanded: boolean;
 }): JSX.Element {
   return (
-    <Show when={props.expandable} fallback={<div class="box w-3.5" />}>
+    <Show when={props.expandable} fallback={<div class="box w-4" />}>
       <div
-        class="box w-3.5 h-4.5 items-center justify-center"
-        classList={{ '[transform:rotate(90deg)]': props.expanded }}
+        class={`box w-4 h-5 items-center justify-center ${styles['chevron'] ?? ''}`}
         data-expanded={props.expanded ? 'true' : 'false'}
       >
         <ChevronRightIcon size={10} />
@@ -286,7 +286,7 @@ function CopyValueButton(props: {
   const { t } = useLingui();
   return (
     <button
-      class="clickable clickableOpacity w-5.5 h-5.5 items-center justify-center opacity-muted shrink-0"
+      class="clickable clickableOpacity w-5 h-5 items-center justify-center opacity-muted shrink-0"
       type="button"
       aria-label={t`Copy value`}
       onClick={() => {

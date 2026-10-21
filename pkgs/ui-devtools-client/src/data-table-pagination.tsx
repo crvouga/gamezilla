@@ -18,7 +18,7 @@ export function DataTablePagination(props: {
   return (
     <Show when={props.totalCount > 0}>
       <div class="box flex-row items-center justify-between gap-2 py-2 px-3 border-t border-border bg-surface">
-        <p class="text text-text-secondary text-xs">{pageLabel()}</p>
+        <p class="text textFootnote">{pageLabel()}</p>
         <PaginationControls
           pageIndex={props.pageIndex}
           pageCount={props.pageCount}

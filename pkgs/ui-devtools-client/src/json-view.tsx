@@ -103,7 +103,7 @@ function createJsonExpansion(args: {
 
 function JsonViewLabel(props: { label: JSX.Element }): JSX.Element {
   return (
-    <div class="box px-0.75 pt-0.5 pb-px border-b border-border">
+    <div class="box px-1 pt-1 pb-px border-b border-border">
       <p class="text textCaption text-text-secondary">{props.label}</p>
     </div>
   );

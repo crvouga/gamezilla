@@ -12,7 +12,7 @@ import {
 import { Trans } from '@lingui/solid/macro';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { ExplorerDetail } from '@pkgs/ui-root-client/explorer-detail';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { CHESS_COMPONENT_ENTRIES } from './chess-board-register-example';
 
 export function ChessSettingsDeveloperUiComponentDetailScreen(): JSX.Element {
@@ -32,20 +32,26 @@ export function ChessSettingsDeveloperUiComponentDetailScreen(): JSX.Element {
   };
 
   return (
-    <div class="box self-stretch flex-1 min-h-0">
+    <>
       <DefineBackButton onPress={back} />
-      {selectedName() === null ? (
-        <EmptyState
-          title={<Trans>No component selected</Trans>}
-          body={<Trans>Pick one from the previous screen.</Trans>}
-        />
-      ) : (
-        <ExplorerDetail
-          componentId={selectedName()!}
-          entries={CHESS_COMPONENT_ENTRIES}
-          onNavigate={onNavigate}
-        />
-      )}
-    </div>
+      <Show
+        when={selectedName()}
+        fallback={
+          <EmptyState
+            title={<Trans>No component selected</Trans>}
+            body={<Trans>Pick one from the previous screen.</Trans>}
+          />
+        }
+      >
+        {(name) => (
+          <ExplorerDetail
+            embedded
+            componentId={name()}
+            entries={CHESS_COMPONENT_ENTRIES}
+            onNavigate={onNavigate}
+          />
+        )}
+      </Show>
+    </>
   );
 }

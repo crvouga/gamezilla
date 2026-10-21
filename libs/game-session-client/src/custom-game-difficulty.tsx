@@ -3,6 +3,7 @@ import { Trans } from '@lingui/solid/macro';
 import { useTurnGames } from '@pkgs/turn-game-client/turn-games-context';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
 import { GameActions } from '@pkgs/ui-root-client/game-section';
+import { P } from '@pkgs/ui-root-client/text';
 import { For, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 export function CustomGameDifficulty(props: {
@@ -25,9 +26,9 @@ export function CustomGameDifficulty(props: {
         props.model.current()?.[props.side].kind === 'bot'
       }
     >
-      <p class="text textCaption">
+      <P variant="caption" tone="secondary">
         <Trans>Bot difficulty</Trans>
-      </p>
+      </P>
       <GameActions>
         <For each={difficulties()}>
           {(difficulty) => (

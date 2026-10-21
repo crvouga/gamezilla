@@ -5,6 +5,7 @@ import {
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useGameScreen } from '@libs/spaces-client/use-game-screen';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
+import { Trans } from '@lingui/solid/macro';
 import { ExplorerList } from '@pkgs/ui-root-client/explorer-list';
 import type { JSX } from 'solid-js';
 import { CHESS_COMPONENT_ENTRIES } from './chess-board-register-example';
@@ -23,9 +24,14 @@ export function ChessSettingsDeveloperUiComponentsScreen(): JSX.Element {
   };
 
   return (
-    <div class="box self-stretch flex-1">
+    <>
       <DefineBackButton onPress={back} />
-      <ExplorerList onSelect={onSelect} entries={CHESS_COMPONENT_ENTRIES} />
-    </div>
+      <ExplorerList
+        embedded
+        title={<Trans>UI Components</Trans>}
+        onSelect={onSelect}
+        entries={CHESS_COMPONENT_ENTRIES}
+      />
+    </>
   );
 }

@@ -81,7 +81,7 @@ export function useGameRecords(gameId: () => string) {
     ] satisfies readonly GameHistoryRecord[];
   });
   const statistics = createMemo(() => countResults(records(), myId()));
-  return { records, statistics };
+  return { records, statistics, isLoading: matches.isLoading };
 }
 
 function countResults(records: readonly GameHistoryRecord[], myId: string) {

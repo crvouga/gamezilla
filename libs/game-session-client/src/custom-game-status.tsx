@@ -22,6 +22,8 @@ import type { GameStatusTone } from '@pkgs/ui-root-client/game-status';
 import { GameStatus } from '@pkgs/ui-root-client/game-status';
 import { WifiOffIcon } from '@pkgs/ui-root-client/icons';
 import { Notice } from '@pkgs/ui-root-client/notice';
+import { StackHorizontal } from '@pkgs/ui-root-client/stack';
+import { Text } from '@pkgs/ui-root-client/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import { createMemo, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
@@ -214,14 +216,14 @@ export function CustomGameStatus(props: {
             ) : undefined
           }
           trailing={
-            <div class="flex items-center gap-2">
+            <StackHorizontal align="center" gap="sm">
               <Badge
                 intent="neutral"
                 label={<Trans>Unrated</Trans>}
                 dataSet={{ testid: 'custom-game-unrated' }}
               />
               <TimeControlBadge game={game()} />
-            </div>
+            </StackHorizontal>
           }
         />
       )}
@@ -238,7 +240,7 @@ export function CustomGameConnectionNotice(props: {
         icon={WifiOffIcon}
         dataSet={{ testid: 'custom-game-connection-needed' }}
       >
-        <span role="status">
+        <Text variant="inherit" role="status">
           <Show
             when={props.model.canSubmit()}
             fallback={
@@ -247,7 +249,7 @@ export function CustomGameConnectionNotice(props: {
           >
             <Trans>You are offline. Your local game can continue.</Trans>
           </Show>
-        </span>
+        </Text>
       </Notice>
     </Show>
   );

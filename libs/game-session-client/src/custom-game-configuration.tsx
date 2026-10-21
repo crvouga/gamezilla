@@ -3,6 +3,8 @@ import { Trans } from '@lingui/solid/macro';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
 import { GameDisclosure } from '@pkgs/ui-root-client/game-disclosure';
 import { GameActions, GameSection } from '@pkgs/ui-root-client/game-section';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createSignal, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
@@ -17,7 +19,7 @@ function CustomGameTimeChoices(props: {
     String(props.model.current()?.increment ?? 0)
   );
   return (
-    <div class="box gap-3">
+    <StackVertical gap="md">
       <TextInput
         label={<Trans>Minutes per side</Trans>}
         type="number"
@@ -55,7 +57,7 @@ function CustomGameTimeChoices(props: {
           operation={() => props.model.choose({ operation: 'swap' })}
         />
       </GameActions>
-    </div>
+    </StackVertical>
   );
 }
 
@@ -77,11 +79,7 @@ export function CustomGameConfiguration(props: {
         <Trans>Agree on the lineup and clock, then get ready.</Trans>
       }
     >
-      <p
-        class="text textBodyBold"
-        role="status"
-        data-testid="custom-game-startable"
-      >
+      <P variant="bodyBold" role="status" testId="custom-game-startable">
         <Show
           when={startable()}
           fallback={
@@ -90,7 +88,7 @@ export function CustomGameConfiguration(props: {
         >
           <Trans>Ready to start.</Trans>
         </Show>
-      </p>
+      </P>
       <GameActions>
         <Show when={props.model.mySide() !== null && props.model.canJoin()}>
           <GameActionButton

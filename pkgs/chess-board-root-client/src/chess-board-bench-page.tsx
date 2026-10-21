@@ -108,7 +108,7 @@ export function ChessBoardBenchPage(): JSX.Element {
           setLines([]);
         }}
       />
-      <p class="text-sm opacity-80">
+      <p class="text textCaption">
         Budgets: mount {BOARD_PERF_BUDGETS.mountScriptingMs}ms, INP{' '}
         {BOARD_PERF_BUDGETS.inpMs}ms, long task {BOARD_PERF_BUDGETS.longTaskMs}
         ms.
@@ -126,7 +126,7 @@ export function ChessBoardBenchPage(): JSX.Element {
         </For>
       </div>
       <Show when={lines().length > 0}>
-        <ul class="text-sm">
+        <ul class="text textCaption">
           <For each={[...lines()]}>
             {(line) => (
               <li>

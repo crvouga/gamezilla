@@ -3,6 +3,7 @@ import type { MultiplayerSide } from '@libs/game-matchmaking-shared/multiplayer-
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client/turn-games-context';
 import { GameBoardStage } from '@pkgs/ui-root-client/game-board-stage';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { MultiplayerReviewing } from './multiplayer-reviewing';
@@ -113,20 +114,19 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
       (white() ? props.game.black_rating : props.game.white_rating) ?? '',
   });
   return (
-    <div
-      class="box gap-3"
-      data-component="MultiplayerBoard"
-      data-testid="multiplayer-game"
-      data-game-id={props.game.id}
-      data-can-move={String(canMove())}
-      data-board-takes-moves={String(
-        canMove() && props.view.earlier() === null
-      )}
-      data-revision={props.game.revision}
-      data-fen={props.game.fen}
-      data-shown-position={props.view.earlier()?.fen ?? props.game.fen}
-      data-outcome={props.game.outcome}
-      data-reason={props.game.reason ?? ''}
+    <StackVertical
+      gap="md"
+      testId="multiplayer-game"
+      dataSet={{
+        'game-id': props.game.id,
+        'can-move': String(canMove()),
+        'board-takes-moves': String(canMove() && props.view.earlier() === null),
+        revision: String(props.game.revision),
+        fen: props.game.fen,
+        'shown-position': props.view.earlier()?.fen ?? props.game.fen,
+        outcome: props.game.outcome,
+        reason: props.game.reason ?? '',
+      }}
     >
       <BoardStage
         {...props}
@@ -141,6 +141,6 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
         winnerName={winnerName()}
         lowOnTime={lowOnTime()}
       />
-    </div>
+    </StackVertical>
   );
 }

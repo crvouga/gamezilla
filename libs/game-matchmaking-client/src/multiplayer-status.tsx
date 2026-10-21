@@ -12,6 +12,7 @@ import { Badge } from '@pkgs/ui-root-client/badge';
 import { GameCountdown } from '@pkgs/ui-root-client/game-countdown';
 import type { GameStatusTone } from '@pkgs/ui-root-client/game-status';
 import { GameStatus } from '@pkgs/ui-root-client/game-status';
+import { Text } from '@pkgs/ui-root-client/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client/visually-hidden';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import type { MultiplayerViewer } from './multiplayer-seat';
@@ -182,12 +183,12 @@ function RatingChange(props: StatusProps): JSX.Element {
     white(props) ? props.game.white_rating_diff : props.game.black_rating_diff;
   return (
     <Show when={props.viewer.participant && diff() !== null}>
-      <span data-testid="multiplayer-rating-change">
+      <Text variant="inherit" testId="multiplayer-rating-change">
         <Trans>
           Your rating changed by {(diff() ?? 0) > 0 ? '+' : ''}
           {diff() ?? 0}.
         </Trans>
-      </span>
+      </Text>
     </Show>
   );
 }
@@ -300,9 +301,9 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
               props.game.paused_at_ms !== null
             }
           >
-            <span data-testid="multiplayer-paused">
+            <Text variant="inherit" testId="multiplayer-paused">
               <Trans>Multiplayer clocks are paused.</Trans>{' '}
-            </span>
+            </Text>
           </Show>
           <Show
             when={props.viewer.participant}
@@ -323,9 +324,9 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
         <Badge
           intent="neutral"
           label={
-            <span data-testid="multiplayer-time-control">
+            <Text variant="inherit" testId="multiplayer-time-control">
               {timeControlText(props.game.time_control)}
-            </span>
+            </Text>
           }
         />
       }

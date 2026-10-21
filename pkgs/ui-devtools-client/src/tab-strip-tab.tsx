@@ -56,8 +56,8 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
   const closable = (): boolean => props.item.onClose !== undefined;
   const labelClass = (): string =>
     props.active
-      ? 'text textLabel line-clamp-1 shrink font-semibold leading-[18px] text-text pointer-events-none'
-      : 'text textLabel line-clamp-1 shrink font-medium leading-[18px] text-text-secondary pointer-events-none';
+      ? 'text textLabel line-clamp-1 shrink text-text pointer-events-none'
+      : 'text textBody line-clamp-1 shrink text-text-secondary pointer-events-none';
   return (
     <div
       class="box flex-row items-center shrink-0"
@@ -68,14 +68,14 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
     >
       <Show when={props.reserveSeparatorBefore}>
         <div
-          class="box w-px h-4 mx-0.5 shrink-0 bg-border"
+          class="box w-px h-4 mx-1 shrink-0 bg-border"
           style={{ opacity: props.separatorVisible ? 1 : 0 }}
           aria-hidden="true"
         />
       </Show>
       <div class={shellClass(props.active)} style={shellStyle(closable())}>
         <button
-          class="clickable flex-1 min-w-0 flex-row items-center gap-1.5 pl-2.5 rounded-tl-lg rounded-tr-lg overflow-hidden bg-transparent"
+          class="clickable flex-1 min-w-0 flex-row items-center gap-2 pl-3 rounded-tl-lg rounded-tr-lg overflow-hidden bg-transparent"
           classList={{ clickableTint: !props.active }}
           data-component="TabStripTab"
           data-id={props.item.id}
@@ -103,7 +103,7 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
         </button>
         <Show when={closable()}>
           <button
-            class={`clickable clickableTint rounded-sm items-center justify-center shrink-0 w-5.5 h-5.5 ${styles['close'] ?? ''}`}
+            class={`clickable clickableTint rounded-sm items-center justify-center shrink-0 w-6 h-6 ${styles['close'] ?? ''}`}
             data-component="TabStripClose"
             data-id={props.item.id}
             type="button"
@@ -116,7 +116,7 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
         </Show>
         <Show when={props.active}>
           <div
-            class="box absolute left-px right-px -bottom-px h-0.5 bg-background z-2 pointer-events-none"
+            class="box absolute left-px right-px -bottom-px h-1 bg-background z-2 pointer-events-none"
             aria-hidden="true"
           />
         </Show>

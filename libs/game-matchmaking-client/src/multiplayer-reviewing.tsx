@@ -2,6 +2,8 @@ import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client/button';
 import { HistoryIcon } from '@pkgs/ui-root-client/icons';
 import { Notice } from '@pkgs/ui-root-client/notice';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { Text } from '@pkgs/ui-root-client/text';
 import { type JSX, Show } from 'solid-js';
 import type { OwnBoard } from './use-own-board';
 
@@ -20,8 +22,8 @@ export function MultiplayerReviewing(props: {
           icon={HistoryIcon}
           dataSet={{ testid: 'multiplayer-reviewing' }}
         >
-          <div class="box items-start gap-2">
-            <span role="status">
+          <StackVertical align="start" gap="sm">
+            <Text variant="inherit" role="status">
               <Show
                 when={earlier().move}
                 fallback={
@@ -38,7 +40,7 @@ export function MultiplayerReviewing(props: {
                   </Trans>
                 )}
               </Show>
-            </span>
+            </Text>
             <Button
               title={<Trans>Return to current position</Trans>}
               size="sm"
@@ -47,7 +49,7 @@ export function MultiplayerReviewing(props: {
               onClick={props.view.returnToCurrent}
               dataSet={{ testid: 'multiplayer-return-to-current' }}
             />
-          </div>
+          </StackVertical>
         </Notice>
       )}
     </Show>
