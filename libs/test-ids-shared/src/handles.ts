@@ -93,10 +93,6 @@ export const Handles = {
   spacePresenceIdle: 'space-presence-idle',
   /** Hidden room client id the quiet timer belongs to. */
   spaceQuietClient: 'space-quiet-client',
-  /** The connection is missing, for someone already in a space. */
-  connectionMissing: 'connection-missing',
-  /** A guest tried to choose the space's game. */
-  gameChoiceRefused: 'game-choice-refused',
   /**
    * How many live spaces this device counts, including while a space is open.
    * The lobby paragraph is {@link spacesHostingCount}.
@@ -283,6 +279,8 @@ export const Handles = {
   searchDenied: 'search-denied',
   /** In place of results for a search made offline: search needs a connection. */
   searchNeedsConnection: 'search-needs-connection',
+  /** Above offline results: more people may show up once back online. */
+  searchOfflineResults: 'search-offline-results',
 
   /** Add Friend pill scoped by peer username (search / friend-user). */
   friendAdd: (username: string) => `friend-add-${username}`,
@@ -312,6 +310,10 @@ export const Handles = {
   notificationsMarkAllRead: 'notifications-mark-all-read',
   /** Said when an inbox choice needed a connection and there was none. */
   notificationsConnectionMissing: 'notifications-connection-missing',
+  /** The inbox said no to a choice (mark read, mark all read, archive). */
+  notificationsChoiceRefused: 'notifications-choice-refused',
+  /** An inbox choice failed while connected, without a reason. */
+  notificationsChoiceFailed: 'notifications-choice-failed',
   /** Notifications Accept for an incoming friend-request modal (fromUsername). */
   notificationsFriendRequestAccept: (fromUsername: string) =>
     `notifications-friend-request-accept-${fromUsername}`,

@@ -550,10 +550,6 @@ msgstr "Archive"
 msgid "Archived"
 msgstr "Archived"
 
-#: libs/spaces-client/src/space-join-prompt.tsx
-msgid "Ask the host to add you to the allow list, or check the link."
-msgstr "Ask the host to add you to the allow list, or check the link."
-
 #: libs/app-root-client/src/app-commands.tsx
 msgid "auto"
 msgstr "auto"
@@ -601,10 +597,6 @@ msgstr "Avatar"
 #: pkgs/ui-root-client/src/back-icon-button.tsx
 msgid "Back"
 msgstr "Back"
-
-#: libs/spaces-client/src/space-join-prompt.tsx
-msgid "Back to spaces"
-msgstr "Back to spaces"
 
 #: libs/spaces-client/src/space-join-ended-state.tsx
 #: libs/spaces-client/src/space-join-prompt.tsx
@@ -2573,7 +2565,7 @@ msgstr "No puzzles played yet."
 msgid "No results"
 msgstr "No results"
 
-#: libs/spaces-client/src/spaces-screen.tsx
+#: libs/spaces-client/src/spaces-lobby.tsx
 msgid "No spaces yet"
 msgstr "No spaces yet"
 
@@ -2704,9 +2696,9 @@ msgstr "Only a participant can make this choice."
 msgid "Only the creator can make this choice."
 msgstr "Only the creator can make this choice."
 
-#: libs/spaces-client/src/game-choice-refused-notice.tsx
-msgid "Only the host chooses the game."
-msgstr "Only the host chooses the game."
+#: libs/spaces-client/src/space-join-prompt.tsx
+msgid "Only the host's friends and people the host adds can join it. Ask the host to add you, or check that the link is right."
+msgstr "Only the host's friends and people the host adds can join it. Ask the host to add you, or check that the link is right."
 
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "Only the other participant can answer a draw offer."
@@ -3819,10 +3811,6 @@ msgstr "Space ended"
 msgid "Space name"
 msgstr "Space name"
 
-#: libs/spaces-client/src/space-join-prompt.tsx
-msgid "Space not available"
-msgstr "Space not available"
-
 #: libs/spaces-client/src/rename-space-modal.tsx
 msgid "Space renamed"
 msgstr "Space renamed"
@@ -3869,11 +3857,11 @@ msgstr "Start"
 msgid "Start {0}-day free trial"
 msgstr "Start {0}-day free trial"
 
-#: libs/spaces-client/src/spaces-screen.tsx
+#: libs/spaces-client/src/spaces-lobby.tsx
 msgid "Start a space"
 msgstr "Start a space"
 
-#: libs/spaces-client/src/spaces-screen.tsx
+#: libs/spaces-client/src/spaces-lobby.tsx
 msgid "Start a space to play with friends. Spaces you join show up here."
 msgstr "Start a space to play with friends. Spaces you join show up here."
 
@@ -4071,6 +4059,14 @@ msgstr "Text to speech"
 msgid "That account already signs in to a different account here. Sign in with it to use that account instead."
 msgstr "That account already signs in to a different account here. Sign in with it to use that account instead."
 
+#: libs/notifications-client/src/notifications-screen.tsx
+msgid "That change wasn't made. The item may no longer be in your inbox."
+msgstr "That change wasn't made. The item may no longer be in your inbox."
+
+#: libs/notifications-client/src/notifications-screen.tsx
+msgid "That change wasn't made. Try again in a moment."
+msgstr "That change wasn't made. Try again in a moment."
+
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "That invitation is no longer yours to accept or decline."
 msgstr "That invitation is no longer yours to accept or decline."
@@ -4121,7 +4117,6 @@ msgid "The choice could not be confirmed. Try again."
 msgstr "The choice could not be confirmed. Try again."
 
 #: libs/notifications-client/src/notifications-screen.tsx
-#: libs/spaces-client/src/connection-missing-notice.tsx
 msgid "The connection is missing."
 msgstr "The connection is missing."
 
@@ -4724,6 +4719,10 @@ msgstr "You can rejoin from the invite link if the space is still live."
 msgid "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
 msgstr "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
 
+#: libs/spaces-client/src/space-join-prompt.tsx
+msgid "You can't join this space"
+msgstr "You can't join this space"
+
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "You do not control that side."
 msgstr "You do not control that side."
@@ -4781,6 +4780,10 @@ msgstr "You're all caught up"
 #: libs/game-puzzle-client/src/puzzle-link-screen.tsx
 msgid "You're offline"
 msgstr "You're offline"
+
+#: libs/search-client/src/search-screen-view.tsx
+msgid "You're offline, so some people may not show up until you're back online."
+msgstr "You're offline, so some people may not show up until you're back online."
 
 #: libs/search-client/src/search-screen-view.tsx
 msgid "You're offline. Search again once you're back online."

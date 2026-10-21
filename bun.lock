@@ -2102,6 +2102,7 @@
         "@lingui/solid": "catalog:",
         "@pkgs/clock-client": "workspace:*",
         "@pkgs/http-client-client": "workspace:*",
+        "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/solid-context-client": "workspace:*",
         "@pkgs/sounds-client": "workspace:*",
         "@pkgs/sounds-shared": "workspace:*",
@@ -2111,6 +2112,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },

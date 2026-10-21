@@ -1,0 +1,4 @@
+{
+  "summary": "A guest without a connection who went back from the host's game got no answer at all, and a connected guest's note that the host picks the game never went away. Fixed: every guest is told only the host chooses the game, and the note clears once the space shows another game or the game choice.",
+  "regressionTest": "specs/games/space-follows-the-host.feature"
+}
