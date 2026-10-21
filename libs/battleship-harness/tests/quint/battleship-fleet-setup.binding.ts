@@ -5,6 +5,7 @@ import {
   establishBattleship,
   placeBattleshipShip,
   rotateBattleshipShip,
+  shootBattleship,
   startBattleship,
 } from '@libs/battleship-harness/battleship-actions';
 import {
@@ -129,6 +130,13 @@ bindQuintModel<QuintHarnessWorld>({
     becomeReady: (w, picks) =>
       w.s.apply(becomeBattleshipReady, PLAYERS[player(picks)]),
     startGame: (w) => w.s.apply(startBattleship, 'alice'),
+    // A shot before the start: the person asks to shoot, and is refused.
+    shoot: (w, picks) =>
+      w.s.apply(
+        shootBattleship,
+        PLAYERS[player(picks)],
+        cellOf(Number(picks['cell']))!
+      ),
     loseConnection: (w, picks) => cutConnection(w, PLAYERS[player(picks)]),
     connectionReturns: (w, picks) =>
       w.s.apply(restoreActorConnection, PLAYERS[player(picks)]),
