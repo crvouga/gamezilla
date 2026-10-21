@@ -75,6 +75,10 @@ on:
         description: pr (the merge gate) or nightly (deeper budgets, reports kept)
         type: string
         default: pr
+      advisories:
+        description: enforce (a current advisory fails the gate) or report (the registry's verdict is logged, not enforced)
+        type: string
+        default: enforce
 
 # A newer push supersedes a pull request's run; dispatched and release runs
 # each own a group and never cancel one another.
@@ -106,6 +110,7 @@ env:
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
   VERIFY_PROFILE: ${{ inputs.profile || 'pr' }}
+  VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
 
 jobs:
   verify-start:

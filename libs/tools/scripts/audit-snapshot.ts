@@ -12,7 +12,33 @@ export type AuditSnapshot = {
   status: number;
   advisories: unknown;
   error?: string;
+  /** Registry verdict a `report` run did not enforce. */
+  reported?: number;
 };
+
+/**
+ * `enforce` fails the gate on a current advisory: pull requests and Verify
+ * Nightly. `report` records the same evidence without failing it: Deploy
+ * verifies a commit a pull request already cleared, and an advisory published
+ * between the merge and the deploy is not a change to that commit.
+ */
+export const ADVISORIES_ENV = 'VERIFY_ADVISORIES';
+
+export function advisoryMode(env: NodeJS.ProcessEnv): 'enforce' | 'report' {
+  const mode = env[ADVISORIES_ENV]?.trim() ?? '';
+  if (mode === '' || mode === 'enforce') return 'enforce';
+  if (mode === 'report') return 'report';
+  throw new Error(`${ADVISORIES_ENV}=${mode} is not enforce or report`);
+}
+
+/** The verdict a gate records for what the registry said. */
+export function recordVerdict(
+  snapshot: AuditSnapshot,
+  mode: 'enforce' | 'report'
+): AuditSnapshot {
+  if (mode === 'enforce' || snapshot.status === 0) return snapshot;
+  return { ...snapshot, status: 0, reported: snapshot.status };
+}
 
 /** Object key order is transport metadata, rather than an advisory change. */
 function ordered(value: unknown): unknown {
@@ -26,7 +52,11 @@ function ordered(value: unknown): unknown {
   return value;
 }
 
-export function captureAudit(root: string): number {
+export function captureAudit(
+  root: string,
+  env: NodeJS.ProcessEnv = process.env
+): number {
+  const mode = advisoryMode(env);
   const started = process.hrtime.bigint();
   const result = spawnSync(
     process.execPath,
@@ -60,16 +90,17 @@ export function captureAudit(root: string): number {
         result.error?.message ??
           result.stderr ??
           'Registry produced no structured audit evidence',
-        process.env
+        env
       ),
     };
   }
+  snapshot = recordVerdict(snapshot, mode);
   const path = join(root, AUDIT_SNAPSHOT);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, JSON.stringify(snapshot));
   const milliseconds = Number(process.hrtime.bigint() - started) / 1e6;
   console.log(
-    `Current advisory evidence: ${milliseconds.toFixed(1)}ms; verdict ${snapshot.status}; no task hashes depend on fetch time`
+    `Current advisory evidence: ${milliseconds.toFixed(1)}ms; verdict ${snapshot.status}${snapshot.reported === undefined ? '' : ` (registry ${snapshot.reported}, reported not enforced)`}; no task hashes depend on fetch time`
   );
   return milliseconds;
 }
