@@ -3,6 +3,7 @@ import { requireTurnGames } from '@pkgs/turn-game-shared/game-rules';
 import { z } from 'zod';
 import { playMultiplayerMove } from './game';
 import { gameCommandArgs, runGameCommand } from './game-command';
+import { readMultiplayerSetups } from './multiplayer-setup';
 
 export const playMultiplayerMoveMutation = defineMutation({
   name: 'playMultiplayerMove',
@@ -13,11 +14,22 @@ export const playMultiplayerMoveMutation = defineMutation({
     uci: z.string().min(1).max(256),
   }),
   run: (ctx, args) =>
-    runGameCommand(ctx, { ...args, kind: 'move' }, (game, actorId, nowMs) =>
-      playMultiplayerMove(
-        game,
-        { ...args, actorId, nowMs },
-        requireTurnGames(ctx.env)
-      )
+    runGameCommand(
+      ctx,
+      { ...args, kind: 'move' },
+      async (game, actorId, nowMs, tx) =>
+        playMultiplayerMove(
+          game,
+          {
+            ...args,
+            actorId,
+            nowMs,
+            setups:
+              game.setup_ready === null
+                ? null
+                : await readMultiplayerSetups(tx, game.id),
+          },
+          requireTurnGames(ctx.env)
+        )
     ),
 });

@@ -1,0 +1,203 @@
+context: Battleship
+purpose: >-
+  Classic two-player Battleship in a space: its boards, fleets, shots, hits,
+  misses, sinkings, victory and bots. What every game offers alike, private
+  setups included, is the games context's.
+terms:
+  - term: Battleship
+    definition: >-
+      A game for two players. Each places a fleet of five ships on their
+      own board of 10 columns and 10 rows, which the other player never sees.
+      Once both are ready, they take turns making one shot at a cell of the
+      other's board. Sinking all five of the other player's ships wins;
+      Battleship has no draw.
+    published: true
+
+  - term: player
+    definition: >-
+      One of the two people or bots in a Battleship game. The first player
+      shoots first.
+    forms: [players, player's, the other player, the other player's, first player, first player's, second player, second player's]
+
+  - term: board
+    definition: >-
+      One player's playing area of 100 cells: 10 columns, A to J, and 10
+      rows, 1 to 10. Each player has their own, and the two never share a
+      cell.
+    forms: [boards, column, columns, row, rows]
+
+  - term: cell
+    definition: >-
+      One place on a board, named by its column and row, such as B7. A cell
+      nobody has shot at yet is untargeted.
+    forms: [cells, untargeted, untargeted cell, untargeted cells]
+
+  - term: own board
+    definition: >-
+      A player's board as they see it: their whole fleet, and every shot the
+      other player has made at it, as a hit or a miss.
+    forms: [own boards]
+    model: [ownBoard]
+
+  - term: targeting board
+    definition: >-
+      A player's view of the other player's board: each cell they have shot
+      at, marked as a hit or a miss, and the ships they have sunk. It shows
+      nothing else of the other player's fleet.
+    forms: [targeting boards]
+    model: [targetingBoard]
+
+  - term: fleet
+    definition: >-
+      A player's five ships: a carrier of 5 cells, a battleship of 4, a
+      cruiser of 3, a submarine of 3 and a destroyer of 2, 17 cells in all.
+      It is a complete fleet once all five are placed, and an incomplete
+      fleet until then. Only its own player sees it, becoming ready confirms
+      it, and a ready player's ships cannot be placed again or rotated.
+    forms: [fleets, complete fleet, incomplete fleet]
+    model: [fleet]
+
+  - term: ship
+    definition: >-
+      One of a fleet's five. It lies in a straight line of cells,
+      horizontally along a row or vertically along a column, entirely inside
+      the board, and never on a cell of another ship; ships may touch side by
+      side or corner to corner. A ship stays afloat until every one of its
+      cells is hit.
+    forms: [ships, carrier, battleship, cruiser, submarine, destroyer, afloat, horizontal, horizontally, vertical, vertically]
+
+  - term: setup
+    definition: >-
+      The part of a Battleship game before the first shot, when each player
+      places their fleet on their own board. Shooting begins once both
+      players are ready and the game starts, and the game is over once a
+      player has won.
+    forms: [setups]
+    model: [phase]
+
+  - term: place
+    definition: >-
+      Put one of one's ships on one's own board during setup, starting at a
+      cell and running horizontally or vertically. Placing a ship again
+      changes where it lies. A ship that would run off the board or lie on
+      another ship is refused, and the ships stay where they were.
+    forms: [places, placed, placing]
+    model: [placeShip]
+
+  - term: rotate
+    definition: >-
+      Turn a placed ship between horizontal and vertical during setup, keeping its
+      first cell. A rotation that would run off the board or lie on another
+      ship is refused, and the ship stays where it was.
+    forms: [rotates, rotated, rotating, rotation]
+    model: [rotateShip]
+
+  - term: random fleet
+    definition: >-
+      A complete fleet the app arranges for a player who asks for one during
+      setup, by the same rules as placing, in place of the ships they had
+      placed. Which cells it uses is not promised.
+    forms: [random fleets]
+    model: [randomFleet]
+
+
+  - term: ready
+    definition: >-
+      A player whose complete fleet is confirmed for the game, which needs a
+      connection. Only a complete fleet can be ready, and a ready player's
+      ships cannot be placed again or rotated. In a custom game a bot is
+      ready once the custom game starts.
+    forms: [readiness, becomes ready, become ready, not ready]
+    model: [ready, becomeReady]
+
+  - term: start
+    definition: >-
+      Begin shooting once both players are ready. In a custom game its
+      creator starts it; any other Battleship game starts by itself. The
+      first player then has the first turn.
+    forms: [starts, started, starting]
+    model: [startGame]
+
+  - term: turn
+    definition: >-
+      The player who may make the next shot. The first player shoots first,
+      and the turn passes to the other player after every hit and every
+      miss: a hit gives no extra shot, and nobody may pass their turn.
+    forms: [turns]
+    model: [turn]
+
+  - term: shot
+    definition: >-
+      A player's one choice on their turn: one untargeted cell of the other
+      player's board. A shot at a cell already shot at, out of turn, or once
+      the game is over is refused; it changes nothing, keeps the turn and
+      says nothing about the other player's fleet. Both players see what
+      every shot found: a hit or a miss, and which ship it sank.
+    forms: [shots, shoot, shoots, shooting, shot at, shoots at, has shot at]
+    model: [shoot, shots]
+
+  - term: hit
+    definition: >-
+      A shot at a cell with a ship on it. It shows that cell holds a ship,
+      but not which one, until the ship sinks.
+    forms: [hits, has hit, hitting]
+    model: [hits]
+
+  - term: miss
+    definition: >-
+      A shot at a cell with no ship on it. It shows only that this cell is
+      empty.
+    forms: [misses, missed, has missed]
+
+  - term: sunk
+    definition: >-
+      A ship whose every cell is hit. The shot that hits its last cell sinks
+      it and names it, so both players know which ship sank, and nothing
+      else about the fleet.
+    forms: [sink, sinks, sinking, sank]
+    model: [sunk]
+
+  - term: victory
+    definition: >-
+      A player sinking the other player's fifth ship with the 17th hit,
+      which wins the game; the game is then over at once.
+    forms: [wins, winner, won, win]
+    model: [winner]
+
+  - term: over
+    definition: >-
+      A Battleship game that has a victory. It takes no more shots.
+    forms: [is over]
+
+  - term: bot
+    definition: >-
+      An automated player. A bot places a complete fleet and becomes ready
+      by itself, and it shoots only at untargeted cells on its turn, knowing
+      no more of the other player's fleet than its own shots showed. Easy,
+      Medium and Hard play from weakest to strongest, and a Hard bot follows
+      up a hit by shooting next to it while that ship is afloat.
+    forms: [bots, the bots, Easy, Medium, Hard, difficulty, difficulties]
+
+  - term: reduced motion
+    definition: >-
+      A person's preference to avoid decorative movement while keeping every
+      game action available.
+
+  - term: game
+    from: games
+  - term: custom game
+    from: games
+  - term: space
+    from: spaces
+  - term: host
+    from: spaces
+  - term: connection
+    from: kernel
+    model: [online, loseConnection, connectionReturns]
+  - term: keyboard
+    from: runtime
+  - term: control
+    from: runtime
+  - term: listen to the app
+    from: runtime
+    forms: [is listening to the app, listening to the app, listens to the app, hears]

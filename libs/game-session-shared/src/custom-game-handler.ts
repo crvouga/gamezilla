@@ -6,18 +6,15 @@ import {
 } from '@libs/spaces-shared/space-members-messages';
 import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-root-shared/builtin';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import { customGameAwaySince } from './custom-game-absence';
 import { CustomGameAvailableAttr } from './custom-game-availability';
 import type { CustomGameChoice } from './custom-game-choice';
 import type { CustomGameBotWake, CustomGameWake } from './custom-game-commands';
-import { CustomGamesChanged } from './custom-game-commands';
 import {
   configureCustomGame,
   rematchCustomGame,
 } from './custom-game-configuration';
-import { customGameEffects } from './custom-game-effects';
 import { soloCustomGame } from './custom-game-local';
 import {
   expireCustomGame,
@@ -25,25 +22,14 @@ import {
   playCustomGameMove,
 } from './custom-game-play';
 import { customGameBotMove, customGameBots } from './custom-game-position';
+import {
+  privateSetupChoice,
+  publicCustomGameMove,
+} from './custom-game-private-play';
 import { customGameRefusal } from './custom-game-refusal';
-import type { CustomGame, CustomGames } from './custom-game-state';
+import { changedCustomGames, refuseCustomGame } from './custom-game-result';
+import type { CustomGame } from './custom-game-state';
 import { CustomGamesAttr, newCustomGame } from './custom-game-state';
-
-export function refuseCustomGame(reason: string): HandleResult {
-  return { ok: false, error: { type: ROOM_ERROR_TYPE.conflict, reason } };
-}
-
-export function changedCustomGames(
-  games: CustomGames,
-  ctx: GameCommandContext,
-  reason = ''
-): HandleResult {
-  return {
-    ok: true,
-    events: [CustomGamesChanged({ games, commandId: ctx.commandId, reason })],
-    effects: customGameEffects(games.current),
-  };
-}
 
 /** The game a new custom game is of: the one asked for, else the space's. */
 function gameForChoice(state: RoomState, choice: CustomGameChoice): string {
@@ -89,12 +75,14 @@ export function handleCustomGameChoice(
   const game = games.current;
   if (
     !CustomGameAvailableAttr.from(state) &&
-    (game === null || !soloCustomGame(game))
+    (game === null || !soloCustomGame(game, rules))
   )
     return refuseCustomGame('the Custom Game is temporarily unavailable');
   const expired = game === null ? null : expireCustomGame(game, ctx.ts, rules);
   if (expired !== game)
-    return changedCustomGames({ ...games, current: expired }, ctx, 'finished');
+    return changedCustomGames({ ...games, current: expired }, ctx, rules, {
+      reason: 'finished',
+    });
   const reason = customGameRefusal(game, choice, ctx.identity, {
     members,
     restricted: (a, b) => spaceMembersRestricted(state, a, b),
@@ -115,7 +103,8 @@ export function handleCustomGameChoice(
         current: created,
         history: game === null ? games.history : [...games.history, game],
       },
-      ctx
+      ctx,
+      rules
     );
   }
   if (game === null) return refuseCustomGame('no Custom Game');
@@ -124,6 +113,8 @@ export function handleCustomGameChoice(
     !customGameBots(game, rules).difficulties.includes(choice.difficulty)
   )
     return refuseCustomGame('difficulty not offered');
+  const privately = privateSetupChoice({ state, ctx, game, rules }, choice);
+  if (privately !== null) return privately;
   const configured = configureCustomGame(game, choice, ctx.identity);
   const next = playCustomGameChoice(
     configured,
@@ -133,7 +124,7 @@ export function handleCustomGameChoice(
   );
   return next === null
     ? refuseCustomGame('move is illegal')
-    : changedCustomGames({ ...games, current: next }, ctx);
+    : changedCustomGames({ ...games, current: next }, ctx, rules);
 }
 
 function currentWake(
@@ -166,25 +157,28 @@ export function handleCustomGameWake(
     !(
       game?.creator === ctx.identity &&
       'at' in wake &&
-      (bot || soloCustomGame(game))
+      (bot || soloCustomGame(game, rules))
     )
   )
     return refuseCustomGame('only the game may move a bot or end a clock');
-  if (!CustomGameAvailableAttr.from(state) && !soloCustomGame(game))
-    return changedCustomGames(games, ctx);
-  if (!currentWake(game, wake)) return changedCustomGames(games, ctx);
+  if (!CustomGameAvailableAttr.from(state) && !soloCustomGame(game, rules))
+    return changedCustomGames(games, ctx, rules);
+  if (!currentWake(game, wake)) return changedCustomGames(games, ctx, rules);
   const at = 'at' in wake ? Math.min(ctx.ts, wake.at) : ctx.ts;
   if (game.turnStartedAt !== null && at < game.turnStartedAt)
     return refuseCustomGame('choices changed');
   const expired = expireCustomGame(game, at, rules);
   if (expired !== game)
-    return changedCustomGames({ ...games, current: expired }, ctx);
+    return changedCustomGames({ ...games, current: expired }, ctx, rules);
   if (!bot || game[game.turn].kind !== 'bot')
-    return changedCustomGames(games, ctx);
+    return changedCustomGames(games, ctx, rules);
   const move =
     'move' in wake ? wake.move : customGameBotMove(game, rules, ctx.random);
   if (move === null) throw new Error('active bot game has no legal move');
-  const next = playCustomGameMove(game, move, at, rules);
+  // A bot proposes from the public position; the room alone resolves it.
+  const played = publicCustomGameMove(state, game, move, rules);
+  const next =
+    played === null ? null : playCustomGameMove(game, played, at, rules);
   if (next === null) return refuseCustomGame('move is illegal');
-  return changedCustomGames({ ...games, current: next }, ctx);
+  return changedCustomGames({ ...games, current: next }, ctx, rules);
 }

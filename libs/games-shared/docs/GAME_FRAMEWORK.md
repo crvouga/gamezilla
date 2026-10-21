@@ -96,10 +96,10 @@ It is never a new entry for an internal module.
 
 | Package | Public modules (`gameApi`) | For |
 | --- | --- | --- |
-| `@pkgs/turn-game-shared` | `game-rules` | `GameRules`, `TurnGameCapabilities` and each capability's contract (`GameBots`, `MatchmakingCapability`, `GameNoticeText`, `HistoryCapability`, `GameRecordMetadata`), `GameSide`, and `createTurnGames` for a game's own suites |
+| `@pkgs/turn-game-shared` | `game-rules` | `GameRules` (with its optional private setup, `PrivateSetupRules` and `GameSetups`), `TurnGameCapabilities` and each capability's contract (`GameBots`, `MatchmakingCapability`, `GameNoticeText`, `HistoryCapability`, `GameRecordMetadata`), `GameSide`, and `createTurnGames` for a game's own suites |
 | | `game-puzzles` | `PuzzlesCapability`, `PuzzleRecord`, `PuzzleMarks`: what a game supplies to be offered puzzles |
-| | `game-presentation` | `GamePresentation`, `GameBoardProps`: the board and the copy the shared screens show |
-| | `game-automation` | `GameAutomation`: a synthetic or scripted participant's choice and its board gesture |
+| | `game-presentation` | `GamePresentation`, `GameBoardProps` (with the viewer's own `setup`), `GameSetupBoardProps`: the board, the setup board of a game with private setups and the copy the shared screens show |
+| | `game-automation` | `GameAutomation`: a synthetic or scripted participant's choice, its board gesture and, for a game with private setups, the gesture that arranges a setup (`arrange`) |
 | `@libs/game-session-shared` | `turn-game-definition` | `defineTurnGame` and `TurnGame`: the registration |
 | `@libs/game-menu-client` | `game-client` | `defineGameClient`, `GameClient` (its `shared` registration and, for a game offering puzzles, its `puzzles` part), `GameClientPresentation`, the game's own screens and choices |
 | `@libs/spaces-shared` | `game` | `GameOwnRoom`, `GameCommandContext`: a game's own room behaviour, and `mergeGameRouterEntries` (one router per namespace, as the space composes a shared module and a game's own room) for a game's room tests |
@@ -201,6 +201,18 @@ Capabilities are present or absent, each with what it needs:
 
 A game never supplies a placeholder for a capability it does not offer, and
 the platform shows, accepts and tests nothing for an absent one.
+
+**Private setups** are part of the rules, not a capability: a game whose
+sides prepare something in secret before play (Battleship's fleet) supplies
+`GameRules.setup` — `accept(setup)` (the setup as stored, or `null` unless
+complete and legal), `random(random)` (a complete legal setup) and
+`resolve(position, proposal, setups)` (the public action a proposal resolves
+to with both setups) — its presentation's `SetupBoard`, its automation's
+`arrange` gesture and, in its harness, one known setup per side
+(`fixtures.setups`). Every capability it offers then follows
+[Private setups](#private-setups-gamerulessetup). A game with private setups
+offers no puzzles (`createTurnGames` refuses the pair: a puzzle shows its
+whole position to the solver).
 
 Finding an opponent requires history: every finished matched game offers
 its game record (`specs/games/matched-game-record.feature`), which only
@@ -341,6 +353,75 @@ schedules, retries or remembers anything.
   it.
 - **Proof.** `conformance/rules/presentation` (`gamePresentationLaws`),
   `faulty-capabilities`.
+
+### Private setups: `GameRules.setup`
+
+The one rule underneath: **every position stays public**. A setup is held
+only by its side and the authority; the authority resolves each proposed
+action with both setups into the public action it records (`e5` becomes
+`e5:hit`), so `play`, `replay`, `moves`, move lists, history, records,
+review and every watcher's copy work on public positions and actions alone,
+exactly as for every other game. `legal`, bots and automation propose from
+the public position, which holds no setup — a bot cannot see the opponent's
+setup because it is never given it.
+
+- **Room privacy (generic).** A room module may name who reads an event
+  (`RoomModule.audience`). The server withholds a private event from every
+  other connection before it is serialized — on commit, on a welcome or
+  catch-up from any point, and on a retried command's replay — sending
+  `RoomEventWithheld` at the same sequence number, so every log stays
+  contiguous and no copy, persisted or not, holds what its reader may not.
+  A commit without a private event still reaches every reader as one frame
+  (`pkgs/room-root-harness/tests/private-events.contract.test.ts`).
+- **Custom games.** A person's setup travels with their readiness (`ready`
+  with `setup`, which must be complete) as an event only they read; it
+  cannot change while they are ready, and withdrawing readiness unlocks it.
+  The room draws a bot's setup when the game starts, read by nobody. Handlers
+  learn whether they decide as the room (`GameCommandContext.authority`): a
+  device predicting its own move checks it against the public position and
+  predicts no outcome, so nothing secret-dependent is ever shown before the
+  room answers, and a move made without a connection waits. Such a game is
+  never played on the host's device alone (`soloCustomGame` needs every
+  position public), so a bot's setup never reaches a device. A rematch is a
+  new game id with no setups. The custom-game module has an audience only
+  when some registered game has private setups, so other rooms are unchanged
+  (`custom-game-private-play.ts`, `custom-game-setup.ts`).
+- **Matched games.** After pairing a game is set up: each person chooses
+  their setup once (`chooseMultiplayerSetup`, the play permission), stored in
+  `chess_multiplayer_setups`, which syncs only to its owner, whose topic map
+  wakes only them and never sends the row as an image (the server fanout now
+  honours `rowImage.publish`: a batch with such a row sends no images, so
+  every reader reads again through its own authorized queries). The game row
+  shows only which sides are ready (`setup_ready`, also in the match room,
+  where readiness never goes back). Both sides have `SETUP_MS` (2 minutes; a
+  daily game its days) or the game is aborted (`setup missed`, no result, no
+  rating); the first side's first-move wait starts when both are ready.
+  Moves are resolved under both people's owner lock with both setups. Daily
+  turn notices wait for the setups; a deleted account's setups are erased; an
+  export holds only the person's own (`multiplayer-setup.ts`).
+- **Screens.** The custom-game and matched-game screens show the game's
+  `SetupBoard` for the person's own setup (locked while ready or offline),
+  a random setup and whether it is complete; readiness is public. Every
+  board and the history review receive only the viewer's own setup
+  (`GameBoardProps.setup`).
+- **Observability.** `chess.setup.chosen` names which sides are ready, never
+  a setup; the server stores no mutation arguments in its events.
+- **Proof.** The private-setup laws (`game-rules-laws.ts`: random setups
+  complete, every offered proposal and nothing else resolves, no position or
+  label spells a setup) and the faulty consumers proving them
+  (`reference-game/faulty-private-setups.test.ts`); every shared law plays a
+  private-setup game as its authority does (`played-rules.ts`); the privacy
+  suites reading what leaves the platform — room history sent to each
+  connection, every row each device holds, and noninterference across worlds
+  differing only in the other side's setup
+  (`conformance/custom-games/private-setup-privacy.test.ts`,
+  `conformance/matchmaking/private-setup-privacy.test.ts`); the shared
+  specifications `custom-game-private-setup.feature`,
+  `matched-game-private-setup.feature` and `private-setup.qnt`; and
+  `game-session-shared/tests/private-setup.test.ts`,
+  `game-matchmaking-shared/tests/private-setup.test.ts`. The test-only
+  consumer secret pick (`reference-game/secret-pick-game.tsx`) holds every
+  one of them beside Battleship.
 
 ### Matchmaking handoff
 
@@ -763,7 +844,20 @@ The matrix today:
 | --- | --- | --- | --- | --- | --- |
 | chess | bound | bound | bound | bound | bound |
 | Connect Four | bound | bound | bound | bound | — |
+| Battleship (private setups) | bound | bound | bound | bound | — |
 | counting race (reference, test-only) | bound | bound | — | bound | bound |
+| secret pick (private setups, test-only) | bound | bound | bound | bound | — |
+
+Three traits select specifications beyond capabilities for games with
+private setups: `a private setup` (the private-setup specifications and
+suites), `every position public` (play on the host's device alone:
+`custom-game-offline`, `custom-game-local.qnt`, `custom-game.qnt`,
+`custom-game-control.qnt` and the offline solo board suite) and `a seven-move
+victory` (the whole-game models `custom-game-control`, `matched-game`,
+`matched-game-daily`). Battleship's shortest victory takes 33 shots, so it is
+held to the models that follow the start of its known victory; secret pick,
+whose victory takes seven moves, carries private setups through the
+whole-game models that do not need every position public.
 
 ## Durable names
 
@@ -827,11 +921,11 @@ relying on its planned enrollment alone.
 | [Puzzle-first](../../games-harness/tests/probes/puzzle-only.test.ts) (puzzles only: no custom games, opponent or history) | Executable: supported | `defineTurnGame({ capabilities: { puzzles } })`, `defineGameClient({ puzzles })`, `HarnessGame` with known puzzles | None | A space offers exactly Puzzle and Puzzle stats; a known puzzle is solved on the shared puzzle screen; every `specs/games` specification needing only `puzzles`, and the `rules` and `puzzles` code suites | — |
 | [Puzzle without an opponent](../../games-harness/tests/probes/puzzle-only.test.ts) (`solo-count`) | Executable: enrolled; broader verification in progress | `PuzzlesCapability.lineMode: 'solver-only'`, the existing definitions and checked harness adapter | Shared layout, navigation, fixture checks and model input binding | Every applicable rules and puzzle suite is automatically enrolled; both attempt and sound models have passing solo replays | A test-only one-person consumer; it advertises no custom games, matchmaking or history. Full verification evidence is tracked in the audit |
 | [Turns that do not alternate](../../games-harness/tests/probes/turn-order.test.ts) (`double-turn`) | Executable: limitation | `PlayedPosition.turn` already names the side to move, and the custom-game engine seats each move by it | Would need one | — | Alternation is the platform's contract, not chess's: `specs/games/game-turns.feature` ("A participant's move passes the turn"), the custom-game and matched-game models, `bothHaveMoved` (two moves close a matched game's abort window and start its clock), move-list numbering in pairs (`multiplayer-format`) and puzzle lines by parity. The rules law "the first side moves first and every action passes the turn to the other side" refuses such a game, by name, alone. Simultaneous actions (design-only) also need a position with no single side to move |
-| [Setup phase](../../games-harness/tests/probes/setup-phase.test.ts) (`setup-race`: each side picks a stride, then races) | Executable: supported as ordinary turns | `GameRules` actions and positions | None | Every custom-game specification and suite; setup actions replay, list and are refused before play like any move | Design-only: no phase. Setup actions start and spend clocks, are numbered as moves and close a matched game's abort window; a simultaneous or hidden setup is the private-state boundary |
+| [Setup phase](../../games-harness/tests/probes/setup-phase.test.ts) (`setup-race`: each side picks a stride, then races) | Executable: supported as ordinary turns | `GameRules` actions and positions | None | Every custom-game specification and suite; setup actions replay, list and are refused before play like any move | As ordinary actions a setup starts and spends clocks, is numbered as moves and closes a matched game's abort window. A simultaneous, hidden setup is the private-setup phase instead (`GameRules.setup`, below): prepared before the first action, with readiness and a setup deadline of its own, never a move |
 | [Result the mover does not win](../../games-harness/tests/probes/results.test.ts) (`misere-tally`) | Executable: supported | `PlayedPosition.winner` | One, made: custom games credited the mover (`custom-game-mover-credited-win`) | Every custom-game specification and suite | A margin or score is only the ending's reason text (`endingDescription(reason)`) |
 | [Results beyond one winner](../../games-harness/tests/probes/results.test.ts) (shared win, ranking, score) | Executable (type-level): limitation | — | Would need one | — | `PlayedPosition.winner: GameSide \| 'draw' \| null`, `GameRecordMetadata.outcome: GameSide \| 'draw'`; stored custom and matched outcomes, Glicko-2 ratings on win/draw/loss and history's wins, losses and draws |
 | [More than two participants](../../games-harness/tests/probes/participants.test.ts) | Executable (type-level and by law): limitation; a multi-seat session is design-only | `GameOwnRoom` and a game's own `screens` only, beside the shared lifecycles | A new shared module and capability | None of the turn-game lifecycles | `GameSide` is two seats, `GameRecordMetadata.participants` a pair, and the turn law passes the turn to "the other"; behind them a custom game's two seats and clocks, a matched game's `white_id` / `black_id` and pairing |
-| [Participant-private state](../../games-harness/tests/probes/private-state.test.ts) | Executable: limitation | — | A per-viewer projection | — | Both sides and a watcher are shown the one position: the custom-game state is a room attribute shared with the space, a matched game's `fen` is read by both and by watchers, `GameBoardProps` has no viewer and `GameRules.play` / `legal` no actor. Extending it: `view(position, side)` in the rules, applied by the room, the matched-game reads, bots and the puzzle session |
+| [Participant-private state](../../games-harness/tests/probes/private-state.test.ts) | Executable: supported as private setups; per-viewer positions a limitation | `GameRules.setup`, `GamePresentation.SetupBoard`, `GameAutomation.arrange`, `fixtures.setups` | Made: private room events, authority-only resolution, owner-only setups in matched games, the viewer's own setup on every board | Every shared specification and suite for what it offers, plus the private-setup ones; secret pick and Battleship | A position that differs per viewer as play goes on (cards drawn during play) is still one public string: `GameBoardProps` takes no per-viewer position and the rules decide with no actor |
 | [A surface unlike a chessboard](../../games-harness/tests/probes/play-surface.test.ts) | Executable: supported | `GamePresentation.Board`, `GamePuzzlesClient.Board`, `PuzzleMarks` | None | The reference game's board is a row of buttons and its cells counts; it runs every shared specification and suite it offers | Puzzles mark cells (`PuzzleMarks.to`, `isCell`), the board faces a side (`orientation`), and automation is one pointer gesture (see Known limits) |
 
 ### Change impact
@@ -946,6 +1040,11 @@ no production game advertises the new mode.
   stay inside their caps: chess 7, games 41. Each model is still checked
   in a task of its own (seven and sixteen model-check tasks, the
   matched-game model's sixteen phases apart).
+- A game with private setups is never played on the host's device alone,
+  so the offline solo specifications and the custom-game model (whose host
+  chooses alone with no connection) hold only for games whose every position
+  is public; its custom game against a bot needs the connection and a move
+  made without one waits for it.
 - The game models follow a first-side victory of exactly seven moves
   (Connect Four's shortest), so every game supplies one; a game whose
   victories all take longer needs the models' bound raised with it. The

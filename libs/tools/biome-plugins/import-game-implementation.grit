@@ -6,6 +6,7 @@ file($body) where {
   $body <: or {
     includes "chess",
     includes "connect-four",
+    includes "battleship",
     includes "game-catalog"
   },
   $body <: contains bubble or {
@@ -13,7 +14,7 @@ file($body) where {
     JsImportCallExpression() as $call where { $call <: `import($src)` },
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
-    $src <: r"^['\"](?:@libs/(?:chess(?:-[a-z-]+)?|connect-four(?:-[a-z-]+)?|game-catalog(?:-[a-z-]+)?)|@pkgs/chess(?:-[a-z-]+)?|chess[.]js)(?:/[^'\"]*)?['\"]$",
+    $src <: r"^['\"](?:@libs/(?:chess(?:-[a-z-]+)?|connect-four(?:-[a-z-]+)?|battleship(?:-[a-z-]+)?|game-catalog(?:-[a-z-]+)?)|@pkgs/chess(?:-[a-z-]+)?|chess[.]js)(?:/[^'\"]*)?['\"]$",
     register_diagnostic(span=$src, message="Shared game components receive rules and presentation through ports. Concrete game adapters and catalogs belong to composition roots.", severity="error")
   }
 }

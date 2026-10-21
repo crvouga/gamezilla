@@ -1,5 +1,7 @@
-import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
-import type { MultiplayerSide } from '@libs/game-matchmaking-shared/multiplayer-clock';
+import type {
+  MultiplayerGame,
+  MultiplayerSide,
+} from '@libs/game-matchmaking-shared/game-state';
 import { AccountAutomationLabel } from '@libs/profile-client/account-automation-label';
 import { UserProfileAvatar } from '@libs/profile-client/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client/user-username';

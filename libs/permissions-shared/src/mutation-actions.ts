@@ -35,6 +35,7 @@ export const MUTATION_ACTIONS: Readonly<
   findChessOpponent: PERMISSION.matchmakingUse,
   stopFindingChessOpponent: PERMISSION.matchmakingStop,
   playMultiplayerMove: PERMISSION.gameMultiplayerPlay,
+  chooseMultiplayerSetup: PERMISSION.gameMultiplayerPlay,
   resignMultiplayer: PERMISSION.gameMultiplayerResign,
   findNewChessOpponent: PERMISSION.matchmakingUse,
   abortMultiplayer: PERMISSION.gameMultiplayerPlay,

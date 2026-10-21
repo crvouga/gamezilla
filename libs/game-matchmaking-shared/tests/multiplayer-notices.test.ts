@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { multiplayerNotices } from '@libs/game-matchmaking-shared/multiplayer-notices';
 
-const PEOPLE = { white_id: 'alice', black_id: 'bob' } as const;
+const PEOPLE = {
+  white_id: 'alice',
+  black_id: 'bob',
+  setup_ready: null,
+} as const;
 
 function notices(
   outcome: 'ongoing' | 'white' | 'black' | 'draw' | 'aborted',
@@ -56,6 +60,27 @@ describe('who has a turn notice and what each result notice says', () => {
         time_control: '1d',
       }).map((person) => person.opponentId)
     ).toEqual(['bob', 'alice']);
+  });
+
+  test('nobody has a turn notice while a private setup is still being chosen', () => {
+    expect(
+      multiplayerNotices({
+        ...PEOPLE,
+        setup_ready: 'black',
+        outcome: 'ongoing',
+        turn: 'alice',
+        time_control: '3d',
+      }).map((person) => person.turn)
+    ).toEqual([false, false]);
+    expect(
+      multiplayerNotices({
+        ...PEOPLE,
+        setup_ready: 'white,black',
+        outcome: 'ongoing',
+        turn: 'alice',
+        time_control: '3d',
+      }).map((person) => person.turn)
+    ).toEqual([true, false]);
   });
 
   test('a multiplayer game that is not a daily game brings none', () => {

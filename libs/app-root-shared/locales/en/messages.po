@@ -130,6 +130,11 @@ msgstr "{0} themes"
 msgid "{0} won the multiplayer game."
 msgstr "{0} won the multiplayer game."
 
+#. placeholder {0}: cell.label
+#: libs/battleship-client/src/battleship-grid-cells.tsx
+msgid "{0}, latest shot"
+msgstr "{0}, latest shot"
+
 #. placeholder {0}: parts.hostName
 #: libs/spaces-client/src/use-space-display-title.tsx
 msgid "{0}'s space"
@@ -181,6 +186,7 @@ msgstr "{first}: {white}. {second}: {black}."
 msgid "{flagged} ran out of time, but the other side cannot checkmate."
 msgstr "{flagged} ran out of time, but the other side cannot checkmate."
 
+#: libs/battleship-client/src/battleship-presentation.tsx
 #: libs/connect-four-client/src/connect-four-presentation.tsx
 msgid "{flagged} ran out of time, but the other side cannot win."
 msgstr "{flagged} ran out of time, but the other side cannot win."
@@ -205,6 +211,59 @@ msgstr "{label} has {left} left and is low on time"
 msgid "{label}, hosted by {username}"
 msgstr "{label}, hosted by {username}"
 
+#: libs/battleship-client/src/battleship-setup-controller.tsx
+msgid "{label}: {name}"
+msgstr "{label}: {name}"
+
+#: libs/battleship-client/src/battleship-grid-cells.tsx
+msgid "{label}: fired, waiting for the result"
+msgstr "{label}: fired, waiting for the result"
+
+#: libs/battleship-client/src/battleship-grid-cells.tsx
+msgid "{label}: hit"
+msgstr "{label}: hit"
+
+#: libs/battleship-client/src/battleship-grid-cells.tsx
+msgid "{label}: hit, sunk {name}"
+msgstr "{label}: hit, sunk {name}"
+
+#: libs/battleship-client/src/battleship-grid-cells.tsx
+msgid "{label}: miss"
+msgstr "{label}: miss"
+
+#: libs/battleship-client/src/battleship-grid-cells.tsx
+msgid "{label}: not fired at"
+msgstr "{label}: not fired at"
+
+#: libs/battleship-client/src/battleship-grid-cells.tsx
+#: libs/battleship-client/src/battleship-setup-controller.tsx
+msgid "{label}: open water"
+msgstr "{label}: open water"
+
+#: libs/battleship-client/src/battleship-grid-cells.tsx
+msgid "{label}: open water, missed"
+msgstr "{label}: open water, missed"
+
+#: libs/battleship-client/src/battleship-grid-cells.tsx
+msgid "{label}: your {name}"
+msgstr "{label}: your {name}"
+
+#: libs/battleship-client/src/battleship-grid-cells.tsx
+msgid "{label}: your {name}, hit"
+msgstr "{label}: your {name}, hit"
+
+#: libs/battleship-client/src/battleship-grid-cells.tsx
+msgid "{label}: your {name}, sunk"
+msgstr "{label}: your {name}, sunk"
+
+#: libs/battleship-client/src/battleship-setup-board.tsx
+msgid "{length} cells, placed at {bow} {direction}"
+msgstr "{length} cells, placed at {bow} {direction}"
+
+#: libs/battleship-client/src/battleship-setup-board.tsx
+msgid "{length} cells, to place"
+msgstr "{length} cells, to place"
+
 #: pkgs/ui-root-client/src/relative-time.tsx
 msgid "{mins}m ago"
 msgstr "{mins}m ago"
@@ -212,6 +271,26 @@ msgstr "{mins}m ago"
 #: libs/game-matchmaking-client/src/multiplayer-time-left.tsx
 msgid "{minutes} minutes"
 msgstr "{minutes} minutes"
+
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "{name} sank the whole fleet."
+msgstr "{name} sank the whole fleet."
+
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "{name} sank your whole fleet."
+msgstr "{name} sank your whole fleet."
+
+#: libs/battleship-client/src/battleship-board.tsx
+msgid "{name} sunk"
+msgstr "{name} sunk"
+
+#: libs/battleship-client/src/battleship-board.tsx
+msgid "{own} waters"
+msgstr "{own} waters"
+
+#: libs/battleship-client/src/battleship-setup-controller.tsx
+msgid "{placed} of {total} ships placed."
+msgstr "{placed} of {total} ships placed."
 
 #: libs/game-session-client/src/custom-game-status.tsx
 msgid "{player} to move."
@@ -221,9 +300,33 @@ msgstr "{player} to move."
 msgid "{seconds} seconds"
 msgstr "{seconds} seconds"
 
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "{shooter} fired at {cell} and hit."
+msgstr "{shooter} fired at {cell} and hit."
+
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "{shooter} fired at {cell} and missed."
+msgstr "{shooter} fired at {cell} and missed."
+
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "{shooter} fired at {cell} and sank the {ship}."
+msgstr "{shooter} fired at {cell} and sank the {ship}."
+
 #: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
 msgid "{side} to move. Find the best move."
 msgstr "{side} to move. Find the best move."
+
+#: libs/battleship-client/src/battleship-board.tsx
+msgid "{target} waters"
+msgstr "{target} waters"
+
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "{turn} is firing."
+msgstr "{turn} is firing."
+
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "{turn} to fire."
+msgstr "{turn} to fire."
 
 #: libs/profile-client/src/profile-handle-screen.tsx
 msgid "{USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} letters, numbers or _. Saved in lowercase."
@@ -400,6 +503,10 @@ msgstr "Account privacy"
 msgid "Accuracy"
 msgstr "Accuracy"
 
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "across"
+msgstr "across"
+
 #: libs/notifications-client/src/notifications-filter-bar.tsx
 msgid "Action required"
 msgstr "Action required"
@@ -498,6 +605,10 @@ msgstr "Agree on the lineup and clock, then get ready."
 #: libs/notifications-client/src/notifications-filter-bar.tsx
 msgid "All"
 msgstr "All"
+
+#: libs/battleship-client/src/battleship-setup-controller.tsx
+msgid "All five ships placed. Your fleet is ready."
+msgstr "All five ships placed. Your fleet is ready."
 
 #: libs/game-puzzle-client/src/puzzle-feed-bar.tsx
 msgid "All themes"
@@ -636,6 +747,11 @@ msgstr "Back to Spaces"
 msgid "Back<0> one move</0>"
 msgstr "Back<0> one move</0>"
 
+#: libs/battleship-client/src/battleship-copy.tsx
+#: libs/battleship-client/src/battleship-presentation.tsx
+msgid "Battleship"
+msgstr "Battleship"
+
 #: libs/synthetic-population-client/src/synthetic-user-statechart.tsx
 msgid "Behavior Statechart"
 msgstr "Behavior Statechart"
@@ -672,6 +788,14 @@ msgstr "Block"
 msgid "Block this user?"
 msgstr "Block this user?"
 
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "Blue fleet"
+msgstr "Blue fleet"
+
+#: libs/battleship-client/src/battleship-board.tsx
+msgid "Boards"
+msgstr "Boards"
+
 #: libs/game-session-client/src/custom-game-person.tsx
 #: libs/game-session-client/src/custom-game-side-choices.tsx
 #: libs/game-session-client/src/custom-game-status.tsx
@@ -694,6 +818,10 @@ msgstr "Bot Observatory"
 #: libs/synthetic-population-client/src/synthetic-population-screen.tsx
 msgid "Bot Observatory could not be loaded."
 msgstr "Bot Observatory could not be loaded."
+
+#: libs/game-matchmaking-client/src/multiplayer-private-setup.tsx
+msgid "Both players are ready."
+msgstr "Both players are ready."
 
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "Both sides have moved. Resign instead of cancelling."
@@ -806,6 +934,10 @@ msgstr "Capture live DOM"
 msgid "Capture requested"
 msgstr "Capture requested"
 
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "Carrier"
+msgstr "Carrier"
+
 #: libs/game-session-client/src/custom-game-side.tsx
 msgid "Change participant"
 msgstr "Change participant"
@@ -888,6 +1020,14 @@ msgstr "Choose a username"
 #: libs/chess-root-client/src/chess-game-client.tsx
 msgid "Choose how you want to play."
 msgstr "Choose how you want to play."
+
+#: libs/battleship-client/src/battleship-setup-controller.tsx
+msgid "Choose the bow cell for the {name}: {length} cells, {direction}. Press R to rotate."
+msgstr "Choose the bow cell for the {name}: {length} cells, {direction}. Press R to rotate."
+
+#: libs/game-matchmaking-client/src/multiplayer-private-setup.tsx
+msgid "Choose this setup"
+msgstr "Choose this setup"
 
 #: libs/game-session-client/src/custom-game-screen.tsx
 msgid "Choose who plays each side. Anyone in this space can watch."
@@ -1264,6 +1404,10 @@ msgstr "Create game"
 msgid "Created"
 msgstr "Created"
 
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "Cruiser"
+msgstr "Cruiser"
+
 #: libs/spaces-client/src/space-live-badge.tsx
 #: libs/synthetic-population-client/src/synthetic-user-statechart.tsx
 msgid "Current"
@@ -1393,6 +1537,10 @@ msgstr "Design system explorer"
 msgid "Desired synthetic population"
 msgstr "Desired synthetic population"
 
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "Destroyer"
+msgstr "Destroyer"
+
 #: libs/app-root-client/src/app-commands.tsx
 msgid "dev"
 msgstr "dev"
@@ -1478,6 +1626,10 @@ msgstr "Dismiss"
 msgid "Done"
 msgstr "Done"
 
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "down"
+msgstr "down"
+
 #: libs/account-privacy-client/src/export-download.tsx
 msgid "Download readable summary"
 msgstr "Download readable summary"
@@ -1522,6 +1674,14 @@ msgstr "Duplicates skipped"
 #: pkgs/ui-root-client/src/multi-select-swatch-grid.tsx
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
+
+#: libs/game-matchmaking-client/src/multiplayer-private-setup.tsx
+msgid "Each side chooses a private setup before the first move."
+msgstr "Each side chooses a private setup before the first move."
+
+#: libs/battleship-client/src/battleship-game-client.tsx
+msgid "Each side hides five ships on its own ten by ten waters: a Carrier of five cells, a Battleship of four, a Cruiser of three, a Submarine of three and a Destroyer of two. Choose a ship, turn it across or down, and press the cell for its bow; ships never overlap or leave the board. Then the Blue fleet fires first and the sides take turns firing at one cell of the other's waters. A miss marks open water, a hit marks part of a ship, and a ship sinks once every one of its cells is hit. Sink the whole hidden fleet first to win."
+msgstr "Each side hides five ships on its own ten by ten waters: a Carrier of five cells, a Battleship of four, a Cruiser of three, a Submarine of three and a Destroyer of two. Choose a ship, turn it across or down, and press the cell for its bow; ships never overlap or leave the board. Then the Blue fleet fires first and the sides take turns firing at one cell of the other's waters. A miss marks open water, a hit marks part of a ship, and a ship sinks once every one of its cells is hit. Sink the whole hidden fleet first to win."
 
 #. placeholder {0}: index + 1
 #: libs/game-session-client/src/custom-game-board.tsx
@@ -1758,6 +1918,10 @@ msgstr "Finished custom games in this space and your recent matched games."
 msgid "Finishing checkout…"
 msgstr "Finishing checkout…"
 
+#: libs/battleship-client/src/battleship-grid-cells.tsx
+msgid "Fire at {label}"
+msgstr "Fire at {label}"
+
 #: libs/synthetic-population-client/src/synthetic-population-users.tsx
 msgid "First page"
 msgstr "First page"
@@ -1765,6 +1929,10 @@ msgstr "First page"
 #: libs/auth-client/src/account-device-meta-grid.tsx
 msgid "First seen"
 msgstr "First seen"
+
+#: libs/battleship-client/src/battleship-presentation.tsx
+msgid "fleet sunk"
+msgstr "fleet sunk"
 
 #: libs/game-matchmaking-client/src/multiplayer-moves.tsx
 msgid "Flip board"
@@ -1894,6 +2062,7 @@ msgstr "Gamezilla is open in another tab"
 msgid "Get Plus to host more spaces"
 msgstr "Get Plus to host more spaces"
 
+#: libs/game-matchmaking-client/src/multiplayer-private-setup.tsx
 #: libs/game-session-client/src/custom-game-side.tsx
 msgid "Getting ready"
 msgstr "Getting ready"
@@ -1955,6 +2124,10 @@ msgstr "Hidden email ({0})"
 #: libs/app-root-client/src/app-commands.tsx
 msgid "Hide performance monitor"
 msgstr "Hide performance monitor"
+
+#: libs/battleship-client/src/battleship-game-client.tsx
+msgid "Hide your fleet. Call your shots. Sink theirs first."
+msgstr "Hide your fleet. Call your shots. Sink theirs first."
 
 #: libs/game-puzzle-client/src/puzzle-action-bar-items.tsx
 msgid "Hint"
@@ -2829,6 +3002,10 @@ msgstr "Only the participant whose turn it is can move."
 msgid "Only the puzzle team can load puzzles"
 msgstr "Only the puzzle team can load puzzles"
 
+#: libs/game-session-client/src/custom-game-private-setup.tsx
+msgid "Only you see it. Get ready once it is complete."
+msgstr "Only you see it. Get ready once it is complete."
+
 #: pkgs/ui-root-client/src/command-palette-trigger.tsx
 msgid "Open command palette"
 msgstr "Open command palette"
@@ -3079,6 +3256,10 @@ msgstr "Previous move"
 msgid "Pricing"
 msgstr "Pricing"
 
+#: libs/game-matchmaking-client/src/multiplayer-private-setup.tsx
+msgid "Private setups"
+msgstr "Private setups"
+
 #: libs/chess-puzzle-client/src/puzzle-import-status.tsx
 msgid "Processed"
 msgstr "Processed"
@@ -3206,6 +3387,11 @@ msgstr "Queen"
 msgid "Random"
 msgstr "Random"
 
+#: libs/game-matchmaking-client/src/multiplayer-private-setup.tsx
+#: libs/game-session-client/src/custom-game-private-setup.tsx
+msgid "Random setup"
+msgstr "Random setup"
+
 #: libs/profile-client/src/avatar-editor-seed-field.tsx
 #: pkgs/ui-root-client/src/avatar-hero.example.tsx
 msgid "Randomize"
@@ -3232,6 +3418,7 @@ msgid "Reading Synthetic Population…"
 msgstr "Reading Synthetic Population…"
 
 #: libs/chess-puzzle-client/src/puzzle-import-status.tsx
+#: libs/game-matchmaking-client/src/multiplayer-private-setup.tsx
 #: libs/game-session-client/src/custom-game-side.tsx
 #: libs/spaces-client/src/spaces-screen.tsx
 #: libs/synthetic-population-client/src/synthetic-population-workers.tsx
@@ -3273,6 +3460,10 @@ msgstr "Red circle"
 msgid "Red circles play first, then Yellow diamonds. Choose a column to drop into its lowest empty place. Four in a row, column, or diagonal wins. A full board without four is a draw."
 msgstr "Red circles play first, then Yellow diamonds. Choose a column to drop into its lowest empty place. Four in a row, column, or diagonal wins. A full board without four is a draw."
 
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "Red fleet"
+msgstr "Red fleet"
+
 #. placeholder {0}: reference()
 #: libs/app-root-client/src/crash-screen.tsx
 msgid "Reference: {0}"
@@ -3312,6 +3503,7 @@ msgstr "Rematch"
 #: libs/auth-client/src/sign-in-method-row.tsx
 #: libs/auth-client/src/sign-in-methods-section.tsx
 #: libs/auth-client/src/unlink-method-modal.tsx
+#: libs/battleship-client/src/battleship-setup-board.tsx
 #: libs/friends-client/src/friend-user-danger-modals.tsx
 #: libs/spaces-client/src/space-share-people-list.tsx
 msgid "Remove"
@@ -3487,9 +3679,18 @@ msgstr "Revoke invitation"
 msgid "Rook"
 msgstr "Rook"
 
+#. placeholder {0}: direction()
+#: libs/battleship-client/src/battleship-setup-board.tsx
+msgid "Rotate: {0}"
+msgstr "Rotate: {0}"
+
 #: libs/app-root-client/src/performance-screen.tsx
 msgid "Sampled from this tab while the monitor is on."
 msgstr "Sampled from this tab while the monitor is on."
+
+#: libs/battleship-client/src/battleship-presentation.tsx
+msgid "Sank the whole fleet."
+msgstr "Sank the whole fleet."
 
 #: libs/profile-client/src/avatar-editor-screen.tsx
 #: libs/profile-client/src/profile-handle-screen.tsx
@@ -3706,6 +3907,10 @@ msgstr "Sharing your friend request…"
 #: libs/profile-client/src/username-change-feedback.tsx
 msgid "Sharing your username change…"
 msgstr "Sharing your username change…"
+
+#: libs/battleship-client/src/battleship-setup-board.tsx
+msgid "Ships"
+msgstr "Ships"
 
 #: libs/app-root-client/src/app-commands.tsx
 msgid "Show performance monitor"
@@ -4069,6 +4274,10 @@ msgstr "Streak"
 msgid "Style"
 msgstr "Style"
 
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "Submarine"
+msgstr "Submarine"
+
 #: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Subscribe"
 msgstr "Subscribe"
@@ -4187,6 +4396,10 @@ msgstr "Target rating"
 msgid "Target rating: {0}"
 msgstr "Target rating: {0}"
 
+#: libs/battleship-client/src/battleship-board.tsx
+msgid "Targeting"
+msgstr "Targeting"
+
 #: libs/app-config-client/src/client-config-entity-card.tsx
 msgid "Text to speech"
 msgstr "Text to speech"
@@ -4267,6 +4480,14 @@ msgstr "That username is not allowed"
 #: libs/game-puzzle-client/src/puzzle-play-screen.tsx
 msgid "That's all the puzzles for now. The board opens again when your allowance resets."
 msgstr "That's all the puzzles for now. The board opens again when your allowance resets."
+
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "The {name} cannot go there: it would overlap the {other}."
+msgstr "The {name} cannot go there: it would overlap the {other}."
+
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "The {name} does not fit there: it would run off the board."
+msgstr "The {name} does not fit there: it would run off the board."
 
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "The board changed. Review the current turn."
@@ -4356,6 +4577,10 @@ msgstr "The payment provider can't be reached right now. Nothing changed — try
 #: libs/billing-client/src/billing-plan-actions.tsx
 msgid "The payment provider can't be reached right now. Nothing was charged — try again in a moment."
 msgstr "The payment provider can't be reached right now. Nothing was charged — try again in a moment."
+
+#: libs/game-matchmaking-client/src/multiplayer-private-setup.tsx
+msgid "The players are choosing their private setups."
+msgstr "The players are choosing their private setups."
 
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "The sign-in provider couldn't finish. Try again in a moment."
@@ -4916,6 +5141,10 @@ msgstr "You are offline. The last status is shown. Reconnect to check or save a 
 msgid "You are offline. Your local game can continue."
 msgstr "You are offline. Your local game can continue."
 
+#: libs/game-matchmaking-client/src/multiplayer-private-setup.tsx
+msgid "You are ready. Waiting for the other player."
+msgstr "You are ready. Waiting for the other player."
+
 #. placeholder {0}: move().name
 #: libs/game-matchmaking-client/src/multiplayer-reviewing.tsx
 msgid "You are reviewing an earlier position, after {0}. No piece can be moved on it."
@@ -4961,6 +5190,18 @@ msgstr "You didn't leave the space"
 msgid "You do not control that side."
 msgstr "You do not control that side."
 
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "You fired at {cell} and hit."
+msgstr "You fired at {cell} and hit."
+
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "You fired at {cell} and missed."
+msgstr "You fired at {cell} and missed."
+
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "You fired at {cell} and sank the {ship}."
+msgstr "You fired at {cell} and sank the {ship}."
+
 #: libs/game-puzzle-client/src/puzzle-empty-pool-state.tsx
 msgid "You have no failed puzzles yet. Puzzles you fail show here to try again."
 msgstr "You have no failed puzzles yet. Puzzles you fail show here to try again."
@@ -4992,6 +5233,10 @@ msgstr "You play {0}"
 #: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
 msgid "You played {0} to {1}."
 msgstr "You played {0} to {1}."
+
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "You sank the whole fleet. You win."
+msgstr "You sank the whole fleet. You win."
 
 #: libs/auth-client/src/signed-out-notice-banner.tsx
 msgid "You were signed out on this device"
@@ -5101,6 +5346,14 @@ msgstr "Your export is late: it was due by {0}. You can ask again, which starts 
 msgid "Your export is ready. Downloads are private to your recently proven account and expire 7 days after becoming ready."
 msgstr "Your export is ready. Downloads are private to your recently proven account and expire 7 days after becoming ready."
 
+#: libs/battleship-client/src/battleship-board.tsx
+msgid "Your fleet"
+msgstr "Your fleet"
+
+#: libs/battleship-client/src/battleship-setup-board.tsx
+msgid "Your fleet is locked in and can no longer change."
+msgstr "Your fleet is locked in and can no longer change."
+
 #: libs/friends-client/src/friend-request-error-label.tsx
 msgid "Your friend request could not be shared because the person is unavailable."
 msgstr "Your friend request could not be shared because the person is unavailable."
@@ -5129,6 +5382,10 @@ msgstr "Your last payment didn't go through. Update your payment method to keep 
 msgid "Your live spaces"
 msgstr "Your live spaces"
 
+#: libs/game-session-client/src/custom-game-status.tsx
+msgid "Your move will be played when the connection returns."
+msgstr "Your move will be played when the connection returns."
+
 #: libs/app-root-client/src/refused-change-copy.tsx
 msgid "Your new space wasn't created"
 msgstr "Your new space wasn't created"
@@ -5152,6 +5409,20 @@ msgstr "Your payment isn't confirmed yet, but it may have gone through. Check ag
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
 msgstr "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
+
+#: libs/game-session-client/src/custom-game-private-setup.tsx
+msgid "Your private setup"
+msgstr "Your private setup"
+
+#: libs/game-matchmaking-client/src/multiplayer-private-setup.tsx
+#: libs/game-session-client/src/custom-game-private-setup.tsx
+msgid "Your private setup is complete."
+msgstr "Your private setup is complete."
+
+#: libs/game-matchmaking-client/src/multiplayer-private-setup.tsx
+#: libs/game-session-client/src/custom-game-private-setup.tsx
+msgid "Your private setup is incomplete."
+msgstr "Your private setup is incomplete."
 
 #: libs/game-puzzle-client/src/puzzle-result-announcement.tsx
 msgid "Your puzzle rating stayed at {after}."
@@ -5211,6 +5482,10 @@ msgstr "Your space wasn't renamed"
 msgid "Your turn — find the best move for {side}"
 msgstr "Your turn — find the best move for {side}"
 
+#: libs/battleship-client/src/battleship-copy.tsx
+msgid "Your turn to fire."
+msgstr "Your turn to fire."
+
 #: libs/game-matchmaking-client/src/multiplayer-status.tsx
 msgid "Your turn."
 msgstr "Your turn."
@@ -5218,6 +5493,10 @@ msgstr "Your turn."
 #: libs/profile-client/src/username-change-feedback.tsx
 msgid "Your username change will be shared when the connection returns."
 msgstr "Your username change will be shared when the connection returns."
+
+#: libs/battleship-client/src/battleship-setup-board.tsx
+msgid "Your waters"
+msgstr "Your waters"
 
 #: libs/profile-client/src/profile-handle-screen.tsx
 msgid "your_handle"

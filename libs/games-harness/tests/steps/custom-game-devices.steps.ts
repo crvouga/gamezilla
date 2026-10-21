@@ -12,6 +12,10 @@ import {
 import { customGameView } from '@libs/game-session-harness/custom-game-probe';
 import { readCustomGameMoveList } from '@libs/game-session-harness/custom-game-reads';
 import { openCustomGames } from '@libs/game-session-harness/game-navigation';
+import {
+  recordedLine,
+  recordedMove,
+} from '@libs/game-session-harness/played-rules';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import {
   returnToTabs,
@@ -138,7 +142,10 @@ Then(
 Then(
   "both of {actor}'s devices show her move in the move list",
   async (w, actor: Actor) => {
-    const first = gameOf(w).fixtures.firstSideVictory.slice(0, 1);
+    const first = recordedLine(
+      gameOf(w),
+      gameOf(w).fixtures.firstSideVictory.slice(0, 1)
+    );
     for (const device of [actor, otherDevice(actor)]) {
       const seen = await w.s.read(customGameView, device);
       expect(seen.current?.moves.map((move) => move.uci)).toEqual(first);
@@ -150,8 +157,9 @@ Then(
 );
 Then('the move list shows her move once', async (w) => {
   const game = await current(w);
+  const initial = gameOf(w).shared.turnGame.rules.initial();
   expect(game.moves.map((move) => move.uci)).toEqual([
-    firstLegalMove(gameOf(w), gameOf(w).shared.turnGame.rules.initial()),
+    recordedMove(gameOf(w), initial, firstLegalMove(gameOf(w), initial)),
   ]);
 });
 Then(

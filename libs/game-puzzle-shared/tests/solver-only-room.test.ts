@@ -30,7 +30,13 @@ function apply(
   if (!isMessageEnvelope(command)) throw new Error('Expected an envelope');
   const result = commands.dispatch(
     state,
-    { identity: 'solver', ts: 1000, commandId: id, random: () => 0 },
+    {
+      identity: 'solver',
+      ts: 1000,
+      commandId: id,
+      random: () => 0,
+      authority: true,
+    },
     command,
     () => {
       throw new Error('Unrecognized puzzle command');

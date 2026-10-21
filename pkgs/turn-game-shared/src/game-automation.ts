@@ -10,4 +10,9 @@ export type GameAutomation<Ui> = {
   readonly choose: (position: string, random: () => number) => string | null;
   /** Perform `action` on the game's board identified by `board`. */
   readonly perform: (ui: Ui, board: string, action: string) => Promise<void>;
+  /**
+   * Exactly for a game with private setups: arrange `setup` on the game's
+   * setup board identified by `board`, as a person would.
+   */
+  readonly arrange?: (ui: Ui, board: string, setup: string) => Promise<void>;
 };

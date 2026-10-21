@@ -1,5 +1,10 @@
 import { MAX_WELCOME_ENTRIES_PER_FRAME } from '@pkgs/room-root-shared/bounds';
 import {
+  entriesFor,
+  hasPrivateEntries,
+  type RoomAudience,
+} from '@pkgs/room-root-shared/private-events';
+import {
   type RoomConnection,
   rejectedFrame,
 } from '@pkgs/room-root-shared/room-server-types';
@@ -7,11 +12,57 @@ import type {
   CommandDedupOutcome,
   RoomStorage,
 } from '@pkgs/room-root-shared/server-core-storage';
-import type { RoomActor } from '@pkgs/room-root-shared/types';
+import type {
+  LogEntry,
+  RoomActor,
+  RoomEvent,
+} from '@pkgs/room-root-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-root-shared/wire';
 
 type Sender = (payload: unknown) => void;
+
+/** The entries as one connection may receive them (private events withheld). */
+export type EntryView = (entries: readonly LogEntry[]) => readonly LogEntry[];
+
+/** The entries as `conn`'s actor may read them under `module`'s audience. */
+export function viewOf<E extends RoomEvent>(
+  module: RoomAudience<E>,
+  conn: RoomConnection
+): EntryView {
+  return (entries) =>
+    entriesFor(module, entries as readonly LogEntry<E>[], conn.actor.id);
+}
+
+/**
+ * A commit reaches every reader in one shared frame, unless it holds a
+ * private event: then each reading connection gets its own copy, withheld
+ * for it before it is serialized.
+ */
+export function sendCommitted<E extends RoomEvent>(args: {
+  readonly connections: Map<string, RoomConnection>;
+  readonly module: RoomAudience<E>;
+  readonly commandId: string;
+  readonly entries: readonly LogEntry<E>[];
+  /** Whether a connection reads the room's history at all. */
+  readonly reads: (connection: RoomConnection) => boolean;
+}): void {
+  const frame = (entries: readonly LogEntry[]) => ({
+    v: WIRE_VERSION,
+    kind: ROOM_WIRE_KIND.committed,
+    commandId: args.commandId,
+    entries,
+  });
+  if (!hasPrivateEntries(args.module, args.entries)) {
+    broadcastToConnections(args.connections, frame(args.entries), args.reads);
+    return;
+  }
+  sendToEachConnection(
+    args.connections,
+    (conn) => frame(viewOf(args.module, conn)(args.entries)),
+    args.reads
+  );
+}
 
 /** Waiting connections receive availability without replacing retained history. */
 export async function sendConnectionWelcome(args: {
@@ -22,6 +73,7 @@ export async function sendConnectionWelcome(args: {
   readonly roster: readonly RoomActor[];
   readonly available: () => boolean;
   readonly tip: () => Promise<number>;
+  readonly view: EntryView;
 }): Promise<void> {
   const connection = args.connection;
   if (connection.view.mode === 'presence' || !args.available()) {
@@ -50,6 +102,7 @@ export async function sendConnectionWelcome(args: {
     },
     roster: args.roster,
     tip: args.tip,
+    view: args.view,
   });
 }
 
@@ -64,6 +117,7 @@ export async function sendWelcomeFrame(args: {
   readonly send: Sender;
   readonly roster: readonly RoomActor[];
   readonly tip: () => Promise<number>;
+  readonly view: EntryView;
 }): Promise<void> {
   try {
     const all = await args.storage.loadEventsAfter(args.topic, args.fromSeq);
@@ -77,7 +131,7 @@ export async function sendWelcomeFrame(args: {
       kind: ROOM_WIRE_KIND.welcome,
       fromSeq: args.fromSeq,
       lastSeq: tip,
-      entries,
+      entries: args.view(entries),
     });
     args.send({
       v: WIRE_VERSION,
@@ -108,11 +162,25 @@ export function broadcastToConnections<
   payload: unknown,
   accepts: (connection: T) => boolean
 ): void {
+  sendToEachConnection(connections, () => payload, accepts);
+}
+
+/**
+ * One frame per connection, for entries some reader may not see: each
+ * connection's copy withholds what it may not read before it is sent.
+ */
+export function sendToEachConnection<
+  T extends { readonly id: string; readonly send: Sender },
+>(
+  connections: Map<string, T>,
+  frameFor: (connection: T) => unknown,
+  accepts: (connection: T) => boolean
+): void {
   let dead: string[] | null = null;
   for (const conn of connections.values()) {
     if (!accepts(conn)) continue;
     try {
-      conn.send(payload);
+      conn.send(frameFor(conn));
     } catch {
       (dead ??= []).push(conn.id);
     }
@@ -125,14 +193,15 @@ export function broadcastToConnections<
 export function sendDedupReplay(
   send: RoomConnection['send'],
   commandId: string,
-  prior: CommandDedupOutcome
+  prior: CommandDedupOutcome,
+  view: EntryView
 ): void {
   if (prior.kind === 'committed') {
     send({
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.committed,
       commandId,
-      entries: prior.entries,
+      entries: view(prior.entries),
     });
   } else send(rejectedFrame(commandId, prior.error));
 }

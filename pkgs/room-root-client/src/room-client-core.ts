@@ -4,6 +4,7 @@ import { isNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
 import { RoomCacheInvalidated } from '@pkgs/room-root-shared/cache-invalidation';
 import type { QueuedCommand } from '@pkgs/room-root-shared/core-storage';
 import { plainDeepEqual } from '@pkgs/room-root-shared/plain-deep-equal';
+import { RoomEventWithheld } from '@pkgs/room-root-shared/private-events';
 import type {
   HandleResult,
   LogEntry,
@@ -142,7 +143,7 @@ export function appendCommitted<
       'log entries must extend lastSeq contiguously',
       { lastSeq, got: e.seq }
     );
-    if (!RoomCacheInvalidated.is(e.event))
+    if (!RoomCacheInvalidated.is(e.event) && !RoomEventWithheld.is(e.event))
       state = core.module.reduce(state, e.event);
     core.entries.push(e);
     lastSeq = e.seq;

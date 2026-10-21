@@ -1,0 +1,31 @@
+.frame {
+  container-type: inline-size;
+  width: 100%;
+}
+.pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+.panel {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.panel[data-shown="false"] {
+  display: none;
+}
+@container (min-width: 44rem) {
+  .pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1rem;
+  }
+  .switch {
+    display: none;
+  }
+  .panel[data-shown="false"] {
+    display: grid;
+  }
+}

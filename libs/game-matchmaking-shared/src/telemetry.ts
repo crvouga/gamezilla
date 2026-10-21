@@ -60,8 +60,32 @@ export const gameAbortedEvent = createDomainEvent(
     attributes,
   })
 );
+/**
+ * A side of a game with private setups chose its setup. It says which
+ * sides are ready, never a setup: the team sees a setup phase progress or
+ * stall without learning anyone's arrangement.
+ */
+const SETUP_READINESS = ['white', 'black', 'white,black'] as const;
+export const gameSetupReadyEvent = createDomainEvent(
+  defineEvent({
+    name: 'chess.setup.chosen',
+    version: 1,
+    owner: 'game-session',
+    description: 'A side of a multiplayer game chose its private setup.',
+    delivery: 'reliable',
+    attributes: {
+      ...attributes,
+      'game.setup_ready': {
+        type: 'string',
+        required: true,
+        values: SETUP_READINESS,
+      },
+    },
+  })
+);
 export const MULTIPLAYER_TELEMETRY = [
   gameCreatedEvent,
+  gameSetupReadyEvent,
   gameStartedEvent,
   gameCompletedEvent,
   gameAbortedEvent,
@@ -95,6 +119,12 @@ export async function recordGameTransition(
       ? {}
       : { 'game.time_control': after.time_control }),
   } as const;
+  const ready = SETUP_READINESS.find((sides) => sides === after.setup_ready);
+  if (ready !== undefined && before.setup_ready !== after.setup_ready)
+    await gameSetupReadyEvent.outbox.enqueue(ctx, {
+      envelope: { ...envelope, id: `${after.id}:${ready}` },
+      attributes: { ...attributes, 'game.setup_ready': ready },
+    });
   if (before.revision < 2 && after.revision >= 2)
     await gameStartedEvent.outbox.enqueue(ctx, { envelope, attributes });
   if (before.outcome !== 'ongoing' || after.outcome === 'ongoing') return;

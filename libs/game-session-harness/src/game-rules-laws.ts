@@ -7,6 +7,7 @@ import type {
 } from '@pkgs/turn-game-shared/game-rules';
 import fc from 'fast-check';
 import type { HarnessGame } from './harness-game';
+import { playedRules, playedRulesOf } from './played-rules';
 
 /**
  * One law a game's rules keep: a named check that throws, naming the game,
@@ -98,7 +99,7 @@ const strangers = fc.oneof(
 
 /** The positions of a game's known line, from its start to its victory. */
 function knownPositions(game: HarnessGame): readonly string[] {
-  const rules = game.shared.turnGame.rules;
+  const rules = playedRulesOf(game);
   const line = game.fixtures.firstSideVictory;
   return Array.from({ length: line.length + 1 }, (_, ply) =>
     rules.replay(line, ply)
@@ -123,7 +124,7 @@ function misspellings(legal: readonly string[]): readonly string[] {
 
 /** The fixtures' known line, which only its last move wins, and then nothing. */
 function knownVictory(game: HarnessGame): void {
-  const rules = game.shared.turnGame.rules;
+  const rules = playedRulesOf(game);
   const victory = game.fixtures.firstSideVictory;
   let position = rules.initial();
   let history = '';
@@ -165,7 +166,7 @@ function knownVictory(game: HarnessGame): void {
  * (`tests/probes/turn-order.test.ts`).
  */
 function takesTurns(game: HarnessGame): void {
-  const rules = game.shared.turnGame.rules;
+  const rules = playedRulesOf(game);
   assertProperty(
     `${game.label}: sides take turns`,
     fc.property(picks, (drawn) => {
@@ -212,7 +213,7 @@ function duelRulesLaws(game: HarnessGame): readonly GameLaw[] {
  * both sides can win at the start.
  */
 function cannotWinOnlyWhereKnown(game: HarnessGame): void {
-  const rules = game.shared.turnGame.rules;
+  const rules = playedRulesOf(game);
   const both = (position: string) =>
     rules.canWin(position, 'white') && rules.canWin(position, 'black');
   must(both(rules.initial()), 'a side cannot win from the starting position');
@@ -243,7 +244,7 @@ function cannotWinOnlyWhereKnown(game: HarnessGame): void {
  * its end is a draw.
  */
 function drawnOnlyWhereKnown(game: HarnessGame): void {
-  const rules = game.shared.turnGame.rules;
+  const rules = playedRulesOf(game);
   const line = game.fixtures.drawByRules;
   if (line !== undefined) {
     const played = walkLine(rules, line);
@@ -279,6 +280,90 @@ function walkLine(rules: GameRules, line: readonly string[]): string | null {
   return winner;
 }
 
+/** A number source cycling through drawn numbers. */
+function cycling(draws: readonly number[]): () => number {
+  let next = 0;
+  return () => draws[next++ % draws.length]!;
+}
+const draws = fc.array(draw, { minLength: 1, maxLength: 12 });
+
+/** Two setups drawn by the game itself, one for each side. */
+function drawnSetups(
+  setup: NonNullable<GameRules['setup']>,
+  white: readonly number[],
+  black: readonly number[]
+) {
+  return {
+    white: setup.random(cycling(white)),
+    black: setup.random(cycling(black)),
+  };
+}
+
+/**
+ * The laws of a game with private setups, whatever setups its sides
+ * prepare: the game draws only complete setups, every proposal it offers
+ * resolves to a public action its rules accept, nothing else resolves, and
+ * no position or label it shows spells out a setup.
+ */
+function privateSetupLaws(game: HarnessGame): readonly GameLaw[] {
+  const rules = game.shared.turnGame.rules;
+  const setup = rules.setup;
+  if (setup === undefined) return [];
+  return [
+    law(game, 'every random setup is one complete setup', () =>
+      assertProperty(
+        `${game.label}: random setups`,
+        fc.property(draws, (drawn) => {
+          const chosen = setup.random(cycling(drawn));
+          must(
+            setup.accept(chosen) === chosen,
+            `${chosen} is not one complete setup`
+          );
+        })
+      )
+    ),
+    law(
+      game,
+      'whatever the setups, every proposal offered resolves to a public action, and nothing else resolves',
+      () =>
+        assertProperty(
+          `${game.label}: resolution`,
+          fc.property(
+            draws,
+            draws,
+            picks,
+            fc.array(strangers, { maxLength: 6 }),
+            (white, black, drawn, sent) => {
+              const setups = drawnSetups(setup, white, black);
+              const played = walk(playedRules(rules, setups), drawn);
+              const legal = rules.legal(played.position);
+              for (const proposal of [...sent, ...misspellings(legal)])
+                must(
+                  legal.includes(proposal) ||
+                    setup.resolve(played.position, proposal, setups) === null,
+                  `${proposal}, which is not offered, resolved at ${played.position}`
+                );
+            }
+          )
+        )
+    ),
+    law(game, 'no position or label it shows spells out a setup', () =>
+      assertProperty(
+        `${game.label}: public positions`,
+        fc.property(draws, draws, picks, (white, black, drawn) => {
+          const setups = drawnSetups(setup, white, black);
+          for (const step of walk(playedRules(rules, setups), drawn).steps)
+            for (const hidden of [setups.white, setups.black])
+              must(
+                !step.position.includes(hidden) && !step.label.includes(hidden),
+                `${step.position} shows a setup`
+              );
+        })
+      )
+    ),
+  ];
+}
+
 /**
  * Every law of a turn game's rules, for `game`, among the `others` whose
  * positions it must never claim.
@@ -287,7 +372,7 @@ export function gameRulesLaws(
   game: HarnessGame,
   others: readonly HarnessGame[]
 ): readonly GameLaw[] {
-  const rules = game.shared.turnGame.rules;
+  const rules = playedRulesOf(game);
   return [
     law(
       game,
@@ -417,6 +502,7 @@ export function gameRulesLaws(
         )
     ),
     ...duelRulesLaws(game),
+    ...privateSetupLaws(game),
     law(game, 'its rules draw it only where the game names a line to it', () =>
       drawnOnlyWhereKnown(game)
     ),
@@ -446,7 +532,7 @@ export function gameRulesLaws(
 
 /** The laws of a game's bots, for a game offering custom games. */
 export function gameBotLaws(game: HarnessGame): readonly GameLaw[] {
-  const rules = game.shared.turnGame.rules;
+  const rules = playedRulesOf(game);
   const customGames = game.shared.turnGame.capabilities['custom-games'];
   if (customGames === undefined) return [];
   const { bots } = customGames;

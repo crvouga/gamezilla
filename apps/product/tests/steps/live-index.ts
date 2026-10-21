@@ -1,6 +1,7 @@
 /** Live health binds the deployed environment without loading the local DOM harness. */
 import '@libs/runtime-harness/journeys.steps';
 import './api.steps';
+import './battleship.steps';
 import './billing.steps';
 import './client-config.steps';
 import './connect-four.steps';

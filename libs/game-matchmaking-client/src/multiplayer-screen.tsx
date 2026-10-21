@@ -12,10 +12,12 @@ import { MultiplayerBoard } from './multiplayer-board';
 import { MultiplayerControls } from './multiplayer-controls';
 import { MultiplayerMoves } from './multiplayer-moves';
 import { MultiplayerNotices } from './multiplayer-notices';
+import { MultiplayerPrivateSetupPanel } from './multiplayer-private-setup';
 import { MultiplayerRatings } from './multiplayer-ratings';
 import { useDeadlineSettle } from './use-deadline-settle';
 import { useMultiplayerControls } from './use-multiplayer-controls';
 import { useMultiplayerData } from './use-multiplayer-data';
+import { useMultiplayerPrivateSetup } from './use-multiplayer-private-setup';
 import type { OwnBoard } from './use-own-board';
 import { useOwnBoard } from './use-own-board';
 
@@ -28,11 +30,22 @@ type ScreenProps = {
 /** The board when there is a game, then what the person can do next. */
 function MultiplayerStage(props: ScreenProps): JSX.Element {
   const sync = useSyncEngine();
+  const setup = useMultiplayerPrivateSetup(props.data.game, props.data.myId);
   return (
     <>
       <Show when={props.data.game()}>
         {(game) => (
+          <MultiplayerPrivateSetupPanel
+            game={game()}
+            setup={setup}
+            onChoose={props.controls.chooseSetup}
+          />
+        )}
+      </Show>
+      <Show when={props.data.game()}>
+        {(game) => (
           <MultiplayerBoard
+            ownSetup={setup.own()}
             game={game()}
             myId={props.data.myId()}
             connected={sync.status().online}

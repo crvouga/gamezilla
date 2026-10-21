@@ -5,6 +5,11 @@
     "parts": 1
   },
   {
+    "package": "@libs/battleship-harness",
+    "directory": "libs/battleship-harness",
+    "parts": 10
+  },
+  {
     "package": "@libs/billing-harness",
     "directory": "libs/billing-harness",
     "parts": 24
@@ -27,7 +32,7 @@
   {
     "package": "@libs/games-harness",
     "directory": "libs/games-harness",
-    "parts": 78
+    "parts": 95
   },
   {
     "package": "@libs/profile-harness",

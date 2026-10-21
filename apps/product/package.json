@@ -85,6 +85,7 @@
     "@libs/app-config-shared": "workspace:*",
     "@libs/app-root-client": "workspace:*",
     "@libs/app-root-shared": "workspace:*",
+    "@libs/battleship-harness": "workspace:*",
     "@libs/chess-puzzle-harness": "workspace:*",
     "@libs/connect-four-harness": "workspace:*",
     "@libs/harness": "workspace:*",

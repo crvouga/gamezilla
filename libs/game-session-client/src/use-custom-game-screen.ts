@@ -4,10 +4,12 @@ import { CustomGameAvailableAttr } from '@libs/game-session-shared/custom-game-a
 import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
 import { soloCustomGame } from '@libs/game-session-shared/custom-game-local';
 import {
+  type CustomGame,
   type CustomGames,
   CustomGamesAttr,
   customGamePersonSide,
 } from '@libs/game-session-shared/custom-game-state';
+import { customGameChoiceWaits } from '@libs/game-session-shared/custom-game-waiting-move';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useSyncedProfiles } from '@libs/profile-client/use-synced-profiles';
 import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
@@ -22,6 +24,7 @@ import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import { useTurnGames } from '@pkgs/turn-game-client/turn-games-context';
 import { type Accessor, createMemo } from 'solid-js';
 import { useCustomGameCommand } from './use-custom-game-command';
+import { useCustomGamePrivateSetup } from './use-custom-game-private-setup';
 import { useVisibleCustomGames } from './use-visible-custom-games';
 
 function useSelectedCustomGames(
@@ -55,6 +58,40 @@ function useAwayParticipants() {
   );
 }
 
+/** Becoming ready, with the person's private setup for a game that has one. */
+function readyChoices(
+  choose: (input: CustomGameInput) => Promise<void>,
+  privateSetup: ReturnType<typeof useCustomGamePrivateSetup>
+) {
+  const ready = (): Promise<void> =>
+    choose(
+      privateSetup.has()
+        ? { operation: 'ready', setup: privateSetup.draft() }
+        : { operation: 'ready' }
+    );
+  const playBot = async (): Promise<void> => {
+    await choose({ operation: 'create' });
+    await choose({ operation: 'bot', side: 'black' });
+    if (privateSetup.has() && !privateSetup.complete()) privateSetup.random();
+    await ready();
+    await choose({ operation: 'start' });
+  };
+  return { ready, playBot };
+}
+
+/** Whether a move made now, with no connection, would wait for it. */
+function useMovesWait(
+  connected: Accessor<boolean>,
+  current: Accessor<CustomGame | null>
+): Accessor<boolean> {
+  const rules = useTurnGames();
+  return createMemo(
+    () =>
+      !connected() &&
+      customGameChoiceWaits(current(), { operation: 'move' }, rules)
+  );
+}
+
 export type CustomGameScreenModel = ReturnType<typeof useCustomGameScreen>;
 
 export function useCustomGameScreen(
@@ -63,6 +100,7 @@ export function useCustomGameScreen(
   openHistory?: () => void
 ) {
   const myId = useMyId();
+  const rules = useTurnGames();
   const spaceId = useSpaceRoomSessionId();
   const scope = (): string => spaceId() ?? '';
   const roomGames = useSpaceRoomSelector(CustomGamesAttr.from);
@@ -88,7 +126,7 @@ export function useCustomGameScreen(
       connected() ||
       (canCreate() &&
         current()?.creator === myId() &&
-        soloCustomGame(current()))
+        soloCustomGame(current(), rules))
   );
   const command = useCustomGameCommand();
   const choose = (input: CustomGameInput): Promise<void> =>
@@ -98,12 +136,8 @@ export function useCustomGameScreen(
       gameId: visible().current?.id ?? null,
       revision: visible().current?.revision ?? 0,
     });
-  const playBot = async (): Promise<void> => {
-    await choose({ operation: 'create' });
-    await choose({ operation: 'bot', side: 'black' });
-    await choose({ operation: 'ready' });
-    await choose({ operation: 'start' });
-  };
+  const privateSetup = useCustomGamePrivateSetup(current, myId);
+  const { ready, playBot } = readyChoices(choose, privateSetup);
   return {
     myId,
     games,
@@ -113,11 +147,17 @@ export function useCustomGameScreen(
     canSubmit,
     sharedAvailable,
     choose,
+    ready,
+    privateSetup,
     playBot,
     attempt: command.send,
     error: command.error,
     settled: command.settled,
     submitting: command.submitting,
+    /** Whether a move made with no connection waits for it to return. */
+    waiting: command.waiting,
+    /** Whether a move made now, with no connection, would wait for it. */
+    movesWait: useMovesWait(connected, current),
     mySide: createMemo(() => {
       const game = current();
       return game === null ? null : customGamePersonSide(game, myId());

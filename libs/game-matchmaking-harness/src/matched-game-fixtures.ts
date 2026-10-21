@@ -7,10 +7,8 @@
  */
 import { scenarioAction } from '@libs/harness/actor-ui';
 import sql from '@pkgs/sql-root-shared/sql';
-import {
-  multiplayerFixture,
-  publishMultiplayerFixture,
-} from './multiplayer-fixtures';
+import { publishMultiplayerFixture } from './multiplayer-fixtures';
+import { multiplayerFixture } from './multiplayer-fixtures-core';
 
 /**
  * A legal pre-existing position after both first moves, the actor to move,

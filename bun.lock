@@ -96,6 +96,7 @@
         "@libs/app-config-shared": "workspace:*",
         "@libs/app-root-client": "workspace:*",
         "@libs/app-root-shared": "workspace:*",
+        "@libs/battleship-harness": "workspace:*",
         "@libs/chess-puzzle-harness": "workspace:*",
         "@libs/connect-four-harness": "workspace:*",
         "@libs/harness": "workspace:*",
@@ -727,6 +728,67 @@
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
         "@pkgs/sql-client-sqlite-root-server": "workspace:*",
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/battleship-client": {
+      "name": "@libs/battleship-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/battleship-shared": "workspace:*",
+        "@libs/game-menu-client": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@pkgs/turn-game-shared": "workspace:*",
+        "@pkgs/ui-root-client": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
+        "@pkgs/clock-client": "workspace:*",
+        "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/ui-testing-solid-dom-client": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@testing-library/user-event": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/battleship-harness": {
+      "name": "@libs/battleship-harness",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/battleship-client": "workspace:*",
+        "@libs/battleship-shared": "workspace:*",
+        "@libs/game-session-harness": "workspace:*",
+        "@libs/harness": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
+        "@pkgs/quint-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/battleship-shared": {
+      "name": "@libs/battleship-shared",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-session-shared": "workspace:*",
+        "@pkgs/turn-game-shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared": "workspace:*",
+        "@pkgs/uuid-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1704,6 +1766,7 @@
         "@pkgs/turn-game-client": "workspace:*",
         "@pkgs/turn-game-shared": "workspace:*",
         "@pkgs/ui-root-client": "workspace:*",
+        "@pkgs/uuid-client": "workspace:*",
         "solid-js": "catalog:",
       },
       "devDependencies": {
@@ -1821,6 +1884,7 @@
       "name": "@libs/games-client",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/battleship-client": "workspace:*",
         "@libs/chess-root-client": "workspace:*",
         "@libs/connect-four-client": "workspace:*",
         "@libs/game-menu-client": "workspace:*",
@@ -1837,6 +1901,7 @@
       "name": "@libs/games-harness",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/battleship-harness": "workspace:*",
         "@libs/chess-root-harness": "workspace:*",
         "@libs/connect-four-harness": "workspace:*",
         "@libs/game-session-harness": "workspace:*",
@@ -1913,6 +1978,7 @@
       "name": "@libs/games-shared",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/battleship-shared": "workspace:*",
         "@libs/chess-sub-shared": "workspace:*",
         "@libs/connect-four-shared": "workspace:*",
         "@libs/game-session-shared": "workspace:*",
@@ -2528,6 +2594,7 @@
       "dependencies": {
         "@libs/account-privacy-harness": "workspace:*",
         "@libs/app-root-shared": "workspace:*",
+        "@libs/battleship-harness": "workspace:*",
         "@libs/billing-harness": "workspace:*",
         "@libs/billing-shared": "workspace:*",
         "@libs/chess-puzzle-harness": "workspace:*",
@@ -7442,6 +7509,12 @@
     "@libs/auth-server": ["@libs/auth-server@workspace:libs/auth-server"],
 
     "@libs/auth-shared": ["@libs/auth-shared@workspace:libs/auth-shared"],
+
+    "@libs/battleship-client": ["@libs/battleship-client@workspace:libs/battleship-client"],
+
+    "@libs/battleship-harness": ["@libs/battleship-harness@workspace:libs/battleship-harness"],
+
+    "@libs/battleship-shared": ["@libs/battleship-shared@workspace:libs/battleship-shared"],
 
     "@libs/billing-client": ["@libs/billing-client@workspace:libs/billing-client"],
 

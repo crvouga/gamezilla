@@ -1,4 +1,5 @@
 import { abortMultiplayerMutation } from './abort-multiplayer-mutation';
+import { chooseMultiplayerSetupMutation } from './choose-multiplayer-setup-mutation';
 import { dismissMultiplayerResultNoticeMutation } from './dismiss-result-notice-mutation';
 import { findNewOpponentMutation } from './find-new-opponent-mutation';
 import { findOpponentMutation } from './find-opponent-mutation';
@@ -21,6 +22,7 @@ export const MULTIPLAYER_MUTATIONS = [
   findOpponentMutation,
   findNewOpponentMutation,
   stopFindingOpponentMutation,
+  chooseMultiplayerSetupMutation,
   playMultiplayerMoveMutation,
   resignMultiplayerMutation,
   abortMultiplayerMutation,

@@ -13,6 +13,7 @@ import {
   customGameEventReducer,
   customGameInitialAttrs,
 } from './custom-game-router';
+import { customGameSetupAudience } from './custom-game-setup';
 import { reactCustomGameToSpaceEvent } from './custom-game-space-events';
 import { CustomGamesAttr } from './custom-game-state';
 
@@ -21,16 +22,19 @@ export function withCustomGames(
   game: GameDefinition,
   rules: TurnGames
 ): GameDefinition {
+  // Only a game with private setups makes any custom-game event private.
+  const privateSetups = rules.games.some((g) => g.rules.setup !== undefined);
   return {
     ...game,
+    ...(privateSetups ? { audience: customGameSetupAudience } : {}),
     availabilityChange: createCustomGameAvailabilityChange(rules),
     prepareLocalCommand: (state, payload, at, random) =>
       prepareLocalCustomGameCommand(state, payload, { at, random }, rules),
     recoverLocalEffects: (state) =>
-      localCustomGameEffects(CustomGamesAttr.from(state).current),
+      localCustomGameEffects(CustomGamesAttr.from(state).current, rules),
     recoverEffects: (state) => [
       ...game.recoverEffects(state),
-      ...customGameEffects(CustomGamesAttr.from(state).current),
+      ...customGameEffects(CustomGamesAttr.from(state).current, rules),
     ],
     reactToSpaceEvent: (state, ctx, event) =>
       reactCustomGameToSpaceEvent(state, ctx, event, rules),

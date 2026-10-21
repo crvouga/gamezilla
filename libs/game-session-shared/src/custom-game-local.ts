@@ -8,21 +8,30 @@ import { customGameBotMove } from './custom-game-position';
 import type { CustomGame } from './custom-game-state';
 import { CustomGamesAttr } from './custom-game-state';
 
-/** Choices with another person are agreed online; solo choices stay local. */
-export function soloCustomGame(game: CustomGame | null): boolean {
+/**
+ * Choices with another person are agreed online; solo choices stay on the
+ * creator's device. A game with private setups is never solo: its bot's
+ * setup is the room's alone to hold, so it is always played online.
+ */
+export function soloCustomGame(
+  game: CustomGame | null,
+  rules: TurnGames
+): boolean {
   return (
     game === null ||
-    [game.white, game.black].every(
-      (side) => side.person === '' || side.person === game.creator
-    )
+    (rules.forPosition(game.fen).setup === undefined &&
+      [game.white, game.black].every(
+        (side) => side.person === '' || side.person === game.creator
+      ))
   );
 }
 
 export function localCustomGameChoiceAllowed(
   game: CustomGame | null,
-  choice: CustomGameChoice
+  choice: CustomGameChoice,
+  rules: TurnGames
 ): boolean {
-  return soloCustomGame(game) && choice.operation !== 'invite';
+  return soloCustomGame(game, rules) && choice.operation !== 'invite';
 }
 
 /** Choose once, then replay the same legal move on every receiving device. */

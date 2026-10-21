@@ -4,6 +4,7 @@ import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-sli
 import { FRIENDS_BLOCK_RELATION } from '@libs/friends-shared/block-relation';
 import { createMultiplayerLinkClient } from '@libs/game-matchmaking-client/multiplayer-link-client';
 import { MATCHED_GAME_HARNESS_ACTIONS } from '@libs/game-matchmaking-harness/matched-game-actions';
+import { registerKnownSetups } from '@libs/game-matchmaking-harness/multiplayer-setups';
 import { withOpponentSearchCleanup } from '@libs/game-matchmaking-harness/opponent-search-cleanup';
 import { OPPONENT_SEEKING_ACTIONS } from '@libs/game-matchmaking-harness/opponent-seeking';
 import { createPersonalPuzzleStatsClients } from '@libs/game-menu-client/personal-puzzle-stats-clients';
@@ -116,6 +117,12 @@ export function gameSystem(
     ...(options.beside ?? []),
   ]);
   registerHarnessGames(composition, games);
+  registerKnownSetups(
+    composition,
+    (position, side) =>
+      games.find((game) => game.shared.turnGame.rules.recognizes(position))
+        ?.fixtures.setups?.[side]
+  );
   return defineProductSystem(composition, options.product);
 }
 

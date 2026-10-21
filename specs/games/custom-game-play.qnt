@@ -7,11 +7,11 @@
 // Both sides begin with one minute and no added seconds.
 // People with no connection keep their last board and cannot play; the clock
 // runs, and the current board and result return when their connection
-// returns. Someone who still has a connection keeps seeing that current
-// board while the host has none. When neither participant can play the
+// returns while the host has one. Anyone but the host keeps the board they
+// have while the host has none, until the custom game has a result. When neither participant can play the
 // shared custom game, it keeps the same board and pauses time and being
 // away; nobody wins for staying away then.
-// Alice takes the first side and is the creator, Bob takes the second side,
+// Alice hosts the space, takes the first side and is the creator, Bob takes the second side,
 // and Carol watches. A participant with no connection is away: being away
 // never gives up the custom game, and a timed custom game's clock keeps
 // running for them. After a minute away, the other participant may claim the
@@ -68,6 +68,9 @@ module custom_game_play {
   pure def _opponent(actor: Person): Person = if (actor == "alice") "bob" else "alice"
   pure def _capped(quarters: int): int = if (quarters > _AWAY_LIMIT) _AWAY_LIMIT else quarters
   def _visible(actor: Person): bool = playShown.get(actor)._1 != "unavailable"
+  /// Someone connected other than the host keeps the board they have while the host has no connection, until a result.
+  pure def _keepsBoard(p: Person, offline: Set[Person], status: str): bool =
+    p != "alice" and offline.contains("alice") and status == "active"
   action _update(status: str, moves: int, turn: Side, outcome: str, left: Side -> int, offline: Set[Person]): bool =
     _updateAll(status,moves,turn,outcome,left,offline,PEOPLE.mapBy(p => if (offline.contains(p)) _awayFor.get(p) else 0),_canceller,_claimedAfter)
   action _updateAll(status: str, moves: int, turn: Side, outcome: str, left: Side -> int, offline: Set[Person], away: Person -> int, canceller: Person, claimedAfter: int): bool =
@@ -78,7 +81,7 @@ module custom_game_play {
     _awayFor' = away, _timed' = _timed, _canceller' = canceller, _claimedAfter' = claimedAfter,
     _playStatus' = status, movesPlayed' = moves, sideToMove' = turn, _result' = outcome,
     clockLeft' = left, _offline' = offline,
-    playShown' = PEOPLE.mapBy(p => if (offline.contains(p)) playShown.get(p) else (status,moves,outcome)),
+    playShown' = PEOPLE.mapBy(p => if (offline.contains(p) or _keepsBoard(p,offline,status)) playShown.get(p) else (status,moves,outcome)),
     _atCutOff' = PEOPLE.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) playShown.get(p) else _atCutOff.get(p)),
     _ended' = (_ended or status != "active"),
     _terminalPicture' = if (not(_ended) and status != "active") (status,moves,outcome,left) else _terminalPicture,
@@ -153,7 +156,7 @@ module custom_game_play {
     not(_offline.contains(actor)),
     _update(_playStatus,movesPlayed,sideToMove,_result,clockLeft,_offline.union(Set(actor))),
   }
-  /// A returning person sees the agreed current board and result.
+  /// A returning person sees the agreed current board and result once the host also has a connection.
   action _connectionReturns(actor: Person): bool = all {
     _offline.contains(actor),
     _update(_playStatus,movesPlayed,sideToMove,_result,clockLeft,_offline.exclude(Set(actor))),
@@ -185,8 +188,8 @@ module custom_game_play {
   val invMovesNeverFinish = _RESULTS.contains(_result)
   /// A side under way still has time; neither clock is negative or gains time.
   val invClocks = SIDES.forall(c => clockLeft.get(c) >= 0 and clockLeft.get(c) <= _INITIAL_TIME) and (_playStatus == "active" implies clockLeft.get(sideToMove) > 0)
-  /// Everyone with a connection sees the same board and result.
-  val invConnectedBoard = PEOPLE.forall(p => not(_offline.contains(p)) implies playShown.get(p) == (_playStatus,movesPlayed,_result))
+  /// Everyone with a connection sees the same board and result: anyone but the host while the host has one or once there is a result.
+  val invConnectedBoard = PEOPLE.forall(p => not(_offline.contains(p) or _keepsBoard(p,_offline,_playStatus)) implies playShown.get(p) == (_playStatus,movesPlayed,_result))
   /// Boards with no connection stay as they were when the connection went.
   val invOfflineBoard = PEOPLE.forall(p => _offline.contains(p) implies playShown.get(p) == _atCutOff.get(p))
   /// Only the creator cancels once each side has moved.

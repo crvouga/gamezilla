@@ -108,7 +108,7 @@ export class MultiplayerGameRepository {
       white_ms = ${game.white_ms}, black_ms = ${game.black_ms}, clock_at_ms = ${game.clock_at_ms}, paused_at_ms = ${game.paused_at_ms},
       draw_offer_by = ${game.draw_offer_by}, rematch_offer_by = ${game.rematch_offer_by},
       white_rating_diff = ${game.white_rating_diff}, black_rating_diff = ${game.black_rating_diff},
-      updated_at = ${new Date(nowMs).toISOString()} WHERE id = ${game.id}`);
+      setup_ready = ${game.setup_ready}, updated_at = ${new Date(nowMs).toISOString()} WHERE id = ${game.id}`);
     if (server && publish !== undefined)
       await publishMatchGame(
         {

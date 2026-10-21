@@ -37,6 +37,7 @@ const gameSchema = z.object({
   black_rating: z.string().nullable().optional(),
   white_rating_diff: z.number().nullable().optional(),
   black_rating_diff: z.number().nullable().optional(),
+  setup_ready: z.string().nullable().optional(),
 });
 /** The accepted game a match room shares. Clock fields travel with a timed game. */
 export type MatchRoomGame = z.infer<typeof gameSchema>;
@@ -48,6 +49,16 @@ export const MultiplayerGameChanged = createMessageNamespace('chess-match')(
 export function matchRoomGame(state: RoomState): MatchRoomGame | null {
   const parsed = gameSchema.safeParse(state[MATCH_GAME_KEY]);
   return parsed.success ? parsed.data : null;
+}
+
+/** Readiness only grows: a delayed delivery never takes a chosen setup back. */
+function readinessWithdrawn(
+  current: MatchRoomGame,
+  game: MatchRoomGame
+): boolean {
+  const sides = (g: MatchRoomGame) =>
+    (g.setup_ready ?? '').split(',').filter((side) => side !== '').length;
+  return current.revision === game.revision && sides(current) > sides(game);
 }
 
 /** One accepted match, shared by the clients in both spaces. Only mutation
@@ -75,7 +86,8 @@ export const matchRoomModule: RoomModule<RoomState, Message, Message, string> =
         current !== null &&
         (current.id !== game.id ||
           current.revision > game.revision ||
-          (current.outcome !== 'ongoing' && game.outcome === 'ongoing'))
+          (current.outcome !== 'ongoing' && game.outcome === 'ongoing') ||
+          readinessWithdrawn(current, game))
       )
         return { ok: true, events: [] };
       const published =

@@ -26,6 +26,7 @@ export const multiplayerGames = defineTable({
     black_rating: 'text',
     white_rating_diff: 'integer',
     black_rating_diff: 'integer',
+    setup_ready: 'text',
   },
   uniqueIndexes: ['match_id'],
   indexes: ['white_id', 'black_id'],
@@ -82,8 +83,26 @@ export const multiplayerCommands = defineTable({
   uniqueIndexes: [['owner_id', 'request_id']],
 });
 
+/**
+ * One side's private setup in a matched game. Only its owner's devices and
+ * the server ever read it: no watcher, opponent or space reads this table.
+ */
+export const multiplayerSetups = defineTable({
+  domain: GAME_PLATFORM_NAMESPACE,
+  name: 'chess_multiplayer_setups',
+  columns: {
+    game_id: 'text',
+    owner_id: 'text',
+    side: 'text',
+    setup: 'text',
+  },
+  uniqueIndexes: [['game_id', 'side']],
+  indexes: ['owner_id'],
+});
+
 export const MULTIPLAYER_TABLES = [
   multiplayerGames,
+  multiplayerSetups,
   multiplayerPlayers,
   opponentSearches,
   multiplayerCommands,

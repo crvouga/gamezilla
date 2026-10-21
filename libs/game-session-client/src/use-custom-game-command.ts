@@ -15,6 +15,7 @@ import { SPACE_ROOM_NAME } from '@libs/spaces-client/use-space-room-selector';
 import { useClock, useTimers } from '@pkgs/clock-client/solid';
 import { useNamedRoomRoster } from '@pkgs/room-root-client/room-clients-context';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import { useTurnGames } from '@pkgs/turn-game-client/turn-games-context';
 import { createSignal, onCleanup } from 'solid-js';
 import { confirmCustomGameChoice } from './confirm-custom-game-choice';
 
@@ -23,6 +24,7 @@ export function useCustomGameCommand() {
   const spaceId = useSpaceRoomSessionId();
   const timers = useTimers();
   const clock = useClock();
+  const rules = useTurnGames();
   const canHost = useSpaceCan(
     () => spaceId() ?? '',
     PERMISSION.gameCustomCreate
@@ -35,6 +37,7 @@ export function useCustomGameCommand() {
   const [error, setError] = createSignal('');
   const [settled, setSettled] = createSignal(0);
   const [submitting, setSubmitting] = createSignal(false);
+  const [waiting, setWaiting] = createSignal(false);
   const pending = new Set<() => void>();
   onCleanup(() => {
     for (const cancel of pending) cancel();
@@ -73,6 +76,8 @@ export function useCustomGameCommand() {
           clock,
           canHost: canHost(),
           pending,
+          rules,
+          onWaiting: () => setWaiting(true),
         },
         choice
       );
@@ -80,9 +85,11 @@ export function useCustomGameCommand() {
       setError(cause instanceof Error ? cause.message : 'choice failed');
       throw cause;
     } finally {
+      setWaiting(false);
       setSubmitting(false);
       setSettled((value) => value + 1);
     }
   };
-  return { send, error, settled, submitting };
+  /** Whether a move made with no connection waits for it to return. */
+  return { send, error, settled, submitting, waiting };
 }

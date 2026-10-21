@@ -37,8 +37,10 @@ import {
 } from './room-server-connections';
 import {
   broadcastToConnections,
+  sendCommitted,
   sendConnectionWelcome,
   sendDedupReplay,
+  viewOf,
 } from './room-server-fanout';
 import { loadRoomSnapshot } from './room-server-hydrate';
 import { sessionDenial } from './session-grant';
@@ -314,6 +316,7 @@ export class RoomServer<
       available: () => readsHistory(conn, hasAuthority(this.connections)),
       roster: this.getRoster(),
       tip: () => this.tip(),
+      view: viewOf(this.module, conn),
     });
   }
 
@@ -375,11 +378,12 @@ export class RoomServer<
     }
     this.lastSeq = base + entries.length;
     this.committedState = state;
-    this.broadcast({
-      v: WIRE_VERSION,
-      kind: ROOM_WIRE_KIND.committed,
+    sendCommitted({
+      connections: this.connections,
+      module: this.module,
       commandId: args.commandId,
       entries,
+      reads: (conn) => readsHistory(conn, hasAuthority(this.connections)),
     });
     await this.applyCommittedEffects(args.effects);
   }
@@ -475,7 +479,7 @@ export class RoomServer<
     if (refuseConnectionCommand(conn, this.connections, commandId)) return;
     const prior = await this.storage.getDedupOutcome(this.topic, commandId);
     if (prior !== null) {
-      sendDedupReplay(send, commandId, prior);
+      sendDedupReplay(send, commandId, prior, viewOf(this.module, conn));
       return;
     }
     if (!isMessageEnvelope(parsed.payload)) {
