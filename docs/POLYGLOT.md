@@ -81,12 +81,23 @@ suffix comes last.
 - A generator is code in the language it is written in: one written in
   TypeScript that emits Swift is `-ts`.
 - Neutral packages hold portable definitions (YAML, JSON Schema, Protobuf,
-  Gherkin) and end in no language suffix.
+  Gherkin) and end in no language suffix — and no runtime suffix, since they
+  run nowhere.
+- The scope is the tier directory and the rest of the name is the package's
+  directory: `pkgs/clock-shared-swift` is `@pkgs/clock-shared-swift`. Apps
+  name a product surface, so they carry no runtime suffix.
+
+**Enforced by one gate.** `@libs/tools#ci:package-names`
+(`libs/tools/scripts/package-names.ts`) checks every manifest at once: scope,
+directory, kebab-case, runtime suffix, language suffix, unique names and the
+legacy list. It reads nothing but `package.json` files and its rules, so it
+runs in milliseconds and is a cache hit whenever no manifest changed. Run it
+with `bunx turbo run @libs/tools#ci:package-names`.
 
 **Legacy names.** The 332 TypeScript packages that existed when this rule
 landed keep their names. They are listed once in
 `libs/tools/scripts/legacy-package-names.json`, which can only shrink
-(`legacy-package-names.test.ts` caps its size and rejects stale entries). To
+(the gate caps it at `FROZEN_LEGACY_SIZE` and rejects stale entries). To
 migrate one, rename the package and its directory to end in `-ts`, update
 every import and dependency on it in the same change (AGENTS.md "Never leave
 deprecated code"), and delete its line from the list. One package per change

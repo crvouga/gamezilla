@@ -8,6 +8,7 @@
     "ci:conformance": "bun run scripts/verify-conformance.ts",
     "ci:goals": "bun run scripts/verify-goals.ts",
     "ci:i18n": "bun run scripts/ci-i18n.ts",
+    "ci:package-names": "bun run scripts/verify-package-names.ts",
     "ci:spec-ownership": "bun run scripts/verify-spec-ownership.ts",
     "ci:specs": "bun run scripts/verify-specs.ts",
     "ci:statecharts": "bun run scripts/statechart-cli.ts verify",

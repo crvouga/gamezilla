@@ -223,7 +223,7 @@
         "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts",
         "$TURBO_ROOT$/libs/tools/scripts/languages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/language-boundaries.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/legacy-package-names.json",
+        "$TURBO_ROOT$/libs/tools/scripts/package-names.ts",
         "$TURBO_ROOT$/libs/tools/scripts/package-hosts.ts",
         "$TURBO_ROOT$/libs/tools/scripts/swift-format.ts",
         "$TURBO_ROOT$/libs/tools/scripts/native-toolchain.ts",
@@ -1169,6 +1169,19 @@
         "$TURBO_ROOT$/opencode.json",
         "$TURBO_ROOT$/libs/tools/scripts/sync-agent-commands.ts",
         "$TURBO_ROOT$/libs/tools/scripts/sync-agent-mcp.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools#ci:package-names": {
+      "inputs": [
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/package.json",
+        "$TURBO_ROOT$/libs/tools/scripts/verify-package-names.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/package-names.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/languages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/legacy-package-names.json"
       ],
       "outputs": [],
       "outputLogs": "errors-only"

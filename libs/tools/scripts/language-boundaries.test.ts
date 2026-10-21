@@ -6,8 +6,6 @@ import {
   nativeGraphViolations,
   nativeSourceViolations,
 } from './language-boundaries';
-import { languageOfName, withoutLanguageSuffix } from './languages';
-import { categoryOfName } from './package-boundaries';
 
 const WORKSPACE = new Map<string, LanguageManifest>([
   [
@@ -19,83 +17,25 @@ const WORKSPACE = new Map<string, LanguageManifest>([
   ['@pkgs/game-protocol', { language: 'neutral' }],
 ]);
 
-const options = {
-  tier: 'pkgs',
-  workspace: WORKSPACE,
-  legacy: new Set(['@pkgs/value-shared']),
-};
+const options = { tier: 'pkgs', workspace: WORKSPACE };
 
 const violations = (manifest: LanguageManifest) =>
   languageViolations(manifest, options);
 
-describe('names spell the declared language', () => {
-  test('the suffix comes last and the category before it', () => {
-    expect(languageOfName('@pkgs/clock-shared-swift')).toBe('swift');
-    expect(languageOfName('@pkgs/codegen-root-server-ts')).toBe('typescript');
-    expect(languageOfName('@pkgs/game-protocol')).toBeUndefined();
-    expect(withoutLanguageSuffix('@pkgs/clock-shared-swift')).toBe(
-      '@pkgs/clock-shared'
-    );
-    expect(categoryOfName('@pkgs/clock-shared-swift')).toBe('isomorphic');
-    expect(categoryOfName('@pkgs/friends-root-server-rust')).toBe('server');
-    expect(categoryOfName('@pkgs/clock-shared')).toBe('isomorphic');
-  });
-
-  test('a new package ends in its language suffix; only the frozen baseline may not', () => {
-    expect(
-      violations({ name: '@pkgs/new-shared-ts', language: 'typescript' })
-    ).toEqual([]);
-    expect(
-      violations({ name: '@pkgs/value-shared', language: 'typescript' })
-    ).toEqual([]);
-    expect(
-      violations({ name: '@pkgs/new-shared', language: 'typescript' })
-    ).toEqual([
-      '@pkgs/new-shared is typescript, so its name ends in -ts (only the frozen legacy-package-names.json may omit it)',
-    ]);
-    expect(
-      violations({
-        name: '@pkgs/clock-shared',
-        language: 'swift',
-        platforms: ['linux'],
-      })
-    ).toEqual([expect.stringContaining('ends in -swift')]);
-  });
-
-  test('a name never spells another language than it declares', () => {
-    expect(
-      violations({ name: '@pkgs/a-shared-swift', language: 'typescript' })
-    ).toEqual([
-      '@pkgs/a-shared-swift is typescript but its name spells swift (-swift)',
-    ]);
-  });
-
-  test('language-neutral packages end in no language suffix', () => {
-    expect(
-      violations({ name: '@pkgs/sync-contracts', language: 'neutral' })
-    ).toEqual([]);
-    expect(
-      violations({ name: '@pkgs/sync-contracts-ts', language: 'neutral' })
-    ).toEqual([
-      '@pkgs/sync-contracts-ts is language-neutral, so its name ends in no language suffix (not -ts)',
-    ]);
-  });
-
-  test('the language is declared, registered and supported', () => {
-    expect(violations({ name: '@pkgs/a-shared-ts' })).toEqual([
-      expect.stringContaining('declares no language'),
-    ]);
-    expect(violations({ name: '@pkgs/a-shared-zig', language: 'zig' })).toEqual(
-      [expect.stringContaining('declares no language')]
-    );
-    expect(
-      violations({
-        name: '@pkgs/a-shared-rust',
-        language: 'rust',
-        platforms: ['linux'],
-      })
-    ).toEqual([expect.stringContaining('rust is reserved, not supported yet')]);
-  });
+test('the language is declared, registered and supported', () => {
+  expect(violations({ name: '@pkgs/a-shared-ts' })).toEqual([
+    expect.stringContaining('declares no language'),
+  ]);
+  expect(violations({ name: '@pkgs/a-shared-zig', language: 'zig' })).toEqual([
+    expect.stringContaining('declares no language'),
+  ]);
+  expect(
+    violations({
+      name: '@pkgs/a-shared-rust',
+      language: 'rust',
+      platforms: ['linux'],
+    })
+  ).toEqual([expect.stringContaining('rust is reserved, not supported yet')]);
 });
 
 describe('platforms and dependencies', () => {

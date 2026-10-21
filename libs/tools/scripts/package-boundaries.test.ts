@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  categoryOfName,
   categoryViolations,
   familyMayDependOn,
   familyOf,
@@ -9,7 +8,7 @@ import {
   gameViolations,
 } from './package-boundaries';
 
-const lib = { tier: 'libs', hasSrc: true, sources: [] };
+const lib = { tier: 'libs', sources: [] };
 
 // regression: external-workspace-category
 test('upstream workspace packages do not adopt product package categories', () => {
@@ -20,7 +19,7 @@ test('upstream workspace packages do not adopt product package categories', () =
         category: 'harness',
         devDependencies: { '@crvouga/atlas': 'workspace:*' },
       },
-      { tier: 'libs', hasSrc: false, sources: [] }
+      { tier: 'libs', sources: [] }
     )
   ).toEqual([]);
   expect(
@@ -30,7 +29,7 @@ test('upstream workspace packages do not adopt product package categories', () =
         category: 'harness',
         devDependencies: { '@pkgs/missing-category': 'workspace:*' },
       },
-      { tier: 'libs', hasSrc: false, sources: [] }
+      { tier: 'libs', sources: [] }
     )
   ).toEqual([
     'devDependencies names @pkgs/missing-category, whose name spells no category',
@@ -38,27 +37,10 @@ test('upstream workspace packages do not adopt product package categories', () =
 });
 
 describe('package categories', () => {
-  test('the name spells the category', () => {
-    expect(categoryOfName('@libs/chess-puzzle-client')).toBe('client');
-    expect(categoryOfName('@libs/chess-root-server')).toBe('server');
-    expect(categoryOfName('@pkgs/sql-client-root-shared')).toBe('isomorphic');
-    expect(categoryOfName('@libs/harness')).toBe('harness');
-    expect(categoryOfName('@pkgs/glicko2')).toBeUndefined();
-  });
-
-  test('a package declares a category its name agrees with', () => {
+  test('a package declares a category', () => {
     expect(categoryViolations({ name: '@libs/x-client' }, lib)).toEqual([
       'package.json declares no category (one of client, server, isomorphic, harness)',
     ]);
-    expect(
-      categoryViolations({ name: '@libs/x-client', category: 'server' }, lib)
-    ).toEqual(['@libs/x-client is server, so its name ends in -server']);
-    expect(
-      categoryViolations(
-        { name: '@apps/product', category: 'harness' },
-        { ...lib, tier: 'apps' }
-      )
-    ).toEqual([]);
   });
 
   test('client and server never meet; isomorphic depends on isomorphic only', () => {

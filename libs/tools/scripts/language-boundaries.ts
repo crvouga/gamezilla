@@ -3,10 +3,8 @@
  * inside each package's cached `lint`. Pure over manifests and file texts.
  *
  * - **Language.** `"language"` is a registered id (`languages.ts`) whose
- *   toolchain is supported, and the name ends in its suffix — or, for the
- *   TypeScript packages named before the rule, appears in the frozen
- *   `legacy-package-names.json`. A `neutral` package ends in no language
- *   suffix. A name never spells a different language than it declares.
+ *   toolchain is supported. That the name spells it is the name gate's
+ *   (`package-names.ts`).
  * - **Platforms.** Native languages declare `"platforms"` (`package-hosts.ts`);
  *   a package builds only for platforms every production dependency builds
  *   for.
@@ -28,7 +26,6 @@ import {
   isSourceOf,
   LANGUAGES,
   type Language,
-  languageOfName,
   NEUTRAL,
 } from './languages';
 import { isPlatform } from './package-hosts';
@@ -55,35 +52,6 @@ function workspaceDeps(
       ([dep, version]) => version.startsWith('workspace:') && TIER.test(dep)
     )
     .map(([dep]) => dep);
-}
-
-function suffixOf(language: Language): string {
-  return `-${LANGUAGES[language].suffix}`;
-}
-
-/** The name's language suffix agrees with the declared language. */
-function nameViolations(
-  name: string,
-  language: string,
-  legacy: ReadonlySet<string>
-): readonly string[] {
-  const spelled = languageOfName(name);
-  if (language === NEUTRAL)
-    return spelled === undefined
-      ? []
-      : [
-          `${name} is language-neutral, so its name ends in no language suffix (not ${suffixOf(spelled)})`,
-        ];
-  const declared = language as Language;
-  if (spelled === declared) return [];
-  if (spelled !== undefined)
-    return [
-      `${name} is ${declared} but its name spells ${spelled} (${suffixOf(spelled)})`,
-    ];
-  if (declared === 'typescript' && legacy.has(name)) return [];
-  return [
-    `${name} is ${declared}, so its name ends in ${suffixOf(declared)} (only the frozen legacy-package-names.json may omit it)`,
-  ];
 }
 
 function platformsOf(manifest: LanguageManifest): readonly string[] | null {
@@ -159,10 +127,8 @@ export function languageViolations(
   options: {
     readonly tier: string;
     readonly workspace: Workspace;
-    readonly legacy: ReadonlySet<string>;
   }
 ): readonly string[] {
-  const name = manifest.name ?? '';
   const language = manifest.language;
   if (!isDeclaredLanguage(language))
     return [
@@ -173,7 +139,6 @@ export function languageViolations(
       `${language} is reserved, not supported yet: register its toolchain first (docs/POLYGLOT.md#adding-a-language)`,
     ];
   return [
-    ...nameViolations(name, language, options.legacy),
     ...platformViolations(manifest, language, options.workspace),
     ...dependencyViolations(
       manifest,

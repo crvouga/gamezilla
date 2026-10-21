@@ -145,6 +145,7 @@ const VERIFY_LEAVES = [
   '@libs/tools#ci:i18n',
   '@libs/tools#ci:agent-commands',
   '@libs/tools#ci:workspace-lifecycle',
+  '@libs/tools#ci:package-names',
   '@libs/tools#ci:goals',
   '@libs/tools#ci:specs',
   '@libs/tools#ci:statecharts',

@@ -22,13 +22,12 @@
  * scripts, build config) may name any non-harness package. Isomorphic source
  * imports no client-only or server-only runtime module.
  *
- * The category is spelled in the package name, so a dependency's category is
- * read from its name and each rule reads only its own package — which is what
- * lets it run inside that package's cached `lint`.
+ * The category is spelled in the package name (held by `package-names.ts`,
+ * the `ci:package-names` gate), so a dependency's category is read from its
+ * name and each rule reads only its own package — which is what lets it run
+ * inside that package's cached `lint`.
  *
- * Every package also declares its `language` (`languages.ts`), spelled last
- * in its name (`-swift`, `-ts`), and the TypeScript packages named before that
- * rule are frozen in `legacy-package-names.json`. A production dependency
+ * Every package also declares its `language` (`languages.ts`). A production dependency
  * stays inside one language or reaches a language-neutral package; the
  * native manifests (`Package.swift`, the Xcode project) name exactly the
  * workspace packages `package.json` does, so Turborepo's graph and the
@@ -43,23 +42,8 @@ import {
   nativeGraphViolations,
   nativeSourceViolations,
 } from './language-boundaries';
-import { withoutLanguageSuffix } from './languages';
+import { CATEGORIES, type Category, categoryOfName } from './package-names';
 import { sourceImports } from './source-imports';
-
-export const CATEGORIES = [
-  'client',
-  'server',
-  'isomorphic',
-  'harness',
-] as const;
-export type Category = (typeof CATEGORIES)[number];
-
-const SUFFIX: Readonly<Record<string, Category>> = {
-  client: 'client',
-  server: 'server',
-  shared: 'isomorphic',
-  harness: 'harness',
-};
 
 const ALLOWED: Readonly<Record<Category, readonly Category[]>> = {
   isomorphic: ['isomorphic'],
@@ -67,16 +51,6 @@ const ALLOWED: Readonly<Record<Category, readonly Category[]>> = {
   server: ['server', 'isomorphic'],
   harness: ['harness', 'client', 'server', 'isomorphic'],
 };
-
-/**
- * The category a workspace package name spells, or undefined. The language
- * suffix comes after it: `@pkgs/clock-shared-swift` is isomorphic.
- */
-export function categoryOfName(name: string): Category | undefined {
-  const last = withoutLanguageSuffix(name).split('/').pop() ?? '';
-  const suffix = last.match(/(?:^|-)(client|server|shared|harness)$/)?.[1];
-  return suffix === undefined ? undefined : SUFFIX[suffix];
-}
 
 /** Runtime modules isomorphic source may not load. Type-only imports are fine. */
 const CLIENT_ONLY =
@@ -203,7 +177,6 @@ export function categoryViolations(
   manifest: Manifest,
   options: {
     readonly tier: string;
-    readonly hasSrc: boolean;
     readonly sources: readonly {
       readonly path: string;
       readonly text: string;
@@ -211,21 +184,11 @@ export function categoryViolations(
   }
 ): readonly string[] {
   const out: string[] = [];
-  const name = manifest.name ?? '';
   const category = manifest.category as Category | undefined;
   if (category === undefined || !CATEGORIES.includes(category)) {
     return [
       `package.json declares no category (one of ${CATEGORIES.join(', ')})`,
     ];
-  }
-  if (
-    options.tier !== 'apps' &&
-    options.hasSrc &&
-    categoryOfName(name) !== category
-  ) {
-    out.push(
-      `${name} is ${category}, so its name ends in -${category === 'isomorphic' ? 'shared' : category}`
-    );
   }
   for (const field of ['dependencies', 'devDependencies'] as const) {
     for (const [dep, version] of Object.entries(manifest[field] ?? {})) {
@@ -497,18 +460,6 @@ function packageFiles(dir: string, prefix = ''): string[] {
   return out;
 }
 
-/** The TypeScript packages named before the language suffix rule. */
-export function legacyPackageNames(): ReadonlySet<string> {
-  return new Set(
-    JSON.parse(
-      readFileSync(
-        join(import.meta.dirname, 'legacy-package-names.json'),
-        'utf8'
-      )
-    ) as string[]
-  );
-}
-
 function languageAndNativeViolations(
   pkgDir: string,
   manifest: Manifest,
@@ -522,11 +473,7 @@ function languageAndNativeViolations(
     packagesByDir: workspace.byDir,
   };
   return [
-    ...languageViolations(manifest, {
-      tier,
-      workspace: workspace.byName,
-      legacy: legacyPackageNames(),
-    }),
+    ...languageViolations(manifest, { tier, workspace: workspace.byName }),
     ...nativeGraphViolations(manifest, native),
     ...nativeSourceViolations(manifest, native),
   ];
@@ -547,7 +494,6 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
   const out: string[] = [
     ...categoryViolations(manifest, {
       tier: pkgDir.split('/').at(-2) ?? '',
-      hasSrc: existsSync(srcDir),
       sources: sources.map((path) => ({
         path: path.slice(pkgDir.length + 1),
         text: readFileSync(path, 'utf8'),

@@ -859,6 +859,7 @@
   "@libs/tools#ci:conformance": 1,
   "@libs/tools#ci:goals": 1,
   "@libs/tools#ci:i18n": 5,
+  "@libs/tools#ci:package-names": 1,
   "@libs/tools#ci:spec-ownership": 1,
   "@libs/tools#ci:specs": 8,
   "@libs/tools#ci:statecharts": 21,
