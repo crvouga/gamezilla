@@ -66,6 +66,7 @@ function makeDeps(
     inFlightRef: { current: false },
     pendingTokenRef: { current: null },
     signingInTokenRef: { current: null },
+    signOutIntentRef: { current: false },
   };
 }
 

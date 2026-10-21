@@ -41,6 +41,7 @@ import { useAuthClientPort } from './auth-client-provider';
 import { useConfigService } from './config-service-context';
 import { SessionBearerTokenResolver } from './resolve-session-bearer-token';
 import { originRevalidate } from './session-revalidate-on-origin';
+import { SignOutIntentContext, signOutIntentOf } from './sign-out-intent';
 import { useDeviceId } from './use-device-id';
 import { useFreshAuthToken } from './use-fresh-auth-token';
 
@@ -177,8 +178,10 @@ function useReconcileAuthSession(args: {
           });
           wasBaSignedInRef.current = false;
           if (clear) {
+            // The provider ended a session this device still held.
             await new AuthBridgeRefresh(deps).handleSignedOut({
               rotateAccount,
+              endedElsewhere: storedToken !== null,
             });
           }
           return;
@@ -285,7 +288,12 @@ function useRevalidateSessionWhenOriginReturns(args: {
  * refresh. IdP `useSession` is a ceremony/reconcile trigger only —
  * chrome reads secure storage.
  */
-export function AuthBridge(props: ParentProps): JSX.Element {
+export function AuthBridge(
+  props: ParentProps<{
+    /** See {@link AuthBridgeRefreshDeps.countUnshared}. */
+    readonly countUnshared?: (accountId: string) => Promise<number | null>;
+  }>
+): JSX.Element {
   const apiUrl = useConfigService().getApiUrl();
   const port = useAuthClientPort();
   const authState = createSubscriptionSignal(port.session);
@@ -304,6 +312,7 @@ export function AuthBridge(props: ParentProps): JSX.Element {
   const inFlightRef = { current: false };
   const pendingTokenRef = { current: null as string | null };
   const signingInTokenRef = { current: null as string | null };
+  const signOutIntentRef = { current: false };
 
   const expiresAt = createMemo(
     () =>
@@ -327,6 +336,8 @@ export function AuthBridge(props: ParentProps): JSX.Element {
     inFlightRef,
     pendingTokenRef,
     signingInTokenRef,
+    signOutIntentRef,
+    countUnshared: props.countUnshared,
     ...(originAvailability?.kind === 'health'
       ? {
           waitUntilAvailable: (signal?: AbortSignal | null) =>
@@ -359,5 +370,9 @@ export function AuthBridge(props: ParentProps): JSX.Element {
     origin: originAvailability,
   });
 
-  return <>{props.children}</>;
+  return (
+    <SignOutIntentContext.Provider value={signOutIntentOf(signOutIntentRef)}>
+      {props.children}
+    </SignOutIntentContext.Provider>
+  );
 }

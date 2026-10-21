@@ -289,6 +289,10 @@ msgstr "1 minute"
 msgid "1 second"
 msgstr "1 second"
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "A change wasn't saved"
+msgstr "A change wasn't saved"
+
 #: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
 msgid "A connection is needed to check for the saved Lichess file."
 msgstr "A connection is needed to check for the saved Lichess file."
@@ -1995,6 +1999,10 @@ msgstr "invites you to play {0}."
 msgid "is away. After a minute away you may claim the win."
 msgstr "is away. After a minute away you may claim the win."
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "It could not be saved, so it was undone on this device."
+msgstr "It could not be saved, so it was undone on this device."
+
 #: libs/game-puzzle-client/src/puzzle-link-screen.tsx
 msgid "It was taken out of the puzzles, so its link no longer opens it."
 msgstr "It was taken out of the puzzles, so its link no longer opens it."
@@ -3607,6 +3615,7 @@ msgstr "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end
 #: libs/auth-client/src/account-devices-card.tsx
 #: libs/auth-client/src/email-sign-in-form.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
+#: libs/auth-client/src/signed-out-notice-banner.tsx
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "Sign in"
 msgstr "Sign in"
@@ -4071,6 +4080,14 @@ msgstr "Text to speech"
 msgid "That account already signs in to a different account here. Sign in with it to use that account instead."
 msgstr "That account already signs in to a different account here. Sign in with it to use that account instead."
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That friend request wasn't declined"
+msgstr "That friend request wasn't declined"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That friend wasn't removed"
+msgstr "That friend wasn't removed"
+
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "That invitation is no longer yours to accept or decline."
 msgstr "That invitation is no longer yours to accept or decline."
@@ -4083,6 +4100,22 @@ msgstr "That isn't the account the address matched, so nothing was connected."
 msgid "That move is not legal in this position."
 msgstr "That move is not legal in this position."
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That person wasn't added to the space"
+msgstr "That person wasn't added to the space"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That person wasn't blocked"
+msgstr "That person wasn't blocked"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That person wasn't removed from the space"
+msgstr "That person wasn't removed from the space"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That person wasn't unblocked"
+msgstr "That person wasn't unblocked"
+
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "That side is no longer open."
 msgstr "That side is no longer open."
@@ -4094,6 +4127,10 @@ msgstr "That side is not available to you."
 #: libs/spaces-client/src/rename-space-modal.tsx
 msgid "That space name is not allowed"
 msgstr "That space name is not allowed"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That space name is not allowed."
+msgstr "That space name is not allowed."
 
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "That took too long. Start again."
@@ -4115,6 +4152,10 @@ msgstr "The board changed. Review the current turn."
 #: libs/connect-four-client/src/connect-four-presentation.tsx
 msgid "The board is full. Game drawn."
 msgstr "The board is full. Game drawn."
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "The change was undone."
+msgstr "The change was undone."
 
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "The choice could not be confirmed. Try again."
@@ -4724,6 +4765,10 @@ msgstr "You can rejoin from the invite link if the space is still live."
 msgid "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
 msgstr "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "You didn't leave the space"
+msgstr "You didn't leave the space"
+
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "You do not control that side."
 msgstr "You do not control that side."
@@ -4759,6 +4804,10 @@ msgstr "You play {0}"
 #: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
 msgid "You played {0} to {1}."
 msgstr "You played {0} to {1}."
+
+#: libs/auth-client/src/signed-out-notice-banner.tsx
+msgid "You were signed out on this device"
+msgstr "You were signed out on this device"
 
 #: libs/game-matchmaking-client/src/multiplayer-status.tsx
 msgid "You won the multiplayer game."
@@ -4830,6 +4879,10 @@ msgstr "Your account deletion is confirmed. You are signed out. Ordinary persona
 msgid "Your avatar"
 msgstr "Your avatar"
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "Your avatar change wasn't saved"
+msgstr "Your avatar change wasn't saved"
+
 #: libs/billing-client/src/billing-plan-card.tsx
 msgid "Your checkout hasn't finished. Complete it to start your membership."
 msgstr "Your checkout hasn't finished. Complete it to start your membership."
@@ -4846,6 +4899,10 @@ msgstr "Your friend request could not be shared because the person is unavailabl
 msgid "Your friend request could not be shared. Try again."
 msgstr "Your friend request could not be shared. Try again."
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "Your friend request wasn't cancelled"
+msgstr "Your friend request wasn't cancelled"
+
 #: libs/friends-client/src/friend-request-feedback.tsx
 msgid "Your friend request will be shared when the connection returns."
 msgstr "Your friend request will be shared when the connection returns."
@@ -4861,6 +4918,10 @@ msgstr "Your last payment didn't go through. Update your payment method to keep 
 #: libs/spaces-client/src/active-spaces-sheet.tsx
 msgid "Your live spaces"
 msgstr "Your live spaces"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "Your new space wasn't created"
+msgstr "Your new space wasn't created"
 
 #: libs/game-matchmaking-client/src/multiplayer-controls.tsx
 msgid "Your opponent will win this game."
@@ -4890,6 +4951,10 @@ msgstr "Your puzzle rating went down by {down}, to {after}."
 msgid "Your puzzle rating went up by {delta}, to {after}."
 msgstr "Your puzzle rating went up by {delta}, to {after}."
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "Your puzzle settings weren't saved"
+msgstr "Your puzzle settings weren't saved"
+
 #: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Your rating"
 msgstr "Your rating"
@@ -4907,6 +4972,22 @@ msgstr "Your rating changed by {0}{1}."
 #: libs/game-matchmaking-client/src/multiplayer-ratings.tsx
 msgid "Your ratings"
 msgstr "Your ratings"
+
+#: libs/auth-client/src/signed-out-notice-banner.tsx
+msgid "Your sign-in here ended, from another device or because it ran out. Changes made here that had not been shared yet were not kept."
+msgstr "Your sign-in here ended, from another device or because it ran out. Changes made here that had not been shared yet were not kept."
+
+#: libs/auth-client/src/signed-out-notice-banner.tsx
+msgid "Your sign-in here ended, from another device or because it ran out. Sign in again to carry on."
+msgstr "Your sign-in here ended, from another device or because it ran out. Sign in again to carry on."
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "Your space wasn't ended"
+msgstr "Your space wasn't ended"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "Your space wasn't renamed"
+msgstr "Your space wasn't renamed"
 
 #: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Your turn — find the best move for {side}"

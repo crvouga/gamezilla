@@ -112,7 +112,7 @@ Deep imports under `src/` are **not** public. `package.json` `exports`:
 
 | Import | Role |
 |--------|------|
-| `@pkgs/sync-engine/client` | Engine (`createLocalSyncEngine`, `createSyncHttpClient`, `createSyncEnginePool`), status and lifecycle types, `SyncEngine.mutationOutcome` / `listRejections` / `pendingMutationCount` |
+| `@pkgs/sync-engine/client` | Engine (`createLocalSyncEngine`, `createSyncHttpClient`, `createSyncEnginePool`), status and lifecycle types, `SyncEngine.mutationOutcome` / `listRejections` / `unheardRefusals` / `pendingMutationCount`; `useUnheardRefusals` (show and acknowledge refusals of `instant` writes) |
 | `@pkgs/sync-engine/server` | `createSyncApp` (`POST /query`, `POST /mutations`), `notifyChannels({ pubsub, sql, topics, … })` (allocates pushSeqs, then fire-and-forget publish), `isAuthErrorBody`, `SyncAppAuth`, `pruneMutationArtifacts` |
 | `@pkgs/sync-engine/shared` | `defineQuery` / `defineMutation`, registries, `MutationError`, `LIVE_ROW_SQL`, `softDeleteById`, `defineTopicMap`, protocol v3 types + `MAX_*`, opaque framework migrate, `assertChannelExhaustiveness`, `assertDomainTablesAvoidFrameworkNames` |
 | `@pkgs/sync-engine/harness` | `createInMemorySyncEngine`, `SCHEMA_EPOCH`, `createControllableLifecycle`, `withFrameworkMutations` (escape hatch), the example app and `exampleSystem` |
@@ -136,7 +136,10 @@ change the surface, rewrite the report, and review it in the PR.
 **Do not depend on:** framework table names/shapes, `SCHEMA_EPOCH` (except
 via `/harness`), DDL text, `allocateTopicPushSeq*`, `publishPushMessages`,
 `runQuery`, `replayMutation`, or deep `src/` imports. Use `mutationOutcome` /
-`listRejections` / `pendingMutationCount` instead of SQL on framework tables.
+`listRejections` / `unheardRefusals` / `pendingMutationCount` instead of SQL on
+framework tables. An `instant` write's refusal reaches no caller: show
+`unheardRefusals` and acknowledge each (`acknowledgeWriteRejection`, by
+`mutationId`) once the person has seen it, so the server can prune it.
 
 ### Refactor-freedom (acceptance for internals rewrites)
 

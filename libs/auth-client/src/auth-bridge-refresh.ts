@@ -10,6 +10,10 @@ import {
 } from '@libs/auth-shared/refresh-auth-fetch';
 import { shouldBindAnonUserAfterEnsure } from '@libs/auth-shared/resolve-client-identity';
 import { SessionCapabilityStore } from '@libs/auth-shared/session-capability';
+import {
+  clearSignedOutNotice,
+  recordSignedOutNotice,
+} from '@libs/auth-shared/signed-out-notice';
 import type { Timers } from '@pkgs/clock-shared/types';
 import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
@@ -41,6 +45,16 @@ export type AuthBridgeRefreshDeps = {
    * the guest it was, and shows it, until then.
    */
   signingInTokenRef: { current: string | null };
+  /**
+   * Set while the person is signing out from this device (here, or
+   * everywhere from here): the sign-out that follows is theirs, not news.
+   */
+  signOutIntentRef: { current: boolean };
+  /**
+   * Changes the account's local data still had to share, counted before the
+   * device leaves it (`null` when it cannot tell).
+   */
+  countUnshared?: ((accountId: string) => Promise<number | null>) | undefined;
   waitUntilAvailable?: (signal?: AbortSignal | null) => Promise<void>;
 };
 
@@ -85,6 +99,8 @@ export class AuthBridgeRefresh {
       return;
     }
     this.deps.lastSyncedTokenRef.current = token;
+    this.deps.signOutIntentRef.current = false;
+    await clearSignedOutNotice(this.deps.store);
   }
 
   async runRefresh(args: {
@@ -124,7 +140,10 @@ export class AuthBridgeRefresh {
         this.deps.log.warn('auth/refresh unauthorized; rotating to anon', {
           error: e instanceof Error ? e.message : String(e),
         });
-        await this.handleSignedOut({ rotateAccount: true });
+        await this.handleSignedOut({
+          rotateAccount: true,
+          endedElsewhere: this.session().readToken() === token,
+        });
         return;
       }
       // The origin is unavailable until the first health probe lands, so a
@@ -164,9 +183,20 @@ export class AuthBridgeRefresh {
     });
   }
 
+  /**
+   * `endedElsewhere`: the device's own session ended (signed out everywhere,
+   * or lapsed). Unless the person asked for it from here, they are told, with
+   * how many changes it had not shared — those are not kept.
+   */
   async handleSignedOut(args?: {
     readonly rotateAccount?: boolean;
+    readonly endedElsewhere?: boolean;
   }): Promise<void> {
+    const asked = this.deps.signOutIntentRef.current;
+    this.deps.signOutIntentRef.current = false;
+    if (args?.endedElsewhere === true && !asked) {
+      await this.noteSignedOutElsewhere();
+    }
     this.deps.lastSyncedTokenRef.current = null;
     this.deps.pendingTokenRef.current = null;
     this.deps.signingInTokenRef.current = null;
@@ -191,6 +221,15 @@ export class AuthBridgeRefresh {
       return;
     }
     await this.bindLocalAccountThenEnsure();
+  }
+
+  private async noteSignedOutElsewhere(): Promise<void> {
+    const accountId = readStoredAccountId(this.deps.store);
+    let unshared: number | null = null;
+    if (accountId !== null && this.deps.countUnshared !== undefined) {
+      unshared = await this.deps.countUnshared(accountId).catch(() => null);
+    }
+    await recordSignedOutNotice(this.deps.store, { unshared: unshared ?? 0 });
   }
 
   private async ensureAndMaybeAdopt(args: {
