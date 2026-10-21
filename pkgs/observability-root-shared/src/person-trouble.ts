@@ -2,61 +2,89 @@ import type { ResolvedIdentity } from './identity-resolver';
 import type { LocalClock } from './local-clock';
 import { clockWindow, parseLocalClock } from './local-clock';
 import type { NarrateSpan } from './narrate';
-import { narrate } from './narrate';
-import { placeFit, recordedDeviceTimeZone, recordedPlace } from './place';
-import type { TimeRange, Trace, TraceRef, TraceStore } from './types';
+import type { Gathered } from './person-activity';
+import { gatherActivity } from './person-activity';
+import type { PlaceSelection } from './person-place';
+import { selectByPlace } from './person-place';
+import { describeProblem, findProblems } from './person-problems';
+import type { RenderFlags } from './person-render';
+import { renderPerson } from './person-render';
+import type { RerunQuestion } from './person-rerun';
+import { rerunCommand, widerWindowMs } from './person-rerun';
+import { lookOutward } from './person-seen';
+import { spansInWindow, summarize, summarizeTraces } from './person-summary';
+import { atText, localIso, utcIso } from './person-time';
+import type { TimelineEntry } from './person-timeline';
+import {
+  capRows,
+  DEFAULT_ROW_CAP,
+  DEFAULT_SLOW_MS,
+  isGap,
+  timelineRows,
+} from './person-timeline';
+import type {
+  PersonAccount,
+  PersonData,
+  TimelineGapData,
+  TimelineRow,
+  TimelineRowData,
+} from './person-types';
+import { PERSON_SCHEMA } from './person-types';
+import type { TimeRange, TraceStore, TruncationNotice } from './types';
 
 const DEFAULT_WINDOW_MS = 30 * 60_000;
-const TRACE_CAP = 20;
+/** Traces read for each search; `--all` raises it. */
+const TRACE_LIMIT = 200;
+const TRACE_LIMIT_ALL = 1_000;
 
 export type PersonDirectory = {
   resolvePeople(name: string): Promise<readonly ResolvedIdentity[]>;
 };
 
 export type PersonQuestion = {
-  readonly name: string;
+  /** Print every problem and timeline row, and read more traces. */
+  readonly all?: boolean;
   readonly at: string;
+  readonly name: string;
   readonly nowMs: number;
   readonly place?: string;
+  /** Rows to print before eliding; defaults to a screenful. */
+  readonly rowCap?: number;
+  /**
+   * How the caller asks the same question again, for callers whose follow-up
+   * is not `bun obs person` (the MCP tool). Defaults to the CLI command.
+   */
+  readonly rerun?: (question: RerunQuestion) => string;
+  /** The `--source` the caller used, repeated in the commands it prints. */
+  readonly sourceFlag?: string;
+  /** A span this long gets a timeline row of its own. */
+  readonly slowMs?: number;
   readonly windowMs?: number;
 };
 
 export type PersonTroubleReport = {
   readonly code: 0 | 1 | 2;
-  readonly sawTrouble: boolean;
-  readonly text: string;
-  readonly userIds: readonly string[];
+  /** The structured report, the same facts as `text`. Absent without a directory. */
+  readonly data?: PersonData;
   readonly range?: TimeRange;
+  /** Some span of the person's activity recorded an error. */
+  readonly sawTrouble: boolean;
   readonly spanId?: string;
+  readonly text: string;
   readonly traceId?: string;
   /** The directory is missing. The caller says how to provide it. */
   readonly unavailable?: boolean;
+  readonly userIds: readonly string[];
 };
 
-type Loaded = {
-  readonly ref: TraceRef;
-  readonly trace: Trace;
-  readonly userId: string;
-};
+/** Everything a report is built from once the question has a clock. */
+export type PersonAsk = PersonQuestion & { readonly clock: LocalClock };
 
-type Selection = {
-  readonly connection?: string;
-  readonly deviceZone?: string;
-  readonly placeMatched: boolean;
-  readonly traces: readonly Loaded[];
-};
-
-type ReportParts = {
-  readonly clock: LocalClock;
-  readonly name: string;
-  readonly people: readonly ResolvedIdentity[];
-  readonly place?: string;
-  readonly range?: TimeRange;
-  readonly selected?: Selection;
-  readonly store: TraceStore;
-};
-
-/** Find what went wrong for a person from their name, place, and own clock. */
+/**
+ * Reconstruct what happened to a person from their name, place and own clock:
+ * every account of that name, the traces of each (and of the sessions and
+ * devices seen on them), the problems first, then a chronological timeline.
+ */
 export async function findPersonTrouble(
   store: TraceStore,
   directory: PersonDirectory | undefined,
@@ -64,21 +92,298 @@ export async function findPersonTrouble(
 ): Promise<PersonTroubleReport> {
   if (directory === undefined) return unavailable();
   const clock = parseLocalClock(question.at, question.nowMs);
-  if (clock === undefined) return badClock(question.at);
+  if (clock === undefined) return badClock(store, question);
   const people = await directory.resolvePeople(question.name);
-  const parts = {
+  return reportForAccounts(store, people, { ...question, clock });
+}
+
+/** The report for accounts that are already known, for callers with no directory. */
+export async function reportForAccounts(
+  store: TraceStore,
+  people: readonly ResolvedIdentity[],
+  ask: PersonAsk
+): Promise<PersonTroubleReport> {
+  if (people.length === 0) return missingAccount(store, ask);
+  const range = clockWindow(ask.clock, ask.windowMs ?? DEFAULT_WINDOW_MS);
+  const gathered = await gatherActivity(
     store,
-    name: question.name,
-    clock,
-    people,
-    ...(question.place === undefined ? {} : { place: question.place }),
+    people.map((person) => person.userId),
+    { range, limit: ask.all === true ? TRACE_LIMIT_ALL : TRACE_LIMIT }
+  );
+  const selection = selectByPlace(gathered.traces, people, ask.place);
+  const spans = spansInWindow(selection.traces, range);
+  const base = baseData(store, ask, range, selection.accounts);
+  if (spans.length === 0)
+    return quietReport(store, ask, { people, base, range });
+  const data = activityData(base, ask, { gathered, selection, spans });
+  return finish(data, ask, range, shownIds(selection.accounts));
+}
+
+type Found = {
+  readonly gathered: Gathered;
+  readonly selection: PlaceSelection;
+  readonly spans: readonly NarrateSpan[];
+};
+
+/** Problems first, then the timeline, from the spans inside the window. */
+function activityData(
+  base: PersonData,
+  ask: PersonAsk,
+  found: Found
+): PersonData {
+  const { gathered, selection, spans } = found;
+  const range = clockWindow(ask.clock, ask.windowMs ?? DEFAULT_WINDOW_MS);
+  const problems = findProblems(selection.traces, range).map((item, index) =>
+    describeProblem(item, index + 1, {
+      zone: ask.clock,
+      ...(ask.sourceFlag === undefined ? {} : { sourceFlag: ask.sourceFlag }),
+    })
+  );
+  const rows = timelineRows(spans, { slowMs: ask.slowMs ?? DEFAULT_SLOW_MS });
+  const capped = capRows(
+    rows,
+    ask.all === true
+      ? Number.POSITIVE_INFINITY
+      : (ask.rowCap ?? DEFAULT_ROW_CAP),
+    ask.clock.instantMs
+  );
+  return {
+    ...base,
+    status: problems.length > 0 ? 'trouble' : 'activity',
+    summary: {
+      ...summarize(spans, selection.traces.length),
+      ...(selection.connection === undefined
+        ? {}
+        : { connection: selection.connection }),
+      ...(selection.deviceZone === undefined
+        ? {}
+        : { deviceClock: selection.deviceZone }),
+    },
+    problems,
+    traces: summarizeTraces(selection.traces),
+    truncations: gathered.notices.map(describeNotice),
+    notes: foreignNotes(gathered),
+    timeline: {
+      total: rows.length,
+      elided: capped.elided,
+      rows: capped.entries.map((entry) => rowData(entry, ask.clock)),
+    },
+    next: nextCommands(problems, selection.traces[0]?.trace.traceId, ask),
   };
-  if (people.length === 0) return missed(parts);
-  const range = clockWindow(clock, question.windowMs ?? DEFAULT_WINDOW_MS);
-  const loaded = await loadTraces(store, people, range);
-  const selected = selectByPlace(loaded, question.place);
-  if (!hasError(selected.traces)) return missed({ ...parts, range });
-  return trouble({ ...parts, range, selected });
+}
+
+function foreignNotes(gathered: Gathered): string[] {
+  return gathered.foreign === 0
+    ? []
+    : [
+        `${gathered.foreign} traces on the same session or device belong to other accounts and are left out`,
+      ];
+}
+
+function baseData(
+  store: TraceStore,
+  ask: PersonAsk,
+  range: TimeRange,
+  accounts: readonly PersonAccount[]
+): PersonData {
+  return {
+    schema: PERSON_SCHEMA,
+    status: 'activity',
+    source: store.source,
+    question: {
+      name: ask.name,
+      at: ask.at,
+      windowMs: ask.windowMs ?? DEFAULT_WINDOW_MS,
+      ...(ask.place === undefined ? {} : { place: ask.place }),
+    },
+    clock: clockData(ask.clock),
+    window: { startUtc: utcIso(range.startMs), endUtc: utcIso(range.endMs) },
+    accounts,
+    problems: [],
+    timeline: { total: 0, elided: 0, rows: [] },
+    traces: [],
+    truncations: [],
+    notes: [],
+    next: [],
+  };
+}
+
+function clockData(clock: LocalClock): NonNullable<PersonData['clock']> {
+  return {
+    label: clock.label,
+    instantUtc: utcIso(clock.instantMs),
+    zone: clock.timeZone,
+    zoneLabel: clock.zoneLabel,
+    offsetMinutes: clock.offsetMinutes,
+  };
+}
+
+function shownIds(accounts: readonly PersonAccount[]): string[] {
+  return accounts
+    .filter((account) => account.shown)
+    .map((account) => account.userId);
+}
+
+function describeNotice(notice: TruncationNotice): string {
+  const why =
+    notice.reason === 'limit'
+      ? `stopped at ${notice.kept} traces`
+      : `one second still held more traces than Tempo returns, kept ${notice.kept}`;
+  return `${notice.search}: ${why}; narrow --window or pass --all for more`;
+}
+
+function rowData(
+  entry: TimelineEntry,
+  zone: LocalClock
+): TimelineRowData | TimelineGapData {
+  if (isGap(entry)) return { kind: 'elided', elided: entry.elided };
+  const row: TimelineRow = entry;
+  return {
+    kind: row.kind,
+    atUtc: utcIso(row.atMs),
+    atLocal: localIso(row.atMs, zone),
+    summary: row.text,
+    durationMs: Math.round(row.durationMs * 100) / 100,
+    failed: row.failed,
+    repeat: row.repeat,
+    traceId: row.traceId,
+    spanId: row.spanId,
+    ...(row.repeat > 1 ? { untilUtc: utcIso(row.untilMs) } : {}),
+  };
+}
+
+function command(ask: PersonAsk, change: Partial<RerunQuestion> = {}): string {
+  const question = { ...asked(ask), ...change };
+  return ask.rerun === undefined ? rerunCommand(question) : ask.rerun(question);
+}
+
+function asked(ask: PersonAsk): RerunQuestion {
+  return {
+    at: ask.at,
+    name: ask.name,
+    windowMs: ask.windowMs ?? DEFAULT_WINDOW_MS,
+    ...(ask.place === undefined ? {} : { place: ask.place }),
+    ...(ask.sourceFlag === undefined ? {} : { sourceFlag: ask.sourceFlag }),
+  };
+}
+
+function nextCommands(
+  problems: PersonData['problems'],
+  firstTrace: string | undefined,
+  ask: PersonAsk
+): string[] {
+  const first = problems[0];
+  const drill =
+    first !== undefined
+      ? [first.drill.span]
+      : firstTrace === undefined
+        ? []
+        : [
+            `bun obs trace ${firstTrace}${ask.sourceFlag === undefined ? '' : ` --source ${ask.sourceFlag}`}`,
+          ];
+  return [
+    ...drill,
+    command(ask, {
+      windowMs: widerWindowMs(ask.windowMs ?? DEFAULT_WINDOW_MS),
+    }),
+  ];
+}
+
+function flagsFor(ask: PersonAsk): RenderFlags {
+  return {
+    all: ask.all === true,
+    showAll: command(ask, { all: true }),
+    widen: command(ask, {
+      windowMs: widerWindowMs(ask.windowMs ?? DEFAULT_WINDOW_MS),
+    }),
+  };
+}
+
+function finish(
+  data: PersonData,
+  ask: PersonAsk,
+  range: TimeRange,
+  userIds: readonly string[]
+): PersonTroubleReport {
+  const first = data.problems[0];
+  return {
+    code: 0,
+    sawTrouble: data.problems.length > 0,
+    text: renderPerson(data, flagsFor(ask)),
+    data,
+    range,
+    userIds,
+    ...(first === undefined
+      ? {}
+      : { traceId: first.traceId, spanId: first.spanId }),
+  };
+}
+
+/** A window with nothing in it: where else the accounts were seen. */
+async function quietReport(
+  store: TraceStore,
+  ask: PersonAsk,
+  quiet: {
+    readonly base: PersonData;
+    readonly people: readonly ResolvedIdentity[];
+    readonly range: TimeRange;
+  }
+): Promise<PersonTroubleReport> {
+  const { base, people, range } = quiet;
+  const seen = await lookOutward(
+    store,
+    people.map((person) => person.userId),
+    {
+      range,
+      instantMs: ask.clock.instantMs,
+      nowMs: ask.nowMs,
+      zone: ask.clock,
+      rerun: (atMs) => command(ask, { at: atText(atMs, ask.clock) }),
+    }
+  );
+  const rerun = [seen.last, seen.next].flatMap((item) => item?.rerun ?? []);
+  const data: PersonData = {
+    ...base,
+    status: 'quiet',
+    seen,
+    next: [
+      ...rerun,
+      command(ask, {
+        windowMs: widerWindowMs(ask.windowMs ?? DEFAULT_WINDOW_MS),
+      }),
+    ],
+  };
+  return {
+    code: 1,
+    sawTrouble: false,
+    text: renderPerson(data, flagsFor(ask)),
+    data,
+    range,
+    userIds: people.map((person) => person.userId),
+  };
+}
+
+function missingAccount(
+  store: TraceStore,
+  ask: PersonAsk
+): PersonTroubleReport {
+  const range = clockWindow(ask.clock, ask.windowMs ?? DEFAULT_WINDOW_MS);
+  const data: PersonData = {
+    ...baseData(store, ask, range, []),
+    status: 'account-not-found',
+    next: [
+      command(ask, { name: '<username or email>' }),
+      'bun obs last --window 30m',
+    ],
+  };
+  return {
+    code: 1,
+    sawTrouble: false,
+    text: renderPerson(data, flagsFor(ask)),
+    data,
+    range,
+    userIds: [],
+  };
 }
 
 function unavailable(): PersonTroubleReport {
@@ -91,247 +396,32 @@ function unavailable(): PersonTroubleReport {
   };
 }
 
-function badClock(at: string): PersonTroubleReport {
+function badClock(
+  store: TraceStore,
+  question: PersonQuestion
+): PersonTroubleReport {
+  const data: PersonData = {
+    schema: PERSON_SCHEMA,
+    status: 'invalid-clock',
+    source: store.source,
+    question: {
+      name: question.name,
+      at: question.at,
+      windowMs: question.windowMs ?? DEFAULT_WINDOW_MS,
+    },
+    accounts: [],
+    problems: [],
+    timeline: { total: 0, elided: 0, rows: [] },
+    traces: [],
+    truncations: [],
+    notes: [],
+    next: ['bun obs person --name "<name>" --at "6:33pm MST"'],
+  };
   return {
     code: 2,
     sawTrouble: false,
-    text: [
-      'obs/v1',
-      `The time ${JSON.stringify(at)} needs a zone, for example "6:33pm MST".`,
-      'next: bun obs person --name "<name>" --at "6:33pm MST"',
-    ].join('\n'),
+    data,
+    text: renderPerson(data, { all: false, showAll: '', widen: '' }),
     userIds: [],
   };
-}
-
-function missed(parts: ReportParts): PersonTroubleReport {
-  const { store, name, clock, people } = parts;
-  const range = parts.range;
-  return {
-    code: 1,
-    sawTrouble: false,
-    text: [
-      'obs/v1',
-      `source: ${store.source}`,
-      ...(range === undefined
-        ? []
-        : [`utc-range: ${iso(range.startMs)} .. ${iso(range.endMs)}`]),
-      ...personLines(
-        name,
-        people,
-        people.map((person) => person.userId)
-      ),
-      `clock: ${clock.label} = ${iso(clock.instantMs)}`,
-      `Nothing happened for ${name} at that time.`,
-      'next: bun obs last --window 30m',
-    ].join('\n'),
-    userIds: people.map((person) => person.userId),
-    ...(range === undefined ? {} : { range }),
-  };
-}
-
-async function loadTraces(
-  store: TraceStore,
-  people: readonly ResolvedIdentity[],
-  range: TimeRange
-): Promise<Loaded[]> {
-  const byTrace = new Map<
-    string,
-    { readonly userId: string; readonly ref: TraceRef }
-  >();
-  for (const person of people) {
-    for (const ref of await store.findByUser(person.userId, range)) {
-      remember(byTrace, person.userId, ref);
-    }
-  }
-  const ordered = [...byTrace.values()]
-    .sort(
-      (left, right) =>
-        right.ref.errorCount - left.ref.errorCount ||
-        left.ref.startedAtMs - right.ref.startedAtMs
-    )
-    .slice(0, TRACE_CAP);
-  const loaded: Loaded[] = [];
-  for (const item of ordered) {
-    const trace = await store.getTrace(item.ref.traceId);
-    if (trace !== null)
-      loaded.push({ userId: item.userId, trace, ref: item.ref });
-  }
-  return loaded;
-}
-
-function remember(
-  byTrace: Map<string, { readonly userId: string; readonly ref: TraceRef }>,
-  userId: string,
-  ref: TraceRef
-): void {
-  const existing = byTrace.get(ref.traceId);
-  if (existing === undefined || ref.errorCount > existing.ref.errorCount) {
-    byTrace.set(ref.traceId, { userId, ref });
-  }
-}
-
-function selectByPlace(
-  loaded: readonly Loaded[],
-  place: string | undefined
-): Selection {
-  const asked = place?.trim() ?? '';
-  const connection = firstRecorded(loaded, recordedPlace);
-  const deviceZone = firstRecorded(loaded, recordedDeviceTimeZone);
-  if (asked.length === 0) {
-    return selection(loaded, true, connection, deviceZone);
-  }
-  const hits = bestPlaceHits(loaded, asked);
-  if (hits.length === 0) {
-    return selection(loaded, false, connection, deviceZone);
-  }
-  const users = new Set(hits.map((item) => item.userId));
-  const traces = loaded.filter((item) => users.has(item.userId));
-  return selection(
-    traces,
-    true,
-    firstRecorded(traces, recordedPlace) ?? connection,
-    firstRecorded(traces, recordedDeviceTimeZone) ?? deviceZone
-  );
-}
-
-function selection(
-  traces: readonly Loaded[],
-  placeMatched: boolean,
-  connection: string | undefined,
-  deviceZone: string | undefined
-): Selection {
-  return {
-    traces,
-    placeMatched,
-    ...(connection === undefined ? {} : { connection }),
-    ...(deviceZone === undefined ? {} : { deviceZone }),
-  };
-}
-
-function bestPlaceHits(loaded: readonly Loaded[], asked: string): Loaded[] {
-  const fitting = loaded.filter((item) => traceFit(item, asked) > 0);
-  const city = fitting.filter((item) => traceFit(item, asked) === 2);
-  return city.length > 0 ? city : fitting;
-}
-
-function traceFit(item: Loaded, asked: string): 0 | 1 | 2 {
-  let best: 0 | 1 | 2 = 0;
-  for (const span of item.trace.spans) {
-    const recorded = recordedPlace(span.attributes);
-    if (recorded === undefined) continue;
-    const fit = placeFit(asked, recorded);
-    if (fit > best) best = fit;
-  }
-  return best;
-}
-
-function trouble(parts: ReportParts): PersonTroubleReport {
-  const selected = parts.selected ?? { traces: [], placeMatched: false };
-  const range = parts.range ?? {
-    startMs: parts.clock.instantMs,
-    endMs: parts.clock.instantMs,
-  };
-  const error = firstError(selected.traces);
-  const userIds = [...new Set(selected.traces.map((item) => item.userId))];
-  const filled = { ...parts, selected, range };
-  return {
-    code: 0,
-    sawTrouble: true,
-    text: renderTrouble(filled, userIds),
-    range,
-    userIds,
-    ...(error === undefined
-      ? {}
-      : { traceId: error.traceId, spanId: error.spanId }),
-  };
-}
-
-function renderTrouble(parts: ReportParts, userIds: readonly string[]): string {
-  const selected = parts.selected ?? { traces: [], placeMatched: false };
-  const range = parts.range ?? {
-    startMs: parts.clock.instantMs,
-    endMs: parts.clock.instantMs,
-  };
-  const error = firstError(selected.traces);
-  return [
-    'obs/v1',
-    `source: ${parts.store.source}`,
-    `utc-range: ${iso(range.startMs)} .. ${iso(range.endMs)}`,
-    ...personLines(parts.name, parts.people, userIds),
-    `clock: ${parts.clock.label} = ${iso(parts.clock.instantMs)}`,
-    `connection: ${selected.connection ?? 'not recorded'}`,
-    `device-clock: ${selected.deviceZone ?? 'not recorded'}`,
-    placeLine(parts, selected),
-    '',
-    error === undefined
-      ? 'No error was recorded.'
-      : narrate([error], { maxLines: 24 }),
-    nextLine(error, selected),
-  ].join('\n');
-}
-
-function personLines(
-  name: string,
-  people: readonly ResolvedIdentity[],
-  kept: readonly string[]
-): string[] {
-  const shown = people.filter((person) => kept.includes(person.userId));
-  const lines = shown.map(
-    (person) => `person: ${name} -> user.id ${person.userId}`
-  );
-  if (people.length > 1) {
-    lines.push(
-      `people: ${people.length} share this name; ${shown.length} match this place and time`
-    );
-  }
-  return lines;
-}
-
-function placeLine(parts: ReportParts, selected: Selection): string {
-  const asked = parts.place?.trim() ?? '';
-  if (asked.length === 0) return 'place: not asked';
-  if (selected.placeMatched) return `place: matched ${asked}`;
-  const where = selected.connection ?? 'an unrecorded place';
-  return `place: asked ${asked}; connection appeared at ${where}`;
-}
-
-function hasError(traces: readonly Loaded[]): boolean {
-  return traces.some((item) =>
-    item.trace.spans.some((span) => span.status === 'error')
-  );
-}
-
-function firstError(traces: readonly Loaded[]): NarrateSpan | undefined {
-  for (const item of traces) {
-    const span = item.trace.spans.find(
-      (candidate) => candidate.status === 'error'
-    );
-    if (span !== undefined) return span;
-  }
-  return undefined;
-}
-
-function firstRecorded(
-  traces: readonly Loaded[],
-  read: (attributes: NarrateSpan['attributes']) => string | undefined
-): string | undefined {
-  for (const item of traces) {
-    for (const span of item.trace.spans) {
-      const value = read(span.attributes);
-      if (value !== undefined) return value;
-    }
-  }
-  return undefined;
-}
-
-function nextLine(error: NarrateSpan | undefined, selected: Selection): string {
-  if (error !== undefined)
-    return `next: bun obs span ${error.traceId} ${error.spanId}`;
-  const traceId = selected.traces[0]?.trace.traceId ?? '';
-  return `next: bun obs trace ${traceId}`;
-}
-
-function iso(ms: number): string {
-  return new Date(ms).toISOString();
 }

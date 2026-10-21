@@ -224,8 +224,11 @@ describe('finding a person from a name, a place, and their own clock', () => {
       { name: 'Nobody Home', at: '6:33pm MST', nowMs: NOW_MS }
     );
     expect(report.code).toBe(1);
+    expect(report.data?.status).toBe('account-not-found');
+    expect(report.text).toContain('No account is named "Nobody Home"');
+    expect(report.text).not.toContain('Nothing happened');
     expect(report.text).toContain(
-      'Nothing happened for Nobody Home at that time.'
+      'next: bun obs person --name "<username or email>" --at "6:33pm MST" --window 30m'
     );
     expect(report.userIds).toEqual([]);
   });
@@ -248,8 +251,16 @@ describe('finding a person from a name, a place, and their own clock', () => {
     expect(report.text).toContain(
       'people: 2 share this name; 1 match this place and time'
     );
-    expect(report.text).toContain(`user.id ${OTHER}`);
-    expect(report.text).not.toContain(`user.id ${CHRIS}`);
+    expect(report.text).toContain(`person: Chris   Vouga -> user.id ${OTHER}`);
+    expect(report.text).not.toContain(
+      `person: Chris   Vouga -> user.id ${CHRIS}`
+    );
+    expect(report.text).toContain(
+      `user.id ${CHRIS}: left out; connection appeared at Phoenix, Arizona, US, not Las Vegas`
+    );
+    expect(report.text).toContain(
+      `user.id ${OTHER}: shown; connection city matched Las Vegas`
+    );
     expect(report.text).toContain('place: matched Las Vegas');
     expect(report.text).toContain('connection: Las Vegas, Nevada');
   });

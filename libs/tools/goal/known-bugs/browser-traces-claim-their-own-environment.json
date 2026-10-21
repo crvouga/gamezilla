@@ -1,0 +1,4 @@
+{
+  "summary": "Production Tempo held browser spans under deployment.environment.name=prod while the server and every dashboard and alert filter use prd, so customer-experience queries and per-environment SLOs never saw browser telemetry; a browser on the dev deployment also reported itself as prod. The page hard-coded `dev ? 'local' : 'prod'`, and the telemetry ingress forwarded trace bodies untouched. The ingress now states service.name and deployment.environment.name for every JSON trace batch from the deployment that served it.",
+  "regressionTest": "libs/app-root-server/tests/browser-telemetry-ingress.test.ts"
+}

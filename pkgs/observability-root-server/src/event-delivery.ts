@@ -15,6 +15,7 @@ import type { EventContract } from '@pkgs/observability-root-shared/event-contra
 import { validateEvent } from '@pkgs/observability-root-shared/event-contract';
 import type { PendingTelemetryEvent } from '@pkgs/observability-root-shared/event-outbox';
 import { createMetric } from '@pkgs/observability-root-shared/metric-contract';
+import { EXPORT_ATTEMPTS_METRIC } from '@pkgs/observability-root-shared/pipeline-metrics';
 import { allowlistedAttributes } from '@pkgs/observability-root-shared/redaction';
 import { AcknowledgedLogExporter } from '@pkgs/observability-runtime-shared/acknowledged-log-exporter';
 import type { TelemetryOptions } from '@pkgs/observability-runtime-shared/options';
@@ -36,14 +37,7 @@ export function createBusinessEventDelivery(
           timers
         ));
   if (exporter === undefined) return undefined;
-  const recordAttempt = createMetric({
-    name: 'telemetry.business_event.export_attempts',
-    description:
-      'Physical acknowledged business event export attempts, never a logical business count',
-    unit: '{attempt}',
-    type: 'counter',
-    dimensions: { 'telemetry.outcome': ['success', 'failure'] },
-  });
+  const recordAttempt = createMetric(EXPORT_ATTEMPTS_METRIC);
   return async (input: {
     readonly contract: EventContract;
     readonly event: PendingTelemetryEvent;

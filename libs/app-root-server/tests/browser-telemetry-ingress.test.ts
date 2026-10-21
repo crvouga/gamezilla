@@ -138,3 +138,63 @@ test.each([200, 503])(
     await http.finish();
   }
 );
+
+test('browser spans are stated in the deployment that served them, whatever the page claims', async () => {
+  // regression: browser-traces-claim-their-own-environment
+  const calls: unknown[] = [];
+  const app = new Hono<ApiHonoEnv<AuthContext>>();
+  mountBrowserTelemetryIngress(app, {
+    protection: 'standard',
+    serverUrl: null,
+    observabilityEnvironment: 'dev',
+    observabilityCollectorUrl: 'https://collector.example/v1/traces',
+    async fetch(_input, init) {
+      calls.push(await new Response(init?.body).json());
+      return new Response(null, { status: 200 });
+    },
+  });
+  const span = { traceId: 'a'.repeat(32), spanId: 'b'.repeat(16), name: 'GET' };
+  const response = await app.request('/observability/v1/traces', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      resourceSpans: [
+        {
+          resource: {
+            attributes: [
+              {
+                key: 'service.name',
+                value: { stringValue: 'gamezilla-server' },
+              },
+              {
+                key: 'deployment.environment.name',
+                value: { stringValue: 'prod' },
+              },
+              { key: 'service.version', value: { stringValue: '1.2.3' } },
+            ],
+          },
+          scopeSpans: [{ spans: [span] }],
+        },
+      ],
+    }),
+  });
+  expect(response.status).toBe(200);
+  const sent = calls[0] as {
+    resourceSpans: {
+      resource: {
+        attributes: { key: string; value: { stringValue: string } }[];
+      };
+      scopeSpans: { spans: unknown[] }[];
+    }[];
+  };
+  const attributes = Object.fromEntries(
+    sent.resourceSpans[0]!.resource.attributes.map((item) => [
+      item.key,
+      item.value.stringValue,
+    ])
+  );
+  expect(attributes['deployment.environment.name']).toBe('dev');
+  expect(attributes['service.name']).toBe('gamezilla-client');
+  expect(attributes['service.version']).toBe('1.2.3');
+  expect(sent.resourceSpans[0]!.scopeSpans[0]!.spans).toEqual([span]);
+});

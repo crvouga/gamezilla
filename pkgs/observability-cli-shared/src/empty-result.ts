@@ -11,6 +11,7 @@ type EmptyResultOptions = {
   readonly args: ObsArgs;
   readonly range: TimeRange;
   readonly store: TraceStore;
+  readonly searched?: 'identifier' | 'activity';
   readonly subject: string;
   readonly window: string;
 };
@@ -46,6 +47,9 @@ export async function emptyResult(
         source: options.store.source,
         window: options.window,
         range: options.range,
+        ...(options.searched === undefined
+          ? {}
+          : { searched: options.searched }),
       }),
       ...(nearby.length === 0 ? ['nearby-activity: none'] : nearby),
     ].join('\n'),

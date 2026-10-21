@@ -48,7 +48,7 @@
     },
     {
       "id": 2,
-      "title": "HTTP failure fraction",
+      "title": "HTTP failure fraction (people's requests)",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -63,7 +63,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(rate(http_server_requests_total{job=\"gamezilla-server\",app_http_status_class=\"5xx\"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"${environment}\"}) or vector(0)) / sum(rate(http_server_requests_total{job=\"gamezilla-server\"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"${environment}\"})",
+          "expr": "(sum(rate(http_server_requests_total{job=\"gamezilla-server\",app_http_route_group=~\"sync|session|room|billing|media|app\",app_http_status_class=\"5xx\"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"${environment}\"}) or vector(0)) / sum(rate(http_server_requests_total{job=\"gamezilla-server\",app_http_route_group=~\"sync|session|room|billing|media|app\"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"${environment}\"})",
           "datasource": {
             "type": "prometheus",
             "uid": "${metrics_uid}"
@@ -80,7 +80,7 @@
     },
     {
       "id": 3,
-      "title": "HTTP latency p95",
+      "title": "HTTP latency p95 (requests people wait on)",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -95,7 +95,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "histogram_quantile(0.95, sum by(le)(rate(http_server_request_duration_seconds_bucket{job=\"gamezilla-server\"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"${environment}\"}))",
+          "expr": "histogram_quantile(0.95, sum by(le)(rate(http_server_request_duration_seconds_bucket{job=\"gamezilla-server\",app_http_route_group=~\"sync|session|room|billing|app\"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"${environment}\"}))",
           "datasource": {
             "type": "prometheus",
             "uid": "${metrics_uid}"

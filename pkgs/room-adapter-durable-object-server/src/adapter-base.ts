@@ -1,7 +1,7 @@
-import type { Span } from '@opentelemetry/api';
 import { Assert } from '@pkgs/assert-root-shared/assert';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { serializeTraceContext } from '@pkgs/observability-root-shared/correlation';
+import { bindIdentity } from '@pkgs/observability-root-shared/identity-scope';
 import { withSpan } from '@pkgs/observability-root-shared/span';
 import type { ResolvedAdapterConfig } from '@pkgs/room-adapter-durable-object-shared/adapter-base-types';
 import {
@@ -200,18 +200,14 @@ export class RoomDurableObjectAdapterBase<
           moduleName: url.searchParams.get('module')?.trim() ?? '',
           topic: url.searchParams.get('topic')?.trim() ?? '',
         },
-        (span) => this.handleUpgrade(request, url, span)
+        () => this.handleUpgrade(request, url)
       );
     } finally {
       this.flushTelemetry();
     }
   }
 
-  private async handleUpgrade(
-    request: Request,
-    url: URL,
-    span: Span
-  ): Promise<Response> {
+  private async handleUpgrade(request: Request, url: URL): Promise<Response> {
     await this.ensureRestored();
     const topic = url.searchParams.get('topic')?.trim() ?? '';
     if (topic.length === 0) return errorResponse(400, 'missing topic');
@@ -222,7 +218,7 @@ export class RoomDurableObjectAdapterBase<
     }
     const auth = this.parseUpgradeIdentity(request);
     if (auth instanceof Response) return auth;
-    span.setAttribute(ATTR.USER_ID, auth.identityRaw);
+    bindIdentity({ userId: auth.identityRaw });
     const server = await this.getOrCreateServer(topic, moduleName);
     return this.acceptUpgrade({
       server,

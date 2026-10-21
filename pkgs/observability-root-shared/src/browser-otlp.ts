@@ -62,6 +62,62 @@ export function sanitizeBrowserOtlp(
   return { [key]: safe };
 }
 
+const RESOURCE_KEYS_THE_SERVER_OWNS: ReadonlySet<string> = new Set([
+  ATTR.SERVICE_NAME,
+  ATTR.DEPLOYMENT_ENVIRONMENT_NAME,
+]);
+
+/**
+ * Browser spans arrive carrying whatever resource the page claims. The page
+ * does not know which deployment served it (and a build reports the same name
+ * wherever it runs), so the server states the service and environment itself.
+ * Spans stay as sent. A body with no `resourceSpans` is left for the collector.
+ */
+export function stampBrowserTraceResource(
+  input: unknown,
+  identity: {
+    readonly serviceName: string;
+    readonly environment: string;
+  }
+): unknown | undefined {
+  if (!record(input)) return undefined;
+  const resources = input['resourceSpans'];
+  if (!Array.isArray(resources)) return input;
+  if (resources.length > 256) return undefined;
+  return {
+    ...input,
+    resourceSpans: resources.map((entry: unknown) => {
+      if (!record(entry)) throw new Error('Invalid OTLP resource spans');
+      const resource = record(entry['resource']) ? entry['resource'] : {};
+      const claimed = Array.isArray(resource['attributes'])
+        ? resource['attributes']
+        : [];
+      return {
+        ...entry,
+        resource: {
+          ...resource,
+          attributes: [
+            ...claimed.filter(
+              (item: unknown) =>
+                !record(item) ||
+                typeof item['key'] !== 'string' ||
+                !RESOURCE_KEYS_THE_SERVER_OWNS.has(item['key'])
+            ),
+            {
+              key: ATTR.SERVICE_NAME,
+              value: { stringValue: identity.serviceName },
+            },
+            {
+              key: ATTR.DEPLOYMENT_ENVIRONMENT_NAME,
+              value: { stringValue: identity.environment },
+            },
+          ],
+        },
+      };
+    }),
+  };
+}
+
 function sanitizeScope(input: unknown, signal: 'logs' | 'metrics'): unknown {
   if (!record(input)) throw new Error('Invalid OTLP scope');
   const key = signal === 'logs' ? 'logRecords' : 'metrics';

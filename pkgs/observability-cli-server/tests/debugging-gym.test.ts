@@ -10,6 +10,7 @@ import {
   GYM_IDS,
   GYM_MUTATION_ID,
   GYM_NOW_MS,
+  GYM_PERSON,
   GYM_TEST_ID,
 } from './gym-fixtures';
 
@@ -150,5 +151,88 @@ describe('observability debugging gym', () => {
     expect(() =>
       assertTraceHasSpan(trace, { name: 'test.run', status: 'error' })
     ).not.toThrow();
+  });
+
+  test('a person is reconstructed from a name and a clock, problems first', async () => {
+    const result = await runCommand(
+      {
+        store: await fixtureStore(),
+        nowMs: GYM_NOW_MS,
+        identityResolver: {
+          resolve: async () => null,
+          async resolvePeople(name) {
+            return name === GYM_PERSON.name
+              ? [{ userId: GYM_PERSON.userId, matchedAs: 'name' }]
+              : [];
+          },
+        },
+      },
+      parseArgs([
+        'person',
+        '--name',
+        GYM_PERSON.name,
+        '--at',
+        GYM_PERSON.at,
+        '--source',
+        'debugging-gym',
+      ])
+    );
+    expect(result.code).toBe(0);
+    const text = result.text;
+    expect(text).toStartWith('obs/v1\nsource: debugging-gym');
+    // The crash happened before sign-in: only the device and session tie it to her.
+    expect(text).toContain('PROBLEMS (2');
+    expect(text).toContain('[crash] client.error: Failed to fetch');
+    expect(text).toContain(
+      `bun obs span ${GYM_PERSON.ids.crash} 8000000000000001 --source debugging-gym`
+    );
+    expect(text).toContain('[rejection] mutation.replay');
+    expect(text.indexOf('PROBLEMS')).toBeLessThan(text.indexOf('TIMELINE'));
+    expect(text).toContain('route change window:history');
+    expect(text).toContain('POST /api/mutations -> 200');
+    expect(text).toContain('mutation gym-mutation-rejected REJECTED');
+    expect(text).toContain('05:00:05 MST  12:00:05Z');
+    expect(text).toContain('builds: gym-build');
+    expect(text).toContain('devices: gym-device-1');
+    expect(text).toContain('sessions: gym-session-1');
+    expect(text).not.toContain(GYM_IDS.constraint);
+  });
+
+  test('the same person as --json is the typed structure', async () => {
+    const result = await runCommand(
+      {
+        store: await fixtureStore(),
+        nowMs: GYM_NOW_MS,
+        identityResolver: {
+          resolve: async () => null,
+          resolvePeople: async () => [
+            { userId: GYM_PERSON.userId, matchedAs: 'name' },
+          ],
+        },
+      },
+      parseArgs([
+        'person',
+        '--name',
+        GYM_PERSON.name,
+        '--at',
+        GYM_PERSON.at,
+        '--json',
+      ])
+    );
+    const parsed = JSON.parse(result.text) as {
+      readonly format: string;
+      readonly data: {
+        readonly schema: string;
+        readonly status: string;
+        readonly problems: readonly { readonly traceId: string }[];
+      };
+    };
+    expect(parsed.format).toBe('obs/v1');
+    expect(parsed.data.schema).toBe('obs.person/v1');
+    expect(parsed.data.status).toBe('trouble');
+    expect(parsed.data.problems.map((problem) => problem.traceId)).toEqual([
+      GYM_PERSON.ids.crash,
+      GYM_PERSON.ids.rejected,
+    ]);
   });
 });

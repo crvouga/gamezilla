@@ -1,8 +1,9 @@
 /**
  * An OpenSLO v1 objective file as the engine reads it: its indicators (SLIs)
- * and objectives (SLOs), validated and normalised by `parse`. Metric sources
- * stay opaque product words — the engine never interprets a query; a
- * product adapter measures each indicator.
+ * and objectives (SLOs) and, when it declares them, their alert policies,
+ * conditions and notification targets, validated and normalised by `parse`.
+ * Metric sources stay opaque product words — the engine never interprets a
+ * query; a product adapter measures each indicator.
  */
 
 /** Where a metric comes from, in the product's words. Opaque to the engine. */
@@ -79,9 +80,56 @@ export type Slo = {
   readonly timeWindow: TimeWindow;
   readonly budgetingMethod: BudgetingMethod;
   readonly objectives: readonly Objective[];
+  /** `alertPolicies: [{ alertPolicyRef }]`: names of AlertPolicy documents. */
+  readonly alertPolicies: readonly string[];
+};
+
+/** A burn-rate condition: the budget is spent `op` `threshold` times as fast as it lasts. */
+export type AlertCondition = {
+  readonly name: string;
+  readonly displayName: string | null;
+  readonly description: string | null;
+  /** Who is told and how loudly: `page`, `ticket`, … (the product's words). */
+  readonly severity: string;
+  readonly op: Operator;
+  /** Times faster than the SLO's whole window would last. */
+  readonly threshold: number;
+  /** How far back the burn rate is averaged (`1h`). */
+  readonly lookbackWindow: string;
+  /** How long it must hold before it fires (`5m`), when stated. */
+  readonly alertAfter: string | null;
+};
+
+/** Where an alert goes (`target` names a channel in the product's words). */
+export type AlertNotificationTarget = {
+  readonly name: string;
+  readonly displayName: string | null;
+  readonly description: string | null;
+  readonly target: string;
+};
+
+/**
+ * Fires when every one of its conditions holds (a long window to be sure
+ * the burn is real, a short one to be sure it is still happening).
+ */
+export type AlertPolicy = {
+  readonly name: string;
+  readonly displayName: string | null;
+  readonly description: string | null;
+  readonly alertWhenNoData: boolean;
+  readonly alertWhenResolved: boolean;
+  readonly alertWhenBreaching: boolean;
+  /** Names of AlertCondition documents, at least one. */
+  readonly conditions: readonly string[];
+  /** Names of AlertNotificationTarget documents, at least one. */
+  readonly notificationTargets: readonly string[];
+  readonly labels: Readonly<Record<string, readonly string[]>>;
 };
 
 export type OpenSloDoc = {
   readonly slis: readonly Sli[];
   readonly slos: readonly Slo[];
+  readonly alertConditions: readonly AlertCondition[];
+  readonly alertPolicies: readonly AlertPolicy[];
+  readonly alertNotificationTargets: readonly AlertNotificationTarget[];
 };

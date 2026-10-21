@@ -76,7 +76,9 @@ export async function measureSlo(input: {
   if (nowMs === null) {
     return failAll(
       slo,
-      `no evidence: the measure for SLI ${sli.name} returned nothing`
+      measurement.kind === 'totals'
+        ? `the measure for SLI ${sli.name} returned totals, which need the binding's nowMs to know which window they cover`
+        : `no evidence: the measure for SLI ${sli.name} returned nothing`
     );
   }
   return slo.objectives.map((objective) => ({
@@ -118,6 +120,7 @@ function measureContext(slo: Slo, clock: number | null): MeasureContext {
 }
 
 function latestAt(measurement: Measurement): number | null {
+  if (measurement.kind === 'totals') return null;
   const times =
     measurement.kind === 'events'
       ? measurement.events.map((e) => e.atMs)

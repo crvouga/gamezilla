@@ -2,9 +2,14 @@ import type { ServerEnv } from '@libs/app-root-shared/server-env';
 import { resolveWebClientOrigin } from '@libs/app-root-shared/web-client-origin';
 import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
 import type { AuthContext } from '@libs/auth-shared/types';
-import { sanitizeBrowserOtlp } from '@pkgs/observability-root-shared/browser-otlp';
+import {
+  sanitizeBrowserOtlp,
+  stampBrowserTraceResource,
+} from '@pkgs/observability-root-shared/browser-otlp';
 import { otlpAuthorization } from '@pkgs/observability-root-shared/otlp-auth';
 import type { Context, Hono } from 'hono';
+
+const BROWSER_SERVICE_NAME = 'gamezilla-client';
 
 type IngressContext = Context<ApiHonoEnv<AuthContext>>;
 type Signal = 'traces' | 'logs' | 'metrics';
@@ -44,7 +49,10 @@ export function mountBrowserTelemetryIngress(
     if (body === null) {
       return c.json({ error: 'observability_payload_too_large' }, 413);
     }
-    const outgoingBody = diagnosticBody(body, signal, env);
+    const outgoingBody = diagnosticBody(body, signal, env, {
+      json: contentType.startsWith('application/json'),
+      encoded: c.req.header('content-encoding') !== undefined,
+    });
     if (outgoingBody === undefined)
       return c.json({ error: 'observability_schema_denied' }, 422);
     const headers = new Headers({
@@ -139,17 +147,34 @@ function preflightDenied(
 function diagnosticBody(
   body: ArrayBuffer,
   signal: Signal,
-  env: BrowserTelemetryEnv
+  env: BrowserTelemetryEnv,
+  encoding: { readonly json: boolean; readonly encoded: boolean }
 ): ArrayBuffer | undefined {
-  if (signal === 'traces') return body;
+  const identity = {
+    serviceName: BROWSER_SERVICE_NAME,
+    environment: env.observabilityEnvironment ?? 'local',
+  };
+  if (signal === 'traces') {
+    // The page's own exporter sends plain JSON. Protobuf or compressed bodies
+    // cannot be restated here and go on as sent.
+    if (!encoding.json || encoding.encoded) return body;
+    try {
+      const stamped = stampBrowserTraceResource(
+        JSON.parse(new TextDecoder().decode(body)),
+        identity
+      );
+      return stamped === undefined
+        ? undefined
+        : new TextEncoder().encode(JSON.stringify(stamped)).buffer;
+    } catch {
+      return undefined;
+    }
+  }
   try {
     const safe = sanitizeBrowserOtlp(
       JSON.parse(new TextDecoder().decode(body)),
       signal,
-      {
-        serviceName: 'gamezilla-client',
-        environment: env.observabilityEnvironment ?? 'local',
-      }
+      identity
     );
     return safe === undefined
       ? undefined

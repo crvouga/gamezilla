@@ -29,7 +29,10 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@opentelemetry/sdk-metrics": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/observability-root-server": "workspace:*",
     "@pkgs/quint-server": "workspace:*",
     "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
     "@types/bun": "catalog:",
