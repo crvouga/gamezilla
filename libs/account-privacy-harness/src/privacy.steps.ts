@@ -8,6 +8,7 @@ import {
   notePhoneOffline,
   otherDevice,
 } from '@libs/harness/platform';
+import { openAccount } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { recall, remember, signedInAccountKey } from '@libs/harness/spec-world';
 import {
@@ -19,7 +20,17 @@ import {
   proveAccount,
   reviewDeletion,
 } from './privacy-actions';
-import { privacyStatus, privacyText } from './privacy-reads';
+import {
+  anyPrivacyNotice,
+  privacyNotice,
+  privacyStatus,
+  privacyText,
+} from './privacy-reads';
+
+/** A stored timestamp shown as it is stored (ISO text or epoch digits). */
+const RAW_DATE = /\d{4}-\d{2}-\d{2}|\d{10,}/;
+/** A date as a person reads it in English, such as "Nov 19, 2026". */
+const READABLE_DATE = /[A-Z][a-z]+ \d{1,2}, \d{4}/;
 
 async function recentAccount(w: HarnessWorld, actor: Actor) {
   await w.s.apply(proveAccount, actor);
@@ -106,9 +117,15 @@ Then(
   "{actor}'s account deletion is acknowledged with its completion deadline",
   async (w, actor: Actor) => {
     await w.s.apply(openPrivacy, actor);
-    expect(
-      await w.s.read(privacyText, actor, 'privacy-deletion-outcome')
-    ).toContain('complete by');
+    const outcome = await w.s.read(
+      privacyText,
+      actor,
+      'privacy-deletion-outcome'
+    );
+    expect(outcome).toContain('complete by');
+    // regression: privacy-dates-raw-iso
+    expect(outcome).not.toMatch(RAW_DATE);
+    expect(outcome).toMatch(READABLE_DATE);
     const state = await w.s.read(
       privacyStatus,
       String(recall(w, signedInAccountKey(actor)))
@@ -132,9 +149,62 @@ Then('{actor} still has the same account', async (w, actor: Actor) => {
 Then(
   '{actor} is told to prove the account again before deletion',
   async (w, actor: Actor) => {
+    // regression: deletion-permission-notice-hidden-by-dialog
     expect(
-      await w.s.read(privacyText, actor, 'privacy-delete-denial')
+      await w.s.read(privacyNotice, actor, 'privacy-delete-denial')
     ).toContain('Prove the account again');
+  }
+);
+Given(
+  '{actor} has kept the deletion confirmation open for {int} minutes',
+  async (w, actor: Actor, minutes: number) => {
+    expect(
+      await w.s.read(privacyText, actor, 'privacy-delete-modal')
+    ).not.toBeNull();
+    await w.s.advanceTime(minutes * 60_000);
+  }
+);
+Then(
+  '{actor} is told export and deletion need a sign-in from the last {int} minutes',
+  async (w, actor: Actor, minutes: number) => {
+    expect(
+      await w.s.read(anyPrivacyNotice, actor, [
+        'privacy-delete-denial',
+        'privacy-export-denial',
+      ])
+    ).toContain(`last ${minutes} minutes`);
+  }
+);
+Then(
+  '{actor} sees that Plus ends at once without refunding the remaining paid time or Plus credit',
+  async (w, actor: Actor) => {
+    const text = await w.s.read(privacyText, actor, 'privacy-consequences');
+    expect(text).toContain('Plus ends at once');
+    expect(text).toContain(
+      'remaining paid time and Plus credit are not refunded'
+    );
+  }
+);
+Then(
+  '{actor} is asked to confirm that Plus ends at once without refunding the remaining paid time or Plus credit',
+  async (w, actor: Actor) => {
+    // regression: deletion-omits-plus-loss
+    const text = await w.s.read(privacyText, actor, 'privacy-delete-modal');
+    expect(text).toContain('Plus ends at once');
+    expect(text).toContain(
+      'remaining paid time and Plus credit are not refunded'
+    );
+  }
+);
+When('{actor} opens account settings', async (w, actor: Actor) => {
+  await w.s.apply(openAccount, actor);
+});
+Then(
+  '{actor} is offered personal-data export and account deletion there',
+  async (w, actor: Actor) => {
+    const text = await w.s.read(privacyText, actor, 'account-privacy');
+    expect(text).toContain('export');
+    expect(text).toContain('delete');
   }
 );
 Then(
@@ -203,9 +273,15 @@ Then(
   }
 );
 Then('{actor} sees when it must be ready', async (w, actor: Actor) => {
-  expect(
-    await w.s.read(privacyText, actor, 'privacy-export-deadline')
-  ).toContain('Ready by');
+  const deadline = await w.s.read(
+    privacyText,
+    actor,
+    'privacy-export-deadline'
+  );
+  expect(deadline).toContain('Ready by');
+  // regression: privacy-dates-raw-iso
+  expect(deadline).not.toMatch(RAW_DATE);
+  expect(deadline).toMatch(READABLE_DATE);
 });
 Then(
   '{actor} is told to prove the account again before exporting personal data',

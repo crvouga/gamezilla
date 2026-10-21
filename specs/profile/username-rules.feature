@@ -6,6 +6,7 @@ Feature: Username rules
 
   Rule: A saved username is unique and allowed and a refused username change keeps the saved username
 
+    @regression:username-limits-not-stated
     Scenario Outline: A refused username change keeps the saved username
       Given Alice's username is @alice_one
       When Alice tries to use username "<name>"
@@ -13,10 +14,10 @@ Feature: Username rules
       And Alice's profile shows @alice_one
 
       Examples:
-        | name                              | reason                                        |
-        | ab                                | it is too short                         |
-        | alice_plays_chess_after_supper_2026 | it is too long                          |
-        | Alice Woods                        | it contains characters other than letters, numbers and _ |
+        | name                                | reason                                                   |
+        | ab                                  | it is shorter than 3 characters                          |
+        | alice_plays_chess_after_supper_2026 | it is longer than 32 characters                          |
+        | Alice Woods                         | it contains characters other than letters, numbers and _ |
 
     Scenario: A disguised offensive username change is refused
       Given Alice is a guest
@@ -53,6 +54,14 @@ Feature: Username rules
       Given Alice's username is @queen_gambit
       When Bob tries to use username "QUEEN_GAMBIT"
       Then Bob's username change is refused because another person already has that name
+
+  Rule: The username rules are shown before a person saves
+    No counter-example: every new username is chosen with the same rules in view.
+
+    Scenario: Choosing a new username shows the rules up front
+      Given Alice is a guest
+      When Alice begins choosing a new username
+      Then Alice sees that a username has 3 to 32 letters, numbers or _
 
   Rule: A username the team stops allowing is kept but shows as a stand-in name until the person renames themselves
 
