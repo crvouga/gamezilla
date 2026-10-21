@@ -2,8 +2,9 @@
 /**
  * Visible breadcrumb trail for wide `ScreenBase` page headers.
  *
- * Ancestors render as a quiet secondary row above the page title so the
- * hierarchy reads top-down (`Settings › Sound` over a large `Sound`).
+ * Ancestors render as a quiet caption row (14px, secondary) above the page
+ * title so the hierarchy reads top-down (`Settings › Sound` over a 24px
+ * `Sound`).
  * Ancestors with `onClick` / `href` are links; the current crumb is the
  * `h1` title.
  */
@@ -22,22 +23,20 @@ export type ScreenBreadcrumbTrailProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-const SEPARATOR_SIZE = 14;
+const SEPARATOR_SIZE = 16;
 
 function AncestorCrumb(props: {
   crumb: ScreenBaseBreadcrumb;
   onClick: (() => void) | undefined;
 }): JSX.Element {
   const text = (): JSX.Element => (
-    <label class="text textLabel line-clamp-1 text-text-secondary">
-      {props.crumb.name}
-    </label>
+    <span class="text textCaption line-clamp-1">{props.crumb.name}</span>
   );
   return (
     <Show when={props.onClick} fallback={text()}>
       {(onClick) => (
         <button
-          class="clickable clickableTint rounded-sm px-1 -mx-1 min-h-8"
+          class="clickable clickableTint rounded-sm px-1 -mx-1 min-h-6 justify-center"
           data-component="ScreenBreadcrumbLink"
           type="button"
           role="link"
@@ -59,7 +58,7 @@ export function ScreenBreadcrumbTrail(
   return (
     <Show when={props.breadcrumbs.length > 0}>
       <nav
-        class="box flex-1 min-w-0 gap-0.5"
+        class="box flex-1 min-w-0 gap-1"
         {...dataAttrs({ component: 'ScreenBreadcrumbTrail', ...props.dataSet })}
         aria-label={t`Breadcrumb`}
       >
@@ -70,19 +69,10 @@ export function ScreenBreadcrumbTrail(
                 <div class="box flex-row items-center gap-1">
                   <AncestorCrumb crumb={crumb} onClick={resolveClick(crumb)} />
                   <Show when={index() < trail().ancestors.length - 1}>
-                    <div
-                      class="box items-center justify-center"
-                      style={{
-                        width: `${SEPARATOR_SIZE}px`,
-                        height: '22px',
-                      }}
-                      aria-hidden="true"
-                    >
-                      <ChevronRightIcon
-                        size={SEPARATOR_SIZE}
-                        color="textSecondary"
-                      />
-                    </div>
+                    <ChevronRightIcon
+                      size={SEPARATOR_SIZE}
+                      color="textSecondary"
+                    />
                   </Show>
                 </div>
               )}

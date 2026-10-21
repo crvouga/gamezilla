@@ -21,7 +21,6 @@ import ExplorerWorkspaceExample from './explorer-workspace.example';
 import FilterBarExample from './filter-bar.example';
 import GameArenaExample from './game-arena.example';
 import InspectionWorkspaceExample from './inspection-workspace.example';
-import LinearProgressExample from './linear-progress.example';
 import ListExample from './list.example';
 import LoadingStateExample from './loading-state.example';
 import MenuRowExample from './menu-row.example';
@@ -80,7 +79,6 @@ export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
   entry('spinner', 'Spinner', FEEDBACK, SpinnerExample),
   entry('skeleton', 'Skeleton', FEEDBACK, SkeletonExample),
   entry('progress-bar', 'ProgressBar', FEEDBACK, ProgressBarExample),
-  entry('linear-progress', 'LinearProgress', FEEDBACK, LinearProgressExample),
   entry(
     'dismissible-top-banner',
     'DismissibleBanner',

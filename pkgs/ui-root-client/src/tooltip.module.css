@@ -1,6 +1,7 @@
 /* Tooltip bubble: CSS-positioned relative to its anchor wrapper. Hidden
    bubbles stay mounted (visibility:hidden) so `aria-describedby` always
-   resolves. Placement is static via CSS classes — no JS measurement. */
+   resolves. Placement is static via CSS classes — no JS measurement. The
+   bubble sits 8px off its anchor and fades in over 150ms. */
 
 .anchor {
   position: relative;
@@ -14,12 +15,18 @@
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
+  transition:
+    opacity var(--ui-duration-fast) var(--ui-easing-standard),
+    visibility var(--ui-duration-fast) var(--ui-easing-standard);
 }
 
 .floating {
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
+  transition:
+    opacity var(--ui-duration-fast) var(--ui-easing-standard),
+    visibility var(--ui-duration-fast) var(--ui-easing-standard);
 }
 
 .floating-layer {
@@ -27,11 +34,11 @@
 }
 
 .bottom {
-  top: calc(100% + 6px);
+  top: calc(100% + var(--ui-space-sm));
 }
 
 .top {
-  bottom: calc(100% + 6px);
+  bottom: calc(100% + var(--ui-space-sm));
 }
 
 .center {
@@ -50,4 +57,11 @@
 .open {
   opacity: 1;
   visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble,
+  .floating {
+    transition: none;
+  }
 }

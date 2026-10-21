@@ -34,10 +34,10 @@ function CrashDetails(props: {
       </summary>
       <div class="box gap-3 mt-3 p-4 rounded-xl bg-surface-sunken">
         <ScrollView
-          class="max-h-48"
+          maxHeight="sm"
           flushEdge={false}
           role="region"
-          tabindex="0"
+          tabIndex={0}
           aria-label="Error message"
         >
           <pre class="text textMono m-0 break-words select-text">

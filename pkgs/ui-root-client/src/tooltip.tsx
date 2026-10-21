@@ -8,6 +8,11 @@
  * static via `placement` unless `floating` portals it outside clipping hosts
  * and positions it within the viewport.
  * Controls inside read {@link useTooltipTrigger} for `show` / `hide` / `id`.
+ *
+ * The bubble floats above content like a menu: the `surface-overlay` fill,
+ * one hairline, a 4px radius and `shadow-float`, with a `textFootnote`
+ * label in full text color, at most 240px wide and two lines. It fades in
+ * over 150ms; reduced motion shows it at once.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
@@ -38,8 +43,6 @@ export type TooltipPlacement =
   | 'top-end'
   | 'bottom-start'
   | 'bottom-end';
-
-export const TOOLTIP_MAX_WIDTH = 240;
 
 export type TooltipProps = {
   label: JSX.Element;
@@ -155,7 +158,7 @@ function TooltipBubble(props: {
 }) {
   return (
     <div
-      class="box bg-surface-elevated rounded-sm px-2 py-1 w-max"
+      class="box bg-surface-overlay border border-border shadow-float rounded-sm px-2 py-1 w-max max-w-60"
       classList={{
         [styles['bubble'] ?? '']: !props.floating,
         [styles['floating'] ?? '']: props.floating === true,
@@ -172,14 +175,11 @@ function TooltipBubble(props: {
         [styles['open'] ?? '']: props.controller.visible(),
       }}
       {...dataAttrs({ component: 'Tooltip', ...props.dataSet })}
-      style={{
-        'max-width': `${TOOLTIP_MAX_WIDTH}px`,
-      }}
       id={props.controller.id}
       role="tooltip"
       aria-hidden={props.controller.visible() ? undefined : true}
     >
-      <p class="text textCaption line-clamp-2 text-text text-center">
+      <p class="text textFootnote line-clamp-2 text-text text-center">
         {props.label}
       </p>
     </div>

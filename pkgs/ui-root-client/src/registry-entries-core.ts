@@ -21,7 +21,6 @@ import ComboboxExample from './combobox.example';
 import CopyToClipboardFieldExample from './copy-to-clipboard-field.example';
 import FloatingActionButtonExample from './floating-action-button.example';
 import FormActionsFooterExample from './form-actions-footer.example';
-import GradientBoxExample from './gradient-box.example';
 import IconButtonExample from './icon-button.example';
 import IconLinkExample from './icon-link.example';
 import IslandExample from './island.example';
@@ -30,7 +29,6 @@ import MarkdownEditorExample from './markdown-editor.example';
 import MultiSelectSwatchGridExample from './multi-select-swatch-grid.example';
 import NumberStepperExample from './number-stepper.example';
 import OverflowMenuButtonExample from './overflow-menu-button.example';
-import PickerExample from './picker.example';
 import PickerSectionExample from './picker-section.example';
 import ScreenBaseExample from './screen-base.example';
 import ScreenTitleExample from './screen-title.example';
@@ -39,6 +37,7 @@ import SegmentedControlExample from './segmented-control.example';
 import SelectExample from './select.example';
 import SocialSignInButtonExample from './social-sign-in-button.example';
 import SwitchExample from './switch.example';
+import TabBarExample from './tab-bar.example';
 import TextInputExample from './text-input.example';
 import TextLinkExample from './text-link.example';
 import ThemeTokensExample from './theme-tokens.example';
@@ -50,7 +49,6 @@ const INPUTS = 'Inputs';
 
 export const CORE_ENTRIES: readonly ComponentEntry[] = [
   entry('theme-tokens', 'Theme Tokens', FOUNDATION, ThemeTokensExample),
-  entry('gradient-box', 'GradientBox', FOUNDATION, GradientBoxExample),
 
   entry('app-logo', 'AppLogo', 'Brand', AppLogoExample),
 
@@ -59,6 +57,7 @@ export const CORE_ENTRIES: readonly ComponentEntry[] = [
   entry('screen-title', 'ScreenLargeTitle', LAYOUT, ScreenTitleExample),
   entry('app-frame', 'AppFrame', LAYOUT, AppFrameExample),
   entry('app-header-island', 'AppHeaderIsland', LAYOUT, AppHeaderIslandExample),
+  entry('tab-bar', 'TabBar', LAYOUT, TabBarExample),
   entry('island', 'Island', LAYOUT, IslandExample),
   entry('card', 'Card', LAYOUT, CardExample),
   entry('island-grid', 'IslandGrid', LAYOUT, IslandGridExample),
@@ -116,7 +115,6 @@ export const CORE_ENTRIES: readonly ComponentEntry[] = [
     INPUTS,
     SegmentedControlExample
   ),
-  entry('picker', 'Picker', INPUTS, PickerExample),
   entry('picker-section', 'PickerSection', INPUTS, PickerSectionExample),
   entry('chip-group', 'ChipGroup', INPUTS, ChipGroupExample),
   entry('number-stepper', 'NumberStepper', INPUTS, NumberStepperExample),

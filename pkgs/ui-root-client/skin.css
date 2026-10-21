@@ -10,7 +10,11 @@
  * - Flat: hairline borders, no gradients, and one soft shadow
  *   (`--ui-shadow-float`) only for what floats above content.
  * - Press feedback is a tone shift plus a small scale, never a bounce.
- *   Hover and press fade in 150ms; reduced motion turns it off. */
+ *   Hover and press fade in 150ms (`--ui-duration-fast`), state changes
+ *   (a switch flipping, a segment moving) take 200ms
+ *   (`--ui-duration-normal`); reduced motion turns both off.
+ * - Every control covers hover, press, `:focus-visible` (the `.clickable`
+ *   ring), disabled and, where it runs work, loading (`aria-busy`). */
 
 @layer components {
   .themeHost {
@@ -56,7 +60,20 @@
     transition:
       transform var(--ui-duration-fast) var(--ui-easing-standard),
       background-color var(--ui-duration-fast) var(--ui-easing-standard),
-      border-color var(--ui-duration-fast) var(--ui-easing-standard);
+      border-color var(--ui-duration-fast) var(--ui-easing-standard),
+      color var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
+  /* Disabled is the face (`data-face="disabled*"`) plus the default cursor;
+     loading keeps the intent face and says it is working. */
+  .btn:disabled,
+  .fab:disabled {
+    cursor: not-allowed;
+  }
+
+  .btn[aria-busy="true"],
+  .fab[aria-busy="true"] {
+    cursor: progress;
   }
 
   .btn:not(:disabled):active,
@@ -100,10 +117,15 @@
   .fab {
     height: var(--ui-control-size-lg);
     min-height: var(--ui-control-size-lg);
+    min-width: var(--ui-control-size-lg);
     border-radius: var(--ui-radius-full);
     font-size: var(--ui-font-size-base);
     line-height: var(--ui-leading-base);
     box-shadow: var(--ui-shadow-float);
+  }
+
+  .fab[data-extended="false"] {
+    width: var(--ui-control-size-lg);
   }
 
   .fab[data-extended="true"] {
@@ -273,7 +295,16 @@
     line-height: var(--ui-leading-sm);
     transition:
       background-color var(--ui-duration-fast) var(--ui-easing-standard),
-      border-color var(--ui-duration-fast) var(--ui-easing-standard);
+      border-color var(--ui-duration-fast) var(--ui-easing-standard),
+      color var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .clickable.chip:not(:disabled):not([aria-pressed="true"]):not(
+        [aria-checked="true"]
+      ):hover {
+      border-color: var(--ui-color-outline);
+    }
   }
 
   .clickable.chip[aria-pressed="true"],
@@ -287,6 +318,7 @@
 
   .chip:disabled {
     opacity: var(--ui-opacity-disabled);
+    cursor: not-allowed;
   }
 
   .badge {
@@ -365,6 +397,68 @@
     color: var(--ui-color-on-info);
   }
 
+  /* Switch: a 48x28 track (`w-12 h-7`) with a 24px thumb (`size-6`) inset
+     2px, so it travels 20px (`translate-x-5`). Colors are the utilities on
+     the element (blue fill when on, muted track and secondary thumb when
+     off); this adds the inset, the off-state outline hairline (drawn inset
+     so it never changes the geometry) and the 200ms thumb slide. */
+  .switchTrack {
+    box-sizing: border-box;
+    padding: calc(var(--ui-space-hairline) * 2);
+  }
+
+  /* Tailwind v4 moves the thumb with `translate`, not `transform`. */
+  .switchTrack > .switchThumb {
+    transition:
+      translate var(--ui-duration-normal) var(--ui-easing-standard),
+      background-color var(--ui-duration-normal) var(--ui-easing-standard);
+  }
+
+  .switchTrack[data-on="false"] {
+    box-shadow: inset 0 0 0 var(--ui-space-hairline) var(--ui-color-outline);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .clickable:not(:disabled):hover > .switchTrack[data-on="false"] {
+      box-shadow: inset 0 0 0 var(--ui-space-hairline)
+        var(--ui-color-text-secondary);
+    }
+  }
+
+  /* Checkbox: a 20px box, 4px radius, outline border; checked or mixed is
+     the blue fill with an on-primary glyph. */
+  .checkboxBox {
+    border: calc(var(--ui-space-hairline) * 2) solid var(--ui-color-outline);
+    background: var(--ui-color-background);
+    color: var(--ui-color-on-primary);
+    transition:
+      background-color var(--ui-duration-fast) var(--ui-easing-standard),
+      border-color var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
+  .checkboxBox[data-filled="true"] {
+    border-color: var(--ui-color-tint-active);
+    background: var(--ui-color-tint-active);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .clickable:not(:disabled):hover > .checkboxBox:not([data-filled="true"]) {
+      border-color: var(--ui-color-text-secondary);
+    }
+  }
+
+  /* Segmented control: the selected segment is the canvas inside a hairline,
+     sliding over the muted track in 200ms. */
+  .segmentIndicator {
+    transition:
+      left var(--ui-duration-normal) var(--ui-easing-standard),
+      width var(--ui-duration-normal) var(--ui-easing-standard);
+  }
+
+  .segment {
+    transition: color var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
   .statusDot[data-status="online"] {
     background: var(--ui-color-success);
   }
@@ -383,7 +477,13 @@
 
   @media (prefers-reduced-motion: reduce) {
     .btn,
-    .fab {
+    .fab,
+    .chip,
+    .checkboxBox,
+    .segment,
+    .segmentIndicator,
+    .switchTrack,
+    .switchTrack > .switchThumb {
       transition: none;
     }
 

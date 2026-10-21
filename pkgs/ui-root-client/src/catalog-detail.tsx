@@ -70,20 +70,13 @@ export function CatalogDetail(props: CatalogDetailProps): JSX.Element {
         }
       >
         <ScrollView
-          class="flex-1"
+          grow
           flushEdge={bleed()}
-          contentStyle={{
-            'padding-bottom': 'var(--ui-space-16)',
-            ...(!bleed()
-              ? {
-                  'padding-left': 'var(--ui-space-4)',
-                  'padding-right': 'var(--ui-space-4)',
-                }
-              : {}),
-            ...(!bleed() && props.largeTitleLabel === undefined
-              ? { 'padding-top': 'var(--ui-space-4)' }
-              : {}),
-          }}
+          paddingBottom="3xl"
+          paddingX={bleed() ? undefined : 'lg'}
+          paddingTop={
+            !bleed() && props.largeTitleLabel === undefined ? 'lg' : undefined
+          }
           onScroll={props.titleScroll?.onScroll}
         >
           <Show when={props.largeTitleLabel !== undefined}>

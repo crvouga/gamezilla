@@ -26,6 +26,10 @@ msgstr "?"
 msgid "chess.puzzleStatus.skippedMark"
 msgstr "»"
 
+#: pkgs/ui-root-client/src/text-link.tsx
+msgid "(opens in a new tab)"
+msgstr "(opens in a new tab)"
+
 #. placeholder {0}: deviceIds().length
 #: libs/auth-client/src/account-devices-card.tsx
 msgid "{0, plural, one {# device} other {# devices}}"
@@ -816,7 +820,7 @@ msgid "Choice reproduced"
 msgstr "Choice reproduced"
 
 #: pkgs/ui-root-client/src/combobox.tsx
-#: pkgs/ui-root-client/src/picker.tsx
+#: pkgs/ui-root-client/src/select.tsx
 msgid "Choose"
 msgstr "Choose"
 
@@ -1599,7 +1603,7 @@ msgstr "Failed"
 
 #: pkgs/ui-devtools-client/src/data-table-status.tsx
 #: pkgs/ui-root-client/src/combobox-body.tsx
-#: pkgs/ui-root-client/src/picker.tsx
+#: pkgs/ui-root-client/src/select.tsx
 msgid "Failed to load"
 msgstr "Failed to load"
 
@@ -2386,6 +2390,8 @@ msgid "Name, activity, region or worker"
 msgstr "Name, activity, region or worker"
 
 #: libs/app-root-client/src/app-commands.tsx
+#: libs/app-root-client/src/app-tab-bar.tsx
+#: pkgs/ui-root-client/src/app-header-island.tsx
 msgid "Navigation"
 msgstr "Navigation"
 
@@ -2638,6 +2644,7 @@ msgstr "Nothing synced near this rating yet. Change the target rating to keep pl
 #: libs/notifications-client/src/notifications-header-button.tsx
 #: libs/notifications-client/src/notifications-screen.tsx
 #: libs/notifications-client/src/sub-client.tsx
+#: pkgs/ui-root-client/src/toast-provider.tsx
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -3447,7 +3454,7 @@ msgstr "Search themes…"
 #: libs/profile-client/src/avatar-editor-screen.tsx
 #: pkgs/ui-root-client/src/catalog-list.tsx
 #: pkgs/ui-root-client/src/combobox.tsx
-#: pkgs/ui-root-client/src/picker.tsx
+#: pkgs/ui-root-client/src/select.tsx
 msgid "Search…"
 msgstr "Search…"
 
@@ -3498,7 +3505,7 @@ msgstr "Select style…"
 
 #: libs/profile-client/src/avatar-editor-screen.tsx
 #: pkgs/ui-root-client/src/combobox.tsx
-#: pkgs/ui-root-client/src/picker.tsx
+#: pkgs/ui-root-client/src/select.tsx
 msgid "Select…"
 msgstr "Select…"
 

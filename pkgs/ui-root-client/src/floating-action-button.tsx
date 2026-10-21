@@ -2,14 +2,18 @@
 /**
  * `FloatingActionButton` -- round (or extended pill) primary action.
  *
+ * A 52px disc (`--ui-control-size-lg`) or, with `label`, an extended pill:
+ * the blue fill with an on-primary 24px icon, and the one soft
+ * `shadow-float` because it floats above content (`skin.css` `.fab`).
+ *
  * Shares the mutation face machine with `Button`: `loading` / `feedback`
- * swap the icon for a spinner, check, or retry glyph. Pass `label` for the
- * extended pill variant; pair with `useMutationButton().fabProps`.
+ * swap the icon for a spinner, check, or retry glyph (`aria-busy` while
+ * loading). Hover deepens the blue, press scales it slightly, keyboard focus
+ * draws the ring, disabled greys it. Pair with `useMutationButton().fabProps`.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { spacingScale } from '@pkgs/ui-root-shared/scale';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { ButtonFeedback, ButtonIntent } from './button-face';
@@ -18,10 +22,7 @@ import type { IconComponent } from './create-icon';
 import { PlusIcon } from './icons';
 import { Spinner } from './spinner';
 
-export const FAB_SIZE = 56;
 const FAB_ICON_SIZE = 24;
-/** Spacing-scale steps (1 = 4px): icon/label gap 8px. */
-const FAB_CONTENT_GAP = 2;
 
 export type FloatingActionButtonProps = {
   onClick?: (() => void) | undefined;
@@ -46,20 +47,21 @@ type FabLabels = Pick<
   'label' | 'loadingLabel' | 'successLabel' | 'errorLabel'
 >;
 
+const PHASE_LABEL: Record<
+  ButtonFeedback,
+  (labels: FabLabels) => JSX.Element | undefined
+> = {
+  idle: (labels) => labels.label,
+  loading: (labels) => labels.loadingLabel ?? labels.label,
+  success: (labels) => labels.successLabel ?? labels.label,
+  error: (labels) => labels.errorLabel ?? labels.label,
+};
+
 export function fabLabelForPhase(
   phase: ButtonFeedback,
   labels: FabLabels
 ): JSX.Element | undefined {
-  switch (phase) {
-    case 'loading':
-      return labels.loadingLabel ?? labels.label;
-    case 'success':
-      return labels.successLabel ?? labels.label;
-    case 'error':
-      return labels.errorLabel ?? labels.label;
-    default:
-      return labels.label;
-  }
+  return PHASE_LABEL[phase](labels);
 }
 
 function FabLabelText(props: { label: JSX.Element }): JSX.Element {
@@ -102,14 +104,8 @@ function FabContent(props: {
   );
 }
 
-function fabContainerClass(extended: boolean): string {
-  return [
-    'items-center justify-center flex-row overflow-hidden rounded-full',
-    !extended && 'w-14',
-  ]
-    .filter(Boolean)
-    .join(' ');
-}
+const FAB_CLASS =
+  'items-center justify-center flex-row overflow-hidden rounded-full';
 
 export function FloatingActionButton(
   props: FloatingActionButtonProps
@@ -128,7 +124,7 @@ export function FloatingActionButton(
   );
   return (
     <button
-      class={`clickable clickableTint fab ${fabContainerClass(extended())}`}
+      class={`clickable clickableTint fab ${FAB_CLASS}`}
       {...dataAttrs({
         component: 'FloatingActionButton',
         intent: props.intent ?? 'primary',
@@ -142,15 +138,8 @@ export function FloatingActionButton(
       disabled={state().nonInteractive}
       aria-busy={state().phase === 'loading' ? true : undefined}
       aria-label={props['aria-label']}
-      style={{
-        height: `${FAB_SIZE}px`,
-        'min-height': `${FAB_SIZE}px`,
-      }}
     >
-      <div
-        class="box relative z-1 flex-row items-center"
-        style={{ gap: `${spacingScale(FAB_CONTENT_GAP)}px` }}
-      >
+      <div class="box relative z-1 flex-row items-center gap-2">
         <FabContent
           phase={state().phase}
           icon={props.icon ?? PlusIcon}

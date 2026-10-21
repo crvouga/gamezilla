@@ -3,7 +3,10 @@
  * `CloseIconButton` -- circular icon button rendering an X.
  *
  * Centralizes the "close" affordance for surfaces (modals, sheets) so every
- * dismiss control uses the same icon, size, paper fill, and accessible name.
+ * dismiss control uses the same icon, size and accessible name: a plain 24px
+ * X in text color in a 40px disc, like the header controls; the press tint
+ * shows the hit area. Pass `background="surfaceMuted"` to put it on a plate
+ * over media.
  *
  * @example
  * ```tsx
@@ -19,9 +22,9 @@ import { XIcon } from './icons';
 
 export type CloseIconButtonProps = {
   onClick: () => void;
-  /** Diameter in pixels. Defaults to 44. */
+  /** Diameter in pixels. Defaults to 40. */
   size?: number | undefined;
-  /** Background color token or raw color. Defaults to `'surface'`. */
+  /** Plate color token. Defaults to none (transparent). */
   background?: string | undefined;
   /** Label override. Defaults to localized "Close". */
   label?: string | undefined;
@@ -29,16 +32,17 @@ export type CloseIconButtonProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-const ICON_SIZE_RATIO = 0.5;
+/** 24px glyph in the default 40px disc, the header icon size. */
+const ICON_SIZE_RATIO = 0.6;
 
 export function CloseIconButton(props: CloseIconButtonProps): JSX.Element {
   const { t } = useLingui();
-  const size = (): number => props.size ?? 44;
+  const size = (): number => props.size ?? 40;
   const label = (): string => props.label ?? t`Close`;
   return (
     <IconButton
       size={size()}
-      background={props.background ?? 'surface'}
+      background={props.background}
       onClick={() => props.onClick()}
       label={label()}
       aria-label={label()}

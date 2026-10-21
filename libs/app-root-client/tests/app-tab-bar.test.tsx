@@ -70,5 +70,13 @@ describe('app tab bar', () => {
         .getByRole('button', { name: 'Spaces' })
         .getAttribute('aria-current')
     ).toBe('page');
+    // Journeys drive the tabs by test id, in the subs' declared order.
+    const order = Array.from(
+      screen.getByRole('navigation').querySelectorAll('[data-testid]')
+    ).map((tab) => tab.getAttribute('data-testid'));
+    expect(order).toEqual(['tab-spaces', 'tab-profile']);
+    expect(screen.getByTestId('tab-profile').hasAttribute('aria-current')).toBe(
+      false
+    );
   });
 });

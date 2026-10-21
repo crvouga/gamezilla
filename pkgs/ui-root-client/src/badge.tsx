@@ -2,6 +2,11 @@
 /**
  * `Badge` -- small status indicator or count label.
  *
+ * A pill (`skin.css` `.badge`): 12px semibold, tabular numerals, 24px tall
+ * (`md`) or 16px (`sm`, counts on an icon). `subtle` is the intent's wash
+ * with its colored label; `solid` is the intent's fill with its on-color.
+ * `brand` (blue) is for what is new or chosen; `neutral` for plain facts.
+ *
  * @example
  * ```tsx
  * <Badge label="New" intent="success" />
@@ -11,10 +16,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { bestOnColor } from '@pkgs/ui-root-shared/contrast';
-import { resolveColor } from '@pkgs/ui-root-shared/resolve-color';
-import { createMemo, type JSX } from 'solid-js';
-import { useThemeTokens } from './theme-context';
+import type { JSX } from 'solid-js';
 
 export type BadgeIntent =
   | 'neutral'
@@ -35,12 +37,6 @@ export type BadgeProps = {
   intent?: BadgeIntent | undefined;
   /** Visual weight. Defaults to `"subtle"`. */
   tone?: BadgeTone | undefined;
-  /**
-   * Optional raw color override (palette token name or any CSS color).
-   * When set, supersedes `intent` and renders solid with an auto-contrast
-   * label.
-   */
-  color?: string | undefined;
   /** Size preset. Defaults to `"md"`. */
   size?: BadgeSize | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -48,23 +44,6 @@ export type BadgeProps = {
 };
 
 export function Badge(props: BadgeProps): JSX.Element {
-  const tokens = useThemeTokens();
-  const custom = createMemo((): { bg: string; fg: string } | null => {
-    if (props.color === undefined) return null;
-    const raw = resolveColor(props.color, tokens.palette()) ?? props.color;
-    return {
-      bg: resolveColor(props.color, tokens.colors) ?? props.color,
-      fg: bestOnColor(raw).fg,
-    };
-  });
-  const tone = (): string =>
-    props.color !== undefined ? 'custom' : (props.tone ?? 'subtle');
-  const paint = (): JSX.CSSProperties | undefined => {
-    const colors = custom();
-    if (colors === null) return undefined;
-    return { 'background-color': colors.bg, color: colors.fg };
-  };
-
   return (
     <span
       // Not a `.box`: that host reset (`padding: 0`, later in the same layer)
@@ -73,13 +52,12 @@ export function Badge(props: BadgeProps): JSX.Element {
       {...dataAttrs({
         component: 'Badge',
         intent: props.intent ?? 'brand',
-        tone: tone(),
+        tone: props.tone ?? 'subtle',
         size: props.size ?? 'md',
         ...props.dataSet,
       })}
-      style={paint()}
     >
-      <p class="text">{props.label}</p>
+      <p class="text whitespace-nowrap">{props.label}</p>
     </span>
   );
 }

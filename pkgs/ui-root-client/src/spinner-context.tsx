@@ -10,8 +10,8 @@
  * virtual timeline. Opt-in: without a provider each spinner starts at 0°.
  */
 
-import { ACTIVITY_REVOLUTION_MS } from '@pkgs/ui-root-shared/activity-indicator';
 import { useClock } from '@pkgs/clock-client/solid';
+import { ACTIVITY_REVOLUTION_MS } from '@pkgs/ui-root-shared/activity-indicator';
 import { createContext, type JSX, useContext } from 'solid-js';
 
 /** One full revolution (matches `spinner.module.css`). */

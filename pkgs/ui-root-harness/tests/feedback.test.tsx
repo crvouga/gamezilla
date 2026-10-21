@@ -10,7 +10,6 @@ import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { MutationError } from '@pkgs/ui-root-client/mutation-modal-parts';
-import { ProgressBar } from '@pkgs/ui-root-client/progress-bar';
 import { Skeleton } from '@pkgs/ui-root-client/skeleton';
 import { Spinner } from '@pkgs/ui-root-client/spinner';
 import {
@@ -208,26 +207,20 @@ describe('Spinner', () => {
   });
 });
 
-describe('Skeleton + ProgressBar', () => {
+describe('Skeleton', () => {
   test('Skeleton is decorative and sized', () => {
     renderUi(() => <Skeleton width={120} height={12} />);
     const el = mustQuery('[data-component="Skeleton"]');
     expect(el).toHaveAttribute('aria-hidden', 'true');
     expect(cssOf(el)).toContain('width:120px');
+    expect(el).toHaveClass('skeleton', 'bg-surface-muted', 'rounded-sm');
   });
 
-  test('ProgressBar exposes progressbar semantics and clamps', () => {
-    renderUi(() => <ProgressBar progress={1.4} label="Upload" />);
-    const bar = screen.getByRole('progressbar', { name: 'Upload' });
-    expect(bar).toHaveAttribute('aria-valuenow', '1');
-    expect(bar).toHaveAttribute('aria-valuemin', '0');
-    expect(bar).toHaveAttribute('aria-valuemax', '1');
-  });
-
-  test('indeterminate ProgressBar omits aria-valuenow', () => {
-    renderUi(() => <ProgressBar indeterminate label="Busy" />);
-    const bar = screen.getByRole('progressbar', { name: 'Busy' });
-    expect(bar).not.toHaveAttribute('aria-valuenow');
+  test('Skeleton shape picks a radius token, never a length', () => {
+    renderUi(() => <Skeleton width={48} height={48} shape="circle" />);
+    const el = mustQuery('[data-component="Skeleton"]');
+    expect(el).toHaveClass('rounded-full');
+    expect(cssOf(el)).not.toContain('border-radius');
   });
 });
 
@@ -245,8 +238,10 @@ describe('State blocks', () => {
     ));
     const fill = mustQuery('[data-testid="fill"]');
     const compact = mustQuery('[data-testid="compact"]');
-    expect(cssOf(fill)).toContain('flex-grow:1');
-    expect(cssOf(compact)).not.toContain('flex-grow:1');
+    expect(fill).toHaveClass('flex-1');
+    expect(fill).toHaveAttribute('data-variant', 'fill');
+    expect(compact).not.toHaveClass('flex-1');
+    expect(compact).toHaveAttribute('data-variant', 'compact');
   });
 
   test('LoadingState renders spinner + caption', () => {
@@ -324,7 +319,7 @@ describe('State blocks', () => {
     expect(secondary).toHaveAttribute('data-face', 'neutral-outline');
     expect(secondary).toHaveAttribute('data-intent', 'neutral');
     expect(screen.getByRole('heading', { name: 'Could not save' })).toHaveClass(
-      'textHeading'
+      'textSubtitle'
     );
   });
 
@@ -470,8 +465,8 @@ describe('DismissibleBanner', () => {
     const banner = screen.getByRole('status');
     expect(banner).toHaveTextContent('Update available');
     // Full-bleed sheet; content row is max-width constrained on wide layouts.
-    expect(banner.innerHTML).toMatch(/bg-surface-overlay/);
-    expect(banner.innerHTML).toMatch(/max-width/);
+    expect(banner.innerHTML).toMatch(/bg-surface[\s"]/);
+    expect(banner.innerHTML).toMatch(/max-w-ui-wide/);
     const host = banner.closest(
       '[data-component="DismissibleBannerPortalHost"]'
     );

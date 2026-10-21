@@ -3,8 +3,9 @@ import { cssPx } from '@pkgs/ui-root-shared/css-px';
 /**
  * `AvatarHero` -- centered large avatar stage with optional corner action.
  *
- * The corner action is a round 44px `Clickable` (surface plate with a
- * hairline ring) anchored to the bottom-right of the preview slot.
+ * The corner action is a round 44px button (the canvas inside a hairline
+ * ring, like a panel) anchored to the bottom-right of the preview slot, with
+ * the hover / press tint, the focus ring and the disabled opacity.
  */
 
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
@@ -29,8 +30,9 @@ export type AvatarHeroProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-const ACTION_SIZE = 44;
+/** Room around the face for the corner action to overlap (`py-2` stage). */
 const ACTION_INSET = 4;
+const STAGE_PADDING = 16;
 
 export function AvatarHero(props: AvatarHeroProps): JSX.Element {
   const slotSize = () => props.size + ACTION_INSET * 2;
@@ -39,7 +41,7 @@ export function AvatarHero(props: AvatarHeroProps): JSX.Element {
     <div
       class="box items-center justify-center py-2"
       {...dataAttrs({ component: 'AvatarHero', ...props.dataSet })}
-      style={{ 'min-height': cssPx(slotSize() + 16) }}
+      style={{ 'min-height': cssPx(slotSize() + STAGE_PADDING) }}
     >
       <div
         class="box"
@@ -54,15 +56,9 @@ export function AvatarHero(props: AvatarHeroProps): JSX.Element {
         <Show when={props.action}>
           {(action) => (
             <button
-              class="clickable clickableTint absolute right-0 bottom-0 rounded-full border border-border bg-surface items-center justify-center"
+              class="clickable clickableTint absolute right-0 bottom-0 size-11 min-w-11 min-h-11 rounded-full border border-border bg-background items-center justify-center"
+              classList={{ 'opacity-disabled': action().disabled === true }}
               type="button"
-              style={{
-                width: cssPx(ACTION_SIZE),
-                height: cssPx(ACTION_SIZE),
-                'min-width': cssPx(ACTION_SIZE),
-                'min-height': cssPx(ACTION_SIZE),
-                opacity: action().disabled === true ? 0.5 : 1,
-              }}
               aria-label={action().label}
               disabled={action().disabled === true}
               onClick={() => action().onClick()}

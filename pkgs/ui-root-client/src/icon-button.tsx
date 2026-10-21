@@ -2,8 +2,11 @@
 /**
  * `IconButton` -- a circular button that renders a single child icon or avatar.
  *
- * Uses {@link Clickable} so hover / press feedback come from the
- * `interactiveHover` / `interactivePress` overlay tokens. By default every
+ * The default is the header control: a 40px disc with no plate around a
+ * 24px outline icon (pass `size` for dense chrome). `background` puts the
+ * icon on a token plate (`surfaceMuted` for a secondary control). Hover and
+ * press tint the round hit area in 150ms (`.clickableTint`), keyboard focus
+ * draws the ring, and `disabled` fades to the disabled opacity. By default every
  * button shows a {@link Tooltip} with its `label` on pointer hover only
  * (programmatic focus / modal autofocus never pops a bubble). Pass
  * `tooltip="default"` for hover + keyboard `:focus-visible`, or
@@ -108,17 +111,14 @@ function hitBoxClass(): string {
   return 'items-center justify-center rounded-full bg-transparent';
 }
 
-function hitBoxStyle(size: number, disabled: boolean): JSX.CSSProperties {
+/** The hit area grows with the disc but never drops below 44px. */
+function hitBoxStyle(size: number): JSX.CSSProperties {
   const hit = Math.max(size, ICON_BUTTON_MIN_HIT_TARGET);
-  return {
-    'min-width': `${hit}px`,
-    'min-height': `${hit}px`,
-    opacity: disabled ? 0.5 : 1,
-  };
+  return { 'min-width': `${hit}px`, 'min-height': `${hit}px` };
 }
 
 function discClass(): string {
-  return 'items-center justify-center';
+  return 'items-center justify-center rounded-full';
 }
 
 function discStyle(args: {
@@ -127,7 +127,6 @@ function discStyle(args: {
   isAvatar: boolean;
   borderColor: string;
 }): JSX.CSSProperties {
-  const radius = args.size / 2;
   // Avatar ring uses padding (not borderWidth) so the disc stays exactly
   // `size` tall — borderWidth inflated the box next to icon siblings.
   if (args.isAvatar) {
@@ -135,7 +134,6 @@ function discStyle(args: {
       height: `${args.size}px`,
       'min-width': `${args.size}px`,
       padding: `${ICON_BUTTON_AVATAR_BORDER_WIDTH}px`,
-      'border-radius': `${radius}px`,
       'background-color': args.borderColor,
       overflow: 'hidden',
     };
@@ -143,7 +141,6 @@ function discStyle(args: {
   return {
     height: `${args.size}px`,
     width: `${args.size}px`,
-    'border-radius': `${radius}px`,
     'background-color': args.bg,
   };
 }
@@ -184,6 +181,7 @@ function IconButtonFace(
   return (
     <button
       class={`clickable clickableTint ${hitBoxClass()}`}
+      classList={{ 'opacity-disabled': props.disabled === true }}
       {...dataAttrs({
         component: 'IconButton',
         variant: props.variant ?? 'icon',
@@ -200,7 +198,7 @@ function IconButtonFace(
           ? tooltip.id
           : undefined
       }
-      style={hitBoxStyle(size(), props.disabled === true)}
+      style={hitBoxStyle(size())}
     >
       <div
         class={`box ${discClass()}`}

@@ -1,9 +1,12 @@
 /** @jsxImportSource solid-js */
-import { cssPx } from '@pkgs/ui-root-shared/css-px';
-
 /**
  * Rows inside {@link FloatingMenu}: header block, tappable item, divider.
  * Internal to the menu; only the content spec types are public.
+ *
+ * Items are 44px rows on 16px insets: a 20px icon in the `icon` tone, a
+ * `textBody` label and an optional secondary caption on the trailing edge.
+ * Hover and press fade a tint in over 150ms, keyboard focus draws the ring
+ * inside the panel, and a disabled item fades to the disabled opacity.
  */
 
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
@@ -15,10 +18,7 @@ import type {
 } from './floating-menu-content';
 import type { TextVariant } from './text';
 
-/** Every menu row is at least this tall (pointer target). */
-export const FLOATING_MENU_ITEM_MIN_HEIGHT = 44;
-
-const ROW_ICON_SIZE = 18;
+const ROW_ICON_SIZE = 20;
 
 function isTexty(node: JSX.Element): node is string | number {
   return typeof node === 'string' || typeof node === 'number';
@@ -84,13 +84,13 @@ export function FloatingMenuHeader(props: {
 }): JSX.Element {
   return (
     <div
-      class="box px-3 pb-2 border-b border-border gap-0.5"
+      class="box px-4 pt-1 pb-3 mb-1 border-b border-border"
       data-component="FloatingMenuHeader"
       role="presentation"
     >
-      <div class="box flex-row items-center gap-2">
+      <div class="box flex-row items-center gap-3">
         {props.header.avatar}
-        <div class="box flex-1 min-w-0 gap-0.5">
+        <div class="box flex-1 min-w-0">
           <HeaderLine value={props.header.title} variant="bodyBold" />
           <Show when={props.header.subtitle !== undefined}>
             <HeaderLine value={props.header.subtitle} variant="caption" muted />
@@ -98,7 +98,7 @@ export function FloatingMenuHeader(props: {
         </div>
       </div>
       <Show when={props.header.badge !== undefined}>
-        <div class="box flex-row pt-1">{props.header.badge}</div>
+        <div class="box flex-row pt-2">{props.header.badge}</div>
       </Show>
     </div>
   );
@@ -107,7 +107,7 @@ export function FloatingMenuHeader(props: {
 export function FloatingMenuDivider(): JSX.Element {
   return (
     <div
-      class="box h-0.25 bg-border my-1"
+      class="box h-px bg-border my-1"
       data-component="FloatingMenuDivider"
       role="separator"
     />
@@ -120,13 +120,10 @@ export function FloatingMenuItem(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable clickableTint py-2 px-3 flex-row items-center gap-2 text-left"
+      class="clickable clickableTint min-h-11 py-2 px-4 flex-row items-center gap-3 text-left -outline-offset-2"
+      classList={{ 'opacity-disabled': props.row.disabled === true }}
       {...dataAttrs({ component: 'FloatingMenuItem', ...props.row.dataSet })}
       type="button"
-      style={{
-        ...(props.row.disabled === true ? { opacity: 0.45 } : {}),
-        'min-height': cssPx(FLOATING_MENU_ITEM_MIN_HEIGHT),
-      }}
       role="menuitem"
       aria-label={authoredAriaLabel(props.row)}
       disabled={props.row.disabled ?? false}
@@ -142,11 +139,11 @@ export function FloatingMenuItem(props: {
           />
         }
       >
-        <div class="box shrink-0 items-center justify-center w-4.5 h-4.5">
+        <div class="box shrink-0 items-center justify-center size-5">
           {props.row.leading}
         </div>
       </Show>
-      <p class="text textLabel line-clamp-1 flex-1 min-w-0">
+      <p class="text textBody line-clamp-1 flex-1 min-w-0">
         {resolveItemLabel(props.row)}
       </p>
       <Show when={props.row.subtitle !== undefined}>

@@ -5,9 +5,5 @@ import { ExampleRoot } from './example-root';
 export function ScreenExampleFrame(props: {
   children: JSX.Element;
 }): JSX.Element {
-  return (
-    <ExampleRoot class="h-160 min-h-0 overflow-hidden rounded-card border border-border">
-      {props.children}
-    </ExampleRoot>
-  );
+  return <ExampleRoot bounded>{props.children}</ExampleRoot>;
 }

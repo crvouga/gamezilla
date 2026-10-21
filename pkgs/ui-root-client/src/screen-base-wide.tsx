@@ -1,13 +1,12 @@
 /** @jsxImportSource solid-js */
 /**
  * Wide `ScreenBase`: page header row (breadcrumb trail + `ActionBar` +
- * primary `Button`) and either one `Island` card body or a canvas for
- * screen-composed islands. Lives inside `AppFrame`, which owns the global
- * header island.
+ * primary `Button`, at least 52px) and either one `Island` card body or a
+ * canvas for screen-composed islands, 8px apart on the wide backdrop. Lives
+ * inside `AppFrame`, which owns the global header island.
  */
 
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { ISLAND_GAP_STEP } from '@pkgs/ui-root-shared/layout';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { ActionBar } from './action-bar';
 import { useActionBarChrome } from './action-bar-chrome';
@@ -18,7 +17,6 @@ import {
   hasScreenBaseActions,
   lastBreadcrumbTitle,
   partitionScreenBaseActions,
-  SCREEN_SCROLL_BOTTOM_PADDING,
 } from './screen-base-logic';
 import type { ScreenBasePrimaryActionRender } from './screen-base-primary-action';
 import {
@@ -47,7 +45,7 @@ function WidePageHeader(
   );
   return (
     <header
-      class="box flex-row items-center gap-3 shrink-0"
+      class="box flex-row items-center gap-3 shrink-0 min-h-13 py-2"
       data-component="ScreenBaseHeader"
     >
       {props.leading}
@@ -103,26 +101,23 @@ function WideIslandBody(props: BodyProps): JSX.Element {
     <Show
       when={props.scroll}
       fallback={
-        <Island class="flex-1 min-h-0">
+        <Island grow>
           <div class="box flex-1 min-h-0">
             <WideBodyContent {...props} />
           </div>
         </Island>
       }
     >
-      <Island class="flex-1 min-h-0 p-0">
+      <Island grow>
         <ScrollView
-          // The island has `p: 0`; the scroller owns the padding itself, so it
-          // must not also cancel the island's edge step. No side padding:
-          // the body's left edge is the page header's, so content lines up
-          // under the title.
+          // The scroller must not cancel the island's edge step. No side
+          // padding: the body's left edge is the page header's, so content
+          // lines up under the title.
           flushEdge={false}
-          class="flex-1"
-          contentStyle={{
-            'flex-grow': 1,
-            'padding-top': 'var(--ui-space-stack)',
-            'padding-bottom': `${SCREEN_SCROLL_BOTTOM_PADDING}px`,
-          }}
+          grow
+          fill
+          paddingTop="md"
+          paddingBottom="xl"
           dataSet={{ component: 'ScreenBodyScroll' }}
         >
           <WideBodyContent {...props} />
@@ -141,26 +136,15 @@ function WideCanvasBody(props: BodyProps): JSX.Element {
   return (
     <Show
       when={props.scroll}
-      fallback={
-        <div
-          class="box flex-1 min-h-0"
-          style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
-        >
-          {inner}
-        </div>
-      }
+      fallback={<div class="box flex-1 min-h-0 gap-2">{inner}</div>}
     >
       <ScrollView
-        class="flex-1"
-        contentStyle={{
-          'flex-grow': 1,
-          'padding-bottom': `${SCREEN_SCROLL_BOTTOM_PADDING}px`,
-        }}
+        grow
+        fill
+        paddingBottom="xl"
         dataSet={{ component: 'ScreenBodyScroll' }}
       >
-        <div class="box" style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}>
-          {inner}
-        </div>
+        <div class="box gap-2">{inner}</div>
       </ScrollView>
     </Show>
   );
@@ -199,14 +183,13 @@ function WideShell(
   return (
     <div
       ref={root}
-      class="box flex-1 min-h-0"
+      class="box flex-1 min-h-0 gap-2"
       {...dataAttrs({
         component: 'ScreenBase',
         mode: 'wide',
         ...props.dataSet,
         screen: props.screenId,
       })}
-      style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
     >
       <WidePageHeader {...props} />
       {body()}

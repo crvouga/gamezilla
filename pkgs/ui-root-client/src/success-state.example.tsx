@@ -23,6 +23,17 @@ export default function SuccessStateExample(): JSX.Element {
       <div class="divider" role="separator" />
 
       <label class="text textLabel text-text-secondary">
+        {'Fill, title only'}
+      </label>
+      <SchemePreview>
+        <div class="box h-60">
+          <SuccessState title="All caught up" />
+        </div>
+      </SchemePreview>
+
+      <div class="divider" role="separator" />
+
+      <label class="text textLabel text-text-secondary">
         {'Compact (inline confirmation)'}
       </label>
       <SchemePreview>
@@ -37,7 +48,15 @@ export default function SuccessStateExample(): JSX.Element {
 
       <label class="text textLabel text-text-secondary">{'Title only'}</label>
       <SchemePreview>
-        <SuccessState variant="compact" title="Saved" />
+        <div class="box gap-3">
+          <SuccessState variant="compact" title="Saved" />
+          <SuccessState
+            variant="compact"
+            title="Invite sent"
+            body="They will get a notification."
+            action={{ label: 'Send another', onClick: () => undefined }}
+          />
+        </div>
       </SchemePreview>
     </ExampleRoot>
   );

@@ -9,7 +9,6 @@ import {
   FloatingMenu,
 } from '@pkgs/ui-root-client/floating-menu';
 import type { FloatingMenuContent } from '@pkgs/ui-root-client/floating-menu-content';
-import { FLOATING_MENU_ITEM_MIN_HEIGHT } from '@pkgs/ui-root-client/floating-menu-parts';
 import {
   LogOutIcon,
   SettingsIcon,
@@ -97,10 +96,16 @@ describe('FloatingMenu', () => {
     ]);
     for (const item of items) {
       expect(item.tagName).toBe('BUTTON');
-      expect(cssOf(item)).toContain(
-        `min-height:${FLOATING_MENU_ITEM_MIN_HEIGHT}px`
-      );
+      // `min-h-11`: a 44px pointer target.
+      expect(item.className).toMatch(/\bmin-h-11\b/);
     }
+    expect(
+      screen.getByRole('menuitem', { name: 'Disabled' }).className
+    ).toMatch(/\bopacity-disabled\b/);
+    // Floats above the content: hairline, card radius, the float shadow.
+    expect(menu.className).toMatch(/\bshadow-float\b/);
+    expect(menu.className).toMatch(/\brounded-card\b/);
+    expect(menu.className).toMatch(/\bborder-border\b/);
     expect(screen.getByRole('menuitem', { name: 'Disabled' })).toBeDisabled();
     expect(screen.getByRole('separator')).toBeInTheDocument();
     expect(screen.getByText('ada@example.com')).toBeInTheDocument();

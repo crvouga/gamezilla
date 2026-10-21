@@ -23,7 +23,7 @@ export function ComboboxChips<T extends ComboboxValue>(
 ): JSX.Element {
   return (
     <div
-      class="box flex-row flex-wrap gap-1.5 items-center min-w-0 shrink"
+      class="box flex-row flex-wrap gap-2 items-center min-w-0 shrink"
       data-component="ComboboxChips"
       role="list"
     >

@@ -11,9 +11,14 @@ import { cssPx } from '@pkgs/ui-root-shared/css-px';
  * {@link ContentEdgePaddingProvider}, so nested {@link ScrollView}s sit flush
  * with the surface edges.
  *
+ * Compact: a sheet rising from the bottom edge (12px top radius, a 36x4
+ * grab handle, safe-area bottom inset). Wide: a centered dialog on the scrim
+ * (`surface-elevated`, the sheet radius, one hairline, no shadow). Both open
+ * with a 250ms ease-out that reduced motion turns off.
+ *
  * Default `scroll` pins the title/close header and scrolls only the body.
- * The chrome shell is a CSS grid (`auto` header + `minmax(0, 1fr)` body) with
- * a viewport `max-height`, so the body {@link ScrollView} gets a definite
+ * The chrome shell is a CSS grid (`.surfaceScrollShell`: `auto` header +
+ * `minmax(0, 1fr)` body) with a viewport `max-height`, so the body {@link ScrollView} gets a definite
  * height and `overflow: auto` engages. Body edge padding lives on the
  * scrollable content (scrollbar flush to the modal frame); the header keeps
  * its own inset. Pass `scroll={false}` when children own an internal list
@@ -141,18 +146,10 @@ function SurfaceChrome(props: {
   maxHeight: number | undefined;
 }): JSX.Element {
   const scroll = (): boolean => surfaceScrolls(props.surface);
-  const shellStyle = (): JSX.CSSProperties => {
-    const style: JSX.CSSProperties = {};
-    if (props.maxHeight !== undefined) {
-      style['max-height'] = `${props.maxHeight}px`;
-    }
-    if (scroll()) {
-      // Override `.box { display:flex }` — grid is the reliable scrollport host.
-      style.display = 'grid';
-      style['grid-template-rows'] = 'auto minmax(0, 1fr)';
-    }
-    return style;
-  };
+  const shellStyle = (): JSX.CSSProperties =>
+    props.maxHeight === undefined
+      ? {}
+      : { 'max-height': cssPx(props.maxHeight) };
   const header = (): JSX.Element => (
     <ResponsiveSurfaceHeader
       title={props.surface.title}
@@ -169,7 +166,11 @@ function SurfaceChrome(props: {
       <OnColorReset>
         <div
           class="box grow shrink min-h-0 overflow-hidden w-full"
-          classList={{ 'px-4 pt-4 pb-6': !scroll() }}
+          classList={{
+            'px-4 pt-4 pb-6': !scroll(),
+            // Grid, not `.box` flex: the reliable scrollport host.
+            surfaceScrollShell: scroll(),
+          }}
           data-component="ResponsiveSurfaceChrome"
           style={shellStyle()}
         >
@@ -198,13 +199,9 @@ function SurfaceChrome(props: {
             </div>
             <ScrollView
               flushEdge={false}
-              class="min-h-0"
-              style={{ height: '100%', 'min-height': 0 }}
-              contentStyle={{
-                'padding-left': 'var(--ui-space-4)',
-                'padding-right': 'var(--ui-space-4)',
-                'padding-bottom': 'var(--ui-space-6)',
-              }}
+              height="full"
+              paddingX="lg"
+              paddingBottom="xl"
             >
               {props.surface.children}
             </ScrollView>

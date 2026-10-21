@@ -21,11 +21,10 @@
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
-import { cssPx } from '@pkgs/ui-root-shared/css-px';
 import type { JSX } from 'solid-js';
 import { useScreenFocus } from './screen-focus';
 import { ScreenIntro } from './screen-intro';
-import { SCREEN_MAX_WIDTH, type ScreenMeasure } from './screen-measure';
+import type { ScreenMeasure } from './screen-measure';
 import { ScrollView } from './scroll-view';
 
 export type EmbeddedScreenProps = {
@@ -53,16 +52,19 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
       ref={(el) => {
         root = el;
       }}
-      class="flex-1 self-stretch w-full"
+      grow
+      self="stretch"
+      width="full"
       dataSet={{
         component: 'EmbeddedScreen',
         ...props.dataSet,
         screen: props.screenId,
       }}
-      contentClass="box px-4 pt-2 pb-8 gap-4 self-center w-full min-w-0"
-      contentStyle={{
-        'max-width': cssPx(SCREEN_MAX_WIDTH[props.width ?? 'reading']),
-      }}
+      paddingX="lg"
+      paddingTop="sm"
+      paddingBottom="2xl"
+      gap="lg"
+      measure={props.width ?? 'reading'}
     >
       <ScreenIntro title={props.title} subtitle={props.subtitle} />
       {props.children}

@@ -4,7 +4,7 @@ import { createSignal, type JSX } from 'solid-js';
 import { Button } from './button';
 import type { ButtonIntent, ButtonVariant } from './button-face';
 import { ExampleRoot } from './example-root';
-import { ChevronRightIcon } from './icons';
+import { ChevronRightIcon, PlusIcon } from './icons';
 import { SchemePreview } from './scheme-preview';
 import { useMutationButton } from './use-mutation-button';
 
@@ -48,9 +48,7 @@ function ButtonRow(props: {
 }
 
 function SectionLabel(props: { label: string }): JSX.Element {
-  return (
-    <label class="text textLabel text-text-secondary">{props.label}</label>
-  );
+  return <label class="text textFootnote">{props.label}</label>;
 }
 
 function VariantBlock(props: {
@@ -114,9 +112,17 @@ function SizesBlock(): JSX.Element {
       <SectionLabel label="Sizes" />
       <SchemePreview>
         <div class="box flex-col gap-2">
-          <Button title="Small" size="sm" />
-          <Button title="Medium" size="md" />
-          <Button title="Large" size="lg" />
+          <div class="box flex-row flex-wrap items-center gap-2">
+            <Button title="Small · 32" size="sm" />
+            <Button title="Medium · 44" size="md" />
+            <Button title="Large · 52" size="lg" />
+          </div>
+          <div class="box flex-row flex-wrap items-center gap-2">
+            <Button title="Add" size="sm" icon={PlusIcon} intent="neutral" />
+            <Button title="Add" size="md" icon={PlusIcon} intent="neutral" />
+            <Button title="Add" size="lg" icon={PlusIcon} intent="neutral" />
+          </div>
+          <Button title="Full width" size="lg" fullWidth />
         </div>
       </SchemePreview>
     </>
@@ -138,11 +144,24 @@ export default function ButtonExample(): JSX.Element {
       />
       <VariantBlock intent="primary" variant="ghost" label="Primary · ghost" />
       <div class="divider" role="separator" />
-      <VariantBlock intent="danger" label="Danger" />
+      <VariantBlock intent="neutral" label="Secondary (neutral)" />
+      <VariantBlock
+        intent="neutral"
+        variant="outline"
+        label="Neutral · outline"
+      />
+      <VariantBlock intent="neutral" variant="ghost" label="Neutral · ghost" />
+      <div class="divider" role="separator" />
+      <VariantBlock intent="danger" label="Destructive" />
       <VariantBlock
         intent="danger"
         variant="outline"
-        label="Danger · outline"
+        label="Destructive · outline"
+      />
+      <VariantBlock
+        intent="danger"
+        variant="ghost"
+        label="Destructive · ghost"
       />
       <div class="divider" role="separator" />
       <VariantBlock intent="success" label="Success" />
@@ -151,9 +170,6 @@ export default function ButtonExample(): JSX.Element {
         variant="outline"
         label="Success · outline"
       />
-      <div class="divider" role="separator" />
-      <VariantBlock intent="neutral" label="Neutral" />
-      <VariantBlock intent="neutral" variant="ghost" label="Neutral · ghost" />
     </ExampleRoot>
   );
 }

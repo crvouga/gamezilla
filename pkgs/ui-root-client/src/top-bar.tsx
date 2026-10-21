@@ -1,6 +1,9 @@
 /** @jsxImportSource solid-js */
 /**
- * `TopBar` -- header row with leading / center / trailing slots.
+ * `TopBar` -- header row with leading / center / trailing slots: one 52px
+ * row on the canvas over a hairline, at every breakpoint, with 16px edges.
+ * Titles sit left, after the back control (`TopBarTitle`); icon buttons in
+ * the side slots keep their own 40px+ hit areas.
  *
  * `centerAlign="center"` overlays the center slot across the full width so a
  * title stays visually centered regardless of side-slot widths; pass
@@ -10,13 +13,6 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { type JSX, Show } from 'solid-js';
-import {
-  getTopBarContentHeight,
-  TOP_BAR_CONTENT_HEIGHT_MOBILE,
-} from './action-bar-chrome';
-import { useThemeLayout } from './theme-context';
-
-export const TOP_BAR_CONTENT_HEIGHT = TOP_BAR_CONTENT_HEIGHT_MOBILE;
 
 export type TopBarCenterAlign = 'start' | 'center' | 'end';
 export type TopBarCenterPosition = 'absolute' | 'flex';
@@ -118,8 +114,6 @@ function AbsoluteCenterLayout(props: SlotsProps): JSX.Element {
 }
 
 export function TopBar(props: TopBarProps): JSX.Element {
-  const layout = useThemeLayout();
-  const contentHeight = () => getTopBarContentHeight(layout.breakpoint());
   const useAbsoluteCenter = () =>
     props.centerAlign === 'center' &&
     props.center !== undefined &&
@@ -127,19 +121,13 @@ export function TopBar(props: TopBarProps): JSX.Element {
     props.centerPosition !== 'flex';
   return (
     <header
-      class="box bg-transparent"
+      class="box shrink-0 bg-background border-b border-border"
       classList={{
         safeTop: props.safeAreaTop !== false,
       }}
       {...dataAttrs({ component: 'TopBar', ...props.dataSet })}
     >
-      <div
-        class="box flex-row items-center gap-2 px-4 w-full"
-        style={{
-          height: `${contentHeight()}px`,
-          'min-height': `${contentHeight()}px`,
-        }}
-      >
+      <div class="box flex-row items-center gap-2 px-4 w-full h-13">
         <Show when={useAbsoluteCenter()} fallback={<FlexLayout {...props} />}>
           <AbsoluteCenterLayout {...props} />
         </Show>

@@ -9,9 +9,7 @@ export default function BadgeExample(): JSX.Element {
     <ExampleRoot>
       <SchemePreview>
         <div class="box flex-col gap-3">
-          <label class="text textLabel text-text-secondary">
-            {'Intent surfaces'}
-          </label>
+          <label class="text textFootnote">{'Subtle (default)'}</label>
           <div class="box flex-row gap-2 flex-wrap">
             <Badge label="Brand" intent="brand" />
             <Badge label="Success" intent="success" />
@@ -21,7 +19,17 @@ export default function BadgeExample(): JSX.Element {
             <Badge label="Neutral" intent="neutral" />
           </div>
 
-          <label class="text textLabel text-text-secondary">{'Sizes'}</label>
+          <label class="text textFootnote">{'Solid'}</label>
+          <div class="box flex-row gap-2 flex-wrap">
+            <Badge label="Brand" intent="brand" tone="solid" />
+            <Badge label="Success" intent="success" tone="solid" />
+            <Badge label="Warning" intent="warning" tone="solid" />
+            <Badge label="Destructive" intent="destructive" tone="solid" />
+            <Badge label="Info" intent="info" tone="solid" />
+            <Badge label="Neutral" intent="neutral" tone="solid" />
+          </div>
+
+          <label class="text textFootnote">{'Sizes'}</label>
           <div class="box flex-row gap-2 items-center">
             <Badge label="3" intent="destructive" size="sm" />
             <Badge label="99+" intent="brand" size="sm" />
@@ -29,7 +37,7 @@ export default function BadgeExample(): JSX.Element {
             <Badge label="Updated" intent="info" />
           </div>
 
-          <label class="text textLabel text-text-secondary">
+          <label class="text textFootnote">
             {'Notification count (brand solid)'}
           </label>
           <div class="box flex-row gap-2 items-center">

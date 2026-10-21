@@ -86,6 +86,10 @@ describe('ResponsiveSurface', () => {
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     const sheet = mustQuery('[data-surface="sheet"]');
     expect(sheet.className).toMatch(/bottom-0/);
+    // 12px top radius, hairline, safe-area inset, rises in.
+    expect(sheet.className).toMatch(/\brounded-t-sheet\b/);
+    expect(sheet.className).toMatch(/\bsafeBottom\b/);
+    expect(sheet.className).toMatch(/\bsheetEnter\b/);
     // Content-hug capped at 90% of the layout height.
     expect(cssOf(sheet)).toContain('max-height:720px');
     expect(mustQuery('[data-component="BottomSheetHandle"]')).toHaveAttribute(
@@ -154,16 +158,15 @@ describe('ResponsiveSurface', () => {
     expect(
       mustQuery('[data-component="ResponsiveSurfaceHeaderPad"]').className
     ).toMatch(/\bpx-4\b/);
-    expect(cssOf(scrollContent)).toContain('padding-left:var(--ui-space-4)');
-    expect(cssOf(scrollContent)).toContain('padding-right:var(--ui-space-4)');
-    expect(cssOf(scrollContent)).toContain('padding-bottom:var(--ui-space-6)');
-    expect(cssOf(chrome)).toContain('display:grid');
-    expect(cssOf(chrome)).toContain('grid-template-rows:autominmax(0,1fr)');
+    expect(scrollContent.className).toMatch(/\bpx-ui-lg\b/);
+    expect(scrollContent.className).toMatch(/\bpb-ui-xl\b/);
+    // `.surfaceScrollShell`: a grid of `auto` header over `minmax(0, 1fr)`.
+    expect(chrome.className).toMatch(/\bsurfaceScrollShell\b/);
     expect(cssOf(chrome)).toMatch(/max-height:\d+px/);
     const scroller = mustQuery('[data-component="ScrollView"]');
     expect(chrome.contains(scroller)).toBe(true);
     expect(scroller.contains(header)).toBe(false);
-    expect(cssOf(scroller)).toContain('height:100%');
+    expect(scroller.className).toMatch(/\bh-full\b/);
   });
 
   test('overflowing body keeps header outside the scrollport', () => {
@@ -192,10 +195,10 @@ describe('ResponsiveSurface', () => {
     expect(scrollContent).not.toHaveTextContent('Filters');
     // Grid + height:100% is what makes overflow:auto engage in the browser.
     expect(
-      cssOf(mustQuery('[data-component="ResponsiveSurfaceChrome"]'))
-    ).toContain('minmax(0,1fr)');
-    expect(cssOf(scroller)).toContain('height:100%');
-    expect(cssOf(scrollContent)).toContain('padding-left:var(--ui-space-4)');
+      mustQuery('[data-component="ResponsiveSurfaceChrome"]').className
+    ).toMatch(/\bsurfaceScrollShell\b/);
+    expect(scroller.className).toMatch(/\bh-full\b/);
+    expect(scrollContent.className).toMatch(/\bpx-ui-lg\b/);
   });
 
   test('scroll={false} keeps shell edge padding for nested flush scrollers', () => {

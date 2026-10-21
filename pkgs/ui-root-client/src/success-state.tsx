@@ -3,7 +3,8 @@
  * `SuccessState` -- canonical post-action success block.
  *
  * The success counterpart to `ErrorState`: same layout contract, same
- * density variants, paired with the `success` color ramp. Use after a
+ * density variants: the check in a hairline disc when it fills a screen,
+ * a `success-surface` wash when it sits inline. Use after a
  * confirm flow completes ("Saved", "Server config updated"), or as a
  * standalone full-screen confirmation between steps.
  *
@@ -19,13 +20,14 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
+import { iconSize } from '@pkgs/ui-root-shared/sizes';
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { Button } from './button';
 import type { IconComponent } from './create-icon';
 import { CircleCheckIcon } from './icons';
 import type { StateBlockVariant } from './state-block';
-import { StateBlock } from './state-block';
+import { StateBlock, StateBlockActions, StateBlockIcon } from './state-block';
 
 export type SuccessStateAction = {
   label: JSX.Element;
@@ -45,32 +47,6 @@ export type SuccessStateProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-const ICON_SIZE_FILL = 32;
-const ICON_SIZE_COMPACT = 20;
-
-function SuccessAction(props: {
-  action: SuccessStateAction | undefined;
-  compact: boolean;
-}): JSX.Element {
-  return (
-    <Show when={props.action}>
-      {(action) => (
-        <div
-          class="box"
-          classList={{ 'mt-1': props.compact, 'items-start': props.compact }}
-        >
-          <Button
-            title={action().label}
-            intent="primary"
-            size="sm"
-            onClick={() => action().onClick()}
-          />
-        </div>
-      )}
-    </Show>
-  );
-}
-
 function SuccessStateFill(props: SuccessStateProps): JSX.Element {
   return (
     <StateBlock
@@ -78,18 +54,25 @@ function SuccessStateFill(props: SuccessStateProps): JSX.Element {
       role="status"
       dataSet={{ component: 'SuccessState', ...props.dataSet }}
     >
-      <Dynamic
-        component={props.icon ?? CircleCheckIcon}
-        size={ICON_SIZE_FILL}
-        color="success"
-      />
-      <p class="text textBodyBold text-success text-center">{props.title}</p>
+      <StateBlockIcon icon={props.icon ?? CircleCheckIcon} tone="success" />
+      <p class="text textSubtitle text-center w-full">{props.title}</p>
       <Show when={props.body !== undefined && props.body !== null}>
-        <p class="text textCaption text-text-secondary text-center">
+        <p class="text textBody text-text-secondary text-center w-full">
           {props.body}
         </p>
       </Show>
-      <SuccessAction action={props.action} compact={false} />
+      <Show when={props.action}>
+        {(action) => (
+          <StateBlockActions>
+            <Button
+              title={action().label}
+              intent="primary"
+              size="md"
+              onClick={() => action().onClick()}
+            />
+          </StateBlockActions>
+        )}
+      </Show>
     </StateBlock>
   );
 }
@@ -97,23 +80,34 @@ function SuccessStateFill(props: SuccessStateProps): JSX.Element {
 function SuccessStateCompact(props: SuccessStateProps): JSX.Element {
   return (
     <div
-      class="box flex-row items-start gap-3 p-3 border border-success bg-success-surface rounded-control"
+      class="box flex-row items-start gap-3 px-4 py-3 bg-success-surface rounded-control"
       {...dataAttrs({ component: 'SuccessState', ...props.dataSet })}
       role="status"
     >
-      <div class="box pt-0.5">
+      <div class="box h-6 shrink-0 justify-center">
         <Dynamic
           component={props.icon ?? CircleCheckIcon}
-          size={ICON_SIZE_COMPACT}
+          size={iconSize.md}
           color="success"
         />
       </div>
-      <div class="box flex-1 gap-1">
+      <div class="box flex-1 min-w-0 gap-1">
         <p class="text textBodyBold text-success">{props.title}</p>
         <Show when={props.body !== undefined && props.body !== null}>
           <p class="text textCaption text-success">{props.body}</p>
         </Show>
-        <SuccessAction action={props.action} compact />
+        <Show when={props.action}>
+          {(action) => (
+            <div class="box mt-1 items-start">
+              <Button
+                title={action().label}
+                intent="primary"
+                size="sm"
+                onClick={() => action().onClick()}
+              />
+            </div>
+          )}
+        </Show>
       </div>
     </div>
   );

@@ -3,10 +3,13 @@
  * `MenuRow` -- a tappable navigation row with title, optional caption, and a
  * trailing disclosure chevron.
  *
- * One anatomy for every row in the product: a 28px leading slot, a title in
- * the display face, an optional caption, an optional right-aligned value,
- * and a trailing chevron. Rows live inside a panel (`MenuList`), which owns
+ * One anatomy for every row in the product: at least 52px tall with 16px
+ * insets, a 24px leading slot (icons in the `icon` tone), a `textBody`
+ * title, an optional caption, an optional right-aligned secondary value, and
+ * a 20px trailing chevron. Rows live inside a panel (`MenuList`), which owns
  * the surface, the radius and the hairlines; a row never paints its own.
+ * Hover and press fade a tint in over 150ms, keyboard focus draws the ring
+ * inside the panel, and a disabled row fades to the disabled opacity.
  *
  * Interactive rows (`onClick`) are `Clickable`s with `role="menuitem"` (host
  * them inside `MenuList`, which is `role="menu"`); hover / press tints come
@@ -71,9 +74,6 @@ export type MenuRowProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** Cap so a long value never crowds the title out of the row. */
-const MENU_ROW_VALUE_MAX_WIDTH = '45%';
-
 function MenuRowTrailing(props: {
   value: JSX.Element | undefined;
   trailing: JSX.Element | undefined;
@@ -100,11 +100,9 @@ function MenuRowTrailing(props: {
       when={props.value !== undefined && props.value !== null}
       fallback={end()}
     >
-      <div
-        class="box flex-row items-center gap-2"
-        style={{ 'max-width': MENU_ROW_VALUE_MAX_WIDTH }}
-      >
-        <div class="text line-clamp-1 text-text-secondary text-right shrink">
+      {/* Capped so a long value never crowds the title out of the row. */}
+      <div class="box flex-row items-center gap-2 max-w-9/20">
+        <div class="text textCaption line-clamp-1 text-right shrink">
           {props.value}
         </div>
         {end()}
@@ -119,20 +117,20 @@ function MenuRowBody(
   const selected = () => props.selected === true;
   return (
     <div
-      class="box flex-row items-center px-4 py-3 gap-3 min-h-14"
+      class="box flex-row items-center px-4 py-3 gap-3 min-h-13"
       classList={{ panelLeading: props.leading !== undefined }}
     >
       <Show when={props.leading !== undefined}>
-        <div class="box items-center justify-center w-7 shrink-0">
+        <div class="box items-center justify-center min-w-6 shrink-0">
           {props.leading}
         </div>
       </Show>
-      <div class="box flex-1 min-w-0 gap-0.5 items-start">
+      <div class="box flex-1 min-w-0 items-start">
         {/* `div`, not `p`: callers pass their own text blocks, and a `p`
             may not contain one. */}
         <div
-          class="text textLabel text-text"
-          classList={{ 'text-tint': selected() }}
+          class="text textBody"
+          classList={{ 'text-tint': selected(), 'text-text': !selected() }}
         >
           {props.title}
         </div>
@@ -196,7 +194,7 @@ function MenuRowButton(props: MenuRowProps): JSX.Element {
       disabled={props.disabled === true}
       aria-label={props['aria-label']}
       aria-current={props.selected === true ? true : undefined}
-      style={{ opacity: props.disabled === true ? 0.5 : 1 }}
+      classList={{ 'opacity-disabled': props.disabled === true }}
     >
       <MenuRowBody {...props} interactive />
     </button>

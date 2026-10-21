@@ -18,11 +18,23 @@ export default function MainMenuScreenExample(): JSX.Element {
         subtitle={mode() ?? 'Choose how you want to play.'}
         items={
           game() === null
-            ? ['Four in a row', 'Fleet', 'Three in a row'].map((title) => ({
-                key: title,
-                title,
-                onClick: () => setGame(title),
-              }))
+            ? [
+                ...['Four in a row', 'Fleet', 'Three in a row'].map(
+                  (title) => ({
+                    key: title,
+                    title,
+                    caption: 'Two players',
+                    onClick: () => setGame(title),
+                  })
+                ),
+                {
+                  key: 'coming-soon',
+                  title: 'Coming soon',
+                  caption: 'Soon',
+                  disabled: true,
+                  onClick: () => undefined,
+                },
+              ]
             : [
                 'Custom game',
                 'Matchmaking',
@@ -32,6 +44,7 @@ export default function MainMenuScreenExample(): JSX.Element {
               ].map((title) => ({
                 key: title,
                 title,
+                selected: mode() === title,
                 onClick: () => setMode(title),
               }))
         }

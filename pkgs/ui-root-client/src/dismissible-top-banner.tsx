@@ -6,7 +6,7 @@
  *
  * Prefer hosting the portal on {@link AppFrame} so wide-mode hosts sit outside
  * the max-width column (full-bleed sheet) while banner content still aligns to
- * {@link APP_MAX_WIDTH}. Use {@link InFlowBanner} for custom chrome (e.g. perf
+ * the wide measure (`max-w-ui-wide`). Use {@link InFlowBanner} for custom chrome (e.g. perf
  * HUD) and {@link DismissibleBanner} for the standard dismissible sheet. Mount
  * and dismiss are instant (no slide animation) for low-end Android.
  */
@@ -14,12 +14,7 @@
 import { useLingui } from '@lingui/solid/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { cssPx } from '@pkgs/ui-root-shared/css-px';
-import {
-  APP_FRAME_GUTTER_STEP,
-  APP_MAX_WIDTH,
-} from '@pkgs/ui-root-shared/layout';
-import { spacingScale } from '@pkgs/ui-root-shared/scale';
+import { iconSize } from '@pkgs/ui-root-shared/sizes';
 import {
   createContext,
   createEffect,
@@ -28,12 +23,11 @@ import {
   Show,
   useContext,
 } from 'solid-js';
-import { Portal } from 'solid-js/web';
+import { Dynamic, Portal } from 'solid-js/web';
 import { Button } from './button';
-import { CONTENT_EDGE_PADDING_STEP } from './content-edge-padding';
+import type { IconComponent } from './create-icon';
 import { IconButton } from './icon-button';
-import { XIcon } from './icons';
-import { useLayoutMode } from './use-layout-mode';
+import { InfoIcon, TriangleAlertIcon, XIcon } from './icons';
 
 export type DismissibleBannerPosition = 'top' | 'bottom';
 
@@ -132,13 +126,25 @@ export type DismissibleBannerProps = {
   onActionClick?: (() => void) | undefined;
   /** Edge the banner attaches to; also controls safe-area padding. */
   position?: DismissibleBannerPosition | undefined;
-  /** Sheet background. Defaults to elevated paper (`surface-overlay`). */
+  /**
+   * Sheet tint. `paper` (default) is the quiet `surface` well; `warning` and
+   * `info` are their status washes, with a leading glyph in the same hue.
+   */
   tone?: DismissibleBannerTone | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
 
+/** Copy on a status wash takes the wash's hue; paper keeps the text tiers. */
+function toneTextClass(tone: DismissibleBannerTone): Record<string, boolean> {
+  return {
+    'text-warning': tone === 'warning',
+    'text-info': tone === 'info',
+  };
+}
+
 function DismissibleBannerPromptBody(props: {
+  tone: DismissibleBannerTone;
   title: JSX.Element;
   subtitle: JSX.Element | undefined;
   actionLabel: JSX.Element | undefined;
@@ -146,10 +152,14 @@ function DismissibleBannerPromptBody(props: {
 }): JSX.Element {
   return (
     <div class="box flex-1 min-w-0 flex-row items-center gap-2 flex-wrap">
-      <div class="box flex-1 min-w-0 gap-0.5">
-        <p class="text textLabel">{props.title}</p>
+      <div class="box flex-1 min-w-0">
+        <p class="text textBodyBold" classList={toneTextClass(props.tone)}>
+          {props.title}
+        </p>
         <Show when={props.subtitle !== undefined && props.subtitle !== null}>
-          <p class="text textCaption">{props.subtitle}</p>
+          <p class="text textCaption" classList={toneTextClass(props.tone)}>
+            {props.subtitle}
+          </p>
         </Show>
       </div>
       <Show
@@ -169,54 +179,46 @@ function DismissibleBannerPromptBody(props: {
   );
 }
 
-const TONE_BG: Record<DismissibleBannerTone, string> = {
-  paper: 'bg-surface-overlay',
-  warning: 'bg-warning-surface',
-  info: 'bg-info-surface',
+type BannerToneSpec = {
+  readonly surface: string;
+  readonly icon: IconComponent | undefined;
+  readonly iconColor: string;
 };
 
-const EDGE_SAFE_PAD_PX = 6;
-const DISMISS_SIZE = 32;
-const DISMISS_ICON = 16;
+const TONE: Record<DismissibleBannerTone, BannerToneSpec> = {
+  paper: { surface: 'bg-surface', icon: undefined, iconColor: 'icon' },
+  warning: {
+    surface: 'bg-warning-surface',
+    icon: TriangleAlertIcon,
+    iconColor: 'warning',
+  },
+  info: { surface: 'bg-info-surface', icon: InfoIcon, iconColor: 'info' },
+};
 
+/** A full-bleed sheet: hairline on the content side, safe area on the edge. */
 function sheetClass(
   position: DismissibleBannerPosition,
   tone: DismissibleBannerTone
 ): string {
   const edge =
     position === 'top'
-      ? 'border-b border-solid border-border'
-      : 'border-t border-solid border-border';
-  return `box w-full ${TONE_BG[tone]} ${edge}`;
+      ? 'safeTop border-b border-solid border-border'
+      : 'safeBottom border-t border-solid border-border';
+  return `box w-full ${TONE[tone].surface} ${edge}`;
 }
 
-function sheetStyle(position: DismissibleBannerPosition): JSX.CSSProperties {
-  return position === 'top'
-    ? {
-        'padding-top': `calc(env(safe-area-inset-top, 0px) + ${EDGE_SAFE_PAD_PX}px)`,
-      }
-    : {
-        'padding-bottom': `calc(env(safe-area-inset-bottom, 0px) + ${EDGE_SAFE_PAD_PX}px)`,
-      };
-}
-
-function contentPadStyle(wide: boolean): JSX.CSSProperties {
-  const x = spacingScale(
-    wide ? APP_FRAME_GUTTER_STEP : CONTENT_EDGE_PADDING_STEP
+function BannerToneIcon(props: { tone: DismissibleBannerTone }): JSX.Element {
+  return (
+    <Show when={TONE[props.tone].icon}>
+      {(icon) => (
+        <Dynamic
+          component={icon()}
+          size={iconSize.md}
+          color={TONE[props.tone].iconColor}
+        />
+      )}
+    </Show>
   );
-  if (!wide) {
-    return {
-      'padding-left': cssPx(x),
-      'padding-right': cssPx(x),
-    };
-  }
-  return {
-    'max-width': `min(${cssPx(APP_MAX_WIDTH)}, 100%)`,
-    'margin-left': 'auto',
-    'margin-right': 'auto',
-    'padding-left': cssPx(x),
-    'padding-right': cssPx(x),
-  };
 }
 
 function DismissibleBannerFrame(
@@ -227,32 +229,26 @@ function DismissibleBannerFrame(
   }
 ): JSX.Element {
   const { t } = useLingui();
-  const mode = useLayoutMode();
-  const wide = (): boolean => mode() === 'wide';
   return (
-    <div
-      class={sheetClass(props.position, props.tone)}
-      style={sheetStyle(props.position)}
-    >
-      <div
-        class="box w-full flex-row items-center gap-2 py-1"
-        style={contentPadStyle(wide())}
-      >
+    <div class={sheetClass(props.position, props.tone)}>
+      {/* Content follows the wide column's measure and 16px gutter. */}
+      <div class="box w-full max-w-ui-wide mx-auto flex-row items-center gap-3 py-1 pl-4 pr-2">
+        <BannerToneIcon tone={props.tone} />
         <DismissibleBannerPromptBody
+          tone={props.tone}
           title={props.title}
           subtitle={props.subtitle}
           actionLabel={props.actionLabel}
           onActionClick={props.onActionClick}
         />
         <IconButton
-          size={DISMISS_SIZE}
           onClick={props.dismiss}
           label={t`Dismiss`}
           aria-label={t`Dismiss`}
           tooltip="none"
           dataSet={{ component: 'DismissibleBannerDismiss' }}
         >
-          <XIcon size={DISMISS_ICON} color="icon" />
+          <XIcon size={iconSize.md} color="icon" />
         </IconButton>
       </div>
     </div>

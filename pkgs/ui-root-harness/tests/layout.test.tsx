@@ -78,7 +78,7 @@ describe('Island + IslandGrid', () => {
 });
 
 describe('TopBar', () => {
-  test('slots, safe-area padding and breakpoint height', () => {
+  test('slots, safe-area padding, hairline and one row height at every breakpoint', () => {
     renderUi(
       () => (
         <TopBar
@@ -94,9 +94,10 @@ describe('TopBar', () => {
     const bar = screen.getByTestId('tb');
     expect(bar.tagName).toBe('HEADER');
     expect(bar.className).toMatch(/safeTop/);
+    expect(bar.className).toMatch(/\bborder-b\b/);
     const row = bar.firstElementChild;
     if (row === null) throw new Error('missing row');
-    expect(cssOf(row)).toContain('height:72px');
+    expect(row.className).toMatch(/\bh-13\b/);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       'Title'
     );
@@ -149,7 +150,12 @@ describe('AppFrame', () => {
     );
     expect(screen.getByText('override header')).toBeInTheDocument();
     expect(screen.queryByText('default header')).toBeNull();
-    expect(screen.getByRole('main')).toHaveAttribute('data-mode', 'wide');
+    const main = screen.getByRole('main');
+    expect(main).toHaveAttribute('data-mode', 'wide');
+    const header = main.querySelector('[data-region="header"]');
+    const content = main.querySelector('[data-region="content"]');
+    expect(header).toHaveTextContent('override header');
+    expect(content).toHaveTextContent('screen');
   });
 
   test('compact frame ignores the header', () => {
@@ -185,7 +191,7 @@ describe('AppFrame', () => {
     expect(topHost.compareDocumentPosition(body)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     );
-    const column = body.closest('div[style*="max-width"]');
+    const column = body.closest('[data-region="column"]');
     expect(column).not.toBeNull();
     expect(column?.contains(topHost)).toBe(false);
   });

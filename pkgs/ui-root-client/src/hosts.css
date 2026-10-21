@@ -57,7 +57,7 @@
     position: absolute;
     z-index: 1;
     top: 0;
-    left: var(--ui-panel-inset, 16px);
+    left: var(--ui-panel-inset, var(--ui-space-lg));
     right: 0;
     height: 1px;
     background: var(--ui-color-border);
@@ -69,9 +69,18 @@
   }
 
   /* A row with a leading icon starts its hairline at the text column
-     (16px inset + 28px leading slot + 12px gap). */
+     (16px inset + 24px leading slot + 12px gap). */
   .panelItem:has(.panelLeading) {
-    --ui-panel-inset: 56px;
+    --ui-panel-inset: calc(
+      var(--ui-space-lg) +
+      var(--ui-icon-size-lg) +
+      var(--ui-space-md)
+    );
+  }
+
+  /* The panel clips its rows, so a row's focus ring is drawn inside it. */
+  .panelItem > .clickable:focus-visible {
+    outline-offset: -2px;
   }
 
   .divider {
@@ -389,6 +398,72 @@
       center / contain no-repeat;
   }
 
+  /* A scrolling surface: a pinned header row over a body that takes the
+     rest and scrolls. Grid, not flex, so the body gets a definite height and
+     its `overflow: auto` engages. */
+  .surfaceScrollShell {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  /* Surface motion: what floats above content (menus, tooltips) fades in
+     and settles 4px; sheets rise from the bottom edge; dialogs fade with a
+     slight scale; scrims fade. 250ms on the standard ease-out curve, and
+     nothing moves under reduced motion. */
+  .surfaceEnter {
+    animation: ui-surface-enter var(--ui-duration-slow)
+      var(--ui-easing-standard) both;
+  }
+
+  .sheetEnter {
+    animation: ui-sheet-enter var(--ui-duration-slow) var(--ui-easing-standard)
+      both;
+  }
+
+  .dialogEnter {
+    animation: ui-dialog-enter var(--ui-duration-slow) var(--ui-easing-standard)
+      both;
+  }
+
+  .scrimEnter {
+    animation: ui-fade-in var(--ui-duration-slow) var(--ui-easing-standard) both;
+  }
+
+  @keyframes ui-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes ui-surface-enter {
+    from {
+      opacity: 0;
+      transform: translateY(calc(var(--ui-space-xs) * -1));
+    }
+  }
+
+  @keyframes ui-sheet-enter {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes ui-dialog-enter {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .surfaceEnter,
+    .sheetEnter,
+    .dialogEnter,
+    .scrimEnter {
+      animation: none;
+    }
+  }
+
   .switchTrack {
     transition: background-color var(--ui-duration-normal)
       var(--ui-easing-standard);
@@ -416,5 +491,30 @@
 
   .boxNone > * {
     pointer-events: auto;
+  }
+}
+
+/* Skeleton (`skeleton.tsx`): a subtle opacity pulse on the `surface-muted`
+   placeholder. 1.2s, the standard curve; reduced motion holds it still. */
+@layer components {
+  .skeleton {
+    animation: ui-skeleton-pulse 1.2s var(--ui-easing-standard) infinite
+      alternate;
+  }
+
+  @keyframes ui-skeleton-pulse {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: var(--ui-opacity-muted);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton {
+      animation: none;
+    }
   }
 }

@@ -11,17 +11,22 @@ import { cssPx } from '@pkgs/ui-root-shared/css-px';
  * and shoulders on a quiet plate, cropped by the circle. A person with no
  * picture is never an outlined icon sitting in a ring.
  *
- * Always draws a 1px theme `border` ring so faces stay enclosed on any
- * surface (list rows, chrome, empty plates). Outer diameter stays `size`
- * (border-box); content is clipped under the ring.
+ * Always round. By default a 1px hairline `border` ring keeps faces enclosed
+ * on any surface (list rows, chrome, empty plates); `ring={false}` drops it
+ * where a host already draws one. Outer diameter stays `size` (border-box);
+ * content is clipped under the ring.
  *
- * Color props (`background`, `foreground`) accept either a theme color
- * token name (e.g. `'tint'`, `'surface'`, `'outline'`) or a raw color
- * string (e.g. `'#fff'`, `'rgba(255,255,255,0.2)'`).
+ * `size` is a pixel diameter or a named step of {@link AVATAR_SIZES}
+ * (`xs` 24, `sm` 32, `md` 40, `lg` 56, `xl` 96).
+ *
+ * Color props (`background`, `foreground`) take a theme color token name
+ * (e.g. `'surfaceMuted'`, `'success'`, `'outline'`). Initials and icons sit
+ * on the quiet `surfaceMuted` plate by default: blue is for what is chosen,
+ * never a face.
  *
  * @example
  * ```tsx
- * <Avatar uri="https://example.com/photo.jpg" alt="Jane" size={48} />
+ * <Avatar uri="https://example.com/photo.jpg" alt="Jane" size="md" />
  * <Avatar initials="JD" size={48} />
  * <Avatar svg={dicebearSvgString} size={64} />
  * <Avatar icon={Gamepad2Icon} size={48} background="surfaceMuted" />
@@ -40,24 +45,39 @@ import styles from './avatar.module.css';
 import type { IconComponent } from './create-icon';
 import { useThemeTokens } from './theme-context';
 
-/** Minimal enclosing ring on every avatar face. */
-export const AVATAR_BORDER_WIDTH = 1;
+/** The named avatar diameters, on the 4px grid. */
+export const AVATAR_SIZES = {
+  xs: 24,
+  sm: 32,
+  md: 40,
+  lg: 56,
+  xl: 96,
+} as const;
 
-const DEFAULT_SIZE = 40;
-const DEFAULT_BACKGROUND = 'tint';
-const PLACEHOLDER_BACKGROUND = 'surfaceMuted';
+export type AvatarSizeName = keyof typeof AVATAR_SIZES;
+
+/** Diameter in px for a named step or a pixel size. */
+export function avatarSizePx(
+  size: number | AvatarSizeName | undefined
+): number {
+  if (size === undefined) return AVATAR_SIZES.md;
+  return typeof size === 'number' ? size : AVATAR_SIZES[size];
+}
+
+const DEFAULT_BACKGROUND = 'surfaceMuted';
 
 export type AvatarProps = {
-  /** Diameter in pixels. Defaults to `40`. */
-  size?: number | undefined;
+  /** Diameter: pixels or a named step. Defaults to `md` (40). */
+  size?: number | AvatarSizeName | undefined;
+  /** Hairline `border` ring around the face. Defaults to `true`. */
+  ring?: boolean | undefined;
   /**
-   * Background color token or raw color. Defaults to `'tint'` behind
-   * initials and icons, and to the quiet `'surfaceMuted'` plate behind the
-   * person placeholder.
+   * Background color token. Defaults to the quiet `'surfaceMuted'` plate
+   * behind initials, icons and the person placeholder.
    */
   background?: string | undefined;
   /**
-   * Foreground (icon / initials / placeholder) color token or raw color. When
+   * Foreground (icon / initials / placeholder) color token. When
    * omitted it is auto-derived from `background` for a contrast-safe label in
    * both schemes; the placeholder instead sits one tone off its plate.
    */
@@ -103,15 +123,13 @@ function PersonPlaceholder(props: {
 
 export function Avatar(props: AvatarProps): JSX.Element {
   const tokens = useThemeTokens();
-  const size = () => props.size ?? DEFAULT_SIZE;
+  const size = () => avatarSizePx(props.size);
   const isPlaceholder = (): boolean =>
     !isNonEmpty(props.svg) &&
     !isNonEmpty(props.uri) &&
     !isNonEmpty(props.initials) &&
     props.icon === undefined;
-  const background = () =>
-    props.background ??
-    (isPlaceholder() ? PLACEHOLDER_BACKGROUND : DEFAULT_BACKGROUND);
+  const background = () => props.background ?? DEFAULT_BACKGROUND;
   const foreground = createMemo((): string => {
     if (props.foreground !== undefined) {
       return resolveColor(props.foreground, tokens.colors) ?? props.foreground;
@@ -122,6 +140,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
   return (
     <span
       class="box inline-flex shrink-0 rounded-full border-border overflow-hidden items-center justify-center"
+      classList={{ border: props.ring !== false }}
       {...dataAttrs({ component: 'Avatar', ...props.dataSet })}
       data-placeholder={isPlaceholder() ? 'true' : undefined}
       style={{
@@ -129,7 +148,6 @@ export function Avatar(props: AvatarProps): JSX.Element {
           resolveColor(background(), tokens.colors) ?? background(),
         width: cssPx(size()),
         height: cssPx(size()),
-        'border-width': cssPx(AVATAR_BORDER_WIDTH),
       }}
     >
       <Switch
@@ -165,7 +183,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
         <Match when={isNonEmpty(props.initials) ? props.initials : undefined}>
           {(initials) => (
             <p
-              class="text font-bold"
+              class="text font-semibold"
               style={{
                 color: foreground(),
                 'font-size': `${Math.round(size() * 0.4)}px`,

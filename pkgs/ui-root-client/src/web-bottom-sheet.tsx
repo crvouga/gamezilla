@@ -3,8 +3,13 @@
  * CSS bottom sheet -- the web {@link BottomSheetHost}.
  *
  * Registers in the surface stack ({@link SurfaceStackSlot}) so it layers by
- * open order with modals, pins to the bottom of the stack layer, and mounts
- * instantly (no slide/fade). A scrim backdrop dismisses on click; the
+ * open order with modals and pins to the bottom of the stack layer: the
+ * canvas-toned `surface-elevated` fill, a 12px top radius, a hairline top
+ * edge, a 36x4 grab handle in the border tone, and the safe-area inset under
+ * the content. It rises in over 250ms (`.sheetEnter`) while the scrim fades
+ * (`.scrimEnter`); reduced motion shows both at once. Mounting is immediate,
+ * so focus and dialog semantics never wait on the animation. A scrim backdrop
+ * dismisses on click; the
  * {@link FocusTrap} (`layout="sheet"`) provides `role="dialog"`, Tab
  * containment, focus restore, and Escape while the sheet is on top. The drag
  * handle is purely decorative (no gesture support on the web).
@@ -51,13 +56,13 @@ export function WebBottomSheet(props: BottomSheetHostSheetProps): JSX.Element {
     <Show when={props.open}>
       <SurfaceStackSlot id={surfaceId()} visible>
         <div
-          class="box absolute inset-0 bg-scrim"
+          class="box scrimEnter absolute inset-0 bg-scrim"
           aria-hidden="true"
           onClick={() => props.onClose()}
           {...dataAttrs({ component: 'BottomSheetScrim' })}
         />
         <div
-          class="box absolute left-0 right-0 bottom-0 bg-surface rounded-tl-sheet rounded-tr-sheet border border-border overflow-hidden"
+          class="box sheetEnter safeBottom absolute left-0 right-0 bottom-0 bg-surface-elevated rounded-t-sheet border border-b-0 border-border overflow-hidden"
           style={{
             ...(props.height !== undefined
               ? { height: cssPx(props.height) }
@@ -74,7 +79,6 @@ export function WebBottomSheet(props: BottomSheetHostSheetProps): JSX.Element {
           <OnColorReset>
             <ModalTitleIdProvider id={titleId}>
               <FocusTrap
-                class="min-h-0 shrink overflow-hidden"
                 layout="sheet"
                 active={active()}
                 onEscape={active() ? props.onClose : undefined}

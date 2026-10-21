@@ -23,9 +23,7 @@ import { ChevronDownIcon, XIcon } from './icons';
 export const COMBOBOX_TRIGGER_MIN_HEIGHT = 44;
 
 export function ComboboxLabel(props: { label: JSX.Element }): JSX.Element {
-  return (
-    <p class="text textCaption mb-0.5 text-text-secondary">{props.label}</p>
-  );
+  return <p class="text textCaption mb-1 text-text-secondary">{props.label}</p>;
 }
 
 export type ComboboxTriggerProps<T extends ComboboxValue> = {
@@ -90,7 +88,7 @@ export function ComboboxTrigger<T extends ComboboxValue>(
         />
       </Show>
       <button
-        class="clickable clickableTint flex-1 min-w-0 flex-row items-center gap-2.5 px-3 py-2.5 rounded-control text-left"
+        class="clickable clickableTint flex-1 min-w-0 flex-row items-center gap-3 px-3 py-2 rounded-control text-left"
         {...dataAttrs({ component: 'ComboboxTrigger', ...props.dataSet })}
         type="button"
         style={{ 'min-height': cssPx(COMBOBOX_TRIGGER_MIN_HEIGHT) }}

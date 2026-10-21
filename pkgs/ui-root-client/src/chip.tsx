@@ -2,14 +2,15 @@
 /**
  * `Chip` -- compact tag / filter element.
  *
- * Flat surface chip with a hairline border in both states:
- *   - Unselected reads as a quiet pill (`surface` fill + `border` outline +
- *     `text` foreground).
- *   - Selected lifts the brand color (`tintHighlight` fill + `tint` border +
- *     `tint` foreground) without feeling shouty next to its peers.
+ * A 32px pill (`skin.css` `.chip`), 14px semibold:
+ *   - Unselected is a quiet hairline pill on the canvas in text color; on
+ *     hover the hairline darkens to the outline tone.
+ *   - Selected is the blue fill with an on-primary label, like every other
+ *     "this one".
  *
- * Hover/press is delegated to {@link Clickable}'s tint overlay. Exposes
- * `aria-pressed` so the selected state is announced.
+ * Hover / press tint from the `.clickableTint` overlay, the keyboard focus
+ * ring from `.clickable`, and the disabled opacity. Exposes `aria-pressed`
+ * (or `aria-checked` as a radio) so the selected state is announced.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
@@ -29,24 +30,14 @@ export type ChipProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** Fixed pill height so every chip in a row shares one baseline. */
-export const CHIP_HEIGHT = 32;
-/** Short labels ("All") stay pill-shaped instead of collapsing to a circle. */
-const CHIP_MIN_WIDTH = 56;
-const CHIP_ICON_SIZE = 16;
-
 export function Chip(props: ChipProps): JSX.Element {
   const selected = (): boolean => props.selected === true;
   const role = (): 'button' | 'radio' => props.role ?? 'button';
   return (
     <button
-      class="clickable clickableTint chip self-start flex-row items-center justify-center gap-1.5"
+      class="clickable clickableTint chip self-start flex-row items-center justify-center gap-2"
       {...dataAttrs({ component: 'Chip', ...props.dataSet })}
       type="button"
-      style={{
-        height: `${CHIP_HEIGHT}px`,
-        'min-width': `${CHIP_MIN_WIDTH}px`,
-      }}
       role={role()}
       aria-pressed={role() === 'button' ? selected() : undefined}
       aria-checked={role() === 'radio' ? selected() : undefined}
@@ -54,12 +45,7 @@ export function Chip(props: ChipProps): JSX.Element {
       disabled={props.disabled === true}
     >
       <Show when={props.startIcon !== undefined}>
-        <div
-          class="box items-center justify-center"
-          style={{ height: `${CHIP_ICON_SIZE}px` }}
-        >
-          {props.startIcon}
-        </div>
+        <div class="box h-4 items-center justify-center">{props.startIcon}</div>
       </Show>
       <span class="text textLabel line-clamp-1">{props.label}</span>
     </button>

@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { AVATAR_BORDER_WIDTH, Avatar } from '@pkgs/ui-root-client/avatar';
+import { AVATAR_SIZES, Avatar } from '@pkgs/ui-root-client/avatar';
 import { AvatarGroup } from '@pkgs/ui-root-client/avatar-group';
 import { AvatarHero } from '@pkgs/ui-root-client/avatar-hero';
 import { Badge } from '@pkgs/ui-root-client/badge';
@@ -78,7 +78,29 @@ describe('Avatar', () => {
     expect(img).toHaveAttribute('src', 'https://x/y.png');
     const root = byComponent('Avatar');
     expect(cssOf(root)).toContain('width:40px');
-    expect(cssOf(root)).toContain(`border-width:${AVATAR_BORDER_WIDTH}px`);
+    // The hairline ring is on by default, and round.
+    expect(root.className).toMatch(/(^|\s)border(\s|$)/);
+    expect(root.className).toContain('rounded-full');
+  });
+
+  test('named sizes resolve to their token diameter; ring is optional', () => {
+    renderUi(() => (
+      <>
+        <Avatar size="lg" dataSet={{ component: 'AvLg' }} />
+        <Avatar size="xs" ring={false} dataSet={{ component: 'AvBare' }} />
+      </>
+    ));
+    expect(cssOf(byComponent('AvLg'))).toContain(`width:${AVATAR_SIZES.lg}px`);
+    const bare = byComponent('AvBare');
+    expect(cssOf(bare)).toContain(`width:${AVATAR_SIZES.xs}px`);
+    expect(bare.className).not.toMatch(/(^|\s)border(\s|$)/);
+  });
+
+  test('initials sit on the quiet plate, never the blue', () => {
+    renderUi(() => <Avatar initials="AB" dataSet={{ component: 'AvQuiet' }} />);
+    expect(cssOf(byComponent('AvQuiet'))).toContain(
+      'background-color:var(--ui-color-surface-muted)'
+    );
   });
 
   test('falls back to initials and inlines svg markup', () => {
@@ -167,9 +189,9 @@ describe('AvatarHero', () => {
       </AvatarHero>
     ));
     const button = screen.getByRole('button', { name: 'Edit avatar' });
-    const css = cssOf(button);
-    expect(css).toMatch(/min-width:44px|width:44px/);
-    expect(css).toMatch(/min-height:44px|height:44px/);
+    expect(button.className).toMatch(/\bsize-11\b/);
+    expect(button.className).toMatch(/\bmin-w-11\b/);
+    expect(button.className).toMatch(/\bmin-h-11\b/);
     fireEvent.click(button);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
@@ -278,7 +300,9 @@ describe('MenuRow / MenuList / MenuSection', () => {
     expect(item.querySelector('svg')).not.toBeNull();
     const body = item.firstElementChild;
     if (!(body instanceof HTMLElement)) throw new Error('missing body');
-    expect(body.className).toMatch(/\bmin-h-14\b/);
+    // At least 52px tall (`min-h-13`) on 16px insets.
+    expect(body.className).toMatch(/\bmin-h-13\b/);
+    expect(body.className).toMatch(/\bpx-4\b/);
     fireEvent.click(item);
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(screen.queryAllByRole('menuitem')).toHaveLength(1);

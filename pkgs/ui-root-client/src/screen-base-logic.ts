@@ -19,9 +19,6 @@ import type {
 } from './screen-base-types';
 import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
 
-/** Scroll inset below body content (px). */
-export const SCREEN_SCROLL_BOTTOM_PADDING = 24;
-
 export type ScreenBaseActionIntent = 'primary' | 'danger' | 'neutral';
 
 export function screenBaseActionIntent(

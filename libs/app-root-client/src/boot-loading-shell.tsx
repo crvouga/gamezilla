@@ -19,7 +19,7 @@ export function BootLoadingShell(): JSX.Element {
       data-testid={Handles.bootLoading}
     >
       <div class="box fixed inset-0 items-center justify-center pointer-events-none">
-        <LoadingState size="large" />
+        <LoadingState size="lg" />
       </div>
     </div>
   );

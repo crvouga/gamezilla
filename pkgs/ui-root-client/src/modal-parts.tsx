@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
- * Modal building blocks: `ModalHeader` (names the dialog), `ModalBody`,
- * `ModalFooter` (stacked full-width actions), and `ModalButton`.
+ * Modal building blocks: `ModalHeader` (names the dialog in `textSubtitle`),
+ * `ModalBody` (copy in secondary `textBody`), `ModalFooter` (actions) and
+ * `ModalButton`.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
@@ -10,6 +11,7 @@ import { type JSX, Show } from 'solid-js';
 import { Button } from './button';
 import type { ButtonIntent, ButtonVariant } from './button-face';
 import { useModalTitleId } from './modal-title-id';
+import { useLayoutMode } from './use-layout-mode';
 
 export type ModalHeaderProps = {
   title: JSX.Element;
@@ -49,7 +51,7 @@ export function ModalBody(props: ModalBodyProps): JSX.Element {
       {...dataAttrs({ component: 'ModalBody', ...props.dataSet })}
     >
       <Show when={hasMessage()} fallback={props.children}>
-        <p class="text text-text">{props.message}</p>
+        <p class="text textBody text-text-secondary">{props.message}</p>
       </Show>
     </div>
   );
@@ -62,13 +64,21 @@ export type ModalFooterProps = {
 };
 
 /**
- * Action column at the bottom of a modal: children stack vertically with each
- * action stretched to the full content width.
+ * Actions at the bottom of a modal, primary first in reading and tab order.
+ * Compact: a column of full-width actions, primary on top, where a thumb
+ * reaches. Wide: one right-aligned row with the primary action on the far
+ * right, the desktop dialog convention.
  */
 export function ModalFooter(props: ModalFooterProps): JSX.Element {
+  const mode = useLayoutMode();
   return (
     <div
-      class="box flex-col items-stretch gap-2 mt-2"
+      class="box gap-2 mt-2"
+      classList={{
+        'flex-col items-stretch': mode() !== 'wide',
+        'flex-row-reverse flex-wrap items-center justify-start':
+          mode() === 'wide',
+      }}
       {...dataAttrs({ component: 'ModalFooter', ...props.dataSet })}
     >
       {props.children}

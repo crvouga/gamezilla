@@ -31,7 +31,7 @@ export default function LoadingStateExample(): JSX.Element {
         {'Compact (inside a card)'}
       </label>
       <SchemePreview>
-        <div class="card">
+        <div class="panel">
           <LoadingState
             variant="compact"
             caption="Waiting for metrics from server…"

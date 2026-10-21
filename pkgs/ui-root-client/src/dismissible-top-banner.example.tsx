@@ -1,7 +1,10 @@
 /** @jsxImportSource solid-js */
-import { createSignal, type JSX } from 'solid-js';
+import { createSignal, For, type JSX } from 'solid-js';
 import { Button } from './button';
-import type { DismissibleBannerPosition } from './dismissible-top-banner';
+import type {
+  DismissibleBannerPosition,
+  DismissibleBannerTone,
+} from './dismissible-top-banner';
 import {
   DismissibleBanner,
   DismissibleBannerPortalProvider,
@@ -14,14 +17,48 @@ const POSITION_SEGMENTS = [
   { key: 'bottom' as const, label: 'Bottom' },
 ];
 
+const TONE_SEGMENTS = [
+  { key: 'paper' as const, label: 'Paper' },
+  { key: 'info' as const, label: 'Info' },
+  { key: 'warning' as const, label: 'Warning' },
+];
+
+const SCHEMES = ['light', 'dark'] as const;
+
+function BannerPreview(props: {
+  scheme: (typeof SCHEMES)[number];
+  tone: DismissibleBannerTone;
+}): JSX.Element {
+  return (
+    <div
+      class="box border border-solid border-border rounded-card overflow-hidden bg-background"
+      data-theme={props.scheme}
+    >
+      <DismissibleBannerPortalProvider>
+        <DismissibleBanner
+          visible
+          tone={props.tone}
+          onDismiss={() => undefined}
+          title="A new version is ready"
+          subtitle="Reload to get the latest fixes."
+          actionLabel="Reload"
+          onActionClick={() => undefined}
+        />
+        <div class="box h-12" />
+      </DismissibleBannerPortalProvider>
+    </div>
+  );
+}
+
 export default function DismissibleBannerExample(): JSX.Element {
   const [visible, setVisible] = createSignal(false);
   const [position, setPosition] =
     createSignal<DismissibleBannerPosition>('top');
+  const [tone, setTone] = createSignal<DismissibleBannerTone>('paper');
 
   return (
     <DismissibleBannerPortalProvider>
-      <ExampleRoot class="flex-1 min-h-90">
+      <ExampleRoot grow minHeight="md">
         <p class="text textCaption">
           {
             'Banner UI portals into in-flow top/bottom slots. Product apps host the portal on AppFrame so the sheet full-bleeds while content stays on the max-width column. This example mounts its own provider so the banner stays inside the preview.'
@@ -32,11 +69,19 @@ export default function DismissibleBannerExample(): JSX.Element {
           selected={position()}
           onSelect={setPosition}
         />
+        <SegmentedControl<DismissibleBannerTone>
+          segments={TONE_SEGMENTS}
+          selected={tone()}
+          onSelect={setTone}
+        />
         <Button title="Show banner" onClick={() => setVisible(true)} />
+        <For each={SCHEMES}>
+          {(scheme) => <BannerPreview scheme={scheme} tone={tone()} />}
+        </For>
         <DismissibleBanner
           visible={visible()}
           position={position()}
-          tone="paper"
+          tone={tone()}
           onDismiss={() => setVisible(false)}
           title="Something needs your attention"
           subtitle="Optional supporting line."

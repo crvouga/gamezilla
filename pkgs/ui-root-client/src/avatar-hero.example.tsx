@@ -3,35 +3,51 @@ import { useLingui } from '@lingui/solid/macro';
 import { createSignal, type JSX } from 'solid-js';
 import { Avatar } from './avatar';
 import { AvatarHero } from './avatar-hero';
+import { sampleAvatarSvg } from './avatar-sample-svg';
 import { ExampleRoot } from './example-root';
 import { ShuffleIcon } from './icons';
+import { SchemePreview } from './scheme-preview';
+import { useThemeTokens } from './theme-context';
 
-const SAMPLE_SVG = `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" fill="#fbbf24" />
-  <circle cx="24" cy="28" r="4" fill="#111" />
-  <circle cx="40" cy="28" r="4" fill="#111" />
-  <path d="M20 42 Q32 52 44 42" stroke="#111" stroke-width="3" fill="none" />
-</svg>
-`.trim();
+const HERO_SIZE = 160;
 
 export default function AvatarHeroExample(): JSX.Element {
   const { t } = useLingui();
+  const tokens = useThemeTokens();
   const [n, setN] = createSignal(0);
+  const plates = ['info', 'success', 'warning', 'destructive'] as const;
+  const svg = (): string =>
+    sampleAvatarSvg(tokens.palette(), plates[n() % plates.length]);
 
   return (
     <ExampleRoot>
-      <AvatarHero
-        size={160}
-        action={{
-          label: t`Randomize`,
-          onClick: () => setN((c) => c + 1),
-          icon: <ShuffleIcon size={20} />,
-        }}
-      >
-        <Avatar svg={SAMPLE_SVG} size={160} />
-      </AvatarHero>
-      <p class="text textCaption opacity-75">{`Shuffles: ${n()}`}</p>
+      <SchemePreview>
+        <div class="box gap-4">
+          <AvatarHero
+            size={HERO_SIZE}
+            action={{
+              label: t`Randomize`,
+              onClick: () => setN((c) => c + 1),
+              icon: <ShuffleIcon size={20} />,
+            }}
+          >
+            <Avatar svg={svg()} size={HERO_SIZE} />
+          </AvatarHero>
+          <p class="text textCaption">{`Shuffles: ${n()}`}</p>
+          <AvatarHero
+            size={HERO_SIZE}
+            action={{
+              label: t`Randomize`,
+              onClick: () => undefined,
+              icon: <ShuffleIcon size={20} />,
+              disabled: true,
+            }}
+          >
+            <Avatar size={HERO_SIZE} />
+          </AvatarHero>
+          <p class="text textCaption">{'Disabled action'}</p>
+        </div>
+      </SchemePreview>
     </ExampleRoot>
   );
 }

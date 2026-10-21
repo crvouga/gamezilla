@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
  * App screen header: composes the `TopBar` primitive. Every screen gets the
- * same chrome height because `TopBar`'s content height is locked.
+ * same 52px row and hairline because `TopBar`'s row height is locked.
  *
  * Slot mapping:
  *   - `leading`  -> caller-supplied leading content + auto back button.
@@ -25,6 +25,9 @@ import { useScreenTitleContext } from './screen-title-context';
 import { TopBar } from './top-bar';
 import { TopBarTitle } from './top-bar-title';
 import { useBreadcrumbClick } from './use-breadcrumb-click';
+
+/** Back control hit area: never below 40px, whatever the action chrome. */
+const MIN_BACK_BUTTON_SIZE = 40;
 
 function HeaderTrailing(props: ScreenBaseHeaderProps): JSX.Element {
   const chrome = useActionBarChrome();
@@ -50,8 +53,31 @@ function HeaderTrailing(props: ScreenBaseHeaderProps): JSX.Element {
   );
 }
 
-export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
+function HeaderLeading(props: {
+  leading: JSX.Element | undefined;
+  showBack: boolean;
+  onBack: () => void;
+}): JSX.Element {
   const chrome = useActionBarChrome();
+  return (
+    <>
+      {props.leading}
+      <Show when={props.showBack}>
+        {/* Pulled into the edge so the chevron, not its hit area, lines up
+            with the 16px page edge. */}
+        <div class="box" classList={{ '-ml-2': props.leading === undefined }}>
+          <BackIconButton
+            size={Math.max(chrome().buttonSize, MIN_BACK_BUTTON_SIZE)}
+            onClick={() => props.onBack()}
+            dataSet={{ testid: 'nav-back' }}
+          />
+        </div>
+      </Show>
+    </>
+  );
+}
+
+export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
   const titleCtx = useScreenTitleContext();
   const resolveClick = useBreadcrumbClick(() => props.breadcrumbs);
   const layout = createMemo(() => deriveHeaderLayout(props.breadcrumbs));
@@ -72,16 +98,13 @@ export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
       trailingSize={(props.actions?.length ?? 0) > 0 ? 'fill' : 'fit'}
       dataSet={{ component: 'ScreenBaseHeader' }}
       leading={
-        <>
-          {props.leading}
-          <Show when={layout().showBack}>
-            <BackIconButton
-              size={chrome().buttonSize}
-              onClick={onBack}
-              dataSet={{ testid: 'nav-back' }}
-            />
-          </Show>
-        </>
+        props.leading !== undefined || layout().showBack ? (
+          <HeaderLeading
+            leading={props.leading}
+            showBack={layout().showBack}
+            onBack={onBack}
+          />
+        ) : undefined
       }
       center={
         <Show when={hasTitle()}>

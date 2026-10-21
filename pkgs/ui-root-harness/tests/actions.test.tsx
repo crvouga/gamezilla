@@ -2,7 +2,7 @@
 
 import { describe, expect, mock, test } from 'bun:test';
 import { asLocalized } from '@pkgs/i18n-shared/localized-string';
-import { CHIP_HEIGHT, Chip } from '@pkgs/ui-root-client/chip';
+import { Chip } from '@pkgs/ui-root-client/chip';
 import { ChipGroup } from '@pkgs/ui-root-client/chip-group';
 import {
   CopyToClipboardField,
@@ -22,7 +22,7 @@ import { SocialSignInButton } from '@pkgs/ui-root-client/social-sign-in-button';
 import { arraysEqualAsSets } from '@pkgs/ui-root-shared/arrays-equal-as-sets';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
-import { cssOf, renderUi } from './render';
+import { renderUi } from './render';
 
 describe('Chip / ChipGroup', () => {
   test('Chip is a toggle button with aria-pressed and fixed height', () => {
@@ -30,7 +30,8 @@ describe('Chip / ChipGroup', () => {
     renderUi(() => <Chip label="All" selected onClick={onClick} />);
     const el = screen.getByRole('button', { name: 'All' });
     expect(el).toHaveAttribute('aria-pressed', 'true');
-    expect(cssOf(el)).toContain(`height:${CHIP_HEIGHT}px`);
+    // `skin.css` `.clickable.chip` fixes the 32px pill height.
+    expect(el.className).toMatch(/\bchip\b/);
     fireEvent.click(el);
     expect(onClick).toHaveBeenCalledTimes(1);
   });

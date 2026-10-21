@@ -2,9 +2,11 @@
 /**
  * `AvatarGroup` -- horizontally stacked avatars with overlap (e.g. presence strip).
  *
- * Children are resolved once and sliced by `maxVisible`; the remainder shows
- * as a `+N` pill (or `renderOverflow`). With `onClick` the whole strip is one
- * `Clickable`.
+ * Each face sits in a canvas-colored ring so overlapping circles read as
+ * cut-outs, the way the big social apps stack faces. Children are resolved
+ * once and sliced by `maxVisible`; the remainder shows as a `+N` disc on the
+ * muted plate (or `renderOverflow`). With `onClick` the whole strip is one
+ * button with the hover / press tint and the focus ring.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
@@ -29,7 +31,7 @@ export type AvatarGroupProps = {
   maxVisible?: number | undefined;
   /** Border between stacked faces. Defaults to `2`. */
   ringBorderWidth?: number | undefined;
-  /** Theme color token or raw color for the ring. Defaults to `'surface'`. */
+  /** Theme color token for the ring. Defaults to the canvas, `'background'`. */
   ringColor?: string | undefined;
   /** Custom overflow node; default is `+N` in a matching circle. */
   renderOverflow?: ((hiddenCount: number) => JSX.Element) | undefined;
@@ -43,7 +45,9 @@ export type AvatarGroupProps = {
 
 const DEFAULT_SIZE = 40;
 const DEFAULT_RING_WIDTH = 2;
-const DEFAULT_RING_COLOR = 'surface';
+const DEFAULT_RING_COLOR = 'background';
+const SLOT_CLASS =
+  'box shrink-0 rounded-full border-solid overflow-hidden items-center justify-center';
 
 type RingMetrics = {
   size: number;
@@ -58,13 +62,8 @@ function slotStyle(metrics: RingMetrics, index: number): JSX.CSSProperties {
     'z-index': index + 1,
     width: `${metrics.size}px`,
     height: `${metrics.size}px`,
-    'border-radius': '9999px',
     'border-width': `${metrics.ringBorderWidth}px`,
-    'border-style': 'solid',
     'border-color': metrics.ringColor,
-    overflow: 'hidden',
-    'align-items': 'center',
-    'justify-content': 'center',
   };
 }
 
@@ -74,16 +73,15 @@ function DefaultOverflowPill(props: {
 }): JSX.Element {
   return (
     <div
-      class="box rounded-full items-center justify-center overflow-hidden bg-outline"
+      class={`${SLOT_CLASS} bg-surface-muted`}
       style={{
         'border-color': props.metrics.ringColor,
         width: `${props.metrics.size}px`,
         height: `${props.metrics.size}px`,
         'border-width': `${props.metrics.ringBorderWidth}px`,
-        'border-style': 'solid',
       }}
     >
-      <p class="text textCaption text-text">{`+${String(props.count)}`}</p>
+      <p class="text textFootnote textNumeral text-text">{`+${String(props.count)}`}</p>
     </div>
   );
 }
@@ -103,7 +101,8 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
       size,
       overlap: props.overlap ?? Math.round(size * 0.4),
       ringBorderWidth: props.ringBorderWidth ?? DEFAULT_RING_WIDTH,
-      ringColor: resolveColor(ringToken, tokens.colors) ?? colorVar('surface'),
+      ringColor:
+        resolveColor(ringToken, tokens.colors) ?? colorVar('background'),
     };
   });
   const visible = createMemo(() =>
@@ -122,7 +121,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     >
       <For each={visible()}>
         {(child, index) => (
-          <div class="box" style={slotStyle(metrics(), index())}>
+          <div class={SLOT_CLASS} style={slotStyle(metrics(), index())}>
             {child}
           </div>
         )}

@@ -27,7 +27,7 @@ export default function SsoCallbackRoute(): JSX.Element {
 
   return (
     <div class="box items-center justify-center flex-1 bg-background">
-      <LoadingState size="large" caption={<Trans>Signing in…</Trans>} />
+      <LoadingState size="lg" caption={<Trans>Signing in…</Trans>} />
     </div>
   );
 }
