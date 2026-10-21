@@ -1313,6 +1313,7 @@
       "name": "@libs/friends-client",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/app-root-client": "workspace:*",
         "@libs/auth-client": "workspace:*",
         "@libs/auth-shared": "workspace:*",
         "@libs/friends-shared": "workspace:*",
@@ -1606,6 +1607,7 @@
       "name": "@libs/game-puzzle-client",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/app-root-client": "workspace:*",
         "@libs/auth-client": "workspace:*",
         "@libs/game-puzzle-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",

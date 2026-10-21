@@ -16,6 +16,7 @@ import type { JSX } from 'solid-js';
 import { Match, Switch } from 'solid-js';
 import { FriendUserRow } from './friend-user-row';
 import { FriendsPermissionGate } from './friends-permission-gate';
+import { FriendsRefusedChangeNotice } from './friends-refused-change-notice';
 import { useFriends } from './use-friends';
 
 function FriendsEmptyState(): JSX.Element {
@@ -78,6 +79,7 @@ function FriendsListBody(): JSX.Element {
         { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
         { name: <Trans>Friends</Trans> },
       ]}
+      controls={<FriendsRefusedChangeNotice />}
     >
       <ScreenBodyVirtualList
         items={friendsState.friends()}

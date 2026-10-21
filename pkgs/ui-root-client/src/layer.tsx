@@ -9,7 +9,7 @@
  * - `passThrough` lets presses on the empty area reach what is underneath;
  *   the layer's own children still take them.
  * - `z="raised"` lifts the layer above later siblings in the same stacking
- *   context. App-level overlays (menus, dialogs, toasts) are not layers:
+ *   context. App-level overlays (menus, dialogs) are not layers:
  *   they have their own hosts.
  *
  * Screens use it instead of writing `absolute inset-0` classes.

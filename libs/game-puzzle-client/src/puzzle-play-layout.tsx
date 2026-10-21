@@ -16,6 +16,7 @@ import { PuzzleActionBar } from './puzzle-action-bar';
 import { PuzzleAllowance } from './puzzle-allowance';
 import { PuzzleCelebrationOverlay } from './puzzle-celebration-overlay';
 import { PuzzleFeedBar } from './puzzle-feed-bar';
+import { PuzzleFeedRefusedChangeNotice } from './puzzle-feed-refused-change-notice';
 import { PuzzleFeedSettingsModal } from './puzzle-feed-settings-modal';
 import { PuzzleMoveHistoryBar } from './puzzle-move-history-bar';
 
@@ -81,13 +82,16 @@ function puzzleRatingOrUndef(rating: number | undefined): number | undefined {
 
 function PuzzlePlayFeed(props: PlayChromeProps): JSX.Element {
   return (
-    <PuzzleFeedBar
-      puzzleId={props.layout.puzzleId}
-      rating={puzzleRatingOrUndef(props.layout.puzzleRating)}
-      themes={props.layout.puzzleThemes}
-      over={isPuzzleOver(props.layout.status())}
-      onOpenFeedSettings={props.openFeedSettings}
-    />
+    <>
+      <PuzzleFeedBar
+        puzzleId={props.layout.puzzleId}
+        rating={puzzleRatingOrUndef(props.layout.puzzleRating)}
+        themes={props.layout.puzzleThemes}
+        over={isPuzzleOver(props.layout.status())}
+        onOpenFeedSettings={props.openFeedSettings}
+      />
+      <PuzzleFeedRefusedChangeNotice />
+    </>
   );
 }
 

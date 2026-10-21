@@ -15,6 +15,7 @@ import {
   SpaceChromeTrailingActionBar,
 } from './space-chrome-action-bar';
 import { SpaceHostConnectionStatus } from './space-host-connection-status';
+import { SpaceRefusedChangeNotice } from './space-refused-change-notice';
 import { useSpaceSessionUi } from './space-session-ui-context';
 import { SpaceTitleText } from './space-title-text';
 
@@ -72,6 +73,7 @@ function SpaceActiveLayoutWide(props: {
         }
         trailing={<SpaceTrailingWithGlobal hostOffline={props.hostOffline} />}
       />
+      <SpaceRefusedChangeNotice />
       <StackVertical grow overflow="hidden">
         {props.children}
       </StackVertical>
@@ -94,6 +96,7 @@ function SpaceActiveLayoutCompact(props: {
         trailing={<SpaceTrailingWithGlobal hostOffline={props.hostOffline} />}
         centerPosition="flex"
       />
+      <SpaceRefusedChangeNotice />
       <StackVertical grow overflow="hidden">
         {props.children}
       </StackVertical>

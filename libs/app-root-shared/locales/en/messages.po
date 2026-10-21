@@ -1484,6 +1484,7 @@ msgid "Disconnected"
 msgstr "Disconnected"
 
 #: pkgs/ui-root-client/src/dismissible-top-banner.tsx
+#: pkgs/ui-root-client/src/notice.tsx
 msgid "Dismiss"
 msgstr "Dismiss"
 
@@ -2795,7 +2796,6 @@ msgstr "Nothing synced near this rating yet. Change the target rating to keep pl
 
 #: libs/notifications-client/src/notifications-screen.tsx
 #: libs/notifications-client/src/sub-client.tsx
-#: pkgs/ui-root-client/src/toast-provider.tsx
 msgid "Notifications"
 msgstr "Notifications"
 

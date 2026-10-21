@@ -1,5 +1,8 @@
 import { afterEach, expect, mock, test } from 'bun:test';
-import { RefusedChangeNotice } from '@libs/app-root-client/refused-change-notice';
+import {
+  OtherRefusedChanges,
+  RefusedChangeNotice,
+} from '@libs/app-root-client/refused-change-notice';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client/render';
 import { ClockProvider } from '@pkgs/clock-client/solid';
@@ -10,13 +13,9 @@ import { SyncEngineProvider } from '@pkgs/sync-engine-client/sync-engine-context
 import type { SyncEngine } from '@pkgs/sync-engine-client/sync-engine-port';
 import type { WriteRefusal } from '@pkgs/sync-engine-client/write-outcome-reads';
 import { acknowledgeWriteRejectionMutation } from '@pkgs/sync-engine-shared/acknowledge-write-rejection';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
 import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
-import { ToastProvider } from '@pkgs/ui-root-client/toast-provider';
-import {
-  TOAST_DEFAULT_DURATION_MS,
-  TOAST_EXIT_MS,
-} from '@pkgs/ui-root-shared/toast-queue';
-import { cleanup } from '@solidjs/testing-library';
+import { cleanup, fireEvent } from '@solidjs/testing-library';
 
 afterEach(cleanup);
 
@@ -55,7 +54,22 @@ function refusalsEngine(initial: readonly WriteRefusal[]) {
   return { engine, set };
 }
 
-function renderNotice(engine: SyncEngine) {
+const RENAME_AGAIN_REFUSED: WriteRefusal = {
+  mutationId: 'rename-2',
+  mutationName: 'renameSpace',
+  code: 'FORBIDDEN',
+  message: 'policy denied',
+};
+
+const AVATAR_REFUSED: WriteRefusal = {
+  mutationId: 'avatar-1',
+  mutationName: 'patchAvatar',
+  code: 'FORBIDDEN',
+  message: 'policy denied',
+};
+
+/** The space's notice and the Sync screen's list, side by side. */
+function renderNotices(engine: SyncEngine) {
   const mutate = mock(async () => ({ ok: true as const, mutationId: 'ack' }));
   const client = { mutate } as unknown as MutationClient;
   const time = createHarnessClock();
@@ -65,58 +79,82 @@ function renderNotice(engine: SyncEngine) {
         colorScheme="light"
         fixedLayout={{ width: 390, height: 844 }}
       >
-        <ToastProvider>
-          <SyncEngineProvider value={engine}>
-            <MutationClientContext.Provider value={client}>
-              <RefusedChangeNotice />
-            </MutationClientContext.Provider>
-          </SyncEngineProvider>
-        </ToastProvider>
+        <SyncEngineProvider value={engine}>
+          <MutationClientContext.Provider value={client}>
+            <StackVertical testId="place-space">
+              <RefusedChangeNotice mutations={['renameSpace']} />
+            </StackVertical>
+            <StackVertical testId="place-sync">
+              <OtherRefusedChanges />
+            </StackVertical>
+          </MutationClientContext.Provider>
+        </SyncEngineProvider>
       </ThemeProvider>
     </ClockProvider>
   ));
-  return { mutate, time };
+  return { mutate };
 }
 
-function notices(): readonly HTMLElement[] {
+function noticesIn(place: string): readonly HTMLElement[] {
   return [
     ...document.querySelectorAll<HTMLElement>(
-      `[data-testid="${Handles.refusedChange}"]`
+      `[data-testid="place-${place}"] [data-testid="${Handles.refusedChange}"]`
     ),
   ];
 }
 
-test('a refused change is told once in a toast that says what and why, and leaving acknowledges it', () => {
+function dismiss(notice: HTMLElement | undefined): void {
+  const control = notice?.querySelector<HTMLElement>(
+    '[data-component="NoticeDismiss"]'
+  );
+  if (control === null || control === undefined) throw new Error('no dismiss');
+  fireEvent.click(control);
+}
+
+test('a refused change is told inline where it lives, says what and why, and stays until dismissed', () => {
   // regression: refused-instant-write-silently-undone
-  const { engine, set } = refusalsEngine([RENAME_REFUSED]);
-  const { mutate, time } = renderNotice(engine);
-  const [rename] = notices();
+  const { engine, set } = refusalsEngine([
+    RENAME_REFUSED,
+    RENAME_AGAIN_REFUSED,
+  ]);
+  const { mutate } = renderNotices(engine);
+  const [rename, ...rest] = noticesIn('space');
+  expect(rest).toHaveLength(0);
+  expect(rename?.getAttribute('data-component')).toBe('Notice');
+  expect(rename?.getAttribute('data-tone')).toBe('warning');
   expect(rename?.textContent).toContain("Your space wasn't renamed");
   expect(rename?.textContent).toContain('That space name is not allowed.');
   expect(rename?.textContent).toContain('The change was undone.');
   expect(rename?.getAttribute('data-mutation')).toBe('renameSpace');
   expect(rename?.getAttribute('data-code')).toBe('SPACE_TITLE_NOT_ALLOWED');
+  // Told in the space, so not again on Sync; nothing floats over the screen.
+  expect(noticesIn('sync')).toHaveLength(0);
   expect(
     document.querySelector('[data-component="DismissibleBanner"]')
   ).toBeNull();
-  time.clock.advance(TOAST_DEFAULT_DURATION_MS);
-  time.clock.advance(TOAST_EXIT_MS);
+  expect(mutate).not.toHaveBeenCalled();
+
+  dismiss(rename);
   expect(mutate).toHaveBeenCalledWith(acknowledgeWriteRejectionMutation, {
     mutationId: RENAME_REFUSED.mutationId,
   });
-  set([RENAME_REFUSED, UNKNOWN_REFUSED]);
-  const texts = notices().map((node) => node.textContent ?? '');
-  expect(texts.filter((text) => text.includes("wasn't renamed"))).toHaveLength(
-    0
+  // The next one takes its place at once, before the acknowledgement lands.
+  expect(noticesIn('space').map((n) => n.textContent ?? '')).toEqual([
+    expect.stringContaining('It could not be saved, so it was undone'),
+  ]);
+
+  set([RENAME_AGAIN_REFUSED, AVATAR_REFUSED, UNKNOWN_REFUSED]);
+  const sync = noticesIn('sync').map((node) => node.textContent ?? '');
+  // An avatar change is told on the profile; only the unknown one is on Sync.
+  expect(sync).toEqual([expect.stringContaining("A change wasn't saved")]);
+  expect(sync.join(' ')).toContain(
+    'It could not be saved, so it was undone on this device.'
   );
-  expect(texts.some((text) => text.includes("A change wasn't saved"))).toBe(
-    true
-  );
-  expect(
-    texts.some((text) =>
-      text.includes('It could not be saved, so it was undone on this device.')
-    )
-  ).toBe(true);
   // The server's own words are never shown.
-  expect(texts.join(' ')).not.toContain('policy denied');
+  expect(sync.join(' ')).not.toContain('policy denied');
+  dismiss(noticesIn('sync')[0]);
+  expect(mutate).toHaveBeenLastCalledWith(acknowledgeWriteRejectionMutation, {
+    mutationId: UNKNOWN_REFUSED.mutationId,
+  });
+  expect(noticesIn('sync')).toHaveLength(0);
 });

@@ -328,7 +328,7 @@ export const CURATED_SOUNDS: readonly CuratedSound[] = [
     sourceUrl: `${KENNEY}/assets/interface-sounds`,
     volume: 0.8,
     tags: ['info'],
-    intendedUsage: 'Informational toast',
+    intendedUsage: 'Informational notice',
   },
   {
     id: 'feedback.confirmation',

@@ -37,7 +37,7 @@
         }
       },
       "surfaceOverlay": {
-        "$description": "Floating above content: popovers, menus, toasts, tooltips.",
+        "$description": "Floating above content: popovers, menus, tooltips.",
         "$value": {
           "colorSpace": "hsl",
           "components": [0, 0, 100],
@@ -293,7 +293,7 @@
         }
       },
       "surfaceOverlay": {
-        "$description": "Floating above content: popovers, menus, toasts, tooltips.",
+        "$description": "Floating above content: popovers, menus, tooltips.",
         "$value": {
           "colorSpace": "hsl",
           "components": [0, 0, 15],
@@ -1072,7 +1072,7 @@
   },
   "shadow": {
     "$type": "shadow",
-    "$description": "The one soft shadow, for surfaces that float above content (menus, popovers, toasts, tooltips). Everything else is flat with hairline borders.",
+    "$description": "The one soft shadow, for surfaces that float above content (menus, popovers, tooltips). Everything else is flat with hairline borders.",
     "float": {
       "$value": {
         "color": "{color.light.shadowColor}",

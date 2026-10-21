@@ -15,6 +15,7 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests"
   },
   "dependencies": {
+    "@libs/app-root-client": "workspace:*",
     "@libs/auth-client": "workspace:*",
     "@libs/game-puzzle-shared": "workspace:*",
     "@libs/permissions-client": "workspace:*",

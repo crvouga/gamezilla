@@ -14,6 +14,7 @@ import {
   TraitCombobox,
 } from './avatar-editor-pickers';
 import { AvatarEditorSeedField } from './avatar-editor-seed-field';
+import { AvatarRefusedChangeNotice } from './avatar-refused-change-notice';
 import { selectedVariantForField } from './option-helpers';
 import { ProfileDiceBearAvatar } from './patch-avatar-profile-dicebear-avatar';
 import type { UseAvatarEditor } from './use-avatar-editor';
@@ -107,6 +108,7 @@ function EditorContent(props: { editor: UseAvatarEditor }): JSX.Element {
           seedFallback={props.editor.seedFallback}
         />
       </AvatarHero>
+      <AvatarRefusedChangeNotice />
       <Show when={props.editor.ready}>
         <StackVertical gap="sm">
           <AvatarEditorSeedField

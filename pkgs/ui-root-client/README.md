@@ -16,7 +16,7 @@ a person asked.
 | `background` | the canvas: white / true black |
 | `surface` | paper, one step off the canvas (#F7F7F7 / #121212): cards and list panels, never a page tone |
 | `surface-muted` | tags, segmented tracks, secondary buttons (#EFEFEF / #262626) |
-| `surface-elevated` / `surface-overlay` | dialogs and sheets / menus, popovers, toasts |
+| `surface-elevated` / `surface-overlay` | dialogs and sheets / menus, popovers |
 | `text` / `text-secondary` | near-black or near-white, and its gray partner |
 | `border` | the hairline (#DBDBDB / #333) on panels, cards, rows and bars |
 | `outline` | control boundaries that must read at 3:1 |
@@ -66,7 +66,7 @@ why the blue sits at the lightness where a white label still passes.
    panels, `rounded-sheet` dialogs and sheets. `rounded-full` only for round
    things: avatars, pills, the FAB, dots.
 6. **Flat.** Hairlines separate, tone steps raise. The one shadow,
-   `shadow-float`, is for menus, popovers, tooltips, toasts and the FAB.
+   `shadow-float`, is for menus, popovers, tooltips and the FAB.
    No gradients.
 7. **Left-aligned.** Header titles sit after the back control and line up
    with the body. Only identity heroes and full-screen empty states center.
@@ -79,6 +79,13 @@ why the blue sits at the lightness where a white label still passes.
 10. **One activity indicator.** Every wait shows `Spinner` (twelve petals,
     stepping once a second): alone, in `LoadingState`, inside a loading
     `Button`, and on the boot screen in `index.html`.
+11. **Outcomes are told in context, never in a toast or a top banner.** What
+    became of an action shows where the action lives: the control's own
+    feedback face (`useMutationButton`, `MutationModal`, `FormActionsFooter`)
+    or an inline `Notice` beside the thing it is about (`onDismiss` makes it
+    dismissible). There is no toast, snackbar or top banner for the outcome
+    of an action, and none comes back: `tests/no-toast.test.ts` fails when a
+    toast or snackbar module, export or import appears in this package.
 
 ## Composition
 

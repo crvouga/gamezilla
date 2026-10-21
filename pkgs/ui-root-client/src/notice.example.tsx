@@ -15,6 +15,9 @@ export default function NoticeExample(): JSX.Element {
         <Notice tone="warning">
           {'You are offline. Moves sync when you reconnect.'}
         </Notice>
+        <Notice tone="warning" onDismiss={() => undefined}>
+          {"Your space wasn't renamed. That space name is not allowed."}
+        </Notice>
         <Notice tone="error">
           {"Couldn't find an account with that email."}
         </Notice>

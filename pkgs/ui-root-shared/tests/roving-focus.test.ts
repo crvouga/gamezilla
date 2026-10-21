@@ -5,11 +5,6 @@ import {
   nextRovingIndex,
   rovingTabStop,
 } from '@pkgs/ui-root-shared/roving-focus';
-import {
-  enqueueToast,
-  removeToast,
-  TOAST_MAX_VISIBLE,
-} from '@pkgs/ui-root-shared/toast-queue';
 
 const NONE = [false, false, false, false];
 
@@ -119,34 +114,5 @@ describe('rovingTabStop', () => {
     expect(rovingTabStop(-1, [true, false, false])).toBe(1);
     expect(rovingTabStop(0, [true, false, false])).toBe(1);
     expect(rovingTabStop(-1, [true])).toBeNull();
-  });
-});
-
-describe('toast queue', () => {
-  test('keeps the newest toasts, oldest pushed out first', () => {
-    let entries: readonly { id: string }[] = [];
-    for (const id of ['a', 'b', 'c', 'd']) {
-      entries = enqueueToast(entries, { id });
-    }
-    expect(entries.map((e) => e.id)).toEqual(['b', 'c', 'd']);
-    expect(entries).toHaveLength(TOAST_MAX_VISIBLE);
-  });
-
-  test('a repeated id replaces its toast in place', () => {
-    const entries = enqueueToast(
-      [
-        { id: 'a', n: 1 },
-        { id: 'b', n: 1 },
-      ],
-      { id: 'a', n: 2 }
-    );
-    expect(entries).toEqual([
-      { id: 'a', n: 2 },
-      { id: 'b', n: 1 },
-    ]);
-  });
-
-  test('removeToast drops one id', () => {
-    expect(removeToast([{ id: 'a' }, { id: 'b' }], 'a')).toEqual([{ id: 'b' }]);
   });
 });

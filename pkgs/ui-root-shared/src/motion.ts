@@ -5,7 +5,7 @@
  *
  * - `instant` is no motion; `fast` (150ms) hover, press and focus feedback;
  *   `normal` (200ms) a control changing state (switch, tab, segment);
- *   `slow` (250ms) a surface entering or leaving (dialog, sheet, toast).
+ *   `slow` (250ms) a surface entering or leaving (dialog, sheet).
  * - `standard` is the one curve: ease-out into rest.
  * - `prefers-reduced-motion` turns every transition off (`skin.css`).
  */

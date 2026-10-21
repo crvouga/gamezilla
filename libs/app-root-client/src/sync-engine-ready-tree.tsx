@@ -28,7 +28,6 @@ import { AppUiProvider } from './app-ui-provider';
 import type { ReadySyncEngine } from './create-sync-engine-boot-state';
 import { DeviceEntityBootstrap } from './device-bootstrap';
 import { SyncLocalDataActions } from './local-data-actions';
-import { RefusedChangeNotice } from './refused-change-notice';
 import { SyncStatusLiveBridge } from './sync-status-context';
 
 function SyncStatusBridge(props: {
@@ -89,7 +88,6 @@ export default function ReadyEngineTree(
                   <AppUiProvider>
                     <AuthModalsProvider>
                       <SignedOutNoticeBanner />
-                      <RefusedChangeNotice />
                       <AppClientConfig>
                         <SessionSubProviders>
                           {props.children}

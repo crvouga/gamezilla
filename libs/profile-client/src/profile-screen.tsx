@@ -10,6 +10,7 @@ import { Skeleton } from '@pkgs/ui-root-client/skeleton';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import type { JSX } from 'solid-js';
 import { Match, Switch } from 'solid-js';
+import { AvatarRefusedChangeNotice } from './avatar-refused-change-notice';
 import { useProfileRow } from './claim-username-use-profile-row';
 import { MyProfileAvatar } from './my-profile-avatar';
 import { MyUsername } from './my-username';
@@ -67,6 +68,7 @@ export function ProfileScreen(props: ProfileScreenProps): JSX.Element {
           </ProfileAvatarFigure>
           <ProfileName />
           <StandInNotice />
+          <AvatarRefusedChangeNotice />
           <UsernameChangeFeedback
             onChoose={() => router.push('/profile/handle')}
           />

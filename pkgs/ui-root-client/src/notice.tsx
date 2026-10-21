@@ -8,26 +8,31 @@
  * secondary glyph; every other tone is that status's `*-surface` wash with
  * the glyph and copy in its hue. `tone="error"` is announced
  * (`role="alert"`). Give it an `id` so a field can point at it through
- * `aria-describedby`.
+ * `aria-describedby`. `onDismiss` adds a close control at the end of the
+ * first line, for a notice the person may put away once they have read it.
  *
  * @example
  * ```tsx
  * <Notice tone="error" id="email-error">{t`Couldn't find your account`}</Notice>
  * <Notice>{t`Changes apply on the next sign-in.`}</Notice>
+ * <Notice tone="warning" onDismiss={acknowledge}>{t`Your space wasn't renamed`}</Notice>
  * ```
  */
 
+import { useLingui } from '@lingui/solid/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { iconSize } from '@pkgs/ui-root-shared/sizes';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { IconComponent } from './create-icon';
+import { IconButton } from './icon-button';
 import {
   CircleAlertIcon,
   CircleCheckIcon,
   InfoIcon,
   TriangleAlertIcon,
+  XIcon,
 } from './icons';
 
 export type NoticeTone = 'neutral' | 'info' | 'success' | 'warning' | 'error';
@@ -39,8 +44,30 @@ export type NoticeProps = {
   /** Overrides the tone's glyph. */
   icon?: IconComponent | undefined;
   id?: string | undefined;
+  /** Shows a dismiss control; called when it is pressed. */
+  onDismiss?: (() => void) | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
+
+const DISMISS_SIZE = 32;
+
+function NoticeDismiss(props: { readonly onDismiss: () => void }): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <div class="box shrink-0">
+      <IconButton
+        onClick={() => props.onDismiss()}
+        label={t`Dismiss`}
+        aria-label={t`Dismiss`}
+        tooltip="none"
+        size={DISMISS_SIZE}
+        dataSet={{ component: 'NoticeDismiss' }}
+      >
+        <XIcon size={iconSize.sm} color="icon" />
+      </IconButton>
+    </div>
+  );
+}
 
 type NoticeToneSpec = {
   readonly surface: string;
@@ -108,6 +135,9 @@ export function Notice(props: NoticeProps): JSX.Element {
       >
         {props.children}
       </div>
+      <Show when={props.onDismiss}>
+        {(onDismiss) => <NoticeDismiss onDismiss={onDismiss()} />}
+      </Show>
     </div>
   );
 }

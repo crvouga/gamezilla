@@ -1,6 +1,7 @@
 /**
- * Notices the app shell shows over every screen: a change that was refused
- * and undone (a toast), and a device signed out from elsewhere.
+ * Notices the app tells the person: a change that was refused and undone
+ * (an inline notice on the screen where that change lives), and a device
+ * signed out from elsewhere.
  */
 
 import { Handles } from '@libs/test-ids-shared/handles';
@@ -25,7 +26,10 @@ async function attributeOf(
   }
 }
 
-/** The refused change the app is telling the person about, if any. */
+/**
+ * The refused change the screen the person is on is telling them about, if
+ * any.
+ */
 export async function refusedChangeShown(
   s: ProductHarness,
   actorId: string

@@ -7,6 +7,41 @@
 
 import { useLingui } from '@lingui/solid/macro';
 
+/**
+ * The changes told where they live (the space, the lobby, friends, the
+ * profile, puzzle settings). Every other refused change is told on
+ * Settings › Sync.
+ */
+export const REFUSED_CHANGES_TOLD_IN_CONTEXT = [
+  'renameSpace',
+  'endSpace',
+  'leaveSpace',
+  'createSpace',
+  'addSpaceUser',
+  'removeSpaceUser',
+  'blockUser',
+  'unblockUser',
+  'removeFriend',
+  'cancelFriendRequest',
+  'declineFriendRequest',
+  'patchAvatar',
+  'savePuzzleFeedSettings',
+] as const;
+
+export type RefusedChangeToldInContext =
+  (typeof REFUSED_CHANGES_TOLD_IN_CONTEXT)[number];
+
+const TOLD_IN_CONTEXT: ReadonlySet<string> = new Set(
+  REFUSED_CHANGES_TOLD_IN_CONTEXT
+);
+
+/** Whether a refused change is told where it lives rather than on Sync. */
+export function isRefusedChangeToldInContext(
+  name: string | null
+): name is RefusedChangeToldInContext {
+  return name !== null && TOLD_IN_CONTEXT.has(name);
+}
+
 export type RefusedChangeCopy = {
   /** The headline: which change did not go through. */
   readonly title: (mutationName: string | null) => string;
@@ -17,7 +52,7 @@ export type RefusedChangeCopy = {
 export function useRefusedChangeCopy(): RefusedChangeCopy {
   const { t } = useLingui();
   const whatWasNotSaved = (name: string): string | undefined => {
-    const copy: Readonly<Record<string, () => string>> = {
+    const copy: Readonly<Record<RefusedChangeToldInContext, () => string>> = {
       renameSpace: () => t`Your space wasn't renamed`,
       endSpace: () => t`Your space wasn't ended`,
       leaveSpace: () => t`You didn't leave the space`,
@@ -32,7 +67,7 @@ export function useRefusedChangeCopy(): RefusedChangeCopy {
       patchAvatar: () => t`Your avatar change wasn't saved`,
       savePuzzleFeedSettings: () => t`Your puzzle settings weren't saved`,
     };
-    return copy[name]?.();
+    return isRefusedChangeToldInContext(name) ? copy[name]() : undefined;
   };
   return {
     title: (mutationName) =>

@@ -13,6 +13,7 @@ import { Match, Switch } from 'solid-js';
 import { FriendActionPills } from './friend-action-pills';
 import { FriendProfileHeader } from './friend-profile-header';
 import { FriendRequestFeedback } from './friend-request-feedback';
+import { FriendsRefusedChangeNotice } from './friends-refused-change-notice';
 
 /** Where the requested profile stands on this device. */
 export type FriendUserPresence =
@@ -37,6 +38,7 @@ export function FriendUserIdentity(props: {
             userId={props.profile.userId}
             outgoingRequestId={props.outgoingRequestId}
           />
+          <FriendsRefusedChangeNotice />
         </>
       }
     >

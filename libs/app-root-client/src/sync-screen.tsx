@@ -2,6 +2,8 @@
 /**
  * `/more/sync` — local database + sync engine state from the shell's
  * `SyncStatusContext`; "Retry sync" re-runs the engine's query refresh.
+ * Refused changes no screen tells where they live are listed here, each
+ * dismissible.
  */
 
 import { Trans, useLingui } from '@lingui/solid/macro';
@@ -19,6 +21,7 @@ import { StatusDot } from '@pkgs/ui-root-client/status-dot';
 import { P } from '@pkgs/ui-root-client/text';
 import { type Accessor, type JSX, Show } from 'solid-js';
 
+import { OtherRefusedChanges } from './refused-change-notice';
 import { useSyncStatus } from './sync-status-context';
 
 const STATUS_DOT_SIZE = 12;
@@ -131,6 +134,7 @@ export function SyncScreen(): JSX.Element {
         />
       </MenuSection>
       <StateSection status={status()} />
+      <OtherRefusedChanges />
       <StackVertical>
         <Button
           title={t`Retry sync`}

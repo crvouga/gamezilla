@@ -1,6 +1,6 @@
 /**
  * A rename the host's device accepted offline, refused once the connection
- * comes back: the app says so in a toast.
+ * comes back: the space screen says so in an inline notice.
  */
 
 import { expect } from 'bun:test';

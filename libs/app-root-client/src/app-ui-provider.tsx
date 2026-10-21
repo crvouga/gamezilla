@@ -11,8 +11,6 @@
  * the sign-in modal (`AppSignInCapabilities` + `AuthModalsProvider`).
  *
  * The bottom sheet host is the `@pkgs/ui` web default (no provider needed).
- * `ToastProvider` wraps it all so any screen can `useToast()`; its viewport
- * renders into the overlay portal from `AppUiPortals`.
  *
  * Deferred lib providers (each with its screen port): `EndSpaceModalProvider`
  * / `LeaveSpaceModalProvider` / space rooms / notifications — mounted from
@@ -27,7 +25,6 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import { CommandPalette } from '@pkgs/ui-root-client/command-palette';
 import { CommandRegistryProvider } from '@pkgs/ui-root-client/command-registry-context';
 import { KeyboardShortcutScope } from '@pkgs/ui-root-client/keyboard-shortcut-scope';
-import { ToastProvider } from '@pkgs/ui-root-client/toast-provider';
 import { type JSX, Show } from 'solid-js';
 import { AppCommands } from './app-commands';
 import { AppUpdateRequiredBanner } from './app-update-required';
@@ -75,10 +72,10 @@ export function AppUiProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <ToastProvider>
+    <>
       <AppUpdateRequiredBanner />
       <PerfHudOverlay />
       <AppCommandRegistry>{props.children}</AppCommandRegistry>
-    </ToastProvider>
+    </>
   );
 }

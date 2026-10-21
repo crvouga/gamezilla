@@ -1,6 +1,6 @@
 /**
  * Explorer entries: the components that close the gaps product screens used
- * to fill with raw elements and classes (tabs, popover, toast, radio group,
+ * to fill with raw elements and classes (tabs, popover, radio group,
  * table, spacer, layer, image, form, form field, textarea).
  * Split from the other `registry-entries-*.ts` to keep each file under the
  * size cap.
@@ -33,7 +33,6 @@ import TableExample from './table.example';
 import TabsExample from './tabs.example';
 import TestCommandProbeExample from './test-command-probe.example';
 import TextareaExample from './textarea.example';
-import ToastExample from './toast.example';
 import ToolbarExample from './toolbar.example';
 
 const LAYOUT = 'Layout';
@@ -54,7 +53,6 @@ export const ADDITION_ENTRIES: readonly ComponentEntry[] = [
   entry('radio-group', 'RadioGroup', INPUTS, RadioGroupExample),
   entry('tabs', 'Tabs', DISCLOSURE, TabsExample),
   entry('popover', 'Popover', OVERLAY, PopoverExample),
-  entry('toast', 'Toast', FEEDBACK, ToastExample),
   entry('badged-icon', 'BadgedIcon', PRIMITIVES, BadgedIconExample),
   entry('arrow-key-group', 'ArrowKeyGroup', PRIMITIVES, ArrowKeyGroupExample),
   entry('activity-region', 'ActivityRegion', LAYOUT, ActivityRegionExample),
